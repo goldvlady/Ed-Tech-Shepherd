@@ -121,6 +121,10 @@ const BookSession = () => {
         getData();
     }, []);
 
+    useEffect(() => {
+        confirmBookingStore.set.slots([]);
+    }, [tutor]);
+
     const tutorSchedule: Schedule[] = selectedTutor?.schedule || [];
 
     const schedule = fourteenDayRange.map(d => {
