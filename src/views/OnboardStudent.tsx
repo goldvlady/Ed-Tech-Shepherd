@@ -152,27 +152,6 @@ const OnboardStudent = () => {
 
     const steps = [
         {
-            id: 'name',
-            stepIndicatorId: 'about-you',
-            template: <Box>
-                <Heading as='h2' size='lg' textAlign={"center"}>
-                    First we need some information about you.<br />
-                    What's your name?
-                </Heading>
-                <Box marginTop={30}>
-                    <FormLabel>
-                        First name
-                        <Input value={name.first} onChange={(e) => onboardStudentStore.set.name({ ...name, first: e.target.value })} />
-                    </FormLabel>
-                    <FormLabel>
-                        Last name
-                        <Input value={name.last} onChange={(e) => onboardStudentStore.set.name({ ...name, last: e.target.value })} />
-                    </FormLabel>
-                </Box>
-            </Box>,
-            canSave: validateNameStep
-        },
-        {
             id: 'parent-or-student',
             stepIndicatorId: 'about-you',
             template: <Box>
@@ -195,6 +174,27 @@ const OnboardStudent = () => {
                 </Box>
             </Box>,
             canSave: validateParentStudentStep
+        },
+        {
+            id: 'name',
+            stepIndicatorId: 'about-you',
+            template: <Box>
+                <Heading as='h2' size='lg' textAlign={"center"}>
+                    First we need some information about you.<br />
+                    What's your name?
+                </Heading>
+                <Box marginTop={30}>
+                    <FormLabel>
+                        First name
+                        <Input value={name.first} onChange={(e) => onboardStudentStore.set.name({ ...name, first: e.target.value })} />
+                    </FormLabel>
+                    <FormLabel>
+                        Last name
+                        <Input value={name.last} onChange={(e) => onboardStudentStore.set.name({ ...name, last: e.target.value })} />
+                    </FormLabel>
+                </Box>
+            </Box>,
+            canSave: validateNameStep
         },
         {
             id: 'dob',
