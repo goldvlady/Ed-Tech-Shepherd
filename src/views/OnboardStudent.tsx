@@ -156,7 +156,7 @@ const OnboardStudent = () => {
             stepIndicatorId: 'about-you',
             template: <Box>
                 <Heading as='h2' size='lg' textAlign={"center"}>
-                    Are you a parent or student?
+                    Who is signing up?
                 </Heading>
                 <Box marginTop={30}>
                     <LargeSelect value={parentOrStudent} onChange={(v) => onboardStudentStore.set.parentOrStudent(v)} options={[
