@@ -1,4 +1,4 @@
-import { Box, Button, Container, Divider, Heading, HStack, Spinner, Text, Wrap, WrapItem } from '@chakra-ui/react';
+import { Box, Button, Container, Divider, Heading, HStack, Spinner, Text, useToast, Wrap, WrapItem } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 import styled from 'styled-components';
@@ -13,9 +13,10 @@ import TutorSelect from '../components/TutorSelect';
 import ApiService from '../services.ts/ApiService';
 import { Course, Schedule, Slot, Student, Tutor } from '../types';
 import { capitalize, isEmpty } from 'lodash';
-import PaymentDialog, { PaymentDialogRef } from '../components/PaymentDialog';
+import { usePaystackPayment } from 'react-paystack';
 import { useTitle } from '../hooks';
 import { formatContentFulCourse, getContentfulClient } from '../contentful';
+import { REACT_APP_PAYSTACK_PUBLIC_KEY } from '../config';
 
 const TutorSide = styled('aside')`
 height: 100%;
@@ -56,16 +57,15 @@ display: flex;
 const client = getContentfulClient();
 
 const BookSession = () => {
-    useTitle("Book a session")
+    const toast = useToast();
     const { studentLeadId, course } = useParams();
 
-    const paymentDialogRef = useRef<PaymentDialogRef>(null);
-
+    const [paymentAttempts, setPaymentAttempts] = useState(0);
     const [loadingData, setLoadingData] = useState(true);
 
     const [studentLead, setStudentLead] = useState<Student | null>(null);
     const [matchedTutors, setMatchedTutors] = useState<Tutor[]>([]);
-    const [creatingPaymentIntent, setCreatingPaymentIntent] = useState(false);
+    const [paymentInProgress, setPaymentInProgress] = useState(false);
 
     const data = confirmBookingStore.useStore();
     const { slots, tutor } = data;
@@ -103,6 +103,8 @@ const BookSession = () => {
     }), []);
 
     const selectedTutor = useMemo(() => matchedTutors.find(mt => mt._id === tutor), [tutor, matchedTutors]);
+
+    useTitle(`Book a session${!!selectedTutor ? ` with ${capitalize(selectedTutor.name.first)}` : ''}`);
 
     const getData = async () => {
         const resp = await ApiService.getBookSessionData({
@@ -158,28 +160,67 @@ const BookSession = () => {
 
     const total = slots.length * (selectedTutor?.rate || 0);
 
-    const startPayment = async () => {
-        setCreatingPaymentIntent(true);
-        try {
-            const paymentIntent = await ApiService.createBookingPaymentIntent({
-                tutor,
-                student: studentLeadId,
-                course,
-                slots
-            });
+    const config = {
+        reference: `${(new Date()).getTime()}${paymentAttempts}`,
+        email: studentLead?.email as string,
+        amount: total * 100,
+        //currency: "usd", TODO: Change currency to usd
+        publicKey: REACT_APP_PAYSTACK_PUBLIC_KEY
+    };
 
-            const data = await paymentIntent.json();
+    const initializePayment = usePaystackPayment(config);
 
-            paymentDialogRef.current?.startPayment(data.clientSecret, `${window.location.origin}/booking/${data.bookingId}/student`)
-        } catch (e) {
+    const onPaystackSuccess = function() {
+        const {reference: paystackReference, status} = arguments[0] as unknown as {reference: string, status: string};
+
+        if (status !== 'success') {
+            toast({
+                title: 'An error occurred, please retry',
+                status: 'error',
+                position: 'top',
+                isClosable: true
+            })
+
+            setPaymentInProgress(false);
+
+            return
         }
 
-        setCreatingPaymentIntent(false)
+        toast({
+            title: 'Payment successful',
+            status: 'success',
+            position: 'top',
+            isClosable: true
+        })
+        
+        ApiService.createBooking({
+            tutor,
+            student: studentLeadId,
+            course,
+            slots,
+            paystackReference
+        }).then(resp => {
+            resp.json().then(r => {
+                setPaymentInProgress(false);
+                window.location.href = `/booking/${r.bookingId}`
+            })
+        }).catch(e => {
+            setPaymentInProgress(false);
+        })
+    };
+
+    const onPaystackClose = () => {
+        setPaymentInProgress(false);
+    }
+
+    const startPayment = async () => {
+        setPaymentAttempts(p => p+1);
+        setPaymentInProgress(true);
+        initializePayment(onPaystackSuccess, onPaystackClose);
     }
 
     return <>
         <Header />
-        <PaymentDialog ref={paymentDialogRef} />
         {(loadingData || loadingCourses) && <Container variant={""} textAlign={"center"} my={20} maxW='container.xl'><Spinner thickness='4px' speed='0.65s' color='primary.500' size='xl' /></Container>}
         {!!studentLead && !!currentCourse && <Root>
             <Container my={20} maxW='container.xl'>
@@ -244,11 +285,8 @@ const BookSession = () => {
                                     </WrapItem>
                                 </Wrap>
                                 <Box mt={3}>
-                                    <Button isLoading={creatingPaymentIntent} onClick={startPayment} size={"lg"} variant={"looney"} width="100%">Continue to payment</Button>
+                                    <Button isLoading={paymentInProgress} onClick={startPayment} size={"lg"} variant={"looney"} width="100%">Continue to payment</Button>
                                 </Box>
-                                {/* <Box>
-                                    <img alt='Powered by stripe' src='/images/powered-stripe.svg' />
-                                </Box> */}
                             </Box> : <Box paddingBlock={4} textAlign={"center"}>
                                 <Text as="small" variant={"muted"}>Choose a tutor &amp; select time slots to view your summary</Text>
                             </Box>}

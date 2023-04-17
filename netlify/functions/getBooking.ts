@@ -27,7 +27,6 @@ export const handler = async (event: HandlerEvent) => {
             booking = confirmedBooking;
         } catch (e) {
             console.log(e);
-            
         }
     }
 

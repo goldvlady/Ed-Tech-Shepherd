@@ -28,6 +28,7 @@ function App() {
           </Route>
           <Route path="book-session/:studentLeadId/:course" element={<BookSession />} />
           <Route path="booking/:bookingId/:studentOrTutor" element={<Booking />} />
+          <Route path="booking/:bookingId" element={<Booking />} />
 
           <Route path="*" element={<RedirectToLanding />} />
           <Route path="" element={<RedirectToLanding />} />

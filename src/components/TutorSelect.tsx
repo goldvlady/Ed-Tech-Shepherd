@@ -45,7 +45,6 @@ align-self: stretch;
 const StyledTutorCard = styled(TutorCard)`
 cursor: pointer;
 box-shadow: ${props => props.$active ? `${theme.colors.primary[500]} 0px 0px 0px 2px` : "none"};
-transition: all .2s ease-out;
 ${props => props.$active ? `
 &:before {
     content: "";

@@ -25,8 +25,8 @@ class ApiService {
 
     // Payments
 
-    static createBookingPaymentIntent = async (data: any) => {
-        return doFetch('/.netlify/functions/createBookingPaymentIntent', {
+    static createBooking = async (data: any) => {
+        return doFetch('/.netlify/functions/createBooking', {
             method: "POST",
             body: JSON.stringify(data)
         })

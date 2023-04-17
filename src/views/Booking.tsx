@@ -9,9 +9,6 @@ import { Booking as BookingType, Course, Slot } from '../types';
 import { useTitle } from '../hooks';
 import TutorCard from '../components/TutorCard';
 import Session from '../components/Session';
-import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
-import StripeCheckoutForm from '../components/StripeCheckoutForm';
 import { formatContentFulCourse, getContentfulClient } from '../contentful';
 
 const TutorSide = styled('aside')`
@@ -38,8 +35,6 @@ display: flex;
 `
 
 const client = getContentfulClient();
-
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY as string);
 
 const Booking = () => {
     useTitle("Booking");
@@ -98,14 +93,8 @@ const Booking = () => {
         getData();
     }, []);
 
-
     return <>
         <Header />
-        <Box display={"none"}>
-        {!!clientSecret && <Elements options={{ clientSecret: clientSecret, appearance: { theme: 'stripe' } }} stripe={stripePromise}>
-            <StripeCheckoutForm checkPaymentIntentStatus={true} clientSecret={clientSecret} returnUrl={window.location.href} />
-        </Elements>}
-        </Box>
         {(loadingData || loadingCourses) && <Container variant={""} textAlign={"center"} my={20} maxW='container.xl'><Spinner thickness='4px' speed='0.65s' color='primary.500' size='xl' /></Container>}
         {!!booking && !!currentCourse && <Root>
             <Container my={20} maxW='container.xl'>

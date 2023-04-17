@@ -13,8 +13,7 @@ export interface Booking extends TimestampedEntity {
     _id: string;
     tutorLead: TutorLeadInterface;
     studentLead: StudentLeadInterface;
-    stripePaymentIntentClientSecret: string;
-    stripePaymentIntentId: string;
+    paystackReference: string;
     amountPaid: number;
     slots: Schedule[];
     course: string;
@@ -26,8 +25,7 @@ export interface Booking extends TimestampedEntity {
 const schema = new Schema<Booking>({
     tutorLead: { type: Schema.Types.ObjectId, ref: "TutorLead", autopopulate: true },
     studentLead: { type: Schema.Types.ObjectId, ref: "StudentLead", autopopulate: true },
-    stripePaymentIntentClientSecret: { type: String, required: false },
-    stripePaymentIntentId: { type: String, required: false },
+    paystackReference: { type: String, required: false },
     amountPaid: { type: Number, required: true },
     course: { type: String, required: true },
     slots: { type: [scheduleSchema], required: true },

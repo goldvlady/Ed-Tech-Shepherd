@@ -1,20 +1,12 @@
 import Booking, { Booking as BookingInterface, Status } from "../database/models/Booking";
 import WherebyService from "../services/WherebyService";
-import Stripe from '../stripe';
 import EmailHandler from "./EmailHandler";
 
 class BookingHandler {
     private emailHandler = new EmailHandler();
     private wherebyService = new WherebyService();
 
-    async confirmBooking(booking: BookingInterface, confirmStripePaymentIntent: boolean = true) {
-        if (confirmStripePaymentIntent) {
-            const resp = await Stripe.paymentIntents.retrieve(booking.stripePaymentIntentId);
-            if (resp.status !== "succeeded") {
-                throw `payment status unsuccessful (${resp.status})`
-            }
-        }
-
+    async confirmBooking(booking: BookingInterface) {
         const { roomUrl, hostRoomUrl } = await this.wherebyService.createMeeting();
 
         await Booking.updateOne({
