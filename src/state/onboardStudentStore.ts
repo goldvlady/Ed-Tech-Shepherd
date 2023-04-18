@@ -11,6 +11,9 @@ export default createStore('onboardStudentStore')({
   dob: "",
   email: "",
   courses: [] as string[],
+  gradeLevel: "",
+  topic: "",
+  skillLevel: "",
   schedule: [] as Schedule[],
   tz: moment.tz.guess()
 })

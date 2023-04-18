@@ -215,6 +215,15 @@ export class PipedriveService {
         <br/>
         <b>Courses</b>: ${student.courses.join(", ")}
         <br/>
+        <br/>
+        <b>Grade level</b>: ${student.gradeLevel || "-"}
+        <br/>
+        <br/>
+        <b>Topic</b>: ${student.topic || "-"}
+        <br/>
+        <br/>
+        <b>Skill level</b>: ${student.skillLevel || "-"}
+        <br/>
         <b>Schedule (WAT)</b>:
         ${schedule.join('<br />')}
         <br/>

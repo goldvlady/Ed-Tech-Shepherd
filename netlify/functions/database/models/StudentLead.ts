@@ -12,6 +12,9 @@ export interface StudentLead extends TimestampedEntity {
     parentOrStudent: string;
     dob: string;
     courses: string[];
+    gradeLevel?: string;
+    topic?: string;
+    skillLevel?: string;
     schedule: typeof scheduleSchema[];
     tz: string;
 
@@ -27,6 +30,9 @@ const schema = new Schema<StudentLead>({
     parentOrStudent: { type: String, required: true },
     dob: { type: String, required: true },
     courses: { type: [String], required: true },
+    gradeLevel: { type: String, required: false },
+    topic: { type: String, required: false },
+    skillLevel: { type: String, required: false },
     schedule: { type: [scheduleSchema], required: true },
     tz: { type: String, required: true },
 

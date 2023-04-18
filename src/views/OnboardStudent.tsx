@@ -23,6 +23,8 @@ import EmptyState from '../components/EmptyState';
 import DateInput, { FORMAT } from '../components/DateInput';
 import { Course, Schedule } from '../types';
 import { formatContentFulCourse, getContentfulClient } from '../contentful';
+import { Select } from 'chakra-react-select';
+import { getOptionValue } from '../util';
 
 const client = getContentfulClient();
 
@@ -39,7 +41,7 @@ const OnboardStudent = () => {
     }
 
     const data = onboardStudentStore.useStore();
-    const { parentOrStudent, name, dob, email, courses, schedule, tz } = data;
+    const { parentOrStudent, name, dob, email, courses, schedule, tz, gradeLevel, topic, skillLevel } = data;
 
     const dobValid = moment(dob, FORMAT, true).isValid();
     const age = useMemo(() => moment().diff(moment(dob, FORMAT), 'years'), [dob]);
@@ -50,6 +52,7 @@ const OnboardStudent = () => {
     const validateEmailStep = !!email;
     const validateCoursesStep = !isEmpty(courses);
     const validateScheduleStep = !isEmpty(schedule) && !!tz;
+    const validateCourseSupplementaryStep = courses.includes('maths') ? !!gradeLevel && !!topic : !!skillLevel;
 
     const loadCourses = useCallback(async () => {
         setLoadingCourses(true);
@@ -63,7 +66,7 @@ const OnboardStudent = () => {
             resp.items.map((i: any) => {
                 courseList.push(formatContentFulCourse(i));
             })
-            
+
             setCourseList(courseList);
         } catch (e) {
 
@@ -74,6 +77,21 @@ const OnboardStudent = () => {
     useEffect(() => {
         loadCourses();
     }, [loadCourses]);
+
+    const skillLevelOptions = [
+        {
+            label: "Beginner",
+            value: "beginner"
+        },
+        {
+            label: "Intermediate",
+            value: "intermediate"
+        },
+        {
+            label: "Advanced",
+            value: "advanced"
+        }
+    ];
 
     const stepIndicatorSteps = [
         {
@@ -244,11 +262,41 @@ const OnboardStudent = () => {
                 </Heading>
                 <Box marginTop={30}>
                     <CourseSelect multi value={courses} onChange={(v) => onboardStudentStore.set.courses(v)} options={courseList.map(c => {
-                        return {...c, value: c.id}
+                        return { ...c, value: c.id }
                     })} />
                 </Box>
             </Box>,
             canSave: validateCoursesStep
+        },
+        {
+            id: 'course-supplementary',
+            stepIndicatorId: 'classes',
+            template: <Box>
+                <Heading as='h2' size='lg' textAlign={"center"}>
+                    {parentOrStudent === "parent" ? "What classes are your child interested in?" : "What classes are you interested in?"}
+                </Heading>
+                <Box marginTop={30}>
+                    {courses.includes('maths') ? <>
+                        <FormLabel>
+                            {parentOrStudent === "parent" ? "What grade level is your child in ?" : "What grade level are you in?"}
+                            <Input value={gradeLevel} onChange={(e) => onboardStudentStore.set.gradeLevel(e.target.value)} placeholder='e.g Grade 12' required />
+                        </FormLabel>
+                        <FormLabel>
+                            {parentOrStudent === "parent" ? "What topic does your child need help with?" : "What topic do you need help with?"}
+                            <Input value={topic} onChange={(e) => onboardStudentStore.set.topic(e.target.value)} placeholder='e.g Algebra' required />
+                        </FormLabel>
+                    </> : <FormLabel>
+                        {parentOrStudent === "parent" ? "What's your child's skill level?" : "What's your skill level?"}
+                        <Select
+                            tagVariant="solid"
+                            onChange={(v => onboardStudentStore.set.skillLevel?.(v?.value))}
+                            value={getOptionValue(skillLevelOptions, skillLevel)}
+                            options={skillLevelOptions}
+                        />
+                    </FormLabel>}
+                </Box>
+            </Box>,
+            canSave: validateCourseSupplementaryStep
         },
         {
             id: 'availability',
