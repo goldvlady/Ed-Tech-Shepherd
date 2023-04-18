@@ -11,6 +11,7 @@ export default createStore('onboardStudentStore')({
   dob: "",
   email: "",
   courses: [] as string[],
+  somethingElse: "",
   gradeLevel: "",
   topic: "",
   skillLevel: "",

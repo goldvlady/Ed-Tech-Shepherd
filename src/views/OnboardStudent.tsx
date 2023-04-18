@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import StepIndicator from '../components/StepIndicator';
-import { FiUser, FiCalendar, FiBookOpen, FiEdit } from "react-icons/fi";
-import { Box, FormLabel, Heading, Input, Text, CircularProgress, Link, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, VStack, StackDivider, Flex, IconButton } from '@chakra-ui/react';
+import { FiUser, FiCalendar, FiBookOpen, FiEdit, FiTrash } from "react-icons/fi";
+import { Box, FormLabel, Heading, Input, Text, CircularProgress, Link, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, VStack, StackDivider, Flex, IconButton, Textarea, HStack } from '@chakra-ui/react';
 import StepWizard, { StepWizardProps } from 'react-step-wizard';
 import LargeSelect from '../components/LargeSelect';
 import OnboardStep from '../components/OnboardStep';
 import onboardStudentStore from '../state/onboardStudentStore';
 import CourseSelect from '../components/CourseSelect';
-import { capitalize, isEmpty } from 'lodash';
+import { capitalize, isEmpty, pull, remove, without, xor } from 'lodash';
 import ScheduleBuilder from '../components/ScheduleBuilder';
 import OnboardSubmitStep from '../components/OnboardSubmitStep';
 import Lottie from 'lottie-react';
@@ -25,13 +25,30 @@ import { Course, Schedule } from '../types';
 import { formatContentFulCourse, getContentfulClient } from '../contentful';
 import { Select } from 'chakra-react-select';
 import { getOptionValue } from '../util';
+import theme from '../theme';
+import styled from 'styled-components';
 
 const client = getContentfulClient();
 
+const LearnSomethingElseDisplay = styled('a')`
+display: block;
+padding-inline: var(--chakra-space-4);
+padding-block: var(--chakra-space-2);
+border-radius: ${theme.radii.md};
+border: 1px solid ${theme.colors.gray[300]};
+
+&:hover {
+    border-color: ${theme.colors.gray[500]};
+}
+`
+
 const OnboardStudent = () => {
+    const { isOpen: isSomethingElseModalOpen, onOpen: onSomethingElseModalOpen, onClose: onSomethingElseModalClose } = useDisclosure()
     const [courseList, setCourseList] = useState<Course[]>([]);
     const [loadingCourses, setLoadingCourses] = useState(false);
     const [activeStep, setActiveStep] = useState<number>(1);
+
+    const [isLearnSomethingElse, setIsLearnSomethingElse] = useState(false);
 
     const [editModalStep, setEditModalStep] = useState<string | null>(null);
     const { isOpen: editModalOpen, onOpen: onEditModalOpen, onClose: onEditModalClose } = useDisclosure();
@@ -41,7 +58,7 @@ const OnboardStudent = () => {
     }
 
     const data = onboardStudentStore.useStore();
-    const { parentOrStudent, name, dob, email, courses, schedule, tz, gradeLevel, topic, skillLevel } = data;
+    const { parentOrStudent, name, dob, email, courses, somethingElse, schedule, tz, gradeLevel, topic, skillLevel } = data;
 
     const dobValid = moment(dob, FORMAT, true).isValid();
     const age = useMemo(() => moment().diff(moment(dob, FORMAT), 'years'), [dob]);
@@ -77,6 +94,16 @@ const OnboardStudent = () => {
     useEffect(() => {
         loadCourses();
     }, [loadCourses]);
+
+    useEffect(() => {
+        if (somethingElse) {
+            if (!courses.includes('something-else')) {
+                onboardStudentStore.set.courses([...courses, 'something-else']);
+            }
+        } else {
+            onboardStudentStore.set.courses(without(courses, 'something-else'));
+        }
+    }, [somethingElse]);
 
     const skillLevelOptions = [
         {
@@ -142,9 +169,9 @@ const OnboardStudent = () => {
             fields: [
                 {
                     title: 'Classes',
-                    value: <Text>{courses.map(tc => {
+                    value: <Text>{courses.filter(tc => tc !== 'something-else').map(tc => {
                         return courseList.find(ac => ac.id === tc)?.title;
-                    }).join(', ')}</Text>,
+                    }).join(', ')}{somethingElse ? `, ${somethingElse}` : ''}</Text>,
                     step: 'classes',
                 }
             ]
@@ -261,9 +288,63 @@ const OnboardStudent = () => {
                     {parentOrStudent === "parent" ? "What classes are your child interested in?" : "What classes are you interested in?"}
                 </Heading>
                 <Box marginTop={30}>
-                    <CourseSelect multi value={courses} onChange={(v) => onboardStudentStore.set.courses(v)} options={courseList.map(c => {
-                        return { ...c, value: c.id }
-                    })} />
+                    <Modal isOpen={isSomethingElseModalOpen} onClose={onSomethingElseModalClose}>
+                        <ModalOverlay />
+                        <ModalContent>
+                            <ModalHeader></ModalHeader>
+                            <ModalCloseButton />
+                            <ModalBody>
+                                <Box>
+                                    <Box display={"flex"} justifyContent="center" mb={4}>
+                                        <img alt="uh oh!" style={{ height: "80px" }} src="/images/empty-state-no-content.png" />
+                                    </Box>
+                                    <Heading mb={1} as='h5' size='sm' textAlign={"center"}>Learn something else</Heading>
+                                    <FormLabel>
+                                        <Text color="gray.500" mb={3} textAlign={"center"} fontSize='sm' fontWeight={400}>Can't find the class or skill you'd like to learn? Tell us, we'll match you with an experienced tutor who can guide you through it!</Text>
+                                        <Box mt={1}>
+                                            <Textarea value={somethingElse} onChange={(e) => onboardStudentStore.set.somethingElse?.(e.target.value)} maxH={"200px"} placeholder='Rocket science' />
+                                        </Box>
+                                    </FormLabel>
+                                </Box>
+                            </ModalBody>
+
+                            <ModalFooter>
+                                <Button isDisabled={!!!somethingElse} variant="looney" onClick={onSomethingElseModalClose}>Done</Button>
+                            </ModalFooter>
+                        </ModalContent>
+                    </Modal>
+                    <Box>
+                        <CourseSelect multi value={courses} onChange={(v) => onboardStudentStore.set.courses(v)} options={courseList.map(c => {
+                            return { ...c, value: c.id }
+                        })} />
+                        <Box mt={4}>
+                            {!!!somethingElse && <Text as={"a"} href="#" display="block" onClick={(e) => {
+                                e.preventDefault();
+                                onSomethingElseModalOpen();
+                                return false;
+                            }} cursor={"pointer"} textDecor={"underline"} textAlign={"center"} fontSize={"small"} fontStyle={"italic"} variant={"muted"}>I'd like to learn something that isn't listed here</Text>}
+                            {!!somethingElse && <LearnSomethingElseDisplay href='#' onClick={(e) => {
+                                e.preventDefault();
+                                onSomethingElseModalOpen();
+                                return false;
+                            }}>
+                                <HStack>
+                                    <Text flexGrow={1} gap={1}>{somethingElse}</Text>
+                                    <IconButton
+                                        variant='ghost'
+                                        aria-label='Delete learn something else'
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            onboardStudentStore.set.somethingElse('')
+                                        }}
+                                        icon={<FiTrash />}
+                                    />
+                                </HStack>
+                            </LearnSomethingElseDisplay>
+                            }
+                        </Box>
+                    </Box>
                 </Box>
             </Box>,
             canSave: validateCoursesStep
