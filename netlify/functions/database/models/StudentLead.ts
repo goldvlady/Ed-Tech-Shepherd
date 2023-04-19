@@ -2,6 +2,16 @@ import { Schema, model } from "mongoose";
 import { TimestampedEntity } from "../../types";
 import scheduleSchema from "./Schedule";
 
+export interface SkillLevel {
+    course: String,
+    skillLevel: String
+}
+
+const skillLevelSchema = new Schema<SkillLevel>({
+    course: { type: String, required: false },
+    skillLevel: { type: String, required: false },
+});
+
 export interface StudentLead extends TimestampedEntity {
     _id: string;
     name: {
@@ -15,7 +25,7 @@ export interface StudentLead extends TimestampedEntity {
     gradeLevel?: string;
     somethingElse?: string;
     topic?: string;
-    skillLevel?: string;
+    skillLevels?: typeof skillLevelSchema[];
     schedule: typeof scheduleSchema[];
     tz: string;
 
@@ -34,7 +44,7 @@ const schema = new Schema<StudentLead>({
     somethingElse: { type: String, required: false },
     gradeLevel: { type: String, required: false },
     topic: { type: String, required: false },
-    skillLevel: { type: String, required: false },
+    skillLevels: { type: [skillLevelSchema], required: false },
     schedule: { type: [scheduleSchema], required: true },
     tz: { type: String, required: true },
 

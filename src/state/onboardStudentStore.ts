@@ -14,7 +14,7 @@ export default createStore('onboardStudentStore')({
   somethingElse: "",
   gradeLevel: "",
   topic: "",
-  skillLevel: "",
+  skillLevels: [] as Record<string, string>[],
   schedule: [] as Schedule[],
   tz: moment.tz.guess()
 })

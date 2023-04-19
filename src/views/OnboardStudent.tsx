@@ -56,7 +56,7 @@ const OnboardStudent = () => {
     }
 
     const data = onboardStudentStore.useStore();
-    const { parentOrStudent, name, dob, email, courses, somethingElse, schedule, tz, gradeLevel, topic, skillLevel } = data;
+    const { parentOrStudent, name, dob, email, courses, somethingElse, schedule, tz, gradeLevel, topic, skillLevels } = data;
 
     const dobValid = moment(dob, FORMAT, true).isValid();
     const age = useMemo(() => moment().diff(moment(dob, FORMAT), 'years'), [dob]);
@@ -67,7 +67,16 @@ const OnboardStudent = () => {
     const validateEmailStep = !!email;
     const validateCoursesStep = !isEmpty(courses);
     const validateScheduleStep = !isEmpty(schedule) && !!tz;
-    const validateCourseSupplementaryStep = courses.includes('maths') ? !!gradeLevel && !!topic : !!skillLevel;
+    
+    const validateCourseSupplementaryStep = useMemo(() => !courses.map(c => {
+        if (c === 'maths') {
+            return !!gradeLevel && !!topic;
+        } else {
+            return !courses.filter(c => c !== 'maths').map(c => {
+                return !!skillLevels.find(sl => sl.course === c)
+            }).includes(false);
+        }
+    }).includes(false), [courses, skillLevels, gradeLevel, topic]);
 
     const loadCourses = useCallback(async () => {
         setLoadingCourses(true);
@@ -355,24 +364,43 @@ const OnboardStudent = () => {
                     {parentOrStudent === "parent" ? "What classes are your child interested in?" : "What classes are you interested in?"}
                 </Heading>
                 <Box marginTop={30}>
-                    {courses.includes('maths') ? <>
-                        <FormLabel>
-                            {parentOrStudent === "parent" ? "What grade level is your child in ?" : "What grade level are you in?"}
-                            <Input value={gradeLevel} onChange={(e) => onboardStudentStore.set.gradeLevel(e.target.value)} placeholder='e.g Grade 12' required />
+                    {courses.map(c => {
+                        const courseName = c === 'something-else' ? capitalize(somethingElse) : courseList.find(ac => ac.id === c)?.title;
+
+                        if (c === 'maths') {
+                            return <Box key={'course-supplementary'+c}><FormLabel>
+                                {parentOrStudent === "parent" ? "What grade level is your child in?" : "What grade level are you in?"}
+                                <Input value={gradeLevel} onChange={(e) => onboardStudentStore.set.gradeLevel(e.target.value)} placeholder='e.g Grade 12' required />
+                            </FormLabel>
+                                <FormLabel>
+                                    {parentOrStudent === "parent" ? "What Maths topic does your child need help with?" : "What Maths topic do you need help with?"}
+                                    <Input value={topic} onChange={(e) => onboardStudentStore.set.topic(e.target.value)} placeholder='e.g Algebra' required />
+                                </FormLabel>
+                            </Box>
+                        }
+
+                        return <FormLabel key={'course-supplementary'+c}>
+                            {parentOrStudent === "parent" ? `What's your child's skill level for ${courseName}?` : `What's your skill level for ${courseName}?`}
+                            <Select
+                                tagVariant="solid"
+                                onChange={(v => {
+                                    const currSkillLevels = [...skillLevels]
+                                    const slv = { course: c, skillLevel: v?.value };
+                                    const currentIndex = currSkillLevels.findIndex(v => v.course === c);
+                                    if (currentIndex > -1) {
+                                        currSkillLevels[currentIndex] = slv;
+                                    } else {
+                                        currSkillLevels.push(slv);
+                                    }
+                                    
+                                    onboardStudentStore.set.skillLevels?.(currSkillLevels);
+                                })}
+                                defaultValue={getOptionValue(skillLevelOptions, skillLevels.find(s => s.course === c)?.skillLevel)}
+                                options={skillLevelOptions}
+                            />
                         </FormLabel>
-                        <FormLabel>
-                            {parentOrStudent === "parent" ? "What topic does your child need help with?" : "What topic do you need help with?"}
-                            <Input value={topic} onChange={(e) => onboardStudentStore.set.topic(e.target.value)} placeholder='e.g Algebra' required />
-                        </FormLabel>
-                    </> : <FormLabel>
-                        {parentOrStudent === "parent" ? "What's your child's skill level?" : "What's your skill level?"}
-                        <Select
-                            tagVariant="solid"
-                            onChange={(v => onboardStudentStore.set.skillLevel?.(v?.value))}
-                            value={getOptionValue(skillLevelOptions, skillLevel)}
-                            options={skillLevelOptions}
-                        />
-                    </FormLabel>}
+                    })
+                    }
                 </Box>
             </Box>,
             canSave: validateCourseSupplementaryStep

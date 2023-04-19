@@ -1,7 +1,7 @@
 import { capitalize } from "lodash";
 import moment from "moment-timezone";
 import { Schedule } from "../database/models/Schedule";
-import { StudentLead } from "../database/models/StudentLead";
+import { SkillLevel, StudentLead } from "../database/models/StudentLead";
 import { TutorLead } from "../database/models/TutorLead";
 
 const pipedrive = require('pipedrive');
@@ -200,6 +200,9 @@ export class PipedriveService {
             return `${moment(s.begin).format('dddd')}: ${moment(s.begin).tz('Africa/Lagos').format('hh:mm A')} - ${moment(s.end).tz('Africa/Lagos').format('hh:mm A')}`
         })
 
+        // @ts-ignore
+        const skillLevels = (student.skillLevels || [])?.map((s: SkillLevel): string => `${s.course}: ${s.skillLevel}`)
+
         const content = `
         <b>ID</b>: ${student._id}
         <br />
@@ -221,7 +224,8 @@ export class PipedriveService {
         <br/>
         <b>Topic</b>: ${student.topic || "-"}
         <br/>
-        <b>Skill level</b>: ${student.skillLevel || "-"}
+        <b>Skill levels</b>:
+        ${skillLevels.join('<br />')}
         <br/>
         <b>Schedule (WAT)</b>:
         ${schedule.join('<br />')}
