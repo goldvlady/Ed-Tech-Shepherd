@@ -7,7 +7,7 @@ import LargeSelect from '../components/LargeSelect';
 import OnboardStep from '../components/OnboardStep';
 import onboardStudentStore from '../state/onboardStudentStore';
 import CourseSelect from '../components/CourseSelect';
-import { capitalize, isEmpty, pull, remove, without, xor } from 'lodash';
+import { capitalize, isEmpty, without } from 'lodash';
 import ScheduleBuilder from '../components/ScheduleBuilder';
 import OnboardSubmitStep from '../components/OnboardSubmitStep';
 import Lottie from 'lottie-react';
@@ -47,8 +47,6 @@ const OnboardStudent = () => {
     const [courseList, setCourseList] = useState<Course[]>([]);
     const [loadingCourses, setLoadingCourses] = useState(false);
     const [activeStep, setActiveStep] = useState<number>(1);
-
-    const [isLearnSomethingElse, setIsLearnSomethingElse] = useState(false);
 
     const [editModalStep, setEditModalStep] = useState<string | null>(null);
     const { isOpen: editModalOpen, onOpen: onEditModalOpen, onClose: onEditModalClose } = useDisclosure();
@@ -299,7 +297,7 @@ const OnboardStudent = () => {
                                         <img alt="uh oh!" style={{ height: "80px" }} src="/images/empty-state-no-content.png" />
                                     </Box>
                                     <Heading mb={1} as='h5' size='sm' textAlign={"center"}>Learn something else</Heading>
-                                    <FormLabel>
+                                    <FormLabel margin={0}>
                                         <Text color="gray.500" mb={3} textAlign={"center"} fontSize='sm' fontWeight={400}>Can't find the class or skill you'd like to learn? Tell us, we'll match you with an experienced tutor who can guide you through it!</Text>
                                         <Box mt={1}>
                                             <Textarea value={somethingElse} onChange={(e) => onboardStudentStore.set.somethingElse?.(e.target.value)} maxH={"200px"} placeholder='Rocket science' />
