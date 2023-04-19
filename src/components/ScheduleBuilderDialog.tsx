@@ -104,10 +104,6 @@ const ScheduleBuilderDialog = React.forwardRef<ScheduleBuilderDialogRef, Props>(
                 <ModalHeader>Add availability</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
-                    {hoursDiff < 0 && !!fromTime && !!toTime && <Alert status='error' mb={3}>
-                        <AlertIcon />
-                        The start time should be before the end time.
-                    </Alert>}
                     <Box>
                         <FormLabel>
                             <Box mb={2}>
@@ -127,15 +123,19 @@ const ScheduleBuilderDialog = React.forwardRef<ScheduleBuilderDialogRef, Props>(
                             <Box mb={2}>Time</Box>
                         </FormLabel>
                         <Box display={"flex"} alignItems="center" gap={"7px"}>
-                            <TimePicker inputProps={{placeholder: '01:00 PM'}} value={fromTime} onChange={(v: string) => {
+                            <TimePicker inputProps={{ placeholder: '01:00 PM' }} value={fromTime} onChange={(v: string) => {
                                 setFromTime(v)
                             }} />
                             <Text as="small">to</Text>
-                            <TimePicker inputProps={{placeholder: '06:00 PM'}} value={toTime} onChange={(v: string) => {
+                            <TimePicker inputProps={{ placeholder: '06:00 PM' }} value={toTime} onChange={(v: string) => {
                                 setToTime(v)
                             }} />
                         </Box>
                     </Box>
+                    {hoursDiff < 0 && !!fromTime && !!toTime && <Alert status='error' mt={3}>
+                        <AlertIcon />
+                        The start time should be before the end time.
+                    </Alert>}
                 </ModalBody>
 
                 <ModalFooter>
