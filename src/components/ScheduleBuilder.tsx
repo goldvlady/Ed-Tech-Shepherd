@@ -26,12 +26,8 @@ const ScheduleBuilder = React.forwardRef<ScheduleBuilderRef, Props>(({ onChange,
     const scheduleBuilderDialogRef = useRef<ScheduleBuilderDialogRef>(null);
 
     const addTime = async (d: number | null) => {
-        try {
-            const schedule = await scheduleBuilderDialogRef.current?.buildSchedule(d) as Schedule[];
-            onChange([...value, ...schedule]);
-        } catch (e) {
-
-        }
+        const schedule = await scheduleBuilderDialogRef.current?.buildSchedule(d) as Schedule[];
+        onChange([...value, ...schedule]);
     }
 
     const deleteTime = (t: Schedule) => {
