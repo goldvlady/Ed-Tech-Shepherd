@@ -73,7 +73,7 @@ export const CourseSelect: React.FC<Props> = ({ value, options, multi = false, o
     }
 
     return <Root>
-        <SimpleGrid width={'100%'} columns={{ base: 1, sm: 3 }} spacing='15px'>
+        <SimpleGrid width={'100%'} columns={{ base: 1, sm: 2 }} spacing='15px'>
             {
                 options.map(o => <StyledOption onClick={() => toggleArrayValue(o.value)} key={o.value} type="button" role="button" className={(multi ? includes(value, o.value) : value === o.value) ? "active" : ""}>
                     <Image alt={o.title} src={o.image} />
