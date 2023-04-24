@@ -27,6 +27,7 @@ import { Select } from 'chakra-react-select';
 import { getOptionValue } from '../util';
 import theme from '../theme';
 import styled from 'styled-components';
+import { useLocation } from 'react-router';
 
 const client = getContentfulClient();
 
@@ -43,6 +44,8 @@ border: 1px solid ${theme.colors.gray[300]};
 `
 
 const OnboardStudent = () => {
+    const location = useLocation();
+    
     const { isOpen: isSomethingElseModalOpen, onOpen: onSomethingElseModalOpen, onClose: onSomethingElseModalClose } = useDisclosure()
     const [courseList, setCourseList] = useState<Course[]>([]);
     const [loadingCourses, setLoadingCourses] = useState(false);
@@ -57,6 +60,15 @@ const OnboardStudent = () => {
 
     const data = onboardStudentStore.useStore();
     const { parentOrStudent, name, dob, email, courses, somethingElse, schedule, tz, gradeLevel, topic, skillLevels } = data;
+
+    useEffect(() => {
+        const preSelectedCourse = new URLSearchParams(location.search).get('course');
+        if (preSelectedCourse) {
+            setTimeout(() => {
+                onboardStudentStore.set.courses([preSelectedCourse]);
+            }, 0);
+        }
+    }, []);
 
     const dobValid = moment(dob, FORMAT, true).isValid();
     const age = useMemo(() => moment().diff(moment(dob, FORMAT), 'years'), [dob]);
