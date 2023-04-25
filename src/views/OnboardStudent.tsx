@@ -28,6 +28,7 @@ import { getOptionValue } from '../util';
 import theme from '../theme';
 import styled from 'styled-components';
 import { useLocation } from 'react-router';
+import mixpanel from 'mixpanel-browser';
 
 const client = getContentfulClient();
 
@@ -43,9 +44,42 @@ border: 1px solid ${theme.colors.gray[300]};
 }
 `
 
+const stepIndicatorSteps = [
+    {
+        title: "About you",
+        icon: <FiUser />,
+        id: 'about-you'
+    },
+    {
+        title: "Classes",
+        icon: <FiBookOpen />,
+        id: 'classes'
+    },
+    {
+        title: "Availability",
+        icon: <FiCalendar />,
+        id: 'availability'
+    }
+]
+
+const skillLevelOptions = [
+    {
+        label: "Beginner",
+        value: "beginner"
+    },
+    {
+        label: "Intermediate",
+        value: "intermediate"
+    },
+    {
+        label: "Advanced",
+        value: "advanced"
+    }
+];
+
 const OnboardStudent = () => {
     const location = useLocation();
-    
+
     const { isOpen: isSomethingElseModalOpen, onOpen: onSomethingElseModalOpen, onClose: onSomethingElseModalClose } = useDisclosure()
     const [courseList, setCourseList] = useState<Course[]>([]);
     const [loadingCourses, setLoadingCourses] = useState(false);
@@ -79,7 +113,7 @@ const OnboardStudent = () => {
     const validateEmailStep = !!email;
     const validateCoursesStep = !isEmpty(courses);
     const validateScheduleStep = !isEmpty(schedule) && !!tz;
-    
+
     const validateCourseSupplementaryStep = useMemo(() => !courses.map(c => {
         if (c === 'maths') {
             return !!gradeLevel && !!topic;
@@ -123,39 +157,6 @@ const OnboardStudent = () => {
             onboardStudentStore.set.courses(without(courses, 'something-else'));
         }
     }, [somethingElse]);
-
-    const skillLevelOptions = [
-        {
-            label: "Beginner",
-            value: "beginner"
-        },
-        {
-            label: "Intermediate",
-            value: "intermediate"
-        },
-        {
-            label: "Advanced",
-            value: "advanced"
-        }
-    ];
-
-    const stepIndicatorSteps = [
-        {
-            title: "About you",
-            icon: <FiUser />,
-            id: 'about-you'
-        },
-        {
-            title: "Classes",
-            icon: <FiBookOpen />,
-            id: 'classes'
-        },
-        {
-            title: "Availability",
-            icon: <FiCalendar />,
-            id: 'availability'
-        }
-    ]
 
     const confirmations = [
         {
@@ -380,7 +381,7 @@ const OnboardStudent = () => {
                         const courseName = c === 'something-else' ? capitalize(somethingElse) : courseList.find(ac => ac.id === c)?.title;
 
                         if (c === 'maths') {
-                            return <Box key={'course-supplementary'+c}><FormLabel>
+                            return <Box key={'course-supplementary' + c}><FormLabel>
                                 {parentOrStudent === "parent" ? "What grade level is your child in?" : "What grade level are you in?"}
                                 <Input value={gradeLevel} onChange={(e) => onboardStudentStore.set.gradeLevel(e.target.value)} placeholder='e.g Grade 12' required />
                             </FormLabel>
@@ -391,7 +392,7 @@ const OnboardStudent = () => {
                             </Box>
                         }
 
-                        return <FormLabel key={'course-supplementary'+c}>
+                        return <FormLabel key={'course-supplementary' + c}>
                             {parentOrStudent === "parent" ? `What's your child's skill level for ${courseName}?` : `What's your skill level for ${courseName}?`}
                             <Select
                                 tagVariant="solid"
@@ -404,7 +405,7 @@ const OnboardStudent = () => {
                                     } else {
                                         currSkillLevels.push(slv);
                                     }
-                                    
+
                                     onboardStudentStore.set.skillLevels?.(currSkillLevels);
                                 })}
                                 defaultValue={getOptionValue(skillLevelOptions, skillLevels.find(s => s.course === c)?.skillLevel)}
@@ -469,6 +470,7 @@ const OnboardStudent = () => {
     ]
 
     const doSubmit = () => {
+        mixpanel.track('Completed onboarding');
         return ApiService.submitStudentLead(data);
     }
 
@@ -477,9 +479,41 @@ const OnboardStudent = () => {
         setEditModalStep(stepId);
     }
 
-    const stepIndicatorActiveStep = stepIndicatorSteps.find(s => s.id === steps[activeStep - 1]?.stepIndicatorId);
+    const activeStepObj = useMemo(() => steps[activeStep - 1], [activeStep]);
+
+    const stepIndicatorActiveStep = useMemo(() => stepIndicatorSteps.find(s => s.id === activeStepObj?.stepIndicatorId), [activeStepObj, stepIndicatorSteps]);
 
     useTitle(stepIndicatorActiveStep?.title || '');
+
+    useEffect(() => {
+        mixpanel.identify();
+    }, []);
+
+    useEffect(() => {
+        if (!activeStepObj) return
+
+        mixpanel.track(`Onboarding Step Progress (${activeStepObj?.id})`)
+    }, [activeStepObj]);
+
+    useEffect(() => {
+        if (name.first && name.last)
+            mixpanel.people.set({ "$name": `${name.first} ${name.last}` });
+    
+        if (email)
+            mixpanel.people.set({ "$email": email });
+
+        if (age)
+            mixpanel.people.set({ "Age": age });
+        
+        if (parentOrStudent)
+            mixpanel.people.set({ "Parent Or Student": parentOrStudent });
+
+        mixpanel.people.set({ "Type": "Student" });
+    }, [email, name, age]);
+
+    useEffect(() => {
+        mixpanel.register({...data, type: 'student'});
+    }, [data]);
 
     const canSaveCurrentEditModalStep = steps.find(s => s.id === editModalStep)?.canSave;
 

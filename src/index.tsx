@@ -4,6 +4,9 @@ import './index.css';
 import App from './App';
 import * as Sentry from "@sentry/react";
 import reportWebVitals from './reportWebVitals';
+import mixpanel from 'mixpanel-browser';
+
+mixpanel.init('60b6261338f9bed7ca835ca0a2134f4d'); 
 
 Sentry.init({
   dsn: "https://a8514e19899d486286187db0ccd2f21d@o4505062795182080.ingest.sentry.io/4505062798852096",

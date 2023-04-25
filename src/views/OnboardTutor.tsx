@@ -30,10 +30,71 @@ import { Course, Schedule } from '../types';
 
 import DateInput, { FORMAT } from '../components/DateInput';
 import { formatContentFulCourse, getContentfulClient } from '../contentful';
+import mixpanel from 'mixpanel-browser';
 
 const occupationOptions = occupationList.map((o) => {
     return { label: o, value: o }
 });
+
+const stepIndicatorSteps = [
+    {
+        title: "About you",
+        icon: <FiUser />,
+        id: 'about-you'
+    },
+    {
+        title: "Classes",
+        icon: <FiBookOpen />,
+        id: 'classes'
+    },
+    {
+        title: "Availability",
+        icon: <FiCalendar />,
+        id: 'availability'
+    },
+    {
+        title: "Rate",
+        icon: <FiDollarSign />,
+        id: 'rate'
+    }
+]
+
+const educationLevelOptions = [{
+    label: "Primary School Certificate",
+    value: "primary-school-cert"
+},
+{
+    label: "Junior Secondary School Certificate",
+    value: "junior-secondary-school-cert"
+},
+{
+    label: "Senior Secondary School Certificate",
+    value: "senior-secondary-school-cert"
+},
+{
+    label: "National Diploma (ND)",
+    value: "national-diploma"
+},
+{
+    label: "Higher National Diploma (HND)",
+    value: "higher-national-diploma"
+},
+{
+    label: "Bachelor's Degree (BSc, BA, BEng, etc.)",
+    value: "bachelors-degree"
+},
+{
+    label: "Master's Degree (MSc, MA, MEng, etc.)",
+    value: "masters-degree"
+},
+{
+    label: "Doctoral Degree (PhD, MD, etc.)",
+    value: "doctoral-degree"
+},
+{
+    label: "Vocational/Technical Certificate",
+    value: "vocation-technical-cert"
+}]
 
 const client = getContentfulClient();
 
@@ -90,72 +151,12 @@ const OnboardTutor = () => {
         loadCourses();
     }, [loadCourses]);
 
-    const stepIndicatorSteps = [
-        {
-            title: "About you",
-            icon: <FiUser />,
-            id: 'about-you'
-        },
-        {
-            title: "Classes",
-            icon: <FiBookOpen />,
-            id: 'classes'
-        },
-        {
-            title: "Availability",
-            icon: <FiCalendar />,
-            id: 'availability'
-        },
-        {
-            title: "Rate",
-            icon: <FiDollarSign />,
-            id: 'rate'
-        }
-    ]
-
     const occupationSelectProps = useChakraSelectProps({
         value: getOptionValue(occupationOptions, occupation),
         isMulti: false,
         onChange: (v => onboardTutorStore.set.occupation?.(v?.value)),
         options: occupationOptions
     });
-
-    const educationLevelOptions = [{
-        label: "Primary School Certificate",
-        value: "primary-school-cert"
-    },
-    {
-        label: "Junior Secondary School Certificate",
-        value: "junior-secondary-school-cert"
-    },
-    {
-        label: "Senior Secondary School Certificate",
-        value: "senior-secondary-school-cert"
-    },
-    {
-        label: "National Diploma (ND)",
-        value: "national-diploma"
-    },
-    {
-        label: "Higher National Diploma (HND)",
-        value: "higher-national-diploma"
-    },
-    {
-        label: "Bachelor's Degree (BSc, BA, BEng, etc.)",
-        value: "bachelors-degree"
-    },
-    {
-        label: "Master's Degree (MSc, MA, MEng, etc.)",
-        value: "masters-degree"
-    },
-    {
-        label: "Doctoral Degree (PhD, MD, etc.)",
-        value: "doctoral-degree"
-    },
-    {
-        label: "Vocational/Technical Certificate",
-        value: "vocation-technical-cert"
-    }]
 
     const highestEducationLevelSelectProps = useChakraSelectProps({
         value: getOptionValue(educationLevelOptions, highestLevelOfEducation),
@@ -267,6 +268,7 @@ const OnboardTutor = () => {
     });
 
     const doSubmit = () => {
+        mixpanel.track('Completed onboarding');
         return ApiService.submitTutorLead(data);
     }
 
@@ -623,9 +625,38 @@ const OnboardTutor = () => {
         setEditModalStep(stepId);
     }
 
-    const stepIndicatorActiveStep = stepIndicatorSteps.find(s => s.id === steps[activeStep - 1]?.stepIndicatorId);
+    const activeStepObj = useMemo(() => steps[activeStep - 1], [activeStep]);
+
+    const stepIndicatorActiveStep = useMemo(() => stepIndicatorSteps.find(s => s.id === activeStepObj?.stepIndicatorId), [activeStepObj, stepIndicatorSteps]);
 
     useTitle(stepIndicatorActiveStep?.title || '');
+
+    useEffect(() => {
+        mixpanel.identify();
+    }, []);
+
+    useEffect(() => {
+        if (!activeStepObj) return
+
+        mixpanel.track(`Onboarding Step Progress (${activeStepObj?.id})`)
+    }, [activeStepObj]);
+
+    useEffect(() => {
+        if (name.first && name.last)
+            mixpanel.people.set({ "$name": `${name.first} ${name.last}` });
+    
+        if (email)
+            mixpanel.people.set({ "$email": email });
+
+        if (age)
+            mixpanel.people.set({ "Age": age });
+
+        mixpanel.people.set({ "Type": "Tutor" });
+    }, [email, name, age]);
+
+    useEffect(() => {
+        mixpanel.register({...data, type: 'tutor'});
+    }, [data]);
 
     const canSaveCurrentEditModalStep = steps.find(s => s.id === editModalStep)?.canSave;
 
