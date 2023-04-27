@@ -107,8 +107,8 @@ class SESService {
         </style>
         
         </head>
-        <body class="em_body" style="margin:0px auto; padding:0px;" bgcolor="#efefef">
-        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="em_full_wrap" align="center"  bgcolor="#efefef">
+        <body class="em_body" style="margin:0px auto; padding:0px;" bgcolor="#FFF">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="em_full_wrap" align="center"  bgcolor="#FFF">
             <tr>
               <td align="center" valign="top"><table align="center" width="650" border="0" cellspacing="0" cellpadding="0" class="em_main_table" style="width:650px; table-layout:fixed;">
                   <tr>
@@ -129,7 +129,7 @@ class SESService {
               </td>
             </tr>
         </table>
-        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="em_full_wrap" align="center" bgcolor="#efefef">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="em_full_wrap" align="center" bgcolor="#FFF">
           <tr>
             <td align="center" valign="top" class="em_aside5"><table align="center" width="650" border="0" cellspacing="0" cellpadding="0" class="em_main_table" style="width:650px; table-layout:fixed;">
                 <tr>
@@ -141,7 +141,7 @@ class SESService {
             </td>
           </tr>
         </table>
-        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="em_full_wrap" align="center" bgcolor="#efefef">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="em_full_wrap" align="center" bgcolor="#FFF">
             <tr>
               <td align="center" valign="top"><table align="center" width="650" border="0" cellspacing="0" cellpadding="0" class="em_main_table" style="width:650px; table-layout:fixed;">
                   <tr>
