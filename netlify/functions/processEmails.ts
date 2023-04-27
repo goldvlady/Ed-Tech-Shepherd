@@ -1,10 +1,10 @@
 import { Handler, schedule } from "@netlify/functions";
 import { connectToDb } from "./database/connection";
 import Email from "./database/models/Email";
-import MailgunService from "./services/MailgunService";
+import SESService from "./services/SESService";
 
 const myHandler: Handler = async () => {
-    const mailgunService = new MailgunService();
+    const sesService = new SESService();
 
     await connectToDb();
 
@@ -22,7 +22,7 @@ const myHandler: Handler = async () => {
 
     await Promise.all(unsentEmails.map(async (email) => {
         try {
-            await mailgunService.sendEmail(email.to, email.subject, email.content, [email.type]);
+            await sesService.sendEmail(email.to, email.subject, email.content, [email.type]);
             await Email.updateOne({ _id: email._id }, {
                 sent: new Date()
             })
@@ -30,9 +30,9 @@ const myHandler: Handler = async () => {
             console.log(e);
         }
     }))
+
     return {
-        statusCode: 200,
-        body: JSON.stringify('Emails sent'),
+        statusCode: 200
     };
 };
 
