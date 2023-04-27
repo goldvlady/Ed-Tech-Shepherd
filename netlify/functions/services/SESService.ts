@@ -4,13 +4,13 @@ class SESService {
     private client: ses.Client;
 
     constructor() {
-        if (!process.env.AWS_ACCESS_KEY || !process.env.AWS_SECRET_KEY) {
+        if (!process.env.APP_AWS_ACCESS_KEY || !process.env.APP_AWS_SECRET_KEY) {
             throw "invalid AWS access or secret key";
         }
 
         this.client = ses.createClient({
-            key: process.env.AWS_ACCESS_KEY,
-            secret: process.env.AWS_SECRET_KEY,
+            key: process.env.APP_AWS_ACCESS_KEY,
+            secret: process.env.APP_AWS_SECRET_KEY,
             amazon: 'https://email.us-east-2.amazonaws.com'
         });
     }
