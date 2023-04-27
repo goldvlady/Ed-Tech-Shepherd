@@ -212,9 +212,6 @@ class SESService {
                     </table>
                     </td>
                   </tr>
-                  <tr>
-                    <td class="em_hide" style="line-height:1px;min-width:650px;background-color:#efefef;"><img alt="" src="/assets/pilot/images/templates/spacer.gif" height="1" width="650" style="max-height:1px; min-height:1px; display:block; width:650px; min-width:650px;" border="0" /></td>
-                  </tr>
                 </table>
               </td>
             </tr>
