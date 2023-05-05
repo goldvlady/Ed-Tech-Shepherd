@@ -9,11 +9,13 @@ import BookSession from './views/BookSession';
 import Onboard from './views/Onboard';
 import OnboardStudent from './views/OnboardStudent';
 import OnboardTutor from './views/OnboardTutor';
+import Login from './views/Login';
+import SignUp from './views/SignUp';
 
-const RedirectToLanding: React.FC = () => {
-  window.location.href = 'https://shepherdtutors.com/';
-  return null;
-}
+// const RedirectToLanding: React.FC = () => {
+//   window.location.href = 'https://shepherdtutors.com/';
+//   return null;
+// }
 
 const AppRoutes: React.FC = () => {
   const location = useLocation();
@@ -42,8 +44,10 @@ const AppRoutes: React.FC = () => {
     <Route path="booking/:bookingId/:studentOrTutor" element={<Booking />} />
     <Route path="booking/:bookingId" element={<Booking />} />
 
-    <Route path="*" element={<RedirectToLanding />} />
-    <Route path="" element={<RedirectToLanding />} />
+    {/* <Route path="*" element={<RedirectToLanding />} />
+    <Route path="" element={<RedirectToLanding />} /> */}
+    <Route path="login" element={<Login />} />
+    <Route path="sign-up" element={<SignUp />} />
   </Routes>
 }
 

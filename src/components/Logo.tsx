@@ -18,8 +18,9 @@ function createCSS() {
 }
 
 const Root = styled.svg`
-height: 55px;
-width: 88px;
+height: 75px;
+width: 95px;
+margin: auto;
 
 path {
     ${createCSS()}
@@ -50,7 +51,7 @@ path {
 
 type Props = React.ComponentPropsWithRef<typeof Root>;
 
-const Logo: React.FC<Props> = ({props}) => {
+const Logo: React.FC<Props> = ({ props }) => {
     return <Root
         xmlns="http://www.w3.org/2000/svg"
         width="572"

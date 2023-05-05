@@ -227,7 +227,7 @@ const OnboardStudent = () => {
                     <LargeSelect value={parentOrStudent} onChange={(v) => onboardStudentStore.set.parentOrStudent(v)} options={[
                         {
                             value: "parent",
-                            title: "Parent or Guardian",
+                            title: "FATHER or Guardian",
                             subtitle: "Choose this if you're signing up on behalf of someone else"
                         },
                         {
