@@ -1,7 +1,7 @@
 import { createStore } from '@udecode/zustood';
 import moment from 'moment-timezone';
 import { Entity, Schedule, Tutor } from '../types';
-import { TimestampedEntity } from '../../netlify/functions/types';
+import { TimestampedEntity } from '../../netlify/types';
 
 export default createStore('onboardTutorStore')<Omit<Tutor, keyof Entity | keyof  TimestampedEntity>>({
   name: {

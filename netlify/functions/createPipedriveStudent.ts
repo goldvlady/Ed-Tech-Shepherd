@@ -1,12 +1,10 @@
 import { Handler, schedule } from "@netlify/functions";
-import { connectToDb } from "./database/connection";
-import StudentLead from "./database/models/StudentLead";
-import { PipedriveService } from "./services/PipedriveService";
+import StudentLead from "../database/models/StudentLead";
+import { PipedriveService } from "../services/PipedriveService";
+import middy from "../utils/middy";
 
-const myHandler: Handler = async () => {
+const createPipedriveStudent = async () => {
   const pipedriveService = new PipedriveService();
-
-  await connectToDb();
 
   const studentsWithoutPipedriveDealId = await StudentLead.find({
     pipedriveDealId: null
@@ -27,10 +25,8 @@ const myHandler: Handler = async () => {
   }))
 
   return {
-    statusCode: 200,
+    statusCode: 200
   };
 };
 
-const handler = schedule("* * * * *", myHandler)
-
-export { handler };
+export const handler = schedule("* * * * *", middy(createPipedriveStudent) as unknown as Handler);

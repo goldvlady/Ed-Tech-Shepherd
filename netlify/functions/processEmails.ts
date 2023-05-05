@@ -1,12 +1,11 @@
 import { Handler, schedule } from "@netlify/functions";
-import { connectToDb } from "./database/connection";
-import Email from "./database/models/Email";
-import SESService from "./services/SESService";
+import { connectToDb } from "../database/connection";
+import Email from "../database/models/Email";
+import SESService from "../services/SESService";
+import middy from "../utils/middy";
 
-const myHandler: Handler = async () => {
+const processEmails = async () => {
     const sesService = new SESService();
-
-    await connectToDb();
 
     let unsentEmails = await Email.find({
         sent: null
@@ -36,6 +35,4 @@ const myHandler: Handler = async () => {
     };
 };
 
-const handler = schedule("* * * * *", myHandler)
-
-export { handler };
+export const handler = schedule("* * * * *", middy(processEmails) as unknown as Handler)

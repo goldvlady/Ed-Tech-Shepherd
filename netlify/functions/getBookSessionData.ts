@@ -1,17 +1,15 @@
 import { HandlerEvent } from "@netlify/functions";
-import { connectToDb } from "./database/connection";
-import StudentLead from "./database/models/StudentLead";
-import TutorLead from "./database/models/TutorLead";
+import StudentLead from "../database/models/StudentLead";
+import TutorLead from "../database/models/TutorLead";
+import middy from "../utils/middy";
 
 type Params = {
     studentLeadId: string;
     course: string;
 }
 
-export const handler = async (event: HandlerEvent) => {
+export const getBookSessionData = async (event: HandlerEvent) => {
     const { studentLeadId, course } = event.queryStringParameters as Params;
-
-    await connectToDb();
 
     const studentLead = await StudentLead.findById(studentLeadId);
     const matchedTutors = await TutorLead.find({
@@ -33,3 +31,5 @@ export const handler = async (event: HandlerEvent) => {
         })
     }
 }
+
+export const handler = middy(getBookSessionData);

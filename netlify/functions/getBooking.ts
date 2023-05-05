@@ -1,17 +1,15 @@
 import { HandlerEvent } from "@netlify/functions";
-import { connectToDb } from "./database/connection";
-import Booking, { Status } from "./database/models/Booking";
-import BookingHandler from "./handlers/BookingHandler";
+import Booking, { Status } from "../database/models/Booking";
+import BookingHandler from "../handlers/BookingHandler";
+import middy from "../utils/middy";
 
 type Params = {
     id: string;
 }
 
-export const handler = async (event: HandlerEvent) => {
+export const getBooking = async (event: HandlerEvent) => {
     const bookingHandler = new BookingHandler();
     const { id } = event.queryStringParameters as Params;
-
-    await connectToDb();
 
     let booking = await Booking.findById(id);
 
@@ -35,3 +33,5 @@ export const handler = async (event: HandlerEvent) => {
         body: JSON.stringify(booking)
     }
 }
+
+export const handler = middy(getBooking);

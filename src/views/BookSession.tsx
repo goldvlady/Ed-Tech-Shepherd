@@ -182,7 +182,6 @@ const BookSession = () => {
             })
 
             setPaymentInProgress(false);
-
             return
         }
 
