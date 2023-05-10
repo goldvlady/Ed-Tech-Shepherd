@@ -142,6 +142,7 @@ const WelcomeLayout = () => (
                                         })
                                     }
                                 </WelcomeItemRow>
+
                                 <WelcomeItemRow aria-hidden={true}>
                                     {
                                         welcomeItems.map(wi => {
