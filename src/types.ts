@@ -21,6 +21,7 @@ export type Course = {
     title: string;
     id: string;
     image: string;
+    icon?: string | React.ReactNode;
 };
 
 export type Student = StudentLead;

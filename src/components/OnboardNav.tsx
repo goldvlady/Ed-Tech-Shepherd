@@ -9,11 +9,11 @@ type Props = {
 
 const OnboardNav: React.FC<Props> = ({previousStep, nextStep, currentStep, canGoNext}) => {
 
-    return <Box display={"flex"} gap={4} marginTop={45} justifyContent="flex-end">
-        {currentStep !== undefined && currentStep > 1 && <Button variant={"looneyGhost"} onClick={previousStep} leftIcon={<FiArrowLeft />} size={"lg"}>
-            Back
+    return <Box display={"flex"} flexDirection="column" gap={4} marginTop={45} justifyContent="flex-end">
+        <Button variant='solid' colorScheme={"primary"} type="submit" isDisabled={!canGoNext} size={"lg"}>Next</Button>
+        {currentStep !== undefined && currentStep > 1 && <Button onClick={previousStep} variant="link">
+            Previous
         </Button>}
-        <Button type="submit" isDisabled={!canGoNext} variant={"looney"} size={"lg"}>Next</Button>
     </Box>
 }
 

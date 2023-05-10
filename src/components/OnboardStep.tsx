@@ -1,6 +1,6 @@
+import { Box } from "@chakra-ui/react";
 import * as React from "react";
 import OnboardNav from "./OnboardNav";
-import Panel from "./Panel";
 
 type Props = {
     children: React.ReactNode;
@@ -8,7 +8,7 @@ type Props = {
 } & React.ComponentPropsWithoutRef<typeof OnboardNav>;
 
 const OnboardStep: React.FC<Props> = ({ children, nextStep, hideNav = false, ...rest }) => {
-    return <Panel p={4} pt="30px">
+    return <Box p={4} pt="30px">
         <form onSubmit={(e) => {
             e.preventDefault();
             nextStep?.();
@@ -16,7 +16,7 @@ const OnboardStep: React.FC<Props> = ({ children, nextStep, hideNav = false, ...
             {children}
             {!hideNav && <OnboardNav {...rest} />}
         </form>
-    </Panel>
+    </Box>
 }
 
 export default OnboardStep;

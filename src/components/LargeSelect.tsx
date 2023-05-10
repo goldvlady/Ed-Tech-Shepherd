@@ -3,6 +3,25 @@ import * as React from "react";
 import styled from "styled-components";
 import theme from "../theme";
 
+const Title = styled(Text)`
+font-weight: 400;
+font-size: 16px;
+line-height: 21px;
+letter-spacing: -0.003em;
+color: #212224;
+margin-bottom: 0;
+`
+
+const Subtitle = styled(Text)`
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+color: #6E7682;
+text-align: left;
+margin-top: 6px;
+margin-bottom: 0;
+`
+
 const Root = styled(Box)`
 justify-content: center;
 `
@@ -12,26 +31,27 @@ display: flex;
 flex-direction: column;
 justify-content: center;
 padding: 20px;
-align-items: center;
 background: #FFF;
-box-shadow: 0px 0px 1px 0px ${theme.colors.gray[700]};
-border-radius: ${theme.radii.md};
+box-shadow: #e4e5e7 0px 0px 0px 1px;
+border-radius: 6px;
 height: 230px;
 width: 100%;
 box-sizing: border-box;
 
+svg {
+    fill: #6E7682;
+}
 
 &:hover {
-    box-shadow: 0px 0px 1px 0px ${theme.colors.primary[600]};
+    box-shadow: ${theme.colors.primary[600]} 0px 0px 0px 1px;
     background: ${theme.colors.gray[50]};
 }
 
 &.active {
-    box-shadow: ${theme.colors.primary[500]} 0px 0px 0px 2px;
-    background: ${theme.colors.primary[25]};
+    box-shadow: ${theme.colors.primary[400]} 0px 0px 0px 1.8px, 0px 6px 18px rgba(136, 139, 143, 0.18);
 
     svg {
-        color: ${theme.colors.primary[500]};
+        fill: #212224;
     }
 }
 `
@@ -54,12 +74,12 @@ export const LargeSelect: React.FC<Props> = ({ value, options, onChange }: Props
         <SimpleGrid columns={{ sm: 2 }} spacing='15px'>
         {
             options.map(o => <StyledOption onClick={() => onChange(o.value)} key={o.value} type="button" role="button" className={value === o.value ? "active" : ""}>
-                {!!o.icon && <Box width={40} height={40} fontSize={23} display="flex" alignItems="center" justifyContent="center">
+                {!!o.icon && <Box marginBottom={'25.67px'} display="flex" alignItems="center" justifyContent="center">
                     {o.icon}
                 </Box>}
-                <Text as='b' display="block" marginBottom={15}>{o.title}</Text>
+                <Title>{o.title}</Title>
                 <Box height={54} display="flex" alignItems={"flex-start"} flexShrink={0}>
-                    <Text margin={"0 !important"} fontSize="xs" display="block" marginTop={5}>{o.subtitle}</Text>
+                    <Subtitle>{o.subtitle}</Subtitle>
                 </Box>
             </StyledOption>)
         }

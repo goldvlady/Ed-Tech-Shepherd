@@ -9,6 +9,11 @@ import BookSession from './views/BookSession';
 import Onboard from './views/Onboard';
 import OnboardStudent from './views/OnboardStudent';
 import OnboardTutor from './views/OnboardTutor';
+import WelcomeLayout from './views/WelcomeLayout';
+
+import 'bootstrap/dist/css/bootstrap-grid.min.css';
+import 'bootstrap/dist/css/bootstrap-reboot.min.css';
+import 'bootstrap/dist/css/bootstrap-utilities.min.css';
 
 const RedirectToLanding: React.FC = () => {
   window.location.href = 'https://shepherdtutors.com/';
@@ -31,12 +36,14 @@ const AppRoutes: React.FC = () => {
   }, []);
 
   return <Routes>
-    <Route path="onboard" element={<Onboard />}>
-      <Route path="student" element={<OnboardStudent />} />
-      <Route path="tutor" element={<OnboardTutor />} />
+    <Route element={<WelcomeLayout />}>
+      <Route path="onboard">
+        <Route path="student" element={<OnboardStudent />} />
+        <Route path="tutor" element={<OnboardTutor />} />
 
-      <Route path="*" element={<Navigate to="student" />} />
-      <Route path="" element={<Navigate to="student" />} />
+        <Route path="*" element={<Navigate to="student" />} />
+        <Route path="" element={<Navigate to="student" />} />
+      </Route>
     </Route>
     <Route path="book-session/:studentLeadId/:course" element={<BookSession />} />
     <Route path="booking/:bookingId/:studentOrTutor" element={<Booking />} />

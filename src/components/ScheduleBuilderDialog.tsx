@@ -105,41 +105,44 @@ const ScheduleBuilderDialog = React.forwardRef<ScheduleBuilderDialogRef, Props>(
                 <ModalCloseButton />
                 <ModalBody>
                     <Box>
-                        <FormLabel>
-                            <Box mb={2}>
-                                Day of the week
-                                <Box>
-                                    <Text variant={"muted"}>Select multiple days of the week to repeat availability across them</Text>
+                        <Box>
+                            <FormLabel>
+                                <Box mb={2}>
+                                    Day of the week
+                                    <Box>
+                                        <Text variant={"muted"}>Select multiple days of the week to repeat availability across them</Text>
+                                    </Box>
                                 </Box>
-                            </Box>
-                            <Select
-                                tagVariant="solid"
-                                {...selectProps}
-                            />
-                        </FormLabel>
-                    </Box>
-                    <Box>
-                        <FormLabel>
-                            <Box mb={2}>Time</Box>
-                        </FormLabel>
-                        <Box display={"flex"} alignItems="center" gap={"7px"}>
-                            <TimePicker inputProps={{ placeholder: '01:00 PM' }} value={fromTime} onChange={(v: string) => {
-                                setFromTime(v)
-                            }} />
-                            <Text as="small">to</Text>
-                            <TimePicker inputProps={{ placeholder: '06:00 PM' }} value={toTime} onChange={(v: string) => {
-                                setToTime(v)
-                            }} />
+                                <Select
+                                    tagVariant="solid"
+                                    {...selectProps}
+                                />
+                            </FormLabel>
                         </Box>
+                        <Box>
+                            <FormLabel>
+                                <Box>Time</Box>
+                            
+                            <Box display={"flex"} alignItems="center" gap={"7px"}>
+                                <TimePicker inputProps={{ placeholder: '01:00 PM' }} value={fromTime} onChange={(v: string) => {
+                                    setFromTime(v)
+                                }} />
+                                <Text as="small">to</Text>
+                                <TimePicker inputProps={{ placeholder: '06:00 PM' }} value={toTime} onChange={(v: string) => {
+                                    setToTime(v)
+                                }} />
+                            </Box>
+                            </FormLabel>
+                        </Box>
+                        {hoursDiff < 0 && !!fromTime && !!toTime && <Alert status='error' mt={3}>
+                            <AlertIcon />
+                            The start time should be before the end time.
+                        </Alert>}
                     </Box>
-                    {hoursDiff < 0 && !!fromTime && !!toTime && <Alert status='error' mt={3}>
-                        <AlertIcon />
-                        The start time should be before the end time.
-                    </Alert>}
                 </ModalBody>
 
                 <ModalFooter>
-                    <Button isDisabled={!canDone} onClick={done} variant={"looney"}>Done</Button>
+                    <Button isDisabled={!canDone} onClick={done}>Done</Button>
                 </ModalFooter>
             </ModalContent>
         </Modal>

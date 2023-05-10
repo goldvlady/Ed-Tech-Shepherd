@@ -1,4 +1,4 @@
-import { Box, SimpleGrid } from "@chakra-ui/react";
+import { Box, SimpleGrid, Text } from "@chakra-ui/react";
 import { includes, xor } from "lodash";
 import * as React from "react";
 import styled from "styled-components";
@@ -12,24 +12,31 @@ justify-content: center;
 `
 
 const StyledOption = styled('button')`
+width: 100%;
+height: 172px;
 display: flex;
+align-items: center;
+justify-content: center;
 flex-direction: column;
-background: #FFF;
-border: 1px solid ${theme.colors.gray[300]};
-border-radius: 14px;
+background: #F7F7F8;
+box-shadow: #E9EAEC 0px 0px 0px 1px;
+border-radius: 6px;
 overflow: hidden;
 transition: all .2s ease-out;
+color: #585F68;
+
+&.something-else {
+    background: #FFF;
+    color: #6E7682;
+}
 
 &:hover {
-    border-color: ${theme.colors.primary[600]};
+    box-shadow: ${theme.colors.primary[600]} 0px 0px 0px 1px;
     background: ${theme.colors.gray[50]};
 }
 
 &.active {
-    border: 1px solid ${theme.colors.primary[500]};
-    background: ${theme.colors.primary[500]};
-
-    color: #FFF;
+    box-shadow: ${theme.colors.primary[400]} 0px 0px 0px 1.8px, 0px 6px 18px rgba(136, 139, 143, 0.18);
 
     svg {
         color: ${theme.colors.primary[500]};
@@ -37,22 +44,17 @@ transition: all .2s ease-out;
 }
 `
 
-const Image = styled.img`
-height: 115px;
-width: 100%;
-object-fit: cover;
-
+const StyledOptionTitle = styled(Text)`
+font-weight: 400;
+font-size: 16px;
+line-height: 21px;
+letter-spacing: -0.003em;
+margin-bottom: 0;
+max-width: 135px;
 `
 
-const Meta = styled.div`
-width: 100%;
-border-top: 1px solid ${theme.colors.gray[300]};
-padding: 0.7rem;
-
-h6 {
-    margin: 0;
-    font-weight: bolder!important;
-}
+const StyledOptionIcon = styled.img`
+margin: 0 auto;
 `
 
 type Option = Course & {
@@ -72,14 +74,19 @@ export const CourseSelect: React.FC<Props> = ({ value, options, multi = false, o
         multi ? onChange(xor(value, [v])) : onChange(v);
     }
 
+    console.log(options);
+    
+
     return <Root>
         <SimpleGrid width={'100%'} columns={{ base: 1, sm: 2 }} spacing='15px'>
             {
-                options.map(o => <StyledOption onClick={() => toggleArrayValue(o.value)} key={o.value} type="button" role="button" className={(multi ? includes(value, o.value) : value === o.value) ? "active" : ""}>
-                    <Image alt={o.title} src={o.image} />
-                    <Meta>
-                        <h6>{o.title}</h6>
-                    </Meta>
+                options.map(o => <StyledOption onClick={() => toggleArrayValue(o.value)} key={o.value} type="button" role="button" className={`${(multi ? includes(value, o.value) : value === o.value) ? "active" : ""} ${o.id}`}>
+                    <Box>
+                        {!!o.icon && <Box marginBottom={'18px'}>
+                            {typeof o.icon === 'string' ? <StyledOptionIcon alt={o.title} src={o.icon} /> : o.icon}
+                        </Box>}
+                        <StyledOptionTitle>{o.title}</StyledOptionTitle>
+                    </Box>
                 </StyledOption>)
             }
         </SimpleGrid>
