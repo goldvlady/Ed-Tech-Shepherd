@@ -385,7 +385,7 @@ const OnboardTutor = () => {
             id: 'name',
             stepIndicatorId: 'about-you',
             template: <Box>
-                <Heading as='h2' size='lg' textAlign={"center"}>
+                <Heading as='h3' size='lg' textAlign={"center"}>
                     First we need some information about you.<br />
                     What's your name?
                 </Heading>
@@ -406,7 +406,7 @@ const OnboardTutor = () => {
             id: 'dob',
             stepIndicatorId: 'about-you',
             template: <Box>
-                <Heading as='h2' size='lg' textAlign={"center"}>
+                <Heading as='h3' size='lg' textAlign={"center"}>
                     Nice to meet you, <Text as="span" textTransform="capitalize">{name.first}</Text>!<br />What's your date of birth?
                 </Heading>
                 <Box marginTop={30}>
@@ -435,7 +435,7 @@ const OnboardTutor = () => {
             id: 'email',
             stepIndicatorId: 'about-you',
             template: <Box>
-                <Heading as='h2' size='lg' textAlign={"center"}>
+                <Heading as='h3' size='lg' textAlign={"center"}>
                     We'll need your email address as well
                 </Heading>
                 <Box marginTop={30}>
@@ -451,7 +451,7 @@ const OnboardTutor = () => {
             id: 'more-info',
             stepIndicatorId: 'about-you',
             template: <Box>
-                <Heading as='h2' size='lg' textAlign={"center"}>
+                <Heading as='h3' size='lg' textAlign={"center"}>
                     And some more information
                 </Heading>
                 <Box marginTop={30}>
@@ -502,7 +502,7 @@ const OnboardTutor = () => {
             id: 'profile-setup',
             stepIndicatorId: 'about-you',
             template: <Box>
-                <Heading as='h2' size='lg' textAlign={"center"}>
+                <Heading as='h3' size='lg' textAlign={"center"}>
                     We'll need these to setup your profile
                 </Heading>
                 <Box marginTop={30}>
@@ -533,7 +533,7 @@ const OnboardTutor = () => {
             id: 'classes',
             stepIndicatorId: 'classes',
             template: <Box>
-                <Heading as='h2' size='lg' textAlign={"center"}>
+                <Heading as='h3' size='lg' textAlign={"center"}>
                     What classes are you interested in teaching?
                 </Heading>
                 <Box marginTop={30}>
@@ -568,7 +568,7 @@ const OnboardTutor = () => {
             id: 'rate',
             stepIndicatorId: 'rate',
             template: <Box>
-                <Heading as='h2' size='lg' textAlign={"center"}>
+                <Heading as='h3' size='lg' textAlign={"center"}>
                     How much would you like to get paid hourly?
                 </Heading>
                 <Box marginTop={30}>
@@ -586,7 +586,7 @@ const OnboardTutor = () => {
         {
             id: 'confirm',
             template: <Box>
-                <Heading as='h2' size='lg' textAlign={"center"}>
+                <Heading as='h3' size='lg' textAlign={"center"}>
                     Review Your Onboarding Information
                 </Heading>
                 <Box marginTop={30}>
@@ -675,7 +675,7 @@ const OnboardTutor = () => {
                 </ModalFooter>
             </ModalContent>
         </Modal>
-        <StepIndicator activeStep={stepIndicatorSteps.findIndex(s => s === stepIndicatorActiveStep)} steps={stepIndicatorSteps} />
+        {/* <StepIndicator activeStep={stepIndicatorSteps.findIndex(s => s === stepIndicatorActiveStep)} steps={stepIndicatorSteps} /> */}
         <Box mt={45}>
             <StepWizard isLazyMount className='flex-col-reverse' onStepChange={onStepChange}>
                 {
