@@ -125,7 +125,7 @@ const welcomeItems = [
 
 const WelcomeLayout = () => (
     <Root className="container-fluid">
-        <Box className="row">
+        <Box minHeight={'100vh'} className="row">
         <WelcomeColumn className="col-sm-5 p-0">
             <WelcomeHeading as={"h1"}>Hi there, <span style={{ color: theme.colors.primary[400] }}>Welcome!</span></WelcomeHeading>
             <WelcomeItems>
