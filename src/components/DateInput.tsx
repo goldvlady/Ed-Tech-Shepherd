@@ -51,7 +51,7 @@ const DateInput: React.FC<DateInputProps> = ({ value, onChange, ...rest }) => {
               {...rest}
             />
             <InputRightElement top={'50%'} transform={'translateY(-50%)'} paddingRight={'20px'} width='4.5rem'>
-              <Text color={'#969CA6'} fontSize='12px' fontWeight={400} margin={0}>{FORMAT}</Text>
+              <Text color={'#969CA6'} fontSize='12px' fontWeight={400} margin={0}>{FORMAT.toLowerCase()}</Text>
             </InputRightElement>
           </InputGroup>
         )}

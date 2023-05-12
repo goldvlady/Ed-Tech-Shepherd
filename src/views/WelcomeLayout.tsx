@@ -9,6 +9,11 @@ const WelcomeColumn = styled.div`
 position: relative;
 z-index: 5;
 background: #F8F8F8;
+position: fixed;
+left: 0;
+top: 0;
+bottom: 0;
+overflow: auto;
 `
 
 const ContentColumn = styled.div`
@@ -126,7 +131,7 @@ const welcomeItems = [
 const WelcomeLayout = () => (
     <Root className="container-fluid">
         <Box minHeight={'100vh'} className="row">
-        <WelcomeColumn className="col-sm-5 p-0">
+        <WelcomeColumn className="d-none d-sm-block col-sm-5 p-0">
             <WelcomeHeading as={"h1"}>Hi there, <span style={{ color: theme.colors.primary[400] }}>Welcome!</span></WelcomeHeading>
             <WelcomeItems>
                 {
@@ -158,7 +163,7 @@ const WelcomeLayout = () => (
                 }
             </WelcomeItems>
         </WelcomeColumn>
-        <ContentColumn className="col-sm-7">
+        <ContentColumn className="col-sm-7 offset-sm-5 py-5">
             <Box maxWidth={'500px'} width='100%'>
                 <Box display={"flex"} marginBottom='50px' justifyContent="center">
                     <Logo />

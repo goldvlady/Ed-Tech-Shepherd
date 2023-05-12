@@ -29,7 +29,7 @@ const EmptyState: React.FC<Props> = ({ image, action, title, subtitle }) => {
                 <Box mb={3}>
                     {image}
                 </Box>
-                <Heading textAlign="center" fontSize="x-large">{title}</Heading>
+                <Heading as="h4" textAlign="center">{title}</Heading>
                 {!!subtitle && <Text textAlign={"center"} color={theme.colors.gray[500]}>{subtitle}</Text>}
                 {!!action && <Box pt={3}>
                     {action}

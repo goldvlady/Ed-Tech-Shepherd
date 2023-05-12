@@ -10,6 +10,7 @@ line-height: 21px;
 letter-spacing: -0.003em;
 color: #212224;
 margin-bottom: 0;
+text-align: left;
 `
 
 const Subtitle = styled(Text)`

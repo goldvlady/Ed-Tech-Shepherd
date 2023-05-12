@@ -1,16 +1,13 @@
 import * as React from "react";
 import styled from "styled-components";
-import { Alert, AlertIcon, Box, Button, FormLabel, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text, useDisclosure } from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Button, FormControl, FormLabel, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text, useDisclosure } from '@chakra-ui/react'
 import { useRef, useState } from "react";
 import { Schedule } from "../types";
 import { numberToDayOfWeekName } from "../util";
-import {
-    Select,
-    useChakraSelectProps,
-} from "chakra-react-select";
 import moment from "moment";
 import { isEmpty } from "lodash";
 import TimePicker from "./TimePicker";
+import Select from "./Select";
 
 export interface ScheduleBuilderDialogRef {
     buildSchedule: (dayOfWeek: number | null) => Promise<Schedule[]>
@@ -81,13 +78,6 @@ const ScheduleBuilderDialog = React.forwardRef<ScheduleBuilderDialogRef, Props>(
         reset();
     }
 
-    const selectProps = useChakraSelectProps({
-        value: days,
-        isMulti: true,
-        onChange: (v => setDays(v as Array<any>)),
-        options: dayOptions
-    });
-
     const dateStr = moment().format(parseDateFormat)
 
     const fromTimeDate = moment(`${dateStr}, ${fromTime}`, `${parseDateFormat}, ${parseTimeFormat}`);
@@ -114,25 +104,30 @@ const ScheduleBuilderDialog = React.forwardRef<ScheduleBuilderDialogRef, Props>(
                                     </Box>
                                 </Box>
                                 <Select
+                                    value={days}
+                                    isMulti
+                                    onChange={(v => setDays(v as Array<any>))}
                                     tagVariant="solid"
-                                    {...selectProps}
+                                    options={dayOptions}
                                 />
                             </FormLabel>
                         </Box>
                         <Box>
-                            <FormLabel>
-                                <Box>Time</Box>
-                            
-                            <Box display={"flex"} alignItems="center" gap={"7px"}>
-                                <TimePicker inputProps={{ placeholder: '01:00 PM' }} value={fromTime} onChange={(v: string) => {
-                                    setFromTime(v)
-                                }} />
-                                <Text as="small">to</Text>
-                                <TimePicker inputProps={{ placeholder: '06:00 PM' }} value={toTime} onChange={(v: string) => {
-                                    setToTime(v)
-                                }} />
-                            </Box>
-                            </FormLabel>
+                            <FormControl>
+                                <FormLabel>
+                                    <Box>Time</Box>
+                                </FormLabel>
+
+                                <Box display={"flex"} alignItems="center" gap={"7px"}>
+                                    <TimePicker inputProps={{ placeholder: '01:00 PM' }} value={fromTime} onChange={(v: string) => {
+                                        setFromTime(v)
+                                    }} />
+                                    <Text as="small">to</Text>
+                                    <TimePicker inputProps={{ placeholder: '06:00 PM' }} value={toTime} onChange={(v: string) => {
+                                        setToTime(v)
+                                    }} />
+                                </Box>
+                            </FormControl>
                         </Box>
                         {hoursDiff < 0 && !!fromTime && !!toTime && <Alert status='error' mt={3}>
                             <AlertIcon />

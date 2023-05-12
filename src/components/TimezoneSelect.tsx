@@ -1,8 +1,8 @@
 import * as React from "react";
 import moment from 'moment-timezone';
-import { useChakraSelectProps, Select } from "chakra-react-select";
 import { zones } from "../tzdata";
 import { useCallback, useEffect } from "react";
+import Select from "./Select";
 
 type Props = {
     value: any;
@@ -20,11 +20,6 @@ const options = zones.map(tz => {
 }).sort((a,b) => a.offset - b.offset);
 
 const TimezoneSelect: React.FC<Props> = ({ value, onChange }) => {
-    const selectProps = useChakraSelectProps({
-        onChange,
-        options: options
-    });
-
     const guessTimezone = useCallback(() => {
         const assumedTimezone = moment.tz.guess();
         const assumedTimezoneInOptions = options.find(o => o.value === assumedTimezone);
@@ -38,10 +33,12 @@ const TimezoneSelect: React.FC<Props> = ({ value, onChange }) => {
             guessTimezone();
     }, [guessTimezone])
 
+    
     return <Select
         tagVariant="solid"
+        options={options}
+        onChange={onChange}
         defaultValue={options.find(o => o.value === value)}
-        {...selectProps}
     />
 }
 

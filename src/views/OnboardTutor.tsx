@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import StepIndicator from '../components/StepIndicator';
 import { FiUser, FiCalendar, FiBookOpen, FiDollarSign, FiEdit } from "react-icons/fi";
-import { Box, FormLabel, Heading, Input, Text, CircularProgress, InputGroup, InputLeftAddon, Alert, AlertIcon, VStack, useToast, Flex, IconButton, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, useDisclosure, StackDivider, Avatar, Textarea } from '@chakra-ui/react';
+import { Box, FormLabel, Heading, Input, Text, CircularProgress, InputGroup, InputLeftAddon, Alert, AlertIcon, VStack, useToast, Flex, IconButton, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, useDisclosure, StackDivider, Avatar, Textarea, FormControl } from '@chakra-ui/react';
 import StepWizard, { StepWizardProps } from 'react-step-wizard';
 import OnboardStep from '../components/OnboardStep';
 import onboardTutorStore from '../state/onboardTutorStore';
@@ -390,14 +390,14 @@ const OnboardTutor = () => {
                     What's your name?
                 </Heading>
                 <Box marginTop={30}>
-                    <FormLabel>
-                        First name
+                    <FormControl>
+                        <FormLabel>First name</FormLabel>
                         <Input value={name.first} onChange={(e) => onboardTutorStore.set.name({ ...name, first: e.target.value })} />
-                    </FormLabel>
-                    <FormLabel>
-                        Last name
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel>Last name</FormLabel>
                         <Input value={name.last} onChange={(e) => onboardTutorStore.set.name({ ...name, last: e.target.value })} />
-                    </FormLabel>
+                    </FormControl>
                 </Box>
             </Box>,
             canSave: validateNameStep
@@ -410,15 +410,14 @@ const OnboardTutor = () => {
                     Nice to meet you, <Text as="span" textTransform="capitalize">{name.first}</Text>!<br />What's your date of birth?
                 </Heading>
                 <Box marginTop={30}>
-                    {(!dobValid) || (age >= 18) ? <FormLabel>
-                        Date of birth
+                    {(!dobValid) || (age >= 18) ? <FormControl><FormLabel>Date of birth</FormLabel>
                         <DateInput
                             value={dob}
                             onChange={(v) => {
                                 onboardTutorStore.set.dob(v)
                             }}
                         />
-                    </FormLabel> : <EmptyState
+                    </FormControl> : <EmptyState
                         title="Uh oh!"
                         subtitle={"Looks like you're not quite old enough to sign up for this. You'll need to be at least 18 years old to join as a tutor. Don't worry, you'll be eligible to tutor with us soon enough!"}
                         image={<img alt="uh oh!"
@@ -439,10 +438,10 @@ const OnboardTutor = () => {
                     We'll need your email address as well
                 </Heading>
                 <Box marginTop={30}>
-                    <FormLabel>
-                        Email address
+                    <FormControl>
+                        <FormLabel>Email address</FormLabel>
                         <Input value={email} onChange={(e) => onboardTutorStore.set.email(e.target.value)} type="email" />
-                    </FormLabel>
+                    </FormControl>
                 </Box>
             </Box>,
             canSave: validateEmailStep,
@@ -456,24 +455,24 @@ const OnboardTutor = () => {
                 </Heading>
                 <Box marginTop={30}>
                     <VStack align='stretch' spacing={3}>
-                        <FormLabel margin={0}>
-                            Current Occupation
+                        <FormControl>
+                            <FormLabel margin={0}>Current Occupation</FormLabel>
                             <CreatableSelect
                                 tagVariant="solid"
                                 isClearable
                                 {...occupationSelectProps}
                             />
-                        </FormLabel>
-                        <FormLabel>
-                            Highest Level of Education Obtained
+                        </FormControl>
+                        <FormControl>
+                            <FormLabel>Highest Level of Education Obtained</FormLabel>
                             <CreatableSelect
                                 tagVariant="solid"
                                 isClearable
                                 {...highestEducationLevelSelectProps}
                             />
-                        </FormLabel>
-                        <FormLabel>
-                            Upload a copy of your CV
+                        </FormControl>
+                        <FormControl>
+                            <FormLabel>Upload a copy of your CV</FormLabel>
                             <Text variant={"muted"} marginBottom={"4px"}>Please upload a PDF, JPG, or PNG file under 2MB</Text>
                             {!!!selectedCV && <InputGroup>
                                 <Input type={"file"} accept="application/pdf, image/jpeg, image/png" paddingTop="4px" onChange={(e) => {
@@ -484,15 +483,15 @@ const OnboardTutor = () => {
                                 e.preventDefault();
                                 setSelectedCV(null);
                             }} />}
-                        </FormLabel>
-                        <FormLabel>
-                            Level of students you can teach
+                        </FormControl>
+                        <FormControl>
+                            <FormLabel>Level of students you can teach</FormLabel>
                             <CreatableSelect
                                 tagVariant="solid"
                                 isClearable
                                 {...teachLevelSelectProps}
                             />
-                        </FormLabel>
+                        </FormControl>
                     </VStack>
                 </Box>
             </Box>,
@@ -507,8 +506,8 @@ const OnboardTutor = () => {
                 </Heading>
                 <Box marginTop={30}>
                     <VStack align='stretch' spacing={3}>
-                        <FormLabel>
-                            Upload an avatar
+                        <FormControl>
+                            <FormLabel>Upload an avatar</FormLabel>
                             <Text variant={"muted"} marginBottom={"4px"}>Please upload a JPG or PNG file under 1MB</Text>
                             {!!!selectedAvatar && <InputGroup>
                                 <Input type={"file"} accept="image/jpeg, image/png" paddingTop="4px" onChange={(e) => {
@@ -519,11 +518,12 @@ const OnboardTutor = () => {
                                 e.preventDefault();
                                 setSelectedAvatar(null);
                             }} />}
-                        </FormLabel>
-                        <FormLabel>
-                            Tell us a little bit about yourself
+
+                        </FormControl>
+                        <FormControl>
+                            <FormLabel>Tell us a little bit about yourself</FormLabel>
                             <Textarea placeholder={`Hi, I'm ${name.first}, ...`} value={description} onChange={(e) => onboardTutorStore.set.description?.(e.target.value)} />
-                        </FormLabel>
+                        </FormControl>
                     </VStack>
                 </Box>
             </Box>,
@@ -548,10 +548,10 @@ const OnboardTutor = () => {
             id: 'availability',
             stepIndicatorId: 'availability',
             template: <Box>
-                <FormLabel m={0}>
-                    Time zone
+                <FormControl>
+                    <FormLabel m={0}>Time zone</FormLabel>
                     <TimezoneSelect value={tz} onChange={(v) => onboardTutorStore.set.tz(v.value)} />
-                </FormLabel>
+                </FormControl>
                 <Box mt={"20px"}>
                     {totalAvailableHours > 0 && totalAvailableHours < 3 && <Box mb={"15px"}>
                         <Alert status='info'>
@@ -572,13 +572,13 @@ const OnboardTutor = () => {
                     How much would you like to get paid hourly?
                 </Heading>
                 <Box marginTop={30}>
-                    <FormLabel m={0}>
-                        Rate
+                    <FormControl>
+                        <FormLabel m={0}>Rate</FormLabel>
                         <InputGroup>
                             <InputLeftAddon children='$' />
                             <Input min={0} inputMode="numeric" value={rate} onChange={(e) => onboardTutorStore.set.rate(parseInt(e.target.value))} type="number" placeholder='Hourly rate' />
                         </InputGroup>
-                    </FormLabel>
+                    </FormControl>
                 </Box>
             </Box>,
             canSave: validateRateStep,
@@ -644,7 +644,7 @@ const OnboardTutor = () => {
     useEffect(() => {
         if (name.first && name.last)
             mixpanel.people.set({ "$name": `${name.first} ${name.last}` });
-    
+
         if (email)
             mixpanel.people.set({ "$email": email });
 
@@ -655,7 +655,7 @@ const OnboardTutor = () => {
     }, [email, name, age]);
 
     useEffect(() => {
-        mixpanel.register({...data, type: 'tutor'});
+        mixpanel.register({ ...data, type: 'tutor' });
     }, [data]);
 
     const canSaveCurrentEditModalStep = steps.find(s => s.id === editModalStep)?.canSave;

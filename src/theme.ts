@@ -120,6 +120,23 @@ const linkButton = defineStyle({
 })
 
 const inputField = defineStyle({
+    addon: {
+        background: 'none',
+        position: 'relative',
+        '&:before': {
+            content: '""',
+            display: 'block',
+            position: 'absolute',
+            left: '-1px',
+            top: 0,
+            bottom: 0,
+            width: '1px',
+            background: '#FFF',
+        }
+    },
+    '.chakra-divider': {
+        display: 'none'
+    },
     field: {
         border: '1px solid #E4E6E7',
         boxShadow: '0px 2px 6px rgba(136, 139, 143, 0.1)',
@@ -182,6 +199,21 @@ export const formLabelTheme = defineStyleConfig({
         letterSpacing: '-0.001em',
         marginInlineEnd: '0'
     }),
+})
+
+export const menuListTheme = defineStyle({
+    baseStyle: defineStyle({
+        list: {
+            boxShadow: '0px 6px 16px rgba(10, 9, 11, 0.08), 0px 0px 0px 1px rgba(10, 9, 11, 0.05)',
+            border: 'none',
+            borderRadius: '8px',
+            padding: '8px',
+        },
+        item: {
+            borderRadius: '6px',
+            background: '#FFF',
+        }
+    })
 })
 
 export const inputTheme = defineStyleConfig({
@@ -255,13 +287,11 @@ const alertTheme = defineAlertMultiStyleConfig({
 const theme = extendTheme({
     colors,
     ...borderRadius,
-    components: { Button: buttonTheme, Text: textTheme, Checkbox: checkboxTheme, Alert: alertTheme, Input: inputTheme, FormLabel: formLabelTheme, Modal: modalTheme },
+    components: { Button: buttonTheme, Text: textTheme, Checkbox: checkboxTheme, Alert: alertTheme, Input: inputTheme, FormLabel: formLabelTheme, Modal: modalTheme, Menu: menuListTheme },
     styles: {
         global: (props: any) => ({
             body: {
                 bg: "#f5f5f5",
-                //backgroundImage: 'url(https://www.transparenttextures.com/patterns/notebook-dark.png)'
-                //bg: "#eef1f7"
             }
         })
     },

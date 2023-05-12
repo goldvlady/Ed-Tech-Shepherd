@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import StepIndicator from '../components/StepIndicator';
-import { FiUser, FiCalendar, FiBookOpen, FiEdit, FiTrash } from "react-icons/fi";
-import { Box, FormLabel, Heading, Input, Text, CircularProgress, Link, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, VStack, StackDivider, Flex, IconButton, Textarea, HStack } from '@chakra-ui/react';
+import { FiUser, FiCalendar, FiBookOpen, FiEdit } from "react-icons/fi";
+import { Box, FormLabel, Heading, Input, Text, CircularProgress, Link, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, VStack, StackDivider, Flex, IconButton, FormControl } from '@chakra-ui/react';
 import StepWizard, { StepWizardChildProps, StepWizardProps } from 'react-step-wizard';
 import LargeSelect from '../components/LargeSelect';
 import OnboardStep from '../components/OnboardStep';
@@ -23,12 +22,12 @@ import EmptyState from '../components/EmptyState';
 import DateInput, { FORMAT } from '../components/DateInput';
 import { Course, Schedule } from '../types';
 import { formatContentFulCourse, getContentfulClient } from '../contentful';
-import { Select } from 'chakra-react-select';
 import { getOptionValue } from '../util';
 import theme from '../theme';
 import styled from 'styled-components';
 import { useLocation } from 'react-router';
 import mixpanel from 'mixpanel-browser';
+import Select from '../components/Select';
 
 const client = getContentfulClient();
 
@@ -62,17 +61,41 @@ const stepIndicatorSteps = [
     }
 ]
 
+const SkillLevelImg = styled.div`
+height: 30px;
+width: 30px;
+background: white;
+border-radius: 100%;
+border: 0.6px solid #EAEAEB;
+object-fit: scale-down;
+padding: 8px;
+align-items: center;
+flex-shrink: 0;
+`
+
+const SkillLevel = styled.div`
+display: flex;
+gap: 8px;
+align-items: center;
+&:hover,
+.active {
+    ${SkillLevelImg} {
+        box-shadow: 0px 2px 10px rgba(63, 81, 94, 0.1);
+    }
+}
+`
+
 const skillLevelOptions = [
     {
-        label: "Beginner",
+        label: <SkillLevel><SkillLevelImg><img src='/images/beginner.png' /></SkillLevelImg> Beginner</SkillLevel>,
         value: "beginner"
     },
     {
-        label: "Intermediate",
+        label: <SkillLevel><SkillLevelImg><img src='/images/intermediate.png' /></SkillLevelImg> Intermediate</SkillLevel>,
         value: "intermediate"
     },
     {
-        label: "Advanced",
+        label: <SkillLevel><SkillLevelImg><img src='/images/advanced.png' /></SkillLevelImg> Advanced</SkillLevel>,
         value: "advanced"
     }
 ];
@@ -91,8 +114,6 @@ const OnboardStudent = () => {
     const { isOpen: editModalOpen, onOpen: onEditModalOpen, onClose: onEditModalClose } = useDisclosure();
 
     const onStepChange: StepWizardProps["onStepChange"] = ({ activeStep, ...rest }) => {
-        console.log(rest);
-
         setActiveStep(activeStep);
     }
 
@@ -257,27 +278,27 @@ const OnboardStudent = () => {
                     What's your name?
                 </Heading>
                 <Box marginTop={30}>
-                    <FormLabel>
-                        First Name
+                    <FormControl>
+                        <FormLabel>First Name</FormLabel>
                         <Input value={name.first} onChange={(e) => onboardStudentStore.set.name({ ...name, first: e.target.value })} />
-                    </FormLabel>
-                    <FormLabel marginTop={4}>
-                        Last Name
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel marginTop={4}>Last Name</FormLabel>
                         <Input value={name.last} onChange={(e) => onboardStudentStore.set.name({ ...name, last: e.target.value })} />
-                    </FormLabel>
-                    <FormLabel marginTop={4}>
-                        Email
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel marginTop={4}>Email</FormLabel>
                         <Input value={email} onChange={(e) => onboardStudentStore.set.email(e.target.value)} type="email" />
-                    </FormLabel>
-                    <FormLabel marginTop={4}>
-                        Date of Birth
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel marginTop={4}>Date of Birth</FormLabel>
                         <DateInput
                             value={dob}
                             onChange={(v) => {
                                 onboardStudentStore.set.dob(v)
                             }}
                         />
-                    </FormLabel>
+                    </FormControl>
                 </Box>
             </Box>,
             canSave: validateAboutYouStep
@@ -357,23 +378,28 @@ const OnboardStudent = () => {
                         const courseName = c === 'something-else' ? capitalize(somethingElse) : courseList.find(ac => ac.id === c)?.title;
 
                         if (c === 'maths') {
-                            return <Box key={'course-supplementary' + c}><FormLabel>
-                                {parentOrStudent === "parent" ? "What grade level is your child in?" : "What grade level are you in?"}
-                                <Input value={gradeLevel} onChange={(e) => onboardStudentStore.set.gradeLevel(e.target.value)} placeholder='e.g Grade 12' required />
-                            </FormLabel>
-                                <FormLabel>
-                                    {parentOrStudent === "parent" ? "What Maths topic does your child need help with?" : "What Maths topic do you need help with?"}
+                            return <Box key={'course-supplementary' + c}>
+                                <FormControl>
+                                    <FormLabel>{parentOrStudent === "parent" ? "What grade level is your child in?" : "What grade level are you in?"}</FormLabel>
+                                    <Input value={gradeLevel} onChange={(e) => onboardStudentStore.set.gradeLevel(e.target.value)} placeholder='e.g Grade 12' required />
+                                </FormControl>
+
+                                <FormControl>
+                                    <FormLabel>{parentOrStudent === "parent" ? "What Maths topic does your child need help with?" : "What Maths topic do you need help with?"}</FormLabel>
                                     <Input value={topic} onChange={(e) => onboardStudentStore.set.topic(e.target.value)} placeholder='e.g Algebra' required />
-                                </FormLabel>
+                                </FormControl>
                             </Box>
                         }
 
-                        return <FormLabel key={'course-supplementary' + c}>
-                            {parentOrStudent === "parent" ? `What's your child's skill level for ${courseName}?` : `What's your skill level for ${courseName}?`}
+                        return <FormControl>
+                            <FormLabel key={'course-supplementary' + c}>{parentOrStudent === "parent" ? `What's your child's skill level for ${courseName}?` : `What's your skill level for ${courseName}?`}</FormLabel>
                             <Select
                                 tagVariant="solid"
+                                placeholder={parentOrStudent === 'parent' ? 'Select your child\'s skill level' : 'Select your skill level'}
+                                size={'lg'}
                                 onChange={(v => {
-                                    const currSkillLevels = [...skillLevels]
+                                    const currSkillLevels = [...skillLevels];
+                                    // @ts-expect-error
                                     const slv = { course: c, skillLevel: v?.value };
                                     const currentIndex = currSkillLevels.findIndex(v => v.course === c);
                                     if (currentIndex > -1) {
@@ -387,7 +413,7 @@ const OnboardStudent = () => {
                                 defaultValue={getOptionValue(skillLevelOptions, skillLevels.find(s => s.course === c)?.skillLevel)}
                                 options={skillLevelOptions}
                             />
-                        </FormLabel>
+                        </FormControl>
                     })
                     }
                 </Box>
@@ -398,10 +424,10 @@ const OnboardStudent = () => {
             id: 'availability',
             stepIndicatorId: 'availability',
             template: <Box>
-                <FormLabel m={0}>
-                    Timezone
+                <FormControl>
+                    <FormLabel m={0}>Timezone</FormLabel>
                     <TimezoneSelect value={tz} onChange={(v) => onboardStudentStore.set.tz(v.value)} />
-                </FormLabel>
+                </FormControl>
                 <Box mt={"40px"}>
                     <ScheduleBuilder value={schedule} onChange={(v) => onboardStudentStore.set.schedule(v)} />
                 </Box>

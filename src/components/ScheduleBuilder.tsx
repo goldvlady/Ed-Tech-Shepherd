@@ -41,8 +41,8 @@ const ScheduleBuilder = React.forwardRef<ScheduleBuilderRef, Props>(({ onChange,
 
     return <Root>
         <ScheduleBuilderDialog ref={scheduleBuilderDialogRef} />
-        <Box mb={4} display="flex" justifyContent={"space-between"} alignItems="center">
-            <Heading size='md'>Availability</Heading>
+        <Box display="flex" justifyContent={"space-between"} alignItems="center">
+            <Heading as="h3">Availability</Heading>
             <Box>{!!!isEmpty(value) && <Button onClick={() => addTime(null)} leftIcon={<FiPlus />} colorScheme='primary' variant={"solid"}>Add Availability</Button>}</Box>
         </Box>
         {
