@@ -4,7 +4,7 @@ import { getAuth, GoogleAuthProvider, sendPasswordResetEmail as firebaseSendPass
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyAMifcZweS5BG3BfMQpjbbDP-pkF9cow2s",
   authDomain: "shepherd-app-382114.firebaseapp.com",
   projectId: "shepherd-app-382114",
