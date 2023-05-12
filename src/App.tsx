@@ -2,7 +2,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import mixpanel from 'mixpanel-browser';
 import React, { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
-import { BrowserRouter, useLocation } from 'react-router-dom';
+import { BrowserRouter, useLocation, useSearchParams } from 'react-router-dom';
 import theme from './theme';
 import Booking from './views/Booking';
 import BookSession from './views/BookSession';
@@ -14,10 +14,25 @@ import WelcomeLayout from './views/WelcomeLayout';
 import 'bootstrap/dist/css/bootstrap-grid.min.css';
 import 'bootstrap/dist/css/bootstrap-reboot.min.css';
 import 'bootstrap/dist/css/bootstrap-utilities.min.css';
+import Login from './views/Login';
+import Signup from './views/Signup';
+import ForgotPassword from './views/ForgotPassword';
+import CreatePassword from './views/CreatePassword';
 
 const RedirectToLanding: React.FC = () => {
   window.location.href = 'https://shepherdtutors.com/';
   return null;
+}
+
+const AuthAction = (props: any) => {
+  const [params] = useSearchParams()
+  const mode = params.get('mode')?.toLowerCase();
+
+  if (mode === 'resetpassword') {
+    return <CreatePassword {...props} />
+  }
+  
+  return <></>
 }
 
 const AppRoutes: React.FC = () => {
@@ -44,7 +59,13 @@ const AppRoutes: React.FC = () => {
         <Route path="*" element={<Navigate to="student" />} />
         <Route path="" element={<Navigate to="student" />} />
       </Route>
+
+      <Route path="login" element={<Login />} />
+      <Route path="signup" element={<Signup />} />
+      <Route path="forgot-password" element={<ForgotPassword />} />
+      <Route path="auth-action" element={<AuthAction />} />
     </Route>
+
     <Route path="book-session/:studentLeadId/:course" element={<BookSession />} />
     <Route path="booking/:bookingId/:studentOrTutor" element={<Booking />} />
     <Route path="booking/:bookingId" element={<Booking />} />

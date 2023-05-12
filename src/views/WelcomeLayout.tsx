@@ -1,4 +1,4 @@
-import { Box, Heading, Text } from "@chakra-ui/react";
+import { Box, Heading } from "@chakra-ui/react";
 import { Outlet } from "react-router";
 import styled from "styled-components";
 import Logo from "../components/Logo";
@@ -160,7 +160,7 @@ const WelcomeLayout = () => (
         </WelcomeColumn>
         <ContentColumn className="col-sm-7">
             <Box maxWidth={'500px'} width='100%'>
-                <Box display={"flex"} justifyContent="center">
+                <Box display={"flex"} marginBottom='50px' justifyContent="center">
                     <Logo />
                 </Box>
                 <Outlet />
