@@ -121,18 +121,36 @@ const linkButton = defineStyle({
 
 const inputField = defineStyle({
     addon: {
-        background: 'none',
+        background: '#FFF',
         position: 'relative',
-        '&:before': {
-            content: '""',
-            display: 'block',
-            position: 'absolute',
-            left: '-1px',
-            top: 0,
-            bottom: 0,
-            width: '1px',
-            background: '#FFF',
-        }
+
+        '&.chakra-input__left-addon': {
+            borderBottomLeftRadius: '6px',
+            borderTopLeftRadius: '6px',
+            '&:before': {
+                content: '""',
+                display: 'block',
+                position: 'absolute',
+                right: '-1px',
+                top: 0,
+                bottom: 0,
+                width: '5px',
+                background: '#FFF',
+            }
+        },
+
+        '&.chakra-input__right-addon': {
+            '&:before': {
+                content: '""',
+                display: 'block',
+                position: 'absolute',
+                left: '-1px',
+                top: 0,
+                bottom: 0,
+                width: '5px',
+                background: '#FFF',
+            }
+        },
     },
     '.chakra-divider': {
         display: 'none'
@@ -143,7 +161,6 @@ const inputField = defineStyle({
         color: '#212224',
         borderRadius: '6px',
         padding: '14px 14px 14px 16px',
-        minHeight: '48px',
 
         '::placeholder': {
             color: '#9A9DA2'
@@ -251,7 +268,8 @@ export const modalTheme = defineStyleConfig({
             }
         },
         footer: {
-            background: '#F7F7F8'
+            background: '#F7F7F8',
+            borderRadius: `0 0 ${borderRadius.radii.md} ${borderRadius.radii.md}`
         },
         body: {
             fontWeight: 400,

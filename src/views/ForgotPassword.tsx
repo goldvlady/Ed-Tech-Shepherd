@@ -81,7 +81,7 @@ const ForgotPassword: React.FC = () => {
                                 {({ field, form }: { field: any, form: any }) => (
                                     <FormControl isInvalid={form.errors.email && form.touched.email}>
                                         <FormLabel>Email</FormLabel>
-                                        <Input isInvalid={form.errors.email && form.touched.email} {...field} placeholder='Enter your email' />
+                                        <Input size={'lg'} isInvalid={form.errors.email && form.touched.email} {...field} placeholder='Enter your email' />
                                         <FormErrorMessage>{form.errors.email}</FormErrorMessage>
                                     </FormControl>
                                 )}

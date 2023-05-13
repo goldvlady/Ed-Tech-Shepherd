@@ -1,6 +1,6 @@
 import { Box, Button, FormControl, FormErrorMessage, FormLabel, Heading, Input, Link, Text, useToast } from '@chakra-ui/react';
 import { Field, Form, Formik } from 'formik';
-import React, { useState } from 'react';
+import React from 'react';
 import { Link as RouterLink, useNavigate } from "react-router-dom"
 import styled from 'styled-components';
 import SecureInput from '../components/SecureInput';
@@ -67,7 +67,7 @@ const Login: React.FC = () => {
                             {({ field, form }: { field: any, form: any }) => (
                                 <FormControl isInvalid={form.errors.email && form.touched.email}>
                                     <FormLabel>Email</FormLabel>
-                                    <Input isInvalid={form.errors.email && form.touched.email} {...field} placeholder='Enter your email' />
+                                    <Input size={'lg'} isInvalid={form.errors.email && form.touched.email} {...field} placeholder='Enter your email' />
                                     <FormErrorMessage>{form.errors.email}</FormErrorMessage>
                                 </FormControl>
                             )}
@@ -76,7 +76,7 @@ const Login: React.FC = () => {
                             {({ field, form }: { field: any, form: any }) => (
                                 <FormControl marginTop={'22px'} isInvalid={form.errors.password && form.touched.password}>
                                     <FormLabel>Password</FormLabel>
-                                    <SecureInput isInvalid={form.errors.password && form.touched.password} {...field} placeholder='Enter password' />
+                                    <SecureInput size={'lg'} isInvalid={form.errors.password && form.touched.password} {...field} placeholder='Enter password' />
                                     <FormErrorMessage>{form.errors.password}</FormErrorMessage>
                                 </FormControl>
                             )}

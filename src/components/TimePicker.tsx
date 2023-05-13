@@ -16,9 +16,10 @@ interface TimePickerProps {
   value: string;
   onChange: (value: string) => void;
   inputProps?: React.ComponentProps<typeof Input>;
+  inputGroupProps?: React.ComponentProps<typeof InputGroup>;
 }
 
-const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, inputProps = {} }) => {
+const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, inputProps = {}, inputGroupProps = {} }) => {
   const [hours, setHours] = useState<string>('')
   const [minutes, setMinutes] = useState<string>('')
   const [isPm, setIsPm] = useState<boolean>(false)
@@ -48,7 +49,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, inputProps = {
   return (
     <Popover>
       <PopoverTrigger>
-        <InputGroup>
+        <InputGroup {...inputGroupProps}>
           <InputRightElement children={
             <FiClock />
           } />

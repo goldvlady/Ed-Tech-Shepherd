@@ -31,18 +31,6 @@ import Select from '../components/Select';
 
 const client = getContentfulClient();
 
-const LearnSomethingElseDisplay = styled('a')`
-display: block;
-padding-inline: var(--chakra-space-4);
-padding-block: var(--chakra-space-2);
-border-radius: ${theme.radii.md};
-border: 1px solid ${theme.colors.gray[300]};
-
-&:hover {
-    border-color: ${theme.colors.gray[500]};
-}
-`
-
 const stepIndicatorSteps = [
     {
         title: "About you",
@@ -212,9 +200,9 @@ const OnboardStudent = () => {
             fields: [
                 {
                     title: 'Classes',
-                    value: <Text marginBottom={0}>{courses.filter(tc => tc !== 'something-else').map(tc => {
-                        return courseList.find(ac => ac.id === tc)?.title;
-                    }).join(', ')}{somethingElse ? `, ${somethingElse}` : ''}</Text>,
+                    value: <Text marginBottom={0}>{courses.map(tc => {
+                        return tc === 'something-else' ? somethingElse : courseList.find(ac => ac.id === tc)?.title;
+                    }).join(', ')}</Text>,
                     step: 'classes',
                 }
             ]
@@ -280,19 +268,20 @@ const OnboardStudent = () => {
                 <Box marginTop={30}>
                     <FormControl>
                         <FormLabel>First Name</FormLabel>
-                        <Input value={name.first} onChange={(e) => onboardStudentStore.set.name({ ...name, first: e.target.value })} />
+                        <Input size={'lg'} value={name.first} onChange={(e) => onboardStudentStore.set.name({ ...name, first: e.target.value })} />
                     </FormControl>
                     <FormControl>
                         <FormLabel marginTop={4}>Last Name</FormLabel>
-                        <Input value={name.last} onChange={(e) => onboardStudentStore.set.name({ ...name, last: e.target.value })} />
+                        <Input size={'lg'} value={name.last} onChange={(e) => onboardStudentStore.set.name({ ...name, last: e.target.value })} />
                     </FormControl>
                     <FormControl>
                         <FormLabel marginTop={4}>Email</FormLabel>
-                        <Input value={email} onChange={(e) => onboardStudentStore.set.email(e.target.value)} type="email" />
+                        <Input size={'lg'} value={email} onChange={(e) => onboardStudentStore.set.email(e.target.value)} type="email" />
                     </FormControl>
                     <FormControl>
                         <FormLabel marginTop={4}>Date of Birth</FormLabel>
                         <DateInput
+                            size={'lg'}
                             value={dob}
                             onChange={(v) => {
                                 onboardStudentStore.set.dob(v)
@@ -329,7 +318,7 @@ const OnboardStudent = () => {
                                             Can’t find the subject you wish to learn, tell us, we’ll match you with an experienced tutor
                                             <FormLabel margin={0}>
                                                 <Box mt={4}>
-                                                    <Input value={somethingElse} onChange={(e) => onboardStudentStore.set.somethingElse?.(e.target.value)} placeholder='Enter subject' />
+                                                    <Input size={'lg'} value={somethingElse} onChange={(e) => onboardStudentStore.set.somethingElse?.(e.target.value)} placeholder='Enter subject' />
                                                 </Box>
                                             </FormLabel>
                                         </Box>
@@ -381,12 +370,12 @@ const OnboardStudent = () => {
                             return <Box key={'course-supplementary' + c}>
                                 <FormControl>
                                     <FormLabel>{parentOrStudent === "parent" ? "What grade level is your child in?" : "What grade level are you in?"}</FormLabel>
-                                    <Input value={gradeLevel} onChange={(e) => onboardStudentStore.set.gradeLevel(e.target.value)} placeholder='e.g Grade 12' required />
+                                    <Input size={'lg'} value={gradeLevel} onChange={(e) => onboardStudentStore.set.gradeLevel(e.target.value)} placeholder='e.g Grade 12' required />
                                 </FormControl>
 
                                 <FormControl>
                                     <FormLabel>{parentOrStudent === "parent" ? "What Maths topic does your child need help with?" : "What Maths topic do you need help with?"}</FormLabel>
-                                    <Input value={topic} onChange={(e) => onboardStudentStore.set.topic(e.target.value)} placeholder='e.g Algebra' required />
+                                    <Input size={'lg'} value={topic} onChange={(e) => onboardStudentStore.set.topic(e.target.value)} placeholder='e.g Algebra' required />
                                 </FormControl>
                             </Box>
                         }

@@ -18,7 +18,6 @@ import TimezoneSelect from '../components/TimezoneSelect';
 
 import moment from 'moment';
 import EmptyState from '../components/EmptyState';
-import { CreatableSelect, useChakraSelectProps } from 'chakra-react-select';
 
 import occupationList from "../occupations.json";
 import { ref } from '@firebase/storage';
@@ -31,6 +30,7 @@ import { Course, Schedule } from '../types';
 import DateInput, { FORMAT } from '../components/DateInput';
 import { formatContentFulCourse, getContentfulClient } from '../contentful';
 import mixpanel from 'mixpanel-browser';
+import CreatableSelect from '../components/CreatableSelect';
 
 const occupationOptions = occupationList.map((o) => {
     return { label: o, value: o }
@@ -151,22 +151,6 @@ const OnboardTutor = () => {
         loadCourses();
     }, [loadCourses]);
 
-    const occupationSelectProps = useChakraSelectProps({
-        value: getOptionValue(occupationOptions, occupation),
-        isMulti: false,
-        onChange: (v => onboardTutorStore.set.occupation?.(v?.value)),
-        options: occupationOptions
-    });
-
-    const highestEducationLevelSelectProps = useChakraSelectProps({
-        value: getOptionValue(educationLevelOptions, highestLevelOfEducation),
-        isMulti: false,
-        onChange: ((v) => {
-            onboardTutorStore.set.highestLevelOfEducation(v?.value)
-        }),
-        options: educationLevelOptions
-    });
-
     const [cvUploadPercent, setCvUploadPercent] = useState(0);
     const [selectedCV, setSelectedCV] = useState<File | null>(null);
 
@@ -258,15 +242,6 @@ const OnboardTutor = () => {
         }
     ];
 
-    const teachLevelSelectProps = useChakraSelectProps({
-        value: getOptionValue(teachLevelOptions, teachLevel),
-        isMulti: true,
-        onChange: ((v) => {
-            onboardTutorStore.set.teachLevel(v.map(i => i.value))
-        }),
-        options: teachLevelOptions
-    });
-
     const doSubmit = () => {
         mixpanel.track('Completed onboarding');
         return ApiService.submitTutorLead(data);
@@ -282,32 +257,32 @@ const OnboardTutor = () => {
             fields: [
                 {
                     title: 'First Name',
-                    value: <Text>{name.first}</Text>,
+                    value: <Text marginBottom={0}>{name.first}</Text>,
                     step: 'name',
                 },
                 {
                     title: 'Last Name',
-                    value: <Text>{name.last}</Text>,
+                    value: <Text marginBottom={0}>{name.last}</Text>,
                     step: 'name',
                 },
                 {
                     title: 'Date of Birth',
-                    value: <Text>{moment(dob, FORMAT).format("MMMM Do YYYY")}</Text>,
+                    value: <Text marginBottom={0}>{moment(dob, FORMAT).format("MMMM Do YYYY")}</Text>,
                     step: 'dob',
                 },
                 {
                     title: 'Email Address',
-                    value: <Text>{email}</Text>,
+                    value: <Text marginBottom={0}>{email}</Text>,
                     step: 'email',
                 },
                 {
                     title: 'Current Occupation',
-                    value: <Text>{occupation}</Text>,
+                    value: <Text marginBottom={0}>{occupation}</Text>,
                     step: 'more-info',
                 },
                 {
                     title: 'Highest Level of Education Obtained',
-                    value: <Text>{educationLevelOptions.find(el => el.value === highestLevelOfEducation)?.label}</Text>,
+                    value: <Text marginBottom={0}>{educationLevelOptions.find(el => el.value === highestLevelOfEducation)?.label}</Text>,
                     step: 'more-info',
                 },
                 {
@@ -317,7 +292,7 @@ const OnboardTutor = () => {
                 },
                 {
                     title: 'Level of students you can teach',
-                    value: <Text>{teachLevel.map(tc => {
+                    value: <Text marginBottom={0}>{teachLevel.map(tc => {
                         return teachLevelOptions.find(ac => ac.value === tc)?.label;
                     }).join(', ')}</Text>,
                     step: 'more-info',
@@ -334,7 +309,7 @@ const OnboardTutor = () => {
                 },
                 {
                     title: 'About you',
-                    value: <Text>{description}</Text>,
+                    value: <Text marginBottom={0}>{description}</Text>,
                     step: 'profile-setup',
                 }
             ]
@@ -344,7 +319,7 @@ const OnboardTutor = () => {
             fields: [
                 {
                     title: 'Classes',
-                    value: <Text>{courses.map(tc => {
+                    value: <Text marginBottom={0}>{courses.map(tc => {
                         return courseList.find(ac => ac.id === tc)?.title;
                     }).join(', ')}</Text>,
                     step: 'classes',
@@ -356,12 +331,12 @@ const OnboardTutor = () => {
             fields: [
                 {
                     title: 'Time zone',
-                    value: <Text>{tz}</Text>,
+                    value: <Text marginBottom={0}>{tz}</Text>,
                     step: 'availability',
                 },
                 {
                     title: 'Schedule',
-                    value: <Text whiteSpace={'pre'}>{schedule.map((s: Schedule) => {
+                    value: <Text marginBottom={0} whiteSpace={'pre'}>{schedule.map((s: Schedule) => {
                         return `${moment(s.begin).format('dddd')}: ${moment(s.begin).tz(tz).format('hh:mm A')} - ${moment(s.end).tz(tz).format('hh:mm A')}`
                     }).join("\n")}</Text>,
                     step: 'availability',
@@ -373,7 +348,7 @@ const OnboardTutor = () => {
             fields: [
                 {
                     title: 'Hourly rate',
-                    value: <Text>${rate}</Text>,
+                    value: <Text marginBottom={0}>${rate}</Text>,
                     step: 'rate',
                 },
             ]
@@ -391,12 +366,12 @@ const OnboardTutor = () => {
                 </Heading>
                 <Box marginTop={30}>
                     <FormControl>
-                        <FormLabel>First name</FormLabel>
-                        <Input value={name.first} onChange={(e) => onboardTutorStore.set.name({ ...name, first: e.target.value })} />
+                        <FormLabel>First Name</FormLabel>
+                        <Input size={'lg'} value={name.first} onChange={(e) => onboardTutorStore.set.name({ ...name, first: e.target.value })} />
                     </FormControl>
-                    <FormControl>
-                        <FormLabel>Last name</FormLabel>
-                        <Input value={name.last} onChange={(e) => onboardTutorStore.set.name({ ...name, last: e.target.value })} />
+                    <FormControl mt={4}>
+                        <FormLabel>Last Name</FormLabel>
+                        <Input size={'lg'} value={name.last} onChange={(e) => onboardTutorStore.set.name({ ...name, last: e.target.value })} />
                     </FormControl>
                 </Box>
             </Box>,
@@ -416,6 +391,7 @@ const OnboardTutor = () => {
                             onChange={(v) => {
                                 onboardTutorStore.set.dob(v)
                             }}
+                            size={'lg'}
                         />
                     </FormControl> : <EmptyState
                         title="Uh oh!"
@@ -440,7 +416,7 @@ const OnboardTutor = () => {
                 <Box marginTop={30}>
                     <FormControl>
                         <FormLabel>Email address</FormLabel>
-                        <Input value={email} onChange={(e) => onboardTutorStore.set.email(e.target.value)} type="email" />
+                        <Input size={'lg'} value={email} onChange={(e) => onboardTutorStore.set.email(e.target.value)} type="email" />
                     </FormControl>
                 </Box>
             </Box>,
@@ -456,11 +432,15 @@ const OnboardTutor = () => {
                 <Box marginTop={30}>
                     <VStack align='stretch' spacing={3}>
                         <FormControl>
-                            <FormLabel margin={0}>Current Occupation</FormLabel>
+                            <FormLabel>Current Occupation</FormLabel>
                             <CreatableSelect
                                 tagVariant="solid"
                                 isClearable
-                                {...occupationSelectProps}
+                                value={getOptionValue(occupationOptions, occupation)}
+                                isMulti={false}
+                                onChange={((v: any) => onboardTutorStore.set.occupation?.(v?.value))}
+                                options={occupationOptions}
+                                size={'lg'}
                             />
                         </FormControl>
                         <FormControl>
@@ -468,12 +448,19 @@ const OnboardTutor = () => {
                             <CreatableSelect
                                 tagVariant="solid"
                                 isClearable
-                                {...highestEducationLevelSelectProps}
+                                value={getOptionValue(educationLevelOptions, highestLevelOfEducation)}
+                                isMulti={false}
+                                onChange={((v: any) => {
+                                    onboardTutorStore.set.highestLevelOfEducation(v?.value)
+                                })}
+                                options={educationLevelOptions}
+                                size={'lg'}
                             />
                         </FormControl>
                         <FormControl>
-                            <FormLabel>Upload a copy of your CV</FormLabel>
-                            <Text variant={"muted"} marginBottom={"4px"}>Please upload a PDF, JPG, or PNG file under 2MB</Text>
+                            <FormLabel>Upload a copy of your CV
+                                <Text variant={"muted"} marginBottom={"4px"}>Please upload a PDF, JPG, or PNG file under 2MB</Text>
+                            </FormLabel>
                             {!!!selectedCV && <InputGroup>
                                 <Input type={"file"} accept="application/pdf, image/jpeg, image/png" paddingTop="4px" onChange={(e) => {
                                     setSelectedCV(e.target.files ? e.target.files[0] : null)
@@ -489,7 +476,13 @@ const OnboardTutor = () => {
                             <CreatableSelect
                                 tagVariant="solid"
                                 isClearable
-                                {...teachLevelSelectProps}
+                                value={getOptionValue(teachLevelOptions, teachLevel)}
+                                isMulti={true}
+                                onChange={((v: any) => {
+                                    onboardTutorStore.set.teachLevel(v.map((i: any) => i.value))
+                                })}
+                                options={teachLevelOptions}
+                                size={'lg'}
                             />
                         </FormControl>
                     </VStack>
@@ -507,8 +500,11 @@ const OnboardTutor = () => {
                 <Box marginTop={30}>
                     <VStack align='stretch' spacing={3}>
                         <FormControl>
-                            <FormLabel>Upload an avatar</FormLabel>
-                            <Text variant={"muted"} marginBottom={"4px"}>Please upload a JPG or PNG file under 1MB</Text>
+                            <FormLabel>
+                                Upload an avatar
+                                <Text variant={"muted"} marginBottom={"4px"}>Please upload a JPG or PNG file under 1MB</Text>
+                            </FormLabel>
+
                             {!!!selectedAvatar && <InputGroup>
                                 <Input type={"file"} accept="image/jpeg, image/png" paddingTop="4px" onChange={(e) => {
                                     setSelectedAvatar(e.target.files ? e.target.files[0] : null)
@@ -573,10 +569,10 @@ const OnboardTutor = () => {
                 </Heading>
                 <Box marginTop={30}>
                     <FormControl>
-                        <FormLabel m={0}>Rate</FormLabel>
-                        <InputGroup>
+                        <FormLabel>Rate</FormLabel>
+                        <InputGroup size={"lg"}>
                             <InputLeftAddon children='$' />
-                            <Input min={0} inputMode="numeric" value={rate} onChange={(e) => onboardTutorStore.set.rate(parseInt(e.target.value))} type="number" placeholder='Hourly rate' />
+                            <Input size={'lg'} min={0} inputMode="numeric" value={rate} onChange={(e) => onboardTutorStore.set.rate(parseInt(e.target.value))} type="number" placeholder='Hourly rate' />
                         </InputGroup>
                     </FormControl>
                 </Box>
@@ -593,13 +589,13 @@ const OnboardTutor = () => {
                     <VStack alignItems={"stretch"} spacing={5}>
                         {
                             confirmations.map(c => <Box key={c.title}>
-                                <Heading size={'md'} marginBottom={5}>{c.title}</Heading>
+                                <Heading as="h5" size={'md'} marginBottom={5}>{c.title}</Heading>
                                 <VStack divider={<StackDivider borderColor='gray.200' />} alignItems={"stretch"}>
                                     {
                                         c.fields.map(f => {
                                             return <Flex key={f.title}>
                                                 <Flex flexDirection={'column'} justifyContent="center" flexGrow={1}>
-                                                    {!!f.title && <Heading textTransform={"capitalize"} size={"sm"}>{f.title}</Heading>}
+                                                    {!!f.title && <Heading as="h6" textTransform={"capitalize"} size={"sm"}>{f.title}</Heading>}
                                                     {f.value}
                                                 </Flex>
                                                 <IconButton
@@ -667,11 +663,13 @@ const OnboardTutor = () => {
                 <ModalHeader><br /></ModalHeader>
                 <ModalCloseButton isDisabled={!canSaveCurrentEditModalStep} />
                 <ModalBody>
-                    {steps.find(s => s.id === editModalStep)?.template}
+                    <Box width={'100%'}>
+                        {steps.find(s => s.id === editModalStep)?.template}
+                    </Box>
                 </ModalBody>
 
                 <ModalFooter>
-                    <Button isDisabled={!canSaveCurrentEditModalStep} variant='looney' onClick={onEditModalClose}>Done</Button>
+                    <Button isDisabled={!canSaveCurrentEditModalStep} onClick={onEditModalClose}>Done</Button>
                 </ModalFooter>
             </ModalContent>
         </Modal>

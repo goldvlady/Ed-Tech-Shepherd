@@ -15,7 +15,7 @@ const DateTimeInput: React.FC<Props> = ({ type, ...rest }) => {
     const inputRef = useRef<HTMLInputElement>(null);
 
     return <InputGroup>
-        <StyledDateInput ref={inputRef} type={type} {...rest} />
+        <StyledDateInput size={'lg'} ref={inputRef} type={type} {...rest} />
     </InputGroup>
 }
 

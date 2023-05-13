@@ -70,7 +70,7 @@ const Signup: React.FC = () => {
                             {({ field, form }: { field: any, form: any }) => (
                                 <FormControl isInvalid={form.errors.email && form.touched.email}>
                                     <FormLabel>Email</FormLabel>
-                                    <Input isInvalid={form.errors.email && form.touched.email} {...field} placeholder='Enter your email' />
+                                    <Input size={'lg'} isInvalid={form.errors.email && form.touched.email} {...field} placeholder='Enter your email' />
                                     <FormErrorMessage>{form.errors.email}</FormErrorMessage>
                                 </FormControl>
                             )}
@@ -79,7 +79,7 @@ const Signup: React.FC = () => {
                             {({ field, form }: { field: any, form: any }) => (
                                 <FormControl marginTop={'22px'} isInvalid={form.errors.password && form.touched.password}>
                                     <FormLabel>Password</FormLabel>
-                                    <SecureInput isInvalid={form.errors.password && form.touched.password} {...field} placeholder='Enter password' />
+                                    <SecureInput size={'lg'} isInvalid={form.errors.password && form.touched.password} {...field} placeholder='Enter password' />
                                     <FormErrorMessage>{form.errors.password}</FormErrorMessage>
                                 </FormControl>
                             )}
@@ -88,7 +88,7 @@ const Signup: React.FC = () => {
                             {({ field, form }: { field: any, form: any }) => (
                                 <FormControl marginTop={'22px'} isInvalid={form.errors.passwordConfirmation && form.touched.passwordConfirmation}>
                                     <FormLabel>Confirm Password</FormLabel>
-                                    <SecureInput isInvalid={form.errors.passwordConfirmation && form.touched.passwordConfirmation} {...field} placeholder='Re-enter password' />
+                                    <SecureInput size={'lg'} isInvalid={form.errors.passwordConfirmation && form.touched.passwordConfirmation} {...field} placeholder='Re-enter password' />
                                     <FormErrorMessage>{form.errors.passwordConfirmation}</FormErrorMessage>
                                 </FormControl>
                             )}

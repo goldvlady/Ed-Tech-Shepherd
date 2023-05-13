@@ -90,7 +90,7 @@ const ScheduleBuilderDialog = React.forwardRef<ScheduleBuilderDialogRef, Props>(
     return <Root>
         <Modal isOpen={isOpen} onClose={() => { onClose(); reset() }}>
             <ModalOverlay />
-            <ModalContent>
+            <ModalContent overflow='visible'>
                 <ModalHeader>Add availability</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
@@ -100,7 +100,7 @@ const ScheduleBuilderDialog = React.forwardRef<ScheduleBuilderDialogRef, Props>(
                                 <Box mb={2}>
                                     Day of the week
                                     <Box>
-                                        <Text variant={"muted"}>Select multiple days of the week to repeat availability across them</Text>
+                                        <Text variant={"muted"} mb={0}>Select multiple days of the week to repeat availability across them</Text>
                                     </Box>
                                 </Box>
                                 <Select
@@ -109,6 +109,7 @@ const ScheduleBuilderDialog = React.forwardRef<ScheduleBuilderDialogRef, Props>(
                                     onChange={(v => setDays(v as Array<any>))}
                                     tagVariant="solid"
                                     options={dayOptions}
+                                    size={'lg'}
                                 />
                             </FormLabel>
                         </Box>
@@ -119,11 +120,11 @@ const ScheduleBuilderDialog = React.forwardRef<ScheduleBuilderDialogRef, Props>(
                                 </FormLabel>
 
                                 <Box display={"flex"} alignItems="center" gap={"7px"}>
-                                    <TimePicker inputProps={{ placeholder: '01:00 PM' }} value={fromTime} onChange={(v: string) => {
+                                    <TimePicker inputGroupProps={{ size: 'lg' }} inputProps={{ size: 'lg', placeholder: '01:00 PM' }} value={fromTime} onChange={(v: string) => {
                                         setFromTime(v)
                                     }} />
                                     <Text as="small">to</Text>
-                                    <TimePicker inputProps={{ placeholder: '06:00 PM' }} value={toTime} onChange={(v: string) => {
+                                    <TimePicker inputGroupProps={{ size: 'lg' }} inputProps={{ placeholder: '06:00 PM' }} value={toTime} onChange={(v: string) => {
                                         setToTime(v)
                                     }} />
                                 </Box>
