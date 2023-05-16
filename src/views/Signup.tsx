@@ -23,7 +23,7 @@ const SignupSchema = Yup.object().shape({
 });
 
 const Signup: React.FC = () => {
-    useTitle('Signup');
+    useTitle('Sign up');
     const toast = useToast();
     const navigate = useNavigate();
     return <Root>
