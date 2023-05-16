@@ -673,7 +673,7 @@ const OnboardTutor = () => {
                 </ModalFooter>
             </ModalContent>
         </Modal>
-        {/* <StepIndicator activeStep={stepIndicatorSteps.findIndex(s => s === stepIndicatorActiveStep)} steps={stepIndicatorSteps} /> */}
+        <StepIndicator activeStep={stepIndicatorSteps.findIndex(s => s === stepIndicatorActiveStep)} steps={stepIndicatorSteps} />
         <Box mt={45}>
             <StepWizard isLazyMount className='flex-col-reverse' onStepChange={onStepChange}>
                 {

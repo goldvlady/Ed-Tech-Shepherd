@@ -28,6 +28,7 @@ import styled from 'styled-components';
 import { useLocation } from 'react-router';
 import mixpanel from 'mixpanel-browser';
 import Select from '../components/Select';
+import StepIndicator from '../components/StepIndicator';
 
 const client = getContentfulClient();
 
@@ -373,7 +374,7 @@ const OnboardStudent = () => {
                                     <Input size={'lg'} value={gradeLevel} onChange={(e) => onboardStudentStore.set.gradeLevel(e.target.value)} placeholder='e.g Grade 12' required />
                                 </FormControl>
 
-                                <FormControl>
+                                <FormControl mt={4}>
                                     <FormLabel>{parentOrStudent === "parent" ? "What Maths topic does your child need help with?" : "What Maths topic do you need help with?"}</FormLabel>
                                     <Input size={'lg'} value={topic} onChange={(e) => onboardStudentStore.set.topic(e.target.value)} placeholder='e.g Algebra' required />
                                 </FormControl>
@@ -525,7 +526,7 @@ const OnboardStudent = () => {
                 </ModalFooter>
             </ModalContent>
         </Modal>
-        {/* <StepIndicator activeStep={stepIndicatorSteps.findIndex(s => s === stepIndicatorActiveStep)} steps={stepIndicatorSteps} /> */}
+        <StepIndicator activeStep={stepIndicatorSteps.findIndex(s => s === stepIndicatorActiveStep)} steps={stepIndicatorSteps} />
         <Box mt={45}>
             <StepWizard isLazyMount className='flex-col-reverse' onStepChange={onStepChange} instance={(props) => {
                 stepWizardInstance.current = props as unknown as StepWizardChildProps;
