@@ -75,7 +75,7 @@ export const LargeSelect: React.FC<Props> = ({ value, options, onChange }: Props
         <SimpleGrid columns={{ sm: 2 }} spacing='15px'>
         {
             options.map(o => <StyledOption onClick={() => onChange(o.value)} key={o.value} type="button" role="button" className={value === o.value ? "active" : ""}>
-                {!!o.icon && <Box marginBottom={'25.67px'} display="flex" alignItems="center" justifyContent="center">
+                {!!o.icon && <Box marginBottom={'25.67px'} display="flex" alignItems="center">
                     {o.icon}
                 </Box>}
                 <Title>{o.title}</Title>
