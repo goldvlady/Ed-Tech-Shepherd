@@ -8,6 +8,8 @@ declare global {
     interface Window { networkErrorToast: ToastId; }
 }
 
+export const MinPasswordLength = 8;
+
 export const getOptionValue = (opts: Array<{value: any, label: any}>, val: any) => {
     if (isArray(val)) {
         return opts.filter(o => val.includes(o.value))

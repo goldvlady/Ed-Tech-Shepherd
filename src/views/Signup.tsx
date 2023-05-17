@@ -1,47 +1,49 @@
 import { Box, Button, FormControl, FormErrorMessage, FormLabel, Heading, Input, Link, Text, useToast } from '@chakra-ui/react';
-import { Field, Form, Formik } from 'formik';
 import React from 'react';
 import { Link as RouterLink, useNavigate } from "react-router-dom"
 import styled from 'styled-components';
 import SecureInput from '../components/SecureInput';
-import { useTitle } from '../hooks';
+import { Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
-import { firebaseAuth, signInWithEmailAndPassword } from '../firebase';
+import CriteriaCheck from '../components/CriteriaCheck';
+import { MinPasswordLength } from '../util';
+import { useTitle } from '../hooks';
+import { createUserWithEmailAndPassword, firebaseAuth } from '../firebase';
 
 const Root = styled(Box)`
 `
 
-const LoginSchema = Yup.object().shape({
+const SignupSchema = Yup.object().shape({
     email: Yup.string().email('Enter a valid email address').required('A valid email address is required'),
-    password: Yup.string().required('A password is required')
+    password: Yup.string().required('A password is required').min(MinPasswordLength, `Your password must be a minimum of ${MinPasswordLength} characters`),
+    passwordConfirmation: Yup.string()
+        .test('passwords-match', 'Passwords must match', function (value) {
+            return this.parent.password === value
+        })
 });
 
-const Login: React.FC = () => {
-    useTitle('Login');
+const Signup: React.FC = () => {
+    useTitle('Sign up');
     const toast = useToast();
     const navigate = useNavigate();
-
     return <Root>
         <Box mb={'20px'}>
-            <Heading mb={'12px'} as={'h3'} textAlign={"center"}>Welcome Back!</Heading>
-            <Text m={0} className='body2' textAlign={"center"}>Sign in to your Shepherd account</Text>
+            <Heading mb={'12px'} as={'h3'} textAlign={"center"}>Create your Shepherd Account</Heading>
+            <Text m={0} className='body2' textAlign={"center"}>Hi there, before you proceed, let us know who is signing up</Text>
         </Box>
         <Box>
             <Formik
-                initialValues={{ email: '', password: '' }}
-                validationSchema={LoginSchema}
+                initialValues={{ email: '', password: '', passwordConfirmation: '' }}
+                validationSchema={SignupSchema}
                 onSubmit={async (values, { setSubmitting }) => {
                     try {
-                        await signInWithEmailAndPassword(firebaseAuth, values.email, values.password);
+                        await createUserWithEmailAndPassword(firebaseAuth, values.email, values.password);
                         navigate('/dashboard');
                     } catch (e: any) {
                         let errorMessage = '';
                         switch (e.code) {
-                            case 'auth/user-not-found':
-                                errorMessage = "Invalid email or password";
-                                break;
-                            case 'auth/wrong-password':
-                                errorMessage = "Invalid email or password";
+                            case 'auth/email-already-exists':
+                                errorMessage = "A user with this email address already exists";
                                 break;
                             default:
                                 errorMessage = "An unexpected error occurred";
@@ -60,7 +62,8 @@ const Login: React.FC = () => {
             >
                 {({
                     errors,
-                    isSubmitting
+                    isSubmitting,
+                    values
                 }) => (
                     <Form>
                         <Field name='email'>
@@ -81,18 +84,25 @@ const Login: React.FC = () => {
                                 </FormControl>
                             )}
                         </Field>
-                        <Box>
-                            <Link color='primary.400' className='body2' as={RouterLink} to='/forgot-password'>Forgot password?</Link>
-                        </Box>
+                        <Field name='passwordConfirmation'>
+                            {({ field, form }: { field: any, form: any }) => (
+                                <FormControl marginTop={'22px'} isInvalid={form.errors.passwordConfirmation && form.touched.passwordConfirmation}>
+                                    <FormLabel>Confirm Password</FormLabel>
+                                    <SecureInput size={'lg'} isInvalid={form.errors.passwordConfirmation && form.touched.passwordConfirmation} {...field} placeholder='Re-enter password' />
+                                    <FormErrorMessage>{form.errors.passwordConfirmation}</FormErrorMessage>
+                                </FormControl>
+                            )}
+                        </Field>
+                        <CriteriaCheck mt={17.5} text={`${MinPasswordLength} character minimum`} checked={values.password.length >= MinPasswordLength} />
                         <Box marginTop={'36px'} display={"flex"} flexDirection="column" gap={4} justifyContent="flex-end">
-                            <Button isDisabled={Object.values(errors).length !== 0} isLoading={isSubmitting} width={'100%'} size='lg' type='submit'>Login</Button>
-                            <Link color='primary.400' className='body2 text-center' as={RouterLink} to='/signup'><span className='body2'>Don’t have an account?</span> Sign up</Link>
+                            <Button isDisabled={Object.values(errors).length !== 0} width={'100%'} size='lg' type='submit' isLoading={isSubmitting}>Sign Up</Button>
+                            <Link color='primary.400' className='body2 text-center' as={RouterLink} to='/login'><span className='body2'>Already have an account?</span> Login</Link>
                         </Box>
                     </Form>
                 )}
-                </Formik>
+            </Formik>
         </Box>
     </Root>
 }
 
-export default Login;
+export default Signup;

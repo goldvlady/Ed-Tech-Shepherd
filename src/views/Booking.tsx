@@ -47,7 +47,6 @@ const Booking = () => {
 
     const url: URL = new URL(window.location.href);
     const params: URLSearchParams = url.searchParams;
-    const clientSecret = params.get('payment_intent_client_secret');
 
     const getData = async () => {
         try {

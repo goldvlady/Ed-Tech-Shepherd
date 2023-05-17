@@ -1,16 +1,13 @@
 import * as React from "react";
 import styled from "styled-components";
-import { Alert, AlertIcon, Box, Button, FormLabel, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text, useDisclosure } from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Button, FormControl, FormLabel, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text, useDisclosure } from '@chakra-ui/react'
 import { useRef, useState } from "react";
 import { Schedule } from "../types";
 import { numberToDayOfWeekName } from "../util";
-import {
-    Select,
-    useChakraSelectProps,
-} from "chakra-react-select";
 import moment from "moment";
 import { isEmpty } from "lodash";
 import TimePicker from "./TimePicker";
+import Select from "./Select";
 
 export interface ScheduleBuilderDialogRef {
     buildSchedule: (dayOfWeek: number | null) => Promise<Schedule[]>
@@ -81,13 +78,6 @@ const ScheduleBuilderDialog = React.forwardRef<ScheduleBuilderDialogRef, Props>(
         reset();
     }
 
-    const selectProps = useChakraSelectProps({
-        value: days,
-        isMulti: true,
-        onChange: (v => setDays(v as Array<any>)),
-        options: dayOptions
-    });
-
     const dateStr = moment().format(parseDateFormat)
 
     const fromTimeDate = moment(`${dateStr}, ${fromTime}`, `${parseDateFormat}, ${parseTimeFormat}`);
@@ -100,46 +90,55 @@ const ScheduleBuilderDialog = React.forwardRef<ScheduleBuilderDialogRef, Props>(
     return <Root>
         <Modal isOpen={isOpen} onClose={() => { onClose(); reset() }}>
             <ModalOverlay />
-            <ModalContent>
+            <ModalContent overflow='visible'>
                 <ModalHeader>Add availability</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
                     <Box>
-                        <FormLabel>
-                            <Box mb={2}>
-                                Day of the week
-                                <Box>
-                                    <Text variant={"muted"}>Select multiple days of the week to repeat availability across them</Text>
+                        <Box>
+                            <FormLabel>
+                                <Box mb={2}>
+                                    Day of the week
+                                    <Box>
+                                        <Text variant={"muted"} mb={0}>Select multiple days of the week to repeat availability across them</Text>
+                                    </Box>
                                 </Box>
-                            </Box>
-                            <Select
-                                tagVariant="solid"
-                                {...selectProps}
-                            />
-                        </FormLabel>
-                    </Box>
-                    <Box>
-                        <FormLabel>
-                            <Box mb={2}>Time</Box>
-                        </FormLabel>
-                        <Box display={"flex"} alignItems="center" gap={"7px"}>
-                            <TimePicker inputProps={{ placeholder: '01:00 PM' }} value={fromTime} onChange={(v: string) => {
-                                setFromTime(v)
-                            }} />
-                            <Text as="small">to</Text>
-                            <TimePicker inputProps={{ placeholder: '06:00 PM' }} value={toTime} onChange={(v: string) => {
-                                setToTime(v)
-                            }} />
+                                <Select
+                                    value={days}
+                                    isMulti
+                                    onChange={(v => setDays(v as Array<any>))}
+                                    tagVariant="solid"
+                                    options={dayOptions}
+                                    size={'lg'}
+                                />
+                            </FormLabel>
                         </Box>
+                        <Box>
+                            <FormControl>
+                                <FormLabel>
+                                    <Box>Time</Box>
+                                </FormLabel>
+
+                                <Box display={"flex"} alignItems="center" gap={"7px"}>
+                                    <TimePicker inputGroupProps={{ size: 'lg' }} inputProps={{ size: 'lg', placeholder: '01:00 PM' }} value={fromTime} onChange={(v: string) => {
+                                        setFromTime(v)
+                                    }} />
+                                    <Text as="small">to</Text>
+                                    <TimePicker inputGroupProps={{ size: 'lg' }} inputProps={{ placeholder: '06:00 PM' }} value={toTime} onChange={(v: string) => {
+                                        setToTime(v)
+                                    }} />
+                                </Box>
+                            </FormControl>
+                        </Box>
+                        {hoursDiff < 0 && !!fromTime && !!toTime && <Alert status='error' mt={3}>
+                            <AlertIcon />
+                            The start time should be before the end time.
+                        </Alert>}
                     </Box>
-                    {hoursDiff < 0 && !!fromTime && !!toTime && <Alert status='error' mt={3}>
-                        <AlertIcon />
-                        The start time should be before the end time.
-                    </Alert>}
                 </ModalBody>
 
                 <ModalFooter>
-                    <Button isDisabled={!canDone} onClick={done} variant={"looney"}>Done</Button>
+                    <Button isDisabled={!canDone} onClick={done}>Done</Button>
                 </ModalFooter>
             </ModalContent>
         </Modal>

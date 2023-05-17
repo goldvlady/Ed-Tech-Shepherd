@@ -32,7 +32,7 @@ const FileDisplay: React.FC<Props> = ({ file, onDeleteClicked = null, uploading 
                 <HStack flexGrow={1} gap={1}>
                     {uploading ? <Spinner size='sm' /> : prefix ? prefix : <FiFile style={{flexShrink: 0}} />}
                     <VStack spacing={0} alignItems="flex-start">
-                        <Text wordBreak={"break-word"}>{file.name}</Text>
+                        <Text m={0} wordBreak={"break-word"}>{file.name}</Text>
                         <Text variant={"muted"} m={0}>{formatFileSize(file.size)}</Text>
                     </VStack>
                 </HStack>

@@ -41,9 +41,9 @@ const ScheduleBuilder = React.forwardRef<ScheduleBuilderRef, Props>(({ onChange,
 
     return <Root>
         <ScheduleBuilderDialog ref={scheduleBuilderDialogRef} />
-        <Box mb={4} display="flex" justifyContent={"space-between"} alignItems="center">
-            <Heading size='md'>Availability</Heading>
-            <Box>{!!!isEmpty(value) && <Button onClick={() => addTime(null)} leftIcon={<FiPlus />} colorScheme='primary' variant={"solid"}>Add Availability</Button>}</Box>
+        <Box display="flex" justifyContent={"space-between"} alignItems="center">
+            <Heading as="h3">Availability</Heading>
+            <Box>{!!!isEmpty(value) && <Button size={'sm'} onClick={() => addTime(null)} leftIcon={<FiPlus />} colorScheme='primary' variant={"solid"}>Add Availability</Button>}</Box>
         </Box>
         {
             daysInValue.length > 0 ? daysInValue.map((d, _) => {
@@ -51,8 +51,8 @@ const ScheduleBuilder = React.forwardRef<ScheduleBuilderRef, Props>(({ onChange,
                 const timesInDay: Schedule[] = value.filter(v => v.begin.getDay() === d);
 
                 return <Box key={d} marginBottom={10}>
-                    <Heading size="sm">{dayOfWeekName}</Heading>
-                    <Box marginTop={3}>
+                    <Text className="body2" mb={0}>{dayOfWeekName}</Text>
+                    <Box marginTop={1}>
                         {timesInDay.length === 0 ? <Box display={"flex"} gap={"15px"} alignItems="center">
                             <Box width={"40px"} height={"40px"} background={theme.colors.primary[50]} display="flex" alignItems={"center"} justifyContent="center" borderRadius={"100%"}>
                                 <FiAlertTriangle color={theme.colors.primary[700]} />
@@ -71,7 +71,7 @@ const ScheduleBuilder = React.forwardRef<ScheduleBuilderRef, Props>(({ onChange,
                                         <DateTimeInput readOnly type="time" value={`${leadingZero(t.begin.getHours())}:${leadingZero(t.begin.getMinutes())}`} />
                                         <Text as="small">to</Text>
                                         <DateTimeInput readOnly type="time" value={`${leadingZero(t.end.getHours())}:${leadingZero(t.end.getMinutes())}`} />
-                                        <IconButton onClick={() => deleteTime(t)} aria-label='Delete' icon={<FiTrash />} />
+                                        <IconButton variant={'ghost'} onClick={() => deleteTime(t)} aria-label='Delete' icon={<FiTrash />} />
                                     </Box>
                                 </Box>
                             })}

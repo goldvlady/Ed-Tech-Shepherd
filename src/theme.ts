@@ -20,16 +20,12 @@ const borderRadius = {
 const colors = {
     primary:
     {
-        "50": "#E5F9FF",
-        "100": "#B8EEFF",
-        "200": "#8AE3FF",
-        "300": "#5CD8FF",
-        "400": "#2ECDFF",
-        "500": "#00C2FF",
-        "600": "#009BCC",
-        "700": "#007499",
-        "800": "#004E66",
-        "900": "#002733"
+        "50": "#EBF4FE",
+        "100": "#BAD7FD",
+        "200": "#7AA7FB",
+        "300": "#4D8DF9",
+        "400": "#207DF7",
+        "500": "#072D5F",
     },
     secondary:
     {
@@ -51,46 +47,147 @@ const mutedText = defineStyle({
     fontSize: "var(--chakra-fontSizes-xs)"
 })
 
-const getLooneyButtonStyle = (textColor: string, backgroundColor: string, boxShadowColor: string) => {
-    return {
-        fontWeight: 'semibold',
-        background: "none !important",
-        paddingBottom: "3px",
-        position: "relative",
-        transition: "all 0s",
-        color: textColor,
 
-        _before: {
-            content: '""',
-            left: 0,
-            position: "absolute",
-            right: 0,
-            top: 0,
-            bottom: 0,
-            zIndex: -2,
-            borderRadius: "12px",
-            background: backgroundColor,
-            boxShadow: `inset 0px -4px 0px 0px ${boxShadowColor}`,
+const solidButton = defineStyle({
+    fontWeight: '500',
+    fontSize: '14px',
+    lineHeight: '20px',
+    background: colors.primary[400],
+    borderRadius: "8px",
+    color: '#fff',
+
+    _hover: {
+        background: '#0C67DD'
+    },
+
+    _disabled: {
+        opacity: 1,
+        color: '#C7C9CC',
+        background: '#F1F1F1',
+        pointerEvents: "none"
+    }
+});
+
+const flatButton = defineStyle({
+    fontWeight: '500',
+    fontSize: '14px',
+    lineHeight: '20px',
+    background: '#F2F2F3',
+    borderRadius: "8px",
+    color: '#5C5F64',
+
+    _hover: {
+        background: '#F2F2F3',
+        color: '#212224'
+    },
+
+    _disabled: {
+        opacity: 1,
+        color: '#C7C9CC',
+        background: '#F2F2F3',
+        pointerEvents: "none"
+    }
+});
+
+const floatingButton = defineStyle({
+    fontWeight: '500',
+    fontSize: '14px',
+    lineHeight: '20px',
+    background: '#fff',
+    borderRadius: "8px",
+    color: '#5C5F64',
+    border: '1px solid #E7E8E9',
+    boxShadow: '0px 2px 6px rgba(136, 139, 143, 0.1)',
+
+    _hover: {
+        borderColor: '#DCDDDE',
+        color: '#212224'
+    },
+
+    _disabled: {
+        opacity: 1,
+        color: '#C7C9CC',
+        background: '#F2F2F3',
+        pointerEvents: "none"
+    }
+});
+
+const linkButton = defineStyle({
+    fontSize: '14px',
+    fontWeight: '500',
+    lineHeight: '20px',
+    color: colors.primary[400]
+})
+
+const inputField = defineStyle({
+    addon: {
+        background: '#FFF',
+        position: 'relative',
+
+        '&.chakra-input__left-addon': {
+            borderBottomLeftRadius: '6px',
+            borderTopLeftRadius: '6px',
+            '&:before': {
+                content: '""',
+                display: 'block',
+                position: 'absolute',
+                right: '-1px',
+                top: 0,
+                bottom: 0,
+                width: '5px',
+                background: '#FFF',
+            }
+        },
+
+        '&.chakra-input__right-addon': {
+            '&:before': {
+                content: '""',
+                display: 'block',
+                position: 'absolute',
+                left: '-1px',
+                top: 0,
+                bottom: 0,
+                width: '5px',
+                background: '#FFF',
+            }
+        },
+    },
+    '.chakra-divider': {
+        display: 'none'
+    },
+    field: {
+        border: '1px solid #E4E6E7',
+        boxShadow: '0px 2px 6px rgba(136, 139, 143, 0.1)',
+        color: '#212224',
+        borderRadius: '6px',
+        padding: '14px 14px 14px 16px',
+
+        '::placeholder': {
+            color: '#9A9DA2'
+        },
+
+        _hover: {
+            border: '1px solid #DDDEDF',
         },
 
         _active: {
-            boxShadow: "none",
-            paddingBottom: "0",
-            transform: `translateY(4px) translateZ(0)`,
-            _before: {
-                boxShadow: "none"
+            border: `1.5px solid ${colors.primary[400]}`
+        },
+
+        _focus: {
+            border: `1.5px solid ${colors.primary[400]}`
+        },
+
+        _invalid: {
+            border: `1.5px solid #F53535`,
+            boxShadow: '0 0 0 1px #F53535',
+            ':after': {
+                content: '"dsds"',
+
             }
         }
     }
-}
-
-const looneyButton = defineStyle({
-    ...getLooneyButtonStyle('#FFF', colors.primary[500], colors.primary[700]),
-});
-
-const looneyGhostButton = defineStyle({
-    ...getLooneyButtonStyle('#000', defaultTheme.colors.gray[50], defaultTheme.colors.gray[200]),
-});
+})
 
 const looneyCheckbox = defineStyle({
     control: {
@@ -98,9 +195,8 @@ const looneyCheckbox = defineStyle({
     }
 })
 
-
 export const buttonTheme = defineStyleConfig({
-    variants: { looney: looneyButton, looneyGhost: looneyGhostButton },
+    variants: { solid: solidButton, flat: flatButton, floating: floatingButton, link: linkButton },
 })
 
 export const textTheme = defineStyleConfig({
@@ -109,6 +205,92 @@ export const textTheme = defineStyleConfig({
 
 export const checkboxTheme = defineStyleConfig({
     variants: { looney: looneyCheckbox },
+})
+
+export const formLabelTheme = defineStyleConfig({
+    baseStyle: defineStyle({
+        color: '#5C5F64',
+        fontSize: '14px',
+        fontWeight: '500',
+        lineHeight: '20px',
+        letterSpacing: '-0.001em',
+        marginInlineEnd: '0'
+    }),
+})
+
+export const menuListTheme = defineStyle({
+    baseStyle: defineStyle({
+        list: {
+            boxShadow: '0px 6px 16px rgba(10, 9, 11, 0.08), 0px 0px 0px 1px rgba(10, 9, 11, 0.05)',
+            border: 'none',
+            borderRadius: '8px',
+            padding: '8px',
+        },
+        item: {
+            borderRadius: '6px',
+            background: '#FFF',
+        }
+    })
+})
+
+export const inputTheme = defineStyleConfig({
+    variants: { outline: inputField },
+})
+
+export const modalTheme = defineStyleConfig({
+    baseStyle: defineStyle({
+        dialog: {
+            overflow: 'hidden'
+        },
+        closeButton: {
+            background: '#F3F5F6',
+            borderRadius: '40px',
+            width: 'auto',
+            height: 'auto',
+            color: '#969CA6',
+            paddingInline: '8px',
+            paddingBlock: '4px',
+            fontSize: '9px',
+            marginTop: '10px',
+            ':before': {
+                content: '"Close"',
+                fontSize: '12px',
+                fontWeight: '400',
+                lineHeight: '15px',
+                color: '#969CA6',
+                marginRight: '4px'
+            },
+            ':hover': {
+                color: '#000',
+                ':before': {
+                    color: '#000',
+                }
+            }
+        },
+        footer: {
+            background: '#F7F7F8',
+            borderRadius: `0 0 ${borderRadius.radii.md} ${borderRadius.radii.md}`
+        },
+        body: {
+            fontWeight: 400,
+            fontSize: '14px',
+            lineHeight: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            color: '#585F68',
+            padding: '24px',
+            paddingBottom: '32px !important',
+
+            '.modal-title': {
+                color: '#212224',
+                fontWeight: '500',
+                fontSize: '16px',
+                lineHeight: '21px',
+                letterSpacing: '-0.012em',
+                marginBottom: '8px'
+            }
+        }
+    })
 })
 
 const alertTheme = defineAlertMultiStyleConfig({
@@ -123,13 +305,11 @@ const alertTheme = defineAlertMultiStyleConfig({
 const theme = extendTheme({
     colors,
     ...borderRadius,
-    components: { Button: buttonTheme, Text: textTheme, Checkbox: checkboxTheme, Alert: alertTheme },
+    components: { Button: buttonTheme, Text: textTheme, Checkbox: checkboxTheme, Alert: alertTheme, Input: inputTheme, FormLabel: formLabelTheme, Modal: modalTheme, Menu: menuListTheme },
     styles: {
         global: (props: any) => ({
             body: {
                 bg: "#f5f5f5",
-                //backgroundImage: 'url(https://www.transparenttextures.com/patterns/notebook-dark.png)'
-                //bg: "#eef1f7"
             }
         })
     },

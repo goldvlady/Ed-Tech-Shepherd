@@ -4,7 +4,7 @@ import { StudentLead } from "../database/models/StudentLead";
 import { TutorLead } from "../database/models/TutorLead";
 import moment from "moment-timezone";
 import {Schedule} from "../database/models/Schedule";
-import { SITE_URL } from "../config";
+import { SITE_URL } from "../utils/config";
 import { capitalize } from "lodash";
 
 class EmailHandler {

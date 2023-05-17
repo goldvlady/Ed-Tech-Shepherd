@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import InputMask from 'react-input-mask';
 import moment from 'moment';
-import { Input, InputProps } from '@chakra-ui/react';
+import { Input, InputGroup, InputProps, Text, InputRightElement } from '@chakra-ui/react';
 
 // @ts-ignore
 interface DateInputProps extends InputProps {
@@ -41,15 +41,20 @@ const DateInput: React.FC<DateInputProps> = ({ value, onChange, ...rest }) => {
       onChange={handleInputChange}
     >
       {// @ts-ignore
-      (inputProps: InputProps) => (
-        <Input
-          {...inputProps}
-          ref={inputRef}
-          placeholder={FORMAT}
-          isInvalid={!moment(value, FORMAT, true).isValid() && !!value}
-          {...rest}
-        />
-      )}
+        (inputProps: InputProps) => (
+          <InputGroup>
+            <Input
+              {...inputProps}
+              ref={inputRef}
+              isInvalid={!moment(value, FORMAT, true).isValid() && !!value}
+              pr='4.5rem'
+              {...rest}
+            />
+            <InputRightElement top={'50%'} transform={'translateY(-50%)'} paddingRight={'20px'} width='4.5rem'>
+              <Text color={'#969CA6'} fontSize='12px' fontWeight={400} margin={0}>{FORMAT.toLowerCase()}</Text>
+            </InputRightElement>
+          </InputGroup>
+        )}
     </InputMask>
   );
 };

@@ -17,14 +17,20 @@ export const formatContentFulCourse = (item: any): Course => {
     const { title, id } = item.fields;
 
     let image = item.fields.image;
+    let icon = item.fields.icon;
 
     if (!!image) {
         image = getContentfulFileSrc(image);
     }
 
+    if (!!icon) {
+        icon = getContentfulFileSrc(icon);
+    }
+
     return {
         title,
         id,
-        image
+        image,
+        icon
     }
 }

@@ -182,7 +182,6 @@ const BookSession = () => {
             })
 
             setPaymentInProgress(false);
-
             return
         }
 
@@ -285,7 +284,7 @@ const BookSession = () => {
                                     </WrapItem>
                                 </Wrap>
                                 <Box mt={3}>
-                                    <Button isLoading={paymentInProgress} onClick={startPayment} size={"lg"} variant={"looney"} width="100%">Continue to payment</Button>
+                                    <Button isLoading={paymentInProgress} onClick={startPayment} size={"lg"} width="100%">Continue to payment</Button>
                                 </Box>
                             </Box> : <Box paddingBlock={4} textAlign={"center"}>
                                 <Text as="small" variant={"muted"}>Choose a tutor &amp; select time slots to view your summary</Text>

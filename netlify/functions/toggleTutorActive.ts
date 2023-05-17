@@ -1,12 +1,10 @@
 import { HandlerEvent } from "@netlify/functions";
-import { connectToDb } from "./database/connection";
-import TutorLead from "./database/models/TutorLead";
+import TutorLead from "../database/models/TutorLead";
+import middy from "../utils/middy";
 
-export const handler = async (event: HandlerEvent) => {
+export const toggleTutorActive = async (event: HandlerEvent) => {
     const data = JSON.parse(event.body as string);
     const { selectedIds } = data;
-
-    await connectToDb();
 
     const tutor = await TutorLead.findOne({ pipedriveDealId: selectedIds });
 
@@ -24,3 +22,5 @@ export const handler = async (event: HandlerEvent) => {
         statusCode: 200
     }
 }
+
+export const handler = middy(toggleTutorActive);

@@ -1,11 +1,10 @@
 import { initializeApp } from "firebase/app";
 import { getStorage } from "firebase/storage";
-import { getAuth, GoogleAuthProvider, signOut } from "firebase/auth";
-
+import { getAuth, GoogleAuthProvider, sendPasswordResetEmail as firebaseSendPasswordResetEmail, confirmPasswordReset as firebaseConfirmPasswordReset, createUserWithEmailAndPassword as firebaseCreateUserWithEmailAndPassword, signInWithEmailAndPassword as firebaseSignInWithEmailAndPassword } from "firebase/auth";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyAMifcZweS5BG3BfMQpjbbDP-pkF9cow2s",
   authDomain: "shepherd-app-382114.firebaseapp.com",
   projectId: "shepherd-app-382114",
@@ -19,8 +18,8 @@ const app = initializeApp(firebaseConfig);
 export const storage = getStorage(app);
 export const firebaseAuth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
-export const logOut = signOut(firebaseAuth);
-// export {auth,provider};
-// export const firebaseAuth = firebase.auth();
-
+export const sendPasswordResetEmail = firebaseSendPasswordResetEmail;
+export const confirmPasswordReset = firebaseConfirmPasswordReset;
+export const createUserWithEmailAndPassword = firebaseCreateUserWithEmailAndPassword;
+export const signInWithEmailAndPassword = firebaseSignInWithEmailAndPassword;
 

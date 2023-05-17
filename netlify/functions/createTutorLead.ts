@@ -1,13 +1,12 @@
 import { HandlerEvent } from "@netlify/functions";
-import { connectToDb } from "./database/connection";
-import TutorLead from "./database/models/TutorLead";
-import EmailHandler from "./handlers/EmailHandler";
+import TutorLead from "../database/models/TutorLead";
+import EmailHandler from "../handlers/EmailHandler";
+import middy from "../utils/middy";
 
-export const handler = async (event: HandlerEvent) => {
+export const createTutorLead = async (event: HandlerEvent) => {
   const emailHandler = new EmailHandler();
   const data = JSON.parse(event.body as string);
 
-  await connectToDb();
   const tutor = await TutorLead.create(data);
 
   try {
@@ -20,3 +19,5 @@ export const handler = async (event: HandlerEvent) => {
     statusCode: 200
   }
 }
+
+export const handler = middy(createTutorLead);

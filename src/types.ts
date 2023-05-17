@@ -1,7 +1,7 @@
 import { Moment } from "moment";
-import { TutorLead } from "../netlify/functions/database/models/TutorLead"
-import { StudentLead } from "../netlify/functions/database/models/StudentLead"
-import { Booking as BookingType } from "../netlify/functions/database/models/Booking"
+import { TutorLead } from "../netlify/database/models/TutorLead"
+import { StudentLead } from "../netlify/database/models/StudentLead"
+import { Booking as BookingType } from "../netlify/database/models/Booking"
 
 export type Entity = {
     _id: string;
@@ -21,6 +21,7 @@ export type Course = {
     title: string;
     id: string;
     image: string;
+    icon?: string | React.ReactNode;
 };
 
 export type Student = StudentLead;

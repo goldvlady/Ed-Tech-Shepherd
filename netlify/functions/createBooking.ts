@@ -1,16 +1,14 @@
-import { HandlerEvent } from "@netlify/functions";
-import { connectToDb } from "./database/connection";
-import Booking from "./database/models/Booking";
-import { Schedule } from "./database/models/Schedule";
-import TutorLead, { TutorLead as TutorLeadInterface } from "./database/models/TutorLead";
-import PaystackService from "./services/PaystackService";
+import middy from '../utils/middy';
+import Booking from "../database/models/Booking";
+import { Schedule } from "../database/models/Schedule";
+import TutorLead, { TutorLead as TutorLeadInterface } from "../database/models/TutorLead";
+import PaystackService from "../services/PaystackService";
+import { HTTPEvent } from "../types";
 
-export const handler = async (event: HandlerEvent) => {
+export const createBooking = async (event: HTTPEvent) => {
   const paystack = new PaystackService();
   const data = JSON.parse(event.body as string);
   const { tutor, student, course, slots, paystackReference } = data;
-
-  await connectToDb();
 
   const tutorObject = await TutorLead.findById(tutor) as TutorLeadInterface;
   const amount = tutorObject.rate * (slots as Array<Schedule>).length;
@@ -43,3 +41,5 @@ export const handler = async (event: HandlerEvent) => {
     })
   }
 }
+
+export const handler = middy(createBooking);
