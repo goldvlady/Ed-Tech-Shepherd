@@ -36,6 +36,25 @@ export const doFetch = async (input: RequestInfo, init?: RequestInit) => {
 
     return response;
 };
+export const doFetchWithToken = async (input: RequestInfo, header: any, init?: RequestInit ) => {
+    const response = await fetch(input, init);
+
+    if (!response.ok) {
+        if (window.networkErrorToast) {
+            toast.close(window.networkErrorToast)
+        }
+
+        window.networkErrorToast = toast({
+            title: 'An error occurred.',
+            status: 'error',
+            position: 'top',
+            isClosable: true
+        })
+        throw response;
+    }
+
+    return response;
+};
 
 export const numberToDayOfWeekName = (num: number) => moment().day(num).format('dddd');
 export const leadingZero = (num: number) => `0${num}`.slice(-2);
