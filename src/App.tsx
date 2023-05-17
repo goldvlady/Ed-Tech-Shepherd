@@ -11,7 +11,10 @@ import OnboardStudent from './views/OnboardStudent';
 import OnboardTutor from './views/OnboardTutor';
 import Login from './views/Login';
 import SignUp from './views/SignUp';
-
+import Home from './views/Home';
+import DashboardLayout from "./views/Dashboard/layout"
+import DashboardIndex from "./views/Dashboard/index"
+import Marketplace from "./views/Dashboard/Marketplace";
 // const RedirectToLanding: React.FC = () => {
 //   window.location.href = 'https://shepherdtutors.com/';
 //   return null;
@@ -48,6 +51,17 @@ const AppRoutes: React.FC = () => {
     <Route path="" element={<RedirectToLanding />} /> */}
     <Route path="login" element={<Login />} />
     <Route path="sign-up" element={<SignUp />} />
+    <Route path="home" element={<Home />} />
+    <Route path="dashboard" element={<DashboardLayout children />}>
+      {/* <Route element={<DashboardLayout children />}> */}
+
+      <Route path="home" element={<DashboardIndex />} />
+      <Route path="find-tutor" element={<Marketplace />} />
+
+      <Route path="" element={<Navigate to="home" />} />
+
+      {/* </Route> */}
+    </Route>
   </Routes>
 }
 

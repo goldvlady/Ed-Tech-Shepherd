@@ -1,4 +1,5 @@
 import React, { useState, useEffect, forwardRef, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { HiEye, HiEyeOff } from 'react-icons/hi';
 import {
     Flex,
@@ -13,7 +14,6 @@ import {
     Stack,
     Container,
     Divider,
-    Link,
     Button,
     Heading,
     Text,
@@ -154,7 +154,8 @@ function SignUp() {
                     <HStack spacing="1" justify="center">
                         <Text color="muted">Already have an account?</Text>
                         <Button variant="link" colorScheme="blue">
-                            Log in
+                            <Link to="/login"> Log in</Link>
+
                         </Button>
                     </HStack>
                 </Stack>
@@ -167,13 +168,13 @@ function SignUp() {
                 borderRadius={{ base: 'none', sm: 'xl' }}
             >
                 <Stack spacing="6">
-                    <Stack spacing="5">
+                    {/* <Stack spacing="5">
                         <FormControl>
                             <FormLabel htmlFor="email">Email</FormLabel>
                             <Input id="email" type="email" />
                         </FormControl>
                         <PasswordField />
-                    </Stack>
+                    </Stack> */}
                     {/* <HStack justify="space-between">
                         <Checkbox defaultChecked>Remember me</Checkbox>
                         <Button variant="link" colorScheme="blue" size="sm">
@@ -181,18 +182,18 @@ function SignUp() {
                         </Button>
                     </HStack> */}
                     <Stack spacing="6">
-                        <Button variant="primary">Create Account</Button>
+                        {/* <Button variant="primary">Create Account</Button> */}
                         <HStack>
                             <Divider />
                             <Text fontSize="sm" whiteSpace="nowrap" color="muted">
-                                or sign up with
+                                Sign up with
                             </Text>
                             <Divider />
                         </HStack>
                         <ButtonGroup variant="outline" spacing="4" width="full">
                             {providers.map(({ name, icon }) => (
                                 <Button key={name} width="full" onClick={signInWithGoogle}>
-                                    <VisuallyHidden>Sign in with {name}</VisuallyHidden>
+                                    <VisuallyHidden>Sign up with {name}</VisuallyHidden>
                                     {icon}
                                 </Button>
                             ))}
