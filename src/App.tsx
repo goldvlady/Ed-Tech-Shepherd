@@ -75,8 +75,6 @@ const AppRoutes: React.FC = () => {
 
     {/* <Route path="*" element={<RedirectToLanding />} />
     <Route path="" element={<RedirectToLanding />} /> */}
-    <Route path="login" element={<Login />} />
-    <Route path="sign-up" element={<SignUp />} />
     <Route path="home" element={<Home />} />
     <Route path="dashboard" element={<DashboardLayout children />}>
       {/* <Route element={<DashboardLayout children />}> */}
