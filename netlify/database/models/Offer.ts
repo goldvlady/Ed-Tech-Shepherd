@@ -19,13 +19,13 @@ interface Offer extends TimestampedEntity {
     note: string;
     paymentOption: string;
     status: STATUS;
-    tutor: TutorLeadInterface;
-    student: StudentLeadInterface;
+    tutorLead: TutorLeadInterface;
+    studentLead: StudentLeadInterface;
 }
 
 const schema = new Schema<Offer>({
     subjectAndLevel: { type: String, required: true },
-    days: { type: [String], required: true },
+    days: { type: [Number], required: true },
     schedule: { type: String, required: true },
     startTime: { type: String, required: true },
     endTime: { type: String, required: true },
@@ -33,8 +33,8 @@ const schema = new Schema<Offer>({
     note: { type: String, required: false, default: '' },
     paymentOption: { type: String, required: true },
     status: { type: String, enum: STATUS, default: STATUS.DRAFT },
-    tutor: { type: Schema.Types.ObjectId, ref: "TutorLead", autopopulate: true },
-    student: { type: Schema.Types.ObjectId, ref: "StudentLead", autopopulate: true },
+    tutorLead: { type: Schema.Types.ObjectId, ref: "TutorLead", autopopulate: true, required: true },
+    studentLead: { type: Schema.Types.ObjectId, ref: "StudentLead", autopopulate: true, required: true },
 }, { timestamps: true });
 
 schema.plugin(require('mongoose-autopopulate'));

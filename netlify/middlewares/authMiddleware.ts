@@ -1,6 +1,7 @@
 import middy from '@middy/core'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { getAuth } from 'firebase-admin/auth';
+import User from '../database/models/User';
 
 const middleware = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxyResult> => {
     const before: middy.MiddlewareFn<APIGatewayProxyEvent, APIGatewayProxyResult> = async (
@@ -8,7 +9,17 @@ const middleware = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxy
     ) => {
         try {
             const token = request.event.headers?.authorization?.replace('Bearer ', '') || '';
-            request.event['firebaseUser'] = await getAuth().verifyIdToken(token);
+
+            const firebaseUser = await getAuth().verifyIdToken(token);
+            request.event['firebaseUser'] = firebaseUser;
+
+            const user = await User.findOne({ firebaseId: firebaseUser.user_id });
+
+            if (user) {
+                await user.attachLeads();
+            }
+
+            request.event['user'] = user
         } catch (e) {
             return {
                 statusCode: 401

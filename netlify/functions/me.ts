@@ -6,8 +6,7 @@ import { getAuth } from 'firebase-admin/auth';
 import { first, last } from 'lodash';
 
 const me = async (event: HTTPEvent) => {
-    const { firebaseUser } = event;
-    let user = await User.findOne({ firebaseId: firebaseUser.user_id });
+    let { firebaseUser, user } = event;
 
     if (!user) {
         const firebaseUserObject = await getAuth().getUser(firebaseUser.user_id);

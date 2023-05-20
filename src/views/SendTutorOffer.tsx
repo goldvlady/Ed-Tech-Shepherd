@@ -4,7 +4,7 @@ import { FiArrowRight, FiChevronRight } from 'react-icons/fi';
 import { RiMoneyDollarCircleFill } from 'react-icons/ri';
 import { BsBookmarkStarFill } from 'react-icons/bs';
 import { MdInfo } from 'react-icons/md';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 import ButtonGroup from '../components/ButtonGroup';
 import { BsQuestionCircleFill } from 'react-icons/bs';
@@ -76,6 +76,8 @@ const client = getContentfulClient();
 
 const SendTutorOffer = () => {
     useTitle('Send an offer');
+
+    const navigate = useNavigate();
     const [loadingTutor, setLoadingTutor] = useState(false);
     const [tutor, setTutor] = useState<Tutor | null>(null);
     const { tutorId } = useParams() as { tutorId: string };
@@ -170,7 +172,7 @@ const SendTutorOffer = () => {
                             </ModalBody>
 
                             <ModalFooter>
-                                <Button onClick={() => { }}>Back to dashboard</Button>
+                                <Button onClick={() => navigate('/dashboard')}>Back to dashboard</Button>
                             </ModalFooter>
                         </ModalContent>
                     </Modal>
@@ -199,7 +201,7 @@ const SendTutorOffer = () => {
                                 setSubmitting(false);
                             } else {
                                 try {
-                                    await ApiService.createOffer({ ...values });
+                                    await ApiService.createOffer({ ...values, tutor: tutorId });
                                     onSuccessModalOpen();
                                 } catch (e) {
 
