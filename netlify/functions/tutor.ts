@@ -2,7 +2,7 @@ import middy from '../utils/middy';
 import { HTTPEvent } from "../types";
 import TutorLead from '../database/models/TutorLead';
 
-const me = async (event: HTTPEvent) => {
+const tutor = async (event: HTTPEvent) => {
     const { path } = event;
     let id = path.replace('/.netlify/functions/tutor/', '').replace(/\//gim, '');
 
@@ -18,4 +18,4 @@ const me = async (event: HTTPEvent) => {
     }
 }
 
-export const handler = middy(me);
+export const handler = middy(tutor);
