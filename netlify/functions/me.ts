@@ -23,6 +23,8 @@ const me = async (event: HTTPEvent) => {
         })
     }
 
+    await user.attachLeads();
+
     return {
         statusCode: 200,
         body: JSON.stringify(user)

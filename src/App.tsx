@@ -102,13 +102,13 @@ const AppRoutes: React.FC = () => {
     <Route path="booking/:bookingId/:studentOrTutor" element={<Booking />} />
     <Route path="booking/:bookingId" element={<Booking />} />
 
-    <Route path="tutor/:tutorId/offer" element={<SendTutorOffer />} />
-
     {/* <Route path="*" element={<RedirectToLanding />} />
     <Route path="" element={<RedirectToLanding />} /> */}
     <Route path="home" element={<Home />} />
     <Route path="dashboard" element={<RequireAuth authenticated={<DashboardLayout children />} unAuthenticated={<Navigate to={'/login'} />} />}>
       {/* <Route element={<DashboardLayout children />}> */}
+
+      <Route path="tutor/:tutorId/offer" element={<SendTutorOffer />} />
 
       <Route path="home" element={<DashboardIndex />} />
       <Route path="find-tutor" element={<Marketplace />} />

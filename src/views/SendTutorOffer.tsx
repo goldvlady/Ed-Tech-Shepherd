@@ -115,7 +115,7 @@ const SendTutorOffer = () => {
 
         setLoadingTutor(false);
     }, [])
-    
+
     const loadCourses = useCallback(async () => {
         setLoadingCourses(true);
 
@@ -136,7 +136,7 @@ const SendTutorOffer = () => {
         setLoadingCourses(false);
     }, []);
 
-    const subjectAndLevelOptions = useMemo(() => courseList.map(cl => [...(levels.map(l => `${cl.title} - ${l}`))]).flat().map(v => ({label: v, value: v})), [courseList])
+    const subjectAndLevelOptions = useMemo(() => courseList.map(cl => [...(levels.map(l => `${cl.title} - ${l}`))]).flat().map(v => ({ label: v, value: v })), [courseList])
 
     useEffect(() => {
         loadCourses();
@@ -199,7 +199,7 @@ const SendTutorOffer = () => {
                                 setSubmitting(false);
                             } else {
                                 try {
-                                    await ApiService.createOffer({...values});
+                                    await ApiService.createOffer({ ...values });
                                     onSuccessModalOpen();
                                 } catch (e) {
 
@@ -347,10 +347,10 @@ const SendTutorOffer = () => {
                                             <AlertDescription>Payment will not be deducted until after your first lesson, You may decide to cancel after your initial lesson.</AlertDescription>
                                         </Alert>
                                     </Box>
+                                    <Box marginTop={'48px'} textAlign='right'>
+                                        <Button isDisabled={Object.values(errors).length !== 0} size='md' type='submit' isLoading={isSubmitting}>{isEditing ? 'Review Offer' : 'Confirm and Send'}</Button>
+                                    </Box>
                                 </Panel>
-                                <Box marginTop={'48px'} textAlign='right'>
-                                    <Button isDisabled={Object.values(errors).length !== 0} size='md' type='submit' isLoading={isSubmitting}>{isEditing ? 'Review Offer' : 'Confirm and Send'}</Button>
-                                </Box>
                             </Form>
                         )}
                     </Formik>
