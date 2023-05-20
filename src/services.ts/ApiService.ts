@@ -31,6 +31,21 @@ class ApiService {
             body: JSON.stringify(data)
         })
     }
+
+    // Tutor
+
+    static getTutor = async(id: string) => {
+        return doFetch(`/.netlify/functions/tutor/${id}`);
+    }
+
+    // Offer
+
+    static createOffer = async (data: any) => {
+        return doFetch('/.netlify/functions/createOffer', {
+            method: "POST",
+            body: JSON.stringify(data)
+        })
+    }
 }
 
 export default ApiService

@@ -8,7 +8,7 @@ const borderRadius = {
         none: '0',
         sm: '0.125rem',
         base: '0.25rem',
-        md: '12px',
+        md: '6px',
         lg: '0.5rem',
         xl: '0.75rem',
         '2xl': '1rem',
@@ -18,6 +18,13 @@ const borderRadius = {
 }
 
 const colors = {
+    blue: {
+        "100": '#EFF4FA'
+    },
+    text: {
+        200: '#212224',
+        400: '#6E7682'
+    },
     primary:
     {
         "50": "#EBF4FE",
@@ -119,6 +126,38 @@ const linkButton = defineStyle({
     color: colors.primary[400]
 })
 
+const inputFieldStyle = {
+    border: '1px solid #E4E6E7',
+    boxShadow: '0px 2px 6px rgba(136, 139, 143, 0.1)',
+    color: '#212224',
+    borderRadius: '6px',
+    padding: '14px 14px 14px 16px',
+
+    '::placeholder': {
+        color: '#9A9DA2'
+    },
+
+    _hover: {
+        border: '1px solid #DDDEDF !important',
+    },
+
+    _active: {
+        border: `1.5px solid ${colors.primary[400]} !important`
+    },
+
+    _focus: {
+        border: `1.5px solid ${colors.primary[400]} !important`
+    },
+
+    _invalid: {
+        border: `1.5px solid #F53535 !important`,
+        boxShadow: '0 0 0 1px #F53535 !important',
+        // ':after': {
+
+        // }
+    }
+}
+
 const inputField = defineStyle({
     addon: {
         background: '#FFF',
@@ -155,37 +194,12 @@ const inputField = defineStyle({
     '.chakra-divider': {
         display: 'none'
     },
-    field: {
-        border: '1px solid #E4E6E7',
-        boxShadow: '0px 2px 6px rgba(136, 139, 143, 0.1)',
-        color: '#212224',
-        borderRadius: '6px',
-        padding: '14px 14px 14px 16px',
+    field: inputFieldStyle
+})
 
-        '::placeholder': {
-            color: '#9A9DA2'
-        },
-
-        _hover: {
-            border: '1px solid #DDDEDF',
-        },
-
-        _active: {
-            border: `1.5px solid ${colors.primary[400]}`
-        },
-
-        _focus: {
-            border: `1.5px solid ${colors.primary[400]}`
-        },
-
-        _invalid: {
-            border: `1.5px solid #F53535`,
-            boxShadow: '0 0 0 1px #F53535',
-            ':after': {
-                content: '"dsds"',
-
-            }
-        }
+const textareaTheme = defineStyleConfig({
+    variants: {
+        'outline': defineStyle(inputFieldStyle)
     }
 })
 
@@ -216,6 +230,23 @@ export const formLabelTheme = defineStyleConfig({
         letterSpacing: '-0.001em',
         marginInlineEnd: '0'
     }),
+})
+
+export const breadcrumbTheme = defineStyleConfig({
+    baseStyle: {
+        link: defineStyle({
+            color: '#6E7682',
+            fontSize: '14px',
+            fontWeight: 400,
+            lineHeight: '20px',
+            '&[aria-current="page"]': {
+                color: colors.primary[400]
+            }
+        }),
+        'list': {
+            padding: 0
+        },
+    }
 })
 
 export const menuListTheme = defineStyle({
@@ -296,16 +327,36 @@ export const modalTheme = defineStyleConfig({
 const alertTheme = defineAlertMultiStyleConfig({
     baseStyle: defineAlertPartsStyle({
         container: {
-            borderRadius: borderRadius.radii.md
+            borderRadius: borderRadius.radii.md,
+        },
+        description: {
+            color: colors.text[400],
+            fontSize: '12px',
+            fontWeight: 500,
+            lineHeight: '20px'
+        },
+        icon: {
+            marginRight: '1.5px',
+            alignItems: 'center'
         }
     })
 })
 
-
 const theme = extendTheme({
     colors,
     ...borderRadius,
-    components: { Button: buttonTheme, Text: textTheme, Checkbox: checkboxTheme, Alert: alertTheme, Input: inputTheme, FormLabel: formLabelTheme, Modal: modalTheme, Menu: menuListTheme },
+    components: {
+        Button: buttonTheme,
+        Text: textTheme,
+        Checkbox: checkboxTheme,
+        Alert: alertTheme,
+        Input: inputTheme,
+        FormLabel: formLabelTheme,
+        Modal: modalTheme,
+        Menu: menuListTheme,
+        Breadcrumb: breadcrumbTheme,
+        Textarea: textareaTheme
+    },
     styles: {
         global: (props: any) => ({
             body: {

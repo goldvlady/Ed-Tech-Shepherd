@@ -43,6 +43,28 @@ h4 {
   letter-spacing: -0.02em !important;
 }
 
+.sub1 {
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 23px;
+  color: #232424;
+}
+
+.sub2 {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 21px;
+  letter-spacing: 0.007em;
+  color: #232424;
+}
+
+.sub3 {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  color: #232424;
+}
+
 .body1 {
   color: #232424;
   font-weight: 400;

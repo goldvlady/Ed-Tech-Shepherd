@@ -18,6 +18,7 @@ import Login from './views/Login';
 import Signup from './views/Signup';
 import ForgotPassword from './views/ForgotPassword';
 import CreatePassword from './views/CreatePassword';
+import SendTutorOffer from './views/SendTutorOffer';
 
 const RedirectToLanding: React.FC = () => {
   window.location.href = 'https://shepherdtutors.com/';
@@ -69,6 +70,8 @@ const AppRoutes: React.FC = () => {
     <Route path="book-session/:studentLeadId/:course" element={<BookSession />} />
     <Route path="booking/:bookingId/:studentOrTutor" element={<Booking />} />
     <Route path="booking/:bookingId" element={<Booking />} />
+
+    <Route path="tutor/:tutorId/offer" element={<SendTutorOffer />} />
 
     <Route path="*" element={<RedirectToLanding />} />
     <Route path="" element={<RedirectToLanding />} />
