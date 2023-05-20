@@ -10,7 +10,7 @@ import Onboard from './views/Onboard';
 import OnboardStudent from './views/OnboardStudent';
 import OnboardTutor from './views/OnboardTutor';
 import Login from './views/Login';
-import SignUp from './views/SignUp';
+import Signup from './views/Signup';
 import Home from './views/Home';
 import DashboardLayout from "./views/Dashboard/layout"
 import DashboardIndex from "./views/Dashboard/index"
