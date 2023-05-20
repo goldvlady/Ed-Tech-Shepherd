@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import ApiService from '../services.ts/ApiService';
+import ApiService from '../services/ApiService';
 import { User } from '../types';
 
 type Store = {

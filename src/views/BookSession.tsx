@@ -10,7 +10,7 @@ import Scheduler from '../components/Scheduler';
 import moment from 'moment';
 import Panel from '../components/Panel';
 import TutorSelect from '../components/TutorSelect';
-import ApiService from '../services.ts/ApiService';
+import ApiService from '../services/ApiService';
 import { Course, Schedule, Slot, Student, Tutor } from '../types';
 import { capitalize, isEmpty } from 'lodash';
 import { usePaystackPayment } from 'react-paystack';

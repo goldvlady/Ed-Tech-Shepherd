@@ -19,7 +19,7 @@ import { numberToDayOfWeekName } from '../util';
 import LargeSelect from '../components/LargeSelect';
 import theme from '../theme';
 import TutorCard from '../components/TutorCard';
-import ApiService from '../services.ts/ApiService';
+import ApiService from '../services/ApiService';
 import { Course, Tutor } from '../types';
 import { formatContentFulCourse, getContentfulClient } from '../contentful';
 import { useTitle } from '../hooks';

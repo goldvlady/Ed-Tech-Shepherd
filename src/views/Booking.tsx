@@ -4,7 +4,7 @@ import { useParams } from 'react-router';
 import styled from 'styled-components';
 import Header from '../components/Header';
 import Panel from '../components/Panel';
-import ApiService from '../services.ts/ApiService';
+import ApiService from '../services/ApiService';
 import { Booking as BookingType, Course, Slot } from '../types';
 import { useTitle } from '../hooks';
 import TutorCard from '../components/TutorCard';

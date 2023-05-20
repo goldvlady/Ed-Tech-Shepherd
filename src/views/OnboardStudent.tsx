@@ -13,7 +13,7 @@ import Lottie from 'lottie-react';
 
 import lottieSuccessAnimationData from "../lottie/73392-success.json";
 import { useTitle } from '../hooks';
-import ApiService from '../services.ts/ApiService';
+import ApiService from '../services/ApiService';
 import TimezoneSelect from '../components/TimezoneSelect';
 
 import moment from 'moment';

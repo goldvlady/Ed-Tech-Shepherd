@@ -44,7 +44,6 @@ import { IconType } from 'react-icons';
 import Logo from "../../../public/images/logo-blue.png"
 import DashboardIndex from "./index"
 import TutorMarketplace from "./Tutor"
-import ApiService from '../../services.ts/ApiService';
 
 interface LinkItemProps {
     name: string;
