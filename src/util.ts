@@ -1,6 +1,7 @@
 import { createStandaloneToast, ToastId } from "@chakra-ui/react";
 import { isArray } from "lodash";
 import moment, { Duration, Moment } from "moment";
+import { firebaseAuth } from "./firebase";
 
 const { toast } = createStandaloneToast();
 
@@ -10,7 +11,7 @@ declare global {
 
 export const MinPasswordLength = 8;
 
-export const getOptionValue = (opts: Array<{value: any, label: any}>, val: any) => {
+export const getOptionValue = (opts: Array<{ value: any, label: any }>, val: any) => {
     if (isArray(val)) {
         return opts.filter(o => val.includes(o.value))
     }
@@ -18,26 +19,15 @@ export const getOptionValue = (opts: Array<{value: any, label: any}>, val: any) 
 }
 
 export const doFetch = async (input: RequestInfo, init?: RequestInit) => {
-    const response = await fetch(input, init);
+    const headers: HeadersInit = {};
 
-    if (!response.ok) {
-        if (window.networkErrorToast) {
-            toast.close(window.networkErrorToast)
-        }
+    const token = await firebaseAuth.currentUser?.getIdToken();
 
-        window.networkErrorToast = toast({
-            title: 'An error occurred.',
-            status: 'error',
-            position: 'top',
-            isClosable: true
-        })
-        throw response;
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
     }
 
-    return response;
-};
-export const doFetchWithToken = async (input: RequestInfo, header: any, init?: RequestInit ) => {
-    const response = await fetch(input, init);
+    const response = await fetch(input, { ...init, headers });
 
     if (!response.ok) {
         if (window.networkErrorToast) {
@@ -60,5 +50,5 @@ export const numberToDayOfWeekName = (num: number) => moment().day(num).format('
 export const leadingZero = (num: number) => `0${num}`.slice(-2);
 
 export const roundDate = (date: Date | Moment, duration: Duration, method: "ceil") => {
-    return moment(Math[method]((+date) / (+duration)) * (+duration)); 
+    return moment(Math[method]((+date) / (+duration)) * (+duration));
 }

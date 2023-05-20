@@ -1,19 +1,22 @@
-import { Box, Button, FormControl, FormErrorMessage, FormLabel, Heading, Input, Link, Text, useToast } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormErrorMessage, FormLabel, Heading, Input, Link, Text, useToast, VStack } from '@chakra-ui/react';
 import React from 'react';
 import { Link as RouterLink, useNavigate } from "react-router-dom"
 import styled from 'styled-components';
 import SecureInput from '../components/SecureInput';
-import { Field, Form, Formik } from 'formik';
+import { Field, FieldProps, Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import CriteriaCheck from '../components/CriteriaCheck';
 import { MinPasswordLength } from '../util';
 import { useTitle } from '../hooks';
 import { createUserWithEmailAndPassword, firebaseAuth } from '../firebase';
+import { updateProfile } from 'firebase/auth';
 
 const Root = styled(Box)`
 `
 
 const SignupSchema = Yup.object().shape({
+    firstName: Yup.string().required('A valid first name is required'),
+    lastName: Yup.string().required('A valid last name is required'),
     email: Yup.string().email('Enter a valid email address').required('A valid email address is required'),
     password: Yup.string().required('A password is required').min(MinPasswordLength, `Your password must be a minimum of ${MinPasswordLength} characters`),
     passwordConfirmation: Yup.string()
@@ -33,11 +36,14 @@ const Signup: React.FC = () => {
         </Box>
         <Box>
             <Formik
-                initialValues={{ email: '', password: '', passwordConfirmation: '' }}
+                initialValues={{ firstName: '', lastName: '', email: '', password: '', passwordConfirmation: '' }}
                 validationSchema={SignupSchema}
                 onSubmit={async (values, { setSubmitting }) => {
                     try {
-                        await createUserWithEmailAndPassword(firebaseAuth, values.email, values.password);
+                        const user = await createUserWithEmailAndPassword(firebaseAuth, values.email, values.password);
+                        await updateProfile(user.user, {
+                            displayName: `${values.firstName} ${values.lastName}`
+                        })
                         navigate('/dashboard');
                     } catch (e: any) {
                         let errorMessage = '';
@@ -66,6 +72,25 @@ const Signup: React.FC = () => {
                     values
                 }) => (
                     <Form>
+                        <VStack spacing={'22px'}>
+                        <Field name='firstName'>
+                            {({ field, form }: FieldProps) => (
+                                <FormControl isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
+                                    <FormLabel>First Name</FormLabel>
+                                    <Input size={'lg'} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]} {...field} placeholder='Enter your first name' />
+                                    <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
+                                </FormControl>
+                            )}
+                        </Field>
+                        <Field name='lastName'>
+                            {({ field, form }: FieldProps) => (
+                                <FormControl isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
+                                    <FormLabel>Last Name</FormLabel>
+                                    <Input size={'lg'} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]} {...field} placeholder='Enter your last name' />
+                                    <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
+                                </FormControl>
+                            )}
+                        </Field>
                         <Field name='email'>
                             {({ field, form }: { field: any, form: any }) => (
                                 <FormControl isInvalid={form.errors.email && form.touched.email}>
@@ -77,7 +102,7 @@ const Signup: React.FC = () => {
                         </Field>
                         <Field name='password'>
                             {({ field, form }: { field: any, form: any }) => (
-                                <FormControl marginTop={'22px'} isInvalid={form.errors.password && form.touched.password}>
+                                <FormControl isInvalid={form.errors.password && form.touched.password}>
                                     <FormLabel>Password</FormLabel>
                                     <SecureInput size={'lg'} isInvalid={form.errors.password && form.touched.password} {...field} placeholder='Enter password' />
                                     <FormErrorMessage>{form.errors.password}</FormErrorMessage>
@@ -86,13 +111,14 @@ const Signup: React.FC = () => {
                         </Field>
                         <Field name='passwordConfirmation'>
                             {({ field, form }: { field: any, form: any }) => (
-                                <FormControl marginTop={'22px'} isInvalid={form.errors.passwordConfirmation && form.touched.passwordConfirmation}>
+                                <FormControl isInvalid={form.errors.passwordConfirmation && form.touched.passwordConfirmation}>
                                     <FormLabel>Confirm Password</FormLabel>
                                     <SecureInput size={'lg'} isInvalid={form.errors.passwordConfirmation && form.touched.passwordConfirmation} {...field} placeholder='Re-enter password' />
                                     <FormErrorMessage>{form.errors.passwordConfirmation}</FormErrorMessage>
                                 </FormControl>
                             )}
                         </Field>
+                        </VStack>
                         <CriteriaCheck mt={17.5} text={`${MinPasswordLength} character minimum`} checked={values.password.length >= MinPasswordLength} />
                         <Box marginTop={'36px'} display={"flex"} flexDirection="column" gap={4} justifyContent="flex-end">
                             <Button isDisabled={Object.values(errors).length !== 0} width={'100%'} size='lg' type='submit' isLoading={isSubmitting}>Sign Up</Button>

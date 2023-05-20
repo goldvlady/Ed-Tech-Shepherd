@@ -1,12 +1,16 @@
 import middy from '@middy/core';
 import { connectToDb } from '../database/connection';
+import * as firebaseAdmin from 'firebase-admin';
 import { initializeApp, getApps } from 'firebase-admin/app';
-import { firebaseConfig } from '../../src/firebase';
+import serviceAccount from '../serviceAccountKey.json';
 
 const bootstrapPlugin = () => {
     const requestStart = async () => {
         if (!getApps().length) {
-            initializeApp(firebaseConfig);
+            initializeApp({
+                // @ts-ignore
+                credential: firebaseAdmin.credential.cert(serviceAccount)
+            })
         }
         await connectToDb();
     }

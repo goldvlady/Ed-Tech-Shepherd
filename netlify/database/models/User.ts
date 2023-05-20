@@ -1,15 +1,23 @@
 import { Schema, model } from "mongoose";
 import { TimestampedEntity } from "../../types";
 
-interface User extends TimestampedEntity {
-    name: string;
+export interface User extends TimestampedEntity {
+    name: {
+        first: string,
+        last: string
+    };
     email: string;
     firebaseId: string;
     avatar?: string;
 }
 
 const schema = new Schema<User>({
-    name: { type: String, required: true },
+    name: {
+        type: new Schema({
+            first: String,
+            last: String
+        }), required: true
+    },
     email: { type: String, required: true, unique: true },
     firebaseId: { type: String, required: true },
     avatar: { type: String, required: false }

@@ -1,24 +1,10 @@
-import async from "react-select/dist/declarations/src/async/index"
 import { doFetch } from "../util"
 
 class ApiService {
-    //GET USER
-     
-       
-static getUser = async()=> {
-    // return doFetch('/.netlify/functions/createStudentLead', {
-    //     method: "POST",
-    //     header: {
-    //         'Content-Type': 'application/json'
-    //     },
-    //     body: JSON.stringify(token)
-    // })
-    const headers = { 'Authorization': `Bearer ${localStorage.getItem("token")}` };
-    return fetch('/.netlify/functions/me', { headers })
-            .then(response => response.json())
-            .then(data => console.log(data));
-   
-}
+
+    static getUser = async () => {
+        return doFetch('/.netlify/functions/me'); 
+    }
     
     static submitStudentLead = async (data: any) => {
         return doFetch('/.netlify/functions/createStudentLead', {

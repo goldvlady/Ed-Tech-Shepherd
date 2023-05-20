@@ -8,7 +8,7 @@ const middleware = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxy
     ) => {
         try {
             const token = request.event.headers?.authorization?.replace('Bearer ', '') || '';
-            request.event['firebaseUser'] = await getAuth().verifyIdToken(token)
+            request.event['firebaseUser'] = await getAuth().verifyIdToken(token);
         } catch (e) {
             return {
                 statusCode: 401

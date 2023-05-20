@@ -1,5 +1,4 @@
 import React, { ReactNode } from 'react';
-import { Route, Routes } from 'react-router';
 import { Outlet } from "react-router-dom"
 import {
     IconButton,
@@ -45,6 +44,7 @@ import { IconType } from 'react-icons';
 import Logo from "../../../public/images/logo-blue.png"
 import DashboardIndex from "./index"
 import TutorMarketplace from "./Tutor"
+import ApiService from '../../services.ts/ApiService';
 
 interface LinkItemProps {
     name: string;
@@ -71,6 +71,7 @@ export default function DashboardLayout({
     children: ReactNode;
 }) {
     const { isOpen, onOpen, onClose } = useDisclosure();
+
     return (
         <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
             <SidebarContent
