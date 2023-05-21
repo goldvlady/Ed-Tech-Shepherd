@@ -10,7 +10,6 @@ export enum Status {
 }
 
 export interface Booking extends TimestampedEntity {
-    _id: string;
     tutorLead: TutorLeadInterface;
     studentLead: StudentLeadInterface;
     paystackReference: string;

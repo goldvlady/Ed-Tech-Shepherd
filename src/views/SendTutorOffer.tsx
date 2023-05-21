@@ -31,7 +31,6 @@ padding: 32px;
 min-height: 100vh;
 `
 const RightCol = styled(Box)`
-padding-inline: 24px;
 `
 
 const Root = styled(Box)`

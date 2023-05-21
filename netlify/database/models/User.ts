@@ -13,7 +13,8 @@ export interface User extends TimestampedEntity {
     avatar?: string;
     tutorLead?: typeof TutorLead;
     studentLead?: typeof StudentLead;
-    attachLeads: () => Promise<User>
+    attachLeads: () => Promise<User>;
+    type: 'student' | 'tutor';
 }
 
 const schema = new Schema<User>({

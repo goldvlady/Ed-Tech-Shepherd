@@ -4,7 +4,6 @@ import { PipedriveService } from "../../services/PipedriveService";
 import scheduleSchema, { Schedule } from "./Schedule";
 
 export interface TutorLead extends TimestampedEntity {
-    _id: string;
     name: {
         first: string,
         last: string

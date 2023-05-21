@@ -13,7 +13,6 @@ const skillLevelSchema = new Schema<SkillLevel>({
 });
 
 export interface StudentLead extends TimestampedEntity {
-    _id: string;
     name: {
         first: string,
         last: string
