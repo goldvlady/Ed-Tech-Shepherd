@@ -1,5 +1,4 @@
 import React, { ReactNode } from 'react';
-import { Route, Routes } from 'react-router';
 import { Outlet } from "react-router-dom"
 import {
     IconButton,
@@ -71,6 +70,7 @@ export default function DashboardLayout({
     children: ReactNode;
 }) {
     const { isOpen, onOpen, onClose } = useDisclosure();
+
     return (
         <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
             <SidebarContent
@@ -91,7 +91,7 @@ export default function DashboardLayout({
             </Drawer>
             {/* mobilenav */}
             <MobileNav onOpen={onOpen} />
-            <Box ml={{ base: 0, md: 60 }} p="4">
+            <Box ml={{ base: 0, md: 60 }}>
                 <Outlet />
             </Box>
         </Box>

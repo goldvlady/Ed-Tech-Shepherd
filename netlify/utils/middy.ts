@@ -1,12 +1,17 @@
 import middy from '@middy/core';
+import cors from '@middy/http-cors';
 import { connectToDb } from '../database/connection';
+import * as firebaseAdmin from 'firebase-admin';
 import { initializeApp, getApps } from 'firebase-admin/app';
-import { firebaseConfig } from '../../src/firebase';
+import serviceAccount from '../serviceAccountKey.json';
 
 const bootstrapPlugin = () => {
     const requestStart = async () => {
         if (!getApps().length) {
-            initializeApp(firebaseConfig);
+            initializeApp({
+                // @ts-ignore
+                credential: firebaseAdmin.credential.cert(serviceAccount)
+            })
         }
         await connectToDb();
     }
@@ -16,4 +21,4 @@ const bootstrapPlugin = () => {
     }
 }
 
-export default (handler: any) => middy(handler, bootstrapPlugin());
+export default (handler: any) => middy(handler, bootstrapPlugin()).use(cors());

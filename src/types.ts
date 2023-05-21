@@ -1,7 +1,8 @@
-import { Moment } from "moment";
 import { TutorLead } from "../netlify/database/models/TutorLead"
 import { StudentLead } from "../netlify/database/models/StudentLead"
 import { Booking as BookingType } from "../netlify/database/models/Booking"
+import { User as UserType } from "../netlify/database/models/User"
+import { Offer as OfferType } from "../netlify/database/models/Offer"
 
 export type Entity = {
     _id: string;
@@ -25,7 +26,7 @@ export type Course = {
 };
 
 export type Student = StudentLead;
-
 export type Tutor = TutorLead;
-
 export type Booking = BookingType;
+export type User = UserType;
+export type Offer = OfferType;

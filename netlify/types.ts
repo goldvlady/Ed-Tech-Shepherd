@@ -1,4 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
+import { User } from './database/models/User';
 
 export interface TimestampedEntity {
     createdAt: Date;
@@ -13,5 +14,6 @@ export interface FirebaseUser {
 }
 
 export interface HTTPEvent extends APIGatewayProxyEvent {
-    firebaseUser: FirebaseUser
+    firebaseUser: FirebaseUser;
+    user: User
 }

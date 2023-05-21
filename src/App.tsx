@@ -1,6 +1,6 @@
-import { ChakraProvider } from '@chakra-ui/react';
+import { Box, ChakraProvider, Spinner } from '@chakra-ui/react';
 import mixpanel from 'mixpanel-browser';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import { BrowserRouter, useLocation, useSearchParams } from 'react-router-dom';
 import theme from './theme';
@@ -22,6 +22,10 @@ import 'bootstrap/dist/css/bootstrap-reboot.min.css';
 import 'bootstrap/dist/css/bootstrap-utilities.min.css';
 import ForgotPassword from './views/ForgotPassword';
 import CreatePassword from './views/CreatePassword';
+import SendTutorOffer from './views/SendTutorOffer';
+import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
+import userStore from './state/userStore';
+import Offer from './views/Offer';
 
 const RedirectToLanding: React.FC = () => {
   window.location.href = 'https://shepherdtutors.com/';
@@ -37,6 +41,32 @@ const AuthAction = (props: any) => {
   }
 
   return <></>
+}
+
+const RequireAuth = ({ authenticated, unAuthenticated }: { authenticated: any, unAuthenticated: any }) => {
+  const { fetchUser, user } = userStore();
+  const [loadingUser, setLoadingUser] = useState(true);
+
+  const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
+  const [obtainedUserAuthState, setObtainedUserAuthState] = useState(false);
+
+  useEffect(() => {
+    onAuthStateChanged(getAuth(), async (user) => {
+      setObtainedUserAuthState(true);
+      setFirebaseUser(user);
+
+      try {
+        if (user) {
+          await fetchUser();
+        }
+      } catch (e) {
+
+      }
+      setLoadingUser(false);
+    })
+  }, [])
+
+  return obtainedUserAuthState && !loadingUser ? firebaseUser && user ? authenticated : unAuthenticated : <Box p={5} textAlign='center'><Spinner /></Box>
 }
 
 const AppRoutes: React.FC = () => {
@@ -64,20 +94,25 @@ const AppRoutes: React.FC = () => {
         <Route path="" element={<Navigate to="student" />} />
       </Route>
 
-      <Route path="login" element={<Login />} />
-      <Route path="signup" element={<Signup />} />
-      <Route path="forgot-password" element={<ForgotPassword />} />
+      <Route path="login" element={<RequireAuth authenticated={<Navigate to={'/dashboard'} />} unAuthenticated={<Login />} />} />
+      <Route path="signup" element={<RequireAuth authenticated={<Navigate to={'/dashboard'} />} unAuthenticated={<Signup />} />} />
+      <Route path="forgot-password" element={<RequireAuth authenticated={<Navigate to={'/dashboard'} />} unAuthenticated={<ForgotPassword />} />} />
       <Route path="auth-action" element={<AuthAction />} />
     </Route>
 
     <Route path="book-session/:studentLeadId/:course" element={<BookSession />} />
     <Route path="booking/:bookingId/:studentOrTutor" element={<Booking />} />
     <Route path="booking/:bookingId" element={<Booking />} />
-
+ 
     <Route path="home" element={<Home />} />
+    <Route path="dashboard" element={<RequireAuth authenticated={<DashboardLayout children />} unAuthenticated={<Navigate to={'/login'} />} />}>
+      {/* <Route element={<DashboardLayout children />}> */}
 
-    <Route element={<DashboardLayout children />}>
-      <Route path="dashboard" element={<DashboardIndex />} />
+      <Route path="tutor/:tutorId/offer" element={<SendTutorOffer />} />
+      <Route path="offer/:offerId" element={<Offer />} />
+
+      <Route path="home" element={<DashboardIndex />} />
+
       <Route path="find-tutor" element={<Marketplace />} />
       <Route path="find-tutor/tutor/" element={<Tutor />} />
       <Route path="" element={<Navigate to="dashboard" />} />

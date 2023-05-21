@@ -2,19 +2,27 @@ import middy from '../utils/middy';
 import authMiddleware from "../middlewares/authMiddleware";
 import { HTTPEvent } from "../types";
 import User from "../database/models/User";
+import { getAuth } from 'firebase-admin/auth';
+import { first, last } from 'lodash';
 
 const me = async (event: HTTPEvent) => {
-    const { firebaseUser } = event;
-    let user = await User.findOne({ firebaseId: firebaseUser.user_id });
-    
-    // create the user if they don't exist
+    let { firebaseUser, user } = event;
+
     if (!user) {
+        const firebaseUserObject = await getAuth().getUser(firebaseUser.user_id);
+        const names = firebaseUserObject.displayName?.split(' ');
+
         user = await User.create({
             firebaseId: firebaseUser.user_id,
             email: firebaseUser.email,
-            name: firebaseUser.name
+            name: {
+                first: first(names),
+                last: last(names)
+            }
         })
     }
+
+    await user.attachLeads();
 
     return {
         statusCode: 200,
