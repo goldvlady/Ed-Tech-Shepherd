@@ -42,7 +42,7 @@ padding-inline: 8px;
 align-self: stretch;
 `
 
-const StyledTutorCard = styled(TutorCard)`
+const StyledTutorCard = styled(TutorCard)<{ $active: boolean }>`
 cursor: pointer;
 box-shadow: ${props => props.$active ? `${theme.colors.primary[500]} 0px 0px 0px 2px` : "none"};
 ${props => props.$active ? `
