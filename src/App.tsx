@@ -15,6 +15,7 @@ import Home from './views/Home';
 import DashboardLayout from "./views/Dashboard/layout"
 import DashboardIndex from "./views/Dashboard/index"
 import Marketplace from "./views/Dashboard/Marketplace";
+import Tutor from "./views/Dashboard/Tutor";
 import WelcomeLayout from './views/WelcomeLayout';
 import 'bootstrap/dist/css/bootstrap-grid.min.css';
 import 'bootstrap/dist/css/bootstrap-reboot.min.css';
@@ -102,9 +103,7 @@ const AppRoutes: React.FC = () => {
     <Route path="book-session/:studentLeadId/:course" element={<BookSession />} />
     <Route path="booking/:bookingId/:studentOrTutor" element={<Booking />} />
     <Route path="booking/:bookingId" element={<Booking />} />
-
-    {/* <Route path="*" element={<RedirectToLanding />} />
-    <Route path="" element={<RedirectToLanding />} /> */}
+ 
     <Route path="home" element={<Home />} />
     <Route path="dashboard" element={<RequireAuth authenticated={<DashboardLayout children />} unAuthenticated={<Navigate to={'/login'} />} />}>
       {/* <Route element={<DashboardLayout children />}> */}
@@ -113,13 +112,12 @@ const AppRoutes: React.FC = () => {
       <Route path="offer/:offerId" element={<Offer />} />
 
       <Route path="home" element={<DashboardIndex />} />
+
       <Route path="find-tutor" element={<Marketplace />} />
-
-      <Route path="" element={<Navigate to="home" />} />
-
-      {/* </Route> */}
+      <Route path="find-tutor/tutor/" element={<Tutor />} />
+      <Route path="" element={<Navigate to="dashboard" />} />
     </Route>
-  </Routes>
+  </Routes >
 }
 
 function App() {

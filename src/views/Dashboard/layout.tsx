@@ -51,16 +51,16 @@ interface LinkItemProps {
     path: string;
 }
 const LinkItems: Array<LinkItemProps> = [
-    { name: 'Home', icon: FiHome, path: "/dashboard/home" },
-    { name: 'Performance', icon: FiBarChart2, path: "/dashboard/performance" },
-    { name: 'Chat', icon: BsChatLeftDots, path: "/dashboard/chat" },
+    { name: 'Home', icon: FiHome, path: "/dashboard" },
+    { name: 'Performance', icon: FiBarChart2, path: "/performance" },
+    { name: 'Chat', icon: BsChatLeftDots, path: "/chat" },
 
 ];
 
 const LinkBItems: Array<LinkItemProps> = [
-    { name: 'Library', icon: BsPlayCircle, path: "/dashboard/library" },
-    { name: 'Notes', icon: CgNotes, path: "/dashboard/notes" },
-    { name: 'Flashcards', icon: TbCards, path: "/dashboard/flashcards" },
+    { name: 'Library', icon: BsPlayCircle, path: "/library" },
+    { name: 'Notes', icon: CgNotes, path: "/notes" },
+    { name: 'Flashcards', icon: TbCards, path: "/flashcards" },
 ];
 
 
@@ -102,8 +102,8 @@ interface SidebarProps extends BoxProps {
     onClose: () => void;
 }
 
-const CustomButton = (props: any) => {
-    const { buttonText } = props
+export const CustomButton = (props: any) => {
+    const { buttonText, fontStyle, buttonType, onClick, padding } = props
     return (
         <Box
             as='button'
@@ -111,16 +111,17 @@ const CustomButton = (props: any) => {
             lineHeight='1.2'
             transition='all 0.2s cubic-bezier(.08,.52,.52,1)'
             border='1px'
-            py='9px'
-            px='20px'
+            padding={padding ? padding : "9px 20px"}
+            mx='4px'
             alignItems='center'
             borderRadius='8px'
-            fontSize='14px'
-            fontWeight='semibold'
-            bg='#207DF7'
-            borderColor='#ccd0d5'
-            color='#ffffff'
-            _hover={{ bg: '#1964c5' }}
+            fontSize={fontStyle ? fontStyle.fontSize : "14px"}
+            fontWeight={fontStyle ? fontStyle.fontWeight : "semibold"}
+
+            bg={buttonType === "outlined" ? "transparent" : "#207DF7"}
+            borderColor={buttonType === "outlined" ? "transparent" : '#ccd0d5'}
+            color={buttonType === "outlined" ? "#207DF7" : "#fff"}
+            _hover={{ bg: buttonType === "outlined" ? "#E2E8F0" : '#1964c5' }}
             _active={{
                 bg: '#dddfe2',
                 transform: 'scale(0.98)',
@@ -130,9 +131,10 @@ const CustomButton = (props: any) => {
                 boxShadow:
                     '0 0 1px 2px rgba(88, 144, 255, .75), 0 1px 1px rgba(0, 0, 0, .15)',
             }}
+            onClick={onClick}
         >
             {buttonText}
-        </Box>)
+        </Box >)
 }
 
 const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
@@ -170,7 +172,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
                 </Text>
                 <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
             </Flex>
-            <NavItem icon={FiBriefcase} path="/dashboard/find-tutor">
+            <NavItem icon={FiBriefcase} path="/find-tutor">
                 Find a tutor
             </NavItem>
             <Divider />
@@ -191,7 +193,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
                 </>
 
             ))} <Divider />
-            <NavItem icon={BsPin} path={"/dashboard/pinned-notes"} >
+            <NavItem icon={BsPin} path={"/pinned-notes"} >
                 Pinned Notes
             </NavItem>
         </Box>
