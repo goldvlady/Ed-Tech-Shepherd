@@ -115,7 +115,8 @@ const AppRoutes: React.FC = () => {
 
       <Route path="find-tutor" element={<Marketplace />} />
       <Route path="find-tutor/tutor/" element={<Tutor />} />
-      <Route path="" element={<Navigate to="dashboard" />} />
+      <Route path="" element={<Navigate to="home" />} />
+      <Route path="*" element={<Navigate to="home" />} />
     </Route>
   </Routes >
 }
