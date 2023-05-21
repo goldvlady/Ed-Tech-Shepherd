@@ -44,8 +44,8 @@ align-self: stretch;
 
 const StyledTutorCard = styled(TutorCard)<{ $active: boolean }>`
 cursor: pointer;
-box-shadow: ${props => props.$active ? `${theme.colors.primary[500]} 0px 0px 0px 2px` : "none"};
-${props => props.$active ? `
+box-shadow: ${props => props._active ? `${theme.colors.primary[500]} 0px 0px 0px 2px` : "none"};
+${props => props._active ? `
 &:before {
     content: "";
     box-shadow: 0 0.125em 0.313em rgba(50, 50, 93, 0.09), 0 0.063em 0.125em rgba(0, 0, 0, 0.07);
@@ -168,7 +168,7 @@ export const TutorSelect: React.FC<Props> = ({ onChange, options, value }: Props
         <Slider className="scrollbar-hidden" ref={containerRef}>
             {
                 options.map(o => <Item key={o._id}>
-                    <StyledTutorCard tutor={o} $active={o._id === value} onClick={() => toggleValue(o._id)} />
+                    <StyledTutorCard tutor={o} _active={o._id === value} onClick={() => toggleValue(o._id)} />
                 </Item>)
             }
         </Slider>
