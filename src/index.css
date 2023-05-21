@@ -74,6 +74,9 @@ h4 {
   letter-spacing: -0.003em;
 }
 
+.tab-list .chakra-tabs__tab{
+  font-size: 12px;
+}
 img {
   max-width: 100%;
   max-height: 100%;

@@ -10,11 +10,12 @@ import Onboard from './views/Onboard';
 import OnboardStudent from './views/OnboardStudent';
 import OnboardTutor from './views/OnboardTutor';
 import Login from './views/Login';
-import SignUp from './views/SignUp';
+import Signup from './views/Signup';
 import Home from './views/Home';
 import DashboardLayout from "./views/Dashboard/layout"
 import DashboardIndex from "./views/Dashboard/index"
 import Marketplace from "./views/Dashboard/Marketplace";
+import Tutor from "./views/Dashboard/Tutor";
 import WelcomeLayout from './views/WelcomeLayout';
 import 'bootstrap/dist/css/bootstrap-grid.min.css';
 import 'bootstrap/dist/css/bootstrap-reboot.min.css';
@@ -34,7 +35,7 @@ const AuthAction = (props: any) => {
   if (mode === 'resetpassword') {
     return <CreatePassword {...props} />
   }
-  
+
   return <></>
 }
 
@@ -73,22 +74,15 @@ const AppRoutes: React.FC = () => {
     <Route path="booking/:bookingId/:studentOrTutor" element={<Booking />} />
     <Route path="booking/:bookingId" element={<Booking />} />
 
-    {/* <Route path="*" element={<RedirectToLanding />} />
-    <Route path="" element={<RedirectToLanding />} /> */}
-    <Route path="login" element={<Login />} />
-    <Route path="sign-up" element={<SignUp />} />
     <Route path="home" element={<Home />} />
-    <Route path="dashboard" element={<DashboardLayout children />}>
-      {/* <Route element={<DashboardLayout children />}> */}
 
-      <Route path="home" element={<DashboardIndex />} />
+    <Route element={<DashboardLayout children />}>
+      <Route path="dashboard" element={<DashboardIndex />} />
       <Route path="find-tutor" element={<Marketplace />} />
-
-      <Route path="" element={<Navigate to="home" />} />
-
-      {/* </Route> */}
+      <Route path="find-tutor/tutor" element={<Tutor />} />
+      <Route path="" element={<Navigate to="dashboard" />} />
     </Route>
-  </Routes>
+  </Routes >
 }
 
 function App() {
