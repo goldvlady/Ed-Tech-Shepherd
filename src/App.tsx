@@ -79,7 +79,7 @@ const AppRoutes: React.FC = () => {
     <Route element={<DashboardLayout children />}>
       <Route path="dashboard" element={<DashboardIndex />} />
       <Route path="find-tutor" element={<Marketplace />} />
-      <Route path="find-tutor/tutor" element={<Tutor />} />
+      <Route path="find-tutor/tutor/" element={<Tutor />} />
       <Route path="" element={<Navigate to="dashboard" />} />
     </Route>
   </Routes >

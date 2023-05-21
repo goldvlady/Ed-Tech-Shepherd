@@ -18,7 +18,8 @@ import {
 import TutorAvi from "../../../assets/tutoravi.svg"
 import Star from "../../../assets/littleStar.svg"
 
-export default function TutorCard() {
+export default function TutorCard(props: any) {
+    const { id, name, levelOfEducation, avatar } = props
     return (
         <LinkBox as='article' >
             <Center>
@@ -38,16 +39,16 @@ export default function TutorCard() {
                             maxWidth={"118px"}
                             borderStartRadius={"8px"}
                             src={
-                                TutorAvi
+                                avatar
                             }
                         />
                     </Flex>
                     <Stack pt={1} spacing={2} direction={'column'}>
-                        <LinkOverlay href='/find-tutor/tutor'>
+                        <LinkOverlay href={`/find-tutor/tutor/?id=${id}`}>
                             <Text fontSize={"16px"} fontWeight={"semibold"} mb={0} >
-                                Leslie A. Peters
+                                {name}
                                 <Text fontWeight={400} color={'#212224'} fontSize="14px" mb={"2px"}>
-                                    Bsc Economics (Bachelors)
+                                    {levelOfEducation}
                                 </Text>
                             </Text>
                         </LinkOverlay>

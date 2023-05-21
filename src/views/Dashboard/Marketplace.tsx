@@ -1,4 +1,5 @@
 import React, { useCallback, useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Box, SimpleGrid, Stack, Select, Flex, Spacer, FormControl, Text } from '@chakra-ui/react'
 import { Select as MultiSelect } from "chakra-react-select"
 import Banner from './components/Banner'
@@ -10,6 +11,7 @@ import { BsStarFill } from 'react-icons/bs'
 import { formatContentFulCourse, getContentfulClient } from '../../contentful';
 import { Course, Schedule } from '../../types';
 import { useFormik } from 'formik'
+import ApiService from '../../services.ts/ApiService';
 
 const levelOptions = [
     { value: "a-level", label: "A-Level", id: 1 },
@@ -38,8 +40,12 @@ const ratingOptions = [
 const client = getContentfulClient();
 
 export default function Marketplace() {
+    const [allTutors, setAllTutors] = useState<any>([])
     const [courseList, setCourseList] = useState<Course[]>([]);
     const [loadingCourses, setLoadingCourses] = useState(false);
+    const [loadingData, setLoadingData] = useState(false);
+
+    const [searchParams, setSearchParams] = useSearchParams()
 
     const formik = useFormik({
         initialValues: {
@@ -77,6 +83,21 @@ export default function Marketplace() {
     useEffect(() => {
         loadCourses();
     }, [loadCourses]);
+
+    const getData = async () => {
+        setLoadingData(true)
+        try {
+            const resp = await ApiService.getAllTutors();
+            const data = await resp.json();
+            setAllTutors(data);
+        } catch (e) {
+        }
+        setLoadingData(false);
+    }
+    useEffect(() => {
+        getData();
+    }, []);
+    console.log(allTutors);
 
     return (
         <>
@@ -119,18 +140,8 @@ export default function Marketplace() {
             </Box>
             <Box my={45} py={2}>
                 <SimpleGrid minChildWidth='359px' spacing='30px' >
-                    <TutorCard />
-                    <TutorCard />
-                    <TutorCard />
-                    <TutorCard />
-                    <TutorCard />
-                    <TutorCard />
-                    <TutorCard />
-                    <TutorCard />
-                    <TutorCard />
-                    <TutorCard />
-                    <TutorCard />
-                    <TutorCard />
+                    {allTutors.map((tutor: any) => (<TutorCard key={tutor._id} id={tutor._id} name={`${tutor.name.first} ${tutor.name.last} `} levelOfEducation={tutor.highestLevelOfEducation} avatar={tutor.avatar} />))}
+
                 </SimpleGrid>
             </Box>
         </>

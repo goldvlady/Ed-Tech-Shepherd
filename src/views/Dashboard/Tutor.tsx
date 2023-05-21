@@ -34,7 +34,8 @@ import {
     TableContainer,
     Divider,
 } from '@chakra-ui/react'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { RiQuestionFill } from 'react-icons/ri'
 import Ribbon from '../../assets/ribbon-grey.svg'
 import { CustomButton } from './layout'
@@ -43,8 +44,29 @@ import FileAvi2 from '../../assets/file-avi2.svg'
 import TutorAvi from "../../assets/tutoravi.svg"
 import Star from "../../assets/littleStar.svg"
 import HowItWorks from './components/HowItWorks'
+import ApiService from '../../services.ts/ApiService'
 
 export default function Tutor() {
+    const [searchParams, setSearchParams] = useSearchParams()
+    const [loadingData, setLoadingData] = useState(false)
+    const [tutorData, setTutorData] = useState<any>({})
+    const tutorId: any = searchParams.get('id')
+    const getData = async () => {
+        setLoadingData(true)
+        try {
+            const resp = await ApiService.getTutor(tutorId);
+            const data = await resp.json();
+            setTutorData(data);
+        } catch (e) {
+        }
+        setLoadingData(false);
+    }
+
+    useEffect(() => {
+        getData()
+    }, [])
+    console.log(tutorData);
+
 
     return (
         <Box>
@@ -67,14 +89,14 @@ export default function Tutor() {
                                         borderRadius="8px"
                                         h={"125px"}
                                         src={
-                                            TutorAvi
+                                            tutorData.avatar
                                         }
                                     />
                                     <Stack direction={"column"} px={4}>
                                         <Text fontSize={"16px"} fontWeight={"semibold"} mb={0}  >
-                                            Leslie A. Peters
+                                            {`${tutorData.name?.first} ${tutorData.name?.last}`}
                                             <Text fontWeight={400} color={'#212224'} fontSize="14px" mb={"2px"}>
-                                                Bsc Economics (Bachelors)
+                                                {tutorData.highestLevelOfEducation}
                                             </Text>
                                         </Text>
                                         <Spacer />
@@ -99,8 +121,7 @@ export default function Tutor() {
                                 </Flex>
                             </Box>
                             <Text fontSize={"14px"} my={2}>
-                                Quam eros suspendisse a pulvinar sagittis mauris. Vel duis adipiscing id faucibus consectetur amet. Tempor dui quam scelerisque at tempor aliquam. Vivamus aenean hendrerit turpis velit pretium consectetur quam ut malesuada. Tempor dui quam scelerisque at tempor aliquam. Vivamus aenean hendrerit turpis velit pretium consectetur quam ut malesuada.
-                            </Text>
+                                {tutorData.description}                            </Text>
 
                             <Box my={7}>
                                 <Tabs>
@@ -192,8 +213,8 @@ export default function Tutor() {
                                 p={1}
                                 pt={2}>
                                 <img src={FileAvi} alt="send-offer-img" />
-                                <Text fontSize={16} fontWeight="semibold">Send an offer to Leslie</Text>
-                                <Text fontSize={14} fontWeight={400} color="#6E7682" maxWidth={"85%"}>You’ll be notified once she responds to your offer</Text>
+                                <Text fontSize={16} fontWeight="semibold">Send an offer to {tutorData.name?.first}</Text>
+                                <Text fontSize={14} fontWeight={400} color="#6E7682" maxWidth={"85%"}>You’ll be notified once they respond to your offer</Text>
                                 <CustomButton buttonText="Send Offer" padding="9px 105px" />
                             </Stack>
                         </CardBody>
