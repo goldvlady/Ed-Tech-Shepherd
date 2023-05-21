@@ -23,6 +23,7 @@ const colors = {
     },
     text: {
         200: '#212224',
+        300: '#585F68',
         400: '#6E7682'
     },
     primary:
@@ -328,6 +329,7 @@ const alertTheme = defineAlertMultiStyleConfig({
     baseStyle: defineAlertPartsStyle({
         container: {
             borderRadius: borderRadius.radii.md,
+            alignItems: 'flex-start'
         },
         description: {
             color: colors.text[400],

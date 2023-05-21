@@ -24,6 +24,7 @@ import CreatePassword from './views/CreatePassword';
 import SendTutorOffer from './views/SendTutorOffer';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import userStore from './state/userStore';
+import Offer from './views/Offer';
 
 const RedirectToLanding: React.FC = () => {
   window.location.href = 'https://shepherdtutors.com/';
@@ -109,6 +110,7 @@ const AppRoutes: React.FC = () => {
       {/* <Route element={<DashboardLayout children />}> */}
 
       <Route path="tutor/:tutorId/offer" element={<SendTutorOffer />} />
+      <Route path="offer/:offerId" element={<Offer />} />
 
       <Route path="home" element={<DashboardIndex />} />
       <Route path="find-tutor" element={<Marketplace />} />

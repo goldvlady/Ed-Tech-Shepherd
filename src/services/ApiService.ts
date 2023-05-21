@@ -46,6 +46,10 @@ class ApiService {
 
     // Offer
 
+    static getOffer = async(id: string) => {
+        return doFetch(`${ApiService.baseEndpoint}/offer/${id}`);
+    }
+
     static createOffer = async (data: any) => {
         return doFetch(`${ApiService.baseEndpoint}/createOffer`, {
             method: "POST",

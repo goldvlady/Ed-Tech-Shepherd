@@ -23,6 +23,7 @@ import ApiService from '../services/ApiService';
 import { Course, Tutor } from '../types';
 import { formatContentFulCourse, getContentfulClient } from '../contentful';
 import { useTitle } from '../hooks';
+import { scheduleOptions } from './Offer';
 
 const LeftCol = styled(Box)`
 background: #FFF;
@@ -46,25 +47,6 @@ const TutorOfferSchema = Yup.object().shape({
     rate: Yup.number().required('Enter a rate').min(1, 'Rate has to be greater than 0'),
     paymentOption: Yup.string().required('Choose a payment option')
 });
-
-const scheduleOptions = [
-    {
-        label: 'Weekly',
-        value: 'weekly',
-    },
-    {
-        label: 'Twice a week',
-        value: 'twice-a-week'
-    },
-    {
-        label: 'Fortnightly',
-        value: 'fortnightly'
-    },
-    {
-        label: 'Monthly',
-        value: 'monthly'
-    }
-]
 
 const levels = [
     'A - Level',
@@ -145,7 +127,7 @@ const SendTutorOffer = () => {
         loadTutor();
     }, []);
 
-    const loading = loadingTutor;
+    const loading = loadingCourses || loadingTutor;
 
     return <Root className='container-fluid'>
         <Box className='row'>
@@ -360,7 +342,7 @@ const SendTutorOffer = () => {
             </LeftCol>
             <div className='col-md-4'>
                 <RightCol height='100%'>
-                    <Panel position={"sticky"} top="90px">
+                    <Panel borderRadius={'10px'} position={"sticky"} top="90px">
                         <HStack>
                             <BsQuestionCircleFill color='#969CA6' />
                             <Text className='sub2'>How this Works</Text>

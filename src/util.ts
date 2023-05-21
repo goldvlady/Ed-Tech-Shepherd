@@ -9,6 +9,8 @@ declare global {
     interface Window { networkErrorToast: ToastId; }
 }
 
+export const ServiceFeePercentage = 0.05;
+
 export const MinPasswordLength = 8;
 
 export const getOptionValue = (opts: Array<{ value: any, label: any }>, val: any) => {

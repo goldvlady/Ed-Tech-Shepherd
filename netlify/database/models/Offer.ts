@@ -9,7 +9,7 @@ enum STATUS {
     REJECTED = 'rejected'
 }
 
-interface Offer extends TimestampedEntity {
+export interface Offer extends TimestampedEntity {
     subjectAndLevel: string;
     days: number[];
     schedule: string;
