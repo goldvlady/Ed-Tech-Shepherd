@@ -177,7 +177,7 @@ const Offer = () => {
                             </ModalFooter>
                         </ModalContent>
                     </Modal>
-                    <Modal closeOnOverlayClick={true} isOpen={isdeclineOfferModalOpen} onClose={onDeclineOfferModalOpen}>
+                    <Modal onOverlayClick={onDeclineOfferModalClose} isOpen={isdeclineOfferModalOpen} onClose={onDeclineOfferModalOpen}>
                         <ModalOverlay />
                         <ModalContent>
                             <ModalBody padding={0} flexDirection='column'>
