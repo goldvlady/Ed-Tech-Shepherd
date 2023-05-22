@@ -309,7 +309,7 @@ const SendTutorOffer = () => {
                                                     <Box>
                                                         <LargeSelect showRadio optionProps={{ style: { height: '145px' } }} value={field.value} onChange={(v) => form.setFieldValue(field.name, v)} options={[
                                                             {
-                                                                value: "instalment",
+                                                                value: "installment",
                                                                 title: <Box display={'flex'} gap='1px' alignItems='center'><Text color='#000' className='sub2' mb={0}>Pay in installments</Text> <FiArrowRight color='#6E7682' size={'15px'} /><Text color='#000' className='sub2' mb={0}>${values.rate}/hr</Text></Box>,
                                                                 subtitle: <Text mt={'4px'} mb={0} textAlign={'left'} color={'#585F68'} className='body3'>With this option, the fee will be deducted from your account after each session</Text>,
                                                                 icon: <BsBookmarkStarFill size={'20px'} style={{ fill: '#6E7682' }} />
