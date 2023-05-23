@@ -44,7 +44,7 @@ import FileAvi2 from "../../assets/file-avi2.svg";
 import TutorAvi from "../../assets/tutoravi.svg";
 import Star from "../../assets/littleStar.svg";
 import HowItWorks from "./components/HowItWorks";
-import ApiService from "../../services.ts/ApiService";
+import ApiService from "../../services/ApiService";
 
 // /dashboard/tutor/${tutorId}/offer
 export default function Tutor() {
