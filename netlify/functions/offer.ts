@@ -1,7 +1,6 @@
 import middy from '../utils/middy';
 import { HTTPEvent } from "../types";
 import authMiddleware from '../middlewares/authMiddleware';
-import cors from '@middy/http-cors';
 import Offer from '../database/models/Offer';
 
 const tutor = async (event: HTTPEvent) => {
@@ -20,4 +19,4 @@ const tutor = async (event: HTTPEvent) => {
     }
 }
 
-export const handler = middy(tutor).use(cors());
+export const handler = middy(tutor)
