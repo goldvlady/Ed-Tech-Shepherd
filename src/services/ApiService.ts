@@ -1,7 +1,7 @@
 import { doFetch } from "../util"
 
 class ApiService {
-    static baseEndpoint = '/.netlify/functions';
+    static baseEndpoint = 'https://dev--shepherd-tutors.netlify.app/.netlify/functions';
 
     static getUser = async () => {
         return doFetch(`${ApiService.baseEndpoint}/me`); 
@@ -70,6 +70,14 @@ class ApiService {
             body: JSON.stringify({id, note})
         })
     }
+
+    static getAllTutors = async () => {
+        return doFetch(`${ApiService.baseEndpoint}/tutors`);
+    }
+    static getFilteredTutors = async () => {
+        return doFetch(`${ApiService.baseEndpoint}/tutors?courses=yoruba`);
+    }
+ 
 }
 
 export default ApiService

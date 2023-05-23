@@ -141,35 +141,69 @@ const AppRoutes: React.FC = () => {
         <Route path="auth-action" element={<AuthAction />} />
       </Route>
 
-      <Route path="login" element={<RequireAuth authenticated={<Navigate to={'/dashboard'} />} unAuthenticated={<Login />} />} />
-      <Route path="signup" element={<RequireAuth authenticated={<Navigate to={'/dashboard'} />} unAuthenticated={<Signup />} />} />
-      <Route path="forgot-password" element={<RequireAuth authenticated={<Navigate to={'/dashboard'} />} unAuthenticated={<ForgotPassword />} />} />
+      <Route
+        path="login"
+        element={
+          <RequireAuth
+            authenticated={<Navigate to={"/dashboard"} />}
+            unAuthenticated={<Login />}
+          />
+        }
+      />
+      <Route
+        path="signup"
+        element={
+          <RequireAuth
+            authenticated={<Navigate to={"/dashboard"} />}
+            unAuthenticated={<Signup />}
+          />
+        }
+      />
+      <Route
+        path="forgot-password"
+        element={
+          <RequireAuth
+            authenticated={<Navigate to={"/dashboard"} />}
+            unAuthenticated={<ForgotPassword />}
+          />
+        }
+      />
       <Route path="auth-action" element={<AuthAction />} />
-    </Route>
 
-    <Route path="book-session/:studentLeadId/:course" element={<BookSession />} />
-    <Route path="booking/:bookingId/:studentOrTutor" element={<Booking />} />
-    <Route path="booking/:bookingId" element={<Booking />} />
- 
-    <Route path="home" element={<Home />} />
-    <Route path="dashboard" element={<RequireAuth authenticated={<DashboardLayout children />} unAuthenticated={<Navigate to={'/login'} />} />}>
-      {/* <Route element={<DashboardLayout children />}> */}
+      <Route
+        path="book-session/:studentLeadId/:course"
+        element={<BookSession />}
+      />
+      <Route path="booking/:bookingId/:studentOrTutor" element={<Booking />} />
+      <Route path="booking/:bookingId" element={<Booking />} />
 
-      <Route path="tutor/:tutorId/offer" element={<SendTutorOffer />} />
-      <Route path="offer/:offerId" element={<Offer />} />
+      <Route path="home" element={<Home />} />
+      <Route
+        path="dashboard"
+        element={
+          <RequireAuth
+            authenticated={<DashboardLayout children />}
+            unAuthenticated={<Navigate to={"/login"} />}
+          />
+        }
+      >
+        {/* <Route element={<DashboardLayout children />}> */}
 
-      <Route path="home" element={<DashboardIndex />} />
+        <Route path="tutor/:tutorId/offer" element={<SendTutorOffer />} />
+        <Route path="offer/:offerId" element={<Offer />} />
 
-      <Route path="find-tutor" element={<Marketplace />} />
-      <Route path="find-tutor/tutor/" element={<Tutor />} />
+        <Route path="home" element={<DashboardIndex />} />
+
+        <Route path="find-tutor" element={<Marketplace />} />
+        <Route path="find-tutor/tutor/" element={<Tutor />} />
         <Route path="my-tutors" element={<MyTutors />} />
         <Route path="saved-tutors" element={<SavedTutors />} />
-      <Route path="" element={<Navigate to="home" />} />
-      <Route path="*" element={<Navigate to="home" />} />
-    </Route>
-  </Routes >
-}
-
+        <Route path="" element={<Navigate to="home" />} />
+        <Route path="*" element={<Navigate to="home" />} />
+      </Route>
+    </Routes>
+  );
+};
 
 function App() {
   return (

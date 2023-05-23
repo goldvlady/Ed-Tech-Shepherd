@@ -27,7 +27,7 @@ import { FiChevronDown } from "react-icons/fi";
 import { formatContentFulCourse, getContentfulClient } from "../../contentful";
 import { Course, Schedule } from "../../types";
 import { useFormik } from "formik";
-import ApiService from "../../services.ts/ApiService";
+import ApiService from "../../services/ApiService";
 import TimezoneSelect from "../../components/TimezoneSelect";
 import TimePicker from "../../components/TimePicker";
 import { numberToDayOfWeekName } from "../../util";

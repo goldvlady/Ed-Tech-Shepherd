@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { useTitle } from "../../hooks";
 import TutorCard from "./components/TutorCard";
-import ApiService from "../../services.ts/ApiService";
+import ApiService from "../../services/ApiService";
 import TutorAvi from "../../assets/tutoravi.svg";
 
 function SavedTutors() {
