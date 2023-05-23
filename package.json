@@ -10,6 +10,7 @@
     "@middy/core": "^4.4.0",
     "@middy/http-cors": "^4.4.2",
     "@netlify/functions": "^1.4.0",
+    "@sefailyasoz/react-carousel": "^1.1.1",
     "@sentry/react": "^7.49.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
