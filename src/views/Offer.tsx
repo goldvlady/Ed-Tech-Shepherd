@@ -207,7 +207,9 @@ const Offer = () => {
                         </BreadcrumbItem>
                     </Breadcrumb>
                     {user?.type === 'tutor' && <PageTitle marginTop={'28px'} mb={10} title='Review Offer' subtitle={`Respond to offer from clients, you may also choose to renegotiate`} />}
-                    {user?.type === 'student' && (offer.status === 'accepted' ? <PageTitle marginTop={'28px'} mb={10} title='Confirm Offer' subtitle={`Your offer has been accepted, proceed to make payment`} /> : <PageTitle marginTop={'28px'} mb={10} title='Offer' subtitle={`You made an offer to ${offer.tutorLead.name.first}`} />)}
+                    {user?.type === 'student' && (offer.status === 'accepted' && <PageTitle marginTop={'28px'} mb={10} title='Confirm Offer' subtitle={`Your offer has been accepted, proceed to make payment`} />)}
+                    {user?.type === 'student' && (offer.status === 'declined' && <PageTitle marginTop={'28px'} mb={10} title='Offer Declined' subtitle={`Your offer has been declined, choose to update or cancel offer`} />)}
+                    {user?.type === 'student' && (offer.status === 'draft' && <PageTitle marginTop={'28px'} mb={10} title='Offer' subtitle={`You made an offer to ${offer.tutorLead.name.first}`} />)}
                     <VStack spacing='32px' alignItems={'stretch'}>
                         {user?.type === 'tutor' && <Panel display={'flex'}>
                             <Box width={"100%"} display={"flex"} flexDirection="row" gap='20px'>
@@ -283,36 +285,62 @@ const Offer = () => {
             </LeftCol>
             <div className='col-md-4'>
                 <RightCol height='100%'>
-                    {user?.type === 'tutor' && offer?.status === 'draft' && <Panel borderRadius={'10px'} position={"sticky"} top="90px">
-                        <Box display={'flex'} justifyContent='center'>
-                            <img alt='file' src='/images/file.svg' width={'80px'} height={'80px'} />
-                        </Box>
-                        <Text mt={5} mb={0} textAlign='center' className='body2'>Respond to the offer before it expires</Text>
-                        <VStack mt={8} spacing={'16px'}>
-                            <Button isLoading={acceptingOffer} onClick={acceptOffer} w={'100%'} variant='solid'>Accept Offer</Button>
-                            <Button onClick={onDeclineOfferModalOpen} w={'100%'} variant='destructiveSolidLight'>Decline Offer</Button>
-                        </VStack>
-                    </Panel>}
-                    {user?.type === 'student' && <Panel borderRadius={'10px'} position={"sticky"} top="90px">
-                        <HStack>
-                            <BsQuestionCircleFill color='#969CA6' />
-                            <Text className='sub2'>How this Works</Text>
-                        </HStack>
-                        <LinedList mt={'30px'} items={[
-                            {
-                                title: 'Send a Proposal',
-                                subtitle: 'Find your desired tutor and prepare an offer on your terms and send to the tutor'
-                            },
-                            {
-                                title: 'Get a Response',
-                                subtitle: 'Proceed to provide your payment details once the tutor accepts your offer'
-                            },
-                            {
-                                title: 'A Test-Run',
-                                subtitle: 'You won’t be charged until after your first session, you may cancel after the first lesson.'
-                            }
-                        ]} />
-                    </Panel>}
+                    {user?.type === 'tutor' && <VStack gap={'32px'} alignItems='stretch' position={"sticky"} top="90px">
+                        {offer?.status === 'draft' && <Panel borderRadius={'10px'} position={"sticky"} top="90px">
+                            <Box display={'flex'} justifyContent='center'>
+                                <img alt='file' src='/images/file.svg' width={'80px'} height={'80px'} />
+                            </Box>
+                            <Text mt={5} mb={0} textAlign='center' className='body2'>Respond to the offer before it expires</Text>
+                            <VStack mt={8} spacing={'16px'}>
+                                <Button isLoading={acceptingOffer} onClick={acceptOffer} w={'100%'} variant='solid'>Accept Offer</Button>
+                                <Button onClick={onDeclineOfferModalOpen} w={'100%'} variant='destructiveSolidLight'>Decline Offer</Button>
+                            </VStack>
+                        </Panel>}
+                    </VStack>}
+                    {user?.type === 'student' && <VStack gap={'32px'} alignItems='stretch' position={"sticky"} top="90px">
+                        {offer?.status === 'declined' && <Panel borderRadius={'10px'}>
+                            <Box display={'flex'} justifyContent='center'>
+                                <img alt='file' src='/images/file.svg' width={'80px'} height={'80px'} />
+                            </Box>
+                            <Text mt={5} mb={0} textAlign='center' className='sub2'>Your offer has been declined</Text>
+                            {!!offer?.declinedNote && <Alert status='info' mt='18px'>
+                                <Text className='body3' fontWeight={500} color='text.400'>{offer?.declinedNote}</Text>
+                            </Alert>}
+                            <VStack mt={8} spacing={'16px'}>
+                                <Button as='a' href={`../tutor/${offer?.tutorLead._id}/offer`} w={'100%'} variant='solid'>Update Offer</Button>
+                            </VStack>
+                        </Panel>}
+                        {offer?.status === 'accepted' && <Panel borderRadius={'10px'}>
+                            <Box display={'flex'} justifyContent='center'>
+                                <img alt='file' src='/images/file.svg' width={'80px'} height={'80px'} />
+                            </Box>
+                            <Text mt={5} mb={0} textAlign='center' className='sub2'>Your offer has been accepted</Text>
+                            <Text textAlign={'center'} mt={'7px'} className='body2'>{capitalize(offer.tutorLead.name.first)} has been added to your tutor list, send them a message</Text>
+                            <VStack mt={8} spacing={'16px'}>
+                                <Button as='a' w={'100%'} variant='floating'>Send message</Button>
+                            </VStack>
+                        </Panel>}
+                        <Panel borderRadius={'10px'}>
+                            <HStack>
+                                <BsQuestionCircleFill color='#969CA6' />
+                                <Text className='sub2'>How this Works</Text>
+                            </HStack>
+                            <LinedList mt={'30px'} items={[
+                                {
+                                    title: 'Send a Proposal',
+                                    subtitle: 'Find your desired tutor and prepare an offer on your terms and send to the tutor'
+                                },
+                                {
+                                    title: 'Get a Response',
+                                    subtitle: 'Proceed to provide your payment details once the tutor accepts your offer'
+                                },
+                                {
+                                    title: 'A Test-Run',
+                                    subtitle: 'You won’t be charged until after your first session, you may cancel after the first lesson.'
+                                }
+                            ]} />
+                        </Panel>
+                    </VStack>}
                 </RightCol>
             </div>
         </Box >

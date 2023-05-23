@@ -24,6 +24,8 @@ import { Course, Tutor } from '../types';
 import { formatContentFulCourse, getContentfulClient } from '../contentful';
 import { useTitle } from '../hooks';
 import { scheduleOptions } from './Offer';
+import DateInput from '../components/DateInput';
+import CalendarDateInput from '../components/CalendarDateInput';
 
 const LeftCol = styled(Box)`
 background: #FFF;
@@ -44,7 +46,10 @@ const TutorOfferSchema = Yup.object().shape({
     endTime: Yup.string().required('Enter a time'),
     note: Yup.string(),
     rate: Yup.number().required('Enter a rate').min(1, 'Rate has to be greater than 0'),
-    paymentOption: Yup.string().required('Choose a payment option')
+    paymentOption: Yup.string().required('Choose a payment option'),
+    expirationDate: Yup.date().required('Select an expiration date'),
+    contractStartDate: Yup.date().required('Select a start date'),
+    contractEndDate: Yup.date().required('Select an end date'),
 });
 
 const levels = [
@@ -173,7 +178,7 @@ const SendTutorOffer = () => {
                     </Breadcrumb>
                     <PageTitle marginTop={'28px'} mb={10} title='Send an Offer' subtitle={`Provide your contract terms. We’ll notify you via email when ${tutor.name.first} responds`} />
                     <Formik
-                        initialValues={{ subjectAndLevel: '', days: [], schedule: '', startTime: '', endTime: '', note: '', rate: tutor.rate }}
+                        initialValues={{ subjectAndLevel: '', days: [], schedule: '', startTime: '', endTime: '', note: '', rate: tutor.rate, expirationDate: new Date(), contractStartDate: null, contractEndDate: null }}
                         validationSchema={TutorOfferSchema}
                         onSubmit={async (values, { setSubmitting }) => {
                             if (isEditing) {
@@ -197,143 +202,179 @@ const SendTutorOffer = () => {
                             values
                         }) => (
                             <Form>
-                                <TutorCard tutor={tutor} />
-                                <Panel mt={'32px'}>
-                                    <Text className='sub1' mb={0}>Offer Details</Text>
-                                    <Field name='subjectAndLevel'>
-                                        {({ field, form }: FieldProps) => (
-                                            <FormControl mt={8} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
-                                                <FormLabel>Subject & Level</FormLabel>
-                                                {isEditing ? <Select
-                                                    defaultValue={subjectAndLevelOptions.find(s => s.value === field.value)}
-                                                    tagVariant="solid"
-                                                    placeholder="Select subject & level"
-                                                    options={subjectAndLevelOptions}
-                                                    isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}
-                                                    size={'md'}
-                                                    onFocus={() => form.setTouched({ ...form.touched, [field.name]: true })}
-                                                    onChange={
-                                                        (option) => form.setFieldValue(field.name, (option as Option).value)
-                                                    }
-                                                /> : <EditField>{subjectAndLevelOptions.find(s => s.value === field.value)?.label}</EditField>}
-                                                <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
-                                            </FormControl>
-                                        )}
-                                    </Field>
-                                    <Field name='days'>
-                                        {({ field, form }: FieldProps) => (
-                                            <FormControl mt={'24px'} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
-                                                <FormLabel>What days would you like to have your classes</FormLabel>
-                                                {isEditing ? <Select
-                                                    isMulti
-                                                    defaultValue={(field.value as number[]).map(v => dayOptions.find(d => d.value === v))}
-                                                    tagVariant="solid"
-                                                    placeholder="Select days"
-                                                    options={dayOptions}
-                                                    isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}
-                                                    size={'md'}
-                                                    onFocus={() => form.setTouched({ ...form.touched, [field.name]: true })}
-                                                    onChange={(option) => {
-                                                        form.setFieldValue(field.name, (option as Option[]).map(o => o.value))
-                                                    }
-                                                    }
-                                                /> : <EditField>{(field.value as number[]).map((v) => {
-                                                    return dayOptions.find((d) => d.value === v)?.label;
-                                                }).join(', ')}</EditField>}
-                                                <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
-                                            </FormControl>
-                                        )}
-                                    </Field>
-                                    <Field name='schedule'>
-                                        {({ field, form }: FieldProps) => (
-                                            <FormControl mt={'24px'} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
-                                                <FormLabel>How often would you like your classes?</FormLabel>
-                                                {isEditing ? <ButtonGroup width={'100%'} isAttached variant='outline'>
-                                                    {
-                                                        scheduleOptions.map(so => <Button key={so.value} isActive={field.value === so.value} onClick={() => form.setFieldValue(field.name, so.value)}>{so.label}</Button>)
-                                                    }
-                                                </ButtonGroup> : <EditField>{scheduleOptions.find(so => so.value === field.value)?.label}</EditField>}
-                                                <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
-                                            </FormControl>
-                                        )}
-                                    </Field>
-                                    <Box display={"flex"} alignItems="stretch" gap={"20px"} mt={'24px'}>
-                                        <Field name='startTime'>
+                                <VStack spacing='32px' alignItems={'stretch'}>
+                                    <TutorCard tutor={tutor} />
+                                    <Panel mt={'32px'}>
+                                        <Text className='sub1' mb={0}>Offer Settings</Text>
+                                        <Field name='expirationDate'>
                                             {({ field, form }: FieldProps) => (
-                                                <FormControl isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
-                                                    <FormLabel>Start time</FormLabel>
-                                                    {isEditing ? <TimePicker inputProps={{ placeholder: '00:00 AM', isInvalid: !!form.errors[field.name] && !!form.touched[field.name], onFocus: () => form.setTouched({ ...form.touched, [field.name]: true }) }} value={field.value} onChange={(v) => form.setFieldValue(field.name, v)} /> : <EditField>{field.value}</EditField>}
+                                                <FormControl mt={8} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
+                                                    <FormLabel>Offer expiration date</FormLabel>
+                                                    {isEditing ? <CalendarDateInput value={field.value} onChange={(d) => form.setFieldValue(field.name, d)} /> : <EditField>{field.value}</EditField>}
                                                     <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
                                                 </FormControl>
                                             )}
                                         </Field>
-                                        <Field name='endTime'>
+                                        <Box>
+                                            <SimpleGrid width={'100%'} columns={{ base: 1, sm: 2 }} spacing='15px'>
+                                                <Field name='contractStartDate'>
+                                                    {({ field, form }: FieldProps) => (
+                                                        <FormControl mt={8} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
+                                                            <FormLabel>Contract starts</FormLabel>
+                                                            {isEditing ? <CalendarDateInput inputProps={{ onClick: () => form.setTouched({ ...form.touched, [field.name]: true }) }} value={field.value} onChange={(d) => form.setFieldValue(field.name, d)} /> : <EditField>{field.value}</EditField>}
+                                                            <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
+                                                        </FormControl>
+                                                    )}
+                                                </Field>
+                                                <Field name='contractEndDate'>
+                                                    {({ field, form }: FieldProps) => (
+                                                        <FormControl mt={8} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
+                                                            <FormLabel>Contract ends</FormLabel>
+                                                            {isEditing ? <CalendarDateInput inputProps={{ onClick: () => form.setTouched({ ...form.touched, [field.name]: true }) }} value={field.value} onChange={(d) => form.setFieldValue(field.name, d)} /> : <EditField>{field.value}</EditField>}
+                                                            <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
+                                                        </FormControl>
+                                                    )}
+                                                </Field>
+                                            </SimpleGrid>
+                                        </Box>
+                                    </Panel>
+                                    <Panel>
+                                        <Text className='sub1' mb={0}>Offer Details</Text>
+                                        <Field name='subjectAndLevel'>
                                             {({ field, form }: FieldProps) => (
-                                                <FormControl isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
-                                                    <FormLabel>End time</FormLabel>
-                                                    {isEditing ? <TimePicker inputProps={{ placeholder: '00:00 AM', isInvalid: !!form.errors[field.name] && !!form.touched[field.name], onFocus: () => form.setTouched({ ...form.touched, [field.name]: true }) }} value={field.value} onChange={(v) => form.setFieldValue(field.name, v)} /> : <EditField>{field.value}</EditField>}
+                                                <FormControl mt={8} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
+                                                    <FormLabel>Subject & Level</FormLabel>
+                                                    {isEditing ? <Select
+                                                        defaultValue={subjectAndLevelOptions.find(s => s.value === field.value)}
+                                                        tagVariant="solid"
+                                                        placeholder="Select subject & level"
+                                                        options={subjectAndLevelOptions}
+                                                        isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}
+                                                        size={'md'}
+                                                        onFocus={() => form.setTouched({ ...form.touched, [field.name]: true })}
+                                                        onChange={
+                                                            (option) => form.setFieldValue(field.name, (option as Option).value)
+                                                        }
+                                                    /> : <EditField>{subjectAndLevelOptions.find(s => s.value === field.value)?.label}</EditField>}
                                                     <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
                                                 </FormControl>
                                             )}
                                         </Field>
-                                    </Box>
-                                    <Field name='note'>
-                                        {({ field, form }: FieldProps) => (
-                                            <FormControl mt={'24px'}>
-                                                <FormLabel>Add a note</FormLabel>
-                                                {isEditing ? <Textarea {...field} placeholder={`Let ${tutor.name.first} know what you need help with`} /> : <EditField>{field.value}</EditField>}
-                                            </FormControl>
-                                        )}
-                                    </Field>
-                                </Panel>
-                                <Panel mt={'32px'}>
-                                    <Text className='sub1' mb={0}>Payment Details</Text>
-                                    <Box mt={'32px'}>
-                                        <Field name='rate'>
-                                            {({ field, form }: FieldProps) => (
-                                                <FormControl isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
-                                                    <FormLabel>How much would you like to pay per hour?</FormLabel>
-                                                    {isEditing ? <InputGroup>
-                                                        <InputLeftAddon children='$' />
-                                                        <Input type={'number'} {...field} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]} />
-                                                    </InputGroup> : <EditField>${field.value}/hr</EditField>}
-                                                    <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
-                                                    <Text color={'#585F68'} className='body3' mb={0} mt={'10px'}>{tutor.name.first}'s rate is ${tutor.rate.toFixed(0)}/hr</Text>
-                                                </FormControl>
-                                            )}
-                                        </Field>
-                                        <Field name='paymentOption'>
+                                        <Field name='days'>
                                             {({ field, form }: FieldProps) => (
                                                 <FormControl mt={'24px'} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
-                                                    <FormLabel>Payment options</FormLabel>
-                                                    <Box>
-                                                        <LargeSelect showRadio optionProps={{ style: { height: '145px' } }} value={field.value} onChange={(v) => form.setFieldValue(field.name, v)} options={[
-                                                            {
-                                                                value: "installment",
-                                                                title: <Box display={'flex'} gap='1px' alignItems='center'><Text color='#000' className='sub2' mb={0}>Pay in installments</Text> <FiArrowRight color='#6E7682' size={'15px'} /><Text color='#000' className='sub2' mb={0}>${values.rate}/hr</Text></Box>,
-                                                                subtitle: <Text mt={'4px'} mb={0} textAlign={'left'} color={'#585F68'} className='body3'>With this option, the fee will be deducted from your account after each session</Text>,
-                                                                icon: <BsBookmarkStarFill size={'20px'} style={{ fill: '#6E7682' }} />
-                                                            },
-                                                            {
-                                                                value: "monthly",
-                                                                title: <Box display={'flex'} gap='1px' alignItems='center'><Text color='#000' className='sub2' mb={0}>Pay in installments</Text> <FiArrowRight color='#6E7682' size={'15px'} /><Text color='#000' className='sub2' mb={0}>${values.rate}/hr</Text></Box>,
-                                                                subtitle: <Text mt={'4px'} mb={0} textAlign={'left'} color={'#585F68'} className='body3'>With this option, the total fee for the time frame selected per month will be deducted</Text>,
-                                                                icon: <RiMoneyDollarCircleFill size={'20px'} style={{ fill: '#6E7682' }} />
-                                                            }
-                                                        ]} />
-                                                    </Box>
+                                                    <FormLabel>What days would you like to have your classes</FormLabel>
+                                                    {isEditing ? <Select
+                                                        isMulti
+                                                        defaultValue={(field.value as number[]).map(v => dayOptions.find(d => d.value === v))}
+                                                        tagVariant="solid"
+                                                        placeholder="Select days"
+                                                        options={dayOptions}
+                                                        isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}
+                                                        size={'md'}
+                                                        onFocus={() => form.setTouched({ ...form.touched, [field.name]: true })}
+                                                        onChange={(option) => {
+                                                            form.setFieldValue(field.name, (option as Option[]).map(o => o.value))
+                                                        }
+                                                        }
+                                                    /> : <EditField>{(field.value as number[]).map((v) => {
+                                                        return dayOptions.find((d) => d.value === v)?.label;
+                                                    }).join(', ')}</EditField>}
+                                                    <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
                                                 </FormControl>
                                             )}
                                         </Field>
-                                        <Alert status='info' mt='18px'>
-                                            <AlertIcon><MdInfo color={theme.colors.primary[500]} /></AlertIcon>
-                                            <AlertDescription>Payment will not be deducted until after your first lesson, You may decide to cancel after your initial lesson.</AlertDescription>
-                                        </Alert>
-                                    </Box>
-                                    <Box marginTop={'48px'} textAlign='right'>
-                                        <Button isDisabled={Object.values(errors).length !== 0} size='md' type='submit' isLoading={isSubmitting}>{isEditing ? 'Review Offer' : 'Confirm and Send'}</Button>
-                                    </Box>
-                                </Panel>
+                                        <Field name='schedule'>
+                                            {({ field, form }: FieldProps) => (
+                                                <FormControl mt={'24px'} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
+                                                    <FormLabel>How often would you like your classes?</FormLabel>
+                                                    {isEditing ? <ButtonGroup width={'100%'} isAttached variant='outline'>
+                                                        {
+                                                            scheduleOptions.map(so => <Button key={so.value} isActive={field.value === so.value} onClick={() => form.setFieldValue(field.name, so.value)}>{so.label}</Button>)
+                                                        }
+                                                    </ButtonGroup> : <EditField>{scheduleOptions.find(so => so.value === field.value)?.label}</EditField>}
+                                                    <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
+                                                </FormControl>
+                                            )}
+                                        </Field>
+                                        <Box display={"flex"} alignItems="stretch" gap={"20px"} mt={'24px'}>
+                                            <Field name='startTime'>
+                                                {({ field, form }: FieldProps) => (
+                                                    <FormControl isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
+                                                        <FormLabel>Start time</FormLabel>
+                                                        {isEditing ? <TimePicker inputProps={{ placeholder: '00:00 AM', isInvalid: !!form.errors[field.name] && !!form.touched[field.name], onFocus: () => form.setTouched({ ...form.touched, [field.name]: true }) }} value={field.value} onChange={(v) => form.setFieldValue(field.name, v)} /> : <EditField>{field.value}</EditField>}
+                                                        <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
+                                                    </FormControl>
+                                                )}
+                                            </Field>
+                                            <Field name='endTime'>
+                                                {({ field, form }: FieldProps) => (
+                                                    <FormControl isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
+                                                        <FormLabel>End time</FormLabel>
+                                                        {isEditing ? <TimePicker inputProps={{ placeholder: '00:00 AM', isInvalid: !!form.errors[field.name] && !!form.touched[field.name], onFocus: () => form.setTouched({ ...form.touched, [field.name]: true }) }} value={field.value} onChange={(v) => form.setFieldValue(field.name, v)} /> : <EditField>{field.value}</EditField>}
+                                                        <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
+                                                    </FormControl>
+                                                )}
+                                            </Field>
+                                        </Box>
+                                        <Field name='note'>
+                                            {({ field, form }: FieldProps) => (
+                                                <FormControl mt={'24px'}>
+                                                    <FormLabel>Add a note</FormLabel>
+                                                    {isEditing ? <Textarea {...field} placeholder={`Let ${tutor.name.first} know what you need help with`} /> : <EditField>{field.value}</EditField>}
+                                                </FormControl>
+                                            )}
+                                        </Field>
+                                    </Panel>
+                                    <Panel>
+                                        <Text className='sub1' mb={0}>Payment Details</Text>
+                                        <Box mt={'32px'}>
+                                            <Field name='rate'>
+                                                {({ field, form }: FieldProps) => (
+                                                    <FormControl isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
+                                                        <FormLabel>How much would you like to pay per hour?</FormLabel>
+                                                        {isEditing ? <InputGroup>
+                                                            <InputLeftAddon children='$' />
+                                                            <Input type={'number'} {...field} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]} />
+                                                        </InputGroup> : <EditField>${field.value}/hr</EditField>}
+                                                        <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
+                                                        <Text color={'#585F68'} className='body3' mb={0} mt={'10px'}>{tutor.name.first}'s rate is ${tutor.rate.toFixed(0)}/hr</Text>
+                                                    </FormControl>
+                                                )}
+                                            </Field>
+                                            <Field name='paymentOption'>
+                                                {({ field, form }: FieldProps) => (
+                                                    <FormControl mt={'24px'} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
+                                                        <FormLabel>Payment options</FormLabel>
+                                                        <Box>
+                                                            <LargeSelect showRadio optionProps={{ style: { height: '145px' } }} value={field.value} onChange={(v) => form.setFieldValue(field.name, v)} options={[
+                                                                {
+                                                                    value: "installment",
+                                                                    title: <Box display={'flex'} gap='1px' alignItems='center'><Text color='#000' className='sub2' mb={0}>Pay in installments</Text> <FiArrowRight color='#6E7682' size={'15px'} /><Text color='#000' className='sub2' mb={0}>${values.rate}/hr</Text></Box>,
+                                                                    subtitle: <Text mt={'4px'} mb={0} textAlign={'left'} color={'#585F68'} className='body3'>With this option, the fee will be deducted from your account after each session</Text>,
+                                                                    icon: <BsBookmarkStarFill size={'20px'} style={{ fill: '#6E7682' }} />
+                                                                },
+                                                                {
+                                                                    value: "monthly",
+                                                                    title: <Box display={'flex'} gap='1px' alignItems='center'><Text color='#000' className='sub2' mb={0}>Pay in installments</Text> <FiArrowRight color='#6E7682' size={'15px'} /><Text color='#000' className='sub2' mb={0}>${values.rate}/hr</Text></Box>,
+                                                                    subtitle: <Text mt={'4px'} mb={0} textAlign={'left'} color={'#585F68'} className='body3'>With this option, the total fee for the time frame selected per month will be deducted</Text>,
+                                                                    icon: <RiMoneyDollarCircleFill size={'20px'} style={{ fill: '#6E7682' }} />
+                                                                }
+                                                            ]} />
+                                                        </Box>
+                                                    </FormControl>
+                                                )}
+                                            </Field>
+                                            <Alert status='info' mt='18px'>
+                                                <AlertIcon><MdInfo color={theme.colors.primary[500]} /></AlertIcon>
+                                                <AlertDescription>Payment will not be deducted until after your first lesson, You may decide to cancel after your initial lesson.</AlertDescription>
+                                            </Alert>
+                                        </Box>
+                                        <Box marginTop={'48px'} textAlign='right'>
+                                            <Button isDisabled={Object.values(errors).length !== 0} size='md' type='submit' isLoading={isSubmitting}>{isEditing ? 'Review Offer' : 'Confirm and Send'}</Button>
+                                        </Box>
+                                    </Panel>
+                                </VStack>
                             </Form>
                         )}
                     </Formik>

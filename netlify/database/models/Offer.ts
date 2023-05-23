@@ -22,6 +22,9 @@ export interface Offer extends TimestampedEntity {
     declinedNote: string;
     tutorLead: TutorLeadInterface;
     studentLead: StudentLeadInterface;
+    expirationDate: Date;
+    contractStartDate: Date;
+    contractEndDate: Date;
 }
 
 const schema = new Schema<Offer>({
@@ -37,6 +40,9 @@ const schema = new Schema<Offer>({
     declinedNote: { type: String, required: false, default: '' },
     tutorLead: { type: Schema.Types.ObjectId, ref: "TutorLead", autopopulate: true, required: true },
     studentLead: { type: Schema.Types.ObjectId, ref: "StudentLead", autopopulate: true, required: true },
+    expirationDate: { type: Date, required: true },
+    contractStartDate: { type: Date, required: true },
+    contractEndDate: { type: Date, required: true },
 }, { timestamps: true });
 
 schema.plugin(require('mongoose-autopopulate'));

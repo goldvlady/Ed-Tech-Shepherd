@@ -78,7 +78,8 @@ const solidButton = defineStyle({
     color: '#fff',
 
     _hover: {
-        background: '#0C67DD'
+        background: '#0C67DD',
+        color: '#fff'
     },
 
     _disabled: {
@@ -298,6 +299,16 @@ export const menuListTheme = defineStyle({
     })
 })
 
+export const popoverTheme = defineStyle({
+    baseStyle: defineStyle({
+        content: {
+            boxShadow: '0px 8px 20px rgba(77, 77, 77, 0.14), 0px 1px 3px 1px rgba(77, 77, 77, 0.05)',
+            borderRadius: '12px',
+            border: 'none'
+        },
+    })
+})
+
 export const inputTheme = defineStyleConfig({
     variants: { outline: inputField },
 })
@@ -390,7 +401,8 @@ const theme = extendTheme({
         Modal: modalTheme,
         Menu: menuListTheme,
         Breadcrumb: breadcrumbTheme,
-        Textarea: textareaTheme
+        Textarea: textareaTheme,
+        Popover: popoverTheme
     },
     styles: {
         global: (props: any) => ({

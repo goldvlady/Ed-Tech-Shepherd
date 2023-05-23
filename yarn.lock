@@ -2060,67 +2060,6 @@
     "@chakra-ui/utils" "1.10.4"
     "@chakra-ui/visually-hidden" "1.1.6"
 
-<<<<<<< HEAD
-=======
-"@chakra-ui/react@^2.5.3":
-  version "2.6.1"
-  resolved "https://registry.yarnpkg.com/@chakra-ui/react/-/react-2.6.1.tgz#0fc4b9811eb675ade09c3fb0541b4412be060d83"
-  integrity sha512-Lt8c8pLPTz59xxdSuL2FlE7le9MXx4zgjr60UnEc3yjAMjXNTqUAoWHyT4Zn1elCGUPWOedS3rMvp4KTshT+5w==
-  dependencies:
-    "@chakra-ui/accordion" "2.1.11"
-    "@chakra-ui/alert" "2.1.0"
-    "@chakra-ui/avatar" "2.2.10"
-    "@chakra-ui/breadcrumb" "2.1.5"
-    "@chakra-ui/button" "2.0.18"
-    "@chakra-ui/card" "2.1.6"
-    "@chakra-ui/checkbox" "2.2.15"
-    "@chakra-ui/close-button" "2.0.17"
-    "@chakra-ui/control-box" "2.0.13"
-    "@chakra-ui/counter" "2.0.14"
-    "@chakra-ui/css-reset" "2.1.1"
-    "@chakra-ui/editable" "3.0.0"
-    "@chakra-ui/focus-lock" "2.0.16"
-    "@chakra-ui/form-control" "2.0.18"
-    "@chakra-ui/hooks" "2.2.0"
-    "@chakra-ui/icon" "3.0.16"
-    "@chakra-ui/image" "2.0.16"
-    "@chakra-ui/input" "2.0.22"
-    "@chakra-ui/layout" "2.1.19"
-    "@chakra-ui/live-region" "2.0.13"
-    "@chakra-ui/media-query" "3.2.12"
-    "@chakra-ui/menu" "2.1.14"
-    "@chakra-ui/modal" "2.2.11"
-    "@chakra-ui/number-input" "2.0.19"
-    "@chakra-ui/pin-input" "2.0.20"
-    "@chakra-ui/popover" "2.1.11"
-    "@chakra-ui/popper" "3.0.14"
-    "@chakra-ui/portal" "2.0.16"
-    "@chakra-ui/progress" "2.1.6"
-    "@chakra-ui/provider" "2.2.4"
-    "@chakra-ui/radio" "2.0.22"
-    "@chakra-ui/react-env" "3.0.0"
-    "@chakra-ui/select" "2.0.19"
-    "@chakra-ui/skeleton" "2.0.24"
-    "@chakra-ui/slider" "2.0.24"
-    "@chakra-ui/spinner" "2.0.13"
-    "@chakra-ui/stat" "2.0.18"
-    "@chakra-ui/stepper" "2.2.0"
-    "@chakra-ui/styled-system" "2.9.0"
-    "@chakra-ui/switch" "2.0.27"
-    "@chakra-ui/system" "2.5.7"
-    "@chakra-ui/table" "2.0.17"
-    "@chakra-ui/tabs" "2.1.9"
-    "@chakra-ui/tag" "3.0.0"
-    "@chakra-ui/textarea" "2.0.19"
-    "@chakra-ui/theme" "3.1.1"
-    "@chakra-ui/theme-utils" "2.0.17"
-    "@chakra-ui/toast" "6.1.3"
-    "@chakra-ui/tooltip" "2.2.8"
-    "@chakra-ui/transition" "2.0.16"
-    "@chakra-ui/utils" "2.0.15"
-    "@chakra-ui/visually-hidden" "2.0.15"
-
->>>>>>> dev
 "@chakra-ui/select@1.2.11":
   version "1.2.11"
   resolved "https://registry.yarnpkg.com/@chakra-ui/select/-/select-1.2.11.tgz#7762f2b7974a4587b4eb9536eb93b2295381aa9f"
@@ -7330,7 +7269,7 @@ data-urls@^2.0.0:
     whatwg-mimetype "^2.3.0"
     whatwg-url "^8.0.0"
 
-date-fns@^2.0.0, date-fns@^2.29.3:
+date-fns@^2.0.0, date-fns@^2.30.0:
   version "2.30.0"
   resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.30.0.tgz#f367e644839ff57894ec6ac480de40cae4b0f4d0"
   integrity sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==
@@ -12361,6 +12300,11 @@ react-clientside-effect@^1.2.5, react-clientside-effect@^1.2.6:
   integrity sha512-XGGGRQAKY+q25Lz9a/4EPqom7WRjz3z9R2k4jhVKA/puQFH/5Nt27vFZYql4m4NVNdUvX8PS3O7r/Zzm7cjUlg==
   dependencies:
     "@babel/runtime" "^7.12.13"
+
+react-day-picker@^8.7.1:
+  version "8.7.1"
+  resolved "https://registry.yarnpkg.com/react-day-picker/-/react-day-picker-8.7.1.tgz#b8388c2afa69d4a6da4c5fde5323fae884acfe2f"
+  integrity sha512-Gv426AW8b151CZfh3aP5RUGztLwHB/EyJgWZ5iMgtzbFBkjHfG6Y66CIQFMWGLnYjsQ9DYSJRmJ5S0Pg5HWKjA==
 
 react-dev-utils@^12.0.1:
   version "12.0.1"
