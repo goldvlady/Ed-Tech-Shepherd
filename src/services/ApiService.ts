@@ -70,6 +70,14 @@ class ApiService {
             body: JSON.stringify({id, note})
         })
     }
+
+    static getAllTutors = async () => {
+        return doFetch(`${ApiService.baseEndpoint}/tutors`);
+    }
+    static getFilteredTutors = async () => {
+        return doFetch(`${ApiService.baseEndpoint}/tutors?courses=yoruba`);
+    }
+ 
 }
 
 export default ApiService

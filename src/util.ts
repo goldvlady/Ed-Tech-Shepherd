@@ -47,6 +47,43 @@ export const doFetch = async (input: RequestInfo, init?: RequestInit) => {
 
     return response;
 };
+const educationLevelOptions = [{
+    label: "Primary School Certificate",
+    value: "primary-school-cert"
+},
+{
+    label: "Junior Secondary School Certificate",
+    value: "junior-secondary-school-cert"
+},
+{
+    label: "Senior Secondary School Certificate",
+    value: "senior-secondary-school-cert"
+},
+{
+    label: "National Diploma (ND)",
+    value: "national-diploma"
+},
+{
+    label: "Higher National Diploma (HND)",
+    value: "higher-national-diploma"
+},
+{
+    label: "Bachelor's Degree (BSc, BA, BEng, etc.)",
+    value: "bachelors-degree"
+},
+{
+    label: "Master's Degree (MSc, MA, MEng, etc.)",
+    value: "masters-degree"
+},
+{
+    label: "Doctoral Degree (PhD, MD, etc.)",
+    value: "doctoral-degree"
+},
+{
+    label: "Vocational/Technical Certificate",
+    value: "vocation-technical-cert"
+}]
+
 
 export const numberToDayOfWeekName = (num: number) => moment().day(num).format('dddd');
 export const leadingZero = (num: number) => `0${num}`.slice(-2);
