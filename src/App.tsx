@@ -149,19 +149,28 @@ const AppRoutes: React.FC = () => {
       <Route path="booking/:bookingId" element={<Booking />} />
 
       <Route path="home" element={<Home />} />
-      {/* <Route path="dashboard" element={<RequireAuth authenticated={<DashboardLayout children />} unAuthenticated={<Navigate to={'/login'} />} />}> */}
-      <Route element={<DashboardLayout children />}>
+      <Route
+        path="dashboard"
+        element={
+          <RequireAuth
+            authenticated={<DashboardLayout children />}
+            unAuthenticated={<Navigate to={"/login"} />}
+          />
+        }
+      >
+        {/* <Route element={<DashboardLayout children />}> */}
         <Route path="tutor/:tutorId/offer" element={<SendTutorOffer />} />
         <Route path="offer/:offerId" element={<Offer />} />
 
-        <Route path="dashboard" element={<DashboardIndex />} />
+        <Route path="home" element={<DashboardIndex />} />
 
         <Route path="find-tutor" element={<Marketplace />} />
         <Route path="find-tutor/tutor/" element={<Tutor />} />
         <Route path="my-tutors" element={<MyTutors />} />
         <Route path="saved-tutors" element={<SavedTutors />} />
 
-        {/* <Route path="" element={<Navigate to="dashboard" />} /> */}
+        <Route path="" element={<Navigate to="home" />} />
+        <Route path="*" element={<Navigate to="home" />} />
       </Route>
     </Routes>
   );

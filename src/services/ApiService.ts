@@ -56,6 +56,20 @@ class ApiService {
             body: JSON.stringify(data)
         })
     }
+
+    static acceptOffer = async (id: string) => {
+        return doFetch(`${ApiService.baseEndpoint}/acceptOffer`, {
+            method: "POST",
+            body: JSON.stringify({id})
+        })
+    }
+
+    static declineOffer = async (id: string, note: string) => {
+        return doFetch(`${ApiService.baseEndpoint}/declineOffer`, {
+            method: "POST",
+            body: JSON.stringify({id, note})
+        })
+    }
 }
 
 export default ApiService

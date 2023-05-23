@@ -21,10 +21,23 @@ const colors = {
     blue: {
         "100": '#EFF4FA'
     },
+    red: {
+        "50": "#FEE7E7",
+        "100": "#FCBBBB",
+        "200": "#F98F8F",
+        "300": "#F76363",
+        "400": "#F53535",
+        "500": "#F30C0C",
+        "600": "#C20A0A",
+        "700": "#920707",
+        "800": "#610505",
+        "900": "#310202"
+    },
     text: {
         200: '#212224',
         300: '#585F68',
-        400: '#6E7682'
+        400: '#6E7682',
+        500: '#969CA6'
     },
     primary:
     {
@@ -74,6 +87,26 @@ const solidButton = defineStyle({
         background: '#F1F1F1',
         pointerEvents: "none"
     }
+});
+
+const destructiveSolidLightButton = defineStyle({
+    ...solidButton,
+    color: colors.red[400],
+    background: '#FEF0F0',
+    _hover: {
+        background: colors.red[400],
+        color: '#FFF'
+    },
+});
+
+const destructiveSolidButton = defineStyle({
+    ...solidButton,
+    color: '#FFF',
+    background: colors.red[400],
+    _hover: {
+        background: colors.red[600],
+        color: '#FFF'
+    },
 });
 
 const flatButton = defineStyle({
@@ -211,7 +244,7 @@ const looneyCheckbox = defineStyle({
 })
 
 export const buttonTheme = defineStyleConfig({
-    variants: { solid: solidButton, flat: flatButton, floating: floatingButton, link: linkButton },
+    variants: { solid: solidButton, destructiveSolid: destructiveSolidButton, destructiveSolidLight: destructiveSolidLightButton, flat: flatButton, floating: floatingButton, link: linkButton },
 })
 
 export const textTheme = defineStyleConfig({

@@ -3,10 +3,10 @@ import { TimestampedEntity } from "../../types";
 import { StudentLead as StudentLeadInterface } from "./StudentLead";
 import { TutorLead as TutorLeadInterface } from "./TutorLead";
 
-enum STATUS {
+export enum STATUS {
     DRAFT = 'draft',
     ACCEPTED = 'accepted',
-    REJECTED = 'rejected'
+    DECLINED = 'declined'
 }
 
 export interface Offer extends TimestampedEntity {
@@ -19,6 +19,7 @@ export interface Offer extends TimestampedEntity {
     note: string;
     paymentOption: string;
     status: STATUS;
+    declinedNote: string;
     tutorLead: TutorLeadInterface;
     studentLead: StudentLeadInterface;
 }
@@ -33,6 +34,7 @@ const schema = new Schema<Offer>({
     note: { type: String, required: false, default: '' },
     paymentOption: { type: String, required: true },
     status: { type: String, enum: STATUS, default: STATUS.DRAFT },
+    declinedNote: { type: String, required: false, default: '' },
     tutorLead: { type: Schema.Types.ObjectId, ref: "TutorLead", autopopulate: true, required: true },
     studentLead: { type: Schema.Types.ObjectId, ref: "StudentLead", autopopulate: true, required: true },
 }, { timestamps: true });
