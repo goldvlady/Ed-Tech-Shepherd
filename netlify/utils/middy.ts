@@ -21,4 +21,4 @@ const bootstrapPlugin = () => {
     }
 }
 
-export default (handler: any) => middy(handler, bootstrapPlugin()).use(cors({disableBeforePreflightResponse: false}));
+export default (handler: any) => middy(handler, bootstrapPlugin()).use(cors({disableBeforePreflightResponse: false, requestHeaders: '*', requestMethods: '*', headers: '*', methods: '*'}));
