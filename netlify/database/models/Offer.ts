@@ -3,6 +3,13 @@ import { TimestampedEntity } from "../../types";
 import { StudentLead as StudentLeadInterface } from "./StudentLead";
 import { TutorLead as TutorLeadInterface } from "./TutorLead";
 
+interface Schedule {
+    [key: number]: {
+        begin: String
+        end: String
+    }
+}
+
 export enum STATUS {
     DRAFT = 'draft',
     ACCEPTED = 'accepted',
@@ -12,12 +19,10 @@ export enum STATUS {
 export interface Offer extends TimestampedEntity {
     subjectAndLevel: string;
     days: number[];
-    schedule: string;
-    startTime: string;
-    endTime: string;
+    schedule: Schedule;
     rate: number;
     note: string;
-    paymentOption: string;
+    //paymentOption: string;
     status: STATUS;
     declinedNote: string;
     tutorLead: TutorLeadInterface;
@@ -30,12 +35,10 @@ export interface Offer extends TimestampedEntity {
 const schema = new Schema<Offer>({
     subjectAndLevel: { type: String, required: true },
     days: { type: [Number], required: true },
-    schedule: { type: String, required: true },
-    startTime: { type: String, required: true },
-    endTime: { type: String, required: true },
+    schedule: { type: Schema.Types.Mixed, required: true },
     rate: { type: Number, required: true },
     note: { type: String, required: false, default: '' },
-    paymentOption: { type: String, required: true },
+    //paymentOption: { type: String, required: true },
     status: { type: String, enum: STATUS, default: STATUS.DRAFT },
     declinedNote: { type: String, required: false, default: '' },
     tutorLead: { type: Schema.Types.ObjectId, ref: "TutorLead", autopopulate: true, required: true },
