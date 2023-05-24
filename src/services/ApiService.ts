@@ -2,6 +2,7 @@ import { doFetch } from "../util"
 
 class ApiService {
     static baseEndpoint = 'https://dev--shepherd-tutors.netlify.app/.netlify/functions';
+    // static baseEndpoint = 'https://cors-anywhere.herokuapp.com/https://dev--shepherd-tutors.netlify.app/.netlify/functions';
 
     static getUser = async () => {
         return doFetch(`${ApiService.baseEndpoint}/me`); 

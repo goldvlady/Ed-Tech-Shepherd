@@ -1,6 +1,18 @@
-import React, { useState } from "react";
-import { Box, Flex, HStack, Image, Stack, Text } from "@chakra-ui/react";
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  Center,
+  CircularProgress,
+  CircularProgressLabel,
+  Flex,
+  HStack,
+  Image,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
 import OnFire from "../../../assets/fire.svg";
+import EnergyUp from "../../../assets/energy-up.svg";
+import Less50 from "../../../assets/less-50.svg";
 
 export default function Carousel() {
   const arrowStyles = {
@@ -24,14 +36,14 @@ export default function Carousel() {
 
   const slides = [
     {
-      img: OnFire,
-      description: "spend a little extra time learning",
-      label: "You spent 5 hours learning this week",
+      //   img: OnFire,
+      //   description: "spend a little extra time learning",
+      label: "You’ve scored a total of 65% in all quizzes this week!",
     },
     {
-      img: OnFire,
-      description: "spend a little extra time learning",
-      label: "You spent 5 hours learning this week",
+      img: EnergyUp,
+      description: "Complete a flash deck to make it 4",
+      label: "You’re on a 3 day streak!",
     },
     {
       img: OnFire,
@@ -57,6 +69,23 @@ export default function Carousel() {
     transition: "all .5s",
     ml: `-${currentSlide * 100}%`,
   };
+
+  const SLIDES_INTERVAL_TIME = 10000;
+  const ANIMATION_DIRECTION = "right";
+  useEffect(() => {
+    const prevSlide = () => {
+      setCurrentSlide((s) => (s === 0 ? slidesCount - 1 : s - 1));
+    };
+
+    const nextSlide = () => {
+      setCurrentSlide((s) => (s === slidesCount - 1 ? 0 : s + 1));
+    };
+
+    const automatedSlide = setInterval(() => {
+      ANIMATION_DIRECTION.toLowerCase() === "left" ? prevSlide() : nextSlide();
+    }, SLIDES_INTERVAL_TIME);
+    return () => clearInterval(automatedSlide);
+  }, [slidesCount]);
 
   return (
     <Flex
@@ -90,13 +119,31 @@ export default function Carousel() {
                 mb="8"
                 color="black"
               >
-                <Image
-                  src={slide.img}
-                  alt="carousel image"
-                  boxSize="100px"
-                  backgroundSize="cover"
-                  alignSelf={"center"}
-                />
+                {slide.img ? (
+                  <Image
+                    src={slide.img}
+                    alt="carousel image"
+                    boxSize="100px"
+                    backgroundSize="cover"
+                    alignSelf={"center"}
+                  />
+                ) : (
+                  <CircularProgress
+                    value={65}
+                    size="100px"
+                    thickness="7px"
+                    alignSelf={"center"}
+                    color={"#207DF7"}
+                    mb={5}
+                  >
+                    <CircularProgressLabel>
+                      <Center>
+                        <Image src={Less50} />
+                      </Center>
+                    </CircularProgressLabel>
+                  </CircularProgress>
+                )}
+
                 <Text fontSize="14px" fontWeight={500}>
                   {slide.label}
                 </Text>

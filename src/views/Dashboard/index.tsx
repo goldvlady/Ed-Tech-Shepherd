@@ -22,11 +22,11 @@ import ActivityFeeds from "./components/ActivityFeeds";
 import Schedule from "./components/Schedule";
 import { BiLeftArrowAlt, BiRightArrowAlt } from "react-icons/bi";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import ribbon1 from "../../assets/ribbon1.png";
-import ribbon2 from "../../assets/ribbon2.png";
-import briefCase from "../../assets/briefcase.png";
-import magicStar from "../../assets/magic-star.png";
-import timer from "../../assets/timer.png";
+import ribbon2 from "../../assets/ribbon1.svg";
+import ribbon1 from "../../assets/ribbon2.svg";
+import briefCase from "../../assets/briefcase.svg";
+import magicStar from "../../assets/magic-star.svg";
+import timer from "../../assets/big-timer.svg";
 
 export default function Index() {
   const [slider, setSlider] = useState<Slider | null>(null);
@@ -87,6 +87,11 @@ export default function Index() {
 
   return (
     <>
+      <Box mb={4}>
+        <Text fontSize={24} fontWeight="bold">
+          Hi Liam, Welcome back!
+        </Text>
+      </Box>
       <Grid
         h="200px"
         templateRows="repeat(2, 1fr)"
