@@ -22,6 +22,8 @@ import FeedIcon from "../../../assets/blue-energy.svg";
 import DocIcon from "../../../assets/doc-icon.svg";
 import AdobeIcon from "../../../assets/adobedoc.svg";
 import NoteIcon from "../../../assets/notes.svg";
+import FlashcardIcon from "../../../assets/flashcardIcon.svg";
+import ReceiptIcon from "../../../assets/receiptIcon.svg";
 
 function ActivityFeeds() {
   const [feedPeriod, setFeedPeriod] = useState<any>("Today");
@@ -121,7 +123,69 @@ function ActivityFeeds() {
               </Text>
 
               <Text fontWeight={500} fontSize={12} color="#73777D">
-                Documentationtitle.pdf
+                Favoriteartistelist.pdf
+              </Text>
+            </Flex>
+          </Stack>
+        </Flex>
+        <Flex px={3} gap={0} direction={"row"} my={2}>
+          <Image src={ReceiptIcon} alt="doc" maxHeight={45} />
+          <Stack direction={"column"} px={4} spacing={1}>
+            <Text color="text.300" fontSize={12} mb={0}>
+              Yesterday.13:00
+            </Text>
+            <Text fontWeight={400} color="text.200" fontSize="14px" mb={0}>
+              You created a new flashcard deck documenttitleflash from
+              documentitle.pdf
+            </Text>
+
+            <Spacer />
+
+            <Flex
+              width={"fit-content"}
+              borderRadius={"30px"}
+              border=" 1px dashed #E2E4E9"
+              alignItems={"center"}
+              pt={2}
+              px={3}
+            >
+              <Text>
+                <Image src={AdobeIcon} />
+              </Text>
+
+              <Text fontWeight={500} fontSize={12} color="#73777D">
+                Documenttitleflash
+              </Text>
+            </Flex>
+          </Stack>
+        </Flex>
+        <Flex px={3} gap={0} direction={"row"} my={2}>
+          <Image src={FlashcardIcon} alt="doc" maxHeight={45} />
+          <Stack direction={"column"} px={4} spacing={1}>
+            <Text color="text.300" fontSize={12} mb={0}>
+              17th May 2023.13:00
+            </Text>
+            <Text fontWeight={400} color="text.200" fontSize="14px" mb={0}>
+              You made a payment of $10.95 to Leslie Peters for Chemistry
+              lessons
+            </Text>
+
+            <Spacer />
+
+            <Flex
+              width={"fit-content"}
+              borderRadius={"30px"}
+              border=" 1px dashed #E2E4E9"
+              alignItems={"center"}
+              pt={2}
+              px={3}
+            >
+              <Text>
+                <Image src={AdobeIcon} />
+              </Text>
+
+              <Text fontWeight={500} fontSize={12} color="#73777D">
+                Transaction receipt
               </Text>
             </Flex>
           </Stack>
