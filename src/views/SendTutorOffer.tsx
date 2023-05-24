@@ -41,7 +41,8 @@ const Root = styled(Box)`
 `
 
 const TutorOfferSchema = Yup.object().shape({
-    subjectAndLevel: Yup.string().required('Select a subject & level'),
+    subject: Yup.string().required('Select a subject'),
+    level: Yup.string().required('Select a level'),
     days: Yup.array().min(1, 'Select days').required('Select days'),
     schedule: Yup.object().required('Select a schedule'),
     note: Yup.string(),
@@ -126,7 +127,8 @@ const SendTutorOffer = () => {
         setLoadingCourses(false);
     }, []);
 
-    const subjectAndLevelOptions = useMemo(() => courseList.map(cl => [...(levels.map(l => `${cl.title} - ${l}`))]).flat().map(v => ({ label: v, value: v })), [courseList])
+    const subjectOptions = useMemo(() => courseList.map(c => ({ label: c.title, value: c.id })), [courseList])
+    const levelOptions = useMemo(() => levels.map(l => ({ label: l, value: l })), [])
 
     useEffect(() => {
         loadCourses();
@@ -189,7 +191,7 @@ const SendTutorOffer = () => {
                     </Breadcrumb>
                     <PageTitle marginTop={'28px'} mb={10} title='Send an Offer' subtitle={`Provide your contract terms. We’ll notify you via email when ${tutor.name.first} responds`} />
                     <Formik
-                        initialValues={{ subjectAndLevel: '', days: [], schedule: {}, startTime: '', endTime: '', note: '', rate: tutor.rate, expirationDate: new Date(), contractStartDate: null, contractEndDate: null }}
+                        initialValues={{ subject: '', level: '', days: [], schedule: {}, startTime: '', endTime: '', note: '', rate: tutor.rate, expirationDate: new Date(), contractStartDate: null, contractEndDate: null }}
                         validationSchema={TutorOfferSchema}
                         innerRef={formikRef}
                         onSubmit={async (values, { setSubmitting }) => {
@@ -252,22 +254,42 @@ const SendTutorOffer = () => {
                                     </Panel>
                                     <Panel>
                                         <Text className='sub1' mb={0}>Offer Details</Text>
-                                        <Field name='subjectAndLevel'>
+                                        <Field name='subject'>
                                             {({ field, form }: FieldProps) => (
                                                 <FormControl mt={8} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
-                                                    <FormLabel>Subject & Level</FormLabel>
+                                                    <FormLabel>Subject</FormLabel>
                                                     {isEditing ? <Select
-                                                        defaultValue={subjectAndLevelOptions.find(s => s.value === field.value)}
+                                                        defaultValue={subjectOptions.find(s => s.value === field.value)}
                                                         tagVariant="solid"
-                                                        placeholder="Select subject & level"
-                                                        options={subjectAndLevelOptions}
+                                                        placeholder="Select subject"
+                                                        options={subjectOptions}
                                                         isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}
                                                         size={'md'}
                                                         onFocus={() => form.setTouched({ ...form.touched, [field.name]: true })}
                                                         onChange={
                                                             (option) => form.setFieldValue(field.name, (option as Option).value)
                                                         }
-                                                    /> : <EditField>{subjectAndLevelOptions.find(s => s.value === field.value)?.label}</EditField>}
+                                                    /> : <EditField>{subjectOptions.find(s => s.value === field.value)?.label}</EditField>}
+                                                    <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
+                                                </FormControl>
+                                            )}
+                                        </Field>
+                                        <Field name='level'>
+                                            {({ field, form }: FieldProps) => (
+                                                <FormControl mt={'24px'} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
+                                                    <FormLabel>Level</FormLabel>
+                                                    {isEditing ? <Select
+                                                        defaultValue={levelOptions.find(s => s.value === field.value)}
+                                                        tagVariant="solid"
+                                                        placeholder="Select level"
+                                                        options={levelOptions}
+                                                        isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}
+                                                        size={'md'}
+                                                        onFocus={() => form.setTouched({ ...form.touched, [field.name]: true })}
+                                                        onChange={
+                                                            (option) => form.setFieldValue(field.name, (option as Option).value)
+                                                        }
+                                                    /> : <EditField>{levelOptions.find(s => s.value === field.value)?.label}</EditField>}
                                                     <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
                                                 </FormControl>
                                             )}

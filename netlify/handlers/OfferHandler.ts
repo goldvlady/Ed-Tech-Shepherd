@@ -13,24 +13,34 @@ class OfferHandler {
     }
 
     async acceptOffer(offer: OfferType) {
-        const acceptedOffer = await Offer.findByIdAndUpdate(offer._id, {
+        const updatedOffer = await Offer.findByIdAndUpdate(offer._id, {
             status: OFFERSTATUS.ACCEPTED
         }, { new: true })
 
         // TODO: Send offer accepted email to student
 
-        return acceptedOffer;
+        return updatedOffer;
     }
 
     async declineOffer(offer: OfferType, note?: string) {
-        const acceptedOffer = await Offer.findByIdAndUpdate(offer._id, {
+        const updatedOffer = await Offer.findByIdAndUpdate(offer._id, {
             status: OFFERSTATUS.DECLINED,
             declinedNote: note
         }, { new: true })
 
-        // TODO: Send offer accepted email to student
+        // TODO: Send offer declined email to student
 
-        return acceptedOffer;
+        return updatedOffer;
+    }
+
+    async withdrawOffer(offer: OfferType) {
+        const updatedOffer = await Offer.findByIdAndUpdate(offer._id, {
+            status: OFFERSTATUS.WITHDRAWN
+        }, { new: true })
+
+        // TODO: Send offer withdrawn email to tutor
+
+        return updatedOffer;
     }
 }
 

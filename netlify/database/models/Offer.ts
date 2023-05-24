@@ -13,11 +13,13 @@ interface Schedule {
 export enum STATUS {
     DRAFT = 'draft',
     ACCEPTED = 'accepted',
-    DECLINED = 'declined'
+    DECLINED = 'declined',
+    WITHDRAWN = 'withdrawn',
 }
 
 export interface Offer extends TimestampedEntity {
-    subjectAndLevel: string;
+    subject: string;
+    level: string;
     days: number[];
     schedule: Schedule;
     rate: number;
@@ -33,7 +35,8 @@ export interface Offer extends TimestampedEntity {
 }
 
 const schema = new Schema<Offer>({
-    subjectAndLevel: { type: String, required: true },
+    subject: { type: String, required: true },
+    level: { type: String, required: true },
     days: { type: [Number], required: true },
     schedule: { type: Schema.Types.Mixed, required: true },
     rate: { type: Number, required: true },

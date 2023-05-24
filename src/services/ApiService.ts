@@ -43,6 +43,12 @@ class ApiService {
     static getTutor = async(id: string) => {
         return doFetch(`${ApiService.baseEndpoint}/tutor/${id}`);
     }
+    static getAllTutors = async() => {
+        return doFetch(`${ApiService.baseEndpoint}/tutors`);
+    }
+    static getFilteredTutors = async() => {
+        return doFetch(`${ApiService.baseEndpoint}/tutors`);
+    }
 
     // Offer
 
@@ -68,6 +74,13 @@ class ApiService {
         return doFetch(`${ApiService.baseEndpoint}/declineOffer`, {
             method: "POST",
             body: JSON.stringify({id, note})
+        })
+    }
+
+    static withdrawOffer = async (id: string) => {
+        return doFetch(`${ApiService.baseEndpoint}/withdrawOffer`, {
+            method: "POST",
+            body: JSON.stringify({id})
         })
     }
 }
