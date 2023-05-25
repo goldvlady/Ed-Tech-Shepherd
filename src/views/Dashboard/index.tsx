@@ -47,7 +47,7 @@ export default function Index() {
 
   //Date
   const date = new Date();
-  const weekday = numberToDayOfWeekName(date.getDay());
+  const weekday = numberToDayOfWeekName(date.getDay(), "dddd");
   const month = moment().format("MMMM");
   const monthday = date.getDate();
   const time =
