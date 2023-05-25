@@ -2,9 +2,10 @@ import Offer, { Offer as OfferType, STATUS as OFFERSTATUS } from "../database/mo
 import TutorLead from "../database/models/TutorLead";
 import { User } from "../database/models/User";
 import Stripe from '../utils/stripe';
+import EmailHandler from "./EmailHandler";
 
 class OfferHandler {
-
+    emailHandler = new EmailHandler();
     async confirmOffer(offer: OfferType) {
         //const { roomUrl, hostRoomUrl } = await this.wherebyService.createMeeting();
 
@@ -26,7 +27,7 @@ class OfferHandler {
         const tutorLead = await TutorLead.findById(data.tutor);
         const offer = await Offer.create({ ...data, studentLead: studentUser.studentLead, tutorLead });
 
-        // TODO: Send offer email to tutor
+        this.emailHandler.createNewOfferTutorEmail(offer);
 
         return offer;
     }
@@ -36,7 +37,7 @@ class OfferHandler {
             status: OFFERSTATUS.ACCEPTED
         }, { new: true })
 
-        // TODO: Send offer accepted email to student
+        this.emailHandler.createOfferAcceptedStudentEmail(offer);
 
         return updatedOffer;
     }
@@ -47,7 +48,7 @@ class OfferHandler {
             declinedNote: note
         }, { new: true })
 
-        // TODO: Send offer declined email to student
+        this.emailHandler.createOfferDeclinedStudentEmail(offer);
 
         return updatedOffer;
     }
@@ -57,7 +58,7 @@ class OfferHandler {
             status: OFFERSTATUS.WITHDRAWN
         }, { new: true })
 
-        // TODO: Send offer withdrawn email to tutor
+        this.emailHandler.createOfferWithdrawnTutorEmail(offer);
 
         return updatedOffer;
     }

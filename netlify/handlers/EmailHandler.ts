@@ -6,8 +6,31 @@ import moment from "moment-timezone";
 import {Schedule} from "../database/models/Schedule";
 import { SITE_URL } from "../utils/config";
 import { capitalize } from "lodash";
+import { Offer } from "../database/models/Offer";
 
 class EmailHandler {
+
+    getButton(text: string, href: string) {
+        return `<center>
+        <table align="center" cellspacing="0" cellpadding="0" width="100%">
+          <tr>
+            <td align="center" style="padding: 10px;">
+              <table border="0" class="mobile-button" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td align="center" bgcolor="#207df7" style="background-color: #207df7; margin: auto; max-width: 600px; -webkit-border-radius: 11px; -moz-border-radius: 11px; border-radius: 11px; padding: 15px 20px; " width="100%">
+                  <!--[if mso]>&nbsp;<![endif]-->
+                      <a href="${href}" target="_blank" style="16px; font-family: Arial, sans-serif; color: #ffffff; font-weight:normal; text-align:center; background-color: #207df7; text-decoration: none; border: none; -webkit-border-radius: 11px; -moz-border-radius: 11px; border-radius: 11px; display: inline-block;">
+                          <span style="font-size: 16px; font-family: Arial, sans-serif; color: #ffffff; font-weight:normal; line-height:1.5em; text-align:center;">${text}</span>
+                    </a>
+                  <!--[if mso]>&nbsp;<![endif]-->
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+       </center>`
+    }
 
     async createTutorWelcomeEmail(tutor: TutorLead) {
         await Email.create({
@@ -123,6 +146,118 @@ As a reminder, your session will be conducted through our online platform. To jo
 <br />
 <br />
 Please make sure to log in a few minutes before the scheduled start time to avoid any delays. If you encounter any issues accessing the session, please reply to this email or reach out to us at <a href="mailto:hello@shepherdtutors.com">hello@shepherdtutors.com</a>
+<br />
+<br />
+Cheers,
+<br />
+Shepherd Tutors
+            `
+        })
+    }
+
+    async createNewOfferTutorEmail(offer: Offer) {
+        const offerUrl = `${SITE_URL}/dashboard/offer/${offer._id}`;
+        
+        await Email.create({
+            to: offer.tutorLead.email,
+            subject: `You've received a new offer`,
+            type: Types.NEW_OFFER_TUTOR,
+            content: `
+Hi ${capitalize(offer.tutorLead.name.first)},
+<br />
+<br />
+We're excited to let you know that you've just received a new offer. Click the button below to view your offer.
+<br />
+<br />
+${this.getButton('View your offer', offerUrl)}
+<br />
+<br />
+Or use the following link:
+<a href="${offerUrl}">${offerUrl}</a>
+<br />
+<br />
+Cheers,
+<br />
+Shepherd Tutors
+            `
+        })
+    }
+
+    async createOfferAcceptedStudentEmail(offer: Offer) {
+        const offerUrl = `${SITE_URL}/dashboard/offer/${offer._id}`;
+        
+        await Email.create({
+            to: offer.studentLead.email,
+            subject: `Your offer has been accepted`,
+            type: Types.OFFER_ACCEPTED_STUDENT,
+            content: `
+Hi ${capitalize(offer.studentLead.name.first)},
+<br />
+<br />
+We're excited to let you know that your offer has been accepted. Click the button below to complete payment for your offer.
+<br />
+<br />
+${this.getButton('View your offer', offerUrl)}
+<br />
+<br />
+Or use the following link:
+<a href="${offerUrl}">${offerUrl}</a>
+<br />
+<br />
+Cheers,
+<br />
+Shepherd Tutors
+            `
+        })
+    }
+
+    async createOfferDeclinedStudentEmail(offer: Offer) {
+        const offerUrl = `${SITE_URL}/dashboard/offer/${offer._id}`;
+        
+        await Email.create({
+            to: offer.studentLead.email,
+            subject: `There's been a new update on your offer`,
+            type: Types.OFFER_DECLINED_STUDENT,
+            content: `
+Hi ${capitalize(offer.studentLead.name.first)},
+<br />
+<br />
+There's been a new update on your offer, Click the button below to view it.
+<br />
+<br />
+${this.getButton('View your offer', offerUrl)}
+<br />
+<br />
+Or use the following link:
+<a href="${offerUrl}">${offerUrl}</a>
+<br />
+<br />
+Cheers,
+<br />
+Shepherd Tutors
+            `
+        })
+    }
+
+    async createOfferWithdrawnTutorEmail(offer: Offer) {
+        const offerUrl = `${SITE_URL}/dashboard/offer/${offer._id}`;
+        
+        await Email.create({
+            to: offer.tutorLead.email,
+            subject: `There's been a new update on your offer`,
+            type: Types.OFFER_WITHDRAWN_TUTOR,
+            content: `
+Hi ${capitalize(offer.tutorLead.name.first)},
+<br />
+<br />
+There's been a new update on your offer, Click the button below to view it.
+<br />
+<br />
+${this.getButton('View your offer', offerUrl)}
+<br />
+<br />
+Or use the following link:
+<a href="${offerUrl}">${offerUrl}</a>
 <br />
 <br />
 Cheers,
