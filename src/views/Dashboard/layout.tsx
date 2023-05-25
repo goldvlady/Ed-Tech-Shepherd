@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState } from "react";
 import { Outlet } from "react-router-dom";
 import {
   IconButton,
@@ -37,9 +37,14 @@ import {
   FiChevronDown,
   FiBriefcase,
   FiBarChart2,
+  FiChevronUp,
 } from "react-icons/fi";
 import { FaBell } from "react-icons/fa";
 import { BsChatLeftDots, BsPlayCircle, BsPin } from "react-icons/bs";
+import {
+  MdOutlineKeyboardArrowDown,
+  MdOutlineKeyboardArrowUp,
+} from "react-icons/md";
 import { CgNotes } from "react-icons/cg";
 import { TbCards } from "react-icons/tb";
 import { IconType } from "react-icons";
@@ -70,12 +75,22 @@ const userObj: any = sessionStorage.getItem("UserDetails");
 const user = JSON.parse(userObj);
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
+  const [tutorMenu, setTutorMenu] = useState(false);
+  const toggleMenu = () => {
+    console.log("AKINOLA");
+
+    setTutorMenu(!tutorMenu);
+  };
+  console.log(tutorMenu);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
     <Box minH="130vh" bg="white">
       <SidebarContent
         onClose={() => onClose}
+        tutorMenu={tutorMenu}
+        setTutorMenu={setTutorMenu}
+        toggleMenu={() => toggleMenu}
         display={{ base: "none", md: "block" }}
       />
       <Drawer
@@ -88,7 +103,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         size="full"
       >
         <DrawerContent>
-          <SidebarContent onClose={onClose} />
+          <SidebarContent
+            onClose={onClose}
+            tutorMenu={tutorMenu}
+            setTutorMenu={setTutorMenu}
+            toggleMenu={toggleMenu}
+          />
         </DrawerContent>
       </Drawer>
       {/* mobilenav */}
@@ -102,6 +122,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
 interface SidebarProps extends BoxProps {
   onClose: () => void;
+  toggleMenu: () => void;
+  tutorMenu: boolean;
+  setTutorMenu: (value: boolean) => void;
 }
 
 export const CustomButton = (props: any) => {
@@ -139,7 +162,13 @@ export const CustomButton = (props: any) => {
   );
 };
 
-const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
+const SidebarContent = ({
+  onClose,
+  tutorMenu,
+  setTutorMenu,
+  toggleMenu,
+  ...rest
+}: SidebarProps) => {
   return (
     <Box
       transition="3s ease"
@@ -157,15 +186,31 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
         </Text>
         <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
       </Flex>
-      <NavItem icon={FiBriefcase} path="/dashboard/find-tutor">
-        Find a tutor
-        {/* <span>
-          <FiChevronDown />
-        </span> */}
-      </NavItem>
-      <Box ml={8}>
-        <NavItem path="/dashboard/my-tutors">My Tutors</NavItem>
-        <NavItem path="/dashboard/saved-tutors">Bookmarks</NavItem>
+      <Box ml={8} color="text.400">
+        {" "}
+        <Button
+          variant={"unstyled"}
+          display="flex"
+          gap={1}
+          leftIcon={<FiBriefcase />}
+          fontSize={14}
+          fontWeight={500}
+          onClick={() => setTutorMenu(!tutorMenu)}
+          rightIcon={
+            tutorMenu ? (
+              <MdOutlineKeyboardArrowUp />
+            ) : (
+              <MdOutlineKeyboardArrowDown />
+            )
+          }
+        >
+          Find a tutor
+        </Button>
+        <Box display={tutorMenu ? "block" : "none"}>
+          <NavItem path="/dashboard/find-tutor">Marketplace</NavItem>
+          <NavItem path="/dashboard/my-tutors">My Tutors</NavItem>
+          <NavItem path="/dashboard/saved-tutors">Bookmarks</NavItem>
+        </Box>
       </Box>
       <Divider />
       {LinkItems.map((link) => (
@@ -317,7 +362,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         />
         <Menu>
           <MenuButton
-            py={1.5}
+            py={2}
             transition="all 0.3s"
             _focus={{ boxShadow: "none" }}
             bg="#F4F5F5"

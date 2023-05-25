@@ -80,22 +80,25 @@ function ActivityFeeds() {
 
             <Spacer />
 
-            <Flex
+            <Box
               width={"fit-content"}
+              height="40px"
               borderRadius={"30px"}
               border=" 1px dashed #E2E4E9"
-              alignItems={"center"}
-              pt={2}
+              justifyContent="center"
+              alignItems="center"
               px={3}
             >
-              <Text>
-                <Image src={AdobeIcon} />
-              </Text>
+              <Flex mt={2.5}>
+                <Text>
+                  <Image src={AdobeIcon} />
+                </Text>
 
-              <Text fontWeight={500} fontSize={12} color="#73777D">
-                Documentationtitle.pdf
-              </Text>
-            </Flex>
+                <Text fontWeight={500} fontSize={12} color="#73777D">
+                  Documentationtitle.pdf
+                </Text>
+              </Flex>
+            </Box>
           </Stack>
         </Flex>
         <Flex px={3} gap={0} direction={"row"} my={2}>
@@ -110,22 +113,25 @@ function ActivityFeeds() {
 
             <Spacer />
 
-            <Flex
+            <Box
               width={"fit-content"}
+              height="40px"
               borderRadius={"30px"}
               border=" 1px dashed #E2E4E9"
-              alignItems={"center"}
-              pt={2}
+              justifyContent="center"
+              alignItems="center"
               px={3}
             >
-              <Text>
-                <Image src={AdobeIcon} />
-              </Text>
+              <Flex mt={2.5}>
+                <Text>
+                  <Image src={AdobeIcon} />
+                </Text>
 
-              <Text fontWeight={500} fontSize={12} color="#73777D">
-                Favoriteartistelist.pdf
-              </Text>
-            </Flex>
+                <Text fontWeight={500} fontSize={12} color="#73777D">
+                  Favoriteartistelist.pdf
+                </Text>
+              </Flex>
+            </Box>
           </Stack>
         </Flex>
         <Flex px={3} gap={0} direction={"row"} my={2}>
@@ -140,23 +146,25 @@ function ActivityFeeds() {
             </Text>
 
             <Spacer />
-
-            <Flex
+            <Box
               width={"fit-content"}
+              height="40px"
               borderRadius={"30px"}
               border=" 1px dashed #E2E4E9"
-              alignItems={"center"}
-              pt={2}
+              justifyContent="center"
+              alignItems="center"
               px={3}
             >
-              <Text>
-                <Image src={AdobeIcon} />
-              </Text>
+              <Flex mt={2.5}>
+                <Text>
+                  <Image src={AdobeIcon} />
+                </Text>
 
-              <Text fontWeight={500} fontSize={12} color="#73777D">
-                Documenttitleflash
-              </Text>
-            </Flex>
+                <Text fontWeight={500} fontSize={12} color="#73777D">
+                  Documenttitleflash
+                </Text>
+              </Flex>
+            </Box>
           </Stack>
         </Flex>
         <Flex px={3} gap={0} direction={"row"} my={2}>
@@ -172,22 +180,25 @@ function ActivityFeeds() {
 
             <Spacer />
 
-            <Flex
+            <Box
               width={"fit-content"}
+              height="40px"
               borderRadius={"30px"}
               border=" 1px dashed #E2E4E9"
-              alignItems={"center"}
-              pt={2}
+              justifyContent="center"
+              alignItems="center"
               px={3}
             >
-              <Text>
-                <Image src={AdobeIcon} />
-              </Text>
+              <Flex mt={2.5}>
+                <Text>
+                  <Image src={AdobeIcon} />
+                </Text>
 
-              <Text fontWeight={500} fontSize={12} color="#73777D">
-                Transaction receipt
-              </Text>
-            </Flex>
+                <Text fontWeight={500} fontSize={12} color="#73777D">
+                  Transaction receipt
+                </Text>
+              </Flex>
+            </Box>
           </Stack>
         </Flex>
       </Box>

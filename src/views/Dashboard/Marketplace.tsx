@@ -123,9 +123,17 @@ export default function Marketplace() {
     setLoadingData(false);
   };
   const getFilteredData = async (filterParams: any) => {
+    let formData = {
+      courses: formik.values.subject.toLowerCase(),
+      teachLevel: formik.values.level,
+      availability: "",
+      tz: tz,
+      price: formik.values.price,
+      rating: formik.values.rating,
+    };
     setLoadingData(true);
     try {
-      const resp = await ApiService.getFilteredTutors();
+      const resp = await ApiService.getFilteredTutors(formData);
       const data = await resp.json();
       setAllTutors(data);
     } catch (e) {}
@@ -136,6 +144,7 @@ export default function Marketplace() {
     getData();
   }, []);
   console.log(allTutors);
+  console.log("TZ", tz);
 
   const resetForm = () => {
     formik.resetForm();
@@ -143,6 +152,7 @@ export default function Marketplace() {
     setDays([]);
     setFromTime("");
     setToTime("");
+    getData();
   };
 
   return (
