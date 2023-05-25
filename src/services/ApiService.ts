@@ -38,6 +38,13 @@ class ApiService {
         })
     }
 
+    static createOfferPaymentIntent = async (data: any) => {
+        return doFetch('/.netlify/functions/createOfferPaymentIntent', {
+            method: "POST",
+            body: JSON.stringify(data)
+        })
+    }
+
     // Tutor
 
     static getTutor = async(id: string) => {

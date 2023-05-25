@@ -1,5 +1,4 @@
 import { Handler, schedule } from "@netlify/functions";
-import { connectToDb } from "../database/connection";
 import Email from "../database/models/Email";
 import SESService from "../services/SESService";
 import middy from "../utils/middy";

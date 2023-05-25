@@ -1,3 +1,4 @@
+import { PaymentIntent } from "@stripe/stripe-js";
 import { Schema, model } from "mongoose";
 import { TimestampedEntity } from "../../types";
 import { StudentLead as StudentLeadInterface } from "./StudentLead";
@@ -32,6 +33,9 @@ export interface Offer extends TimestampedEntity {
     expirationDate: Date;
     contractStartDate: Date;
     contractEndDate: Date;
+    stripePaymentIntent?: PaymentIntent;
+    completed?: boolean; //has been paid for
+    amount: number;
 }
 
 const schema = new Schema<Offer>({
@@ -49,8 +53,15 @@ const schema = new Schema<Offer>({
     expirationDate: { type: Date, required: true },
     contractStartDate: { type: Date, required: true },
     contractEndDate: { type: Date, required: true },
-}, { timestamps: true });
+    stripePaymentIntent: { type: Object, required: false },
+    completed: { type: Boolean, required: false },
+}, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 schema.plugin(require('mongoose-autopopulate'));
+
+schema.virtual('amount')
+    .get(function () {
+        return this.rate * 1;
+    });
 
 export default model<Offer>('Offer', schema);
