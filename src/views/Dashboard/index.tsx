@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import {
   Box,
+  Flex,
+  Image,
   IconButton,
   useBreakpointValue,
   Stack,
+  HStack,
   Container,
   SimpleGrid,
   Card,
@@ -15,6 +18,9 @@ import {
   Text,
   CardFooter,
   Button,
+  Alert,
+  Spacer,
+  AlertIcon,
 } from "@chakra-ui/react";
 import Slider from "react-slick";
 import Carousel from "./components/Carousel";
@@ -22,11 +28,16 @@ import ActivityFeeds from "./components/ActivityFeeds";
 import Schedule from "./components/Schedule";
 import { BiLeftArrowAlt, BiRightArrowAlt } from "react-icons/bi";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { RxDotFilled } from "react-icons/rx";
 import ribbon2 from "../../assets/ribbon1.svg";
 import ribbon1 from "../../assets/ribbon2.svg";
 import briefCase from "../../assets/briefcase.svg";
 import magicStar from "../../assets/magic-star.svg";
 import timer from "../../assets/big-timer.svg";
+import cloudDay from "../../assets/day.svg";
+import cloudNight from "../../assets/night.svg";
+import { numberToDayOfWeekName, twoDigitFormat } from "../../util";
+import moment from "moment";
 
 export default function Index() {
   const [slider, setSlider] = useState<Slider | null>(null);
@@ -34,6 +45,17 @@ export default function Index() {
   const top = useBreakpointValue({ base: "90%", md: "50%" });
   const side = useBreakpointValue({ base: "30%", md: "40px" });
 
+  //Date
+  const date = new Date();
+  const weekday = numberToDayOfWeekName(date.getDay());
+  const month = moment().format("MMMM");
+  const monthday = date.getDate();
+  const time =
+    twoDigitFormat(date.getHours()) + ":" + twoDigitFormat(date.getMinutes());
+  const hours = date.getHours();
+  const isDayTime = hours > 6 && hours < 20;
+  const user: any = sessionStorage.getItem("UserDetails");
+  const userName = JSON.parse(user).displayName;
   const cards = [
     {
       title: "Design Projects 1",
@@ -87,10 +109,70 @@ export default function Index() {
 
   return (
     <>
-      <Box mb={4}>
-        <Text fontSize={24} fontWeight="bold">
-          Hi Liam, Welcome back!
+      <Box bgColor={"#FFF5F0"} pt={2} px={7} pb={2} borderRadius={8} mb={4}>
+        <Flex alignItems={"center"}>
+          <Box display="flex" mt={4}>
+            <Text
+              textTransform={"uppercase"}
+              color="#4CAF50"
+              fontSize={10}
+              bgColor="rgba(191, 227, 193, 0.4)"
+              borderRadius="3px"
+              px={2}
+              py={1}
+              mr={10}
+            >
+              Chemistry Lesson
+            </Text>
+            <Text color="text.400" fontSize={14}>
+              Upcoming class with Leslie Peters starts
+            </Text>
+            <Text fontSize={14} fontWeight={500} color="#F53535" ml={10}>
+              03:30 pm
+            </Text>
+          </Box>
+
+          <Spacer />
+          <Box>
+            {" "}
+            <Button
+              variant="unstyled"
+              bgColor="#fff"
+              color="#5C5F64"
+              fontSize={12}
+              px={2}
+              py={0}
+            >
+              Join Lesson
+            </Button>
+          </Box>
+        </Flex>
+      </Box>
+
+      <Box mb={8}>
+        <Text fontSize={24} fontWeight="bold" mb={1}>
+          Hi {userName}, Welcome back!
         </Text>
+
+        <Flex
+          color="text.300"
+          fontSize={14}
+          fontWeight={400}
+          alignItems="center"
+          height="fit-content"
+        >
+          <Box>
+            {isDayTime ? <Image src={cloudDay} /> : <Image src={cloudNight} />}
+          </Box>
+          <Box mt={1}>
+            <RxDotFilled />
+          </Box>
+          <Text mb={0}>{`${weekday}, ${month} ${monthday}`}</Text>{" "}
+          <Box mt={1}>
+            <RxDotFilled />
+          </Box>
+          <Text mb={0}>{time}</Text>
+        </Flex>
       </Box>
       <Grid
         h="200px"

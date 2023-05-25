@@ -13,6 +13,15 @@ import {
 import OnFire from "../../../assets/fire.svg";
 import EnergyUp from "../../../assets/energy-up.svg";
 import Less50 from "../../../assets/less-50.svg";
+import styled from "styled-components";
+import { CircularProgressbar } from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
+
+const CircleProgressBox = styled(CircularProgressLabel)`
+  z-index: 1;
+  drop-shadow: 0px 4px 12px rgba(136, 140, 145, 0.25);
+  background-color: red;
+`;
 
 export default function Carousel() {
   const arrowStyles = {
@@ -100,7 +109,7 @@ export default function Carousel() {
         <Flex h="250px" w="full" {...carouselStyle}>
           {slides.map((slide, sid) => (
             <Box key={`slide-${sid}`} boxSize="full" flex="none">
-              <Text
+              {/* <Text
                 color="white"
                 fontSize="xs"
                 p="8px 12px"
@@ -108,14 +117,16 @@ export default function Carousel() {
                 top="0"
               >
                 {sid + 1} / {slidesCount}
-              </Text>
+              </Text> */}
 
               <Stack
-                p="8px 12px"
+                // p="8px 12px"
                 pos="absolute"
                 bottom="24px"
                 textAlign="center"
-                w="full"
+                alignItems="center"
+                w="420px"
+                m="0 auto"
                 mb="8"
                 color="black"
               >
@@ -128,23 +139,68 @@ export default function Carousel() {
                     alignSelf={"center"}
                   />
                 ) : (
-                  <CircularProgress
-                    value={65}
-                    size="100px"
-                    thickness="7px"
-                    alignSelf={"center"}
-                    color={"#207DF7"}
-                    mb={5}
+                  <div
+                    style={{
+                      height: "90px",
+                      width: "90px",
+                      marginBottom: "7px",
+                    }}
                   >
-                    <CircularProgressLabel>
-                      <Center>
+                    <svg style={{ height: 0 }}>
+                      <defs>
+                        <linearGradient
+                          id="hello"
+                          gradientTransform={`rotate(45)`}
+                        >
+                          <stop offset="0.50%" stopColor="#D465FB" />
+                          <stop offset="-49.50%" stopColor="#207DF7" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                    <div
+                      style={{
+                        display: "flex",
+                        position: "relative",
+                        // alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {" "}
+                      <CircularProgressbar
+                        strokeWidth={8}
+                        value={65}
+                        //   text={<Image src={Less50} />}
+                        styles={{
+                          path: { stroke: `url(#hello)`, height: "100%" },
+                          trail: {
+                            stroke: "#e7eaee",
+                          },
+                        }}
+                      />{" "}
+                      <div
+                        style={{ position: "absolute", zIndex: 1, top: "20%" }}
+                      >
                         <Image src={Less50} />
-                      </Center>
-                    </CircularProgressLabel>
-                  </CircularProgress>
+                      </div>
+                    </div>
+                  </div>
+                  //   <CircularProgress
+                  //     value={65}
+                  //     size="100px"
+                  //     thickness="7px"
+                  //     alignSelf={"center"}
+                  //     color={"#207DF7"}
+                  //     mb={5}
+                  //   >
+                  //     <CircleProgressBox>
+                  //       <Center>
+                  //         <Image src={Less50} />
+                  //       </Center>
+                  //     </CircleProgressBox>
+                  //   </CircularProgress>
                 )}
 
-                <Text fontSize="14px" fontWeight={500}>
+                <Text fontSize="14px" fontWeight={500} w="300px">
                   {slide.label}
                 </Text>
                 <Text fontSize="12px" fontWeight={400}>
