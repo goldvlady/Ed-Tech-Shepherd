@@ -59,6 +59,7 @@ const CalendarDateInput: React.FC<DateInputProps> = ({ value, onChange, inputPro
                 <InputGroup>
                     <Input
                         {...inputProps}
+                        readOnly
                         ref={inputRef}
                         onClick={(e) => {
                             setPopoverOpen(true);
@@ -69,7 +70,6 @@ const CalendarDateInput: React.FC<DateInputProps> = ({ value, onChange, inputPro
                         value={value ? moment(value).format(FORMAT) : ''}
                         isInvalid={!moment(value, FORMAT, true).isValid() && !!value}
                         pr='4.5rem'
-
                         {...rest}
                     />
                     <InputRightAddon children={<RiCalendarEventFill color='#969CA6' />} />

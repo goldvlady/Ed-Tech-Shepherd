@@ -133,3 +133,7 @@ code {
 .scrollbar-hidden::-webkit-scrollbar { 
   display: none;  /* Safari and Chrome */
 }
+
+#payment-form {
+  width: 100%;
+}

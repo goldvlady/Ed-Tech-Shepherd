@@ -1,5 +1,5 @@
 import { Alert, AlertDescription, AlertIcon, Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Button, FormControl, FormErrorMessage, FormLabel, Heading, HStack, Input, InputGroup, InputLeftAddon, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalOverlay, SimpleGrid, Spinner, Text, Textarea, useDisclosure, VStack } from '@chakra-ui/react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiArrowRight, FiChevronRight } from 'react-icons/fi';
 import { RiMoneyDollarCircleFill } from 'react-icons/ri';
 import { BsBookmarkStarFill } from 'react-icons/bs';
@@ -13,7 +13,7 @@ import Panel from '../components/Panel';
 import Select, { Option } from '../components/Select';
 import TimePicker from '../components/TimePicker';
 import LinedList from '../components/LinedList';
-import { Field, FieldProps, Form, Formik } from 'formik';
+import { Field, FieldProps, Form, Formik, FormikProps } from 'formik';
 import * as Yup from 'yup';
 import { numberToDayOfWeekName } from '../util';
 import LargeSelect from '../components/LargeSelect';
@@ -26,6 +26,8 @@ import { useTitle } from '../hooks';
 import { scheduleOptions } from './Offer';
 import DateInput from '../components/DateInput';
 import CalendarDateInput from '../components/CalendarDateInput';
+import { isEmpty } from 'lodash';
+import moment from 'moment';
 
 const LeftCol = styled(Box)`
 background: #FFF;
@@ -39,14 +41,13 @@ const Root = styled(Box)`
 `
 
 const TutorOfferSchema = Yup.object().shape({
-    subjectAndLevel: Yup.string().required('Select a subject & level'),
+    subject: Yup.string().required('Select a subject'),
+    level: Yup.string().required('Select a level'),
     days: Yup.array().min(1, 'Select days').required('Select days'),
-    schedule: Yup.string().required('Select a schedule'),
-    startTime: Yup.string().required('Enter a time'),
-    endTime: Yup.string().required('Enter a time'),
+    schedule: Yup.object().required('Select a schedule'),
     note: Yup.string(),
     rate: Yup.number().required('Enter a rate').min(1, 'Rate has to be greater than 0'),
-    paymentOption: Yup.string().required('Choose a payment option'),
+    //paymentOption: Yup.string().required('Choose a payment option'),
     expirationDate: Yup.date().required('Select an expiration date'),
     contractStartDate: Yup.date().required('Select a start date'),
     contractEndDate: Yup.date().required('Select an end date'),
@@ -64,6 +65,7 @@ const SendTutorOffer = () => {
     useTitle('Send an offer');
 
     const navigate = useNavigate();
+    const formikRef = useRef<FormikProps<any>>(null);
     const [loadingTutor, setLoadingTutor] = useState(false);
     const [tutor, setTutor] = useState<Tutor | null>(null);
     const { tutorId } = useParams() as { tutorId: string };
@@ -77,6 +79,7 @@ const SendTutorOffer = () => {
     font-size: 14px;
     line-height: 20px;
     letter-spacing: -0.001em;
+    margin-bottom: 0;
     color: ${theme.colors.text[200]};
 
     &:after {
@@ -124,7 +127,8 @@ const SendTutorOffer = () => {
         setLoadingCourses(false);
     }, []);
 
-    const subjectAndLevelOptions = useMemo(() => courseList.map(cl => [...(levels.map(l => `${cl.title} - ${l}`))]).flat().map(v => ({ label: v, value: v })), [courseList])
+    const subjectOptions = useMemo(() => courseList.map(c => ({ label: c.title, value: c.id })), [courseList])
+    const levelOptions = useMemo(() => levels.map(l => ({ label: l, value: l })), [])
 
     useEffect(() => {
         loadCourses();
@@ -132,6 +136,15 @@ const SendTutorOffer = () => {
     }, []);
 
     const loading = loadingCourses || loadingTutor;
+
+    const setScheduleValue = (value: any, day: number, property: 'begin' | 'end') => {
+        let scheduleValue = formikRef.current?.values.schedule;
+        if (!scheduleValue[day]) {
+            scheduleValue[day] = {}
+        }
+        scheduleValue[day] = { ...scheduleValue[day], [property]: value }
+        formikRef.current?.setFieldValue('schedule', scheduleValue)
+    }
 
     return <Root className='container-fluid'>
         <Box className='row'>
@@ -178,8 +191,9 @@ const SendTutorOffer = () => {
                     </Breadcrumb>
                     <PageTitle marginTop={'28px'} mb={10} title='Send an Offer' subtitle={`Provide your contract terms. We’ll notify you via email when ${tutor.name.first} responds`} />
                     <Formik
-                        initialValues={{ subjectAndLevel: '', days: [], schedule: '', startTime: '', endTime: '', note: '', rate: tutor.rate, expirationDate: new Date(), contractStartDate: null, contractEndDate: null }}
+                        initialValues={{ subject: '', level: '', days: [], schedule: {}, startTime: '', endTime: '', note: '', rate: tutor.rate, expirationDate: new Date(), contractStartDate: null, contractEndDate: null }}
                         validationSchema={TutorOfferSchema}
+                        innerRef={formikRef}
                         onSubmit={async (values, { setSubmitting }) => {
                             if (isEditing) {
                                 window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -205,57 +219,77 @@ const SendTutorOffer = () => {
                                 <VStack spacing='32px' alignItems={'stretch'}>
                                     <TutorCard tutor={tutor} />
                                     <Panel mt={'32px'}>
-                                        <Text className='sub1' mb={0}>Offer Settings</Text>
+                                        <Text className='sub1' mb={8}>Offer Settings</Text>
+                                        <VStack spacing={8} alignItems='stretch'>
                                         <Field name='expirationDate'>
                                             {({ field, form }: FieldProps) => (
-                                                <FormControl mt={8} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
+                                                <FormControl isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
                                                     <FormLabel>Offer expiration date</FormLabel>
-                                                    {isEditing ? <CalendarDateInput value={field.value} onChange={(d) => form.setFieldValue(field.name, d)} /> : <EditField>{field.value}</EditField>}
+                                                    {isEditing ? <CalendarDateInput value={field.value} onChange={(d) => form.setFieldValue(field.name, d)} /> : <EditField>{moment(field.value).format('MMMM Do YYYY')}</EditField>}
                                                     <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
                                                 </FormControl>
                                             )}
                                         </Field>
-                                        <Box>
-                                            <SimpleGrid width={'100%'} columns={{ base: 1, sm: 2 }} spacing='15px'>
-                                                <Field name='contractStartDate'>
-                                                    {({ field, form }: FieldProps) => (
-                                                        <FormControl mt={8} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
-                                                            <FormLabel>Contract starts</FormLabel>
-                                                            {isEditing ? <CalendarDateInput inputProps={{ onClick: () => form.setTouched({ ...form.touched, [field.name]: true }) }} value={field.value} onChange={(d) => form.setFieldValue(field.name, d)} /> : <EditField>{field.value}</EditField>}
-                                                            <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
-                                                        </FormControl>
-                                                    )}
-                                                </Field>
-                                                <Field name='contractEndDate'>
-                                                    {({ field, form }: FieldProps) => (
-                                                        <FormControl mt={8} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
-                                                            <FormLabel>Contract ends</FormLabel>
-                                                            {isEditing ? <CalendarDateInput inputProps={{ onClick: () => form.setTouched({ ...form.touched, [field.name]: true }) }} value={field.value} onChange={(d) => form.setFieldValue(field.name, d)} /> : <EditField>{field.value}</EditField>}
-                                                            <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
-                                                        </FormControl>
-                                                    )}
-                                                </Field>
-                                            </SimpleGrid>
-                                        </Box>
+                                        <SimpleGrid width={'100%'} columns={{ base: 1, sm: 2 }} spacing='15px'>
+                                            <Field name='contractStartDate'>
+                                                {({ field, form }: FieldProps) => (
+                                                    <FormControl isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
+                                                        <FormLabel>Contract starts</FormLabel>
+                                                        {isEditing ? <CalendarDateInput inputProps={{ placeholder: 'Select date', onClick: () => form.setTouched({ ...form.touched, [field.name]: true }) }} value={field.value} onChange={(d) => form.setFieldValue(field.name, d)} /> : <EditField>{moment(field.value).format('MMMM Do YYYY')}</EditField>}
+                                                        <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
+                                                    </FormControl>
+                                                )}
+                                            </Field>
+                                            <Field name='contractEndDate'>
+                                                {({ field, form }: FieldProps) => (
+                                                    <FormControl isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
+                                                        <FormLabel>Contract ends</FormLabel>
+                                                        {isEditing ? <CalendarDateInput inputProps={{ placeholder: 'Select date', onClick: () => form.setTouched({ ...form.touched, [field.name]: true }) }} value={field.value} onChange={(d) => form.setFieldValue(field.name, d)} /> : <EditField>{moment(field.value).format('MMMM Do YYYY')}</EditField>}
+                                                        <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
+                                                    </FormControl>
+                                                )}
+                                            </Field>
+                                        </SimpleGrid>
+                                        </VStack>
                                     </Panel>
                                     <Panel>
                                         <Text className='sub1' mb={0}>Offer Details</Text>
-                                        <Field name='subjectAndLevel'>
+                                        <Field name='subject'>
                                             {({ field, form }: FieldProps) => (
                                                 <FormControl mt={8} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
-                                                    <FormLabel>Subject & Level</FormLabel>
+                                                    <FormLabel>Subject</FormLabel>
                                                     {isEditing ? <Select
-                                                        defaultValue={subjectAndLevelOptions.find(s => s.value === field.value)}
+                                                        defaultValue={subjectOptions.find(s => s.value === field.value)}
                                                         tagVariant="solid"
-                                                        placeholder="Select subject & level"
-                                                        options={subjectAndLevelOptions}
+                                                        placeholder="Select subject"
+                                                        options={subjectOptions}
                                                         isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}
                                                         size={'md'}
                                                         onFocus={() => form.setTouched({ ...form.touched, [field.name]: true })}
                                                         onChange={
                                                             (option) => form.setFieldValue(field.name, (option as Option).value)
                                                         }
-                                                    /> : <EditField>{subjectAndLevelOptions.find(s => s.value === field.value)?.label}</EditField>}
+                                                    /> : <EditField>{subjectOptions.find(s => s.value === field.value)?.label}</EditField>}
+                                                    <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
+                                                </FormControl>
+                                            )}
+                                        </Field>
+                                        <Field name='level'>
+                                            {({ field, form }: FieldProps) => (
+                                                <FormControl mt={'24px'} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
+                                                    <FormLabel>Level</FormLabel>
+                                                    {isEditing ? <Select
+                                                        defaultValue={levelOptions.find(s => s.value === field.value)}
+                                                        tagVariant="solid"
+                                                        placeholder="Select level"
+                                                        options={levelOptions}
+                                                        isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}
+                                                        size={'md'}
+                                                        onFocus={() => form.setTouched({ ...form.touched, [field.name]: true })}
+                                                        onChange={
+                                                            (option) => form.setFieldValue(field.name, (option as Option).value)
+                                                        }
+                                                    /> : <EditField>{levelOptions.find(s => s.value === field.value)?.label}</EditField>}
                                                     <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
                                                 </FormControl>
                                             )}
@@ -273,8 +307,18 @@ const SendTutorOffer = () => {
                                                         isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}
                                                         size={'md'}
                                                         onFocus={() => form.setTouched({ ...form.touched, [field.name]: true })}
-                                                        onChange={(option) => {
-                                                            form.setFieldValue(field.name, (option as Option[]).map(o => o.value))
+                                                        // @ts-ignore
+                                                        onChange={(option: Option[]) => {
+                                                            let scheduleValue = values.schedule;
+                                                            values[field.name].map((fv: string) => {
+                                                                if (!option.find((opt => opt.value === fv))) {
+                                                                    if (scheduleValue[fv]) {
+                                                                        delete scheduleValue[fv];
+                                                                        form.setFieldValue('schedule', scheduleValue)
+                                                                    }
+                                                                }
+                                                            })
+                                                            form.setFieldValue(field.name, option.map(o => o.value))
                                                         }
                                                         }
                                                     /> : <EditField>{(field.value as number[]).map((v) => {
@@ -284,7 +328,7 @@ const SendTutorOffer = () => {
                                                 </FormControl>
                                             )}
                                         </Field>
-                                        <Field name='schedule'>
+                                        {/* <Field name='schedule'>
                                             {({ field, form }: FieldProps) => (
                                                 <FormControl mt={'24px'} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
                                                     <FormLabel>How often would you like your classes?</FormLabel>
@@ -296,27 +340,19 @@ const SendTutorOffer = () => {
                                                     <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
                                                 </FormControl>
                                             )}
-                                        </Field>
-                                        <Box display={"flex"} alignItems="stretch" gap={"20px"} mt={'24px'}>
-                                            <Field name='startTime'>
-                                                {({ field, form }: FieldProps) => (
-                                                    <FormControl isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
-                                                        <FormLabel>Start time</FormLabel>
-                                                        {isEditing ? <TimePicker inputProps={{ placeholder: '00:00 AM', isInvalid: !!form.errors[field.name] && !!form.touched[field.name], onFocus: () => form.setTouched({ ...form.touched, [field.name]: true }) }} value={field.value} onChange={(v) => form.setFieldValue(field.name, v)} /> : <EditField>{field.value}</EditField>}
-                                                        <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
-                                                    </FormControl>
-                                                )}
-                                            </Field>
-                                            <Field name='endTime'>
-                                                {({ field, form }: FieldProps) => (
-                                                    <FormControl isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
-                                                        <FormLabel>End time</FormLabel>
-                                                        {isEditing ? <TimePicker inputProps={{ placeholder: '00:00 AM', isInvalid: !!form.errors[field.name] && !!form.touched[field.name], onFocus: () => form.setTouched({ ...form.touched, [field.name]: true }) }} value={field.value} onChange={(v) => form.setFieldValue(field.name, v)} /> : <EditField>{field.value}</EditField>}
-                                                        <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
-                                                    </FormControl>
-                                                )}
-                                            </Field>
-                                        </Box>
+                                        </Field> */}
+                                        {!isEmpty(values.days) && <VStack mt={'24px'} spacing={'24px'}>
+                                            {values.days.map((d: number) => <SimpleGrid key={d} width={'100%'} columns={{ base: 1, sm: 2 }} spacing='15px'>
+                                                <FormControl>
+                                                    <FormLabel>Start time ({numberToDayOfWeekName(d, 'ddd')})</FormLabel>
+                                                    {isEditing ? <TimePicker inputProps={{ placeholder: '00:00 AM' }} value={values.schedule[d]?.begin ?? ''} onChange={(v) => setScheduleValue(v, d, 'begin')} /> : <EditField>{values.schedule[d]?.begin}</EditField>}
+                                                </FormControl>
+                                                <FormControl>
+                                                    <FormLabel>End time ({numberToDayOfWeekName(d, 'ddd')})</FormLabel>
+                                                    {isEditing ? <TimePicker inputProps={{ placeholder: '00:00 AM' }} value={values.schedule[d]?.end ?? ''} onChange={(v) => setScheduleValue(v, d, 'end')} /> : <EditField>{values.schedule[d]?.end}</EditField>}
+                                                </FormControl>
+                                            </SimpleGrid>)}
+                                        </VStack>}
                                         <Field name='note'>
                                             {({ field, form }: FieldProps) => (
                                                 <FormControl mt={'24px'}>
@@ -342,7 +378,7 @@ const SendTutorOffer = () => {
                                                     </FormControl>
                                                 )}
                                             </Field>
-                                            <Field name='paymentOption'>
+                                            {/* <Field name='paymentOption'>
                                                 {({ field, form }: FieldProps) => (
                                                     <FormControl mt={'24px'} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
                                                         <FormLabel>Payment options</FormLabel>
@@ -364,7 +400,7 @@ const SendTutorOffer = () => {
                                                         </Box>
                                                     </FormControl>
                                                 )}
-                                            </Field>
+                                            </Field> */}
                                             <Alert status='info' mt='18px'>
                                                 <AlertIcon><MdInfo color={theme.colors.primary[500]} /></AlertIcon>
                                                 <AlertDescription>Payment will not be deducted until after your first lesson, You may decide to cancel after your initial lesson.</AlertDescription>

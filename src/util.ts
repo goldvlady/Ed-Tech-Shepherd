@@ -91,8 +91,9 @@ const educationLevelOptions = [
   },
 ];
 
-export const numberToDayOfWeekName = (num: number) =>
-  moment().day(num).format("dddd");
+export const numberToDayOfWeekName = (num: number, format = "dddd") =>
+  moment().day(num).format(format);
+
 export const leadingZero = (num: number) => `0${num}`.slice(-2);
 
 export const roundDate = (

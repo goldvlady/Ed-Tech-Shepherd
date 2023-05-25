@@ -1,6 +1,7 @@
 import { HandlerEvent } from "@netlify/functions";
 import Booking, { Status } from "../database/models/Booking";
 import BookingHandler from "../handlers/BookingHandler";
+import authMiddleware from "../middlewares/authMiddleware";
 import middy from "../utils/middy";
 
 type Params = {
@@ -34,4 +35,4 @@ export const getBooking = async (event: HandlerEvent) => {
     }
 }
 
-export const handler = middy(getBooking);
+export const handler = middy(getBooking).use(authMiddleware());

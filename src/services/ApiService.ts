@@ -3,18 +3,6 @@ import { doFetch } from "../util";
 class ApiService {
   static baseEndpoint =
     "https://dev--shepherd-tutors.netlify.app/.netlify/functions";
-  // static baseEndpoint = 'https://cors-anywhere.herokuapp.com/https://dev--shepherd-tutors.netlify.app/.netlify/functions';
-
-  static getUser = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/me`);
-  };
-
-  static submitStudentLead = async (data: any) => {
-    return doFetch(`${ApiService.baseEndpoint}/createStudentLead`, {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
-  };
 
   static submitTutorLead = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/createTutorLead`, {
@@ -39,6 +27,13 @@ class ApiService {
 
   static createBooking = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/createBooking`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  };
+
+  static createOfferPaymentIntent = async (data: any) => {
+    return doFetch("/.netlify/functions/createOfferPaymentIntent", {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -76,6 +71,14 @@ class ApiService {
       body: JSON.stringify({ id, note }),
     });
   };
+
+  static withdrawOffer = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/withdrawOffer`, {
+      method: "POST",
+      body: JSON.stringify({ id }),
+    });
+  };
+
   static getAllTutors = async () => {
     return doFetch(`${ApiService.baseEndpoint}/tutors`);
   };
@@ -86,7 +89,6 @@ class ApiService {
         filterParams += !!formData[key] ? `&${key}=${formData[key]}` : "";
       }
     }
-
     return doFetch(
       `${ApiService.baseEndpoint}/tutors?tz=${formData.tz + filterParams}`
     );

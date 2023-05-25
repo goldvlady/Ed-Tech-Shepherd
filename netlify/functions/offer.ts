@@ -2,15 +2,22 @@ import middy from '../utils/middy';
 import { HTTPEvent } from "../types";
 import authMiddleware from '../middlewares/authMiddleware';
 import Offer from '../database/models/Offer';
+import OfferHandler from '../handlers/OfferHandler';
 
-const tutor = async (event: HTTPEvent) => {
-    const { path } = event;
+const offer = async (event: HTTPEvent) => {
+    const { path, queryStringParameters } = event;
     let id = path.replace('/.netlify/functions/offer/', '').replace(/\//gim, '');
 
-    const offer = await Offer.findById(id);
+    const offerHandler = new OfferHandler();
+
+    let offer = await Offer.findById(id);
 
     if (!offer) {
         return { statusCode: 404 }
+    }
+
+    if (queryStringParameters?.payment_intent) {
+        offer = await offerHandler.confirmOffer(offer);
     }
 
     return {
@@ -19,4 +26,4 @@ const tutor = async (event: HTTPEvent) => {
     }
 }
 
-export const handler = middy(tutor)
+export const handler = middy(offer).use(authMiddleware());

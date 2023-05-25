@@ -1,22 +1,14 @@
-import { Alert, AlertDescription, AlertIcon, Avatar, Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Button, Divider, Flex, FormControl, FormErrorMessage, FormLabel, Heading, HStack, Input, InputGroup, InputLeftAddon, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalOverlay, SimpleGrid, Spinner, Text, Textarea, useDisclosure, VStack } from '@chakra-ui/react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Alert, AlertDescription, AlertIcon, Avatar, Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Button, Divider, Flex, FormLabel, HStack, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalOverlay, SimpleGrid, Spinner, Text, Textarea, useDisclosure, VStack } from '@chakra-ui/react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FiArrowRight, FiChevronRight } from 'react-icons/fi';
-import { RiMoneyDollarCircleFill } from 'react-icons/ri';
-import { BsBookmarkStarFill } from 'react-icons/bs';
 import { MdInfo } from 'react-icons/md';
 import { useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
-import ButtonGroup from '../components/ButtonGroup';
 import { BsQuestionCircleFill } from 'react-icons/bs';
 import PageTitle from '../components/PageTitle';
 import Panel from '../components/Panel';
-import Select, { Option } from '../components/Select';
-import TimePicker from '../components/TimePicker';
 import LinedList from '../components/LinedList';
-import { Field, FieldProps, Form, Formik } from 'formik';
-import * as Yup from 'yup';
 import { numberToDayOfWeekName, ServiceFeePercentage } from '../util';
-import LargeSelect from '../components/LargeSelect';
 import theme from '../theme';
 import TutorCard from '../components/TutorCard';
 import ApiService from '../services/ApiService';
@@ -26,6 +18,10 @@ import { useTitle } from '../hooks';
 import { capitalize } from 'lodash';
 import moment from 'moment';
 import userStore from '../state/userStore';
+import PaymentDialog, { PaymentDialogRef } from '../components/PaymentDialog';
+import { Elements } from '@stripe/react-stripe-js';
+import StripeCheckoutForm from '../components/StripeCheckoutForm';
+import { loadStripe } from '@stripe/stripe-js';
 
 const LeftCol = styled(Box)`
 background: #FFF;
@@ -76,16 +72,40 @@ const Offer = () => {
     const { offerId } = useParams() as { offerId: string };
 
     const navigate = useNavigate();
+    const paymentDialogRef = useRef<PaymentDialogRef>(null);
     const [loadingOffer, setLoadingOffer] = useState(false);
+    const [creatingPaymentIntent, setCreatingPaymentIntent] = useState(false);
     const [offer, setOffer] = useState<OfferType | null>(null);
     const [courseList, setCourseList] = useState<Course[]>([]);
     const [loadingCourses, setLoadingCourses] = useState(false);
     const [acceptingOffer, setAcceptingOffer] = useState(false);
     const [declineNote, setDeclineNote] = useState('');
     const [decliningOffer, setDecliningOffer] = useState(false);
+    const [withdrawingOffer, setWithdrawingOffer] = useState(false);
 
     const { isOpen: isOfferAcceptedModalOpen, onOpen: onOfferAcceptedModalOpen, onClose: onOfferAcceptedModalClose } = useDisclosure();
-    const { isOpen: isdeclineOfferModalOpen, onOpen: onDeclineOfferModalOpen, onClose: onDeclineOfferModalClose } = useDisclosure();
+    const { isOpen: isDeclineOfferModalOpen, onOpen: onDeclineOfferModalOpen, onClose: onDeclineOfferModalClose } = useDisclosure();
+    const { isOpen: isWithdrawOfferModalOpen, onOpen: onWithdrawOfferModalOpen, onClose: onWithdrawOfferModalClose } = useDisclosure();
+
+    const url: URL = new URL(window.location.href);
+    const params: URLSearchParams = url.searchParams;
+    const clientSecret = params.get('payment_intent_client_secret');
+
+    const startPayment = async () => {
+        setCreatingPaymentIntent(true);
+        try {
+            const paymentIntent = await ApiService.createOfferPaymentIntent({
+                offerId: offer?._id
+            });
+
+            const data = await paymentIntent.json();
+
+            paymentDialogRef.current?.startPayment(data.clientSecret, `${window.location.href}`)
+        } catch (e) {
+        }
+
+        setCreatingPaymentIntent(false)
+    }
 
     const loadOffer = useCallback(async () => {
         setLoadingOffer(true);
@@ -144,6 +164,18 @@ const Offer = () => {
         setDecliningOffer(false);
     }
 
+    const withdrawOffer = async () => {
+        setWithdrawingOffer(true);
+        try {
+            const resp = await ApiService.withdrawOffer(offer?._id as string);
+            setOffer(await resp.json());
+            onWithdrawOfferModalClose();
+        } catch (e) {
+
+        }
+        setWithdrawingOffer(false);
+    }
+
     useEffect(() => {
         loadCourses();
         loadOffer();
@@ -151,7 +183,15 @@ const Offer = () => {
 
     const loading = loadingOffer;
 
+    const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY as string);
+
     return <Root className='container-fluid'>
+        <PaymentDialog ref={paymentDialogRef} />
+        {!!clientSecret && (
+            <Elements options={{ clientSecret: clientSecret, appearance: { theme: 'stripe' } }} stripe={stripePromise}>
+                <StripeCheckoutForm checkPaymentIntentStatus clientSecret={clientSecret} returnUrl={''} />
+            </Elements>
+        )}
         <Box className='row'>
             <LeftCol className='col-md-8'>
                 {loading && <Box textAlign={'center'}><Spinner /></Box>}
@@ -177,7 +217,31 @@ const Offer = () => {
                             </ModalFooter>
                         </ModalContent>
                     </Modal>
-                    <Modal onOverlayClick={onDeclineOfferModalClose} isOpen={isdeclineOfferModalOpen} onClose={onDeclineOfferModalOpen}>
+                    <Modal isOpen={isWithdrawOfferModalOpen} onClose={onWithdrawOfferModalClose}>
+                        <ModalOverlay />
+                        <ModalContent>
+                            <ModalCloseButton />
+                            <ModalBody>
+                                <Box w={'100%'} mt={5} textAlign='center'>
+                                    <Box display={'flex'} justifyContent='center'>
+                                        <img alt='withdraw offer' src='/images/file-shadow.svg' />
+                                    </Box>
+                                    <Box marginTop={0}>
+                                        <Text className='modal-title'>Withdraw offer</Text>
+                                        <div style={{ color: theme.colors.text[400] }}>Are you sure you want to withdraw your offer to {offer.tutorLead.name.first}?</div>
+                                    </Box>
+                                </Box>
+                            </ModalBody>
+
+                            <ModalFooter>
+                                <HStack gap='20px'>
+                                    <Button variant={'floating'} onClick={() => { }}>Cancel</Button>
+                                    <Button isLoading={withdrawingOffer} margin={'0 !important'} variant={'destructiveSolid'} onClick={withdrawOffer}>Withdraw</Button>
+                                </HStack>
+                            </ModalFooter>
+                        </ModalContent>
+                    </Modal>
+                    <Modal onOverlayClick={onDeclineOfferModalClose} isOpen={isDeclineOfferModalOpen} onClose={onDeclineOfferModalOpen}>
                         <ModalOverlay />
                         <ModalContent>
                             <ModalBody padding={0} flexDirection='column'>
@@ -207,9 +271,10 @@ const Offer = () => {
                         </BreadcrumbItem>
                     </Breadcrumb>
                     {user?.type === 'tutor' && <PageTitle marginTop={'28px'} mb={10} title='Review Offer' subtitle={`Respond to offer from clients, you may also choose to renegotiate`} />}
-                    {user?.type === 'student' && (offer.status === 'accepted' && <PageTitle marginTop={'28px'} mb={10} title='Confirm Offer' subtitle={`Your offer has been accepted, proceed to make payment`} />)}
+                    {user?.type === 'student' && (offer.status === 'accepted' && <PageTitle marginTop={'28px'} mb={10} title={offer.completed ? 'Offer' : 'Confirm Offer'} subtitle={offer.completed ? `Your offer has been completed` : `Your offer has been accepted, proceed to make payment`} />)}
                     {user?.type === 'student' && (offer.status === 'declined' && <PageTitle marginTop={'28px'} mb={10} title='Offer Declined' subtitle={`Your offer has been declined, choose to update or cancel offer`} />)}
                     {user?.type === 'student' && (offer.status === 'draft' && <PageTitle marginTop={'28px'} mb={10} title='Offer' subtitle={`You made an offer to ${offer.tutorLead.name.first}`} />)}
+                    {user?.type === 'student' && (offer.status === 'withdrawn' && <PageTitle marginTop={'28px'} mb={10} title='Offer Withdrawn' subtitle={``} />)}
                     <VStack spacing='32px' alignItems={'stretch'}>
                         {user?.type === 'tutor' && <Panel display={'flex'}>
                             <Box width={"100%"} display={"flex"} flexDirection="row" gap='20px'>
@@ -229,25 +294,52 @@ const Offer = () => {
                         </Panel>}
                         {user?.type === 'student' && <TutorCard tutor={offer.tutorLead} />}
                         <Panel>
+                            <Text className='sub1' mb={0}>Offer Settings</Text>
+                            <Box mt={8}>
+                                <VStack spacing={'24px'} alignItems='flex-start'>
+                                    <Box>
+                                        <FormLabel>Offer expiration date</FormLabel>
+                                        <OfferValueText>{moment(offer.expirationDate).format('MMMM Do YYYY')}</OfferValueText>
+                                    </Box>
+                                    <SimpleGrid width={'100%'} columns={{ base: 1, sm: 2 }} spacing='15px'>
+                                        <Box>
+                                            <FormLabel>Contract starts</FormLabel>
+                                            <OfferValueText>{moment(offer.contractStartDate).format('MMMM Do YYYY')}</OfferValueText>
+                                        </Box>
+                                        <Box>
+                                            <FormLabel>Contract ends</FormLabel>
+                                            <OfferValueText>{moment(offer.contractEndDate).format('MMMM Do YYYY')}</OfferValueText>
+                                        </Box>
+                                    </SimpleGrid>
+
+                                </VStack>
+                            </Box>
+                        </Panel>
+                        <Panel>
                             <Text className='sub1' mb={0}>Offer Details</Text>
                             <Box mt={8}>
                                 <VStack spacing={'24px'} alignItems='flex-start'>
                                     <Box>
-                                        <FormLabel>Subject & Level</FormLabel>
-                                        <OfferValueText>{offer.subjectAndLevel}</OfferValueText>
+                                        <FormLabel>Subject</FormLabel>
+                                        <OfferValueText>{offer.subject}</OfferValueText>
+                                    </Box>
+                                    <Box>
+                                        <FormLabel>Level</FormLabel>
+                                        <OfferValueText>{offer.level}</OfferValueText>
                                     </Box>
                                     <Box>
                                         <FormLabel>What days would you like to have your classes</FormLabel>
-                                        <OfferValueText>{offer.days.map(d => numberToDayOfWeekName(d)).join(', ')}</OfferValueText>
+                                        <OfferValueText>{offer.days.map(d => numberToDayOfWeekName(d, 'ddd')).join(', ')}</OfferValueText>
                                     </Box>
-                                    <Box>
-                                        <FormLabel>Frequency of class sessions</FormLabel>
-                                        <OfferValueText>{scheduleOptions.find(so => so.value === offer.schedule)?.label}</OfferValueText>
-                                    </Box>
-                                    <Box>
-                                        <FormLabel>Time</FormLabel>
-                                        <OfferValueText display='flex' gap='1px' alignItems='center'>{offer.startTime} <FiArrowRight color='#6E7682' size={'15px'} /> {offer.endTime}</OfferValueText>
-                                    </Box>
+                                    {
+                                        (Object.keys(offer.schedule)).map((d) => {
+                                            const n = parseInt(d);
+                                            return <Box key={d}>
+                                                <FormLabel>Time ({numberToDayOfWeekName(n, 'ddd')})</FormLabel>
+                                                <Flex gap='1px' alignItems='center'><OfferValueText>{offer.schedule[n].begin}</OfferValueText><FiArrowRight color='#6E7682' size={'15px'} /><OfferValueText>{offer.schedule[n].end}</OfferValueText></Flex>
+                                            </Box>
+                                        })
+                                    }
                                     <Box>
                                         <FormLabel>Note</FormLabel>
                                         <OfferValueText>{offer.note || '-'}</OfferValueText>
@@ -279,6 +371,14 @@ const Offer = () => {
                                 <AlertIcon><MdInfo color={theme.colors.primary[500]} /></AlertIcon>
                                 <AlertDescription>Initial payment will not be made until after the client reviews the offer after the first session. The client may decide to continue with you or withdraw the offer</AlertDescription>
                             </Alert>}
+                            {user?.type === 'student' && <Alert status='info' mt='22px'>
+                                <AlertIcon><MdInfo color={theme.colors.primary[500]} /></AlertIcon>
+                                <AlertDescription>Payment will not be deducted until after your first lesson, You may decide to cancel after your initial lesson.</AlertDescription>
+                            </Alert>}
+                            <HStack justifyContent={'flex-end'} gap={'19px'} marginTop={'48px'} textAlign='right'>
+                                {offer.status === 'draft' && <Button onClick={() => onWithdrawOfferModalOpen()} size='md' variant='destructiveSolidLight'>Withdraw Offer</Button>}
+                                {offer.status === 'accepted' && !offer.completed && <Button isLoading={creatingPaymentIntent} onClick={startPayment} size='md'>Proceed to Pay</Button>}
+                            </HStack>
                         </Panel>
                     </VStack>
                 </Box>}
