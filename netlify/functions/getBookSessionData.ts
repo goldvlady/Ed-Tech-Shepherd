@@ -1,6 +1,7 @@
 import { HandlerEvent } from "@netlify/functions";
 import StudentLead from "../database/models/StudentLead";
 import TutorLead from "../database/models/TutorLead";
+import authMiddleware from "../middlewares/authMiddleware";
 import middy from "../utils/middy";
 
 type Params = {
@@ -32,4 +33,4 @@ export const getBookSessionData = async (event: HandlerEvent) => {
     }
 }
 
-export const handler = middy(getBookSessionData);
+export const handler = middy(getBookSessionData).use(authMiddleware());

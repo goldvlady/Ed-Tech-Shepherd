@@ -2,6 +2,7 @@ import { HandlerEvent } from "@netlify/functions";
 import Offer from "../database/models/Offer";
 import Stripe from "../utils/stripe"
 import middy from "../utils/middy";
+import authMiddleware from "../middlewares/authMiddleware";
 
 const createOfferPaymentIntent = async (event: HandlerEvent) => {
     const data = JSON.parse(event.body as string);
@@ -33,4 +34,4 @@ const createOfferPaymentIntent = async (event: HandlerEvent) => {
     }
 }
 
-export const handler = middy(createOfferPaymentIntent);
+export const handler = middy(createOfferPaymentIntent).use(authMiddleware());
