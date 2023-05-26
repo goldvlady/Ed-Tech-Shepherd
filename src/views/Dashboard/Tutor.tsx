@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Box,
   Container,
   Grid,
@@ -33,6 +34,8 @@ import {
   TableCaption,
   TableContainer,
   Divider,
+  AspectRatio,
+  VStack,
 } from "@chakra-ui/react";
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -42,9 +45,12 @@ import { CustomButton } from "./layout";
 import FileAvi from "../../assets/file-avi.svg";
 import FileAvi2 from "../../assets/file-avi2.svg";
 import TutorAvi from "../../assets/tutoravi.svg";
+import Day from "../../assets/day.svg";
 import Star from "../../assets/littleStar.svg";
+import Star4 from "../../assets/4star.svg";
 import HowItWorks from "./components/HowItWorks";
 import ApiService from "../../services/ApiService";
+import LinedList from "../../components/LinedList";
 
 // /dashboard/tutor/${tutorId}/offer
 export default function Tutor() {
@@ -76,147 +82,273 @@ export default function Tutor() {
         gap={3}
       >
         <GridItem rowSpan={2} colSpan={2}>
-          <Card>
-            <CardBody>
-              <Stack px={3} spacing={2} direction={"column"}>
-                <Flex>
-                  <Image
-                    objectFit="cover"
-                    boxSize="100%"
-                    width={"125px"}
-                    borderRadius="8px"
-                    h={"125px"}
-                    src={tutorData.avatar}
-                  />
-                  <Stack direction={"column"} px={4}>
-                    <Text fontSize={"16px"} fontWeight={"semibold"} mb={0}>
-                      {Object.keys(tutorData).length > 0 &&
-                        `${tutorData.name?.first} ${tutorData.name?.last}`}
-                      <Text
-                        fontWeight={400}
-                        color={"#212224"}
-                        fontSize="14px"
-                        mb={"2px"}
-                      >
-                        {tutorData.highestLevelOfEducation}
-                      </Text>
-                    </Text>
-                    <Spacer />
-                    <Text fontSize={12} fontWeight={400} color="#6E7682">
-                      <span style={{ display: "inline-block" }}>
-                        <img src={Star} />
-                      </span>
-                      4.2(175)
-                    </Text>
-                  </Stack>
+          <Center py={6}>
+            <Box
+              maxW={"100%"}
+              w={"full"}
+              bg={useColorModeValue("white", "gray.800")}
+              boxShadow={"2xl"}
+              rounded={"md"}
+              overflow={"hidden"}
+            >
+              <AspectRatio h={"173px"} w={"full"} ratio={1} objectFit={"cover"}>
+                <iframe
+                  title="naruto"
+                  src="https://www.youtube.com/embed/QhBnZ6NPOY0"
+                  allowFullScreen
+                />
+              </AspectRatio>
+              {/* <Image
+                h={"120px"}
+                w={"full"}
+                src={
+                  "https://images.unsplash.com/photo-1612865547334-09cb8cb455da?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80"
+                }
+                
+              /> */}
+              <Flex justify={"left"} mt={-12}>
+                <Avatar
+                  size={"xl"}
+                  src={tutorData.avatar}
+                  ml={6}
+                  //   alt={"Author"}
+                  css={{
+                    border: "4px solid white",
+                  }}
+                />
+              </Flex>
 
-                  <Spacer />
-                  <Text fontSize={16} fontWeight={"semibold"}>
-                    $22.00/hr
+              <Box p={6}>
+                <VStack spacing={0} align={"left"} mb={5} gap={2}>
+                  <Text fontSize={"16px"} fontWeight={"semibold"} mb={0}>
+                    {Object.keys(tutorData).length > 0 &&
+                      `${tutorData.name?.first} ${tutorData.name?.last}`}
                   </Text>
-                </Flex>
-              </Stack>
-              <Box mt={10}>
-                <Flex alignItems={"center"}>
-                  <Text>ABOUT ME</Text>
-                  <Spacer />
+                  <Text
+                    fontWeight={400}
+                    color={"#212224"}
+                    fontSize="14px"
+                    mb={"2px"}
+                  >
+                    {tutorData.highestLevelOfEducation}
+                  </Text>
+                  <Text fontSize={12} fontWeight={400} color="#6E7682">
+                    <span style={{ display: "inline-block" }}>
+                      <img src={Star} />
+                    </span>
+                    4.2(175)
+                  </Text>
                   <Button
-                    variant="outline"
+                    variant="unstyled"
                     color="#585F68"
+                    border="1px solid #E7E8E9"
+                    borderRadius="6px"
                     fontSize="12px"
                     leftIcon={<img src={Ribbon} alt="save" />}
+                    p={"7px 10px"}
+                    w={"110px"}
+                    display="flex"
+                    my={5}
                   >
                     Save Profile
                   </Button>
-                </Flex>
+                  <Spacer />
+                  <Box my={14}>
+                    <Text fontSize={"12px"} color="text.400" my={3}>
+                      ABOUT ME
+                    </Text>
+                    <Text fontSize={"14px"} my={2}>
+                      {tutorData.description}
+                    </Text>
+                  </Box>
+
+                  <Box my={10} zIndex={2}>
+                    <Tabs>
+                      <TabList className="tab-list">
+                        <Tab>REVIEWS</Tab>
+                        <Tab>QUALIFICATIONS</Tab>
+                        <Tab>AVAILABILITY</Tab>
+                        <Tab>SUBJECT OFFERED</Tab>
+                      </TabList>
+
+                      <TabPanels>
+                        <TabPanel>
+                          <Flex px={3} gap={0} direction={"row"} my={2}>
+                            <Avatar
+                              name="Kola Tioluwani"
+                              src="https://bit.ly/tioluwani-kolawole"
+                            />
+
+                            <Stack direction={"column"} px={4} spacing={1}>
+                              <Box>
+                                <Image src={Star4} height="14px" />{" "}
+                                <Text
+                                  fontSize={"16px"}
+                                  fontWeight={"500"}
+                                  mb={0}
+                                >
+                                  Jennifer A. Peters
+                                </Text>
+                                <Text
+                                  fontWeight={400}
+                                  color={"#585F68"}
+                                  fontSize="14px"
+                                  mb={"2px"}
+                                >
+                                  Quam eros suspendisse a pulvinar sagittis
+                                  mauris. Vel duis adipiscing id faucibuseltu
+                                  consectetur amet. Tempor dui quam scelerisque
+                                  at tempor aliquam. Vivamus aenean hendrerit
+                                  turpis velit pretium.
+                                </Text>
+                              </Box>
+
+                              <Divider />
+                            </Stack>
+                          </Flex>
+                        </TabPanel>
+                        <TabPanel>
+                          <Flex px={3} gap={0} direction={"row"} my={2}>
+                            <Image src={FileAvi2} alt="qualification" mb={4} />
+                            <Stack direction={"column"} px={4} spacing={1}>
+                              <Text fontSize={"16px"} fontWeight={"500"} mb={0}>
+                                Indian Institute of Management (IIM), Bangalore
+                              </Text>
+                              <Text
+                                fontWeight={400}
+                                color={"#585F68"}
+                                fontSize="14px"
+                                mb={"2px"}
+                              >
+                                Master of Business Administration (MBA),
+                                Information System
+                              </Text>
+
+                              <Spacer />
+                              <Text
+                                fontSize={12}
+                                fontWeight={400}
+                                color="#6E7682"
+                              >
+                                2008-2010
+                              </Text>
+                              <Divider />
+                            </Stack>
+                          </Flex>
+                        </TabPanel>
+                        <TabPanel>
+                          <TableContainer my={4}>
+                            <Box
+                              border={"1px solid #EEEFF2"}
+                              borderRadius={8}
+                              py={3}
+                            >
+                              <Table variant="simple">
+                                {/* <TableCaption>Imperial to metric conversion factors</TableCaption> */}
+                                <Thead>
+                                  <Tr>
+                                    <Th>Mon</Th>
+                                    <Th>Tue</Th>
+                                    <Th>Wed</Th>
+                                    <Th>Thur</Th>
+                                    <Th>Fri</Th>
+                                    <Th>Sat</Th>
+                                    <Th>Sun</Th>
+                                  </Tr>
+                                </Thead>
+                                <Tbody>
+                                  <Tr>
+                                    <Td bgColor={"#FAFAFA"}>
+                                      <Text
+                                        color="text.300"
+                                        fontSize={14}
+                                        fontWeight={500}
+                                        display="flex"
+                                      >
+                                        <Image src={Day} mr={3} /> 8AM {"->"}{" "}
+                                        12PM
+                                      </Text>
+                                    </Td>
+                                    {/* <Td>GCSE</Td>
+                                    <Td>$10.00/hr</Td> */}
+                                  </Tr>
+                                  <Tr>
+                                    <Td bgColor={"#FAFAFA"}>
+                                      {" "}
+                                      <Text
+                                        color="text.300"
+                                        fontSize={14}
+                                        fontWeight={500}
+                                        display="flex"
+                                      >
+                                        <Image src={Day} mr={3} /> 12PM {"->"}{" "}
+                                        5PM
+                                      </Text>
+                                    </Td>
+                                  </Tr>
+                                  <Tr>
+                                    <Td bgColor={"#FAFAFA"}>
+                                      {" "}
+                                      <Text
+                                        color="text.300"
+                                        fontSize={14}
+                                        fontWeight={500}
+                                        display="flex"
+                                      >
+                                        <Image src={Day} mr={3} /> 5PM {"->"}{" "}
+                                        9PM
+                                      </Text>
+                                    </Td>
+                                  </Tr>
+                                </Tbody>
+                              </Table>
+                            </Box>
+                          </TableContainer>
+                        </TabPanel>
+                        <TabPanel>
+                          <TableContainer my={4}>
+                            <Box
+                              border={"1px solid #EEEFF2"}
+                              borderRadius={8}
+                              py={3}
+                            >
+                              <Table variant="simple">
+                                {/* <TableCaption>Imperial to metric conversion factors</TableCaption> */}
+                                <Thead>
+                                  <Tr>
+                                    <Th></Th>
+                                    <Th>Qualification</Th>
+                                    <Th>Price</Th>
+                                  </Tr>
+                                </Thead>
+                                <Tbody>
+                                  <Tr>
+                                    <Td bgColor={"#FAFAFA"}>Economics</Td>
+                                    <Td>GCSE</Td>
+                                    <Td>$10.00/hr</Td>
+                                  </Tr>
+                                  <Tr>
+                                    <Td bgColor={"#FAFAFA"}>Maths</Td>
+                                    <Td>A-level</Td>
+                                    <Td>$10.00/hr</Td>
+                                  </Tr>
+                                  <Tr>
+                                    <Td bgColor={"#FAFAFA"}>Yoruba</Td>
+                                    <Td>Grade 12</Td>
+                                    <Td>$10.00/hr</Td>
+                                  </Tr>
+                                </Tbody>
+                              </Table>
+                            </Box>
+                          </TableContainer>
+                        </TabPanel>
+                      </TabPanels>
+                    </Tabs>
+                  </Box>
+                </VStack>
               </Box>
-              <Text fontSize={"14px"} my={2}>
-                {tutorData.description}
-              </Text>
-
-              <Box my={7}>
-                <Tabs>
-                  <TabList className="tab-list">
-                    <Tab>REVIEWS</Tab>
-                    <Tab>QUALIFICATIONS</Tab>
-                    <Tab>AVAILABILITY</Tab>
-                    <Tab>SUBJECT OFFERED</Tab>
-                  </TabList>
-
-                  <TabPanels>
-                    <TabPanel>
-                      <p>0 reviews</p>
-                    </TabPanel>
-                    <TabPanel>
-                      <Flex px={3} gap={0} direction={"row"} my={2}>
-                        <img src={FileAvi2} alt="qualification" />
-                        <Stack direction={"column"} px={4} spacing={1}>
-                          <Text fontSize={"16px"} fontWeight={"500"} mb={0}>
-                            Indian Institute of Management (IIM), Bangalore
-                          </Text>
-                          <Text
-                            fontWeight={400}
-                            color={"#585F68"}
-                            fontSize="14px"
-                            mb={"2px"}
-                          >
-                            Master of Business Administration (MBA), Information
-                            System
-                          </Text>
-
-                          <Spacer />
-                          <Text fontSize={12} fontWeight={400} color="#6E7682">
-                            2008-2010
-                          </Text>
-                          <Divider />
-                        </Stack>
-                      </Flex>
-                    </TabPanel>
-                    <TabPanel>
-                      <p>three!</p>
-                    </TabPanel>
-                    <TabPanel>
-                      <TableContainer my={4}>
-                        <Box
-                          border={"1px solid #EEEFF2"}
-                          borderRadius={8}
-                          py={3}
-                        >
-                          <Table variant="simple">
-                            {/* <TableCaption>Imperial to metric conversion factors</TableCaption> */}
-                            <Thead>
-                              <Tr>
-                                <Th></Th>
-                                <Th>Qualification</Th>
-                                <Th>Price</Th>
-                              </Tr>
-                            </Thead>
-                            <Tbody>
-                              <Tr>
-                                <Td bgColor={"#FAFAFA"}>Economics</Td>
-                                <Td>GCSE</Td>
-                                <Td>$10.00/hr</Td>
-                              </Tr>
-                              <Tr>
-                                <Td bgColor={"#FAFAFA"}>Maths</Td>
-                                <Td>A-level</Td>
-                                <Td>$10.00/hr</Td>
-                              </Tr>
-                              <Tr>
-                                <Td bgColor={"#FAFAFA"}>Yoruba</Td>
-                                <Td>Grade 12</Td>
-                                <Td>$10.00/hr</Td>
-                              </Tr>
-                            </Tbody>
-                          </Table>
-                        </Box>
-                      </TableContainer>
-                    </TabPanel>
-                  </TabPanels>
-                </Tabs>
-              </Box>
-            </CardBody>
-          </Card>
+            </Box>
+          </Center>
         </GridItem>
         <GridItem h={305}>
           <Card py={8}>
@@ -268,7 +400,26 @@ export default function Tutor() {
               <Text mx={2}>How this Works</Text>
             </Box>
             <CardBody>
-              <HowItWorks />
+              <LinedList
+                // mt={"30px"}
+                items={[
+                  {
+                    title: "Send a Proposal",
+                    subtitle:
+                      "Find your desired tutor and prepare an offer on your terms and send to the tutor",
+                  },
+                  {
+                    title: "Get a Response",
+                    subtitle:
+                      "Proceed to provide your payment details once the tutor accepts your offer",
+                  },
+                  {
+                    title: "A Test-Run",
+                    subtitle:
+                      "You won’t be charged until after your first session, you may cancel after the first lesson.",
+                  },
+                ]}
+              />
             </CardBody>
           </Card>
         </GridItem>
