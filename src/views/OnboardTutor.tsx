@@ -25,9 +25,10 @@ import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import { storage } from '../firebase';
 import { getOptionValue } from '../util';
 import FileDisplay from '../components/FileDisplay';
-import { Course, Schedule } from '../types';
+import { Course } from '../types';
 
 import DateInput, { FORMAT } from '../components/DateInput';
+import { FORMAT as TIME_PICKER_FORMAT } from '../components/TimePicker';
 import { formatContentFulCourse, getContentfulClient } from '../contentful';
 import mixpanel from 'mixpanel-browser';
 import CreatableSelect from '../components/CreatableSelect';
@@ -113,7 +114,7 @@ const OnboardTutor = () => {
     const { name, dob, email, courses, schedule, tz, occupation, highestLevelOfEducation, rate, cv, avatar, description, teachLevel } = data;
 
     const totalAvailableHours = useMemo(() => sumBy(Object.keys(schedule).map(function(key: any) { return schedule[key]; }).flat(), (o) => {
-        return moment.duration(moment(o.end).diff(moment(o.begin))).asHours();
+        return moment.duration(moment(o.end, TIME_PICKER_FORMAT).diff(moment(o.begin, TIME_PICKER_FORMAT))).asHours();
     }), [schedule]);
 
     const dobValid = moment(dob, FORMAT, true).isValid();

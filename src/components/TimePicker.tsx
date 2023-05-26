@@ -19,6 +19,8 @@ interface TimePickerProps {
   inputGroupProps?: React.ComponentProps<typeof InputGroup>;
 }
 
+export const FORMAT = 'hh:mm A';
+
 const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, inputProps = {}, inputGroupProps = {} }) => {
   const [hours, setHours] = useState<string>('')
   const [minutes, setMinutes] = useState<string>('')
