@@ -305,7 +305,6 @@ const SendTutorOffer = () => {
                                                         tagVariant="solid"
                                                         placeholder="Select days"
                                                         options={dayOptions}
-                                                        isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}
                                                         size={'md'}
                                                         onFocus={() => form.setTouched({ ...form.touched, [field.name]: true })}
                                                         // @ts-ignore
@@ -349,7 +348,7 @@ const SendTutorOffer = () => {
                                                     {isEditing ? <TimePicker inputProps={{ placeholder: '00:00 AM' }} value={values.schedule[d]?.begin ?? ''} onChange={(v) => setScheduleValue(v, d, 'begin')} /> : <EditField>{values.schedule[d]?.begin}</EditField>}
                                                     <Box mt={2}>
                                                     <Text className='body2' mb={0}>{capitalize(tutor.name.first)} is available on {numberToDayOfWeekName(d)}s at these times:</Text>
-                                                    {tutor.schedule[d].map(s => <Text className='body3' mb={0}>{s.begin} - {s.end}</Text>)}
+                                                    {!!tutor.schedule[d] && tutor.schedule[d].map(s => <Text className='body3' mb={0}>{s.begin} - {s.end}</Text>)}
                                                     </Box>
                                                 </FormControl>
                                                 <FormControl>
