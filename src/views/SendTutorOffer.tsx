@@ -142,9 +142,8 @@ const SendTutorOffer = () => {
         formikRef.current?.setFieldValue('schedule', scheduleValue)
     }
 
-    const dayOptions = [...new Array(7)].map((_, i) => {
-        const tutorIsAvailableOnThisDay = !!tutor?.schedule[i];
-        return { label: <span>{numberToDayOfWeekName(i)} {!tutorIsAvailableOnThisDay && <>- <span style={{fontSize: '12px'}}>{tutor?.name.first} is unavailable on this day</span></>}</span>, value: i, isDisabled: !tutorIsAvailableOnThisDay }
+    const dayOptions = [...new Array(7)].filter((_, i) => !!tutor?.schedule[i]).map((_, i) => {
+        return { label: numberToDayOfWeekName(i), value: i }
     });
 
     return <Root className='container-fluid'>
