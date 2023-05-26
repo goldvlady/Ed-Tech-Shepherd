@@ -1,7 +1,6 @@
 import { Schema, model } from "mongoose";
 import { TimestampedEntity } from "../../types";
-import { StudentLead as StudentLeadInterface } from "./StudentLead";
-import { TutorLead as TutorLeadInterface } from "./TutorLead";
+import { Offer } from "./Offer";
 
 export enum Status {
     CONFIRMED = "confirmed",
@@ -9,29 +8,27 @@ export enum Status {
 }
 
 export interface Booking extends TimestampedEntity {
-    tutorLead: TutorLeadInterface;
-    studentLead: StudentLeadInterface;
-    paystackReference: string;
-    amountPaid: number;
+    stripeReference: string;
+    amountPaid?: number;
     course: string;
     status: Status;
     conferenceHostRoomUrl?: string;
     conferenceRoomUrl?: string;
     startDate: Date;
     endDate: Date;
+    offer: Offer;
 }
 
 const schema = new Schema<Booking>({
-    tutorLead: { type: Schema.Types.ObjectId, ref: "TutorLead", autopopulate: true },
-    studentLead: { type: Schema.Types.ObjectId, ref: "StudentLead", autopopulate: true },
-    paystackReference: { type: String, required: false },
-    amountPaid: { type: Number, required: true },
+    stripeReference: { type: String, required: false },
+    amountPaid: { type: Number, required: false },
     course: { type: String, required: true },
     status: { type: String, enum: Status, default: Status.UNCONFIRMED },
     conferenceHostRoomUrl: { type: String, required: false },
     conferenceRoomUrl: { type: String, required: false },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
+    offer: { type: Schema.Types.ObjectId, ref: "Offer", autopopulate: true },
 }, { timestamps: true });
 
 schema.plugin(require('mongoose-autopopulate'));
