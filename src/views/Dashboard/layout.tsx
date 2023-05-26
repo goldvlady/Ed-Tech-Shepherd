@@ -145,7 +145,11 @@ export const CustomButton = (props: any) => {
       bg={buttonType === "outlined" ? "transparent" : "#207DF7"}
       borderColor={buttonType === "outlined" ? "transparent" : "#ccd0d5"}
       color={buttonType === "outlined" ? "#207DF7" : "#fff"}
-      _hover={{ bg: buttonType === "outlined" ? "#E2E8F0" : "#1964c5" }}
+      _hover={{
+        bg: buttonType === "outlined" ? "#E2E8F0" : "#1964c5",
+        transform: "translateY(-2px)",
+        boxShadow: "lg",
+      }}
       _active={{
         bg: "#dddfe2",
         transform: "scale(0.98)",

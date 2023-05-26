@@ -45,7 +45,7 @@ export default function TutorCard(props: any) {
             />
           </Flex>
           <Stack pt={1} spacing={2} direction={"column"}>
-            <LinkOverlay href={`/find-tutor/tutor/?id=${id}`}>
+            <LinkOverlay href={`/dashboard/find-tutor/tutor/?id=${id}`}>
               <Text fontSize={"16px"} fontWeight={"semibold"} mb={0}>
                 {name}
                 <Text
