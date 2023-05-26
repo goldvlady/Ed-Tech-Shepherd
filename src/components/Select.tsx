@@ -1,4 +1,6 @@
 import { Select } from 'chakra-react-select';
+import { Checkbox, Flex } from '@chakra-ui/react';
+import styled from 'styled-components';
 
 export interface Option {
     value: string
@@ -7,8 +9,32 @@ export interface Option {
 
 type Props = React.ComponentProps<typeof Select>;
 
-const SelectComponent: React.FC<Props> = ({ ...rest }) => {
-    return <Select closeMenuOnSelect={false} chakraStyles={{
+const StyledCheckbox = styled(Checkbox)`
+display: none;
+pointer-events: none;
+[data-invalid] {
+    border-color: inherit !important;
+}
+`
+
+const StyledSelect = styled(Select)`
+[role="button"] {
+    ${StyledCheckbox} {
+        display: flex;
+    }
+}
+`
+
+const SelectComponent: React.FC<Props> = ({ options, ...rest }) => {
+
+    return <StyledSelect options={(options as Option[]).map(o => {
+        if (rest.isMulti) {
+            const isSelected = !![...rest.defaultValue as Option[]].find(v => v.value === o.value);
+            return { ...o, label: <Flex gap={'5px'}><StyledCheckbox readOnly isChecked={isSelected} /> {o.label}</Flex> }
+        }
+
+        return o;
+    })} closeMenuOnSelect={!rest.isMulti} hideSelectedOptions={false} chakraStyles={{
         menu: () => ({
             zIndex: 9999,
             position: 'absolute',
