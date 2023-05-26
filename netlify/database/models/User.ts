@@ -15,6 +15,7 @@ export interface User extends TimestampedEntity {
     studentLead?: typeof StudentLead;
     attachLeads: () => Promise<User>;
     type: 'student' | 'tutor';
+    stripeCustomerId?: string;
 }
 
 const schema = new Schema<User>({
@@ -26,7 +27,8 @@ const schema = new Schema<User>({
     },
     email: { type: String, required: true, unique: true },
     firebaseId: { type: String, required: true },
-    avatar: { type: String, required: false }
+    avatar: { type: String, required: false },
+    stripeCustomerId: { type: String, required: false }
 }, {
     timestamps: true,
     toJSON: { virtuals: true },
