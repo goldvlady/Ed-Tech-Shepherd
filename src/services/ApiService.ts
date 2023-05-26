@@ -1,95 +1,109 @@
-import { doFetch } from "../util"
+import { doFetch } from "../util";
 
 class ApiService {
-    static baseEndpoint = '/.netlify/functions';
+  static baseEndpoint =
+    "https://dev--shepherd-tutors.netlify.app/.netlify/functions";
 
-    static getUser = async () => {
-        return doFetch(`${ApiService.baseEndpoint}/me`); 
-    }
-    
-    static submitStudentLead = async (data: any) => {
-        return doFetch(`${ApiService.baseEndpoint}/createStudentLead`, {
-            method: "POST",
-            body: JSON.stringify(data)
-        })
-    }
+  static getUser = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/me`);
+  };
 
-    static submitTutorLead = async (data: any) => {
-        return doFetch(`${ApiService.baseEndpoint}/createTutorLead`, {
-            method: "POST",
-            body: JSON.stringify(data)
-        })
-    }
+  static submitStudentLead = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/createStudentLead`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  };
 
-    static getBookSessionData = async (data: any) => {
-        return doFetch(`${ApiService.baseEndpoint}/getBookSessionData?${new URLSearchParams(data)}`)
-    }
+  static submitTutorLead = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/createTutorLead`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  };
 
-    static getBooking = async (id: string) => {
-        return doFetch(`${ApiService.baseEndpoint}/getBooking?id=${id}`)
-    }
+  static getBookSessionData = async (data: any) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/getBookSessionData?${new URLSearchParams(
+        data
+      )}`
+    );
+  };
 
-    // Payments
+  static getBooking = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/getBooking?id=${id}`);
+  };
 
-    static createBooking = async (data: any) => {
-        return doFetch(`${ApiService.baseEndpoint}/createBooking`, {
-            method: "POST",
-            body: JSON.stringify(data)
-        })
-    }
+  // Payments
 
-    static createOfferPaymentIntent = async (data: any) => {
-        return doFetch('/.netlify/functions/createOfferPaymentIntent', {
-            method: "POST",
-            body: JSON.stringify(data)
-        })
-    }
+  static createBooking = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/createBooking`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  };
 
-    // Tutor
+  static createOfferPaymentIntent = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/createOfferPaymentIntent`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  };
 
-    static getTutor = async(id: string) => {
-        return doFetch(`${ApiService.baseEndpoint}/tutor/${id}`);
-    }
-    static getFilteredTutors = async(id?: string) => {
-        return doFetch(`${ApiService.baseEndpoint}/tutor/${id}`);
-    }
-    static getAllTutors = async(id?: string) => {
-        return doFetch(`${ApiService.baseEndpoint}/tutor/${id}`);
-    }
+  // Tutor
 
-    // Offer
+  static getTutor = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/tutor/${id}`);
+  };
 
-    static getOffer = async(id: string) => {
-        return doFetch(`${ApiService.baseEndpoint}/offer/${id}`);
-    }
+  // Offer
 
-    static createOffer = async (data: any) => {
-        return doFetch(`${ApiService.baseEndpoint}/createOffer`, {
-            method: "POST",
-            body: JSON.stringify(data)
-        })
-    }
+  static getOffer = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/offer/${id}`);
+  };
 
-    static acceptOffer = async (id: string) => {
-        return doFetch(`${ApiService.baseEndpoint}/acceptOffer`, {
-            method: "POST",
-            body: JSON.stringify({id})
-        })
-    }
+  static createOffer = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/createOffer`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  };
 
-    static declineOffer = async (id: string, note: string) => {
-        return doFetch(`${ApiService.baseEndpoint}/declineOffer`, {
-            method: "POST",
-            body: JSON.stringify({id, note})
-        })
-    }
+  static acceptOffer = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/acceptOffer`, {
+      method: "POST",
+      body: JSON.stringify({ id }),
+    });
+  };
 
-    static withdrawOffer = async (id: string) => {
-        return doFetch(`${ApiService.baseEndpoint}/withdrawOffer`, {
-            method: "POST",
-            body: JSON.stringify({id})
-        })
+  static declineOffer = async (id: string, note: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/declineOffer`, {
+      method: "POST",
+      body: JSON.stringify({ id, note }),
+    });
+  };
+
+  static withdrawOffer = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/withdrawOffer`, {
+      method: "POST",
+      body: JSON.stringify({ id }),
+    });
+  };
+
+  static getAllTutors = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/tutors`);
+  };
+  static getFilteredTutors = async (formData: any) => {
+    let filterParams = "";
+    for (const key in formData) {
+      if (key != "tz") {
+        filterParams += !!formData[key] ? `&${key}=${formData[key]}` : "";
+      }
     }
+    return doFetch(
+      `${ApiService.baseEndpoint}/tutors?tz=${formData.tz + filterParams}`
+    );
+  };
 }
 
-export default ApiService
+export default ApiService;
