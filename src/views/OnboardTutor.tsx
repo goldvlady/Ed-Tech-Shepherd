@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import StepIndicator from '../components/StepIndicator';
 import { FiUser, FiCalendar, FiBookOpen, FiDollarSign, FiEdit } from "react-icons/fi";
-import { Box, FormLabel, Heading, Input, Text, CircularProgress, InputGroup, InputLeftAddon, Alert, AlertIcon, VStack, useToast, Flex, IconButton, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, useDisclosure, StackDivider, Avatar, Textarea, FormControl } from '@chakra-ui/react';
+import { Box, FormLabel, Heading, Input, Text, CircularProgress, InputGroup, InputLeftAddon, Alert, AlertIcon, VStack, useToast, Flex, IconButton, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, useDisclosure, StackDivider, Avatar, Textarea, FormControl, AlertDescription } from '@chakra-ui/react';
 import StepWizard, { StepWizardProps } from 'react-step-wizard';
 import OnboardStep from '../components/OnboardStep';
 import onboardTutorStore from '../state/onboardTutorStore';
@@ -31,6 +31,8 @@ import DateInput, { FORMAT } from '../components/DateInput';
 import { formatContentFulCourse, getContentfulClient } from '../contentful';
 import mixpanel from 'mixpanel-browser';
 import CreatableSelect from '../components/CreatableSelect';
+import { MdInfo } from 'react-icons/md';
+import theme from '../theme';
 
 const occupationOptions = occupationList.map((o) => {
     return { label: o, value: o }
@@ -110,7 +112,7 @@ const OnboardTutor = () => {
     const data = onboardTutorStore.useStore();
     const { name, dob, email, courses, schedule, tz, occupation, highestLevelOfEducation, rate, cv, avatar, description, teachLevel } = data;
 
-    const totalAvailableHours = useMemo(() => sumBy(schedule, (o) => {
+    const totalAvailableHours = useMemo(() => sumBy(Object.keys(schedule).map(function(key: any) { return schedule[key]; }).flat(), (o) => {
         return moment.duration(moment(o.end).diff(moment(o.begin))).asHours();
     }), [schedule]);
 
@@ -336,9 +338,7 @@ const OnboardTutor = () => {
                 },
                 {
                     title: 'Schedule',
-                    value: <Text marginBottom={0} whiteSpace={'pre'}>{schedule.map((s: Schedule) => {
-                        return `${moment(s.begin).format('dddd')}: ${moment(s.begin).tz(tz).format('hh:mm A')} - ${moment(s.end).tz(tz).format('hh:mm A')}`
-                    }).join("\n")}</Text>,
+                    value: <Text marginBottom={0} whiteSpace={'pre'}></Text>,
                     step: 'availability',
                 }
             ]
@@ -550,12 +550,14 @@ const OnboardTutor = () => {
                 </FormControl>
                 <Box mt={"20px"}>
                     {totalAvailableHours > 0 && totalAvailableHours < 3 && <Box mb={"15px"}>
-                        <Alert status='info'>
-                            <AlertIcon />
-                            A minimum availability of 3 hours per week is required.
+                        <Alert alignItems={'center'} status='info'>
+                            <AlertIcon><MdInfo color={theme.colors.primary[500]} /></AlertIcon>
+                            <AlertDescription>A minimum availability of 3 hours per week is required.</AlertDescription>
                         </Alert>
                     </Box>}
-                    <ScheduleBuilder value={schedule} onChange={(v) => onboardTutorStore.set.schedule(v)} />
+                    <ScheduleBuilder value={schedule} onChange={(v) => {
+                        onboardTutorStore.set.schedule(v)
+                    }} />
                 </Box>
             </Box>,
             canSave: validateScheduleStep,

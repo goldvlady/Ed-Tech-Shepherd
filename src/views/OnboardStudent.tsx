@@ -218,8 +218,8 @@ const OnboardStudent = () => {
                 },
                 {
                     title: 'Schedule',
-                    value: <Text marginBottom={0} whiteSpace={'pre'}>{schedule.map((s: Schedule) => {
-                        return `${moment(s.begin).format('dddd')}: ${moment(s.begin).tz(tz).format('hh:mm A')} - ${moment(s.end).tz(tz).format('hh:mm A')}`
+                    value: <Text marginBottom={0} whiteSpace={'pre'}>{Object.keys(schedule).map(d => parseInt(d)).map((s) => {
+                        return schedule[s].map(s => `${moment(s.begin).format('dddd')}: ${moment(s.begin).tz(tz).format('hh:mm A')} - ${moment(s.end).tz(tz).format('hh:mm A')}`)
                     }).join("\n")}</Text>,
                     step: 'availability',
                 }

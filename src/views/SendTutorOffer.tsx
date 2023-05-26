@@ -26,7 +26,7 @@ import { useTitle } from '../hooks';
 import { scheduleOptions } from './Offer';
 import DateInput from '../components/DateInput';
 import CalendarDateInput from '../components/CalendarDateInput';
-import { isEmpty } from 'lodash';
+import { capitalize, isEmpty } from 'lodash';
 import moment from 'moment';
 
 const LeftCol = styled(Box)`
@@ -88,10 +88,6 @@ const SendTutorOffer = () => {
     }
 `
 
-    const dayOptions = [...new Array(7)].map((_, i) => {
-        return { label: numberToDayOfWeekName(i), value: i }
-    });
-
     const { isOpen: isSuccessModalOpen, onOpen: onSuccessModalOpen, onClose: onSuccessModalClose } = useDisclosure();
 
     const loadTutor = useCallback(async () => {
@@ -145,6 +141,11 @@ const SendTutorOffer = () => {
         scheduleValue[day] = { ...scheduleValue[day], [property]: value }
         formikRef.current?.setFieldValue('schedule', scheduleValue)
     }
+
+    const dayOptions = [...new Array(7)].map((_, i) => {
+        const tutorIsAvailableOnThisDay = !!tutor?.schedule[i];
+        return { label: <span>{numberToDayOfWeekName(i)} {!tutorIsAvailableOnThisDay && <>- <span style={{fontSize: '12px'}}>{tutor?.name.first} is unavailable on this day</span></>}</span>, value: i, isDisabled: !tutorIsAvailableOnThisDay }
+    });
 
     return <Root className='container-fluid'>
         <Box className='row'>
@@ -346,6 +347,10 @@ const SendTutorOffer = () => {
                                                 <FormControl>
                                                     <FormLabel>Start time ({numberToDayOfWeekName(d, 'ddd')})</FormLabel>
                                                     {isEditing ? <TimePicker inputProps={{ placeholder: '00:00 AM' }} value={values.schedule[d]?.begin ?? ''} onChange={(v) => setScheduleValue(v, d, 'begin')} /> : <EditField>{values.schedule[d]?.begin}</EditField>}
+                                                    <Box mt={2}>
+                                                    <Text className='body2' mb={0}>{capitalize(tutor.name.first)} is available on {numberToDayOfWeekName(d)}s at these times:</Text>
+                                                    {tutor.schedule[d].map(s => <Text className='body3' mb={0}>{s.begin} - {s.end}</Text>)}
+                                                    </Box>
                                                 </FormControl>
                                                 <FormControl>
                                                     <FormLabel>End time ({numberToDayOfWeekName(d, 'ddd')})</FormLabel>

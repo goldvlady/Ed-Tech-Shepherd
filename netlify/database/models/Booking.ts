@@ -1,6 +1,5 @@
 import { Schema, model } from "mongoose";
 import { TimestampedEntity } from "../../types";
-import scheduleSchema, { Schedule } from "./Schedule";
 import { StudentLead as StudentLeadInterface } from "./StudentLead";
 import { TutorLead as TutorLeadInterface } from "./TutorLead";
 
@@ -14,11 +13,12 @@ export interface Booking extends TimestampedEntity {
     studentLead: StudentLeadInterface;
     paystackReference: string;
     amountPaid: number;
-    slots: Schedule[];
     course: string;
     status: Status;
     conferenceHostRoomUrl?: string;
     conferenceRoomUrl?: string;
+    startDate: Date;
+    endDate: Date;
 }
 
 const schema = new Schema<Booking>({
@@ -27,10 +27,11 @@ const schema = new Schema<Booking>({
     paystackReference: { type: String, required: false },
     amountPaid: { type: Number, required: true },
     course: { type: String, required: true },
-    slots: { type: [scheduleSchema], required: true },
     status: { type: String, enum: Status, default: Status.UNCONFIRMED },
     conferenceHostRoomUrl: { type: String, required: false },
     conferenceRoomUrl: { type: String, required: false },
+    startDate: { type: Date, required: true },
+    endDate: { type: Date, required: true },
 }, { timestamps: true });
 
 schema.plugin(require('mongoose-autopopulate'));

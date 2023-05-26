@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
+import { Schedule } from "../../../src/types";
 import { TimestampedEntity } from "../../types";
-import scheduleSchema from "./Schedule";
 
 export interface SkillLevel {
     course: String,
@@ -25,7 +25,7 @@ export interface StudentLead extends TimestampedEntity {
     somethingElse?: string;
     topic?: string;
     skillLevels?: typeof skillLevelSchema[];
-    schedule: typeof scheduleSchema[];
+    schedule: Schedule;
     tz: string;
 
     pipedriveDealId?: string;
@@ -44,7 +44,7 @@ const schema = new Schema<StudentLead>({
     gradeLevel: { type: String, required: false },
     topic: { type: String, required: false },
     skillLevels: { type: [skillLevelSchema], required: false },
-    schedule: { type: [scheduleSchema], required: true },
+    schedule: { type: Schema.Types.Mixed, required: true },
     tz: { type: String, required: true },
 
 

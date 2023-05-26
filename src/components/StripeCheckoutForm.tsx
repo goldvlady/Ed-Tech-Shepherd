@@ -31,8 +31,6 @@ const StripeCheckoutForm: React.FC<Props> = ({ clientSecret, returnUrl, checkPay
         }
 
         stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
-            console.log(paymentIntent);
-            
             switch (paymentIntent?.status) {
                 case "succeeded":
                     toast({

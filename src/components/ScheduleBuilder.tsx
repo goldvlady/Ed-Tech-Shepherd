@@ -1,21 +1,20 @@
 import * as React from "react";
 import styled from "styled-components";
-import { Box, Button, Heading, IconButton, Text } from '@chakra-ui/react'
+import { Box, Button, Heading, IconButton, Input, Text } from '@chakra-ui/react'
 import { useRef } from "react";
-import { Schedule } from "../types";
+import { Schedule, SingleSchedule } from "../types";
 import { FiAlertTriangle, FiPlus, FiTrash } from "react-icons/fi"
 import theme from "../theme";
 import ScheduleBuilderDialog, { ScheduleBuilderDialogRef } from "./ScheduleBuilderDialog";
-import { leadingZero, numberToDayOfWeekName } from "../util";
-import { findIndex, isEmpty, uniq } from "lodash";
-import DateTimeInput from "./DateTimeInput";
+import { numberToDayOfWeekName } from "../util";
+import { isEmpty } from "lodash";
 import EmptyState from "./EmptyState";
 
 export interface ScheduleBuilderRef {
 }
 
 interface Props {
-    value: Schedule[];
+    value: Schedule;
     onChange: (v: Props["value"]) => void;
 }
 
@@ -26,18 +25,38 @@ const ScheduleBuilder = React.forwardRef<ScheduleBuilderRef, Props>(({ onChange,
     const scheduleBuilderDialogRef = useRef<ScheduleBuilderDialogRef>(null);
 
     const addTime = async (d: number | null) => {
-        const schedule = await scheduleBuilderDialogRef.current?.buildSchedule(d) as Schedule[];
-        onChange([...value, ...schedule]);
-    }
+        const schedule = await scheduleBuilderDialogRef.current?.buildSchedule(d) as SingleSchedule;
+        let v = {...value}
 
-    const deleteTime = (t: Schedule) => {
-        const foundIndex = findIndex(value, (c) => {
-            return (c.begin.getTime() === t.begin.getTime()) && (c.end.getTime() === t.end.getTime());
+        Object.keys(schedule).forEach((d: any) => {
+            if(!v[d]) {
+                v[d] = [
+                    {
+                        begin: schedule[d].begin,
+                        end: schedule[d].end
+                    }
+                ]
+            } else {
+                v[d].push({
+                    begin: schedule[d].begin,
+                    end: schedule[d].end
+                })
+            }
         })
-        onChange(value.filter((v, i) => i !== foundIndex))
+
+        onChange(v);
     }
 
-    const daysInValue = uniq(value.map((v) => v.begin.getDay()));
+    const deleteTime = (i: number, d: number) => {
+        const nv = JSON.parse(JSON.stringify(value));
+        nv[d].splice(i, 1);
+        if (!nv[d] || nv[d].length === 0) {
+            delete nv[d];
+        }
+        onChange(nv);
+    }
+
+    const daysInValue = Object.keys(value).map(v => parseInt(v));
 
     return <Root>
         <ScheduleBuilderDialog ref={scheduleBuilderDialogRef} />
@@ -48,7 +67,7 @@ const ScheduleBuilder = React.forwardRef<ScheduleBuilderRef, Props>(({ onChange,
         {
             daysInValue.length > 0 ? daysInValue.map((d, _) => {
                 const dayOfWeekName = numberToDayOfWeekName(d);
-                const timesInDay: Schedule[] = value.filter(v => v.begin.getDay() === d);
+                const timesInDay = value[d];
 
                 return <Box key={d} marginBottom={10}>
                     <Text className="body2" mb={0}>{dayOfWeekName}</Text>
@@ -68,10 +87,10 @@ const ScheduleBuilder = React.forwardRef<ScheduleBuilderRef, Props>(({ onChange,
                             {timesInDay.map((t, i) => {
                                 return <Box key={i} marginBottom={2}>
                                     <Box display={"flex"} alignItems="center" gap={"7px"}>
-                                        <DateTimeInput readOnly type="time" value={`${leadingZero(t.begin.getHours())}:${leadingZero(t.begin.getMinutes())}`} />
+                                        <Input size={'lg'} readOnly type="text" value={`${t.begin}`} />
                                         <Text as="small">to</Text>
-                                        <DateTimeInput readOnly type="time" value={`${leadingZero(t.end.getHours())}:${leadingZero(t.end.getMinutes())}`} />
-                                        <IconButton variant={'ghost'} onClick={() => deleteTime(t)} aria-label='Delete' icon={<FiTrash />} />
+                                        <Input size={'lg'} readOnly type="text" value={`${t.end}`} />
+                                        <IconButton variant={'ghost'} onClick={() => deleteTime(i, d)} aria-label='Delete' icon={<FiTrash />} />
                                     </Box>
                                 </Box>
                             })}

@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 import { TimestampedEntity } from "../../types";
 import { PipedriveService } from "../../services/PipedriveService";
-import scheduleSchema, { Schedule } from "./Schedule";
+import { Schedule } from "../../../src/types";
 
 export interface TutorLead extends TimestampedEntity {
     name: {
@@ -11,7 +11,7 @@ export interface TutorLead extends TimestampedEntity {
     email: string;
     dob: string;
     courses: string[];
-    schedule: Schedule[];
+    schedule: Schedule;
     rate: number;
     active?: boolean;
     description?: string;
@@ -35,7 +35,7 @@ const schema = new Schema<TutorLead>({
     email: { type: String, required: true },
     dob: { type: String, required: true },
     courses: { type: [String], required: true },
-    schedule: { type: [scheduleSchema], required: true },
+    schedule: { type: Schema.Types.Mixed, required: true },
     rate: { type: Number, required: true },
     active: { type: Boolean, required: false },
     description: { type: String, required: false },
@@ -52,7 +52,9 @@ const schema = new Schema<TutorLead>({
 
 schema.plugin(require('mongoose-autopopulate'));
 
+// @ts-expect-error
 schema.post(["update", "findOneAndUpdate", "updateOne"], async function () {
+    // @ts-expect-error
     const docToUpdate = await this.model.findOne(this.getQuery());
 
     if (!docToUpdate) {

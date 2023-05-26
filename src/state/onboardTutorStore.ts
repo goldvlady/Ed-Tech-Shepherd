@@ -11,7 +11,7 @@ export default createStore('onboardTutorStore')<Omit<Tutor, keyof Entity | keyof
   dob: "",
   email: "",
   courses: [] as string[],
-  schedule: [] as Schedule[],
+  schedule: {} as Schedule,
   tz: moment.tz.guess(),
   rate: 0,
   occupation: "",

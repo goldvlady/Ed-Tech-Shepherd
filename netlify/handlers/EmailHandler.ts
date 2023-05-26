@@ -3,7 +3,6 @@ import Email, { Types } from "../database/models/Email";
 import { StudentLead } from "../database/models/StudentLead";
 import { TutorLead } from "../database/models/TutorLead";
 import moment from "moment-timezone";
-import {Schedule} from "../database/models/Schedule";
 import { SITE_URL } from "../utils/config";
 import { capitalize } from "lodash";
 import { Offer } from "../database/models/Offer";
@@ -89,9 +88,7 @@ Shepherd Tutors
     }
 
     async createStudentBookingConfirmedEmail(booking: Booking) {
-        const schedule = booking.slots.map((s: Schedule) => {
-            return `${moment(s.begin).format('MMMM Do YYYY')}: ${moment(s.begin).tz(booking.studentLead.tz).format('hh:mm A')} - ${moment(s.end).tz(booking.studentLead.tz).format('hh:mm A')}`
-        })
+        const timing = `${moment(booking.startDate).format('MMMM Do YYYY')}: ${moment(booking.startDate).tz(booking.studentLead.tz).format('hh:mm A')} - ${moment(booking.endDate).tz(booking.studentLead.tz).format('hh:mm A')}`
 
         await Email.create({
             to: booking.studentLead.email,
@@ -104,7 +101,7 @@ Hi ${capitalize(booking.studentLead.name.first)},
 We're excited to let you know that your <a href="${SITE_URL}/booking/${booking._id}/student">session</a> with ${booking.tutorLead.name.first} has been successfully booked for the following dates:
 <br />
 <br />
-${schedule.join('<br />')}
+${timing}
 <br />
 <br />
 As a reminder, your session will be conducted through our online platform. To join the session, simply click on the following link: ${booking.conferenceRoomUrl}
@@ -124,9 +121,7 @@ Shepherd Tutors
     }
 
     async createTutorBookingConfirmedEmail(booking: Booking) {
-        const schedule = booking.slots.map((s: Schedule) => {
-            return `${moment(s.begin).format('MMMM Do YYYY')}: ${moment(s.begin).tz(booking.tutorLead.tz).format('hh:mm A')} - ${moment(s.end).tz(booking.tutorLead.tz).format('hh:mm A')}`
-        })
+        const timing = `${moment(booking.startDate).format('MMMM Do YYYY')}: ${moment(booking.startDate).tz(booking.tutorLead.tz).format('hh:mm A')} - ${moment(booking.endDate).tz(booking.tutorLead.tz).format('hh:mm A')}`
 
         await Email.create({
             to: booking.tutorLead.email,
@@ -139,7 +134,7 @@ Hi ${capitalize(booking.tutorLead.name.first)},
 We're excited to let you know that you've just been booked for a <a href="${SITE_URL}/booking/${booking._id}/student">session</a> with ${booking.studentLead.name.first} on the following dates:
 <br />
 <br />
-${schedule.join('<br />')}
+${timing}
 <br />
 <br />
 As a reminder, your session will be conducted through our online platform. To join the session, simply click on the following link: ${booking.conferenceRoomUrl}

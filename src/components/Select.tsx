@@ -8,7 +8,7 @@ export interface Option {
 type Props = React.ComponentProps<typeof Select>;
 
 const SelectComponent: React.FC<Props> = ({ ...rest }) => {
-    return <Select chakraStyles={{
+    return <Select closeMenuOnSelect={false} chakraStyles={{
         menu: () => ({
             zIndex: 9999,
             position: 'absolute',

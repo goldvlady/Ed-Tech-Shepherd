@@ -8,9 +8,17 @@ export type Entity = {
     _id: string;
 }
 
+export type TimeSchedule = {
+    begin: string
+    end: string
+}
+
+export type SingleSchedule = {
+    [key: number]: TimeSchedule
+}
+
 export type Schedule = {
-    begin: Date;
-    end: Date;
+    [key: number]: TimeSchedule[]
 }
 
 export type Slot = {

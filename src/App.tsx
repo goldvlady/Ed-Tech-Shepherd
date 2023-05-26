@@ -4,8 +4,6 @@ import React, { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router";
 import { BrowserRouter, useLocation, useSearchParams } from "react-router-dom";
 import theme from "./theme";
-import Booking from "./views/Booking";
-import BookSession from "./views/BookSession";
 import Onboard from "./views/Onboard";
 import OnboardStudent from "./views/OnboardStudent";
 import OnboardTutor from "./views/OnboardTutor";
@@ -169,13 +167,6 @@ const AppRoutes: React.FC = () => {
         }
       />
       <Route path="auth-action" element={<AuthAction />} />
-
-      <Route
-        path="book-session/:studentLeadId/:course"
-        element={<BookSession />}
-      />
-      <Route path="booking/:bookingId/:studentOrTutor" element={<Booking />} />
-      <Route path="booking/:bookingId" element={<Booking />} />
 
       <Route path="home" element={<Home />} />
       <Route

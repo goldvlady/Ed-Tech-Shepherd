@@ -74,9 +74,6 @@ export const CourseSelect: React.FC<Props> = ({ value, options, multi = false, o
         multi ? onChange(xor(value, [v])) : onChange(v);
     }
 
-    console.log(options);
-    
-
     return <Root>
         <SimpleGrid width={'100%'} columns={{ base: 1, sm: 2 }} spacing='15px'>
             {

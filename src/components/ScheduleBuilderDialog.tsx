@@ -1,8 +1,8 @@
 import * as React from "react";
 import styled from "styled-components";
-import { Alert, AlertIcon, Box, Button, FormControl, FormLabel, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text, useDisclosure } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, Box, Button, FormControl, FormLabel, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text, useDisclosure } from '@chakra-ui/react'
 import { useRef, useState } from "react";
-import { Schedule } from "../types";
+import { SingleSchedule } from "../types";
 import { numberToDayOfWeekName } from "../util";
 import moment from "moment";
 import { isEmpty } from "lodash";
@@ -10,7 +10,7 @@ import TimePicker from "./TimePicker";
 import Select from "./Select";
 
 export interface ScheduleBuilderDialogRef {
-    buildSchedule: (dayOfWeek: number | null) => Promise<Schedule[]>
+    buildSchedule: (dayOfWeek: number | null) => Promise<SingleSchedule>
 }
 
 interface Props {
@@ -27,8 +27,8 @@ const dayOptions = [...new Array(7)].map((_, i) => {
 const ScheduleBuilderDialog = React.forwardRef<ScheduleBuilderDialogRef, Props>((props, ref) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [days, setDays] = useState<Array<any>>([]);
-    const promiseResolve = useRef<((value: Schedule[] | PromiseLike<Schedule[]>) => void) | null>(null);
-    const promiseReject = useRef<((value: Schedule[] | PromiseLike<Schedule[]>) => void) | null>(null);
+    const promiseResolve = useRef<((value: SingleSchedule | PromiseLike<SingleSchedule>) => void) | null>(null);
+    const promiseReject = useRef<((value: SingleSchedule | PromiseLike<SingleSchedule>) => void) | null>(null);
 
     const [fromTime, setFromTime] = useState("");
     const [toTime, setToTime] = useState("");
@@ -43,7 +43,7 @@ const ScheduleBuilderDialog = React.forwardRef<ScheduleBuilderDialogRef, Props>(
                 if (dayOfWeek !== null) {
                     setDays([dayOptions.find((v) => v.value === dayOfWeek)])
                 }
-                return new Promise<Schedule[]>((resolve, reject) => {
+                return new Promise<SingleSchedule>((resolve, reject) => {
                     promiseResolve.current = resolve;
                     promiseReject.current = resolve;
                 });
@@ -60,17 +60,12 @@ const ScheduleBuilderDialog = React.forwardRef<ScheduleBuilderDialogRef, Props>(
     const done = () => {
         onClose();
 
-        const resolveValue = days.map((d) => {
-            const begin = moment(fromTime, parseTimeFormat);
-            const end = moment(toTime, parseTimeFormat);
-
-            begin.weekday(d.value);
-            end.weekday(d.value);
-
-            return {
-                begin: begin.toDate(),
-                end: end.toDate()
-            }
+        let resolveValue: SingleSchedule = {};
+        days.forEach((d) => {
+            resolveValue = {...resolveValue, [d.value]: {
+                begin: fromTime,
+                end: toTime
+            }}
         });
 
         promiseResolve.current?.(resolveValue);
@@ -130,9 +125,9 @@ const ScheduleBuilderDialog = React.forwardRef<ScheduleBuilderDialogRef, Props>(
                                 </Box>
                             </FormControl>
                         </Box>
-                        {hoursDiff < 0 && !!fromTime && !!toTime && <Alert status='error' mt={3}>
+                        {hoursDiff < 0 && !!fromTime && !!toTime && <Alert alignItems={'center'} gap={'5px'} status='error' mt={3}>
                             <AlertIcon />
-                            The start time should be before the end time.
+                            <AlertDescription>The start time should be before the end time.</AlertDescription>
                         </Alert>}
                     </Box>
                 </ModalBody>

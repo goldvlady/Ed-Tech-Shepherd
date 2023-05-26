@@ -22,6 +22,7 @@ const createOfferPaymentIntent = async (event: HandlerEvent) => {
         automatic_payment_methods: {
             enabled: true,
         },
+        capture_method: 'manual'
     });
 
     await Offer.findByIdAndUpdate(offer._id, { stripePaymentIntent: paymentIntent })
