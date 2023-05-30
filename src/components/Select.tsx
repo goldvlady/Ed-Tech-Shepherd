@@ -29,7 +29,7 @@ const SelectComponent: React.FC<Props> = ({ options, ...rest }) => {
 
     return <StyledSelect options={(options as Option[]).map(o => {
         if (rest.isMulti) {
-            const isSelected = !![...rest.defaultValue as Option[]].find(v => v.value === o.value);
+            const isSelected = !![...(rest.defaultValue || rest.value) as Option[]].find(v => v.value === o.value);
             return { ...o, label: <Flex gap={'5px'}><StyledCheckbox readOnly isChecked={isSelected} /> {o.label}</Flex> }
         }
 
