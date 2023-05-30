@@ -147,7 +147,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 },
                 {
                   title: "My Tutors",
-                  path: "/dashboard/my-tutor",
+                  path: "/dashboard/my-tutors",
                 },
                 {
                   title: "Bookmarks",
