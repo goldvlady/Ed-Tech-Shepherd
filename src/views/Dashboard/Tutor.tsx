@@ -381,7 +381,11 @@ export default function Tutor() {
           </Card>
 
           <Text fontSize={14} mt={8}>
-            <Link color="#207DF7" href="#" textDecoration="underline">
+            <Link
+              color="#207DF7"
+              href="/dashboard/find-tutor"
+              textDecoration="underline"
+            >
               More Economics tutors
             </Link>
           </Text>

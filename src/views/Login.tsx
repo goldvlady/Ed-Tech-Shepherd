@@ -56,6 +56,8 @@ const Login: React.FC = () => {
         const photoURL = user.photoURL;
         const emailVerified = user.emailVerified;
         const uid = user.uid;
+        sessionStorage.setItem("Username", user.displayName);
+
         // ...
       } else {
         // User is signed out
