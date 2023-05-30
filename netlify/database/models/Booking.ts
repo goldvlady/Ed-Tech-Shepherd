@@ -2,7 +2,7 @@ import { Schema, model } from "mongoose";
 import { TimestampedEntity } from "../../types";
 import { Offer } from "./Offer";
 
-export enum Status {
+export enum STATUS {
     UNCONFIRMED = "unconfirmed",
     CONFIRMED = "confirmed",
     CANCELED = "cenceled"
@@ -11,7 +11,7 @@ export enum Status {
 export interface Booking extends TimestampedEntity {
     stripeReference?: string;
     amountPaid?: number;
-    status: Status;
+    status: STATUS;
     conferenceHostRoomUrl?: string;
     conferenceRoomUrl?: string;
     startDate: Date;
@@ -22,7 +22,7 @@ export interface Booking extends TimestampedEntity {
 const schema = new Schema<Booking>({
     stripeReference: { type: String, required: false },
     amountPaid: { type: Number, required: false },
-    status: { type: String, enum: Status, default: Status.UNCONFIRMED },
+    status: { type: String, enum: STATUS, default: STATUS.UNCONFIRMED },
     conferenceHostRoomUrl: { type: String, required: false },
     conferenceRoomUrl: { type: String, required: false },
     startDate: { type: Date, required: true },
