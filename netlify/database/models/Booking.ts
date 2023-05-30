@@ -3,14 +3,14 @@ import { TimestampedEntity } from "../../types";
 import { Offer } from "./Offer";
 
 export enum Status {
+    UNCONFIRMED = "unconfirmed",
     CONFIRMED = "confirmed",
-    UNCONFIRMED = "unconfirmed"
+    CANCELED = "cenceled"
 }
 
 export interface Booking extends TimestampedEntity {
-    stripeReference: string;
+    stripeReference?: string;
     amountPaid?: number;
-    course: string;
     status: Status;
     conferenceHostRoomUrl?: string;
     conferenceRoomUrl?: string;
@@ -22,7 +22,6 @@ export interface Booking extends TimestampedEntity {
 const schema = new Schema<Booking>({
     stripeReference: { type: String, required: false },
     amountPaid: { type: Number, required: false },
-    course: { type: String, required: true },
     status: { type: String, enum: Status, default: Status.UNCONFIRMED },
     conferenceHostRoomUrl: { type: String, required: false },
     conferenceRoomUrl: { type: String, required: false },

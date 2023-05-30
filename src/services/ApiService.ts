@@ -2,7 +2,7 @@ import { doFetch } from "../util";
 
 class ApiService {
   static baseEndpoint =
-    "https://dev--shepherd-tutors.netlify.app/.netlify/functions";
+    "/.netlify/functions";
 
   static getUser = async () => {
     return doFetch(`${ApiService.baseEndpoint}/me`);
@@ -43,10 +43,17 @@ class ApiService {
     });
   };
 
-  static createOfferPaymentIntent = async (data: any) => {
-    return doFetch(`${ApiService.baseEndpoint}/createOfferPaymentIntent`, {
+  static createStripeSetupPaymentIntent = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/createStripeSetupPaymentIntent`, {
       method: "POST",
       body: JSON.stringify(data),
+    });
+  };
+
+  static addPaymentMethod = async (stripeId: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/addPaymentMethod`, {
+      method: "POST",
+      body: JSON.stringify({ stripeId }),
     });
   };
 
@@ -87,6 +94,13 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/withdrawOffer`, {
       method: "POST",
       body: JSON.stringify({ id }),
+    });
+  };
+
+  static bookOffer = async (id: string, paymentMethodId: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/bookOffer`, {
+      method: "POST",
+      body: JSON.stringify({ id, paymentMethodId }),
     });
   };
 
