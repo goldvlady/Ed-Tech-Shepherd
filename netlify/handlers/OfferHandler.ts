@@ -1,19 +1,13 @@
 import Offer, { Offer as OfferType, STATUS as OFFERSTATUS } from "../database/models/Offer";
 import TutorLead from "../database/models/TutorLead";
-import {PaymentMethod as PaymentMethodType} from "../database/models/PaymentMethod";
+import { PaymentMethod as PaymentMethodType } from "../database/models/PaymentMethod";
 import { User as UserType } from "../database/models/User";
-import Stripe from '../utils/stripe';
 import EmailHandler from "./EmailHandler";
+import moment from "moment";
+import Booking, { Booking as BookingType } from "../database/models/Booking";
 
 class OfferHandler {
     emailHandler = new EmailHandler();
-    async confirmOffer(offer: OfferType) {
-        //const { roomUrl, hostRoomUrl } = await this.wherebyService.createMeeting();
-
-        const offerObject = await Offer.findById(offer._id);
-
-        return await Offer.findByIdAndUpdate(offer._id, { completed: true }, { new: true });
-    }
 
     async createOffer(data: any, studentUser: UserType) {
         const tutorLead = await TutorLead.findById(data.tutor);
@@ -56,14 +50,35 @@ class OfferHandler {
     }
 
     async bookOffer(offer: OfferType, paymentMethod: PaymentMethodType) {
+        // TODO: Send offer/booking confirmed email
+
+        const momentOfferStartDate = moment(offer.contractStartDate);
+        const momentOfferEndDate = moment(offer.contractEndDate);
+
+        let bookingsToCreate: Array<Partial<BookingType>> = [];
+
+        while (momentOfferStartDate.isBefore(momentOfferEndDate, 'day')) {
+            const dayOfWeekIndex = momentOfferStartDate.day()
+            if (offer.schedule[dayOfWeekIndex]) {
+                let d = momentOfferStartDate.format('YYYY-MM-DD')
+                let begin = moment(d + ` ${offer.schedule[dayOfWeekIndex].begin}`);
+                let end = moment(d + ` ${offer.schedule[dayOfWeekIndex].end}`);
+
+                bookingsToCreate.push({
+                    startDate: begin.toDate(),
+                    endDate: end.toDate(),
+                    offer: offer._id as unknown as OfferType
+                })
+            }
+            momentOfferStartDate.add(1, 'days');
+        }
+
+        await Booking.insertMany(bookingsToCreate);
+
         const updatedOffer = await Offer.findByIdAndUpdate(offer._id, {
             completed: true,
             paymentMethod: paymentMethod._id
         }, { new: true });
-
-        // TODO: Send offer/booking confirmed email
-        // TODO: Create Bookings
-        
 
         return updatedOffer;
     }
