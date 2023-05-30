@@ -1,6 +1,7 @@
 import Offer, { Offer as OfferType, STATUS as OFFERSTATUS } from "../database/models/Offer";
 import TutorLead from "../database/models/TutorLead";
-import { User } from "../database/models/User";
+import {PaymentMethod as PaymentMethodType} from "../database/models/PaymentMethod";
+import { User as UserType } from "../database/models/User";
 import Stripe from '../utils/stripe';
 import EmailHandler from "./EmailHandler";
 
@@ -11,19 +12,10 @@ class OfferHandler {
 
         const offerObject = await Offer.findById(offer._id);
 
-        if (!offerObject?.stripePaymentIntent?.id) {
-            return offerObject;
-        }
-
-        const resp = await Stripe.paymentIntents.retrieve(offerObject.stripePaymentIntent.id);
-        if (resp.status !== "succeeded") {
-            throw `payment status unsuccessful (${resp.status})`
-        }
-
-        return await Offer.findByIdAndUpdate(offer._id, { stripePaymentIntent: resp, completed: true }, { new: true });
+        return await Offer.findByIdAndUpdate(offer._id, { completed: true }, { new: true });
     }
 
-    async createOffer(data: any, studentUser: User) {
+    async createOffer(data: any, studentUser: UserType) {
         const tutorLead = await TutorLead.findById(data.tutor);
         const offer = await Offer.create({ ...data, studentLead: studentUser.studentLead, tutorLead });
 
@@ -59,6 +51,19 @@ class OfferHandler {
         }, { new: true })
 
         this.emailHandler.createOfferWithdrawnTutorEmail(offer);
+
+        return updatedOffer;
+    }
+
+    async bookOffer(offer: OfferType, paymentMethod: PaymentMethodType) {
+        const updatedOffer = await Offer.findByIdAndUpdate(offer._id, {
+            completed: true,
+            paymentMethod: paymentMethod._id
+        }, { new: true });
+
+        // TODO: Send offer/booking confirmed email
+        // TODO: Create Bookings
+        
 
         return updatedOffer;
     }

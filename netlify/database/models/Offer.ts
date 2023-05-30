@@ -3,6 +3,7 @@ import { Schema, model } from "mongoose";
 import { TimestampedEntity } from "../../types";
 import { StudentLead as StudentLeadInterface } from "./StudentLead";
 import { TutorLead as TutorLeadInterface } from "./TutorLead";
+import { PaymentMethod } from "./PaymentMethod";
 
 interface Schedule {
     [key: number]: {
@@ -25,7 +26,6 @@ export interface Offer extends TimestampedEntity {
     schedule: Schedule;
     rate: number;
     note: string;
-    //paymentOption: string;
     status: STATUS;
     declinedNote: string;
     tutorLead: TutorLeadInterface;
@@ -33,9 +33,8 @@ export interface Offer extends TimestampedEntity {
     expirationDate: Date;
     contractStartDate: Date;
     contractEndDate: Date;
-    stripePaymentIntent?: PaymentIntent;
     completed?: boolean; //has been paid for
-    amount: number;
+    paymentMethod?: PaymentMethod;
 }
 
 const schema = new Schema<Offer>({
@@ -45,7 +44,6 @@ const schema = new Schema<Offer>({
     schedule: { type: Schema.Types.Mixed, required: true },
     rate: { type: Number, required: true },
     note: { type: String, required: false, default: '' },
-    //paymentOption: { type: String, required: true },
     status: { type: String, enum: STATUS, default: STATUS.DRAFT },
     declinedNote: { type: String, required: false, default: '' },
     tutorLead: { type: Schema.Types.ObjectId, ref: "TutorLead", autopopulate: true, required: true },
@@ -53,8 +51,8 @@ const schema = new Schema<Offer>({
     expirationDate: { type: Date, required: true },
     contractStartDate: { type: Date, required: true },
     contractEndDate: { type: Date, required: true },
-    stripePaymentIntent: { type: Object, required: false },
     completed: { type: Boolean, required: false },
+    paymentMethod: { type: Schema.Types.ObjectId, ref: "PaymentMethod", autopopulate: true, required: false },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 schema.plugin(require('mongoose-autopopulate'));

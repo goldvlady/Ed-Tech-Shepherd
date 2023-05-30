@@ -2,6 +2,7 @@ import { Schema, model } from "mongoose";
 import { TimestampedEntity } from "../../types";
 import StudentLead from "./StudentLead";
 import TutorLead from "./TutorLead";
+import { PaymentMethod } from "./PaymentMethod";
 
 export interface User extends TimestampedEntity {
     name: {
@@ -16,6 +17,7 @@ export interface User extends TimestampedEntity {
     attachLeads: () => Promise<User>;
     type: 'student' | 'tutor';
     stripeCustomerId?: string;
+    paymentMethods: PaymentMethod[]
 }
 
 const schema = new Schema<User>({
@@ -39,19 +41,27 @@ schema.virtual('tutorLead');
 schema.virtual('studentLead');
 schema.virtual('type');
 
+schema.virtual('paymentMethods', {
+    ref: 'PaymentMethod',
+    localField: '_id',
+    foreignField: 'user'
+});
+
 schema.methods.attachLeads = async function (cb: any) {
-    const tutorLead = await TutorLead.findOne({email: this.email});
+    const tutorLead = await TutorLead.findOne({ email: this.email });
     this.tutorLead = tutorLead;
 
-    const studentLead = await StudentLead.findOne({email: this.email});
+    const studentLead = await StudentLead.findOne({ email: this.email });
     this.studentLead = studentLead;
 
     this.type = 'student';
     if (this.tutorLead) {
         this.type = 'tutor';
     }
-    
+
     return this;
 }
+
+schema.plugin(require('mongoose-autopopulate'));
 
 export default model<User>('User', schema);

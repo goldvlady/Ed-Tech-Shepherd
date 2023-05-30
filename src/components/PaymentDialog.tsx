@@ -12,6 +12,7 @@ export interface PaymentDialogRef {
 }
 
 interface Props {
+    prefix?: React.ReactNode
 }
 
 const Root = styled(Box)`
@@ -22,7 +23,7 @@ const Root = styled(Box)`
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY as string);
 
-const PaymentDialog = React.forwardRef<PaymentDialogRef, Props>((_, ref) => {
+const PaymentDialog = React.forwardRef<PaymentDialogRef, Props>(({ prefix }, ref) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const promiseResolve = useRef<((value: Schedule[] | PromiseLike<Schedule[]>) => void) | null>(null);
     const promiseReject = useRef<((value: Schedule[] | PromiseLike<Schedule[]>) => void) | null>(null);
@@ -49,9 +50,10 @@ const PaymentDialog = React.forwardRef<PaymentDialogRef, Props>((_, ref) => {
         <Modal isOpen={isOpen} onClose={() => { onClose() }}>
             <ModalOverlay />
             <ModalContent>
-                <ModalHeader>Pay</ModalHeader>
+                <ModalHeader>Add a payment method</ModalHeader>
                 <ModalCloseButton />
-                <ModalBody>
+                <ModalBody flexDirection={'column'}>
+                    {prefix}
                     {!!paymentIntentClientSecret && (
                         <Elements options={{ clientSecret: paymentIntentClientSecret, appearance: { theme: 'stripe' } }} stripe={stripePromise}>
                             <StripeCheckoutForm clientSecret={paymentIntentClientSecret} returnUrl={returnUrl || ''} />

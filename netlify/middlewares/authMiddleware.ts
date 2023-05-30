@@ -13,7 +13,7 @@ const middleware = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxy
             const firebaseUser = await getAuth().verifyIdToken(token);
             request.event['firebaseUser'] = firebaseUser;
 
-            const user = await User.findOne({ firebaseId: firebaseUser.user_id });
+            const user = await User.findOne({ firebaseId: firebaseUser.user_id }).populate('paymentMethods');
 
             if (user) {
                 await user.attachLeads();
