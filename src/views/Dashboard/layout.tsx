@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import {
   IconButton,
@@ -50,14 +50,22 @@ import { TbCards } from "react-icons/tb";
 import { IconType } from "react-icons";
 import Logo from "../../components/Logo";
 import DashboardIndex from "./index";
+import MenuLinedList from "./components/MenuLinedList";
 import TutorMarketplace from "./Tutor";
 import { getAuth, signOut } from "firebase/auth";
 import { firebaseAuth } from "../../firebase";
+import userStore from "../../state/userStore";
 
 interface LinkItemProps {
   name: string;
   icon: IconType;
   path: string;
+}
+interface SidebarProps extends BoxProps {
+  onClose: () => void;
+  toggleMenu: () => void;
+  tutorMenu: boolean;
+  setTutorMenu: (value: boolean) => void;
 }
 const LinkItems: Array<LinkItemProps> = [
   { name: "Home", icon: FiHome, path: "/dashboard" },
@@ -71,19 +79,278 @@ const LinkBItems: Array<LinkItemProps> = [
   { name: "Flashcards", icon: TbCards, path: "/flashcards" },
 ];
 
-const userObj: any = sessionStorage.getItem("UserDetails");
-const user = JSON.parse(userObj);
-
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [tutorMenu, setTutorMenu] = useState(false);
+  const { user }: any = userStore();
+  console.log("userrrr", user);
+
   const toggleMenu = () => {
     console.log("AKINOLA");
-
     setTutorMenu(!tutorMenu);
   };
   console.log(tutorMenu);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const SidebarContent = ({
+    onClose,
+    tutorMenu,
+    setTutorMenu,
+    toggleMenu,
+    ...rest
+  }: SidebarProps) => {
+    return (
+      <Box
+        transition="3s ease"
+        bg={useColorModeValue("white", "gray.900")}
+        borderRight="1px"
+        borderRightColor={useColorModeValue("gray.200", "gray.700")}
+        w={{ base: "full", md: 60 }}
+        pos="fixed"
+        h="full"
+        {...rest}
+      >
+        <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
+          <Text fontWeight="bold">
+            <Logo />
+          </Text>
+          <CloseButton
+            display={{ base: "flex", md: "none" }}
+            onClick={onClose}
+          />
+        </Flex>
+        <Box ml={8} color="text.400">
+          {" "}
+          <Button
+            variant={"unstyled"}
+            display="flex"
+            gap={1}
+            leftIcon={<FiBriefcase />}
+            fontSize={14}
+            fontWeight={500}
+            onClick={() => setTutorMenu(!tutorMenu)}
+            rightIcon={
+              tutorMenu ? (
+                <MdOutlineKeyboardArrowUp />
+              ) : (
+                <MdOutlineKeyboardArrowDown />
+              )
+            }
+          >
+            Find a tutor
+          </Button>
+          <Box display={tutorMenu ? "block" : "none"}>
+            <MenuLinedList
+              items={[
+                {
+                  title: "Marketplace",
+                  path: "/dashboard/find-tutor",
+                },
+                {
+                  title: "My Tutors",
+                  path: "/dashboard/my-tutor",
+                },
+                {
+                  title: "Bookmarks",
+                  path: "/dashboard/saved-tutors",
+                },
+              ]}
+            />
+            {/* <NavItem path="/dashboard/find-tutor">Marketplace</NavItem>
+          <NavItem path="/dashboard/my-tutors">My Tutors</NavItem>
+          <NavItem path="/dashboard/saved-tutors">Bookmarks</NavItem> */}
+          </Box>
+        </Box>
+        <Divider />
+        {LinkItems.map((link) => (
+          <>
+            <NavItem key={link.name} icon={link.icon} path={link.path}>
+              {link.name}
+            </NavItem>
+          </>
+        ))}{" "}
+        <Divider />
+        {LinkBItems.map((link) => (
+          <>
+            <NavItem key={link.name} icon={link.icon} path={link.path}>
+              {link.name}
+            </NavItem>
+          </>
+        ))}{" "}
+        <Divider />
+        <NavItem icon={BsPin} path={"/pinned-notes"}>
+          Pinned Notes
+        </NavItem>
+      </Box>
+    );
+  };
+
+  interface NavItemProps extends FlexProps {
+    icon?: IconType;
+    children: any;
+    path: string;
+  }
+  const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
+    return (
+      <Link
+        href={path}
+        style={{ textDecoration: "none" }}
+        _focus={{ boxShadow: "none" }}
+      >
+        <Flex
+          align="center"
+          px="4"
+          py="2"
+          mx="4"
+          my="2"
+          borderRadius="lg"
+          role="group"
+          cursor="pointer"
+          _hover={{
+            bg: "#F0F6FE",
+            color: "#207DF7",
+          }}
+          _active={{
+            bg: "#F0F6FE",
+            color: "#207DF7",
+          }}
+          fontSize={14}
+          color="text.400"
+          fontWeight={500}
+          {...rest}
+        >
+          {icon && (
+            <Icon
+              mr="4"
+              fontSize="16"
+              _groupHover={{
+                color: "#207DF7",
+              }}
+              as={icon}
+            />
+          )}
+          {children}
+        </Flex>
+      </Link>
+    );
+  };
+
+  interface MobileProps extends FlexProps {
+    onOpen: () => void;
+  }
+  const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
+    const auth = getAuth();
+    const handleSignOut = () => {
+      signOut(auth)
+        .then(() => {
+          console.log("Sign out succesful");
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    };
+    return (
+      <Flex
+        ml={{ base: 0, md: 60 }}
+        px={{ base: 4, md: 4 }}
+        height="20"
+        alignItems="center"
+        bg={useColorModeValue("white", "gray.900")}
+        borderBottomWidth="1px"
+        borderBottomColor={useColorModeValue("gray.200", "gray.700")}
+        justifyContent={{ base: "space-between", md: "flex-end" }}
+        {...rest}
+      >
+        <IconButton
+          display={{ base: "flex", md: "none" }}
+          onClick={onOpen}
+          variant="outline"
+          aria-label="open menu"
+          icon={<FiMenu />}
+        />
+
+        <Text
+          display={{ base: "flex", md: "none" }}
+          fontSize="2xl"
+          fontFamily="monospace"
+          fontWeight="bold"
+        >
+          Shepherd Logo
+        </Text>
+
+        <HStack spacing={4}>
+          <Menu>
+            <MenuButton
+              bg={"#207DF7"}
+              color="white"
+              _hover={{ bg: "#1964c5" }}
+              _active={{ bg: "#1964c5" }}
+              as={Button}
+              rightIcon={<FiChevronDown />}
+            >
+              + Create
+            </MenuButton>
+            <MenuList>
+              <MenuItem onClick={() => console.log("ADD NEW NOTE")}>
+                New note
+              </MenuItem>
+              <MenuItem>Upload document</MenuItem>
+            </MenuList>
+          </Menu>
+          <Center height="25px">
+            <Divider orientation="vertical" />
+          </Center>
+          <IconButton
+            size="md"
+            borderRadius={"100%"}
+            border="1px solid #ECEDEE"
+            variant="ghost"
+            aria-label="open menu"
+            color={"text.300"}
+            icon={<FaBell />}
+          />
+          <Menu>
+            <MenuButton
+              py={2}
+              transition="all 0.3s"
+              _focus={{ boxShadow: "none" }}
+              bg="#F4F5F5"
+              borderRadius={"40px"}
+              px={3}
+            >
+              <HStack>
+                <Avatar
+                  size="sm"
+                  color="white"
+                  name={`${user.name.first} ${user.name.last}`}
+                  bg="#4CAF50;"
+                />
+
+                <Text fontSize="14px" fontWeight={500} color="text.200">
+                  {`${user.name.first} ${user.name.last}`}
+                </Text>
+
+                <Box display={{ base: "none", md: "flex" }}>
+                  <FiChevronDown />
+                </Box>
+              </HStack>
+            </MenuButton>
+            <MenuList
+              bg={useColorModeValue("white", "gray.900")}
+              borderColor={useColorModeValue("gray.200", "gray.700")}
+            >
+              <MenuItem>Profile</MenuItem>
+              <MenuDivider />
+              <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
+            </MenuList>
+          </Menu>
+        </HStack>
+
+        {/* <Flex alignItems={"center"}>
+      
+      </Flex> */}
+      </Flex>
+    );
+  };
   return (
     <Box minH="130vh" bg="white">
       <SidebarContent
@@ -118,13 +385,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </Box>
     </Box>
   );
-}
-
-interface SidebarProps extends BoxProps {
-  onClose: () => void;
-  toggleMenu: () => void;
-  tutorMenu: boolean;
-  setTutorMenu: (value: boolean) => void;
 }
 
 export const CustomButton = (props: any) => {
@@ -163,247 +423,5 @@ export const CustomButton = (props: any) => {
     >
       {buttonText}
     </Box>
-  );
-};
-
-const SidebarContent = ({
-  onClose,
-  tutorMenu,
-  setTutorMenu,
-  toggleMenu,
-  ...rest
-}: SidebarProps) => {
-  return (
-    <Box
-      transition="3s ease"
-      bg={useColorModeValue("white", "gray.900")}
-      borderRight="1px"
-      borderRightColor={useColorModeValue("gray.200", "gray.700")}
-      w={{ base: "full", md: 60 }}
-      pos="fixed"
-      h="full"
-      {...rest}
-    >
-      <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-        <Text fontWeight="bold">
-          <Logo />
-        </Text>
-        <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
-      </Flex>
-      <Box ml={8} color="text.400">
-        {" "}
-        <Button
-          variant={"unstyled"}
-          display="flex"
-          gap={1}
-          leftIcon={<FiBriefcase />}
-          fontSize={14}
-          fontWeight={500}
-          onClick={() => setTutorMenu(!tutorMenu)}
-          rightIcon={
-            tutorMenu ? (
-              <MdOutlineKeyboardArrowUp />
-            ) : (
-              <MdOutlineKeyboardArrowDown />
-            )
-          }
-        >
-          Find a tutor
-        </Button>
-        <Box display={tutorMenu ? "block" : "none"}>
-          <NavItem path="/dashboard/find-tutor">Marketplace</NavItem>
-          <NavItem path="/dashboard/my-tutors">My Tutors</NavItem>
-          <NavItem path="/dashboard/saved-tutors">Bookmarks</NavItem>
-        </Box>
-      </Box>
-      <Divider />
-      {LinkItems.map((link) => (
-        <>
-          <NavItem key={link.name} icon={link.icon} path={link.path}>
-            {link.name}
-          </NavItem>
-        </>
-      ))}{" "}
-      <Divider />
-      {LinkBItems.map((link) => (
-        <>
-          <NavItem key={link.name} icon={link.icon} path={link.path}>
-            {link.name}
-          </NavItem>
-        </>
-      ))}{" "}
-      <Divider />
-      <NavItem icon={BsPin} path={"/pinned-notes"}>
-        Pinned Notes
-      </NavItem>
-    </Box>
-  );
-};
-
-interface NavItemProps extends FlexProps {
-  icon?: IconType;
-  children: any;
-  path: string;
-}
-const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
-  return (
-    <Link
-      href={path}
-      style={{ textDecoration: "none" }}
-      _focus={{ boxShadow: "none" }}
-    >
-      <Flex
-        align="center"
-        px="4"
-        py="2"
-        mx="4"
-        my="2"
-        borderRadius="lg"
-        role="group"
-        cursor="pointer"
-        _hover={{
-          bg: "#F0F6FE",
-          color: "#207DF7",
-        }}
-        _active={{
-          bg: "#F0F6FE",
-          color: "#207DF7",
-        }}
-        fontSize={14}
-        color="text.400"
-        fontWeight={500}
-        {...rest}
-      >
-        {icon && (
-          <Icon
-            mr="4"
-            fontSize="16"
-            _groupHover={{
-              color: "#207DF7",
-            }}
-            as={icon}
-          />
-        )}
-        {children}
-      </Flex>
-    </Link>
-  );
-};
-
-interface MobileProps extends FlexProps {
-  onOpen: () => void;
-}
-const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
-  const auth = getAuth();
-  const handleSignOut = () => {
-    signOut(auth)
-      .then(() => {
-        console.log("Sign out succesful");
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-  return (
-    <Flex
-      ml={{ base: 0, md: 60 }}
-      px={{ base: 4, md: 4 }}
-      height="20"
-      alignItems="center"
-      bg={useColorModeValue("white", "gray.900")}
-      borderBottomWidth="1px"
-      borderBottomColor={useColorModeValue("gray.200", "gray.700")}
-      justifyContent={{ base: "space-between", md: "flex-end" }}
-      {...rest}
-    >
-      <IconButton
-        display={{ base: "flex", md: "none" }}
-        onClick={onOpen}
-        variant="outline"
-        aria-label="open menu"
-        icon={<FiMenu />}
-      />
-
-      <Text
-        display={{ base: "flex", md: "none" }}
-        fontSize="2xl"
-        fontFamily="monospace"
-        fontWeight="bold"
-      >
-        Shepherd Logo
-      </Text>
-
-      <HStack spacing={4}>
-        <Menu>
-          <MenuButton
-            bg={"#207DF7"}
-            color="white"
-            _hover={{ bg: "#1964c5" }}
-            _active={{ bg: "#1964c5" }}
-            as={Button}
-            rightIcon={<FiChevronDown />}
-          >
-            + Create
-          </MenuButton>
-          <MenuList>
-            <MenuItem onClick={() => console.log("ADD NEW NOTE")}>
-              New note
-            </MenuItem>
-            <MenuItem>Upload document</MenuItem>
-          </MenuList>
-        </Menu>
-        <Center height="25px">
-          <Divider orientation="vertical" />
-        </Center>
-        <IconButton
-          size="md"
-          borderRadius={"100%"}
-          border="1px solid #ECEDEE"
-          variant="ghost"
-          aria-label="open menu"
-          color={"text.300"}
-          icon={<FaBell />}
-        />
-        <Menu>
-          <MenuButton
-            py={2}
-            transition="all 0.3s"
-            _focus={{ boxShadow: "none" }}
-            bg="#F4F5F5"
-            borderRadius={"40px"}
-            px={3}
-          >
-            <HStack>
-              <Avatar
-                size="sm"
-                color="white"
-                name={user?.displayName}
-                bg="#4CAF50;"
-              />
-
-              <Text fontSize="14px" fontWeight={500} color="text.200">
-                {user?.displayName}
-              </Text>
-
-              <Box display={{ base: "none", md: "flex" }}>
-                <FiChevronDown />
-              </Box>
-            </HStack>
-          </MenuButton>
-          <MenuList
-            bg={useColorModeValue("white", "gray.900")}
-            borderColor={useColorModeValue("gray.200", "gray.700")}
-          >
-            <MenuItem>Profile</MenuItem>
-            <MenuDivider />
-            <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
-          </MenuList>
-        </Menu>
-      </HStack>
-
-      {/* <Flex alignItems={"center"}>
-      
-      </Flex> */}
-    </Flex>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Flex,
@@ -38,9 +38,11 @@ import cloudDay from "../../assets/day.svg";
 import cloudNight from "../../assets/night.svg";
 import { numberToDayOfWeekName, twoDigitFormat } from "../../util";
 import moment from "moment";
+import userStore from "../../state/userStore";
 
 export default function Index() {
   const [slider, setSlider] = useState<Slider | null>(null);
+  const [firstname, setFirstname] = useState("");
 
   const top = useBreakpointValue({ base: "90%", md: "50%" });
   const side = useBreakpointValue({ base: "30%", md: "40px" });
@@ -54,8 +56,8 @@ export default function Index() {
     twoDigitFormat(date.getHours()) + ":" + twoDigitFormat(date.getMinutes());
   const hours = date.getHours();
   const isDayTime = hours > 6 && hours < 20;
-  const user: any = sessionStorage.getItem("UserDetails");
-  const userName = JSON.parse(user).displayName;
+  const { user }: any = userStore();
+
   const cards = [
     {
       title: "Design Projects 1",
@@ -151,7 +153,7 @@ export default function Index() {
 
       <Box mb={8}>
         <Text fontSize={24} fontWeight="bold" mb={1}>
-          Hi {userName}, Welcome back!
+          Hi {user.name.first}, Welcome back!
         </Text>
 
         <Flex
