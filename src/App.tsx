@@ -26,6 +26,7 @@ import SendTutorOffer from "./views/SendTutorOffer";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import userStore from "./state/userStore";
 import Offer from "./views/Offer";
+import Session from "./views/Session";
 
 const RedirectToLanding: React.FC = () => {
   window.location.href = "https://shepherdtutors.com/";
@@ -192,6 +193,17 @@ const AppRoutes: React.FC = () => {
         <Route path="" element={<Navigate to="home" />} />
         <Route path="*" element={<Navigate to="home" />} />
       </Route>
+
+      <Route
+          path="session/:bookingId"
+          element={
+            <RequireAuth
+              authenticated={<Session />}
+              unAuthenticated={<Navigate to={"/login"} />}
+            />
+          }
+        />
+
     </Routes>
   );
 };
