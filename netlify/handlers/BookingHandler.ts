@@ -1,4 +1,4 @@
-import Booking, { Booking as BookingInterface, Status } from "../database/models/Booking";
+import Booking, { Booking as BookingInterface, STATUS } from "../database/models/Booking";
 import WherebyService from "../services/WherebyService";
 import EmailHandler from "./EmailHandler";
 
@@ -12,7 +12,7 @@ class BookingHandler {
         await Booking.updateOne({
             _id: booking._id,
         }, {
-            status: Status.CONFIRMED,
+            status: STATUS.CONFIRMED,
             conferenceHostRoomUrl: hostRoomUrl,
             conferenceRoomUrl: roomUrl
         })
