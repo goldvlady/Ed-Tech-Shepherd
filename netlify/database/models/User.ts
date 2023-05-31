@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 import { TimestampedEntity } from "../../types";
-import StudentLead from "./StudentLead";
-import TutorLead from "./TutorLead";
+import StudentLead, { StudentLead as StudentLeadType } from "./StudentLead";
+import TutorLead, { TutorLead as TutorLeadType } from "./TutorLead";
 import { PaymentMethod } from "./PaymentMethod";
 
 export interface User extends TimestampedEntity {
@@ -12,8 +12,8 @@ export interface User extends TimestampedEntity {
     email: string;
     firebaseId: string;
     avatar?: string;
-    tutorLead?: typeof TutorLead;
-    studentLead?: typeof StudentLead;
+    tutorLead?: TutorLeadType;
+    studentLead?: StudentLeadType;
     attachLeads: () => Promise<User>;
     type: 'student' | 'tutor';
     stripeCustomerId?: string;
