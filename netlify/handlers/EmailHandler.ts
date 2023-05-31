@@ -88,17 +88,17 @@ Shepherd Tutors
     }
 
     async createStudentBookingConfirmedEmail(booking: Booking) {
-        const timing = `${moment(booking.startDate).format('MMMM Do YYYY')}: ${moment(booking.startDate).tz(booking.studentLead.tz).format('hh:mm A')} - ${moment(booking.endDate).tz(booking.studentLead.tz).format('hh:mm A')}`
+        const timing = `${moment(booking.startDate).format('MMMM Do YYYY')}: ${moment(booking.startDate).tz(booking.offer.studentLead.tz).format('hh:mm A')} - ${moment(booking.endDate).tz(booking.offer.studentLead.tz).format('hh:mm A')}`
 
         await Email.create({
-            to: booking.studentLead.email,
-            subject: `Get ready for your upcoming session with ${booking.tutorLead.name.first}`,
+            to: booking.offer.studentLead.email,
+            subject: `Get ready for your upcoming session with ${booking.offer.tutorLead.name.first}`,
             type: Types.BOOKING_CONFIRMED,
             content: `
-Hi ${capitalize(booking.studentLead.name.first)},
+Hi ${capitalize(booking.offer.studentLead.name.first)},
 <br />
 <br />
-We're excited to let you know that your <a href="${SITE_URL}/booking/${booking._id}/student">session</a> with ${booking.tutorLead.name.first} has been successfully booked for the following dates:
+We're excited to let you know that your <a href="${SITE_URL}/booking/${booking._id}/student">session</a> with ${booking.offer.tutorLead.name.first} has been successfully booked for the following dates:
 <br />
 <br />
 ${timing}
@@ -110,7 +110,7 @@ As a reminder, your session will be conducted through our online platform. To jo
 Please make sure to log in a few minutes before the scheduled start time to avoid any delays. If you encounter any issues accessing the session, please reply to this email or reach out to us at <a href="mailto:hello@shepherdtutors.com">hello@shepherdtutors.com</a>
 <br />
 <br />
-We hope you find your session with ${booking.tutorLead.name.first} informative and productive. If you have any questions or concerns, please don't hesitate to let us know.
+We hope you find your session with ${booking.offer.tutorLead.name.first} informative and productive. If you have any questions or concerns, please don't hesitate to let us know.
 <br />
 <br />
 Cheers,
@@ -121,17 +121,17 @@ Shepherd Tutors
     }
 
     async createTutorBookingConfirmedEmail(booking: Booking) {
-        const timing = `${moment(booking.startDate).format('MMMM Do YYYY')}: ${moment(booking.startDate).tz(booking.tutorLead.tz).format('hh:mm A')} - ${moment(booking.endDate).tz(booking.tutorLead.tz).format('hh:mm A')}`
+        const timing = `${moment(booking.startDate).format('MMMM Do YYYY')}: ${moment(booking.startDate).tz(booking.offer.tutorLead.tz).format('hh:mm A')} - ${moment(booking.endDate).tz(booking.offer.tutorLead.tz).format('hh:mm A')}`
 
         await Email.create({
-            to: booking.tutorLead.email,
-            subject: `Get ready for your upcoming session with ${booking.studentLead.name.first}`,
+            to: booking.offer.tutorLead.email,
+            subject: `Get ready for your upcoming session with ${booking.offer.studentLead.name.first}`,
             type: Types.BOOKING_CONFIRMED,
             content: `
-Hi ${capitalize(booking.tutorLead.name.first)},
+Hi ${capitalize(booking.offer.tutorLead.name.first)},
 <br />
 <br />
-We're excited to let you know that you've just been booked for a <a href="${SITE_URL}/booking/${booking._id}/student">session</a> with ${booking.studentLead.name.first} on the following dates:
+We're excited to let you know that you've just been booked for a <a href="${SITE_URL}/booking/${booking._id}/student">session</a> with ${booking.offer.studentLead.name.first} on the following dates:
 <br />
 <br />
 ${timing}
