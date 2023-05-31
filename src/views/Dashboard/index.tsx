@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Flex,
@@ -39,6 +39,8 @@ import cloudNight from "../../assets/night.svg";
 import { numberToDayOfWeekName, twoDigitFormat } from "../../util";
 import moment from "moment";
 import userStore from "../../state/userStore";
+import SessionPrefaceDialog, { SessionPrefaceDialogRef } from "../../components/SessionPrefaceDialog";
+import { capitalize } from "lodash";
 
 export default function Index() {
   const [slider, setSlider] = useState<Slider | null>(null);
@@ -56,7 +58,7 @@ export default function Index() {
     twoDigitFormat(date.getHours()) + ":" + twoDigitFormat(date.getMinutes());
   const hours = date.getHours();
   const isDayTime = hours > 6 && hours < 20;
-  const { user }: any = userStore();
+  const { user } = userStore();
 
   const cards = [
     {
@@ -109,8 +111,11 @@ export default function Index() {
     },
   ];
 
+  const sessionPrefaceDialogRef = useRef<SessionPrefaceDialogRef>(null);
+
   return (
     <>
+      <SessionPrefaceDialog ref={sessionPrefaceDialogRef} title={`Hey ${capitalize(user?.name.first)}, get ready for your lesson`} initial={user?.name.first.substring(0, 1)} />
       <Box bgColor={"#FFF5F0"} pt={2} px={7} pb={2} borderRadius={8} mb={4}>
         <Flex alignItems={"center"}>
           <Box display="flex" mt={4}>
@@ -144,6 +149,7 @@ export default function Index() {
               fontSize={12}
               px={2}
               py={0}
+              onClick={() => sessionPrefaceDialogRef.current?.open('http://google.com')}
             >
               Join Lesson
             </Button>
@@ -153,7 +159,7 @@ export default function Index() {
 
       <Box mb={8}>
         <Text fontSize={24} fontWeight="bold" mb={1}>
-          Hi {user.name.first}, Welcome back!
+          Hi {user?.name.first}, Welcome back!
         </Text>
 
         <Flex
