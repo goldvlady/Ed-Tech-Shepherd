@@ -1,6 +1,6 @@
 import { Box, ChakraProvider, Spinner } from "@chakra-ui/react";
 import mixpanel from "mixpanel-browser";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router";
 import { BrowserRouter, useLocation, useSearchParams } from "react-router-dom";
 import theme from "./theme";
@@ -27,6 +27,7 @@ import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import userStore from "./state/userStore";
 import Offer from "./views/Offer";
 import Session from "./views/Session";
+import resourceStore from "./state/resourceStore";
 
 const RedirectToLanding: React.FC = () => {
   window.location.href = "https://shepherdtutors.com/";
@@ -199,20 +200,38 @@ const AppRoutes: React.FC = () => {
       </Route>
 
       <Route
-          path="session/:bookingId"
-          element={
-            <RequireAuth
-              authenticated={<Session />}
-              unAuthenticated={<Navigate to={"/login"} />}
-            />
-          }
-        />
+        path="session/:bookingId"
+        element={
+          <RequireAuth
+            authenticated={<Session />}
+            unAuthenticated={<Navigate to={"/login"} />}
+          />
+        }
+      />
 
     </Routes>
   );
 };
 
 function App() {
+  const { fetchResources, resourcesLoaded } = resourceStore();
+
+  const doFetchResources = useCallback(async () => {
+    await fetchResources();
+  }, []);
+
+  useEffect(() => {
+    doFetchResources();
+  }, [doFetchResources]);
+
+  if (!resourcesLoaded) {
+    return <ChakraProvider theme={theme}>
+      <Box p={5} textAlign="center">
+        <Spinner />
+      </Box>
+    </ChakraProvider>
+  }
+
   return (
     <ChakraProvider theme={theme}>
       <BrowserRouter>
