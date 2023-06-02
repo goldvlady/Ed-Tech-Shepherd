@@ -3604,18 +3604,6 @@
   resolved "https://registry.yarnpkg.com/@middy/core/-/core-4.4.2.tgz#caf70cbc81e66a2489d0bdcd25cc3953d4491cdd"
   integrity sha512-7UukQpHm0EEkFjmZGnytvEQ53umPfsWz0jVYfxBaLoptAnbDZMC6ZHYoiLeQCZMJHizUEj4IY1Xk67NPQMQ17w==
 
-"@middy/http-cors@^4.4.2":
-  version "4.4.2"
-  resolved "https://registry.yarnpkg.com/@middy/http-cors/-/http-cors-4.4.2.tgz#961e1408e669a9d8a9657ac0eed8b433a4f6eb68"
-  integrity sha512-oyrLXyOhisSsy7QTl9K+1I3Qkcx9157qAXWOKTgaoh3eIHrgpaLfb82tdiNz+ISdRDRLYxl+jHibLDNRjxDxMA==
-  dependencies:
-    "@middy/util" "4.4.2"
-
-"@middy/util@4.4.2":
-  version "4.4.2"
-  resolved "https://registry.yarnpkg.com/@middy/util/-/util-4.4.2.tgz#e5f8edec36583a15c0cb2636a6f1c23f02a36eb5"
-  integrity sha512-qYlaCF2XXQaYJXzaM8mz4Jjj1pdkSrbF1jzgFdvGwMI7DzNpEPBqkbyw+l1vPWSPdXFXavHLkb6NtbQN/ruX3Q==
-
 "@mobiscroll/cli@^1.10.1":
   version "1.10.1"
   resolved "https://registry.yarnpkg.com/@mobiscroll/cli/-/cli-1.10.1.tgz#77cea88b38c219669e4d4e017bbadde10a8a7dc8"
