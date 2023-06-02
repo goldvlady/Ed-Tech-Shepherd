@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
 import { Schedule } from "../../../src/types";
 import { TimestampedEntity } from "../../types";
+import { Course } from "./Course";
 
 export interface SkillLevel {
     course: String,
@@ -20,7 +21,7 @@ export interface StudentLead extends TimestampedEntity {
     email: string;
     parentOrStudent: string;
     dob: string;
-    courses: string[];
+    courses: Array<Course>;
     gradeLevel?: string;
     somethingElse?: string;
     topic?: string;
@@ -32,14 +33,16 @@ export interface StudentLead extends TimestampedEntity {
 }
 
 const schema = new Schema<StudentLead>({
-    name: { type: new Schema({
-        first: String,
-        last: String
-    }), required: true },
+    name: {
+        type: new Schema({
+            first: String,
+            last: String
+        }), required: true
+    },
     email: { type: String, required: true },
     parentOrStudent: { type: String, required: true },
     dob: { type: String, required: true },
-    courses: { type: [String], required: true },
+    courses: [{ type: Schema.Types.ObjectId, ref: "Course", autopopulate: true }],
     somethingElse: { type: String, required: false },
     gradeLevel: { type: String, required: false },
     topic: { type: String, required: false },
@@ -50,5 +53,7 @@ const schema = new Schema<StudentLead>({
 
     pipedriveDealId: { type: String, required: false },
 }, { timestamps: true });
+
+schema.plugin(require('mongoose-autopopulate'));
 
 export default model<StudentLead>('StudentLead', schema);

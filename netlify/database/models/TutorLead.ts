@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 import { TimestampedEntity } from "../../types";
 import { PipedriveService } from "../../services/PipedriveService";
-import { Schedule } from "../../../src/types";
+import { Course, Schedule } from "../../../src/types";
 
 export interface TutorLead extends TimestampedEntity {
     name: {
@@ -10,7 +10,7 @@ export interface TutorLead extends TimestampedEntity {
     };
     email: string;
     dob: string;
-    courses: string[];
+    courses: Array<Course>;
     schedule: Schedule;
     rate: number;
     active?: boolean;
@@ -34,7 +34,7 @@ const schema = new Schema<TutorLead>({
     },
     email: { type: String, required: true },
     dob: { type: String, required: true },
-    courses: { type: [String], required: true },
+    courses: [{ type: Schema.Types.ObjectId, ref: "Course", autopopulate: true }],
     schedule: { type: Schema.Types.Mixed, required: true },
     rate: { type: Number, required: true },
     active: { type: Boolean, required: false },
