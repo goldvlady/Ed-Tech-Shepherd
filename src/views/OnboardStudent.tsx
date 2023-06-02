@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { FiUser, FiCalendar, FiBookOpen, FiEdit } from "react-icons/fi";
 import { Box, FormLabel, Heading, Input, Text, CircularProgress, Link, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, VStack, StackDivider, Flex, IconButton, FormControl } from '@chakra-ui/react';
 import StepWizard, { StepWizardChildProps, StepWizardProps } from 'react-step-wizard';
@@ -20,17 +20,13 @@ import moment from 'moment';
 import EmptyState from '../components/EmptyState';
 
 import DateInput, { FORMAT } from '../components/DateInput';
-import { Course, Schedule } from '../types';
-import { formatContentFulCourse, getContentfulClient } from '../contentful';
 import { getOptionValue } from '../util';
-import theme from '../theme';
 import styled from 'styled-components';
 import { useLocation } from 'react-router';
 import mixpanel from 'mixpanel-browser';
 import Select from '../components/Select';
 import StepIndicator from '../components/StepIndicator';
-
-const client = getContentfulClient();
+import resourceStore from '../state/resourceStore';
 
 const stepIndicatorSteps = [
     {
@@ -90,13 +86,12 @@ const skillLevelOptions = [
 ];
 
 const OnboardStudent = () => {
+    const { courses: courseList } = resourceStore();
     const location = useLocation();
 
     const stepWizardInstance = useRef<StepWizardChildProps | null>(null);
 
     const { isOpen: isSomethingElseModalOpen, onOpen: onSomethingElseModalOpen, onClose: onSomethingElseModalClose } = useDisclosure()
-    const [courseList, setCourseList] = useState<Course[]>([]);
-    const [loadingCourses, setLoadingCourses] = useState(false);
     const [activeStep, setActiveStep] = useState<number>(1);
 
     const [editModalStep, setEditModalStep] = useState<string | null>(null);
@@ -135,30 +130,6 @@ const OnboardStudent = () => {
             }).includes(false);
         }
     }).includes(false), [courses, skillLevels, gradeLevel, topic]);
-
-    const loadCourses = useCallback(async () => {
-        setLoadingCourses(true);
-
-        try {
-            const resp = await client.getEntries({
-                content_type: 'course'
-            })
-
-            let newCourseList: Array<Course> = [];
-            resp.items.map((i: any) => {
-                newCourseList.push(formatContentFulCourse(i));
-            })
-
-            setCourseList(newCourseList);
-        } catch (e) {
-
-        }
-        setLoadingCourses(false);
-    }, []);
-
-    useEffect(() => {
-        loadCourses();
-    }, [loadCourses]);
 
     useEffect(() => {
         if (somethingElse) {
@@ -202,7 +173,7 @@ const OnboardStudent = () => {
                 {
                     title: 'Classes',
                     value: <Text marginBottom={0}>{courses.map(tc => {
-                        return tc === 'something-else' ? somethingElse : courseList.find(ac => ac.id === tc)?.title;
+                        return tc === 'something-else' ? somethingElse : courseList.find(ac => ac._id === tc)?.label;
                     }).join(', ')}</Text>,
                     step: 'classes',
                 }
@@ -342,14 +313,14 @@ const OnboardStudent = () => {
                                 }
                                 onboardStudentStore.set.courses(v)
                             }} options={[...courseList, {
-                                title: somethingElse ? somethingElse : 'Want to learn something else?',
-                                id: 'something-else',
-                                image: '',
-                                icon: <svg style={{ margin: '0 auto' }} width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                label: somethingElse ? somethingElse : 'Want to learn something else?',
+                                _id: 'something-else',
+                                imageSrc: '',
+                                iconSrc: <svg style={{ margin: '0 auto' }} width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M10.5 20C4.97715 20 0.5 15.5228 0.5 10C0.5 4.47715 4.97715 0 10.5 0C16.0228 0 20.5 4.47715 20.5 10C20.5 15.5228 16.0228 20 10.5 20ZM9.5 13V15H11.5V13H9.5ZM11.5 11.3551C12.9457 10.9248 14 9.5855 14 8C14 6.067 12.433 4.5 10.5 4.5C8.802 4.5 7.38637 5.70919 7.06731 7.31346L9.0288 7.70577C9.1656 7.01823 9.7723 6.5 10.5 6.5C11.3284 6.5 12 7.17157 12 8C12 8.8284 11.3284 9.5 10.5 9.5C9.9477 9.5 9.5 9.9477 9.5 10.5V12H11.5V11.3551Z" fill="#969CA6" />
                                 </svg>
                             }].map(c => {
-                                return { ...c, value: c.id }
+                                return { ...c, value: c._id }
                             })} />
                         </Box>
                     </Box> </> : <EmptyState title="Uh oh!" subtitle={<>Looks like you're not quite old enough to sign up on your own just yet. Don't worry though, we've got you covered! Ask your parent or guardian to <Link href='/onboard/student' color='primary.600'>sign up</Link> on your behalf and start learning with us today.</>} image={<img alt="uh oh!" style={{ height: "80px" }} src="/images/empty-state-no-content.png" />} action={<Button onClick={() => {
@@ -367,7 +338,7 @@ const OnboardStudent = () => {
                 </Heading>
                 <Box marginTop={30}>
                     {courses.map(c => {
-                        const courseName = c === 'something-else' ? capitalize(somethingElse) : courseList.find(ac => ac.id === c)?.title;
+                        const courseName = c === 'something-else' ? capitalize(somethingElse) : courseList.find(ac => ac._id === c)?.label;
 
                         if (c === 'maths') {
                             return <Box key={'course-supplementary' + c}>
