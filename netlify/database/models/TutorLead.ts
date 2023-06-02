@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { ObjectId, Schema, model } from "mongoose";
 import { TimestampedEntity } from "../../types";
 import { PipedriveService } from "../../services/PipedriveService";
 import { Course, Schedule } from "../../../src/types";
@@ -10,7 +10,7 @@ export interface TutorLead extends TimestampedEntity {
     };
     email: string;
     dob: string;
-    courses: Array<Course>;
+    courses: Array<Course> | Array<String>;
     schedule: Schedule;
     rate: number;
     active?: boolean;

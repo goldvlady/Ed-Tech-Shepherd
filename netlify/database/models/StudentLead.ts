@@ -21,7 +21,7 @@ export interface StudentLead extends TimestampedEntity {
     email: string;
     parentOrStudent: string;
     dob: string;
-    courses: Array<Course>;
+    courses: Array<Course> | Array<String>;
     gradeLevel?: string;
     somethingElse?: string;
     topic?: string;
