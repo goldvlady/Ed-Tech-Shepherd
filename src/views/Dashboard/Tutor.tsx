@@ -36,9 +36,10 @@ import {
   Divider,
   AspectRatio,
   VStack,
+  useToast,
 } from "@chakra-ui/react";
 import React, { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Navigate, useSearchParams, useNavigate } from "react-router-dom";
 import { RiQuestionFill } from "react-icons/ri";
 import Ribbon from "../../assets/ribbon-grey.svg";
 import { CustomButton } from "./layout";
@@ -58,6 +59,8 @@ export default function Tutor() {
   const [loadingData, setLoadingData] = useState(false);
   const [tutorData, setTutorData] = useState<any>({});
   const tutorId: any = searchParams.get("id");
+  const navigate = useNavigate();
+  const toast = useToast();
   const getData = async () => {
     setLoadingData(true);
     try {
@@ -71,7 +74,27 @@ export default function Tutor() {
   useEffect(() => {
     getData();
   }, []);
-  console.log(tutorData);
+
+  const saveTutor = async () => {
+    try {
+      const resp = await ApiService.saveTutor(tutorId);
+      console.log(resp);
+      toast({
+        title: "Tutor saved successful",
+        position: "top-right",
+        status: "success",
+        isClosable: true,
+      });
+    } catch (e) {
+      toast({
+        title: "An unknown error occured",
+        position: "top-right",
+        status: "error",
+        isClosable: true,
+      });
+    }
+    setLoadingData(false);
+  };
 
   return (
     <Box>
@@ -149,6 +172,7 @@ export default function Tutor() {
                     w={"110px"}
                     display="flex"
                     my={5}
+                    onClick={saveTutor}
                   >
                     Save Profile
                   </Button>
@@ -375,7 +399,11 @@ export default function Tutor() {
                 >
                   You’ll be notified once they respond to your offer
                 </Text>
-                <CustomButton buttonText="Send Offer" padding="9px 105px" />
+                <CustomButton
+                  buttonText="Send Offer"
+                  padding="9px 105px"
+                  onClick={() => navigate(`/dashboard/tutor/${tutorId}/offer`)}
+                />
               </Stack>
             </CardBody>
           </Card>

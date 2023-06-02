@@ -2,7 +2,7 @@ import { doFetch } from "../util";
 
 class ApiService {
   static baseEndpoint =
-    "/.netlify/functions";
+    "https://dev--shepherd-tutors.netlify.app/.netlify/functions";
 
   static getUser = async () => {
     return doFetch(`${ApiService.baseEndpoint}/me`);
@@ -44,10 +44,13 @@ class ApiService {
   };
 
   static createStripeSetupPaymentIntent = async (data: any) => {
-    return doFetch(`${ApiService.baseEndpoint}/createStripeSetupPaymentIntent`, {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+    return doFetch(
+      `${ApiService.baseEndpoint}/createStripeSetupPaymentIntent`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
   };
 
   static addPaymentMethod = async (stripeId: string) => {
@@ -109,14 +112,26 @@ class ApiService {
   };
   static getFilteredTutors = async (formData: any) => {
     let filterParams = "";
+
     for (const key in formData) {
       if (key != "tz") {
         filterParams += !!formData[key] ? `&${key}=${formData[key]}` : "";
       }
     }
     return doFetch(
-      `${ApiService.baseEndpoint}/tutors?tz=${formData.tz + filterParams}`
+      // `${ApiService.baseEndpoint}/tutors?tz=${formData.tz + filterParams}`
+      `${ApiService.baseEndpoint}/tutors?tz=Africa/Lagos${filterParams}`
     );
+  };
+  static saveTutor = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/saveTutor`, {
+      method: "POST",
+      body: JSON.stringify({ tutorId: id }),
+    });
+  };
+
+  static getSavedTutors = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/savedTutors`);
   };
 }
 

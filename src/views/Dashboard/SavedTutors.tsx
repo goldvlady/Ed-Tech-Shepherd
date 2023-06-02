@@ -18,19 +18,29 @@ import TutorAvi from "../../assets/tutoravi.svg";
 function SavedTutors() {
   const [allTutors, setAllTutors] = useState<any>([]);
   const [loadingData, setLoadingData] = useState(false);
-  const getData = async () => {
+  // const getData = async () => {
+  //   setLoadingData(true);
+  //   try {
+  //     const resp = await ApiService.getAllTutors();
+  //     const data = await resp.json();
+  //     setAllTutors(data);
+  //   } catch (e) {}
+  //   setLoadingData(false);
+  // };
+
+  const getSavedTutors = async () => {
     setLoadingData(true);
     try {
-      const resp = await ApiService.getAllTutors();
+      const resp = await ApiService.getSavedTutors();
       const data = await resp.json();
       setAllTutors(data);
     } catch (e) {}
     setLoadingData(false);
   };
-
   useEffect(() => {
-    getData();
+    getSavedTutors();
   }, []);
+  console.log("saved tutors", allTutors);
 
   return (
     <>
@@ -46,48 +56,15 @@ function SavedTutors() {
       </Flex>
 
       <SimpleGrid minChildWidth="325px" spacing="30px">
-        <TutorCard
-          name={"Leslie Peters"}
-          levelOfEducation={"BSC Bachelors"}
-          avatar={TutorAvi}
-          saved={true}
-          rate={5}
-        />
-        <TutorCard
-          name={"Leslie Peters"}
-          levelOfEducation={"BSC Bachelors"}
-          avatar={TutorAvi}
-          saved={true}
-          rate={22}
-        />
-        <TutorCard
-          name={"Leslie Peters"}
-          levelOfEducation={"BSC Bachelors"}
-          avatar={TutorAvi}
-          saved={true}
-          rate={22}
-        />
-        <TutorCard
-          name={"Leslie Peters"}
-          levelOfEducation={"BSC Bachelors"}
-          avatar={TutorAvi}
-          saved={true}
-          rate={15}
-        />
-        <TutorCard
-          name={"Leslie Peters"}
-          levelOfEducation={"BSC Bachelors"}
-          avatar={TutorAvi}
-          saved={true}
-          rate={25}
-        />
-        <TutorCard
-          name={"Leslie Peters"}
-          levelOfEducation={"BSC Bachelors"}
-          avatar={TutorAvi}
-          saved={true}
-          rate={10}
-        />
+        {allTutors.map((tutor: any) => (
+          <TutorCard
+            name={"Leslie Peters"}
+            levelOfEducation={"BSC Bachelors"}
+            avatar={TutorAvi}
+            saved={true}
+            rate={5}
+          />
+        ))}
       </SimpleGrid>
     </>
   );

@@ -13,7 +13,7 @@ import { IconType } from "react-icons";
 import { BsChatLeftDots, BsPlayCircle, BsPin } from "react-icons/bs";
 
 const Title = styled(Text).attrs(() => ({ className: "sub3" }))`
-  margin-bottom: 10px;
+  margin-bottom: 1px;
   position: relative;
   line-height: 0.1;
   &:before {

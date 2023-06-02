@@ -24,6 +24,26 @@ import AdobeIcon from "../../../assets/adobedoc.svg";
 import NoteIcon from "../../../assets/notes.svg";
 import FlashcardIcon from "../../../assets/flashcardIcon.svg";
 import ReceiptIcon from "../../../assets/receiptIcon.svg";
+import styled from "styled-components";
+
+const Root = styled(Flex)`
+  position: relative;
+  margin-left: 8px;
+  alignitems: flex-start;
+  direction: row;
+  margin: 4 0;
+  &:before {
+    content: "";
+    position: absolute;
+    left: 22px;
+    top: 0;
+    bottom: -15px;
+    width: 1px;
+    background: #e8e9ed;
+    z-index: 0;
+  }
+  padding-left: 0px;
+`;
 
 function ActivityFeeds() {
   const [feedPeriod, setFeedPeriod] = useState<any>("Today");
@@ -68,8 +88,8 @@ function ActivityFeeds() {
       </Box>
 
       <Box>
-        <Flex px={3} gap={0} direction={"row"} my={2}>
-          <Image src={DocIcon} alt="doc" maxHeight={45} />
+        <Root px={3} my={4}>
+          <Image src={DocIcon} alt="doc" maxHeight={45} zIndex={1} />
           <Stack direction={"column"} px={4} spacing={1}>
             <Text color="text.300" fontSize={12} mb={0}>
               2 hrs ago
@@ -100,9 +120,10 @@ function ActivityFeeds() {
               </Flex>
             </Box>
           </Stack>
-        </Flex>
-        <Flex px={3} gap={0} direction={"row"} my={2}>
-          <Image src={NoteIcon} alt="doc" maxHeight={45} />
+        </Root>
+
+        <Root px={3} my={4}>
+          <Image src={NoteIcon} alt="doc" maxHeight={45} zIndex={1} />
           <Stack direction={"column"} px={4} spacing={1}>
             <Text color="text.300" fontSize={12} mb={0}>
               7 hrs ago
@@ -133,9 +154,9 @@ function ActivityFeeds() {
               </Flex>
             </Box>
           </Stack>
-        </Flex>
-        <Flex px={3} gap={0} direction={"row"} my={2}>
-          <Image src={ReceiptIcon} alt="doc" maxHeight={45} />
+        </Root>
+        <Root px={3} my={4}>
+          <Image src={ReceiptIcon} alt="doc" maxHeight={45} zIndex={1} />
           <Stack direction={"column"} px={4} spacing={1}>
             <Text color="text.300" fontSize={12} mb={0}>
               Yesterday.13:00
@@ -166,9 +187,16 @@ function ActivityFeeds() {
               </Flex>
             </Box>
           </Stack>
-        </Flex>
-        <Flex px={3} gap={0} direction={"row"} my={2}>
-          <Image src={FlashcardIcon} alt="doc" maxHeight={45} />
+        </Root>
+        <Flex alignItems="flex-start" px={3} direction={"row"} my={4}>
+          <Image
+            src={FlashcardIcon}
+            alt="doc"
+            maxHeight={45}
+            zIndex={1}
+            position={"relative"}
+            right={1}
+          />
           <Stack direction={"column"} px={4} spacing={1}>
             <Text color="text.300" fontSize={12} mb={0}>
               17th May 2023.13:00

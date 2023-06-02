@@ -57,6 +57,12 @@ export default function Index() {
   const hours = date.getHours();
   const isDayTime = hours > 6 && hours < 20;
   const { user }: any = userStore();
+  // const user = {
+  //   name: {
+  //     first: "Akinola",
+  //     last: "Ola",
+  //   },
+  // };
 
   const cards = [
     {

@@ -82,10 +82,15 @@ const LinkBItems: Array<LinkItemProps> = [
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [tutorMenu, setTutorMenu] = useState(false);
   const { user }: any = userStore();
+  // const user = {
+  //   name: {
+  //     first: "Akinola",
+  //     last: "Ola",
+  //   },
+  // };
   console.log("userrrr", user);
 
   const toggleMenu = () => {
-    console.log("AKINOLA");
     setTutorMenu(!tutorMenu);
   };
   console.log(tutorMenu);
@@ -352,7 +357,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     );
   };
   return (
-    <Box minH="130vh" bg="white">
+    <Box minH="160vh" bg="white">
       <SidebarContent
         onClose={() => onClose}
         tutorMenu={tutorMenu}
