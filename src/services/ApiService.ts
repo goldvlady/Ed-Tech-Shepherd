@@ -1,8 +1,11 @@
 import { doFetch } from "../util";
 
 class ApiService {
-  static baseEndpoint =
-    "https://dev--shepherd-tutors.netlify.app/.netlify/functions";
+  static baseEndpoint = "/.netlify/functions";
+
+  static getResources = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/resources`);
+  };
 
   static getUser = async () => {
     return doFetch(`${ApiService.baseEndpoint}/me`);
