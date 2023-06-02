@@ -52,7 +52,7 @@ export const doFetch = async (input: RequestInfo, init?: RequestInit) => {
 
   return response;
 };
-const educationLevelOptions = [
+export const educationLevelOptions = [
   {
     label: "Primary School Certificate",
     value: "primary-school-cert",
@@ -91,7 +91,10 @@ const educationLevelOptions = [
   },
 ];
 
-export const numberToDayOfWeekName = (num: number, format = "dddd") => moment().day(num).format(format);
+export const numberToDayOfWeekName = (num: number, format = "dddd") =>
+  moment().day(num).format(format);
+export const DayOfWeekNameToNumber = (num: number, format = "dddd") =>
+  moment().day(num).format(format);
 
 export const leadingZero = (num: number) => `0${num}`.slice(-2);
 

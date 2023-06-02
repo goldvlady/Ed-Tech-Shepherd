@@ -39,7 +39,9 @@ import cloudNight from "../../assets/night.svg";
 import { numberToDayOfWeekName, twoDigitFormat } from "../../util";
 import moment from "moment";
 import userStore from "../../state/userStore";
-import SessionPrefaceDialog, { SessionPrefaceDialogRef } from "../../components/SessionPrefaceDialog";
+import SessionPrefaceDialog, {
+  SessionPrefaceDialogRef,
+} from "../../components/SessionPrefaceDialog";
 import { capitalize } from "lodash";
 
 export default function Index() {
@@ -58,6 +60,7 @@ export default function Index() {
     twoDigitFormat(date.getHours()) + ":" + twoDigitFormat(date.getMinutes());
   const hours = date.getHours();
   const isDayTime = hours > 6 && hours < 20;
+
   const { user } = userStore();
 
   const cards = [
@@ -115,7 +118,11 @@ export default function Index() {
 
   return (
     <>
-      <SessionPrefaceDialog ref={sessionPrefaceDialogRef} title={`Hey ${capitalize(user?.name.first)}, get ready for your lesson`} initial={user?.name.first.substring(0, 1)} />
+      <SessionPrefaceDialog
+        ref={sessionPrefaceDialogRef}
+        title={`Hey ${capitalize(user?.name.first)}, get ready for your lesson`}
+        initial={user?.name.first.substring(0, 1)}
+      />
       <Box bgColor={"#FFF5F0"} pt={2} px={7} pb={2} borderRadius={8} mb={4}>
         <Flex alignItems={"center"}>
           <Box display="flex" mt={4}>
@@ -149,7 +156,9 @@ export default function Index() {
               fontSize={12}
               px={2}
               py={0}
-              onClick={() => sessionPrefaceDialogRef.current?.open('http://google.com')}
+              onClick={() =>
+                sessionPrefaceDialogRef.current?.open("http://google.com")
+              }
             >
               Join Lesson
             </Button>

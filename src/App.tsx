@@ -61,12 +61,15 @@ const RequireAuth = ({
     onAuthStateChanged(getAuth(), async (user) => {
       setObtainedUserAuthState(true);
       setFirebaseUser(user);
+      console.log(user, "USE");
 
       try {
         if (user) {
           await fetchUser();
         }
-      } catch (e) {}
+      } catch (e) {
+        console.log("LOGINERROR", e);
+      }
       setLoadingUser(false);
     });
   }, []);
@@ -175,6 +178,7 @@ const AppRoutes: React.FC = () => {
         element={
           <RequireAuth
             authenticated={<DashboardLayout children />}
+            // unAuthenticated={<DashboardLayout children />}
             unAuthenticated={<Navigate to={"/login"} />}
           />
         }

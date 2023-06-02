@@ -30,7 +30,7 @@ import { useFormik } from "formik";
 import ApiService from "../../services/ApiService";
 import TimezoneSelect from "../../components/TimezoneSelect";
 import TimePicker from "../../components/TimePicker";
-import { numberToDayOfWeekName } from "../../util";
+import { numberToDayOfWeekName, educationLevelOptions } from "../../util";
 import CustomSelect from "../../components/Select";
 import moment from "moment";
 
@@ -43,10 +43,10 @@ const levelOptions = [
   { value: "grade12", label: "Grade 12", id: 6 },
 ];
 const priceOptions = [
-  { value: "10-12", label: "$10.00 - $12.00", id: 1 },
-  { value: "12-15", label: "$12.00 - $15.00", id: 2 },
-  { value: "15-20", label: "$15.00 - $20.00", id: 3 },
-  { value: "20-25", label: "$20.00 - $25.00", id: 4 },
+  { value: "rate>=10&rate<=12", label: "$10.00 - $12.00", id: 1 },
+  { value: "rate>=12&rate<=15", label: "$12.00 - $15.00", id: 2 },
+  { value: "rate>=15&rate<=20", label: "$15.00 - $20.00", id: 3 },
+  { value: "rate>=20&rate<=25", label: "$20.00 - $25.00", id: 4 },
 ];
 
 const ratingOptions = [
@@ -191,10 +191,8 @@ export default function Marketplace() {
               value={formik.values.level}
               onChange={formik.handleChange}
             >
-              {levelOptions.map((level) => (
-                <option key={level.id} value={level.value}>
-                  {level.label}
-                </option>
+              {educationLevelOptions.map((level) => (
+                <option value={level.value}>{level.label}</option>
               ))}
             </Select>
 
@@ -226,7 +224,7 @@ export default function Marketplace() {
                       size={"md"}
                     />
                   </Box>
-                  <Box>
+                  {/* <Box>
                     <FormControl>
                       <Box fontSize={14} my={2} color="#5C5F64">
                         Timezone
@@ -237,7 +235,7 @@ export default function Marketplace() {
                         onChange={(v) => setTz(v.value)}
                       />
                     </FormControl>
-                  </Box>{" "}
+                  </Box> */}
                   <Box my={3}>
                     <FormControl>
                       <Box display={"flex"} alignItems="center" gap={"7px"}>
