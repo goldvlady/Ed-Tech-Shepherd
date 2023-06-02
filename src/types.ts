@@ -3,6 +3,7 @@ import { StudentLead } from "../netlify/database/models/StudentLead"
 import { Booking as BookingType } from "../netlify/database/models/Booking"
 import { User as UserType } from "../netlify/database/models/User"
 import { Offer as OfferType } from "../netlify/database/models/Offer"
+import { Course as CourseType } from "../netlify/database/models/Course"
 
 export type Entity = {
     _id: string;
@@ -26,13 +27,7 @@ export type Slot = {
     end: string;
 }
 
-export type Course = {
-    title: string;
-    id: string;
-    image: string;
-    icon?: string | React.ReactNode;
-};
-
+export type Course = CourseType;
 export type Student = StudentLead;
 export type Tutor = TutorLead;
 export type Booking = BookingType;
