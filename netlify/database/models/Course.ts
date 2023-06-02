@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
+import { Entity } from "../../types";
 
-interface Course {
+export interface Course extends Entity {
     label: string;
     imageSrc?: string;
     iconSrc?: string;
