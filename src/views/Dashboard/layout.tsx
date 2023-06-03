@@ -2,13 +2,15 @@ import React, { ReactNode, useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import {
   IconButton,
+  Image,
   Avatar,
   Button,
   Box,
   CloseButton,
   Flex,
   HStack,
-  VStack,
+  Stack,
+  Spacer,
   Icon,
   useColorModeValue,
   Link,
@@ -55,6 +57,13 @@ import TutorMarketplace from "./Tutor";
 import { getAuth, signOut } from "firebase/auth";
 import { firebaseAuth } from "../../firebase";
 import userStore from "../../state/userStore";
+import FeedIcon from "../../assets/blue-energy.svg";
+import DocIcon from "../../assets/doc-icon.svg";
+import VideoIcon from "../../assets/video.svg";
+import MessageIcon from "../../assets/message.svg";
+import NoteIcon from "../../assets/notes.svg";
+import FlashcardIcon from "../../assets/flashcardIcon.svg";
+import ReceiptIcon from "../../assets/receiptIcon.svg";
 
 interface LinkItemProps {
   name: string;
@@ -304,15 +313,105 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <Center height="25px">
             <Divider orientation="vertical" />
           </Center>
-          <IconButton
-            size="md"
-            borderRadius={"100%"}
-            border="1px solid #ECEDEE"
-            variant="ghost"
-            aria-label="open menu"
-            color={"text.300"}
-            icon={<FaBell />}
-          />
+
+          <Menu>
+            <MenuButton>
+              <IconButton
+                size="md"
+                borderRadius={"100%"}
+                border="1px solid #ECEDEE"
+                variant="ghost"
+                aria-label="open menu"
+                color={"text.300"}
+                icon={<FaBell />}
+              />{" "}
+            </MenuButton>
+            <MenuList p={3} width={"358px"} zIndex={2}>
+              <Box>
+                <Flex alignItems="flex-start" px={3} direction={"row"} my={1}>
+                  <Image src={VideoIcon} alt="doc" maxHeight={45} zIndex={1} />
+                  <Stack direction={"column"} px={4} spacing={1}>
+                    <Text color="text.300" fontSize={12} mb={0}>
+                      19 May, 2023
+                    </Text>
+                    <Text
+                      fontWeight={400}
+                      color="text.200"
+                      fontSize="14px"
+                      mb={0}
+                    >
+                      Your chemistry lesson session with Leslie Peters started
+                    </Text>
+
+                    <Spacer />
+                  </Stack>
+                </Flex>
+                <Divider />
+                <Flex alignItems="flex-start" px={3} direction={"row"} my={1}>
+                  <Image
+                    src={MessageIcon}
+                    alt="doc"
+                    maxHeight={45}
+                    zIndex={1}
+                  />
+                  <Stack direction={"column"} px={4} spacing={1}>
+                    <Text color="text.300" fontSize={12} mb={0}>
+                      2 hrs ago
+                    </Text>
+                    <Text
+                      fontWeight={400}
+                      color="text.200"
+                      fontSize="14px"
+                      mb={0}
+                    >
+                      Leslie Peters sent you a text while your were away
+                    </Text>
+                  </Stack>
+                </Flex>
+                <Divider />
+                <Flex alignItems="flex-start" px={3} direction={"row"} my={1}>
+                  <Image src={VideoIcon} alt="doc" maxHeight={45} zIndex={1} />
+                  <Stack direction={"column"} px={4} spacing={1}>
+                    <Text color="text.300" fontSize={12} mb={0}>
+                      2 hrs ago
+                    </Text>
+                    <Text
+                      fontWeight={400}
+                      color="text.200"
+                      fontSize="14px"
+                      mb={0}
+                    >
+                      Your chemistry lesson session with Leslie Peters started
+                    </Text>
+
+                    <Spacer />
+                  </Stack>
+                </Flex>
+                <Divider />
+                <Flex alignItems="flex-start" px={3} direction={"row"} my={1}>
+                  <Image
+                    src={MessageIcon}
+                    alt="doc"
+                    maxHeight={45}
+                    zIndex={1}
+                  />
+                  <Stack direction={"column"} px={4} spacing={1}>
+                    <Text color="text.300" fontSize={12} mb={0}>
+                      2 hrs ago
+                    </Text>
+                    <Text
+                      fontWeight={400}
+                      color="text.200"
+                      fontSize="14px"
+                      mb={0}
+                    >
+                      Leslie Peters sent you a text while your were away
+                    </Text>
+                  </Stack>
+                </Flex>
+              </Box>
+            </MenuList>
+          </Menu>
           <Menu>
             <MenuButton
               py={2}
