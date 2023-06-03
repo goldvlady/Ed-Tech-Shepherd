@@ -6,7 +6,7 @@ import middy from "../utils/middy";
 
 export const saveTutor = async (event: HTTPEvent) => {
     const { user } = event;
-    const { data: { tutorId } } = JSON.parse(event.body as string);
+    const { tutorId } = JSON.parse(event.body as string);
 
     const tutor = await TutorLead.findById(tutorId);
 

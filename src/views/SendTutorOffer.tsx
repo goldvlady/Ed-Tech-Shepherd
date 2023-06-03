@@ -1,12 +1,9 @@
-import { Alert, AlertDescription, AlertIcon, Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Button, FormControl, FormErrorMessage, FormLabel, Heading, HStack, Input, InputGroup, InputLeftAddon, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalOverlay, SimpleGrid, Spinner, Text, Textarea, useDisclosure, VStack } from '@chakra-ui/react';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FiArrowRight, FiChevronRight } from 'react-icons/fi';
-import { RiMoneyDollarCircleFill } from 'react-icons/ri';
-import { BsBookmarkStarFill } from 'react-icons/bs';
+import { Alert, AlertDescription, AlertIcon, Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Button, FormControl, FormErrorMessage, FormLabel, HStack, Input, InputGroup, InputLeftAddon, Modal, ModalBody, ModalContent, ModalFooter, ModalOverlay, SimpleGrid, Spinner, Text, Textarea, useDisclosure, VStack } from '@chakra-ui/react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FiChevronRight } from 'react-icons/fi';
 import { MdInfo } from 'react-icons/md';
 import { useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
-import ButtonGroup from '../components/ButtonGroup';
 import { BsQuestionCircleFill } from 'react-icons/bs';
 import PageTitle from '../components/PageTitle';
 import Panel from '../components/Panel';
@@ -16,18 +13,15 @@ import LinedList from '../components/LinedList';
 import { Field, FieldProps, Form, Formik, FormikProps } from 'formik';
 import * as Yup from 'yup';
 import { numberToDayOfWeekName } from '../util';
-import LargeSelect from '../components/LargeSelect';
 import theme from '../theme';
 import TutorCard from '../components/TutorCard';
 import ApiService from '../services/ApiService';
 import { Course, Tutor } from '../types';
-import { formatContentFulCourse, getContentfulClient } from '../contentful';
 import { useTitle } from '../hooks';
-import { scheduleOptions } from './Offer';
-import DateInput from '../components/DateInput';
 import CalendarDateInput from '../components/CalendarDateInput';
 import { capitalize, isEmpty } from 'lodash';
 import moment from 'moment';
+import resourceStore from '../state/resourceStore';
 
 const LeftCol = styled(Box)`
 background: #FFF;
@@ -59,19 +53,16 @@ const levels = [
     'Grade 12'
 ]
 
-const client = getContentfulClient();
-
 const SendTutorOffer = () => {
     useTitle('Send an offer');
 
+    const { courses: courseList } = resourceStore();
     const navigate = useNavigate();
     const formikRef = useRef<FormikProps<any>>(null);
     const [loadingTutor, setLoadingTutor] = useState(false);
     const [tutor, setTutor] = useState<Tutor | null>(null);
     const { tutorId } = useParams() as { tutorId: string };
     const [isEditing, setIsEditing] = useState(true);
-    const [courseList, setCourseList] = useState<Course[]>([]);
-    const [loadingCourses, setLoadingCourses] = useState(false);
 
     const EditField = styled(Text).attrs({ onClick: () => setIsEditing(true) })`
     cursor: pointer;
@@ -103,35 +94,14 @@ const SendTutorOffer = () => {
         setLoadingTutor(false);
     }, [])
 
-    const loadCourses = useCallback(async () => {
-        setLoadingCourses(true);
-
-        try {
-            const resp = await client.getEntries({
-                content_type: 'course'
-            })
-
-            let newCourseList: Array<Course> = [];
-            resp.items.map((i: any) => {
-                newCourseList.push(formatContentFulCourse(i));
-            })
-
-            setCourseList(newCourseList);
-        } catch (e) {
-
-        }
-        setLoadingCourses(false);
-    }, []);
-
-    const subjectOptions = useMemo(() => courseList.map(c => ({ label: c.title, value: c.id })), [courseList])
+    const subjectOptions = useMemo(() => courseList.map(c => ({ label: c.label, value: c._id })), [courseList])
     const levelOptions = useMemo(() => levels.map(l => ({ label: l, value: l })), [])
 
     useEffect(() => {
-        loadCourses();
         loadTutor();
     }, []);
 
-    const loading = loadingCourses || loadingTutor;
+    const loading = loadingTutor;
 
     const setScheduleValue = (value: any, day: number, property: 'begin' | 'end') => {
         let scheduleValue = formikRef.current?.values.schedule;

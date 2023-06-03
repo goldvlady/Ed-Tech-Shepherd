@@ -29,11 +29,11 @@ import { Course } from '../types';
 
 import DateInput, { FORMAT } from '../components/DateInput';
 import { FORMAT as TIME_PICKER_FORMAT } from '../components/TimePicker';
-import { formatContentFulCourse, getContentfulClient } from '../contentful';
 import mixpanel from 'mixpanel-browser';
 import CreatableSelect from '../components/CreatableSelect';
 import { MdInfo } from 'react-icons/md';
 import theme from '../theme';
+import resourceStore from '../state/resourceStore';
 
 const occupationOptions = occupationList.map((o) => {
     return { label: o, value: o }
@@ -99,12 +99,9 @@ const educationLevelOptions = [{
     value: "vocation-technical-cert"
 }]
 
-const client = getContentfulClient();
-
 const OnboardTutor = () => {
+    const { courses: courseList } = resourceStore();
     const toast = useToast();
-    const [courseList, setCourseList] = useState<Course[]>([]);
-    const [loadingCourses, setLoadingCourses] = useState(false);
     const [activeStep, setActiveStep] = useState<number>(1);
 
     const [editModalStep, setEditModalStep] = useState<string | null>(null);
@@ -127,32 +124,7 @@ const OnboardTutor = () => {
     const validateScheduleStep = !isEmpty(schedule) && !!tz && totalAvailableHours >= 3;
     const validateProfileSetupStep = !!avatar && !!description;
     const validateMoreInformationStep = !!occupation && !!highestLevelOfEducation && !!cv && !isEmpty(teachLevel);
-
     const validateRateStep = !!rate;
-
-    const loadCourses = useCallback(async () => {
-        setLoadingCourses(true);
-
-        try {
-            const resp = await client.getEntries({
-                content_type: 'course'
-            })
-
-            let courseList: Array<Course> = [];
-            resp.items.map((i: any) => {
-                courseList.push(formatContentFulCourse(i));
-            })
-
-            setCourseList(courseList);
-        } catch (e) {
-
-        }
-        setLoadingCourses(false);
-    }, []);
-
-    useEffect(() => {
-        loadCourses();
-    }, [loadCourses]);
 
     const [cvUploadPercent, setCvUploadPercent] = useState(0);
     const [selectedCV, setSelectedCV] = useState<File | null>(null);
@@ -323,7 +295,7 @@ const OnboardTutor = () => {
                 {
                     title: 'Classes',
                     value: <Text marginBottom={0}>{courses.map(tc => {
-                        return courseList.find(ac => ac.id === tc)?.title;
+                        return courseList.find(ac => ac._id === tc)?.label;
                     }).join(', ')}</Text>,
                     step: 'classes',
                 }
@@ -535,7 +507,7 @@ const OnboardTutor = () => {
                 </Heading>
                 <Box marginTop={30}>
                     <CourseSelect multi value={courses} onChange={(v) => onboardTutorStore.set.courses(v)} options={courseList.map(c => {
-                        return { ...c, value: c.id }
+                        return { ...c, value: c._id }
                     })} />
                 </Box>
             </Box>,

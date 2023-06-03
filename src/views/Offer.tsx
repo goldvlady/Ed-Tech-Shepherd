@@ -13,7 +13,6 @@ import theme from '../theme';
 import TutorCard from '../components/TutorCard';
 import ApiService from '../services/ApiService';
 import { Course, Offer as OfferType } from '../types';
-import { formatContentFulCourse, getContentfulClient } from '../contentful';
 import { useTitle } from '../hooks';
 import { capitalize, isEmpty } from 'lodash';
 import moment from 'moment';
@@ -65,7 +64,6 @@ export const scheduleOptions = [
     }
 ]
 
-const client = getContentfulClient();
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY as string);
 
 const Offer = () => {
@@ -83,8 +81,6 @@ const Offer = () => {
     const [loadingOffer, setLoadingOffer] = useState(false);
     const [settingUpPaymentMethod, setSettingUpPaymentMethod] = useState(false);
     const [offer, setOffer] = useState<OfferType | null>(null);
-    const [courseList, setCourseList] = useState<Course[]>([]);
-    const [loadingCourses, setLoadingCourses] = useState(false);
     const [acceptingOffer, setAcceptingOffer] = useState(false);
     const [declineNote, setDeclineNote] = useState('');
     const [decliningOffer, setDecliningOffer] = useState(false);
@@ -128,25 +124,7 @@ const Offer = () => {
         setLoadingOffer(false);
     }, [])
 
-    const loadCourses = useCallback(async () => {
-        setLoadingCourses(true);
-
-        try {
-            const resp = await client.getEntries({
-                content_type: 'course'
-            })
-
-            let newCourseList: Array<Course> = [];
-            resp.items.map((i: any) => {
-                newCourseList.push(formatContentFulCourse(i));
-            })
-
-            setCourseList(newCourseList);
-        } catch (e) {
-
-        }
-        setLoadingCourses(false);
-    }, []);
+    
 
     const bookOffer = async () => {
         setBookingOffer(true);
@@ -197,7 +175,6 @@ const Offer = () => {
     }
 
     useEffect(() => {
-        loadCourses();
         loadOffer();
     }, []);
 

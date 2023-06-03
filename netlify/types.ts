@@ -1,8 +1,11 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { User } from './database/models/User';
 
-export interface TimestampedEntity {
+export type Entity = {
     _id: string;
+}
+
+export interface TimestampedEntity extends Entity {
     createdAt: Date;
     updatedAt: Date;
 }

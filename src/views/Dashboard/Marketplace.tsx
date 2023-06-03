@@ -24,7 +24,6 @@ import { CustomButton } from "./layout";
 import Star5 from "../../assets/5star.svg";
 import { BsStarFill } from "react-icons/bs";
 import { FiChevronDown } from "react-icons/fi";
-import { formatContentFulCourse, getContentfulClient } from "../../contentful";
 import { Course, Schedule } from "../../types";
 import { useFormik } from "formik";
 import ApiService from "../../services/ApiService";
@@ -33,6 +32,7 @@ import TimePicker from "../../components/TimePicker";
 import { numberToDayOfWeekName, educationLevelOptions } from "../../util";
 import CustomSelect from "../../components/Select";
 import moment from "moment";
+import resourceStore from "../../state/resourceStore";
 
 const levelOptions = [
   { value: "a-level", label: "A-Level", id: 1 },
@@ -60,13 +60,11 @@ const ratingOptions = [
 const dayOptions = [...new Array(7)].map((_, i) => {
   return { label: numberToDayOfWeekName(i), value: i };
 });
-const client = getContentfulClient();
 const defaultTime = "";
 
 export default function Marketplace() {
+  const { courses: courseList } = resourceStore();
   const [allTutors, setAllTutors] = useState<any>([]);
-  const [courseList, setCourseList] = useState<Course[]>([]);
-  const [loadingCourses, setLoadingCourses] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
   const [tz, setTz] = useState<any>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -90,28 +88,6 @@ export default function Marketplace() {
     },
   });
   console.log(tz);
-
-  const loadCourses = useCallback(async () => {
-    setLoadingCourses(true);
-
-    try {
-      const resp = await client.getEntries({
-        content_type: "course",
-      });
-
-      let newCourseList: Array<Course> = [];
-      resp.items.map((i: any) => {
-        newCourseList.push(formatContentFulCourse(i));
-      });
-
-      setCourseList(newCourseList);
-    } catch (e) {}
-    setLoadingCourses(false);
-  }, []);
-
-  useEffect(() => {
-    loadCourses();
-  }, [loadCourses]);
 
   const getData = async () => {
     setLoadingData(true);
@@ -178,8 +154,8 @@ export default function Marketplace() {
               onChange={formik.handleChange}
             >
               {courseList.map((course) => (
-                <option key={course.id} value={course.title}>
-                  {course.title}
+                <option key={course._id} value={course._id}>
+                  {course.label}
                 </option>
               ))}
             </Select>

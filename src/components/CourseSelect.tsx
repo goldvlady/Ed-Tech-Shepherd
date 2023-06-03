@@ -57,8 +57,9 @@ const StyledOptionIcon = styled.img`
 margin: 0 auto;
 `
 
-type Option = Course & {
+type Option = Omit<Course, 'iconSrc'> & {
     value: any;
+    iconSrc?: string | React.ReactNode;
 }
 
 type Props = {
@@ -77,12 +78,12 @@ export const CourseSelect: React.FC<Props> = ({ value, options, multi = false, o
     return <Root>
         <SimpleGrid width={'100%'} columns={{ base: 1, sm: 2 }} spacing='15px'>
             {
-                options.map(o => <StyledOption onClick={() => toggleArrayValue(o.value)} key={o.value} type="button" role="button" className={`${(multi ? includes(value, o.value) : value === o.value) ? "active" : ""} ${o.id}`}>
+                options.map(o => <StyledOption onClick={() => toggleArrayValue(o.value)} key={o.value} type="button" role="button" className={`${(multi ? includes(value, o.value) : value === o.value) ? "active" : ""} ${o._id}`}>
                     <Box>
-                        {!!o.icon && <Box marginBottom={'18px'}>
-                            {typeof o.icon === 'string' ? <StyledOptionIcon alt={o.title} src={o.icon} /> : o.icon}
+                        {!!o.iconSrc && <Box marginBottom={'18px'}>
+                            {typeof o.iconSrc === 'string' ? <StyledOptionIcon alt={o.label} src={o.iconSrc} /> : o.iconSrc}
                         </Box>}
-                        <StyledOptionTitle>{o.title}</StyledOptionTitle>
+                        <StyledOptionTitle>{o.label}</StyledOptionTitle>
                     </Box>
                 </StyledOption>)
             }

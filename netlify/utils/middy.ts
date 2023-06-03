@@ -1,10 +1,10 @@
 import middy from '@middy/core';
-import cors from '@middy/http-cors';
 import { connectToDb } from '../database/connection';
 import * as firebaseAdmin from 'firebase-admin';
 import { initializeApp, getApps } from 'firebase-admin/app';
 import serviceAccount from '../serviceAccountKey.json';
 import sentryMiddleware from '../middlewares/sentryMiddleware';
+import corsMiddleware from '../middlewares/corsMiddleware';
 
 const bootstrapPlugin = () => {
     const requestStart = async () => {
@@ -26,5 +26,5 @@ const bootstrapPlugin = () => {
 }
 
 export default (handler: any) => middy(handler, bootstrapPlugin())
-    .use(cors({ disableBeforePreflightResponse: false, requestHeaders: '*', requestMethods: '*', headers: '*', methods: '*' }))
     .use(sentryMiddleware({ dsn: "https://ac7054d1ea7d4a81adc52cf58774dcab@o4505062795182080.ingest.sentry.io/4505251993354240", }))
+    .use(corsMiddleware())
