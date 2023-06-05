@@ -70,7 +70,7 @@ const Session = () => {
     return <Root>
         <Header left={
             booking && <Box display='flex' flexDirection='row' gap='12px' alignItems='center'>
-                <Box display='flex' justifyContent='center'><Text className='sub2' m={0}>{booking?.offer.subject} Lesson</Text></Box>
+                <Box display='flex' justifyContent='center'><Text className='sub2' m={0}>{booking?.offer.course.label} Lesson</Text></Box>
                 <SchedulePill className='body2'>{moment(booking.startDate).tz(tz as string).format('hh:mm A')} <FiArrowRight color='#6E7682' size={'15px'} /> {moment(booking.endDate).tz(tz as string).format('hh:mm A')}</SchedulePill>
             </Box>
         } />

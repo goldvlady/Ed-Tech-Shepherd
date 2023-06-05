@@ -4,6 +4,7 @@ import { TimestampedEntity } from "../../types";
 import { StudentLead as StudentLeadInterface } from "./StudentLead";
 import { TutorLead as TutorLeadInterface } from "./TutorLead";
 import { PaymentMethod } from "./PaymentMethod";
+import { Course } from "./Course";
 
 interface Schedule {
     [key: number]: {
@@ -20,7 +21,7 @@ export enum STATUS {
 }
 
 export interface Offer extends TimestampedEntity {
-    subject: string;
+    course: Course;
     level: string;
     days: number[];
     schedule: Schedule;
@@ -38,7 +39,7 @@ export interface Offer extends TimestampedEntity {
 }
 
 const schema = new Schema<Offer>({
-    subject: { type: String, required: true },
+    course: { type: Schema.Types.ObjectId, ref: "Course", autopopulate: true, required: true },
     level: { type: String, required: true },
     days: { type: [Number], required: true },
     schedule: { type: Schema.Types.Mixed, required: true },

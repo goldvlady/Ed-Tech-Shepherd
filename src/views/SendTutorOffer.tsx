@@ -35,7 +35,7 @@ const Root = styled(Box)`
 `
 
 const TutorOfferSchema = Yup.object().shape({
-    subject: Yup.string().required('Select a subject'),
+    course: Yup.string().required('Select a course'),
     level: Yup.string().required('Select a level'),
     days: Yup.array().min(1, 'Select days').required('Select days'),
     schedule: Yup.object().required('Select a schedule'),
@@ -94,7 +94,7 @@ const SendTutorOffer = () => {
         setLoadingTutor(false);
     }, [])
 
-    const subjectOptions = useMemo(() => courseList.map(c => ({ label: c.label, value: c._id })), [courseList])
+    const courseOptions = useMemo(() => tutor?.courses.map(c => ({ label: c.label, value: c._id })) || [], [tutor])
     const levelOptions = useMemo(() => levels.map(l => ({ label: l, value: l })), [])
 
     useEffect(() => {
@@ -161,7 +161,7 @@ const SendTutorOffer = () => {
                     </Breadcrumb>
                     <PageTitle marginTop={'28px'} mb={10} title='Send an Offer' subtitle={`Provide your contract terms. We’ll notify you via email when ${tutor.name.first} responds`} />
                     <Formik
-                        initialValues={{ subject: '', level: '', days: [], schedule: {}, startTime: '', endTime: '', note: '', rate: tutor.rate, expirationDate: new Date(), contractStartDate: null, contractEndDate: null }}
+                        initialValues={{ course: '', level: '', days: [], schedule: {}, startTime: '', endTime: '', note: '', rate: tutor.rate, expirationDate: new Date(), contractStartDate: null, contractEndDate: null }}
                         validationSchema={TutorOfferSchema}
                         innerRef={formikRef}
                         onSubmit={async (values, { setSubmitting }) => {
@@ -224,22 +224,22 @@ const SendTutorOffer = () => {
                                     </Panel>
                                     <Panel>
                                         <Text className='sub1' mb={0}>Offer Details</Text>
-                                        <Field name='subject'>
+                                        <Field name='course'>
                                             {({ field, form }: FieldProps) => (
                                                 <FormControl mt={8} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
-                                                    <FormLabel>Subject</FormLabel>
+                                                    <FormLabel>Course</FormLabel>
                                                     {isEditing ? <Select
-                                                        defaultValue={subjectOptions.find(s => s.value === field.value)}
+                                                        defaultValue={courseOptions.find(s => s.value === field.value)}
                                                         tagVariant="solid"
-                                                        placeholder="Select subject"
-                                                        options={subjectOptions}
+                                                        placeholder="Select course"
+                                                        options={courseOptions}
                                                         isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}
                                                         size={'md'}
                                                         onFocus={() => form.setTouched({ ...form.touched, [field.name]: true })}
                                                         onChange={
                                                             (option) => form.setFieldValue(field.name, (option as Option).value)
                                                         }
-                                                    /> : <EditField>{subjectOptions.find(s => s.value === field.value)?.label}</EditField>}
+                                                    /> : <EditField>{courseOptions.find(s => s.value === field.value)?.label}</EditField>}
                                                     <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
                                                 </FormControl>
                                             )}
