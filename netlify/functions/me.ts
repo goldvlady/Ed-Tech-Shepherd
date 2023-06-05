@@ -1,5 +1,5 @@
 import middy from '../utils/middy';
-import authMiddleware from "../middlewares/authMiddleware";
+import corsMiddleware from '../middlewares/corsMiddleware';
 import { HTTPEvent } from "../types";
 import User from "../database/models/User";
 import { getAuth } from 'firebase-admin/auth';
@@ -30,4 +30,4 @@ const me = async (event: HTTPEvent) => {
     }
 }
 
-export const handler = middy(me);
+export const handler = middy(me).use(corsMiddleware());
