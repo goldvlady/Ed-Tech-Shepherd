@@ -27,6 +27,7 @@ const middleware = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxy
 
     return {
         before: after,
+        onError: after,
         after,
     }
 }
