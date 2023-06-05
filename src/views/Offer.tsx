@@ -377,7 +377,7 @@ const Offer = () => {
                                     </Box>
                                     <Box>
                                         <FormLabel>What days would you like to have your classes</FormLabel>
-                                        <OfferValueText>{offer.days.map(d => numberToDayOfWeekName(d, 'ddd')).join(', ')}</OfferValueText>
+                                        <OfferValueText>{Object.keys(offer.schedule).map(d => numberToDayOfWeekName(parseInt(d), 'ddd')).join(', ')}</OfferValueText>
                                     </Box>
                                     {
                                         (Object.keys(offer.schedule)).map((d) => {

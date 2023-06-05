@@ -23,7 +23,6 @@ export enum STATUS {
 export interface Offer extends TimestampedEntity {
     course: Course;
     level: string;
-    days: number[];
     schedule: Schedule;
     rate: number;
     note: string;
@@ -41,7 +40,6 @@ export interface Offer extends TimestampedEntity {
 const schema = new Schema<Offer>({
     course: { type: Schema.Types.ObjectId, ref: "Course", autopopulate: true, required: true },
     level: { type: String, required: true },
-    days: { type: [Number], required: true },
     schedule: { type: Schema.Types.Mixed, required: true },
     rate: { type: Number, required: true },
     note: { type: String, required: false, default: '' },
