@@ -113,19 +113,27 @@ class ApiService {
   static getAllTutors = async () => {
     return doFetch(`${ApiService.baseEndpoint}/tutors`);
   };
+
   static getFilteredTutors = async (formData: any) => {
     let filterParams = "";
 
     for (const key in formData) {
-      if (key != "tz") {
+      if (key === "price") {
+        // filterParams += !!formData["price"] ? `&${formData["price"]}` : "";
+        console.log(formData["price"]);
+      }
+
+      if (key !== "tz" && key !== "price") {
         filterParams += !!formData[key] ? `&${key}=${formData[key]}` : "";
       }
     }
+
     return doFetch(
       // `${ApiService.baseEndpoint}/tutors?tz=${formData.tz + filterParams}`
       `${ApiService.baseEndpoint}/tutors?tz=Africa/Lagos${filterParams}`
     );
   };
+
   static saveTutor = async (id: string) => {
     return doFetch(`${ApiService.baseEndpoint}/saveTutor`, {
       method: "POST",
