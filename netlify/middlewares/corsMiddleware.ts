@@ -21,10 +21,7 @@ const middleware = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxy
         }
 
         if (request.response) {
-            request.response.headers = {
-                ...(request.response?.headers || {}),
-                ...CORS_HEADERS
-            }
+            request.response.headers = CORS_HEADERS;
         }
     }
 
