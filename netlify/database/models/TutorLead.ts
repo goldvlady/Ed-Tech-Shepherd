@@ -10,7 +10,7 @@ export interface TutorLead extends TimestampedEntity {
     };
     email: string;
     dob: string;
-    courses: Array<Course> | Array<String>;
+    courses: Array<Course>;
     schedule: Schedule;
     rate: number;
     active?: boolean;
