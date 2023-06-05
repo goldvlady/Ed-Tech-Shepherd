@@ -179,8 +179,8 @@ const AppRoutes: React.FC = () => {
         element={
           <RequireAuth
             authenticated={<DashboardLayout children />}
-            // unAuthenticated={<DashboardLayout children />}
-            unAuthenticated={<Navigate to={"/login"} />}
+            unAuthenticated={<DashboardLayout children />}
+            // unAuthenticated={<Navigate to={"/login"} />}
           />
         }
       >
@@ -208,7 +208,6 @@ const AppRoutes: React.FC = () => {
           />
         }
       />
-
     </Routes>
   );
 };
@@ -225,11 +224,13 @@ function App() {
   }, [doFetchResources]);
 
   if (!resourcesLoaded) {
-    return <ChakraProvider theme={theme}>
-      <Box p={5} textAlign="center">
-        <Spinner />
-      </Box>
-    </ChakraProvider>
+    return (
+      <ChakraProvider theme={theme}>
+        <Box p={5} textAlign="center">
+          <Spinner />
+        </Box>
+      </ChakraProvider>
+    );
   }
 
   return (

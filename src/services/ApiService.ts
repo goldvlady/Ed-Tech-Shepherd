@@ -1,7 +1,8 @@
 import { doFetch } from "../util";
 
 class ApiService {
-  static baseEndpoint = "/.netlify/functions";
+  static baseEndpoint =
+    "https://dev--shepherd-tutors.netlify.app/.netlify/functions";
 
   static getResources = async () => {
     return doFetch(`${ApiService.baseEndpoint}/resources`);
@@ -116,21 +117,32 @@ class ApiService {
 
   static getFilteredTutors = async (formData: any) => {
     let filterParams = "";
+    let minRate = "";
+    let maxRate = "";
+    console.log("FORM", formData);
 
     for (const key in formData) {
-      if (key === "price") {
-        // filterParams += !!formData["price"] ? `&${formData["price"]}` : "";
-        console.log(formData["price"]);
-      }
+      // filterParams += !!formData["price"] ? `&${formData["price"]}` : "";
+      console.log(formData["price"]);
+      const rateArray = formData["price"].split("-");
+      minRate = rateArray[0];
+      maxRate = rateArray[1];
+      // filterParams += !!formData["price"]
+      //   ? `&rate>=${minRate}&rate<=${maxRate}`
+      //   : "";
 
-      if (key !== "tz" && key !== "price") {
-        filterParams += !!formData[key] ? `&${key}=${formData[key]}` : "";
+      if (key !== "tz") {
+        filterParams += !!formData[key]
+          ? key == "price"
+            ? `&${key}=${formData[key]}&rate>=${minRate}&rate<=${maxRate}`
+            : `&${key}=${formData[key]}`
+          : "";
       }
     }
 
     return doFetch(
-      // `${ApiService.baseEndpoint}/tutors?tz=${formData.tz + filterParams}`
-      `${ApiService.baseEndpoint}/tutors?tz=Africa/Lagos${filterParams}`
+      `${ApiService.baseEndpoint}/tutors?tz=${formData.tz + filterParams}`
+      // `${ApiService.baseEndpoint}/tutors?tz=Africa/Lagos${filterParams}`
     );
   };
 
