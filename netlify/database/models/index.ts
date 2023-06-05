@@ -1,3 +1,4 @@
+require('./Course');
 require('./StudentLead');
 require('./SavedTutor');
 require('./TutorLead');
