@@ -28,6 +28,7 @@ const middleware = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxy
     }
 
     return {
+        before: after, // TODO::::REMOVE DEBUG
         after
     }
 }
