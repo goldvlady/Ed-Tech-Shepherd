@@ -75,9 +75,9 @@ export default function Tutor() {
     getData();
   }, []);
 
-  const saveTutor = async () => {
+  const bookmarkTutor = async () => {
     try {
-      const resp = await ApiService.saveTutor(tutorId);
+      const resp = await ApiService.bookmarkTutor(tutorId);
       console.log(resp);
       toast({
         title: "Tutor saved successful",
@@ -172,7 +172,7 @@ export default function Tutor() {
                     w={"110px"}
                     display="flex"
                     my={5}
-                    onClick={saveTutor}
+                    onClick={bookmarkTutor}
                   >
                     Save Profile
                   </Button>

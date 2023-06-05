@@ -15,7 +15,7 @@ import TutorCard from "./components/TutorCard";
 import ApiService from "../../services/ApiService";
 import TutorAvi from "../../assets/tutoravi.svg";
 
-function SavedTutors() {
+function BookmarkedTutors() {
   const [allTutors, setAllTutors] = useState<any>([]);
   const [loadingData, setLoadingData] = useState(false);
   // const getData = async () => {
@@ -28,17 +28,17 @@ function SavedTutors() {
   //   setLoadingData(false);
   // };
 
-  const getSavedTutors = async () => {
+  const getBookmarkedTutors = async () => {
     setLoadingData(true);
     try {
-      const resp = await ApiService.getSavedTutors();
+      const resp = await ApiService.getBookmarkedTutors();
       const data = await resp.json();
       setAllTutors(data);
     } catch (e) {}
     setLoadingData(false);
   };
   useEffect(() => {
-    getSavedTutors();
+    getBookmarkedTutors();
   }, []);
   console.log("saved tutors", allTutors);
 
@@ -70,4 +70,4 @@ function SavedTutors() {
   );
 }
 
-export default SavedTutors;
+export default BookmarkedTutors;

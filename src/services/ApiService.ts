@@ -134,15 +134,15 @@ class ApiService {
     );
   };
 
-  static saveTutor = async (id: string) => {
-    return doFetch(`${ApiService.baseEndpoint}/saveTutor`, {
+  static bookmarkTutor = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/bookmarkTutor`, {
       method: "POST",
       body: JSON.stringify({ tutorId: id }),
     });
   };
 
-  static getSavedTutors = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/savedTutors`);
+  static getBookmarkedTutors = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/bookmarkedTutors`);
   };
 }
 

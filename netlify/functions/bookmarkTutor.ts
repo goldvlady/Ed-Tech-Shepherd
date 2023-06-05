@@ -1,10 +1,10 @@
-import SavedTutor from "../database/models/SavedTutor";
+import BookmarkedTutor from "../database/models/BookmarkedTutor";
 import TutorLead from "../database/models/TutorLead";
 import authMiddleware from "../middlewares/authMiddleware";
 import { HTTPEvent } from "../types";
 import middy from "../utils/middy";
 
-export const saveTutor = async (event: HTTPEvent) => {
+export const bookmarkTutor = async (event: HTTPEvent) => {
     const { user } = event;
     const { tutorId } = JSON.parse(event.body as string);
 
@@ -16,15 +16,15 @@ export const saveTutor = async (event: HTTPEvent) => {
         }
     }
 
-    const savedTutor = await SavedTutor.create({
+    const bookmarkedTutor = await BookmarkedTutor.create({
         user: user._id,
         tutor: tutor._id
     })
 
     return {
         statusCode: 200,
-        body: JSON.stringify(savedTutor)
+        body: JSON.stringify(bookmarkedTutor)
     }
 }
 
-export const handler = middy(saveTutor).use(authMiddleware());
+export const handler = middy(bookmarkTutor).use(authMiddleware());

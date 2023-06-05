@@ -15,7 +15,7 @@ import DashboardIndex from "./views/Dashboard/index";
 import Marketplace from "./views/Dashboard/Marketplace";
 import Tutor from "./views/Dashboard/Tutor";
 import MyTutors from "./views/Dashboard/MyTutors";
-import SavedTutors from "./views/Dashboard/SavedTutors";
+import BookmarkedTutors from "./views/Dashboard/BookmarkedTutors";
 import WelcomeLayout from "./views/WelcomeLayout";
 import "bootstrap/dist/css/bootstrap-grid.min.css";
 import "bootstrap/dist/css/bootstrap-reboot.min.css";
@@ -194,7 +194,7 @@ const AppRoutes: React.FC = () => {
         <Route path="find-tutor" element={<Marketplace />} />
         <Route path="find-tutor/tutor/" element={<Tutor />} />
         <Route path="my-tutors" element={<MyTutors />} />
-        <Route path="saved-tutors" element={<SavedTutors />} />
+        <Route path="saved-tutors" element={<BookmarkedTutors />} />
         <Route path="" element={<Navigate to="home" />} />
         <Route path="*" element={<Navigate to="home" />} />
       </Route>
