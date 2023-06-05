@@ -20,16 +20,17 @@ const middleware = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxy
 
         }
 
-        // @ts-expect-error
-        request.response.headers = {
-            ...request.response?.headers,
-            ...CORS_HEADERS
+        if (request.response) {
+            request.response.headers = {
+                ...(request.response?.headers || {}),
+                ...CORS_HEADERS
+            }
         }
     }
 
     return {
-        before: after, // TODO::::REMOVE DEBUG
-        after
+        before: after,
+        after,
     }
 }
 
