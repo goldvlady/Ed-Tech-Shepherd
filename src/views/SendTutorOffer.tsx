@@ -161,7 +161,7 @@ const SendTutorOffer = () => {
                     </Breadcrumb>
                     <PageTitle marginTop={'28px'} mb={10} title='Send an Offer' subtitle={`Provide your contract terms. We’ll notify you via email when ${tutor.name.first} responds`} />
                     <Formik
-                        initialValues={{ course: '', level: '', days: [], schedule: {}, startTime: '', endTime: '', note: '', rate: tutor.rate, expirationDate: new Date(), contractStartDate: null, contractEndDate: null }}
+                        initialValues={{ course: '', level: '', days: [], schedule: {}, note: '', rate: tutor.rate, expirationDate: new Date(), contractStartDate: null, contractEndDate: null }}
                         validationSchema={TutorOfferSchema}
                         innerRef={formikRef}
                         onSubmit={async (values, { setSubmitting }) => {
