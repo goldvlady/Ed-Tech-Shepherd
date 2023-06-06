@@ -402,7 +402,7 @@ const Offer = () => {
                                     <Box>
                                         <FormLabel>Hourly rate</FormLabel>
                                         <OfferValueText>${offer.rate}/hr</OfferValueText>
-                                        <Text color='text.300' mt={'10px'} mb={0} fontSize='12px' fontWeight={'500'}>Shepherd charges a <Box color='primary.400' as={'span'}>{ServiceFeePercentage * 100}% service fee (-${offer.rate * ServiceFeePercentage}/hr)</Box></Text>
+                                        <Text color='text.300' mt={'10px'} mb={0} fontSize='12px' fontWeight={'500'}>Shepherd charges a <Box color='primary.400' as={'span'}>{ServiceFeePercentage * 100}% service fee (-${(offer.rate * ServiceFeePercentage).toFixed(2)}/hr)</Box></Text>
                                     </Box>
                                     <Box>
                                         <FormLabel>You’ll receive</FormLabel>
