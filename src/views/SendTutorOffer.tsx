@@ -16,7 +16,7 @@ import { numberToDayOfWeekName } from '../util';
 import theme from '../theme';
 import TutorCard from '../components/TutorCard';
 import ApiService from '../services/ApiService';
-import { Course, Tutor } from '../types';
+import { Tutor } from '../types';
 import { useTitle } from '../hooks';
 import CalendarDateInput from '../components/CalendarDateInput';
 import { capitalize, isEmpty } from 'lodash';
@@ -24,8 +24,6 @@ import moment from 'moment';
 import resourceStore from '../state/resourceStore';
 
 const LeftCol = styled(Box)`
-background: #FFF;
-padding: 32px;
 min-height: 100vh;
 `
 const RightCol = styled(Box)`
@@ -118,7 +116,7 @@ const SendTutorOffer = () => {
 
     return <Root className='container-fluid'>
         <Box className='row'>
-            <LeftCol className='col-md-8'>
+            <LeftCol mb='32px' className='col-lg-8'>
                 {loading && <Box textAlign={'center'}><Spinner /></Box>}
                 {!!tutor && <Box>
                     <Modal isOpen={isSuccessModalOpen} onClose={onSuccessModalClose}>
@@ -389,14 +387,14 @@ const SendTutorOffer = () => {
                     </Formik>
                 </Box>}
             </LeftCol>
-            <div className='col-md-4'>
+            <div className='col-lg-4'>
                 <RightCol height='100%'>
-                    <Panel borderRadius={'10px'} position={"sticky"} top="90px">
+                    <Panel p='24px' borderRadius={'10px'} position={"sticky"} top="90px">
                         <HStack>
                             <BsQuestionCircleFill color='#969CA6' />
                             <Text className='sub2'>How this Works</Text>
                         </HStack>
-                        <LinedList mt={'30px'} items={[
+                        <LinedList mt={'20px'} items={[
                             {
                                 title: 'Send a Proposal',
                                 subtitle: 'Find your desired tutor and prepare an offer on your terms and send to the tutor'
