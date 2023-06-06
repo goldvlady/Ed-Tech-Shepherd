@@ -1,8 +1,8 @@
+import { REACT_APP_API_ENDPOINT } from "../config";
 import { doFetch } from "../util";
 
 class ApiService {
-  static baseEndpoint =
-    "https://dev--shepherd-tutors.netlify.app/.netlify/functions";
+  static baseEndpoint = REACT_APP_API_ENDPOINT;
 
   static getResources = async () => {
     return doFetch(`${ApiService.baseEndpoint}/resources`);
@@ -146,8 +146,8 @@ class ApiService {
     );
   };
 
-  static bookmarkTutor = async (id: string) => {
-    return doFetch(`${ApiService.baseEndpoint}/bookmarkTutor`, {
+  static toggleBookmarkedTutor = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/toggleBookmarkedTutor`, {
       method: "POST",
       body: JSON.stringify({ tutorId: id }),
     });

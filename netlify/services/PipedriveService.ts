@@ -1,8 +1,9 @@
 import { capitalize } from "lodash";
 import moment from "moment-timezone";
-import { Schedule } from "../database/models/Schedule";
 import { SkillLevel, StudentLead } from "../database/models/StudentLead";
 import { TutorLead } from "../database/models/TutorLead";
+import { SCHEDULE_FORMAT } from "../../src/config";
+import { Schedule } from "../../src/types";
 
 const pipedrive = require('pipedrive');
 
@@ -42,6 +43,21 @@ export class PipedriveService {
 
     get notesApi() {
         return new pipedrive.NotesApi(this.defaultClient);
+    }
+
+    formatScheduleToWAT(schedule: Schedule) {
+        const parseDateFormat = "MM-DD-YYYY";
+
+        return Object.keys(schedule).map((d) => {
+            const weekDay = parseInt(d);
+            const dateStr = moment().isoWeekday(weekDay).format(parseDateFormat);
+
+            return schedule[weekDay].map(s => {
+                const begin = moment(`${dateStr}, ${s.begin}`, `${parseDateFormat}, ${SCHEDULE_FORMAT}`).tz('Africa/Lagos');
+                const end = moment(`${dateStr}, ${s.end}`, `${parseDateFormat}, ${SCHEDULE_FORMAT}`).tz('Africa/Lagos');
+                return `${begin.format('dddd')} ${begin.format('hh:mm A')} - ${end.format('dddd')} ${end.format('hh:mm A')}`
+            }).join('\n')
+        })
     }
 
     /**
@@ -110,9 +126,7 @@ export class PipedriveService {
      * @param tutor 
      */
     async createTutorNote(tutor: TutorLead) {
-        const schedule = tutor.schedule.map((s: Schedule) => {
-            return `${moment(s.begin).format('dddd')}: ${moment(s.begin).tz('Africa/Lagos').format('hh:mm A')} - ${moment(s.end).tz('Africa/Lagos').format('hh:mm A')}`
-        })
+        const schedule = this.formatScheduleToWAT(tutor.schedule);
 
         const content = `
         <b>ID</b>: ${tutor._id}
@@ -195,10 +209,7 @@ export class PipedriveService {
      * @param student 
      */
     async createStudentNote(student: StudentLead) {
-        // @ts-ignore
-        const schedule = student.schedule.map((s: Schedule) => {
-            return `${moment(s.begin).format('dddd')}: ${moment(s.begin).tz('Africa/Lagos').format('hh:mm A')} - ${moment(s.end).tz('Africa/Lagos').format('hh:mm A')}`
-        })
+        const schedule = this.formatScheduleToWAT(student.schedule);
 
         // @ts-ignore
         const skillLevels = (student.skillLevels || [])?.map((s: SkillLevel): string => `${s.course}: ${s.skillLevel}`)

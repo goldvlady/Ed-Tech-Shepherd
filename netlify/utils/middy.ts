@@ -27,4 +27,4 @@ const bootstrapPlugin = () => {
 
 export default (handler: any) => middy(handler, bootstrapPlugin())
     .use(sentryMiddleware({ dsn: "https://ac7054d1ea7d4a81adc52cf58774dcab@o4505062795182080.ingest.sentry.io/4505251993354240", }))
-    .use(corsMiddleware())
+    .use(corsMiddleware({ disableBeforePreflightResponse: false, origin: '*', requestHeaders: '*', requestMethods: '*', headers: '*', methods: '*' }))

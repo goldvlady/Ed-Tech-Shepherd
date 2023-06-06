@@ -1,9 +1,9 @@
 import middy from '../utils/middy';
-import authMiddleware from "../middlewares/authMiddleware";
 import { HTTPEvent } from "../types";
 import User from "../database/models/User";
 import { getAuth } from 'firebase-admin/auth';
 import { first, last } from 'lodash';
+import authMiddleware from '../middlewares/authMiddleware';
 
 const me = async (event: HTTPEvent) => {
     let { firebaseUser, user } = event;

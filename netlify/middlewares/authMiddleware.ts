@@ -27,15 +27,8 @@ const middleware = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxy
         }
     }
 
-    const after: middy.MiddlewareFn<APIGatewayProxyEvent, APIGatewayProxyResult> = async (
-        request
-    ): Promise<void> => {
-        // Your middleware logic
-    }
-
     return {
-        before,
-        after
+        before
     }
 }
 

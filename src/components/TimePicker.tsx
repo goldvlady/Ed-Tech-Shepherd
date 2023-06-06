@@ -11,6 +11,7 @@ import {
   InputRightElement,
 } from '@chakra-ui/react'
 import { FiClock } from 'react-icons/fi'
+import { SCHEDULE_FORMAT } from '../config';
 
 interface TimePickerProps {
   value: string;
@@ -19,7 +20,7 @@ interface TimePickerProps {
   inputGroupProps?: React.ComponentProps<typeof InputGroup>;
 }
 
-export const FORMAT = 'hh:mm A';
+export const FORMAT = SCHEDULE_FORMAT;
 
 const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, inputProps = {}, inputGroupProps = {} }) => {
   const [hours, setHours] = useState<string>('')
