@@ -1,7 +1,8 @@
+import { REACT_APP_API_ENDPOINT } from "../config";
 import { doFetch } from "../util";
 
 class ApiService {
-  static baseEndpoint = "/.netlify/functions";
+  static baseEndpoint = REACT_APP_API_ENDPOINT;
 
   static getResources = async () => {
     return doFetch(`${ApiService.baseEndpoint}/resources`);
