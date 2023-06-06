@@ -3,8 +3,9 @@ import TutorLead from "../database/models/TutorLead";
 import authMiddleware from "../middlewares/authMiddleware";
 import { HTTPEvent } from "../types";
 import middy from "../utils/middy";
+import { bookmarkedTutors } from "./bookmarkedTutors";
 
-export const bookmarkTutor = async (event: HTTPEvent) => {
+const toggleBookmarkedTutor = async (event: HTTPEvent) => {
     const { user } = event;
     const { tutorId } = JSON.parse(event.body as string);
 
@@ -16,15 +17,24 @@ export const bookmarkTutor = async (event: HTTPEvent) => {
         }
     }
 
-    const bookmarkedTutor = await BookmarkedTutor.create({
+    const existingBookmarkedTutor = await BookmarkedTutor.findOne({
         user: user._id,
         tutor: tutor._id
     })
 
+    if (existingBookmarkedTutor) {
+        await existingBookmarkedTutor.deleteOne();
+    } else {
+        await BookmarkedTutor.create({
+            user: user._id,
+            tutor: tutor._id
+        })
+    }
+
     return {
         statusCode: 200,
-        body: JSON.stringify(bookmarkedTutor)
+        body: JSON.stringify(await bookmarkedTutors(event))
     }
 }
 
-export const handler = middy(bookmarkTutor).use(authMiddleware());
+export const handler = middy(toggleBookmarkedTutor).use(authMiddleware());

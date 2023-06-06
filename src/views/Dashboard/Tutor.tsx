@@ -77,7 +77,7 @@ export default function Tutor() {
 
   const bookmarkTutor = async () => {
     try {
-      const resp = await ApiService.bookmarkTutor(tutorId);
+      const resp = await ApiService.toggleBookmarkedTutor(tutorId);
       console.log(resp);
       toast({
         title: "Tutor saved successful",

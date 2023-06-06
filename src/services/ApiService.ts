@@ -135,8 +135,8 @@ class ApiService {
     );
   };
 
-  static bookmarkTutor = async (id: string) => {
-    return doFetch(`${ApiService.baseEndpoint}/bookmarkTutor`, {
+  static toggleBookmarkedTutor = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/toggleBookmarkedTutor`, {
       method: "POST",
       body: JSON.stringify({ tutorId: id }),
     });
