@@ -8,6 +8,7 @@ import moment from "moment";
 import { isEmpty } from "lodash";
 import TimePicker from "./TimePicker";
 import Select from "./Select";
+import { SCHEDULE_FORMAT } from "../config";
 
 export interface ScheduleBuilderDialogRef {
     buildSchedule: (dayOfWeek: number | null) => Promise<SingleSchedule>
@@ -34,7 +35,6 @@ const ScheduleBuilderDialog = React.forwardRef<ScheduleBuilderDialogRef, Props>(
     const [toTime, setToTime] = useState("");
 
     const parseDateFormat = "MM-DD-YYYY";
-    const parseTimeFormat = "hh:mm A";
 
     React.useImperativeHandle(ref, () => {
         return {
@@ -75,8 +75,8 @@ const ScheduleBuilderDialog = React.forwardRef<ScheduleBuilderDialogRef, Props>(
 
     const dateStr = moment().format(parseDateFormat)
 
-    const fromTimeDate = moment(`${dateStr}, ${fromTime}`, `${parseDateFormat}, ${parseTimeFormat}`);
-    const toTimeDate = moment(`${dateStr}, ${toTime}`, `${parseDateFormat}, ${parseTimeFormat}`);
+    const fromTimeDate = moment(`${dateStr}, ${fromTime}`, `${parseDateFormat}, ${SCHEDULE_FORMAT}`);
+    const toTimeDate = moment(`${dateStr}, ${toTime}`, `${parseDateFormat}, ${SCHEDULE_FORMAT}`);
 
     const hoursDiff = moment.duration(toTimeDate.diff(fromTimeDate)).asHours();
 
