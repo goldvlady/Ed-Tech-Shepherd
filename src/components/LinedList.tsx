@@ -2,9 +2,8 @@ import { VStack, Box, Text } from "@chakra-ui/react";
 import styled from "styled-components";
 
 const Title = styled(Text).attrs(() => ({ className: "sub3" }))`
-  margin-bottom: 11px;
+  margin-bottom: 4px;
   position: relative;
-  line-height: 0.1;
   &:before {
     content: "";
     height: 10px;
@@ -36,7 +35,7 @@ const Root = styled(VStack)`
     content: "";
     position: absolute;
     left: 0;
-    top: 0;
+    top: 7px;
     bottom: 0;
     width: 1px;
     background: #e8e9ed;
@@ -54,7 +53,7 @@ const Root = styled(VStack)`
       background: white;
       z-index: -13;
       left: -17px;
-      top: -8px;
+      top: -17px;
       bottom: 0;
       width: 1px;
     }
