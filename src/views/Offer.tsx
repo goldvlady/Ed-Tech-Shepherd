@@ -283,7 +283,7 @@ const Offer = () => {
 
                             <ModalFooter>
                                 <HStack gap='20px'>
-                                    <Button variant={'floating'} onClick={() => { }}>Cancel</Button>
+                                    <Button variant={'floating'} onClick={onWithdrawOfferModalClose}>Cancel</Button>
                                     <Button isLoading={withdrawingOffer} margin={'0 !important'} variant={'destructiveSolid'} onClick={withdrawOffer}>Withdraw</Button>
                                 </HStack>
                             </ModalFooter>
