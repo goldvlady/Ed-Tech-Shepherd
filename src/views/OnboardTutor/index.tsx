@@ -67,7 +67,6 @@ import { getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { storage } from "../../firebase";
 import { getOptionValue } from "../../util";
 import FileDisplay from "../../components/FileDisplay";
-import { Course } from "../../types";
 
 import DateInput, { FORMAT } from "../../components/DateInput";
 import { FORMAT as TIME_PICKER_FORMAT } from "../../components/TimePicker";
@@ -140,7 +139,6 @@ const educationLevelOptions = [
 
 const OnboardTutor = () => {
   const toast = useToast();
-  const [courseList, setCourseList] = useState<Course[]>([]);
   const [confirmDocument, setConfirmDocument] = useState(false);
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
