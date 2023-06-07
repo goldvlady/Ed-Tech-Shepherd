@@ -10,7 +10,9 @@ export interface BookmarkedTutor extends TimestampedEntity {
 
 const schema = new Schema<BookmarkedTutor>({
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    tutor: { type: Schema.Types.ObjectId, ref: "TutorLead", required: true },
+    tutor: { type: Schema.Types.ObjectId, ref: "TutorLead", required: true, autopopulate: true },
 }, { timestamps: true });
+
+schema.plugin(require('mongoose-autopopulate'));
 
 export default model<BookmarkedTutor>('BookmarkedTutor', schema);
