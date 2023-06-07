@@ -1,5 +1,6 @@
 require("./Course");
 require("./StudentLead");
+require("./TutorReview");
 require("./BookmarkedTutor");
 require("./TutorLead");
 require("./Email");
