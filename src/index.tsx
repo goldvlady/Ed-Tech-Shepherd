@@ -1,26 +1,27 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import "./index.css";
-import "./tailwind.css";
-import App from "./App";
-import * as Sentry from "@sentry/react";
-import reportWebVitals from "./reportWebVitals";
-import mixpanel from "mixpanel-browser";
+import * as Sentry from '@sentry/react';
+import mixpanel from 'mixpanel-browser';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 
-mixpanel.init("60b6261338f9bed7ca835ca0a2134f4d");
+import App from './App';
+import './index.css';
+import reportWebVitals from './reportWebVitals';
+import './tailwind.css';
+
+mixpanel.init('60b6261338f9bed7ca835ca0a2134f4d');
 
 Sentry.init({
-  dsn: "https://a8514e19899d486286187db0ccd2f21d@o4505062795182080.ingest.sentry.io/4505062798852096",
-  integrations: [new Sentry.BrowserTracing(), new Sentry.Replay()],
-  // Performance Monitoring
-  tracesSampleRate: 1.0, // Capture 100% of the transactions, reduce in production!
-  // Session Replay
-  replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
-  replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
+    dsn: 'https://a8514e19899d486286187db0ccd2f21d@o4505062795182080.ingest.sentry.io/4505062798852096',
+    integrations: [new Sentry.BrowserTracing(), new Sentry.Replay()],
+    // Performance Monitoring
+    tracesSampleRate: 1.0, // Capture 100% of the transactions, reduce in production!
+    // Session Replay
+    replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
+    replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
 });
 
 const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
+    document.getElementById('root') as HTMLElement
 );
 root.render(<App />);
 

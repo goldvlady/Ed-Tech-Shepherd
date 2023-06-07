@@ -1,16 +1,16 @@
+import { alertAnatomy } from '@chakra-ui/anatomy';
 import {
     createMultiStyleConfigHelpers,
+    theme as defaultTheme,
     defineStyle,
     defineStyleConfig,
     extendTheme,
-    theme as defaultTheme,
-} from '@chakra-ui/react'
+} from '@chakra-ui/react';
 
-import { alertAnatomy } from '@chakra-ui/anatomy'
 const {
     definePartsStyle: defineAlertPartsStyle,
     defineMultiStyleConfig: defineAlertMultiStyleConfig,
-} = createMultiStyleConfigHelpers(alertAnatomy.keys)
+} = createMultiStyleConfigHelpers(alertAnatomy.keys);
 
 const borderRadius = {
     radii: {
@@ -24,7 +24,7 @@ const borderRadius = {
         '3xl': '1.5rem',
         full: '9999px',
     },
-}
+};
 
 const colors = {
     blue: {
@@ -68,12 +68,12 @@ const colors = {
         800: '#071941',
         900: '#00051a',
     },
-}
+};
 
 const mutedText = defineStyle({
     color: '#696969',
     fontSize: 'var(--chakra-fontSizes-xs)',
-})
+});
 
 const solidButton = defineStyle({
     fontWeight: '500',
@@ -94,7 +94,7 @@ const solidButton = defineStyle({
         background: '#F1F1F1',
         pointerEvents: 'none',
     },
-})
+});
 
 const destructiveSolidLightButton = defineStyle({
     ...solidButton,
@@ -104,7 +104,7 @@ const destructiveSolidLightButton = defineStyle({
         background: colors.red[400],
         color: '#FFF',
     },
-})
+});
 
 const destructiveSolidButton = defineStyle({
     ...solidButton,
@@ -114,7 +114,7 @@ const destructiveSolidButton = defineStyle({
         background: colors.red[600],
         color: '#FFF',
     },
-})
+});
 
 const flatButton = defineStyle({
     fontWeight: '500',
@@ -135,7 +135,7 @@ const flatButton = defineStyle({
         background: '#F2F2F3',
         pointerEvents: 'none',
     },
-})
+});
 
 const floatingButton = defineStyle({
     fontWeight: '500',
@@ -158,14 +158,14 @@ const floatingButton = defineStyle({
         background: '#F2F2F3',
         pointerEvents: 'none',
     },
-})
+});
 
 const linkButton = defineStyle({
     fontSize: '14px',
     fontWeight: '500',
     lineHeight: '20px',
     color: colors.primary[400],
-})
+});
 
 const inputFieldStyle = {
     border: '1px solid #E4E6E7',
@@ -197,7 +197,7 @@ const inputFieldStyle = {
 
         // }
     },
-}
+};
 
 const inputField = defineStyle({
     addon: {
@@ -236,19 +236,19 @@ const inputField = defineStyle({
         display: 'none',
     },
     field: inputFieldStyle,
-})
+});
 
 const textareaTheme = defineStyleConfig({
     variants: {
         outline: defineStyle(inputFieldStyle),
     },
-})
+});
 
 const looneyCheckbox = defineStyle({
     control: {
         borderRadius: '100%',
     },
-})
+});
 
 export const buttonTheme = defineStyleConfig({
     variants: {
@@ -259,15 +259,15 @@ export const buttonTheme = defineStyleConfig({
         floating: floatingButton,
         link: linkButton,
     },
-})
+});
 
 export const textTheme = defineStyleConfig({
     variants: { muted: mutedText },
-})
+});
 
 export const checkboxTheme = defineStyleConfig({
     variants: { looney: looneyCheckbox },
-})
+});
 
 export const formLabelTheme = defineStyleConfig({
     baseStyle: defineStyle({
@@ -278,7 +278,7 @@ export const formLabelTheme = defineStyleConfig({
         letterSpacing: '-0.001em',
         marginInlineEnd: '0',
     }),
-})
+});
 
 export const breadcrumbTheme = defineStyleConfig({
     baseStyle: {
@@ -295,7 +295,7 @@ export const breadcrumbTheme = defineStyleConfig({
             padding: 0,
         },
     },
-})
+});
 
 export const menuListTheme = defineStyle({
     baseStyle: defineStyle({
@@ -311,7 +311,7 @@ export const menuListTheme = defineStyle({
             background: '#FFF',
         },
     }),
-})
+});
 
 export const popoverTheme = defineStyle({
     baseStyle: defineStyle({
@@ -322,11 +322,11 @@ export const popoverTheme = defineStyle({
             border: 'none',
         },
     }),
-})
+});
 
 export const inputTheme = defineStyleConfig({
     variants: { outline: inputField },
-})
+});
 
 export const modalTheme = defineStyleConfig({
     baseStyle: defineStyle({
@@ -382,7 +382,7 @@ export const modalTheme = defineStyleConfig({
             },
         },
     }),
-})
+});
 
 const alertTheme = defineAlertMultiStyleConfig({
     baseStyle: defineAlertPartsStyle({
@@ -401,7 +401,7 @@ const alertTheme = defineAlertMultiStyleConfig({
             alignItems: 'center',
         },
     }),
-})
+});
 
 const theme = extendTheme({
     colors,
@@ -426,6 +426,6 @@ const theme = extendTheme({
             },
         }),
     },
-})
+});
 
-export default theme
+export default theme;
