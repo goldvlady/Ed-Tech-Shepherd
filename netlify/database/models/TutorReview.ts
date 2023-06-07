@@ -4,7 +4,7 @@ import { Student, Tutor } from "../../../src/types";
 
 type Rating = 1 | 2 | 3 | 4 | 5;
 
-interface TutorReview extends TimestampedEntity {
+export interface TutorReview extends TimestampedEntity {
   tutor: Tutor;
   student: Student;
   rating: Rating;
@@ -17,7 +17,6 @@ const schema = new Schema<TutorReview>(
       type: Schema.Types.ObjectId,
       ref: "TutorLead",
       required: true,
-      autopopulate: true,
     },
     student: {
       type: Schema.Types.ObjectId,
@@ -37,7 +36,5 @@ const schema = new Schema<TutorReview>(
   },
   { timestamps: true }
 );
-
-schema.plugin(require("mongoose-autopopulate"));
 
 export default model("TutorReview", schema);
