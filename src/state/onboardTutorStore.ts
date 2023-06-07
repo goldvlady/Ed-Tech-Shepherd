@@ -3,7 +3,7 @@ import moment from "moment-timezone";
 import { Entity, Schedule, Tutor } from "../types";
 import { TimestampedEntity } from "../../netlify/types";
 
-type Type = Omit<Tutor, keyof Entity | keyof TimestampedEntity | "courses"> & {
+type Type = Omit<Tutor, keyof Entity | keyof TimestampedEntity | "courses" | 'reviewCount' | 'rating'> & {
   courses: Array<string>;
 };
 
