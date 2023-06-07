@@ -4,37 +4,41 @@ import { PipedriveService } from "../../services/PipedriveService";
 import { Course, Schedule } from "../../../src/types";
 
 export interface TutorLead extends TimestampedEntity {
-    name: {
-        first: string,
-        last: string
-    };
-    email: string;
-    dob: string;
-    courses: Array<Course>;
-    schedule: Schedule;
-    rate: number;
-    active?: boolean;
-    description?: string;
-    avatar?: string;
-    occupation?: string;
-    highestLevelOfEducation: string;
-    cv: string;
-    teachLevel: string[];
-    tz: string;
+  name: {
+    first: string;
+    last: string;
+  };
+  email: string;
+  dob: string;
+  courses: Array<Course>;
+  schedule: Schedule;
+  rate: number;
+  active?: boolean;
+  description?: string;
+  avatar?: string;
+  occupation?: string;
+  highestLevelOfEducation: string;
+  cv: string;
+  teachLevel: string[];
+  tz: string;
 
-    pipedriveDealId?: string;
+  pipedriveDealId?: string;
 }
 
-const schema = new Schema<TutorLead>({
+const schema = new Schema<TutorLead>(
+  {
     name: {
-        type: new Schema({
-            first: String,
-            last: String
-        }), required: true
+      type: new Schema({
+        first: String,
+        last: String,
+      }),
+      required: true,
     },
     email: { type: String, required: true },
     dob: { type: String, required: true },
-    courses: [{ type: Schema.Types.ObjectId, ref: "Course", autopopulate: true }],
+    courses: [
+      { type: Schema.Types.ObjectId, ref: "Course", autopopulate: true },
+    ],
     schedule: { type: Schema.Types.Mixed, required: true },
     rate: { type: Number, required: true },
     active: { type: Boolean, required: false },
@@ -46,23 +50,24 @@ const schema = new Schema<TutorLead>({
     teachLevel: { type: [String], required: true },
     tz: { type: String, required: true },
 
-
     pipedriveDealId: { type: String, required: false },
-}, { timestamps: true });
+  },
+  { timestamps: true }
+);
 
-schema.plugin(require('mongoose-autopopulate'));
+schema.plugin(require("mongoose-autopopulate"));
 
 // @ts-expect-error
 schema.post(["update", "findOneAndUpdate", "updateOne"], async function () {
-    // @ts-expect-error
-    const docToUpdate = await this.model.findOne(this.getQuery());
+  // @ts-expect-error
+  const docToUpdate = await this.model.findOne(this.getQuery());
 
-    if (!docToUpdate) {
-        return
-    }
+  if (!docToUpdate) {
+    return;
+  }
 
-    const pd = new PipedriveService();
-    await pd.updateTutorDeal(docToUpdate);
+  const pd = new PipedriveService();
+  await pd.updateTutorDeal(docToUpdate);
 });
 
-export default model<TutorLead>('TutorLead', schema);
+export default model<TutorLead>("TutorLead", schema);

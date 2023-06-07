@@ -4,13 +4,23 @@ import { TutorLead as TutorLeadInterface } from "./TutorLead";
 import { User } from "./User";
 
 export interface BookmarkedTutor extends TimestampedEntity {
-    user: User;
-    tutor: TutorLeadInterface
+  user: User;
+  tutor: TutorLeadInterface;
 }
 
-const schema = new Schema<BookmarkedTutor>({
+const schema = new Schema<BookmarkedTutor>(
+  {
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    tutor: { type: Schema.Types.ObjectId, ref: "TutorLead", required: true },
-}, { timestamps: true });
+    tutor: {
+      type: Schema.Types.ObjectId,
+      ref: "TutorLead",
+      required: true,
+      autopopulate: true,
+    },
+  },
+  { timestamps: true }
+);
 
-export default model<BookmarkedTutor>('BookmarkedTutor', schema);
+schema.plugin(require("mongoose-autopopulate"));
+
+export default model<BookmarkedTutor>("BookmarkedTutor", schema);

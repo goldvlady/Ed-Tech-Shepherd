@@ -7,26 +7,34 @@ const createPipedriveStudent = async () => {
   const pipedriveService = new PipedriveService();
 
   const studentsWithoutPipedriveDealId = await StudentLead.find({
-    pipedriveDealId: null
-  })
+    pipedriveDealId: null,
+  });
 
-  await Promise.all(studentsWithoutPipedriveDealId.map(async (student) => {
-    // create deal
-    const dealId = await pipedriveService.createStudentDeal(student);
-    await StudentLead.updateOne({
-      _id: student._id,
-    }, { pipedriveDealId: dealId, });
+  await Promise.all(
+    studentsWithoutPipedriveDealId.map(async (student) => {
+      // create deal
+      const dealId = await pipedriveService.createStudentDeal(student);
+      await StudentLead.updateOne(
+        {
+          _id: student._id,
+        },
+        { pipedriveDealId: dealId }
+      );
 
-    // create note
-    const updatedStudent = await StudentLead.findById(student.id);
-    if (updatedStudent) {
-      await pipedriveService.createStudentNote(updatedStudent)
-    }
-  }))
+      // create note
+      const updatedStudent = await StudentLead.findById(student.id);
+      if (updatedStudent) {
+        await pipedriveService.createStudentNote(updatedStudent);
+      }
+    })
+  );
 
   return {
-    statusCode: 200
+    statusCode: 200,
   };
 };
 
-export const handler = schedule("* * * * *", middy(createPipedriveStudent) as unknown as Handler);
+export const handler = schedule(
+  "* * * * *",
+  middy(createPipedriveStudent) as unknown as Handler
+);

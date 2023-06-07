@@ -1,22 +1,22 @@
 import ses from "node-ses";
 
 class SESService {
-    private client: ses.Client;
+  private client: ses.Client;
 
-    constructor() {
-        if (!process.env.APP_AWS_ACCESS_KEY || !process.env.APP_AWS_SECRET_KEY) {
-            throw "invalid AWS access or secret key";
-        }
-
-        this.client = ses.createClient({
-            key: process.env.APP_AWS_ACCESS_KEY,
-            secret: process.env.APP_AWS_SECRET_KEY,
-            amazon: 'https://email.us-east-2.amazonaws.com'
-        });
+  constructor() {
+    if (!process.env.APP_AWS_ACCESS_KEY || !process.env.APP_AWS_SECRET_KEY) {
+      throw "invalid AWS access or secret key";
     }
 
-    getEmailHtml(content: string) {
-        return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    this.client = ses.createClient({
+      key: process.env.APP_AWS_ACCESS_KEY,
+      secret: process.env.APP_AWS_SECRET_KEY,
+      amazon: "https://email.us-east-2.amazonaws.com",
+    });
+  }
+
+  getEmailHtml(content: string) {
+    return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
         <html xmlns="http://www.w3.org/1999/xhtml"
         xmlns:v="urn:schemas-microsoft-com:vml"
         xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -217,34 +217,43 @@ class SESService {
             </tr>
         </table>
         </body>
-        </html>`
-    }
+        </html>`;
+  }
 
-    async sendEmail(to: string, subject: string, html: string, tags: string[] = [], from = "hello@shepherdtutors.com") {
-        let rlve, rject;
+  async sendEmail(
+    to: string,
+    subject: string,
+    html: string,
+    tags: string[] = [],
+    from = "hello@shepherdtutors.com"
+  ) {
+    let rlve, rject;
 
-        const promiseResponse = new Promise((resolve, reject) => {
-            rlve = resolve;
-            rject = reject;
-        });
+    const promiseResponse = new Promise((resolve, reject) => {
+      rlve = resolve;
+      rject = reject;
+    });
 
-        this.client.sendEmail({
-            to,
-            from: `Shepherd Tutors <${from}>`,
-            bcc: ['shepherd@pipedrivemail.com'],
-            subject,
-            message: this.getEmailHtml(html),
-            replyTo: 'hello@shepherdtutors.com'
-        }, function (err, _, res) {
-            if (!err) {
-                rlve(res);
-            } else {
-                rject(err);
-            }
-        });
+    this.client.sendEmail(
+      {
+        to,
+        from: `Shepherd Tutors <${from}>`,
+        bcc: ["shepherd@pipedrivemail.com"],
+        subject,
+        message: this.getEmailHtml(html),
+        replyTo: "hello@shepherdtutors.com",
+      },
+      function (err, _, res) {
+        if (!err) {
+          rlve(res);
+        } else {
+          rject(err);
+        }
+      }
+    );
 
-        return promiseResponse;
-    }
+    return promiseResponse;
+  }
 }
 
 export default SESService;

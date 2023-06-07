@@ -1,16 +1,16 @@
-import { createStore } from '@udecode/zustood';
-import moment from 'moment-timezone';
-import { Entity, Schedule, Tutor } from '../types';
-import { TimestampedEntity } from '../../netlify/types';
+import { createStore } from "@udecode/zustood";
+import moment from "moment-timezone";
+import { Entity, Schedule, Tutor } from "../types";
+import { TimestampedEntity } from "../../netlify/types";
 
-type Type = Omit<Tutor, keyof Entity | keyof TimestampedEntity | 'courses'> & {
-  courses: Array<string>
-}
+type Type = Omit<Tutor, keyof Entity | keyof TimestampedEntity | "courses"> & {
+  courses: Array<string>;
+};
 
-export default createStore('onboardTutorStore')<Type>({
+export default createStore("onboardTutorStore")<Type>({
   name: {
     first: "",
-    last: ""
+    last: "",
   },
   dob: "",
   email: "",
@@ -23,5 +23,5 @@ export default createStore('onboardTutorStore')<Type>({
   cv: "",
   teachLevel: [],
   avatar: "",
-  description: ""
-})
+  description: "",
+});
