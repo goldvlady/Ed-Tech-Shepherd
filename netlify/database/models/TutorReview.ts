@@ -37,4 +37,6 @@ const schema = new Schema<TutorReview>(
   { timestamps: true }
 );
 
+schema.plugin(require("mongoose-autopopulate"));
+
 export default model("TutorReview", schema);
