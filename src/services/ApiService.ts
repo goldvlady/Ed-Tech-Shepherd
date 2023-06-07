@@ -119,27 +119,28 @@ class ApiService {
     let filterParams = "";
     let minRate = "";
     let maxRate = "";
+    let days = "";
     console.log("FORM", formData);
 
     for (const key in formData) {
-      // filterParams += !!formData["price"] ? `&${formData["price"]}` : "";
-      console.log(formData["price"]);
       const rateArray = formData["price"].split("-");
       minRate = rateArray[0];
       maxRate = rateArray[1];
-      // filterParams += !!formData["price"]
-      //   ? `&rate>=${minRate}&rate<=${maxRate}`
-      //   : "";
 
-      if (key !== "tz") {
-        filterParams += !!formData[key]
-          ? key == "price"
-            ? `&${key}=${formData[key]}&rate>=${minRate}&rate<=${maxRate}`
-            : `&${key}=${formData[key]}`
-          : "";
+      const daysArray = formData["days"];
+
+      if (key !== "tz" && key !== "price" && key !== "days") {
+        filterParams += !!formData[key] ? `&${key}=${formData[key]}` : "";
+      }
+      if (key == "price" && !!formData["price"]) {
+        filterParams += `&rate>=${minRate}&rate<=${maxRate}`;
+      }
+      if (key == "days" && !!formData["days"]) {
+        daysArray.forEach((element: any) => {
+          filterParams += `&schedule.${element.value}`;
+        });
       }
     }
-
     return doFetch(
       `${ApiService.baseEndpoint}/tutors?tz=${formData.tz + filterParams}`
       // `${ApiService.baseEndpoint}/tutors?tz=Africa/Lagos${filterParams}`

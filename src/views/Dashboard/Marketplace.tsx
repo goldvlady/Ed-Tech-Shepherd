@@ -5,6 +5,7 @@ import {
   Box,
   SimpleGrid,
   Stack,
+  HStack,
   Select,
   Flex,
   Spacer,
@@ -80,6 +81,7 @@ export default function Marketplace() {
       //   fromTime: fromTime,
       //   days: days,
       //   tz: tz,
+
       price: "",
       rating: "",
     },
@@ -87,7 +89,7 @@ export default function Marketplace() {
       alert(JSON.stringify(values, null, 2));
     },
   });
-  console.log(tz);
+  console.log(days);
 
   const getData = async () => {
     setLoadingData(true);
@@ -104,6 +106,7 @@ export default function Marketplace() {
       teachLevel: formik.values.level,
       availability: "",
       tz: "Africa/Lagos",
+      days: days,
       price: formik.values.price,
       rating: formik.values.rating,
     };
@@ -138,7 +141,7 @@ export default function Marketplace() {
       </Box>
       <Box mt={3}>
         <Flex>
-          <Stack spacing={3} direction="row">
+          <HStack spacing={1} direction="row">
             <Flex alignItems={"center"} mt={2}>
               <Text>
                 <MdTune />
@@ -162,6 +165,7 @@ export default function Marketplace() {
             <Select
               fontSize={14}
               variant="outline"
+              size="md"
               placeholder="Level"
               name="level"
               value={formik.values.level}
@@ -277,7 +281,7 @@ export default function Marketplace() {
                 </option>
               ))}
             </Select>
-          </Stack>
+          </HStack>
 
           <Spacer />
           <CustomButton

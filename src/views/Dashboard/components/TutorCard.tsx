@@ -63,7 +63,7 @@ export default function TutorCard(props: any) {
                   fontSize={"12px"}
                   color={useColorModeValue("gray.700", "gray.400")}
                 >
-                  {textTruncate(description, 100)}
+                  {description ? textTruncate(description, 100) : ""}
                 </Text>
               </Flex>{" "}
               {use === "my tutors" ? (
