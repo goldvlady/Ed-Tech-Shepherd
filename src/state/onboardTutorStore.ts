@@ -3,7 +3,7 @@ import moment from "moment-timezone";
 import { Entity, Schedule, Tutor } from "../types";
 import { TimestampedEntity } from "../../netlify/types";
 
-type Type = Omit<Tutor, keyof Entity | keyof TimestampedEntity | "courses"> & {
+type Type = Partial<Omit<Tutor, keyof Entity | keyof TimestampedEntity | "courses">> & {
   courses: Array<string>;
 };
 
@@ -23,5 +23,5 @@ export default createStore("onboardTutorStore")<Type>({
   cv: "",
   teachLevel: [],
   avatar: "",
-  description: "",
+  description: ""
 });
