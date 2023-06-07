@@ -5,6 +5,7 @@ import {
   Box,
   SimpleGrid,
   Stack,
+  HStack,
   Select,
   Flex,
   Spacer,
@@ -43,10 +44,10 @@ const levelOptions = [
   { value: "grade12", label: "Grade 12", id: 6 },
 ];
 const priceOptions = [
-  { value: "rate>=10&rate<=12", label: "$10.00 - $12.00", id: 1 },
-  { value: "rate>=12&rate<=15", label: "$12.00 - $15.00", id: 2 },
-  { value: "rate>=15&rate<=20", label: "$15.00 - $20.00", id: 3 },
-  { value: "rate>=20&rate<=25", label: "$20.00 - $25.00", id: 4 },
+  { value: "10-12", label: "$10.00 - $12.00", id: 1 },
+  { value: "12-15", label: "$12.00 - $15.00", id: 2 },
+  { value: "15-20", label: "$15.00 - $20.00", id: 3 },
+  { value: "20-25", label: "$20.00 - $25.00", id: 4 },
 ];
 
 const ratingOptions = [
@@ -80,6 +81,7 @@ export default function Marketplace() {
       //   fromTime: fromTime,
       //   days: days,
       //   tz: tz,
+
       price: "",
       rating: "",
     },
@@ -87,7 +89,7 @@ export default function Marketplace() {
       alert(JSON.stringify(values, null, 2));
     },
   });
-  console.log(tz);
+  console.log(days);
 
   const getData = async () => {
     setLoadingData(true);
@@ -98,12 +100,13 @@ export default function Marketplace() {
     } catch (e) {}
     setLoadingData(false);
   };
-  const getFilteredData = async (filterParams: any) => {
+  const getFilteredData = async () => {
     let formData = {
       courses: formik.values.subject.toLowerCase(),
       teachLevel: formik.values.level,
       availability: "",
-      tz: tz,
+      tz: "Africa/Lagos",
+      days: days,
       price: formik.values.price,
       rating: formik.values.rating,
     };
@@ -138,7 +141,7 @@ export default function Marketplace() {
       </Box>
       <Box mt={3}>
         <Flex>
-          <Stack spacing={3} direction="row">
+          <HStack spacing={1} direction="row">
             <Flex alignItems={"center"} mt={2}>
               <Text>
                 <MdTune />
@@ -162,6 +165,7 @@ export default function Marketplace() {
             <Select
               fontSize={14}
               variant="outline"
+              size="md"
               placeholder="Level"
               name="level"
               value={formik.values.level}
@@ -277,7 +281,7 @@ export default function Marketplace() {
                 </option>
               ))}
             </Select>
-          </Stack>
+          </HStack>
 
           <Spacer />
           <CustomButton
@@ -304,6 +308,7 @@ export default function Marketplace() {
               levelOfEducation={tutor.highestLevelOfEducation}
               avatar={tutor.avatar}
               rate={tutor.rate}
+              description={tutor.description}
             />
           ))}
         </SimpleGrid>

@@ -33,6 +33,7 @@ function BookmarkedTutors() {
     try {
       const resp = await ApiService.getBookmarkedTutors();
       const data = await resp.json();
+
       setAllTutors(data);
     } catch (e) {}
     setLoadingData(false);
@@ -58,11 +59,12 @@ function BookmarkedTutors() {
       <SimpleGrid minChildWidth="325px" spacing="30px">
         {allTutors.map((tutor: any) => (
           <TutorCard
-            name={"Leslie Peters"}
-            levelOfEducation={"BSC Bachelors"}
-            avatar={TutorAvi}
+            name={`${tutor.tutor.name.first} ${tutor.tutor.name.last}`}
+            levelOfEducation={tutor.tutor.highestLevelOfEducation}
+            avatar={tutor.tutor.avatar}
             saved={true}
-            rate={5}
+            description={tutor.tutor.description}
+            rate={tutor.tutor.rate}
           />
         ))}
       </SimpleGrid>
