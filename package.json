@@ -74,7 +74,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "prepare": "husky install"
   },
   "eslintConfig": {
     "extends": [
@@ -99,6 +100,9 @@
     "@types/mixpanel-browser": "^2.38.1",
     "@types/react-input-mask": "^3.0.2",
     "@types/styled-components": "^5.1.26",
-    "@types/vivus": "^0.4.4"
+    "@types/vivus": "^0.4.4",
+    "husky": "^8.0.0",
+    "prettier": "^2.8.8",
+    "pretty-quick": "^3.1.3"
   }
 }
