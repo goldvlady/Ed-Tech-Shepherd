@@ -12,7 +12,15 @@ const tutors = async (event: HTTPEvent) => {
     };
     const parsed = parser.parse(queryStringParameters || '', predefined);
 
-    const tutors = await TutorLead.find({ ...parsed.filter });
+    const tutors = await TutorLead.aggregate([
+        {
+            $match: {
+                $and: [
+                    parsed.filter
+                  ]
+            }
+        }
+    ])
 
     return {
         statusCode: 200,
