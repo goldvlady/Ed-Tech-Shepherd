@@ -1,7 +1,13 @@
-import { useEffect, useRef } from 'react';
-import InputMask from 'react-input-mask';
-import moment from 'moment';
-import { Input, InputGroup, InputProps, Text, InputRightElement } from '@chakra-ui/react';
+import { useEffect, useRef } from "react";
+import InputMask from "react-input-mask";
+import moment from "moment";
+import {
+  Input,
+  InputGroup,
+  InputProps,
+  Text,
+  InputRightElement,
+} from "@chakra-ui/react";
 
 // @ts-ignore
 interface DateInputProps extends InputProps {
@@ -9,7 +15,7 @@ interface DateInputProps extends InputProps {
   onChange: (value: string) => void;
 }
 
-export const FORMAT = 'MM/DD/YYYY'
+export const FORMAT = "MM/DD/YYYY";
 
 const DateInput: React.FC<DateInputProps> = ({ value, onChange, ...rest }) => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -22,12 +28,15 @@ const DateInput: React.FC<DateInputProps> = ({ value, onChange, ...rest }) => {
   }, [value, onChange]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target?.value.replace(/_/g, '');
+    const newValue = e.target?.value.replace(/_/g, "");
     if (inputRef.current) {
       const previousCursorPosition = inputRef.current.selectionStart;
       onChange(newValue);
       if (previousCursorPosition !== null) {
-        const cursorPosition = Math.min(previousCursorPosition + newValue.length - value.length, 10);
+        const cursorPosition = Math.min(
+          previousCursorPosition + newValue.length - value.length,
+          10
+        );
         inputRef.current.setSelectionRange(cursorPosition, cursorPosition);
       }
     }
@@ -35,26 +44,40 @@ const DateInput: React.FC<DateInputProps> = ({ value, onChange, ...rest }) => {
 
   return (
     <InputMask
-      maskChar=''
+      maskChar=""
       mask="**/**/****"
       value={value}
       onChange={handleInputChange}
     >
-      {// @ts-ignore
+      {
+        // @ts-ignore
         (inputProps: InputProps) => (
           <InputGroup>
             <Input
               {...inputProps}
               ref={inputRef}
               isInvalid={!moment(value, FORMAT, true).isValid() && !!value}
-              pr='4.5rem'
+              pr="4.5rem"
               {...rest}
             />
-            <InputRightElement top={'50%'} transform={'translateY(-50%)'} paddingRight={'20px'} width='4.5rem'>
-              <Text color={'#969CA6'} fontSize='12px' fontWeight={400} margin={0}>{FORMAT.toLowerCase()}</Text>
+            <InputRightElement
+              top={"50%"}
+              transform={"translateY(-50%)"}
+              paddingRight={"20px"}
+              width="4.5rem"
+            >
+              <Text
+                color={"#969CA6"}
+                fontSize="12px"
+                fontWeight={400}
+                margin={0}
+              >
+                {FORMAT.toLowerCase()}
+              </Text>
             </InputRightElement>
           </InputGroup>
-        )}
+        )
+      }
     </InputMask>
   );
 };

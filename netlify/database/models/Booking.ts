@@ -3,23 +3,24 @@ import { TimestampedEntity } from "../../types";
 import { Offer } from "./Offer";
 
 export enum STATUS {
-    UNCONFIRMED = "unconfirmed",
-    CONFIRMED = "confirmed",
-    CANCELED = "cenceled"
+  UNCONFIRMED = "unconfirmed",
+  CONFIRMED = "confirmed",
+  CANCELED = "cenceled",
 }
 
 export interface Booking extends TimestampedEntity {
-    stripeReference?: string;
-    amountPaid?: number;
-    status: STATUS;
-    conferenceHostRoomUrl?: string;
-    conferenceRoomUrl?: string;
-    startDate: Date;
-    endDate: Date;
-    offer: Offer;
+  stripeReference?: string;
+  amountPaid?: number;
+  status: STATUS;
+  conferenceHostRoomUrl?: string;
+  conferenceRoomUrl?: string;
+  startDate: Date;
+  endDate: Date;
+  offer: Offer;
 }
 
-const schema = new Schema<Booking>({
+const schema = new Schema<Booking>(
+  {
     stripeReference: { type: String, required: false },
     amountPaid: { type: Number, required: false },
     status: { type: String, enum: STATUS, default: STATUS.UNCONFIRMED },
@@ -28,8 +29,10 @@ const schema = new Schema<Booking>({
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     offer: { type: Schema.Types.ObjectId, ref: "Offer", autopopulate: true },
-}, { timestamps: true });
+  },
+  { timestamps: true }
+);
 
-schema.plugin(require('mongoose-autopopulate'));
+schema.plugin(require("mongoose-autopopulate"));
 
-export default model<Booking>('Booking', schema);
+export default model<Booking>("Booking", schema);

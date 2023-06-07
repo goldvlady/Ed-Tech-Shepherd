@@ -11,13 +11,11 @@ export const createTutorLead = async (event: HandlerEvent) => {
 
   try {
     await emailHandler.createTutorWelcomeEmail(tutor);
-  } catch (e) {
-
-  }
+  } catch (e) {}
 
   return {
-    statusCode: 200
-  }
-}
+    statusCode: 200,
+  };
+};
 
 export const handler = middy(createTutorLead);

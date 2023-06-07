@@ -8,29 +8,37 @@ const createPipedriveTutor = async () => {
 
   const tutorsWithoutPipedriveDealId = await TutorLead.find({
     pipedriveDealId: null,
-  })
+  });
 
-  await Promise.all(tutorsWithoutPipedriveDealId.map(async (tutor) => {
-    try {
-      // create deal
-      const dealId = await pipedriveService.createTutorDeal(tutor);
-      await TutorLead.updateOne({
-        _id: tutor._id,
-      }, { pipedriveDealId: dealId, });
+  await Promise.all(
+    tutorsWithoutPipedriveDealId.map(async (tutor) => {
+      try {
+        // create deal
+        const dealId = await pipedriveService.createTutorDeal(tutor);
+        await TutorLead.updateOne(
+          {
+            _id: tutor._id,
+          },
+          { pipedriveDealId: dealId }
+        );
 
-      // create note
-      const updatedTutor = await TutorLead.findById(tutor.id);
-      if (updatedTutor) {
-        await pipedriveService.createTutorNote(updatedTutor)
+        // create note
+        const updatedTutor = await TutorLead.findById(tutor.id);
+        if (updatedTutor) {
+          await pipedriveService.createTutorNote(updatedTutor);
+        }
+      } catch (e) {
+        // TODO: Sentry
       }
-    } catch (e) {
-      // TODO: Sentry
-    }
-  }))
+    })
+  );
 
   return {
     statusCode: 200,
   };
 };
 
-export const handler = schedule("* * * * *", middy(createPipedriveTutor) as unknown as Handler);
+export const handler = schedule(
+  "* * * * *",
+  middy(createPipedriveTutor) as unknown as Handler
+);

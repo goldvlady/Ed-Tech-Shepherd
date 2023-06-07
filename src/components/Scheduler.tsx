@@ -272,11 +272,15 @@ const Scheduler: React.FC<Props> = ({ value, onChange, schedule }) => {
                             variant={"looney"}
                           />
                           <Box display={"flex"} alignItems="center">
-                            <Text>{moment(slot.begin).format(SCHEDULE_FORMAT)}</Text>{" "}
+                            <Text>
+                              {moment(slot.begin).format(SCHEDULE_FORMAT)}
+                            </Text>{" "}
                             <FiChevronRight
                               style={{ fontSize: "16px", marginInline: "7px" }}
                             />{" "}
-                            <Text>{moment(slot.end).format(SCHEDULE_FORMAT)}</Text>
+                            <Text>
+                              {moment(slot.end).format(SCHEDULE_FORMAT)}
+                            </Text>
                           </Box>
                         </SlotButton>
                       );

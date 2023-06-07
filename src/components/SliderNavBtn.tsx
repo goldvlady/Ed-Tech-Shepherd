@@ -1,21 +1,21 @@
 import styled from "styled-components";
 import theme from "../theme";
 
-const SliderNavBtn = styled('button')`
-border-radius: 100%;
-height: 30px;
-width: 30px;
-color: ${theme.colors.gray[600]};
-justify-content: center;
-display: flex;
-align-items: center;
-position: absolute;
-top: 25px;
-font-size: 20px;
-background: transparent;
-border-bottom: 4px solid transparent;
+const SliderNavBtn = styled("button")`
+  border-radius: 100%;
+  height: 30px;
+  width: 30px;
+  color: ${theme.colors.gray[600]};
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 25px;
+  font-size: 20px;
+  background: transparent;
+  border-bottom: 4px solid transparent;
 
-&:before {
+  &:before {
     content: "";
     inset: 0px;
     position: absolute;
@@ -30,27 +30,27 @@ border-bottom: 4px solid transparent;
     width: 30px;
     height: 30px;
     display: block;
-}
+  }
 
-&:active {
+  &:active {
     box-shadow: none;
     padding-bottom: 0;
     transform: translateY(4px) translateZ(0);
     &:before {
-        box-shadow: none;
+      box-shadow: none;
     }
-}
+  }
 
-* {
+  * {
     z-index: 1;
-}
+  }
 
-&.left {
+  &.left {
     left: 16px;
-}
-&.right {
+  }
+  &.right {
     right: 16px;
-}
-`
+  }
+`;
 
-export default SliderNavBtn
+export default SliderNavBtn;

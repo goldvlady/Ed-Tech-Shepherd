@@ -1,23 +1,23 @@
-import { APIGatewayProxyEvent } from 'aws-lambda';
-import { User } from './database/models/User';
+import { APIGatewayProxyEvent } from "aws-lambda";
+import { User } from "./database/models/User";
 
 export type Entity = {
-    _id: string;
-}
+  _id: string;
+};
 
 export interface TimestampedEntity extends Entity {
-    createdAt: Date;
-    updatedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface FirebaseUser {
-    name: string;
-    user_id: string;
-    email: string;
-    email_verified: boolean;
+  name: string;
+  user_id: string;
+  email: string;
+  email_verified: boolean;
 }
 
 export interface HTTPEvent extends APIGatewayProxyEvent {
-    firebaseUser: FirebaseUser;
-    user: User
+  firebaseUser: FirebaseUser;
+  user: User;
 }

@@ -1,6 +1,13 @@
 import { initializeApp } from "firebase/app";
 import { getStorage } from "firebase/storage";
-import { getAuth, GoogleAuthProvider, sendPasswordResetEmail as firebaseSendPasswordResetEmail, confirmPasswordReset as firebaseConfirmPasswordReset, createUserWithEmailAndPassword as firebaseCreateUserWithEmailAndPassword, signInWithEmailAndPassword as firebaseSignInWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  sendPasswordResetEmail as firebaseSendPasswordResetEmail,
+  confirmPasswordReset as firebaseConfirmPasswordReset,
+  createUserWithEmailAndPassword as firebaseCreateUserWithEmailAndPassword,
+  signInWithEmailAndPassword as firebaseSignInWithEmailAndPassword,
+} from "firebase/auth";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
@@ -10,7 +17,7 @@ export const firebaseConfig = {
   projectId: "shepherd-app-382114",
   storageBucket: "shepherd-app-382114.appspot.com",
   messagingSenderId: "675537393578",
-  appId: "1:675537393578:web:9a57af7df8fec9f8293dd3"
+  appId: "1:675537393578:web:9a57af7df8fec9f8293dd3",
 };
 
 // Initialize Firebase
@@ -20,6 +27,6 @@ export const firebaseAuth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 export const sendPasswordResetEmail = firebaseSendPasswordResetEmail;
 export const confirmPasswordReset = firebaseConfirmPasswordReset;
-export const createUserWithEmailAndPassword = firebaseCreateUserWithEmailAndPassword;
+export const createUserWithEmailAndPassword =
+  firebaseCreateUserWithEmailAndPassword;
 export const signInWithEmailAndPassword = firebaseSignInWithEmailAndPassword;
-

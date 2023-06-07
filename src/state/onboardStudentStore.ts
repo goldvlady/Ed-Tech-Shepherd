@@ -1,12 +1,12 @@
-import { createStore } from '@udecode/zustood';
-import moment from 'moment-timezone';
-import { Schedule } from '../types';
+import { createStore } from "@udecode/zustood";
+import moment from "moment-timezone";
+import { Schedule } from "../types";
 
-export default createStore('onboardStudentStore')({
+export default createStore("onboardStudentStore")({
   parentOrStudent: null,
   name: {
     first: "",
-    last: ""
+    last: "",
   },
   dob: "",
   email: "",
@@ -16,5 +16,5 @@ export default createStore('onboardStudentStore')({
   topic: "",
   skillLevels: [] as Record<string, string>[],
   schedule: {} as Schedule,
-  tz: moment.tz.guess()
-})
+  tz: moment.tz.guess(),
+});
