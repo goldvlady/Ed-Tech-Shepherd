@@ -25,8 +25,6 @@ import ChoosePaymentMethodDialog, { ChoosePaymentMethodDialogRef } from '../comp
 import {PaymentMethod} from '../../netlify/database/models/PaymentMethod';
 
 const LeftCol = styled(Box)`
-background: #FFF;
-padding: 32px;
 min-height: 100vh;
 `
 
@@ -241,7 +239,7 @@ const Offer = () => {
             <AlertDescription>Payment will not be deducted until after your first lesson, You may decide to cancel after your initial lesson.</AlertDescription>
         </Alert>} />
         <Box className='row'>
-            <LeftCol className='col-md-8'>
+            <LeftCol mb='32px' className='col-lg-8'>
                 {loading && <Box textAlign={'center'}><Spinner /></Box>}
                 {!!offer && <Box>
                     <Modal isOpen={isOfferAcceptedModalOpen} onClose={onOfferAcceptedModalClose}>
@@ -333,7 +331,7 @@ const Offer = () => {
                                     <HStack justifyContent={"space-between"}>
                                         <Text className='sub2' color={'text.200'} mb={0}>{capitalize(offer.studentLead.name.first)} {capitalize(offer.studentLead.name.last)}</Text>
                                     </HStack>
-                                    <Text noOfLines={2} whiteSpace={"normal"} mt={1} mb={0} className='body2' color={'text.200'}>Offer expires in <Box as='span' color={'red.400'}>23 hours</Box></Text>
+                                    <Text noOfLines={2} whiteSpace={"normal"} mt={1} mb={0} className='body2' color={'text.200'}>{!offer.expired ? 'Offer expires in' : 'Offer expired'} <Box as='span' color={'red.400'}>{moment(offer.expirationDate).fromNow()}</Box></Text>
                                 </Box>
                                 <Box alignSelf={'flex-start'} background={'#F4F5F6'} padding='3px 8px' borderRadius={'4px'} color='text.400' fontSize={'12px'} fontWeight='500' lineHeight={'17px'}>
                                     {moment(offer.createdAt).format('D.MM.YYYY')}
@@ -432,10 +430,10 @@ const Offer = () => {
                     </VStack>
                 </Box>}
             </LeftCol>
-            <div className='col-md-4'>
+            <div className='col-lg-4'>
                 <RightCol height='100%'>
                     {user?.type === 'tutor' && <VStack gap={'32px'} alignItems='stretch' position={"sticky"} top="90px">
-                        {offer?.status === 'draft' && <Panel borderRadius={'10px'} position={"sticky"} top="90px">
+                        {offer?.status === 'draft' && !offer.expired && <Panel borderRadius={'10px'} position={"sticky"} top="90px">
                             <Box display={'flex'} justifyContent='center'>
                                 <img alt='file' src='/images/file.svg' width={'80px'} height={'80px'} />
                             </Box>
@@ -469,7 +467,7 @@ const Offer = () => {
                                 <Button as='a' w={'100%'} variant='floating'>Send message</Button>
                             </VStack>
                         </Panel>}
-                        <Panel borderRadius={'10px'}>
+                        <Panel p='24px' borderRadius={'10px'}>
                             <HStack>
                                 <BsQuestionCircleFill color='#969CA6' />
                                 <Text className='sub2'>How this Works</Text>
