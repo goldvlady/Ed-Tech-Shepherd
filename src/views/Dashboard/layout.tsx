@@ -1,5 +1,5 @@
 import React, { ReactNode, useState, useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import {
   IconButton,
   Image,
@@ -253,10 +253,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }
   const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
     const auth = getAuth();
+    const navigate = useNavigate();
     const handleSignOut = () => {
       signOut(auth)
         .then(() => {
-          console.log("Sign out succesful");
+          navigate("/login");
         })
         .catch((error) => {
           console.log(error);

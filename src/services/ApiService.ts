@@ -117,21 +117,33 @@ class ApiService {
 
   static getFilteredTutors = async (formData: any) => {
     let filterParams = "";
+    let minRate = "";
+    let maxRate = "";
+    let days = "";
+    console.log("FORM", formData);
 
     for (const key in formData) {
-      if (key === "price") {
-        // filterParams += !!formData["price"] ? `&${formData["price"]}` : "";
-        console.log(formData["price"]);
-      }
+      const rateArray = formData["price"].split("-");
+      minRate = rateArray[0];
+      maxRate = rateArray[1];
 
-      if (key !== "tz" && key !== "price") {
+      const daysArray = formData["days"];
+
+      if (key !== "tz" && key !== "price" && key !== "days") {
         filterParams += !!formData[key] ? `&${key}=${formData[key]}` : "";
       }
+      if (key == "price" && !!formData["price"]) {
+        filterParams += `&rate>=${minRate}&rate<=${maxRate}`;
+      }
+      if (key == "days" && !!formData["days"]) {
+        daysArray.forEach((element: any) => {
+          filterParams += `&schedule.${element.value}`;
+        });
+      }
     }
-
     return doFetch(
-      // `${ApiService.baseEndpoint}/tutors?tz=${formData.tz + filterParams}`
-      `${ApiService.baseEndpoint}/tutors?tz=Africa/Lagos${filterParams}`
+      `${ApiService.baseEndpoint}/tutors?tz=${formData.tz + filterParams}`
+      // `${ApiService.baseEndpoint}/tutors?tz=Africa/Lagos${filterParams}`
     );
   };
 

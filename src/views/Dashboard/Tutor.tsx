@@ -47,6 +47,7 @@ import FileAvi from "../../assets/file-avi.svg";
 import FileAvi2 from "../../assets/file-avi2.svg";
 import TutorAvi from "../../assets/tutoravi.svg";
 import Day from "../../assets/day.svg";
+import Check from "../../assets/check.svg";
 import Star from "../../assets/littleStar.svg";
 import Star4 from "../../assets/4star.svg";
 import HowItWorks from "./components/HowItWorks";
@@ -261,28 +262,43 @@ export default function Tutor() {
                           </Flex>
                         </TabPanel>
                         <TabPanel>
-                          <TableContainer my={4}>
+                          <TableContainer my={2}>
                             <Box
                               border={"1px solid #EEEFF2"}
                               borderRadius={8}
-                              py={3}
+                              // width="700px"
                             >
-                              <Table variant="simple">
+                              <Table
+                                sx={{ tableLayout: "fixed", width: "full" }}
+                                variant="simple"
+                              >
                                 {/* <TableCaption>Imperial to metric conversion factors</TableCaption> */}
                                 <Thead>
-                                  <Tr>
-                                    <Th>Mon</Th>
-                                    <Th>Tue</Th>
-                                    <Th>Wed</Th>
-                                    <Th>Thur</Th>
-                                    <Th>Fri</Th>
-                                    <Th>Sat</Th>
-                                    <Th>Sun</Th>
+                                  <Tr
+                                    sx={{
+                                      th: {
+                                        fontSize: "11px",
+                                        fontWeight: 500,
+                                        textTransform: "none",
+                                        color: "#000",
+                                        textAlign: "center",
+                                        letterSpacing: "0px",
+                                      },
+                                    }}
+                                  >
+                                    <Th width={"150px"}></Th>
+                                    <Th px={1}>Mon </Th>
+                                    <Th>Tue </Th>
+                                    <Th>Wed </Th>
+                                    <Th>Thur </Th>
+                                    <Th>Fri </Th>
+                                    <Th>Sat </Th>
+                                    <Th>Sun </Th>
                                   </Tr>
                                 </Thead>
                                 <Tbody>
                                   <Tr>
-                                    <Td bgColor={"#FAFAFA"}>
+                                    <Td bgColor={"#FAFAFA"} px={1}>
                                       <Text
                                         color="text.300"
                                         fontSize={14}
@@ -293,11 +309,13 @@ export default function Tutor() {
                                         12PM
                                       </Text>
                                     </Td>
-                                    {/* <Td>GCSE</Td>
-                                    <Td>$10.00/hr</Td> */}
+                                    <Td>x</Td>
+                                    <Td>x</Td>
+                                    <Td>x</Td> <Td>x</Td> <Td>x</Td> <Td>x</Td>{" "}
+                                    <Td>x</Td>
                                   </Tr>
                                   <Tr>
-                                    <Td bgColor={"#FAFAFA"}>
+                                    <Td bgColor={"#FAFAFA"} px={1}>
                                       {" "}
                                       <Text
                                         color="text.300"
@@ -309,9 +327,25 @@ export default function Tutor() {
                                         5PM
                                       </Text>
                                     </Td>
+                                    <Td>
+                                      <Image src={Check} mr={3} />{" "}
+                                    </Td>
+                                    <Td>
+                                      <Image src={Check} mr={3} />{" "}
+                                    </Td>
+                                    <Td>x</Td> <Td>x</Td>
+                                    <Td>
+                                      <Image src={Check} mr={3} />{" "}
+                                    </Td>{" "}
+                                    <Td>
+                                      <Image src={Check} mr={3} />{" "}
+                                    </Td>{" "}
+                                    <Td>
+                                      <Image src={Check} mr={3} />{" "}
+                                    </Td>
                                   </Tr>
                                   <Tr>
-                                    <Td bgColor={"#FAFAFA"}>
+                                    <Td bgColor={"#FAFAFA"} px={1}>
                                       {" "}
                                       <Text
                                         color="text.300"
@@ -322,6 +356,22 @@ export default function Tutor() {
                                         <Image src={Day} mr={3} /> 5PM {"->"}{" "}
                                         9PM
                                       </Text>
+                                    </Td>
+                                    <Td>
+                                      <Image src={Check} mr={3} />{" "}
+                                    </Td>
+                                    <Td>
+                                      <Image src={Check} mr={3} />{" "}
+                                    </Td>
+                                    <Td>x</Td> <Td>x</Td>
+                                    <Td>
+                                      <Image src={Check} mr={3} />{" "}
+                                    </Td>{" "}
+                                    <Td>
+                                      <Image src={Check} mr={3} />{" "}
+                                    </Td>{" "}
+                                    <Td>
+                                      <Image src={Check} mr={3} />{" "}
                                     </Td>
                                   </Tr>
                                 </Tbody>
