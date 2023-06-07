@@ -2,3 +2,7 @@ trailingComma: 'es5'
 tabWidth: 4
 semi: false
 singleQuote: true
+importOrderSeparation: true
+importOrderSortSpecifiers: true
+importOrder: ['<THIRD_PARTY_MODULES>', '^[./]']
+plugins: ['@trivago/prettier-plugin-sort-imports']
