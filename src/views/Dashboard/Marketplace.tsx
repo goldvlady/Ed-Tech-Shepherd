@@ -1,39 +1,43 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
-  Button,
-  Box,
-  SimpleGrid,
-  Stack,
-  HStack,
-  Select,
-  Flex,
-  Spacer,
-  FormControl,
-  Text,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  FormLabel,
-} from "@chakra-ui/react";
-import { Select as MultiSelect } from "chakra-react-select";
-import Banner from "./components/Banner";
-import TutorCard from "./components/TutorCard";
-import { MdTune } from "react-icons/md";
-import { CustomButton } from "./layout";
-import Star5 from "../../assets/5star.svg";
-import { BsStarFill } from "react-icons/bs";
-import { FiChevronDown } from "react-icons/fi";
-import { Course, Schedule } from "../../types";
-import { useFormik } from "formik";
-import ApiService from "../../services/ApiService";
-import TimezoneSelect from "../../components/TimezoneSelect";
-import TimePicker from "../../components/TimePicker";
-import { numberToDayOfWeekName, educationLevelOptions } from "../../util";
-import CustomSelect from "../../components/Select";
-import moment from "moment";
-import resourceStore from "../../state/resourceStore";
+    Box,
+    Button,
+    Flex,
+    FormControl,
+    FormLabel,
+    HStack,
+    Menu,
+    MenuButton,
+    MenuItem,
+    MenuList,
+    Select,
+    SimpleGrid,
+    Spacer,
+    Stack,
+    Text,
+} from '@chakra-ui/react';
+import { Select as MultiSelect } from 'chakra-react-select';
+import { useFormik } from 'formik';
+import moment from 'moment';
+import React, { useCallback, useEffect, useState } from 'react';
+import { BsStarFill } from 'react-icons/bs';
+import { FiChevronDown } from 'react-icons/fi';
+import { MdTune } from 'react-icons/md';
+import { useSearchParams } from 'react-router-dom';
+
+import Star5 from '../../assets/5star.svg';
+import CustomSelect from '../../components/Select';
+import TimePicker from '../../components/TimePicker';
+import TimezoneSelect from '../../components/TimezoneSelect';
+import ApiService from '../../services/ApiService';
+import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
+import resourceStore from '../../state/resourceStore';
+import { Course, Schedule } from '../../types';
+import { educationLevelOptions, numberToDayOfWeekName } from '../../util';
+import Banner from './components/Banner';
+import TutorCard from './components/TutorCard';
+import { CustomButton } from './layout';
 
 const levelOptions = [
   { value: "a-level", label: "A-Level", id: 1 },
@@ -144,6 +148,8 @@ export default function Marketplace() {
     useEffect(() => {
         doFetchBookmarkedTutors();
     }, [doFetchBookmarkedTutors]);
+
+    console.log('BOOKMARKED', bookmarkedTutors);
 
     const checkBookmarks = (id: string) => {
         for (var i = 0; i < bookmarkedTutors.length; i++) {
@@ -288,8 +294,6 @@ export default function Marketplace() {
                             rate={tutor.rate}
                             description={tutor.description}
                             saved={checkBookmarks(tutor._id)}
-                            rating={4.25}
-                            reviewCount={3}
                         />
                     ))}
                 </SimpleGrid>

@@ -32,8 +32,6 @@ export default function TutorCard(props: any) {
         rate,
         saved,
         description,
-        rating,
-        reviewCount,
     } = props;
     return (
         <LinkBox as="article">
@@ -41,7 +39,7 @@ export default function TutorCard(props: any) {
                 <Stack
                     borderWidth="1px"
                     borderRadius="lg"
-                    w={{ sm: '100%', md: '360px' }}
+                    w={{ sm: '100%', md: '540px' }}
                     height={{ sm: '476px', md: '20rem', lg: '191px' }}
                     direction={{ base: 'column', md: 'row' }}
                     bg={useColorModeValue('white', 'gray.900')}
@@ -131,6 +129,25 @@ export default function TutorCard(props: any) {
                         )}
                     </Box>
 
+                                        <Text
+                                            fontSize={12}
+                                            fontWeight={400}
+                                            color="#6E7682"
+                                        >
+                                            <span
+                                                style={{
+                                                    display: 'inline-block',
+                                                }}
+                                            >
+                                                <img src={Star} />
+                                            </span>
+                                            4.2(175)
+                                        </Text>
+                                    </Flex>
+                                </Box>
+                            )}
+                        </LinkOverlay>
+                    </Box>
                     <Image
                         src={saved ? Ribbon2 : Ribbon}
                         position="absolute"

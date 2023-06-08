@@ -117,14 +117,18 @@ const SendTutorOffer = () => {
     setLoadingTutor(false);
   }, []);
 
-  const courseOptions = useMemo(
-    () => tutor?.courses.map((c) => ({ label: c.label, value: c._id })) || [],
-    [tutor]
-  );
-  const levelOptions = useMemo(
-    () => levels.map((l) => ({ label: l, value: l })),
-    []
-  );
+    const courseOptions = useMemo(
+        () =>
+            tutor?.courses.map((c: any) => ({
+                label: c.label,
+                value: c._id,
+            })) || [],
+        [tutor]
+    );
+    const levelOptions = useMemo(
+        () => levels.map((l) => ({ label: l, value: l })),
+        []
+    );
 
   useEffect(() => {
     loadTutor();
@@ -388,167 +392,552 @@ const SendTutorOffer = () => {
                                 !!form.touched[field.name]
                               }
                             >
-                              <FormLabel>Course</FormLabel>
-                              {isEditing ? (
-                                <Select
-                                  defaultValue={courseOptions.find(
-                                    (s) => s.value === field.value
-                                  )}
-                                  tagVariant="solid"
-                                  placeholder="Select course"
-                                  options={courseOptions}
-                                  isInvalid={
-                                    !!form.errors[field.name] &&
-                                    !!form.touched[field.name]
-                                  }
-                                  size={"md"}
-                                  onFocus={() =>
-                                    form.setTouched({
-                                      ...form.touched,
-                                      [field.name]: true,
-                                    })
-                                  }
-                                  onChange={(option) =>
-                                    form.setFieldValue(
-                                      field.name,
-                                      (option as Option).value
-                                    )
-                                  }
-                                />
-                              ) : (
-                                <EditField>
-                                  {
-                                    courseOptions.find(
-                                      (s) => s.value === field.value
-                                    )?.label
-                                  }
-                                </EditField>
-                              )}
-                              <FormErrorMessage>
-                                {form.errors[field.name] as string}
-                              </FormErrorMessage>
-                            </FormControl>
-                          )}
-                        </Field>
-                        <Field name="level">
-                          {({ field, form }: FieldProps) => (
-                            <FormControl
-                              mt={"24px"}
-                              isInvalid={
-                                !!form.errors[field.name] &&
-                                !!form.touched[field.name]
-                              }
-                            >
-                              <FormLabel>Level</FormLabel>
-                              {isEditing ? (
-                                <Select
-                                  defaultValue={levelOptions.find(
-                                    (s) => s.value === field.value
-                                  )}
-                                  tagVariant="solid"
-                                  placeholder="Select level"
-                                  options={levelOptions}
-                                  isInvalid={
-                                    !!form.errors[field.name] &&
-                                    !!form.touched[field.name]
-                                  }
-                                  size={"md"}
-                                  onFocus={() =>
-                                    form.setTouched({
-                                      ...form.touched,
-                                      [field.name]: true,
-                                    })
-                                  }
-                                  onChange={(option) =>
-                                    form.setFieldValue(
-                                      field.name,
-                                      (option as Option).value
-                                    )
-                                  }
-                                />
-                              ) : (
-                                <EditField>
-                                  {
-                                    levelOptions.find(
-                                      (s) => s.value === field.value
-                                    )?.label
-                                  }
-                                </EditField>
-                              )}
-                              <FormErrorMessage>
-                                {form.errors[field.name] as string}
-                              </FormErrorMessage>
-                            </FormControl>
-                          )}
-                        </Field>
-                        <Field name="days">
-                          {({ field, form }: FieldProps) => (
-                            <FormControl
-                              mt={"24px"}
-                              isInvalid={
-                                !!form.errors[field.name] &&
-                                !!form.touched[field.name]
-                              }
-                            >
-                              <FormLabel>
-                                What days would you like to have your classes
-                              </FormLabel>
-                              {isEditing ? (
-                                <Select
-                                  isMulti
-                                  defaultValue={(field.value as number[]).map(
-                                    (v) => dayOptions.find((d) => d.value === v)
-                                  )}
-                                  tagVariant="solid"
-                                  placeholder="Select days"
-                                  options={dayOptions}
-                                  size={"md"}
-                                  onFocus={() =>
-                                    form.setTouched({
-                                      ...form.touched,
-                                      [field.name]: true,
-                                    })
-                                  }
-                                  // @ts-ignore
-                                  onChange={(option: Option[]) => {
-                                    let scheduleValue = values.schedule;
-                                    values[field.name].map((fv: string) => {
-                                      if (
-                                        !option.find((opt) => opt.value === fv)
-                                      ) {
-                                        if (scheduleValue[fv]) {
-                                          delete scheduleValue[fv];
-                                          form.setFieldValue(
-                                            "schedule",
-                                            scheduleValue
-                                          );
-                                        }
-                                      }
-                                    });
-                                    form.setFieldValue(
-                                      field.name,
-                                      option.map((o) => o.value)
-                                    );
-                                  }}
-                                />
-                              ) : (
-                                <EditField>
-                                  {(field.value as number[])
-                                    .map((v) => {
-                                      return dayOptions.find(
-                                        (d) => d.value === v
-                                      )?.label;
-                                    })
-                                    .join(", ")}
-                                </EditField>
-                              )}
-                              <FormErrorMessage>
-                                {form.errors[field.name] as string}
-                              </FormErrorMessage>
-                            </FormControl>
-                          )}
-                        </Field>
-                        {/* <Field name='schedule'>
+                                {({ errors, isSubmitting, values }) => (
+                                    <Form>
+                                        <VStack
+                                            spacing="32px"
+                                            alignItems={'stretch'}
+                                        >
+                                            <TutorCard tutor={tutor} />
+                                            <Panel mt={'32px'}>
+                                                <Text className="sub1" mb={8}>
+                                                    Offer Settings
+                                                </Text>
+                                                <VStack
+                                                    spacing={8}
+                                                    alignItems="stretch"
+                                                >
+                                                    <Field name="expirationDate">
+                                                        {({
+                                                            field,
+                                                            form,
+                                                        }: FieldProps) => (
+                                                            <FormControl
+                                                                isInvalid={
+                                                                    !!form
+                                                                        .errors[
+                                                                        field
+                                                                            .name
+                                                                    ] &&
+                                                                    !!form
+                                                                        .touched[
+                                                                        field
+                                                                            .name
+                                                                    ]
+                                                                }
+                                                            >
+                                                                <FormLabel>
+                                                                    Offer
+                                                                    expiration
+                                                                    date
+                                                                </FormLabel>
+                                                                {isEditing ? (
+                                                                    <CalendarDateInput
+                                                                        value={
+                                                                            field.value
+                                                                        }
+                                                                        onChange={(
+                                                                            d
+                                                                        ) =>
+                                                                            form.setFieldValue(
+                                                                                field.name,
+                                                                                d
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                ) : (
+                                                                    <EditField>
+                                                                        {moment(
+                                                                            field.value
+                                                                        ).format(
+                                                                            'MMMM Do YYYY'
+                                                                        )}
+                                                                    </EditField>
+                                                                )}
+                                                                <FormErrorMessage>
+                                                                    {
+                                                                        form
+                                                                            .errors[
+                                                                            field
+                                                                                .name
+                                                                        ] as string
+                                                                    }
+                                                                </FormErrorMessage>
+                                                            </FormControl>
+                                                        )}
+                                                    </Field>
+                                                    <SimpleGrid
+                                                        width={'100%'}
+                                                        columns={{
+                                                            base: 1,
+                                                            sm: 2,
+                                                        }}
+                                                        spacing="15px"
+                                                    >
+                                                        <Field name="contractStartDate">
+                                                            {({
+                                                                field,
+                                                                form,
+                                                            }: FieldProps) => (
+                                                                <FormControl
+                                                                    isInvalid={
+                                                                        !!form
+                                                                            .errors[
+                                                                            field
+                                                                                .name
+                                                                        ] &&
+                                                                        !!form
+                                                                            .touched[
+                                                                            field
+                                                                                .name
+                                                                        ]
+                                                                    }
+                                                                >
+                                                                    <FormLabel>
+                                                                        Contract
+                                                                        starts
+                                                                    </FormLabel>
+                                                                    {isEditing ? (
+                                                                        <CalendarDateInput
+                                                                            inputProps={{
+                                                                                placeholder:
+                                                                                    'Select date',
+                                                                                onClick:
+                                                                                    () =>
+                                                                                        form.setTouched(
+                                                                                            {
+                                                                                                ...form.touched,
+                                                                                                [field.name]:
+                                                                                                    true,
+                                                                                            }
+                                                                                        ),
+                                                                            }}
+                                                                            value={
+                                                                                field.value
+                                                                            }
+                                                                            onChange={(
+                                                                                d
+                                                                            ) =>
+                                                                                form.setFieldValue(
+                                                                                    field.name,
+                                                                                    d
+                                                                                )
+                                                                            }
+                                                                        />
+                                                                    ) : (
+                                                                        <EditField>
+                                                                            {moment(
+                                                                                field.value
+                                                                            ).format(
+                                                                                'MMMM Do YYYY'
+                                                                            )}
+                                                                        </EditField>
+                                                                    )}
+                                                                    <FormErrorMessage>
+                                                                        {
+                                                                            form
+                                                                                .errors[
+                                                                                field
+                                                                                    .name
+                                                                            ] as string
+                                                                        }
+                                                                    </FormErrorMessage>
+                                                                </FormControl>
+                                                            )}
+                                                        </Field>
+                                                        <Field name="contractEndDate">
+                                                            {({
+                                                                field,
+                                                                form,
+                                                            }: FieldProps) => (
+                                                                <FormControl
+                                                                    isInvalid={
+                                                                        !!form
+                                                                            .errors[
+                                                                            field
+                                                                                .name
+                                                                        ] &&
+                                                                        !!form
+                                                                            .touched[
+                                                                            field
+                                                                                .name
+                                                                        ]
+                                                                    }
+                                                                >
+                                                                    <FormLabel>
+                                                                        Contract
+                                                                        ends
+                                                                    </FormLabel>
+                                                                    {isEditing ? (
+                                                                        <CalendarDateInput
+                                                                            inputProps={{
+                                                                                placeholder:
+                                                                                    'Select date',
+                                                                                onClick:
+                                                                                    () =>
+                                                                                        form.setTouched(
+                                                                                            {
+                                                                                                ...form.touched,
+                                                                                                [field.name]:
+                                                                                                    true,
+                                                                                            }
+                                                                                        ),
+                                                                            }}
+                                                                            value={
+                                                                                field.value
+                                                                            }
+                                                                            onChange={(
+                                                                                d
+                                                                            ) =>
+                                                                                form.setFieldValue(
+                                                                                    field.name,
+                                                                                    d
+                                                                                )
+                                                                            }
+                                                                        />
+                                                                    ) : (
+                                                                        <EditField>
+                                                                            {moment(
+                                                                                field.value
+                                                                            ).format(
+                                                                                'MMMM Do YYYY'
+                                                                            )}
+                                                                        </EditField>
+                                                                    )}
+                                                                    <FormErrorMessage>
+                                                                        {
+                                                                            form
+                                                                                .errors[
+                                                                                field
+                                                                                    .name
+                                                                            ] as string
+                                                                        }
+                                                                    </FormErrorMessage>
+                                                                </FormControl>
+                                                            )}
+                                                        </Field>
+                                                    </SimpleGrid>
+                                                </VStack>
+                                            </Panel>
+                                            <Panel>
+                                                <Text className="sub1" mb={0}>
+                                                    Offer Details
+                                                </Text>
+                                                <Field name="course">
+                                                    {({
+                                                        field,
+                                                        form,
+                                                    }: FieldProps) => (
+                                                        <FormControl
+                                                            mt={8}
+                                                            isInvalid={
+                                                                !!form.errors[
+                                                                    field.name
+                                                                ] &&
+                                                                !!form.touched[
+                                                                    field.name
+                                                                ]
+                                                            }
+                                                        >
+                                                            <FormLabel>
+                                                                Course
+                                                            </FormLabel>
+                                                            {isEditing ? (
+                                                                <Select
+                                                                    defaultValue={courseOptions.find(
+                                                                        (
+                                                                            s: any
+                                                                        ) =>
+                                                                            s.value ===
+                                                                            field.value
+                                                                    )}
+                                                                    tagVariant="solid"
+                                                                    placeholder="Select course"
+                                                                    options={
+                                                                        courseOptions
+                                                                    }
+                                                                    isInvalid={
+                                                                        !!form
+                                                                            .errors[
+                                                                            field
+                                                                                .name
+                                                                        ] &&
+                                                                        !!form
+                                                                            .touched[
+                                                                            field
+                                                                                .name
+                                                                        ]
+                                                                    }
+                                                                    size={'md'}
+                                                                    onFocus={() =>
+                                                                        form.setTouched(
+                                                                            {
+                                                                                ...form.touched,
+                                                                                [field.name]:
+                                                                                    true,
+                                                                            }
+                                                                        )
+                                                                    }
+                                                                    onChange={(
+                                                                        option
+                                                                    ) =>
+                                                                        form.setFieldValue(
+                                                                            field.name,
+                                                                            (
+                                                                                option as Option
+                                                                            )
+                                                                                .value
+                                                                        )
+                                                                    }
+                                                                />
+                                                            ) : (
+                                                                <EditField>
+                                                                    {
+                                                                        courseOptions.find(
+                                                                            (
+                                                                                s: any
+                                                                            ) =>
+                                                                                s.value ===
+                                                                                field.value
+                                                                        )?.label
+                                                                    }
+                                                                </EditField>
+                                                            )}
+                                                            <FormErrorMessage>
+                                                                {
+                                                                    form.errors[
+                                                                        field
+                                                                            .name
+                                                                    ] as string
+                                                                }
+                                                            </FormErrorMessage>
+                                                        </FormControl>
+                                                    )}
+                                                </Field>
+                                                <Field name="level">
+                                                    {({
+                                                        field,
+                                                        form,
+                                                    }: FieldProps) => (
+                                                        <FormControl
+                                                            mt={'24px'}
+                                                            isInvalid={
+                                                                !!form.errors[
+                                                                    field.name
+                                                                ] &&
+                                                                !!form.touched[
+                                                                    field.name
+                                                                ]
+                                                            }
+                                                        >
+                                                            <FormLabel>
+                                                                Level
+                                                            </FormLabel>
+                                                            {isEditing ? (
+                                                                <Select
+                                                                    defaultValue={levelOptions.find(
+                                                                        (s) =>
+                                                                            s.value ===
+                                                                            field.value
+                                                                    )}
+                                                                    tagVariant="solid"
+                                                                    placeholder="Select level"
+                                                                    options={
+                                                                        levelOptions
+                                                                    }
+                                                                    isInvalid={
+                                                                        !!form
+                                                                            .errors[
+                                                                            field
+                                                                                .name
+                                                                        ] &&
+                                                                        !!form
+                                                                            .touched[
+                                                                            field
+                                                                                .name
+                                                                        ]
+                                                                    }
+                                                                    size={'md'}
+                                                                    onFocus={() =>
+                                                                        form.setTouched(
+                                                                            {
+                                                                                ...form.touched,
+                                                                                [field.name]:
+                                                                                    true,
+                                                                            }
+                                                                        )
+                                                                    }
+                                                                    onChange={(
+                                                                        option
+                                                                    ) =>
+                                                                        form.setFieldValue(
+                                                                            field.name,
+                                                                            (
+                                                                                option as Option
+                                                                            )
+                                                                                .value
+                                                                        )
+                                                                    }
+                                                                />
+                                                            ) : (
+                                                                <EditField>
+                                                                    {
+                                                                        levelOptions.find(
+                                                                            (
+                                                                                s
+                                                                            ) =>
+                                                                                s.value ===
+                                                                                field.value
+                                                                        )?.label
+                                                                    }
+                                                                </EditField>
+                                                            )}
+                                                            <FormErrorMessage>
+                                                                {
+                                                                    form.errors[
+                                                                        field
+                                                                            .name
+                                                                    ] as string
+                                                                }
+                                                            </FormErrorMessage>
+                                                        </FormControl>
+                                                    )}
+                                                </Field>
+                                                <Field name="days">
+                                                    {({
+                                                        field,
+                                                        form,
+                                                    }: FieldProps) => (
+                                                        <FormControl
+                                                            mt={'24px'}
+                                                            isInvalid={
+                                                                !!form.errors[
+                                                                    field.name
+                                                                ] &&
+                                                                !!form.touched[
+                                                                    field.name
+                                                                ]
+                                                            }
+                                                        >
+                                                            <FormLabel>
+                                                                What days would
+                                                                you like to have
+                                                                your classes
+                                                            </FormLabel>
+                                                            {isEditing ? (
+                                                                <Select
+                                                                    isMulti
+                                                                    defaultValue={(
+                                                                        field.value as number[]
+                                                                    ).map((v) =>
+                                                                        dayOptions.find(
+                                                                            (
+                                                                                d
+                                                                            ) =>
+                                                                                d.value ===
+                                                                                v
+                                                                        )
+                                                                    )}
+                                                                    tagVariant="solid"
+                                                                    placeholder="Select days"
+                                                                    options={
+                                                                        dayOptions
+                                                                    }
+                                                                    size={'md'}
+                                                                    onFocus={() =>
+                                                                        form.setTouched(
+                                                                            {
+                                                                                ...form.touched,
+                                                                                [field.name]:
+                                                                                    true,
+                                                                            }
+                                                                        )
+                                                                    }
+                                                                    // @ts-ignore
+                                                                    onChange={(
+                                                                        option: Option[]
+                                                                    ) => {
+                                                                        let scheduleValue =
+                                                                            values.schedule;
+                                                                        values[
+                                                                            field
+                                                                                .name
+                                                                        ].map(
+                                                                            (
+                                                                                fv: string
+                                                                            ) => {
+                                                                                if (
+                                                                                    !option.find(
+                                                                                        (
+                                                                                            opt
+                                                                                        ) =>
+                                                                                            opt.value ===
+                                                                                            fv
+                                                                                    )
+                                                                                ) {
+                                                                                    if (
+                                                                                        scheduleValue[
+                                                                                            fv
+                                                                                        ]
+                                                                                    ) {
+                                                                                        delete scheduleValue[
+                                                                                            fv
+                                                                                        ];
+                                                                                        form.setFieldValue(
+                                                                                            'schedule',
+                                                                                            scheduleValue
+                                                                                        );
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        );
+                                                                        form.setFieldValue(
+                                                                            field.name,
+                                                                            option.map(
+                                                                                (
+                                                                                    o
+                                                                                ) =>
+                                                                                    o.value
+                                                                            )
+                                                                        );
+                                                                    }}
+                                                                />
+                                                            ) : (
+                                                                <EditField>
+                                                                    {(
+                                                                        field.value as number[]
+                                                                    )
+                                                                        .map(
+                                                                            (
+                                                                                v
+                                                                            ) => {
+                                                                                return dayOptions.find(
+                                                                                    (
+                                                                                        d
+                                                                                    ) =>
+                                                                                        d.value ===
+                                                                                        v
+                                                                                )
+                                                                                    ?.label;
+                                                                            }
+                                                                        )
+                                                                        .join(
+                                                                            ', '
+                                                                        )}
+                                                                </EditField>
+                                                            )}
+                                                            <FormErrorMessage>
+                                                                {
+                                                                    form.errors[
+                                                                        field
+                                                                            .name
+                                                                    ] as string
+                                                                }
+                                                            </FormErrorMessage>
+                                                        </FormControl>
+                                                    )}
+                                                </Field>
+                                                {/* <Field name='schedule'>
                                             {({ field, form }: FieldProps) => (
                                                 <FormControl mt={'24px'} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
                                                     <FormLabel>How often would you like your classes?</FormLabel>

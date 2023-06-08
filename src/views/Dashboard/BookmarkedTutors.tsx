@@ -67,8 +67,6 @@ function BookmarkedTutors() {
                         saved={true}
                         description={tutor.tutor.description}
                         rate={tutor.tutor.rate}
-                        rating={tutor.tutor.rating}
-                        reviewCount={tutor.tutor.reviewCount}
                     />
                 ))}
             </SimpleGrid>
