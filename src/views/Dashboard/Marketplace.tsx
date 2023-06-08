@@ -147,8 +147,6 @@ export default function Marketplace() {
         doFetchBookmarkedTutors();
     }, [doFetchBookmarkedTutors]);
 
-    console.log('BOOKMARKED', bookmarkedTutors);
-
     const checkBookmarks = (id: string) => {
         for (var i = 0; i < bookmarkedTutors.length; i++) {
             if (bookmarkedTutors[i].tutor._id == id) {
@@ -370,6 +368,8 @@ export default function Marketplace() {
                             rate={tutor.rate}
                             description={tutor.description}
                             saved={checkBookmarks(tutor._id)}
+                            rating={4.25}
+                            reviewCount={3}
                         />
                     ))}
                 </SimpleGrid>

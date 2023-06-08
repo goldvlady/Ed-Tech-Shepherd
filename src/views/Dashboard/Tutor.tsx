@@ -193,20 +193,17 @@ export default function Tutor() {
                                         >
                                             {tutorData.highestLevelOfEducation}
                                         </Text>
-                                        <Text
-                                            fontSize={12}
-                                            fontWeight={400}
-                                            color="#6E7682"
-                                        >
-                                            <span
-                                                style={{
-                                                    display: 'inline-block',
-                                                }}
+                                        <Flex>
+                                            {' '}
+                                            <Image src={Star} boxSize={4} />
+                                            <Text
+                                                fontSize={12}
+                                                fontWeight={400}
+                                                color="#6E7682"
                                             >
-                                                <img src={Star} />
-                                            </span>
-                                            4.2(175)
-                                        </Text>
+                                                {` ${tutorData.rating}(${tutorData.reviewCount})`}
+                                            </Text>
+                                        </Flex>
                                         <Button
                                             variant="unstyled"
                                             color="#585F68"
@@ -467,7 +464,15 @@ export default function Tutor() {
                                                                         </Tr>
                                                                     </Thead>
                                                                     <Tbody>
-                                                                        <Tr>
+                                                                        <Tr
+                                                                            sx={{
+                                                                                td: {
+                                                                                    textAlign:
+                                                                                        'center',
+                                                                                    color: 'text.300',
+                                                                                },
+                                                                            }}
+                                                                        >
                                                                             <Td
                                                                                 bgColor={
                                                                                     '#FAFAFA'
@@ -523,7 +528,15 @@ export default function Tutor() {
                                                                                 x
                                                                             </Td>
                                                                         </Tr>
-                                                                        <Tr>
+                                                                        <Tr
+                                                                            sx={{
+                                                                                td: {
+                                                                                    textAlign:
+                                                                                        'center',
+                                                                                    color: 'text.300',
+                                                                                },
+                                                                            }}
+                                                                        >
                                                                             <Td
                                                                                 bgColor={
                                                                                     '#FAFAFA'
@@ -615,7 +628,15 @@ export default function Tutor() {
                                                                                 />{' '}
                                                                             </Td>
                                                                         </Tr>
-                                                                        <Tr>
+                                                                        <Tr
+                                                                            sx={{
+                                                                                td: {
+                                                                                    textAlign:
+                                                                                        'center',
+                                                                                    color: 'text.300',
+                                                                                },
+                                                                            }}
+                                                                        >
                                                                             <Td
                                                                                 bgColor={
                                                                                     '#FAFAFA'
