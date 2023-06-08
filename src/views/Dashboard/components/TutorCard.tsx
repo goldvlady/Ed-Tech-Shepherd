@@ -42,7 +42,7 @@ export default function TutorCard(props: any) {
                 <Stack
                     borderWidth="1px"
                     borderRadius="lg"
-                    w={{ sm: '100%', md: '540px' }}
+                    w={{ sm: '100%', md: '360px' }}
                     height={{ sm: '476px', md: '20rem', lg: '191px' }}
                     direction={{ base: 'column', md: 'row' }}
                     bg={useColorModeValue('white', 'gray.900')}

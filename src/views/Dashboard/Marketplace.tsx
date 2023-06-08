@@ -368,8 +368,8 @@ export default function Marketplace() {
                             rate={tutor.rate}
                             description={tutor.description}
                             saved={checkBookmarks(tutor._id)}
-                            rating={4.25}
-                            reviewCount={3}
+                            rating={tutor.rating}
+                            reviewCount={tutor.reviewCount}
                         />
                     ))}
                 </SimpleGrid>
