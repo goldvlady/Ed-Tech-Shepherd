@@ -15,19 +15,52 @@ const tutors = async (event: HTTPEvent) => {
 
   let tutors = await TutorLead.aggregate([
     {
+      $lookup: {
+        from: 'tutorreviews',
+        localField: '_id',
+        foreignField: 'tutor',
+        as: 'reviews',
+      },
+    },
+    {
+      $addFields: {
+        rating: { $avg: '$reviews.rating' },
+      },
+    },
+    {
+      $addFields: {
+        rating: {
+          $cond: {
+            if: {
+              $eq: [
+                {
+                  $ifNull: ['$rating', ''],
+                },
+                '',
+              ],
+            },
+            then: 0,
+            else: '$rating',
+          },
+        },
+      },
+    },
+    {
+      $addFields: {
+        reviewCount: { $size: '$reviews' },
+        rating: { $round: ['$rating', 1] },
+        floorRating: { $floor: '$rating' },
+      },
+    },
+    {
       $match: {
         $and: [parsed.filter],
       },
     },
-  ]);
-
-  tutors = await TutorLead.populate(tutors, [
     {
-      path: 'reviews',
+      $unset: ['reviews', 'floorRating'],
     },
   ]);
-
-  tutors = tutors.map((t) => TutorLead.hydrate(t).toJSON());
 
   return {
     statusCode: 200,
