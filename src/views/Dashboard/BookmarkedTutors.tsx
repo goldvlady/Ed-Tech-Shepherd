@@ -56,20 +56,24 @@ function BookmarkedTutors() {
         </Box>
       </Flex>
 
-      <SimpleGrid minChildWidth="325px" spacing="30px">
-        {allTutors.map((tutor: any) => (
-          <TutorCard
-            name={`${tutor.tutor.name.first} ${tutor.tutor.name.last}`}
-            levelOfEducation={tutor.tutor.highestLevelOfEducation}
-            avatar={tutor.tutor.avatar}
-            saved={true}
-            description={tutor.tutor.description}
-            rate={tutor.tutor.rate}
-          />
-        ))}
-      </SimpleGrid>
-    </>
-  );
+            <SimpleGrid minChildWidth="325px" spacing="30px">
+                {allTutors.map((tutor: any) => (
+                    <TutorCard
+                        key={tutor.tutor._id}
+                        id={tutor.tutor._id}
+                        name={`${tutor.tutor.name.first} ${tutor.tutor.name.last}`}
+                        levelOfEducation={tutor.tutor.highestLevelOfEducation}
+                        avatar={tutor.tutor.avatar}
+                        saved={true}
+                        description={tutor.tutor.description}
+                        rate={tutor.tutor.rate}
+                        rating={tutor.tutor.rating}
+                        reviewCount={tutor.tutor.reviewCount}
+                    />
+                ))}
+            </SimpleGrid>
+        </>
+    );
 }
 
 export default BookmarkedTutors;

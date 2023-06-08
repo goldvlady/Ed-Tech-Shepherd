@@ -134,47 +134,70 @@ export default function Marketplace() {
     getData();
   };
 
-  return (
-    <>
-      <Box bgColor={"black"} borderRadius={"14px"} height={"200px"}>
-        <Banner />
-      </Box>
-      <Box mt={3}>
-        <Flex>
-          <HStack spacing={1} direction="row">
-            <Flex alignItems={"center"} mt={2}>
-              <Text>
-                <MdTune />
-              </Text>
-              <Text>Filter</Text>
-            </Flex>
-            <Select
-              fontSize={14}
-              variant="outline"
-              placeholder="Subject"
-              name="subject"
-              value={formik.values.subject}
-              onChange={formik.handleChange}
-            >
-              {courseList.map((course) => (
-                <option key={course._id} value={course._id}>
-                  {course.label}
-                </option>
-              ))}
-            </Select>
-            <Select
-              fontSize={14}
-              variant="outline"
-              size="md"
-              placeholder="Level"
-              name="level"
-              value={formik.values.level}
-              onChange={formik.handleChange}
-            >
-              {educationLevelOptions.map((level) => (
-                <option value={level.value}>{level.label}</option>
-              ))}
-            </Select>
+    const { fetchBookmarkedTutors, tutors: bookmarkedTutors } =
+        bookmarkedTutorsStore();
+
+    const doFetchBookmarkedTutors = useCallback(async () => {
+        await fetchBookmarkedTutors();
+    }, []);
+
+    useEffect(() => {
+        doFetchBookmarkedTutors();
+    }, [doFetchBookmarkedTutors]);
+
+    const checkBookmarks = (id: string) => {
+        for (var i = 0; i < bookmarkedTutors.length; i++) {
+            if (bookmarkedTutors[i].tutor._id == id) {
+                return true;
+                break;
+            } else {
+            }
+        }
+    };
+
+    return (
+        <>
+            <Box bgColor={'black'} borderRadius={'14px'} height={'200px'}>
+                <Banner />
+            </Box>
+            <Box mt={3}>
+                <Flex>
+                    <HStack spacing={1} direction="row">
+                        <Flex alignItems={'center'} mt={2}>
+                            <Text>
+                                <MdTune />
+                            </Text>
+                            <Text>Filter</Text>
+                        </Flex>
+                        <Select
+                            fontSize={14}
+                            variant="outline"
+                            placeholder="Subject"
+                            name="subject"
+                            value={formik.values.subject}
+                            onChange={formik.handleChange}
+                        >
+                            {courseList.map((course) => (
+                                <option key={course._id} value={course._id}>
+                                    {course.label}
+                                </option>
+                            ))}
+                        </Select>
+                        <Select
+                            fontSize={14}
+                            variant="outline"
+                            size="md"
+                            placeholder="Level"
+                            name="level"
+                            value={formik.values.level}
+                            onChange={formik.handleChange}
+                        >
+                            {educationLevelOptions.map((level) => (
+                                <option value={level.value}>
+                                    {level.label}
+                                </option>
+                            ))}
+                        </Select>
 
             <Box>
               {" "}
@@ -265,8 +288,8 @@ export default function Marketplace() {
                             rate={tutor.rate}
                             description={tutor.description}
                             saved={checkBookmarks(tutor._id)}
-                            rating={tutor.rating}
-                            reviewCount={tutor.reviewCount}
+                            rating={4.25}
+                            reviewCount={3}
                         />
                     ))}
                 </SimpleGrid>
