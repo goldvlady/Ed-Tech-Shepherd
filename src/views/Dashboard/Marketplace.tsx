@@ -253,66 +253,24 @@ export default function Marketplace() {
                 </MenuList>
               </Menu>
             </Box>
-            <Select
-              fontSize={14}
-              variant="outline"
-              placeholder="Price"
-              name="price"
-              value={formik.values.price}
-              onChange={formik.handleChange}
-            >
-              {priceOptions.map((price) => (
-                <option key={price.id} value={price.value}>
-                  {price.label}
-                </option>
-              ))}
-            </Select>
-            <Select
-              fontSize={14}
-              variant="outline"
-              placeholder="Rating"
-              name="rating"
-              value={formik.values.rating}
-              onChange={formik.handleChange}
-            >
-              {ratingOptions.map((rating) => (
-                <option key={rating.id} value={rating.value}>
-                  {rating.label}
-                </option>
-              ))}
-            </Select>
-          </HStack>
-
-          <Spacer />
-          <CustomButton
-            buttonText={"Clear Filters"}
-            buttonType="outlined"
-            fontStyle={{ fontSize: "12px", fontWeight: 500 }}
-            onClick={resetForm}
-          />
-          <CustomButton
-            buttonText={"Apply Filters"}
-            buttonType="fill"
-            fontStyle={{ fontSize: "12px", fontWeight: 500 }}
-            onClick={getFilteredData}
-          />
-        </Flex>
-      </Box>
-      <Box my={45} py={2}>
-        <SimpleGrid minChildWidth="359px" spacing="30px">
-          {allTutors.map((tutor: any) => (
-            <TutorCard
-              key={tutor._id}
-              id={tutor._id}
-              name={`${tutor.name.first} ${tutor.name.last} `}
-              levelOfEducation={tutor.highestLevelOfEducation}
-              avatar={tutor.avatar}
-              rate={tutor.rate}
-              description={tutor.description}
-            />
-          ))}
-        </SimpleGrid>
-      </Box>
-    </>
-  );
+            <Box my={45} py={2}>
+                <SimpleGrid minChildWidth="359px" spacing="30px">
+                    {allTutors.map((tutor: any) => (
+                        <TutorCard
+                            key={tutor._id}
+                            id={tutor._id}
+                            name={`${tutor.name.first} ${tutor.name.last} `}
+                            levelOfEducation={tutor.highestLevelOfEducation}
+                            avatar={tutor.avatar}
+                            rate={tutor.rate}
+                            description={tutor.description}
+                            saved={checkBookmarks(tutor._id)}
+                            rating={tutor.rating}
+                            reviewCount={tutor.reviewCount}
+                        />
+                    ))}
+                </SimpleGrid>
+            </Box>
+        </>
+    );
 }
