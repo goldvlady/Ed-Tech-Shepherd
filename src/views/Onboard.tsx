@@ -1,8 +1,9 @@
-import { Box } from "@chakra-ui/react";
-import React from "react";
-import { Outlet } from "react-router";
-import styled from "styled-components";
-import Header from "../components/Header";
+import { Box } from '@chakra-ui/react';
+import React from 'react';
+import { Outlet } from 'react-router';
+import styled from 'styled-components';
+
+import Header from '../components/Header';
 
 const Root = styled(Box)`
   margin: 30px auto 30px auto;

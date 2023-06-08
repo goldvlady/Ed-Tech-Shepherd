@@ -1,6 +1,7 @@
-import { create } from "zustand";
-import ApiService from "../services/ApiService";
-import { User } from "../types";
+import { create } from 'zustand';
+
+import ApiService from '../services/ApiService';
+import { User } from '../types';
 
 type Store = {
   user: User | null;

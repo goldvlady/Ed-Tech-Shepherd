@@ -1,74 +1,65 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import StepIndicator from "../components/StepIndicator";
 import {
-  FiUser,
-  FiCalendar,
-  FiBookOpen,
-  FiDollarSign,
-  FiEdit,
-} from "react-icons/fi";
-import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Avatar,
   Box,
+  Button,
+  CircularProgress,
+  Flex,
+  FormControl,
   FormLabel,
   Heading,
+  IconButton,
   Input,
-  Text,
-  CircularProgress,
   InputGroup,
   InputLeftAddon,
-  Alert,
-  AlertIcon,
-  VStack,
-  useToast,
-  Flex,
-  IconButton,
   Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
   ModalBody,
+  ModalCloseButton,
+  ModalContent,
   ModalFooter,
-  Button,
-  useDisclosure,
+  ModalHeader,
+  ModalOverlay,
   StackDivider,
-  Avatar,
+  Text,
   Textarea,
-  FormControl,
-  AlertDescription,
-} from "@chakra-ui/react";
-import StepWizard, { StepWizardProps } from "react-step-wizard";
-import OnboardStep from "../components/OnboardStep";
-import onboardTutorStore from "../state/onboardTutorStore";
-import CourseSelect from "../components/CourseSelect";
-import { capitalize, isEmpty, sumBy } from "lodash";
-import ScheduleBuilder from "../components/ScheduleBuilder";
-import OnboardSubmitStep from "../components/OnboardSubmitStep";
-import Lottie from "lottie-react";
+  VStack,
+  useDisclosure,
+  useToast,
+} from '@chakra-ui/react';
+import { ref } from '@firebase/storage';
+import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
+import { capitalize, isEmpty, sumBy } from 'lodash';
+import Lottie from 'lottie-react';
+import mixpanel from 'mixpanel-browser';
+import moment from 'moment';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { FiBookOpen, FiCalendar, FiDollarSign, FiEdit, FiUser } from 'react-icons/fi';
+import { MdInfo } from 'react-icons/md';
+import StepWizard, { StepWizardProps } from 'react-step-wizard';
 
-import lottieSuccessAnimationData from "../lottie/73392-success.json";
-import { useTitle } from "../hooks";
-import ApiService from "../services/ApiService";
-import TimezoneSelect from "../components/TimezoneSelect";
-
-import moment from "moment";
-import EmptyState from "../components/EmptyState";
-
-import occupationList from "../occupations.json";
-import { ref } from "@firebase/storage";
-import { getDownloadURL, uploadBytesResumable } from "firebase/storage";
-import { storage } from "../firebase";
-import { getOptionValue } from "../util";
-import FileDisplay from "../components/FileDisplay";
-import { Course } from "../types";
-
-import DateInput, { FORMAT } from "../components/DateInput";
-import { FORMAT as TIME_PICKER_FORMAT } from "../components/TimePicker";
-import mixpanel from "mixpanel-browser";
-import CreatableSelect from "../components/CreatableSelect";
-import { MdInfo } from "react-icons/md";
-import theme from "../theme";
-import resourceStore from "../state/resourceStore";
+import CourseSelect from '../components/CourseSelect';
+import CreatableSelect from '../components/CreatableSelect';
+import DateInput, { FORMAT } from '../components/DateInput';
+import EmptyState from '../components/EmptyState';
+import FileDisplay from '../components/FileDisplay';
+import OnboardStep from '../components/OnboardStep';
+import OnboardSubmitStep from '../components/OnboardSubmitStep';
+import ScheduleBuilder from '../components/ScheduleBuilder';
+import StepIndicator from '../components/StepIndicator';
+import { FORMAT as TIME_PICKER_FORMAT } from '../components/TimePicker';
+import TimezoneSelect from '../components/TimezoneSelect';
+import { storage } from '../firebase';
+import { useTitle } from '../hooks';
+import lottieSuccessAnimationData from '../lottie/73392-success.json';
+import occupationList from '../occupations.json';
+import ApiService from '../services/ApiService';
+import onboardTutorStore from '../state/onboardTutorStore';
+import resourceStore from '../state/resourceStore';
+import theme from '../theme';
+import { Course } from '../types';
+import { getOptionValue } from '../util';
 
 const occupationOptions = occupationList.map((o) => {
   return { label: o, value: o };
@@ -76,63 +67,63 @@ const occupationOptions = occupationList.map((o) => {
 
 const stepIndicatorSteps = [
   {
-    title: "About you",
+    title: 'About you',
     icon: <FiUser />,
-    id: "about-you",
+    id: 'about-you',
   },
   {
-    title: "Classes",
+    title: 'Classes',
     icon: <FiBookOpen />,
-    id: "classes",
+    id: 'classes',
   },
   {
-    title: "Availability",
+    title: 'Availability',
     icon: <FiCalendar />,
-    id: "availability",
+    id: 'availability',
   },
   {
-    title: "Rate",
+    title: 'Rate',
     icon: <FiDollarSign />,
-    id: "rate",
+    id: 'rate',
   },
 ];
 
 const educationLevelOptions = [
   {
-    label: "Primary School Certificate",
-    value: "primary-school-cert",
+    label: 'Primary School Certificate',
+    value: 'primary-school-cert',
   },
   {
-    label: "Junior Secondary School Certificate",
-    value: "junior-secondary-school-cert",
+    label: 'Junior Secondary School Certificate',
+    value: 'junior-secondary-school-cert',
   },
   {
-    label: "Senior Secondary School Certificate",
-    value: "senior-secondary-school-cert",
+    label: 'Senior Secondary School Certificate',
+    value: 'senior-secondary-school-cert',
   },
   {
-    label: "National Diploma (ND)",
-    value: "national-diploma",
+    label: 'National Diploma (ND)',
+    value: 'national-diploma',
   },
   {
-    label: "Higher National Diploma (HND)",
-    value: "higher-national-diploma",
+    label: 'Higher National Diploma (HND)',
+    value: 'higher-national-diploma',
   },
   {
     label: "Bachelor's Degree (BSc, BA, BEng, etc.)",
-    value: "bachelors-degree",
+    value: 'bachelors-degree',
   },
   {
     label: "Master's Degree (MSc, MA, MEng, etc.)",
-    value: "masters-degree",
+    value: 'masters-degree',
   },
   {
-    label: "Doctoral Degree (PhD, MD, etc.)",
-    value: "doctoral-degree",
+    label: 'Doctoral Degree (PhD, MD, etc.)',
+    value: 'doctoral-degree',
   },
   {
-    label: "Vocational/Technical Certificate",
-    value: "vocation-technical-cert",
+    label: 'Vocational/Technical Certificate',
+    value: 'vocation-technical-cert',
   },
 ];
 
@@ -175,11 +166,7 @@ const OnboardTutor = () => {
           .flat(),
         (o) => {
           return moment
-            .duration(
-              moment(o.end, TIME_PICKER_FORMAT).diff(
-                moment(o.begin, TIME_PICKER_FORMAT)
-              )
-            )
+            .duration(moment(o.end, TIME_PICKER_FORMAT).diff(moment(o.begin, TIME_PICKER_FORMAT)))
             .asHours();
         }
       ),
@@ -187,14 +174,13 @@ const OnboardTutor = () => {
   );
 
   const dobValid = moment(dob, FORMAT, true).isValid();
-  const age = useMemo(() => moment().diff(moment(dob, FORMAT), "years"), [dob]);
+  const age = useMemo(() => moment().diff(moment(dob, FORMAT), 'years'), [dob]);
 
   const validateNameStep = !!name.first && !!name.last;
   const validateDobStep = !!dob && age >= 18 && dobValid;
   const validateEmailStep = !!email;
   const validateCoursesStep = !isEmpty(courses);
-  const validateScheduleStep =
-    !isEmpty(schedule) && !!tz && totalAvailableHours >= 3;
+  const validateScheduleStep = !isEmpty(schedule) && !!tz && totalAvailableHours >= 3;
   const validateProfileSetupStep = !!avatar && !!description;
   const validateMoreInformationStep =
     !!occupation && !!highestLevelOfEducation && !!cv && !isEmpty(teachLevel);
@@ -207,15 +193,15 @@ const OnboardTutor = () => {
   const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
 
   useEffect(() => {
-    onboardTutorStore.set.cv("");
+    onboardTutorStore.set.cv('');
 
     if (!selectedCV) return;
 
     if (selectedCV?.size > 2000000) {
       toast({
-        title: "Please upload a file under 2MB",
-        status: "error",
-        position: "top",
+        title: 'Please upload a file under 2MB',
+        status: 'error',
+        position: 'top',
         isClosable: true,
       });
       return;
@@ -225,11 +211,9 @@ const OnboardTutor = () => {
     const uploadTask = uploadBytesResumable(storageRef, selectedCV);
 
     uploadTask.on(
-      "state_changed",
+      'state_changed',
       (snapshot) => {
-        const progress = Math.round(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        );
+        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
         setCvUploadPercent(progress);
       },
       (error) => {
@@ -245,15 +229,15 @@ const OnboardTutor = () => {
   }, [selectedCV]);
 
   useEffect(() => {
-    onboardTutorStore.set.avatar?.("");
+    onboardTutorStore.set.avatar?.('');
 
     if (!selectedAvatar) return;
 
     if (selectedAvatar?.size > 1000000) {
       toast({
-        title: "Please upload a file under 1MB",
-        status: "error",
-        position: "top",
+        title: 'Please upload a file under 1MB',
+        status: 'error',
+        position: 'top',
         isClosable: true,
       });
       return;
@@ -263,11 +247,9 @@ const OnboardTutor = () => {
     const uploadTask = uploadBytesResumable(storageRef, selectedAvatar);
 
     uploadTask.on(
-      "state_changed",
+      'state_changed',
       (snapshot) => {
-        const progress = Math.round(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        );
+        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
         setAvatarUploadPercent(progress);
       },
       (error) => {
@@ -284,104 +266,91 @@ const OnboardTutor = () => {
 
   const teachLevelOptions = [
     {
-      label: "Primary School",
-      value: "primary-school",
+      label: 'Primary School',
+      value: 'primary-school',
     },
     {
-      label: "Secondary School",
-      value: "secondary-school",
+      label: 'Secondary School',
+      value: 'secondary-school',
     },
     {
-      label: "University and above",
-      value: "university-plus",
+      label: 'University and above',
+      value: 'university-plus',
     },
   ];
 
   const doSubmit = () => {
-    mixpanel.track("Completed onboarding");
+    mixpanel.track('Completed onboarding');
     return ApiService.submitTutorLead(data);
   };
 
-  const onStepChange: StepWizardProps["onStepChange"] = ({
-    activeStep,
-    ...rest
-  }) => {
+  const onStepChange: StepWizardProps['onStepChange'] = ({ activeStep, ...rest }) => {
     setActiveStep(activeStep);
   };
 
   const confirmations = [
     {
-      title: "About you",
+      title: 'About you',
       fields: [
         {
-          title: "First Name",
+          title: 'First Name',
           value: <Text marginBottom={0}>{name.first}</Text>,
-          step: "name",
+          step: 'name',
         },
         {
-          title: "Last Name",
+          title: 'Last Name',
           value: <Text marginBottom={0}>{name.last}</Text>,
-          step: "name",
+          step: 'name',
         },
         {
-          title: "Date of Birth",
-          value: (
-            <Text marginBottom={0}>
-              {moment(dob, FORMAT).format("MMMM Do YYYY")}
-            </Text>
-          ),
-          step: "dob",
+          title: 'Date of Birth',
+          value: <Text marginBottom={0}>{moment(dob, FORMAT).format('MMMM Do YYYY')}</Text>,
+          step: 'dob',
         },
         {
-          title: "Email Address",
+          title: 'Email Address',
           value: <Text marginBottom={0}>{email}</Text>,
-          step: "email",
+          step: 'email',
         },
         {
-          title: "Current Occupation",
+          title: 'Current Occupation',
           value: <Text marginBottom={0}>{occupation}</Text>,
-          step: "more-info",
+          step: 'more-info',
         },
         {
-          title: "Highest Level of Education Obtained",
+          title: 'Highest Level of Education Obtained',
           value: (
             <Text marginBottom={0}>
-              {
-                educationLevelOptions.find(
-                  (el) => el.value === highestLevelOfEducation
-                )?.label
-              }
+              {educationLevelOptions.find((el) => el.value === highestLevelOfEducation)?.label}
             </Text>
           ),
-          step: "more-info",
+          step: 'more-info',
         },
         {
-          title: "CV",
-          value: !!selectedCV && (
-            <FileDisplay marginTop={1} file={selectedCV as File} />
-          ),
-          step: "more-info",
+          title: 'CV',
+          value: !!selectedCV && <FileDisplay marginTop={1} file={selectedCV as File} />,
+          step: 'more-info',
         },
         {
-          title: "Level of students you can teach",
+          title: 'Level of students you can teach',
           value: (
             <Text marginBottom={0}>
               {teachLevel
                 .map((tc) => {
                   return teachLevelOptions.find((ac) => ac.value === tc)?.label;
                 })
-                .join(", ")}
+                .join(', ')}
             </Text>
           ),
-          step: "more-info",
+          step: 'more-info',
         },
       ],
     },
     {
-      title: "Profile",
+      title: 'Profile',
       fields: [
         {
-          title: "Avatar",
+          title: 'Avatar',
           value: !!selectedAvatar && (
             <FileDisplay
               prefix={avatar ? <Avatar src={avatar} /> : null}
@@ -389,55 +358,55 @@ const OnboardTutor = () => {
               file={selectedAvatar as File}
             />
           ),
-          step: "profile-setup",
+          step: 'profile-setup',
         },
         {
-          title: "About you",
+          title: 'About you',
           value: <Text marginBottom={0}>{description}</Text>,
-          step: "profile-setup",
+          step: 'profile-setup',
         },
       ],
     },
     {
-      title: "Classes",
+      title: 'Classes',
       fields: [
         {
-          title: "Classes",
+          title: 'Classes',
           value: (
             <Text marginBottom={0}>
               {courses
                 .map((tc) => {
                   return courseList.find((ac) => ac._id === tc)?.label;
                 })
-                .join(", ")}
+                .join(', ')}
             </Text>
           ),
-          step: "classes",
+          step: 'classes',
         },
       ],
     },
     {
-      title: "Availability",
+      title: 'Availability',
       fields: [
         {
-          title: "Time zone",
+          title: 'Time zone',
           value: <Text marginBottom={0}>{tz}</Text>,
-          step: "availability",
+          step: 'availability',
         },
         {
-          title: "Schedule",
-          value: <Text marginBottom={0} whiteSpace={"pre"}></Text>,
-          step: "availability",
+          title: 'Schedule',
+          value: <Text marginBottom={0} whiteSpace={'pre'}></Text>,
+          step: 'availability',
         },
       ],
     },
     {
-      title: "Rate",
+      title: 'Rate',
       fields: [
         {
-          title: "Hourly rate",
+          title: 'Hourly rate',
           value: <Text marginBottom={0}>${rate}</Text>,
-          step: "rate",
+          step: 'rate',
         },
       ],
     },
@@ -445,11 +414,11 @@ const OnboardTutor = () => {
 
   const steps = [
     {
-      id: "name",
-      stepIndicatorId: "about-you",
+      id: 'name',
+      stepIndicatorId: 'about-you',
       template: (
         <Box>
-          <Heading as="h3" size="lg" textAlign={"center"}>
+          <Heading as="h3" size="lg" textAlign={'center'}>
             First we need some information about you.
             <br />
             What's your name?
@@ -458,21 +427,17 @@ const OnboardTutor = () => {
             <FormControl>
               <FormLabel>First Name</FormLabel>
               <Input
-                size={"lg"}
+                size={'lg'}
                 value={name.first}
-                onChange={(e) =>
-                  onboardTutorStore.set.name({ ...name, first: e.target.value })
-                }
+                onChange={(e) => onboardTutorStore.set.name({ ...name, first: e.target.value })}
               />
             </FormControl>
             <FormControl mt={4}>
               <FormLabel>Last Name</FormLabel>
               <Input
-                size={"lg"}
+                size={'lg'}
                 value={name.last}
-                onChange={(e) =>
-                  onboardTutorStore.set.name({ ...name, last: e.target.value })
-                }
+                onChange={(e) => onboardTutorStore.set.name({ ...name, last: e.target.value })}
               />
             </FormControl>
           </Box>
@@ -481,12 +446,12 @@ const OnboardTutor = () => {
       canSave: validateNameStep,
     },
     {
-      id: "dob",
-      stepIndicatorId: "about-you",
+      id: 'dob',
+      stepIndicatorId: 'about-you',
       template: (
         <Box>
-          <Heading as="h3" size="lg" textAlign={"center"}>
-            Nice to meet you,{" "}
+          <Heading as="h3" size="lg" textAlign={'center'}>
+            Nice to meet you,{' '}
             <Text as="span" textTransform="capitalize">
               {name.first}
             </Text>
@@ -502,7 +467,7 @@ const OnboardTutor = () => {
                   onChange={(v) => {
                     onboardTutorStore.set.dob(v);
                   }}
-                  size={"lg"}
+                  size={'lg'}
                 />
               </FormControl>
             ) : (
@@ -514,17 +479,16 @@ const OnboardTutor = () => {
                 image={
                   <img
                     alt="uh oh!"
-                    style={{ height: "80px" }}
+                    style={{ height: '80px' }}
                     src="/images/empty-state-no-content.png"
                   />
                 }
                 action={
                   <Button
                     onClick={() => {
-                      onboardTutorStore.set.dob("");
+                      onboardTutorStore.set.dob('');
                     }}
-                    variant={"ghost"}
-                  >
+                    variant={'ghost'}>
                     Change Date of Birth
                   </Button>
                 }
@@ -536,18 +500,18 @@ const OnboardTutor = () => {
       canSave: validateDobStep,
     },
     {
-      id: "email",
-      stepIndicatorId: "about-you",
+      id: 'email',
+      stepIndicatorId: 'about-you',
       template: (
         <Box>
-          <Heading as="h3" size="lg" textAlign={"center"}>
+          <Heading as="h3" size="lg" textAlign={'center'}>
             We'll need your email address as well
           </Heading>
           <Box marginTop={30}>
             <FormControl>
               <FormLabel>Email address</FormLabel>
               <Input
-                size={"lg"}
+                size={'lg'}
                 value={email}
                 onChange={(e) => onboardTutorStore.set.email(e.target.value)}
                 type="email"
@@ -559,11 +523,11 @@ const OnboardTutor = () => {
       canSave: validateEmailStep,
     },
     {
-      id: "more-info",
-      stepIndicatorId: "about-you",
+      id: 'more-info',
+      stepIndicatorId: 'about-you',
       template: (
         <Box>
-          <Heading as="h3" size="lg" textAlign={"center"}>
+          <Heading as="h3" size="lg" textAlign={'center'}>
             And some more information
           </Heading>
           <Box marginTop={30}>
@@ -575,11 +539,9 @@ const OnboardTutor = () => {
                   isClearable
                   value={getOptionValue(occupationOptions, occupation)}
                   isMulti={false}
-                  onChange={(v: any) =>
-                    onboardTutorStore.set.occupation?.(v?.value)
-                  }
+                  onChange={(v: any) => onboardTutorStore.set.occupation?.(v?.value)}
                   options={occupationOptions}
-                  size={"lg"}
+                  size={'lg'}
                 />
               </FormControl>
               <FormControl>
@@ -587,35 +549,30 @@ const OnboardTutor = () => {
                 <CreatableSelect
                   tagVariant="solid"
                   isClearable
-                  value={getOptionValue(
-                    educationLevelOptions,
-                    highestLevelOfEducation
-                  )}
+                  value={getOptionValue(educationLevelOptions, highestLevelOfEducation)}
                   isMulti={false}
                   onChange={(v: any) => {
                     onboardTutorStore.set.highestLevelOfEducation(v?.value);
                   }}
                   options={educationLevelOptions}
-                  size={"lg"}
+                  size={'lg'}
                 />
               </FormControl>
               <FormControl>
                 <FormLabel>
                   Upload a copy of your CV
-                  <Text variant={"muted"} marginBottom={"4px"}>
+                  <Text variant={'muted'} marginBottom={'4px'}>
                     Please upload a PDF, JPG, or PNG file under 2MB
                   </Text>
                 </FormLabel>
                 {!!!selectedCV && (
                   <InputGroup>
                     <Input
-                      type={"file"}
+                      type={'file'}
                       accept="application/pdf, image/jpeg, image/png"
                       paddingTop="4px"
                       onChange={(e) => {
-                        setSelectedCV(
-                          e.target.files ? e.target.files[0] : null
-                        );
+                        setSelectedCV(e.target.files ? e.target.files[0] : null);
                       }}
                     />
                   </InputGroup>
@@ -639,12 +596,10 @@ const OnboardTutor = () => {
                   value={getOptionValue(teachLevelOptions, teachLevel)}
                   isMulti={true}
                   onChange={(v: any) => {
-                    onboardTutorStore.set.teachLevel(
-                      v.map((i: any) => i.value)
-                    );
+                    onboardTutorStore.set.teachLevel(v.map((i: any) => i.value));
                   }}
                   options={teachLevelOptions}
-                  size={"lg"}
+                  size={'lg'}
                 />
               </FormControl>
             </VStack>
@@ -654,11 +609,11 @@ const OnboardTutor = () => {
       canSave: validateMoreInformationStep,
     },
     {
-      id: "profile-setup",
-      stepIndicatorId: "about-you",
+      id: 'profile-setup',
+      stepIndicatorId: 'about-you',
       template: (
         <Box>
-          <Heading as="h3" size="lg" textAlign={"center"}>
+          <Heading as="h3" size="lg" textAlign={'center'}>
             We'll need these to setup your profile
           </Heading>
           <Box marginTop={30}>
@@ -666,7 +621,7 @@ const OnboardTutor = () => {
               <FormControl>
                 <FormLabel>
                   Upload an avatar
-                  <Text variant={"muted"} marginBottom={"4px"}>
+                  <Text variant={'muted'} marginBottom={'4px'}>
                     Please upload a JPG or PNG file under 1MB
                   </Text>
                 </FormLabel>
@@ -674,13 +629,11 @@ const OnboardTutor = () => {
                 {!!!selectedAvatar && (
                   <InputGroup>
                     <Input
-                      type={"file"}
+                      type={'file'}
                       accept="image/jpeg, image/png"
                       paddingTop="4px"
                       onChange={(e) => {
-                        setSelectedAvatar(
-                          e.target.files ? e.target.files[0] : null
-                        );
+                        setSelectedAvatar(e.target.files ? e.target.files[0] : null);
                       }}
                     />
                   </InputGroup>
@@ -688,9 +641,7 @@ const OnboardTutor = () => {
                 {!!selectedAvatar && (
                   <FileDisplay
                     prefix={avatar ? <Avatar src={avatar} /> : null}
-                    uploading={
-                      avatarUploadPercent > 0 && avatarUploadPercent < 100
-                    }
+                    uploading={avatarUploadPercent > 0 && avatarUploadPercent < 100}
                     file={selectedAvatar}
                     onDeleteClicked={(e) => {
                       e.preventDefault();
@@ -704,9 +655,7 @@ const OnboardTutor = () => {
                 <Textarea
                   placeholder={`Hi, I'm ${name.first}, ...`}
                   value={description}
-                  onChange={(e) =>
-                    onboardTutorStore.set.description?.(e.target.value)
-                  }
+                  onChange={(e) => onboardTutorStore.set.description?.(e.target.value)}
                 />
               </FormControl>
             </VStack>
@@ -716,11 +665,11 @@ const OnboardTutor = () => {
       canSave: validateProfileSetupStep,
     },
     {
-      id: "classes",
-      stepIndicatorId: "classes",
+      id: 'classes',
+      stepIndicatorId: 'classes',
       template: (
         <Box>
-          <Heading as="h3" size="lg" textAlign={"center"}>
+          <Heading as="h3" size="lg" textAlign={'center'}>
             What classes are you interested in teaching?
           </Heading>
           <Box marginTop={30}>
@@ -738,21 +687,18 @@ const OnboardTutor = () => {
       canSave: validateCoursesStep,
     },
     {
-      id: "availability",
-      stepIndicatorId: "availability",
+      id: 'availability',
+      stepIndicatorId: 'availability',
       template: (
         <Box>
           <FormControl>
             <FormLabel m={0}>Time zone</FormLabel>
-            <TimezoneSelect
-              value={tz}
-              onChange={(v) => onboardTutorStore.set.tz(v.value)}
-            />
+            <TimezoneSelect value={tz} onChange={(v) => onboardTutorStore.set.tz(v.value)} />
           </FormControl>
-          <Box mt={"20px"}>
+          <Box mt={'20px'}>
             {totalAvailableHours > 0 && totalAvailableHours < 3 && (
-              <Box mb={"15px"}>
-                <Alert alignItems={"center"} status="info">
+              <Box mb={'15px'}>
+                <Alert alignItems={'center'} status="info">
                   <AlertIcon>
                     <MdInfo color={theme.colors.primary[500]} />
                   </AlertIcon>
@@ -774,26 +720,24 @@ const OnboardTutor = () => {
       canSave: validateScheduleStep,
     },
     {
-      id: "rate",
-      stepIndicatorId: "rate",
+      id: 'rate',
+      stepIndicatorId: 'rate',
       template: (
         <Box>
-          <Heading as="h3" size="lg" textAlign={"center"}>
+          <Heading as="h3" size="lg" textAlign={'center'}>
             How much would you like to get paid hourly?
           </Heading>
           <Box marginTop={30}>
             <FormControl>
               <FormLabel>Rate</FormLabel>
-              <InputGroup size={"lg"}>
+              <InputGroup size={'lg'}>
                 <InputLeftAddon children="$" />
                 <Input
-                  size={"lg"}
+                  size={'lg'}
                   min={0}
                   inputMode="numeric"
                   value={rate}
-                  onChange={(e) =>
-                    onboardTutorStore.set.rate(parseInt(e.target.value))
-                  }
+                  onChange={(e) => onboardTutorStore.set.rate(parseInt(e.target.value))}
                   type="number"
                   placeholder="Hourly rate"
                 />
@@ -805,37 +749,26 @@ const OnboardTutor = () => {
       canSave: validateRateStep,
     },
     {
-      id: "confirm",
+      id: 'confirm',
       template: (
         <Box>
-          <Heading as="h3" size="lg" textAlign={"center"}>
+          <Heading as="h3" size="lg" textAlign={'center'}>
             Review Your Onboarding Information
           </Heading>
           <Box marginTop={30}>
-            <VStack alignItems={"stretch"} spacing={5}>
+            <VStack alignItems={'stretch'} spacing={5}>
               {confirmations.map((c) => (
                 <Box key={c.title}>
-                  <Heading as="h5" size={"md"} marginBottom={5}>
+                  <Heading as="h5" size={'md'} marginBottom={5}>
                     {c.title}
                   </Heading>
-                  <VStack
-                    divider={<StackDivider borderColor="gray.200" />}
-                    alignItems={"stretch"}
-                  >
+                  <VStack divider={<StackDivider borderColor="gray.200" />} alignItems={'stretch'}>
                     {c.fields.map((f) => {
                       return (
                         <Flex key={f.title}>
-                          <Flex
-                            flexDirection={"column"}
-                            justifyContent="center"
-                            flexGrow={1}
-                          >
+                          <Flex flexDirection={'column'} justifyContent="center" flexGrow={1}>
                             {!!f.title && (
-                              <Heading
-                                as="h6"
-                                textTransform={"capitalize"}
-                                size={"sm"}
-                              >
+                              <Heading as="h6" textTransform={'capitalize'} size={'sm'}>
                                 {f.title}
                               </Heading>
                             )}
@@ -869,12 +802,11 @@ const OnboardTutor = () => {
   const activeStepObj = useMemo(() => steps[activeStep - 1], [activeStep]);
 
   const stepIndicatorActiveStep = useMemo(
-    () =>
-      stepIndicatorSteps.find((s) => s.id === activeStepObj?.stepIndicatorId),
+    () => stepIndicatorSteps.find((s) => s.id === activeStepObj?.stepIndicatorId),
     [activeStepObj, stepIndicatorSteps]
   );
 
-  useTitle(stepIndicatorActiveStep?.title || "");
+  useTitle(stepIndicatorActiveStep?.title || '');
 
   useEffect(() => {
     mixpanel.identify();
@@ -887,23 +819,20 @@ const OnboardTutor = () => {
   }, [activeStepObj]);
 
   useEffect(() => {
-    if (name.first && name.last)
-      mixpanel.people.set({ $name: `${name.first} ${name.last}` });
+    if (name.first && name.last) mixpanel.people.set({ $name: `${name.first} ${name.last}` });
 
     if (email) mixpanel.people.set({ $email: email });
 
     if (age) mixpanel.people.set({ Age: age });
 
-    mixpanel.people.set({ Type: "Tutor" });
+    mixpanel.people.set({ Type: 'Tutor' });
   }, [email, name, age]);
 
   useEffect(() => {
-    mixpanel.register({ ...data, type: "tutor" });
+    mixpanel.register({ ...data, type: 'tutor' });
   }, [data]);
 
-  const canSaveCurrentEditModalStep = steps.find(
-    (s) => s.id === editModalStep
-  )?.canSave;
+  const canSaveCurrentEditModalStep = steps.find((s) => s.id === editModalStep)?.canSave;
 
   return (
     <Box>
@@ -912,8 +841,7 @@ const OnboardTutor = () => {
         closeOnOverlayClick={canSaveCurrentEditModalStep}
         size="xl"
         isOpen={editModalOpen}
-        onClose={onEditModalClose}
-      >
+        onClose={onEditModalClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
@@ -921,33 +849,22 @@ const OnboardTutor = () => {
           </ModalHeader>
           <ModalCloseButton isDisabled={!canSaveCurrentEditModalStep} />
           <ModalBody>
-            <Box width={"100%"}>
-              {steps.find((s) => s.id === editModalStep)?.template}
-            </Box>
+            <Box width={'100%'}>{steps.find((s) => s.id === editModalStep)?.template}</Box>
           </ModalBody>
 
           <ModalFooter>
-            <Button
-              isDisabled={!canSaveCurrentEditModalStep}
-              onClick={onEditModalClose}
-            >
+            <Button isDisabled={!canSaveCurrentEditModalStep} onClick={onEditModalClose}>
               Done
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
       <StepIndicator
-        activeStep={stepIndicatorSteps.findIndex(
-          (s) => s === stepIndicatorActiveStep
-        )}
+        activeStep={stepIndicatorSteps.findIndex((s) => s === stepIndicatorActiveStep)}
         steps={stepIndicatorSteps}
       />
       <Box mt={45}>
-        <StepWizard
-          isLazyMount
-          className="flex-col-reverse"
-          onStepChange={onStepChange}
-        >
+        <StepWizard isLazyMount className="flex-col-reverse" onStepChange={onStepChange}>
           {
             steps.map((s) => {
               return (
@@ -965,17 +882,14 @@ const OnboardTutor = () => {
           <OnboardStep canGoNext={false} hideNav={true}>
             <Box paddingBottom={5}>
               <Box>
-                <Lottie
-                  style={{ height: 100 }}
-                  animationData={lottieSuccessAnimationData}
-                />
+                <Lottie style={{ height: 100 }} animationData={lottieSuccessAnimationData} />
               </Box>
-              <Heading as="h2" size="lg" textAlign={"center"}>
+              <Heading as="h2" size="lg" textAlign={'center'}>
                 You're all set {capitalize(name.first)}!
               </Heading>
               <Text color="gray.500" marginTop={2} textAlign="center">
-                We'll match you with students within your availability &amp;
-                shoot you an email at {email} with next steps!
+                We'll match you with students within your availability &amp; shoot you an email at{' '}
+                {email} with next steps!
               </Text>
             </Box>
           </OnboardStep>

@@ -1,14 +1,15 @@
-import { Booking } from "../types";
-import { Box, Spinner, Text } from "@chakra-ui/react";
-import { FiArrowRight } from "react-icons/fi";
-import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router";
-import ApiService from "../services/ApiService";
-import Header from "../components/Header";
-import moment from "moment-timezone";
-import styled from "styled-components";
-import theme from "../theme";
-import userStore from "../state/userStore";
+import { Box, Spinner, Text } from '@chakra-ui/react';
+import moment from 'moment-timezone';
+import { useEffect, useMemo, useState } from 'react';
+import { FiArrowRight } from 'react-icons/fi';
+import { useParams } from 'react-router';
+import styled from 'styled-components';
+
+import Header from '../components/Header';
+import ApiService from '../services/ApiService';
+import userStore from '../state/userStore';
+import theme from '../theme';
+import { Booking } from '../types';
 
 const SchedulePill = styled(Box)`
   background: #f1f2f3;
@@ -46,7 +47,7 @@ const Session = () => {
     setLoadingBooking(false);
   };
 
-  const isStudent = user?.type === "student";
+  const isStudent = user?.type === 'student';
   const tz = isStudent ? user.studentLead?.tz : user?.tutorLead?.tz;
 
   useEffect(() => {
@@ -55,15 +56,13 @@ const Session = () => {
 
   const roomUrl = useMemo(() => {
     if (!booking) {
-      return "";
+      return '';
     }
 
-    const url = isStudent
-      ? booking.conferenceHostRoomUrl
-      : booking.conferenceHostRoomUrl;
+    const url = isStudent ? booking.conferenceHostRoomUrl : booking.conferenceHostRoomUrl;
     const urlParams = new URLSearchParams(url);
-    urlParams.set("roomIntegrations", "on");
-    urlParams.set("displayName", `${user?.name.first} ${user?.name.last}`);
+    urlParams.set('roomIntegrations', 'on');
+    urlParams.set('displayName', `${user?.name.first} ${user?.name.last}`);
     return `${url}?${urlParams.toString()}`;
   }, [booking]);
 
@@ -72,12 +71,7 @@ const Session = () => {
       <Header
         left={
           booking && (
-            <Box
-              display="flex"
-              flexDirection="row"
-              gap="12px"
-              alignItems="center"
-            >
+            <Box display="flex" flexDirection="row" gap="12px" alignItems="center">
               <Box display="flex" justifyContent="center">
                 <Text className="sub2" m={0}>
                   {booking?.offer.course.label} Lesson
@@ -86,11 +80,11 @@ const Session = () => {
               <SchedulePill className="body2">
                 {moment(booking.startDate)
                   .tz(tz as string)
-                  .format("hh:mm A")}{" "}
-                <FiArrowRight color="#6E7682" size={"15px"} />{" "}
+                  .format('hh:mm A')}{' '}
+                <FiArrowRight color="#6E7682" size={'15px'} />{' '}
                 {moment(booking.endDate)
                   .tz(tz as string)
-                  .format("hh:mm A")}
+                  .format('hh:mm A')}
               </SchedulePill>
             </Box>
           )
@@ -105,8 +99,7 @@ const Session = () => {
         <iframe
           src={roomUrl}
           allow="camera; microphone; fullscreen; speaker; display-capture"
-          style={{ width: "100%", flexGrow: 1 }}
-        ></iframe>
+          style={{ width: '100%', flexGrow: 1 }}></iframe>
       )}
     </Root>
   );

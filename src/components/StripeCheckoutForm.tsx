@@ -1,17 +1,6 @@
-import React, { FormEvent, useState } from "react";
-import {
-  PaymentElement,
-  useStripe,
-  useElements,
-} from "@stripe/react-stripe-js";
-import {
-  Alert,
-  AlertIcon,
-  Box,
-  Button,
-  createStandaloneToast,
-  Spinner,
-} from "@chakra-ui/react";
+import { Alert, AlertIcon, Box, Button, Spinner, createStandaloneToast } from '@chakra-ui/react';
+import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
+import React, { FormEvent, useState } from 'react';
 
 type Props = {
   clientSecret: string;
@@ -32,7 +21,7 @@ const StripeCheckoutForm: React.FC<Props> = ({ clientSecret, returnUrl }) => {
       return;
     }
 
-    setMessage("");
+    setMessage('');
 
     setIsLoading(true);
 
@@ -44,7 +33,7 @@ const StripeCheckoutForm: React.FC<Props> = ({ clientSecret, returnUrl }) => {
       },
     });
 
-    setMessage(error.message || "An unexpected error occurred.");
+    setMessage(error.message || 'An unexpected error occurred.');
     setIsLoading(false);
   };
 
@@ -62,16 +51,15 @@ const StripeCheckoutForm: React.FC<Props> = ({ clientSecret, returnUrl }) => {
               </Alert>
             </Box>
           )}
-          <PaymentElement id="payment-element" options={{ layout: "tabs" }} />
+          <PaymentElement id="payment-element" options={{ layout: 'tabs' }} />
           <Box mt={5}>
             <Button
               type="submit"
-              width={"100%"}
-              variant={"solid"}
+              width={'100%'}
+              variant={'solid'}
               isLoading={isLoading}
               isDisabled={isLoading || !stripe || !elements}
-              id="submit"
-            >
+              id="submit">
               Continue
             </Button>
           </Box>

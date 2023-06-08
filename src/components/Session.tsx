@@ -1,10 +1,11 @@
-import { Box, HStack, Text } from "@chakra-ui/react";
-import moment from "moment";
-import * as React from "react";
-import { FiExternalLink } from "react-icons/fi";
-import styled from "styled-components";
-import theme from "../theme";
-import { Slot } from "../types";
+import { Box, HStack, Text } from '@chakra-ui/react';
+import moment from 'moment';
+import * as React from 'react';
+import { FiExternalLink } from 'react-icons/fi';
+import styled from 'styled-components';
+
+import theme from '../theme';
+import { Slot } from '../types';
 
 type Props = {
   slot: Slot;
@@ -17,7 +18,7 @@ const DayOfWeekText = styled(Text)`
   color: ${theme.colors.gray[500]};
 `;
 
-const Root = styled("a")`
+const Root = styled('a')`
   border: 1px solid ${theme.colors.gray[200]};
   border-radius: ${theme.radii.md};
   padding: var(--chakra-space-4);
@@ -35,11 +36,10 @@ const Root = styled("a")`
 const Session: React.FC<Props> = ({ slot, url }) => {
   return (
     <Root href={url} target="_blank">
-      <HStack justifyContent={"space-between"} width="100%">
+      <HStack justifyContent={'space-between'} width="100%">
         <DayOfWeekText>
-          {moment(slot.begin).format("dddd MMMM Do YYYY")} &middot;{" "}
-          {moment(slot.begin).format("hh:mm A")} —{" "}
-          {moment(slot.end).format("hh:mm A")}
+          {moment(slot.begin).format('dddd MMMM Do YYYY')} &middot;{' '}
+          {moment(slot.begin).format('hh:mm A')} — {moment(slot.end).format('hh:mm A')}
         </DayOfWeekText>
         <Box>
           <FiExternalLink />

@@ -1,7 +1,8 @@
-import { Box, Text } from "@chakra-ui/react";
-import * as React from "react";
-import styled from "styled-components";
-import theme from "../theme";
+import { Box, Text } from '@chakra-ui/react';
+import * as React from 'react';
+import styled from 'styled-components';
+
+import theme from '../theme';
 
 const Inner = styled.div`
   display: flex;
@@ -19,7 +20,7 @@ const StyledStep = styled(Box)`
   flex: 1;
 
   &:after {
-    content: "";
+    content: '';
     position: absolute;
     left: 0;
     right: 0;
@@ -41,7 +42,7 @@ const Radio = styled.div`
   border-radius: 100%;
 
   &:after {
-    content: "";
+    content: '';
     position: absolute;
     width: 8px;
     height: 8px;
@@ -59,7 +60,7 @@ const Root = styled(Box)`
   display: flex;
 
   ${StyledStep}:last-child {
-    content: "";
+    content: '';
     flex: 0;
   }
 
@@ -94,10 +95,7 @@ const StepIndicator: React.FC<Props> = ({ steps, activeStep }) => {
       {steps.map((s, i) => {
         const active = activeStep === i;
         return (
-          <StyledStep
-            key={s.title}
-            className={i <= activeStep ? "primary" : ""}
-          >
+          <StyledStep key={s.title} className={i <= activeStep ? 'primary' : ''}>
             <Inner>
               <Radio />
               {active && (

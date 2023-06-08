@@ -1,11 +1,11 @@
-import { VStack, Box, Text } from "@chakra-ui/react";
-import styled from "styled-components";
+import { Box, Text, VStack } from '@chakra-ui/react';
+import styled from 'styled-components';
 
-const Title = styled(Text).attrs(() => ({ className: "sub3" }))`
+const Title = styled(Text).attrs(() => ({ className: 'sub3' }))`
   margin-bottom: 4px;
   position: relative;
   &:before {
-    content: "";
+    content: '';
     height: 10px;
     width: 10px;
     display: block;
@@ -20,7 +20,7 @@ const Title = styled(Text).attrs(() => ({ className: "sub3" }))`
   }
 `;
 
-const Subtitle = styled(Text).attrs(() => ({ className: "body3" }))`
+const Subtitle = styled(Text).attrs(() => ({ className: 'body3' }))`
   margin-bottom: 0;
   color: #585f68;
 `;
@@ -32,7 +32,7 @@ const Root = styled(VStack)`
   margin-left: 8px;
 
   &:before {
-    content: "";
+    content: '';
     position: absolute;
     left: 0;
     top: 7px;
@@ -47,7 +47,7 @@ const Root = styled(VStack)`
     position: relative;
     z-index: 3;
     &:before {
-      content: "";
+      content: '';
       position: absolute;
       display: block;
       background: white;

@@ -1,69 +1,67 @@
-import React, { ReactNode, useState, useEffect } from "react";
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import {
-  IconButton,
-  Image,
   Avatar,
-  Button,
   Box,
+  BoxProps,
+  Button,
+  Center,
   CloseButton,
-  Flex,
-  HStack,
-  Stack,
-  Spacer,
-  Icon,
-  useColorModeValue,
-  Link,
+  Divider,
   Drawer,
   DrawerContent,
-  Text,
-  useDisclosure,
-  BoxProps,
+  Flex,
   FlexProps,
+  HStack,
+  Icon,
+  IconButton,
+  Image,
+  Link,
   Menu,
   MenuButton,
   MenuDivider,
   MenuItem,
   MenuList,
-  Divider,
-  Center,
-} from "@chakra-ui/react";
+  Spacer,
+  Stack,
+  Text,
+  useColorModeValue,
+  useDisclosure,
+} from '@chakra-ui/react';
+import { getAuth, signOut } from 'firebase/auth';
+import React, { ReactNode, useEffect, useState } from 'react';
+import { IconType } from 'react-icons';
+import { BsChatLeftDots, BsPin, BsPlayCircle } from 'react-icons/bs';
+import { CgNotes } from 'react-icons/cg';
+import { FaBell } from 'react-icons/fa';
 import {
-  FiHome,
-  FiTrendingUp,
-  FiCompass,
-  FiStar,
-  FiSettings,
-  FiMenu,
-  FiBell,
-  FiChevronDown,
-  FiBriefcase,
   FiBarChart2,
+  FiBell,
+  FiBriefcase,
+  FiChevronDown,
   FiChevronUp,
-} from "react-icons/fi";
-import { FaBell } from "react-icons/fa";
-import { BsChatLeftDots, BsPlayCircle, BsPin } from "react-icons/bs";
-import {
-  MdOutlineKeyboardArrowDown,
-  MdOutlineKeyboardArrowUp,
-} from "react-icons/md";
-import { CgNotes } from "react-icons/cg";
-import { TbCards } from "react-icons/tb";
-import { IconType } from "react-icons";
-import Logo from "../../components/Logo";
-import DashboardIndex from "./index";
-import MenuLinedList from "./components/MenuLinedList";
-import TutorMarketplace from "./Tutor";
-import { getAuth, signOut } from "firebase/auth";
-import { firebaseAuth } from "../../firebase";
-import userStore from "../../state/userStore";
-import FeedIcon from "../../assets/blue-energy.svg";
-import DocIcon from "../../assets/doc-icon.svg";
-import VideoIcon from "../../assets/video.svg";
-import MessageIcon from "../../assets/message.svg";
-import NoteIcon from "../../assets/notes.svg";
-import FlashcardIcon from "../../assets/flashcardIcon.svg";
-import ReceiptIcon from "../../assets/receiptIcon.svg";
+  FiCompass,
+  FiHome,
+  FiMenu,
+  FiSettings,
+  FiStar,
+  FiTrendingUp,
+} from 'react-icons/fi';
+import { MdOutlineKeyboardArrowDown, MdOutlineKeyboardArrowUp } from 'react-icons/md';
+import { TbCards } from 'react-icons/tb';
+import { Navigate, Outlet, useNavigate } from 'react-router-dom';
+
+import FeedIcon from '../../assets/blue-energy.svg';
+import DocIcon from '../../assets/doc-icon.svg';
+import FlashcardIcon from '../../assets/flashcardIcon.svg';
+import MessageIcon from '../../assets/message.svg';
+import NoteIcon from '../../assets/notes.svg';
+import ReceiptIcon from '../../assets/receiptIcon.svg';
+import VideoIcon from '../../assets/video.svg';
+import Logo from '../../components/Logo';
+import { firebaseAuth } from '../../firebase';
+import userStore from '../../state/userStore';
+import TutorMarketplace from './Tutor';
+import MenuLinedList from './components/MenuLinedList';
+import DashboardIndex from './index';
 
 interface LinkItemProps {
   name: string;
@@ -77,15 +75,15 @@ interface SidebarProps extends BoxProps {
   setTutorMenu: (value: boolean) => void;
 }
 const LinkItems: Array<LinkItemProps> = [
-  { name: "Home", icon: FiHome, path: "/dashboard" },
-  { name: "Performance", icon: FiBarChart2, path: "/performance" },
-  { name: "Messages", icon: BsChatLeftDots, path: "/messages" },
+  { name: 'Home', icon: FiHome, path: '/dashboard' },
+  { name: 'Performance', icon: FiBarChart2, path: '/performance' },
+  { name: 'Messages', icon: BsChatLeftDots, path: '/messages' },
 ];
 
 const LinkBItems: Array<LinkItemProps> = [
-  { name: "Library", icon: BsPlayCircle, path: "/library" },
-  { name: "Notes", icon: CgNotes, path: "/notes" },
-  { name: "Flashcards", icon: TbCards, path: "/flashcards" },
+  { name: 'Library', icon: BsPlayCircle, path: '/library' },
+  { name: 'Notes', icon: CgNotes, path: '/notes' },
+  { name: 'Flashcards', icon: TbCards, path: '/flashcards' },
 ];
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
@@ -97,7 +95,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   //     last: "Ola",
   //   },
   // };
-  console.log("userrrr", user);
+  console.log('userrrr', user);
 
   const toggleMenu = () => {
     setTutorMenu(!tutorMenu);
@@ -115,57 +113,46 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     return (
       <Box
         transition="3s ease"
-        bg={useColorModeValue("white", "gray.900")}
+        bg={useColorModeValue('white', 'gray.900')}
         borderRight="1px"
-        borderRightColor={useColorModeValue("gray.200", "gray.700")}
-        w={{ base: "full", md: 60 }}
+        borderRightColor={useColorModeValue('gray.200', 'gray.700')}
+        w={{ base: 'full', md: 60 }}
         pos="fixed"
         h="full"
-        {...rest}
-      >
+        {...rest}>
         <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
           <Text fontWeight="bold">
             <Logo />
           </Text>
-          <CloseButton
-            display={{ base: "flex", md: "none" }}
-            onClick={onClose}
-          />
+          <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
         </Flex>
         <Box ml={8} color="text.400">
-          {" "}
+          {' '}
           <Button
-            variant={"unstyled"}
+            variant={'unstyled'}
             display="flex"
             gap={1}
             leftIcon={<FiBriefcase />}
             fontSize={14}
             fontWeight={500}
             onClick={() => setTutorMenu(!tutorMenu)}
-            rightIcon={
-              tutorMenu ? (
-                <MdOutlineKeyboardArrowUp />
-              ) : (
-                <MdOutlineKeyboardArrowDown />
-              )
-            }
-          >
+            rightIcon={tutorMenu ? <MdOutlineKeyboardArrowUp /> : <MdOutlineKeyboardArrowDown />}>
             Find a tutor
           </Button>
-          <Box display={tutorMenu ? "block" : "none"}>
+          <Box display={tutorMenu ? 'block' : 'none'}>
             <MenuLinedList
               items={[
                 {
-                  title: "Marketplace",
-                  path: "/dashboard/find-tutor",
+                  title: 'Marketplace',
+                  path: '/dashboard/find-tutor',
                 },
                 {
-                  title: "My Tutors",
-                  path: "/dashboard/my-tutors",
+                  title: 'My Tutors',
+                  path: '/dashboard/my-tutors',
                 },
                 {
-                  title: "Bookmarks",
-                  path: "/dashboard/saved-tutors",
+                  title: 'Bookmarks',
+                  path: '/dashboard/saved-tutors',
                 },
               ]}
             />
@@ -181,7 +168,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               {link.name}
             </NavItem>
           </>
-        ))}{" "}
+        ))}{' '}
         <Divider />
         {LinkBItems.map((link) => (
           <>
@@ -189,9 +176,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               {link.name}
             </NavItem>
           </>
-        ))}{" "}
+        ))}{' '}
         <Divider />
-        <NavItem icon={BsPin} path={"/pinned-notes"}>
+        <NavItem icon={BsPin} path={'/pinned-notes'}>
           Pinned Notes
         </NavItem>
       </Box>
@@ -205,11 +192,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }
   const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
     return (
-      <Link
-        href={path}
-        style={{ textDecoration: "none" }}
-        _focus={{ boxShadow: "none" }}
-      >
+      <Link href={path} style={{ textDecoration: 'none' }} _focus={{ boxShadow: 'none' }}>
         <Flex
           align="center"
           px="4"
@@ -220,24 +203,23 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           role="group"
           cursor="pointer"
           _hover={{
-            bg: "#F0F6FE",
-            color: "#207DF7",
+            bg: '#F0F6FE',
+            color: '#207DF7',
           }}
           _active={{
-            bg: "#F0F6FE",
-            color: "#207DF7",
+            bg: '#F0F6FE',
+            color: '#207DF7',
           }}
           fontSize={14}
           color="text.400"
           fontWeight={500}
-          {...rest}
-        >
+          {...rest}>
           {icon && (
             <Icon
               mr="4"
               fontSize="16"
               _groupHover={{
-                color: "#207DF7",
+                color: '#207DF7',
               }}
               as={icon}
             />
@@ -257,7 +239,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     const handleSignOut = () => {
       signOut(auth)
         .then(() => {
-          navigate("/login");
+          navigate('/login');
         })
         .catch((error) => {
           console.log(error);
@@ -269,14 +251,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         px={{ base: 4, md: 4 }}
         height="20"
         alignItems="center"
-        bg={useColorModeValue("white", "gray.900")}
+        bg={useColorModeValue('white', 'gray.900')}
         borderBottomWidth="1px"
-        borderBottomColor={useColorModeValue("gray.200", "gray.700")}
-        justifyContent={{ base: "space-between", md: "flex-end" }}
-        {...rest}
-      >
+        borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
+        justifyContent={{ base: 'space-between', md: 'flex-end' }}
+        {...rest}>
         <IconButton
-          display={{ base: "flex", md: "none" }}
+          display={{ base: 'flex', md: 'none' }}
           onClick={onOpen}
           variant="outline"
           aria-label="open menu"
@@ -284,30 +265,26 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         />
 
         <Text
-          display={{ base: "flex", md: "none" }}
+          display={{ base: 'flex', md: 'none' }}
           fontSize="2xl"
           fontFamily="monospace"
-          fontWeight="bold"
-        >
+          fontWeight="bold">
           Shepherd Logo
         </Text>
 
         <HStack spacing={4}>
           <Menu>
             <MenuButton
-              bg={"#207DF7"}
+              bg={'#207DF7'}
               color="white"
-              _hover={{ bg: "#1964c5" }}
-              _active={{ bg: "#1964c5" }}
+              _hover={{ bg: '#1964c5' }}
+              _active={{ bg: '#1964c5' }}
               as={Button}
-              rightIcon={<FiChevronDown />}
-            >
+              rightIcon={<FiChevronDown />}>
               + Create
             </MenuButton>
             <MenuList>
-              <MenuItem onClick={() => console.log("ADD NEW NOTE")}>
-                New note
-              </MenuItem>
+              <MenuItem onClick={() => console.log('ADD NEW NOTE')}>New note</MenuItem>
               <MenuItem>Upload document</MenuItem>
             </MenuList>
           </Menu>
@@ -319,28 +296,23 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <MenuButton>
               <IconButton
                 size="md"
-                borderRadius={"100%"}
+                borderRadius={'100%'}
                 border="1px solid #ECEDEE"
                 variant="ghost"
                 aria-label="open menu"
-                color={"text.300"}
+                color={'text.300'}
                 icon={<FaBell />}
-              />{" "}
+              />{' '}
             </MenuButton>
-            <MenuList p={3} width={"358px"} zIndex={2}>
+            <MenuList p={3} width={'358px'} zIndex={2}>
               <Box>
-                <Flex alignItems="flex-start" px={3} direction={"row"} my={1}>
+                <Flex alignItems="flex-start" px={3} direction={'row'} my={1}>
                   <Image src={VideoIcon} alt="doc" maxHeight={45} zIndex={1} />
-                  <Stack direction={"column"} px={4} spacing={1}>
+                  <Stack direction={'column'} px={4} spacing={1}>
                     <Text color="text.300" fontSize={12} mb={0}>
                       19 May, 2023
                     </Text>
-                    <Text
-                      fontWeight={400}
-                      color="text.200"
-                      fontSize="14px"
-                      mb={0}
-                    >
+                    <Text fontWeight={400} color="text.200" fontSize="14px" mb={0}>
                       Your chemistry lesson session with Leslie Peters started
                     </Text>
 
@@ -348,40 +320,25 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   </Stack>
                 </Flex>
                 <Divider />
-                <Flex alignItems="flex-start" px={3} direction={"row"} my={1}>
-                  <Image
-                    src={MessageIcon}
-                    alt="doc"
-                    maxHeight={45}
-                    zIndex={1}
-                  />
-                  <Stack direction={"column"} px={4} spacing={1}>
+                <Flex alignItems="flex-start" px={3} direction={'row'} my={1}>
+                  <Image src={MessageIcon} alt="doc" maxHeight={45} zIndex={1} />
+                  <Stack direction={'column'} px={4} spacing={1}>
                     <Text color="text.300" fontSize={12} mb={0}>
                       2 hrs ago
                     </Text>
-                    <Text
-                      fontWeight={400}
-                      color="text.200"
-                      fontSize="14px"
-                      mb={0}
-                    >
+                    <Text fontWeight={400} color="text.200" fontSize="14px" mb={0}>
                       Leslie Peters sent you a text while your were away
                     </Text>
                   </Stack>
                 </Flex>
                 <Divider />
-                <Flex alignItems="flex-start" px={3} direction={"row"} my={1}>
+                <Flex alignItems="flex-start" px={3} direction={'row'} my={1}>
                   <Image src={VideoIcon} alt="doc" maxHeight={45} zIndex={1} />
-                  <Stack direction={"column"} px={4} spacing={1}>
+                  <Stack direction={'column'} px={4} spacing={1}>
                     <Text color="text.300" fontSize={12} mb={0}>
                       2 hrs ago
                     </Text>
-                    <Text
-                      fontWeight={400}
-                      color="text.200"
-                      fontSize="14px"
-                      mb={0}
-                    >
+                    <Text fontWeight={400} color="text.200" fontSize="14px" mb={0}>
                       Your chemistry lesson session with Leslie Peters started
                     </Text>
 
@@ -389,23 +346,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   </Stack>
                 </Flex>
                 <Divider />
-                <Flex alignItems="flex-start" px={3} direction={"row"} my={1}>
-                  <Image
-                    src={MessageIcon}
-                    alt="doc"
-                    maxHeight={45}
-                    zIndex={1}
-                  />
-                  <Stack direction={"column"} px={4} spacing={1}>
+                <Flex alignItems="flex-start" px={3} direction={'row'} my={1}>
+                  <Image src={MessageIcon} alt="doc" maxHeight={45} zIndex={1} />
+                  <Stack direction={'column'} px={4} spacing={1}>
                     <Text color="text.300" fontSize={12} mb={0}>
                       2 hrs ago
                     </Text>
-                    <Text
-                      fontWeight={400}
-                      color="text.200"
-                      fontSize="14px"
-                      mb={0}
-                    >
+                    <Text fontWeight={400} color="text.200" fontSize="14px" mb={0}>
                       Leslie Peters sent you a text while your were away
                     </Text>
                   </Stack>
@@ -417,11 +364,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <MenuButton
               py={2}
               transition="all 0.3s"
-              _focus={{ boxShadow: "none" }}
+              _focus={{ boxShadow: 'none' }}
               bg="#F4F5F5"
-              borderRadius={"40px"}
-              px={3}
-            >
+              borderRadius={'40px'}
+              px={3}>
               <HStack>
                 <Avatar
                   size="sm"
@@ -434,15 +380,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   {`${user.name.first} ${user.name.last}`}
                 </Text>
 
-                <Box display={{ base: "none", md: "flex" }}>
+                <Box display={{ base: 'none', md: 'flex' }}>
                   <FiChevronDown />
                 </Box>
               </HStack>
             </MenuButton>
             <MenuList
-              bg={useColorModeValue("white", "gray.900")}
-              borderColor={useColorModeValue("gray.200", "gray.700")}
-            >
+              bg={useColorModeValue('white', 'gray.900')}
+              borderColor={useColorModeValue('gray.200', 'gray.700')}>
               <MenuItem>Profile</MenuItem>
               <MenuDivider />
               <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
@@ -463,7 +408,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         tutorMenu={tutorMenu}
         setTutorMenu={setTutorMenu}
         toggleMenu={() => toggleMenu}
-        display={{ base: "none", md: "block" }}
+        display={{ base: 'none', md: 'block' }}
       />
       <Drawer
         autoFocus={false}
@@ -472,8 +417,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         onClose={onClose}
         returnFocusOnClose={false}
         onOverlayClick={onClose}
-        size="full"
-      >
+        size="full">
         <DrawerContent>
           <SidebarContent
             onClose={onClose}
@@ -501,31 +445,29 @@ export const CustomButton = (props: any) => {
       lineHeight="1.2"
       transition="all 0.2s cubic-bezier(.08,.52,.52,1)"
       border="1px"
-      padding={padding ? padding : "9px 20px"}
+      padding={padding ? padding : '9px 20px'}
       mx="4px"
       alignItems="center"
       borderRadius="8px"
-      fontSize={fontStyle ? fontStyle.fontSize : "14px"}
-      fontWeight={fontStyle ? fontStyle.fontWeight : "semibold"}
-      bg={buttonType === "outlined" ? "transparent" : "#207DF7"}
-      borderColor={buttonType === "outlined" ? "transparent" : "#ccd0d5"}
-      color={buttonType === "outlined" ? "#207DF7" : "#fff"}
+      fontSize={fontStyle ? fontStyle.fontSize : '14px'}
+      fontWeight={fontStyle ? fontStyle.fontWeight : 'semibold'}
+      bg={buttonType === 'outlined' ? 'transparent' : '#207DF7'}
+      borderColor={buttonType === 'outlined' ? 'transparent' : '#ccd0d5'}
+      color={buttonType === 'outlined' ? '#207DF7' : '#fff'}
       _hover={{
-        bg: buttonType === "outlined" ? "#E2E8F0" : "#1964c5",
-        transform: "translateY(-2px)",
-        boxShadow: "lg",
+        bg: buttonType === 'outlined' ? '#E2E8F0' : '#1964c5',
+        transform: 'translateY(-2px)',
+        boxShadow: 'lg',
       }}
       _active={{
-        bg: "#dddfe2",
-        transform: "scale(0.98)",
-        borderColor: "#bec3c9",
+        bg: '#dddfe2',
+        transform: 'scale(0.98)',
+        borderColor: '#bec3c9',
       }}
       _focus={{
-        boxShadow:
-          "0 0 1px 2px rgba(88, 144, 255, .75), 0 1px 1px rgba(0, 0, 0, .15)",
+        boxShadow: '0 0 1px 2px rgba(88, 144, 255, .75), 0 1px 1px rgba(0, 0, 0, .15)',
       }}
-      onClick={onClick}
-    >
+      onClick={onClick}>
       {buttonText}
     </Box>
   );

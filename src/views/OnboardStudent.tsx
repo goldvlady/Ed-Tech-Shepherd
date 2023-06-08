@@ -1,73 +1,68 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { FiUser, FiCalendar, FiBookOpen, FiEdit } from "react-icons/fi";
 import {
   Box,
+  Button,
+  CircularProgress,
+  Flex,
+  FormControl,
   FormLabel,
   Heading,
-  Input,
-  Text,
-  CircularProgress,
-  Link,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Button,
-  VStack,
-  StackDivider,
-  Flex,
   IconButton,
-  FormControl,
-} from "@chakra-ui/react";
-import StepWizard, {
-  StepWizardChildProps,
-  StepWizardProps,
-} from "react-step-wizard";
-import LargeSelect from "../components/LargeSelect";
-import OnboardStep from "../components/OnboardStep";
-import onboardStudentStore from "../state/onboardStudentStore";
-import CourseSelect from "../components/CourseSelect";
-import { capitalize, isEmpty, without } from "lodash";
-import ScheduleBuilder from "../components/ScheduleBuilder";
-import OnboardSubmitStep from "../components/OnboardSubmitStep";
-import Lottie from "lottie-react";
+  Input,
+  Link,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  StackDivider,
+  Text,
+  VStack,
+  useDisclosure,
+} from '@chakra-ui/react';
+import { capitalize, isEmpty, without } from 'lodash';
+import Lottie from 'lottie-react';
+import mixpanel from 'mixpanel-browser';
+import moment from 'moment';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { FiBookOpen, FiCalendar, FiEdit, FiUser } from 'react-icons/fi';
+import { useLocation } from 'react-router';
+import StepWizard, { StepWizardChildProps, StepWizardProps } from 'react-step-wizard';
+import styled from 'styled-components';
 
-import lottieSuccessAnimationData from "../lottie/73392-success.json";
-import { useTitle } from "../hooks";
-import ApiService from "../services/ApiService";
-import TimezoneSelect from "../components/TimezoneSelect";
-
-import moment from "moment";
-import EmptyState from "../components/EmptyState";
-
-import DateInput, { FORMAT } from "../components/DateInput";
-import { getOptionValue } from "../util";
-import styled from "styled-components";
-import { useLocation } from "react-router";
-import mixpanel from "mixpanel-browser";
-import Select from "../components/Select";
-import StepIndicator from "../components/StepIndicator";
-import resourceStore from "../state/resourceStore";
+import CourseSelect from '../components/CourseSelect';
+import DateInput, { FORMAT } from '../components/DateInput';
+import EmptyState from '../components/EmptyState';
+import LargeSelect from '../components/LargeSelect';
+import OnboardStep from '../components/OnboardStep';
+import OnboardSubmitStep from '../components/OnboardSubmitStep';
+import ScheduleBuilder from '../components/ScheduleBuilder';
+import Select from '../components/Select';
+import StepIndicator from '../components/StepIndicator';
+import TimezoneSelect from '../components/TimezoneSelect';
+import { useTitle } from '../hooks';
+import lottieSuccessAnimationData from '../lottie/73392-success.json';
+import ApiService from '../services/ApiService';
+import onboardStudentStore from '../state/onboardStudentStore';
+import resourceStore from '../state/resourceStore';
+import { getOptionValue } from '../util';
 
 const stepIndicatorSteps = [
   {
-    title: "About you",
+    title: 'About you',
     icon: <FiUser />,
-    id: "about-you",
+    id: 'about-you',
   },
   {
-    title: "Classes",
+    title: 'Classes',
     icon: <FiBookOpen />,
-    id: "classes",
+    id: 'classes',
   },
   {
-    title: "Availability",
+    title: 'Availability',
     icon: <FiCalendar />,
-    id: "availability",
+    id: 'availability',
   },
 ];
 
@@ -101,33 +96,33 @@ const skillLevelOptions = [
       <SkillLevel>
         <SkillLevelImg>
           <img src="/images/beginner.png" />
-        </SkillLevelImg>{" "}
+        </SkillLevelImg>{' '}
         Beginner
       </SkillLevel>
     ),
-    value: "beginner",
+    value: 'beginner',
   },
   {
     label: (
       <SkillLevel>
         <SkillLevelImg>
           <img src="/images/intermediate.png" />
-        </SkillLevelImg>{" "}
+        </SkillLevelImg>{' '}
         Intermediate
       </SkillLevel>
     ),
-    value: "intermediate",
+    value: 'intermediate',
   },
   {
     label: (
       <SkillLevel>
         <SkillLevelImg>
           <img src="/images/advanced.png" />
-        </SkillLevelImg>{" "}
+        </SkillLevelImg>{' '}
         Advanced
       </SkillLevel>
     ),
-    value: "advanced",
+    value: 'advanced',
   },
 ];
 
@@ -151,10 +146,7 @@ const OnboardStudent = () => {
     onClose: onEditModalClose,
   } = useDisclosure();
 
-  const onStepChange: StepWizardProps["onStepChange"] = ({
-    activeStep,
-    ...rest
-  }) => {
+  const onStepChange: StepWizardProps['onStepChange'] = ({ activeStep, ...rest }) => {
     setActiveStep(activeStep);
   };
 
@@ -174,9 +166,7 @@ const OnboardStudent = () => {
   } = data;
 
   useEffect(() => {
-    const preSelectedCourse = new URLSearchParams(location.search).get(
-      "course"
-    );
+    const preSelectedCourse = new URLSearchParams(location.search).get('course');
     if (preSelectedCourse) {
       setTimeout(() => {
         onboardStudentStore.set.courses([preSelectedCourse]);
@@ -185,11 +175,10 @@ const OnboardStudent = () => {
   }, []);
 
   const dobValid = moment(dob, FORMAT, true).isValid();
-  const age = useMemo(() => moment().diff(moment(dob, FORMAT), "years"), [dob]);
+  const age = useMemo(() => moment().diff(moment(dob, FORMAT), 'years'), [dob]);
 
   const validateParentStudentStep = !!parentOrStudent;
-  const validateAboutYouStep =
-    !!name.first && !!name.last && !!email && dobValid && !!dob;
+  const validateAboutYouStep = !!name.first && !!name.last && !!email && dobValid && !!dob;
   const validateCoursesStep = !isEmpty(courses);
   const validateScheduleStep = !isEmpty(schedule) && !!tz;
 
@@ -197,11 +186,11 @@ const OnboardStudent = () => {
     () =>
       !courses
         .map((c) => {
-          if (c === "maths") {
+          if (c === 'maths') {
             return !!gradeLevel && !!topic;
           } else {
             return !courses
-              .filter((c) => c !== "maths")
+              .filter((c) => c !== 'maths')
               .map((c) => {
                 return !!skillLevels.find((sl) => sl.course === c);
               })
@@ -214,92 +203,86 @@ const OnboardStudent = () => {
 
   useEffect(() => {
     if (somethingElse) {
-      if (!courses.includes("something-else")) {
-        onboardStudentStore.set.courses([...courses, "something-else"]);
+      if (!courses.includes('something-else')) {
+        onboardStudentStore.set.courses([...courses, 'something-else']);
       }
     } else {
-      onboardStudentStore.set.courses(without(courses, "something-else"));
+      onboardStudentStore.set.courses(without(courses, 'something-else'));
     }
   }, [somethingElse]);
 
   const confirmations = [
     {
-      title: "About you",
+      title: 'About you',
       fields: [
         {
-          title: "First Name",
+          title: 'First Name',
           value: <Text marginBottom={0}>{name.first}</Text>,
-          step: "about-you",
+          step: 'about-you',
         },
         {
-          title: "Last Name",
+          title: 'Last Name',
           value: <Text marginBottom={0}>{name.last}</Text>,
-          step: "about-you",
+          step: 'about-you',
         },
         {
-          title: "Date of Birth",
-          value: (
-            <Text marginBottom={0}>
-              {moment(dob, FORMAT).format("MMMM Do YYYY")}
-            </Text>
-          ),
-          step: "about-you",
+          title: 'Date of Birth',
+          value: <Text marginBottom={0}>{moment(dob, FORMAT).format('MMMM Do YYYY')}</Text>,
+          step: 'about-you',
         },
         {
-          title: "Email Address",
+          title: 'Email Address',
           value: <Text marginBottom={0}>{email}</Text>,
-          step: "about-you",
+          step: 'about-you',
         },
       ],
     },
     {
-      title: "Classes",
+      title: 'Classes',
       fields: [
         {
-          title: "Classes",
+          title: 'Classes',
           value: (
             <Text marginBottom={0}>
               {courses
                 .map((tc) => {
-                  return tc === "something-else"
+                  return tc === 'something-else'
                     ? somethingElse
                     : courseList.find((ac) => ac._id === tc)?.label;
                 })
-                .join(", ")}
+                .join(', ')}
             </Text>
           ),
-          step: "classes",
+          step: 'classes',
         },
       ],
     },
     {
-      title: "Availability",
+      title: 'Availability',
       fields: [
         {
-          title: "Time zone",
+          title: 'Time zone',
           value: <Text marginBottom={0}>{tz}</Text>,
-          step: "availability",
+          step: 'availability',
         },
         {
-          title: "Schedule",
+          title: 'Schedule',
           value: (
-            <Text marginBottom={0} whiteSpace={"pre"}>
+            <Text marginBottom={0} whiteSpace={'pre'}>
               {Object.keys(schedule)
                 .map((d) => parseInt(d))
                 .map((s) => {
                   return schedule[s].map(
                     (s) =>
-                      `${moment(s.begin).format("dddd")}: ${moment(s.begin)
+                      `${moment(s.begin).format('dddd')}: ${moment(s.begin)
                         .tz(tz)
-                        .format("hh:mm A")} - ${moment(s.end)
-                        .tz(tz)
-                        .format("hh:mm A")}`
+                        .format('hh:mm A')} - ${moment(s.end).tz(tz).format('hh:mm A')}`
                   );
                 })
-                .join("\n")}
+                .join('\n')}
             </Text>
           ),
-          step: "availability",
+          step: 'availability',
         },
       ],
     },
@@ -307,11 +290,11 @@ const OnboardStudent = () => {
 
   const steps = [
     {
-      id: "parent-or-student",
-      stepIndicatorId: "about-you",
+      id: 'parent-or-student',
+      stepIndicatorId: 'about-you',
       template: (
         <Box>
-          <Heading as="h3" textAlign={"center"}>
+          <Heading as="h3" textAlign={'center'}>
             Who is signing up?
           </Heading>
           <Box marginTop={30}>
@@ -320,26 +303,24 @@ const OnboardStudent = () => {
               onChange={(v) => onboardStudentStore.set.parentOrStudent(v)}
               options={[
                 {
-                  value: "parent",
+                  value: 'parent',
 
-                  title: "Parent or Guardian",
-                  subtitle:
-                    "Choose this if you're signing up on behalf of someone else",
+                  title: 'Parent or Guardian',
+                  subtitle: "Choose this if you're signing up on behalf of someone else",
                   icon: (
                     <svg
                       width="16.7"
                       height="16.7"
                       viewBox="0 0 18 18"
                       fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
+                      xmlns="http://www.w3.org/2000/svg">
                       <path d="M9 7.33329C10.8409 7.33329 12.3333 5.84091 12.3333 3.99996C12.3333 2.15901 10.8409 0.666626 9 0.666626C7.15905 0.666626 5.66666 2.15901 5.66666 3.99996C5.66666 5.84091 7.15905 7.33329 9 7.33329ZM3.58333 9.83329C4.73392 9.83329 5.66666 8.90054 5.66666 7.74996C5.66666 6.59937 4.73392 5.66663 3.58333 5.66663C2.43274 5.66663 1.5 6.59937 1.5 7.74996C1.5 8.90054 2.43274 9.83329 3.58333 9.83329ZM16.5 7.74996C16.5 8.90054 15.5672 9.83329 14.4167 9.83329C13.2661 9.83329 12.3333 8.90054 12.3333 7.74996C12.3333 6.59937 13.2661 5.66663 14.4167 5.66663C15.5672 5.66663 16.5 6.59937 16.5 7.74996ZM9 8.16663C11.3012 8.16663 13.1667 10.0321 13.1667 12.3333V17.3333H4.83333V12.3333C4.83333 10.0321 6.69881 8.16663 9 8.16663ZM3.16666 12.3332C3.16666 11.7558 3.25056 11.198 3.40681 10.6713L3.26553 10.6836C1.80419 10.842 0.666664 12.0798 0.666664 13.5832V17.3332H3.16666V12.3332ZM17.3333 17.3332V13.5832C17.3333 12.0315 16.1216 10.7627 14.5932 10.6713C14.7494 11.198 14.8333 11.7558 14.8333 12.3332V17.3332H17.3333Z" />
                     </svg>
                   ),
                 },
                 {
-                  value: "student",
-                  title: "Student",
+                  value: 'student',
+                  title: 'Student',
                   subtitle: "Choose this if you're signing up for yourself",
                   icon: (
                     <svg
@@ -347,8 +328,7 @@ const OnboardStudent = () => {
                       height="16.7"
                       viewBox="0 0 20 20"
                       fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
+                      xmlns="http://www.w3.org/2000/svg">
                       <path d="M10 0.833374C15.06 0.833374 19.1667 4.94004 19.1667 10C19.1667 15.06 15.06 19.1667 10 19.1667C4.94001 19.1667 0.833344 15.06 0.833344 10C0.833344 4.94004 4.94001 0.833374 10 0.833374ZM4.52139 13.1316C5.8666 15.1397 7.88719 16.4167 10.1464 16.4167C12.4056 16.4167 14.4262 15.1397 15.7714 13.1316C14.2978 11.7575 12.3203 10.9167 10.1464 10.9167C7.97254 10.9167 5.99505 11.7575 4.52139 13.1316ZM10 9.08337C11.5188 9.08337 12.75 7.85215 12.75 6.33337C12.75 4.81459 11.5188 3.58337 10 3.58337C8.48118 3.58337 7.25001 4.81459 7.25001 6.33337C7.25001 7.85215 8.48118 9.08337 10 9.08337Z" />
                     </svg>
                   ),
@@ -361,11 +341,11 @@ const OnboardStudent = () => {
       canSave: validateParentStudentStep,
     },
     {
-      id: "about-you",
-      stepIndicatorId: "about-you",
+      id: 'about-you',
+      stepIndicatorId: 'about-you',
       template: (
         <Box>
-          <Heading as="h3" size="lg" textAlign={"center"}>
+          <Heading as="h3" size="lg" textAlign={'center'}>
             First we need some information about you.
             <br />
             What's your name?
@@ -374,7 +354,7 @@ const OnboardStudent = () => {
             <FormControl>
               <FormLabel>First Name</FormLabel>
               <Input
-                size={"lg"}
+                size={'lg'}
                 value={name.first}
                 onChange={(e) =>
                   onboardStudentStore.set.name({
@@ -387,7 +367,7 @@ const OnboardStudent = () => {
             <FormControl>
               <FormLabel marginTop={4}>Last Name</FormLabel>
               <Input
-                size={"lg"}
+                size={'lg'}
                 value={name.last}
                 onChange={(e) =>
                   onboardStudentStore.set.name({
@@ -400,7 +380,7 @@ const OnboardStudent = () => {
             <FormControl>
               <FormLabel marginTop={4}>Email</FormLabel>
               <Input
-                size={"lg"}
+                size={'lg'}
                 value={email}
                 onChange={(e) => onboardStudentStore.set.email(e.target.value)}
                 type="email"
@@ -409,7 +389,7 @@ const OnboardStudent = () => {
             <FormControl>
               <FormLabel marginTop={4}>Date of Birth</FormLabel>
               <DateInput
-                size={"lg"}
+                size={'lg'}
                 value={dob}
                 onChange={(v) => {
                   onboardStudentStore.set.dob(v);
@@ -422,22 +402,19 @@ const OnboardStudent = () => {
       canSave: validateAboutYouStep,
     },
     {
-      id: "classes",
-      stepIndicatorId: "classes",
+      id: 'classes',
+      stepIndicatorId: 'classes',
       template: (
         <Box>
-          {!dobValid || !(age < 13 && parentOrStudent === "student") ? (
+          {!dobValid || !(age < 13 && parentOrStudent === 'student') ? (
             <>
-              <Heading as="h3" size="lg" textAlign={"center"}>
-                {parentOrStudent === "parent"
-                  ? "What classes are your child interested in?"
-                  : "What classes are you interested in?"}
+              <Heading as="h3" size="lg" textAlign={'center'}>
+                {parentOrStudent === 'parent'
+                  ? 'What classes are your child interested in?'
+                  : 'What classes are you interested in?'}
               </Heading>
               <Box marginTop={30}>
-                <Modal
-                  isOpen={isSomethingElseModalOpen}
-                  onClose={onSomethingElseModalClose}
-                >
+                <Modal isOpen={isSomethingElseModalOpen} onClose={onSomethingElseModalClose}>
                   <ModalOverlay />
                   <ModalContent>
                     <ModalCloseButton />
@@ -449,8 +426,7 @@ const OnboardStudent = () => {
                             height="48"
                             viewBox="0 0 48 48"
                             fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
+                            xmlns="http://www.w3.org/2000/svg">
                             <rect
                               width="48"
                               height="48"
@@ -465,20 +441,16 @@ const OnboardStudent = () => {
                           </svg>
                         </Box>
                         <Box marginTop={4}>
-                          <Text className="modal-title">
-                            Learn something else
-                          </Text>
-                          Can’t find the subject you wish to learn, tell us,
-                          we’ll match you with an experienced tutor
+                          <Text className="modal-title">Learn something else</Text>
+                          Can’t find the subject you wish to learn, tell us, we’ll match you with an
+                          experienced tutor
                           <FormLabel margin={0}>
                             <Box mt={4}>
                               <Input
-                                size={"lg"}
+                                size={'lg'}
                                 value={somethingElse}
                                 onChange={(e) =>
-                                  onboardStudentStore.set.somethingElse?.(
-                                    e.target.value
-                                  )
+                                  onboardStudentStore.set.somethingElse?.(e.target.value)
                                 }
                                 placeholder="Enter subject"
                               />
@@ -489,10 +461,7 @@ const OnboardStudent = () => {
                     </ModalBody>
 
                     <ModalFooter>
-                      <Button
-                        isDisabled={!!!somethingElse}
-                        onClick={onSomethingElseModalClose}
-                      >
+                      <Button isDisabled={!!!somethingElse} onClick={onSomethingElseModalClose}>
                         Confirm
                       </Button>
                     </ModalFooter>
@@ -503,36 +472,30 @@ const OnboardStudent = () => {
                     multi
                     value={courses}
                     onChange={(v) => {
-                      if (
-                        v.includes("something-else") &&
-                        !courses.includes("something-else")
-                      ) {
+                      if (v.includes('something-else') && !courses.includes('something-else')) {
                         onSomethingElseModalOpen();
                       } else if (
-                        courses.includes("something-else") &&
-                        !v.includes("something-else")
+                        courses.includes('something-else') &&
+                        !v.includes('something-else')
                       ) {
-                        onboardStudentStore.set.somethingElse("");
+                        onboardStudentStore.set.somethingElse('');
                       }
                       onboardStudentStore.set.courses(v);
                     }}
                     options={[
                       ...courseList,
                       {
-                        label: somethingElse
-                          ? somethingElse
-                          : "Want to learn something else?",
-                        _id: "something-else",
-                        imageSrc: "",
+                        label: somethingElse ? somethingElse : 'Want to learn something else?',
+                        _id: 'something-else',
+                        imageSrc: '',
                         iconSrc: (
                           <svg
-                            style={{ margin: "0 auto" }}
+                            style={{ margin: '0 auto' }}
                             width="21"
                             height="20"
                             viewBox="0 0 21 20"
                             fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
+                            xmlns="http://www.w3.org/2000/svg">
                             <path
                               d="M10.5 20C4.97715 20 0.5 15.5228 0.5 10C0.5 4.47715 4.97715 0 10.5 0C16.0228 0 20.5 4.47715 20.5 10C20.5 15.5228 16.0228 20 10.5 20ZM9.5 13V15H11.5V13H9.5ZM11.5 11.3551C12.9457 10.9248 14 9.5855 14 8C14 6.067 12.433 4.5 10.5 4.5C8.802 4.5 7.38637 5.70919 7.06731 7.31346L9.0288 7.70577C9.1656 7.01823 9.7723 6.5 10.5 6.5C11.3284 6.5 12 7.17157 12 8C12 8.8284 11.3284 9.5 10.5 9.5C9.9477 9.5 9.5 9.9477 9.5 10.5V12H11.5V11.3551Z"
                               fill="#969CA6"
@@ -545,26 +508,25 @@ const OnboardStudent = () => {
                     })}
                   />
                 </Box>
-              </Box>{" "}
+              </Box>{' '}
             </>
           ) : (
             <EmptyState
               title="Uh oh!"
               subtitle={
                 <>
-                  Looks like you're not quite old enough to sign up on your own
-                  just yet. Don't worry though, we've got you covered! Ask your
-                  parent or guardian to{" "}
+                  Looks like you're not quite old enough to sign up on your own just yet. Don't
+                  worry though, we've got you covered! Ask your parent or guardian to{' '}
                   <Link href="/onboard/student" color="primary.600">
                     sign up
-                  </Link>{" "}
+                  </Link>{' '}
                   on your behalf and start learning with us today.
                 </>
               }
               image={
                 <img
                   alt="uh oh!"
-                  style={{ height: "80px" }}
+                  style={{ height: '80px' }}
                   src="/images/empty-state-no-content.png"
                 />
               }
@@ -573,8 +535,7 @@ const OnboardStudent = () => {
                   onClick={() => {
                     stepWizardInstance.current?.previousStep();
                   }}
-                  variant={"ghost"}
-                >
+                  variant={'ghost'}>
                   Change Date of Birth
                 </Button>
               }
@@ -585,37 +546,35 @@ const OnboardStudent = () => {
       canSave: validateCoursesStep,
     },
     {
-      id: "course-supplementary",
-      stepIndicatorId: "classes",
+      id: 'course-supplementary',
+      stepIndicatorId: 'classes',
       template: (
         <Box>
-          <Heading as="h3" size="lg" textAlign={"center"}>
-            {parentOrStudent === "parent"
-              ? "What classes are your child interested in?"
-              : "What classes are you interested in?"}
+          <Heading as="h3" size="lg" textAlign={'center'}>
+            {parentOrStudent === 'parent'
+              ? 'What classes are your child interested in?'
+              : 'What classes are you interested in?'}
           </Heading>
           <Box marginTop={30}>
             {courses.map((c) => {
               const courseName =
-                c === "something-else"
+                c === 'something-else'
                   ? capitalize(somethingElse)
                   : courseList.find((ac) => ac._id === c)?.label;
 
-              if (c === "maths") {
+              if (c === 'maths') {
                 return (
-                  <Box key={"course-supplementary" + c}>
+                  <Box key={'course-supplementary' + c}>
                     <FormControl>
                       <FormLabel>
-                        {parentOrStudent === "parent"
-                          ? "What grade level is your child in?"
-                          : "What grade level are you in?"}
+                        {parentOrStudent === 'parent'
+                          ? 'What grade level is your child in?'
+                          : 'What grade level are you in?'}
                       </FormLabel>
                       <Input
-                        size={"lg"}
+                        size={'lg'}
                         value={gradeLevel}
-                        onChange={(e) =>
-                          onboardStudentStore.set.gradeLevel(e.target.value)
-                        }
+                        onChange={(e) => onboardStudentStore.set.gradeLevel(e.target.value)}
                         placeholder="e.g Grade 12"
                         required
                       />
@@ -623,16 +582,14 @@ const OnboardStudent = () => {
 
                     <FormControl mt={4}>
                       <FormLabel>
-                        {parentOrStudent === "parent"
-                          ? "What Maths topic does your child need help with?"
-                          : "What Maths topic do you need help with?"}
+                        {parentOrStudent === 'parent'
+                          ? 'What Maths topic does your child need help with?'
+                          : 'What Maths topic do you need help with?'}
                       </FormLabel>
                       <Input
-                        size={"lg"}
+                        size={'lg'}
                         value={topic}
-                        onChange={(e) =>
-                          onboardStudentStore.set.topic(e.target.value)
-                        }
+                        onChange={(e) => onboardStudentStore.set.topic(e.target.value)}
                         placeholder="e.g Algebra"
                         required
                       />
@@ -643,26 +600,24 @@ const OnboardStudent = () => {
 
               return (
                 <FormControl>
-                  <FormLabel key={"course-supplementary" + c}>
-                    {parentOrStudent === "parent"
+                  <FormLabel key={'course-supplementary' + c}>
+                    {parentOrStudent === 'parent'
                       ? `What's your child's skill level for ${courseName}?`
                       : `What's your skill level for ${courseName}?`}
                   </FormLabel>
                   <Select
                     tagVariant="solid"
                     placeholder={
-                      parentOrStudent === "parent"
+                      parentOrStudent === 'parent'
                         ? "Select your child's skill level"
-                        : "Select your skill level"
+                        : 'Select your skill level'
                     }
-                    size={"lg"}
+                    size={'lg'}
                     onChange={(v) => {
                       const currSkillLevels = [...skillLevels];
                       // @ts-expect-error
                       const slv = { course: c, skillLevel: v?.value };
-                      const currentIndex = currSkillLevels.findIndex(
-                        (v) => v.course === c
-                      );
+                      const currentIndex = currSkillLevels.findIndex((v) => v.course === c);
                       if (currentIndex > -1) {
                         currSkillLevels[currentIndex] = slv;
                       } else {
@@ -686,18 +641,15 @@ const OnboardStudent = () => {
       canSave: validateCourseSupplementaryStep,
     },
     {
-      id: "availability",
-      stepIndicatorId: "availability",
+      id: 'availability',
+      stepIndicatorId: 'availability',
       template: (
         <Box>
           <FormControl>
             <FormLabel m={0}>Timezone</FormLabel>
-            <TimezoneSelect
-              value={tz}
-              onChange={(v) => onboardStudentStore.set.tz(v.value)}
-            />
+            <TimezoneSelect value={tz} onChange={(v) => onboardStudentStore.set.tz(v.value)} />
           </FormControl>
-          <Box mt={"40px"}>
+          <Box mt={'40px'}>
             <ScheduleBuilder
               value={schedule}
               onChange={(v) => onboardStudentStore.set.schedule(v)}
@@ -708,37 +660,26 @@ const OnboardStudent = () => {
       canSave: validateScheduleStep,
     },
     {
-      id: "confirm",
+      id: 'confirm',
       template: (
         <Box>
-          <Heading as="h3" size="lg" textAlign={"center"}>
+          <Heading as="h3" size="lg" textAlign={'center'}>
             Review Your Information
           </Heading>
           <Box marginTop={30}>
-            <VStack alignItems={"stretch"} spacing={5}>
+            <VStack alignItems={'stretch'} spacing={5}>
               {confirmations.map((c) => (
                 <Box key={c.title}>
-                  <Heading as="h5" size={"md"} marginBottom={5}>
+                  <Heading as="h5" size={'md'} marginBottom={5}>
                     {c.title}
                   </Heading>
-                  <VStack
-                    divider={<StackDivider borderColor="gray.200" />}
-                    alignItems={"stretch"}
-                  >
+                  <VStack divider={<StackDivider borderColor="gray.200" />} alignItems={'stretch'}>
                     {c.fields.map((f) => {
                       return (
                         <Flex key={f.title}>
-                          <Flex
-                            flexDirection={"column"}
-                            justifyContent="center"
-                            flexGrow={1}
-                          >
+                          <Flex flexDirection={'column'} justifyContent="center" flexGrow={1}>
                             {!!f.title && (
-                              <Heading
-                                as="h6"
-                                textTransform={"capitalize"}
-                                size={"sm"}
-                              >
+                              <Heading as="h6" textTransform={'capitalize'} size={'sm'}>
                                 {f.title}
                               </Heading>
                             )}
@@ -765,7 +706,7 @@ const OnboardStudent = () => {
   ];
 
   const doSubmit = () => {
-    mixpanel.track("Completed onboarding");
+    mixpanel.track('Completed onboarding');
     return ApiService.submitStudentLead(data);
   };
 
@@ -777,12 +718,11 @@ const OnboardStudent = () => {
   const activeStepObj = useMemo(() => steps[activeStep - 1], [activeStep]);
 
   const stepIndicatorActiveStep = useMemo(
-    () =>
-      stepIndicatorSteps.find((s) => s.id === activeStepObj?.stepIndicatorId),
+    () => stepIndicatorSteps.find((s) => s.id === activeStepObj?.stepIndicatorId),
     [activeStepObj, stepIndicatorSteps]
   );
 
-  useTitle(stepIndicatorActiveStep?.title || "");
+  useTitle(stepIndicatorActiveStep?.title || '');
 
   useEffect(() => {
     mixpanel.identify();
@@ -795,26 +735,22 @@ const OnboardStudent = () => {
   }, [activeStepObj]);
 
   useEffect(() => {
-    if (name.first && name.last)
-      mixpanel.people.set({ $name: `${name.first} ${name.last}` });
+    if (name.first && name.last) mixpanel.people.set({ $name: `${name.first} ${name.last}` });
 
     if (email) mixpanel.people.set({ $email: email });
 
     if (age) mixpanel.people.set({ Age: age });
 
-    if (parentOrStudent)
-      mixpanel.people.set({ "Parent Or Student": parentOrStudent });
+    if (parentOrStudent) mixpanel.people.set({ 'Parent Or Student': parentOrStudent });
 
-    mixpanel.people.set({ Type: "Student" });
+    mixpanel.people.set({ Type: 'Student' });
   }, [email, name, age]);
 
   useEffect(() => {
-    mixpanel.register({ ...data, type: "student" });
+    mixpanel.register({ ...data, type: 'student' });
   }, [data]);
 
-  const canSaveCurrentEditModalStep = steps.find(
-    (s) => s.id === editModalStep
-  )?.canSave;
+  const canSaveCurrentEditModalStep = steps.find((s) => s.id === editModalStep)?.canSave;
 
   return (
     <Box>
@@ -823,8 +759,7 @@ const OnboardStudent = () => {
         closeOnOverlayClick={canSaveCurrentEditModalStep}
         size="xl"
         isOpen={editModalOpen}
-        onClose={onEditModalClose}
-      >
+        onClose={onEditModalClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
@@ -832,25 +767,18 @@ const OnboardStudent = () => {
           </ModalHeader>
           <ModalCloseButton isDisabled={!canSaveCurrentEditModalStep} />
           <ModalBody>
-            <Box width={"100%"}>
-              {steps.find((s) => s.id === editModalStep)?.template}
-            </Box>
+            <Box width={'100%'}>{steps.find((s) => s.id === editModalStep)?.template}</Box>
           </ModalBody>
 
           <ModalFooter>
-            <Button
-              isDisabled={!canSaveCurrentEditModalStep}
-              onClick={onEditModalClose}
-            >
+            <Button isDisabled={!canSaveCurrentEditModalStep} onClick={onEditModalClose}>
               Done
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
       <StepIndicator
-        activeStep={stepIndicatorSteps.findIndex(
-          (s) => s === stepIndicatorActiveStep
-        )}
+        activeStep={stepIndicatorSteps.findIndex((s) => s === stepIndicatorActiveStep)}
         steps={stepIndicatorSteps}
       />
       <Box mt={45}>
@@ -859,10 +787,8 @@ const OnboardStudent = () => {
           className="flex-col-reverse"
           onStepChange={onStepChange}
           instance={(props) => {
-            stepWizardInstance.current =
-              props as unknown as StepWizardChildProps;
-          }}
-        >
+            stepWizardInstance.current = props as unknown as StepWizardChildProps;
+          }}>
           {
             steps.map((s) => {
               return (
@@ -880,17 +806,14 @@ const OnboardStudent = () => {
           <OnboardStep canGoNext={false} hideNav={true}>
             <Box paddingBottom={5}>
               <Box>
-                <Lottie
-                  style={{ height: 100 }}
-                  animationData={lottieSuccessAnimationData}
-                />
+                <Lottie style={{ height: 100 }} animationData={lottieSuccessAnimationData} />
               </Box>
-              <Heading as="h2" size="lg" textAlign={"center"}>
+              <Heading as="h2" size="lg" textAlign={'center'}>
                 You're all set {capitalize(name.first)}!
               </Heading>
               <Text color="gray.500" marginTop={2} textAlign="center">
-                We'll match you with the best tutors around &amp; we'll shoot
-                you an email at {email} when we're done!
+                We'll match you with the best tutors around &amp; we'll shoot you an email at{' '}
+                {email} when we're done!
               </Text>
             </Box>
           </OnboardStep>

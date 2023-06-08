@@ -1,5 +1,5 @@
-import { REACT_APP_API_ENDPOINT } from "../config";
-import { doFetch } from "../util";
+import { REACT_APP_API_ENDPOINT } from '../config';
+import { doFetch } from '../util';
 
 class ApiService {
   static baseEndpoint = REACT_APP_API_ENDPOINT;
@@ -14,24 +14,20 @@ class ApiService {
 
   static submitStudentLead = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/createStudentLead`, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify(data),
     });
   };
 
   static submitTutorLead = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/createTutorLead`, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify(data),
     });
   };
 
   static getBookSessionData = async (data: any) => {
-    return doFetch(
-      `${ApiService.baseEndpoint}/getBookSessionData?${new URLSearchParams(
-        data
-      )}`
-    );
+    return doFetch(`${ApiService.baseEndpoint}/getBookSessionData?${new URLSearchParams(data)}`);
   };
 
   static getBooking = async (id: string) => {
@@ -42,24 +38,21 @@ class ApiService {
 
   static createBooking = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/createBooking`, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify(data),
     });
   };
 
   static createStripeSetupPaymentIntent = async (data: any) => {
-    return doFetch(
-      `${ApiService.baseEndpoint}/createStripeSetupPaymentIntent`,
-      {
-        method: "POST",
-        body: JSON.stringify(data),
-      }
-    );
+    return doFetch(`${ApiService.baseEndpoint}/createStripeSetupPaymentIntent`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   };
 
   static addPaymentMethod = async (stripeId: string) => {
     return doFetch(`${ApiService.baseEndpoint}/addPaymentMethod`, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({ stripeId }),
     });
   };
@@ -78,35 +71,35 @@ class ApiService {
 
   static createOffer = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/createOffer`, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify(data),
     });
   };
 
   static acceptOffer = async (id: string) => {
     return doFetch(`${ApiService.baseEndpoint}/acceptOffer`, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({ id }),
     });
   };
 
   static declineOffer = async (id: string, note: string) => {
     return doFetch(`${ApiService.baseEndpoint}/declineOffer`, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({ id, note }),
     });
   };
 
   static withdrawOffer = async (id: string) => {
     return doFetch(`${ApiService.baseEndpoint}/withdrawOffer`, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({ id }),
     });
   };
 
   static bookOffer = async (id: string, paymentMethodId: string) => {
     return doFetch(`${ApiService.baseEndpoint}/bookOffer`, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({ id, paymentMethodId }),
     });
   };
@@ -116,26 +109,26 @@ class ApiService {
   };
 
   static getFilteredTutors = async (formData: any) => {
-    let filterParams = "";
-    let minRate = "";
-    let maxRate = "";
-    let days = "";
-    console.log("FORM", formData);
+    let filterParams = '';
+    let minRate = '';
+    let maxRate = '';
+    let days = '';
+    console.log('FORM', formData);
 
     for (const key in formData) {
-      const rateArray = formData["price"].split("-");
+      const rateArray = formData['price'].split('-');
       minRate = rateArray[0];
       maxRate = rateArray[1];
 
-      const daysArray = formData["days"];
+      const daysArray = formData['days'];
 
-      if (key !== "tz" && key !== "price" && key !== "days") {
-        filterParams += !!formData[key] ? `&${key}=${formData[key]}` : "";
+      if (key !== 'tz' && key !== 'price' && key !== 'days') {
+        filterParams += !!formData[key] ? `&${key}=${formData[key]}` : '';
       }
-      if (key == "price" && !!formData["price"]) {
+      if (key == 'price' && !!formData['price']) {
         filterParams += `&rate>=${minRate}&rate<=${maxRate}`;
       }
-      if (key == "days" && !!formData["days"]) {
+      if (key == 'days' && !!formData['days']) {
         daysArray.forEach((element: any) => {
           filterParams += `&schedule.${element.value}`;
         });
@@ -149,7 +142,7 @@ class ApiService {
 
   static toggleBookmarkedTutor = async (id: string) => {
     return doFetch(`${ApiService.baseEndpoint}/toggleBookmarkedTutor`, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({ tutorId: id }),
     });
   };

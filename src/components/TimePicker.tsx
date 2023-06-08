@@ -1,17 +1,18 @@
-import { useState } from "react";
 import {
-  Input,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverArrow,
-  Flex,
   Button,
+  Flex,
+  Input,
   InputGroup,
   InputRightElement,
-} from "@chakra-ui/react";
-import { FiClock } from "react-icons/fi";
-import { SCHEDULE_FORMAT } from "../config";
+  Popover,
+  PopoverArrow,
+  PopoverContent,
+  PopoverTrigger,
+} from '@chakra-ui/react';
+import { useState } from 'react';
+import { FiClock } from 'react-icons/fi';
+
+import { SCHEDULE_FORMAT } from '../config';
 
 interface TimePickerProps {
   value: string;
@@ -28,20 +29,19 @@ const TimePicker: React.FC<TimePickerProps> = ({
   inputProps = {},
   inputGroupProps = {},
 }) => {
-  const [hours, setHours] = useState<string>("");
-  const [minutes, setMinutes] = useState<string>("");
+  const [hours, setHours] = useState<string>('');
+  const [minutes, setMinutes] = useState<string>('');
   const [isPm, setIsPm] = useState<boolean>(false);
 
   const handleHoursChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value);
     if (!isNaN(value) && value >= 0 && value <= 12) {
-      setHours(value.toString().padStart(2, "0"));
+      setHours(value.toString().padStart(2, '0'));
 
       onChange(
-        `${value.toString().padStart(2, "0")}:${(minutes || "00").padStart(
-          2,
-          "0"
-        )} ${isPm ? "PM" : "AM"}`
+        `${value.toString().padStart(2, '0')}:${(minutes || '00').padStart(2, '0')} ${
+          isPm ? 'PM' : 'AM'
+        }`
       );
     }
   };
@@ -49,11 +49,9 @@ const TimePicker: React.FC<TimePickerProps> = ({
   const handleMinutesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value);
     if (!isNaN(value) && value >= 0 && value <= 59) {
-      setMinutes(value.toString().padStart(2, "0"));
+      setMinutes(value.toString().padStart(2, '0'));
       onChange(
-        `${hours.padStart(2, "0")}:${value.toString().padStart(2, "0")} ${
-          isPm ? "PM" : "AM"
-        }`
+        `${hours.padStart(2, '0')}:${value.toString().padStart(2, '0')} ${isPm ? 'PM' : 'AM'}`
       );
     }
   };
@@ -61,9 +59,7 @@ const TimePicker: React.FC<TimePickerProps> = ({
   const handleToggleAmPm = () => {
     setIsPm(!isPm);
     onChange(
-      `${hours.padStart(2, "0")}:${(minutes || "00").padStart(2, "0")} ${
-        !isPm ? "PM" : "AM"
-      }`
+      `${hours.padStart(2, '0')}:${(minutes || '00').padStart(2, '0')} ${!isPm ? 'PM' : 'AM'}`
     );
   };
 
@@ -75,7 +71,7 @@ const TimePicker: React.FC<TimePickerProps> = ({
           <Input value={value} {...inputProps} readOnly />
         </InputGroup>
       </PopoverTrigger>
-      <PopoverContent width={"auto"} p={2}>
+      <PopoverContent width={'auto'} p={2}>
         <PopoverArrow />
         <Flex alignItems="center" justifyContent="space-between">
           <Flex alignItems="center">
@@ -98,7 +94,7 @@ const TimePicker: React.FC<TimePickerProps> = ({
               mr={2}
             />
             <Button size="sm" onClick={handleToggleAmPm}>
-              {isPm ? "PM" : "AM"}
+              {isPm ? 'PM' : 'AM'}
             </Button>
           </Flex>
         </Flex>

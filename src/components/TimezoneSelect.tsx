@@ -1,22 +1,22 @@
-import * as React from "react";
-import moment from "moment-timezone";
-import { zones } from "../tzdata";
-import { useCallback, useEffect } from "react";
-import Select from "./Select";
+import moment from 'moment-timezone';
+import * as React from 'react';
+import { useCallback, useEffect } from 'react';
+
+import { zones } from '../tzdata';
+import Select from './Select';
 
 type Props = {
   value: any;
-  onChange: (value: Props["value"]) => void;
+  onChange: (value: Props['value']) => void;
 };
 
 const options = zones
   .map((tz) => {
-    const offset = parseInt(moment.tz(tz).format("Z"));
-    const zoneAbbv = moment.tz(new Date(), tz).format("z");
-    let label = `(GMT${offset >= 0 ? "+" : ""}${offset}) ${tz.replace(
-      /_/g,
-      " "
-    )} ${Number.isNaN(parseInt(zoneAbbv)) ? "— " + zoneAbbv : ``}`;
+    const offset = parseInt(moment.tz(tz).format('Z'));
+    const zoneAbbv = moment.tz(new Date(), tz).format('z');
+    let label = `(GMT${offset >= 0 ? '+' : ''}${offset}) ${tz.replace(/_/g, ' ')} ${
+      Number.isNaN(parseInt(zoneAbbv)) ? '— ' + zoneAbbv : ``
+    }`;
 
     return {
       label,
@@ -29,9 +29,7 @@ const options = zones
 const TimezoneSelect: React.FC<Props> = ({ value, onChange }) => {
   const guessTimezone = useCallback(() => {
     const assumedTimezone = moment.tz.guess();
-    const assumedTimezoneInOptions = options.find(
-      (o) => o.value === assumedTimezone
-    );
+    const assumedTimezoneInOptions = options.find((o) => o.value === assumedTimezone);
 
     if (assumedTimezoneInOptions) onChange(assumedTimezoneInOptions);
   }, []);

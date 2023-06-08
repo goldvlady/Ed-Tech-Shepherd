@@ -1,12 +1,13 @@
-import { Box } from "@chakra-ui/react";
-import * as React from "react";
-import { useEffect } from "react";
-import OnboardNav from "./OnboardNav";
+import { Box } from '@chakra-ui/react';
+import * as React from 'react';
+import { useEffect } from 'react';
+
+import OnboardNav from './OnboardNav';
 
 type Props = {
   children: React.ReactNode;
   submitFunction: () => Promise<Response>;
-} & Omit<React.ComponentPropsWithoutRef<typeof OnboardNav>, "canGoNext">;
+} & Omit<React.ComponentPropsWithoutRef<typeof OnboardNav>, 'canGoNext'>;
 
 const OnboardSubmitStep: React.FC<Props> = ({
   children,

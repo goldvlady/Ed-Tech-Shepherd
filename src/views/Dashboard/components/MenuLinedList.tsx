@@ -1,23 +1,15 @@
-import React from "react";
-import {
-  VStack,
-  Box,
-  Text,
-  Link,
-  Flex,
-  Icon,
-  FlexProps,
-} from "@chakra-ui/react";
-import styled from "styled-components";
-import { IconType } from "react-icons";
-import { BsChatLeftDots, BsPlayCircle, BsPin } from "react-icons/bs";
+import { Box, Flex, FlexProps, Icon, Link, Text, VStack } from '@chakra-ui/react';
+import React from 'react';
+import { IconType } from 'react-icons';
+import { BsChatLeftDots, BsPin, BsPlayCircle } from 'react-icons/bs';
+import styled from 'styled-components';
 
-const Title = styled(Text).attrs(() => ({ className: "sub3" }))`
+const Title = styled(Text).attrs(() => ({ className: 'sub3' }))`
   margin-bottom: 1px;
   position: relative;
   line-height: 0.1;
   &:before {
-    content: "";
+    content: '';
     height: 5px;
     width: 5px;
     display: block;
@@ -32,7 +24,7 @@ const Title = styled(Text).attrs(() => ({ className: "sub3" }))`
   }
 `;
 
-const Subtitle = styled(Text).attrs(() => ({ className: "body3" }))`
+const Subtitle = styled(Text).attrs(() => ({ className: 'body3' }))`
   margin-bottom: 0;
   color: #585f68;
 `;
@@ -44,7 +36,7 @@ const Root = styled(VStack)`
   margin-left: 25px;
 
   &:before {
-    content: "";
+    content: '';
     position: absolute;
     left: -19px;
     top: 15px;
@@ -59,7 +51,7 @@ const Root = styled(VStack)`
     position: relative;
     z-index: 3;
     &:before {
-      content: "";
+      content: '';
       position: absolute;
       display: block;
       background: white;
@@ -78,11 +70,7 @@ interface NavItemProps extends FlexProps {
 }
 const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
   return (
-    <Link
-      href={path}
-      style={{ textDecoration: "none" }}
-      _focus={{ boxShadow: "none" }}
-    >
+    <Link href={path} style={{ textDecoration: 'none' }} _focus={{ boxShadow: 'none' }}>
       <Flex
         align="center"
         py="4"
@@ -93,24 +81,23 @@ const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
         role="group"
         cursor="pointer"
         _hover={{
-          bg: "#F0F6FE",
-          color: "#207DF7",
+          bg: '#F0F6FE',
+          color: '#207DF7',
         }}
         _active={{
-          bg: "#F0F6FE",
-          color: "#207DF7",
+          bg: '#F0F6FE',
+          color: '#207DF7',
         }}
         fontSize={14}
         color="text.400"
         fontWeight={500}
-        {...rest}
-      >
+        {...rest}>
         {icon && (
           <Icon
             mr="4"
             fontSize="16"
             _groupHover={{
-              color: "#207DF7",
+              color: '#207DF7',
             }}
             as={icon}
           />

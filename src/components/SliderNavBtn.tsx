@@ -1,7 +1,8 @@
-import styled from "styled-components";
-import theme from "../theme";
+import styled from 'styled-components';
 
-const SliderNavBtn = styled("button")`
+import theme from '../theme';
+
+const SliderNavBtn = styled('button')`
   border-radius: 100%;
   height: 30px;
   width: 30px;
@@ -16,7 +17,7 @@ const SliderNavBtn = styled("button")`
   border-bottom: 4px solid transparent;
 
   &:before {
-    content: "";
+    content: '';
     inset: 0px;
     position: absolute;
     z-index: 1;

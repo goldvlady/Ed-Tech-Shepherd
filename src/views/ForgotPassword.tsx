@@ -9,27 +9,28 @@ import {
   Link,
   Text,
   useToast,
-} from "@chakra-ui/react";
-import React, { useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
-import styled from "styled-components";
-import { Field, Form, Formik } from "formik";
-import * as Yup from "yup";
-import { firebaseAuth, sendPasswordResetEmail } from "../firebase";
-import { useTitle } from "../hooks";
+} from '@chakra-ui/react';
+import { Field, Form, Formik } from 'formik';
+import React, { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+import styled from 'styled-components';
+import * as Yup from 'yup';
+
+import { firebaseAuth, sendPasswordResetEmail } from '../firebase';
+import { useTitle } from '../hooks';
 
 const Root = styled(Box)``;
 
 const ForgotPasswordSchema = Yup.object().shape({
   email: Yup.string()
-    .email("Enter a valid email address")
-    .required("A valid email address is required"),
+    .email('Enter a valid email address')
+    .required('A valid email address is required'),
 });
 
 const ForgotPassword: React.FC = () => {
-  useTitle("Forgot password");
+  useTitle('Forgot password');
   const toast = useToast();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
   const [emailSent, setEmailSent] = useState(false);
   return (
     <Root>
@@ -37,26 +38,17 @@ const ForgotPassword: React.FC = () => {
         <>
           <Box>
             <svg
-              style={{ margin: "0 auto", marginBottom: "32px" }}
+              style={{ margin: '0 auto', marginBottom: '32px' }}
               width="64"
               height="64"
               viewBox="0 0 64 64"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              xmlnsXlink="http://www.w3.org/1999/xlink"
-            >
+              xmlnsXlink="http://www.w3.org/1999/xlink">
               <rect width="64" height="64" fill="url(#pattern0)" />
               <defs>
-                <pattern
-                  id="pattern0"
-                  patternContentUnits="objectBoundingBox"
-                  width="1"
-                  height="1"
-                >
-                  <use
-                    xlinkHref="#image0_154_12926"
-                    transform="scale(0.00195312)"
-                  />
+                <pattern id="pattern0" patternContentUnits="objectBoundingBox" width="1" height="1">
+                  <use xlinkHref="#image0_154_12926" transform="scale(0.00195312)" />
                 </pattern>
                 <image
                   id="image0_154_12926"
@@ -67,30 +59,29 @@ const ForgotPassword: React.FC = () => {
               </defs>
             </svg>
           </Box>
-          <Box mb={"20px"}>
-            <Heading mb={"12px"} as={"h3"} textAlign={"center"}>
+          <Box mb={'20px'}>
+            <Heading mb={'12px'} as={'h3'} textAlign={'center'}>
               Check your Mail
             </Heading>
-            <Text m={0} className="body2" textAlign={"center"}>
-              We've sent a link to create a new password to {email}. If it's not
-              in your inbox, check your spam/junk folder.
+            <Text m={0} className="body2" textAlign={'center'}>
+              We've sent a link to create a new password to {email}. If it's not in your inbox,
+              check your spam/junk folder.
             </Text>
           </Box>
         </>
       ) : (
         <>
-          <Box mb={"20px"}>
-            <Heading mb={"12px"} as={"h3"} textAlign={"center"}>
+          <Box mb={'20px'}>
+            <Heading mb={'12px'} as={'h3'} textAlign={'center'}>
               Forgot Password
             </Heading>
-            <Text m={0} className="body2" textAlign={"center"}>
-              Enter the email you registered with, we will send you a link to
-              create a new password
+            <Text m={0} className="body2" textAlign={'center'}>
+              Enter the email you registered with, we will send you a link to create a new password
             </Text>
           </Box>
           <Box>
             <Formik
-              initialValues={{ email: "" }}
+              initialValues={{ email: '' }}
               validationSchema={ForgotPasswordSchema}
               onSubmit={async (values, { setSubmitting }) => {
                 setEmail(values.email);
@@ -98,37 +89,33 @@ const ForgotPassword: React.FC = () => {
                   await sendPasswordResetEmail(firebaseAuth, values.email);
                   setEmailSent(true);
                 } catch (e: any) {
-                  let errorMessage = "";
+                  let errorMessage = '';
                   switch (e.code) {
-                    case "auth/user-not-found":
-                      errorMessage =
-                        "We couldn't find a user with this email address";
+                    case 'auth/user-not-found':
+                      errorMessage = "We couldn't find a user with this email address";
                       break;
                     default:
-                      errorMessage = "An unexpected error occurred";
+                      errorMessage = 'An unexpected error occurred';
                       break;
                   }
 
                   toast({
                     title: errorMessage,
-                    position: "top-right",
-                    status: "error",
+                    position: 'top-right',
+                    status: 'error',
                     isClosable: true,
                   });
                 }
                 setSubmitting(false);
-              }}
-            >
+              }}>
               {({ errors, isSubmitting, values }) => (
                 <Form>
                   <Field name="email">
                     {({ field, form }: { field: any; form: any }) => (
-                      <FormControl
-                        isInvalid={form.errors.email && form.touched.email}
-                      >
+                      <FormControl isInvalid={form.errors.email && form.touched.email}>
                         <FormLabel>Email</FormLabel>
                         <Input
-                          size={"lg"}
+                          size={'lg'}
                           isInvalid={form.errors.email && form.touched.email}
                           {...field}
                           placeholder="Enter your email"
@@ -138,29 +125,25 @@ const ForgotPassword: React.FC = () => {
                     )}
                   </Field>
                   <Box
-                    marginTop={"36px"}
-                    display={"flex"}
+                    marginTop={'36px'}
+                    display={'flex'}
                     flexDirection="column"
                     gap={4}
-                    justifyContent="flex-end"
-                  >
+                    justifyContent="flex-end">
                     <Button
                       isDisabled={Object.values(errors).length !== 0}
-                      width={"100%"}
+                      width={'100%'}
                       size="lg"
                       type="submit"
-                      isLoading={isSubmitting}
-                    >
+                      isLoading={isSubmitting}>
                       Confirm
                     </Button>
                     <Link
                       color="primary.400"
                       className="body2 text-center"
                       as={RouterLink}
-                      to="/login"
-                    >
-                      <span className="body2">Remember your password?</span>{" "}
-                      Login
+                      to="/login">
+                      <span className="body2">Remember your password?</span> Login
                     </Link>
                   </Box>
                 </Form>

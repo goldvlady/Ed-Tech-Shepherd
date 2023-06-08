@@ -1,25 +1,21 @@
-import theme from "../theme";
-import styled from "styled-components";
-import * as React from "react";
-import { useLayoutEffect, useRef, useState } from "react";
-import {
-  FaMicrophone,
-  FaMicrophoneSlash,
-  FaVideo,
-  FaVideoSlash,
-} from "react-icons/fa";
 import {
   Box,
+  Button,
+  Divider,
   Modal,
   ModalBody,
   ModalContent,
+  ModalFooter,
   ModalOverlay,
-  Divider,
   Text,
   useDisclosure,
-  ModalFooter,
-  Button,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
+import * as React from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
+import { FaMicrophone, FaMicrophoneSlash, FaVideo, FaVideoSlash } from 'react-icons/fa';
+import styled from 'styled-components';
+
+import theme from '../theme';
 
 export interface SessionPrefaceDialogRef {
   open: (conferenceUrl: string) => void;
@@ -87,7 +83,7 @@ const VideoActionBtn = styled.button<{ $isDisabled: boolean }>`
   width: 40px;
   height: 40px;
   background: ${(props) =>
-    props.$isDisabled ? theme.colors.red[400] : "rgba(255, 255, 255, 0.2)"};
+    props.$isDisabled ? theme.colors.red[400] : 'rgba(255, 255, 255, 0.2)'};
   border-radius: 12px;
   color: #fff;
   display: flex;
@@ -97,7 +93,7 @@ const VideoActionBtn = styled.button<{ $isDisabled: boolean }>`
 
   &:hover {
     background: ${(props) =>
-      props.$isDisabled ? theme.colors.red[500] : "rgba(255, 255, 255, 0.4)"};
+      props.$isDisabled ? theme.colors.red[500] : 'rgba(255, 255, 255, 0.4)'};
   }
 `;
 
@@ -180,22 +176,17 @@ const SessionPrefaceDialog = React.forwardRef<SessionPrefaceDialogRef, Props>(
           isOpen={isOpen}
           onClose={() => {
             onClose();
-          }}
-        >
+          }}>
           <ModalOverlay />
           <ModalContent>
-            <ModalBody
-              padding={0}
-              paddingBottom={"0 !important"}
-              flexDirection="column"
-            >
-              <Box w={"100%"} mt={5} textAlign="center">
+            <ModalBody padding={0} paddingBottom={'0 !important'} flexDirection="column">
+              <Box w={'100%'} mt={5} textAlign="center">
                 <Text className="sub3" color="text.200">
                   {title}
                 </Text>
                 <Divider mb={0} orientation="horizontal" />
               </Box>
-              <Box w={"100%"} p={6} pb={"46px"}>
+              <Box w={'100%'} p={6} pb={'46px'}>
                 <VideoContainer>
                   <video
                     hidden={videoOff}
@@ -208,16 +199,10 @@ const SessionPrefaceDialog = React.forwardRef<SessionPrefaceDialogRef, Props>(
                   />
                   <UserInitial>{initial}</UserInitial>
                   <VideoActions>
-                    <VideoActionBtn
-                      onClick={() => setAudioOff((v) => !v)}
-                      $isDisabled={audioOff}
-                    >
+                    <VideoActionBtn onClick={() => setAudioOff((v) => !v)} $isDisabled={audioOff}>
                       {!audioOff ? <FaMicrophone /> : <FaMicrophoneSlash />}
                     </VideoActionBtn>
-                    <VideoActionBtn
-                      onClick={() => setVideoOff((v) => !v)}
-                      $isDisabled={videoOff}
-                    >
+                    <VideoActionBtn onClick={() => setVideoOff((v) => !v)} $isDisabled={videoOff}>
                       {!videoOff ? <FaVideo /> : <FaVideoSlash />}
                     </VideoActionBtn>
                   </VideoActions>
@@ -225,11 +210,7 @@ const SessionPrefaceDialog = React.forwardRef<SessionPrefaceDialogRef, Props>(
               </Box>
             </ModalBody>
             <ModalFooter>
-              <Button
-                isDisabled={!conferenceUrl}
-                as={"a"}
-                href={conferenceUrl as string}
-              >
+              <Button isDisabled={!conferenceUrl} as={'a'} href={conferenceUrl as string}>
                 Join Lesson
               </Button>
             </ModalFooter>

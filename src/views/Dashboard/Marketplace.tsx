@@ -1,67 +1,68 @@
-import React, { useCallback, useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
 import {
-  Button,
   Box,
-  SimpleGrid,
-  Stack,
-  HStack,
-  Select,
+  Button,
   Flex,
-  Spacer,
   FormControl,
-  Text,
+  FormLabel,
+  HStack,
   Menu,
   MenuButton,
-  MenuList,
   MenuItem,
-  FormLabel,
-} from "@chakra-ui/react";
-import { Select as MultiSelect } from "chakra-react-select";
-import Banner from "./components/Banner";
-import TutorCard from "./components/TutorCard";
-import { MdTune } from "react-icons/md";
-import { CustomButton } from "./layout";
-import Star5 from "../../assets/5star.svg";
-import { BsStarFill } from "react-icons/bs";
-import { FiChevronDown } from "react-icons/fi";
-import { Course, Schedule } from "../../types";
-import { useFormik } from "formik";
-import ApiService from "../../services/ApiService";
-import TimezoneSelect from "../../components/TimezoneSelect";
-import TimePicker from "../../components/TimePicker";
-import { numberToDayOfWeekName, educationLevelOptions } from "../../util";
-import CustomSelect from "../../components/Select";
-import moment from "moment";
-import resourceStore from "../../state/resourceStore";
+  MenuList,
+  Select,
+  SimpleGrid,
+  Spacer,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
+import { Select as MultiSelect } from 'chakra-react-select';
+import { useFormik } from 'formik';
+import moment from 'moment';
+import React, { useCallback, useEffect, useState } from 'react';
+import { BsStarFill } from 'react-icons/bs';
+import { FiChevronDown } from 'react-icons/fi';
+import { MdTune } from 'react-icons/md';
+import { useSearchParams } from 'react-router-dom';
+
+import Star5 from '../../assets/5star.svg';
+import CustomSelect from '../../components/Select';
+import TimePicker from '../../components/TimePicker';
+import TimezoneSelect from '../../components/TimezoneSelect';
+import ApiService from '../../services/ApiService';
+import resourceStore from '../../state/resourceStore';
+import { Course, Schedule } from '../../types';
+import { educationLevelOptions, numberToDayOfWeekName } from '../../util';
+import Banner from './components/Banner';
+import TutorCard from './components/TutorCard';
+import { CustomButton } from './layout';
 
 const levelOptions = [
-  { value: "a-level", label: "A-Level", id: 1 },
-  { value: "gcse", label: "GCSE", id: 2 },
-  { value: "university", label: "University", id: 3 },
-  { value: "grade10", label: "Grade 10", id: 4 },
-  { value: "grade11", label: "Grade 11", id: 5 },
-  { value: "grade12", label: "Grade 12", id: 6 },
+  { value: 'a-level', label: 'A-Level', id: 1 },
+  { value: 'gcse', label: 'GCSE', id: 2 },
+  { value: 'university', label: 'University', id: 3 },
+  { value: 'grade10', label: 'Grade 10', id: 4 },
+  { value: 'grade11', label: 'Grade 11', id: 5 },
+  { value: 'grade12', label: 'Grade 12', id: 6 },
 ];
 const priceOptions = [
-  { value: "10-12", label: "$10.00 - $12.00", id: 1 },
-  { value: "12-15", label: "$12.00 - $15.00", id: 2 },
-  { value: "15-20", label: "$15.00 - $20.00", id: 3 },
-  { value: "20-25", label: "$20.00 - $25.00", id: 4 },
+  { value: '10-12', label: '$10.00 - $12.00', id: 1 },
+  { value: '12-15', label: '$12.00 - $15.00', id: 2 },
+  { value: '15-20', label: '$15.00 - $20.00', id: 3 },
+  { value: '20-25', label: '$20.00 - $25.00', id: 4 },
 ];
 
 const ratingOptions = [
-  { value: "1star", label: "⭐", id: 1 },
-  { value: "2star", label: "⭐⭐", id: 2 },
-  { value: "3star", label: "⭐⭐⭐", id: 3 },
-  { value: "4star", label: "⭐⭐⭐⭐", id: 4 },
-  { value: "5star", label: "⭐⭐⭐⭐⭐", id: 5 },
+  { value: '1star', label: '⭐', id: 1 },
+  { value: '2star', label: '⭐⭐', id: 2 },
+  { value: '3star', label: '⭐⭐⭐', id: 3 },
+  { value: '4star', label: '⭐⭐⭐⭐', id: 4 },
+  { value: '5star', label: '⭐⭐⭐⭐⭐', id: 5 },
 ];
 
 const dayOptions = [...new Array(7)].map((_, i) => {
   return { label: numberToDayOfWeekName(i), value: i };
 });
-const defaultTime = "";
+const defaultTime = '';
 
 export default function Marketplace() {
   const { courses: courseList } = resourceStore();
@@ -69,21 +70,21 @@ export default function Marketplace() {
   const [loadingData, setLoadingData] = useState(false);
   const [tz, setTz] = useState<any>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [fromTime, setFromTime] = useState("");
-  const [toTime, setToTime] = useState("");
+  const [fromTime, setFromTime] = useState('');
+  const [toTime, setToTime] = useState('');
   const [days, setDays] = useState<Array<any>>([]);
 
   const formik = useFormik({
     initialValues: {
-      subject: "",
-      level: "",
+      subject: '',
+      level: '',
       //   toTime: toTime,
       //   fromTime: fromTime,
       //   days: days,
       //   tz: tz,
 
-      price: "",
-      rating: "",
+      price: '',
+      rating: '',
     },
     onSubmit: (values) => {
       alert(JSON.stringify(values, null, 2));
@@ -104,8 +105,8 @@ export default function Marketplace() {
     let formData = {
       courses: formik.values.subject.toLowerCase(),
       teachLevel: formik.values.level,
-      availability: "",
-      tz: "Africa/Lagos",
+      availability: '',
+      tz: 'Africa/Lagos',
       days: days,
       price: formik.values.price,
       rating: formik.values.rating,
@@ -123,26 +124,26 @@ export default function Marketplace() {
     getData();
   }, []);
   console.log(allTutors);
-  console.log("TZ", tz);
+  console.log('TZ', tz);
 
   const resetForm = () => {
     formik.resetForm();
     setTz(defaultTime);
     setDays([]);
-    setFromTime("");
-    setToTime("");
+    setFromTime('');
+    setToTime('');
     getData();
   };
 
   return (
     <>
-      <Box bgColor={"black"} borderRadius={"14px"} height={"200px"}>
+      <Box bgColor={'black'} borderRadius={'14px'} height={'200px'}>
         <Banner />
       </Box>
       <Box mt={3}>
         <Flex>
           <HStack spacing={1} direction="row">
-            <Flex alignItems={"center"} mt={2}>
+            <Flex alignItems={'center'} mt={2}>
               <Text>
                 <MdTune />
               </Text>
@@ -154,8 +155,7 @@ export default function Marketplace() {
               placeholder="Subject"
               name="subject"
               value={formik.values.subject}
-              onChange={formik.handleChange}
-            >
+              onChange={formik.handleChange}>
               {courseList.map((course) => (
                 <option key={course._id} value={course._id}>
                   {course.label}
@@ -169,15 +169,14 @@ export default function Marketplace() {
               placeholder="Level"
               name="level"
               value={formik.values.level}
-              onChange={formik.handleChange}
-            >
+              onChange={formik.handleChange}>
               {educationLevelOptions.map((level) => (
                 <option value={level.value}>{level.label}</option>
               ))}
             </Select>
 
             <Box>
-              {" "}
+              {' '}
               <Menu>
                 <MenuButton
                   as={Button}
@@ -185,8 +184,7 @@ export default function Marketplace() {
                   rightIcon={<FiChevronDown />}
                   fontSize={14}
                   fontWeight={500}
-                  color="#5C5F64"
-                >
+                  color="#5C5F64">
                   Availability
                 </MenuButton>
                 <MenuList p={5}>
@@ -201,7 +199,7 @@ export default function Marketplace() {
                       onChange={(v) => setDays(v as Array<any>)}
                       tagVariant="solid"
                       options={dayOptions}
-                      size={"md"}
+                      size={'md'}
                     />
                   </Box>
                   {/* <Box>
@@ -218,14 +216,14 @@ export default function Marketplace() {
                   </Box> */}
                   <Box my={3}>
                     <FormControl>
-                      <Box display={"flex"} alignItems="center" gap={"7px"}>
+                      <Box display={'flex'} alignItems="center" gap={'7px'}>
                         <Box>
                           <Box fontSize={14} my={2} color="#5C5F64">
                             Start Time
                           </Box>
                           <TimePicker
-                            inputGroupProps={{ size: "lg" }}
-                            inputProps={{ size: "md", placeholder: "01:00 PM" }}
+                            inputGroupProps={{ size: 'lg' }}
+                            inputProps={{ size: 'md', placeholder: '01:00 PM' }}
                             value={fromTime}
                             onChange={(v: string) => {
                               setFromTime(v);
@@ -239,8 +237,8 @@ export default function Marketplace() {
                           </Box>
 
                           <TimePicker
-                            inputGroupProps={{ size: "md" }}
-                            inputProps={{ placeholder: "06:00 PM" }}
+                            inputGroupProps={{ size: 'md' }}
+                            inputProps={{ placeholder: '06:00 PM' }}
                             value={toTime}
                             onChange={(v: string) => {
                               setToTime(v);
@@ -259,8 +257,7 @@ export default function Marketplace() {
               placeholder="Price"
               name="price"
               value={formik.values.price}
-              onChange={formik.handleChange}
-            >
+              onChange={formik.handleChange}>
               {priceOptions.map((price) => (
                 <option key={price.id} value={price.value}>
                   {price.label}
@@ -273,8 +270,7 @@ export default function Marketplace() {
               placeholder="Rating"
               name="rating"
               value={formik.values.rating}
-              onChange={formik.handleChange}
-            >
+              onChange={formik.handleChange}>
               {ratingOptions.map((rating) => (
                 <option key={rating.id} value={rating.value}>
                   {rating.label}
@@ -285,15 +281,15 @@ export default function Marketplace() {
 
           <Spacer />
           <CustomButton
-            buttonText={"Clear Filters"}
+            buttonText={'Clear Filters'}
             buttonType="outlined"
-            fontStyle={{ fontSize: "12px", fontWeight: 500 }}
+            fontStyle={{ fontSize: '12px', fontWeight: 500 }}
             onClick={resetForm}
           />
           <CustomButton
-            buttonText={"Apply Filters"}
+            buttonText={'Apply Filters'}
             buttonType="fill"
-            fontStyle={{ fontSize: "12px", fontWeight: 500 }}
+            fontStyle={{ fontSize: '12px', fontWeight: 500 }}
             onClick={getFilteredData}
           />
         </Flex>

@@ -1,6 +1,6 @@
-import React from "react";
-import { Box, Heading, Stack, Text, theme } from "@chakra-ui/react";
-import styled from "styled-components";
+import { Box, Heading, Stack, Text, theme } from '@chakra-ui/react';
+import React from 'react';
+import styled from 'styled-components';
 
 type Props = {
   title: string;
@@ -34,7 +34,7 @@ const ImageContainer = styled(Box)`
   }
 
   &:before {
-    content: "";
+    content: '';
     position: absolute;
     height: 33px;
     left: 0;
@@ -46,7 +46,7 @@ const ImageContainer = styled(Box)`
   }
 
   &:after {
-    content: "";
+    content: '';
     position: absolute;
     width: 36px;
     top: 0;
@@ -82,8 +82,7 @@ const Root = styled(Box)`
   width: 366px;
   background: #ffffff;
   border: 1px solid #f4f5f5;
-  box-shadow: 0px 6px 16px rgba(102, 92, 112, 0.08),
-    0px 0px 0px rgba(102, 92, 112, 0.05);
+  box-shadow: 0px 6px 16px rgba(102, 92, 112, 0.08), 0px 0px 0px rgba(102, 92, 112, 0.05);
   border-radius: 10px;
   padding: 20px;
 `;

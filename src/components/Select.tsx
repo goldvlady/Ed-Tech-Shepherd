@@ -1,6 +1,6 @@
-import { Select } from "chakra-react-select";
-import { Checkbox, Flex } from "@chakra-ui/react";
-import styled from "styled-components";
+import { Checkbox, Flex } from '@chakra-ui/react';
+import { Select } from 'chakra-react-select';
+import styled from 'styled-components';
 
 export interface Option {
   value: string;
@@ -18,7 +18,7 @@ const StyledCheckbox = styled(Checkbox)`
 `;
 
 const StyledSelect = styled(Select)`
-  [role="button"] {
+  [role='button'] {
     ${StyledCheckbox} {
       display: flex;
     }
@@ -30,13 +30,13 @@ const SelectComponent: React.FC<Props> = ({ options, ...rest }) => {
     <StyledSelect
       options={(options as Option[]).map((o) => {
         if (rest.isMulti) {
-          const isSelected = !![
-            ...((rest.defaultValue || rest.value) as Option[]),
-          ].find((v) => v.value === o.value);
+          const isSelected = !![...((rest.defaultValue || rest.value) as Option[])].find(
+            (v) => v.value === o.value
+          );
           return {
             ...o,
             label: (
-              <Flex gap={"5px"}>
+              <Flex gap={'5px'}>
                 <StyledCheckbox readOnly isChecked={isSelected} /> {o.label}
               </Flex>
             ),
@@ -50,17 +50,17 @@ const SelectComponent: React.FC<Props> = ({ options, ...rest }) => {
       chakraStyles={{
         menu: () => ({
           zIndex: 9999,
-          position: "absolute",
+          position: 'absolute',
           left: 0,
           right: 0,
         }),
         option: (provided, { isSelected, isFocused }) => ({
           ...provided,
-          color: "#585F68",
-          fontWeight: "500",
-          fontSize: "14px",
+          color: '#585F68',
+          fontWeight: '500',
+          fontSize: '14px',
           ...((isSelected || isFocused) && {
-            background: "#F2F4F7",
+            background: '#F2F4F7',
           }),
         }),
       }}

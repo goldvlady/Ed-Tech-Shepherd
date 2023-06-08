@@ -1,9 +1,9 @@
-import * as React from "react";
-import styled, { css } from "styled-components";
+import * as React from 'react';
+import styled, { css } from 'styled-components';
 
 function createCSS() {
   let i = 1;
-  let styles = "";
+  let styles = '';
 
   while (i < 12) {
     styles += `
@@ -62,8 +62,7 @@ const Logo: React.FC<Props> = ({ dark = false, ...rest }) => {
       width="572"
       height="234"
       viewBox="0 0 572 234"
-      {...rest}
-    >
+      {...rest}>
       {dark ? (
         <>
           <path

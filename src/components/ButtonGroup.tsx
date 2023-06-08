@@ -1,7 +1,8 @@
-import * as React from "react";
-import styled from "styled-components";
-import { ButtonGroup as ChakraButtonGroup } from "@chakra-ui/react";
-import theme from "../theme";
+import { ButtonGroup as ChakraButtonGroup } from '@chakra-ui/react';
+import * as React from 'react';
+import styled from 'styled-components';
+
+import theme from '../theme';
 
 const Root = styled(ChakraButtonGroup)`
   --chakra-radii-md: 6px;

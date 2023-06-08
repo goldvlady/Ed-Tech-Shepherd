@@ -1,7 +1,5 @@
-import React from "react";
 import {
   Box,
-  Text,
   Step,
   StepDescription,
   StepIcon,
@@ -11,24 +9,24 @@ import {
   StepStatus,
   StepTitle,
   Stepper,
+  Text,
   useSteps,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
+import React from 'react';
 
 const steps = [
   {
-    title: "Send a Proposal",
-    description:
-      "Find your desired tutor and prepare an offer on your terms and send to the tutor",
+    title: 'Send a Proposal',
+    description: 'Find your desired tutor and prepare an offer on your terms and send to the tutor',
   },
   {
-    title: "Get a Response",
-    description:
-      "Proceed to provide your payment details once the tutor accepts your offer",
+    title: 'Get a Response',
+    description: 'Proceed to provide your payment details once the tutor accepts your offer',
   },
   {
-    title: "A Test-Run",
+    title: 'A Test-Run',
     description:
-      "You won’t be charged until after your first session, you may cancel after the first lesson.",
+      'You won’t be charged until after your first session, you may cancel after the first lesson.',
   },
 ];
 function HowItWorks() {
@@ -37,13 +35,7 @@ function HowItWorks() {
     count: steps.length,
   });
   return (
-    <Stepper
-      index={activeStep}
-      orientation="vertical"
-      height="235px"
-      gap="0"
-      size={"xs"}
-    >
+    <Stepper index={activeStep} orientation="vertical" height="235px" gap="0" size={'xs'}>
       {steps.map((step, index) => (
         <Step key={index}>
           <StepIndicator>

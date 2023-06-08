@@ -1,22 +1,16 @@
-import React from "react";
-import {
-  Box,
-  Text,
-  HStack,
-  VStack,
-  IconButton,
-  Spinner,
-} from "@chakra-ui/react";
-import styled from "styled-components";
-import theme from "../theme";
-import { FiFile, FiTrash } from "react-icons/fi";
+import { Box, HStack, IconButton, Spinner, Text, VStack } from '@chakra-ui/react';
+import React from 'react';
+import { FiFile, FiTrash } from 'react-icons/fi';
+import styled from 'styled-components';
+
+import theme from '../theme';
 
 type Props = {
   file: File;
   onDeleteClicked?: React.MouseEventHandler<HTMLButtonElement>;
   uploading?: boolean;
   prefix?: React.ReactNode;
-} & Omit<React.ComponentProps<typeof Box>, "prefix">;
+} & Omit<React.ComponentProps<typeof Box>, 'prefix'>;
 
 const Root = styled(Box)`
   padding-inline: var(--chakra-space-4);
@@ -33,8 +27,7 @@ const FileDisplay: React.FC<Props> = ({
   ...rest
 }) => {
   const formatFileSize = (size: number) => {
-    if ((size + "").length < 7)
-      return `${Math.round(+size / 1024).toFixed(2)}kb`;
+    if ((size + '').length < 7) return `${Math.round(+size / 1024).toFixed(2)}kb`;
 
     return `${(Math.round(+size / 1024) / 1000).toFixed(2)}MB`;
   };
@@ -51,10 +44,10 @@ const FileDisplay: React.FC<Props> = ({
             <FiFile style={{ flexShrink: 0 }} />
           )}
           <VStack spacing={0} alignItems="flex-start">
-            <Text m={0} wordBreak={"break-word"}>
+            <Text m={0} wordBreak={'break-word'}>
               {file.name}
             </Text>
-            <Text variant={"muted"} m={0}>
+            <Text variant={'muted'} m={0}>
               {formatFileSize(file.size)}
             </Text>
           </VStack>

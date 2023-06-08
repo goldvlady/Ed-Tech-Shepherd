@@ -1,14 +1,15 @@
-import * as React from "react";
-import moment, { Moment } from "moment-timezone";
-import { useEffect, useRef, useState } from "react";
-import { Box, Checkbox, Text } from "@chakra-ui/react";
-import styled from "styled-components";
-import theme from "../theme";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import { Slot } from "../types";
-import { find, isEmpty, xorBy } from "lodash";
-import SliderNavBtn from "./SliderNavBtn";
-import { SCHEDULE_FORMAT } from "../config";
+import { Box, Checkbox, Text } from '@chakra-ui/react';
+import { find, isEmpty, xorBy } from 'lodash';
+import moment, { Moment } from 'moment-timezone';
+import * as React from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import styled from 'styled-components';
+
+import { SCHEDULE_FORMAT } from '../config';
+import theme from '../theme';
+import { Slot } from '../types';
+import SliderNavBtn from './SliderNavBtn';
 
 const DateRow = styled(Box)`
   position: relative;
@@ -65,7 +66,7 @@ const DateColHeader = styled(Box)`
   overflow: hidden;
 `;
 
-const SlotButton = styled("button")<{ $active: boolean }>`
+const SlotButton = styled('button')<{ $active: boolean }>`
   display: flex;
   gap: 10px;
   align-items: center;
@@ -87,7 +88,7 @@ const SlotButton = styled("button")<{ $active: boolean }>`
 border-color: ${theme.colors.primary[500]};
 background: #FFF;
 `
-      : ""};
+      : ''};
 `;
 
 const DateColContent = styled(Box)`
@@ -98,7 +99,7 @@ const DateColContent = styled(Box)`
   overflow: scroll;
 
   &:after {
-    content: "";
+    content: '';
     position: absolute;
     background: ${theme.colors.gray[200]};
     right: 0px;
@@ -128,7 +129,7 @@ const Root = styled(Box)`
 
 type Props = {
   value: Slot[];
-  onChange: (value: Props["value"]) => void;
+  onChange: (value: Props['value']) => void;
   schedule: {
     date: Moment;
     slots: Slot[];
@@ -155,7 +156,7 @@ const Scheduler: React.FC<Props> = ({ value, onChange, schedule }) => {
     state.scroller?.scrollBy({
       left: state.itemWidth * 1,
       top: 0,
-      behavior: "smooth",
+      behavior: 'smooth',
     });
   };
 
@@ -163,14 +164,14 @@ const Scheduler: React.FC<Props> = ({ value, onChange, schedule }) => {
     state.scroller.scrollBy({
       left: -state.itemWidth * 1,
       top: 0,
-      behavior: "smooth",
+      behavior: 'smooth',
     });
   };
 
   useEffect(() => {
     const options = {
       root: containerRef.current,
-      rootMargin: "0px",
+      rootMargin: '0px',
       threshold: 0.9,
     };
 
@@ -222,7 +223,7 @@ const Scheduler: React.FC<Props> = ({ value, onChange, schedule }) => {
   }, []);
 
   const toggleArrayValue = (v: Slot) => {
-    onChange(xorBy(value, [v], "begin"));
+    onChange(xorBy(value, [v], 'begin'));
   };
 
   return (
@@ -240,20 +241,19 @@ const Scheduler: React.FC<Props> = ({ value, onChange, schedule }) => {
         )}
         <DateRowDates className="scrollbar-hidden" ref={containerRef}>
           {schedule.map((d) => {
-            const formattedDate = d.date.format("MMM D");
+            const formattedDate = d.date.format('MMM D');
 
             return (
               <DateCol key={formattedDate}>
                 <DateColHeader>
                   <Text
                     fontWeight={500}
-                    variant={"muted"}
-                    textTransform={"uppercase"}
-                    fontSize={"small"}
-                  >
-                    {d.date.format("ddd")}
+                    variant={'muted'}
+                    textTransform={'uppercase'}
+                    fontSize={'small'}>
+                    {d.date.format('ddd')}
                   </Text>
-                  <Text fontSize={"md"}>{formattedDate}</Text>
+                  <Text fontSize={'md'}>{formattedDate}</Text>
                 </DateColHeader>
                 <DateColContent>
                   {!isEmpty(d.slots) ? (
@@ -263,48 +263,36 @@ const Scheduler: React.FC<Props> = ({ value, onChange, schedule }) => {
                         <SlotButton
                           key={slot.begin}
                           $active={active}
-                          onClick={() => toggleArrayValue(slot)}
-                        >
+                          onClick={() => toggleArrayValue(slot)}>
                           <Checkbox
-                            pointerEvents={"none"}
+                            pointerEvents={'none'}
                             size="lg"
                             isChecked={active}
-                            variant={"looney"}
+                            variant={'looney'}
                           />
-                          <Box display={"flex"} alignItems="center">
-                            <Text>
-                              {moment(slot.begin).format(SCHEDULE_FORMAT)}
-                            </Text>{" "}
-                            <FiChevronRight
-                              style={{ fontSize: "16px", marginInline: "7px" }}
-                            />{" "}
-                            <Text>
-                              {moment(slot.end).format(SCHEDULE_FORMAT)}
-                            </Text>
+                          <Box display={'flex'} alignItems="center">
+                            <Text>{moment(slot.begin).format(SCHEDULE_FORMAT)}</Text>{' '}
+                            <FiChevronRight style={{ fontSize: '16px', marginInline: '7px' }} />{' '}
+                            <Text>{moment(slot.end).format(SCHEDULE_FORMAT)}</Text>
                           </Box>
                         </SlotButton>
                       );
                     })
                   ) : (
                     <Box
-                      width={"100%"}
-                      height={"100%"}
+                      width={'100%'}
+                      height={'100%'}
                       display="flex"
-                      flexDirection={"column"}
-                      justifyContent={"center"}
-                      alignItems="center"
-                    >
+                      flexDirection={'column'}
+                      justifyContent={'center'}
+                      alignItems="center">
                       <img
                         alt="no availability"
-                        style={{ height: "80px" }}
+                        style={{ height: '80px' }}
                         src="/images/empty-state-schedule.png"
                       />
                       <Box mt={2}>
-                        <Text
-                          whiteSpace={"normal"}
-                          as="small"
-                          variant={"muted"}
-                        >
+                        <Text whiteSpace={'normal'} as="small" variant={'muted'}>
                           There are no open slots on this day
                         </Text>
                       </Box>

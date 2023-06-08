@@ -1,7 +1,8 @@
-import { Box, SimpleGrid, Text } from "@chakra-ui/react";
-import * as React from "react";
-import styled from "styled-components";
-import theme from "../theme";
+import { Box, SimpleGrid, Text } from '@chakra-ui/react';
+import * as React from 'react';
+import styled from 'styled-components';
+
+import theme from '../theme';
 
 const Title = styled(Text)`
   font-weight: 400;
@@ -33,7 +34,7 @@ const IconParent = styled(Box)`
   }
 `;
 
-const StyledOption = styled("button")`
+const StyledOption = styled('button')`
   position: relative;
   display: flex;
   flex-direction: column;
@@ -79,8 +80,8 @@ type Option = {
 
 type Props = {
   options: Option[];
-  value: Option["value"];
-  onChange: (value: Props["value"]) => void;
+  value: Option['value'];
+  onChange: (value: Props['value']) => void;
   optionProps?: React.ComponentProps<typeof StyledOption>;
   showRadio?: boolean;
 };
@@ -102,33 +103,17 @@ export const LargeSelect: React.FC<Props> = ({
             key={o.value}
             type="button"
             role="button"
-            className={value === o.value ? "active" : ""}
-          >
+            className={value === o.value ? 'active' : ''}>
             {!!o.icon && (
-              <IconParent
-                marginBottom={"25.67px"}
-                display="flex"
-                alignItems="center"
-              >
+              <IconParent marginBottom={'25.67px'} display="flex" alignItems="center">
                 {o.icon}
               </IconParent>
             )}
-            {typeof o.title === "string" ? <Title>{o.title}</Title> : o.title}
-            <Box display="flex" alignItems={"flex-start"} flexShrink={0}>
-              {typeof o.subtitle === "string" ? (
-                <Subtitle>{o.subtitle}</Subtitle>
-              ) : (
-                o.subtitle
-              )}
+            {typeof o.title === 'string' ? <Title>{o.title}</Title> : o.title}
+            <Box display="flex" alignItems={'flex-start'} flexShrink={0}>
+              {typeof o.subtitle === 'string' ? <Subtitle>{o.subtitle}</Subtitle> : o.subtitle}
             </Box>
-            {showRadio && (
-              <Radio
-                readOnly
-                type="radio"
-                checked={o.value === value}
-                tabIndex={-1}
-              />
-            )}
+            {showRadio && <Radio readOnly type="radio" checked={o.value === value} tabIndex={-1} />}
           </StyledOption>
         ))}
       </SimpleGrid>

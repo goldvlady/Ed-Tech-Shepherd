@@ -1,9 +1,10 @@
-import { Box, SimpleGrid, Text } from "@chakra-ui/react";
-import { includes, xor } from "lodash";
-import * as React from "react";
-import styled from "styled-components";
-import theme from "../theme";
-import { Course } from "../types";
+import { Box, SimpleGrid, Text } from '@chakra-ui/react';
+import { includes, xor } from 'lodash';
+import * as React from 'react';
+import styled from 'styled-components';
+
+import theme from '../theme';
+import { Course } from '../types';
 
 const Root = styled(Box)`
   display: flex;
@@ -11,7 +12,7 @@ const Root = styled(Box)`
   justify-content: center;
 `;
 
-const StyledOption = styled("button")`
+const StyledOption = styled('button')`
   width: 100%;
   height: 172px;
   display: flex;
@@ -58,15 +59,15 @@ const StyledOptionIcon = styled.img`
   margin: 0 auto;
 `;
 
-type Option = Omit<Course, "iconSrc"> & {
+type Option = Omit<Course, 'iconSrc'> & {
   value: any;
   iconSrc?: string | React.ReactNode;
 };
 
 type Props = {
   options: Option[];
-  value: Option["value"][] | Option["value"];
-  onChange: (value: Props["value"]) => void;
+  value: Option['value'][] | Option['value'];
+  onChange: (value: Props['value']) => void;
   multi?: boolean;
 };
 
@@ -76,29 +77,26 @@ export const CourseSelect: React.FC<Props> = ({
   multi = false,
   onChange,
 }: Props) => {
-  const toggleArrayValue = (v: Option["value"]) => {
+  const toggleArrayValue = (v: Option['value']) => {
     multi ? onChange(xor(value, [v])) : onChange(v);
   };
 
   return (
     <Root>
-      <SimpleGrid width={"100%"} columns={{ base: 1, sm: 2 }} spacing="15px">
+      <SimpleGrid width={'100%'} columns={{ base: 1, sm: 2 }} spacing="15px">
         {options.map((o) => (
           <StyledOption
             onClick={() => toggleArrayValue(o.value)}
             key={o.value}
             type="button"
             role="button"
-            className={`${
-              (multi ? includes(value, o.value) : value === o.value)
-                ? "active"
-                : ""
-            } ${o._id}`}
-          >
+            className={`${(multi ? includes(value, o.value) : value === o.value) ? 'active' : ''} ${
+              o._id
+            }`}>
             <Box>
               {!!o.iconSrc && (
-                <Box marginBottom={"18px"}>
-                  {typeof o.iconSrc === "string" ? (
+                <Box marginBottom={'18px'}>
+                  {typeof o.iconSrc === 'string' ? (
                     <StyledOptionIcon alt={o.label} src={o.iconSrc} />
                   ) : (
                     o.iconSrc

@@ -1,13 +1,14 @@
-import { Box } from "@chakra-ui/react";
-import { isEmpty } from "lodash";
-import * as React from "react";
-import { useEffect, useRef, useState } from "react";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import styled from "styled-components";
-import theme from "../theme";
-import { Tutor } from "../types";
-import SliderNavBtn from "./SliderNavBtn";
-import TutorCard from "./TutorCard";
+import { Box } from '@chakra-ui/react';
+import { isEmpty } from 'lodash';
+import * as React from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import styled from 'styled-components';
+
+import theme from '../theme';
+import { Tutor } from '../types';
+import SliderNavBtn from './SliderNavBtn';
+import TutorCard from './TutorCard';
 
 const SliderNavParent = styled(Box)`
   position: absolute;
@@ -45,7 +46,7 @@ const Item = styled(Box)`
 const StyledTutorCard = styled(TutorCard)<{ $active: boolean }>`
   cursor: pointer;
   box-shadow: ${(props) =>
-    props._active ? `${theme.colors.primary[500]} 0px 0px 0px 2px` : "none"};
+    props._active ? `${theme.colors.primary[500]} 0px 0px 0px 2px` : 'none'};
   ${(props) =>
     props._active
       ? `
@@ -60,7 +61,7 @@ const StyledTutorCard = styled(TutorCard)<{ $active: boolean }>`
     z-index: -1;
 }
 `
-      : ""}
+      : ''}
 `;
 
 const Root = styled(Box)`
@@ -82,15 +83,11 @@ const Root = styled(Box)`
 
 type Props = {
   options: Tutor[];
-  value: Tutor["_id"] | null;
-  onChange: (value: Props["value"]) => void;
+  value: Tutor['_id'] | null;
+  onChange: (value: Props['value']) => void;
 };
 
-export const TutorSelect: React.FC<Props> = ({
-  onChange,
-  options,
-  value,
-}: Props) => {
+export const TutorSelect: React.FC<Props> = ({ onChange, options, value }: Props) => {
   const containerRef = useRef<HTMLElement>(null);
   const carouselRef = useRef<HTMLElement>(null);
 
@@ -110,7 +107,7 @@ export const TutorSelect: React.FC<Props> = ({
     state.scroller?.scrollBy({
       left: state.itemWidth * 1,
       top: 0,
-      behavior: "smooth",
+      behavior: 'smooth',
     });
   };
 
@@ -118,14 +115,14 @@ export const TutorSelect: React.FC<Props> = ({
     state.scroller.scrollBy({
       left: -state.itemWidth * 1,
       top: 0,
-      behavior: "smooth",
+      behavior: 'smooth',
     });
   };
 
   useEffect(() => {
     const options = {
       root: containerRef.current,
-      rootMargin: "0px",
+      rootMargin: '0px',
       threshold: 0.9,
     };
 
@@ -176,7 +173,7 @@ export const TutorSelect: React.FC<Props> = ({
     };
   }, []);
 
-  const toggleValue = (v: Props["value"]) => {
+  const toggleValue = (v: Props['value']) => {
     onChange(v);
   };
 

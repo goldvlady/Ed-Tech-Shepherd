@@ -1,28 +1,28 @@
-import { useEffect, useRef, useState } from "react";
-import InputMask from "react-input-mask";
-import moment from "moment";
-import "react-day-picker/dist/style.css";
-import { DayPicker } from "react-day-picker";
-
 import {
+  Button,
   Input,
   InputGroup,
   InputProps,
-  Text,
+  InputRightAddon,
   InputRightElement,
   Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverBody,
-  Button,
   PopoverArrow,
+  PopoverBody,
   PopoverCloseButton,
+  PopoverContent,
   PopoverHeader,
-  InputRightAddon,
-} from "@chakra-ui/react";
-import styled from "styled-components";
-import { RiCalendarEventFill } from "react-icons/ri";
-import theme from "../theme";
+  PopoverTrigger,
+  Text,
+} from '@chakra-ui/react';
+import moment from 'moment';
+import { useEffect, useRef, useState } from 'react';
+import { DayPicker } from 'react-day-picker';
+import 'react-day-picker/dist/style.css';
+import { RiCalendarEventFill } from 'react-icons/ri';
+import InputMask from 'react-input-mask';
+import styled from 'styled-components';
+
+import theme from '../theme';
 
 interface DateInputProps {
   value: Date;
@@ -30,7 +30,7 @@ interface DateInputProps {
   onChange: (value: Date) => void;
 }
 
-export const FORMAT = "MM/DD/YYYY";
+export const FORMAT = 'MM/DD/YYYY';
 
 const StyledDatePicker = styled(DayPicker)`
   margin: 0;
@@ -87,7 +87,7 @@ const CalendarDateInput: React.FC<DateInputProps> = ({
                 inputProps.onClick(e);
               }
             }}
-            value={value ? moment(value).format(FORMAT) : ""}
+            value={value ? moment(value).format(FORMAT) : ''}
             isInvalid={!moment(value, FORMAT, true).isValid() && !!value}
             {...rest}
           />

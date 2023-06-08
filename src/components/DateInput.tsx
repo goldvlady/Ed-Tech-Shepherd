@@ -1,13 +1,7 @@
-import { useEffect, useRef } from "react";
-import InputMask from "react-input-mask";
-import moment from "moment";
-import {
-  Input,
-  InputGroup,
-  InputProps,
-  Text,
-  InputRightElement,
-} from "@chakra-ui/react";
+import { Input, InputGroup, InputProps, InputRightElement, Text } from '@chakra-ui/react';
+import moment from 'moment';
+import { useEffect, useRef } from 'react';
+import InputMask from 'react-input-mask';
 
 // @ts-ignore
 interface DateInputProps extends InputProps {
@@ -15,7 +9,7 @@ interface DateInputProps extends InputProps {
   onChange: (value: string) => void;
 }
 
-export const FORMAT = "MM/DD/YYYY";
+export const FORMAT = 'MM/DD/YYYY';
 
 const DateInput: React.FC<DateInputProps> = ({ value, onChange, ...rest }) => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -28,7 +22,7 @@ const DateInput: React.FC<DateInputProps> = ({ value, onChange, ...rest }) => {
   }, [value, onChange]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target?.value.replace(/_/g, "");
+    const newValue = e.target?.value.replace(/_/g, '');
     if (inputRef.current) {
       const previousCursorPosition = inputRef.current.selectionStart;
       onChange(newValue);
@@ -43,12 +37,7 @@ const DateInput: React.FC<DateInputProps> = ({ value, onChange, ...rest }) => {
   };
 
   return (
-    <InputMask
-      maskChar=""
-      mask="**/**/****"
-      value={value}
-      onChange={handleInputChange}
-    >
+    <InputMask maskChar="" mask="**/**/****" value={value} onChange={handleInputChange}>
       {
         // @ts-ignore
         (inputProps: InputProps) => (
@@ -61,17 +50,11 @@ const DateInput: React.FC<DateInputProps> = ({ value, onChange, ...rest }) => {
               {...rest}
             />
             <InputRightElement
-              top={"50%"}
-              transform={"translateY(-50%)"}
-              paddingRight={"20px"}
-              width="4.5rem"
-            >
-              <Text
-                color={"#969CA6"}
-                fontSize="12px"
-                fontWeight={400}
-                margin={0}
-              >
+              top={'50%'}
+              transform={'translateY(-50%)'}
+              paddingRight={'20px'}
+              width="4.5rem">
+              <Text color={'#969CA6'} fontSize="12px" fontWeight={400} margin={0}>
                 {FORMAT.toLowerCase()}
               </Text>
             </InputRightElement>
