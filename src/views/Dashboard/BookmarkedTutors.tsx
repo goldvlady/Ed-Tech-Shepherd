@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from "react";
 import {
   Box,
   Flex,
   SimpleGrid,
-  Tabs,
-  TabList,
   Tab,
-  TabPanels,
+  TabList,
   TabPanel,
+  TabPanels,
+  Tabs,
   Text,
-} from "@chakra-ui/react";
-import { useTitle } from "../../hooks";
-import TutorCard from "./components/TutorCard";
-import ApiService from "../../services/ApiService";
-import TutorAvi from "../../assets/tutoravi.svg";
+} from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+
+import TutorAvi from '../../assets/tutoravi.svg';
+import { useTitle } from '../../hooks';
+import ApiService from '../../services/ApiService';
+import TutorCard from './components/TutorCard';
 
 function BookmarkedTutors() {
   const [allTutors, setAllTutors] = useState<any>([]);
@@ -41,11 +42,11 @@ function BookmarkedTutors() {
   useEffect(() => {
     getBookmarkedTutors();
   }, []);
-  console.log("saved tutors", allTutors);
+  console.log('saved tutors', allTutors);
 
   return (
     <>
-      <Flex alignItems={"center"} gap={1}>
+      <Flex alignItems={'center'} gap={1}>
         <Box>
           <Text fontSize={24} fontWeight={600} color="text.200" mb={0}>
             Saved Tutors
@@ -56,22 +57,24 @@ function BookmarkedTutors() {
         </Box>
       </Flex>
 
-            <SimpleGrid minChildWidth="325px" spacing="30px">
-                {allTutors.map((tutor: any) => (
-                    <TutorCard
-                        key={tutor.tutor._id}
-                        id={tutor.tutor._id}
-                        name={`${tutor.tutor.name.first} ${tutor.tutor.name.last}`}
-                        levelOfEducation={tutor.tutor.highestLevelOfEducation}
-                        avatar={tutor.tutor.avatar}
-                        saved={true}
-                        description={tutor.tutor.description}
-                        rate={tutor.tutor.rate}
-                    />
-                ))}
-            </SimpleGrid>
-        </>
-    );
+      <SimpleGrid minChildWidth="325px" spacing="30px">
+        {allTutors.map((tutor: any) => (
+          <TutorCard
+            key={tutor.tutor._id}
+            id={tutor.tutor._id}
+            name={`${tutor.tutor.name.first} ${tutor.tutor.name.last}`}
+            levelOfEducation={tutor.tutor.highestLevelOfEducation}
+            avatar={tutor.tutor.avatar}
+            saved={true}
+            description={tutor.tutor.description}
+            rate={tutor.tutor.rate}
+            rating={tutor.tutor.rating}
+            reviewCount={tutor.tutor.reviewCount}
+          />
+        ))}
+      </SimpleGrid>
+    </>
+  );
 }
 
 export default BookmarkedTutors;
