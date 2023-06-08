@@ -36,7 +36,7 @@ export default function TutorCard(props: any) {
     } = props;
     return (
         <LinkBox as="article">
-            <Center>
+            <Center justifyContent="left">
                 <Stack
                     borderWidth="1px"
                     borderRadius="lg"
@@ -46,6 +46,7 @@ export default function TutorCard(props: any) {
                     bg={useColorModeValue('white', 'gray.900')}
                     boxShadow={'2xl'}
                     padding={2}
+                    position="relative"
                 >
                     <Image
                         objectFit="cover"
@@ -130,14 +131,14 @@ export default function TutorCard(props: any) {
                             )}
                         </LinkOverlay>
                     </Box>
+                    <Image
+                        src={saved ? Ribbon2 : Ribbon}
+                        position="absolute"
+                        top={2}
+                        right={2}
+                        width={4}
+                    />
                 </Stack>
-                <Image
-                    src={saved ? Ribbon2 : Ribbon}
-                    position="absolute"
-                    top={2}
-                    right={5}
-                    width={4}
-                />
             </Center>
         </LinkBox>
     );

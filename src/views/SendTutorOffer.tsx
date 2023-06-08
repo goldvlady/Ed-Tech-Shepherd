@@ -120,7 +120,10 @@ const SendTutorOffer = () => {
 
     const courseOptions = useMemo(
         () =>
-            tutor?.courses.map((c) => ({ label: c.label, value: c._id })) || [],
+            tutor?.courses.map((c: any) => ({
+                label: c.label,
+                value: c._id,
+            })) || [],
         [tutor]
     );
     const levelOptions = useMemo(
@@ -549,7 +552,9 @@ const SendTutorOffer = () => {
                                                             {isEditing ? (
                                                                 <Select
                                                                     defaultValue={courseOptions.find(
-                                                                        (s) =>
+                                                                        (
+                                                                            s: any
+                                                                        ) =>
                                                                             s.value ===
                                                                             field.value
                                                                     )}
@@ -597,7 +602,7 @@ const SendTutorOffer = () => {
                                                                     {
                                                                         courseOptions.find(
                                                                             (
-                                                                                s
+                                                                                s: any
                                                                             ) =>
                                                                                 s.value ===
                                                                                 field.value
