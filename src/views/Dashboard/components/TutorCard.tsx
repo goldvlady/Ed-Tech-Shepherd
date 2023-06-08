@@ -33,19 +33,22 @@ export default function TutorCard(props: any) {
         rate,
         saved,
         description,
+        rating,
+        reviewCount,
     } = props;
     return (
         <LinkBox as="article">
-            <Center>
+            <Center justifyContent="left">
                 <Stack
                     borderWidth="1px"
                     borderRadius="lg"
-                    w={{ sm: '100%', md: '540px' }}
+                    w={{ sm: '100%', md: '360px' }}
                     height={{ sm: '476px', md: '20rem', lg: '191px' }}
                     direction={{ base: 'column', md: 'row' }}
                     bg={useColorModeValue('white', 'gray.900')}
                     boxShadow={'2xl'}
                     padding={2}
+                    position="relative"
                 >
                     <Image
                         objectFit="cover"
@@ -54,7 +57,7 @@ export default function TutorCard(props: any) {
                         borderStartRadius={'8px'}
                         src={avatar}
                     />
-                    <Box position="relative">
+                    <Box position="relative" minWidth="220px">
                         <LinkOverlay
                             href={`/dashboard/find-tutor/tutor/?id=${id}`}
                         >
@@ -86,58 +89,57 @@ export default function TutorCard(props: any) {
                                         : ''}
                                 </Text>
                             </Flex>{' '}
-                            {use === 'my tutors' ? (
-                                <Text
-                                    width="fit-content"
-                                    bg="#f4f5f6"
-                                    py={2}
-                                    px={5}
-                                    borderRadius={6}
-                                    fontSize="12px"
-                                    fontWeight={500}
-                                    color="text.400"
+                        </LinkOverlay>
+                        {use === 'my tutors' ? (
+                            <Text
+                                width="fit-content"
+                                bg="#f4f5f6"
+                                py={2}
+                                px={5}
+                                borderRadius={6}
+                                fontSize="12px"
+                                fontWeight={500}
+                                color="text.400"
+                            >
+                                Lesson 1
+                            </Text>
+                        ) : (
+                            <Box>
+                                <Flex
+                                    position={'absolute'}
+                                    bottom={2}
+                                    alignItems="center"
+                                    width="full"
                                 >
-                                    Lesson 1
-                                </Text>
-                            ) : (
-                                <Box>
+                                    <Text fontSize={16} fontWeight={'semibold'}>
+                                        ${`${rate}.00 / hr`}
+                                    </Text>
+
+                                    <Spacer />
                                     <Flex>
-                                        <Text
-                                            fontSize={16}
-                                            fontWeight={'semibold'}
-                                        >
-                                            ${`${rate}.00 / hr`}
-                                        </Text>
-
-                                        <Spacer />
-
+                                        {' '}
+                                        <Image src={Star} boxSize={4} />
                                         <Text
                                             fontSize={12}
                                             fontWeight={400}
                                             color="#6E7682"
                                         >
-                                            <span
-                                                style={{
-                                                    display: 'inline-block',
-                                                }}
-                                            >
-                                                <img src={Star} />
-                                            </span>
-                                            4.2(175)
+                                            {` ${rating}(${reviewCount})`}
                                         </Text>
                                     </Flex>
-                                </Box>
-                            )}
-                        </LinkOverlay>
+                                </Flex>
+                            </Box>
+                        )}
                     </Box>
+
+                    <Image
+                        src={saved ? Ribbon2 : Ribbon}
+                        position="absolute"
+                        top={2}
+                        right={2}
+                        width={4}
+                    />
                 </Stack>
-                <Image
-                    src={saved ? Ribbon2 : Ribbon}
-                    position="absolute"
-                    top={2}
-                    right={5}
-                    width={4}
-                />
             </Center>
         </LinkBox>
     );

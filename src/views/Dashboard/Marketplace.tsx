@@ -29,6 +29,7 @@ import CustomSelect from '../../components/Select';
 import TimePicker from '../../components/TimePicker';
 import TimezoneSelect from '../../components/TimezoneSelect';
 import ApiService from '../../services/ApiService';
+import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
 import resourceStore from '../../state/resourceStore';
 import { Course, Schedule } from '../../types';
 import { educationLevelOptions, numberToDayOfWeekName } from '../../util';
@@ -133,6 +134,27 @@ export default function Marketplace() {
         setFromTime('');
         setToTime('');
         getData();
+    };
+
+    const { fetchBookmarkedTutors, tutors: bookmarkedTutors } =
+        bookmarkedTutorsStore();
+
+    const doFetchBookmarkedTutors = useCallback(async () => {
+        await fetchBookmarkedTutors();
+    }, []);
+
+    useEffect(() => {
+        doFetchBookmarkedTutors();
+    }, [doFetchBookmarkedTutors]);
+
+    const checkBookmarks = (id: string) => {
+        for (var i = 0; i < bookmarkedTutors.length; i++) {
+            if (bookmarkedTutors[i].tutor._id == id) {
+                return true;
+                break;
+            } else {
+            }
+        }
     };
 
     return (
@@ -345,6 +367,9 @@ export default function Marketplace() {
                             avatar={tutor.avatar}
                             rate={tutor.rate}
                             description={tutor.description}
+                            saved={checkBookmarks(tutor._id)}
+                            rating={tutor.rating}
+                            reviewCount={tutor.reviewCount}
                         />
                     ))}
                 </SimpleGrid>
