@@ -53,11 +53,11 @@ const priceOptions = [
 ];
 
 const ratingOptions = [
-    { value: '1star', label: '⭐', id: 1 },
-    { value: '2star', label: '⭐⭐', id: 2 },
-    { value: '3star', label: '⭐⭐⭐', id: 3 },
-    { value: '4star', label: '⭐⭐⭐⭐', id: 4 },
-    { value: '5star', label: '⭐⭐⭐⭐⭐', id: 5 },
+    { value: 1.0, label: '⭐', id: 1 },
+    { value: 2.0, label: '⭐⭐', id: 2 },
+    { value: 3.0, label: '⭐⭐⭐', id: 3 },
+    { value: 4.0, label: '⭐⭐⭐⭐', id: 4 },
+    { value: 5.0, label: '⭐⭐⭐⭐⭐', id: 5 },
 ];
 
 const dayOptions = [...new Array(7)].map((_, i) => {
@@ -110,7 +110,9 @@ export default function Marketplace() {
             tz: 'Africa/Lagos',
             days: days,
             price: formik.values.price,
-            rating: formik.values.rating,
+            floorRating: formik.values.rating,
+            startTime: toTime,
+            endTime: fromTime,
         };
         setLoadingData(true);
         try {
@@ -134,27 +136,6 @@ export default function Marketplace() {
         setFromTime('');
         setToTime('');
         getData();
-    };
-
-    const { fetchBookmarkedTutors, tutors: bookmarkedTutors } =
-        bookmarkedTutorsStore();
-
-    const doFetchBookmarkedTutors = useCallback(async () => {
-        await fetchBookmarkedTutors();
-    }, []);
-
-    useEffect(() => {
-        doFetchBookmarkedTutors();
-    }, [doFetchBookmarkedTutors]);
-
-    const checkBookmarks = (id: string) => {
-        for (var i = 0; i < bookmarkedTutors.length; i++) {
-            if (bookmarkedTutors[i].tutor._id == id) {
-                return true;
-                break;
-            } else {
-            }
-        }
     };
 
     return (
@@ -367,7 +348,6 @@ export default function Marketplace() {
                             avatar={tutor.avatar}
                             rate={tutor.rate}
                             description={tutor.description}
-                            saved={checkBookmarks(tutor._id)}
                             rating={tutor.rating}
                             reviewCount={tutor.reviewCount}
                         />

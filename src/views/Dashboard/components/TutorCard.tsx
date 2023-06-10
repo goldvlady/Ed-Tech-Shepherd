@@ -14,13 +14,16 @@ import {
     Text,
     VStack,
     useColorModeValue,
+    useToast,
 } from '@chakra-ui/react';
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 import Star from '../../../assets/littleStar.svg';
 import Ribbon2 from '../../../assets/ribbon-blue.svg';
 import Ribbon from '../../../assets/ribbon-grey.svg';
 import TutorAvi from '../../../assets/tutoravi.svg';
+import ApiService from '../../../services/ApiService';
+import bookmarkedTutorsStore from '../../../state/bookmarkedTutorsStore';
 import { textTruncate } from '../../../util';
 
 export default function TutorCard(props: any) {
@@ -31,11 +34,61 @@ export default function TutorCard(props: any) {
         avatar,
         use,
         rate,
-        saved,
         description,
         rating,
         reviewCount,
     } = props;
+    const toast = useToast();
+
+    const { fetchBookmarkedTutors, tutors: bookmarkedTutors } =
+        bookmarkedTutorsStore();
+
+    const doFetchBookmarkedTutors = useCallback(async () => {
+        await fetchBookmarkedTutors();
+    }, []);
+    const checkBookmarks = (id: string) => {
+        for (var i = 0; i < bookmarkedTutors.length; i++) {
+            if (bookmarkedTutors[i].tutor._id == id) {
+                return true;
+                break;
+            } else {
+            }
+        }
+    };
+
+    useEffect(() => {
+        doFetchBookmarkedTutors();
+    }, [doFetchBookmarkedTutors]);
+    const bookmarkTutor = async (id: string) => {
+        try {
+            const resp = await ApiService.toggleBookmarkedTutor(id);
+            console.log(resp);
+            if (checkBookmarks(id)) {
+                toast({
+                    title: 'Tutor removed from Bookmarks successfully',
+                    position: 'top-right',
+                    status: 'success',
+                    isClosable: true,
+                });
+            } else {
+                toast({
+                    title: 'Tutor saved successful',
+                    position: 'top-right',
+                    status: 'success',
+                    isClosable: true,
+                });
+            }
+            doFetchBookmarkedTutors();
+        } catch (e) {
+            toast({
+                title: 'An unknown error occured',
+                position: 'top-right',
+                status: 'error',
+                isClosable: true,
+            });
+        }
+    };
+
     return (
         <LinkBox as="article">
             <Center justifyContent="left">
@@ -133,11 +186,13 @@ export default function TutorCard(props: any) {
                     </Box>
 
                     <Image
-                        src={saved ? Ribbon2 : Ribbon}
+                        src={checkBookmarks(id) ? Ribbon2 : Ribbon}
                         position="absolute"
                         top={2}
                         right={2}
                         width={4}
+                        _hover={{ cursor: 'pointer' }}
+                        onClick={() => bookmarkTutor(id)}
                     />
                 </Stack>
             </Center>
