@@ -24,6 +24,7 @@ export interface TutorLead extends TimestampedEntity {
   teachLevel: string[];
   tz: string;
   identityDocument?: string;
+  introVideo?: string;
 
   pipedriveDealId?: string;
 
@@ -59,6 +60,7 @@ const schema = new Schema<TutorLeadSchemaInterface>(
     teachLevel: { type: [String], required: true },
     tz: { type: String, required: true },
     identityDocument: { type: String, required: false },
+    introVideo: { type: String, required: false },
 
     pipedriveDealId: { type: String, required: false },
   },
