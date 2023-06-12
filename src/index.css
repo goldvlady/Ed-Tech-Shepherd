@@ -126,33 +126,13 @@ code {
 }
 
 .scrollbar-hidden {
-  -ms-overflow-style: none;
-  /* Internet Explorer 10+ */
-  scrollbar-width: none;
-  /* Firefox */
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
 }
-
-.scrollbar-hidden::-webkit-scrollbar {
-  display: none;
-  /* Safari and Chrome */
+.scrollbar-hidden::-webkit-scrollbar { 
+  display: none;  /* Safari and Chrome */
 }
 
 #payment-form {
   width: 100%;
-}
-
-.stripeBox {
-  background: repeating-linear-gradient(45deg, #ffffff, #ffffff 10px, #f7f7f8 10px, #f7f7f8 20px);
-}
-
-
-input[type="date"].has-value:before {
-  content: attr(placeholder);
-  display: none;
-}
-
-/* Show value when selected or clicked */
-input[type="date"]:focus::-webkit-datetime-edit,
-input[type="date"].has-value::-webkit-datetime-edit {
-  color: #212224;
 }
