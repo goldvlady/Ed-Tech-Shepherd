@@ -3,7 +3,7 @@ import moment from 'moment-timezone';
 
 import { SCHEDULE_FORMAT } from '../../src/config';
 import { Schedule } from '../../src/types';
-import { SkillLevel, StudentLead } from '../database/models/StudentLead';
+import { StudentLead } from '../database/models/StudentLead';
 import { TutorLead } from '../database/models/TutorLead';
 
 const pipedrive = require('pipedrive');
@@ -11,11 +11,10 @@ const pipedrive = require('pipedrive');
 const fieldsIds = {
   tutorOrStudent: 'c4157fd23bdbe3279f0b801eee593bb4abc2923d',
   dob: '10c6111750d6a6f001e3925a8d055772eb531892',
-  courses: '64fd01968de976802e3eea2ea909c36122b8ec2d',
+  coursesAndLevels: '64fd01968de976802e3eea2ea909c36122b8ec2d',
   rate: '8b5a6c9941e4dd1802b10276d2302a1282659c67',
   occupation: '12890cdbe754666c4622c9b67cef0d8e790c1d28',
   cv: 'aa2b43510821df481e13809668dcaa11b1759ecd',
-  teachLevel: 'f73a4064e89327fc0875b2b199583223ef74343e',
   tz: '7b8817dd88aea9aa42aad464ab5e3c3ab23871db',
   parentOrStudent: '52f093658436046c28a289b467bc2aeb66b633be',
 };
@@ -79,11 +78,11 @@ export class PipedriveService {
       })`,
       [fieldsIds.tutorOrStudent]: 'tutor',
       [fieldsIds.dob]: tutor.dob,
-      [fieldsIds.courses]: tutor.courses.join(' '),
+      [fieldsIds.coursesAndLevels]: tutor.coursesAndLevels
+        .map((v) => `${v.course.label} ${v.level.label}`)
+        .join(', '),
       [fieldsIds.rate]: tutor.rate,
-      [fieldsIds.occupation]: tutor.occupation,
       [fieldsIds.cv]: tutor.cv,
-      [fieldsIds.teachLevel]: tutor.teachLevel.join(' '),
       [fieldsIds.tz]: tutor.tz,
     };
   }
@@ -153,18 +152,16 @@ export class PipedriveService {
         <br/>
         <b>Date of birth</b>: ${tutor.dob}
         <br/>
-        <b>Courses</b>: ${tutor.courses.join(', ')}
+        <b>Courses</b>: ${tutor.coursesAndLevels
+          .map((v) => `${v.course.label} ${v.level.label}`)
+          .join(', ')}
         <br/>
         <b>Schedule (WAT)</b>:
         ${schedule.join('<br />')}
         <br/>
         <b>Rate</b>: ${tutor.rate}
         <br/>
-        <b>Occupation</b>: ${tutor.occupation}
-        <br/>
         <b>CV</b>: ${tutor.cv}
-        <br/>
-        <b>Teach level</b>: ${tutor.teachLevel.join(', ')}
         <br/>
         <b>Timezone</b>: ${tutor.tz}
         <br/>
@@ -210,7 +207,7 @@ export class PipedriveService {
       personId,
       [fieldsIds.tutorOrStudent]: 'student',
       [fieldsIds.dob]: student.dob,
-      [fieldsIds.courses]: student.courses.join(' '),
+      [fieldsIds.coursesAndLevels]: student.courses.join(' '),
       [fieldsIds.parentOrStudent]: student.parentOrStudent,
       [fieldsIds.tz]: student.tz,
     });
@@ -228,11 +225,6 @@ export class PipedriveService {
    */
   async createStudentNote(student: StudentLead) {
     const schedule = this.formatScheduleToWAT(student.schedule);
-
-    // @ts-ignore
-    const skillLevels = (student.skillLevels || [])?.map(
-      (s: SkillLevel): string => `${s.course}: ${s.skillLevel}`
-    );
 
     const content = `
         <b>ID</b>: ${student._id}
@@ -254,9 +246,6 @@ export class PipedriveService {
         <b>Grade level</b>: ${student.gradeLevel || '-'}
         <br/>
         <b>Topic</b>: ${student.topic || '-'}
-        <br/>
-        <b>Skill levels</b>:
-        ${skillLevels.join('<br />')}
         <br/>
         <b>Schedule (WAT)</b>:
         ${schedule.join('<br />')}
