@@ -149,7 +149,7 @@ export default function TutorCard(props: any) {
             position="absolute"
             top={2}
             right={2}
-            width={4}
+            width={checkBookmarks(id) ? 5 : 4}
             _hover={{ cursor: 'pointer' }}
             onClick={() => bookmarkTutor(id)}
           />

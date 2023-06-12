@@ -305,9 +305,13 @@ export default function Tutor() {
                                           <Image src={Day} mr={3} /> 8AM {'->'} 12PM
                                         </Text>
                                       </Td>
-                                      <Td>x</Td>
-                                      <Td>x</Td>
-                                      <Td>x</Td> <Td>x</Td> <Td>x</Td> <Td>x</Td> <Td>x</Td>
+                                      <Td className="stripeBox"></Td>
+                                      <Td className="stripeBox"></Td>
+                                      <Td className="stripeBox"></Td>{' '}
+                                      <Td className="stripeBox"></Td>{' '}
+                                      <Td className="stripeBox"></Td>{' '}
+                                      <Td className="stripeBox"></Td>{' '}
+                                      <Td className="stripeBox"></Td>
                                     </Tr>
 
                                     <Tr
@@ -333,7 +337,8 @@ export default function Tutor() {
                                       <Td>
                                         <Image src={Check} mr={3} />{' '}
                                       </Td>
-                                      <Td>x</Td> <Td>x</Td>
+                                      <Td className="stripeBox"></Td>{' '}
+                                      <Td className="stripeBox"></Td>
                                       <Td>
                                         <Image src={Check} mr={3} />{' '}
                                       </Td>{' '}
@@ -367,7 +372,8 @@ export default function Tutor() {
                                       <Td>
                                         <Image src={Check} mr={3} />{' '}
                                       </Td>
-                                      <Td>x</Td> <Td>x</Td>
+                                      <Td className="stripeBox"></Td>{' '}
+                                      <Td className="stripeBox"></Td>
                                       <Td>
                                         <Image src={Check} mr={3} />{' '}
                                       </Td>{' '}
