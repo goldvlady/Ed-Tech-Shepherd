@@ -1,8 +1,10 @@
 import { Schema, model } from 'mongoose';
 
-import { Course, Schedule } from '../../../src/types';
+import { Schedule } from '../../../src/types';
 import { PipedriveService } from '../../services/PipedriveService';
 import { TimestampedEntity } from '../../types';
+import { Course } from './Course';
+import { Level } from './Level';
 import { TutorReview } from './TutorReview';
 
 interface TutorQualification {
@@ -18,6 +20,11 @@ interface TutorBankInfo {
   bankName: string;
 }
 
+interface TutorCourseAndLevel {
+  course: Course;
+  level: Level;
+}
+
 export interface TutorLead extends TimestampedEntity {
   name: {
     first: string;
@@ -25,7 +32,7 @@ export interface TutorLead extends TimestampedEntity {
   };
   email: string;
   dob: string;
-  courses: Array<Course>;
+  coursesAndLevels: Array<TutorCourseAndLevel>;
   schedule: Schedule;
   rate: number;
   active?: boolean;
@@ -62,7 +69,10 @@ const schema = new Schema<TutorLeadSchemaInterface>(
     },
     email: { type: String, required: true },
     dob: { type: String, required: true },
-    courses: [{ type: Schema.Types.ObjectId, ref: 'Course', autopopulate: true }],
+    coursesAndLevels: [
+      { course: { type: Schema.Types.ObjectId, ref: 'Course', autopopulate: true } },
+      { level: { type: Schema.Types.ObjectId, ref: 'Level', autopopulate: true } },
+    ],
     schedule: { type: Schema.Types.Mixed, required: true },
     rate: { type: Number, required: true },
     active: { type: Boolean, required: false },
