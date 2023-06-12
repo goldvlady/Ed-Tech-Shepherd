@@ -1,14 +1,16 @@
-import middy from "../utils/middy";
-import { HTTPEvent } from "../types";
-import Course from "../database/models/Course";
+import Course from '../database/models/Course';
+import Level from '../database/models/Level';
+import { HTTPEvent } from '../types';
+import middy from '../utils/middy';
 
 const resources = async (event: HTTPEvent) => {
-  let courses = await Course.find();
+  const [courses, levels] = await Promise.all([Course.find(), Level.find()]);
 
   return {
     statusCode: 200,
     body: JSON.stringify({
       courses,
+      levels,
     }),
   };
 };
