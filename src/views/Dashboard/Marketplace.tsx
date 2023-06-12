@@ -145,15 +145,22 @@ export default function Marketplace() {
       </Box>
       <Box mt={3}>
         <Flex>
-          <HStack spacing={1} direction="row">
-            <Flex alignItems={'center'} mt={2}>
-              <Text>
-                <MdTune />
-              </Text>
-              <Text>Filter</Text>
-            </Flex>
+          <Spacer />
+          <Box> </Box>
+        </Flex>
+      </Box>
+      <Flex alignItems="center" gap="2">
+        <HStack direction="row">
+          <Flex alignItems={'center'} mt={2}>
+            <Text>
+              <MdTune />
+            </Text>
+            <Text>Filter</Text>
+          </Flex>
+          <Box w="125px">
             <Select
               fontSize={14}
+              borderRadius="40px"
               variant="outline"
               placeholder="Subject"
               name="subject"
@@ -165,9 +172,12 @@ export default function Marketplace() {
                 </option>
               ))}
             </Select>
+          </Box>
+          <Box w="125px">
             <Select
               fontSize={14}
               variant="outline"
+              borderRadius="40px"
               size="md"
               placeholder="Level"
               name="level"
@@ -177,82 +187,85 @@ export default function Marketplace() {
                 <option value={level.value}>{level.label}</option>
               ))}
             </Select>
-
-            <Box>
-              <Menu>
-                <MenuButton
-                  as={Button}
-                  variant="outline"
-                  rightIcon={<FiChevronDown />}
-                  fontSize={14}
-                  fontWeight={500}
-                  color="#5C5F64">
-                  Availability
-                </MenuButton>
-                <MenuList p={5}>
-                  <Box>
-                    <Box fontSize={14} mb={2} color="#5C5F64">
-                      Days
-                    </Box>
-
-                    <CustomSelect
-                      value={days}
-                      isMulti
-                      onChange={(v) => setDays(v as Array<any>)}
-                      tagVariant="solid"
-                      options={dayOptions}
-                      size={'md'}
-                    />
+          </Box>
+          <Box>
+            <Menu>
+              <MenuButton
+                as={Button}
+                variant="outline"
+                rightIcon={<FiChevronDown />}
+                fontSize={14}
+                borderRadius="40px"
+                fontWeight={500}
+                color="#5C5F64">
+                Availability
+              </MenuButton>
+              <MenuList p={5}>
+                <Box>
+                  <Box fontSize={14} mb={2} color="#5C5F64">
+                    Days
                   </Box>
 
-                  <Box my={3}>
-                    <FormControl>
-                      <Box display={'flex'} alignItems="center" gap={'7px'}>
-                        <Box>
-                          <Box fontSize={14} my={2} color="#5C5F64">
-                            Start Time
-                          </Box>
-                          <TimePicker
-                            inputGroupProps={{
-                              size: 'lg',
-                            }}
-                            inputProps={{
-                              size: 'md',
-                              placeholder: '01:00 PM',
-                            }}
-                            value={fromTime}
-                            onChange={(v: string) => {
-                              setFromTime(v);
-                            }}
-                          />
-                        </Box>
+                  <CustomSelect
+                    value={days}
+                    isMulti
+                    onChange={(v) => setDays(v as Array<any>)}
+                    tagVariant="solid"
+                    options={dayOptions}
+                    size={'md'}
+                  />
+                </Box>
 
-                        <Box>
-                          <Box fontSize={14} my={2} color="#5C5F64">
-                            End Time
-                          </Box>
-
-                          <TimePicker
-                            inputGroupProps={{
-                              size: 'md',
-                            }}
-                            inputProps={{
-                              placeholder: '06:00 PM',
-                            }}
-                            value={toTime}
-                            onChange={(v: string) => {
-                              setToTime(v);
-                            }}
-                          />
+                <Box my={3}>
+                  <FormControl>
+                    <Box display={'flex'} alignItems="center" gap={'7px'}>
+                      <Box>
+                        <Box fontSize={14} my={2} color="#5C5F64">
+                          Start Time
                         </Box>
+                        <TimePicker
+                          inputGroupProps={{
+                            size: 'lg',
+                          }}
+                          inputProps={{
+                            size: 'md',
+                            placeholder: '01:00 PM',
+                          }}
+                          value={fromTime}
+                          onChange={(v: string) => {
+                            setFromTime(v);
+                          }}
+                        />
                       </Box>
-                    </FormControl>
-                  </Box>
-                </MenuList>
-              </Menu>
-            </Box>
+
+                      <Box>
+                        <Box fontSize={14} my={2} color="#5C5F64">
+                          End Time
+                        </Box>
+
+                        <TimePicker
+                          inputGroupProps={{
+                            size: 'md',
+                          }}
+                          inputProps={{
+                            placeholder: '06:00 PM',
+                          }}
+                          value={toTime}
+                          onChange={(v: string) => {
+                            setToTime(v);
+                          }}
+                        />
+                      </Box>
+                    </Box>
+                  </FormControl>
+                </Box>
+              </MenuList>
+            </Menu>
+          </Box>
+          <Box w="125px">
             <Select
               fontSize={14}
+              borderRadius="40px"
               variant="outline"
               placeholder="Price"
               name="price"
@@ -264,8 +277,11 @@ export default function Marketplace() {
                 </option>
               ))}
             </Select>
+          </Box>
+          <Box w="125px">
             <Select
               fontSize={14}
+              borderRadius="40px"
               variant="outline"
               placeholder="Rating"
               name="rating"
@@ -277,9 +293,10 @@ export default function Marketplace() {
                 </option>
               ))}
             </Select>
-          </HStack>
-
-          <Spacer />
+          </Box>
+        </HStack>
+        <Spacer />
+        <Flex gap="2">
           <CustomButton
             buttonText={'Clear Filters'}
             buttonType="outlined"
@@ -293,8 +310,7 @@ export default function Marketplace() {
             onClick={getFilteredData}
           />
         </Flex>
-      </Box>
-
+      </Flex>
       <Box my={45} py={2}>
         <SimpleGrid minChildWidth="359px" spacing="30px">
           {allTutors.map((tutor: any) => (

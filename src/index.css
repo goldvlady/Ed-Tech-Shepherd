@@ -1,137 +1,139 @@
 :root {
-    --grey-1: #e7e7e7;
+  --grey-1: #e7e7e7;
 }
 
 * {
-    white-space: normal;
+  white-space: normal;
 }
 
 body {
-    margin: 0;
-    font-family: 'Inter', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
-        'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
+    'Droid Sans', 'Helvetica Neue', sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1 {
-    font-size: 48px !important;
-    line-height: 60px !important;
-    font-weight: 600 !important;
-    letter-spacing: -0.02em !important;
+  font-size: 48px !important;
+  line-height: 60px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em !important;
 }
 
 h2 {
-    font-size: 32px !important;
-    line-height: 40px !important;
-    font-weight: 600 !important;
-    letter-spacing: -0.02em !important;
+  font-size: 32px !important;
+  line-height: 40px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em !important;
 }
 
 h3 {
-    font-size: 24px !important;
-    line-height: 30px !important;
-    font-weight: 600 !important;
-    letter-spacing: -0.02em !important;
+  font-size: 24px !important;
+  line-height: 30px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em !important;
 }
 
 h4 {
-    font-size: 20px !important;
-    line-height: 25px !important;
-    font-weight: 600 !important;
-    letter-spacing: -0.02em !important;
+  font-size: 20px !important;
+  line-height: 25px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em !important;
 }
 
 .sub1 {
-    font-weight: 500;
-    font-size: 18px;
-    line-height: 23px;
-    color: #232424;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 23px;
+  color: #232424;
 }
 
 .sub2 {
-    font-weight: 500;
-    font-size: 16px;
-    line-height: 21px;
-    letter-spacing: 0.007em;
-    color: #232424;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 21px;
+  letter-spacing: 0.007em;
+  color: #232424;
 }
 
 .sub3 {
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 20px;
-    color: #232424;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  color: #232424;
 }
 
 .body1 {
-    color: #232424;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 21px;
-    letter-spacing: -0.003em;
+  color: #232424;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 21px;
+  letter-spacing: -0.003em;
 }
 
 .body2 {
-    color: #6e7682;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 20px;
+  color: #6e7682;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
 }
 
 .body3 {
-    color: #232424;
-    font-weight: 400;
-    font-size: 12px;
-    line-height: 17px;
+  color: #232424;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17px;
 }
 
 .body4 {
-    color: #232424;
-    font-weight: 400;
-    font-size: 10px;
-    line-height: 14px;
-    letter-spacing: -0.003em;
+  color: #232424;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 14px;
+  letter-spacing: -0.003em;
 }
 
 .tab-list .chakra-tabs__tab {
-    font-size: 12px;
-    color: #969ca6;
+  font-size: 12px;
+  color: #969ca6;
 }
 .tab-list .chakra-tabs__tab[aria-selected='true'] {
-    color: #207df7;
+  color: #207df7;
 }
 img {
-    max-width: 100%;
-    max-height: 100%;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-        monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
 .flex-col-reverse {
-    display: flex;
-    flex-direction: column-reverse;
+  display: flex;
+  flex-direction: column-reverse;
 }
 
 .datepicker-calendar > .chakra-stack:first-child {
-    border: 0;
+  border: 0;
 }
 
 .datepicker-calendar hr {
-    opacity: 0.1;
+  opacity: 0.1;
 }
 
 .scrollbar-hidden {
-    -ms-overflow-style: none; /* Internet Explorer 10+ */
-    scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
 }
 .scrollbar-hidden::-webkit-scrollbar {
-    display: none; /* Safari and Chrome */
+  display: none; /* Safari and Chrome */
 }
 
 #payment-form {
-    width: 100%;
+  width: 100%;
+}
+.stripeBox {
+  background: repeating-linear-gradient(45deg, #ffffff, #ffffff 10px, #f7f7f8 10px, #f7f7f8 20px);
 }
