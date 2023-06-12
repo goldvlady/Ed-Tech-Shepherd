@@ -33,6 +33,7 @@ export interface TutorLead extends TimestampedEntity {
   identityDocument?: string;
   introVideo?: string;
   qualifications?: Array<TutorQualification>;
+  country?: string;
 
   pipedriveDealId?: string;
 
@@ -70,6 +71,7 @@ const schema = new Schema<TutorLeadSchemaInterface>(
     identityDocument: { type: String, required: false },
     introVideo: { type: String, required: false },
     qualifications: { type: Schema.Types.Mixed, required: false },
+    country: { type: String, required: false },
 
     pipedriveDealId: { type: String, required: false },
   },
