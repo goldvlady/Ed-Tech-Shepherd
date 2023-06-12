@@ -1,23 +1,23 @@
-import { capitalize } from "lodash";
-import moment from "moment-timezone";
-import { SkillLevel, StudentLead } from "../database/models/StudentLead";
-import { TutorLead } from "../database/models/TutorLead";
-import { SCHEDULE_FORMAT } from "../../src/config";
-import { Schedule } from "../../src/types";
+import { capitalize } from 'lodash';
+import moment from 'moment-timezone';
 
-const pipedrive = require("pipedrive");
+import { SCHEDULE_FORMAT } from '../../src/config';
+import { Schedule } from '../../src/types';
+import { SkillLevel, StudentLead } from '../database/models/StudentLead';
+import { TutorLead } from '../database/models/TutorLead';
+
+const pipedrive = require('pipedrive');
 
 const fieldsIds = {
-  tutorOrStudent: "c4157fd23bdbe3279f0b801eee593bb4abc2923d",
-  dob: "10c6111750d6a6f001e3925a8d055772eb531892",
-  courses: "64fd01968de976802e3eea2ea909c36122b8ec2d",
-  rate: "8b5a6c9941e4dd1802b10276d2302a1282659c67",
-  occupation: "12890cdbe754666c4622c9b67cef0d8e790c1d28",
-  highestLevelOfEducation: "9f30073269016953fb31e696d319c3d8c73a4f50",
-  cv: "aa2b43510821df481e13809668dcaa11b1759ecd",
-  teachLevel: "f73a4064e89327fc0875b2b199583223ef74343e",
-  tz: "7b8817dd88aea9aa42aad464ab5e3c3ab23871db",
-  parentOrStudent: "52f093658436046c28a289b467bc2aeb66b633be",
+  tutorOrStudent: 'c4157fd23bdbe3279f0b801eee593bb4abc2923d',
+  dob: '10c6111750d6a6f001e3925a8d055772eb531892',
+  courses: '64fd01968de976802e3eea2ea909c36122b8ec2d',
+  rate: '8b5a6c9941e4dd1802b10276d2302a1282659c67',
+  occupation: '12890cdbe754666c4622c9b67cef0d8e790c1d28',
+  cv: 'aa2b43510821df481e13809668dcaa11b1759ecd',
+  teachLevel: 'f73a4064e89327fc0875b2b199583223ef74343e',
+  tz: '7b8817dd88aea9aa42aad464ab5e3c3ab23871db',
+  parentOrStudent: '52f093658436046c28a289b467bc2aeb66b633be',
 };
 
 export class PipedriveService {
@@ -44,7 +44,7 @@ export class PipedriveService {
   }
 
   formatScheduleToWAT(schedule: Schedule) {
-    const parseDateFormat = "MM-DD-YYYY";
+    const parseDateFormat = 'MM-DD-YYYY';
 
     return Object.keys(schedule).map((d) => {
       const weekDay = parseInt(d);
@@ -55,16 +55,15 @@ export class PipedriveService {
           const begin = moment(
             `${dateStr}, ${s.begin}`,
             `${parseDateFormat}, ${SCHEDULE_FORMAT}`
-          ).tz("Africa/Lagos");
-          const end = moment(
-            `${dateStr}, ${s.end}`,
-            `${parseDateFormat}, ${SCHEDULE_FORMAT}`
-          ).tz("Africa/Lagos");
-          return `${begin.format("dddd")} ${begin.format(
-            "hh:mm A"
-          )} - ${end.format("dddd")} ${end.format("hh:mm A")}`;
+          ).tz('Africa/Lagos');
+          const end = moment(`${dateStr}, ${s.end}`, `${parseDateFormat}, ${SCHEDULE_FORMAT}`).tz(
+            'Africa/Lagos'
+          );
+          return `${begin.format('dddd')} ${begin.format('hh:mm A')} - ${end.format(
+            'dddd'
+          )} ${end.format('hh:mm A')}`;
         })
-        .join("\n");
+        .join('\n');
     });
   }
 
@@ -75,17 +74,16 @@ export class PipedriveService {
    */
   formatTutorForPipedrive(tutor: TutorLead) {
     return {
-      title: `${capitalize(tutor.name.first)} ${capitalize(
-        tutor.name.last
-      )} - Tutor (${tutor.active ? "active" : "inactive"})`,
-      [fieldsIds.tutorOrStudent]: "tutor",
+      title: `${capitalize(tutor.name.first)} ${capitalize(tutor.name.last)} - Tutor (${
+        tutor.active ? 'active' : 'inactive'
+      })`,
+      [fieldsIds.tutorOrStudent]: 'tutor',
       [fieldsIds.dob]: tutor.dob,
-      [fieldsIds.courses]: tutor.courses.join(" "),
+      [fieldsIds.courses]: tutor.courses.join(' '),
       [fieldsIds.rate]: tutor.rate,
       [fieldsIds.occupation]: tutor.occupation,
-      [fieldsIds.highestLevelOfEducation]: tutor.highestLevelOfEducation,
       [fieldsIds.cv]: tutor.cv,
-      [fieldsIds.teachLevel]: tutor.teachLevel.join(" "),
+      [fieldsIds.teachLevel]: tutor.teachLevel.join(' '),
       [fieldsIds.tz]: tutor.tz,
     };
   }
@@ -105,7 +103,7 @@ export class PipedriveService {
     });
 
     if (!success) {
-      throw "error";
+      throw 'error';
     }
 
     const {
@@ -117,7 +115,7 @@ export class PipedriveService {
     });
 
     if (!dealCreateSuccess) {
-      throw "error";
+      throw 'error';
     }
 
     return tutorDealId;
@@ -128,15 +126,12 @@ export class PipedriveService {
    * @param tutor Tutor
    */
   async updateTutorDeal(tutor: TutorLead) {
-    const { success: dealUpdateSuccess } = await this.dealsApi.updateDeal(
-      tutor.pipedriveDealId,
-      {
-        ...this.formatTutorForPipedrive(tutor),
-      }
-    );
+    const { success: dealUpdateSuccess } = await this.dealsApi.updateDeal(tutor.pipedriveDealId, {
+      ...this.formatTutorForPipedrive(tutor),
+    });
 
     if (!dealUpdateSuccess) {
-      throw "error";
+      throw 'error';
     }
   }
 
@@ -158,20 +153,18 @@ export class PipedriveService {
         <br/>
         <b>Date of birth</b>: ${tutor.dob}
         <br/>
-        <b>Courses</b>: ${tutor.courses.join(", ")}
+        <b>Courses</b>: ${tutor.courses.join(', ')}
         <br/>
         <b>Schedule (WAT)</b>:
-        ${schedule.join("<br />")}
+        ${schedule.join('<br />')}
         <br/>
         <b>Rate</b>: ${tutor.rate}
         <br/>
         <b>Occupation</b>: ${tutor.occupation}
         <br/>
-        <b>Highest level of education</b>: ${tutor.highestLevelOfEducation}
-        <br/>
         <b>CV</b>: ${tutor.cv}
         <br/>
-        <b>Teach level</b>: ${tutor.teachLevel.join(", ")}
+        <b>Teach level</b>: ${tutor.teachLevel.join(', ')}
         <br/>
         <b>Timezone</b>: ${tutor.tz}
         <br/>
@@ -187,7 +180,7 @@ export class PipedriveService {
     });
 
     if (!success) {
-      throw "error";
+      throw 'error';
     }
   }
 
@@ -206,26 +199,24 @@ export class PipedriveService {
     });
 
     if (!success) {
-      throw "error";
+      throw 'error';
     }
 
     const {
       success: dealCreateSuccess,
       data: { id: studentDealId },
     } = await this.dealsApi.addDeal({
-      title: `${capitalize(student.name.first)} ${capitalize(
-        student.name.last
-      )} - Student`,
+      title: `${capitalize(student.name.first)} ${capitalize(student.name.last)} - Student`,
       personId,
-      [fieldsIds.tutorOrStudent]: "student",
+      [fieldsIds.tutorOrStudent]: 'student',
       [fieldsIds.dob]: student.dob,
-      [fieldsIds.courses]: student.courses.join(" "),
+      [fieldsIds.courses]: student.courses.join(' '),
       [fieldsIds.parentOrStudent]: student.parentOrStudent,
       [fieldsIds.tz]: student.tz,
     });
 
     if (!dealCreateSuccess) {
-      throw "error";
+      throw 'error';
     }
 
     return studentDealId;
@@ -256,19 +247,19 @@ export class PipedriveService {
         <br/>
         <b>Date of birth</b>: ${student.dob}
         <br/>
-        <b>Courses</b>: ${student.courses.join(", ")}
+        <b>Courses</b>: ${student.courses.join(', ')}
         <br/>
-        <b>Opted to learn something else</b>: ${student.somethingElse || "-"}
+        <b>Opted to learn something else</b>: ${student.somethingElse || '-'}
         <br/>
-        <b>Grade level</b>: ${student.gradeLevel || "-"}
+        <b>Grade level</b>: ${student.gradeLevel || '-'}
         <br/>
-        <b>Topic</b>: ${student.topic || "-"}
+        <b>Topic</b>: ${student.topic || '-'}
         <br/>
         <b>Skill levels</b>:
-        ${skillLevels.join("<br />")}
+        ${skillLevels.join('<br />')}
         <br/>
         <b>Schedule (WAT)</b>:
-        ${schedule.join("<br />")}
+        ${schedule.join('<br />')}
         <br/>
         <b>Timezone</b>: ${student.tz}
         `;
@@ -280,7 +271,7 @@ export class PipedriveService {
     });
 
     if (!success) {
-      throw "error";
+      throw 'error';
     }
   }
 }
