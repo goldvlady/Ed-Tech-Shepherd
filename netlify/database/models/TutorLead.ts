@@ -5,6 +5,13 @@ import { PipedriveService } from '../../services/PipedriveService';
 import { TimestampedEntity } from '../../types';
 import { TutorReview } from './TutorReview';
 
+interface TutorQualification {
+  institution: string;
+  degree: string;
+  startDate: Date;
+  endDate: Date;
+}
+
 export interface TutorLead extends TimestampedEntity {
   name: {
     first: string;
@@ -25,6 +32,7 @@ export interface TutorLead extends TimestampedEntity {
   tz: string;
   identityDocument?: string;
   introVideo?: string;
+  qualifications?: Array<TutorQualification>;
 
   pipedriveDealId?: string;
 
@@ -61,6 +69,7 @@ const schema = new Schema<TutorLeadSchemaInterface>(
     tz: { type: String, required: true },
     identityDocument: { type: String, required: false },
     introVideo: { type: String, required: false },
+    qualifications: { type: Schema.Types.Mixed, required: false },
 
     pipedriveDealId: { type: String, required: false },
   },
