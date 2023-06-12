@@ -78,6 +78,12 @@ function SelectTimeSlot({ onConfirm, day, value }: MyComponentProps) {
     setTimezone(value?.timezone ? value.timezone : ""); // Reset timezone
   }, [day]);
 
+  const variants = {
+    initial: { opacity: 0, y: -20 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -20 },
+  };
+
   console.log("selected ===>",selectedSlot , selectedSlot.includes("slot1"))
   return (
     <Box width="100%">
@@ -85,11 +91,12 @@ function SelectTimeSlot({ onConfirm, day, value }: MyComponentProps) {
       <AnimatePresence>
         {day && (
           <motion.div
-            key={day}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+          key={day}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          variants={variants}
+          transition={{ duration: 0.3 }}
           >
             <Flex direction="column" bg="white" borderRadius="6px" p={4} mb={4}>
               <VStack spacing={4} alignItems="center">
@@ -246,6 +253,10 @@ const AvailabilityForm = () => {
   //   {} as SlotData
   // );
 
+  console.log("availability", availability)
+
+  const availabilityDays = Object.keys(availability)
+
   const setAvailability = (
     f: (v: typeof availability) => typeof availability | typeof availability
   ) => {
@@ -304,7 +315,7 @@ const AvailabilityForm = () => {
           <FormLabel lineHeight="20px">
             What days will you be available{" "}
           </FormLabel>
-          <CustomDropdown placeholder="Select days">
+          <CustomDropdown value={availabilityDays.join(",")} placeholder="Select days">
             <VStack alignItems={"left"} padding="10px" width="100%">
               {daysOfWeek.map((day) => {
                 console.log(
@@ -334,7 +345,7 @@ const AvailabilityForm = () => {
           <CustomDropdown
             disabled={Object.keys(availability).length < 1}
             useDefaultWidth
-            placeholder="Select days"
+            placeholder="Select time"
           >
             <SelectTimeSlot
               day={currentDay}

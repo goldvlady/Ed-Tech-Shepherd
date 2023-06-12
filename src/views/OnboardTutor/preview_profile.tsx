@@ -379,7 +379,7 @@ const AvailabilityTable = () => {
   );
 };
 
-const VideoViewingSection = () => {
+const VideoViewingSection = ({onEdit}: {onEdit: () => void}) => {
   const { introVideo } = onboardTutorStore.useStore();
   const [isVideoPlaying, setVideoPlaying] = useState(false);
   const [isHovered, setHovered] = useState(false);
@@ -397,6 +397,7 @@ const VideoViewingSection = () => {
   };
 
   const handleEditVideo = () => {
+    onEdit()
     // Add your edit video functionality here
   };
 
@@ -477,18 +478,9 @@ const VideoViewingSection = () => {
                 alignItems: "center",
               }}
             >
-              <FaEdit />
-            </button>
-            <Button
-              onClick={handleEditVideo}
-              border="1px solid #ECEDEE"
-              color="#212224"
-              borderRadius="50%"
-              p="5px"
-              backgroundColor="transparent"
-            >
               <Icon color="#6E7682" as={FaPen} boxSize="12px" />
-            </Button>
+            </button>
+           
           </div>
         ))}
     </div>
@@ -709,7 +701,7 @@ const PreviewProfile = () => {
   return (
     <MainWrapper>
       <Header />
-      <EditProfileModal supportingText={currentEdit.supportingText} mainText={currentEdit.mainText} value={currentEdit?.value}  onSave={() => console.log("save")} onCancel={(previousValue) => {
+      <EditProfileModal supportingText={currentEdit.supportingText} mainText={currentEdit.mainText} value={currentEdit?.value}  onSave={() => setCurrentlyEditing(null)} onCancel={(previousValue) => {
         currentEdit.updateFunction && currentEdit.updateFunction(previousValue as never)
         setCurrentlyEditing(null)
       }} isOpen={Boolean(currentlyEditing)} onClose={() => console.log()} >
@@ -754,13 +746,13 @@ const PreviewProfile = () => {
             </PreviewSegment>
           </VStack>
           <VStack
-            width={["70%", "70%"]}
+            width={["70%", "30%"]}
             paddingTop={"60px"}
             align={["flex-start", "center"]}
             spacing="20px"
           >
             <ProfileDiv />
-            <VideoViewingSection />
+            <VideoViewingSection onEdit={() => setCurrentlyEditing("intro_video")} />
             {/* <PreviewSegment title="About Me">
               <Text>{onboardingData.bio}</Text>
             </PreviewSegment> */}

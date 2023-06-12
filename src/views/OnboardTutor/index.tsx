@@ -573,7 +573,7 @@ const OnboardTutor = () => {
               }}
               placeholder="Select a country"
               isSearchable
-              // Add any additional props you want to pass
+            // Add any additional props you want to pass
             />
             <DragAndDrop
               marginTop={30}

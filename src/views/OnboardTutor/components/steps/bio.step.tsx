@@ -13,7 +13,7 @@ const BioForm = () => {
     onboardTutorStore.set.bio(e.target.value);
   };
 
-  const characterCount = bio.length;
+  const characterCount = value.length;
   const wordCount = bio.trim().split(/\s+/).length;
 
   return (

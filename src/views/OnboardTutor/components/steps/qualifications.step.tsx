@@ -22,7 +22,7 @@ interface Qualification {
 
 const QualificationsForm: React.FC = () => {
   // const [qualifications, setQualifications] = useState<Qualification[]>([]);
-  const {qualifications } = onboardTutorStore.useStore()
+  const { qualifications } = onboardTutorStore.useStore()
   const [formData, setFormData] = useState<Qualification>({
     institution: "",
     degree: "",
@@ -74,39 +74,46 @@ const QualificationsForm: React.FC = () => {
   // };
 
   const renderQualifications = () => {
-    return qualifications.map((qualification, index) => (
-      <Box
-        key={index}
-        background="#FFFFFF"
-        border="1px solid #EFEFF1"
-        boxShadow="0px 3px 10px rgba(136, 139, 143, 0.09)"
-        borderRadius="6px"
-        padding="5px 15px"
-        marginBottom="20px"
-        position="relative"
-      >
-        <HStack justifyContent="space-between">
-          <HStack>
-            <Box fontWeight="bold">
-              {qualification.institution},{" "}
-              {`${qualification.startDate}-${qualification.endDate}`}
-            </Box>
+    return qualifications.map((qualification, index) => {
+      const startDate = new Date(qualification.startDate);
+      const endDate = new Date(qualification.endDate);
+
+      const formattedStartDate = startDate.getFullYear();
+      const formattedEndDate = endDate.getFullYear();
+
+      return (
+        <Box
+          key={index}
+          background="#FFFFFF"
+          border="1px solid #EFEFF1"
+          boxShadow="0px 3px 10px rgba(136, 139, 143, 0.09)"
+          borderRadius="6px"
+          padding="5px 15px"
+          marginBottom="20px"
+          position="relative"
+        >
+          <HStack justifyContent="space-between">
+            <HStack>
+              <Box fontWeight="bold">
+                {qualification.institution},{" "}
+                {`${formattedStartDate}-${formattedEndDate}`}
+              </Box>
+            </HStack>
+
+            <Button
+              border="1px solid #ECEDEE"
+              color="#212224"
+              onClick={() => handleEditQualification(index)}
+              borderRadius="50%"
+              p="5px"
+              backgroundColor="transparent"
+            >
+              <RiPencilLine size={14} />
+            </Button>
           </HStack>
-          <Button
-            variant="ghost"
-            colorScheme="white"
-            onClick={() => handleEditQualification(index)}
-            border="1px solid #ECEDEE"
-            borderRadius="100%"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <RiPencilLine size={24} />
-          </Button>
-        </HStack>
-      </Box>
-    ));
+        </Box>
+      )
+    });
   };
 
   return (

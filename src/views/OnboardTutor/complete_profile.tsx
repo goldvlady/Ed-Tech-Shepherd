@@ -45,6 +45,8 @@ const CompleteProfile = () => {
   const [showPreview, setShowPreview] = useState(false)
   const onboardingData = onboardTutorStore.useStore();
 
+  console.log(onboardingData)
+
   const isSubjectsValid = useMemo(() => {
     let isValid = false;
 
@@ -111,7 +113,7 @@ const CompleteProfile = () => {
         id: "availability",
         position: 3,
         element: AvailabilityForm,
-        title: "Write a bio to let your potential students know about you",
+        title: "Let’s Know when you’ll be available",
         supportingText:
           "Provide the days and time frame when will you be available",
       },

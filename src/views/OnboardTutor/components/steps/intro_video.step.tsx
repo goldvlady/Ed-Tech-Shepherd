@@ -11,6 +11,7 @@ import { ref } from "@firebase/storage";
 const IntroVideoForm = () => {
   const toast = useToast();
 
+  const [isLoading, setIsLoading] = useState(false)
   const [introVideo, setIntroVideo] = useState<File | null>(null);
 
   const handleIntroVideoUpload = (file: File) => {
@@ -28,9 +29,10 @@ const IntroVideoForm = () => {
 
     if (!introVideo) return;
 
-    if (introVideo?.size > 2000000) {
+    if (introVideo?.size > 10000000) {
+      setIsLoading(true)
       toast({
-        title: "Please upload a file under 2MB",
+        title: "Please upload a file under 10MB",
         status: "error",
         position: "top",
         isClosable: true,
@@ -41,20 +43,24 @@ const IntroVideoForm = () => {
     const storageRef = ref(storage, `files/${introVideo.name}`);
     const uploadTask = uploadBytesResumable(storageRef, introVideo);
 
+    setIsLoading(true)
     uploadTask.on(
       "state_changed",
       (snapshot) => {
+
         const progress = Math.round(
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100
         );
         // setCvUploadPercent(progress);
       },
       (error) => {
+        setIsLoading(false)
         // setCvUploadPercent(0);
         alert(error);
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          setIsLoading(false)
           onboardTutorStore.set.introVideo(downloadURL);
         });
       }
@@ -66,6 +72,7 @@ const IntroVideoForm = () => {
     <Box width="100%">
       <Box marginTop="10px">
         <DragAndDrop
+          isLoading={isLoading}
           supportingText="Click to upload a video"
           accept="video/*"
           onFileUpload={handleIntroVideoUpload}

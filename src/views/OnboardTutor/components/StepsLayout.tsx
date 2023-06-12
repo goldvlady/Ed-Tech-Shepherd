@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import { ArrowBackIcon } from "@chakra-ui/icons";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface StepsLayoutProps {
   currentStep: number;
@@ -18,7 +18,7 @@ interface StepsLayoutProps {
 
 // Helper function to format the nextStep text
 const formatNextStepText = (nextStep: string) => {
-  if(!nextStep) return ""
+  if (!nextStep) return ""
   const words = nextStep.split("_").map((word) => {
     return word.charAt(0).toUpperCase() + word.slice(1);
   });
@@ -58,6 +58,12 @@ const StepsLayout: React.FC<StepsLayoutProps> = ({
     hidden: { opacity: 0, y: -20 },
     visible: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: 20 },
+  };
+
+  const childrenVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: 20 },
   };
 
   const formattedNextStepText = formatNextStepText(nextStep);
@@ -164,7 +170,24 @@ const StepsLayout: React.FC<StepsLayoutProps> = ({
           </Text>
         </motion.div>
 
-        <Box marginTop={10}>{children}</Box>
+        <Box marginTop={10}>
+          <AnimatePresence>
+            {currentStep > 0 && (
+              <motion.div
+                key={currentStep}
+                variants={childrenVariants}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                transition={{ duration: 0.1 }}
+              >
+                {React.cloneElement(children as React.ReactElement, {
+                  key: currentStep,
+                })}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </Box>
 
         <Flex
           marginTop={"48px"}
