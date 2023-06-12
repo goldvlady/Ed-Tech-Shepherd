@@ -31,7 +31,6 @@ export interface TutorLead extends TimestampedEntity {
   active?: boolean;
   description?: string;
   avatar?: string;
-  occupation?: string;
   cv: string;
   teachLevel: string[];
   tz: string;
@@ -69,7 +68,6 @@ const schema = new Schema<TutorLeadSchemaInterface>(
     active: { type: Boolean, required: false },
     description: { type: String, required: false },
     avatar: { type: String, required: false },
-    occupation: { type: String, required: false },
     cv: { type: String, required: true },
     teachLevel: { type: [String], required: true },
     tz: { type: String, required: true },
