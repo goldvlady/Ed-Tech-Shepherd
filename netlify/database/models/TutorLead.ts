@@ -12,6 +12,12 @@ interface TutorQualification {
   endDate: Date;
 }
 
+interface TutorBankInfo {
+  accountName: string;
+  accountNumber: string;
+  bankName: string;
+}
+
 export interface TutorLead extends TimestampedEntity {
   name: {
     first: string;
@@ -33,6 +39,7 @@ export interface TutorLead extends TimestampedEntity {
   introVideo?: string;
   qualifications?: Array<TutorQualification>;
   country?: string;
+  bankInfo?: TutorBankInfo;
 
   pipedriveDealId?: string;
 
@@ -70,6 +77,7 @@ const schema = new Schema<TutorLeadSchemaInterface>(
     introVideo: { type: String, required: false },
     qualifications: { type: Schema.Types.Mixed, required: false },
     country: { type: String, required: false },
+    bankInfo: { type: Schema.Types.Mixed, required: false },
 
     pipedriveDealId: { type: String, required: false },
   },
