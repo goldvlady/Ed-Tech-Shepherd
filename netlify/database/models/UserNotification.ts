@@ -11,6 +11,7 @@ export interface UserNotification extends TimestampedEntity {
   user: User;
   text: string;
   type: Types;
+  readAt?: Date;
 }
 
 const schema = new Schema<UserNotification>(
@@ -18,6 +19,7 @@ const schema = new Schema<UserNotification>(
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     text: { type: String, required: true },
     type: { type: String, enum: Types, required: true },
+    readAt: { type: Date, required: false },
   },
   { timestamps: { createdAt: true, updatedAt: false } }
 );
