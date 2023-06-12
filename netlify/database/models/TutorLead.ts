@@ -68,10 +68,15 @@ const schema = new Schema<TutorLeadSchemaInterface>(
     },
     email: { type: String, required: true },
     dob: { type: String, required: true },
-    coursesAndLevels: [
-      { course: { type: Schema.Types.ObjectId, ref: 'Course', autopopulate: true } },
-      { level: { type: Schema.Types.ObjectId, ref: 'Level', autopopulate: true } },
-    ],
+    coursesAndLevels: {
+      type: [
+        {
+          course: { type: Schema.Types.ObjectId, ref: 'Course', autopopulate: true },
+          level: { type: Schema.Types.ObjectId, ref: 'Level', autopopulate: true },
+        },
+      ],
+      required: true,
+    },
     schedule: { type: Schema.Types.Mixed, required: true },
     rate: { type: Number, required: true },
     active: { type: Boolean, required: false },
