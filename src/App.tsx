@@ -112,12 +112,10 @@ const AppRoutes: React.FC = () => {
                 <Route path="onboard">
                     <Route path="student" element={<OnboardStudent />} />
                     <Route path="tutor" element={<OnboardTutor />} />
-
                     <Route path="*" element={<Navigate to="student" />} />
                     <Route path="" element={<Navigate to="student" />} />
                 </Route>
 
-                <Route path="complete_profile" element={<CompleteProfile />} />
 
 <Route path="verification_pending" element={<PendingVerification />} />
 <Route path="verification_success" element={<VerificationSuccess />} />
@@ -131,6 +129,7 @@ const AppRoutes: React.FC = () => {
                         />
                     }
                 />
+
                 <Route
                     path="signup"
                     element={
@@ -151,6 +150,10 @@ const AppRoutes: React.FC = () => {
                 />
                 <Route path="auth-action" element={<AuthAction />} />
             </Route>
+
+
+            <Route path="complete_profile" element={<CompleteProfile />} />
+
 
             <Route
                 path="login"

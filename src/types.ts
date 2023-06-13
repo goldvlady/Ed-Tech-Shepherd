@@ -47,15 +47,21 @@ export interface TutorCourseAndLevel {
   level: Level;
 }
 
+
 export interface TutorBankInfo {
   accountName: string;
   accountNumber: string;
   bankName: string;
 }
 
+export interface Country {
+  name: string
+}
+export type LevelType = Level
 export type Student = StudentLead;
 export type Tutor = TutorLead;
 export type Booking = BookingType;
 export type User = UserType;
 export type Offer = OfferType;
 export type BookmarkedTutor = BookmarkedTutorType;
+export type Course = CourseType

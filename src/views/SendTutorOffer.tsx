@@ -114,10 +114,10 @@ const SendTutorOffer = () => {
     } catch (e) {}
 
     setLoadingTutor(false);
-  }, []);
+  }, []); 
 
   const courseOptions = useMemo(
-    () => tutor?.courses.map((c) => ({ label: c.label, value: c._id })) || [],
+    () => tutor?.coursesAndLevels.map((c) => ({ label: c.course.label, value: c.course._id })) || [],
     [tutor]
   );
   const levelOptions = useMemo(() => levels.map((l) => ({ label: l, value: l })), []);
@@ -347,7 +347,7 @@ const SendTutorOffer = () => {
                               <FormLabel>Course</FormLabel>
                               {isEditing ? (
                                 <Select
-                                  defaultValue={courseOptions.find((s) => s.value === field.value)}
+                                  defaultValue={courseOptions.find((s: any) => s.value === field.value)}
                                   tagVariant="solid"
                                   placeholder="Select course"
                                   options={courseOptions}
@@ -367,7 +367,7 @@ const SendTutorOffer = () => {
                                 />
                               ) : (
                                 <EditField>
-                                  {courseOptions.find((s) => s.value === field.value)?.label}
+                                  {courseOptions.find((s: any) => s.value === field.value)?.label}
                                 </EditField>
                               )}
                               <FormErrorMessage>
@@ -423,7 +423,7 @@ const SendTutorOffer = () => {
                                 <Select
                                   isMulti
                                   defaultValue={(field.value as number[]).map((v) =>
-                                    dayOptions.find((d) => d.value === v)
+                                    dayOptions.find((d: any) => d.value === v)
                                   )}
                                   tagVariant="solid"
                                   placeholder="Select days"

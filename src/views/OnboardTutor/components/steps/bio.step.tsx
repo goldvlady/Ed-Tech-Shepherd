@@ -7,13 +7,13 @@ const BioForm = () => {
   const maxWords = 250;
   const [bio, setBio] = useState("");
 
-  const { bio: value } = onboardTutorStore.useStore();
+  const { description: value } = onboardTutorStore.useStore();
 
   const handleChange = (e: any) => {
-    onboardTutorStore.set.bio(e.target.value);
+    onboardTutorStore.set.description?.(e.target.value);
   };
 
-  const characterCount = value.length;
+  const characterCount = value?.length || 0
   const wordCount = bio.trim().split(/\s+/).length;
 
   return (

@@ -22,7 +22,7 @@ const ProfilePictureForm: React.FC = () => {
   };
 
   useEffect(() => {
-    onboardTutorStore.set.avatar("");
+    onboardTutorStore.set.avatar?.("");
 
     if (!imageFile) return;
 
@@ -54,7 +54,7 @@ const ProfilePictureForm: React.FC = () => {
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           console.log(downloadURL)
-          onboardTutorStore.set.avatar(downloadURL);
+          onboardTutorStore.set.avatar?.(downloadURL);
         });
       }
     );

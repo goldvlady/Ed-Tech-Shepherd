@@ -61,7 +61,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Edit Profile</ModalHeader>
-        <ModalBody>
+        <ModalBody pt={0}>
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -73,8 +73,9 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
               fontFamily="Inter"
               fontStyle="normal"
               fontWeight={600}
+              m={0}
+              p={0}
               fontSize="24px"
-              marginTop={"40px"}
               width="85%"
               lineHeight="34px"
               letterSpacing="-0.02em"
@@ -90,6 +91,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
               fontStyle="normal"
               fontWeight={400}
               width="80%"
+              marginTop={"10px"}
               fontSize="14px"
               lineHeight="21px"
               color="#585F68"

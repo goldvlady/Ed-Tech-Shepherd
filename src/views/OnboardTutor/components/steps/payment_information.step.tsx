@@ -8,16 +8,13 @@ import {
   Input,
   Select,
 } from "@chakra-ui/react";
+import {TutorBankInfo} from "../../../../types"
 import onboardTutorStore from "../../../../state/onboardTutorStore";
 
-interface PaymentFormData {
-  accountName: string;
-  accountNumber: string;
-  bankName: string;
-}
+type PaymentFormData = TutorBankInfo
 
 const PaymentInformationForm: React.FC = () => {
-  const {paymentInfo} = onboardTutorStore.useStore()
+  const {bankInfo} = onboardTutorStore.useStore()
   const [formData, setFormData] = useState<PaymentFormData>({
     accountName: "",
     accountNumber: "",
@@ -27,11 +24,12 @@ const PaymentInformationForm: React.FC = () => {
   const setPaymentInformation = (
     f: (v:  PaymentFormData) =>  PaymentFormData |  PaymentFormData
   ) => {
-    if (typeof f === "function") {
-      onboardTutorStore.set.paymentInfo(f(paymentInfo));
-    } else {
-      onboardTutorStore.set.availability(f);
+    if(typeof f !== "function" || !bankInfo ){
+      onboardTutorStore.set.bankInfo?.(f as unknown as PaymentFormData);
     }
+    else{
+      onboardTutorStore.set.bankInfo?.(f(bankInfo as PaymentFormData));
+    } 
   };
 
   const handleInputChange = (
@@ -52,7 +50,7 @@ const PaymentInformationForm: React.FC = () => {
           <Input
             type="text"
             name="accountName"
-            value={paymentInfo.accountName}
+            value={bankInfo?.accountName}
             onChange={handleInputChange}
             placeholder="e.g Leslie Peters"
           />
@@ -60,9 +58,9 @@ const PaymentInformationForm: React.FC = () => {
         <FormControl>
           <FormLabel>Account Number</FormLabel>
           <Input
-            type="text"
+            type="number"
             name="accountNumber"
-            value={paymentInfo.accountNumber}
+            value={bankInfo?.accountNumber}
             onChange={handleInputChange}
             placeholder="0000000000"
           />
@@ -72,7 +70,7 @@ const PaymentInformationForm: React.FC = () => {
           <Input
             type="text"
             name="bankName"
-            value={paymentInfo.bankName}
+            value={bankInfo?.bankName}
             onChange={handleInputChange}
             placeholder="e.g Barclays"
           />

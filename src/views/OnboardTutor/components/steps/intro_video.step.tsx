@@ -25,7 +25,7 @@ const IntroVideoForm = () => {
   };
 
   useEffect(() => {
-    onboardTutorStore.set.introVideo("");
+    onboardTutorStore.set?.introVideo?.("");
 
     if (!introVideo) return;
 
@@ -61,7 +61,7 @@ const IntroVideoForm = () => {
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           setIsLoading(false)
-          onboardTutorStore.set.introVideo(downloadURL);
+          onboardTutorStore.set?.introVideo?.(downloadURL);
         });
       }
     );

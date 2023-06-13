@@ -4,6 +4,7 @@ import ProfilePictureForm from "./components/steps/profile_picture.step";
 import PaymentInformationForm from "./components/steps/payment_information.step";
 import HourlyRateForm from "./components/steps/hourly_rate.step";
 import SubjectLevelForm from "./components/steps/add_subjects";
+import resourceStore from '../../state/resourceStore';
 import AvailabilityForm from "./components/steps/availabilty.steps";
 import QualificationsForm from "./components/steps/qualifications.step";
 import IntroVideoForm from "./components/steps/intro_video.step";
@@ -45,27 +46,24 @@ const CompleteProfile = () => {
   const [showPreview, setShowPreview] = useState(false)
   const onboardingData = onboardTutorStore.useStore();
 
-  console.log(onboardingData)
-
   const isSubjectsValid = useMemo(() => {
     let isValid = false;
 
-    if (onboardingData?.subjectLevel?.length > 0) {
-      console.log(
-        onboardingData?.subjectLevel.every((obj) => obj.subject && obj.level)
-      );
-      // Checking if the key "subject" and "level" have values in all the objects
-      isValid = onboardingData?.subjectLevel.every(
-        (obj) => obj.subject && obj.level
+    if (onboardingData?.coursesAndLevels?.length > 0) {
+     
+      isValid = onboardingData?.coursesAndLevels.every(
+        (obj) => obj.course && obj.level
       );
     }
     return isValid;
   }, [onboardingData]);
 
   const isQualificationsValid = useMemo(() => {
+    const {qualifications} =  onboardingData;
+    if(!qualifications) return false
     const isValid =
-      onboardingData?.qualifications?.length > 0
-        ? onboardingData.qualifications.every((obj) =>
+    qualifications.length > 0
+        ? onboardingData?.qualifications?.every((obj) =>
             Object.values(obj).every((value) => Boolean(value))
           )
         : false;
@@ -74,8 +72,10 @@ const CompleteProfile = () => {
   }, [onboardingData]);
 
   const isValidPaymentInformation = useMemo(() => {
+    const {bankInfo} = onboardingData;
+    if(!bankInfo) return false
     const isValid =
-       Object.keys(onboardingData.paymentInfo).every((info) => Boolean(info))
+       Object.keys(bankInfo).every((info) => Boolean(info))
     return isValid;
   }, [onboardingData]);
 
@@ -104,7 +104,7 @@ const CompleteProfile = () => {
         id: "bio",
         position: 2,
         element: BioForm,
-        isValid: Boolean(onboardingData.bio),
+        isValid: Boolean(onboardingData.description),
         title: "Write a bio to let your potential students know about you",
         supportingText:
           "Help potential students make an informed decision by showcasing your personality and teaching style.",
@@ -113,7 +113,7 @@ const CompleteProfile = () => {
         id: "availability",
         position: 3,
         element: AvailabilityForm,
-        title: "Let’s Know when you’ll be available",
+        title: "Write a bio to let your potential students know about you",
         supportingText:
           "Provide the days and time frame when will you be available",
       },

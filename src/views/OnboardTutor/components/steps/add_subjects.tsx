@@ -9,10 +9,11 @@ import {
   Select,
 } from "@chakra-ui/react";
 import { motion, AnimatePresence } from "framer-motion";
+import resourceStore from '../../../../state/resourceStore';
 import onboardTutorStore from "../../../../state/onboardTutorStore";
 import { useState, useCallback } from "react";
 import { RiCloseCircleLine } from "react-icons/ri";
-import { Course } from "../../../../types";
+import { Course, LevelType} from "../../../../types";
 
 interface SubjectLevel {
   subject: string;
@@ -22,15 +23,22 @@ interface SubjectLevel {
 
 
 const SubjectLevelForm: React.FC = () => {
-  const {subjectLevel: subjectLevels} = onboardTutorStore.useStore();
+
+  const {coursesAndLevels: subjectLevels} = onboardTutorStore.useStore();
 
   type SubjectLevel= typeof subjectLevels
 
   const setSubjectLevels = (f: (d: typeof subjectLevels) => SubjectLevel) => {
-    onboardTutorStore.set.subjectLevel(f(subjectLevels))
+    onboardTutorStore.set.coursesAndLevels(f(subjectLevels))
   }
   
-  const [courseList, setCourseList] = useState<Course[]>([]);
+  const { courses: courseList } = resourceStore();
+
+  useEffect(() => {
+    if(!subjectLevels.length){
+      addSubject()
+    }
+  }, [])
 
   const [loadingCourses, setLoadingCourses] = useState(false);
 
@@ -38,7 +46,7 @@ const SubjectLevelForm: React.FC = () => {
   const handleSubjectChange = (index: number, value: string) => {
     setSubjectLevels((prevSubjectLevels) => {
       const updatedSubjectLevels = [...prevSubjectLevels];
-      updatedSubjectLevels[index].subject = value;
+      updatedSubjectLevels[index].course.label = value;
       return updatedSubjectLevels;
     });
   };
@@ -46,7 +54,7 @@ const SubjectLevelForm: React.FC = () => {
   const handleLevelChange = (index: number, value: string) => {
     setSubjectLevels((prevSubjectLevels) => {
       const updatedSubjectLevels = [...prevSubjectLevels];
-      updatedSubjectLevels[index].level = value;
+      updatedSubjectLevels[index].level.label = value;
       return updatedSubjectLevels;
     });
   };
@@ -54,7 +62,7 @@ const SubjectLevelForm: React.FC = () => {
   const addSubject = () => {
     setSubjectLevels((prevSubjectLevels) => [
       ...prevSubjectLevels,
-      { subject: "", level: "" },
+      { course: {} as Course, level: {}  as LevelType},
     ]);
   };
 
@@ -96,7 +104,7 @@ const SubjectLevelForm: React.FC = () => {
                   Subject
                 </FormLabel>
                 <Select
-                  value={subjectLevel.subject}
+                  value={subjectLevel.course.label}
                   onChange={(e) => handleSubjectChange(index, e.target.value)}
                   bg="#FFFFFF"
                   border="1px solid #E4E5E7"
@@ -112,10 +120,11 @@ const SubjectLevelForm: React.FC = () => {
                     letterSpacing: "-0.003em",
                     color: "#9A9DA2",
                   }}
-                >
-                  <option value="subject1">Subject 1</option>
-                  <option value="subject2">Subject 2</option>
-                  <option value="subject3">Subject 3</option>
+                > {
+                  courseList.map(course => (
+                    <option value={course.label}>{course.label}</option>
+                  ))
+                }                
                 </Select>
               </FormControl>
               <FormControl>
@@ -130,7 +139,7 @@ const SubjectLevelForm: React.FC = () => {
                   Level
                 </FormLabel>
                 <Select
-                  value={subjectLevel.level}
+                  value={subjectLevel.level.label}
                   onChange={(e) => handleLevelChange(index, e.target.value)}
                   bg="#FFFFFF"
                   border="1px solid #E4E5E7"

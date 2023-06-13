@@ -8,6 +8,10 @@ class ApiService {
         return doFetch(`${ApiService.baseEndpoint}/resources`);
     };
 
+    static getCountries = async () => {
+        return doFetch("https://restcountries.com/v3.1/all")
+    }
+
     static getUser = async () => {
         return doFetch(`${ApiService.baseEndpoint}/me`);
     };

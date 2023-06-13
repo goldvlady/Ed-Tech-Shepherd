@@ -7,18 +7,15 @@ import {
   Input,
   Select,
 } from "@chakra-ui/react";
+import {format} from "date-fns"
 import { useMemo, useEffect } from "react";
+import { TutorQualification } from "../../../../types";
 import onboardTutorStore from "../../../../state/onboardTutorStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { RiCloseCircleLine, RiPencilLine } from "react-icons/ri";
 
-interface Qualification {
-  institution: string;
-  degree: string;
-  startDate: string;
-  endDate: string;
-}
+type Qualification = TutorQualification
 
 const QualificationsForm: React.FC = () => {
   // const [qualifications, setQualifications] = useState<Qualification[]>([]);
@@ -26,8 +23,8 @@ const QualificationsForm: React.FC = () => {
   const [formData, setFormData] = useState<Qualification>({
     institution: "",
     degree: "",
-    startDate: "",
-    endDate: "",
+    startDate: null as unknown as Date,
+    endDate: null as unknown as Date,
   });
 
   const isFormValid = useMemo(() => {
@@ -46,23 +43,35 @@ const QualificationsForm: React.FC = () => {
     }));
   };
 
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [e.target.name]: new Date(e.target.value),
+    }));
+  };
+
   const handleAddQualification = () => {
     if (!isFormValid) return;
-    onboardTutorStore.set.qualifications([...qualifications, formData])
+    let data = [formData]
+    if(qualifications){
+      data = [...data, ...qualifications]
+    }
+    onboardTutorStore?.set.qualifications?.(data)
     setFormData({
       institution: "",
       degree: "",
-      startDate: "",
-      endDate: "",
+      startDate: null as unknown as Date,
+      endDate: null as unknown as Date,
     });
   };
 
   const handleEditQualification = (index: number) => {
+    if(!qualifications) return
     const selectedQualification = qualifications[index];
     setFormData(selectedQualification);
     const updatedQualifications = [...qualifications];
     updatedQualifications.splice(index, 1);
-    onboardTutorStore.set.qualifications(updatedQualifications)
+    onboardTutorStore.set?.qualifications?.(updatedQualifications)
   };
 
   // const handleRemoveQualification = (index: number) => {
@@ -74,6 +83,7 @@ const QualificationsForm: React.FC = () => {
   // };
 
   const renderQualifications = () => {
+    if(!qualifications) return 
     return qualifications.map((qualification, index) => {
       const startDate = new Date(qualification.startDate);
       const endDate = new Date(qualification.endDate);
@@ -119,7 +129,7 @@ const QualificationsForm: React.FC = () => {
   return (
     <Box marginTop={30}>
       <AnimatePresence>
-        {qualifications.length > 0 && (
+        {qualifications && qualifications.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -194,8 +204,8 @@ const QualificationsForm: React.FC = () => {
             }}
             type="date"
             name="startDate"
-            value={formData.startDate}
-            onChange={handleInputChange}
+            value={formData.startDate ? format(formData.startDate, "yyyy-MM-dd"): ""}
+            onChange={handleDateChange}
           />
         </FormControl>
         <FormControl>
@@ -216,8 +226,8 @@ const QualificationsForm: React.FC = () => {
             }}
             type="date"
             name="endDate"
-            value={formData.endDate}
-            onChange={handleInputChange}
+            value={formData.endDate ? format(formData.endDate, "yyyy-MM-dd"):  ""}
+            onChange={handleDateChange}
           />
         </FormControl>
       </HStack>

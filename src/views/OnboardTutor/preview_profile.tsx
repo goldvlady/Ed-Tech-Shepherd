@@ -60,7 +60,7 @@ type Step = {
 };
 
 const CourseTable = () => {
-  const { subjectLevel, rate } = onboardTutorStore.useStore();
+  const { coursesAndLevels, rate } = onboardTutorStore.useStore();
   return (
     <Box width="100%">
       <Table variant="simple" borderRadius="10px">
@@ -86,7 +86,7 @@ const CourseTable = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {subjectLevel.map((subLevel) => (
+          {coursesAndLevels.map((subLevel) => (
             <Tr>
               <Td
                 bg="#FAFAFA"
@@ -97,7 +97,7 @@ const CourseTable = () => {
                 p={5}
                 borderRadius="8px"
               >
-                {subLevel.subject}
+                {subLevel.course.label}
               </Td>
               <Td
                 bg="#FFFFFF"
@@ -110,7 +110,7 @@ const CourseTable = () => {
                 p={5}
                 borderRadius="8px"
               >
-                {subLevel.subject}
+                {subLevel.level.label}
               </Td>
               <Td
                 bg="#FFFFFF"
@@ -133,7 +133,7 @@ const CourseTable = () => {
   );
 };
 
-const ProfileDiv = () => {
+const ProfileDiv = ({onEdit}: {onEdit: (v: string) => void}) => {
   const { avatar, qualifications, rate } = onboardTutorStore.useStore();
   const [showAlternateImage, setShowAlternateImage] = useState(false);
 
@@ -200,7 +200,7 @@ const ProfileDiv = () => {
             lineHeight="20px"
             color="#6E7682"
           >
-            {qualifications[0].degree}
+            {qualifications && qualifications[0].degree}
           </Text>
         </Box>
       </VStack>
@@ -246,6 +246,7 @@ const ProfileDiv = () => {
             borderRadius="50%"
             p="5px"
             backgroundColor="transparent"
+            onClick={() => onEdit("hourly_rate")}
           >
             <Icon color="#6E7682" as={FaPen} boxSize="12px" />
           </Button>
@@ -258,126 +259,126 @@ const ProfileDiv = () => {
   );
 };
 
-const AvailabilityTable = () => {
-  const { availability } = onboardTutorStore.useStore();
+// const AvailabilityTable = () => {
+//   const { availability } = onboardTutorStore.useStore();
 
-  console.log(availability);
+//   console.log(availability);
 
-  const timeSlots = ["8am - 12am", "12am - 5pm", "5pm - 9pm"];
+//   const timeSlots = ["8am - 12am", "12am - 5pm", "5pm - 9pm"];
 
-  const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+//   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-  const checkedOut = (
-    <Box
-      minW={"70px"}
-      minH={"70px"}
-      padding={0}
-      bg={`repeating-linear-gradient(
-      45deg,
-      #F7F7F8,
-      #F7F7F8 10px,
-      #fff 10px,
-      #fff 15px
-    )`}
-    />
-  );
-  const renderAvailabilityCell = (slot: string, day: string) => {
-    const fullDayName = Object.keys(availability).find((d) =>
-      d.includes(day.toLowerCase())
-    );
-    if (!fullDayName) return checkedOut;
-    const slotData = availability[fullDayName];
+//   const checkedOut = (
+//     <Box
+//       minW={"70px"}
+//       minH={"70px"}
+//       padding={0}
+//       bg={`repeating-linear-gradient(
+//       45deg,
+//       #F7F7F8,
+//       #F7F7F8 10px,
+//       #fff 10px,
+//       #fff 15px
+//     )`}
+//     />
+//   );
+//   const renderAvailabilityCell = (slot: string, day: string) => {
+//     const fullDayName = Object.keys(availability).find((d) =>
+//       d.includes(day.toLowerCase())
+//     );
+//     if (!fullDayName) return checkedOut;
+//     const slotData = availability[fullDayName];
 
-    if (slotData && slotData.slots.includes(slot)) {
-      return (
-        <VStack
-          display={"flex"}
-          justifyContent={"center"}
-          alignItems={"center"}
-          p={5}
-        >
-          <CheckIcon color="green" />
-        </VStack>
-      );
-    }
-    return checkedOut;
-  };
+//     if (slotData && slotData.slots.includes(slot)) {
+//       return (
+//         <VStack
+//           display={"flex"}
+//           justifyContent={"center"}
+//           alignItems={"center"}
+//           p={5}
+//         >
+//           <CheckIcon color="green" />
+//         </VStack>
+//       );
+//     }
+//     return checkedOut;
+//   };
 
-  return (
-    <Box width="100%">
-      <Table variant="simple">
-        <Thead>
-          <Tr>
-            <Th
-              p={5}
-              border="1px solid #EEEFF2"
-              bg="#FAFAFA"
-              borderRadius="8px"
-            />
-            {daysOfWeek.map((day) => (
-              <Th
-                key={day}
-                p={5}
-                border="1px solid #EEEFF2"
-                bg="#FFFFFF"
-                borderRadius="8px"
-              >
-                {day}
-              </Th>
-            ))}
-          </Tr>
-        </Thead>
-        <Tbody>
-          {timeSlots.map((slot) => (
-            <Tr key={slot}>
-              <Td
-                bg="#FAFAFA"
-                color="#585F68"
-                fontSize="14px"
-                justifyItems="center"
-                alignItems={"center"}
-                width={"auto"}
-                borderRadius="8px"
-              >
-                <Box
-                  display={"flex"}
-                  justifyItems="center"
-                  alignItems={"center"}
-                >
-                  <img
-                    style={{ marginRight: "10px" }}
-                    src={cloud}
-                    width={"40px"}
-                  />
-                  <Text
-                    m={0}
-                    p={0}
-                    fontSize={"14px"}
-                    fontWeight={500}
-                    color={"#585F68"}
-                    whiteSpace={"nowrap"}
-                  >
-                    {slot}
-                  </Text>
-                </Box>
-              </Td>
-              {daysOfWeek.map((day) => (
-                <Td
-                  key={`${slot}-${day}`}
-                  bg="#FFFFFF"
-                  border="1px solid #EEEFF2"
-                  borderRadius="8px"
-                >
-                  {renderAvailabilityCell(slot, day)}
-                </Td>
-              ))}
-            </Tr>
-          ))}
-        </Tbody>
-      </Table>
-    </Box>
-  );
-};
+//   return (
+//     <Box width="100%">
+//       <Table variant="simple">
+//         <Thead>
+//           <Tr>
+//             <Th
+//               p={5}
+//               border="1px solid #EEEFF2"
+//               bg="#FAFAFA"
+//               borderRadius="8px"
+//             />
+//             {daysOfWeek.map((day) => (
+//               <Th
+//                 key={day}
+//                 p={5}
+//                 border="1px solid #EEEFF2"
+//                 bg="#FFFFFF"
+//                 borderRadius="8px"
+//               >
+//                 {day}
+//               </Th>
+//             ))}
+//           </Tr>
+//         </Thead>
+//         <Tbody>
+//           {timeSlots.map((slot) => (
+//             <Tr key={slot}>
+//               <Td
+//                 bg="#FAFAFA"
+//                 color="#585F68"
+//                 fontSize="14px"
+//                 justifyItems="center"
+//                 alignItems={"center"}
+//                 width={"auto"}
+//                 borderRadius="8px"
+//               >
+//                 <Box
+//                   display={"flex"}
+//                   justifyItems="center"
+//                   alignItems={"center"}
+//                 >
+//                   <img
+//                     style={{ marginRight: "10px" }}
+//                     src={cloud}
+//                     width={"40px"}
+//                   />
+//                   <Text
+//                     m={0}
+//                     p={0}
+//                     fontSize={"14px"}
+//                     fontWeight={500}
+//                     color={"#585F68"}
+//                     whiteSpace={"nowrap"}
+//                   >
+//                     {slot}
+//                   </Text>
+//                 </Box>
+//               </Td>
+//               {daysOfWeek.map((day) => (
+//                 <Td
+//                   key={`${slot}-${day}`}
+//                   bg="#FFFFFF"
+//                   border="1px solid #EEEFF2"
+//                   borderRadius="8px"
+//                 >
+//                   {renderAvailabilityCell(slot, day)}
+//                 </Td>
+//               ))}
+//             </Tr>
+//           ))}
+//         </Tbody>
+//       </Table>
+//     </Box>
+//   );
+// };
 
 const VideoViewingSection = ({onEdit}: {onEdit: () => void}) => {
   const { introVideo } = onboardTutorStore.useStore();
@@ -491,10 +492,10 @@ const QualificationsSegment = () => {
   const { qualifications } = onboardTutorStore.useStore();
   return (
     <Box background="#FFFFFF">
-      {qualifications.map((qualification, index) => (
+      {qualifications && qualifications.map((qualification, index) => (
         <Flex
           borderBottom={
-            index !== qualifications.length - 1 ? "1px solid #ECEDEE" : ""
+            qualifications && index !== qualifications.length - 1 ? "1px solid #ECEDEE" : ""
           }
           paddingBottom={"15px"}
           key={index}
@@ -605,10 +606,10 @@ const PreviewProfile = () => {
   const steps = [
     {
       id: "subjects",
-      updateFunction:  onboardTutorStore.set.subjectLevel,
+      updateFunction:  onboardTutorStore.set.coursesAndLevels,
       position: 0,
       element: SubjectLevelForm,
-      value: onboardingData.subjectLevel,
+      value: onboardingData.coursesAndLevels,
       mainText: "Please inform us of the subjects you would like to teach ",
       supportingText:
         "Kindly select your area of expertise and proficiency level, you may add multiple subjects",
@@ -628,8 +629,8 @@ const PreviewProfile = () => {
       id: "bio",
       position: 2,
       element: BioForm,
-      value: onboardingData.bio,
-      updateFunction:  onboardTutorStore.set.bio,
+      value: onboardingData.description,
+      updateFunction:  onboardTutorStore.set.description,
       mainText: "Write a bio to let your potential students know about you",
       supportingText:
         "Help potential students make an informed decision by showcasing your personality and teaching style.",
@@ -638,8 +639,8 @@ const PreviewProfile = () => {
       id: "availability",
       position: 3,
       element: AvailabilityForm,
-      value: {...onboardingData.availability},
-      updateFunction:  onboardTutorStore.set.availability,
+      value: {...onboardingData.schedule},
+      updateFunction:  onboardTutorStore.set.schedule,
       title: "Write a bio to let your potential students know about you",
       supportingText:
         "Provide the days and time frame when will you be available",
@@ -678,8 +679,8 @@ const PreviewProfile = () => {
     {
       id: "payment",
       position: 7,
-      value: onboardingData.paymentInfo,
-      updateFunction:  onboardTutorStore.set.paymentInfo,
+      value: onboardingData.bankInfo,
+      updateFunction:  onboardTutorStore.set.bankInfo,
       element: PaymentInformationForm,
       mainText: "Provide your account details",
       supportingText:
@@ -732,7 +733,7 @@ const PreviewProfile = () => {
                 color="#212224"
                 lineHeight={"24px"}
               >
-                {onboardingData.bio}
+                {onboardingData.description}
               </Text>
             </PreviewSegment>
             <PreviewSegment onEdit={() => setCurrentlyEditing("subjects")} title="SUBJECT OFFERED">
@@ -741,9 +742,9 @@ const PreviewProfile = () => {
             <PreviewSegment onEdit={() => setCurrentlyEditing("qualifications")} title="QUALIFICATIONS">
               <QualificationsSegment />
             </PreviewSegment>
-            <PreviewSegment onEdit={() => setCurrentlyEditing("availability")} title="AVAILABILITY">
+            {/* <PreviewSegment onEdit={() => setCurrentlyEditing("availability")} title="AVAILABILITY">
               <AvailabilityTable />
-            </PreviewSegment>
+            </PreviewSegment> */}
           </VStack>
           <VStack
             width={["70%", "30%"]}
@@ -751,7 +752,7 @@ const PreviewProfile = () => {
             align={["flex-start", "center"]}
             spacing="20px"
           >
-            <ProfileDiv />
+            <ProfileDiv onEdit={(editName) => setCurrentlyEditing(editName)} />
             <VideoViewingSection onEdit={() => setCurrentlyEditing("intro_video")} />
             {/* <PreviewSegment title="About Me">
               <Text>{onboardingData.bio}</Text>

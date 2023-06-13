@@ -10,12 +10,18 @@ import {
   Stack,
   VStack,
 } from "@chakra-ui/react";
-import { Availability, SlotData } from "../../../../types";
+import {  } from "../../../../types";
 import onboardTutorStore from "../../../../state/onboardTutorStore";
 import { Flex, Button, Fade } from "@chakra-ui/react";
 import CustomDropdown from "../../../../components/CustomDropdown";
 import { HiChevronDown } from "react-icons/hi";
 import { motion, AnimatePresence } from "framer-motion";
+
+export type Availability = { [key: string]: SlotData };
+export interface SlotData {
+  timezone: string;
+  slots: string[];
+}
 
 interface MyComponentProps {
   onConfirm: (d: string[], timezone: string) => void;
@@ -245,13 +251,13 @@ function SelectTimeSlot({ onConfirm, day, value }: MyComponentProps) {
 }
 
 const AvailabilityForm = () => {
-  const { availability } = onboardTutorStore.useStore();
+  // const { availability } = onboardTutorStore.useStore();
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [showCheckboxes, setShowCheckboxes] = useState(false);
   const [selectedTime, setSelectedTime] = useState("");
-  // const [availability, setAvailability] = useStateCallback<{ [key: string]: SlotData}>(
-  //   {} as SlotData
-  // );
+  const [availability, setTutorAvailability] = useState<{ [key: string]: SlotData}>(
+    {}
+  );
 
   console.log("availability", availability)
 
@@ -261,9 +267,9 @@ const AvailabilityForm = () => {
     f: (v: typeof availability) => typeof availability | typeof availability
   ) => {
     if (typeof f === "function") {
-      onboardTutorStore.set.availability(f(availability));
+      setTutorAvailability(f(availability));
     } else {
-      onboardTutorStore.set.availability(f);
+      setTutorAvailability(f);
     }
   };
   const [currentDayIndex, setCurrentDayIndex] = useState(0);

@@ -2,11 +2,15 @@ import {
     Box,
     Button,
     CircularProgress,
-    Flex,
+    InputGroup,
+    InputRightElement,
     FormControl,
     FormLabel,
     Heading,
+    Checkbox,
+    
     IconButton,
+    HStack,
     Input,
     Link,
     Modal,
@@ -26,7 +30,9 @@ import Lottie from 'lottie-react';
 import mixpanel from 'mixpanel-browser';
 import moment from 'moment';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { FiBookOpen, FiCalendar, FiEdit, FiUser } from 'react-icons/fi';
+import {HiEyeOff,
+    HiEye} from "react-icons/hi"
+import { FiBookOpen, FiCalendar, FiEdit,  FiUser } from 'react-icons/fi';
 import { useLocation } from 'react-router';
 import StepWizard, {
     StepWizardChildProps,
@@ -131,6 +137,8 @@ const skillLevelOptions = [
 
 const OnboardStudent = () => {
     const { courses: courseList } = resourceStore();
+    const [password, setPassword] = useState("")
+    const [confirmPassword, setConfirmPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -155,6 +163,7 @@ const OnboardStudent = () => {
     const onStepChange: StepWizardProps['onStepChange'] = ({
         activeStep,
         ...rest
+
     }) => {
         setActiveStep(activeStep);
     };
@@ -194,29 +203,29 @@ const OnboardStudent = () => {
     const passwordChecks = useMemo(() => {
         const isEightLetters = {
             text: "Password is eight letters long",
-            checked: onboardStudentStore.get.password().length >= 8,
+            checked: password.length >= 8,
         };
 
         const isConfirmed = {
             text: "Password has been confirmed",
-            checked: [onboardStudentStore.get.password(), onboardStudentStore.get.password() ===
-                onboardStudentStore.get.confirmPassword()].every(Boolean)
+            checked: [password, password ===
+                confirmPassword].every(Boolean)
         };
 
         const hasACharacter = {
             text: "Password has at least one special character",
-            checked: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(onboardStudentStore.get.password()),
+            checked: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password),
         };
 
         const hasANumber = {
             text: "Password has at least one number",
-            checked: /\d/.test(onboardStudentStore.get.password()),
+            checked: /\d/.test(password),
         };
 
         return [isEightLetters, isConfirmed, hasACharacter, hasANumber];
     }, [
-        onboardStudentStore.get.password(),
-        onboardStudentStore.get.confirmPassword(),
+        password,
+        confirmPassword,
     ]);
 
     const validatePasswordStep = passwordChecks.filter(check => !check.checked).length === 0
@@ -482,9 +491,9 @@ const OnboardStudent = () => {
                                     placeholder="Create password"
                                     type={showPassword ? "text" : "password"}
                                     _placeholder={{ fontSize: "14px" }}
-                                    value={onboardStudentStore.get.password()}
+                                    value={password}
                                     onChange={(e) =>
-                                        onboardStudentStore.set.password(e.target.value)
+                                        setPassword(e.target.value)
                                     }
                                 />
                                 <InputRightElement>
@@ -509,9 +518,9 @@ const OnboardStudent = () => {
                                     placeholder="Confirm password"
                                     type={showPassword ? "text" : "password"}
                                     _placeholder={{ fontSize: "14px" }}
-                                    value={onboardStudentStore.get.confirmPassword()}
+                                    value={confirmPassword}
                                     onChange={(e) =>
-                                        onboardStudentStore.set.confirmPassword(e.target.value)
+                                        setConfirmPassword(e.target.value)
                                     }
                                 />
                                 <InputRightElement>
@@ -549,7 +558,7 @@ const OnboardStudent = () => {
 
     const doSubmit = () => {
         mixpanel.track('Completed onboarding');
-        return ApiService.submitStudentLead(data);
+        return ApiService.submitTutorLead(data);
     };
 
     const openEditModal = (stepId: string) => {

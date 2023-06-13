@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { HiEye, HiEyeOff } from "react-icons/hi";
 import StepIndicator from "../../components/StepIndicator";
+import resourceStore from '../../state/resourceStore';
 import {
   FiUser,
   FiCalendar,
@@ -139,6 +140,8 @@ const educationLevelOptions = [
 
 const OnboardTutor = () => {
   const toast = useToast();
+  const {countries} = resourceStore()
+  console.log(countries)
   const [confirmDocument, setConfirmDocument] = useState(false);
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -164,6 +167,8 @@ const OnboardTutor = () => {
     tz,
   } = data;
 
+  console.log("country ====>", country, identityDocument)
+
   const totalAvailableHours = useMemo(
     () =>
       sumBy(
@@ -187,6 +192,7 @@ const OnboardTutor = () => {
 
   const dobValid = moment(dob, FORMAT, true).isValid();
   const age = useMemo(() => moment().diff(moment(dob, FORMAT), "years"), [dob]);
+  const [isUploadLoading, setUploadLoading] = useState(false)
 
   const validateNameStep = !!name.first && !!name.last;
   const validateCredentialsStep = !!country && !!identityDocument
@@ -254,6 +260,8 @@ const OnboardTutor = () => {
     const storageRef = ref(storage, `files/${selectedIdDoc.name}`);
     const uploadTask = uploadBytesResumable(storageRef, selectedIdDoc);
 
+    setUploadLoading(true)
+
     uploadTask.on(
       "state_changed",
       (snapshot) => {
@@ -263,11 +271,13 @@ const OnboardTutor = () => {
         // setAvatarUploadPercent(progress);
       },
       (error) => {
+        setUploadLoading(false)
         // setAvatarUploadPercent(0);
         alert(error);
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          setUploadLoading(false)
           onboardTutorStore.set.identityDocument?.(downloadURL);
         });
       }
@@ -367,6 +377,8 @@ const OnboardTutor = () => {
     password,
     confirmPassword,
   ]);
+
+  console.log(passwordChecks)
 
   const validatePasswordStep = passwordChecks.filter(check => !check.checked).length === 0
 
@@ -563,13 +575,9 @@ const OnboardTutor = () => {
           </Heading>
           <Box marginTop={30}>
             <SelectComponent
-              options={[
-                { value: "us", label: "United States" },
-                { value: "ca", label: "Canada" },
-                { value: "uk", label: "United Kingdom" },
-              ]}
+              options={countries.map(country => ({label: country.name, value: country.name}))}
               onChange={(e: any) => {
-                country &&  onboardTutorStore.set.country?.(e.value);
+                onboardTutorStore.set.country?.(e.value);
               }}
               placeholder="Select a country"
               isSearchable
@@ -577,6 +585,7 @@ const OnboardTutor = () => {
             />
             <DragAndDrop
               marginTop={30}
+              isLoading={isUploadLoading}
               onFileUpload={(file) => setSelectedIdDoc(file)}
             />
             <HStack marginTop={30} spacing={2}>
@@ -618,7 +627,7 @@ const OnboardTutor = () => {
                   _placeholder={{ fontSize: "14px" }}
                   value={password}
                   onChange={(e) =>
-                    setConfirmPassword(e.target.value)
+                    setPassword(e.target.value)
                   }
                 />
                 <InputRightElement>
@@ -667,6 +676,7 @@ const OnboardTutor = () => {
                   <Checkbox
                     colorScheme={passwordCheck.checked ? "green" : "gray"}
                     variant={"looney"}
+                    isChecked={passwordCheck.checked}
                     size="lg"
                   />
                   <Text fontSize="sm">{passwordCheck.text}</Text>
