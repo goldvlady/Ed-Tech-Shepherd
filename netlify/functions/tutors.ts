@@ -88,6 +88,12 @@ const tutors = async (event: HTTPEvent) => {
     {
       path: 'reviews',
     },
+    {
+      path: 'coursesAndLevels.course',
+    },
+    {
+      path: 'coursesAndLevels.level',
+    },
   ]);
 
   tutors = tutors.map((t) => TutorLead.hydrate(t).toJSON());
