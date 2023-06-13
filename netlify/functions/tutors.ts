@@ -86,6 +86,9 @@ const tutors = async (event: HTTPEvent) => {
 
   tutors = await TutorLead.populate(tutors, [
     {
+      path: 'user',
+    },
+    {
       path: 'reviews',
     },
     {
