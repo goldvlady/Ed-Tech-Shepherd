@@ -1,40 +1,41 @@
-import { createStore } from "@udecode/zustood";
-import moment from "moment-timezone";
+import { createStore } from '@udecode/zustood';
+import moment from 'moment-timezone';
+
+import { TimestampedEntity } from '../../netlify/types';
 import {
   Entity,
   Schedule,
   Tutor,
-  TutorQualification,
-  TutorCourseAndLevel,
   TutorBankInfo,
-} from "../types";
-import { TimestampedEntity } from "../../netlify/types";
+  TutorCourseAndLevel,
+  TutorQualification,
+} from '../types';
 
-type Type = Omit<Tutor, keyof Entity | keyof TimestampedEntity | "courses"> & {
+type Type = Omit<Tutor, keyof Entity | keyof TimestampedEntity | 'courses'> & {
   courses: Array<string>;
 };
 
-export default createStore("onboardTutorStore")<
-  Omit<Tutor, keyof Entity | keyof TimestampedEntity>
+export default createStore('onboardTutorStore')<
+  Omit<Tutor, keyof Entity | keyof TimestampedEntity | 'user'>
 >({
   name: {
-    first: "",
-    last: "",
+    first: '',
+    last: '',
   },
-  dob: "",
-  email: "",
+  dob: '',
+  email: '',
   coursesAndLevels: [] as TutorCourseAndLevel[],
   schedule: {} as Schedule,
   tz: moment.tz.guess(),
   qualifications: [] as TutorQualification[],
   rate: 0,
-  cv: "",
+  cv: '',
   bankInfo: {} as TutorBankInfo,
-  avatar: "",
+  avatar: '',
   reviewCount: 0,
   rating: 0,
-  description: "",
-  country: "",
-  identityDocument: "",
-  introVideo: "",
+  description: '',
+  country: '',
+  identityDocument: '',
+  introVideo: '',
 });
