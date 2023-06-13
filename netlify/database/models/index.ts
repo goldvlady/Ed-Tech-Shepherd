@@ -1,6 +1,6 @@
 require('./Course');
 require('./Level');
-require('./StudentLead');
+require('./Student');
 require('./TutorReview');
 require('./BookmarkedTutor');
 require('./Tutor');

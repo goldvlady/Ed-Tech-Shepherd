@@ -311,8 +311,8 @@ const Offer = () => {
                           style={{
                             color: theme.colors.text[400],
                           }}>
-                          {offer.studentLead.name.first} {offer.studentLead.name.last} has been
-                          added to your message list
+                          {offer.student.name.first} {offer.student.name.last} has been added to
+                          your message list
                         </div>
                       </Box>
                     </Box>
@@ -455,14 +455,14 @@ const Offer = () => {
                         <Avatar
                           width={'45px'}
                           height="45px"
-                          name={`${offer.studentLead.name.first} ${offer.studentLead.name.last}`}
+                          name={`${offer.student.name.first} ${offer.student.name.last}`}
                         />
                       </Box>
                       <Box flexGrow={1}>
                         <HStack justifyContent={'space-between'}>
                           <Text className="sub2" color={'text.200'} mb={0}>
-                            {capitalize(offer.studentLead.name.first)}{' '}
-                            {capitalize(offer.studentLead.name.last)}
+                            {capitalize(offer.student.name.first)}{' '}
+                            {capitalize(offer.student.name.last)}
                           </Text>
                         </HStack>
                         <Text

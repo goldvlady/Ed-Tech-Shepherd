@@ -3,7 +3,7 @@ import moment from 'moment-timezone';
 
 import { SCHEDULE_FORMAT } from '../../src/config';
 import { Schedule } from '../../src/types';
-import { StudentLead } from '../database/models/StudentLead';
+import { Student } from '../database/models/Student';
 import { Tutor } from '../database/models/Tutor';
 
 const pipedrive = require('pipedrive');
@@ -186,7 +186,7 @@ export class PipedriveService {
    * @param student
    * @returns
    */
-  async createStudentDeal(student: StudentLead) {
+  async createStudentDeal(student: Student) {
     const {
       success,
       data: { id: personId },
@@ -223,7 +223,7 @@ export class PipedriveService {
    * Post a note in the student deal in Pipedrive
    * @param student
    */
-  async createStudentNote(student: StudentLead) {
+  async createStudentNote(student: Student) {
     const schedule = this.formatScheduleToWAT(student.schedule);
 
     const content = `

@@ -3,7 +3,7 @@ import { Booking as BookingType } from '../netlify/database/models/Booking';
 import { BookmarkedTutor as BookmarkedTutorType } from '../netlify/database/models/BookmarkedTutor';
 import { Course as CourseType } from '../netlify/database/models/Course';
 import { Offer as OfferType } from '../netlify/database/models/Offer';
-import { StudentLead } from '../netlify/database/models/StudentLead';
+import { Student as StudentType } from '../netlify/database/models/Student';
 import { Tutor as TutorType } from '../netlify/database/models/Tutor';
 import { User as UserType } from '../netlify/database/models/User';
 
@@ -57,7 +57,7 @@ export interface Country {
   name: string;
 }
 export type LevelType = Level;
-export type Student = StudentLead;
+export type Student = StudentType;
 export type Tutor = TutorType;
 export type Booking = BookingType;
 export type User = UserType;

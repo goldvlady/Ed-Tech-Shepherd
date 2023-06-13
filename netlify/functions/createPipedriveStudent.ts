@@ -1,12 +1,13 @@
-import { Handler, schedule } from "@netlify/functions";
-import StudentLead from "../database/models/StudentLead";
-import { PipedriveService } from "../services/PipedriveService";
-import middy from "../utils/middy";
+import { Handler, schedule } from '@netlify/functions';
+
+import Student from '../database/models/Student';
+import { PipedriveService } from '../services/PipedriveService';
+import middy from '../utils/middy';
 
 const createPipedriveStudent = async () => {
   const pipedriveService = new PipedriveService();
 
-  const studentsWithoutPipedriveDealId = await StudentLead.find({
+  const studentsWithoutPipedriveDealId = await Student.find({
     pipedriveDealId: null,
   });
 
@@ -14,7 +15,7 @@ const createPipedriveStudent = async () => {
     studentsWithoutPipedriveDealId.map(async (student) => {
       // create deal
       const dealId = await pipedriveService.createStudentDeal(student);
-      await StudentLead.updateOne(
+      await Student.updateOne(
         {
           _id: student._id,
         },
@@ -22,7 +23,7 @@ const createPipedriveStudent = async () => {
       );
 
       // create note
-      const updatedStudent = await StudentLead.findById(student.id);
+      const updatedStudent = await Student.findById(student.id);
       if (updatedStudent) {
         await pipedriveService.createStudentNote(updatedStudent);
       }
@@ -34,7 +35,4 @@ const createPipedriveStudent = async () => {
   };
 };
 
-export const handler = schedule(
-  "* * * * *",
-  middy(createPipedriveStudent) as unknown as Handler
-);
+export const handler = schedule('* * * * *', middy(createPipedriveStudent) as unknown as Handler);

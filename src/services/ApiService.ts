@@ -16,8 +16,8 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/me`);
   };
 
-  static submitStudentLead = async (data: any) => {
-    return doFetch(`${ApiService.baseEndpoint}/createStudentLead`, {
+  static submitStudent = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/createStudent`, {
       method: 'POST',
       body: JSON.stringify(data),
     });

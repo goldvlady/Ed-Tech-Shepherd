@@ -4,7 +4,7 @@ import moment from 'moment-timezone';
 import { Booking } from '../database/models/Booking';
 import Email, { Types } from '../database/models/Email';
 import { Offer } from '../database/models/Offer';
-import { StudentLead } from '../database/models/StudentLead';
+import { Student } from '../database/models/Student';
 import { Tutor } from '../database/models/Tutor';
 import { SITE_URL } from '../utils/config';
 
@@ -59,7 +59,7 @@ Shepherd Tutors
     });
   }
 
-  async createStudentWelcomeEmail(student: StudentLead) {
+  async createStudentWelcomeEmail(student: Student) {
     await Email.create({
       to: student.email,
       subject: 'Hello from Shepherd Tutors',
@@ -89,17 +89,17 @@ Shepherd Tutors
 
   async createStudentBookingConfirmedEmail(booking: Booking) {
     const timing = `${moment(booking.startDate).format('MMMM Do YYYY')}: ${moment(booking.startDate)
-      .tz(booking.offer.studentLead.tz)
+      .tz(booking.offer.student.tz)
       .format('hh:mm A')} - ${moment(booking.endDate)
-      .tz(booking.offer.studentLead.tz)
+      .tz(booking.offer.student.tz)
       .format('hh:mm A')}`;
 
     await Email.create({
-      to: booking.offer.studentLead.email,
+      to: booking.offer.student.email,
       subject: `Get ready for your upcoming session with ${booking.offer.tutor.name.first}`,
       type: Types.BOOKING_CONFIRMED,
       content: `
-Hi ${capitalize(booking.offer.studentLead.name.first)},
+Hi ${capitalize(booking.offer.student.name.first)},
 <br />
 <br />
 We're excited to let you know that your <a href="${SITE_URL}/booking/${
@@ -141,7 +141,7 @@ Shepherd Tutors
 
     await Email.create({
       to: booking.offer.tutor.email,
-      subject: `Get ready for your upcoming session with ${booking.offer.studentLead.name.first}`,
+      subject: `Get ready for your upcoming session with ${booking.offer.student.name.first}`,
       type: Types.BOOKING_CONFIRMED,
       content: `
 Hi ${capitalize(booking.offer.tutor.name.first)},
@@ -149,7 +149,7 @@ Hi ${capitalize(booking.offer.tutor.name.first)},
 <br />
 We're excited to let you know that you've just been booked for a <a href="${SITE_URL}/booking/${
         booking._id
-      }/student">session</a> with ${booking.offer.studentLead.name.first} on the following dates:
+      }/student">session</a> with ${booking.offer.student.name.first} on the following dates:
 <br />
 <br />
 ${timing}
@@ -202,11 +202,11 @@ Shepherd Tutors
     const offerUrl = `${SITE_URL}/dashboard/offer/${offer._id}`;
 
     await Email.create({
-      to: offer.studentLead.email,
+      to: offer.student.email,
       subject: `Your offer has been accepted`,
       type: Types.OFFER_ACCEPTED_STUDENT,
       content: `
-Hi ${capitalize(offer.studentLead.name.first)},
+Hi ${capitalize(offer.student.name.first)},
 <br />
 <br />
 We're excited to let you know that your offer has been accepted. Click the button below to complete payment for your offer.
@@ -230,11 +230,11 @@ Shepherd Tutors
     const offerUrl = `${SITE_URL}/dashboard/offer/${offer._id}`;
 
     await Email.create({
-      to: offer.studentLead.email,
+      to: offer.student.email,
       subject: `There's been a new update on your offer`,
       type: Types.OFFER_DECLINED_STUDENT,
       content: `
-Hi ${capitalize(offer.studentLead.name.first)},
+Hi ${capitalize(offer.student.name.first)},
 <br />
 <br />
 There's been a new update on your offer, Click the button below to view it.

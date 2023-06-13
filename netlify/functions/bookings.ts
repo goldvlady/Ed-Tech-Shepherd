@@ -10,7 +10,7 @@ const bookings = async (event: HTTPEvent) => {
     'tutor._id': user.tutor?._id,
   };
   if (user.type === 'student') {
-    offerCriteria = { 'studentLead._id': user.studentLead?._id };
+    offerCriteria = { 'student._id': user.student?._id };
   }
 
   let allBookings = await Booking.find({ offer: { $ne: null } }).populate({

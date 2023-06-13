@@ -20,7 +20,7 @@ export const tutorReview = async (event: HTTPEvent) => {
 
   const newReview = await TutorReview.create({
     tutor: tutorToRate._id,
-    student: user.studentLead?._id,
+    student: user.student?._id,
     rating: rating,
     review: review,
   });

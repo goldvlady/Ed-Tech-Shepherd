@@ -2,8 +2,8 @@ import { Schema, model } from 'mongoose';
 
 import { TimestampedEntity } from '../../types';
 import { PaymentMethod } from './PaymentMethod';
-import StudentLead, { StudentLead as StudentLeadType } from './StudentLead';
-import Tutor, { Tutor as TutorType } from './Tutor';
+import { Student as StudentType } from './Student';
+import { Tutor as TutorType } from './Tutor';
 
 export interface User extends TimestampedEntity {
   name: {
@@ -14,7 +14,7 @@ export interface User extends TimestampedEntity {
   firebaseId: string;
   avatar?: string;
   tutor?: TutorType;
-  studentLead?: StudentLeadType;
+  student?: StudentType;
   type: 'student' | 'tutor';
   stripeCustomerId?: string;
   paymentMethods: PaymentMethod[];
@@ -56,7 +56,7 @@ const schema = new Schema<User>(
 );
 
 schema.virtual('tutor');
-schema.virtual('studentLead');
+schema.virtual('student');
 schema.virtual('type');
 
 schema.virtual('paymentMethods', {
@@ -78,8 +78,8 @@ schema.virtual('tutor', {
   },
 });
 
-schema.virtual('studentLead', {
-  ref: 'StudentLead',
+schema.virtual('student', {
+  ref: 'Student',
   localField: 'email',
   foreignField: 'email',
   justOne: true,

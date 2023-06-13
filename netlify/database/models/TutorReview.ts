@@ -21,7 +21,7 @@ const schema = new Schema<TutorReview>(
     },
     student: {
       type: Schema.Types.ObjectId,
-      ref: 'StudentLead',
+      ref: 'Student',
       required: true,
       autopopulate: true,
     },

@@ -5,7 +5,7 @@ import { TimestampedEntity } from '../../types';
 import { Course } from './Course';
 import { Level } from './Level';
 import { PaymentMethod } from './PaymentMethod';
-import { StudentLead as StudentLeadInterface } from './StudentLead';
+import { Student as StudentInterface } from './Student';
 import { Tutor as TutorInterface } from './Tutor';
 
 interface Schedule {
@@ -31,7 +31,7 @@ export interface Offer extends TimestampedEntity {
   status: STATUS;
   declinedNote: string;
   tutor: TutorInterface;
-  studentLead: StudentLeadInterface;
+  student: StudentInterface;
   expirationDate: Date;
   contractStartDate: Date;
   contractEndDate: Date;
@@ -65,9 +65,9 @@ const schema = new Schema<Offer>(
       autopopulate: true,
       required: true,
     },
-    studentLead: {
+    student: {
       type: Schema.Types.ObjectId,
-      ref: 'StudentLead',
+      ref: 'Student',
       autopopulate: true,
       required: true,
     },

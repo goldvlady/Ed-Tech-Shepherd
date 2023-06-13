@@ -48,7 +48,7 @@ const Session = () => {
   };
 
   const isStudent = user?.type === 'student';
-  const tz = isStudent ? user.studentLead?.tz : user?.tutor?.tz;
+  const tz = isStudent ? user.student?.tz : user?.tutor?.tz;
 
   useEffect(() => {
     loadBooking();

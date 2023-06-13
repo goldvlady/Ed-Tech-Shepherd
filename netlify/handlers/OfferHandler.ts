@@ -14,7 +14,7 @@ class OfferHandler {
     const tutor = await Tutor.findById(data.tutor);
     const offer = await Offer.create({
       ...data,
-      studentLead: studentUser.studentLead,
+      student: studentUser.student,
       tutor,
     });
 
