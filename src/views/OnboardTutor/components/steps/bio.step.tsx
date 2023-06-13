@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import onboardTutorStore from "../../../../state/onboardTutorStore";
 import { Box, Textarea, Text } from "@chakra-ui/react";
 
 const BioForm = () => {
@@ -6,8 +7,10 @@ const BioForm = () => {
   const maxWords = 250;
   const [bio, setBio] = useState("");
 
+  const { bio: value } = onboardTutorStore.useStore();
+
   const handleChange = (e: any) => {
-    setBio(e.target.value);
+    onboardTutorStore.set.bio(e.target.value);
   };
 
   const characterCount = bio.length;
@@ -16,7 +19,7 @@ const BioForm = () => {
   return (
     <Box>
       <Textarea
-        value={bio}
+        value={value}
         onChange={handleChange}
         placeholder="Enter your bio"
         minHeight="250px"

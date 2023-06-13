@@ -43,7 +43,7 @@ export interface TutorBankInfo {
 }
 
 export interface TutorCourseAndLevel {
-  course: Course;
+  course: CourseType;
   level: Level;
 }
 
@@ -53,7 +53,6 @@ export interface TutorBankInfo {
   bankName: string;
 }
 
-export type Course = CourseType;
 export type Student = StudentLead;
 export type Tutor = TutorLead;
 export type Booking = BookingType;

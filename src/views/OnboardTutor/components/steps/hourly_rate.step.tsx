@@ -11,25 +11,27 @@ import {
   Text,
   Stack,
 } from "@chakra-ui/react";
+import onboardTutorStore from "../../../../state/onboardTutorStore";
 
 const HourlyRateForm: React.FC = () => {
-  const [hourlyRate, setHourlyRate] = useState("");
-//   const [tutorEarnings, setTutorEarnings] = useState("");
+  const {rate: hourlyRate} = onboardTutorStore.useStore()
 
   const tutorEarnings = useMemo(() => {
-      const baseEarning: number = 0
-      if(!hourlyRate) return baseEarning.toFixed(2)
-      // Calculate tutor's earnings after deduction
-      const rateNumber = parseFloat(hourlyRate.replace("$", "").replace("/hr", ""));
-      const earnings = rateNumber * 0.05; // Assuming a 20% deduction
-      return earnings.toFixed(2)
-  }, [hourlyRate])
+    const baseEarning: number = 0;
+    if (!hourlyRate) return baseEarning.toFixed(2);
+    const rateNumber = hourlyRate;
+    const feePercentage = 0.05;
+    const earnings = rateNumber * (1 - feePercentage);
 
-  const handleHourlyRateChange = (
+    return earnings.toFixed(2);
+  }, [hourlyRate]);
+
+  const 
+  handleHourlyRateChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const rate = event.target.value;
-    setHourlyRate(rate);
+    onboardTutorStore.set.rate(parseInt(rate));
 
     // // Calculate tutor's earnings after deduction
     // const rateNumber = parseFloat(rate.replace("$", "").replace("/hr", ""));
@@ -105,10 +107,13 @@ const HourlyRateForm: React.FC = () => {
             </InputRightElement>
           </InputGroup>
         </FormControl>
-        <HStack display={"flex"} fontSize="sm" alignItems="baseline" fontWeight="500">
-          <Text color={"#6E7682"}>
-            Shepherd charges a
-          </Text>
+        <HStack
+          display={"flex"}
+          fontSize="sm"
+          alignItems="baseline"
+          fontWeight="500"
+        >
+          <Text color={"#6E7682"}>Shepherd charges a</Text>
           <Text color="#207DF7">5% service fee (-$3.00/hr)</Text>
         </HStack>
         <FormControl>
@@ -120,7 +125,7 @@ const HourlyRateForm: React.FC = () => {
             letterSpacing="-0.001em"
             color="#5C5F64"
           >
-           You'll get
+            You'll get
           </FormLabel>
           <InputGroup
             bg="#F1F2F3"

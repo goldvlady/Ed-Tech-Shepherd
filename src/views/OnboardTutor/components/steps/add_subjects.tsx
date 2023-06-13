@@ -9,7 +9,7 @@ import {
   Select,
 } from "@chakra-ui/react";
 import { motion, AnimatePresence } from "framer-motion";
-
+import onboardTutorStore from "../../../../state/onboardTutorStore";
 import { useState, useCallback } from "react";
 import { RiCloseCircleLine } from "react-icons/ri";
 import { Course } from "../../../../types";
@@ -20,10 +20,16 @@ interface SubjectLevel {
 }
 
 
+
 const SubjectLevelForm: React.FC = () => {
-  const [subjectLevels, setSubjectLevels] = useState<SubjectLevel[]>([
-    { subject: "", level: "" },
-  ]);
+  const {subjectLevel: subjectLevels} = onboardTutorStore.useStore();
+
+  type SubjectLevel= typeof subjectLevels
+
+  const setSubjectLevels = (f: (d: typeof subjectLevels) => SubjectLevel) => {
+    onboardTutorStore.set.subjectLevel(f(subjectLevels))
+  }
+  
   const [courseList, setCourseList] = useState<Course[]>([]);
 
   const [loadingCourses, setLoadingCourses] = useState(false);
@@ -97,6 +103,7 @@ const SubjectLevelForm: React.FC = () => {
                   boxShadow="0px 2px 6px rgba(136, 139, 143, 0.1)"
                   borderRadius="6px"
                   placeholder="Select subject "
+                  
                   _placeholder={{
                     fontStyle: "normal",
                     fontWeight: 400,

@@ -8,6 +8,7 @@ import {
   Input,
   Select,
 } from "@chakra-ui/react";
+import onboardTutorStore from "../../../../state/onboardTutorStore";
 
 interface PaymentFormData {
   accountName: string;
@@ -16,17 +17,28 @@ interface PaymentFormData {
 }
 
 const PaymentInformationForm: React.FC = () => {
+  const {paymentInfo} = onboardTutorStore.useStore()
   const [formData, setFormData] = useState<PaymentFormData>({
     accountName: "",
     accountNumber: "",
     bankName: "",
   });
 
+  const setPaymentInformation = (
+    f: (v:  PaymentFormData) =>  PaymentFormData |  PaymentFormData
+  ) => {
+    if (typeof f === "function") {
+      onboardTutorStore.set.paymentInfo(f(paymentInfo));
+    } else {
+      onboardTutorStore.set.availability(f);
+    }
+  };
+
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = event.target;
-    setFormData((prevFormData) => ({
+    setPaymentInformation((prevFormData) => ({
       ...prevFormData,
       [name]: value,
     }));
@@ -40,7 +52,7 @@ const PaymentInformationForm: React.FC = () => {
           <Input
             type="text"
             name="accountName"
-            value={formData.accountName}
+            value={paymentInfo.accountName}
             onChange={handleInputChange}
             placeholder="e.g Leslie Peters"
           />
@@ -50,19 +62,19 @@ const PaymentInformationForm: React.FC = () => {
           <Input
             type="text"
             name="accountNumber"
-            value={formData.accountNumber}
+            value={paymentInfo.accountNumber}
             onChange={handleInputChange}
             placeholder="0000000000"
           />
         </FormControl>
         <FormControl>
-          <FormLabel>Account Number</FormLabel>
+          <FormLabel>Bank</FormLabel>
           <Input
             type="text"
-            name="accountNumber"
-            value={formData.accountNumber}
+            name="bankName"
+            value={paymentInfo.bankName}
             onChange={handleInputChange}
-            placeholder="0000000000"
+            placeholder="e.g Barclays"
           />
         </FormControl>
       </Stack>

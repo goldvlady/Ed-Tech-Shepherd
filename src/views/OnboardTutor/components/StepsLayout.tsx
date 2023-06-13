@@ -13,6 +13,7 @@ interface StepsLayoutProps {
   onBackClick: () => void;
   onNextClick: () => void;
   children: React.ReactNode;
+  isValid: boolean
 }
 
 // Helper function to format the nextStep text
@@ -34,6 +35,7 @@ const StepsLayout: React.FC<StepsLayoutProps> = ({
   onBackClick,
   onNextClick,
   children,
+  isValid
 }) => {
   const [mainTextAnimationComplete, setMainTextAnimationComplete] = useState(
     false
@@ -85,7 +87,6 @@ const StepsLayout: React.FC<StepsLayoutProps> = ({
         padding="30px"
         width="fit-content"
         position="relative"
-        overflow="hidden"
       >
         <Flex alignItems="center" marginBottom="10px">
           <Box
@@ -163,7 +164,7 @@ const StepsLayout: React.FC<StepsLayoutProps> = ({
           </Text>
         </motion.div>
 
-        <Box>{children}</Box>
+        <Box marginTop={10}>{children}</Box>
 
         <Flex
           marginTop={"48px"}
@@ -201,6 +202,7 @@ const StepsLayout: React.FC<StepsLayoutProps> = ({
           )}
           <Button
             onClick={onNextClick}
+            isDisabled={!isValid}
             justifyContent="center"
             alignItems="center"
             padding="10px 32px"

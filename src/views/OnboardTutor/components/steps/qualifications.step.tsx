@@ -7,7 +7,8 @@ import {
   Input,
   Select,
 } from "@chakra-ui/react";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
+import onboardTutorStore from "../../../../state/onboardTutorStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { RiCloseCircleLine, RiPencilLine } from "react-icons/ri";
@@ -20,7 +21,8 @@ interface Qualification {
 }
 
 const QualificationsForm: React.FC = () => {
-  const [qualifications, setQualifications] = useState<Qualification[]>([]);
+  // const [qualifications, setQualifications] = useState<Qualification[]>([]);
+  const {qualifications } = onboardTutorStore.useStore()
   const [formData, setFormData] = useState<Qualification>({
     institution: "",
     degree: "",
@@ -46,10 +48,7 @@ const QualificationsForm: React.FC = () => {
 
   const handleAddQualification = () => {
     if (!isFormValid) return;
-    setQualifications((prevQualifications) => [
-      ...prevQualifications,
-      formData,
-    ]);
+    onboardTutorStore.set.qualifications([...qualifications, formData])
     setFormData({
       institution: "",
       degree: "",
@@ -61,20 +60,18 @@ const QualificationsForm: React.FC = () => {
   const handleEditQualification = (index: number) => {
     const selectedQualification = qualifications[index];
     setFormData(selectedQualification);
-    setQualifications((prevQualifications) => {
-      const updatedQualifications = [...prevQualifications];
-      updatedQualifications.splice(index, 1);
-      return updatedQualifications;
-    });
+    const updatedQualifications = [...qualifications];
+    updatedQualifications.splice(index, 1);
+    onboardTutorStore.set.qualifications(updatedQualifications)
   };
 
-  const handleRemoveQualification = (index: number) => {
-    setQualifications((prevQualifications) => {
-      const updatedQualifications = [...prevQualifications];
-      updatedQualifications.splice(index, 1);
-      return updatedQualifications;
-    });
-  };
+  // const handleRemoveQualification = (index: number) => {
+  //   setQualifications((prevQualifications) => {
+  //     const updatedQualifications = [...prevQualifications];
+  //     updatedQualifications.splice(index, 1);
+  //     return updatedQualifications;
+  //   });
+  // };
 
   const renderQualifications = () => {
     return qualifications.map((qualification, index) => (

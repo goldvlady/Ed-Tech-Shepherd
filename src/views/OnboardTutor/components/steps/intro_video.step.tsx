@@ -1,8 +1,16 @@
-import React, { useState } from "react";
-import { Box, Button, Text } from "@chakra-ui/react";
+import React, { useState, useEffect } from "react";
+import { Box, Button, Text, useToast } from "@chakra-ui/react";
+import { storage } from "../../../../firebase";
+import onboardTutorStore from "../../../../state/onboardTutorStore";
 import DragAndDrop from "../../../../components/DragandDrop";
 
+import { getDownloadURL, uploadBytesResumable } from "firebase/storage";
+import { ref } from "@firebase/storage";
+
+
 const IntroVideoForm = () => {
+  const toast = useToast();
+
   const [introVideo, setIntroVideo] = useState<File | null>(null);
 
   const handleIntroVideoUpload = (file: File) => {
@@ -14,6 +22,45 @@ const IntroVideoForm = () => {
     // Reset form state after submission
     setIntroVideo(null);
   };
+
+  useEffect(() => {
+    onboardTutorStore.set.introVideo("");
+
+    if (!introVideo) return;
+
+    if (introVideo?.size > 2000000) {
+      toast({
+        title: "Please upload a file under 2MB",
+        status: "error",
+        position: "top",
+        isClosable: true,
+      });
+      return;
+    }
+
+    const storageRef = ref(storage, `files/${introVideo.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, introVideo);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
+        // setCvUploadPercent(progress);
+      },
+      (error) => {
+        // setCvUploadPercent(0);
+        alert(error);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          onboardTutorStore.set.introVideo(downloadURL);
+        });
+      }
+    );
+  }, [introVideo]);
+
 
   return (
     <Box width="100%">
