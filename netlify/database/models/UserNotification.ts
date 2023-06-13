@@ -9,11 +9,13 @@ export enum Types {
   OFFER_WITHDRAWN = 'offer_withdrawn',
 }
 
+type Attributes = Record<'offerId', {}>;
+
 export interface UserNotification extends TimestampedEntity {
   user: User;
   text: string;
   type: Types;
-  attributes?: Record<any, any>;
+  attributes?: Attributes;
   readAt?: Date;
 }
 
