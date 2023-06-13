@@ -127,3 +127,42 @@ export const textTruncate = function (
         return str;
     }
 };
+
+
+export const getCroppedImg = (
+  imageSrc: string,
+  crop: { x: number; y: number; width: number; height: number }
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement("canvas");
+    const image = new Image();
+
+    image.onload = () => {
+      const scaleX = image.naturalWidth / image.width;
+      const scaleY = image.naturalHeight / image.height;
+      const ctx = canvas.getContext("2d");
+
+      canvas.width = crop.width;
+      canvas.height = crop.height;
+
+      ctx?.drawImage(
+        image,
+        crop.x * scaleX,
+        crop.y * scaleY,
+        crop.width * scaleX,
+        crop.height * scaleY,
+        0,
+        0,
+        crop.width,
+        crop.height
+      );
+
+      const base64data = canvas?.toDataURL("image/jpeg", 1);
+      resolve(base64data);
+    };
+
+    image.onerror = reject;
+    image.src = imageSrc;
+  });
+};
+

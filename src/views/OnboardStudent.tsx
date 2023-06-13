@@ -2,11 +2,15 @@ import {
     Box,
     Button,
     CircularProgress,
-    Flex,
+    InputGroup,
+    InputRightElement,
     FormControl,
     FormLabel,
     Heading,
+    Checkbox,
+    
     IconButton,
+    HStack,
     Input,
     Link,
     Modal,
@@ -26,7 +30,9 @@ import Lottie from 'lottie-react';
 import mixpanel from 'mixpanel-browser';
 import moment from 'moment';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { FiBookOpen, FiCalendar, FiEdit, FiUser } from 'react-icons/fi';
+import {HiEyeOff,
+    HiEye} from "react-icons/hi"
+import { FiBookOpen, FiCalendar, FiEdit,  FiUser } from 'react-icons/fi';
 import { useLocation } from 'react-router';
 import StepWizard, {
     StepWizardChildProps,
@@ -53,21 +59,21 @@ import { getOptionValue } from '../util';
 
 const stepIndicatorSteps = [
     {
-        title: 'About you',
+        title: "Select Status",
         icon: <FiUser />,
-        id: 'about-you',
+        id: 'parent-or-student'
     },
     {
         title: 'Classes',
         icon: <FiBookOpen />,
-        id: 'classes',
+        id: 'about-you'
     },
     {
-        title: 'Availability',
+        title: "Security",
         icon: <FiCalendar />,
-        id: 'availability',
-    },
-];
+        id: 'security'
+    }
+]
 
 const SkillLevelImg = styled.div`
     height: 30px;
@@ -131,6 +137,11 @@ const skillLevelOptions = [
 
 const OnboardStudent = () => {
     const { courses: courseList } = resourceStore();
+    const [password, setPassword] = useState("")
+    const [confirmPassword, setConfirmPassword] = useState("")
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
     const location = useLocation();
 
     const stepWizardInstance = useRef<StepWizardChildProps | null>(null);
@@ -152,6 +163,7 @@ const OnboardStudent = () => {
     const onStepChange: StepWizardProps['onStepChange'] = ({
         activeStep,
         ...rest
+
     }) => {
         setActiveStep(activeStep);
     };
@@ -179,7 +191,7 @@ const OnboardStudent = () => {
             setTimeout(() => {
                 onboardStudentStore.set.courses([preSelectedCourse]);
             }, 0);
-        }
+        } 
     }, []);
 
     const dobValid = moment(dob, FORMAT, true).isValid();
@@ -187,6 +199,37 @@ const OnboardStudent = () => {
         () => moment().diff(moment(dob, FORMAT), 'years'),
         [dob]
     );
+
+    const passwordChecks = useMemo(() => {
+        const isEightLetters = {
+            text: "Password is eight letters long",
+            checked: password.length >= 8,
+        };
+
+        const isConfirmed = {
+            text: "Password has been confirmed",
+            checked: [password, password ===
+                confirmPassword].every(Boolean)
+        };
+
+        const hasACharacter = {
+            text: "Password has at least one special character",
+            checked: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password),
+        };
+
+        const hasANumber = {
+            text: "Password has at least one number",
+            checked: /\d/.test(password),
+        };
+
+        return [isEightLetters, isConfirmed, hasACharacter, hasANumber];
+    }, [
+        password,
+        confirmPassword,
+    ]);
+
+    const validatePasswordStep = passwordChecks.filter(check => !check.checked).length === 0
+
 
     const validateParentStudentStep = !!parentOrStudent;
     const validateAboutYouStep =
@@ -316,21 +359,15 @@ const OnboardStudent = () => {
     const steps = [
         {
             id: 'parent-or-student',
-            stepIndicatorId: 'about-you',
-            template: (
-                <Box>
-                    <Heading as="h3" textAlign={'center'}>
-                        Who is signing up?
-                    </Heading>
-                    <Box marginTop={30}>
-                        <LargeSelect
-                            value={parentOrStudent}
-                            onChange={(v) =>
-                                onboardStudentStore.set.parentOrStudent(v)
-                            }
-                            options={[
-                                {
-                                    value: 'parent',
+            stepIndicatorId: 'parent-or-student',
+            template: (<Box>
+                <Heading as='h3' textAlign={"center"}>
+                    Who is signing up?
+                </Heading>
+                <Box marginTop={30}>
+                    <LargeSelect value={parentOrStudent} onChange={(v) => onboardStudentStore.set.parentOrStudent(v)} options={[
+                        {
+                            value: "parent",
 
                                     title: 'Parent or Guardian',
                                     subtitle:
@@ -437,404 +474,91 @@ const OnboardStudent = () => {
             canSave: validateAboutYouStep,
         },
         {
-            id: 'classes',
-            stepIndicatorId: 'classes',
+            id: "security",
+            stepIndicatorId: "security",
             template: (
                 <Box>
-                    {!dobValid ||
-                    !(age < 13 && parentOrStudent === 'student') ? (
-                        <>
-                            <Heading as="h3" size="lg" textAlign={'center'}>
-                                {parentOrStudent === 'parent'
-                                    ? 'What classes are your child interested in?'
-                                    : 'What classes are you interested in?'}
-                            </Heading>
-                            <Box marginTop={30}>
-                                <Modal
-                                    isOpen={isSomethingElseModalOpen}
-                                    onClose={onSomethingElseModalClose}
-                                >
-                                    <ModalOverlay />
-                                    <ModalContent>
-                                        <ModalCloseButton />
-                                        <ModalBody>
-                                            <Box>
-                                                <Box>
-                                                    <svg
-                                                        width="48"
-                                                        height="48"
-                                                        viewBox="0 0 48 48"
-                                                        fill="none"
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                    >
-                                                        <rect
-                                                            width="48"
-                                                            height="48"
-                                                            rx="7"
-                                                            transform="matrix(-1 -8.74228e-08 -8.74228e-08 1 48 0)"
-                                                            fill="#F4F8FE"
-                                                        />
-                                                        <path
-                                                            d="M24 34C18.4771 34 14 29.5228 14 24C14 18.4771 18.4771 14 24 14C29.5228 14 34 18.4771 34 24C34 29.5228 29.5228 34 24 34ZM23 27V29H25V27H23ZM25 25.3551C26.4457 24.9248 27.5 23.5855 27.5 22C27.5 20.067 25.933 18.5 24 18.5C22.302 18.5 20.8864 19.7092 20.5673 21.3135L22.5288 21.7058C22.6656 21.0182 23.2723 20.5 24 20.5C24.8284 20.5 25.5 21.1716 25.5 22C25.5 22.8284 24.8284 23.5 24 23.5C23.4477 23.5 23 23.9477 23 24.5V26H25V25.3551Z"
-                                                            fill="#4D8DF9"
-                                                        />
-                                                    </svg>
-                                                </Box>
-                                                <Box marginTop={4}>
-                                                    <Text className="modal-title">
-                                                        Learn something else
-                                                    </Text>
-                                                    Can’t find the subject you
-                                                    wish to learn, tell us,
-                                                    we’ll match you with an
-                                                    experienced tutor
-                                                    <FormLabel margin={0}>
-                                                        <Box mt={4}>
-                                                            <Input
-                                                                size={'lg'}
-                                                                value={
-                                                                    somethingElse
-                                                                }
-                                                                onChange={(e) =>
-                                                                    onboardStudentStore.set.somethingElse?.(
-                                                                        e.target
-                                                                            .value
-                                                                    )
-                                                                }
-                                                                placeholder="Enter subject"
-                                                            />
-                                                        </Box>
-                                                    </FormLabel>
-                                                </Box>
-                                            </Box>
-                                        </ModalBody>
-
-                                        <ModalFooter>
-                                            <Button
-                                                isDisabled={!!!somethingElse}
-                                                onClick={
-                                                    onSomethingElseModalClose
-                                                }
-                                            >
-                                                Confirm
-                                            </Button>
-                                        </ModalFooter>
-                                    </ModalContent>
-                                </Modal>
-                                <Box>
-                                    <CourseSelect
-                                        multi
-                                        value={courses}
-                                        onChange={(v) => {
-                                            if (
-                                                v.includes('something-else') &&
-                                                !courses.includes(
-                                                    'something-else'
-                                                )
-                                            ) {
-                                                onSomethingElseModalOpen();
-                                            } else if (
-                                                courses.includes(
-                                                    'something-else'
-                                                ) &&
-                                                !v.includes('something-else')
-                                            ) {
-                                                onboardStudentStore.set.somethingElse(
-                                                    ''
-                                                );
-                                            }
-                                            onboardStudentStore.set.courses(v);
-                                        }}
-                                        options={[
-                                            ...courseList,
-                                            {
-                                                label: somethingElse
-                                                    ? somethingElse
-                                                    : 'Want to learn something else?',
-                                                _id: 'something-else',
-                                                imageSrc: '',
-                                                iconSrc: (
-                                                    <svg
-                                                        style={{
-                                                            margin: '0 auto',
-                                                        }}
-                                                        width="21"
-                                                        height="20"
-                                                        viewBox="0 0 21 20"
-                                                        fill="none"
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                    >
-                                                        <path
-                                                            d="M10.5 20C4.97715 20 0.5 15.5228 0.5 10C0.5 4.47715 4.97715 0 10.5 0C16.0228 0 20.5 4.47715 20.5 10C20.5 15.5228 16.0228 20 10.5 20ZM9.5 13V15H11.5V13H9.5ZM11.5 11.3551C12.9457 10.9248 14 9.5855 14 8C14 6.067 12.433 4.5 10.5 4.5C8.802 4.5 7.38637 5.70919 7.06731 7.31346L9.0288 7.70577C9.1656 7.01823 9.7723 6.5 10.5 6.5C11.3284 6.5 12 7.17157 12 8C12 8.8284 11.3284 9.5 10.5 9.5C9.9477 9.5 9.5 9.9477 9.5 10.5V12H11.5V11.3551Z"
-                                                            fill="#969CA6"
-                                                        />
-                                                    </svg>
-                                                ),
-                                            },
-                                        ].map((c) => {
-                                            return { ...c, value: c._id };
-                                        })}
-                                    />
-                                </Box>
-                            </Box>{' '}
-                        </>
-                    ) : (
-                        <EmptyState
-                            title="Uh oh!"
-                            subtitle={
-                                <>
-                                    Looks like you're not quite old enough to
-                                    sign up on your own just yet. Don't worry
-                                    though, we've got you covered! Ask your
-                                    parent or guardian to{' '}
-                                    <Link
-                                        href="/onboard/student"
-                                        color="primary.600"
-                                    >
-                                        sign up
-                                    </Link>{' '}
-                                    on your behalf and start learning with us
-                                    today.
-                                </>
-                            }
-                            image={
-                                <img
-                                    alt="uh oh!"
-                                    style={{ height: '80px' }}
-                                    src="/images/empty-state-no-content.png"
+                    <Heading as="h3" size="lg" textAlign={"center"}>
+                        First we need some information about you.
+                        <br />
+                        Hi there, before you proceed, let us know who is signing up{" "}
+                    </Heading>
+                    <Box marginTop={30}>
+                        <FormControl>
+                            <FormLabel>Password</FormLabel>
+                            <InputGroup size="lg">
+                                <Input
+                                    placeholder="Create password"
+                                    type={showPassword ? "text" : "password"}
+                                    _placeholder={{ fontSize: "14px" }}
+                                    value={password}
+                                    onChange={(e) =>
+                                        setPassword(e.target.value)
+                                    }
                                 />
-                            }
-                            action={
-                                <Button
-                                    onClick={() => {
-                                        stepWizardInstance.current?.previousStep();
-                                    }}
-                                    variant={'ghost'}
-                                >
-                                    Change Date of Birth
-                                </Button>
-                            }
-                        />
-                    )}
-                </Box>
-            ),
-            canSave: validateCoursesStep,
-        },
-        {
-            id: 'course-supplementary',
-            stepIndicatorId: 'classes',
-            template: (
-                <Box>
-                    <Heading as="h3" size="lg" textAlign={'center'}>
-                        {parentOrStudent === 'parent'
-                            ? 'What classes are your child interested in?'
-                            : 'What classes are you interested in?'}
-                    </Heading>
-                    <Box marginTop={30}>
-                        {courses.map((c) => {
-                            const courseName =
-                                c === 'something-else'
-                                    ? capitalize(somethingElse)
-                                    : courseList.find((ac) => ac._id === c)
-                                          ?.label;
-
-                            if (c === 'maths') {
-                                return (
-                                    <Box key={'course-supplementary' + c}>
-                                        <FormControl>
-                                            <FormLabel>
-                                                {parentOrStudent === 'parent'
-                                                    ? 'What grade level is your child in?'
-                                                    : 'What grade level are you in?'}
-                                            </FormLabel>
-                                            <Input
-                                                size={'lg'}
-                                                value={gradeLevel}
-                                                onChange={(e) =>
-                                                    onboardStudentStore.set.gradeLevel(
-                                                        e.target.value
-                                                    )
-                                                }
-                                                placeholder="e.g Grade 12"
-                                                required
-                                            />
-                                        </FormControl>
-
-                                        <FormControl mt={4}>
-                                            <FormLabel>
-                                                {parentOrStudent === 'parent'
-                                                    ? 'What Maths topic does your child need help with?'
-                                                    : 'What Maths topic do you need help with?'}
-                                            </FormLabel>
-                                            <Input
-                                                size={'lg'}
-                                                value={topic}
-                                                onChange={(e) =>
-                                                    onboardStudentStore.set.topic(
-                                                        e.target.value
-                                                    )
-                                                }
-                                                placeholder="e.g Algebra"
-                                                required
-                                            />
-                                        </FormControl>
-                                    </Box>
-                                );
-                            }
-
-                            return (
-                                <FormControl>
-                                    <FormLabel key={'course-supplementary' + c}>
-                                        {parentOrStudent === 'parent'
-                                            ? `What's your child's skill level for ${courseName}?`
-                                            : `What's your skill level for ${courseName}?`}
-                                    </FormLabel>
-                                    <Select
-                                        tagVariant="solid"
-                                        placeholder={
-                                            parentOrStudent === 'parent'
-                                                ? "Select your child's skill level"
-                                                : 'Select your skill level'
-                                        }
-                                        size={'lg'}
-                                        onChange={(v) => {
-                                            const currSkillLevels = [
-                                                ...skillLevels,
-                                            ];
-                                            const slv = {
-                                                course: c,
-                                                // @ts-expect-error
-                                                skillLevel: v?.value,
-                                            };
-                                            const currentIndex =
-                                                currSkillLevels.findIndex(
-                                                    (v) => v.course === c
-                                                );
-                                            if (currentIndex > -1) {
-                                                currSkillLevels[currentIndex] =
-                                                    slv;
-                                            } else {
-                                                currSkillLevels.push(slv);
-                                            }
-
-                                            onboardStudentStore.set.skillLevels?.(
-                                                currSkillLevels
-                                            );
-                                        }}
-                                        defaultValue={getOptionValue(
-                                            skillLevelOptions,
-                                            skillLevels.find(
-                                                (s) => s.course === c
-                                            )?.skillLevel
-                                        )}
-                                        options={skillLevelOptions}
+                                <InputRightElement>
+                                    {!showPassword ? (
+                                        <HiEye
+                                            cursor={"pointer"}
+                                            onClick={() => setShowPassword((prev) => !prev)}
+                                        />
+                                    ) : (
+                                        <HiEyeOff
+                                            cursor="pointer"
+                                            onClick={() => setShowPassword((prev) => !prev)}
+                                        />
+                                    )}
+                                </InputRightElement>
+                            </InputGroup>
+                        </FormControl>
+                        <FormControl mt={5}>
+                            <FormLabel>Confirm Password</FormLabel>
+                            <InputGroup size="lg">
+                                <Input
+                                    placeholder="Confirm password"
+                                    type={showPassword ? "text" : "password"}
+                                    _placeholder={{ fontSize: "14px" }}
+                                    value={confirmPassword}
+                                    onChange={(e) =>
+                                        setConfirmPassword(e.target.value)
+                                    }
+                                />
+                                <InputRightElement>
+                                    {!showPassword ? (
+                                        <HiEye
+                                            cursor="pointer"
+                                            onClick={() => setShowConfirmPassword((prev) => !prev)}
+                                        />
+                                    ) : (
+                                        <HiEyeOff
+                                            cursor="pointer"
+                                            onClick={() => setShowConfirmPassword((prev) => !prev)}
+                                        />
+                                    )}
+                                </InputRightElement>
+                            </InputGroup>
+                            {passwordChecks.map((passwordCheck) => (
+                                <HStack marginTop={30} spacing={2}>
+                                    <Checkbox
+                                        colorScheme={passwordCheck.checked ? "green" : "gray"}
+                                        variant={"looney"}
+                                        isChecked={passwordCheck.checked}
+                                        size="lg"
                                     />
-                                </FormControl>
-                            );
-                        })}
-                    </Box>
-                </Box>
-            ),
-            canSave: validateCourseSupplementaryStep,
-        },
-        {
-            id: 'availability',
-            stepIndicatorId: 'availability',
-            template: (
-                <Box>
-                    <FormControl>
-                        <FormLabel m={0}>Timezone</FormLabel>
-                        <TimezoneSelect
-                            value={tz}
-                            onChange={(v) =>
-                                onboardStudentStore.set.tz(v.value)
-                            }
-                        />
-                    </FormControl>
-                    <Box mt={'40px'}>
-                        <ScheduleBuilder
-                            value={schedule}
-                            onChange={(v) =>
-                                onboardStudentStore.set.schedule(v)
-                            }
-                        />
-                    </Box>
-                </Box>
-            ),
-            canSave: validateScheduleStep,
-        },
-        {
-            id: 'confirm',
-            template: (
-                <Box>
-                    <Heading as="h3" size="lg" textAlign={'center'}>
-                        Review Your Information
-                    </Heading>
-                    <Box marginTop={30}>
-                        <VStack alignItems={'stretch'} spacing={5}>
-                            {confirmations.map((c) => (
-                                <Box key={c.title}>
-                                    <Heading
-                                        as="h5"
-                                        size={'md'}
-                                        marginBottom={5}
-                                    >
-                                        {c.title}
-                                    </Heading>
-                                    <VStack
-                                        divider={
-                                            <StackDivider borderColor="gray.200" />
-                                        }
-                                        alignItems={'stretch'}
-                                    >
-                                        {c.fields.map((f) => {
-                                            return (
-                                                <Flex key={f.title}>
-                                                    <Flex
-                                                        flexDirection={'column'}
-                                                        justifyContent="center"
-                                                        flexGrow={1}
-                                                    >
-                                                        {!!f.title && (
-                                                            <Heading
-                                                                as="h6"
-                                                                textTransform={
-                                                                    'capitalize'
-                                                                }
-                                                                size={'sm'}
-                                                            >
-                                                                {f.title}
-                                                            </Heading>
-                                                        )}
-                                                        {f.value}
-                                                    </Flex>
-                                                    <IconButton
-                                                        variant="ghost"
-                                                        aria-label="Edit"
-                                                        onClick={() =>
-                                                            openEditModal(
-                                                                f.step
-                                                            )
-                                                        }
-                                                        icon={<FiEdit />}
-                                                    />
-                                                </Flex>
-                                            );
-                                        })}
-                                    </VStack>
-                                </Box>
+                                    <Text fontSize="sm">{passwordCheck.text}</Text>
+                                </HStack>
                             ))}
-                        </VStack>
+                        </FormControl>
                     </Box>
                 </Box>
             ),
-            canSave: true,
+            canSave: validatePasswordStep,
         },
     ];
 
     const doSubmit = () => {
         mixpanel.track('Completed onboarding');
-        return ApiService.submitStudentLead(data);
+        return ApiService.submitTutorLead(data);
     };
 
     const openEditModal = (stepId: string) => {
