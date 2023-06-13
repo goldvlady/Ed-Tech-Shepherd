@@ -6,7 +6,7 @@ import UserNotificationModel, {
 import { TimestampedEntity } from '../types';
 
 class NotificationHandler {
-  public async createNotification(params: Omit<UserNotification, keyof TimestampedEntity>) {
+  private async createNotification(params: Omit<UserNotification, keyof TimestampedEntity>) {
     return await UserNotificationModel.create(params);
   }
 
