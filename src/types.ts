@@ -4,6 +4,7 @@ import { Course as CourseType } from '../netlify/database/models/Course';
 import { Offer as OfferType } from '../netlify/database/models/Offer';
 import { StudentLead } from '../netlify/database/models/StudentLead';
 import { TutorLead } from '../netlify/database/models/TutorLead';
+import { Level } from '../netlify/database/models//Level';
 import { User as UserType } from '../netlify/database/models/User';
 
 export type Entity = {
@@ -27,6 +28,30 @@ export type Slot = {
     begin: string;
     end: string;
 };
+
+export interface TutorQualification {
+  institution: string;
+  degree: string;
+  startDate: Date;
+  endDate: Date;
+}
+
+export interface TutorBankInfo {
+  accountName: string;
+  accountNumber: string;
+  bankName: string;
+}
+
+export interface TutorCourseAndLevel {
+  course: Course;
+  level: Level;
+}
+
+export interface TutorBankInfo {
+  accountName: string;
+  accountNumber: string;
+  bankName: string;
+}
 
 export type Course = CourseType;
 export type Student = StudentLead;

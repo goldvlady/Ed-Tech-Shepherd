@@ -22,8 +22,10 @@ import ForgotPassword from './views/ForgotPassword';
 import Home from './views/Home';
 import Login from './views/Login';
 import Offer from './views/Offer';
-import Onboard from './views/Onboard';
 import OnboardStudent from './views/OnboardStudent';
+import CompleteProfile from './views/OnboardTutor/complete_profile'
+import PendingVerification from './views/VerificationPages/pending_verification'
+import VerificationSuccess from './views/VerificationPages/successful_verification'
 import OnboardTutor from './views/OnboardTutor';
 import SendTutorOffer from './views/SendTutorOffer';
 import Session from './views/Session';
@@ -114,6 +116,11 @@ const AppRoutes: React.FC = () => {
                     <Route path="*" element={<Navigate to="student" />} />
                     <Route path="" element={<Navigate to="student" />} />
                 </Route>
+
+                <Route path="complete_profile" element={<CompleteProfile />} />
+
+<Route path="verification_pending" element={<PendingVerification />} />
+<Route path="verification_success" element={<VerificationSuccess />} />
 
                 <Route
                     path="login"

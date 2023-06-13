@@ -28,7 +28,8 @@ const borderRadius = {
 
 const colors = {
     blue: {
-        '100': '#EFF4FA',
+        "100": '#EFF4FA',
+        "200": "#207DF7"
     },
     red: {
         '50': '#FEE7E7',

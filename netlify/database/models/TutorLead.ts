@@ -7,6 +7,7 @@ import { Course } from './Course';
 import { Level } from './Level';
 import { TutorReview } from './TutorReview';
 
+
 interface TutorQualification {
   institution: string;
   degree: string;
@@ -24,6 +25,7 @@ interface TutorCourseAndLevel {
   course: Course;
   level: Level;
 }
+
 
 export interface TutorLead extends TimestampedEntity {
   name: {
@@ -52,6 +54,12 @@ export interface TutorLead extends TimestampedEntity {
   reviewCount: number;
   rating: number;
 }
+
+const paymentInformationSchema = new Schema({
+  accountName: String,
+  accountNumber: String,
+  bankName: String,
+})
 
 interface TutorLeadSchemaInterface extends TutorLead {
   reviews: Array<TutorReview>;
@@ -89,7 +97,6 @@ const schema = new Schema<TutorLeadSchemaInterface>(
     qualifications: { type: Schema.Types.Mixed, required: false },
     country: { type: String, required: false },
     bankInfo: { type: Schema.Types.Mixed, required: false },
-
     pipedriveDealId: { type: String, required: false },
   },
   {

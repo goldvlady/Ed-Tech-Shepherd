@@ -28,7 +28,6 @@ export interface StudentLead extends TimestampedEntity {
   skillLevels?: (typeof skillLevelSchema)[];
   schedule: Schedule;
   tz: string;
-
   pipedriveDealId?: string;
 }
 
