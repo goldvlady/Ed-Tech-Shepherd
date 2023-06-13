@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { MongooseQueryParser } from 'mongoose-query-parser';
 
-import TutorLead from '../database/models/TutorLead';
+import Tutor from '../database/models/Tutor';
 import { HTTPEvent } from '../types';
 import middy from '../utils/middy';
 
@@ -19,7 +19,7 @@ const tutors = async (event: HTTPEvent) => {
     filter: { startTime, endTime, tz, ...filters },
   } = parser.parse(queryStringParameters || '', predefined) as any;
 
-  let tutors = await TutorLead.aggregate([
+  let tutors = await Tutor.aggregate([
     {
       $lookup: {
         from: 'tutorreviews',
@@ -84,7 +84,7 @@ const tutors = async (event: HTTPEvent) => {
     },
   ]);
 
-  tutors = await TutorLead.populate(tutors, [
+  tutors = await Tutor.populate(tutors, [
     {
       path: 'user',
     },
@@ -99,7 +99,7 @@ const tutors = async (event: HTTPEvent) => {
     },
   ]);
 
-  tutors = tutors.map((t) => TutorLead.hydrate(t).toJSON());
+  tutors = tutors.map((t) => Tutor.hydrate(t).toJSON());
   if (startTime && endTime) {
     let momentStartTime = moment(startTime, 'hh:mm A');
     let momentEndTime = moment(endTime, 'hh:mm A');

@@ -1,6 +1,7 @@
-import { Schema, model } from "mongoose";
-import { TimestampedEntity } from "../../types";
-import { Student, Tutor } from "../../../src/types";
+import { Schema, model } from 'mongoose';
+
+import { Student, Tutor } from '../../../src/types';
+import { TimestampedEntity } from '../../types';
 
 type Rating = 1 | 2 | 3 | 4 | 5;
 
@@ -15,12 +16,12 @@ const schema = new Schema<TutorReview>(
   {
     tutor: {
       type: Schema.Types.ObjectId,
-      ref: "TutorLead",
+      ref: 'Tutor',
       required: true,
     },
     student: {
       type: Schema.Types.ObjectId,
-      ref: "StudentLead",
+      ref: 'StudentLead',
       required: true,
       autopopulate: true,
     },
@@ -37,6 +38,6 @@ const schema = new Schema<TutorReview>(
   { timestamps: true }
 );
 
-schema.plugin(require("mongoose-autopopulate"));
+schema.plugin(require('mongoose-autopopulate'));
 
-export default model("TutorReview", schema);
+export default model('TutorReview', schema);

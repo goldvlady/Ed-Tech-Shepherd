@@ -4,7 +4,7 @@ import moment from 'moment-timezone';
 import { SCHEDULE_FORMAT } from '../../src/config';
 import { Schedule } from '../../src/types';
 import { StudentLead } from '../database/models/StudentLead';
-import { TutorLead } from '../database/models/TutorLead';
+import { Tutor } from '../database/models/Tutor';
 
 const pipedrive = require('pipedrive');
 
@@ -71,7 +71,7 @@ export class PipedriveService {
    * @param tutor
    * @returns
    */
-  formatTutorForPipedrive(tutor: TutorLead) {
+  formatTutorForPipedrive(tutor: Tutor) {
     return {
       title: `${capitalize(tutor.name.first)} ${capitalize(tutor.name.last)} - Tutor (${
         tutor.active ? 'active' : 'inactive'
@@ -92,7 +92,7 @@ export class PipedriveService {
    * @param tutor
    * @returns deal ID
    */
-  async createTutorDeal(tutor: TutorLead) {
+  async createTutorDeal(tutor: Tutor) {
     const {
       success,
       data: { id: personId },
@@ -124,7 +124,7 @@ export class PipedriveService {
    * Update tutor deal in Pipedrive
    * @param tutor Tutor
    */
-  async updateTutorDeal(tutor: TutorLead) {
+  async updateTutorDeal(tutor: Tutor) {
     const { success: dealUpdateSuccess } = await this.dealsApi.updateDeal(tutor.pipedriveDealId, {
       ...this.formatTutorForPipedrive(tutor),
     });
@@ -138,7 +138,7 @@ export class PipedriveService {
    * Post a note in the tutor deal in Pipedrive
    * @param tutor
    */
-  async createTutorNote(tutor: TutorLead) {
+  async createTutorNote(tutor: Tutor) {
     const schedule = this.formatScheduleToWAT(tutor.schedule);
 
     const content = `

@@ -1,11 +1,12 @@
-import { Booking } from "../database/models/Booking";
-import Email, { Types } from "../database/models/Email";
-import { StudentLead } from "../database/models/StudentLead";
-import { TutorLead } from "../database/models/TutorLead";
-import moment from "moment-timezone";
-import { SITE_URL } from "../utils/config";
-import { capitalize } from "lodash";
-import { Offer } from "../database/models/Offer";
+import { capitalize } from 'lodash';
+import moment from 'moment-timezone';
+
+import { Booking } from '../database/models/Booking';
+import Email, { Types } from '../database/models/Email';
+import { Offer } from '../database/models/Offer';
+import { StudentLead } from '../database/models/StudentLead';
+import { Tutor } from '../database/models/Tutor';
+import { SITE_URL } from '../utils/config';
 
 class EmailHandler {
   getButton(text: string, href: string) {
@@ -30,10 +31,10 @@ class EmailHandler {
        </center>`;
   }
 
-  async createTutorWelcomeEmail(tutor: TutorLead) {
+  async createTutorWelcomeEmail(tutor: Tutor) {
     await Email.create({
       to: tutor.email,
-      subject: "Hello from Shepherd Tutors",
+      subject: 'Hello from Shepherd Tutors',
       type: Types.WELCOME_TUTOR,
       content: `
 Hi ${capitalize(tutor.name.first)},
@@ -61,7 +62,7 @@ Shepherd Tutors
   async createStudentWelcomeEmail(student: StudentLead) {
     await Email.create({
       to: student.email,
-      subject: "Hello from Shepherd Tutors",
+      subject: 'Hello from Shepherd Tutors',
       type: Types.WELCOME_TUTOR,
       content: `
 Hi ${capitalize(student.name.first)},
@@ -87,17 +88,15 @@ Shepherd Tutors
   }
 
   async createStudentBookingConfirmedEmail(booking: Booking) {
-    const timing = `${moment(booking.startDate).format(
-      "MMMM Do YYYY"
-    )}: ${moment(booking.startDate)
+    const timing = `${moment(booking.startDate).format('MMMM Do YYYY')}: ${moment(booking.startDate)
       .tz(booking.offer.studentLead.tz)
-      .format("hh:mm A")} - ${moment(booking.endDate)
+      .format('hh:mm A')} - ${moment(booking.endDate)
       .tz(booking.offer.studentLead.tz)
-      .format("hh:mm A")}`;
+      .format('hh:mm A')}`;
 
     await Email.create({
       to: booking.offer.studentLead.email,
-      subject: `Get ready for your upcoming session with ${booking.offer.tutorLead.name.first}`,
+      subject: `Get ready for your upcoming session with ${booking.offer.tutor.name.first}`,
       type: Types.BOOKING_CONFIRMED,
       content: `
 Hi ${capitalize(booking.offer.studentLead.name.first)},
@@ -106,7 +105,7 @@ Hi ${capitalize(booking.offer.studentLead.name.first)},
 We're excited to let you know that your <a href="${SITE_URL}/booking/${
         booking._id
       }/student">session</a> with ${
-        booking.offer.tutorLead.name.first
+        booking.offer.tutor.name.first
       } has been successfully booked for the following dates:
 <br />
 <br />
@@ -122,7 +121,7 @@ Please make sure to log in a few minutes before the scheduled start time to avoi
 <br />
 <br />
 We hope you find your session with ${
-        booking.offer.tutorLead.name.first
+        booking.offer.tutor.name.first
       } informative and productive. If you have any questions or concerns, please don't hesitate to let us know.
 <br />
 <br />
@@ -134,27 +133,23 @@ Shepherd Tutors
   }
 
   async createTutorBookingConfirmedEmail(booking: Booking) {
-    const timing = `${moment(booking.startDate).format(
-      "MMMM Do YYYY"
-    )}: ${moment(booking.startDate)
-      .tz(booking.offer.tutorLead.tz)
-      .format("hh:mm A")} - ${moment(booking.endDate)
-      .tz(booking.offer.tutorLead.tz)
-      .format("hh:mm A")}`;
+    const timing = `${moment(booking.startDate).format('MMMM Do YYYY')}: ${moment(booking.startDate)
+      .tz(booking.offer.tutor.tz)
+      .format('hh:mm A')} - ${moment(booking.endDate)
+      .tz(booking.offer.tutor.tz)
+      .format('hh:mm A')}`;
 
     await Email.create({
-      to: booking.offer.tutorLead.email,
+      to: booking.offer.tutor.email,
       subject: `Get ready for your upcoming session with ${booking.offer.studentLead.name.first}`,
       type: Types.BOOKING_CONFIRMED,
       content: `
-Hi ${capitalize(booking.offer.tutorLead.name.first)},
+Hi ${capitalize(booking.offer.tutor.name.first)},
 <br />
 <br />
 We're excited to let you know that you've just been booked for a <a href="${SITE_URL}/booking/${
         booking._id
-      }/student">session</a> with ${
-        booking.offer.studentLead.name.first
-      } on the following dates:
+      }/student">session</a> with ${booking.offer.studentLead.name.first} on the following dates:
 <br />
 <br />
 ${timing}
@@ -179,17 +174,17 @@ Shepherd Tutors
     const offerUrl = `${SITE_URL}/dashboard/offer/${offer._id}`;
 
     await Email.create({
-      to: offer.tutorLead.email,
+      to: offer.tutor.email,
       subject: `You've received a new offer`,
       type: Types.NEW_OFFER_TUTOR,
       content: `
-Hi ${capitalize(offer.tutorLead.name.first)},
+Hi ${capitalize(offer.tutor.name.first)},
 <br />
 <br />
 We're excited to let you know that you've just received a new offer. Click the button below to view your offer.
 <br />
 <br />
-${this.getButton("View your offer", offerUrl)}
+${this.getButton('View your offer', offerUrl)}
 <br />
 <br />
 Or use the following link:
@@ -217,7 +212,7 @@ Hi ${capitalize(offer.studentLead.name.first)},
 We're excited to let you know that your offer has been accepted. Click the button below to complete payment for your offer.
 <br />
 <br />
-${this.getButton("View your offer", offerUrl)}
+${this.getButton('View your offer', offerUrl)}
 <br />
 <br />
 Or use the following link:
@@ -245,7 +240,7 @@ Hi ${capitalize(offer.studentLead.name.first)},
 There's been a new update on your offer, Click the button below to view it.
 <br />
 <br />
-${this.getButton("View your offer", offerUrl)}
+${this.getButton('View your offer', offerUrl)}
 <br />
 <br />
 Or use the following link:
@@ -263,17 +258,17 @@ Shepherd Tutors
     const offerUrl = `${SITE_URL}/dashboard/offer/${offer._id}`;
 
     await Email.create({
-      to: offer.tutorLead.email,
+      to: offer.tutor.email,
       subject: `There's been a new update on your offer`,
       type: Types.OFFER_WITHDRAWN_TUTOR,
       content: `
-Hi ${capitalize(offer.tutorLead.name.first)},
+Hi ${capitalize(offer.tutor.name.first)},
 <br />
 <br />
 There's been a new update on your offer, Click the button below to view it.
 <br />
 <br />
-${this.getButton("View your offer", offerUrl)}
+${this.getButton('View your offer', offerUrl)}
 <br />
 <br />
 Or use the following link:

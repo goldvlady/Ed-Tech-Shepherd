@@ -3,7 +3,7 @@ import { Schema, model } from 'mongoose';
 import { TimestampedEntity } from '../../types';
 import { PaymentMethod } from './PaymentMethod';
 import StudentLead, { StudentLead as StudentLeadType } from './StudentLead';
-import TutorLead, { TutorLead as TutorLeadType } from './TutorLead';
+import Tutor, { Tutor as TutorType } from './Tutor';
 
 export interface User extends TimestampedEntity {
   name: {
@@ -13,7 +13,7 @@ export interface User extends TimestampedEntity {
   email: string;
   firebaseId: string;
   avatar?: string;
-  tutorLead?: TutorLeadType;
+  tutor?: TutorType;
   studentLead?: StudentLeadType;
   type: 'student' | 'tutor';
   stripeCustomerId?: string;
@@ -39,23 +39,23 @@ const schema = new Schema<User>(
     toJSON: {
       virtuals: true,
       transform: (doc, r) => {
-        if (r.tutorLead) {
-          delete r.tutorLead.user;
+        if (r.tutor) {
+          delete r.tutor.user;
         }
       },
     },
     toObject: {
       virtuals: true,
       transform: (doc, r) => {
-        if (r.tutorLead) {
-          delete r.tutorLead.user;
+        if (r.tutor) {
+          delete r.tutor.user;
         }
       },
     },
   }
 );
 
-schema.virtual('tutorLead');
+schema.virtual('tutor');
 schema.virtual('studentLead');
 schema.virtual('type');
 
@@ -65,8 +65,8 @@ schema.virtual('paymentMethods', {
   foreignField: 'user',
 });
 
-schema.virtual('tutorLead', {
-  ref: 'TutorLead',
+schema.virtual('tutor', {
+  ref: 'Tutor',
   localField: 'email',
   foreignField: 'email',
   justOne: true,
@@ -87,7 +87,7 @@ schema.virtual('studentLead', {
 });
 
 schema.virtual('type').get(function () {
-  if (this.tutorLead) {
+  if (this.tutor) {
     return 'tutor';
   }
 

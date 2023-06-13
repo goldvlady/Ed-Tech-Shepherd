@@ -1,23 +1,21 @@
-import Offer, {
-  Offer as OfferType,
-  STATUS as OFFERSTATUS,
-} from "../database/models/Offer";
-import TutorLead from "../database/models/TutorLead";
-import { PaymentMethod as PaymentMethodType } from "../database/models/PaymentMethod";
-import { User as UserType } from "../database/models/User";
-import EmailHandler from "./EmailHandler";
-import moment from "moment";
-import Booking, { Booking as BookingType } from "../database/models/Booking";
+import moment from 'moment';
+
+import Booking, { Booking as BookingType } from '../database/models/Booking';
+import Offer, { STATUS as OFFERSTATUS, Offer as OfferType } from '../database/models/Offer';
+import { PaymentMethod as PaymentMethodType } from '../database/models/PaymentMethod';
+import Tutor from '../database/models/Tutor';
+import { User as UserType } from '../database/models/User';
+import EmailHandler from './EmailHandler';
 
 class OfferHandler {
   emailHandler = new EmailHandler();
 
   async createOffer(data: any, studentUser: UserType) {
-    const tutorLead = await TutorLead.findById(data.tutor);
+    const tutor = await Tutor.findById(data.tutor);
     const offer = await Offer.create({
       ...data,
       studentLead: studentUser.studentLead,
-      tutorLead,
+      tutor,
     });
 
     this.emailHandler.createNewOfferTutorEmail(offer);
@@ -76,10 +74,10 @@ class OfferHandler {
 
     let bookingsToCreate: Array<Partial<BookingType>> = [];
 
-    while (momentOfferStartDate.isBefore(momentOfferEndDate, "day")) {
+    while (momentOfferStartDate.isBefore(momentOfferEndDate, 'day')) {
       const dayOfWeekIndex = momentOfferStartDate.day();
       if (offer.schedule[dayOfWeekIndex]) {
-        let d = momentOfferStartDate.format("YYYY-MM-DD");
+        let d = momentOfferStartDate.format('YYYY-MM-DD');
         let begin = moment(d + ` ${offer.schedule[dayOfWeekIndex].begin}`);
         let end = moment(d + ` ${offer.schedule[dayOfWeekIndex].end}`);
 
@@ -89,7 +87,7 @@ class OfferHandler {
           offer: offer._id as unknown as OfferType,
         });
       }
-      momentOfferStartDate.add(1, "days");
+      momentOfferStartDate.add(1, 'days');
     }
 
     await Booking.insertMany(bookingsToCreate);

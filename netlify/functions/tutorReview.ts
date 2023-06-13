@@ -1,8 +1,8 @@
-import TutorLead from "../database/models/TutorLead";
-import middy from "../utils/middy";
-import authMiddleware from "../middlewares/authMiddleware";
-import TutorReview from "../database/models/TutorReview";
-import { HTTPEvent } from "../types";
+import Tutor from '../database/models/Tutor';
+import TutorReview from '../database/models/TutorReview';
+import authMiddleware from '../middlewares/authMiddleware';
+import { HTTPEvent } from '../types';
+import middy from '../utils/middy';
 
 export const tutorReview = async (event: HTTPEvent) => {
   const { user } = event;
@@ -10,7 +10,7 @@ export const tutorReview = async (event: HTTPEvent) => {
   const data = JSON.parse(event.body as string);
   const { rating, review, tutor } = data;
 
-  const tutorToRate = await TutorLead.findById(tutor);
+  const tutorToRate = await Tutor.findById(tutor);
 
   if (!tutorToRate) {
     return {

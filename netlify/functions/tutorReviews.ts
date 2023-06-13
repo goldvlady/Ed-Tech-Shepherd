@@ -1,8 +1,8 @@
-import TutorLead from "../database/models/TutorLead";
-import middy from "../utils/middy";
-import authMiddleware from "../middlewares/authMiddleware";
-import TutorReview from "../database/models/TutorReview";
-import { HTTPEvent } from "../types";
+import Tutor from '../database/models/Tutor';
+import TutorReview from '../database/models/TutorReview';
+import authMiddleware from '../middlewares/authMiddleware';
+import { HTTPEvent } from '../types';
+import middy from '../utils/middy';
 
 export const tutorReviews = async (event: HTTPEvent) => {
   const { tutor } = event.queryStringParameters as { tutor: string };

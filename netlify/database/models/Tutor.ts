@@ -8,7 +8,6 @@ import { Level } from './Level';
 import { TutorReview } from './TutorReview';
 import { User } from './User';
 
-
 interface TutorQualification {
   institution: string;
   degree: string;
@@ -27,8 +26,7 @@ interface TutorCourseAndLevel {
   level: Level;
 }
 
-
-export interface TutorLead extends TimestampedEntity {
+export interface Tutor extends TimestampedEntity {
   name: {
     first: string;
     last: string;
@@ -61,13 +59,13 @@ const paymentInformationSchema = new Schema({
   accountName: String,
   accountNumber: String,
   bankName: String,
-})
+});
 
-interface TutorLeadSchemaInterface extends TutorLead {
+interface TutorSchemaInterface extends Tutor {
   reviews: Array<TutorReview>;
 }
 
-const schema = new Schema<TutorLeadSchemaInterface>(
+const schema = new Schema<TutorSchemaInterface>(
   {
     name: {
       type: new Schema({
@@ -108,7 +106,7 @@ const schema = new Schema<TutorLeadSchemaInterface>(
       transform: (_, r) => {
         delete r.reviews;
         if (r.user) {
-          delete r.user.tutorLead;
+          delete r.user.tutor;
         }
       },
     },
@@ -117,7 +115,7 @@ const schema = new Schema<TutorLeadSchemaInterface>(
       transform: (_, r) => {
         delete r.reviews;
         if (r.user) {
-          delete r.user.tutorLead;
+          delete r.user.tutor;
         }
       },
     },
@@ -163,4 +161,4 @@ schema.virtual('rating').get(function () {
 
 schema.plugin(require('mongoose-autopopulate'));
 
-export default model<TutorLead>('TutorLead', schema);
+export default model<Tutor>('Tutor', schema);

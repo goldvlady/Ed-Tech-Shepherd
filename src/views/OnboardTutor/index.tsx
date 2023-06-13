@@ -1,80 +1,71 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { HiEye, HiEyeOff } from "react-icons/hi";
-import StepIndicator from "../../components/StepIndicator";
-import resourceStore from '../../state/resourceStore';
 import {
-  FiUser,
-  FiCalendar,
-  FiBookOpen,
-  FiDollarSign,
-  FiEdit,
-} from "react-icons/fi";
-import DragAndDrop from "../../components/DragandDrop";
-import SelectComponent from "../../components/Select";
-import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Avatar,
   Box,
-  FormLabel,
-  Heading,
-  Input,
-  Text,
+  Button,
+  Checkbox,
   CircularProgress,
+  Flex,
+  FormControl,
+  FormLabel,
+  HStack,
+  Heading,
+  IconButton,
+  Input,
   InputGroup,
   InputLeftAddon,
-  Alert,
-  AlertIcon,
-  VStack,
-  useToast,
-  Flex,
-  IconButton,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Button,
-  useDisclosure,
-  StackDivider,
-  Avatar,
-  Textarea,
-  FormControl,
-  AlertDescription,
-  HStack,
-  Checkbox,
   InputRightElement,
-} from "@chakra-ui/react";
-import StepWizard, { StepWizardProps } from "react-step-wizard";
-import LargeSelect from "../../components/LargeSelect";
-import OnboardStep from "../../components/OnboardStep";
-import onboardTutorStore from "../../state/onboardTutorStore";
-import CourseSelect from "../../components/CourseSelect";
-import { capitalize, isEmpty, sumBy } from "lodash";
-import ScheduleBuilder from "../../components/ScheduleBuilder";
-import OnboardSubmitStep from "../../components/OnboardSubmitStep";
-import Lottie from "lottie-react";
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  StackDivider,
+  Text,
+  Textarea,
+  VStack,
+  useDisclosure,
+  useToast,
+} from '@chakra-ui/react';
+import { ref } from '@firebase/storage';
+import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
+import { capitalize, isEmpty, sumBy } from 'lodash';
+import Lottie from 'lottie-react';
+import mixpanel from 'mixpanel-browser';
+import moment from 'moment';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { FiBookOpen, FiCalendar, FiDollarSign, FiEdit, FiUser } from 'react-icons/fi';
+import { HiEye, HiEyeOff } from 'react-icons/hi';
+import { MdInfo } from 'react-icons/md';
+import StepWizard, { StepWizardProps } from 'react-step-wizard';
 
-import lottieSuccessAnimationData from "../../lottie/73392-success.json";
-import { useTitle } from "../../hooks";
-import ApiService from "../../services/ApiService";
-import TimezoneSelect from "../../components/TimezoneSelect";
-
-import moment from "moment";
-import EmptyState from "../../components/EmptyState";
-
-import occupationList from "../../occupations.json";
-import { ref } from "@firebase/storage";
-import { getDownloadURL, uploadBytesResumable } from "firebase/storage";
-import { storage } from "../../firebase";
-import { getOptionValue } from "../../util";
-import FileDisplay from "../../components/FileDisplay";
-
-import DateInput, { FORMAT } from "../../components/DateInput";
-import { FORMAT as TIME_PICKER_FORMAT } from "../../components/TimePicker";
-import mixpanel from "mixpanel-browser";
-import CreatableSelect from "../../components/CreatableSelect";
-import { MdInfo } from "react-icons/md";
-import theme from "../../theme";
+import CourseSelect from '../../components/CourseSelect';
+import CreatableSelect from '../../components/CreatableSelect';
+import DateInput, { FORMAT } from '../../components/DateInput';
+import DragAndDrop from '../../components/DragandDrop';
+import EmptyState from '../../components/EmptyState';
+import FileDisplay from '../../components/FileDisplay';
+import LargeSelect from '../../components/LargeSelect';
+import OnboardStep from '../../components/OnboardStep';
+import OnboardSubmitStep from '../../components/OnboardSubmitStep';
+import ScheduleBuilder from '../../components/ScheduleBuilder';
+import SelectComponent from '../../components/Select';
+import StepIndicator from '../../components/StepIndicator';
+import { FORMAT as TIME_PICKER_FORMAT } from '../../components/TimePicker';
+import TimezoneSelect from '../../components/TimezoneSelect';
+import { storage } from '../../firebase';
+import { useTitle } from '../../hooks';
+import lottieSuccessAnimationData from '../../lottie/73392-success.json';
+import occupationList from '../../occupations.json';
+import ApiService from '../../services/ApiService';
+import onboardTutorStore from '../../state/onboardTutorStore';
+import resourceStore from '../../state/resourceStore';
+import theme from '../../theme';
+import { getOptionValue } from '../../util';
 
 const occupationOptions = occupationList.map((o) => {
   return { label: o, value: o };
@@ -82,69 +73,68 @@ const occupationOptions = occupationList.map((o) => {
 
 const stepIndicatorSteps = [
   {
-    title: "About you",
+    title: 'About you',
     icon: <FiUser />,
-    id: "about-you",
+    id: 'about-you',
   },
   {
-    title: "Id Verification",
+    title: 'Id Verification',
     icon: <FiBookOpen />,
-    id: "id_verification",
+    id: 'id_verification',
   },
   {
-    title: "Security",
+    title: 'Security',
     icon: <FiCalendar />,
-    id: "security",
+    id: 'security',
   },
 ];
 
 const educationLevelOptions = [
   {
-    label: "Primary School Certificate",
-    value: "primary-school-cert",
+    label: 'Primary School Certificate',
+    value: 'primary-school-cert',
   },
   {
-    label: "Junior Secondary School Certificate",
-    value: "junior-secondary-school-cert",
+    label: 'Junior Secondary School Certificate',
+    value: 'junior-secondary-school-cert',
   },
   {
-    label: "Senior Secondary School Certificate",
-    value: "senior-secondary-school-cert",
+    label: 'Senior Secondary School Certificate',
+    value: 'senior-secondary-school-cert',
   },
   {
-    label: "National Diploma (ND)",
-    value: "national-diploma",
+    label: 'National Diploma (ND)',
+    value: 'national-diploma',
   },
   {
-    label: "Higher National Diploma (HND)",
-    value: "higher-national-diploma",
+    label: 'Higher National Diploma (HND)',
+    value: 'higher-national-diploma',
   },
   {
     label: "Bachelor's Degree (BSc, BA, BEng, etc.)",
-    value: "bachelors-degree",
+    value: 'bachelors-degree',
   },
   {
     label: "Master's Degree (MSc, MA, MEng, etc.)",
-    value: "masters-degree",
+    value: 'masters-degree',
   },
   {
-    label: "Doctoral Degree (PhD, MD, etc.)",
-    value: "doctoral-degree",
+    label: 'Doctoral Degree (PhD, MD, etc.)',
+    value: 'doctoral-degree',
   },
   {
-    label: "Vocational/Technical Certificate",
-    value: "vocation-technical-cert",
+    label: 'Vocational/Technical Certificate',
+    value: 'vocation-technical-cert',
   },
 ];
 
-
 const OnboardTutor = () => {
   const toast = useToast();
-  const {countries} = resourceStore()
-  console.log(countries)
+  const { countries } = resourceStore();
+  console.log(countries);
   const [confirmDocument, setConfirmDocument] = useState(false);
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loadingCourses, setLoadingCourses] = useState(false);
   const [activeStep, setActiveStep] = useState<number>(1);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -157,17 +147,9 @@ const OnboardTutor = () => {
   } = useDisclosure();
 
   const data = onboardTutorStore.useStore();
-  const {
-    name,
-    dob,
-    email,
-    schedule,
-    country,
-    identityDocument,
-    tz,
-  } = data;
+  const { name, dob, email, schedule, country, identityDocument, tz } = data;
 
-  console.log("country ====>", country, identityDocument)
+  console.log('country ====>', country, identityDocument);
 
   const totalAvailableHours = useMemo(
     () =>
@@ -179,11 +161,7 @@ const OnboardTutor = () => {
           .flat(),
         (o) => {
           return moment
-            .duration(
-              moment(o.end, TIME_PICKER_FORMAT).diff(
-                moment(o.begin, TIME_PICKER_FORMAT)
-              )
-            )
+            .duration(moment(o.end, TIME_PICKER_FORMAT).diff(moment(o.begin, TIME_PICKER_FORMAT)))
             .asHours();
         }
       ),
@@ -191,11 +169,11 @@ const OnboardTutor = () => {
   );
 
   const dobValid = moment(dob, FORMAT, true).isValid();
-  const age = useMemo(() => moment().diff(moment(dob, FORMAT), "years"), [dob]);
-  const [isUploadLoading, setUploadLoading] = useState(false)
+  const age = useMemo(() => moment().diff(moment(dob, FORMAT), 'years'), [dob]);
+  const [isUploadLoading, setUploadLoading] = useState(false);
 
   const validateNameStep = !!name.first && !!name.last;
-  const validateCredentialsStep = !!country && !!identityDocument
+  const validateCredentialsStep = !!country && !!identityDocument;
 
   const [cvUploadPercent, setCvUploadPercent] = useState(0);
   const [selectedCV, setSelectedCV] = useState<File | null>(null);
@@ -205,15 +183,15 @@ const OnboardTutor = () => {
   const [selectedIdDoc, setSelectedIdDoc] = useState<File | null>(null);
 
   useEffect(() => {
-    onboardTutorStore.set.cv("");
+    onboardTutorStore.set.cv('');
 
     if (!selectedCV) return;
 
     if (selectedCV?.size > 2000000) {
       toast({
-        title: "Please upload a file under 2MB",
-        status: "error",
-        position: "top",
+        title: 'Please upload a file under 2MB',
+        status: 'error',
+        position: 'top',
         isClosable: true,
       });
       return;
@@ -223,11 +201,9 @@ const OnboardTutor = () => {
     const uploadTask = uploadBytesResumable(storageRef, selectedCV);
 
     uploadTask.on(
-      "state_changed",
+      'state_changed',
       (snapshot) => {
-        const progress = Math.round(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        );
+        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
         setCvUploadPercent(progress);
       },
       (error) => {
@@ -243,15 +219,15 @@ const OnboardTutor = () => {
   }, [selectedCV]);
 
   useEffect(() => {
-    onboardTutorStore.set.identityDocument?.("");
+    onboardTutorStore.set.identityDocument?.('');
 
     if (!selectedIdDoc) return;
 
     if (selectedIdDoc?.size > 1000000) {
       toast({
-        title: "Please upload a file under 1MB",
-        status: "error",
-        position: "top",
+        title: 'Please upload a file under 1MB',
+        status: 'error',
+        position: 'top',
         isClosable: true,
       });
       return;
@@ -260,24 +236,22 @@ const OnboardTutor = () => {
     const storageRef = ref(storage, `files/${selectedIdDoc.name}`);
     const uploadTask = uploadBytesResumable(storageRef, selectedIdDoc);
 
-    setUploadLoading(true)
+    setUploadLoading(true);
 
     uploadTask.on(
-      "state_changed",
+      'state_changed',
       (snapshot) => {
-        const progress = Math.round(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        );
+        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
         // setAvatarUploadPercent(progress);
       },
       (error) => {
-        setUploadLoading(false)
+        setUploadLoading(false);
         // setAvatarUploadPercent(0);
         alert(error);
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          setUploadLoading(false)
+          setUploadLoading(false);
           onboardTutorStore.set.identityDocument?.(downloadURL);
         });
       }
@@ -285,15 +259,15 @@ const OnboardTutor = () => {
   }, [selectedIdDoc]);
 
   useEffect(() => {
-    onboardTutorStore.set.avatar?.("");
+    onboardTutorStore.set.avatar?.('');
 
     if (!selectedAvatar) return;
 
     if (selectedAvatar?.size > 1000000) {
       toast({
-        title: "Please upload a file under 1MB",
-        status: "error",
-        position: "top",
+        title: 'Please upload a file under 1MB',
+        status: 'error',
+        position: 'top',
         isClosable: true,
       });
       return;
@@ -303,11 +277,9 @@ const OnboardTutor = () => {
     const uploadTask = uploadBytesResumable(storageRef, selectedAvatar);
 
     uploadTask.on(
-      "state_changed",
+      'state_changed',
       (snapshot) => {
-        const progress = Math.round(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        );
+        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
         setAvatarUploadPercent(progress);
       },
       (error) => {
@@ -324,65 +296,57 @@ const OnboardTutor = () => {
 
   const teachLevelOptions = [
     {
-      label: "Primary School",
-      value: "primary-school",
+      label: 'Primary School',
+      value: 'primary-school',
     },
     {
-      label: "Secondary School",
-      value: "secondary-school",
+      label: 'Secondary School',
+      value: 'secondary-school',
     },
     {
-      label: "University and above",
-      value: "university-plus",
+      label: 'University and above',
+      value: 'university-plus',
     },
   ];
 
   const doSubmit = () => {
-    mixpanel.track("Completed onboarding");
-    return ApiService.submitTutorLead(data);
+    mixpanel.track('Completed onboarding');
+    return ApiService.submitTutor(data);
   };
 
-  const onStepChange: StepWizardProps["onStepChange"] = ({
-    activeStep,
-    ...rest
-  }) => {
+  const onStepChange: StepWizardProps['onStepChange'] = ({ activeStep, ...rest }) => {
     setActiveStep(activeStep);
   };
 
   const passwordChecks = useMemo(() => {
     const isEightLetters = {
-      text: "Password is eight letters long",
+      text: 'Password is eight letters long',
       checked: password.length >= 8,
     };
 
     const isConfirmed = {
-      text: "Password has been confirmed",
-      checked:
-      password ===
-        confirmPassword,
+      text: 'Password has been confirmed',
+      checked: password === confirmPassword,
     };
 
     const hasACharacter = {
-      text: "Password has at least one special character",
+      text: 'Password has at least one special character',
       checked: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password),
     };
 
     const hasANumber = {
-      text: "Password has at least one number",
+      text: 'Password has at least one number',
       checked: /\d/.test(password),
     };
 
     return [isEightLetters, isConfirmed, hasACharacter, hasANumber];
-  }, [
-    password,
-    confirmPassword,
-  ]);
+  }, [password, confirmPassword]);
 
-  console.log(passwordChecks)
+  console.log(passwordChecks);
 
-  const validatePasswordStep = passwordChecks.filter(check => !check.checked).length === 0
+  const validatePasswordStep = passwordChecks.filter((check) => !check.checked).length === 0;
 
-  console.log(validatePasswordStep)
+  console.log(validatePasswordStep);
 
   // const confirmations = [
   //   {
@@ -520,11 +484,11 @@ const OnboardTutor = () => {
 
   const steps = [
     {
-      id: "name",
-      stepIndicatorId: "about-you",
+      id: 'name',
+      stepIndicatorId: 'about-you',
       template: (
         <Box>
-          <Heading as="h3" size="lg" textAlign={"center"}>
+          <Heading as="h3" size="lg" textAlign={'center'}>
             First we need some information about you.
             <br />
             What's your name?
@@ -533,27 +497,23 @@ const OnboardTutor = () => {
             <FormControl>
               <FormLabel>First Name</FormLabel>
               <Input
-                size={"lg"}
+                size={'lg'}
                 value={name.first}
-                onChange={(e) =>
-                  onboardTutorStore.set.name({ ...name, first: e.target.value })
-                }
+                onChange={(e) => onboardTutorStore.set.name({ ...name, first: e.target.value })}
               />
             </FormControl>
             <FormControl mt={4}>
               <FormLabel>Last Name</FormLabel>
               <Input
-                size={"lg"}
+                size={'lg'}
                 value={name.last}
-                onChange={(e) =>
-                  onboardTutorStore.set.name({ ...name, last: e.target.value })
-                }
+                onChange={(e) => onboardTutorStore.set.name({ ...name, last: e.target.value })}
               />
             </FormControl>
             <FormControl mt={4}>
               <FormLabel>Email</FormLabel>
               <Input
-                size={"lg"}
+                size={'lg'}
                 value={email}
                 onChange={(e) => onboardTutorStore.set.email(e.target.value)}
               />
@@ -564,24 +524,24 @@ const OnboardTutor = () => {
       canSave: validateNameStep,
     },
     {
-      id: "id_verification",
-      stepIndicatorId: "id_verification",
+      id: 'id_verification',
+      stepIndicatorId: 'id_verification',
       template: (
         <Box>
-          <Heading as="h3" size="lg" textAlign={"center"}>
+          <Heading as="h3" size="lg" textAlign={'center'}>
             First we need some information about you.
             <br />
             What's your name?
           </Heading>
           <Box marginTop={30}>
             <SelectComponent
-              options={countries.map(country => ({label: country.name, value: country.name}))}
+              options={countries.map((country) => ({ label: country.name, value: country.name }))}
               onChange={(e: any) => {
                 onboardTutorStore.set.country?.(e.value);
               }}
               placeholder="Select a country"
               isSearchable
-            // Add any additional props you want to pass
+              // Add any additional props you want to pass
             />
             <DragAndDrop
               marginTop={30}
@@ -590,12 +550,10 @@ const OnboardTutor = () => {
             />
             <HStack marginTop={30} spacing={2}>
               <Checkbox
-                borderRadius={"4px"}
-                colorScheme={"blue"}
+                borderRadius={'4px'}
+                colorScheme={'blue'}
                 isChecked={confirmDocument}
-                onChange={(e) =>
-                  setConfirmDocument(e.target.checked)  
-                }
+                onChange={(e) => setConfirmDocument(e.target.checked)}
                 size="lg"
               />
               <Text fontSize="sm">
@@ -608,14 +566,14 @@ const OnboardTutor = () => {
       canSave: validateCredentialsStep,
     },
     {
-      id: "security",
-      stepIndicatorId: "security",
+      id: 'security',
+      stepIndicatorId: 'security',
       template: (
         <Box>
-          <Heading as="h3" size="lg" textAlign={"center"}>
+          <Heading as="h3" size="lg" textAlign={'center'}>
             First we need some information about you.
             <br />
-            Hi there, before you proceed, let us know who is signing up{" "}
+            Hi there, before you proceed, let us know who is signing up{' '}
           </Heading>
           <Box marginTop={30}>
             <FormControl>
@@ -623,24 +581,16 @@ const OnboardTutor = () => {
               <InputGroup size="lg">
                 <Input
                   placeholder="Create password"
-                  type={showPassword ? "text" : "password"}
-                  _placeholder={{ fontSize: "14px" }}
+                  type={showPassword ? 'text' : 'password'}
+                  _placeholder={{ fontSize: '14px' }}
                   value={password}
-                  onChange={(e) =>
-                    setPassword(e.target.value)
-                  }
+                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <InputRightElement>
                   {!showPassword ? (
-                    <HiEye
-                      cursor={"pointer"}
-                      onClick={() => setShowPassword((prev) => !prev)}
-                    />
+                    <HiEye cursor={'pointer'} onClick={() => setShowPassword((prev) => !prev)} />
                   ) : (
-                    <HiEyeOff
-                      cursor="pointer"
-                      onClick={() => setShowPassword((prev) => !prev)}
-                    />
+                    <HiEyeOff cursor="pointer" onClick={() => setShowPassword((prev) => !prev)} />
                   )}
                 </InputRightElement>
               </InputGroup>
@@ -650,12 +600,10 @@ const OnboardTutor = () => {
               <InputGroup size="lg">
                 <Input
                   placeholder="Confirm password"
-                  type={showPassword ? "text" : "password"}
-                  _placeholder={{ fontSize: "14px" }}
+                  type={showPassword ? 'text' : 'password'}
+                  _placeholder={{ fontSize: '14px' }}
                   value={confirmPassword}
-                  onChange={(e) =>
-                    setConfirmPassword(e.target.value)
-                  }
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                 />
                 <InputRightElement>
                   {!showPassword ? (
@@ -674,8 +622,8 @@ const OnboardTutor = () => {
               {passwordChecks.map((passwordCheck) => (
                 <HStack marginTop={30} spacing={2}>
                   <Checkbox
-                    colorScheme={passwordCheck.checked ? "green" : "gray"}
-                    variant={"looney"}
+                    colorScheme={passwordCheck.checked ? 'green' : 'gray'}
+                    variant={'looney'}
                     isChecked={passwordCheck.checked}
                     size="lg"
                   />
@@ -698,12 +646,11 @@ const OnboardTutor = () => {
   const activeStepObj = useMemo(() => steps[activeStep - 1], [activeStep]);
 
   const stepIndicatorActiveStep = useMemo(
-    () =>
-      stepIndicatorSteps.find((s) => s.id === activeStepObj?.stepIndicatorId),
+    () => stepIndicatorSteps.find((s) => s.id === activeStepObj?.stepIndicatorId),
     [activeStepObj, stepIndicatorSteps]
   );
 
-  useTitle(stepIndicatorActiveStep?.title || "");
+  useTitle(stepIndicatorActiveStep?.title || '');
 
   useEffect(() => {
     mixpanel.identify();
@@ -716,23 +663,20 @@ const OnboardTutor = () => {
   }, [activeStepObj]);
 
   useEffect(() => {
-    if (name.first && name.last)
-      mixpanel.people.set({ $name: `${name.first} ${name.last}` });
+    if (name.first && name.last) mixpanel.people.set({ $name: `${name.first} ${name.last}` });
 
     if (email) mixpanel.people.set({ $email: email });
 
     if (age) mixpanel.people.set({ Age: age });
 
-    mixpanel.people.set({ Type: "Tutor" });
+    mixpanel.people.set({ Type: 'Tutor' });
   }, [email, name, age]);
 
   useEffect(() => {
-    mixpanel.register({ ...data, type: "tutor" });
+    mixpanel.register({ ...data, type: 'tutor' });
   }, [data]);
 
-  const canSaveCurrentEditModalStep = steps.find(
-    (s) => s.id === editModalStep
-  )?.canSave;
+  const canSaveCurrentEditModalStep = steps.find((s) => s.id === editModalStep)?.canSave;
 
   return (
     <Box>
@@ -741,8 +685,7 @@ const OnboardTutor = () => {
         closeOnOverlayClick={canSaveCurrentEditModalStep}
         size="xl"
         isOpen={editModalOpen}
-        onClose={onEditModalClose}
-      >
+        onClose={onEditModalClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
@@ -750,33 +693,22 @@ const OnboardTutor = () => {
           </ModalHeader>
           <ModalCloseButton isDisabled={!canSaveCurrentEditModalStep} />
           <ModalBody>
-            <Box width={"100%"}>
-              {steps.find((s) => s.id === editModalStep)?.template}
-            </Box>
+            <Box width={'100%'}>{steps.find((s) => s.id === editModalStep)?.template}</Box>
           </ModalBody>
 
           <ModalFooter>
-            <Button
-              isDisabled={!canSaveCurrentEditModalStep}
-              onClick={onEditModalClose}
-            >
+            <Button isDisabled={!canSaveCurrentEditModalStep} onClick={onEditModalClose}>
               Done
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
       <StepIndicator
-        activeStep={stepIndicatorSteps.findIndex(
-          (s) => s === stepIndicatorActiveStep
-        )}
+        activeStep={stepIndicatorSteps.findIndex((s) => s === stepIndicatorActiveStep)}
         steps={stepIndicatorSteps}
       />
       <Box mt={45}>
-        <StepWizard
-          isLazyMount
-          className="flex-col-reverse"
-          onStepChange={onStepChange}
-        >
+        <StepWizard isLazyMount className="flex-col-reverse" onStepChange={onStepChange}>
           {
             steps.map((s) => {
               return (
@@ -794,17 +726,14 @@ const OnboardTutor = () => {
           <OnboardStep canGoNext={false} hideNav={true}>
             <Box paddingBottom={5}>
               <Box>
-                <Lottie
-                  style={{ height: 100 }}
-                  animationData={lottieSuccessAnimationData}
-                />
+                <Lottie style={{ height: 100 }} animationData={lottieSuccessAnimationData} />
               </Box>
-              <Heading as="h2" size="lg" textAlign={"center"}>
+              <Heading as="h2" size="lg" textAlign={'center'}>
                 You're all set {capitalize(name.first)}!
               </Heading>
               <Text color="gray.500" marginTop={2} textAlign="center">
-                We'll match you with students within your availability &amp;
-                shoot you an email at {email} with next steps!
+                We'll match you with students within your availability &amp; shoot you an email at{' '}
+                {email} with next steps!
               </Text>
             </Box>
           </OnboardStep>

@@ -5,12 +5,12 @@
 import { Handler, schedule } from '@netlify/functions';
 import moment from 'moment';
 
-import TutorLead from '../database/models/TutorLead';
+import Tutor from '../database/models/Tutor';
 import { HTTPEvent } from '../types';
 import middy from '../utils/middy';
 
 const fixTutorSchedule = async (event: HTTPEvent) => {
-  const tutors = await TutorLead.find();
+  const tutors = await Tutor.find();
 
   tutors.map(async (t) => {
     if (Array.isArray(t.schedule)) {
@@ -27,7 +27,7 @@ const fixTutorSchedule = async (event: HTTPEvent) => {
         });
       });
 
-      await TutorLead.findByIdAndUpdate(t._id, {
+      await Tutor.findByIdAndUpdate(t._id, {
         schedule: days,
       });
     }

@@ -14,7 +14,7 @@ class NotificationHandler {
     await this.createNotification({
       text: 'You received a new contract offer',
       type: Types.NEW_OFFER_RECEIVED,
-      user: offer.tutorLead.user,
+      user: offer.tutor.user,
       attributes: { offerId: offer._id },
     });
   }

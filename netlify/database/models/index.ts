@@ -3,7 +3,7 @@ require('./Level');
 require('./StudentLead');
 require('./TutorReview');
 require('./BookmarkedTutor');
-require('./TutorLead');
+require('./Tutor');
 require('./Email');
 require('./Booking');
 require('./Offer');

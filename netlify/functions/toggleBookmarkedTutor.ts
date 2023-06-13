@@ -1,15 +1,15 @@
-import BookmarkedTutor from "../database/models/BookmarkedTutor";
-import TutorLead from "../database/models/TutorLead";
-import authMiddleware from "../middlewares/authMiddleware";
-import { HTTPEvent } from "../types";
-import middy from "../utils/middy";
-import { bookmarkedTutors } from "./bookmarkedTutors";
+import BookmarkedTutor from '../database/models/BookmarkedTutor';
+import Tutor from '../database/models/Tutor';
+import authMiddleware from '../middlewares/authMiddleware';
+import { HTTPEvent } from '../types';
+import middy from '../utils/middy';
+import { bookmarkedTutors } from './bookmarkedTutors';
 
 const toggleBookmarkedTutor = async (event: HTTPEvent) => {
   const { user } = event;
   const { tutorId } = JSON.parse(event.body as string);
 
-  const tutor = await TutorLead.findById(tutorId);
+  const tutor = await Tutor.findById(tutorId);
 
   if (!tutor) {
     return {
