@@ -1,10 +1,12 @@
-import { Schema, model } from "mongoose";
-import { TimestampedEntity } from "../../types";
-import { StudentLead as StudentLeadInterface } from "./StudentLead";
-import { TutorLead as TutorLeadInterface } from "./TutorLead";
-import { PaymentMethod } from "./PaymentMethod";
-import { Course } from "./Course";
-import moment from "moment";
+import moment from 'moment';
+import { Schema, model } from 'mongoose';
+
+import { TimestampedEntity } from '../../types';
+import { Course } from './Course';
+import { Level } from './Level';
+import { PaymentMethod } from './PaymentMethod';
+import { StudentLead as StudentLeadInterface } from './StudentLead';
+import { TutorLead as TutorLeadInterface } from './TutorLead';
 
 interface Schedule {
   [key: number]: {
@@ -14,15 +16,15 @@ interface Schedule {
 }
 
 export enum STATUS {
-  DRAFT = "draft",
-  ACCEPTED = "accepted",
-  DECLINED = "declined",
-  WITHDRAWN = "withdrawn",
+  DRAFT = 'draft',
+  ACCEPTED = 'accepted',
+  DECLINED = 'declined',
+  WITHDRAWN = 'withdrawn',
 }
 
 export interface Offer extends TimestampedEntity {
   course: Course;
-  level: string;
+  level: Level;
   schedule: Schedule;
   rate: number;
   note: string;
@@ -42,25 +44,30 @@ const schema = new Schema<Offer>(
   {
     course: {
       type: Schema.Types.ObjectId,
-      ref: "Course",
+      ref: 'Course',
       autopopulate: true,
       required: true,
     },
-    level: { type: String, required: true },
+    level: {
+      type: Schema.Types.ObjectId,
+      ref: 'Level',
+      autopopulate: true,
+      required: true,
+    },
     schedule: { type: Schema.Types.Mixed, required: true },
     rate: { type: Number, required: true },
-    note: { type: String, required: false, default: "" },
+    note: { type: String, required: false, default: '' },
     status: { type: String, enum: STATUS, default: STATUS.DRAFT },
-    declinedNote: { type: String, required: false, default: "" },
+    declinedNote: { type: String, required: false, default: '' },
     tutorLead: {
       type: Schema.Types.ObjectId,
-      ref: "TutorLead",
+      ref: 'TutorLead',
       autopopulate: true,
       required: true,
     },
     studentLead: {
       type: Schema.Types.ObjectId,
-      ref: "StudentLead",
+      ref: 'StudentLead',
       autopopulate: true,
       required: true,
     },
@@ -70,7 +77,7 @@ const schema = new Schema<Offer>(
     completed: { type: Boolean, required: false },
     paymentMethod: {
       type: Schema.Types.ObjectId,
-      ref: "PaymentMethod",
+      ref: 'PaymentMethod',
       autopopulate: true,
       required: false,
     },
@@ -78,14 +85,14 @@ const schema = new Schema<Offer>(
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
-schema.plugin(require("mongoose-autopopulate"));
+schema.plugin(require('mongoose-autopopulate'));
 
-schema.virtual("amount").get(function () {
+schema.virtual('amount').get(function () {
   return this.rate * 1;
 });
 
-schema.virtual("expired").get(function () {
+schema.virtual('expired').get(function () {
   return moment().diff(this.expirationDate) >= 0;
 });
 
-export default model<Offer>("Offer", schema);
+export default model<Offer>('Offer', schema);
