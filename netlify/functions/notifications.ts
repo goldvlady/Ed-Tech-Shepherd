@@ -9,7 +9,8 @@ const notifications = async (event: HTTPEvent) => {
     user: user._id,
   })
     .limit(100)
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: -1 })
+    .select('-user');
 
   return {
     statusCode: 200,
