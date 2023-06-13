@@ -5,7 +5,7 @@ import middy from '../utils/middy';
 
 const notifications = async (event: HTTPEvent) => {
   let { user } = event;
-  const notifications = UserNotification.find({
+  const notifications = await UserNotification.find({
     user: user._id,
   })
     .limit(100)
