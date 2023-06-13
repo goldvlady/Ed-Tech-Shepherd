@@ -1,16 +1,17 @@
-import middy from "../utils/middy";
-import { HTTPEvent } from "../types";
-import User from "../database/models/User";
-import { getAuth } from "firebase-admin/auth";
-import { first, last } from "lodash";
-import authMiddleware from "../middlewares/authMiddleware";
+import { getAuth } from 'firebase-admin/auth';
+import { first, last } from 'lodash';
+
+import User from '../database/models/User';
+import authMiddleware from '../middlewares/authMiddleware';
+import { HTTPEvent } from '../types';
+import middy from '../utils/middy';
 
 const me = async (event: HTTPEvent) => {
   let { firebaseUser, user } = event;
 
   if (!user) {
     const firebaseUserObject = await getAuth().getUser(firebaseUser.user_id);
-    const names = firebaseUserObject.displayName?.split(" ");
+    const names = firebaseUserObject.displayName?.split(' ');
 
     user = await User.create({
       firebaseId: firebaseUser.user_id,
@@ -21,8 +22,6 @@ const me = async (event: HTTPEvent) => {
       },
     });
   }
-
-  await user.attachLeads();
 
   return {
     statusCode: 200,

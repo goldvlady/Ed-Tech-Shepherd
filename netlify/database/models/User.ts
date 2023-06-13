@@ -15,7 +15,6 @@ export interface User extends TimestampedEntity {
   avatar?: string;
   tutorLead?: TutorLeadType;
   studentLead?: StudentLeadType;
-  attachLeads: () => Promise<User>;
   type: 'student' | 'tutor';
   stripeCustomerId?: string;
   paymentMethods: PaymentMethod[];
@@ -94,21 +93,6 @@ schema.virtual('type').get(function () {
 
   return 'student';
 });
-
-schema.methods.attachLeads = async function (cb: any) {
-  // const tutorLead = await TutorLead.findOne({ email: this.email });
-  // this.tutorLead = tutorLead;
-
-  // const studentLead = await StudentLead.findOne({ email: this.email });
-  // this.studentLead = studentLead;
-
-  // this.type = "student";
-  // if (this.tutorLead) {
-  //   this.type = "tutor";
-  // }
-
-  return this;
-};
 
 schema.plugin(require('mongoose-autopopulate'));
 

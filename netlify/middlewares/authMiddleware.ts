@@ -1,32 +1,24 @@
-import middy from "@middy/core";
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { getAuth } from "firebase-admin/auth";
-import User from "../database/models/User";
+import middy from '@middy/core';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { getAuth } from 'firebase-admin/auth';
 
-const middleware = (): middy.MiddlewareObj<
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult
-> => {
-  const before: middy.MiddlewareFn<
-    APIGatewayProxyEvent,
-    APIGatewayProxyResult
-  > = async (request) => {
+import User from '../database/models/User';
+
+const middleware = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxyResult> => {
+  const before: middy.MiddlewareFn<APIGatewayProxyEvent, APIGatewayProxyResult> = async (
+    request
+  ) => {
     try {
-      const token =
-        request.event.headers?.authorization?.replace("Bearer ", "") || "";
+      const token = request.event.headers?.authorization?.replace('Bearer ', '') || '';
 
       const firebaseUser = await getAuth().verifyIdToken(token);
-      request.event["firebaseUser"] = firebaseUser;
+      request.event['firebaseUser'] = firebaseUser;
 
       const user = await User.findOne({
         firebaseId: firebaseUser.user_id,
-      }).populate("paymentMethods");
+      }).populate('paymentMethods');
 
-      if (user) {
-        await user.attachLeads();
-      }
-
-      request.event["user"] = user;
+      request.event['user'] = user;
     } catch (e) {
       return {
         statusCode: 401,
