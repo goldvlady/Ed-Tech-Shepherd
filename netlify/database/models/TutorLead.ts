@@ -6,6 +6,7 @@ import { TimestampedEntity } from '../../types';
 import { Course } from './Course';
 import { Level } from './Level';
 import { TutorReview } from './TutorReview';
+import { User } from './User';
 
 interface TutorQualification {
   institution: string;
@@ -51,6 +52,7 @@ export interface TutorLead extends TimestampedEntity {
   // virtuals
   reviewCount: number;
   rating: number;
+  user: User;
 }
 
 interface TutorLeadSchemaInterface extends TutorLead {
@@ -96,14 +98,20 @@ const schema = new Schema<TutorLeadSchemaInterface>(
     timestamps: true,
     toJSON: {
       virtuals: true,
-      transform: (doc, r) => {
+      transform: (_, r) => {
         delete r.reviews;
+        if (r.user) {
+          delete r.user.tutorLead;
+        }
       },
     },
     toObject: {
       virtuals: true,
-      transform: (doc, r) => {
+      transform: (_, r) => {
         delete r.reviews;
+        if (r.user) {
+          delete r.user.tutorLead;
+        }
       },
     },
   }
@@ -120,6 +128,14 @@ schema.post(['update', 'findOneAndUpdate', 'updateOne'], async function () {
 
   const pd = new PipedriveService();
   await pd.updateTutorDeal(docToUpdate);
+});
+
+schema.virtual('user', {
+  ref: 'User',
+  localField: 'email',
+  foreignField: 'email',
+  justOne: true,
+  autopopulate: { maxDepth: 1 },
 });
 
 schema.virtual('reviews', {
