@@ -6,6 +6,7 @@ import { User } from './User';
 export enum Types {
   LESSON_SESSION_STARTED = 'lesson_session_started',
   NEW_OFFER_RECEIVED = 'new_offer_received',
+  OFFER_WITHDRAWN = 'offer_withdrawn',
 }
 
 export interface UserNotification extends TimestampedEntity {
