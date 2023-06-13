@@ -79,6 +79,14 @@ schema.virtual('tutorLead', {
   },
 });
 
+schema.virtual('studentLead', {
+  ref: 'StudentLead',
+  localField: 'email',
+  foreignField: 'email',
+  justOne: true,
+  autopopulate: true,
+});
+
 schema.virtual('type').get(function () {
   if (this.tutorLead) {
     return 'tutor';
