@@ -84,9 +84,9 @@ export default function TutorCard(props: any) {
         <Stack
           borderWidth="1px"
           borderRadius="lg"
-          w={{ sm: '100%', md: '360px' }}
-          height={{ sm: '476px', md: '20rem', lg: '191px' }}
-          direction={{ base: 'column', md: 'row' }}
+          w={{ sm: '100%', md: '100%' }}
+          height={{ sm: '200px', md: '20rem', lg: '191px' }}
+          direction={{ base: 'row', md: 'row' }}
           bg={useColorModeValue('white', 'gray.900')}
           boxShadow={'2xl'}
           padding={2}

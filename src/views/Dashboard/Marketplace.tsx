@@ -15,6 +15,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { Select as MultiSelect } from 'chakra-react-select';
 import { useFormik } from 'formik';
 import moment from 'moment';
@@ -70,11 +71,13 @@ export default function Marketplace() {
   const [allTutors, setAllTutors] = useState<any>([]);
   const [loadingData, setLoadingData] = useState(false);
   const [tz, setTz] = useState<any>();
+  const [subject, setSubject] = useState<string>('Subject');
   const [searchParams, setSearchParams] = useSearchParams();
   const [fromTime, setFromTime] = useState('');
   const [toTime, setToTime] = useState('');
   const [days, setDays] = useState<Array<any>>([]);
 
+  const [tutorGrid] = useAutoAnimate();
   const formik = useFormik({
     initialValues: {
       subject: '',
@@ -104,7 +107,7 @@ export default function Marketplace() {
   };
   const getFilteredData = async () => {
     let formData = {
-      courses: formik.values.subject.toLowerCase(),
+      courses: subject.toLowerCase(),
       teachLevel: formik.values.level,
       availability: '',
       tz: 'Africa/Lagos',
@@ -126,11 +129,14 @@ export default function Marketplace() {
   useEffect(() => {
     getData();
   }, []);
+  //   useEffect(() => {
+  //     getFilteredData();
+  //   }, [subject]);
   console.log(allTutors);
   console.log('TZ', tz);
 
   const resetForm = () => {
-    formik.resetForm();
+    setSubject('Subject');
     setTz(defaultTime);
     setDays([]);
     setFromTime('');
@@ -143,20 +149,43 @@ export default function Marketplace() {
       <Box bgColor={'black'} borderRadius={'14px'} height={'200px'}>
         <Banner />
       </Box>
-      <Box mt={3}>
-        <Flex>
-          <Spacer />
-          <Box> </Box>
-        </Flex>
-      </Box>
-      <Flex alignItems="center" gap="2">
-        <HStack direction="row">
-          <Flex alignItems={'center'} mt={2}>
+
+      <Flex alignItems="center" gap="2" mt={2} textColor="text.400">
+        <HStack direction={{ base: 'row', sm: 'column' }} flexWrap="wrap">
+          <Flex alignItems={'center'}>
             <Text>
               <MdTune />
             </Text>
             <Text>Filter</Text>
           </Flex>
+          <Menu>
+            <MenuButton
+              as={Button}
+              variant="outline"
+              rightIcon={<FiChevronDown />}
+              fontSize={14}
+              borderRadius="40px"
+              fontWeight={400}
+              color="text.400">
+              {subject !== 'Subject'
+                ? courseList.map((course) => {
+                    if (course._id === subject) {
+                      return course.label;
+                    }
+                  })
+                : subject}
+            </MenuButton>
+            <MenuList>
+              {courseList.map((course) => (
+                <MenuItem
+                  key={course._id}
+                  _hover={{ bgColor: '#F2F4F7' }}
+                  onClick={() => setSubject(course._id)}>
+                  {course.label}
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Menu>
           <Box w="125px">
             <Select
               fontSize={14}
@@ -196,8 +225,8 @@ export default function Marketplace() {
                 rightIcon={<FiChevronDown />}
                 fontSize={14}
                 borderRadius="40px"
-                fontWeight={500}
-                color="#5C5F64">
+                fontWeight={400}
+                color="text.400">
                 Availability
               </MenuButton>
               <MenuList p={5}>
@@ -312,7 +341,7 @@ export default function Marketplace() {
         </Flex>
       </Flex>
       <Box my={45} py={2}>
-        <SimpleGrid minChildWidth="359px" spacing="30px">
+        <SimpleGrid minChildWidth="359px" spacing="30px" ref={tutorGrid}>
           {allTutors.map((tutor: any) => (
             <TutorCard
               key={tutor._id}
