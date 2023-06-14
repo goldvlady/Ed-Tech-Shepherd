@@ -1,4 +1,5 @@
 import moment from 'moment';
+import mongoose from 'mongoose';
 import { MongooseQueryParser } from 'mongoose-query-parser';
 
 import Tutor from '../database/models/Tutor';
@@ -16,10 +17,40 @@ const tutors = async (event: HTTPEvent) => {
   const parsed = parser.parse(queryStringParameters || '', predefined);
 
   const {
-    filter: { startTime, endTime, tz, ...filters },
-  } = parser.parse(queryStringParameters || '', predefined) as any;
+    filter: { startTime, endTime, tz, courses, levels, ...filters },
+  } = parsed;
 
   let tutors = await Tutor.aggregate([
+    courses || levels
+      ? {
+          $match: {
+            $or: [
+              {
+                coursesAndLevels: {
+                  $elemMatch: {
+                    ...(courses && {
+                      course: {
+                        $in: [...(courses['$in'] || [courses])].map(
+                          (v) => new mongoose.Types.ObjectId(v)
+                        ),
+                      },
+                    }),
+                    ...(levels && {
+                      level: !levels
+                        ? { $exists: true }
+                        : {
+                            $in: [...(levels['$in'] || [levels])].map(
+                              (v) => new mongoose.Types.ObjectId(v)
+                            ),
+                          },
+                    }),
+                  },
+                },
+              },
+            ],
+          },
+        }
+      : { $match: {} },
     {
       $lookup: {
         from: 'tutorreviews',
