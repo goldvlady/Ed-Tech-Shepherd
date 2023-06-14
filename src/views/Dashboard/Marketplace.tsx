@@ -129,9 +129,9 @@ export default function Marketplace() {
   useEffect(() => {
     getData();
   }, []);
-  //   useEffect(() => {
-  //     getFilteredData();
-  //   }, [subject]);
+  useEffect(() => {
+    getFilteredData();
+  }, [subject]);
   console.log(allTutors);
   console.log('TZ', tz);
 
