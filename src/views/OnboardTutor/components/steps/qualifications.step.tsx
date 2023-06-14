@@ -27,6 +27,16 @@ const QualificationsForm: React.FC = () => {
     endDate: null as unknown as Date,
   });
 
+  useEffect(() => {
+    if(!qualifications || qualifications.length === 1 || qualifications.length === 0){
+      console.log("down here")
+      const data = [formData]
+      onboardTutorStore?.set.qualifications?.(data)
+    }
+  }, [formData])
+
+  console.log(qualifications)
+
   const isFormValid = useMemo(() => {
     return (
       Object.values(formData).filter((value) => !value || value.length < 1)
@@ -34,7 +44,6 @@ const QualificationsForm: React.FC = () => {
     );
   }, [formData]);
 
-  console.log(isFormValid);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prevFormData) => ({
@@ -82,14 +91,14 @@ const QualificationsForm: React.FC = () => {
   //   });
   // };
 
-  const renderQualifications = () => {
+  const   renderQualifications = () => {
     if(!qualifications) return 
-    return qualifications.map((qualification, index) => {
+    return qualifications.filter(qual => qual.institution).map((qualification, index) => {
       const startDate = new Date(qualification.startDate);
       const endDate = new Date(qualification.endDate);
 
-      const formattedStartDate = startDate.getFullYear();
-      const formattedEndDate = endDate.getFullYear();
+      const formattedStartDate = startDate ?  startDate.getFullYear(): null
+      const formattedEndDate = endDate ? endDate.getFullYear() : null
 
       return (
         <Box

@@ -10,9 +10,11 @@ import { ref } from "@firebase/storage";
 
 const IntroVideoForm = () => {
   const toast = useToast();
-
+  const {introVideo: uploadedLink} = onboardTutorStore.useStore()
   const [isLoading, setIsLoading] = useState(false)
   const [introVideo, setIntroVideo] = useState<File | null>(null);
+
+  console.log("file ====>", uploadedLink)
 
   const handleIntroVideoUpload = (file: File) => {
     setIntroVideo(file);
@@ -25,10 +27,21 @@ const IntroVideoForm = () => {
   };
 
   useEffect(() => {
-    onboardTutorStore.set?.introVideo?.("");
+    if(uploadedLink && !introVideo){
+      fetch(uploadedLink)
+      .then(response => response.blob())
+      .then(blob => {
+        const file = new File([blob], 'intro_video', { type: blob.type }); // replace 'filename' with your desired filename
+        setIntroVideo(file)
+      })
+      .catch(err => console.error(err));
+    }
+  }, [uploadedLink]);
+
+  useEffect(() => {
 
     if (!introVideo) return;
-
+    onboardTutorStore.set?.introVideo?.("");
     if (introVideo?.size > 10000000) {
       setIsLoading(true)
       toast({

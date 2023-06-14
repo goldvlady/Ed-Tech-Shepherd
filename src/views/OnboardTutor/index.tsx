@@ -1,21 +1,14 @@
 import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  Avatar,
   Box,
   Button,
   Checkbox,
   CircularProgress,
-  Flex,
   FormControl,
   FormLabel,
   HStack,
   Heading,
-  IconButton,
   Input,
   InputGroup,
-  InputLeftAddon,
   InputRightElement,
   Modal,
   ModalBody,
@@ -24,52 +17,36 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  StackDivider,
   Text,
-  Textarea,
   VStack,
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
 import { ref } from '@firebase/storage';
 import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
-import { capitalize, isEmpty, sumBy } from 'lodash';
+import { capitalize } from 'lodash';
 import Lottie from 'lottie-react';
 import mixpanel from 'mixpanel-browser';
 import moment from 'moment';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FiBookOpen, FiCalendar, FiDollarSign, FiEdit, FiUser } from 'react-icons/fi';
+import React, {  useEffect, useMemo, useState } from 'react';
+import { FiBookOpen, FiCalendar, FiUser } from 'react-icons/fi';
 import { HiEye, HiEyeOff } from 'react-icons/hi';
-import { MdInfo } from 'react-icons/md';
 import StepWizard, { StepWizardProps } from 'react-step-wizard';
-
-import CourseSelect from '../../components/CourseSelect';
-import CreatableSelect from '../../components/CreatableSelect';
-import DateInput, { FORMAT } from '../../components/DateInput';
+import { FORMAT } from '../../components/DateInput';
 import DragAndDrop from '../../components/DragandDrop';
-import EmptyState from '../../components/EmptyState';
-import FileDisplay from '../../components/FileDisplay';
-import LargeSelect from '../../components/LargeSelect';
+
 import OnboardStep from '../../components/OnboardStep';
 import OnboardSubmitStep from '../../components/OnboardSubmitStep';
-import ScheduleBuilder from '../../components/ScheduleBuilder';
 import SelectComponent from '../../components/Select';
 import StepIndicator from '../../components/StepIndicator';
-import { FORMAT as TIME_PICKER_FORMAT } from '../../components/TimePicker';
-import TimezoneSelect from '../../components/TimezoneSelect';
 import { storage } from '../../firebase';
 import { useTitle } from '../../hooks';
 import lottieSuccessAnimationData from '../../lottie/73392-success.json';
-import occupationList from '../../occupations.json';
 import ApiService from '../../services/ApiService';
 import onboardTutorStore from '../../state/onboardTutorStore';
 import resourceStore from '../../state/resourceStore';
-import theme from '../../theme';
-import { getOptionValue } from '../../util';
 
-const occupationOptions = occupationList.map((o) => {
-  return { label: o, value: o };
-});
+
 
 const stepIndicatorSteps = [
   {
@@ -89,53 +66,14 @@ const stepIndicatorSteps = [
   },
 ];
 
-const educationLevelOptions = [
-  {
-    label: 'Primary School Certificate',
-    value: 'primary-school-cert',
-  },
-  {
-    label: 'Junior Secondary School Certificate',
-    value: 'junior-secondary-school-cert',
-  },
-  {
-    label: 'Senior Secondary School Certificate',
-    value: 'senior-secondary-school-cert',
-  },
-  {
-    label: 'National Diploma (ND)',
-    value: 'national-diploma',
-  },
-  {
-    label: 'Higher National Diploma (HND)',
-    value: 'higher-national-diploma',
-  },
-  {
-    label: "Bachelor's Degree (BSc, BA, BEng, etc.)",
-    value: 'bachelors-degree',
-  },
-  {
-    label: "Master's Degree (MSc, MA, MEng, etc.)",
-    value: 'masters-degree',
-  },
-  {
-    label: 'Doctoral Degree (PhD, MD, etc.)',
-    value: 'doctoral-degree',
-  },
-  {
-    label: 'Vocational/Technical Certificate',
-    value: 'vocation-technical-cert',
-  },
-];
+
 
 const OnboardTutor = () => {
   const toast = useToast();
   const { countries } = resourceStore();
-  console.log(countries);
   const [confirmDocument, setConfirmDocument] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [loadingCourses, setLoadingCourses] = useState(false);
   const [activeStep, setActiveStep] = useState<number>(1);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -147,38 +85,15 @@ const OnboardTutor = () => {
   } = useDisclosure();
 
   const data = onboardTutorStore.useStore();
-  const { name, dob, email, schedule, country, identityDocument, tz } = data;
-
-  console.log('country ====>', country, identityDocument);
-
-  const totalAvailableHours = useMemo(
-    () =>
-      sumBy(
-        Object.keys(schedule)
-          .map(function (key: any) {
-            return schedule[key];
-          })
-          .flat(),
-        (o) => {
-          return moment
-            .duration(moment(o.end, TIME_PICKER_FORMAT).diff(moment(o.begin, TIME_PICKER_FORMAT)))
-            .asHours();
-        }
-      ),
-    [schedule]
-  );
-
-  const dobValid = moment(dob, FORMAT, true).isValid();
+  const { name, dob, email, country, identityDocument, tz } = data;
   const age = useMemo(() => moment().diff(moment(dob, FORMAT), 'years'), [dob]);
   const [isUploadLoading, setUploadLoading] = useState(false);
 
   const validateNameStep = !!name.first && !!name.last;
-  const validateCredentialsStep = !!country && !!identityDocument;
+  const validateCredentialsStep = [country, identityDocument, confirmDocument].every(Boolean)
 
   const [cvUploadPercent, setCvUploadPercent] = useState(0);
   const [selectedCV, setSelectedCV] = useState<File | null>(null);
-
-  const [avatarUploadPercent, setAvatarUploadPercent] = useState(0);
   const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
   const [selectedIdDoc, setSelectedIdDoc] = useState<File | null>(null);
 
@@ -279,11 +194,9 @@ const OnboardTutor = () => {
     uploadTask.on(
       'state_changed',
       (snapshot) => {
-        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-        setAvatarUploadPercent(progress);
+        // const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
       },
       (error) => {
-        setAvatarUploadPercent(0);
         alert(error);
       },
       () => {
@@ -293,21 +206,6 @@ const OnboardTutor = () => {
       }
     );
   }, [selectedAvatar]);
-
-  const teachLevelOptions = [
-    {
-      label: 'Primary School',
-      value: 'primary-school',
-    },
-    {
-      label: 'Secondary School',
-      value: 'secondary-school',
-    },
-    {
-      label: 'University and above',
-      value: 'university-plus',
-    },
-  ];
 
   const doSubmit = () => {
     mixpanel.track('Completed onboarding');
@@ -320,13 +218,13 @@ const OnboardTutor = () => {
 
   const passwordChecks = useMemo(() => {
     const isEightLetters = {
-      text: 'Password is eight letters long',
+      text: '8 character minimum',
       checked: password.length >= 8,
     };
 
     const isConfirmed = {
       text: 'Password has been confirmed',
-      checked: password === confirmPassword,
+      checked: [password,password === confirmPassword].every(Boolean),
     };
 
     const hasACharacter = {
@@ -342,157 +240,44 @@ const OnboardTutor = () => {
     return [isEightLetters, isConfirmed, hasACharacter, hasANumber];
   }, [password, confirmPassword]);
 
-  console.log(passwordChecks);
-
   const validatePasswordStep = passwordChecks.filter((check) => !check.checked).length === 0;
-
-  console.log(validatePasswordStep);
-
-  // const confirmations = [
-  //   {
-  //     title: "About you",
-  //     fields: [
-  //       {
-  //         title: "First Name",
-  //         value: <Text marginBottom={0}>{name.first}</Text>,
-  //         step: "name",
-  //       },
-  //       {
-  //         title: "Last Name",
-  //         value: <Text marginBottom={0}>{name.last}</Text>,
-  //         step: "name",
-  //       },
-  //       {
-  //         title: "Date of Birth",
-  //         value: (
-  //           <Text marginBottom={0}>
-  //             {moment(dob, FORMAT).format("MMMM Do YYYY")}
-  //           </Text>
-  //         ),
-  //         step: "dob",
-  //       },
-  //       {
-  //         title: "Email Address",
-  //         value: <Text marginBottom={0}>{email}</Text>,
-  //         step: "email",
-  //       },
-  //       {
-  //         title: "Current Occupation",
-  //         value: <Text marginBottom={0}>{occupation}</Text>,
-  //         step: "more-info",
-  //       },
-  //       {
-  //         title: "Highest Level of Education Obtained",
-  //         value: (
-  //           <Text marginBottom={0}>
-  //             {
-  //               educationLevelOptions.find(
-  //                 (el) => el.value === highestLevelOfEducation
-  //               )?.label
-  //             }
-  //           </Text>
-  //         ),
-  //         step: "more-info",
-  //       },
-  //       {
-  //         title: "CV",
-  //         value: !!selectedCV && (
-  //           <FileDisplay marginTop={1} file={selectedCV as File} />
-  //         ),
-  //         step: "more-info",
-  //       },
-  //       {
-  //         title: "Level of students you can teach",
-  //         value: (
-  //           <Text marginBottom={0}>
-  //             {teachLevel
-  //               .map((tc) => {
-  //                 return teachLevelOptions.find((ac) => ac.value === tc)?.label;
-  //               })
-  //               .join(", ")}
-  //           </Text>
-  //         ),
-  //         step: "more-info",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     title: "Profile",
-  //     fields: [
-  //       {
-  //         title: "Avatar",
-  //         value: !!selectedAvatar && (
-  //           <FileDisplay
-  //             prefix={avatar ? <Avatar src={avatar} /> : null}
-  //             marginTop={1}
-  //             file={selectedAvatar as File}
-  //           />
-  //         ),
-  //         step: "profile-setup",
-  //       },
-  //       {
-  //         title: "About you",
-  //         value: <Text marginBottom={0}>{description}</Text>,
-  //         step: "profile-setup",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     title: "Classes",
-  //     fields: [
-  //       {
-  //         title: "Classes",
-  //         value: (
-  //           <Text marginBottom={0}>
-  //             {courses
-  //               .map((tc) => {
-  //                 return courseList.find((ac) => ac.id === tc)?.title;
-  //               })
-  //               .join(", ")}
-  //           </Text>
-  //         ),
-  //         step: "classes",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     title: "Availability",
-  //     fields: [
-  //       {
-  //         title: "Time zone",
-  //         value: <Text marginBottom={0}>{tz}</Text>,
-  //         step: "availability",
-  //       },
-  //       {
-  //         title: "Schedule",
-  //         value: <Text marginBottom={0} whiteSpace={"pre"}></Text>,
-  //         step: "availability",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     title: "Rate",
-  //     fields: [
-  //       {
-  //         title: "Hourly rate",
-  //         value: <Text marginBottom={0}>${rate}</Text>,
-  //         step: "rate",
-  //       },
-  //     ],
-  //   },
-  // ];
-
   const steps = [
     {
       id: 'name',
       stepIndicatorId: 'about-you',
       template: (
         <Box>
-          <Heading as="h3" size="lg" textAlign={'center'}>
-            First we need some information about you.
-            <br />
-            What's your name?
-          </Heading>
+          <VStack justifyContent={"center"} alignItems="center">
+          <Text
+            fontFamily="Inter"
+            fontStyle="normal"
+            fontWeight={600}
+            fontSize="24px"
+            lineHeight="34px"
+            letterSpacing="-0.02em"
+            color="#212224"
+            flex="none"
+            order={0}
+            flexGrow={0}
+          >
+            Create your Shepherd Account
+          </Text>
+          <Text
+            fontStyle="normal"
+            fontWeight={400}
+            textAlign="center"
+            fontSize="14px"
+            lineHeight="21px"
+            color="#585F68"
+            flex="none"
+            order={1}
+            flexGrow={0}
+            marginBottom="16px"
+          >
+            Hi there, before you proceed, let us know who is signing up
+          </Text>
+          </VStack>
+          
           <Box marginTop={30}>
             <FormControl>
               <FormLabel>First Name</FormLabel>
@@ -528,13 +313,42 @@ const OnboardTutor = () => {
       stepIndicatorId: 'id_verification',
       template: (
         <Box>
-          <Heading as="h3" size="lg" textAlign={'center'}>
-            First we need some information about you.
-            <br />
-            What's your name?
-          </Heading>
+          <VStack          
+ justifyContent={"center"} alignItems="center">
+          <Text
+            fontFamily="Inter"
+            fontStyle="normal"
+            fontWeight={600}
+            fontSize="24px"
+            lineHeight="34px"
+            letterSpacing="-0.02em"
+            color="#212224"
+            flex="none"
+            order={0}
+            flexGrow={0}
+          >
+            Create your Shepherd Account
+          </Text>
+          <Text
+            fontStyle="normal"
+            fontWeight={400}
+            width={"80%"}
+            textAlign="center"
+            fontSize="14px"
+            lineHeight="21px"
+            color="#585F68"
+            flex="none"
+            order={1}
+            flexGrow={0}
+            marginBottom="16px"
+          >
+Upload a proof of your identity (drivers license, passport, national ID)
+          </Text>
+          </VStack>
+        
           <Box marginTop={30}>
             <SelectComponent
+              value={{value: country, label: country}}
               options={countries.map((country) => ({ label: country.name, value: country.name }))}
               onChange={(e: any) => {
                 onboardTutorStore.set.country?.(e.value);
@@ -557,7 +371,7 @@ const OnboardTutor = () => {
                 size="lg"
               />
               <Text fontSize="sm">
-                I confirm that I uploaded a valid government issued photo ID.
+              I confirm that I uploaded a valid government issued photo ID, be rest assured, your ID upload is secure and your information will not be saved. 
               </Text>
             </HStack>
           </Box>
@@ -570,11 +384,37 @@ const OnboardTutor = () => {
       stepIndicatorId: 'security',
       template: (
         <Box>
-          <Heading as="h3" size="lg" textAlign={'center'}>
-            First we need some information about you.
-            <br />
-            Hi there, before you proceed, let us know who is signing up{' '}
-          </Heading>
+            <VStack justifyContent={"center"} alignItems="center">
+          <Text
+            fontFamily="Inter"
+            fontStyle="normal"
+            fontWeight={600}
+            fontSize="24px"
+            lineHeight="34px"
+            letterSpacing="-0.02em"
+            color="#212224"
+            flex="none"
+            order={0}
+            flexGrow={0}
+          >
+            Create your Shepherd Account
+          </Text>
+          <Text
+            fontStyle="normal"
+            fontWeight={400}
+            textAlign="center"
+            width={"80%"}
+            fontSize="14px"
+            lineHeight="21px"
+            color="#585F68"
+            flex="none"
+            order={1}
+            flexGrow={0}
+            marginBottom="16px"
+          >
+Hi there, before you proceed, let us know who is signing up
+          </Text>
+          </VStack>
           <Box marginTop={30}>
             <FormControl>
               <FormLabel>Password</FormLabel>
@@ -600,13 +440,13 @@ const OnboardTutor = () => {
               <InputGroup size="lg">
                 <Input
                   placeholder="Confirm password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showConfirmPassword ? 'text' : 'password'}
                   _placeholder={{ fontSize: '14px' }}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
                 <InputRightElement>
-                  {!showPassword ? (
+                  {!showConfirmPassword ? (
                     <HiEye
                       cursor="pointer"
                       onClick={() => setShowConfirmPassword((prev) => !prev)}
@@ -637,11 +477,6 @@ const OnboardTutor = () => {
       canSave: validatePasswordStep,
     },
   ];
-
-  const openEditModal = (stepId: string) => {
-    onEditModalOpen();
-    setEditModalStep(stepId);
-  };
 
   const activeStepObj = useMemo(() => steps[activeStep - 1], [activeStep]);
 
@@ -707,7 +542,7 @@ const OnboardTutor = () => {
         activeStep={stepIndicatorSteps.findIndex((s) => s === stepIndicatorActiveStep)}
         steps={stepIndicatorSteps}
       />
-      <Box mt={45}>
+      <Box>
         <StepWizard isLazyMount className="flex-col-reverse" onStepChange={onStepChange}>
           {
             steps.map((s) => {

@@ -4,7 +4,6 @@ import { Box, Textarea, Text } from "@chakra-ui/react";
 
 const BioForm = () => {
   const maxCharacters = 3000;
-  const maxWords = 250;
   const [bio, setBio] = useState("");
 
   const { description: value } = onboardTutorStore.useStore();
@@ -24,10 +23,10 @@ const BioForm = () => {
         placeholder="Enter your bio"
         minHeight="250px"
         fontSize="12px"
-        lineHeight="17px"
+        lineHeight="22px"
         fontStyle="normal"
-        fontWeight={500}
-        color="#969CA6"
+        fontWeight={400}
+        color="#212224"
       />
       <Box marginTop="1rem">
         <Text

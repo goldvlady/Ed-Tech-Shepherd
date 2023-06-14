@@ -56,6 +56,7 @@ export interface TutorBankInfo {
 export interface Country {
   name: string;
 }
+
 export type LevelType = Level;
 export type Student = StudentType;
 export type Tutor = TutorType;
