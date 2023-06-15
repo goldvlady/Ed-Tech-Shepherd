@@ -1,11 +1,36 @@
-import { Dialog, Menu, Popover, Tab, Transition } from '@headlessui/react';
+import { SearchIcon } from '@chakra-ui/icons';
+import {
+  Avatar,
+  Box,
+  Button,
+  Container,
+  Divider,
+  Flex,
+  Grid,
+  GridItem,
+  Image,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Spacer,
+  Stack,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
+} from '@chakra-ui/react';
+import { Dialog, Menu, Popover, Transition } from '@headlessui/react';
 import {
   ChevronRightIcon,
   DocumentIcon,
   EllipsisVerticalIcon,
   XMarkIcon,
 } from '@heroicons/react/24/solid';
-import { Fragment, useState } from 'react';
+import { Fragment } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { AiOutlineMore } from 'react-icons/ai';
 
 import { classNames } from '../../util';
 import MessagesTab from './components/MessagesTab';
@@ -13,15 +38,30 @@ import MessagesTab from './components/MessagesTab';
 export default function Messages() {
   const [offerModalState, setOfferModalState] = useState(false);
 
+  const [messages, setMessages] = useState([
+    { from: 'computer', text: 'Hi, My Name is HoneyChat' },
+    { from: 'me', text: 'Hey there' },
+    { from: 'me', text: 'Myself Ferin Patel' },
+    {
+      from: 'computer',
+      text: "Nice to meet you. You can send me message and i'll reply you with same message.",
+    },
+  ]);
+  const AlwaysScrollToBottom = () => {
+    const elementRef: any = useRef('');
+    useEffect(() => elementRef.current.scrollIntoView());
+    return <div ref={elementRef} />;
+  };
+
   return (
     <>
-      <section className="divide-y max-w-screen-xl mx-auto pb-6 lg:pb-16">
+      {/* <section className="divide-y max-w-screen-xl mx-auto ">
         <main className="relative">
           <div className="bg-white  overflow-hidden">
             <div className="divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
               <Tab.Group as="div" className="py-2 lg:col-span-4">
                 <nav className="space-y-1">
-                  <div className="top px-2">
+                  <div className="top ">
                     <div className="space-x-2 mb-4">
                       <span>Messages</span>
                     </div>
@@ -367,9 +407,9 @@ export default function Messages() {
             </div>
           </div>
         </main>
-      </section>
+      </section> */}
       {/* Accept Offer Modal */}
-      <Transition.Root show={offerModalState} as={Fragment}>
+      {/* <Transition.Root show={offerModalState} as={Fragment}>
         <Dialog as="div" className="relative z-50" onClose={setOfferModalState}>
           <Transition.Child
             as={Fragment}
@@ -437,7 +477,287 @@ export default function Messages() {
             </div>
           </div>
         </Dialog>
-      </Transition.Root>
+      </Transition.Root> */}
+      <Box margin={'-1.5rem'} h={900}>
+        <Grid templateRows="repeat(1, 1fr)" templateColumns="repeat(3, 1fr)">
+          <GridItem rowSpan={3} colSpan={1} borderRight="1px solid #EEEFF2" p={3}>
+            <Text>Messages</Text>
+            <Input type="text" placeholder="Search" />
+            <Box my={3}>
+              <Tabs isFitted variant="unstyled">
+                <TabList bg={'#f8f9fd'} p={1} borderRadius="8px" mb={3}>
+                  <Tab _selected={{ color: 'text.400', bg: 'white' }}>All</Tab>
+                  <Tab _selected={{ color: 'text.400', bg: 'white' }}>Unread</Tab>
+                </TabList>
+                <TabPanels>
+                  <TabPanel maxHeight={1000} overflowY={'scroll'}>
+                    <MessagesTab />
+                    <Divider my={3} />
+
+                    <MessagesTab />
+                    <Divider my={3} />
+                    <MessagesTab />
+                    <Divider my={3} />
+                    <MessagesTab />
+                    <Divider my={3} />
+
+                    <MessagesTab />
+                    <Divider my={3} />
+
+                    <MessagesTab />
+                    <Divider my={3} />
+                    <MessagesTab />
+                    <Divider my={3} />
+                    <MessagesTab />
+                    <Divider my={3} />
+
+                    <MessagesTab />
+                    <Divider my={3} />
+
+                    <MessagesTab />
+                    <Divider my={3} />
+                    <MessagesTab />
+                    <Divider my={3} />
+                    <MessagesTab />
+                  </TabPanel>
+                  <TabPanel></TabPanel>
+                </TabPanels>
+              </Tabs>
+            </Box>
+          </GridItem>
+          <GridItem rowSpan={3} colSpan={2} position={'relative'}>
+            <Flex alignItems="center" bg="white" zIndex={3}>
+              <Box p="3">
+                <Flex px={3} gap={0} direction={'row'} my={2}>
+                  <Avatar name="Leslie" src="https://bit.ly/tioluwani-kolawole" bgColor="#4CAF50" />
+                  <Stack direction={'column'} px={4}>
+                    <Text fontSize={'16px'} fontWeight={'500'} mb={-2}>
+                      Leslie Peters Mapu
+                    </Text>
+                    <Text fontWeight={400} color={'#585F68'} fontSize="14px" mb={'2px'}>
+                      lesliepeters214@gmail.com{' '}
+                    </Text>
+                  </Stack>
+                </Flex>
+              </Box>
+              <Spacer />
+              <Box p="4">
+                <Button
+                  variant="outline"
+                  fontSize={12}
+                  color="text.300"
+                  size={'sm'}
+                  border="1px solid #E7E8E9">
+                  View Profile
+                </Button>
+              </Box>
+              <Box mr={4}>
+                <AiOutlineMore />
+              </Box>
+            </Flex>
+            {/* <Flex w="100%" maxHeight="600px" overflowY="scroll" flexDirection="column" p="3">
+              {messages.map((item, index) => {
+                if (item.from === 'me') {
+                  return (
+                    <Flex key={index} w="100%" justify="flex-end">
+                      <Flex bg="black" color="white" minW="100px" maxW="350px" my="1" p="3">
+                        <Text>{item.text}</Text>
+                      </Flex>
+                    </Flex>
+                  );
+                } else {
+                  return (
+                    <Flex key={index} w="100%">
+                      <Avatar
+                        name="Leslie"
+                        src="https://bit.ly/tioluwani-kolawole"
+                        bgColor="#4CAF50"
+                      />
+
+                      <Flex bg="gray.100" color="black" minW="100px" maxW="350px" my="1" p="3">
+                        <Text>{item.text}</Text>
+                      </Flex>
+                    </Flex>
+                  );
+                }
+              })}
+              <AlwaysScrollToBottom />
+            </Flex> */}
+            <Flex direction={'column'} height={1100} overflowY={'scroll'}>
+              {' '}
+              <div className="flex overflow-scroll flex-col flex-auto flex-shrink-0 bg-gray-100 h-full">
+                <div className="flex flex-col h-full overflow-x-auto mb-4 mt-20">
+                  <div className="flex flex-col h-full">
+                    <div className="grid grid-cols-12 gap-y-2">
+                      <div className="col-start-1 col-end-10 p-3 rounded-lg">
+                        <div className="flex flex-row items-start">
+                          <div className="flex items-center text-white justify-center h-7 w-7 rounded-full bg-[#4CAF50] flex-shrink-0">
+                            L
+                          </div>
+                          <div className="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl">
+                            <p>
+                              Nulla ut ut ipsum praesent nulla sem eget. Aliquam vitae amet magna
+                              neque leo. Fames donec nullam dictum aliquet. Nunc odio lorem
+                              venenatis urna
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-xs pl-10 text-secondaryGray">03:05 PM</span>
+                      </div>
+                      <div className="col-start-5 col-end-13 p-3 rounded-lg">
+                        <div className="flex items-start justify-start flex-row-reverse">
+                          <div className="flex items-center justify-center h-7 w-7 rounded-full bg-orange-600 text-white flex-shrink-0">
+                            L
+                          </div>
+                          <div className="relative mr-3 text-sm bg-primaryBlue text-white py-2 px-4 shadow rounded-xl">
+                            <p>
+                              Nulla ut ut ipsum praesent nulla sem eget. Aliquam vitae amet magna
+                              neque leo. Fames donec nullam dictum aliquet.{' '}
+                            </p>
+                            <button className="w-full bg-white mt-1 rounded-md flex items-center justify-between px-2 py-1">
+                              <div className=" flex items-center space-x-1">
+                                <div className="bg-white flex justify-center items-center w-8 h-8 border rounded-full">
+                                  <img
+                                    src="/svgs/pdf.svg"
+                                    alt="Download the document sent to you"
+                                    className="w-4 h-4 text-secondaryGray"
+                                  />
+                                </div>
+                                <h4 className="text-sm text-secondaryGray font-medium">
+                                  Document title.pdf
+                                </h4>
+                              </div>
+                              <ChevronRightIcon className="text-secondaryGray w-2.5 h-2.5" />
+                            </button>
+                          </div>
+                        </div>
+                        <span className="text-xs text-secondaryGray">03:05 PM</span>
+                      </div>
+                      <div className="col-start-1 col-end-10 p-3 rounded-lg">
+                        <div className="flex flex-row items-start">
+                          <div className="flex items-center text-white justify-center h-7 w-7 rounded-full bg-[#4CAF50] flex-shrink-0">
+                            L
+                          </div>
+                          <div className="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl">
+                            <p>
+                              Nulla ut ut ipsum praesent nulla sem eget. Aliquam vitae amet magna
+                              neque leo. Fames donec nullam dictum aliquet. Nunc odio lorem
+                              venenatis urna
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-xs pl-10 text-secondaryGray">03:05 PM</span>
+                      </div>
+                      <div className="col-start-1 col-end-10 p-3 rounded-lg">
+                        <div className="flex flex-row items-start">
+                          <div className="flex items-center text-white justify-center h-7 w-7 rounded-full bg-[#4CAF50] flex-shrink-0">
+                            L
+                          </div>
+                          <div className="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl">
+                            <p>Nulla ut ut ipsum praesent nulla sem eget. Aliqua</p>
+                          </div>
+                        </div>
+                        <span className="text-xs pl-10 text-secondaryGray">03:05 PM</span>
+                      </div>
+                      <div className="col-start-1 col-end-10 p-3 rounded-lg">
+                        <div className="flex flex-row items-start">
+                          <div className="flex items-center text-white justify-center h-7 w-7 rounded-full bg-[#4CAF50] flex-shrink-0">
+                            L
+                          </div>
+                          <div className="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl">
+                            <p>
+                              Nulla ut ut ipsum praesent nulla sem eget. Aliquam vitae amet magna
+                              neque leo. Fames donec nullam dictum aliquet. Nunc odio lorem
+                              venenatis urna
+                            </p>
+                            <button className="w-full bg-gray-100 mt-1 rounded-md flex items-center justify-between px-2 py-1">
+                              <div className=" flex items-center space-x-1">
+                                <div className="bg-white flex justify-center items-center w-8 h-8 border rounded-full">
+                                  <img
+                                    src="/svgs/pdf.svg"
+                                    alt="Download the document sent to you"
+                                    className="w-4 h-4 text-secondaryGray"
+                                  />
+                                </div>
+                                <h4 className="text-sm text-secondaryGray font-medium">
+                                  Document title.pdf
+                                </h4>
+                              </div>
+                              <ChevronRightIcon className="text-secondaryGray w-2.5 h-2.5" />
+                            </button>
+                          </div>
+                        </div>
+                        <span className="text-xs pl-10 text-secondaryGray">03:05 PM</span>
+                      </div>
+                      <div className="col-start-1 col-end-10 p-3 rounded-lg">
+                        <div className="flex flex-row items-start">
+                          <div className="flex items-center text-white justify-center h-7 w-7 rounded-full bg-[#4CAF50] flex-shrink-0">
+                            L
+                          </div>
+                          <div className="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl">
+                            <p>
+                              Nulla ut ut ipsum praesent nulla sem eget. Aliquam vitae amet magna
+                              neque leo. Fames donec nullam dictum aliquet. Nunc odio lorem
+                              venenatis urna
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-xs pl-10 text-secondaryGray">03:05 PM</span>
+                      </div>{' '}
+                      <div className="col-start-1 col-end-10 p-3 rounded-lg">
+                        <div className="flex flex-row items-start">
+                          <div className="flex items-center text-white justify-center h-7 w-7 rounded-full bg-[#4CAF50] flex-shrink-0">
+                            L
+                          </div>
+                          <div className="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl">
+                            <p>
+                              Nulla ut ut ipsum praesent nulla sem eget. Aliquam vitae amet magna
+                              neque leo. Fames donec nullam dictum aliquet. Nunc odio lorem
+                              venenatis urna
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-xs pl-10 text-secondaryGray">03:05 PM</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Flex>
+
+            {/* <div className="w-full shadow-sm fixed z-50 border-t bg-white bottom-0  flex flex-row items-center h-16 px-4">
+              <div className="flex-grow ">
+                <div className="relative w-full">
+                  <input
+                    type="text"
+                    placeholder="Message Leslie Peters"
+                    className="flex w-full bg-gray-100 border-0 rounded-md focus:outline-none pl-4 h-10"
+                  />
+                  <button className="absolute flex items-center justify-center h-full w-12 right-6 top-0 text-gray-400 hover:text-gray-600">
+                    <img alt="" src="/svgs/photo.svg" className="w-4 h-4" />
+                  </button>
+                  <button className="absolute flex items-center justify-center h-full w-12 right-0 top-0 text-gray-400 hover:text-gray-600">
+                    <DocumentIcon className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+              <div className="ml-4">
+                <button className="flex items-center justify-center bg-primaryBlue hover:bg-blue-400 rounded-md text-white px-4 py-2 flex-shrink-0">
+                  <span>Send</span>
+                </button>
+              </div>
+            </div> */}
+            <Box position="fixed" bottom={0} zIndex={3} p={2} h={16} bg="white" w="full">
+              <Flex alignItems="center">
+                <Input pr="4.5rem" type={'text'} placeholder="Message Leslie Peters" w="50%" />
+                <Button h="1.75rem" size="sm" variant="ghost">
+                  <DocumentIcon className="w-5 h-5" />
+                </Button>
+              </Flex>
+            </Box>
+          </GridItem>
+        </Grid>
+      </Box>
     </>
   );
 }

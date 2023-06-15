@@ -14,6 +14,7 @@ import {
   Spacer,
   Stack,
   Text,
+  useToast,
 } from '@chakra-ui/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { Select as MultiSelect } from 'chakra-react-select';
@@ -25,6 +26,7 @@ import { FiChevronDown } from 'react-icons/fi';
 import { MdTune } from 'react-icons/md';
 import { useSearchParams } from 'react-router-dom';
 
+import { Level } from '../../../netlify/database/models/Level';
 import Star5 from '../../assets/5star.svg';
 import CustomSelect from '../../components/Select';
 import TimePicker from '../../components/TimePicker';
@@ -38,20 +40,13 @@ import Banner from './components/Banner';
 import TutorCard from './components/TutorCard';
 import { CustomButton } from './layout';
 
-const levelOptions = [
-  { value: 'a-level', label: 'A-Level', id: 1 },
-  { value: 'gcse', label: 'GCSE', id: 2 },
-  { value: 'university', label: 'University', id: 3 },
-  { value: 'grade10', label: 'Grade 10', id: 4 },
-  { value: 'grade11', label: 'Grade 11', id: 5 },
-  { value: 'grade12', label: 'Grade 12', id: 6 },
-];
 const priceOptions = [
   { value: '10-12', label: '$10.00 - $12.00', id: 1 },
   { value: '12-15', label: '$12.00 - $15.00', id: 2 },
   { value: '15-20', label: '$15.00 - $20.00', id: 3 },
   { value: '20-25', label: '$20.00 - $25.00', id: 4 },
 ];
+const timezoneOffset = new Date().getTimezoneOffset();
 
 const ratingOptions = [
   { value: 1.0, label: '⭐', id: 1 },
@@ -67,34 +62,21 @@ const dayOptions = [...new Array(7)].map((_, i) => {
 const defaultTime = '';
 
 export default function Marketplace() {
-  const { courses: courseList } = resourceStore();
+  const { courses: courseList, levels: levelOptions } = resourceStore();
   const [allTutors, setAllTutors] = useState<any>([]);
   const [loadingData, setLoadingData] = useState(false);
-  const [tz, setTz] = useState<any>();
+  //   const [tz, setTz] = useState<any>(() => moment.tz.guess());
   const [subject, setSubject] = useState<string>('Subject');
+  const [level, setLevel] = useState<string>('Level');
+  const [price, setPrice] = useState<any>('Price');
+  const [rating, setRating] = useState<any>('Rating');
   const [searchParams, setSearchParams] = useSearchParams();
   const [fromTime, setFromTime] = useState('');
   const [toTime, setToTime] = useState('');
   const [days, setDays] = useState<Array<any>>([]);
 
   const [tutorGrid] = useAutoAnimate();
-  const formik = useFormik({
-    initialValues: {
-      subject: '',
-      level: '',
-      //   toTime: toTime,
-      //   fromTime: fromTime,
-      //   days: days,
-      //   tz: tz,
-
-      price: '',
-      rating: '',
-    },
-    onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
-    },
-  });
-  console.log(days);
+  const toast = useToast();
 
   const getData = async () => {
     setLoadingData(true);
@@ -107,13 +89,13 @@ export default function Marketplace() {
   };
   const getFilteredData = async () => {
     let formData = {
-      courses: subject.toLowerCase(),
-      teachLevel: formik.values.level,
+      courses: subject === 'Subject' ? '' : subject.toLowerCase(),
+      levels: level === 'Level' ? '' : level,
       availability: '',
-      tz: 'Africa/Lagos',
+      tz: moment.tz.guess(),
       days: days,
-      price: formik.values.price,
-      floorRating: formik.values.rating,
+      price: price,
+      floorRating: rating,
       startTime: toTime,
       endTime: fromTime,
     };
@@ -127,22 +109,39 @@ export default function Marketplace() {
   };
 
   useEffect(() => {
-    getData();
-  }, []);
-  useEffect(() => {
     getFilteredData();
-  }, [subject]);
-  console.log(allTutors);
-  console.log('TZ', tz);
+  }, [subject, level, price, rating, days]);
 
-  const resetForm = () => {
+  const { fetchBookmarkedTutors, tutors: bookmarkedTutors } = bookmarkedTutorsStore();
+
+  const doFetchBookmarkedTutors = useCallback(async () => {
+    await fetchBookmarkedTutors();
+  }, []);
+
+  const checkBookmarks = (id: string) => {
+    for (var i = 0; i < bookmarkedTutors.length; i++) {
+      if (bookmarkedTutors[i].tutor._id == id) {
+        return true;
+        break;
+      } else {
+      }
+    }
+  };
+
+  useEffect(() => {
+    doFetchBookmarkedTutors();
+  }, [doFetchBookmarkedTutors]);
+
+  const resetForm = useCallback(() => {
     setSubject('Subject');
-    setTz(defaultTime);
+    setLevel('Level');
+    setPrice('Price');
+    setRating('Rating');
     setDays([]);
     setFromTime('');
     setToTime('');
     getData();
-  };
+  }, []);
 
   return (
     <>
@@ -186,37 +185,29 @@ export default function Marketplace() {
               ))}
             </MenuList>
           </Menu>
-          <Box w="125px">
-            <Select
+          <Menu placement="bottom">
+            <MenuButton
+              as={Button}
+              variant="outline"
+              rightIcon={<FiChevronDown />}
               fontSize={14}
               borderRadius="40px"
-              variant="outline"
-              placeholder="Subject"
-              name="subject"
-              value={formik.values.subject}
-              onChange={formik.handleChange}>
-              {courseList.map((course) => (
-                <option key={course._id} value={course._id}>
-                  {course.label}
-                </option>
+              fontWeight={400}
+              color="text.400">
+              Level
+            </MenuButton>
+            <MenuList>
+              {levelOptions.map((level) => (
+                <MenuItem
+                  key={level._id}
+                  _hover={{ bgColor: '#F2F4F7' }}
+                  onClick={() => setLevel(level._id)}>
+                  {level.label}
+                </MenuItem>
               ))}
-            </Select>
-          </Box>
-          <Box w="125px">
-            <Select
-              fontSize={14}
-              variant="outline"
-              borderRadius="40px"
-              size="md"
-              placeholder="Level"
-              name="level"
-              value={formik.values.level}
-              onChange={formik.handleChange}>
-              {educationLevelOptions.map((level) => (
-                <option value={level.value}>{level.label}</option>
-              ))}
-            </Select>
-          </Box>
+            </MenuList>
+          </Menu>
+
           <Box>
             <Menu>
               <MenuButton
@@ -291,38 +282,84 @@ export default function Marketplace() {
               </MenuList>
             </Menu>
           </Box>
-          <Box w="125px">
+          <Menu>
+            <MenuButton
+              as={Button}
+              variant="outline"
+              rightIcon={<FiChevronDown />}
+              fontSize={14}
+              borderRadius="40px"
+              fontWeight={400}
+              color="text.400">
+              {price !== 'Price'
+                ? priceOptions.map((price: any) => {
+                    if (price.id === price) {
+                      return price.label;
+                    }
+                  })
+                : price}
+            </MenuButton>
+            <MenuList>
+              {priceOptions.map((price) => (
+                <MenuItem
+                  key={price.id}
+                  _hover={{ bgColor: '#F2F4F7' }}
+                  onClick={() => setPrice(price.value)}>
+                  {price.label}
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Menu>
+          <Menu>
+            <MenuButton
+              as={Button}
+              variant="outline"
+              rightIcon={<FiChevronDown />}
+              fontSize={14}
+              borderRadius="40px"
+              fontWeight={400}
+              color="text.400">
+              {rating}
+            </MenuButton>
+            <MenuList>
+              {ratingOptions.map((rating) => (
+                <MenuItem
+                  key={rating.id}
+                  _hover={{ bgColor: '#F2F4F7' }}
+                  onClick={() => setRating(rating.value)}>
+                  {rating.label}
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Menu>
+          {/* <Box w="125px">
             <Select
               fontSize={14}
               borderRadius="40px"
               variant="outline"
               placeholder="Price"
-              name="price"
-              value={formik.values.price}
-              onChange={formik.handleChange}>
+              name="price">
               {priceOptions.map((price) => (
                 <option key={price.id} value={price.value}>
                   {price.label}
                 </option>
               ))}
             </Select>
-          </Box>
-          <Box w="125px">
+          </Box> */}
+          {/* <Box w="125px">
             <Select
               fontSize={14}
               borderRadius="40px"
               variant="outline"
               placeholder="Rating"
-              name="rating"
-              value={formik.values.rating}
-              onChange={formik.handleChange}>
+              name="rating">
               {ratingOptions.map((rating) => (
                 <option key={rating.id} value={rating.value}>
                   {rating.label}
                 </option>
               ))}
             </Select>
-          </Box>
+          </Box> */}
         </HStack>
         <Spacer />
         <Flex gap="2">
@@ -353,6 +390,7 @@ export default function Marketplace() {
               description={tutor.description}
               rating={tutor.rating}
               reviewCount={tutor.reviewCount}
+              saved={checkBookmarks(tutor._id)}
             />
           ))}
         </SimpleGrid>
