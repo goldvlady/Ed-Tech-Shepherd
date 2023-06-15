@@ -421,6 +421,7 @@ const OnboardTutor = () => {
 
   const canSaveCurrentEditModalStep = steps.find((s) => s.id === editModalStep)?.canSave;
 
+  console.log(steps[activeStep - 1], activeStep)
   return (
     <Box>
       <Modal
@@ -474,7 +475,7 @@ const OnboardTutor = () => {
           flexGrow={0}
           marginBottom="16px"
         >
-          {steps[activeStep].text}
+          {steps[activeStep - 1]?.text}
         </Text>
       </VStack>
       <StepIndicator
