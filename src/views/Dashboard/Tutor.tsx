@@ -166,7 +166,8 @@ export default function Tutor() {
                       {' '}
                       <Image src={Star} boxSize={4} />
                       <Text fontSize={12} fontWeight={400} color="#6E7682">
-                        {` ${tutorData.rating}(${tutorData.reviewCount})`}
+                        {/* {` ${tutorData.rating}(${tutorData.reviewCount})`} */}
+                        {tutorData.rating}({tutorData.reviewCount})
                       </Text>
                     </Flex>
 

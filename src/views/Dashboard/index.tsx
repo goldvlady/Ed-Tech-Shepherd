@@ -266,7 +266,7 @@ export default function Index() {
           </Box>
         </GridItem>
         <GridItem colSpan={2}>
-          <Box height={'250px'} border="1px solid #eeeff2" borderRadius={'14px'} px={3} py={2}>
+          <Box border="1px solid #eeeff2" borderRadius={'14px'} px={3} py={2}>
             <Schedule />
           </Box>
         </GridItem>

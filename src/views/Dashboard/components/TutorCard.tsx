@@ -27,32 +27,16 @@ import bookmarkedTutorsStore from '../../../state/bookmarkedTutorsStore';
 import { textTruncate } from '../../../util';
 
 export default function TutorCard(props: any) {
-  const { id, name, levelOfEducation, avatar, use, rate, description, rating, reviewCount } = props;
+  const { id, name, levelOfEducation, avatar, use, rate, description, rating, reviewCount, saved } =
+    props;
   const toast = useToast();
+  const { fetchBookmarkedTutors } = bookmarkedTutorsStore();
 
-  const { fetchBookmarkedTutors, tutors: bookmarkedTutors } = bookmarkedTutorsStore();
-
-  const doFetchBookmarkedTutors = useCallback(async () => {
-    await fetchBookmarkedTutors();
-  }, []);
-  const checkBookmarks = (id: string) => {
-    for (var i = 0; i < bookmarkedTutors.length; i++) {
-      if (bookmarkedTutors[i].tutor._id == id) {
-        return true;
-        break;
-      } else {
-      }
-    }
-  };
-
-  useEffect(() => {
-    doFetchBookmarkedTutors();
-  }, [doFetchBookmarkedTutors]);
-  const bookmarkTutor = async (id: string) => {
+  const toggleBookmarkTutor = async (id: string) => {
     try {
       const resp = await ApiService.toggleBookmarkedTutor(id);
       console.log(resp);
-      if (checkBookmarks(id)) {
+      if (saved) {
         toast({
           title: 'Tutor removed from Bookmarks successfully',
           position: 'top-right',
@@ -67,7 +51,7 @@ export default function TutorCard(props: any) {
           isClosable: true,
         });
       }
-      doFetchBookmarkedTutors();
+      fetchBookmarkedTutors();
     } catch (e) {
       toast({
         title: 'An unknown error occured',
@@ -77,16 +61,15 @@ export default function TutorCard(props: any) {
       });
     }
   };
-
   return (
     <LinkBox as="article">
       <Center justifyContent="left">
         <Stack
           borderWidth="1px"
           borderRadius="lg"
-          w={{ sm: '100%', md: '360px' }}
-          height={{ sm: '476px', md: '20rem', lg: '191px' }}
-          direction={{ base: 'column', md: 'row' }}
+          w={{ sm: '100%', md: '100%' }}
+          height={{ sm: '200px', md: '20rem', lg: '191px' }}
+          direction={{ base: 'row', md: 'row' }}
           bg={useColorModeValue('white', 'gray.900')}
           boxShadow={'2xl'}
           padding={2}
@@ -145,13 +128,13 @@ export default function TutorCard(props: any) {
           </Box>
 
           <Image
-            src={checkBookmarks(id) ? Ribbon2 : Ribbon}
+            src={saved ? Ribbon2 : Ribbon}
             position="absolute"
             top={2}
             right={2}
-            width={checkBookmarks(id) ? 5 : 4}
+            width={saved ? 5 : 4}
             _hover={{ cursor: 'pointer' }}
-            onClick={() => bookmarkTutor(id)}
+            onClick={() => toggleBookmarkTutor(id)}
           />
         </Stack>
       </Center>
