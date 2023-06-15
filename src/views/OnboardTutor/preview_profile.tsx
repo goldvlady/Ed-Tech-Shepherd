@@ -1,4 +1,4 @@
-import React, { useState, ReactNode, useRef,useMemo } from "react";
+import React, { useState, ReactNode, useRef, useMemo, useEffect } from "react";
 import cloud from "../../assets/cloud.svg";
 import { FaFileAlt, FaPen, FaPlay, FaEdit, FaPause } from "react-icons/fa";
 import {
@@ -17,10 +17,13 @@ import {
   Thead,
   Tr,
   Image,
+  TableContainer,
+  BorderProps
 } from "@chakra-ui/react";
 import EditProfileModal from "./components/EditProfileStepModal";
 import { EditIcon, CheckIcon } from "@chakra-ui/icons";
 import { motion } from "framer-motion";
+import { Schedule, SingleSchedule, TimeSchedule } from '../../types';
 import ProfilePictureForm from "./components/steps/profile_picture.step";
 import PaymentInformationForm from "./components/steps/payment_information.step";
 import HourlyRateForm from "./components/steps/hourly_rate.step";
@@ -37,7 +40,7 @@ import onboardTutorStore from "../../state/onboardTutorStore";
 
 const Root = styled(Box)`
   display: flex;
-  background: #f8f9fb;
+  background: #f5f5f5;
   justify-content: center;
   align-items: center;
   max-width: 100vw;
@@ -45,7 +48,7 @@ const Root = styled(Box)`
 `;
 
 const MainWrapper = styled(Box)`
-  background: #f8f9fb;
+  background: #f5f5f5;
   min-width: 100vw;
   min-height: 100vh;
 `;
@@ -59,81 +62,56 @@ type Step = {
   isValid?: boolean;
 };
 
+export type Availability = { [key: string]: SlotData };
+export interface SlotData {
+  timezone: string;
+  slots: string[];
+}
+
+
 const CourseTable = () => {
   const { coursesAndLevels, rate } = onboardTutorStore.useStore();
   return (
-    <Box width="100%">
-      <Table variant="simple" borderRadius="10px">
-        <Thead>
-          <Tr>
-            <Th
-              p={5}
-              border="1px solid #EEEFF2"
-              bg="#FAFAFA"
-              borderRadius="8px"
-            />
-            <Th
-              p={5}
-              border="1px solid #EEEFF2"
-              bg="#FFFFFF"
-              borderRadius="8px"
-            >
-              Level
-            </Th>
-            <Th border="1px solid #EEEFF2" bg="#FFFFFF" borderRadius="8px">
-              Price
-            </Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {coursesAndLevels.map((subLevel) => (
+    <TableContainer my={4}>
+      <Box border={'1px solid #EEEFF2'} borderRadius={8}>
+        <Table variant="simple">
+          <Thead>
             <Tr>
-              <Td
+              <Th
+                p={5}
                 bg="#FAFAFA"
-                color="#585F68"
-                fontSize="14px"
-                fontWeight={500}
-                border="1px solid #EEEFF2"
+                borderTopLeftRadius="8px"
+                borderRight="1px solid #EEEFF2"
+              />
+              <Th
                 p={5}
-                borderRadius="8px"
-              >
-                {subLevel.course.label}
-              </Td>
-              <Td
                 bg="#FFFFFF"
-                fontWeight="500"
-                fontSize="16px"
-                lineHeight="21px"
-                letterSpacing="0.012em"
-                color="#585F68"
-                border="1px solid #EEEFF2"
-                p={5}
-                borderRadius="8px"
+                borderTopLeftRadius="8px"
+                borderRight="1px solid #EEEFF2"
               >
-                {subLevel.level.label}
-              </Td>
-              <Td
-                bg="#FFFFFF"
-                fontWeight="500"
-                fontSize="16px"
-                lineHeight="21px"
-                letterSpacing="0.012em"
-                color="#212224"
-                border="1px solid #EEEFF2"
-                p={5}
-                borderRadius="8px"
-              >
-                ${rate}
-              </Td>
+                Level
+              </Th>
+              <Th bg="#FFFFFF" borderRadius="8px">
+                Price
+              </Th>
             </Tr>
-          ))}
-        </Tbody>
-      </Table>
-    </Box>
+          </Thead>
+          <Tbody>
+            {coursesAndLevels.map((subLevel) => (
+              <Tr>
+                <Td paddingY={5} borderRight="1px solid #EEEFF2" bgColor={'#FAFAFA'}> {subLevel.course.label}</Td>
+                <Td borderRight="1px solid #EEEFF2" paddingY={5}>{subLevel.level.label}</Td>
+                <Td paddingY={5}>${rate}/hr</Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      </Box>
+    </TableContainer>
   );
 };
 
-const ProfileDiv = ({onEdit}: {onEdit: (v: string) => void}) => {
+const ProfileDiv = ({ onEdit }: { onEdit: (v: string) => void }) => {
   const { avatar, qualifications, rate } = onboardTutorStore.useStore();
   const [showAlternateImage, setShowAlternateImage] = useState(false);
 
@@ -146,7 +124,7 @@ const ProfileDiv = ({onEdit}: {onEdit: (v: string) => void}) => {
       width="100%"
       bg="#FFFFFF"
       border="1px solid #EEEFF1"
-      borderRadius="10px"
+      borderRadius="20px"
     >
       {/* Upper Section */}
       <VStack p="30px" alignItems="center">
@@ -157,6 +135,7 @@ const ProfileDiv = ({onEdit}: {onEdit: (v: string) => void}) => {
             alt="Avatar"
             width="150px"
             height="150px"
+            
             borderRadius="50%"
           />
           {/* Edit Icon */}
@@ -166,12 +145,12 @@ const ProfileDiv = ({onEdit}: {onEdit: (v: string) => void}) => {
             right="0"
             bg="#207DF7"
             borderRadius="50%"
-            width="28px"
-            height="28px"
+            width="40px"
+            height="40px"
             display="flex"
             justifyContent="center"
             alignItems="center"
-            onClick={toggleImage}
+            onClick={() => onEdit("upload_profile_picture")}
             cursor="pointer"
           >
             <FaPen color="#FFF" fontSize="14px" />
@@ -259,128 +238,184 @@ const ProfileDiv = ({onEdit}: {onEdit: (v: string) => void}) => {
   );
 };
 
-// const AvailabilityTable = () => {
-//   const { availability } = onboardTutorStore.useStore();
+const AvailabilityTable = () => {
+  const { schedule } = onboardTutorStore.useStore();
+  const [availability, setTutorAvailability] = useState<{ [key: string]: SlotData }>(
+    {}
+  );
 
-//   console.log(availability);
+  function formatScheduleToAvailability(schedule: Schedule): Availability {
+    const storedAvailability: Availability = {};
 
-//   const timeSlots = ["8am - 12am", "12am - 5pm", "5pm - 9pm"];
+    const dayMap: { [key: number]: string } = {
+      1: 'sunday',
+      2: 'monday',
+      3: 'tuesday',
+      4: 'wednesday',
+      5: 'thursday',
+      6: 'friday',
+      7: 'saturday',
+    };
 
-//   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    Object.keys(schedule).forEach((dayNumber: string) => {
+      const day: string = dayMap[parseInt(dayNumber)];
+      const timeSlots: TimeSchedule[] = schedule[parseInt(dayNumber)];
 
-//   const checkedOut = (
-//     <Box
-//       minW={"70px"}
-//       minH={"70px"}
-//       padding={0}
-//       bg={`repeating-linear-gradient(
-//       45deg,
-//       #F7F7F8,
-//       #F7F7F8 10px,
-//       #fff 10px,
-//       #fff 15px
-//     )`}
-//     />
-//   );
-//   const renderAvailabilityCell = (slot: string, day: string) => {
-//     const fullDayName = Object.keys(availability).find((d) =>
-//       d.includes(day.toLowerCase())
-//     );
-//     if (!fullDayName) return checkedOut;
-//     const slotData = availability[fullDayName];
+      const formattedSlots: string[] = timeSlots.map((timeSlot) => {
+        return `${timeSlot.begin} - ${timeSlot.end}`;
+      });
 
-//     if (slotData && slotData.slots.includes(slot)) {
-//       return (
-//         <VStack
-//           display={"flex"}
-//           justifyContent={"center"}
-//           alignItems={"center"}
-//           p={5}
-//         >
-//           <CheckIcon color="green" />
-//         </VStack>
-//       );
-//     }
-//     return checkedOut;
-//   };
+      storedAvailability[day] = { timezone: '', slots: formattedSlots };
+    });
 
-//   return (
-//     <Box width="100%">
-//       <Table variant="simple">
-//         <Thead>
-//           <Tr>
-//             <Th
-//               p={5}
-//               border="1px solid #EEEFF2"
-//               bg="#FAFAFA"
-//               borderRadius="8px"
-//             />
-//             {daysOfWeek.map((day) => (
-//               <Th
-//                 key={day}
-//                 p={5}
-//                 border="1px solid #EEEFF2"
-//                 bg="#FFFFFF"
-//                 borderRadius="8px"
-//               >
-//                 {day}
-//               </Th>
-//             ))}
-//           </Tr>
-//         </Thead>
-//         <Tbody>
-//           {timeSlots.map((slot) => (
-//             <Tr key={slot}>
-//               <Td
-//                 bg="#FAFAFA"
-//                 color="#585F68"
-//                 fontSize="14px"
-//                 justifyItems="center"
-//                 alignItems={"center"}
-//                 width={"auto"}
-//                 borderRadius="8px"
-//               >
-//                 <Box
-//                   display={"flex"}
-//                   justifyItems="center"
-//                   alignItems={"center"}
-//                 >
-//                   <img
-//                     style={{ marginRight: "10px" }}
-//                     src={cloud}
-//                     width={"40px"}
-//                   />
-//                   <Text
-//                     m={0}
-//                     p={0}
-//                     fontSize={"14px"}
-//                     fontWeight={500}
-//                     color={"#585F68"}
-//                     whiteSpace={"nowrap"}
-//                   >
-//                     {slot}
-//                   </Text>
-//                 </Box>
-//               </Td>
-//               {daysOfWeek.map((day) => (
-//                 <Td
-//                   key={`${slot}-${day}`}
-//                   bg="#FFFFFF"
-//                   border="1px solid #EEEFF2"
-//                   borderRadius="8px"
-//                 >
-//                   {renderAvailabilityCell(slot, day)}
-//                 </Td>
-//               ))}
-//             </Tr>
-//           ))}
-//         </Tbody>
-//       </Table>
-//     </Box>
-//   );
-// };
+    return storedAvailability;
+  }
 
-const VideoViewingSection = ({onEdit}: {onEdit: () => void}) => {
+  useEffect(() => {
+    const availability = formatScheduleToAvailability(schedule)
+    setTutorAvailability(availability)
+  }, [])
+
+
+  const timeSlots = ["8AM → 12PM", "12AM → 5PM", "5PM → 9PM", "9PM → 12AM"];
+
+  const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+  const renderAvailabilityCell = (slot: string, day: string) => {
+    console.log(slot)
+    const fullDayName = Object.keys(availability).find((d) =>
+      d.includes(day.toLowerCase())
+    );
+    if (!fullDayName) return checkedOut;
+    const slotData = availability[fullDayName];
+
+    // Convert slot to 24-hour format for comparison
+    console.log("before split", slot.split(/\s*→\s*/))
+
+    const slot24h = slot.split(/\s*→\s*/).map(time12h => {
+      const hour = time12h.slice(0, -2);
+      const modifier = time12h.slice(-2).toLowerCase();
+      return `${hour}${modifier}`;
+    }).join("");
+
+    console.log(slot24h, slotData.slots, slotData.slots.map(slot => slot.replace(/[^a-zA-Z0-9]/g, "").replace("undefined", "")))
+
+    if (slotData && slotData.slots.some(slot => slot.replace(/[^a-zA-Z0-9]/g, "").replace("undefined", "").toLowerCase() === slot24h)) {
+      console.log("down here")
+      return (
+        <VStack
+          width="100%" // add this
+          display={"flex"}
+          justifyContent={"center"}
+          alignItems={"center"}
+        >
+          <CheckIcon color="green" />
+        </VStack>
+      );
+    }
+    return checkedOut;
+  };
+
+  const checkedOut = (
+    <svg width="100%" height="100px" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="pattern" patternUnits="userSpaceOnUse" width="25" height="20" patternTransform="rotate(45)">
+          <rect width="30" height="20" fill="#F7F7F8"></rect>
+          <rect x="10" width="30" height="20" fill="#fff"></rect>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#pattern)"></rect>
+    </svg>
+  );
+  return (
+    <TableContainer my={4}>
+      <Box border={'1px solid #EEEFF2'} borderRadius={8}>
+        <Table variant="simple">
+          <Thead>
+            <Tr>
+              <Th
+                p={5}
+                borderRight="1px solid #EEEFF2"
+                bg="#FAFAFA"
+                borderRadius="8px"
+              />
+              {daysOfWeek.map((day, index) => {
+                const props: BorderProps = {}
+                if (daysOfWeek.length - 1 !== index) {
+                  props.borderRight = "1px solid #EEEFF2"
+                }
+                return (
+                  <Th
+                    textAlign="center" // Add this line
+                    verticalAlign="middle" // Add this line
+                    key={day}
+                    p={5}
+                    {...props}
+                    bg="#FFFFFF"
+                  >
+                    {day}
+                  </Th>
+                )
+              })}
+            </Tr>
+          </Thead>
+          <Tbody>
+            {timeSlots.map((slot, index) => {
+              const props: BorderProps = {}
+              if (daysOfWeek.length - 1 !== index) {
+                props.borderRight = "1px solid #EEEFF2"
+              }
+              return (
+                <Tr key={slot}>
+                  <Td
+                    paddingY={5} borderRight="1px solid #EEEFF2" bgColor={'#FAFAFA'}
+                  >
+                    <HStack
+                      display={"flex"}
+                      marginRight="13px"
+                      justifyItems="center"
+                      alignItems={"center"}
+                    >
+                      <img
+                        alt=""
+                        style={{ marginRight: "2px" }}
+                        src={cloud}
+                        width={"40px"}
+                      />
+                      <Text
+                        m={0}
+                        p={0}
+                        fontSize={"14px"}
+                        fontWeight={500}
+                        color={"#585F68"}
+                        whiteSpace={"nowrap"}
+                      >
+                        {slot}
+                      </Text>
+                    </HStack>
+                  </Td>
+                  {daysOfWeek.map((day) => (
+                    <Td
+                      m={0}
+                      p={0}
+                      {...props}
+                      key={`${slot}-${day}`}
+                    >
+                      {renderAvailabilityCell(slot, day)}
+                    </Td>
+                  ))}
+                </Tr>
+              )
+            })}
+
+          </Tbody>
+        </Table>
+      </Box>
+    </TableContainer>
+  );
+};
+
+const VideoViewingSection = ({ onEdit }: { onEdit: () => void }) => {
   const { introVideo } = onboardTutorStore.useStore();
   const [isVideoPlaying, setVideoPlaying] = useState(false);
   const [isHovered, setHovered] = useState(false);
@@ -421,7 +456,7 @@ const VideoViewingSection = ({onEdit}: {onEdit: () => void}) => {
         ref={videoRef}
         src={introVideo} // Replace with your video link
         controls={isVideoPlaying}
-        style={{ width: "100%", borderRadius: "5px" }}
+        style={{ width: "100%", borderRadius: "20px" }}
       />
 
       {/* Dark Overlay */}
@@ -436,9 +471,10 @@ const VideoViewingSection = ({onEdit}: {onEdit: () => void}) => {
               height: "100%",
               backgroundColor: "rgba(0, 0, 0, 0.5)",
               display: "flex",
+              flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
-              borderRadius: "5px",
+              borderRadius: "20px",
             }}
           >
             {/* Play/Pause Button */}
@@ -462,7 +498,10 @@ const VideoViewingSection = ({onEdit}: {onEdit: () => void}) => {
               {isVideoPlaying ? <FaPause /> : <FaPlay />}
             </button>
 
-            {/* Edit Button */}
+            <Text marginTop={"10px"} cursor={"pointer"} onClick={handleEditVideo}
+              color={"#fff"}>Update Intro Video</Text>
+
+            {/* Edit Button
             <button
               onClick={handleEditVideo}
               style={{
@@ -479,9 +518,9 @@ const VideoViewingSection = ({onEdit}: {onEdit: () => void}) => {
                 alignItems: "center",
               }}
             >
-              <Icon color="#6E7682" as={FaPen} boxSize="12px" />
-            </button>
-           
+              <Icon color="#6E7682" as={FaPen} boxSize="12px" /> Update Intro Video
+            </button> */}
+
           </div>
         ))}
     </div>
@@ -489,7 +528,15 @@ const VideoViewingSection = ({onEdit}: {onEdit: () => void}) => {
 };
 
 const QualificationsSegment = () => {
-  const { qualifications } = onboardTutorStore.useStore();
+  const { qualifications: rawQualifications } = onboardTutorStore.useStore();
+
+  const qualifications = rawQualifications ? rawQualifications.filter((qualification, index, self) =>
+    index === self.findIndex((qual) => (
+      `${qual.institution}${qual.degree}${qual.startDate.getTime()}${qual.endDate.getTime()}` ===
+      `${qualification.institution}${qualification.degree}${qualification.startDate.getTime()}${qualification.endDate.getTime()}`
+    ))
+  ) : [];
+
   return (
     <Box background="#FFFFFF">
       {qualifications && qualifications.map((qualification, index) => (
@@ -567,9 +614,9 @@ const PreviewSegment = ({
       <Box
         background="#FFFFFF"
         border="1px solid #EEEFF1"
-        borderRadius="10px"
+        borderRadius="20px"
         width={"100%"}
-        p="20px"
+        p="35px"
       >
         <Flex justify="space-between" alignItems={"center"} mb="20px">
           <Text
@@ -606,7 +653,7 @@ const PreviewProfile = () => {
   const steps = [
     {
       id: "subjects",
-      updateFunction:  onboardTutorStore.set.coursesAndLevels,
+      updateFunction: onboardTutorStore.set.coursesAndLevels,
       position: 0,
       element: SubjectLevelForm,
       value: onboardingData.coursesAndLevels,
@@ -617,7 +664,7 @@ const PreviewProfile = () => {
     {
       id: "qualifications",
       position: 1,
-      updateFunction:  onboardTutorStore.set.qualifications,
+      updateFunction: onboardTutorStore.set.qualifications,
       element: QualificationsForm,
       value: onboardingData.qualifications,
       mainText:
@@ -630,7 +677,7 @@ const PreviewProfile = () => {
       position: 2,
       element: BioForm,
       value: onboardingData.description,
-      updateFunction:  onboardTutorStore.set.description,
+      updateFunction: onboardTutorStore.set.description,
       mainText: "Write a bio to let your potential students know about you",
       supportingText:
         "Help potential students make an informed decision by showcasing your personality and teaching style.",
@@ -639,9 +686,9 @@ const PreviewProfile = () => {
       id: "availability",
       position: 3,
       element: AvailabilityForm,
-      value: {...onboardingData.schedule},
-      updateFunction:  onboardTutorStore.set.schedule,
-      title: "Write a bio to let your potential students know about you",
+      value: { ...onboardingData.schedule },
+      updateFunction: onboardTutorStore.set.schedule,
+      mainText: "Let’s Know when you’ll be available",
       supportingText:
         "Provide the days and time frame when will you be available",
     },
@@ -650,7 +697,7 @@ const PreviewProfile = () => {
       position: 4,
       element: IntroVideoForm,
       value: onboardingData.introVideo,
-      updateFunction:  onboardTutorStore.set.introVideo,
+      updateFunction: onboardTutorStore.set.introVideo,
       mainText:
         "Upload an intro video to show your proficiency in your chosen subjects",
       supportingText:
@@ -661,7 +708,7 @@ const PreviewProfile = () => {
       position: 5,
       value: onboardingData.rate,
       element: HourlyRateForm,
-      updateFunction:  onboardTutorStore.set.rate,
+      updateFunction: onboardTutorStore.set.rate,
       mainText: "Set your hourly rate",
       supportingText:
         "Your clients will send you offers based on this rate. You can always adjust your rate",
@@ -670,7 +717,7 @@ const PreviewProfile = () => {
       id: "upload_profile_picture",
       position: 6,
       value: onboardingData.avatar,
-      updateFunction:  onboardTutorStore.set.avatar,
+      updateFunction: onboardTutorStore.set.avatar,
       element: ProfilePictureForm,
       mainText: "Add a profile picture",
       supportingText:
@@ -680,7 +727,7 @@ const PreviewProfile = () => {
       id: "payment",
       position: 7,
       value: onboardingData.bankInfo,
-      updateFunction:  onboardTutorStore.set.bankInfo,
+      updateFunction: onboardTutorStore.set.bankInfo,
       element: PaymentInformationForm,
       mainText: "Provide your account details",
       supportingText:
@@ -690,11 +737,11 @@ const PreviewProfile = () => {
 
   const currentEdit = useMemo(() => {
     return steps.find(step => step.id === currentlyEditing) || {
-        element: () => <></>
+      element: () => <></>
     } as typeof steps[0]
   }, [currentlyEditing])
 
-  const {element: Element} = currentEdit;
+  const { element: Element } = currentEdit;
 
   console.log(currentEdit)
 
@@ -702,14 +749,14 @@ const PreviewProfile = () => {
   return (
     <MainWrapper>
       <Header />
-      <EditProfileModal supportingText={currentEdit.supportingText} mainText={currentEdit.mainText} value={currentEdit?.value}  onSave={() => setCurrentlyEditing(null)} onCancel={(previousValue) => {
+      <EditProfileModal key={currentEdit.id} supportingText={currentEdit.supportingText} mainText={currentEdit.mainText} value={currentEdit?.value} onSave={() => setCurrentlyEditing(null)} onCancel={(previousValue) => {
         currentEdit.updateFunction && currentEdit.updateFunction(previousValue as never)
         setCurrentlyEditing(null)
       }} isOpen={Boolean(currentlyEditing)} onClose={() => console.log()} >
-        <Element/>
+        <Element />
       </EditProfileModal>
       <Root>
-        <Stack direction={["column", "row"]} spacing="40px" padding="100px 10%">
+        <Stack direction={["column", "row"]} spacing="40px" padding="70px 10%">
           <VStack
             width={["70%", "70%"]}
             align={["flex-start", "flex-start"]}
@@ -726,12 +773,12 @@ const PreviewProfile = () => {
             >
               Profile Preview
             </Text>
-            <PreviewSegment onEdit={() => setCurrentlyEditing("bio")}  title="ABOUT ME">
+            <PreviewSegment onEdit={() => setCurrentlyEditing("bio")} title="ABOUT ME">
               <Text
-                fontWeight={400}
+                fontWeight={500}
                 fontSize={"14px"}
                 color="#212224"
-                lineHeight={"24px"}
+                lineHeight={"30px"}
               >
                 {onboardingData.description}
               </Text>
@@ -742,13 +789,13 @@ const PreviewProfile = () => {
             <PreviewSegment onEdit={() => setCurrentlyEditing("qualifications")} title="QUALIFICATIONS">
               <QualificationsSegment />
             </PreviewSegment>
-            {/* <PreviewSegment onEdit={() => setCurrentlyEditing("availability")} title="AVAILABILITY">
+            <PreviewSegment onEdit={() => setCurrentlyEditing("availability")} title="AVAILABILITY">
               <AvailabilityTable />
-            </PreviewSegment> */}
+            </PreviewSegment>
           </VStack>
           <VStack
             width={["70%", "30%"]}
-            paddingTop={"60px"}
+            paddingTop={"45px"}
             align={["flex-start", "center"]}
             spacing="20px"
           >

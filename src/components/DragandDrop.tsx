@@ -12,6 +12,7 @@ interface DragAndDropProps extends BoxProps {
 
 const DragAndDrop: React.FC<DragAndDropProps> = ({ accept, supportingText, onFileUpload, isLoading = false, ...rest }) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [fileName, setFileName] = useState('');
   const [fileSelected, setFileSelected] = useState(false); // Added state for file selection
 
   const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
@@ -39,6 +40,7 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({ accept, supportingText, onFil
     if (file && accept && file.type.match(accept)) {
       onFileUpload(file);
       setFileSelected(true); // Set fileSelected to true when a file is uploaded
+      setFileName(file.name); // Set the selected file name
     }
   };
 
@@ -51,6 +53,7 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({ accept, supportingText, onFil
       if (files && files.length > 0) {
         onFileUpload(files[0]);
         setFileSelected(true); // Set fileSelected to true when a file is uploaded
+        setFileName(files[0].name); // Set the selected file name
       }
     };
     fileInput.click();
@@ -76,7 +79,7 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({ accept, supportingText, onFil
       <>
         {isLoading ? <Spinner size="lg" color="blue.500" /> : <Icon as={FiUpload} boxSize={8} color="gray.500" />}
         <Text fontSize="base" mt={3} fontWeight="500">
-          Drag file here to upload or <Box color="blue.300" >choose file</Box>
+          Drag file here to upload or <Box color="blue.300" >{fileName ? fileName : "choose file"}</Box>
         </Text>
         <Text fontSize="sm" color="gray.500" mt={2}>
           {supportingText ? supportingText : "Supports PNG, JPG & JPEG formats"}

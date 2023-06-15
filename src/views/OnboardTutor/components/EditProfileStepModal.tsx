@@ -22,6 +22,7 @@ interface EditProfileModalProps {
   mainText?: string;
   supportingText?: string;
   children?: React.ReactNode;
+  key: string | number
 }
 
 const HAS_SAVED_MEMO = false
@@ -33,16 +34,14 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   mainText,
   supportingText,
   children,
-  value
+  value,
+  key
 }) => {
   const [memoValue, setMemoValue] = useState()
-  console.log(mainText, supportingText)
 
   useEffect(() => {
-    if(!memoValue){
-        setMemoValue(value)
-    }
-  }, [value])
+    setMemoValue(value)
+  }, [key])
    
   const containerVariants = {
     hidden: { opacity: 0, x: -20 },

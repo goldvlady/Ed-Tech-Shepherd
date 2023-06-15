@@ -8,15 +8,22 @@ export const createTutor = async (event: HandlerEvent) => {
   const emailHandler = new EmailHandler();
   const data = JSON.parse(event.body as string);
 
-  const tutor = await Tutor.create(data);
-
-  try {
+  try{
+    const tutor = await Tutor.create(data);
     await emailHandler.createTutorWelcomeEmail(tutor);
-  } catch (e) {}
+    return {
+      statusCode: 200,
+    };
+  }
+  catch (e) {
+    console.log(e)
+    return {
+      statusCode: 500,
+      error: e
+    };
+  }
 
-  return {
-    statusCode: 200,
-  };
+ 
 };
 
 export const handler = middy(createTutor);
