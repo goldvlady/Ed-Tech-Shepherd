@@ -19,9 +19,9 @@ function createCSS() {
     `;
 }
 
-const Root = styled.svg`
+const Root = styled.svg<{noFixedWidth?: boolean}>`
     height: 75px;
-    width: 95px;
+    ${(props) => props.noFixedWidth ? "":  "width: 95px"};
     margin: auto;
 
     path {
@@ -53,6 +53,7 @@ const Root = styled.svg`
 
 type Props = React.ComponentPropsWithRef<typeof Root> & {
     dark?: boolean;
+    noFixedWidth?: boolean
 };
 
 const Logo: React.FC<Props> = ({ dark = false, ...rest }) => {

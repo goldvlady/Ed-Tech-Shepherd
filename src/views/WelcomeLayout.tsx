@@ -186,7 +186,7 @@ const WelcomeLayout = () => (
                         marginBottom="50px"
                         justifyContent="center"
                     >
-                        <Logo />
+                        <Logo noFixedWidth />
                     </Box>
                     <Outlet />
                 </Box>

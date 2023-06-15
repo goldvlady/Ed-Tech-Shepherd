@@ -15,7 +15,7 @@ const OnboardStep: React.FC<Props> = ({
     ...rest
 }) => {
     return (
-        <Box p={4} pt="30px">
+        <Box pt="40px">
             <form
                 onSubmit={(e) => {
                     e.preventDefault();

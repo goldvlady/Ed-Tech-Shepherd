@@ -51,33 +51,35 @@ const IntroVideoForm = () => {
         isClosable: true,
       });
       return;
+    }else {
+      const storageRef = ref(storage, `files/${introVideo.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, introVideo);
+  
+      setIsLoading(true)
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+  
+          const progress = Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          );
+          // setCvUploadPercent(progress);
+        },
+        (error) => {
+          setIsLoading(false)
+          // setCvUploadPercent(0);
+          alert(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            setIsLoading(false)
+            onboardTutorStore.set?.introVideo?.(downloadURL);
+          });
+        }
+      );
     }
 
-    const storageRef = ref(storage, `files/${introVideo.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, introVideo);
-
-    setIsLoading(true)
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-
-        const progress = Math.round(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        );
-        // setCvUploadPercent(progress);
-      },
-      (error) => {
-        setIsLoading(false)
-        // setCvUploadPercent(0);
-        alert(error);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          setIsLoading(false)
-          onboardTutorStore.set?.introVideo?.(downloadURL);
-        });
-      }
-    );
+  
   }, [introVideo]);
 
 

@@ -28,9 +28,10 @@ interface MyComponentProps {
 }
 
 const slotTimes: { [key: string]: any } = {
-  slot1: "8am - 12am",
-  slot2: "12pm - 5pm",
-  slot3: "5am - 9am",
+  slot1: "8AM → 12PM",
+  slot2: "12PM → 5PM",
+  slot3: "5PM → 9PM",
+  slot4: "9PM → 12AM",
 };
 
 function SelectTimeSlot({ onConfirm, day, value }: MyComponentProps) {
@@ -54,6 +55,7 @@ function SelectTimeSlot({ onConfirm, day, value }: MyComponentProps) {
 
   const handleConfirm = () => {
     const timeSlot = selectedSlot.map((slot) => slotTimes[slot]);
+    console.log(timeSlot)
     return onConfirm(timeSlot, timezone);
   };
 
@@ -162,7 +164,7 @@ function SelectTimeSlot({ onConfirm, day, value }: MyComponentProps) {
                     {/* Badge 1 */}
                     <Box
                       bg={selectedSlot.includes("slot1") ? "#EBF4FE" : "white"}
-                      color="#9A9DA2"
+                      color={!selectedSlot.includes("slot1") ? "#9A9DA2": "#212224"}
                       fontWeight={400}
                       fontSize="14px"
                       lineHeight="20px"
@@ -181,12 +183,13 @@ function SelectTimeSlot({ onConfirm, day, value }: MyComponentProps) {
                       _hover={{ bg: "#EBF4FE" }}
                       cursor="pointer"
                     >
-                      8am - 12pm
+                      8AM → 12PM
                     </Box>
                     {/* Badge 2 */}
                     <Box
                       bg={selectedSlot.includes("slot2") ? "#EBF4FE" : "white"}
-                      color="#9A9DA2"
+
+                      color={!selectedSlot.includes("slot2") ? "#9A9DA2": "#212224"}
                       fontWeight={400}
                       fontSize="14px"
                       lineHeight="20px"
@@ -204,12 +207,12 @@ function SelectTimeSlot({ onConfirm, day, value }: MyComponentProps) {
                       _hover={{ bg: "#EBF4FE" }}
                       cursor="pointer"
                     >
-                      12pm - 5am
+                      12PM → 5PM
                     </Box>
                     {/* Badge 3 */}
                     <Box
                       bg={selectedSlot.includes("slot3") ? "#EBF4FE" : "white"}
-                      color="#9A9DA2"
+                      color={!selectedSlot.includes("slot3") ? "#9A9DA2": "#212224"}
                       fontWeight={400}
                       fontSize="14px"
                       lineHeight="20px"
@@ -222,13 +225,35 @@ function SelectTimeSlot({ onConfirm, day, value }: MyComponentProps) {
                         selectedSlot.includes("slot3") ? "#207DF7" : "#E4E5E7"
                       }`}
                       boxShadow="0px 2px 6px rgba(136, 139, 143, 0.1)"
-                      borderRadius="0px 6px 6px 0px"
                       p={2}
                       onClick={() => handleSlotClick("slot3")}
                       _hover={{ bg: "#EBF4FE" }}
                       cursor="pointer"
                     >
-                      5pm - 9pm
+                      5PM → 9PM
+                    </Box>
+                    <Box
+                      bg={selectedSlot.includes("slot4") ? "#EBF4FE" : "white"}
+                      color={!selectedSlot.includes("slot4") ? "#9A9DA2": "#212224"}
+                      fontWeight={400}
+                      fontSize="14px"
+                      lineHeight="20px"
+                      display={"flex"}
+                      justifyContent={"center"}
+                      justifyItems={"center"}
+                      letterSpacing="-0.003em"
+                      flex="1"
+                      border={`1.4px solid ${
+                        selectedSlot.includes("slot4") ? "#207DF7" : "#E4E5E7"
+                      }`}
+                      boxShadow="0px 2px 6px rgba(136, 139, 143, 0.1)"
+                      borderRadius="0px 6px 6px 0px"
+                      p={2}
+                      onClick={() => handleSlotClick("slot4")}
+                      _hover={{ bg: "#EBF4FE" }}
+                      cursor="pointer"
+                    >
+                      9PM → 12AM
                     </Box>
                   </Box>
                 </FormControl>

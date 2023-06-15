@@ -28,7 +28,7 @@ import { capitalize } from 'lodash';
 import Lottie from 'lottie-react';
 import mixpanel from 'mixpanel-browser';
 import moment from 'moment';
-import React, {  useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FiBookOpen, FiCalendar, FiUser } from 'react-icons/fi';
 import { HiEye, HiEyeOff } from 'react-icons/hi';
 import StepWizard, { StepWizardProps } from 'react-step-wizard';
@@ -224,7 +224,7 @@ const OnboardTutor = () => {
 
     const isConfirmed = {
       text: 'Password has been confirmed',
-      checked: [password,password === confirmPassword].every(Boolean),
+      checked: [password, password === confirmPassword].every(Boolean),
     };
 
     const hasACharacter = {
@@ -245,39 +245,9 @@ const OnboardTutor = () => {
     {
       id: 'name',
       stepIndicatorId: 'about-you',
+      text: "Hi there, before you proceed, let us know who is signing up",
       template: (
         <Box>
-          <VStack justifyContent={"center"} alignItems="center">
-          <Text
-            fontFamily="Inter"
-            fontStyle="normal"
-            fontWeight={600}
-            fontSize="24px"
-            lineHeight="34px"
-            letterSpacing="-0.02em"
-            color="#212224"
-            flex="none"
-            order={0}
-            flexGrow={0}
-          >
-            Create your Shepherd Account
-          </Text>
-          <Text
-            fontStyle="normal"
-            fontWeight={400}
-            textAlign="center"
-            fontSize="14px"
-            lineHeight="21px"
-            color="#585F68"
-            flex="none"
-            order={1}
-            flexGrow={0}
-            marginBottom="16px"
-          >
-            Hi there, before you proceed, let us know who is signing up
-          </Text>
-          </VStack>
-          
           <Box marginTop={30}>
             <FormControl>
               <FormLabel>First Name</FormLabel>
@@ -310,52 +280,20 @@ const OnboardTutor = () => {
     },
     {
       id: 'id_verification',
+      text: "Upload a proof of your identity (drivers license, passport, national ID)",
       stepIndicatorId: 'id_verification',
       template: (
         <Box>
-          <VStack          
- justifyContent={"center"} alignItems="center">
-          <Text
-            fontFamily="Inter"
-            fontStyle="normal"
-            fontWeight={600}
-            fontSize="24px"
-            lineHeight="34px"
-            letterSpacing="-0.02em"
-            color="#212224"
-            flex="none"
-            order={0}
-            flexGrow={0}
-          >
-            Create your Shepherd Account
-          </Text>
-          <Text
-            fontStyle="normal"
-            fontWeight={400}
-            width={"80%"}
-            textAlign="center"
-            fontSize="14px"
-            lineHeight="21px"
-            color="#585F68"
-            flex="none"
-            order={1}
-            flexGrow={0}
-            marginBottom="16px"
-          >
-Upload a proof of your identity (drivers license, passport, national ID)
-          </Text>
-          </VStack>
-        
           <Box marginTop={30}>
             <SelectComponent
-              value={{value: country, label: country}}
+              value={{ value: country, label: country }}
               options={countries.map((country) => ({ label: country.name, value: country.name }))}
               onChange={(e: any) => {
                 onboardTutorStore.set.country?.(e.value);
               }}
               placeholder="Select a country"
               isSearchable
-              // Add any additional props you want to pass
+            // Add any additional props you want to pass
             />
             <DragAndDrop
               marginTop={30}
@@ -371,7 +309,7 @@ Upload a proof of your identity (drivers license, passport, national ID)
                 size="lg"
               />
               <Text fontSize="sm">
-              I confirm that I uploaded a valid government issued photo ID, be rest assured, your ID upload is secure and your information will not be saved. 
+                I confirm that I uploaded a valid government issued photo ID, be rest assured, your ID upload is secure and your information will not be saved.
               </Text>
             </HStack>
           </Box>
@@ -382,39 +320,9 @@ Upload a proof of your identity (drivers license, passport, national ID)
     {
       id: 'security',
       stepIndicatorId: 'security',
+      text: " Hi there, before you proceed, let us know who is signing up",
       template: (
         <Box>
-            <VStack justifyContent={"center"} alignItems="center">
-          <Text
-            fontFamily="Inter"
-            fontStyle="normal"
-            fontWeight={600}
-            fontSize="24px"
-            lineHeight="34px"
-            letterSpacing="-0.02em"
-            color="#212224"
-            flex="none"
-            order={0}
-            flexGrow={0}
-          >
-            Create your Shepherd Account
-          </Text>
-          <Text
-            fontStyle="normal"
-            fontWeight={400}
-            textAlign="center"
-            width={"80%"}
-            fontSize="14px"
-            lineHeight="21px"
-            color="#585F68"
-            flex="none"
-            order={1}
-            flexGrow={0}
-            marginBottom="16px"
-          >
-Hi there, before you proceed, let us know who is signing up
-          </Text>
-          </VStack>
           <Box marginTop={30}>
             <FormControl>
               <FormLabel>Password</FormLabel>
@@ -538,6 +446,37 @@ Hi there, before you proceed, let us know who is signing up
           </ModalFooter>
         </ModalContent>
       </Modal>
+      <VStack justifyContent={"center"} alignItems="center">
+        <Text
+          fontFamily="Inter"
+          fontStyle="normal"
+          fontWeight={600}
+          fontSize="24px"
+          lineHeight="34px"
+          letterSpacing="-0.02em"
+          color="#212224"
+          flex="none"
+          order={0}
+          flexGrow={0}
+        >
+          Create your Shepherd Account
+        </Text>
+        <Text
+          fontStyle="normal"
+          fontWeight={400}
+          textAlign="center"
+          width={"80%"}
+          fontSize="14px"
+          lineHeight="21px"
+          color="#585F68"
+          flex="none"
+          order={1}
+          flexGrow={0}
+          marginBottom="16px"
+        >
+          {steps[activeStep].text}
+        </Text>
+      </VStack>
       <StepIndicator
         activeStep={stepIndicatorSteps.findIndex((s) => s === stepIndicatorActiveStep)}
         steps={stepIndicatorSteps}

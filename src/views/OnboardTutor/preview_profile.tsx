@@ -135,6 +135,7 @@ const ProfileDiv = ({ onEdit }: { onEdit: (v: string) => void }) => {
             alt="Avatar"
             width="150px"
             height="150px"
+            
             borderRadius="50%"
           />
           {/* Edit Icon */}
@@ -144,8 +145,8 @@ const ProfileDiv = ({ onEdit }: { onEdit: (v: string) => void }) => {
             right="0"
             bg="#207DF7"
             borderRadius="50%"
-            width="28px"
-            height="28px"
+            width="40px"
+            height="40px"
             display="flex"
             justifyContent="center"
             alignItems="center"
@@ -281,17 +282,26 @@ const AvailabilityTable = () => {
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   const renderAvailabilityCell = (slot: string, day: string) => {
+    console.log(slot)
     const fullDayName = Object.keys(availability).find((d) =>
       d.includes(day.toLowerCase())
     );
     if (!fullDayName) return checkedOut;
     const slotData = availability[fullDayName];
 
-    console.log(slotData)
-    if (slotData && slotData.slots.map(s => {
-      const sNew = s.replace(/[^a-zA-Z0-9]/g, "");
-      return sNew.toLowerCase();
-    }).includes(slot.replace(/[^a-zA-Z0-9]/g, "").toLowerCase())) {
+    // Convert slot to 24-hour format for comparison
+    console.log("before split", slot.split(/\s*→\s*/))
+
+    const slot24h = slot.split(/\s*→\s*/).map(time12h => {
+      const hour = time12h.slice(0, -2);
+      const modifier = time12h.slice(-2).toLowerCase();
+      return `${hour}${modifier}`;
+    }).join("");
+
+    console.log(slot24h, slotData.slots, slotData.slots.map(slot => slot.replace(/[^a-zA-Z0-9]/g, "").replace("undefined", "")))
+
+    if (slotData && slotData.slots.some(slot => slot.replace(/[^a-zA-Z0-9]/g, "").replace("undefined", "").toLowerCase() === slot24h)) {
+      console.log("down here")
       return (
         <VStack
           width="100%" // add this
@@ -362,12 +372,13 @@ const AvailabilityTable = () => {
                   >
                     <HStack
                       display={"flex"}
+                      marginRight="13px"
                       justifyItems="center"
                       alignItems={"center"}
                     >
                       <img
                         alt=""
-                        style={{ marginRight: "5px" }}
+                        style={{ marginRight: "2px" }}
                         src={cloud}
                         width={"40px"}
                       />
@@ -517,7 +528,15 @@ const VideoViewingSection = ({ onEdit }: { onEdit: () => void }) => {
 };
 
 const QualificationsSegment = () => {
-  const { qualifications } = onboardTutorStore.useStore();
+  const { qualifications: rawQualifications } = onboardTutorStore.useStore();
+
+  const qualifications = rawQualifications ? rawQualifications.filter((qualification, index, self) =>
+    index === self.findIndex((qual) => (
+      `${qual.institution}${qual.degree}${qual.startDate.getTime()}${qual.endDate.getTime()}` ===
+      `${qualification.institution}${qualification.degree}${qualification.startDate.getTime()}${qualification.endDate.getTime()}`
+    ))
+  ) : [];
+
   return (
     <Box background="#FFFFFF">
       {qualifications && qualifications.map((qualification, index) => (
