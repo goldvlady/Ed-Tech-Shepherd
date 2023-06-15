@@ -10,6 +10,7 @@ import { ref } from "@firebase/storage";
 
 const ProfilePictureForm: React.FC = () => {
   const toast = useToast();
+  const { avatar: storedAvatar} = onboardTutorStore.useStore()
 
   const [avatar, setAvatar] = useState<string>("https://www.pathwaysvermont.org/wp-content/uploads/2017/03/avatar-placeholder-e1490629554738.png");
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -22,9 +23,16 @@ const ProfilePictureForm: React.FC = () => {
   };
 
   useEffect(() => {
-    onboardTutorStore.set.avatar?.("");
+    if(storedAvatar){
+      setAvatar(storedAvatar)
+    }
+  }, [])
+
+  useEffect(() => {
 
     if (!imageFile) return;
+
+    onboardTutorStore.set.avatar?.("");
 
     if (imageFile?.size > 2000000) {
       toast({
@@ -34,30 +42,32 @@ const ProfilePictureForm: React.FC = () => {
         isClosable: true,
       });
       return;
+    } else{
+      const storageRef = ref(storage, `files/${imageFile.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, imageFile);
+  
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress = Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          );
+          // setCvUploadPercent(progress);
+        },
+        (error) => {
+          // setCvUploadPercent(0);
+          alert(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            console.log(downloadURL)
+            onboardTutorStore.set.avatar?.(downloadURL);
+          });
+        }
+      );
     }
 
-    const storageRef = ref(storage, `files/${imageFile.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, imageFile);
-
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress = Math.round(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        );
-        // setCvUploadPercent(progress);
-      },
-      (error) => {
-        // setCvUploadPercent(0);
-        alert(error);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          console.log(downloadURL)
-          onboardTutorStore.set.avatar?.(downloadURL);
-        });
-      }
-    );
+   
   }, [imageFile]);
 
   const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {

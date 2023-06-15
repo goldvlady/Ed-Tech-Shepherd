@@ -32,7 +32,7 @@ const SubjectLevelForm: React.FC = () => {
     onboardTutorStore.set.coursesAndLevels(f(subjectLevels))
   }
   
-  const { courses: courseList } = resourceStore();
+  const { courses: courseList, levels } = resourceStore();
 
   useEffect(() => {
     if(!subjectLevels.length){
@@ -155,18 +155,20 @@ const SubjectLevelForm: React.FC = () => {
                     color: "#9A9DA2",
                   }}
                 >
-                  <option value="level1">Level 1</option>
-                  <option value="level2">Level 2</option>
-                  <option value="level3">Level 3</option>
+                  {levels.map(level => (
+                                      <option value={level.label}>{level.label}</option>
+
+                  ))}
+                  
                 </Select>
               </FormControl>
               {subjectLevels.length > 1 && (
                 <RiCloseCircleLine
-                  style={{ marginTop: "20px" }}
+                  style={{ marginTop: "30px" }}
                   cursor={"pointer"}
                   onClick={() => removeSubject(index)}
                   size={50}
-                  color="#F53535"
+                  color="#9A9DA2"
                 />
               )}
             </HStack>

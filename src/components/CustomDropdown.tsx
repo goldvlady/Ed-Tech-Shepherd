@@ -9,12 +9,28 @@ interface CustomDropdownProps {
   children: React.ReactNode;
   useDefaultWidth?: boolean;
   disabled?: boolean;
+  automaticClose?: boolean;
 }
 
 const dropdownVariants = {
-  open: { height: "auto", opacity: 1 },
-  closed: { height: 0, opacity: 0 },
+  open: {
+    x: 0,
+    opacity: 1,
+    transition: {
+      x: { type: "spring", stiffness: 500, damping: 30 },
+      opacity: { duration: 0.2 }
+    }
+  },
+  closed: {
+    x: "100%",
+    opacity: 0,
+    transition: {
+      x: { type: "spring", stiffness: 500, damping: 30 },
+      opacity: { duration: 0.2 }
+    }
+  }
 };
+
 
 function CustomDropdown({
   value,
@@ -22,6 +38,7 @@ function CustomDropdown({
   children,
   useDefaultWidth,
   disabled,
+  automaticClose
 }: CustomDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -31,6 +48,12 @@ function CustomDropdown({
       setIsOpen(!isOpen);
     }
   };
+
+  useEffect(() => {
+    if(automaticClose && isOpen){
+      setIsOpen(false)
+    }
+  }, [automaticClose])
 
   const handleClickOutside = (event: MouseEvent) => {
     if (
@@ -74,30 +97,27 @@ function CustomDropdown({
         <Icon as={HiChevronDown} />
       </Box>
       <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial="closed"
-            animate="open"
-            exit="closed"
-            style={{
-              position: "absolute",
-              top: "100%",
-              left: 0,
-              zIndex: 20,
-              marginTop: 2,
-              padding: 2,
-              borderWidth: 1,
-              borderRadius: "md",
-              background: "white",
-              width: useDefaultWidth ? dropdownRef.current?.clientWidth : "auto",
-            }}
-            variants={dropdownVariants}
-            transition={{ duration: 0.2 }}
-          >
-            {children}
-          </motion.div>
-        )}
-      </AnimatePresence>
+  {isOpen && (
+    <motion.div
+      initial="closed"
+      animate="open"
+      exit="closed"
+      style={{
+        position: "absolute",
+        top: "100%",
+        left: 0,
+        zIndex: 20,
+        marginTop: 2,
+        padding: 2,
+        borderWidth: 1,
+        borderRadius: "md",
+        background: "white",
+        width: useDefaultWidth ? dropdownRef.current?.clientWidth : "auto",
+      }}>
+      {children}
+    </motion.div>
+  )}
+</AnimatePresence>
     </Box>
   );
 }

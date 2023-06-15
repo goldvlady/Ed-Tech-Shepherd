@@ -1,99 +1,103 @@
-import {
-  Box,
-  Button,
-  FormControl,
-  FormLabel,
-  HStack,
-  Input,
-  Select,
-} from "@chakra-ui/react";
-import {format} from "date-fns"
-import { useMemo, useEffect } from "react";
+import { Box, Button, FormControl, FormLabel, HStack, Input } from "@chakra-ui/react";
+import { format } from "date-fns";
+import { useState, useEffect, useMemo } from "react";
 import { TutorQualification } from "../../../../types";
 import onboardTutorStore from "../../../../state/onboardTutorStore";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
-import { RiCloseCircleLine, RiPencilLine } from "react-icons/ri";
-
-type Qualification = TutorQualification
+import { RiPencilLine } from "react-icons/ri";
 
 const QualificationsForm: React.FC = () => {
-  // const [qualifications, setQualifications] = useState<Qualification[]>([]);
-  const { qualifications } = onboardTutorStore.useStore()
-  const [formData, setFormData] = useState<Qualification>({
+  const { qualifications: storeQualifications } = onboardTutorStore.useStore();
+  const [formData, setFormData] = useState<TutorQualification>({
     institution: "",
     degree: "",
     startDate: null as unknown as Date,
     endDate: null as unknown as Date,
   });
+  const [addQualificationClicked, setAddQualificationClicked] = useState(false);
 
-  const isFormValid = useMemo(() => {
-    return (
-      Object.values(formData).filter((value) => !value || value.length < 1)
-        .length < 1
-    );
-  }, [formData]);
-
-  console.log(isFormValid);
+  useEffect(() => {
+    if (storeQualifications && storeQualifications.length === 1 && !addQualificationClicked) {
+      setFormData(storeQualifications[0]);
+    }
+  }, [storeQualifications, addQualificationClicked]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
+    const updatedFormData = {
+      ...formData,
       [e.target.name]: e.target.value,
-    }));
+    };
+    setFormData(updatedFormData);
+    if (!addQualificationClicked) {
+      onboardTutorStore.set.qualifications?.([updatedFormData]);
+    }
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
+    const updatedFormData = {
+      ...formData,
       [e.target.name]: new Date(e.target.value),
-    }));
+    };
+    setFormData(updatedFormData);
+    if (!addQualificationClicked) {
+
+      onboardTutorStore.set.qualifications?.([updatedFormData]);
+    }
   };
 
+  const isFormValid = useMemo(() => {
+    return Object.values(formData).every(Boolean);
+  }, [formData])
+
   const handleAddQualification = () => {
+    console.log(formData)
+    const isFormValid = Object.values(formData).every(Boolean);
+    console.log(isFormValid)
     if (!isFormValid) return;
-    let data = [formData]
-    if(qualifications){
-      data = [...data, ...qualifications]
-    }
-    onboardTutorStore?.set.qualifications?.(data)
+    onboardTutorStore.set.qualifications?.([...(storeQualifications || []), formData]);
     setFormData({
       institution: "",
       degree: "",
       startDate: null as unknown as Date,
       endDate: null as unknown as Date,
     });
+    setAddQualificationClicked(true);
   };
 
-  const handleEditQualification = (index: number) => {
-    if(!qualifications) return
-    const selectedQualification = qualifications[index];
+  const handleEditQualification = (id: string) => {
+    if (!storeQualifications) return
+    const selectedQualificationIndex = storeQualifications.findIndex(qual => (
+      `${qual.institution}${qual.degree}${qual.startDate.getTime()}${qual.endDate.getTime()}` === id
+    ));
+    if (selectedQualificationIndex === -1) return;
+    const selectedQualification = storeQualifications[selectedQualificationIndex];
     setFormData(selectedQualification);
-    const updatedQualifications = [...qualifications];
-    updatedQualifications.splice(index, 1);
-    onboardTutorStore.set?.qualifications?.(updatedQualifications)
+    const updatedQualifications = storeQualifications.filter(qual => (
+      `${qual.institution}${qual.degree}${qual.startDate.getTime()}${qual.endDate.getTime()}` !== id
+    ));
+    onboardTutorStore.set.qualifications?.(updatedQualifications);
   };
-
-  // const handleRemoveQualification = (index: number) => {
-  //   setQualifications((prevQualifications) => {
-  //     const updatedQualifications = [...prevQualifications];
-  //     updatedQualifications.splice(index, 1);
-  //     return updatedQualifications;
-  //   });
-  // };
-
+  
   const renderQualifications = () => {
-    if(!qualifications) return 
-    return qualifications.map((qualification, index) => {
+    if (!addQualificationClicked || !storeQualifications) return null;
+
+    const uniqueQualifications = storeQualifications.filter((qualification, index, self) =>
+    index === self.findIndex((qual) => (
+      `${qual.institution}${qual.degree}${qual.startDate.getTime()}${qual.endDate.getTime()}` === 
+      `${qualification.institution}${qualification.degree}${qualification.startDate.getTime()}${qualification.endDate.getTime()}`
+    ))
+  );
+    
+    return uniqueQualifications.map((qualification) => {
       const startDate = new Date(qualification.startDate);
       const endDate = new Date(qualification.endDate);
-
       const formattedStartDate = startDate.getFullYear();
       const formattedEndDate = endDate.getFullYear();
-
+      const id = `${qualification.institution}${qualification.degree}${startDate.getTime()}${endDate.getTime()}`;
+  
       return (
         <Box
-          key={index}
+          key={id}
           background="#FFFFFF"
           border="1px solid #EFEFF1"
           boxShadow="0px 3px 10px rgba(136, 139, 143, 0.09)"
@@ -109,11 +113,11 @@ const QualificationsForm: React.FC = () => {
                 {`${formattedStartDate}-${formattedEndDate}`}
               </Box>
             </HStack>
-
+  
             <Button
               border="1px solid #ECEDEE"
               color="#212224"
-              onClick={() => handleEditQualification(index)}
+              onClick={() => handleEditQualification(id)}
               borderRadius="50%"
               p="5px"
               backgroundColor="transparent"
@@ -122,14 +126,16 @@ const QualificationsForm: React.FC = () => {
             </Button>
           </HStack>
         </Box>
-      )
+      );
     });
   };
+  
+  console.log("is diabled", !isFormValid)
 
   return (
-    <Box marginTop={30}>
+    <Box>
       <AnimatePresence>
-        {qualifications && qualifications.length > 0 && (
+        {storeQualifications && storeQualifications.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -140,110 +146,53 @@ const QualificationsForm: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <FormControl marginTop={"20px"}>
+      <FormControl id="institution" marginBottom="20px">
         <FormLabel>Institution</FormLabel>
-        <Input
-          bg="#FFFFFF"
-          border="1px solid #E4E5E7"
-          boxShadow="0px 2px 6px rgba(136, 139, 143, 0.1)"
-          borderRadius="6px"
-          _placeholder={{
-            fontStyle: "normal",
-            fontWeight: 400,
-            fontSize: 14,
-            lineHeight: "20px",
-            letterSpacing: "-0.003em",
-            color: "#9A9DA2",
-          }}
-          type="text"
-          name="institution"
-          value={formData.institution}
-          onChange={handleInputChange}
-          placeholder="e.g. Harvard University"
-        />
+        <Input placeholder="e.g Harvard University" name="institution" value={formData.institution} onChange={handleInputChange} />
       </FormControl>
-      <FormControl marginTop={"20px"}>
+
+      <FormControl id="degree" marginBottom="20px">
         <FormLabel>Degree</FormLabel>
-        <Input
-          bg="#FFFFFF"
-          border="1px solid #E4E5E7"
-          boxShadow="0px 2px 6px rgba(136, 139, 143, 0.1)"
-          borderRadius="6px"
-          _placeholder={{
-            fontStyle: "normal",
-            fontWeight: 400,
-            fontSize: 14,
-            lineHeight: "20px",
-            letterSpacing: "-0.003em",
-            color: "#9A9DA2",
-          }}
-          type="text"
-          name="degree"
-          value={formData.degree}
-          onChange={handleInputChange}
-          placeholder="e.g. Bachelor of Science"
-        />
+        <Input placeholder="e.g Mathematics" name="degree" value={formData.degree} onChange={handleInputChange} />
       </FormControl>
-      <HStack marginTop={"20px"} spacing={4}>
-        <FormControl>
-          <FormLabel>Start Date</FormLabel>
+
+      <HStack spacing={5} marginBottom="20px">
+        <FormControl id="startDate">
+          <FormLabel>Start date</FormLabel>
           <Input
-            bg="#FFFFFF"
-            border="1px solid #E4E5E7"
-            placeholder="e.g Jan, 2020"
-            boxShadow="0px 2px 6px rgba(136, 139, 143, 0.1)"
-            borderRadius="6px"
-            _placeholder={{
-              fontStyle: "normal",
-              fontWeight: 400,
-              fontSize: 14,
-              lineHeight: "20px",
-              letterSpacing: "-0.003em",
-              color: "#9A9DA2",
-            }}
-            type="date"
             name="startDate"
-            value={formData.startDate ? format(formData.startDate, "yyyy-MM-dd"): ""}
+            type="date"
+            placeholder="Select Start Date"
+            value={formData.startDate ? format(formData.startDate, "yyyy-MM-dd") : ""}
             onChange={handleDateChange}
           />
         </FormControl>
-        <FormControl>
-          <FormLabel>End Date</FormLabel>
+
+        <FormControl id="endDate">
+          <FormLabel>End date</FormLabel>
           <Input
-            bg="#FFFFFF"
-            border="1px solid #E4E5E7"
-            placeholder="e.g Jan, 2020"
-            boxShadow="0px 2px 6px rgba(136, 139, 143, 0.1)"
-            borderRadius="6px"
-            _placeholder={{
-              fontStyle: "normal",
-              fontWeight: 400,
-              fontSize: 14,
-              lineHeight: "20px",
-              letterSpacing: "-0.003em",
-              color: "#9A9DA2",
-            }}
-            type="date"
             name="endDate"
-            value={formData.endDate ? format(formData.endDate, "yyyy-MM-dd"):  ""}
+            type="date"
+            placeholder="Select End Date"
+            value={formData.endDate ? format(formData.endDate, "yyyy-MM-dd") : ""}
             onChange={handleDateChange}
           />
         </FormControl>
       </HStack>
-      <Button
-        margin={0}
+
+      <Button margin={0}
         padding={0}
         color={"#207DF7"}
         fontSize={"sm"}
+        marginTop="-20px"
         background={"transparent"}
         variant="ghost"
         colorScheme="white"
-        onClick={handleAddQualification}
         isDisabled={!isFormValid}
-      >
-        + Additional qualifications
+        onClick={handleAddQualification}>
+       + Add to qualifications
       </Button>
+
     </Box>
   );
 };
