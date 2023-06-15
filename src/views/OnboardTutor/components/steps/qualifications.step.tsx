@@ -67,13 +67,13 @@ const QualificationsForm: React.FC = () => {
   const handleEditQualification = (id: string) => {
     if (!storeQualifications) return
     const selectedQualificationIndex = storeQualifications.findIndex(qual => (
-      `${qual.institution}${qual.degree}${qual.startDate.getTime()}${qual.endDate.getTime()}` === id
+      `${qual.institution}${qual.degree}${qual.startDate?.getTime()}${qual.endDate?.getTime()}` === id
     ));
     if (selectedQualificationIndex === -1) return;
     const selectedQualification = storeQualifications[selectedQualificationIndex];
     setFormData(selectedQualification);
     const updatedQualifications = storeQualifications.filter(qual => (
-      `${qual.institution}${qual.degree}${qual.startDate.getTime()}${qual.endDate.getTime()}` !== id
+      `${qual.institution}${qual.degree}${qual.startDate?.getTime()}${qual.endDate?.getTime()}` !== id
     ));
     onboardTutorStore.set.qualifications?.(updatedQualifications);
   };
@@ -83,14 +83,14 @@ const QualificationsForm: React.FC = () => {
 
     const uniqueQualifications = storeQualifications.filter((qualification, index, self) =>
     index === self.findIndex((qual) => (
-      `${qual.institution}${qual.degree}${qual.startDate.getTime()}${qual.endDate.getTime()}` === 
-      `${qualification.institution}${qualification.degree}${qualification.startDate.getTime()}${qualification.endDate.getTime()}`
+      `${qual.institution}${qual.degree}${qual.startDate?.getTime()}${qual.endDate?.getTime()}` === 
+      `${qualification.institution}${qualification.degree}${qualification.startDate?.getTime()}${qualification.endDate?.getTime()}`
     ))
   );
     
     return uniqueQualifications.map((qualification) => {
-      const startDate = new Date(qualification.startDate);
-      const endDate = new Date(qualification.endDate);
+      const startDate = new Date(qualification.startDate as Date);
+      const endDate = new Date(qualification.endDate as Date);
       const formattedStartDate = startDate.getFullYear();
       const formattedEndDate = endDate.getFullYear();
       const id = `${qualification.institution}${qualification.degree}${startDate.getTime()}${endDate.getTime()}`;
