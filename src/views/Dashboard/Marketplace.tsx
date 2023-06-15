@@ -67,9 +67,9 @@ export default function Marketplace() {
   const [loadingData, setLoadingData] = useState(false);
   //   const [tz, setTz] = useState<any>(() => moment.tz.guess());
   const [subject, setSubject] = useState<string>('Subject');
-  const [level, setLevel] = useState<string>('Level');
-  const [price, setPrice] = useState<any>('Price');
-  const [rating, setRating] = useState<any>('Rating');
+  const [level, setLevel] = useState<any>('');
+  const [price, setPrice] = useState<any>('');
+  const [rating, setRating] = useState<any>('');
   const [searchParams, setSearchParams] = useSearchParams();
   const [fromTime, setFromTime] = useState('');
   const [toTime, setToTime] = useState('');
@@ -78,30 +78,30 @@ export default function Marketplace() {
   const [tutorGrid] = useAutoAnimate();
   const toast = useToast();
 
+  //   const getData = async () => {
+  //     setLoadingData(true);
+  //     try {
+  //       const resp = await ApiService.getAllTutors();
+  //       const data = await resp.json();
+  //       setAllTutors(data);
+  //     } catch (e) {}
+  //     setLoadingData(false);
+  //   };
   const getData = async () => {
-    setLoadingData(true);
-    try {
-      const resp = await ApiService.getAllTutors();
-      const data = await resp.json();
-      setAllTutors(data);
-    } catch (e) {}
-    setLoadingData(false);
-  };
-  const getFilteredData = async () => {
     let formData = {
       courses: subject === 'Subject' ? '' : subject.toLowerCase(),
-      levels: level === 'Level' ? '' : level,
+      levels: level == '' ? '' : level._id,
       availability: '',
       tz: moment.tz.guess(),
       days: days,
-      price: price,
-      floorRating: rating,
+      price: price == '' ? '' : price.value,
+      floorRating: rating == '' ? '' : rating.value,
       startTime: toTime,
       endTime: fromTime,
     };
     setLoadingData(true);
     try {
-      const resp = await ApiService.getFilteredTutors(formData);
+      const resp = await ApiService.getAllTutors(formData);
       const data = await resp.json();
       setAllTutors(data);
     } catch (e) {}
@@ -109,7 +109,7 @@ export default function Marketplace() {
   };
 
   useEffect(() => {
-    getFilteredData();
+    getData();
   }, [subject, level, price, rating, days]);
 
   const { fetchBookmarkedTutors, tutors: bookmarkedTutors } = bookmarkedTutorsStore();
@@ -134,9 +134,9 @@ export default function Marketplace() {
 
   const resetForm = useCallback(() => {
     setSubject('Subject');
-    setLevel('Level');
-    setPrice('Price');
-    setRating('Rating');
+    setLevel('');
+    setPrice('');
+    setRating('');
     setDays([]);
     setFromTime('');
     setToTime('');
@@ -194,14 +194,14 @@ export default function Marketplace() {
               borderRadius="40px"
               fontWeight={400}
               color="text.400">
-              Level
+              {level == '' ? 'Level' : level.label}
             </MenuButton>
             <MenuList>
               {levelOptions.map((level) => (
                 <MenuItem
                   key={level._id}
                   _hover={{ bgColor: '#F2F4F7' }}
-                  onClick={() => setLevel(level._id)}>
+                  onClick={() => setLevel(level)}>
                   {level.label}
                 </MenuItem>
               ))}
@@ -291,20 +291,14 @@ export default function Marketplace() {
               borderRadius="40px"
               fontWeight={400}
               color="text.400">
-              {price !== 'Price'
-                ? priceOptions.map((price: any) => {
-                    if (price.id === price) {
-                      return price.label;
-                    }
-                  })
-                : price}
+              {price == '' ? 'Price' : price.label}
             </MenuButton>
             <MenuList>
               {priceOptions.map((price) => (
                 <MenuItem
                   key={price.id}
                   _hover={{ bgColor: '#F2F4F7' }}
-                  onClick={() => setPrice(price.value)}>
+                  onClick={() => setPrice(price)}>
                   {price.label}
                 </MenuItem>
               ))}
@@ -319,14 +313,14 @@ export default function Marketplace() {
               borderRadius="40px"
               fontWeight={400}
               color="text.400">
-              {rating}
+              {rating == '' ? 'Rating' : rating.label}
             </MenuButton>
             <MenuList>
               {ratingOptions.map((rating) => (
                 <MenuItem
                   key={rating.id}
                   _hover={{ bgColor: '#F2F4F7' }}
-                  onClick={() => setRating(rating.value)}>
+                  onClick={() => setRating(rating)}>
                   {rating.label}
                 </MenuItem>
               ))}
@@ -369,12 +363,12 @@ export default function Marketplace() {
             fontStyle={{ fontSize: '12px', fontWeight: 500 }}
             onClick={resetForm}
           />
-          <CustomButton
+          {/* <CustomButton
             buttonText={'Apply Filters'}
             buttonType="fill"
             fontStyle={{ fontSize: '12px', fontWeight: 500 }}
             onClick={getFilteredData}
-          />
+          /> */}
         </Flex>
       </Flex>
       <Box my={45} py={2}>

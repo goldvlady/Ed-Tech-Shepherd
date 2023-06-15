@@ -108,40 +108,52 @@ class ApiService {
     });
   };
 
-  static getAllTutors = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/tutors`);
-  };
+  // static getAllTutors = async () => {
+  //   return doFetch(`${ApiService.baseEndpoint}/tutors`);
+  // };
 
-  static getFilteredTutors = async (formData: any) => {
+  static getAllTutors = async (formData: any) => {
     let filterParams = '';
     let minRate = '';
     let maxRate = '';
     let days = '';
     console.log('FORM', formData);
 
-    for (const key in formData) {
-      const rateArray = formData['price'].split('-');
-      minRate = rateArray[0];
-      maxRate = rateArray[1];
+    if (
+      !formData['courses'] &&
+      !formData['levels'] &&
+      !formData['days'] &&
+      !formData['price'] &&
+      !formData['floorRating'] &&
+      !formData['startTime'] &&
+      !formData['endTime']
+    ) {
+      return doFetch(`${ApiService.baseEndpoint}/tutors`);
+    } else {
+      for (const key in formData) {
+        const rateArray = formData['price'].split('-');
+        minRate = rateArray[0];
+        maxRate = rateArray[1];
 
-      const daysArray = formData['days'];
+        const daysArray = formData['days'];
 
-      if (key !== 'tz' && key !== 'price' && key !== 'days') {
-        filterParams += !!formData[key] ? `&${key}=${formData[key]}` : '';
+        if (key !== 'tz' && key !== 'price' && key !== 'days') {
+          filterParams += !!formData[key] ? `&${key}=${formData[key]}` : '';
+        }
+        if (key == 'price' && !!formData['price']) {
+          filterParams += `&rate>=${minRate}&rate<=${maxRate}`;
+        }
+        if (key == 'days' && !!formData['days']) {
+          daysArray.forEach((element: any) => {
+            filterParams += `&schedule.${element.value}`;
+          });
+        }
       }
-      if (key == 'price' && !!formData['price']) {
-        filterParams += `&rate>=${minRate}&rate<=${maxRate}`;
-      }
-      if (key == 'days' && !!formData['days']) {
-        daysArray.forEach((element: any) => {
-          filterParams += `&schedule.${element.value}`;
-        });
-      }
+      return doFetch(
+        `${ApiService.baseEndpoint}/tutors?tz=${formData.tz + filterParams}`
+        // `${ApiService.baseEndpoint}/tutors?tz=Africa/Lagos${filterParams}`
+      );
     }
-    return doFetch(
-      `${ApiService.baseEndpoint}/tutors?tz=${formData.tz + filterParams}`
-      // `${ApiService.baseEndpoint}/tutors?tz=Africa/Lagos${filterParams}`
-    );
   };
 
   static toggleBookmarkedTutor = async (id: string) => {
