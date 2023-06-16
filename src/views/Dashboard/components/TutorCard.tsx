@@ -67,8 +67,8 @@ export default function TutorCard(props: any) {
         <Stack
           borderWidth="1px"
           borderRadius="lg"
-          w={{ sm: '100%', md: '550px', lg: '380px' }}
-          height={{ sm: '200px', md: '20rem', lg: '200px' }}
+          w={{ sm: '100%', md: '100%', lg: '350px' }}
+          height={{ sm: '150px', md: '150px', lg: '200px' }}
           direction={{ base: 'row', md: 'row' }}
           bg={useColorModeValue('white', 'gray.900')}
           boxShadow={'2xl'}
@@ -81,7 +81,7 @@ export default function TutorCard(props: any) {
             borderStartRadius={'8px'}
             src={avatar}
           />
-          <Box position="relative" minWidth="220px">
+          <Box position="relative" width="inherit">
             <LinkOverlay href={`/dashboard/find-tutor/tutor/?id=${id}`}>
               <Flex pt={1} direction={'column'}>
                 <Text fontSize={'16px'} fontWeight={'semibold'} mb={0}>

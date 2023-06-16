@@ -271,7 +271,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           fontSize="2xl"
           fontFamily="monospace"
           fontWeight="bold">
-          Shepherd Logo
+          <Logo />{' '}
         </Text>
 
         <HStack spacing={4}>
@@ -387,7 +387,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   bg="#4CAF50;"
                 />
 
-                <Text fontSize="14px" fontWeight={500} color="text.200">
+                <Text
+                  fontSize="14px"
+                  fontWeight={500}
+                  color="text.200"
+                  display={{ base: 'block', sm: 'none', md: 'block' }}>
                   {`${user.name.first} ${user.name.last}`}
                 </Text>
 
