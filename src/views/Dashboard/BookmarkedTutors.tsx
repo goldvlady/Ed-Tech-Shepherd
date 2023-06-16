@@ -62,7 +62,7 @@ function BookmarkedTutors() {
           <TutorCard
             key={tutor.tutor._id}
             id={tutor.tutor._id}
-            name={`${tutor.tutor.name.first} ${tutor.tutor.name.last}`}
+            name={`${tutor.tutor.user.name.first} ${tutor.tutor.user.name.last}`}
             levelOfEducation={tutor.tutor.highestLevelOfEducation}
             avatar={tutor.tutor.avatar}
             saved={true}

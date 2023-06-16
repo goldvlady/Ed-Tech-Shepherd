@@ -317,7 +317,7 @@ export default function Marketplace() {
             <TutorCard
               key={tutor._id}
               id={tutor._id}
-              name={`${tutor.name.first} ${tutor.name.last} `}
+              name={`${tutor.user.name.first} ${tutor.user.name.last} `}
               levelOfEducation={tutor.highestLevelOfEducation}
               avatar={tutor.avatar}
               rate={tutor.rate}

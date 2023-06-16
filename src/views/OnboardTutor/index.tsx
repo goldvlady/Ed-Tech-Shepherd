@@ -24,6 +24,8 @@ import {
 } from '@chakra-ui/react';
 import { ref } from '@firebase/storage';
 import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
+import { createUserWithEmailAndPassword, firebaseAuth } from '../../firebase';
+import { updateProfile } from 'firebase/auth';
 import { capitalize } from 'lodash';
 import Lottie from 'lottie-react';
 import mixpanel from 'mixpanel-browser';
@@ -75,6 +77,7 @@ const OnboardTutor = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [activeStep, setActiveStep] = useState<number>(1);
+  const [userFields, setUserFields] = useState({name: {first: "", last: ""}, email: "", dob: ""})
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [editModalStep, setEditModalStep] = useState<string | null>(null);
@@ -85,11 +88,13 @@ const OnboardTutor = () => {
   } = useDisclosure();
 
   const data = onboardTutorStore.useStore();
-  const { name, dob, email, country, identityDocument, tz } = data;
+  const { country, identityDocument, tz } = data;
+  const {name, email, dob} = userFields;
+
   const age = useMemo(() => moment().diff(moment(dob, FORMAT), 'years'), [dob]);
   const [isUploadLoading, setUploadLoading] = useState(false);
 
-  const validateNameStep = !!name.first && !!name.last;
+  const validateNameStep = !!userFields.name.first && !!userFields.name.last;
   const validateCredentialsStep = [country, identityDocument, confirmDocument].every(Boolean)
 
   const [cvUploadPercent, setCvUploadPercent] = useState(0);
@@ -207,9 +212,11 @@ const OnboardTutor = () => {
     );
   }, [selectedAvatar]);
 
-  const doSubmit = () => {
-    mixpanel.track('Completed onboarding');
-    return ApiService.submitTutor(data);
+  const doSubmit = async () => {
+      const firebaseUser = await createUserWithEmailAndPassword(firebaseAuth, userFields.email, password)
+      mixpanel.track('Sumbitting Onboarding Date');
+      return ApiService.createUser({...userFields, firebaseId: firebaseUser.user.uid, type: "tutor"})
+      // return ApiService.submitTutor(data);
   };
 
   const onStepChange: StepWizardProps['onStepChange'] = ({ activeStep, ...rest }) => {
@@ -254,24 +261,24 @@ const OnboardTutor = () => {
               <Input
                 size={'lg'}
                 value={name.first}
-                onChange={(e) => onboardTutorStore.set.name({ ...name, first: e.target.value })}
-              />
+                onChange={(e) => setUserFields(prev => ({...prev, name: {...prev.name, first: e.target.value ?? ''}}))}
+                />
             </FormControl>
             <FormControl mt={4}>
               <FormLabel>Last Name</FormLabel>
               <Input
                 size={'lg'}
                 value={name.last}
-                onChange={(e) => onboardTutorStore.set.name({ ...name, last: e.target.value })}
-              />
+                onChange={(e) => setUserFields(prev => ({...prev, name: {...prev?.name, last: e.target.value ?? ''}}))}
+                />
             </FormControl>
             <FormControl mt={4}>
               <FormLabel>Email</FormLabel>
               <Input
                 size={'lg'}
                 value={email}
-                onChange={(e) => onboardTutorStore.set.email(e.target.value)}
-              />
+                onChange={(e) => setUserFields(prev => ({...prev, email: e.target.value}))}
+                />
             </FormControl>
           </Box>
         </Box>

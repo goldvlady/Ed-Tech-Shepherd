@@ -13,14 +13,20 @@ const me = async (event: HTTPEvent) => {
     const firebaseUserObject = await getAuth().getUser(firebaseUser.user_id);
     const names = firebaseUserObject.displayName?.split(' ');
 
-    user = await User.create({
-      firebaseId: firebaseUser.user_id,
-      email: firebaseUser.email,
-      name: {
-        first: first(names),
-        last: last(names),
-      },
-    });
+    // Try to find the user first
+    const persistedUser = await User.findOne({ firebaseId: firebaseUser.user_id });
+
+    if(persistedUser) user = persistedUser
+    else{
+        user = await User.create({
+          firebaseId: firebaseUser.user_id,
+          email: firebaseUser.email,
+          name: {
+            first: first(names),
+            last: last(names),
+          },
+        });
+    }   
   }
 
   return {

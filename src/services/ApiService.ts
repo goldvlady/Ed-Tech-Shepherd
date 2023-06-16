@@ -1,5 +1,6 @@
 import { REACT_APP_API_ENDPOINT } from '../config';
 import { doFetch } from '../util';
+import {User} from '../../netlify/database/models/User';
 
 class ApiService {
   static baseEndpoint = REACT_APP_API_ENDPOINT;
@@ -14,6 +15,14 @@ class ApiService {
 
   static getUser = async () => {
     return doFetch(`${ApiService.baseEndpoint}/me`);
+  };
+
+  
+  static createUser = async (data: Partial<User>) => {
+    return doFetch(`${ApiService.baseEndpoint}/createUser`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   };
 
   static submitStudent = async (data: any) => {

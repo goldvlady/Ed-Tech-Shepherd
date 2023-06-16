@@ -338,7 +338,7 @@ const Offer = () => {
                           style={{
                             color: theme.colors.text[400],
                           }}>
-                          Are you sure you want to withdraw your offer to {offer.tutor.name.first}?
+                          Are you sure you want to withdraw your offer to {offer.tutor.user.name.first}?
                         </div>
                       </Box>
                     </Box>
@@ -441,7 +441,7 @@ const Offer = () => {
                   marginTop={'28px'}
                   mb={10}
                   title="Offer"
-                  subtitle={`You made an offer to ${offer.tutor.name.first}`}
+                  subtitle={`You made an offer to ${offer.tutor.user.name.first}`}
                 />
               )}
               {user?.type === 'student' && offer.status === 'withdrawn' && (
@@ -736,7 +736,7 @@ const Offer = () => {
                       Your offer has been accepted
                     </Text>
                     <Text textAlign={'center'} mt={'7px'} className="body2">
-                      {capitalize(offer.tutor.name.first)} has been added to your tutor list, send
+                      {capitalize(offer.tutor.user.name.first)} has been added to your tutor list, send
                       them a message
                     </Text>
                     <VStack mt={8} spacing={'16px'}>
