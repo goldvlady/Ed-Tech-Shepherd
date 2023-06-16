@@ -37,7 +37,7 @@ class EmailHandler {
       subject: 'Hello from Shepherd Tutors',
       type: Types.WELCOME_TUTOR,
       content: `
-Hi ${capitalize(tutor.name.first)},
+Hi ${capitalize(tutor.user.name.first)},
 <br />
 <br />
 We're thrilled to welcome you to Shepherd Tutors! We appreciate the time and effort you have invested in completing the onboarding process.
@@ -96,7 +96,7 @@ Shepherd Tutors
 
     await Email.create({
       to: booking.offer.student.email,
-      subject: `Get ready for your upcoming session with ${booking.offer.tutor.name.first}`,
+      subject: `Get ready for your upcoming session with ${booking.offer.tutor.user.name.first}`,
       type: Types.BOOKING_CONFIRMED,
       content: `
 Hi ${capitalize(booking.offer.student.name.first)},
@@ -105,7 +105,7 @@ Hi ${capitalize(booking.offer.student.name.first)},
 We're excited to let you know that your <a href="${SITE_URL}/booking/${
         booking._id
       }/student">session</a> with ${
-        booking.offer.tutor.name.first
+        booking.offer.tutor.user.name.first
       } has been successfully booked for the following dates:
 <br />
 <br />
@@ -121,7 +121,7 @@ Please make sure to log in a few minutes before the scheduled start time to avoi
 <br />
 <br />
 We hope you find your session with ${
-        booking.offer.tutor.name.first
+        booking.offer.tutor.user.name.first
       } informative and productive. If you have any questions or concerns, please don't hesitate to let us know.
 <br />
 <br />
@@ -144,7 +144,7 @@ Shepherd Tutors
       subject: `Get ready for your upcoming session with ${booking.offer.student.name.first}`,
       type: Types.BOOKING_CONFIRMED,
       content: `
-Hi ${capitalize(booking.offer.tutor.name.first)},
+Hi ${capitalize(booking.offer.tutor.user.name.first)},
 <br />
 <br />
 We're excited to let you know that you've just been booked for a <a href="${SITE_URL}/booking/${
@@ -178,7 +178,7 @@ Shepherd Tutors
       subject: `You've received a new offer`,
       type: Types.NEW_OFFER_TUTOR,
       content: `
-Hi ${capitalize(offer.tutor.name.first)},
+Hi ${capitalize(offer.tutor.user.name.first)},
 <br />
 <br />
 We're excited to let you know that you've just received a new offer. Click the button below to view your offer.
@@ -262,7 +262,7 @@ Shepherd Tutors
       subject: `There's been a new update on your offer`,
       type: Types.OFFER_WITHDRAWN_TUTOR,
       content: `
-Hi ${capitalize(offer.tutor.name.first)},
+Hi ${capitalize(offer.tutor.user.name.first)},
 <br />
 <br />
 There's been a new update on your offer, Click the button below to view it.

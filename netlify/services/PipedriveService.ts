@@ -73,7 +73,7 @@ export class PipedriveService {
    */
   formatTutorForPipedrive(tutor: Tutor) {
     return {
-      title: `${capitalize(tutor.name.first)} ${capitalize(tutor.name.last)} - Tutor (${
+      title: `${capitalize(tutor.user.name.first)} ${capitalize(tutor.user.name.last)} - Tutor (${
         tutor.active ? 'active' : 'inactive'
       })`,
       [fieldsIds.tutorOrStudent]: 'tutor',
@@ -97,7 +97,7 @@ export class PipedriveService {
       success,
       data: { id: personId },
     } = await this.personsApi.addPerson({
-      name: `${tutor.name.first} ${tutor.name.last}`,
+      name: `${tutor.user.name.first} ${tutor.user.name.last}`,
       email: tutor.email,
     });
 
@@ -144,9 +144,9 @@ export class PipedriveService {
     const content = `
         <b>ID</b>: ${tutor._id}
         <br />
-        <b>First name</b>: ${tutor.name.first}
+        <b>First name</b>: ${tutor.user.name.first}
         <br/>
-        <b>Last name</b>: ${tutor.name.last}
+        <b>Last name</b>: ${tutor.user.name.last}
         <br/>
         <b>Email</b>: ${tutor.email}
         <br/>

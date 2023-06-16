@@ -27,12 +27,6 @@ interface TutorCourseAndLevel {
 }
 
 export interface Tutor extends TimestampedEntity {
-  name: {
-    first: string;
-    last: string;
-  };
-  email: string;
-  dob: string;
   coursesAndLevels: Array<TutorCourseAndLevel>;
   schedule: Schedule;
   rate: number;
@@ -67,15 +61,6 @@ interface TutorSchemaInterface extends Tutor {
 
 const schema = new Schema<TutorSchemaInterface>(
   {
-    name: {
-      type: new Schema({
-        first: String,
-        last: String,
-      }),
-      required: true,
-    },
-    email: { type: String, required: true },
-    dob: { type: String, required: true },
     coursesAndLevels: {
       type: [
         {
@@ -85,6 +70,7 @@ const schema = new Schema<TutorSchemaInterface>(
       ],
       required: true,
     },
+    user: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
     schedule: { type: Schema.Types.Mixed, required: true },
     rate: { type: Number, required: true },
     active: { type: Boolean, required: false },

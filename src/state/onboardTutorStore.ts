@@ -9,21 +9,15 @@ import {
   TutorBankInfo,
   TutorCourseAndLevel,
   TutorQualification,
+  User
 } from '../types';
 
-type Type = Omit<Tutor, keyof Entity | keyof TimestampedEntity | 'courses'> & {
-  courses: Array<string>;
+type Type = Omit<Tutor, keyof Entity | keyof TimestampedEntity | 'user'> & {
+  user: User;
 };
 
-export default createStore('onboardTutorStore')<
-  Omit<Tutor, keyof Entity | keyof TimestampedEntity | 'user'>
->({
-  name: {
-    first: '',
-    last: '',
-  },
-  dob: '',
-  email: '',
+export default createStore('onboardTutorStore')<Type>({
+  user:{} as User,
   coursesAndLevels: [] as TutorCourseAndLevel[],
   schedule: {} as Schedule,
   tz: moment.tz.guess(),

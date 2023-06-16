@@ -176,7 +176,7 @@ const SendTutorOffer = () => {
                       <Box marginTop={3}>
                         <Text className="modal-title">Offer successfully sent</Text>
                         <div style={{ color: theme.colors.text[400] }}>
-                          You’ll be notified within 24 hours once {tutor.name.first} responds
+                          You’ll be notified within 24 hours once {tutor.user.name.first} responds
                         </div>
                       </Box>
                     </Box>
@@ -195,7 +195,7 @@ const SendTutorOffer = () => {
 
                 <BreadcrumbItem>
                   <BreadcrumbLink href="#">
-                    {tutor.name.first} {tutor.name.last}
+                    {tutor.user.name.first} {tutor.user.name.last}
                   </BreadcrumbLink>
                 </BreadcrumbItem>
 
@@ -207,7 +207,7 @@ const SendTutorOffer = () => {
                 marginTop={'28px'}
                 mb={10}
                 title="Send an Offer"
-                subtitle={`Provide your contract terms. We’ll notify you via email when ${tutor.name.first} responds`}
+                subtitle={`Provide your contract terms. We’ll notify you via email when ${tutor.user.name.first} responds`}
               />
               <Formik
                 initialValues={{
@@ -504,7 +504,7 @@ const SendTutorOffer = () => {
                                   )}
                                   <Box mt={2}>
                                     <Text className="body2" mb={0}>
-                                      {capitalize(tutor.name.first)} is available on{' '}
+                                      {capitalize(tutor.user.name.first)} is available on{' '}
                                       {numberToDayOfWeekName(d)}s at these times:
                                     </Text>
                                     {!!tutor.schedule[d] &&
@@ -540,7 +540,7 @@ const SendTutorOffer = () => {
                               {isEditing ? (
                                 <Textarea
                                   {...field}
-                                  placeholder={`Let ${tutor.name.first} know what you need help with`}
+                                  placeholder={`Let ${tutor.user.name.first} know what you need help with`}
                                 />
                               ) : (
                                 <EditField>{field.value}</EditField>
@@ -577,7 +577,7 @@ const SendTutorOffer = () => {
                                   {form.errors[field.name] as string}
                                 </FormErrorMessage>
                                 <Text color={'#585F68'} className="body3" mb={0} mt={'10px'}>
-                                  {tutor.name.first}'s rate is ${tutor.rate.toFixed(0)}/hr
+                                  {tutor.user.name.first}'s rate is ${tutor.rate.toFixed(0)}/hr
                                 </Text>
                               </FormControl>
                             )}

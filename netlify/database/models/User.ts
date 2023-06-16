@@ -13,8 +13,10 @@ export interface User extends TimestampedEntity {
   email: string;
   firebaseId: string;
   avatar?: string;
+  dob: string;
   tutor?: TutorType;
   student?: StudentType;
+  isVerified: boolean;
   type: 'student' | 'tutor';
   stripeCustomerId?: string;
   paymentMethods: PaymentMethod[];
@@ -29,6 +31,8 @@ const schema = new Schema<User>(
       }),
       required: true,
     },
+    isVerified: {type: Boolean, default: false},
+    dob: { type: String, required: false },
     email: { type: String, required: true, unique: true },
     firebaseId: { type: String, required: true },
     avatar: { type: String, required: false },
