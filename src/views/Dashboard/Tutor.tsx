@@ -21,6 +21,7 @@ import {
   Link,
   LinkOverlay,
   Spacer,
+  Spinner,
   Stack,
   Tab,
   TabList,
@@ -41,7 +42,8 @@ import {
   useColorModeValue,
   useToast,
 } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import { toNamespacedPath } from 'path';
+import React, { useCallback, useEffect, useState } from 'react';
 import { FiChevronRight } from 'react-icons/fi';
 import { RiQuestionFill } from 'react-icons/ri';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
@@ -56,18 +58,21 @@ import Ribbon from '../../assets/ribbon-grey.svg';
 import TutorAvi from '../../assets/tutoravi.svg';
 import LinedList from '../../components/LinedList';
 import ApiService from '../../services/ApiService';
+import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
 import HowItWorks from './components/HowItWorks';
 import { CustomButton } from './layout';
 
-// /dashboard/tutor/${tutorId}/offer
 export default function Tutor() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [loadingData, setLoadingData] = useState(false);
   const [tutorData, setTutorData] = useState<any>({});
+  const [fullname, setFullname] = useState('');
+  const [rateReview, setRateReview] = useState('');
   const tutorId: any = searchParams.get('id');
   const navigate = useNavigate();
   const toast = useToast();
-  const getData = async () => {
+
+  const getData = useCallback(async () => {
     setLoadingData(true);
     try {
       const resp = await ApiService.getTutor(tutorId);
@@ -75,22 +80,48 @@ export default function Tutor() {
       setTutorData(data);
     } catch (e) {}
     setLoadingData(false);
-  };
+  }, []);
 
   useEffect(() => {
     getData();
   }, []);
 
-  const bookmarkTutor = async () => {
+  const { fetchBookmarkedTutors, tutors: bookmarkedTutors } = bookmarkedTutorsStore();
+  const doFetchBookmarkedTutors = useCallback(async () => {
+    await fetchBookmarkedTutors();
+  }, []);
+  const checkBookmarks = (id: string) => {
+    for (var i = 0; i < bookmarkedTutors.length; i++) {
+      if (bookmarkedTutors[i].tutor._id == id) {
+        return true;
+        break;
+      } else {
+        return false;
+      }
+    }
+  };
+  console.log('BOOK', checkBookmarks(tutorId));
+
+  const toggleBookmarkTutor = async (id: string) => {
     try {
-      const resp = await ApiService.toggleBookmarkedTutor(tutorId);
+      const resp = await ApiService.toggleBookmarkedTutor(id);
       console.log(resp);
-      toast({
-        title: 'Tutor saved successful',
-        position: 'top-right',
-        status: 'success',
-        isClosable: true,
-      });
+      if (checkBookmarks(id)) {
+        toast({
+          title: 'Tutor removed from Bookmarks successfully',
+          position: 'top-right',
+          status: 'success',
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title: 'Tutor saved successfully',
+          position: 'top-right',
+          status: 'success',
+          isClosable: true,
+        });
+      }
+      fetchBookmarkedTutors();
     } catch (e) {
       toast({
         title: 'An unknown error occured',
@@ -99,8 +130,15 @@ export default function Tutor() {
         isClosable: true,
       });
     }
-    setLoadingData(false);
   };
+
+  if (Object.keys(tutorData).length == 0) {
+    return (
+      <Box p={5} textAlign="center">
+        <Spinner />
+      </Box>
+    );
+  }
 
   return (
     <>
@@ -122,7 +160,7 @@ export default function Tutor() {
               <Box
                 maxW={'100%'}
                 w={'full'}
-                bg={useColorModeValue('white', 'gray.800')}
+                bg={'white'}
                 boxShadow={'2xl'}
                 rounded={'md'}
                 overflow={'hidden'}>
@@ -156,8 +194,7 @@ export default function Tutor() {
                 <Box p={6}>
                   <VStack spacing={0} align={'left'} mb={5} gap={2}>
                     <Text fontSize={'16px'} fontWeight={'semibold'} mb={0}>
-                      {Object.keys(tutorData).length > 0 &&
-                        `${tutorData.name?.first} ${tutorData.name?.last}`}
+                      {`${tutorData.name.first} ${tutorData.name.last}`}
                     </Text>
                     <Text fontWeight={400} color={'#212224'} fontSize="14px" mb={'2px'}>
                       {tutorData.highestLevelOfEducation}
@@ -166,8 +203,7 @@ export default function Tutor() {
                       {' '}
                       <Image src={Star} boxSize={4} />
                       <Text fontSize={12} fontWeight={400} color="#6E7682">
-                        {/* {` ${tutorData.rating}(${tutorData.reviewCount})`} */}
-                        {tutorData.rating}({tutorData.reviewCount})
+                        {` ${tutorData.rating}(${tutorData.reviewCount})`}
                       </Text>
                     </Flex>
 
@@ -181,8 +217,9 @@ export default function Tutor() {
                       p={'7px 10px'}
                       w={'110px'}
                       display="flex"
+                      _hover={{ bg: '#F0F6FE' }}
                       my={5}
-                      onClick={bookmarkTutor}>
+                      onClick={() => toggleBookmarkTutor(tutorId)}>
                       Save Profile
                     </Button>
                     <Spacer />

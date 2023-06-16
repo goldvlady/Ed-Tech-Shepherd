@@ -148,67 +148,151 @@ export default function Marketplace() {
       <Box bgColor={'black'} borderRadius={'14px'} height={'200px'}>
         <Banner />
       </Box>
+      <Box textAlign="center">
+        <Flex
+          alignItems="center"
+          gap="2"
+          mt={2}
+          textColor="text.400"
+          display={{ base: 'flex', sm: 'inline-grid', lg: 'flex' }}
+          justifyItems={{ sm: 'center' }}>
+          <HStack
+            direction={{ base: 'row', sm: 'column', lg: 'row' }}
+            spacing={{ base: 1, sm: 3 }}
+            display={{ sm: 'grid', lg: 'flex' }}>
+            <Flex alignItems={'center'} justifySelf={{ base: 'normal', sm: 'center' }}>
+              <Text>
+                <MdTune />
+              </Text>
+              <Text>Filter</Text>
+            </Flex>
+            <Menu>
+              <MenuButton
+                as={Button}
+                variant="outline"
+                rightIcon={<FiChevronDown />}
+                fontSize={14}
+                borderRadius="40px"
+                fontWeight={400}
+                width={{ sm: '400px', lg: 'auto' }}
+                color="text.400">
+                {subject !== 'Subject'
+                  ? courseList.map((course) => {
+                      if (course._id === subject) {
+                        return course.label;
+                      }
+                    })
+                  : subject}
+              </MenuButton>
+              <MenuList>
+                {courseList.map((course) => (
+                  <MenuItem
+                    key={course._id}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => setSubject(course._id)}>
+                    {course.label}
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </Menu>
+            <Menu placement="bottom">
+              <MenuButton
+                as={Button}
+                variant="outline"
+                rightIcon={<FiChevronDown />}
+                fontSize={14}
+                borderRadius="40px"
+                fontWeight={400}
+                color="text.400">
+                {level == '' ? 'Level' : level.label}
+              </MenuButton>
+              <MenuList>
+                {levelOptions.map((level) => (
+                  <MenuItem
+                    key={level._id}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => setLevel(level)}>
+                    {level.label}
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </Menu>
 
-      <Flex alignItems="center" gap="2" mt={2} textColor="text.400">
-        <HStack direction={{ base: 'row', sm: 'column' }} flexWrap="wrap">
-          <Flex alignItems={'center'}>
-            <Text>
-              <MdTune />
-            </Text>
-            <Text>Filter</Text>
-          </Flex>
-          <Menu>
-            <MenuButton
-              as={Button}
-              variant="outline"
-              rightIcon={<FiChevronDown />}
-              fontSize={14}
-              borderRadius="40px"
-              fontWeight={400}
-              color="text.400">
-              {subject !== 'Subject'
-                ? courseList.map((course) => {
-                    if (course._id === subject) {
-                      return course.label;
-                    }
-                  })
-                : subject}
-            </MenuButton>
-            <MenuList>
-              {courseList.map((course) => (
-                <MenuItem
-                  key={course._id}
-                  _hover={{ bgColor: '#F2F4F7' }}
-                  onClick={() => setSubject(course._id)}>
-                  {course.label}
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
-          <Menu placement="bottom">
-            <MenuButton
-              as={Button}
-              variant="outline"
-              rightIcon={<FiChevronDown />}
-              fontSize={14}
-              borderRadius="40px"
-              fontWeight={400}
-              color="text.400">
-              {level == '' ? 'Level' : level.label}
-            </MenuButton>
-            <MenuList>
-              {levelOptions.map((level) => (
-                <MenuItem
-                  key={level._id}
-                  _hover={{ bgColor: '#F2F4F7' }}
-                  onClick={() => setLevel(level)}>
-                  {level.label}
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
+            <Box>
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  variant="outline"
+                  rightIcon={<FiChevronDown />}
+                  fontSize={14}
+                  borderRadius="40px"
+                  width={{ sm: '400px', lg: 'auto' }}
+                  fontWeight={400}
+                  color="text.400">
+                  Availability
+                </MenuButton>
+                <MenuList p={5}>
+                  <Box>
+                    <Box fontSize={14} mb={2} color="#5C5F64">
+                      Days
+                    </Box>
 
-          <Box>
+                    <CustomSelect
+                      value={days}
+                      isMulti
+                      onChange={(v) => setDays(v as Array<any>)}
+                      tagVariant="solid"
+                      options={dayOptions}
+                      size={'md'}
+                    />
+                  </Box>
+
+                  <Box my={3}>
+                    <FormControl>
+                      <Box display={'flex'} alignItems="center" gap={'7px'}>
+                        <Box>
+                          <Box fontSize={14} my={2} color="#5C5F64">
+                            Start Time
+                          </Box>
+                          <TimePicker
+                            inputGroupProps={{
+                              size: 'lg',
+                            }}
+                            inputProps={{
+                              size: 'md',
+                              placeholder: '01:00 PM',
+                            }}
+                            value={fromTime}
+                            onChange={(v: string) => {
+                              setFromTime(v);
+                            }}
+                          />
+                        </Box>
+
+                        <Box>
+                          <Box fontSize={14} my={2} color="#5C5F64">
+                            End Time
+                          </Box>
+
+                          <TimePicker
+                            inputGroupProps={{
+                              size: 'md',
+                            }}
+                            inputProps={{
+                              placeholder: '06:00 PM',
+                            }}
+                            value={toTime}
+                            onChange={(v: string) => {
+                              setToTime(v);
+                            }}
+                          />
+                        </Box>
+                      </Box>
+                    </FormControl>
+                  </Box>
+                </MenuList>
+              </Menu>
+            </Box>
             <Menu>
               <MenuButton
                 as={Button}
@@ -218,115 +302,42 @@ export default function Marketplace() {
                 borderRadius="40px"
                 fontWeight={400}
                 color="text.400">
-                Availability
+                {price == '' ? 'Price' : price.label}
               </MenuButton>
-              <MenuList p={5}>
-                <Box>
-                  <Box fontSize={14} mb={2} color="#5C5F64">
-                    Days
-                  </Box>
-
-                  <CustomSelect
-                    value={days}
-                    isMulti
-                    onChange={(v) => setDays(v as Array<any>)}
-                    tagVariant="solid"
-                    options={dayOptions}
-                    size={'md'}
-                  />
-                </Box>
-
-                <Box my={3}>
-                  <FormControl>
-                    <Box display={'flex'} alignItems="center" gap={'7px'}>
-                      <Box>
-                        <Box fontSize={14} my={2} color="#5C5F64">
-                          Start Time
-                        </Box>
-                        <TimePicker
-                          inputGroupProps={{
-                            size: 'lg',
-                          }}
-                          inputProps={{
-                            size: 'md',
-                            placeholder: '01:00 PM',
-                          }}
-                          value={fromTime}
-                          onChange={(v: string) => {
-                            setFromTime(v);
-                          }}
-                        />
-                      </Box>
-
-                      <Box>
-                        <Box fontSize={14} my={2} color="#5C5F64">
-                          End Time
-                        </Box>
-
-                        <TimePicker
-                          inputGroupProps={{
-                            size: 'md',
-                          }}
-                          inputProps={{
-                            placeholder: '06:00 PM',
-                          }}
-                          value={toTime}
-                          onChange={(v: string) => {
-                            setToTime(v);
-                          }}
-                        />
-                      </Box>
-                    </Box>
-                  </FormControl>
-                </Box>
+              <MenuList>
+                {priceOptions.map((price) => (
+                  <MenuItem
+                    key={price.id}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => setPrice(price)}>
+                    {price.label}
+                  </MenuItem>
+                ))}
               </MenuList>
             </Menu>
-          </Box>
-          <Menu>
-            <MenuButton
-              as={Button}
-              variant="outline"
-              rightIcon={<FiChevronDown />}
-              fontSize={14}
-              borderRadius="40px"
-              fontWeight={400}
-              color="text.400">
-              {price == '' ? 'Price' : price.label}
-            </MenuButton>
-            <MenuList>
-              {priceOptions.map((price) => (
-                <MenuItem
-                  key={price.id}
-                  _hover={{ bgColor: '#F2F4F7' }}
-                  onClick={() => setPrice(price)}>
-                  {price.label}
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
-          <Menu>
-            <MenuButton
-              as={Button}
-              variant="outline"
-              rightIcon={<FiChevronDown />}
-              fontSize={14}
-              borderRadius="40px"
-              fontWeight={400}
-              color="text.400">
-              {rating == '' ? 'Rating' : rating.label}
-            </MenuButton>
-            <MenuList>
-              {ratingOptions.map((rating) => (
-                <MenuItem
-                  key={rating.id}
-                  _hover={{ bgColor: '#F2F4F7' }}
-                  onClick={() => setRating(rating)}>
-                  {rating.label}
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
-          {/* <Box w="125px">
+            <Menu>
+              <MenuButton
+                as={Button}
+                variant="outline"
+                rightIcon={<FiChevronDown />}
+                fontSize={14}
+                borderRadius="40px"
+                fontWeight={400}
+                color="text.400">
+                {rating == '' ? 'Rating' : rating.label}
+              </MenuButton>
+              <MenuList>
+                {ratingOptions.map((rating) => (
+                  <MenuItem
+                    key={rating.id}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => setRating(rating)}>
+                    {rating.label}
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </Menu>
+            {/* <Box w="125px">
             <Select
               fontSize={14}
               borderRadius="40px"
@@ -340,7 +351,7 @@ export default function Marketplace() {
               ))}
             </Select>
           </Box> */}
-          {/* <Box w="125px">
+            {/* <Box w="125px">
             <Select
               fontSize={14}
               borderRadius="40px"
@@ -354,25 +365,27 @@ export default function Marketplace() {
               ))}
             </Select>
           </Box> */}
-        </HStack>
-        <Spacer />
-        <Flex gap="2">
-          <CustomButton
-            buttonText={'Clear Filters'}
-            buttonType="outlined"
-            fontStyle={{ fontSize: '12px', fontWeight: 500 }}
-            onClick={resetForm}
-          />
-          {/* <CustomButton
+          </HStack>
+          <Spacer />
+          <Flex gap="2">
+            <CustomButton
+              buttonText={'Clear Filters'}
+              buttonType="outlined"
+              fontStyle={{ fontSize: '12px', fontWeight: 500 }}
+              onClick={resetForm}
+            />
+            {/* <CustomButton
             buttonText={'Apply Filters'}
             buttonType="fill"
             fontStyle={{ fontSize: '12px', fontWeight: 500 }}
             onClick={getFilteredData}
           /> */}
+          </Flex>
         </Flex>
-      </Flex>
+      </Box>
+
       <Box my={45} py={2}>
-        <SimpleGrid minChildWidth="359px" spacing="30px" ref={tutorGrid}>
+        <SimpleGrid minChildWidth="345px" spacing="15px" ref={tutorGrid}>
           {allTutors.map((tutor: any) => (
             <TutorCard
               key={tutor._id}

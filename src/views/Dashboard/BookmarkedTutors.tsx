@@ -9,39 +9,40 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import TutorAvi from '../../assets/tutoravi.svg';
 import { useTitle } from '../../hooks';
 import ApiService from '../../services/ApiService';
+import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
 import TutorCard from './components/TutorCard';
 
 function BookmarkedTutors() {
-  const [allTutors, setAllTutors] = useState<any>([]);
   const [loadingData, setLoadingData] = useState(false);
-  // const getData = async () => {
+
+  // const getBookmarkedTutors = async () => {
   //   setLoadingData(true);
   //   try {
-  //     const resp = await ApiService.getAllTutors();
+  //     const resp = await ApiService.getBookmarkedTutors();
   //     const data = await resp.json();
+
   //     setAllTutors(data);
   //   } catch (e) {}
   //   setLoadingData(false);
   // };
+  // useEffect(() => {
+  //   getBookmarkedTutors();
+  // }, []);
 
-  const getBookmarkedTutors = async () => {
-    setLoadingData(true);
-    try {
-      const resp = await ApiService.getBookmarkedTutors();
-      const data = await resp.json();
-
-      setAllTutors(data);
-    } catch (e) {}
-    setLoadingData(false);
-  };
-  useEffect(() => {
-    getBookmarkedTutors();
+  const { fetchBookmarkedTutors, tutors: allTutors } = bookmarkedTutorsStore();
+  const doFetchBookmarkedTutors = useCallback(async () => {
+    await fetchBookmarkedTutors();
   }, []);
+
+  useEffect(() => {
+    doFetchBookmarkedTutors();
+  }, [doFetchBookmarkedTutors]);
+
   console.log('saved tutors', allTutors);
 
   return (
