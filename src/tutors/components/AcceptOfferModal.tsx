@@ -1,8 +1,13 @@
-import {Fragment} from 'react';
+import React, {Fragment} from 'react';
 import { Transition, Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 
-const AcceptOfferModal = ({ offerModalState, setOfferModalState }) => {
+interface AcceptOfferModalProps {
+  offerModalState: boolean;
+  setOfferModalState: (state: boolean) => void;
+};
+
+const AcceptOfferModal: React.FC<AcceptOfferModalProps> = ({ offerModalState, setOfferModalState }) => {
   return (
     <Transition.Root show={offerModalState} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={setOfferModalState}>

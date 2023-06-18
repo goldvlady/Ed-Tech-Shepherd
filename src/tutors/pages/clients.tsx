@@ -1,10 +1,9 @@
+import React, { Fragment } from "react";
 import { Menu, Transition, Tab } from "@headlessui/react";
 import { ArrowRightIcon, SortIcon } from "../components/icons";
-import Layout from "../components/Layout";
+import {Layout, AllClientTab} from "../components";
 import { classNames } from "../helpers";
-import { Fragment, } from "react";
 
-import AllClientTab from "../components/clientsTab/allClient";
 
 const clients = [{}];
 
@@ -19,7 +18,7 @@ export default function Clients() {
         <Menu as="div" className="relative">
           <div>
             <Menu.Button className="flex items-center space-x-2 border p-2 rounded-md">
-              <SortIcon className="w-5 h-5" />
+              <SortIcon className="w-5 h-5" onClick={undefined} />
               <span>Sort by</span>
             </Menu.Button>
           </div>
@@ -49,14 +48,14 @@ export default function Clients() {
                     <button className='w-full flex hover:bg-gray-100 rounded-md  items-center justify-between p-2'>
                       <h4 className='text-xs flex space-x-2 items-center text-dark'>
                         <span>A</span>
-                        <ArrowRightIcon className="w-5"/>
+                        <ArrowRightIcon className="w-5" onClick={undefined}/>
                         <span>Z</span>
                       </h4>
                     </button>
                     <button className='w-full flex hover:bg-gray-100 rounded-md  items-center justify-between p-2'>
                       <h4 className='text-xs flex space-x-2 items-center text-dark'>
                         <span>Z</span>
-                        <ArrowRightIcon className="w-5"/>
+                        <ArrowRightIcon className="w-5" onClick={undefined}/>
                         <span>A</span>
                       </h4>
                     </button>

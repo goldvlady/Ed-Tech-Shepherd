@@ -1,11 +1,23 @@
-import { Fragment, useLayoutEffect, useRef, useState } from 'react'
+import React, { Fragment, useLayoutEffect, useRef, useState } from 'react'
 import { StarIcon, EllipsisHorizontalIcon, ChevronRightIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import { TrashIcon } from '../icons';
 import { Menu, Transition, Dialog } from '@headlessui/react';
 import { useNavigate } from "react-router-dom";
 import { classNames } from '../../helpers';
 
-const clients = [
+interface Client {
+  id: number;
+  name: string;
+  subject: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  amountEarned: string;
+  classes: string;
+  rating: string;
+}
+
+const clients: Client[] = [
   {
     id: 0,
     name: 'William Kelly',
@@ -85,26 +97,28 @@ const clients = [
   },
 ]
 
-export default function AllClientTab() {
-  const checkbox = useRef()
+const AllClientTab = () => {
+  const checkbox = useRef<HTMLInputElement>(null);
   const [reportModal, setReportModal] = useState(false);
   const [clientReviewModal, setClientReviewModal] = useState(false);
-  const [checked, setChecked] = useState(false)
-  const [indeterminate, setIndeterminate] = useState(false)
-  const [selectedPeople, setSelectedPeople] = useState([])
+  const [checked, setChecked] = useState(false);
+  const [indeterminate, setIndeterminate] = useState(false);
+  const [selectedPeople, setSelectedPeople] = useState<Client[]>([]);
   const navigate = useNavigate();
 
   useLayoutEffect(() => {
-    const isIndeterminate = selectedPeople.length > 0 && selectedPeople.length < clients.length
-    setChecked(selectedPeople.length === clients.length)
-    setIndeterminate(isIndeterminate)
-    checkbox.current.indeterminate = isIndeterminate
-  }, [selectedPeople])
+    const isIndeterminate = selectedPeople.length > 0 && selectedPeople.length < clients.length;
+    setChecked(selectedPeople.length === clients.length);
+    setIndeterminate(isIndeterminate);
+    if (checkbox.current) {
+      checkbox.current.indeterminate = isIndeterminate;
+    }
+  }, [selectedPeople]);
 
   function toggleAll() {
-    setSelectedPeople(checked || indeterminate ? [] : clients)
-    setChecked(!checked && !indeterminate)
-    setIndeterminate(false)
+    setSelectedPeople(checked || indeterminate ? [] : clients);
+    setChecked(!checked && !indeterminate);
+    setIndeterminate(false);
   }
 
   return (
@@ -126,7 +140,7 @@ export default function AllClientTab() {
                       type="button"
                       className="inline-flex items-center rounded bg-white space-x-2 px-6 py-2 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
                     >
-                      <TrashIcon className="w-5"/>
+                      <TrashIcon className="w-5" onClick={undefined}/>
                       <span>Delete</span>
                     </button>
                     <button
@@ -272,7 +286,7 @@ export default function AllClientTab() {
                                 <button disabled={true} className='w-full cursor-not-allowed hover:bg-gray-100 rounded-md flex items-center justify-between p-2'>
                                   <div className='flex items-center space-x-1'>
                                     <div className='bg-white border flex justify-center items-center w-7 h-7 rounded-full'>
-                                      <TrashIcon className="w-4 h-4 text-gray-400"/>
+                                      <TrashIcon className="w-4 h-4 text-gray-400" onClick={undefined}/>
                                     </div>
                                     <h4 className='text-sm text-gray-300 font-medium'>Delete</h4>
                                   </div>
@@ -334,7 +348,7 @@ export default function AllClientTab() {
                         <XMarkIcon className='w-4 h-4'/>
                       </button>
                     </div>
-                    <sections className="mt-3 sm:mt-5">
+                    <section className="mt-3 sm:mt-5">
                       <div className='mt-4'>
                         <h3 className='text-dark mb-3 pl-4'>Previous classes</h3>
                         <div className='flex space-x-3 pl-4'>
@@ -424,7 +438,7 @@ export default function AllClientTab() {
                           </div>
                         </div>
                       </div>
-                    </sections>
+                    </section>
                   </div>
                   <div className="mt-5 p-3 flex justify-between items-center w-full bg-gray-100 sm:mt-6">
                     <div className='text-secondaryGray text-xs'>
@@ -478,7 +492,7 @@ export default function AllClientTab() {
                     <div className='flex justify-center px-3 border-b pb-3'>
                       <h4>Liam Kelly dropped feedback for you</h4>
                     </div>
-                    <sections className="mt-3 sm:mt-5">
+                    <section className="mt-3 sm:mt-5">
                       <div className='p-3'>
                         <h3 className='text-gray-700 mb-2'>Rating</h3>
                         <ul className='space-x-2 grid grid-cols-5'>
@@ -509,7 +523,7 @@ export default function AllClientTab() {
                         Risus purus sed integer arcu sollicitudin eros tellus phasellus viverra. Dolor suspendisse quisque proin velit nulla diam. Vitae in mauris condimentum s
                       </p>
                       </div>
-                    </sections>
+                    </section>
                   </div>
                 </Dialog.Panel>
               </Transition.Child>
@@ -521,3 +535,5 @@ export default function AllClientTab() {
 
   )
 }
+
+export default AllClientTab

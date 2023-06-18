@@ -1,7 +1,15 @@
+import React from "react";
 import { PencilIcon, ArrowRightIcon } from "../icons"
 import { CheckIcon } from "@heroicons/react/24/outline";
 
-const subject = [
+interface Subject {
+  id: number;
+  subject: string;
+  level: string;
+  price: string;
+}
+
+const subject: Subject[] = [
   { id: 0, subject: 'Economics', level: 'GSCE', price: '10.00' },
   { id: 1, subject: 'Mathematics', level: 'A-Level', price: '10.00' },
   { id: 2, subject: 'Yoruba', level: 'Grade 12', price: '10.00' },
@@ -17,7 +25,7 @@ export default function ProfileTab() {
               L
             </div>
             <div className="absolute top-7 left-4 bg-primaryBlue flex justify-center items-center rounded-full w-5 h-5">
-              <PencilIcon className="w-3 text-white"/>
+              <PencilIcon className="w-3 text-white" onClick={undefined}/>
             </div>
             <p className="">
               <span className="block whitespace-nowrap">
@@ -51,7 +59,7 @@ export default function ProfileTab() {
         <div className="flex justify-between items-center">
           <p className="text-secondaryGray">About Me</p>
           <div className="bg-white border flex justify-center items-center rounded-full w-8 h-8">
-            <PencilIcon className="w-4 text-secondaryGray"/>
+            <PencilIcon className="w-4 text-secondaryGray" onClick={undefined}/>
           </div>
         </div>
         <p className="text-sm font-normal text-justify">
@@ -63,7 +71,7 @@ export default function ProfileTab() {
         <div className="flex justify-between items-center">
           <p className="text-secondaryGray">Suject Offered</p>
           <div className="bg-white border flex justify-center items-center rounded-full w-8 h-8">
-            <PencilIcon className="w-4 text-secondaryGray"/>
+            <PencilIcon className="w-4 text-secondaryGray" onClick={undefined}/>
           </div>
         </div>
         <table className="min-w-full border divide-y divide-gray-300">
@@ -98,7 +106,7 @@ export default function ProfileTab() {
         <div className="flex justify-between items-center">
           <p className="text-secondaryGray">Qualifications</p>
           <div className="bg-white border flex justify-center items-center rounded-full w-8 h-8">
-            <PencilIcon className="w-4 text-secondaryGray"/>
+            <PencilIcon className="w-4 text-secondaryGray" onClick={undefined}/>
           </div>
         </div>
 
@@ -142,7 +150,7 @@ export default function ProfileTab() {
         <div className="flex justify-between items-center">
           <p className="text-secondaryGray">Availability</p>
           <div className="bg-white border flex justify-center items-center rounded-full w-8 h-8">
-            <PencilIcon className="w-4 text-secondaryGray"/>
+            <PencilIcon className="w-4 text-secondaryGray" onClick={undefined}/>
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -181,7 +189,7 @@ export default function ProfileTab() {
                   <div className="flex items-center space-x-1 text-gray-700">
                     <img src="/svgs/cloud.svg" alt="" className="h-5 w-5" />
                     <p>8 AM</p>
-                    <ArrowRightIcon className="w-4"/>
+                    <ArrowRightIcon className="w-4" onClick={undefined}/>
                     <p>12 AM</p>
                   </div>
                 </td>
@@ -198,7 +206,7 @@ export default function ProfileTab() {
                   <div className="flex items-center space-x-1 text-gray-700">
                     <img src="/svgs/cloud.svg" alt="" className="h-5 w-5" />
                     <p>12 AM</p>
-                    <ArrowRightIcon className="w-4"/>
+                    <ArrowRightIcon className="w-4" onClick={undefined}/>
                     <p>5 AM</p>
                   </div>
                 </td>
@@ -225,7 +233,7 @@ export default function ProfileTab() {
                   <div className="flex items-center space-x-2 text-gray-800">
                     <img src="/svgs/cloud.svg" alt="" className="h-5 w-5" />
                     <p>5 AM</p>
-                    <ArrowRightIcon className="w-4"/>
+                    <ArrowRightIcon className="w-4" onClick={undefined}/>
                     <p>9 AM</p>
                   </div>
                 </td>

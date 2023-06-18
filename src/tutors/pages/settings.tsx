@@ -1,12 +1,8 @@
-import { Fragment } from 'react'
+import React, { Fragment } from 'react'
 import { Tab } from '@headlessui/react'
-import Layout from '../components/Layout'
 import { classNames } from '../helpers'
 
-import ProfileTab from '../components/tabs/ProfileTab';
-import SecurityTab from '../components/tabs/SecurityTab';
-import PaymentTab from '../components/tabs/PaymentTab';
-import NotificationsTab from '../components/tabs/NotificationsTab';
+import {Layout, ProfileTab, SecurityTab, PaymentTab, NotificationsTab} from '../components';
 
 export default function Settings() {
   return (

@@ -1,9 +1,10 @@
+import React from 'react'
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
 } from '@heroicons/react/20/solid'
 
-export default function Date() {
+export default function Date(): JSX.Element {
   return (
     <div className="mt-10 text-center lg:col-start-8 lg:col-end-13 lg:row-start-1 lg:mt-9 xl:col-start-9">
       <div className="flex items-center text-gray-900">

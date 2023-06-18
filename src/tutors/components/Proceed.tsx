@@ -1,10 +1,10 @@
-import { Fragment, useRef, memo, useState } from 'react'
+import React, { Fragment, FC, useRef, memo, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 
-const Proceed = () => {
+const Proceed: FC = () => {
   const [open, setOpen] = useState(false)
 
-  const cancelButtonRef = useRef(null)
+  const cancelButtonRef = useRef<HTMLButtonElement | null>(null);
   return (
     <>
       <section className="px-6 mt-4">

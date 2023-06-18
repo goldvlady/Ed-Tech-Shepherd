@@ -4,12 +4,38 @@ import {
   EllipsisHorizontalIcon,
   CircleStackIcon,
 } from '@heroicons/react/20/solid'
-import { Fragment } from 'react';
+import React, { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { classNames } from "../helpers";
-import Date from './Date';
+import {Date} from './index';
 
-const transactions = [
+interface Transaction {
+  id: number;
+  content: string;
+  target: string;
+  href: string;
+  date: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+}
+
+interface Event {
+  id: number;
+  name: string;
+  lastSeen: string;
+  time: string;
+  color: string;
+  backgroundColor: string;
+  commenters: Commenter[];
+}
+
+interface Commenter {
+  id: number;
+  name: string;
+  imageUrl: string;
+  backgroundColor?: string;
+}
+
+const transactions: Transaction[] = [
   {
     id: 1,
     content: ' Your received a payment of $10.95 from Leslie Peters for Chemistry Lessons',
@@ -44,7 +70,7 @@ const transactions = [
   },
 ]
 
-const events = [
+const events: Event[] = [
   {
     id: 1,
     name: 'Upcoming chemistry session with Liam Kelly',
@@ -98,7 +124,7 @@ const events = [
   },
 ]
 
-function EventItem({ event }) {
+function EventItem({ event }: { event: Event }) {
   return (
     <li className={`flex gap-x-3 ${event.backgroundColor}`}>
       <div className={`min-h-fit w-1 rounded-tr-full rounded-br-full ${event.color}`}/>

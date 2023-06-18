@@ -1,3 +1,4 @@
+import React from "react";
 import { Layout, Proceed, GridList, RecentTransactions, WelcomePage } from "../components";
 
 export default function Dashboard() {

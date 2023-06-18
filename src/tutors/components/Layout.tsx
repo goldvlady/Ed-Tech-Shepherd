@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import React, { Fragment, useState } from 'react'
 import { Dialog, Menu, Transition } from '@headlessui/react'
 import { useLocation } from 'react-router-dom';
 
@@ -84,10 +84,10 @@ export default function Layout({children, className}) {
                 {/* Sidebar component, swap this element with another sidebar if you like */}
                 <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
                   <div className="flex h-16 shrink-0 items-center">
-                    <img class="h-10 w-auto" src="/svgs/logo.svg" alt="Sherperd" />
+                    <img className="h-10 w-auto" src="/svgs/logo.svg" alt="Sherperd" />
                   </div>
                   <nav className="flex flex-1 flex-col">
-                    <ul role="list" className="flex flex-1 flex-col gap-y-7">
+                    <ul className="flex flex-1 flex-col gap-y-7">
                       <li>
                         <ul className="-mx-2 space-y-1">
                           {navigation.map((item) => (
@@ -392,26 +392,26 @@ export default function Layout({children, className}) {
                       <button className='w-full bg-gray-100 rounded-md flex items-center justify-between p-2'>
                         <div className=' flex items-center space-x-1'>
                           <div className='bg-white flex justify-center items-center w-7 h-7 border rounded-full'>
-                            <UserGroupIcon className="w-4 h-4 text-secondaryGray"/>
+                            <UserGroupIcon className="w-4 h-4 text-secondaryGray" onClick={undefined}/>
                           </div>
                           <h4 className='text-sm text-secondaryGray font-medium'>Switch account</h4>
                         </div>
-                        <ChevronRightIcon className="w-2.5 h-2.5"/>
+                        <ChevronRightIcon className="w-2.5 h-2.5" onClick={undefined}/>
                       </button>
                       <button className='w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2'>
                         <div className='flex items-center space-x-1'>
                           <div className='bg-white border flex justify-center items-center w-7 h-7 rounded-full'>
-                            <UserIcon className="w-4 h-4 text-secondaryGray"/>
+                            <UserIcon className="w-4 h-4 text-secondaryGray" onClick={undefined}/>
                           </div>
                           <h4 className='text-sm text-secondaryGray font-medium'>Profile</h4>
                         </div>
-                        <ChevronRightIcon className="w-2.5 h-2.5"/>
+                        <ChevronRightIcon className="w-2.5 h-2.5" onClick={undefined}/>
                       </button>
                     </section>
                     <button className='w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2'>
                       <div className='flex items-center space-x-1'>
                         <div className='bg-white border flex justify-center items-center w-7 h-7 rounded-full'>
-                          <LogoutIcon className="w-4 h-4 text-secondaryGray"/>
+                          <LogoutIcon className="w-4 h-4 text-secondaryGray" onClick={undefined}/>
                         </div>
                         <h4 className='text-sm text-error font-medium'>Logout</h4>
                       </div>

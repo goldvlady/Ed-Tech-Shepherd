@@ -1,4 +1,6 @@
-export default function AllMessagesTab() {
+import React from "react"
+
+export default function AllMessagesTab(): JSX.Element {
   return (
     <li className="py-4 px-2 cursor-pointer border-top">
       <div className="flex space-x-3">

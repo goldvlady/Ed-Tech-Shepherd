@@ -1,7 +1,29 @@
+import React from 'react';
 import { PencilIcon, SparklesIcon, StarIcon, ArrowRightIcon, EllipsistIcon } from './icons';
 import { useNavigate } from "react-router-dom";
 
-const offers = [
+interface Status {
+  new: number;
+  updated: number;
+  perfectOffer: number;
+  justDate: number;
+}
+
+interface Offer {
+  id: number;
+  subject: string;
+  level: string;
+  title: string;
+  status: Status;
+  offer: string;
+  from: string;
+  to: string;
+  time: string;
+  name: string;
+  imageURL: string;
+}
+
+const offers: Offer[] = [
   {
     id: 1,
     subject: 'Economics',
@@ -151,7 +173,7 @@ const offers = [
 function Updated() {
   return (
     <p className="inline-flex flex-shrink-0 space-x-1 items-center rounded-md bg-blue-100 px-1.5 py-1 text-xs font-medium text-secondaryBlue">
-      <PencilIcon className='w-4 h-4'/>
+      <PencilIcon className='w-4 h-4' onClick={undefined}/>
       <span>Updated</span>
     </p>
   )
@@ -160,7 +182,7 @@ function Updated() {
 function PerfectOffer() {
   return (
     <p className="inline-flex flex-shrink-0 space-x-1 items-center rounded-md bg-blue-100 px-1.5 py-1 text-xs font-medium text-secondaryBlue">
-      <StarIcon className='w-4 h-4'/>
+      <StarIcon className='w-4 h-4' onClick={undefined}/>
       <span>Perfect Offer</span>
     </p>
   )
@@ -169,7 +191,7 @@ function PerfectOffer() {
 function New() {
   return (
     <p className="inline-flex flex-shrink-0 space-x-1 items-center rounded-md bg-gray-100 px-1.5 py-1 text-xs font-medium text-secondaryGray">
-      <SparklesIcon className='w-4 h-4'/>
+      <SparklesIcon className='w-4 h-4' onClick={undefined}/>
       <span>New</span>
     </p>
   )
@@ -183,7 +205,7 @@ function Date() {
   )
 }
 
-function OfferItem({ offer, navigate }) {
+function OfferItem({ offer, navigate }: { offer: Offer; navigate: any }) {
   const { id, imageURL, name, offer: offerAmount, subject, level, title, status, from, to, time } = offer;
 
   const handleItemClick = () => {
@@ -224,9 +246,9 @@ function OfferItem({ offer, navigate }) {
 
         <p className='text-secondaryGray flex items-center text-sm font-normal'>
           <span>{title}</span>
-          <EllipsistIcon className="w-1 mx-0.5"/>
+          <EllipsistIcon className="w-1 mx-0.5" onClick={undefined}/>
           <span>{from} PM</span>
-          <ArrowRightIcon className="w-3 mx-0.5"/>
+          <ArrowRightIcon className="w-3 mx-0.5" onClick={undefined}/>
           <span>{to} PM</span>
         </p>
       </div>

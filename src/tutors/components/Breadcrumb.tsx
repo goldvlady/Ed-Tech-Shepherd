@@ -2,16 +2,16 @@ import React from 'react';
 import  { ChevronRightIcon } from "@heroicons/react/20/solid";
 import { Link } from 'react-router-dom';
 
-const Breadcrumb = () => {
+const Breadcrumb: React.FC = () => {
   return (
     <nav className="flex mt-4" aria-label="Breadcrumb">
       <ol className="flex items-center">
         <li>
-          <butt className="flex items-center">
+          <button className="flex items-center">
             <Link to="/offers" className="text-sm font-medium text-gray-500 hover:text-gray-700">
               Offers
             </Link>
-          </butt>
+          </button>
         </li>
         <li>
           <div className="flex items-center">

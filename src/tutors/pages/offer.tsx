@@ -1,10 +1,9 @@
-import { Fragment, useState } from 'react'
+import React, { Fragment, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import {
   Layout, 
   Breadcrumb, 
   OfferSummary, 
-  OfferDetails, 
   AcceptOfferModal, 
   DeclineOfferModal,
   DetailsCard

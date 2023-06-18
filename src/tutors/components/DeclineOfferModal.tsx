@@ -1,7 +1,12 @@
-import {Fragment} from 'react';
+import React, {Fragment} from 'react';
 import { Transition, Dialog } from '@headlessui/react';
 
-const DeclineOfferModal = ({ declineOfferModalState, setDeclineOfferModalState }) => {
+interface DeclineOfferModalProps {
+  declineOfferModalState: boolean;
+  setDeclineOfferModalState: (state: boolean) => void;
+};
+
+const DeclineOfferModal: React.FC<DeclineOfferModalProps> = ({ declineOfferModalState, setDeclineOfferModalState }) => {
   return (
     <Transition.Root show={declineOfferModalState} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={setDeclineOfferModalState}>

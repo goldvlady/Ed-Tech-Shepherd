@@ -1,6 +1,13 @@
-import React from "react";
+import React, { FC } from "react";
 
-const Section = ({ title, subtitle, description }) => {
+interface SectionProps {
+  title: string;
+  subtitle?: string;
+  description: string;
+}
+
+
+const Section: FC<SectionProps> = ({ title, subtitle, description }) => {
   return (
     <section className="my-4">
       <h4 className="space-x-2">

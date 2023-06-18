@@ -1,3 +1,4 @@
+import React from "react"
 import { Layout, OffersGridList, Section } from "../components"
 
 export default function Offers() {

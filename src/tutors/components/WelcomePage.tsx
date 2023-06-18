@@ -1,4 +1,12 @@
-export default function WelcomPage({greeting, date, time}) {
+import React, { FC } from "react"
+
+interface WelcomePageProps {
+  greeting: string;
+  date: string;
+  time: string;
+}
+
+const WelcomePage: FC<WelcomePageProps> = ({greeting, date, time}) => {
   return (
     <section className="px-6 my-6">
       <h2 className="sm:text-3xl text-2xl">{greeting}</h2>
@@ -16,3 +24,5 @@ export default function WelcomPage({greeting, date, time}) {
     </section>
   )
 }
+
+export default WelcomePage

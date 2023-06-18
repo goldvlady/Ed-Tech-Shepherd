@@ -1,5 +1,7 @@
+import React from 'react';
+
 import { ChevronRightIcon, QuestionMarkCircleIcon } from '@heroicons/react/20/solid'
-import Layout from "../components/Layout";
+import {Layout} from "../components";
 import { Link } from "react-router-dom";
 import { ArrowRightIcon } from '../components/icons';
 
@@ -10,11 +12,11 @@ export default function Client() {
         <nav className="flex mt-4" aria-label="Breadcrumb">
           <ol className="flex items-center">
             <li>
-              <butt className="flex items-center">
+              <button className="flex items-center">
                 <Link to="/clients" className="text-sm font-medium text-gray-400 hover:text-gray-700">
                   Clients
                 </Link>
-              </butt>
+              </button>
             </li>
             <li>
               <div className="flex items-center text-gray-400">
@@ -111,7 +113,7 @@ export default function Client() {
                   </li>
                   <li className='text-sm space-y-2 font-normal'>
                     <h3 className='text-secondaryGray'>Time</h3>
-                    <h4 className='flex items-center space-x-1'><span>05:00 PM</span> <ArrowRightIcon className="w-4 h-4 text-secondaryGray"/> <span>08:00 PM</span></h4>
+                    <h4 className='flex items-center space-x-1'><span>05:00 PM</span> <ArrowRightIcon className="w-4 h-4 text-secondaryGray" onClick={undefined}/> <span>08:00 PM</span></h4>
                   </li>
                   <li className='text-sm space-y-2 font-normal'>
                     <h3 className='text-secondaryGray'>Start date</h3>

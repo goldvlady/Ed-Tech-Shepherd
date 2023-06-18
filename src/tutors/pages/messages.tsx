@@ -1,15 +1,15 @@
-import { Fragment, useState } from "react";
-import Layout from "../components/Layout";
+import React, { Fragment, useState } from "react";
+import {Layout} from "../components";
 import { DocumentIcon, EllipsisVerticalIcon, ChevronRightIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import { classNames } from "../helpers";
 import { Tab, Transition, Menu, Dialog, Popover } from "@headlessui/react";
-import AllMessagesTab from "../components/messagesTab/allMessages";
+import {AllMessagesTab} from "../components";
 
 export default function Messages() {
   const [offerModalState, setOfferModalState] = useState(false);
 
   return (
-    <Layout>
+    <Layout className="">
       <section className="divide-y max-w-screen-xl mx-auto pb-6 lg:pb-16">
         <main className="relative">
           <div className="bg-white  overflow-hidden">
@@ -198,24 +198,24 @@ export default function Messages() {
                 </header>
 
                 
-                <div class="flex flex-col flex-auto h-full">
+                <div className="flex flex-col flex-auto h-full">
                   <div
-                    class="flex overflow-scroll flex-col flex-auto flex-shrink-0 bg-gray-100 h-full"
+                    className="flex overflow-scroll flex-col flex-auto flex-shrink-0 bg-gray-100 h-full"
                   >
                     
-                    <div class="flex flex-col h-full overflow-x-auto mb-4 mt-20">
-                      <div class="flex flex-col h-full">
-                        <div class="grid grid-cols-12 gap-y-2">
+                    <div className="flex flex-col h-full overflow-x-auto mb-4 mt-20">
+                      <div className="flex flex-col h-full">
+                        <div className="grid grid-cols-12 gap-y-2">
 
-                          <div class="col-start-1 col-end-10 p-3 rounded-lg">
-                            <div class="flex flex-row items-start">
+                          <div className="col-start-1 col-end-10 p-3 rounded-lg">
+                            <div className="flex flex-row items-start">
                               <div
-                                class="flex items-center text-white justify-center h-7 w-7 rounded-full bg-success flex-shrink-0"
+                                className="flex items-center text-white justify-center h-7 w-7 rounded-full bg-success flex-shrink-0"
                               >
                                 L
                               </div>
                               <div
-                                class="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl"
+                                className="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl"
                               >
                                 <p>
                                   Nulla ut ut ipsum praesent nulla sem eget. Aliquam vitae amet magna neque leo. Fames donec nullam dictum aliquet. Nunc odio lorem venenatis urna 
@@ -225,15 +225,15 @@ export default function Messages() {
                             <span className="text-xs pl-10 text-secondaryGray">03:05 PM</span>
                           </div>
 
-                          <div class="col-start-5 col-end-13 p-3 rounded-lg">
-                            <div class="flex items-start justify-start flex-row-reverse">
+                          <div className="col-start-5 col-end-13 p-3 rounded-lg">
+                            <div className="flex items-start justify-start flex-row-reverse">
                               <div
-                                class="flex items-center justify-center h-7 w-7 rounded-full bg-orange-600 text-white flex-shrink-0"
+                                className="flex items-center justify-center h-7 w-7 rounded-full bg-orange-600 text-white flex-shrink-0"
                               >
                                 L
                               </div>
                               <div
-                                class="relative mr-3 text-sm bg-primaryBlue text-white py-2 px-4 shadow rounded-xl"
+                                className="relative mr-3 text-sm bg-primaryBlue text-white py-2 px-4 shadow rounded-xl"
                               >
                                 <p>Nulla ut ut ipsum praesent nulla sem eget. Aliquam vitae amet magna neque leo. Fames donec nullam dictum aliquet. </p>
                                 <button className='w-full bg-white mt-1 rounded-md flex items-center justify-between px-2 py-1'>
@@ -250,15 +250,15 @@ export default function Messages() {
                             <span className="text-xs text-secondaryGray">03:05 PM</span>
                           </div>
 
-                          <div class="col-start-1 col-end-10 p-3 rounded-lg">
-                            <div class="flex flex-row items-start">
+                          <div className="col-start-1 col-end-10 p-3 rounded-lg">
+                            <div className="flex flex-row items-start">
                               <div
-                                class="flex items-center text-white justify-center h-7 w-7 rounded-full bg-success flex-shrink-0"
+                                className="flex items-center text-white justify-center h-7 w-7 rounded-full bg-success flex-shrink-0"
                               >
                                 L
                               </div>
                               <div
-                                class="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl"
+                                className="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl"
                               >
                                 <p>
                                   Nulla ut ut ipsum praesent nulla sem eget. Aliquam vitae amet magna neque leo. Fames donec nullam dictum aliquet. Nunc odio lorem venenatis urna 
@@ -268,15 +268,15 @@ export default function Messages() {
                             <span className="text-xs pl-10 text-secondaryGray">03:05 PM</span>
                           </div>
 
-                          <div class="col-start-1 col-end-10 p-3 rounded-lg">
-                            <div class="flex flex-row items-start">
+                          <div className="col-start-1 col-end-10 p-3 rounded-lg">
+                            <div className="flex flex-row items-start">
                               <div
-                                class="flex items-center text-white justify-center h-7 w-7 rounded-full bg-success flex-shrink-0"
+                                className="flex items-center text-white justify-center h-7 w-7 rounded-full bg-success flex-shrink-0"
                               >
                                 L
                               </div>
                               <div
-                                class="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl"
+                                className="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl"
                               >
                                 <p>
                                   Nulla ut ut ipsum praesent nulla sem eget. Aliqua
@@ -286,15 +286,15 @@ export default function Messages() {
                             <span className="text-xs pl-10 text-secondaryGray">03:05 PM</span>
                           </div>
 
-                          <div class="col-start-1 col-end-10 p-3 rounded-lg">
-                            <div class="flex flex-row items-start">
+                          <div className="col-start-1 col-end-10 p-3 rounded-lg">
+                            <div className="flex flex-row items-start">
                               <div
-                                class="flex items-center text-white justify-center h-7 w-7 rounded-full bg-success flex-shrink-0"
+                                className="flex items-center text-white justify-center h-7 w-7 rounded-full bg-success flex-shrink-0"
                               >
                                 L
                               </div>
                               <div
-                                class="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl"
+                                className="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl"
                               >
                                 <p>
                                   Nulla ut ut ipsum praesent nulla sem eget. Aliquam vitae amet magna neque leo. Fames donec nullam dictum aliquet. Nunc odio lorem venenatis urna 
@@ -321,30 +321,30 @@ export default function Messages() {
                 </div>
 
                 <div
-                  class="md:w-[51.8%] w-full shadow-sm fixed z-50 border-t bg-white bottom-0 right-0 flex flex-row items-center h-16 px-4"
+                  className="md:w-[51.8%] w-full shadow-sm fixed z-50 border-t bg-white bottom-0 right-0 flex flex-row items-center h-16 px-4"
                 >
-                  <div class="flex-grow ml-4">
-                    <div class="relative w-full">
+                  <div className="flex-grow ml-4">
+                    <div className="relative w-full">
                       <input
                         type="text"
                         placeholder="Message Leslie Peters"
-                        class="flex w-full bg-gray-100 border-0 rounded-md focus:outline-none pl-4 h-10"
+                        className="flex w-full bg-gray-100 border-0 rounded-md focus:outline-none pl-4 h-10"
                       />
                       <button
-                        class="absolute flex items-center justify-center h-full w-12 right-6 top-0 text-gray-400 hover:text-gray-600"
+                        className="absolute flex items-center justify-center h-full w-12 right-6 top-0 text-gray-400 hover:text-gray-600"
                       >
                         <img alt="" src="/svgs/photo.svg" className="w-4 h-4"/>
                       </button>
                       <button
-                        class="absolute flex items-center justify-center h-full w-12 right-0 top-0 text-gray-400 hover:text-gray-600"
+                        className="absolute flex items-center justify-center h-full w-12 right-0 top-0 text-gray-400 hover:text-gray-600"
                       >
                         <DocumentIcon className="w-5 h-5"/>
                       </button>
                     </div>
                   </div>
-                  <div class="ml-4">
+                  <div className="ml-4">
                     <button
-                      class="flex items-center justify-center bg-primaryBlue hover:bg-blue-400 rounded-md text-white px-4 py-2 flex-shrink-0"
+                      className="flex items-center justify-center bg-primaryBlue hover:bg-blue-400 rounded-md text-white px-4 py-2 flex-shrink-0"
                     >
                       <span>Send</span>
                     </button>

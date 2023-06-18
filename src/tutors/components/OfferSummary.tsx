@@ -1,6 +1,11 @@
-import React from 'react';
+import React, { FC } from 'react';
 
-const OfferSummary = ({ setOfferModalState, setDeclineOfferModalState }) => {
+interface OfferSummaryProps {
+  setOfferModalState: (state: boolean) => void;
+  setDeclineOfferModalState: (state: boolean) => void;
+}
+
+const OfferSummary: FC<OfferSummaryProps> = ({ setOfferModalState, setDeclineOfferModalState }) => {
   return (
     <div className="lg:col-start-3 bg-white lg:col-span-2 lg:row-end-1 p-2 rounded-lg shadow-sm ring-1 ring-gray-900/5">
       <div>
