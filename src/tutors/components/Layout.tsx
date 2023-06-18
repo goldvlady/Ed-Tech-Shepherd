@@ -159,8 +159,9 @@ export default function Layout({children, className}) {
                       >
                         <item.icon
                           className={classNames(
-                            item.current ? 'text-blue-500' : 'text-gray-400 group-hover:text-blue-400',
-                            'h-6 w-6 shrink-0'
+                           `${ item.current ? `text-blue-500` : `text-gray-400 group-hover:text-blue-400 h-6 w-6 shrink-0`
+                            
+                          }`
                           )}
                           aria-hidden="true"
                         />
