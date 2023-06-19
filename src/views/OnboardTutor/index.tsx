@@ -21,63 +21,63 @@ import {
   VStack,
   useDisclosure,
   useToast,
-} from '@chakra-ui/react';
-import { ref } from '@firebase/storage';
-import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
-import { createUserWithEmailAndPassword, firebaseAuth } from '../../firebase';
-import { updateProfile } from 'firebase/auth';
-import { capitalize } from 'lodash';
-import Lottie from 'lottie-react';
-import mixpanel from 'mixpanel-browser';
-import moment from 'moment';
-import React, { useEffect, useMemo, useState } from 'react';
-import { FiBookOpen, FiCalendar, FiUser } from 'react-icons/fi';
-import { HiEye, HiEyeOff } from 'react-icons/hi';
-import StepWizard, { StepWizardProps } from 'react-step-wizard';
-import { FORMAT } from '../../components/DateInput';
-import DragAndDrop from '../../components/DragandDrop';
+} from "@chakra-ui/react";
+import { ref } from "@firebase/storage";
+import { getDownloadURL, uploadBytesResumable } from "firebase/storage";
+import { createUserWithEmailAndPassword, firebaseAuth } from "../../firebase";
+import { updateProfile } from "firebase/auth";
+import { capitalize } from "lodash";
+import Lottie from "lottie-react";
+import mixpanel from "mixpanel-browser";
+import moment from "moment";
+import React, { useEffect, useMemo, useState } from "react";
+import { FiBookOpen, FiCalendar, FiUser } from "react-icons/fi";
+import { HiEye, HiEyeOff } from "react-icons/hi";
+import StepWizard, { StepWizardProps } from "react-step-wizard";
+import { FORMAT } from "../../components/DateInput";
+import DragAndDrop from "../../components/DragandDrop";
 
-import OnboardStep from '../../components/OnboardStep';
-import OnboardSubmitStep from '../../components/OnboardSubmitStep';
-import SelectComponent from '../../components/Select';
-import StepIndicator from '../../components/StepIndicator';
-import { storage } from '../../firebase';
-import { useTitle } from '../../hooks';
-import lottieSuccessAnimationData from '../../lottie/73392-success.json';
-import ApiService from '../../services/ApiService';
-import onboardTutorStore from '../../state/onboardTutorStore';
-import resourceStore from '../../state/resourceStore';
-
-
+import OnboardStep from "../../components/OnboardStep";
+import OnboardSubmitStep from "../../components/OnboardSubmitStep";
+import SelectComponent from "../../components/Select";
+import StepIndicator from "../../components/StepIndicator";
+import { storage } from "../../firebase";
+import { useTitle } from "../../hooks";
+import lottieSuccessAnimationData from "../../lottie/73392-success.json";
+import ApiService from "../../services/ApiService";
+import onboardTutorStore from "../../state/onboardTutorStore";
+import resourceStore from "../../state/resourceStore";
 
 const stepIndicatorSteps = [
   {
-    title: 'About you',
+    title: "About you",
     icon: <FiUser />,
-    id: 'about-you',
+    id: "about-you",
   },
   {
-    title: 'Id Verification',
+    title: "Id Verification",
     icon: <FiBookOpen />,
-    id: 'id_verification',
+    id: "id_verification",
   },
   {
-    title: 'Security',
+    title: "Security",
     icon: <FiCalendar />,
-    id: 'security',
+    id: "security",
   },
 ];
-
-
 
 const OnboardTutor = () => {
   const toast = useToast();
   const { countries } = resourceStore();
   const [confirmDocument, setConfirmDocument] = useState(false);
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [activeStep, setActiveStep] = useState<number>(1);
-  const [userFields, setUserFields] = useState({name: {first: "", last: ""}, email: "", dob: ""})
+  const [userFields, setUserFields] = useState({
+    name: { first: "", last: "" },
+    email: "",
+    dob: "",
+  });
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [editModalStep, setEditModalStep] = useState<string | null>(null);
@@ -89,13 +89,17 @@ const OnboardTutor = () => {
 
   const data = onboardTutorStore.useStore();
   const { country, identityDocument, tz } = data;
-  const {name, email, dob} = userFields;
+  const { name, email, dob } = userFields;
 
-  const age = useMemo(() => moment().diff(moment(dob, FORMAT), 'years'), [dob]);
+  const age = useMemo(() => moment().diff(moment(dob, FORMAT), "years"), [dob]);
   const [isUploadLoading, setUploadLoading] = useState(false);
 
   const validateNameStep = !!userFields.name.first && !!userFields.name.last;
-  const validateCredentialsStep = [country, identityDocument, confirmDocument].every(Boolean)
+  const validateCredentialsStep = [
+    country,
+    identityDocument,
+    confirmDocument,
+  ].every(Boolean);
 
   const [cvUploadPercent, setCvUploadPercent] = useState(0);
   const [selectedCV, setSelectedCV] = useState<File | null>(null);
@@ -103,15 +107,15 @@ const OnboardTutor = () => {
   const [selectedIdDoc, setSelectedIdDoc] = useState<File | null>(null);
 
   useEffect(() => {
-    onboardTutorStore.set.cv('');
+    onboardTutorStore.set.cv("");
 
     if (!selectedCV) return;
 
     if (selectedCV?.size > 2000000) {
       toast({
-        title: 'Please upload a file under 2MB',
-        status: 'error',
-        position: 'top',
+        title: "Please upload a file under 2MB",
+        status: "error",
+        position: "top",
         isClosable: true,
       });
       return;
@@ -121,9 +125,11 @@ const OnboardTutor = () => {
     const uploadTask = uploadBytesResumable(storageRef, selectedCV);
 
     uploadTask.on(
-      'state_changed',
+      "state_changed",
       (snapshot) => {
-        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+        const progress = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
         setCvUploadPercent(progress);
       },
       (error) => {
@@ -139,15 +145,15 @@ const OnboardTutor = () => {
   }, [selectedCV]);
 
   useEffect(() => {
-    onboardTutorStore.set.identityDocument?.('');
+    onboardTutorStore.set.identityDocument?.("");
 
     if (!selectedIdDoc) return;
 
     if (selectedIdDoc?.size > 1000000) {
       toast({
-        title: 'Please upload a file under 1MB',
-        status: 'error',
-        position: 'top',
+        title: "Please upload a file under 1MB",
+        status: "error",
+        position: "top",
         isClosable: true,
       });
       return;
@@ -159,9 +165,11 @@ const OnboardTutor = () => {
     setUploadLoading(true);
 
     uploadTask.on(
-      'state_changed',
+      "state_changed",
       (snapshot) => {
-        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+        const progress = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
         // setAvatarUploadPercent(progress);
       },
       (error) => {
@@ -179,15 +187,15 @@ const OnboardTutor = () => {
   }, [selectedIdDoc]);
 
   useEffect(() => {
-    onboardTutorStore.set.avatar?.('');
+    onboardTutorStore.set.avatar?.("");
 
     if (!selectedAvatar) return;
 
     if (selectedAvatar?.size > 1000000) {
       toast({
-        title: 'Please upload a file under 1MB',
-        status: 'error',
-        position: 'top',
+        title: "Please upload a file under 1MB",
+        status: "error",
+        position: "top",
         isClosable: true,
       });
       return;
@@ -197,7 +205,7 @@ const OnboardTutor = () => {
     const uploadTask = uploadBytesResumable(storageRef, selectedAvatar);
 
     uploadTask.on(
-      'state_changed',
+      "state_changed",
       (snapshot) => {
         // const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
       },
@@ -213,45 +221,58 @@ const OnboardTutor = () => {
   }, [selectedAvatar]);
 
   const doSubmit = async () => {
-      const firebaseUser = await createUserWithEmailAndPassword(firebaseAuth, userFields.email, password)
-      mixpanel.track('Sumbitting Onboarding Date');
-      return ApiService.createUser({...userFields, firebaseId: firebaseUser.user.uid, type: "tutor"})
-      // return ApiService.submitTutor(data);
+    const firebaseUser = await createUserWithEmailAndPassword(
+      firebaseAuth,
+      userFields.email,
+      password
+    );
+    console.log(firebaseUser);
+    mixpanel.track("Sumbitting Onboarding Date");
+    return ApiService.createUser({
+      ...userFields,
+      firebaseId: firebaseUser.user.uid,
+      type: "tutor",
+    });
+    // return ApiService.submitTutor(data);
   };
 
-  const onStepChange: StepWizardProps['onStepChange'] = ({ activeStep, ...rest }) => {
+  const onStepChange: StepWizardProps["onStepChange"] = ({
+    activeStep,
+    ...rest
+  }) => {
     setActiveStep(activeStep);
   };
 
   const passwordChecks = useMemo(() => {
     const isEightLetters = {
-      text: '8 character minimum',
+      text: "8 character minimum",
       checked: password.length >= 8,
     };
 
     const isConfirmed = {
-      text: 'Password has been confirmed',
+      text: "Password has been confirmed",
       checked: [password, password === confirmPassword].every(Boolean),
     };
 
     const hasACharacter = {
-      text: 'Password has at least one special character',
+      text: "Password has at least one special character",
       checked: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password),
     };
 
     const hasANumber = {
-      text: 'Password has at least one number',
+      text: "Password has at least one number",
       checked: /\d/.test(password),
     };
 
     return [isEightLetters, isConfirmed, hasACharacter, hasANumber];
   }, [password, confirmPassword]);
 
-  const validatePasswordStep = passwordChecks.filter((check) => !check.checked).length === 0;
+  const validatePasswordStep =
+    passwordChecks.filter((check) => !check.checked).length === 0;
   const steps = [
     {
-      id: 'name',
-      stepIndicatorId: 'about-you',
+      id: "name",
+      stepIndicatorId: "about-you",
       text: "Hi there, before you proceed, let us know who is signing up",
       template: (
         <Box>
@@ -259,26 +280,38 @@ const OnboardTutor = () => {
             <FormControl>
               <FormLabel>First Name</FormLabel>
               <Input
-                size={'lg'}
+                size={"lg"}
                 value={name.first}
-                onChange={(e) => setUserFields(prev => ({...prev, name: {...prev.name, first: e.target.value ?? ''}}))}
-                />
+                onChange={(e) =>
+                  setUserFields((prev) => ({
+                    ...prev,
+                    name: { ...prev.name, first: e.target.value ?? "" },
+                  }))
+                }
+              />
             </FormControl>
             <FormControl mt={4}>
               <FormLabel>Last Name</FormLabel>
               <Input
-                size={'lg'}
+                size={"lg"}
                 value={name.last}
-                onChange={(e) => setUserFields(prev => ({...prev, name: {...prev?.name, last: e.target.value ?? ''}}))}
-                />
+                onChange={(e) =>
+                  setUserFields((prev) => ({
+                    ...prev,
+                    name: { ...prev?.name, last: e.target.value ?? "" },
+                  }))
+                }
+              />
             </FormControl>
             <FormControl mt={4}>
               <FormLabel>Email</FormLabel>
               <Input
-                size={'lg'}
+                size={"lg"}
                 value={email}
-                onChange={(e) => setUserFields(prev => ({...prev, email: e.target.value}))}
-                />
+                onChange={(e) =>
+                  setUserFields((prev) => ({ ...prev, email: e.target.value }))
+                }
+              />
             </FormControl>
           </Box>
         </Box>
@@ -286,21 +319,24 @@ const OnboardTutor = () => {
       canSave: validateNameStep,
     },
     {
-      id: 'id_verification',
+      id: "id_verification",
       text: "Upload a proof of your identity (drivers license, passport, national ID)",
-      stepIndicatorId: 'id_verification',
+      stepIndicatorId: "id_verification",
       template: (
         <Box>
           <Box marginTop={30}>
             <SelectComponent
               value={{ value: country, label: country }}
-              options={countries.map((country) => ({ label: country.name, value: country.name }))}
+              options={countries.map((country) => ({
+                label: country.name,
+                value: country.name,
+              }))}
               onChange={(e: any) => {
                 onboardTutorStore.set.country?.(e.value);
               }}
               placeholder="Select a country"
               isSearchable
-            // Add any additional props you want to pass
+              // Add any additional props you want to pass
             />
             <DragAndDrop
               marginTop={30}
@@ -309,14 +345,16 @@ const OnboardTutor = () => {
             />
             <HStack marginTop={30} spacing={2}>
               <Checkbox
-                borderRadius={'4px'}
-                colorScheme={'blue'}
+                borderRadius={"4px"}
+                colorScheme={"blue"}
                 isChecked={confirmDocument}
                 onChange={(e) => setConfirmDocument(e.target.checked)}
                 size="lg"
               />
               <Text fontSize="sm">
-                I confirm that I uploaded a valid government issued photo ID, be rest assured, your ID upload is secure and your information will not be saved.
+                I confirm that I uploaded a valid government issued photo ID, be
+                rest assured, your ID upload is secure and your information will
+                not be saved.
               </Text>
             </HStack>
           </Box>
@@ -325,8 +363,8 @@ const OnboardTutor = () => {
       canSave: validateCredentialsStep,
     },
     {
-      id: 'security',
-      stepIndicatorId: 'security',
+      id: "security",
+      stepIndicatorId: "security",
       text: " Hi there, before you proceed, let us know who is signing up",
       template: (
         <Box>
@@ -336,16 +374,22 @@ const OnboardTutor = () => {
               <InputGroup size="lg">
                 <Input
                   placeholder="Create password"
-                  type={showPassword ? 'text' : 'password'}
-                  _placeholder={{ fontSize: '14px' }}
+                  type={showPassword ? "text" : "password"}
+                  _placeholder={{ fontSize: "14px" }}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
                 <InputRightElement>
                   {!showPassword ? (
-                    <HiEye cursor={'pointer'} onClick={() => setShowPassword((prev) => !prev)} />
+                    <HiEye
+                      cursor={"pointer"}
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    />
                   ) : (
-                    <HiEyeOff cursor="pointer" onClick={() => setShowPassword((prev) => !prev)} />
+                    <HiEyeOff
+                      cursor="pointer"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    />
                   )}
                 </InputRightElement>
               </InputGroup>
@@ -355,8 +399,8 @@ const OnboardTutor = () => {
               <InputGroup size="lg">
                 <Input
                   placeholder="Confirm password"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  _placeholder={{ fontSize: '14px' }}
+                  type={showConfirmPassword ? "text" : "password"}
+                  _placeholder={{ fontSize: "14px" }}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
@@ -377,8 +421,8 @@ const OnboardTutor = () => {
               {passwordChecks.map((passwordCheck) => (
                 <HStack marginTop={30} spacing={2}>
                   <Checkbox
-                    colorScheme={passwordCheck.checked ? 'green' : 'gray'}
-                    variant={'looney'}
+                    colorScheme={passwordCheck.checked ? "green" : "gray"}
+                    variant={"looney"}
                     isChecked={passwordCheck.checked}
                     size="lg"
                   />
@@ -396,11 +440,12 @@ const OnboardTutor = () => {
   const activeStepObj = useMemo(() => steps[activeStep - 1], [activeStep]);
 
   const stepIndicatorActiveStep = useMemo(
-    () => stepIndicatorSteps.find((s) => s.id === activeStepObj?.stepIndicatorId),
+    () =>
+      stepIndicatorSteps.find((s) => s.id === activeStepObj?.stepIndicatorId),
     [activeStepObj, stepIndicatorSteps]
   );
 
-  useTitle(stepIndicatorActiveStep?.title || '');
+  useTitle(stepIndicatorActiveStep?.title || "");
 
   useEffect(() => {
     mixpanel.identify();
@@ -413,22 +458,24 @@ const OnboardTutor = () => {
   }, [activeStepObj]);
 
   useEffect(() => {
-    if (name.first && name.last) mixpanel.people.set({ $name: `${name.first} ${name.last}` });
+    if (name.first && name.last)
+      mixpanel.people.set({ $name: `${name.first} ${name.last}` });
 
     if (email) mixpanel.people.set({ $email: email });
 
     if (age) mixpanel.people.set({ Age: age });
 
-    mixpanel.people.set({ Type: 'Tutor' });
+    mixpanel.people.set({ Type: "Tutor" });
   }, [email, name, age]);
 
   useEffect(() => {
-    mixpanel.register({ ...data, type: 'tutor' });
+    mixpanel.register({ ...data, type: "tutor" });
   }, [data]);
 
-  const canSaveCurrentEditModalStep = steps.find((s) => s.id === editModalStep)?.canSave;
+  const canSaveCurrentEditModalStep = steps.find(
+    (s) => s.id === editModalStep
+  )?.canSave;
 
-  console.log(steps[activeStep - 1], activeStep)
   return (
     <Box>
       <Modal
@@ -436,7 +483,8 @@ const OnboardTutor = () => {
         closeOnOverlayClick={canSaveCurrentEditModalStep}
         size="xl"
         isOpen={editModalOpen}
-        onClose={onEditModalClose}>
+        onClose={onEditModalClose}
+      >
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
@@ -444,11 +492,16 @@ const OnboardTutor = () => {
           </ModalHeader>
           <ModalCloseButton isDisabled={!canSaveCurrentEditModalStep} />
           <ModalBody>
-            <Box width={'100%'}>{steps.find((s) => s.id === editModalStep)?.template}</Box>
+            <Box width={"100%"}>
+              {steps.find((s) => s.id === editModalStep)?.template}
+            </Box>
           </ModalBody>
 
           <ModalFooter>
-            <Button isDisabled={!canSaveCurrentEditModalStep} onClick={onEditModalClose}>
+            <Button
+              isDisabled={!canSaveCurrentEditModalStep}
+              onClick={onEditModalClose}
+            >
               Done
             </Button>
           </ModalFooter>
@@ -486,11 +539,17 @@ const OnboardTutor = () => {
         </Text>
       </VStack>
       <StepIndicator
-        activeStep={stepIndicatorSteps.findIndex((s) => s === stepIndicatorActiveStep)}
+        activeStep={stepIndicatorSteps.findIndex(
+          (s) => s === stepIndicatorActiveStep
+        )}
         steps={stepIndicatorSteps}
       />
       <Box>
-        <StepWizard isLazyMount className="flex-col-reverse" onStepChange={onStepChange}>
+        <StepWizard
+          isLazyMount
+          className="flex-col-reverse"
+          onStepChange={onStepChange}
+        >
           {
             steps.map((s) => {
               return (
@@ -508,14 +567,17 @@ const OnboardTutor = () => {
           <OnboardStep canGoNext={false} hideNav={true}>
             <Box paddingBottom={5}>
               <Box>
-                <Lottie style={{ height: 100 }} animationData={lottieSuccessAnimationData} />
+                <Lottie
+                  style={{ height: 100 }}
+                  animationData={lottieSuccessAnimationData}
+                />
               </Box>
-              <Heading as="h2" size="lg" textAlign={'center'}>
+              <Heading as="h2" size="lg" textAlign={"center"}>
                 You're all set {capitalize(name.first)}!
               </Heading>
               <Text color="gray.500" marginTop={2} textAlign="center">
-                We'll match you with students within your availability &amp; shoot you an email at{' '}
-                {email} with next steps!
+                We'll match you with students within your availability &amp;
+                shoot you an email at {email} with next steps!
               </Text>
             </Box>
           </OnboardStep>

@@ -1,7 +1,7 @@
 import { Box, Text, Button } from "@chakra-ui/react";
-import { AiOutlineFileDone } from "react-icons/ai";
-import React from "react";
-import { Outlet } from "react-router";
+import { useNavigate } from "react-router";
+import { User, getAuth, onAuthStateChanged } from "firebase/auth";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Header from "../../components/Header";
 
@@ -14,6 +14,17 @@ const Root = styled(Box)`
 `;
 
 const VerificationSuccess = () => {
+  const navigate = useNavigate();
+  const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
+  const [obtainedUserAuthState, setObtainedUserAuthState] = useState(false);
+
+  useEffect(() => {
+    onAuthStateChanged(getAuth(), async (user) => {
+      setObtainedUserAuthState(true);
+      setFirebaseUser(user);
+    });
+  }, []);
+
   return (
     <>
       <Header />
@@ -68,7 +79,7 @@ const VerificationSuccess = () => {
           <Text
             fontSize="md"
             fontWeight={"400"}
-            width={"80%"}
+            width={"65%"}
             color="#585F68"
             textAlign="center"
             mt={1}
@@ -77,7 +88,7 @@ const VerificationSuccess = () => {
             We’ve sent an email to the address: We will send you an email to the
             address:{"   "}
             <Text as="span" color="blue.500">
-              LesliePeters01@gmail.com
+              {firebaseUser?.email}
             </Text>{" "}
             , Check your mail click on the link provided to finish setting up.{" "}
           </Text>
@@ -92,12 +103,19 @@ const VerificationSuccess = () => {
             lineHeight="1.5"
           >
             Can't find email
-            <Text marginLeft={2} fontWeight={"bold"} as="span" color="blue.500">
+            <Text
+              cursor="pointer"
+              marginLeft={2}
+              fontWeight={"bold"}
+              as="span"
+              color="blue.500"
+            >
               resend mail
             </Text>{" "}
           </Text>
 
           <Button
+            onClick={() => navigate("/complete_profile")}
             display="flex"
             flexDirection="row"
             justifyContent="center"
