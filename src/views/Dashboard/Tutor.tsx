@@ -1,3 +1,17 @@
+import Star4 from "../../assets/4star.svg";
+import Check from "../../assets/check.svg";
+import Day from "../../assets/day.svg";
+import FileAvi2 from "../../assets/file-avi2.svg";
+import FileAvi from "../../assets/file-avi.svg";
+import Star from "../../assets/littleStar.svg";
+import Ribbon from "../../assets/ribbon-grey.svg";
+import TutorAvi from "../../assets/tutoravi.svg";
+import vidHolder from "../../assets/vid-holder.png";
+import LinedList from "../../components/LinedList";
+import ApiService from "../../services/ApiService";
+import bookmarkedTutorsStore from "../../state/bookmarkedTutorsStore";
+import HowItWorks from "./components/HowItWorks";
+import { CustomButton } from "./layout";
 import {
   AspectRatio,
   Avatar,
@@ -46,23 +60,9 @@ import { toNamespacedPath } from "path";
 import React, { useCallback, useEffect, useState } from "react";
 import { FiChevronRight } from "react-icons/fi";
 import { RiQuestionFill } from "react-icons/ri";
+import { RxDotFilled } from "react-icons/rx";
 import ReactPlayer from "react-player";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
-
-import Star4 from "../../assets/4star.svg";
-import Check from "../../assets/check.svg";
-import Day from "../../assets/day.svg";
-import FileAvi2 from "../../assets/file-avi2.svg";
-import FileAvi from "../../assets/file-avi.svg";
-import Star from "../../assets/littleStar.svg";
-import Ribbon from "../../assets/ribbon-grey.svg";
-import TutorAvi from "../../assets/tutoravi.svg";
-import vidHolder from "../../assets/vid-holder.png";
-import LinedList from "../../components/LinedList";
-import ApiService from "../../services/ApiService";
-import bookmarkedTutorsStore from "../../state/bookmarkedTutorsStore";
-import HowItWorks from "./components/HowItWorks";
-import { CustomButton } from "./layout";
 
 export default function Tutor() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -186,9 +186,16 @@ export default function Tutor() {
 
                 <Box px={6}>
                   <VStack spacing={0} align={"left"} mb={5} gap={2}>
-                    <Text fontSize={"16px"} fontWeight={"semibold"} mb={0}>
-                      {`${tutorData.name.first} ${tutorData.name.last}`}
-                    </Text>
+                    <Flex alignItems="center" gap={1}>
+                      <Text fontSize={"16px"} fontWeight={"500"} mb={0}>
+                        {`${tutorData.name.first} ${tutorData.name.last}`}
+                      </Text>
+                      <RxDotFilled color="#DBDEE1" />
+                      <Text fontSize={16} fontWeight={"500"}>
+                        ${`${tutorData.rate}.00 / hr`}
+                      </Text>
+                    </Flex>
+
                     <Text
                       fontWeight={400}
                       color={"#212224"}
@@ -207,7 +214,7 @@ export default function Tutor() {
                     <Flex alignItems={"center"} gap={2}>
                       <CustomButton
                         buttonText="Send Offer"
-                        padding="12px 18px"
+                        padding="10px 21px"
                         onClick={() =>
                           navigate(`/dashboard/tutor/${tutorId}/offer`)
                         }
