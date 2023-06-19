@@ -32,7 +32,6 @@ import TimezoneSelect from "../../components/TimezoneSelect";
 import ApiService from "../../services/ApiService";
 import bookmarkedTutorsStore from "../../state/bookmarkedTutorsStore";
 import resourceStore from "../../state/resourceStore";
-// import { Course, Schedule } from "../../types";
 import { educationLevelOptions, numberToDayOfWeekName } from "../../util";
 import Banner from "./components/Banner";
 import TutorCard from "./components/TutorCard";
@@ -179,7 +178,6 @@ export default function Marketplace() {
                 borderRadius="40px"
                 fontWeight={400}
                 width={{ sm: "400px", lg: "auto" }}
-                my={2}
                 color="text.400"
               >
                 {subject !== "Subject"

@@ -7,7 +7,7 @@
     "@chakra-ui/react": "2.6.1",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
-    "@formkit/auto-animate": "^1.0.0-beta.6",
+    "@formkit/auto-animate": "^0.7.0",
     "@headlessui/react": "^1.7.15",
     "@heroicons/react": "^2.0.18",
     "@internationalized/date": "^3.1.0",
