@@ -1,48 +1,48 @@
-import { Box, ChakraProvider, Spinner } from '@chakra-ui/react';
-import 'bootstrap/dist/css/bootstrap-grid.min.css';
-import 'bootstrap/dist/css/bootstrap-reboot.min.css';
-import 'bootstrap/dist/css/bootstrap-utilities.min.css';
-import { User, getAuth, onAuthStateChanged } from 'firebase/auth';
-import mixpanel from 'mixpanel-browser';
-import React, { useCallback, useEffect, useState } from 'react';
-import { Navigate, Route, Routes } from 'react-router';
-import { BrowserRouter, useLocation, useSearchParams } from 'react-router-dom';
+import { Box, ChakraProvider, Spinner } from "@chakra-ui/react";
+import "bootstrap/dist/css/bootstrap-grid.min.css";
+import "bootstrap/dist/css/bootstrap-reboot.min.css";
+import "bootstrap/dist/css/bootstrap-utilities.min.css";
+import { User, getAuth, onAuthStateChanged } from "firebase/auth";
+import mixpanel from "mixpanel-browser";
+import React, { useCallback, useEffect, useState } from "react";
+import { Navigate, Route, Routes } from "react-router";
+import { BrowserRouter, useLocation, useSearchParams } from "react-router-dom";
 
-import resourceStore from './state/resourceStore';
-import userStore from './state/userStore';
-import theme from './theme';
-import CreatePassword from './views/CreatePassword';
-import BookmarkedTutors from './views/Dashboard/BookmarkedTutors';
-import Marketplace from './views/Dashboard/Marketplace';
-import Messaging from './views/Dashboard/Messaging';
-import MyTutors from './views/Dashboard/MyTutors';
-import Tutor from './views/Dashboard/Tutor';
-import DashboardIndex from './views/Dashboard/index';
-import DashboardLayout from './views/Dashboard/layout';
-import ForgotPassword from './views/ForgotPassword';
-import Home from './views/Home';
-import Login from './views/Login';
-import Offer from './views/Offer';
-import OnboardStudent from './views/OnboardStudent';
-import OnboardTutor from './views/OnboardTutor';
-import CompleteProfile from './views/OnboardTutor/complete_profile';
-import SendTutorOffer from './views/SendTutorOffer';
-import Session from './views/Session';
-import Signup from './views/Signup';
-import PendingVerification from './views/VerificationPages/pending_verification';
-import VerificationSuccess from './views/VerificationPages/successful_verification';
-import WelcomeLayout from './views/WelcomeLayout';
+import resourceStore from "./state/resourceStore";
+import userStore from "./state/userStore";
+import theme from "./theme";
+import CreatePassword from "./views/CreatePassword";
+import BookmarkedTutors from "./views/Dashboard/BookmarkedTutors";
+import Marketplace from "./views/Dashboard/Marketplace";
+import Messaging from "./views/Dashboard/Messaging";
+import MyTutors from "./views/Dashboard/MyTutors";
+import Tutor from "./views/Dashboard/Tutor";
+import DashboardIndex from "./views/Dashboard/index";
+import DashboardLayout from "./views/Dashboard/layout";
+import ForgotPassword from "./views/ForgotPassword";
+import Home from "./views/Home";
+import Login from "./views/Login";
+import Offer from "./views/Offer";
+import OnboardStudent from "./views/OnboardStudent";
+import OnboardTutor from "./views/OnboardTutor";
+import CompleteProfile from "./views/OnboardTutor/complete_profile";
+import SendTutorOffer from "./views/SendTutorOffer";
+import Session from "./views/Session";
+import Signup from "./views/Signup";
+import PendingVerification from "./views/VerificationPages/pending_verification";
+import VerificationSuccess from "./views/VerificationPages/successful_verification";
+import WelcomeLayout from "./views/WelcomeLayout";
 
 const RedirectToLanding: React.FC = () => {
-  window.location.href = 'https://shepherdtutors.com/';
+  window.location.href = "https://shepherdtutors.com/";
   return null;
 };
 
 const AuthAction = (props: any) => {
   const [params] = useSearchParams();
-  const mode = params.get('mode')?.toLowerCase();
+  const mode = params.get("mode")?.toLowerCase();
 
-  if (mode === 'resetpassword') {
+  if (mode === "resetpassword") {
     return <CreatePassword {...props} />;
   }
 
@@ -66,14 +66,14 @@ const RequireAuth = ({
     onAuthStateChanged(getAuth(), async (user) => {
       setObtainedUserAuthState(true);
       setFirebaseUser(user);
-      console.log(user, 'USE');
+      console.log(user, "USE");
 
       try {
         if (user) {
           await fetchUser();
         }
       } catch (e) {
-        console.log('LOGINERROR', e);
+        console.log("LOGINERROR", e);
       }
       setLoadingUser(false);
     });
@@ -96,13 +96,13 @@ const AppRoutes: React.FC = () => {
   const location = useLocation();
 
   useEffect(() => {
-    mixpanel.track('App Page Viewed', location);
+    mixpanel.track("App Page Viewed", location);
   }, [location]);
 
   useEffect(() => {
-    mixpanel.track_links('a', 'Clicked Link', (el: Element) => {
+    mixpanel.track_links("a", "Clicked Link", (el: Element) => {
       return {
-        target: el.getAttribute('href'),
+        target: el.getAttribute("href"),
       };
     });
   }, []);
@@ -117,14 +117,11 @@ const AppRoutes: React.FC = () => {
           <Route path="" element={<Navigate to="student" />} />
         </Route>
 
-        <Route path="verification_pending" element={<PendingVerification />} />
-        <Route path="verification_success" element={<VerificationSuccess />} />
-
         <Route
           path="login"
           element={
             <RequireAuth
-              authenticated={<Navigate to={'/dashboard'} />}
+              authenticated={<Navigate to={"/dashboard"} />}
               unAuthenticated={<Login />}
             />
           }
@@ -134,7 +131,7 @@ const AppRoutes: React.FC = () => {
           path="signup"
           element={
             <RequireAuth
-              authenticated={<Navigate to={'/dashboard'} />}
+              authenticated={<Navigate to={"/dashboard"} />}
               unAuthenticated={<Signup />}
             />
           }
@@ -143,7 +140,7 @@ const AppRoutes: React.FC = () => {
           path="forgot-password"
           element={
             <RequireAuth
-              authenticated={<Navigate to={'/dashboard'} />}
+              authenticated={<Navigate to={"/dashboard"} />}
               unAuthenticated={<ForgotPassword />}
             />
           }
@@ -151,19 +148,25 @@ const AppRoutes: React.FC = () => {
         <Route path="auth-action" element={<AuthAction />} />
       </Route>
 
+      <Route path="verification_pending" element={<PendingVerification />} />
+      <Route path="verification_success" element={<VerificationSuccess />} />
+
       <Route path="complete_profile" element={<CompleteProfile />} />
 
       <Route
         path="login"
         element={
-          <RequireAuth authenticated={<Navigate to={'/dashboard'} />} unAuthenticated={<Login />} />
+          <RequireAuth
+            authenticated={<Navigate to={"/dashboard"} />}
+            unAuthenticated={<Login />}
+          />
         }
       />
       <Route
         path="signup"
         element={
           <RequireAuth
-            authenticated={<Navigate to={'/dashboard'} />}
+            authenticated={<Navigate to={"/dashboard"} />}
             unAuthenticated={<Signup />}
           />
         }
@@ -172,7 +175,7 @@ const AppRoutes: React.FC = () => {
         path="forgot-password"
         element={
           <RequireAuth
-            authenticated={<Navigate to={'/dashboard'} />}
+            authenticated={<Navigate to={"/dashboard"} />}
             unAuthenticated={<ForgotPassword />}
           />
         }
@@ -188,7 +191,8 @@ const AppRoutes: React.FC = () => {
             unAuthenticated={<DashboardLayout children />}
             // unAuthenticated={<Navigate to={"/login"} />}
           />
-        }>
+        }
+      >
         {/* <Route element={<DashboardLayout children />}> */}
 
         <Route path="tutor/:tutorId/offer" element={<SendTutorOffer />} />
@@ -208,7 +212,10 @@ const AppRoutes: React.FC = () => {
       <Route
         path="session/:bookingId"
         element={
-          <RequireAuth authenticated={<Session />} unAuthenticated={<Navigate to={'/login'} />} />
+          <RequireAuth
+            authenticated={<Session />}
+            unAuthenticated={<Navigate to={"/login"} />}
+          />
         }
       />
     </Routes>
