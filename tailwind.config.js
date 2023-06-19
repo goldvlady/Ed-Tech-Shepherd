@@ -23,9 +23,6 @@ module.exports = {
       sans: ["Inter", "sans-serif"],
       serif: ["Inter", "serif"],
     },
-    // backgroundImage: {
-    //   'profile-pattern': "url('/public/patterns/profile-pattern.svg')",
-    // }
   },
   plugins: [require("@tailwindcss/forms")],
 };

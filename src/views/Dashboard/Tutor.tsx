@@ -1,3 +1,17 @@
+import Star4 from "../../assets/4star.svg";
+import Check from "../../assets/check.svg";
+import Day from "../../assets/day.svg";
+import FileAvi2 from "../../assets/file-avi2.svg";
+import FileAvi from "../../assets/file-avi.svg";
+import Star from "../../assets/littleStar.svg";
+import Ribbon from "../../assets/ribbon-grey.svg";
+import TutorAvi from "../../assets/tutoravi.svg";
+import vidHolder from "../../assets/vid-holder.png";
+import LinedList from "../../components/LinedList";
+import ApiService from "../../services/ApiService";
+import bookmarkedTutorsStore from "../../state/bookmarkedTutorsStore";
+import HowItWorks from "./components/HowItWorks";
+import { CustomButton } from "./layout";
 import {
   AspectRatio,
   Avatar,
@@ -41,34 +55,22 @@ import {
   VStack,
   useColorModeValue,
   useToast,
-} from '@chakra-ui/react';
-import { toNamespacedPath } from 'path';
-import React, { useCallback, useEffect, useState } from 'react';
-import { FiChevronRight } from 'react-icons/fi';
-import { RiQuestionFill } from 'react-icons/ri';
-import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
-
-import Star4 from '../../assets/4star.svg';
-import Check from '../../assets/check.svg';
-import Day from '../../assets/day.svg';
-import FileAvi2 from '../../assets/file-avi2.svg';
-import FileAvi from '../../assets/file-avi.svg';
-import Star from '../../assets/littleStar.svg';
-import Ribbon from '../../assets/ribbon-grey.svg';
-import TutorAvi from '../../assets/tutoravi.svg';
-import LinedList from '../../components/LinedList';
-import ApiService from '../../services/ApiService';
-import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
-import HowItWorks from './components/HowItWorks';
-import { CustomButton } from './layout';
+} from "@chakra-ui/react";
+import { toNamespacedPath } from "path";
+import React, { useCallback, useEffect, useState } from "react";
+import { FiChevronRight } from "react-icons/fi";
+import { RiQuestionFill } from "react-icons/ri";
+import { RxDotFilled } from "react-icons/rx";
+import ReactPlayer from "react-player";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 
 export default function Tutor() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [loadingData, setLoadingData] = useState(false);
   const [tutorData, setTutorData] = useState<any>({});
-  const [fullname, setFullname] = useState('');
-  const [rateReview, setRateReview] = useState('');
-  const tutorId: any = searchParams.get('id');
+  const [fullname, setFullname] = useState("");
+  const [rateReview, setRateReview] = useState("");
+  const tutorId: any = searchParams.get("id");
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -86,7 +88,8 @@ export default function Tutor() {
     getData();
   }, []);
 
-  const { fetchBookmarkedTutors, tutors: bookmarkedTutors } = bookmarkedTutorsStore();
+  const { fetchBookmarkedTutors, tutors: bookmarkedTutors } =
+    bookmarkedTutorsStore();
   const doFetchBookmarkedTutors = useCallback(async () => {
     await fetchBookmarkedTutors();
   }, []);
@@ -100,7 +103,7 @@ export default function Tutor() {
       }
     }
   };
-  console.log('BOOK', checkBookmarks(tutorId));
+  console.log("BOOK", checkBookmarks(tutorId));
 
   const toggleBookmarkTutor = async (id: string) => {
     try {
@@ -108,25 +111,25 @@ export default function Tutor() {
       console.log(resp);
       if (checkBookmarks(id)) {
         toast({
-          title: 'Tutor removed from Bookmarks successfully',
-          position: 'top-right',
-          status: 'success',
+          title: "Tutor removed from Bookmarks successfully",
+          position: "top-right",
+          status: "success",
           isClosable: true,
         });
       } else {
         toast({
-          title: 'Tutor saved successfully',
-          position: 'top-right',
-          status: 'success',
+          title: "Tutor saved successfully",
+          position: "top-right",
+          status: "success",
           isClosable: true,
         });
       }
       fetchBookmarkedTutors();
     } catch (e) {
       toast({
-        title: 'An unknown error occured',
-        position: 'top-right',
-        status: 'error',
+        title: "An unknown error occured",
+        position: "top-right",
+        status: "error",
         isClosable: true,
       });
     }
@@ -143,9 +146,14 @@ export default function Tutor() {
   return (
     <>
       <Box>
-        <Breadcrumb spacing="8px" separator={<FiChevronRight size={10} color="gray.500" />}>
+        <Breadcrumb
+          spacing="8px"
+          separator={<FiChevronRight size={10} color="gray.500" />}
+        >
           <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/find-tutor">Find a tutor</BreadcrumbLink>
+            <BreadcrumbLink href="/dashboard/find-tutor">
+              Find a tutor
+            </BreadcrumbLink>
           </BreadcrumbItem>
 
           <BreadcrumbItem isCurrentPage>
@@ -154,80 +162,87 @@ export default function Tutor() {
             </BreadcrumbLink>
           </BreadcrumbItem>
         </Breadcrumb>
-        <Grid h="870px" templateRows="repeat(2, 1fr)" templateColumns="repeat(3, 1fr)" gap={3}>
+        <Grid
+          h="870px"
+          templateRows="repeat(2, 1fr)"
+          templateColumns="repeat(3, 1fr)"
+          gap={3}
+        >
           <GridItem rowSpan={2} colSpan={2}>
             <Center py={3}>
               <Box
-                maxW={'100%'}
-                w={'full'}
-                bg={'white'}
-                boxShadow={'2xl'}
-                rounded={'md'}
-                overflow={'hidden'}>
-                <AspectRatio h={'173px'} w={'full'} ratio={1} objectFit={'cover'}>
-                  <iframe
-                    title="naruto"
-                    src="https://www.youtube.com/embed/QhBnZ6NPOY0"
-                    allowFullScreen
-                  />
-                </AspectRatio>
-                {/* <Image
-                h={"120px"}
+                maxW={"100%"}
                 w={"full"}
-                src={
-                  "https://images.unsplash.com/photo-1612865547334-09cb8cb455da?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80"
-                }
-                
-              /> */}
-                <Flex justify={'left'} mt={-12}>
-                  <Avatar
-                    size={'xl'}
-                    src={tutorData.avatar}
-                    ml={6}
-                    //   alt={"Author"}
-                    css={{
-                      border: '4px solid white',
-                    }}
-                  />
+                bg={"white"}
+                boxShadow={"2xl"}
+                rounded={"md"}
+                overflow={"hidden"}
+              >
+                <Flex justify={"left"} p={6}>
+                  <Box boxSize={106}>
+                    <Image src={tutorData.avatar} borderRadius={8} />
+                  </Box>
                 </Flex>
 
-                <Box p={6}>
-                  <VStack spacing={0} align={'left'} mb={5} gap={2}>
-                    <Text fontSize={'16px'} fontWeight={'semibold'} mb={0}>
-                      {`${tutorData.name.first} ${tutorData.name.last}`}
-                    </Text>
-                    <Text fontWeight={400} color={'#212224'} fontSize="14px" mb={'2px'}>
+                <Box px={6}>
+                  <VStack spacing={0} align={"left"} mb={5} gap={2}>
+                    <Flex alignItems="center" gap={1}>
+                      <Text fontSize={"16px"} fontWeight={"500"} mb={0}>
+                        {`${tutorData.name.first} ${tutorData.name.last}`}
+                      </Text>
+                      <RxDotFilled color="#DBDEE1" />
+                      <Text fontSize={16} fontWeight={"500"}>
+                        ${`${tutorData.rate}.00 / hr`}
+                      </Text>
+                    </Flex>
+
+                    <Text
+                      fontWeight={400}
+                      color={"#212224"}
+                      fontSize="14px"
+                      mb={"2px"}
+                    >
                       {tutorData.highestLevelOfEducation}
                     </Text>
                     <Flex>
-                      {' '}
+                      {" "}
                       <Image src={Star} boxSize={4} />
                       <Text fontSize={12} fontWeight={400} color="#6E7682">
                         {` ${tutorData.rating}(${tutorData.reviewCount})`}
                       </Text>
                     </Flex>
+                    <Flex alignItems={"center"} gap={2}>
+                      <CustomButton
+                        buttonText="Send Offer"
+                        padding="10px 21px"
+                        onClick={() =>
+                          navigate(`/dashboard/tutor/${tutorId}/offer`)
+                        }
+                      />
+                      <Button
+                        variant="unstyled"
+                        color="#585F68"
+                        border="1px solid #E7E8E9"
+                        borderRadius="6px"
+                        fontSize="12px"
+                        leftIcon={<img src={Ribbon} alt="save" />}
+                        p={"7px 10px"}
+                        w={"110px"}
+                        display="flex"
+                        _hover={{ bg: "#F0F6FE" }}
+                        my={5}
+                        onClick={() => toggleBookmarkTutor(tutorId)}
+                      >
+                        Save Profile
+                      </Button>
+                    </Flex>
 
-                    <Button
-                      variant="unstyled"
-                      color="#585F68"
-                      border="1px solid #E7E8E9"
-                      borderRadius="6px"
-                      fontSize="12px"
-                      leftIcon={<img src={Ribbon} alt="save" />}
-                      p={'7px 10px'}
-                      w={'110px'}
-                      display="flex"
-                      _hover={{ bg: '#F0F6FE' }}
-                      my={5}
-                      onClick={() => toggleBookmarkTutor(tutorId)}>
-                      Save Profile
-                    </Button>
                     <Spacer />
                     <Box my={14}>
-                      <Text fontSize={'12px'} color="text.400" my={3}>
+                      <Text fontSize={"12px"} color="text.400" my={3}>
                         ABOUT ME
                       </Text>
-                      <Text fontSize={'14px'} my={2}>
+                      <Text fontSize={"14px"} my={2}>
                         {tutorData.description}
                       </Text>
                     </Box>
@@ -243,27 +258,33 @@ export default function Tutor() {
 
                         <TabPanels>
                           <TabPanel>
-                            <Flex px={3} gap={0} direction={'row'} my={2}>
+                            <Flex px={3} gap={0} direction={"row"} my={2}>
                               <Avatar
                                 name="Kola Tioluwani"
                                 src="https://bit.ly/tioluwani-kolawole"
                               />
 
-                              <Stack direction={'column'} px={4} spacing={1}>
+                              <Stack direction={"column"} px={4} spacing={1}>
                                 <Box>
-                                  <Image src={Star4} height="14px" />{' '}
-                                  <Text fontSize={'16px'} fontWeight={'500'} mb={0}>
+                                  <Image src={Star4} height="14px" />{" "}
+                                  <Text
+                                    fontSize={"16px"}
+                                    fontWeight={"500"}
+                                    mb={0}
+                                  >
                                     Jennifer A. Peters
                                   </Text>
                                   <Text
                                     fontWeight={400}
-                                    color={'#585F68'}
+                                    color={"#585F68"}
                                     fontSize="14px"
-                                    mb={'2px'}>
-                                    Quam eros suspendisse a pulvinar sagittis mauris. Vel duis
-                                    adipiscing id faucibuseltu consectetur amet. Tempor dui quam
-                                    scelerisque at tempor aliquam. Vivamus aenean hendrerit turpis
-                                    velit pretium.
+                                    mb={"2px"}
+                                  >
+                                    Quam eros suspendisse a pulvinar sagittis
+                                    mauris. Vel duis adipiscing id faucibuseltu
+                                    consectetur amet. Tempor dui quam
+                                    scelerisque at tempor aliquam. Vivamus
+                                    aenean hendrerit turpis velit pretium.
                                   </Text>
                                 </Box>
 
@@ -272,18 +293,37 @@ export default function Tutor() {
                             </Flex>
                           </TabPanel>
                           <TabPanel>
-                            <Flex px={3} gap={0} direction={'row'} my={2}>
-                              <Image src={FileAvi2} alt="qualification" mb={4} />
-                              <Stack direction={'column'} px={4} spacing={1}>
-                                <Text fontSize={'16px'} fontWeight={'500'} mb={0}>
-                                  Indian Institute of Management (IIM), Bangalore
+                            <Flex px={3} gap={0} direction={"row"} my={2}>
+                              <Image
+                                src={FileAvi2}
+                                alt="qualification"
+                                mb={4}
+                              />
+                              <Stack direction={"column"} px={4} spacing={1}>
+                                <Text
+                                  fontSize={"16px"}
+                                  fontWeight={"500"}
+                                  mb={0}
+                                >
+                                  Indian Institute of Management (IIM),
+                                  Bangalore
                                 </Text>
-                                <Text fontWeight={400} color={'#585F68'} fontSize="14px" mb={'2px'}>
-                                  Master of Business Administration (MBA), Information System
+                                <Text
+                                  fontWeight={400}
+                                  color={"#585F68"}
+                                  fontSize="14px"
+                                  mb={"2px"}
+                                >
+                                  Master of Business Administration (MBA),
+                                  Information System
                                 </Text>
 
                                 <Spacer />
-                                <Text fontSize={12} fontWeight={400} color="#6E7682">
+                                <Text
+                                  fontSize={12}
+                                  fontWeight={400}
+                                  color="#6E7682"
+                                >
                                   2008-2010
                                 </Text>
                                 <Divider />
@@ -293,30 +333,32 @@ export default function Tutor() {
                           <TabPanel>
                             <TableContainer my={2}>
                               <Box
-                                border={'1px solid #EEEFF2'}
+                                border={"1px solid #EEEFF2"}
                                 borderRadius={8}
                                 // width="700px"
                               >
                                 <Table
                                   sx={{
-                                    tableLayout: 'fixed',
-                                    width: 'full',
+                                    tableLayout: "fixed",
+                                    width: "full",
                                   }}
-                                  variant="simple">
+                                  variant="simple"
+                                >
                                   {/* <TableCaption>Imperial to metric conversion factors</TableCaption> */}
                                   <Thead>
                                     <Tr
                                       sx={{
                                         th: {
-                                          fontSize: '11px',
+                                          fontSize: "11px",
                                           fontWeight: 500,
-                                          textTransform: 'none',
-                                          color: '#000',
-                                          textAlign: 'center',
-                                          letterSpacing: '0px',
+                                          textTransform: "none",
+                                          color: "#000",
+                                          textAlign: "center",
+                                          letterSpacing: "0px",
                                         },
-                                      }}>
-                                      <Th width={'150px'}></Th>
+                                      }}
+                                    >
+                                      <Th width={"150px"}></Th>
                                       <Th px={1}>Mon </Th>
                                       <Th>Tue </Th>
                                       <Th>Wed </Th>
@@ -330,96 +372,105 @@ export default function Tutor() {
                                     <Tr
                                       sx={{
                                         td: {
-                                          textAlign: 'center',
-                                          color: 'text.300',
+                                          textAlign: "center",
+                                          color: "text.300",
                                         },
-                                      }}>
-                                      <Td bgColor={'#FAFAFA'} px={2}>
+                                      }}
+                                    >
+                                      <Td bgColor={"#FAFAFA"} px={2}>
                                         <Text
                                           color="text.300"
                                           fontSize={14}
                                           fontWeight={500}
-                                          display="flex">
-                                          <Image src={Day} mr={3} /> 8AM {'->'} 12PM
+                                          display="flex"
+                                        >
+                                          <Image src={Day} mr={3} /> 8AM {"->"}{" "}
+                                          12PM
                                         </Text>
                                       </Td>
                                       <Td className="stripeBox"></Td>
                                       <Td className="stripeBox"></Td>
-                                      <Td className="stripeBox"></Td>{' '}
-                                      <Td className="stripeBox"></Td>{' '}
-                                      <Td className="stripeBox"></Td>{' '}
-                                      <Td className="stripeBox"></Td>{' '}
+                                      <Td className="stripeBox"></Td>{" "}
+                                      <Td className="stripeBox"></Td>{" "}
+                                      <Td className="stripeBox"></Td>{" "}
+                                      <Td className="stripeBox"></Td>{" "}
                                       <Td className="stripeBox"></Td>
                                     </Tr>
 
                                     <Tr
                                       sx={{
                                         td: {
-                                          textAlign: 'center',
-                                          color: 'text.300',
+                                          textAlign: "center",
+                                          color: "text.300",
                                         },
-                                      }}>
-                                      <Td bgColor={'#FAFAFA'} px={1}>
-                                        {' '}
+                                      }}
+                                    >
+                                      <Td bgColor={"#FAFAFA"} px={1}>
+                                        {" "}
                                         <Text
                                           color="text.300"
                                           fontSize={14}
                                           fontWeight={500}
-                                          display="flex">
-                                          <Image src={Day} mr={3} /> 12PM {'->'} 5PM
+                                          display="flex"
+                                        >
+                                          <Image src={Day} mr={3} /> 12PM {"->"}{" "}
+                                          5PM
                                         </Text>
                                       </Td>
                                       <Td>
-                                        <Image src={Check} mr={3} />{' '}
+                                        <Image src={Check} mr={3} />{" "}
                                       </Td>
                                       <Td>
-                                        <Image src={Check} mr={3} />{' '}
+                                        <Image src={Check} mr={3} />{" "}
                                       </Td>
-                                      <Td className="stripeBox"></Td>{' '}
+                                      <Td className="stripeBox"></Td>{" "}
                                       <Td className="stripeBox"></Td>
                                       <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>{' '}
+                                        <Image src={Check} mr={3} />{" "}
+                                      </Td>{" "}
                                       <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>{' '}
+                                        <Image src={Check} mr={3} />{" "}
+                                      </Td>{" "}
                                       <Td>
-                                        <Image src={Check} mr={3} />{' '}
+                                        <Image src={Check} mr={3} />{" "}
                                       </Td>
                                     </Tr>
                                     <Tr
                                       sx={{
                                         td: {
-                                          textAlign: 'center',
-                                          color: 'text.300',
+                                          textAlign: "center",
+                                          color: "text.300",
                                         },
-                                      }}>
-                                      <Td bgColor={'#FAFAFA'} px={1}>
-                                        {' '}
+                                      }}
+                                    >
+                                      <Td bgColor={"#FAFAFA"} px={1}>
+                                        {" "}
                                         <Text
                                           color="text.300"
                                           fontSize={14}
                                           fontWeight={500}
-                                          display="flex">
-                                          <Image src={Day} mr={3} /> 5PM {'->'} 9PM
+                                          display="flex"
+                                        >
+                                          <Image src={Day} mr={3} /> 5PM {"->"}{" "}
+                                          9PM
                                         </Text>
                                       </Td>
                                       <Td>
-                                        <Image src={Check} mr={3} />{' '}
+                                        <Image src={Check} mr={3} />{" "}
                                       </Td>
                                       <Td>
-                                        <Image src={Check} mr={3} />{' '}
+                                        <Image src={Check} mr={3} />{" "}
                                       </Td>
-                                      <Td className="stripeBox"></Td>{' '}
+                                      <Td className="stripeBox"></Td>{" "}
                                       <Td className="stripeBox"></Td>
                                       <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>{' '}
+                                        <Image src={Check} mr={3} />{" "}
+                                      </Td>{" "}
                                       <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>{' '}
+                                        <Image src={Check} mr={3} />{" "}
+                                      </Td>{" "}
                                       <Td>
-                                        <Image src={Check} mr={3} />{' '}
+                                        <Image src={Check} mr={3} />{" "}
                                       </Td>
                                     </Tr>
                                   </Tbody>
@@ -429,7 +480,11 @@ export default function Tutor() {
                           </TabPanel>
                           <TabPanel>
                             <TableContainer my={4}>
-                              <Box border={'1px solid #EEEFF2'} borderRadius={8} py={3}>
+                              <Box
+                                border={"1px solid #EEEFF2"}
+                                borderRadius={8}
+                                py={3}
+                              >
                                 <Table variant="simple">
                                   {/* <TableCaption>Imperial to metric conversion factors</TableCaption> */}
                                   <Thead>
@@ -441,17 +496,17 @@ export default function Tutor() {
                                   </Thead>
                                   <Tbody>
                                     <Tr>
-                                      <Td bgColor={'#FAFAFA'}>Economics</Td>
+                                      <Td bgColor={"#FAFAFA"}>Economics</Td>
                                       <Td>GCSE</Td>
                                       <Td>$10.00/hr</Td>
                                     </Tr>
                                     <Tr>
-                                      <Td bgColor={'#FAFAFA'}>Maths</Td>
+                                      <Td bgColor={"#FAFAFA"}>Maths</Td>
                                       <Td>A-level</Td>
                                       <Td>$10.00/hr</Td>
                                     </Tr>
                                     <Tr>
-                                      <Td bgColor={'#FAFAFA'}>Yoruba</Td>
+                                      <Td bgColor={"#FAFAFA"}>Yoruba</Td>
                                       <Td>Grade 12</Td>
                                       <Td>$10.00/hr</Td>
                                     </Tr>
@@ -468,10 +523,33 @@ export default function Tutor() {
               </Box>
             </Center>
           </GridItem>
-          <GridItem h={305}>
-            <Card py={8} mt={3}>
-              <CardBody>
-                <Stack
+          <GridItem h={305} p={3} position="relative">
+            {/* <Box border="1px solid green" borderRadius={10} mt={3}> */}
+            {/* <ReactPlayer
+                url="https://vimeo.com/243556536"
+                width="100%"
+                height="305px"
+                playing
+                playIcon={
+                  <>
+                    <p>Watch intro video</p>
+                    <button>Play</button>
+                  </>
+                }
+                light={vidHolder}
+              /> */}
+            <AspectRatio h={"305px"} w={"full"} ratio={1} objectFit={"cover"}>
+              <iframe
+                title="naruto"
+                src="https://samplelib.com/lib/preview/mp4/sample-5s.mp4"
+                allowFullScreen
+                style={{ borderRadius: 10 }}
+              />
+            </AspectRatio>
+            <Center position="absolute">watch</Center>
+            {/* </Box> */}
+
+            {/* <Stack
                   flex={1}
                   flexDirection="column"
                   justifyContent="center"
@@ -492,12 +570,14 @@ export default function Tutor() {
                     padding="9px 105px"
                     onClick={() => navigate(`/dashboard/tutor/${tutorId}/offer`)}
                   />
-                </Stack>
-              </CardBody>
-            </Card>
+                </Stack> */}
 
             <Text fontSize={14} mt={8}>
-              <Link color="#207DF7" href="/dashboard/find-tutor" textDecoration="underline">
+              <Link
+                color="#207DF7"
+                href="/dashboard/find-tutor"
+                textDecoration="underline"
+              >
                 More Economics tutors
               </Link>
             </Text>
@@ -505,8 +585,14 @@ export default function Tutor() {
 
           <GridItem>
             <Card>
-              <Box px={4} pt={3} fontSize={16} fontWeight={'semibold'} display="flex">
-                <RiQuestionFill color="#969ca6" fontSize={'22px'} />
+              <Box
+                px={4}
+                pt={3}
+                fontSize={16}
+                fontWeight={"semibold"}
+                display="flex"
+              >
+                <RiQuestionFill color="#969ca6" fontSize={"22px"} />
                 <Text mx={2}>How this Works</Text>
               </Box>
               <CardBody>
@@ -514,19 +600,19 @@ export default function Tutor() {
                   // mt={"30px"}
                   items={[
                     {
-                      title: 'Send a Proposal',
+                      title: "Send a Proposal",
                       subtitle:
-                        'Find your desired tutor and prepare an offer on your terms and send to the tutor',
+                        "Find your desired tutor and prepare an offer on your terms and send to the tutor",
                     },
                     {
-                      title: 'Get a Response',
+                      title: "Get a Response",
                       subtitle:
-                        'Proceed to provide your payment details once the tutor accepts your offer',
+                        "Proceed to provide your payment details once the tutor accepts your offer",
                     },
                     {
-                      title: 'A Test-Run',
+                      title: "A Test-Run",
                       subtitle:
-                        'You won’t be charged until after your first session, you may cancel after the first lesson.',
+                        "You won’t be charged until after your first session, you may cancel after the first lesson.",
                     },
                   ]}
                 />

@@ -25,17 +25,17 @@ import {
   VStack,
   useDisclosure,
   useToast,
-} from '@chakra-ui/react';
-import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
-import { capitalize, isEmpty } from 'lodash';
-import moment from 'moment';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { BsQuestionCircleFill } from 'react-icons/bs';
-import { FiArrowRight, FiChevronRight } from 'react-icons/fi';
-import { MdInfo } from 'react-icons/md';
-import { useNavigate, useParams } from 'react-router';
-import styled from 'styled-components';
+} from "@chakra-ui/react";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import { capitalize, isEmpty } from "lodash";
+import moment from "moment";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { BsQuestionCircleFill } from "react-icons/bs";
+import { FiArrowRight, FiChevronRight } from "react-icons/fi";
+import { MdInfo } from "react-icons/md";
+import { useNavigate, useParams } from "react-router";
+import styled from "styled-components";
 
 import ChoosePaymentMethodDialog, {
   ChoosePaymentMethodDialogRef,
