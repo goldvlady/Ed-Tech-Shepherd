@@ -25,14 +25,21 @@ import {
   LogoutIcon
 } from "./icons";
 
-const navigation = [
+interface NavigationItem {
+  name: string;
+  href: string;
+  icon: React.ComponentType<any>;
+  current: boolean;
+}
+
+const navigation: NavigationItem[] = [
   { name: 'Dashboard', href: '/dashboard', icon: DashboardIcon, current: true },
   { name: 'Clients', href: '/clients', icon: UserGroupIcon, current: false },
   { name: 'Offers', href: '/offers', icon: OffersIcon, current: false },
   { name: 'Messages', href: '/messages', icon: MessagesIcon, current: false },
 ]
 
-export default function Layout({children, className}) {
+export default function Layout({children, className}: {children: React.ReactNode, className?: string}) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const location = useLocation();
 
@@ -140,7 +147,7 @@ export default function Layout({children, className}) {
         {/* Sidebar component, swap this element with another sidebar if you like */}
         <div className="flex grow flex-col gap-y-5 overflow-y-auto px-6 pb-4">
           <div className="flex h-16 shrink-0 items-center">
-            <img class="h-10 w-auto" src="/svgs/logo.svg" alt="Sherperd" />
+            <img className="h-10 w-auto" src="/svgs/logo.svg" alt="Sherperd" />
           </div>
           <nav className="flex flex-1 flex-col">
             <ul className="flex flex-1 flex-col gap-y-2">
@@ -159,9 +166,8 @@ export default function Layout({children, className}) {
                       >
                         <item.icon
                           className={classNames(
-                           `${ item.current ? `text-blue-500` : `text-gray-400 group-hover:text-blue-400 h-6 w-6 shrink-0`
-                            
-                          }`
+                            item.current ? 'text-blue-500' : 'text-gray-400 group-hover:text-blue-400',
+                            'h-6 w-6 shrink-0'
                           )}
                           aria-hidden="true"
                         />

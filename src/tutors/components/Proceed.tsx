@@ -93,7 +93,7 @@ const Proceed: FC = () => {
                         <textarea
                           id="topic"
                           name="topic"
-                          type="text"
+                        
                           autoComplete="topic"
                           placeholder='Topic'
                           required
@@ -110,7 +110,7 @@ const Proceed: FC = () => {
                         <textarea
                           id="summary"
                           name="summary"
-                          type="text"
+                          
                           autoComplete="summary"
                           placeholder='Summary'
                           required

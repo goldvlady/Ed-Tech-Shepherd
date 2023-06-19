@@ -15,7 +15,7 @@ interface Transaction {
   target: string;
   href: string;
   date: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  icon: React.ComponentType<any>;
 }
 
 interface Event {
@@ -35,7 +35,7 @@ interface Commenter {
   backgroundColor?: string;
 }
 
-const transactions: Transaction[] = [
+const transactions: any[] = [
   {
     id: 1,
     content: ' Your received a payment of $10.95 from Leslie Peters for Chemistry Lessons',
