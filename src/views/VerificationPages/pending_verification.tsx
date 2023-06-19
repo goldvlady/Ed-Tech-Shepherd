@@ -1,6 +1,7 @@
 import { Box, Text, Button } from "@chakra-ui/react";
+import { User, getAuth, onAuthStateChanged } from "firebase/auth";
 import { AiOutlineFileDone } from "react-icons/ai";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet } from "react-router";
 import styled from "styled-components";
 import Header from "../../components/Header";
@@ -14,6 +15,17 @@ const Root = styled(Box)`
 `;
 
 const PendingVerification = () => {
+  const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
+  const [obtainedUserAuthState, setObtainedUserAuthState] = useState(false);
+
+  useEffect(() => {
+    onAuthStateChanged(getAuth(), async (user) => {
+      setObtainedUserAuthState(true);
+      setFirebaseUser(user);
+      console.log(user, "USE");
+    });
+  }, []);
+
   return (
     <>
       <Header />
@@ -62,7 +74,7 @@ const PendingVerification = () => {
               </defs>
             </svg>
           </Box>
-          <Text fontSize="2xl" fontWeight="600" textAlign="center" >
+          <Text fontSize="2xl" fontWeight="600" textAlign="center">
             Your account is being Verified
           </Text>
           <Text
@@ -75,8 +87,8 @@ const PendingVerification = () => {
             lineHeight="1.5"
           >
             We will send you an email to the address:{"   "}
-            <Text  as="span" color="blue.500">
-              LesliePeters01@gmail.com
+            <Text as="span" color="blue.500">
+              {firebaseUser?.email}
             </Text>{" "}
             once we verify your account.
           </Text>

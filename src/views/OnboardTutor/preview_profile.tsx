@@ -1,5 +1,11 @@
 import React, { useState, ReactNode, useRef, useMemo, useEffect } from "react";
+import { useToast } from "@chakra-ui/react";
+import { useNavigate } from "react-router";
 import cloud from "../../assets/cloud.svg";
+import ApiService from "../../services/ApiService";
+import resourceStore from "../../state/resourceStore";
+import { User, getAuth, onAuthStateChanged } from "firebase/auth";
+import userStore from "../../state/userStore";
 import { FaFileAlt, FaPen, FaPlay, FaEdit, FaPause } from "react-icons/fa";
 import {
   Box,
@@ -18,12 +24,12 @@ import {
   Tr,
   Image,
   TableContainer,
-  BorderProps
+  BorderProps,
 } from "@chakra-ui/react";
 import EditProfileModal from "./components/EditProfileStepModal";
 import { EditIcon, CheckIcon } from "@chakra-ui/icons";
 import { motion } from "framer-motion";
-import { Schedule, SingleSchedule, TimeSchedule } from '../../types';
+import { Schedule, SingleSchedule, TimeSchedule } from "../../types";
 import ProfilePictureForm from "./components/steps/profile_picture.step";
 import PaymentInformationForm from "./components/steps/payment_information.step";
 import HourlyRateForm from "./components/steps/hourly_rate.step";
@@ -68,12 +74,11 @@ export interface SlotData {
   slots: string[];
 }
 
-
 const CourseTable = () => {
   const { coursesAndLevels, rate } = onboardTutorStore.useStore();
   return (
     <TableContainer my={4}>
-      <Box border={'1px solid #EEEFF2'} borderRadius={8}>
+      <Box border={"1px solid #EEEFF2"} borderRadius={8}>
         <Table variant="simple">
           <Thead>
             <Tr>
@@ -99,8 +104,17 @@ const CourseTable = () => {
           <Tbody>
             {coursesAndLevels.map((subLevel) => (
               <Tr>
-                <Td paddingY={5} borderRight="1px solid #EEEFF2" bgColor={'#FAFAFA'}> {subLevel.course.label}</Td>
-                <Td borderRight="1px solid #EEEFF2" paddingY={5}>{subLevel.level.label}</Td>
+                <Td
+                  paddingY={5}
+                  borderRight="1px solid #EEEFF2"
+                  bgColor={"#FAFAFA"}
+                >
+                  {" "}
+                  {subLevel.course.label}
+                </Td>
+                <Td borderRight="1px solid #EEEFF2" paddingY={5}>
+                  {subLevel.level.label}
+                </Td>
                 <Td paddingY={5}>${rate}/hr</Td>
               </Tr>
             ))}
@@ -111,7 +125,17 @@ const CourseTable = () => {
   );
 };
 
-const ProfileDiv = ({ onEdit }: { onEdit: (v: string) => void }) => {
+const ProfileDiv = ({
+  onEdit,
+  name,
+  onComplete,
+  isLoading,
+}: {
+  onEdit: (v: string) => void;
+  name: string;
+  isLoading: boolean;
+  onComplete: () => void;
+}) => {
   const { avatar, qualifications, rate } = onboardTutorStore.useStore();
   const [showAlternateImage, setShowAlternateImage] = useState(false);
 
@@ -135,7 +159,6 @@ const ProfileDiv = ({ onEdit }: { onEdit: (v: string) => void }) => {
             alt="Avatar"
             width="150px"
             height="150px"
-            
             borderRadius="50%"
           />
           {/* Edit Icon */}
@@ -168,7 +191,7 @@ const ProfileDiv = ({ onEdit }: { onEdit: (v: string) => void }) => {
             lineHeight="21px"
             color="#212224"
           >
-            John Doe
+            {name}
           </Text>
           <Text
             fontWeight="400"
@@ -230,7 +253,15 @@ const ProfileDiv = ({ onEdit }: { onEdit: (v: string) => void }) => {
             <Icon color="#6E7682" as={FaPen} boxSize="12px" />
           </Button>
         </Flex>
-        <Button mt="40px" colorScheme="blue" variant="solid" borderRadius="8px">
+        <Button
+          onClick={() => onComplete()}
+          mt="40px"
+          isLoading={isLoading}
+          cursor={"pointer"}
+          colorScheme="blue"
+          variant="solid"
+          borderRadius="8px"
+        >
           Confirm Profile
         </Button>
       </Flex>
@@ -240,21 +271,21 @@ const ProfileDiv = ({ onEdit }: { onEdit: (v: string) => void }) => {
 
 const AvailabilityTable = () => {
   const { schedule } = onboardTutorStore.useStore();
-  const [availability, setTutorAvailability] = useState<{ [key: string]: SlotData }>(
-    {}
-  );
+  const [availability, setTutorAvailability] = useState<{
+    [key: string]: SlotData;
+  }>({});
 
   function formatScheduleToAvailability(schedule: Schedule): Availability {
     const storedAvailability: Availability = {};
 
     const dayMap: { [key: number]: string } = {
-      1: 'sunday',
-      2: 'monday',
-      3: 'tuesday',
-      4: 'wednesday',
-      5: 'thursday',
-      6: 'friday',
-      7: 'saturday',
+      1: "sunday",
+      2: "monday",
+      3: "tuesday",
+      4: "wednesday",
+      5: "thursday",
+      6: "friday",
+      7: "saturday",
     };
 
     Object.keys(schedule).forEach((dayNumber: string) => {
@@ -265,24 +296,22 @@ const AvailabilityTable = () => {
         return `${timeSlot.begin} - ${timeSlot.end}`;
       });
 
-      storedAvailability[day] = { timezone: '', slots: formattedSlots };
+      storedAvailability[day] = { timezone: "", slots: formattedSlots };
     });
 
     return storedAvailability;
   }
 
   useEffect(() => {
-    const availability = formatScheduleToAvailability(schedule)
-    setTutorAvailability(availability)
-  }, [])
-
+    const availability = formatScheduleToAvailability(schedule);
+    setTutorAvailability(availability);
+  }, []);
 
   const timeSlots = ["8AM → 12PM", "12AM → 5PM", "5PM → 9PM", "9PM → 12AM"];
 
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   const renderAvailabilityCell = (slot: string, day: string) => {
-    console.log(slot)
     const fullDayName = Object.keys(availability).find((d) =>
       d.includes(day.toLowerCase())
     );
@@ -290,18 +319,34 @@ const AvailabilityTable = () => {
     const slotData = availability[fullDayName];
 
     // Convert slot to 24-hour format for comparison
-    console.log("before split", slot.split(/\s*→\s*/))
 
-    const slot24h = slot.split(/\s*→\s*/).map(time12h => {
-      const hour = time12h.slice(0, -2);
-      const modifier = time12h.slice(-2).toLowerCase();
-      return `${hour}${modifier}`;
-    }).join("");
+    const slot24h = slot
+      .split(/\s*→\s*/)
+      .map((time12h) => {
+        const hour = time12h.slice(0, -2);
+        const modifier = time12h.slice(-2).toLowerCase();
+        return `${hour}${modifier}`;
+      })
+      .join("");
 
-    console.log(slot24h, slotData.slots, slotData.slots.map(slot => slot.replace(/[^a-zA-Z0-9]/g, "").replace("undefined", "")))
+    // console.log(
+    //   slot24h,
+    //   slotData.slots,
+    //   slotData.slots.map((slot) =>
+    //     slot.replace(/[^a-zA-Z0-9]/g, "").replace("undefined", "")
+    //   )
+    // );
 
-    if (slotData && slotData.slots.some(slot => slot.replace(/[^a-zA-Z0-9]/g, "").replace("undefined", "").toLowerCase() === slot24h)) {
-      console.log("down here")
+    if (
+      slotData &&
+      slotData.slots.some(
+        (slot) =>
+          slot
+            .replace(/[^a-zA-Z0-9]/g, "")
+            .replace("undefined", "")
+            .toLowerCase() === slot24h
+      )
+    ) {
       return (
         <VStack
           width="100%" // add this
@@ -319,7 +364,13 @@ const AvailabilityTable = () => {
   const checkedOut = (
     <svg width="100%" height="100px" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <pattern id="pattern" patternUnits="userSpaceOnUse" width="25" height="20" patternTransform="rotate(45)">
+        <pattern
+          id="pattern"
+          patternUnits="userSpaceOnUse"
+          width="25"
+          height="20"
+          patternTransform="rotate(45)"
+        >
           <rect width="30" height="20" fill="#F7F7F8"></rect>
           <rect x="10" width="30" height="20" fill="#fff"></rect>
         </pattern>
@@ -329,7 +380,7 @@ const AvailabilityTable = () => {
   );
   return (
     <TableContainer my={4}>
-      <Box border={'1px solid #EEEFF2'} borderRadius={8}>
+      <Box border={"1px solid #EEEFF2"} borderRadius={8}>
         <Table variant="simple">
           <Thead>
             <Tr>
@@ -340,9 +391,9 @@ const AvailabilityTable = () => {
                 borderRadius="8px"
               />
               {daysOfWeek.map((day, index) => {
-                const props: BorderProps = {}
+                const props: BorderProps = {};
                 if (daysOfWeek.length - 1 !== index) {
-                  props.borderRight = "1px solid #EEEFF2"
+                  props.borderRight = "1px solid #EEEFF2";
                 }
                 return (
                   <Th
@@ -355,20 +406,22 @@ const AvailabilityTable = () => {
                   >
                     {day}
                   </Th>
-                )
+                );
               })}
             </Tr>
           </Thead>
           <Tbody>
             {timeSlots.map((slot, index) => {
-              const props: BorderProps = {}
+              const props: BorderProps = {};
               if (daysOfWeek.length - 1 !== index) {
-                props.borderRight = "1px solid #EEEFF2"
+                props.borderRight = "1px solid #EEEFF2";
               }
               return (
                 <Tr key={slot}>
                   <Td
-                    paddingY={5} borderRight="1px solid #EEEFF2" bgColor={'#FAFAFA'}
+                    paddingY={5}
+                    borderRight="1px solid #EEEFF2"
+                    bgColor={"#FAFAFA"}
                   >
                     <HStack
                       display={"flex"}
@@ -395,19 +448,13 @@ const AvailabilityTable = () => {
                     </HStack>
                   </Td>
                   {daysOfWeek.map((day) => (
-                    <Td
-                      m={0}
-                      p={0}
-                      {...props}
-                      key={`${slot}-${day}`}
-                    >
+                    <Td m={0} p={0} {...props} key={`${slot}-${day}`}>
                       {renderAvailabilityCell(slot, day)}
                     </Td>
                   ))}
                 </Tr>
-              )
+              );
             })}
-
           </Tbody>
         </Table>
       </Box>
@@ -423,7 +470,6 @@ const VideoViewingSection = ({ onEdit }: { onEdit: () => void }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const handlePlayVideo = () => {
-    console.log("Here");
     if (videoRef.current?.paused) {
       videoRef.current?.play();
     } else {
@@ -433,7 +479,7 @@ const VideoViewingSection = ({ onEdit }: { onEdit: () => void }) => {
   };
 
   const handleEditVideo = () => {
-    onEdit()
+    onEdit();
     // Add your edit video functionality here
   };
 
@@ -498,8 +544,14 @@ const VideoViewingSection = ({ onEdit }: { onEdit: () => void }) => {
               {isVideoPlaying ? <FaPause /> : <FaPlay />}
             </button>
 
-            <Text marginTop={"10px"} cursor={"pointer"} onClick={handleEditVideo}
-              color={"#fff"}>Update Intro Video</Text>
+            <Text
+              marginTop={"10px"}
+              cursor={"pointer"}
+              onClick={handleEditVideo}
+              color={"#fff"}
+            >
+              Update Intro Video
+            </Text>
 
             {/* Edit Button
             <button
@@ -520,7 +572,6 @@ const VideoViewingSection = ({ onEdit }: { onEdit: () => void }) => {
             >
               <Icon color="#6E7682" as={FaPen} boxSize="12px" /> Update Intro Video
             </button> */}
-
           </div>
         ))}
     </div>
@@ -530,67 +581,79 @@ const VideoViewingSection = ({ onEdit }: { onEdit: () => void }) => {
 const QualificationsSegment = () => {
   const { qualifications: rawQualifications } = onboardTutorStore.useStore();
 
-  const qualifications = rawQualifications ? rawQualifications.filter((qualification, index, self) =>
-    index === self.findIndex((qual) => (
-      `${qual.institution}${qual.degree}${qual.startDate.getTime()}${qual.endDate.getTime()}` ===
-      `${qualification.institution}${qualification.degree}${qualification.startDate.getTime()}${qualification.endDate.getTime()}`
-    ))
-  ) : [];
+  const qualifications = rawQualifications
+    ? rawQualifications.filter(
+        (qualification, index, self) =>
+          index ===
+          self.findIndex(
+            (qual) =>
+              `${qual.institution}${
+                qual.degree
+              }${qual.startDate.getTime()}${qual.endDate.getTime()}` ===
+              `${qualification.institution}${
+                qualification.degree
+              }${qualification.startDate.getTime()}${qualification.endDate.getTime()}`
+          )
+      )
+    : [];
 
   return (
     <Box background="#FFFFFF">
-      {qualifications && qualifications.map((qualification, index) => (
-        <Flex
-          borderBottom={
-            qualifications && index !== qualifications.length - 1 ? "1px solid #ECEDEE" : ""
-          }
-          paddingBottom={"15px"}
-          key={index}
-          mb={4}
-        >
-          <Button
-            border="1px solid #ECEDEE"
-            color="#ECEDEE"
-            h="50px"
-            w="50px"
-            marginRight={"10px"}
-            borderRadius="50%"
-            boxShadow={"0px 2px 8px rgba(77, 77, 77, 0.08)"}
-            backgroundColor="transparent"
+      {qualifications &&
+        qualifications.map((qualification, index) => (
+          <Flex
+            borderBottom={
+              qualifications && index !== qualifications.length - 1
+                ? "1px solid #ECEDEE"
+                : ""
+            }
+            paddingBottom={"15px"}
+            key={index}
+            mb={4}
           >
-            <FaFileAlt size={30} />
-          </Button>
-          <VStack alignItems="flex-start">
-            <Text
-              fontWeight={500}
-              fontSize="16px"
-              marginBottom={0}
-              lineHeight="21px"
-              letterSpacing="0.007em"
-              color="#212224"
+            <Button
+              border="1px solid #ECEDEE"
+              color="#ECEDEE"
+              h="50px"
+              w="50px"
+              marginRight={"10px"}
+              borderRadius="50%"
+              boxShadow={"0px 2px 8px rgba(77, 77, 77, 0.08)"}
+              backgroundColor="transparent"
             >
-              {qualification.institution}
-            </Text>
-            <Text
-              fontWeight={400}
-              fontSize="14px"
-              lineHeight="20px"
-              color="#585F68"
-            >
-              {qualification.degree}
-            </Text>
-            <Text
-              fontWeight={400}
-              fontSize="14px"
-              lineHeight="20px"
-              color="#585F68"
-            >
-              {new Date(qualification.startDate).getFullYear()} -{" "}
-              {new Date(qualification.endDate).getFullYear()}
-            </Text>
-          </VStack>
-        </Flex>
-      ))}
+              <FaFileAlt size={30} />
+            </Button>
+            <VStack alignItems="flex-start">
+              <Text
+                fontWeight={500}
+                fontSize="16px"
+                marginBottom={0}
+                lineHeight="21px"
+                letterSpacing="0.007em"
+                color="#212224"
+              >
+                {qualification.institution}
+              </Text>
+              <Text
+                fontWeight={400}
+                fontSize="14px"
+                lineHeight="20px"
+                color="#585F68"
+              >
+                {qualification.degree}
+              </Text>
+              <Text
+                fontWeight={400}
+                fontSize="14px"
+                lineHeight="20px"
+                color="#585F68"
+              >
+                {new Date(qualification.startDate).getFullYear()} -{" "}
+                {new Date(qualification.endDate).getFullYear()}
+              </Text>
+            </VStack>
+          </Flex>
+        ))}
     </Box>
   );
 };
@@ -598,11 +661,11 @@ const QualificationsSegment = () => {
 const PreviewSegment = ({
   title,
   children,
-  onEdit
+  onEdit,
 }: {
   title: string;
   children: ReactNode;
-  onEdit: () => void
+  onEdit: () => void;
 }) => {
   return (
     <motion.div
@@ -647,8 +710,30 @@ const PreviewSegment = ({
 
 const PreviewProfile = () => {
   const [showModal, setShowModal] = useState(false);
-  const [currentlyEditing, setCurrentlyEditing] = useState<string | null>(null)
+  const toast = useToast();
+  const navigator = useNavigate();
+  const [isLoading, setLoading] = useState(false);
+  const { fetchUser, user } = userStore();
+  const [currentlyEditing, setCurrentlyEditing] = useState<string | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
+  const [obtainedUserAuthState, setObtainedUserAuthState] = useState(false);
+  const { courses: courseList, levels } = resourceStore();
   const onboardingData = onboardTutorStore.useStore();
+
+  useEffect(() => {
+    onAuthStateChanged(getAuth(), async (user) => {
+      setObtainedUserAuthState(true);
+      setFirebaseUser(user);
+
+      try {
+        if (user) {
+          await fetchUser();
+        }
+      } catch (e) {
+        console.log("LOGINERROR", e);
+      }
+    });
+  }, []);
 
   const steps = [
     {
@@ -736,23 +821,91 @@ const PreviewProfile = () => {
   ];
 
   const currentEdit = useMemo(() => {
-    return steps.find(step => step.id === currentlyEditing) || {
-      element: () => <></>
-    } as typeof steps[0]
-  }, [currentlyEditing])
+    return (
+      steps.find((step) => step.id === currentlyEditing) ||
+      ({
+        element: () => <></>,
+      } as (typeof steps)[0])
+    );
+  }, [currentlyEditing]);
 
   const { element: Element } = currentEdit;
 
-  console.log(currentEdit)
+  const completeProfile = async () => {
+    try {
+      setLoading(true);
+      let newSchedule: Schedule = {};
+      for (let key in onboardingData.schedule) {
+        newSchedule[key] = onboardingData.schedule[key].map((timeSchedule) => {
+          const [begin, end] = timeSchedule.begin.split(/\W+/);
+          return { begin, end };
+        });
+      }
+      console.log(courseList, levels);
+      const coursesAndLevels = onboardingData.coursesAndLevels.map(
+        (courseLevel) => ({
+          course: courseList.find(
+            (course) => course.label === courseLevel.course.label
+          )?._id,
+          level: courseList.find(
+            (course) => course.label === courseLevel.course.label
+          )?._id,
+        })
+      );
 
+      console.log(coursesAndLevels);
+
+      const payload = {
+        ...onboardingData,
+        user: user?._id,
+        identityDocument:
+          "https://www.google.com/imgres?imgurl=https%3A%2F%2Fmiro.medium.com%2Fv2%2Fresize%3Afit%3A1400%2F1*ddyz8qnOhFeFKY-_c3tleQ.jpeg&tbnid=4XC1nP-83PN2oM&vet=12ahUKEwjNvq_4yM__AhUomCcCHTaJCuoQMygDegUIARDuAQ..i&imgrefurl=https%3A%2F%2Fuxdesign.cc%2F5-shortcomings-of-lorem-ipsum-9f7713836a6b&docid=5TkIS3QiYOv4uM&w=1400&h=1423&q=lorem%20ipsum&ved=2ahUKEwjNvq_4yM__AhUomCcCHTaJCuoQMygDegUIARDuAQ",
+        schedule: newSchedule,
+        coursesAndLevels,
+      };
+
+      console.log(payload);
+
+      const data = await ApiService.submitTutor(payload);
+      if (data.status === 200) {
+        toast({
+          title: "Tutor Profile Completed",
+          position: "top-right",
+          status: "success",
+          isClosable: true,
+        });
+        navigator("/dashboard");
+      }
+    } catch (error) {
+      toast({
+        title: "Failed to complete tutor profile",
+        position: "top-right",
+        status: "error",
+        isClosable: true,
+      });
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <MainWrapper>
       <Header />
-      <EditProfileModal key={currentEdit.id} supportingText={currentEdit.supportingText} mainText={currentEdit.mainText} value={currentEdit?.value} onSave={() => setCurrentlyEditing(null)} onCancel={(previousValue) => {
-        currentEdit.updateFunction && currentEdit.updateFunction(previousValue as never)
-        setCurrentlyEditing(null)
-      }} isOpen={Boolean(currentlyEditing)} onClose={() => console.log()} >
+      <EditProfileModal
+        key={currentEdit.id}
+        supportingText={currentEdit.supportingText}
+        mainText={currentEdit.mainText}
+        value={currentEdit?.value}
+        onSave={() => setCurrentlyEditing(null)}
+        onCancel={(previousValue) => {
+          currentEdit.updateFunction &&
+            currentEdit.updateFunction(previousValue as never);
+          setCurrentlyEditing(null);
+        }}
+        isOpen={Boolean(currentlyEditing)}
+        onClose={() => console.log()}
+      >
         <Element />
       </EditProfileModal>
       <Root>
@@ -773,7 +926,10 @@ const PreviewProfile = () => {
             >
               Profile Preview
             </Text>
-            <PreviewSegment onEdit={() => setCurrentlyEditing("bio")} title="ABOUT ME">
+            <PreviewSegment
+              onEdit={() => setCurrentlyEditing("bio")}
+              title="ABOUT ME"
+            >
               <Text
                 fontWeight={500}
                 fontSize={"14px"}
@@ -783,13 +939,22 @@ const PreviewProfile = () => {
                 {onboardingData.description}
               </Text>
             </PreviewSegment>
-            <PreviewSegment onEdit={() => setCurrentlyEditing("subjects")} title="SUBJECT OFFERED">
+            <PreviewSegment
+              onEdit={() => setCurrentlyEditing("subjects")}
+              title="SUBJECT OFFERED"
+            >
               <CourseTable></CourseTable>
             </PreviewSegment>
-            <PreviewSegment onEdit={() => setCurrentlyEditing("qualifications")} title="QUALIFICATIONS">
+            <PreviewSegment
+              onEdit={() => setCurrentlyEditing("qualifications")}
+              title="QUALIFICATIONS"
+            >
               <QualificationsSegment />
             </PreviewSegment>
-            <PreviewSegment onEdit={() => setCurrentlyEditing("availability")} title="AVAILABILITY">
+            <PreviewSegment
+              onEdit={() => setCurrentlyEditing("availability")}
+              title="AVAILABILITY"
+            >
               <AvailabilityTable />
             </PreviewSegment>
           </VStack>
@@ -799,8 +964,15 @@ const PreviewProfile = () => {
             align={["flex-start", "center"]}
             spacing="20px"
           >
-            <ProfileDiv onEdit={(editName) => setCurrentlyEditing(editName)} />
-            <VideoViewingSection onEdit={() => setCurrentlyEditing("intro_video")} />
+            <ProfileDiv
+              isLoading={isLoading}
+              onComplete={() => completeProfile()}
+              name={`${user?.name.last} ${user?.name.last}`}
+              onEdit={(editName) => setCurrentlyEditing(editName)}
+            />
+            <VideoViewingSection
+              onEdit={() => setCurrentlyEditing("intro_video")}
+            />
             {/* <PreviewSegment title="About Me">
               <Text>{onboardingData.bio}</Text>
             </PreviewSegment> */}
