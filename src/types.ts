@@ -1,15 +1,53 @@
-import { Level } from '../netlify/database/models//Level';
-import { Booking as BookingType } from '../netlify/database/models/Booking';
-import { BookmarkedTutor as BookmarkedTutorType } from '../netlify/database/models/BookmarkedTutor';
-import { Course as CourseType } from '../netlify/database/models/Course';
-import { Offer as OfferType } from '../netlify/database/models/Offer';
-import { Student as StudentType } from '../netlify/database/models/Student';
-import { Tutor as TutorType } from '../netlify/database/models/Tutor';
-import { User as UserType } from '../netlify/database/models/User';
+import { APIGatewayProxyEvent } from "aws-lambda";
 
 export type Entity = {
   _id: string;
 };
+
+export interface TimestampedEntity extends Entity {
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type Rating = 1 | 2 | 3 | 4 | 5;
+
+type Attributes = Record<"offerId", {}>;
+
+export enum STATUS {
+  UNCONFIRMED = "unconfirmed",
+  CONFIRMED = "confirmed",
+  CANCELED = "cenceled",
+  DRAFT = "draft",
+  ACCEPTED = "accepted",
+  DECLINED = "declined",
+  WITHDRAWN = "withdrawn",
+}
+
+export interface Level extends Entity {
+  label: string;
+}
+
+export interface SkillLevel {
+  course: String;
+  skillLevel: String;
+}
+
+export interface TutorBankInfo {
+  accountName: string;
+  accountNumber: string;
+  bankName: string;
+}
+
+export interface TutorQualification {
+  institution: string;
+  degree: string;
+  startDate: Date;
+  endDate: Date;
+}
+
+export interface Country {
+  name: string;
+}
 
 export type TimeSchedule = {
   begin: string;
@@ -29,39 +67,157 @@ export type Slot = {
   end: string;
 };
 
-export interface TutorQualification {
-  institution: string;
-  degree: string;
-  startDate: Date;
-  endDate: Date;
+export interface PaymentMethod extends TimestampedEntity {
+  stripeId: string;
+  expMonth: number;
+  expYear: number;
+  last4: string;
+  country: string;
+  brand:
+    | "amex"
+    | "diners"
+    | "discover"
+    | "eftpos_au"
+    | "jcb"
+    | "mastercard"
+    | "unionpay"
+    | "visa"
+    | "unknown";
+  user: User;
 }
 
-export interface TutorBankInfo {
-  accountName: string;
-  accountNumber: string;
-  bankName: string;
+export enum UserNotificationTypes {
+  LESSON_SESSION_STARTED = "lesson_session_started",
+  NEW_OFFER_RECEIVED = "new_offer_received",
+  OFFER_WITHDRAWN = "offer_withdrawn",
+}
+
+export interface User extends TimestampedEntity {
+  name: {
+    first: string;
+    last: string;
+  };
+  email: string;
+  firebaseId: string;
+  avatar?: string;
+  dob: string;
+  tutor?: Tutor;
+  student?: Student;
+  isVerified: boolean;
+  type: "student" | "tutor";
+  stripeCustomerId?: string;
+  paymentMethods: PaymentMethod[];
+}
+
+export interface Student extends TimestampedEntity {
+  name: {
+    first: string;
+    last: string;
+  };
+  email: string;
+  parentOrStudent: string;
+  dob: string;
+  courses: Array<Course> | Array<String>;
+  gradeLevel?: string;
+  somethingElse?: string;
+  topic?: string;
+  skillLevels?: SkillLevel[];
+  schedule: Schedule;
+  tz: string;
+  pipedriveDealId?: string;
+}
+
+export interface Tutor extends TimestampedEntity {
+  coursesAndLevels: Array<TutorCourseAndLevel>;
+  schedule: Schedule;
+  rate: number;
+  active?: boolean;
+  description?: string;
+  avatar?: string;
+  cv: string;
+  tz: string;
+  identityDocument?: string;
+  introVideo?: string;
+  qualifications?: Array<TutorQualification>;
+  country?: string;
+  bankInfo?: TutorBankInfo;
+
+  pipedriveDealId?: string;
+
+  // virtuals
+  reviewCount: number;
+  rating: number;
+  user: User;
+}
+
+export interface Course extends Entity {
+  label: string;
+  imageSrc?: string;
+  iconSrc?: string;
 }
 
 export interface TutorCourseAndLevel {
-  course: CourseType;
+  course: Course;
   level: Level;
 }
 
-export interface TutorBankInfo {
-  accountName: string;
-  accountNumber: string;
-  bankName: string;
+export interface Offer extends TimestampedEntity {
+  course: Course;
+  level: Level;
+  schedule: SingleSchedule;
+  rate: number;
+  note: string;
+  status: STATUS;
+  declinedNote: string;
+  tutor: Tutor;
+  student: Student;
+  expirationDate: Date;
+  contractStartDate: Date;
+  contractEndDate: Date;
+  completed?: boolean;
+  paymentMethod?: PaymentMethod;
+  expired: boolean;
 }
 
-export interface Country {
+export interface BookmarkedTutor extends TimestampedEntity {
+  user: User;
+  tutor: Tutor;
+}
+
+export interface Booking extends TimestampedEntity {
+  stripeReference?: string;
+  amountPaid?: number;
+  status: STATUS;
+  conferenceHostRoomUrl?: string;
+  conferenceRoomUrl?: string;
+  startDate: Date;
+  endDate: Date;
+  offer: Offer;
+}
+
+export interface UserNotification extends TimestampedEntity {
+  user: User;
+  text: string;
+  type: UserNotificationTypes;
+  attributes?: Attributes;
+  readAt?: Date;
+}
+
+export interface FirebaseUser {
   name: string;
+  user_id: string;
+  email: string;
+  email_verified: boolean;
+}
+
+export interface HTTPEvent extends APIGatewayProxyEvent {
+  firebaseUser: FirebaseUser;
+  user: User;
 }
 
 export type LevelType = Level;
-export type Student = StudentType;
-export type Tutor = TutorType;
-export type Booking = BookingType;
-export type User = UserType;
-export type Offer = OfferType;
-export type BookmarkedTutor = BookmarkedTutorType;
-export type Course = CourseType;
+export type BookingType = Booking;
+export type OfferType = Offer;
+export type BookmarkedTutorType = BookmarkedTutor;
+export type CourseType = Course;
+export type UserType = User;
