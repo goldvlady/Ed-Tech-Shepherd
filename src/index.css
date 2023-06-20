@@ -8,8 +8,8 @@
 
 body {
   margin: 0;
-  font-family: 'Inter', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
-    'Droid Sans', 'Helvetica Neue', sans-serif !important;
+  font-family: "Inter", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
+    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -99,7 +99,7 @@ h4 {
   color: #969ca6;
 }
 
-.tab-list .chakra-tabs__tab[aria-selected='true'] {
+.tab-list .chakra-tabs__tab[aria-selected="true"] {
   color: #207df7;
 }
 
@@ -109,7 +109,8 @@ img {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
 }
 
 .flex-col-reverse {
@@ -117,7 +118,7 @@ code {
   flex-direction: column-reverse;
 }
 
-.datepicker-calendar>.chakra-stack:first-child {
+.datepicker-calendar > .chakra-stack:first-child {
   border: 0;
 }
 
@@ -126,13 +127,22 @@ code {
 }
 
 .scrollbar-hidden {
-  -ms-overflow-style: none;  /* Internet Explorer 10+ */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
 }
-.scrollbar-hidden::-webkit-scrollbar { 
-  display: none;  /* Safari and Chrome */
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }
 
 #payment-form {
   width: 100%;
+}
+.stripeBox {
+  background: repeating-linear-gradient(
+    45deg,
+    #ffffff,
+    #ffffff 10px,
+    #e9ebec 10px,
+    #e9ebec 20px
+  );
 }

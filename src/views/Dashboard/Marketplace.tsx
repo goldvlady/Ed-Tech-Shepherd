@@ -397,7 +397,7 @@ export default function Marketplace() {
       </Box>
 
       <Box my={45} py={2}>
-        <SimpleGrid minChildWidth="345px" spacing="15px" ref={tutorGrid}>
+        <SimpleGrid minChildWidth="350px" gap={10} ref={tutorGrid}>
           {allTutors.map((tutor: any) => (
             <TutorCard
               key={tutor._id}
