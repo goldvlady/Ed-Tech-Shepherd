@@ -58,6 +58,7 @@ import {
 } from "@chakra-ui/react";
 import { toNamespacedPath } from "path";
 import React, { useCallback, useEffect, useState } from "react";
+import { BiPlayCircle } from "react-icons/bi";
 import { FiChevronRight } from "react-icons/fi";
 import { RiQuestionFill } from "react-icons/ri";
 import { RxDotFilled } from "react-icons/rx";
@@ -68,8 +69,7 @@ export default function Tutor() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [loadingData, setLoadingData] = useState(false);
   const [tutorData, setTutorData] = useState<any>({});
-  const [fullname, setFullname] = useState("");
-  const [rateReview, setRateReview] = useState("");
+  const [vidOverlay, setVidOverlay] = useState<boolean>(true);
   const tutorId: any = searchParams.get("id");
   const navigate = useNavigate();
   const toast = useToast();
@@ -211,10 +211,11 @@ export default function Tutor() {
                         {` ${tutorData.rating}(${tutorData.reviewCount})`}
                       </Text>
                     </Flex>
-                    <Flex alignItems={"center"} gap={2}>
+                    <Flex alignItems={"center"} gap={2} mt={-20}>
                       <CustomButton
                         buttonText="Send Offer"
                         padding="10px 21px"
+                        ml={-2}
                         onClick={() =>
                           navigate(`/dashboard/tutor/${tutorId}/offer`)
                         }
@@ -230,7 +231,7 @@ export default function Tutor() {
                         w={"110px"}
                         display="flex"
                         _hover={{ bg: "#F0F6FE" }}
-                        my={5}
+                        my={3}
                         onClick={() => toggleBookmarkTutor(tutorId)}
                       >
                         Save Profile
@@ -239,7 +240,12 @@ export default function Tutor() {
 
                     <Spacer />
                     <Box my={14}>
-                      <Text fontSize={"12px"} color="text.400" my={3}>
+                      <Text
+                        fontSize={"12px"}
+                        color="text.400"
+                        my={3}
+                        fontWeight="semibold"
+                      >
                         ABOUT ME
                       </Text>
                       <Text fontSize={"14px"} my={2}>
@@ -538,15 +544,33 @@ export default function Tutor() {
                 }
                 light={vidHolder}
               /> */}
-            <AspectRatio h={"305px"} w={"full"} ratio={1} objectFit={"cover"}>
-              <iframe
-                title="naruto"
-                src="https://samplelib.com/lib/preview/mp4/sample-5s.mp4"
-                allowFullScreen
-                style={{ borderRadius: 10 }}
-              />
-            </AspectRatio>
-            <Center position="absolute">watch</Center>
+
+            <Center position="relative">
+              <AspectRatio h={"305px"} w={"full"} ratio={1} objectFit={"cover"}>
+                <iframe
+                  title="naruto"
+                  src="https://samplelib.com/lib/preview/mp4/sample-5s.mp4"
+                  allowFullScreen
+                  style={{ borderRadius: 10 }}
+                />
+              </AspectRatio>
+              <Center
+                color="white"
+                display={vidOverlay ? "flex" : "none"}
+                position={"absolute"}
+                bg="#0D1926"
+                opacity={"75%"}
+                boxSize="full"
+              >
+                <VStack>
+                  <BiPlayCircle
+                    onClick={() => setVidOverlay(false)}
+                    size={"50px"}
+                  />
+                  <Text display={"inline"}> watch intro video</Text>
+                </VStack>
+              </Center>
+            </Center>
             {/* </Box> */}
 
             {/* <Stack
@@ -583,7 +607,7 @@ export default function Tutor() {
             </Text>
           </GridItem>
 
-          <GridItem>
+          <GridItem mt={-8}>
             <Card>
               <Box
                 px={4}

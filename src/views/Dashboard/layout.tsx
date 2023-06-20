@@ -143,7 +143,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <Button
             variant={"unstyled"}
             display="flex"
-            gap={1}
+            gap={"10px"}
             leftIcon={<FiBriefcase />}
             fontSize={14}
             fontWeight={500}
@@ -298,7 +298,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </Text>
 
         <HStack spacing={4}>
-          <Menu>
+          {/* <Menu>
             <MenuButton
               bg={"#207DF7"}
               color="white"
@@ -324,10 +324,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 <Text color="text.200">Upload document</Text>
               </MenuItem>
             </MenuList>
-          </Menu>
-          <Center height="25px">
-            <Divider orientation="vertical" />
-          </Center>
+          </Menu> */}
 
           <Menu>
             <MenuButton>
@@ -427,6 +424,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               </Box>
             </MenuList>
           </Menu>
+          <Center height="25px">
+            <Divider orientation="vertical" />
+          </Center>
           <Menu>
             <MenuButton
               py={2}

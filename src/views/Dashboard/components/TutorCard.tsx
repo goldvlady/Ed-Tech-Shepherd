@@ -93,7 +93,8 @@ export default function TutorCard(props: any) {
           w={{ sm: "100%", md: "100%", lg: "350px" }}
           height={{ sm: "285px", md: "325px", lg: "325px" }}
           borderRadius="12px"
-          boxShadow={"2xl"}
+          border="1px solid #EBEDEF"
+          _hover={{ boxShadow: "2xl" }}
           padding={"20px"}
           position="relative"
         >
@@ -146,7 +147,7 @@ export default function TutorCard(props: any) {
                 ? tutorSubjects.map((subject, index) => (
                     <Text
                       key={subject.id}
-                      py={2}
+                      py={1}
                       px={4}
                       fontSize={12}
                       fontWeight={500}
@@ -161,7 +162,7 @@ export default function TutorCard(props: any) {
                       <>
                         <Text
                           key={index}
-                          py={2}
+                          py={1}
                           px={4}
                           fontSize={12}
                           fontWeight={500}
@@ -182,7 +183,7 @@ export default function TutorCard(props: any) {
                     ) : (
                       <Text
                         key={index}
-                        py={2}
+                        py={1}
                         px={4}
                         fontSize={12}
                         fontWeight={500}
