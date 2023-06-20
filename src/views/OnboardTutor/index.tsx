@@ -55,7 +55,7 @@ const stepIndicatorSteps = [
     id: "about-you",
   },
   {
-    title: "Id Verification",
+    title: "ID Verification",
     icon: <FiBookOpen />,
     id: "id_verification",
   },
@@ -94,7 +94,11 @@ const OnboardTutor = () => {
   const age = useMemo(() => moment().diff(moment(dob, FORMAT), "years"), [dob]);
   const [isUploadLoading, setUploadLoading] = useState(false);
 
-  const validateNameStep = !!userFields.name.first && !!userFields.name.last;
+  const validateNameStep = [
+    userFields.name.first,
+    userFields.name.last,
+    email,
+  ].every(Boolean);
   const validateCredentialsStep = [
     country,
     identityDocument,
@@ -439,6 +443,9 @@ const OnboardTutor = () => {
 
   const activeStepObj = useMemo(() => steps[activeStep - 1], [activeStep]);
 
+  const hasNextStep = useMemo(() => steps.length === activeStep, [activeStep]);
+  console.log("has next =>>>", hasNextStep);
+
   const stepIndicatorActiveStep = useMemo(
     () =>
       stepIndicatorSteps.find((s) => s.id === activeStepObj?.stepIndicatorId),
@@ -553,18 +560,22 @@ const OnboardTutor = () => {
           {
             steps.map((s) => {
               return (
-                <OnboardStep key={s.id} canGoNext={s.canSave}>
+                <OnboardStep
+                  hasNext={hasNextStep}
+                  key={s.id}
+                  canGoNext={s.canSave}
+                >
                   {s.template}
                 </OnboardStep>
               );
             }) as unknown as JSX.Element
           }
-          <OnboardSubmitStep submitFunction={doSubmit}>
+          <OnboardSubmitStep hasNext={hasNextStep} submitFunction={doSubmit}>
             <Box textAlign="center">
               <CircularProgress isIndeterminate />
             </Box>
           </OnboardSubmitStep>
-          <OnboardStep canGoNext={false} hideNav={true}>
+          <OnboardStep hasNext={hasNextStep} canGoNext={false} hideNav={true}>
             <Box paddingBottom={5}>
               <Box>
                 <Lottie
