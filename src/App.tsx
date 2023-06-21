@@ -22,7 +22,7 @@ import DashboardLayout from "./views/Dashboard/layout";
 import ForgotPassword from "./views/ForgotPassword";
 import Home from "./views/Home";
 import Login from "./views/Login";
-import Offer from "./views/Offer";
+import Offer from "./views/Offers";
 import OnboardStudent from "./views/OnboardStudent";
 import OnboardTutor from "./views/OnboardTutor";
 import CompleteProfile from "./views/OnboardTutor/complete_profile";

@@ -22,8 +22,11 @@ import {
   UserGroupIcon,
   UserIcon,
   ChevronRightIcon,
+  NotesIcon,
   LogoutIcon
 } from "./icons";
+
+import { HelpModal, UploadDocumentModal } from "./index"
 
 interface NavigationItem {
   name: string;
@@ -33,13 +36,16 @@ interface NavigationItem {
 }
 
 const navigation: NavigationItem[] = [
-  { name: 'Dashboard', href: '/dashboard', icon: DashboardIcon, current: true },
+  { name: 'Dashboard', href: '/', icon: DashboardIcon, current: true },
   { name: 'Clients', href: '/clients', icon: UserGroupIcon, current: false },
   { name: 'Offers', href: '/offers', icon: OffersIcon, current: false },
   { name: 'Messages', href: '/messages', icon: MessagesIcon, current: false },
+  { name: 'Notes', href: '/notes', icon: NotesIcon, current: false },
 ]
 
-export default function Layout({children, className}: {children: React.ReactNode, className?: string}) {
+export default function Layout({children, className}) {
+  const [helpModal, setHelpModal] = useState(false);
+  const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const location = useLocation();
 
@@ -201,9 +207,9 @@ export default function Layout({children, className}: {children: React.ReactNode
             <Bars3Icon className="h-6 w-6" aria-hidden="true" />
           </button>
 
-          <div className={`flex ${pathname === 'clients' ? 'justify-between' : 'justify-end'} flex-1 gap-x-4 self-stretch lg:gap-x-6`}>
-            {pathname  === 'clients' && (
-              <form className="relative flex flex-1 py-2" action="#" method="GET">
+          <div className={`flex ${pathname === 'clients' || pathname === 'notes' ? 'justify-between py-2' : 'justify-end'} flex-1 gap-x-4 self-stretch lg:gap-x-6`}>
+            {pathname === 'clients' && (
+              <form className="relative flex flex-1 py-2">
                 <label htmlFor="search-field" className="sr-only">
                   Search
                 </label>
@@ -220,16 +226,71 @@ export default function Layout({children, className}: {children: React.ReactNode
                 />
               </form>
             )}
+
+            {pathname === 'notes' && (
+              <button onClick={() => setHelpModal(true)} className="relative flex max-w-fit items-center space-x-3 border rounded-full  flex-1 px-3 py-4">
+                <div className="flex-shrink-0 bg-orange-100 p-2 flex justify-center items-center rounded-full">
+                  <img src="/svgs/robot-face.svg" className="h-6 w-6 text-gray-400" alt="" />
+                </div>
+                <h3 className="text-primaryGray">Hi, what would you like to do?</h3>
+              </button>
+            )}
             <div className="flex items-center gap-x-4 lg:gap-x-6">
               {/* Show if the pathname is client */}
-              {pathname === 'clients' && (
-              <button
-                type="button"
-                className="inline-flex items-center gap-x-2 rounded-md bg-secondaryBlue px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-              >
-                <PlusIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
-                Create new
-              </button>
+              { pathname === 'clients' && (
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-x-2 rounded-md bg-secondaryBlue px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                >
+                  <PlusIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
+                  Create new
+                </button>
+              )}
+
+              {/* Show if the pathname is notes */}
+              { pathname === 'notes' && (
+                <Menu as="div" className="relative">
+                  <div>
+                    <Menu.Button
+                      type="button"
+                      className="inline-flex items-center gap-x-2 rounded-md bg-secondaryBlue px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                    >
+                      <PlusIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
+                      Create new
+                    </Menu.Button>
+                  </div>
+                  
+                <Transition
+                  as={Fragment}
+                  enter="transition ease-out duration-100"
+                  enterFrom="transform opacity-0 scale-95"
+                  enterTo="transform opacity-100 scale-100"
+                  leave="transition ease-in duration-75"
+                  leaveFrom="transform opacity-100 scale-100"
+                  leaveTo="transform opacity-0 scale-95"
+                >
+                  <Menu.Items className="absolute space-y-3 p-4 right-0 z-10 mt-2.5 w-[15rem] origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-900/5 focus:outline-none">
+                    <section className='space-y-2'>
+                      <button className='w-full bg-gray-100 rounded-md flex items-center justify-between p-2'>
+                        <div className=' flex items-center space-x-1'>
+                          <div className='bg-white flex justify-center items-center w-8 h-8 border rounded-full'>
+                            <UserGroupIcon className="w-4 h-4 text-secondaryGray" onClick={undefined}/>
+                          </div>
+                          <h4 className='text-sm text-secondaryGray font-medium'>New Note</h4>
+                        </div>
+                      </button>
+                      <button onClick={() => setUploadDocumentModal(true)} className='w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2'>
+                        <div className='flex items-center space-x-1'>
+                          <div className='bg-white border flex justify-center items-center w-8 h-8 rounded-full'>
+                            <UserIcon className="w-4 h-4 text-secondaryGray" onClick={undefined}/>
+                          </div>
+                          <h4 className='text-sm text-secondaryGray font-medium'>Upload Document</h4>
+                        </div>
+                      </button>
+                    </section>
+                  </Menu.Items>
+                </Transition>
+                </Menu>
               )}
               
               {/* Notification dropdown */}
@@ -434,6 +495,20 @@ export default function Layout({children, className}: {children: React.ReactNode
             {children}
         </main>
       </div>
+
+      {/* Upload Document Modal */}
+      <Transition.Root show={uploadDocumentModal} as={Fragment}>
+        <Dialog as="div" className="relative z-50" onClose={setUploadDocumentModal}>
+          <UploadDocumentModal uploadDocumentModal={uploadDocumentModal} setUploadDocumentModal={setUploadDocumentModal}/>
+        </Dialog>
+      </Transition.Root>
+
+      {/* Help Modal */}
+      <Transition.Root show={helpModal} as={Fragment}>
+        <Dialog as="div" className="relative z-50" onClose={setHelpModal}>
+          <HelpModal helpModal={helpModal} setHelpModal={setHelpModal}/>
+        </Dialog>
+      </Transition.Root>
     </>
   )
 }
