@@ -36,7 +36,7 @@ interface NavigationItem {
 }
 
 const navigation: NavigationItem[] = [
-  { name: 'Dashboard', href: '/', icon: DashboardIcon, current: true },
+  { name: 'Dashboard', href: '/tutordashboard', icon: DashboardIcon, current: true },
   { name: 'Clients', href: '/clients', icon: UserGroupIcon, current: false },
   { name: 'Offers', href: '/offers', icon: OffersIcon, current: false },
   { name: 'Messages', href: '/messages', icon: MessagesIcon, current: false },
