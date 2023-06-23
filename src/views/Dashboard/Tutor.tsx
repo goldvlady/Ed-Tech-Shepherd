@@ -63,7 +63,6 @@ import { BiPlayCircle } from "react-icons/bi";
 import { FiChevronRight } from "react-icons/fi";
 import { RiQuestionFill } from "react-icons/ri";
 import { RxDotFilled } from "react-icons/rx";
-import ReactPlayer from "react-player";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 
 export default function Tutor() {
