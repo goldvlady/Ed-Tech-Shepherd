@@ -5,10 +5,11 @@ import { FiBookOpen } from "react-icons/fi";
 import styled from "styled-components";
 
 import theme from "../theme";
+import { Tutor } from "../types";
 import Panel from "./Panel";
 
 type Props = {
-  tutor: any;
+  tutor: Tutor;
 } & ComponentProps<typeof Box>;
 
 const Root = styled(Panel)`

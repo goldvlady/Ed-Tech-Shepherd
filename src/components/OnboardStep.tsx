@@ -6,14 +6,12 @@ import OnboardNav from "./OnboardNav";
 type Props = {
   children: React.ReactNode;
   hideNav?: boolean;
-  hasNext: boolean;
 } & React.ComponentPropsWithoutRef<typeof OnboardNav>;
 
 const OnboardStep: React.FC<Props> = ({
   children,
   nextStep,
   hideNav = false,
-  hasNext,
   ...rest
 }) => {
   return (
@@ -25,9 +23,7 @@ const OnboardStep: React.FC<Props> = ({
         }}
       >
         {children}
-        {!hideNav && (
-          <OnboardNav hasNext={hasNext} nextStep={nextStep} {...rest} />
-        )}
+        {!hideNav && <OnboardNav {...rest} />}
       </form>
     </Box>
   );

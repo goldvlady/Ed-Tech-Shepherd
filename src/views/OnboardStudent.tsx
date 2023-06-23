@@ -545,7 +545,6 @@ const OnboardStudent = () => {
   };
 
   const activeStepObj = useMemo(() => steps[activeStep - 1], [activeStep]);
-  const hasNextStep = useMemo(() => steps.length === activeStep, [activeStep]);
 
   const stepIndicatorActiveStep = useMemo(
     () =>
@@ -637,22 +636,18 @@ const OnboardStudent = () => {
           {
             steps.map((s) => {
               return (
-                <OnboardStep
-                  hasNext={hasNextStep}
-                  key={s.id}
-                  canGoNext={s.canSave}
-                >
+                <OnboardStep key={s.id} canGoNext={s.canSave}>
                   {s.template}
                 </OnboardStep>
               );
             }) as unknown as JSX.Element
           }
-          <OnboardSubmitStep hasNext={hasNextStep} submitFunction={doSubmit}>
+          <OnboardSubmitStep submitFunction={doSubmit}>
             <Box textAlign="center">
               <CircularProgress isIndeterminate />
             </Box>
           </OnboardSubmitStep>
-          <OnboardStep hasNext={hasNextStep} canGoNext={false} hideNav={true}>
+          <OnboardStep canGoNext={false} hideNav={true}>
             <Box paddingBottom={5}>
               <Box>
                 <Lottie
