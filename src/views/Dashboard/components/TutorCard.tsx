@@ -86,11 +86,10 @@ export default function TutorCard(props: any) {
 
   return (
     <LinkBox as="article">
-      <Center justifyContent="left">
-        {" "}
+      <Center>
         <Box
           bg={"white"}
-          w={{ sm: "100%", md: "100%", lg: "350px" }}
+          w={{ sm: "100%", md: "100%", lg: "370px" }}
           height={{ sm: "285px", md: "325px", lg: "325px" }}
           borderRadius="12px"
           border="1px solid #EBEDEF"

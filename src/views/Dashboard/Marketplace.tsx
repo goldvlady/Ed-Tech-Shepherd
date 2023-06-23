@@ -115,14 +115,14 @@ export default function Marketplace() {
   const doFetchBookmarkedTutors = useCallback(async () => {
     await fetchBookmarkedTutors();
   }, []);
+  console.log("BT", bookmarkedTutors);
 
   const checkBookmarks = (id: string) => {
-    for (var i = 0; i < bookmarkedTutors.length; i++) {
-      if (bookmarkedTutors[i].tutor._id == id) {
-        return true;
-        break;
-      } else {
-      }
+    const found = bookmarkedTutors.some((el) => el.tutor?._id === id);
+    if (!found) {
+      return false;
+    } else {
+      return true;
     }
   };
 
@@ -178,6 +178,7 @@ export default function Marketplace() {
                 borderRadius="40px"
                 fontWeight={400}
                 width={{ sm: "400px", lg: "auto" }}
+                height="36px"
                 color="text.400"
               >
                 {subject !== "Subject"
@@ -207,6 +208,7 @@ export default function Marketplace() {
                 rightIcon={<FiChevronDown />}
                 fontSize={14}
                 borderRadius="40px"
+                height="36px"
                 fontWeight={400}
                 color="text.400"
               >
@@ -233,6 +235,7 @@ export default function Marketplace() {
                   rightIcon={<FiChevronDown />}
                   fontSize={14}
                   borderRadius="40px"
+                  height="36px"
                   width={{ sm: "400px", lg: "auto" }}
                   fontWeight={400}
                   color="text.400"
@@ -308,6 +311,7 @@ export default function Marketplace() {
                 rightIcon={<FiChevronDown />}
                 fontSize={14}
                 borderRadius="40px"
+                height="36px"
                 fontWeight={400}
                 color="text.400"
               >
@@ -332,6 +336,7 @@ export default function Marketplace() {
                 rightIcon={<FiChevronDown />}
                 fontSize={14}
                 borderRadius="40px"
+                height="36px"
                 fontWeight={400}
                 color="text.400"
               >
@@ -397,19 +402,20 @@ export default function Marketplace() {
       </Box>
 
       <Box my={45} py={2}>
-        <SimpleGrid minChildWidth="350px" gap={10} ref={tutorGrid}>
+        <SimpleGrid minChildWidth="360px" spacing={4} ref={tutorGrid}>
           {allTutors.map((tutor: any) => (
             <TutorCard
               key={tutor._id}
               id={tutor._id}
               name={`${tutor.user.name.first} ${tutor.user.name.last} `}
               levelOfEducation={tutor.highestLevelOfEducation}
-              avatar={tutor.avatar}
+              avatar={tutor.user.avatar}
               rate={tutor.rate}
               description={tutor.description}
               rating={tutor.rating}
               reviewCount={tutor.reviewCount}
               saved={checkBookmarks(tutor._id)}
+              // saved={false}
             />
           ))}
         </SimpleGrid>
