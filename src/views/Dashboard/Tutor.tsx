@@ -4,6 +4,7 @@ import Day from "../../assets/day.svg";
 import FileAvi2 from "../../assets/file-avi2.svg";
 import FileAvi from "../../assets/file-avi.svg";
 import Star from "../../assets/littleStar.svg";
+import Ribbon2 from "../../assets/ribbon-blue.svg";
 import Ribbon from "../../assets/ribbon-grey.svg";
 import TutorAvi from "../../assets/tutoravi.svg";
 import vidHolder from "../../assets/vid-holder.png";
@@ -70,7 +71,9 @@ export default function Tutor() {
   const [loadingData, setLoadingData] = useState(false);
   const [tutorData, setTutorData] = useState<any>({});
   const [vidOverlay, setVidOverlay] = useState<boolean>(true);
+  const [switchStyle, setSwitchStyle] = useState<boolean>(false);
   const tutorId: any = searchParams.get("id");
+
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -93,23 +96,24 @@ export default function Tutor() {
   const doFetchBookmarkedTutors = useCallback(async () => {
     await fetchBookmarkedTutors();
   }, []);
-  const checkBookmarks = (id: string) => {
-    for (var i = 0; i < bookmarkedTutors.length; i++) {
-      if (bookmarkedTutors[i].tutor._id == id) {
-        return true;
-        break;
-      } else {
-        return false;
-      }
+  const checkBookmarks = () => {
+    const found = bookmarkedTutors.some((el) => el.tutor?._id === tutorId);
+    if (!found) {
+      return false;
+    } else {
+      return true;
     }
   };
-  console.log("BOOK", checkBookmarks(tutorId));
+
+  useEffect(() => {
+    doFetchBookmarkedTutors();
+  }, [doFetchBookmarkedTutors]);
 
   const toggleBookmarkTutor = async (id: string) => {
     try {
       const resp = await ApiService.toggleBookmarkedTutor(id);
       console.log(resp);
-      if (checkBookmarks(id)) {
+      if (checkBookmarks()) {
         toast({
           title: "Tutor removed from Bookmarks successfully",
           position: "top-right",
@@ -158,7 +162,8 @@ export default function Tutor() {
 
           <BreadcrumbItem isCurrentPage>
             <BreadcrumbLink href="#">
-              {tutorData.name?.first} {tutorData.name?.last}
+              {/* {tutorData.user.name?.first} {tutorData.user.name?.last} */}
+              Tutor Tutor
             </BreadcrumbLink>
           </BreadcrumbItem>
         </Breadcrumb>
@@ -188,7 +193,8 @@ export default function Tutor() {
                   <VStack spacing={0} align={"left"} mb={5} gap={2}>
                     <Flex alignItems="center" gap={1}>
                       <Text fontSize={"16px"} fontWeight={"500"} mb={0}>
-                        {`${tutorData.name.first} ${tutorData.name.last}`}
+                        {/* {`${tutorData.name.first} ${tutorData.name.last}`} */}
+                        Tutor tutor
                       </Text>
                       <RxDotFilled color="#DBDEE1" />
                       <Text fontSize={16} fontWeight={"500"}>
@@ -222,19 +228,27 @@ export default function Tutor() {
                       />
                       <Button
                         variant="unstyled"
-                        color="#585F68"
+                        color={"#585F68"}
+                        bgColor={checkBookmarks() ? "#F0F6FE" : "#fff"}
                         border="1px solid #E7E8E9"
                         borderRadius="6px"
                         fontSize="12px"
-                        leftIcon={<img src={Ribbon} alt="save" />}
-                        p={"7px 10px"}
-                        w={"110px"}
+                        leftIcon={
+                          <img
+                            src={checkBookmarks() ? Ribbon2 : Ribbon}
+                            alt="save"
+                          />
+                        }
+                        p={"7px 14px"}
                         display="flex"
-                        _hover={{ bg: "#F0F6FE" }}
+                        _hover={{
+                          boxShadow: "lg",
+                          transform: "translateY(-2px)",
+                        }}
                         my={3}
                         onClick={() => toggleBookmarkTutor(tutorId)}
                       >
-                        Save Profile
+                        {checkBookmarks() ? "Unsave Profile" : "Save Profile"}
                       </Button>
                     </Flex>
 
@@ -299,42 +313,49 @@ export default function Tutor() {
                             </Flex>
                           </TabPanel>
                           <TabPanel>
-                            <Flex px={3} gap={0} direction={"row"} my={2}>
-                              <Image
-                                src={FileAvi2}
-                                alt="qualification"
-                                mb={4}
-                              />
-                              <Stack direction={"column"} px={4} spacing={1}>
-                                <Text
-                                  fontSize={"16px"}
-                                  fontWeight={"500"}
-                                  mb={0}
-                                >
-                                  Indian Institute of Management (IIM),
-                                  Bangalore
-                                </Text>
-                                <Text
-                                  fontWeight={400}
-                                  color={"#585F68"}
-                                  fontSize="14px"
-                                  mb={"2px"}
-                                >
-                                  Master of Business Administration (MBA),
-                                  Information System
-                                </Text>
+                            {tutorData.qualifications.map((q) => (
+                              <>
+                                <Flex px={3} gap={0} direction={"row"} my={2}>
+                                  <Image
+                                    src={FileAvi2}
+                                    alt="qualification"
+                                    mb={4}
+                                  />
+                                  <Stack
+                                    direction={"column"}
+                                    px={4}
+                                    spacing={1}
+                                  >
+                                    <Text
+                                      fontSize={"16px"}
+                                      fontWeight={"500"}
+                                      mb={0}
+                                    >
+                                      {q.institution}
+                                    </Text>
+                                    <Text
+                                      fontWeight={400}
+                                      color={"#585F68"}
+                                      fontSize="14px"
+                                      mb={"2px"}
+                                    >
+                                      {q.degree}
+                                    </Text>
 
-                                <Spacer />
-                                <Text
-                                  fontSize={12}
-                                  fontWeight={400}
-                                  color="#6E7682"
-                                >
-                                  2008-2010
-                                </Text>
+                                    <Spacer />
+                                    <Text
+                                      fontSize={12}
+                                      fontWeight={400}
+                                      color="#6E7682"
+                                    >
+                                      {new Date(q.startDate).getFullYear()} -{" "}
+                                      {new Date(q.endDate).getFullYear()}
+                                    </Text>
+                                  </Stack>
+                                </Flex>
                                 <Divider />
-                              </Stack>
-                            </Flex>
+                              </>
+                            ))}
                           </TabPanel>
                           <TabPanel>
                             <TableContainer my={2}>
@@ -501,12 +522,17 @@ export default function Tutor() {
                                     </Tr>
                                   </Thead>
                                   <Tbody>
-                                    <Tr>
-                                      <Td bgColor={"#FAFAFA"}>Economics</Td>
-                                      <Td>GCSE</Td>
-                                      <Td>$10.00/hr</Td>
-                                    </Tr>
-                                    <Tr>
+                                    {tutorData.coursesAndLevels.map((cl) => (
+                                      <Tr>
+                                        <Td bgColor={"#FAFAFA"}>
+                                          {cl.course.label}
+                                        </Td>
+                                        <Td>{cl.level?.label}</Td>
+                                        <Td>${tutorData.rate}/hr</Td>
+                                      </Tr>
+                                    ))}
+
+                                    {/* <Tr>
                                       <Td bgColor={"#FAFAFA"}>Maths</Td>
                                       <Td>A-level</Td>
                                       <Td>$10.00/hr</Td>
@@ -515,7 +541,7 @@ export default function Tutor() {
                                       <Td bgColor={"#FAFAFA"}>Yoruba</Td>
                                       <Td>Grade 12</Td>
                                       <Td>$10.00/hr</Td>
-                                    </Tr>
+                                    </Tr> */}
                                   </Tbody>
                                 </Table>
                               </Box>

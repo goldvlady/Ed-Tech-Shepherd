@@ -79,7 +79,7 @@ class ApiService {
   // Tutor
 
   static getTutor = async (id: string) => {
-    return doFetch(`${ApiService.baseEndpoint}/tutor/${id}`);
+    return doFetch(`${ApiService.baseEndpoint}tutor/${id}`);
   };
 
   // Offer
