@@ -6,6 +6,8 @@ import { User, getAuth, onAuthStateChanged } from "firebase/auth";
 import mixpanel from "mixpanel-browser";
 import React, { useCallback, useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router";
+import FlashCard from "./views/Dashboard/FlashCards";
+import CreateFlashCard from "./views/Dashboard/FlashCards/create";
 import { BrowserRouter, useLocation, useSearchParams } from "react-router-dom";
 
 import resourceStore from "./state/resourceStore";
@@ -205,6 +207,10 @@ const AppRoutes: React.FC = () => {
       >
         <Route element={<DashboardLayout children />} />
 
+        <Route path="flashcards">
+          <Route path="create" element={<CreateFlashCard />} />
+          <Route path="" element={<FlashCard />}></Route>
+        </Route>
         <Route path="tutor/:tutorId/offer" element={<SendTutorOffer />} />
         <Route path="offer/:offerId" element={<Offer />} />
 

@@ -14,7 +14,6 @@ import {
   Icon,
   IconButton,
   Image,
-  Link,
   Menu,
   MenuButton,
   MenuDivider,
@@ -26,6 +25,7 @@ import {
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
+import { Link } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import React, { ReactNode, useEffect, useState } from "react";
 import { IconType } from "react-icons";
@@ -86,9 +86,9 @@ const LinkItems: Array<LinkItemProps> = [
 ];
 
 const LinkBItems: Array<LinkItemProps> = [
-  { name: "Library", icon: BsPlayCircle, path: "/library" },
-  { name: "Notes", icon: CgNotes, path: "/notes" },
-  { name: "Flashcards", icon: TbCards, path: "/flashcards" },
+  { name: "Library", icon: BsPlayCircle, path: "/dashboard/library" },
+  { name: "Notes", icon: CgNotes, path: "/dashboard/notes" },
+  { name: "Flashcards", icon: TbCards, path: "/dashboard/flashcards" },
 ];
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
@@ -208,11 +208,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }
   const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
     return (
-      <Link
-        href={path}
-        style={{ textDecoration: "none" }}
-        _focus={{ boxShadow: "none" }}
-      >
+      <Link to={path} style={{ textDecoration: "none" }}>
         <Flex
           align="center"
           px="4"
@@ -298,25 +294,28 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <HStack spacing={4}>
           {/* <Menu>
             <MenuButton
-              bg={'#207DF7'}
+              bg={"#207DF7"}
               color="white"
               fontSize="14px"
-              _hover={{ bg: '#1964c5' }}
-              _active={{ bg: '#1964c5' }}
+              _hover={{ bg: "#1964c5" }}
+              _active={{ bg: "#1964c5" }}
               as={Button}
-              rightIcon={<FiChevronDown />}>
+              rightIcon={<FiChevronDown />}
+            >
               + Create
             </MenuButton>
-            <MenuList fontSize="14px" minWidth={'185px'}>
+            <MenuList fontSize="14px" minWidth={"185px"}>
               <MenuItem
-                _hover={{ bgColor: '#F2F4F7' }}
+                _hover={{ bgColor: "#F2F4F7" }}
                 p={-2}
-                onClick={() => console.log('ADD NEW NOTE')}>
+                onClick={() => console.log("ADD NEW NOTE")}
+              >
                 <Image src={NewNote} /> <Text color="text.200">New note</Text>
               </MenuItem>
-              <MenuItem p={-2} _hover={{ bgColor: '#F2F4F7' }}>
-                {' '}
-                <Image src={Doc} /> <Text color="text.200">Upload document</Text>
+              <MenuItem p={-2} _hover={{ bgColor: "#F2F4F7" }}>
+                {" "}
+                <Image src={Doc} />{" "}
+                <Text color="text.200">Upload document</Text>
               </MenuItem>
             </MenuList>
           </Menu> */}
@@ -471,7 +470,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     );
   };
   return (
-    <Box minH="160vh" bg="white">
+    <Box minH="100vh" bg="white">
       <SidebarContent
         onClose={() => onClose}
         tutorMenu={tutorMenu}
