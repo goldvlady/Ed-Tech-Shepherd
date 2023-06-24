@@ -26,6 +26,7 @@ import OnboardStudent from "./views/OnboardStudent";
 import OnboardTutor from "./views/OnboardTutor";
 import CompleteProfile from "./views/OnboardTutor/complete_profile";
 import SendTutorOffer from "./views/SendTutorOffer";
+import Offer from "./views/Offer";
 import Session from "./views/Session";
 import Signup from "./views/Signup";
 import PendingVerification from "./views/VerificationPages/pending_verification";
@@ -36,11 +37,11 @@ import WelcomeLayout from "./views/WelcomeLayout";
 import TutorDashboard from './views/TutorDashboard';
 import Clients from "./views/clients";
 import Client from './views/client';
-import Offers from "./views/Offers";
-import Offer from "./views/offer";
+import TutorOffers from "./views/TutorOffers";
+import TutorOffer from "./views/TutorOffer";
 import Messages from "./views/messages";
 import Notes from './views/notes';
-import Settings from './views/settings';
+import TutorSettings from './views/settings';
 
 const RedirectToLanding: React.FC = () => {
   window.location.href = "https://shepherdtutors.com/";
@@ -230,10 +231,12 @@ const AppRoutes: React.FC = () => {
 
       <Route path="tutordashboard" element={<TutorDashboard />} />
       <Route path="clients" element={<Clients />} />
-      <Route path="offers" element={<Offers />} />
-      <Route path=":offer" element={<Offer />} />
+      <Route path="clients/:id" element={<Client />} />
+      <Route path="offers" element={<TutorOffers />} />
+      <Route path="offer/:id" element={<TutorOffer />} />
       <Route path="messages" element={<Messages />} />
       <Route path="notes" element={<Notes />} />
+      <Route path="tutorsettings" element={<TutorSettings />} />
 
     </Routes>
   );

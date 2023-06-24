@@ -1,18 +1,3 @@
-import FeedIcon from "../../assets/blue-energy.svg";
-import DocIcon from "../../assets/doc-icon.svg";
-import Doc from "../../assets/doc.svg";
-import FlashcardIcon from "../../assets/flashcardIcon.svg";
-import MessageIcon from "../../assets/message.svg";
-import NewNote from "../../assets/newnote.svg";
-import NoteIcon from "../../assets/notes.svg";
-import ReceiptIcon from "../../assets/receiptIcon.svg";
-import VideoIcon from "../../assets/video.svg";
-import Logo from "../../components/Logo";
-import { firebaseAuth } from "../../firebase";
-import userStore from "../../state/userStore";
-import TutorMarketplace from "./Tutor";
-import MenuLinedList from "./components/MenuLinedList";
-import DashboardIndex from "./index";
 import {
   Avatar,
   Box,
@@ -64,9 +49,24 @@ import {
   MdOutlineKeyboardArrowDown,
   MdOutlineKeyboardArrowUp,
 } from "react-icons/md";
-import { TbClipboardText } from "react-icons/tb";
 import { TbCards } from "react-icons/tb";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
+
+import FeedIcon from "../../assets/blue-energy.svg";
+import DocIcon from "../../assets/doc-icon.svg";
+import Doc from "../../assets/doc.svg";
+import FlashcardIcon from "../../assets/flashcardIcon.svg";
+import MessageIcon from "../../assets/message.svg";
+import NewNote from "../../assets/newnote.svg";
+import NoteIcon from "../../assets/notes.svg";
+import ReceiptIcon from "../../assets/receiptIcon.svg";
+import VideoIcon from "../../assets/video.svg";
+import Logo from "../../components/Logo";
+import { firebaseAuth } from "../../firebase";
+import userStore from "../../state/userStore";
+import TutorMarketplace from "./Tutor";
+import MenuLinedList from "./components/MenuLinedList";
+import DashboardIndex from "./index";
 
 interface LinkItemProps {
   name: string;
@@ -80,13 +80,13 @@ interface SidebarProps extends BoxProps {
   setTutorMenu: (value: boolean) => void;
 }
 const LinkItems: Array<LinkItemProps> = [
+  { name: "Home", icon: FiHome, path: "/dashboard" },
+  { name: "Performance", icon: FiBarChart2, path: "/performance" },
   { name: "Messages", icon: BsChatLeftDots, path: "/dashboard/messaging" },
-  { name: "Library", icon: BsPlayCircle, path: "/library" },
 ];
 
 const LinkBItems: Array<LinkItemProps> = [
-  { name: "Performance", icon: FiBarChart2, path: "/performance" },
-  { name: "Study Plans", icon: TbClipboardText, path: "/study-plans" },
+  { name: "Library", icon: BsPlayCircle, path: "/library" },
   { name: "Notes", icon: CgNotes, path: "/notes" },
   { name: "Flashcards", icon: TbCards, path: "/flashcards" },
 ];
@@ -135,9 +135,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             onClick={onClose}
           />
         </Flex>
-        <NavItem icon={FiHome} path={"/dashboard"}>
-          Home
-        </NavItem>
         <Box ml={8} color="text.400">
           {" "}
           <Button
@@ -180,6 +177,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <NavItem path="/dashboard/saved-tutors">Bookmarks</NavItem> */}
           </Box>
         </Box>
+        <Divider />
         {LinkItems.map((link) => (
           <>
             <NavItem key={link.name} icon={link.icon} path={link.path}>
@@ -300,28 +298,25 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <HStack spacing={4}>
           {/* <Menu>
             <MenuButton
-              bg={"#207DF7"}
+              bg={'#207DF7'}
               color="white"
               fontSize="14px"
-              _hover={{ bg: "#1964c5" }}
-              _active={{ bg: "#1964c5" }}
+              _hover={{ bg: '#1964c5' }}
+              _active={{ bg: '#1964c5' }}
               as={Button}
-              rightIcon={<FiChevronDown />}
-            >
+              rightIcon={<FiChevronDown />}>
               + Create
             </MenuButton>
-            <MenuList fontSize="14px" minWidth={"185px"}>
+            <MenuList fontSize="14px" minWidth={'185px'}>
               <MenuItem
-                _hover={{ bgColor: "#F2F4F7" }}
+                _hover={{ bgColor: '#F2F4F7' }}
                 p={-2}
-                onClick={() => console.log("ADD NEW NOTE")}
-              >
+                onClick={() => console.log('ADD NEW NOTE')}>
                 <Image src={NewNote} /> <Text color="text.200">New note</Text>
               </MenuItem>
-              <MenuItem p={-2} _hover={{ bgColor: "#F2F4F7" }}>
-                {" "}
-                <Image src={Doc} />{" "}
-                <Text color="text.200">Upload document</Text>
+              <MenuItem p={-2} _hover={{ bgColor: '#F2F4F7' }}>
+                {' '}
+                <Image src={Doc} /> <Text color="text.200">Upload document</Text>
               </MenuItem>
             </MenuList>
           </Menu> */}
@@ -516,6 +511,7 @@ export const CustomButton = (props: any) => {
   return (
     <Box
       as="button"
+      height="38px"
       lineHeight="1.2"
       transition="all 0.2s cubic-bezier(.08,.52,.52,1)"
       border="1px"
