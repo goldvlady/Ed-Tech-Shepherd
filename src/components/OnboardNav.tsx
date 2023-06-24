@@ -5,7 +5,6 @@ import { StepWizardChildProps } from "react-step-wizard";
 
 type Props = {
   canGoNext: boolean;
-  hasNext: boolean;
 } & Partial<StepWizardChildProps>;
 
 const OnboardNav: React.FC<Props> = ({
@@ -13,7 +12,6 @@ const OnboardNav: React.FC<Props> = ({
   nextStep,
   currentStep,
   canGoNext,
-  hasNext,
 }) => {
   return (
     <Box
@@ -30,7 +28,7 @@ const OnboardNav: React.FC<Props> = ({
         isDisabled={!canGoNext}
         size={"lg"}
       >
-        {hasNext ? "Submit" : "Next"}
+        Next
       </Button>
       {currentStep !== undefined && currentStep > 1 && (
         <Button onClick={previousStep} variant="link">
