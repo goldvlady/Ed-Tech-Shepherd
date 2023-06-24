@@ -22,16 +22,26 @@ import DashboardLayout from "./views/Dashboard/layout";
 import ForgotPassword from "./views/ForgotPassword";
 import Home from "./views/Home";
 import Login from "./views/Login";
-import Offer from "./views/Offer";
 import OnboardStudent from "./views/OnboardStudent";
 import OnboardTutor from "./views/OnboardTutor";
 import CompleteProfile from "./views/OnboardTutor/complete_profile";
 import SendTutorOffer from "./views/SendTutorOffer";
+import Offer from "./views/Offer";
 import Session from "./views/Session";
 import Signup from "./views/Signup";
 import PendingVerification from "./views/VerificationPages/pending_verification";
 import VerificationSuccess from "./views/VerificationPages/successful_verification";
 import WelcomeLayout from "./views/WelcomeLayout";
+
+
+import TutorDashboard from './views/TutorDashboard';
+import Clients from "./views/clients";
+import Client from './views/client';
+import TutorOffers from "./views/TutorOffers";
+import TutorOffer from "./views/TutorOffer";
+import Messages from "./views/messages";
+import Notes from './views/notes';
+import TutorSettings from './views/settings';
 
 const RedirectToLanding: React.FC = () => {
   window.location.href = "https://shepherdtutors.com/";
@@ -193,7 +203,7 @@ const AppRoutes: React.FC = () => {
           />
         }
       >
-        {/* <Route element={<DashboardLayout children />}> */}
+        <Route element={<DashboardLayout children />} />
 
         <Route path="tutor/:tutorId/offer" element={<SendTutorOffer />} />
         <Route path="offer/:offerId" element={<Offer />} />
@@ -218,6 +228,16 @@ const AppRoutes: React.FC = () => {
           />
         }
       />
+
+      <Route path="tutordashboard" element={<TutorDashboard />} />
+      <Route path="clients" element={<Clients />} />
+      <Route path="clients/:id" element={<Client />} />
+      <Route path="offers" element={<TutorOffers />} />
+      <Route path="offer/:id" element={<TutorOffer />} />
+      <Route path="messages" element={<Messages />} />
+      <Route path="notes" element={<Notes />} />
+      <Route path="tutorsettings" element={<TutorSettings />} />
+
     </Routes>
   );
 };

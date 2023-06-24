@@ -16,6 +16,7 @@ interface Transaction {
   href: string;
   date: string;
   icon: React.ComponentType<any>;
+  
 }
 
 interface Event {
@@ -35,7 +36,7 @@ interface Commenter {
   backgroundColor?: string;
 }
 
-const transactions: any[] = [
+const transactions: Transaction[] = [
   {
     id: 1,
     content: ' Your received a payment of $10.95 from Leslie Peters for Chemistry Lessons',
@@ -341,7 +342,7 @@ export default function RecentTransaction() {
               {transactions.map((transaction, transactionIdx) => (
                 <li key={transaction.id}>
                   <div className="relative pb-8">
-                    {transactionIdx !== transaction.length - 1 ? (
+                    {transactionIdx !== transactions.length - 1 ? (
                       <span className="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200/70" aria-hidden="true" />
                     ) : null}
                     <div className="relative flex space-x-3">

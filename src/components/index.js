@@ -9,6 +9,11 @@ export { default as OfferSummary } from "./OfferSummary.tsx";
 export { default as DetailsCard } from "./DetailsCard.tsx";
 export { default as AcceptOfferModal } from "./AcceptOfferModal.tsx";
 export { default as DeclineOfferModal } from "./DeclineOfferModal.tsx";
+export { default as DeleteNoteModal } from "./DeleteNoteModal.tsx";
+export { default as HelpModal } from "./HelpModal.tsx";
+export { default as SelectedNoteModal } from "./SelectedNoteModal.tsx";
+export { default as DeleteAllNotesModal } from "./DeleteAllNotesModal.tsx";
+export { default as UploadDocumentModal } from "./UploadDocumentModal.tsx";
 export { default as RecentTransactions } from "./RecentTransactions.tsx";
 export { default as WelcomePage } from "./WelcomePage.tsx";
 
@@ -20,6 +25,9 @@ export { default as SecurityTab } from "./tabs/SecurityTab.tsx";
 
 // Clients Tab
 export { default as AllClientTab } from "./clientsTab/allClient.tsx";
+
+// Notes Tab
+export { default as AllNotesTab } from "./notesTab/allNotes.tsx";
 
 // Messages Tab
 export { default as AllMessagesTab } from "./messagesTab/allMessages.tsx";
