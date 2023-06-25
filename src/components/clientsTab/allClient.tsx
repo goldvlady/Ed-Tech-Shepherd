@@ -1,9 +1,15 @@
-import React, { Fragment, useLayoutEffect, useRef, useState } from 'react'
-import { StarIcon, EllipsisHorizontalIcon, ChevronRightIcon, XMarkIcon } from "@heroicons/react/24/solid";
-import { TrashIcon } from '../icons';
-import { Menu, Transition, Dialog } from '@headlessui/react';
+import { classNames } from "../../helpers";
+import { TrashIcon } from "../icons";
+import { Text } from "@chakra-ui/react";
+import { Menu, Transition, Dialog } from "@headlessui/react";
+import {
+  StarIcon,
+  EllipsisHorizontalIcon,
+  ChevronRightIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/solid";
+import React, { Fragment, useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { classNames } from '../../helpers';
 
 interface Client {
   id: number;
@@ -20,82 +26,82 @@ interface Client {
 const clients: Client[] = [
   {
     id: 0,
-    name: 'William Kelly',
-    subject: 'Economics, A-level',
-    startDate: 'May 09, 2023',
-    endDate: 'May 20, 2023',
-    status: 'Active',
-    amountEarned: '410.00',
-    classes: 'Lesson 1',
-    rating: '1'
+    name: "William Kelly",
+    subject: "Economics, A-level",
+    startDate: "May 09, 2023",
+    endDate: "May 20, 2023",
+    status: "Active",
+    amountEarned: "410.00",
+    classes: "Lesson 1",
+    rating: "1",
   },
   {
     id: 1,
-    name: 'William Kelly',
-    subject: 'Economics, A-level',
-    startDate: 'May 09, 2023',
-    endDate: 'May 20, 2023',
-    status: 'Active',
-    amountEarned: '410.00',
-    classes: 'Lesson 1',
-    rating: '1'
+    name: "William Kelly",
+    subject: "Economics, A-level",
+    startDate: "May 09, 2023",
+    endDate: "May 20, 2023",
+    status: "Active",
+    amountEarned: "410.00",
+    classes: "Lesson 1",
+    rating: "1",
   },
   {
     id: 2,
-    name: 'William Kelly',
-    subject: 'Economics, A-level',
-    startDate: 'May 09, 2023',
-    endDate: 'May 20, 2023',
-    status: 'Ended',
-    amountEarned: '410.00',
-    classes: 'Lesson 1',
-    rating: '1'
+    name: "William Kelly",
+    subject: "Economics, A-level",
+    startDate: "May 09, 2023",
+    endDate: "May 20, 2023",
+    status: "Ended",
+    amountEarned: "410.00",
+    classes: "Lesson 1",
+    rating: "1",
   },
   {
     id: 3,
-    name: 'William Kelly',
-    subject: 'Economics, A-level',
-    startDate: 'May 09, 2023',
-    endDate: 'May 20, 2023',
-    status: 'Pending',
-    amountEarned: '410.00',
-    classes: 'Lesson 1',
-    rating: '1'
+    name: "William Kelly",
+    subject: "Economics, A-level",
+    startDate: "May 09, 2023",
+    endDate: "May 20, 2023",
+    status: "Pending",
+    amountEarned: "410.00",
+    classes: "Lesson 1",
+    rating: "1",
   },
   {
     id: 4,
-    name: 'William Kelly',
-    subject: 'Economics, A-level',
-    startDate: 'May 09, 2023',
-    endDate: 'May 20, 2023',
-    status: 'Active',
-    amountEarned: '410.00',
-    classes: 'Lesson 1',
-    rating: '1'
+    name: "William Kelly",
+    subject: "Economics, A-level",
+    startDate: "May 09, 2023",
+    endDate: "May 20, 2023",
+    status: "Active",
+    amountEarned: "410.00",
+    classes: "Lesson 1",
+    rating: "1",
   },
   {
     id: 5,
-    name: 'William Kelly',
-    subject: 'Economics, A-level',
-    startDate: 'May 09, 2023',
-    endDate: 'May 20, 2023',
-    status: 'Ended',
-    amountEarned: '410.00',
-    classes: 'Lesson 1',
-    rating: '1'
+    name: "William Kelly",
+    subject: "Economics, A-level",
+    startDate: "May 09, 2023",
+    endDate: "May 20, 2023",
+    status: "Ended",
+    amountEarned: "410.00",
+    classes: "Lesson 1",
+    rating: "1",
   },
   {
     id: 6,
-    name: 'William Kelly',
-    subject: 'Economics, A-level',
-    startDate: 'May 09, 2023',
-    endDate: 'May 20, 2023',
-    status: 'Ended',
-    amountEarned: '410.00',
-    classes: 'Lesson 1',
-    rating: '1'
+    name: "William Kelly",
+    subject: "Economics, A-level",
+    startDate: "May 09, 2023",
+    endDate: "May 20, 2023",
+    status: "Ended",
+    amountEarned: "410.00",
+    classes: "Lesson 1",
+    rating: "1",
   },
-]
+];
 
 const AllClientTab = () => {
   const checkbox = useRef<HTMLInputElement>(null);
@@ -107,7 +113,8 @@ const AllClientTab = () => {
   const navigate = useNavigate();
 
   useLayoutEffect(() => {
-    const isIndeterminate = selectedPeople.length > 0 && selectedPeople.length < clients.length;
+    const isIndeterminate =
+      selectedPeople.length > 0 && selectedPeople.length < clients.length;
     setChecked(selectedPeople.length === clients.length);
     setIndeterminate(isIndeterminate);
     if (checkbox.current) {
@@ -127,20 +134,22 @@ const AllClientTab = () => {
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
             <div className="relative">
-              <div className='table-columns'>
+              <div className="table-columns">
                 {selectedPeople.length > 0 && (
                   <div className="top-0 border px-4 py-8 rounded-md flex h-12 items-center space-x-3 w-[469] bg-white sm:left-12">
-                    <p className='text-gray-600'>
+                    <p className="text-gray-600">
                       {selectedPeople.length} items selected
                     </p>
 
-                    <button className='text-gray-600' onClick={toggleAll}>Select all</button>
+                    <button className="text-gray-600" onClick={toggleAll}>
+                      Select all
+                    </button>
 
                     <button
                       type="button"
                       className="inline-flex items-center rounded bg-white space-x-2 px-6 py-2 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
                     >
-                      <TrashIcon className="w-5" onClick={undefined}/>
+                      <TrashIcon className="w-5" onClick={undefined} />
                       <span>Delete</span>
                     </button>
                     <button
@@ -165,42 +174,72 @@ const AllClientTab = () => {
                       />
                     </th>
 
-                    <th scope="col" className="relative sm:w-12 sm:px-6">
-                      
-                    </th>
-                    
-                    <th scope="col-span" className="sm:w-12 py-3.5 text-left text-sm font-semibold text-secondaryGray">
+                    <th scope="col" className="relative sm:w-12 sm:px-6"></th>
+
+                    <th
+                      scope="col-span"
+                      className="sm:w-12 py-3.5 text-left text-sm font-semibold text-secondaryGray"
+                    >
                       Client name
                     </th>
-                    <th scope="col" className="py-3.5 text-left text-sm font-semibold text-secondaryGray">
+                    <th
+                      scope="col"
+                      className="py-3.5 text-left text-sm font-semibold text-secondaryGray"
+                    >
                       Subject
                     </th>
-                    <th scope="col" className="py-3.5 text-left text-sm font-semibold text-secondaryGray">
+                    <th
+                      scope="col"
+                      className="py-3.5 text-left text-sm font-semibold text-secondaryGray"
+                    >
                       Start date
                     </th>
-                    <th scope="col" className="py-3.5 text-left text-sm font-semibold text-secondaryGray">
+                    <th
+                      scope="col"
+                      className="py-3.5 text-left text-sm font-semibold text-secondaryGray"
+                    >
                       End date
                     </th>
-                    <th scope="col" className="py-3.5 text-left text-sm font-semibold text-secondaryGray">
+                    <th
+                      scope="col"
+                      className="py-3.5 text-left text-sm font-semibold text-secondaryGray"
+                    >
                       Status
                     </th>
-                    <th scope="col" className="py-3.5 text-left text-sm font-semibold text-secondaryGray">
+                    <th
+                      scope="col"
+                      className="py-3.5 text-left text-sm font-semibold text-secondaryGray"
+                    >
                       Amount earned
                     </th>
-                    <th scope="col" className="py-3.5 text-left text-sm font-semibold text-secondaryGray">
+                    <th
+                      scope="col"
+                      className="py-3.5 text-left text-sm font-semibold text-secondaryGray"
+                    >
                       Classes
                     </th>
-                    <th scope="col" className="py-3.5 text-left text-sm font-semibold text-secondaryGray">
+                    <th
+                      scope="col"
+                      className="py-3.5 text-left text-sm font-semibold text-secondaryGray"
+                    >
                       Rating
                     </th>
-                    <th scope="col" className="py-3.5 text-left text-sm font-semibold text-secondaryGray">
-                      
-                    </th>
+                    <th
+                      scope="col"
+                      className="py-3.5 text-left text-sm font-semibold text-secondaryGray"
+                    ></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {clients.map((client) => (
-                    <tr key={client.id} className={selectedPeople.includes(client) ? 'bg-blue-50' : undefined}>
+                    <tr
+                      key={client.id}
+                      className={
+                        selectedPeople.includes(client)
+                          ? "bg-blue-50"
+                          : undefined
+                      }
+                    >
                       <td className="relative px-7 sm:w-12 sm:px-6">
                         <input
                           type="checkbox"
@@ -216,31 +255,52 @@ const AllClientTab = () => {
                           }
                         />
                       </td>
-                      <td
-                        className='whitespace-nowrap py-4 pr-3 text-sm font-medium text-gray-500'>
+                      <td className="whitespace-nowrap py-4 pr-3 text-sm font-medium text-gray-500">
                         {client.name}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{client.subject}</td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{client.startDate}</td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{client.endDate}</td>
-                      <td className={classNames(
-                        `${client.status.toLowerCase() === "active" ? 'text-primaryBlue' : 'text-gray-500'}`,
-                        `${client.status.toLowerCase() === "pending" ? 'text-orange-400' : 'text-gray-500'}`,
-                        'whitespace-nowrap px-3 py-4 text-sm'
-                      )}>{client.status}</td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">${client.amountEarned}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        {client.subject}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        {client.startDate}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        {client.endDate}
+                      </td>
+                      <td
+                        className={classNames(
+                          `${
+                            client.status.toLowerCase() === "active"
+                              ? "text-primaryBlue"
+                              : "text-gray-500"
+                          }`,
+                          `${
+                            client.status.toLowerCase() === "pending"
+                              ? "text-orange-400"
+                              : "text-gray-500"
+                          }`,
+                          "whitespace-nowrap px-3 py-4 text-sm"
+                        )}
+                      >
+                        {client.status}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        ${client.amountEarned}
+                      </td>
                       <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500">
-                        <span className='inline-block bg-gray-100 px-2 py-1 rounded-md'>{client.classes}</span>
+                        <span className="inline-block bg-gray-100 px-2 py-1 rounded-md">
+                          {client.classes}
+                        </span>
                       </td>
                       <td className="whitespace-nowrap flex items-center px-3 py-4 text-sm text-gray-500">
                         <span>{client.rating}</span>
-                        <StarIcon className="w-4 h-4 text-yellow-500"/>
+                        <StarIcon className="w-4 h-4 text-yellow-500" />
                       </td>
                       <td className="whitespace-nowrap py-4 pl-3 text-right text-sm font-medium sm:pr-3">
                         <Menu as="div" className="relative">
                           <div>
                             <Menu.Button>
-                              <EllipsisHorizontalIcon className="h-6 text-secondaryGray"/>
+                              <EllipsisHorizontalIcon className="h-6 text-secondaryGray" />
                             </Menu.Button>
                           </div>
                           <Transition
@@ -253,53 +313,92 @@ const AllClientTab = () => {
                             leaveTo="transform opacity-0 scale-95"
                           >
                             <Menu.Items className="absolute space-y-3 p-4 right-0 z-50 mt-2.5 w-[15rem] origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-900/5 focus:outline-none">
-                              <section className='space-y-2 border-b pb-2'>
-                                <button onClick={() => navigate(`/clients/${client.id}`)} className='w-full bg-gray-100 rounded-md flex items-center justify-between p-2'>
-                                  <div className=' flex items-center space-x-1'>
-                                    <div className='bg-white flex justify-center items-center w-7 h-7 border rounded-full'>
-                                      <img src="/svgs/contract.svg" alt='Contract' className="w-4 h-4"/>
+                              <section className="space-y-2 border-b pb-2">
+                                <button
+                                  onClick={() =>
+                                    navigate(`/clients/${client.id}`)
+                                  }
+                                  className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
+                                >
+                                  <div className=" flex items-center space-x-1">
+                                    <div className="bg-white flex justify-center items-center w-7 h-7 border rounded-full">
+                                      <img
+                                        src="/svgs/contract.svg"
+                                        alt="Contract"
+                                        className="w-4 h-4"
+                                      />
                                     </div>
-                                    <h4 className='text-sm text-secondaryGray font-medium'>Contract</h4>
+                                    <Text className="text-sm text-secondaryGray font-medium">
+                                      Contract
+                                    </Text>
                                   </div>
-                                  <ChevronRightIcon className="w-2.5 h-2.5"/>
+                                  <ChevronRightIcon className="w-2.5 h-2.5" />
                                 </button>
-                                <button onClick={() => setReportModal(true)} className='w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2'>
-                                  <div className='flex items-center space-x-1'>
-                                    <div className='bg-white border flex justify-center items-center w-7 h-7 rounded-full'>
-                                      <img src="/svgs/contract.svg" alt='Monthly report' className="w-4 h-4"/>
+                                <button
+                                  onClick={() => setReportModal(true)}
+                                  className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
+                                >
+                                  <div className="flex items-center space-x-1">
+                                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                                      <img
+                                        src="/svgs/contract.svg"
+                                        alt="Monthly report"
+                                        className="w-4 h-4"
+                                      />
                                     </div>
-                                    <h4 className='text-sm text-secondaryGray font-medium'>Monthly report</h4>
+                                    <Text className="text-sm text-secondaryGray font-medium">
+                                      Monthly report
+                                    </Text>
                                   </div>
-                                  <ChevronRightIcon className="w-2.5 h-2.5"/>
+                                  <ChevronRightIcon className="w-2.5 h-2.5" />
                                 </button>
-                                <button onClick={() => setClientReviewModal(true)} className='w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2'>
-                                  <div className='flex items-center space-x-1'>
-                                    <div className='bg-white border flex justify-center items-center w-7 h-7 rounded-full'>
-                                      <StarIcon className="w-4 h-4 text-secondaryGray"/>
+                                <button
+                                  onClick={() => setClientReviewModal(true)}
+                                  className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
+                                >
+                                  <div className="flex items-center space-x-1">
+                                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                                      <StarIcon className="w-4 h-4 text-secondaryGray" />
                                     </div>
-                                    <h4 className='text-sm text-secondaryGray font-medium'>Client review</h4>
+                                    <Text className="text-sm text-secondaryGray font-medium">
+                                      Client review
+                                    </Text>
                                   </div>
-                                  <ChevronRightIcon className="w-2.5 h-2.5"/>
+                                  <ChevronRightIcon className="w-2.5 h-2.5" />
                                 </button>
                               </section>
-                              {client.status.toLowerCase() === 'ended' ? (
-                                <button disabled={true} className='w-full cursor-not-allowed hover:bg-gray-100 rounded-md flex items-center justify-between p-2'>
-                                  <div className='flex items-center space-x-1'>
-                                    <div className='bg-white border flex justify-center items-center w-7 h-7 rounded-full'>
-                                      <TrashIcon className="w-4 h-4 text-gray-400" onClick={undefined}/>
+                              {client.status.toLowerCase() === "ended" ? (
+                                <button
+                                  disabled={true}
+                                  className="w-full cursor-not-allowed hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
+                                >
+                                  <div className="flex items-center space-x-1">
+                                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                                      <TrashIcon
+                                        className="w-4 h-4 text-gray-400"
+                                        onClick={undefined}
+                                      />
                                     </div>
-                                    <h4 className='text-sm text-gray-300 font-medium'>Delete</h4>
+                                    <Text className="text-sm text-gray-300 font-medium">
+                                      Delete
+                                    </Text>
                                   </div>
                                 </button>
                               ) : (
-                              <button className='w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2'>
-                                <div className='flex items-center space-x-1'>
-                                  <div className='bg-white border flex justify-center items-center w-7 h-7 rounded-full'>
-                                    <img src="/svgs/trash.svg" alt='Delete Clients' className="w-4 h-4"/>
+                                <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
+                                  <div className="flex items-center space-x-1">
+                                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                                      <img
+                                        src="/svgs/trash.svg"
+                                        alt="Delete Clients"
+                                        className="w-4 h-4"
+                                      />
+                                    </div>
+                                    <Text className="text-sm text-error font-medium">
+                                      Delete
+                                    </Text>
                                   </div>
-                                  <h4 className='text-sm text-error font-medium'>Delete</h4>
-                                </div>
-                              </button>
+                                </button>
                               )}
                             </Menu.Items>
                           </Transition>
@@ -342,51 +441,68 @@ const AllClientTab = () => {
               >
                 <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white pt-5 text-left shadow-xl transition-all sm:w-full sm:max-w-md">
                   <div>
-                    <div className='flex justify-between px-3 border-b pb-3'>
+                    <div className="flex justify-between px-3 border-b pb-3">
                       <h4>Monthly report</h4>
-                      <button onClick={() => setReportModal(false)} className="flex items-center justify-center rounded-full border bg-white w-7 h-7 text-xs font-medium text-secondaryGray">
-                        <XMarkIcon className='w-4 h-4'/>
+                      <button
+                        onClick={() => setReportModal(false)}
+                        className="flex items-center justify-center rounded-full border bg-white w-7 h-7 text-xs font-medium text-secondaryGray"
+                      >
+                        <XMarkIcon className="w-4 h-4" />
                       </button>
                     </div>
                     <section className="mt-3 sm:mt-5">
-                      <div className='mt-4'>
-                        <h3 className='text-dark mb-3 pl-4'>Previous classes</h3>
-                        <div className='flex space-x-3 pl-4'>
-                          <h3 className='text-xs'>8th May</h3>
-                          <div className='border-t pt-2 pr-4 flex-1 mt-1.5'>
-                            <div className='flex-1 border-t flex items-center justify-between w-full p-2 border border-gray-200 rounded-md bg-white'>
+                      <div className="mt-4">
+                        <h3 className="text-dark mb-3 pl-4">
+                          Previous classes
+                        </h3>
+                        <div className="flex space-x-3 pl-4">
+                          <h3 className="text-xs">8th May</h3>
+                          <div className="border-t pt-2 pr-4 flex-1 mt-1.5">
+                            <div className="flex-1 border-t flex items-center justify-between w-full p-2 border border-gray-200 rounded-md bg-white">
                               <div className="flex items-center text-xs space-x-2">
-                                <svg viewBox="0 0 2 2" className="h-1.5 w-1.5 text-gray-400 fill-current">
+                                <svg
+                                  viewBox="0 0 2 2"
+                                  className="h-1.5 w-1.5 text-gray-400 fill-current"
+                                >
                                   <circle cx={1} cy={1} r={1} />
                                 </svg>
-                                <p className='text-dark'>03:30 pm</p>
-                                <svg viewBox="0 0 2 2" className="h-1.5 w-1.5 text-gray-400 fill-current">
+                                <p className="text-dark">03:30 pm</p>
+                                <svg
+                                  viewBox="0 0 2 2"
+                                  className="h-1.5 w-1.5 text-gray-400 fill-current"
+                                >
                                   <circle cx={1} cy={1} r={1} />
                                 </svg>
-                                <p className='text-dark'>04:30 pm</p>
+                                <p className="text-dark">04:30 pm</p>
                               </div>
-                              <p className='text-secondaryBlue text-xs px-2 py-1 rounded-full bg-blue-50'>
+                              <p className="text-secondaryBlue text-xs px-2 py-1 rounded-full bg-blue-50">
                                 1hr
                               </p>
                             </div>
                           </div>
                         </div>
 
-                        <div className='flex space-x-3 mt-1 pl-4'>
-                          <h3 className='text-xs'>8th May</h3>
-                          <div className='border-t pt-2 pr-4 flex-1 mt-1.5'>
-                            <div className='flex-1 border-t flex items-center justify-between w-full p-2 border border-gray-200 rounded-md bg-white'>
+                        <div className="flex space-x-3 mt-1 pl-4">
+                          <h3 className="text-xs">8th May</h3>
+                          <div className="border-t pt-2 pr-4 flex-1 mt-1.5">
+                            <div className="flex-1 border-t flex items-center justify-between w-full p-2 border border-gray-200 rounded-md bg-white">
                               <div className="flex items-center text-xs space-x-2">
-                                <svg viewBox="0 0 2 2" className="h-1.5 w-1.5 text-gray-400 fill-current">
+                                <svg
+                                  viewBox="0 0 2 2"
+                                  className="h-1.5 w-1.5 text-gray-400 fill-current"
+                                >
                                   <circle cx={1} cy={1} r={1} />
                                 </svg>
-                                <p className='text-dark'>03:30 pm</p>
-                                <svg viewBox="0 0 2 2" className="h-1.5 w-1.5 text-gray-400 fill-current">
+                                <p className="text-dark">03:30 pm</p>
+                                <svg
+                                  viewBox="0 0 2 2"
+                                  className="h-1.5 w-1.5 text-gray-400 fill-current"
+                                >
                                   <circle cx={1} cy={1} r={1} />
                                 </svg>
-                                <p className='text-dark'>04:30 pm</p>
+                                <p className="text-dark">04:30 pm</p>
                               </div>
-                              <p className='text-secondaryBlue text-xs px-2 py-1 rounded-full bg-blue-50'>
+                              <p className="text-secondaryBlue text-xs px-2 py-1 rounded-full bg-blue-50">
                                 1hr
                               </p>
                             </div>
@@ -394,44 +510,58 @@ const AllClientTab = () => {
                         </div>
                       </div>
 
-                      <div className='mt-4'>
-                        <h3 className='text-dark mb-2 pl-4'>Upcoming classes</h3>
-                        <div className='flex space-x-3 pl-4'>
-                          <h3 className='text-xs'>10th May</h3>
-                          <div className='border-t pt-2 pr-4 flex-1 mt-1.5'>
-                            <div className='flex-1 border-t flex items-center justify-between w-full p-2 border border-gray-200 rounded-md bg-white'>
+                      <div className="mt-4">
+                        <h3 className="text-dark mb-2 pl-4">
+                          Upcoming classes
+                        </h3>
+                        <div className="flex space-x-3 pl-4">
+                          <h3 className="text-xs">10th May</h3>
+                          <div className="border-t pt-2 pr-4 flex-1 mt-1.5">
+                            <div className="flex-1 border-t flex items-center justify-between w-full p-2 border border-gray-200 rounded-md bg-white">
                               <div className="flex items-center text-xs space-x-2">
-                                <svg viewBox="0 0 2 2" className="h-1.5 w-1.5 text-gray-400 fill-current">
+                                <svg
+                                  viewBox="0 0 2 2"
+                                  className="h-1.5 w-1.5 text-gray-400 fill-current"
+                                >
                                   <circle cx={1} cy={1} r={1} />
                                 </svg>
-                                <p className='text-dark'>03:30 pm</p>
-                                <svg viewBox="0 0 2 2" className="h-1.5 w-1.5 text-gray-400 fill-current">
+                                <p className="text-dark">03:30 pm</p>
+                                <svg
+                                  viewBox="0 0 2 2"
+                                  className="h-1.5 w-1.5 text-gray-400 fill-current"
+                                >
                                   <circle cx={1} cy={1} r={1} />
                                 </svg>
-                                <p className='text-dark'>04:30 pm</p>
+                                <p className="text-dark">04:30 pm</p>
                               </div>
-                              <p className='text-secondaryBlue text-xs px-2 py-1 rounded-full bg-blue-50'>
+                              <p className="text-secondaryBlue text-xs px-2 py-1 rounded-full bg-blue-50">
                                 1hr
                               </p>
                             </div>
                           </div>
                         </div>
 
-                        <div className='flex space-x-3 mt-1 pl-4'>
-                          <h3 className='text-xs'>12th May</h3>
-                          <div className='border-t pt-2 pr-4 flex-1 mt-1.5'>
-                            <div className='flex-1 border-t flex items-center justify-between w-full p-2 border border-gray-200 rounded-md bg-white'>
+                        <div className="flex space-x-3 mt-1 pl-4">
+                          <h3 className="text-xs">12th May</h3>
+                          <div className="border-t pt-2 pr-4 flex-1 mt-1.5">
+                            <div className="flex-1 border-t flex items-center justify-between w-full p-2 border border-gray-200 rounded-md bg-white">
                               <div className="flex items-center text-xs space-x-2">
-                                <svg viewBox="0 0 2 2" className="h-1.5 w-1.5 text-gray-400 fill-current">
+                                <svg
+                                  viewBox="0 0 2 2"
+                                  className="h-1.5 w-1.5 text-gray-400 fill-current"
+                                >
                                   <circle cx={1} cy={1} r={1} />
                                 </svg>
-                                <p className='text-dark'>03:30 pm</p>
-                                <svg viewBox="0 0 2 2" className="h-1.5 w-1.5 text-gray-400 fill-current">
+                                <p className="text-dark">03:30 pm</p>
+                                <svg
+                                  viewBox="0 0 2 2"
+                                  className="h-1.5 w-1.5 text-gray-400 fill-current"
+                                >
                                   <circle cx={1} cy={1} r={1} />
                                 </svg>
-                                <p className='text-dark'>04:30 pm</p>
+                                <p className="text-dark">04:30 pm</p>
                               </div>
-                              <p className='text-secondaryBlue text-xs px-2 py-1 rounded-full bg-blue-50'>
+                              <p className="text-secondaryBlue text-xs px-2 py-1 rounded-full bg-blue-50">
                                 1hr
                               </p>
                             </div>
@@ -441,17 +571,17 @@ const AllClientTab = () => {
                     </section>
                   </div>
                   <div className="mt-5 p-3 flex justify-between items-center w-full bg-gray-100 sm:mt-6">
-                    <div className='text-secondaryGray text-xs'>
+                    <div className="text-secondaryGray text-xs">
                       <p>Total hours</p>
-                      <p className='text-dark font-semibold'>20 hrs</p>
+                      <p className="text-dark font-semibold">20 hrs</p>
                     </div>
-                    <div className='text-secondaryGray text-xs'>
+                    <div className="text-secondaryGray text-xs">
                       <p>Total Received</p>
-                      <p className='text-dark font-semibold'>$212.00</p>
+                      <p className="text-dark font-semibold">$212.00</p>
                     </div>
-                    <div className='text-secondaryGray text-xs'>
+                    <div className="text-secondaryGray text-xs">
                       <p>Total Amount</p>
-                      <p className='text-dark font-semibold'>$412.00</p>
+                      <p className="text-dark font-semibold">$412.00</p>
                     </div>
                   </div>
                 </Dialog.Panel>
@@ -463,7 +593,11 @@ const AllClientTab = () => {
 
       {/* Client Review Modal */}
       <Transition.Root show={clientReviewModal} as={Fragment}>
-        <Dialog as="div" className="relative z-50" onClose={setClientReviewModal}>
+        <Dialog
+          as="div"
+          className="relative z-50"
+          onClose={setClientReviewModal}
+        >
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -489,39 +623,41 @@ const AllClientTab = () => {
               >
                 <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white pt-5 text-left shadow-xl transition-all sm:w-full sm:max-w-sm">
                   <div>
-                    <div className='flex justify-center px-3 border-b pb-3'>
+                    <div className="flex justify-center px-3 border-b pb-3">
                       <h4>Liam Kelly dropped feedback for you</h4>
                     </div>
                     <section className="mt-3 sm:mt-5">
-                      <div className='p-3'>
-                        <h3 className='text-gray-700 mb-2'>Rating</h3>
-                        <ul className='space-x-2 grid grid-cols-5'>
-                          <li className='border py-2 rounded-md flex justify-center text-center bg-white'>
+                      <div className="p-3">
+                        <h3 className="text-gray-700 mb-2">Rating</h3>
+                        <ul className="space-x-2 grid grid-cols-5">
+                          <li className="border py-2 rounded-md flex justify-center text-center bg-white">
                             <span>1</span>
-                            <StarIcon className='w-5 text-yellow-400'/>
+                            <StarIcon className="w-5 text-yellow-400" />
                           </li>
-                          <li className='border py-2 rounded-md flex justify-center text-center bg-white'>
+                          <li className="border py-2 rounded-md flex justify-center text-center bg-white">
                             <span>2</span>
-                            <StarIcon className='w-5 text-yellow-400'/>
+                            <StarIcon className="w-5 text-yellow-400" />
                           </li>
-                          <li className='border py-2 rounded-md flex justify-center text-center bg-white'>
+                          <li className="border py-2 rounded-md flex justify-center text-center bg-white">
                             <span>3</span>
-                            <StarIcon className='w-5 text-yellow-400'/>
+                            <StarIcon className="w-5 text-yellow-400" />
                           </li>
-                          <li className='border py-2 rounded-md flex justify-center text-center bg-white'>
+                          <li className="border py-2 rounded-md flex justify-center text-center bg-white">
                             <span>4</span>
-                            <StarIcon className='w-5 text-yellow-400'/>
+                            <StarIcon className="w-5 text-yellow-400" />
                           </li>
-                          <li className='border py-2 rounded-md flex justify-center text-center bg-white'>
+                          <li className="border py-2 rounded-md flex justify-center text-center bg-white">
                             <span>5</span>
-                            <StarIcon className='w-5 text-yellow-400'/>
+                            <StarIcon className="w-5 text-yellow-400" />
                           </li>
                         </ul>
                       </div>
-                      <div className='p-3'>
-                      <p className='mt-4 border rounded-md p-3 text-dark'>
-                        Risus purus sed integer arcu sollicitudin eros tellus phasellus viverra. Dolor suspendisse quisque proin velit nulla diam. Vitae in mauris condimentum s
-                      </p>
+                      <div className="p-3">
+                        <p className="mt-4 border rounded-md p-3 text-dark">
+                          Risus purus sed integer arcu sollicitudin eros tellus
+                          phasellus viverra. Dolor suspendisse quisque proin
+                          velit nulla diam. Vitae in mauris condimentum s
+                        </p>
                       </div>
                     </section>
                   </div>
@@ -532,8 +668,7 @@ const AllClientTab = () => {
         </Dialog>
       </Transition.Root>
     </>
+  );
+};
 
-  )
-}
-
-export default AllClientTab
+export default AllClientTab;

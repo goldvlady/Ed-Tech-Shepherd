@@ -1,5 +1,6 @@
 import { StarIcon } from "./icons";
 import { SelectedNoteModal } from "./index";
+import { Text, Grid, Button, Box, Image, Heading } from "@chakra-ui/react";
 import { Transition, Dialog } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import React, { Fragment, useState } from "react";
@@ -80,11 +81,11 @@ const HelpModal: React.FC<helpModalProps> = ({ helpModal, setHelpModal }) => {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity " />
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
           </Transition.Child>
 
-          <div className="fixed inset-0 z-10 overflow-y-auto ">
-            <div className="flex min-h-full items-end justify-center pt-0 text-center sm:items-center sm:p-0">
+          <div className="fixed inset-0 z-10 overflow-y-auto">
+            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
               <Transition.Child
                 as={Fragment}
                 enter="ease-out duration-300"
@@ -94,12 +95,12 @@ const HelpModal: React.FC<helpModalProps> = ({ helpModal, setHelpModal }) => {
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
-                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white pt-5 text-left shadow-xl transition-all sm:w-full sm:max-w-4xl">
-                  <div className="pt-2">
+                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white pt-5 mt-10 text-left shadow-xl transition-all sm:w-full sm:max-w-5xl">
+                  <div>
                     <div className="flex justify-between border-b pb-2 px-2">
                       <div className="flex items-center space-x-2">
                         <StarIcon
-                          className="text-primaryBlue h-1 w-3"
+                          className="text-primaryBlue h-5 w-5"
                           onClick={undefined}
                         />
                         <span className="text-sm font-semibold">
@@ -116,24 +117,24 @@ const HelpModal: React.FC<helpModalProps> = ({ helpModal, setHelpModal }) => {
                       </button>
                     </div>
 
-                    <div className="overflow-hidden p-3 bg-white sm:grid sm:grid-cols-4 sm:gap-x-4 sm:h-52 sm:space-y-0 space-y-2">
+                    <div className="overflow-hidden p-4 bg-white sm:grid sm:grid-cols-4 sm:gap-x-4 sm:space-y-0 space-y-2">
                       {actions1.map((action) => (
                         <div
                           onClick={() => setSelectedNoteModal(true)}
                           key={action.title}
-                          className="group cursor-pointer relative bg-gray-100 m:pt-4 sm:pl-4  focus-within:ring-2 rounded-lg focus-within:ring-inset focus-within:ring-gray-500"
+                          className="group cursor-pointer relative bg-gray-100 p-3 focus-within:ring-2 rounded-lg focus-within:ring-inset focus-within:ring-gray-500"
                         >
                           <div>
                             <img src={action.imageURL} alt={action.title} />
                           </div>
                           <div className="mt-4">
-                            <h5 className="text-base font-semibold leading-3 text-dark">
+                            <Text className="text-base font-semibold leading-6 text-dark">
                               <span
                                 className="absolute inset-0"
                                 aria-hidden="true"
                               />
                               {action.title}
-                            </h5>
+                            </Text>
                             <p className="mt-2 text-sm text-secondaryGray">
                               {action.description}
                             </p>
@@ -142,12 +143,12 @@ const HelpModal: React.FC<helpModalProps> = ({ helpModal, setHelpModal }) => {
                       ))}
                     </div>
 
-                    <div className="overflow-hidden sm:w-[80%] w-full mx-auto pt-4 bg-white sm:grid sm:h-52 sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">
+                    <div className="overflow-hidden sm:w-[80%] w-full mx-auto p-4 bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">
                       {actions2.map((action) => (
                         <div
                           onClick={() => setSelectedNoteModal(true)}
                           key={action.title}
-                          className="group cursor-pointer relative bg-gray-100 sm:pt-4 sm:pl-4 focus-within:ring-2  rounded-lg focus-within:ring-inset focus-within:ring-gray-500"
+                          className="group cursor-pointer relative bg-gray-100 p-4 focus-within:ring-2 rounded-lg focus-within:ring-inset focus-within:ring-gray-500"
                         >
                           <div>
                             <img src={action.imageURL} alt={action.title} />

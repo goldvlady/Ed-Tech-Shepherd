@@ -1,32 +1,30 @@
-import React, { Fragment, useState } from 'react'
-import { Dialog, Menu, Transition } from '@headlessui/react'
-import { useLocation } from 'react-router-dom';
-
+import { classNames } from "../helpers";
 import {
-  Bars3Icon,
-  BellIcon,
-  Cog6ToothIcon,
-  XMarkIcon,
-  PlusIcon,
-} from '@heroicons/react/24/outline'
-import { 
-  ChevronDownIcon,
-  MagnifyingGlassIcon,
-} from '@heroicons/react/20/solid'
-import { classNames } from '../helpers'
-
-import { 
-  DashboardIcon, 
+  DashboardIcon,
   OffersIcon,
   MessagesIcon,
   UserGroupIcon,
   UserIcon,
   ChevronRightIcon,
   NotesIcon,
-  LogoutIcon
+  LogoutIcon,
 } from "./icons";
-
-import { HelpModal, UploadDocumentModal } from "./index"
+import { HelpModal, UploadDocumentModal } from "./index";
+import { Text } from "@chakra-ui/react";
+import { Dialog, Menu, Transition } from "@headlessui/react";
+import {
+  ChevronDownIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/20/solid";
+import {
+  Bars3Icon,
+  BellIcon,
+  Cog6ToothIcon,
+  XMarkIcon,
+  PlusIcon,
+} from "@heroicons/react/24/outline";
+import React, { Fragment, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 interface NavigationItem {
   name: string;
@@ -36,25 +34,34 @@ interface NavigationItem {
 }
 
 const navigation: NavigationItem[] = [
-  { name: 'Dashboard', href: '/tutordashboard', icon: DashboardIcon, current: true },
-  { name: 'Clients', href: '/clients', icon: UserGroupIcon, current: false },
-  { name: 'Offers', href: '/offers', icon: OffersIcon, current: false },
-  { name: 'Messages', href: '/messages', icon: MessagesIcon, current: false },
-  { name: 'Notes', href: '/notes', icon: NotesIcon, current: false },
-]
+  {
+    name: "Dashboard",
+    href: "/tutordashboard",
+    icon: DashboardIcon,
+    current: true,
+  },
+  { name: "Clients", href: "/clients", icon: UserGroupIcon, current: false },
+  { name: "Offers", href: "/offers", icon: OffersIcon, current: false },
+  { name: "Messages", href: "/messages", icon: MessagesIcon, current: false },
+  { name: "Notes", href: "/notes", icon: NotesIcon, current: false },
+];
 
-export default function Layout({children, className}) {
+export default function Layout({ children, className }) {
   const [helpModal, setHelpModal] = useState(false);
   const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
-  const pathname = location.pathname.split('/')[1];
+  const pathname = location.pathname.split("/")[1];
 
   return (
     <>
       <Transition.Root show={sidebarOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-50 lg:hidden" onClose={setSidebarOpen}>
+        <Dialog
+          as="div"
+          className="relative z-50 lg:hidden"
+          onClose={setSidebarOpen}
+        >
           <Transition.Child
             as={Fragment}
             enter="transition-opacity ease-linear duration-300"
@@ -88,16 +95,27 @@ export default function Layout({children, className}) {
                   leaveTo="opacity-0"
                 >
                   <div className="absolute left-full top-0 flex w-16 justify-center pt-5">
-                    <button type="button" className="-m-2.5 p-2.5" onClick={() => setSidebarOpen(false)}>
+                    <button
+                      type="button"
+                      className="-m-2.5 p-2.5"
+                      onClick={() => setSidebarOpen(false)}
+                    >
                       <span className="sr-only">Close sidebar</span>
-                      <XMarkIcon className="h-6 w-6 text-white" aria-hidden="true" />
+                      <XMarkIcon
+                        className="h-6 w-6 text-white"
+                        aria-hidden="true"
+                      />
                     </button>
                   </div>
                 </Transition.Child>
                 {/* Sidebar component, swap this element with another sidebar if you like */}
                 <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
                   <div className="flex h-16 shrink-0 items-center">
-                    <img className="h-10 w-auto" src="/svgs/logo.svg" alt="Sherperd" />
+                    <img
+                      className="h-10 w-auto"
+                      src="/svgs/logo.svg"
+                      alt="Sherperd"
+                    />
                   </div>
                   <nav className="flex flex-1 flex-col">
                     <ul className="flex flex-1 flex-col gap-y-7">
@@ -109,15 +127,17 @@ export default function Layout({children, className}) {
                                 href={item.href}
                                 className={classNames(
                                   item.current
-                                    ? 'bg-slate-100 text-blue-400'
-                                    : 'text-gray-400 hover:text-blue-400 hover:bg-slate-100',
-                                  'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
+                                    ? "bg-slate-100 text-blue-400"
+                                    : "text-gray-400 hover:text-blue-400 hover:bg-slate-100",
+                                  "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
                                 )}
                               >
                                 <item.icon
                                   className={classNames(
-                                    item.current ? 'text-blue-500' : 'text-gray-400 group-hover:text-blue-400',
-                                    'h-6 w-6 shrink-0'
+                                    item.current
+                                      ? "text-blue-500"
+                                      : "text-gray-400 group-hover:text-blue-400",
+                                    "h-6 w-6 shrink-0"
                                   )}
                                   aria-hidden="true"
                                 />
@@ -165,15 +185,17 @@ export default function Layout({children, className}) {
                         href={item.href}
                         className={classNames(
                           item.current
-                            ? 'bg-slate-100 text-blue-400'
-                            : 'text-gray-400 hover:text-blue-400 hover:bg-slate-100',
-                          'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
+                            ? "bg-slate-100 text-blue-400"
+                            : "text-gray-400 hover:text-blue-400 hover:bg-slate-100",
+                          "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
                         )}
                       >
                         <item.icon
                           className={classNames(
-                            item.current ? 'text-blue-500' : 'text-gray-400 group-hover:text-blue-400',
-                            'h-6 w-6 shrink-0'
+                            item.current
+                              ? "text-blue-500"
+                              : "text-gray-400 group-hover:text-blue-400",
+                            "h-6 w-6 shrink-0"
                           )}
                           aria-hidden="true"
                         />
@@ -202,13 +224,23 @@ export default function Layout({children, className}) {
 
       <div className="lg:pl-72">
         <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
-          <button type="button" className="-m-2.5 p-2.5 text-gray-700 lg:hidden" onClick={() => setSidebarOpen(true)}>
+          <button
+            type="button"
+            className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
+            onClick={() => setSidebarOpen(true)}
+          >
             <span className="sr-only">Open sidebar</span>
             <Bars3Icon className="h-6 w-6" aria-hidden="true" />
           </button>
 
-          <div className={`flex ${pathname === 'clients' || pathname === 'notes' ? 'justify-between py-2' : 'justify-end'} flex-1 gap-x-4 self-stretch lg:gap-x-6`}>
-            {pathname === 'clients' && (
+          <div
+            className={`flex ${
+              pathname === "clients" || pathname === "notes"
+                ? "justify-between py-2"
+                : "justify-end"
+            } flex-1 gap-x-4 self-stretch lg:gap-x-6`}
+          >
+            {pathname === "clients" && (
               <form className="relative flex flex-1 py-2">
                 <label htmlFor="search-field" className="sr-only">
                   Search
@@ -227,17 +259,26 @@ export default function Layout({children, className}) {
               </form>
             )}
 
-            {pathname === 'notes' && (
-              <button onClick={() => setHelpModal(true)} className="relative flex max-w-fit items-center space-x-3 border rounded-full  flex-1 px-3 py-4">
+            {pathname === "notes" && (
+              <button
+                onClick={() => setHelpModal(true)}
+                className="relative flex max-w-fit items-center space-x-3 border rounded-full  flex-1 px-2 py-3"
+              >
                 <div className="flex-shrink-0 bg-orange-100 p-2 flex justify-center items-center rounded-full">
-                  <img src="/svgs/robot-face.svg" className="h-6 w-6 text-gray-400" alt="" />
+                  <img
+                    src="/svgs/robot-face.svg"
+                    className="h-6 w-6 text-gray-400"
+                    alt=""
+                  />
                 </div>
-                <h3 className="text-primaryGray">Hi, what would you like to do?</h3>
+                <Text className="text-primaryGray text-sm">
+                  Hi, what would you like to do?
+                </Text>
               </button>
             )}
             <div className="flex items-center gap-x-4 lg:gap-x-6">
               {/* Show if the pathname is client */}
-              { pathname === 'clients' && (
+              {pathname === "clients" && (
                 <button
                   type="button"
                   className="inline-flex items-center gap-x-2 rounded-md bg-secondaryBlue px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
@@ -248,51 +289,67 @@ export default function Layout({children, className}) {
               )}
 
               {/* Show if the pathname is notes */}
-              { pathname === 'notes' && (
+              {pathname === "notes" && (
                 <Menu as="div" className="relative">
                   <div>
                     <Menu.Button
                       type="button"
                       className="inline-flex items-center gap-x-2 rounded-md bg-secondaryBlue px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                     >
-                      <PlusIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
+                      <PlusIcon
+                        className="-ml-0.5 h-5 w-5"
+                        aria-hidden="true"
+                      />
                       Create new
                     </Menu.Button>
                   </div>
-                  
-                <Transition
-                  as={Fragment}
-                  enter="transition ease-out duration-100"
-                  enterFrom="transform opacity-0 scale-95"
-                  enterTo="transform opacity-100 scale-100"
-                  leave="transition ease-in duration-75"
-                  leaveFrom="transform opacity-100 scale-100"
-                  leaveTo="transform opacity-0 scale-95"
-                >
-                  <Menu.Items className="absolute space-y-3 p-4 right-0 z-10 mt-2.5 w-[15rem] origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-900/5 focus:outline-none">
-                    <section className='space-y-2'>
-                      <button className='w-full bg-gray-100 rounded-md flex items-center justify-between p-2'>
-                        <div className=' flex items-center space-x-1'>
-                          <div className='bg-white flex justify-center items-center w-8 h-8 border rounded-full'>
-                            <UserGroupIcon className="w-4 h-4 text-secondaryGray" onClick={undefined}/>
+
+                  <Transition
+                    as={Fragment}
+                    enter="transition ease-out duration-100"
+                    enterFrom="transform opacity-0 scale-95"
+                    enterTo="transform opacity-100 scale-100"
+                    leave="transition ease-in duration-75"
+                    leaveFrom="transform opacity-100 scale-100"
+                    leaveTo="transform opacity-0 scale-95"
+                  >
+                    <Menu.Items className="absolute space-y-3 p-4 right-0 z-10 mt-2.5 w-[15rem] origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-900/5 focus:outline-none">
+                      <section className="space-y-2">
+                        <button className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2">
+                          <div className=" flex items-center space-x-1">
+                            <div className="bg-white flex justify-center items-center w-8 h-8 border rounded-full">
+                              <UserGroupIcon
+                                className="w-4 h-4 text-secondaryGray"
+                                onClick={undefined}
+                              />
+                            </div>
+                            <h4 className="text-sm text-secondaryGray font-medium">
+                              New Note
+                            </h4>
                           </div>
-                          <h4 className='text-sm text-secondaryGray font-medium'>New Note</h4>
-                        </div>
-                      </button>
-                      <button onClick={() => setUploadDocumentModal(true)} className='w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2'>
-                        <div className='flex items-center space-x-1'>
-                          <div className='bg-white border flex justify-center items-center w-8 h-8 rounded-full'>
-                            <UserIcon className="w-4 h-4 text-secondaryGray" onClick={undefined}/>
+                        </button>
+                        <button
+                          onClick={() => setUploadDocumentModal(true)}
+                          className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
+                        >
+                          <div className="flex items-center space-x-1">
+                            <div className="bg-white border flex justify-center items-center w-8 h-8 rounded-full">
+                              <UserIcon
+                                className="w-4 h-4 text-secondaryGray"
+                                onClick={undefined}
+                              />
+                            </div>
+                            <h4 className="text-sm text-secondaryGray font-medium">
+                              Upload Document
+                            </h4>
                           </div>
-                          <h4 className='text-sm text-secondaryGray font-medium'>Upload Document</h4>
-                        </div>
-                      </button>
-                    </section>
-                  </Menu.Items>
-                </Transition>
+                        </button>
+                      </section>
+                    </Menu.Items>
+                  </Transition>
                 </Menu>
               )}
-              
+
               {/* Notification dropdown */}
               <Menu as="div" className="relative">
                 <div>
@@ -300,7 +357,7 @@ export default function Layout({children, className}) {
                     type="button"
                     className="rounded-full relative border bg-white p-2 text-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
                   >
-                    <div className='absolute right-2 w-2 h-2 rounded-full bg-red-600'></div>
+                    <div className="absolute right-2 w-2 h-2 rounded-full bg-red-600"></div>
                     <span className="sr-only">View notifications</span>
                     <BellIcon className="h-5 w-5" aria-hidden="true" />
                   </Menu.Button>
@@ -319,7 +376,9 @@ export default function Layout({children, className}) {
                       <div className="flex w-0 flex-1 justify-between">
                         <p className="w-0 space-x-2 flex-1 text-sm font-medium text-gray-900">
                           <span>Notifications</span>
-                          <span className='inline-block bg-blue-100 text-blue-400 px-1 py-0.5 rounded-md'>23</span>
+                          <span className="inline-block bg-blue-100 text-blue-400 px-1 py-0.5 rounded-md">
+                            23
+                          </span>
                         </p>
                         <button
                           type="button"
@@ -327,36 +386,46 @@ export default function Layout({children, className}) {
                         >
                           Mark all as read
                         </button>
-                      </div>  
+                      </div>
                     </div>
 
                     <div className="flex items-center border-b pb-3">
-                      
                       <div className="flex-shrink-0 bg-orange-100 p-2 rounded-full">
-                        <img src="/svgs/video-camera.svg" className="h-6 w-6 text-gray-400" alt="" />
+                        <img
+                          src="/svgs/video-camera.svg"
+                          className="h-6 w-6 text-gray-400"
+                          alt=""
+                        />
                       </div>
 
                       <div className="ml-3 w-0 flex-1 pt-0.5">
-                        <p className="text-sm font-normal text-gray-400">19 May, 2023</p>
+                        <p className="text-sm font-normal text-gray-400">
+                          19 May, 2023
+                        </p>
                         <p className="mt-1 text-sm font-medium text-gray-500">
-                          Your chemistry leeson session with Leslie Peters started
+                          Your chemistry leeson session with Leslie Peters
+                          started
                         </p>
                       </div>
 
                       <div className="ml-4 flex flex-shrink-0">
-                        <span className='inline-block h-2 w-2 bg-gray-200 rounded-full'/>
+                        <span className="inline-block h-2 w-2 bg-gray-200 rounded-full" />
                       </div>
-
                     </div>
 
                     <div className="flex items-center border-b pb-3">
-                      
                       <div className="flex-shrink-0 bg-gray-100 p-2 rounded-full">
-                        <img src="/svgs/text-document.svg" className="h-6 w-6 text-gray-400" alt="" />
+                        <img
+                          src="/svgs/text-document.svg"
+                          className="h-6 w-6 text-gray-400"
+                          alt=""
+                        />
                       </div>
 
                       <div className="ml-3 w-0 flex-1 pt-0.5">
-                        <p className="text-sm font-normal text-gray-400">2 hrs ago</p>
+                        <p className="text-sm font-normal text-gray-400">
+                          2 hrs ago
+                        </p>
                         <p className="mt-1 text-sm font-medium text-gray-500">
                           You received a new contract offer
                         </p>
@@ -365,45 +434,61 @@ export default function Layout({children, className}) {
                             type="button"
                             className="rounded-full flex items-center space-x-2 border-2 border-dashed p-2 text-sm font-medium text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                           >
-                            <img src="/svgs/text-document.svg" className="h-6 w-6 text-gray-400" alt="" />
+                            <img
+                              src="/svgs/text-document.svg"
+                              className="h-6 w-6 text-gray-400"
+                              alt=""
+                            />
                             <span>View Offer</span>
                           </button>
                         </div>
                       </div>
 
                       <div className="ml-4 flex flex-shrink-0">
-                        <span className='inline-block h-2 w-2 bg-blue-400 rounded-full'/>
+                        <span className="inline-block h-2 w-2 bg-blue-400 rounded-full" />
                       </div>
-
                     </div>
 
                     <div className="flex items-center border-b pb-3">
-                      
                       <div className="flex-shrink-0 bg-gray-100 p-2 rounded-full">
-                          <img src="/svgs/text-document.svg" className="h-6 w-6 text-gray-400" alt="" />
+                        <img
+                          src="/svgs/text-document.svg"
+                          className="h-6 w-6 text-gray-400"
+                          alt=""
+                        />
                       </div>
 
                       <div className="ml-3 w-0 flex-1 pt-0.5">
-                        <p className="text-sm font-normal text-gray-400">2 hrs ago</p>
+                        <p className="text-sm font-normal text-gray-400">
+                          2 hrs ago
+                        </p>
                         <p className="mt-1 text-sm font-medium text-gray-500">
-                          William Kelly <span className='text-red-400 font-semibold'>withdrew</span> her offer
+                          William Kelly{" "}
+                          <span className="text-red-400 font-semibold">
+                            withdrew
+                          </span>{" "}
+                          her offer
                         </p>
                       </div>
 
                       <div className="ml-4 flex flex-shrink-0">
-                        <span className='inline-block h-2 w-2 bg-blue-400 rounded-full'/>
+                        <span className="inline-block h-2 w-2 bg-blue-400 rounded-full" />
                       </div>
-
                     </div>
 
                     <div className="flex items-center pb-3">
-                      
                       <div className="flex-shrink-0 bg-gray-100 p-2 rounded-full">
-                        <img src="/svgs/text-document.svg" className="h-6 w-6 text-gray-400" alt="" />
+                        <img
+                          src="/svgs/text-document.svg"
+                          className="h-6 w-6 text-gray-400"
+                          alt=""
+                        />
                       </div>
 
                       <div className="ml-3 w-0 flex-1 pt-0.5">
-                        <p className="text-sm font-normal text-gray-400">2 hrs ago</p>
+                        <p className="text-sm font-normal text-gray-400">
+                          2 hrs ago
+                        </p>
                         <p className="mt-1 text-sm font-medium text-gray-500">
                           You received a new contract offer
                         </p>
@@ -412,16 +497,19 @@ export default function Layout({children, className}) {
                             type="button"
                             className="rounded-full flex items-center space-x-2 border-2 border-dashed p-2 text-sm font-medium text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                           >
-                              <img src="/svgs/text-document.svg" className="h-6 w-6 text-gray-400" alt="" />
+                            <img
+                              src="/svgs/text-document.svg"
+                              className="h-6 w-6 text-gray-400"
+                              alt=""
+                            />
                             <span>View Offer</span>
                           </button>
                         </div>
                       </div>
 
                       <div className="ml-4 flex flex-shrink-0">
-                        <span className='inline-block h-2 w-2 bg-blue-400 rounded-full'/>
+                        <span className="inline-block h-2 w-2 bg-blue-400 rounded-full" />
                       </div>
-
                     </div>
                   </Menu.Items>
                 </Transition>
@@ -431,12 +519,12 @@ export default function Layout({children, className}) {
               <Menu as="div" className="relative">
                 <div>
                   <Menu.Button className="flex items-center rounded-full w-42 space-x-2 px-2 py-1 bg-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                    <div className='h-8 w-8 rounded-full flex justify-center items-center bg-success text-white'>
+                    <div className="h-8 w-8 rounded-full flex justify-center items-center bg-success text-white">
                       <span className="sr-only">Open user menu</span>
                       <span>L</span>
                     </div>
-                    <h4>Leslie Peters</h4>
-                    <ChevronDownIcon className='w-5 h-5'/>
+                    <Text>Leslie Peters</Text>
+                    <ChevronDownIcon className="w-5 h-5" />
                   </Menu.Button>
                 </div>
                 <Transition
@@ -449,39 +537,62 @@ export default function Layout({children, className}) {
                   leaveTo="transform opacity-0 scale-95"
                 >
                   <Menu.Items className="absolute space-y-3 p-4 right-0 z-10 mt-2.5 w-[15rem] origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-900/5 focus:outline-none">
-                    <section className='text-center'>
-                      <div className='h-12 w-12 font-bold mb-1 mx-auto rounded-full flex justify-center items-center bg-success text-white'>
+                    <section className="text-center">
+                      <div className="h-12 w-12 font-bold mb-1 mx-auto rounded-full flex justify-center items-center bg-success text-white">
                         <span>L</span>
                       </div>
-                      <h4>Leslie Peters</h4>
-                      <span className='bg-orange-50 text-sm px-4 py-1 rounded-md text-orange-400 inline-block'>Tutor</span>
+                      <Text>Leslie Peters</Text>
+                      <span className="bg-orange-50 text-sm px-4 py-1 rounded-md text-orange-400 inline-block">
+                        Tutor
+                      </span>
                     </section>
-                    <section className='space-y-2 border-b pb-2'>
-                      <button className='w-full bg-gray-100 rounded-md flex items-center justify-between p-2'>
-                        <div className=' flex items-center space-x-1'>
-                          <div className='bg-white flex justify-center items-center w-7 h-7 border rounded-full'>
-                            <UserGroupIcon className="w-4 h-4 text-secondaryGray" onClick={undefined}/>
+                    <section className="space-y-2 border-b pb-2">
+                      <button className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2">
+                        <div className=" flex items-center space-x-1">
+                          <div className="bg-white flex justify-center items-center w-7 h-7 border rounded-full">
+                            <UserGroupIcon
+                              className="w-4 h-4 text-secondaryGray"
+                              onClick={undefined}
+                            />
                           </div>
-                          <h4 className='text-sm text-secondaryGray font-medium'>Switch account</h4>
+                          <Text className="text-sm text-secondaryGray font-medium">
+                            Switch account
+                          </Text>
                         </div>
-                        <ChevronRightIcon className="w-2.5 h-2.5" onClick={undefined}/>
+                        <ChevronRightIcon
+                          className="w-2.5 h-2.5"
+                          onClick={undefined}
+                        />
                       </button>
-                      <button className='w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2'>
-                        <div className='flex items-center space-x-1'>
-                          <div className='bg-white border flex justify-center items-center w-7 h-7 rounded-full'>
-                            <UserIcon className="w-4 h-4 text-secondaryGray" onClick={undefined}/>
+                      <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
+                        <div className="flex items-center space-x-1">
+                          <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                            <UserIcon
+                              className="w-4 h-4 text-secondaryGray"
+                              onClick={undefined}
+                            />
                           </div>
-                          <h4 className='text-sm text-secondaryGray font-medium'>Profile</h4>
+                          <Text className="text-sm text-secondaryGray font-medium">
+                            Profile
+                          </Text>
                         </div>
-                        <ChevronRightIcon className="w-2.5 h-2.5" onClick={undefined}/>
+                        <ChevronRightIcon
+                          className="w-2.5 h-2.5"
+                          onClick={undefined}
+                        />
                       </button>
                     </section>
-                    <button className='w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2'>
-                      <div className='flex items-center space-x-1'>
-                        <div className='bg-white border flex justify-center items-center w-7 h-7 rounded-full'>
-                          <LogoutIcon className="w-4 h-4 text-secondaryGray" onClick={undefined}/>
+                    <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
+                      <div className="flex items-center space-x-1">
+                        <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                          <LogoutIcon
+                            className="w-4 h-4 text-secondaryGray"
+                            onClick={undefined}
+                          />
                         </div>
-                        <h4 className='text-sm text-error font-medium'>Logout</h4>
+                        <Text className="text-sm text-error font-medium">
+                          Logout
+                        </Text>
                       </div>
                     </button>
                   </Menu.Items>
@@ -491,24 +602,29 @@ export default function Layout({children, className}) {
           </div>
         </div>
 
-        <main className={className}>
-            {children}
-        </main>
+        <main className={className}>{children}</main>
       </div>
 
       {/* Upload Document Modal */}
       <Transition.Root show={uploadDocumentModal} as={Fragment}>
-        <Dialog as="div" className="relative z-50" onClose={setUploadDocumentModal}>
-          <UploadDocumentModal uploadDocumentModal={uploadDocumentModal} setUploadDocumentModal={setUploadDocumentModal}/>
+        <Dialog
+          as="div"
+          className="relative z-50"
+          onClose={setUploadDocumentModal}
+        >
+          <UploadDocumentModal
+            uploadDocumentModal={uploadDocumentModal}
+            setUploadDocumentModal={setUploadDocumentModal}
+          />
         </Dialog>
       </Transition.Root>
 
       {/* Help Modal */}
       <Transition.Root show={helpModal} as={Fragment}>
         <Dialog as="div" className="relative z-50" onClose={setHelpModal}>
-          <HelpModal helpModal={helpModal} setHelpModal={setHelpModal}/>
+          <HelpModal helpModal={helpModal} setHelpModal={setHelpModal} />
         </Dialog>
       </Transition.Root>
     </>
-  )
+  );
 }

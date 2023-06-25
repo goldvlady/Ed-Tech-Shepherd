@@ -1,19 +1,25 @@
-import React, { Fragment } from "react";
-import { Menu, Transition, Tab } from "@headlessui/react";
+import { Layout, AllClientTab } from "../components";
 import { ArrowRightIcon, SortIcon } from "../components/icons";
-import {Layout, AllClientTab} from "../components";
 import { classNames } from "../helpers";
-
+import { Text } from "@chakra-ui/react";
+import { Menu, Transition, Tab } from "@headlessui/react";
+import React, { Fragment } from "react";
 
 const clients = [{}];
 
 export default function Clients() {
   return (
-    <Layout className={`${clients.length > 0 ? 'bg-white' : 'bg-gray-100'} p-3 h-screen`}>
+    <Layout
+      className={`${
+        clients.length > 0 ? "bg-white" : "bg-gray-100"
+      } p-3 h-screen`}
+    >
       <header className="flex justify-between">
         <h4 className="flex items-center space-x-2">
           <span className="font-bold text-2xl">Clients</span>
-          <span className="inline-block text-sm bg-gray-100 px-2 py-1 rounded-md text-primaryGray">24</span>
+          <span className="inline-block text-sm bg-gray-100 px-2 py-1 rounded-md text-primaryGray">
+            24
+          </span>
         </h4>
         <Menu as="div" className="relative">
           <div>
@@ -23,45 +29,49 @@ export default function Clients() {
             </Menu.Button>
           </div>
           <Transition
-              as={Fragment}
-              enter="transition ease-out duration-100"
-              enterFrom="transform opacity-0 scale-95"
-              enterTo="transform opacity-100 scale-100"
-              leave="transition ease-in duration-75"
-              leaveFrom="transform opacity-100 scale-100"
-              leaveTo="transform opacity-0 scale-95"
-            >
-              <Menu.Items className="absolute space-y-3 p-4 right-0 z-50 mt-2.5 w-[12rem] origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-900/5 focus:outline-none">
-                <section>
-                  <div className="w-full">
-                    <h3 className="text-sm text-secondaryGray mb-2">By date</h3>
-                    <button className='w-full flex bg-gray-100 rounded-md  items-center justify-between p-2'>
-                      <h4 className='text-sm text-dark'>Start date</h4>
-                    </button>
-                    <button className='w-full flex mt-2 hover:bg-gray-100 rounded-md items-center justify-between p-2'>
-                      <h4 className='text-sm text-dark'>End date</h4>
-                    </button>
-                  </div>
+            as={Fragment}
+            enter="transition ease-out duration-100"
+            enterFrom="transform opacity-0 scale-95"
+            enterTo="transform opacity-100 scale-100"
+            leave="transition ease-in duration-75"
+            leaveFrom="transform opacity-100 scale-100"
+            leaveTo="transform opacity-0 scale-95"
+          >
+            <Menu.Items className="absolute space-y-3 p-4 right-0 z-50 mt-2.5 w-[12rem] origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-900/5 focus:outline-none">
+              <section>
+                <div className="w-full">
+                  <Text className="text-sm text-secondaryGray mb-2">
+                    By date
+                  </Text>
+                  <button className="w-full flex bg-gray-100 rounded-md  items-center justify-between p-2">
+                    <Text className="text-sm text-dark">Start date</Text>
+                  </button>
+                  <button className="w-full flex mt-2 hover:bg-gray-100 rounded-md items-center justify-between p-2">
+                    <Text className="text-sm text-dark">End date</Text>
+                  </button>
+                </div>
 
-                  <div className="w-full">
-                    <h3 className="text-sm text-secondaryGray mt-4 mb-2">By name</h3>
-                    <button className='w-full flex hover:bg-gray-100 rounded-md  items-center justify-between p-2'>
-                      <h4 className='text-xs flex space-x-2 items-center text-dark'>
-                        <span>A</span>
-                        <ArrowRightIcon className="w-5" onClick={undefined}/>
-                        <span>Z</span>
-                      </h4>
-                    </button>
-                    <button className='w-full flex hover:bg-gray-100 rounded-md  items-center justify-between p-2'>
-                      <h4 className='text-xs flex space-x-2 items-center text-dark'>
-                        <span>Z</span>
-                        <ArrowRightIcon className="w-5" onClick={undefined}/>
-                        <span>A</span>
-                      </h4>
-                    </button>
-                  </div>
-                </section>
-              </Menu.Items>
+                <div className="w-full">
+                  <Text className="text-sm text-secondaryGray mt-4 mb-2">
+                    By name
+                  </Text>
+                  <button className="w-full flex hover:bg-gray-100 rounded-md  items-center justify-between p-2">
+                    <Text className="text-xs flex space-x-2 items-center text-dark">
+                      <span>A</span>
+                      <ArrowRightIcon className="w-5" onClick={undefined} />
+                      <span>Z</span>
+                    </Text>
+                  </button>
+                  <button className="w-full flex hover:bg-gray-100 rounded-md  items-center justify-between p-2">
+                    <Text className="text-xs flex space-x-2 items-center text-dark">
+                      <span>Z</span>
+                      <ArrowRightIcon className="w-5" onClick={undefined} />
+                      <span>A</span>
+                    </Text>
+                  </button>
+                </div>
+              </section>
+            </Menu.Items>
           </Transition>
         </Menu>
       </header>
@@ -87,13 +97,13 @@ export default function Clients() {
             <div className="border-b border-gray-200">
               <Tab.List className="-mb-px flex space-x-8" aria-label="Tabs">
                 <Tab as={Fragment}>
-                  {({selected}) => (
+                  {({ selected }) => (
                     <span
                       className={classNames(
-                      selected
-                        ? 'border-primaryBlue text-primaryBlue'
-                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
-                        'group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium'
+                        selected
+                          ? "border-primaryBlue text-primaryBlue"
+                          : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
+                        "group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium"
                       )}
                     >
                       All clients
@@ -101,13 +111,13 @@ export default function Clients() {
                   )}
                 </Tab>
                 <Tab as={Fragment}>
-                  {({selected}) => (
+                  {({ selected }) => (
                     <span
                       className={classNames(
-                      selected
-                        ? 'border-primaryBlue text-primaryBlue'
-                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
-                        'group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium'
+                        selected
+                          ? "border-primaryBlue text-primaryBlue"
+                          : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
+                        "group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium"
                       )}
                     >
                       Active
@@ -115,13 +125,13 @@ export default function Clients() {
                   )}
                 </Tab>
                 <Tab as={Fragment}>
-                  {({selected}) => (
+                  {({ selected }) => (
                     <span
                       className={classNames(
-                      selected
-                        ? 'border-primaryBlue text-primaryBlue'
-                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
-                        'group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium'
+                        selected
+                          ? "border-primaryBlue text-primaryBlue"
+                          : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
+                        "group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium"
                       )}
                     >
                       Pending
@@ -129,13 +139,13 @@ export default function Clients() {
                   )}
                 </Tab>
                 <Tab as={Fragment}>
-                  {({selected}) => (
+                  {({ selected }) => (
                     <span
                       className={classNames(
-                      selected
-                        ? 'border-primaryBlue text-primaryBlue'
-                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
-                        'group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium'
+                        selected
+                          ? "border-primaryBlue text-primaryBlue"
+                          : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
+                        "group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium"
                       )}
                     >
                       Ended
@@ -145,7 +155,7 @@ export default function Clients() {
               </Tab.List>
             </div>
           </div>
-          
+
           <Tab.Panels>
             <Tab.Panel>
               <AllClientTab />
@@ -153,12 +163,11 @@ export default function Clients() {
           </Tab.Panels>
         </Tab.Group>
       ) : (
-        <section className="flex justify-center items-center w-full h-full"> 
-          <img src="/images/client.png" alt=""/>
+        <section className="flex justify-center items-center w-full h-full">
+          <img src="/images/client.png" alt="" />
           {/* <p>You don't have any client yet</p> */}
         </section>
       )}
     </Layout>
-  )
+  );
 }
-
