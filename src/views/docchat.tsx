@@ -25,7 +25,7 @@ export default function Notes() {
         <main className="relative">
           <div className="bg-white  overflow-hidden">
             <div className="divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
-              <div className="pb-2 lg:col-span-6">
+              <div className="pb-1 lg:col-span-6">
                 <div className="flex flex-row justify-between mx-2 my-5">
                   <Text className="align-middle self-center h-full font-bold">
                     Documenttitle.pdf
@@ -62,7 +62,7 @@ export default function Notes() {
                         leaveFrom="transform opacity-100 scale-100"
                         leaveTo="transform opacity-0 scale-95"
                       >
-                        <Menu.Items className="absolute space-y-3 p-2 right-0 z-10 mt-2.5 w-[15rem] origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-900/5 focus:outline-none">
+                        <Menu.Items className="absolute space-y-3 p-2 right-0 z-10 mt-2.5 w-[15rem] origin-top-right rounded-lg bg-white py-2 shadow-md ring-1 ring-gray-900/5 focus:outline-none">
                           <section className="space-y-2 border-b pb-2">
                             <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
                               <div className=" flex items-center space-x-1">
@@ -74,9 +74,9 @@ export default function Notes() {
                                     alt=""
                                   />
                                 </div>
-                                <h4 className="text-sm text-secondaryGray font-medium">
+                                <Text className="text-sm text-secondaryGray font-medium">
                                   Add tag
-                                </h4>
+                                </Text>
                               </div>
                             </button>
                             <button
@@ -92,9 +92,9 @@ export default function Notes() {
                                     alt=""
                                   />
                                 </div>
-                                <h4 className="text-sm text-secondaryGray font-medium">
+                                <Text className="text-sm text-secondaryGray font-medium">
                                   Download
-                                </h4>
+                                </Text>
                               </div>
                             </button>
                           </section>
@@ -108,9 +108,9 @@ export default function Notes() {
                                   alt=""
                                 />
                               </div>
-                              <h4 className="text-sm text-error font-medium">
+                              <Text className="text-sm text-error font-medium">
                                 Delete
-                              </h4>
+                              </Text>
                             </div>
                           </button>
                         </Menu.Items>
@@ -165,38 +165,13 @@ export default function Notes() {
                       </button>
                     </div>
                   </div>
-                  <div className="p-6 bg-white shadow-lg shadow-slate-200 text-black">
-                    <p>
-                      Neque ultrices id risus eget sed tincidunt elementum
-                      auctor at. Non at lectus sit tempor consectetur odio
-                      netus. Faucibus nec nullam in eget risus mi dolor.
-                      Accumsan rhoncus tellus erat quis scelerisque egestas sit
-                      nec. Consequat fames id pellentesque etiam sit congue erat
-                      vulputate metus. Consequat magna justo eleifend sodales
-                      amet at eu consectetur enim. Quis tellus parturient
-                      tincidunt velit elementum odio mattis ut. Magnis interdum
-                      elit tellus etiam. Vel eu integer posuere venenatis
-                      maecenas vel at nulla viverra. Lorem lectus lectus
-                      sollicitudin etiam feugiat pellentesque et. Sollicitudin
-                      facilisis at nam libero morbi justo sem. Tempor et quam
-                      varius congue leo dictum. Posuere in tortor sed dignissim
-                      enim elit. Nisl non elit urna odio in lacus commodo non
-                      suspendisse. Adipiscing eget volutpat massa consectetur
-                      integer ornare. Egestas sed duis condimentum lorem aliquam
-                      id tincidunt sociis. Viverra aliquam risus sit libero
-                      adipiscing sed purus. Lorem at nam imperdiet ipsum. Eget
-                      volutpat hac gravida varius porta mauris ultrices non. Et
-                      aliquam augue commodo nullam senectus a ac neque risus.
-                      Ipsum id faucibus in in. Tincidunt eget vitae facilisis
-                      dolor sed ac in fermentum. At turpis amet vel consectetur
-                      in urna quis arcu scelerisque. Vestibulum sit molestie
-                      purus sit varius arcu arcu. Morbi tellus et tincidunt
-                      egestas maecenas netus vel. Dolor fringilla ac cras mi
-                      scelerisque sit odio. Diam nisi vel fermentum eu nunc leo
-                      mi. Donec justo sagittis sem egestas risus faucibus.
-                      Ultricies enim auctor consectetur sed. Nunc id integer
-                      erat massa.
-                    </p>
+                  <div className="p-6 bg-white shadow-md shadow-slate-100 text-black">
+                    <Document
+                      file="/Aliyu.pdf" // Replace with your PDF file path
+                      onLoadSuccess={onDocumentLoadSuccess}
+                    >
+                      <Page pageNumber={currentPage} scale={scale} />
+                    </Document>
                   </div>
                 </section>
               </div>
@@ -216,19 +191,19 @@ export default function Notes() {
                               />
                             </div>
                             <div className="col-span-5 row-span-2 pl-5 pt-3">
-                              <h4 className="font-semibold">Bot Name</h4>
-                              <p>Flashcard Factory</p>
+                              <Text className="font-semibold">Bot Name</Text>
+                              <Text>Flashcard Factory</Text>
                             </div>
-                            <p className="py-2 col-start-1 col-end-13 text-sm">
+                            <Text className="py-2 col-start-1 col-end-13 text-sm">
                               Nibh augue arcu congue gravida risus diam. Turpis
                               nulla ac urna elementum est enim mi bibendum
                               varius. Nunc urna maecenas sodales volutpat
                               ullamcorper, ilmora tun dun kabash yato.
-                            </p>
+                            </Text>
                           </div>
 
                           <div className="flex flex-col col-span-full px-3 py-1 h-24 rounded-lg justify-between ml-7 text-sm">
-                            <h3 className="">What do you need?</h3>
+                            <Text className="">What do you need?</Text>
                             <div className="flex row-auto space-x-3">
                               <div className="flex flex-row space-x-2 border-gray-50 border-2 rounded-full py-2 px-3">
                                 <img
@@ -252,21 +227,21 @@ export default function Notes() {
                                   className="h3 w3 text-gray-400"
                                   alt=""
                                 />
-                                <p>Quiz</p>
+                                <Text>Quiz</Text>
                               </div>
                             </div>
                           </div>
 
                           <div className="flex flex-col col-span-full px-3 py-1 h-36 rounded-lg justify-between ml-7 text-sm">
-                            <h3 className="">Try asking about?</h3>
+                            <Text className="">Try asking about?</Text>
                             <div className="flex flex-wrap">
                               {[...Array(4)].map((_, key) => {
                                 return (
                                   <div
                                     key={key}
-                                    className="border-gray-50 border-2 rounded-full py-2 px-3 mb-2 mx-1"
+                                    className="border-gray-50 border-3 rounded-full py-2 px-3 mb-2 mx-1"
                                   >
-                                    <p>Suggested prompt</p>
+                                    <Text>Suggested prompt</Text>
                                   </div>
                                 );
                               })}
