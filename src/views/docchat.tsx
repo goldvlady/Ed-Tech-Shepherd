@@ -167,7 +167,7 @@ export default function Notes() {
                   </div>
                   <div className="p-6 bg-white shadow-md shadow-slate-100 text-black">
                     <Document
-                      file="/Aliyu.pdf" // Replace with your PDF file path
+                      file="/Aliyu.pdf" // This is a local pdf file that I placed in the public directory. it should come from the student's uploaded document
                       onLoadSuccess={onDocumentLoadSuccess}
                     >
                       <Page pageNumber={currentPage} scale={scale} />
