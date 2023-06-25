@@ -4,6 +4,7 @@ import { Text, Grid, Button, Box, Image, Heading } from "@chakra-ui/react";
 import { Transition, Dialog } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import React, { Fragment, useState } from "react";
+import Typewriter from "typewriter-effect";
 
 const actions1 = [
   {
@@ -103,10 +104,17 @@ const HelpModal: React.FC<helpModalProps> = ({ helpModal, setHelpModal }) => {
                           className="text-primaryBlue h-5 w-5"
                           onClick={undefined}
                         />
-                        <span className="text-sm font-semibold">
-                          Hi Liam, How can Shepherd make your study time more
-                          effective today?
-                        </span>
+                        <div className="text-sm font-semibold">
+                          <Typewriter
+                            onInit={(typewriter) => {
+                              typewriter
+                                .typeString(
+                                  "Hi Liam, How can Shepherd make your study time more effective today?"
+                                )
+                                .start();
+                            }}
+                          />
+                        </div>
                       </div>
                       <button
                         onClick={() => setHelpModal(false)}
@@ -117,12 +125,12 @@ const HelpModal: React.FC<helpModalProps> = ({ helpModal, setHelpModal }) => {
                       </button>
                     </div>
 
-                    <div className="overflow-hidden p-4 bg-white sm:grid sm:grid-cols-4 sm:gap-x-4 sm:space-y-0 space-y-2">
+                    <div className="overflow-hidden p-4 bg-white sm:grid sm:grid-cols-4 sm:gap-x-4 sm:space-y-0 space-y-2 ">
                       {actions1.map((action) => (
                         <div
                           onClick={() => setSelectedNoteModal(true)}
                           key={action.title}
-                          className="group cursor-pointer relative bg-gray-100 p-3 focus-within:ring-2 rounded-lg focus-within:ring-inset focus-within:ring-gray-500"
+                          className="group cursor-pointer hover:animate-pulse relative bg-gray-100 p-3 focus-within:ring-2 rounded-lg focus-within:ring-inset focus-within:ring-gray-500"
                         >
                           <div>
                             <img src={action.imageURL} alt={action.title} />
@@ -143,12 +151,12 @@ const HelpModal: React.FC<helpModalProps> = ({ helpModal, setHelpModal }) => {
                       ))}
                     </div>
 
-                    <div className="overflow-hidden sm:w-[80%] w-full mx-auto p-4 bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">
+                    <div className="overflow-hidden sm:w-[80%] w-full mx-auto p-4  bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">
                       {actions2.map((action) => (
                         <div
                           onClick={() => setSelectedNoteModal(true)}
                           key={action.title}
-                          className="group cursor-pointer relative bg-gray-100 p-4 focus-within:ring-2 rounded-lg focus-within:ring-inset focus-within:ring-gray-500"
+                          className="group cursor-pointer relative hover:animate-bounce bg-gray-100 p-4 focus-within:ring-2 rounded-lg focus-within:ring-inset focus-within:ring-gray-500"
                         >
                           <div>
                             <img src={action.imageURL} alt={action.title} />
