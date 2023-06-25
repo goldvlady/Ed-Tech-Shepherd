@@ -1,10 +1,19 @@
-import React, { Fragment, useLayoutEffect, useRef, useState } from 'react'
-import { EllipsisHorizontalIcon, ChevronRightIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
-import { DownloadIcon, FlashCardsIcon, FlashCardsSolidIcon, TrashIcon} from '../icons';
-import { Menu, Transition, Dialog } from '@headlessui/react';
-import { useNavigate } from "react-router-dom";
-
+import {
+  DownloadIcon,
+  FlashCardsIcon,
+  FlashCardsSolidIcon,
+  TrashIcon,
+} from "../icons";
 import { DeleteNoteModal, DeleteAllNotesModal } from "../index";
+import { Text } from "@chakra-ui/react";
+import { Menu, Transition, Dialog } from "@headlessui/react";
+import {
+  EllipsisHorizontalIcon,
+  ChevronRightIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/24/solid";
+import React, { Fragment, useLayoutEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface Client {
   id: number;
@@ -17,47 +26,47 @@ interface Client {
 const clients: Client[] = [
   {
     id: 0,
-    title: 'Chemistry Notes by Alisson',
-    date_created: 'May 09 2023, 13:00',
-    last_modified: 'May 21 2023, 09:00',
-    tags: '#Chemistry',
+    title: "Chemistry Notes by Alisson",
+    date_created: "May 09 2023, 13:00",
+    last_modified: "May 21 2023, 09:00",
+    tags: "#Chemistry",
   },
   {
     id: 1,
-    title: 'Chemistry Notes by Alisson',
-    date_created: 'May 09 2023, 13:00',
-    last_modified: 'May 21 2023, 09:00',
-    tags: '#Chemistry',
+    title: "Chemistry Notes by Alisson",
+    date_created: "May 09 2023, 13:00",
+    last_modified: "May 21 2023, 09:00",
+    tags: "#Chemistry",
   },
   {
     id: 2,
-    title: 'Chemistry Notes by Alisson',
-    date_created: 'May 09 2023, 13:00',
-    last_modified: 'May 21 2023, 09:00',
-    tags: '#Chemistry',
+    title: "Chemistry Notes by Alisson",
+    date_created: "May 09 2023, 13:00",
+    last_modified: "May 21 2023, 09:00",
+    tags: "#Chemistry",
   },
   {
     id: 3,
-    title: 'Chemistry Notes by Alisson',
-    date_created: 'May 09 2023, 13:00',
-    last_modified: 'May 21 2023, 09:00',
-    tags: '#Chemistry',
+    title: "Chemistry Notes by Alisson",
+    date_created: "May 09 2023, 13:00",
+    last_modified: "May 21 2023, 09:00",
+    tags: "#Chemistry",
   },
   {
     id: 4,
-    title: 'Chemistry Notes by Alisson',
-    date_created: 'May 09 2023, 13:00',
-    last_modified: 'May 21 2023, 09:00',
-    tags: '#Chemistry',
+    title: "Chemistry Notes by Alisson",
+    date_created: "May 09 2023, 13:00",
+    last_modified: "May 21 2023, 09:00",
+    tags: "#Chemistry",
   },
   {
     id: 5,
-    title: 'Chemistry Notes by Alisson',
-    date_created: 'May 09 2023, 13:00',
-    last_modified: 'May 21 2023, 09:00',
-    tags: '#Chemistry',
+    title: "Chemistry Notes by Alisson",
+    date_created: "May 09 2023, 13:00",
+    last_modified: "May 21 2023, 09:00",
+    tags: "#Chemistry",
   },
-]
+];
 
 const AllNotesTab = () => {
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
@@ -69,7 +78,8 @@ const AllNotesTab = () => {
   const navigate = useNavigate();
 
   useLayoutEffect(() => {
-    const isIndeterminate = selectedPeople.length > 0 && selectedPeople.length < clients.length;
+    const isIndeterminate =
+      selectedPeople.length > 0 && selectedPeople.length < clients.length;
     setChecked(selectedPeople.length === clients.length);
     setIndeterminate(isIndeterminate);
     if (checkbox.current) {
@@ -89,15 +99,17 @@ const AllNotesTab = () => {
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
             <div className="relative">
-              <div className='table-columns'>
+              <div className="table-columns">
                 {selectedPeople.length > 0 && (
                   <div className="top-0 border px-4 py-8 text-sm rounded-md flex h-12 items-center justify-between space-x-3 w-[600px] bg-white sm:left-12">
-                    <p className='text-gray-600'>
+                    <p className="text-gray-600">
                       {selectedPeople.length} items selected
                     </p>
 
                     <div className="flex items-center space-x-4">
-                      <button className='text-gray-600' onClick={toggleAll}>Select all</button>
+                      <button className="text-gray-600" onClick={toggleAll}>
+                        Select all
+                      </button>
 
                       <Menu as="div" className="relative">
                         <div>
@@ -105,7 +117,10 @@ const AllNotesTab = () => {
                             type="button"
                             className="inline-flex items-center space-x-2 rounded bg-[#F4F5F5] px-6 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
                           >
-                            <FlashCardsSolidIcon className="w-5" onClick={undefined}/>
+                            <FlashCardsSolidIcon
+                              className="w-5"
+                              onClick={undefined}
+                            />
                             <span>Add tag</span>
                           </Menu.Button>
                         </div>
@@ -119,9 +134,16 @@ const AllNotesTab = () => {
                           leaveTo="transform opacity-0 scale-95"
                         >
                           <Menu.Items className="absolute space-y-3 p-2 right-0 -top-[14rem] z-10 mt-2.5 w-[15rem] origin-top-right rounded-lg bg-white py-2 shadow-sm ring-1 ring-gray-900/5 focus:outline-none">
-                            <section className='space-y-2'>
-                              <form className="relative flex flex-1 py-2" action="#" method="GET">
-                                <label htmlFor="search-field" className="sr-only">
+                            <section className="space-y-2">
+                              <form
+                                className="relative flex flex-1 py-2"
+                                action="#"
+                                method="GET"
+                              >
+                                <label
+                                  htmlFor="search-field"
+                                  className="sr-only"
+                                >
                                   Search
                                 </label>
                                 <MagnifyingGlassIcon
@@ -138,31 +160,63 @@ const AllNotesTab = () => {
                               </form>
                               <div className="relative cursor-pointer bg-lightGray px-2 py-1 rounded-lg flex items-start">
                                 <div className="flex h-6 items-center">
-                                  <input id="comments" aria-describedby="comments-description" name="comments" type="checkbox" className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0" />
+                                  <input
+                                    id="comments"
+                                    aria-describedby="comments-description"
+                                    name="comments"
+                                    type="checkbox"
+                                    className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
+                                  />
                                 </div>
                                 <div className="ml-3 text-sm leading-6">
-                                  <label htmlFor="comments" className="font-normal text-dark">#Chemistry</label>
+                                  <label
+                                    htmlFor="comments"
+                                    className="font-normal text-dark"
+                                  >
+                                    #Chemistry
+                                  </label>
                                 </div>
                               </div>
 
                               <div className="relative cursor-pointer hover:bg-lightGray px-2 py-1 rounded-lg flex items-start">
                                 <div className="flex h-6 items-center">
-                                  <input id="comments" aria-describedby="comments-description" name="comments" type="checkbox" className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0" />
+                                  <input
+                                    id="comments"
+                                    aria-describedby="comments-description"
+                                    name="comments"
+                                    type="checkbox"
+                                    className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
+                                  />
                                 </div>
                                 <div className="ml-3 text-sm leading-6">
-                                  <label htmlFor="comments" className="font-normal text-dark">#Person</label>
+                                  <label
+                                    htmlFor="comments"
+                                    className="font-normal text-dark"
+                                  >
+                                    #Person
+                                  </label>
                                 </div>
                               </div>
 
                               <div className="relative cursor-pointer hover:bg-lightGray px-2 py-1 rounded-lg flex items-start">
                                 <div className="flex h-6 items-center">
-                                  <input id="comments" aria-describedby="comments-description" name="comments" type="checkbox" className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0" />
+                                  <input
+                                    id="comments"
+                                    aria-describedby="comments-description"
+                                    name="comments"
+                                    type="checkbox"
+                                    className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
+                                  />
                                 </div>
                                 <div className="ml-3 text-sm leading-6">
-                                  <label htmlFor="comments" className="font-normal text-dark">#Favorites</label>
+                                  <label
+                                    htmlFor="comments"
+                                    className="font-normal text-dark"
+                                  >
+                                    #Favorites
+                                  </label>
                                 </div>
                               </div>
-
                             </section>
                           </Menu.Items>
                         </Transition>
@@ -173,7 +227,7 @@ const AllNotesTab = () => {
                         type="button"
                         className="inline-flex items-center space-x-2 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
                       >
-                        <TrashIcon className="w-5" onClick={undefined}/>
+                        <TrashIcon className="w-5" onClick={undefined} />
                         <span>Delete</span>
                       </button>
                     </div>
@@ -200,30 +254,48 @@ const AllNotesTab = () => {
                       />
                     </th>
 
-                    <th scope="col" className="relative sm:w-12 sm:px-6">
-                      
-                    </th>
-                    
-                    <th scope="col-span" className="py-3.5 text-left text-sm font-semibold text-secondaryGray">
+                    <th scope="col" className="relative sm:w-12 sm:px-6"></th>
+
+                    <th
+                      scope="col-span"
+                      className="py-3.5 text-left text-sm font-semibold text-secondaryGray"
+                    >
                       Title
                     </th>
-                    <th scope="col" className="py-3.5 text-left text-sm font-semibold text-secondaryGray">
+                    <th
+                      scope="col"
+                      className="py-3.5 text-left text-sm font-semibold text-secondaryGray"
+                    >
                       Date Created
                     </th>
-                    <th scope="col" className="py-3.5 text-left text-sm font-semibold text-secondaryGray">
+                    <th
+                      scope="col"
+                      className="py-3.5 text-left text-sm font-semibold text-secondaryGray"
+                    >
                       Tags
                     </th>
-                    <th scope="col" className="py-3.5 text-left text-sm font-semibold text-secondaryGray">
+                    <th
+                      scope="col"
+                      className="py-3.5 text-left text-sm font-semibold text-secondaryGray"
+                    >
                       Last Modified
                     </th>
-                    <th scope="col" className="py-3.5 text-left text-sm font-semibold text-secondaryGray">
-                      
-                    </th>
+                    <th
+                      scope="col"
+                      className="py-3.5 text-left text-sm font-semibold text-secondaryGray"
+                    ></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {clients.map((client) => (
-                    <tr key={client.id} className={selectedPeople.includes(client) ? 'bg-blue-50' : undefined}>
+                    <tr
+                      key={client.id}
+                      className={
+                        selectedPeople.includes(client)
+                          ? "bg-blue-50"
+                          : undefined
+                      }
+                    >
                       <td className="relative px-7 sm:w-12 sm:px-6">
                         <input
                           type="checkbox"
@@ -239,21 +311,30 @@ const AllNotesTab = () => {
                           }
                         />
                       </td>
-                      <td
-                        className='whitespace-nowrap flex items-center space-x-2 py-4 pr-3 text-sm font-medium text-gray-500'>
+                      <td className="whitespace-nowrap flex items-center space-x-2 py-4 pr-3 text-sm font-medium text-gray-500">
                         <div className="flex-shrink-0 bg-gray-100 p-2 rounded-full">
-                          <img src="/svgs/text-document.svg" className="h-6 w-6 text-gray-400" alt="" />
+                          <img
+                            src="/svgs/text-document.svg"
+                            className="h-6 w-6 text-gray-400"
+                            alt=""
+                          />
                         </div>
                         <span>{client.title}</span>
                       </td>
-                      <td className="whitespace-nowrap py-4 text-sm text-gray-500">{client.date_created}</td>
-                      <td className="whitespace-nowrap py-4 text-sm text-gray-500">{client.tags}</td>
-                      <td className="whitespace-nowrap py-4 text-sm text-gray-500">{client.last_modified}</td>
+                      <td className="whitespace-nowrap py-4 text-sm text-gray-500">
+                        {client.date_created}
+                      </td>
+                      <td className="whitespace-nowrap py-4 text-sm text-gray-500">
+                        {client.tags}
+                      </td>
+                      <td className="whitespace-nowrap py-4 text-sm text-gray-500">
+                        {client.last_modified}
+                      </td>
                       <td className="whitespace-nowrap py-4 pl-3 text-right text-sm font-medium sm:pr-3">
                         <Menu as="div" className="relative">
                           <div>
                             <Menu.Button>
-                              <EllipsisHorizontalIcon className="h-6 text-secondaryGray"/>
+                              <EllipsisHorizontalIcon className="h-6 text-secondaryGray" />
                             </Menu.Button>
                           </div>
                           <Transition
@@ -266,41 +347,70 @@ const AllNotesTab = () => {
                             leaveTo="transform opacity-0 scale-95"
                           >
                             <Menu.Items className="absolute space-y-3 p-4 right-0 z-50 mt-2.5 w-[15rem] origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-900/5 focus:outline-none">
-                              <section className='space-y-2 border-b pb-2'>
-                                <button onClick={() => navigate(`/clients/${client.id}`)} className='w-full bg-gray-100 rounded-md flex items-center justify-between p-2'>
-                                  <div className=' flex items-center space-x-1'>
-                                    <div className='bg-white border flex justify-center items-center w-7 h-7 rounded-full'>
-                                      <FlashCardsIcon className="w-4 h-4 text-primaryGray" onClick={undefined}/>
+                              <section className="space-y-2 border-b pb-2">
+                                <button
+                                  onClick={() =>
+                                    navigate(`/clients/${client.id}`)
+                                  }
+                                  className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
+                                >
+                                  <div className=" flex items-center space-x-1">
+                                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                                      <FlashCardsIcon
+                                        className="w-4 h-4 text-primaryGray"
+                                        onClick={undefined}
+                                      />
                                     </div>
-                                    <h4 className='text-sm text-secondaryGray font-medium'>Flashcards</h4>
+                                    <Text className="text-sm text-secondaryGray font-medium">
+                                      Flashcards
+                                    </Text>
                                   </div>
-                                  <ChevronRightIcon className="w-2.5 h-2.5"/>
+                                  <ChevronRightIcon className="w-2.5 h-2.5" />
                                 </button>
-                                <button className='w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2'>
-                                  <div className='flex items-center space-x-1'>
-                                    <div className='bg-white border flex justify-center items-center w-7 h-7 rounded-full'>
-                                      <FlashCardsSolidIcon className="w-4 h-4 text-primaryGray" onClick={undefined}/>
+                                <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
+                                  <div className="flex items-center space-x-1">
+                                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                                      <FlashCardsSolidIcon
+                                        className="w-4 h-4 text-primaryGray"
+                                        onClick={undefined}
+                                      />
                                     </div>
-                                    <h4 className='text-sm text-secondaryGray font-medium'>Add tag</h4>
+                                    <Text className="text-sm text-secondaryGray font-medium">
+                                      Add tag
+                                    </Text>
                                   </div>
-                                  <ChevronRightIcon className="w-2.5 h-2.5"/>
+                                  <ChevronRightIcon className="w-2.5 h-2.5" />
                                 </button>
-                                <button className='w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2'>
-                                  <div className='flex items-center space-x-1'>
-                                    <div className='bg-white border flex justify-center items-center w-7 h-7 rounded-full'>
-                                      <DownloadIcon className="w-4 h-4 text-primaryGray" onClick={undefined}/>
+                                <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
+                                  <div className="flex items-center space-x-1">
+                                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                                      <DownloadIcon
+                                        className="w-4 h-4 text-primaryGray"
+                                        onClick={undefined}
+                                      />
                                     </div>
-                                    <h4 className='text-sm text-secondaryGray font-medium'>Download</h4>
+                                    <Text className="text-sm text-secondaryGray font-medium">
+                                      Download
+                                    </Text>
                                   </div>
-                                  <ChevronRightIcon className="w-2.5 h-2.5"/>
+                                  <ChevronRightIcon className="w-2.5 h-2.5" />
                                 </button>
                               </section>
-                              <button onClick={() => setDeleteNoteModal(true)} className='w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2'>
-                                <div className='flex items-center space-x-1'>
-                                  <div className='bg-white border flex justify-center items-center w-7 h-7 rounded-full'>
-                                    <img src="/svgs/trash.svg" alt='Delete Clients' className="w-4 h-4"/>
+                              <button
+                                onClick={() => setDeleteNoteModal(true)}
+                                className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
+                              >
+                                <div className="flex items-center space-x-1">
+                                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                                    <img
+                                      src="/svgs/trash.svg"
+                                      alt="Delete Clients"
+                                      className="w-4 h-4"
+                                    />
                                   </div>
-                                  <h4 className='text-sm text-error font-medium'>Delete</h4>
+                                  <Text className="text-sm text-error font-medium">
+                                    Delete
+                                  </Text>
                                 </div>
                               </button>
                             </Menu.Items>
@@ -319,19 +429,28 @@ const AllNotesTab = () => {
       {/* Delete Note Modal */}
       <Transition.Root show={deleteNoteModal} as={Fragment}>
         <Dialog as="div" className="relative z-50" onClose={setDeleteNoteModal}>
-          <DeleteNoteModal deleteNoteModal={deleteNoteModal} setDeleteNoteModal={setDeleteNoteModal}/>
+          <DeleteNoteModal
+            deleteNoteModal={deleteNoteModal}
+            setDeleteNoteModal={setDeleteNoteModal}
+          />
         </Dialog>
       </Transition.Root>
 
       {/* Delete All Notes Modal */}
       <Transition.Root show={deleteAllNotesModal} as={Fragment}>
-        <Dialog as="div" className="relative z-50" onClose={setDeleteAllNotesModal}>
-          <DeleteAllNotesModal deleteAllNotesModal={deleteAllNotesModal} setDeleteAllNotesModal={setDeleteAllNotesModal}/>
+        <Dialog
+          as="div"
+          className="relative z-50"
+          onClose={setDeleteAllNotesModal}
+        >
+          <DeleteAllNotesModal
+            deleteAllNotesModal={deleteAllNotesModal}
+            setDeleteAllNotesModal={setDeleteAllNotesModal}
+          />
         </Dialog>
       </Transition.Root>
     </>
+  );
+};
 
-  )
-}
-
-export default AllNotesTab
+export default AllNotesTab;
