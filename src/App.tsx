@@ -189,6 +189,15 @@ const AppRoutes: React.FC = () => {
         }
       />
       <Route path="auth-action" element={<AuthAction />} />
+      <Route
+        path="*"
+        element={
+          <RequireAuth
+            authenticated={<Navigate to={"/dashboard"} />}
+            unAuthenticated={<Login />}
+          />
+        }
+      />
 
       <Route path="home" element={<Home />} />
       <Route
