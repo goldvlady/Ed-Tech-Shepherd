@@ -1,13 +1,3 @@
-import { Box, ChakraProvider, Spinner } from "@chakra-ui/react";
-import "bootstrap/dist/css/bootstrap-grid.min.css";
-import "bootstrap/dist/css/bootstrap-reboot.min.css";
-import "bootstrap/dist/css/bootstrap-utilities.min.css";
-import { User, getAuth, onAuthStateChanged } from "firebase/auth";
-import mixpanel from "mixpanel-browser";
-import React, { useCallback, useEffect, useState } from "react";
-import { Navigate, Route, Routes } from "react-router";
-import { BrowserRouter, useLocation, useSearchParams } from "react-router-dom";
-
 import resourceStore from "./state/resourceStore";
 import userStore from "./state/userStore";
 import theme from "./theme";
@@ -22,26 +12,34 @@ import DashboardLayout from "./views/Dashboard/layout";
 import ForgotPassword from "./views/ForgotPassword";
 import Home from "./views/Home";
 import Login from "./views/Login";
+import Offer from "./views/Offer";
 import OnboardStudent from "./views/OnboardStudent";
 import OnboardTutor from "./views/OnboardTutor";
 import CompleteProfile from "./views/OnboardTutor/complete_profile";
 import SendTutorOffer from "./views/SendTutorOffer";
-import Offer from "./views/Offer";
 import Session from "./views/Session";
 import Signup from "./views/Signup";
+import TutorDashboard from "./views/TutorDashboard";
+import TutorOffer from "./views/TutorOffer";
+import TutorOffers from "./views/TutorOffers";
 import PendingVerification from "./views/VerificationPages/pending_verification";
 import VerificationSuccess from "./views/VerificationPages/successful_verification";
 import WelcomeLayout from "./views/WelcomeLayout";
-
-
-import TutorDashboard from './views/TutorDashboard';
+import Client from "./views/client";
 import Clients from "./views/clients";
-import Client from './views/client';
-import TutorOffers from "./views/TutorOffers";
-import TutorOffer from "./views/TutorOffer";
+import DocChat from "./views/docchat";
 import Messages from "./views/messages";
-import Notes from './views/notes';
-import TutorSettings from './views/settings';
+import Notes from "./views/notes";
+import TutorSettings from "./views/settings";
+import { Box, ChakraProvider, Spinner } from "@chakra-ui/react";
+import "bootstrap/dist/css/bootstrap-grid.min.css";
+import "bootstrap/dist/css/bootstrap-reboot.min.css";
+import "bootstrap/dist/css/bootstrap-utilities.min.css";
+import { User, getAuth, onAuthStateChanged } from "firebase/auth";
+import mixpanel from "mixpanel-browser";
+import React, { useCallback, useEffect, useState } from "react";
+import { Navigate, Route, Routes } from "react-router";
+import { BrowserRouter, useLocation, useSearchParams } from "react-router-dom";
 
 const RedirectToLanding: React.FC = () => {
   window.location.href = "https://shepherdtutors.com/";
@@ -236,8 +234,8 @@ const AppRoutes: React.FC = () => {
       <Route path="offer/:id" element={<TutorOffer />} />
       <Route path="messages" element={<Messages />} />
       <Route path="notes" element={<Notes />} />
+      <Route path="/docchat" element={<DocChat />} />
       <Route path="tutorsettings" element={<TutorSettings />} />
-
     </Routes>
   );
 };
