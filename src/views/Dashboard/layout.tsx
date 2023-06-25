@@ -455,7 +455,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 <Avatar
                   size="sm"
                   color="white"
-                  name={`${user.name.first} ${user.name.last}`}
+                  name={`${user?.name.first} ${user?.name.last}`}
                   bg="#4CAF50;"
                 />
 
@@ -465,7 +465,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   color="text.200"
                   display={{ base: "block", sm: "none", md: "block" }}
                 >
-                  {`${user.name.first} ${user.name.last}`}
+                  {`${user?.name.first} ${user?.name.last}`}
                 </Text>
 
                 <Box display={{ base: "none", md: "flex" }}>
