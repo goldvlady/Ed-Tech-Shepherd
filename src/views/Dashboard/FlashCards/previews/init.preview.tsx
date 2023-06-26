@@ -11,7 +11,7 @@ const InitSetupPreview = ({
   handleBadgeClick: (v: any) => void;
 }) => {
   return (
-    <Box w="full" p="20px" pr="30px" h="100%">
+    <Box w="full" p="40px" pr="40px" h="100%">
       <BotIntructionBox />
       <Text
         fontSize="15px"

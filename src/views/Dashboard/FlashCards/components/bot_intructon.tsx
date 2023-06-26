@@ -5,8 +5,8 @@ import { AiFillCiCircle } from "react-icons/ai";
 const BotIntructionBox = () => {
   return (
     <Box bg="#F7F7F7" borderRadius="10px" p="20px" w="100%">
-      <Flex direction="column" align="flex-start">
-        <HStack>
+      <Flex w="100%" direction="column" align="flex-start">
+        <HStack w="100%">
           <Image width={"60px"} height={"60px"} src={robot}></Image>
           <VStack ml={"20px"} spacing={2} align="flex-start">
             <Text

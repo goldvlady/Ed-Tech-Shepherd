@@ -69,7 +69,8 @@ import TutorMarketplace from "./Tutor";
 import MenuLinedList from "./components/MenuLinedList";
 import DashboardIndex from "./index";
 
-const getComparisonPath = (pathname: string) => {
+const getComparisonPath = (pathname?: string) => {
+  if (!pathname) return "";
   const pathParts = pathname.split("/").filter((f) => f);
   console.log(pathParts);
   if (pathParts.length === 1) {
@@ -77,6 +78,7 @@ const getComparisonPath = (pathname: string) => {
   } else if (pathParts.length > 1) {
     return pathParts[1];
   }
+  return "";
 };
 
 interface LinkItemProps {
@@ -108,9 +110,9 @@ interface NavItemProps extends FlexProps {
   path: string;
 }
 
-const NavItem = ({ icon, path, children, ...rest }) => {
+const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
   const { pathname } = useLocation();
-  console.log(getComparisonPath(pathname));
+
   const isActive = path.includes(getComparisonPath(pathname));
 
   return (

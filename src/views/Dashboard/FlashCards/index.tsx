@@ -1,3 +1,5 @@
+import SelectableTable from "../../../components/table";
+
 const FlashCard = () => {
   return <></>;
 };
