@@ -1,7 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import SetupFlashcardPage from "./forms/flashcard_setup";
-import InitSetupPreview from "./previews/init";
+import SuccessState from "./forms/flashcard_setup/success_page";
+import MnemonicSetup from "./forms/mneomics_setup";
+import InitSetupPreview from "./previews/init.preview";
+import MnemonicPreview from "./previews/mneomics.preview";
+import QuestionsPreview from "./previews/questions.preview";
 import FlashcardDataProvider from "./context/flashcard";
+import MnemonicSetupProvider from "./context/mneomics";
 import { useFlashCardState } from "./context/flashcard";
 import { Box, HStack, Text, Radio, RadioGroup } from "@chakra-ui/react";
 
@@ -43,13 +48,13 @@ const Wrapper = styled(Box)`
   }
 `;
 
-enum TypeEnum {
+export enum TypeEnum {
   FLASHCARD = "flashcard",
   MNEOMONIC = "mneomonic",
   INIT = "init",
 }
 
-enum SourceEnum {
+export enum SourceEnum {
   DOCUMENT = "document",
   SUBJECT = "subject",
   MANUAL = "manual",
@@ -66,19 +71,34 @@ const CreateFlashPage = () => {
     source: SourceEnum.MANUAL,
   });
   const { flashcardData } = useFlashCardState();
+  const [isCompleted, setIsCompleted] = useState(false);
   const [hasSubmittedFlashCards, setHasSubmittedFlashCards] = useState(false);
-  const [activeBadge, setActiveBadge] = useState("");
+
+  const { type: activeBadge } = settings;
+
+  console.log(activeBadge);
+
+  const setActiveBadge = (badge: TypeEnum) => {
+    setSettings((value) => ({ ...value, type: badge }));
+  };
+  // const [activeBadge, setActiveBadge] = useState<TypeEnum>(TypeEnum.INIT);
 
   useEffect(() => {
     if (flashcardData.hasSubmitted && !hasSubmittedFlashCards) {
       setHasSubmittedFlashCards(true);
-      if (settings.type !== TypeEnum.FLASHCARD) {
+      if (settings.source === SourceEnum.SUBJECT) {
+        setIsCompleted(true);
+      }
+      if (
+        settings.type !== TypeEnum.FLASHCARD &&
+        settings.source === SourceEnum.MANUAL
+      ) {
         setSettings((value) => ({ ...value, type: TypeEnum.FLASHCARD }));
       }
     }
   }, [flashcardData, hasSubmittedFlashCards, settings.type]);
 
-  const handleBadgeClick = (badge: string) => {
+  const handleBadgeClick = (badge: TypeEnum) => {
     setActiveBadge(badge);
   };
 
@@ -96,7 +116,16 @@ const CreateFlashPage = () => {
     }));
   };
 
-  const renderForms = () => {
+  const renderForms = useCallback(() => {
+    if (isCompleted) {
+      return <SuccessState />;
+    }
+    if (
+      settings.type === TypeEnum.MNEOMONIC &&
+      settings.source === SourceEnum.MANUAL
+    ) {
+      return <MnemonicSetup />;
+    }
     if (
       (settings.type === TypeEnum.FLASHCARD ||
         settings.type === TypeEnum.INIT) &&
@@ -104,7 +133,10 @@ const CreateFlashPage = () => {
     ) {
       return <SetupFlashcardPage />;
     }
-  };
+    if (settings.source === SourceEnum.SUBJECT) {
+      return <SetupFlashcardPage isAutomated />;
+    }
+  }, [settings, isCompleted]); // The callback depends on 'settings'
 
   const renderPreview = () => {
     if (settings.type === TypeEnum.INIT) {
@@ -113,6 +145,23 @@ const CreateFlashPage = () => {
           activeBadge={activeBadge}
           handleBadgeClick={handleBadgeClick}
         />
+      );
+    }
+    if (settings.type === TypeEnum.FLASHCARD) {
+      return (
+        <QuestionsPreview
+          onConfirm={() => setIsCompleted(true)}
+          activeBadge={activeBadge}
+          handleBadgeClick={handleBadgeClick}
+        ></QuestionsPreview>
+      );
+    }
+    if (settings.type === TypeEnum.MNEOMONIC) {
+      return (
+        <MnemonicPreview
+          activeBadge={activeBadge}
+          handleBadgeClick={handleBadgeClick}
+        ></MnemonicPreview>
       );
     }
   };
@@ -125,8 +174,13 @@ const CreateFlashPage = () => {
       justifyContent="center"
       alignItems="center"
     >
-      <HStack width="100%">
-        <Box px={10} minH="calc(100vh - 130px)" height="100%" width="50%">
+      <HStack
+        justifyContent={"start"}
+        alignItems={"start"}
+        width="100%"
+        minH="calc(100vh - 60px)"
+      >
+        <Box p="60px" height="100%" width="50%">
           <Text
             fontFamily="Inter"
             fontWeight="500"
@@ -153,25 +207,19 @@ const CreateFlashPage = () => {
               </Radio>
             </HStack>
           </RadioGroup>
-          <Box
-            bg="white"
-            boxShadow="md"
-            marginTop="30px"
-            width="100%"
-            padding="30px"
-            height="calc(100vh - 100px)"
-            overflowY="auto"
-          >
+          <Box mt="20px" pr="20px" width="100%">
             {renderForms()}
           </Box>
         </Box>
 
         <Box
-          minH="calc(100vh - 130px)"
-          height="100%"
+          position="fixed"
+          top="60px"
+          bottom="0"
+          right="0"
           borderLeft="1px solid #E7E8E9"
-          width="50%"
-          padding="20px"
+          width="45%"
+          paddingTop={"20px"}
         >
           {renderPreview()}
         </Box>
@@ -183,7 +231,9 @@ const CreateFlashPage = () => {
 const MainWrapper = () => {
   return (
     <FlashcardDataProvider>
-      <CreateFlashPage />
+      <MnemonicSetupProvider>
+        <CreateFlashPage />
+      </MnemonicSetupProvider>
     </FlashcardDataProvider>
   );
 };

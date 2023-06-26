@@ -1,8 +1,17 @@
-import React, { createContext, useState, useEffect, useContext } from "react";
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useCallback,
+  useContext,
+  useMemo,
+} from "react";
 
 interface FlashcardData {
   deckname: string;
   studyType: string;
+  subject?: string;
+  topic?: string;
   studyPeriod: string;
   numOptions: number;
   timerDuration: string;
@@ -12,10 +21,7 @@ interface FlashcardData {
 export interface FlashcardQuestion {
   questionType: string;
   question: string;
-  optionA?: string;
-  optionB?: string;
-  optionC?: string;
-  optionD?: string;
+  options?: string[]; // options is now an array of strings
   answer: string;
 }
 
@@ -24,6 +30,9 @@ export interface FlashcardDataContextProps {
   currentStep: number;
   goToNextStep: () => void;
   questions: FlashcardQuestion[];
+  currentQuestionIndex: number;
+  goToQuestion: (index: number | ((previousIndex: number) => number)) => void;
+  deleteQuestion: (index: number) => void;
   setQuestions: React.Dispatch<React.SetStateAction<FlashcardQuestion[]>>;
   setFlashcardData: React.Dispatch<React.SetStateAction<FlashcardData>>;
 }
@@ -55,17 +64,39 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
   });
 
   const [questions, setQuestions] = useState<FlashcardQuestion[]>([]);
-
   const [currentStep, setCurrentStep] = useState(0);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+
+  //...
+
+  const goToQuestion = useCallback(
+    (arg: number | ((previousIndex: number) => number)) => {
+      const index = typeof arg === "function" ? arg(currentQuestionIndex) : arg;
+      setCurrentQuestionIndex(index);
+    },
+    [currentQuestionIndex]
+  );
+
+  const deleteQuestion = useCallback((index: number) => {
+    setQuestions((prev) => {
+      const newQuestions = prev.filter(
+        (_, questionIndex) => questionIndex !== index
+      );
+
+      // Subtract one from currentQuestionIndex since one question is deleted
+      setCurrentQuestionIndex((prevIndex) =>
+        prevIndex > 0 ? prevIndex - 1 : 0
+      );
+
+      return newQuestions;
+    });
+  }, []);
 
   useEffect(() => {
     const questionsEmptyState = {
       questionType: "",
       question: "",
-      optionA: "",
-      optionB: "",
-      optionC: "",
-      optionD: "",
+      options: [], // Initialized options as empty array
       answer: "",
     };
 
@@ -81,17 +112,32 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [flashcardData.numOptions]);
 
+  const value = useMemo(
+    () => ({
+      flashcardData,
+      setFlashcardData,
+      questions,
+      currentStep,
+      currentQuestionIndex,
+      goToQuestion,
+      deleteQuestion,
+      setQuestions,
+      goToNextStep: () => setCurrentStep((prev) => prev + 1),
+    }),
+    [
+      flashcardData,
+      setFlashcardData,
+      questions,
+      currentStep,
+      currentQuestionIndex,
+      goToQuestion,
+      deleteQuestion,
+      setQuestions,
+    ]
+  );
+
   return (
-    <FlashcardDataContext.Provider
-      value={{
-        flashcardData,
-        setFlashcardData,
-        questions,
-        currentStep,
-        setQuestions,
-        goToNextStep: () => setCurrentStep((prev) => prev + 1),
-      }}
-    >
+    <FlashcardDataContext.Provider value={value}>
       {children}
     </FlashcardDataContext.Provider>
   );

@@ -1,5 +1,6 @@
 import { Box, HStack, Text } from "@chakra-ui/react";
-import CustomBadge from "../components/optionBadge";
+import OptionBadge from "../components/optionBadge";
+import { TypeEnum } from "../create";
 import BotIntructionBox from "../components/bot_intructon";
 
 const InitSetupPreview = ({
@@ -7,10 +8,10 @@ const InitSetupPreview = ({
   handleBadgeClick,
 }: {
   activeBadge: string;
-  handleBadgeClick: (v: string) => void;
+  handleBadgeClick: (v: any) => void;
 }) => {
   return (
-    <Box w="full">
+    <Box w="full" p="20px" pr="30px" h="100%">
       <BotIntructionBox />
       <Text
         fontSize="15px"
@@ -24,7 +25,7 @@ const InitSetupPreview = ({
         What do you need?
       </Text>
       <HStack spacing="20px">
-        <CustomBadge
+        <OptionBadge
           text="Flashcards"
           icon={(isActive) => {
             return (
@@ -45,10 +46,10 @@ const InitSetupPreview = ({
               </svg>
             );
           }}
-          isActive={activeBadge === "flashcards"}
-          onClick={() => handleBadgeClick("flashcards")}
+          isActive={activeBadge === TypeEnum.FLASHCARD}
+          onClick={() => handleBadgeClick(TypeEnum.FLASHCARD)}
         />
-        <CustomBadge
+        <OptionBadge
           text="Mnemonics"
           icon={(isActive) => (
             <svg
@@ -67,8 +68,8 @@ const InitSetupPreview = ({
               />
             </svg>
           )}
-          isActive={activeBadge === "mnemonics"}
-          onClick={() => handleBadgeClick("mnemonics")}
+          isActive={activeBadge === TypeEnum.MNEOMONIC}
+          onClick={() => handleBadgeClick(TypeEnum.MNEOMONIC)}
         />
       </HStack>
     </Box>

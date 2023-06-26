@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useFlashCardState } from "../../context/flashcard";
 import FlashCardQuestionsPage from "./questions";
 import FlashCardSetupInit from "./init";
-import { Box, Heading } from "@chakra-ui/react";
+import { Box, Text } from "@chakra-ui/react";
 import StepsIndicator, { Step } from "../../../../../components/StepIndicator";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 const transition = {
   duration: 0.3,
@@ -17,33 +17,38 @@ const slideVariants = {
   exit: { x: "100%" },
 };
 
-const SetupFlashcardPage = () => {
+const SetupFlashcardPage = ({ isAutomated }: { isAutomated?: boolean }) => {
   const { currentStep } = useFlashCardState();
   const steps: Step[] = [{ title: "" }, { title: "" }, { title: "" }];
 
-  const forms: { [key: number]: () => JSX.Element } = {
-    0: FlashCardSetupInit,
-    1: FlashCardQuestionsPage,
+  const forms: (() => JSX.Element)[] = [
+    () => <FlashCardSetupInit isAutomated={isAutomated} />,
+    FlashCardQuestionsPage,
     // Add other form components for different steps
-  };
+  ];
 
   const Form = forms[currentStep];
 
   return (
     <Box>
-      <Heading fontWeight="bold" marginBottom="20px">
+      <Text fontSize={"24px"} fontWeight="500" marginBottom="5px">
         Set up flashcard
-      </Heading>
-      <StepsIndicator steps={steps} activeStep={currentStep} />
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        variants={slideVariants}
-        transition={transition}
-      >
-        <Form />
-      </motion.div>
+      </Text>
+      {!isAutomated && (
+        <StepsIndicator steps={steps} activeStep={currentStep} />
+      )}
+      <AnimatePresence>
+        <motion.div
+          key={currentStep}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          variants={slideVariants}
+          transition={transition}
+        >
+          <Form />
+        </motion.div>
+      </AnimatePresence>
     </Box>
   );
 };

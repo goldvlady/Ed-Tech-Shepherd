@@ -14,7 +14,7 @@ const StepContainer = styled.div<IStepContainerProps>`
     content: "";
     position: absolute;
     background: #dcdedf;
-    height: 4px;
+    height: 2px;
     width: 100%;
     top: 50%;
     transform: translateY(-50%);
@@ -24,7 +24,7 @@ const StepContainer = styled.div<IStepContainerProps>`
     content: "";
     position: absolute;
     background: #207df7;
-    height: 4px;
+    height: 2px;
     width: ${({ width }) => width};
     top: 50%;
     transition: 0.4s ease;
@@ -47,7 +47,7 @@ const StepStyle = styled.div<IStepStyleProps>`
   height: 40px;
   border-radius: 50%;
   background-color: #ffffff;
-  border: 2px solid ${({ active }) => (active ? "#207DF7" : "#EFF0F0")};
+  border: 1.5px solid ${({ active }) => (active ? "#207DF7" : "#EFF0F0")};
   transition: 0.4s ease;
   display: flex;
   justify-content: center;
