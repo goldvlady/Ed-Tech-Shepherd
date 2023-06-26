@@ -303,9 +303,9 @@ export default function Layout({ children, className }) {
                     alt=""
                   />
                 </div>
-                <h3 className="text-primaryGray">
+                <Text className="text-primaryGray">
                   Hi, what would you like to do?
-                </h3>
+                </Text>
               </button>
             )}
 
@@ -317,7 +317,7 @@ export default function Layout({ children, className }) {
                 <div className="flex-shrink-0 p-2 flex justify-center items-center rounded-full">
                   <img
                     src="/svgs/avatar-male.svg"
-                    className="h-6 w-6 text-gray-400"
+                    className="h-4 w-6 text-gray-400"
                     alt=""
                   />
                 </div>

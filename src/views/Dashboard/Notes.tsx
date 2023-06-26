@@ -1,10 +1,10 @@
-import { Layout, AllNotesTab } from "../components";
+import { AllNotesTab } from "../../components";
 import {
   ArrowRightIcon,
   SortIcon,
   FilterByTagsIcon,
-} from "../components/icons";
-import { classNames } from "../helpers";
+} from "../../components/icons";
+import { classNames } from "../../helpers";
 import { Text } from "@chakra-ui/react";
 import { Menu, Transition, Tab } from "@headlessui/react";
 import { PlusIcon } from "@heroicons/react/24/outline";
@@ -14,20 +14,16 @@ const notes = [{}];
 
 export default function Notes() {
   return (
-    <Layout
-      className={`${
-        notes.length > 0 ? "bg-white" : "bg-gray-100"
-      } p-3 h-screen`}
-    >
+    <>
       {notes.length > 0 ? (
         <>
           <header className="flex mt-4 justify-between">
-            <h4 className="flex items-center space-x-2">
+            <Text className="flex items-center space-x-2">
               <span className="font-bold text-2xl">My Notes</span>
               <span className="inline-block text-sm bg-gray-100 px-2 py-1 rounded-md text-primaryGray">
                 24
               </span>
-            </h4>
+            </Text>
             <div className="flex space-x-4">
               <Menu as="div" className="relative">
                 <div>
@@ -232,6 +228,6 @@ export default function Notes() {
           </section>
         </>
       )}
-    </Layout>
+    </>
   );
 }

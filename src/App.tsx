@@ -6,6 +6,7 @@ import BookmarkedTutors from "./views/Dashboard/BookmarkedTutors";
 import Marketplace from "./views/Dashboard/Marketplace";
 import Messaging from "./views/Dashboard/Messaging";
 import MyTutors from "./views/Dashboard/MyTutors";
+import Notes from "./views/Dashboard/Notes";
 import Tutor from "./views/Dashboard/Tutor";
 import DashboardIndex from "./views/Dashboard/index";
 import DashboardLayout from "./views/Dashboard/layout";
@@ -29,7 +30,6 @@ import Client from "./views/client";
 import Clients from "./views/clients";
 import DocChat from "./views/docchat";
 import Messages from "./views/messages";
-import Notes from "./views/notes";
 import TutorSettings from "./views/settings";
 import { Box, ChakraProvider, Spinner } from "@chakra-ui/react";
 import "bootstrap/dist/css/bootstrap-grid.min.css";
@@ -212,7 +212,26 @@ const AppRoutes: React.FC = () => {
         <Route path="find-tutor/tutor/" element={<Tutor />} />
         <Route path="my-tutors" element={<MyTutors />} />
         <Route path="saved-tutors" element={<BookmarkedTutors />} />
+
         <Route path="messaging" element={<Messaging />} />
+        <Route
+          path="notes"
+          element={
+            <RequireAuth
+              authenticated={<Notes />}
+              unAuthenticated={<Navigate to={"/login"} />}
+            />
+          }
+        />
+        <Route
+          path="docchat"
+          element={
+            <RequireAuth
+              authenticated={<DocChat />}
+              unAuthenticated={<Navigate to={"/login"} />}
+            />
+          }
+        />
         <Route path="" element={<Navigate to="home" />} />
         <Route path="*" element={<Navigate to="home" />} />
       </Route>
@@ -222,16 +241,6 @@ const AppRoutes: React.FC = () => {
         element={
           <RequireAuth
             authenticated={<Session />}
-            unAuthenticated={<Navigate to={"/login"} />}
-          />
-        }
-      />
-
-      <Route
-        path="notes"
-        element={
-          <RequireAuth
-            authenticated={<Notes />}
             unAuthenticated={<Navigate to={"/login"} />}
           />
         }

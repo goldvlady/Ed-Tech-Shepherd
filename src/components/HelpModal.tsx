@@ -41,6 +41,7 @@ const actions2 = [
   {
     id: 0,
     title: "Notes Navigator",
+    showModal: true,
     description:
       "Want to make the most of your notes? Chat with them via Shepherd and uncover insights to boost your grasp ",
     imageURL: "/images/notes-navigator.png",
@@ -48,6 +49,7 @@ const actions2 = [
   {
     id: 1,
     title: "Study Roadmap",
+    showModal: false,
     description:
       "Just starting school? Let Shepherd create a tailored study plan guiding you to academic success",
     imageURL: "/images/roadmap.png",
@@ -55,6 +57,7 @@ const actions2 = [
   {
     id: 2,
     title: "Research Assistant",
+    showModal: false,
     description:
       "Delving into a research project? Let Shepherd find you the best resources & references for your work",
     imageURL: "/images/flashcards.png",
@@ -128,9 +131,8 @@ const HelpModal: React.FC<helpModalProps> = ({ helpModal, setHelpModal }) => {
                     <div className="overflow-hidden p-4 bg-white sm:grid sm:grid-cols-4 sm:gap-x-4 sm:space-y-0 space-y-2 ">
                       {actions1.map((action) => (
                         <div
-                          onClick={() => setSelectedNoteModal(true)}
                           key={action.title}
-                          className="group cursor-pointer hover:animate-pulse relative bg-gray-100 p-3 focus-within:ring-2 rounded-lg focus-within:ring-inset focus-within:ring-gray-500"
+                          className="group cursor-pointer transform hover:drop-shadow-md relative bg-gray-100 p-3 focus-within:ring-2 rounded-lg focus-within:ring-inset focus-within:ring-gray-500"
                         >
                           <div>
                             <img src={action.imageURL} alt={action.title} />
@@ -154,9 +156,13 @@ const HelpModal: React.FC<helpModalProps> = ({ helpModal, setHelpModal }) => {
                     <div className="overflow-hidden sm:w-[80%] w-full mx-auto p-4  bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">
                       {actions2.map((action) => (
                         <div
-                          onClick={() => setSelectedNoteModal(true)}
+                          onClick={() => {
+                            if (action.showModal) {
+                              setSelectedNoteModal(true);
+                            }
+                          }}
                           key={action.title}
-                          className="group cursor-pointer relative hover:animate-bounce bg-gray-100 p-4 focus-within:ring-2 rounded-lg focus-within:ring-inset focus-within:ring-gray-500"
+                          className="group cursor-pointer relative transform hover:drop-shadow-md  bg-gray-100 p-4 focus-within:ring-2 rounded-lg focus-within:ring-inset focus-within:ring-gray-500"
                         >
                           <div>
                             <img src={action.imageURL} alt={action.title} />
@@ -169,9 +175,9 @@ const HelpModal: React.FC<helpModalProps> = ({ helpModal, setHelpModal }) => {
                               />
                               {action.title}
                             </button>
-                            <p className="mt-2 text-sm text-secondaryGray">
+                            <Text className="mt-2 text-sm text-secondaryGray">
                               {action.description}
-                            </p>
+                            </Text>
                           </div>
                         </div>
                       ))}

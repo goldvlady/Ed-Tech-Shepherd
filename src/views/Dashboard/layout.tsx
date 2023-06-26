@@ -1,3 +1,19 @@
+import FeedIcon from "../../assets/blue-energy.svg";
+import DocIcon from "../../assets/doc-icon.svg";
+import Doc from "../../assets/doc.svg";
+import FlashcardIcon from "../../assets/flashcardIcon.svg";
+import MessageIcon from "../../assets/message.svg";
+import NewNote from "../../assets/newnote.svg";
+import NoteIcon from "../../assets/notes.svg";
+import ReceiptIcon from "../../assets/receiptIcon.svg";
+import VideoIcon from "../../assets/video.svg";
+import Logo from "../../components/Logo";
+import { HelpModal, UploadDocumentModal } from "../../components/index";
+import { firebaseAuth } from "../../firebase";
+import userStore from "../../state/userStore";
+import TutorMarketplace from "./Tutor";
+import MenuLinedList from "./components/MenuLinedList";
+import DashboardIndex from "./index";
 import {
   Avatar,
   Box,
@@ -26,8 +42,9 @@ import {
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
+import { Dialog, Transition } from "@headlessui/react";
 import { getAuth, signOut } from "firebase/auth";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useEffect, Fragment, useState } from "react";
 import { IconType } from "react-icons";
 import { BsChatLeftDots, BsPin, BsPlayCircle } from "react-icons/bs";
 import { CgNotes } from "react-icons/cg";
@@ -50,23 +67,7 @@ import {
   MdOutlineKeyboardArrowUp,
 } from "react-icons/md";
 import { TbCards } from "react-icons/tb";
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
-
-import FeedIcon from "../../assets/blue-energy.svg";
-import DocIcon from "../../assets/doc-icon.svg";
-import Doc from "../../assets/doc.svg";
-import FlashcardIcon from "../../assets/flashcardIcon.svg";
-import MessageIcon from "../../assets/message.svg";
-import NewNote from "../../assets/newnote.svg";
-import NoteIcon from "../../assets/notes.svg";
-import ReceiptIcon from "../../assets/receiptIcon.svg";
-import VideoIcon from "../../assets/video.svg";
-import Logo from "../../components/Logo";
-import { firebaseAuth } from "../../firebase";
-import userStore from "../../state/userStore";
-import TutorMarketplace from "./Tutor";
-import MenuLinedList from "./components/MenuLinedList";
-import DashboardIndex from "./index";
+import { Navigate, Outlet, useNavigate, useLocation } from "react-router-dom";
 
 interface LinkItemProps {
   name: string;
@@ -87,13 +88,16 @@ const LinkItems: Array<LinkItemProps> = [
 
 const LinkBItems: Array<LinkItemProps> = [
   { name: "Library", icon: BsPlayCircle, path: "/library" },
-  { name: "Notes", icon: CgNotes, path: "/notes" },
+  { name: "Notes", icon: CgNotes, path: "/dashboard/notes" },
   { name: "Flashcards", icon: TbCards, path: "/flashcards" },
 ];
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [tutorMenu, setTutorMenu] = useState(true);
+  const [helpModal, setHelpModal] = useState(false);
+  const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
   const { user }: any = userStore();
+  const { pathname } = useLocation();
   // const user = {
   //   name: {
   //     first: "Akinola",
@@ -275,7 +279,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         bg={useColorModeValue("white", "gray.900")}
         borderBottomWidth="1px"
         borderBottomColor={useColorModeValue("gray.200", "gray.700")}
-        justifyContent={{ base: "space-between", md: "flex-end" }}
+        justifyContent={{ base: "space-between", md: "space-between" }}
         {...rest}
       >
         <IconButton
@@ -294,6 +298,22 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         >
           <Logo />{" "}
         </Text>
+
+        <button
+          onClick={() => setHelpModal(true)}
+          className="relative flex max-w-fit items-center space-x-3 border rounded-full  flex-1 px-3 py-1"
+        >
+          <div className="flex-shrink-0 bg-orange-100 p-2 flex justify-center items-center rounded-full">
+            <img
+              src="/svgs/robot-face.svg"
+              className="h-6 w-6 text-gray-400"
+              alt=""
+            />
+          </div>
+          <Text className="text-primaryGray">
+            Hi, what would you like to do?
+          </Text>
+        </button>
 
         <HStack spacing={4}>
           {/* <Menu>
@@ -471,38 +491,61 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     );
   };
   return (
-    <Box minH="160vh" bg="white">
-      <SidebarContent
-        onClose={() => onClose}
-        tutorMenu={tutorMenu}
-        setTutorMenu={setTutorMenu}
-        toggleMenu={() => toggleMenu}
-        display={{ base: "none", md: "block" }}
-      />
-      <Drawer
-        autoFocus={false}
-        isOpen={isOpen}
-        placement="left"
-        onClose={onClose}
-        returnFocusOnClose={false}
-        onOverlayClick={onClose}
-        size="full"
-      >
-        <DrawerContent>
-          <SidebarContent
-            onClose={onClose}
-            tutorMenu={tutorMenu}
-            setTutorMenu={setTutorMenu}
-            toggleMenu={toggleMenu}
-          />
-        </DrawerContent>
-      </Drawer>
-      {/* mobilenav */}
-      <MobileNav onOpen={onOpen} />
-      <Box ml={{ base: 0, md: 60 }} p={6}>
-        <Outlet />
+    <>
+      <Box minH="160vh" bg="white">
+        <SidebarContent
+          onClose={() => onClose}
+          tutorMenu={tutorMenu}
+          setTutorMenu={setTutorMenu}
+          toggleMenu={() => toggleMenu}
+          display={{ base: "none", md: "block" }}
+        />
+        <Drawer
+          autoFocus={false}
+          isOpen={isOpen}
+          placement="left"
+          onClose={onClose}
+          returnFocusOnClose={false}
+          onOverlayClick={onClose}
+          size="full"
+        >
+          <DrawerContent>
+            <SidebarContent
+              onClose={onClose}
+              tutorMenu={tutorMenu}
+              setTutorMenu={setTutorMenu}
+              toggleMenu={toggleMenu}
+            />
+          </DrawerContent>
+        </Drawer>
+        {/* mobilenav */}
+        <MobileNav onOpen={onOpen} />
+        <Box ml={{ base: 0, md: 60 }} p={6}>
+          <Outlet />
+        </Box>
       </Box>
-    </Box>
+
+      {/* Upload Document Modal */}
+      <Transition.Root show={uploadDocumentModal} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-50"
+          onClose={setUploadDocumentModal}
+        >
+          <UploadDocumentModal
+            uploadDocumentModal={uploadDocumentModal}
+            setUploadDocumentModal={setUploadDocumentModal}
+          />
+        </Dialog>
+      </Transition.Root>
+
+      {/* Help Modal */}
+      <Transition.Root show={helpModal} as={Fragment}>
+        <Dialog as="div" className="relative z-50" onClose={setHelpModal}>
+          <HelpModal helpModal={helpModal} setHelpModal={setHelpModal} />
+        </Dialog>
+      </Transition.Root>
+    </>
   );
 }
 
