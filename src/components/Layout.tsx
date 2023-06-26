@@ -5,8 +5,7 @@ import {
   MessagesIcon,
   UserGroupIcon,
   UserIcon,
-  ChevronRightIcon,
-  NotesIcon,
+  ChevronRightIcon, // NotesIcon,
   LogoutIcon,
 } from "./icons";
 import { HelpModal, UploadDocumentModal } from "./index";
@@ -34,11 +33,16 @@ interface NavigationItem {
 }
 
 const dummyNavigation: NavigationItem[] = [
-  { name: "Dashboard", href: "/", icon: DashboardIcon, current: true },
+  {
+    name: "Dashboard",
+    href: "/tutordashboard",
+    icon: DashboardIcon,
+    current: true,
+  },
   { name: "Clients", href: "/clients", icon: UserGroupIcon, current: false },
   { name: "Offers", href: "/offers", icon: OffersIcon, current: false },
   { name: "Messages", href: "/messages", icon: MessagesIcon, current: false },
-  { name: "Notes", href: "/notes", icon: NotesIcon, current: false },
+  // { name: "Notes", href: "/notes", icon: NotesIcon, current: false },
 ];
 
 export default function Layout({ children, className }) {
@@ -562,7 +566,7 @@ export default function Layout({ children, className }) {
               {/* Profile dropdown */}
               <Menu as="div" className="relative">
                 <div>
-                  <Menu.Button className="flex items-center rounded-full w-42 space-x-2 px-2 py-1 bg-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                  <Menu.Button className="flex items-center rounded-full w-42 space-x-2 px-2 py-1 bg-slate-100 text-sm">
                     <div className="h-8 w-8 rounded-full flex justify-center items-center bg-success text-white">
                       <span className="sr-only">Open user menu</span>
                       <span>L</span>
