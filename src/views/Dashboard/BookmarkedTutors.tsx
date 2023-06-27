@@ -1,3 +1,8 @@
+import TutorAvi from "../../assets/tutoravi.svg";
+import { useTitle } from "../../hooks";
+import ApiService from "../../services/ApiService";
+import bookmarkedTutorsStore from "../../state/bookmarkedTutorsStore";
+import TutorCard from "./components/TutorCard";
 import {
   Box,
   Flex,
@@ -10,12 +15,6 @@ import {
   Text,
 } from "@chakra-ui/react";
 import React, { useCallback, useEffect, useState } from "react";
-
-import TutorAvi from "../../assets/tutoravi.svg";
-import { useTitle } from "../../hooks";
-import ApiService from "../../services/ApiService";
-import bookmarkedTutorsStore from "../../state/bookmarkedTutorsStore";
-import TutorCard from "./components/TutorCard";
 
 function BookmarkedTutors() {
   const [loadingData, setLoadingData] = useState(false);
@@ -59,10 +58,13 @@ function BookmarkedTutors() {
       </Flex>
 
       <SimpleGrid
-        minChildWidth="325px"
-        spacing="30px"
+        // minChildWidth="360px"
         justifyItems={"left"}
+        templateColumns={{ sm: "repeat(1, 1fr)", lg: "repeat(3, 1fr)" }}
         mt={2}
+        // spacingX="-40px"
+        spacingY="20px"
+        gap={3}
       >
         {allTutors.map((tutor: any) => (
           <TutorCard
@@ -71,7 +73,7 @@ function BookmarkedTutors() {
             // name={`${tutor.user?.name.first} ${tutor.user?.name.last}`}
             name={"Tutor"}
             levelOfEducation={"BSC"}
-            avatar={tutor.user.avatar}
+            avatar={tutor.tutor.avatar}
             saved={true}
             description={tutor.tutor?.description}
             rate={tutor.tutor?.rate}

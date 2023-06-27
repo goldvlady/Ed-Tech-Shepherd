@@ -1,8 +1,22 @@
+import FeedIcon from "../../assets/blue-energy.svg";
+import DocIcon from "../../assets/doc-icon.svg";
+import Doc from "../../assets/doc.svg";
+import FlashcardIcon from "../../assets/flashcardIcon.svg";
+import MessageIcon from "../../assets/message.svg";
+import NewNote from "../../assets/newnote.svg";
+import NoteIcon from "../../assets/notes.svg";
+import ReceiptIcon from "../../assets/receiptIcon.svg";
+import VideoIcon from "../../assets/video.svg";
+import Logo from "../../components/Logo";
+import { firebaseAuth } from "../../firebase";
+import userStore from "../../state/userStore";
+import TutorMarketplace from "./Tutor";
+import MenuLinedList from "./components/MenuLinedList";
+import DashboardIndex from "./index";
 import {
   Avatar,
   Box,
   BoxProps,
-  Grid,
   Button,
   Center,
   CloseButton,
@@ -11,6 +25,7 @@ import {
   DrawerContent,
   Flex,
   FlexProps,
+  Grid,
   HStack,
   Icon,
   IconButton,
@@ -26,7 +41,6 @@ import {
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useLocation, Link } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import React, { ReactNode, useEffect, useState } from "react";
 import { IconType } from "react-icons";
@@ -50,24 +64,15 @@ import {
   MdOutlineKeyboardArrowDown,
   MdOutlineKeyboardArrowUp,
 } from "react-icons/md";
+import { TbClipboardText } from "react-icons/tb";
 import { TbCards } from "react-icons/tb";
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
-
-import FeedIcon from "../../assets/blue-energy.svg";
-import DocIcon from "../../assets/doc-icon.svg";
-import Doc from "../../assets/doc.svg";
-import FlashcardIcon from "../../assets/flashcardIcon.svg";
-import MessageIcon from "../../assets/message.svg";
-import NewNote from "../../assets/newnote.svg";
-import NoteIcon from "../../assets/notes.svg";
-import ReceiptIcon from "../../assets/receiptIcon.svg";
-import VideoIcon from "../../assets/video.svg";
-import Logo from "../../components/Logo";
-import { firebaseAuth } from "../../firebase";
-import userStore from "../../state/userStore";
-import TutorMarketplace from "./Tutor";
-import MenuLinedList from "./components/MenuLinedList";
-import DashboardIndex from "./index";
+import {
+  Navigate,
+  Outlet,
+  useNavigate,
+  useLocation,
+  Link,
+} from "react-router-dom";
 
 const getComparisonPath = (pathname?: string) => {
   if (!pathname) return "";
@@ -93,15 +98,15 @@ interface SidebarProps extends BoxProps {
   setTutorMenu: (value: boolean) => void;
 }
 const LinkItems: Array<LinkItemProps> = [
-  { name: "Home", icon: FiHome, path: "/dashboard" },
-  { name: "Performance", icon: FiBarChart2, path: "/performance" },
   { name: "Messages", icon: BsChatLeftDots, path: "/dashboard/messaging" },
+  { name: "Library", icon: BsPlayCircle, path: "/library" },
 ];
 
 const LinkBItems: Array<LinkItemProps> = [
-  { name: "Library", icon: BsPlayCircle, path: "/library" },
+  { name: "Performance", icon: FiBarChart2, path: "/performance" },
+  { name: "Study Plans", icon: TbClipboardText, path: "/study-plans" },
   { name: "Notes", icon: CgNotes, path: "/notes" },
-  { name: "Flashcards", icon: TbCards, path: "/dashboard/flashcards" },
+  { name: "Flashcards", icon: TbCards, path: "/flashcards" },
 ];
 
 interface NavItemProps extends FlexProps {
@@ -109,14 +114,16 @@ interface NavItemProps extends FlexProps {
   children: any;
   path: string;
 }
-
 const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
   const { pathname } = useLocation();
 
   const isActive = path.includes(getComparisonPath(pathname));
-
   return (
-    <Link to={path} style={{ textDecoration: "none" }}>
+    <Link
+      to={path}
+      style={{ textDecoration: "none" }}
+      // _focus={{ boxShadow: "none" }}
+    >
       <Flex
         align="center"
         px="4"
@@ -171,17 +178,18 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   };
   return (
     <Flex
+      // ml={{ base: 0, md: 60 }}
       px={{ base: 4, md: 4 }}
-      height="20"
       width="calc(100vw - 250px)"
+      height="20"
       alignItems="center"
       zIndex={1}
       bg={useColorModeValue("white", "gray.900")}
       borderBottomWidth="1px"
       borderBottomColor={useColorModeValue("gray.200", "gray.700")}
       justifyContent={{ base: "space-between", md: "flex-end" }}
-      position="fixed" // added this
-      top="0" // added this
+      position="fixed"
+      top="0"
       {...rest}
     >
       <IconButton
@@ -202,8 +210,8 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
       </Text>
 
       <HStack spacing={4}>
-        <Menu>
-          <MenuButton
+        {/* <Menu>
+           <MenuButton
             bg={"#207DF7"}
             color="white"
             fontSize="14px"
@@ -213,65 +221,22 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             rightIcon={<FiChevronDown />}
           >
             + Create
-          </MenuButton>
-          <MenuList
-            borderRadius="8px"
-            backgroundColor="#FFFFFF"
-            padding="8px"
-            boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
-          >
+          </MenuButton> 
+          <MenuList fontSize="14px" minWidth={"185px"}>
             <MenuItem
-              p="4px 8px"
-              display={"flex"}
-              alignItems={"center"}
               _hover={{ bgColor: "#F2F4F7" }}
+              p={-2}
               onClick={() => console.log("ADD NEW NOTE")}
             >
-              <Image mt="2px" width={"26px"} height={"26px"} src={NewNote} />
-              <Text
-                color="#212224"
-                fontSize="14px"
-                lineHeight="20px"
-                fontWeight="400"
-              >
-                New note
-              </Text>
+              <Image src={NewNote} /> <Text color="text.200">New note</Text>
             </MenuItem>
-            <MenuItem
-              p="4px 8px"
-              display={"flex"}
-              alignItems={"center"}
-              _hover={{ bgColor: "#F2F4F7" }}
-            >
-              <Image mt="2px" width={"26px"} height={"26px"} src={Doc} />
-              <Text
-                color="#212224"
-                fontSize="14px"
-                lineHeight="20px"
-                fontWeight="400"
-              >
-                Upload document
-              </Text>
-            </MenuItem>
-            <MenuItem
-              p="4px 8px"
-              display={"flex"}
-              alignItems={"center"}
-              _hover={{ bgColor: "#F2F4F7" }}
-              onClick={() => navigate("/dashboard/flashcards/create")}
-            >
-              <Image mt="2px" width={"26px"} height={"26px"} src={NewNote} />
-              <Text
-                color="#212224"
-                fontSize="14px"
-                lineHeight="20px"
-                fontWeight="400"
-              >
-                Flash Card
-              </Text>
+            <MenuItem p={-2} _hover={{ bgColor: "#F2F4F7" }}>
+              {" "}
+              <Image src={Doc} />{" "}
+              <Text color="text.200">Upload document</Text>
             </MenuItem>
           </MenuList>
-        </Menu>
+        </Menu> */}
 
         <Menu>
           <MenuButton>
@@ -372,6 +337,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             bg="#F4F5F5"
             borderRadius={"40px"}
             px={3}
+            // minWidth={"80px"}
           >
             <HStack>
               <Avatar
@@ -398,6 +364,8 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
           <MenuList
             bg={useColorModeValue("white", "gray.900")}
             borderColor={useColorModeValue("gray.200", "gray.700")}
+            minWidth={"150px"}
+            fontSize={"14px"}
           >
             <MenuItem>Profile</MenuItem>
             <MenuDivider />
@@ -412,7 +380,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
     </Flex>
   );
 };
-
 const SidebarContent = ({
   onClose,
   tutorMenu,
@@ -426,8 +393,6 @@ const SidebarContent = ({
       bg={useColorModeValue("white", "gray.900")}
       borderRight="1px"
       borderRightColor={useColorModeValue("gray.200", "gray.700")}
-      borderTop="1px"
-      borderTopColor={useColorModeValue("gray.200", "gray.700")}
       w={{ base: "full", md: 60 }}
       pos="fixed"
       h="full"
@@ -439,6 +404,9 @@ const SidebarContent = ({
         </Text>
         <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
       </Flex>
+      <NavItem icon={FiHome} path={"/dashboard"}>
+        Home
+      </NavItem>
       <Box ml={8} color="text.400">
         {" "}
         <Button
@@ -481,7 +449,6 @@ const SidebarContent = ({
         <NavItem path="/dashboard/saved-tutors">Bookmarks</NavItem> */}
         </Box>
       </Box>
-      <Divider />
       {LinkItems.map((link) => (
         <>
           <NavItem key={link.name} icon={link.icon} path={link.path}>
@@ -508,8 +475,6 @@ const SidebarContent = ({
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [tutorMenu, setTutorMenu] = useState(true);
   const { user }: any = userStore();
-  console.log(tutorMenu);
-  const { isOpen, onOpen, onClose } = useDisclosure();
   // const user = {
   //   name: {
   //     first: "Akinola",
@@ -521,10 +486,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const toggleMenu = () => {
     setTutorMenu(!tutorMenu);
   };
+  console.log(tutorMenu);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <Flex direction="column" minH="100vh" bg="white">
-      <Grid templateColumns={{ base: "1fr", md: "250px 1fr" }} h="100vh">
+    <Flex direction="column" bg="white">
+      <Grid templateColumns={{ base: "1fr", md: "250px 1fr" }}>
         <Box w="full" h="100vh" flexShrink={0} overflowY="auto">
           <SidebarContent
             onClose={() => onClose}
@@ -558,7 +525,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <MobileNav onOpen={onOpen} />
           </Box>
 
-          <Box pt="20">
+          <Box pt={20}>
             <Outlet />
           </Box>
         </Box>
@@ -572,7 +539,6 @@ export const CustomButton = (props: any) => {
   return (
     <Box
       as="button"
-      height="38px"
       lineHeight="1.2"
       transition="all 0.2s cubic-bezier(.08,.52,.52,1)"
       border="1px"

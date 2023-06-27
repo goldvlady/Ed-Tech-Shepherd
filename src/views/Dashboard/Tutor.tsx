@@ -161,13 +161,12 @@ export default function Tutor() {
 
           <BreadcrumbItem isCurrentPage>
             <BreadcrumbLink href="#">
-              {/* {tutorData.user.name?.first} {tutorData.user.name?.last} */}
-              Tutor Tutor
+              {tutorData.user.name?.first} {tutorData.user.name?.last}
             </BreadcrumbLink>
           </BreadcrumbItem>
         </Breadcrumb>
         <Grid
-          h="870px"
+          h="570px"
           templateRows="repeat(2, 1fr)"
           templateColumns="repeat(3, 1fr)"
           gap={3}
@@ -184,7 +183,7 @@ export default function Tutor() {
               >
                 <Flex justify={"left"} p={6}>
                   <Box boxSize={106}>
-                    <Image src={tutorData.avatar} borderRadius={8} />
+                    <Image src={tutorData.user.avatar} borderRadius={8} />
                   </Box>
                 </Flex>
 
@@ -192,8 +191,7 @@ export default function Tutor() {
                   <VStack spacing={0} align={"left"} mb={5} gap={2}>
                     <Flex alignItems="center" gap={1}>
                       <Text fontSize={"16px"} fontWeight={"500"} mb={0}>
-                        {/* {`${tutorData.name.first} ${tutorData.name.last}`} */}
-                        Tutor tutor
+                        {`${tutorData.user.name.first} ${tutorData.user.name.last}`}
                       </Text>
                       <RxDotFilled color="#DBDEE1" />
                       <Text fontSize={16} fontWeight={"500"}>

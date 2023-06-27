@@ -1,3 +1,14 @@
+import Star5 from "../../assets/5star.svg";
+import CustomSelect from "../../components/Select";
+import TimePicker from "../../components/TimePicker";
+import TimezoneSelect from "../../components/TimezoneSelect";
+import ApiService from "../../services/ApiService";
+import bookmarkedTutorsStore from "../../state/bookmarkedTutorsStore";
+import resourceStore from "../../state/resourceStore";
+import { educationLevelOptions, numberToDayOfWeekName } from "../../util";
+import Banner from "./components/Banner";
+import TutorCard from "./components/TutorCard";
+import { CustomButton } from "./layout";
 import {
   Box,
   Button,
@@ -25,17 +36,6 @@ import { BsStarFill } from "react-icons/bs";
 import { FiChevronDown } from "react-icons/fi";
 import { MdTune } from "react-icons/md";
 import { useSearchParams } from "react-router-dom";
-import Star5 from "../../assets/5star.svg";
-import CustomSelect from "../../components/Select";
-import TimePicker from "../../components/TimePicker";
-import TimezoneSelect from "../../components/TimezoneSelect";
-import ApiService from "../../services/ApiService";
-import bookmarkedTutorsStore from "../../state/bookmarkedTutorsStore";
-import resourceStore from "../../state/resourceStore";
-import { educationLevelOptions, numberToDayOfWeekName } from "../../util";
-import Banner from "./components/Banner";
-import TutorCard from "./components/TutorCard";
-import { CustomButton } from "./layout";
 
 const priceOptions = [
   { value: "10-12", label: "$10.00 - $12.00", id: 1 },
@@ -189,7 +189,7 @@ export default function Marketplace() {
                     })
                   : subject}
               </MenuButton>
-              <MenuList>
+              <MenuList zIndex={3}>
                 {courseList.map((course) => (
                   <MenuItem
                     key={course._id}
@@ -402,7 +402,13 @@ export default function Marketplace() {
       </Box>
 
       <Box my={45} py={2}>
-        <SimpleGrid minChildWidth="360px" spacing={4} ref={tutorGrid}>
+        <SimpleGrid
+          minChildWidth={"370px"}
+          // w={{ sm: "100px", md: "100%", lg: "370px" }}
+          spacing={4}
+          ref={tutorGrid}
+          justifyItems="left"
+        >
           {allTutors.map((tutor: any) => (
             <TutorCard
               key={tutor._id}
