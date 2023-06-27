@@ -180,7 +180,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
     <Flex
       // ml={{ base: 0, md: 60 }}
       px={{ base: 4, md: 4 }}
-      width="calc(100vw - 250px)"
+      width={{ sm: "100%", md: "calc(100vw - 250px)" }}
       height="20"
       alignItems="center"
       zIndex={1}
@@ -492,7 +492,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <Flex direction="column" bg="white">
       <Grid templateColumns={{ base: "1fr", md: "250px 1fr" }}>
-        <Box w="full" h="100vh" flexShrink={0} overflowY="auto">
+        <Box w="full" flexShrink={0} overflowY="auto">
           <SidebarContent
             onClose={() => onClose}
             tutorMenu={tutorMenu}

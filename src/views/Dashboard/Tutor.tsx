@@ -166,7 +166,7 @@ export default function Tutor() {
           </BreadcrumbItem>
         </Breadcrumb>
         <Grid
-          h="570px"
+          minHeight="100vh"
           templateRows="repeat(2, 1fr)"
           templateColumns="repeat(3, 1fr)"
           gap={3}
