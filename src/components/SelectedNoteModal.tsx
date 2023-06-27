@@ -1,6 +1,14 @@
+import { storage } from "../firebase";
 import { UploadIcon } from "./icons";
 import { Transition, Dialog } from "@headlessui/react";
-import React, { Fragment } from "react";
+import { getAuth } from "firebase/auth";
+import {
+  ref,
+  uploadBytesResumable,
+  listAll,
+  getDownloadURL,
+} from "firebase/storage";
+import React, { Fragment, useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface selectedModalProps {
@@ -8,16 +16,92 @@ interface selectedModalProps {
   setSelectedNoteModal: (state: boolean) => void;
 }
 
+type List = {
+  name: "string";
+};
+
 const SelectedModal: React.FC<selectedModalProps> = ({
   selectedNoteModal,
   setSelectedNoteModal,
 }) => {
   const navigate = useNavigate();
+  const [fileName, setFileName] = useState("");
+  const [progress, setProgress] = useState("");
+  const [list, setList] = useState<Array<List>>([]);
+  const [file, setFile] = useState<Blob | Uint8Array | ArrayBuffer>();
+  const [docPath, setDocPath] = useState("");
+  const [uploadError, setUploadError] = useState("");
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    const { currentUser } = getAuth();
+    currentUser?.uid && setDocPath(currentUser.uid);
+
+    const listEverything = async () => {
+      const listRef = ref(storage, `${docPath}`);
+      listAll(listRef)
+        // @ts-ignore
+        .then((res) => setList(res.items));
+    };
+
+    listEverything();
+  }, []);
+
+  const clickInput = (_) => {
+    // @ts-ignore
+    inputRef.current.click();
+  };
+
+  const collectFile = (e) => {
+    const { name } = e.target.files[0];
+    setUploadError("");
+    setFileName(name);
+    setFile(e.target.files[0]);
+  };
+
+  const uploadFile = (e) => {
+    if (!file || !docPath) {
+      setSelectedNoteModal(true);
+      setUploadError("You haven't uploaded a file yet.");
+      return;
+    }
+    const storageRef = ref(
+      storage,
+      `${docPath}/${fileName.toLowerCase().replace(/\s/g, "")}`
+    );
+    const task = uploadBytesResumable(storageRef, file);
+
+    task.on(
+      "state_changed",
+      (snapshot) => {
+        const progress = `Upload is ${Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        )}% done`;
+
+        switch (snapshot.state) {
+          case "running":
+            setProgress(progress);
+            break;
+          case "success":
+            setProgress("Complete!");
+            break;
+        }
+      },
+      (error) => console.log(error),
+      () => {
+        getDownloadURL(task.snapshot.ref).then((res) =>
+          console.log("Available for download on", res)
+        );
+      }
+    );
+  };
+
   return (
     <Transition.Root show={selectedNoteModal} as={Fragment}>
       <Dialog
         as="div"
         className="relative z-[999]"
+        open={true}
         onClose={setSelectedNoteModal}
       >
         <Transition.Child
@@ -62,8 +146,8 @@ const SelectedModal: React.FC<selectedModalProps> = ({
                         className="mt-2 block w-full rounded-md border-0 py-2 pl-3 pr-10 text-gray-400 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-200 sm:text-sm sm:leading-6"
                         defaultValue="Select from your note"
                       >
-                        <option>Select from your note</option>
-                        <option>Note 1</option>
+                        {list &&
+                          list.map((item) => <option>{item.name}</option>)}
                       </select>
                     </div>
 
@@ -72,10 +156,13 @@ const SelectedModal: React.FC<selectedModalProps> = ({
                     </div>
 
                     <div className="flex w-full justify-between rounded-md bg-white ring-1 ring-primaryBlue px-3 py-1 mb-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-50 cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
-                      <span className="flex items-center space-x-2">
+                      <span
+                        className="flex items-center space-x-2"
+                        onClick={clickInput}
+                      >
                         <UploadIcon
                           className="text-primaryGray w-5 h-5"
-                          onClick={undefined}
+                          onClick={clickInput}
                         />
                         <span className="text-dark">Upload doc</span>
                       </span>
@@ -87,8 +174,18 @@ const SelectedModal: React.FC<selectedModalProps> = ({
                         </div>
                       </div>
                     </div>
-
-                    <div className="text-center">
+                    {uploadError && (
+                      <p className="text-sm text-red-700">{uploadError}</p>
+                    )}
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      className="hidden"
+                      id="file-upload"
+                      ref={inputRef}
+                      onChange={collectFile}
+                    />
+                    <div className="text-center mb-6">
                       <p className="text-sm text-left leading-5 text-gray-600">
                         Shepherd supports{" "}
                         <span className="text-secondaryGray font-semibold">
@@ -97,9 +194,17 @@ const SelectedModal: React.FC<selectedModalProps> = ({
                         document formats
                       </p>
                     </div>
+                    {fileName && (
+                      <span className="text-sm text-green-500">{fileName}</span>
+                    )}
+                    {progress && (
+                      <span className="text-sm text-purple-500 ml-4">
+                        {progress}
+                      </span>
+                    )}
                   </div>
                 </div>
-                <div className="mt-5 p-3 space-x-4 flex justify-end w-full bg-gray-100 sm:mt-6">
+                <div className="mt-2 p-3 space-x-4 flex justify-end w-full bg-gray-100 sm:mt-6">
                   <button
                     type="button"
                     className="inline-flex w-fit justify-center rounded-md shadow-md bg-white ring-1 ring-gray-400 px-3 py-2 text-sm font-semibold text-primaryGray hover:text-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
@@ -110,7 +215,7 @@ const SelectedModal: React.FC<selectedModalProps> = ({
                   <button
                     type="button"
                     className="inline-flex w-fit justify-center rounded-md bg-primaryBlue px-3 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                    onClick={() => navigate(`/dashboard/docchat`)}
+                    onClick={uploadFile}
                   >
                     Confirm
                   </button>

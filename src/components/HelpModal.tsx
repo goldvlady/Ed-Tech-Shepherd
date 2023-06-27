@@ -75,7 +75,12 @@ const HelpModal: React.FC<helpModalProps> = ({ helpModal, setHelpModal }) => {
   return (
     <>
       <Transition.Root show={helpModal} as={Fragment}>
-        <Dialog as="div" className="relative z-50" onClose={setHelpModal}>
+        <Dialog
+          as="div"
+          className="relative z-50"
+          onClose={setHelpModal}
+          open={true}
+        >
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -189,20 +194,10 @@ const HelpModal: React.FC<helpModalProps> = ({ helpModal, setHelpModal }) => {
           </div>
         </Dialog>
       </Transition.Root>
-
-      {/* Selected Note Modal */}
-      <Transition.Root show={selectedNoteModal} as={Fragment}>
-        <Dialog
-          as="div"
-          className="relative z-50"
-          onClose={setSelectedNoteModal}
-        >
-          <SelectedNoteModal
-            selectedNoteModal={selectedNoteModal}
-            setSelectedNoteModal={setSelectedNoteModal}
-          />
-        </Dialog>
-      </Transition.Root>
+      <SelectedNoteModal
+        selectedNoteModal={selectedNoteModal}
+        setSelectedNoteModal={setSelectedNoteModal}
+      />
     </>
   );
 };

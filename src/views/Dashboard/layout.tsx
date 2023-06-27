@@ -98,18 +98,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
   const { user }: any = userStore();
   const { pathname } = useLocation();
-  // const user = {
-  //   name: {
-  //     first: "Akinola",
-  //     last: "Ola",
-  //   },
-  // };
-  console.log("userrrr", user);
 
   const toggleMenu = () => {
     setTutorMenu(!tutorMenu);
   };
-  console.log(tutorMenu);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const SidebarContent = ({
@@ -538,13 +530,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           />
         </Dialog>
       </Transition.Root>
-
-      {/* Help Modal */}
-      <Transition.Root show={helpModal} as={Fragment}>
-        <Dialog as="div" className="relative z-50" onClose={setHelpModal}>
-          <HelpModal helpModal={helpModal} setHelpModal={setHelpModal} />
-        </Dialog>
-      </Transition.Root>
+      <HelpModal helpModal={helpModal} setHelpModal={setHelpModal} />
     </>
   );
 }
