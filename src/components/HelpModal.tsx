@@ -1,6 +1,6 @@
 import { StarIcon } from "./icons";
 import { SelectedNoteModal } from "./index";
-import { Text, Grid, Button, Box, Image, Heading } from "@chakra-ui/react";
+import { Text } from "@chakra-ui/react";
 import { Transition, Dialog } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import React, { Fragment, useState } from "react";
@@ -64,23 +64,21 @@ const actions2 = [
   },
 ];
 
-interface helpModalProps {
-  helpModal: boolean;
-  setHelpModal: (state: boolean) => void;
+interface ToggleProps {
+  setToggleHelpModal: (state: boolean) => void;
+  toggleHelpModal: boolean;
 }
 
-const HelpModal: React.FC<helpModalProps> = ({ helpModal, setHelpModal }) => {
-  const [selectedNoteModal, setSelectedNoteModal] = useState(false);
-  const [selectedHelpModal, setSelectedHelpModal] = useState(false);
+const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
+  const [toggleSelected, setToggleSelected] = useState(false);
+  const handleClose = () => {
+    console.log("Modal closed");
+    setToggleHelpModal(false);
+  };
   return (
     <>
-      <Transition.Root show={helpModal} as={Fragment}>
-        <Dialog
-          as="div"
-          className="relative z-50"
-          onClose={setHelpModal}
-          open={true}
-        >
+      <Transition.Root show={toggleHelpModal} as={Fragment}>
+        <Dialog as="div" className="relative z-50" onClose={handleClose}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -125,7 +123,7 @@ const HelpModal: React.FC<helpModalProps> = ({ helpModal, setHelpModal }) => {
                         </div>
                       </div>
                       <button
-                        onClick={() => setHelpModal(false)}
+                        onClick={handleClose}
                         className="inline-flex flex-shrink-0 space-x-1 items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-secondaryGray"
                       >
                         <span>Close</span>
@@ -163,7 +161,7 @@ const HelpModal: React.FC<helpModalProps> = ({ helpModal, setHelpModal }) => {
                         <div
                           onClick={() => {
                             if (action.showModal) {
-                              setSelectedNoteModal(true);
+                              setToggleSelected(true);
                             }
                           }}
                           key={action.title}
@@ -194,10 +192,7 @@ const HelpModal: React.FC<helpModalProps> = ({ helpModal, setHelpModal }) => {
           </div>
         </Dialog>
       </Transition.Root>
-      <SelectedNoteModal
-        selectedNoteModal={selectedNoteModal}
-        setSelectedNoteModal={setSelectedNoteModal}
-      />
+      {toggleSelected && <SelectedNoteModal />}
     </>
   );
 };

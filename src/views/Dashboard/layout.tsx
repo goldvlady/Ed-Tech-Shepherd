@@ -94,10 +94,15 @@ const LinkBItems: Array<LinkItemProps> = [
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [tutorMenu, setTutorMenu] = useState(true);
-  const [helpModal, setHelpModal] = useState(false);
+  const [toggleHelpModal, setToggleHelpModal] = useState(false);
   const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
   const { user }: any = userStore();
   const { pathname } = useLocation();
+
+  const activateHelpModal = () => {
+    setToggleHelpModal(true);
+    console.log("<Modal active!");
+  };
 
   const toggleMenu = () => {
     setTutorMenu(!tutorMenu);
@@ -292,17 +297,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </Text>
 
         <button
-          onClick={() => setHelpModal(true)}
-          className="relative flex max-w-fit items-center space-x-3 border rounded-full  flex-1 px-3 py-1"
+          onClick={activateHelpModal}
+          className="relative flex max-w-fit items-center space-x-3 border rounded-full  flex-1 px-1 py-1"
         >
-          <div className="flex-shrink-0 bg-orange-100 p-2 flex justify-center items-center rounded-full">
-            <img
-              src="/svgs/robot-face.svg"
-              className="h-6 w-6 text-gray-400"
-              alt=""
-            />
+          <div className="flex-shrink-0 bg-orange-100 hover:bg-orange-300 p-2 flex justify-center items-center rounded-full">
+            <img src="/svgs/robot-face.svg" className="h-4 w-4" alt="" />
           </div>
-          <Text className="text-primaryGray">
+          <Text className="text-primaryGray text-sm pr-2">
             Hi, what would you like to do?
           </Text>
         </button>
@@ -530,7 +531,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           />
         </Dialog>
       </Transition.Root>
-      <HelpModal helpModal={helpModal} setHelpModal={setHelpModal} />
+      {toggleHelpModal && (
+        <HelpModal
+          setToggleHelpModal={setToggleHelpModal}
+          toggleHelpModal={toggleHelpModal}
+        />
+      )}
     </>
   );
 }
