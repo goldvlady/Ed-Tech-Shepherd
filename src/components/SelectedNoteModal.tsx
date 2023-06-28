@@ -11,19 +11,16 @@ import {
 import React, { Fragment, useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-interface selectedModalProps {
-  selectedNoteModal: boolean;
-  setSelectedNoteModal: (state: boolean) => void;
-}
-
 type List = {
   name: "string";
 };
 
-const SelectedModal: React.FC<selectedModalProps> = ({
-  selectedNoteModal,
-  setSelectedNoteModal,
-}) => {
+interface ShowProps {
+  show: boolean;
+  setShow: (show: boolean) => void;
+}
+
+const SelectedModal = ({ show, setShow }: ShowProps) => {
   const navigate = useNavigate();
   const [fileName, setFileName] = useState("");
   const [progress, setProgress] = useState("");
@@ -58,10 +55,12 @@ const SelectedModal: React.FC<selectedModalProps> = ({
     setFileName(name);
     setFile(e.target.files[0]);
   };
+  const handleClose = (e) => {
+    setShow(false);
+  };
 
   const uploadFile = (e) => {
     if (!file || !docPath) {
-      setSelectedNoteModal(true);
       setUploadError("You haven't uploaded a file yet.");
       return;
     }
@@ -97,13 +96,8 @@ const SelectedModal: React.FC<selectedModalProps> = ({
   };
 
   return (
-    <Transition.Root show={selectedNoteModal} as={Fragment}>
-      <Dialog
-        as="div"
-        className="relative z-[999]"
-        open={true}
-        onClose={setSelectedNoteModal}
-      >
+    <Transition.Root show={true} as={Fragment}>
+      <Dialog as="div" className="relative z-[999]" onClose={() => {}}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -113,7 +107,7 @@ const SelectedModal: React.FC<selectedModalProps> = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+          <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
         </Transition.Child>
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -147,7 +141,9 @@ const SelectedModal: React.FC<selectedModalProps> = ({
                         defaultValue="Select from your note"
                       >
                         {list &&
-                          list.map((item) => <option>{item.name}</option>)}
+                          list.map((item, id) => (
+                            <option key={id}>{item.name}</option>
+                          ))}
                       </select>
                     </div>
 
@@ -208,7 +204,7 @@ const SelectedModal: React.FC<selectedModalProps> = ({
                   <button
                     type="button"
                     className="inline-flex w-fit justify-center rounded-md shadow-md bg-white ring-1 ring-gray-400 px-3 py-2 text-sm font-semibold text-primaryGray hover:text-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
-                    onClick={() => setSelectedNoteModal(false)}
+                    onClick={handleClose}
                   >
                     Cancel
                   </button>

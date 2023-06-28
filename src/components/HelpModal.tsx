@@ -70,129 +70,136 @@ interface ToggleProps {
 }
 
 const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
-  const [toggleSelected, setToggleSelected] = useState(false);
+  const [showSelected, setShowSelected] = useState(false);
+
   const handleClose = () => {
-    console.log("Modal closed");
     setToggleHelpModal(false);
   };
+
+  const handleShowSelected = () => {
+    setShowSelected(true);
+  };
+
   return (
     <>
-      <Transition.Root show={toggleHelpModal} as={Fragment}>
-        <Dialog as="div" className="relative z-50" onClose={handleClose}>
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-          </Transition.Child>
+      {toggleHelpModal && (
+        <Transition.Root show={toggleHelpModal} as={Fragment}>
+          <Dialog as="div" className="relative z-1" onClose={() => {}}>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+            </Transition.Child>
 
-          <div className="fixed inset-0 z-10 overflow-y-auto">
-            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                enterTo="opacity-100 translate-y-0 sm:scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-                leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              >
-                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white pt-5 mt-10 text-left shadow-xl transition-all sm:w-full sm:max-w-5xl">
-                  <div>
-                    <div className="flex justify-between border-b pb-2 px-2">
-                      <div className="flex items-center space-x-2">
-                        <StarIcon
-                          className="text-primaryBlue h-5 w-5"
-                          onClick={undefined}
-                        />
-                        <div className="text-sm font-semibold">
-                          <Typewriter
-                            onInit={(typewriter) => {
-                              typewriter
-                                .typeString(
-                                  "Hi Liam, How can Shepherd make your study time more effective today?"
-                                )
-                                .start();
-                            }}
+            <div className="fixed inset-0 z-10 overflow-y-auto">
+              <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                  enterTo="opacity-100 translate-y-0 sm:scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+                  leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                >
+                  <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white pt-5 mt-10 text-left shadow-xl transition-all sm:w-full sm:max-w-5xl">
+                    <div>
+                      <div className="flex justify-between border-b pb-2 px-2">
+                        <div className="flex items-center space-x-2">
+                          <StarIcon
+                            className="text-primaryBlue h-5 w-5"
+                            onClick={undefined}
                           />
+                          <div className="text-sm font-semibold">
+                            <Typewriter
+                              onInit={(typewriter) => {
+                                typewriter
+                                  .typeString(
+                                    "Hi Liam, How can Shepherd make your study time more effective today?"
+                                  )
+                                  .start();
+                              }}
+                            />
+                          </div>
                         </div>
+                        <button
+                          onClick={handleClose}
+                          className="inline-flex flex-shrink-0 space-x-1 items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-secondaryGray"
+                        >
+                          <span>Close</span>
+                          <XMarkIcon className="w-4 h-4" />
+                        </button>
                       </div>
-                      <button
-                        onClick={handleClose}
-                        className="inline-flex flex-shrink-0 space-x-1 items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-secondaryGray"
-                      >
-                        <span>Close</span>
-                        <XMarkIcon className="w-4 h-4" />
-                      </button>
-                    </div>
 
-                    <div className="overflow-hidden p-4 bg-white sm:grid sm:grid-cols-4 sm:gap-x-4 sm:space-y-0 space-y-2 ">
-                      {actions1.map((action) => (
-                        <div
-                          key={action.title}
-                          className="group cursor-pointer transform hover:drop-shadow-md relative bg-gray-100 p-3 focus-within:ring-2 rounded-lg focus-within:ring-inset focus-within:ring-gray-500"
-                        >
-                          <div>
-                            <img src={action.imageURL} alt={action.title} />
+                      <div className="overflow-hidden p-4 bg-white sm:grid sm:grid-cols-4 sm:gap-x-4 sm:space-y-0 space-y-2 ">
+                        {actions1.map((action) => (
+                          <div
+                            key={action.title}
+                            className="group cursor-pointer transform hover:drop-shadow-md relative bg-gray-100 p-3 focus-within:ring-2 rounded-lg focus-within:ring-inset focus-within:ring-gray-500"
+                          >
+                            <div>
+                              <img src={action.imageURL} alt={action.title} />
+                            </div>
+                            <div className="mt-4">
+                              <Text className="text-base font-semibold leading-6 text-dark">
+                                <span
+                                  className="absolute inset-0"
+                                  aria-hidden="true"
+                                />
+                                {action.title}
+                              </Text>
+                              <p className="mt-2 text-sm text-secondaryGray">
+                                {action.description}
+                              </p>
+                            </div>
                           </div>
-                          <div className="mt-4">
-                            <Text className="text-base font-semibold leading-6 text-dark">
-                              <span
-                                className="absolute inset-0"
-                                aria-hidden="true"
-                              />
-                              {action.title}
-                            </Text>
-                            <p className="mt-2 text-sm text-secondaryGray">
-                              {action.description}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
 
-                    <div className="overflow-hidden sm:w-[80%] w-full mx-auto p-4  bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">
-                      {actions2.map((action) => (
-                        <div
-                          onClick={() => {
-                            if (action.showModal) {
-                              setToggleSelected(true);
-                            }
-                          }}
-                          key={action.title}
-                          className="group cursor-pointer relative transform hover:drop-shadow-md  bg-gray-100 p-4 focus-within:ring-2 rounded-lg focus-within:ring-inset focus-within:ring-gray-500"
-                        >
-                          <div>
-                            <img src={action.imageURL} alt={action.title} />
+                      <div className="overflow-hidden sm:w-[80%] w-full mx-auto p-4  bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">
+                        {actions2.map((action) => (
+                          <div
+                            onClick={() => {
+                              if (action.showModal) handleShowSelected();
+                            }}
+                            key={action.title}
+                            className="group cursor-pointer relative transform hover:drop-shadow-md  bg-gray-100 p-4 focus-within:ring-2 rounded-lg focus-within:ring-inset focus-within:ring-gray-500"
+                          >
+                            <div>
+                              <img src={action.imageURL} alt={action.title} />
+                            </div>
+                            <div className="mt-4">
+                              <button className="text-base font-semibold leading-6 text-dark">
+                                <span
+                                  className="absolute inset-0"
+                                  aria-hidden="true"
+                                />
+                                {action.title}
+                              </button>
+                              <Text className="mt-2 text-sm text-secondaryGray">
+                                {action.description}
+                              </Text>
+                            </div>
                           </div>
-                          <div className="mt-4">
-                            <button className="text-base font-semibold leading-6 text-dark">
-                              <span
-                                className="absolute inset-0"
-                                aria-hidden="true"
-                              />
-                              {action.title}
-                            </button>
-                            <Text className="mt-2 text-sm text-secondaryGray">
-                              {action.description}
-                            </Text>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                </Dialog.Panel>
-              </Transition.Child>
+                  </Dialog.Panel>
+                </Transition.Child>
+              </div>
             </div>
-          </div>
-        </Dialog>
-      </Transition.Root>
-      {toggleSelected && <SelectedNoteModal />}
+          </Dialog>
+        </Transition.Root>
+      )}
+      {showSelected && (
+        <SelectedNoteModal show={showSelected} setShow={setShowSelected} />
+      )}
     </>
   );
 };

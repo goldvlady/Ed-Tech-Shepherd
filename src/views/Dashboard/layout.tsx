@@ -101,7 +101,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const activateHelpModal = () => {
     setToggleHelpModal(true);
-    console.log("<Modal active!");
   };
 
   const toggleMenu = () => {
@@ -531,12 +530,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           />
         </Dialog>
       </Transition.Root>
-      {toggleHelpModal && (
-        <HelpModal
-          setToggleHelpModal={setToggleHelpModal}
-          toggleHelpModal={toggleHelpModal}
-        />
-      )}
+      <HelpModal
+        setToggleHelpModal={setToggleHelpModal}
+        toggleHelpModal={toggleHelpModal}
+      />
     </>
   );
 }
