@@ -299,12 +299,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           onClick={activateHelpModal}
           className="relative flex max-w-fit items-center space-x-3 border rounded-full  flex-1 px-1 py-1"
         >
-          <div className="flex-shrink-0 bg-orange-100 hover:bg-orange-300 p-2 flex justify-center items-center rounded-full">
-            <img src="/svgs/robot-face.svg" className="h-4 w-4" alt="" />
+          <div className="flex-shrink-0 hover:bg-orange-200 p-2 flex justify-center items-center rounded-full">
+            <img src="/svgs/avatar-male.svg" className="h-6 w-6" alt="" />
           </div>
-          <Text className="text-primaryGray text-sm pr-2">
-            Hi, what would you like to do?
-          </Text>
+          <Text className="text-primaryGray text-sm pr-6">Ask Shepherd?</Text>
         </button>
 
         <HStack spacing={4}>

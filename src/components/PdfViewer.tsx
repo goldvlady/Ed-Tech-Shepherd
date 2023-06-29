@@ -14,7 +14,7 @@ import "tailwindcss/tailwind.css";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-const PDFViewer = ({ pathToPdf }) => {
+const PDFViewer = ({ documentUrl }: { documentUrl: string }) => {
   const [, setUploadDocumentModal] = useState(false);
   const [numPages, setNumPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -189,10 +189,13 @@ const PDFViewer = ({ pathToPdf }) => {
         </div>
         <div className="p-6 bg-white shadow-lg shadow-slate-200 text-black">
           <Document
-            file={pathToPdf} // Replace with your PDF file path
+            // @ts-ignore
+            file={{
+              url: `https://of-cors-not.herokuapp.com/fetch/${documentUrl}`,
+            }}
             onLoadSuccess={onDocumentLoadSuccess}
           >
-            <Page pageNumber={currentPage} scale={scale} />
+            <Page pageNumber={currentPage} width={300} scale={1.0} />
           </Document>
         </div>
       </section>

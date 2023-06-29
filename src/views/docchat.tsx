@@ -1,14 +1,18 @@
 import { PdfViewer } from "../components";
 import { Text } from "@chakra-ui/react";
-import React from "react";
+import { useLocation } from "react-router-dom";
 
+// @ts-ignore
 export default function Notes() {
+  const location = useLocation();
+
+  const documentUrl = location?.state?.documentUrl;
   return (
     <section className="divide-y max-w-screen-xl mx-auto pb-6 lg:pb-16">
       <main className="relative">
         <div className="bg-white overflow-hidden">
           <div className="divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
-            <PdfViewer pathToPdf="/Keke.pdf" />
+            <PdfViewer documentUrl={documentUrl} />
 
             <form className="lg:col-span-4 flex-auto h-full">
               <div className="flex flex-col flex-auto h-full">

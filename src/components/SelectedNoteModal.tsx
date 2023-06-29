@@ -8,41 +8,47 @@ import {
   listAll,
   getDownloadURL,
 } from "firebase/storage";
-import React, { Fragment, useRef, useState, useEffect } from "react";
+import { Fragment, useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 type List = {
-  name: "string";
+  name: string;
+  fullPath: string;
 };
 
 interface ShowProps {
   show: boolean;
   setShow: (show: boolean) => void;
+  setShowHelp: (showHelp: boolean) => void;
 }
 
-const SelectedModal = ({ show, setShow }: ShowProps) => {
+const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   const navigate = useNavigate();
   const [fileName, setFileName] = useState("");
   const [progress, setProgress] = useState("");
   const [list, setList] = useState<Array<List>>([]);
   const [file, setFile] = useState<Blob | Uint8Array | ArrayBuffer>();
+  const [selectedOption, setSelectedOption] = useState("");
   const [docPath, setDocPath] = useState("");
   const [uploadError, setUploadError] = useState("");
+  const [loadedList, setLoadedList] = useState(false);
   const inputRef = useRef(null);
 
   useEffect(() => {
     const { currentUser } = getAuth();
-    currentUser?.uid && setDocPath(currentUser.uid);
-
-    const listEverything = async () => {
-      const listRef = ref(storage, `${docPath}`);
+    const listEverything = async (path) => {
+      const listRef = ref(storage, path);
       listAll(listRef)
         // @ts-ignore
         .then((res) => setList(res.items));
     };
 
-    listEverything();
-  }, []);
+    if (currentUser?.uid) {
+      setDocPath(currentUser.uid);
+      listEverything(currentUser?.uid);
+      setLoadedList(true);
+    }
+  }, [docPath]);
 
   const clickInput = (_) => {
     // @ts-ignore
@@ -55,44 +61,56 @@ const SelectedModal = ({ show, setShow }: ShowProps) => {
     setFileName(name);
     setFile(e.target.files[0]);
   };
-  const handleClose = (e) => {
+  const handleClose = () => {
     setShow(false);
   };
 
-  const uploadFile = (e) => {
-    if (!file || !docPath) {
-      setUploadError("You haven't uploaded a file yet.");
-      return;
+  const handleSelected = (e) => {
+    setSelectedOption(e.target.value);
+  };
+
+  const processOrContinue = async (e) => {
+    if (!file && !selectedOption)
+      return setUploadError("You haven't uploaded a file or selected a note.");
+
+    if (selectedOption) {
+      // @ts-ignore
+      const documentUrl = await getDownloadURL(ref(storage, selectedOption));
+      setShow(false);
+      setShowHelp(false);
+      navigate("/dashboard/docchat", {
+        state: {
+          documentUrl,
+        },
+      });
     }
-    const storageRef = ref(
-      storage,
-      `${docPath}/${fileName.toLowerCase().replace(/\s/g, "")}`
-    );
-    const task = uploadBytesResumable(storageRef, file);
 
-    task.on(
-      "state_changed",
-      (snapshot) => {
-        const progress = `Upload is ${Math.round(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        )}% done`;
+    if (file) {
+      const storageRef = ref(
+        storage,
+        `${docPath}/${fileName.toLowerCase().replace(/\s/g, "")}`
+      );
+      const task = uploadBytesResumable(storageRef, file);
 
-        switch (snapshot.state) {
-          case "running":
-            setProgress(progress);
-            break;
-          case "success":
-            setProgress("Complete!");
-            break;
-        }
-      },
-      (error) => console.log(error),
-      () => {
-        getDownloadURL(task.snapshot.ref).then((res) =>
-          console.log("Available for download on", res)
-        );
-      }
-    );
+      task.on(
+        "state_changed",
+        (snapshot) => {
+          const progress = `Upload is ${Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          )}% done`;
+
+          switch (snapshot.state) {
+            case "running":
+              setProgress(progress);
+              break;
+            case "success":
+              setProgress("Complete!");
+              break;
+          }
+        },
+        (error) => console.log(error)
+      );
+    }
   };
 
   return (
@@ -127,31 +145,37 @@ const SelectedModal = ({ show, setShow }: ShowProps) => {
                     <span className="text-dark font-semibold">Select Note</span>
                   </div>
                   <div className="p-4">
-                    <div>
-                      <label
-                        htmlFor="note"
-                        className="block text-sm font-medium leading-6 text-gray-500"
-                      >
-                        Select note
-                      </label>
-                      <select
-                        id="note"
-                        name="note"
-                        className="mt-2 block w-full rounded-md border-0 py-2 pl-3 pr-10 text-gray-400 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-200 sm:text-sm sm:leading-6"
-                        defaultValue="Select from your note"
-                      >
-                        {list &&
-                          list.map((item, id) => (
-                            <option key={id}>{item.name}</option>
-                          ))}
-                      </select>
-                    </div>
+                    {loadedList && (
+                      <div>
+                        <label
+                          htmlFor="note"
+                          className="block text-sm font-medium leading-6 text-gray-500"
+                        >
+                          Select note
+                        </label>
+                        <select
+                          id="note"
+                          name="note"
+                          className="mt-2 block w-full rounded-md border-0 py-2 pl-3 pr-10 text-gray-400 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-200 sm:text-sm sm:leading-6"
+                          defaultValue="Select from your note"
+                          onChange={handleSelected}
+                        >
+                          {loadedList &&
+                            list.map((item, id) => (
+                              <option value={item.fullPath} key={id}>
+                                {item.name}
+                              </option>
+                            ))}
+                        </select>
+                        <div className="relative flex my-4 justify-center text-sm font-medium leading-6">
+                          <span className="px-6 text-gray-400">Or</span>
+                        </div>
+                      </div>
+                    )}
 
-                    <div className="relative flex my-4 justify-center text-sm font-medium leading-6">
-                      <span className="px-6 text-gray-400">Or</span>
-                    </div>
-
-                    <div className="flex w-full justify-between rounded-md bg-white ring-1 ring-primaryBlue px-3 py-1 mb-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-50 cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+                    <div
+                      className={`flex w-full justify-between rounded-md bg-white ring-1 ring-primaryBlue px-3 py-1 mb-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-50 cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-within:outline-blue-600`}
+                    >
                       <span
                         className="flex items-center space-x-2"
                         onClick={clickInput}
@@ -211,7 +235,7 @@ const SelectedModal = ({ show, setShow }: ShowProps) => {
                   <button
                     type="button"
                     className="inline-flex w-fit justify-center rounded-md bg-primaryBlue px-3 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                    onClick={uploadFile}
+                    onClick={processOrContinue}
                   >
                     Confirm
                   </button>
