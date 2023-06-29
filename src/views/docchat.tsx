@@ -6,15 +6,15 @@ import { useLocation } from "react-router-dom";
 export default function Notes() {
   const location = useLocation();
 
-  const documentUrl = location?.state?.documentUrl;
+  const { documentUrl, docTitle } = location?.state;
   return (
     <section className="divide-y max-w-screen-xl mx-auto pb-6 lg:pb-16">
       <main className="relative">
         <div className="bg-white overflow-hidden">
           <div className="divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
-            <PdfViewer documentUrl={documentUrl} />
+            <PdfViewer documentUrl={documentUrl} docTitle={docTitle} />
 
-            <form className="lg:col-span-4 flex-auto h-full">
+            <form className="lg:col-span-6 flex-auto h-full">
               <div className="flex flex-col flex-auto h-full">
                 <div className="flex overflow-scroll flex-col flex-auto flex-shrink-0 bg-white h-full">
                   <div className="flex flex-col h-full overflow-x-auto mb-4">

@@ -8,17 +8,32 @@ import {
   MagnifyingGlassPlusIcon,
   PencilSquareIcon,
 } from "@heroicons/react/24/outline";
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, useEffect } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "tailwindcss/tailwind.css";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-const PDFViewer = ({ documentUrl }: { documentUrl: string }) => {
+const PDFViewer = ({
+  documentUrl,
+  docTitle,
+}: {
+  documentUrl: string;
+  docTitle: string;
+}) => {
   const [, setUploadDocumentModal] = useState(false);
   const [numPages, setNumPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [scale, setScale] = useState(1);
+  const [viewportWidth, setviewportWidth] = useState(500);
+
+  useEffect(() => {
+    window.addEventListener("resize", () => {
+      const docWidth = document.getElementById("pdfwindow")?.clientWidth;
+      // @ts-ignore
+      setviewportWidth(docWidth);
+    });
+  });
 
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
@@ -47,11 +62,9 @@ const PDFViewer = ({ documentUrl }: { documentUrl: string }) => {
   };
 
   return (
-    <div className="pb-2 lg:col-span-8">
-      <div className="flex flex-row justify-between mx-2 my-5">
-        <Text className="align-middle self-center h-full font-bold">
-          Documenttitle.pdf
-        </Text>
+    <div className="pb-2 lg:col-span-6">
+      <div className="flex flex-row justify-between">
+        <Text className="align-middle self-center font-bold">{docTitle}</Text>
         <div className="flex flex-row justify-between space-x-2">
           <button className="rounded-full relative bg-white p-2 text-gray-400 focus:outline-none focus:ring-1 focus:ring-white focus:ring-offset-1 focus:ring-offset-gray-50">
             <span className="sr-only">Pin</span>
@@ -134,12 +147,15 @@ const PDFViewer = ({ documentUrl }: { documentUrl: string }) => {
           </Menu>
         </div>
       </div>
-      <section className="ml-5">
-        <div className="flex flex-row justify-between bg-gray-500 p-7">
-          <button className="rounded-full relative text-gray-400 focus:outline-none">
+      <section className="mr-3">
+        <div
+          id="pdfwindow"
+          className="flex flex-row justify-center bg-[#585F68] p-3"
+        >
+          {/* <button className="rounded-full relative text-gray-400 focus:outline-none">
             <span className="sr-only">Write</span>
             <PencilSquareIcon className="h-5 w-5" aria-hidden="true" />
-          </button>
+          </button> */}
           <div className="flex flex-row content-center">
             <button
               onClick={goToPrevPage}
@@ -167,7 +183,7 @@ const PDFViewer = ({ documentUrl }: { documentUrl: string }) => {
               />
             </button>
           </div>
-          <div className="flex flex-row space-x-2">
+          {/* <div className="flex flex-row space-x-2">
             <button
               onClick={zoomIn}
               className="rounded-full relative text-gray-200 focus:outline-none"
@@ -185,9 +201,9 @@ const PDFViewer = ({ documentUrl }: { documentUrl: string }) => {
                 aria-hidden="true"
               />
             </button>
-          </div>
+          </div> */}
         </div>
-        <div className="p-6 bg-white shadow-lg shadow-slate-200 text-black">
+        <div className="overflow-hidden">
           <Document
             // @ts-ignore
             file={{
@@ -195,7 +211,13 @@ const PDFViewer = ({ documentUrl }: { documentUrl: string }) => {
             }}
             onLoadSuccess={onDocumentLoadSuccess}
           >
-            <Page pageNumber={currentPage} width={300} scale={1.0} />
+            <Page
+              pageNumber={currentPage}
+              scale={scale}
+              renderAnnotationLayer={false}
+              renderTextLayer={false}
+              width={viewportWidth}
+            />
           </Document>
         </div>
       </section>

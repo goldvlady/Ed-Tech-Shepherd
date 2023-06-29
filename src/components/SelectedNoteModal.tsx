@@ -76,11 +76,13 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     if (selectedOption) {
       // @ts-ignore
       const documentUrl = await getDownloadURL(ref(storage, selectedOption));
+      const item = list.filter((list) => list.fullPath === selectedOption);
       setShow(false);
       setShowHelp(false);
       navigate("/dashboard/docchat", {
         state: {
           documentUrl,
+          docTitle: item[0].name,
         },
       });
     }
@@ -162,6 +164,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
                         >
                           {loadedList &&
                             list.map((item, id) => (
+                              // @ts-ignore
                               <option value={item.fullPath} key={id}>
                                 {item.name}
                               </option>
