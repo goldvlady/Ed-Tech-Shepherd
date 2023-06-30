@@ -3,6 +3,8 @@ import userStore from "./state/userStore";
 import theme from "./theme";
 import CreatePassword from "./views/CreatePassword";
 import BookmarkedTutors from "./views/Dashboard/BookmarkedTutors";
+import FlashCard from "./views/Dashboard/FlashCards";
+import CreateFlashCard from "./views/Dashboard/FlashCards/create";
 import Marketplace from "./views/Dashboard/Marketplace";
 import Messaging from "./views/Dashboard/Messaging";
 import MyTutors from "./views/Dashboard/MyTutors";
@@ -204,6 +206,10 @@ const AppRoutes: React.FC = () => {
       >
         <Route element={<DashboardLayout children />} />
 
+        <Route path="flashcards">
+          <Route path="create" element={<CreateFlashCard />} />
+          <Route path="" element={<FlashCard />}></Route>
+        </Route>
         <Route path="tutor/:tutorId/offer" element={<SendTutorOffer />} />
         <Route path="offer/:offerId" element={<Offer />} />
 

@@ -1,3 +1,6 @@
+import calendarDrop from "../../../assets/calendar-drop.svg";
+import ScheduleIcon from "../../../assets/timer.svg";
+import Events from "../../../components/Events";
 import {
   Box,
   Button,
@@ -14,10 +17,6 @@ import {
 } from "@chakra-ui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
 import React, { useState } from "react";
-
-import calendarDrop from "../../../assets/calendar-drop.svg";
-import ScheduleIcon from "../../../assets/timer.svg";
-import Events from "../../../components/Events";
 
 const events = [
   {
@@ -105,14 +104,14 @@ export default function Schedule() {
               <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
             </button>
             <section className="flex-auto text-sm font-semibold">
-              <div className="flex space-x-8 justify-content-center">
+              <div className="flex space-x-8 justify-evenly">
                 <div className="text-gray-400">
                   <span className="block text-2xl font-normal">19</span>
                   <span className="text-uppercase block text-md font-normal">
                     SUN
                   </span>
                 </div>
-                <div className="text-gray-400  bg-blue-100 px-2  rounded-full">
+                <div className="text-gray-400  bg-blue-100 px-2 rounded">
                   <span className="block text-blue-500 text-2xl font-normal">
                     20
                   </span>

@@ -1,3 +1,10 @@
+import Star from "../../../assets/littleStar.svg";
+import Ribbon2 from "../../../assets/ribbon-blue.svg";
+import Ribbon from "../../../assets/ribbon-grey.svg";
+import TutorAvi from "../../../assets/tutoravi.svg";
+import ApiService from "../../../services/ApiService";
+import bookmarkedTutorsStore from "../../../state/bookmarkedTutorsStore";
+import { textTruncate } from "../../../util";
 import {
   Avatar,
   Badge,
@@ -19,14 +26,6 @@ import {
   Divider,
 } from "@chakra-ui/react";
 import React, { useCallback, useEffect } from "react";
-
-import Star from "../../../assets/littleStar.svg";
-import Ribbon2 from "../../../assets/ribbon-blue.svg";
-import Ribbon from "../../../assets/ribbon-grey.svg";
-import TutorAvi from "../../../assets/tutoravi.svg";
-import ApiService from "../../../services/ApiService";
-import bookmarkedTutorsStore from "../../../state/bookmarkedTutorsStore";
-import { textTruncate } from "../../../util";
 
 export default function TutorCard(props: any) {
   const {
@@ -87,10 +86,11 @@ export default function TutorCard(props: any) {
   return (
     <LinkBox as="article">
       <Center>
+        {" "}
         <Box
           bg={"white"}
           w={{ sm: "100%", md: "100%", lg: "370px" }}
-          height={{ sm: "285px", md: "325px", lg: "325px" }}
+          height={{ sm: "285px", md: "285px", lg: "325px" }}
           borderRadius="12px"
           border="1px solid #EBEDEF"
           _hover={{ boxShadow: "2xl" }}

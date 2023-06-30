@@ -1,12 +1,11 @@
+import theme from "../theme";
+import { Tutor } from "../types";
+import Panel from "./Panel";
 import { Avatar, Box, HStack, Text } from "@chakra-ui/react";
 import { capitalize } from "lodash";
 import React, { ComponentProps, useMemo } from "react";
 import { FiBookOpen } from "react-icons/fi";
 import styled from "styled-components";
-
-import theme from "../theme";
-import { Tutor } from "../types";
-import Panel from "./Panel";
 
 type Props = {
   tutor: Tutor;
@@ -45,17 +44,15 @@ const TutorCard: React.FC<Props> = ({ tutor, ...rest }) => {
           <Avatar
             width={"45px"}
             height="45px"
-            // name={`${tutor.user.name.first} ${tutor.user.name.last}`}
-            name={`TUTOR`}
+            name={`${tutor.user.name.first} ${tutor.user.name.last}`}
             src={tutor.avatar}
           />
         </Box>
         <Box flexGrow={1}>
           <HStack justifyContent={"space-between"}>
             <Text className="sub2" color={"text.200"} mb={0}>
-              {/* {capitalize(tutor.user.name.first)}{" "}
-              {capitalize(tutor.user.name.last)} */}
-              TUTOR
+              {capitalize(tutor.user.name.first)}{" "}
+              {capitalize(tutor.user.name.last)}
             </Text>
           </HStack>
           <Text
