@@ -1,9 +1,9 @@
-import React from "react";
-import { Box, Button, HStack, Text, VStack, Flex } from "@chakra-ui/react";
-import { TypeEnum } from "../create";
-import { useFlashCardState } from "../context/flashcard";
-import QuestionReviewCard from "../components/question_preview_card";
 import OptionBadge from "../components/optionBadge";
+import QuestionReviewCard from "../components/question_preview_card";
+import { useFlashCardState } from "../context/flashcard";
+import { TypeEnum } from "../create";
+import { Box, Button, HStack, Text, VStack, Flex } from "@chakra-ui/react";
+import React from "react";
 
 export default function QuestionsPreview({
   activeBadge,

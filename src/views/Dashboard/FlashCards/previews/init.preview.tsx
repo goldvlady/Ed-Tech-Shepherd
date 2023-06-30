@@ -1,7 +1,7 @@
-import { Box, HStack, Text } from "@chakra-ui/react";
+import BotIntructionBox from "../components/bot_intructon";
 import OptionBadge from "../components/optionBadge";
 import { TypeEnum } from "../create";
-import BotIntructionBox from "../components/bot_intructon";
+import { Box, HStack, Text } from "@chakra-ui/react";
 
 const InitSetupPreview = ({
   activeBadge,

@@ -50,8 +50,9 @@ import {
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
+import { Dialog, Transition } from "@headlessui/react";
 import { getAuth, signOut } from "firebase/auth";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useEffect, Fragment, useState } from "react";
 import { IconType } from "react-icons";
 import { BsChatLeftDots, BsPin, BsPlayCircle } from "react-icons/bs";
 import { CgNotes } from "react-icons/cg";
@@ -524,20 +525,19 @@ const SidebarContent = ({
 };
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  const [tutorMenu, setTutorMenu] = useState(false);
+  const [tutorMenu, setTutorMenu] = useState(true);
+  const [toggleHelpModal, setToggleHelpModal] = useState(false);
+  const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
   const { user }: any = userStore();
-  // const user = {
-  //   name: {
-  //     first: "Akinola",
-  //     last: "Ola",
-  //   },
-  // };
-  console.log("userrrr", user);
+  const { pathname } = useLocation();
+
+  const activateHelpModal = () => {
+    setToggleHelpModal(true);
+  };
 
   const toggleMenu = () => {
     setTutorMenu(!tutorMenu);
   };
-  console.log(tutorMenu);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (

@@ -1,9 +1,9 @@
-import React, { useMemo } from "react";
-import { Box, Button, HStack, Text, VStack, Flex } from "@chakra-ui/react";
-import { TypeEnum } from "../create";
-import { useMnemonicSetupState } from "../context/mneomics";
 import MnemonicCard from "../components/mneomics_preview_card";
 import OptionBadge from "../components/optionBadge";
+import { useMnemonicSetupState } from "../context/mneomics";
+import { TypeEnum } from "../create";
+import { Box, Button, HStack, Text, VStack, Flex } from "@chakra-ui/react";
+import React, { useMemo } from "react";
 
 export default function MnemonicPreview({
   activeBadge,

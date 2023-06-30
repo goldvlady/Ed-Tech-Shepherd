@@ -1,15 +1,14 @@
-import { useState, useEffect, useCallback } from "react";
+import FlashcardDataProvider from "./context/flashcard";
+import { useFlashCardState } from "./context/flashcard";
+import MnemonicSetupProvider from "./context/mneomics";
 import SetupFlashcardPage from "./forms/flashcard_setup";
 import SuccessState from "./forms/flashcard_setup/success_page";
 import MnemonicSetup from "./forms/mneomics_setup";
 import InitSetupPreview from "./previews/init.preview";
 import MnemonicPreview from "./previews/mneomics.preview";
 import QuestionsPreview from "./previews/questions.preview";
-import FlashcardDataProvider from "./context/flashcard";
-import MnemonicSetupProvider from "./context/mneomics";
-import { useFlashCardState } from "./context/flashcard";
 import { Box, HStack, Text, Radio, RadioGroup } from "@chakra-ui/react";
-
+import { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 
 const Wrapper = styled(Box)`

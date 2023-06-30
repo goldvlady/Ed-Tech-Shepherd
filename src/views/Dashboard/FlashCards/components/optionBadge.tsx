@@ -1,5 +1,5 @@
-import React, { ReactNode, useMemo, useState } from "react";
 import { Box, Badge } from "@chakra-ui/react";
+import React, { ReactNode, useMemo, useState } from "react";
 
 interface CustomBadgeProps {
   text: string;

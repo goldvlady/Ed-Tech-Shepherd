@@ -1,4 +1,3 @@
-import React, { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { useFlashCardState } from "../../context/flashcard";
 import {
   Box,
@@ -13,6 +12,7 @@ import {
   HStack,
   useEditable,
 } from "@chakra-ui/react";
+import React, { ChangeEvent, useEffect, useMemo, useState } from "react";
 
 const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
   const { flashcardData, setFlashcardData, goToNextStep } = useFlashCardState();

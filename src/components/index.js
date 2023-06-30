@@ -11,6 +11,7 @@ export { default as AcceptOfferModal } from "./AcceptOfferModal.tsx";
 export { default as DeclineOfferModal } from "./DeclineOfferModal.tsx";
 export { default as DeleteNoteModal } from "./DeleteNoteModal.tsx";
 export { default as HelpModal } from "./HelpModal.tsx";
+export { default as PdfViewer } from "./PdfViewer.tsx";
 export { default as SelectedNoteModal } from "./SelectedNoteModal.tsx";
 export { default as DeleteAllNotesModal } from "./DeleteAllNotesModal.tsx";
 export { default as UploadDocumentModal } from "./UploadDocumentModal.tsx";
