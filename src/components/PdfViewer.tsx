@@ -25,7 +25,7 @@ const PDFViewer = ({
   const [numPages, setNumPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   // const [scale, setScale] = useState(1);
-  const [viewportWidth, setviewportWidth] = useState(500);
+  const [viewportWidth, setviewportWidth] = useState(647);
 
   useEffect(() => {
     window.addEventListener("resize", () => {
@@ -207,7 +207,7 @@ const PDFViewer = ({
           <Document
             // @ts-ignore
             file={{
-              url: `https://of-cors-not.herokuapp.com/fetch/${documentUrl}`,
+              url: documentUrl,
             }}
             onLoadSuccess={onDocumentLoadSuccess}
           >

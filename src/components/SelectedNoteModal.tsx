@@ -107,6 +107,16 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
               break;
             case "success":
               setProgress("Complete!");
+              const documentUrl = getDownloadURL(snapshot.ref);
+              const title = snapshot.metadata.name;
+              setShow(false);
+              setShowHelp(false);
+              navigate("/dashboard/docchat", {
+                state: {
+                  documentUrl,
+                  docTitle: title,
+                },
+              });
               break;
           }
         },

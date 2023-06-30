@@ -14,14 +14,14 @@ const actions1 = [
     title: "Test Prep",
     description:
       "Got a test coming? Shepherd has you covered with quizzes & prep resources priming you for the big day",
-    imageURL: "/images/test.png",
+    imageURL: "/images/test.svg",
   },
   {
     id: 1,
     title: "Deep Dives",
     description:
       "Struggling with a tricky topic? Let Shepherd simplify it for you with in-depth analysis & detailed explanations",
-    imageURL: "/images/bulb.png",
+    imageURL: "/images/bulb.svg",
   },
   {
     id: 2,
@@ -29,7 +29,7 @@ const actions1 = [
     showModal: true,
     description:
       "Want to make the most of your notes? Chat with them via Shepherd and uncover insights to boost your grasp ",
-    imageURL: "/images/notes-navigator.png",
+    imageURL: "/images/notes-navigator.svg",
   },
   {
     id: 3,
@@ -37,7 +37,7 @@ const actions1 = [
     showModal: false,
     description:
       "Delving into a research project? Let Shepherd find you the best resources & references for your work",
-    imageURL: "/images/flashcards.png",
+    imageURL: "/images/research-assistant.svg",
   },
 ];
 
@@ -47,14 +47,14 @@ const actions2 = [
     title: "Ace Homework",
     description:
       "Stuck with your homework, Shepherd can guide you through it step by step for quick & easy completion",
-    imageURL: "/images/homework.png",
+    imageURL: "/images/ace-homework.svg",
   },
   {
     id: 1,
     title: "Flashcards Factory",
     description:
       "Need a memory boost? Generate custom flashcards & mnemonics with Shepherd, making memorization a breeze",
-    imageURL: "/images/flashcards.png",
+    imageURL: "/images/flashcards.svg",
   },
   {
     id: 2,
@@ -62,7 +62,7 @@ const actions2 = [
     showModal: false,
     description:
       "Just starting school? Let Shepherd create a tailored study plan guiding you to academic success",
-    imageURL: "/images/roadmap.png",
+    imageURL: "/images/roadmap.svg",
   },
 ];
 
@@ -91,7 +91,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
     <>
       {toggleHelpModal && (
         <Transition.Root show={toggleHelpModal} as={Fragment}>
-          <Dialog as="div" className="relative z-1" onClose={() => {}}>
+          <Dialog as="div" className="relative z-[800]" onClose={() => {}}>
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -164,7 +164,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
                               <img src={action.imageURL} alt={action.title} />
                             </div>
                             <div className="mt-4">
-                              <Text className="text-base font-semibold leading-6 text-dark">
+                              <Text className="text-base font-semibold leading-6 text-orange-400">
                                 <span
                                   className="absolute inset-0"
                                   aria-hidden="true"
@@ -192,7 +192,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
                               <img src={action.imageURL} alt={action.title} />
                             </div>
                             <div className="mt-4">
-                              <button className="text-base font-semibold leading-6 text-dark">
+                              <button className="text-base font-semibold leading-6 text-orange-400">
                                 <span
                                   className="absolute inset-0"
                                   aria-hidden="true"

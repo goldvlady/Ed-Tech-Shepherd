@@ -15,7 +15,7 @@ export default function DocChat() {
   return (
     location.state?.documentUrl && (
       <section className="divide-y max-w-screen-xl mx-auto">
-        <div className="h-screen divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
+        <div className="h-screen bg-white divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
           <PdfViewer
             documentUrl={location.state.documentUrl}
             docTitle={location.state.docTitle}
