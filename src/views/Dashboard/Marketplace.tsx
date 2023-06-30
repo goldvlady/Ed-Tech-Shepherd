@@ -15,6 +15,8 @@ import {
   Flex,
   FormControl,
   FormLabel,
+  Grid,
+  GridItem,
   HStack,
   Menu,
   MenuButton,
@@ -426,6 +428,32 @@ export default function Marketplace() {
               />
             ))}
           </SimpleGrid>
+          <Grid
+            templateColumns={{
+              base: "repeat(2, 1fr)",
+              md: "repeat(3, 1fr)",
+              lg: "repeat(4, 1fr)",
+            }}
+            gap={6}
+          >
+            {allTutors.map((tutor: any) => (
+              <GridItem w="100%">
+                <TutorCard
+                  key={tutor._id}
+                  id={tutor._id}
+                  name={`${tutor.user.name.first} ${tutor.user.name.last} `}
+                  levelOfEducation={tutor.highestLevelOfEducation}
+                  avatar={tutor.user.avatar}
+                  rate={tutor.rate}
+                  description={tutor.description}
+                  rating={tutor.rating}
+                  reviewCount={tutor.reviewCount}
+                  saved={checkBookmarks(tutor._id)}
+                  // saved={false}
+                />{" "}
+              </GridItem>
+            ))}
+          </Grid>
         </Box>
       </Box>
     </>

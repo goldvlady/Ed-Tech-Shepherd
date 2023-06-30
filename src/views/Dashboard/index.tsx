@@ -37,11 +37,19 @@ import {
   Heading,
   IconButton,
   Image,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
   SimpleGrid,
   Spacer,
   Stack,
   Text,
   useBreakpointValue,
+  useDisclosure,
   Center,
   VStack,
 } from "@chakra-ui/react";
@@ -71,6 +79,7 @@ export default function Index() {
   const isDayTime = hours > 6 && hours < 20;
 
   const { user } = userStore();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const cards = [
     {
@@ -151,7 +160,6 @@ export default function Index() {
       />
 
       <Box p={5}>
-        {" "}
         <Box
           bgColor={"#FFF5F0"}
           py={2}

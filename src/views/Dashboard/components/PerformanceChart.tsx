@@ -53,5 +53,5 @@ export const data = {
 };
 
 export function PerformanceChart() {
-  return <Bar options={options} data={data} />;
+  return <Bar options={options} data={data} style={{ width: "100%" }} />;
 }
