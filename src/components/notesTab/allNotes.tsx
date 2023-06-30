@@ -1,3 +1,4 @@
+import CustomModal from "../CustomModal";
 import {
   DownloadIcon,
   FlashCardsIcon,
@@ -36,7 +37,7 @@ const clients: Client[] = [
     title: "Chemistry Notes by Alisson",
     date_created: "May 09 2023, 13:00",
     last_modified: "May 21 2023, 09:00",
-    tags: "#Chemistry",
+    tags: "#Mathematics",
   },
   {
     id: 2,
@@ -47,10 +48,10 @@ const clients: Client[] = [
   },
   {
     id: 3,
-    title: "Chemistry Notes by Alisson",
+    title: "Biology Notes by Alisson",
     date_created: "May 09 2023, 13:00",
     last_modified: "May 21 2023, 09:00",
-    tags: "#Chemistry",
+    tags: "#Biology",
   },
   {
     id: 4,
@@ -61,10 +62,10 @@ const clients: Client[] = [
   },
   {
     id: 5,
-    title: "Chemistry Notes by Alisson",
+    title: "Physics Notes by Alisson",
     date_created: "May 09 2023, 13:00",
     last_modified: "May 21 2023, 09:00",
-    tags: "#Chemistry",
+    tags: "#Physics",
   },
 ];
 
@@ -75,6 +76,9 @@ const AllNotesTab = () => {
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
   const [selectedPeople, setSelectedPeople] = useState<Client[]>([]);
+  const [clientsDetails, setClientDetails] = useState({
+    title: "",
+  });
   const navigate = useNavigate();
 
   useLayoutEffect(() => {
@@ -93,13 +97,17 @@ const AllNotesTab = () => {
     setIndeterminate(false);
   }
 
+  const onDeleteNote = (isOpenDeleteModal: boolean, noteDetails: any) => {
+    setDeleteNoteModal(isOpenDeleteModal);
+    setClientDetails(noteDetails);
+  };
   return (
     <>
       <div className="mt-8 flow-root">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
             <div className="relative">
-              <div className="table-columns">
+              <div className="table-columns  fixed bottom-[80px] right-[36%] left-[36%]">
                 {selectedPeople.length > 0 && (
                   <div className="top-0 border px-4 py-8 text-sm rounded-md flex h-12 items-center justify-between space-x-3 w-[600px] bg-white sm:left-12">
                     <p className="text-gray-600">
@@ -324,7 +332,15 @@ const AllNotesTab = () => {
                       <td className="whitespace-nowrap py-4 text-sm text-gray-500">
                         {client.date_created}
                       </td>
-                      <td className="whitespace-nowrap py-4 text-sm text-gray-500">
+                      <td
+                        className={`whitespace-nowrap py-4 text-sm ${
+                          client.tags.includes("#C")
+                            ? "text-primaryBlue"
+                            : client.tags.includes("#P")
+                            ? "text-yellow-300"
+                            : "text-red-400"
+                        } `}
+                      >
                         {client.tags}
                       </td>
                       <td className="whitespace-nowrap py-4 text-sm text-gray-500">
@@ -397,7 +413,7 @@ const AllNotesTab = () => {
                                 </button>
                               </section>
                               <button
-                                onClick={() => setDeleteNoteModal(true)}
+                                onClick={() => onDeleteNote(true, client)}
                                 className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
                               >
                                 <div className="flex items-center space-x-1">
@@ -426,7 +442,19 @@ const AllNotesTab = () => {
         </div>
       </div>
 
-      {/* Delete Note Modal */}
+      <CustomModal
+        classes="w-[400px] h-auto"
+        openModalBox={deleteNoteModal}
+        closeModal={() => setDeleteNoteModal(false)}
+      >
+        <DeleteNoteModal
+          title={clientsDetails?.title}
+          deleteNoteModal={deleteNoteModal}
+          setDeleteNoteModal={setDeleteNoteModal}
+        />
+      </CustomModal>
+
+      {/* Delete Note Modal
       <Transition.Root show={deleteNoteModal} as={Fragment}>
         <Dialog as="div" className="relative z-50" onClose={setDeleteNoteModal}>
           <DeleteNoteModal
@@ -434,10 +462,10 @@ const AllNotesTab = () => {
             setDeleteNoteModal={setDeleteNoteModal}
           />
         </Dialog>
-      </Transition.Root>
+      </Transition.Root> */}
 
       {/* Delete All Notes Modal */}
-      <Transition.Root show={deleteAllNotesModal} as={Fragment}>
+      {/* <Transition.Root show={deleteAllNotesModal} as={Fragment}>
         <Dialog
           as="div"
           className="relative z-50"
@@ -448,7 +476,7 @@ const AllNotesTab = () => {
             setDeleteAllNotesModal={setDeleteAllNotesModal}
           />
         </Dialog>
-      </Transition.Root>
+      </Transition.Root> */}
     </>
   );
 };
