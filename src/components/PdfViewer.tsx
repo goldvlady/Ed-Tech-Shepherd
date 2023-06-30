@@ -24,7 +24,7 @@ const PDFViewer = ({
   const [, setUploadDocumentModal] = useState(false);
   const [numPages, setNumPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [scale, setScale] = useState(1);
+  // const [scale, setScale] = useState(1);
   const [viewportWidth, setviewportWidth] = useState(500);
 
   useEffect(() => {
@@ -51,15 +51,15 @@ const PDFViewer = ({
     }
   };
 
-  const zoomIn = () => {
-    setScale(scale + 0.2); // Increase scale by 0.2
-  };
+  // const zoomIn = () => {
+  //   setScale(scale + 0.2); // Increase scale by 0.2
+  // };
 
-  const zoomOut = () => {
-    if (scale > 0.2) {
-      setScale(scale - 0.2); // Decrease scale by 0.2
-    }
-  };
+  // const zoomOut = () => {
+  //   if (scale > 0.2) {
+  //     setScale(scale - 0.2); // Decrease scale by 0.2
+  //   }
+  // };
 
   return (
     <div className="pb-2 lg:col-span-6">
@@ -213,10 +213,10 @@ const PDFViewer = ({
           >
             <Page
               pageNumber={currentPage}
-              scale={scale}
               renderAnnotationLayer={false}
               renderTextLayer={false}
               width={viewportWidth}
+              renderMode="canvas"
             />
           </Document>
         </div>

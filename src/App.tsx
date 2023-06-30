@@ -28,7 +28,7 @@ import VerificationSuccess from "./views/VerificationPages/successful_verificati
 import WelcomeLayout from "./views/WelcomeLayout";
 import Client from "./views/client";
 import Clients from "./views/clients";
-import DocChat from "./views/docchat";
+import DocChat from "./views/docchat/index";
 import Messages from "./views/messages";
 import TutorSettings from "./views/settings";
 import { Box, ChakraProvider, Spinner } from "@chakra-ui/react";
@@ -40,11 +40,6 @@ import mixpanel from "mixpanel-browser";
 import React, { useCallback, useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router";
 import { BrowserRouter, useLocation, useSearchParams } from "react-router-dom";
-
-const RedirectToLanding: React.FC = () => {
-  window.location.href = "https://shepherdtutors.com/";
-  return null;
-};
 
 const AuthAction = (props: any) => {
   const [params] = useSearchParams();
@@ -74,15 +69,12 @@ const RequireAuth = ({
     onAuthStateChanged(getAuth(), async (user) => {
       setObtainedUserAuthState(true);
       setFirebaseUser(user);
-      console.log(user, "USE");
 
       try {
         if (user) {
           await fetchUser();
         }
-      } catch (e) {
-        console.log("LOGINERROR", e);
-      }
+      } catch (e) {}
       setLoadingUser(false);
     });
   }, []);

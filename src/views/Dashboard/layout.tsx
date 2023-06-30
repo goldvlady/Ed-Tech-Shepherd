@@ -482,7 +482,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   };
   return (
     <>
-      <Box minH="160vh" bg="white">
+      <Box bg="white">
         <SidebarContent
           onClose={() => onClose}
           tutorMenu={tutorMenu}
