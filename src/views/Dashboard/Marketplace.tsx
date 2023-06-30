@@ -1,9 +1,22 @@
+import Star5 from "../../assets/5star.svg";
+import CustomSelect from "../../components/Select";
+import TimePicker from "../../components/TimePicker";
+import TimezoneSelect from "../../components/TimezoneSelect";
+import ApiService from "../../services/ApiService";
+import bookmarkedTutorsStore from "../../state/bookmarkedTutorsStore";
+import resourceStore from "../../state/resourceStore";
+import { educationLevelOptions, numberToDayOfWeekName } from "../../util";
+import Banner from "./components/Banner";
+import TutorCard from "./components/TutorCard";
+import { CustomButton } from "./layout";
 import {
   Box,
   Button,
   Flex,
   FormControl,
   FormLabel,
+  Grid,
+  GridItem,
   HStack,
   Menu,
   MenuButton,
@@ -25,17 +38,6 @@ import { BsStarFill } from "react-icons/bs";
 import { FiChevronDown } from "react-icons/fi";
 import { MdTune } from "react-icons/md";
 import { useSearchParams } from "react-router-dom";
-import Star5 from "../../assets/5star.svg";
-import CustomSelect from "../../components/Select";
-import TimePicker from "../../components/TimePicker";
-import TimezoneSelect from "../../components/TimezoneSelect";
-import ApiService from "../../services/ApiService";
-import bookmarkedTutorsStore from "../../state/bookmarkedTutorsStore";
-import resourceStore from "../../state/resourceStore";
-import { educationLevelOptions, numberToDayOfWeekName } from "../../util";
-import Banner from "./components/Banner";
-import TutorCard from "./components/TutorCard";
-import { CustomButton } from "./layout";
 
 const priceOptions = [
   { value: "10-12", label: "$10.00 - $12.00", id: 1 },
@@ -143,91 +145,168 @@ export default function Marketplace() {
 
   return (
     <>
-      <Box bgColor={"black"} borderRadius={"14px"} height={"200px"}>
-        <Banner />
-      </Box>
-      <Box textAlign="center">
-        <Flex
-          alignItems="center"
-          gap="2"
-          mt={2}
-          textColor="text.400"
-          display={{ base: "flex", sm: "inline-grid", lg: "flex" }}
-          justifyItems={{ sm: "center" }}
-        >
-          <HStack
-            direction={{ base: "row", sm: "column", lg: "row" }}
-            spacing={{ base: 1, sm: 3 }}
-            display={{ sm: "grid", lg: "flex" }}
+      <Box p={5}>
+        <Box bgColor={"black"} borderRadius={"14px"} height={"200px"}>
+          <Banner />
+        </Box>
+        <Box textAlign="center">
+          <Flex
+            alignItems="center"
+            gap="2"
+            mt={2}
+            textColor="text.400"
+            display={{ base: "flex", sm: "inline-grid", lg: "flex" }}
+            justifyItems={{ sm: "center" }}
           >
-            <Flex
-              alignItems={"center"}
-              justifySelf={{ base: "normal", sm: "center" }}
+            <HStack
+              direction={{ base: "row", sm: "column", lg: "row" }}
+              spacing={{ base: 1, sm: 3 }}
+              display={{ sm: "grid", lg: "flex" }}
             >
-              <Text>
-                <MdTune />
-              </Text>
-              <Text>Filter</Text>
-            </Flex>
-            <Menu>
-              <MenuButton
-                as={Button}
-                variant="outline"
-                rightIcon={<FiChevronDown />}
-                fontSize={14}
-                borderRadius="40px"
-                fontWeight={400}
-                width={{ sm: "400px", lg: "auto" }}
-                height="36px"
-                color="text.400"
+              <Flex
+                alignItems={"center"}
+                justifySelf={{ base: "normal", sm: "center" }}
               >
-                {subject !== "Subject"
-                  ? courseList.map((course) => {
-                      if (course._id === subject) {
-                        return course.label;
-                      }
-                    })
-                  : subject}
-              </MenuButton>
-              <MenuList>
-                {courseList.map((course) => (
-                  <MenuItem
-                    key={course._id}
-                    _hover={{ bgColor: "#F2F4F7" }}
-                    onClick={() => setSubject(course._id)}
-                  >
-                    {course.label}
-                  </MenuItem>
-                ))}
-              </MenuList>
-            </Menu>
-            <Menu placement="bottom">
-              <MenuButton
-                as={Button}
-                variant="outline"
-                rightIcon={<FiChevronDown />}
-                fontSize={14}
-                borderRadius="40px"
-                height="36px"
-                fontWeight={400}
-                color="text.400"
-              >
-                {level == "" ? "Level" : level.label}
-              </MenuButton>
-              <MenuList>
-                {levelOptions.map((level) => (
-                  <MenuItem
-                    key={level._id}
-                    _hover={{ bgColor: "#F2F4F7" }}
-                    onClick={() => setLevel(level)}
-                  >
-                    {level.label}
-                  </MenuItem>
-                ))}
-              </MenuList>
-            </Menu>
+                <Text>
+                  <MdTune />
+                </Text>
+                <Text>Filter</Text>
+              </Flex>
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  variant="outline"
+                  rightIcon={<FiChevronDown />}
+                  fontSize={14}
+                  borderRadius="40px"
+                  fontWeight={400}
+                  width={{ sm: "400px", lg: "auto" }}
+                  height="36px"
+                  color="text.400"
+                >
+                  {subject !== "Subject"
+                    ? courseList.map((course) => {
+                        if (course._id === subject) {
+                          return course.label;
+                        }
+                      })
+                    : subject}
+                </MenuButton>
+                <MenuList zIndex={3}>
+                  {courseList.map((course) => (
+                    <MenuItem
+                      key={course._id}
+                      _hover={{ bgColor: "#F2F4F7" }}
+                      onClick={() => setSubject(course._id)}
+                    >
+                      {course.label}
+                    </MenuItem>
+                  ))}
+                </MenuList>
+              </Menu>
+              <Menu placement="bottom">
+                <MenuButton
+                  as={Button}
+                  variant="outline"
+                  rightIcon={<FiChevronDown />}
+                  fontSize={14}
+                  borderRadius="40px"
+                  height="36px"
+                  fontWeight={400}
+                  color="text.400"
+                >
+                  {level == "" ? "Level" : level.label}
+                </MenuButton>
+                <MenuList>
+                  {levelOptions.map((level) => (
+                    <MenuItem
+                      key={level._id}
+                      _hover={{ bgColor: "#F2F4F7" }}
+                      onClick={() => setLevel(level)}
+                    >
+                      {level.label}
+                    </MenuItem>
+                  ))}
+                </MenuList>
+              </Menu>
 
-            <Box>
+              <Box>
+                <Menu>
+                  <MenuButton
+                    as={Button}
+                    variant="outline"
+                    rightIcon={<FiChevronDown />}
+                    fontSize={14}
+                    borderRadius="40px"
+                    height="36px"
+                    width={{ sm: "400px", lg: "auto" }}
+                    fontWeight={400}
+                    color="text.400"
+                  >
+                    Availability
+                  </MenuButton>
+                  <MenuList p={5}>
+                    <Box>
+                      <Box fontSize={14} mb={2} color="#5C5F64">
+                        Days
+                      </Box>
+
+                      <CustomSelect
+                        value={days}
+                        isMulti
+                        onChange={(v) => setDays(v as Array<any>)}
+                        tagVariant="solid"
+                        options={dayOptions}
+                        size={"md"}
+                      />
+                    </Box>
+
+                    <Box my={3}>
+                      <FormControl>
+                        <Box display={"flex"} alignItems="center" gap={"7px"}>
+                          <Box>
+                            <Box fontSize={14} my={2} color="#5C5F64">
+                              Start Time
+                            </Box>
+                            <TimePicker
+                              inputGroupProps={{
+                                size: "lg",
+                              }}
+                              inputProps={{
+                                size: "md",
+                                placeholder: "01:00 PM",
+                              }}
+                              value={fromTime}
+                              onChange={(v: string) => {
+                                setFromTime(v);
+                              }}
+                            />
+                          </Box>
+
+                          <Box>
+                            <Box fontSize={14} my={2} color="#5C5F64">
+                              End Time
+                            </Box>
+
+                            <TimePicker
+                              inputGroupProps={{
+                                size: "md",
+                              }}
+                              inputProps={{
+                                placeholder: "06:00 PM",
+                              }}
+                              value={toTime}
+                              onChange={(v: string) => {
+                                setToTime(v);
+                              }}
+                            />
+                          </Box>
+                        </Box>
+                      </FormControl>
+                    </Box>
+                  </MenuList>
+                </Menu>
+              </Box>
               <Menu>
                 <MenuButton
                   as={Button}
@@ -236,125 +315,49 @@ export default function Marketplace() {
                   fontSize={14}
                   borderRadius="40px"
                   height="36px"
-                  width={{ sm: "400px", lg: "auto" }}
                   fontWeight={400}
                   color="text.400"
                 >
-                  Availability
+                  {price == "" ? "Price" : price.label}
                 </MenuButton>
-                <MenuList p={5}>
-                  <Box>
-                    <Box fontSize={14} mb={2} color="#5C5F64">
-                      Days
-                    </Box>
-
-                    <CustomSelect
-                      value={days}
-                      isMulti
-                      onChange={(v) => setDays(v as Array<any>)}
-                      tagVariant="solid"
-                      options={dayOptions}
-                      size={"md"}
-                    />
-                  </Box>
-
-                  <Box my={3}>
-                    <FormControl>
-                      <Box display={"flex"} alignItems="center" gap={"7px"}>
-                        <Box>
-                          <Box fontSize={14} my={2} color="#5C5F64">
-                            Start Time
-                          </Box>
-                          <TimePicker
-                            inputGroupProps={{
-                              size: "lg",
-                            }}
-                            inputProps={{
-                              size: "md",
-                              placeholder: "01:00 PM",
-                            }}
-                            value={fromTime}
-                            onChange={(v: string) => {
-                              setFromTime(v);
-                            }}
-                          />
-                        </Box>
-
-                        <Box>
-                          <Box fontSize={14} my={2} color="#5C5F64">
-                            End Time
-                          </Box>
-
-                          <TimePicker
-                            inputGroupProps={{
-                              size: "md",
-                            }}
-                            inputProps={{
-                              placeholder: "06:00 PM",
-                            }}
-                            value={toTime}
-                            onChange={(v: string) => {
-                              setToTime(v);
-                            }}
-                          />
-                        </Box>
-                      </Box>
-                    </FormControl>
-                  </Box>
+                <MenuList>
+                  {priceOptions.map((price) => (
+                    <MenuItem
+                      key={price.id}
+                      _hover={{ bgColor: "#F2F4F7" }}
+                      onClick={() => setPrice(price)}
+                    >
+                      {price.label}
+                    </MenuItem>
+                  ))}
                 </MenuList>
               </Menu>
-            </Box>
-            <Menu>
-              <MenuButton
-                as={Button}
-                variant="outline"
-                rightIcon={<FiChevronDown />}
-                fontSize={14}
-                borderRadius="40px"
-                height="36px"
-                fontWeight={400}
-                color="text.400"
-              >
-                {price == "" ? "Price" : price.label}
-              </MenuButton>
-              <MenuList>
-                {priceOptions.map((price) => (
-                  <MenuItem
-                    key={price.id}
-                    _hover={{ bgColor: "#F2F4F7" }}
-                    onClick={() => setPrice(price)}
-                  >
-                    {price.label}
-                  </MenuItem>
-                ))}
-              </MenuList>
-            </Menu>
-            <Menu>
-              <MenuButton
-                as={Button}
-                variant="outline"
-                rightIcon={<FiChevronDown />}
-                fontSize={14}
-                borderRadius="40px"
-                height="36px"
-                fontWeight={400}
-                color="text.400"
-              >
-                {rating == "" ? "Rating" : rating.label}
-              </MenuButton>
-              <MenuList>
-                {ratingOptions.map((rating) => (
-                  <MenuItem
-                    key={rating.id}
-                    _hover={{ bgColor: "#F2F4F7" }}
-                    onClick={() => setRating(rating)}
-                  >
-                    {rating.label}
-                  </MenuItem>
-                ))}
-              </MenuList>
-            </Menu>
-            {/* <Box w="125px">
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  variant="outline"
+                  rightIcon={<FiChevronDown />}
+                  fontSize={14}
+                  borderRadius="40px"
+                  height="36px"
+                  fontWeight={400}
+                  color="text.400"
+                >
+                  {rating == "" ? "Rating" : rating.label}
+                </MenuButton>
+                <MenuList>
+                  {ratingOptions.map((rating) => (
+                    <MenuItem
+                      key={rating.id}
+                      _hover={{ bgColor: "#F2F4F7" }}
+                      onClick={() => setRating(rating)}
+                    >
+                      {rating.label}
+                    </MenuItem>
+                  ))}
+                </MenuList>
+              </Menu>
+              {/* <Box w="125px">
             <Select
               fontSize={14}
               borderRadius="40px"
@@ -368,7 +371,7 @@ export default function Marketplace() {
               ))}
             </Select>
           </Box> */}
-            {/* <Box w="125px">
+              {/* <Box w="125px">
             <Select
               fontSize={14}
               borderRadius="40px"
@@ -382,43 +385,50 @@ export default function Marketplace() {
               ))}
             </Select>
           </Box> */}
-          </HStack>
-          <Spacer />
-          <Flex gap="2">
-            <CustomButton
-              buttonText={"Clear Filters"}
-              buttonType="outlined"
-              fontStyle={{ fontSize: "12px", fontWeight: 500 }}
-              onClick={resetForm}
-            />
-            {/* <CustomButton
+            </HStack>
+            <Spacer />
+            <Flex gap="2">
+              <CustomButton
+                buttonText={"Clear Filters"}
+                buttonType="outlined"
+                fontStyle={{ fontSize: "12px", fontWeight: 500 }}
+                onClick={resetForm}
+              />
+              {/* <CustomButton
             buttonText={'Apply Filters'}
             buttonType="fill"
             fontStyle={{ fontSize: '12px', fontWeight: 500 }}
             onClick={getFilteredData}
           /> */}
+            </Flex>
           </Flex>
-        </Flex>
-      </Box>
+        </Box>
 
-      <Box my={45} py={2}>
-        <SimpleGrid minChildWidth="360px" spacing={4} ref={tutorGrid}>
-          {allTutors.map((tutor: any) => (
-            <TutorCard
-              key={tutor._id}
-              id={tutor._id}
-              name={`${tutor.user.name.first} ${tutor.user.name.last} `}
-              levelOfEducation={tutor.highestLevelOfEducation}
-              avatar={tutor.user.avatar}
-              rate={tutor.rate}
-              description={tutor.description}
-              rating={tutor.rating}
-              reviewCount={tutor.reviewCount}
-              saved={checkBookmarks(tutor._id)}
-              // saved={false}
-            />
-          ))}
-        </SimpleGrid>
+        <Box my={45} py={2} minHeight="750px">
+          <SimpleGrid
+            minChildWidth={"370px"}
+            // w={{ sm: "100px", md: "100%", lg: "370px" }}
+            spacing={4}
+            ref={tutorGrid}
+            justifyItems="left"
+          >
+            {allTutors.map((tutor: any) => (
+              <TutorCard
+                key={tutor._id}
+                id={tutor._id}
+                name={`${tutor.user.name.first} ${tutor.user.name.last} `}
+                levelOfEducation={tutor.highestLevelOfEducation}
+                avatar={tutor.user.avatar}
+                rate={tutor.rate}
+                description={tutor.description}
+                rating={tutor.rating}
+                reviewCount={tutor.reviewCount}
+                saved={checkBookmarks(tutor._id)}
+                // saved={false}
+              />
+            ))}
+          </SimpleGrid>
+        </Box>
       </Box>
     </>
   );

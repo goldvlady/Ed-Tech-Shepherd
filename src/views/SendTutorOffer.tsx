@@ -1,3 +1,16 @@
+import CalendarDateInput from "../components/CalendarDateInput";
+import LinedList from "../components/LinedList";
+import PageTitle from "../components/PageTitle";
+import Panel from "../components/Panel";
+import Select, { Option } from "../components/Select";
+import TimePicker from "../components/TimePicker";
+import TutorCard from "../components/TutorCard";
+import { useTitle } from "../hooks";
+import ApiService from "../services/ApiService";
+import resourceStore from "../state/resourceStore";
+import theme from "../theme";
+import { Tutor } from "../types";
+import { numberToDayOfWeekName } from "../util";
 import {
   Alert,
   AlertDescription,
@@ -36,20 +49,6 @@ import { MdInfo } from "react-icons/md";
 import { useNavigate, useParams } from "react-router";
 import styled from "styled-components";
 import * as Yup from "yup";
-
-import CalendarDateInput from "../components/CalendarDateInput";
-import LinedList from "../components/LinedList";
-import PageTitle from "../components/PageTitle";
-import Panel from "../components/Panel";
-import Select, { Option } from "../components/Select";
-import TimePicker from "../components/TimePicker";
-import TutorCard from "../components/TutorCard";
-import { useTitle } from "../hooks";
-import ApiService from "../services/ApiService";
-import resourceStore from "../state/resourceStore";
-import theme from "../theme";
-import { Tutor } from "../types";
-import { numberToDayOfWeekName } from "../util";
 
 const LeftCol = styled(Box)`
   min-height: 100vh;
@@ -192,8 +191,8 @@ const SendTutorOffer = () => {
                           Offer successfully sent
                         </Text>
                         <div style={{ color: theme.colors.text[400] }}>
-                          You’ll be notified within 24 hours once Tutor responds{" "}
-                          {/* {tutor.user.name.first} responds */}
+                          You’ll be notified within 24 hours once{" "}
+                          {tutor.user.name.first} responds
                         </div>
                       </Box>
                     </Box>
@@ -217,8 +216,7 @@ const SendTutorOffer = () => {
 
                 <BreadcrumbItem>
                   <BreadcrumbLink href="#">
-                    {/* {tutor.user.name.first} {tutor.user.name.last} */}
-                    Tutor Tutor
+                    {tutor.user.name.first} {tutor.user.name.last}
                   </BreadcrumbLink>
                 </BreadcrumbItem>
 
@@ -230,8 +228,7 @@ const SendTutorOffer = () => {
                 marginTop={"28px"}
                 mb={10}
                 title="Send an Offer"
-                // subtitle={`Provide your contract terms. We’ll notify you via email when ${tutor.user.name.first} responds`}
-                subtitle={`Provide your contract terms. We’ll notify you via email when Tutor responds`}
+                subtitle={`Provide your contract terms. We’ll notify you via email when ${tutor.user.name.first} responds`}
               />
               <Formik
                 initialValues={{
@@ -640,8 +637,7 @@ const SendTutorOffer = () => {
                               {isEditing ? (
                                 <Textarea
                                   {...field}
-                                  // placeholder={`Let ${tutor.user.name.first} know what you need help with`}
-                                  placeholder={`Let TUTOR know what you need help with`}
+                                  placeholder={`Let ${tutor.user.name.first} know what you need help with`}
                                 />
                               ) : (
                                 <EditField>{field.value}</EditField>
@@ -690,8 +686,7 @@ const SendTutorOffer = () => {
                                   mb={0}
                                   mt={"10px"}
                                 >
-                                  TUTOR's rate is $
-                                  {/* {tutor.user.name.first}'s rate is $ */}
+                                  {tutor.user.name.first}'s rate is $
                                   {tutor.rate.toFixed(0)}/hr
                                 </Text>
                               </FormControl>

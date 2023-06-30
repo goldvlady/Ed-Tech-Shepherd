@@ -146,3 +146,13 @@ code {
     #e9ebec 20px
   );
 }
+
+.chakra-radio__control[data-checked] {
+  background: #207df7 !important;
+  border-color: #207df7 !important;
+  color: var(--chakra-colors-white);
+}
+
+canvas {
+  width: 100% !important;
+}
