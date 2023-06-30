@@ -104,7 +104,7 @@ export default function Schedule() {
               <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
             </button>
             <section className="flex-auto text-sm font-semibold">
-              <div className="flex space-x-8 justify-content-center">
+              <div className="flex space-x-8 justify-evenly">
                 <div className="text-gray-400">
                   <span className="block text-2xl font-normal">19</span>
                   <span className="text-uppercase block text-md font-normal">
