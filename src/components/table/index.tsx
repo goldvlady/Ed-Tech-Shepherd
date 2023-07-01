@@ -7,8 +7,8 @@ import {
   Td as ChakraTd,
   Checkbox,
 } from "@chakra-ui/react";
-import styled from "styled-components";
 import { useState } from "react";
+import styled from "styled-components";
 
 export type TableColumn<T> = {
   title: string;
@@ -16,6 +16,7 @@ export type TableColumn<T> = {
   key: string;
   render?: (record: T) => JSX.Element;
   align?: "center" | "left";
+  id?: number;
 };
 
 export type TableProps<T> = {
@@ -23,6 +24,7 @@ export type TableProps<T> = {
   dataSource: T[];
   isSelectable?: boolean;
   onSelect?: (selectedRowKeys: string[]) => void;
+  fileImage?: any;
 };
 
 const StyledTh = styled(Th)<{}>`
@@ -35,19 +37,25 @@ const StyledTh = styled(Th)<{}>`
   border-radius: 5px;
 `;
 
-const StyledTr = styled(ChakraTr)<{ selectable?: boolean }>`
+const StyledTr = styled(ChakraTr)<{
+  selectable?: boolean;
+  active?: boolean;
+  tagsColor?: string;
+}>`
   &:hover {
     background: ${(props) => (props.selectable ? "#EEEFF2" : "inherit")};
   }
 
+  background: ${(props) => (props.active ? "#F0F6FE" : "inherit")};
+
   cursor: ${(props) => (props.selectable ? "pointer" : "default")};
 `;
 
-const StyledTd = styled(ChakraTd)<{}>`
+const StyledTd = styled(ChakraTd)<{ tagsColor: string }>`
   padding: 15px 0;
   &:first-child,
   &:last-child {
-    padding: 15px 5px;
+    padding: 22px 5px;
   }
   border-bottom: 0.8px solid #eeeff2;
   text-align: center;
@@ -66,7 +74,6 @@ const SelectableTable = <T extends Record<string, unknown>>({
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
   const handleSelect = (record: T) => {
-    console.log();
     const key = record.key as string;
     if (selectedRowKeys.includes(key)) {
       setSelectedRowKeys(selectedRowKeys.filter((k) => k !== key));
@@ -91,9 +98,13 @@ const SelectableTable = <T extends Record<string, unknown>>({
       </Thead>
       <Tbody>
         {dataSource.map((record) => (
-          <StyledTr key={record.key as string} selectable={isSelectable}>
+          <StyledTr
+            key={record.key as string}
+            active={selectedRowKeys.includes(record.key as string)}
+            selectable={isSelectable}
+          >
             {isSelectable && (
-              <StyledTd>
+              <StyledTd tagsColor={[record.tags].includes("#Che")}>
                 <div style={{ padding: "0 5px" }}>
                   <Checkbox
                     borderRadius={"5px"}
@@ -104,7 +115,10 @@ const SelectableTable = <T extends Record<string, unknown>>({
               </StyledTd>
             )}
             {columns.map((col) => (
-              <StyledTd key={col.key}>
+              <StyledTd
+                key={col.key}
+                tagsColor={col.dataIndex === "tags" ? record.tags : "#585f68"}
+              >
                 {col.render
                   ? col.render(record)
                   : col.dataIndex

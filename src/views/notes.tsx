@@ -1,4 +1,5 @@
 import { Layout, AllNotesTab } from "../components";
+import CustomTabs from "../components/CustomTabs";
 import DropdownMenu from "../components/DropdownMenu";
 import { SortIcon, FilterByTagsIcon } from "../components/icons";
 import { classNames } from "../helpers";
@@ -43,6 +44,28 @@ const sortedBy = [
     title: "By title",
     firstValue: "A -> Z",
     secondValue: "Z -> A",
+  },
+];
+
+const tabLists = [
+  {
+    id: 1,
+    title: "All",
+  },
+  {
+    id: 2,
+    title: "Documents",
+  },
+  {
+    id: 3,
+    title: "Notes",
+  },
+];
+
+const tabPanel = [
+  {
+    id: 1,
+    component: <AllNotesTab />,
   },
 ];
 export default function Notes() {
@@ -155,62 +178,7 @@ export default function Notes() {
               </DropdownMenu>
             </div>
           </header>
-          <Tab.Group as="div" className="mt-4">
-            <div className="mb-4">
-              <div className="border-b border-gray-200">
-                <Tab.List className="mb-0 flex space-x-8" aria-label="Tabs">
-                  <Tab as={Fragment}>
-                    {({ selected }) => (
-                      <span
-                        className={classNames(
-                          selected
-                            ? "border-b-primaryBlue text-primaryBlue outline-none appearance-none"
-                            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
-                          "group cursor-pointer border-b-4 py-1 px-1 text-sm font-medium"
-                        )}
-                      >
-                        All
-                      </span>
-                    )}
-                  </Tab>
-                  <Tab as={Fragment}>
-                    {({ selected }) => (
-                      <span
-                        className={classNames(
-                          selected
-                            ? "border-b-primaryBlue text-primaryBlue outline-none appearance-none"
-                            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
-                          "group cursor-pointer border-b-4 py-1 px-1 text-sm font-medium"
-                        )}
-                      >
-                        Documents
-                      </span>
-                    )}
-                  </Tab>
-                  <Tab as={Fragment}>
-                    {({ selected }) => (
-                      <span
-                        className={classNames(
-                          selected
-                            ? "border-b-primaryBlue text-primaryBlue outline-none appearance-none"
-                            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
-                          "group cursor-pointer border-b-4 py-1 px-1 text-sm font-medium"
-                        )}
-                      >
-                        Notes
-                      </span>
-                    )}
-                  </Tab>
-                </Tab.List>
-              </div>
-            </div>
-
-            <Tab.Panels>
-              <Tab.Panel>
-                <AllNotesTab />
-              </Tab.Panel>
-            </Tab.Panels>
-          </Tab.Group>
+          <CustomTabs tablists={tabLists} tabPanel={tabPanel} />
         </>
       ) : (
         <>

@@ -343,7 +343,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               <Avatar
                 size="sm"
                 color="white"
-                name={`${user.name.first} ${user.name.last}`}
+                name={`${user?.name?.first ?? ""} ${user?.name?.last ?? ""}`}
                 bg="#4CAF50;"
               />
 
@@ -353,7 +353,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                 color="text.200"
                 display={{ base: "block", sm: "none", md: "block" }}
               >
-                {`${user.name.first} ${user.name.last}`}
+                {`${user?.name?.first ?? ""} ${user?.name?.last ?? ""}`}
               </Text>
 
               <Box display={{ base: "none", md: "flex" }}>

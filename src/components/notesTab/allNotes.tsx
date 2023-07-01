@@ -6,16 +6,52 @@ import {
   TrashIcon,
 } from "../icons";
 import { DeleteNoteModal, DeleteAllNotesModal } from "../index";
-import { Text } from "@chakra-ui/react";
-import { Menu, Transition, Dialog } from "@headlessui/react";
+import SelectableTable, { TableColumn } from "../table";
+import {
+  Menu,
+  MenuItem,
+  MenuList,
+  MenuButton,
+  Button,
+  Flex,
+  Text,
+  Box,
+  Input,
+  InputGroup,
+  InputLeftElement,
+} from "@chakra-ui/react";
 import {
   EllipsisHorizontalIcon,
   ChevronRightIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/solid";
-import React, { Fragment, useLayoutEffect, useRef, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
+import { BsSearch } from "react-icons/bs";
+import { FaEllipsisH, FaCalendarAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 
+const StyledImage = styled(Box)`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  border-radius: 50%;
+  height: 26px;
+  width: 26px;
+  border: 0.6px solid #eaeaeb;
+  box-shadow: 0 2px 10px rgba(63, 81, 94, 0.1);
+`;
+
+const StyledMenuButton = styled(MenuButton)`
+  display: flex;
+  align-items: center;
+  background: #f4f5f5;
+  font-size: 0.75rem;
+  color: #585f68;
+  border-radius: 6px;
+  padding: 7px;
+`;
 interface Client {
   id: number;
   title: string;
@@ -67,7 +103,46 @@ const clients: Client[] = [
     last_modified: "May 21 2023, 09:00",
     tags: "#Physics",
   },
+  {
+    id: 6,
+    title: "Science Notes by Akeem",
+    date_created: "May 09 2023, 13:00",
+    last_modified: "May 21 2023, 09:00",
+    tags: "#Science",
+  },
+  {
+    id: 7,
+    title: "English Notes by Daniel",
+    date_created: "May 09 2023, 13:00",
+    last_modified: "May 21 2023, 09:00",
+    tags: "#English",
+  },
+  {
+    id: 8,
+    title: "Mathematics Notes by Ellen",
+    date_created: "May 09 2023, 13:00",
+    last_modified: "May 21 2023, 09:00",
+    tags: "#Mathematics",
+  },
 ];
+
+type DataSourceItem = {
+  key: number;
+  title: string;
+  dateCreated: string;
+  lastModified: string;
+  tags: string;
+  id: number;
+};
+
+const dataSource: DataSourceItem[] = Array.from({ length: 8 }, (_, i) => ({
+  key: i,
+  id: clients[i]?.id,
+  title: clients[i]?.title,
+  tags: clients[i]?.tags,
+  dateCreated: new Date().toISOString().split("T")[0], // current date in yyyy-mm-dd format
+  lastModified: new Date().toISOString().split("T")[0], // current date in yyyy-mm-dd format
+}));
 
 const AllNotesTab = () => {
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
@@ -75,10 +150,8 @@ const AllNotesTab = () => {
   const checkbox = useRef<HTMLInputElement>(null);
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
-  const [selectedPeople, setSelectedPeople] = useState<Client[]>([]);
-  const [clientsDetails, setClientDetails] = useState({
-    title: "",
-  });
+  const [selectedPeople, setSelectedPeople] = useState<any[]>([]);
+  const [clientsDetails, setClientDetails] = useState("");
   const navigate = useNavigate();
 
   useLayoutEffect(() => {
@@ -97,10 +170,149 @@ const AllNotesTab = () => {
     setIndeterminate(false);
   }
 
-  const onDeleteNote = (isOpenDeleteModal: boolean, noteDetails: any) => {
+  const onDeleteNote = (isOpenDeleteModal: boolean, noteDetails: string) => {
     setDeleteNoteModal(isOpenDeleteModal);
     setClientDetails(noteDetails);
   };
+
+  const clientColumn: TableColumn<DataSourceItem>[] = [
+    {
+      key: "title",
+      title: "Title",
+      dataIndex: "title",
+      align: "left",
+      render: ({ title }) => (
+        <>
+          <img
+            src="/svgs/text-document.svg"
+            className="text-gray-400 absolute"
+            alt=""
+          />
+          <Text fontWeight="500">{title}</Text>
+        </>
+      ),
+    },
+    {
+      key: "dateCreated",
+      title: "Date Created",
+      dataIndex: "dateCreated",
+      align: "left",
+      id: 1,
+    },
+    {
+      key: "tags",
+      title: "Tags",
+      dataIndex: "tags",
+      align: "left",
+      id: 2,
+    },
+    {
+      key: "lastModified",
+      title: "Last Modified",
+      dataIndex: "lastModified",
+      align: "left",
+      id: 3,
+    },
+    {
+      key: "actions",
+      title: "",
+      render: ({ title, id }) => (
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="unstyled"
+            borderRadius="full"
+            p={0}
+            minW="auto"
+            height="auto"
+          >
+            <FaEllipsisH fontSize={"12px"} />
+          </MenuButton>
+          <MenuList
+            fontSize="14px"
+            minWidth={"185px"}
+            borderRadius="8px"
+            backgroundColor="#FFFFFF"
+            boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
+          >
+            <section className="space-y-2 border-b pb-2">
+              <button
+                onClick={() => navigate(`/clients/${id}`)}
+                className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
+              >
+                <div className=" flex items-center space-x-1">
+                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                    <FlashCardsIcon
+                      className="w-4 h-4 text-primaryGray"
+                      onClick={undefined}
+                    />
+                  </div>
+                  <Text className="text-sm text-secondaryGray font-medium">
+                    Flashcards
+                  </Text>
+                </div>
+                <ChevronRightIcon className="w-2.5 h-2.5" />
+              </button>
+              <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
+                <div className="flex items-center space-x-1">
+                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                    <FlashCardsSolidIcon
+                      className="w-4 h-4 text-primaryGray"
+                      onClick={undefined}
+                    />
+                  </div>
+                  <Text className="text-sm text-secondaryGray font-medium">
+                    Add tag
+                  </Text>
+                </div>
+                <ChevronRightIcon className="w-2.5 h-2.5" />
+              </button>
+              <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
+                <div className="flex items-center space-x-1">
+                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                    <DownloadIcon
+                      className="w-4 h-4 text-primaryGray"
+                      onClick={undefined}
+                    />
+                  </div>
+                  <Text className="text-sm text-secondaryGray font-medium">
+                    Download
+                  </Text>
+                </div>
+                <ChevronRightIcon className="w-2.5 h-2.5" />
+              </button>
+            </section>
+            <div
+              onClick={() => onDeleteNote(true, title)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                padding: "15px",
+              }}
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M3.08317 2.50033V0.750326C3.08317 0.428162 3.34434 0.166992 3.6665 0.166992H8.33317C8.65535 0.166992 8.9165 0.428162 8.9165 0.750326V2.50033H11.8332V3.66699H10.6665V11.2503C10.6665 11.5725 10.4053 11.8337 10.0832 11.8337H1.9165C1.59434 11.8337 1.33317 11.5725 1.33317 11.2503V3.66699H0.166504V2.50033H3.08317ZM4.24984 1.33366V2.50033H7.74984V1.33366H4.24984Z"
+                  fill="#F53535"
+                />
+              </svg>
+              <Text fontSize="14px" lineHeight="20px" fontWeight="400">
+                Delete
+              </Text>
+            </div>
+          </MenuList>
+        </Menu>
+      ),
+    },
+  ];
+
   return (
     <>
       <div className="mt-8 flow-root">
@@ -118,10 +330,28 @@ const AllNotesTab = () => {
                       <button className="text-gray-600" onClick={toggleAll}>
                         Select all
                       </button>
-
-                      <Menu as="div" className="relative">
+                      <Menu>
+                        <StyledMenuButton
+                          as={Button}
+                          variant="unstyled"
+                          borderRadius="full"
+                          p={0}
+                          minW="auto"
+                          height="auto"
+                          background="#F4F5F5"
+                          display="flex"
+                          className="flex items-center gap-2"
+                        >
+                          <FlashCardsSolidIcon
+                            className="w-5"
+                            onClick={undefined}
+                          />
+                          Add tag
+                        </StyledMenuButton>
+                      </Menu>
+                      <Menu>
                         <div>
-                          <Menu.Button
+                          <MenuButton
                             type="button"
                             className="inline-flex items-center space-x-2 rounded bg-[#F4F5F5] px-6 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
                           >
@@ -130,104 +360,90 @@ const AllNotesTab = () => {
                               onClick={undefined}
                             />
                             <span>Add tag</span>
-                          </Menu.Button>
+                          </MenuButton>
                         </div>
-                        <Transition
-                          as={Fragment}
-                          enter="transition ease-out duration-100"
-                          enterFrom="transform opacity-0 scale-95"
-                          enterTo="transform opacity-100 scale-100"
-                          leave="transition ease-in duration-75"
-                          leaveFrom="transform opacity-100 scale-100"
-                          leaveTo="transform opacity-0 scale-95"
-                        >
-                          <Menu.Items className="absolute space-y-3 p-2 right-0 -top-[14rem] z-10 mt-2.5 w-[15rem] origin-top-right rounded-lg bg-white py-2 shadow-sm ring-1 ring-gray-900/5 focus:outline-none">
-                            <section className="space-y-2">
-                              <form
-                                className="relative flex flex-1 py-2"
-                                action="#"
-                                method="GET"
+
+                        <section className="space-y-2">
+                          <form
+                            className="relative flex flex-1 py-2"
+                            action="#"
+                            method="GET"
+                          >
+                            <label htmlFor="search-field" className="sr-only">
+                              Search
+                            </label>
+                            <MagnifyingGlassIcon
+                              className="pl-2 pointer-events-none absolute inset-y-0 left-0 h-full w-7 text-gray-400"
+                              aria-hidden="true"
+                            />
+                            <input
+                              id="search-field"
+                              className="block rounded-lg border-gray-400 w-full h-10 border py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
+                              placeholder="Search Clients..."
+                              type="search"
+                              name="search"
+                            />
+                          </form>
+                          <div className="relative cursor-pointer bg-lightGray px-2 py-1 rounded-lg flex items-start">
+                            <div className="flex h-6 items-center">
+                              <input
+                                id="comments"
+                                aria-describedby="comments-description"
+                                name="comments"
+                                type="checkbox"
+                                className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
+                              />
+                            </div>
+                            <div className="ml-3 text-sm leading-6">
+                              <label
+                                htmlFor="comments"
+                                className="font-normal text-dark"
                               >
-                                <label
-                                  htmlFor="search-field"
-                                  className="sr-only"
-                                >
-                                  Search
-                                </label>
-                                <MagnifyingGlassIcon
-                                  className="pl-2 pointer-events-none absolute inset-y-0 left-0 h-full w-7 text-gray-400"
-                                  aria-hidden="true"
-                                />
-                                <input
-                                  id="search-field"
-                                  className="block rounded-lg border-gray-400 w-full h-10 border py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
-                                  placeholder="Search Clients..."
-                                  type="search"
-                                  name="search"
-                                />
-                              </form>
-                              <div className="relative cursor-pointer bg-lightGray px-2 py-1 rounded-lg flex items-start">
-                                <div className="flex h-6 items-center">
-                                  <input
-                                    id="comments"
-                                    aria-describedby="comments-description"
-                                    name="comments"
-                                    type="checkbox"
-                                    className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
-                                  />
-                                </div>
-                                <div className="ml-3 text-sm leading-6">
-                                  <label
-                                    htmlFor="comments"
-                                    className="font-normal text-dark"
-                                  >
-                                    #Chemistry
-                                  </label>
-                                </div>
-                              </div>
+                                #Chemistry
+                              </label>
+                            </div>
+                          </div>
 
-                              <div className="relative cursor-pointer hover:bg-lightGray px-2 py-1 rounded-lg flex items-start">
-                                <div className="flex h-6 items-center">
-                                  <input
-                                    id="comments"
-                                    aria-describedby="comments-description"
-                                    name="comments"
-                                    type="checkbox"
-                                    className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
-                                  />
-                                </div>
-                                <div className="ml-3 text-sm leading-6">
-                                  <label
-                                    htmlFor="comments"
-                                    className="font-normal text-dark"
-                                  >
-                                    #Person
-                                  </label>
-                                </div>
-                              </div>
+                          <div className="relative cursor-pointer hover:bg-lightGray px-2 py-1 rounded-lg flex items-start">
+                            <div className="flex h-6 items-center">
+                              <input
+                                id="comments"
+                                aria-describedby="comments-description"
+                                name="comments"
+                                type="checkbox"
+                                className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
+                              />
+                            </div>
+                            <div className="ml-3 text-sm leading-6">
+                              <label
+                                htmlFor="comments"
+                                className="font-normal text-dark"
+                              >
+                                #Person
+                              </label>
+                            </div>
+                          </div>
 
-                              <div className="relative cursor-pointer hover:bg-lightGray px-2 py-1 rounded-lg flex items-start">
-                                <div className="flex h-6 items-center">
-                                  <input
-                                    id="comments"
-                                    aria-describedby="comments-description"
-                                    name="comments"
-                                    type="checkbox"
-                                    className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
-                                  />
-                                </div>
-                                <div className="ml-3 text-sm leading-6">
-                                  <label
-                                    htmlFor="comments"
-                                    className="font-normal text-dark"
-                                  >
-                                    #Favorites
-                                  </label>
-                                </div>
-                              </div>
-                            </section>
-                          </Menu.Items>
-                        </Transition>
+                          <div className="relative cursor-pointer hover:bg-lightGray px-2 py-1 rounded-lg flex items-start">
+                            <div className="flex h-6 items-center">
+                              <input
+                                id="comments"
+                                aria-describedby="comments-description"
+                                name="comments"
+                                type="checkbox"
+                                className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
+                              />
+                            </div>
+                            <div className="ml-3 text-sm leading-6">
+                              <label
+                                htmlFor="comments"
+                                className="font-normal text-dark"
+                              >
+                                #Favorites
+                              </label>
+                            </div>
+                          </div>
+                        </section>
                       </Menu>
 
                       <button
@@ -249,194 +465,13 @@ const AllNotesTab = () => {
                   </div>
                 )}
               </div>
-              <table className="min-w-full table-auto divide-y divide-gray-300">
-                <thead>
-                  <tr className="bg-gray-50 w-full">
-                    <th scope="col" className="relative hidden sm:w-12 sm:px-6">
-                      <input
-                        type="checkbox"
-                        className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                        ref={checkbox}
-                        checked={checked}
-                        onChange={toggleAll}
-                      />
-                    </th>
-
-                    <th scope="col" className="relative sm:w-12 sm:px-6"></th>
-
-                    <th
-                      scope="col-span"
-                      className="py-3.5 text-left text-sm font-semibold text-secondaryGray"
-                    >
-                      Title
-                    </th>
-                    <th
-                      scope="col"
-                      className="py-3.5 text-left text-sm font-semibold text-secondaryGray"
-                    >
-                      Date Created
-                    </th>
-                    <th
-                      scope="col"
-                      className="py-3.5 text-left text-sm font-semibold text-secondaryGray"
-                    >
-                      Tags
-                    </th>
-                    <th
-                      scope="col"
-                      className="py-3.5 text-left text-sm font-semibold text-secondaryGray"
-                    >
-                      Last Modified
-                    </th>
-                    <th
-                      scope="col"
-                      className="py-3.5 text-left text-sm font-semibold text-secondaryGray"
-                    ></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
-                  {clients.map((client) => (
-                    <tr
-                      key={client.id}
-                      className={
-                        selectedPeople.includes(client)
-                          ? "bg-blue-50"
-                          : undefined
-                      }
-                    >
-                      <td className="relative px-7 sm:w-12 sm:px-6">
-                        <input
-                          type="checkbox"
-                          className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-primaryBlue focus:ring-primaryBlue"
-                          value={client.title}
-                          checked={selectedPeople.includes(client)}
-                          onChange={(e) =>
-                            setSelectedPeople(
-                              e.target.checked
-                                ? [...selectedPeople, client]
-                                : selectedPeople.filter((p) => p !== client)
-                            )
-                          }
-                        />
-                      </td>
-                      <td className="whitespace-nowrap flex items-center space-x-2 py-4 pr-3 text-sm font-medium text-gray-500">
-                        <div className="flex-shrink-0 bg-gray-100 p-2 rounded-full">
-                          <img
-                            src="/svgs/text-document.svg"
-                            className="h-6 w-6 text-gray-400"
-                            alt=""
-                          />
-                        </div>
-                        <span>{client.title}</span>
-                      </td>
-                      <td className="whitespace-nowrap py-4 text-sm text-gray-500">
-                        {client.date_created}
-                      </td>
-                      <td
-                        className={`whitespace-nowrap py-4 text-sm ${
-                          client.tags.includes("#C")
-                            ? "text-primaryBlue"
-                            : client.tags.includes("#P")
-                            ? "text-yellow-300"
-                            : "text-red-400"
-                        } `}
-                      >
-                        {client.tags}
-                      </td>
-                      <td className="whitespace-nowrap py-4 text-sm text-gray-500">
-                        {client.last_modified}
-                      </td>
-                      <td className="whitespace-nowrap py-4 pl-3 text-right text-sm font-medium sm:pr-3">
-                        <Menu as="div" className="relative">
-                          <div>
-                            <Menu.Button>
-                              <EllipsisHorizontalIcon className="h-6 text-secondaryGray" />
-                            </Menu.Button>
-                          </div>
-                          <Transition
-                            as={Fragment}
-                            enter="transition ease-out duration-100"
-                            enterFrom="transform opacity-0 scale-95"
-                            enterTo="transform opacity-100 scale-100"
-                            leave="transition ease-in duration-75"
-                            leaveFrom="transform opacity-100 scale-100"
-                            leaveTo="transform opacity-0 scale-95"
-                          >
-                            <Menu.Items className="absolute space-y-3 p-4 right-0 z-50 mt-2.5 w-[15rem] origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-900/5 focus:outline-none">
-                              <section className="space-y-2 border-b pb-2">
-                                <button
-                                  onClick={() =>
-                                    navigate(`/clients/${client.id}`)
-                                  }
-                                  className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
-                                >
-                                  <div className=" flex items-center space-x-1">
-                                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
-                                      <FlashCardsIcon
-                                        className="w-4 h-4 text-primaryGray"
-                                        onClick={undefined}
-                                      />
-                                    </div>
-                                    <Text className="text-sm text-secondaryGray font-medium">
-                                      Flashcards
-                                    </Text>
-                                  </div>
-                                  <ChevronRightIcon className="w-2.5 h-2.5" />
-                                </button>
-                                <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
-                                  <div className="flex items-center space-x-1">
-                                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
-                                      <FlashCardsSolidIcon
-                                        className="w-4 h-4 text-primaryGray"
-                                        onClick={undefined}
-                                      />
-                                    </div>
-                                    <Text className="text-sm text-secondaryGray font-medium">
-                                      Add tag
-                                    </Text>
-                                  </div>
-                                  <ChevronRightIcon className="w-2.5 h-2.5" />
-                                </button>
-                                <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
-                                  <div className="flex items-center space-x-1">
-                                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
-                                      <DownloadIcon
-                                        className="w-4 h-4 text-primaryGray"
-                                        onClick={undefined}
-                                      />
-                                    </div>
-                                    <Text className="text-sm text-secondaryGray font-medium">
-                                      Download
-                                    </Text>
-                                  </div>
-                                  <ChevronRightIcon className="w-2.5 h-2.5" />
-                                </button>
-                              </section>
-                              <button
-                                onClick={() => onDeleteNote(true, client)}
-                                className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
-                              >
-                                <div className="flex items-center space-x-1">
-                                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
-                                    <img
-                                      src="/svgs/trash.svg"
-                                      alt="Delete Clients"
-                                      className="w-4 h-4"
-                                    />
-                                  </div>
-                                  <Text className="text-sm text-error font-medium">
-                                    Delete
-                                  </Text>
-                                </div>
-                              </button>
-                            </Menu.Items>
-                          </Transition>
-                        </Menu>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <SelectableTable
+                columns={clientColumn}
+                dataSource={dataSource}
+                isSelectable
+                fileImage
+                onSelect={(e) => setSelectedPeople(e)}
+              />
             </div>
           </div>
         </div>
@@ -448,7 +483,7 @@ const AllNotesTab = () => {
         closeModal={() => setDeleteNoteModal(false)}
       >
         <DeleteNoteModal
-          title={clientsDetails?.title}
+          title={clientsDetails}
           deleteNoteModal={deleteNoteModal}
           setDeleteNoteModal={setDeleteNoteModal}
         />
