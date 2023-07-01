@@ -76,7 +76,7 @@ const Signup: React.FC = () => {
                 firebaseAuth,
                 values.email,
                 values.password
-              )
+              );
               await updateProfile(user.user, {
                 displayName: `${values.firstName} ${values.lastName}`
               });
@@ -84,7 +84,7 @@ const Signup: React.FC = () => {
             } catch (e: any) {
               let errorMessage = '';
               switch (e.code) {
-                case 'auth/email-already-exists':
+                case 'auth/email-already-in-use':
                   errorMessage =
                     'A user with this email address already exists';
                   break;

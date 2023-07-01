@@ -107,7 +107,7 @@ export default function Marketplace() {
 
   useEffect(() => {
     getData();
-    /* eslint-disable */ 
+    /* eslint-disable */
   }, [subject, level, price, rating, days]);
 
   const { fetchBookmarkedTutors, tutors: bookmarkedTutors } =
@@ -139,7 +139,7 @@ export default function Marketplace() {
     setFromTime('');
     setToTime('');
     getData();
-    /* eslint-disable */ 
+    /* eslint-disable */
   }, []);
 
   return (

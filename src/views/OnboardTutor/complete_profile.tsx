@@ -151,7 +151,12 @@ const CompleteProfile = () => {
         isValid: isValidPaymentInformation
       }
     ];
-  }, [onboardingData, isQualificationsValid, isSubjectsValid, isValidPaymentInformation]);
+  }, [
+    onboardingData,
+    isQualificationsValid,
+    isSubjectsValid,
+    isValidPaymentInformation
+  ]);
 
   const currentStep = useMemo(
     () => steps.find((step) => step.position === activeStep),

@@ -182,10 +182,9 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const { user }: any = userStore();
 
   const handleSignOut = () => {
-    signOut(auth)
-      .then(() => {
-        navigate('/login');
-      })
+    signOut(auth).then(() => {
+      navigate('/login');
+    });
   };
   return (
     <>
@@ -243,7 +242,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             <Logo />{' '}
           </Text>
           <HStack spacing={4}>
-
             <Menu>
               <MenuButton>
                 <IconButton

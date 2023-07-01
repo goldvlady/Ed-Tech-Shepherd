@@ -114,6 +114,7 @@ const CreatePassword: React.FC = () => {
                       isInvalid={form.errors.password && form.touched.password}
                       {...field}
                       placeholder="Enter password"
+                      autoComplete='new-password'
                     />
                     <FormErrorMessage>{form.errors.password}</FormErrorMessage>
                   </FormControl>
@@ -137,6 +138,7 @@ const CreatePassword: React.FC = () => {
                       }
                       {...field}
                       placeholder="Re-enter password"
+                      autoComplete='new-password'
                     />
                     <FormErrorMessage>
                       {form.errors.passwordConfirmation}

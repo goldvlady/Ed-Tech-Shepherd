@@ -126,10 +126,10 @@ type Props = React.ComponentProps<typeof Root> & {
 const MenuLinedList: React.FC<Props> = ({ items, ...rest }) => {
   return (
     <Root spacing="0px" {...rest} alignItems="flex-start">
-      {items.map((i) => (
+      {items.map((i, idx) => (
         <>
           <Title>
-            <NavItem path={i.path}>{i.title}</NavItem>
+            <NavItem path={i.path} key={idx}>{i.title}</NavItem>
           </Title>
         </>
       ))}

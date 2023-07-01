@@ -76,6 +76,7 @@ const Login: React.FC = () => {
               navigate('/dashboard');
             } catch (e: any) {
               let errorMessage = '';
+              console.log('migoooo', e)
               switch (e.code) {
                 case 'auth/user-not-found':
                   errorMessage = 'Invalid email or password';
@@ -111,6 +112,7 @@ const Login: React.FC = () => {
                       isInvalid={form.errors.email && form.touched.email}
                       {...field}
                       placeholder="Enter your email"
+                      autoComplete='email'
                     />
                     <FormErrorMessage>{form.errors.email}</FormErrorMessage>
                   </FormControl>
@@ -128,6 +130,7 @@ const Login: React.FC = () => {
                       isInvalid={form.errors.password && form.touched.password}
                       {...field}
                       placeholder="Enter password"
+                      autoComplete='current-password'
                     />
                     <FormErrorMessage>{form.errors.password}</FormErrorMessage>
                   </FormControl>

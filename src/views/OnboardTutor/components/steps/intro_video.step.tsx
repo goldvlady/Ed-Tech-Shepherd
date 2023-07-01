@@ -29,7 +29,7 @@ const IntroVideoForm = () => {
         .then((blob) => {
           const file = new File([blob], 'intro_video', { type: blob.type }); // replace 'filename' with your desired filename
           setIntroVideo(file);
-        })
+        });
     }
   }, [uploadedLink, introVideo]);
 
@@ -71,7 +71,7 @@ const IntroVideoForm = () => {
         }
       );
     }
-    /* eslint-disable */ 
+    /* eslint-disable */
   }, [introVideo]);
 
   return (

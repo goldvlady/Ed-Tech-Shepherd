@@ -34,7 +34,7 @@ const TimezoneSelect: React.FC<Props> = ({ value, onChange }) => {
     );
 
     if (assumedTimezoneInOptions) onChange(assumedTimezoneInOptions);
-    /* eslint-disable */ 
+    /* eslint-disable */
   }, []);
 
   useEffect(() => {

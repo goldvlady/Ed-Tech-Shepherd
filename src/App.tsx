@@ -75,7 +75,7 @@ const RequireAuth = ({
       setObtainedUserAuthState(true);
       setFirebaseUser(user);
       if (user) {
-          await fetchUser();
+        await fetchUser()
       }
       setLoadingUser(false);
     });
@@ -254,7 +254,7 @@ function App() {
   if (!resourcesLoaded) {
     return (
       <ChakraProvider theme={theme}>
-        <Box p={5} textAlign="center">
+        <Box p={5} textAlign="center" style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh'}}>
           <Spinner />
         </Box>
       </ChakraProvider>

@@ -101,7 +101,7 @@ const skillLevelOptions = [
     label: (
       <SkillLevel>
         <SkillLevelImg>
-          <img src="/images/beginner.png" alt='beginner'/>
+          <img src="/images/beginner.png" alt="beginner" />
         </SkillLevelImg>{' '}
         Beginner
       </SkillLevel>
@@ -112,7 +112,7 @@ const skillLevelOptions = [
     label: (
       <SkillLevel>
         <SkillLevelImg>
-          <img src="/images/intermediate.png" alt='intermediate'/>
+          <img src="/images/intermediate.png" alt="intermediate" />
         </SkillLevelImg>{' '}
         Intermediate
       </SkillLevel>
@@ -123,7 +123,7 @@ const skillLevelOptions = [
     label: (
       <SkillLevel>
         <SkillLevelImg>
-          <img src="/images/advanced.png" alt='advanced'/>
+          <img src="/images/advanced.png" alt="advanced" />
         </SkillLevelImg>{' '}
         Advanced
       </SkillLevel>
@@ -543,8 +543,8 @@ const OnboardStudent = () => {
     setEditModalStep(stepId);
   };
 
-  /* eslint-disable */ 
-  const activeStepObj = useMemo(() => steps[activeStep - 1], [activeStep]); 
+  /* eslint-disable */
+  const activeStepObj = useMemo(() => steps[activeStep - 1], [activeStep]);
 
   const stepIndicatorActiveStep = useMemo(
     () =>

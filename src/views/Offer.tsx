@@ -251,7 +251,7 @@ const Offer = () => {
         bookOffer();
       })();
     }
-    /* eslint-disable */ 
+    /* eslint-disable */
   }, [clientSecret]);
 
   const loading = loadingOffer;

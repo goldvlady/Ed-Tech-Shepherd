@@ -25,7 +25,7 @@ const MnemonicSetup: React.FC = () => {
     if (mnemonics?.length < 1) {
       addMnemonic({ prompt: '', answer: '', explanation: '' });
     }
-    /* eslint-disable */ 
+    /* eslint-disable */
   }, [mnemonics]);
 
   const handleInputChange = (

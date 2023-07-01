@@ -7,7 +7,7 @@ function BookmarkedTutors() {
   const { fetchBookmarkedTutors, tutors: allTutors } = bookmarkedTutorsStore();
   const doFetchBookmarkedTutors = useCallback(async () => {
     await fetchBookmarkedTutors();
-    /* eslint-disable */ 
+    /* eslint-disable */
   }, []);
 
   useEffect(() => {

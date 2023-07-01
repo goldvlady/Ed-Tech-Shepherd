@@ -44,9 +44,9 @@ const Session = () => {
       const resp = await ApiService.getBooking(bookingId as string);
       setBooking(await resp.json());
       setLoadingBooking(false);
-  };
+    };
 
-    loadBooking()
+    loadBooking();
   }, [bookingId]);
 
   const roomUrl = useMemo(() => {

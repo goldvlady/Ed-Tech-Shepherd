@@ -141,7 +141,7 @@ const OnboardTutor = () => {
         });
       }
     );
-    /* eslint-disable */ 
+    /* eslint-disable */
   }, [selectedCV]);
 
   useEffect(() => {
@@ -218,7 +218,7 @@ const OnboardTutor = () => {
         });
       }
     );
-    /* eslint-disable */ 
+    /* eslint-disable */
   }, [selectedAvatar]);
 
   const doSubmit = async () => {
