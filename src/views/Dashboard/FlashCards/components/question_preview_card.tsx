@@ -1,3 +1,4 @@
+import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from "@chakra-ui/icons";
 import {
   Box,
   Flex,
@@ -10,7 +11,6 @@ import {
   Radio,
   HStack,
 } from "@chakra-ui/react";
-import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from "@chakra-ui/icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 

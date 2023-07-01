@@ -1,6 +1,6 @@
-import React from "react";
 import { useFlashCardState } from "../../context/flashcard";
 import { Button, Box, Text, Flex } from "@chakra-ui/react";
+import React from "react";
 
 const SuccessState = () => {
   const { flashcardData } = useFlashCardState();

@@ -70,15 +70,14 @@ const Header: React.FC<Props> = ({ left, right, showUserPill = true }) => {
                   <Avatar
                     size="sm"
                     color="white"
-                    name={`${user?.name?.first ?? ""} ${
-                      user?.name?.last ?? ""
-                    }`}
+                    name={`${user.name?.first} ${user.name?.last}`}
                     bg="#4CAF50"
                   />
-                  <Text fontSize="14px" fontWeight={500} color="text.200">
-                    {" "}
-                    {`${user?.name?.first ?? ""} ${user?.name?.last ?? ""}`}
-                  </Text>
+                  <Text
+                    fontSize="0.875rem"
+                    fontWeight={500}
+                    color="text.200"
+                  >{`${user.name?.first} ${user.name?.last}`}</Text>
                   <Box display={{ base: "none", md: "flex" }}>
                     <FiChevronDown />
                   </Box>

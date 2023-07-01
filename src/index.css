@@ -152,3 +152,7 @@ code {
   border-color: #207df7 !important;
   color: var(--chakra-colors-white);
 }
+
+canvas {
+  width: 100% !important;
+}
