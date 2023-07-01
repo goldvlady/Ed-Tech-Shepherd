@@ -129,7 +129,9 @@ const MenuLinedList: React.FC<Props> = ({ items, ...rest }) => {
       {items.map((i, idx) => (
         <>
           <Title>
-            <NavItem path={i.path} key={idx}>{i.title}</NavItem>
+            <NavItem path={i.path} key={idx}>
+              {i.title}
+            </NavItem>
           </Title>
         </>
       ))}

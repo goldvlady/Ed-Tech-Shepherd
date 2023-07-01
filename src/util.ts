@@ -45,8 +45,13 @@ export const doFetch = async (input: RequestInfo, init?: RequestInit) => {
       toast.close(window.networkErrorToast);
     }
 
+    let errorMessage = '';
+
+    if (response.status === 401)
+      errorMessage = 'Please check your credentials, and try again.';
+
     window.networkErrorToast = toast({
-      title: 'An error occurred.',
+      title: errorMessage || 'An error occurred.',
       status: 'error',
       position: 'top',
       isClosable: true
