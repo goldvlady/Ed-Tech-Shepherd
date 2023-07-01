@@ -1,23 +1,34 @@
-import { Box, Button, FormControl, FormLabel, HStack, Input } from "@chakra-ui/react";
-import { format } from "date-fns";
-import { useState, useEffect, useMemo } from "react";
-import { TutorQualification } from "../../../../types";
-import onboardTutorStore from "../../../../state/onboardTutorStore";
-import { motion, AnimatePresence } from "framer-motion";
-import { RiPencilLine } from "react-icons/ri";
+import onboardTutorStore from '../../../../state/onboardTutorStore';
+import { TutorQualification } from '../../../../types';
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  HStack,
+  Input
+} from '@chakra-ui/react';
+import { format } from 'date-fns';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useMemo } from 'react';
+import { RiPencilLine } from 'react-icons/ri';
 
 const QualificationsForm: React.FC = () => {
   const { qualifications: storeQualifications } = onboardTutorStore.useStore();
   const [formData, setFormData] = useState<TutorQualification>({
-    institution: "",
-    degree: "",
+    institution: '',
+    degree: '',
     startDate: null as unknown as Date,
-    endDate: null as unknown as Date,
+    endDate: null as unknown as Date
   });
   const [addQualificationClicked, setAddQualificationClicked] = useState(false);
 
   useEffect(() => {
-    if (storeQualifications && storeQualifications.length === 1 && !addQualificationClicked) {
+    if (
+      storeQualifications &&
+      storeQualifications.length === 1 &&
+      !addQualificationClicked
+    ) {
       setFormData(storeQualifications[0]);
     }
   }, [storeQualifications, addQualificationClicked]);
@@ -25,7 +36,7 @@ const QualificationsForm: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const updatedFormData = {
       ...formData,
-      [e.target.name]: e.target.value,
+      [e.target.name]: e.target.value
     };
     setFormData(updatedFormData);
     if (!addQualificationClicked) {
@@ -36,65 +47,83 @@ const QualificationsForm: React.FC = () => {
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const updatedFormData = {
       ...formData,
-      [e.target.name]: new Date(e.target.value),
+      [e.target.name]: new Date(e.target.value)
     };
     setFormData(updatedFormData);
     if (!addQualificationClicked) {
-
       onboardTutorStore.set.qualifications?.([updatedFormData]);
     }
   };
 
   const isFormValid = useMemo(() => {
     return Object.values(formData).every(Boolean);
-  }, [formData])
+  }, [formData]);
 
   const handleAddQualification = () => {
-    console.log(formData)
+    console.log(formData);
     const isFormValid = Object.values(formData).every(Boolean);
-    console.log(isFormValid)
+    console.log(isFormValid);
     if (!isFormValid) return;
-    onboardTutorStore.set.qualifications?.([...(storeQualifications || []), formData]);
+    onboardTutorStore.set.qualifications?.([
+      ...(storeQualifications || []),
+      formData
+    ]);
     setFormData({
-      institution: "",
-      degree: "",
+      institution: '',
+      degree: '',
       startDate: null as unknown as Date,
-      endDate: null as unknown as Date,
+      endDate: null as unknown as Date
     });
     setAddQualificationClicked(true);
   };
 
   const handleEditQualification = (id: string) => {
-    if (!storeQualifications) return
-    const selectedQualificationIndex = storeQualifications.findIndex(qual => (
-      `${qual.institution}${qual.degree}${qual.startDate?.getTime()}${qual.endDate?.getTime()}` === id
-    ));
+    if (!storeQualifications) return;
+    const selectedQualificationIndex = storeQualifications.findIndex(
+      (qual) =>
+        `${qual.institution}${
+          qual.degree
+        }${qual.startDate?.getTime()}${qual.endDate?.getTime()}` === id
+    );
     if (selectedQualificationIndex === -1) return;
-    const selectedQualification = storeQualifications[selectedQualificationIndex];
+    const selectedQualification =
+      storeQualifications[selectedQualificationIndex];
     setFormData(selectedQualification);
-    const updatedQualifications = storeQualifications.filter(qual => (
-      `${qual.institution}${qual.degree}${qual.startDate?.getTime()}${qual.endDate?.getTime()}` !== id
-    ));
+    const updatedQualifications = storeQualifications.filter(
+      (qual) =>
+        `${qual.institution}${
+          qual.degree
+        }${qual.startDate?.getTime()}${qual.endDate?.getTime()}` !== id
+    );
     onboardTutorStore.set.qualifications?.(updatedQualifications);
   };
-  
+
   const renderQualifications = () => {
     if (!addQualificationClicked || !storeQualifications) return null;
 
-    const uniqueQualifications = storeQualifications.filter((qualification, index, self) =>
-    index === self.findIndex((qual) => (
-      `${qual.institution}${qual.degree}${qual.startDate?.getTime()}${qual.endDate?.getTime()}` === 
-      `${qualification.institution}${qualification.degree}${qualification.startDate?.getTime()}${qualification.endDate?.getTime()}`
-    ))
-  );
-    
+    const uniqueQualifications = storeQualifications.filter(
+      (qualification, index, self) =>
+        index ===
+        self.findIndex(
+          (qual) =>
+            `${qual.institution}${
+              qual.degree
+            }${qual.startDate?.getTime()}${qual.endDate?.getTime()}` ===
+            `${qualification.institution}${
+              qualification.degree
+            }${qualification.startDate?.getTime()}${qualification.endDate?.getTime()}`
+        )
+    );
+
     return uniqueQualifications.map((qualification) => {
       const startDate = new Date(qualification.startDate as Date);
       const endDate = new Date(qualification.endDate as Date);
       const formattedStartDate = startDate.getFullYear();
       const formattedEndDate = endDate.getFullYear();
-      const id = `${qualification.institution}${qualification.degree}${startDate.getTime()}${endDate.getTime()}`;
-  
+      const id = `${qualification.institution}${
+        qualification.degree
+      }${startDate.getTime()}${endDate.getTime()}`;
+
       return (
         <Box
           key={id}
@@ -109,11 +138,11 @@ const QualificationsForm: React.FC = () => {
           <HStack justifyContent="space-between">
             <HStack>
               <Box fontWeight="bold">
-                {qualification.institution},{" "}
+                {qualification.institution},{' '}
                 {`${formattedStartDate}-${formattedEndDate}`}
               </Box>
             </HStack>
-  
+
             <Button
               border="1px solid #ECEDEE"
               color="#212224"
@@ -129,8 +158,8 @@ const QualificationsForm: React.FC = () => {
       );
     });
   };
-  
-  console.log("is diabled", !isFormValid)
+
+  console.log('is diabled', !isFormValid);
 
   return (
     <Box>
@@ -148,12 +177,22 @@ const QualificationsForm: React.FC = () => {
       </AnimatePresence>
       <FormControl id="institution" marginBottom="20px">
         <FormLabel>Institution</FormLabel>
-        <Input placeholder="e.g Harvard University" name="institution" value={formData.institution} onChange={handleInputChange} />
+        <Input
+          placeholder="e.g Harvard University"
+          name="institution"
+          value={formData.institution}
+          onChange={handleInputChange}
+        />
       </FormControl>
 
       <FormControl id="degree" marginBottom="20px">
         <FormLabel>Degree</FormLabel>
-        <Input placeholder="e.g Mathematics" name="degree" value={formData.degree} onChange={handleInputChange} />
+        <Input
+          placeholder="e.g Mathematics"
+          name="degree"
+          value={formData.degree}
+          onChange={handleInputChange}
+        />
       </FormControl>
 
       <HStack spacing={5} marginBottom="20px">
@@ -163,7 +202,9 @@ const QualificationsForm: React.FC = () => {
             name="startDate"
             type="date"
             placeholder="Select Start Date"
-            value={formData.startDate ? format(formData.startDate, "yyyy-MM-dd") : ""}
+            value={
+              formData.startDate ? format(formData.startDate, 'yyyy-MM-dd') : ''
+            }
             onChange={handleDateChange}
           />
         </FormControl>
@@ -174,25 +215,28 @@ const QualificationsForm: React.FC = () => {
             name="endDate"
             type="date"
             placeholder="Select End Date"
-            value={formData.endDate ? format(formData.endDate, "yyyy-MM-dd") : ""}
+            value={
+              formData.endDate ? format(formData.endDate, 'yyyy-MM-dd') : ''
+            }
             onChange={handleDateChange}
           />
         </FormControl>
       </HStack>
 
-      <Button margin={0}
+      <Button
+        margin={0}
         padding={0}
-        color={"#207DF7"}
-        fontSize={"sm"}
+        color={'#207DF7'}
+        fontSize={'sm'}
         marginTop="-20px"
-        background={"transparent"}
+        background={'transparent'}
         variant="ghost"
         colorScheme="white"
         isDisabled={!isFormValid}
-        onClick={handleAddQualification}>
-       + Add to qualifications
+        onClick={handleAddQualification}
+      >
+        + Add to qualifications
       </Button>
-
     </Box>
   );
 };

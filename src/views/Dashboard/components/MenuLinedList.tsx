@@ -1,4 +1,12 @@
-import { Box, Flex, FlexProps, Icon, Link, Text, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  FlexProps,
+  Icon,
+  Link,
+  Text,
+  VStack
+} from '@chakra-ui/react';
 import React from 'react';
 import { IconType } from 'react-icons';
 import { BsChatLeftDots, BsPin, BsPlayCircle } from 'react-icons/bs';
@@ -70,7 +78,11 @@ interface NavItemProps extends FlexProps {
 }
 const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
   return (
-    <Link href={path} style={{ textDecoration: 'none' }} _focus={{ boxShadow: 'none' }}>
+    <Link
+      href={path}
+      style={{ textDecoration: 'none' }}
+      _focus={{ boxShadow: 'none' }}
+    >
       <Flex
         align="center"
         py="4"
@@ -81,21 +93,22 @@ const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
         role="group"
         cursor="pointer"
         _hover={{
-          color: '#207DF7',
+          color: '#207DF7'
         }}
         _activeLink={{
-          color: '#207DF7',
+          color: '#207DF7'
         }}
         fontSize={14}
         color="text.400"
         fontWeight={500}
-        {...rest}>
+        {...rest}
+      >
         {icon && (
           <Icon
             mr="4"
             fontSize="16"
             _groupHover={{
-              color: '#207DF7',
+              color: '#207DF7'
             }}
             as={icon}
           />

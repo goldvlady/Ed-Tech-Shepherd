@@ -1,4 +1,4 @@
-import { classNames } from "../helpers";
+import { classNames } from '../helpers';
 import {
   DashboardIcon,
   OffersIcon,
@@ -6,24 +6,24 @@ import {
   UserGroupIcon,
   UserIcon,
   ChevronRightIcon, // NotesIcon,
-  LogoutIcon,
-} from "./icons";
-import { HelpModal, UploadDocumentModal } from "./index";
-import { Text } from "@chakra-ui/react";
-import { Dialog, Menu, Transition } from "@headlessui/react";
+  LogoutIcon
+} from './icons';
+import { HelpModal, UploadDocumentModal } from './index';
+import { Text } from '@chakra-ui/react';
+import { Dialog, Menu, Transition } from '@headlessui/react';
 import {
   ChevronDownIcon,
-  MagnifyingGlassIcon,
-} from "@heroicons/react/20/solid";
+  MagnifyingGlassIcon
+} from '@heroicons/react/20/solid';
 import {
   Bars3Icon,
   BellIcon,
   Cog6ToothIcon,
   XMarkIcon,
-  PlusIcon,
-} from "@heroicons/react/24/outline";
-import React, { Fragment, useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+  PlusIcon
+} from '@heroicons/react/24/outline';
+import React, { Fragment, useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 interface NavigationItem {
   name: string;
@@ -34,14 +34,14 @@ interface NavigationItem {
 
 const dummyNavigation: NavigationItem[] = [
   {
-    name: "Dashboard",
-    href: "/tutordashboard",
+    name: 'Dashboard',
+    href: '/tutordashboard',
     icon: DashboardIcon,
-    current: true,
+    current: true
   },
-  { name: "Clients", href: "/clients", icon: UserGroupIcon, current: false },
-  { name: "Offers", href: "/offers", icon: OffersIcon, current: false },
-  { name: "Messages", href: "/messages", icon: MessagesIcon, current: false },
+  { name: 'Clients', href: '/clients', icon: UserGroupIcon, current: false },
+  { name: 'Offers', href: '/offers', icon: OffersIcon, current: false },
+  { name: 'Messages', href: '/messages', icon: MessagesIcon, current: false }
   // { name: "Notes", href: "/notes", icon: NotesIcon, current: false },
 ];
 
@@ -53,7 +53,7 @@ export default function Layout({ children, className }) {
     useState<NavigationItem[]>(dummyNavigation);
   const location = useLocation();
 
-  const pathname = location.pathname.split("/")[1];
+  const pathname = location.pathname.split('/')[1];
 
   useEffect(() => {
     const temp: NavigationItem[] = navigation.map((nav) => {
@@ -139,17 +139,17 @@ export default function Layout({ children, className }) {
                                 href={item.href}
                                 className={classNames(
                                   item.current
-                                    ? "bg-slate-100 text-blue-400"
-                                    : "text-gray-400 hover:text-blue-400 hover:bg-slate-100",
-                                  "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                                    ? 'bg-slate-100 text-blue-400'
+                                    : 'text-gray-400 hover:text-blue-400 hover:bg-slate-100',
+                                  'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
                                 )}
                               >
                                 <item.icon
                                   className={classNames(
                                     item.current
-                                      ? "text-blue-500"
-                                      : "text-gray-400 group-hover:text-blue-400",
-                                    "h-6 w-6 shrink-0"
+                                      ? 'text-blue-500'
+                                      : 'text-gray-400 group-hover:text-blue-400',
+                                    'h-6 w-6 shrink-0'
                                   )}
                                   aria-hidden="true"
                                 />
@@ -163,18 +163,18 @@ export default function Layout({ children, className }) {
                         <a
                           href="/settings"
                           className={classNames(
-                            pathname === "settings"
-                              ? "bg-slate-100 text-blue-400"
-                              : "text-gray-400 hover:text-blue-400 hover:bg-slate-100",
-                            "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                            pathname === 'settings'
+                              ? 'bg-slate-100 text-blue-400'
+                              : 'text-gray-400 hover:text-blue-400 hover:bg-slate-100',
+                            'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
                           )}
                         >
                           <Cog6ToothIcon
                             className={classNames(
-                              pathname === "settings"
-                                ? "text-blue-500"
-                                : "text-gray-400 group-hover:text-blue-400",
-                              "h-6 w-6 shrink-0"
+                              pathname === 'settings'
+                                ? 'text-blue-500'
+                                : 'text-gray-400 group-hover:text-blue-400',
+                              'h-6 w-6 shrink-0'
                             )}
                             aria-hidden="true"
                           />
@@ -207,17 +207,17 @@ export default function Layout({ children, className }) {
                         href={item.href}
                         className={classNames(
                           item.current
-                            ? "bg-slate-100 text-blue-400"
-                            : "text-gray-400 hover:text-blue-400 hover:bg-slate-100",
-                          "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                            ? 'bg-slate-100 text-blue-400'
+                            : 'text-gray-400 hover:text-blue-400 hover:bg-slate-100',
+                          'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
                         )}
                       >
                         <item.icon
                           className={classNames(
                             item.current
-                              ? "text-blue-500"
-                              : "text-gray-400 group-hover:text-blue-400",
-                            "h-6 w-6 shrink-0"
+                              ? 'text-blue-500'
+                              : 'text-gray-400 group-hover:text-blue-400',
+                            'h-6 w-6 shrink-0'
                           )}
                           aria-hidden="true"
                         />
@@ -231,18 +231,18 @@ export default function Layout({ children, className }) {
                 <a
                   href="/settings"
                   className={classNames(
-                    pathname === "settings"
-                      ? "bg-slate-100 text-blue-400"
-                      : "text-gray-400 hover:text-blue-400 hover:bg-slate-100",
-                    "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                    pathname === 'settings'
+                      ? 'bg-slate-100 text-blue-400'
+                      : 'text-gray-400 hover:text-blue-400 hover:bg-slate-100',
+                    'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
                   )}
                 >
                   <Cog6ToothIcon
                     className={classNames(
-                      pathname === "settings"
-                        ? "text-blue-500"
-                        : "text-gray-400 group-hover:text-blue-400",
-                      "h-6 w-6 shrink-0"
+                      pathname === 'settings'
+                        ? 'text-blue-500'
+                        : 'text-gray-400 group-hover:text-blue-400',
+                      'h-6 w-6 shrink-0'
                     )}
                     aria-hidden="true"
                   />
@@ -267,12 +267,12 @@ export default function Layout({ children, className }) {
 
           <div
             className={`flex ${
-              pathname === "clients" || ["notes", "docchat"].includes(pathname)
-                ? "justify-between py-2"
-                : "justify-end"
+              pathname === 'clients' || ['notes', 'docchat'].includes(pathname)
+                ? 'justify-between py-2'
+                : 'justify-end'
             } flex-1 gap-x-4 self-stretch lg:gap-x-6`}
           >
-            {pathname === "clients" && (
+            {pathname === 'clients' && (
               <form className="relative flex flex-1 py-2">
                 <label htmlFor="search-field" className="sr-only">
                   Search
@@ -291,7 +291,7 @@ export default function Layout({ children, className }) {
               </form>
             )}
 
-            {pathname === "notes" && (
+            {pathname === 'notes' && (
               <button
                 onClick={() => setHelpModal(true)}
                 className="relative flex max-w-fit items-center space-x-3 border rounded-full  flex-1 px-3 py-4"
@@ -309,7 +309,7 @@ export default function Layout({ children, className }) {
               </button>
             )}
 
-            {pathname === "docchat" && (
+            {pathname === 'docchat' && (
               <button
                 onClick={() => setHelpModal(true)}
                 className="relative flex max-w-fit items-center border rounded-full flex-1 px-4 py-1"
@@ -326,7 +326,7 @@ export default function Layout({ children, className }) {
             )}
             <div className="flex items-center gap-x-4 lg:gap-x-6">
               {/* Show if the pathname is client */}
-              {pathname === "clients" && (
+              {pathname === 'clients' && (
                 <button
                   type="button"
                   className="inline-flex items-center gap-x-2 rounded-md bg-secondaryBlue px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
@@ -337,7 +337,7 @@ export default function Layout({ children, className }) {
               )}
 
               {/* Show if the pathname is notes */}
-              {["notes", "docchat"].includes(pathname) && (
+              {['notes', 'docchat'].includes(pathname) && (
                 <Menu as="div" className="relative">
                   <div>
                     <Menu.Button
@@ -511,10 +511,10 @@ export default function Layout({ children, className }) {
                           2 hrs ago
                         </p>
                         <p className="mt-1 text-sm font-medium text-gray-500">
-                          William Kelly{" "}
+                          William Kelly{' '}
                           <span className="text-red-400 font-semibold">
                             withdrew
-                          </span>{" "}
+                          </span>{' '}
                           her offer
                         </p>
                       </div>

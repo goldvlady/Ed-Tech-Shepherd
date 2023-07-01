@@ -1,15 +1,15 @@
-import { Layout } from "../components";
-import { AllMessagesTab } from "../components";
-import { classNames } from "../helpers";
-import { Text } from "@chakra-ui/react";
-import { Tab, Transition, Menu, Dialog, Popover } from "@headlessui/react";
+import { Layout } from '../components';
+import { AllMessagesTab } from '../components';
+import { classNames } from '../helpers';
+import { Text } from '@chakra-ui/react';
+import { Tab, Transition, Menu, Dialog, Popover } from '@headlessui/react';
 import {
   DocumentIcon,
   EllipsisVerticalIcon,
   ChevronRightIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/solid";
-import React, { Fragment, useState } from "react";
+  XMarkIcon
+} from '@heroicons/react/24/solid';
+import React, { Fragment, useState } from 'react';
 
 export default function Messages() {
   const [offerModalState, setOfferModalState] = useState(false);
@@ -62,9 +62,9 @@ export default function Messages() {
                               <span
                                 className={classNames(
                                   selected
-                                    ? "bg-white text-secondaryGray"
-                                    : "text-gray-500 hover:text-gray-700",
-                                  "rounded-md cursor-pointer w-full text-center px-3 py-2 hover:bg-white text-sm font-medium"
+                                    ? 'bg-white text-secondaryGray'
+                                    : 'text-gray-500 hover:text-gray-700',
+                                  'rounded-md cursor-pointer w-full text-center px-3 py-2 hover:bg-white text-sm font-medium'
                                 )}
                               >
                                 All
@@ -76,9 +76,9 @@ export default function Messages() {
                               <span
                                 className={classNames(
                                   selected
-                                    ? "bg-white text-secondaryGray"
-                                    : "text-gray-500 hover:text-gray-700",
-                                  "rounded-md cursor-pointer w-full text-center px-3 py-2 hover:bg-white text-sm font-medium"
+                                    ? 'bg-white text-secondaryGray'
+                                    : 'text-gray-500 hover:text-gray-700',
+                                  'rounded-md cursor-pointer w-full text-center px-3 py-2 hover:bg-white text-sm font-medium'
                                 )}
                               >
                                 Unread
@@ -280,7 +280,7 @@ export default function Messages() {
                                 <p>
                                   Nulla ut ut ipsum praesent nulla sem eget.
                                   Aliquam vitae amet magna neque leo. Fames
-                                  donec nullam dictum aliquet.{" "}
+                                  donec nullam dictum aliquet.{' '}
                                 </p>
                                 <button className="w-full bg-white mt-1 rounded-md flex items-center justify-between px-2 py-1">
                                   <div className=" flex items-center space-x-1">

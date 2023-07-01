@@ -1,4 +1,4 @@
-import { useFlashCardState } from "../../context/flashcard";
+import { useFlashCardState } from '../../context/flashcard';
 import {
   Box,
   FormControl,
@@ -10,19 +10,19 @@ import {
   Select,
   Button,
   HStack,
-  useEditable,
-} from "@chakra-ui/react";
-import React, { ChangeEvent, useEffect, useMemo, useState } from "react";
+  useEditable
+} from '@chakra-ui/react';
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 
 const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
   const { flashcardData, setFlashcardData, goToNextStep } = useFlashCardState();
   const [localData, setLocalData] = useState<typeof flashcardData>({
-    deckname: "",
-    studyType: "",
-    studyPeriod: "",
+    deckname: '',
+    studyType: '',
+    studyPeriod: '',
     numOptions: 0,
-    timerDuration: "",
-    hasSubmitted: false,
+    timerDuration: '',
+    hasSubmitted: false
   }); // A local state for storing user inputs
 
   const handleChange = React.useCallback(
@@ -51,7 +51,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     setFlashcardData((prevState) => ({
       ...prevState,
       ...localData,
-      hasSubmitted: true,
+      hasSubmitted: true
     }));
     goToNextStep();
   };
@@ -60,7 +60,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     <Box bg="white" width="100%" mt="30px">
       {isAutomated && (
         <>
-          {" "}
+          {' '}
           <FormControl mb={8}>
             <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
               Subject
@@ -71,7 +71,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
               placeholder="e.g. Chemistry"
               value={localData.subject}
               onChange={handleChange}
-              _placeholder={{ fontSize: "14px", color: "#9A9DA2" }}
+              _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
             />
           </FormControl>
           <FormControl mb={8}>
@@ -84,7 +84,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
               placeholder="e.g. Bonds"
               value={localData.topic}
               onChange={handleChange}
-              _placeholder={{ fontSize: "14px", color: "#9A9DA2" }}
+              _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
             />
           </FormControl>
         </>
@@ -99,7 +99,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
           placeholder="e.g. Deckname"
           value={localData.deckname}
           onChange={handleChange}
-          _placeholder={{ fontSize: "14px", color: "#9A9DA2" }}
+          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />
       </FormControl>
 
@@ -112,12 +112,12 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
           value={localData.studyType}
           onChange={(value) =>
             handleChange({
-              target: { name: "studyType", value },
+              target: { name: 'studyType', value }
             } as ChangeEvent<HTMLInputElement>)
           }
         >
           <Radio value="longTermRetention">Long term retention</Radio>
-          <Radio ml={"10px"} value="quickPractice">
+          <Radio ml={'10px'} value="quickPractice">
             Quick Practice
           </Radio>
         </RadioGroup>
@@ -132,7 +132,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
           placeholder="Select study period"
           value={localData.studyPeriod}
           onChange={handleChange}
-          _placeholder={{ fontSize: "14px", color: "#9A9DA2" }}
+          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         >
           <option value="daily">Daily</option>
           <option value="weekly">Once a week</option>
@@ -151,7 +151,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
           placeholder="Number of options"
           value={localData.numOptions}
           onChange={handleChange}
-          _placeholder={{ fontSize: "14px", color: "#9A9DA2" }}
+          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />
       </FormControl>
 
@@ -164,26 +164,26 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
           placeholder="Select a duration"
           value={localData.timerDuration}
           onChange={handleChange}
-          _placeholder={{ fontSize: "14px", color: "#9A9DA2" }}
+          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         >
           <option value="30">30 sec</option>
           <option value="15">15 sec</option>
         </Select>
       </FormControl>
-      <HStack w="full" align={"flex-end"}>
+      <HStack w="full" align={'flex-end'}>
         <Button
           variant="solid"
           isDisabled={!isValid}
           colorScheme="primary"
           size="sm"
           ml="auto"
-          fontSize={"14px"}
+          fontSize={'14px'}
           mt={4}
           padding="20px 25px"
           onClick={() => handleSubmit()}
         >
           <svg
-            style={{ marginRight: "4px" }}
+            style={{ marginRight: '4px' }}
             width="20"
             height="20"
             viewBox="0 0 20 20"

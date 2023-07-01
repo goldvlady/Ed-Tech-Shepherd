@@ -1,14 +1,14 @@
-import { AllNotesTab } from "../../components";
+import { AllNotesTab } from '../../components';
 import {
   ArrowRightIcon,
   SortIcon,
-  FilterByTagsIcon,
-} from "../../components/icons";
-import { classNames } from "../../helpers";
-import { Text } from "@chakra-ui/react";
-import { Menu, Transition, Tab } from "@headlessui/react";
-import { PlusIcon } from "@heroicons/react/24/outline";
-import React, { Fragment } from "react";
+  FilterByTagsIcon
+} from '../../components/icons';
+import { classNames } from '../../helpers';
+import { Text } from '@chakra-ui/react';
+import { Menu, Transition, Tab } from '@headlessui/react';
+import { PlusIcon } from '@heroicons/react/24/outline';
+import React, { Fragment } from 'react';
 
 const notes = [{}];
 
@@ -158,9 +158,9 @@ export default function Notes() {
                       <span
                         className={classNames(
                           selected
-                            ? "border-primaryBlue text-primaryBlue"
-                            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
-                          "group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium"
+                            ? 'border-primaryBlue text-primaryBlue'
+                            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+                          'group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium'
                         )}
                       >
                         All Notes
@@ -172,9 +172,9 @@ export default function Notes() {
                       <span
                         className={classNames(
                           selected
-                            ? "border-primaryBlue text-primaryBlue"
-                            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
-                          "group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium"
+                            ? 'border-primaryBlue text-primaryBlue'
+                            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+                          'group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium'
                         )}
                       >
                         Documents
@@ -186,9 +186,9 @@ export default function Notes() {
                       <span
                         className={classNames(
                           selected
-                            ? "border-primaryBlue text-primaryBlue"
-                            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
-                          "group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium"
+                            ? 'border-primaryBlue text-primaryBlue'
+                            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+                          'group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium'
                         )}
                       >
                         Notes

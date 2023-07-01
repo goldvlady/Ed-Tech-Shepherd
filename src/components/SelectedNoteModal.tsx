@@ -1,15 +1,15 @@
-import { storage } from "../firebase";
-import { UploadIcon } from "./icons";
-import { Transition, Dialog } from "@headlessui/react";
-import { getAuth } from "firebase/auth";
+import { storage } from '../firebase';
+import { UploadIcon } from './icons';
+import { Transition, Dialog } from '@headlessui/react';
+import { getAuth } from 'firebase/auth';
 import {
   ref,
   uploadBytesResumable,
   listAll,
-  getDownloadURL,
-} from "firebase/storage";
-import { Fragment, useRef, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+  getDownloadURL
+} from 'firebase/storage';
+import { Fragment, useRef, useState, useEffect, RefObject } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 type List = {
   name: string;
@@ -24,23 +24,21 @@ interface ShowProps {
 
 const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   const navigate = useNavigate();
-  const [fileName, setFileName] = useState("");
-  const [progress, setProgress] = useState("");
+  const [fileName, setFileName] = useState('');
+  const [progress, setProgress] = useState('');
   const [list, setList] = useState<Array<List>>([]);
   const [file, setFile] = useState<Blob | Uint8Array | ArrayBuffer>();
-  const [selectedOption, setSelectedOption] = useState("");
-  const [docPath, setDocPath] = useState("");
-  const [uploadError, setUploadError] = useState("");
+  const [selectedOption, setSelectedOption] = useState('');
+  const [docPath, setDocPath] = useState('');
+  const [uploadError, setUploadError] = useState('');
   const [loadedList, setLoadedList] = useState(false);
-  const inputRef = useRef(null);
+  const inputRef = useRef(null) as RefObject<HTMLInputElement>;
 
   useEffect(() => {
     const { currentUser } = getAuth();
     const listEverything = async (path) => {
       const listRef = ref(storage, path);
-      listAll(listRef)
-        // @ts-ignore
-        .then((res) => setList(res.items));
+      listAll(listRef).then((res) => setList(res.items));
     };
 
     if (currentUser?.uid) {
@@ -50,14 +48,13 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     }
   }, [docPath]);
 
-  const clickInput = (_) => {
-    // @ts-ignore
-    inputRef.current.click();
+  const clickInput = () => {
+    inputRef?.current && inputRef.current.click();
   };
 
   const collectFile = (e) => {
     const { name } = e.target.files[0];
-    setUploadError("");
+    setUploadError('');
     setFileName(name);
     setFile(e.target.files[0]);
   };
@@ -74,60 +71,56 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
       return setUploadError("You haven't uploaded a file or selected a note.");
 
     if (selectedOption) {
-      // @ts-ignore
       const documentUrl = await getDownloadURL(ref(storage, selectedOption));
       const item = list.filter((list) => list.fullPath === selectedOption);
       setShow(false);
       setShowHelp(false);
-      navigate("/dashboard/docchat", {
+      navigate('/dashboard/docchat', {
         state: {
           documentUrl,
-          docTitle: item[0].name,
-        },
+          docTitle: item[0].name
+        }
       });
     }
 
     if (file) {
       const storageRef = ref(
         storage,
-        `${docPath}/${fileName.toLowerCase().replace(/\s/g, "")}`
+        `${docPath}/${fileName.toLowerCase().replace(/\s/g, '')}`
       );
       const task = uploadBytesResumable(storageRef, file);
 
-      task.on(
-        "state_changed",
-        (snapshot) => {
-          const progress = `Upload is ${Math.round(
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          )}% done`;
+      task.on('state_changed', (snapshot) => {
+        const progress = `Upload is ${Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        )}% done`;
 
-          switch (snapshot.state) {
-            case "running":
-              setProgress(progress);
-              break;
-            case "success":
-              setProgress("Complete!");
-              const documentUrl = getDownloadURL(snapshot.ref);
-              const title = snapshot.metadata.name;
-              setShow(false);
-              setShowHelp(false);
-              navigate("/dashboard/docchat", {
-                state: {
-                  documentUrl,
-                  docTitle: title,
-                },
-              });
-              break;
+        switch (snapshot.state) {
+          case 'running':
+            setProgress(progress);
+            break;
+          case 'success': {
+            setProgress('Complete!');
+            const documentUrl = getDownloadURL(snapshot.ref);
+            const title = snapshot.metadata.name;
+            setShow(false);
+            setShowHelp(false);
+            navigate('/dashboard/docchat', {
+              state: {
+                documentUrl,
+                docTitle: title
+              }
+            });
+            break;
           }
-        },
-        (error) => console.log(error)
-      );
+        }
+      });
     }
   };
 
   return (
     <Transition.Root show={true} as={Fragment}>
-      <Dialog as="div" className="relative z-[999]" onClose={() => {}}>
+      <Dialog as="div" className="relative z-[999]" onClose={() => null}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -174,7 +167,6 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
                         >
                           {loadedList &&
                             list.map((item, id) => (
-                              // @ts-ignore
                               <option value={item.fullPath} key={id}>
                                 {item.name}
                               </option>
@@ -220,10 +212,10 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
                     />
                     <div className="text-center mb-6">
                       <p className="text-sm text-left leading-5 text-gray-600">
-                        Shepherd supports{" "}
+                        Shepherd supports{' '}
                         <span className="text-secondaryGray font-semibold">
                           .pdf, .ppt, .jpg & .txt
-                        </span>{" "}
+                        </span>{' '}
                         document formats
                       </p>
                     </div>

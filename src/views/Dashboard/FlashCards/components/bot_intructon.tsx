@@ -1,14 +1,13 @@
-import robot from "../../../../assets/robot.png";
-import { Box, Flex, Icon, Image, HStack, Text, VStack } from "@chakra-ui/react";
-import { AiFillCiCircle } from "react-icons/ai";
+import robot from '../../../../assets/robot.png';
+import { Box, Flex, Image, HStack, Text, VStack } from '@chakra-ui/react';
 
 const BotIntructionBox = () => {
   return (
     <Box bg="#F7F7F7" borderRadius="10px" p="20px" w="100%">
       <Flex w="100%" direction="column" align="flex-start">
         <HStack w="100%">
-          <Image width={"60px"} height={"60px"} src={robot}></Image>
-          <VStack ml={"20px"} spacing={2} align="flex-start">
+          <Image width={'60px'} height={'60px'} src={robot}></Image>
+          <VStack ml={'20px'} spacing={2} align="flex-start">
             <Text
               fontWeight="500"
               fontSize="16px"

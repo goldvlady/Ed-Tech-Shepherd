@@ -1,3 +1,6 @@
+import userStore from '../state/userStore';
+import theme from '../theme';
+import { PaymentMethod } from '../types';
 import {
   Box,
   Button,
@@ -10,15 +13,11 @@ import {
   Radio,
   Text,
   VStack,
-  useDisclosure,
-} from "@chakra-ui/react";
-import * as React from "react";
-import { useRef, useState } from "react";
-import styled from "styled-components";
-
-import { PaymentMethod } from "../types";
-import userStore from "../state/userStore";
-import theme from "../theme";
+  useDisclosure
+} from '@chakra-ui/react';
+import * as React from 'react';
+import { useRef, useState } from 'react';
+import styled from 'styled-components';
 
 export interface ChoosePaymentMethodDialogRef {
   choosePaymentMethod: () => Promise<PaymentMethod | null>;
@@ -63,25 +62,25 @@ const CardMeta = styled(Box)`
 `;
 
 const getBrandLogo = (brand: string) => {
-  if (brand === "mastercard") {
+  if (brand === 'mastercard') {
     return <CardBrand src="/images/mastercard.svg" />;
   }
-  if (brand === "amex") {
+  if (brand === 'amex') {
     return <CardBrand src="/images/amex.svg" />;
   }
-  if (brand === "discover") {
+  if (brand === 'discover') {
     return <CardBrand src="/images/discover.svg" />;
   }
-  if (brand === "diners") {
+  if (brand === 'diners') {
     return <CardBrand src="/images/diners.svg" />;
   }
-  if (brand === "jcb") {
+  if (brand === 'jcb') {
     return <CardBrand src="/images/jcb.svg" />;
   }
-  if (brand === "unionpay") {
+  if (brand === 'unionpay') {
     return <CardBrand src="/images/unionpay.svg" />;
   }
-  if (brand === "visa") {
+  if (brand === 'visa') {
     return <CardBrand src="/images/visa.svg" />;
   }
 
@@ -109,7 +108,7 @@ const ChoosePaymentMethodDialog = React.forwardRef<
           promiseResolve.current = resolve;
           promiseReject.current = reject;
         });
-      },
+      }
     };
   });
 
@@ -128,9 +127,9 @@ const ChoosePaymentMethodDialog = React.forwardRef<
         <ModalContent>
           <ModalHeader>Choose a payment method</ModalHeader>
           <ModalCloseButton />
-          <ModalBody flexDirection={"column"}>
+          <ModalBody flexDirection={'column'}>
             {prefix}
-            <VStack width={"100%"}>
+            <VStack width={'100%'}>
               {user?.paymentMethods.map((pm) => (
                 <CardRoot
                   onClick={() => setCurrentPaymentMethod(pm)}
@@ -150,7 +149,7 @@ const ChoosePaymentMethodDialog = React.forwardRef<
                 </CardRoot>
               ))}
             </VStack>
-            <Box width={"100%"} mt={5}>
+            <Box width={'100%'} mt={5}>
               <Button
                 onClick={() => {
                   onClose();
@@ -159,8 +158,8 @@ const ChoosePaymentMethodDialog = React.forwardRef<
                   );
                 }}
                 type="submit"
-                width={"100%"}
-                variant={"solid"}
+                width={'100%'}
+                variant={'solid'}
                 isDisabled={currentPaymentMethod === null}
               >
                 Continue

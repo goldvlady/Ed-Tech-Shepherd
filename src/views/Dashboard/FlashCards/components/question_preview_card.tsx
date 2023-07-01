@@ -1,18 +1,17 @@
-import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from "@chakra-ui/icons";
+import { CheckIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import {
   Box,
   Flex,
   Text,
   Icon,
-  Spacer,
   IconButton,
   Stack,
   RadioGroup,
   Radio,
-  HStack,
-} from "@chakra-ui/react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+  HStack
+} from '@chakra-ui/react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 
 const MotionBox = motion(Box);
 
@@ -36,9 +35,9 @@ const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({
   correctAnswer,
   onEdit,
   options,
-  onDelete,
+  onDelete
 }) => {
-  const [selectedValue, setSelectedValue] = useState("");
+  const [selectedValue, setSelectedValue] = useState('');
   const [isVisible, setIsVisible] = useState(true);
 
   const handleDelete = () => {
@@ -52,8 +51,8 @@ const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({
     <AnimatePresence>
       {isVisible && (
         <MotionBox
-          initial={{ height: "auto" }}
-          width={"100%"}
+          initial={{ height: 'auto' }}
+          width={'100%'}
           exit={{ height: 0 }}
           borderWidth="1px"
           borderRadius="12px"
@@ -69,7 +68,7 @@ const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({
               letterSpacing="0.7%"
               color="#212224"
             >
-              {index + 1}. {"  "}
+              {index + 1}. {'  '}
               {question}
             </Text>
             <RadioGroup onChange={setSelectedValue} value={selectedValue}>
@@ -77,7 +76,7 @@ const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({
                 {options?.map((option, index) => (
                   <Radio value={option.value} key={index}>
                     <Text
-                      fontWeight={"400"}
+                      fontWeight={'400'}
                       fontSize="14px"
                       lineHeight="20px"
                       color="#212224"
@@ -93,7 +92,7 @@ const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({
           <Flex
             borderTop="1px solid #EEEFF2"
             p="14px 24px"
-            justifyContent={"space-between"}
+            justifyContent={'space-between'}
             alignItems="center"
           >
             {isCorrect ? (
@@ -101,36 +100,36 @@ const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({
             ) : (
               <Icon as={CheckIcon} color="#969CA6" />
             )}
-            <HStack spacing={"0px"} width={"fit-content"}>
+            <HStack spacing={'0px'} width={'fit-content'}>
               <Box
-                marginLeft={"20px"}
-                _hover={{ transform: "scale(1.2)" }}
+                marginLeft={'20px'}
+                _hover={{ transform: 'scale(1.2)' }}
                 transition="all 0.2s"
               >
                 <IconButton
                   aria-label="Edit"
-                  height={"fit-content"}
-                  width={"fit-content"}
+                  height={'fit-content'}
+                  width={'fit-content'}
                   icon={<EditIcon boxSize="18px" color="#969CA6" />}
                   variant="unstyled"
                   p={0}
-                  _hover={{ bg: "none", padding: "0px" }}
-                  _active={{ bg: "none", padding: "0px" }}
-                  _focus={{ boxShadow: "none" }}
+                  _hover={{ bg: 'none', padding: '0px' }}
+                  _active={{ bg: 'none', padding: '0px' }}
+                  _focus={{ boxShadow: 'none' }}
                   onClick={onEdit}
                 />
               </Box>
-              <Box _hover={{ transform: "scale(1.2)" }} transition="all 0.2s">
+              <Box _hover={{ transform: 'scale(1.2)' }} transition="all 0.2s">
                 <IconButton
                   aria-label="Delete"
-                  height={"fit-content"}
-                  width={"fit-content"}
+                  height={'fit-content'}
+                  width={'fit-content'}
                   icon={<DeleteIcon boxSize="18px" color="#969CA6" />}
                   variant="unstyled"
                   p={0}
-                  _hover={{ bg: "none", padding: "0px" }}
-                  _active={{ bg: "none", padding: "0px" }}
-                  _focus={{ boxShadow: "none" }}
+                  _hover={{ bg: 'none', padding: '0px' }}
+                  _active={{ bg: 'none', padding: '0px' }}
+                  _focus={{ boxShadow: 'none' }}
                   onClick={handleDelete}
                 />
               </Box>

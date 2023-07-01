@@ -1,8 +1,8 @@
-import React, { Fragment, FC, useRef, memo, useState } from 'react'
-import { Dialog, Transition } from '@headlessui/react'
+import { Dialog, Transition } from '@headlessui/react';
+import React, { Fragment, FC, useRef, memo, useState } from 'react';
 
 const Proceed: FC = () => {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   const cancelButtonRef = useRef<HTMLButtonElement | null>(null);
   return (
@@ -10,17 +10,22 @@ const Proceed: FC = () => {
       <section className="px-6 mt-4">
         <div className="flex flex-wrap lg:space-y-0 space-y-3 items-center justify-between px-4 rounded-md py-5 border shadow-sm">
           <section className="relative flex flex-wrap items-center sm:space-y-0 space-y-3 sm:space-x-4">
-            <img className='absolute sm:-top-0 top-4 sm:left-12 left-9 sm:rotate-12 rotate-[24deg]' alt='' src='/svgs/cut-border.svg'/>
+            <img
+              className="absolute sm:-top-0 top-4 sm:left-12 left-9 sm:rotate-12 rotate-[24deg]"
+              alt=""
+              src="/svgs/cut-border.svg"
+            />
             <div className="flex proceed text-white justify-center text-2xl bg-success h-14 w-14 rounded-full items-center">
               L
             </div>
             <p className="">
-               <span className="block whitespace-nowrap">
-                  Welcome to sherpherd
-                </span>
-                <span className="inline-block text-gray-400 text-sm">
-                  We need a few more details to complete your profile. This helps you stand out from other tutors.
-                </span>
+              <span className="block whitespace-nowrap">
+                Welcome to sherpherd
+              </span>
+              <span className="inline-block text-gray-400 text-sm">
+                We need a few more details to complete your profile. This helps
+                you stand out from other tutors.
+              </span>
             </p>
           </section>
           <div className="flex flex-none items-center gap-x-4">
@@ -35,7 +40,12 @@ const Proceed: FC = () => {
       </section>
 
       <Transition.Root show={open} as={Fragment}>
-        <Dialog as="div" className="relative z-50" initialFocus={cancelButtonRef} onClose={setOpen}>
+        <Dialog
+          as="div"
+          className="relative z-50"
+          initialFocus={cancelButtonRef}
+          onClose={setOpen}
+        >
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -60,16 +70,24 @@ const Proceed: FC = () => {
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
                 <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                  <h3 className='border-b px-2 py-4 text-center'>Hey Leslie, kindly drop a lesson summary</h3>
+                  <h3 className="border-b px-2 py-4 text-center">
+                    Hey Leslie, kindly drop a lesson summary
+                  </h3>
                   <form className="space-y-6 p-6" action="#" method="POST">
-                    <div className='flex items-start space-x-2 font-semibold bg-blue-50 text-gray-400 p-2 rounded-md'>
-                      <div className='flex justify-center items-center font-bold bg-primaryColor text-white w-10 rounded-full'>i</div>
+                    <div className="flex items-start space-x-2 font-semibold bg-blue-50 text-gray-400 p-2 rounded-md">
+                      <div className="flex justify-center items-center font-bold bg-primaryColor text-white w-10 rounded-full">
+                        i
+                      </div>
                       <p>
-                        submitting a summary of each lesson with your students is neccessary for payment processing.
+                        submitting a summary of each lesson with your students
+                        is neccessary for payment processing.
                       </p>
                     </div>
                     <div>
-                      <label htmlFor="subject" className="block text-sm font-medium leading-6 text-gray-500">
+                      <label
+                        htmlFor="subject"
+                        className="block text-sm font-medium leading-6 text-gray-500"
+                      >
                         Subject
                       </label>
                       <div className="mt-2">
@@ -78,7 +96,7 @@ const Proceed: FC = () => {
                           name="subject"
                           type="texg"
                           autoComplete="subject"
-                          placeholder='Enter subject'
+                          placeholder="Enter subject"
                           required
                           className="block w-full rounded-md border-0 p-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-400 sm:text-sm sm:leading-6"
                         />
@@ -86,7 +104,10 @@ const Proceed: FC = () => {
                     </div>
 
                     <div>
-                      <label htmlFor="topic" className="block text-sm font-medium leading-6 text-gray-500">
+                      <label
+                        htmlFor="topic"
+                        className="block text-sm font-medium leading-6 text-gray-500"
+                      >
                         Topic
                       </label>
                       <div className="mt-2">
@@ -94,7 +115,7 @@ const Proceed: FC = () => {
                           id="topic"
                           name="topic"
                           autoComplete="topic"
-                          placeholder='Topic'
+                          placeholder="Topic"
                           required
                           className="block w-full rounded-md border-0 p-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-400 sm:text-sm sm:leading-6"
                         ></textarea>
@@ -102,7 +123,10 @@ const Proceed: FC = () => {
                     </div>
 
                     <div>
-                      <label htmlFor="summary" className="block text-sm font-medium leading-6 text-gray-500">
+                      <label
+                        htmlFor="summary"
+                        className="block text-sm font-medium leading-6 text-gray-500"
+                      >
                         Summary
                       </label>
                       <div className="mt-2">
@@ -110,14 +134,14 @@ const Proceed: FC = () => {
                           id="summary"
                           name="summary"
                           autoComplete="summary"
-                          placeholder='Summary'
+                          placeholder="Summary"
                           required
                           className="block w-full rounded-md border-0 p-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-400 sm:text-sm sm:leading-6"
                         ></textarea>
                       </div>
                     </div>
 
-                    <div className='flex justify-end'>
+                    <div className="flex justify-end">
                       <button
                         type="submit"
                         onClick={() => setOpen(false)}
@@ -134,7 +158,7 @@ const Proceed: FC = () => {
         </Dialog>
       </Transition.Root>
     </>
-  )
-}
+  );
+};
 
 export default memo(Proceed);

@@ -1,19 +1,20 @@
-import React, { useState, useRef, ChangeEvent, useEffect} from "react";
-import { Box, IconButton, HStack, useToast } from "@chakra-ui/react";
-import { AddIcon } from "@chakra-ui/icons";
-import { storage } from "../../../../firebase";
-import onboardTutorStore from "../../../../state/onboardTutorStore";
-import DragAndDrop from "../../../../components/DragandDrop";
-
-import { getDownloadURL, uploadBytesResumable } from "firebase/storage";
-import { ref } from "@firebase/storage";
+import DragAndDrop from '../../../../components/DragandDrop';
+import { storage } from '../../../../firebase';
+import onboardTutorStore from '../../../../state/onboardTutorStore';
+import { AddIcon } from '@chakra-ui/icons';
+import { Box, IconButton, HStack, useToast } from '@chakra-ui/react';
+import { ref } from '@firebase/storage';
+import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
+import React, { useState, useRef, ChangeEvent, useEffect } from 'react';
 
 const ProfilePictureForm: React.FC = () => {
   const toast = useToast();
-  const { avatar: storedAvatar} = onboardTutorStore.useStore()
+  const { avatar: storedAvatar } = onboardTutorStore.useStore();
 
-  const [avatar, setAvatar] = useState<string>("https://www.pathwaysvermont.org/wp-content/uploads/2017/03/avatar-placeholder-e1490629554738.png");
-  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [avatar, setAvatar] = useState<string>(
+    'https://www.pathwaysvermont.org/wp-content/uploads/2017/03/avatar-placeholder-e1490629554738.png'
+  );
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const handleAddImage = () => {
     // Trigger the file input click
@@ -23,31 +24,30 @@ const ProfilePictureForm: React.FC = () => {
   };
 
   useEffect(() => {
-    if(storedAvatar){
-      setAvatar(storedAvatar)
+    if (storedAvatar) {
+      setAvatar(storedAvatar);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-
     if (!imageFile) return;
 
-    onboardTutorStore.set.avatar?.("");
+    onboardTutorStore.set.avatar?.('');
 
     if (imageFile?.size > 2000000) {
       toast({
-        title: "Please upload a file under 2MB",
-        status: "error",
-        position: "top",
-        isClosable: true,
+        title: 'Please upload a file under 2MB',
+        status: 'error',
+        position: 'top',
+        isClosable: true
       });
       return;
-    } else{
+    } else {
       const storageRef = ref(storage, `files/${imageFile.name}`);
       const uploadTask = uploadBytesResumable(storageRef, imageFile);
-  
+
       uploadTask.on(
-        "state_changed",
+        'state_changed',
         (snapshot) => {
           const progress = Math.round(
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100
@@ -60,20 +60,18 @@ const ProfilePictureForm: React.FC = () => {
         },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            console.log(downloadURL)
+            console.log(downloadURL);
             onboardTutorStore.set.avatar?.(downloadURL);
           });
         }
       );
     }
-
-   
   }, [imageFile]);
 
   const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files && event.target.files[0];
     if (file) {
-      setImageFile(file)
+      setImageFile(file);
       // Convert the selected image to base64
       const reader = new FileReader();
       reader.onload = () => {
@@ -88,7 +86,7 @@ const ProfilePictureForm: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <HStack marginTop="50px" justifyContent={"center"}>
+    <HStack marginTop="50px" justifyContent={'center'}>
       <Box
         width="120px"
         height="120px"
@@ -99,12 +97,12 @@ const ProfilePictureForm: React.FC = () => {
         <img
           src={avatar}
           alt="Avatar"
-          style={{ width: "100%", height: "100%", borderRadius: "50%" }}
+          style={{ width: '100%', height: '100%', borderRadius: '50%' }}
         />
         <input
           type="file"
           accept="image/*"
-          style={{ display: "none" }}
+          style={{ display: 'none' }}
           ref={fileInputRef}
           onChange={handleImageUpload}
         />

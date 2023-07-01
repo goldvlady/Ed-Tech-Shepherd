@@ -1,4 +1,6 @@
-import { useEffect } from "react";
+import onboardTutorStore from '../../../../state/onboardTutorStore';
+import resourceStore from '../../../../state/resourceStore';
+import { Course, LevelType } from '../../../../types';
 import {
   Box,
   Button,
@@ -6,42 +8,36 @@ import {
   FormLabel,
   HStack,
   Input,
-  Select,
-} from "@chakra-ui/react";
-import { motion, AnimatePresence } from "framer-motion";
-import resourceStore from '../../../../state/resourceStore';
-import onboardTutorStore from "../../../../state/onboardTutorStore";
-import { useState, useCallback } from "react";
-import { RiCloseCircleLine } from "react-icons/ri";
-import { Course, LevelType} from "../../../../types";
+  Select
+} from '@chakra-ui/react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect } from 'react';
+import { useState, useCallback } from 'react';
+import { RiCloseCircleLine } from 'react-icons/ri';
 
 interface SubjectLevel {
   subject: string;
   level: string;
 }
 
-
-
 const SubjectLevelForm: React.FC = () => {
+  const { coursesAndLevels: subjectLevels } = onboardTutorStore.useStore();
 
-  const {coursesAndLevels: subjectLevels} = onboardTutorStore.useStore();
-
-  type SubjectLevel= typeof subjectLevels
+  type SubjectLevel = typeof subjectLevels;
 
   const setSubjectLevels = (f: (d: typeof subjectLevels) => SubjectLevel) => {
-    onboardTutorStore.set.coursesAndLevels(f(subjectLevels))
-  }
-  
+    onboardTutorStore.set.coursesAndLevels(f(subjectLevels));
+  };
+
   const { courses: courseList, levels } = resourceStore();
 
   useEffect(() => {
-    if(!subjectLevels.length){
-      addSubject()
+    if (!subjectLevels.length) {
+      addSubject();
     }
-  }, [])
+  }, []);
 
   const [loadingCourses, setLoadingCourses] = useState(false);
-
 
   const handleSubjectChange = (index: number, value: string) => {
     setSubjectLevels((prevSubjectLevels) => {
@@ -62,7 +58,7 @@ const SubjectLevelForm: React.FC = () => {
   const addSubject = () => {
     setSubjectLevels((prevSubjectLevels) => [
       ...prevSubjectLevels,
-      { course: {} as Course, level: {}  as LevelType},
+      { course: {} as Course, level: {} as LevelType }
     ]);
   };
 
@@ -76,7 +72,7 @@ const SubjectLevelForm: React.FC = () => {
 
   const variants = {
     hidden: { opacity: 0, y: -20 },
-    visible: { opacity: 1, y: 0 },
+    visible: { opacity: 1, y: 0 }
   };
 
   return (
@@ -89,7 +85,7 @@ const SubjectLevelForm: React.FC = () => {
             initial="hidden"
             animate="visible"
             exit="hidden"
-            style={{ marginBottom: "20px" }}
+            style={{ marginBottom: '20px' }}
           >
             <HStack spacing={4} alignItems="center">
               <FormControl>
@@ -111,20 +107,19 @@ const SubjectLevelForm: React.FC = () => {
                   boxShadow="0px 2px 6px rgba(136, 139, 143, 0.1)"
                   borderRadius="6px"
                   placeholder="Select subject "
-                  
                   _placeholder={{
-                    fontStyle: "normal",
+                    fontStyle: 'normal',
                     fontWeight: 400,
                     fontSize: 14,
-                    lineHeight: "20px",
-                    letterSpacing: "-0.003em",
-                    color: "#9A9DA2",
+                    lineHeight: '20px',
+                    letterSpacing: '-0.003em',
+                    color: '#9A9DA2'
                   }}
-                > {
-                  courseList.map(course => (
+                >
+                  {' '}
+                  {courseList.map((course) => (
                     <option value={course.label}>{course.label}</option>
-                  ))
-                }                
+                  ))}
                 </Select>
               </FormControl>
               <FormControl>
@@ -147,25 +142,23 @@ const SubjectLevelForm: React.FC = () => {
                   boxShadow="0px 2px 6px rgba(136, 139, 143, 0.1)"
                   borderRadius="6px"
                   _placeholder={{
-                    fontStyle: "normal",
+                    fontStyle: 'normal',
                     fontWeight: 400,
                     fontSize: 14,
-                    lineHeight: "20px",
-                    letterSpacing: "-0.003em",
-                    color: "#9A9DA2",
+                    lineHeight: '20px',
+                    letterSpacing: '-0.003em',
+                    color: '#9A9DA2'
                   }}
                 >
-                  {levels.map(level => (
-                                      <option value={level.label}>{level.label}</option>
-
+                  {levels.map((level) => (
+                    <option value={level.label}>{level.label}</option>
                   ))}
-                  
                 </Select>
               </FormControl>
               {subjectLevels.length > 1 && (
                 <RiCloseCircleLine
-                  style={{ marginTop: "30px" }}
-                  cursor={"pointer"}
+                  style={{ marginTop: '30px' }}
+                  cursor={'pointer'}
                   onClick={() => removeSubject(index)}
                   size={50}
                   color="#9A9DA2"
@@ -178,10 +171,10 @@ const SubjectLevelForm: React.FC = () => {
       <Button
         margin={0}
         padding={0}
-        color={"#207DF7"}
-        fontSize={"sm"}
-        marginTop={"-20px"}
-        background={"transparent"}
+        color={'#207DF7'}
+        fontSize={'sm'}
+        marginTop={'-20px'}
+        background={'transparent'}
         variant="ghost"
         colorScheme="white"
         onClick={addSubject}

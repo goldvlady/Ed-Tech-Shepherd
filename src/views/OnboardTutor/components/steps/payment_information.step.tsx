@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import onboardTutorStore from '../../../../state/onboardTutorStore';
+import { TutorBankInfo } from '../../../../types';
 import {
   Box,
   Button,
@@ -6,30 +7,28 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Select,
-} from "@chakra-ui/react";
-import {TutorBankInfo} from "../../../../types"
-import onboardTutorStore from "../../../../state/onboardTutorStore";
+  Select
+} from '@chakra-ui/react';
+import React, { useState } from 'react';
 
-type PaymentFormData = TutorBankInfo
+type PaymentFormData = TutorBankInfo;
 
 const PaymentInformationForm: React.FC = () => {
-  const {bankInfo} = onboardTutorStore.useStore()
+  const { bankInfo } = onboardTutorStore.useStore();
   const [formData, setFormData] = useState<PaymentFormData>({
-    accountName: "",
-    accountNumber: "",
-    bankName: "",
+    accountName: '',
+    accountNumber: '',
+    bankName: ''
   });
 
   const setPaymentInformation = (
-    f: (v:  PaymentFormData) =>  PaymentFormData |  PaymentFormData
+    f: (v: PaymentFormData) => PaymentFormData | PaymentFormData
   ) => {
-    if(typeof f !== "function" || !bankInfo ){
+    if (typeof f !== 'function' || !bankInfo) {
       onboardTutorStore.set.bankInfo?.(f as unknown as PaymentFormData);
-    }
-    else{
+    } else {
       onboardTutorStore.set.bankInfo?.(f(bankInfo as PaymentFormData));
-    } 
+    }
   };
 
   const handleInputChange = (
@@ -38,7 +37,7 @@ const PaymentInformationForm: React.FC = () => {
     const { name, value } = event.target;
     setPaymentInformation((prevFormData) => ({
       ...prevFormData,
-      [name]: value,
+      [name]: value
     }));
   };
 

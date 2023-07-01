@@ -1,15 +1,15 @@
-import FlashcardDataProvider from "./context/flashcard";
-import { useFlashCardState } from "./context/flashcard";
-import MnemonicSetupProvider from "./context/mneomics";
-import SetupFlashcardPage from "./forms/flashcard_setup";
-import SuccessState from "./forms/flashcard_setup/success_page";
-import MnemonicSetup from "./forms/mneomics_setup";
-import InitSetupPreview from "./previews/init.preview";
-import MnemonicPreview from "./previews/mneomics.preview";
-import QuestionsPreview from "./previews/questions.preview";
-import { Box, HStack, Text, Radio, RadioGroup } from "@chakra-ui/react";
-import { useState, useEffect, useCallback } from "react";
-import styled from "styled-components";
+import FlashcardDataProvider from './context/flashcard';
+import { useFlashCardState } from './context/flashcard';
+import MnemonicSetupProvider from './context/mneomics';
+import SetupFlashcardPage from './forms/flashcard_setup';
+import SuccessState from './forms/flashcard_setup/success_page';
+import MnemonicSetup from './forms/mneomics_setup';
+import InitSetupPreview from './previews/init.preview';
+import MnemonicPreview from './previews/mneomics.preview';
+import QuestionsPreview from './previews/questions.preview';
+import { Box, HStack, Text, Radio, RadioGroup } from '@chakra-ui/react';
+import { useState, useEffect, useCallback } from 'react';
+import styled from 'styled-components';
 
 const Wrapper = styled(Box)`
   select {
@@ -48,15 +48,15 @@ const Wrapper = styled(Box)`
 `;
 
 export enum TypeEnum {
-  FLASHCARD = "flashcard",
-  MNEOMONIC = "mneomonic",
-  INIT = "init",
+  FLASHCARD = 'flashcard',
+  MNEOMONIC = 'mneomonic',
+  INIT = 'init'
 }
 
 export enum SourceEnum {
-  DOCUMENT = "document",
-  SUBJECT = "subject",
-  MANUAL = "manual",
+  DOCUMENT = 'document',
+  SUBJECT = 'subject',
+  MANUAL = 'manual'
 }
 
 type SettingsType = {
@@ -67,7 +67,7 @@ type SettingsType = {
 const CreateFlashPage = () => {
   const [settings, setSettings] = useState<SettingsType>({
     type: TypeEnum.INIT,
-    source: SourceEnum.MANUAL,
+    source: SourceEnum.MANUAL
   });
   const { flashcardData } = useFlashCardState();
   const [isCompleted, setIsCompleted] = useState(false);
@@ -75,12 +75,9 @@ const CreateFlashPage = () => {
 
   const { type: activeBadge } = settings;
 
-  console.log(activeBadge);
-
   const setActiveBadge = (badge: TypeEnum) => {
     setSettings((value) => ({ ...value, type: badge }));
   };
-  // const [activeBadge, setActiveBadge] = useState<TypeEnum>(TypeEnum.INIT);
 
   useEffect(() => {
     if (flashcardData.hasSubmitted && !hasSubmittedFlashCards) {
@@ -104,14 +101,14 @@ const CreateFlashPage = () => {
   const setType = (type: TypeEnum) => {
     setSettings((val) => ({
       ...val,
-      type,
+      type
     }));
   };
 
   const setSource = (source: SourceEnum) => {
     setSettings((val) => ({
       ...val,
-      source,
+      source
     }));
   };
 
@@ -174,8 +171,8 @@ const CreateFlashPage = () => {
       alignItems="center"
     >
       <HStack
-        justifyContent={"start"}
-        alignItems={"start"}
+        justifyContent={'start'}
+        alignItems={'start'}
         width="100%"
         minH="calc(100vh - 60px)"
       >
@@ -218,7 +215,7 @@ const CreateFlashPage = () => {
           right="0"
           borderLeft="1px solid #E7E8E9"
           width="45%"
-          paddingTop={"20px"}
+          paddingTop={'20px'}
         >
           {renderPreview()}
         </Box>

@@ -1,15 +1,22 @@
-import React, {Fragment} from 'react';
 import { Transition, Dialog } from '@headlessui/react';
+import React, { Fragment } from 'react';
 
 interface DeclineOfferModalProps {
   declineOfferModalState: boolean;
   setDeclineOfferModalState: (state: boolean) => void;
-};
+}
 
-const DeclineOfferModal: React.FC<DeclineOfferModalProps> = ({ declineOfferModalState, setDeclineOfferModalState }) => {
+const DeclineOfferModal: React.FC<DeclineOfferModalProps> = ({
+  declineOfferModalState,
+  setDeclineOfferModalState
+}) => {
   return (
     <Transition.Root show={declineOfferModalState} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={setDeclineOfferModalState}>
+      <Dialog
+        as="div"
+        className="relative z-50"
+        onClose={setDeclineOfferModalState}
+      >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -35,13 +42,14 @@ const DeclineOfferModal: React.FC<DeclineOfferModalProps> = ({ declineOfferModal
             >
               <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white pt-5 text-left shadow-xl transition-all sm:w-full sm:max-w-sm">
                 <div>
-                  <div className='flex justify-center px-2 border-b pb-4'>
-                    <p className="text-md font-medium">
-                      Decline Offer
-                    </p>
+                  <div className="flex justify-center px-2 border-b pb-4">
+                    <p className="text-md font-medium">Decline Offer</p>
                   </div>
-                  <form className='px-10 mt-2'>
-                    <label htmlFor="comment" className="block text-sm font-medium leading-6 text-gray-900">
+                  <form className="px-10 mt-2">
+                    <label
+                      htmlFor="comment"
+                      className="block text-sm font-medium leading-6 text-gray-900"
+                    >
                       Add a note (optional)
                     </label>
                     <div className="mt-2">
@@ -49,7 +57,7 @@ const DeclineOfferModal: React.FC<DeclineOfferModalProps> = ({ declineOfferModal
                         rows={4}
                         name="comment"
                         id="comment"
-                        placeholder='Let the client knows what your terms are'
+                        placeholder="Let the client knows what your terms are"
                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-error700 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6"
                         defaultValue={''}
                       />

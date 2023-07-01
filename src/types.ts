@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent } from "aws-lambda";
+import { APIGatewayProxyEvent } from 'aws-lambda';
 
 export type Entity = {
   _id: string;
@@ -11,16 +11,16 @@ export interface TimestampedEntity extends Entity {
 
 export type Rating = 1 | 2 | 3 | 4 | 5;
 
-type Attributes = Record<"offerId", {}>;
+type Attributes = Record<'offerId', object>;
 
 export enum STATUS {
-  UNCONFIRMED = "unconfirmed",
-  CONFIRMED = "confirmed",
-  CANCELED = "cenceled",
-  DRAFT = "draft",
-  ACCEPTED = "accepted",
-  DECLINED = "declined",
-  WITHDRAWN = "withdrawn",
+  UNCONFIRMED = 'unconfirmed',
+  CONFIRMED = 'confirmed',
+  CANCELED = 'cenceled',
+  DRAFT = 'draft',
+  ACCEPTED = 'accepted',
+  DECLINED = 'declined',
+  WITHDRAWN = 'withdrawn'
 }
 
 export interface Level extends Entity {
@@ -28,8 +28,8 @@ export interface Level extends Entity {
 }
 
 export interface SkillLevel {
-  course: String;
-  skillLevel: String;
+  course: string;
+  skillLevel: string;
 }
 
 export interface TutorBankInfo {
@@ -74,22 +74,22 @@ export interface PaymentMethod extends TimestampedEntity {
   last4: string;
   country: string;
   brand:
-    | "amex"
-    | "diners"
-    | "discover"
-    | "eftpos_au"
-    | "jcb"
-    | "mastercard"
-    | "unionpay"
-    | "visa"
-    | "unknown";
+    | 'amex'
+    | 'diners'
+    | 'discover'
+    | 'eftpos_au'
+    | 'jcb'
+    | 'mastercard'
+    | 'unionpay'
+    | 'visa'
+    | 'unknown';
   user: User;
 }
 
 export enum UserNotificationTypes {
-  LESSON_SESSION_STARTED = "lesson_session_started",
-  NEW_OFFER_RECEIVED = "new_offer_received",
-  OFFER_WITHDRAWN = "offer_withdrawn",
+  LESSON_SESSION_STARTED = 'lesson_session_started',
+  NEW_OFFER_RECEIVED = 'new_offer_received',
+  OFFER_WITHDRAWN = 'offer_withdrawn'
 }
 
 export interface User extends TimestampedEntity {
@@ -104,7 +104,7 @@ export interface User extends TimestampedEntity {
   tutor?: Tutor;
   student?: Student;
   isVerified: boolean;
-  type: "student" | "tutor";
+  type: 'student' | 'tutor';
   stripeCustomerId?: string;
   paymentMethods: PaymentMethod[];
 }
@@ -117,7 +117,7 @@ export interface Student extends TimestampedEntity {
   email: string;
   parentOrStudent: string;
   dob: string;
-  courses: Array<Course> | Array<String>;
+  courses: Array<Course> | Array<string>;
   gradeLevel?: string;
   somethingElse?: string;
   topic?: string;

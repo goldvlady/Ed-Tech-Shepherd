@@ -1,4 +1,4 @@
-import React, { FC } from "react"
+import React, { FC } from 'react';
 
 interface WelcomePageProps {
   greeting: string;
@@ -6,7 +6,7 @@ interface WelcomePageProps {
   time: string;
 }
 
-const WelcomePage: FC<WelcomePageProps> = ({greeting, date, time}) => {
+const WelcomePage: FC<WelcomePageProps> = ({ greeting, date, time }) => {
   return (
     <section className="px-6 my-6">
       <h2 className="sm:text-3xl text-2xl">{greeting}</h2>
@@ -22,7 +22,7 @@ const WelcomePage: FC<WelcomePageProps> = ({greeting, date, time}) => {
         <p>{time}</p>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default WelcomePage
+export default WelcomePage;

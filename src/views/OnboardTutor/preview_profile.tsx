@@ -1,12 +1,22 @@
-import React, { useState, ReactNode, useRef, useMemo, useEffect } from "react";
-import { useToast } from "@chakra-ui/react";
-import { useNavigate } from "react-router";
-import cloud from "../../assets/cloud.svg";
-import ApiService from "../../services/ApiService";
-import resourceStore from "../../state/resourceStore";
-import { User, getAuth, onAuthStateChanged } from "firebase/auth";
-import userStore from "../../state/userStore";
-import { FaFileAlt, FaPen, FaPlay, FaEdit, FaPause } from "react-icons/fa";
+import cloud from '../../assets/cloud.svg';
+import Header from '../../components/Header';
+import ApiService from '../../services/ApiService';
+import onboardTutorStore from '../../state/onboardTutorStore';
+import resourceStore from '../../state/resourceStore';
+import userStore from '../../state/userStore';
+import { Schedule, SingleSchedule, TimeSchedule } from '../../types';
+import EditProfileModal from './components/EditProfileStepModal';
+import StepsLayout from './components/StepsLayout';
+import SubjectLevelForm from './components/steps/add_subjects';
+import AvailabilityForm from './components/steps/availabilty.steps';
+import BioForm from './components/steps/bio.step';
+import HourlyRateForm from './components/steps/hourly_rate.step';
+import IntroVideoForm from './components/steps/intro_video.step';
+import PaymentInformationForm from './components/steps/payment_information.step';
+import ProfilePictureForm from './components/steps/profile_picture.step';
+import QualificationsForm from './components/steps/qualifications.step';
+import { EditIcon, CheckIcon } from '@chakra-ui/icons';
+import { useToast } from '@chakra-ui/react';
 import {
   Box,
   Button,
@@ -24,25 +34,14 @@ import {
   Tr,
   Image,
   TableContainer,
-  BorderProps,
-} from "@chakra-ui/react";
-import EditProfileModal from "./components/EditProfileStepModal";
-import { EditIcon, CheckIcon } from "@chakra-ui/icons";
-import { motion } from "framer-motion";
-import { Schedule, SingleSchedule, TimeSchedule } from "../../types";
-import ProfilePictureForm from "./components/steps/profile_picture.step";
-import PaymentInformationForm from "./components/steps/payment_information.step";
-import HourlyRateForm from "./components/steps/hourly_rate.step";
-import SubjectLevelForm from "./components/steps/add_subjects";
-import AvailabilityForm from "./components/steps/availabilty.steps";
-import QualificationsForm from "./components/steps/qualifications.step";
-import IntroVideoForm from "./components/steps/intro_video.step";
-import BioForm from "./components/steps/bio.step";
-import StepsLayout from "./components/StepsLayout";
-import styled from "styled-components";
-import Header from "../../components/Header";
-
-import onboardTutorStore from "../../state/onboardTutorStore";
+  BorderProps
+} from '@chakra-ui/react';
+import { User, getAuth, onAuthStateChanged } from 'firebase/auth';
+import { motion } from 'framer-motion';
+import React, { useState, ReactNode, useRef, useMemo, useEffect } from 'react';
+import { FaFileAlt, FaPen, FaPlay, FaEdit, FaPause } from 'react-icons/fa';
+import { useNavigate } from 'react-router';
+import styled from 'styled-components';
 
 const Root = styled(Box)`
   display: flex;
@@ -78,7 +77,7 @@ const CourseTable = () => {
   const { coursesAndLevels, rate } = onboardTutorStore.useStore();
   return (
     <TableContainer my={4}>
-      <Box border={"1px solid #EEEFF2"} borderRadius={8}>
+      <Box border={'1px solid #EEEFF2'} borderRadius={8}>
         <Table variant="simple">
           <Thead>
             <Tr>
@@ -107,9 +106,9 @@ const CourseTable = () => {
                 <Td
                   paddingY={5}
                   borderRight="1px solid #EEEFF2"
-                  bgColor={"#FAFAFA"}
+                  bgColor={'#FAFAFA'}
                 >
-                  {" "}
+                  {' '}
                   {subLevel.course.label}
                 </Td>
                 <Td borderRight="1px solid #EEEFF2" paddingY={5}>
@@ -129,7 +128,7 @@ const ProfileDiv = ({
   onEdit,
   name,
   onComplete,
-  isLoading,
+  isLoading
 }: {
   onEdit: (v: string) => void;
   name: string;
@@ -173,7 +172,7 @@ const ProfileDiv = ({
             display="flex"
             justifyContent="center"
             alignItems="center"
-            onClick={() => onEdit("upload_profile_picture")}
+            onClick={() => onEdit('upload_profile_picture')}
             cursor="pointer"
           >
             <FaPen color="#FFF" fontSize="14px" />
@@ -185,7 +184,7 @@ const ProfileDiv = ({
           <Text
             fontWeight="500"
             p={0}
-            marginTop={"7px"}
+            marginTop={'7px'}
             marginBottom={0}
             fontSize="18px"
             lineHeight="21px"
@@ -196,7 +195,7 @@ const ProfileDiv = ({
           <Text
             fontWeight="400"
             p={0}
-            marginTop={"7px"}
+            marginTop={'7px'}
             marginBottom={0}
             fontSize="16px"
             lineHeight="20px"
@@ -210,18 +209,18 @@ const ProfileDiv = ({
       {/* Lower Section */}
       <Flex
         flexDirection="column"
-        mt={"10px"}
+        mt={'10px'}
         borderTop="1px solid #ECEDEE"
         p="20px 30px 30px"
       >
         {/* Hourly Rate */}
         <Flex justifyContent="space-between" alignItems="center">
-          <HStack display={"flex"} alignItems={"baseline"} textAlign="center">
+          <HStack display={'flex'} alignItems={'baseline'} textAlign="center">
             <Text
               fontWeight="400"
               p={0}
               m={0}
-              marginTop={"7px"}
+              marginTop={'7px'}
               marginBottom={0}
               fontSize="12px"
               lineHeight="21px"
@@ -233,7 +232,7 @@ const ProfileDiv = ({
               fontWeight="500"
               p={0}
               m={0}
-              marginTop={"7px"}
+              marginTop={'7px'}
               marginBottom={0}
               fontSize="16px"
               lineHeight="20px"
@@ -248,7 +247,7 @@ const ProfileDiv = ({
             borderRadius="50%"
             p="5px"
             backgroundColor="transparent"
-            onClick={() => onEdit("hourly_rate")}
+            onClick={() => onEdit('hourly_rate')}
           >
             <Icon color="#6E7682" as={FaPen} boxSize="12px" />
           </Button>
@@ -257,7 +256,7 @@ const ProfileDiv = ({
           onClick={() => onComplete()}
           mt="40px"
           isLoading={isLoading}
-          cursor={"pointer"}
+          cursor={'pointer'}
           colorScheme="blue"
           variant="solid"
           borderRadius="8px"
@@ -279,13 +278,13 @@ const AvailabilityTable = () => {
     const storedAvailability: Availability = {};
 
     const dayMap: { [key: number]: string } = {
-      1: "sunday",
-      2: "monday",
-      3: "tuesday",
-      4: "wednesday",
-      5: "thursday",
-      6: "friday",
-      7: "saturday",
+      1: 'sunday',
+      2: 'monday',
+      3: 'tuesday',
+      4: 'wednesday',
+      5: 'thursday',
+      6: 'friday',
+      7: 'saturday'
     };
 
     Object.keys(schedule).forEach((dayNumber: string) => {
@@ -296,7 +295,7 @@ const AvailabilityTable = () => {
         return `${timeSlot.begin} - ${timeSlot.end}`;
       });
 
-      storedAvailability[day] = { timezone: "", slots: formattedSlots };
+      storedAvailability[day] = { timezone: '', slots: formattedSlots };
     });
 
     return storedAvailability;
@@ -307,9 +306,9 @@ const AvailabilityTable = () => {
     setTutorAvailability(availability);
   }, []);
 
-  const timeSlots = ["8AM → 12PM", "12AM → 5PM", "5PM → 9PM", "9PM → 12AM"];
+  const timeSlots = ['8AM → 12PM', '12AM → 5PM', '5PM → 9PM', '9PM → 12AM'];
 
-  const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   const renderAvailabilityCell = (slot: string, day: string) => {
     const fullDayName = Object.keys(availability).find((d) =>
@@ -327,7 +326,7 @@ const AvailabilityTable = () => {
         const modifier = time12h.slice(-2).toLowerCase();
         return `${hour}${modifier}`;
       })
-      .join("");
+      .join('');
 
     // console.log(
     //   slot24h,
@@ -342,17 +341,17 @@ const AvailabilityTable = () => {
       slotData.slots.some(
         (slot) =>
           slot
-            .replace(/[^a-zA-Z0-9]/g, "")
-            .replace("undefined", "")
+            .replace(/[^a-zA-Z0-9]/g, '')
+            .replace('undefined', '')
             .toLowerCase() === slot24h
       )
     ) {
       return (
         <VStack
           width="100%" // add this
-          display={"flex"}
-          justifyContent={"center"}
-          alignItems={"center"}
+          display={'flex'}
+          justifyContent={'center'}
+          alignItems={'center'}
         >
           <CheckIcon color="green" />
         </VStack>
@@ -380,7 +379,7 @@ const AvailabilityTable = () => {
   );
   return (
     <TableContainer my={4}>
-      <Box border={"1px solid #EEEFF2"} borderRadius={8}>
+      <Box border={'1px solid #EEEFF2'} borderRadius={8}>
         <Table variant="simple">
           <Thead>
             <Tr>
@@ -393,7 +392,7 @@ const AvailabilityTable = () => {
               {daysOfWeek.map((day, index) => {
                 const props: BorderProps = {};
                 if (daysOfWeek.length - 1 !== index) {
-                  props.borderRight = "1px solid #EEEFF2";
+                  props.borderRight = '1px solid #EEEFF2';
                 }
                 return (
                   <Th
@@ -414,34 +413,34 @@ const AvailabilityTable = () => {
             {timeSlots.map((slot, index) => {
               const props: BorderProps = {};
               if (daysOfWeek.length - 1 !== index) {
-                props.borderRight = "1px solid #EEEFF2";
+                props.borderRight = '1px solid #EEEFF2';
               }
               return (
                 <Tr key={slot}>
                   <Td
                     paddingY={5}
                     borderRight="1px solid #EEEFF2"
-                    bgColor={"#FAFAFA"}
+                    bgColor={'#FAFAFA'}
                   >
                     <HStack
-                      display={"flex"}
+                      display={'flex'}
                       marginRight="13px"
                       justifyItems="center"
-                      alignItems={"center"}
+                      alignItems={'center'}
                     >
                       <img
                         alt=""
-                        style={{ marginRight: "2px" }}
+                        style={{ marginRight: '2px' }}
                         src={cloud}
-                        width={"40px"}
+                        width={'40px'}
                       />
                       <Text
                         m={0}
                         p={0}
-                        fontSize={"14px"}
+                        fontSize={'14px'}
                         fontWeight={500}
-                        color={"#585F68"}
-                        whiteSpace={"nowrap"}
+                        color={'#585F68'}
+                        whiteSpace={'nowrap'}
                       >
                         {slot}
                       </Text>
@@ -493,7 +492,7 @@ const VideoViewingSection = ({ onEdit }: { onEdit: () => void }) => {
 
   return (
     <div
-      style={{ width: "100%", borderRadius: "20px", position: "relative" }}
+      style={{ width: '100%', borderRadius: '20px', position: 'relative' }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -502,7 +501,7 @@ const VideoViewingSection = ({ onEdit }: { onEdit: () => void }) => {
         ref={videoRef}
         src={introVideo} // Replace with your video link
         controls={isVideoPlaying}
-        style={{ width: "100%", borderRadius: "20px" }}
+        style={{ width: '100%', borderRadius: '20px' }}
       />
 
       {/* Dark Overlay */}
@@ -510,45 +509,45 @@ const VideoViewingSection = ({ onEdit }: { onEdit: () => void }) => {
         (!isVideoPlaying && (
           <div
             style={{
-              position: "absolute",
+              position: 'absolute',
               top: 0,
               left: 0,
-              width: "100%",
-              height: "100%",
-              backgroundColor: "rgba(0, 0, 0, 0.5)",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              borderRadius: "20px",
+              width: '100%',
+              height: '100%',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              borderRadius: '20px'
             }}
           >
             {/* Play/Pause Button */}
             <button
               onClick={handlePlayVideo}
               style={{
-                background: "#FFF",
-                border: "none",
-                color: "#000",
-                fontSize: "14px",
-                cursor: "pointer",
-                width: "40px",
-                height: "40px",
-                borderRadius: "50%",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                marginRight: "20px",
+                background: '#FFF',
+                border: 'none',
+                color: '#000',
+                fontSize: '14px',
+                cursor: 'pointer',
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginRight: '20px'
               }}
             >
               {isVideoPlaying ? <FaPause /> : <FaPlay />}
             </button>
 
             <Text
-              marginTop={"10px"}
-              cursor={"pointer"}
+              marginTop={'10px'}
+              cursor={'pointer'}
               onClick={handleEditVideo}
-              color={"#fff"}
+              color={'#fff'}
             >
               Update Intro Video
             </Text>
@@ -604,10 +603,10 @@ const QualificationsSegment = () => {
           <Flex
             borderBottom={
               qualifications && index !== qualifications.length - 1
-                ? "1px solid #ECEDEE"
-                : ""
+                ? '1px solid #ECEDEE'
+                : ''
             }
-            paddingBottom={"15px"}
+            paddingBottom={'15px'}
             key={index}
             mb={4}
           >
@@ -616,9 +615,9 @@ const QualificationsSegment = () => {
               color="#ECEDEE"
               h="50px"
               w="50px"
-              marginRight={"10px"}
+              marginRight={'10px'}
               borderRadius="50%"
-              boxShadow={"0px 2px 8px rgba(77, 77, 77, 0.08)"}
+              boxShadow={'0px 2px 8px rgba(77, 77, 77, 0.08)'}
               backgroundColor="transparent"
             >
               <FaFileAlt size={30} />
@@ -648,7 +647,7 @@ const QualificationsSegment = () => {
                 lineHeight="20px"
                 color="#585F68"
               >
-                {new Date(qualification.startDate).getFullYear()} -{" "}
+                {new Date(qualification.startDate).getFullYear()} -{' '}
                 {new Date(qualification.endDate).getFullYear()}
               </Text>
             </VStack>
@@ -661,7 +660,7 @@ const QualificationsSegment = () => {
 const PreviewSegment = ({
   title,
   children,
-  onEdit,
+  onEdit
 }: {
   title: string;
   children: ReactNode;
@@ -672,16 +671,16 @@ const PreviewSegment = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      style={{ width: "100%" }}
+      style={{ width: '100%' }}
     >
       <Box
         background="#FFFFFF"
         border="1px solid #EEEFF1"
         borderRadius="20px"
-        width={"100%"}
+        width={'100%'}
         p="35px"
       >
-        <Flex justify="space-between" alignItems={"center"} mb="20px">
+        <Flex justify="space-between" alignItems={'center'} mb="20px">
           <Text
             fontWeight={400}
             fontSize="12px"
@@ -730,101 +729,101 @@ const PreviewProfile = () => {
           await fetchUser();
         }
       } catch (e) {
-        console.log("LOGINERROR", e);
+        console.log('LOGINERROR', e);
       }
     });
   }, []);
 
   const steps = [
     {
-      id: "subjects",
+      id: 'subjects',
       updateFunction: onboardTutorStore.set.coursesAndLevels,
       position: 0,
       element: SubjectLevelForm,
       value: onboardingData.coursesAndLevels,
-      mainText: "Please inform us of the subjects you would like to teach ",
+      mainText: 'Please inform us of the subjects you would like to teach ',
       supportingText:
-        "Kindly select your area of expertise and proficiency level, you may add multiple subjects",
+        'Kindly select your area of expertise and proficiency level, you may add multiple subjects'
     },
     {
-      id: "qualifications",
+      id: 'qualifications',
       position: 1,
       updateFunction: onboardTutorStore.set.qualifications,
       element: QualificationsForm,
       value: onboardingData.qualifications,
       mainText:
-        "Add your professional qualifications relevant to the subjects you selected",
+        'Add your professional qualifications relevant to the subjects you selected',
       supportingText:
-        "Provide relevant educational background, certifications and experiences",
+        'Provide relevant educational background, certifications and experiences'
     },
     {
-      id: "bio",
+      id: 'bio',
       position: 2,
       element: BioForm,
       value: onboardingData.description,
       updateFunction: onboardTutorStore.set.description,
-      mainText: "Write a bio to let your potential students know about you",
+      mainText: 'Write a bio to let your potential students know about you',
       supportingText:
-        "Help potential students make an informed decision by showcasing your personality and teaching style.",
+        'Help potential students make an informed decision by showcasing your personality and teaching style.'
     },
     {
-      id: "availability",
+      id: 'availability',
       position: 3,
       element: AvailabilityForm,
       value: { ...onboardingData.schedule },
       updateFunction: onboardTutorStore.set.schedule,
-      mainText: "Let’s Know when you’ll be available",
+      mainText: 'Let’s Know when you’ll be available',
       supportingText:
-        "Provide the days and time frame when will you be available",
+        'Provide the days and time frame when will you be available'
     },
     {
-      id: "intro_video",
+      id: 'intro_video',
       position: 4,
       element: IntroVideoForm,
       value: onboardingData.introVideo,
       updateFunction: onboardTutorStore.set.introVideo,
       mainText:
-        "Upload an intro video to show your proficiency in your chosen subjects",
+        'Upload an intro video to show your proficiency in your chosen subjects',
       supportingText:
-        "Be as detailed as possible, this lets your potential student know you are capable ",
+        'Be as detailed as possible, this lets your potential student know you are capable '
     },
     {
-      id: "hourly_rate",
+      id: 'hourly_rate',
       position: 5,
       value: onboardingData.rate,
       element: HourlyRateForm,
       updateFunction: onboardTutorStore.set.rate,
-      mainText: "Set your hourly rate",
+      mainText: 'Set your hourly rate',
       supportingText:
-        "Your clients will send you offers based on this rate. You can always adjust your rate",
+        'Your clients will send you offers based on this rate. You can always adjust your rate'
     },
     {
-      id: "upload_profile_picture",
+      id: 'upload_profile_picture',
       position: 6,
       value: onboardingData.avatar,
       updateFunction: onboardTutorStore.set.avatar,
       element: ProfilePictureForm,
-      mainText: "Add a profile picture",
+      mainText: 'Add a profile picture',
       supportingText:
-        "Ensure this is a clear and actual picture of you, your picture helps your clients trust you",
+        'Ensure this is a clear and actual picture of you, your picture helps your clients trust you'
     },
     {
-      id: "payment",
+      id: 'payment',
       position: 7,
       value: onboardingData.bankInfo,
       updateFunction: onboardTutorStore.set.bankInfo,
       element: PaymentInformationForm,
-      mainText: "Provide your account details",
+      mainText: 'Provide your account details',
       supportingText:
-        "Shepherd uses your account details to remit payment from clients to you ",
-    },
+        'Shepherd uses your account details to remit payment from clients to you '
+    }
   ];
 
   const currentEdit = useMemo(() => {
     return (
       steps.find((step) => step.id === currentlyEditing) ||
       ({
-        element: () => <></>,
+        element: () => <></>
       } as (typeof steps)[0])
     );
   }, [currentlyEditing]);
@@ -834,8 +833,8 @@ const PreviewProfile = () => {
   const completeProfile = async () => {
     try {
       setLoading(true);
-      let newSchedule: Schedule = {};
-      for (let key in onboardingData.schedule) {
+      const newSchedule: Schedule = {};
+      for (const key in onboardingData.schedule) {
         newSchedule[key] = onboardingData.schedule[key].map((timeSchedule) => {
           const [begin, end] = timeSchedule.begin.split(/\W+/);
           return { begin, end };
@@ -849,7 +848,7 @@ const PreviewProfile = () => {
           )?._id,
           level: courseList.find(
             (course) => course.label === courseLevel.course.label
-          )?._id,
+          )?._id
         })
       );
 
@@ -859,9 +858,9 @@ const PreviewProfile = () => {
         ...onboardingData,
         user: user?._id,
         identityDocument:
-          "https://www.google.com/imgres?imgurl=https%3A%2F%2Fmiro.medium.com%2Fv2%2Fresize%3Afit%3A1400%2F1*ddyz8qnOhFeFKY-_c3tleQ.jpeg&tbnid=4XC1nP-83PN2oM&vet=12ahUKEwjNvq_4yM__AhUomCcCHTaJCuoQMygDegUIARDuAQ..i&imgrefurl=https%3A%2F%2Fuxdesign.cc%2F5-shortcomings-of-lorem-ipsum-9f7713836a6b&docid=5TkIS3QiYOv4uM&w=1400&h=1423&q=lorem%20ipsum&ved=2ahUKEwjNvq_4yM__AhUomCcCHTaJCuoQMygDegUIARDuAQ",
+          'https://www.google.com/imgres?imgurl=https%3A%2F%2Fmiro.medium.com%2Fv2%2Fresize%3Afit%3A1400%2F1*ddyz8qnOhFeFKY-_c3tleQ.jpeg&tbnid=4XC1nP-83PN2oM&vet=12ahUKEwjNvq_4yM__AhUomCcCHTaJCuoQMygDegUIARDuAQ..i&imgrefurl=https%3A%2F%2Fuxdesign.cc%2F5-shortcomings-of-lorem-ipsum-9f7713836a6b&docid=5TkIS3QiYOv4uM&w=1400&h=1423&q=lorem%20ipsum&ved=2ahUKEwjNvq_4yM__AhUomCcCHTaJCuoQMygDegUIARDuAQ',
         schedule: newSchedule,
-        coursesAndLevels,
+        coursesAndLevels
       };
 
       console.log(payload);
@@ -869,19 +868,19 @@ const PreviewProfile = () => {
       const data = await ApiService.submitTutor(payload);
       if (data.status === 200) {
         toast({
-          title: "Tutor Profile Completed",
-          position: "top-right",
-          status: "success",
-          isClosable: true,
+          title: 'Tutor Profile Completed',
+          position: 'top-right',
+          status: 'success',
+          isClosable: true
         });
-        navigator("/dashboard");
+        navigator('/dashboard');
       }
     } catch (error) {
       toast({
-        title: "Failed to complete tutor profile",
-        position: "top-right",
-        status: "error",
-        isClosable: true,
+        title: 'Failed to complete tutor profile',
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
       });
       console.log(error);
     } finally {
@@ -909,10 +908,10 @@ const PreviewProfile = () => {
         <Element />
       </EditProfileModal>
       <Root>
-        <Stack direction={["column", "row"]} spacing="40px" padding="70px 10%">
+        <Stack direction={['column', 'row']} spacing="40px" padding="70px 10%">
           <VStack
-            width={["70%", "70%"]}
-            align={["flex-start", "flex-start"]}
+            width={['70%', '70%']}
+            align={['flex-start', 'flex-start']}
             spacing="20px"
           >
             <Text
@@ -927,41 +926,41 @@ const PreviewProfile = () => {
               Profile Preview
             </Text>
             <PreviewSegment
-              onEdit={() => setCurrentlyEditing("bio")}
+              onEdit={() => setCurrentlyEditing('bio')}
               title="ABOUT ME"
             >
               <Text
                 fontWeight={500}
-                fontSize={"14px"}
+                fontSize={'14px'}
                 color="#212224"
-                lineHeight={"30px"}
+                lineHeight={'30px'}
               >
                 {onboardingData.description}
               </Text>
             </PreviewSegment>
             <PreviewSegment
-              onEdit={() => setCurrentlyEditing("subjects")}
+              onEdit={() => setCurrentlyEditing('subjects')}
               title="SUBJECT OFFERED"
             >
               <CourseTable></CourseTable>
             </PreviewSegment>
             <PreviewSegment
-              onEdit={() => setCurrentlyEditing("qualifications")}
+              onEdit={() => setCurrentlyEditing('qualifications')}
               title="QUALIFICATIONS"
             >
               <QualificationsSegment />
             </PreviewSegment>
             <PreviewSegment
-              onEdit={() => setCurrentlyEditing("availability")}
+              onEdit={() => setCurrentlyEditing('availability')}
               title="AVAILABILITY"
             >
               <AvailabilityTable />
             </PreviewSegment>
           </VStack>
           <VStack
-            width={["70%", "30%"]}
-            paddingTop={"45px"}
-            align={["flex-start", "center"]}
+            width={['70%', '30%']}
+            paddingTop={'45px'}
+            align={['flex-start', 'center']}
             spacing="20px"
           >
             <ProfileDiv
@@ -971,7 +970,7 @@ const PreviewProfile = () => {
               onEdit={(editName) => setCurrentlyEditing(editName)}
             />
             <VideoViewingSection
-              onEdit={() => setCurrentlyEditing("intro_video")}
+              onEdit={() => setCurrentlyEditing('intro_video')}
             />
             {/* <PreviewSegment title="About Me">
               <Text>{onboardingData.bio}</Text>
