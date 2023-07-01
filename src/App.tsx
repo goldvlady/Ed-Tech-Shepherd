@@ -44,7 +44,12 @@ import { User, getAuth, onAuthStateChanged } from 'firebase/auth';
 import mixpanel from 'mixpanel-browser';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
-import { BrowserRouter, useLocation, useSearchParams, useNavigate } from 'react-router-dom';
+import {
+  BrowserRouter,
+  useLocation,
+  useSearchParams,
+  useNavigate
+} from 'react-router-dom';
 
 const AuthAction = (props: any) => {
   const [params] = useSearchParams();
@@ -76,8 +81,7 @@ const RequireAuth = ({
       setObtainedUserAuthState(true);
       setFirebaseUser(user);
       if (user) {
-        await fetchUser()
-          .catch(e => navigate('/login'));
+        await fetchUser().catch((e) => navigate('/login'));
       }
       setLoadingUser(false);
     });
