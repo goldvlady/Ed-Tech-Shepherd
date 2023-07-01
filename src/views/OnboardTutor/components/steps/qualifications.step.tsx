@@ -60,9 +60,7 @@ const QualificationsForm: React.FC = () => {
   }, [formData]);
 
   const handleAddQualification = () => {
-    console.log(formData);
     const isFormValid = Object.values(formData).every(Boolean);
-    console.log(isFormValid);
     if (!isFormValid) return;
     onboardTutorStore.set.qualifications?.([
       ...(storeQualifications || []),
@@ -158,8 +156,6 @@ const QualificationsForm: React.FC = () => {
       );
     });
   };
-
-  console.log('is diabled', !isFormValid);
 
   return (
     <Box>

@@ -154,7 +154,7 @@ const Offer = () => {
     const resp = await ApiService.getOffer(offerId);
     setOffer(await resp.json());
     setLoadingOffer(false);
-  }, []);
+  }, [offerId]);
 
   const bookOffer = async () => {
     setBookingOffer(true);
@@ -196,7 +196,7 @@ const Offer = () => {
 
   useEffect(() => {
     loadOffer();
-  }, []);
+  }, [loadOffer]);
 
   useEffect(() => {
     if (clientSecret) {
@@ -251,6 +251,7 @@ const Offer = () => {
         bookOffer();
       })();
     }
+    /* eslint-disable */ 
   }, [clientSecret]);
 
   const loading = loadingOffer;

@@ -111,7 +111,7 @@ const SendTutorOffer = () => {
     const resp = await ApiService.getTutor(tutorId);
     setTutor(await resp.json());
     setLoadingTutor(false);
-  }, []);
+  }, [tutorId]);
 
   const courseOptions = useMemo(
     () =>
@@ -128,7 +128,7 @@ const SendTutorOffer = () => {
 
   useEffect(() => {
     loadTutor();
-  }, []);
+  }, [loadTutor]);
 
   const loading = loadingTutor;
 
@@ -511,7 +511,7 @@ const SendTutorOffer = () => {
                                   // @ts-ignore: we'll get back to this soon
                                   onChange={(option: Option[]) => {
                                     const scheduleValue = values.schedule;
-                                    values[field.name].map((fv: string) => {
+                                    values[field.name].forEach((fv: string) => {
                                       if (
                                         !option.find((opt) => opt.value === fv)
                                       ) {
@@ -547,19 +547,6 @@ const SendTutorOffer = () => {
                             </FormControl>
                           )}
                         </Field>
-                        {/* <Field name='schedule'>
-                                            {({ field, form }: FieldProps) => (
-                                                <FormControl mt={'24px'} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
-                                                    <FormLabel>How often would you like your classes?</FormLabel>
-                                                    {isEditing ? <ButtonGroup width={'100%'} isAttached variant='outline'>
-                                                        {
-                                                            scheduleOptions.map(so => <Button key={so.value} isActive={field.value === so.value} onClick={() => form.setFieldValue(field.name, so.value)}>{so.label}</Button>)
-                                                        }
-                                                    </ButtonGroup> : <EditField>{scheduleOptions.find(so => so.value === field.value)?.label}</EditField>}
-                                                    <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
-                                                </FormControl>
-                                            )}
-                                        </Field> */}
 
                         {!isEmpty(values.days) && (
                           <VStack mt={'24px'} spacing={'24px'}>
@@ -686,29 +673,6 @@ const SendTutorOffer = () => {
                               </FormControl>
                             )}
                           </Field>
-                          {/* <Field name='paymentOption'>
-                                                {({ field, form }: FieldProps) => (
-                                                    <FormControl mt={'24px'} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
-                                                        <FormLabel>Payment options</FormLabel>
-                                                        <Box>
-                                                            <LargeSelect showRadio optionProps={{ style: { height: '145px' } }} value={field.value} onChange={(v) => form.setFieldValue(field.name, v)} options={[
-                                                                {
-                                                                    value: "installment",
-                                                                    title: <Box display={'flex'} gap='1px' alignItems='center'><Text color='#000' className='sub2' mb={0}>Pay in installments</Text> <FiArrowRight color='#6E7682' size={'15px'} /><Text color='#000' className='sub2' mb={0}>${values.rate}/hr</Text></Box>,
-                                                                    subtitle: <Text mt={'4px'} mb={0} textAlign={'left'} color={'#585F68'} className='body3'>With this option, the fee will be deducted from your account after each session</Text>,
-                                                                    icon: <BsBookmarkStarFill size={'20px'} style={{ fill: '#6E7682' }} />
-                                                                },
-                                                                {
-                                                                    value: "monthly",
-                                                                    title: <Box display={'flex'} gap='1px' alignItems='center'><Text color='#000' className='sub2' mb={0}>Pay in installments</Text> <FiArrowRight color='#6E7682' size={'15px'} /><Text color='#000' className='sub2' mb={0}>${values.rate}/hr</Text></Box>,
-                                                                    subtitle: <Text mt={'4px'} mb={0} textAlign={'left'} color={'#585F68'} className='body3'>With this option, the total fee for the time frame selected per month will be deducted</Text>,
-                                                                    icon: <RiMoneyDollarCircleFill size={'20px'} style={{ fill: '#6E7682' }} />
-                                                                }
-                                                            ]} />
-                                                        </Box>
-                                                    </FormControl>
-                                                )}
-                                            </Field> */}
 
                           <Alert status="info" mt="18px">
                             <AlertIcon>

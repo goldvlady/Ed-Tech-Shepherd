@@ -27,7 +27,7 @@ const ProfilePictureForm: React.FC = () => {
     if (storedAvatar) {
       setAvatar(storedAvatar);
     }
-  }, []);
+  }, [storedAvatar]);
 
   useEffect(() => {
     if (!imageFile) return;
@@ -60,13 +60,12 @@ const ProfilePictureForm: React.FC = () => {
         },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            console.log(downloadURL);
             onboardTutorStore.set.avatar?.(downloadURL);
           });
         }
       );
     }
-  }, [imageFile]);
+  }, [imageFile, toast]);
 
   const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files && event.target.files[0];

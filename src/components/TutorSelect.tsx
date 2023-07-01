@@ -174,7 +174,7 @@ export const TutorSelect: React.FC<Props> = ({
         nextObserver.unobserve(items[items.length - 1] as Element);
       }
     };
-  }, []);
+  }, [state]);
 
   const toggleValue = (v: Props['value']) => {
     onChange(v);

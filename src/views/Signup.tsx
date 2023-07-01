@@ -76,7 +76,7 @@ const Signup: React.FC = () => {
                 firebaseAuth,
                 values.email,
                 values.password
-              );
+              )
               await updateProfile(user.user, {
                 displayName: `${values.firstName} ${values.lastName}`
               });

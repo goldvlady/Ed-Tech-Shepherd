@@ -103,7 +103,7 @@ const CustomTable: React.FC = () => {
             <MenuItem
               p="6px 8px 6px 8px"
               _hover={{ bgColor: '#F2F4F7' }}
-              onClick={() => console.log('ADD NEW NOTE')}
+              onClick={() => null}
             >
               <StyledImage marginRight="10px">
                 <svg

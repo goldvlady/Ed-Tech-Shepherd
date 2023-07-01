@@ -101,7 +101,7 @@ const skillLevelOptions = [
     label: (
       <SkillLevel>
         <SkillLevelImg>
-          <img src="/images/beginner.png" />
+          <img src="/images/beginner.png" alt='beginner'/>
         </SkillLevelImg>{' '}
         Beginner
       </SkillLevel>
@@ -112,7 +112,7 @@ const skillLevelOptions = [
     label: (
       <SkillLevel>
         <SkillLevelImg>
-          <img src="/images/intermediate.png" />
+          <img src="/images/intermediate.png" alt='intermediate'/>
         </SkillLevelImg>{' '}
         Intermediate
       </SkillLevel>
@@ -123,7 +123,7 @@ const skillLevelOptions = [
     label: (
       <SkillLevel>
         <SkillLevelImg>
-          <img src="/images/advanced.png" />
+          <img src="/images/advanced.png" alt='advanced'/>
         </SkillLevelImg>{' '}
         Advanced
       </SkillLevel>
@@ -188,7 +188,7 @@ const OnboardStudent = () => {
         onboardStudentStore.set.courses([preSelectedCourse]);
       }, 0);
     }
-  }, []);
+  }, [location.search]);
 
   const dobValid = moment(dob, FORMAT, true).isValid();
   const age = useMemo(() => moment().diff(moment(dob, FORMAT), 'years'), [dob]);
@@ -253,7 +253,7 @@ const OnboardStudent = () => {
     } else {
       onboardStudentStore.set.courses(without(courses, 'something-else'));
     }
-  }, [somethingElse]);
+  }, [somethingElse, courses]);
 
   const confirmations = [
     {
@@ -543,12 +543,13 @@ const OnboardStudent = () => {
     setEditModalStep(stepId);
   };
 
-  const activeStepObj = useMemo(() => steps[activeStep - 1], [activeStep]);
+  /* eslint-disable */ 
+  const activeStepObj = useMemo(() => steps[activeStep - 1], [activeStep]); 
 
   const stepIndicatorActiveStep = useMemo(
     () =>
       stepIndicatorSteps.find((s) => s.id === activeStepObj?.stepIndicatorId),
-    [activeStepObj, stepIndicatorSteps]
+    [activeStepObj]
   );
 
   useTitle(stepIndicatorActiveStep?.title || '');
@@ -575,7 +576,7 @@ const OnboardStudent = () => {
       mixpanel.people.set({ 'Parent Or Student': parentOrStudent });
 
     mixpanel.people.set({ Type: 'Student' });
-  }, [email, name, age]);
+  }, [email, name, age, parentOrStudent]);
 
   useEffect(() => {
     mixpanel.register({ ...data, type: 'student' });

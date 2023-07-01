@@ -117,10 +117,8 @@ const ChoosePaymentMethodDialog = React.forwardRef<
       <Modal
         isOpen={isOpen}
         onClose={() => {
-          {
             onClose();
             promiseReject.current?.();
-          }
         }}
       >
         <ModalOverlay />

@@ -12,8 +12,6 @@ const IntroVideoForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [introVideo, setIntroVideo] = useState<File | null>(null);
 
-  console.log('file ====>', uploadedLink);
-
   const handleIntroVideoUpload = (file: File) => {
     setIntroVideo(file);
   };
@@ -32,9 +30,8 @@ const IntroVideoForm = () => {
           const file = new File([blob], 'intro_video', { type: blob.type }); // replace 'filename' with your desired filename
           setIntroVideo(file);
         })
-        .catch((err) => console.error(err));
     }
-  }, [uploadedLink]);
+  }, [uploadedLink, introVideo]);
 
   useEffect(() => {
     if (!introVideo) return;
@@ -74,6 +71,7 @@ const IntroVideoForm = () => {
         }
       );
     }
+    /* eslint-disable */ 
   }, [introVideo]);
 
   return (

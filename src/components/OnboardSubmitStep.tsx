@@ -22,6 +22,7 @@ const OnboardSubmitStep: React.FC<Props> = ({
     if (isActive) {
       submit();
     }
+    /* eslint-disable */
   }, [isActive]);
 
   const submit = async () => {

@@ -52,7 +52,6 @@ export default function QuestionsPreview({
           <OptionBadge
             text="Flashcards"
             icon={(isActive) => {
-              console.log('isActive ==>', isActive);
               return (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

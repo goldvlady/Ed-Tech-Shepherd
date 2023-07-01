@@ -35,20 +35,19 @@ const Session = () => {
 
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loadingBooking, setLoadingBooking] = useState(false);
-
-  const loadBooking = async () => {
-    setLoadingBooking(true);
-    const resp = await ApiService.getBooking(bookingId as string);
-    setBooking(await resp.json());
-    setLoadingBooking(false);
-  };
-
   const isStudent = user?.type === 'student';
   const tz = isStudent ? user?.student?.tz : user?.tutor?.tz;
 
   useEffect(() => {
-    loadBooking();
-  }, []);
+    const loadBooking = async () => {
+      setLoadingBooking(true);
+      const resp = await ApiService.getBooking(bookingId as string);
+      setBooking(await resp.json());
+      setLoadingBooking(false);
+  };
+
+    loadBooking()
+  }, [bookingId]);
 
   const roomUrl = useMemo(() => {
     if (!booking) {
@@ -62,7 +61,7 @@ const Session = () => {
     urlParams.set('roomIntegrations', 'on');
     urlParams.set('displayName', `${user?.name.first} ${user?.name.last}`);
     return `${url}?${urlParams.toString()}`;
-  }, [booking]);
+  }, [booking, isStudent, user?.name.first, user?.name.last]);
 
   return (
     <Root>
@@ -101,6 +100,7 @@ const Session = () => {
       {booking && (
         <iframe
           src={roomUrl}
+          title={roomUrl}
           allow="camera; microphone; fullscreen; speaker; display-capture"
           style={{ width: '100%', flexGrow: 1 }}
         ></iframe>

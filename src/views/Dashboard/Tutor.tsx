@@ -82,17 +82,17 @@ export default function Tutor() {
     const data = await resp.json();
     setTutorData(data);
     setLoadingData(false);
-  }, []);
+  }, [tutorId]);
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [getData]);
 
   const { fetchBookmarkedTutors, tutors: bookmarkedTutors } =
     bookmarkedTutorsStore();
   const doFetchBookmarkedTutors = useCallback(async () => {
     await fetchBookmarkedTutors();
-  }, []);
+  }, [fetchBookmarkedTutors]);
   const checkBookmarks = () => {
     const found = bookmarkedTutors.some((el) => el.tutor?._id === tutorId);
     if (!found) {
@@ -109,7 +109,6 @@ export default function Tutor() {
   const toggleBookmarkTutor = async (id: string) => {
     try {
       const resp = await ApiService.toggleBookmarkedTutor(id);
-      console.log(resp);
       if (checkBookmarks()) {
         toast({
           title: 'Tutor removed from Bookmarks successfully',
@@ -136,7 +135,7 @@ export default function Tutor() {
     }
   };
 
-  if (Object.keys(tutorData).length == 0) {
+  if (Object.keys(tutorData).length === 0) {
     return (
       <Box p={5} textAlign="center">
         <Spinner />

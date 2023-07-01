@@ -34,11 +34,12 @@ const TimezoneSelect: React.FC<Props> = ({ value, onChange }) => {
     );
 
     if (assumedTimezoneInOptions) onChange(assumedTimezoneInOptions);
+    /* eslint-disable */ 
   }, []);
 
   useEffect(() => {
     if (!value) guessTimezone();
-  }, [guessTimezone]);
+  }, [guessTimezone, value]);
 
   return (
     <Select

@@ -22,7 +22,6 @@ const PendingVerification = () => {
     onAuthStateChanged(getAuth(), async (user) => {
       setObtainedUserAuthState(true);
       setFirebaseUser(user);
-      console.log(user, 'USE');
     });
   }, []);
 

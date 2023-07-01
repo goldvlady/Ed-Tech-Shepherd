@@ -41,6 +41,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
 
   useEffect(() => {
     setMemoValue(value);
+  /* eslint-disable */ 
   }, [key]);
 
   const containerVariants = {

@@ -258,7 +258,7 @@ export default function RecentTransaction() {
                       <Menu.Item>
                         {({ active }) => (
                           <a
-                            href="#"
+                            href="https://google.com"
                             className={classNames(
                               active
                                 ? 'bg-gray-100 text-gray-900'
@@ -273,7 +273,7 @@ export default function RecentTransaction() {
                       <Menu.Item>
                         {({ active }) => (
                           <a
-                            href="#"
+                            href="https://google.com"
                             className={classNames(
                               active
                                 ? 'bg-gray-100 text-gray-900'
@@ -288,7 +288,7 @@ export default function RecentTransaction() {
                       <Menu.Item>
                         {({ active }) => (
                           <a
-                            href="#"
+                            href="https://google.com"
                             className={classNames(
                               active
                                 ? 'bg-gray-100 text-gray-900'
@@ -328,7 +328,7 @@ export default function RecentTransaction() {
                     <Menu.Item>
                       {({ active }) => (
                         <a
-                          href="#"
+                          href="https://google.com"
                           className={classNames(
                             active
                               ? 'bg-gray-100 text-gray-900'
@@ -343,7 +343,7 @@ export default function RecentTransaction() {
                     <Menu.Item>
                       {({ active }) => (
                         <a
-                          href="#"
+                          href="https://google.com"
                           className={classNames(
                             active
                               ? 'bg-gray-100 text-gray-900'
@@ -358,7 +358,7 @@ export default function RecentTransaction() {
                     <Menu.Item>
                       {({ active }) => (
                         <a
-                          href="#"
+                          href="https://google.com"
                           className={classNames(
                             active
                               ? 'bg-gray-100 text-gray-900'

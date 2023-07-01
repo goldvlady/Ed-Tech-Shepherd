@@ -304,7 +304,7 @@ const AvailabilityTable = () => {
   useEffect(() => {
     const availability = formatScheduleToAvailability(schedule);
     setTutorAvailability(availability);
-  }, []);
+  }, [schedule]);
 
   const timeSlots = ['8AM → 12PM', '12AM → 5PM', '5PM → 9PM', '9PM → 12AM'];
 
@@ -327,14 +327,6 @@ const AvailabilityTable = () => {
         return `${hour}${modifier}`;
       })
       .join('');
-
-    // console.log(
-    //   slot24h,
-    //   slotData.slots,
-    //   slotData.slots.map((slot) =>
-    //     slot.replace(/[^a-zA-Z0-9]/g, "").replace("undefined", "")
-    //   )
-    // );
 
     if (
       slotData &&
@@ -723,15 +715,11 @@ const PreviewProfile = () => {
     onAuthStateChanged(getAuth(), async (user) => {
       setObtainedUserAuthState(true);
       setFirebaseUser(user);
-
-      try {
-        if (user) {
-          await fetchUser();
-        }
-      } catch (e) {
-        console.log('LOGINERROR', e);
+      if (user) {
+        await fetchUser();
       }
     });
+    /* eslint-disable */
   }, []);
 
   const steps = [
@@ -826,7 +814,7 @@ const PreviewProfile = () => {
         element: () => <></>
       } as (typeof steps)[0])
     );
-  }, [currentlyEditing]);
+  }, [currentlyEditing, steps]);
 
   const { element: Element } = currentEdit;
 
@@ -840,7 +828,6 @@ const PreviewProfile = () => {
           return { begin, end };
         });
       }
-      console.log(courseList, levels);
       const coursesAndLevels = onboardingData.coursesAndLevels.map(
         (courseLevel) => ({
           course: courseList.find(
@@ -852,8 +839,6 @@ const PreviewProfile = () => {
         })
       );
 
-      console.log(coursesAndLevels);
-
       const payload = {
         ...onboardingData,
         user: user?._id,
@@ -862,8 +847,6 @@ const PreviewProfile = () => {
         schedule: newSchedule,
         coursesAndLevels
       };
-
-      console.log(payload);
 
       const data = await ApiService.submitTutor(payload);
       if (data.status === 200) {
@@ -882,7 +865,6 @@ const PreviewProfile = () => {
         status: 'error',
         isClosable: true
       });
-      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -903,7 +885,7 @@ const PreviewProfile = () => {
           setCurrentlyEditing(null);
         }}
         isOpen={Boolean(currentlyEditing)}
-        onClose={() => console.log()}
+        onClose={() => null}
       >
         <Element />
       </EditProfileModal>

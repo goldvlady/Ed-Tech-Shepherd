@@ -141,6 +141,7 @@ const OnboardTutor = () => {
         });
       }
     );
+    /* eslint-disable */ 
   }, [selectedCV]);
 
   useEffect(() => {
@@ -217,6 +218,7 @@ const OnboardTutor = () => {
         });
       }
     );
+    /* eslint-disable */ 
   }, [selectedAvatar]);
 
   const doSubmit = async () => {
@@ -225,7 +227,6 @@ const OnboardTutor = () => {
       userFields.email,
       password
     );
-    console.log(firebaseUser);
     mixpanel.track('Sumbitting Onboarding Date');
     return ApiService.createUser({
       ...userFields,

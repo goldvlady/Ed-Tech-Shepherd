@@ -35,7 +35,6 @@ const slotTimes: { [key: string]: any } = {
 };
 
 function SelectTimeSlot({ onConfirm, day, value }: MyComponentProps) {
-  console.log(day, value);
   const [selectedSlot, setSelectedSlot] = useState<string[]>([]);
   const [timezone, setTimezone] = useState('');
 
@@ -53,7 +52,6 @@ function SelectTimeSlot({ onConfirm, day, value }: MyComponentProps) {
 
   const handleConfirm = () => {
     const timeSlot = selectedSlot.map((slot) => slotTimes[slot]);
-    console.log(timeSlot);
     return onConfirm(timeSlot, timezone);
   };
 
@@ -62,14 +60,6 @@ function SelectTimeSlot({ onConfirm, day, value }: MyComponentProps) {
   }
 
   useEffect(() => {
-    console.log(
-      value?.slots
-        .filter((slot) => {
-          return getKeyByValue(slotTimes, slot);
-        })
-        .map((slot) => getKeyByValue(slotTimes, slot))
-    );
-
     setSelectedSlot(
       value?.slots
         ? value.slots
@@ -81,7 +71,7 @@ function SelectTimeSlot({ onConfirm, day, value }: MyComponentProps) {
     ); // Reset selected slots
 
     setTimezone(value?.timezone ? value.timezone : ''); // Reset timezone
-  }, [day]);
+  }, [day, value?.slots, value?.timezone]);
 
   const variants = {
     initial: { opacity: 0 },
@@ -305,8 +295,6 @@ const AvailabilityForm = () => {
     [previousDayIndex, totalDayIndex]
   );
 
-  console.log('is last to first day', isLastDayToFirstDay);
-
   function formatAvailabilityData(availability: Availability): Schedule {
     const scheduleObj: Schedule = {};
 
@@ -372,7 +360,7 @@ const AvailabilityForm = () => {
       const availability = formatScheduleToAvailability(schedule);
       setTutorAvailability(availability);
     }
-  }, []);
+  }, [schedule]);
 
   useEffect(() => {
     if (Object.keys(availability).length) {
@@ -404,8 +392,6 @@ const AvailabilityForm = () => {
     { value: 'saturday', label: 'Saturday' },
     { value: 'sunday', label: 'Sunday' }
   ];
-
-  console.log(availability);
 
   const handleSelectClick = () => {
     setShowCheckboxes(true);

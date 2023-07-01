@@ -10,11 +10,10 @@ function Home() {
     signOut(firebaseAuth)
       .then(() => {
         // Sign-out successful.
-        console.log('signOutSUCCESSFUL');
         navigate('/login');
       })
       .catch((error) => {
-        console.log(error);
+        // Handle this error?
       });
   };
   return (

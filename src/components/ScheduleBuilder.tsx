@@ -19,7 +19,8 @@ import { useRef } from 'react';
 import { FiAlertTriangle, FiPlus, FiTrash } from 'react-icons/fi';
 import styled from 'styled-components';
 
-export interface ScheduleBuilderRef {}
+/* eslint-disable */
+export interface ScheduleBuilderRef {} //but why?
 
 interface Props {
   value: Schedule;

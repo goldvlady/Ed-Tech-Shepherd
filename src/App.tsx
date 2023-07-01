@@ -74,17 +74,12 @@ const RequireAuth = ({
     onAuthStateChanged(getAuth(), async (user) => {
       setObtainedUserAuthState(true);
       setFirebaseUser(user);
-      console.log(user, 'USE');
-
-      try {
-        if (user) {
+      if (user) {
           await fetchUser();
-        }
-      } catch (e) {
-        console.log('LOGINERROR', e);
       }
       setLoadingUser(false);
     });
+    /* eslint-disable */
   }, []);
 
   return obtainedUserAuthState && !loadingUser ? (
@@ -249,6 +244,7 @@ function App() {
 
   const doFetchResources = useCallback(async () => {
     await fetchResources();
+    /* eslint-disable */
   }, []);
 
   useEffect(() => {

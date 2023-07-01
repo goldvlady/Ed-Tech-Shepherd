@@ -28,12 +28,10 @@ const Chat = () => {
   const handleQuery = (e) => {
     const query = e.target.value;
     setQuery(query);
-    console.log(query);
   };
 
   const handleSubmitQuery = (e) => {
     e.preventDefault();
-    console.log('Submitted', query);
   };
   return (
     <form className="lg:col-span-6 flex-auto h-full" id="chatbot">

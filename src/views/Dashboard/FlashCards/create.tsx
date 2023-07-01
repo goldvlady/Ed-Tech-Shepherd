@@ -92,7 +92,7 @@ const CreateFlashPage = () => {
         setSettings((value) => ({ ...value, type: TypeEnum.FLASHCARD }));
       }
     }
-  }, [flashcardData, hasSubmittedFlashCards, settings.type]);
+  }, [flashcardData, hasSubmittedFlashCards, settings.type, settings.source]);
 
   const handleBadgeClick = (badge: TypeEnum) => {
     setActiveBadge(badge);

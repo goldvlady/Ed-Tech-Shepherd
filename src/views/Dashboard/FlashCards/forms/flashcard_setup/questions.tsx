@@ -98,8 +98,6 @@ const FlashCardQuestionsPage = () => {
   const handleSubmit = () => {
     goToNextStep();
   };
-
-  console.log('current question =>>>', currentQuestion.questionType);
   const isFinalQuestion = currentQuestionIndex === questionsCount - 1;
 
   return (

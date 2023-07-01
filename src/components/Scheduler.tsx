@@ -219,7 +219,7 @@ const Scheduler: React.FC<Props> = ({ value, onChange, schedule }) => {
         nextObserver.unobserve(items[items.length - 1] as Element);
       }
     };
-  }, []);
+  }, [state]);
 
   const toggleArrayValue = (v: Slot) => {
     onChange(xorBy(value, [v], 'begin'));

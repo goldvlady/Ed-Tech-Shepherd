@@ -89,12 +89,12 @@ export default function Marketplace() {
   const getData = async () => {
     const formData = {
       courses: subject === 'Subject' ? '' : subject.toLowerCase(),
-      levels: level == '' ? '' : level._id,
+      levels: level === '' ? '' : level._id,
       availability: '',
       tz: moment.tz.guess(),
       days: days,
-      price: price == '' ? '' : price.value,
-      floorRating: rating == '' ? '' : rating.value,
+      price: price === '' ? '' : price.value,
+      floorRating: rating === '' ? '' : rating.value,
       startTime: toTime,
       endTime: fromTime
     };
@@ -107,6 +107,7 @@ export default function Marketplace() {
 
   useEffect(() => {
     getData();
+    /* eslint-disable */ 
   }, [subject, level, price, rating, days]);
 
   const { fetchBookmarkedTutors, tutors: bookmarkedTutors } =
@@ -115,7 +116,6 @@ export default function Marketplace() {
   const doFetchBookmarkedTutors = useCallback(async () => {
     await fetchBookmarkedTutors();
   }, []);
-  console.log('BT', bookmarkedTutors);
 
   const checkBookmarks = (id: string) => {
     const found = bookmarkedTutors.some((el) => el.tutor?._id === id);
@@ -139,6 +139,7 @@ export default function Marketplace() {
     setFromTime('');
     setToTime('');
     getData();
+    /* eslint-disable */ 
   }, []);
 
   return (
@@ -213,7 +214,7 @@ export default function Marketplace() {
                   fontWeight={400}
                   color="text.400"
                 >
-                  {level == '' ? 'Level' : level.label}
+                  {level === '' ? 'Level' : level.label}
                 </MenuButton>
                 <MenuList>
                   {levelOptions.map((level) => (
@@ -316,7 +317,7 @@ export default function Marketplace() {
                   fontWeight={400}
                   color="text.400"
                 >
-                  {price == '' ? 'Price' : price.label}
+                  {price === '' ? 'Price' : price.label}
                 </MenuButton>
                 <MenuList>
                   {priceOptions.map((price) => (
@@ -341,7 +342,7 @@ export default function Marketplace() {
                   fontWeight={400}
                   color="text.400"
                 >
-                  {rating == '' ? 'Rating' : rating.label}
+                  {rating === '' ? 'Rating' : rating.label}
                 </MenuButton>
                 <MenuList>
                   {ratingOptions.map((rating) => (

@@ -88,7 +88,6 @@ import {
 const getComparisonPath = (pathname?: string) => {
   if (!pathname) return '';
   const pathParts = pathname.split('/').filter((f) => f);
-  console.log(pathParts);
   if (pathParts.length === 1) {
     return pathParts[0];
   } else if (pathParts.length > 1) {
@@ -187,9 +186,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
       .then(() => {
         navigate('/login');
       })
-      .catch((error) => {
-        console.log(error);
-      });
   };
   return (
     <>
@@ -247,33 +243,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             <Logo />{' '}
           </Text>
           <HStack spacing={4}>
-            {/* <Menu>
-           <MenuButton
-            bg={"#207DF7"}
-            color="white"
-            fontSize="14px"
-            _hover={{ bg: "#1964c5" }}
-            _active={{ bg: "#1964c5" }}
-            as={Button}
-            rightIcon={<FiChevronDown />}
-          >
-            + Create
-          </MenuButton> 
-          <MenuList fontSize="14px" minWidth={"185px"}>
-            <MenuItem
-              _hover={{ bgColor: "#F2F4F7" }}
-              p={-2}
-              onClick={() => console.log("ADD NEW NOTE")}
-            >
-              <Image src={NewNote} /> <Text color="text.200">New note</Text>
-            </MenuItem>
-            <MenuItem p={-2} _hover={{ bgColor: "#F2F4F7" }}>
-              {" "}
-              <Image src={Doc} />{" "}
-              <Text color="text.200">Upload document</Text>
-            </MenuItem>
-          </MenuList>
-        </Menu> */}
 
             <Menu>
               <MenuButton>

@@ -33,7 +33,7 @@ function CustomDropdown({
     if (automaticClose && isOpen) {
       setIsOpen(false);
     }
-  }, [automaticClose]);
+  }, [automaticClose, isOpen]);
 
   const handleClickOutside = (event: MouseEvent) => {
     if (

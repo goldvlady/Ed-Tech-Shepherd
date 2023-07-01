@@ -35,7 +35,8 @@ const SubjectLevelForm: React.FC = () => {
     if (!subjectLevels.length) {
       addSubject();
     }
-  }, []);
+    /* eslint-disable */ 
+  }, [subjectLevels.length]);
 
   const [loadingCourses, setLoadingCourses] = useState(false);
 

@@ -46,7 +46,6 @@ export default function TutorCard(props: any) {
   const toggleBookmarkTutor = async (id: string) => {
     try {
       const resp = await ApiService.toggleBookmarkedTutor(id);
-      console.log(resp);
       if (saved) {
         toast({
           title: 'Tutor removed from Bookmarks successfully',
@@ -81,7 +80,6 @@ export default function TutorCard(props: any) {
     { id: 6, label: 'English' },
     { id: 7, label: 'Literature' }
   ];
-  console.log(tutorSubjects.length);
 
   return (
     <LinkBox as="article">
@@ -157,7 +155,7 @@ export default function TutorCard(props: any) {
                     </Text>
                   ))
                 : tutorSubjects.slice(0, 5).map((subject, index) =>
-                    index == 4 ? (
+                    index === 4 ? (
                       <>
                         <Text
                           key={index}

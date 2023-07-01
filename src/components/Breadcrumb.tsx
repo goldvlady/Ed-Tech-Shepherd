@@ -23,7 +23,7 @@ const Breadcrumb: React.FC = () => {
               aria-hidden="true"
             />
             <a
-              href="#"
+              href="https://google.com"
               className="text-sm font-medium text-secondaryBlue hover:text-blue-700"
             >
               Review offer

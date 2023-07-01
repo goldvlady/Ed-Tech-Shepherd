@@ -37,12 +37,10 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    console.log('drop', e);
     e.preventDefault();
     setIsDragging(false);
 
     const file = e.dataTransfer.files[0];
-    console.log(file);
     if (file && accept && file.type.match(accept)) {
       onFileUpload(file);
       setFileSelected(true); // Set fileSelected to true when a file is uploaded

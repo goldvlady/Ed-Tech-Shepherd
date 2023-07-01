@@ -29,7 +29,7 @@ export default function Client() {
                   className="h-5 w-5 flex-shrink-0 text-gray-400"
                   aria-hidden="true"
                 />
-                <a className="text-sm font-medium">Liam Kelly</a>
+                <p className="text-sm font-medium">Liam Kelly</p>
               </div>
             </li>
             <li>
@@ -38,9 +38,9 @@ export default function Client() {
                   className="h-5 w-5 flex-shrink-0 text-gray-400"
                   aria-hidden="true"
                 />
-                <a className="text-sm font-normal text-secondaryBlue hover:text-blue-700">
+                <p className="text-sm font-normal text-secondaryBlue hover:text-blue-700">
                   Contract
-                </a>
+                </p>
               </div>
             </li>
           </ol>

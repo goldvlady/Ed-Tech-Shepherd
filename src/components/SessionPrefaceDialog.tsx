@@ -142,7 +142,6 @@ const SessionPrefaceDialog = React.forwardRef<SessionPrefaceDialogRef, Props>(
           });
           node.srcObject = stream;
         } catch (e) {
-          console.log(e);
           // permission rejected
           // TODO: Show an alert asking them to enable audio & video cam permissions
         }

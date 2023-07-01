@@ -66,7 +66,6 @@ const SelectableTable = <T extends Record<string, unknown>>({
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
   const handleSelect = (record: T) => {
-    console.log();
     const key = record.key as string;
     if (selectedRowKeys.includes(key)) {
       setSelectedRowKeys(selectedRowKeys.filter((k) => k !== key));

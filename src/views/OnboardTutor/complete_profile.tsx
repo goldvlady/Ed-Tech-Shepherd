@@ -151,11 +151,11 @@ const CompleteProfile = () => {
         isValid: isValidPaymentInformation
       }
     ];
-  }, [onboardingData]);
+  }, [onboardingData, isQualificationsValid, isSubjectsValid, isValidPaymentInformation]);
 
   const currentStep = useMemo(
     () => steps.find((step) => step.position === activeStep),
-    [activeStep, onboardingData]
+    [activeStep, steps]
   );
 
   const goToPreviousStep = () => {
@@ -173,14 +173,12 @@ const CompleteProfile = () => {
   const nextStep = useMemo(() => {
     if (activeStep === steps.length) return {} as Step;
     return steps.find((step) => step.position === activeStep + 1);
-  }, [activeStep]);
+  }, [activeStep, steps]);
 
   if (showPreview) return <PreviewProfile />;
   if (!currentStep) return <></>;
 
-  const { element: Element, isValid } = currentStep;
-
-  console.log('is valid down her', isValid, onboardingData);
+  const { element: Element } = currentStep;
   return (
     <MainWrapper>
       <Header />

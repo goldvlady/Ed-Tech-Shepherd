@@ -45,7 +45,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     }
 
     return Object.values(payload).every(Boolean);
-  }, [localData]);
+  }, [localData, isAutomated]);
 
   const handleSubmit = () => {
     setFlashcardData((prevState) => ({
