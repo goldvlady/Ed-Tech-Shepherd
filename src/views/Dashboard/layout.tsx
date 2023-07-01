@@ -8,6 +8,7 @@ import NewNote from "../../assets/newnote.svg";
 import NoteIcon from "../../assets/notes.svg";
 import ReceiptIcon from "../../assets/receiptIcon.svg";
 import VideoIcon from "../../assets/video.svg";
+import { HelpModal } from "../../components";
 import Logo from "../../components/Logo";
 import { firebaseAuth } from "../../firebase";
 import userStore from "../../state/userStore";
@@ -174,6 +175,10 @@ interface MobileProps extends FlexProps {
 }
 const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const auth = getAuth();
+  const [toggleHelpModal, setToggleHelpModal] = useState(false);
+  const activateHelpModal = () => {
+    setToggleHelpModal(true);
+  };
   const navigate = useNavigate();
   const { user }: any = userStore();
 
@@ -211,6 +216,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             borderRadius={"40px"}
             fontSize="14px"
             p="6px 16px"
+            onClick={activateHelpModal}
             gap={2}
             _hover={{
               cursor: "pointer",
@@ -394,7 +400,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                   <Avatar
                     size="sm"
                     color="white"
-                    name={`${user.name.first} ${user.name.last}`}
+                    name={`${user?.name?.first} ${user?.name?.last}`}
                     bg="#4CAF50;"
                   />
 
@@ -404,7 +410,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     color="text.200"
                     display={{ base: "block", sm: "none", md: "block" }}
                   >
-                    {`${user.name.first} ${user.name.last}`}
+                    {`${user?.name?.first} ${user?.name?.last}`}
                   </Text>
 
                   <Box display={{ base: "none", md: "flex" }}>
@@ -429,6 +435,10 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
     
     </Flex> */}
       </Flex>
+      <HelpModal
+        toggleHelpModal={toggleHelpModal}
+        setToggleHelpModal={setToggleHelpModal}
+      />
     </>
   );
 };
@@ -526,14 +536,9 @@ const SidebarContent = ({
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [tutorMenu, setTutorMenu] = useState(true);
-  const [toggleHelpModal, setToggleHelpModal] = useState(false);
   const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
   const { user }: any = userStore();
   const { pathname } = useLocation();
-
-  const activateHelpModal = () => {
-    setToggleHelpModal(true);
-  };
 
   const toggleMenu = () => {
     setTutorMenu(!tutorMenu);
@@ -577,7 +582,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <Box width={"100%"} zIndex="2">
               <MobileNav onOpen={onOpen} />
             </Box>
-
             <Box pt={20}>
               <Outlet />
             </Box>
