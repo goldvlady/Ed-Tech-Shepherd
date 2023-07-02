@@ -1,6 +1,6 @@
 // Chakra imports
 // Assets
-import banner from '../../../assets/marketBg.svg';
+import banner from '../../../assets/marketBg.jpg';
 import { Button, Flex, Link, Text } from '@chakra-ui/react';
 
 export default function Banner() {
