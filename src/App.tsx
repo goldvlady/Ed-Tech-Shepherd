@@ -8,7 +8,7 @@ import CreateFlashCard from "./views/Dashboard/FlashCards/create";
 import Marketplace from "./views/Dashboard/Marketplace";
 import Messaging from "./views/Dashboard/Messaging";
 import MyTutors from "./views/Dashboard/MyTutors";
-import Notes from "./views/Dashboard/Notes";
+import Notes from "./views/Dashboard/Notes/index";
 import Tutor from "./views/Dashboard/Tutor";
 import DashboardIndex from "./views/Dashboard/index";
 import DashboardLayout from "./views/Dashboard/layout";
@@ -221,7 +221,7 @@ const AppRoutes: React.FC = () => {
         <Route path="saved-tutors" element={<BookmarkedTutors />} />
 
         <Route path="messaging" element={<Messaging />} />
-        <Route path="notes" element={<Notes />} />
+        {/* <Route path="notes" element={<Notes />} /> */}
         <Route
           path="docchat"
           element={
@@ -244,7 +244,7 @@ const AppRoutes: React.FC = () => {
           />
         }
       />
-
+      <Route path="notes" element={<Notes />} />
       <Route path="tutordashboard" element={<TutorDashboard />} />
       <Route path="clients" element={<Clients />} />
       <Route path="clients/:id" element={<Client />} />

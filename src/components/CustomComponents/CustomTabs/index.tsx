@@ -29,7 +29,13 @@ const CustomTabs = ({ tablists, tabPanel }: ICustomTabs) => {
           </Tab>
         ))}
       </TabList>
-      <TabIndicator top="181px" height="5px" bg="#207DF7" borderRadius="10px" />
+      <TabIndicator
+        position="relative"
+        height="5px"
+        bg="#207DF7"
+        borderRadius="10px"
+        left="0"
+      />
       <TabPanels>
         {tabPanel?.map((tabPanel: any) => (
           <TabPanel padding={"0"} key={tabPanel?.id}>

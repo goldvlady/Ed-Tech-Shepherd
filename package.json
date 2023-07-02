@@ -65,6 +65,7 @@
     "react-icons": "^4.8.0",
     "react-input-date": "^1.0.12",
     "react-input-mask": "^2.0.4",
+    "react-pdf": "^7.1.2",
     "react-router": "^6.9.0",
     "react-router-dom": "^6.9.0",
     "react-scripts": "5.0.1",

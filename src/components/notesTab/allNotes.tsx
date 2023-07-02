@@ -1,57 +1,22 @@
-import CustomModal from "../CustomModal";
+import CustomModal from "../CustomComponents/CustomModal";
 import {
   DownloadIcon,
   FlashCardsIcon,
   FlashCardsSolidIcon,
   TrashIcon,
 } from "../icons";
-import { DeleteNoteModal, DeleteAllNotesModal } from "../index";
+import { DeleteNoteModal } from "../index";
 import SelectableTable, { TableColumn } from "../table";
+import { StyledMenuButton, StyledMenuSection } from "./styles";
+import { Menu, MenuList, MenuButton, Button, Text } from "@chakra-ui/react";
 import {
-  Menu,
-  MenuItem,
-  MenuList,
-  MenuButton,
-  Button,
-  Flex,
-  Text,
-  Box,
-  Input,
-  InputGroup,
-  InputLeftElement,
-} from "@chakra-ui/react";
-import {
-  EllipsisHorizontalIcon,
   ChevronRightIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/solid";
 import React, { useLayoutEffect, useRef, useState } from "react";
-import { BsSearch } from "react-icons/bs";
-import { FaEllipsisH, FaCalendarAlt } from "react-icons/fa";
+import { FaEllipsisH } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
 
-const StyledImage = styled(Box)`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #ffffff;
-  border-radius: 50%;
-  height: 26px;
-  width: 26px;
-  border: 0.6px solid #eaeaeb;
-  box-shadow: 0 2px 10px rgba(63, 81, 94, 0.1);
-`;
-
-const StyledMenuButton = styled(MenuButton)`
-  display: flex;
-  align-items: center;
-  background: #f4f5f5;
-  font-size: 0.75rem;
-  color: #585f68;
-  border-radius: 6px;
-  padding: 7px;
-`;
 interface Client {
   id: number;
   title: string;
@@ -146,12 +111,13 @@ const dataSource: DataSourceItem[] = Array.from({ length: 8 }, (_, i) => ({
 
 const AllNotesTab = () => {
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
-  const [deleteAllNotesModal, setDeleteAllNotesModal] = useState(false);
+  const [, setDeleteAllNotesModal] = useState(false);
   const checkbox = useRef<HTMLInputElement>(null);
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
   const [selectedPeople, setSelectedPeople] = useState<any[]>([]);
   const [clientsDetails, setClientDetails] = useState("");
+  const [openTags, setOpenTags] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useLayoutEffect(() => {
@@ -341,6 +307,7 @@ const AllNotesTab = () => {
                           background="#F4F5F5"
                           display="flex"
                           className="flex items-center gap-2"
+                          onClick={() => setOpenTags((prevState) => !prevState)}
                         >
                           <FlashCardsSolidIcon
                             className="w-5"
@@ -349,102 +316,92 @@ const AllNotesTab = () => {
                           Add tag
                         </StyledMenuButton>
                       </Menu>
-                      <Menu>
-                        <div>
-                          <MenuButton
-                            type="button"
-                            className="inline-flex items-center space-x-2 rounded bg-[#F4F5F5] px-6 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                          >
-                            <FlashCardsSolidIcon
-                              className="w-5"
-                              onClick={undefined}
-                            />
-                            <span>Add tag</span>
-                          </MenuButton>
-                        </div>
 
-                        <section className="space-y-2">
-                          <form
-                            className="relative flex flex-1 py-2"
-                            action="#"
-                            method="GET"
-                          >
-                            <label htmlFor="search-field" className="sr-only">
-                              Search
-                            </label>
-                            <MagnifyingGlassIcon
-                              className="pl-2 pointer-events-none absolute inset-y-0 left-0 h-full w-7 text-gray-400"
-                              aria-hidden="true"
-                            />
-                            <input
-                              id="search-field"
-                              className="block rounded-lg border-gray-400 w-full h-10 border py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
-                              placeholder="Search Clients..."
-                              type="search"
-                              name="search"
-                            />
-                          </form>
-                          <div className="relative cursor-pointer bg-lightGray px-2 py-1 rounded-lg flex items-start">
-                            <div className="flex h-6 items-center">
-                              <input
-                                id="comments"
-                                aria-describedby="comments-description"
-                                name="comments"
-                                type="checkbox"
-                                className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
-                              />
-                            </div>
-                            <div className="ml-3 text-sm leading-6">
-                              <label
-                                htmlFor="comments"
-                                className="font-normal text-dark"
-                              >
-                                #Chemistry
+                      {openTags && (
+                        <Menu>
+                          <StyledMenuSection>
+                            <form
+                              className="relative flex flex-1 py-2"
+                              action="#"
+                              method="GET"
+                            >
+                              <label htmlFor="search-field" className="sr-only">
+                                Search
                               </label>
+                              <MagnifyingGlassIcon
+                                className="pl-2 pointer-events-none absolute inset-y-0 left-0 h-full w-7 text-gray-400"
+                                aria-hidden="true"
+                              />
+                              <input
+                                id="search-field"
+                                className="block rounded-lg border-gray-400 w-full h-10 border py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
+                                placeholder="Search Clients..."
+                                type="search"
+                                name="search"
+                              />
+                            </form>
+                            <div className="relative cursor-pointer bg-lightGray px-2 py-1 rounded-lg flex items-start">
+                              <div className="flex h-6 items-center">
+                                <input
+                                  id="comments"
+                                  aria-describedby="comments-description"
+                                  name="comments"
+                                  type="checkbox"
+                                  className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
+                                />
+                              </div>
+                              <div className="ml-3 text-sm leading-6">
+                                <label
+                                  htmlFor="comments"
+                                  className="font-normal text-dark"
+                                >
+                                  #Chemistry
+                                </label>
+                              </div>
                             </div>
-                          </div>
 
-                          <div className="relative cursor-pointer hover:bg-lightGray px-2 py-1 rounded-lg flex items-start">
-                            <div className="flex h-6 items-center">
-                              <input
-                                id="comments"
-                                aria-describedby="comments-description"
-                                name="comments"
-                                type="checkbox"
-                                className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
-                              />
+                            <div className="relative cursor-pointer hover:bg-lightGray px-2 py-1 rounded-lg flex items-start">
+                              <div className="flex h-6 items-center">
+                                <input
+                                  id="comments"
+                                  aria-describedby="comments-description"
+                                  name="comments"
+                                  type="checkbox"
+                                  className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
+                                />
+                              </div>
+                              <div className="ml-3 text-sm leading-6">
+                                <label
+                                  htmlFor="comments"
+                                  className="font-normal text-dark"
+                                >
+                                  #Person
+                                </label>
+                              </div>
                             </div>
-                            <div className="ml-3 text-sm leading-6">
-                              <label
-                                htmlFor="comments"
-                                className="font-normal text-dark"
-                              >
-                                #Person
-                              </label>
-                            </div>
-                          </div>
 
-                          <div className="relative cursor-pointer hover:bg-lightGray px-2 py-1 rounded-lg flex items-start">
-                            <div className="flex h-6 items-center">
-                              <input
-                                id="comments"
-                                aria-describedby="comments-description"
-                                name="comments"
-                                type="checkbox"
-                                className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
-                              />
+                            <div className="relative cursor-pointer hover:bg-lightGray px-2 py-1 rounded-lg flex items-start">
+                              <div className="flex h-6 items-center">
+                                <input
+                                  id="comments"
+                                  aria-describedby="comments-description"
+                                  name="comments"
+                                  type="checkbox"
+                                  className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
+                                />
+                              </div>
+                              <div className="ml-3 text-sm leading-6">
+                                <label
+                                  htmlFor="comments"
+                                  className="font-normal text-dark"
+                                >
+                                  #Favorites
+                                </label>
+                              </div>
                             </div>
-                            <div className="ml-3 text-sm leading-6">
-                              <label
-                                htmlFor="comments"
-                                className="font-normal text-dark"
-                              >
-                                #Favorites
-                              </label>
-                            </div>
-                          </div>
-                        </section>
-                      </Menu>
+                          </StyledMenuSection>
+                        </Menu>
+                      )}
 
                       <button
                         onClick={() => setDeleteAllNotesModal(true)}
@@ -478,9 +435,11 @@ const AllNotesTab = () => {
       </div>
 
       <CustomModal
-        classes="w-[400px] h-auto"
-        openModalBox={deleteNoteModal}
-        closeModal={() => setDeleteNoteModal(false)}
+        modalTitle=""
+        onClose={() => setDeleteNoteModal(false)}
+        isOpen={deleteNoteModal}
+        modalSize="md"
+        style={{ height: "327px", width: "100%" }}
       >
         <DeleteNoteModal
           title={clientsDetails}
@@ -488,30 +447,6 @@ const AllNotesTab = () => {
           setDeleteNoteModal={setDeleteNoteModal}
         />
       </CustomModal>
-
-      {/* Delete Note Modal
-      <Transition.Root show={deleteNoteModal} as={Fragment}>
-        <Dialog as="div" className="relative z-50" onClose={setDeleteNoteModal}>
-          <DeleteNoteModal
-            deleteNoteModal={deleteNoteModal}
-            setDeleteNoteModal={setDeleteNoteModal}
-          />
-        </Dialog>
-      </Transition.Root> */}
-
-      {/* Delete All Notes Modal */}
-      {/* <Transition.Root show={deleteAllNotesModal} as={Fragment}>
-        <Dialog
-          as="div"
-          className="relative z-50"
-          onClose={setDeleteAllNotesModal}
-        >
-          <DeleteAllNotesModal
-            deleteAllNotesModal={deleteAllNotesModal}
-            setDeleteAllNotesModal={setDeleteAllNotesModal}
-          />
-        </Dialog>
-      </Transition.Root> */}
     </>
   );
 };

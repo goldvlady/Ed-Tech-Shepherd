@@ -336,68 +336,6 @@ export default function Layout({ children, className }) {
                 </button>
               )}
 
-              {/* Show if the pathname is notes */}
-              {["notes", "docchat"].includes(pathname) && (
-                <Menu as="div" className="relative">
-                  <div>
-                    <Menu.Button
-                      type="button"
-                      className="inline-flex items-center gap-x-2 rounded-md bg-secondaryBlue px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                    >
-                      <PlusIcon
-                        className="-ml-0.5 h-5 w-5"
-                        aria-hidden="true"
-                      />
-                      Create new
-                    </Menu.Button>
-                  </div>
-
-                  <Transition
-                    as={Fragment}
-                    enter="transition ease-out duration-100"
-                    enterFrom="transform opacity-0 scale-95"
-                    enterTo="transform opacity-100 scale-100"
-                    leave="transition ease-in duration-75"
-                    leaveFrom="transform opacity-100 scale-100"
-                    leaveTo="transform opacity-0 scale-95"
-                  >
-                    <Menu.Items className="absolute space-y-3 p-4 right-0 z-10 mt-2.5 w-[15rem] origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-900/5 focus:outline-none">
-                      <section className="space-y-2">
-                        <button className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2">
-                          <div className=" flex items-center space-x-1">
-                            <div className="bg-white flex justify-center items-center w-8 h-8 border rounded-full">
-                              <UserGroupIcon
-                                className="w-4 h-4 text-secondaryGray"
-                                onClick={undefined}
-                              />
-                            </div>
-                            <h4 className="text-sm text-secondaryGray font-medium">
-                              New Note
-                            </h4>
-                          </div>
-                        </button>
-                        <button
-                          onClick={() => setUploadDocumentModal(true)}
-                          className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
-                        >
-                          <div className="flex items-center space-x-1">
-                            <div className="bg-white border flex justify-center items-center w-8 h-8 rounded-full">
-                              <UserIcon
-                                className="w-4 h-4 text-secondaryGray"
-                                onClick={undefined}
-                              />
-                            </div>
-                            <h4 className="text-sm text-secondaryGray font-medium">
-                              Upload Document
-                            </h4>
-                          </div>
-                        </button>
-                      </section>
-                    </Menu.Items>
-                  </Transition>
-                </Menu>
-              )}
-
               {/* Notification dropdown */}
               <Menu as="div" className="relative">
                 <div>
