@@ -19,6 +19,7 @@ import {
 } from "./styles";
 import { AddIcon } from "@chakra-ui/icons";
 import React, { useState } from "react";
+import { useNavigate } from "react-router";
 
 const notes = [{}];
 
@@ -82,22 +83,25 @@ const tabPanel = [
   },
 ];
 
-const createNewLists = [
-  {
-    id: 1,
-    iconName: <NewNoteIcon />,
-    labelText: "New note",
-  },
-  {
-    id: 2,
-    iconName: <DocIcon />,
-    labelText: "Upload document",
-  },
-];
 const Notes = () => {
+  const navigate = useNavigate();
   const [checkedState, setCheckedState] = useState(
     new Array(filteredBy.length).fill(false)
   );
+
+  const createNewLists = [
+    {
+      id: 1,
+      iconName: <NewNoteIcon />,
+      labelText: "New note",
+      onClick: () => navigate("/new-note"),
+    },
+    {
+      id: 2,
+      iconName: <DocIcon />,
+      labelText: "Upload document",
+    },
+  ];
 
   const handleCheckboxChange = (position: number) => {
     const updatedCheckedState = checkedState.map((item, index) =>
@@ -130,7 +134,7 @@ const Notes = () => {
               >
                 {createNewLists?.map((createNewList) => (
                   <SectionNewList key={createNewList.id}>
-                    <NewList>
+                    <NewList onClick={createNewList.onClick}>
                       {createNewList.iconName}
                       <p>{createNewList.labelText}</p>
                     </NewList>

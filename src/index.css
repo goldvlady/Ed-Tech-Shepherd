@@ -153,6 +153,26 @@ code {
   color: var(--chakra-colors-white);
 }
 
+.rdw-editor-toolbar {
+  padding: 6px 5px 0;
+  border-radius: 100px !important;
+  border: 1px solid #f1f1f1;
+  display: flex;
+  justify-content: flex-start;
+  background: white;
+  flex-wrap: wrap;
+  font-size: 0.9375rem;
+  margin-bottom: 5px;
+  -webkit-user-select: none;
+  user-select: none;
+  position: absolute;
+  left: 20%;
+  bottom: -611px !important;
+  width: 66% !important;
+  padding: 10px 46px !important;
+  box-shadow: 0px 8px 16px 0px #4d4d4d14;
+}
+
 canvas {
   width: 100% !important;
 }
