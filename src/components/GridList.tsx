@@ -1,4 +1,4 @@
-import React from "react"
+import React, { JSX } from 'react';
 
 export default function GridList(): JSX.Element {
   return (
@@ -11,7 +11,9 @@ export default function GridList(): JSX.Element {
           <span className="absolute inset-0" aria-hidden="true" />
           <p className="text-sm font-medium text-white/90">Total earned</p>
           <p className="text-2xl font-semibold text-white">$5160.50</p>
-          <p className="truncate text-sm text-white/90">24hrs of tutoring completed!</p>
+          <p className="truncate text-sm text-white/90">
+            24hrs of tutoring completed!
+          </p>
         </div>
       </div>
       <div className="relative flex items-center space-x-3 rounded-lg border border-gray-300 bg-gray-50 overflow-hidden px-4 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400">
@@ -22,7 +24,9 @@ export default function GridList(): JSX.Element {
           <span className="absolute inset-0" aria-hidden="true" />
           <p className="text-sm font-medium text-gray-400">Total Clients</p>
           <p className="text-2xl font-semibold">314</p>
-          <p className="truncate text-sm text-green-400">+ Increased 10% this month</p>
+          <p className="truncate text-sm text-green-400">
+            + Increased 10% this month
+          </p>
         </div>
       </div>
       <div className="relative overflow-hidden flex items-center space-x-3 rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400">
@@ -33,9 +37,11 @@ export default function GridList(): JSX.Element {
           <span className="absolute inset-0" aria-hidden="true" />
           <p className="text-sm font-medium text-gray-400">Current clients</p>
           <p className="text-2xl font-semibold">20</p>
-          <p className="truncate text-sm text-red-400">- Decreased 10% this month</p>
+          <p className="truncate text-sm text-red-400">
+            - Decreased 10% this month
+          </p>
         </div>
       </div>
     </div>
-  )
+  );
 }

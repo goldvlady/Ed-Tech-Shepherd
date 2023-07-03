@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { Box, Button, Flex, Text } from "@chakra-ui/react";
-import { ArrowBackIcon } from "@chakra-ui/icons";
-import { motion, AnimatePresence } from "framer-motion";
+import { ArrowBackIcon } from '@chakra-ui/icons';
+import { Box, Button, Flex, Text } from '@chakra-ui/react';
+import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
 
 interface StepsLayoutProps {
   currentStep: number;
@@ -13,16 +13,16 @@ interface StepsLayoutProps {
   onBackClick: () => void;
   onNextClick: () => void;
   children: React.ReactNode;
-  isValid: boolean
+  isValid: boolean;
 }
 
 // Helper function to format the nextStep text
 const formatNextStepText = (nextStep: string) => {
-  if (!nextStep) return ""
-  const words = nextStep.split("_").map((word) => {
+  if (!nextStep) return '';
+  const words = nextStep.split('_').map((word) => {
     return word.charAt(0).toUpperCase() + word.slice(1);
   });
-  return words.join(" ");
+  return words.join(' ');
 };
 
 const StepsLayout: React.FC<StepsLayoutProps> = ({
@@ -37,9 +37,8 @@ const StepsLayout: React.FC<StepsLayoutProps> = ({
   children,
   isValid
 }) => {
-  const [mainTextAnimationComplete, setMainTextAnimationComplete] = useState(
-    false
-  );
+  const [mainTextAnimationComplete, setMainTextAnimationComplete] =
+    useState(false);
   const [supportingTextAnimationComplete, setSupportingTextAnimationComplete] =
     useState(false);
 
@@ -51,23 +50,22 @@ const StepsLayout: React.FC<StepsLayoutProps> = ({
   const containerVariants = {
     hidden: { opacity: 0, x: -20 },
     visible: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: 20 },
+    exit: { opacity: 0, x: 20 }
   };
 
   const textVariants = {
     hidden: { opacity: 0, y: -20 },
     visible: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: 20 },
+    exit: { opacity: 0, y: 20 }
   };
 
   const childrenVariants = {
     hidden: { opacity: 0, x: -20 },
     visible: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: 20 },
+    exit: { opacity: 0, x: 20 }
   };
 
   const formattedNextStepText = formatNextStepText(nextStep);
-
 
   const handleMainTextAnimationComplete = () => {
     setMainTextAnimationComplete(true);
@@ -87,9 +85,9 @@ const StepsLayout: React.FC<StepsLayoutProps> = ({
       <Box
         border="1px solid #EBECF0"
         borderRadius="12px"
-        marginTop={"100px"}
-        minWidth={"600px"}
-        maxWidth={"800px"}
+        marginTop={'100px'}
+        minWidth={'600px'}
+        maxWidth={'800px'}
         padding="30px"
         width="fit-content"
         position="relative"
@@ -104,13 +102,13 @@ const StepsLayout: React.FC<StepsLayoutProps> = ({
             padding="7px 15px"
             background="#F1F2F3"
             borderRadius="50px"
-            color={"#585F68"}
+            color={'#585F68'}
           >
             Step {currentStep} of {totalSteps}
           </Box>
           <Text
             fontWeight="500"
-            marginLeft={"20px"}
+            marginLeft={'20px'}
             marginBottom={0}
             fontSize="14px"
             lineHeight="17px"
@@ -124,7 +122,7 @@ const StepsLayout: React.FC<StepsLayoutProps> = ({
           key={`mainText-${currentStep}`}
           variants={textVariants}
           initial="hidden"
-          animate={mainTextAnimationComplete ? "visible" : "hidden"}
+          animate={mainTextAnimationComplete ? 'visible' : 'hidden'}
           exit="exit"
           onAnimationComplete={handleMainTextAnimationComplete}
         >
@@ -133,7 +131,7 @@ const StepsLayout: React.FC<StepsLayoutProps> = ({
             fontStyle="normal"
             fontWeight={600}
             fontSize="24px"
-            marginTop={"40px"}
+            marginTop={'40px'}
             width="85%"
             lineHeight="34px"
             letterSpacing="-0.02em"
@@ -150,7 +148,7 @@ const StepsLayout: React.FC<StepsLayoutProps> = ({
           key={`supportingText-${currentStep}`}
           variants={textVariants}
           initial="hidden"
-          animate={supportingTextAnimationComplete ? "visible" : "hidden"}
+          animate={supportingTextAnimationComplete ? 'visible' : 'hidden'}
           exit="exit"
           onAnimationComplete={handleSupportingTextAnimationComplete}
         >
@@ -182,7 +180,7 @@ const StepsLayout: React.FC<StepsLayoutProps> = ({
                 transition={{ duration: 0.1 }}
               >
                 {React.cloneElement(children as React.ReactElement, {
-                  key: currentStep,
+                  key: currentStep
                 })}
               </motion.div>
             )}
@@ -190,8 +188,8 @@ const StepsLayout: React.FC<StepsLayoutProps> = ({
         </Box>
 
         <Flex
-          marginTop={"48px"}
-          marginBottom={"40px"}
+          marginTop={'48px'}
+          marginBottom={'40px'}
           justifyContent="space-between"
         >
           {currentStep > 1 ? (
@@ -202,8 +200,8 @@ const StepsLayout: React.FC<StepsLayoutProps> = ({
               onClick={onBackClick}
               display="flex"
               alignItems="center"
-              color={"#6E7682"}
-              justifyContent={"center"}
+              color={'#6E7682'}
+              justifyContent={'center'}
             >
               <Box
                 borderRadius="full"
@@ -214,9 +212,9 @@ const StepsLayout: React.FC<StepsLayoutProps> = ({
                 marginRight="10px"
                 display="flex"
                 alignItems="center"
-                justifyContent={"center"}
+                justifyContent={'center'}
               >
-                <ArrowBackIcon color={"#969CA6"} fontSize={"24px"} />
+                <ArrowBackIcon color={'#969CA6'} fontSize={'24px'} />
               </Box>
               Back
             </Button>
@@ -234,7 +232,7 @@ const StepsLayout: React.FC<StepsLayoutProps> = ({
             borderRadius="8px"
             color="white"
           >
-            {"Next ->"} {formattedNextStepText}
+            {'Next ->'} {formattedNextStepText}
           </Button>
         </Flex>
       </Box>

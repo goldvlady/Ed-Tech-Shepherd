@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import onboardTutorStore from '../../../../state/onboardTutorStore';
 import {
   Box,
   FormControl,
@@ -9,15 +9,15 @@ import {
   InputLeftElement,
   InputRightElement,
   Text,
-  Stack,
-} from "@chakra-ui/react";
-import onboardTutorStore from "../../../../state/onboardTutorStore";
+  Stack
+} from '@chakra-ui/react';
+import React, { useState, useMemo } from 'react';
 
 const HourlyRateForm: React.FC = () => {
-  const {rate: hourlyRate} = onboardTutorStore.useStore()
+  const { rate: hourlyRate } = onboardTutorStore.useStore();
 
   const tutorEarnings = useMemo(() => {
-    const baseEarning: number = 0;
+    const baseEarning = 0;
     if (!hourlyRate) return baseEarning.toFixed(2);
     const rateNumber = hourlyRate;
     const feePercentage = 0.05;
@@ -26,8 +26,7 @@ const HourlyRateForm: React.FC = () => {
     return earnings.toFixed(2);
   }, [hourlyRate]);
 
-  const 
-  handleHourlyRateChange = (
+  const handleHourlyRateChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const rate = event.target.value;
@@ -56,7 +55,7 @@ const HourlyRateForm: React.FC = () => {
           <InputGroup
             bg="#FFFFFF"
             _active={{
-              border: "1px solid #207df7",
+              border: '1px solid #207df7'
             }}
             border="1px solid #E4E5E7"
             boxShadow="0px 2px 6px rgba(136, 139, 143, 0.1)"
@@ -71,7 +70,7 @@ const HourlyRateForm: React.FC = () => {
             <Input
               type="number"
               value={hourlyRate}
-              marginLeft={"30px"}
+              marginLeft={'30px'}
               onChange={handleHourlyRateChange}
               placeholder="0.00"
               bg="transparent"
@@ -79,25 +78,25 @@ const HourlyRateForm: React.FC = () => {
               boxShadow="none"
               borderRadius="none"
               _active={{
-                border: "none",
+                border: 'none'
               }}
               _placeholder={{
-                fontStyle: "normal",
+                fontStyle: 'normal',
                 fontWeight: 400,
                 fontSize: 14,
-                lineHeight: "20px",
-                letterSpacing: "-0.003em",
-                color: "#9A9DA2",
+                lineHeight: '20px',
+                letterSpacing: '-0.003em',
+                color: '#9A9DA2'
               }}
-            />{" "}
+            />{' '}
             <InputRightElement
               pointerEvents="none"
               color="gray.300"
               fontSize="1.2em"
             >
               <Box
-                fontSize={"sm"}
-                color={"black"}
+                fontSize={'sm'}
+                color={'black'}
                 padding="2px 6px"
                 background="#F1F2F3"
                 borderRadius="5px"
@@ -108,12 +107,12 @@ const HourlyRateForm: React.FC = () => {
           </InputGroup>
         </FormControl>
         <HStack
-          display={"flex"}
+          display={'flex'}
           fontSize="sm"
           alignItems="baseline"
           fontWeight="500"
         >
-          <Text color={"#6E7682"}>Shepherd charges a</Text>
+          <Text color={'#6E7682'}>Shepherd charges a</Text>
           <Text color="#207DF7">5% service fee (-$3.00/hr)</Text>
         </HStack>
         <FormControl>
@@ -130,7 +129,7 @@ const HourlyRateForm: React.FC = () => {
           <InputGroup
             bg="#F1F2F3"
             _active={{
-              border: "1px solid #207df7",
+              border: '1px solid #207df7'
             }}
             border="1px solid #E4E5E7"
             boxShadow="0px 2px 6px rgba(136, 139, 143, 0.1)"
@@ -147,16 +146,16 @@ const HourlyRateForm: React.FC = () => {
               value={tutorEarnings}
               isDisabled
               bg="#F5F6F7"
-              marginLeft={"30px"}
+              marginLeft={'30px'}
               border="1px solid #E4E5E7"
               borderRadius="6px"
               _placeholder={{
-                fontStyle: "normal",
+                fontStyle: 'normal',
                 fontWeight: 400,
                 fontSize: 14,
-                lineHeight: "20px",
-                letterSpacing: "-0.003em",
-                color: "#9A9DA2",
+                lineHeight: '20px',
+                letterSpacing: '-0.003em',
+                color: '#9A9DA2'
               }}
             />
             <InputRightElement
@@ -165,8 +164,8 @@ const HourlyRateForm: React.FC = () => {
               fontSize="1.2em"
             >
               <Box
-                fontSize={"sm"}
-                color={"black"}
+                fontSize={'sm'}
+                color={'black'}
                 padding="2px 6px"
                 background="#F1F2F3"
                 borderRadius="5px"

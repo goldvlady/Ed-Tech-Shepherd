@@ -1,4 +1,4 @@
-import { useMnemonicSetupState } from "../../context/mneomics";
+import { useMnemonicSetupState } from '../../context/mneomics';
 import {
   Box,
   Button,
@@ -6,10 +6,10 @@ import {
   FormLabel,
   Textarea,
   HStack,
-  Text,
-} from "@chakra-ui/react";
-import { AnimatePresence, motion } from "framer-motion";
-import React, { ChangeEvent, useEffect, useMemo } from "react";
+  Text
+} from '@chakra-ui/react';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { ChangeEvent, useEffect, useMemo } from 'react';
 
 interface IInput {
   labelInput: string;
@@ -23,8 +23,9 @@ const MnemonicSetup: React.FC = () => {
 
   useEffect(() => {
     if (mnemonics?.length < 1) {
-      addMnemonic({ prompt: "", answer: "", explanation: "" });
+      addMnemonic({ prompt: '', answer: '', explanation: '' });
     }
+    /* eslint-disable */
   }, [mnemonics]);
 
   const handleInputChange = (
@@ -36,7 +37,7 @@ const MnemonicSetup: React.FC = () => {
   };
 
   const handleAddInput = () => {
-    addMnemonic({ prompt: "", answer: "", explanation: "" });
+    addMnemonic({ prompt: '', answer: '', explanation: '' });
   };
 
   return (
@@ -53,7 +54,7 @@ const MnemonicSetup: React.FC = () => {
         </FormLabel>
         <FormLabel
           fontSize="14px"
-          w={"70%"}
+          w={'70%'}
           marginBottom="25px"
           fontWeight="400"
           lineHeight="20px"
@@ -74,7 +75,7 @@ const MnemonicSetup: React.FC = () => {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
             >
-              <FormControl mb={"20px"}>
+              <FormControl mb={'20px'}>
                 <FormLabel
                   fontSize="12px"
                   fontWeight="500"
@@ -90,7 +91,7 @@ const MnemonicSetup: React.FC = () => {
                   placeholder="e.g Create a mnemonic device for remembering the names of amino acids"
                   value={x.prompt}
                   onChange={(e) => handleInputChange(e, i)}
-                  _placeholder={{ fontSize: "14px", color: "#9A9DA2" }}
+                  _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
                 />
               </FormControl>
             </motion.div>
@@ -99,29 +100,29 @@ const MnemonicSetup: React.FC = () => {
       </AnimatePresence>
       <Button
         aria-label="Edit"
-        height={"fit-content"}
-        width={"fit-content"}
+        height={'fit-content'}
+        width={'fit-content'}
         variant="unstyled"
         fontWeight={500}
-        fontSize={"12px"}
+        fontSize={'12px'}
         p={0}
-        color={"#207DF7"}
-        _hover={{ bg: "none", padding: "0px" }}
-        _active={{ bg: "none", padding: "0px" }}
-        _focus={{ boxShadow: "none" }}
+        color={'#207DF7'}
+        _hover={{ bg: 'none', padding: '0px' }}
+        _active={{ bg: 'none', padding: '0px' }}
+        _focus={{ boxShadow: 'none' }}
         colorScheme="primary"
         onClick={handleAddInput}
       >
         + Add More
       </Button>
-      <HStack w="full" align={"flex-end"}>
+      <HStack w="full" align={'flex-end'}>
         <Button
           variant="solid"
           isDisabled={!isValid}
           colorScheme="primary"
           size="sm"
           ml="auto"
-          fontSize={"14px"}
+          fontSize={'14px'}
           mt={10}
           padding="20px 25px"
           onClick={() => generateMneomics()}
@@ -131,7 +132,7 @@ const MnemonicSetup: React.FC = () => {
             height="17"
             viewBox="0 0 17 17"
             fill="none"
-            style={{ marginRight: "10px" }}
+            style={{ marginRight: '10px' }}
             xmlns="http://www.w3.org/2000/svg"
           >
             <path

@@ -1,5 +1,5 @@
-import { Text } from "@chakra-ui/react";
-import React from "react";
+import { Text } from '@chakra-ui/react';
+import React, { JSX } from 'react';
 
 export default function AllMessagesTab(): JSX.Element {
   return (

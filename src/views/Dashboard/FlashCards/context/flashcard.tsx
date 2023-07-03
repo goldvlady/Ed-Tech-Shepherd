@@ -4,8 +4,8 @@ import React, {
   useEffect,
   useCallback,
   useContext,
-  useMemo,
-} from "react";
+  useMemo
+} from 'react';
 
 interface FlashcardData {
   deckname: string;
@@ -45,22 +45,22 @@ export const useFlashCardState = () => {
   const context = useContext(FlashcardDataContext);
   if (!context) {
     throw new Error(
-      "useFlashcardDataContext must be used within a FlashcardDataProvider"
+      'useFlashcardDataContext must be used within a FlashcardDataProvider'
     );
   }
   return context;
 };
 
 const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
+  children
 }) => {
   const [flashcardData, setFlashcardData] = useState<FlashcardData>({
-    deckname: "",
-    studyType: "",
-    studyPeriod: "",
+    deckname: '',
+    studyType: '',
+    studyPeriod: '',
     numOptions: 0,
-    timerDuration: "",
-    hasSubmitted: false,
+    timerDuration: '',
+    hasSubmitted: false
   });
 
   const [questions, setQuestions] = useState<FlashcardQuestion[]>([]);
@@ -71,7 +71,7 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const goToQuestion = useCallback(
     (arg: number | ((previousIndex: number) => number)) => {
-      const index = typeof arg === "function" ? arg(currentQuestionIndex) : arg;
+      const index = typeof arg === 'function' ? arg(currentQuestionIndex) : arg;
       setCurrentQuestionIndex(index);
     },
     [currentQuestionIndex]
@@ -94,10 +94,10 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     const questionsEmptyState = {
-      questionType: "",
-      question: "",
+      questionType: '',
+      question: '',
       options: [], // Initialized options as empty array
-      answer: "",
+      answer: ''
     };
 
     if (flashcardData.numOptions) {
@@ -122,7 +122,7 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
       goToQuestion,
       deleteQuestion,
       setQuestions,
-      goToNextStep: () => setCurrentStep((prev) => prev + 1),
+      goToNextStep: () => setCurrentStep((prev) => prev + 1)
     }),
     [
       flashcardData,
@@ -132,7 +132,7 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
       currentQuestionIndex,
       goToQuestion,
       deleteQuestion,
-      setQuestions,
+      setQuestions
     ]
   );
 

@@ -1,25 +1,25 @@
-import { Text } from "@chakra-ui/react";
-import { useState, useEffect } from "react";
+import { Text } from '@chakra-ui/react';
+import { useState, useEffect } from 'react';
 
 const Chat = () => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const prompts = [
     "Explain this document to me like I'm five",
-    "Who wrote this book?",
-    "How many chapters are in this book?",
+    'Who wrote this book?',
+    'How many chapters are in this book?'
   ];
 
   useEffect(() => {
-    window.addEventListener("resize", () => {
+    window.addEventListener('resize', () => {
       const chatbotWidth =
-        document.getElementById("chatbot")?.clientWidth || 647;
+        document.getElementById('chatbot')?.clientWidth || 647;
       // ts-ignore
       setChatbotSpace(chatbotWidth + 24);
     });
-    return window.removeEventListener("resize", () => {
+    return window.removeEventListener('resize', () => {
       const chatbotWidth =
-        document.getElementById("chatbot")?.clientWidth || 647;
+        document.getElementById('chatbot')?.clientWidth || 647;
       // ts-ignore
       setChatbotSpace(chatbotWidth + 24);
     });
@@ -28,12 +28,10 @@ const Chat = () => {
   const handleQuery = (e) => {
     const query = e.target.value;
     setQuery(query);
-    console.log(query);
   };
 
   const handleSubmitQuery = (e) => {
     e.preventDefault();
-    console.log("Submitted", query);
   };
   return (
     <form className="lg:col-span-6 flex-auto h-full" id="chatbot">

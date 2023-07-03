@@ -1,54 +1,24 @@
-import TutorAvi from "../../assets/tutoravi.svg";
-import { useTitle } from "../../hooks";
-import ApiService from "../../services/ApiService";
-import bookmarkedTutorsStore from "../../state/bookmarkedTutorsStore";
-import TutorCard from "./components/TutorCard";
-import {
-  Box,
-  Flex,
-  SimpleGrid,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-  Text,
-} from "@chakra-ui/react";
-import React, { useCallback, useEffect, useState } from "react";
+import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
+import TutorCard from './components/TutorCard';
+import { Box, Flex, SimpleGrid, Text } from '@chakra-ui/react';
+import { useCallback, useEffect } from 'react';
 
 function BookmarkedTutors() {
-  const [loadingData, setLoadingData] = useState(false);
-
-  // const getBookmarkedTutors = async () => {
-  //   setLoadingData(true);
-  //   try {
-  //     const resp = await ApiService.getBookmarkedTutors();
-  //     const data = await resp.json();
-
-  //     setAllTutors(data);
-  //   } catch (e) {}
-  //   setLoadingData(false);
-  // };
-  // useEffect(() => {
-  //   getBookmarkedTutors();
-  // }, []);
-
   const { fetchBookmarkedTutors, tutors: allTutors } = bookmarkedTutorsStore();
   const doFetchBookmarkedTutors = useCallback(async () => {
     await fetchBookmarkedTutors();
+    /* eslint-disable */
   }, []);
 
   useEffect(() => {
     doFetchBookmarkedTutors();
   }, [doFetchBookmarkedTutors]);
 
-  console.log("saved tutors", allTutors);
-
   return (
     <>
-      <Box p={3} minH={"100vh"}>
-        {" "}
-        <Flex alignItems={"center"} gap={1}>
+      <Box p={3} minH={'100vh'}>
+        {' '}
+        <Flex alignItems={'center'} gap={1}>
           <Box>
             <Text fontSize={24} fontWeight={600} color="text.200" mb={0}>
               Saved Tutors
@@ -59,11 +29,9 @@ function BookmarkedTutors() {
           </Box>
         </Flex>
         <SimpleGrid
-          // minChildWidth="360px"
-          justifyItems={"left"}
-          templateColumns={{ sm: "repeat(1, 1fr)", lg: "repeat(3, 1fr)" }}
+          justifyItems={'left'}
+          templateColumns={{ sm: 'repeat(1, 1fr)', lg: 'repeat(3, 1fr)' }}
           mt={2}
-          // spacingX="-40px"
           spacingY="20px"
           gap={3}
         >
@@ -72,7 +40,7 @@ function BookmarkedTutors() {
               key={tutor.tutor?._id}
               id={tutor.tutor?._id}
               name={`${tutor.tutor.user.name.first} ${tutor.tutor.user.name.last}`}
-              levelOfEducation={"BSC"}
+              levelOfEducation={'BSC'}
               avatar={tutor.tutor.user.avatar}
               saved={true}
               description={tutor.tutor?.description}
