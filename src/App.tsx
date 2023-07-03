@@ -206,6 +206,7 @@ const AppRoutes: React.FC = () => {
         }
       >
         <Route element={<DashboardLayout children />} />
+        <Route path="new-note" element={<NewNote />} />
 
         <Route path="flashcards">
           <Route path="create" element={<CreateFlashCard />} />
@@ -245,7 +246,6 @@ const AppRoutes: React.FC = () => {
           />
         }
       />
-      <Route path="new-note" element={<NewNote />} />
       <Route path="notes" element={<Notes />} />
       <Route path="tutordashboard" element={<TutorDashboard />} />
       <Route path="clients" element={<Clients />} />
