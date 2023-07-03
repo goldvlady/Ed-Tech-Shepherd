@@ -5,12 +5,19 @@ interface OfferSummaryProps {
   setDeclineOfferModalState: (state: boolean) => void;
 }
 
-const OfferSummary: FC<OfferSummaryProps> = ({ setOfferModalState, setDeclineOfferModalState }) => {
+const OfferSummary: FC<OfferSummaryProps> = ({
+  setOfferModalState,
+  setDeclineOfferModalState
+}) => {
   return (
     <div className="lg:col-start-3 bg-white lg:col-span-2 lg:row-end-1 p-2 rounded-lg shadow-sm ring-1 ring-gray-900/5">
       <div>
         <div className="h-12 w-12 mx-auto flex items-center justify-center bg-gray-100 p-2 rounded-full">
-          <img src="/svgs/text-document.svg" className="h-6 w-6 text-gray-400" alt="" />
+          <img
+            src="/svgs/text-document.svg"
+            className="h-6 w-6 text-gray-400"
+            alt=""
+          />
         </div>
         <div className="mt-3 text-center sm:mt-5">
           <div className="mt-2">

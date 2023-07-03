@@ -1,6 +1,6 @@
-import userStore from "../state/userStore";
-import theme from "../theme";
-import Logo from "./Logo";
+import userStore from '../state/userStore';
+import theme from '../theme';
+import Logo from './Logo';
 import {
   Avatar,
   Box,
@@ -11,12 +11,12 @@ import {
   MenuItem,
   MenuList,
   Text,
-  useColorModeValue,
-} from "@chakra-ui/react";
-import { getAuth, signOut } from "firebase/auth";
-import * as React from "react";
-import { FiChevronDown } from "react-icons/fi";
-import styled from "styled-components";
+  useColorModeValue
+} from '@chakra-ui/react';
+import { getAuth, signOut } from 'firebase/auth';
+import * as React from 'react';
+import { FiChevronDown } from 'react-icons/fi';
+import styled from 'styled-components';
 
 const Root = styled(Box)`
   height: 72px;
@@ -44,8 +44,8 @@ const Header: React.FC<Props> = ({ left, right, showUserPill = true }) => {
     await signOut(auth);
   };
 
-  const menuListBg = useColorModeValue("white", "gray.900");
-  const menuListBorderColor = useColorModeValue("gray.200", "gray.700");
+  const menuListBg = useColorModeValue('white', 'gray.900');
+  const menuListBorderColor = useColorModeValue('gray.200', 'gray.700');
 
   return (
     <Root as="header">
@@ -61,9 +61,9 @@ const Header: React.FC<Props> = ({ left, right, showUserPill = true }) => {
               <MenuButton
                 py={2}
                 transition="all 0.3s"
-                _focus={{ boxShadow: "none" }}
+                _focus={{ boxShadow: 'none' }}
                 bg="#F4F5F5"
-                borderRadius={"40px"}
+                borderRadius={'40px'}
                 px={3}
               >
                 <HStack>
@@ -78,7 +78,7 @@ const Header: React.FC<Props> = ({ left, right, showUserPill = true }) => {
                     fontWeight={500}
                     color="text.200"
                   >{`${user.name?.first} ${user.name?.last}`}</Text>
-                  <Box display={{ base: "none", md: "flex" }}>
+                  <Box display={{ base: 'none', md: 'flex' }}>
                     <FiChevronDown />
                   </Box>
                 </HStack>

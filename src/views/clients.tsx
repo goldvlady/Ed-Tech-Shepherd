@@ -1,9 +1,9 @@
-import { Layout, AllClientTab } from "../components";
-import { ArrowRightIcon, SortIcon } from "../components/icons";
-import { classNames } from "../helpers";
-import { Text } from "@chakra-ui/react";
-import { Menu, Transition, Tab } from "@headlessui/react";
-import React, { Fragment } from "react";
+import { Layout, AllClientTab } from '../components';
+import { ArrowRightIcon, SortIcon } from '../components/icons';
+import { classNames } from '../helpers';
+import { Text } from '@chakra-ui/react';
+import { Menu, Transition, Tab } from '@headlessui/react';
+import React, { Fragment } from 'react';
 
 const clients = [{}];
 
@@ -11,7 +11,7 @@ export default function Clients() {
   return (
     <Layout
       className={`${
-        clients.length > 0 ? "bg-white" : "bg-gray-100"
+        clients.length > 0 ? 'bg-white' : 'bg-gray-100'
       } p-3 h-screen`}
     >
       <header className="flex justify-between">
@@ -101,9 +101,9 @@ export default function Clients() {
                     <span
                       className={classNames(
                         selected
-                          ? "border-primaryBlue text-primaryBlue"
-                          : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
-                        "group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium"
+                          ? 'border-primaryBlue text-primaryBlue'
+                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+                        'group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium'
                       )}
                     >
                       All clients
@@ -115,9 +115,9 @@ export default function Clients() {
                     <span
                       className={classNames(
                         selected
-                          ? "border-primaryBlue text-primaryBlue"
-                          : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
-                        "group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium"
+                          ? 'border-primaryBlue text-primaryBlue'
+                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+                        'group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium'
                       )}
                     >
                       Active
@@ -129,9 +129,9 @@ export default function Clients() {
                     <span
                       className={classNames(
                         selected
-                          ? "border-primaryBlue text-primaryBlue"
-                          : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
-                        "group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium"
+                          ? 'border-primaryBlue text-primaryBlue'
+                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+                        'group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium'
                       )}
                     >
                       Pending
@@ -143,9 +143,9 @@ export default function Clients() {
                     <span
                       className={classNames(
                         selected
-                          ? "border-primaryBlue text-primaryBlue"
-                          : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
-                        "group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium"
+                          ? 'border-primaryBlue text-primaryBlue'
+                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+                        'group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium'
                       )}
                     >
                       Ended

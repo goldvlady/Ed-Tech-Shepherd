@@ -1,5 +1,5 @@
-import { Box, Badge } from "@chakra-ui/react";
-import React, { ReactNode, useMemo, useState } from "react";
+import { Box, Badge } from '@chakra-ui/react';
+import React, { ReactNode, useMemo, useState } from 'react';
 
 interface CustomBadgeProps {
   text: string;
@@ -12,7 +12,7 @@ const CustomBadge: React.FC<CustomBadgeProps> = ({
   text,
   icon,
   isActive,
-  onClick,
+  onClick
 }) => {
   const [isHovored, setIsHovered] = useState(false);
   const hasBeenActivated = useMemo(
@@ -31,8 +31,8 @@ const CustomBadge: React.FC<CustomBadgeProps> = ({
       borderRadius="100px"
       background={
         hasBeenActivated
-          ? "linear-gradient(0deg, #6E7682, #6E7682), linear-gradient(0deg, #EAEBEB, #EAEBEB)"
-          : "transparent"
+          ? 'linear-gradient(0deg, #6E7682, #6E7682), linear-gradient(0deg, #EAEBEB, #EAEBEB)'
+          : 'transparent'
       }
       border="1px solid #EAEBEB"
       cursor="pointer"
@@ -40,9 +40,9 @@ const CustomBadge: React.FC<CustomBadgeProps> = ({
     >
       {icon(hasBeenActivated)}
       <Box
-        marginLeft={"10px"}
+        marginLeft={'10px'}
         fontSize="14px"
-        color={hasBeenActivated ? "#FFFFFF" : "#3B3F45"}
+        color={hasBeenActivated ? '#FFFFFF' : '#3B3F45'}
       >
         {text}
       </Box>

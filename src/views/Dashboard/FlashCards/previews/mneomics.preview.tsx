@@ -1,13 +1,13 @@
-import MnemonicCard from "../components/mneomics_preview_card";
-import OptionBadge from "../components/optionBadge";
-import { useMnemonicSetupState } from "../context/mneomics";
-import { TypeEnum } from "../create";
-import { Box, Button, HStack, Text, VStack, Flex } from "@chakra-ui/react";
-import React, { useMemo } from "react";
+import MnemonicCard from '../components/mneomics_preview_card';
+import OptionBadge from '../components/optionBadge';
+import { useMnemonicSetupState } from '../context/mneomics';
+import { TypeEnum } from '../create';
+import { Box, Button, HStack, Text, VStack, Flex } from '@chakra-ui/react';
+import React, { useMemo } from 'react';
 
 export default function MnemonicPreview({
   activeBadge,
-  handleBadgeClick,
+  handleBadgeClick
 }: {
   activeBadge?: TypeEnum;
   handleBadgeClick: (v: TypeEnum) => void;
@@ -40,7 +40,6 @@ export default function MnemonicPreview({
           <OptionBadge
             text="Flashcards"
             icon={(isActive) => {
-              console.log("isActive ==>", isActive);
               return (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -49,7 +48,7 @@ export default function MnemonicPreview({
                   strokeWidth={1.5}
                   stroke="currentColor"
                   className="w-6 h-6"
-                  color={isActive ? "#FFFFFF" : "#6E7682"}
+                  color={isActive ? '#FFFFFF' : '#6E7682'}
                 >
                   <path
                     strokeLinecap="round"
@@ -72,7 +71,7 @@ export default function MnemonicPreview({
                 strokeWidth={1.5}
                 stroke="currentColor"
                 className="w-6 h-6"
-                color={isActive ? "#FFFFFF" : "#6E7682"}
+                color={isActive ? '#FFFFFF' : '#6E7682'}
               >
                 <path
                   strokeLinecap="round"
@@ -102,13 +101,13 @@ export default function MnemonicPreview({
         overflowY="scroll"
         paddingBottom="100px"
         css={{
-          "&::-webkit-scrollbar": {
-            display: "none",
+          '&::-webkit-scrollbar': {
+            display: 'none'
           },
-          maskImage: "linear-gradient(to bottom, black 90%, transparent)",
+          maskImage: 'linear-gradient(to bottom, black 90%, transparent)'
         }}
       >
-        <VStack spacing={10} width={"100%"}>
+        <VStack spacing={10} width={'100%'}>
           {readyMneomics.map((mneomics) => (
             <MnemonicCard
               answer={mneomics.answer}

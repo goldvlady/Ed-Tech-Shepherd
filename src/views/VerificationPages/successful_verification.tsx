@@ -1,9 +1,9 @@
-import { Box, Text, Button } from "@chakra-ui/react";
-import { useNavigate } from "react-router";
-import { User, getAuth, onAuthStateChanged } from "firebase/auth";
-import React, { useEffect, useState } from "react";
-import styled from "styled-components";
-import Header from "../../components/Header";
+import Header from '../../components/Header';
+import { Box, Text, Button } from '@chakra-ui/react';
+import { User, getAuth, onAuthStateChanged } from 'firebase/auth';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
+import styled from 'styled-components';
 
 const Root = styled(Box)`
   display: flex;
@@ -30,11 +30,11 @@ const VerificationSuccess = () => {
       <Header />
       <Root>
         <Box
-          display={"flex"}
-          maxWidth={"55%"}
-          flexDirection={"column"}
-          justifyContent={"center"}
-          alignItems={"center"}
+          display={'flex'}
+          maxWidth={'55%'}
+          flexDirection={'column'}
+          justifyContent={'center'}
+          alignItems={'center'}
           width="100%"
           margin="150px"
           paddingY="100px"
@@ -78,25 +78,25 @@ const VerificationSuccess = () => {
           </Text>
           <Text
             fontSize="md"
-            fontWeight={"400"}
-            width={"65%"}
+            fontWeight={'400'}
+            width={'65%'}
             color="#585F68"
             textAlign="center"
             mt={1}
             lineHeight="1.5"
           >
             We’ve sent an email to the address: We will send you an email to the
-            address:{"   "}
+            address:{'   '}
             <Text as="span" color="blue.500">
               {firebaseUser?.email}
-            </Text>{" "}
-            , Check your mail click on the link provided to finish setting up.{" "}
+            </Text>{' '}
+            , Check your mail click on the link provided to finish setting up.{' '}
           </Text>
 
           <Text
             fontSize="md"
-            fontWeight={"400"}
-            width={"60%"}
+            fontWeight={'400'}
+            width={'60%'}
             color="#585F68"
             textAlign="center"
             mt={50}
@@ -106,16 +106,16 @@ const VerificationSuccess = () => {
             <Text
               cursor="pointer"
               marginLeft={2}
-              fontWeight={"bold"}
+              fontWeight={'bold'}
               as="span"
               color="blue.500"
             >
               resend mail
-            </Text>{" "}
+            </Text>{' '}
           </Text>
 
           <Button
-            onClick={() => navigate("/complete_profile")}
+            onClick={() => navigate('/complete_profile')}
             display="flex"
             flexDirection="row"
             justifyContent="center"

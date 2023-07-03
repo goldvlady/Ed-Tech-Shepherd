@@ -1,16 +1,16 @@
-import CalendarDateInput from "../components/CalendarDateInput";
-import LinedList from "../components/LinedList";
-import PageTitle from "../components/PageTitle";
-import Panel from "../components/Panel";
-import Select, { Option } from "../components/Select";
-import TimePicker from "../components/TimePicker";
-import TutorCard from "../components/TutorCard";
-import { useTitle } from "../hooks";
-import ApiService from "../services/ApiService";
-import resourceStore from "../state/resourceStore";
-import theme from "../theme";
-import { Tutor } from "../types";
-import { numberToDayOfWeekName } from "../util";
+import CalendarDateInput from '../components/CalendarDateInput';
+import LinedList from '../components/LinedList';
+import PageTitle from '../components/PageTitle';
+import Panel from '../components/Panel';
+import Select, { Option } from '../components/Select';
+import TimePicker from '../components/TimePicker';
+import TutorCard from '../components/TutorCard';
+import { useTitle } from '../hooks';
+import ApiService from '../services/ApiService';
+import resourceStore from '../state/resourceStore';
+import theme from '../theme';
+import { Tutor } from '../types';
+import { numberToDayOfWeekName } from '../util';
 import {
   Alert,
   AlertDescription,
@@ -37,18 +37,18 @@ import {
   Text,
   Textarea,
   VStack,
-  useDisclosure,
-} from "@chakra-ui/react";
-import { Field, FieldProps, Form, Formik, FormikProps } from "formik";
-import { capitalize, isEmpty } from "lodash";
-import moment from "moment";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { BsQuestionCircleFill } from "react-icons/bs";
-import { FiChevronRight } from "react-icons/fi";
-import { MdInfo } from "react-icons/md";
-import { useNavigate, useParams } from "react-router";
-import styled from "styled-components";
-import * as Yup from "yup";
+  useDisclosure
+} from '@chakra-ui/react';
+import { Field, FieldProps, Form, Formik, FormikProps } from 'formik';
+import { capitalize, isEmpty } from 'lodash';
+import moment from 'moment';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { BsQuestionCircleFill } from 'react-icons/bs';
+import { FiChevronRight } from 'react-icons/fi';
+import { MdInfo } from 'react-icons/md';
+import { useNavigate, useParams } from 'react-router';
+import styled from 'styled-components';
+import * as Yup from 'yup';
 
 const LeftCol = styled(Box)`
   min-height: 100vh;
@@ -58,24 +58,24 @@ const RightCol = styled(Box)``;
 const Root = styled(Box)``;
 
 const TutorOfferSchema = Yup.object().shape({
-  course: Yup.string().required("Select a course"),
-  level: Yup.string().required("Select a level"),
-  days: Yup.array().min(1, "Select days").required("Select days"),
-  schedule: Yup.object().required("Select a schedule"),
+  course: Yup.string().required('Select a course'),
+  level: Yup.string().required('Select a level'),
+  days: Yup.array().min(1, 'Select days').required('Select days'),
+  schedule: Yup.object().required('Select a schedule'),
   note: Yup.string(),
   rate: Yup.number()
-    .required("Enter a rate")
-    .min(1, "Rate has to be greater than 0"),
+    .required('Enter a rate')
+    .min(1, 'Rate has to be greater than 0'),
   //paymentOption: Yup.string().required('Choose a payment option'),
-  expirationDate: Yup.date().required("Select an expiration date"),
-  contractStartDate: Yup.date().required("Select a start date"),
-  contractEndDate: Yup.date().required("Select an end date"),
+  expirationDate: Yup.date().required('Select an expiration date'),
+  contractStartDate: Yup.date().required('Select a start date'),
+  contractEndDate: Yup.date().required('Select an end date')
 });
 
-const levels = ["A - Level", "GCSE", "Grade 12"];
+const levels = ['A - Level', 'GCSE', 'Grade 12'];
 
 const SendTutorOffer = () => {
-  useTitle("Send an offer");
+  useTitle('Send an offer');
 
   const { courses: courseList } = resourceStore();
   const navigate = useNavigate();
@@ -103,25 +103,21 @@ const SendTutorOffer = () => {
   const {
     isOpen: isSuccessModalOpen,
     onOpen: onSuccessModalOpen,
-    onClose: onSuccessModalClose,
+    onClose: onSuccessModalClose
   } = useDisclosure();
 
   const loadTutor = useCallback(async () => {
     setLoadingTutor(true);
-
-    try {
-      const resp = await ApiService.getTutor(tutorId);
-      setTutor(await resp.json());
-    } catch (e) {}
-
+    const resp = await ApiService.getTutor(tutorId);
+    setTutor(await resp.json());
     setLoadingTutor(false);
-  }, []);
+  }, [tutorId]);
 
   const courseOptions = useMemo(
     () =>
       tutor?.coursesAndLevels.map((c) => ({
         label: c.course.label,
-        value: c.course._id,
+        value: c.course._id
       })) || [],
     [tutor]
   );
@@ -132,21 +128,21 @@ const SendTutorOffer = () => {
 
   useEffect(() => {
     loadTutor();
-  }, []);
+  }, [loadTutor]);
 
   const loading = loadingTutor;
 
   const setScheduleValue = (
     value: any,
     day: number,
-    property: "begin" | "end"
+    property: 'begin' | 'end'
   ) => {
-    let scheduleValue = formikRef.current?.values.schedule;
+    const scheduleValue = formikRef.current?.values.schedule;
     if (!scheduleValue[day]) {
       scheduleValue[day] = {};
     }
     scheduleValue[day] = { ...scheduleValue[day], [property]: value };
-    formikRef.current?.setFieldValue("schedule", scheduleValue);
+    formikRef.current?.setFieldValue('schedule', scheduleValue);
   };
 
   const dayOptions = [...new Array(7)]
@@ -160,7 +156,7 @@ const SendTutorOffer = () => {
       <Box className="row">
         <LeftCol mb="32px" className="col-lg-8">
           {loading && (
-            <Box textAlign={"center"}>
+            <Box textAlign={'center'}>
               <Spinner />
             </Box>
           )}
@@ -170,8 +166,8 @@ const SendTutorOffer = () => {
                 <ModalOverlay />
                 <ModalContent>
                   <ModalBody>
-                    <Box w={"100%"} mt={5} textAlign="center">
-                      <Box display={"flex"} justifyContent="center">
+                    <Box w={'100%'} mt={5} textAlign="center">
+                      <Box display={'flex'} justifyContent="center">
                         <svg
                           width="40"
                           height="40"
@@ -191,7 +187,7 @@ const SendTutorOffer = () => {
                           Offer successfully sent
                         </Text>
                         <div style={{ color: theme.colors.text[400] }}>
-                          You’ll be notified within 24 hours once{" "}
+                          You’ll be notified within 24 hours once{' '}
                           {tutor.user.name.first} responds
                         </div>
                       </Box>
@@ -199,7 +195,7 @@ const SendTutorOffer = () => {
                   </ModalBody>
 
                   <ModalFooter>
-                    <Button onClick={() => navigate("/dashboard")}>
+                    <Button onClick={() => navigate('/dashboard')}>
                       Back to dashboard
                     </Button>
                   </ModalFooter>
@@ -225,47 +221,45 @@ const SendTutorOffer = () => {
                 </BreadcrumbItem>
               </Breadcrumb>
               <PageTitle
-                marginTop={"28px"}
+                marginTop={'28px'}
                 mb={10}
                 title="Send an Offer"
                 subtitle={`Provide your contract terms. We’ll notify you via email when ${tutor.user.name.first} responds`}
               />
               <Formik
                 initialValues={{
-                  course: "",
-                  level: "",
+                  course: '',
+                  level: '',
                   days: [],
                   schedule: {},
-                  note: "",
+                  note: '',
                   rate: tutor.rate,
                   expirationDate: new Date(),
                   contractStartDate: null,
-                  contractEndDate: null,
+                  contractEndDate: null
                 }}
                 validationSchema={TutorOfferSchema}
                 innerRef={formikRef}
                 onSubmit={async (values, { setSubmitting }) => {
                   if (isEditing) {
-                    window.scrollTo({ top: 0, behavior: "smooth" });
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                     setIsEditing(false);
                     setSubmitting(false);
                   } else {
-                    try {
-                      await ApiService.createOffer({
-                        ...values,
-                        tutor: tutorId,
-                      });
-                      onSuccessModalOpen();
-                    } catch (e) {}
+                    await ApiService.createOffer({
+                      ...values,
+                      tutor: tutorId
+                    });
+                    onSuccessModalOpen();
                     setSubmitting(false);
                   }
                 }}
               >
                 {({ errors, isSubmitting, values }) => (
                   <Form>
-                    <VStack spacing="32px" alignItems={"stretch"}>
+                    <VStack spacing="32px" alignItems={'stretch'}>
                       <TutorCard tutor={tutor} />
-                      <Panel mt={"32px"}>
+                      <Panel mt={'32px'}>
                         <Text className="sub1" mb={8}>
                           Offer Settings
                         </Text>
@@ -288,7 +282,7 @@ const SendTutorOffer = () => {
                                   />
                                 ) : (
                                   <EditField>
-                                    {moment(field.value).format("MMMM Do YYYY")}
+                                    {moment(field.value).format('MMMM Do YYYY')}
                                   </EditField>
                                 )}
                                 <FormErrorMessage>
@@ -298,7 +292,7 @@ const SendTutorOffer = () => {
                             )}
                           </Field>
                           <SimpleGrid
-                            width={"100%"}
+                            width={'100%'}
                             columns={{ base: 1, sm: 2 }}
                             spacing="15px"
                           >
@@ -314,12 +308,12 @@ const SendTutorOffer = () => {
                                   {isEditing ? (
                                     <CalendarDateInput
                                       inputProps={{
-                                        placeholder: "Select date",
+                                        placeholder: 'Select date',
                                         onClick: () =>
                                           form.setTouched({
                                             ...form.touched,
-                                            [field.name]: true,
-                                          }),
+                                            [field.name]: true
+                                          })
                                       }}
                                       value={field.value}
                                       onChange={(d) =>
@@ -329,7 +323,7 @@ const SendTutorOffer = () => {
                                   ) : (
                                     <EditField>
                                       {moment(field.value).format(
-                                        "MMMM Do YYYY"
+                                        'MMMM Do YYYY'
                                       )}
                                     </EditField>
                                   )}
@@ -351,12 +345,12 @@ const SendTutorOffer = () => {
                                   {isEditing ? (
                                     <CalendarDateInput
                                       inputProps={{
-                                        placeholder: "Select date",
+                                        placeholder: 'Select date',
                                         onClick: () =>
                                           form.setTouched({
                                             ...form.touched,
-                                            [field.name]: true,
-                                          }),
+                                            [field.name]: true
+                                          })
                                       }}
                                       value={field.value}
                                       onChange={(d) =>
@@ -366,7 +360,7 @@ const SendTutorOffer = () => {
                                   ) : (
                                     <EditField>
                                       {moment(field.value).format(
-                                        "MMMM Do YYYY"
+                                        'MMMM Do YYYY'
                                       )}
                                     </EditField>
                                   )}
@@ -405,11 +399,11 @@ const SendTutorOffer = () => {
                                     !!form.errors[field.name] &&
                                     !!form.touched[field.name]
                                   }
-                                  size={"md"}
+                                  size={'md'}
                                   onFocus={() =>
                                     form.setTouched({
                                       ...form.touched,
-                                      [field.name]: true,
+                                      [field.name]: true
                                     })
                                   }
                                   onChange={(option) =>
@@ -437,7 +431,7 @@ const SendTutorOffer = () => {
                         <Field name="level">
                           {({ field, form }: FieldProps) => (
                             <FormControl
-                              mt={"24px"}
+                              mt={'24px'}
                               isInvalid={
                                 !!form.errors[field.name] &&
                                 !!form.touched[field.name]
@@ -456,11 +450,11 @@ const SendTutorOffer = () => {
                                     !!form.errors[field.name] &&
                                     !!form.touched[field.name]
                                   }
-                                  size={"md"}
+                                  size={'md'}
                                   onFocus={() =>
                                     form.setTouched({
                                       ...form.touched,
-                                      [field.name]: true,
+                                      [field.name]: true
                                     })
                                   }
                                   onChange={(option) =>
@@ -488,7 +482,7 @@ const SendTutorOffer = () => {
                         <Field name="days">
                           {({ field, form }: FieldProps) => (
                             <FormControl
-                              mt={"24px"}
+                              mt={'24px'}
                               isInvalid={
                                 !!form.errors[field.name] &&
                                 !!form.touched[field.name]
@@ -507,24 +501,24 @@ const SendTutorOffer = () => {
                                   tagVariant="solid"
                                   placeholder="Select days"
                                   options={dayOptions}
-                                  size={"md"}
+                                  size={'md'}
                                   onFocus={() =>
                                     form.setTouched({
                                       ...form.touched,
-                                      [field.name]: true,
+                                      [field.name]: true
                                     })
                                   }
-                                  // @ts-ignore
+                                  // @ts-ignore: we'll get back to this soon
                                   onChange={(option: Option[]) => {
-                                    let scheduleValue = values.schedule;
-                                    values[field.name].map((fv: string) => {
+                                    const scheduleValue = values.schedule;
+                                    values[field.name].forEach((fv: string) => {
                                       if (
                                         !option.find((opt) => opt.value === fv)
                                       ) {
                                         if (scheduleValue[fv]) {
                                           delete scheduleValue[fv];
                                           form.setFieldValue(
-                                            "schedule",
+                                            'schedule',
                                             scheduleValue
                                           );
                                         }
@@ -544,7 +538,7 @@ const SendTutorOffer = () => {
                                         (d) => d.value === v
                                       )?.label;
                                     })
-                                    .join(", ")}
+                                    .join(', ')}
                                 </EditField>
                               )}
                               <FormErrorMessage>
@@ -553,40 +547,27 @@ const SendTutorOffer = () => {
                             </FormControl>
                           )}
                         </Field>
-                        {/* <Field name='schedule'>
-                                            {({ field, form }: FieldProps) => (
-                                                <FormControl mt={'24px'} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
-                                                    <FormLabel>How often would you like your classes?</FormLabel>
-                                                    {isEditing ? <ButtonGroup width={'100%'} isAttached variant='outline'>
-                                                        {
-                                                            scheduleOptions.map(so => <Button key={so.value} isActive={field.value === so.value} onClick={() => form.setFieldValue(field.name, so.value)}>{so.label}</Button>)
-                                                        }
-                                                    </ButtonGroup> : <EditField>{scheduleOptions.find(so => so.value === field.value)?.label}</EditField>}
-                                                    <FormErrorMessage>{form.errors[field.name] as string}</FormErrorMessage>
-                                                </FormControl>
-                                            )}
-                                        </Field> */}
 
                         {!isEmpty(values.days) && (
-                          <VStack mt={"24px"} spacing={"24px"}>
+                          <VStack mt={'24px'} spacing={'24px'}>
                             {values.days.map((d: number) => (
                               <SimpleGrid
                                 key={d}
-                                width={"100%"}
+                                width={'100%'}
                                 columns={{ base: 1, sm: 2 }}
                                 spacing="15px"
                               >
                                 <FormControl>
                                   <FormLabel>
                                     Start time (
-                                    {numberToDayOfWeekName(d, "ddd")})
+                                    {numberToDayOfWeekName(d, 'ddd')})
                                   </FormLabel>
                                   {isEditing ? (
                                     <TimePicker
-                                      inputProps={{ placeholder: "00:00 AM" }}
-                                      value={values.schedule[d]?.begin ?? ""}
+                                      inputProps={{ placeholder: '00:00 AM' }}
+                                      value={values.schedule[d]?.begin ?? ''}
                                       onChange={(v) =>
-                                        setScheduleValue(v, d, "begin")
+                                        setScheduleValue(v, d, 'begin')
                                       }
                                     />
                                   ) : (
@@ -610,14 +591,14 @@ const SendTutorOffer = () => {
                                 </FormControl>
                                 <FormControl>
                                   <FormLabel>
-                                    End time ({numberToDayOfWeekName(d, "ddd")})
+                                    End time ({numberToDayOfWeekName(d, 'ddd')})
                                   </FormLabel>
                                   {isEditing ? (
                                     <TimePicker
-                                      inputProps={{ placeholder: "00:00 AM" }}
-                                      value={values.schedule[d]?.end ?? ""}
+                                      inputProps={{ placeholder: '00:00 AM' }}
+                                      value={values.schedule[d]?.end ?? ''}
                                       onChange={(v) =>
-                                        setScheduleValue(v, d, "end")
+                                        setScheduleValue(v, d, 'end')
                                       }
                                     />
                                   ) : (
@@ -632,7 +613,7 @@ const SendTutorOffer = () => {
                         )}
                         <Field name="note">
                           {({ field, form }: FieldProps) => (
-                            <FormControl mt={"24px"}>
+                            <FormControl mt={'24px'}>
                               <FormLabel>Add a note</FormLabel>
                               {isEditing ? (
                                 <Textarea
@@ -650,7 +631,7 @@ const SendTutorOffer = () => {
                         <Text className="sub1" mb={0}>
                           Payment Details
                         </Text>
-                        <Box mt={"32px"}>
+                        <Box mt={'32px'}>
                           <Field name="rate">
                             {({ field, form }: FieldProps) => (
                               <FormControl
@@ -666,7 +647,7 @@ const SendTutorOffer = () => {
                                   <InputGroup>
                                     <InputLeftAddon children="$" />
                                     <Input
-                                      type={"number"}
+                                      type={'number'}
                                       {...field}
                                       isInvalid={
                                         !!form.errors[field.name] &&
@@ -681,10 +662,10 @@ const SendTutorOffer = () => {
                                   {form.errors[field.name] as string}
                                 </FormErrorMessage>
                                 <Text
-                                  color={"#585F68"}
+                                  color={'#585F68'}
                                   className="body3"
                                   mb={0}
-                                  mt={"10px"}
+                                  mt={'10px'}
                                 >
                                   {tutor.user.name.first}'s rate is $
                                   {tutor.rate.toFixed(0)}/hr
@@ -692,29 +673,6 @@ const SendTutorOffer = () => {
                               </FormControl>
                             )}
                           </Field>
-                          {/* <Field name='paymentOption'>
-                                                {({ field, form }: FieldProps) => (
-                                                    <FormControl mt={'24px'} isInvalid={!!form.errors[field.name] && !!form.touched[field.name]}>
-                                                        <FormLabel>Payment options</FormLabel>
-                                                        <Box>
-                                                            <LargeSelect showRadio optionProps={{ style: { height: '145px' } }} value={field.value} onChange={(v) => form.setFieldValue(field.name, v)} options={[
-                                                                {
-                                                                    value: "installment",
-                                                                    title: <Box display={'flex'} gap='1px' alignItems='center'><Text color='#000' className='sub2' mb={0}>Pay in installments</Text> <FiArrowRight color='#6E7682' size={'15px'} /><Text color='#000' className='sub2' mb={0}>${values.rate}/hr</Text></Box>,
-                                                                    subtitle: <Text mt={'4px'} mb={0} textAlign={'left'} color={'#585F68'} className='body3'>With this option, the fee will be deducted from your account after each session</Text>,
-                                                                    icon: <BsBookmarkStarFill size={'20px'} style={{ fill: '#6E7682' }} />
-                                                                },
-                                                                {
-                                                                    value: "monthly",
-                                                                    title: <Box display={'flex'} gap='1px' alignItems='center'><Text color='#000' className='sub2' mb={0}>Pay in installments</Text> <FiArrowRight color='#6E7682' size={'15px'} /><Text color='#000' className='sub2' mb={0}>${values.rate}/hr</Text></Box>,
-                                                                    subtitle: <Text mt={'4px'} mb={0} textAlign={'left'} color={'#585F68'} className='body3'>With this option, the total fee for the time frame selected per month will be deducted</Text>,
-                                                                    icon: <RiMoneyDollarCircleFill size={'20px'} style={{ fill: '#6E7682' }} />
-                                                                }
-                                                            ]} />
-                                                        </Box>
-                                                    </FormControl>
-                                                )}
-                                            </Field> */}
 
                           <Alert status="info" mt="18px">
                             <AlertIcon>
@@ -727,14 +685,14 @@ const SendTutorOffer = () => {
                             </AlertDescription>
                           </Alert>
                         </Box>
-                        <Box marginTop={"48px"} textAlign="right">
+                        <Box marginTop={'48px'} textAlign="right">
                           <Button
                             isDisabled={Object.values(errors).length !== 0}
                             size="md"
                             type="submit"
                             isLoading={isSubmitting}
                           >
-                            {isEditing ? "Review Offer" : "Confirm and Send"}
+                            {isEditing ? 'Review Offer' : 'Confirm and Send'}
                           </Button>
                         </Box>
                       </Panel>
@@ -749,8 +707,8 @@ const SendTutorOffer = () => {
           <RightCol height="100%">
             <Panel
               p="24px"
-              borderRadius={"10px"}
-              position={"sticky"}
+              borderRadius={'10px'}
+              position={'sticky'}
               top="90px"
             >
               <HStack>
@@ -758,23 +716,23 @@ const SendTutorOffer = () => {
                 <Text className="sub2">How this Works</Text>
               </HStack>
               <LinedList
-                mt={"20px"}
+                mt={'20px'}
                 items={[
                   {
-                    title: "Send a Proposal",
+                    title: 'Send a Proposal',
                     subtitle:
-                      "Find your desired tutor and prepare an offer on your terms and send to the tutor",
+                      'Find your desired tutor and prepare an offer on your terms and send to the tutor'
                   },
                   {
-                    title: "Get a Response",
+                    title: 'Get a Response',
                     subtitle:
-                      "Proceed to provide your payment details once the tutor accepts your offer",
+                      'Proceed to provide your payment details once the tutor accepts your offer'
                   },
                   {
-                    title: "A Test-Run",
+                    title: 'A Test-Run',
                     subtitle:
-                      "You won’t be charged until after your first session, you may cancel after the first lesson.",
-                  },
+                      'You won’t be charged until after your first session, you may cancel after the first lesson.'
+                  }
                 ]}
               />
             </Panel>

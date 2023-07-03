@@ -1,22 +1,21 @@
-import { Text } from "@chakra-ui/react";
-import { Menu, Transition } from "@headlessui/react";
+import { Text } from '@chakra-ui/react';
+import { Menu, Transition } from '@headlessui/react';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
-  EllipsisHorizontalIcon,
-  MagnifyingGlassMinusIcon,
-  MagnifyingGlassPlusIcon,
-  PencilSquareIcon,
-} from "@heroicons/react/24/outline";
-import React, { useState, Fragment, useEffect } from "react";
-import { Document, Page, pdfjs } from "react-pdf";
-import "tailwindcss/tailwind.css";
+  EllipsisHorizontalIcon // MagnifyingGlassMinusIcon,
+  // MagnifyingGlassPlusIcon,
+  // PencilSquareIcon,
+} from '@heroicons/react/24/outline';
+import React, { useState, Fragment, useEffect } from 'react';
+import { Document, Page, pdfjs } from 'react-pdf';
+import 'tailwindcss/tailwind.css';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 const PDFViewer = ({
   documentUrl,
-  docTitle,
+  docTitle
 }: {
   documentUrl: string;
   docTitle: string;
@@ -28,9 +27,10 @@ const PDFViewer = ({
   const [viewportWidth, setviewportWidth] = useState(647);
 
   useEffect(() => {
-    window.addEventListener("resize", () => {
-      const docWidth = document.getElementById("pdfwindow")?.clientWidth;
-      // @ts-ignore
+    window.addEventListener('resize', () => {
+      const docWidth = Number(
+        document.getElementById('pdfwindow')?.clientWidth
+      );
       setviewportWidth(docWidth);
     });
   });
@@ -152,10 +152,6 @@ const PDFViewer = ({
           id="pdfwindow"
           className="flex flex-row justify-center bg-[#585F68] p-3"
         >
-          {/* <button className="rounded-full relative text-gray-400 focus:outline-none">
-            <span className="sr-only">Write</span>
-            <PencilSquareIcon className="h-5 w-5" aria-hidden="true" />
-          </button> */}
           <div className="flex flex-row content-center">
             <button
               onClick={goToPrevPage}
@@ -183,31 +179,11 @@ const PDFViewer = ({
               />
             </button>
           </div>
-          {/* <div className="flex flex-row space-x-2">
-            <button
-              onClick={zoomIn}
-              className="rounded-full relative text-gray-200 focus:outline-none"
-            >
-              <span className="sr-only">Prev</span>
-              <MagnifyingGlassPlusIcon className="h-6 w-6" aria-hidden="true" />
-            </button>
-            <button
-              onClick={zoomOut}
-              className="rounded-full relative text-gray-200 focus:outline-none"
-            >
-              <span className="sr-only">Next</span>
-              <MagnifyingGlassMinusIcon
-                className="h-6 w-6"
-                aria-hidden="true"
-              />
-            </button>
-          </div> */}
         </div>
         <div className="overflow-hidden">
           <Document
-            // @ts-ignore
             file={{
-              url: documentUrl,
+              url: documentUrl
             }}
             onLoadSuccess={onDocumentLoadSuccess}
           >

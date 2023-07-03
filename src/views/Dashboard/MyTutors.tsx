@@ -1,3 +1,7 @@
+import TutorAvi from '../../assets/tutoravi.svg';
+import { useTitle } from '../../hooks';
+import ApiService from '../../services/ApiService';
+import TutorCard from './components/TutorCard';
 import {
   Box,
   Flex,
@@ -7,14 +11,9 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
-  Text,
+  Text
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-
-import TutorAvi from '../../assets/tutoravi.svg';
-import { useTitle } from '../../hooks';
-import ApiService from '../../services/ApiService';
-import TutorCard from './components/TutorCard';
 
 function MyTutors() {
   useTitle('My Tutors');
@@ -22,12 +21,10 @@ function MyTutors() {
   const [loadingData, setLoadingData] = useState(false);
   const getData = async () => {
     setLoadingData(true);
-    let formData = {};
-    try {
-      const resp = await ApiService.getAllTutors(formData);
-      const data = await resp.json();
-      setAllTutors(data);
-    } catch (e) {}
+    const formData = {};
+    const resp = await ApiService.getAllTutors(formData);
+    const data = await resp.json();
+    setAllTutors(data);
     setLoadingData(false);
   };
 
@@ -44,7 +41,12 @@ function MyTutors() {
           </Text>
         </Box>
 
-        <Text boxSize="fit-content" bgColor={'#F4F5F6'} p={1} borderRadius={'6px'}>
+        <Text
+          boxSize="fit-content"
+          bgColor={'#F4F5F6'}
+          p={1}
+          borderRadius={'6px'}
+        >
           24
         </Text>
       </Flex>

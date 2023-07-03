@@ -1,69 +1,68 @@
-import { StarIcon } from "./icons";
-import { SelectedNoteModal } from "./index";
-import { Text } from "@chakra-ui/react";
-import { Transition, Dialog } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/20/solid";
-import { setUser } from "@sentry/react";
-import { getAuth } from "firebase/auth";
-import { Fragment, useState, useEffect } from "react";
-import Typewriter from "typewriter-effect";
+import { StarIcon } from './icons';
+import { SelectedNoteModal } from './index';
+import { Text } from '@chakra-ui/react';
+import { Transition, Dialog } from '@headlessui/react';
+import { XMarkIcon } from '@heroicons/react/20/solid';
+import { getAuth } from 'firebase/auth';
+import { Fragment, useState, useEffect } from 'react';
+import Typewriter from 'typewriter-effect';
 
 const actions1 = [
   {
     id: 0,
-    title: "Test Prep",
+    title: 'Test Prep',
     description:
-      "Got a test coming? Shepherd has you covered with quizzes & prep resources priming you for the big day",
-    imageURL: "/images/test.svg",
+      'Got a test coming? Shepherd has you covered with quizzes & prep resources priming you for the big day',
+    imageURL: '/images/test.svg'
   },
   {
     id: 1,
-    title: "Deep Dives",
+    title: 'Deep Dives',
     description:
-      "Struggling with a tricky topic? Let Shepherd simplify it for you with in-depth analysis & detailed explanations",
-    imageURL: "/images/bulb.svg",
+      'Struggling with a tricky topic? Let Shepherd simplify it for you with in-depth analysis & detailed explanations',
+    imageURL: '/images/bulb.svg'
   },
   {
     id: 2,
-    title: "Notes Navigator",
+    title: 'Notes Navigator',
     showModal: true,
     description:
-      "Want to make the most of your notes? Chat with them via Shepherd and uncover insights to boost your grasp ",
-    imageURL: "/images/notes-navigator.svg",
+      'Want to make the most of your notes? Chat with them via Shepherd and uncover insights to boost your grasp ',
+    imageURL: '/images/notes-navigator.svg'
   },
   {
     id: 3,
-    title: "Research Assistant",
+    title: 'Research Assistant',
     showModal: false,
     description:
-      "Delving into a research project? Let Shepherd find you the best resources & references for your work",
-    imageURL: "/images/research-assistant.svg",
-  },
+      'Delving into a research project? Let Shepherd find you the best resources & references for your work',
+    imageURL: '/images/research-assistant.svg'
+  }
 ];
 
 const actions2 = [
   {
     id: 0,
-    title: "Ace Homework",
+    title: 'Ace Homework',
     description:
-      "Stuck with your homework, Shepherd can guide you through it step by step for quick & easy completion",
-    imageURL: "/images/ace-homework.svg",
+      'Stuck with your homework, Shepherd can guide you through it step by step for quick & easy completion',
+    imageURL: '/images/ace-homework.svg'
   },
   {
     id: 1,
-    title: "Flashcards Factory",
+    title: 'Flashcards Factory',
     description:
-      "Need a memory boost? Generate custom flashcards & mnemonics with Shepherd, making memorization a breeze",
-    imageURL: "/images/flashcards.svg",
+      'Need a memory boost? Generate custom flashcards & mnemonics with Shepherd, making memorization a breeze',
+    imageURL: '/images/flashcards.svg'
   },
   {
     id: 2,
-    title: "Study Roadmap",
+    title: 'Study Roadmap',
     showModal: false,
     description:
-      "Just starting school? Let Shepherd create a tailored study plan guiding you to academic success",
-    imageURL: "/images/roadmap.svg",
-  },
+      'Just starting school? Let Shepherd create a tailored study plan guiding you to academic success',
+    imageURL: '/images/roadmap.svg'
+  }
 ];
 
 interface ToggleProps {
@@ -73,11 +72,11 @@ interface ToggleProps {
 
 const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
   const [showSelected, setShowSelected] = useState(false);
-  const [user, setUser] = useState({ displayName: "" });
+  const [user, setUser] = useState({ displayName: '' });
   useEffect(() => {
     const { currentUser } = getAuth();
-    // @ts-ignore
-    setUser(currentUser);
+    currentUser?.displayName &&
+      setUser({ displayName: currentUser?.displayName });
   }, []);
   const handleClose = () => {
     setToggleHelpModal(false);
@@ -91,7 +90,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
     <>
       {toggleHelpModal && (
         <Transition.Root show={toggleHelpModal} as={Fragment}>
-          <Dialog as="div" className="relative z-[800]" onClose={() => {}}>
+          <Dialog as="div" className="relative z-[800]" onClose={() => null}>
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -129,13 +128,13 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
                               autoStart: true,
                               loop: false,
                               skipAddStyles: true,
-                              wrapperClassName: "text-base font-semibold",
+                              wrapperClassName: 'text-base font-semibold'
                             }}
                             onInit={(typewriter) => {
                               typewriter
                                 .typeString(
                                   `Hi ${
-                                    user?.displayName || "there"
+                                    user?.displayName || 'there'
                                   }, How can Shepherd make your study time more effective today?`
                                 )
                                 .start();

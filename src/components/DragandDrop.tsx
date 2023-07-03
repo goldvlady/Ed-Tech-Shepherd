@@ -1,5 +1,5 @@
 import { Box, Text, Icon, BoxProps, Spinner } from '@chakra-ui/react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { FiUpload } from 'react-icons/fi';
 
 interface DragAndDropProps extends BoxProps {
@@ -10,7 +10,13 @@ interface DragAndDropProps extends BoxProps {
   onFileUpload: (file: File) => void; // Callback function when a file is uploaded
 }
 
-const DragAndDrop: React.FC<DragAndDropProps> = ({ accept, supportingText, onFileUpload, isLoading = false, ...rest }) => {
+const DragAndDrop: React.FC<DragAndDropProps> = ({
+  accept,
+  supportingText,
+  onFileUpload,
+  isLoading = false,
+  ...rest
+}) => {
   const [isDragging, setIsDragging] = useState(false);
   const [fileName, setFileName] = useState('');
   const [fileSelected, setFileSelected] = useState(false); // Added state for file selection
@@ -31,12 +37,10 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({ accept, supportingText, onFil
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    console.log("drop", e);
     e.preventDefault();
     setIsDragging(false);
 
     const file = e.dataTransfer.files[0];
-    console.log(file);
     if (file && accept && file.type.match(accept)) {
       onFileUpload(file);
       setFileSelected(true); // Set fileSelected to true when a file is uploaded
@@ -64,7 +68,7 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({ accept, supportingText, onFil
       width="100%"
       border="2px dashed #E4E5E7"
       borderRadius={5}
-      minHeight={"100px"}
+      minHeight={'100px'}
       padding="20px 30px"
       textAlign="center"
       onDragEnter={handleDragEnter}
@@ -77,12 +81,17 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({ accept, supportingText, onFil
       {...rest}
     >
       <>
-        {isLoading ? <Spinner size="lg" color="blue.500" /> : <Icon as={FiUpload} boxSize={8} color="gray.500" />}
+        {isLoading ? (
+          <Spinner size="lg" color="blue.500" />
+        ) : (
+          <Icon as={FiUpload} boxSize={8} color="gray.500" />
+        )}
         <Text fontSize="base" mt={3} fontWeight="500">
-          Drag file here to upload or <Box color="blue.300" >{fileName ? fileName : "choose file"}</Box>
+          Drag file here to upload or{' '}
+          <Box color="blue.300">{fileName ? fileName : 'choose file'}</Box>
         </Text>
         <Text fontSize="sm" color="gray.500" mt={2}>
-          {supportingText ? supportingText : "Supports PNG, JPG & JPEG formats"}
+          {supportingText ? supportingText : 'Supports PNG, JPG & JPEG formats'}
         </Text>
       </>
     </Box>

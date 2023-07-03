@@ -1,15 +1,14 @@
+import Header from '../components/Header';
+import ApiService from '../services/ApiService';
+import userStore from '../state/userStore';
+import theme from '../theme';
+import { Booking } from '../types';
 import { Box, Spinner, Text } from '@chakra-ui/react';
 import moment from 'moment-timezone';
 import { useEffect, useMemo, useState } from 'react';
 import { FiArrowRight } from 'react-icons/fi';
 import { useParams } from 'react-router';
 import styled from 'styled-components';
-
-import Header from '../components/Header';
-import ApiService from '../services/ApiService';
-import userStore from '../state/userStore';
-import theme from '../theme';
-import { Booking } from '../types';
 
 const SchedulePill = styled(Box)`
   background: #f1f2f3;
@@ -36,42 +35,45 @@ const Session = () => {
 
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loadingBooking, setLoadingBooking] = useState(false);
-
-  const loadBooking = async () => {
-    setLoadingBooking(true);
-
-    try {
-      const resp = await ApiService.getBooking(bookingId as string);
-      setBooking(await resp.json());
-    } catch (e) {}
-    setLoadingBooking(false);
-  };
-
   const isStudent = user?.type === 'student';
   const tz = isStudent ? user?.student?.tz : user?.tutor?.tz;
 
   useEffect(() => {
+    const loadBooking = async () => {
+      setLoadingBooking(true);
+      const resp = await ApiService.getBooking(bookingId as string);
+      setBooking(await resp.json());
+      setLoadingBooking(false);
+    };
+
     loadBooking();
-  }, []);
+  }, [bookingId]);
 
   const roomUrl = useMemo(() => {
     if (!booking) {
       return '';
     }
 
-    const url = isStudent ? booking.conferenceHostRoomUrl : booking.conferenceHostRoomUrl;
+    const url = isStudent
+      ? booking.conferenceHostRoomUrl
+      : booking.conferenceHostRoomUrl;
     const urlParams = new URLSearchParams(url);
     urlParams.set('roomIntegrations', 'on');
     urlParams.set('displayName', `${user?.name.first} ${user?.name.last}`);
     return `${url}?${urlParams.toString()}`;
-  }, [booking]);
+  }, [booking, isStudent, user?.name.first, user?.name.last]);
 
   return (
     <Root>
       <Header
         left={
           booking && (
-            <Box display="flex" flexDirection="row" gap="12px" alignItems="center">
+            <Box
+              display="flex"
+              flexDirection="row"
+              gap="12px"
+              alignItems="center"
+            >
               <Box display="flex" justifyContent="center">
                 <Text className="sub2" m={0}>
                   {booking?.offer.course.label} Lesson
@@ -98,8 +100,10 @@ const Session = () => {
       {booking && (
         <iframe
           src={roomUrl}
+          title={roomUrl}
           allow="camera; microphone; fullscreen; speaker; display-capture"
-          style={{ width: '100%', flexGrow: 1 }}></iframe>
+          style={{ width: '100%', flexGrow: 1 }}
+        ></iframe>
       )}
     </Root>
   );

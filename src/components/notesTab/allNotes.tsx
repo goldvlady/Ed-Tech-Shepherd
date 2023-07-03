@@ -2,18 +2,18 @@ import {
   DownloadIcon,
   FlashCardsIcon,
   FlashCardsSolidIcon,
-  TrashIcon,
-} from "../icons";
-import { DeleteNoteModal, DeleteAllNotesModal } from "../index";
-import { Text } from "@chakra-ui/react";
-import { Menu, Transition, Dialog } from "@headlessui/react";
+  TrashIcon
+} from '../icons';
+import { DeleteNoteModal, DeleteAllNotesModal } from '../index';
+import { Text } from '@chakra-ui/react';
+import { Menu, Transition, Dialog } from '@headlessui/react';
 import {
   EllipsisHorizontalIcon,
   ChevronRightIcon,
-  MagnifyingGlassIcon,
-} from "@heroicons/react/24/solid";
-import React, { Fragment, useLayoutEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+  MagnifyingGlassIcon
+} from '@heroicons/react/24/solid';
+import React, { Fragment, useLayoutEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface Client {
   id: number;
@@ -26,46 +26,46 @@ interface Client {
 const clients: Client[] = [
   {
     id: 0,
-    title: "Chemistry Notes by Alisson",
-    date_created: "May 09 2023, 13:00",
-    last_modified: "May 21 2023, 09:00",
-    tags: "#Chemistry",
+    title: 'Chemistry Notes by Alisson',
+    date_created: 'May 09 2023, 13:00',
+    last_modified: 'May 21 2023, 09:00',
+    tags: '#Chemistry'
   },
   {
     id: 1,
-    title: "Chemistry Notes by Alisson",
-    date_created: "May 09 2023, 13:00",
-    last_modified: "May 21 2023, 09:00",
-    tags: "#Chemistry",
+    title: 'Chemistry Notes by Alisson',
+    date_created: 'May 09 2023, 13:00',
+    last_modified: 'May 21 2023, 09:00',
+    tags: '#Chemistry'
   },
   {
     id: 2,
-    title: "Chemistry Notes by Alisson",
-    date_created: "May 09 2023, 13:00",
-    last_modified: "May 21 2023, 09:00",
-    tags: "#Chemistry",
+    title: 'Chemistry Notes by Alisson',
+    date_created: 'May 09 2023, 13:00',
+    last_modified: 'May 21 2023, 09:00',
+    tags: '#Chemistry'
   },
   {
     id: 3,
-    title: "Chemistry Notes by Alisson",
-    date_created: "May 09 2023, 13:00",
-    last_modified: "May 21 2023, 09:00",
-    tags: "#Chemistry",
+    title: 'Chemistry Notes by Alisson',
+    date_created: 'May 09 2023, 13:00',
+    last_modified: 'May 21 2023, 09:00',
+    tags: '#Chemistry'
   },
   {
     id: 4,
-    title: "Chemistry Notes by Alisson",
-    date_created: "May 09 2023, 13:00",
-    last_modified: "May 21 2023, 09:00",
-    tags: "#Chemistry",
+    title: 'Chemistry Notes by Alisson',
+    date_created: 'May 09 2023, 13:00',
+    last_modified: 'May 21 2023, 09:00',
+    tags: '#Chemistry'
   },
   {
     id: 5,
-    title: "Chemistry Notes by Alisson",
-    date_created: "May 09 2023, 13:00",
-    last_modified: "May 21 2023, 09:00",
-    tags: "#Chemistry",
-  },
+    title: 'Chemistry Notes by Alisson',
+    date_created: 'May 09 2023, 13:00',
+    last_modified: 'May 21 2023, 09:00',
+    tags: '#Chemistry'
+  }
 ];
 
 const AllNotesTab = () => {
@@ -292,7 +292,7 @@ const AllNotesTab = () => {
                       key={client.id}
                       className={
                         selectedPeople.includes(client)
-                          ? "bg-blue-50"
+                          ? 'bg-blue-50'
                           : undefined
                       }
                     >
