@@ -8,6 +8,7 @@ import CreateFlashCard from "./views/Dashboard/FlashCards/create";
 import Marketplace from "./views/Dashboard/Marketplace";
 import Messaging from "./views/Dashboard/Messaging";
 import MyTutors from "./views/Dashboard/MyTutors";
+import NewNote from "./views/Dashboard/Notes/NewNotes";
 import Notes from "./views/Dashboard/Notes/index";
 import Tutor from "./views/Dashboard/Tutor";
 import DashboardIndex from "./views/Dashboard/index";
@@ -244,6 +245,7 @@ const AppRoutes: React.FC = () => {
           />
         }
       />
+      <Route path="new-note" element={<NewNote />} />
       <Route path="notes" element={<Notes />} />
       <Route path="tutordashboard" element={<TutorDashboard />} />
       <Route path="clients" element={<Clients />} />

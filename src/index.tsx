@@ -3,6 +3,7 @@ import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 import "./tailwind.css";
 import * as Sentry from "@sentry/react";
+import "draft-js/dist/Draft.css";
 import mixpanel from "mixpanel-browser";
 import React from "react";
 import ReactDOM from "react-dom/client";
