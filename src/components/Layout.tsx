@@ -5,8 +5,7 @@ import {
   MessagesIcon,
   UserGroupIcon,
   UserIcon,
-  ChevronRightIcon,
-  NotesIcon,
+  ChevronRightIcon, // NotesIcon,
   LogoutIcon,
 } from "./icons";
 import { HelpModal, UploadDocumentModal } from "./index";
@@ -23,7 +22,7 @@ import {
   XMarkIcon,
   PlusIcon,
 } from "@heroicons/react/24/outline";
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 interface NavigationItem {
@@ -33,7 +32,7 @@ interface NavigationItem {
   current: boolean;
 }
 
-const navigation: NavigationItem[] = [
+const dummyNavigation: NavigationItem[] = [
   {
     name: "Dashboard",
     href: "/tutordashboard",
@@ -43,17 +42,30 @@ const navigation: NavigationItem[] = [
   { name: "Clients", href: "/clients", icon: UserGroupIcon, current: false },
   { name: "Offers", href: "/offers", icon: OffersIcon, current: false },
   { name: "Messages", href: "/messages", icon: MessagesIcon, current: false },
-  { name: "Notes", href: "/notes", icon: NotesIcon, current: false },
+  // { name: "Notes", href: "/notes", icon: NotesIcon, current: false },
 ];
 
 export default function Layout({ children, className }) {
   const [helpModal, setHelpModal] = useState(false);
   const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [navigation, setNavigation] =
+    useState<NavigationItem[]>(dummyNavigation);
   const location = useLocation();
 
   const pathname = location.pathname.split("/")[1];
 
+  useEffect(() => {
+    const temp: NavigationItem[] = navigation.map((nav) => {
+      nav.current = false;
+      if (nav.href === `/${pathname}`) {
+        nav.current = true;
+      }
+      return nav;
+    });
+    setNavigation(temp);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
   return (
     <>
       <Transition.Root show={sidebarOpen} as={Fragment}>
@@ -150,10 +162,20 @@ export default function Layout({ children, className }) {
                       <li className="border-t pt-4">
                         <a
                           href="/settings"
-                          className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-slate-200 hover:text-blue-400"
+                          className={classNames(
+                            pathname === "settings"
+                              ? "bg-slate-100 text-blue-400"
+                              : "text-gray-400 hover:text-blue-400 hover:bg-slate-100",
+                            "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                          )}
                         >
                           <Cog6ToothIcon
-                            className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-blue-400"
+                            className={classNames(
+                              pathname === "settings"
+                                ? "text-blue-500"
+                                : "text-gray-400 group-hover:text-blue-400",
+                              "h-6 w-6 shrink-0"
+                            )}
                             aria-hidden="true"
                           />
                           Settings
@@ -208,10 +230,20 @@ export default function Layout({ children, className }) {
               <li className="border-t pt-4">
                 <a
                   href="/settings"
-                  className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-slate-200 hover:text-blue-400"
+                  className={classNames(
+                    pathname === "settings"
+                      ? "bg-slate-100 text-blue-400"
+                      : "text-gray-400 hover:text-blue-400 hover:bg-slate-100",
+                    "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                  )}
                 >
                   <Cog6ToothIcon
-                    className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-blue-400"
+                    className={classNames(
+                      pathname === "settings"
+                        ? "text-blue-500"
+                        : "text-gray-400 group-hover:text-blue-400",
+                      "h-6 w-6 shrink-0"
+                    )}
                     aria-hidden="true"
                   />
                   Settings
@@ -235,7 +267,7 @@ export default function Layout({ children, className }) {
 
           <div
             className={`flex ${
-              pathname === "clients" || pathname === "notes"
+              pathname === "clients" || ["notes", "docchat"].includes(pathname)
                 ? "justify-between py-2"
                 : "justify-end"
             } flex-1 gap-x-4 self-stretch lg:gap-x-6`}
@@ -262,7 +294,7 @@ export default function Layout({ children, className }) {
             {pathname === "notes" && (
               <button
                 onClick={() => setHelpModal(true)}
-                className="relative flex max-w-fit items-center space-x-3 border rounded-full  flex-1 px-2 py-3"
+                className="relative flex max-w-fit items-center space-x-3 border rounded-full  flex-1 px-3 py-4"
               >
                 <div className="flex-shrink-0 bg-orange-100 p-2 flex justify-center items-center rounded-full">
                   <img
@@ -271,9 +303,25 @@ export default function Layout({ children, className }) {
                     alt=""
                   />
                 </div>
-                <Text className="text-primaryGray text-sm">
+                <Text className="text-primaryGray">
                   Hi, what would you like to do?
                 </Text>
+              </button>
+            )}
+
+            {pathname === "docchat" && (
+              <button
+                onClick={() => setHelpModal(true)}
+                className="relative flex max-w-fit items-center border rounded-full flex-1 px-4 py-1"
+              >
+                <div className="flex-shrink-0 p-2 flex justify-center items-center rounded-full">
+                  <img
+                    src="/svgs/avatar-male.svg"
+                    className="h-4 w-6 text-gray-400"
+                    alt=""
+                  />
+                </div>
+                <Text className="text-primaryGray">Ask Shepherd?</Text>
               </button>
             )}
             <div className="flex items-center gap-x-4 lg:gap-x-6">
@@ -286,68 +334,6 @@ export default function Layout({ children, className }) {
                   <PlusIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
                   Create new
                 </button>
-              )}
-
-              {/* Show if the pathname is notes */}
-              {pathname === "notes" && (
-                <Menu as="div" className="relative">
-                  <div>
-                    <Menu.Button
-                      type="button"
-                      className="inline-flex items-center gap-x-2 rounded-md bg-secondaryBlue px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                    >
-                      <PlusIcon
-                        className="-ml-0.5 h-5 w-5"
-                        aria-hidden="true"
-                      />
-                      Create new
-                    </Menu.Button>
-                  </div>
-
-                  <Transition
-                    as={Fragment}
-                    enter="transition ease-out duration-100"
-                    enterFrom="transform opacity-0 scale-95"
-                    enterTo="transform opacity-100 scale-100"
-                    leave="transition ease-in duration-75"
-                    leaveFrom="transform opacity-100 scale-100"
-                    leaveTo="transform opacity-0 scale-95"
-                  >
-                    <Menu.Items className="absolute space-y-3 p-4 right-0 z-10 mt-2.5 w-[15rem] origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-900/5 focus:outline-none">
-                      <section className="space-y-2">
-                        <button className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2">
-                          <div className=" flex items-center space-x-1">
-                            <div className="bg-white flex justify-center items-center w-8 h-8 border rounded-full">
-                              <UserGroupIcon
-                                className="w-4 h-4 text-secondaryGray"
-                                onClick={undefined}
-                              />
-                            </div>
-                            <h4 className="text-sm text-secondaryGray font-medium">
-                              New Note
-                            </h4>
-                          </div>
-                        </button>
-                        <button
-                          onClick={() => setUploadDocumentModal(true)}
-                          className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
-                        >
-                          <div className="flex items-center space-x-1">
-                            <div className="bg-white border flex justify-center items-center w-8 h-8 rounded-full">
-                              <UserIcon
-                                className="w-4 h-4 text-secondaryGray"
-                                onClick={undefined}
-                              />
-                            </div>
-                            <h4 className="text-sm text-secondaryGray font-medium">
-                              Upload Document
-                            </h4>
-                          </div>
-                        </button>
-                      </section>
-                    </Menu.Items>
-                  </Transition>
-                </Menu>
               )}
 
               {/* Notification dropdown */}
@@ -402,10 +388,10 @@ export default function Layout({ children, className }) {
                         <p className="text-sm font-normal text-gray-400">
                           19 May, 2023
                         </p>
-                        <p className="mt-1 text-sm font-medium text-gray-500">
+                        <Text className="mt-1 text-sm font-medium text-gray-500">
                           Your chemistry leeson session with Leslie Peters
                           started
-                        </p>
+                        </Text>
                       </div>
 
                       <div className="ml-4 flex flex-shrink-0">
@@ -518,7 +504,7 @@ export default function Layout({ children, className }) {
               {/* Profile dropdown */}
               <Menu as="div" className="relative">
                 <div>
-                  <Menu.Button className="flex items-center rounded-full w-42 space-x-2 px-2 py-1 bg-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                  <Menu.Button className="flex items-center rounded-full w-42 space-x-2 px-2 py-1 bg-slate-100 text-sm">
                     <div className="h-8 w-8 rounded-full flex justify-center items-center bg-success text-white">
                       <span className="sr-only">Open user menu</span>
                       <span>L</span>

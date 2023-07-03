@@ -1,5 +1,5 @@
-import { Box, Flex, Icon, Image, HStack, Text, VStack } from "@chakra-ui/react";
 import robot from "../../../../assets/robot.png";
+import { Box, Flex, Icon, Image, HStack, Text, VStack } from "@chakra-ui/react";
 import { AiFillCiCircle } from "react-icons/ai";
 
 const BotIntructionBox = () => {

@@ -1,14 +1,6 @@
-import {
-  Table,
-  Thead,
-  Tbody,
-  Tr as ChakraTr,
-  Th,
-  Td as ChakraTd,
-  Checkbox,
-} from "@chakra-ui/react";
+import { StyledTd, StyledTh, StyledTr } from "./styles";
+import { Table, Thead, Tbody, Checkbox } from "@chakra-ui/react";
 import { useState } from "react";
-import styled from "styled-components";
 
 export type TableColumn<T> = {
   title: string;
@@ -26,44 +18,6 @@ export type TableProps<T> = {
   onSelect?: (selectedRowKeys: string[]) => void;
   fileImage?: any;
 };
-
-const StyledTh = styled(Th)<{}>`
-  background: #f7f8fa;
-  color: #6e7682;
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 17px;
-  text-align: center;
-  border-radius: 5px;
-`;
-
-const StyledTr = styled(ChakraTr)<{
-  selectable?: boolean;
-  active?: boolean;
-  tagsColor?: string;
-}>`
-  &:hover {
-    background: ${(props) => (props.selectable ? "#EEEFF2" : "inherit")};
-  }
-
-  background: ${(props) => (props.active ? "#F0F6FE" : "inherit")};
-
-  cursor: ${(props) => (props.selectable ? "pointer" : "default")};
-`;
-
-const StyledTd = styled(ChakraTd)<{ tagsColor: string }>`
-  padding: 15px 0;
-  &:first-child,
-  &:last-child {
-    padding: 22px 5px;
-  }
-  border-bottom: 0.8px solid #eeeff2;
-  text-align: center;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 20px;
-  color: #585f68;
-`;
 
 const SelectableTable = <T extends Record<string, unknown>>({
   columns,

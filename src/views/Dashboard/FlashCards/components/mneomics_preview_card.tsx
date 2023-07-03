@@ -1,6 +1,6 @@
-import { useState } from "react";
 import { Box, Button, Text } from "@chakra-ui/react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 
 interface MnemonicCardProps {
   answer: string;

@@ -1,4 +1,4 @@
-import React from "react";
+import SelectableTable, { TableColumn } from "../../../components/table";
 import {
   Menu,
   MenuItem,
@@ -12,9 +12,9 @@ import {
   InputGroup,
   InputLeftElement,
 } from "@chakra-ui/react";
-import { FaEllipsisH, FaCalendarAlt } from "react-icons/fa";
+import React from "react";
 import { BsSearch } from "react-icons/bs";
-import SelectableTable, { TableColumn } from "../../../components/table";
+import { FaEllipsisH, FaCalendarAlt } from "react-icons/fa";
 import styled from "styled-components";
 
 const StyledImage = styled(Box)`

@@ -1,8 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { FiChevronRight } from "react-icons/fi";
-import { HStack, Textarea } from "@chakra-ui/react";
-import { motion } from "framer-motion";
 import { useFlashCardState, FlashcardQuestion } from "../../context/flashcard";
+import { HStack, Textarea } from "@chakra-ui/react";
 import {
   Box,
   FormControl,
@@ -12,6 +9,9 @@ import {
   Button,
   Text,
 } from "@chakra-ui/react";
+import { motion } from "framer-motion";
+import React, { useEffect, useMemo, useState } from "react";
+import { FiChevronRight } from "react-icons/fi";
 
 const FlashCardQuestionsPage = () => {
   const {

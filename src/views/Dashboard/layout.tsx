@@ -1,3 +1,4 @@
+import AskIcon from "../../assets/avatar-male.svg";
 import FeedIcon from "../../assets/blue-energy.svg";
 import DocIcon from "../../assets/doc-icon.svg";
 import Doc from "../../assets/doc.svg";
@@ -7,10 +8,12 @@ import NewNote from "../../assets/newnote.svg";
 import NoteIcon from "../../assets/notes.svg";
 import ReceiptIcon from "../../assets/receiptIcon.svg";
 import VideoIcon from "../../assets/video.svg";
+import { HelpModal } from "../../components";
 import Logo from "../../components/Logo";
 import { firebaseAuth } from "../../firebase";
 import userStore from "../../state/userStore";
 import TutorMarketplace from "./Tutor";
+import AskShepherd from "./components/AskShepherd";
 import MenuLinedList from "./components/MenuLinedList";
 import DashboardIndex from "./index";
 import {
@@ -35,14 +38,22 @@ import {
   MenuDivider,
   MenuItem,
   MenuList,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
   Spacer,
   Stack,
   Text,
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
+import { Dialog, Transition } from "@headlessui/react";
 import { getAuth, signOut } from "firebase/auth";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useEffect, Fragment, useState } from "react";
 import { IconType } from "react-icons";
 import { BsChatLeftDots, BsPin, BsPlayCircle } from "react-icons/bs";
 import { CgNotes } from "react-icons/cg";
@@ -164,6 +175,10 @@ interface MobileProps extends FlexProps {
 }
 const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const auth = getAuth();
+  const [toggleHelpModal, setToggleHelpModal] = useState(false);
+  const activateHelpModal = () => {
+    setToggleHelpModal(true);
+  };
   const navigate = useNavigate();
   const { user }: any = userStore();
 
@@ -177,40 +192,62 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
       });
   };
   return (
-    <Flex
-      // ml={{ base: 0, md: 60 }}
-      px={{ base: 4, md: 4 }}
-      width={{ sm: "100%", md: "calc(100vw - 250px)" }}
-      height="20"
-      alignItems="center"
-      zIndex={1}
-      bg={useColorModeValue("white", "gray.900")}
-      borderBottomWidth="1px"
-      borderBottomColor={useColorModeValue("gray.200", "gray.700")}
-      justifyContent={{ base: "space-between", md: "flex-end" }}
-      position="fixed"
-      top="0"
-      {...rest}
-    >
-      <IconButton
-        display={{ base: "flex", md: "none" }}
-        onClick={onOpen}
-        variant="outline"
-        aria-label="open menu"
-        icon={<FiMenu />}
-      />
-
-      <Text
-        display={{ base: "flex", md: "none" }}
-        fontSize="2xl"
-        fontFamily="monospace"
-        fontWeight="bold"
+    <>
+      <Flex
+        // ml={{ base: 0, md: 60 }}
+        px={{ base: 4, md: 4 }}
+        width={{ sm: "100%", md: "calc(100vw - 250px)" }}
+        height="20"
+        alignItems="center"
+        zIndex={1}
+        bg={useColorModeValue("white", "gray.900")}
+        borderBottomWidth="1px"
+        borderBottomColor={useColorModeValue("gray.200", "gray.700")}
+        // justifyContent={{ base: "space-between", md: "flex-end" }}
+        position="fixed"
+        top="0"
+        {...rest}
       >
-        <Logo />{" "}
-      </Text>
-
-      <HStack spacing={4}>
-        {/* <Menu>
+        <Box>
+          <Flex
+            bgColor={"transparent"}
+            color="text.400"
+            border="1px solid #EBECF0"
+            borderRadius={"40px"}
+            fontSize="14px"
+            p="6px 16px"
+            onClick={activateHelpModal}
+            gap={2}
+            _hover={{
+              cursor: "pointer",
+              bgColor: "#EDF2F7",
+              transform: "translateY(-2px)",
+            }}
+          >
+            <Image src={AskIcon} />
+            <Text> Ask Shepherd?</Text>
+          </Flex>
+        </Box>
+        <Spacer />
+        <Flex justifyContent={"space-between"}>
+          {" "}
+          <IconButton
+            display={{ base: "flex", md: "none" }}
+            onClick={onOpen}
+            variant="outline"
+            aria-label="open menu"
+            icon={<FiMenu />}
+          />
+          <Text
+            display={{ base: "flex", md: "none" }}
+            fontSize="2xl"
+            fontFamily="monospace"
+            fontWeight="bold"
+          >
+            <Logo />{" "}
+          </Text>
+          <HStack spacing={4}>
+            {/* <Menu>
            <MenuButton
             bg={"#207DF7"}
             color="white"
@@ -238,146 +275,182 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
           </MenuList>
         </Menu> */}
 
-        <Menu>
-          <MenuButton>
-            <IconButton
-              size="md"
-              borderRadius={"100%"}
-              border="1px solid #ECEDEE"
-              variant="ghost"
-              aria-label="open menu"
-              color={"text.300"}
-              icon={<FaBell />}
-            />{" "}
-          </MenuButton>
-          <MenuList p={3} width={"358px"} zIndex={2}>
-            <Box>
-              <Flex alignItems="flex-start" px={3} direction={"row"} my={1}>
-                <Image src={VideoIcon} alt="doc" maxHeight={45} zIndex={1} />
-                <Stack direction={"column"} px={4} spacing={1}>
-                  <Text color="text.300" fontSize={12} mb={0}>
-                    19 May, 2023
-                  </Text>
-                  <Text
-                    fontWeight={400}
-                    color="text.200"
-                    fontSize="14px"
-                    mb={0}
-                  >
-                    Your chemistry lesson session with Leslie Peters started
-                  </Text>
+            <Menu>
+              <MenuButton>
+                <IconButton
+                  size="md"
+                  borderRadius={"100%"}
+                  border="1px solid #ECEDEE"
+                  variant="ghost"
+                  aria-label="open menu"
+                  color={"text.300"}
+                  icon={<FaBell />}
+                />{" "}
+              </MenuButton>
+              <MenuList p={3} width={"358px"} zIndex={2}>
+                <Box>
+                  <Flex alignItems="flex-start" px={3} direction={"row"} my={1}>
+                    <Image
+                      src={VideoIcon}
+                      alt="doc"
+                      maxHeight={45}
+                      zIndex={1}
+                    />
+                    <Stack direction={"column"} px={4} spacing={1}>
+                      <Text color="text.300" fontSize={12} mb={0}>
+                        19 May, 2023
+                      </Text>
+                      <Text
+                        fontWeight={400}
+                        color="text.200"
+                        fontSize="14px"
+                        mb={0}
+                      >
+                        Your chemistry lesson session with Leslie Peters started
+                      </Text>
 
-                  <Spacer />
-                </Stack>
-              </Flex>
-              <Divider />
-              <Flex alignItems="flex-start" px={3} direction={"row"} my={1}>
-                <Image src={MessageIcon} alt="doc" maxHeight={45} zIndex={1} />
-                <Stack direction={"column"} px={4} spacing={1}>
-                  <Text color="text.300" fontSize={12} mb={0}>
-                    2 hrs ago
-                  </Text>
-                  <Text
-                    fontWeight={400}
-                    color="text.200"
-                    fontSize="14px"
-                    mb={0}
-                  >
-                    Leslie Peters sent you a text while your were away
-                  </Text>
-                </Stack>
-              </Flex>
-              <Divider />
-              <Flex alignItems="flex-start" px={3} direction={"row"} my={1}>
-                <Image src={VideoIcon} alt="doc" maxHeight={45} zIndex={1} />
-                <Stack direction={"column"} px={4} spacing={1}>
-                  <Text color="text.300" fontSize={12} mb={0}>
-                    2 hrs ago
-                  </Text>
-                  <Text
-                    fontWeight={400}
-                    color="text.200"
-                    fontSize="14px"
-                    mb={0}
-                  >
-                    Your chemistry lesson session with Leslie Peters started
-                  </Text>
+                      <Spacer />
+                    </Stack>
+                  </Flex>
+                  <Divider />
+                  <Flex alignItems="flex-start" px={3} direction={"row"} my={1}>
+                    <Image
+                      src={MessageIcon}
+                      alt="doc"
+                      maxHeight={45}
+                      zIndex={1}
+                    />
+                    <Stack direction={"column"} px={4} spacing={1}>
+                      <Text color="text.300" fontSize={12} mb={0}>
+                        2 hrs ago
+                      </Text>
+                      <Text
+                        fontWeight={400}
+                        color="text.200"
+                        fontSize="14px"
+                        mb={0}
+                      >
+                        Leslie Peters sent you a text while your were away
+                      </Text>
+                    </Stack>
+                  </Flex>
+                  <Divider />
+                  <Flex alignItems="flex-start" px={3} direction={"row"} my={1}>
+                    <Image
+                      src={VideoIcon}
+                      alt="doc"
+                      maxHeight={45}
+                      zIndex={1}
+                    />
+                    <Stack direction={"column"} px={4} spacing={1}>
+                      <Text color="text.300" fontSize={12} mb={0}>
+                        2 hrs ago
+                      </Text>
+                      <Text
+                        fontWeight={400}
+                        color="text.200"
+                        fontSize="14px"
+                        mb={0}
+                      >
+                        Your chemistry lesson session with Leslie Peters started
+                      </Text>
 
-                  <Spacer />
-                </Stack>
-              </Flex>
-              <Divider />
-              <Flex alignItems="flex-start" px={3} direction={"row"} my={1}>
-                <Image src={MessageIcon} alt="doc" maxHeight={45} zIndex={1} />
-                <Stack direction={"column"} px={4} spacing={1}>
-                  <Text color="text.300" fontSize={12} mb={0}>
-                    2 hrs ago
-                  </Text>
-                  <Text
-                    fontWeight={400}
-                    color="text.200"
-                    fontSize="14px"
-                    mb={0}
-                  >
-                    Leslie Peters sent you a text while your were away
-                  </Text>
-                </Stack>
-              </Flex>
-            </Box>
-          </MenuList>
-        </Menu>
-        <Center height="25px">
-          <Divider orientation="vertical" />
-        </Center>
-        <Menu>
-          <MenuButton
-            py={2}
-            transition="all 0.3s"
-            _focus={{ boxShadow: "none" }}
-            bg="#F4F5F5"
-            borderRadius={"40px"}
-            px={3}
-            // minWidth={"80px"}
-          >
-            <HStack>
-              <Avatar
-                size="sm"
-                color="white"
-                name={`${user?.name?.first ?? ""} ${user?.name?.last ?? ""}`}
-                bg="#4CAF50;"
-              />
-
-              <Text
-                fontSize="14px"
-                fontWeight={500}
-                color="text.200"
-                display={{ base: "block", sm: "none", md: "block" }}
+                      <Spacer />
+                    </Stack>
+                  </Flex>
+                  <Divider />
+                  <Flex alignItems="flex-start" px={3} direction={"row"} my={1}>
+                    <Image
+                      src={MessageIcon}
+                      alt="doc"
+                      maxHeight={45}
+                      zIndex={1}
+                    />
+                    <Stack direction={"column"} px={4} spacing={1}>
+                      <Text color="text.300" fontSize={12} mb={0}>
+                        2 hrs ago
+                      </Text>
+                      <Text
+                        fontWeight={400}
+                        color="text.200"
+                        fontSize="14px"
+                        mb={0}
+                      >
+                        Leslie Peters sent you a text while your were away
+                      </Text>
+                    </Stack>
+                  </Flex>
+                </Box>
+              </MenuList>
+            </Menu>
+            <Center height="25px">
+              <Divider orientation="vertical" />
+            </Center>
+            <Menu>
+              <MenuButton
+                py={2}
+                transition="all 0.3s"
+                _focus={{ boxShadow: "none" }}
+                bg="#F4F5F5"
+                borderRadius={"40px"}
+                px={3}
+                // minWidth={"80px"}
               >
-                {`${user?.name?.first ?? ""} ${user?.name?.last ?? ""}`}
-              </Text>
+                <HStack>
+                  <Avatar
+                    size="sm"
+                    color="white"
+                    name={`${user?.name?.first ?? ""} ${
+                      user?.name?.last ?? ""
+                    }`}
+                    bg="#4CAF50;"
+                  />
 
-              <Box display={{ base: "none", md: "flex" }}>
-                <FiChevronDown />
-              </Box>
-            </HStack>
-          </MenuButton>
-          <MenuList
-            bg={useColorModeValue("white", "gray.900")}
-            borderColor={useColorModeValue("gray.200", "gray.700")}
-            minWidth={"150px"}
-            fontSize={"14px"}
-          >
-            <MenuItem>Profile</MenuItem>
-            <MenuDivider />
-            <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
-          </MenuList>
-        </Menu>
-      </HStack>
+                  <Text
+                    fontSize="14px"
+                    fontWeight={500}
+                    color="text.200"
+                    display={{ base: "block", sm: "none", md: "block" }}
+                  >
+                    {`${user?.name?.first ?? ""} ${user?.name?.last ?? ""}`}
+                  </Text>
 
-      {/* <Flex alignItems={"center"}>
+                  <Text
+                    fontSize="14px"
+                    fontWeight={500}
+                    color="text.200"
+                    display={{ base: "block", sm: "none", md: "block" }}
+                  >
+                    {`${user?.name?.first} ${user?.name?.last}`}
+                  </Text>
+
+                  <Box display={{ base: "none", md: "flex" }}>
+                    <FiChevronDown />
+                  </Box>
+                </HStack>
+              </MenuButton>
+              <MenuList
+                bg={useColorModeValue("white", "gray.900")}
+                borderColor={useColorModeValue("gray.200", "gray.700")}
+                minWidth={"150px"}
+                fontSize={"14px"}
+              >
+                <MenuItem>Profile</MenuItem>
+                <MenuDivider />
+                <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
+              </MenuList>
+            </Menu>
+          </HStack>
+        </Flex>
+        {/* <Flex alignItems={"center"}>
     
     </Flex> */}
-    </Flex>
+      </Flex>
+      <HelpModal
+        toggleHelpModal={toggleHelpModal}
+        setToggleHelpModal={setToggleHelpModal}
+      />
+    </>
   );
 };
 const SidebarContent = ({
@@ -474,63 +547,59 @@ const SidebarContent = ({
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [tutorMenu, setTutorMenu] = useState(true);
+  const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
   const { user }: any = userStore();
-  // const user = {
-  //   name: {
-  //     first: "Akinola",
-  //     last: "Ola",
-  //   },
-  // };
-  console.log("userrrr", user);
+  const { pathname } = useLocation();
 
   const toggleMenu = () => {
     setTutorMenu(!tutorMenu);
   };
-  console.log(tutorMenu);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <Flex direction="column" bg="white">
-      <Grid templateColumns={{ base: "1fr", md: "250px 1fr" }}>
-        <Box w="full" flexShrink={0} overflowY="auto">
-          <SidebarContent
-            onClose={() => onClose}
-            tutorMenu={tutorMenu}
-            setTutorMenu={setTutorMenu}
-            toggleMenu={() => setTutorMenu(!tutorMenu)}
-            display={{ base: "none", md: "block" }}
-          />
-          <Drawer
-            autoFocus={false}
-            isOpen={isOpen}
-            placement="left"
-            onClose={onClose}
-            returnFocusOnClose={false}
-            onOverlayClick={onClose}
-            size="full"
-          >
-            <DrawerContent>
-              <SidebarContent
-                onClose={onClose}
-                tutorMenu={tutorMenu}
-                setTutorMenu={setTutorMenu}
-                toggleMenu={() => setTutorMenu(!tutorMenu)}
-              />
-            </DrawerContent>
-          </Drawer>
-        </Box>
-
-        <Box flex="1" overflowY="auto">
-          <Box width={"100%"} zIndex="2">
-            <MobileNav onOpen={onOpen} />
+    <>
+      {" "}
+      <Flex direction="column" bg="white">
+        <Grid templateColumns={{ base: "1fr", md: "250px 1fr" }}>
+          <Box w="full" flexShrink={0} overflowY="auto">
+            <SidebarContent
+              onClose={() => onClose}
+              tutorMenu={tutorMenu}
+              setTutorMenu={setTutorMenu}
+              toggleMenu={() => setTutorMenu(!tutorMenu)}
+              display={{ base: "none", md: "block" }}
+            />
+            <Drawer
+              autoFocus={false}
+              isOpen={isOpen}
+              placement="left"
+              onClose={onClose}
+              returnFocusOnClose={false}
+              onOverlayClick={onClose}
+              size="full"
+            >
+              <DrawerContent>
+                <SidebarContent
+                  onClose={onClose}
+                  tutorMenu={tutorMenu}
+                  setTutorMenu={setTutorMenu}
+                  toggleMenu={() => setTutorMenu(!tutorMenu)}
+                />
+              </DrawerContent>
+            </Drawer>
           </Box>
 
-          <Box pt={20}>
-            <Outlet />
+          <Box flex="1" overflowY="auto">
+            <Box width={"100%"} zIndex="2">
+              <MobileNav onOpen={onOpen} />
+            </Box>
+            <Box pt={20}>
+              <Outlet />
+            </Box>
           </Box>
-        </Box>
-      </Grid>
-    </Flex>
+        </Grid>
+      </Flex>
+    </>
   );
 }
 

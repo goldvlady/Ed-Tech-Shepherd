@@ -1,3 +1,38 @@
+import resourceStore from "./state/resourceStore";
+import userStore from "./state/userStore";
+import theme from "./theme";
+import CreatePassword from "./views/CreatePassword";
+import BookmarkedTutors from "./views/Dashboard/BookmarkedTutors";
+import FlashCard from "./views/Dashboard/FlashCards";
+import CreateFlashCard from "./views/Dashboard/FlashCards/create";
+import Marketplace from "./views/Dashboard/Marketplace";
+import Messaging from "./views/Dashboard/Messaging";
+import MyTutors from "./views/Dashboard/MyTutors";
+import Notes from "./views/Dashboard/Notes/index";
+import Tutor from "./views/Dashboard/Tutor";
+import DashboardIndex from "./views/Dashboard/index";
+import DashboardLayout from "./views/Dashboard/layout";
+import ForgotPassword from "./views/ForgotPassword";
+import Home from "./views/Home";
+import Login from "./views/Login";
+import Offer from "./views/Offer";
+import OnboardStudent from "./views/OnboardStudent";
+import OnboardTutor from "./views/OnboardTutor";
+import CompleteProfile from "./views/OnboardTutor/complete_profile";
+import SendTutorOffer from "./views/SendTutorOffer";
+import Session from "./views/Session";
+import Signup from "./views/Signup";
+import TutorDashboard from "./views/TutorDashboard";
+import TutorOffer from "./views/TutorOffer";
+import TutorOffers from "./views/TutorOffers";
+import PendingVerification from "./views/VerificationPages/pending_verification";
+import VerificationSuccess from "./views/VerificationPages/successful_verification";
+import WelcomeLayout from "./views/WelcomeLayout";
+import Client from "./views/client";
+import Clients from "./views/clients";
+import DocChat from "./views/docchat/index";
+import Messages from "./views/messages";
+import TutorSettings from "./views/settings";
 import { Box, ChakraProvider, Spinner } from "@chakra-ui/react";
 import "bootstrap/dist/css/bootstrap-grid.min.css";
 import "bootstrap/dist/css/bootstrap-reboot.min.css";
@@ -6,49 +41,7 @@ import { User, getAuth, onAuthStateChanged } from "firebase/auth";
 import mixpanel from "mixpanel-browser";
 import React, { useCallback, useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router";
-import FlashCard from "./views/Dashboard/FlashCards";
-import CreateFlashCard from "./views/Dashboard/FlashCards/create";
 import { BrowserRouter, useLocation, useSearchParams } from "react-router-dom";
-
-import resourceStore from "./state/resourceStore";
-import userStore from "./state/userStore";
-import theme from "./theme";
-import CreatePassword from "./views/CreatePassword";
-import BookmarkedTutors from "./views/Dashboard/BookmarkedTutors";
-import Marketplace from "./views/Dashboard/Marketplace";
-import Messaging from "./views/Dashboard/Messaging";
-import MyTutors from "./views/Dashboard/MyTutors";
-import Tutor from "./views/Dashboard/Tutor";
-import DashboardIndex from "./views/Dashboard/index";
-import DashboardLayout from "./views/Dashboard/layout";
-import ForgotPassword from "./views/ForgotPassword";
-import Home from "./views/Home";
-import Login from "./views/Login";
-import OnboardStudent from "./views/OnboardStudent";
-import OnboardTutor from "./views/OnboardTutor";
-import CompleteProfile from "./views/OnboardTutor/complete_profile";
-import SendTutorOffer from "./views/SendTutorOffer";
-import Offer from "./views/Offer";
-import Session from "./views/Session";
-import Signup from "./views/Signup";
-import PendingVerification from "./views/VerificationPages/pending_verification";
-import VerificationSuccess from "./views/VerificationPages/successful_verification";
-import WelcomeLayout from "./views/WelcomeLayout";
-
-
-import TutorDashboard from './views/TutorDashboard';
-import Clients from "./views/clients";
-import Client from './views/client';
-import TutorOffers from "./views/TutorOffers";
-import TutorOffer from "./views/TutorOffer";
-import Messages from "./views/messages";
-import Notes from './views/notes';
-import TutorSettings from './views/settings';
-
-const RedirectToLanding: React.FC = () => {
-  window.location.href = "https://shepherdtutors.com/";
-  return null;
-};
 
 const AuthAction = (props: any) => {
   const [params] = useSearchParams();
@@ -78,15 +71,12 @@ const RequireAuth = ({
     onAuthStateChanged(getAuth(), async (user) => {
       setObtainedUserAuthState(true);
       setFirebaseUser(user);
-      console.log(user, "USE");
 
       try {
         if (user) {
           await fetchUser();
         }
-      } catch (e) {
-        console.log("LOGINERROR", e);
-      }
+      } catch (e) {}
       setLoadingUser(false);
     });
   }, []);
@@ -193,6 +183,15 @@ const AppRoutes: React.FC = () => {
         }
       />
       <Route path="auth-action" element={<AuthAction />} />
+      <Route
+        path="*"
+        element={
+          <RequireAuth
+            authenticated={<Navigate to={"/dashboard"} />}
+            unAuthenticated={<Login />}
+          />
+        }
+      />
 
       <Route path="home" element={<Home />} />
       <Route
@@ -220,7 +219,18 @@ const AppRoutes: React.FC = () => {
         <Route path="find-tutor/tutor/" element={<Tutor />} />
         <Route path="my-tutors" element={<MyTutors />} />
         <Route path="saved-tutors" element={<BookmarkedTutors />} />
+
         <Route path="messaging" element={<Messaging />} />
+        {/* <Route path="notes" element={<Notes />} /> */}
+        <Route
+          path="docchat"
+          element={
+            <RequireAuth
+              authenticated={<DocChat />}
+              unAuthenticated={<Navigate to={"/login"} />}
+            />
+          }
+        />
         <Route path="" element={<Navigate to="home" />} />
         <Route path="*" element={<Navigate to="home" />} />
       </Route>
@@ -234,16 +244,15 @@ const AppRoutes: React.FC = () => {
           />
         }
       />
-
+      <Route path="notes" element={<Notes />} />
       <Route path="tutordashboard" element={<TutorDashboard />} />
       <Route path="clients" element={<Clients />} />
       <Route path="clients/:id" element={<Client />} />
       <Route path="offers" element={<TutorOffers />} />
       <Route path="offer/:id" element={<TutorOffer />} />
       <Route path="messages" element={<Messages />} />
-      <Route path="notes" element={<Notes />} />
+      <Route path="/docchat" element={<DocChat />} />
       <Route path="tutorsettings" element={<TutorSettings />} />
-
     </Routes>
   );
 };

@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useMemo } from "react";
+import { useMnemonicSetupState } from "../../context/mneomics";
 import {
   Box,
   Button,
@@ -8,8 +8,8 @@ import {
   HStack,
   Text,
 } from "@chakra-ui/react";
-import { useMnemonicSetupState } from "../../context/mneomics";
 import { AnimatePresence, motion } from "framer-motion";
+import React, { ChangeEvent, useEffect, useMemo } from "react";
 
 interface IInput {
   labelInput: string;

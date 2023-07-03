@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { useFlashCardState } from "../../context/flashcard";
-import FlashCardQuestionsPage from "./questions";
-import FlashCardSetupInit from "./init";
-import { Box, Text } from "@chakra-ui/react";
 import StepsIndicator, { Step } from "../../../../../components/StepIndicator";
+import { useFlashCardState } from "../../context/flashcard";
+import FlashCardSetupInit from "./init";
+import FlashCardQuestionsPage from "./questions";
+import { Box, Text } from "@chakra-ui/react";
 import { motion, AnimatePresence } from "framer-motion";
+import React, { useState } from "react";
 
 const transition = {
   duration: 0.3,
