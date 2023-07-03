@@ -55,6 +55,8 @@ export const SecondSection = styled.div`
 
 export const NoteBody = styled.section`
   padding: 10px 30px;
+  height: 100vh;
+  background: ;
 `;
 
 export const DropDownLists = styled.div`

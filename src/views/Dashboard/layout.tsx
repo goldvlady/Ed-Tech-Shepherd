@@ -199,7 +199,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         width={{ sm: "100%", md: "calc(100vw - 250px)" }}
         height="20"
         alignItems="center"
-        zIndex={1}
+        zIndex={1111}
         bg={useColorModeValue("white", "gray.900")}
         borderBottomWidth="1px"
         borderBottomColor={useColorModeValue("gray.200", "gray.700")}

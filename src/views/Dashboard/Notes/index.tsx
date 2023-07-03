@@ -94,7 +94,7 @@ const Notes = () => {
       id: 1,
       iconName: <NewNoteIcon />,
       labelText: "New note",
-      onClick: () => navigate("/new-note"),
+      onClick: () => navigate("/dashboard/new-note"),
     },
     {
       id: 2,
