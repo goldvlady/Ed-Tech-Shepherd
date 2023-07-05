@@ -1,3 +1,4 @@
+import userStore from '../state/userStore';
 import { StarIcon } from './icons';
 import { SelectedNoteModal } from './index';
 import { Text } from '@chakra-ui/react';
@@ -72,12 +73,8 @@ interface ToggleProps {
 
 const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
   const [showSelected, setShowSelected] = useState(false);
-  const [user, setUser] = useState({ displayName: '' });
-  useEffect(() => {
-    const { currentUser } = getAuth();
-    currentUser?.displayName &&
-      setUser({ displayName: currentUser?.displayName });
-  }, []);
+  const { user }: any = userStore();
+
   const handleClose = () => {
     setToggleHelpModal(false);
   };
@@ -134,7 +131,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
                               typewriter
                                 .typeString(
                                   `Hi ${
-                                    user?.displayName || 'there'
+                                    user.name.first || 'there'
                                   }, How can Shepherd make your study time more effective today?`
                                 )
                                 .start();
