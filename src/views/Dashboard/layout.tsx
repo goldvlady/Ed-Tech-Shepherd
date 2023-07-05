@@ -627,7 +627,7 @@ const SidebarContent = ({
 };
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  const [tutorMenu, setTutorMenu] = useState(true);
+  const [tutorMenu, setTutorMenu] = useState(false);
   const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
   const { user }: any = userStore();
   const { pathname } = useLocation();
