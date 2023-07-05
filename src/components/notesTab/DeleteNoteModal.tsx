@@ -1,12 +1,12 @@
-import CustomButton from "../CustomComponents/CustomButton";
+import CustomButton from '../CustomComponents/CustomButton';
 import {
   DeleteConfirmationContainer,
   DeleteConfirmationDescription,
   DeleteConfirmationDetails,
   DeleteConfirmationImage,
-  ModalFooter,
-} from "./styles";
-import React, { useCallback } from "react";
+  ModalFooter
+} from './styles';
+import React, { useCallback } from 'react';
 
 interface DeleteNoteModalProps {
   title: string;
@@ -15,7 +15,7 @@ interface DeleteNoteModalProps {
 
 const DeleteNoteModal: React.FC<DeleteNoteModalProps> = ({
   title,
-  setDeleteNoteModal,
+  setDeleteNoteModal
 }) => {
   const onDeleteNote = useCallback(() => {
     setDeleteNoteModal(false);

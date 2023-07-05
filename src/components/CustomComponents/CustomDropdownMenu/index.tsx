@@ -1,6 +1,6 @@
-import { StyledMenuButton, StyledMenuList } from "./styles";
-import { Menu } from "@chakra-ui/react";
-import React, { ReactElement } from "react";
+import { StyledMenuButton, StyledMenuList } from './styles';
+import { Menu } from '@chakra-ui/react';
+import React, { ReactElement } from 'react';
 
 interface IDropdownProps {
   menuTitle: string;
@@ -13,7 +13,7 @@ const DropdownMenu = ({
   menuTitle,
   DropdownMenuIcon,
   children,
-  isCreateNew,
+  isCreateNew
 }: IDropdownProps) => {
   return (
     <Menu>

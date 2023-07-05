@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
 export const NewNoteWrapper = styled.section`
   padding: 0;
@@ -71,7 +71,7 @@ export const DropDownLists = styled.div`
     cursor: pointer;
   }
 
-  &:nth-child(4) {
+  &:nth-child(5) {
     border-bottom: 1px solid #e8e8e9;
   }
 `;

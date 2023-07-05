@@ -207,11 +207,10 @@ export const LogoutIcon = ({ className, onClick }) => {
   );
 };
 
-export const SortIcon = ({ className, onClick }) => {
+export const SortIcon = ({ className }) => {
   return (
     <svg
       className={className}
-      onClick={onClick}
       viewBox="0 0 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -266,11 +265,11 @@ export const NotesIcon = ({ className, onClick }) => {
   );
 };
 
-export const FilterByTagsIcon = ({ className, onClick }) => {
+export const FilterByTagsIcon = ({ className }) => {
   return (
     <svg
       className={className}
-      onClick={onClick}
+      // onClick={onClick}
       viewBox="0 0 20 20"
       fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"

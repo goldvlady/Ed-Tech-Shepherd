@@ -1,9 +1,9 @@
-import { ReactComponent as DocIcon } from "../../../assets/doc.svg";
-import { ReactComponent as NewNoteIcon } from "../../../assets/newnote.svg";
-import { Layout, AllNotesTab } from "../../../components";
-import DropdownMenu from "../../../components/CustomComponents/CustomDropdownMenu";
-import CustomTabs from "../../../components/CustomComponents/CustomTabs";
-import { SortIcon, FilterByTagsIcon } from "../../../components/icons";
+import { ReactComponent as DocIcon } from '../../../assets/doc.svg';
+import { ReactComponent as NewNoteIcon } from '../../../assets/newnote.svg';
+import { Layout, AllNotesTab } from '../../../components';
+import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMenu';
+import CustomTabs from '../../../components/CustomComponents/CustomTabs';
+import { SortIcon, FilterByTagsIcon } from '../../../components/icons';
 import {
   Checkbox,
   CheckboxContainer,
@@ -15,72 +15,72 @@ import {
   SectionNewList,
   StyledHeader,
   StyledSection,
-  Text,
-} from "./styles";
-import { AddIcon } from "@chakra-ui/icons";
-import React, { useState } from "react";
-import { useNavigate } from "react-router";
+  Text
+} from './styles';
+import { AddIcon } from '@chakra-ui/icons';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router';
 
 const notes = [{}];
 
 const filteredBy = [
   {
     id: 1,
-    value: "#Chemistry",
-    checked: false,
+    value: '#Chemistry',
+    checked: false
   },
   {
     id: 2,
-    value: "#Physics",
-    checked: false,
+    value: '#Physics',
+    checked: false
   },
   {
     id: 3,
-    value: "#Biology",
-    checked: false,
+    value: '#Biology',
+    checked: false
   },
   {
     id: 4,
-    value: "#English",
-    checked: false,
-  },
+    value: '#English',
+    checked: false
+  }
 ];
 
 const sortedBy = [
   {
     id: 1,
-    title: "By date",
-    firstValue: "Recently created",
-    secondValue: "Recently modified",
+    title: 'By date',
+    firstValue: 'Recently created',
+    secondValue: 'Recently modified'
   },
   {
     id: 2,
-    title: "By title",
-    firstValue: "A -> Z",
-    secondValue: "Z -> A",
-  },
+    title: 'By title',
+    firstValue: 'A -> Z',
+    secondValue: 'Z -> A'
+  }
 ];
 
 const tabLists = [
   {
     id: 1,
-    title: "All",
+    title: 'All'
   },
   {
     id: 2,
-    title: "Documents",
+    title: 'Documents'
   },
   {
     id: 3,
-    title: "Notes",
-  },
+    title: 'Notes'
+  }
 ];
 
 const tabPanel = [
   {
     id: 1,
-    component: <AllNotesTab />,
-  },
+    component: <AllNotesTab />
+  }
 ];
 
 const Notes = () => {
@@ -93,14 +93,14 @@ const Notes = () => {
     {
       id: 1,
       iconName: <NewNoteIcon />,
-      labelText: "New note",
-      onClick: () => navigate("/dashboard/new-note"),
+      labelText: 'New note',
+      onClick: () => navigate('/dashboard/new-note')
     },
     {
       id: 2,
       iconName: <DocIcon />,
-      labelText: "Upload document",
-    },
+      labelText: 'Upload document'
+    }
   ];
 
   const handleCheckboxChange = (position: number) => {
@@ -114,7 +114,7 @@ const Notes = () => {
   return (
     <Layout
       className={`${
-        notes.length > 0 ? "bg-white" : "bg-gray-100"
+        notes.length > 0 ? 'bg-white' : 'bg-gray-100'
       } p-3 h-screen`}
     >
       {notes.length > 0 ? (
@@ -143,9 +143,7 @@ const Notes = () => {
               </DropdownMenu>
               <DropdownMenu
                 menuTitle="Sort by"
-                DropdownMenuIcon={
-                  <SortIcon className="w-[20%] h-[2vh]" onClick={() => {}} />
-                }
+                DropdownMenuIcon={<SortIcon className="w-[20%] h-[2vh]" />}
               >
                 <>
                   {
@@ -178,9 +176,7 @@ const Notes = () => {
               </DropdownMenu>
               <DropdownMenu
                 menuTitle="Filtered By"
-                DropdownMenuIcon={
-                  <FilterByTagsIcon className="w-5 h-5" onClick={() => {}} />
-                }
+                DropdownMenuIcon={<FilterByTagsIcon className="w-5 h-5" />}
               >
                 <section>
                   <SearchInput type="search" placeholder="Search tags" />

@@ -1,7 +1,7 @@
 import { Text } from '@chakra-ui/react';
-import React, { JSX } from 'react';
+import React from 'react';
 
-export default function AllMessagesTab(): JSX.Element {
+export default function AllMessagesTab() {
   return (
     <li className="py-4 px-2 cursor-pointer border-top">
       <div className="flex space-x-3">

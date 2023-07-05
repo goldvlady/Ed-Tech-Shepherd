@@ -1,13 +1,13 @@
-import { StyledModalBoby } from "./styles";
+import { StyledModalBoby } from './styles';
 import {
   Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
   ModalCloseButton,
-  ModalFooter,
-} from "@chakra-ui/react";
-import React from "react";
+  ModalFooter
+} from '@chakra-ui/react';
+import React from 'react';
 
 interface ICustomModalProps {
   modalTitle: string;
@@ -15,7 +15,7 @@ interface ICustomModalProps {
   isOpen: boolean;
   children: React.ReactNode;
   footerContent?: React.ReactNode;
-  modalSize?: "xs" | "sm" | "md" | "lg" | "xl";
+  modalSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   style?: {
     height: string;
     width: string;
@@ -29,7 +29,7 @@ const CustomModal = ({
   isOpen,
   footerContent,
   modalSize,
-  style,
+  style
 }: ICustomModalProps) => {
   return (
     <Modal
@@ -45,8 +45,8 @@ const CustomModal = ({
         zIndex="overlay"
       />
       <ModalContent
-        height={style?.height ?? "350px"}
-        width={style?.width ?? "100%"}
+        height={style?.height ?? '350px'}
+        width={style?.width ?? '100%'}
       >
         <ModalHeader>{modalTitle}</ModalHeader>
         <ModalCloseButton />

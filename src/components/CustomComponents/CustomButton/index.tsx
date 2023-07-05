@@ -1,5 +1,5 @@
-import { StyledButton } from "./styles";
-import React from "react";
+import { StyledButton } from './styles';
+import React from 'react';
 
 interface CustomButtonProps {
   isCancel?: boolean;
@@ -7,14 +7,14 @@ interface CustomButtonProps {
   isPrimary?: boolean;
   title: string;
   onClick: () => void;
-  type: "button" | "submit" | "reset";
+  type: 'button' | 'submit' | 'reset';
 }
 const CustomButton = ({
   isCancel,
   isDelete,
   title,
   onClick,
-  type,
+  type
 }: CustomButtonProps) => {
   return (
     <StyledButton

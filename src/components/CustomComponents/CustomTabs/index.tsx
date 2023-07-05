@@ -4,9 +4,9 @@ import {
   TabPanels,
   Tab,
   TabPanel,
-  TabIndicator,
-} from "@chakra-ui/react";
-import React from "react";
+  TabIndicator
+} from '@chakra-ui/react';
+import React from 'react';
 
 interface ICustomTabs {
   tablists: any[];
@@ -16,12 +16,12 @@ interface ICustomTabs {
 const CustomTabs = ({ tablists, tabPanel }: ICustomTabs) => {
   return (
     <Tabs variant="unstyled">
-      <TabList _focus={{ outline: "none" }} borderBottom="1px solid #EBECF0">
+      <TabList _focus={{ outline: 'none' }} borderBottom="1px solid #EBECF0">
         {tablists?.map((tabList: any) => (
           <Tab
             _selected={{
-              color: "#207DF7",
-              fontSize: "1rem",
+              color: '#207DF7',
+              fontSize: '1rem'
             }}
             key={tabList?.id}
           >
@@ -38,7 +38,7 @@ const CustomTabs = ({ tablists, tabPanel }: ICustomTabs) => {
       />
       <TabPanels>
         {tabPanel?.map((tabPanel: any) => (
-          <TabPanel padding={"0"} key={tabPanel?.id}>
+          <TabPanel padding={'0'} key={tabPanel?.id}>
             {tabPanel.component}
           </TabPanel>
         ))}
