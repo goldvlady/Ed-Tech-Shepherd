@@ -1,5 +1,6 @@
 import PlansModal from '../../../components/PlansModal';
 import { useTitle } from '../../../hooks';
+import userStore from '../../../state/userStore';
 import {
   Avatar,
   Box,
@@ -25,6 +26,9 @@ import { RiArrowRightSLine } from 'react-icons/ri';
 function AccSettings() {
   useTitle('Account Settings');
   const [togglePlansModal, setTogglePlansModal] = useState(false);
+  const { user }: any = userStore();
+  console.log('user-', user);
+
   const activatePlansModal = () => {
     setTogglePlansModal(true);
   };
@@ -117,10 +121,10 @@ function AccSettings() {
                           color="text.200"
                           display={{ base: 'block', sm: 'none', md: 'block' }}
                         >
-                          Leslie Peters
+                          {`${user?.name?.first} ${user?.name?.last}`}
                         </Text>{' '}
                         <Text fontSize={14} color="text.400">
-                          leslie@gmail.com
+                          {user.email}
                         </Text>
                       </Stack>
                     </Flex>
@@ -151,7 +155,7 @@ function AccSettings() {
                               Email
                             </Text>{' '}
                             <Text fontSize={12} color="text.300">
-                              leslie@gmail.com
+                              {user.email}
                             </Text>
                           </Stack>
                           <Spacer />{' '}
@@ -184,11 +188,7 @@ function AccSettings() {
                             >
                               Password
                             </Text>{' '}
-                            <Text
-                              fontSize={14}
-                              fontWeight={500}
-                              color="text.400"
-                            >
+                            <Text fontSize={12} color="text.200">
                               xxxxxxxxxx
                             </Text>
                           </Stack>
