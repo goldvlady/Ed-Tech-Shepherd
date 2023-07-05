@@ -1,5 +1,5 @@
-import { useFlashCardState, FlashcardQuestion } from "../../context/flashcard";
-import { HStack, Textarea } from "@chakra-ui/react";
+import { useFlashCardState, FlashcardQuestion } from '../../context/flashcard';
+import { HStack, Textarea } from '@chakra-ui/react';
 import {
   Box,
   FormControl,
@@ -7,11 +7,11 @@ import {
   Input,
   Select,
   Button,
-  Text,
-} from "@chakra-ui/react";
-import { motion } from "framer-motion";
-import React, { useEffect, useMemo, useState } from "react";
-import { FiChevronRight } from "react-icons/fi";
+  Text
+} from '@chakra-ui/react';
+import { motion } from 'framer-motion';
+import React, { useEffect, useMemo, useState } from 'react';
+import { FiChevronRight } from 'react-icons/fi';
 
 const FlashCardQuestionsPage = () => {
   const {
@@ -20,26 +20,26 @@ const FlashCardQuestionsPage = () => {
     setQuestions,
     goToQuestion,
     currentQuestionIndex,
-    questions,
+    questions
   } = useFlashCardState();
 
   const [currentQuestion, setCurrentQuestion] = useState<FlashcardQuestion>({
-    questionType: "",
-    question: "",
+    questionType: '',
+    question: '',
     options: [],
-    answer: "",
+    answer: ''
   });
 
   const questionVariants = {
-    hidden: { x: "-100vw" },
-    visible: { x: 0, transition: { type: "spring", stiffness: 120 } },
-    exit: { x: "100vw", transition: { ease: "easeInOut" } },
+    hidden: { x: '-100vw' },
+    visible: { x: 0, transition: { type: 'spring', stiffness: 120 } },
+    exit: { x: '100vw', transition: { ease: 'easeInOut' } }
   };
 
   const answerVariants = {
-    hidden: { y: "100vh" },
-    visible: { y: 0, transition: { type: "spring", stiffness: 120 } },
-    exit: { y: "-100vh", transition: { ease: "easeInOut" } },
+    hidden: { y: '100vh' },
+    visible: { y: 0, transition: { type: 'spring', stiffness: 120 } },
+    exit: { y: '-100vh', transition: { ease: 'easeInOut' } }
   };
 
   useEffect(() => {
@@ -56,20 +56,20 @@ const FlashCardQuestionsPage = () => {
     >
   ) => {
     const { name, value } = e.target;
-    if (name.startsWith("option")) {
-      const optionIndex = Number(name.replace("option", ""));
+    if (name.startsWith('option')) {
+      const optionIndex = Number(name.replace('option', ''));
       setCurrentQuestion((prevQuestion) => {
         const newOptions = [...(prevQuestion.options || [])];
         newOptions[optionIndex] = value;
         return {
           ...prevQuestion,
-          options: newOptions,
+          options: newOptions
         };
       });
     } else {
       setCurrentQuestion((prevQuestion) => ({
         ...prevQuestion,
-        [name]: value,
+        [name]: value
       }));
     }
   };
@@ -83,10 +83,10 @@ const FlashCardQuestionsPage = () => {
     if (questions.length > currentQuestionIndex + 1) {
       goToQuestion((prevIndex) => prevIndex + 1);
       setCurrentQuestion({
-        questionType: "",
-        question: "",
+        questionType: '',
+        question: '',
         options: [],
-        answer: "",
+        answer: ''
       });
     }
   };
@@ -98,12 +98,10 @@ const FlashCardQuestionsPage = () => {
   const handleSubmit = () => {
     goToNextStep();
   };
-
-  console.log("current question =>>>", currentQuestion.questionType);
   const isFinalQuestion = currentQuestionIndex === questionsCount - 1;
 
   return (
-    <Box width={"100%"} mt="40px">
+    <Box width={'100%'} mt="40px">
       <motion.div
         variants={questionVariants}
         initial="hidden"
@@ -111,14 +109,14 @@ const FlashCardQuestionsPage = () => {
         exit="exit"
       >
         <Box
-          px={"12px"}
-          py={"6px"}
+          px={'12px'}
+          py={'6px'}
           mb="40px"
           borderRadius="md"
-          background={"#F4F5F6"}
-          width={"fit-content"}
+          background={'#F4F5F6'}
+          width={'fit-content'}
           display="flex"
-          justifyContent={"center"}
+          justifyContent={'center'}
           alignItems="center"
         >
           <Text fontSize="sm" lineHeight="normal" color="#6E7682">
@@ -150,7 +148,7 @@ const FlashCardQuestionsPage = () => {
         <FormControl mb={4}>
           <FormLabel>Enter your question:</FormLabel>
           <Textarea
-            _placeholder={{ fontSize: "14px", color: "#9A9DA2" }}
+            _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
             name="question"
             placeholder="Enter your question here"
             value={currentQuestion.question}
@@ -158,7 +156,7 @@ const FlashCardQuestionsPage = () => {
           />
         </FormControl>
         <>
-          {currentQuestion.questionType === "multipleChoice" &&
+          {currentQuestion.questionType === 'multipleChoice' &&
             Array.from({ length: 4 }).map((_, index) => (
               <FormControl key={index} mb={4}>
                 <FormLabel>{`Option ${String.fromCharCode(
@@ -167,9 +165,9 @@ const FlashCardQuestionsPage = () => {
                 <Input
                   type="text"
                   name={`option${index}`}
-                  _placeholder={{ fontSize: "14px", color: "#9A9DA2" }}
+                  _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
                   placeholder={`Option ${String.fromCharCode(65 + index)}`}
-                  value={currentQuestion.options?.[index] || ""}
+                  value={currentQuestion.options?.[index] || ''}
                   onChange={handleChange}
                 />
               </FormControl>
@@ -184,7 +182,7 @@ const FlashCardQuestionsPage = () => {
           {currentQuestion.questionType && (
             <FormControl mb={4}>
               <FormLabel>Answer:</FormLabel>
-              {currentQuestion.questionType === "multipleChoice" && (
+              {currentQuestion.questionType === 'multipleChoice' && (
                 <Select
                   name="answer"
                   placeholder="Select answer"
@@ -198,7 +196,7 @@ const FlashCardQuestionsPage = () => {
                 </Select>
               )}
 
-              {currentQuestion.questionType === "trueFalse" && (
+              {currentQuestion.questionType === 'trueFalse' && (
                 <Select
                   name="answer"
                   placeholder="Select answer"
@@ -215,23 +213,23 @@ const FlashCardQuestionsPage = () => {
 
         <HStack
           w="100%"
-          alignItems={"center"}
-          justifyContent={"end"}
+          alignItems={'center'}
+          justifyContent={'end'}
           marginTop="40px"
-          align={"flex-end"}
+          align={'flex-end'}
         >
           {currentQuestionIndex > 0 && (
             <Button
               aria-label="Edit"
-              height={"fit-content"}
-              width={"fit-content"}
+              height={'fit-content'}
+              width={'fit-content'}
               variant="unstyled"
               fontWeight={500}
               p={0}
-              color={"#207DF7"}
-              _hover={{ bg: "none", padding: "0px" }}
-              _active={{ bg: "none", padding: "0px" }}
-              _focus={{ boxShadow: "none" }}
+              color={'#207DF7'}
+              _hover={{ bg: 'none', padding: '0px' }}
+              _active={{ bg: 'none', padding: '0px' }}
+              _focus={{ boxShadow: 'none' }}
               colorScheme="primary"
               onClick={handlePreviousQuestion}
               mr={2}

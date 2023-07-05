@@ -1,21 +1,21 @@
-import AskIcon from "../../assets/avatar-male.svg";
-import FeedIcon from "../../assets/blue-energy.svg";
-import DocIcon from "../../assets/doc-icon.svg";
-import Doc from "../../assets/doc.svg";
-import FlashcardIcon from "../../assets/flashcardIcon.svg";
-import MessageIcon from "../../assets/message.svg";
-import NewNote from "../../assets/newnote.svg";
-import NoteIcon from "../../assets/notes.svg";
-import ReceiptIcon from "../../assets/receiptIcon.svg";
-import VideoIcon from "../../assets/video.svg";
-import { HelpModal } from "../../components";
-import Logo from "../../components/Logo";
-import { firebaseAuth } from "../../firebase";
-import userStore from "../../state/userStore";
-import TutorMarketplace from "./Tutor";
-import AskShepherd from "./components/AskShepherd";
-import MenuLinedList from "./components/MenuLinedList";
-import DashboardIndex from "./index";
+import AskIcon from '../../assets/avatar-male.svg';
+import FeedIcon from '../../assets/blue-energy.svg';
+import DocIcon from '../../assets/doc-icon.svg';
+import Doc from '../../assets/doc.svg';
+import FlashcardIcon from '../../assets/flashcardIcon.svg';
+import MessageIcon from '../../assets/message.svg';
+import NewNote from '../../assets/newnote.svg';
+import NoteIcon from '../../assets/notes.svg';
+import ReceiptIcon from '../../assets/receiptIcon.svg';
+import VideoIcon from '../../assets/video.svg';
+import { HelpModal } from '../../components';
+import Logo from '../../components/Logo';
+import { firebaseAuth } from '../../firebase';
+import userStore from '../../state/userStore';
+import TutorMarketplace from './Tutor';
+import AskShepherd from './components/AskShepherd';
+import MenuLinedList from './components/MenuLinedList';
+import DashboardIndex from './index';
 import {
   Avatar,
   Box,
@@ -49,15 +49,15 @@ import {
   Stack,
   Text,
   useColorModeValue,
-  useDisclosure,
-} from "@chakra-ui/react";
-import { Dialog, Transition } from "@headlessui/react";
-import { getAuth, signOut } from "firebase/auth";
-import React, { ReactNode, useEffect, Fragment, useState } from "react";
-import { IconType } from "react-icons";
-import { BsChatLeftDots, BsPin, BsPlayCircle } from "react-icons/bs";
-import { CgNotes } from "react-icons/cg";
-import { FaBell } from "react-icons/fa";
+  useDisclosure
+} from '@chakra-ui/react';
+import { Dialog, Transition } from '@headlessui/react';
+import { getAuth, signOut } from 'firebase/auth';
+import React, { ReactNode, useEffect, Fragment, useState } from 'react';
+import { IconType } from 'react-icons';
+import { BsChatLeftDots, BsPin, BsPlayCircle } from 'react-icons/bs';
+import { CgNotes } from 'react-icons/cg';
+import { FaBell } from 'react-icons/fa';
 import {
   FiBarChart2,
   FiBell,
@@ -69,32 +69,31 @@ import {
   FiMenu,
   FiSettings,
   FiStar,
-  FiTrendingUp,
-} from "react-icons/fi";
+  FiTrendingUp
+} from 'react-icons/fi';
 import {
   MdOutlineKeyboardArrowDown,
-  MdOutlineKeyboardArrowUp,
-} from "react-icons/md";
-import { TbClipboardText } from "react-icons/tb";
-import { TbCards } from "react-icons/tb";
+  MdOutlineKeyboardArrowUp
+} from 'react-icons/md';
+import { TbClipboardText } from 'react-icons/tb';
+import { TbCards } from 'react-icons/tb';
 import {
   Navigate,
   Outlet,
   useNavigate,
   useLocation,
-  Link,
-} from "react-router-dom";
+  Link
+} from 'react-router-dom';
 
 const getComparisonPath = (pathname?: string) => {
-  if (!pathname) return "";
-  const pathParts = pathname.split("/").filter((f) => f);
-  console.log(pathParts);
+  if (!pathname) return '';
+  const pathParts = pathname.split('/').filter((f) => f);
   if (pathParts.length === 1) {
     return pathParts[0];
   } else if (pathParts.length > 1) {
     return pathParts[1];
   }
-  return "";
+  return '';
 };
 
 interface LinkItemProps {
@@ -109,15 +108,15 @@ interface SidebarProps extends BoxProps {
   setTutorMenu: (value: boolean) => void;
 }
 const LinkItems: Array<LinkItemProps> = [
-  { name: "Messages", icon: BsChatLeftDots, path: "/dashboard/messaging" },
-  { name: "Library", icon: BsPlayCircle, path: "/library" },
+  { name: 'Messages', icon: BsChatLeftDots, path: '/dashboard/messaging' },
+  { name: 'Library', icon: BsPlayCircle, path: '/library' }
 ];
 
 const LinkBItems: Array<LinkItemProps> = [
-  { name: "Performance", icon: FiBarChart2, path: "/performance" },
-  { name: "Study Plans", icon: TbClipboardText, path: "/study-plans" },
-  { name: "Notes", icon: CgNotes, path: "/notes" },
-  { name: "Flashcards", icon: TbCards, path: "/flashcards" },
+  { name: 'Performance', icon: FiBarChart2, path: '/performance' },
+  { name: 'Study Plans', icon: TbClipboardText, path: '/study-plans' },
+  { name: 'Notes', icon: CgNotes, path: '/notes' },
+  { name: 'Flashcards', icon: TbCards, path: '/flashcards' }
 ];
 
 interface NavItemProps extends FlexProps {
@@ -132,7 +131,7 @@ const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
   return (
     <Link
       to={path}
-      style={{ textDecoration: "none" }}
+      style={{ textDecoration: 'none' }}
       // _focus={{ boxShadow: "none" }}
     >
       <Flex
@@ -145,13 +144,13 @@ const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
         role="group"
         cursor="pointer"
         _hover={{
-          bg: "#F0F6FE",
-          color: "#207DF7",
+          bg: '#F0F6FE',
+          color: '#207DF7'
         }}
-        bg={isActive ? "#F0F6FE" : "transparent"}
-        color={isActive ? "#207DF7" : "text.400"}
+        bg={isActive ? '#F0F6FE' : 'transparent'}
+        color={isActive ? '#207DF7' : 'text.400'}
         fontSize={14}
-        fontWeight={isActive ? "500" : "400"}
+        fontWeight={isActive ? '500' : '400'}
         {...rest}
       >
         {icon && (
@@ -159,7 +158,7 @@ const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
             mr="4"
             fontSize="16"
             _groupHover={{
-              color: "#207DF7",
+              color: '#207DF7'
             }}
             as={icon}
           />
@@ -183,26 +182,22 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const { user }: any = userStore();
 
   const handleSignOut = () => {
-    signOut(auth)
-      .then(() => {
-        navigate("/login");
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    signOut(auth).then(() => {
+      navigate('/login');
+    });
   };
   return (
     <>
       <Flex
         // ml={{ base: 0, md: 60 }}
         px={{ base: 4, md: 4 }}
-        width={{ sm: "100%", md: "calc(100vw - 250px)" }}
+        width={{ sm: '100%', md: 'calc(100vw - 250px)' }}
         height="20"
         alignItems="center"
         zIndex={1111}
-        bg={useColorModeValue("white", "gray.900")}
+        bg={useColorModeValue('white', 'gray.900')}
         borderBottomWidth="1px"
-        borderBottomColor={useColorModeValue("gray.200", "gray.700")}
+        borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
         // justifyContent={{ base: "space-between", md: "flex-end" }}
         position="fixed"
         top="0"
@@ -210,18 +205,18 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
       >
         <Box>
           <Flex
-            bgColor={"transparent"}
+            bgColor={'transparent'}
             color="text.400"
             border="1px solid #EBECF0"
-            borderRadius={"40px"}
+            borderRadius={'40px'}
             fontSize="14px"
             p="6px 16px"
             onClick={activateHelpModal}
             gap={2}
             _hover={{
-              cursor: "pointer",
-              bgColor: "#EDF2F7",
-              transform: "translateY(-2px)",
+              cursor: 'pointer',
+              bgColor: '#EDF2F7',
+              transform: 'translateY(-2px)'
             }}
           >
             <Image src={AskIcon} />
@@ -229,74 +224,46 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
           </Flex>
         </Box>
         <Spacer />
-        <Flex justifyContent={"space-between"}>
-          {" "}
+        <Flex justifyContent={'space-between'}>
+          {' '}
           <IconButton
-            display={{ base: "flex", md: "none" }}
+            display={{ base: 'flex', md: 'none' }}
             onClick={onOpen}
             variant="outline"
             aria-label="open menu"
             icon={<FiMenu />}
           />
           <Text
-            display={{ base: "flex", md: "none" }}
+            display={{ base: 'flex', md: 'none' }}
             fontSize="2xl"
             fontFamily="monospace"
             fontWeight="bold"
           >
-            <Logo />{" "}
+            <Logo />{' '}
           </Text>
           <HStack spacing={4}>
-            {/* <Menu>
-           <MenuButton
-            bg={"#207DF7"}
-            color="white"
-            fontSize="14px"
-            _hover={{ bg: "#1964c5" }}
-            _active={{ bg: "#1964c5" }}
-            as={Button}
-            rightIcon={<FiChevronDown />}
-          >
-            + Create
-          </MenuButton> 
-          <MenuList fontSize="14px" minWidth={"185px"}>
-            <MenuItem
-              _hover={{ bgColor: "#F2F4F7" }}
-              p={-2}
-              onClick={() => console.log("ADD NEW NOTE")}
-            >
-              <Image src={NewNote} /> <Text color="text.200">New note</Text>
-            </MenuItem>
-            <MenuItem p={-2} _hover={{ bgColor: "#F2F4F7" }}>
-              {" "}
-              <Image src={Doc} />{" "}
-              <Text color="text.200">Upload document</Text>
-            </MenuItem>
-          </MenuList>
-        </Menu> */}
-
             <Menu>
               <MenuButton>
                 <IconButton
                   size="md"
-                  borderRadius={"100%"}
+                  borderRadius={'100%'}
                   border="1px solid #ECEDEE"
                   variant="ghost"
                   aria-label="open menu"
-                  color={"text.300"}
+                  color={'text.300'}
                   icon={<FaBell />}
-                />{" "}
+                />{' '}
               </MenuButton>
-              <MenuList p={3} width={"358px"} zIndex={2}>
+              <MenuList p={3} width={'358px'} zIndex={2}>
                 <Box>
-                  <Flex alignItems="flex-start" px={3} direction={"row"} my={1}>
+                  <Flex alignItems="flex-start" px={3} direction={'row'} my={1}>
                     <Image
                       src={VideoIcon}
                       alt="doc"
                       maxHeight={45}
                       zIndex={1}
                     />
-                    <Stack direction={"column"} px={4} spacing={1}>
+                    <Stack direction={'column'} px={4} spacing={1}>
                       <Text color="text.300" fontSize={12} mb={0}>
                         19 May, 2023
                       </Text>
@@ -313,14 +280,14 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     </Stack>
                   </Flex>
                   <Divider />
-                  <Flex alignItems="flex-start" px={3} direction={"row"} my={1}>
+                  <Flex alignItems="flex-start" px={3} direction={'row'} my={1}>
                     <Image
                       src={MessageIcon}
                       alt="doc"
                       maxHeight={45}
                       zIndex={1}
                     />
-                    <Stack direction={"column"} px={4} spacing={1}>
+                    <Stack direction={'column'} px={4} spacing={1}>
                       <Text color="text.300" fontSize={12} mb={0}>
                         2 hrs ago
                       </Text>
@@ -335,14 +302,14 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     </Stack>
                   </Flex>
                   <Divider />
-                  <Flex alignItems="flex-start" px={3} direction={"row"} my={1}>
+                  <Flex alignItems="flex-start" px={3} direction={'row'} my={1}>
                     <Image
                       src={VideoIcon}
                       alt="doc"
                       maxHeight={45}
                       zIndex={1}
                     />
-                    <Stack direction={"column"} px={4} spacing={1}>
+                    <Stack direction={'column'} px={4} spacing={1}>
                       <Text color="text.300" fontSize={12} mb={0}>
                         2 hrs ago
                       </Text>
@@ -359,14 +326,14 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     </Stack>
                   </Flex>
                   <Divider />
-                  <Flex alignItems="flex-start" px={3} direction={"row"} my={1}>
+                  <Flex alignItems="flex-start" px={3} direction={'row'} my={1}>
                     <Image
                       src={MessageIcon}
                       alt="doc"
                       maxHeight={45}
                       zIndex={1}
                     />
-                    <Stack direction={"column"} px={4} spacing={1}>
+                    <Stack direction={'column'} px={4} spacing={1}>
                       <Text color="text.300" fontSize={12} mb={0}>
                         2 hrs ago
                       </Text>
@@ -390,9 +357,9 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               <MenuButton
                 py={2}
                 transition="all 0.3s"
-                _focus={{ boxShadow: "none" }}
+                _focus={{ boxShadow: 'none' }}
                 bg="#F4F5F5"
-                borderRadius={"40px"}
+                borderRadius={'40px'}
                 px={3}
                 // minWidth={"80px"}
               >
@@ -400,8 +367,8 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                   <Avatar
                     size="sm"
                     color="white"
-                    name={`${user?.name?.first ?? ""} ${
-                      user?.name?.last ?? ""
+                    name={`${user?.name?.first ?? ''} ${
+                      user?.name?.last ?? ''
                     }`}
                     bg="#4CAF50;"
                   />
@@ -410,30 +377,30 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     fontSize="14px"
                     fontWeight={500}
                     color="text.200"
-                    display={{ base: "block", sm: "none", md: "block" }}
+                    display={{ base: 'block', sm: 'none', md: 'block' }}
                   >
-                    {`${user?.name?.first ?? ""} ${user?.name?.last ?? ""}`}
+                    {`${user?.name?.first ?? ''} ${user?.name?.last ?? ''}`}
                   </Text>
 
                   <Text
                     fontSize="14px"
                     fontWeight={500}
                     color="text.200"
-                    display={{ base: "block", sm: "none", md: "block" }}
+                    display={{ base: 'block', sm: 'none', md: 'block' }}
                   >
                     {`${user?.name?.first} ${user?.name?.last}`}
                   </Text>
 
-                  <Box display={{ base: "none", md: "flex" }}>
+                  <Box display={{ base: 'none', md: 'flex' }}>
                     <FiChevronDown />
                   </Box>
                 </HStack>
               </MenuButton>
               <MenuList
-                bg={useColorModeValue("white", "gray.900")}
-                borderColor={useColorModeValue("gray.200", "gray.700")}
-                minWidth={"150px"}
-                fontSize={"14px"}
+                bg={useColorModeValue('white', 'gray.900')}
+                borderColor={useColorModeValue('gray.200', 'gray.700')}
+                minWidth={'150px'}
+                fontSize={'14px'}
               >
                 <MenuItem>Profile</MenuItem>
                 <MenuDivider />
@@ -463,10 +430,10 @@ const SidebarContent = ({
   return (
     <Box
       transition="3s ease"
-      bg={useColorModeValue("white", "gray.900")}
+      bg={useColorModeValue('white', 'gray.900')}
       borderRight="1px"
-      borderRightColor={useColorModeValue("gray.200", "gray.700")}
-      w={{ base: "full", md: 60 }}
+      borderRightColor={useColorModeValue('gray.200', 'gray.700')}
+      w={{ base: 'full', md: 60 }}
       pos="fixed"
       h="full"
       {...rest}
@@ -475,17 +442,17 @@ const SidebarContent = ({
         <Text fontWeight="bold">
           <Logo />
         </Text>
-        <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
+        <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
-      <NavItem icon={FiHome} path={"/dashboard"}>
+      <NavItem icon={FiHome} path={'/dashboard'}>
         Home
       </NavItem>
       <Box ml={8} color="text.400">
-        {" "}
+        {' '}
         <Button
-          variant={"unstyled"}
+          variant={'unstyled'}
           display="flex"
-          gap={"10px"}
+          gap={'10px'}
           leftIcon={<FiBriefcase />}
           fontSize={14}
           fontWeight={500}
@@ -500,21 +467,21 @@ const SidebarContent = ({
         >
           Find a tutor
         </Button>
-        <Box display={tutorMenu ? "block" : "none"}>
+        <Box display={tutorMenu ? 'block' : 'none'}>
           <MenuLinedList
             items={[
               {
-                title: "Marketplace",
-                path: "/dashboard/find-tutor",
+                title: 'Marketplace',
+                path: '/dashboard/find-tutor'
               },
               {
-                title: "My Tutors",
-                path: "/dashboard/my-tutors",
+                title: 'My Tutors',
+                path: '/dashboard/my-tutors'
               },
               {
-                title: "Bookmarks",
-                path: "/dashboard/saved-tutors",
-              },
+                title: 'Bookmarks',
+                path: '/dashboard/saved-tutors'
+              }
             ]}
           />
           {/* <NavItem path="/dashboard/find-tutor">Marketplace</NavItem>
@@ -528,7 +495,7 @@ const SidebarContent = ({
             {link.name}
           </NavItem>
         </>
-      ))}{" "}
+      ))}{' '}
       <Divider />
       {LinkBItems.map((link) => (
         <>
@@ -536,9 +503,9 @@ const SidebarContent = ({
             {link.name}
           </NavItem>
         </>
-      ))}{" "}
+      ))}{' '}
       <Divider />
-      <NavItem icon={BsPin} path={"/pinned-notes"}>
+      <NavItem icon={BsPin} path={'/pinned-notes'}>
         Pinned Notes
       </NavItem>
     </Box>
@@ -558,16 +525,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <>
-      {" "}
+      {' '}
       <Flex direction="column" bg="white">
-        <Grid templateColumns={{ base: "1fr", md: "250px 1fr" }}>
+        <Grid templateColumns={{ base: '1fr', md: '250px 1fr' }}>
           <Box w="full" flexShrink={0} overflowY="auto">
             <SidebarContent
               onClose={() => onClose}
               tutorMenu={tutorMenu}
               setTutorMenu={setTutorMenu}
               toggleMenu={() => setTutorMenu(!tutorMenu)}
-              display={{ base: "none", md: "block" }}
+              display={{ base: 'none', md: 'block' }}
             />
             <Drawer
               autoFocus={false}
@@ -590,7 +557,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </Box>
 
           <Box flex="1" overflowY="auto">
-            <Box width={"100%"} zIndex="2">
+            <Box width={'100%'} zIndex="2">
               <MobileNav onOpen={onOpen} />
             </Box>
             <Box pt={20}>
@@ -611,28 +578,28 @@ export const CustomButton = (props: any) => {
       lineHeight="1.2"
       transition="all 0.2s cubic-bezier(.08,.52,.52,1)"
       border="1px"
-      padding={padding ? padding : "9px 20px"}
+      padding={padding ? padding : '9px 20px'}
       mx="4px"
       alignItems="center"
       borderRadius="8px"
-      fontSize={fontStyle ? fontStyle.fontSize : "14px"}
-      fontWeight={fontStyle ? fontStyle.fontWeight : "semibold"}
-      bg={buttonType === "outlined" ? "transparent" : "#207DF7"}
-      borderColor={buttonType === "outlined" ? "transparent" : "#ccd0d5"}
-      color={buttonType === "outlined" ? "#207DF7" : "#fff"}
+      fontSize={fontStyle ? fontStyle.fontSize : '14px'}
+      fontWeight={fontStyle ? fontStyle.fontWeight : 'semibold'}
+      bg={buttonType === 'outlined' ? 'transparent' : '#207DF7'}
+      borderColor={buttonType === 'outlined' ? 'transparent' : '#ccd0d5'}
+      color={buttonType === 'outlined' ? '#207DF7' : '#fff'}
       _hover={{
-        bg: buttonType === "outlined" ? "#E2E8F0" : "#1964c5",
-        transform: "translateY(-2px)",
-        boxShadow: "lg",
+        bg: buttonType === 'outlined' ? '#E2E8F0' : '#1964c5',
+        transform: 'translateY(-2px)',
+        boxShadow: 'lg'
       }}
       _active={{
-        bg: "#dddfe2",
-        transform: "scale(0.98)",
-        borderColor: "#bec3c9",
+        bg: '#dddfe2',
+        transform: 'scale(0.98)',
+        borderColor: '#bec3c9'
       }}
       _focus={{
         boxShadow:
-          "0 0 1px 2px rgba(88, 144, 255, .75), 0 1px 1px rgba(0, 0, 0, .15)",
+          '0 0 1px 2px rgba(88, 144, 255, .75), 0 1px 1px rgba(0, 0, 0, .15)'
       }}
       onClick={onClick}
     >

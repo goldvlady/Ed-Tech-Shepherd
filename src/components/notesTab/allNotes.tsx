@@ -1,21 +1,21 @@
-import CustomModal from "../CustomComponents/CustomModal";
+import CustomModal from '../CustomComponents/CustomModal';
 import {
   DownloadIcon,
   FlashCardsIcon,
   FlashCardsSolidIcon,
-  TrashIcon,
-} from "../icons";
-import { DeleteNoteModal } from "../index";
-import SelectableTable, { TableColumn } from "../table";
-import { StyledMenuButton, StyledMenuSection } from "./styles";
-import { Menu, MenuList, MenuButton, Button, Text } from "@chakra-ui/react";
+  TrashIcon
+} from '../icons';
+import { DeleteNoteModal } from '../index';
+import SelectableTable, { TableColumn } from '../table';
+import { StyledMenuButton, StyledMenuSection } from './styles';
+import { Menu, MenuList, MenuButton, Button, Text } from '@chakra-ui/react';
 import {
   ChevronRightIcon,
-  MagnifyingGlassIcon,
-} from "@heroicons/react/24/solid";
-import React, { useLayoutEffect, useRef, useState } from "react";
-import { FaEllipsisH } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+  MagnifyingGlassIcon
+} from '@heroicons/react/24/solid';
+import React, { useLayoutEffect, useRef, useState } from 'react';
+import { FaEllipsisH } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 interface Client {
   id: number;
@@ -28,67 +28,67 @@ interface Client {
 const clients: Client[] = [
   {
     id: 0,
-    title: "Chemistry Notes by Alisson",
-    date_created: "May 09 2023, 13:00",
-    last_modified: "May 21 2023, 09:00",
-    tags: "#Chemistry",
+    title: 'Chemistry Notes by Alisson',
+    date_created: 'May 09 2023, 13:00',
+    last_modified: 'May 21 2023, 09:00',
+    tags: '#Chemistry'
   },
   {
     id: 1,
-    title: "Chemistry Notes by Alisson",
-    date_created: "May 09 2023, 13:00",
-    last_modified: "May 21 2023, 09:00",
-    tags: "#Mathematics",
+    title: 'Chemistry Notes by Alisson',
+    date_created: 'May 09 2023, 13:00',
+    last_modified: 'May 21 2023, 09:00',
+    tags: '#Mathematics'
   },
   {
     id: 2,
-    title: "Chemistry Notes by Alisson",
-    date_created: "May 09 2023, 13:00",
-    last_modified: "May 21 2023, 09:00",
-    tags: "#Chemistry",
+    title: 'Chemistry Notes by Alisson',
+    date_created: 'May 09 2023, 13:00',
+    last_modified: 'May 21 2023, 09:00',
+    tags: '#Chemistry'
   },
   {
     id: 3,
-    title: "Biology Notes by Alisson",
-    date_created: "May 09 2023, 13:00",
-    last_modified: "May 21 2023, 09:00",
-    tags: "#Biology",
+    title: 'Biology Notes by Alisson',
+    date_created: 'May 09 2023, 13:00',
+    last_modified: 'May 21 2023, 09:00',
+    tags: '#Biology'
   },
   {
     id: 4,
-    title: "Chemistry Notes by Alisson",
-    date_created: "May 09 2023, 13:00",
-    last_modified: "May 21 2023, 09:00",
-    tags: "#Chemistry",
+    title: 'Chemistry Notes by Alisson',
+    date_created: 'May 09 2023, 13:00',
+    last_modified: 'May 21 2023, 09:00',
+    tags: '#Chemistry'
   },
   {
     id: 5,
-    title: "Physics Notes by Alisson",
-    date_created: "May 09 2023, 13:00",
-    last_modified: "May 21 2023, 09:00",
-    tags: "#Physics",
+    title: 'Physics Notes by Alisson',
+    date_created: 'May 09 2023, 13:00',
+    last_modified: 'May 21 2023, 09:00',
+    tags: '#Physics'
   },
   {
     id: 6,
-    title: "Science Notes by Akeem",
-    date_created: "May 09 2023, 13:00",
-    last_modified: "May 21 2023, 09:00",
-    tags: "#Science",
+    title: 'Science Notes by Akeem',
+    date_created: 'May 09 2023, 13:00',
+    last_modified: 'May 21 2023, 09:00',
+    tags: '#Science'
   },
   {
     id: 7,
-    title: "English Notes by Daniel",
-    date_created: "May 09 2023, 13:00",
-    last_modified: "May 21 2023, 09:00",
-    tags: "#English",
+    title: 'English Notes by Daniel',
+    date_created: 'May 09 2023, 13:00',
+    last_modified: 'May 21 2023, 09:00',
+    tags: '#English'
   },
   {
     id: 8,
-    title: "Mathematics Notes by Ellen",
-    date_created: "May 09 2023, 13:00",
-    last_modified: "May 21 2023, 09:00",
-    tags: "#Mathematics",
-  },
+    title: 'Mathematics Notes by Ellen',
+    date_created: 'May 09 2023, 13:00',
+    last_modified: 'May 21 2023, 09:00',
+    tags: '#Mathematics'
+  }
 ];
 
 type DataSourceItem = {
@@ -105,8 +105,8 @@ const dataSource: DataSourceItem[] = Array.from({ length: 8 }, (_, i) => ({
   id: clients[i]?.id,
   title: clients[i]?.title,
   tags: clients[i]?.tags,
-  dateCreated: new Date().toISOString().split("T")[0], // current date in yyyy-mm-dd format
-  lastModified: new Date().toISOString().split("T")[0], // current date in yyyy-mm-dd format
+  dateCreated: new Date().toISOString().split('T')[0], // current date in yyyy-mm-dd format
+  lastModified: new Date().toISOString().split('T')[0] // current date in yyyy-mm-dd format
 }));
 
 const AllNotesTab = () => {
@@ -116,7 +116,7 @@ const AllNotesTab = () => {
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
   const [selectedPeople, setSelectedPeople] = useState<any[]>([]);
-  const [clientsDetails, setClientDetails] = useState("");
+  const [clientsDetails, setClientDetails] = useState('');
   const [openTags, setOpenTags] = useState<boolean>(false);
   const navigate = useNavigate();
 
@@ -143,10 +143,10 @@ const AllNotesTab = () => {
 
   const clientColumn: TableColumn<DataSourceItem>[] = [
     {
-      key: "title",
-      title: "Title",
-      dataIndex: "title",
-      align: "left",
+      key: 'title',
+      title: 'Title',
+      dataIndex: 'title',
+      align: 'left',
       render: ({ title }) => (
         <>
           <img
@@ -156,32 +156,32 @@ const AllNotesTab = () => {
           />
           <Text fontWeight="500">{title}</Text>
         </>
-      ),
+      )
     },
     {
-      key: "dateCreated",
-      title: "Date Created",
-      dataIndex: "dateCreated",
-      align: "left",
-      id: 1,
+      key: 'dateCreated',
+      title: 'Date Created',
+      dataIndex: 'dateCreated',
+      align: 'left',
+      id: 1
     },
     {
-      key: "tags",
-      title: "Tags",
-      dataIndex: "tags",
-      align: "left",
-      id: 2,
+      key: 'tags',
+      title: 'Tags',
+      dataIndex: 'tags',
+      align: 'left',
+      id: 2
     },
     {
-      key: "lastModified",
-      title: "Last Modified",
-      dataIndex: "lastModified",
-      align: "left",
-      id: 3,
+      key: 'lastModified',
+      title: 'Last Modified',
+      dataIndex: 'lastModified',
+      align: 'left',
+      id: 3
     },
     {
-      key: "actions",
-      title: "",
+      key: 'actions',
+      title: '',
       render: ({ title, id }) => (
         <Menu>
           <MenuButton
@@ -192,11 +192,11 @@ const AllNotesTab = () => {
             minW="auto"
             height="auto"
           >
-            <FaEllipsisH fontSize={"12px"} />
+            <FaEllipsisH fontSize={'12px'} />
           </MenuButton>
           <MenuList
             fontSize="14px"
-            minWidth={"185px"}
+            minWidth={'185px'}
             borderRadius="8px"
             backgroundColor="#FFFFFF"
             boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
@@ -251,10 +251,10 @@ const AllNotesTab = () => {
             <div
               onClick={() => onDeleteNote(true, title)}
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                padding: "15px",
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '15px'
               }}
             >
               <svg
@@ -275,8 +275,8 @@ const AllNotesTab = () => {
             </div>
           </MenuList>
         </Menu>
-      ),
-    },
+      )
+    }
   ];
 
   return (
@@ -439,7 +439,7 @@ const AllNotesTab = () => {
         onClose={() => setDeleteNoteModal(false)}
         isOpen={deleteNoteModal}
         modalSize="md"
-        style={{ height: "327px", width: "100%" }}
+        style={{ height: '327px', width: '100%' }}
       >
         <DeleteNoteModal
           title={clientsDetails}

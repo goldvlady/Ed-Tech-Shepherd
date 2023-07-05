@@ -1,15 +1,14 @@
-import { PdfViewer } from "../../components";
-import Chat from "./chat";
-import { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { PdfViewer } from '../../components';
+import Chat from './chat';
+import { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-// @ts-ignore
 export default function DocChat() {
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!location.state?.documentUrl) navigate("/dashboard/notes");
+    if (!location.state?.documentUrl) navigate('/dashboard/notes');
   }, [navigate, location.state?.documentUrl]);
 
   return (

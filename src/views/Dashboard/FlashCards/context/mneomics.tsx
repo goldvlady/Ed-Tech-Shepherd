@@ -3,8 +3,8 @@ import React, {
   useState,
   useContext,
   Dispatch,
-  SetStateAction,
-} from "react";
+  SetStateAction
+} from 'react';
 
 interface IMnemonic {
   prompt: string;
@@ -29,14 +29,14 @@ export const useMnemonicSetupState = () => {
   const context = useContext(MnemonicSetupContext);
   if (!context) {
     throw new Error(
-      "useMnemonicSetupState must be used within a MnemonicSetupProvider"
+      'useMnemonicSetupState must be used within a MnemonicSetupProvider'
     );
   }
   return context;
 };
 
 const MnemonicSetupProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
+  children
 }) => {
   const [mnemonics, setMnemonics] = useState<IMnemonic[]>([]);
 
@@ -48,9 +48,9 @@ const MnemonicSetupProvider: React.FC<{ children: React.ReactNode }> = ({
     setMnemonics((prev) => {
       const newData = prev.map((prev) => {
         prev.answer =
-          "All ALphabetically ARranged, ASparagus As A Main Course, Could Get Grossly Gassy, Having Histamine Iced Lattes, Lousy Kebabs Might Perk you up, Phenomenal Fried Plantains, Perfectly Pressed, Simply Scrumptious Thistles, Tasty Tofu, Voila!";
+          'All ALphabetically ARranged, ASparagus As A Main Course, Could Get Grossly Gassy, Having Histamine Iced Lattes, Lousy Kebabs Might Perk you up, Phenomenal Fried Plantains, Perfectly Pressed, Simply Scrumptious Thistles, Tasty Tofu, Voila!';
         prev.explanation =
-          "There are 20 amino acids commonly found in proteins: Alanine, Arginine, Asparagine, Aspartic acid, Cysteine, Glutamic acid, Glutamine, Glycine, Histidine, Isoleucine, Leucine, Lysine, Methionine, Phenylalanine, Proline, Serine, Threonine, Tryptophan, Tyrosine, Valine.";
+          'There are 20 amino acids commonly found in proteins: Alanine, Arginine, Asparagine, Aspartic acid, Cysteine, Glutamic acid, Glutamine, Glycine, Histidine, Isoleucine, Leucine, Lysine, Methionine, Phenylalanine, Proline, Serine, Threonine, Tryptophan, Tyrosine, Valine.';
         return prev;
       });
       return [...newData];
@@ -75,7 +75,7 @@ const MnemonicSetupProvider: React.FC<{ children: React.ReactNode }> = ({
         addMnemonic,
         updateMnemonic,
         deleteMnemonic,
-        generateMneomics,
+        generateMneomics
       }}
     >
       {children}

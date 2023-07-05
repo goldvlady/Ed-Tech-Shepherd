@@ -1,3 +1,5 @@
+import { classNames } from '../../util';
+import MessagesTab from './components/MessagesTab';
 import { SearchIcon } from '@chakra-ui/icons';
 import {
   Avatar,
@@ -19,21 +21,18 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
-  Text,
+  Text
 } from '@chakra-ui/react';
 import { Dialog, Menu, Popover, Transition } from '@headlessui/react';
 import {
   ChevronRightIcon,
   DocumentIcon,
   EllipsisVerticalIcon,
-  XMarkIcon,
+  XMarkIcon
 } from '@heroicons/react/24/solid';
 import { Fragment } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import { AiOutlineMore } from 'react-icons/ai';
-
-import { classNames } from '../../util';
-import MessagesTab from './components/MessagesTab';
 
 export default function Messages() {
   const [offerModalState, setOfferModalState] = useState(false);
@@ -44,8 +43,8 @@ export default function Messages() {
     { from: 'me', text: 'Myself Ferin Patel' },
     {
       from: 'computer',
-      text: "Nice to meet you. You can send me message and i'll reply you with same message.",
-    },
+      text: "Nice to meet you. You can send me message and i'll reply you with same message."
+    }
   ]);
   const AlwaysScrollToBottom = () => {
     const elementRef: any = useRef('');
@@ -480,14 +479,21 @@ export default function Messages() {
       </Transition.Root> */}
       <Box margin={'-1.5rem'} h={900}>
         <Grid templateRows="repeat(1, 1fr)" templateColumns="repeat(3, 1fr)">
-          <GridItem rowSpan={3} colSpan={1} borderRight="1px solid #EEEFF2" p={3}>
+          <GridItem
+            rowSpan={3}
+            colSpan={1}
+            borderRight="1px solid #EEEFF2"
+            p={3}
+          >
             <Text>Messages</Text>
             <Input type="text" placeholder="Search" />
             <Box my={3}>
               <Tabs isFitted variant="unstyled">
                 <TabList bg={'#f8f9fd'} p={1} borderRadius="8px" mb={3}>
                   <Tab _selected={{ color: 'text.400', bg: 'white' }}>All</Tab>
-                  <Tab _selected={{ color: 'text.400', bg: 'white' }}>Unread</Tab>
+                  <Tab _selected={{ color: 'text.400', bg: 'white' }}>
+                    Unread
+                  </Tab>
                 </TabList>
                 <TabPanels>
                   <TabPanel maxHeight={1000} overflowY={'scroll'}>
@@ -529,12 +535,21 @@ export default function Messages() {
             <Flex alignItems="center" bg="white" zIndex={3}>
               <Box p="3">
                 <Flex px={3} gap={0} direction={'row'} my={2}>
-                  <Avatar name="Leslie" src="https://bit.ly/tioluwani-kolawole" bgColor="#4CAF50" />
+                  <Avatar
+                    name="Leslie"
+                    src="https://bit.ly/tioluwani-kolawole"
+                    bgColor="#4CAF50"
+                  />
                   <Stack direction={'column'} px={4}>
                     <Text fontSize={'16px'} fontWeight={'500'} mb={-2}>
                       Leslie Peters Mapu
                     </Text>
-                    <Text fontWeight={400} color={'#585F68'} fontSize="14px" mb={'2px'}>
+                    <Text
+                      fontWeight={400}
+                      color={'#585F68'}
+                      fontSize="14px"
+                      mb={'2px'}
+                    >
                       lesliepeters214@gmail.com{' '}
                     </Text>
                   </Stack>
@@ -547,7 +562,8 @@ export default function Messages() {
                   fontSize={12}
                   color="text.300"
                   size={'sm'}
-                  border="1px solid #E7E8E9">
+                  border="1px solid #E7E8E9"
+                >
                   View Profile
                 </Button>
               </Box>
@@ -596,13 +612,15 @@ export default function Messages() {
                           </div>
                           <div className="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl">
                             <p>
-                              Nulla ut ut ipsum praesent nulla sem eget. Aliquam vitae amet magna
-                              neque leo. Fames donec nullam dictum aliquet. Nunc odio lorem
-                              venenatis urna
+                              Nulla ut ut ipsum praesent nulla sem eget. Aliquam
+                              vitae amet magna neque leo. Fames donec nullam
+                              dictum aliquet. Nunc odio lorem venenatis urna
                             </p>
                           </div>
                         </div>
-                        <span className="text-xs pl-10 text-secondaryGray">03:05 PM</span>
+                        <span className="text-xs pl-10 text-secondaryGray">
+                          03:05 PM
+                        </span>
                       </div>
                       <div className="col-start-5 col-end-13 p-3 rounded-lg">
                         <div className="flex items-start justify-start flex-row-reverse">
@@ -611,8 +629,9 @@ export default function Messages() {
                           </div>
                           <div className="relative mr-3 text-sm bg-primaryBlue text-white py-2 px-4 shadow rounded-xl">
                             <p>
-                              Nulla ut ut ipsum praesent nulla sem eget. Aliquam vitae amet magna
-                              neque leo. Fames donec nullam dictum aliquet.{' '}
+                              Nulla ut ut ipsum praesent nulla sem eget. Aliquam
+                              vitae amet magna neque leo. Fames donec nullam
+                              dictum aliquet.{' '}
                             </p>
                             <button className="w-full bg-white mt-1 rounded-md flex items-center justify-between px-2 py-1">
                               <div className=" flex items-center space-x-1">
@@ -631,7 +650,9 @@ export default function Messages() {
                             </button>
                           </div>
                         </div>
-                        <span className="text-xs text-secondaryGray">03:05 PM</span>
+                        <span className="text-xs text-secondaryGray">
+                          03:05 PM
+                        </span>
                       </div>
                       <div className="col-start-1 col-end-10 p-3 rounded-lg">
                         <div className="flex flex-row items-start">
@@ -640,24 +661,15 @@ export default function Messages() {
                           </div>
                           <div className="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl">
                             <p>
-                              Nulla ut ut ipsum praesent nulla sem eget. Aliquam vitae amet magna
-                              neque leo. Fames donec nullam dictum aliquet. Nunc odio lorem
-                              venenatis urna
+                              Nulla ut ut ipsum praesent nulla sem eget. Aliquam
+                              vitae amet magna neque leo. Fames donec nullam
+                              dictum aliquet. Nunc odio lorem venenatis urna
                             </p>
                           </div>
                         </div>
-                        <span className="text-xs pl-10 text-secondaryGray">03:05 PM</span>
-                      </div>
-                      <div className="col-start-1 col-end-10 p-3 rounded-lg">
-                        <div className="flex flex-row items-start">
-                          <div className="flex items-center text-white justify-center h-7 w-7 rounded-full bg-[#4CAF50] flex-shrink-0">
-                            L
-                          </div>
-                          <div className="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl">
-                            <p>Nulla ut ut ipsum praesent nulla sem eget. Aliqua</p>
-                          </div>
-                        </div>
-                        <span className="text-xs pl-10 text-secondaryGray">03:05 PM</span>
+                        <span className="text-xs pl-10 text-secondaryGray">
+                          03:05 PM
+                        </span>
                       </div>
                       <div className="col-start-1 col-end-10 p-3 rounded-lg">
                         <div className="flex flex-row items-start">
@@ -666,9 +678,24 @@ export default function Messages() {
                           </div>
                           <div className="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl">
                             <p>
-                              Nulla ut ut ipsum praesent nulla sem eget. Aliquam vitae amet magna
-                              neque leo. Fames donec nullam dictum aliquet. Nunc odio lorem
-                              venenatis urna
+                              Nulla ut ut ipsum praesent nulla sem eget. Aliqua
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-xs pl-10 text-secondaryGray">
+                          03:05 PM
+                        </span>
+                      </div>
+                      <div className="col-start-1 col-end-10 p-3 rounded-lg">
+                        <div className="flex flex-row items-start">
+                          <div className="flex items-center text-white justify-center h-7 w-7 rounded-full bg-[#4CAF50] flex-shrink-0">
+                            L
+                          </div>
+                          <div className="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl">
+                            <p>
+                              Nulla ut ut ipsum praesent nulla sem eget. Aliquam
+                              vitae amet magna neque leo. Fames donec nullam
+                              dictum aliquet. Nunc odio lorem venenatis urna
                             </p>
                             <button className="w-full bg-gray-100 mt-1 rounded-md flex items-center justify-between px-2 py-1">
                               <div className=" flex items-center space-x-1">
@@ -687,7 +714,9 @@ export default function Messages() {
                             </button>
                           </div>
                         </div>
-                        <span className="text-xs pl-10 text-secondaryGray">03:05 PM</span>
+                        <span className="text-xs pl-10 text-secondaryGray">
+                          03:05 PM
+                        </span>
                       </div>
                       <div className="col-start-1 col-end-10 p-3 rounded-lg">
                         <div className="flex flex-row items-start">
@@ -696,13 +725,15 @@ export default function Messages() {
                           </div>
                           <div className="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl">
                             <p>
-                              Nulla ut ut ipsum praesent nulla sem eget. Aliquam vitae amet magna
-                              neque leo. Fames donec nullam dictum aliquet. Nunc odio lorem
-                              venenatis urna
+                              Nulla ut ut ipsum praesent nulla sem eget. Aliquam
+                              vitae amet magna neque leo. Fames donec nullam
+                              dictum aliquet. Nunc odio lorem venenatis urna
                             </p>
                           </div>
                         </div>
-                        <span className="text-xs pl-10 text-secondaryGray">03:05 PM</span>
+                        <span className="text-xs pl-10 text-secondaryGray">
+                          03:05 PM
+                        </span>
                       </div>{' '}
                       <div className="col-start-1 col-end-10 p-3 rounded-lg">
                         <div className="flex flex-row items-start">
@@ -711,13 +742,15 @@ export default function Messages() {
                           </div>
                           <div className="relative ml-3 text-sm text-secondaryGray bg-white py-2 px-4 shadow rounded-xl">
                             <p>
-                              Nulla ut ut ipsum praesent nulla sem eget. Aliquam vitae amet magna
-                              neque leo. Fames donec nullam dictum aliquet. Nunc odio lorem
-                              venenatis urna
+                              Nulla ut ut ipsum praesent nulla sem eget. Aliquam
+                              vitae amet magna neque leo. Fames donec nullam
+                              dictum aliquet. Nunc odio lorem venenatis urna
                             </p>
                           </div>
                         </div>
-                        <span className="text-xs pl-10 text-secondaryGray">03:05 PM</span>
+                        <span className="text-xs pl-10 text-secondaryGray">
+                          03:05 PM
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -747,9 +780,22 @@ export default function Messages() {
                 </button>
               </div>
             </div> */}
-            <Box position="fixed" bottom={0} zIndex={3} p={2} h={16} bg="white" w="full">
+            <Box
+              position="fixed"
+              bottom={0}
+              zIndex={3}
+              p={2}
+              h={16}
+              bg="white"
+              w="full"
+            >
               <Flex alignItems="center">
-                <Input pr="4.5rem" type={'text'} placeholder="Message Leslie Peters" w="50%" />
+                <Input
+                  pr="4.5rem"
+                  type={'text'}
+                  placeholder="Message Leslie Peters"
+                  w="50%"
+                />
                 <Button h="1.75rem" size="sm" variant="ghost">
                   <DocumentIcon className="w-5 h-5" />
                 </Button>

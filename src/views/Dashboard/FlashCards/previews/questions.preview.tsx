@@ -1,14 +1,14 @@
-import OptionBadge from "../components/optionBadge";
-import QuestionReviewCard from "../components/question_preview_card";
-import { useFlashCardState } from "../context/flashcard";
-import { TypeEnum } from "../create";
-import { Box, Button, HStack, Text, VStack, Flex } from "@chakra-ui/react";
-import React from "react";
+import OptionBadge from '../components/optionBadge';
+import QuestionReviewCard from '../components/question_preview_card';
+import { useFlashCardState } from '../context/flashcard';
+import { TypeEnum } from '../create';
+import { Box, Button, HStack, Text, VStack, Flex } from '@chakra-ui/react';
+import React from 'react';
 
 export default function QuestionsPreview({
   activeBadge,
   handleBadgeClick,
-  onConfirm,
+  onConfirm
 }: {
   activeBadge?: TypeEnum;
   handleBadgeClick: (v: TypeEnum) => void;
@@ -17,15 +17,15 @@ export default function QuestionsPreview({
   const { questions, deleteQuestion, goToQuestion } = useFlashCardState();
 
   const generateOptions = (questionType: string, options?: string[]) => {
-    if (questionType === "trueFalse") {
-      return ["True", "False"].map((option) => ({
+    if (questionType === 'trueFalse') {
+      return ['True', 'False'].map((option) => ({
         label: option,
-        value: option,
+        value: option
       }));
     } else {
       return options?.map((option) => ({
         label: option,
-        value: option,
+        value: option
       }));
     }
   };
@@ -52,7 +52,6 @@ export default function QuestionsPreview({
           <OptionBadge
             text="Flashcards"
             icon={(isActive) => {
-              console.log("isActive ==>", isActive);
               return (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -61,7 +60,7 @@ export default function QuestionsPreview({
                   strokeWidth={1.5}
                   stroke="currentColor"
                   className="w-6 h-6"
-                  color={isActive ? "#FFFFFF" : "#6E7682"}
+                  color={isActive ? '#FFFFFF' : '#6E7682'}
                 >
                   <path
                     strokeLinecap="round"
@@ -84,7 +83,7 @@ export default function QuestionsPreview({
                 strokeWidth={1.5}
                 stroke="currentColor"
                 className="w-6 h-6"
-                color={isActive ? "#FFFFFF" : "#6E7682"}
+                color={isActive ? '#FFFFFF' : '#6E7682'}
               >
                 <path
                   strokeLinecap="round"
@@ -114,10 +113,10 @@ export default function QuestionsPreview({
         flex="1"
         overflowY="scroll"
         css={{
-          "&::-webkit-scrollbar": {
-            display: "none",
+          '&::-webkit-scrollbar': {
+            display: 'none'
           },
-          maskImage: "linear-gradient(to bottom, black 90%, transparent)",
+          maskImage: 'linear-gradient(to bottom, black 90%, transparent)'
         }}
       >
         <Text
@@ -130,7 +129,7 @@ export default function QuestionsPreview({
         >
           Review flashcard questions
         </Text>
-        <VStack width={"100%"}>
+        <VStack width={'100%'}>
           {questions
             .filter((question) => question.question)
             .map((question, index: number) => (

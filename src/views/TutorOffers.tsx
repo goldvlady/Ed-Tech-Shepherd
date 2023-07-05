@@ -1,5 +1,5 @@
-import React from "react"
-import { Layout, OffersGridList, Section } from "../components"
+import { Layout, OffersGridList, Section } from '../components';
+import React from 'react';
 
 export default function Offers() {
   return (
@@ -11,5 +11,5 @@ export default function Offers() {
       />
       <OffersGridList />
     </Layout>
-  )
+  );
 }

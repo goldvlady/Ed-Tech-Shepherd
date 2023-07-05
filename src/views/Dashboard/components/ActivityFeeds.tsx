@@ -1,9 +1,9 @@
-import AdobeIcon from "../../../assets/adobedoc.svg";
-import FeedIcon from "../../../assets/blue-energy.svg";
-import DocIcon from "../../../assets/doc-icon.svg";
-import FlashcardIcon from "../../../assets/flashcardIcon.svg";
-import NoteIcon from "../../../assets/notes.svg";
-import ReceiptIcon from "../../../assets/receiptIcon.svg";
+import AdobeIcon from '../../../assets/adobedoc.svg';
+import FeedIcon from '../../../assets/blue-energy.svg';
+import DocIcon from '../../../assets/doc-icon.svg';
+import FlashcardIcon from '../../../assets/flashcardIcon.svg';
+import NoteIcon from '../../../assets/notes.svg';
+import ReceiptIcon from '../../../assets/receiptIcon.svg';
 import {
   Box,
   Button,
@@ -18,13 +18,13 @@ import {
   Select,
   Spacer,
   Stack,
-  Text,
-} from "@chakra-ui/react";
-import React, { useState } from "react";
-import { BsChevronDown, BsFiletypeDoc } from "react-icons/bs";
-import { RiCalendar2Fill } from "react-icons/ri";
-import { SlEnergy } from "react-icons/sl";
-import styled from "styled-components";
+  Text
+} from '@chakra-ui/react';
+import React, { useState } from 'react';
+import { BsChevronDown, BsFiletypeDoc } from 'react-icons/bs';
+import { RiCalendar2Fill } from 'react-icons/ri';
+import { SlEnergy } from 'react-icons/sl';
+import styled from 'styled-components';
 
 const Root = styled(Flex)`
   position: relative;
@@ -33,7 +33,7 @@ const Root = styled(Flex)`
   direction: row;
   margin: 4 0;
   &:before {
-    content: "";
+    content: '';
     position: absolute;
     left: 22px;
     top: 0;
@@ -46,7 +46,7 @@ const Root = styled(Flex)`
 `;
 
 function ActivityFeeds() {
-  const [feedPeriod, setFeedPeriod] = useState<any>("Today");
+  const [feedPeriod, setFeedPeriod] = useState<any>('Today');
 
   return (
     <>
@@ -71,16 +71,16 @@ function ActivityFeeds() {
               fontWeight={500}
               color="#5C5F64"
               mb={2}
-              h={"32px"}
+              h={'32px'}
             >
               {feedPeriod}
             </MenuButton>
             <MenuList>
-              <MenuItem onClick={() => setFeedPeriod("Today")}>Today</MenuItem>
-              <MenuItem onClick={() => setFeedPeriod("This week")}>
+              <MenuItem onClick={() => setFeedPeriod('Today')}>Today</MenuItem>
+              <MenuItem onClick={() => setFeedPeriod('This week')}>
                 This week
               </MenuItem>
-              <MenuItem onClick={() => setFeedPeriod("This month")}>
+              <MenuItem onClick={() => setFeedPeriod('This month')}>
                 This month
               </MenuItem>
             </MenuList>
@@ -92,7 +92,7 @@ function ActivityFeeds() {
       <Box>
         <Root px={3} my={4}>
           <Image src={DocIcon} alt="doc" maxHeight={45} zIndex={1} />
-          <Stack direction={"column"} px={4} spacing={1}>
+          <Stack direction={'column'} px={4} spacing={1}>
             <Text color="text.300" fontSize={12} mb={0}>
               2 hrs ago
             </Text>
@@ -103,9 +103,9 @@ function ActivityFeeds() {
             <Spacer />
 
             <Box
-              width={"fit-content"}
+              width={'fit-content'}
               height="40px"
-              borderRadius={"30px"}
+              borderRadius={'30px'}
               border=" 1px dashed #E2E4E9"
               justifyContent="center"
               alignItems="center"
@@ -126,7 +126,7 @@ function ActivityFeeds() {
 
         <Root px={3} my={4}>
           <Image src={NoteIcon} alt="doc" maxHeight={45} zIndex={1} />
-          <Stack direction={"column"} px={4} spacing={1}>
+          <Stack direction={'column'} px={4} spacing={1}>
             <Text color="text.300" fontSize={12} mb={0}>
               7 hrs ago
             </Text>
@@ -137,9 +137,9 @@ function ActivityFeeds() {
             <Spacer />
 
             <Box
-              width={"fit-content"}
+              width={'fit-content'}
               height="40px"
-              borderRadius={"30px"}
+              borderRadius={'30px'}
               border=" 1px dashed #E2E4E9"
               justifyContent="center"
               alignItems="center"
@@ -159,7 +159,7 @@ function ActivityFeeds() {
         </Root>
         <Root px={3} my={4}>
           <Image src={ReceiptIcon} alt="doc" maxHeight={45} zIndex={1} />
-          <Stack direction={"column"} px={4} spacing={1}>
+          <Stack direction={'column'} px={4} spacing={1}>
             <Text color="text.300" fontSize={12} mb={0}>
               Yesterday.13:00
             </Text>
@@ -170,9 +170,9 @@ function ActivityFeeds() {
 
             <Spacer />
             <Box
-              width={"fit-content"}
+              width={'fit-content'}
               height="40px"
-              borderRadius={"30px"}
+              borderRadius={'30px'}
               border=" 1px dashed #E2E4E9"
               justifyContent="center"
               alignItems="center"
@@ -190,16 +190,16 @@ function ActivityFeeds() {
             </Box>
           </Stack>
         </Root>
-        <Flex alignItems="flex-start" px={3} direction={"row"} my={4}>
+        <Flex alignItems="flex-start" px={3} direction={'row'} my={4}>
           <Image
             src={FlashcardIcon}
             alt="doc"
             maxHeight={45}
             zIndex={1}
-            position={"relative"}
+            position={'relative'}
             right={1}
           />
-          <Stack direction={"column"} px={4} spacing={1}>
+          <Stack direction={'column'} px={4} spacing={1}>
             <Text color="text.300" fontSize={12} mb={0}>
               17th May 2023.13:00
             </Text>
@@ -211,9 +211,9 @@ function ActivityFeeds() {
             <Spacer />
 
             <Box
-              width={"fit-content"}
+              width={'fit-content'}
               height="40px"
-              borderRadius={"30px"}
+              borderRadius={'30px'}
               border=" 1px dashed #E2E4E9"
               justifyContent="center"
               alignItems="center"

@@ -1,10 +1,16 @@
-import React from "react";
-import { Layout, Proceed, GridList, RecentTransactions, WelcomePage } from "../components";
+import {
+  Layout,
+  Proceed,
+  GridList,
+  RecentTransactions,
+  WelcomePage
+} from '../components';
+import React from 'react';
 
 export default function Dashboard() {
   return (
     <Layout className="px-4">
-      <WelcomePage 
+      <WelcomePage
         greeting="Hi Leslie, Good Evening"
         date="Tuesday, July 21"
         time="13:00"
@@ -13,5 +19,5 @@ export default function Dashboard() {
       <GridList />
       <RecentTransactions />
     </Layout>
-  )
+  );
 }

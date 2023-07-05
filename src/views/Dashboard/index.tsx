@@ -1,25 +1,25 @@
-import timer from "../../assets/big-timer.svg";
-import FeedIcon from "../../assets/blue-energy.svg";
-import briefCase from "../../assets/briefcase.svg";
-import cloudDay from "../../assets/day.svg";
-import EnergyUp from "../../assets/energy-up.svg";
-import OnFire from "../../assets/fire.svg";
-import Flash from "../../assets/flash.svg";
-import Less50 from "../../assets/less-50.svg";
-import magicStar from "../../assets/magic-star.svg";
-import cloudNight from "../../assets/night.svg";
-import ribbon2 from "../../assets/ribbon1.svg";
-import ribbon1 from "../../assets/ribbon2.svg";
-import summary from "../../assets/summary.svg";
+import timer from '../../assets/big-timer.svg';
+import FeedIcon from '../../assets/blue-energy.svg';
+import briefCase from '../../assets/briefcase.svg';
+import cloudDay from '../../assets/day.svg';
+import EnergyUp from '../../assets/energy-up.svg';
+import OnFire from '../../assets/fire.svg';
+import Flash from '../../assets/flash.svg';
+import Less50 from '../../assets/less-50.svg';
+import magicStar from '../../assets/magic-star.svg';
+import cloudNight from '../../assets/night.svg';
+import ribbon2 from '../../assets/ribbon1.svg';
+import ribbon1 from '../../assets/ribbon2.svg';
+import summary from '../../assets/summary.svg';
 import SessionPrefaceDialog, {
-  SessionPrefaceDialogRef,
-} from "../../components/SessionPrefaceDialog";
-import userStore from "../../state/userStore";
-import { numberToDayOfWeekName, twoDigitFormat } from "../../util";
-import ActivityFeeds from "./components/ActivityFeeds";
-import Carousel from "./components/Carousel";
-import { PerformanceChart } from "./components/PerformanceChart";
-import Schedule from "./components/Schedule";
+  SessionPrefaceDialogRef
+} from '../../components/SessionPrefaceDialog';
+import userStore from '../../state/userStore';
+import { numberToDayOfWeekName, twoDigitFormat } from '../../util';
+import ActivityFeeds from './components/ActivityFeeds';
+import Carousel from './components/Carousel';
+import { PerformanceChart } from './components/PerformanceChart';
+import Schedule from './components/Schedule';
 import {
   Alert,
   AlertIcon,
@@ -51,30 +51,30 @@ import {
   useBreakpointValue,
   useDisclosure,
   Center,
-  VStack,
-} from "@chakra-ui/react";
-import { capitalize } from "lodash";
-import moment from "moment";
-import React, { useEffect, useRef, useState } from "react";
-import { BiLeftArrowAlt, BiRightArrowAlt } from "react-icons/bi";
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import { RxDotFilled } from "react-icons/rx";
-import Slider from "react-slick";
+  VStack
+} from '@chakra-ui/react';
+import { capitalize } from 'lodash';
+import moment from 'moment';
+import React, { useEffect, useRef, useState } from 'react';
+import { BiLeftArrowAlt, BiRightArrowAlt } from 'react-icons/bi';
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import { RxDotFilled } from 'react-icons/rx';
+import Slider from 'react-slick';
 
 export default function Index() {
   const [slider, setSlider] = useState<Slider | null>(null);
-  const [firstname, setFirstname] = useState("");
+  const [firstname, setFirstname] = useState('');
 
-  const top = useBreakpointValue({ base: "90%", md: "50%" });
-  const side = useBreakpointValue({ base: "30%", md: "40px" });
+  const top = useBreakpointValue({ base: '90%', md: '50%' });
+  const side = useBreakpointValue({ base: '30%', md: '40px' });
 
   //Date
   const date = new Date();
-  const weekday = numberToDayOfWeekName(date.getDay(), "dddd");
-  const month = moment().format("MMMM");
+  const weekday = numberToDayOfWeekName(date.getDay(), 'dddd');
+  const month = moment().format('MMMM');
   const monthday = date.getDate();
   const time =
-    twoDigitFormat(date.getHours()) + ":" + twoDigitFormat(date.getMinutes());
+    twoDigitFormat(date.getHours()) + ':' + twoDigitFormat(date.getMinutes());
   const hours = date.getHours();
   const isDayTime = hours > 6 && hours < 20;
 
@@ -83,23 +83,23 @@ export default function Index() {
 
   const cards = [
     {
-      title: "Design Projects 1",
+      title: 'Design Projects 1',
       text: "The project board is an exclusive resource for contract work. It's perfect for freelancers, agencies, and moonlighters.",
       image:
-        "https://images.unsplash.com/photo-1516796181074-bf453fbfa3e6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1yZWxhdGVkfDV8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=900&q=60",
+        'https://images.unsplash.com/photo-1516796181074-bf453fbfa3e6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1yZWxhdGVkfDV8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=900&q=60'
     },
     {
-      title: "Design Projects 2",
+      title: 'Design Projects 2',
       text: "The project board is an exclusive resource for contract work. It's perfect for freelancers, agencies, and moonlighters.",
       image:
-        "https://images.unsplash.com/photo-1438183972690-6d4658e3290e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2274&q=80",
+        'https://images.unsplash.com/photo-1438183972690-6d4658e3290e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2274&q=80'
     },
     {
-      title: "Design Projects 3",
+      title: 'Design Projects 3',
       text: "The project board is an exclusive resource for contract work. It's perfect for freelancers, agencies, and moonlighters.",
       image:
-        "https://images.unsplash.com/photo-1507237998874-b4d52d1dd655?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1yZWxhdGVkfDR8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=900&q=60",
-    },
+        'https://images.unsplash.com/photo-1507237998874-b4d52d1dd655?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1yZWxhdGVkfDR8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=900&q=60'
+    }
   ];
   // Settings for the slider
   const settings = {
@@ -111,42 +111,42 @@ export default function Index() {
     speed: 500,
     autoplaySpeed: 1000,
     slidesToShow: 1,
-    slidesToScroll: 1,
+    slidesToScroll: 1
   };
 
   const slides = [
     {
       //   img: OnFire,
       //   description: "spend a little extra time learning",
-      label: "You’ve scored a total of 65% in all quizzes this week!",
+      label: 'You’ve scored a total of 65% in all quizzes this week!'
     },
     {
       img: EnergyUp,
-      description: "Complete a flash deck to make it 4",
-      label: "You’re on a 3 day streak!",
+      description: 'Complete a flash deck to make it 4',
+      label: 'You’re on a 3 day streak!'
     },
     {
       img: OnFire,
-      description: "spend a little extra time learning",
-      label: "You spent 5 hours learning this week",
-    },
+      description: 'spend a little extra time learning',
+      label: 'You spent 5 hours learning this week'
+    }
   ];
   const CarouselData = [
     {
       headerText: null,
-      subText: "Sub Text One",
-      image: "https://picsum.photos/300/300",
+      subText: 'Sub Text One',
+      image: 'https://picsum.photos/300/300'
     },
     {
-      headerText: "Header Text Two",
+      headerText: 'Header Text Two',
       subText: null,
-      image: "https://picsum.photos/1200/800",
+      image: 'https://picsum.photos/1200/800'
     },
     {
       headerText: null,
       subText: null,
-      image: "https://picsum.photos/720/720",
-    },
+      image: 'https://picsum.photos/720/720'
+    }
   ];
 
   const sessionPrefaceDialogRef = useRef<SessionPrefaceDialogRef>(null);
@@ -161,7 +161,7 @@ export default function Index() {
 
       <Box p={5}>
         <Box
-          bgColor={"#FFF5F0"}
+          bgColor={'#FFF5F0'}
           py={2}
           px={7}
           pb={2}
@@ -169,10 +169,10 @@ export default function Index() {
           mb={4}
           textAlign="center"
         >
-          <Flex alignItems={"center"}>
+          <Flex alignItems={'center'}>
             <Box display="flex">
               <Text
-                textTransform={"uppercase"}
+                textTransform={'uppercase'}
                 color="#4CAF50"
                 fontSize={10}
                 bgColor="rgba(191, 227, 193, 0.4)"
@@ -193,7 +193,7 @@ export default function Index() {
 
             <Spacer />
             <Box>
-              {" "}
+              {' '}
               <Button
                 variant="unstyled"
                 bgColor="#fff"
@@ -202,7 +202,7 @@ export default function Index() {
                 px={2}
                 py={0}
                 onClick={() =>
-                  sessionPrefaceDialogRef.current?.open("http://google.com")
+                  sessionPrefaceDialogRef.current?.open('http://google.com')
                 }
               >
                 Join Lesson
@@ -232,7 +232,7 @@ export default function Index() {
             <Box mt={1}>
               <RxDotFilled />
             </Box>
-            <Text mb={0}>{`${weekday}, ${month} ${monthday}`}</Text>{" "}
+            <Text mb={0}>{`${weekday}, ${month} ${monthday}`}</Text>{' '}
             <Box mt={1}>
               <RxDotFilled />
             </Box>
@@ -252,7 +252,7 @@ export default function Index() {
               // bgSize={"160px"}
               // bgPosition={"right -10px bottom 10px"}
               // height={"250px"}
-              borderRadius={"10px"}
+              borderRadius={'10px'}
               border="1px solid #eeeff2"
             >
               <Grid
@@ -265,12 +265,12 @@ export default function Index() {
                   rowSpan={1}
                   colSpan={1}
                   p={3}
-                  borderBottom={"1px solid #eeeff2"}
+                  borderBottom={'1px solid #eeeff2'}
                   position="relative"
                 >
                   <Flex gap={1}>
                     <Image src={summary} />
-                    <Text fontSize={"20px"} fontWeight={600}>
+                    <Text fontSize={'20px'} fontWeight={600}>
                       Weekly Summary
                     </Text>
                   </Flex>
@@ -279,13 +279,13 @@ export default function Index() {
                     <Text fontSize={14} fontWeight={500} color="text.400">
                       Cards studied
                     </Text>
-                    <Text fontSize={"24px"} fontWeight={600}>
+                    <Text fontSize={'24px'} fontWeight={600}>
                       0
                       <span
                         style={{
-                          fontSize: "14px",
-                          fontWeight: "400",
-                          color: "#6e7682",
+                          fontSize: '14px',
+                          fontWeight: '400',
+                          color: '#6e7682'
                         }}
                       >
                         cards
@@ -298,7 +298,7 @@ export default function Index() {
                   rowSpan={1}
                   colSpan={1}
                   p={3}
-                  borderBottom={"1px solid #eeeff2"}
+                  borderBottom={'1px solid #eeeff2'}
                   position="relative"
                   h="130px"
                 >
@@ -308,29 +308,29 @@ export default function Index() {
                     </Text>
 
                     <Flex gap={1}>
-                      <Text fontSize={"24px"} fontWeight={600}>
+                      <Text fontSize={'24px'} fontWeight={600}>
                         05
                         <span
                           style={{
-                            fontSize: "14px",
-                            fontWeight: "400",
-                            color: "#6e7682",
+                            fontSize: '14px',
+                            fontWeight: '400',
+                            color: '#6e7682'
                           }}
                         >
-                          {" "}
+                          {' '}
                           hrs
                         </span>
-                      </Text>{" "}
-                      <Text fontSize={"24px"} fontWeight={600}>
+                      </Text>{' '}
+                      <Text fontSize={'24px'} fontWeight={600}>
                         30
                         <span
                           style={{
-                            fontSize: "14px",
-                            fontWeight: "400",
-                            color: "#6e7682",
+                            fontSize: '14px',
+                            fontWeight: '400',
+                            color: '#6e7682'
                           }}
                         >
-                          {" "}
+                          {' '}
                           mins
                         </span>
                       </Text>
@@ -348,30 +348,30 @@ export default function Index() {
                   <Text fontSize={14} fontWeight={500} color="text.400" my={3}>
                     Flashcard performance
                   </Text>
-                  <Flex alignItems={"center"} fontSize={12} my={2}>
+                  <Flex alignItems={'center'} fontSize={12} my={2}>
                     <Box
                       boxSize="12px"
                       bg="#4caf50"
-                      borderRadius={"3px"}
+                      borderRadius={'3px'}
                       mr={2}
                     />
                     <Text color="text.300">Got it right</Text>
                     <Spacer />
                     <Text fontWeight={600}>40%</Text>
                   </Flex>
-                  <Flex alignItems={"center"} fontSize={12} my={2}>
+                  <Flex alignItems={'center'} fontSize={12} my={2}>
                     <Box
                       boxSize="12px"
                       bg="#fb8441"
-                      borderRadius={"3px"}
+                      borderRadius={'3px'}
                       mr={2}
                     />
                     <Text color="text.300">Didn't remember</Text>
                     <Spacer />
                     <Text fontWeight={600}>40%</Text>
                   </Flex>
-                  <Flex alignItems={"center"} fontSize={12} my={2}>
-                    <Box boxSize="12px" bg="red" borderRadius={"3px"} mr={2} />
+                  <Flex alignItems={'center'} fontSize={12} my={2}>
+                    <Box boxSize="12px" bg="red" borderRadius={'3px'} mr={2} />
                     <Text color="text.300">Got it wrong</Text>
                     <Spacer />
                     <Text fontWeight={600}>20%</Text>
@@ -383,7 +383,7 @@ export default function Index() {
                   position="relative"
                   border="1px solid #eeeff2"
                 >
-                  <Box h={"full"} position="absolute" width={"full"}>
+                  <Box h={'full'} position="absolute" width={'full'}>
                     <Slider {...settings}>
                       <div>
                         <Center px={2} py={4}>
@@ -442,17 +442,17 @@ export default function Index() {
                 bg="#f0f2f4"
                 // h={"45px"}
                 borderBottom="1px solid #eeeff2"
-                borderBottomRadius={"10px"}
+                borderBottomRadius={'10px'}
               >
-                <Flex h="15px" alignItems={"center"}>
-                  <img src={Flash} alt="feed-icon" />{" "}
+                <Flex h="15px" alignItems={'center'}>
+                  <img src={Flash} alt="feed-icon" />{' '}
                   <Text fontSize={14} fontWeight={400} color="text.300">
-                    Current streak:{" "}
+                    Current streak:{' '}
                     <span
                       style={{
-                        fontSize: "14px",
-                        fontWeight: "500",
-                        color: "#000",
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        color: '#000'
                       }}
                     >
                       20 days
@@ -491,27 +491,27 @@ export default function Index() {
           <GridItem colSpan={3} rowSpan={1}>
             <Box
               border="1px solid #eeeff2"
-              borderRadius={"10px"}
-              bgColor={"#EEEFF2"}
-              height={"380px"}
+              borderRadius={'10px'}
+              bgColor={'#EEEFF2'}
+              height={'380px'}
               p={2}
               position="relative"
             >
-              <Text fontSize={"20px"} fontWeight={600}>
+              <Text fontSize={'20px'} fontWeight={600}>
                 Quiz Performance
               </Text>
-              <Box p={2} h={"350px"}>
+              <Box p={2} h={'350px'}>
                 <PerformanceChart />
               </Box>
             </Box>
           </GridItem>
           <GridItem colSpan={3}>
-            <Box border="1px solid #eeeff2" borderRadius={"14px"} p={3}>
+            <Box border="1px solid #eeeff2" borderRadius={'14px'} p={3}>
               <ActivityFeeds />
             </Box>
           </GridItem>
           <GridItem colSpan={2}>
-            <Box border="1px solid #eeeff2" borderRadius={"14px"} px={3} py={2}>
+            <Box border="1px solid #eeeff2" borderRadius={'14px'} px={3} py={2}>
               <Schedule />
             </Box>
           </GridItem>

@@ -9,9 +9,9 @@ import {
   ModalBody,
   ModalCloseButton,
   Text,
-  useDisclosure,
-} from "@chakra-ui/react";
-import React, { Component } from "react";
+  useDisclosure
+} from '@chakra-ui/react';
+import React, { Component } from 'react';
 
 export default function AskShepherd(props: any) {
   const { isOpen, onOpen, onClose } = props;

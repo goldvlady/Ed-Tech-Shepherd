@@ -1,7 +1,6 @@
-import { Box } from "@chakra-ui/react";
-import * as React from "react";
-
-import OnboardNav from "./OnboardNav";
+import OnboardNav from './OnboardNav';
+import { Box } from '@chakra-ui/react';
+import * as React from 'react';
 
 type Props = {
   children: React.ReactNode;

@@ -1,4 +1,4 @@
-import SelectableTable, { TableColumn } from "../../../components/table";
+import SelectableTable, { TableColumn } from '../../../components/table';
 import {
   Menu,
   MenuItem,
@@ -10,12 +10,12 @@ import {
   Box,
   Input,
   InputGroup,
-  InputLeftElement,
-} from "@chakra-ui/react";
-import React from "react";
-import { BsSearch } from "react-icons/bs";
-import { FaEllipsisH, FaCalendarAlt } from "react-icons/fa";
-import styled from "styled-components";
+  InputLeftElement
+} from '@chakra-ui/react';
+import React from 'react';
+import { BsSearch } from 'react-icons/bs';
+import { FaEllipsisH, FaCalendarAlt } from 'react-icons/fa';
+import styled from 'styled-components';
 
 const StyledImage = styled(Box)`
   display: inline-flex;
@@ -29,8 +29,8 @@ const StyledImage = styled(Box)`
   box-shadow: 0 2px 10px rgba(63, 81, 94, 0.1);
 `;
 
-const NewNote = "path-to-image"; // replace with actual path
-const Doc = "path-to-image"; // replace with actual path
+const NewNote = 'path-to-image'; // replace with actual path
+const Doc = 'path-to-image'; // replace with actual path
 
 type DataSourceItem = {
   key: number;
@@ -44,43 +44,43 @@ type DataSourceItem = {
 const dataSource: DataSourceItem[] = Array.from({ length: 10 }, (_, i) => ({
   key: i,
   title: `Title ${i + 1}`,
-  dateCreated: new Date().toISOString().split("T")[0], // current date in yyyy-mm-dd format
-  lastModified: new Date().toISOString().split("T")[0], // current date in yyyy-mm-dd format
-  lastAttempted: new Date().toISOString().split("T")[0], // current date in yyyy-mm-dd format
-  lastAttemptedScore: Math.floor(Math.random() * 101), // random score between 0 and 100
+  dateCreated: new Date().toISOString().split('T')[0], // current date in yyyy-mm-dd format
+  lastModified: new Date().toISOString().split('T')[0], // current date in yyyy-mm-dd format
+  lastAttempted: new Date().toISOString().split('T')[0], // current date in yyyy-mm-dd format
+  lastAttemptedScore: Math.floor(Math.random() * 101) // random score between 0 and 100
 }));
 
 const CustomTable: React.FC = () => {
   const columns: TableColumn<DataSourceItem>[] = [
     {
-      title: "Title",
-      dataIndex: "title",
-      key: "title",
-      render: ({ title }) => <Text fontWeight="500">{title}</Text>,
+      title: 'Title',
+      dataIndex: 'title',
+      key: 'title',
+      render: ({ title }) => <Text fontWeight="500">{title}</Text>
     },
     {
-      title: "Date Created",
-      dataIndex: "dateCreated",
-      key: "dateCreated",
+      title: 'Date Created',
+      dataIndex: 'dateCreated',
+      key: 'dateCreated'
     },
     {
-      title: "Last Modified",
-      dataIndex: "lastModified",
-      key: "lastModified",
+      title: 'Last Modified',
+      dataIndex: 'lastModified',
+      key: 'lastModified'
     },
     {
-      title: "Last Attempted",
-      dataIndex: "lastAttempted",
-      key: "lastAttempted",
+      title: 'Last Attempted',
+      dataIndex: 'lastAttempted',
+      key: 'lastAttempted'
     },
     {
-      title: "Last Attempted Score",
-      dataIndex: "lastAttemptedScore",
-      key: "lastAttemptedScore",
+      title: 'Last Attempted Score',
+      dataIndex: 'lastAttemptedScore',
+      key: 'lastAttemptedScore'
     },
     {
-      title: "",
-      key: "action",
+      title: '',
+      key: 'action',
       render: () => (
         <Menu>
           <MenuButton
@@ -91,19 +91,19 @@ const CustomTable: React.FC = () => {
             minW="auto"
             height="auto"
           >
-            <FaEllipsisH fontSize={"12px"} />
+            <FaEllipsisH fontSize={'12px'} />
           </MenuButton>
           <MenuList
             fontSize="14px"
-            minWidth={"185px"}
+            minWidth={'185px'}
             borderRadius="8px"
             backgroundColor="#FFFFFF"
             boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
           >
             <MenuItem
               p="6px 8px 6px 8px"
-              _hover={{ bgColor: "#F2F4F7" }}
-              onClick={() => console.log("ADD NEW NOTE")}
+              _hover={{ bgColor: '#F2F4F7' }}
+              onClick={() => null}
             >
               <StyledImage marginRight="10px">
                 <svg
@@ -129,7 +129,7 @@ const CustomTable: React.FC = () => {
                 Study
               </Text>
             </MenuItem>
-            <MenuItem p="6px 8px 6px 8px" _hover={{ bgColor: "#F2F4F7" }}>
+            <MenuItem p="6px 8px 6px 8px" _hover={{ bgColor: '#F2F4F7' }}>
               <StyledImage marginRight="10px">
                 <svg
                   width="12"
@@ -157,7 +157,7 @@ const CustomTable: React.FC = () => {
             <MenuItem
               p="6px 8px 6px 8px"
               color="#F53535"
-              _hover={{ bgColor: "#F2F4F7" }}
+              _hover={{ bgColor: '#F2F4F7' }}
             >
               <StyledImage marginRight="10px">
                 <svg
@@ -180,18 +180,18 @@ const CustomTable: React.FC = () => {
             </MenuItem>
           </MenuList>
         </Menu>
-      ),
-    },
+      )
+    }
   ];
 
   return (
-    <Box padding={"20px"}>
+    <Box padding={'20px'}>
       <Flex
         width="100%"
-        marginBottom={"40px"}
+        marginBottom={'40px'}
         alignItems="center"
         justifyContent="space-between"
-        paddingRight={"20px"}
+        paddingRight={'20px'}
         color="#E5E6E6"
       >
         <Text
@@ -205,16 +205,16 @@ const CustomTable: React.FC = () => {
           Flash Card
         </Text>
         <Flex
-          cursor={"pointer"}
+          cursor={'pointer'}
           border="1px solid #E5E6E6"
           padding="5px 10px"
-          borderRadius={"6px"}
+          borderRadius={'6px'}
           alignItems="center"
         >
           <Text
             fontWeight="400"
             fontSize="14px"
-            marginRight={"5px"}
+            marginRight={'5px'}
             color="#5E6164"
           >
             All Time
@@ -232,7 +232,7 @@ const CustomTable: React.FC = () => {
       >
         <Flex alignItems="center">
           <InputGroup size="sm" borderRadius="6px" width="200px" height="32px">
-            <InputLeftElement marginRight={"10px"} pointerEvents="none">
+            <InputLeftElement marginRight={'10px'} pointerEvents="none">
               <BsSearch color="#5E6164" size="14px" />
             </InputLeftElement>
             <Input
@@ -264,9 +264,9 @@ const CustomTable: React.FC = () => {
           </Flex>
           <Button
             variant="solid"
-            marginLeft={"20px"}
-            borderRadius={"10px"}
-            colorScheme={"primary"}
+            marginLeft={'20px'}
+            borderRadius={'10px'}
+            colorScheme={'primary'}
           >
             <svg
               width="16"
@@ -281,7 +281,7 @@ const CustomTable: React.FC = () => {
               />
             </svg>
 
-            <Text marginLeft={"10px"}>Practice today's calender</Text>
+            <Text marginLeft={'10px'}>Practice today's calender</Text>
           </Button>
         </Flex>
       </Flex>

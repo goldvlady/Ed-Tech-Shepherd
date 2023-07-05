@@ -1,5 +1,5 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 
 interface IStepContainerProps {
   width: string;
@@ -11,7 +11,7 @@ const StepContainer = styled.div<IStepContainerProps>`
   margin-top: 30px;
   position: relative;
   :before {
-    content: "";
+    content: '';
     position: absolute;
     background: #dcdedf;
     height: 2px;
@@ -21,7 +21,7 @@ const StepContainer = styled.div<IStepContainerProps>`
     left: 0;
   }
   :after {
-    content: "";
+    content: '';
     position: absolute;
     background: #207df7;
     height: 2px;
@@ -47,7 +47,7 @@ const StepStyle = styled.div<IStepStyleProps>`
   height: 40px;
   border-radius: 50%;
   background-color: #ffffff;
-  border: 1.5px solid ${({ active }) => (active ? "#207DF7" : "#EFF0F0")};
+  border: 1.5px solid ${({ active }) => (active ? '#207DF7' : '#EFF0F0')};
   transition: 0.4s ease;
   display: flex;
   justify-content: center;
@@ -60,7 +60,7 @@ const StepLabel = styled.span`
   text-align: start;
   left: -12px;
   top: 4px;
-  font-family: "Inter";
+  font-family: 'Inter';
   font-style: normal;
   font-weight: 500;
   font-size: 14px;
@@ -80,7 +80,7 @@ const CheckMark = styled.div`
 const StepCount = styled.span<IStepStyleProps>`
   font-size: 18px;
   font-weight: 600;
-  color: ${({ active }) => (active ? "#207DF7" : "#DCDEDF")};
+  color: ${({ active }) => (active ? '#207DF7' : '#DCDEDF')};
 `;
 
 export interface Step {
@@ -94,7 +94,7 @@ interface StepsIndicatorProps {
 
 const StepsLabelContainer = styled.div`
   position: absolute;
-  font-family: "Inter";
+  font-family: 'Inter';
   font-style: normal;
   font-weight: 500;
   font-size: 14px;
@@ -105,7 +105,7 @@ const StepsLabelContainer = styled.div`
 
 const StepsIndicator: React.FC<StepsIndicatorProps> = ({
   steps,
-  activeStep,
+  activeStep
 }) => {
   const width = `${(100 / (steps.length - 1)) * activeStep}%`;
   return (

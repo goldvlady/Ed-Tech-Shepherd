@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import onboardTutorStore from "../../../../state/onboardTutorStore";
-import { Box, Textarea, Text } from "@chakra-ui/react";
+import onboardTutorStore from '../../../../state/onboardTutorStore';
+import { Box, Textarea, Text } from '@chakra-ui/react';
+import React, { useState } from 'react';
 
 const BioForm = () => {
   const maxCharacters = 3000;
-  const [bio, setBio] = useState("");
+  const [bio, setBio] = useState('');
 
   const { description: value } = onboardTutorStore.useStore();
 
@@ -12,7 +12,7 @@ const BioForm = () => {
     onboardTutorStore.set.description?.(e.target.value);
   };
 
-  const characterCount = value?.length || 0
+  const characterCount = value?.length || 0;
   const wordCount = bio.trim().split(/\s+/).length;
 
   return (

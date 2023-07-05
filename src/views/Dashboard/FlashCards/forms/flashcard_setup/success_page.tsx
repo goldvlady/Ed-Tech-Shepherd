@@ -1,6 +1,6 @@
-import { useFlashCardState } from "../../context/flashcard";
-import { Button, Box, Text, Flex } from "@chakra-ui/react";
-import React from "react";
+import { useFlashCardState } from '../../context/flashcard';
+import { Button, Box, Text, Flex } from '@chakra-ui/react';
+import React from 'react';
 
 const SuccessState = () => {
   const { flashcardData } = useFlashCardState();
@@ -12,7 +12,7 @@ const SuccessState = () => {
   return (
     <Flex
       width="100%"
-      minHeight={"calc(100vh - 300px)"}
+      minHeight={'calc(100vh - 300px)'}
       height="100%"
       alignItems="center"
       justifyContent="center"
@@ -42,13 +42,13 @@ const SuccessState = () => {
         variant="solid"
         colorScheme="primary"
         size="sm"
-        fontSize={"14px"}
+        fontSize={'14px'}
         mt={4}
         padding="20px 25px"
         onClick={handleStudyClick}
       >
         <svg
-          style={{ marginRight: "8px" }}
+          style={{ marginRight: '8px' }}
           width="20"
           height="20"
           viewBox="0 0 20 20"

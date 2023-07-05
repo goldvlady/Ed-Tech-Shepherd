@@ -1,6 +1,6 @@
-import { Box, Button, Text } from "@chakra-ui/react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { Box, Button, Text } from '@chakra-ui/react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 
 interface MnemonicCardProps {
   answer: string;
@@ -26,7 +26,7 @@ const MnemonicCard: React.FC<MnemonicCardProps> = ({ answer, explanation }) => {
       <Box>
         <Box
           padding="25px"
-          paddingBottom={"20px"}
+          paddingBottom={'20px'}
           fontSize="14px"
           lineHeight="22px"
           color="#212224"
@@ -37,7 +37,7 @@ const MnemonicCard: React.FC<MnemonicCardProps> = ({ answer, explanation }) => {
           {showExplanation && (
             <MotionBox
               initial={{ opacity: 0, maxHeight: 0 }}
-              animate={{ opacity: 1, maxHeight: "300px" }}
+              animate={{ opacity: 1, maxHeight: '300px' }}
               exit={{ opacity: 0, maxHeight: 0 }}
               transition={{ duration: 0.3 }}
               fontSize="12px"
@@ -56,21 +56,21 @@ const MnemonicCard: React.FC<MnemonicCardProps> = ({ answer, explanation }) => {
       <Box
         bg="#F5F9FF"
         width="100%"
-        display={"flex"}
+        display={'flex'}
         py="8px"
-        justifyContent={"center"}
-        alignItems={"center"}
+        justifyContent={'center'}
+        alignItems={'center'}
       >
         <Button
           variant="unstyled"
           color="#207DF7"
           fontSize="12px"
           onClick={toggleExplanation}
-          _hover={{ bg: "none", color: "#207DF7" }}
-          _active={{ bg: "none", color: "#207DF7" }}
-          _focus={{ boxShadow: "none" }}
+          _hover={{ bg: 'none', color: '#207DF7' }}
+          _active={{ bg: 'none', color: '#207DF7' }}
+          _focus={{ boxShadow: 'none' }}
         >
-          {showExplanation ? "Hide Explanation" : "See Explanation"}
+          {showExplanation ? 'Hide Explanation' : 'See Explanation'}
         </Button>
       </Box>
     </Box>

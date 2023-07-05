@@ -1,15 +1,15 @@
-import { classNames } from "../../helpers";
-import { TrashIcon } from "../icons";
-import { Text } from "@chakra-ui/react";
-import { Menu, Transition, Dialog } from "@headlessui/react";
+import { classNames } from '../../helpers';
+import { TrashIcon } from '../icons';
+import { Text } from '@chakra-ui/react';
+import { Menu, Transition, Dialog } from '@headlessui/react';
 import {
   StarIcon,
   EllipsisHorizontalIcon,
   ChevronRightIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/solid";
-import React, { Fragment, useLayoutEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+  XMarkIcon
+} from '@heroicons/react/24/solid';
+import React, { Fragment, useLayoutEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface Client {
   id: number;
@@ -26,81 +26,81 @@ interface Client {
 const clients: Client[] = [
   {
     id: 0,
-    name: "William Kelly",
-    subject: "Economics, A-level",
-    startDate: "May 09, 2023",
-    endDate: "May 20, 2023",
-    status: "Active",
-    amountEarned: "410.00",
-    classes: "Lesson 1",
-    rating: "1",
+    name: 'William Kelly',
+    subject: 'Economics, A-level',
+    startDate: 'May 09, 2023',
+    endDate: 'May 20, 2023',
+    status: 'Active',
+    amountEarned: '410.00',
+    classes: 'Lesson 1',
+    rating: '1'
   },
   {
     id: 1,
-    name: "William Kelly",
-    subject: "Economics, A-level",
-    startDate: "May 09, 2023",
-    endDate: "May 20, 2023",
-    status: "Active",
-    amountEarned: "410.00",
-    classes: "Lesson 1",
-    rating: "1",
+    name: 'William Kelly',
+    subject: 'Economics, A-level',
+    startDate: 'May 09, 2023',
+    endDate: 'May 20, 2023',
+    status: 'Active',
+    amountEarned: '410.00',
+    classes: 'Lesson 1',
+    rating: '1'
   },
   {
     id: 2,
-    name: "William Kelly",
-    subject: "Economics, A-level",
-    startDate: "May 09, 2023",
-    endDate: "May 20, 2023",
-    status: "Ended",
-    amountEarned: "410.00",
-    classes: "Lesson 1",
-    rating: "1",
+    name: 'William Kelly',
+    subject: 'Economics, A-level',
+    startDate: 'May 09, 2023',
+    endDate: 'May 20, 2023',
+    status: 'Ended',
+    amountEarned: '410.00',
+    classes: 'Lesson 1',
+    rating: '1'
   },
   {
     id: 3,
-    name: "William Kelly",
-    subject: "Economics, A-level",
-    startDate: "May 09, 2023",
-    endDate: "May 20, 2023",
-    status: "Pending",
-    amountEarned: "410.00",
-    classes: "Lesson 1",
-    rating: "1",
+    name: 'William Kelly',
+    subject: 'Economics, A-level',
+    startDate: 'May 09, 2023',
+    endDate: 'May 20, 2023',
+    status: 'Pending',
+    amountEarned: '410.00',
+    classes: 'Lesson 1',
+    rating: '1'
   },
   {
     id: 4,
-    name: "William Kelly",
-    subject: "Economics, A-level",
-    startDate: "May 09, 2023",
-    endDate: "May 20, 2023",
-    status: "Active",
-    amountEarned: "410.00",
-    classes: "Lesson 1",
-    rating: "1",
+    name: 'William Kelly',
+    subject: 'Economics, A-level',
+    startDate: 'May 09, 2023',
+    endDate: 'May 20, 2023',
+    status: 'Active',
+    amountEarned: '410.00',
+    classes: 'Lesson 1',
+    rating: '1'
   },
   {
     id: 5,
-    name: "William Kelly",
-    subject: "Economics, A-level",
-    startDate: "May 09, 2023",
-    endDate: "May 20, 2023",
-    status: "Ended",
-    amountEarned: "410.00",
-    classes: "Lesson 1",
-    rating: "1",
+    name: 'William Kelly',
+    subject: 'Economics, A-level',
+    startDate: 'May 09, 2023',
+    endDate: 'May 20, 2023',
+    status: 'Ended',
+    amountEarned: '410.00',
+    classes: 'Lesson 1',
+    rating: '1'
   },
   {
     id: 6,
-    name: "William Kelly",
-    subject: "Economics, A-level",
-    startDate: "May 09, 2023",
-    endDate: "May 20, 2023",
-    status: "Ended",
-    amountEarned: "410.00",
-    classes: "Lesson 1",
-    rating: "1",
-  },
+    name: 'William Kelly',
+    subject: 'Economics, A-level',
+    startDate: 'May 09, 2023',
+    endDate: 'May 20, 2023',
+    status: 'Ended',
+    amountEarned: '410.00',
+    classes: 'Lesson 1',
+    rating: '1'
+  }
 ];
 
 const AllClientTab = () => {
@@ -236,7 +236,7 @@ const AllClientTab = () => {
                       key={client.id}
                       className={
                         selectedPeople.includes(client)
-                          ? "bg-blue-50"
+                          ? 'bg-blue-50'
                           : undefined
                       }
                     >
@@ -270,16 +270,16 @@ const AllClientTab = () => {
                       <td
                         className={classNames(
                           `${
-                            client.status.toLowerCase() === "active"
-                              ? "text-primaryBlue"
-                              : "text-gray-500"
+                            client.status.toLowerCase() === 'active'
+                              ? 'text-primaryBlue'
+                              : 'text-gray-500'
                           }`,
                           `${
-                            client.status.toLowerCase() === "pending"
-                              ? "text-orange-400"
-                              : "text-gray-500"
+                            client.status.toLowerCase() === 'pending'
+                              ? 'text-orange-400'
+                              : 'text-gray-500'
                           }`,
-                          "whitespace-nowrap px-3 py-4 text-sm"
+                          'whitespace-nowrap px-3 py-4 text-sm'
                         )}
                       >
                         {client.status}
@@ -367,7 +367,7 @@ const AllClientTab = () => {
                                   <ChevronRightIcon className="w-2.5 h-2.5" />
                                 </button>
                               </section>
-                              {client.status.toLowerCase() === "ended" ? (
+                              {client.status.toLowerCase() === 'ended' ? (
                                 <button
                                   disabled={true}
                                   className="w-full cursor-not-allowed hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
