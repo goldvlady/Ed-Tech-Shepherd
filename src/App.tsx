@@ -212,7 +212,7 @@ const AppRoutes: React.FC = () => {
         <Route path="offer/:offerId" element={<Offer />} />
 
         <Route path="home" element={<DashboardIndex />} />
-
+        <Route path="docchat" element={<DocChat />} />
         <Route path="find-tutor" element={<Marketplace />} />
         <Route path="find-tutor/tutor/" element={<Tutor />} />
         <Route path="my-tutors" element={<MyTutors />} />
@@ -239,7 +239,6 @@ const AppRoutes: React.FC = () => {
       <Route path="offer/:id" element={<TutorOffer />} />
       <Route path="messages" element={<Messages />} />
       <Route path="notes" element={<Notes />} />
-      <Route path="/docchat" element={<DocChat />} />
       <Route path="tutorsettings" element={<TutorSettings />} />
     </Routes>
   );
