@@ -27,7 +27,6 @@ function AccSettings() {
   useTitle('Account Settings');
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const { user }: any = userStore();
-  console.log('user-', user);
 
   const activatePlansModal = () => {
     setTogglePlansModal(true);
