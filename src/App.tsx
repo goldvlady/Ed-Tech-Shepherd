@@ -2,6 +2,7 @@ import resourceStore from './state/resourceStore';
 import userStore from './state/userStore';
 import theme from './theme';
 import CreatePassword from './views/CreatePassword';
+import StudentSettings from './views/Dashboard/AccountSettings';
 import BookmarkedTutors from './views/Dashboard/BookmarkedTutors';
 import FlashCard from './views/Dashboard/FlashCards';
 import CreateFlashCard from './views/Dashboard/FlashCards/create';
@@ -23,6 +24,7 @@ import CompleteProfile from './views/OnboardTutor/complete_profile';
 import SendTutorOffer from './views/SendTutorOffer';
 import Session from './views/Session';
 import Signup from './views/Signup';
+import SwitchProfile from './views/SwitchProfile';
 import TutorDashboard from './views/TutorDashboard';
 import TutorOffer from './views/TutorOffer';
 import TutorOffers from './views/TutorOffers';
@@ -190,6 +192,7 @@ const AppRoutes: React.FC = () => {
       <Route path="auth-action" element={<AuthAction />} />
 
       <Route path="home" element={<Home />} />
+      <Route path="switch-profile" element={<SwitchProfile />} />
       <Route
         path="dashboard"
         element={
@@ -202,21 +205,21 @@ const AppRoutes: React.FC = () => {
       >
         <Route element={<DashboardLayout children />} />
         <Route path="new-note" element={<NewNote />} />
-
         <Route path="flashcards">
           <Route path="create" element={<CreateFlashCard />} />
           <Route path="" element={<FlashCard />}></Route>
         </Route>
         <Route path="tutor/:tutorId/offer" element={<SendTutorOffer />} />
         <Route path="offer/:offerId" element={<Offer />} />
-        <Route path="note-directory" element={<Notes />} />
+        <Route path="notes" element={<Notes />} />
         <Route path="home" element={<DashboardIndex />} />
         <Route path="docchat" element={<DocChat />} />
         <Route path="find-tutor" element={<Marketplace />} />
         <Route path="find-tutor/tutor/" element={<Tutor />} />
         <Route path="my-tutors" element={<MyTutors />} />
         <Route path="saved-tutors" element={<BookmarkedTutors />} />
-        <Route path="messaging" element={<Messaging />} />
+        <Route path="messaging" element={<Messaging />} />{' '}
+        <Route path="account-settings" element={<StudentSettings />} />
         <Route path="" element={<Navigate to="home" />} />
         <Route path="*" element={<Navigate to="home" />} />
       </Route>

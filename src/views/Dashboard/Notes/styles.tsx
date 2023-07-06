@@ -131,3 +131,9 @@ export const FlexContainer = styled.div`
   gap: 1rem;
   align-items: center;
 `;
+
+export const NotesWrapper = styled.div`
+  padding: 20px 10px;
+  overflow-x: hidden;
+  height: 100vh;
+`;

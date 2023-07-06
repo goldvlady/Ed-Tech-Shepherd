@@ -25,71 +25,9 @@ interface Client {
   last_modified: string;
 }
 
-const clients: Client[] = [
-  {
-    id: 0,
-    title: 'Chemistry Notes by Alisson',
-    date_created: 'May 09 2023, 13:00',
-    last_modified: 'May 21 2023, 09:00',
-    tags: '#Chemistry'
-  },
-  {
-    id: 1,
-    title: 'Chemistry Notes by Alisson',
-    date_created: 'May 09 2023, 13:00',
-    last_modified: 'May 21 2023, 09:00',
-    tags: '#Mathematics'
-  },
-  {
-    id: 2,
-    title: 'Chemistry Notes by Alisson',
-    date_created: 'May 09 2023, 13:00',
-    last_modified: 'May 21 2023, 09:00',
-    tags: '#Chemistry'
-  },
-  {
-    id: 3,
-    title: 'Biology Notes by Alisson',
-    date_created: 'May 09 2023, 13:00',
-    last_modified: 'May 21 2023, 09:00',
-    tags: '#Biology'
-  },
-  {
-    id: 4,
-    title: 'Chemistry Notes by Alisson',
-    date_created: 'May 09 2023, 13:00',
-    last_modified: 'May 21 2023, 09:00',
-    tags: '#Chemistry'
-  },
-  {
-    id: 5,
-    title: 'Physics Notes by Alisson',
-    date_created: 'May 09 2023, 13:00',
-    last_modified: 'May 21 2023, 09:00',
-    tags: '#Physics'
-  },
-  {
-    id: 6,
-    title: 'Science Notes by Akeem',
-    date_created: 'May 09 2023, 13:00',
-    last_modified: 'May 21 2023, 09:00',
-    tags: '#Science'
-  },
-  {
-    id: 7,
-    title: 'English Notes by Daniel',
-    date_created: 'May 09 2023, 13:00',
-    last_modified: 'May 21 2023, 09:00',
-    tags: '#English'
-  },
-  {
-    id: 8,
-    title: 'Mathematics Notes by Ellen',
-    date_created: 'May 09 2023, 13:00',
-    last_modified: 'May 21 2023, 09:00',
-    tags: '#Mathematics'
-  }
-];
+const getNotes = JSON.parse(localStorage.getItem('notes') as string) || [];
+
+const clients: Client[] = getNotes;
 
 type DataSourceItem = {
   key: number;
@@ -100,14 +38,17 @@ type DataSourceItem = {
   id: number;
 };
 
-const dataSource: DataSourceItem[] = Array.from({ length: 8 }, (_, i) => ({
-  key: i,
-  id: clients[i]?.id,
-  title: clients[i]?.title,
-  tags: clients[i]?.tags,
-  dateCreated: new Date().toISOString().split('T')[0], // current date in yyyy-mm-dd format
-  lastModified: new Date().toISOString().split('T')[0] // current date in yyyy-mm-dd format
-}));
+const dataSource: DataSourceItem[] = Array.from(
+  { length: getNotes?.length },
+  (_, i) => ({
+    key: i,
+    id: clients[i]?.id,
+    title: clients[i]?.title,
+    tags: clients[i]?.tags,
+    dateCreated: clients[i]?.date_created, // current date in yyyy-mm-dd format
+    lastModified: clients[i]?.last_modified // current date in yyyy-mm-dd format
+  })
+);
 
 const AllNotesTab = () => {
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
@@ -283,7 +224,7 @@ const AllNotesTab = () => {
     <>
       <div className="mt-8 flow-root">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+          <div className="inline-block min-w-full py-2 align-middle h-screen sm:px-6 lg:px-8 z-10">
             <div className="relative">
               <div className="table-columns  fixed bottom-[80px] right-[36%] left-[36%]">
                 {selectedPeople.length > 0 && (
@@ -436,10 +377,11 @@ const AllNotesTab = () => {
 
       <CustomModal
         modalTitle=""
+        isModalCloseButton
         onClose={() => setDeleteNoteModal(false)}
         isOpen={deleteNoteModal}
         modalSize="md"
-        style={{ height: '327px', width: '100%' }}
+        style={{ height: '327px', maxWidth: '100%' }}
       >
         <DeleteNoteModal
           title={clientsDetails}

@@ -1,6 +1,6 @@
 import { ReactComponent as DocIcon } from '../../../assets/doc.svg';
 import { ReactComponent as NewNoteIcon } from '../../../assets/newnote.svg';
-import { Layout, AllNotesTab } from '../../../components';
+import { AllNotesTab, HelpModal } from '../../../components';
 import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMenu';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { SortIcon, FilterByTagsIcon } from '../../../components/icons';
@@ -10,6 +10,7 @@ import {
   FlexContainer,
   Header,
   NewList,
+  NotesWrapper,
   SearchInput,
   Section,
   SectionNewList,
@@ -21,7 +22,7 @@ import { AddIcon } from '@chakra-ui/icons';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 
-const notes = [{}];
+const getNotes = JSON.parse(localStorage.getItem('notes') as string) || [];
 
 const filteredBy = [
   {
@@ -85,6 +86,12 @@ const tabPanel = [
 
 const Notes = () => {
   const navigate = useNavigate();
+  const [toggleHelpModal, setToggleHelpModal] = useState(false);
+
+  const activateHelpModal = () => {
+    setToggleHelpModal(true);
+  };
+
   const [checkedState, setCheckedState] = useState(
     new Array(filteredBy.length).fill(false)
   );
@@ -99,7 +106,8 @@ const Notes = () => {
     {
       id: 2,
       iconName: <DocIcon />,
-      labelText: 'Upload document'
+      labelText: 'Upload document',
+      onClick: activateHelpModal
     }
   ];
 
@@ -112,17 +120,13 @@ const Notes = () => {
   };
 
   return (
-    <Layout
-      className={`${
-        notes.length > 0 ? 'bg-white' : 'bg-gray-100'
-      } p-3 h-screen`}
-    >
-      {notes.length > 0 ? (
-        <>
+    <>
+      {getNotes?.length > 0 ? (
+        <NotesWrapper>
           <header className="flex my-4 justify-between">
             <StyledHeader>
               <span className="font-bold">My Notes</span>
-              <span className="count-badge">24</span>
+              <span className="count-badge">{getNotes?.length}</span>
             </StyledHeader>
             <FlexContainer>
               <DropdownMenu
@@ -197,9 +201,9 @@ const Notes = () => {
             </FlexContainer>
           </header>
           <CustomTabs tablists={tabLists} tabPanel={tabPanel} />
-        </>
+        </NotesWrapper>
       ) : (
-        <>
+        <NotesWrapper>
           <Header>
             <h4>
               <span>My Notes</span>
@@ -218,7 +222,7 @@ const Notes = () => {
               >
                 {createNewLists?.map((createNewList) => (
                   <SectionNewList key={createNewList.id}>
-                    <NewList>
+                    <NewList onClick={createNewList.onClick}>
                       {createNewList.iconName}
                       <p>{createNewList.labelText}</p>
                     </NewList>
@@ -227,9 +231,13 @@ const Notes = () => {
               </DropdownMenu>
             </div>
           </Section>
-        </>
+        </NotesWrapper>
       )}
-    </Layout>
+      <HelpModal
+        toggleHelpModal={toggleHelpModal}
+        setToggleHelpModal={setToggleHelpModal}
+      />
+    </>
   );
 };
 

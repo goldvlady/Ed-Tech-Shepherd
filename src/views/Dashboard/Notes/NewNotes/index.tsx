@@ -7,6 +7,8 @@ import { ReactComponent as SideBarPinIcn } from '../../../../assets/sideBarPin.s
 import { ReactComponent as ArrowRight } from '../../../../assets/small-arrow-right.svg';
 import { ReactComponent as ZoomIcon } from '../../../../assets/square.svg';
 import { ReactComponent as TrashIcon } from '../../../../assets/trash-icn.svg';
+import CustomButton from '../../../../components/CustomComponents/CustomButton';
+import { uid } from '../../../../helpers/index';
 import {
   DropDownFirstPart,
   DropDownLists,
@@ -17,28 +19,66 @@ import {
   SecondSection
 } from './styles';
 import { Menu, MenuList, MenuButton, Button, Text } from '@chakra-ui/react';
-import { EditorState, convertToRaw, convertFromRaw } from 'draft-js';
+import { useToast } from '@chakra-ui/react';
+import { EditorState, convertToRaw } from 'draft-js';
+import draftToMarkdown from 'draftjs-to-markdown';
 import React, { useState } from 'react';
 import { Editor } from 'react-draft-wysiwyg';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { FaEllipsisH } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const NewNote = () => {
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
+  const [markdownContent, setMarkdownContent] = useState('');
+  const navigate = useNavigate();
+  const toast = useToast();
+  const [, setNoteDirectories] = useState<{
+    title: string;
+    content: string;
+    tags: string;
+    createdDate: string;
+  }>();
+  const [title, setTitle] = useState('');
 
   const onEditorStateChange = (newEditorState: any) => {
     setEditorState(newEditorState);
+    const firtText = convertToRaw(editorState.getCurrentContent());
+    setTitle(firtText.blocks[0].text);
+    setMarkdownContent(
+      draftToMarkdown(convertToRaw(editorState.getCurrentContent()))
+    );
   };
 
-  const handleCustomButtonClick = () => {
-    // Handle the custom button click logic here
-    // This function will be called when the custom button is clicked
-  };
+  const onSaveNote = () => {
+    setNoteDirectories({
+      content: JSON.stringify(markdownContent),
+      title: '',
+      tags: '',
+      createdDate: new Date(Date.now()).toISOString()
+    });
+    const notes = JSON.parse(localStorage.getItem('notes') as string) || [];
+    notes.push({
+      id: uid(),
+      content: JSON.stringify(markdownContent),
+      title,
+      tags: '',
+      date_created: new Date(Date.now()).toISOString(),
+      last_modified: new Date(Date.now()).toISOString()
+    });
 
-  const handleDropdownChange = (e) => {
-    e.preventDefault(); // Prevent the default action (page refresh)
+    localStorage.setItem('notes', JSON.stringify(notes));
 
-    // Handle the dropdown change logic here
+    navigate('/dashboard/note-directory');
+
+    toast({
+      title: 'New Added',
+      description: `${title} successful added.`,
+      status: 'success',
+      position: 'top-right',
+      duration: 5000,
+      isClosable: true
+    });
   };
 
   const dropDownOptions = [
@@ -87,13 +127,19 @@ const NewNote = () => {
             <ZoomIcon />
           </div>
           <div className="doc__name">
-            <p>Untitled</p>
+            <p>{title || 'Untitled'}</p>
           </div>
           <div className="timestamp">
             <p>Created 26 Thur, 08:00pm</p>
           </div>
         </FirstSection>
         <SecondSection>
+          <CustomButton
+            isPrimary
+            title="Save"
+            type="button"
+            onClick={onSaveNote}
+          />
           <div className="pin__icn">
             <PinIcon />
           </div>

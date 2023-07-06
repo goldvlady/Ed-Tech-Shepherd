@@ -15,7 +15,7 @@ interface ICustomTabs {
 
 const CustomTabs = ({ tablists, tabPanel }: ICustomTabs) => {
   return (
-    <Tabs variant="unstyled">
+    <Tabs position="relative" variant="unstyled">
       <TabList _focus={{ outline: 'none' }} borderBottom="1px solid #EBECF0">
         {tablists?.map((tabList: any) => (
           <Tab
@@ -29,13 +29,7 @@ const CustomTabs = ({ tablists, tabPanel }: ICustomTabs) => {
           </Tab>
         ))}
       </TabList>
-      <TabIndicator
-        position="relative"
-        height="5px"
-        bg="#207DF7"
-        borderRadius="10px"
-        left="0"
-      />
+      <TabIndicator height="5px" bg="#207DF7" borderRadius="10px" left="0" />
       <TabPanels>
         {tabPanel?.map((tabPanel: any) => (
           <TabPanel padding={'0'} key={tabPanel?.id}>
