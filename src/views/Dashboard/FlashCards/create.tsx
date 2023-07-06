@@ -1,3 +1,6 @@
+import { FlashCardModal } from '../../../components/flashcardDecks';
+import LoaderOverlay from '../../../components/loaderOverlay';
+import flashcardStore from '../../../state/flashcardStore';
 import FlashcardDataProvider from './context/flashcard';
 import { useFlashCardState } from './context/flashcard';
 import MnemonicSetupProvider from './context/mneomics';
@@ -7,6 +10,7 @@ import MnemonicSetup from './forms/mneomics_setup';
 import InitSetupPreview from './previews/init.preview';
 import MnemonicPreview from './previews/mneomics.preview';
 import QuestionsPreview from './previews/questions.preview';
+import { useToast } from '@chakra-ui/react';
 import { Box, HStack, Text, Radio, RadioGroup } from '@chakra-ui/react';
 import { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
@@ -65,11 +69,15 @@ type SettingsType = {
 };
 
 const CreateFlashPage = () => {
+  const toast = useToast();
   const [settings, setSettings] = useState<SettingsType>({
     type: TypeEnum.INIT,
     source: SourceEnum.MANUAL
   });
-  const { flashcardData } = useFlashCardState();
+  const { flashcardData, questions, setFlashcardData } = useFlashCardState();
+
+  const { createFlashCard, flashcard, isLoading, fetchFlashcards } =
+    flashcardStore();
   const [isCompleted, setIsCompleted] = useState(false);
   const [hasSubmittedFlashCards, setHasSubmittedFlashCards] = useState(false);
 
@@ -79,11 +87,52 @@ const CreateFlashPage = () => {
     setSettings((value) => ({ ...value, type: badge }));
   };
 
+  const onSubmitFlashcard = async () => {
+    try {
+      const response = await createFlashCard(
+        { ...flashcardData, questions },
+        settings.source === SourceEnum.MANUAL ? 'manual' : 'automatic'
+      );
+      if (response) {
+        if (response.status === 200) {
+          fetchFlashcards();
+          setIsCompleted(true);
+          toast({
+            title: 'Flash Card Created Successfully',
+            position: 'top-right',
+            status: 'success',
+            isClosable: true
+          });
+        } else {
+          setHasSubmittedFlashCards(false);
+          setFlashcardData((value) => ({ ...value, hasSubmitted: false }));
+          toast({
+            title: 'Failed to create flashcard, try again',
+            position: 'top-right',
+            status: 'error',
+            isClosable: true
+          });
+        }
+      }
+    } catch (error) {
+      setHasSubmittedFlashCards(false);
+      setFlashcardData((value) => ({ ...value, hasSubmitted: false }));
+      toast({
+        title: 'Failed to create flashcard, try again',
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
+      });
+    }
+  };
+
+  // const [activeBadge, setActiveBadge] = useState<TypeEnum>(TypeEnum.INIT);
+
   useEffect(() => {
     if (flashcardData.hasSubmitted && !hasSubmittedFlashCards) {
       setHasSubmittedFlashCards(true);
       if (settings.source === SourceEnum.SUBJECT) {
-        setIsCompleted(true);
+        onSubmitFlashcard();
       }
       if (
         settings.type !== TypeEnum.FLASHCARD &&
@@ -146,7 +195,8 @@ const CreateFlashPage = () => {
     if (settings.type === TypeEnum.FLASHCARD) {
       return (
         <QuestionsPreview
-          onConfirm={() => setIsCompleted(true)}
+          isLoading={isLoading}
+          onConfirm={() => onSubmitFlashcard()}
           activeBadge={activeBadge}
           handleBadgeClick={handleBadgeClick}
         ></QuestionsPreview>
@@ -162,65 +212,80 @@ const CreateFlashPage = () => {
     }
   };
   return (
-    <Wrapper
-      bg="white"
-      width="100%"
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
-      alignItems="center"
-    >
-      <HStack
-        justifyContent={'start'}
-        alignItems={'start'}
+    <>
+      {isLoading && <LoaderOverlay />}
+      <FlashCardModal isOpen={Boolean(flashcard)} />
+      <Wrapper
+        bg="white"
         width="100%"
-        minH="calc(100vh - 60px)"
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
       >
-        <Box p="60px" height="100%" width="50%">
-          <Text
-            fontFamily="Inter"
-            fontWeight="500"
-            fontSize="18px"
-            lineHeight="23px"
-            color="#212224"
-            mb={4}
-          >
-            Select a Source
-          </Text>
-          <RadioGroup
-            onChange={(value) => setSource(value as SourceEnum)}
-            value={settings.source}
-          >
-            <HStack align="start" spacing={7}>
-              <Radio value={SourceEnum.DOCUMENT}>
-                <Text color="#585F68">Document</Text>
-              </Radio>
-              <Radio value={SourceEnum.SUBJECT}>
-                <Text color="#585F68">Subject</Text>
-              </Radio>
-              <Radio value={SourceEnum.MANUAL}>
-                <Text color="#585F68">Manual</Text>
-              </Radio>
-            </HStack>
-          </RadioGroup>
-          <Box mt="20px" pr="20px" width="100%">
-            {renderForms()}
-          </Box>
-        </Box>
-
-        <Box
-          position="fixed"
-          top="60px"
-          bottom="0"
-          right="0"
-          borderLeft="1px solid #E7E8E9"
-          width="45%"
-          paddingTop={'20px'}
+        <HStack
+          justifyContent={'start'}
+          alignItems={'start'}
+          width="100%"
+          minH="calc(100vh - 60px)"
         >
-          {renderPreview()}
-        </Box>
-      </HStack>
-    </Wrapper>
+          <Box height="100%" width="48%">
+            <Box
+              px="60px"
+              py="40px"
+              display={'flex'}
+              borderBottom={'1px solid #E7E8E9'}
+              flexDirection={'column'}
+              width={'100%'}
+            >
+              <Text
+                fontFamily="Inter"
+                fontWeight="500"
+                fontSize="18px"
+                lineHeight="23px"
+                color="#212224"
+                mb={4}
+              >
+                Select a Source
+              </Text>
+              <RadioGroup
+                onChange={(value) => setSource(value as SourceEnum)}
+                value={settings.source}
+              >
+                <HStack align="start" spacing={7}>
+                  <Radio value={SourceEnum.DOCUMENT}>
+                    <Text color="#585F68">Document</Text>
+                  </Radio>
+                  <Radio value={SourceEnum.SUBJECT}>
+                    <Text color="#585F68">Subject</Text>
+                  </Radio>
+                  <Radio value={SourceEnum.MANUAL}>
+                    <Text color="#585F68">Manual</Text>
+                  </Radio>
+                </HStack>
+              </RadioGroup>
+            </Box>
+            <Box px="60px" width={'100%'}>
+              <Box py="45px" width="100%">
+                {renderForms()}
+              </Box>
+            </Box>
+          </Box>
+
+          <Box
+            position="fixed"
+            top="60px"
+            bottom="0"
+            right="0"
+            borderLeft="1px solid #E7E8E9"
+            width="45%"
+            paddingTop={'20px'}
+          >
+            {renderPreview()}
+          </Box>
+        </HStack>
+      </Wrapper>
+    </>
   );
 };
 

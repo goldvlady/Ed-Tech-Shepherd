@@ -215,6 +215,35 @@ export interface HTTPEvent extends APIGatewayProxyEvent {
   user: User;
 }
 
+export interface Score {
+  score: number;
+  date: string;
+}
+
+export interface FlashcardData {
+  _id: string;
+  student: Student;
+  deckname: string;
+  studyType: "longTermRetention" | "quickPractice";
+  subject?: string;
+  topic?: string;
+  scores: Score[];
+  studyPeriod: "daily" | "weekly" | "biweekly" | "spacedRepetition";
+  questions: FlashcardQuestion[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FlashcardQuestion {
+  questionType: string;
+  question: string;
+  options?: string[];
+  answer: string;
+  numberOfAttempts: number;
+  currentStep: number;
+  totalSteps: number;
+}
+
 export type LevelType = Level;
 export type BookingType = Booking;
 export type OfferType = Offer;

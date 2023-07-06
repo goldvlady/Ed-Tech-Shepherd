@@ -28,7 +28,7 @@ export default function Notes() {
               <Menu as="div" className="relative">
                 <div>
                   <Menu.Button className="flex text-secondaryGray items-center space-x-2 border px-3 py-2 rounded-md">
-                    <SortIcon className="w-5 h-5" onClick={undefined} />
+                    <SortIcon className="w-5 h-5" />
                     <span>Sort by</span>
                   </Menu.Button>
                 </div>
@@ -91,7 +91,7 @@ export default function Notes() {
               <Menu as="div" className="relative">
                 <div>
                   <Menu.Button className="flex text-secondaryGray items-center space-x-2 border px-3 py-2 rounded-md">
-                    <FilterByTagsIcon className="w-5 h-5" onClick={undefined} />
+                    <FilterByTagsIcon className="w-5 h-5" />
                     <span>Filter by tags</span>
                   </Menu.Button>
                 </div>

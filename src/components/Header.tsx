@@ -74,7 +74,7 @@ const Header: React.FC<Props> = ({ left, right, showUserPill = true }) => {
                     bg="#4CAF50"
                   />
                   <Text
-                    fontSize="14px"
+                    fontSize="0.875rem"
                     fontWeight={500}
                     color="text.200"
                   >{`${user.name?.first} ${user.name?.last}`}</Text>

@@ -3,16 +3,17 @@ import QuestionReviewCard from '../components/question_preview_card';
 import { useFlashCardState } from '../context/flashcard';
 import { TypeEnum } from '../create';
 import { Box, Button, HStack, Text, VStack, Flex } from '@chakra-ui/react';
-import React from 'react';
 
 export default function QuestionsPreview({
   activeBadge,
   handleBadgeClick,
-  onConfirm
+  onConfirm,
+  isLoading,
 }: {
   activeBadge?: TypeEnum;
   handleBadgeClick: (v: TypeEnum) => void;
   onConfirm: () => void;
+  isLoading: boolean;
 }) {
   const { questions, deleteQuestion, goToQuestion } = useFlashCardState();
 
@@ -97,6 +98,7 @@ export default function QuestionsPreview({
           />
         </HStack>
         <Button
+          isLoading={isLoading}
           onClick={() => onConfirm()}
           borderRadius="10px"
           p="10px 25px"

@@ -9,7 +9,8 @@ import CreateFlashCard from './views/Dashboard/FlashCards/create';
 import Marketplace from './views/Dashboard/Marketplace';
 import Messaging from './views/Dashboard/Messaging';
 import MyTutors from './views/Dashboard/MyTutors';
-import Notes from './views/Dashboard/Notes';
+import NewNote from './views/Dashboard/Notes/NewNotes';
+import Notes from './views/Dashboard/Notes/index';
 import Tutor from './views/Dashboard/Tutor';
 import DashboardIndex from './views/Dashboard/index';
 import DashboardLayout from './views/Dashboard/layout';
@@ -37,10 +38,7 @@ import Messages from './views/messages';
 import TutorSettings from './views/settings';
 import { Box, ChakraProvider, Spinner } from '@chakra-ui/react';
 import 'bootstrap/dist/css/bootstrap-grid.min.css';
-import 'bootstrap/dist/css/bootstrap-grid.min.css';
 import 'bootstrap/dist/css/bootstrap-reboot.min.css';
-import 'bootstrap/dist/css/bootstrap-reboot.min.css';
-import 'bootstrap/dist/css/bootstrap-utilities.min.css';
 import 'bootstrap/dist/css/bootstrap-utilities.min.css';
 import { User, getAuth, onAuthStateChanged } from 'firebase/auth';
 import mixpanel from 'mixpanel-browser';
@@ -206,12 +204,14 @@ const AppRoutes: React.FC = () => {
         }
       >
         <Route element={<DashboardLayout children />} />
+        <Route path="new-note" element={<NewNote />} />
         <Route path="flashcards">
           <Route path="create" element={<CreateFlashCard />} />
           <Route path="" element={<FlashCard />}></Route>
         </Route>
         <Route path="tutor/:tutorId/offer" element={<SendTutorOffer />} />
         <Route path="offer/:offerId" element={<Offer />} />
+        <Route path="notes" element={<Notes />} />
         <Route path="home" element={<DashboardIndex />} />
         <Route path="docchat" element={<DocChat />} />
         <Route path="find-tutor" element={<Marketplace />} />
@@ -233,14 +233,13 @@ const AppRoutes: React.FC = () => {
           />
         }
       />
-
+      {/* <Route path="notes" element={<Notes />} /> */}
       <Route path="tutordashboard" element={<TutorDashboard />} />
       <Route path="clients" element={<Clients />} />
       <Route path="clients/:id" element={<Client />} />
       <Route path="offers" element={<TutorOffers />} />
       <Route path="offer/:id" element={<TutorOffer />} />
       <Route path="messages" element={<Messages />} />
-      <Route path="notes" element={<Notes />} />
       <Route path="tutorsettings" element={<TutorSettings />} />
     </Routes>
   );
