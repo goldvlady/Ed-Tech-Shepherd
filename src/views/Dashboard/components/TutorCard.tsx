@@ -25,7 +25,7 @@ import {
   useToast,
   Divider
 } from '@chakra-ui/react';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 export default function TutorCard(props: any) {
   const {
@@ -43,10 +43,15 @@ export default function TutorCard(props: any) {
   const toast = useToast();
   const { fetchBookmarkedTutors } = bookmarkedTutorsStore();
 
+  const [ribbonClicked, setRibbonClicked] = useState(false);
+
   const toggleBookmarkTutor = async (id: string) => {
+    setRibbonClicked(!ribbonClicked);
     try {
       const resp = await ApiService.toggleBookmarkedTutor(id);
-      if (saved) {
+
+      if (saved && resp.status == 200) {
+        setRibbonClicked(false);
         toast({
           title: 'Tutor removed from Bookmarks successfully',
           position: 'top-right',
@@ -54,8 +59,9 @@ export default function TutorCard(props: any) {
           isClosable: true
         });
       } else {
+        setRibbonClicked(true);
         toast({
-          title: 'Tutor saved successful',
+          title: 'Tutor saved successfully',
           position: 'top-right',
           status: 'success',
           isClosable: true
@@ -63,6 +69,7 @@ export default function TutorCard(props: any) {
       }
       fetchBookmarkedTutors();
     } catch (e) {
+      setRibbonClicked(false);
       toast({
         title: 'An unknown error occured',
         position: 'top-right',
@@ -195,11 +202,11 @@ export default function TutorCard(props: any) {
           </Box>
 
           <Image
-            src={saved ? Ribbon2 : Ribbon}
+            src={saved || ribbonClicked ? Ribbon2 : Ribbon}
             position="absolute"
             top={4}
             right={5}
-            width={saved ? 5 : 4}
+            width={saved || ribbonClicked ? 5 : 4}
             _hover={{ cursor: 'pointer' }}
             onClick={() => toggleBookmarkTutor(id)}
           />
