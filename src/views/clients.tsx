@@ -24,7 +24,7 @@ export default function Clients() {
         <Menu as="div" className="relative">
           <div>
             <Menu.Button className="flex items-center space-x-2 border p-2 rounded-md">
-              <SortIcon className="w-5 h-5" onClick={undefined} />
+              <SortIcon className="w-5 h-5" />
               <span>Sort by</span>
             </Menu.Button>
           </div>

@@ -9,7 +9,7 @@ export { default as OfferSummary } from "./OfferSummary.tsx";
 export { default as DetailsCard } from "./DetailsCard.tsx";
 export { default as AcceptOfferModal } from "./AcceptOfferModal.tsx";
 export { default as DeclineOfferModal } from "./DeclineOfferModal.tsx";
-export { default as DeleteNoteModal } from "./DeleteNoteModal.tsx";
+export { default as DeleteNoteModal } from "./notesTab/DeleteNoteModal.tsx";
 export { default as HelpModal } from "./HelpModal.tsx";
 export { default as PdfViewer } from "./PdfViewer.tsx";
 export { default as SelectedNoteModal } from "./SelectedNoteModal.tsx";
