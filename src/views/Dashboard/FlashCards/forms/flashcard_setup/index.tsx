@@ -1,10 +1,10 @@
-import StepsIndicator, { Step } from '../../../../../components/StepIndicator';
-import { useFlashCardState } from '../../context/flashcard';
-import FlashCardSetupInit from './init';
-import FlashCardQuestionsPage from './questions';
-import { Box, Text } from '@chakra-ui/react';
-import { motion, AnimatePresence } from 'framer-motion';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from "react";
+import { useFlashCardState } from "../../context/flashcard";
+import FlashCardQuestionsPage from "./questions";
+import FlashCardSetupInit from "./init";
+import { Box, Text } from "@chakra-ui/react";
+import StepsIndicator, { Step } from "../../../../../components/StepIndicator";
+import { motion, AnimatePresence } from "framer-motion";
 
 const transition = {
   duration: 0.3,
@@ -19,15 +19,10 @@ const slideVariants = {
 
 const SetupFlashcardPage = ({ isAutomated }: { isAutomated?: boolean }) => {
   const { currentStep } = useFlashCardState();
-  const steps: Step[] = [{ title: '' }, { title: '' }, { title: '' }];
+  const steps: Step[] = [{ title: "" }, { title: "" }, { title: "" }];
+  const formComponents = [FlashCardSetupInit, FlashCardQuestionsPage];
 
-  const forms: (() => JSX.Element)[] = [
-    () => <FlashCardSetupInit isAutomated={isAutomated} />,
-    FlashCardQuestionsPage
-    // Add other form components for different steps
-  ];
-
-  const Form = forms[currentStep];
+  const CurrentForm = useMemo(() => formComponents[currentStep], [currentStep]);
 
   return (
     <Box>
@@ -46,7 +41,7 @@ const SetupFlashcardPage = ({ isAutomated }: { isAutomated?: boolean }) => {
           variants={slideVariants}
           transition={transition}
         >
-          <Form />
+          <CurrentForm isAutomated={isAutomated} />
         </motion.div>
       </AnimatePresence>
     </Box>

@@ -48,7 +48,7 @@ const FlashCardQuestionsPage = () => {
     }
   }, [currentQuestionIndex, questions]);
 
-  const questionsCount = flashcardData.numOptions;
+  const questionsCount = flashcardData.numQuestions;
 
   const handleChange = (
     e: React.ChangeEvent<

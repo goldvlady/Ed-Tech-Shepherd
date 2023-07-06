@@ -2,15 +2,13 @@ import { useFlashCardState } from '../../context/flashcard';
 import {
   Box,
   FormControl,
-  Image,
   FormLabel,
   Input,
   Radio,
   RadioGroup,
   Select,
   Button,
-  HStack,
-  useEditable
+  HStack
 } from '@chakra-ui/react';
 import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 
@@ -20,10 +18,16 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     deckname: '',
     studyType: '',
     studyPeriod: '',
-    numOptions: 0,
+    numQuestions: 0,
     timerDuration: '',
     hasSubmitted: false
   }); // A local state for storing user inputs
+
+  useEffect(() => {
+    if (flashcardData.deckname) {
+      setLocalData(flashcardData);
+    }
+  }, []);
 
   const handleChange = React.useCallback(
     (
@@ -53,7 +57,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
       ...localData,
       hasSubmitted: true
     }));
-    goToNextStep();
+    if (!isAutomated) goToNextStep();
   };
 
   return (
@@ -143,13 +147,13 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
 
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-          Number of options
+          Number of questions
         </FormLabel>
         <Input
           type="number"
-          name="numOptions"
-          placeholder="Number of options"
-          value={localData.numOptions}
+          name="numQuestions"
+          placeholder="Number of questions"
+          value={localData.numQuestions}
           onChange={handleChange}
           _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />

@@ -13,7 +13,7 @@ interface FlashcardData {
   subject?: string;
   topic?: string;
   studyPeriod: string;
-  numOptions: number;
+  numQuestions: number;
   timerDuration: string;
   hasSubmitted: boolean;
 }
@@ -55,12 +55,12 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
   children
 }) => {
   const [flashcardData, setFlashcardData] = useState<FlashcardData>({
-    deckname: '',
-    studyType: '',
-    studyPeriod: '',
-    numOptions: 0,
-    timerDuration: '',
-    hasSubmitted: false
+    deckname: "",
+    studyType: "",
+    studyPeriod: "",
+    numQuestions: 0,
+    timerDuration: "",
+    hasSubmitted: false,
   });
 
   const [questions, setQuestions] = useState<FlashcardQuestion[]>([]);
@@ -100,8 +100,8 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
       answer: ''
     };
 
-    if (flashcardData.numOptions) {
-      const numQuestions = flashcardData.numOptions;
+    if (flashcardData.numQuestions) {
+      const numQuestions = flashcardData.numQuestions;
       const generatedQuestions: FlashcardQuestion[] = [];
 
       for (let i = 0; i < numQuestions; i++) {
@@ -110,7 +110,7 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
 
       setQuestions(generatedQuestions);
     }
-  }, [flashcardData.numOptions]);
+  }, [flashcardData.numQuestions]);
 
   const value = useMemo(
     () => ({
