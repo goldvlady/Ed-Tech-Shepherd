@@ -94,15 +94,17 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
         const progress = `Upload is ${Math.round(
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100
         )}% done`;
-
         switch (snapshot.state) {
           case 'running':
             setProgress(progress);
             break;
-          case 'success': {
-            setProgress('Complete!');
-            const documentUrl = getDownloadURL(snapshot.ref);
-            const title = snapshot.metadata.name;
+        }
+      }, (error) => {
+        setUploadError(`Error: ${error.message}`)
+      }, async () => {
+        setProgress('Complete!');
+        const documentUrl = await getDownloadURL(task.snapshot.ref);
+        const title = task.snapshot.metadata.name;
             setShow(false);
             setShowHelp(false);
             navigate('/dashboard/docchat', {
@@ -111,10 +113,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
                 docTitle: title
               }
             });
-            break;
-          }
-        }
-      });
+      })
     }
   };
 
