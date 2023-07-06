@@ -1,21 +1,39 @@
-import SelectableTable, { TableColumn } from '../../../components/table';
+import React, { useEffect, useState } from "react";
+import { useToast } from "@chakra-ui/react";
+import { isSameDay, isThisWeek, getISOWeek } from "date-fns";
+import { startCase } from "lodash";
+import EmptyIllustration from "../../../assets/empty_illustration.svg";
+import { parseISO, format } from "date-fns";
+import { useNavigate } from "react-router";
 import {
-  Menu,
-  MenuItem,
-  MenuList,
-  MenuButton,
   Button,
   Flex,
   Text,
   Box,
   Input,
   InputGroup,
-  InputLeftElement
-} from '@chakra-ui/react';
-import React from 'react';
-import { BsSearch } from 'react-icons/bs';
-import { FaEllipsisH, FaCalendarAlt } from 'react-icons/fa';
-import styled from 'styled-components';
+  InputLeftElement,
+  MenuItem,
+  MenuList,
+  MenuButton,
+  Menu,
+  Image,
+} from "@chakra-ui/react";
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalBody,
+  ModalFooter,
+} from "@chakra-ui/react";
+import { FaEllipsisH, FaCalendarAlt } from "react-icons/fa";
+import flashcardStore from "../../../state/flashcardStore";
+import { FlashcardData, FlashcardQuestion } from "../../../types";
+import { Score } from "../../../types";
+import { FlashCardModal } from "../../../components/flashcardDecks";
+import { BsSearch } from "react-icons/bs";
+import SelectableTable, { TableColumn } from "../../../components/table";
+import styled from "styled-components";
 
 const StyledImage = styled(Box)`
   display: inline-flex;
@@ -29,59 +47,337 @@ const StyledImage = styled(Box)`
   box-shadow: 0 2px 10px rgba(63, 81, 94, 0.1);
 `;
 
-const NewNote = 'path-to-image'; // replace with actual path
-const Doc = 'path-to-image'; // replace with actual path
-
-type DataSourceItem = {
-  key: number;
-  title: string;
-  dateCreated: string;
-  lastModified: string;
-  lastAttempted: string;
-  lastAttemptedScore: number;
+export const DeleteModal = ({
+  isOpen,
+  onCancel,
+  onDelete,
+  isLoading,
+}: {
+  isOpen: boolean;
+  onCancel: () => void;
+  onDelete: () => void;
+  isLoading: boolean;
+}) => {
+  return (
+    <Modal onClose={() => { 
+      return 
+    }} isOpen={isOpen} isCentered>
+      <ModalOverlay />
+      <ModalContent
+        minWidth={{ base: "80%", md: "500px" }}
+        mx="auto"
+        w="fit-content"
+        borderRadius="10px"
+      >
+        <ModalBody alignItems={"center"} justifyContent={"center"}>
+          <Flex
+            flexDirection="column"
+            justifyContent={"center"}
+            padding={"40px"}
+            alignItems="center"
+          >
+            <Box>
+              <svg
+                width="73"
+                height="72"
+                viewBox="0 0 73 72"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <g filter="url(#filter0_d_2506_16927)">
+                  <circle cx="36.5" cy="28" r="20" fill="white" />
+                  <circle
+                    cx="36.5"
+                    cy="28"
+                    r="19.65"
+                    stroke="#EAEAEB"
+                    stroke-width="0.7"
+                  />
+                </g>
+                <path
+                  d="M36.5002 37.1663C31.4376 37.1663 27.3335 33.0622 27.3335 27.9997C27.3335 22.9371 31.4376 18.833 36.5002 18.833C41.5627 18.833 45.6668 22.9371 45.6668 27.9997C45.6668 33.0622 41.5627 37.1663 36.5002 37.1663ZM35.5835 30.7497V32.583H37.4168V30.7497H35.5835ZM35.5835 23.4163V28.9163H37.4168V23.4163H35.5835Z"
+                  fill="#F53535"
+                />
+                <defs>
+                  <filter
+                    id="filter0_d_2506_16927"
+                    x="0.5"
+                    y="0"
+                    width="72"
+                    height="72"
+                    filterUnits="userSpaceOnUse"
+                    color-interpolation-filters="sRGB"
+                  >
+                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                    <feColorMatrix
+                      in="SourceAlpha"
+                      type="matrix"
+                      values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                      result="hardAlpha"
+                    />
+                    <feOffset dy="8" />
+                    <feGaussianBlur stdDeviation="8" />
+                    <feComposite in2="hardAlpha" operator="out" />
+                    <feColorMatrix
+                      type="matrix"
+                      values="0 0 0 0 0.32 0 0 0 0 0.389333 0 0 0 0 0.48 0 0 0 0.11 0"
+                    />
+                    <feBlend
+                      mode="normal"
+                      in2="BackgroundImageFix"
+                      result="effect1_dropShadow_2506_16927"
+                    />
+                    <feBlend
+                      mode="normal"
+                      in="SourceGraphic"
+                      in2="effect1_dropShadow_2506_16927"
+                      result="shape"
+                    />
+                  </filter>
+                </defs>
+              </svg>
+            </Box>
+            <Text
+              fontSize="18px"
+              fontFamily="Inter"
+              fontStyle="normal"
+              fontWeight="500"
+              lineHeight="21px"
+              marginBottom={"10px"}
+              letterSpacing="0.112px"
+              color="#212224"
+            >
+              Delete flashcard?
+            </Text>
+            <Text
+              color="#6E7682"
+              textAlign="center"
+              fontSize="14px"
+              fontFamily="Inter"
+              width={"80%"}
+              fontStyle="normal"
+              fontWeight="400"
+              lineHeight="20px"
+            >
+              This will permanently remove this flashcard from your list.
+            </Text>
+          </Flex>
+        </ModalBody>
+        <ModalFooter
+          bg="#F7F7F8"
+          borderRadius="0px 0px 10px 10px"
+          p="16px"
+          justifyContent="flex-end"
+        >
+          <Button
+            disabled={isLoading}
+            _hover={{
+              backgroundColor: "#FFF",
+              boxShadow: "0px 2px 6px 0px rgba(136, 139, 143, 0.10)",
+            }}
+            color="#5C5F64"
+            fontSize="14px"
+            fontFamily="Inter"
+            fontWeight="500"
+            lineHeight="20px"
+            onClick={() => onCancel()}
+            borderRadius="8px"
+            border="1px solid #E7E8E9"
+            bg="#FFF"
+            boxShadow="0px 2px 6px 0px rgba(136, 139, 143, 0.10)"
+            mr={3}
+          >
+            Cancel
+          </Button>
+          <Button
+            isLoading={isLoading}
+            _hover={{
+              backgroundColor: "#F53535",
+            }}
+            onClick={() => onDelete()}
+            bg="#F53535"
+            color="#ffffff"
+            borderRadius="6px"
+            px="16px"
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
+            Delete
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
 };
 
-const dataSource: DataSourceItem[] = Array.from({ length: 10 }, (_, i) => ({
-  key: i,
-  title: `Title ${i + 1}`,
-  dateCreated: new Date().toISOString().split('T')[0], // current date in yyyy-mm-dd format
-  lastModified: new Date().toISOString().split('T')[0], // current date in yyyy-mm-dd format
-  lastAttempted: new Date().toISOString().split('T')[0], // current date in yyyy-mm-dd format
-  lastAttemptedScore: Math.floor(Math.random() * 101) // random score between 0 and 100
-}));
+type DataSourceItem = {
+  key: string;
+  deckname: string;
+  studyType: string;
+  studyPeriod: string;
+  createdAt: string;
+  scores: Score[];
+  questions: FlashcardQuestion[];
+};
+
+// const dataSource: DataSourceItem[] = Array.from({ length: 10 }, (_, i) => ({
+//   key: i,
+//   title: `Title ${i + 1}`,
+//   dateCreated: new Date().toISOString().split("T")[0], // current date in yyyy-mm-dd format
+//   lastModified: new Date().toISOString().split("T")[0], // current date in yyyy-mm-dd format
+//   lastAttemptedScore: Math.floor(Math.random() * 101), // random score between 0 and 100
+// }));
+
+function findNextFlashcard(
+  flashcards: FlashcardData[]
+): FlashcardData | undefined {
+  // Order of preference for studyPeriods
+  const studyPeriodPreference = [
+    "daily",
+    "weekly",
+    "biweekly",
+    "spacedRepetition",
+  ];
+
+  // Sort flashcards based on studyPeriodPreference
+  const sortedFlashcards = flashcards.sort((a, b) => {
+    return (
+      studyPeriodPreference.indexOf(a.studyPeriod) -
+      studyPeriodPreference.indexOf(b.studyPeriod)
+    );
+  });
+
+  // Get today's date
+  const today = new Date();
+
+  // Go through sorted flashcards to find the one that should be loaded
+  for (const card of sortedFlashcards) {
+    // Get date of last attempt
+    const lastAttemptDate =
+      card.scores.length > 0
+        ? new Date(card.scores[card.scores.length - 1].date)
+        : undefined;
+
+    // Check if the flashcard should be attempted today based on its studyPeriod
+    switch (card.studyPeriod) {
+      case "daily":
+        if (!lastAttemptDate || !isSameDay(lastAttemptDate, today)) {
+          return card;
+        }
+        break;
+      case "weekly":
+        if (!lastAttemptDate || !isThisWeek(lastAttemptDate)) {
+          return card;
+        }
+        break;
+      case "biweekly":
+        if (
+          !lastAttemptDate ||
+          !isThisWeek(lastAttemptDate) ||
+          getISOWeek(today) % 2 === 0
+        ) {
+          return card;
+        }
+        break;
+      case "spacedRepetition":
+        // In case of spaced repetition, load the card only if it's due
+        // Here we need more information on how the spaced repetition should work
+        break;
+      default:
+        break;
+    }
+  }
+
+  // If no card is found, return undefined
+  return undefined;
+}
 
 const CustomTable: React.FC = () => {
+  const navigate = useNavigate();
+  const toast = useToast();
+  const {
+    fetchFlashcards,
+    flashcards,
+    flashcard,
+    loadFlashcard,
+    deleteFlashCard,
+    isLoading,
+  } = flashcardStore();
+  const [deleteItem, setDeleteItem] = useState<{
+    flashcard: FlashcardData;
+  } | null>(null);
+
+  useEffect(() => {
+    fetchFlashcards();
+  }, []);
+
   const columns: TableColumn<DataSourceItem>[] = [
     {
-      title: 'Title',
-      dataIndex: 'title',
-      key: 'title',
-      render: ({ title }) => <Text fontWeight="500">{title}</Text>
+      title: "Deckname",
+      dataIndex: "deckname",
+      key: "deckname",
+      render: ({ deckname }) => <Text fontWeight="500">{deckname}</Text>,
     },
     {
-      title: 'Date Created',
-      dataIndex: 'dateCreated',
-      key: 'dateCreated'
+      title: "Study Type",
+      dataIndex: "studyType",
+      key: "studyType",
+      render: ({ studyType }) => {
+        return (
+          <Text>
+            {startCase(studyType.replace(/([a-z])([A-Z])/g, "$1 $2"))}
+          </Text>
+        );
+      },
     },
     {
-      title: 'Last Modified',
-      dataIndex: 'lastModified',
-      key: 'lastModified'
+      title: "Study Period",
+      dataIndex: "studyPeriod",
+      key: "studyPeriod",
+      render: ({ studyPeriod }) => {
+        return <Text>{startCase(studyPeriod)}</Text>;
+      },
     },
     {
-      title: 'Last Attempted',
-      dataIndex: 'lastAttempted',
-      key: 'lastAttempted'
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: ({ createdAt }) => {
+        console.log(typeof createdAt);
+        const date = parseISO(createdAt); // parse the date string into a Date object
+        const formattedDate = format(date, "dd-MMMM-yyyy"); // format the date
+        return <Text>{formattedDate}</Text>;
+      },
     },
     {
-      title: 'Last Attempted Score',
-      dataIndex: 'lastAttemptedScore',
-      key: 'lastAttemptedScore'
+      title: "Last Attempted",
+      key: "lastAttempted",
+      render: ({ scores }) => {
+        if (!scores?.length) return <Text>N/A</Text>;
+        const date = parseISO(scores[scores.length - 1].date);
+        const formattedDate = format(date, "dd-MMMM-yyyy hh:mmaaa");
+        return (
+          <Text>{formattedDate.replace("pm", "PM").replace("am", "AM")}</Text>
+        );
+      },
     },
     {
-      title: '',
-      key: 'action',
-      render: () => (
+      title: "Last Attempted Score",
+      key: "lastAttemptedScore",
+      render: ({ scores, questions }) => {
+        if (!scores?.length) return <Text fontWeight="500">N/A</Text>;
+        const percentage = (
+          (scores[scores.length - 1]?.score / questions.length) *
+          100
+        ).toFixed(0);
+        return <Text fontWeight="500">{percentage}%</Text>;
+      },
+    },
+    {
+      title: "",
+      key: "action",
+      render: (flashcard) => (
         <Menu>
           <MenuButton
             as={Button}
@@ -102,8 +398,8 @@ const CustomTable: React.FC = () => {
           >
             <MenuItem
               p="6px 8px 6px 8px"
-              _hover={{ bgColor: '#F2F4F7' }}
-              onClick={() => null}
+              _hover={{ bgColor: "#F2F4F7" }}
+              onClick={() => loadFlashcard(flashcard.key)}
             >
               <StyledImage marginRight="10px">
                 <svg
@@ -129,7 +425,7 @@ const CustomTable: React.FC = () => {
                 Study
               </Text>
             </MenuItem>
-            <MenuItem p="6px 8px 6px 8px" _hover={{ bgColor: '#F2F4F7' }}>
+            {/* <MenuItem p="6px 8px 6px 8px" _hover={{ bgColor: "#F2F4F7" }}>
               <StyledImage marginRight="10px">
                 <svg
                   width="12"
@@ -153,11 +449,16 @@ const CustomTable: React.FC = () => {
               >
                 Update Setting
               </Text>
-            </MenuItem>
+            </MenuItem> */}
             <MenuItem
               p="6px 8px 6px 8px"
               color="#F53535"
-              _hover={{ bgColor: '#F2F4F7' }}
+              onClick={() =>
+                setDeleteItem({
+                  flashcard: flashcard as unknown as FlashcardData,
+                })
+              }
+              _hover={{ bgColor: "#F2F4F7" }}
             >
               <StyledImage marginRight="10px">
                 <svg
@@ -180,113 +481,268 @@ const CustomTable: React.FC = () => {
             </MenuItem>
           </MenuList>
         </Menu>
-      )
-    }
+      ),
+    },
+    // rest of your columns...
   ];
 
   return (
-    <Box padding={'20px'}>
-      <Flex
-        width="100%"
-        marginBottom={'40px'}
-        alignItems="center"
-        justifyContent="space-between"
-        paddingRight={'20px'}
-        color="#E5E6E6"
-      >
-        <Text
-          fontFamily="Inter"
-          fontWeight="600"
-          fontSize="24px"
-          lineHeight="30px"
-          letterSpacing="-2%"
-          color="#212224"
+    <>
+      <FlashCardModal isOpen={Boolean(flashcard)} />
+      <DeleteModal
+        isLoading={isLoading}
+        isOpen={Boolean(deleteItem)}
+        onCancel={() => setDeleteItem(null)}
+        onDelete={async () => {
+          if (deleteFlashCard) {
+            const isDeleted = await deleteFlashCard(
+              deleteItem?.flashcard._id as string
+            );
+            if (isDeleted) {
+              toast({
+                title: `${deleteItem?.flashcard.deckname} deleted Succesfully`,
+                status: "success",
+              });
+              setDeleteItem(null);
+            } else {
+              toast({
+                title: `Failed to delete ${deleteItem?.flashcard.deckname} flashcards`,
+                status: "error",
+              });
+            }
+          }
+        }}
+      />
+      {!flashcards?.length ? (
+        <Box
+          background={"#F8F9FB"}
+          display={"flex"}
+          flexDirection={"column"}
+          justifyContent={"start"}
+          height={"calc(100vh - 80px)"}
         >
-          Flash Card
-        </Text>
-        <Flex
-          cursor={'pointer'}
-          border="1px solid #E5E6E6"
-          padding="5px 10px"
-          borderRadius={'6px'}
-          alignItems="center"
-        >
-          <Text
-            fontWeight="400"
-            fontSize="14px"
-            marginRight={'5px'}
-            color="#5E6164"
-          >
-            All Time
-          </Text>
-          <FaCalendarAlt color="#96999C" size="12px" />
-        </Flex>
-      </Flex>
-      <Flex
-        width="100%"
-        marginBottom="40px"
-        alignItems="center"
-        justifyContent="space-between"
-        paddingRight="20px"
-        color="#E5E6E6"
-      >
-        <Flex alignItems="center">
-          <InputGroup size="sm" borderRadius="6px" width="200px" height="32px">
-            <InputLeftElement marginRight={'10px'} pointerEvents="none">
-              <BsSearch color="#5E6164" size="14px" />
-            </InputLeftElement>
-            <Input
-              type="text"
-              variant="outline"
-              size="sm"
-              placeholder="     Search"
-              borderRadius="6px"
-            />
-          </InputGroup>
-        </Flex>
-        <Flex>
           <Flex
-            cursor="pointer"
+            width="100%"
+            alignItems="center"
+            justifyContent="space-between"
+            color="#E5E6E6"
+            paddingTop={"20px"}
+            paddingLeft="20px"
+          >
+            <Text
+              fontFamily="Inter"
+              fontWeight="600"
+              fontSize="24px"
+              lineHeight="30px"
+              letterSpacing="-2%"
+              color="#212224"
+            >
+              Flashcard
+            </Text>
+          </Flex>
+          <Box
+            width={"100%"}
+            display={"flex"}
+            height="100%"
+            justifyContent={"center"}
+            flexDirection={"column"}
+            alignItems={"center"}
+          >
+            <Image src={EmptyIllustration} />
+            <Text
+              color="text.300"
+              fontFamily="Inter"
+              fontSize="16px"
+              fontStyle="normal"
+              fontWeight="500"
+              lineHeight="21px"
+              letterSpacing="0.112px"
+            >
+              You don’t have any flashcards yet!
+            </Text>
+            <Button
+              variant="solid"
+              marginTop={"20px"}
+              width={{ sm: "80%", md: "300px" }}
+              borderRadius={"8px"}
+              colorScheme={"primary"}
+              onClick={() => navigate("/dashboard/flashcards/create")}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
+              </svg>
+
+              <Text marginLeft={"10px"}>Create New</Text>
+            </Button>
+          </Box>
+        </Box>
+      ) : (
+        <Box padding={"20px"}>
+          <Flex
+            width="100%"
+            marginBottom={"40px"}
+            alignItems="center"
+            justifyContent="space-between"
+            paddingRight={"20px"}
+            color="#E5E6E6"
+          >
+            <Text
+              fontFamily="Inter"
+              fontWeight="600"
+              fontSize="24px"
+              lineHeight="30px"
+              letterSpacing="-2%"
+              color="#212224"
+            >
+              Flashcard
+            </Text>
+            <Button
+              variant="solid"
+              marginLeft={"20px"}
+              borderRadius={"10px"}
+              colorScheme={"primary"}
+              onClick={() => navigate("/dashboard/flashcards/create")}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
+              </svg>
+
+              <Text marginLeft={"10px"}>Create a Flashcard</Text>
+            </Button>
+            {/* <Flex
+            cursor={"pointer"}
             border="1px solid #E5E6E6"
             padding="5px 10px"
-            borderRadius="6px"
+            borderRadius={"6px"}
             alignItems="center"
           >
+            
+
             <Text
               fontWeight="400"
               fontSize="14px"
-              marginRight="5px"
+              marginRight={"5px"}
               color="#5E6164"
             >
               All Time
             </Text>
             <FaCalendarAlt color="#96999C" size="12px" />
+          </Flex> */}
           </Flex>
-          <Button
-            variant="solid"
-            marginLeft={'20px'}
-            borderRadius={'10px'}
-            colorScheme={'primary'}
+          <Flex
+            width="100%"
+            marginBottom="40px"
+            alignItems="center"
+            justifyContent="space-between"
+            paddingRight="20px"
+            color="#E5E6E6"
           >
-            <svg
-              width="16"
-              height="18"
-              viewBox="0 0 16 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M3.83317 4.00033V1.50033C3.83317 1.04009 4.20627 0.666992 4.6665 0.666992H14.6665C15.1267 0.666992 15.4998 1.04009 15.4998 1.50033V13.167C15.4998 13.6272 15.1267 14.0003 14.6665 14.0003H12.1665V16.4996C12.1665 16.9602 11.7916 17.3337 11.3275 17.3337H1.33888C0.875492 17.3337 0.5 16.9632 0.5 16.4996L0.502167 4.83438C0.50225 4.37375 0.8772 4.00033 1.34118 4.00033H3.83317ZM5.49983 4.00033H12.1665V12.3337H13.8332V2.33366H5.49983V4.00033ZM3.83317 8.16699V9.83366H8.83317V8.16699H3.83317ZM3.83317 11.5003V13.167H8.83317V11.5003H3.83317Z"
-                fill="white"
-              />
-            </svg>
+            <Flex alignItems="center">
+              <InputGroup
+                size="sm"
+                borderRadius="6px"
+                width="200px"
+                height="32px"
+              >
+                <InputLeftElement marginRight={"10px"} pointerEvents="none">
+                  <BsSearch color="#5E6164" size="14px" />
+                </InputLeftElement>
+                <Input
+                  type="text"
+                  variant="outline"
+                  size="sm"
+                  placeholder="     Search"
+                  borderRadius="6px"
+                />
+              </InputGroup>
+            </Flex>
+            <Flex>
+              <Flex
+                cursor="pointer"
+                border="1px solid #E5E6E6"
+                padding="5px 10px"
+                borderRadius="6px"
+                alignItems="center"
+              >
+                <Text
+                  fontWeight="400"
+                  fontSize="14px"
+                  marginRight="5px"
+                  color="#5E6164"
+                >
+                  All Time
+                </Text>
+                <FaCalendarAlt color="#96999C" size="12px" />
+              </Flex>
+              <Button
+                variant="solid"
+                marginLeft={"20px"}
+                borderRadius={"10px"}
+                colorScheme={"primary"}
+                onClick={() => {
+                  const nextFlashCard = findNextFlashcard(flashcards);
+                  if (!nextFlashCard) {
+                    toast({
+                      title: "You have attempted all flashcards for this week",
+                      status: "info",
+                    });
+                  } else {
+                    loadFlashcard(nextFlashCard?._id);
+                  }
+                }}
+              >
+                <svg
+                  width="16"
+                  height="18"
+                  viewBox="0 0 16 18"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3.83317 4.00033V1.50033C3.83317 1.04009 4.20627 0.666992 4.6665 0.666992H14.6665C15.1267 0.666992 15.4998 1.04009 15.4998 1.50033V13.167C15.4998 13.6272 15.1267 14.0003 14.6665 14.0003H12.1665V16.4996C12.1665 16.9602 11.7916 17.3337 11.3275 17.3337H1.33888C0.875492 17.3337 0.5 16.9632 0.5 16.4996L0.502167 4.83438C0.50225 4.37375 0.8772 4.00033 1.34118 4.00033H3.83317ZM5.49983 4.00033H12.1665V12.3337H13.8332V2.33366H5.49983V4.00033ZM3.83317 8.16699V9.83366H8.83317V8.16699H3.83317ZM3.83317 11.5003V13.167H8.83317V11.5003H3.83317Z"
+                    fill="white"
+                  />
+                </svg>
 
-            <Text marginLeft={'10px'}>Practice today's calender</Text>
-          </Button>
-        </Flex>
-      </Flex>
-      <SelectableTable isSelectable columns={columns} dataSource={dataSource} />
-    </Box>
+                <Text marginLeft={"10px"}>Practice today's cards</Text>
+              </Button>
+            </Flex>
+          </Flex>
+          {flashcards && (
+            <SelectableTable
+              isSelectable
+              columns={columns}
+              dataSource={flashcards.map((card) => ({
+                ...card,
+                key: card._id,
+              }))}
+            />
+          )}
+        </Box>
+      )}
+    </>
   );
 };
 

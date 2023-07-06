@@ -2,7 +2,7 @@ import { StyledTd, StyledTh, StyledTr } from './styles';
 import { Table, Thead, Tbody, Checkbox } from '@chakra-ui/react';
 import { useState } from 'react';
 
-export type TableColumn<T> = {
+export type TableColumn<T = any> = {
   title: string;
   dataIndex?: keyof T;
   key: string;
@@ -11,7 +11,7 @@ export type TableColumn<T> = {
   id?: number;
 };
 
-export type TableProps<T> = {
+export type TableProps<T = any> = {
   columns: TableColumn<T>[];
   dataSource: T[];
   isSelectable?: boolean;

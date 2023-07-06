@@ -1,7 +1,8 @@
-import { firebaseAuth } from './firebase';
-import { ToastId, createStandaloneToast } from '@chakra-ui/react';
-import { isArray } from 'lodash';
-import moment, { Duration, Moment } from 'moment';
+import { ToastId, createStandaloneToast } from "@chakra-ui/react";
+import { isArray } from "lodash";
+import moment, { Duration, Moment } from "moment";
+
+import { firebaseAuth } from "./firebase";
 
 const { toast } = createStandaloneToast();
 
@@ -12,7 +13,7 @@ declare global {
 }
 
 export const classNames = (...classes: any[]) => {
-  return classes.filter(Boolean).join(' ');
+  return classes.filter(Boolean).join(" ");
 };
 
 export const ServiceFeePercentage = 0.05;
@@ -29,32 +30,30 @@ export const getOptionValue = (
   return opts.find((o) => o.value === val);
 };
 
-export const doFetch = async (input: RequestInfo, init?: RequestInit) => {
+export const doFetch = async (
+  input: RequestInfo,
+  init?: RequestInit,
+  showErrorMessage = true
+) => {
   const headers: HeadersInit = {};
 
   const token = await firebaseAuth.currentUser?.getIdToken();
 
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   const response = await fetch(input, { ...init, headers });
 
-  if (!response.ok) {
+  if (!response.ok && showErrorMessage) {
     if (window.networkErrorToast) {
       toast.close(window.networkErrorToast);
     }
-
-    let errorMessage = '';
-
-    if (response.status === 401)
-      errorMessage = 'Please check your credentials, and try again.';
-
     window.networkErrorToast = toast({
-      title: errorMessage || 'An error occurred.',
-      status: 'error',
-      position: 'top',
-      isClosable: true
+      title: "An error occurred.",
+      status: "error",
+      position: "top",
+      isClosable: true,
     });
     throw response;
   }
@@ -63,46 +62,46 @@ export const doFetch = async (input: RequestInfo, init?: RequestInit) => {
 };
 export const educationLevelOptions = [
   {
-    label: 'Primary School Certificate',
-    value: 'primary-school-cert'
+    label: "Primary School Certificate",
+    value: "primary-school-cert",
   },
   {
-    label: 'Junior Secondary School Certificate',
-    value: 'junior-secondary-school-cert'
+    label: "Junior Secondary School Certificate",
+    value: "junior-secondary-school-cert",
   },
   {
-    label: 'Senior Secondary School Certificate',
-    value: 'senior-secondary-school-cert'
+    label: "Senior Secondary School Certificate",
+    value: "senior-secondary-school-cert",
   },
   {
-    label: 'National Diploma (ND)',
-    value: 'national-diploma'
+    label: "National Diploma (ND)",
+    value: "national-diploma",
   },
   {
-    label: 'Higher National Diploma (HND)',
-    value: 'higher-national-diploma'
+    label: "Higher National Diploma (HND)",
+    value: "higher-national-diploma",
   },
   {
     label: "Bachelor's Degree (BSc, BA, BEng, etc.)",
-    value: 'bachelors-degree'
+    value: "bachelors-degree",
   },
   {
     label: "Master's Degree (MSc, MA, MEng, etc.)",
-    value: 'masters-degree'
+    value: "masters-degree",
   },
   {
-    label: 'Doctoral Degree (PhD, MD, etc.)',
-    value: 'doctoral-degree'
+    label: "Doctoral Degree (PhD, MD, etc.)",
+    value: "doctoral-degree",
   },
   {
-    label: 'Vocational/Technical Certificate',
-    value: 'vocation-technical-cert'
-  }
+    label: "Vocational/Technical Certificate",
+    value: "vocation-technical-cert",
+  },
 ];
 
-export const numberToDayOfWeekName = (num: number, format = 'dddd') =>
+export const numberToDayOfWeekName = (num: number, format = "dddd") =>
   moment().day(num).format(format);
-export const DayOfWeekNameToNumber = (num: number, format = 'dddd') =>
+export const DayOfWeekNameToNumber = (num: number, format = "dddd") =>
   moment().day(num).format(format);
 
 export const leadingZero = (num: number) => `0${num}`.slice(-2);
@@ -110,12 +109,12 @@ export const leadingZero = (num: number) => `0${num}`.slice(-2);
 export const roundDate = (
   date: Date | Moment,
   duration: Duration,
-  method: 'ceil'
+  method: "ceil"
 ) => {
   return moment(Math[method](+date / +duration) * +duration);
 };
 export const twoDigitFormat = (d: number) => {
-  return d < 10 ? '0' + d.toString() : d.toString();
+  return d < 10 ? "0" + d.toString() : d.toString();
 };
 
 export const textTruncate = function (
@@ -127,7 +126,7 @@ export const textTruncate = function (
     length = 100;
   }
   if (ending == null) {
-    ending = '...';
+    ending = "...";
   }
   if (str.length > length) {
     return str.substring(0, length - ending.length) + ending;
@@ -141,13 +140,13 @@ export const getCroppedImg = (
   crop: { x: number; y: number; width: number; height: number }
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const canvas = document.createElement('canvas');
+    const canvas = document.createElement("canvas");
     const image = new Image();
 
     image.onload = () => {
       const scaleX = image.naturalWidth / image.width;
       const scaleY = image.naturalHeight / image.height;
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext("2d");
 
       canvas.width = crop.width;
       canvas.height = crop.height;
@@ -164,7 +163,7 @@ export const getCroppedImg = (
         crop.height
       );
 
-      const base64data = canvas?.toDataURL('image/jpeg', 1);
+      const base64data = canvas?.toDataURL("image/jpeg", 1);
       resolve(base64data);
     };
 

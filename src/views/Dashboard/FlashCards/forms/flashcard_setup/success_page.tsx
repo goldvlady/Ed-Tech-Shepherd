@@ -1,12 +1,20 @@
-import { useFlashCardState } from '../../context/flashcard';
-import { Button, Box, Text, Flex } from '@chakra-ui/react';
-import React from 'react';
+import React from "react";
+import flashcardStore from "../../../../../state/flashcardStore";
+import { useFlashCardState } from "../../context/flashcard";
+import { Button, Text, Flex } from "@chakra-ui/react";
 
 const SuccessState = () => {
+  const { flashcards, loadFlashcard } = flashcardStore();
   const { flashcardData } = useFlashCardState();
 
   const handleStudyClick = () => {
-    //   history.push("path-to-study-page");
+    console.log(flashcards, flashcardData);
+    const flashcard = flashcards?.find(
+      (flashcard) => flashcard.deckname === flashcardData.deckname
+    );
+    if (flashcard) {
+      loadFlashcard(flashcard._id);
+    }
   };
 
   return (

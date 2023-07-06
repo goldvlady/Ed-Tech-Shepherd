@@ -1,8 +1,8 @@
 import { useFlashCardState } from '../../context/flashcard';
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import {
   Box,
   FormControl,
-  Image,
   FormLabel,
   Input,
   Radio,
@@ -10,20 +10,24 @@ import {
   Select,
   Button,
   HStack,
-  useEditable
-} from '@chakra-ui/react';
-import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
+} from "@chakra-ui/react";
 
 const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
   const { flashcardData, setFlashcardData, goToNextStep } = useFlashCardState();
   const [localData, setLocalData] = useState<typeof flashcardData>({
-    deckname: '',
-    studyType: '',
-    studyPeriod: '',
-    numOptions: 0,
-    timerDuration: '',
-    hasSubmitted: false
+    deckname: "",
+    studyType: "",
+    studyPeriod: "",
+    numQuestions: 0,
+    timerDuration: "",
+    hasSubmitted: false,
   }); // A local state for storing user inputs
+
+  useEffect(() => {
+    if (flashcardData.deckname) {
+      setLocalData(flashcardData);
+    }
+  }, []);
 
   const handleChange = React.useCallback(
     (
@@ -47,13 +51,15 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     return Object.values(payload).every(Boolean);
   }, [localData, isAutomated]);
 
+  console.log(localData, flashcardData);
+
   const handleSubmit = () => {
     setFlashcardData((prevState) => ({
       ...prevState,
       ...localData,
       hasSubmitted: true
     }));
-    goToNextStep();
+    if (!isAutomated) goToNextStep();
   };
 
   return (
@@ -143,13 +149,13 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
 
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-          Number of options
+          Number of questions
         </FormLabel>
         <Input
           type="number"
-          name="numOptions"
-          placeholder="Number of options"
-          value={localData.numOptions}
+          name="numQuestions"
+          placeholder="Number of questions"
+          value={localData.numQuestions}
           onChange={handleChange}
           _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />
