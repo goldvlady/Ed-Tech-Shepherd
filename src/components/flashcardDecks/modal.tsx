@@ -1,7 +1,7 @@
-import React, { useMemo, useState, useEffect } from "react";
-import _ from "lodash";
-import { FlashcardData } from "../../types";
-import flashcardStore from "../../state/flashcardStore";
+import flashcardStore from '../../state/flashcardStore';
+import { FlashcardData } from '../../types';
+import FlashCard from './deck_two';
+import DeckOverLap from './overlap';
 import {
   Box,
   Flex,
@@ -17,14 +17,14 @@ import {
   MenuButton,
   Menu,
   Spinner,
-  MenuGroup,
-} from "@chakra-ui/react";
-import { FiCheck, FiHelpCircle, FiXCircle } from "react-icons/fi";
-import { AiFillThunderbolt } from "react-icons/ai";
-import { BsThreeDots } from "react-icons/bs";
-import DeckOverLap from "./overlap";
-import FlashCard from "./deck_two";
-import styled from "styled-components";
+  MenuGroup
+} from '@chakra-ui/react';
+import _ from 'lodash';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
+import { AiFillThunderbolt } from 'react-icons/ai';
+import { BsThreeDots } from 'react-icons/bs';
+import { FiCheck, FiHelpCircle, FiXCircle } from 'react-icons/fi';
+import styled from 'styled-components';
 
 const MenuListWrapper = styled(MenuList)`
   .chakra-menu__group__title {
@@ -37,16 +37,16 @@ let INITIAL_TIMER = 0;
 const LoaderOverlay = () => (
   <div
     style={{
-      position: "absolute",
+      position: 'absolute',
       zIndex: 1,
       left: 0,
       top: 0,
       right: 0,
       bottom: 0,
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)' // Semi-transparent background
     }}
   >
     <Spinner
@@ -60,13 +60,13 @@ const LoaderOverlay = () => (
 );
 
 export interface Options {
-  type: "single" | "multiple";
+  type: 'single' | 'multiple';
   content: string[];
 }
 
 export interface Study {
   id: number;
-  type: "timed" | "manual";
+  type: 'timed' | 'manual';
   questions: string;
   answers: string | string[];
   currentStep: number;
@@ -78,13 +78,13 @@ const EmptyState = ({ onStart }: { onStart: () => void }) => {
   return (
     <Box
       borderRadius="12px"
-      minWidth={{ base: "80%", md: "600px" }}
-      display={"flex"}
+      minWidth={{ base: '80%', md: '600px' }}
+      display={'flex'}
       height="500px"
-      flexDirection={"column"}
+      flexDirection={'column'}
       width="auto"
-      justifyContent={"center"}
-      alignItems={"center"}
+      justifyContent={'center'}
+      alignItems={'center'}
       boxShadow="0px 4px 8px rgba(0, 0, 0, 0.1)"
     >
       <svg
@@ -92,7 +92,7 @@ const EmptyState = ({ onStart }: { onStart: () => void }) => {
         viewBox="0 0 24 24"
         stroke-width="1"
         fill="#D4AF37" // Set stroke to gold
-        style={{ width: "150px", height: "150px" }} // Increase size to 6em (96px) or 150px based on your requirement
+        style={{ width: '150px', height: '150px' }} // Increase size to 6em (96px) or 150px based on your requirement
       >
         <path
           stroke-linecap="round"
@@ -102,7 +102,7 @@ const EmptyState = ({ onStart }: { onStart: () => void }) => {
       </svg>
 
       <Text
-        marginBottom={"40px"}
+        marginBottom={'40px'}
         marginTop="10px"
         fontSize="18px"
         width="70%"
@@ -115,7 +115,7 @@ const EmptyState = ({ onStart }: { onStart: () => void }) => {
 
       <Button
         bg="#207DF7"
-        width={"80%"}
+        width={'80%'}
         color="white"
         borderRadius="8px"
         onClick={() => onStart()}
@@ -141,7 +141,7 @@ const EmptyState = ({ onStart }: { onStart: () => void }) => {
 
 const CompletedState = ({
   onDone,
-  score,
+  score
 }: {
   onDone: () => void;
   score: number;
@@ -149,19 +149,19 @@ const CompletedState = ({
   return (
     <Box
       borderRadius="12px"
-      minWidth={{ base: "80%", md: "600px" }}
-      display={"flex"}
+      minWidth={{ base: '80%', md: '600px' }}
+      display={'flex'}
       height="500px"
-      flexDirection={"column"}
+      flexDirection={'column'}
       width="auto"
-      justifyContent={"center"}
-      alignItems={"center"}
+      justifyContent={'center'}
+      alignItems={'center'}
       boxShadow="0px 4px 8px rgba(0, 0, 0, 0.1)"
     >
       <Text
-        marginBottom={"20px"}
+        marginBottom={'20px'}
         fontSize="36px"
-        fontWeight={"500"}
+        fontWeight={'500'}
         width="70%"
         color="#000"
         lineHeight="22px"
@@ -171,7 +171,7 @@ const CompletedState = ({
       </Text>
 
       <Text
-        marginBottom={"40px"}
+        marginBottom={'40px'}
         marginTop="10px"
         fontSize="18px"
         width="70%"
@@ -184,7 +184,7 @@ const CompletedState = ({
 
       <Button
         bg="#207DF7"
-        width={"80%"}
+        width={'80%'}
         color="white"
         borderRadius="8px"
         onClick={() => onDone()}
@@ -209,80 +209,79 @@ const CompletedState = ({
 };
 
 const StudyBox = () => {
-  const [studyState, setStudyState] = useState<"question" | "answer">(
-    "question"
+  const [studyState, setStudyState] = useState<'question' | 'answer'>(
+    'question'
   );
   const {
     flashcard,
     storeScore,
     updateQuestionAttempt,
     isLoading,
-    loadFlashcard,
+    loadFlashcard
   } = flashcardStore();
   const [currentStudyIndex, setCurrentStudyIndex] = useState(0);
-  const [studyType, setStudyType] = useState<"manual" | "timed">("manual");
+  const [studyType, setStudyType] = useState<'manual' | 'timed'>('manual');
   const [{ isStarted, isFinished }, setActivityState] = useState({
     isStarted: false,
-    isFinished: false,
+    isFinished: false
   });
-  const [progressWidth, setProgressWidth] = useState("100%");
+  const [progressWidth, setProgressWidth] = useState('100%');
   const [studies, setStudies] = useState<Study[]>([] as Study[]);
-  const [cardStyle, setCardStyle] = useState<"flippable" | "default">(
-    "default"
+  const [cardStyle, setCardStyle] = useState<'flippable' | 'default'>(
+    'default'
   );
   const [timer, setTimer] = useState(0);
   const [correctAnswerCount, setCorrectAnswerCount] = useState(0);
 
-  const formatFlashcard = (flashcard: FlashcardData) => {
-    const formatedQuestions: Study[] = flashcard.questions.map(
-      (question, index) => {
-        const data: Study = {
-          id: index + 1,
-          type: studyType,
-          questions: question.question,
-          answers: question.answer,
-          currentStep: question.currentStep,
-          isFirstAttempt: question.numberOfAttempts === 0,
-        };
-        if (question.options || question.questionType === "trueFalse") {
-          if (question.questionType === "trueFalse") {
-            data.options = {
-              type: "single",
-              content: ["true", "false"],
-            };
-          } else {
-            if (question.options?.length) {
+  const formatFlashcard = useCallback(
+    (flashcard: FlashcardData) => {
+      const formatedQuestions: Study[] = flashcard.questions.map(
+        (question, index) => {
+          const data: Study = {
+            id: index + 1,
+            type: studyType,
+            questions: question.question,
+            answers: question.answer,
+            currentStep: question.currentStep,
+            isFirstAttempt: question.numberOfAttempts === 0
+          };
+          if (question.options || question.questionType === 'trueFalse') {
+            if (question.questionType === 'trueFalse') {
               data.options = {
-                type: "single",
-                content: question?.options,
+                type: 'single',
+                content: ['true', 'false']
               };
+            } else {
+              if (question.options?.length) {
+                data.options = {
+                  type: 'single',
+                  content: question?.options
+                };
+              }
             }
           }
+          return data;
         }
-        return data;
-      }
-    );
-    return formatedQuestions;
-  };
+      );
+      return formatedQuestions;
+    },
+    [studyType]
+  );
 
   useEffect(() => {
     if (flashcard) {
       setStudies(formatFlashcard(flashcard));
     }
-  }, [flashcard, studyType]);
-
-  console.log(studies);
+  }, [flashcard, studyType, formatFlashcard]);
 
   const currentStudy = useMemo(
     () => studies[currentStudyIndex],
     [currentStudyIndex, studies, studyType]
   );
 
-  console.log(currentStudy);
-
   useEffect(() => {
-    setStudyState("question");
-    setProgressWidth("100%");
+    setStudyState('question');
+    setProgressWidth('100%');
   }, [currentStudyIndex]);
 
   const lazyTriggerNextStep = async () => {
@@ -302,9 +301,8 @@ const StudyBox = () => {
     if (INITIAL_TIMER === 0) {
       INITIAL_TIMER = timer;
     }
-    console.log(INITIAL_TIMER);
 
-    if (isStarted && studyType === "timed") {
+    if (isStarted && studyType === 'timed') {
       countdown = setInterval(() => {
         setTimer((prevTimer) => {
           const newTimer = prevTimer - 1;
@@ -316,11 +314,11 @@ const StudyBox = () => {
       }, 1000);
     }
 
-    if (timer === 0 && studyType === "timed" && studyState === "question") {
+    if (timer === 0 && studyType === 'timed' && studyState === 'question') {
       setTimer(INITIAL_TIMER);
       INITIAL_TIMER = 0;
       clearInterval(countdown);
-      setStudyState("answer");
+      setStudyState('answer');
     }
 
     return () => clearInterval(countdown);
@@ -378,7 +376,7 @@ const StudyBox = () => {
         score={correctAnswerCount}
       />
     ) : (
-      <Box width="100%" flexDirection={"column"} display={"flex"}>
+      <Box width="100%" flexDirection={'column'} display={'flex'}>
         <Box width="100%" height="500px">
           <Box
             position="absolute"
@@ -396,7 +394,7 @@ const StudyBox = () => {
               width="256px"
               height="344px"
               boxShadow="0 6px 24px rgba(92, 101, 112, 0.15)"
-              backgroundColor={studyState === "answer" ? "#F9FAFB" : "#fff"}
+              backgroundColor={studyState === 'answer' ? '#F9FAFB' : '#fff'}
             >
               {/* Content for frame-child5 */}
             </DeckOverLap>
@@ -406,7 +404,7 @@ const StudyBox = () => {
               width="284px"
               height="344px"
               boxShadow="0 6px 24px rgba(92, 101, 112, 0.15)"
-              backgroundColor={studyState === "answer" ? "#F9FAFB" : "#fff"}
+              backgroundColor={studyState === 'answer' ? '#F9FAFB' : '#fff'}
             >
               {/* Content for frame-child6 */}
             </DeckOverLap>
@@ -416,7 +414,7 @@ const StudyBox = () => {
               width="312px"
               height="344px"
               boxShadow="0 6px 24px rgba(92, 101, 112, 0.15)"
-              backgroundColor={studyState === "answer" ? "#F9FAFB" : "#fff"}
+              backgroundColor={studyState === 'answer' ? '#F9FAFB' : '#fff'}
             >
               {/* Content for frame-child7 */}
             </DeckOverLap>
@@ -424,9 +422,8 @@ const StudyBox = () => {
               cardStyle={cardStyle}
               study={currentStudy}
               onNewResult={(selectedOpions) => {
-                console.log(currentStudy.answers, "options", selectedOpions);
                 const isCorrect =
-                  typeof currentStudy.answers === "string"
+                  typeof currentStudy.answers === 'string'
                     ? currentStudy.answers === selectedOpions
                     : _.isEqual(currentStudy.answers, selectedOpions);
                 isCorrect ? acceptAnswer() : rejectAnswer();
@@ -436,9 +433,9 @@ const StudyBox = () => {
               top="0"
               borderRadius="5px"
               background={
-                studyState === "answer" || cardStyle === "default"
-                  ? "#F9FAFB"
-                  : "#fff"
+                studyState === 'answer' || cardStyle === 'default'
+                  ? '#F9FAFB'
+                  : '#fff'
               }
               boxShadow="0 6px 24px rgba(92, 101, 112, 0.15)"
               height="344px"
@@ -449,24 +446,24 @@ const StudyBox = () => {
             />
           </Box>
         </Box>
-        {studyState === "question" ? (
-          currentStudy.type !== "timed" ? (
+        {studyState === 'question' ? (
+          currentStudy.type !== 'timed' ? (
             <Box
-              width={"100%"}
+              width={'100%'}
               display="flex"
-              justifyContent={"center"}
+              justifyContent={'center'}
               px="30px"
               pb="40px"
             >
               <Button
                 onClick={() => {
-                  setStudyState("answer");
+                  setStudyState('answer');
                   // if(currentStudy.options){
                   //     lazyTriggerNextStep()
                   // }
                 }}
                 bg="#207DF7"
-                width={"80%"}
+                width={'80%'}
                 color="white"
                 borderRadius="8px"
                 border="1px solid #207DF7"
@@ -488,9 +485,9 @@ const StudyBox = () => {
             </Box>
           ) : (
             <Box
-              width={"100%"}
+              width={'100%'}
               display="flex"
-              justifyContent={"center"}
+              justifyContent={'center'}
               height="48px"
               px="30px"
               pb="40px"
@@ -506,7 +503,7 @@ const StudyBox = () => {
               pb="40px"
             >
               <Button
-                leftIcon={<Icon as={FiCheck} fontSize={"16px"} />}
+                leftIcon={<Icon as={FiCheck} fontSize={'16px'} />}
                 borderRadius="8px"
                 onClick={() => {
                   acceptAnswer();
@@ -529,15 +526,15 @@ const StudyBox = () => {
                 height="54px"
                 transition="transform 0.3s"
                 _hover={{
-                  background: "#EDF7EE",
-                  transform: "scale(1.05)",
+                  background: '#EDF7EE',
+                  transform: 'scale(1.05)'
                 }}
               >
                 Got it right
               </Button>
 
               <Button
-                leftIcon={<Icon as={FiHelpCircle} fontSize={"16px"} />}
+                leftIcon={<Icon as={FiHelpCircle} fontSize={'16px'} />}
                 borderRadius="8px"
                 padding="16.5px 45.5px 16.5px 47.5px"
                 backgroundColor="#FFEFE6"
@@ -558,15 +555,15 @@ const StudyBox = () => {
                 height="54px"
                 transition="transform 0.3s"
                 _hover={{
-                  background: "#FFEFE6",
-                  transform: "scale(1.05)",
+                  background: '#FFEFE6',
+                  transform: 'scale(1.05)'
                 }}
               >
                 Didn’t remember
               </Button>
 
               <Button
-                leftIcon={<Icon as={FiXCircle} fontSize={"16px"} />}
+                leftIcon={<Icon as={FiXCircle} fontSize={'16px'} />}
                 display="flex"
                 padding="16.5px 45.5px 16.5px 47.5px"
                 justifyContent="center"
@@ -589,8 +586,8 @@ const StudyBox = () => {
                 }}
                 transition="transform 0.3s"
                 _hover={{
-                  background: "#FEECEC",
-                  transform: "scale(1.05)",
+                  background: '#FEECEC',
+                  transform: 'scale(1.05)'
                 }}
               >
                 Got it wrong
@@ -605,13 +602,13 @@ const StudyBox = () => {
     <Box
       padding={0}
       borderRadius="12px"
-      minWidth={{ base: "80%", md: "700px" }}
+      minWidth={{ base: '80%', md: '700px' }}
       width="auto"
       boxShadow="0px 4px 8px rgba(0, 0, 0, 0.1)"
     >
       <Flex
         width="full"
-        padding={{ base: "20px 15px", md: "20px" }}
+        padding={{ base: '20px 15px', md: '20px' }}
         justifyContent="space-between"
         alignItems="center"
       >
@@ -646,36 +643,36 @@ const StudyBox = () => {
                 questionsLeft
               ) : (
                 <AiFillThunderbolt
-                  style={{ marginTop: "4px" }}
-                  fontSize={"24px"}
+                  style={{ marginTop: '4px' }}
+                  fontSize={'24px'}
                   color="white"
                 />
               )
             }
             padding="8px 32px"
             borderRadius="8px"
-            bg={isStarted ? "#F53535" : "#207DF7"}
+            bg={isStarted ? '#F53535' : '#207DF7'}
             color="#FFF"
             fontSize="14px"
             border="none"
             fontWeight="500"
             lineHeight="19px"
             _hover={{
-              bg: isStarted ? "#F53535" : "#207DF7", // Remove hover color change
-              transform: "scale(1.05)", // Add hover size increase
+              bg: isStarted ? '#F53535' : '#207DF7', // Remove hover color change
+              transform: 'scale(1.05)' // Add hover size increase
             }}
             _active={{
-              borderColor: "none", // Remove active border
-              boxShadow: "none", // Remove active shadow
+              borderColor: 'none', // Remove active border
+              boxShadow: 'none' // Remove active shadow
             }}
             onClick={() =>
               setActivityState((prev) => ({
                 ...prev,
-                isStarted: !prev.isStarted,
+                isStarted: !prev.isStarted
               }))
             }
           >
-            {isStarted ? "Stop" : "Study"}
+            {isStarted ? 'Stop' : 'Study'}
           </Button>
           <Menu>
             <MenuButton
@@ -690,7 +687,7 @@ const StudyBox = () => {
             </MenuButton>
             <MenuListWrapper
               fontSize="14px"
-              minWidth={"185px"}
+              minWidth={'185px'}
               borderRadius="8px"
               backgroundColor="#FFFFFF"
               boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
@@ -700,12 +697,12 @@ const StudyBox = () => {
                   p="6px 8px 6px 8px"
                   pl="15px"
                   background={
-                    INITIAL_TIMER === 30 || timer === 30 ? "#F2F4F7" : "#fff"
+                    INITIAL_TIMER === 30 || timer === 30 ? '#F2F4F7' : '#fff'
                   }
-                  _hover={{ bgColor: "#F2F4F7" }}
+                  _hover={{ bgColor: '#F2F4F7' }}
                   onClick={() => {
                     setTimer(30);
-                    setStudyType("timed");
+                    setStudyType('timed');
                   }}
                 >
                   30 secs
@@ -714,12 +711,12 @@ const StudyBox = () => {
                   p="6px 8px 6px 8px"
                   pl="15px"
                   background={
-                    INITIAL_TIMER === 60 || timer === 60 ? "#F2F4F7" : "#fff"
+                    INITIAL_TIMER === 60 || timer === 60 ? '#F2F4F7' : '#fff'
                   }
-                  _hover={{ bgColor: "#F2F4F7" }}
+                  _hover={{ bgColor: '#F2F4F7' }}
                   onClick={() => {
                     setTimer(60);
-                    setStudyType("timed");
+                    setStudyType('timed');
                   }}
                 >
                   1 minute
@@ -727,11 +724,11 @@ const StudyBox = () => {
                 <MenuItem
                   p="6px 8px 6px 8px"
                   pl="15px"
-                  background={studyType === "manual" ? "#F2F4F7" : "#fff"}
-                  _hover={{ bgColor: "#F2F4F7" }}
+                  background={studyType === 'manual' ? '#F2F4F7' : '#fff'}
+                  _hover={{ bgColor: '#F2F4F7' }}
                   onClick={() => {
                     setTimer(0);
-                    setStudyType("manual");
+                    setStudyType('manual');
                   }}
                 >
                   None
@@ -741,18 +738,18 @@ const StudyBox = () => {
                 <MenuItem
                   p="6px 8px 6px 8px"
                   pl="15px"
-                  background={cardStyle === "default" ? "#F2F4F7" : "#fff"}
-                  _hover={{ bgColor: "#F2F4F7" }}
-                  onClick={() => setCardStyle("default")}
+                  background={cardStyle === 'default' ? '#F2F4F7' : '#fff'}
+                  _hover={{ bgColor: '#F2F4F7' }}
+                  onClick={() => setCardStyle('default')}
                 >
                   Default
                 </MenuItem>
                 <MenuItem
                   p="6px 8px 6px 8px"
                   pl="15px"
-                  background={cardStyle === "flippable" ? "#F2F4F7" : "#fff"}
-                  _hover={{ bgColor: "#F2F4F7" }}
-                  onClick={() => setCardStyle("flippable")}
+                  background={cardStyle === 'flippable' ? '#F2F4F7' : '#fff'}
+                  _hover={{ bgColor: '#F2F4F7' }}
+                  onClick={() => setCardStyle('flippable')}
                 >
                   Flippable
                 </MenuItem>
@@ -776,9 +773,9 @@ const StudyBox = () => {
           width={progressWidth}
           height="2px"
           bg={
-            timer <= 10 && isStarted && currentStudy.type === "timed"
-              ? "#F53535"
-              : "#207DF7"
+            timer <= 10 && isStarted && currentStudy.type === 'timed'
+              ? '#F53535'
+              : '#207DF7'
           }
           borderRadius="2px"
           transition="width 0.5s linear" // Add this line
@@ -800,10 +797,16 @@ const StudyBox = () => {
 
 const FlashCardModal = ({ isOpen }: { isOpen: boolean }) => {
   return (
-    <Modal isOpen={isOpen} onClose={() => {}} isCentered>
+    <Modal
+      isOpen={isOpen}
+      onClose={() => {
+        // console.log(check)
+      }}
+      isCentered
+    >
       <ModalOverlay />
       <ModalContent
-        minWidth={{ base: "80%", md: "700px" }}
+        minWidth={{ base: '80%', md: '700px' }}
         mx="auto"
         w="fit-content"
       >

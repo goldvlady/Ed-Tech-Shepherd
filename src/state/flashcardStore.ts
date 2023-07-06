@@ -1,6 +1,6 @@
-import { create } from "zustand";
-import ApiService from "../services/ApiService";
-import { FlashcardData } from "../types";
+import ApiService from '../services/ApiService';
+import { FlashcardData } from '../types';
+import { create } from 'zustand';
 
 type Store = {
   flashcards: FlashcardData[] | null;
@@ -31,7 +31,7 @@ export default create<Store>((set) => ({
       const { data } = await response.json();
       set({ flashcards: data });
     } catch (error) {
-      console.log(error);
+      // console.log(error)
     } finally {
       set({ isLoading: false });
     }
@@ -72,7 +72,6 @@ export default create<Store>((set) => ({
       const response = await ApiService.createFlashcard(data, generatorType);
       if (response.status === 200) {
         const { data } = await response.json();
-
         set((store) => {
           const { flashcards } = store;
           flashcards?.push(data);
@@ -81,7 +80,7 @@ export default create<Store>((set) => ({
       }
       return response;
     } catch (error) {
-      console.log(error);
+      // console.log(error)
     } finally {
       set({ isLoading: false });
     }
@@ -91,7 +90,7 @@ export default create<Store>((set) => ({
       set({ isLoading: true });
       const response = await ApiService.storeFlashcardScore({
         flashcardId,
-        score,
+        score
       });
       if (response.status === 200) {
         const { data } = await response.json();
@@ -101,17 +100,14 @@ export default create<Store>((set) => ({
             (card) => card._id === flashcardId
           );
           if (index !== undefined && index >= 0 && flashcards) {
-            console.log("flashcard data ===>", data);
             flashcards[index] = data;
           }
-          console.log("flashcards ====>", flashcards);
           return { flashcards };
         });
         return true;
       }
       return false;
     } catch (error) {
-      console.log(error);
       return false;
     } finally {
       set({ isLoading: false });
@@ -127,7 +123,7 @@ export default create<Store>((set) => ({
       const response = await ApiService.updateQuestionAttempt({
         flashcardId,
         questionText,
-        isPassed,
+        isPassed
       });
       if (response.status === 200) {
         const { data } = await response.json();
@@ -145,10 +141,9 @@ export default create<Store>((set) => ({
       }
       return false;
     } catch (error) {
-      console.log(error);
       return false;
     } finally {
       set({ isLoading: false });
     }
-  },
+  }
 }));

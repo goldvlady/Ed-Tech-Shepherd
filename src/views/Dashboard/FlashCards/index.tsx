@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { useToast } from "@chakra-ui/react";
-import { isSameDay, isThisWeek, getISOWeek } from "date-fns";
-import { startCase } from "lodash";
-import EmptyIllustration from "../../../assets/empty_illustration.svg";
-import { parseISO, format } from "date-fns";
-import { useNavigate } from "react-router";
+import EmptyIllustration from '../../../assets/empty_illustration.svg';
+import { FlashCardModal } from '../../../components/flashcardDecks';
+import SelectableTable, { TableColumn } from '../../../components/table';
+import flashcardStore from '../../../state/flashcardStore';
+import { FlashcardData, FlashcardQuestion } from '../../../types';
+import { Score } from '../../../types';
+import { useToast } from '@chakra-ui/react';
 import {
   Button,
   Flex,
@@ -17,23 +17,23 @@ import {
   MenuList,
   MenuButton,
   Menu,
-  Image,
-} from "@chakra-ui/react";
+  Image
+} from '@chakra-ui/react';
 import {
   Modal,
   ModalOverlay,
   ModalContent,
   ModalBody,
-  ModalFooter,
-} from "@chakra-ui/react";
-import { FaEllipsisH, FaCalendarAlt } from "react-icons/fa";
-import flashcardStore from "../../../state/flashcardStore";
-import { FlashcardData, FlashcardQuestion } from "../../../types";
-import { Score } from "../../../types";
-import { FlashCardModal } from "../../../components/flashcardDecks";
-import { BsSearch } from "react-icons/bs";
-import SelectableTable, { TableColumn } from "../../../components/table";
-import styled from "styled-components";
+  ModalFooter
+} from '@chakra-ui/react';
+import { isSameDay, isThisWeek, getISOWeek } from 'date-fns';
+import { parseISO, format } from 'date-fns';
+import { startCase } from 'lodash';
+import React, { useEffect, useState } from 'react';
+import { BsSearch } from 'react-icons/bs';
+import { FaEllipsisH, FaCalendarAlt } from 'react-icons/fa';
+import { useNavigate } from 'react-router';
+import styled from 'styled-components';
 
 const StyledImage = styled(Box)`
   display: inline-flex;
@@ -51,7 +51,7 @@ export const DeleteModal = ({
   isOpen,
   onCancel,
   onDelete,
-  isLoading,
+  isLoading
 }: {
   isOpen: boolean;
   onCancel: () => void;
@@ -59,21 +59,25 @@ export const DeleteModal = ({
   isLoading: boolean;
 }) => {
   return (
-    <Modal onClose={() => { 
-      return 
-    }} isOpen={isOpen} isCentered>
+    <Modal
+      onClose={() => {
+        return;
+      }}
+      isOpen={isOpen}
+      isCentered
+    >
       <ModalOverlay />
       <ModalContent
-        minWidth={{ base: "80%", md: "500px" }}
+        minWidth={{ base: '80%', md: '500px' }}
         mx="auto"
         w="fit-content"
         borderRadius="10px"
       >
-        <ModalBody alignItems={"center"} justifyContent={"center"}>
+        <ModalBody alignItems={'center'} justifyContent={'center'}>
           <Flex
             flexDirection="column"
-            justifyContent={"center"}
-            padding={"40px"}
+            justifyContent={'center'}
+            padding={'40px'}
             alignItems="center"
           >
             <Box>
@@ -143,7 +147,7 @@ export const DeleteModal = ({
               fontStyle="normal"
               fontWeight="500"
               lineHeight="21px"
-              marginBottom={"10px"}
+              marginBottom={'10px'}
               letterSpacing="0.112px"
               color="#212224"
             >
@@ -154,7 +158,7 @@ export const DeleteModal = ({
               textAlign="center"
               fontSize="14px"
               fontFamily="Inter"
-              width={"80%"}
+              width={'80%'}
               fontStyle="normal"
               fontWeight="400"
               lineHeight="20px"
@@ -172,8 +176,8 @@ export const DeleteModal = ({
           <Button
             disabled={isLoading}
             _hover={{
-              backgroundColor: "#FFF",
-              boxShadow: "0px 2px 6px 0px rgba(136, 139, 143, 0.10)",
+              backgroundColor: '#FFF',
+              boxShadow: '0px 2px 6px 0px rgba(136, 139, 143, 0.10)'
             }}
             color="#5C5F64"
             fontSize="14px"
@@ -192,7 +196,7 @@ export const DeleteModal = ({
           <Button
             isLoading={isLoading}
             _hover={{
-              backgroundColor: "#F53535",
+              backgroundColor: '#F53535'
             }}
             onClick={() => onDelete()}
             bg="#F53535"
@@ -234,10 +238,10 @@ function findNextFlashcard(
 ): FlashcardData | undefined {
   // Order of preference for studyPeriods
   const studyPeriodPreference = [
-    "daily",
-    "weekly",
-    "biweekly",
-    "spacedRepetition",
+    'daily',
+    'weekly',
+    'biweekly',
+    'spacedRepetition'
   ];
 
   // Sort flashcards based on studyPeriodPreference
@@ -261,17 +265,17 @@ function findNextFlashcard(
 
     // Check if the flashcard should be attempted today based on its studyPeriod
     switch (card.studyPeriod) {
-      case "daily":
+      case 'daily':
         if (!lastAttemptDate || !isSameDay(lastAttemptDate, today)) {
           return card;
         }
         break;
-      case "weekly":
+      case 'weekly':
         if (!lastAttemptDate || !isThisWeek(lastAttemptDate)) {
           return card;
         }
         break;
-      case "biweekly":
+      case 'biweekly':
         if (
           !lastAttemptDate ||
           !isThisWeek(lastAttemptDate) ||
@@ -280,7 +284,7 @@ function findNextFlashcard(
           return card;
         }
         break;
-      case "spacedRepetition":
+      case 'spacedRepetition':
         // In case of spaced repetition, load the card only if it's due
         // Here we need more information on how the spaced repetition should work
         break;
@@ -302,7 +306,7 @@ const CustomTable: React.FC = () => {
     flashcard,
     loadFlashcard,
     deleteFlashCard,
-    isLoading,
+    isLoading
   } = flashcardStore();
   const [deleteItem, setDeleteItem] = useState<{
     flashcard: FlashcardData;
@@ -314,57 +318,56 @@ const CustomTable: React.FC = () => {
 
   const columns: TableColumn<DataSourceItem>[] = [
     {
-      title: "Deckname",
-      dataIndex: "deckname",
-      key: "deckname",
-      render: ({ deckname }) => <Text fontWeight="500">{deckname}</Text>,
+      title: 'Deckname',
+      dataIndex: 'deckname',
+      key: 'deckname',
+      render: ({ deckname }) => <Text fontWeight="500">{deckname}</Text>
     },
     {
-      title: "Study Type",
-      dataIndex: "studyType",
-      key: "studyType",
+      title: 'Study Type',
+      dataIndex: 'studyType',
+      key: 'studyType',
       render: ({ studyType }) => {
         return (
           <Text>
-            {startCase(studyType.replace(/([a-z])([A-Z])/g, "$1 $2"))}
+            {startCase(studyType.replace(/([a-z])([A-Z])/g, '$1 $2'))}
           </Text>
         );
-      },
+      }
     },
     {
-      title: "Study Period",
-      dataIndex: "studyPeriod",
-      key: "studyPeriod",
+      title: 'Study Period',
+      dataIndex: 'studyPeriod',
+      key: 'studyPeriod',
       render: ({ studyPeriod }) => {
         return <Text>{startCase(studyPeriod)}</Text>;
-      },
+      }
     },
     {
-      title: "Created At",
-      dataIndex: "createdAt",
-      key: "createdAt",
+      title: 'Created At',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
       render: ({ createdAt }) => {
-        console.log(typeof createdAt);
         const date = parseISO(createdAt); // parse the date string into a Date object
-        const formattedDate = format(date, "dd-MMMM-yyyy"); // format the date
+        const formattedDate = format(date, 'dd-MMMM-yyyy'); // format the date
         return <Text>{formattedDate}</Text>;
-      },
+      }
     },
     {
-      title: "Last Attempted",
-      key: "lastAttempted",
+      title: 'Last Attempted',
+      key: 'lastAttempted',
       render: ({ scores }) => {
         if (!scores?.length) return <Text>N/A</Text>;
         const date = parseISO(scores[scores.length - 1].date);
-        const formattedDate = format(date, "dd-MMMM-yyyy hh:mmaaa");
+        const formattedDate = format(date, 'dd-MMMM-yyyy hh:mmaaa');
         return (
-          <Text>{formattedDate.replace("pm", "PM").replace("am", "AM")}</Text>
+          <Text>{formattedDate.replace('pm', 'PM').replace('am', 'AM')}</Text>
         );
-      },
+      }
     },
     {
-      title: "Last Attempted Score",
-      key: "lastAttemptedScore",
+      title: 'Last Attempted Score',
+      key: 'lastAttemptedScore',
       render: ({ scores, questions }) => {
         if (!scores?.length) return <Text fontWeight="500">N/A</Text>;
         const percentage = (
@@ -372,11 +375,11 @@ const CustomTable: React.FC = () => {
           100
         ).toFixed(0);
         return <Text fontWeight="500">{percentage}%</Text>;
-      },
+      }
     },
     {
-      title: "",
-      key: "action",
+      title: '',
+      key: 'action',
       render: (flashcard) => (
         <Menu>
           <MenuButton
@@ -398,7 +401,7 @@ const CustomTable: React.FC = () => {
           >
             <MenuItem
               p="6px 8px 6px 8px"
-              _hover={{ bgColor: "#F2F4F7" }}
+              _hover={{ bgColor: '#F2F4F7' }}
               onClick={() => loadFlashcard(flashcard.key)}
             >
               <StyledImage marginRight="10px">
@@ -455,10 +458,10 @@ const CustomTable: React.FC = () => {
               color="#F53535"
               onClick={() =>
                 setDeleteItem({
-                  flashcard: flashcard as unknown as FlashcardData,
+                  flashcard: flashcard as unknown as FlashcardData
                 })
               }
-              _hover={{ bgColor: "#F2F4F7" }}
+              _hover={{ bgColor: '#F2F4F7' }}
             >
               <StyledImage marginRight="10px">
                 <svg
@@ -481,8 +484,8 @@ const CustomTable: React.FC = () => {
             </MenuItem>
           </MenuList>
         </Menu>
-      ),
-    },
+      )
+    }
     // rest of your columns...
   ];
 
@@ -501,13 +504,13 @@ const CustomTable: React.FC = () => {
             if (isDeleted) {
               toast({
                 title: `${deleteItem?.flashcard.deckname} deleted Succesfully`,
-                status: "success",
+                status: 'success'
               });
               setDeleteItem(null);
             } else {
               toast({
                 title: `Failed to delete ${deleteItem?.flashcard.deckname} flashcards`,
-                status: "error",
+                status: 'error'
               });
             }
           }
@@ -515,18 +518,18 @@ const CustomTable: React.FC = () => {
       />
       {!flashcards?.length ? (
         <Box
-          background={"#F8F9FB"}
-          display={"flex"}
-          flexDirection={"column"}
-          justifyContent={"start"}
-          height={"calc(100vh - 80px)"}
+          background={'#F8F9FB'}
+          display={'flex'}
+          flexDirection={'column'}
+          justifyContent={'start'}
+          height={'calc(100vh - 80px)'}
         >
           <Flex
             width="100%"
             alignItems="center"
             justifyContent="space-between"
             color="#E5E6E6"
-            paddingTop={"20px"}
+            paddingTop={'20px'}
             paddingLeft="20px"
           >
             <Text
@@ -541,12 +544,12 @@ const CustomTable: React.FC = () => {
             </Text>
           </Flex>
           <Box
-            width={"100%"}
-            display={"flex"}
+            width={'100%'}
+            display={'flex'}
             height="100%"
-            justifyContent={"center"}
-            flexDirection={"column"}
-            alignItems={"center"}
+            justifyContent={'center'}
+            flexDirection={'column'}
+            alignItems={'center'}
           >
             <Image src={EmptyIllustration} />
             <Text
@@ -562,11 +565,11 @@ const CustomTable: React.FC = () => {
             </Text>
             <Button
               variant="solid"
-              marginTop={"20px"}
-              width={{ sm: "80%", md: "300px" }}
-              borderRadius={"8px"}
-              colorScheme={"primary"}
-              onClick={() => navigate("/dashboard/flashcards/create")}
+              marginTop={'20px'}
+              width={{ sm: '80%', md: '300px' }}
+              borderRadius={'8px'}
+              colorScheme={'primary'}
+              onClick={() => navigate('/dashboard/flashcards/create')}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -583,18 +586,18 @@ const CustomTable: React.FC = () => {
                 />
               </svg>
 
-              <Text marginLeft={"10px"}>Create New</Text>
+              <Text marginLeft={'10px'}>Create New</Text>
             </Button>
           </Box>
         </Box>
       ) : (
-        <Box padding={"20px"}>
+        <Box padding={'20px'}>
           <Flex
             width="100%"
-            marginBottom={"40px"}
+            marginBottom={'40px'}
             alignItems="center"
             justifyContent="space-between"
-            paddingRight={"20px"}
+            paddingRight={'20px'}
             color="#E5E6E6"
           >
             <Text
@@ -609,10 +612,10 @@ const CustomTable: React.FC = () => {
             </Text>
             <Button
               variant="solid"
-              marginLeft={"20px"}
-              borderRadius={"10px"}
-              colorScheme={"primary"}
-              onClick={() => navigate("/dashboard/flashcards/create")}
+              marginLeft={'20px'}
+              borderRadius={'10px'}
+              colorScheme={'primary'}
+              onClick={() => navigate('/dashboard/flashcards/create')}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -629,7 +632,7 @@ const CustomTable: React.FC = () => {
                 />
               </svg>
 
-              <Text marginLeft={"10px"}>Create a Flashcard</Text>
+              <Text marginLeft={'10px'}>Create a Flashcard</Text>
             </Button>
             {/* <Flex
             cursor={"pointer"}
@@ -666,7 +669,7 @@ const CustomTable: React.FC = () => {
                 width="200px"
                 height="32px"
               >
-                <InputLeftElement marginRight={"10px"} pointerEvents="none">
+                <InputLeftElement marginRight={'10px'} pointerEvents="none">
                   <BsSearch color="#5E6164" size="14px" />
                 </InputLeftElement>
                 <Input
@@ -698,15 +701,15 @@ const CustomTable: React.FC = () => {
               </Flex>
               <Button
                 variant="solid"
-                marginLeft={"20px"}
-                borderRadius={"10px"}
-                colorScheme={"primary"}
+                marginLeft={'20px'}
+                borderRadius={'10px'}
+                colorScheme={'primary'}
                 onClick={() => {
                   const nextFlashCard = findNextFlashcard(flashcards);
                   if (!nextFlashCard) {
                     toast({
-                      title: "You have attempted all flashcards for this week",
-                      status: "info",
+                      title: 'You have attempted all flashcards for this week',
+                      status: 'info'
                     });
                   } else {
                     loadFlashcard(nextFlashCard?._id);
@@ -726,7 +729,7 @@ const CustomTable: React.FC = () => {
                   />
                 </svg>
 
-                <Text marginLeft={"10px"}>Practice today's cards</Text>
+                <Text marginLeft={'10px'}>Practice today's cards</Text>
               </Button>
             </Flex>
           </Flex>
@@ -736,7 +739,7 @@ const CustomTable: React.FC = () => {
               columns={columns}
               dataSource={flashcards.map((card) => ({
                 ...card,
-                key: card._id,
+                key: card._id
               }))}
             />
           )}

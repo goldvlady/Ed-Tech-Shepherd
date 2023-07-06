@@ -1,5 +1,4 @@
 import { useFlashCardState } from '../../context/flashcard';
-import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import {
   Box,
   FormControl,
@@ -9,18 +8,19 @@ import {
   RadioGroup,
   Select,
   Button,
-  HStack,
-} from "@chakra-ui/react";
+  HStack
+} from '@chakra-ui/react';
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 
 const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
   const { flashcardData, setFlashcardData, goToNextStep } = useFlashCardState();
   const [localData, setLocalData] = useState<typeof flashcardData>({
-    deckname: "",
-    studyType: "",
-    studyPeriod: "",
+    deckname: '',
+    studyType: '',
+    studyPeriod: '',
     numQuestions: 0,
-    timerDuration: "",
-    hasSubmitted: false,
+    timerDuration: '',
+    hasSubmitted: false
   }); // A local state for storing user inputs
 
   useEffect(() => {
@@ -50,8 +50,6 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
 
     return Object.values(payload).every(Boolean);
   }, [localData, isAutomated]);
-
-  console.log(localData, flashcardData);
 
   const handleSubmit = () => {
     setFlashcardData((prevState) => ({

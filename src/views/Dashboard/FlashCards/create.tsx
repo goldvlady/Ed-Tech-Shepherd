@@ -1,20 +1,19 @@
-import { useState, useEffect, useCallback } from "react";
-import { useToast } from "@chakra-ui/react";
-import LoaderOverlay from "../../../components/loaderOverlay";
-import { FlashCardModal } from "../../../components/flashcardDecks";
-import SetupFlashcardPage from "./forms/flashcard_setup";
-import SuccessState from "./forms/flashcard_setup/success_page";
-import MnemonicSetup from "./forms/mneomics_setup";
-import InitSetupPreview from "./previews/init.preview";
-import MnemonicPreview from "./previews/mneomics.preview";
-import QuestionsPreview from "./previews/questions.preview";
-import FlashcardDataProvider from "./context/flashcard";
-import flashcardStore from "../../../state/flashcardStore";
-import MnemonicSetupProvider from "./context/mneomics";
-import { useFlashCardState } from "./context/flashcard";
-import { Box, HStack, Text, Radio, RadioGroup } from "@chakra-ui/react";
-
-import styled from "styled-components";
+import { FlashCardModal } from '../../../components/flashcardDecks';
+import LoaderOverlay from '../../../components/loaderOverlay';
+import flashcardStore from '../../../state/flashcardStore';
+import FlashcardDataProvider from './context/flashcard';
+import { useFlashCardState } from './context/flashcard';
+import MnemonicSetupProvider from './context/mneomics';
+import SetupFlashcardPage from './forms/flashcard_setup';
+import SuccessState from './forms/flashcard_setup/success_page';
+import MnemonicSetup from './forms/mneomics_setup';
+import InitSetupPreview from './previews/init.preview';
+import MnemonicPreview from './previews/mneomics.preview';
+import QuestionsPreview from './previews/questions.preview';
+import { useToast } from '@chakra-ui/react';
+import { Box, HStack, Text, Radio, RadioGroup } from '@chakra-ui/react';
+import { useState, useEffect, useCallback } from 'react';
+import styled from 'styled-components';
 
 const Wrapper = styled(Box)`
   select {
@@ -92,40 +91,38 @@ const CreateFlashPage = () => {
     try {
       const response = await createFlashCard(
         { ...flashcardData, questions },
-        settings.source === SourceEnum.MANUAL ? "manual" : "automatic"
+        settings.source === SourceEnum.MANUAL ? 'manual' : 'automatic'
       );
       if (response) {
         if (response.status === 200) {
           fetchFlashcards();
           setIsCompleted(true);
           toast({
-            title: "Flash Card Created Successfully",
-            position: "top-right",
-            status: "success",
-            isClosable: true,
+            title: 'Flash Card Created Successfully',
+            position: 'top-right',
+            status: 'success',
+            isClosable: true
           });
         } else {
           setHasSubmittedFlashCards(false);
           setFlashcardData((value) => ({ ...value, hasSubmitted: false }));
           toast({
-            title: "Failed to create flashcard, try again",
-            position: "top-right",
-            status: "error",
-            isClosable: true,
+            title: 'Failed to create flashcard, try again',
+            position: 'top-right',
+            status: 'error',
+            isClosable: true
           });
         }
       }
     } catch (error) {
-      console.log("error", error);
       setHasSubmittedFlashCards(false);
       setFlashcardData((value) => ({ ...value, hasSubmitted: false }));
       toast({
-        title: "Failed to create flashcard, try again",
-        position: "top-right",
-        status: "error",
-        isClosable: true,
+        title: 'Failed to create flashcard, try again',
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
       });
-      console.log(error);
     }
   };
 
@@ -227,8 +224,8 @@ const CreateFlashPage = () => {
         alignItems="center"
       >
         <HStack
-          justifyContent={"start"}
-          alignItems={"start"}
+          justifyContent={'start'}
+          alignItems={'start'}
           width="100%"
           minH="calc(100vh - 60px)"
         >
@@ -236,10 +233,10 @@ const CreateFlashPage = () => {
             <Box
               px="60px"
               py="40px"
-              display={"flex"}
-              borderBottom={"1px solid #E7E8E9"}
-              flexDirection={"column"}
-              width={"100%"}
+              display={'flex'}
+              borderBottom={'1px solid #E7E8E9'}
+              flexDirection={'column'}
+              width={'100%'}
             >
               <Text
                 fontFamily="Inter"
@@ -268,7 +265,7 @@ const CreateFlashPage = () => {
                 </HStack>
               </RadioGroup>
             </Box>
-            <Box px="60px" width={"100%"}>
+            <Box px="60px" width={'100%'}>
               <Box py="45px" width="100%">
                 {renderForms()}
               </Box>
@@ -282,7 +279,7 @@ const CreateFlashPage = () => {
             right="0"
             borderLeft="1px solid #E7E8E9"
             width="45%"
-            paddingTop={"20px"}
+            paddingTop={'20px'}
           >
             {renderPreview()}
           </Box>
