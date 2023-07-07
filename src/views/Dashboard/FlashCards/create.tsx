@@ -74,7 +74,10 @@ const CreateFlashPage = () => {
     type: TypeEnum.INIT,
     source: SourceEnum.MANUAL
   });
-  const { flashcardData, questions, setFlashcardData } = useFlashCardState();
+  const { flashcardData, questions, goToStep, setFlashcardData } =
+    useFlashCardState();
+
+  console.log(flashcardData);
 
   const { createFlashCard, flashcard, isLoading, fetchFlashcards } =
     flashcardStore();
@@ -144,6 +147,8 @@ const CreateFlashPage = () => {
   }, [flashcardData, hasSubmittedFlashCards, settings.type, settings.source]);
 
   const handleBadgeClick = (badge: TypeEnum) => {
+    if (settings.source === SourceEnum.DOCUMENT && badge !== TypeEnum.FLASHCARD)
+      return;
     setActiveBadge(badge);
   };
 
@@ -249,7 +254,20 @@ const CreateFlashPage = () => {
                 Select a Source
               </Text>
               <RadioGroup
-                onChange={(value) => setSource(value as SourceEnum)}
+                onChange={(value: SourceEnum) => {
+                  setSource(value as SourceEnum);
+                  if (value === SourceEnum.SUBJECT) {
+                    goToStep(0);
+                    setFlashcardData((value) => ({
+                      ...value,
+                      hasSubmitted: false
+                    }));
+                    setHasSubmittedFlashCards(false);
+                  }
+                  if (value === SourceEnum.DOCUMENT) {
+                    handleBadgeClick(TypeEnum.FLASHCARD);
+                  }
+                }}
                 value={settings.source}
               >
                 <HStack align="start" spacing={7}>

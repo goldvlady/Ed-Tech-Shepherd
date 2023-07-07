@@ -8,7 +8,7 @@ export default function QuestionsPreview({
   activeBadge,
   handleBadgeClick,
   onConfirm,
-  isLoading,
+  isLoading
 }: {
   activeBadge?: TypeEnum;
   handleBadgeClick: (v: TypeEnum) => void;
@@ -98,6 +98,9 @@ export default function QuestionsPreview({
           />
         </HStack>
         <Button
+          isDisabled={
+            questions.filter((question) => question.question).length === 0
+          }
           isLoading={isLoading}
           onClick={() => onConfirm()}
           borderRadius="10px"
@@ -121,16 +124,21 @@ export default function QuestionsPreview({
           maskImage: 'linear-gradient(to bottom, black 90%, transparent)'
         }}
       >
-        <Text
-          fontSize="14px"
-          mt="20px"
-          mb="10px"
-          lineHeight="20px"
-          fontWeight="500"
-          color="#212224"
-        >
-          Review flashcard questions
-        </Text>
+        {questions.filter((question) => question.question).length ? (
+          <Text
+            fontSize="14px"
+            mt="20px"
+            mb="10px"
+            lineHeight="20px"
+            fontWeight="500"
+            color="#212224"
+          >
+            Review flashcard questions
+          </Text>
+        ) : (
+          ''
+        )}
+
         <VStack width={'100%'}>
           {questions
             .filter((question) => question.question)
