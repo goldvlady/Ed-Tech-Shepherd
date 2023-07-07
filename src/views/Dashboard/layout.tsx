@@ -102,7 +102,7 @@ const LinkBItems: Array<LinkItemProps> = [
   { name: 'Performance', icon: FiBarChart2, path: '/performance' },
   { name: 'Study Plans', icon: TbClipboardText, path: '/study-plans' },
   { name: 'Notes', icon: CgNotes, path: '/dashboard/notes' },
-  { name: 'Flashcards', icon: TbCards, path: '/flashcards' }
+  { name: 'Flashcards', icon: TbCards, path: '/dashboard/flashcards' }
 ];
 
 interface NavItemProps extends FlexProps {
