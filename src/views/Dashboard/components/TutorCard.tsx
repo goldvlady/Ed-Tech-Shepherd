@@ -52,7 +52,7 @@ export default function TutorCard(props: any) {
     try {
       const resp = await ApiService.toggleBookmarkedTutor(id);
 
-      if (saved && resp.status == 200) {
+      if (saved && resp.status === 200) {
         setRibbonClicked(false);
         toast({
           title: 'Tutor removed from Bookmarks successfully',

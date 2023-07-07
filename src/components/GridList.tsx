@@ -1,6 +1,6 @@
-import React, { JSX } from 'react';
+import React from 'react';
 
-export default function GridList(): JSX.Element {
+export default function GridList() {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 mt-4 px-6">
       <div className="relative flex items-center space-x-3 overflow-hidden rounded-lg border border-gray-300 bg-primaryBlue px-4 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400">

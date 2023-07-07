@@ -1,6 +1,8 @@
 import { storage } from '../firebase';
+import CustomButton from './CustomComponents/CustomButton';
+import CustomModal from './CustomComponents/CustomModal/index';
 import { UploadIcon } from './icons';
-import { Transition, Dialog } from '@headlessui/react';
+import { Spinner } from '@chakra-ui/react';
 import { getAuth } from 'firebase/auth';
 import {
   ref,
@@ -8,8 +10,9 @@ import {
   listAll,
   getDownloadURL
 } from 'firebase/storage';
-import { Fragment, useRef, useState, useEffect, RefObject } from 'react';
+import { useRef, useState, useEffect, RefObject } from 'react';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 
 type List = {
   name: string;
@@ -33,6 +36,103 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   const [uploadError, setUploadError] = useState('');
   const [loadedList, setLoadedList] = useState(false);
   const inputRef = useRef(null) as RefObject<HTMLInputElement>;
+  const [isLoading, setIsLoading] = useState(false);
+
+  const Wrapper = styled.div`
+    display: block;
+  `;
+
+  const Content = styled.div`
+    padding: 16px;
+    /* Add styles for the content div */
+  `;
+
+  const Label = styled.label`
+    display: block;
+    font-size: 0.875rem;
+    font-weight: medium;
+    color: var(--gray-500);
+  `;
+
+  const Select = styled.select`
+    margin-top: 0.5rem;
+    display: block;
+    width: 100%;
+    border-radius: 0.375rem;
+    border: 1px solid #e4e5e7;
+    padding: 0.5rem 0.75rem;
+    color: #e4e5e7;
+    background-color: #ffffff;
+    outline: none;
+    cursor: pointer;
+  `;
+
+  const OrText = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1.5rem;
+    font-size: 0.875rem;
+    font-weight: medium;
+    color: var(--gray-400);
+  `;
+
+  const FileUploadButton = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 0.375rem;
+    background-color: #fff;
+    border: 1px solid var(--primaryBlue);
+    padding: 0.375rem 0.75rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: medium;
+    color: var(--text-color);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: var(--blue-50);
+    }
+  `;
+
+  const FileUploadIcon = styled(UploadIcon)`
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #e4e5e7;
+  `;
+
+  const FileName = styled.span`
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #585f68;
+  `;
+
+  const Progress = styled.span`
+    font-size: 0.875rem;
+    font-weight: medium;
+    color: purple;
+    margin-left: 0.5rem;
+  `;
+
+  const PDFTextContainer = styled.div`
+    text-align: center;
+    margin-bottom: 1.5rem;
+  `;
+
+  const Text = styled.p`
+    font-size: 0.875rem;
+    text-align: left;
+    line-height: 1.5;
+    color: var(--gray-600);
+  `;
+
+  const Format = styled.span`
+    font-weight: bold;
+    color: var(--secondaryGray);
+  `;
 
   useEffect(() => {
     const { currentUser } = getAuth();
@@ -57,16 +157,21 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     setUploadError('');
     setFileName(name);
     setFile(e.target.files[0]);
+    setIsLoading(true);
+
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
   };
   const handleClose = () => {
     setShow(false);
   };
 
-  const handleSelected = (e) => {
+  const handleSelected = (e: any) => {
     setSelectedOption(e.target.value);
   };
 
-  const processOrContinue = async (e) => {
+  const processOrContinue = async () => {
     if (!file && !selectedOption)
       return setUploadError("You haven't uploaded a file or selected a note.");
 
@@ -90,167 +195,129 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
       );
       const task = uploadBytesResumable(storageRef, file);
 
-      task.on('state_changed', (snapshot) => {
-        const progress = `Upload is ${Math.round(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        )}% done`;
-
-        switch (snapshot.state) {
-          case 'running':
-            setProgress(progress);
-            break;
-          case 'success': {
-            setProgress('Complete!');
-            const documentUrl = getDownloadURL(snapshot.ref);
-            const title = snapshot.metadata.name;
-            setShow(false);
-            setShowHelp(false);
-            navigate('/dashboard/docchat', {
-              state: {
-                documentUrl,
-                docTitle: title
-              }
-            });
-            break;
+      task.on(
+        'state_changed',
+        (snapshot) => {
+          const progress = `Upload is ${Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          )}% done`;
+          switch (snapshot.state) {
+            case 'running':
+              setProgress(progress);
+              break;
           }
+        },
+        (error) => {
+          setUploadError(`Error: ${error.message}`);
+        },
+        async () => {
+          setProgress('Complete!');
+          const documentUrl = await getDownloadURL(task.snapshot.ref);
+          const title = task.snapshot.metadata.name;
+          setShow(false);
+          setShowHelp(false);
+          navigate('/dashboard/docchat', {
+            state: {
+              documentUrl,
+              docTitle: title
+            }
+          });
         }
-      });
+      );
     }
   };
 
   return (
-    <Transition.Root show={true} as={Fragment}>
-      <Dialog as="div" className="relative z-[999]" onClose={() => null}>
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-        </Transition.Child>
-
-        <div className="fixed inset-0 z-10 overflow-y-auto">
-          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              enterTo="opacity-100 translate-y-0 sm:scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white pt-5 text-left shadow-xl transition-all sm:w-full sm:max-w-sm">
-                <div>
-                  <div className="flex justify-center px-2 border-b pb-3">
-                    <span className="text-dark font-semibold">Select Note</span>
-                  </div>
-                  <div className="p-4">
-                    {loadedList && (
-                      <div>
-                        <label
-                          htmlFor="note"
-                          className="block text-sm font-medium leading-6 text-gray-500"
-                        >
-                          Select note
-                        </label>
-                        <select
-                          id="note"
-                          name="note"
-                          className="mt-2 block w-full rounded-md border-0 py-2 pl-3 pr-10 text-gray-400 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-200 sm:text-sm sm:leading-6"
-                          defaultValue="Select from your note"
-                          onChange={handleSelected}
-                        >
-                          {loadedList &&
-                            list.map((item, id) => (
-                              <option value={item.fullPath} key={id}>
-                                {item.name}
-                              </option>
-                            ))}
-                        </select>
-                        <div className="relative flex my-4 justify-center text-sm font-medium leading-6">
-                          <span className="px-6 text-gray-400">Or</span>
-                        </div>
-                      </div>
-                    )}
-
-                    <div
-                      className={`flex w-full justify-between rounded-md bg-white ring-1 ring-primaryBlue px-3 py-1 mb-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-50 cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-within:outline-blue-600`}
-                    >
-                      <span
-                        className="flex items-center space-x-2"
-                        onClick={clickInput}
-                      >
-                        <UploadIcon
-                          className="text-primaryGray w-5 h-5"
-                          onClick={clickInput}
-                        />
-                        <span className="text-dark">Upload doc</span>
-                      </span>
-
-                      {/* Uploading Progress */}
-                      <div className="flex items-center justify-center">
-                        <div className="relative w-8 h-8">
-                          <div className="absolute inset-0 border-4 border-t-4 border-primaryBlue rounded-full"></div>
-                        </div>
-                      </div>
-                    </div>
-                    {uploadError && (
-                      <p className="text-sm text-red-700">{uploadError}</p>
-                    )}
-                    <input
-                      type="file"
-                      accept="application/pdf"
-                      className="hidden"
-                      id="file-upload"
-                      ref={inputRef}
-                      onChange={collectFile}
-                    />
-                    <div className="text-center mb-6">
-                      <p className="text-sm text-left leading-5 text-gray-600">
-                        Shepherd supports{' '}
-                        <span className="text-secondaryGray font-semibold">
-                          .pdf, .ppt, .jpg & .txt
-                        </span>{' '}
-                        document formats
-                      </p>
-                    </div>
-                    {fileName && (
-                      <span className="text-sm text-green-500">{fileName}</span>
-                    )}
-                    {progress && (
-                      <span className="text-sm text-purple-500 ml-4">
-                        {progress}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="mt-2 p-3 space-x-4 flex justify-end w-full bg-gray-100 sm:mt-6">
-                  <button
-                    type="button"
-                    className="inline-flex w-fit justify-center rounded-md shadow-md bg-white ring-1 ring-gray-400 px-3 py-2 text-sm font-semibold text-primaryGray hover:text-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
-                    onClick={handleClose}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    className="inline-flex w-fit justify-center rounded-md bg-primaryBlue px-3 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                    onClick={processOrContinue}
-                  >
-                    Confirm
-                  </button>
-                </div>
-              </Dialog.Panel>
-            </Transition.Child>
-          </div>
+    <CustomModal
+      isOpen={show}
+      onClose={handleClose}
+      modalTitle="Select note"
+      style={{
+        maxWidth: '400px',
+        height: 'auto'
+      }}
+      modalTitleStyle={{
+        textAlign: 'center',
+        borderBottom: '1px solid #EEEFF2'
+      }}
+      footerContent={
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <CustomButton
+            type="button"
+            isCancel
+            onClick={handleClose}
+            title="Cancel"
+          />
+          <CustomButton
+            type="button"
+            onClick={processOrContinue}
+            title="Confirm"
+          />
         </div>
-      </Dialog>
-    </Transition.Root>
+      }
+    >
+      <Wrapper>
+        <div className="p-4">
+          {loadedList && (
+            <div>
+              <Label htmlFor="note">Select note</Label>
+              <Select
+                id="note"
+                name="note"
+                defaultValue="Select from your note"
+                onChange={handleSelected}
+              >
+                {loadedList &&
+                  list.map((item, id) => (
+                    <option value={item.fullPath} key={id}>
+                      {item.name}
+                    </option>
+                  ))}
+              </Select>
+              <OrText>Or</OrText>
+            </div>
+          )}
+
+          <FileUploadButton onClick={clickInput}>
+            <span className="flex items-center space-x-2">
+              <FileUploadIcon
+                className="text-primaryGray w-5 h-5"
+                onClick={undefined}
+              />
+              <span className="text-dark">Upload doc</span>
+            </span>
+
+            {/* Uploading Progress */}
+            {isLoading && (
+              <Spinner
+                thickness="4px"
+                speed="0.65s"
+                emptyColor="gray.200"
+                color="blue.500"
+                size="md"
+              />
+            )}
+          </FileUploadButton>
+          {uploadError && <p className="text-sm text-red-700">{uploadError}</p>}
+          <input
+            type="file"
+            accept="application/pdf"
+            className="hidden"
+            id="file-upload"
+            ref={inputRef}
+            onChange={collectFile}
+          />
+          <PDFTextContainer>
+            <Text>
+              Shepherd supports <Format>.pdf, .ppt, .jpg & .txt</Format>{' '}
+              document formats
+            </Text>
+          </PDFTextContainer>
+          {fileName && <FileName>{fileName}</FileName>}
+          {progress && <Progress>{progress}</Progress>}
+        </div>
+      </Wrapper>
+    </CustomModal>
   );
 };
 

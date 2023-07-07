@@ -38,44 +38,29 @@ import {
   MenuDivider,
   MenuItem,
   MenuList,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
   Spacer,
   Stack,
   Text,
   useColorModeValue,
   useDisclosure
 } from '@chakra-ui/react';
-import { Dialog, Transition } from '@headlessui/react';
 import { getAuth, signOut } from 'firebase/auth';
-import React, { ReactNode, useEffect, Fragment, useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { IconType } from 'react-icons';
 import { BsChatLeftDots, BsPin, BsPlayCircle } from 'react-icons/bs';
 import { CgNotes } from 'react-icons/cg';
 import { FaBell } from 'react-icons/fa';
 import {
   FiBarChart2,
-  FiBell,
   FiBriefcase,
   FiChevronDown,
-  FiChevronUp,
-  FiCompass,
   FiHome,
-  FiMenu,
-  FiSettings,
-  FiStar,
-  FiTrendingUp
+  FiMenu
 } from 'react-icons/fi';
 import {
   MdOutlineKeyboardArrowDown,
   MdOutlineKeyboardArrowUp
 } from 'react-icons/md';
-import { PiUserSwitchLight, PiUserCircleLight } from 'react-icons/pi';
 import { TbClipboardText } from 'react-icons/tb';
 import { TbCards } from 'react-icons/tb';
 import {
@@ -116,7 +101,7 @@ const LinkItems: Array<LinkItemProps> = [
 const LinkBItems: Array<LinkItemProps> = [
   { name: 'Performance', icon: FiBarChart2, path: '/performance' },
   { name: 'Study Plans', icon: TbClipboardText, path: '/study-plans' },
-  { name: 'Notes', icon: CgNotes, path: '/notes' },
+  { name: 'Notes', icon: CgNotes, path: '/dashboard/notes' },
   { name: 'Flashcards', icon: TbCards, path: '/dashboard/flashcards' }
 ];
 
@@ -195,7 +180,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         width={{ sm: '100%', md: 'calc(100vw - 250px)' }}
         height="20"
         alignItems="center"
-        zIndex={1}
+        zIndex={1111}
         bg={useColorModeValue('white', 'gray.900')}
         borderBottomWidth="1px"
         borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
@@ -368,9 +353,20 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                   <Avatar
                     size="sm"
                     color="white"
-                    name={`${user?.name?.first} ${user?.name?.last}`}
+                    name={`${user?.name?.first ?? ''} ${
+                      user?.name?.last ?? ''
+                    }`}
                     bg="#4CAF50;"
                   />
+
+                  <Text
+                    fontSize="14px"
+                    fontWeight={500}
+                    color="text.200"
+                    display={{ base: 'block', sm: 'none', md: 'block' }}
+                  >
+                    {`${user?.name?.first ?? ''} ${user?.name?.last ?? ''}`}
+                  </Text>
 
                   <Text
                     fontSize="14px"
