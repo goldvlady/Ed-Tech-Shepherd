@@ -35,16 +35,16 @@ class ApiService {
     return doFetch(
       `${ApiService.baseEndpoint}/updateFlashcardQuestionAttempt`,
       {
-        method: "POST",
-        body: JSON.stringify(data),
+        method: 'POST',
+        body: JSON.stringify(data)
       }
     );
   };
 
   static storeFlashcardScore = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/storeScore`, {
-      method: "POST",
-      body: JSON.stringify(data),
+      method: 'POST',
+      body: JSON.stringify(data)
     });
   };
 
@@ -53,21 +53,18 @@ class ApiService {
   };
 
   static deleteFlashcard = async (id: string | number) => {
-    return doFetch(
-      `${ApiService.baseEndpoint}/deleteFlashcard?id=${id}`,
-      { method: "POST" },
-      false
-    );
+    return doFetch(`${ApiService.baseEndpoint}/deleteFlashcard?id=${id}`, {
+      method: 'POST'
+    });
   };
 
-  static createFlashcard = async (data: any, generatorType = "manual") => {
+  static createFlashcard = async (data: any, generatorType = 'manual') => {
     return doFetch(
       `${ApiService.baseEndpoint}/createFlashcard?generatorType=${generatorType}`,
       {
-        method: "POST",
-        body: JSON.stringify(data),
-      },
-      false
+        method: 'POST',
+        body: JSON.stringify(data)
+      }
     );
   };
 
