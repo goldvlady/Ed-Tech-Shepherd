@@ -151,6 +151,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
         </FormLabel>
         <Input
           type="number"
+          min={1}
           name="numQuestions"
           placeholder="Number of questions"
           value={localData.numQuestions}
@@ -159,7 +160,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
         />
       </FormControl>
 
-      <FormControl mb={8}>
+      {/* <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Timer settings
         </FormLabel>
@@ -173,7 +174,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
           <option value="30">30 sec</option>
           <option value="15">15 sec</option>
         </Select>
-      </FormControl>
+      </FormControl> */}
       <HStack w="full" align={'flex-end'}>
         <Button
           variant="solid"

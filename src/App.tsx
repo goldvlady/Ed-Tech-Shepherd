@@ -78,13 +78,16 @@ const RequireAuth = ({
 
   useEffect(() => {
     onAuthStateChanged(getAuth(), async (user) => {
+      console.log(user);
       setObtainedUserAuthState(true);
       setFirebaseUser(user);
       if (user) {
         await fetchUser().catch((e) => navigate('/login'));
       }
+      console.log('Login no user');
       setLoadingUser(false);
     });
+    console.log('Login =====>');
     /* eslint-disable */
   }, []);
 
