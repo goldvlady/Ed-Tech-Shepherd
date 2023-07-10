@@ -147,53 +147,56 @@ export default function TutorCard(props: any) {
               {description ? textTruncate(description, 200) : ''}
             </Text>
           </Box>
-          <Box my={1}>
-            <Flex gap={3} position="absolute" bottom={5} flexWrap="wrap">
-              {courses.map((subject, index) =>
-                courses.length < 6 ? (
-                  <Text
-                    key={index}
-                    py={1}
-                    px={4}
-                    fontSize={12}
-                    fontWeight={500}
-                    bgColor="#F1F2F3"
-                    borderRadius={4}
-                    _hover={{ cursor: 'pointer' }}
-                    onClick={() => handleSelectedCourse(subject.course.label)}
-                  >
-                    {subject.course.label}
-                  </Text>
-                ) : (
-                  courses.slice(0, 5).map((subject, index) => (
-                    <>
-                      <Text
-                        key={index}
-                        py={1}
-                        px={4}
-                        fontSize={12}
-                        fontWeight={500}
-                        bgColor="#F1F2F3"
-                        borderRadius={4}
-                      >
-                        {subject.course.label}
-                      </Text>
-                      {index === 4 && (
-                        <Link
-                          color="#207DF7"
-                          href="/dashboard"
+
+          {courses && (
+            <Box my={1}>
+              <Flex gap={3} position="absolute" bottom={5} flexWrap="wrap">
+                {courses.map((subject, index) =>
+                  courses.length < 6 ? (
+                    <Text
+                      key={index}
+                      py={1}
+                      px={4}
+                      fontSize={12}
+                      fontWeight={500}
+                      bgColor="#F1F2F3"
+                      borderRadius={4}
+                      _hover={{ cursor: 'pointer' }}
+                      onClick={() => handleSelectedCourse(subject.course.label)}
+                    >
+                      {subject.course.label}
+                    </Text>
+                  ) : (
+                    courses.slice(0, 5).map((subject, index) => (
+                      <>
+                        <Text
+                          key={index}
+                          py={1}
+                          px={4}
                           fontSize={12}
-                          alignSelf="center"
+                          fontWeight={500}
+                          bgColor="#F1F2F3"
+                          borderRadius={4}
                         >
-                          + {courses.length - 5} more
-                        </Link>
-                      )}
-                    </>
-                  ))
-                )
-              )}
-            </Flex>
-          </Box>
+                          {subject.course.label}
+                        </Text>
+                        {index === 4 && (
+                          <Link
+                            color="#207DF7"
+                            href="/dashboard"
+                            fontSize={12}
+                            alignSelf="center"
+                          >
+                            + {courses.length - 5} more
+                          </Link>
+                        )}
+                      </>
+                    ))
+                  )
+                )}
+              </Flex>
+            </Box>
+          )}
 
           <Image
             src={saved || ribbonClicked ? Ribbon2 : Ribbon}

@@ -1,6 +1,6 @@
-import { Box, Flex, Image, Text } from "@chakra-ui/react";
-import FlashCardDeck from "./deck";
-import FlashCardModal from "./modal";
+import FlashCardDeck from './deck';
+import FlashCardModal from './modal';
+import { Box, Flex, Image, Text } from '@chakra-ui/react';
 
 export { FlashCardModal, FlashCardDeck };
 

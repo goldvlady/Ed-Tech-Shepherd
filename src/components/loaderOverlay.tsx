@@ -1,18 +1,18 @@
-import { Spinner } from "@chakra-ui/react";
+import { Spinner } from '@chakra-ui/react';
 
 const LoaderOverlay = () => (
   <div
     style={{
-      position: "absolute",
+      position: 'absolute',
       zIndex: 1,
       left: 0,
       top: 0,
       right: 0,
       bottom: 0,
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)' // Semi-transparent background
     }}
   >
     <Spinner

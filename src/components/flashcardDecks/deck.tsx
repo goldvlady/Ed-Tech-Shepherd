@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import styled from "styled-components";
-import { Button } from "@chakra-ui/react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Button } from '@chakra-ui/react';
+import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from 'react';
+import styled from 'styled-components';
 
 const CardContainer = styled.div`
   display: flex;
@@ -62,12 +62,12 @@ const FlashCardDeck: React.FC<FlashcardDeckProps> = ({ cards }) => {
   const variants = {
     enter: { x: 1000, opacity: 0 },
     center: { zIndex: 1, x: 0, opacity: 1 },
-    exit: { zIndex: 0, x: -1000, opacity: 0 },
+    exit: { zIndex: 0, x: -1000, opacity: 0 }
   };
 
   const flipAnimation = {
     hidden: { rotateY: 0 },
-    show: { rotateY: 180 },
+    show: { rotateY: 180 }
   };
 
   return (
@@ -79,9 +79,7 @@ const FlashCardDeck: React.FC<FlashcardDeckProps> = ({ cards }) => {
               key={i}
               style={{
                 zIndex: cards.length - i,
-                transform: `translateY(${i * 10}px) scale(${
-                  i === 0 ? 1 : 0.9
-                })`,
+                transform: `translateY(${i * 10}px) scale(${i === 0 ? 1 : 0.9})`
               }}
               variants={
                 i === 0 ? (isFlipped[i] ? flipAnimation : variants) : {}
@@ -94,8 +92,8 @@ const FlashCardDeck: React.FC<FlashcardDeckProps> = ({ cards }) => {
               onDragEnd={(e, { offset, velocity }) => {
                 handleDragEnd(i, offset.x);
               }}
-              whileHover={{ cursor: "grab" }}
-              whileTap={{ cursor: "grabbing" }}
+              whileHover={{ cursor: 'grab' }}
+              whileTap={{ cursor: 'grabbing' }}
               onClick={() => handleFlipCard(i)}
             >
               {isFlipped[i] ? card.back : card.front}

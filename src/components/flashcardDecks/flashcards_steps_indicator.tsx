@@ -1,7 +1,7 @@
-import React from "react";
-import { Box, Flex, Text } from "@chakra-ui/react";
-import { FaCheck, FaRedo } from "react-icons/fa";
-import { motion } from "framer-motion";
+import { Box, Flex, Text } from '@chakra-ui/react';
+import { motion } from 'framer-motion';
+import React from 'react';
+import { FaCheck, FaRedo } from 'react-icons/fa';
 
 export interface Step {
   title: string;
@@ -16,13 +16,13 @@ interface StepIndicatorProps {
 export const StepIndicator: React.FC<StepIndicatorProps> = ({
   steps,
   activeStep,
-  isFirstAttempt,
+  isFirstAttempt
 }) => (
   <Flex
-    background={"transparent"}
+    background={'transparent'}
     direction="row"
     justify="space-between"
-    width={"100%"}
+    width={'100%'}
     mt={8}
     pos="relative"
   >
@@ -64,7 +64,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
             w="20px"
             h="20px"
             borderRadius="50%"
-            bg={"#fff"}
+            bg={'#fff'}
             transition="0.4s ease"
             display="flex"
             justifyContent="center"
@@ -90,9 +90,9 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
             w="20px"
             h="20px"
             borderRadius="50%"
-            bg={activeStep >= index ? "#207DF7" : "#E6E8EA"}
+            bg={activeStep >= index ? '#207DF7' : '#E6E8EA'}
             border="1.5px solid"
-            borderColor={activeStep >= index ? "#207DF7" : "#EFF0F0"}
+            borderColor={activeStep >= index ? '#207DF7' : '#EFF0F0'}
             transition="0.4s ease"
             display="flex"
             justifyContent="center"

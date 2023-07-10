@@ -1,4 +1,4 @@
-import { Box, BoxProps } from "@chakra-ui/react";
+import { Box, BoxProps } from '@chakra-ui/react';
 
 interface CardProps extends BoxProps {
   top: string;
@@ -16,7 +16,7 @@ const DeckOverLap: React.FC<CardProps> = ({
   height,
   boxShadow,
   backgroundColor,
-  children,
+  children
 }) => {
   return (
     <Box
