@@ -1,31 +1,30 @@
 import userStore from '../state/userStore';
-import CustomModal from './CustomComponents/CustomModal';
 import { StarIcon } from './icons';
 import { SelectedNoteModal } from './index';
 import { Text } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import { Transition, Dialog } from '@headlessui/react';
+import { XMarkIcon } from '@heroicons/react/20/solid';
+import { getAuth } from 'firebase/auth';
+import { Fragment, useState, useEffect } from 'react';
 import Typewriter from 'typewriter-effect';
 
 const actions1 = [
   {
-    id: 1,
+    id: 0,
     title: 'Test Prep',
-    showModal: true,
     description:
       'Got a test coming? Shepherd has you covered with quizzes & prep resources priming you for the big day',
     imageURL: '/images/test.svg'
   },
   {
-    id: 2,
+    id: 1,
     title: 'Deep Dives',
-    showModal: true,
     description:
       'Struggling with a tricky topic? Let Shepherd simplify it for you with in-depth analysis & detailed explanations',
     imageURL: '/images/bulb.svg'
   },
   {
-    id: 3,
+    id: 2,
     title: 'Notes Navigator',
     showModal: true,
     description:
@@ -33,33 +32,34 @@ const actions1 = [
     imageURL: '/images/notes-navigator.svg'
   },
   {
-    id: 4,
+    id: 3,
     title: 'Research Assistant',
-    showModal: true,
+    showModal: false,
     description:
       'Delving into a research project? Let Shepherd find you the best resources & references for your work',
     imageURL: '/images/research-assistant.svg'
-  },
+  }
+];
+
+const actions2 = [
   {
-    id: 5,
+    id: 0,
     title: 'Ace Homework',
-    showModal: true,
     description:
       'Stuck with your homework, Shepherd can guide you through it step by step for quick & easy completion',
     imageURL: '/images/ace-homework.svg'
   },
   {
-    id: 6,
+    id: 1,
     title: 'Flashcards Factory',
-    showModal: true,
     description:
       'Need a memory boost? Generate custom flashcards & mnemonics with Shepherd, making memorization a breeze',
     imageURL: '/images/flashcards.svg'
   },
   {
-    id: 7,
+    id: 2,
     title: 'Study Roadmap',
-    showModal: true,
+    showModal: false,
     description:
       'Just starting school? Let Shepherd create a tailored study plan guiding you to academic success',
     imageURL: '/images/roadmap.svg'
@@ -81,167 +81,135 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
 
   const handleShowSelected = () => {
     setShowSelected(true);
-    setToggleHelpModal(!toggleHelpModal);
   };
-
-  const Container = styled.div`
-    display: flex;
-    align-items: center;
-    padding: 3px;
-    padding-bottom: 2px;
-  `;
-
-  const Icon = styled(StarIcon)`
-    color: #0000ff;
-    height: 16px;
-    width: 16px;
-    margin-right: 15px;
-  `;
-
-  const CustomTypewriter = styled(Typewriter)`
-    &.text-base {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #212224;
-    }
-  `;
-
-  const DescriptionContainer = styled.div`
-    overflow: hidden;
-    padding: 6px;
-    padding-bottom: 2px;
-    background-color: white;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-    align-items: center;
-    padding 0 20px;
-    margin-top: 20px;
-  `;
-
-  const CenteredRow = styled.div`
-    display: flex;
-    justify-content: center;
-    padding: 0px 113px;
-    gap: 14px;
-    margin: 20px 30px;
-  `;
-
-  const ActionItem = styled.div`
-    position: relative;
-    cursor: pointer;
-    background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 16px;
-    transition: border-color 0.3s;
-    height: 232px;
-
-    &:hover {
-      border-color: #0000ff;
-    }
-  `;
-
-  const Image = styled.img`
-    width: fit-content;
-  `;
-
-  const DescriptionWrapper = styled.div`
-    margin-top: 16px;
-  `;
-
-  const Title = styled(Text)`
-    position: relative;
-    font-size: 1rem;
-    font-weight: 600;
-    color: #ff8800;
-
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-    }
-  `;
-
-  const Description = styled.p`
-    margin-top: 8px;
-    font-size: 0.875rem;
-    color: #777777;
-  `;
-
-  const ModalBody = styled.div`
-    display: block;
-  `;
 
   return (
     <>
-      <CustomModal
-        isOpen={toggleHelpModal}
-        onClose={handleClose}
-        isModalCloseButton
-        modalSize="xl"
-        modalTitleStyle={{
-          borderBottom: '1px solid #EEEFF2'
-        }}
-        modalTitle={
-          <Container>
-            <Icon className="" onClick={undefined} />
-            <CustomTypewriter
-              options={{
-                delay: 10,
-                autoStart: true,
-                loop: false,
-                skipAddStyles: true
-              }}
-              onInit={(typewriter) => {
-                typewriter
-                  .typeString(
-                    `Hi ${
-                      user?.displayName || 'there'
-                    }, How can Shepherd make your study time more effective today?`
-                  )
-                  .start();
-              }}
-            />
-          </Container>
-        }
-        style={{ maxWidth: '984px', height: 'auto' }}
-      >
-        <ModalBody>
-          <DescriptionContainer>
-            {actions1.slice(0, 4).map((action) => (
-              <ActionItem
-                key={action.title}
-                onClick={() => {
-                  if (action.showModal) handleShowSelected();
-                }}
-              >
-                <Image src={action.imageURL} alt={action.title} />
-                <DescriptionWrapper>
-                  <Title>{action.title}</Title>
-                  <Description>{action.description}</Description>
-                </DescriptionWrapper>
-              </ActionItem>
-            ))}
-          </DescriptionContainer>
-          <CenteredRow>
-            {actions1.slice(4, 7).map((action) => (
-              <ActionItem
-                key={action.title}
-                onClick={() => {
-                  if (action.showModal) handleShowSelected();
-                }}
-              >
-                <Image src={action.imageURL} alt={action.title} />
-                <DescriptionWrapper>
-                  <Title>{action.title}</Title>
-                  <Description>{action.description}</Description>
-                </DescriptionWrapper>
-              </ActionItem>
-            ))}
-          </CenteredRow>
-        </ModalBody>
-      </CustomModal>
+      {toggleHelpModal && (
+        <Transition.Root show={toggleHelpModal} as={Fragment}>
+          <Dialog as="div" className="relative z-[800]" onClose={() => null}>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+            </Transition.Child>
+
+            <div className="fixed inset-0 z-10 overflow-y-auto">
+              <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                  enterTo="opacity-100 translate-y-0 sm:scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+                  leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                >
+                  <Dialog.Panel className="relative transform overflow-hidden rounded-2xl bg-white mt-10 text-left shadow-xl transition-all sm:w-full sm:max-w-5xl">
+                    <div>
+                      <div className="flex justify-between align-middle border-b pb-2 px-2">
+                        <div className="flex items-center space-x-2 p-3 pb-2">
+                          <StarIcon
+                            className="text-primaryBlue h-4 w-4"
+                            onClick={undefined}
+                          />
+                          <Typewriter
+                            options={{
+                              delay: 10,
+                              autoStart: true,
+                              loop: false,
+                              skipAddStyles: true,
+                              wrapperClassName: 'text-base font-semibold'
+                            }}
+                            onInit={(typewriter) => {
+                              typewriter
+                                .typeString(
+                                  `Hi ${
+                                    user.name.first || 'there'
+                                  }, How can Shepherd make your study time more effective today?`
+                                )
+                                .start();
+                            }}
+                          />
+                        </div>
+                        <button
+                          onClick={handleClose}
+                          className="inline-flex h-6 space-x-1 items-center rounded-full bg-gray-100 px-2 py-1 mt-4 mb-2 mr-4 text-xs font-medium text-secondaryGray hover:bg-orange-200 hover:text-orange-600"
+                        >
+                          <span>Close</span>
+                          <XMarkIcon className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      <div className="overflow-hidden p-6 pb-2 bg-white sm:grid sm:grid-cols-4 sm:gap-x-4 sm:space-y-0 space-y-2">
+                        {actions1.map((action) => (
+                          <div
+                            key={action.title}
+                            onClick={() => {
+                              if (action.showModal) handleShowSelected();
+                            }}
+                            className="group cursor-pointer relative transform  bg-white border-1 rounded-lg  border-gray-300 p-4 hover:border-blue-500  focus:border-blue-500"
+                          >
+                            <div>
+                              <img src={action.imageURL} alt={action.title} />
+                            </div>
+                            <div className="mt-4">
+                              <Text className="text-base font-semibold leading-6 text-orange-400">
+                                <span
+                                  className="absolute inset-0"
+                                  aria-hidden="true"
+                                />
+                                {action.title}
+                              </Text>
+                              <p className="mt-2 text-sm text-secondaryGray">
+                                {action.description}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="overflow-hidden sm:w-[80%] w-full mx-auto p-6 pt-3  bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">
+                        {actions2.map((action) => (
+                          <div
+                            onClick={() => {
+                              if (action.showModal) handleShowSelected();
+                            }}
+                            key={action.title}
+                            className="group cursor-pointer relative transform  bg-white border-1 rounded-lg  border-gray-300 p-4 focus-within:border-blue-500 hover:border-blue-500"
+                          >
+                            <div>
+                              <img src={action.imageURL} alt={action.title} />
+                            </div>
+                            <div className="mt-4">
+                              <button className="text-base font-semibold leading-6 text-orange-400">
+                                <span
+                                  className="absolute inset-0"
+                                  aria-hidden="true"
+                                />
+                                {action.title}
+                              </button>
+                              <Text className="mt-2 text-sm text-secondaryGray">
+                                {action.description}
+                              </Text>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </Dialog.Panel>
+                </Transition.Child>
+              </div>
+            </div>
+          </Dialog>
+        </Transition.Root>
+      )}
       {showSelected && (
         <SelectedNoteModal
           show={showSelected}

@@ -30,6 +30,18 @@ export const options = {
       display: false,
       text: 'Quiz Performance'
     }
+  },
+  scales: {
+    x: {
+      grid: {
+        display: false
+      }
+    },
+    y: {
+      grid: {
+        display: true
+      }
+    }
   }
 };
 
@@ -42,7 +54,8 @@ export const data = {
       label: 'Dataset 1',
       data: [10, 40, 20, 70, 85, 15, 25, 5],
       backgroundColor: '#207df7',
-      barThickness: 12
+      barThickness: 18,
+      borderRadius: 50
     }
     // {
     //   label: "Dataset 2",

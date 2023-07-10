@@ -31,6 +31,46 @@ class ApiService {
     });
   };
 
+  static updateQuestionAttempt = async (data: any) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/updateFlashcardQuestionAttempt`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+  };
+
+  static storeFlashcardScore = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeScore`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  };
+
+  static getFlashcards = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getStudentFlashcards`);
+  };
+
+  static deleteFlashcard = async (id: string | number) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/deleteFlashcard?id=${id}`,
+      { method: "POST" },
+      false
+    );
+  };
+
+  static createFlashcard = async (data: any, generatorType = "manual") => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/createFlashcard?generatorType=${generatorType}`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+      false
+    );
+  };
+
   static submitTutor = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/createTutor`, {
       method: 'POST',

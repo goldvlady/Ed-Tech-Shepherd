@@ -3,16 +3,17 @@ import QuestionReviewCard from '../components/question_preview_card';
 import { useFlashCardState } from '../context/flashcard';
 import { TypeEnum } from '../create';
 import { Box, Button, HStack, Text, VStack, Flex } from '@chakra-ui/react';
-import React from 'react';
 
 export default function QuestionsPreview({
   activeBadge,
   handleBadgeClick,
-  onConfirm
+  onConfirm,
+  isLoading
 }: {
   activeBadge?: TypeEnum;
   handleBadgeClick: (v: TypeEnum) => void;
   onConfirm: () => void;
+  isLoading: boolean;
 }) {
   const { questions, deleteQuestion, goToQuestion } = useFlashCardState();
 
@@ -97,6 +98,10 @@ export default function QuestionsPreview({
           />
         </HStack>
         <Button
+          isDisabled={
+            questions.filter((question) => question.question).length === 0
+          }
+          isLoading={isLoading}
           onClick={() => onConfirm()}
           borderRadius="10px"
           p="10px 25px"
@@ -119,16 +124,21 @@ export default function QuestionsPreview({
           maskImage: 'linear-gradient(to bottom, black 90%, transparent)'
         }}
       >
-        <Text
-          fontSize="14px"
-          mt="20px"
-          mb="10px"
-          lineHeight="20px"
-          fontWeight="500"
-          color="#212224"
-        >
-          Review flashcard questions
-        </Text>
+        {questions.filter((question) => question.question).length ? (
+          <Text
+            fontSize="14px"
+            mt="20px"
+            mb="10px"
+            lineHeight="20px"
+            fontWeight="500"
+            color="#212224"
+          >
+            Review flashcard questions
+          </Text>
+        ) : (
+          ''
+        )}
+
         <VStack width={'100%'}>
           {questions
             .filter((question) => question.question)

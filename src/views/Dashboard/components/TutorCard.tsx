@@ -36,9 +36,11 @@ export default function TutorCard(props: any) {
     use,
     rate,
     description,
+    courses,
     rating,
     reviewCount,
-    saved
+    saved,
+    handleSelectedCourse
   } = props;
   const toast = useToast();
   const { fetchBookmarkedTutors } = bookmarkedTutorsStore();
@@ -50,7 +52,7 @@ export default function TutorCard(props: any) {
     try {
       const resp = await ApiService.toggleBookmarkedTutor(id);
 
-      if (saved && resp.status == 200) {
+      if (saved && resp.status === 200) {
         setRibbonClicked(false);
         toast({
           title: 'Tutor removed from Bookmarks successfully',
@@ -147,44 +149,24 @@ export default function TutorCard(props: any) {
           </Box>
           <Box my={1}>
             <Flex gap={3} position="absolute" bottom={5} flexWrap="wrap">
-              {tutorSubjects.length < 6
-                ? tutorSubjects.map((subject, index) => (
-                    <Text
-                      key={subject.id}
-                      py={1}
-                      px={4}
-                      fontSize={12}
-                      fontWeight={500}
-                      bgColor="#F1F2F3"
-                      borderRadius={4}
-                    >
-                      {subject.label}
-                    </Text>
-                  ))
-                : tutorSubjects.slice(0, 5).map((subject, index) =>
-                    index === 4 ? (
-                      <>
-                        <Text
-                          key={index}
-                          py={1}
-                          px={4}
-                          fontSize={12}
-                          fontWeight={500}
-                          bgColor="#F1F2F3"
-                          borderRadius={4}
-                        >
-                          {subject.label}
-                        </Text>
-                        <Link
-                          color="#207DF7"
-                          href="/dashboard"
-                          fontSize={12}
-                          alignSelf="center"
-                        >
-                          + {tutorSubjects.length - 5} more
-                        </Link>
-                      </>
-                    ) : (
+              {courses.map((subject, index) =>
+                courses.length < 6 ? (
+                  <Text
+                    key={index}
+                    py={1}
+                    px={4}
+                    fontSize={12}
+                    fontWeight={500}
+                    bgColor="#F1F2F3"
+                    borderRadius={4}
+                    _hover={{ cursor: 'pointer' }}
+                    onClick={() => handleSelectedCourse(subject.course.label)}
+                  >
+                    {subject.course.label}
+                  </Text>
+                ) : (
+                  courses.slice(0, 5).map((subject, index) => (
+                    <>
                       <Text
                         key={index}
                         py={1}
@@ -194,10 +176,22 @@ export default function TutorCard(props: any) {
                         bgColor="#F1F2F3"
                         borderRadius={4}
                       >
-                        {subject.label}
+                        {subject.course.label}
                       </Text>
-                    )
-                  )}
+                      {index === 4 && (
+                        <Link
+                          color="#207DF7"
+                          href="/dashboard"
+                          fontSize={12}
+                          alignSelf="center"
+                        >
+                          + {courses.length - 5} more
+                        </Link>
+                      )}
+                    </>
+                  ))
+                )
+              )}
             </Flex>
           </Box>
 

@@ -13,7 +13,7 @@ interface FlashcardData {
   subject?: string;
   topic?: string;
   studyPeriod: string;
-  numOptions: number;
+  numQuestions: number;
   timerDuration: string;
   hasSubmitted: boolean;
 }
@@ -29,6 +29,7 @@ export interface FlashcardDataContextProps {
   flashcardData: FlashcardData;
   currentStep: number;
   goToNextStep: () => void;
+  goToStep: (step: number) => void;
   questions: FlashcardQuestion[];
   currentQuestionIndex: number;
   goToQuestion: (index: number | ((previousIndex: number) => number)) => void;
@@ -58,7 +59,7 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
     deckname: '',
     studyType: '',
     studyPeriod: '',
-    numOptions: 0,
+    numQuestions: 0,
     timerDuration: '',
     hasSubmitted: false
   });
@@ -100,8 +101,8 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
       answer: ''
     };
 
-    if (flashcardData.numOptions) {
-      const numQuestions = flashcardData.numOptions;
+    if (flashcardData.numQuestions) {
+      const numQuestions = flashcardData.numQuestions;
       const generatedQuestions: FlashcardQuestion[] = [];
 
       for (let i = 0; i < numQuestions; i++) {
@@ -110,7 +111,7 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
 
       setQuestions(generatedQuestions);
     }
-  }, [flashcardData.numOptions]);
+  }, [flashcardData.numQuestions]);
 
   const value = useMemo(
     () => ({
@@ -122,7 +123,8 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
       goToQuestion,
       deleteQuestion,
       setQuestions,
-      goToNextStep: () => setCurrentStep((prev) => prev + 1)
+      goToNextStep: () => setCurrentStep((prev) => prev + 1),
+      goToStep: (stepIndex: number) => setCurrentStep(stepIndex)
     }),
     [
       flashcardData,
