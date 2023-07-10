@@ -213,6 +213,10 @@ class ApiService {
   static getBookmarkedTutors = async () => {
     return doFetch(`${ApiService.baseEndpoint}/bookmarkedTutors`);
   };
+
+  static getActivityFeeds = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getActivityFeed`);
+  };
 }
 
 export default ApiService;
