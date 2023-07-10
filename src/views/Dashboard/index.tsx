@@ -14,6 +14,7 @@ import summary from '../../assets/summary.svg';
 import SessionPrefaceDialog, {
   SessionPrefaceDialogRef
 } from '../../components/SessionPrefaceDialog';
+import feedsStore from '../../state/feedsStore';
 import userStore from '../../state/userStore';
 import { numberToDayOfWeekName, twoDigitFormat } from '../../util';
 import ActivityFeeds from './components/ActivityFeeds';
@@ -55,7 +56,7 @@ import {
 } from '@chakra-ui/react';
 import { capitalize } from 'lodash';
 import moment from 'moment';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { BiLeftArrowAlt, BiRightArrowAlt } from 'react-icons/bi';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { RxDotFilled } from 'react-icons/rx';
@@ -79,7 +80,16 @@ export default function Index() {
   const isDayTime = hours > 6 && hours < 20;
 
   const { user } = userStore();
+  const { feeds, fetchFeeds } = feedsStore();
+
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const doFetchActivityFeeds = useCallback(async () => {
+    await fetchFeeds();
+  }, []);
+  useEffect(() => {
+    doFetchActivityFeeds();
+  }, [doFetchActivityFeeds]);
 
   const cards = [
     {
@@ -288,6 +298,7 @@ export default function Index() {
                           color: '#6e7682'
                         }}
                       >
+                        {' '}
                         cards
                       </span>
                     </Text>
@@ -506,12 +517,23 @@ export default function Index() {
             </Box>
           </GridItem>
           <GridItem colSpan={3}>
-            <Box border="1px solid #eeeff2" borderRadius={'14px'} p={3}>
-              <ActivityFeeds />
+            <Box
+              border="1px solid #eeeff2"
+              borderRadius={'14px'}
+              p={3}
+              height="450px"
+            >
+              <ActivityFeeds feeds={feeds} />
             </Box>
           </GridItem>
           <GridItem colSpan={2}>
-            <Box border="1px solid #eeeff2" borderRadius={'14px'} px={3} py={2}>
+            <Box
+              border="1px solid #eeeff2"
+              borderRadius={'14px'}
+              px={3}
+              py={2}
+              height="450px"
+            >
               <Schedule />
             </Box>
           </GridItem>

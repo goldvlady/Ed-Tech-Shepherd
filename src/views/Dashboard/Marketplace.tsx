@@ -110,6 +110,17 @@ export default function Marketplace() {
     /* eslint-disable */
   }, [subject, level, price, rating, days]);
 
+  const handleSelectedCourse = (selectedcourse) => {
+    let selectedID = '';
+    for (let i = 0; i < courseList.length; i++) {
+      if (courseList[i].label === selectedcourse) {
+        selectedID = courseList[i]._id;
+        // return courseList[i].label;
+      }
+    }
+    setSubject(selectedID);
+  };
+
   const { fetchBookmarkedTutors, tutors: bookmarkedTutors } =
     bookmarkedTutorsStore();
 
@@ -262,44 +273,42 @@ export default function Marketplace() {
 
                     <Box my={3}>
                       <FormControl>
-                        <Box display={'flex'} alignItems="center" gap={'7px'}>
-                          <Box>
-                            <Box fontSize={14} my={2} color="#5C5F64">
-                              Start Time
-                            </Box>
-                            <TimePicker
-                              inputGroupProps={{
-                                size: 'lg'
-                              }}
-                              inputProps={{
-                                size: 'md',
-                                placeholder: '01:00 PM'
-                              }}
-                              value={fromTime}
-                              onChange={(v: string) => {
-                                setFromTime(v);
-                              }}
-                            />
+                        <Box>
+                          <Box fontSize={14} my={2} color="#5C5F64">
+                            Start Time
+                          </Box>
+                          <TimePicker
+                            inputGroupProps={{
+                              size: 'lg'
+                            }}
+                            inputProps={{
+                              size: 'md',
+                              placeholder: '01:00 PM'
+                            }}
+                            value={fromTime}
+                            onChange={(v: string) => {
+                              setFromTime(v);
+                            }}
+                          />
+                        </Box>
+
+                        <Box>
+                          <Box fontSize={14} my={2} color="#5C5F64">
+                            End Time
                           </Box>
 
-                          <Box>
-                            <Box fontSize={14} my={2} color="#5C5F64">
-                              End Time
-                            </Box>
-
-                            <TimePicker
-                              inputGroupProps={{
-                                size: 'md'
-                              }}
-                              inputProps={{
-                                placeholder: '06:00 PM'
-                              }}
-                              value={toTime}
-                              onChange={(v: string) => {
-                                setToTime(v);
-                              }}
-                            />
-                          </Box>
+                          <TimePicker
+                            inputGroupProps={{
+                              size: 'md'
+                            }}
+                            inputProps={{
+                              placeholder: '06:00 PM'
+                            }}
+                            value={toTime}
+                            onChange={(v: string) => {
+                              setToTime(v);
+                            }}
+                          />
                         </Box>
                       </FormControl>
                     </Box>
@@ -388,6 +397,8 @@ export default function Marketplace() {
                 rating={tutor.rating}
                 reviewCount={tutor.reviewCount}
                 saved={checkBookmarks(tutor._id)}
+                courses={tutor.coursesAndLevels.map((course) => course)}
+                handleSelectedCourse={handleSelectedCourse}
               />
             ))}
           </SimpleGrid>

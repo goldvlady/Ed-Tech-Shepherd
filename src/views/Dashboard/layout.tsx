@@ -102,7 +102,7 @@ const LinkBItems: Array<LinkItemProps> = [
   { name: 'Performance', icon: FiBarChart2, path: '/performance' },
   { name: 'Study Plans', icon: TbClipboardText, path: '/study-plans' },
   { name: 'Notes', icon: CgNotes, path: '/dashboard/notes' },
-  { name: 'Flashcards', icon: TbCards, path: '/flashcards' }
+  { name: 'Flashcards', icon: TbCards, path: '/dashboard/flashcards' }
 ];
 
 interface NavItemProps extends FlexProps {
@@ -180,7 +180,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         width={{ sm: '100%', md: 'calc(100vw - 250px)' }}
         height="20"
         alignItems="center"
-        zIndex={1111}
+        zIndex={2}
         bg={useColorModeValue('white', 'gray.900')}
         borderBottomWidth="1px"
         borderBottomColor={useColorModeValue('gray.200', 'gray.700')}

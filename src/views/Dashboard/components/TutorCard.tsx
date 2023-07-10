@@ -36,9 +36,11 @@ export default function TutorCard(props: any) {
     use,
     rate,
     description,
+    courses,
     rating,
     reviewCount,
-    saved
+    saved,
+    handleSelectedCourse
   } = props;
   const toast = useToast();
   const { fetchBookmarkedTutors } = bookmarkedTutorsStore();
@@ -145,24 +147,27 @@ export default function TutorCard(props: any) {
               {description ? textTruncate(description, 200) : ''}
             </Text>
           </Box>
-          <Box my={1}>
-            <Flex gap={3} position="absolute" bottom={5} flexWrap="wrap">
-              {tutorSubjects.length < 6
-                ? tutorSubjects.map((subject, index) => (
+
+          {courses && (
+            <Box my={1}>
+              <Flex gap={3} position="absolute" bottom={5} flexWrap="wrap">
+                {courses.map((subject, index) =>
+                  courses.length < 6 ? (
                     <Text
-                      key={subject.id}
+                      key={index}
                       py={1}
                       px={4}
                       fontSize={12}
                       fontWeight={500}
                       bgColor="#F1F2F3"
                       borderRadius={4}
+                      _hover={{ cursor: 'pointer' }}
+                      onClick={() => handleSelectedCourse(subject.course.label)}
                     >
-                      {subject.label}
+                      {subject.course.label}
                     </Text>
-                  ))
-                : tutorSubjects.slice(0, 5).map((subject, index) =>
-                    index === 4 ? (
+                  ) : (
+                    courses.slice(0, 5).map((subject, index) => (
                       <>
                         <Text
                           key={index}
@@ -173,33 +178,25 @@ export default function TutorCard(props: any) {
                           bgColor="#F1F2F3"
                           borderRadius={4}
                         >
-                          {subject.label}
+                          {subject.course.label}
                         </Text>
-                        <Link
-                          color="#207DF7"
-                          href="/dashboard"
-                          fontSize={12}
-                          alignSelf="center"
-                        >
-                          + {tutorSubjects.length - 5} more
-                        </Link>
+                        {index === 4 && (
+                          <Link
+                            color="#207DF7"
+                            href="/dashboard"
+                            fontSize={12}
+                            alignSelf="center"
+                          >
+                            + {courses.length - 5} more
+                          </Link>
+                        )}
                       </>
-                    ) : (
-                      <Text
-                        key={index}
-                        py={1}
-                        px={4}
-                        fontSize={12}
-                        fontWeight={500}
-                        bgColor="#F1F2F3"
-                        borderRadius={4}
-                      >
-                        {subject.label}
-                      </Text>
-                    )
-                  )}
-            </Flex>
-          </Box>
+                    ))
+                  )
+                )}
+              </Flex>
+            </Box>
+          )}
 
           <Image
             src={saved || ribbonClicked ? Ribbon2 : Ribbon}

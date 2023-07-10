@@ -29,6 +29,7 @@ export interface FlashcardDataContextProps {
   flashcardData: FlashcardData;
   currentStep: number;
   goToNextStep: () => void;
+  goToStep: (step: number) => void;
   questions: FlashcardQuestion[];
   currentQuestionIndex: number;
   goToQuestion: (index: number | ((previousIndex: number) => number)) => void;
@@ -55,12 +56,12 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
   children
 }) => {
   const [flashcardData, setFlashcardData] = useState<FlashcardData>({
-    deckname: "",
-    studyType: "",
-    studyPeriod: "",
+    deckname: '',
+    studyType: '',
+    studyPeriod: '',
     numQuestions: 0,
-    timerDuration: "",
-    hasSubmitted: false,
+    timerDuration: '',
+    hasSubmitted: false
   });
 
   const [questions, setQuestions] = useState<FlashcardQuestion[]>([]);
@@ -122,7 +123,8 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
       goToQuestion,
       deleteQuestion,
       setQuestions,
-      goToNextStep: () => setCurrentStep((prev) => prev + 1)
+      goToNextStep: () => setCurrentStep((prev) => prev + 1),
+      goToStep: (stepIndex: number) => setCurrentStep(stepIndex)
     }),
     [
       flashcardData,

@@ -8,8 +8,8 @@
 
 body {
   margin: 0;
-  font-family: "Inter", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
-    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif !important;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+    'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -99,7 +99,7 @@ h4 {
   color: #969ca6;
 }
 
-.tab-list .chakra-tabs__tab[aria-selected="true"] {
+.tab-list .chakra-tabs__tab[aria-selected='true'] {
   color: #207df7;
 }
 
@@ -109,7 +109,7 @@ img {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
 
@@ -180,4 +180,8 @@ code {
 
 canvas {
   width: 100% !important;
+}
+.feedslist div:last-child ::before {
+  width: 0px;
+  background-color: red;
 }

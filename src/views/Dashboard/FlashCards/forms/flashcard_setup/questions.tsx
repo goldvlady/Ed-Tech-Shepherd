@@ -141,7 +141,7 @@ const FlashCardQuestionsPage = () => {
             <option value="multipleChoice">Multiple Choice</option>
             <option value="openEnded">Open Ended</option>
             <option value="trueFalse">True/False</option>
-            <option value="fillTheBlank">Fill the Blank</option>
+            {/* <option value="fillTheBlank">Fill the Blank</option> */}
           </Select>
         </FormControl>
 
@@ -206,6 +206,15 @@ const FlashCardQuestionsPage = () => {
                   <option value="true">True</option>
                   <option value="false">False</option>
                 </Select>
+              )}
+              {currentQuestion.questionType === 'openEnded' && (
+                <Textarea
+                  _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+                  name="answer"
+                  placeholder="Select answer"
+                  value={currentQuestion.answer}
+                  onChange={handleChange}
+                />
               )}
             </FormControl>
           )}

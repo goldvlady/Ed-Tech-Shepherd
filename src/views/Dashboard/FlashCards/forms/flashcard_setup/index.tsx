@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from "react";
-import { useFlashCardState } from "../../context/flashcard";
-import FlashCardQuestionsPage from "./questions";
-import FlashCardSetupInit from "./init";
-import { Box, Text } from "@chakra-ui/react";
-import StepsIndicator, { Step } from "../../../../../components/StepIndicator";
-import { motion, AnimatePresence } from "framer-motion";
+import StepsIndicator, { Step } from '../../../../../components/StepIndicator';
+import { useFlashCardState } from '../../context/flashcard';
+import FlashCardSetupInit from './init';
+import FlashCardQuestionsPage from './questions';
+import { Box, Text } from '@chakra-ui/react';
+import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useMemo } from 'react';
 
 const transition = {
   duration: 0.3,
@@ -19,7 +19,7 @@ const slideVariants = {
 
 const SetupFlashcardPage = ({ isAutomated }: { isAutomated?: boolean }) => {
   const { currentStep } = useFlashCardState();
-  const steps: Step[] = [{ title: "" }, { title: "" }, { title: "" }];
+  const steps: Step[] = [{ title: '' }, { title: '' }, { title: '' }];
   const formComponents = [FlashCardSetupInit, FlashCardQuestionsPage];
 
   const CurrentForm = useMemo(() => formComponents[currentStep], [currentStep]);
