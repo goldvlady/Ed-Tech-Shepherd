@@ -1,14 +1,13 @@
-import React from "react";
-
-import "./style/Spinner.css";
+import './style/Spinner.css';
+import React from 'react';
 
 export function Spinner() {
   return (
     <div
       style={{
-        display: "flex",
-        alignItems: "center",
-        height: "100vh",
+        display: 'flex',
+        alignItems: 'center',
+        height: '100vh'
       }}
     >
       <div className="sk-fading-circle">

@@ -1,21 +1,16 @@
-import { Component } from "react";
-
+import { Sidebar } from './Sidebar';
+import { Spinner } from './Spinner';
+import { testHighlights as _testHighlights } from './test-highlights';
+import { Component } from 'react';
 import {
   PdfLoader,
   PdfHighlighter,
   Tip,
   Highlight,
   Popup,
-  AreaHighlight,
-} from "react-pdf-highlighter";
-
-import type { IHighlight, NewHighlight } from "react-pdf-highlighter";
-
-import { testHighlights as _testHighlights } from "./test-highlights";
-import { Spinner } from "./Spinner";
-import { Sidebar } from "./Sidebar";
-
-import "./style/App.css";
+  AreaHighlight
+} from 'react-pdf-highlighter';
+import type { IHighlight, NewHighlight } from 'react-pdf-highlighter';
 
 const testHighlights: Record<string, Array<IHighlight>> = _testHighlights;
 
@@ -27,14 +22,14 @@ interface State {
 const getNextId = () => String(Math.random()).slice(2);
 
 const parseIdFromHash = () =>
-  document.location.hash.slice("#highlight-".length);
+  document.location.hash.slice('#highlight-'.length);
 
 const resetHash = () => {
-  document.location.hash = "";
+  document.location.hash = '';
 };
 
 const HighlightPopup = ({
-  comment,
+  comment
 }: {
   comment: { text: string; emoji: string };
 }) =>
@@ -44,24 +39,24 @@ const HighlightPopup = ({
     </div>
   ) : null;
 
-const PRIMARY_PDF_URL = "https://arxiv.org/pdf/1708.08021.pdf";
-const SECONDARY_PDF_URL = "https://arxiv.org/pdf/1604.02480.pdf";
+const PRIMARY_PDF_URL = 'https://arxiv.org/pdf/1708.08021.pdf';
+const SECONDARY_PDF_URL = 'https://arxiv.org/pdf/1604.02480.pdf';
 
 const searchParams = new URLSearchParams(document.location.search);
 
-const initialUrl = searchParams.get("url") || PRIMARY_PDF_URL;
+const initialUrl = searchParams.get('url') || PRIMARY_PDF_URL;
 
 class TempPDFViewer extends Component<object, State> {
   state = {
     url: initialUrl,
     highlights: testHighlights[initialUrl]
       ? [...testHighlights[initialUrl]]
-      : [],
+      : []
   };
 
   resetHighlights = () => {
     this.setState({
-      highlights: [],
+      highlights: []
     });
   };
 
@@ -71,12 +66,12 @@ class TempPDFViewer extends Component<object, State> {
 
     this.setState({
       url: newUrl,
-      highlights: testHighlights[newUrl] ? [...testHighlights[newUrl]] : [],
+      highlights: testHighlights[newUrl] ? [...testHighlights[newUrl]] : []
     });
   };
 
-    scrollViewerTo = (highlight: any) => {
-      // we will fill this in later;
+  scrollViewerTo = (highlight: any) => {
+    // we will fill this in later;
   };
 
   scrollToHighlightFromHash = () => {
@@ -89,7 +84,7 @@ class TempPDFViewer extends Component<object, State> {
 
   componentDidMount() {
     window.addEventListener(
-      "hashchange",
+      'hashchange',
       this.scrollToHighlightFromHash,
       false
     );
@@ -104,15 +99,12 @@ class TempPDFViewer extends Component<object, State> {
   addHighlight(highlight: NewHighlight) {
     const { highlights } = this.state;
 
-    console.log("Saving highlight", highlight);
-
     this.setState({
-      highlights: [{ ...highlight, id: getNextId() }, ...highlights],
+      highlights: [{ ...highlight, id: getNextId() }, ...highlights]
     });
   }
 
   updateHighlight(highlightId: string, position: object, content: object) {
-    console.log("Updating highlight", highlightId, position, content);
 
     this.setState({
       highlights: this.state.highlights.map((h) => {
@@ -127,10 +119,10 @@ class TempPDFViewer extends Component<object, State> {
               id,
               position: { ...originalPosition, ...position },
               content: { ...originalContent, ...content },
-              ...rest,
+              ...rest
             }
           : h;
-      }),
+      })
     });
   }
 
@@ -138,23 +130,23 @@ class TempPDFViewer extends Component<object, State> {
     const { url, highlights } = this.state;
 
     return (
-      <div className="App" style={{ display: "flex", height: "100vh" }}>
-        <Sidebar
+      <div style={{ display: 'flex', height: '100vh', width: '100%' }} className="lg:col-span-6 flex-auto h-full">
+        {/* <Sidebar
           highlights={highlights}
           resetHighlights={this.resetHighlights}
           toggleDocument={this.toggleDocument}
-        />
+        /> */}
         <div
           style={{
-            height: "100vh",
-            width: "75vw",
-            position: "relative",
+            height: '100vh',
+            width: '75vw',
+            position: 'relative'
           }}
-            >
-                {/* @ts-ignore: this is a documented error regarding TS2786. I don't know how to fix yet (ref: https://stackoverflow.com/questions/72002300/ts2786-typescript-not-reconizing-ui-kitten-components)  */}
-            <PdfLoader url={url} beforeLoad={<Spinner />}>
-            {(pdfDocument) => (        
-            // @ts-ignore: same issue as linked above
+        >
+          {/* @ts-ignore: this is a documented error regarding TS2786. I don't know how to fix yet (ref: https://stackoverflow.com/questions/72002300/ts2786-typescript-not-reconizing-ui-kitten-components)  */}
+          <PdfLoader url={url} beforeLoad={<Spinner />}>
+            {(pdfDocument) => (
+              // @ts-ignore: same issue as linked above
               <PdfHighlighter
                 pdfDocument={pdfDocument}
                 enableAreaSelection={(event) => event.altKey}
@@ -171,7 +163,7 @@ class TempPDFViewer extends Component<object, State> {
                   hideTipAndSelection,
                   transformSelection
                 ) => (
-                // @ts-ignore: same issue as linked above
+                  // @ts-ignore: same issue as linked above
                   <Tip
                     onOpen={transformSelection}
                     onConfirm={(comment) => {
@@ -190,7 +182,9 @@ class TempPDFViewer extends Component<object, State> {
                   screenshot,
                   isScrolledTo
                 ) => {
-                  const isTextHighlight = !(highlight.content && highlight.content.image);
+                  const isTextHighlight = !(
+                    highlight.content && highlight.content.image
+                  );
 
                   const component = isTextHighlight ? (
                     // @ts-ignore: same issue as linked above

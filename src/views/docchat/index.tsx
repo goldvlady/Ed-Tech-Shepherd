@@ -20,7 +20,7 @@ export default function DocChat() {
             documentUrl={location.state.documentUrl}
             docTitle={location.state.docTitle}
           /> */}
-          <TempPDFViewer/>
+          <TempPDFViewer />
           <Chat />
         </div>
       </section>

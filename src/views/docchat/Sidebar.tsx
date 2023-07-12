@@ -1,5 +1,5 @@
-import React from "react";
-import type { IHighlight } from "react-pdf-highlighter";
+import React from 'react';
+import type { IHighlight } from 'react-pdf-highlighter';
 
 interface Props {
   highlights: Array<IHighlight>;
@@ -14,14 +14,14 @@ const updateHash = (highlight: IHighlight) => {
 export function Sidebar({
   highlights,
   toggleDocument,
-  resetHighlights,
+  resetHighlights
 }: Props) {
   return (
-    <div className="sidebar" style={{ width: "25vw" }}>
-      <div className="description" style={{ padding: "1rem" }}>
-        <h2 style={{ marginBottom: "1rem" }}>react-pdf-highlighter</h2>
+    <div className="sidebar" style={{ width: '25vw' }}>
+      <div className="description" style={{ padding: '1rem' }}>
+        <h2 style={{ marginBottom: '1rem' }}>react-pdf-highlighter</h2>
 
-        <p style={{ fontSize: "0.7rem" }}>
+        <p style={{ fontSize: '0.7rem' }}>
           <a href="https://github.com/agentcooper/react-pdf-highlighter">
             Open in GitHub
           </a>
@@ -47,16 +47,16 @@ export function Sidebar({
             <div>
               <strong>{highlight.comment.text}</strong>
               {highlight.content.text ? (
-                <blockquote style={{ marginTop: "0.5rem" }}>
+                <blockquote style={{ marginTop: '0.5rem' }}>
                   {`${highlight.content.text.slice(0, 90).trim()}…`}
                 </blockquote>
               ) : null}
               {highlight.content.image ? (
                 <div
                   className="highlight__image"
-                  style={{ marginTop: "0.5rem" }}
+                  style={{ marginTop: '0.5rem' }}
                 >
-                  <img src={highlight.content.image} alt={"Screenshot"} />
+                  <img src={highlight.content.image} alt={'Screenshot'} />
                 </div>
               ) : null}
             </div>
@@ -66,11 +66,11 @@ export function Sidebar({
           </li>
         ))}
       </ul>
-      <div style={{ padding: "1rem" }}>
+      <div style={{ padding: '1rem' }}>
         <button onClick={toggleDocument}>Toggle PDF document</button>
       </div>
       {highlights.length > 0 ? (
-        <div style={{ padding: "1rem" }}>
+        <div style={{ padding: '1rem' }}>
           <button onClick={resetHighlights}>Reset highlights</button>
         </div>
       ) : null}
