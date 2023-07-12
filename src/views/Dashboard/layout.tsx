@@ -99,8 +99,12 @@ const LinkItems: Array<LinkItemProps> = [
 ];
 
 const LinkBItems: Array<LinkItemProps> = [
-  { name: 'Performance', icon: FiBarChart2, path: '/performance' },
-  { name: 'Study Plans', icon: TbClipboardText, path: '/study-plans' },
+  { name: 'Performance', icon: FiBarChart2, path: '/dashboard/performance' },
+  {
+    name: 'Study Plans',
+    icon: TbClipboardText,
+    path: '/dashboard/study-plans'
+  },
   { name: 'Notes', icon: CgNotes, path: '/dashboard/notes' },
   { name: 'Flashcards', icon: TbCards, path: '/dashboard/flashcards' }
 ];
@@ -114,6 +118,7 @@ const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
   const { pathname } = useLocation();
 
   const isActive = path.includes(getComparisonPath(pathname));
+
   return (
     <Link
       to={path}
@@ -615,7 +620,7 @@ const SidebarContent = ({
         </>
       ))}{' '}
       <Divider />
-      <NavItem icon={BsPin} path={'/pinned-notes'}>
+      <NavItem icon={BsPin} path={'/dashboard/pinned'}>
         Pinned Notes
       </NavItem>
     </Box>

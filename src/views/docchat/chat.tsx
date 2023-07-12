@@ -4,6 +4,7 @@ import CustomSideModal from '../../components/CustomComponents/CustomSideModal';
 import CustomTabs from '../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../components/hooks/useChatScroll';
 import FlashcardDataProvider from '../Dashboard/FlashCards/context/flashcard';
+import ChatHistory from './chatHistory';
 import HighLight from './highlist';
 import SetUpFlashCards from './setupFlashCards';
 import {
@@ -45,6 +46,7 @@ const Chat = () => {
   );
   const [inputValue, setInputValue] = useState('');
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
+  const [isChatHistory, setChatHistory] = useState<boolean>(false);
   const ref = useChatScroll(messages);
 
   const prompts = [
@@ -63,6 +65,10 @@ const Chat = () => {
 
   const onQuiz = useCallback(() => {
     setQuiz((prevState) => !prevState);
+  }, []);
+
+  const onChatHistory = useCallback(() => {
+    setChatHistory((prevState) => !prevState);
   }, []);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -258,7 +264,7 @@ const Chat = () => {
               <img alt="" src="/svgs/send.svg" className="w-8 h-8" />
             </SendButton>
           </InputContainer>
-          <ClockButton>
+          <ClockButton type="button" onClick={onChatHistory}>
             <img alt="" src="/svgs/anti-clock.svg" className="w-5 h-5" />
           </ClockButton>
         </ChatbotContainer>
@@ -282,8 +288,8 @@ const Chat = () => {
         </div>
       </CustomSideModal>
 
-      <CustomSideModal onClose={onQuiz} isOpen={isQuiz}>
-        <p>hellloo </p>
+      <CustomSideModal onClose={onChatHistory} isOpen={isChatHistory}>
+        <ChatHistory />
       </CustomSideModal>
     </>
   );

@@ -325,3 +325,87 @@ export const AiMessage = styled.div`
   font-size: 0.875rem;
   border-radius: 10px;
 `;
+
+export const StyledPromptContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  grid-column: span-full;
+  padding: 3px;
+  padding-bottom: 1px;
+  height: 36px;
+  border-radius: 8px;
+  justify-content: space-between;
+  margin-left: 7px;
+  font-size: 0.875rem;
+`;
+
+export const StyledPromptText = styled.p`
+  margin-top: 1rem;
+`;
+
+export const StyledPrompt = styled.div`
+  border: 1px solid #ccc;
+  border-radius: 9999px;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+  margin-right: 0.25rem;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #eee;
+  }
+`;
+
+export const ChatHistoryDate = styled.div`
+  width: 82px;
+  border: 1px solid #f0f1f4;
+  box-shadow: 0px 3px 5px 0px #757e8a0f;
+  color: #6e7682;
+  background: #ffffff;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  padding: 2px;
+  margin: 0 auto;
+  text-align: center;
+`;
+
+export const ChatHistoryBody = styled.div`
+  background: #f4f5f6;
+  display: flex;
+  gap: 6px;
+  font-size: 0.875rem;
+  color: #585f68;
+  padding: 8px;
+  border-radius: 8px;
+  margin-top: 20px;
+`;
+
+export const ChatHistoryContainer = styled.div`
+  margin: 50px 0;
+`;
+
+export const ChatHistoryBlock = styled.div`
+  margin-top: 25px;
+`;
+
+export const ChatHistoryHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eeeff2;
+  margin-bottom: 15px;
+  padding: 11px 0;
+
+  p:nth-child(1) {
+    font-size: 1.125rem;
+    color: #585f68;
+    font-weight: 500;
+  }
+
+  p:nth-child(2) {
+    font-size: 0.75rem;
+    color: #f53535;
+    font-weight: 500;
+    cursor: pointer;
+  }
+`;
