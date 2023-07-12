@@ -105,7 +105,6 @@ class TempPDFViewer extends Component<object, State> {
   }
 
   updateHighlight(highlightId: string, position: object, content: object) {
-
     this.setState({
       highlights: this.state.highlights.map((h) => {
         const {
@@ -130,7 +129,10 @@ class TempPDFViewer extends Component<object, State> {
     const { url, highlights } = this.state;
 
     return (
-      <div style={{ display: 'flex', height: '100vh', width: '100%' }} className="lg:col-span-6 flex-auto h-full">
+      <div
+        style={{ display: 'flex', height: '100vh', width: '100%' }}
+        className="lg:col-span-6 flex-auto h-full"
+      >
         {/* <Sidebar
           highlights={highlights}
           resetHighlights={this.resetHighlights}
