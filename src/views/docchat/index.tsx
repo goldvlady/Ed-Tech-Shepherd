@@ -1,4 +1,3 @@
-// import { PdfViewer } from '../../components';
 import TempPDFViewer from './TempPDFViewer';
 import Chat from './chat';
 import { useEffect } from 'react';
@@ -16,11 +15,7 @@ export default function DocChat() {
     location.state?.documentUrl && (
       <section className="divide-y max-w-screen-xl mx-auto">
         <div className="h-screen bg-white divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
-          {/* <PdfViewer
-            documentUrl={location.state.documentUrl}
-            docTitle={location.state.docTitle}
-          /> */}
-          <TempPDFViewer />
+          <TempPDFViewer pdfLink={location.state.documentUrl} />
           <Chat />
         </div>
       </section>

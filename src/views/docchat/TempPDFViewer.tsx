@@ -1,23 +1,11 @@
 import { Sidebar } from './Sidebar';
 import { Spinner } from './Spinner';
 import { testHighlights as _testHighlights } from './test-highlights';
-import { Component } from 'react';
-import {
-  PdfLoader,
-  PdfHighlighter,
-  Tip,
-  Highlight,
-  Popup,
-  AreaHighlight
-} from 'react-pdf-highlighter';
+import { useEffect, useState } from 'react';
 import type { IHighlight, NewHighlight } from 'react-pdf-highlighter';
+import { PdfLoader, PdfHighlighter, Tip, Highlight, Popup, AreaHighlight } from 'react-pdf-highlighter';
 
 const testHighlights: Record<string, Array<IHighlight>> = _testHighlights;
-
-interface State {
-  url: string;
-  highlights: Array<IHighlight>;
-}
 
 const getNextId = () => String(Math.random()).slice(2);
 
@@ -39,94 +27,55 @@ const HighlightPopup = ({
     </div>
   ) : null;
 
-const PRIMARY_PDF_URL = 'https://arxiv.org/pdf/1708.08021.pdf';
-const SECONDARY_PDF_URL = 'https://arxiv.org/pdf/1604.02480.pdf';
 
-const searchParams = new URLSearchParams(document.location.search);
-
-const initialUrl = searchParams.get('url') || PRIMARY_PDF_URL;
-
-class TempPDFViewer extends Component<object, State> {
-  state = {
-    url: initialUrl,
-    highlights: testHighlights[initialUrl]
-      ? [...testHighlights[initialUrl]]
-      : []
+const TempPDFViewer = ({ pdfLink }: { pdfLink: URL }) => {
+    const [highlights, setHighlights] = useState<Array<IHighlight>>([]);
+    const [url, setUrl] = useState(pdfLink)
+  const resetHighlights = () => {
+    setHighlights([]);
   };
 
-  resetHighlights = () => {
-    this.setState({
-      highlights: []
-    });
-  };
-
-  toggleDocument = () => {
-    const newUrl =
-      this.state.url === PRIMARY_PDF_URL ? SECONDARY_PDF_URL : PRIMARY_PDF_URL;
-
-    this.setState({
-      url: newUrl,
-      highlights: testHighlights[newUrl] ? [...testHighlights[newUrl]] : []
-    });
-  };
-
-  scrollViewerTo = (highlight: any) => {
+  let scrollViewerTo = (highlight: any) => {
     // we will fill this in later;
   };
 
-  scrollToHighlightFromHash = () => {
-    const highlight = this.getHighlightById(parseIdFromHash());
+  const scrollToHighlightFromHash = () => {
+    const highlight = getHighlightById(parseIdFromHash());
 
     if (highlight) {
-      this.scrollViewerTo(highlight);
+      scrollViewerTo(highlight);
     }
   };
 
-  componentDidMount() {
-    window.addEventListener(
-      'hashchange',
-      this.scrollToHighlightFromHash,
-      false
-    );
-  }
+    useEffect(() => {
+        if (window) window.addEventListener('hashchange', scrollToHighlightFromHash, false);
+    }, [])
 
-  getHighlightById(id: string) {
-    const { highlights } = this.state;
-
+  const getHighlightById = (id: string) => {
     return highlights.find((highlight) => highlight.id === id);
   }
 
-  addHighlight(highlight: NewHighlight) {
-    const { highlights } = this.state;
-
-    this.setState({
-      highlights: [{ ...highlight, id: getNextId() }, ...highlights]
-    });
+  const addHighlight = (highlight: NewHighlight) => {
+      setHighlights([{ ...highlight, id: getNextId() }, ...highlights]);
   }
 
-  updateHighlight(highlightId: string, position: object, content: object) {
-    this.setState({
-      highlights: this.state.highlights.map((h) => {
-        const {
-          id,
-          position: originalPosition,
-          content: originalContent,
-          ...rest
-        } = h;
-        return id === highlightId
-          ? {
-              id,
-              position: { ...originalPosition, ...position },
-              content: { ...originalContent, ...content },
-              ...rest
-            }
-          : h;
-      })
-    });
-  }
+  const updateHighlight = (highlightId: string, position: object, content: object) => {
+      const updated = highlights.map(highlight => {
+          const { id, position: originalPosition, content: originalContent, ...rest } = highlight;
 
-  render() {
-    const { url, highlights } = this.state;
+          if (id === highlightId) {
+              return {
+                  id,
+                  position: { ...originalPosition, ...position },
+                  content: { ...originalContent, ...content },
+                  ...rest
+              }
+          } else return highlight
+      });
+
+      setHighlights(updated);
+
+  }
 
     return (
       <div
@@ -155,9 +104,9 @@ class TempPDFViewer extends Component<object, State> {
                 onScrollChange={resetHash}
                 // pdfScaleValue="page-width"
                 scrollRef={(scrollTo) => {
-                  this.scrollViewerTo = scrollTo;
+                  scrollViewerTo = scrollTo;
 
-                  this.scrollToHighlightFromHash();
+                  scrollToHighlightFromHash();
                 }}
                 onSelectionFinished={(
                   position,
@@ -169,7 +118,7 @@ class TempPDFViewer extends Component<object, State> {
                   <Tip
                     onOpen={transformSelection}
                     onConfirm={(comment) => {
-                      this.addHighlight({ content, position, comment });
+                      addHighlight({ content, position, comment });
 
                       hideTipAndSelection();
                     }}
@@ -201,7 +150,7 @@ class TempPDFViewer extends Component<object, State> {
                       isScrolledTo={isScrolledTo}
                       highlight={highlight}
                       onChange={(boundingRect) => {
-                        this.updateHighlight(
+                        updateHighlight(
                           highlight.id,
                           { boundingRect: viewportToScaled(boundingRect) },
                           { image: screenshot(boundingRect) }
@@ -230,7 +179,6 @@ class TempPDFViewer extends Component<object, State> {
         </div>
       </div>
     );
-  }
 }
 
 export default TempPDFViewer;
