@@ -1,8 +1,8 @@
 // import { PdfViewer } from '../../components';
+import TempPDFViewer from './TempPDFViewer';
 import Chat from './chat';
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import TempPDFViewer from './TempPDFViewer'
 
 export default function DocChat() {
   const location = useLocation();
