@@ -9,6 +9,10 @@ import HighLight from './highlist';
 import SetUpFlashCards from './setupFlashCards';
 import {
   AiMessage,
+  AskSomethingContainer,
+  AskSomethingPill,
+  AskSomethingPillContainer,
+  AskSomethingPillHeadingText,
   ChatbotContainer,
   ChatContainerResponse,
   CircleContainer,
@@ -75,8 +79,10 @@ const Chat = () => {
     setInputValue(event.target.value);
   };
 
-  const handleSendMessage = (e) => {
-    e.preventDefault();
+  const handleSendMessage = (
+    event: React.SyntheticEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault();
 
     if (inputValue.trim() === '') {
       return;
@@ -211,21 +217,20 @@ const Chat = () => {
                     </OptionsContainer>
                   )}
                   {!isShowPrompt && (
-                    <div className="flex flex-col col-span-full px-3 py-1 h-36 rounded-lg justify-between ml-7 text-sm">
-                      <Text className="my-4">Try asking about:</Text>
-                      <div className="flex flex-wrap">
+                    <AskSomethingContainer>
+                      <AskSomethingPillHeadingText>
+                        Try asking about:
+                      </AskSomethingPillHeadingText>
+                      <AskSomethingPillContainer>
                         {prompts.map((prompt, key) => {
                           return (
-                            <div
-                              key={key}
-                              className="border-gray-300 border-1 rounded-full py-2 px-3 mb-2 mx-1 hover:bg-gray-200 cursor-pointer"
-                            >
+                            <AskSomethingPill key={key}>
                               <Text>{prompt}</Text>
-                            </div>
+                            </AskSomethingPill>
                           );
                         })}
-                      </div>
-                    </div>
+                      </AskSomethingPillContainer>
+                    </AskSomethingContainer>
                   )}
                 </GridContainer>
               </InnerWrapper>

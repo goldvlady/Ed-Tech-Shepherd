@@ -13,8 +13,7 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverBody,
-  PopoverArrow,
-  PopoverAnchor
+  PopoverArrow
 } from '@chakra-ui/react';
 import React, { useEffect, useMemo } from 'react';
 import { useState } from 'react';
@@ -56,7 +55,6 @@ const FlashcardFirstPart = ({ isAutomated }: { isAutomated?: boolean }) => {
             : prevState[name].filter((val: string) => val !== value)
         }));
       } else if (name === 'selectPagesInclude') {
-        console.log('value', value);
         if (Number(value) <= 5) {
           setLocalData((prevState) => ({
             ...prevState,

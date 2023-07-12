@@ -394,7 +394,6 @@ export const ChatHistoryHeader = styled.div`
   justify-content: space-between;
   border-bottom: 1px solid #eeeff2;
   margin-bottom: 15px;
-  padding: 11px 0;
 
   p:nth-child(1) {
     font-size: 1.125rem;
@@ -408,4 +407,38 @@ export const ChatHistoryHeader = styled.div`
     font-weight: 500;
     cursor: pointer;
   }
+`;
+
+export const AskSomethingContainer = styled.div`
+  display:flex;
+  flex-direction: column;
+  justify-content: space-between;
+  grid-column: 1 / -1;
+  padding: 0.25rem 2rem;
+  height: 9rem;
+  border-radius: 8px;
+  margin-left: 1.75rem
+  font-size: 0.875rem;
+`;
+
+export const AskSomethingPill = styled.div`
+  border: 1px solid #eaebeb;
+  border-radius: 9999px;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0 0.25rem 0.5rem 0.25rem;
+
+  :hover {
+    background: #eaebeb;
+    cursor: pointer;
+  }
+`;
+
+export const AskSomethingPillContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+`;
+
+export const AskSomethingPillHeadingText = styled(Text)`
+  margin: 1rem 0;
 `;
