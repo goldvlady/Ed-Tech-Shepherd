@@ -14,6 +14,7 @@ import summary from '../../assets/summary.svg';
 import SessionPrefaceDialog, {
   SessionPrefaceDialogRef
 } from '../../components/SessionPrefaceDialog';
+import ApiService from '../../services/ApiService';
 import feedsStore from '../../state/feedsStore';
 import userStore from '../../state/userStore';
 import { numberToDayOfWeekName, twoDigitFormat } from '../../util';
@@ -52,7 +53,8 @@ import {
   useBreakpointValue,
   useDisclosure,
   Center,
-  VStack
+  VStack,
+  Spinner
 } from '@chakra-ui/react';
 import { capitalize } from 'lodash';
 import moment from 'moment';
@@ -63,9 +65,6 @@ import { RxDotFilled } from 'react-icons/rx';
 import Slider from 'react-slick';
 
 export default function Index() {
-  const [slider, setSlider] = useState<Slider | null>(null);
-  const [firstname, setFirstname] = useState('');
-
   const top = useBreakpointValue({ base: '90%', md: '50%' });
   const side = useBreakpointValue({ base: '30%', md: '40px' });
 
@@ -82,14 +81,52 @@ export default function Index() {
   const { user } = userStore();
   const { feeds, fetchFeeds } = feedsStore();
 
+  const [studentReport, setStudentReport] = useState<any>('');
+  const [chartData, setChartData] = useState<any>('');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const doFetchActivityFeeds = useCallback(async () => {
-    await fetchFeeds();
-  }, []);
+  // const doFetchStudentReport = useCallback(async () => {
+  //   const response = await ApiService.getStudentReport();
+  //   const resp = await response.json();
+  //   setStudentReport(resp);
+  //   setChartData(resp.chartData);
+  // }, []);
+  // useEffect(() => {
+  //   doFetchStudentReport();
+  // }, [doFetchStudentReport]);
+
+  // const doFetchActivityFeeds = useCallback(async () => {
+  //   await fetchFeeds();
+  // }, []);
+  // useEffect(() => {
+  //   doFetchActivityFeeds();
+  // }, [doFetchActivityFeeds]);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const [studentReportResponse, feedsResponse] = await Promise.all([
+        ApiService.getStudentReport(),
+        fetchFeeds()
+      ]);
+
+      const studentReportData = await studentReportResponse.json();
+
+      setStudentReport(studentReportData);
+      setChartData(studentReportData.chartData);
+      // setFeeds(feedsResponse);
+    } catch (error) {
+      // Handle any errors that occur during fetching
+      console.error('Error fetching data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [fetchFeeds]);
+
   useEffect(() => {
-    doFetchActivityFeeds();
-  }, [doFetchActivityFeeds]);
+    fetchData();
+  }, [fetchData]);
 
   const cards = [
     {
@@ -118,6 +155,7 @@ export default function Index() {
     fade: true,
     infinite: true,
     autoplay: true,
+    centerMode: true,
     speed: 500,
     autoplaySpeed: 1000,
     slidesToShow: 1,
@@ -141,25 +179,25 @@ export default function Index() {
       label: 'You spent 5 hours learning this week'
     }
   ];
-  const CarouselData = [
-    {
-      headerText: null,
-      subText: 'Sub Text One',
-      image: 'https://picsum.photos/300/300'
-    },
-    {
-      headerText: 'Header Text Two',
-      subText: null,
-      image: 'https://picsum.photos/1200/800'
-    },
-    {
-      headerText: null,
-      subText: null,
-      image: 'https://picsum.photos/720/720'
-    }
-  ];
 
   const sessionPrefaceDialogRef = useRef<SessionPrefaceDialogRef>(null);
+
+  if (isLoading) {
+    return (
+      <Box
+        p={5}
+        textAlign="center"
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh'
+        }}
+      >
+        <Spinner />
+      </Box>
+    );
+  }
 
   return (
     <>
@@ -290,7 +328,7 @@ export default function Index() {
                       Cards studied
                     </Text>
                     <Text fontSize={'24px'} fontWeight={600}>
-                      0
+                      {studentReport.studiedFlashcards}
                       <span
                         style={{
                           fontSize: '14px',
@@ -368,7 +406,9 @@ export default function Index() {
                     />
                     <Text color="text.300">Got it right</Text>
                     <Spacer />
-                    <Text fontWeight={600}>40%</Text>
+                    <Text fontWeight={600}>
+                      {Math.ceil(studentReport.passPercentage)}%
+                    </Text>
                   </Flex>
                   <Flex alignItems={'center'} fontSize={12} my={2}>
                     <Box
@@ -379,13 +419,15 @@ export default function Index() {
                     />
                     <Text color="text.300">Didn't remember</Text>
                     <Spacer />
-                    <Text fontWeight={600}>40%</Text>
+                    <Text fontWeight={600}>0%</Text>
                   </Flex>
                   <Flex alignItems={'center'} fontSize={12} my={2}>
                     <Box boxSize="12px" bg="red" borderRadius={'3px'} mr={2} />
                     <Text color="text.300">Got it wrong</Text>
                     <Spacer />
-                    <Text fontWeight={600}>20%</Text>
+                    <Text fontWeight={600}>
+                      {Math.floor(100 - studentReport.passPercentage)}%
+                    </Text>
                   </Flex>
                 </GridItem>
                 <GridItem
@@ -466,7 +508,9 @@ export default function Index() {
                         color: '#000'
                       }}
                     >
-                      20 days
+                      {studentReport.streak < 2
+                        ? `${studentReport.streak} day `
+                        : `${studentReport.streak} days `}
                     </span>
                   </Text>
                 </Flex>
@@ -474,31 +518,6 @@ export default function Index() {
             </Card>
           </GridItem>
 
-          {/* <GridItem rowSpan={1} colSpan={1} h="200px">
-          <Card
-            bg={"#E7EAEE"}
-            bgImage={timer}
-            bgRepeat={"no-repeat"}
-            bgSize={"160px"}
-            bgPosition={"right -10px bottom 10px"}
-            height={"250px"}
-          >
-            <CardHeader>
-              <img src={ribbon2} width={"40px"} />
-            </CardHeader>
-
-            <CardBody></CardBody>
-            <CardFooter display={"inline-block"} color="#000">
-              <Text fontSize={"32px"} fontWeight={600}>
-                40 <span style={{ fontSize: "16px" }}>hours</span>
-              </Text>
-              <Text fontSize={"14px"} fontWeight={400}>
-                Time spent learning{" "}
-              </Text>
-            </CardFooter>
-          </Card>
-        </GridItem>*/}
-          {/* <GridItem rowSpan={1} colSpan={1} h="200px"></GridItem> */}
           <GridItem colSpan={3} rowSpan={1}>
             <Box
               border="1px solid #eeeff2"
@@ -512,7 +531,7 @@ export default function Index() {
                 Quiz Performance
               </Text>
               <Box p={2} h={'350px'}>
-                <PerformanceChart />
+                <PerformanceChart chartData={chartData} />
               </Box>
             </Box>
           </GridItem>

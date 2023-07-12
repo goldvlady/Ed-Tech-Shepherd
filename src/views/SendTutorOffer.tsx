@@ -122,8 +122,12 @@ const SendTutorOffer = () => {
     [tutor]
   );
   const levelOptions = useMemo(
-    () => levels.map((l) => ({ label: l, value: l })),
-    []
+    () =>
+      tutor?.coursesAndLevels.map((c) => ({
+        label: 'AP',
+        value: '648737ac0185fdef253922be'
+      })) || [],
+    [tutor]
   );
 
   useEffect(() => {
