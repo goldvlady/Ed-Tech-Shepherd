@@ -1,12 +1,17 @@
 import AdobeIcon from '../../../assets/adobedoc.svg';
 import FeedIcon from '../../../assets/blue-energy.svg';
 import DocIcon from '../../../assets/doc-icon.svg';
-import FlashcardIcon from '../../../assets/flashcardIcon.svg';
+import NoteSmIcon from '../../../assets/doc-sm.svg';
+import FlashcardSmIcon from '../../../assets/flashcard-sm.svg';
+import ReceiptIcon from '../../../assets/flashcardIcon.svg';
+import NoEvent from '../../../assets/no-event.svg';
 import NoteIcon from '../../../assets/notes.svg';
-import ReceiptIcon from '../../../assets/receiptIcon.svg';
+import ReceiptSmIcon from '../../../assets/receipt-sm.svg';
+import FlashcardIcon from '../../../assets/receiptIcon.svg';
 import {
   Box,
   Button,
+  Center,
   Divider,
   Flex,
   HStack,
@@ -20,11 +25,17 @@ import {
   Stack,
   Text
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BsChevronDown, BsFiletypeDoc } from 'react-icons/bs';
 import { RiCalendar2Fill } from 'react-icons/ri';
 import { SlEnergy } from 'react-icons/sl';
 import styled from 'styled-components';
+
+interface TimeAgoProps {
+  timestamp: string;
+}
+
+const Item = styled(Box)``;
 
 const Root = styled(Flex)`
   position: relative;
@@ -42,11 +53,71 @@ const Root = styled(Flex)`
     background: #e8e9ed;
     z-index: 0;
   }
+  &:last-child {
+    &:before {
+      display: none;
+    }
+  }
+
   padding-left: 0px;
 `;
 
-function ActivityFeeds() {
+const getIconByActivityType = (activityType) => {
+  switch (activityType) {
+    case 'documents':
+      return DocIcon;
+    case 'notes':
+      return NoteIcon;
+    case 'payments':
+      return ReceiptIcon;
+    case 'flashcards':
+      return FlashcardIcon;
+    default:
+      return undefined;
+  }
+};
+
+const getFileIconByActivityType = (activityType) => {
+  switch (activityType) {
+    case 'documents':
+      return AdobeIcon;
+    case 'notes':
+      return NoteSmIcon;
+    case 'payments':
+      return ReceiptSmIcon;
+    case 'flashcards':
+      return FlashcardSmIcon;
+    default:
+      return undefined;
+  }
+};
+
+function ActivityFeeds(feeds: any) {
   const [feedPeriod, setFeedPeriod] = useState<any>('Today');
+  console.log(feeds);
+  const TimeAgo: React.FC<TimeAgoProps> = ({ timestamp }) => {
+    const [hoursAgo, setHoursAgo] = useState<number | null>(null);
+
+    useEffect(() => {
+      const calculateHoursAgo = () => {
+        const currentTime = new Date();
+        const pastTime = new Date(timestamp);
+        const timeDifference = currentTime.getTime() - pastTime.getTime();
+        const hoursDifference = Math.floor(timeDifference / (1000 * 60 * 60));
+        setHoursAgo(hoursDifference);
+      };
+
+      calculateHoursAgo();
+    }, [timestamp]);
+
+    return <div>{hoursAgo !== null && `${hoursAgo} hours ago`}</div>;
+  };
+
+  const getFileName = (url: string) => {
+    const lastSlashIndex = url.lastIndexOf('/');
+    const textAfterLastSlash = url.substring(lastSlashIndex + 1);
+    return textAfterLastSlash;
+  };
 
   return (
     <>
@@ -89,148 +160,68 @@ function ActivityFeeds() {
         <Divider />
       </Box>
 
-      <Box>
-        <Root px={3} my={4}>
-          <Image src={DocIcon} alt="doc" maxHeight={45} zIndex={1} />
-          <Stack direction={'column'} px={4} spacing={1}>
-            <Text color="text.300" fontSize={12} mb={0}>
-              2 hrs ago
-            </Text>
-            <Text fontWeight={400} color="text.200" fontSize="14px" mb={0}>
-              You uploaded documentationtitle.pdf to your workspace
-            </Text>
+      <Box sx={{ maxHeight: '350px', overflowY: 'auto' }}>
+        {feeds.feeds?.data.length > 0 ? (
+          feeds.feeds?.data.map((feed: any, index) => (
+            <>
+              <Root px={3} my={4} key={index}>
+                <Image
+                  src={getIconByActivityType(feed.activityType)}
+                  alt="doc"
+                  maxHeight={45}
+                  zIndex={1}
+                />
+                <Stack direction={'column'} px={4} spacing={1}>
+                  <Text color="text.300" fontSize={12} mb={0}>
+                    <TimeAgo timestamp={feed.updatedAt} />
+                  </Text>
 
-            <Spacer />
+                  <Text
+                    fontWeight={400}
+                    color="text.200"
+                    fontSize="14px"
+                    mb={0}
+                  >
+                    {feed.title}
+                  </Text>
 
-            <Box
-              width={'fit-content'}
-              height="40px"
-              borderRadius={'30px'}
-              border=" 1px dashed #E2E4E9"
-              justifyContent="center"
-              alignItems="center"
-              px={3}
-            >
-              <Flex mt={2.5}>
-                <Text>
-                  <Image src={AdobeIcon} />
-                </Text>
+                  <Spacer />
 
-                <Text fontWeight={500} fontSize={12} color="#73777D">
-                  Documentationtitle.pdf
-                </Text>
-              </Flex>
-            </Box>
-          </Stack>
-        </Root>
+                  <Box
+                    width={'fit-content'}
+                    height="40px"
+                    borderRadius={'30px'}
+                    border=" 1px dashed #E2E4E9"
+                    justifyContent="center"
+                    alignItems="center"
+                    px={3}
+                  >
+                    <Flex mt={2.5} gap={1}>
+                      <Text>
+                        <Image
+                          src={getFileIconByActivityType(feed.activityType)}
+                        />
+                      </Text>
 
-        <Root px={3} my={4}>
-          <Image src={NoteIcon} alt="doc" maxHeight={45} zIndex={1} />
-          <Stack direction={'column'} px={4} spacing={1}>
-            <Text color="text.300" fontSize={12} mb={0}>
-              7 hrs ago
-            </Text>
-            <Text fontWeight={400} color="text.200" fontSize="14px" mb={0}>
-              You uploaded documentationtitle.pdf to your workspace
-            </Text>
-
-            <Spacer />
-
-            <Box
-              width={'fit-content'}
-              height="40px"
-              borderRadius={'30px'}
-              border=" 1px dashed #E2E4E9"
-              justifyContent="center"
-              alignItems="center"
-              px={3}
-            >
-              <Flex mt={2.5}>
-                <Text>
-                  <Image src={AdobeIcon} />
-                </Text>
-
-                <Text fontWeight={500} fontSize={12} color="#73777D">
-                  Favoriteartistelist.pdf
-                </Text>
-              </Flex>
-            </Box>
-          </Stack>
-        </Root>
-        <Root px={3} my={4}>
-          <Image src={ReceiptIcon} alt="doc" maxHeight={45} zIndex={1} />
-          <Stack direction={'column'} px={4} spacing={1}>
-            <Text color="text.300" fontSize={12} mb={0}>
-              Yesterday.13:00
-            </Text>
-            <Text fontWeight={400} color="text.200" fontSize="14px" mb={0}>
-              You created a new flashcard deck documenttitleflash from
-              documentitle.pdf
-            </Text>
-
-            <Spacer />
-            <Box
-              width={'fit-content'}
-              height="40px"
-              borderRadius={'30px'}
-              border=" 1px dashed #E2E4E9"
-              justifyContent="center"
-              alignItems="center"
-              px={3}
-            >
-              <Flex mt={2.5}>
-                <Text>
-                  <Image src={AdobeIcon} />
-                </Text>
-
-                <Text fontWeight={500} fontSize={12} color="#73777D">
-                  Documenttitleflash
-                </Text>
-              </Flex>
-            </Box>
-          </Stack>
-        </Root>
-        <Flex alignItems="flex-start" px={3} direction={'row'} my={4}>
-          <Image
-            src={FlashcardIcon}
-            alt="doc"
-            maxHeight={45}
-            zIndex={1}
-            position={'relative'}
-            right={1}
-          />
-          <Stack direction={'column'} px={4} spacing={1}>
-            <Text color="text.300" fontSize={12} mb={0}>
-              17th May 2023.13:00
-            </Text>
-            <Text fontWeight={400} color="text.200" fontSize="14px" mb={0}>
-              You made a payment of $10.95 to Leslie Peters for Chemistry
-              lessons
-            </Text>
-
-            <Spacer />
-
-            <Box
-              width={'fit-content'}
-              height="40px"
-              borderRadius={'30px'}
-              border=" 1px dashed #E2E4E9"
-              justifyContent="center"
-              alignItems="center"
-              px={3}
-            >
-              <Flex mt={2.5}>
-                <Text>
-                  <Image src={AdobeIcon} />
-                </Text>
-
-                <Text fontWeight={500} fontSize={12} color="#73777D">
-                  Transaction receipt
-                </Text>
-              </Flex>
-            </Box>
-          </Stack>
-        </Flex>
+                      <Text fontWeight={500} fontSize={12} color="#73777D">
+                        {getFileName(feed.link)}
+                      </Text>
+                    </Flex>
+                  </Box>
+                </Stack>
+              </Root>
+            </>
+          ))
+        ) : (
+          <Center h="400px">
+            <Flex direction={'column'} alignItems="center">
+              <Image src={NoEvent} ml={4} boxSize="90px" />
+              <Text color="text.400" fontSize={12} fontWeight={500}>
+                No Feeds
+              </Text>
+            </Flex>
+          </Center>
+        )}
       </Box>
     </>
   );

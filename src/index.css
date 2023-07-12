@@ -191,3 +191,8 @@ canvas {
   padding-bottom: 10px !important;
   font-size: 0.875rem !important;
 }
+
+.feedslist div:last-child ::before {
+  width: 0px;
+  background-color: red;
+}

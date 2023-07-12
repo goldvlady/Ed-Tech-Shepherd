@@ -25,6 +25,16 @@ const SetUpFlashCards = ({ isAutomated }: { isAutomated?: boolean }) => {
 
   return (
     <section>
+      {currentStep === 0 && (
+        <p style={{ fontSize: '1.125rem', fontWeight: '500' }}>
+          Set up flashcard
+        </p>
+      )}
+      {currentStep === 1 && (
+        <p style={{ fontSize: '1.125rem', fontWeight: '500' }}>
+          Review flashcard
+        </p>
+      )}
       <StepsIndicator steps={steps} activeStep={currentStep} />
       <AnimatePresence>
         <motion.div
