@@ -1,26 +1,38 @@
+import DatePicker from '../../../../components/DatePicker';
+import DragAndDrop from '../../../../components/DragandDrop';
+import { storage } from '../../../../firebase';
 import onboardTutorStore from '../../../../state/onboardTutorStore';
 import { TutorQualification } from '../../../../types';
 import {
   Box,
   Button,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   HStack,
-  Input
+  Input,
+  useToast
 } from '@chakra-ui/react';
-import { format } from 'date-fns';
+import { ref } from '@firebase/storage';
+import { format, isBefore } from 'date-fns';
+import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useMemo } from 'react';
 import { RiPencilLine } from 'react-icons/ri';
 
 const QualificationsForm: React.FC = () => {
+  const toast = useToast();
   const { qualifications: storeQualifications } = onboardTutorStore.useStore();
   const [formData, setFormData] = useState<TutorQualification>({
     institution: '',
     degree: '',
     startDate: null as unknown as Date,
-    endDate: null as unknown as Date
+    endDate: null as unknown as Date,
+    transcript: ''
   });
+  const [dateError, setDateError] = useState('');
+
+  const [isLoading, setIsLoading] = useState(false);
   const [addQualificationClicked, setAddQualificationClicked] = useState(false);
 
   useEffect(() => {
@@ -33,21 +45,77 @@ const QualificationsForm: React.FC = () => {
     }
   }, [storeQualifications, addQualificationClicked]);
 
+  const handleUploadInput = (file: File | null, name: string) => {
+    if (!file) return;
+    if (file?.size > 10000000) {
+      setIsLoading(true);
+      toast({
+        title: 'Please upload a file under 10MB',
+        status: 'error',
+        position: 'top',
+        isClosable: true
+      });
+      return;
+    } else {
+      const storageRef = ref(storage, `files/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      setIsLoading(true);
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress = Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          );
+          // setCvUploadPercent(progress);
+        },
+        (error) => {
+          setIsLoading(false);
+          // setCvUploadPercent(0);
+          toast({ title: error.message + error.cause, status: 'error' });
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            setIsLoading(false);
+            handleInputChange({
+              target: { name, value: downloadURL }
+            } as React.ChangeEvent<HTMLInputElement>);
+            // onboardTutorStore.set?.transcript?.(downloadURL);
+          });
+        }
+      );
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const updatedFormData = {
       ...formData,
       [e.target.name]: e.target.value
     };
     setFormData(updatedFormData);
+
     if (!addQualificationClicked) {
       onboardTutorStore.set.qualifications?.([updatedFormData]);
     }
   };
 
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDateChange = (date: Date | null, name: string) => {
+    if (!date) return; // or handle `null` value if necessary
+
+    if (
+      name === 'endDate' &&
+      formData.startDate &&
+      isBefore(date, formData.startDate)
+    ) {
+      setDateError('End date must be after start date');
+      return;
+    } else {
+      setDateError('');
+    }
+
     const updatedFormData = {
       ...formData,
-      [e.target.name]: new Date(e.target.value)
+      [name]: date
     };
     setFormData(updatedFormData);
     if (!addQualificationClicked) {
@@ -70,7 +138,8 @@ const QualificationsForm: React.FC = () => {
       institution: '',
       degree: '',
       startDate: null as unknown as Date,
-      endDate: null as unknown as Date
+      endDate: null as unknown as Date,
+      transcript: ''
     });
     setAddQualificationClicked(true);
   };
@@ -178,6 +247,7 @@ const QualificationsForm: React.FC = () => {
           name="institution"
           value={formData.institution}
           onChange={handleInputChange}
+          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />
       </FormControl>
 
@@ -187,6 +257,7 @@ const QualificationsForm: React.FC = () => {
           placeholder="e.g Mathematics"
           name="degree"
           value={formData.degree}
+          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
           onChange={handleInputChange}
         />
       </FormControl>
@@ -194,30 +265,43 @@ const QualificationsForm: React.FC = () => {
       <HStack spacing={5} marginBottom="20px">
         <FormControl id="startDate">
           <FormLabel>Start date</FormLabel>
-          <Input
+          <DatePicker
             name="startDate"
-            type="date"
             placeholder="Select Start Date"
             value={
               formData.startDate ? format(formData.startDate, 'yyyy-MM-dd') : ''
             }
-            onChange={handleDateChange}
+            onChange={(date) => handleDateChange(date, 'startDate')}
           />
         </FormControl>
 
-        <FormControl id="endDate">
+        <FormControl isInvalid={Boolean(dateError)} id="endDate">
           <FormLabel>End date</FormLabel>
-          <Input
+          <DatePicker
             name="endDate"
-            type="date"
             placeholder="Select End Date"
             value={
               formData.endDate ? format(formData.endDate, 'yyyy-MM-dd') : ''
             }
-            onChange={handleDateChange}
+            onChange={(date) => handleDateChange(date, 'endDate')}
           />
+          <FormErrorMessage>
+            {'End Date Must Be before The Start Date'}
+          </FormErrorMessage>
         </FormControl>
       </HStack>
+
+      <FormControl id="degree" marginBottom="20px">
+        <FormLabel>Transcript/Certificate</FormLabel>
+        <DragAndDrop
+          isLoading={isLoading}
+          file={formData.transcript}
+          supportingText="Click to upload a video"
+          accept="image/*"
+          onFileUpload={(file) => handleUploadInput(file, 'transcript')}
+          boxStyles={{ minWidth: '250px', marginTop: '10px', height: '50px' }}
+        />
+      </FormControl>
 
       <Button
         margin={0}

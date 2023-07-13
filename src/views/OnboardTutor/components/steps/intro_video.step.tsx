@@ -81,6 +81,7 @@ const IntroVideoForm = () => {
           isLoading={isLoading}
           supportingText="Click to upload a video"
           accept="video/*"
+          onDelete={() => onboardTutorStore.set?.introVideo?.('')}
           onFileUpload={handleIntroVideoUpload}
           boxStyles={{ width: '250px', marginTop: '10px', height: '50px' }}
         />

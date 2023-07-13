@@ -101,7 +101,7 @@ const FlashCardQuestionsPage = () => {
   const isFinalQuestion = currentQuestionIndex === questionsCount - 1;
 
   return (
-    <Box width={'100%'} mt="40px">
+    <Box width={'100%'} mt="40px" padding="0 10px">
       <motion.div
         variants={questionVariants}
         initial="hidden"

@@ -1,4 +1,5 @@
 import CustomDropdown from '../../../../components/CustomDropdown';
+import CustomSelect from '../../../../components/CustomSelect';
 import onboardTutorStore from '../../../../state/onboardTutorStore';
 import { Schedule, TimeSchedule } from '../../../../types';
 import timezones from './timezones';
@@ -7,13 +8,12 @@ import {
   Checkbox,
   FormControl,
   FormLabel,
-  Select,
   Stack,
   VStack
 } from '@chakra-ui/react';
 import { Flex, Button, Fade } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 
 export type Availability = { [key: string]: SlotData };
 export interface SlotData {
@@ -36,7 +36,7 @@ const slotTimes: { [key: string]: any } = {
 
 function SelectTimeSlot({ onConfirm, day, value }: MyComponentProps) {
   const [selectedSlot, setSelectedSlot] = useState<string[]>([]);
-  const [timezone, setTimezone] = useState('');
+  const [timezone, setTimezone] = useState('Timezone');
 
   const handleSlotClick = (slot: string) => {
     setSelectedSlot((prev) => {
@@ -64,9 +64,15 @@ function SelectTimeSlot({ onConfirm, day, value }: MyComponentProps) {
       value?.slots
         ? value.slots
             ?.filter((slot) => {
-              return getKeyByValue(slotTimes, slot);
+              return getKeyByValue(slotTimes, slot.replace(' - undefined', ''));
             })
-            ?.map((slot) => getKeyByValue(slotTimes, slot) as string)
+            ?.map(
+              (slot) =>
+                getKeyByValue(
+                  slotTimes,
+                  slot.replace(' - undefined', '')
+                ) as string
+            )
         : []
     ); // Reset selected slots
 
@@ -100,39 +106,6 @@ function SelectTimeSlot({ onConfirm, day, value }: MyComponentProps) {
         >
           <Flex direction="column" bg="white" borderRadius="6px" p={4} mb={4}>
             <VStack spacing={4} alignItems="center">
-              <FormControl>
-                <FormLabel
-                  fontStyle="normal"
-                  fontWeight={500}
-                  fontSize={14}
-                  lineHeight="20px"
-                  letterSpacing="-0.001em"
-                  color="#5C5F64"
-                >
-                  Time Zone
-                </FormLabel>
-                <Select
-                  bg="#FFFFFF"
-                  border="1px solid #E4E5E7"
-                  boxShadow="0px 2px 6px rgba(136, 139, 143, 0.1)"
-                  borderRadius="6px"
-                  placeholder="Select a time zone"
-                  value={timezone}
-                  onChange={(e) => setTimezone(e.target.value)}
-                  _placeholder={{
-                    fontStyle: 'normal',
-                    fontWeight: 400,
-                    fontSize: 14,
-                    lineHeight: '20px',
-                    letterSpacing: '-0.003em',
-                    color: '#9A9DA2'
-                  }}
-                >
-                  {timezones.map((timezone) => (
-                    <option value={timezone.text}>{timezone.text}</option>
-                  ))}
-                </Select>
-              </FormControl>
               <FormControl>
                 <FormLabel
                   fontStyle="normal"
@@ -263,7 +236,7 @@ function SelectTimeSlot({ onConfirm, day, value }: MyComponentProps) {
           justifyContent="flex-end"
         >
           <Button
-            isDisabled={[selectedSlot.length, timezone].some((v) => !v)}
+            isDisabled={[selectedSlot.length].some((v) => !v)}
             onClick={handleConfirm}
           >
             Confirm
@@ -275,13 +248,54 @@ function SelectTimeSlot({ onConfirm, day, value }: MyComponentProps) {
 }
 
 const AvailabilityForm = () => {
-  const { schedule } = onboardTutorStore.useStore();
+  const { schedule, tz: timezone } = onboardTutorStore.useStore();
   const [showCheckboxes, setShowCheckboxes] = useState(false);
+  const [shouldFormatAvailability, setShouldFormatAvailability] =
+    useState(true);
   const [availability, setTutorAvailability] = useState<{
     [key: string]: SlotData;
   }>({});
 
   const availabilityDays = Object.keys(availability);
+
+  const dayMap: { [key: string]: number } = useMemo(
+    () => ({
+      sunday: 1,
+      monday: 2,
+      tuesday: 3,
+      wednesday: 4,
+      thursday: 5,
+      friday: 6,
+      saturday: 7
+    }),
+    []
+  );
+
+  const timezoneTextValue = useMemo(() => {
+    const dayMap: { [key: number]: string } = {
+      1: 'Sunday',
+      2: 'Monday',
+      3: 'Tuesday',
+      4: 'Wednesday',
+      5: 'Thursday',
+      6: 'Friday',
+      7: 'Saturday'
+    };
+
+    const scheduleTextArray = Object.keys(schedule).map((dayNumber) => {
+      const dayText = dayMap[parseInt(dayNumber)];
+      const timeSlots = schedule[parseInt(dayNumber)];
+      const timeSlotsText = timeSlots.map(({ begin, end }) =>
+        `${begin} -> ${end}`.replace(' -> undefined', '')
+      );
+      return `${dayText}: ${timeSlotsText.join('; ')}`;
+    });
+
+    const result = scheduleTextArray.join('; ');
+
+    // Truncate and add ellipsis if result has more than 12 characters
+    return result.length > 12 ? result.slice(0, 25) + '...' : result;
+  }, [schedule]);
 
   const [currentDayIndex, setCurrentDayIndex] = useState(0);
   const [previousDayIndex, setPreviousDayIndex] = useState(0);
@@ -290,43 +304,46 @@ const AvailabilityForm = () => {
     () => availabilityDays.length - 1,
     [availabilityDays.length]
   );
-  const isLastDayToFirstDay = useMemo(
-    () => previousDayIndex === totalDayIndex,
-    [previousDayIndex, totalDayIndex]
+
+  const isLastDayToFirstDay = useMemo(() => {
+    if (!totalDayIndex) return false;
+    return previousDayIndex === totalDayIndex;
+  }, [previousDayIndex, totalDayIndex]);
+
+  useEffect(() => {
+    if (isLastDayToFirstDay) {
+      setTimeout(() => {
+        setPreviousDayIndex(0);
+        setCurrentDayIndex(0);
+      }, 300);
+    }
+  }, [isLastDayToFirstDay]);
+
+  const formatAvailabilityData = useCallback(
+    (availability: Availability): Schedule => {
+      const scheduleObj: Schedule = {};
+
+      Object.keys(availability).forEach((day) => {
+        const dayNumber: number = dayMap[day.toLowerCase()];
+
+        if (dayNumber) {
+          const slotData: SlotData = availability[day];
+          const timeSlots: string[] = slotData.slots;
+
+          const formattedSlots: TimeSchedule[] = timeSlots.map((slot) => {
+            const begin: string = slot.split(' - ')[0];
+            const end: string = slot.split(' - ')[1];
+            return { begin, end };
+          });
+
+          scheduleObj[dayNumber] = formattedSlots;
+        }
+      });
+
+      return scheduleObj;
+    },
+    [dayMap]
   );
-
-  function formatAvailabilityData(availability: Availability): Schedule {
-    const scheduleObj: Schedule = {};
-
-    const dayMap: { [key: string]: number } = {
-      sunday: 1,
-      monday: 2,
-      tuesday: 3,
-      wednesday: 4,
-      thursday: 5,
-      friday: 6,
-      saturday: 7
-    };
-
-    Object.keys(availability).forEach((day) => {
-      const dayNumber: number = dayMap[day.toLowerCase()];
-
-      if (dayNumber) {
-        const slotData: SlotData = availability[day];
-        const timeSlots: string[] = slotData.slots;
-
-        const formattedSlots: TimeSchedule[] = timeSlots.map((slot) => {
-          const begin: string = slot.split(' - ')[0];
-          const end: string = slot.split(' - ')[1];
-          return { begin, end };
-        });
-
-        scheduleObj[dayNumber] = formattedSlots;
-      }
-    });
-
-    return scheduleObj;
-  }
 
   function formatScheduleToAvailability(schedule: Schedule): Availability {
     const availability: Availability = {};
@@ -358,16 +375,18 @@ const AvailabilityForm = () => {
   useEffect(() => {
     if (Object.keys(schedule).length) {
       const availability = formatScheduleToAvailability(schedule);
+
       setTutorAvailability(availability);
     }
   }, [schedule]);
 
   useEffect(() => {
-    if (Object.keys(availability).length) {
+    if (Object.keys(availability).length && shouldFormatAvailability) {
       const schedule = formatAvailabilityData(availability);
+      setShouldFormatAvailability(false);
       onboardTutorStore.set?.schedule(schedule);
     }
-  }, [availability]);
+  }, [availability, shouldFormatAvailability, formatAvailabilityData]);
 
   const setAvailability = (
     f: (v: typeof availability) => typeof availability | typeof availability
@@ -377,6 +396,7 @@ const AvailabilityForm = () => {
     } else {
       setTutorAvailability(f);
     }
+    setShouldFormatAvailability(true);
   };
 
   const currentDay = useMemo(() => {
@@ -443,15 +463,38 @@ const AvailabilityForm = () => {
           </CustomDropdown>
         </FormControl>
 
+        <FormControl>
+          <FormLabel
+            fontStyle="normal"
+            fontWeight={500}
+            fontSize={14}
+            lineHeight="20px"
+            letterSpacing="-0.001em"
+            color="#5C5F64"
+          >
+            Time Zone
+          </FormLabel>
+          <CustomSelect
+            placeholder="Select a time zone"
+            value={timezone}
+            onChange={(e) => onboardTutorStore.set.tz(e.target.value)}
+          >
+            {timezones.map((timezone) => (
+              <option value={timezone.text}>{timezone.text}</option>
+            ))}
+          </CustomSelect>
+        </FormControl>
+
         <FormControl marginTop={4}>
           <FormLabel lineHeight="20px" letterSpacing="-0.001em" color="#5C5F64">
             What time of the day will you be available{' '}
           </FormLabel>
           <CustomDropdown
             automaticClose={isLastDayToFirstDay}
+            value={timezoneTextValue}
             disabled={Object.keys(availability).length < 1}
             useDefaultWidth
-            placeholder="Select timezone"
+            placeholder="Select Time Slot"
           >
             <SelectTimeSlot
               day={currentDay}

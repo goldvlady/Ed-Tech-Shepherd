@@ -276,7 +276,7 @@ const StudyBox = () => {
 
   const currentStudy = useMemo(
     () => studies[currentStudyIndex],
-    [currentStudyIndex, studies, studyType]
+    [currentStudyIndex, studies]
   );
 
   useEffect(() => {
@@ -322,7 +322,7 @@ const StudyBox = () => {
     }
 
     return () => clearInterval(countdown);
-  }, [isStarted, timer, studyType]);
+  }, [isStarted, timer, studyType, studyState]);
 
   const acceptAnswer = async () => {
     if (flashcard)

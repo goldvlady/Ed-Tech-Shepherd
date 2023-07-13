@@ -27,10 +27,8 @@ const useHack = true;
 
 export default create<Store>((set) => ({
   user: null,
-  fetchUser: useHack
-    ? async () => set({ user: userPatch })
-    : async () => {
-        const response = await ApiService.getUser();
-        set({ user: await response.json() });
-      }
+  fetchUser: async () => {
+    const response = await ApiService.getUser();
+    set({ user: await response.json() });
+  }
 }));

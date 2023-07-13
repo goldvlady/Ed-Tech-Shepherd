@@ -1,6 +1,7 @@
 import Header from '../../components/Header';
 import onboardTutorStore from '../../state/onboardTutorStore';
 import resourceStore from '../../state/resourceStore';
+import { Schedule } from '../../types';
 import StepsLayout from './components/StepsLayout';
 import SubjectLevelForm from './components/steps/add_subjects';
 import AvailabilityForm from './components/steps/availabilty.steps';
@@ -12,6 +13,7 @@ import ProfilePictureForm from './components/steps/profile_picture.step';
 import QualificationsForm from './components/steps/qualifications.step';
 import PreviewProfile from './preview_profile';
 import { Box } from '@chakra-ui/react';
+import { isBefore } from 'date-fns';
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
@@ -40,18 +42,20 @@ type Step = {
 };
 
 const CompleteProfile = () => {
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeStep, setActiveStep] = useState(4);
   const [showPreview, setShowPreview] = useState(false);
   const onboardingData = onboardTutorStore.useStore();
 
+  const { schedule, tz: timezone } = onboardingData;
   const isSubjectsValid = useMemo(() => {
     let isValid = false;
 
     if (onboardingData?.coursesAndLevels?.length > 0) {
       isValid = onboardingData?.coursesAndLevels.every(
-        (obj) => obj.course && obj.level
+        (obj) => Object.keys(obj.course).length && Object.keys(obj.level).length
       );
     }
+
     return isValid;
   }, [onboardingData]);
 
@@ -60,17 +64,56 @@ const CompleteProfile = () => {
     if (!qualifications) return false;
     const isValid =
       qualifications.length > 0
-        ? onboardingData?.qualifications?.every((obj) =>
-            Object.values(obj).every((value) => Boolean(value))
-          )
+        ? onboardingData?.qualifications?.every((obj) => {
+            const newData = { ...obj };
+            delete newData.transcript;
+            return (
+              Object.values(newData).every((value) => Boolean(value)) &&
+              isBefore(new Date(newData.startDate), new Date(newData.endDate))
+            );
+          })
         : false;
 
     return isValid;
   }, [onboardingData]);
 
+  const isScheduleValid = useMemo(() => {
+    // Check if the schedule object is defined
+    if (!schedule) {
+      return false;
+    }
+    if (!timezone) {
+      return false;
+    }
+
+    if (!Object.keys(schedule).length) return false;
+    // Iterate over the keys of the schedule
+    for (const key in schedule) {
+      // For each key, check if it is an array
+      if (!Array.isArray(schedule[key])) {
+        return false;
+      }
+
+      if (!schedule[key].length) return false;
+
+      // For each schedule block in the array
+      for (let i = 0; i < schedule[key].length; i++) {
+        // Check if both 'begin' and 'end' exist
+        if (!schedule[key][i].begin) {
+          return false;
+        }
+      }
+    }
+
+    // If all schedule blocks have 'begin' and 'end', return true
+    return true;
+  }, [schedule, timezone]);
+
   const isValidPaymentInformation = useMemo(() => {
     const { bankInfo } = onboardingData;
     if (!bankInfo) return false;
+    const bankInfoClone = { ...bankInfo };
+    delete bankInfoClone.swiftCode;
     const isValid = Object.keys(bankInfo).every((info) => Boolean(info));
     return isValid;
   }, [onboardingData]);
@@ -108,6 +151,7 @@ const CompleteProfile = () => {
       {
         id: 'availability',
         position: 3,
+        isValid: isScheduleValid,
         element: AvailabilityForm,
         title: 'Let’s Know when you’ll be available',
         supportingText:
@@ -155,7 +199,8 @@ const CompleteProfile = () => {
     onboardingData,
     isQualificationsValid,
     isSubjectsValid,
-    isValidPaymentInformation
+    isValidPaymentInformation,
+    isScheduleValid
   ]);
 
   const currentStep = useMemo(
