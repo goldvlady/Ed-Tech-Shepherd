@@ -7,17 +7,25 @@ interface IDropdownProps {
   DropdownMenuIcon: ReactElement;
   children?: React.ReactNode;
   isCreateNew?: boolean;
+  isWidth?: boolean;
+  isCreateNewWidth?: boolean;
 }
 
 const DropdownMenu = ({
   menuTitle,
   DropdownMenuIcon,
   children,
-  isCreateNew
+  isCreateNew,
+  isWidth,
+  isCreateNewWidth
 }: IDropdownProps) => {
   return (
     <Menu>
-      <StyledMenuButton isCreateNew={isCreateNew}>
+      <StyledMenuButton
+        isWidth={isWidth}
+        isCreateNewWidth={isCreateNewWidth}
+        isCreateNew={isCreateNew}
+      >
         {DropdownMenuIcon}
         <span>{menuTitle}</span>
       </StyledMenuButton>

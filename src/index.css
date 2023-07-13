@@ -181,6 +181,17 @@ code {
 canvas {
   width: 100% !important;
 }
+
+.css-mc6viy {
+  padding-bottom: 10px !important;
+  font-size: 0.875rem !important;
+}
+
+.css-1xtvrz2 {
+  padding-bottom: 10px !important;
+  font-size: 0.875rem !important;
+}
+
 .feedslist div:last-child ::before {
   width: 0px;
   background-color: red;

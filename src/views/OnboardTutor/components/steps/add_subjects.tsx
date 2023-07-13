@@ -105,7 +105,6 @@ const SubjectLevelForm: React.FC = () => {
                   value={subjectLevel.course.label}
                   onChange={(e) => handleSubjectChange(index, e.target.value)}
                   placeholder="Select subject "
-                 
                 >
                   {' '}
                   {courseList.map((course) => (

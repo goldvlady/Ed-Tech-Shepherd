@@ -69,8 +69,8 @@ export const StyledHeader = styled.h4`
     display: inline-block;
     font-size: 0.875rem;
     background-color: #e5e7eb;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
+    padding: 0 10px;
+    border-radius: 6px;
     color: #6b7280;
   }
 `;
@@ -135,5 +135,5 @@ export const FlexContainer = styled.div`
 export const NotesWrapper = styled.div`
   padding: 20px 10px;
   overflow-x: hidden;
-  height: 100vh;
+  height: calc(100vh - 80px);
 `;
