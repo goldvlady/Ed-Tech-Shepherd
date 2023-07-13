@@ -43,6 +43,7 @@ import 'bootstrap/dist/css/bootstrap-utilities.min.css';
 import { User, getAuth, onAuthStateChanged } from 'firebase/auth';
 import mixpanel from 'mixpanel-browser';
 import React, { useCallback, useEffect, useState } from 'react';
+import 'react-datepicker/dist/react-datepicker.css';
 import { Navigate, Route, Routes } from 'react-router';
 import {
   BrowserRouter,
@@ -78,16 +79,13 @@ const RequireAuth = ({
 
   useEffect(() => {
     onAuthStateChanged(getAuth(), async (user) => {
-      console.log(user);
       setObtainedUserAuthState(true);
       setFirebaseUser(user);
       if (user) {
         await fetchUser().catch((e) => navigate('/login'));
       }
-      console.log('Login no user');
       setLoadingUser(false);
     });
-    console.log('Login =====>');
     /* eslint-disable */
   }, []);
 

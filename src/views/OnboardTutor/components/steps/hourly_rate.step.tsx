@@ -1,4 +1,5 @@
 import onboardTutorStore from '../../../../state/onboardTutorStore';
+import resourceStore from '../../../../state/resourceStore';
 import {
   Box,
   FormControl,
@@ -15,16 +16,21 @@ import React, { useState, useMemo } from 'react';
 
 const HourlyRateForm: React.FC = () => {
   const { rate: hourlyRate } = onboardTutorStore.useStore();
+  const { rate } = resourceStore();
 
   const tutorEarnings = useMemo(() => {
     const baseEarning = 0;
     if (!hourlyRate) return baseEarning.toFixed(2);
     const rateNumber = hourlyRate;
-    const feePercentage = 0.05;
-    const earnings = rateNumber * (1 - feePercentage);
+    const earnings = rateNumber * (1 - rate);
 
     return earnings.toFixed(2);
-  }, [hourlyRate]);
+  }, [hourlyRate, rate]);
+
+  const cost = useMemo(
+    () => parseInt(tutorEarnings) * rate,
+    [tutorEarnings, rate]
+  );
 
   const handleHourlyRateChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -113,7 +119,9 @@ const HourlyRateForm: React.FC = () => {
           fontWeight="500"
         >
           <Text color={'#6E7682'}>Shepherd charges a</Text>
-          <Text color="#207DF7">5% service fee (-$3.00/hr)</Text>
+          <Text color="#207DF7">
+            {rate}% service fee (-${cost.toFixed(2)}/hr)
+          </Text>
         </HStack>
         <FormControl>
           <FormLabel
