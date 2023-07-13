@@ -5,6 +5,7 @@ import { create } from 'zustand';
 type Store = {
   courses: Array<Course>;
   countries: Array<Country>;
+  rate: number;
   resourcesLoaded: boolean;
   levels: Array<LevelType>;
   fetchResources: () => Promise<void>;
@@ -14,6 +15,7 @@ export default create<Store>((set) => ({
   courses: [],
   countries: [],
   levels: [],
+  rate: 0,
   resourcesLoaded: false,
   fetchResources: async () => {
     const response = await ApiService.getResources();
@@ -25,6 +27,7 @@ export default create<Store>((set) => ({
       .sort((a: any, b: any) => a.name.localeCompare(b.name));
 
     set({
+      rate: data.rate,
       courses: data.courses,
       levels: data.levels,
       countries,
