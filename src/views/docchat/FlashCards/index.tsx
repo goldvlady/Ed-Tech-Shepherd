@@ -15,8 +15,7 @@ import {
   PopoverBody,
   PopoverArrow
 } from '@chakra-ui/react';
-import React, { useEffect, useMemo } from 'react';
-import { useState } from 'react';
+import { useEffect, useMemo, useState, useCallback, ChangeEvent } from 'react';
 
 const FlashcardFirstPart = ({ isAutomated }: { isAutomated?: boolean }) => {
   const { flashcardData, setFlashcardData, goToNextStep } = useFlashCardState();
@@ -38,11 +37,9 @@ const FlashcardFirstPart = ({ isAutomated }: { isAutomated?: boolean }) => {
     }
   }, [flashcardData]);
 
-  const handleChange = React.useCallback(
+  const handleChange = useCallback(
     (
-      e: React.ChangeEvent<
-        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-      >
+      e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
     ) => {
       const { name, value, type } = e.target;
 

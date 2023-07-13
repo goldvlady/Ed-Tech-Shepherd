@@ -1,6 +1,6 @@
 import { ReactComponent as DocIcon } from '../../../assets/doc.svg';
 import { ReactComponent as NewNoteIcon } from '../../../assets/newnote.svg';
-import { AllNotesTab, HelpModal } from '../../../components';
+import { AllNotesTab, SelectedNoteModal } from '../../../components';
 import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMenu';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { SortIcon, FilterByTagsIcon } from '../../../components/icons';
@@ -235,9 +235,10 @@ const Notes = () => {
           </Section>
         </NotesWrapper>
       )}
-      <HelpModal
-        toggleHelpModal={toggleHelpModal}
-        setToggleHelpModal={setToggleHelpModal}
+      <SelectedNoteModal
+        show={toggleHelpModal}
+        setShow={setToggleHelpModal}
+        setShowHelp={setToggleHelpModal}
       />
     </>
   );
