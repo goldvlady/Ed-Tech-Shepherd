@@ -52,6 +52,10 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/getStudentFlashcards`);
   };
 
+  static getCompanyRate = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getCompanyRate`);
+  };
+
   static deleteFlashcard = async (id: string | number) => {
     return doFetch(`${ApiService.baseEndpoint}/deleteFlashcard?id=${id}`, {
       method: 'POST'
@@ -85,6 +89,10 @@ class ApiService {
 
   static getBooking = async (id: string) => {
     return doFetch(`${ApiService.baseEndpoint}/getBooking?id=${id}`);
+  };
+
+  static getUpcomingBooking = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/upcomingBooking`);
   };
 
   // Payments
@@ -162,45 +170,30 @@ class ApiService {
 
   static getAllTutors = async (formData: any) => {
     let filterParams = '';
-    let minRate = '';
-    let maxRate = '';
 
-    if (
-      !formData['courses'] &&
-      !formData['levels'] &&
-      !formData['days'] &&
-      !formData['price'] &&
-      !formData['floorRating'] &&
-      !formData['startTime'] &&
-      !formData['endTime']
-    ) {
-      return doFetch(`${ApiService.baseEndpoint}/tutors`);
-    } else {
-      for (const key in formData) {
+    for (const key in formData) {
+      if (key === 'price' && !!formData['price']) {
         const rateArray = formData['price'].split('-');
-        minRate = rateArray[0];
-        maxRate = rateArray[1];
-
+        const minRate = rateArray[0];
+        const maxRate = rateArray[1];
+        filterParams += `&rate>=${minRate}&rate<=${maxRate}`;
+      } else if (key === 'days' && !!formData['days']) {
         const daysArray = formData['days'];
-
-        if (key !== 'tz' && key !== 'price' && key !== 'days') {
-          filterParams += formData[key] ? `&${key}=${formData[key]}` : '';
-        }
-        if (key === 'price' && !!formData['price']) {
-          filterParams += `&rate>=${minRate}&rate<=${maxRate}`;
-        }
-        if (key === 'days' && !!formData['days']) {
-          /* eslint-disable */
-          daysArray.forEach((element: any) => {
-            filterParams += `&schedule.${element.value}`;
-          });
-        }
+        daysArray.forEach((element: any) => {
+          filterParams += `&schedule.${element.value}`;
+        });
+      } else if (
+        key !== 'tz' &&
+        key !== 'price' &&
+        key !== 'days' &&
+        !!formData[key]
+      ) {
+        filterParams += `&${key}=${formData[key]}`;
       }
-      return doFetch(
-        `${ApiService.baseEndpoint}/tutors?tz=${formData.tz + filterParams}`
-        // `${ApiService.baseEndpoint}/tutors?tz=Africa/Lagos${filterParams}`
-      );
     }
+
+    const url = `${ApiService.baseEndpoint}/tutors?tz=${formData.tz}${filterParams}`;
+    return doFetch(url);
   };
 
   static toggleBookmarkedTutor = async (id: string) => {
@@ -216,6 +209,10 @@ class ApiService {
 
   static getActivityFeeds = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getActivityFeed`);
+  };
+
+  static getStudentReport = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getStudentReport`);
   };
 }
 

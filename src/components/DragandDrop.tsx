@@ -1,12 +1,14 @@
 import { Box, Text, Icon, BoxProps, Spinner } from '@chakra-ui/react';
-import React, { useState } from 'react';
-import { FiUpload } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import { FiUpload, FiTrash2 } from 'react-icons/fi';
 
 interface DragAndDropProps extends BoxProps {
   accept?: string; // Specify the file types to allow
   boxStyles?: BoxProps;
   supportingText?: string;
   isLoading?: boolean;
+  file?: File | string | undefined;
+  onDelete?: () => void; // Callback function when file is deleted
   onFileUpload: (file: File) => void; // Callback function when a file is uploaded
 }
 
@@ -14,12 +16,36 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
   accept,
   supportingText,
   onFileUpload,
+  file,
+  onDelete,
   isLoading = false,
   ...rest
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [fileName, setFileName] = useState('');
   const [fileSelected, setFileSelected] = useState(false); // Added state for file selection
+
+  const handleDelete = () => {
+    setFileSelected(false);
+    setFileName(''); // Clear the selected file name
+    if (onDelete) onDelete();
+  };
+
+  useEffect(() => {
+    if (file) {
+      const fileName =
+        typeof file === 'object'
+          ? file.name
+          : decodeURIComponent(new URL(file).pathname).split('/').pop();
+      setFileSelected(true);
+      setFileName(fileName as string); // Set the selected file name
+    }
+
+    if (!file && (fileSelected || fileName)) {
+      setFileSelected(false);
+      setFileName(''); // Set the selected file name
+    }
+  }, [file]);
 
   const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -69,7 +95,7 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
       border="2px dashed #E4E5E7"
       borderRadius={5}
       minHeight={'100px'}
-      padding="20px 30px"
+      padding="30px"
       textAlign="center"
       onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
@@ -84,15 +110,27 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
         {isLoading ? (
           <Spinner size="lg" color="blue.500" />
         ) : (
-          <Icon as={FiUpload} boxSize={8} color="gray.500" />
+          <>
+            {!fileSelected && (
+              <Icon as={FiUpload} boxSize={8} color="gray.500" />
+            )}
+            {fileSelected && (
+              <Icon
+                as={FiTrash2}
+                boxSize={8}
+                color="red.500"
+                onClick={handleDelete}
+              />
+            )}
+          </>
         )}
         <Text fontSize="base" mt={3} fontWeight="500">
-          Drag file here to upload or{' '}
-          <Box color="blue.300">{fileName ? fileName : 'choose file'}</Box>
+          Drag file here to upload or choose file
         </Text>
         <Text fontSize="sm" color="gray.500" mt={2}>
           {supportingText ? supportingText : 'Supports PNG, JPG & JPEG formats'}
         </Text>
+        <Box color="blue.500">{fileName ? fileName : ''}</Box>
       </>
     </Box>
   );

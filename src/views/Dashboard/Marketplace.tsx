@@ -7,6 +7,7 @@ import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
 import resourceStore from '../../state/resourceStore';
 import { educationLevelOptions, numberToDayOfWeekName } from '../../util';
 import Banner from './components/Banner';
+import Pagination from './components/Pagination';
 import TutorCard from './components/TutorCard';
 import { CustomButton } from './layout';
 import {
@@ -39,6 +40,12 @@ import { FiChevronDown } from 'react-icons/fi';
 import { MdTune } from 'react-icons/md';
 import { useSearchParams } from 'react-router-dom';
 
+type PaginationType = {
+  page: number;
+  limit: number;
+  count: number;
+};
+
 const priceOptions = [
   { value: '10-12', label: '$10.00 - $12.00', id: 1 },
   { value: '12-15', label: '$12.00 - $15.00', id: 2 },
@@ -63,6 +70,8 @@ const defaultTime = '';
 export default function Marketplace() {
   const { courses: courseList, levels: levelOptions } = resourceStore();
   const [allTutors, setAllTutors] = useState<any>([]);
+  const [pagination, setPagination] = useState<PaginationType>();
+
   const [loadingData, setLoadingData] = useState(false);
   //   const [tz, setTz] = useState<any>(() => moment.tz.guess());
   const [subject, setSubject] = useState<string>('Subject');
@@ -74,18 +83,17 @@ export default function Marketplace() {
   const [toTime, setToTime] = useState('');
   const [days, setDays] = useState<Array<any>>([]);
 
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+  console.log(currentPage);
+  console.log(allTutors);
+
   const [tutorGrid] = useAutoAnimate();
   const toast = useToast();
 
-  //   const getData = async () => {
-  //     setLoadingData(true);
-  //     try {
-  //       const resp = await ApiService.getAllTutors();
-  //       const data = await resp.json();
-  //       setAllTutors(data);
-  //     } catch (e) {}
-  //     setLoadingData(false);
-  //   };
   const getData = async () => {
     const formData = {
       courses: subject === 'Subject' ? '' : subject.toLowerCase(),
@@ -101,14 +109,22 @@ export default function Marketplace() {
     setLoadingData(true);
     const resp = await ApiService.getAllTutors(formData);
     const data = await resp.json();
-    setAllTutors(data);
+
+    setPagination(data.meta.pagination);
+    const startIndex = (currentPage - 1) * data.meta.pagination.limit;
+    const endIndex = Math.min(
+      startIndex + data.meta.pagination.limit,
+      data.meta.pagination.count
+    );
+    const visibleTutors = data.tutors.slice(startIndex, endIndex);
+    setAllTutors(visibleTutors);
     setLoadingData(false);
   };
 
   useEffect(() => {
     getData();
     /* eslint-disable */
-  }, [subject, level, price, rating, days]);
+  }, [subject, level, price, rating, days, currentPage]);
 
   const handleSelectedCourse = (selectedcourse) => {
     let selectedID = '';
@@ -402,6 +418,16 @@ export default function Marketplace() {
               />
             ))}
           </SimpleGrid>
+          <Pagination
+            page={pagination ? pagination.page : 0}
+            count={pagination ? pagination.count : 0}
+            limit={pagination ? pagination.limit : 0}
+            currentPage={currentPage}
+            totalPages={
+              pagination ? Math.ceil(pagination.count / pagination.limit) : 0
+            }
+            handlePageChange={handlePageChange}
+          />
         </Box>
       </Box>
     </>

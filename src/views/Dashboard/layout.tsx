@@ -370,15 +370,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     color="text.200"
                     display={{ base: 'block', sm: 'none', md: 'block' }}
                   >
-                    {`${user?.name?.first ?? ''} ${user?.name?.last ?? ''}`}
-                  </Text>
-
-                  <Text
-                    fontSize="14px"
-                    fontWeight={500}
-                    color="text.200"
-                    display={{ base: 'block', sm: 'none', md: 'block' }}
-                  >
                     {`${user?.name?.first} ${user?.name?.last}`}
                   </Text>
 

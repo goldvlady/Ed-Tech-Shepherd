@@ -36,6 +36,7 @@ export interface TutorBankInfo {
   accountName: string;
   accountNumber: string;
   bankName: string;
+  swiftCode?: string;
 }
 
 export interface TutorQualification {
@@ -43,6 +44,7 @@ export interface TutorQualification {
   degree: string;
   startDate: Date;
   endDate: Date;
+  transcript?: string;
 }
 
 export interface Country {
@@ -224,11 +226,11 @@ export interface FlashcardData {
   _id: string;
   student: Student;
   deckname: string;
-  studyType: "longTermRetention" | "quickPractice";
+  studyType: 'longTermRetention' | 'quickPractice';
   subject?: string;
   topic?: string;
   scores: Score[];
-  studyPeriod: "daily" | "weekly" | "biweekly" | "spacedRepetition";
+  studyPeriod: 'daily' | 'weekly' | 'biweekly' | 'spacedRepetition';
   questions: FlashcardQuestion[];
   createdAt: string;
   updatedAt: string;
