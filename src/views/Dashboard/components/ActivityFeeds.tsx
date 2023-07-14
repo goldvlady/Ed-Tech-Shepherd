@@ -8,6 +8,7 @@ import NoEvent from '../../../assets/no-event.svg';
 import NoteIcon from '../../../assets/notes.svg';
 import ReceiptSmIcon from '../../../assets/receipt-sm.svg';
 import FlashcardIcon from '../../../assets/receiptIcon.svg';
+import { TimeAgo } from './TimeAgo';
 import {
   Box,
   Button,
@@ -30,10 +31,6 @@ import { BsChevronDown, BsFiletypeDoc } from 'react-icons/bs';
 import { RiCalendar2Fill } from 'react-icons/ri';
 import { SlEnergy } from 'react-icons/sl';
 import styled from 'styled-components';
-
-interface TimeAgoProps {
-  timestamp: string;
-}
 
 const Item = styled(Box)``;
 
@@ -94,24 +91,6 @@ const getFileIconByActivityType = (activityType) => {
 
 function ActivityFeeds(feeds: any) {
   const [feedPeriod, setFeedPeriod] = useState<any>('Today');
-  console.log(feeds);
-  const TimeAgo: React.FC<TimeAgoProps> = ({ timestamp }) => {
-    const [hoursAgo, setHoursAgo] = useState<number | null>(null);
-
-    useEffect(() => {
-      const calculateHoursAgo = () => {
-        const currentTime = new Date();
-        const pastTime = new Date(timestamp);
-        const timeDifference = currentTime.getTime() - pastTime.getTime();
-        const hoursDifference = Math.floor(timeDifference / (1000 * 60 * 60));
-        setHoursAgo(hoursDifference);
-      };
-
-      calculateHoursAgo();
-    }, [timestamp]);
-
-    return <div>{hoursAgo !== null && `${hoursAgo} hours ago`}</div>;
-  };
 
   const getFileName = (url: string) => {
     const lastSlashIndex = url.lastIndexOf('/');

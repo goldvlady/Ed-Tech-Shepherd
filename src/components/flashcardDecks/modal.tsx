@@ -1,7 +1,9 @@
+import FlashcardEmpty from '../../assets/flashcard_empty_state.png';
 import flashcardStore from '../../state/flashcardStore';
-import { FlashcardData } from '../../types';
+import { FlashcardData, Score } from '../../types';
 import FlashCard from './deck_two';
 import DeckOverLap from './overlap';
+import ResultDisplay from './resultDisplay';
 import {
   Box,
   Flex,
@@ -15,15 +17,23 @@ import {
   MenuItem,
   MenuList,
   MenuButton,
+  ModalFooter,
   Menu,
   Spinner,
   MenuGroup
 } from '@chakra-ui/react';
 import _ from 'lodash';
-import React, { useMemo, useState, useEffect, useCallback } from 'react';
+import React, {
+  useMemo,
+  useState,
+  useEffect,
+  useCallback,
+  useRef
+} from 'react';
 import { AiFillThunderbolt } from 'react-icons/ai';
 import { BsThreeDots } from 'react-icons/bs';
 import { FiCheck, FiHelpCircle, FiXCircle } from 'react-icons/fi';
+import { RiLineFill, RiCloseLine } from 'react-icons/ri';
 import styled from 'styled-components';
 
 const MenuListWrapper = styled(MenuList)`
@@ -74,7 +84,86 @@ export interface Study {
   options?: Options;
 }
 
-const EmptyState = ({ onStart }: { onStart: () => void }) => {
+const StudyFooter = ({ showMinimize = false }: { showMinimize?: boolean }) => {
+  const { loadFlashcard } = flashcardStore();
+  return (
+    <Box
+      display="flex"
+      alignItems="center"
+      background="transparent"
+      width={'100%'}
+      borderTop="1px solid #eee"
+      p={4}
+      justifyContent={'flex-end'}
+    >
+      {showMinimize && (
+        <Button
+          variant="ghost"
+          rounded="100%"
+          padding="5px"
+          bg="#207DF7"
+          mr="10px"
+          _hover={{ bg: '#207DF7', transform: 'scale(1.05)' }}
+          color="black"
+          onClick={() => {
+            return;
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            width={'15px'}
+            height={'15px'}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M19.5 12h-15"
+            />
+          </svg>
+        </Button>
+      )}
+      <Button
+        variant="ghost"
+        rounded="100%"
+        padding="10px"
+        bg="#F53535"
+        onClick={() => loadFlashcard(null)}
+        _hover={{ bg: '#F53535', transform: 'scale(1.05)' }}
+        color="black"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={2}
+          stroke="currentColor"
+          width={'15px'}
+          height={'15px'}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </Button>
+    </Box>
+  );
+};
+
+const EmptyState = ({
+  onStart,
+  flashcard,
+  onClose
+}: {
+  onStart: () => void;
+  flashcard: FlashcardData;
+  onClose: () => void;
+}) => {
   return (
     <Box
       borderRadius="12px"
@@ -82,45 +171,53 @@ const EmptyState = ({ onStart }: { onStart: () => void }) => {
       display={'flex'}
       height="500px"
       flexDirection={'column'}
-      width="auto"
+      width="100%"
       justifyContent={'center'}
       alignItems={'center'}
-      boxShadow="0px 4px 8px rgba(0, 0, 0, 0.1)"
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        stroke-width="1"
-        fill="#D4AF37" // Set stroke to gold
-        style={{ width: '150px', height: '150px' }} // Increase size to 6em (96px) or 150px based on your requirement
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"
-        />
-      </svg>
+      <img
+        style={{ width: '100px', height: '100px' }}
+        src={FlashcardEmpty}
+        alt="flash_card_emtpy"
+      />
 
       <Text
-        marginBottom={'40px'}
-        marginTop="10px"
-        fontSize="18px"
-        width="70%"
-        color="#6E7682"
-        lineHeight="22px"
-        textAlign="center"
+        color="#212224"
+        fontFamily="Inter"
+        fontSize="24px"
+        mt="10px"
+        fontStyle="normal"
+        fontWeight="600"
+        lineHeight="30px"
+        letterSpacing="-0.48px"
       >
-        Click the "Study" button to start. Set study settings before you start
+        {flashcard?.deckname} Flashcards
+      </Text>
+      <Text
+        color="#6E7682"
+        fontFamily="Inter"
+        width="60%"
+        fontSize="16px"
+        mt="10px"
+        fontStyle="normal"
+        fontWeight="400"
+        lineHeight="21px"
+        textAlign={'center'}
+        letterSpacing="-0.048px"
+      >
+        You have {flashcard?.questions?.length} questions, test your knowledge
+        on your meddeck flashcards
       </Text>
 
       <Button
         bg="#207DF7"
         width={'80%'}
         color="white"
+        mt="50px"
         borderRadius="8px"
         onClick={() => onStart()}
         border="1px solid #207DF7"
-        height="48px"
+        padding="25px"
         display="flex"
         flexDirection="column"
         justifyContent="center"
@@ -135,17 +232,47 @@ const EmptyState = ({ onStart }: { onStart: () => void }) => {
           Study
         </Text>
       </Button>
+      {/* <Box
+        display={'flex'}
+        flexDirection={'column'}
+        width="100%"
+        height={'100%'}
+        justifyContent={'center'}
+        alignItems={'center'}
+      >
+       
+      </Box>
+      <StudyFooter /> */}
     </Box>
   );
 };
 
 const CompletedState = ({
   onDone,
-  score
+  score,
+  onRefresh
 }: {
   onDone: () => void;
-  score: number;
+  score: Score;
+  onRefresh: () => void;
 }) => {
+  const calculatePercentages = (score: Score) => {
+    const { passed, failed, notRemembered } = score;
+    const total = passed + failed + notRemembered;
+
+    const passPercentage = (passed / total) * 100;
+    const failPercentage = (failed / total) * 100;
+    const notRememberedPercentage = (notRemembered / total) * 100;
+
+    return {
+      passPercentage,
+      failPercentage,
+      notRememberedPercentage
+    };
+  };
+  const { passPercentage, failPercentage, notRememberedPercentage } =
+    calculatePercentages(score);
+
   return (
     <Box
       borderRadius="12px"
@@ -153,57 +280,93 @@ const CompletedState = ({
       display={'flex'}
       height="500px"
       flexDirection={'column'}
-      width="auto"
-      justifyContent={'center'}
+      width="100%"
+      background={'#F6F6F9'}
+      justifyContent={'start'}
       alignItems={'center'}
-      boxShadow="0px 4px 8px rgba(0, 0, 0, 0.1)"
     >
-      <Text
-        marginBottom={'20px'}
-        fontSize="36px"
-        fontWeight={'500'}
-        width="70%"
-        color="#000"
-        lineHeight="22px"
-        textAlign="center"
-      >
-        {score}
-      </Text>
-
-      <Text
-        marginBottom={'40px'}
-        marginTop="10px"
-        fontSize="18px"
-        width="70%"
-        color="#6E7682"
-        lineHeight="22px"
-        textAlign="center"
-      >
-        Your Study for Today is Done, Here is your Score
-      </Text>
-
-      <Button
-        bg="#207DF7"
-        width={'80%'}
-        color="white"
-        borderRadius="8px"
-        onClick={() => onDone()}
-        border="1px solid #207DF7"
-        height="48px"
-        display="flex"
-        flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
+      <Box width="100%" background="#E1EEFE" height="50%"></Box>
+      <Box
+        display={'flex'}
+        flexDirection={'column'}
+        justifyContent={'center'}
+        alignItems={'center'}
+        width="100%"
       >
         <Text
-          fontSize="14px"
-          fontWeight="500"
-          lineHeight="22px"
-          textAlign="center"
+          color="#212224"
+          fontFamily="Inter"
+          fontSize="16px"
+          mt="15px"
+          fontStyle="normal"
+          fontWeight="600"
+          lineHeight="30px"
+          letterSpacing="-0.48px"
         >
-          Done
+          Congratulations
         </Text>
-      </Button>
+        <Text
+          color="#6E7682"
+          fontFamily="Inter"
+          width="60%"
+          fontSize="16px"
+          mt="15px"
+          fontStyle="normal"
+          fontWeight="400"
+          lineHeight="21px"
+          textAlign={'center'}
+          letterSpacing="-0.048px"
+        >
+          You reviewed all cards, what will you like to do next?
+        </Text>
+        <Box
+          mt="15px"
+          display={'flex'}
+          justifyContent={'space-between'}
+          width={'70%'}
+        >
+          <ResultDisplay
+            score={passPercentage}
+            badgeText={'Got it right'}
+            badgeColor="#4CAF50"
+          />
+          <ResultDisplay
+            score={failPercentage}
+            badgeText={'Didn’t remember'}
+            badgeColor="#FB8441"
+          />
+          <ResultDisplay
+            score={notRememberedPercentage}
+            badgeText={'Got it wrong'}
+            badgeColor="#F53535"
+          />
+        </Box>
+        <Button
+          bg="#fff"
+          width={'80%'}
+          color="#000"
+          mt="50px"
+          onClick={() => onRefresh()}
+          borderRadius="8px"
+          _hover={{ background: 'none' }}
+          border="1px solid #E7E8E9"
+          padding="25px"
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <Text
+            fontSize="14px"
+            color="#000"
+            fontWeight="500"
+            lineHeight="22px"
+            textAlign="center"
+          >
+            Restart Flashcard
+          </Text>
+        </Button>
+      </Box>
     </Box>
   );
 };
@@ -231,7 +394,31 @@ const StudyBox = () => {
     'default'
   );
   const [timer, setTimer] = useState(0);
+  const [savedScore, setSavedScore] = useState<Score>({
+    score: 0,
+    failed: 0,
+    passed: 0,
+    notRemembered: 0
+  } as Score);
   const [correctAnswerCount, setCorrectAnswerCount] = useState(0);
+
+  const restartStudy = () => {
+    setSavedScore({
+      score: 0,
+      failed: 0,
+      passed: 0,
+      notRemembered: 0
+    } as Score);
+    setCardStyle('default');
+    setActivityState({ isStarted: false, isFinished: false });
+    setProgressWidth('100%');
+    setCurrentStudyIndex(0);
+    setStudyType('manual');
+    setStudyState('question');
+    if (flashcard) {
+      setStudies(formatFlashcard(flashcard));
+    }
+  };
 
   const formatFlashcard = useCallback(
     (flashcard: FlashcardData) => {
@@ -276,7 +463,7 @@ const StudyBox = () => {
 
   const currentStudy = useMemo(
     () => studies[currentStudyIndex],
-    [currentStudyIndex, studies, studyType]
+    [currentStudyIndex, studies]
   );
 
   useEffect(() => {
@@ -284,13 +471,23 @@ const StudyBox = () => {
     setProgressWidth('100%');
   }, [currentStudyIndex]);
 
+  const saveScore = useCallback(async () => {
+    if (flashcard) await storeScore(flashcard?._id, savedScore);
+  }, [flashcard, storeScore, savedScore]);
+
+  useEffect(() => {
+    if (isFinished) {
+      saveScore();
+    }
+  }, [isFinished, saveScore]);
+
   const lazyTriggerNextStep = async () => {
     if (currentStudyIndex === studies.length - 1) {
-      if (flashcard) await storeScore(flashcard?._id, correctAnswerCount);
       setTimeout(
         () => setActivityState({ isFinished: true, isStarted: false }),
         2000
       );
+      // if (flashcard) await storeScore(flashcard?._id, correctAnswerCount);
     } else {
       setTimeout(() => setCurrentStudyIndex((prev) => prev + 1), 2000);
     }
@@ -319,10 +516,13 @@ const StudyBox = () => {
       INITIAL_TIMER = 0;
       clearInterval(countdown);
       setStudyState('answer');
+    } else if (studyState === 'answer') {
+      setTimer(INITIAL_TIMER);
+      INITIAL_TIMER = 0;
+      clearInterval(countdown);
     }
-
     return () => clearInterval(countdown);
-  }, [isStarted, timer, studyType]);
+  }, [isStarted, timer, studyType, studyState]);
 
   const acceptAnswer = async () => {
     if (flashcard)
@@ -331,19 +531,31 @@ const StudyBox = () => {
       const curr = prev[currentStudyIndex];
       curr.currentStep = curr.currentStep + 1;
       prev[currentStudyIndex] = curr;
+      setSavedScore((prev) => ({
+        ...prev,
+        score: (prev.score || 0) + 1,
+        passed: (prev.passed || 0) + 1
+      }));
       setCorrectAnswerCount((prev) => prev + 1);
       return [...prev];
     });
     lazyTriggerNextStep();
   };
 
-  const rejectAnswer = async () => {
+  const rejectAnswer = async (notRemembered?: boolean) => {
+    const scoreKey = notRemembered ? 'failed' : 'notRemembered';
     if (flashcard)
       await updateQuestionAttempt(flashcard._id, currentStudy.questions, false);
     setStudies((prev) => {
       const curr = prev[currentStudyIndex];
       curr.isFirstAttempt = false;
       prev[currentStudyIndex] = curr;
+
+      setSavedScore((prev) => ({
+        ...prev,
+        [scoreKey]: (prev[scoreKey] || 0) + 1
+      }));
+
       return [...prev];
     });
     lazyTriggerNextStep();
@@ -351,6 +563,7 @@ const StudyBox = () => {
 
   const questionsLeft = (
     <Box
+      position="relative"
       width="22px"
       height="22px"
       borderRadius="22px"
@@ -365,15 +578,25 @@ const StudyBox = () => {
       alignItems="center"
       justifyContent="center"
     >
+      <Box
+        position="absolute"
+        top="-1px"
+        left="-1px"
+        width={`${progressWidth}%`}
+        height="100%"
+        border="1px solid rgba(255, 255, 255, 0.5)"
+        borderRadius="22px"
+        zIndex="-1"
+      />
       {studies.length - currentStudyIndex - 1}
     </Box>
   );
-
   const renderMainBox = () => {
     return isFinished ? (
       <CompletedState
+        onRefresh={() => restartStudy()}
         onDone={() => loadFlashcard(null)}
-        score={correctAnswerCount}
+        score={savedScore}
       />
     ) : (
       <Box width="100%" flexDirection={'column'} display={'flex'}>
@@ -447,52 +670,41 @@ const StudyBox = () => {
           </Box>
         </Box>
         {studyState === 'question' ? (
-          currentStudy.type !== 'timed' ? (
-            <Box
-              width={'100%'}
-              display="flex"
-              justifyContent={'center'}
-              px="30px"
-              pb="40px"
-            >
-              <Button
-                onClick={() => {
-                  setStudyState('answer');
-                  // if(currentStudy.options){
-                  //     lazyTriggerNextStep()
-                  // }
-                }}
-                bg="#207DF7"
-                width={'80%'}
-                color="white"
-                borderRadius="8px"
-                border="1px solid #207DF7"
-                height="48px"
-                display="flex"
-                flexDirection="column"
-                justifyContent="center"
-                alignItems="center"
-              >
-                <Text
-                  fontSize="14px"
-                  fontWeight="500"
-                  lineHeight="22px"
-                  textAlign="center"
-                >
-                  Show Answer
-                </Text>
-              </Button>
-            </Box>
-          ) : (
-            <Box
-              width={'100%'}
-              display="flex"
-              justifyContent={'center'}
+          <Box
+            width={'100%'}
+            display="flex"
+            justifyContent={'center'}
+            px="30px"
+            pb="40px"
+          >
+            <Button
+              onClick={() => {
+                setStudyState('answer');
+                // if(currentStudy.options){
+                //     lazyTriggerNextStep()
+                // }
+              }}
+              bg="#207DF7"
+              width={'80%'}
+              color="white"
+              borderRadius="8px"
+              border="1px solid #207DF7"
               height="48px"
-              px="30px"
-              pb="40px"
-            ></Box>
-          )
+              display="flex"
+              flexDirection="column"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <Text
+                fontSize="14px"
+                fontWeight="500"
+                lineHeight="22px"
+                textAlign="center"
+              >
+                Show Answer
+              </Text>
+            </Button>
+          </Box>
         ) : (
           !currentStudy?.options && (
             <Box
@@ -543,7 +755,7 @@ const StudyBox = () => {
                 fontSize="16px"
                 marginRight="10px"
                 onClick={() => {
-                  rejectAnswer();
+                  rejectAnswer(true);
                   // setStudies(prev => {
                   //     const curr = prev[currentStudyIndex]
                   //     curr.isFirstAttempt = false
@@ -598,220 +810,254 @@ const StudyBox = () => {
       </Box>
     );
   };
+  // if (!isStarted) {
+  //   return (
+  //     <EmptyState
+  //       onClose={() => loadFlashcard(null)}
+  //       flashcard={flashcard as FlashcardData}
+  //       onStart={() => setActivityState({ isStarted: true, isFinished: false })}
+  //     />
+  //   );
+  // }
   return (
     <Box
       padding={0}
-      borderRadius="12px"
+      display={'flex'}
+      justifyContent={'space-between'}
+      boxShadow="0px 4px 8px rgba(0, 0, 0, 0.1)"
+      flexDirection={'column'}
       minWidth={{ base: '80%', md: '700px' }}
       width="auto"
-      boxShadow="0px 4px 8px rgba(0, 0, 0, 0.1)"
     >
-      <Flex
-        width="full"
-        padding={{ base: '20px 15px', md: '20px' }}
-        justifyContent="space-between"
-        alignItems="center"
-      >
-        <HStack spacing={4} alignItems="center">
-          <Text
-            fontFamily="Inter"
-            fontWeight="500"
-            fontSize="16px"
-            lineHeight="21px"
-            letterSpacing="0.7%"
-            color="#212224"
-          >
-            Study Session
-          </Text>
-          <Text
-            fontFamily="Inter"
-            fontWeight="400"
-            fontSize="12px"
-            lineHeight="17px"
-            color="#585F68"
-            bg="#F4F5F6"
-            borderRadius="4px"
-            padding="8px"
-          >
-            {flashcard?.deckname}
-          </Text>
-        </HStack>
-        <HStack spacing={4} alignItems="center">
-          <Button
-            leftIcon={
-              isStarted ? (
-                questionsLeft
-              ) : (
-                <AiFillThunderbolt
-                  style={{ marginTop: '4px' }}
-                  fontSize={'24px'}
-                  color="white"
-                />
-              )
-            }
-            padding="8px 32px"
-            borderRadius="8px"
-            bg={isStarted ? '#F53535' : '#207DF7'}
-            color="#FFF"
-            fontSize="14px"
-            border="none"
-            fontWeight="500"
-            lineHeight="19px"
-            _hover={{
-              bg: isStarted ? '#F53535' : '#207DF7', // Remove hover color change
-              transform: 'scale(1.05)' // Add hover size increase
-            }}
-            _active={{
-              borderColor: 'none', // Remove active border
-              boxShadow: 'none' // Remove active shadow
-            }}
-            onClick={() =>
-              setActivityState((prev) => ({
-                ...prev,
-                isStarted: !prev.isStarted
-              }))
-            }
-          >
-            {isStarted ? 'Stop' : 'Study'}
-          </Button>
-          <Menu>
-            <MenuButton
-              as={Button}
-              variant="unstyled"
-              borderRadius="full"
-              p={0}
-              minW="auto"
-              height="auto"
+      <Box w="100%">
+        <Flex
+          width="full"
+          padding={{ base: '20px 15px', md: '20px' }}
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <HStack spacing={4} alignItems="center">
+            <Text
+              fontFamily="Inter"
+              fontWeight="500"
+              fontSize="16px"
+              lineHeight="21px"
+              letterSpacing="0.7%"
+              color="#212224"
             >
-              <BsThreeDots size="16px" />
-            </MenuButton>
-            <MenuListWrapper
-              fontSize="14px"
-              minWidth={'185px'}
+              Study Session
+            </Text>
+            <Text
+              fontFamily="Inter"
+              fontWeight="400"
+              fontSize="12px"
+              lineHeight="17px"
+              color="#585F68"
+              bg="#F4F5F6"
+              borderRadius="4px"
+              padding="8px"
+            >
+              {flashcard?.deckname}
+            </Text>
+          </HStack>
+          <HStack spacing={4} alignItems="center">
+            <Button
+              leftIcon={
+                isStarted ? (
+                  questionsLeft
+                ) : (
+                  <AiFillThunderbolt
+                    style={{ marginTop: '4px' }}
+                    fontSize={'24px'}
+                    color="white"
+                  />
+                )
+              }
+              padding="8px 32px"
               borderRadius="8px"
-              backgroundColor="#FFFFFF"
-              boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
+              bg={isStarted ? '#F53535' : '#207DF7'}
+              color="#FFF"
+              fontSize="14px"
+              border="none"
+              fontWeight="500"
+              lineHeight="19px"
+              _hover={{
+                bg: isStarted ? '#F53535' : '#207DF7', // Remove hover color change
+                transform: 'scale(1.05)' // Add hover size increase
+              }}
+              _active={{
+                borderColor: 'none', // Remove active border
+                boxShadow: 'none' // Remove active shadow
+              }}
+              onClick={() =>
+                setActivityState((prev) => ({
+                  ...prev,
+                  isStarted: !prev.isStarted
+                }))
+              }
             >
-              <MenuGroup margin={0} title="Timer">
-                <MenuItem
-                  p="6px 8px 6px 8px"
-                  pl="15px"
-                  background={
-                    INITIAL_TIMER === 30 || timer === 30 ? '#F2F4F7' : '#fff'
-                  }
-                  _hover={{ bgColor: '#F2F4F7' }}
-                  onClick={() => {
-                    setTimer(30);
-                    setStudyType('timed');
-                  }}
-                >
-                  30 secs
-                </MenuItem>
-                <MenuItem
-                  p="6px 8px 6px 8px"
-                  pl="15px"
-                  background={
-                    INITIAL_TIMER === 60 || timer === 60 ? '#F2F4F7' : '#fff'
-                  }
-                  _hover={{ bgColor: '#F2F4F7' }}
-                  onClick={() => {
-                    setTimer(60);
-                    setStudyType('timed');
-                  }}
-                >
-                  1 minute
-                </MenuItem>
-                <MenuItem
-                  p="6px 8px 6px 8px"
-                  pl="15px"
-                  background={studyType === 'manual' ? '#F2F4F7' : '#fff'}
-                  _hover={{ bgColor: '#F2F4F7' }}
-                  onClick={() => {
-                    setTimer(0);
-                    setStudyType('manual');
-                  }}
-                >
-                  None
-                </MenuItem>
-              </MenuGroup>
-              <MenuGroup title="Card Style">
-                <MenuItem
-                  p="6px 8px 6px 8px"
-                  pl="15px"
-                  background={cardStyle === 'default' ? '#F2F4F7' : '#fff'}
-                  _hover={{ bgColor: '#F2F4F7' }}
-                  onClick={() => setCardStyle('default')}
-                >
-                  Default
-                </MenuItem>
-                <MenuItem
-                  p="6px 8px 6px 8px"
-                  pl="15px"
-                  background={cardStyle === 'flippable' ? '#F2F4F7' : '#fff'}
-                  _hover={{ bgColor: '#F2F4F7' }}
-                  onClick={() => setCardStyle('flippable')}
-                >
-                  Flippable
-                </MenuItem>
-              </MenuGroup>
-            </MenuListWrapper>
-          </Menu>
-        </HStack>
-      </Flex>
-      <Box position="relative" width="100%" height="2px">
-        <Box
-          className="progress-bar-base"
-          position="absolute"
-          width="100%"
-          height="2px"
-          bg="#EEEFF2"
-          borderRadius="2px"
-        />
-        <Box
-          className="progress-bar"
-          position="absolute"
-          width={progressWidth}
-          height="2px"
-          bg={
-            timer <= 10 && isStarted && currentStudy.type === 'timed'
-              ? '#F53535'
-              : '#207DF7'
-          }
-          borderRadius="2px"
-          transition="width 0.5s linear" // Add this line
-        />
+              {isStarted ? 'Stop' : 'Study'}
+            </Button>
+            <Menu>
+              <MenuButton
+                as={Button}
+                variant="unstyled"
+                borderRadius="full"
+                p={0}
+                minW="auto"
+                height="auto"
+              >
+                <BsThreeDots size="16px" />
+              </MenuButton>
+              <MenuListWrapper
+                fontSize="14px"
+                minWidth={'185px'}
+                borderRadius="8px"
+                backgroundColor="#FFFFFF"
+                boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
+              >
+                <MenuGroup margin={0} title="Timer">
+                  <MenuItem
+                    p="6px 8px 6px 8px"
+                    pl="15px"
+                    background={
+                      INITIAL_TIMER === 30 || timer === 30 ? '#F2F4F7' : '#fff'
+                    }
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => {
+                      setTimer(30);
+                      setStudyType('timed');
+                    }}
+                  >
+                    30 secs
+                  </MenuItem>
+                  <MenuItem
+                    p="6px 8px 6px 8px"
+                    pl="15px"
+                    background={
+                      INITIAL_TIMER === 60 || timer === 60 ? '#F2F4F7' : '#fff'
+                    }
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => {
+                      setTimer(60);
+                      setStudyType('timed');
+                    }}
+                  >
+                    1 minute
+                  </MenuItem>
+                  <MenuItem
+                    p="6px 8px 6px 8px"
+                    pl="15px"
+                    background={studyType === 'manual' ? '#F2F4F7' : '#fff'}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => {
+                      setTimer(0);
+                      setStudyType('manual');
+                    }}
+                  >
+                    None
+                  </MenuItem>
+                </MenuGroup>
+                <MenuGroup title="Card Style">
+                  <MenuItem
+                    p="6px 8px 6px 8px"
+                    pl="15px"
+                    background={cardStyle === 'default' ? '#F2F4F7' : '#fff'}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => setCardStyle('default')}
+                  >
+                    Default
+                  </MenuItem>
+                  <MenuItem
+                    p="6px 8px 6px 8px"
+                    pl="15px"
+                    background={cardStyle === 'flippable' ? '#F2F4F7' : '#fff'}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => setCardStyle('flippable')}
+                  >
+                    Flippable
+                  </MenuItem>
+                </MenuGroup>
+              </MenuListWrapper>
+            </Menu>
+          </HStack>
+        </Flex>
+        <Box position="relative" width="100%" height="2px">
+          <Box
+            className="progress-bar-base"
+            position="absolute"
+            width="100%"
+            height="2px"
+            bg="#EEEFF2"
+            borderRadius="2px"
+          />
+          <Box
+            className="progress-bar"
+            position="absolute"
+            width={progressWidth}
+            height="2px"
+            bg={
+              timer <= 10 && isStarted && currentStudy.type === 'timed'
+                ? '#F53535'
+                : '#207DF7'
+            }
+            borderRadius="2px"
+            transition="width 0.5s linear" // Add this line
+          />
+        </Box>
+        {isLoading && <LoaderOverlay />}
+        {!isStarted && !isFinished ? (
+          <EmptyState
+            flashcard={flashcard as FlashcardData}
+            onClose={() => loadFlashcard(null)}
+            onStart={() =>
+              setActivityState({ isStarted: true, isFinished: false })
+            }
+          />
+        ) : (
+          renderMainBox()
+        )}
       </Box>
-      {isLoading && <LoaderOverlay />}
-      {!isStarted && !isFinished ? (
-        <EmptyState
-          onStart={() =>
-            setActivityState({ isStarted: true, isFinished: false })
-          }
-        />
-      ) : (
-        renderMainBox()
-      )}
+      <StudyFooter showMinimize />
     </Box>
   );
 };
 
 const FlashCardModal = ({ isOpen }: { isOpen: boolean }) => {
+  const modalRef = useRef<HTMLDivElement | null>(null);
+  const [cancelButtonTop, setCancelButtonTop] = useState(0);
+
+  useEffect(() => {
+    const modalContent = modalRef.current;
+    if (modalContent) {
+      const modalContentPosition = modalContent.getBoundingClientRect();
+      const topOffset =
+        modalContentPosition.top - modalContentPosition.height - 2;
+      setCancelButtonTop(topOffset);
+    }
+  }, []);
+
   return (
     <Modal
-      isOpen={isOpen}
       onClose={() => {
-        // console.log(check)
+        return;
       }}
+      isOpen={isOpen}
       isCentered
     >
-      <ModalOverlay />
-      <ModalContent
-        minWidth={{ base: '80%', md: '700px' }}
-        mx="auto"
-        w="fit-content"
-      >
-        <StudyBox />
-      </ModalContent>
+      <ModalOverlay>
+        <ModalContent
+          borderRadius="12px"
+          minWidth={{ base: '80%', md: '700px' }}
+          mx="auto"
+          w="fit-content"
+          position="relative"
+        >
+          <div ref={modalRef}>
+            <StudyBox />
+          </div>
+        </ModalContent>
+      </ModalOverlay>
     </Modal>
   );
 };

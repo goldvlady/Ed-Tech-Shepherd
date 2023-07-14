@@ -22,9 +22,10 @@ const BioForm = () => {
         onChange={handleChange}
         placeholder="Enter your bio"
         minHeight="250px"
-        fontSize="12px"
+        fontSize="14px"
         lineHeight="22px"
         fontStyle="normal"
+        _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         fontWeight={400}
         color="#212224"
       />

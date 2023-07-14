@@ -1,9 +1,11 @@
 import calendarDrop from '../../../assets/calendar-drop.svg';
 import ScheduleIcon from '../../../assets/timer.svg';
 import Events from '../../../components/Events';
+import './Scheduler/index.css';
 import {
   Box,
   Button,
+  Center,
   Divider,
   Flex,
   HStack,
@@ -13,10 +15,15 @@ import {
   MenuList,
   Select,
   Spacer,
-  Text
+  Text,
+  VStack,
+  Image,
+  ChakraProvider,
+  extendTheme
 } from '@chakra-ui/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Slider from 'react-slick';
 
 const events = [
   {
@@ -71,7 +78,165 @@ const events = [
   }
 ];
 
+type CalendarProps = {
+  year: number;
+  month: number;
+};
+const Calendar: React.FC<CalendarProps> = ({ year, month }) => {
+  const [selectedDay, setSelectedDay] = useState<number | null>(
+    new Date().getDate()
+  );
+  const [initialSlide, setInitialSlide] = useState<number>(0);
+
+  const handleDayClick = (day: number) => {
+    setSelectedDay(day);
+  };
+
+  const getDaysInMonth = (year: number, month: number) => {
+    return new Date(year, month + 1, 0).getDate();
+  };
+
+  const daysInMonth = Array.from(
+    { length: getDaysInMonth(year, month) },
+    (_, index) => index + 1
+  );
+  const getDayOfWeek = (day: number) => {
+    const date = new Date(year, month, day);
+    const dayOfWeek = date.getDay(); // Sunday: 0, Monday: 1, ...
+    const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    return dayNames[dayOfWeek];
+  };
+  const getMonthName = (month: number) => {
+    const monthNames = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
+    ];
+    return monthNames[month];
+  };
+
+  const PrevArrow = (props: any) => {
+    const { className, style, onClick } = props;
+    return (
+      <div
+        className={className}
+        style={{ ...style, color: '#9ca3af' }}
+        onClick={onClick}
+      >
+        <ChevronLeftIcon className="arrow-icon " />
+      </div>
+    );
+  };
+
+  const NextArrow = (props: any) => {
+    const { className, style, onClick } = props;
+    return (
+      <div
+        className={className}
+        style={{ ...style, color: '#9ca3af' }}
+        onClick={onClick}
+      >
+        <ChevronRightIcon className="arrow-icon" />
+      </div>
+    );
+  };
+  // Settings for the slider
+  // const settings = {
+  //   dots: false,
+  //   arrows: true,
+  //   fade: true,
+  //   infinite: true,
+  //   autoplay: true,
+  //   speed: 500,
+  //   autoplaySpeed: 4000,
+  //   slidesToShow: 6,
+  //   slidesToScroll: 3,
+  //   centerMode: true,
+  //   initialSlide: daysInMonth.indexOf(1),
+  //   responsive: [
+  //     {
+  //       breakpoint: 768,
+  //       settings: {
+  //         slidesToShow: 3
+  //       }
+  //     },
+  //     {
+  //       breakpoint: 480,
+  //       settings: {
+  //         slidesToShow: 3
+  //       }
+  //     }
+  //   ]
+  // };
+  const settings = {
+    dots: false,
+    arrows: true,
+    nextArrow: <NextArrow />,
+    prevArrow: <PrevArrow />,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 6,
+    slidesToScroll: 6,
+    initialSlide: selectedDay ? selectedDay - 1 : 0,
+    responsive: [
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 3
+        }
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 3
+        }
+      }
+    ]
+  };
+
+  return (
+    <>
+      <Text fontSize={12} color="#6E7682" ml={4} my={2} fontWeight={400}>
+        {getMonthName(month)}
+      </Text>
+      <Box px={6}>
+        {' '}
+        <Slider {...settings}>
+          {daysInMonth.map((day) => (
+            <div
+              className={`day ${
+                selectedDay === day ? 'selected' : ''
+              } text-gray-400 `}
+              key={day}
+              onClick={() => handleDayClick(day)}
+            >
+              <span className="block text-2xl font-normal ">{day}</span>
+              <span className="date text-uppercase block text-sm font-normal">
+                {getDayOfWeek(day)}
+              </span>
+            </div>
+          ))}
+        </Slider>
+      </Box>
+    </>
+  );
+};
+
 export default function Schedule() {
+  const [selectedDate, setSelectedDate] = useState(null);
+
+  const handleDateClick = (date) => {
+    setSelectedDate(date);
+  };
   return (
     <>
       <Box>
@@ -90,71 +255,7 @@ export default function Schedule() {
         <Divider />{' '}
       </Box>{' '}
       <section className="space-y-3">
-        {/* <h3 className="text-gray-400 text-sm mt-4 ml-8">May</h3> */}
-        <Text fontSize={12} color="#6E7682" ml={4} my={2} fontWeight={400}>
-          May
-        </Text>
-        <div className="mt-2 text-center lg:col-start-8 lg:col-end-13 lg:row-start-1 lg:mt-9 xl:col-start-9">
-          <div className="flex items-center text-gray-900">
-            <button
-              type="button"
-              className="-m-1.5 flex flex-none items-center justify-center p-1.5 text-gray-400 hover:text-gray-500"
-            >
-              <span className="sr-only">Previous month</span>
-              <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
-            </button>
-            <section className="flex-auto text-sm font-semibold">
-              <div className="flex space-x-8 justify-evenly">
-                <div className="text-gray-400">
-                  <span className="block text-2xl font-normal">19</span>
-                  <span className="text-uppercase block text-md font-normal">
-                    SUN
-                  </span>
-                </div>
-                <div className="text-gray-400  bg-blue-100 px-2 rounded">
-                  <span className="block text-blue-500 text-2xl font-normal">
-                    20
-                  </span>
-                  {/* <span className="block text-2xl font-normal">20</span> */}
-                  <span className="text-uppercase block text-md font-normal">
-                    MON
-                  </span>
-                </div>
-                <div className="text-gray-400 ml-4">
-                  <span className="block text-2xl font-normal">21</span>
-                  <span className="text-uppercase block text-md font-normal">
-                    Tue
-                  </span>
-                </div>
-                <div className="text-gray-400">
-                  <span className="block text-2xl font-normal">22</span>
-                  <span className="text-uppercase block text-md font-normal">
-                    Wed
-                  </span>
-                </div>
-                <div className="text-gray-400">
-                  <span className="block text-2xl font-normal">23</span>
-                  <span className="text-uppercase block text-md font-normal">
-                    Thur
-                  </span>
-                </div>
-                <div className="text-gray-400">
-                  <span className="block text-2xl font-normal">24</span>
-                  <span className="text-uppercase block text-md font-normal">
-                    Fri
-                  </span>
-                </div>
-              </div>
-            </section>
-            <button
-              type="button"
-              className="-m-1.5 flex flex-none items-center justify-center p-1.5 text-gray-400 hover:text-gray-500"
-            >
-              <span className="sr-only">Next month</span>
-              <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
-            </button>
-          </div>
-        </div>
+        <Calendar year={2023} month={6} />
         <Box>
           <Text fontSize={12} fontWeight={400} color="text.400" my={5} px={4}>
             Upcoming Events

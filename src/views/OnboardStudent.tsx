@@ -8,6 +8,7 @@ import ScheduleBuilder from '../components/ScheduleBuilder';
 import Select from '../components/Select';
 import StepIndicator from '../components/StepIndicator';
 import TimezoneSelect from '../components/TimezoneSelect';
+import { createUserWithEmailAndPassword, firebaseAuth } from '../firebase';
 import { useTitle } from '../hooks';
 import lottieSuccessAnimationData from '../lottie/73392-success.json';
 import ApiService from '../services/ApiService';
@@ -251,7 +252,7 @@ const OnboardStudent = () => {
         onboardStudentStore.set.courses([...courses, 'something-else']);
       }
     } else {
-      onboardStudentStore.set.courses(without(courses, 'something-else'));
+      // onboardStudentStore.set.courses(without(courses, 'something-else')); --Ask Tobi
     }
   }, [somethingElse, courses]);
 
@@ -337,6 +338,29 @@ const OnboardStudent = () => {
       ]
     }
   ];
+
+  const doSubmit = async () => {
+    mixpanel.track('Completed onboarding');
+
+    const firebaseUser = await createUserWithEmailAndPassword(
+      firebaseAuth,
+      data.email,
+      password
+    );
+
+    await ApiService.createUser({
+      ...data,
+      firebaseId: firebaseUser.user.uid,
+      type: 'tutor'
+    });
+    const response = await ApiService.submitTutor(data);
+    return response;
+  };
+
+  // const openEditModal = (stepId: string) => {
+  //   onEditModalOpen();
+  //   setEditModalStep(stepId);
+  // };
 
   const steps = [
     {
@@ -532,18 +556,6 @@ const OnboardStudent = () => {
       canSave: validatePasswordStep
     }
   ];
-
-  const doSubmit = () => {
-    mixpanel.track('Completed onboarding');
-    return ApiService.submitTutor(data);
-  };
-
-  const openEditModal = (stepId: string) => {
-    onEditModalOpen();
-    setEditModalStep(stepId);
-  };
-
-  /* eslint-disable */
   const activeStepObj = useMemo(() => steps[activeStep - 1], [activeStep]);
 
   const stepIndicatorActiveStep = useMemo(

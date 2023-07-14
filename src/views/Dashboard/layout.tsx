@@ -15,6 +15,7 @@ import userStore from '../../state/userStore';
 import TutorMarketplace from './Tutor';
 import AskShepherd from './components/AskShepherd';
 import MenuLinedList from './components/MenuLinedList';
+import Notifications from './components/Notifications';
 import DashboardIndex from './index';
 import {
   Avatar,
@@ -99,8 +100,12 @@ const LinkItems: Array<LinkItemProps> = [
 ];
 
 const LinkBItems: Array<LinkItemProps> = [
-  { name: 'Performance', icon: FiBarChart2, path: '/performance' },
-  { name: 'Study Plans', icon: TbClipboardText, path: '/study-plans' },
+  { name: 'Performance', icon: FiBarChart2, path: '/dashboard/performance' },
+  {
+    name: 'Study Plans',
+    icon: TbClipboardText,
+    path: '/dashboard/study-plans'
+  },
   { name: 'Notes', icon: CgNotes, path: '/dashboard/notes' },
   { name: 'Flashcards', icon: TbCards, path: '/dashboard/flashcards' }
 ];
@@ -114,6 +119,7 @@ const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
   const { pathname } = useLocation();
 
   const isActive = path.includes(getComparisonPath(pathname));
+
   return (
     <Link
       to={path}
@@ -165,7 +171,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
     setToggleHelpModal(true);
   };
   const navigate = useNavigate();
-  const { user }: any = userStore();
+  const { user, userNotifications }: any = userStore();
 
   const handleSignOut = () => {
     signOut(auth).then(() => {
@@ -241,99 +247,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                 />{' '}
               </MenuButton>
               <MenuList p={3} width={'358px'} zIndex={2}>
-                <Box>
-                  <Flex alignItems="flex-start" px={3} direction={'row'} my={1}>
-                    <Image
-                      src={VideoIcon}
-                      alt="doc"
-                      maxHeight={45}
-                      zIndex={1}
-                    />
-                    <Stack direction={'column'} px={4} spacing={1}>
-                      <Text color="text.300" fontSize={12} mb={0}>
-                        19 May, 2023
-                      </Text>
-                      <Text
-                        fontWeight={400}
-                        color="text.200"
-                        fontSize="14px"
-                        mb={0}
-                      >
-                        Your chemistry lesson session with Leslie Peters started
-                      </Text>
-
-                      <Spacer />
-                    </Stack>
-                  </Flex>
-                  <Divider />
-                  <Flex alignItems="flex-start" px={3} direction={'row'} my={1}>
-                    <Image
-                      src={MessageIcon}
-                      alt="doc"
-                      maxHeight={45}
-                      zIndex={1}
-                    />
-                    <Stack direction={'column'} px={4} spacing={1}>
-                      <Text color="text.300" fontSize={12} mb={0}>
-                        2 hrs ago
-                      </Text>
-                      <Text
-                        fontWeight={400}
-                        color="text.200"
-                        fontSize="14px"
-                        mb={0}
-                      >
-                        Leslie Peters sent you a text while your were away
-                      </Text>
-                    </Stack>
-                  </Flex>
-                  <Divider />
-                  <Flex alignItems="flex-start" px={3} direction={'row'} my={1}>
-                    <Image
-                      src={VideoIcon}
-                      alt="doc"
-                      maxHeight={45}
-                      zIndex={1}
-                    />
-                    <Stack direction={'column'} px={4} spacing={1}>
-                      <Text color="text.300" fontSize={12} mb={0}>
-                        2 hrs ago
-                      </Text>
-                      <Text
-                        fontWeight={400}
-                        color="text.200"
-                        fontSize="14px"
-                        mb={0}
-                      >
-                        Your chemistry lesson session with Leslie Peters started
-                      </Text>
-
-                      <Spacer />
-                    </Stack>
-                  </Flex>
-                  <Divider />
-                  <Flex alignItems="flex-start" px={3} direction={'row'} my={1}>
-                    <Image
-                      src={MessageIcon}
-                      alt="doc"
-                      maxHeight={45}
-                      zIndex={1}
-                    />
-                    <Stack direction={'column'} px={4} spacing={1}>
-                      <Text color="text.300" fontSize={12} mb={0}>
-                        2 hrs ago
-                      </Text>
-                      <Text
-                        fontWeight={400}
-                        color="text.200"
-                        fontSize="14px"
-                        mb={0}
-                      >
-                        Leslie Peters sent you a text while your were away
-                      </Text>
-                    </Stack>
-                  </Flex>
-                </Box>
+                <Notifications data={userNotifications} />
               </MenuList>
             </Menu>
             <Center height="25px">
@@ -358,16 +272,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     }`}
                     bg="#4CAF50;"
                   />
-
-                  <Text
-                    fontSize="14px"
-                    fontWeight={500}
-                    color="text.200"
-                    display={{ base: 'block', sm: 'none', md: 'block' }}
-                  >
-                    {`${user?.name?.first ?? ''} ${user?.name?.last ?? ''}`}
-                  </Text>
-
                   <Text
                     fontSize="14px"
                     fontWeight={500}
@@ -615,7 +519,7 @@ const SidebarContent = ({
         </>
       ))}{' '}
       <Divider />
-      <NavItem icon={BsPin} path={'/pinned-notes'}>
+      <NavItem icon={BsPin} path={'/dashboard/pinned'}>
         Pinned Notes
       </NavItem>
     </Box>

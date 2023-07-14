@@ -1,8 +1,9 @@
+import CustomSelect from '../../components/CustomSelect';
 import { FORMAT } from '../../components/DateInput';
 import DragAndDrop from '../../components/DragandDrop';
 import OnboardStep from '../../components/OnboardStep';
 import OnboardSubmitStep from '../../components/OnboardSubmitStep';
-import SelectComponent from '../../components/Select';
+// import SelectComponent from '../../components/Select';
 import StepIndicator from '../../components/StepIndicator';
 import { createUserWithEmailAndPassword, firebaseAuth } from '../../firebase';
 import { storage } from '../../firebase';
@@ -11,6 +12,7 @@ import lottieSuccessAnimationData from '../../lottie/73392-success.json';
 import ApiService from '../../services/ApiService';
 import onboardTutorStore from '../../state/onboardTutorStore';
 import resourceStore from '../../state/resourceStore';
+import { Select } from '@chakra-ui/react';
 import {
   Box,
   Button,
@@ -94,6 +96,7 @@ const OnboardTutor = () => {
   const [isUploadLoading, setUploadLoading] = useState(false);
 
   const validateNameStep = !!userFields.name.first && !!userFields.name.last;
+
   const validateCredentialsStep = [
     country,
     identityDocument,
@@ -325,7 +328,21 @@ const OnboardTutor = () => {
       template: (
         <Box>
           <Box marginTop={30}>
-            <SelectComponent
+            <CustomSelect
+              value={country}
+              onChange={(e: any) => {
+                onboardTutorStore.set.country?.(e.target.value);
+              }}
+              placeholder="Select a country"
+            >
+              <option value="Select a country" disabled>
+                Select a country
+              </option>
+              {countries.map((country) => (
+                <option value={country.name}>{country.name}</option>
+              ))}
+            </CustomSelect>
+            {/* <SelectComponent
               value={{ value: country, label: country }}
               options={countries.map((country) => ({
                 label: country.name,
@@ -337,10 +354,12 @@ const OnboardTutor = () => {
               placeholder="Select a country"
               isSearchable
               // Add any additional props you want to pass
-            />
+            /> */}
             <DragAndDrop
+              file={identityDocument}
               marginTop={30}
               isLoading={isUploadLoading}
+              onDelete={() => onboardTutorStore.set.identityDocument?.('')}
               onFileUpload={(file) => setSelectedIdDoc(file)}
             />
             <HStack marginTop={30} spacing={2}>

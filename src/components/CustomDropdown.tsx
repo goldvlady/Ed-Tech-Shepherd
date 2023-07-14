@@ -59,9 +59,10 @@ function CustomDropdown({
         alignItems="center"
         cursor={disabled ? 'not-allowed' : 'pointer'}
         borderWidth={1}
+        fontSize={'14px'}
         borderRadius="md"
         p={2}
-        _hover={!disabled ? { borderColor: 'gray.300' } : undefined}
+        _hover={!disabled ? { borderColor: '#9a9da2' } : undefined}
         opacity={disabled ? 0.6 : 1}
         pointerEvents={disabled ? 'none' : undefined}
       >

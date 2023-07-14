@@ -1,6 +1,6 @@
 import { ReactComponent as DocIcon } from '../../../assets/doc.svg';
 import { ReactComponent as NewNoteIcon } from '../../../assets/newnote.svg';
-import { AllNotesTab, HelpModal } from '../../../components';
+import { AllNotesTab, SelectedNoteModal } from '../../../components';
 import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMenu';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { SortIcon, FilterByTagsIcon } from '../../../components/icons';
@@ -131,6 +131,7 @@ const Notes = () => {
             <FlexContainer>
               <DropdownMenu
                 isCreateNew
+                isWidth
                 menuTitle="Create new"
                 DropdownMenuIcon={
                   <AddIcon fontWeight="700" marginRight="10px" />
@@ -179,7 +180,7 @@ const Notes = () => {
                 </>
               </DropdownMenu>
               <DropdownMenu
-                menuTitle="Filtered By"
+                menuTitle="Filtered by tags"
                 DropdownMenuIcon={<FilterByTagsIcon className="w-5 h-5" />}
               >
                 <section>
@@ -211,9 +212,10 @@ const Notes = () => {
           </Header>
           <Section>
             <div>
-              <img src="/images/notes.png" alt="" />
+              <img src="/images/notes.png" alt="notes" />
               <p>You don't have any notes yet!</p>
               <DropdownMenu
+                isCreateNewWidth
                 isCreateNew
                 menuTitle="Create new"
                 DropdownMenuIcon={
@@ -233,9 +235,10 @@ const Notes = () => {
           </Section>
         </NotesWrapper>
       )}
-      <HelpModal
-        toggleHelpModal={toggleHelpModal}
-        setToggleHelpModal={setToggleHelpModal}
+      <SelectedNoteModal
+        show={toggleHelpModal}
+        setShow={setToggleHelpModal}
+        setShowHelp={setToggleHelpModal}
       />
     </>
   );

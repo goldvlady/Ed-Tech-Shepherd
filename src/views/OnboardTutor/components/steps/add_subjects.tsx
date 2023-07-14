@@ -1,3 +1,4 @@
+import CustomSelect from '../../../../components/CustomSelect';
 import onboardTutorStore from '../../../../state/onboardTutorStore';
 import resourceStore from '../../../../state/resourceStore';
 import { Course, LevelType } from '../../../../types';
@@ -100,28 +101,16 @@ const SubjectLevelForm: React.FC = () => {
                 >
                   Subject
                 </FormLabel>
-                <Select
+                <CustomSelect
                   value={subjectLevel.course.label}
                   onChange={(e) => handleSubjectChange(index, e.target.value)}
-                  bg="#FFFFFF"
-                  border="1px solid #E4E5E7"
-                  boxShadow="0px 2px 6px rgba(136, 139, 143, 0.1)"
-                  borderRadius="6px"
                   placeholder="Select subject "
-                  _placeholder={{
-                    fontStyle: 'normal',
-                    fontWeight: 400,
-                    fontSize: 14,
-                    lineHeight: '20px',
-                    letterSpacing: '-0.003em',
-                    color: '#9A9DA2'
-                  }}
                 >
                   {' '}
                   {courseList.map((course) => (
                     <option value={course.label}>{course.label}</option>
                   ))}
-                </Select>
+                </CustomSelect>
               </FormControl>
               <FormControl>
                 <FormLabel
@@ -134,27 +123,15 @@ const SubjectLevelForm: React.FC = () => {
                 >
                   Level
                 </FormLabel>
-                <Select
+                <CustomSelect
                   value={subjectLevel.level.label}
                   onChange={(e) => handleLevelChange(index, e.target.value)}
-                  bg="#FFFFFF"
-                  border="1px solid #E4E5E7"
-                  placeholder="Select level"
-                  boxShadow="0px 2px 6px rgba(136, 139, 143, 0.1)"
-                  borderRadius="6px"
-                  _placeholder={{
-                    fontStyle: 'normal',
-                    fontWeight: 400,
-                    fontSize: 14,
-                    lineHeight: '20px',
-                    letterSpacing: '-0.003em',
-                    color: '#9A9DA2'
-                  }}
+                  placeholder="Select Level "
                 >
                   {levels.map((level) => (
                     <option value={level.label}>{level.label}</option>
                   ))}
-                </Select>
+                </CustomSelect>
               </FormControl>
               {subjectLevels.length > 1 && (
                 <RiCloseCircleLine

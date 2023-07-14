@@ -36,6 +36,7 @@ export interface TutorBankInfo {
   accountName: string;
   accountNumber: string;
   bankName: string;
+  swiftCode?: string;
 }
 
 export interface TutorQualification {
@@ -43,6 +44,7 @@ export interface TutorQualification {
   degree: string;
   startDate: Date;
   endDate: Date;
+  transcript?: string;
 }
 
 export interface Country {
@@ -195,12 +197,12 @@ export interface Booking extends TimestampedEntity {
   offer: Offer;
 }
 
-export interface UserNotification extends TimestampedEntity {
-  user: User;
+export interface UserNotifications {
+  _id: string;
   text: string;
   type: UserNotificationTypes;
-  attributes?: Attributes;
-  readAt?: Date;
+  createdAt?: Date;
+  __v?: number;
 }
 
 export interface FirebaseUser {
@@ -217,6 +219,9 @@ export interface HTTPEvent extends APIGatewayProxyEvent {
 
 export interface Score {
   score: number;
+  passed: number;
+  failed: number;
+  notRemembered: number;
   date: string;
 }
 
@@ -224,11 +229,11 @@ export interface FlashcardData {
   _id: string;
   student: Student;
   deckname: string;
-  studyType: "longTermRetention" | "quickPractice";
+  studyType: 'longTermRetention' | 'quickPractice';
   subject?: string;
   topic?: string;
   scores: Score[];
-  studyPeriod: "daily" | "weekly" | "biweekly" | "spacedRepetition";
+  studyPeriod: 'daily' | 'weekly' | 'biweekly' | 'spacedRepetition';
   questions: FlashcardQuestion[];
   createdAt: string;
   updatedAt: string;

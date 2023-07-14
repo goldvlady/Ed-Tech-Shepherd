@@ -7,6 +7,7 @@ import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
 import resourceStore from '../../state/resourceStore';
 import { educationLevelOptions, numberToDayOfWeekName } from '../../util';
 import Banner from './components/Banner';
+import Pagination from './components/Pagination';
 import TutorCard from './components/TutorCard';
 import { CustomButton } from './layout';
 import {
@@ -39,6 +40,12 @@ import { FiChevronDown } from 'react-icons/fi';
 import { MdTune } from 'react-icons/md';
 import { useSearchParams } from 'react-router-dom';
 
+type PaginationType = {
+  page: number;
+  limit: number;
+  count: number;
+};
+
 const priceOptions = [
   { value: '10-12', label: '$10.00 - $12.00', id: 1 },
   { value: '12-15', label: '$12.00 - $15.00', id: 2 },
@@ -63,6 +70,8 @@ const defaultTime = '';
 export default function Marketplace() {
   const { courses: courseList, levels: levelOptions } = resourceStore();
   const [allTutors, setAllTutors] = useState<any>([]);
+  const [pagination, setPagination] = useState<PaginationType>();
+
   const [loadingData, setLoadingData] = useState(false);
   //   const [tz, setTz] = useState<any>(() => moment.tz.guess());
   const [subject, setSubject] = useState<string>('Subject');
@@ -72,20 +81,24 @@ export default function Marketplace() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [fromTime, setFromTime] = useState('');
   const [toTime, setToTime] = useState('');
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(3);
+  const [count, setCount] = useState<number>(5);
   const [days, setDays] = useState<Array<any>>([]);
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const handleNextPage = () => {
+    setPage(page + 1);
+  };
+
+  const handlePreviousPage = () => {
+    setPage(page - 1);
+  };
 
   const [tutorGrid] = useAutoAnimate();
   const toast = useToast();
 
-  //   const getData = async () => {
-  //     setLoadingData(true);
-  //     try {
-  //       const resp = await ApiService.getAllTutors();
-  //       const data = await resp.json();
-  //       setAllTutors(data);
-  //     } catch (e) {}
-  //     setLoadingData(false);
-  //   };
   const getData = async () => {
     const formData = {
       courses: subject === 'Subject' ? '' : subject.toLowerCase(),
@@ -96,19 +109,30 @@ export default function Marketplace() {
       price: price === '' ? '' : price.value,
       floorRating: rating === '' ? '' : rating.value,
       startTime: toTime,
-      endTime: fromTime
+      endTime: fromTime,
+      page: page,
+      limit: limit
     };
     setLoadingData(true);
     const resp = await ApiService.getAllTutors(formData);
     const data = await resp.json();
-    setAllTutors(data);
+
+    setPagination(data.meta.pagination);
+    const startIndex = (page - 1) * data.meta.pagination.limit;
+    const endIndex = Math.min(
+      startIndex + data.meta.pagination.limit,
+      data.meta.pagination.count
+    );
+
+    // const visibleTutors = data.tutors.slice(startIndex, endIndex);
+    setAllTutors(data.tutors);
     setLoadingData(false);
   };
 
   useEffect(() => {
     getData();
     /* eslint-disable */
-  }, [subject, level, price, rating, days]);
+  }, [subject, level, price, rating, days, page]);
 
   const handleSelectedCourse = (selectedcourse) => {
     let selectedID = '';
@@ -214,7 +238,7 @@ export default function Marketplace() {
                   ))}
                 </MenuList>
               </Menu>
-              <Menu placement="bottom">
+              <Menu>
                 <MenuButton
                   as={Button}
                   variant="outline"
@@ -227,7 +251,7 @@ export default function Marketplace() {
                 >
                   {level === '' ? 'Level' : level.label}
                 </MenuButton>
-                <MenuList>
+                <MenuList minWidth={'auto'}>
                   {levelOptions.map((level) => (
                     <MenuItem
                       key={level._id}
@@ -328,7 +352,7 @@ export default function Marketplace() {
                 >
                   {price === '' ? 'Price' : price.label}
                 </MenuButton>
-                <MenuList>
+                <MenuList minWidth={'auto'}>
                   {priceOptions.map((price) => (
                     <MenuItem
                       key={price.id}
@@ -353,7 +377,7 @@ export default function Marketplace() {
                 >
                   {rating === '' ? 'Rating' : rating.label}
                 </MenuButton>
-                <MenuList>
+                <MenuList minWidth={'auto'}>
                   {ratingOptions.map((rating) => (
                     <MenuItem
                       key={rating.id}
@@ -402,6 +426,14 @@ export default function Marketplace() {
               />
             ))}
           </SimpleGrid>
+          <Pagination
+            page={pagination ? pagination.page : 0}
+            count={pagination ? pagination.count : 0}
+            limit={pagination ? pagination.limit : 0}
+            totalPages={pagination ? Math.ceil(count / limit) : 0}
+            handleNextPage={handleNextPage}
+            handlePreviousPage={handlePreviousPage}
+          />
         </Box>
       </Box>
     </>

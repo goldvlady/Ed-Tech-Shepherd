@@ -7,7 +7,7 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bar } from 'react-chartjs-2';
 
 ChartJS.register(
@@ -19,52 +19,61 @@ ChartJS.register(
   Legend
 );
 
-export const options = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: 'top' as const,
-      display: false
-    },
-    title: {
-      display: false,
-      text: 'Quiz Performance'
-    }
-  },
-  scales: {
-    x: {
-      grid: {
+export function PerformanceChart(chartData) {
+  const [labels, setLabels] = useState();
+  const [values, setValues] = useState();
+
+  const arrData: Array<any> = [...chartData.chartData];
+
+  useEffect(() => {
+    const flashcardNames: any = arrData.map((item) =>
+      item.flashcardName.substring(0, 3)
+    );
+    const flashcardPercentages: any = arrData.map(
+      (item) => item.scorePercentage
+    );
+    setLabels(flashcardNames);
+    setValues(flashcardPercentages);
+  }, [chartData]);
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
         display: false
+      },
+      title: {
+        display: false,
+        text: 'Quiz Performance'
       }
     },
-    y: {
-      grid: {
-        display: true
+    scales: {
+      x: {
+        grid: {
+          display: false
+        }
+      },
+      y: {
+        grid: {
+          display: true
+        }
       }
     }
-  }
-};
+  };
 
-const labels = ['Bio', 'Phy', 'Che', 'Eco', 'Eng', 'Bus', 'Sci', 'Lit'];
+  const data = {
+    labels,
+    datasets: [
+      {
+        label: 'Dataset 1',
+        data: values,
+        backgroundColor: '#207df7',
+        barThickness: 18,
+        borderRadius: 50
+      }
+    ]
+  };
 
-export const data = {
-  labels,
-  datasets: [
-    {
-      label: 'Dataset 1',
-      data: [10, 40, 20, 70, 85, 15, 25, 5],
-      backgroundColor: '#207df7',
-      barThickness: 18,
-      borderRadius: 50
-    }
-    // {
-    //   label: "Dataset 2",
-    //   data: labels.map(() => faker.datatype.number({ min: 0, max: 1000 })),
-    //   backgroundColor: "rgba(53, 162, 235, 0.5)",
-    // },
-  ]
-};
-
-export function PerformanceChart() {
   return <Bar options={options} data={data} style={{ width: '100%' }} />;
 }
