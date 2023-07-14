@@ -183,9 +183,9 @@ const AllClientTab = () => {
                     bg="white"
                     left={[0, 20]}
                   >
-                    <p className="text-gray-600">
+                    <Text className="text-gray-600">
                       {selectedPeople.length} items selected
-                    </p>
+                    </Text>
 
                     <Button mx="1" color="gray.600" onClick={toggleAll}>
                       Select all
@@ -524,9 +524,9 @@ const AllClientTab = () => {
                                         className="w-4 h-4"
                                       />
                                     </div>
-                                    <h4 className="text-sm text-secondaryGray font-medium">
+                                    <Text className="text-sm text-secondaryGray font-medium">
                                       Contract
-                                    </h4>
+                                    </Text>
                                   </div>
                                   <ChevronRightIcon className="w-2.5 h-2.5" />
                                 </button>
@@ -542,9 +542,9 @@ const AllClientTab = () => {
                                         className="w-4 h-4"
                                       />
                                     </div>
-                                    <h4 className="text-sm text-secondaryGray font-medium">
+                                    <Text className="text-sm text-secondaryGray font-medium">
                                       Monthly report
-                                    </h4>
+                                    </Text>
                                   </div>
                                   <ChevronRightIcon className="w-2.5 h-2.5" />
                                 </button>
@@ -556,9 +556,9 @@ const AllClientTab = () => {
                                     <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
                                       <StarIcon className="w-4 h-4 text-secondaryGray" />
                                     </div>
-                                    <h4 className="text-sm text-secondaryGray font-medium">
+                                    <Text className="text-sm text-secondaryGray font-medium">
                                       Client review
-                                    </h4>
+                                    </Text>
                                   </div>
                                   <ChevronRightIcon className="w-2.5 h-2.5" />
                                 </button>
@@ -575,9 +575,9 @@ const AllClientTab = () => {
                                         onClick={undefined}
                                       />
                                     </div>
-                                    <h4 className="text-sm text-gray-300 font-medium">
+                                    <Text className="text-sm text-gray-300 font-medium">
                                       Delete
-                                    </h4>
+                                    </Text>
                                   </div>
                                 </button>
                               ) : (
@@ -590,9 +590,9 @@ const AllClientTab = () => {
                                         className="w-4 h-4"
                                       />
                                     </div>
-                                    <h4 className="text-sm text-error font-medium">
+                                    <Text className="text-sm text-error font-medium">
                                       Delete
-                                    </h4>
+                                    </Text>
                                   </div>
                                 </button>
                               )}

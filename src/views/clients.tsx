@@ -23,7 +23,7 @@ const Clients = () => {
     >
       <header className="flex justify-between">
         <Text className="flex items-center space-x-2">
-          <span className="font-bold text-2xl">Clients</span>
+          <span className="font-semibold text-2xl">Clients</span>
           <span className="inline-block text-sm bg-gray-100 px-2 py-1 rounded-md text-primaryGray">
             24
           </span>

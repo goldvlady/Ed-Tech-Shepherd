@@ -183,7 +183,7 @@ export default function ProfileTab() {
 
       <section className="space-y-4 w-full border shadow-sm sm:rounded-lg p-4">
         <div className="flex justify-between items-center">
-          <pText className="text-secondaryGray">Availability</pText>
+          <Text className="text-secondaryGray">Availability</Text>
           <div className="bg-white border flex justify-center items-center rounded-full w-8 h-8">
             <PencilIcon
               className="w-4 text-secondaryGray"
