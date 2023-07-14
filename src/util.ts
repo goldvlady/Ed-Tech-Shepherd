@@ -37,6 +37,7 @@ export const doFetch = async (
   const headers: HeadersInit = {};
 
   const token = await firebaseAuth.currentUser?.getIdToken();
+  headers['x-shepherd-header'] = 'vunderkind23';
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
