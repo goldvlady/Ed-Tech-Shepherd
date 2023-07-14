@@ -87,12 +87,10 @@ const Calendar: React.FC<CalendarProps> = ({ year, month }) => {
     new Date().getDate()
   );
   const [initialSlide, setInitialSlide] = useState<number>(0);
-  console.log(initialSlide);
 
   const handleDayClick = (day: number) => {
     setSelectedDay(day);
   };
-  console.log('DAY', selectedDay);
 
   const getDaysInMonth = (year: number, month: number) => {
     return new Date(year, month + 1, 0).getDate();

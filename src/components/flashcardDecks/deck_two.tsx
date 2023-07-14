@@ -8,9 +8,10 @@ import {
   VStack,
   useColorModeValue
 } from '@chakra-ui/react';
-import { motion, useAnimation } from 'framer-motion';
-import React, { useEffect, useState, SyntheticEvent, useRef } from 'react';
+import { motion, useAnimation, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import styled from 'styled-components';
+import Typewriter from 'typewriter-effect';
 
 const CheckboxContainer = styled.div`
   display: inline-block;
@@ -124,6 +125,42 @@ const FlashCard: React.FC<FlashCardProps> = ({
 
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
 
+  const questionText = useMemo(() => {
+    return (
+      <Typewriter
+        key={study?.questions}
+        options={{
+          delay: 10,
+          autoStart: true,
+          loop: false,
+          skipAddStyles: true,
+          wrapperClassName: 'text-base'
+        }}
+        onInit={(typewriter) => {
+          typewriter.typeString(study.questions).start();
+        }}
+      />
+    );
+  }, [study.questions]);
+
+  const answerText = useMemo(() => {
+    return (
+      <Typewriter
+        key={study?.answers as string}
+        options={{
+          delay: 10,
+          autoStart: true,
+          loop: false,
+          skipAddStyles: true,
+          wrapperClassName: 'text-base'
+        }}
+        onInit={(typewriter) => {
+          typewriter.typeString(study.answers as string).start();
+        }}
+      />
+    );
+  }, [study.answers]);
+
   // Handle changes in option selection
   const handleOptionChange = (option: string) => {
     if (study.options?.type === 'single') {
@@ -191,7 +228,7 @@ const FlashCard: React.FC<FlashCardProps> = ({
           >
             <Text
               color="#212224"
-              textAlign={study?.options ? 'left' : 'center'}
+              textAlign={'center'}
               fontSize="14px"
               fontFamily="Inter"
               padding="15px"
@@ -329,7 +366,7 @@ const FlashCard: React.FC<FlashCardProps> = ({
         >
           <Text
             color="#212224"
-            textAlign={'left'}
+            textAlign="left"
             fontSize="14px"
             fontFamily="Inter"
             width="100%"
@@ -337,7 +374,7 @@ const FlashCard: React.FC<FlashCardProps> = ({
             fontWeight="500"
             lineHeight="22px"
           >
-            {study.questions}
+            {questionText}
           </Text>
           {study.options && (
             <VStack align="start" pb="10px" spacing={2} width="100%">
@@ -422,7 +459,7 @@ const FlashCard: React.FC<FlashCardProps> = ({
         </ChakraBox>
         {!study.options && (
           <ChakraBox height={'50%'} padding="10px">
-            {studyState === 'answer' && study.answers}
+            {studyState === 'answer' && answerText}
           </ChakraBox>
         )}
       </ChakraBox>

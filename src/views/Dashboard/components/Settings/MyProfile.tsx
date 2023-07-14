@@ -251,7 +251,10 @@ function MyProfile(props) {
                 Need help? Kindly reach out to our support team via mail
               </Text>
             </Stack>
-            <Spacer /> <RiArrowRightSLine size="24px" color="#969CA6" />
+            <Spacer />
+            <Text fontSize={12} color="text.300">
+              support@shepherd.mail
+            </Text>
           </Flex>
           <Flex width={'100%'} alignItems="center">
             <Stack spacing={'2px'}>

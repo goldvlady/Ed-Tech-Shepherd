@@ -1,5 +1,6 @@
 import { FlashCardModal } from '../../../components/flashcardDecks';
 import LoaderOverlay from '../../../components/loaderOverlay';
+import ApiService from '../../../services/ApiService';
 import flashcardStore from '../../../state/flashcardStore';
 import FlashcardDataProvider from './context/flashcard';
 import { useFlashCardState } from './context/flashcard';
@@ -74,8 +75,14 @@ const CreateFlashPage = () => {
     type: TypeEnum.INIT,
     source: SourceEnum.MANUAL
   });
-  const { flashcardData, questions, goToStep, setFlashcardData } =
-    useFlashCardState();
+  const {
+    flashcardData,
+    questions,
+    goToNextStep,
+    setQuestions,
+    goToStep,
+    setFlashcardData
+  } = useFlashCardState();
 
   const { createFlashCard, flashcard, isLoading, fetchFlashcards } =
     flashcardStore();
@@ -88,11 +95,66 @@ const CreateFlashPage = () => {
     setSettings((value) => ({ ...value, type: badge }));
   };
 
+  const generateFlashcard = useCallback(async () => {
+    try {
+      flashcardStore.setState({ isLoading: true });
+      const response = await ApiService.generateFlashcardQuestions(
+        flashcardData
+      );
+      if (response.status === 200) {
+        const { data } = await response.json();
+        setQuestions(data);
+        setType(TypeEnum.FLASHCARD);
+        goToNextStep();
+        // fetchFlashcards();
+        // setIsCompleted(true);
+        toast({
+          title: 'Flashcard questions generated succesfully',
+          position: 'top-right',
+          status: 'success',
+          isClosable: true
+        });
+      } else {
+        setHasSubmittedFlashCards(false);
+        setFlashcardData((value) => ({ ...value, hasSubmitted: false }));
+
+        toast({
+          title: 'Failed to generate flashcard questions',
+          position: 'top-right',
+          status: 'success',
+          isClosable: true
+        });
+      }
+    } catch (error) {
+      setHasSubmittedFlashCards(false);
+      setFlashcardData((value) => ({ ...value, hasSubmitted: false }));
+      toast({
+        title: 'Failed to create flashcard, try again',
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
+      });
+    } finally {
+      flashcardStore.setState({ isLoading: false });
+    }
+  }, [
+    flashcardData,
+    goToNextStep,
+    setQuestions,
+    setHasSubmittedFlashCards,
+    //questions,
+    toast,
+    setFlashcardData
+    // fetchFlashcards,
+    // createFlashCard,
+    // settings.source
+  ]);
+
   const onSubmitFlashcard = useCallback(async () => {
     try {
       const response = await createFlashCard(
         { ...flashcardData, questions },
-        settings.source === SourceEnum.MANUAL ? 'manual' : 'automatic'
+        'manual'
       );
       if (response) {
         if (response.status === 200) {
@@ -127,12 +189,12 @@ const CreateFlashPage = () => {
     }
   }, [
     flashcardData,
+    setHasSubmittedFlashCards,
     questions,
     toast,
     setFlashcardData,
     fetchFlashcards,
-    createFlashCard,
-    settings.source
+    createFlashCard
   ]);
 
   // const [activeBadge, setActiveBadge] = useState<TypeEnum>(TypeEnum.INIT);
@@ -141,7 +203,7 @@ const CreateFlashPage = () => {
     if (flashcardData.hasSubmitted && !hasSubmittedFlashCards) {
       setHasSubmittedFlashCards(true);
       if (settings.source === SourceEnum.SUBJECT) {
-        onSubmitFlashcard();
+        generateFlashcard();
       }
       if (
         settings.type !== TypeEnum.FLASHCARD &&
@@ -155,12 +217,14 @@ const CreateFlashPage = () => {
     hasSubmittedFlashCards,
     settings.type,
     settings.source,
-    onSubmitFlashcard
+    onSubmitFlashcard,
+    generateFlashcard
   ]);
 
   const handleBadgeClick = (badge: TypeEnum) => {
     if (settings.source === SourceEnum.DOCUMENT && badge !== TypeEnum.FLASHCARD)
       return;
+    if (badge === TypeEnum.MNEOMONIC) setSource(SourceEnum.MANUAL);
     setActiveBadge(badge);
   };
 
@@ -246,62 +310,63 @@ const CreateFlashPage = () => {
           width="100%"
           minH="calc(100vh - 60px)"
         >
-          <Box height="100%" width="48%">
-            <Box
-              px="60px"
-              py="40px"
-              display={'flex'}
-              borderBottom={'1px solid #E7E8E9'}
-              flexDirection={'column'}
-              width={'100%'}
-            >
-              <Text
-                fontFamily="Inter"
-                fontWeight="500"
-                fontSize="18px"
-                lineHeight="23px"
-                color="#212224"
-                mb={4}
+          {activeBadge !== TypeEnum.MNEOMONIC && (
+            <Box height="100%" width="48%">
+              <Box
+                px="60px"
+                py="40px"
+                display={'flex'}
+                borderBottom={'1px solid #E7E8E9'}
+                flexDirection={'column'}
+                width={'100%'}
               >
-                Select a Source
-              </Text>
-              <RadioGroup
-                onChange={(value: SourceEnum) => {
-                  setSource(value as SourceEnum);
-                  if (value === SourceEnum.SUBJECT) {
-                    goToStep(0);
-                    setFlashcardData((value) => ({
-                      ...value,
-                      hasSubmitted: false
-                    }));
-                    setHasSubmittedFlashCards(false);
-                  }
-                  if (value === SourceEnum.DOCUMENT) {
-                    handleBadgeClick(TypeEnum.FLASHCARD);
-                  }
-                }}
-                value={settings.source}
-              >
-                <HStack align="start" spacing={7}>
-                  <Radio value={SourceEnum.DOCUMENT}>
-                    <Text color="#585F68">Document</Text>
-                  </Radio>
-                  <Radio value={SourceEnum.SUBJECT}>
-                    <Text color="#585F68">Subject</Text>
-                  </Radio>
-                  <Radio value={SourceEnum.MANUAL}>
-                    <Text color="#585F68">Manual</Text>
-                  </Radio>
-                </HStack>
-              </RadioGroup>
-            </Box>
-            <Box px="60px" width={'100%'}>
-              <Box py="45px" width="100%">
-                {renderForms()}
+                <Text
+                  fontFamily="Inter"
+                  fontWeight="500"
+                  fontSize="18px"
+                  lineHeight="23px"
+                  color="#212224"
+                  mb={4}
+                >
+                  Select a Source
+                </Text>
+                <RadioGroup
+                  onChange={(value: SourceEnum) => {
+                    setSource(value as SourceEnum);
+                    if (value === SourceEnum.SUBJECT) {
+                      goToStep(0);
+                      setFlashcardData((value) => ({
+                        ...value,
+                        hasSubmitted: false
+                      }));
+                      setHasSubmittedFlashCards(false);
+                    }
+                    if (value === SourceEnum.DOCUMENT) {
+                      handleBadgeClick(TypeEnum.FLASHCARD);
+                    }
+                  }}
+                  value={settings.source}
+                >
+                  <HStack align="start" spacing={7}>
+                    <Radio value={SourceEnum.DOCUMENT}>
+                      <Text color="#585F68">Document</Text>
+                    </Radio>
+                    <Radio value={SourceEnum.SUBJECT}>
+                      <Text color="#585F68">Subject</Text>
+                    </Radio>
+                    <Radio value={SourceEnum.MANUAL}>
+                      <Text color="#585F68">Manual</Text>
+                    </Radio>
+                  </HStack>
+                </RadioGroup>
+              </Box>
+              <Box px="60px" width={'100%'}>
+                <Box py="45px" width="100%">
+                  {renderForms()}
+                </Box>
               </Box>
             </Box>
-          </Box>
-
+          )}
           <Box
             position="fixed"
             top="60px"

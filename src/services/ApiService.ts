@@ -1,4 +1,5 @@
 import { REACT_APP_API_ENDPOINT } from '../config';
+import { objectToQueryString } from '../helpers/http.helpers';
 import { User } from '../types';
 import { doFetch } from '../util';
 
@@ -48,8 +49,15 @@ class ApiService {
     });
   };
 
-  static getFlashcards = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/getStudentFlashcards`);
+  static getFlashcards = async (queryParams: {
+    search?: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const queryString = objectToQueryString(queryParams);
+    return doFetch(
+      `${ApiService.baseEndpoint}/getStudentFlashcards?${queryString}`
+    );
   };
 
   static deleteFlashcard = async (id: string | number) => {
@@ -68,27 +76,10 @@ class ApiService {
     );
   };
 
-  // Get All Tutor Clients
-  static getTutorClients = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/getTutorClients`);
-  };
-
-  // Get Single Tutor Clients
-  static getTutorSingleClients = async (id: string) => {
-    return doFetch(`${ApiService.baseEndpoint}/getClients?id=${id}`, {
-      method: 'GET'
-    });
-  };
-
-  // Get All Tutor Offers
-  static getTutorOffers = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/getOffers`);
-  };
-
-  // Get Singlege Tutor Offers
-  static getTutorSingleOffers = async (id: string) => {
-    return doFetch(`${ApiService.baseEndpoint}/getOffers?id=${id}`, {
-      method: 'GET'
+  static generateFlashcardQuestions = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/generateFlashcardQuestions`, {
+      method: 'POST',
+      body: JSON.stringify(data)
     });
   };
 
@@ -186,45 +177,31 @@ class ApiService {
 
   static getAllTutors = async (formData: any) => {
     let filterParams = '';
-    let minRate = '';
-    let maxRate = '';
 
-    if (
-      !formData['courses'] &&
-      !formData['levels'] &&
-      !formData['days'] &&
-      !formData['price'] &&
-      !formData['floorRating'] &&
-      !formData['startTime'] &&
-      !formData['endTime']
-    ) {
-      return doFetch(`${ApiService.baseEndpoint}/tutors`);
-    } else {
-      for (const key in formData) {
+    for (const key in formData) {
+      if (key === 'price' && !!formData['price']) {
         const rateArray = formData['price'].split('-');
-        minRate = rateArray[0];
-        maxRate = rateArray[1];
-
+        const minRate = rateArray[0];
+        const maxRate = rateArray[1];
+        filterParams += `&rate>=${minRate}&rate<=${maxRate}`;
+      } else if (key === 'days' && !!formData['days']) {
         const daysArray = formData['days'];
-
-        if (key !== 'tz' && key !== 'price' && key !== 'days') {
-          filterParams += formData[key] ? `&${key}=${formData[key]}` : '';
-        }
-        if (key === 'price' && !!formData['price']) {
-          filterParams += `&rate>=${minRate}&rate<=${maxRate}`;
-        }
-        if (key === 'days' && !!formData['days']) {
-          /* eslint-disable */
-          daysArray.forEach((element: any) => {
-            filterParams += `&schedule.${element.value}`;
-          });
-        }
+        // eslint-disable-next-line
+        daysArray.forEach((element: any) => {
+          filterParams += `&schedule.${element.value}`;
+        });
+      } else if (
+        key !== 'tz' &&
+        key !== 'price' &&
+        key !== 'days' &&
+        !!formData[key]
+      ) {
+        filterParams += `&${key}=${formData[key]}`;
       }
-      return doFetch(
-        `${ApiService.baseEndpoint}/tutors?tz=${formData.tz + filterParams}`
-        // `${ApiService.baseEndpoint}/tutors?tz=Africa/Lagos${filterParams}`
-      );
     }
+
+    const url = `${ApiService.baseEndpoint}/tutors?tz=${formData.tz}${filterParams}`;
+    return doFetch(url);
   };
 
   static toggleBookmarkedTutor = async (id: string) => {
@@ -241,8 +218,34 @@ class ApiService {
   static getActivityFeeds = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getActivityFeed`);
   };
-}
 
-//tutorDashboard
+  static getStudentReport = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getStudentReport`);
+  };
+
+  // Get All Tutor Clients
+  static getTutorClients = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getTutorClients`);
+  };
+
+  // Get Single Tutor Clients
+  static getTutorSingleClients = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/getClients?id=${id}`, {
+      method: 'GET'
+    });
+  };
+
+  // Get All Tutor Offers
+  static getTutorOffers = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getOffers`);
+  };
+
+  // Get Singlege Tutor Offers
+  static getTutorSingleOffers = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/getOffers?id=${id}`, {
+      method: 'GET'
+    });
+  };
+}
 
 export default ApiService;

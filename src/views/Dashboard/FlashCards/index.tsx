@@ -1,6 +1,7 @@
 import EmptyIllustration from '../../../assets/empty_illustration.svg';
 import { FlashCardModal } from '../../../components/flashcardDecks';
 import SelectableTable, { TableColumn } from '../../../components/table';
+import { useSearch } from '../../../hooks';
 import flashcardStore from '../../../state/flashcardStore';
 import { FlashcardData, FlashcardQuestion } from '../../../types';
 import { Score } from '../../../types';
@@ -29,7 +30,7 @@ import {
 import { isSameDay, isThisWeek, getISOWeek } from 'date-fns';
 import { parseISO, format } from 'date-fns';
 import { startCase } from 'lodash';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaEllipsisH, FaCalendarAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router';
@@ -300,6 +301,8 @@ function findNextFlashcard(
 const CustomTable: React.FC = () => {
   const navigate = useNavigate();
   const toast = useToast();
+  const [hasSearched, setHasSearched] = useState(false);
+
   const {
     fetchFlashcards,
     flashcards,
@@ -308,12 +311,24 @@ const CustomTable: React.FC = () => {
     deleteFlashCard,
     isLoading
   } = flashcardStore();
+
+  const actionFunc = useCallback(
+    (query: string) => {
+      if (!hasSearched) setHasSearched(true);
+      fetchFlashcards({ search: query });
+    },
+    [fetchFlashcards, hasSearched]
+  );
+
+  const handleSearch = useSearch(actionFunc);
+
   const [deleteItem, setDeleteItem] = useState<{
     flashcard: FlashcardData;
   } | null>(null);
 
   useEffect(() => {
     fetchFlashcards();
+    // eslint-disable-next-line
   }, []);
 
   const columns: TableColumn<DataSourceItem>[] = [
@@ -359,7 +374,7 @@ const CustomTable: React.FC = () => {
       render: ({ scores }) => {
         if (!scores?.length) return <Text>N/A</Text>;
         const date = parseISO(scores[scores.length - 1].date);
-        const formattedDate = format(date, 'dd-MMMM-yyyy hh:mmaaa');
+        const formattedDate = format(date, 'dd-MMMM-yyyy');
         return (
           <Text>{formattedDate.replace('pm', 'PM').replace('am', 'AM')}</Text>
         );
@@ -516,7 +531,7 @@ const CustomTable: React.FC = () => {
           }
         }}
       />
-      {!flashcards?.length ? (
+      {!flashcards?.length && !hasSearched ? (
         <Box
           background={'#F8F9FB'}
           display={'flex'}
@@ -591,7 +606,7 @@ const CustomTable: React.FC = () => {
           </Box>
         </Box>
       ) : (
-        <Box padding={'20px'}>
+        <Box padding={'50px'}>
           <Flex
             width="100%"
             marginBottom={'40px'}
@@ -675,6 +690,7 @@ const CustomTable: React.FC = () => {
                 <Input
                   type="text"
                   variant="outline"
+                  onChange={(e) => handleSearch(e.target.value)}
                   size="sm"
                   placeholder="     Search"
                   borderRadius="6px"
@@ -705,6 +721,7 @@ const CustomTable: React.FC = () => {
                 borderRadius={'10px'}
                 colorScheme={'primary'}
                 onClick={() => {
+                  if (!flashcards) return;
                   const nextFlashCard = findNextFlashcard(flashcards);
                   if (!nextFlashCard) {
                     toast({

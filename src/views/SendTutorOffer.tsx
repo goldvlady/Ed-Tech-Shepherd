@@ -124,8 +124,10 @@ const SendTutorOffer = () => {
   const levelOptions = useMemo(
     () =>
       tutor?.coursesAndLevels.map((c) => ({
-        label: 'AP',
-        value: '648737ac0185fdef253922be'
+        // label: 'AP',
+        // value: '648737ac0185fdef253922be'
+        label: c.level?.label,
+        value: c.level?._id
       })) || [],
     [tutor]
   );

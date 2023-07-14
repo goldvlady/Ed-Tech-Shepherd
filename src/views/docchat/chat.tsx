@@ -40,10 +40,11 @@ import Summary from './summary';
 import { Text } from '@chakra-ui/react';
 import { useState, useEffect, useCallback } from 'react';
 
-const Chat = () => {
+const Chat = ({ studentId, documentId }) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [isFlashCard, setFlashCard] = useState<boolean>(false);
+  const [llmResponse, setLLMResponse] = useState('');
   const [isQuiz, setQuiz] = useState<boolean>(false);
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>(
     []
@@ -58,6 +59,46 @@ const Chat = () => {
     'Who wrote this book?',
     'How many chapters are in this book?'
   ];
+
+  const askLLM = async ({
+    query,
+    studentId,
+    documentId
+  }: {
+    query: string;
+    studentId: string;
+    documentId: string;
+  }) => {
+    let packed = '';
+    const response = await fetch(`http://localhost:3000/embeddings/doc-chat`, {
+      method: 'post',
+      headers: {
+        'x-shepherd-header': 'vunderkind23',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        query,
+        studentId,
+        documentId
+      })
+    });
+    // @ts-ignore: there will always be a body
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      const chunk = decoder.decode(value);
+      packed += chunk;
+      setLLMResponse((llmResponse) => llmResponse + chunk);
+    }
+
+    return packed;
+  };
 
   const onClose = useCallback(() => {
     setModalOpen((prevState) => !prevState);
@@ -79,7 +120,7 @@ const Chat = () => {
     setInputValue(event.target.value);
   };
 
-  const handleSendMessage = (
+  const handleSendMessage = async (
     event: React.SyntheticEvent<HTMLButtonElement>
   ) => {
     event.preventDefault();
@@ -96,13 +137,12 @@ const Chat = () => {
     ]);
     setInputValue('');
 
-    setTimeout(() => {
-      const aiResponse = 'AI response';
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { text: aiResponse, isUser: false }
-      ]);
-    }, 500);
+    const answer = await askLLM({ query: inputValue, studentId, documentId });
+
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { text: answer, isUser: false }
+    ]);
   };
 
   const tabLists = [

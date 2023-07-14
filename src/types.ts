@@ -197,12 +197,12 @@ export interface Booking extends TimestampedEntity {
   offer: Offer;
 }
 
-export interface UserNotification extends TimestampedEntity {
-  user: User;
+export interface UserNotifications {
+  _id: string;
   text: string;
   type: UserNotificationTypes;
-  attributes?: Attributes;
-  readAt?: Date;
+  createdAt?: Date;
+  __v?: number;
 }
 
 export interface FirebaseUser {
@@ -219,6 +219,9 @@ export interface HTTPEvent extends APIGatewayProxyEvent {
 
 export interface Score {
   score: number;
+  passed: number;
+  failed: number;
+  notRemembered: number;
   date: string;
 }
 
