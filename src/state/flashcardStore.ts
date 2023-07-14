@@ -1,11 +1,23 @@
 import ApiService from '../services/ApiService';
-import { FlashcardData } from '../types';
+import { FlashcardData, Score } from '../types';
 import { create } from 'zustand';
 
+type SearchQueryParams = {
+  search?: string;
+  page?: number;
+  limit?: number;
+};
+
+type Pagination = {
+  page: number;
+  limit: number;
+  count: number;
+};
 type Store = {
   flashcards: FlashcardData[] | null;
   isLoading: boolean;
-  fetchFlashcards: () => Promise<void>;
+  pagination: Pagination;
+  fetchFlashcards: (queryParams?: SearchQueryParams) => Promise<void>;
   flashcard?: FlashcardData | null;
   loadFlashcard: (id: string | null) => void;
   createFlashCard: (
@@ -13,7 +25,7 @@ type Store = {
     generatorType?: string
   ) => Promise<Response | undefined>;
   deleteFlashCard: (id: string | number) => Promise<boolean>;
-  storeScore: (flashcardId: string, score: number) => Promise<boolean>;
+  storeScore: (flashcardId: string, score: Score) => Promise<boolean>;
   updateQuestionAttempt: (
     flashcardId: string,
     questionText: string,
@@ -24,12 +36,20 @@ type Store = {
 export default create<Store>((set) => ({
   flashcards: null,
   isLoading: false,
-  fetchFlashcards: async () => {
+  pagination: { limit: 10, page: 1, count: 100 },
+  fetchFlashcards: async (queryParams?: {
+    search?: string;
+    page?: number;
+    limit?: number;
+  }) => {
     try {
+      const params = queryParams || {};
+      if (!params.page) params.page = 1;
+      if (!params.limit) params.limit = 10;
       set({ isLoading: true });
-      const response = await ApiService.getFlashcards();
+      const response = await ApiService.getFlashcards(params || {});
       const { data } = await response.json();
-      set({ flashcards: data });
+      set({ flashcards: data, pagination: data?.meta?.pagination });
     } catch (error) {
       // console.log(error)
     } finally {
@@ -85,7 +105,7 @@ export default create<Store>((set) => ({
       set({ isLoading: false });
     }
   },
-  storeScore: async (flashcardId: string, score: number) => {
+  storeScore: async (flashcardId: string, score: Score) => {
     try {
       set({ isLoading: true });
       const response = await ApiService.storeFlashcardScore({

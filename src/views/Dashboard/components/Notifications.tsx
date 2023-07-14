@@ -23,7 +23,7 @@ function Notifications(props) {
   return (
     <>
       <Box>
-        {data.map((i) => {
+        {data.map((i: any) => {
           if (i.type !== 'new_offer_received') {
             return (
               <>
@@ -60,6 +60,7 @@ function Notifications(props) {
               </>
             );
           }
+          return <div />;
         })}
       </Box>
     </>

@@ -1,4 +1,5 @@
 import { REACT_APP_API_ENDPOINT } from '../config';
+import { objectToQueryString } from '../helpers/http.helpers';
 import { User } from '../types';
 import { doFetch } from '../util';
 
@@ -48,8 +49,15 @@ class ApiService {
     });
   };
 
-  static getFlashcards = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/getStudentFlashcards`);
+  static getFlashcards = async (queryParams: {
+    search?: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const queryString = objectToQueryString(queryParams);
+    return doFetch(
+      `${ApiService.baseEndpoint}/getStudentFlashcards?${queryString}`
+    );
   };
 
   static getCompanyRate = async () => {
@@ -70,6 +78,13 @@ class ApiService {
         body: JSON.stringify(data)
       }
     );
+  };
+
+  static generateFlashcardQuestions = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/generateFlashcardQuestions`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
   };
 
   static submitTutor = async (data: any) => {
@@ -179,6 +194,7 @@ class ApiService {
         filterParams += `&rate>=${minRate}&rate<=${maxRate}`;
       } else if (key === 'days' && !!formData['days']) {
         const daysArray = formData['days'];
+        // eslint-disable-next-line
         daysArray.forEach((element: any) => {
           filterParams += `&schedule.${element.value}`;
         });

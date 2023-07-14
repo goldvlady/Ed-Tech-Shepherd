@@ -22,6 +22,7 @@ const FlashcardFirstPart = ({ isAutomated }: { isAutomated?: boolean }) => {
   const [localData, setLocalData] = useState<typeof flashcardData>({
     subject: '',
     topic: '',
+    studyType: '',
     deckname: '',
     studyPeriod: '',
     numQuestions: 0,

@@ -1,3 +1,4 @@
+import CustomSelect from '../../../../../components/CustomSelect';
 import { useFlashCardState } from '../../context/flashcard';
 import {
   Box,
@@ -6,8 +7,8 @@ import {
   Input,
   Radio,
   RadioGroup,
-  Select,
   Button,
+  Text,
   HStack
 } from '@chakra-ui/react';
 import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
@@ -27,6 +28,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     if (flashcardData.deckname) {
       setLocalData(flashcardData);
     }
+    // eslint-disable-next-line
   }, []);
 
   const handleChange = React.useCallback(
@@ -80,13 +82,26 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
           </FormControl>
           <FormControl mb={8}>
             <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-              Topic (optional)
+              Topic
             </FormLabel>
             <Input
               type="text"
               name="topic"
               placeholder="e.g. Bonds"
               value={localData.topic}
+              onChange={handleChange}
+              _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+            />
+          </FormControl>
+          <FormControl mb={8}>
+            <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+              Label (optional)
+            </FormLabel>
+            <Input
+              type="text"
+              name="topic"
+              placeholder="e.g. Bonds"
+              value={localData.label}
               onChange={handleChange}
               _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
             />
@@ -114,15 +129,22 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
         <RadioGroup
           name="studyType"
           value={localData.studyType}
-          onChange={(value) =>
+          onChange={(value) => {
+            if (value === 'longTermRetention') {
+              handleChange({
+                target: { name: 'studyPeriod', value: 'spacedRepetition' }
+              } as ChangeEvent<HTMLInputElement>);
+            }
             handleChange({
               target: { name: 'studyType', value }
-            } as ChangeEvent<HTMLInputElement>)
-          }
+            } as ChangeEvent<HTMLInputElement>);
+          }}
         >
-          <Radio value="longTermRetention">Long term retention</Radio>
+          <Radio value="longTermRetention">
+            <Text fontSize="14px">Long term retention</Text>
+          </Radio>
           <Radio ml={'10px'} value="quickPractice">
-            Quick Practice
+            <Text fontSize="14px"> Quick Practice</Text>
           </Radio>
         </RadioGroup>
       </FormControl>
@@ -131,18 +153,17 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           How often would you like to study?
         </FormLabel>
-        <Select
+        <CustomSelect
           name="studyPeriod"
           placeholder="Select study period"
           value={localData.studyPeriod}
           onChange={handleChange}
-          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         >
           <option value="daily">Daily</option>
           <option value="weekly">Once a week</option>
           <option value="biweekly">Twice a week</option>
           <option value="spacedRepetition">Spaced repetition</option>
-        </Select>
+        </CustomSelect>
       </FormControl>
 
       <FormControl mb={8}>
