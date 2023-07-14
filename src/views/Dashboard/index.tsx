@@ -118,7 +118,6 @@ export default function Index() {
       // setFeeds(feedsResponse);
     } catch (error) {
       // Handle any errors that occur during fetching
-      console.error('Error fetching data:', error);
     } finally {
       setIsLoading(false);
     }

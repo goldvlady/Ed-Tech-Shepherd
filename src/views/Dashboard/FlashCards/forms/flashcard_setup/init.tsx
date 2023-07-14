@@ -28,6 +28,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     if (flashcardData.deckname) {
       setLocalData(flashcardData);
     }
+    // eslint-disable-next-line
   }, []);
 
   const handleChange = React.useCallback(

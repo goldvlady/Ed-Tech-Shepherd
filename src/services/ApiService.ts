@@ -194,6 +194,7 @@ class ApiService {
         filterParams += `&rate>=${minRate}&rate<=${maxRate}`;
       } else if (key === 'days' && !!formData['days']) {
         const daysArray = formData['days'];
+        // eslint-disable-next-line
         daysArray.forEach((element: any) => {
           filterParams += `&schedule.${element.value}`;
         });

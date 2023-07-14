@@ -328,6 +328,7 @@ const CustomTable: React.FC = () => {
 
   useEffect(() => {
     fetchFlashcards();
+    // eslint-disable-next-line
   }, []);
 
   const columns: TableColumn<DataSourceItem>[] = [

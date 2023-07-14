@@ -194,8 +194,7 @@ const CreateFlashPage = () => {
     toast,
     setFlashcardData,
     fetchFlashcards,
-    createFlashCard,
-    settings.source
+    createFlashCard
   ]);
 
   // const [activeBadge, setActiveBadge] = useState<TypeEnum>(TypeEnum.INIT);

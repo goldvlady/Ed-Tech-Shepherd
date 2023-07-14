@@ -12,6 +12,8 @@ export const useSearch = (
 ): SearchAction => {
   const [searchQuery, setSearchQuery] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
+
+  // eslint-disable-next-line
   const throttledAction = useCallback(debounce(action, throttleTime), [
     action,
     throttleTime

@@ -105,7 +105,9 @@ const StudyFooter = ({ showMinimize = false }: { showMinimize?: boolean }) => {
           mr="10px"
           _hover={{ bg: '#207DF7', transform: 'scale(1.05)' }}
           color="black"
-          onClick={() => console.log('minimize')}
+          onClick={() => {
+            return;
+          }}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -254,7 +256,6 @@ const CompletedState = ({
   score: Score;
   onRefresh: () => void;
 }) => {
-  console.log(score);
   const calculatePercentages = (score: Score) => {
     const { passed, failed, notRemembered } = score;
     const total = passed + failed + notRemembered;
@@ -1028,17 +1029,13 @@ const FlashCardModal = ({ isOpen }: { isOpen: boolean }) => {
 
   useEffect(() => {
     const modalContent = modalRef.current;
-    console.log(modalContent, modalRef.current);
     if (modalContent) {
       const modalContentPosition = modalContent.getBoundingClientRect();
-      console.log(modalContentPosition.height, modalContentPosition.top);
       const topOffset =
         modalContentPosition.top - modalContentPosition.height - 2;
       setCancelButtonTop(topOffset);
     }
   }, []);
-
-  console.log(cancelButtonTop, modalRef);
 
   return (
     <Modal
