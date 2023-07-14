@@ -210,6 +210,9 @@ class ApiService {
   static getStudentReport = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getStudentReport`);
   };
+  static getUserNotifications = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/notifications`);
+  };
 }
 
 export default ApiService;

@@ -195,12 +195,12 @@ export interface Booking extends TimestampedEntity {
   offer: Offer;
 }
 
-export interface UserNotification extends TimestampedEntity {
-  user: User;
+export interface UserNotifications {
+  _id: string;
   text: string;
   type: UserNotificationTypes;
-  attributes?: Attributes;
-  readAt?: Date;
+  createdAt?: Date;
+  __v?: number;
 }
 
 export interface FirebaseUser {
@@ -224,11 +224,11 @@ export interface FlashcardData {
   _id: string;
   student: Student;
   deckname: string;
-  studyType: "longTermRetention" | "quickPractice";
+  studyType: 'longTermRetention' | 'quickPractice';
   subject?: string;
   topic?: string;
   scores: Score[];
-  studyPeriod: "daily" | "weekly" | "biweekly" | "spacedRepetition";
+  studyPeriod: 'daily' | 'weekly' | 'biweekly' | 'spacedRepetition';
   questions: FlashcardQuestion[];
   createdAt: string;
   updatedAt: string;

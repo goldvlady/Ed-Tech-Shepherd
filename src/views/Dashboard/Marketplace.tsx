@@ -81,15 +81,20 @@ export default function Marketplace() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [fromTime, setFromTime] = useState('');
   const [toTime, setToTime] = useState('');
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(3);
+  const [count, setCount] = useState<number>(5);
   const [days, setDays] = useState<Array<any>>([]);
 
   const [currentPage, setCurrentPage] = useState(1);
 
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
+  const handleNextPage = () => {
+    setPage(page + 1);
   };
-  console.log(currentPage);
-  console.log(allTutors);
+
+  const handlePreviousPage = () => {
+    setPage(page - 1);
+  };
 
   const [tutorGrid] = useAutoAnimate();
   const toast = useToast();
@@ -104,27 +109,32 @@ export default function Marketplace() {
       price: price === '' ? '' : price.value,
       floorRating: rating === '' ? '' : rating.value,
       startTime: toTime,
-      endTime: fromTime
+      endTime: fromTime,
+      page: page,
+      limit: limit
     };
     setLoadingData(true);
     const resp = await ApiService.getAllTutors(formData);
     const data = await resp.json();
 
     setPagination(data.meta.pagination);
-    const startIndex = (currentPage - 1) * data.meta.pagination.limit;
+    const startIndex = (page - 1) * data.meta.pagination.limit;
     const endIndex = Math.min(
       startIndex + data.meta.pagination.limit,
       data.meta.pagination.count
     );
-    const visibleTutors = data.tutors.slice(startIndex, endIndex);
-    setAllTutors(visibleTutors);
+    console.log(startIndex, endIndex);
+
+    // const visibleTutors = data.tutors.slice(startIndex, endIndex);
+    setAllTutors(data.tutors);
     setLoadingData(false);
   };
+  console.log('lert', allTutors);
 
   useEffect(() => {
     getData();
     /* eslint-disable */
-  }, [subject, level, price, rating, days, currentPage]);
+  }, [subject, level, price, rating, days, page]);
 
   const handleSelectedCourse = (selectedcourse) => {
     let selectedID = '';
@@ -230,7 +240,7 @@ export default function Marketplace() {
                   ))}
                 </MenuList>
               </Menu>
-              <Menu placement="bottom">
+              <Menu>
                 <MenuButton
                   as={Button}
                   variant="outline"
@@ -243,7 +253,7 @@ export default function Marketplace() {
                 >
                   {level === '' ? 'Level' : level.label}
                 </MenuButton>
-                <MenuList>
+                <MenuList minWidth={'auto'}>
                   {levelOptions.map((level) => (
                     <MenuItem
                       key={level._id}
@@ -344,7 +354,7 @@ export default function Marketplace() {
                 >
                   {price === '' ? 'Price' : price.label}
                 </MenuButton>
-                <MenuList>
+                <MenuList minWidth={'auto'}>
                   {priceOptions.map((price) => (
                     <MenuItem
                       key={price.id}
@@ -369,7 +379,7 @@ export default function Marketplace() {
                 >
                   {rating === '' ? 'Rating' : rating.label}
                 </MenuButton>
-                <MenuList>
+                <MenuList minWidth={'auto'}>
                   {ratingOptions.map((rating) => (
                     <MenuItem
                       key={rating.id}
@@ -422,11 +432,9 @@ export default function Marketplace() {
             page={pagination ? pagination.page : 0}
             count={pagination ? pagination.count : 0}
             limit={pagination ? pagination.limit : 0}
-            currentPage={currentPage}
-            totalPages={
-              pagination ? Math.ceil(pagination.count / pagination.limit) : 0
-            }
-            handlePageChange={handlePageChange}
+            totalPages={pagination ? Math.ceil(count / limit) : 0}
+            handleNextPage={handleNextPage}
+            handlePreviousPage={handlePreviousPage}
           />
         </Box>
       </Box>
