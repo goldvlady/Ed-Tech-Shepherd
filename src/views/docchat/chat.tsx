@@ -1,5 +1,7 @@
 import { ReactComponent as HightLightIcon } from '../../assets/highlightIcn.svg';
 import { ReactComponent as SummaryIcon } from '../../assets/summaryIcn.svg';
+import { ReactComponent as TellMeMoreIcn } from '../../assets/tellMeMoreIcn.svg';
+import { ReactComponent as TutorBag } from '../../assets/tutor-bag.svg';
 import CustomSideModal from '../../components/CustomComponents/CustomSideModal';
 import CustomTabs from '../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../components/hooks/useChatScroll';
@@ -32,6 +34,7 @@ import {
   SendButton,
   StyledDiv,
   StyledText,
+  TellMeMorePill,
   TextContainer,
   UserMessage,
   Wrapper
@@ -40,7 +43,10 @@ import Summary from './summary';
 import { Text } from '@chakra-ui/react';
 import { useState, useEffect, useCallback } from 'react';
 
-const Chat = () => {
+interface IChat {
+  HomeWorkHelp?: boolean;
+}
+const Chat = ({ HomeWorkHelp }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [isFlashCard, setFlashCard] = useState<boolean>(false);
@@ -150,6 +156,15 @@ const Chat = () => {
     }
   ];
 
+  const homeHelp = [
+    {
+      id: 1,
+      img: <TutorBag />,
+      title: 'Find a tutor',
+      onClick: onClose
+    }
+  ];
+
   useEffect(() => {
     window.addEventListener('resize', () => {
       const chatbotWidth =
@@ -167,7 +182,7 @@ const Chat = () => {
 
   return (
     <>
-      <Form id="chatbot">
+      <Form id="chatbot" isHomeWorkHelp={HomeWorkHelp}>
         <Wrapper>
           <ContentWrapper>
             <FlexColumnContainer>
@@ -203,7 +218,20 @@ const Chat = () => {
                       )
                     )}
                   </ChatContainerResponse>
-                  {!isShowPrompt && (
+                  {HomeWorkHelp && !isShowPrompt && (
+                    <OptionsContainer>
+                      <Text className="">What do you need?</Text>
+                      <PillsContainer>
+                        {homeHelp.map((need) => (
+                          <StyledDiv onClick={need.onClick} key={need.id}>
+                            {need.img}
+                            {need.title}
+                          </StyledDiv>
+                        ))}
+                      </PillsContainer>
+                    </OptionsContainer>
+                  )}
+                  {!HomeWorkHelp && !isShowPrompt && (
                     <OptionsContainer>
                       <Text className="">What do you need?</Text>
                       <PillsContainer>
@@ -236,12 +264,12 @@ const Chat = () => {
               </InnerWrapper>
             </FlexColumnContainer>
           </ContentWrapper>
-          {isShowPrompt && (
+          {!HomeWorkHelp && isShowPrompt && (
             <div
               style={{
                 position: 'relative',
                 bottom: '240px',
-                background: 'whitesmoke'
+                background: '#f9f9fb'
               }}
             >
               <OptionsContainer>
@@ -257,6 +285,27 @@ const Chat = () => {
             </div>
           )}
         </Wrapper>
+
+        {isShowPrompt && (
+          <TellMeMorePill isHomeWorkHelp={HomeWorkHelp}>
+            <p>Tell me more</p>
+            <TellMeMoreIcn />
+          </TellMeMorePill>
+        )}
+
+        {HomeWorkHelp && isShowPrompt && (
+          <OptionsContainer>
+            <Text className="">What do you need?</Text>
+            <PillsContainer>
+              {homeHelp.map((need) => (
+                <StyledDiv onClick={need.onClick} key={need.id}>
+                  {need.img}
+                  {need.title}
+                </StyledDiv>
+              ))}
+            </PillsContainer>
+          </OptionsContainer>
+        )}
         <ChatbotContainer chatbotSpace={chatbotSpace}>
           <InputContainer>
             <Input
@@ -269,9 +318,11 @@ const Chat = () => {
               <img alt="" src="/svgs/send.svg" className="w-8 h-8" />
             </SendButton>
           </InputContainer>
-          <ClockButton type="button" onClick={onChatHistory}>
-            <img alt="" src="/svgs/anti-clock.svg" className="w-5 h-5" />
-          </ClockButton>
+          {!HomeWorkHelp && (
+            <ClockButton type="button" onClick={onChatHistory}>
+              <img alt="" src="/svgs/anti-clock.svg" className="w-5 h-5" />
+            </ClockButton>
+          )}
         </ChatbotContainer>
       </Form>
 
