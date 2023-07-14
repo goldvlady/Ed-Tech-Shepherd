@@ -1,4 +1,5 @@
 import { PencilIcon, ArrowRightIcon } from '../icons';
+import { Text } from '@chakra-ui/react';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import React from 'react';
 
@@ -27,20 +28,20 @@ export default function ProfileTab() {
             <div className="absolute top-7 left-4 bg-primaryBlue flex justify-center items-center rounded-full w-5 h-5">
               <PencilIcon className="w-3 text-white" onClick={undefined} />
             </div>
-            <p className="">
+            <Text className="">
               <span className="block whitespace-nowrap">Leslie Peters</span>
               <span className="inline-block text-gray-400 text-sm">
                 lesliepeters@gmail.com
               </span>
-            </p>
+            </Text>
           </section>
         </div>
-        <p className="flex items-center space-x-6 pt-4 text-md">
+        <Text className="flex items-center space-x-6 pt-4 text-md">
           <span className="uppercase text-secondaryGray text-xs">
             Hourly rate
           </span>
           <span className="font-bold text-[16px]">$20.00/hr</span>
-        </p>
+        </Text>
       </section>
 
       <div className="relative rounded-lg isolate overflow-hidden bg-gray-900 px-6 py-24 sm:py-32 lg:px-8">
@@ -51,15 +52,15 @@ export default function ProfileTab() {
         />
         <div className="absolute inset-0 bg-[#0D1926] opacity-80"></div>
         <div className="mx-auto max-w-2xl text-center relative z-10">
-          <h2 className="text-4xl font-bold tracking-tight text-white sm:text-xl">
+          <Text className="text-4xl font-bold tracking-tight text-white sm:text-xl">
             Update intro video
-          </h2>
+          </Text>
         </div>
       </div>
 
       <section className="space-y-4 border shadow-sm sm:rounded-lg p-4">
         <div className="flex justify-between items-center">
-          <p className="text-secondaryGray">About Me</p>
+          <Text className="text-secondaryGray">About Me</Text>
           <div className="bg-white border flex justify-center items-center rounded-full w-8 h-8">
             <PencilIcon
               className="w-4 text-secondaryGray"
@@ -67,19 +68,19 @@ export default function ProfileTab() {
             />
           </div>
         </div>
-        <p className="text-sm font-normal text-justify">
+        <Text className="text-sm font-normal text-justify">
           Quam eros suspendisse a pulvinar sagittis mauris. Vel duis adipiscing
           id faucibus consectetur amet. Tempor dui quam scelerisque at tempor
           aliquam. Vivamus aenean hendrerit turpis velit pretium consectetur
           quam ut malesuada. Tempor dui quam scelerisque at tempor aliquam.
           Vivamus aenean hendrerit turpis velit pretium consectetur quam ut
           malesuada.
-        </p>
+        </Text>
       </section>
 
       <section className="space-y-4 border shadow-sm sm:rounded-lg p-4">
         <div className="flex justify-between items-center">
-          <p className="text-secondaryGray">Suject Offered</p>
+          <Text className="text-secondaryGray">Suject Offered</Text>
           <div className="bg-white border flex justify-center items-center rounded-full w-8 h-8">
             <PencilIcon
               className="w-4 text-secondaryGray"
@@ -126,7 +127,7 @@ export default function ProfileTab() {
 
       <section className="space-y-4 border shadow-sm sm:rounded-lg p-4">
         <div className="flex justify-between items-center">
-          <p className="text-secondaryGray">Qualifications</p>
+          <Text className="text-secondaryGray">Qualifications</Text>
           <div className="bg-white border flex justify-center items-center rounded-full w-8 h-8">
             <PencilIcon
               className="w-4 text-secondaryGray"
@@ -145,15 +146,15 @@ export default function ProfileTab() {
           </div>
 
           <div className="ml-3 w-0 flex-1 pt-0.5">
-            <p className="text-sm font-normal">
+            <Text className="text-sm font-normal">
               Indian Institute of Management (IIM), Bangalore
-            </p>
-            <p className="mt-1 text-sm font-normal text-secondaryGray">
+            </Text>
+            <Text className="mt-1 text-sm font-normal text-secondaryGray">
               Master of Business Administration (MBA), Information System
-            </p>
-            <p className="mt-1 text-sm font-normal text-secondaryGray">
+            </Text>
+            <Text className="mt-1 text-sm font-normal text-secondaryGray">
               2008 - 2010
-            </p>
+            </Text>
           </div>
         </div>
 
@@ -167,22 +168,22 @@ export default function ProfileTab() {
           </div>
 
           <div className="ml-3 w-0 flex-1 pt-0.5">
-            <p className="text-sm font-normal">
+            <Text className="text-sm font-normal">
               Indian Institute of Management (IIM), Bangalore
-            </p>
-            <p className="mt-1 text-sm font-normal text-secondaryGray">
+            </Text>
+            <Text className="mt-1 text-sm font-normal text-secondaryGray">
               Master of Business Administration (MBA), Information System
-            </p>
-            <p className="mt-1 text-sm font-normal text-secondaryGray">
+            </Text>
+            <Text className="mt-1 text-sm font-normal text-secondaryGray">
               2008 - 2010
-            </p>
+            </Text>
           </div>
         </div>
       </section>
 
       <section className="space-y-4 w-full border shadow-sm sm:rounded-lg p-4">
         <div className="flex justify-between items-center">
-          <p className="text-secondaryGray">Availability</p>
+          <pText className="text-secondaryGray">Availability</pText>
           <div className="bg-white border flex justify-center items-center rounded-full w-8 h-8">
             <PencilIcon
               className="w-4 text-secondaryGray"
@@ -247,9 +248,9 @@ export default function ProfileTab() {
                 <td className="py-4 pl-4 pr-4 text-xs font-semibold bg-gray-100">
                   <div className="flex items-center space-x-1 text-gray-700">
                     <img src="/svgs/cloud.svg" alt="" className="h-5 w-5" />
-                    <p>8 AM</p>
+                    <Text>8 AM</Text>
                     <ArrowRightIcon className="w-4" onClick={undefined} />
-                    <p>12 AM</p>
+                    <Text>12 AM</Text>
                   </div>
                 </td>
                 <td className="bg-profile-pattern whitespace-nowrap p-4 text-sm font-normal"></td>
@@ -264,9 +265,9 @@ export default function ProfileTab() {
                 <td className="py-4 pl-4 pr-4 text-xs font-semibold bg-gray-100">
                   <div className="flex items-center space-x-1 text-gray-700">
                     <img src="/svgs/cloud.svg" alt="" className="h-5 w-5" />
-                    <p>12 AM</p>
+                    <Text>12 AM</Text>
                     <ArrowRightIcon className="w-4" onClick={undefined} />
-                    <p>5 AM</p>
+                    <Text>5 AM</Text>
                   </div>
                 </td>
                 <td className="bg-white whitespace-nowrap p-4 text-sm font-normal">
@@ -291,7 +292,7 @@ export default function ProfileTab() {
                 <td className="py-4 pl-4 pr-4 text-xs font-semibold bg-gray-100 text-secondaryGray">
                   <div className="flex items-center space-x-2 text-gray-800">
                     <img src="/svgs/cloud.svg" alt="" className="h-5 w-5" />
-                    <p>5 AM</p>
+                    <Text>5 AM</Text>
                     <ArrowRightIcon className="w-4" onClick={undefined} />
                     <p>9 AM</p>
                   </div>

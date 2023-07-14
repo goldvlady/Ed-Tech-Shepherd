@@ -326,7 +326,10 @@ export default function Layout({ children, className }) {
                   >
                     <div className="absolute right-2 w-2 h-2 rounded-full bg-red-600"></div>
                     <span className="sr-only">View notifications</span>
-                    <BellIcon className="h-5 w-5 text-gray-500" aria-hidden="true" />
+                    <BellIcon
+                      className="h-5 w-5 text-gray-500"
+                      aria-hidden="true"
+                    />
                   </Menu.Button>
                 </div>
                 <Transition

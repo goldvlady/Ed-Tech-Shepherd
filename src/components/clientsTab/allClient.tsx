@@ -1,28 +1,33 @@
-import React, { Fragment, useLayoutEffect, useRef, useState } from 'react'
-import { StarIcon, EllipsisHorizontalIcon, ChevronRightIcon, XMarkIcon } from "@heroicons/react/24/solid";
+import { classNames } from '../../helpers';
 import { TrashIcon } from '../icons';
-import { Menu, Transition } from '@headlessui/react';
-import { 
-  Box, 
-  Button, 
-  Flex, 
-  Table, 
-  Tbody, 
-  Thead, 
-  Th, 
-  Tr, 
-  Td, 
-  Text, 
+import {
+  Box,
+  Button,
+  Flex,
+  Table,
+  Tbody,
+  Thead,
+  Th,
+  Tr,
+  Td,
+  Text,
   Input,
   Modal,
   ModalOverlay,
   ModalContent,
   SimpleGrid,
-  HStack, 
+  HStack
 } from '@chakra-ui/react';
-import { useNavigate } from "react-router-dom";
 import { useDisclosure } from '@chakra-ui/react';
-import { classNames } from '../../helpers';
+import { Menu, Transition } from '@headlessui/react';
+import {
+  StarIcon,
+  EllipsisHorizontalIcon,
+  ChevronRightIcon,
+  XMarkIcon
+} from '@heroicons/react/24/solid';
+import React, { Fragment, useLayoutEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface Client {
   id: number;
@@ -113,12 +118,20 @@ const clients: Client[] = [
     amountEarned: '410.00',
     classes: 'Lesson 1',
     rating: '1'
-  },
-]
+  }
+];
 
 const AllClientTab = () => {
-  const { isOpen: isOpenReport, onOpen: onOpenReport, onClose: onCloseReport } = useDisclosure();
-  const { isOpen: isOpenReview, onOpen: onOpenReview, onClose: onCloseReview } = useDisclosure();
+  const {
+    isOpen: isOpenReport,
+    onOpen: onOpenReport,
+    onClose: onCloseReport
+  } = useDisclosure();
+  const {
+    isOpen: isOpenReview,
+    onOpen: onOpenReview,
+    onClose: onCloseReview
+  } = useDisclosure();
   const checkbox = useRef<HTMLInputElement>(null);
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
@@ -126,7 +139,8 @@ const AllClientTab = () => {
   const navigate = useNavigate();
 
   useLayoutEffect(() => {
-    const isIndeterminate = selectedPeople.length > 0 && selectedPeople.length < clients.length;
+    const isIndeterminate =
+      selectedPeople.length > 0 && selectedPeople.length < clients.length;
     setChecked(selectedPeople.length === clients.length);
     setIndeterminate(isIndeterminate);
     if (checkbox.current) {
@@ -143,20 +157,19 @@ const AllClientTab = () => {
   return (
     <>
       <Box mt="4">
-        <Box 
-          className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <Box 
-            display="inline-block" 
-            minW="full" 
-            py={2} 
-            verticalAlign="middle" 
-            px={['2', '6']} 
+        <Box className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+          <Box
+            display="inline-block"
+            minW="full"
+            py={2}
+            verticalAlign="middle"
+            px={['2', '6']}
             pb={['2', '6']}
           >
             <Box pos="relative">
               <Box>
                 {selectedPeople.length > 0 && (
-                  <Flex 
+                  <Flex
                     top="20"
                     border="1px"
                     borderColor="gray.200"
@@ -168,12 +181,15 @@ const AllClientTab = () => {
                     width={469}
                     height={12}
                     bg="white"
-                    left={[0, 20]}>
-                    <p className='text-gray-600'>
+                    left={[0, 20]}
+                  >
+                    <p className="text-gray-600">
                       {selectedPeople.length} items selected
                     </p>
 
-                    <Button mx="1" color="gray.600" onClick={toggleAll}>Select all</Button>
+                    <Button mx="1" color="gray.600" onClick={toggleAll}>
+                      Select all
+                    </Button>
 
                     <Button
                       type="button"
@@ -192,12 +208,14 @@ const AllClientTab = () => {
                       ringInset="inset"
                       ringColor="gray.300"
                       _hover={{
-                        bg: "gray.50"
+                        bg: 'gray.50'
                       }}
                       cursor="not-allowed"
                     >
-                      <TrashIcon className="w-5" onClick={undefined}/>
-                      <Text as="span" ml={2}>Delete</Text>
+                      <TrashIcon className="w-5" onClick={undefined} />
+                      <Text as="span" ml={2}>
+                        Delete
+                      </Text>
                     </Button>
                     <Button
                       type="button"
@@ -215,7 +233,7 @@ const AllClientTab = () => {
                       ringInset="inset"
                       ringColor="gray.300"
                       _hover={{
-                        bg: "gray.50"
+                        bg: 'gray.50'
                       }}
                       cursor="not-allowed"
                     >
@@ -224,18 +242,17 @@ const AllClientTab = () => {
                   </Flex>
                 )}
               </Box>
-              <Table 
-                minW="full"
-                className="divide-y divide-gray-300">
+              <Table minW="full" className="divide-y divide-gray-300">
                 <Thead>
                   <Tr bg="gray.50">
-                    <Th 
-                      scope="col" 
+                    <Th
+                      scope="col"
                       position="relative"
                       w={[12]}
                       px={[6]}
                       visibility="hidden"
-                      className="hidden">
+                      className="hidden"
+                    >
                       <Input
                         type="checkbox"
                         pos="absolute"
@@ -256,39 +273,108 @@ const AllClientTab = () => {
                     </Th>
 
                     <Th scope="col" pos="relative" w={[12]} px={[0, 6]}></Th>
-                    
-                    <Th scope="col-span" w={[12]} py="3.5" textAlign="left" fontSize="xs" fontWeight="semibold" color="gray.600">
+
+                    <Th
+                      scope="col-span"
+                      w={[12]}
+                      py="3.5"
+                      textAlign="left"
+                      fontSize="xs"
+                      fontWeight="semibold"
+                      color="gray.600"
+                    >
                       Client name
                     </Th>
-                    <Th scope="col" py="3.5" textAlign="left" fontSize="xs" fontWeight="semibold" color="gray.600">
+                    <Th
+                      scope="col"
+                      py="3.5"
+                      textAlign="left"
+                      fontSize="xs"
+                      fontWeight="semibold"
+                      color="gray.600"
+                    >
                       Subject
                     </Th>
-                    <Th scope="col" py="3.5" textAlign="left" fontSize="xs" fontWeight="semibold" color="gray.600">
+                    <Th
+                      scope="col"
+                      py="3.5"
+                      textAlign="left"
+                      fontSize="xs"
+                      fontWeight="semibold"
+                      color="gray.600"
+                    >
                       Start date
                     </Th>
-                    <Th scope="col" py="3.5" textAlign="left" fontSize="xs" fontWeight="semibold" color="gray.600">
+                    <Th
+                      scope="col"
+                      py="3.5"
+                      textAlign="left"
+                      fontSize="xs"
+                      fontWeight="semibold"
+                      color="gray.600"
+                    >
                       End date
                     </Th>
-                    <Th scope="col" py="3.5" textAlign="left" fontSize="xs" fontWeight="semibold" color="gray.600">
+                    <Th
+                      scope="col"
+                      py="3.5"
+                      textAlign="left"
+                      fontSize="xs"
+                      fontWeight="semibold"
+                      color="gray.600"
+                    >
                       Status
                     </Th>
-                    <Th scope="col" py="3.5" textAlign="left" fontSize="xs" fontWeight="semibold" color="gray.600">
+                    <Th
+                      scope="col"
+                      py="3.5"
+                      textAlign="left"
+                      fontSize="xs"
+                      fontWeight="semibold"
+                      color="gray.600"
+                    >
                       Amount earned
                     </Th>
-                    <Th scope="col" py="3.5" textAlign="left" fontSize="xs" fontWeight="semibold" color="gray.600">
+                    <Th
+                      scope="col"
+                      py="3.5"
+                      textAlign="left"
+                      fontSize="xs"
+                      fontWeight="semibold"
+                      color="gray.600"
+                    >
                       Classes
                     </Th>
-                    <Th scope="col" py="3.5" textAlign="left" fontSize="xs" fontWeight="semibold" color="gray.600">
+                    <Th
+                      scope="col"
+                      py="3.5"
+                      textAlign="left"
+                      fontSize="xs"
+                      fontWeight="semibold"
+                      color="gray.600"
+                    >
                       Rating
                     </Th>
-                    <Th scope="col" py="3.5" textAlign="left" fontSize="xs" fontWeight="semibold" color="gray.600">
-                      
-                    </Th>
+                    <Th
+                      scope="col"
+                      py="3.5"
+                      textAlign="left"
+                      fontSize="xs"
+                      fontWeight="semibold"
+                      color="gray.600"
+                    ></Th>
                   </Tr>
                 </Thead>
                 <Tbody className="divide-y divide-gray-200 bg-white">
                   {clients.map((client) => (
-                    <Tr key={client.id} className={selectedPeople.includes(client) ? 'bg-blue-50' : undefined}>
+                    <Tr
+                      key={client.id}
+                      className={
+                        selectedPeople.includes(client)
+                          ? 'bg-blue-50'
+                          : undefined
+                      }
+                    >
                       <Td pos="relative" px={[7, 6]} w={[0, 12]}>
                         <input
                           type="checkbox"
@@ -305,44 +391,112 @@ const AllClientTab = () => {
                         />
                       </Td>
                       <Td
-                        whiteSpace="nowrap" 
-                        py="4" 
-                        pr="3" 
-                        fontSize="sm" 
+                        whiteSpace="nowrap"
+                        py="4"
+                        pr="3"
+                        fontSize="sm"
                         fontWeight="medium"
-                        color="gray.500">
+                        color="gray.500"
+                      >
                         {client.name}
                       </Td>
-                      <Td whiteSpace="nowrap" px="3" py="4" fontSize="sm" color="gray.500">{client.subject}</Td>
-                      <Td whiteSpace="nowrap" px="3" py="4" fontSize="sm" color="gray.500">{client.startDate}</Td>
-                      <Td whiteSpace="nowrap" px="3" py="4" fontSize="sm" color="gray.500">{client.endDate}</Td>
-                      <Td className={classNames(
-                        `${client.status.toLowerCase() === "active" ? 'text-primaryBlue' : 'text-gray-500'}`,
-                        `${client.status.toLowerCase() === "pending" ? 'text-orange-400' : 'text-gray-500'}`,
-                        'whitespace-nowrap px-3 py-4 text-sm'
-                      )}>{client.status}</Td>
-                      <Td whiteSpace="nowrap" px="3" py="4" fontSize="sm" color="gray.500">${client.amountEarned}</Td>
-                      <Td whiteSpace="nowrap" px="3" py="4" fontSize="sm" color="gray.500">
-                        <Text as="span" display="inline-block" bg="gray.100" px="4" py="1" rounded="md">{client.classes}</Text>
+                      <Td
+                        whiteSpace="nowrap"
+                        px="3"
+                        py="4"
+                        fontSize="sm"
+                        color="gray.500"
+                      >
+                        {client.subject}
                       </Td>
-                      <Td whiteSpace="nowrap" display="flex" alignItems="center" px="4" py="4" fontSize="sm" color="gray.500">
+                      <Td
+                        whiteSpace="nowrap"
+                        px="3"
+                        py="4"
+                        fontSize="sm"
+                        color="gray.500"
+                      >
+                        {client.startDate}
+                      </Td>
+                      <Td
+                        whiteSpace="nowrap"
+                        px="3"
+                        py="4"
+                        fontSize="sm"
+                        color="gray.500"
+                      >
+                        {client.endDate}
+                      </Td>
+                      <Td
+                        className={classNames(
+                          `${
+                            client.status.toLowerCase() === 'active'
+                              ? 'text-primaryBlue'
+                              : 'text-gray-500'
+                          }`,
+                          `${
+                            client.status.toLowerCase() === 'pending'
+                              ? 'text-orange-400'
+                              : 'text-gray-500'
+                          }`,
+                          'whitespace-nowrap px-3 py-4 text-sm'
+                        )}
+                      >
+                        {client.status}
+                      </Td>
+                      <Td
+                        whiteSpace="nowrap"
+                        px="3"
+                        py="4"
+                        fontSize="sm"
+                        color="gray.500"
+                      >
+                        ${client.amountEarned}
+                      </Td>
+                      <Td
+                        whiteSpace="nowrap"
+                        px="3"
+                        py="4"
+                        fontSize="sm"
+                        color="gray.500"
+                      >
+                        <Text
+                          as="span"
+                          display="inline-block"
+                          bg="gray.100"
+                          px="4"
+                          py="1"
+                          rounded="md"
+                        >
+                          {client.classes}
+                        </Text>
+                      </Td>
+                      <Td
+                        whiteSpace="nowrap"
+                        display="flex"
+                        alignItems="center"
+                        px="4"
+                        py="4"
+                        fontSize="sm"
+                        color="gray.500"
+                      >
                         <Text as="span">{client.rating}</Text>
-                        <StarIcon className="w-4 h-4 text-yellow-500"/>
+                        <StarIcon className="w-4 h-4 text-yellow-500" />
                       </Td>
-                      <Td 
-                        whiteSpace="nowrap" 
-                        py="4" 
+                      <Td
+                        whiteSpace="nowrap"
+                        py="4"
                         pl="3"
-                        pr={[0, 3]} 
-                        textAlign="right" 
-                        fontSize="sm" 
-                        fontWeight="medium" 
+                        pr={[0, 3]}
+                        textAlign="right"
+                        fontSize="sm"
+                        fontWeight="medium"
                         className="sm:pr-3"
                       >
                         <Menu as="div" className="relative">
                           <div>
                             <Menu.Button>
-                              <EllipsisHorizontalIcon className="h-6 text-secondaryGray"/>
+                              <EllipsisHorizontalIcon className="h-6 text-secondaryGray" />
                             </Menu.Button>
                           </div>
                           <Transition
@@ -355,53 +509,92 @@ const AllClientTab = () => {
                             leaveTo="transform opacity-0 scale-95"
                           >
                             <Menu.Items className="absolute space-y-3 p-4 right-0 z-50 mt-2.5 w-[15rem] origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-900/5 focus:outline-none">
-                              <section className='space-y-2 border-b pb-2'>
-                                <button onClick={() => navigate(`/clients/${client.id}`)} className='w-full bg-gray-100 rounded-md flex items-center justify-between p-2'>
-                                  <div className=' flex items-center space-x-1'>
-                                    <div className='bg-white flex justify-center items-center w-7 h-7 border rounded-full'>
-                                      <img src="/svgs/contract.svg" alt='Contract' className="w-4 h-4"/>
+                              <section className="space-y-2 border-b pb-2">
+                                <button
+                                  onClick={() =>
+                                    navigate(`/clients/${client.id}`)
+                                  }
+                                  className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
+                                >
+                                  <div className=" flex items-center space-x-1">
+                                    <div className="bg-white flex justify-center items-center w-7 h-7 border rounded-full">
+                                      <img
+                                        src="/svgs/contract.svg"
+                                        alt="Contract"
+                                        className="w-4 h-4"
+                                      />
                                     </div>
-                                    <h4 className='text-sm text-secondaryGray font-medium'>Contract</h4>
+                                    <h4 className="text-sm text-secondaryGray font-medium">
+                                      Contract
+                                    </h4>
                                   </div>
-                                  <ChevronRightIcon className="w-2.5 h-2.5"/>
+                                  <ChevronRightIcon className="w-2.5 h-2.5" />
                                 </button>
-                                <button onClick={onOpenReport} className='w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2'>
-                                  <div className='flex items-center space-x-1'>
-                                    <div className='bg-white border flex justify-center items-center w-7 h-7 rounded-full'>
-                                      <img src="/svgs/contract.svg" alt='Monthly report' className="w-4 h-4"/>
+                                <button
+                                  onClick={onOpenReport}
+                                  className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
+                                >
+                                  <div className="flex items-center space-x-1">
+                                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                                      <img
+                                        src="/svgs/contract.svg"
+                                        alt="Monthly report"
+                                        className="w-4 h-4"
+                                      />
                                     </div>
-                                    <h4 className='text-sm text-secondaryGray font-medium'>Monthly report</h4>
+                                    <h4 className="text-sm text-secondaryGray font-medium">
+                                      Monthly report
+                                    </h4>
                                   </div>
-                                  <ChevronRightIcon className="w-2.5 h-2.5"/>
+                                  <ChevronRightIcon className="w-2.5 h-2.5" />
                                 </button>
-                                <button onClick={onOpenReview} className='w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2'>
-                                  <div className='flex items-center space-x-1'>
-                                    <div className='bg-white border flex justify-center items-center w-7 h-7 rounded-full'>
-                                      <StarIcon className="w-4 h-4 text-secondaryGray"/>
+                                <button
+                                  onClick={onOpenReview}
+                                  className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
+                                >
+                                  <div className="flex items-center space-x-1">
+                                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                                      <StarIcon className="w-4 h-4 text-secondaryGray" />
                                     </div>
-                                    <h4 className='text-sm text-secondaryGray font-medium'>Client review</h4>
+                                    <h4 className="text-sm text-secondaryGray font-medium">
+                                      Client review
+                                    </h4>
                                   </div>
-                                  <ChevronRightIcon className="w-2.5 h-2.5"/>
+                                  <ChevronRightIcon className="w-2.5 h-2.5" />
                                 </button>
                               </section>
                               {client.status.toLowerCase() === 'ended' ? (
-                                <button disabled={true} className='w-full cursor-not-allowed hover:bg-gray-100 rounded-md flex items-center justify-between p-2'>
-                                  <div className='flex items-center space-x-1'>
-                                    <div className='bg-white border flex justify-center items-center w-7 h-7 rounded-full'>
-                                      <TrashIcon className="w-4 h-4 text-gray-400" onClick={undefined}/>
+                                <button
+                                  disabled={true}
+                                  className="w-full cursor-not-allowed hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
+                                >
+                                  <div className="flex items-center space-x-1">
+                                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                                      <TrashIcon
+                                        className="w-4 h-4 text-gray-400"
+                                        onClick={undefined}
+                                      />
                                     </div>
-                                    <h4 className='text-sm text-gray-300 font-medium'>Delete</h4>
+                                    <h4 className="text-sm text-gray-300 font-medium">
+                                      Delete
+                                    </h4>
                                   </div>
                                 </button>
                               ) : (
-                              <button className='w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2'>
-                                <div className='flex items-center space-x-1'>
-                                  <div className='bg-white border flex justify-center items-center w-7 h-7 rounded-full'>
-                                    <img src="/svgs/trash.svg" alt='Delete Clients' className="w-4 h-4"/>
+                                <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
+                                  <div className="flex items-center space-x-1">
+                                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                                      <img
+                                        src="/svgs/trash.svg"
+                                        alt="Delete Clients"
+                                        className="w-4 h-4"
+                                      />
+                                    </div>
+                                    <h4 className="text-sm text-error font-medium">
+                                      Delete
+                                    </h4>
                                   </div>
-                                  <h4 className='text-sm text-error font-medium'>Delete</h4>
-                                </div>
-                              </button>
+                                </button>
                               )}
                             </Menu.Items>
                           </Transition>
@@ -422,13 +615,20 @@ const AllClientTab = () => {
         <ModalContent>
           <Box>
             <Box py="2">
-              <Flex alignItems="center" justifyContent="space-between" px="3" borderBottom="1px" borderBottomColor="gray.200" pb="3">
+              <Flex
+                alignItems="center"
+                justifyContent="space-between"
+                px="3"
+                borderBottom="1px"
+                borderBottomColor="gray.200"
+                pb="3"
+              >
                 <Text as="h3">Monthly report</Text>
-                <Button 
+                <Button
                   onClick={onCloseReport}
                   display="flex"
                   justifyContent="center"
-                  alignItems="center" 
+                  alignItems="center"
                   rounded="full"
                   h="10"
                   w="10"
@@ -436,19 +636,31 @@ const AllClientTab = () => {
                   borderColor="gray.200"
                   bg="white"
                   fontWeight="medium"
-                  color="gray.600">
-                  <XMarkIcon className='w-10 h-10'/>
+                  color="gray.600"
+                >
+                  <XMarkIcon className="w-10 h-10" />
                 </Button>
               </Flex>
               <Box mt={[3, 5]}>
                 <Box mt="4">
-                  <Text as="h3" color="gray.700" mb="3" pl="4">Previous classes</Text>
+                  <Text as="h3" color="gray.700" mb="3" pl="4">
+                    Previous classes
+                  </Text>
                   <HStack pl="4">
-                    <Text as="h3" fontSize="xs">8th May</Text>
-                    <Box borderTop="1px" borderTopColor="gray.200" flex="1" mt="1.5" pt="2" pr="4">
-                      <Flex 
-                        flex="1" 
-                        alignItems="center" 
+                    <Text as="h3" fontSize="xs">
+                      8th May
+                    </Text>
+                    <Box
+                      borderTop="1px"
+                      borderTopColor="gray.200"
+                      flex="1"
+                      mt="1.5"
+                      pt="2"
+                      pr="4"
+                    >
+                      <Flex
+                        flex="1"
+                        alignItems="center"
                         justifyContent="space-between"
                         w="full"
                         p="2"
@@ -457,27 +669,35 @@ const AllClientTab = () => {
                         rounded="md"
                         bg="white"
                       >
-                        <Flex
-                          alignItems="center"
-                          fontSize="xs"
-                        >
-                          <svg viewBox="0 0 2 2" className="h-1.5 w-1.5 text-gray-400 fill-current">
+                        <Flex alignItems="center" fontSize="xs">
+                          <svg
+                            viewBox="0 0 2 2"
+                            className="h-1.5 w-1.5 text-gray-400 fill-current"
+                          >
                             <circle cx={1} cy={1} r={1} />
                           </svg>
-                          <Text mx="2" as="p" color="gray.800">03:30 pm</Text>
-                          <svg viewBox="0 0 2 2" className="h-1.5 w-1.5 text-gray-400 fill-current">
+                          <Text mx="2" as="p" color="gray.800">
+                            03:30 pm
+                          </Text>
+                          <svg
+                            viewBox="0 0 2 2"
+                            className="h-1.5 w-1.5 text-gray-400 fill-current"
+                          >
                             <circle cx={1} cy={1} r={1} />
                           </svg>
-                          <Text as="p" mx="2" color="gray.800">04:30 pm</Text>
+                          <Text as="p" mx="2" color="gray.800">
+                            04:30 pm
+                          </Text>
                         </Flex>
-                        <Text 
-                          as="p" 
-                          fontSize="xs" 
-                          px="2" 
-                          py="1" 
+                        <Text
+                          as="p"
+                          fontSize="xs"
+                          px="2"
+                          py="1"
                           rounded="full"
                           bg="blue.50"
-                          color="blue.500">
+                          color="blue.500"
+                        >
                           1hr
                         </Text>
                       </Flex>
@@ -485,11 +705,20 @@ const AllClientTab = () => {
                   </HStack>
 
                   <HStack mt="1" pl="4">
-                    <Text as="h3" fontSize="xs">8th May</Text>
-                    <Box borderTop="1px" borderTopColor="gray.200" flex="1" mt="1.5" pt="2" pr="4">
-                      <Flex 
-                        flex="1" 
-                        alignItems="center" 
+                    <Text as="h3" fontSize="xs">
+                      8th May
+                    </Text>
+                    <Box
+                      borderTop="1px"
+                      borderTopColor="gray.200"
+                      flex="1"
+                      mt="1.5"
+                      pt="2"
+                      pr="4"
+                    >
+                      <Flex
+                        flex="1"
+                        alignItems="center"
                         justifyContent="space-between"
                         w="full"
                         p="2"
@@ -498,27 +727,35 @@ const AllClientTab = () => {
                         rounded="md"
                         bg="white"
                       >
-                        <Flex
-                          alignItems="center"
-                          fontSize="xs"
-                        >
-                          <svg viewBox="0 0 2 2" className="h-1.5 w-1.5 text-gray-400 fill-current">
+                        <Flex alignItems="center" fontSize="xs">
+                          <svg
+                            viewBox="0 0 2 2"
+                            className="h-1.5 w-1.5 text-gray-400 fill-current"
+                          >
                             <circle cx={1} cy={1} r={1} />
                           </svg>
-                          <Text mx="2" as="p" color="gray.800">03:30 pm</Text>
-                          <svg viewBox="0 0 2 2" className="h-1.5 w-1.5 text-gray-400 fill-current">
+                          <Text mx="2" as="p" color="gray.800">
+                            03:30 pm
+                          </Text>
+                          <svg
+                            viewBox="0 0 2 2"
+                            className="h-1.5 w-1.5 text-gray-400 fill-current"
+                          >
                             <circle cx={1} cy={1} r={1} />
                           </svg>
-                          <Text as="p" mx="2" color="gray.800">04:30 pm</Text>
+                          <Text as="p" mx="2" color="gray.800">
+                            04:30 pm
+                          </Text>
                         </Flex>
-                        <Text 
-                          as="p" 
-                          fontSize="xs" 
-                          px="2" 
-                          py="1" 
+                        <Text
+                          as="p"
+                          fontSize="xs"
+                          px="2"
+                          py="1"
                           rounded="full"
                           bg="blue.50"
-                          color="blue.500">
+                          color="blue.500"
+                        >
                           1hr
                         </Text>
                       </Flex>
@@ -527,13 +764,24 @@ const AllClientTab = () => {
                 </Box>
 
                 <Box mt="4">
-                  <Text as="h3" color="gray.700" mb="3" pl="4">Upcoming classes</Text>
+                  <Text as="h3" color="gray.700" mb="3" pl="4">
+                    Upcoming classes
+                  </Text>
                   <HStack pl="4">
-                    <Text as="h3" fontSize="xs">10th May</Text>
-                    <Box borderTop="1px" borderTopColor="gray.200" flex="1" mt="1.5" pt="2" pr="4">
-                      <Flex 
-                        flex="1" 
-                        alignItems="center" 
+                    <Text as="h3" fontSize="xs">
+                      10th May
+                    </Text>
+                    <Box
+                      borderTop="1px"
+                      borderTopColor="gray.200"
+                      flex="1"
+                      mt="1.5"
+                      pt="2"
+                      pr="4"
+                    >
+                      <Flex
+                        flex="1"
+                        alignItems="center"
                         justifyContent="space-between"
                         w="full"
                         p="2"
@@ -542,27 +790,35 @@ const AllClientTab = () => {
                         rounded="md"
                         bg="white"
                       >
-                        <Flex
-                          alignItems="center"
-                          fontSize="xs"
-                        >
-                          <svg viewBox="0 0 2 2" className="h-1.5 w-1.5 text-gray-400 fill-current">
+                        <Flex alignItems="center" fontSize="xs">
+                          <svg
+                            viewBox="0 0 2 2"
+                            className="h-1.5 w-1.5 text-gray-400 fill-current"
+                          >
                             <circle cx={1} cy={1} r={1} />
                           </svg>
-                          <Text mx="2" as="p" color="gray.800">03:30 pm</Text>
-                          <svg viewBox="0 0 2 2" className="h-1.5 w-1.5 text-gray-400 fill-current">
+                          <Text mx="2" as="p" color="gray.800">
+                            03:30 pm
+                          </Text>
+                          <svg
+                            viewBox="0 0 2 2"
+                            className="h-1.5 w-1.5 text-gray-400 fill-current"
+                          >
                             <circle cx={1} cy={1} r={1} />
                           </svg>
-                          <Text as="p" mx="2" color="gray.800">04:30 pm</Text>
+                          <Text as="p" mx="2" color="gray.800">
+                            04:30 pm
+                          </Text>
                         </Flex>
-                        <Text 
-                          as="p" 
-                          fontSize="xs" 
-                          px="2" 
-                          py="1" 
+                        <Text
+                          as="p"
+                          fontSize="xs"
+                          px="2"
+                          py="1"
                           rounded="full"
                           bg="blue.50"
-                          color="blue.500">
+                          color="blue.500"
+                        >
                           1hr
                         </Text>
                       </Flex>
@@ -570,11 +826,20 @@ const AllClientTab = () => {
                   </HStack>
 
                   <HStack mt="1" pl="4">
-                    <Text as="h3" fontSize="xs">12th May</Text>
-                    <Box borderTop="1px" borderTopColor="gray.200" flex="1" mt="1.5" pt="2" pr="4">
-                      <Flex 
-                        flex="1" 
-                        alignItems="center" 
+                    <Text as="h3" fontSize="xs">
+                      12th May
+                    </Text>
+                    <Box
+                      borderTop="1px"
+                      borderTopColor="gray.200"
+                      flex="1"
+                      mt="1.5"
+                      pt="2"
+                      pr="4"
+                    >
+                      <Flex
+                        flex="1"
+                        alignItems="center"
                         justifyContent="space-between"
                         w="full"
                         p="2"
@@ -583,27 +848,35 @@ const AllClientTab = () => {
                         rounded="md"
                         bg="white"
                       >
-                        <Flex
-                          alignItems="center"
-                          fontSize="xs"
-                        >
-                          <svg viewBox="0 0 2 2" className="h-1.5 w-1.5 text-gray-400 fill-current">
+                        <Flex alignItems="center" fontSize="xs">
+                          <svg
+                            viewBox="0 0 2 2"
+                            className="h-1.5 w-1.5 text-gray-400 fill-current"
+                          >
                             <circle cx={1} cy={1} r={1} />
                           </svg>
-                          <Text mx="2" as="p" color="gray.800">03:30 pm</Text>
-                          <svg viewBox="0 0 2 2" className="h-1.5 w-1.5 text-gray-400 fill-current">
+                          <Text mx="2" as="p" color="gray.800">
+                            03:30 pm
+                          </Text>
+                          <svg
+                            viewBox="0 0 2 2"
+                            className="h-1.5 w-1.5 text-gray-400 fill-current"
+                          >
                             <circle cx={1} cy={1} r={1} />
                           </svg>
-                          <Text as="p" mx="2" color="gray.800">04:30 pm</Text>
+                          <Text as="p" mx="2" color="gray.800">
+                            04:30 pm
+                          </Text>
                         </Flex>
-                        <Text 
-                          as="p" 
-                          fontSize="xs" 
-                          px="2" 
-                          py="1" 
+                        <Text
+                          as="p"
+                          fontSize="xs"
+                          px="2"
+                          py="1"
                           rounded="full"
                           bg="blue.50"
-                          color="blue.500">
+                          color="blue.500"
+                        >
                           1hr
                         </Text>
                       </Flex>
@@ -612,18 +885,31 @@ const AllClientTab = () => {
                 </Box>
               </Box>
             </Box>
-            <Flex mt={[5, 6]} p="3" justifyContent="space-between" alignItems="center" w="full" bg="gray.100">
+            <Flex
+              mt={[5, 6]}
+              p="3"
+              justifyContent="space-between"
+              alignItems="center"
+              w="full"
+              bg="gray.100"
+            >
               <Box fontSize="xs" color="gray.600">
                 <Text as="p">Total hours</Text>
-                <Text as="p" color="gray.800" fontWeight="semibold">20 hrs</Text>
+                <Text as="p" color="gray.800" fontWeight="semibold">
+                  20 hrs
+                </Text>
               </Box>
               <Box fontSize="xs" color="gray.600">
                 <Text as="p">Total Received</Text>
-                <Text as="p" color="gray.800" fontWeight="semibold">$212.00</Text>
+                <Text as="p" color="gray.800" fontWeight="semibold">
+                  $212.00
+                </Text>
               </Box>
               <Box fontSize="xs" color="gray.600">
                 <Text as="p">Total Amount</Text>
-                <Text as="p" color="gray.800" fontWeight="semibold">$412.00</Text>
+                <Text as="p" color="gray.800" fontWeight="semibold">
+                  $412.00
+                </Text>
               </Box>
             </Flex>
           </Box>
@@ -635,7 +921,7 @@ const AllClientTab = () => {
         <ModalOverlay />
         <ModalContent>
           <Box>
-            <Flex 
+            <Flex
               justifyContent="center"
               px="3"
               py="3"
@@ -647,81 +933,85 @@ const AllClientTab = () => {
             </Flex>
             <Box mt={[3, 5]}>
               <Box p="3">
-                <Text as="h3" color="gray.700" mb="2">Rating</Text>
+                <Text as="h3" color="gray.700" mb="2">
+                  Rating
+                </Text>
                 <SimpleGrid columns={5} gap={2}>
-                  <Flex 
-                    justifyContent="center" 
+                  <Flex
+                    justifyContent="center"
                     border="1px"
                     borderColor="gray.200"
                     py="2"
                     rounded="md"
-                    textAlign="center" 
+                    textAlign="center"
                     bg="white"
                   >
                     <Text as="span">1</Text>
-                    <StarIcon className='w-5 text-yellow-400'/>
+                    <StarIcon className="w-5 text-yellow-400" />
                   </Flex>
-                  <Flex 
-                    justifyContent="center" 
+                  <Flex
+                    justifyContent="center"
                     border="1px"
                     borderColor="gray.200"
                     py="2"
                     rounded="md"
-                    textAlign="center" 
+                    textAlign="center"
                     bg="white"
                   >
                     <Text as="span">2</Text>
-                    <StarIcon className='w-5 text-yellow-400'/>
+                    <StarIcon className="w-5 text-yellow-400" />
                   </Flex>
-                  <Flex 
-                    justifyContent="center" 
+                  <Flex
+                    justifyContent="center"
                     border="1px"
                     borderColor="gray.200"
                     py="2"
                     rounded="md"
-                    textAlign="center" 
+                    textAlign="center"
                     bg="white"
                   >
                     <Text as="span">3</Text>
-                    <StarIcon className='w-5 text-yellow-400'/>
+                    <StarIcon className="w-5 text-yellow-400" />
                   </Flex>
-                  <Flex 
-                    justifyContent="center" 
+                  <Flex
+                    justifyContent="center"
                     border="1px"
                     borderColor="gray.200"
                     py="2"
                     rounded="md"
-                    textAlign="center" 
+                    textAlign="center"
                     bg="white"
                   >
                     <Text as="span">4</Text>
-                    <StarIcon className='w-5 text-yellow-400'/>
+                    <StarIcon className="w-5 text-yellow-400" />
                   </Flex>
-                  <Flex 
-                    justifyContent="center" 
+                  <Flex
+                    justifyContent="center"
                     border="1px"
                     borderColor="gray.200"
                     py="2"
                     rounded="md"
-                    textAlign="center" 
+                    textAlign="center"
                     bg="white"
                   >
                     <Text as="span">5</Text>
-                    <StarIcon className='w-5 text-yellow-400'/>
+                    <StarIcon className="w-5 text-yellow-400" />
                   </Flex>
                 </SimpleGrid>
               </Box>
               <Box p="3">
-                <Text 
-                  as="p" 
-                  mt="4" 
-                  border="1px" 
-                  borderColor="gray.200" 
+                <Text
+                  as="p"
+                  mt="4"
+                  border="1px"
+                  borderColor="gray.200"
                   rounded="md"
                   p="3"
                   color="gray.800"
                 >
-                  Risus purus sed integer arcu sollicitudin eros tellus phasellus viverra. Dolor suspendisse quisque proin velit nulla diam. Vitae in mauris condimentum s
+                  Risus purus sed integer arcu sollicitudin eros tellus
+                  phasellus viverra. Dolor suspendisse quisque proin velit nulla
+                  diam. Vitae in mauris condimentum s
                 </Text>
               </Box>
             </Box>
@@ -729,8 +1019,7 @@ const AllClientTab = () => {
         </ModalContent>
       </Modal>
     </>
+  );
+};
 
-  )
-}
-
-export default AllClientTab
+export default AllClientTab;
