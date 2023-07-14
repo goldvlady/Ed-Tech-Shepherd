@@ -1,7 +1,7 @@
+import { Text } from '@chakra-ui/react';
 import { Dialog, Transition } from '@headlessui/react';
 import { ChevronRightIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import React, { Fragment, useState } from 'react';
-import { Text } from '@chakra-ui/react';
 
 export default function SecurityTab() {
   const [deleteAccountModalState, setDeleteAccountModalState] = useState(false);
