@@ -15,6 +15,7 @@ import userStore from '../../state/userStore';
 import TutorMarketplace from './Tutor';
 import AskShepherd from './components/AskShepherd';
 import MenuLinedList from './components/MenuLinedList';
+import Notifications from './components/Notifications';
 import DashboardIndex from './index';
 import {
   Avatar,
@@ -170,7 +171,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
     setToggleHelpModal(true);
   };
   const navigate = useNavigate();
-  const { user }: any = userStore();
+  const { user, userNotifications }: any = userStore();
 
   const handleSignOut = () => {
     signOut(auth).then(() => {
@@ -246,99 +247,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                 />{' '}
               </MenuButton>
               <MenuList p={3} width={'358px'} zIndex={2}>
-                <Box>
-                  <Flex alignItems="flex-start" px={3} direction={'row'} my={1}>
-                    <Image
-                      src={VideoIcon}
-                      alt="doc"
-                      maxHeight={45}
-                      zIndex={1}
-                    />
-                    <Stack direction={'column'} px={4} spacing={1}>
-                      <Text color="text.300" fontSize={12} mb={0}>
-                        19 May, 2023
-                      </Text>
-                      <Text
-                        fontWeight={400}
-                        color="text.200"
-                        fontSize="14px"
-                        mb={0}
-                      >
-                        Your chemistry lesson session with Leslie Peters started
-                      </Text>
-
-                      <Spacer />
-                    </Stack>
-                  </Flex>
-                  <Divider />
-                  <Flex alignItems="flex-start" px={3} direction={'row'} my={1}>
-                    <Image
-                      src={MessageIcon}
-                      alt="doc"
-                      maxHeight={45}
-                      zIndex={1}
-                    />
-                    <Stack direction={'column'} px={4} spacing={1}>
-                      <Text color="text.300" fontSize={12} mb={0}>
-                        2 hrs ago
-                      </Text>
-                      <Text
-                        fontWeight={400}
-                        color="text.200"
-                        fontSize="14px"
-                        mb={0}
-                      >
-                        Leslie Peters sent you a text while your were away
-                      </Text>
-                    </Stack>
-                  </Flex>
-                  <Divider />
-                  <Flex alignItems="flex-start" px={3} direction={'row'} my={1}>
-                    <Image
-                      src={VideoIcon}
-                      alt="doc"
-                      maxHeight={45}
-                      zIndex={1}
-                    />
-                    <Stack direction={'column'} px={4} spacing={1}>
-                      <Text color="text.300" fontSize={12} mb={0}>
-                        2 hrs ago
-                      </Text>
-                      <Text
-                        fontWeight={400}
-                        color="text.200"
-                        fontSize="14px"
-                        mb={0}
-                      >
-                        Your chemistry lesson session with Leslie Peters started
-                      </Text>
-
-                      <Spacer />
-                    </Stack>
-                  </Flex>
-                  <Divider />
-                  <Flex alignItems="flex-start" px={3} direction={'row'} my={1}>
-                    <Image
-                      src={MessageIcon}
-                      alt="doc"
-                      maxHeight={45}
-                      zIndex={1}
-                    />
-                    <Stack direction={'column'} px={4} spacing={1}>
-                      <Text color="text.300" fontSize={12} mb={0}>
-                        2 hrs ago
-                      </Text>
-                      <Text
-                        fontWeight={400}
-                        color="text.200"
-                        fontSize="14px"
-                        mb={0}
-                      >
-                        Leslie Peters sent you a text while your were away
-                      </Text>
-                    </Stack>
-                  </Flex>
-                </Box>
+                <Notifications data={userNotifications} />
               </MenuList>
             </Menu>
             <Center height="25px">

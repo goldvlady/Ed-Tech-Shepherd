@@ -1,9 +1,10 @@
 import ApiService from '../services/ApiService';
-import { User } from '../types';
+import { User, UserNotifications } from '../types';
 import { create } from 'zustand';
 
 type Store = {
   user: User | null;
+  userNotifications: Array<UserNotifications>;
   fetchUser: () => Promise<void>;
 };
 
@@ -27,8 +28,13 @@ const useHack = true;
 
 export default create<Store>((set) => ({
   user: null,
+  userNotifications: [],
   fetchUser: async () => {
     const response = await ApiService.getUser();
-    set({ user: await response.json() });
+    const notificationsResponse = await ApiService.getUserNotifications();
+    set({
+      user: await response.json(),
+      userNotifications: await notificationsResponse.json()
+    });
   }
 }));
