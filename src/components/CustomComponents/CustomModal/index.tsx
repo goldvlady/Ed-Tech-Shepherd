@@ -51,6 +51,7 @@ const CustomModal = ({
       <ModalContent
         height={style?.height ?? '350px'}
         maxWidth={style?.maxWidth ?? '100%'}
+        containerProps={{ justifyContent: 'end', paddingLeft: '2rem' }}
       >
         <ModalHeader style={modalTitleStyle}>{modalTitle}</ModalHeader>
         {isModalCloseButton && <ModalCloseButton />}

@@ -1,5 +1,5 @@
 import Header from '../../components/Header';
-import { Box, Text, Button } from '@chakra-ui/react';
+import { Box, Text, Button, Link } from '@chakra-ui/react';
 import { User, getAuth, onAuthStateChanged } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
 import { AiOutlineFileDone } from 'react-icons/ai';
@@ -92,20 +92,23 @@ const PendingVerification = () => {
             once we verify your account.
           </Text>
 
-          <Button
+          <Link
+            target="_blank"
+            rel="noopener noreferrer"
+            href="mailto:hello@shepherdtutors.com"
             display="flex"
             flexDirection="row"
+            color="white"
             justifyContent="center"
             alignItems="center"
-            padding="14px 178px"
+            padding="14px 100px"
             marginTop="30px"
-            width="343px"
             height="48px"
             background="#207DF7"
             borderRadius="8px"
           >
             Contact Support
-          </Button>
+          </Link>
         </Box>
       </Root>
     </>

@@ -74,6 +74,16 @@ const PaymentInformationForm: React.FC = () => {
             placeholder="e.g Barclays"
           />
         </FormControl>
+        <FormControl>
+          <FormLabel>Swift Code (optional)</FormLabel>
+          <Input
+            type="text"
+            name="swiftCode"
+            value={bankInfo?.swiftCode}
+            onChange={handleInputChange}
+            placeholder="e.g 00000"
+          />
+        </FormControl>
       </Stack>
     </Box>
   );

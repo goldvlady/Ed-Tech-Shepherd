@@ -9,13 +9,16 @@ import React, {
 
 interface FlashcardData {
   deckname: string;
-  studyType: string;
+  studyType?: string;
   subject?: string;
   topic?: string;
   studyPeriod: string;
   numQuestions: number;
-  timerDuration: string;
+  timerDuration?: string;
   hasSubmitted: boolean;
+  studyDuration?: string;
+  selectQuestionTypes?: string[];
+  selectPagesInclude?: number;
 }
 
 export interface FlashcardQuestion {

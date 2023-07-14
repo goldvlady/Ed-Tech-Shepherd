@@ -36,6 +36,7 @@ export interface TutorBankInfo {
   accountName: string;
   accountNumber: string;
   bankName: string;
+  swiftCode?: string;
 }
 
 export interface TutorQualification {
@@ -43,6 +44,7 @@ export interface TutorQualification {
   degree: string;
   startDate: Date;
   endDate: Date;
+  transcript?: string;
 }
 
 export interface Country {

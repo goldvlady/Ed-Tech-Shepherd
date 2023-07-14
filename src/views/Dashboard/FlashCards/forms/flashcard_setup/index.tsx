@@ -22,7 +22,10 @@ const SetupFlashcardPage = ({ isAutomated }: { isAutomated?: boolean }) => {
   const steps: Step[] = [{ title: '' }, { title: '' }, { title: '' }];
   const formComponents = [FlashCardSetupInit, FlashCardQuestionsPage];
 
-  const CurrentForm = useMemo(() => formComponents[currentStep], [currentStep]);
+  const CurrentForm = useMemo(
+    () => formComponents[currentStep],
+    [currentStep, formComponents]
+  );
 
   return (
     <Box>

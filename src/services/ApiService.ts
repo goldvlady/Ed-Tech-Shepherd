@@ -52,6 +52,10 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/getStudentFlashcards`);
   };
 
+  static getCompanyRate = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getCompanyRate`);
+  };
+
   static deleteFlashcard = async (id: string | number) => {
     return doFetch(`${ApiService.baseEndpoint}/deleteFlashcard?id=${id}`, {
       method: 'POST'

@@ -77,8 +77,6 @@ const CreateFlashPage = () => {
   const { flashcardData, questions, goToStep, setFlashcardData } =
     useFlashCardState();
 
-  console.log(flashcardData);
-
   const { createFlashCard, flashcard, isLoading, fetchFlashcards } =
     flashcardStore();
   const [isCompleted, setIsCompleted] = useState(false);
@@ -90,7 +88,7 @@ const CreateFlashPage = () => {
     setSettings((value) => ({ ...value, type: badge }));
   };
 
-  const onSubmitFlashcard = async () => {
+  const onSubmitFlashcard = useCallback(async () => {
     try {
       const response = await createFlashCard(
         { ...flashcardData, questions },
@@ -127,7 +125,15 @@ const CreateFlashPage = () => {
         isClosable: true
       });
     }
-  };
+  }, [
+    flashcardData,
+    questions,
+    toast,
+    setFlashcardData,
+    fetchFlashcards,
+    createFlashCard,
+    settings.source
+  ]);
 
   // const [activeBadge, setActiveBadge] = useState<TypeEnum>(TypeEnum.INIT);
 
@@ -144,7 +150,13 @@ const CreateFlashPage = () => {
         setSettings((value) => ({ ...value, type: TypeEnum.FLASHCARD }));
       }
     }
-  }, [flashcardData, hasSubmittedFlashCards, settings.type, settings.source]);
+  }, [
+    flashcardData,
+    hasSubmittedFlashCards,
+    settings.type,
+    settings.source,
+    onSubmitFlashcard
+  ]);
 
   const handleBadgeClick = (badge: TypeEnum) => {
     if (settings.source === SourceEnum.DOCUMENT && badge !== TypeEnum.FLASHCARD)
