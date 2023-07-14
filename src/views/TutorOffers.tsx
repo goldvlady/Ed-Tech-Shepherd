@@ -1,7 +1,14 @@
 import { Layout, OffersGridList, Section } from '../components';
-import React from 'react';
+import offerStore from '../state/offerStore';
+import React, { useEffect } from 'react';
 
 export default function Offers() {
+  const { offers, isLoading, fetchOffers } = offerStore();
+
+  useEffect(() => {
+    fetchOffers();
+  }, []);
+
   return (
     <Layout className="px-4">
       <Section
