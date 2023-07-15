@@ -10,3 +10,5 @@ function NotificationsTab(): JSX.Element {
     </div>
   );
 }
+
+export default NotificationsTab;
