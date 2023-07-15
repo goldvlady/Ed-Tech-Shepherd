@@ -13,10 +13,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchTutorActivityFeed();
-
-    console.log(tutorActivityFeed)
   }, []);
-  
+
   return (
     <Layout className="px-4">
       <WelcomePage
