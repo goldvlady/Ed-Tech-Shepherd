@@ -172,12 +172,14 @@ const PlansModal = ({ setTogglePlansModal, togglePlansModal }: ToggleProps) => {
                                   </Flex>
                                 ))}
                               </Stack>
-                              <CustomButton
-                                width="full"
-                                padding="10px 60px"
-                                my={3}
-                                buttonText="Subscribe Now"
-                              />
+                              {action.price > 0 && (
+                                <CustomButton
+                                  width="full"
+                                  padding="10px 60px"
+                                  my={3}
+                                  buttonText="Subscribe Now"
+                                />
+                              )}
                             </div>
                           ))}
                         </div>

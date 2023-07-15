@@ -1,5 +1,6 @@
 import { Layout } from '../components';
 import { ArrowRightIcon } from '../components/icons';
+import { Text } from '@chakra-ui/react';
 import {
   ChevronRightIcon,
   QuestionMarkCircleIcon
@@ -29,7 +30,7 @@ export default function Client() {
                   className="h-5 w-5 flex-shrink-0 text-gray-400"
                   aria-hidden="true"
                 />
-                <p className="text-sm font-medium">Liam Kelly</p>
+                <Text className="text-sm font-medium">Liam Kelly</Text>
               </div>
             </li>
             <li>
@@ -38,17 +39,17 @@ export default function Client() {
                   className="h-5 w-5 flex-shrink-0 text-gray-400"
                   aria-hidden="true"
                 />
-                <p className="text-sm font-normal text-secondaryBlue hover:text-blue-700">
+                <Text className="text-sm font-normal text-secondaryBlue hover:text-blue-700">
                   Contract
-                </p>
+                </Text>
               </div>
             </li>
           </ol>
         </nav>
         <section className="my-4">
-          <h4 className="space-x-2">
+          <Text className="space-x-2">
             <span className="font-bold text-2xl">Contract</span>
-          </h4>
+          </Text>
         </section>
 
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-2">
@@ -65,12 +66,12 @@ export default function Client() {
                 </div>
                 <div className="mt-3 text-center sm:mt-5">
                   <div className="mt-2 space-y-1">
-                    <h4 className="text-dark font-semibold">
+                    <Text className="text-dark font-semibold">
                       You have an active contract
-                    </h4>
-                    <p className="text-sm text-gray-500">
+                    </Text>
+                    <Text className="text-sm text-gray-500">
                       You’ve completed 10 out of 15 sessions
-                    </p>
+                    </Text>
                   </div>
                 </div>
               </div>
@@ -92,98 +93,98 @@ export default function Client() {
                     src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                     alt=""
                   />
-                  <p className="">
+                  <Text className="">
                     <span className="block whitespace-nowrap">Liam Kelly</span>
                     <span className="inline-block text-gray-400 text-sm">
                       Your contract with Liam ends 29th June, 2023
                     </span>
-                  </p>
+                  </Text>
                 </section>
                 <div className="flex flex-none items-center gap-x-4">
-                  <p className="rounded-md bg-gray-50 px-2.5 py-1.5 text-sm font-semibold text-gray-500 shadow-sm hover:bg-gray-50 sm:block">
+                  <Text className="rounded-md bg-gray-50 px-2.5 py-1.5 text-sm font-semibold text-gray-500 shadow-sm hover:bg-gray-50 sm:block">
                     24.09.2022
-                  </p>
+                  </Text>
                 </div>
               </div>
 
               <div className="shadow-sm sm:rounded-lg p-4 ring-1 ring-gray-900/5 lg:space-y-0 space-y-3">
-                <h3 className="text-xl mb-4 font-semibold tracking-wider">
+                <Text className="text-xl mb-4 font-semibold tracking-wider">
                   Offer Details
-                </h3>
+                </Text>
                 <ul className="space-y-4">
                   <li className="text-sm space-y-2 font-normal">
-                    <h3 className="text-secondaryGray">Subject & Level</h3>
-                    <h4>Mathematics - A-Level</h4>
+                    <Text className="text-secondaryGray">Subject & Level</Text>
+                    <Text>Mathematics - A-Level</Text>
                   </li>
                   <li className="text-sm space-y-2 font-normal">
-                    <h3 className="text-secondaryGray">
+                    <Text className="text-secondaryGray">
                       What days would you like to have your classes
-                    </h3>
-                    <h4>Mon, Tue, Wed</h4>
+                    </Text>
+                    <Text>Mon, Tue, Wed</Text>
                   </li>
                   <li className="text-sm space-y-2 font-normal">
-                    <h3 className="text-secondaryGray">
+                    <Text className="text-secondaryGray">
                       Frequency of class sessions
-                    </h3>
+                    </Text>
                     <h4>Weekly</h4>
                   </li>
                   <li className="text-sm space-y-2 font-normal">
-                    <h3 className="text-secondaryGray">Time</h3>
-                    <h4 className="flex items-center space-x-1">
+                    <Text className="text-secondaryGray">Time</Text>
+                    <Text className="flex items-center space-x-1">
                       <span>05:00 PM</span>{' '}
                       <ArrowRightIcon
                         className="w-4 h-4 text-secondaryGray"
                         onClick={undefined}
                       />{' '}
                       <span>08:00 PM</span>
-                    </h4>
+                    </Text>
                   </li>
                   <li className="text-sm space-y-2 font-normal">
-                    <h3 className="text-secondaryGray">Start date</h3>
-                    <h4>June 21, 2023</h4>
+                    <Text className="text-secondaryGray">Start date</Text>
+                    <Text>June 21, 2023</Text>
                   </li>
                   <li className="text-sm space-y-2 font-normal">
-                    <h3 className="text-secondaryGray">End date</h3>
-                    <h4>June 24, 2023</h4>
+                    <Text className="text-secondaryGray">End date</Text>
+                    <Text>June 24, 2023</Text>
                   </li>
                   <li className="text-sm space-y-2 font-normal">
-                    <h3 className="text-secondaryGray">Note</h3>
-                    <h4>
+                    <Text className="text-secondaryGray">Note</Text>
+                    <Text>
                       Consequat luctus morbi suspendisse eu quis diam eleifend
                       orci aliquet. Facilisi in lorem ultricies ligula arcu odio
-                    </h4>
+                    </Text>
                   </li>
                 </ul>
               </div>
 
               <div className="shadow-sm sm:rounded-lg p-4 ring-1 ring-gray-900/5 lg:space-y-0 space-y-3">
-                <h3 className="text-xl mb-4 font-semibold tracking-wider">
+                <Text className="text-xl mb-4 font-semibold tracking-wider">
                   Payment Details
-                </h3>
+                </Text>
                 <ul className="space-y-4">
                   <li className="text-sm space-y-2 font-normal">
-                    <h3 className="text-secondaryGray">Hourly rate</h3>
-                    <h4 className="text-gray-800">$25.00/hr</h4>
-                    <p className="flex space-x-1 text-sm">
+                    <Text className="text-secondaryGray">Hourly rate</Text>
+                    <Text className="text-gray-800">$25.00/hr</Text>
+                    <Text className="flex space-x-1 text-sm">
                       <span>Shepherd charges a</span>
                       <span className="text-secondaryBlue">
                         5% service fee (-$3.00/hr)
                       </span>
                       <QuestionMarkCircleIcon className="h-4 w-4 rounded-full text-gray-200 bg-secondaryGray" />
-                    </p>
+                    </Text>
                   </li>
 
                   <li className="text-sm space-y-2 font-normal">
-                    <h3 className="text-secondaryGray">You'll receive</h3>
-                    <h4 className="text-gray-800">$22.00/hr</h4>
+                    <Text className="text-secondaryGray">You'll receive</Text>
+                    <Text className="text-gray-800">$22.00/hr</Text>
                   </li>
 
                   <li className="text-sm mb-4 space-y-2 font-normal">
-                    <h3 className="text-secondaryGray">Total amount</h3>
-                    <h4 className="text-gray-800">$214.00</h4>
-                    <p className="flex space-x-1 text-sm">
+                    <Text className="text-secondaryGray">Total amount</Text>
+                    <Text className="text-gray-800">$214.00</Text>
+                    <Text className="flex space-x-1 text-sm">
                       You'll be paid after each session
-                    </p>
+                    </Text>
                   </li>
                 </ul>
 
@@ -194,11 +195,11 @@ export default function Client() {
                   <div className="flex justify-center items-center text-sm font-bold bg-primaryColor text-white w-10 rounded-full">
                     i
                   </div>
-                  <p className="text-sm">
+                  <Text className="text-sm">
                     Initial payment will not be made until after the client
                     reviews the offer after the first session. The client may
                     decide to continue with you or withdraw the offer
-                  </p>
+                  </Text>
                 </div>
               </div>
             </div>

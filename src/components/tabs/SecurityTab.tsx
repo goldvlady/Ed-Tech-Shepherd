@@ -1,3 +1,4 @@
+import { Text } from '@chakra-ui/react';
 import { Dialog, Transition } from '@headlessui/react';
 import { ChevronRightIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import React, { Fragment, useState } from 'react';
@@ -8,21 +9,21 @@ export default function SecurityTab() {
   return (
     <div className="space-y-6">
       <section className="space-y-4 border shadow-sm sm:rounded-lg p-4">
-        <h2 className="border-b pb-4">Account Security</h2>
+        <Text className="border-b pb-4">Account Security</Text>
         <div className="flex pt-2 justify-between items-center">
-          <p className="text-sm">
+          <Text className="text-sm">
             <span className="block font-[500] text-dark">Email</span>
             <span className="block text-secondaryGray">leslie@gmail.com</span>
-          </p>
+          </Text>
           <button className="bg-white text-secondaryGray text-sm font-semibold border flex justify-center items-center rounded-md px-4 py-1.5">
             Change
           </button>
         </div>
         <div className="flex justify-between items-center">
-          <p className="text-sm">
+          <Text className="text-sm">
             <span className="block font-[500] text-dark">Password</span>
             <span className="block text-secondaryGray">*********</span>
-          </p>
+          </Text>
           <button className="bg-white text-secondaryGray text-sm font-semibold border flex justify-center items-center rounded-md px-4 py-1.5">
             Change
           </button>
@@ -32,7 +33,7 @@ export default function SecurityTab() {
           onClick={() => setLogoutModalState(true)}
           className="cursor-pointer flex justify-between mt-6 items-center"
         >
-          <p className="text-sm">
+          <Text className="text-sm">
             <span className="block text-error font-[500]">
               Log out of all devices
             </span>
@@ -40,33 +41,33 @@ export default function SecurityTab() {
               Log out of all other active sessions on other devices besides this
               one.
             </span>
-          </p>
+          </Text>
           <ChevronRightIcon className="w-4 text-secondaryGray" />
         </div>
       </section>
 
       <section className="space-y-4 border shadow-sm sm:rounded-lg p-4">
-        <h2 className="border-b pb-4">Support</h2>
+        <Text className="border-b pb-4">Support</Text>
 
         <div className="flex justify-between mt-6 items-center">
-          <p className="text-sm">
+          <Text className="text-sm">
             <span className="block font-[500] text-dark">
               Terms and Conditions
             </span>
             <span className="block text-secondaryGray">
               Read Sherperd’s terms & conditions
             </span>
-          </p>
+          </Text>
           <ChevronRightIcon className="w-4 text-secondaryGray" />
         </div>
 
         <div className="flex justify-between mt-6 items-center">
-          <p className="text-sm">
+          <Text className="text-sm">
             <span className="block font-[500] text-dark">Contact Support</span>
             <span className="block text-secondaryGray">
               Need help? Kindly reach out to our support team via mail
             </span>
-          </p>
+          </Text>
           <ChevronRightIcon className="w-4 text-secondaryGray" />
         </div>
 
@@ -74,14 +75,14 @@ export default function SecurityTab() {
           onClick={() => setDeleteAccountModalState(true)}
           className="flex justify-between cursor-pointer mt-6 items-center"
         >
-          <p className="text-sm">
+          <Text className="text-sm">
             <span className="block text-error font-[500]">
               Delete my account
             </span>
             <span className="block text-secondaryGray">
               Permanently delete your Sherpherd account
             </span>
-          </p>
+          </Text>
           <ChevronRightIcon className="w-4 text-secondaryGray" />
         </div>
       </section>
@@ -142,9 +143,9 @@ export default function SecurityTab() {
                         Logout
                       </Dialog.Title>
                       <div className="mt-2">
-                        <p className="text-sm text-gray-500">
+                        <Text className="text-sm text-gray-500">
                           Are you sure you want to log out of Sherpherd?
-                        </p>
+                        </Text>
                       </div>
                     </div>
                   </div>
@@ -227,9 +228,9 @@ export default function SecurityTab() {
                         Delete your account
                       </Dialog.Title>
                       <div className="mt-2">
-                        <p className="text-sm text-gray-500">
+                        <Text className="text-sm text-gray-500">
                           This will permanently delete your Shepherd account
-                        </p>
+                        </Text>
                       </div>
                     </div>
                   </div>

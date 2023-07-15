@@ -4,6 +4,7 @@ import { AllNotesTab, SelectedNoteModal } from '../../../components';
 import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMenu';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { SortIcon, FilterByTagsIcon } from '../../../components/icons';
+// import ApiService from '../../../services/ApiService';
 import {
   Checkbox,
   CheckboxContainer,
@@ -18,6 +19,9 @@ import {
   StyledSection,
   Text
 } from './styles';
+// import { BlockNoteEditor } from '@blocknote/core';
+// import '@blocknote/core/style.css';
+// import { BlockNoteView, useBlockNote } from '@blocknote/react';
 import { AddIcon } from '@chakra-ui/icons';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
@@ -87,7 +91,15 @@ const tabPanel = [
 const Notes = () => {
   const navigate = useNavigate();
   const [toggleHelpModal, setToggleHelpModal] = useState(false);
-
+  // const [allNotes, setAllNotes] = useState<any>([]);
+  // const [loadingNotes, setLoadingNotes] = useState(false);
+  // const getNotes = async () => {
+  //   setLoadingNotes(true);
+  //   const resp = await ApiService.getAllNotes();
+  //   const notes = await resp.json();
+  //   setAllNotes(notes);
+  //   setLoadingNotes(false);
+  // };
   const activateHelpModal = () => {
     setToggleHelpModal(true);
   };
@@ -118,7 +130,16 @@ const Notes = () => {
 
     setCheckedState(updatedCheckedState);
   };
-
+  // const initialContent: string | null = localStorage.getItem('editorContent'); //Change to API endpoint for get /notes/{id}
+  // const editor: BlockNoteEditor | null = useBlockNote({
+  //   initialContent: initialContent ? JSON.parse(initialContent) : undefined,
+  //   onEditorContentChange: (editor) => {
+  //     localStorage.setItem(
+  //       'editorContent',
+  //       JSON.stringify(editor.topLevelBlocks)
+  //     );
+  //   }
+  // });
   return (
     <>
       {getNotes?.length > 0 ? (
