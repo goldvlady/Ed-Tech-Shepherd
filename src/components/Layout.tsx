@@ -24,6 +24,7 @@ import {
 } from '@heroicons/react/24/outline';
 import React, { Fragment, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import tutorStore from '../state/tutorStore';
 
 interface NavigationItem {
   name: string;
@@ -66,6 +67,13 @@ export default function Layout({ children, className }) {
   const [navigation, setNavigation] =
     useState<NavigationItem[]>(dummyNavigation);
   const location = useLocation();
+  const { tutorNotifications, fetchNotifications } = tutorStore();
+
+  useEffect(() => {
+    fetchNotifications();
+
+    console.log(tutorNotifications)
+  }, []);
 
   const pathname = location.pathname;
 
