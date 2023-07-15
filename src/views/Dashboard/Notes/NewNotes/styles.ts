@@ -28,15 +28,36 @@ export const FirstSection = styled.div`
   .doc__name {
     border-right: 1px solid #e0e1e1;
     padding-right: 20px;
-    > p {
+
+    > div {
+      cursor: text;
       color: #525456;
       font-size: 0.875rem;
+      border: 1px solid #fafafa;
+      padding: 2px;
+      display: inline-block;
+      max-width: 500px;
+    }
+
+    > input {
+      font-size: 0.875rem;
+      border: 1px solid #e0e1e1;
+      padding: 2px;
+      min-width: 5px;
+      max-width: 500px;
+    }
+  }
+
+  .doc__name:hover {
+    > div {
+      border: 1px solid #e0e1e1;
     }
   }
 
   .timestamp {
     color: #9a9c9e;
     font-size: 0.875rem;
+    cursor: default;
   }
 `;
 
@@ -54,7 +75,7 @@ export const SecondSection = styled.div`
 `;
 
 export const NoteBody = styled.section`
-  padding: 10px 30px;
+  padding: 10px 10px;
   height: 100vh;
   background: ;
 `;

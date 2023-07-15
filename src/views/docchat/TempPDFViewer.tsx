@@ -1,4 +1,3 @@
-import { Sidebar } from './Sidebar';
 import { Spinner } from './Spinner';
 import { testHighlights as _testHighlights } from './test-highlights';
 import { useEffect, useState } from 'react';
@@ -97,11 +96,6 @@ const TempPDFViewer = ({ pdfLink }: { pdfLink: URL }) => {
       style={{ display: 'flex', height: '100vh', width: '100%' }}
       className="lg:col-span-6 flex-auto h-full"
     >
-      {/* <Sidebar
-          highlights={highlights}
-          resetHighlights={this.resetHighlights}
-          toggleDocument={this.toggleDocument}
-        /> */}
       <div
         style={{
           height: '100vh',

@@ -4,6 +4,7 @@ import CustomSideModal from '../../components/CustomComponents/CustomSideModal';
 import CustomTabs from '../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../components/hooks/useChatScroll';
 import FlashcardDataProvider from '../Dashboard/FlashCards/context/flashcard';
+import { chatWithDoc } from '../../services/AI'
 import ChatHistory from './chatHistory';
 import HighLight from './highlist';
 import SetUpFlashCards from './setupFlashCards';
@@ -70,17 +71,10 @@ const Chat = ({ studentId, documentId }) => {
     documentId: string;
   }) => {
     let packed = '';
-    const response = await fetch(`http://localhost:3000/embeddings/doc-chat`, {
-      method: 'post',
-      headers: {
-        'x-shepherd-header': 'vunderkind23',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        query,
-        studentId,
-        documentId
-      })
+    const response = await chatWithDoc({
+      query,
+      studentId,
+      documentId
     });
     // @ts-ignore: there will always be a body
     const reader = response.body.getReader();
