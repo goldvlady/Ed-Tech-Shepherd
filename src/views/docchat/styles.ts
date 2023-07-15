@@ -197,7 +197,8 @@ export const SendButton = styled.button`
   top: 0;
   color: #cbd5e0;
   &:hover {
-    color: #4a5568; 
+    color: #4a5568;
+  }
 `;
 
 export const ClockButton = styled.button`
@@ -279,7 +280,7 @@ export const ChatContainerResponse = styled.div`
   grid-column: span 12;
   overflow-y: auto;
   scrollbar-width: thin;
-  padding: 0 24px;
+  padding: 0px 24px 20px 24px;
   max-height: 42vh;
 
   /* Scrollable content */
@@ -323,6 +324,7 @@ export const AiMessage = styled.div`
   margin-bottom: 10px;
   font-size: 0.875rem;
   border-radius: 10px;
+  width: 439px;
 `;
 
 export const StyledPromptContainer = styled.div`
@@ -478,4 +480,14 @@ export const EmptyStateContainer = styled.div`
     margin-bottom: 30px;
     color: #585f68;
   }
+`;
+
+export const StudyContainer = styled.section`
+  margin: 50px 0;
+`;
+
+export const StudyFirstLayer = styled.div`
+  text-align: center;
+
+   > p:nth-child
 `;

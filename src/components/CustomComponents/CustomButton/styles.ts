@@ -19,7 +19,7 @@ export const StyledButton = styled.button<{
   appearance: none;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   width: fit-content;
   -webkit-box-shadow: ${({ isCancel }) =>
     isCancel ? '0 1px 2px 0 rgb(0 0 0 / 0.05);' : 'none'};

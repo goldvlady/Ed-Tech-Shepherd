@@ -46,8 +46,8 @@ import { useState, useEffect, useCallback } from 'react';
 
 interface IChat {
   HomeWorkHelp?: boolean;
-  studentId: string;
-  documentId: string;
+  studentId?: any;
+  documentId?: any;
 }
 const Chat = ({ HomeWorkHelp, studentId, documentId }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
@@ -245,15 +245,6 @@ const Chat = ({ HomeWorkHelp, studentId, documentId }: IChat) => {
                       Let's get learning!
                     </StyledText>
                   </GridItem>
-                  <ChatContainerResponse ref={ref}>
-                    {messages.map((message, index) =>
-                      message.isUser ? (
-                        <UserMessage key={index}>{message.text}</UserMessage>
-                      ) : (
-                        <AiMessage key={index}>{message.text}</AiMessage>
-                      )
-                    )}
-                  </ChatContainerResponse>
                   {HomeWorkHelp && !isShowPrompt && (
                     <OptionsContainer>
                       <Text className="">What do you need?</Text>
@@ -280,6 +271,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId }: IChat) => {
                       </PillsContainer>
                     </OptionsContainer>
                   )}
+
                   {!isShowPrompt && (
                     <AskSomethingContainer>
                       <AskSomethingPillHeadingText>
@@ -296,6 +288,15 @@ const Chat = ({ HomeWorkHelp, studentId, documentId }: IChat) => {
                       </AskSomethingPillContainer>
                     </AskSomethingContainer>
                   )}
+                  <ChatContainerResponse ref={ref}>
+                    {messages.map((message, index) =>
+                      message.isUser ? (
+                        <UserMessage key={index}>{message.text}</UserMessage>
+                      ) : (
+                        <AiMessage key={index}>{message.text}</AiMessage>
+                      )
+                    )}
+                  </ChatContainerResponse>
                 </GridContainer>
               </InnerWrapper>
             </FlexColumnContainer>
@@ -303,9 +304,10 @@ const Chat = ({ HomeWorkHelp, studentId, documentId }: IChat) => {
           {!HomeWorkHelp && isShowPrompt && (
             <div
               style={{
-                position: 'relative',
-                bottom: '240px',
-                background: '#f9f9fb'
+                position: 'fixed',
+                width: '100%',
+                bottom: '60px',
+                background: 'white'
               }}
             >
               <OptionsContainer>
@@ -322,12 +324,12 @@ const Chat = ({ HomeWorkHelp, studentId, documentId }: IChat) => {
           )}
         </Wrapper>
 
-        {isShowPrompt && (
+        {/* {isShowPrompt && (
           <TellMeMorePill isHomeWorkHelp={HomeWorkHelp}>
             <p>Tell me more</p>
             <TellMeMoreIcn />
           </TellMeMorePill>
-        )}
+        )} */}
 
         {HomeWorkHelp && isShowPrompt && (
           <OptionsContainer>
