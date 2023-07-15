@@ -230,8 +230,39 @@ class ApiService {
   static getStudentReport = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getStudentReport`);
   };
+
   static getUserNotifications = async () => {
     return doFetch(`${ApiService.baseEndpoint}/notifications`);
+  };
+
+  // Notes
+
+  static getAllNotes = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/notes`);
+  };
+
+  static getNote = async (id: string | number) => {
+    return doFetch(`${ApiService.baseEndpoint}/notes/${id}`);
+  };
+
+  static createNote = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/createNote`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static updateNote = async (id: string | number, data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/updateNote/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static deleteNote = async (id: string | number) => {
+    return doFetch(`${ApiService.baseEndpoint}/deleteNote?id=${id}`, {
+      method: 'DELETE'
+    });
   };
 }
 
