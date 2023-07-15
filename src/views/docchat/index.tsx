@@ -1,4 +1,4 @@
-import ApiService from '../../services/AiService';
+import { checkDocumentStatus } from '../../services/AI';
 import userStore from '../../state/userStore';
 import TempPDFViewer from './TempPDFViewer';
 import Chat from './chat';
@@ -23,9 +23,9 @@ export default function DocChat() {
     if (!location.state?.documentUrl) navigate('/dashboard/notes');
   }, [navigate, location.state?.documentUrl]);
 
-  const checkDocumentStatus = async () => {
+  const checkDocs = async () => {
     if (user) {
-      const data = await ApiService.checkDocumentStatus({
+      const data = await checkDocumentStatus({
         studentId: user?._id,
         documentId: location.state?.docTitle
       }).then((res) => res[0]);
@@ -36,7 +36,7 @@ export default function DocChat() {
   useEffect(() => {
     let id;
     if (!ingested && user) {
-      id = setInterval(checkDocumentStatus, 3000);
+      id = setInterval(checkDocs, 3000);
     }
     return () => clearInterval(id);
   });

@@ -1,5 +1,5 @@
 import { storage } from '../firebase';
-import ApiService from '../services/AiService';
+import { processDocument } from '../services/AI';
 import userStore from '../state/userStore';
 import CustomButton from './CustomComponents/CustomButton';
 import CustomModal from './CustomComponents/CustomModal/index';
@@ -181,7 +181,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     if (selectedOption && user) {
       const documentUrl = await getDownloadURL(ref(storage, selectedOption));
       const item = list.filter((list) => list.fullPath === selectedOption);
-      await ApiService.processDocument({
+      await processDocument({
         studentId: user?._id,
         documentId: item[0].name,
         documentURL: documentUrl
@@ -224,7 +224,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
           const documentURL = await getDownloadURL(task.snapshot.ref);
           const title = task.snapshot.metadata.name;
 
-          await ApiService.processDocument({
+          await processDocument({
             studentId: user?._id,
             documentId: fileName,
             documentURL
