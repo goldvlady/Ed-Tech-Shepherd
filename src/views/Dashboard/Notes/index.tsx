@@ -5,7 +5,20 @@ import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMen
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { SortIcon, FilterByTagsIcon } from '../../../components/icons';
 // import ApiService from '../../../services/ApiService';
-import { Checkbox, CheckboxContainer, FlexContainer, Header, NewList, NotesWrapper, SearchInput, Section, SectionNewList, StyledHeader, StyledSection, Text } from './styles';
+import {
+  Checkbox,
+  CheckboxContainer,
+  FlexContainer,
+  Header,
+  NewList,
+  NotesWrapper,
+  SearchInput,
+  Section,
+  SectionNewList,
+  StyledHeader,
+  StyledSection,
+  Text
+} from './styles';
 // import { BlockNoteEditor } from '@blocknote/core';
 // import '@blocknote/core/style.css';
 // import { BlockNoteView, useBlockNote } from '@blocknote/react';
