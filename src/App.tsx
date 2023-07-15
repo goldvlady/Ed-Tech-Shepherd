@@ -236,12 +236,30 @@ const AppRoutes: React.FC = () => {
       />
       {/* <Route path="notes" element={<Notes />} /> */}
       <Route path="tutordashboard" element={<TutorDashboard />} />
-      <Route path="clients" element={<Clients />} />
-      <Route path="clients/:id" element={<Client />} />
-      <Route path="offers" element={<TutorOffers />} />
-      <Route path="offer/:id" element={<TutorOffer />} />
-      <Route path="messages" element={<Messages />} />
-      <Route path="tutorsettings" element={<TutorSettings />} />
+
+      <Route
+        path="tutordashboard/clients"
+        element={
+          <RequireAuth
+            authenticated={<Clients />}
+            unAuthenticated={<Navigate to={'/login'} />}
+          />
+        }
+      />
+
+      <Route
+        path="tutordashboard/offers"
+        element={
+          <RequireAuth
+            authenticated={<TutorOffers />}
+            unAuthenticated={<Navigate to={'/login'} />}
+          />
+        }
+      />
+
+      <Route path="tutordashboard/offer/:id" element={<TutorOffer />} />
+      <Route path="tutordashboard/messages" element={<Messages />} />
+      <Route path="tutordashboard/tutorsettings" element={<TutorSettings />} />
     </Routes>
   );
 };

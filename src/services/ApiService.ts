@@ -60,10 +60,6 @@ class ApiService {
     );
   };
 
-  static getCompanyRate = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/getCompanyRate`);
-  };
-
   static deleteFlashcard = async (id: string | number) => {
     return doFetch(`${ApiService.baseEndpoint}/deleteFlashcard?id=${id}`, {
       method: 'POST'
@@ -104,10 +100,6 @@ class ApiService {
 
   static getBooking = async (id: string) => {
     return doFetch(`${ApiService.baseEndpoint}/getBooking?id=${id}`);
-  };
-
-  static getUpcomingBooking = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/upcomingBooking`);
   };
 
   // Payments
@@ -229,6 +221,28 @@ class ApiService {
 
   static getStudentReport = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getStudentReport`);
+  };
+
+  // Get All Tutor Clients
+  static getTutorClients = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getTutorClients`);
+  };
+
+  // Get Single Tutor Clients
+  static getTutorSingleClients = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/getClients?id=${id}`, {
+      method: 'GET'
+    });
+  };
+
+  // Get All Tutor Offers
+  static getTutorOffers = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getOffers`);
+  };
+
+  // Get Singlege Tutor Offers
+  static getTutorSingleOffers = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/getOffers?id=${id}`);
   };
 
   static getUserNotifications = async () => {
