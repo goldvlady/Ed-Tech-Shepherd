@@ -20,7 +20,7 @@ const Proceed: FC = () => {
             </div>
             <p className="">
               <span className="block whitespace-nowrap">
-                Welcome to sherpherd
+                Welcome to shepherd
               </span>
               <span className="inline-block text-gray-400 text-sm">
                 We need a few more details to complete your profile. This helps

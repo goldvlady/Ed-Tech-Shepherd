@@ -1,4 +1,5 @@
 import { classNames } from '../helpers';
+import tutorStore from '../state/tutorStore';
 import {
   DashboardIcon,
   OffersIcon,
@@ -24,7 +25,6 @@ import {
 } from '@heroicons/react/24/outline';
 import React, { Fragment, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import tutorStore from '../state/tutorStore';
 
 interface NavigationItem {
   name: string;
@@ -71,8 +71,6 @@ export default function Layout({ children, className }) {
 
   useEffect(() => {
     fetchNotifications();
-
-    console.log(tutorNotifications)
   }, []);
 
   const pathname = location.pathname;
@@ -332,7 +330,7 @@ export default function Layout({ children, className }) {
                     type="button"
                     className="rounded-full relative border bg-white p-2 text-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
                   >
-                    <div className="absolute right-2 w-2 h-2 rounded-full bg-red-600"></div>
+                    <div className="absolute right-2 w-2 h-2 rounded-full focus:outline-none bg-red-600"></div>
                     <span className="sr-only">View notifications</span>
                     <BellIcon
                       className="h-5 w-5 text-gray-500"
