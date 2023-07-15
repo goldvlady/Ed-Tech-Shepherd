@@ -3,8 +3,8 @@ import { ReactComponent as SummaryIcon } from '../../assets/summaryIcn.svg';
 import CustomSideModal from '../../components/CustomComponents/CustomSideModal';
 import CustomTabs from '../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../components/hooks/useChatScroll';
+import { chatWithDoc } from '../../services/AI';
 import FlashcardDataProvider from '../Dashboard/FlashCards/context/flashcard';
-import { chatWithDoc } from '../../services/AI'
 import ChatHistory from './chatHistory';
 import HighLight from './highlist';
 import SetUpFlashCards from './setupFlashCards';
