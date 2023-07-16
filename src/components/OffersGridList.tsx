@@ -7,6 +7,7 @@ import {
 } from './icons';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Text } from '@chakra-ui/react';
 
 interface Status {
   new: number;
@@ -186,36 +187,36 @@ const offers: Offer[] = [
 
 function Updated() {
   return (
-    <p className="inline-flex flex-shrink-0 space-x-1 items-center rounded-md bg-blue-100 px-1.5 py-1 text-xs font-medium text-secondaryBlue">
+    <Text className="inline-flex flex-shrink-0 space-x-1 items-center rounded-md bg-blue-100 px-1.5 py-1 text-xs font-medium text-secondaryBlue">
       <PencilIcon className="w-4 h-4" onClick={undefined} />
       <span>Updated</span>
-    </p>
+    </Text>
   );
 }
 
 function PerfectOffer() {
   return (
-    <p className="inline-flex flex-shrink-0 space-x-1 items-center rounded-md bg-blue-100 px-1.5 py-1 text-xs font-medium text-secondaryBlue">
+    <Text className="inline-flex flex-shrink-0 space-x-1 items-center rounded-md bg-blue-100 px-1.5 py-1 text-xs font-medium text-secondaryBlue">
       <StarIcon className="w-4 h-4" onClick={undefined} />
       <span>Perfect Offer</span>
-    </p>
+    </Text>
   );
 }
 
 function New() {
   return (
-    <p className="inline-flex flex-shrink-0 space-x-1 items-center rounded-md bg-gray-100 px-1.5 py-1 text-xs font-medium text-secondaryGray">
+    <Text className="inline-flex flex-shrink-0 space-x-1 items-center rounded-md bg-gray-100 px-1.5 py-1 text-xs font-medium text-secondaryGray">
       <SparklesIcon className="w-4 h-4" onClick={undefined} />
       <span>New</span>
-    </p>
+    </Text>
   );
 }
 
 function Date() {
   return (
-    <p className="inline-flex flex-shrink-0 space-x-1 items-center rounded-md bg-gray-100 px-1.5 py-1 text-xs font-medium text-secondaryGray">
+    <Text className="inline-flex flex-shrink-0 space-x-1 items-center rounded-md bg-gray-100 px-1.5 py-1 text-xs font-medium text-secondaryGray">
       24.09.2022
-    </p>
+    </Text>
   );
 }
 
@@ -266,23 +267,23 @@ function OfferItem({ offer, navigate }: { offer: Offer; navigate: any }) {
         <div className="flex w-full items-center justify-between space-x-6">
           <div className="flex-shrink-0">
             <span>{subject}</span>
-            <p className="inline-flex flex-shrink-0 space-x-1 items-center rounded-md bg-orange-100 px-1.5 py-1 text-xs font-medium text-orange-400">
+            <Text className="inline-flex flex-shrink-0 space-x-1 items-center rounded-md bg-orange-100 px-1.5 py-1 text-xs font-medium text-orange-400">
               <span>{level}-Level</span>
-            </p>
+            </Text>
           </div>
 
-          <p className="inline-flex flex-shrink-0 space-x-1 items-center text-md font-medium">
+          <Text className="inline-flex flex-shrink-0 space-x-1 items-center text-md font-medium">
             ${offerAmount}/hr
-          </p>
+          </Text>
         </div>
 
-        <p className="text-secondaryGray flex items-center text-sm font-normal">
+        <Text className="text-secondaryGray flex items-center text-sm font-normal">
           <span>{title}</span>
           <EllipsistIcon className="w-1 mx-0.5" onClick={undefined} />
           <span>{from} PM</span>
           <ArrowRightIcon className="w-3 mx-0.5" onClick={undefined} />
           <span>{to} PM</span>
-        </p>
+        </Text>
       </div>
 
       <div className="flex items-center pt-3 justify-between">
@@ -294,9 +295,9 @@ function OfferItem({ offer, navigate }: { offer: Offer; navigate: any }) {
           />
           <span className="text-primaryGray">{name}</span>
         </div>
-        <p className="text-sm font-semibold text-red-400">
+        <Text className="text-sm font-semibold text-red-400">
           {time ? `${time}hours left` : ''}
-        </p>
+        </Text>
       </div>
     </li>
   );

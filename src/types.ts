@@ -219,6 +219,9 @@ export interface HTTPEvent extends APIGatewayProxyEvent {
 
 export interface Score {
   score: number;
+  passed: number;
+  failed: number;
+  notRemembered: number;
   date: string;
 }
 

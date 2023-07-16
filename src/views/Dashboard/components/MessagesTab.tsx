@@ -15,12 +15,12 @@ export default function MessagesTab() {
           <Text fontWeight={500} fontSize={14} color="text.200">
             Leslie Peters Mapu
           </Text>
-          <p className="text-sm text-secondaryBlue">5m</p>
+          <Text className="text-sm text-secondaryBlue">5m</Text>
         </div>
-        <p className="text-xs text-justify text-gray-500">
+        <Text className="text-xs text-justify text-gray-500">
           Parturient amet sociis tempor integer enim hollup turoti posuere odio.
           Nunc habitant sit a arcu
-        </p>
+        </Text>
       </div>
     </div>
   );

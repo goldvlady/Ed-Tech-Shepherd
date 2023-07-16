@@ -1,4 +1,6 @@
 import { storage } from '../firebase';
+import { processDocument } from '../services/AI';
+import userStore from '../state/userStore';
 import CustomButton from './CustomComponents/CustomButton';
 import CustomModal from './CustomComponents/CustomModal/index';
 import { UploadIcon } from './icons';
@@ -26,6 +28,7 @@ interface ShowProps {
 }
 
 const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
+  const { user } = userStore();
   const navigate = useNavigate();
   const [fileName, setFileName] = useState('');
   const [progress, setProgress] = useState('');
@@ -175,20 +178,26 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     if (!file && !selectedOption)
       return setUploadError("You haven't uploaded a file or selected a note.");
 
-    if (selectedOption) {
+    if (selectedOption && user) {
       const documentUrl = await getDownloadURL(ref(storage, selectedOption));
       const item = list.filter((list) => list.fullPath === selectedOption);
-      setShow(false);
-      setShowHelp(false);
-      navigate('/dashboard/docchat', {
-        state: {
-          documentUrl,
-          docTitle: item[0].name
-        }
+      await processDocument({
+        studentId: user?._id,
+        documentId: item[0].name,
+        documentURL: documentUrl
+      }).then(() => {
+        setShow(false);
+        setShowHelp(false);
+        navigate('/dashboard/docchat', {
+          state: {
+            documentUrl,
+            docTitle: item[0].name
+          }
+        });
       });
     }
 
-    if (file) {
+    if (file && user) {
       const storageRef = ref(
         storage,
         `${docPath}/${fileName.toLowerCase().replace(/\s/g, '')}`
@@ -212,15 +221,22 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
         },
         async () => {
           setProgress('Complete!');
-          const documentUrl = await getDownloadURL(task.snapshot.ref);
+          const documentURL = await getDownloadURL(task.snapshot.ref);
           const title = task.snapshot.metadata.name;
-          setShow(false);
-          setShowHelp(false);
-          navigate('/dashboard/docchat', {
-            state: {
-              documentUrl,
-              docTitle: title
-            }
+
+          await processDocument({
+            studentId: user?._id,
+            documentId: fileName,
+            documentURL
+          }).then(() => {
+            setShow(false);
+            setShowHelp(false);
+            navigate('/dashboard/docchat', {
+              state: {
+                documentUrl: documentURL,
+                docTitle: title
+              }
+            });
           });
         }
       );

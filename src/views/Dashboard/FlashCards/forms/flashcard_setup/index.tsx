@@ -20,7 +20,10 @@ const slideVariants = {
 const SetupFlashcardPage = ({ isAutomated }: { isAutomated?: boolean }) => {
   const { currentStep } = useFlashCardState();
   const steps: Step[] = [{ title: '' }, { title: '' }, { title: '' }];
-  const formComponents = [FlashCardSetupInit, FlashCardQuestionsPage];
+  const formComponents = useMemo(
+    () => [FlashCardSetupInit, FlashCardQuestionsPage],
+    []
+  );
 
   const CurrentForm = useMemo(
     () => formComponents[currentStep],

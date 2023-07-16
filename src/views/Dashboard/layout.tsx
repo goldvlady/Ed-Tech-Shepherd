@@ -272,7 +272,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     }`}
                     bg="#4CAF50;"
                   />
-
                   <Text
                     fontSize="14px"
                     fontWeight={500}

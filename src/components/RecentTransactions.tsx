@@ -8,6 +8,7 @@ import {
   CircleStackIcon
 } from '@heroicons/react/20/solid';
 import React, { Fragment } from 'react';
+import { Text } from '@chakra-ui/react';
 
 interface Transaction {
   id: number;
@@ -136,14 +137,14 @@ function EventItem({ event }: { event: Event }) {
       <div className="py-2">
         <div className="flex gap-x-1">
           <div className="min-w-0 flex-auto">
-            <p className="text-xs font-normal leading-6 text-gray-500">
+            <Text className="text-xs font-normal leading-6 text-gray-500">
               {event.name}
-            </p>
-            <p className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
+            </Text>
+            <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
               <span>{event.lastSeen}</span>
               <ChevronRightIcon className="w-4 h-4" />
               <span>{event.time}</span>
-            </p>
+            </Text>
           </div>
         </div>
         <div className="flex -space-x-0.5">
@@ -173,7 +174,7 @@ export default function RecentTransaction() {
       <div className="mx-auto grid max-w-2xl grid-cols-1 grid-rows-1 items-start gap-x-8 gap-y-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
         {/* Invoice summary */}
         <div className="lg:col-start-3 lg:col-span-2 lg:row-end-1 p-2 rounded-lg shadow-sm ring-1 ring-gray-900/5">
-          <h2 className="sr-only">Summary</h2>
+          <Text className="sr-only">Summary</Text>
           <header className="flex items-center justify-between border-b pb-4">
             <div className="flex items-center space-x-2">
               <img src="/svgs/timer.svg" alt="" className="h-6 w-6 mx-auto" />
@@ -190,12 +191,12 @@ export default function RecentTransaction() {
           </header>
 
           <section className="space-y-3">
-            <h3 className="text-gray-400 text-sm mt-4 ml-8">May</h3>
+            <Text className="text-gray-400 text-sm mt-4 ml-8">May</Text>
             <Date />
           </section>
 
           <ul className="space-y-3">
-            <h3 className="text-gray-400 text-sm mt-4 ml-8">Upcoming Events</h3>
+            <Text className="text-gray-400 text-sm mt-4 ml-8">Upcoming Events</Text>
             <ul className="space-y-3">
               {events.map((event) => (
                 <EventItem key={event.id} event={event} />
@@ -204,16 +205,16 @@ export default function RecentTransaction() {
           </ul>
 
           <section className="space-y-3">
-            <h3 className="text-gray-400 text-sm mt-4 ml-8">Tommorrow</h3>
+            <Text className="text-gray-400 text-sm mt-4 ml-8">Tommorrow</Text>
             <div className="space-y-3">
               <img
                 src="/svgs/calender.svg"
                 alt=""
                 className="h-10 w-10 mx-auto"
               />
-              <p className="text-center font-bold text-sm text-gray-300">
+              <Text className="text-center font-bold text-sm text-gray-300">
                 No classes scheduled for tommorrow
-              </p>
+              </Text>
             </div>
           </section>
         </div>
@@ -223,7 +224,7 @@ export default function RecentTransaction() {
           <header className="flex items-center justify-between border-b pb-4">
             <div className="flex items-center space-x-3">
               <img className="h-5 w-5" src="/svgs/wallet-money.svg" alt="" />
-              <h4>Recent events</h4>
+              <Text>Recent events</Text>
             </div>
 
             <div className="hidden md:ml-4 md:flex md:items-center">
@@ -398,12 +399,12 @@ export default function RecentTransaction() {
                         </span>
                       </div>
                       <div className="ml-3 w-0 flex-1 pt-0.5">
-                        <p className="text-sm font-normal text-gray-400">
+                        <Text className="text-sm font-normal text-gray-400">
                           {transaction.date}
-                        </p>
-                        <p className="mt-1 text-sm font-medium text-gray-500">
+                        </Text>
+                        <Text className="mt-1 text-sm font-medium text-gray-500">
                           {transaction.content}
-                        </p>
+                        </Text>
                         <div className="mt-3 flex space-x-7">
                           <button
                             type="button"
