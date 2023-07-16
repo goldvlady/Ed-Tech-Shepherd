@@ -235,8 +235,16 @@ const AppRoutes: React.FC = () => {
           />
         }
       />
-      {/* <Route path="notes" element={<Notes />} /> */}
-      <Route path="tutordashboard" element={<TutorDashboard />} />
+
+      <Route
+        path="tutordashboard"
+        element={
+          <RequireAuth
+            authenticated={<TutorDashboard />}
+            unAuthenticated={<Navigate to={'/login'} />}
+          />
+        }
+      />
 
       <Route
         path="tutordashboard/clients"
