@@ -6,6 +6,7 @@ type Store = {
   user: User | null;
   userNotifications: Array<UserNotifications>;
   fetchUser: () => Promise<void>;
+  fetchNotifications: () => Promise<void>;
 };
 
 const userPatch = {
@@ -31,9 +32,13 @@ export default create<Store>((set) => ({
   userNotifications: [],
   fetchUser: async () => {
     const response = await ApiService.getUser();
+    set({
+      user: await response.json()
+    });
+  },
+  fetchNotifications: async () => {
     const notificationsResponse = await ApiService.getUserNotifications();
     set({
-      user: await response.json(),
       userNotifications: await notificationsResponse.json()
     });
   }

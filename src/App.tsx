@@ -70,7 +70,7 @@ const RequireAuth = ({
   authenticated: any;
   unAuthenticated: any;
 }) => {
-  const { fetchUser, user } = userStore();
+  const { fetchUser, user, fetchNotifications } = userStore();
   const [loadingUser, setLoadingUser] = useState(true);
 
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
@@ -83,6 +83,7 @@ const RequireAuth = ({
       setFirebaseUser(user);
       if (user) {
         await fetchUser().catch((e) => navigate('/login'));
+        fetchNotifications();
       }
       setLoadingUser(false);
     });
