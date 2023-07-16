@@ -4,10 +4,13 @@ import DocIcon from '../../../assets/doc-icon.svg';
 import NoteSmIcon from '../../../assets/doc-sm.svg';
 import FlashcardSmIcon from '../../../assets/flashcard-sm.svg';
 import ReceiptIcon from '../../../assets/flashcardIcon.svg';
+import EmptyFeeds from '../../../assets/no-activity.svg';
 import NoEvent from '../../../assets/no-event.svg';
 import NoteIcon from '../../../assets/notes.svg';
 import ReceiptSmIcon from '../../../assets/receipt-sm.svg';
 import FlashcardIcon from '../../../assets/receiptIcon.svg';
+import HelpModal from '../../../components/HelpModal';
+import { CustomButton } from '../layout';
 import { TimeAgo } from './TimeAgo';
 import {
   Box,
@@ -16,6 +19,7 @@ import {
   Divider,
   Flex,
   HStack,
+  VStack,
   Image,
   Menu,
   MenuButton,
@@ -30,6 +34,7 @@ import React, { useState, useEffect } from 'react';
 import { BsChevronDown, BsFiletypeDoc } from 'react-icons/bs';
 import { RiCalendar2Fill } from 'react-icons/ri';
 import { SlEnergy } from 'react-icons/sl';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 const Item = styled(Box)``;
@@ -91,6 +96,11 @@ const getFileIconByActivityType = (activityType) => {
 
 function ActivityFeeds(feeds: any) {
   const [feedPeriod, setFeedPeriod] = useState<any>('Today');
+
+  const [toggleHelpModal, setToggleHelpModal] = useState(false);
+  const activateHelpModal = () => {
+    setToggleHelpModal(true);
+  };
 
   const getFileName = (url: string) => {
     const lastSlashIndex = url.lastIndexOf('/');
@@ -193,15 +203,27 @@ function ActivityFeeds(feeds: any) {
           ))
         ) : (
           <Center h="400px">
-            <Flex direction={'column'} alignItems="center">
-              <Image src={NoEvent} ml={4} boxSize="90px" />
-              <Text color="text.400" fontSize={12} fontWeight={500}>
-                No Feeds
-              </Text>
-            </Flex>
+            <Box textAlign={'center'} px={20} mt={5}>
+              <VStack spacing={5}>
+                <Image src={EmptyFeeds} />
+                <Text fontSize={13} fontWeight={500} color="text.400">
+                  Get started with our AI tools
+                </Text>
+
+                <CustomButton
+                  buttonText="Ask Shepherd"
+                  w="165px"
+                  onClick={activateHelpModal}
+                />
+              </VStack>
+            </Box>
           </Center>
         )}
       </Box>
+      <HelpModal
+        toggleHelpModal={toggleHelpModal}
+        setToggleHelpModal={setToggleHelpModal}
+      />
     </>
   );
 }
