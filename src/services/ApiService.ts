@@ -256,7 +256,7 @@ class ApiService {
   };
 
   static getUserNotifications = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/getNotification`);
+    return doFetch(`${ApiService.baseEndpoint}/notifications`);
   };
 
   // Notes
