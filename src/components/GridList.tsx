@@ -1,5 +1,5 @@
-import React from 'react';
 import { Text } from '@chakra-ui/react';
+import React from 'react';
 
 export default function GridList() {
   return (
@@ -10,7 +10,9 @@ export default function GridList() {
         </div>
         <div className="min-w-0 space-y-2 flex-1">
           <span className="absolute inset-0" aria-hidden="true" />
-          <Text className="text-sm font-medium text-white/90">Total earned</Text>
+          <Text className="text-sm font-medium text-white/90">
+            Total earned
+          </Text>
           <Text className="text-2xl font-semibold text-white">$5160.50</Text>
           <Text className="truncate text-sm text-white/90">
             24hrs of tutoring completed!
@@ -23,7 +25,9 @@ export default function GridList() {
         </div>
         <div className="min-w-0 space-y-2 flex-1">
           <span className="absolute inset-0" aria-hidden="true" />
-          <Text className="text-sm font-medium text-gray-400">Total Clients</Text>
+          <Text className="text-sm font-medium text-gray-400">
+            Total Clients
+          </Text>
           <Text className="text-2xl font-semibold">314</Text>
           <Text className="truncate text-sm text-green-400">
             + Increased 10% this month
@@ -36,7 +40,9 @@ export default function GridList() {
         </div>
         <div className="min-w-0 space-y-2 flex-1">
           <span className="absolute inset-0" aria-hidden="true" />
-          <Text className="text-sm font-medium text-gray-400">Current clients</Text>
+          <Text className="text-sm font-medium text-gray-400">
+            Current clients
+          </Text>
           <Text className="text-2xl font-semibold">20</Text>
           <Text className="truncate text-sm text-red-400">
             - Decreased 10% this month

@@ -1,4 +1,5 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
+import { Text } from '@chakra-ui/react';
 
 interface OfferSummaryProps {
   setOfferModalState: (state: boolean) => void;
@@ -21,9 +22,9 @@ const OfferSummary: FC<OfferSummaryProps> = ({
         </div>
         <div className="mt-3 text-center sm:mt-5">
           <div className="mt-2">
-            <p className="text-sm text-gray-500">
+            <Text className="text-sm text-gray-500">
               Respond to the offer before it expires
-            </p>
+            </Text>
           </div>
         </div>
       </div>

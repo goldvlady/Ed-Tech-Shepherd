@@ -4,6 +4,7 @@ import { AllNotesTab, SelectedNoteModal } from '../../../components';
 import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMenu';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { SortIcon, FilterByTagsIcon } from '../../../components/icons';
+import { Text } from '@chakra-ui/react';
 // import ApiService from '../../../services/ApiService';
 import {
   Checkbox,
@@ -17,7 +18,7 @@ import {
   SectionNewList,
   StyledHeader,
   StyledSection,
-  Text
+  
 } from './styles';
 // import { BlockNoteEditor } from '@blocknote/core';
 // import '@blocknote/core/style.css';
@@ -176,10 +177,10 @@ const Notes = () => {
                     sortedBy?.map((sorted) => (
                       <StyledSection key={sorted.id}>
                         <div>
-                          <p className="text-label">{sorted.title}</p>
+                          <Text className="text-label">{sorted.title}</Text>
                           <div>
-                            <p className="text-value">{sorted.firstValue}</p>
-                            <p className="text-value">{sorted.secondValue}</p>
+                            <Text className="text-value">{sorted.firstValue}</Text>
+                            <Text className="text-value">{sorted.secondValue}</Text>
                           </div>
                         </div>
                       </StyledSection>
@@ -189,10 +190,10 @@ const Notes = () => {
                     sortedBy?.map((sorted) => (
                       <StyledSection key={sorted.id}>
                         <div>
-                          <p className="text-label">{sorted.title}</p>
+                          <Text className="text-label">{sorted.title}</Text>
                           <div>
-                            <p className="text-value">{sorted.firstValue}</p>
-                            <p className="text-value">{sorted.secondValue}</p>
+                            <Text className="text-value">{sorted.firstValue}</Text>
+                            <Text className="text-value">{sorted.secondValue}</Text>
                           </div>
                         </div>
                       </StyledSection>
@@ -227,14 +228,14 @@ const Notes = () => {
       ) : (
         <NotesWrapper>
           <Header>
-            <h4>
+            <Text>
               <span>My Notes</span>
-            </h4>
+            </Text>
           </Header>
           <Section>
             <div>
               <img src="/images/notes.png" alt="notes" />
-              <p>You don't have any notes yet!</p>
+              <Text>You don't have any notes yet!</Text>
               <DropdownMenu
                 isCreateNewWidth
                 isCreateNew
@@ -247,7 +248,7 @@ const Notes = () => {
                   <SectionNewList key={createNewList.id}>
                     <NewList onClick={createNewList.onClick}>
                       {createNewList.iconName}
-                      <p>{createNewList.labelText}</p>
+                      <Text>{createNewList.labelText}</Text>
                     </NewList>
                   </SectionNewList>
                 ))}

@@ -1,5 +1,6 @@
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import React from 'react';
+import { Text } from '@chakra-ui/react';
 
 export default function Events({ event }: any) {
   return (
@@ -10,14 +11,14 @@ export default function Events({ event }: any) {
       <div className="py-2">
         <div className="flex gap-x-1">
           <div className="min-w-0 flex-auto">
-            <p className="text-xs font-normal leading-6 text-gray-500">
+            <Text className="text-xs font-normal leading-6 text-gray-500">
               {event.name}
-            </p>
-            <p className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
+            </Text>
+            <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
               <span>{event.lastSeen}</span>
               <ChevronRightIcon className="w-4 h-4" />
               <span>{event.time}</span>
-            </p>
+            </Text>
           </div>
         </div>
         <div className="flex -space-x-0.5">
