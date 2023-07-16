@@ -4,7 +4,6 @@ import { AllNotesTab, SelectedNoteModal } from '../../../components';
 import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMenu';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { SortIcon, FilterByTagsIcon } from '../../../components/icons';
-import { Text } from '@chakra-ui/react';
 // import ApiService from '../../../services/ApiService';
 import {
   Checkbox,
@@ -17,13 +16,13 @@ import {
   Section,
   SectionNewList,
   StyledHeader,
-  StyledSection,
-  
+  StyledSection
 } from './styles';
 // import { BlockNoteEditor } from '@blocknote/core';
 // import '@blocknote/core/style.css';
 // import { BlockNoteView, useBlockNote } from '@blocknote/react';
 import { AddIcon } from '@chakra-ui/icons';
+import { Text } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -179,8 +178,12 @@ const Notes = () => {
                         <div>
                           <Text className="text-label">{sorted.title}</Text>
                           <div>
-                            <Text className="text-value">{sorted.firstValue}</Text>
-                            <Text className="text-value">{sorted.secondValue}</Text>
+                            <Text className="text-value">
+                              {sorted.firstValue}
+                            </Text>
+                            <Text className="text-value">
+                              {sorted.secondValue}
+                            </Text>
                           </div>
                         </div>
                       </StyledSection>
@@ -192,8 +195,12 @@ const Notes = () => {
                         <div>
                           <Text className="text-label">{sorted.title}</Text>
                           <div>
-                            <Text className="text-value">{sorted.firstValue}</Text>
-                            <Text className="text-value">{sorted.secondValue}</Text>
+                            <Text className="text-value">
+                              {sorted.firstValue}
+                            </Text>
+                            <Text className="text-value">
+                              {sorted.secondValue}
+                            </Text>
                           </div>
                         </div>
                       </StyledSection>

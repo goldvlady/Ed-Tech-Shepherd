@@ -1,6 +1,6 @@
+import { Text } from '@chakra-ui/react';
 import { QuestionMarkCircleIcon } from '@heroicons/react/20/solid';
 import React from 'react';
-import { Text } from '@chakra-ui/react';
 
 interface OfferDetailsProps {
   name: string;
