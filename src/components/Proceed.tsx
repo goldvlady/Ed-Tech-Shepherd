@@ -1,3 +1,4 @@
+import { Text } from '@chakra-ui/react';
 import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment, FC, useRef, memo, useState } from 'react';
 
@@ -18,7 +19,7 @@ const Proceed: FC = () => {
             <div className="flex proceed text-white justify-center text-2xl bg-success h-14 w-14 rounded-full items-center">
               L
             </div>
-            <p className="">
+            <Text className="">
               <span className="block whitespace-nowrap">
                 Welcome to shepherd
               </span>
@@ -26,7 +27,7 @@ const Proceed: FC = () => {
                 We need a few more details to complete your profile. This helps
                 you stand out from other tutors.
               </span>
-            </p>
+            </Text>
           </section>
           <div className="flex flex-none items-center gap-x-4">
             <button
@@ -70,18 +71,18 @@ const Proceed: FC = () => {
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
                 <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                  <h3 className="border-b px-2 py-4 text-center">
+                  <Text className="border-b px-2 py-4 text-center">
                     Hey Leslie, kindly drop a lesson summary
-                  </h3>
+                  </Text>
                   <form className="space-y-6 p-6" action="#" method="POST">
                     <div className="flex items-start space-x-2 font-semibold bg-blue-50 text-gray-400 p-2 rounded-md">
                       <div className="flex justify-center items-center font-bold bg-primaryColor text-white w-10 rounded-full">
                         i
                       </div>
-                      <p>
+                      <Text>
                         submitting a summary of each lesson with your students
                         is neccessary for payment processing.
-                      </p>
+                      </Text>
                     </div>
                     <div>
                       <label
