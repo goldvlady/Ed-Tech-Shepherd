@@ -350,12 +350,12 @@ export default function Layout({ children, className }) {
                   <Menu.Items className="absolute space-y-3 p-4 right-0 z-10 mt-2.5 w-[23rem] origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-900/5 focus:outline-none">
                     <div className="flex items-center">
                       <div className="flex w-0 flex-1 justify-between">
-                        <p className="w-0 space-x-2 flex-1 text-sm font-medium text-gray-900">
+                        <Text className="w-0 space-x-2 flex-1 text-sm font-medium text-gray-900">
                           <span>Notifications</span>
                           <span className="inline-block bg-blue-100 text-blue-400 px-1 py-0.5 rounded-md">
                             23
                           </span>
-                        </p>
+                        </Text>
                         <button
                           type="button"
                           className="ml-3 flex-shrink-0 rounded-md bg-white text-sm font-medium text-blue-400 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -375,9 +375,9 @@ export default function Layout({ children, className }) {
                       </div>
 
                       <div className="ml-3 w-0 flex-1 pt-0.5">
-                        <p className="text-sm font-normal text-gray-400">
+                        <Text className="text-sm font-normal text-gray-400">
                           19 May, 2023
-                        </p>
+                        </Text>
                         <Text className="mt-1 text-sm font-medium text-gray-500">
                           Your chemistry leeson session with Leslie Peters
                           started
@@ -399,12 +399,12 @@ export default function Layout({ children, className }) {
                       </div>
 
                       <div className="ml-3 w-0 flex-1 pt-0.5">
-                        <p className="text-sm font-normal text-gray-400">
+                        <Text className="text-sm font-normal text-gray-400">
                           2 hrs ago
-                        </p>
-                        <p className="mt-1 text-sm font-medium text-gray-500">
+                        </Text>
+                        <Text className="mt-1 text-sm font-medium text-gray-500">
                           You received a new contract offer
-                        </p>
+                        </Text>
                         <div className="mt-3 flex space-x-7">
                           <button
                             type="button"
@@ -435,16 +435,16 @@ export default function Layout({ children, className }) {
                       </div>
 
                       <div className="ml-3 w-0 flex-1 pt-0.5">
-                        <p className="text-sm font-normal text-gray-400">
+                        <Text className="text-sm font-normal text-gray-400">
                           2 hrs ago
-                        </p>
-                        <p className="mt-1 text-sm font-medium text-gray-500">
+                        </Text>
+                        <Text className="mt-1 text-sm font-medium text-gray-500">
                           William Kelly{' '}
                           <span className="text-red-400 font-semibold">
                             withdrew
                           </span>{' '}
                           her offer
-                        </p>
+                        </Text>
                       </div>
 
                       <div className="ml-4 flex flex-shrink-0">
@@ -462,12 +462,12 @@ export default function Layout({ children, className }) {
                       </div>
 
                       <div className="ml-3 w-0 flex-1 pt-0.5">
-                        <p className="text-sm font-normal text-gray-400">
+                        <Text className="text-sm font-normal text-gray-400">
                           2 hrs ago
-                        </p>
-                        <p className="mt-1 text-sm font-medium text-gray-500">
+                        </Text>
+                        <Text className="mt-1 text-sm font-medium text-gray-500">
                           You received a new contract offer
-                        </p>
+                        </Text>
                         <div className="mt-3 flex space-x-7">
                           <button
                             type="button"
