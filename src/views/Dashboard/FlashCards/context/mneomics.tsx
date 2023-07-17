@@ -39,6 +39,13 @@ export const useMnemonicSetupState = () => {
   return context;
 };
 
+const formatPairing = (pairings: { [key: string]: any }) => {
+  const pairingText = Object.entries(pairings)
+    .map(([key, value]) => `- ${key}: ${value}`)
+    .join('\n');
+  return pairingText;
+};
+
 const MnemonicSetupProvider: React.FC<{ children: React.ReactNode }> = ({
   children
 }) => {
@@ -73,8 +80,8 @@ const MnemonicSetupProvider: React.FC<{ children: React.ReactNode }> = ({
             const updatedMnemonics = [...prev];
             updatedMnemonics[index] = {
               ...updatedMnemonics[index],
-              explanation: data.explainer,
-              answer: data.mnemonics
+              explanation: data?.explainer?.context,
+              answer: formatPairing(data.explainer.pairings)
             };
             return updatedMnemonics;
           });

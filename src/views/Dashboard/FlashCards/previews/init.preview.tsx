@@ -16,6 +16,7 @@ const InitSetupPreview = ({
       display={'flex'}
       flexDirection={'column'}
       padding="20px"
+      paddingTop="40px"
       justifyContent={'center'}
     >
       <BotIntructionBox />

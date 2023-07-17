@@ -35,7 +35,7 @@ type Store = {
 
 export default create<Store>((set) => ({
   flashcards: null,
-  isLoading: true,
+  isLoading: false,
   pagination: { limit: 10, page: 1, count: 100 },
   fetchFlashcards: async (queryParams?: {
     search?: string;
