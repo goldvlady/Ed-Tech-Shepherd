@@ -1,4 +1,4 @@
-import { Text, Box, HStack, Image, Button } from '@chakra-ui/react';
+import { Text, Box, HStack, Image, Button, Input } from '@chakra-ui/react';
 import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment, FC, useRef, memo, useState } from 'react';
 
@@ -115,16 +115,16 @@ const Proceed: FC = () => {
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
-                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md">
                   <Text className="border-b px-2 py-4 text-center">
                     Hey Leslie, kindly drop a lesson summary
                   </Text>
                   <form className="space-y-6 p-6" action="#" method="POST">
                     <div className="flex items-start space-x-2 font-semibold bg-blue-50 text-gray-400 p-2 rounded-md">
-                      <div className="flex justify-center items-center font-bold bg-primaryColor text-white w-10 rounded-full">
-                        i
+                      <div className="flex justify-center items-center font-bold bg-primaryColor text-white w-12 h-8 rounded-full">
+                        <span>i</span>
                       </div>
-                      <Text>
+                      <Text as="p" fontSize="xs" color="gray.500">
                         submitting a summary of each lesson with your students
                         is neccessary for payment processing.
                       </Text>
@@ -137,14 +137,14 @@ const Proceed: FC = () => {
                         Subject
                       </label>
                       <div className="mt-2">
-                        <input
+                        <Input
                           id="subject"
                           name="subject"
                           type="texg"
                           autoComplete="subject"
                           placeholder="Enter subject"
                           required
-                          className="block w-full rounded-md border-0 p-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-400 sm:text-sm sm:leading-6"
+                          className="block w-full rounded-md p-1.5 shadow-sm border ring-0 border-gray-300 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
                         />
                       </div>
                     </div>
@@ -163,7 +163,7 @@ const Proceed: FC = () => {
                           autoComplete="topic"
                           placeholder="Topic"
                           required
-                          className="block w-full rounded-md border-0 p-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-400 sm:text-sm sm:leading-6"
+                          className="block w-full rounded-md p-1.5 shadow-sm border border-gray-200 placeholder:text-gray-400 focus:ring-0 focus:border-none sm:text-sm sm:leading-6"
                         ></textarea>
                       </div>
                     </div>
@@ -182,7 +182,7 @@ const Proceed: FC = () => {
                           autoComplete="summary"
                           placeholder="Summary"
                           required
-                          className="block w-full rounded-md border-0 p-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-400 sm:text-sm sm:leading-6"
+                          className="block w-full rounded-md border p-1.5 shadow-sm ring-0 border-gray-300 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
                         ></textarea>
                       </div>
                     </div>

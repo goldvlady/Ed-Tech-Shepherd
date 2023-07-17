@@ -1,6 +1,6 @@
+import { Text } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import React from 'react';
-import { Text } from '@chakra-ui/react';
 
 export default function Events({ event }: any) {
   return (

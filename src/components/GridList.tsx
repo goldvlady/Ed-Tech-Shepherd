@@ -3,7 +3,7 @@ import React from 'react';
 
 export default function GridList() {
   return (
-<Grid
+    <Grid
       templateColumns={{ base: '1fr', sm: 'repeat(3, 1fr)' }}
       gap="4"
       mt="4"

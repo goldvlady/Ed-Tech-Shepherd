@@ -93,8 +93,8 @@ const events: Event[] = [
     name: 'Upcoming chemistry session with Liam Kelly',
     lastSeen: '03:30 pm',
     time: '04:30 pm',
-    color: 'bg-orange-500',
-    backgroundColor: 'bg-orange-50',
+    color: 'orange.500',
+    backgroundColor: 'orange.50',
     commenters: [
       {
         id: 12,
@@ -112,7 +112,7 @@ const events: Event[] = [
         id: 4,
         name: 'Lindsay Walton',
         imageUrl: '/svgs/feather.svg',
-        backgroundColor: 'bg-blue-500'
+        backgroundColor: 'blue.500'
       }
     ]
   },
@@ -121,8 +121,8 @@ const events: Event[] = [
     name: 'Upcoming chemistry session with Liam Kelly',
     lastSeen: '03:30 pm',
     time: '04:30 pm',
-    color: 'bg-blue-500',
-    backgroundColor: 'bg-blue-50',
+    color: 'blue.500',
+    backgroundColor: 'blue.50',
     commenters: [
       {
         id: 12,
