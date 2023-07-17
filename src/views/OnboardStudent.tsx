@@ -342,17 +342,24 @@ const OnboardStudent = () => {
   const doSubmit = async () => {
     mixpanel.track('Completed onboarding');
 
-    const firebaseUser = await createUserWithEmailAndPassword(
-      firebaseAuth,
-      data.email,
-      password
-    );
+    const user = await firebaseAuth.currentUser;
+    let firebaseId: string | null | undefined = user?.uid;
+
+    if (!firebaseId) {
+      const firebaseUser = await createUserWithEmailAndPassword(
+        firebaseAuth,
+        data.email,
+        password
+      );
+      firebaseId = firebaseUser.user.uid;
+    }
 
     await ApiService.createUser({
       ...data,
-      firebaseId: firebaseUser.user.uid,
+      firebaseId,
       type: 'student'
     });
+
     const response = await ApiService.submitStudent(data);
     return response;
   };
