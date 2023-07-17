@@ -351,9 +351,9 @@ const OnboardStudent = () => {
     await ApiService.createUser({
       ...data,
       firebaseId: firebaseUser.user.uid,
-      type: 'tutor'
+      type: 'student'
     });
-    const response = await ApiService.submitTutor(data);
+    const response = await ApiService.submitStudent(data);
     return response;
   };
 
