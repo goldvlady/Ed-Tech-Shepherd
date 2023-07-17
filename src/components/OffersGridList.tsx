@@ -5,9 +5,9 @@ import {
   ArrowRightIcon,
   EllipsistIcon
 } from './icons';
+import { Text } from '@chakra-ui/react';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Text } from '@chakra-ui/react';
 
 interface Status {
   new: number;

@@ -16,7 +16,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <Layout className="px-4">
+    <Layout className="p-2 bg-white">
       <WelcomePage
         greeting="Hi Leslie, Good Evening"
         date="Tuesday, July 21"

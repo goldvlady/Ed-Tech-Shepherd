@@ -16,29 +16,29 @@ export default function Date() {
           <div className="flex justify-between">
             <div className="text-gray-400">
               <span className="block text-lg">19</span>
-              <span className="text-uppercase block text-xs">SUN</span>
+              <span className="text-uppercase block text-[0.65rem]">SUN</span>
             </div>
             <div className="bg-blue-100 px-3 py-1 rounded-full">
               <span className="block text-blue-500 text-lg">20</span>
-              <span className="text-uppercase text-xs text-gray-400 block">
+              <span className="text-uppercase text-[0.65rem] text-gray-400 block">
                 MON
               </span>
             </div>
             <div className="text-gray-400">
               <span className="block text-lg">21</span>
-              <span className="text-uppercase text-xs block">Tue</span>
+              <span className="text-uppercase text-[0.65rem] block">Tue</span>
             </div>
             <div className="text-gray-400">
               <span className="block text-lg">22</span>
-              <span className="text-uppercase text-xs block">Wed</span>
+              <span className="text-uppercase text-[0.65rem] block">Wed</span>
             </div>
             <div className="text-gray-400">
               <span className="block text-lg">23</span>
-              <span className="text-uppercase text-xs block">Thur</span>
+              <span className="text-uppercase text-[0.65rem] block">Thur</span>
             </div>
             <div className="text-gray-400">
               <span className="block text-lg">24</span>
-              <span className="text-uppercase text-xs block">Fri</span>
+              <span className="text-uppercase text-[0.65rem] block">Fri</span>
             </div>
           </div>
         </section>
