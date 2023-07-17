@@ -1,4 +1,4 @@
-import { Text } from '@chakra-ui/react';
+import { Text, Box, HStack, Image, Button } from '@chakra-ui/react';
 import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment, FC, useRef, memo, useState } from 'react';
 
@@ -8,37 +8,82 @@ const Proceed: FC = () => {
   const cancelButtonRef = useRef<HTMLButtonElement | null>(null);
   return (
     <>
-      <section className="px-6 mt-4">
-        <div className="flex flex-wrap lg:space-y-0 space-y-3 items-center justify-between px-4 rounded-md py-5 border shadow-sm">
-          <section className="relative flex flex-wrap items-center sm:space-y-0 space-y-3 sm:space-x-4">
-            <img
-              className="absolute sm:-top-0 top-4 sm:left-12 left-9 sm:rotate-12 rotate-[24deg]"
+      <Box px={6} mt={4}>
+        <Box
+          display="flex"
+          flexWrap="wrap"
+          alignItems="center"
+          justifyContent="space-between"
+          px={4}
+          rounded="md"
+          py="6"
+          shadow="sm"
+          border="2px"
+          borderColor="gray.100"
+        >
+          <HStack
+            pos="relative"
+            display="flex"
+            spacing={4}
+            flexWrap="wrap"
+            alignItems="center"
+          >
+            <Image
+              pos="absolute"
+              top={['2', '-0', '-2']}
+              left={['10', '8', '10']}
+              transform={['rotate(38deg)', 'rotate(14deg)', 'rotate(-16deg)']}
               alt=""
               src="/svgs/cut-border.svg"
             />
-            <div className="flex proceed text-white justify-center text-2xl bg-success h-14 w-14 rounded-full items-center">
+            <Box
+              fontSize="2xl"
+              fontWeight="bold"
+              color="white"
+              h="14"
+              w="14"
+              rounded="full"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              bg="green.400"
+              mb={[4, 4, 0]}
+            >
               L
-            </div>
-            <Text className="">
-              <span className="block whitespace-nowrap">
-                Welcome to shepherd
-              </span>
-              <span className="inline-block text-gray-400 text-sm">
+            </Box>
+            <Text my={4} as="p">
+              <Text as="span" display="block" whiteSpace="nowrap">
+                Welcome to sherpherd
+              </Text>
+              <Text
+                as="span"
+                display="inline-block"
+                color="gray.400"
+                fontSize="sm"
+              >
                 We need a few more details to complete your profile. This helps
                 you stand out from other tutors.
-              </span>
+              </Text>
             </Text>
-          </section>
-          <div className="flex flex-none items-center gap-x-4">
-            <button
+          </HStack>
+          <HStack mt={[4, 4, 0]} display="flex" alignItems="center" spacing={4}>
+            <Button
+              rounded="md"
+              bg="gray.100"
+              px="2.5"
+              py="1.5"
+              fontSize="sm"
+              fontWeight="semibold"
+              color="gray.600"
+              shadow="sm"
+              _hover={{ bg: 'gray.50' }}
               onClick={() => setOpen(true)}
-              className="rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-600 shadow-sm hover:bg-gray-50 sm:block"
             >
               Proceed
-            </button>
-          </div>
-        </div>
-      </section>
+            </Button>
+          </HStack>
+        </Box>
+      </Box>
 
       <Transition.Root show={open} as={Fragment}>
         <Dialog
