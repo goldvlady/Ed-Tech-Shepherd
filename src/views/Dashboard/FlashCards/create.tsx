@@ -12,8 +12,15 @@ import InitSetupPreview from './previews/init.preview';
 import MnemonicPreview from './previews/mneomics.preview';
 import QuestionsPreview from './previews/questions.preview';
 import { useToast } from '@chakra-ui/react';
-import { Box, HStack, Text, Radio, RadioGroup } from '@chakra-ui/react';
-import { useState, useEffect, useCallback } from 'react';
+import { Box, HStack, Text, Radio, RadioGroup, VStack } from '@chakra-ui/react';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+  RefObject
+} from 'react';
 import styled from 'styled-components';
 
 const Wrapper = styled(Box)`
@@ -69,12 +76,42 @@ type SettingsType = {
   source: SourceEnum;
 };
 
+const useBoxWidth = (ref: RefObject<HTMLDivElement>): number => {
+  const [boxWidth, setBoxWidth] = useState<number>(0);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (ref.current) {
+        const newWidth = ref.current.offsetWidth;
+        setBoxWidth(newWidth);
+      }
+    };
+
+    // Initial width calculation
+    handleResize();
+
+    // Add event listener for window resize
+    window.addEventListener('resize', handleResize);
+
+    // Clean up the event listener on unmount
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [ref]);
+
+  return boxWidth;
+};
+
 const CreateFlashPage = () => {
   const toast = useToast();
   const [settings, setSettings] = useState<SettingsType>({
     type: TypeEnum.INIT,
     source: SourceEnum.MANUAL
   });
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+
+  const boxWidth = useBoxWidth(wrapperRef);
+
   const {
     flashcardData,
     questions,
@@ -94,6 +131,12 @@ const CreateFlashPage = () => {
   const setActiveBadge = (badge: TypeEnum) => {
     setSettings((value) => ({ ...value, type: badge }));
   };
+
+  useEffect(() => {
+    if (wrapperRef.current) {
+      const wrapperWidth = wrapperRef.current.offsetWidth;
+    }
+  }, []);
 
   const generateFlashcard = useCallback(async () => {
     try {
@@ -207,9 +250,9 @@ const CreateFlashPage = () => {
       }
       if (
         settings.type !== TypeEnum.FLASHCARD &&
-        settings.source === SourceEnum.MANUAL
+        settings.source !== SourceEnum.MANUAL
       ) {
-        setSettings((value) => ({ ...value, type: TypeEnum.FLASHCARD }));
+        setSettings((value) => ({ ...value, source: SourceEnum.MANUAL }));
       }
     }
   }, [
@@ -224,8 +267,9 @@ const CreateFlashPage = () => {
   const handleBadgeClick = (badge: TypeEnum) => {
     if (settings.source === SourceEnum.DOCUMENT && badge !== TypeEnum.FLASHCARD)
       return;
-    if (badge === TypeEnum.MNEOMONIC) setSource(SourceEnum.MANUAL);
     setActiveBadge(badge);
+
+    // if (badge === TypeEnum.MNEOMONIC) setSource(SourceEnum.MANUAL);
   };
 
   const setType = (type: TypeEnum) => {
@@ -242,15 +286,16 @@ const CreateFlashPage = () => {
     }));
   };
 
-  const renderForms = useCallback(() => {
-    if (isCompleted) {
-      return <SuccessState />;
-    }
+  const form = useMemo(() => {
     if (
       settings.type === TypeEnum.MNEOMONIC &&
       settings.source === SourceEnum.MANUAL
     ) {
       return <MnemonicSetup />;
+    }
+
+    if (isCompleted) {
+      return <SuccessState />;
     }
     if (
       (settings.type === TypeEnum.FLASHCARD ||
@@ -262,6 +307,7 @@ const CreateFlashPage = () => {
     if (settings.source === SourceEnum.SUBJECT) {
       return <SetupFlashcardPage isAutomated />;
     }
+    return <></>;
   }, [settings, isCompleted]); // The callback depends on 'settings'
 
   const renderPreview = () => {
@@ -293,32 +339,42 @@ const CreateFlashPage = () => {
     }
   };
   return (
-    <>
+    <Box width={'100%'}>
       {isLoading && <LoaderOverlay />}
       <FlashCardModal isOpen={Boolean(flashcard)} />
       <Wrapper
+        ref={wrapperRef}
         bg="white"
         width="100%"
         display="flex"
-        flexDirection="column"
-        justifyContent="center"
+        position={'relative'}
+        justifyContent="space-between"
         alignItems="center"
+        minH="calc(100vh - 60px)"
       >
         <HStack
           justifyContent={'start'}
           alignItems={'start'}
           width="100%"
+          display={'flex'}
           minH="calc(100vh - 60px)"
         >
-          {activeBadge !== TypeEnum.MNEOMONIC && (
-            <Box height="100%" width="48%">
+          <VStack
+            display={'flex'}
+            justifyContent={'start'}
+            alignItems={'center'}
+            height="100%"
+            flex="1"
+            maxWidth={`${boxWidth / 2}px`}
+            position={'relative'}
+          >
+            {activeBadge !== TypeEnum.MNEOMONIC && (
               <Box
-                px="60px"
-                py="40px"
                 display={'flex'}
                 borderBottom={'1px solid #E7E8E9'}
                 flexDirection={'column'}
                 width={'100%'}
+                padding="30px"
               >
                 <Text
                   fontFamily="Inter"
@@ -360,27 +416,26 @@ const CreateFlashPage = () => {
                   </HStack>
                 </RadioGroup>
               </Box>
-              <Box px="60px" width={'100%'}>
-                <Box py="45px" width="100%">
-                  {renderForms()}
-                </Box>
-              </Box>
+            )}
+            <Box py="45px" paddingX={'30px'} width={'100%'}>
+              {form}
             </Box>
-          )}
-          <Box
-            position="fixed"
-            top="60px"
-            bottom="0"
-            right="0"
+          </VStack>
+          {/* Render the right item here */}
+          <VStack
             borderLeft="1px solid #E7E8E9"
-            width="45%"
-            paddingTop={'20px'}
+            top="60px"
+            width={`${boxWidth / 2}px`}
+            maxWidth={`${boxWidth / 2}px`}
+            right="0"
+            bottom={'0'}
+            position={'fixed'}
           >
             {renderPreview()}
-          </Box>
+          </VStack>
         </HStack>
       </Wrapper>
-    </>
+    </Box>
   );
 };
 

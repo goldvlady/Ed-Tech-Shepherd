@@ -1,4 +1,5 @@
 import { REACT_APP_API_ENDPOINT } from '../config';
+import { AI_API, HEADER_KEY } from '../config';
 import { objectToQueryString } from '../helpers/http.helpers';
 import { User } from '../types';
 import { doFetch } from '../util';
@@ -78,6 +79,24 @@ class ApiService {
 
   static generateFlashcardQuestions = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/generateFlashcardQuestions`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static generateMneomics = async (query: string) => {
+    return fetch(`${AI_API}/mnemonics/generate`, {
+      method: 'POST',
+      body: JSON.stringify({ query }),
+      headers: {
+        'x-shepherd-header': HEADER_KEY,
+        'Content-Type': 'application/json'
+      }
+    });
+  };
+
+  static createMneomics = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/createMneomics`, {
       method: 'POST',
       body: JSON.stringify(data)
     });

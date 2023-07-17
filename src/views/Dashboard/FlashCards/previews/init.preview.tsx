@@ -11,7 +11,14 @@ const InitSetupPreview = ({
   handleBadgeClick: (v: any) => void;
 }) => {
   return (
-    <Box w="full" p="40px" pr="40px" h="100%">
+    <Box
+      width="100%"
+      display={'flex'}
+      flexDirection={'column'}
+      padding="20px"
+      paddingTop="40px"
+      justifyContent={'center'}
+    >
       <BotIntructionBox />
       <Text
         fontSize="15px"
