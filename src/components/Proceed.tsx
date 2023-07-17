@@ -1,4 +1,4 @@
-import { Text } from '@chakra-ui/react';
+import { Text, Box, HStack, Image, Button, Input } from '@chakra-ui/react';
 import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment, FC, useRef, memo, useState } from 'react';
 
@@ -8,37 +8,82 @@ const Proceed: FC = () => {
   const cancelButtonRef = useRef<HTMLButtonElement | null>(null);
   return (
     <>
-      <section className="px-6 mt-4">
-        <div className="flex flex-wrap lg:space-y-0 space-y-3 items-center justify-between px-4 rounded-md py-5 border shadow-sm">
-          <section className="relative flex flex-wrap items-center sm:space-y-0 space-y-3 sm:space-x-4">
-            <img
-              className="absolute sm:-top-0 top-4 sm:left-12 left-9 sm:rotate-12 rotate-[24deg]"
+      <Box px={6} mt={4}>
+        <Box
+          display="flex"
+          flexWrap="wrap"
+          alignItems="center"
+          justifyContent="space-between"
+          px={4}
+          rounded="md"
+          py="6"
+          shadow="sm"
+          border="2px"
+          borderColor="gray.100"
+        >
+          <HStack
+            pos="relative"
+            display="flex"
+            spacing={4}
+            flexWrap="wrap"
+            alignItems="center"
+          >
+            <Image
+              pos="absolute"
+              top={['2', '-0', '-2']}
+              left={['10', '8', '10']}
+              transform={['rotate(38deg)', 'rotate(14deg)', 'rotate(-16deg)']}
               alt=""
               src="/svgs/cut-border.svg"
             />
-            <div className="flex proceed text-white justify-center text-2xl bg-success h-14 w-14 rounded-full items-center">
+            <Box
+              fontSize="2xl"
+              fontWeight="bold"
+              color="white"
+              h="14"
+              w="14"
+              rounded="full"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              bg="green.400"
+              mb={[4, 4, 0]}
+            >
               L
-            </div>
-            <Text className="">
-              <span className="block whitespace-nowrap">
-                Welcome to shepherd
-              </span>
-              <span className="inline-block text-gray-400 text-sm">
+            </Box>
+            <Text my={4} as="p">
+              <Text as="span" display="block" whiteSpace="nowrap">
+                Welcome to sherpherd
+              </Text>
+              <Text
+                as="span"
+                display="inline-block"
+                color="gray.400"
+                fontSize="sm"
+              >
                 We need a few more details to complete your profile. This helps
                 you stand out from other tutors.
-              </span>
+              </Text>
             </Text>
-          </section>
-          <div className="flex flex-none items-center gap-x-4">
-            <button
+          </HStack>
+          <HStack mt={[4, 4, 0]} display="flex" alignItems="center" spacing={4}>
+            <Button
+              rounded="md"
+              bg="gray.100"
+              px="2.5"
+              py="1.5"
+              fontSize="sm"
+              fontWeight="semibold"
+              color="gray.600"
+              shadow="sm"
+              _hover={{ bg: 'gray.50' }}
               onClick={() => setOpen(true)}
-              className="rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-600 shadow-sm hover:bg-gray-50 sm:block"
             >
               Proceed
-            </button>
-          </div>
-        </div>
-      </section>
+            </Button>
+          </HStack>
+        </Box>
+      </Box>
 
       <Transition.Root show={open} as={Fragment}>
         <Dialog
@@ -70,16 +115,16 @@ const Proceed: FC = () => {
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
-                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md">
                   <Text className="border-b px-2 py-4 text-center">
                     Hey Leslie, kindly drop a lesson summary
                   </Text>
                   <form className="space-y-6 p-6" action="#" method="POST">
                     <div className="flex items-start space-x-2 font-semibold bg-blue-50 text-gray-400 p-2 rounded-md">
-                      <div className="flex justify-center items-center font-bold bg-primaryColor text-white w-10 rounded-full">
-                        i
+                      <div className="flex justify-center items-center font-bold bg-primaryColor text-white w-12 h-8 rounded-full">
+                        <span>i</span>
                       </div>
-                      <Text>
+                      <Text as="p" fontSize="xs" color="gray.500">
                         submitting a summary of each lesson with your students
                         is neccessary for payment processing.
                       </Text>
@@ -92,14 +137,14 @@ const Proceed: FC = () => {
                         Subject
                       </label>
                       <div className="mt-2">
-                        <input
+                        <Input
                           id="subject"
                           name="subject"
                           type="texg"
                           autoComplete="subject"
                           placeholder="Enter subject"
                           required
-                          className="block w-full rounded-md border-0 p-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-400 sm:text-sm sm:leading-6"
+                          className="block w-full rounded-md p-1.5 shadow-sm border ring-0 border-gray-300 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
                         />
                       </div>
                     </div>
@@ -118,7 +163,7 @@ const Proceed: FC = () => {
                           autoComplete="topic"
                           placeholder="Topic"
                           required
-                          className="block w-full rounded-md border-0 p-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-400 sm:text-sm sm:leading-6"
+                          className="block w-full rounded-md p-1.5 shadow-sm border border-gray-200 placeholder:text-gray-400 focus:ring-0 focus:border-none sm:text-sm sm:leading-6"
                         ></textarea>
                       </div>
                     </div>
@@ -137,7 +182,7 @@ const Proceed: FC = () => {
                           autoComplete="summary"
                           placeholder="Summary"
                           required
-                          className="block w-full rounded-md border-0 p-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-400 sm:text-sm sm:leading-6"
+                          className="block w-full rounded-md border p-1.5 shadow-sm ring-0 border-gray-300 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
                         ></textarea>
                       </div>
                     </div>
