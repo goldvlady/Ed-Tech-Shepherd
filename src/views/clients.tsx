@@ -6,7 +6,8 @@ import { Text } from '@chakra-ui/react';
 import { Menu, Transition, Tab } from '@headlessui/react';
 import React, { useEffect, useState, Fragment } from 'react';
 
-const clients = [{}];
+const clients = [];
+// const clients = [{}];
 
 const Clients = () => {
   const { isLoading, fetchClients } = clientStore();
@@ -24,9 +25,9 @@ const Clients = () => {
       <header className="flex justify-between">
         <Text className="flex items-center space-x-2">
           <span className="font-semibold text-2xl">Clients</span>
-          <span className="inline-block text-sm bg-gray-100 px-2 py-1 rounded-md text-primaryGray">
+          {clients.length > 0 && <span className="inline-block text-sm bg-gray-100 px-2 py-1 rounded-md text-primaryGray">
             24
-          </span>
+          </span>}
         </Text>
         <Menu as="div" className="relative">
           <div>
