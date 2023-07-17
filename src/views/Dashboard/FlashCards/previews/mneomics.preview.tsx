@@ -12,12 +12,13 @@ export default function MnemonicPreview({
   activeBadge?: TypeEnum;
   handleBadgeClick: (v: TypeEnum) => void;
 }) {
-  const { mnemonics } = useMnemonicSetupState();
+  const { mnemonics, saveMneomics, isLoading } = useMnemonicSetupState();
 
   const readyMneomics = useMemo(
     () => mnemonics.filter((m) => m.answer && m.explanation),
     [mnemonics]
   );
+
   return (
     <Box
       display="flex"
@@ -85,6 +86,9 @@ export default function MnemonicPreview({
           />
         </HStack>
         <Button
+          isLoading={isLoading}
+          disabled={readyMneomics.length < 1}
+          onClick={() => saveMneomics()}
           borderRadius="10px"
           p="10px 25px"
           fontSize="14px"
