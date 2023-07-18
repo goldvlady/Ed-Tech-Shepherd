@@ -1,7 +1,7 @@
 import { Transition, Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import React, { Fragment } from 'react';
- 
+
 interface AcceptOfferModalProps {
   offerModalState: boolean;
   setOfferModalState: (state: boolean) => void;

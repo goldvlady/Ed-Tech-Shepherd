@@ -6,14 +6,16 @@ import {
   NotificationsTab
 } from '../components';
 import { classNames } from '../helpers';
+import { Text } from '@chakra-ui/react';
 import { Tab } from '@headlessui/react';
-import { Text } from "@chakra-ui/react"
 import React, { Fragment } from 'react';
 
 export default function Settings() {
   return (
     <Layout className="bg-gray-100 px-4 py-8">
-      <Text mb="8" as="h4">Account Settings</Text>
+      <Text mb="8" as="h4">
+        Account Settings
+      </Text>
       <Tab.Group
         as="div"
         className="mx-auto bg-white max-w-7xl lg:flex lg:gap-x-8 lg:px-8 rounded-2xl"
