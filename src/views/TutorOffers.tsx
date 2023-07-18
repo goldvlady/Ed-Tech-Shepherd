@@ -10,7 +10,7 @@ export default function Offers() {
   }, []);
 
   return (
-    <Layout className="px-4">
+    <Layout className="p-2 bg-white">
       <Section
         title="Offers"
         subtitle="10"
