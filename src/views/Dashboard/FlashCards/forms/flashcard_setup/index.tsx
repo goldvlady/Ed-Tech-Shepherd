@@ -31,7 +31,7 @@ const SetupFlashcardPage = ({ isAutomated }: { isAutomated?: boolean }) => {
   );
 
   return (
-    <Box>
+    <Box width={'100%'}>
       <Text fontSize={'24px'} fontWeight="500" marginBottom="5px">
         Set up flashcard
       </Text>

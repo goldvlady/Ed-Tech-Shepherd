@@ -1,7 +1,23 @@
-import { PencilIcon, ArrowRightIcon } from '../icons';
-import { Text } from '@chakra-ui/react';
-import { CheckIcon } from '@heroicons/react/24/outline';
-import React from 'react';
+import React from "react";
+import { PencilIcon, ArrowRightIcon } from "../icons"
+import { CheckIcon } from "@heroicons/react/24/outline";
+
+import { 
+  Flex, 
+  Box, 
+  Badge, 
+  Text, 
+  Stack, 
+  Image, 
+  Heading,
+  Table, 
+  Thead, 
+  Tbody, 
+  Tr, 
+  Th, 
+  Td,
+  Divider
+} from "@chakra-ui/react";
 
 interface Subject {
   id: number;
@@ -13,312 +29,559 @@ interface Subject {
 const subject: Subject[] = [
   { id: 0, subject: 'Economics', level: 'GSCE', price: '10.00' },
   { id: 1, subject: 'Mathematics', level: 'A-Level', price: '10.00' },
-  { id: 2, subject: 'Yoruba', level: 'Grade 12', price: '10.00' }
-];
+  { id: 2, subject: 'Yoruba', level: 'Grade 12', price: '10.00' },
+]
 
 export default function ProfileTab() {
   return (
     <div className="space-y-6">
       <section className="divide-y space-y-4 ring-1 ring-gray-900/5 shadow-sm sm:rounded-lg p-4">
-        <div className="flex">
-          <section className="relative flex items-center sm:space-y-0 space-y-3 sm:space-x-4">
-            <div className="h-12 w-12 font-bold border flex justify-center items-center text-white bg-success rounded-full">
-              L
-            </div>
-            <div className="absolute top-7 left-4 bg-primaryBlue flex justify-center items-center rounded-full w-5 h-5">
-              <PencilIcon className="w-3 text-white" onClick={undefined} />
-            </div>
-            <Text className="">
-              <span className="block whitespace-nowrap">Leslie Peters</span>
-              <span className="inline-block text-gray-400 text-sm">
-                lesliepeters@gmail.com
-              </span>
+        <Flex>
+          <Stack
+            direction={{ base: "column", sm: "row" }}
+            spacing={{ base: 3, sm: 0 }}
+            alignItems="center"
+            display="flex"
+            pos="relative">
+              <Badge 
+                h="16"
+                w="16"
+                display="flex"
+                fontWeight="bold"
+                border="1px"
+                mr="4"
+                fontSize="xl"
+                borderColor="white"
+                rounded="full"
+                justifyContent="center"
+                alignItems="center"
+                color="white"
+                bg="green.400"
+                >
+                L
+              </Badge>
+              <Badge 
+                pos="absolute"
+                top="10"
+                left="12"
+                bg="blue.500"
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                rounded="full"
+                w="5"
+                h="5"
+              >
+                <PencilIcon className="w-3 text-white" onClick={undefined}/>
+              </Badge>
+            <Text as="p">
+              <Text as="span" display="block" whiteSpace="nowrap">
+                  Leslie Peters
+                </Text>
+                <Text 
+                  as="span"
+                  display="inline-block"
+                  color="gray.400"
+                  fontSize="sm" 
+                  >
+                  lesliepeters@gmail.com
+                </Text>
             </Text>
-          </section>
-        </div>
-        <Text className="flex items-center space-x-6 pt-4 text-md">
-          <span className="uppercase text-secondaryGray text-xs">
-            Hourly rate
-          </span>
-          <span className="font-bold text-[16px]">$20.00/hr</span>
+          </Stack>
+        </Flex>
+        <Text 
+          as="p" 
+          display="flex"
+          alignItems="center"
+          fontSize="md"
+          pt="4">
+          <Text 
+            as="span" 
+            textTransform="uppercase"
+            fontSize="xs"
+            color="gray.500"
+            mr="6"  
+          >Hourly rate</Text>
+          <Text 
+            as="span"
+            fontWeight="bold"
+            fontSize="lg">$20.00/hr</Text>
         </Text>
       </section>
-
-      <div className="relative rounded-lg isolate overflow-hidden bg-gray-900 px-6 py-24 sm:py-32 lg:px-8">
-        <img
+      
+      <Box
+          pos="relative"
+          rounded="lg"
+          overflow="hidden"
+          bg="gray.900"
+          isolation="isolate"
+          px={{ base: 6, lg: 8 }}
+          py={{ base: 24, sm: 32 }}>
+        <Image
           src="/images/profile.png"
           alt=""
-          className="absolute inset-0 -z-10 h-full w-full object-cover"
+          pos="absolute"
+          inset={0}
+          zIndex={-10}
+          h="full"
+          w="full"
+          objectFit="cover"
         />
-        <div className="absolute inset-0 bg-[#0D1926] opacity-80"></div>
-        <div className="mx-auto max-w-2xl text-center relative z-10">
-          <Text className="text-4xl font-bold tracking-tight text-white sm:text-xl">
-            Update intro video
-          </Text>
-        </div>
-      </div>
+        <Box 
+          pos="absolute"
+          inset={0}
+          opacity="0.8"
+          bg="#0D1926"></Box>
+        <Box
+          pos="relative"
+          zIndex={10}
+          mx="auto"
+          maxW="2xl"
+          textAlign="center">
+          <Heading 
+            as="h2"
+            fontSize={["4xl", "xl"]}
+            fontWeight="bold"
+            color="white">Update intro video</Heading>
+        </Box>
+      </Box>
 
-      <section className="space-y-4 border shadow-sm sm:rounded-lg p-4">
-        <div className="flex justify-between items-center">
-          <Text className="text-secondaryGray">About Me</Text>
-          <div className="bg-white border flex justify-center items-center rounded-full w-8 h-8">
-            <PencilIcon
-              className="w-4 text-secondaryGray"
-              onClick={undefined}
-            />
-          </div>
-        </div>
-        <Text className="text-sm font-normal text-justify">
-          Quam eros suspendisse a pulvinar sagittis mauris. Vel duis adipiscing
-          id faucibus consectetur amet. Tempor dui quam scelerisque at tempor
-          aliquam. Vivamus aenean hendrerit turpis velit pretium consectetur
-          quam ut malesuada. Tempor dui quam scelerisque at tempor aliquam.
-          Vivamus aenean hendrerit turpis velit pretium consectetur quam ut
-          malesuada.
+      <Box
+        border="1px"
+        shadow="sm"
+        rounded="lg"
+        borderColor="gray.200"
+        p={4}
+      >
+        <Flex 
+          justifyContent="space-between" 
+          alignItems="center" 
+        >
+          <Text as="p" color="gray.600">About Me</Text>
+          <Box
+            bg="white"
+            border="1px"
+            borderColor="gray.200"
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            rounded="full"
+            w={8}
+            h={8} 
+          >
+            <PencilIcon className="w-4 text-secondaryGray" onClick={undefined}/>
+          </Box>
+        </Flex>
+        <Text 
+          as="p" 
+          fontSize="sm" 
+          mt={4}
+          fontWeight="normal"
+          textAlign="justify"
+        >
+          Quam eros suspendisse a pulvinar sagittis mauris. Vel duis adipiscing id faucibus consectetur amet. Tempor dui quam scelerisque at tempor aliquam. Vivamus aenean hendrerit turpis velit pretium consectetur quam ut malesuada. Tempor dui quam scelerisque at tempor aliquam. Vivamus aenean hendrerit turpis velit pretium consectetur quam ut malesuada.
         </Text>
-      </section>
+      </Box>
 
-      <section className="space-y-4 border shadow-sm sm:rounded-lg p-4">
-        <div className="flex justify-between items-center">
-          <Text className="text-secondaryGray">Suject Offered</Text>
-          <div className="bg-white border flex justify-center items-center rounded-full w-8 h-8">
-            <PencilIcon
-              className="w-4 text-secondaryGray"
-              onClick={undefined}
-            />
-          </div>
-        </div>
-        <table className="min-w-full border divide-y divide-gray-300">
-          <thead>
-            <tr className="divide-x divide-gray-200">
-              <th
+      <Box 
+        border="1px"
+        borderColor="gray.200"
+        shadow="sm"
+        rounded="lg"
+        p={4}
+      >
+        <Flex 
+          justifyContent="space-between" 
+          alignItems="center"
+          mb={4}
+        >
+          <Text as="p" color="gray.500">Subject Offered</Text>
+          <Flex 
+            bg="white" 
+            justifyContent="center" 
+            alignItems="center"
+            border="1px"
+            rounded="full"
+            borderColor="gray.200"
+            w={8}
+            h={8}
+          >
+            <PencilIcon className="w-4 text-secondaryGray" onClick={undefined}/>
+          </Flex>
+        </Flex>
+
+        <Table 
+          minW="full" 
+          borderWidth="1px" 
+          borderColor="gray.300"
+          >
+          <Thead>
+            <Tr border="1px" borderColor="gray.200">
+              <Th
                 scope="col"
-                className="py-3.5 pl-4 pr-4 text-left text-sm font-semibold bg-gray-50 sm:pl-0"
-              ></th>
-              <th
+                py={3.5}
+                pr={4}
+                textAlign="left"
+                fontSize="sm"
+                fontWeight="semibold"
+                bg="gray.50"
+                pl={{ base: 0, sm: 4 }}
+                >
+                
+              </Th>
+              <Th 
                 scope="col"
-                className="px-4 py-3.5 text-left text-sm font-semibold text-gray-900"
+                py={3.5}
+                pr={4}
+                textAlign="left"
+                fontSize="sm"
+                fontWeight="semibold"
+                border="1px"
+                color="gray.700"
+                borderColor="gray.200"
+                pl={{ base: 0, sm: 4 }}
               >
                 Level
-              </th>
-              <th
+              </Th>
+              <Th
                 scope="col"
-                className="px-4 py-3.5 text-left text-sm font-semibold text-gray-700"
+                py={3.5}
+                pr={4}
+                textAlign="left"
+                fontSize="sm"
+                color="gray.700"
+                fontWeight="semibold"
+                pl={{ base: 0, sm: 4 }}
               >
                 Price
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
-            {subject.map(({ subject, level, price, id }) => (
-              <tr key={id} className="divide-x divide-gray-200">
-                <td className="whitespace-nowrap py-4 pl-4 pr-4 text-sm font-medium bg-gray-50 text-secondaryGray">
+              </Th>
+            </Tr>
+          </Thead>
+          <Tbody className="divide-y divide-gray-200 bg-white">
+            {subject.map(({subject, level, price, id}) => (
+              <Tr
+                key={id}>
+                <Td 
+                  whiteSpace="nowrap"
+                  py={4}
+                  pl={4}
+                  pr={4}
+                  border="1px"
+                  borderColor="gray.200"
+                  fontSize="sm"
+                  fontWeight="medium"
+                  bg="gray.50"
+                  color="gray.700">
                   {subject}
-                </td>
-                <td className="whitespace-nowrap p-4 text-sm font-normal">
-                  {level}
-                </td>
-                <td className="whitespace-nowrap p-4 text-sm">${price}/hr</td>
-              </tr>
+                </Td>
+                <Td
+                  whiteSpace="nowrap"
+                  fontSize="sm"
+                  border="1px"
+                  borderColor="gray.200"
+                  fontWeight="normal"
+                  >{level}</Td>
+                <Td 
+                  whiteSpace="nowrap"
+                  p={4}
+                  fontSize="sm"
+                >${price}/hr</Td>
+              </Tr>
             ))}
-          </tbody>
-        </table>
-      </section>
+          </Tbody>
+        </Table>
+      </Box>
 
-      <section className="space-y-4 border shadow-sm sm:rounded-lg p-4">
-        <div className="flex justify-between items-center">
-          <Text className="text-secondaryGray">Qualifications</Text>
-          <div className="bg-white border flex justify-center items-center rounded-full w-8 h-8">
-            <PencilIcon
-              className="w-4 text-secondaryGray"
-              onClick={undefined}
-            />
-          </div>
-        </div>
+      <Box
+        border="1px"
+        borderColor="gray.200"
+        shadow="sm"
+        rounded="lg"
+        p={4}
+        >
+          <Flex justifyContent="space-between" alignItems="center" mb={4}>
+            <Text as="p" color="gray.500">Qualification</Text>
+            <Flex 
+              bg="white" 
+              justifyContent="center" 
+              alignItems="center"
+              border="1px"
+              rounded="full"
+              borderColor="gray.200"
+              w={8}
+              h={8}
+            >
+              <PencilIcon className="w-4 text-secondaryGray" onClick={undefined}/>
+            </Flex>
+          </Flex>
 
-        <div className="flex items-start border-b pb-3">
-          <div className="flex-shrink-0 border bg-gray-100 p-2 rounded-full">
-            <img
-              src="/svgs/text-document.svg"
-              className="h-6 w-6 text-gray-400"
-              alt=""
-            />
-          </div>
+        <Flex alignItems="start" borderBottom="1px" borderBottomColor="gray.200" pb="3">
+          <Box
+            flexShrink={0}
+            border="1px"
+            borderColor="gray.200"
+            bg="gray.50"
+            p={2}
+            rounded="full"
+          >
+            <Image src="/svgs/text-document.svg" alt="" h={6} w={6} color="gray.400" />
+          </Box>
 
-          <div className="ml-3 w-0 flex-1 pt-0.5">
-            <Text className="text-sm font-normal">
+          <Box ml={3} w={0} flex={1} pt={0.5}>
+            <Text fontSize="sm" fontWeight="normal">
               Indian Institute of Management (IIM), Bangalore
             </Text>
-            <Text className="mt-1 text-sm font-normal text-secondaryGray">
+            <Text mt={1} fontSize="sm" fontWeight="normal" color="gray.600">
               Master of Business Administration (MBA), Information System
             </Text>
-            <Text className="mt-1 text-sm font-normal text-secondaryGray">
+            <Text mt={1} fontSize="sm" fontWeight="normal" color="gray.600">
               2008 - 2010
             </Text>
-          </div>
-        </div>
+          </Box>
+        </Flex>
 
-        <div className="flex items-start border-b pb-3">
-          <div className="flex-shrink-0 border bg-gray-100 p-2 rounded-full">
-            <img
-              src="/svgs/text-document.svg"
-              className="h-6 w-6 text-gray-400"
-              alt=""
-            />
-          </div>
+        <Flex alignItems="start" pt="3">
 
-          <div className="ml-3 w-0 flex-1 pt-0.5">
-            <Text className="text-sm font-normal">
+          <Box
+            flexShrink={0}
+            border="1px"
+            borderColor="gray.200"
+            bg="gray.50"
+            p={2}
+            rounded="full"
+          >
+            <Image src="/svgs/text-document.svg" alt="" h={6} w={6} color="gray.400" />
+          </Box>
+
+          <Box ml={3} w={0} flex={1} pt={0.5}>
+            <Text fontSize="sm" fontWeight="normal">
               Indian Institute of Management (IIM), Bangalore
             </Text>
-            <Text className="mt-1 text-sm font-normal text-secondaryGray">
+            <Text mt={1} fontSize="sm" fontWeight="normal" color="gray.600">
               Master of Business Administration (MBA), Information System
             </Text>
-            <Text className="mt-1 text-sm font-normal text-secondaryGray">
+            <Text mt={1} fontSize="sm" fontWeight="normal" color="gray.600">
               2008 - 2010
             </Text>
-          </div>
-        </div>
-      </section>
+          </Box>
+        </Flex>
 
-      <section className="space-y-4 w-full border shadow-sm sm:rounded-lg p-4">
-        <div className="flex justify-between items-center">
-          <Text className="text-secondaryGray">Availability</Text>
-          <div className="bg-white border flex justify-center items-center rounded-full w-8 h-8">
-            <PencilIcon
-              className="w-4 text-secondaryGray"
-              onClick={undefined}
-            />
-          </div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full overflow-x-auto border divide-y divide-gray-300">
-            <thead>
-              <tr className="divide-x divide-gray-200">
-                <th
+      </Box>
+
+      <Box 
+        w="full"
+        border="1px"
+        borderColor="gray.200"
+        shadow="sm"
+        rounded="lg"
+        p={4}
+      >
+        <Flex 
+          justifyContent="space-between" 
+          alignItems="center"
+        >
+          <Text as="p" color="gray.600">Availability</Text>
+          <Flex 
+            bg="white"
+            border="1px"
+            borderColor="gray.200"
+            justifyContent="center"
+            alignItems="center"
+            rounded="full"
+            w={8}
+            h={8}
+            >
+            <PencilIcon className="w-4 text-secondaryGray" onClick={undefined}/>
+          </Flex>
+        </Flex>
+        <Box overflowX="hidden" mt={4} >
+          <Table 
+            w="full" 
+            overflowX="auto" 
+            border="1px"
+            borderColor="gray.200">
+            <Thead>
+              <Tr borderBottom="1px" borderBottomColor="gray.200">
+                <Th 
                   scope="col"
-                  className="py-3.5 pl-4 pr-4 text-left text-sm font-semibold bg-gray-100 sm:pl-0"
-                ></th>
-                <th
+                  py={3.5}
+                  pr={4}
+                  textAlign="left"
+                  fontSize="sm"
+                  fontWeight="semibold"
+                  bg="#F2F4F7"
+                  pl={{ base: 0, sm: 4 }}>
+                  
+                </Th>
+                <Th 
                   scope="col"
-                  className="px-4 py-3.5 text-left text-sm font-semibold text-gray-900"
+                  py={3.5}
+                  px={4}
+                  textAlign="left"
+                  fontSize="sm"
+                  textTransform="capitalize"
+                  fontWeight="semibold"
+                  color="gray.900"
                 >
                   Mon
-                </th>
-                <th
+                </Th>
+                <Th                   
                   scope="col"
-                  className="px-4 py-3.5 text-left text-sm font-semibold text-gray-900"
-                >
+                  py={3.5}
+                  px={4}
+                  borderX="1px"
+                  borderColor="gray.200"
+                  textAlign="left"
+                  fontSize="sm"
+                  textTransform="capitalize"
+                  fontWeight="semibold"
+                  color="gray.900">
                   Tue
-                </th>
-                <th
+                </Th>
+                <Th                   
                   scope="col"
-                  className="px-4 py-3.5 text-left text-sm font-semibold text-gray-900"
-                >
+                  py={3.5}
+                  px={4}
+                  textAlign="left"
+                  fontSize="sm"
+                  textTransform="capitalize"
+                  fontWeight="semibold"
+                  color="gray.900">
                   Wed
-                </th>
-                <th
+                </Th>
+                <Th                   
                   scope="col"
-                  className="px-4 py-3.5 text-left text-sm font-semibold text-gray-900"
-                >
+                  py={3.5}
+                  px={4}
+                  borderX="1px"
+                  borderColor="gray.200"
+                  textAlign="left"
+                  fontSize="sm"
+                  textTransform="capitalize"
+                  fontWeight="semibold"
+                  color="gray.900">
                   Thur
-                </th>
-                <th
+                </Th>
+                <Th                   
                   scope="col"
-                  className="px-4 py-3.5 text-left text-sm font-semibold text-gray-900"
-                >
+                  py={3.5}
+                  px={4}
+                  textAlign="left"
+                  fontSize="sm"
+                  textTransform="capitalize"
+                  fontWeight="semibold"
+                  color="gray.900">
                   Fri
-                </th>
-                <th
+                </Th>
+                <Th                   
                   scope="col"
-                  className="px-4 py-3.5 text-left text-sm font-semibold text-gray-900"
-                >
+                  py={3.5}
+                  px={4}
+                  borderX="1px"
+                  borderColor="gray.200"
+                  textAlign="left"
+                  fontSize="sm"
+                  textTransform="capitalize"
+                  fontWeight="semibold"
+                  color="gray.900">
                   Sat
-                </th>
-                <th
+                </Th>
+                <Th                   
                   scope="col"
-                  className="px-4 py-3.5 text-left text-sm font-semibold text-gray-900"
-                >
+                  py={3.5}
+                  px={4}
+                  textAlign="left"
+                  fontSize="sm"
+                  textTransform="capitalize"
+                  fontWeight="semibold"
+                  color="gray.900">
                   Sun
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
-              <tr className="divide-x divide-gray-200">
-                <td className="py-4 pl-4 pr-4 text-xs font-semibold bg-gray-100">
-                  <div className="flex items-center space-x-1 text-gray-700">
-                    <img src="/svgs/cloud.svg" alt="" className="h-5 w-5" />
-                    <Text>8 AM</Text>
-                    <ArrowRightIcon className="w-4" onClick={undefined} />
-                    <Text>12 AM</Text>
-                  </div>
-                </td>
-                <td className="bg-profile-pattern whitespace-nowrap p-4 text-sm font-normal"></td>
-                <td className="bg-profile-pattern whitespace-nowrap p-4 text-sm"></td>
-                <td className="bg-profile-pattern whitespace-nowrap p-4 text-sm"></td>
-                <td className="bg-profile-pattern whitespace-nowrap p-4 text-sm"></td>
-                <td className="bg-profile-pattern whitespace-nowrap p-4 text-sm"></td>
-                <td className="bg-profile-pattern whitespace-nowrap p-4 text-sm"></td>
-                <td className="bg-profile-pattern whitespace-nowrap p-4 text-sm"></td>
-              </tr>
-              <tr className="divide-x divide-gray-200">
-                <td className="py-4 pl-4 pr-4 text-xs font-semibold bg-gray-100">
-                  <div className="flex items-center space-x-1 text-gray-700">
-                    <img src="/svgs/cloud.svg" alt="" className="h-5 w-5" />
-                    <Text>12 AM</Text>
-                    <ArrowRightIcon className="w-4" onClick={undefined} />
-                    <Text>5 AM</Text>
-                  </div>
-                </td>
-                <td className="bg-white whitespace-nowrap p-4 text-sm font-normal">
-                  <CheckIcon className="text-green-500 w-7 h-7" />
-                </td>
-                <td className="bg-white whitespace-nowrap p-4 text-sm">
-                  <CheckIcon className="text-green-500 w-7 h-7" />
-                </td>
-                <td className="bg-profile-pattern whitespace-nowrap p-4 text-sm"></td>
-                <td className="bg-profile-pattern whitespace-nowrap p-4 text-sm"></td>
-                <td className="bg-white whitespace-nowrap p-4 text-sm">
-                  <CheckIcon className="text-green-500 w-7 h-7" />
-                </td>
-                <td className="bg-white whitespace-nowrap p-4 text-sm">
-                  <CheckIcon className="text-green-500 w-7 h-7" />
-                </td>
-                <td className="bg-white whitespace-nowrap p-4 text-sm">
-                  <CheckIcon className="text-green-500 w-7 h-7" />
-                </td>
-              </tr>
-              <tr className="divide-x divide-gray-200">
-                <td className="py-4 pl-4 pr-4 text-xs font-semibold bg-gray-100 text-secondaryGray">
-                  <div className="flex items-center space-x-2 text-gray-800">
-                    <img src="/svgs/cloud.svg" alt="" className="h-5 w-5" />
-                    <Text>5 AM</Text>
-                    <ArrowRightIcon className="w-4" onClick={undefined} />
-                    <p>9 AM</p>
-                  </div>
-                </td>
-                <td className="bg-white whitespace-nowrap p-4 text-sm font-normal">
-                  <CheckIcon className="text-green-500 w-7 h-7" />
-                </td>
-                <td className="bg-white whitespace-nowrap p-4 text-sm">
-                  <CheckIcon className="text-green-500 w-7 h-7" />
-                </td>
-                <td className="bg-profile-pattern whitespace-nowrap p-4 text-sm"></td>
-                <td className="bg-profile-pattern whitespace-nowrap p-4 text-sm"></td>
-                <td className="bg-white whitespace-nowrap p-4 text-sm">
-                  <CheckIcon className="text-green-500 w-7 h-7" />
-                </td>
-                <td className="bg-white whitespace-nowrap p-4 text-sm">
-                  <CheckIcon className="text-green-500 w-7 h-7" />
-                </td>
-                <td className="bg-white whitespace-nowrap p-4 text-sm">
-                  <CheckIcon className="text-green-500 w-7 h-7" />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+                </Th>
+              </Tr>
+            </Thead>
+            <Tbody className="divide-y divide-gray-200 bg-white">
+              <Tr>
+                <Td py={4} px={4} fontSize="xs" fontWeight="semibold" color="gray.600" bg="#F2F4F7">
+                  <Flex 
+                    alignItems="center"
+                    color="gray.700">
+                    <Image w={5} h={5} src="/svgs/cloud.svg" alt="" />
+                    <Text as="p" mx={2}>8 AM</Text>
+                    <ArrowRightIcon className="w-4" onClick={undefined}/>
+                    <Text as="p">12 AM</Text>
+                  </Flex>
+                </Td>
+                <Td bgImage="url('/patterns/profile-pattern.svg')" fontWeight="normal" whiteSpace="nowrap" p={4} fontSize="sm"></Td>
+                <Td bgImage="url('/patterns/profile-pattern.svg')" border="1px" borderColor="gray.200" whiteSpace="nowrap" p={4} fontSize="sm"></Td>
+                <Td bgImage="url('/patterns/profile-pattern.svg')" whiteSpace="nowrap" p={4} fontSize="sm"></Td>
+                <Td border="1px" bgImage="url('/patterns/profile-pattern.svg')" borderColor="gray.200" whiteSpace="nowrap" p={4} fontSize="sm"></Td>
+                <Td bg="white" bgImage="url('/patterns/profile-pattern.svg')" whiteSpace="nowrap" p={4} fontSize="sm"></Td>
+                <Td border="1px" bgImage="url('/patterns/profile-pattern.svg')" borderColor="gray.200" whiteSpace="nowrap" p={4} fontSize="sm"></Td>
+                <Td bgImage="url('/patterns/profile-pattern.svg')" whiteSpace="nowrap" p={4} fontSize="sm"></Td>
+              </Tr>
+              <Tr>
+                <Td py={4} px={4} fontSize="xs" fontWeight="semibold" color="gray.600" bg="#F2F4F7">
+                  <Flex 
+                    alignItems="center"
+                    color="gray.700">
+                    <Image w={5} h={5} src="/svgs/cloud.svg" alt="" />
+                    <Text as="p" mx={2}>12 AM</Text>
+                    <ArrowRightIcon className="w-4" onClick={undefined}/>
+                    <Text as="p">5 AM</Text>
+                  </Flex>
+                </Td>
+                <Td fontWeight="normal" bg="white" whiteSpace="nowrap" p={4} fontSize="sm">
+                  <CheckIcon className="text-green-500 w-7 h-7"/>
+                </Td>
+                <Td border="1px" borderColor="gray.200" bg="white" whiteSpace="nowrap" p={4} fontSize="sm">
+                  <CheckIcon className="text-green-500 w-7 h-7"/>
+                </Td>
+                <Td  whiteSpace="nowrap" bgImage="url('/patterns/profile-pattern.svg')" p={4} fontSize="sm"></Td>
+                <Td border="1px" borderColor="gray.200" bgImage="url('/patterns/profile-pattern.svg')"  whiteSpace="nowrap" p={4} fontSize="sm"></Td>
+                <Td bg="white" whiteSpace="nowrap" p={4} fontSize="sm">
+                  <CheckIcon className="text-green-500 w-7 h-7"/>
+                </Td>
+                <Td border="1px" borderColor="gray.200" bg="white" whiteSpace="nowrap" p={4} fontSize="sm">
+                  <CheckIcon className="text-green-500 w-7 h-7"/>
+                </Td>
+                <Td bg="white" whiteSpace="nowrap" p={4} fontSize="sm">
+                  <CheckIcon className="text-green-500 w-7 h-7"/>
+                </Td>
+              </Tr>
+              <Tr>
+                <Td py={4} px={4} fontSize="xs" fontWeight="semibold" color="gray.600" bg="#F2F4F7">
+                  <Flex 
+                    alignItems="center"
+                    color="gray.700">
+                    <Image w={5} h={5} src="/svgs/cloud.svg" alt="" />
+                    <Text as="p" mx={2}>5 AM</Text>
+                    <ArrowRightIcon className="w-4" onClick={undefined}/>
+                    <Text as="p">9 AM</Text>
+                  </Flex>
+                </Td>
+                <Td fontWeight="normal" bg="white" whiteSpace="nowrap" p={4} fontSize="sm">
+                  <CheckIcon className="text-green-500 w-7 h-7"/>
+                </Td>
+                <Td border="1px" borderColor="gray.200" bg="white" whiteSpace="nowrap" p={4} fontSize="sm">
+                  <CheckIcon className="text-green-500 w-7 h-7"/>
+                </Td>
+                <Td bgImage="url('/public/patterns/profile-pattern.svg')"  whiteSpace="nowrap" p={4} fontSize="sm"></Td>
+                <Td border="1px" borderColor="gray.200" bgImage="url('/public/patterns/profile-pattern.svg')"  whiteSpace="nowrap" p={4} fontSize="sm"></Td>
+                <Td bg="white" whiteSpace="nowrap" p={4} fontSize="sm">
+                  <CheckIcon className="text-green-500 w-7 h-7"/>
+                </Td>
+                <Td border="1px" borderColor="gray.200" bg="white" whiteSpace="nowrap" p={4} fontSize="sm">
+                  <CheckIcon className="text-green-500 w-7 h-7"/>
+                </Td>
+                <Td bg="white" whiteSpace="nowrap" p={4} fontSize="sm">
+                  <CheckIcon className="text-green-500 w-7 h-7"/>
+                </Td>
+              </Tr>
+            </Tbody>
+          </Table>
+        </Box>
+      </Box>
+
     </div>
-  );
+  )
 }

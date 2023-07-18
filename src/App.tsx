@@ -6,6 +6,7 @@ import StudentSettings from './views/Dashboard/AccountSettings';
 import BookmarkedTutors from './views/Dashboard/BookmarkedTutors';
 import FlashCard from './views/Dashboard/FlashCards';
 import CreateFlashCard from './views/Dashboard/FlashCards/create';
+import HomeWorkHelp from './views/Dashboard/HomeWorkHelp';
 import Marketplace from './views/Dashboard/Marketplace';
 import Messaging from './views/Dashboard/Messaging';
 import MyTutors from './views/Dashboard/MyTutors';
@@ -222,6 +223,7 @@ const AppRoutes: React.FC = () => {
         <Route path="saved-tutors" element={<BookmarkedTutors />} />
         <Route path="messaging" element={<Messaging />} />{' '}
         <Route path="account-settings" element={<StudentSettings />} />
+        <Route path="ace-homework" element={<HomeWorkHelp />} />
         <Route path="" element={<Navigate to="home" />} />
         <Route path="*" element={<Navigate to="home" />} />
       </Route>
@@ -266,7 +268,7 @@ const AppRoutes: React.FC = () => {
         }
       />
 
-      <Route path="tutordashboard/offer/:id" element={<TutorOffer />} />
+      <Route path="tutordashboard/offers/:id" element={<TutorOffer />} />
       <Route path="tutordashboard/messages" element={<Messages />} />
       <Route path="tutordashboard/tutorsettings" element={<TutorSettings />} />
     </Routes>

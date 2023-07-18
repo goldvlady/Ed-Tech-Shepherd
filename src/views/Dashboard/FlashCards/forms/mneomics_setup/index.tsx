@@ -16,8 +16,13 @@ interface IInput {
 }
 
 const MnemonicSetup: React.FC = () => {
-  const { mnemonics, addMnemonic, updateMnemonic, generateMneomics } =
-    useMnemonicSetupState();
+  const {
+    mnemonics,
+    addMnemonic,
+    updateMnemonic,
+    generateMneomics,
+    isLoading
+  } = useMnemonicSetupState();
 
   const isValid = useMemo(() => mnemonics.every((m) => m.prompt), [mnemonics]);
 
@@ -41,7 +46,7 @@ const MnemonicSetup: React.FC = () => {
   };
 
   return (
-    <Box bg="white" width="100%" mt="30px">
+    <Box bg="white" width="100%">
       <FormControl>
         <FormLabel
           fontSize="18px"
@@ -119,6 +124,7 @@ const MnemonicSetup: React.FC = () => {
         <Button
           variant="solid"
           isDisabled={!isValid}
+          isLoading={isLoading}
           colorScheme="primary"
           size="sm"
           ml="auto"

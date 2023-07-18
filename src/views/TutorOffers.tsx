@@ -10,13 +10,13 @@ export default function Offers() {
   }, []);
 
   return (
-    <Layout className="px-4">
+    <Layout className="p-2 bg-white">
       <Section
         title="Offers"
         subtitle="10"
         description="Easily manage and respond to offers from potential clients"
       />
-      <OffersGridList />
+      {!isLoading && <OffersGridList offers={offers} />}
     </Layout>
   );
 }

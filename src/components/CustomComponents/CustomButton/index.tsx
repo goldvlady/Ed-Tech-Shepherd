@@ -6,15 +6,17 @@ interface CustomButtonProps {
   isDelete?: boolean;
   isPrimary?: boolean;
   title: string;
-  onClick: () => void;
+  onClick: (event: React.SyntheticEvent<HTMLButtonElement>) => void;
   type: 'button' | 'submit' | 'reset';
+  icon?: React.ReactNode;
 }
 const CustomButton = ({
   isCancel,
   isDelete,
   title,
   onClick,
-  type
+  type,
+  icon
 }: CustomButtonProps) => {
   return (
     <StyledButton
@@ -23,6 +25,7 @@ const CustomButton = ({
       onClick={onClick}
       type={type}
     >
+      {icon && icon}
       {title}
     </StyledButton>
   );
