@@ -6,6 +6,7 @@ import { Transition, Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { getAuth } from 'firebase/auth';
 import { Fragment, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Typewriter from 'typewriter-effect';
 
 const actions1 = [
@@ -54,7 +55,8 @@ const actions2 = [
     title: 'Flashcards Factory',
     description:
       'Need a memory boost? Generate custom flashcards & mnemonics with Shepherd, making memorization a breeze',
-    imageURL: '/images/flashcards.svg'
+    imageURL: '/images/flashcards.svg',
+    path: '/dashboard/flashcards/create'
   },
   {
     id: 2,
@@ -74,6 +76,7 @@ interface ToggleProps {
 const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
   const [showSelected, setShowSelected] = useState(false);
   const { user }: any = userStore();
+  const navigate = useNavigate();
 
   const handleClose = () => {
     setToggleHelpModal(false);
@@ -180,6 +183,10 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
                           <div
                             onClick={() => {
                               if (action.showModal) handleShowSelected();
+                              if (action.path) {
+                                handleClose();
+                                navigate('/dashboard/flashcards/create');
+                              }
                             }}
                             key={action.title}
                             className="group cursor-pointer relative transform  bg-white border-1 rounded-lg  border-gray-300 p-4 focus-within:border-blue-500 hover:border-blue-500"

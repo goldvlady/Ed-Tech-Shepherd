@@ -10,6 +10,7 @@ import ReceiptIcon from '../../assets/receiptIcon.svg';
 import VideoIcon from '../../assets/video.svg';
 import { HelpModal } from '../../components';
 import Logo from '../../components/Logo';
+import PlanSwitchModal from '../../components/PlanSwitchModal';
 import { firebaseAuth } from '../../firebase';
 import userStore from '../../state/userStore';
 import TutorMarketplace from './Tutor';
@@ -169,6 +170,10 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const [toggleHelpModal, setToggleHelpModal] = useState(false);
   const activateHelpModal = () => {
     setToggleHelpModal(true);
+  };
+  const [togglePlanSwitchModal, setTogglePlanSwitchModal] = useState(false);
+  const activatePlanSwitchModal = () => {
+    setTogglePlanSwitchModal(true);
   };
   const navigate = useNavigate();
   const { user, userNotifications }: any = userStore();
@@ -355,7 +360,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     </Flex>
                   </Link>
                 </MenuItem>
-                <MenuItem p={2} m={1}>
+                <MenuItem p={2} m={1} onClick={activatePlanSwitchModal}>
                   <Flex alignItems="center" gap={2}>
                     <Center
                       borderRadius="50%"
@@ -433,6 +438,10 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
       <HelpModal
         toggleHelpModal={toggleHelpModal}
         setToggleHelpModal={setToggleHelpModal}
+      />
+      <PlanSwitchModal
+        togglePlanSwitchModal={togglePlanSwitchModal}
+        setTogglePlanSwitchModal={setTogglePlanSwitchModal}
       />
     </>
   );

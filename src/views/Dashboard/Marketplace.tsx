@@ -123,6 +123,7 @@ export default function Marketplace() {
       startIndex + data.meta.pagination.limit,
       data.meta.pagination.count
     );
+    console.log(startIndex, endIndex);
 
     // const visibleTutors = data.tutors.slice(startIndex, endIndex);
     setAllTutors(data.tutors);
@@ -428,7 +429,7 @@ export default function Marketplace() {
           </SimpleGrid>
           <Pagination
             page={pagination ? pagination.page : 0}
-            count={allTutors.length}
+            count={pagination ? pagination.count : 0}
             limit={pagination ? pagination.limit : 0}
             totalPages={pagination ? Math.ceil(count / limit) : 0}
             handleNextPage={handleNextPage}
