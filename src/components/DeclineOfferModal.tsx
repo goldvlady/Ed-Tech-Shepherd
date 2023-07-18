@@ -1,3 +1,4 @@
+import { Text } from '@chakra-ui/react';
 import { Transition, Dialog } from '@headlessui/react';
 import React, { Fragment } from 'react';
 
@@ -43,7 +44,7 @@ const DeclineOfferModal: React.FC<DeclineOfferModalProps> = ({
               <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white pt-5 text-left shadow-xl transition-all sm:w-full sm:max-w-sm">
                 <div>
                   <div className="flex justify-center px-2 border-b pb-4">
-                    <p className="text-md font-medium">Decline Offer</p>
+                    <Text className="text-md font-medium">Decline Offer</Text>
                   </div>
                   <form className="px-10 mt-2">
                     <label

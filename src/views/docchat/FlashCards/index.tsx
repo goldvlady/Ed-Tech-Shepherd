@@ -1,4 +1,5 @@
 import { ReactComponent as QuestionMark } from '../../../assets/questionMark.svg';
+// import flashcardStore from '../../../state/flashcardStore';
 import { useFlashCardState } from '../../Dashboard/FlashCards/context/flashcard';
 import { RadioInput, StyledCheckbox } from '../styles';
 import {
@@ -19,6 +20,8 @@ import { useEffect, useMemo, useState, useCallback, ChangeEvent } from 'react';
 
 const FlashcardFirstPart = ({ isAutomated }: { isAutomated?: boolean }) => {
   const { flashcardData, setFlashcardData, goToNextStep } = useFlashCardState();
+  // const { createFlashCard, flashcard, isLoading, fetchFlashcards } =
+  //   flashcardStore();
   const [localData, setLocalData] = useState<typeof flashcardData>({
     subject: '',
     topic: '',
@@ -113,11 +116,13 @@ const FlashcardFirstPart = ({ isAutomated }: { isAutomated?: boolean }) => {
   const studyDuration = [
     {
       id: 1,
-      value: 'Long term retention'
+      value: 'longTermRetention',
+      label: 'Long term retention'
     },
     {
       id: 2,
-      value: 'Quick practice'
+      value: 'quickPractice',
+      label: 'Quick practice'
     }
   ];
 
@@ -193,7 +198,7 @@ const FlashcardFirstPart = ({ isAutomated }: { isAutomated?: boolean }) => {
                 value={duration.value}
                 tabIndex={-1}
               />
-              {duration.value}
+              {duration.label}
             </FormLabel>
           ))}
         </div>

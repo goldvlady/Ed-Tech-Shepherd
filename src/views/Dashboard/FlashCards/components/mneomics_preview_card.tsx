@@ -19,19 +19,25 @@ const MnemonicCard: React.FC<MnemonicCardProps> = ({ answer, explanation }) => {
   return (
     <Box
       bg="#FFFFFF"
+      width="100%"
       borderRadius="8px"
       borderWidth="1px"
+      transition="box-shadow 0.3s"
+      _hover={{
+        boxShadow: '0 0 15px rgba(33,33,33,.2)'
+      }}
       borderColor="#EEEFF2"
     >
-      <Box>
+      <Box width="100%">
         <Box
+          width="100%"
           padding="25px"
           paddingBottom={'20px'}
           fontSize="14px"
           lineHeight="22px"
           color="#212224"
         >
-          <Text>{answer}</Text>
+          <Text whiteSpace={'pre-line'}>{answer}</Text>
         </Box>
         <AnimatePresence mode="wait">
           {showExplanation && (

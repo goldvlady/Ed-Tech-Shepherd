@@ -6,6 +6,7 @@ import { Transition, Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { getAuth } from 'firebase/auth';
 import { Fragment, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Typewriter from 'typewriter-effect';
 
 const actions1 = [
@@ -41,31 +42,6 @@ const actions1 = [
   }
 ];
 
-const actions2 = [
-  {
-    id: 0,
-    title: 'Ace Homework',
-    description:
-      'Stuck with your homework, Shepherd can guide you through it step by step for quick & easy completion',
-    imageURL: '/images/ace-homework.svg'
-  },
-  {
-    id: 1,
-    title: 'Flashcards Factory',
-    description:
-      'Need a memory boost? Generate custom flashcards & mnemonics with Shepherd, making memorization a breeze',
-    imageURL: '/images/flashcards.svg'
-  },
-  {
-    id: 2,
-    title: 'Study Roadmap',
-    showModal: false,
-    description:
-      'Just starting school? Let Shepherd create a tailored study plan guiding you to academic success',
-    imageURL: '/images/roadmap.svg'
-  }
-];
-
 interface ToggleProps {
   setToggleHelpModal: (state: boolean) => void;
   toggleHelpModal: boolean;
@@ -73,6 +49,7 @@ interface ToggleProps {
 
 const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
   const [showSelected, setShowSelected] = useState(false);
+  const navigate = useNavigate();
   const { user }: any = userStore();
 
   const handleClose = () => {
@@ -82,6 +59,40 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
   const handleShowSelected = () => {
     setShowSelected(true);
   };
+
+  const actions2 = [
+    {
+      id: 0,
+      title: 'Ace Homework',
+      description:
+        'Stuck with your homework, Shepherd can guide you through it step by step for quick & easy completion',
+      imageURL: '/images/ace-homework.svg',
+      onClick: () => {
+        handleClose();
+        navigate('/dashboard/ace-homework');
+      }
+    },
+    {
+      id: 1,
+      title: 'Flashcards Factory',
+      description:
+        'Need a memory boost? Generate custom flashcards & mnemonics with Shepherd, making memorization a breeze',
+      imageURL: '/images/flashcards.svg',
+      onClick: () => {
+        handleClose();
+        navigate('/dashboard/flashcards/create');
+      }
+    },
+    {
+      id: 2,
+      title: 'Study Roadmap',
+      showModal: false,
+      description:
+        'Just starting school? Let Shepherd create a tailored study plan guiding you to academic success',
+      imageURL: '/images/roadmap.svg',
+      onClick: () => handleShowSelected()
+    }
+  ];
 
   return (
     <>
@@ -178,9 +189,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
                       <div className="overflow-hidden sm:w-[80%] w-full mx-auto p-6 pt-3  bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">
                         {actions2.map((action) => (
                           <div
-                            onClick={() => {
-                              if (action.showModal) handleShowSelected();
-                            }}
+                            onClick={action.onClick}
                             key={action.title}
                             className="group cursor-pointer relative transform  bg-white border-1 rounded-lg  border-gray-300 p-4 focus-within:border-blue-500 hover:border-blue-500"
                           >

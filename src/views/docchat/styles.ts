@@ -1,14 +1,14 @@
 import { Text } from '@chakra-ui/react';
 import styled from 'styled-components';
 
-export const Form = styled.form`
+export const Form = styled.form<{ isHomeWorkHelp?: boolean }>`
   grid-column: span 6;
   flex: auto;
   height: 100%;
   position: fixed;
-  width: 40.7%;
-  ri: 0;
+  width: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? '54%' : '40.7%')};
   right: 0;
+  border-left: 1px solid #eeeff2;
 `;
 
 export const Wrapper = styled.div`
@@ -151,11 +151,9 @@ export const ChatbotContainer = styled.div<{
   chatbotSpace: number;
 }>`
   width: inherit;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: fixed;
   z-index: 50;
-  border: 1px solid #cbd5e0;
-  background-color: #f9fafb;
+  background: #f9f9fb;
   bottom: 0;
   right: 0;
   display: flex;
@@ -164,6 +162,7 @@ export const ChatbotContainer = styled.div<{
   height: 89px;
   padding: 1rem;
   gap: 10px;
+  border-left: 1px solid #eeeff2;
 `;
 
 export const InputContainer = styled.div`
@@ -198,7 +197,8 @@ export const SendButton = styled.button`
   top: 0;
   color: #cbd5e0;
   &:hover {
-    color: #4a5568; 
+    color: #4a5568;
+  }
 `;
 
 export const ClockButton = styled.button`
@@ -280,7 +280,7 @@ export const ChatContainerResponse = styled.div`
   grid-column: span 12;
   overflow-y: auto;
   scrollbar-width: thin;
-  padding: 0 24px;
+  padding: 0px 24px 20px 24px;
   max-height: 42vh;
 
   /* Scrollable content */
@@ -324,6 +324,7 @@ export const AiMessage = styled.div`
   margin-bottom: 10px;
   font-size: 0.875rem;
   border-radius: 10px;
+  width: 439px;
 `;
 
 export const StyledPromptContainer = styled.div`
@@ -441,4 +442,52 @@ export const AskSomethingPillContainer = styled.div`
 
 export const AskSomethingPillHeadingText = styled(Text)`
   margin: 1rem 0;
+`;
+
+export const TellMeMorePill = styled.div<{ isHomeWorkHelp?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: absolute;
+  bottom: ${({ isHomeWorkHelp }) => (!isHomeWorkHelp ? '252px' : '185px')};
+  border: 1px solid #eaebeb;
+  background: #fff;
+  border-radius: 9999px;
+  width: 97%;
+  padding: 8px;
+  margin: 0 10px;
+
+  :hover {
+    background: #eaebeb;
+    cursor: pointer;
+  }
+
+  p {
+    font-size: 0.8125rem;
+    color: #3b3f45;
+  }
+`;
+
+export const EmptyStateContainer = styled.div`
+  display: flex;
+  text-align: -webkit-center;
+  flex-direction: column;
+  align-items: center;
+  margin: 200px 0;
+
+  p {
+    margin-top: 20px;
+    margin-bottom: 30px;
+    color: #585f68;
+  }
+`;
+
+export const StudyContainer = styled.section`
+  margin: 50px 0;
+`;
+
+export const StudyFirstLayer = styled.div`
+  text-align: center;
+
+   > p:nth-child
 `;

@@ -1,4 +1,5 @@
 import { REACT_APP_API_ENDPOINT } from '../config';
+import { AI_API, HEADER_KEY } from '../config';
 import { objectToQueryString } from '../helpers/http.helpers';
 import { User } from '../types';
 import { doFetch } from '../util';
@@ -60,10 +61,6 @@ class ApiService {
     );
   };
 
-  static getCompanyRate = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/getCompanyRate`);
-  };
-
   static deleteFlashcard = async (id: string | number) => {
     return doFetch(`${ApiService.baseEndpoint}/deleteFlashcard?id=${id}`, {
       method: 'POST'
@@ -87,6 +84,24 @@ class ApiService {
     });
   };
 
+  static generateMneomics = async (query: string) => {
+    return fetch(`${AI_API}/mnemonics/generate`, {
+      method: 'POST',
+      body: JSON.stringify({ query }),
+      headers: {
+        'x-shepherd-header': HEADER_KEY,
+        'Content-Type': 'application/json'
+      }
+    });
+  };
+
+  static createMneomics = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/createMneomics`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
   static submitTutor = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/createTutor`, {
       method: 'POST',
@@ -104,10 +119,6 @@ class ApiService {
 
   static getBooking = async (id: string) => {
     return doFetch(`${ApiService.baseEndpoint}/getBooking?id=${id}`);
-  };
-
-  static getUpcomingBooking = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/upcomingBooking`);
   };
 
   // Payments
@@ -230,8 +241,71 @@ class ApiService {
   static getStudentReport = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getStudentReport`);
   };
+
+  // Get All Tutor Clients
+  static getTutorClients = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getTutorClients`);
+  };
+
+  // Get Single Tutor Clients
+  static getTutorSingleClients = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/getClients?id=${id}`, {
+      method: 'GET'
+    });
+  };
+
+  // Get All Tutor Offers
+  static getTutorOffers = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getOffers`);
+  };
+
+  // Get Singlege Tutor Offers
+  static getTutorSingleOffers = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/getOffers?id=${id}`);
+  };
+
+  //Tutor notification
+  static getTutorNotifications = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/notifications`);
+  };
+
+  //Tutor Activity Feed
+  static getTutorActivityFeed = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getActivityFeed`);
+  };
+
   static getUserNotifications = async () => {
     return doFetch(`${ApiService.baseEndpoint}/notifications`);
+  };
+
+  // Notes
+
+  static getAllNotes = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/notes`);
+  };
+
+  static getNote = async (id: string | number) => {
+    return doFetch(`${ApiService.baseEndpoint}/notes/${id}`);
+  };
+
+  static createNote = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/createNote`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static updateNote = async (id: string | number, data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/updateNote/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static deleteNote = async (id: string | number) => {
+    return doFetch(`${ApiService.baseEndpoint}/deleteNote?id=${id}`, {
+      method: 'DELETE'
+    });
   };
 }
 

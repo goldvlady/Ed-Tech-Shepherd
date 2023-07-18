@@ -6,6 +6,7 @@ import StudentSettings from './views/Dashboard/AccountSettings';
 import BookmarkedTutors from './views/Dashboard/BookmarkedTutors';
 import FlashCard from './views/Dashboard/FlashCards';
 import CreateFlashCard from './views/Dashboard/FlashCards/create';
+import HomeWorkHelp from './views/Dashboard/HomeWorkHelp';
 import Marketplace from './views/Dashboard/Marketplace';
 import Messaging from './views/Dashboard/Messaging';
 import MyTutors from './views/Dashboard/MyTutors';
@@ -70,7 +71,7 @@ const RequireAuth = ({
   authenticated: any;
   unAuthenticated: any;
 }) => {
-  const { fetchUser, user } = userStore();
+  const { fetchUser, user, fetchNotifications } = userStore();
   const [loadingUser, setLoadingUser] = useState(true);
 
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
@@ -83,6 +84,7 @@ const RequireAuth = ({
       setFirebaseUser(user);
       if (user) {
         await fetchUser().catch((e) => navigate('/login'));
+        fetchNotifications();
       }
       setLoadingUser(false);
     });
@@ -221,6 +223,7 @@ const AppRoutes: React.FC = () => {
         <Route path="saved-tutors" element={<BookmarkedTutors />} />
         <Route path="messaging" element={<Messaging />} />{' '}
         <Route path="account-settings" element={<StudentSettings />} />
+        <Route path="ace-homework" element={<HomeWorkHelp />} />
         <Route path="" element={<Navigate to="home" />} />
         <Route path="*" element={<Navigate to="home" />} />
       </Route>
@@ -234,14 +237,40 @@ const AppRoutes: React.FC = () => {
           />
         }
       />
-      {/* <Route path="notes" element={<Notes />} /> */}
-      <Route path="tutordashboard" element={<TutorDashboard />} />
-      <Route path="clients" element={<Clients />} />
-      <Route path="clients/:id" element={<Client />} />
-      <Route path="offers" element={<TutorOffers />} />
-      <Route path="offer/:id" element={<TutorOffer />} />
-      <Route path="messages" element={<Messages />} />
-      <Route path="tutorsettings" element={<TutorSettings />} />
+
+      <Route
+        path="tutordashboard"
+        element={
+          <RequireAuth
+            authenticated={<TutorDashboard />}
+            unAuthenticated={<Navigate to={'/login'} />}
+          />
+        }
+      />
+
+      <Route
+        path="tutordashboard/clients"
+        element={
+          <RequireAuth
+            authenticated={<Clients />}
+            unAuthenticated={<Navigate to={'/login'} />}
+          />
+        }
+      />
+
+      <Route
+        path="tutordashboard/offers"
+        element={
+          <RequireAuth
+            authenticated={<TutorOffers />}
+            unAuthenticated={<Navigate to={'/login'} />}
+          />
+        }
+      />
+
+      <Route path="tutordashboard/offers/:id" element={<TutorOffer />} />
+      <Route path="tutordashboard/messages" element={<Messages />} />
+      <Route path="tutordashboard/tutorsettings" element={<TutorSettings />} />
     </Routes>
   );
 };

@@ -1,13 +1,21 @@
 import { Layout, AllClientTab } from '../components';
 import { ArrowRightIcon, SortIcon } from '../components/icons';
 import { classNames } from '../helpers';
+import clientStore from '../state/clientStore';
 import { Text } from '@chakra-ui/react';
 import { Menu, Transition, Tab } from '@headlessui/react';
-import React, { Fragment } from 'react';
+import React, { useEffect, useState, Fragment } from 'react';
 
-const clients = [{}];
+const clients = [];
+// const clients = [{}];
 
-export default function Clients() {
+const Clients = () => {
+  const { isLoading, fetchClients } = clientStore();
+
+  useEffect(() => {
+    fetchClients();
+  }, []);
+
   return (
     <Layout
       className={`${
@@ -15,12 +23,14 @@ export default function Clients() {
       } p-3 h-screen`}
     >
       <header className="flex justify-between">
-        <h4 className="flex items-center space-x-2">
-          <span className="font-bold text-2xl">Clients</span>
-          <span className="inline-block text-sm bg-gray-100 px-2 py-1 rounded-md text-primaryGray">
-            24
-          </span>
-        </h4>
+        <Text className="flex items-center space-x-2">
+          <span className="font-semibold text-2xl">Clients</span>
+          {clients.length > 0 && (
+            <span className="inline-block text-sm bg-gray-100 px-2 py-1 rounded-md text-primaryGray">
+              24
+            </span>
+          )}
+        </Text>
         <Menu as="div" className="relative">
           <div>
             <Menu.Button className="flex items-center space-x-2 border p-2 rounded-md">
@@ -170,4 +180,6 @@ export default function Clients() {
       )}
     </Layout>
   );
-}
+};
+
+export default Clients;
