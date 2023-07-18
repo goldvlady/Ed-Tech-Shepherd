@@ -428,7 +428,7 @@ export default function Marketplace() {
           </SimpleGrid>
           <Pagination
             page={pagination ? pagination.page : 0}
-            count={pagination ? pagination.count : 0}
+            count={allTutors.length}
             limit={pagination ? pagination.limit : 0}
             totalPages={pagination ? Math.ceil(count / limit) : 0}
             handleNextPage={handleNextPage}

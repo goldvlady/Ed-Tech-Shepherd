@@ -1,4 +1,5 @@
 import { classNames } from '../helpers';
+import tutorStore from '../state/tutorStore';
 import {
   DashboardIcon,
   OffersIcon,
@@ -23,7 +24,7 @@ import {
   PlusIcon
 } from '@heroicons/react/24/outline';
 import React, { Fragment, useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 
 interface NavigationItem {
   name: string;
@@ -66,6 +67,11 @@ export default function Layout({ children, className }) {
   const [navigation, setNavigation] =
     useState<NavigationItem[]>(dummyNavigation);
   const location = useLocation();
+  const { tutorNotifications, fetchNotifications } = tutorStore();
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
 
   const pathname = location.pathname;
 
@@ -248,8 +254,8 @@ export default function Layout({ children, className }) {
                 </ul>
               </li>
               <li className="border-t pt-4">
-                <a
-                  href="tutordashboard/tutorsettings"
+                <Link
+                  to="tutordashboard/tutorsettings"
                   className={classNames(
                     pathname === 'tutordashboard/tutorsettings'
                       ? 'bg-slate-100 text-blue-400'
@@ -267,7 +273,7 @@ export default function Layout({ children, className }) {
                     aria-hidden="true"
                   />
                   Settings
-                </a>
+                </Link>
               </li>
             </ul>
           </nav>
@@ -324,7 +330,7 @@ export default function Layout({ children, className }) {
                     type="button"
                     className="rounded-full relative border bg-white p-2 text-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
                   >
-                    <div className="absolute right-2 w-2 h-2 rounded-full bg-red-600"></div>
+                    <div className="absolute right-2 w-2 h-2 rounded-full focus:outline-none bg-red-600"></div>
                     <span className="sr-only">View notifications</span>
                     <BellIcon
                       className="h-5 w-5 text-gray-500"
@@ -344,12 +350,12 @@ export default function Layout({ children, className }) {
                   <Menu.Items className="absolute space-y-3 p-4 right-0 z-10 mt-2.5 w-[23rem] origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-900/5 focus:outline-none">
                     <div className="flex items-center">
                       <div className="flex w-0 flex-1 justify-between">
-                        <p className="w-0 space-x-2 flex-1 text-sm font-medium text-gray-900">
+                        <Text className="w-0 space-x-2 flex-1 text-sm font-medium text-gray-900">
                           <span>Notifications</span>
                           <span className="inline-block bg-blue-100 text-blue-400 px-1 py-0.5 rounded-md">
                             23
                           </span>
-                        </p>
+                        </Text>
                         <button
                           type="button"
                           className="ml-3 flex-shrink-0 rounded-md bg-white text-sm font-medium text-blue-400 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -369,9 +375,9 @@ export default function Layout({ children, className }) {
                       </div>
 
                       <div className="ml-3 w-0 flex-1 pt-0.5">
-                        <p className="text-sm font-normal text-gray-400">
+                        <Text className="text-sm font-normal text-gray-400">
                           19 May, 2023
-                        </p>
+                        </Text>
                         <Text className="mt-1 text-sm font-medium text-gray-500">
                           Your chemistry leeson session with Leslie Peters
                           started
@@ -393,12 +399,12 @@ export default function Layout({ children, className }) {
                       </div>
 
                       <div className="ml-3 w-0 flex-1 pt-0.5">
-                        <p className="text-sm font-normal text-gray-400">
+                        <Text className="text-sm font-normal text-gray-400">
                           2 hrs ago
-                        </p>
-                        <p className="mt-1 text-sm font-medium text-gray-500">
+                        </Text>
+                        <Text className="mt-1 text-sm font-medium text-gray-500">
                           You received a new contract offer
-                        </p>
+                        </Text>
                         <div className="mt-3 flex space-x-7">
                           <button
                             type="button"
@@ -429,16 +435,16 @@ export default function Layout({ children, className }) {
                       </div>
 
                       <div className="ml-3 w-0 flex-1 pt-0.5">
-                        <p className="text-sm font-normal text-gray-400">
+                        <Text className="text-sm font-normal text-gray-400">
                           2 hrs ago
-                        </p>
-                        <p className="mt-1 text-sm font-medium text-gray-500">
+                        </Text>
+                        <Text className="mt-1 text-sm font-medium text-gray-500">
                           William Kelly{' '}
                           <span className="text-red-400 font-semibold">
                             withdrew
                           </span>{' '}
                           her offer
-                        </p>
+                        </Text>
                       </div>
 
                       <div className="ml-4 flex flex-shrink-0">
@@ -456,12 +462,12 @@ export default function Layout({ children, className }) {
                       </div>
 
                       <div className="ml-3 w-0 flex-1 pt-0.5">
-                        <p className="text-sm font-normal text-gray-400">
+                        <Text className="text-sm font-normal text-gray-400">
                           2 hrs ago
-                        </p>
-                        <p className="mt-1 text-sm font-medium text-gray-500">
+                        </Text>
+                        <Text className="mt-1 text-sm font-medium text-gray-500">
                           You received a new contract offer
-                        </p>
+                        </Text>
                         <div className="mt-3 flex space-x-7">
                           <button
                             type="button"

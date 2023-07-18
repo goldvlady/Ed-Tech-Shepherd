@@ -1,3 +1,4 @@
+import { Text } from '@chakra-ui/react';
 import { QuestionMarkCircleIcon } from '@heroicons/react/20/solid';
 import React from 'react';
 
@@ -39,64 +40,64 @@ const OfferDetails: React.FC<OfferDetailsProps> = ({
             src={avatarSrc}
             alt=""
           />
-          <p className="">
+          <Text className="">
             <span className="block whitespace-nowrap">{name}</span>
             <span className="inline-block text-gray-400 text-sm">
               Offer expires {offerExpires}
             </span>
-          </p>
+          </Text>
         </section>
         <div className="flex flex-none items-center gap-x-4">
-          <p className="rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-600 shadow-sm hover:bg-gray-50 sm:block">
+          <Text className="rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-600 shadow-sm hover:bg-gray-50 sm:block">
             {offerExpires}
-          </p>
+          </Text>
         </div>
       </div>
 
       <div className="shadow-sm sm:rounded-lg p-4 ring-1 ring-gray-900/5 lg:space-y-0 space-y-3">
-        <h3 className="text-xl mb-4 font-semibold tracking-wider">
+        <Text className="text-xl mb-4 font-semibold tracking-wider">
           Offer Details
-        </h3>
+        </Text>
         <ul className="space-y-4">
           <li className="text-sm space-y-2 font-normal">
-            <h3 className="text-secondaryGray">Subject & Level</h3>
-            <h4>{subjectLevel}</h4>
+            <Text className="text-secondaryGray">Subject & Level</Text>
+            <Text>{subjectLevel}</Text>
           </li>
           <li className="text-sm space-y-2 font-normal">
-            <h3 className="text-secondaryGray">Availability</h3>
-            <h4>{availability}</h4>
+            <Text className="text-secondaryGray">Availability</Text>
+            <Text>{availability}</Text>
           </li>
           <li className="text-sm space-y-2 font-normal">
-            <h3 className="text-secondaryGray">Note</h3>
-            <h4>{note}</h4>
+            <Text className="text-secondaryGray">Note</Text>
+            <Text>{note}</Text>
           </li>
         </ul>
       </div>
 
       <div className="shadow-sm sm:rounded-lg p-4 ring-1 ring-gray-900/5 lg:space-y-0 space-y-3">
-        <h3 className="text-xl mb-4 font-semibold tracking-wider">
+        <Text className="text-xl mb-4 font-semibold tracking-wider">
           Payment Details
-        </h3>
+        </Text>
         <ul className="space-y-4">
           <li className="text-sm space-y-2 font-normal">
-            <h3 className="text-secondaryGray">Hourly rate</h3>
-            <h4 className="text-gray-800">{hourlyRate}</h4>
-            <p className="flex space-x-1 text-sm">
+            <Text className="text-secondaryGray">Hourly rate</Text>
+            <Text className="text-gray-800">{hourlyRate}</Text>
+            <Text className="flex space-x-1 text-sm">
               <span>Shepherd charges a</span>
               <span className="text-secondaryBlue">{serviceFee}</span>
               <QuestionMarkCircleIcon className="h-4 w-4 rounded-full text-gray-200 bg-secondaryGray" />
-            </p>
+            </Text>
           </li>
 
           <li className="text-sm space-y-2 font-normal">
-            <h3 className="text-secondaryGray">You'll receive</h3>
-            <h4 className="text-gray-800">{finalRate}</h4>
+            <Text className="text-secondaryGray">You'll receive</Text>
+            <Text className="text-gray-800">{finalRate}</Text>
           </li>
 
           <li className="text-sm mb-4 space-y-2 font-normal">
-            <h3 className="text-secondaryGray">Total amount</h3>
-            <h4 className="text-gray-800">{totalAmount}</h4>
-            <p className="flex space-x-1 text-sm">{paymentAwareness}</p>
+            <Text className="text-secondaryGray">Total amount</Text>
+            <Text className="text-gray-800">{totalAmount}</Text>
+            <Text className="flex space-x-1 text-sm">{paymentAwareness}</Text>
           </li>
         </ul>
 
@@ -107,7 +108,7 @@ const OfferDetails: React.FC<OfferDetailsProps> = ({
           <div className="flex justify-center items-center text-sm font-bold bg-primaryColor text-white w-10 rounded-full">
             i
           </div>
-          <p className="text-sm">{paymentNote}</p>
+          <Text className="text-sm">{paymentNote}</Text>
         </div>
       </div>
     </div>

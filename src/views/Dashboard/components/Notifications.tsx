@@ -23,45 +23,45 @@ function Notifications(props) {
   return (
     <>
       <Box>
-        {data.map((i: any) => {
-          if (i.type !== 'new_offer_received') {
-            return (
-              <>
-                <Flex
-                  alignItems="flex-start"
-                  px={3}
-                  direction={'row'}
-                  my={1}
-                  key={i._id}
-                >
-                  <Image
-                    src={MessageIcon}
-                    alt="doc"
-                    maxHeight={45}
-                    zIndex={1}
-                  />
-                  <Stack direction={'column'} px={4} spacing={1}>
-                    <Text color="text.300" fontSize={12} mb={0}>
-                      {<TimeAgo timestamp={i.createdAt} />}
-                    </Text>
-                    <Text
-                      fontWeight={400}
-                      color="text.200"
-                      fontSize="14px"
-                      mb={0}
-                    >
-                      {i.text}
-                    </Text>
+        {data &&
+          data.map((i) => {
+            if (i.type !== 'new_offer_received') {
+              return (
+                <>
+                  <Flex
+                    alignItems="flex-start"
+                    px={3}
+                    direction={'row'}
+                    my={1}
+                    key={i._id}
+                  >
+                    <Image
+                      src={MessageIcon}
+                      alt="doc"
+                      maxHeight={45}
+                      zIndex={1}
+                    />
+                    <Stack direction={'column'} px={4} spacing={1}>
+                      <Text color="text.300" fontSize={12} mb={0}>
+                        {<TimeAgo timestamp={i.createdAt} />}
+                      </Text>
+                      <Text
+                        fontWeight={400}
+                        color="text.200"
+                        fontSize="14px"
+                        mb={0}
+                      >
+                        {i.text}
+                      </Text>
 
-                    <Spacer />
-                  </Stack>
-                </Flex>
-                <Divide />
-              </>
-            );
-          }
-          return <div />;
-        })}
+                      <Spacer />
+                    </Stack>
+                  </Flex>
+                  <Divide />
+                </>
+              );
+            }
+          })}
       </Box>
     </>
   );

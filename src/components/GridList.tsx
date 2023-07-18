@@ -1,47 +1,156 @@
+import { Text, Grid, Box, Flex, Image } from '@chakra-ui/react';
 import React from 'react';
 
 export default function GridList() {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 mt-4 px-6">
-      <div className="relative flex items-center space-x-3 overflow-hidden rounded-lg border border-gray-300 bg-primaryBlue px-4 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400">
-        <div className="absolute h-24 w-24 -right-4 top-10 -rotate-45 text-gray-400 overflow-auto">
-          <img src="/svgs/card-money.svg" alt="" />
-        </div>
-        <div className="min-w-0 space-y-2 flex-1">
-          <span className="absolute inset-0" aria-hidden="true" />
-          <p className="text-sm font-medium text-white/90">Total earned</p>
-          <p className="text-2xl font-semibold text-white">$5160.50</p>
-          <p className="truncate text-sm text-white/90">
+    <Grid
+      templateColumns={{ base: '1fr', sm: 'repeat(3, 1fr)' }}
+      gap="4"
+      mt="4"
+      px="6"
+    >
+      <Box
+        pos="relative"
+        display="flex"
+        alignItems="center"
+        overflow="hidden"
+        rounded="lg"
+        border="1px"
+        borderColor="gray.200"
+        px="4"
+        pb="4"
+        pt="8"
+        bg="blue.400"
+        shadow="sm"
+        _focusWithin={{
+          ring: '2',
+          ringColor: 'indigo.500',
+          ringOffset: '2'
+        }}
+        _hover={{
+          border: '1px',
+          borderColor: 'gray.400'
+        }}
+      >
+        <Box
+          pos="absolute"
+          right="-4"
+          top="4"
+          transform="rotate(-10deg)"
+          color="gray.400"
+          overflow="auto"
+        >
+          <Image width={150} height={150} src="/svgs/card-money.svg" alt="" />
+        </Box>
+        <Flex direction="column" minW="0" flex="1">
+          <Text as="span" pos="absolute" inset="0" aria-hidden="true" />
+          <Text as="p" fontSize="sm" fontWeight="medium" color="whiteAlpha.900">
+            Total earned
+          </Text>
+          <Text
+            as="p"
+            my={0.5}
+            fontSize="2xl"
+            fontWeight="semibold"
+            color="white"
+          >
+            $5160.50
+          </Text>
+          <Text as="p" fontSize="sm" color="whiteAlpha.900" isTruncated>
             24hrs of tutoring completed!
-          </p>
-        </div>
-      </div>
-      <div className="relative flex items-center space-x-3 rounded-lg border border-gray-300 bg-gray-50 overflow-hidden px-4 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400">
-        <div className="absolute h-24 w-24 -right-4 top-10 -rotate-45 text-gray-400">
-          <img src="/svgs/card-case.svg" alt="" />
-        </div>
-        <div className="min-w-0 space-y-2 flex-1">
-          <span className="absolute inset-0" aria-hidden="true" />
-          <p className="text-sm font-medium text-gray-400">Total Clients</p>
-          <p className="text-2xl font-semibold">314</p>
-          <p className="truncate text-sm text-green-400">
+          </Text>
+        </Flex>
+      </Box>
+      <Box
+        position="relative"
+        display="flex"
+        alignItems="center"
+        rounded="lg"
+        border="1px"
+        borderColor="gray.200"
+        bg="gray.50"
+        overflow="hidden"
+        px="4"
+        py="2"
+        boxShadow="sm"
+        _focusWithin={{
+          ring: '2',
+          ringColor: 'indigo.500',
+          ringOffset: '2'
+        }}
+        _hover={{
+          border: '1px',
+          borderColor: 'gray.400'
+        }}
+      >
+        <Box
+          position="absolute"
+          right="-4"
+          top="2"
+          transform="rotate(-24deg)"
+          color="gray.400"
+        >
+          <Image width={150} height={150} src="/svgs/card-case.svg" alt="" />
+        </Box>
+        <Flex direction="column" minW="0" flex="1">
+          <Box position="absolute" inset="0" aria-hidden="true" />
+          <Text fontSize="sm" fontWeight="medium" color="gray.400">
+            Total Clients
+          </Text>
+          <Text fontSize="2xl" my={0.5} fontWeight="semibold">
+            314
+          </Text>
+          <Text fontSize="sm" color="green.400" isTruncated>
             + Increased 10% this month
-          </p>
-        </div>
-      </div>
-      <div className="relative overflow-hidden flex items-center space-x-3 rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400">
-        <div className="absolute h-24 w-24 -right-4 top-10 -rotate-45 text-gray-400 overflow-auto">
-          <img src="/svgs/card-groups.svg" alt="" />
-        </div>
-        <div className="min-w-0 space-y-2 flex-1">
-          <span className="absolute inset-0" aria-hidden="true" />
-          <p className="text-sm font-medium text-gray-400">Current clients</p>
-          <p className="text-2xl font-semibold">20</p>
-          <p className="truncate text-sm text-red-400">
+          </Text>
+        </Flex>
+      </Box>
+
+      <Box
+        position="relative"
+        overflow="hidden"
+        display="flex"
+        alignItems="center"
+        rounded="lg"
+        border="1px"
+        borderColor="gray.200"
+        bg="gray.50"
+        px="4"
+        py="2"
+        boxShadow="sm"
+        _focusWithin={{
+          ring: '2',
+          ringColor: 'indigo.500',
+          ringOffset: '2'
+        }}
+        _hover={{
+          border: '1px',
+          borderColor: 'gray.400'
+        }}
+      >
+        <Box
+          position="absolute"
+          right="-4"
+          top="2"
+          transform="rotate(-24deg)"
+          color="gray.400"
+          overflow="auto"
+        >
+          <Image width={150} height={150} src="/svgs/card-groups.svg" alt="" />
+        </Box>
+        <Flex direction="column" minW="0" flex="1">
+          <Box position="absolute" inset="0" aria-hidden="true" />
+          <Text fontSize="sm" fontWeight="medium" color="gray.400">
+            Current clients
+          </Text>
+          <Text fontSize="2xl" my={0.5} fontWeight="semibold">
+            20
+          </Text>
+          <Text fontSize="sm" color="red.400" isTruncated>
             - Decreased 10% this month
-          </p>
-        </div>
-      </div>
-    </div>
+          </Text>
+        </Flex>
+      </Box>
+    </Grid>
   );
 }

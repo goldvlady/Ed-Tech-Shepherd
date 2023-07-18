@@ -71,7 +71,7 @@ const RequireAuth = ({
   authenticated: any;
   unAuthenticated: any;
 }) => {
-  const { fetchUser, user } = userStore();
+  const { fetchUser, user, fetchNotifications } = userStore();
   const [loadingUser, setLoadingUser] = useState(true);
 
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
@@ -84,6 +84,7 @@ const RequireAuth = ({
       setFirebaseUser(user);
       if (user) {
         await fetchUser().catch((e) => navigate('/login'));
+        fetchNotifications();
       }
       setLoadingUser(false);
     });
@@ -236,8 +237,16 @@ const AppRoutes: React.FC = () => {
           />
         }
       />
-      {/* <Route path="notes" element={<Notes />} /> */}
-      <Route path="tutordashboard" element={<TutorDashboard />} />
+
+      <Route
+        path="tutordashboard"
+        element={
+          <RequireAuth
+            authenticated={<TutorDashboard />}
+            unAuthenticated={<Navigate to={'/login'} />}
+          />
+        }
+      />
 
       <Route
         path="tutordashboard/clients"
@@ -259,7 +268,7 @@ const AppRoutes: React.FC = () => {
         }
       />
 
-      <Route path="tutordashboard/offer/:id" element={<TutorOffer />} />
+      <Route path="tutordashboard/offers/:id" element={<TutorOffer />} />
       <Route path="tutordashboard/messages" element={<Messages />} />
       <Route path="tutordashboard/tutorsettings" element={<TutorSettings />} />
     </Routes>
