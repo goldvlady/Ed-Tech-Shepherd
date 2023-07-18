@@ -2,6 +2,7 @@ import StepsIndicator, { Step } from '../../components/StepIndicator';
 import { useFlashCardState } from '../Dashboard/FlashCards/context/flashcard';
 import FlashCardQuestionsPage from '../Dashboard/FlashCards/forms/flashcard_setup/questions';
 import FlashcardFirstPart from './FlashCards';
+import FlashCardStudySession from './FlashCards/FlashCardStudySession';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useMemo } from 'react';
 
@@ -20,7 +21,7 @@ const SetUpFlashCards = ({ isAutomated }: { isAutomated?: boolean }) => {
   const { currentStep } = useFlashCardState();
   const steps: Step[] = [{ title: '' }, { title: '' }, { title: '' }];
   const formComponents = useMemo(
-    () => [FlashcardFirstPart, FlashCardQuestionsPage],
+    () => [FlashcardFirstPart, FlashCardQuestionsPage, FlashCardStudySession],
     []
   );
 
