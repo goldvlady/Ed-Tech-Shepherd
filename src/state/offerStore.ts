@@ -9,7 +9,7 @@ type Store = {
   offer?: any | null;
   //fechOffer: (id: string | number) => void;
 
-  //acceptOffer: (id: string | number) => Promise<boolean>;
+  //acceptOffer: (id: string | number) => void;
   //declineOffer: (id: string | number) => Promise<boolean>;
 };
 
@@ -47,7 +47,7 @@ export default create<Store>((set) => ({
   //     if (response.status === 200) {
   //       set((state) => {
   //         const { offers } = state;
-  //         const index = offers?.findIndex((card) => card._id === id);
+  //         const index = offers?.findIndex((card) => card?._id === id);
   //         if (index !== undefined && index >= 0 && offers) {
   //           offers.splice(index, 1);
   //         }

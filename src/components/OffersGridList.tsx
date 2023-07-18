@@ -40,7 +40,7 @@ interface Offer {
   imageURL: string;
 }
 
-const offers: Offer[] = [
+const offerss: Offer[] = [
   {
     id: 1,
     subject: 'Economics',
@@ -370,7 +370,7 @@ function OfferItem({ offer, navigate }: { offer: Offer; navigate: any }) {
   );
 }
 
-export default function OffersGridList() {
+export default function OffersGridList({ offers }) {
   const navigate = useNavigate();
   return (
     <SimpleGrid
@@ -381,7 +381,7 @@ export default function OffersGridList() {
       //templateColumns="repeat(1, 1fr)"
       //templateColumns={{base: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)'}}
     >
-      {offers.map((offer) => (
+      {offerss.map((offer) => (
         <OfferItem key={offer.id} offer={offer} navigate={navigate} />
       ))}
     </SimpleGrid>
