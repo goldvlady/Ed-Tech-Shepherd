@@ -359,8 +359,7 @@ export default function RecentTransaction() {
                     <div className="py-1">
                       <Menu.Item>
                         {({ active }) => (
-                          <a
-                            href="#"
+                          <button
                             className={classNames(
                               active
                                 ? 'bg-gray-100 text-gray-900'
@@ -369,13 +368,12 @@ export default function RecentTransaction() {
                             )}
                           >
                             This week
-                          </a>
+                          </button>
                         )}
                       </Menu.Item>
                       <Menu.Item>
                         {({ active }) => (
-                          <a
-                            href="#"
+                          <button
                             className={classNames(
                               active
                                 ? 'bg-gray-100 text-gray-900'
@@ -384,13 +382,12 @@ export default function RecentTransaction() {
                             )}
                           >
                             Last week
-                          </a>
+                          </button>
                         )}
                       </Menu.Item>
                       <Menu.Item>
                         {({ active }) => (
-                          <a
-                            href="#"
+                          <button
                             className={classNames(
                               active
                                 ? 'bg-gray-100 text-gray-900'
@@ -399,7 +396,7 @@ export default function RecentTransaction() {
                             )}
                           >
                             This month
-                          </a>
+                          </button>
                         )}
                       </Menu.Item>
                     </div>
@@ -429,8 +426,7 @@ export default function RecentTransaction() {
                   <div className="py-1">
                     <Menu.Item>
                       {({ active }) => (
-                        <a
-                          href="#"
+                        <button
                           className={classNames(
                             active
                               ? 'bg-gray-100 text-gray-900'
@@ -439,13 +435,12 @@ export default function RecentTransaction() {
                           )}
                         >
                           This week
-                        </a>
+                        </button>
                       )}
                     </Menu.Item>
                     <Menu.Item>
                       {({ active }) => (
-                        <a
-                          href="#"
+                        <button
                           className={classNames(
                             active
                               ? 'bg-gray-100 text-gray-900'
@@ -454,13 +449,12 @@ export default function RecentTransaction() {
                           )}
                         >
                           Last week
-                        </a>
+                        </button>
                       )}
                     </Menu.Item>
                     <Menu.Item>
                       {({ active }) => (
-                        <a
-                          href="#"
+                        <button
                           className={classNames(
                             active
                               ? 'bg-gray-100 text-gray-900'
@@ -469,7 +463,7 @@ export default function RecentTransaction() {
                           )}
                         >
                           This month
-                        </a>
+                        </button>
                       )}
                     </Menu.Item>
                   </div>

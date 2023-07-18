@@ -22,7 +22,6 @@ export default function Offer() {
     onOpen: onOpenDeclineModal,
     onClose: onCloseDeclineModal
   } = useDisclosure();
-  const [declineOffferModalState, setDeclineOfferModalState] = useState(false);
   return (
     <>
       <Layout className="px-4">

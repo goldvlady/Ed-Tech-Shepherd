@@ -24,7 +24,7 @@ import {
   PlusIcon
 } from '@heroicons/react/24/outline';
 import React, { Fragment, useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 
 interface NavigationItem {
   name: string;
@@ -254,8 +254,8 @@ export default function Layout({ children, className }) {
                 </ul>
               </li>
               <li className="border-t pt-4">
-                <a
-                  href="tutordashboard/tutorsettings"
+                <Link
+                  to="tutordashboard/tutorsettings"
                   className={classNames(
                     pathname === 'tutordashboard/tutorsettings'
                       ? 'bg-slate-100 text-blue-400'
@@ -273,7 +273,7 @@ export default function Layout({ children, className }) {
                     aria-hidden="true"
                   />
                   Settings
-                </a>
+                </Link>
               </li>
             </ul>
           </nav>

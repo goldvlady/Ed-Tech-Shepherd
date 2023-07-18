@@ -266,7 +266,7 @@ const AppRoutes: React.FC = () => {
         }
       />
 
-      <Route path="tutordashboard/offer/:id" element={<TutorOffer />} />
+      <Route path="tutordashboard/offers/:id" element={<TutorOffer />} />
       <Route path="tutordashboard/messages" element={<Messages />} />
       <Route path="tutordashboard/tutorsettings" element={<TutorSettings />} />
     </Routes>
