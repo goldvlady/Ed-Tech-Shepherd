@@ -115,7 +115,9 @@ const PlanSwitchModal = ({
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: 'framework',
     defaultValue: 'react',
-    onChange: console.log
+    onChange: () => {
+      return;
+    }
   });
 
   const group = getRootProps();

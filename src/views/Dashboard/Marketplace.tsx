@@ -123,7 +123,7 @@ export default function Marketplace() {
       startIndex + data.meta.pagination.limit,
       data.meta.pagination.count
     );
-    console.log(startIndex, endIndex);
+    // console.log(startIndex, endIndex);
 
     // const visibleTutors = data.tutors.slice(startIndex, endIndex);
     setAllTutors(data.tutors);
