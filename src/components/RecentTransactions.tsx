@@ -1,5 +1,6 @@
 import { classNames } from '../helpers';
 import { Date } from './index';
+import { Text } from '@chakra-ui/react';
 import { Menu, Transition } from '@headlessui/react';
 import {
   ChevronDownIcon,
@@ -8,7 +9,6 @@ import {
   CircleStackIcon
 } from '@heroicons/react/20/solid';
 import React, { Fragment } from 'react';
-import { Text } from '@chakra-ui/react';
 
 interface Transaction {
   id: number;
@@ -196,7 +196,9 @@ export default function RecentTransaction() {
           </section>
 
           <ul className="space-y-3">
-            <Text className="text-gray-400 text-sm mt-4 ml-8">Upcoming Events</Text>
+            <Text className="text-gray-400 text-sm mt-4 ml-8">
+              Upcoming Events
+            </Text>
             <ul className="space-y-3">
               {events.map((event) => (
                 <EventItem key={event.id} event={event} />

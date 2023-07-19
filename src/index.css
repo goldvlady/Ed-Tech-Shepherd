@@ -406,8 +406,8 @@ canvas {
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 120px;
-  margin: 0 0 50px 0;
+  gap: 10%;
+  margin: 0 10px 50px 10px;
 }
 
 .landing-desc-info {
@@ -443,7 +443,7 @@ canvas {
   line-height: 20px;
 }
 
-@media (max-width: 852px) {
+@media (max-width: 1215px) {
   .landing-header {
     justify-content: space-around;
   }
@@ -452,11 +452,16 @@ canvas {
     width: auto;
     height: auto;
     /* padding: 0 20px 0 20px; */
+    padding: 0 50px 0 50px;
+    margin: 0;
+    font-size: 16px;
   }
 
   .landing-title {
     width: auto;
     /* padding: 0 20px 0 20px; */
+    font-size: 40px !important;
+    line-height: 40px;
   }
 
   .landing-gradient {
@@ -469,10 +474,34 @@ canvas {
 
   .landing-info {
     width: auto;
+    padding: 0 40px 0 40px;
+    font-size: 25px;
   }
 
   .landing-desc-info {
     width: auto;
+    align-items: center;
+    text-align: center;
+    padding: 0 50px 0 50px;
+    gap: 10px;
+    margin-bottom: 50px;
+  }
+
+  .landing-info-mini {
+    font-size: 25px;
+  }
+
+  .landing-desc-mini {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 400px) {
+  .landing-title {
+    width: auto;
+    /* padding: 0 20px 0 20px; */
+    font-size: 30px !important;
+    line-height: 30px;
   }
 }
 

@@ -1,6 +1,6 @@
+import { Text } from '@chakra-ui/react';
 import { Transition, Dialog } from '@headlessui/react';
 import React, { Fragment } from 'react';
-import { Text } from '@chakra-ui/react';
 
 interface DeclineOfferModalProps {
   declineOfferModalState: boolean;
