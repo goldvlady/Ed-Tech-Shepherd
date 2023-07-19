@@ -95,13 +95,13 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
           </FormControl>
           <FormControl mb={8}>
             <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-              Label (optional)
+              Level (optional)
             </FormLabel>
             <Input
               type="text"
-              name="topic"
+              name="level"
               placeholder="e.g. Bonds"
-              value={localData.label}
+              value={localData.level}
               onChange={handleChange}
               _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
             />
