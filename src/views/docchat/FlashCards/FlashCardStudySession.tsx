@@ -14,7 +14,9 @@ const FlashCardStudySession = () => {
         <CustomButton
           isPrimary
           type="button"
-          onClick={() => console.log('study')}
+          onClick={() => {
+            return;
+          }}
           title="Study"
           icon={<StudyIcon />}
         />

@@ -78,9 +78,13 @@ class ApiService {
   };
 
   static generateFlashcardQuestions = async (data: any, studentId: string) => {
-    return doFetch(`${AI_API}/flash-cards/students/${studentId}`, {
+    return fetch(`${AI_API}/flash-cards/students/${studentId}`, {
       method: 'POST',
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      headers: {
+        'x-shepherd-header': HEADER_KEY,
+        'Content-Type': 'application/json'
+      }
     });
   };
 

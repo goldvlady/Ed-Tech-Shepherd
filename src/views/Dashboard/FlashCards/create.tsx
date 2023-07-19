@@ -146,7 +146,10 @@ const CreateFlashPage = () => {
       const aiData = {
         topic: flashcardData.topic,
         subject: flashcardData.subject,
-        count: flashcardData.numQuestions
+        count:
+          typeof flashcardData.numQuestions === 'string'
+            ? parseInt(flashcardData.numQuestions)
+            : flashcardData.numQuestions
       };
 
       const response = await ApiService.generateFlashcardQuestions(
@@ -154,8 +157,14 @@ const CreateFlashPage = () => {
         user?._id as string
       );
       if (response.status === 200) {
-        const { data } = await response.json();
-        setQuestions(data);
+        const data = await response.json();
+        const questions = data.map((d: any) => ({
+          question: d.front,
+          answer: d.back,
+          questionType: 'openEnded'
+        }));
+
+        setQuestions(questions);
         setType(TypeEnum.FLASHCARD);
         goToNextStep();
         // fetchFlashcards();
@@ -256,9 +265,9 @@ const CreateFlashPage = () => {
       }
       if (
         settings.type !== TypeEnum.FLASHCARD &&
+        settings.type !== TypeEnum.INIT &&
         settings.source !== SourceEnum.MANUAL
       ) {
-        console.log('here ');
         setSettings((value) => ({ ...value, source: SourceEnum.MANUAL }));
       }
     }
