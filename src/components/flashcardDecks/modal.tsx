@@ -1,6 +1,6 @@
 import FlashcardEmpty from '../../assets/flashcard_empty_state.png';
 import flashcardStore from '../../state/flashcardStore';
-import { FlashcardData, Score } from '../../types';
+import { FlashcardData, Score, Study, MinimizedStudy } from '../../types';
 import FlashCard from './deck_two';
 import DeckOverLap from './overlap';
 import ResultDisplay from './resultDisplay';
@@ -69,22 +69,13 @@ const LoaderOverlay = () => (
   </div>
 );
 
-export interface Options {
-  type: 'single' | 'multiple';
-  content: string[];
-}
-
-export interface Study {
-  id: number;
-  type: 'timed' | 'manual';
-  questions: string;
-  answers: string | string[];
-  currentStep: number;
-  isFirstAttempt: boolean;
-  options?: Options;
-}
-
-const StudyFooter = ({ showMinimize = false }: { showMinimize?: boolean }) => {
+const StudyFooter = ({
+  showMinimize = false,
+  onMinimize
+}: {
+  showMinimize?: boolean;
+  onMinimize?: () => void;
+}) => {
   const { loadFlashcard } = flashcardStore();
   return (
     <Box
@@ -106,7 +97,7 @@ const StudyFooter = ({ showMinimize = false }: { showMinimize?: boolean }) => {
           _hover={{ bg: '#207DF7', transform: 'scale(1.05)' }}
           color="black"
           onClick={() => {
-            return;
+            onMinimize && onMinimize();
           }}
         >
           <svg
@@ -379,8 +370,10 @@ const StudyBox = () => {
     flashcard,
     storeScore,
     updateQuestionAttempt,
+    minimizedStudy,
     isLoading,
-    loadFlashcard
+    loadFlashcard,
+    storeCurrentStudy
   } = flashcardStore();
   const [currentStudyIndex, setCurrentStudyIndex] = useState(0);
   const [studyType, setStudyType] = useState<'manual' | 'timed'>('manual');
@@ -401,6 +394,44 @@ const StudyBox = () => {
     notRemembered: 0
   } as Score);
   const [correctAnswerCount, setCorrectAnswerCount] = useState(0);
+
+  useEffect(() => {
+    if (minimizedStudy) {
+      setSavedScore(minimizedStudy.data.savedScore);
+      setCardStyle(minimizedStudy.data.cardStyle);
+      setActivityState({
+        isStarted: minimizedStudy.data.isStarted,
+        isFinished: minimizedStudy.data.isFinished
+      });
+      setProgressWidth(minimizedStudy.data.progressWidth);
+      setCurrentStudyIndex(minimizedStudy.data.currentStudyIndex);
+      setStudyType(minimizedStudy.data.studyType);
+      setStudyState(minimizedStudy.data.studyState);
+      setStudies(minimizedStudy.data.studies);
+    }
+  }, [minimizedStudy]);
+
+  const minimizeStudy = async () => {
+    const data: MinimizedStudy = {
+      flashcardId: flashcard?._id as string,
+      data: {
+        currentStudyIndex,
+        studyType,
+        isStarted,
+        isFinished,
+        progressWidth,
+        studies,
+        cardStyle,
+        timer,
+        savedScore,
+        studyState
+      }
+    };
+    if (flashcard) {
+      await storeCurrentStudy(flashcard?._id, data);
+      loadFlashcard(null);
+    }
+  };
 
   const restartStudy = () => {
     setSavedScore({
@@ -1018,7 +1049,10 @@ const StudyBox = () => {
           renderMainBox()
         )}
       </Box>
-      <StudyFooter showMinimize />
+      <StudyFooter
+        onMinimize={() => minimizeStudy()}
+        showMinimize={isStarted && !isFinished}
+      />
     </Box>
   );
 };
