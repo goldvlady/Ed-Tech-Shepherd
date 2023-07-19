@@ -10,7 +10,7 @@ import {
 import React from 'react';
 
 interface ICustomModalProps {
-  modalTitle: string | React.ReactNode;
+  modalTitle?: string | React.ReactNode;
   onClose: () => void;
   isOpen: boolean;
   children: React.ReactNode;
@@ -51,9 +51,11 @@ const CustomModal = ({
       <ModalContent
         height={style?.height ?? '350px'}
         maxWidth={style?.maxWidth ?? '100%'}
-        containerProps={{ justifyContent: 'end', paddingLeft: '2rem' }}
+        containerProps={{ justifyContent: 'end' }}
       >
-        <ModalHeader style={modalTitleStyle}>{modalTitle}</ModalHeader>
+        {modalTitle && (
+          <ModalHeader style={modalTitleStyle}>{modalTitle}</ModalHeader>
+        )}
         {isModalCloseButton && <ModalCloseButton />}
         <StyledModalBoby>{children}</StyledModalBoby>
         {footerContent && <ModalFooter>{footerContent}</ModalFooter>}

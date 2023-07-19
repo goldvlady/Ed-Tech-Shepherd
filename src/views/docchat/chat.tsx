@@ -21,6 +21,7 @@ import {
   CircleContainer,
   ClockButton,
   ContentWrapper,
+  DownPillContainer,
   FlexColumnContainer,
   FlexContainer,
   Form,
@@ -48,8 +49,9 @@ interface IChat {
   HomeWorkHelp?: boolean;
   studentId?: any;
   documentId?: any;
+  onOpenModal?: () => void;
 }
-const Chat = ({ HomeWorkHelp, studentId, documentId }: IChat) => {
+const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [isFlashCard, setFlashCard] = useState<boolean>(false);
@@ -197,7 +199,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId }: IChat) => {
       id: 1,
       img: <TutorBag />,
       title: 'Find a tutor',
-      onClick: onClose
+      onClick: onOpenModal
     }
   ];
 
@@ -332,8 +334,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId }: IChat) => {
         )} */}
 
         {HomeWorkHelp && isShowPrompt && (
-          <OptionsContainer>
-            <Text className="">What do you need?</Text>
+          <DownPillContainer>
             <PillsContainer>
               {homeHelp.map((need) => (
                 <StyledDiv onClick={need.onClick} key={need.id}>
@@ -342,7 +343,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId }: IChat) => {
                 </StyledDiv>
               ))}
             </PillsContainer>
-          </OptionsContainer>
+          </DownPillContainer>
         )}
         <ChatbotContainer chatbotSpace={chatbotSpace}>
           <InputContainer>

@@ -40,7 +40,8 @@ export default function TutorCard(props: any) {
     rating,
     reviewCount,
     saved,
-    handleSelectedCourse
+    handleSelectedCourse,
+    isViewTutors
   } = props;
   const toast = useToast();
   const { fetchBookmarkedTutors } = bookmarkedTutorsStore();
@@ -96,11 +97,18 @@ export default function TutorCard(props: any) {
         {' '}
         <Box
           bg={'white'}
-          w={{ sm: '100%', md: '100%', lg: '370px' }}
-          height={{ sm: '285px', md: '285px', lg: '325px' }}
+          w={{ sm: '100%', md: '100%', lg: isViewTutors ? '100%' : '370px' }}
+          height={{
+            sm: '285px',
+            md: '285px',
+            lg: '325px'
+          }}
           borderRadius="12px"
           border="1px solid #EBEDEF"
-          _hover={{ boxShadow: '2xl' }}
+          _hover={{
+            boxShadow: '2xl',
+            transition: 'box-shadow 0.3s ease-in-out'
+          }}
           padding={'20px'}
           position="relative"
         >
