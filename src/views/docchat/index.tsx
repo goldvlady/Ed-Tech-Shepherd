@@ -24,13 +24,13 @@ export default function DocChat() {
   }, [navigate, location.state?.documentUrl]);
 
   const checkDocs = async () => {
-    if (user) {
-      const data = await checkDocumentStatus({
-        studentId: user?._id,
-        documentId: location.state?.docTitle
-      }).then((res) => res[0]);
-      setIngested(data.ingested);
-    }
+    // if (user) {
+    //   const data = await checkDocumentStatus({
+    //     studentId: user?._id,
+    //     documentId: location.state?.docTitle
+    //   }).then((res) => res[0]);
+    //   setIngested(data.ingested);
+    // }
   };
 
   useEffect(() => {

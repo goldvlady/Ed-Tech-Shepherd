@@ -1,18 +1,21 @@
 import { storage } from '../firebase';
-import { processDocument } from '../services/AI';
+import { checkDocumentStatus, processDocument } from '../services/AI';
 import userStore from '../state/userStore';
 import CustomButton from './CustomComponents/CustomButton';
 import CustomModal from './CustomComponents/CustomModal/index';
 import { UploadIcon } from './icons';
 import { Spinner } from '@chakra-ui/react';
 import { getAuth } from 'firebase/auth';
+import { MAX_FILE_UPLOAD_LIMIT } from '../helpers/constants';
 import {
   ref,
   uploadBytesResumable,
   listAll,
-  getDownloadURL
+  getDownloadURL,
+  updateMetadata,
+  deleteObject
 } from 'firebase/storage';
-import { useRef, useState, useEffect, RefObject } from 'react';
+import { useRef, useState, useEffect, RefObject, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -40,6 +43,17 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   const [loadedList, setLoadedList] = useState(false);
   const inputRef = useRef(null) as RefObject<HTMLInputElement>;
   const [isLoading, setIsLoading] = useState(false);
+  const { currentUser } = useMemo(() => getAuth(), []);
+  const [buttonText, setButtonText] = useState('Waiting...')
+
+  useEffect(() => {
+    if(selectedOption) setButtonText('Confirm')
+  }, [selectedOption])
+
+  const listUserDocuments = async (path) => {
+    const listRef = ref(storage, path);
+    listAll(listRef).then((res) => setList(res.items));
+    };
 
   const Wrapper = styled.div`
     display: block;
@@ -138,33 +152,25 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   `;
 
   useEffect(() => {
-    const { currentUser } = getAuth();
-    const listEverything = async (path) => {
-      const listRef = ref(storage, path);
-      listAll(listRef).then((res) => setList(res.items));
-    };
-
     if (currentUser?.uid) {
       setDocPath(currentUser.uid);
-      listEverything(currentUser?.uid);
+      listUserDocuments(currentUser.uid);
       setLoadedList(true);
     }
-  }, [docPath]);
+  }, [docPath, currentUser?.uid]);
 
   const clickInput = () => {
     inputRef?.current && inputRef.current.click();
   };
 
-  const collectFile = (e) => {
+  const collectFile = async (e) => {
     const { name } = e.target.files[0];
     setUploadError('');
     setFileName(name);
     setFile(e.target.files[0]);
     setIsLoading(true);
-
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
+    
+    await handleFreshUpload(e.target.files[0], user);
   };
   const handleClose = () => {
     setShow(false);
@@ -174,34 +180,19 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     setSelectedOption(e.target.value);
   };
 
-  const processOrContinue = async () => {
-    if (!file && !selectedOption)
-      return setUploadError("You haven't uploaded a file or selected a note.");
+  const checkIfDocumentPresent = () => {
+      if (!file && !selectedOption)
+        return setUploadError("You haven't uploaded a file or selected a note.");
+  }
 
-    if (selectedOption && user) {
-      const documentUrl = await getDownloadURL(ref(storage, selectedOption));
-      const item = list.filter((list) => list.fullPath === selectedOption);
-      await processDocument({
-        studentId: user?._id,
-        documentId: item[0].name,
-        documentURL: documentUrl
-      }).then(() => {
-        setShow(false);
-        setShowHelp(false);
-        navigate('/dashboard/docchat', {
-          state: {
-            documentUrl,
-            docTitle: item[0].name
-          }
-        });
-      });
+  const handleFreshUpload = async (file, user) => {
+    
+    const SIZE_IN_MB = parseInt((file?.size/1_000_000).toFixed(2), 10);
+    if (SIZE_IN_MB > MAX_FILE_UPLOAD_LIMIT) {
+      setUploadError(`Your file is ${SIZE_IN_MB}MB, above our 5MB limit. Please upload a smaller document!`);
+      return;
     }
-
-    if (file && user) {
-      const storageRef = ref(
-        storage,
-        `${docPath}/${fileName.toLowerCase().replace(/\s/g, '')}`
-      );
+      const storageRef = ref(storage, `${docPath}/${fileName.toLowerCase().replace(/\s/g, '')}`);
       const task = uploadBytesResumable(storageRef, file);
 
       task.on(
@@ -220,7 +211,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
           setUploadError(`Error: ${error.message}`);
         },
         async () => {
-          setProgress('Complete!');
+          setProgress('Processing...');
           const documentURL = await getDownloadURL(task.snapshot.ref);
           const title = task.snapshot.metadata.name;
 
@@ -228,19 +219,68 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
             studentId: user?._id,
             documentId: fileName,
             documentURL
-          }).then(() => {
-            setShow(false);
-            setShowHelp(false);
-            navigate('/dashboard/docchat', {
-              state: {
-                documentUrl: documentURL,
-                docTitle: title
+          }).then(async() => {
+            let counter = 0;
+            let success = false;
+
+            const checkStatus = async () => {
+              try {
+                const check = await checkDocumentStatus({
+                  studentId: user?._id,
+                  documentId: fileName,
+                  title,
+                })
+                if (check.status === 'ingested') {
+                  const metadata = {
+                    customMetadata: {
+                      ingest_status: 'success',
+                    }
+                  };
+                  await updateMetadata(storageRef, metadata);
+                  setSelectedOption(storageRef.fullPath);
+                  success = true;
+                }
+                if (check.status === 'too_large') {
+                  await deleteObject(storageRef);
+                  return setUploadError('Your document goes over our total word limit. Consider uploading a shorter document (ideally, under 30 pages long.');
+                }
+              } catch(e) {
+                setUploadError('Something went wrong');
+              } finally {
+                counter++;
+                if (success || counter > 10) clearInterval(intervalId);
+
+                if(counter > 10 && !success) {
+                  setUploadError('Failed to upload')
+                  setProgress('');
+                  setIsLoading(false);
+                }
               }
-            });
-          });
+            }
+
+            const intervalId = setInterval(checkStatus, 3000);
+          }).catch( async () => {
+            await deleteObject(storageRef);
+            return setUploadError('Something went wrong. Reload this page and try again!')
+          })
         }
       );
-    }
+  }
+
+  const goToDocChat = async (selectedOption) => {
+    const documentUrl = await getDownloadURL(ref(storage, selectedOption));
+    const item = list.filter((list) => list.fullPath === selectedOption);
+    navigate('/dashboard/docchat', {
+      state: {
+        documentUrl,
+        docTitle: item[0].name
+      }
+    });
+  };
+
+  const processOrContinue = async () => {
+    checkIfDocumentPresent();
+    if (selectedOption && user) await goToDocChat(selectedOption);
   };
 
   return (
@@ -267,7 +307,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
           <CustomButton
             type="button"
             onClick={processOrContinue}
-            title="Confirm"
+            title={buttonText}
           />
         </div>
       }

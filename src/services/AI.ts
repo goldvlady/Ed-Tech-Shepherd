@@ -21,10 +21,12 @@ export const processDocument = async (data: {
 
 export const checkDocumentStatus = async ({
   studentId,
-  documentId
+  documentId,
+  title
 }: {
   studentId: string;
   documentId: string;
+  title: string;
 }) => {
   const document = await fetch(`${AI_API}/docs/check-status`, {
     method: 'POST',
@@ -32,7 +34,7 @@ export const checkDocumentStatus = async ({
       'x-shepherd-header': HEADER_KEY,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ studentId, documentId })
+    body: JSON.stringify({ studentId, documentId, title })
   }).then(async (data) => data.json());
 
   return document;
