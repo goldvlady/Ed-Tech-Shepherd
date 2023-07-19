@@ -1,5 +1,5 @@
+import { Study } from '../../types';
 import StepIndicator from './flashcards_steps_indicator';
-import { Study } from './modal';
 import {
   Box as ChakraBox,
   BoxProps as ChakraBoxProps,

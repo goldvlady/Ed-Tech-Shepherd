@@ -77,6 +77,13 @@ class ApiService {
     );
   };
 
+  static storeCurrentStudy = async (flashcardId: string, data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeCurrentStudy`, {
+      method: 'POST',
+      body: JSON.stringify({ flashcardId, data })
+    });
+  };
+
   static generateFlashcardQuestions = async (data: any, studentId: string) => {
     return fetch(`${AI_API}/flash-cards/students/${studentId}`, {
       method: 'POST',
