@@ -19,9 +19,13 @@ function createCSS() {
   `;
 }
 
-const Root = styled.svg<{ noFixedWidth?: boolean }>`
-  height: 75px;
-  ${(props) => (props.noFixedWidth ? '' : 'width: 95px')};
+const Root = styled.svg<{
+  noFixedWidth?: boolean;
+  customHeight: string;
+  customWidth: string;
+}>`
+  ${(props) => (props.customHeight ? props.customHeight : 'height: 75px')};
+  ${(props) => (props.customWidth ? props.customWidth : 'width: 95px')};
   margin: auto;
 
   path {

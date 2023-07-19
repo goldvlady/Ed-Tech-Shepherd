@@ -17,6 +17,7 @@ import DashboardLayout from './views/Dashboard/layout';
 import ForgotPassword from './views/ForgotPassword';
 import Home from './views/Home';
 import Login from './views/Login';
+import Landing from './views/Landing';
 import Offer from './views/Offer';
 import OnboardStudent from './views/OnboardStudent';
 import OnboardTutor from './views/OnboardTutor';
@@ -120,6 +121,8 @@ const AppRoutes: React.FC = () => {
 
   return (
     <Routes>
+      <Route path="" element={<Landing />} />
+
       <Route element={<WelcomeLayout />}>
         <Route path="onboard">
           <Route path="student" element={<OnboardStudent />} />
