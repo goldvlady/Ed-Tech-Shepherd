@@ -1,6 +1,7 @@
 import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
 import TutorCard from './components/TutorCard';
 import { Box, Flex, SimpleGrid, Text } from '@chakra-ui/react';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { useCallback, useEffect } from 'react';
 
 function BookmarkedTutors() {
@@ -13,6 +14,8 @@ function BookmarkedTutors() {
   useEffect(() => {
     doFetchBookmarkedTutors();
   }, [doFetchBookmarkedTutors]);
+
+  const [tutorGrid] = useAutoAnimate();
 
   return (
     <>
@@ -29,11 +32,10 @@ function BookmarkedTutors() {
           </Box>
         </Flex>
         <SimpleGrid
-          justifyItems={'left'}
-          templateColumns={{ sm: 'repeat(1, 1fr)', lg: 'repeat(3, 1fr)' }}
-          mt={2}
-          spacingY="20px"
-          gap={3}
+          columns={[2, null, 3]}
+          spacing="20px"
+          ref={tutorGrid}
+          mt={4}
         >
           {allTutors.map((tutor: any) => (
             <TutorCard
