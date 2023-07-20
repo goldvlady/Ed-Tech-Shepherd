@@ -125,6 +125,10 @@ const FlashCard: React.FC<FlashCardProps> = ({
 
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
 
+  const answer = useMemo(() => {
+    return !isFlipped ? '' : study.answers;
+  }, [isFlipped, study]);
+
   const questionText = useMemo(() => {
     return (
       <Typewriter
@@ -346,7 +350,7 @@ const FlashCard: React.FC<FlashCardProps> = ({
               fontWeight="500"
               lineHeight="22px"
             >
-              {study.answers}
+              {answer}
             </Text>
           </motion.div>
         </motion.div>

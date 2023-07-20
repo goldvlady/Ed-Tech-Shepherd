@@ -952,6 +952,34 @@ const StudyBox = () => {
                     p="6px 8px 6px 8px"
                     pl="15px"
                     background={
+                      INITIAL_TIMER === 5 || timer === 5 ? '#F2F4F7' : '#fff'
+                    }
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => {
+                      setTimer(5);
+                      setStudyType('timed');
+                    }}
+                  >
+                    5 secs
+                  </MenuItem>
+                  <MenuItem
+                    p="6px 8px 6px 8px"
+                    pl="15px"
+                    background={
+                      INITIAL_TIMER === 10 || timer === 10 ? '#F2F4F7' : '#fff'
+                    }
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => {
+                      setTimer(10);
+                      setStudyType('timed');
+                    }}
+                  >
+                    10 secs
+                  </MenuItem>
+                  <MenuItem
+                    p="6px 8px 6px 8px"
+                    pl="15px"
+                    background={
                       INITIAL_TIMER === 30 || timer === 30 ? '#F2F4F7' : '#fff'
                     }
                     _hover={{ bgColor: '#F2F4F7' }}
