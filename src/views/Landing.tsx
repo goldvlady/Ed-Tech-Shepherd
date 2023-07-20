@@ -1,15 +1,15 @@
+import Arrow from '../assets/card-arrow.svg';
 import Dashboard from '../assets/dashboard.svg';
 import Docchat from '../assets/docchat.svg';
 import Flashcards from '../assets/flashcards.svg';
 import Gpt from '../assets/gpt.svg';
 import Homework from '../assets/homework.svg';
 import Marketplace from '../assets/marketplace.svg';
+import Pricing from '../assets/pricing.svg';
 import Quiz from '../assets/quiz.svg';
 import Sparkles from '../assets/sparkles.svg';
 import Sparks from '../assets/sparks.svg';
 import Study from '../assets/study.svg';
-import Arrow from '../assets/card-arrow.svg';
-import Pricing from '../assets/pricing.svg';
 import Logo from '../components/Logo';
 import { Button, Link, Text } from '@chakra-ui/react';
 import { useNavigate } from 'react-router';
@@ -30,7 +30,9 @@ function Landing() {
           </div>
         </div>
         <div className="landing-title-wrapper">
-          <Text className="landing-title-sub" style={{color: '#207df7'}}>LEARN BETTER</Text>
+          <Text className="landing-title-sub" style={{ color: '#207df7' }}>
+            LEARN BETTER
+          </Text>
           <Text className="landing-title">
             Your all in one AI{' '}
             <img className="landing-title-img" src={Sparkles} /> powered
@@ -49,7 +51,9 @@ function Landing() {
       <div className="post-gradient">
         <div className="landing-section-info">
           <img className="landing-icon" src={Sparks} />
-          <Text className="landing-title-sub" style={{color: '#207df7'}}>PERSONAL AI ASSISTANT</Text>
+          <Text className="landing-title-sub" style={{ color: '#207df7' }}>
+            PERSONAL AI ASSISTANT
+          </Text>
           <Text className="landing-info">
             Unlock a vast array of AI-enabled learning tools and resources with
             Shepherd
@@ -111,40 +115,68 @@ function Landing() {
             </Text>
           </div>
           <div className="landing-cta-wrapper">
-            <div className="landing-cta-card"> 
+            <div className="landing-cta-card">
               <div className="landing-metric-wrapper">
                 <Text className="landing-metric">1M+</Text>
                 <Text className="landing-metric-tag">LEARNERS</Text>
               </div>
-              <Link className="landing-title-sub" style={{ display:'flex', fontSize:'15px', fontWeight:'500', color: '#207df7' }}>
-                Join our waitlist <img className="landing-card-arrow" src={Arrow} />
+              <Link
+                className="landing-title-sub"
+                style={{
+                  display: 'flex',
+                  fontSize: '15px',
+                  fontWeight: '500',
+                  color: '#207df7'
+                }}
+              >
+                Join our waitlist{' '}
+                <img className="landing-card-arrow" src={Arrow} />
               </Link>
             </div>
-            <div className="landing-cta-card"> 
+            <div className="landing-cta-card">
               <div className="landing-metric-wrapper">
                 <Text className="landing-metric">100+</Text>
                 <Text className="landing-metric-tag">TUTORS</Text>
               </div>
-              <Link className="landing-title-sub" style={{ display:'flex', fontSize:'15px', fontWeight:'500', color: '#207df7' }}>
-                Become a tutor <img className="landing-card-arrow" src={Arrow} />
+              <Link
+                className="landing-title-sub"
+                style={{
+                  display: 'flex',
+                  fontSize: '15px',
+                  fontWeight: '500',
+                  color: '#207df7'
+                }}
+              >
+                Become a tutor{' '}
+                <img className="landing-card-arrow" src={Arrow} />
               </Link>
             </div>
-            <div className="landing-cta-card"> 
+            <div className="landing-cta-card">
               <div className="landing-metric-wrapper">
                 <Text className="landing-metric">50+</Text>
                 <Text className="landing-metric-tag">SCHOOLS</Text>
               </div>
-              <Link className="landing-title-sub" style={{ display:'flex', fontSize:'15px', fontWeight:'500', color: '#207df7' }}>
-                Bring Shepherd to your school <img className="landing-card-arrow" src={Arrow} />
+              <Link
+                className="landing-title-sub"
+                style={{
+                  display: 'flex',
+                  fontSize: '15px',
+                  fontWeight: '500',
+                  color: '#207df7'
+                }}
+              >
+                Bring Shepherd to your school{' '}
+                <img className="landing-card-arrow" src={Arrow} />
               </Link>
             </div>
           </div>
         </div>
         <div className="landing-section-info">
-          <Text className="landing-title-sub-bubble">
-            COMING SOON
-          </Text>
-          <Text className="landing-title-sub" style={{ color: '#FB8441', fontSize:'15px'}}>
+          <Text className="landing-title-sub-bubble">COMING SOON</Text>
+          <Text
+            className="landing-title-sub"
+            style={{ color: '#FB8441', fontSize: '15px' }}
+          >
             LEARN TOGETHER
           </Text>
           <Text className="landing-info">Collaborate with other learners</Text>
