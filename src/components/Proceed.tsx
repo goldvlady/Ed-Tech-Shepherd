@@ -53,7 +53,7 @@ const Proceed: FC = () => {
             </Box>
             <Text my={4} as="p">
               <Text as="span" display="block" whiteSpace="nowrap">
-                Welcome to sherpherd
+                Welcome to shepherd
               </Text>
               <Text
                 as="span"
