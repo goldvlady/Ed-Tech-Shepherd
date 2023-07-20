@@ -303,9 +303,7 @@ const CreateFlashPage = () => {
   };
 
   const form = useMemo(() => {
-    if (
-      settings.type === TypeEnum.MNEOMONIC
-    ) {
+    if (settings.type === TypeEnum.MNEOMONIC) {
       return <MnemonicSetup />;
     }
 

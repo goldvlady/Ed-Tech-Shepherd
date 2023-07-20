@@ -84,23 +84,6 @@ export default function Index() {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  // const doFetchStudentReport = useCallback(async () => {
-  //   const response = await ApiService.getStudentReport();
-  //   const resp = await response.json();
-  //   setStudentReport(resp);
-  //   setChartData(resp.chartData);
-  // }, []);
-  // useEffect(() => {
-  //   doFetchStudentReport();
-  // }, [doFetchStudentReport]);
-
-  // const doFetchActivityFeeds = useCallback(async () => {
-  //   await fetchFeeds();
-  // }, []);
-  // useEffect(() => {
-  //   doFetchActivityFeeds();
-  // }, [doFetchActivityFeeds]);
-
   const fetchData = useCallback(async () => {
     try {
       const [studentReportResponse, feedsResponse] = await Promise.all([
@@ -606,7 +589,7 @@ export default function Index() {
               p={3}
               height="450px"
             >
-              <ActivityFeeds feeds={feeds} />
+              <ActivityFeeds feeds={feeds} userType="Student" />
             </Box>
           </GridItem>
           <GridItem colSpan={2}>
