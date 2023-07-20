@@ -20,7 +20,7 @@ export default function GridList() {
         px="4"
         pb="4"
         pt="8"
-        bg="blue.400"
+        bg="#207df7"
         shadow="sm"
         _focusWithin={{
           ring: '2',

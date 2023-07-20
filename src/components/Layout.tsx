@@ -1,5 +1,6 @@
 import { classNames } from '../helpers';
 import tutorStore from '../state/tutorStore';
+import userStore from '../state/userStore';
 import {
   DashboardIcon,
   OffersIcon,
@@ -10,7 +11,7 @@ import {
   LogoutIcon
 } from './icons';
 import { HelpModal, UploadDocumentModal } from './index';
-import { Text } from '@chakra-ui/react';
+import { Avatar, Box, Flex, HStack, Icon, Text } from '@chakra-ui/react';
 import { Dialog, Menu, Transition } from '@headlessui/react';
 import {
   ChevronDownIcon,
@@ -23,8 +24,10 @@ import {
   XMarkIcon,
   PlusIcon
 } from '@heroicons/react/24/outline';
+import { getAuth, signOut } from 'firebase/auth';
 import React, { Fragment, useEffect, useState } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { FiChevronDown } from 'react-icons/fi';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 
 interface NavigationItem {
   name: string;
@@ -67,6 +70,9 @@ export default function Layout({ children, className }) {
   const [navigation, setNavigation] =
     useState<NavigationItem[]>(dummyNavigation);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user } = userStore();
+  const auth = getAuth();
   const { tutorNotifications, fetchNotifications } = tutorStore();
 
   useEffect(() => {
@@ -86,6 +92,13 @@ export default function Layout({ children, className }) {
     setNavigation(temp);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
+
+  const handleSignOut = () => {
+    signOut(auth).then(() => {
+      navigate('/login');
+    });
+  };
+
   return (
     <>
       <Transition.Root show={sidebarOpen} as={Fragment}>
@@ -214,71 +227,81 @@ export default function Layout({ children, className }) {
       </Transition.Root>
 
       {/* Static sidebar for desktop */}
-      <div className="hidden relative bg-white lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col border-r">
-        {/* Sidebar component, swap this element with another sidebar if you like */}
-        <div className="flex grow flex-col gap-y-5 overflow-y-auto px-6 pb-4">
-          <div className="flex h-16 shrink-0 items-center">
-            <img className="h-10 w-auto" src="/svgs/logo.svg" alt="Sherperd" />
-          </div>
-          <nav className="flex flex-1 flex-col">
-            <ul className="flex flex-1 flex-col gap-y-2">
-              <li>
-                <ul className="-mx-2 space-y-1">
-                  {navigation.map((item) => {
-                    const activePath = pathname === item.href;
-                    return (
-                      <li key={item.name}>
-                        <a
-                          href={item.href}
-                          className={classNames(
-                            activePath
-                              ? 'bg-slate-100 text-blue-400'
-                              : 'text-gray-400 hover:text-blue-400 hover:bg-slate-100',
-                            'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                          )}
-                        >
-                          <item.icon
-                            className={classNames(
-                              item.current
-                                ? 'text-blue-500'
-                                : 'text-gray-400 group-hover:text-blue-400',
-                              'h-6 w-6 shrink-0'
-                            )}
-                            aria-hidden="true"
-                          />
-                          {item.name}
-                        </a>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </li>
-              <li className="border-t pt-4">
-                <Link
-                  to="tutordashboard/tutorsettings"
-                  className={classNames(
-                    pathname === 'tutordashboard/tutorsettings'
-                      ? 'bg-slate-100 text-blue-400'
-                      : 'text-gray-400 hover:text-blue-400 hover:bg-slate-100',
-                    'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                  )}
-                >
-                  <Cog6ToothIcon
-                    className={classNames(
-                      pathname === 'tutordashboard/tutorsettings'
-                        ? 'text-blue-500'
-                        : 'text-gray-400 group-hover:text-blue-400',
-                      'h-6 w-6 shrink-0'
-                    )}
-                    aria-hidden="true"
-                  />
-                  Settings
-                </Link>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </div>
+      <Box
+        className="hidden relative bg-white lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col border-r"
+        overflowY="auto"
+        px={6}
+        pb={4}
+      >
+        <Flex h="16" alignItems="center">
+          <img className="h-10 w-auto" src="/svgs/logo.svg" alt="Sherperd" />
+        </Flex>
+        <nav className="flex flex-1 flex-col pt-3">
+          <Box as="ul" className="flex flex-1 flex-col gap-y-2">
+            {navigation.map((item) => {
+              const activePath = pathname === item.href;
+              return (
+                <Box key={item.name} as="li">
+                  <Link
+                    to={item.href}
+                    className={`${
+                      activePath
+                        ? 'bg-slate-100 text-primaryBlue'
+                        : 'text-gray-400 hover:text-primaryBlue hover:bg-slate-100'
+                    } group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-medium items-center`}
+
+                    // display="flex"
+                    // alignItems="center"
+                  >
+                    <Icon
+                      as={item.icon}
+                      className={`${
+                        item.current
+                          ? 'text-primaryBlue'
+                          : 'text-gray-400 group-hover:text-primaryBlue'
+                      } h-6 w-6 shrink-0`}
+                      aria-hidden="true"
+                    />
+                    <Text fontSize={14} fontWeight={activePath ? '500' : '400'}>
+                      {item.name}
+                    </Text>
+                  </Link>
+                </Box>
+              );
+            })}
+          </Box>
+          <Box className="border-t pt-4">
+            <Link
+              to="tutordashboard/tutorsettings"
+              className={`${
+                pathname === 'tutordashboard/tutorsettings'
+                  ? 'bg-slate-100 text-primaryBlue'
+                  : 'text-gray-400 hover:text-primaryBlue hover:bg-slate-100'
+              } group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold`}
+              // display="flex"
+              // alignItems="center"
+            >
+              <Cog6ToothIcon
+                className={classNames(
+                  pathname === 'tutordashboard/tutorsettings'
+                    ? 'text-blue-500'
+                    : 'text-gray-400 group-hover:text-primaryBlue',
+                  'h-6 w-6 shrink-0'
+                )}
+                aria-hidden="true"
+              />
+              <Text
+                fontSize={14}
+                fontWeight={
+                  pathname === 'tutordashboard/tutorsettings' ? '500' : '400'
+                }
+              >
+                Settings
+              </Text>
+            </Link>
+          </Box>
+        </nav>
+      </Box>
 
       <div className="lg:pl-72">
         <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
@@ -495,12 +518,28 @@ export default function Layout({ children, className }) {
               <Menu as="div" className="relative">
                 <div>
                   <Menu.Button className="flex items-center rounded-full w-42 space-x-2 px-2 py-1 bg-slate-100 text-sm">
-                    <div className="h-8 w-8 rounded-full flex justify-center items-center bg-success text-white">
-                      <span className="sr-only">Open user menu</span>
-                      <span>L</span>
-                    </div>
-                    <Text>Leslie Peters</Text>
-                    <ChevronDownIcon className="w-5 h-5" />
+                    <HStack>
+                      <Avatar
+                        size="sm"
+                        color="white"
+                        name={`${user?.name?.first ?? ''} ${
+                          user?.name?.last ?? ''
+                        }`}
+                        bg="#4CAF50;"
+                      />
+                      <Text
+                        fontSize="14px"
+                        fontWeight={500}
+                        color="text.200"
+                        display={{ base: 'block', sm: 'none', md: 'block' }}
+                      >
+                        {`${user?.name?.first} ${user?.name?.last}`}
+                      </Text>
+
+                      <Box display={{ base: 'none', md: 'flex' }}>
+                        <FiChevronDown />
+                      </Box>
+                    </HStack>
                   </Menu.Button>
                 </div>
                 <Transition
@@ -514,10 +553,13 @@ export default function Layout({ children, className }) {
                 >
                   <Menu.Items className="absolute space-y-3 p-4 right-0 z-10 mt-2.5 w-[15rem] origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-900/5 focus:outline-none">
                     <section className="text-center">
-                      <div className="h-12 w-12 font-bold mb-1 mx-auto rounded-full flex justify-center items-center bg-success text-white">
-                        <span>L</span>
-                      </div>
-                      <Text>Leslie Peters</Text>
+                      <Avatar
+                        size="md"
+                        color="white"
+                        name={`${user?.name?.first} ${user?.name?.last}`}
+                        bg="#4CAF50;"
+                      />
+                      <Text> {`${user?.name?.first} ${user?.name?.last}`}</Text>
                       <span className="bg-orange-50 text-sm px-4 py-1 rounded-md text-orange-400 inline-block">
                         Tutor
                       </span>
@@ -558,7 +600,10 @@ export default function Layout({ children, className }) {
                         />
                       </button>
                     </section>
-                    <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
+                    <button
+                      className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
+                      onClick={handleSignOut}
+                    >
                       <div className="flex items-center space-x-1">
                         <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
                           <LogoutIcon
