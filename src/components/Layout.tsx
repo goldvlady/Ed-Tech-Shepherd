@@ -11,7 +11,15 @@ import {
   LogoutIcon
 } from './icons';
 import { HelpModal, UploadDocumentModal } from './index';
-import { Avatar, Box, Flex, HStack, Icon, Text } from '@chakra-ui/react';
+import {
+  Avatar,
+  Box,
+  Flex,
+  HStack,
+  Icon,
+  MenuButton,
+  Text
+} from '@chakra-ui/react';
 import { Dialog, Menu, Transition } from '@headlessui/react';
 import {
   ChevronDownIcon,
@@ -517,7 +525,7 @@ export default function Layout({ children, className }) {
               {/* Profile dropdown */}
               <Menu as="div" className="relative">
                 <div>
-                  <Menu.Button className="flex items-center rounded-full w-42 space-x-2 px-2 py-1 bg-slate-100 text-sm">
+                  <Menu.Button className="flex items-center rounded-full w-42 space-x-2 px-2 py-1 bg-slate-50 text-sm">
                     <HStack>
                       <Avatar
                         size="sm"

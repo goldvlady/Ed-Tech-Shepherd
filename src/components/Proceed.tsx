@@ -52,14 +52,21 @@ const Proceed: FC = () => {
               L
             </Box>
             <Text my={4} as="p">
-              <Text as="span" display="block" whiteSpace="nowrap">
+              <Text
+                as="span"
+                display="block"
+                whiteSpace="nowrap"
+                fontSize={15}
+                fontWeight="500"
+                color="text.200"
+              >
                 Welcome to shepherd
               </Text>
               <Text
                 as="span"
                 display="inline-block"
-                color="gray.400"
-                fontSize="sm"
+                fontSize={14}
+                color="text.300"
               >
                 We need a few more details to complete your profile. This helps
                 you stand out from other tutors.
@@ -72,9 +79,8 @@ const Proceed: FC = () => {
               bg="gray.100"
               px="2.5"
               py="1.5"
-              fontSize="sm"
-              fontWeight="semibold"
-              color="gray.600"
+              fontWeight="500"
+              color="#5C5F64"
               shadow="sm"
               _hover={{ bg: 'gray.50' }}
               onClick={() => setOpen(true)}
