@@ -404,7 +404,25 @@ export default function Marketplace() {
         </Box>
 
         <Box my={45} py={2} minHeight="750px">
-          <SimpleGrid
+          <SimpleGrid columns={[2, null, 3]} spacing="20px" ref={tutorGrid}>
+            {allTutors.map((tutor: any) => (
+              <TutorCard
+                key={tutor._id}
+                id={tutor._id}
+                name={`${tutor.user.name.first} ${tutor.user.name.last} `}
+                levelOfEducation={tutor.highestLevelOfEducation}
+                avatar={tutor.user.avatar}
+                rate={tutor.rate}
+                description={tutor.description}
+                rating={tutor.rating}
+                reviewCount={tutor.reviewCount}
+                saved={checkBookmarks(tutor._id)}
+                courses={tutor.coursesAndLevels.map((course) => course)}
+                handleSelectedCourse={handleSelectedCourse}
+              />
+            ))}
+          </SimpleGrid>
+          {/* <SimpleGrid
             minChildWidth={'370px'}
             spacing={4}
             ref={tutorGrid}
@@ -426,7 +444,7 @@ export default function Marketplace() {
                 handleSelectedCourse={handleSelectedCourse}
               />
             ))}
-          </SimpleGrid>
+          </SimpleGrid> */}
           <Pagination
             page={pagination ? pagination.page : 0}
             count={pagination ? pagination.count : 0}
