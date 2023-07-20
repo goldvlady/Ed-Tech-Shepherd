@@ -244,6 +244,9 @@ class ApiService {
   static getBookmarkedTutors = async () => {
     return doFetch(`${ApiService.baseEndpoint}/bookmarkedTutors`);
   };
+  static getStudentTutors = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getStudentTutors`);
+  };
 
   static getActivityFeeds = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getActivityFeed`);

@@ -128,7 +128,6 @@ const ViewTutors = ({ onOpenModal }: { onOpenModal?: () => void }) => {
                   courses={tutor?.coursesAndLevels}
                   reviewCount={tutor?.reviewCount ?? ''}
                   description={tutor?.description ?? ''}
-                  isViewTutors
                 />
               ))}
             </SimpleGrid>
@@ -167,7 +166,6 @@ const ViewTutors = ({ onOpenModal }: { onOpenModal?: () => void }) => {
                   courses={tutor?.coursesAndLevels ?? ''}
                   reviewCount={tutor?.reviewCount ?? ''}
                   description={tutor?.description ?? ''}
-                  isViewTutors
                 />
               ))}
             </SimpleGrid>
