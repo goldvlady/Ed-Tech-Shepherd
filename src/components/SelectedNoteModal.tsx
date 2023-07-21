@@ -54,7 +54,6 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   const [selectedOption, setSelectedOption] = useState('');
   const [confirmReady, setConfirmReady] = useState(true);
   const [docPath, setDocPath] = useState('');
-  const [uploadError, setUploadError] = useState('');
   const [loadedList, setLoadedList] = useState(false);
   const inputRef = useRef(null) as RefObject<HTMLInputElement>;
   const [isLoading, setIsLoading] = useState(false);
@@ -181,7 +180,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
 
   const collectFile = async (e) => {
     const { name } = e.target.files[0];
-    setUploadError('');
+    setUiMessage(null);
     setFileName(name);
     setFile(e.target.files[0]);
     setIsLoading(true);
@@ -209,9 +208,11 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   const handleFreshUpload = async (file, user) => {
     const SIZE_IN_MB = parseInt((file?.size / 1_000_000).toFixed(2), 10);
     if (SIZE_IN_MB > MAX_FILE_UPLOAD_LIMIT) {
-      setUploadError(
-        `Your file is ${SIZE_IN_MB}MB, above our 5MB limit. Please upload a smaller document!`
-      );
+      setUiMessage({
+        status: 'error',
+        heading: 'Your file is too large',
+        description: `Your file is ${SIZE_IN_MB}MB, above our 5MB limit. Please upload a smaller document.`
+      })
       return;
     }
     const storageRef = ref(
@@ -233,7 +234,11 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
         }
       },
       (error) => {
-        setUploadError(`Error: ${error.message}`);
+        setUiMessage({
+          status: 'error',
+          heading: 'Something went wrong',
+          description: error.message
+        })
       },
       async () => {
         const documentURL = await getDownloadURL(task.snapshot.ref);
@@ -267,18 +272,28 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
                 }
                 if (check.status === 'too_large') {
                   await deleteObject(storageRef);
-                  return setUploadError(
-                    'Your document goes over our total word limit. Consider uploading a shorter document (ideally, under 30 pages long.'
-                  );
+                  return setUiMessage({
+                    status: 'error',
+                    heading: 'Your document was too wordy',
+                    description: 'Your document goes over our total word limit. Consider uploading a shorter document (ideally, under 30 pages long.'
+                  })
                 }
-              } catch (e) {
-                setUploadError('Something went wrong');
+              } catch (e: any) {
+                setUiMessage({
+                  status: 'error',
+                  heading: 'Something went wrong',
+                  description: e.message
+                })
               } finally {
                 counter++;
                 if (success || counter > 10) clearInterval(intervalId);
 
                 if (counter > 10 && !success) {
-                  setUploadError('Failed to upload');
+                  setUiMessage({
+                    status: 'error',
+                    heading: 'We couldn\'t process your document',
+                    description: 'Please send a message to someone on the Shepherd team to look into this problem.'
+                  })
                   setIsLoading(false);
                 }
               }
@@ -286,11 +301,13 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
 
             const intervalId = setInterval(checkStatus, 3000);
           })
-          .catch(async () => {
+          .catch(async (e: any) => {
             await deleteObject(storageRef);
-            return setUploadError(
-              'Something went wrong. Reload this page and try again!'
-            );
+            return setUiMessage({
+              status: 'error',
+              heading: 'Something went wrong. Reload this page and try again.',
+              description: e.message
+            });
           });
       }
     );
@@ -391,7 +408,6 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
               </CircularProgressBar>
             )}
           </FileUploadButton>
-          {uploadError && <p className="text-sm text-red-700">{uploadError}</p>}
           <input
             type="file"
             accept="application/pdf"
