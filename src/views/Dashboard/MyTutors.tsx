@@ -1,6 +1,7 @@
 import TutorAvi from '../../assets/tutoravi.svg';
 import { useTitle } from '../../hooks';
 import ApiService from '../../services/ApiService';
+import offerStore from '../../state/offerStore';
 import TutorCard from './components/TutorCard';
 import {
   Box,
@@ -20,10 +21,10 @@ function MyTutors() {
   useTitle('My Tutors');
   const [allTutors, setAllTutors] = useState<any>([]);
   const [loadingData, setLoadingData] = useState(false);
-  // const { fetchBookmarkedTutors, tutors: allTutors } = bookmarkedTutorsStore();
+  const { fetchOffers, offers, isLoading } = offerStore();
 
   const doFetchStudentTutors = useCallback(async () => {
-    const response = await ApiService.getStudentTutors();
+    const response = await ApiService.getOffers();
     const jsonResp = await response.json();
     setAllTutors(jsonResp);
     /* eslint-disable */
@@ -86,11 +87,40 @@ function MyTutors() {
                     rating={tutor.tutor?.rating}
                     reviewCount={tutor.tutor?.reviewCount}
                     use="my tutors"
+                    offerStatus={tutor.status}
                   />
                 ))}
               </SimpleGrid>
             </TabPanel>
-            <TabPanel></TabPanel>
+            <TabPanel>
+              {' '}
+              <SimpleGrid
+                columns={[2, null, 3]}
+                spacing="20px"
+                ref={tutorGrid}
+                mt={4}
+              >
+                {allTutors.map(
+                  (tutor: any) =>
+                    tutor.status === 'draft' && (
+                      <TutorCard
+                        key={tutor.tutor?._id}
+                        id={tutor.tutor?._id}
+                        name={`${tutor.tutor.user.name.first} ${tutor.tutor.user.name.last}`}
+                        levelOfEducation={'BSC'}
+                        avatar={tutor.tutor.user.avatar}
+                        saved={true}
+                        description={tutor.tutor?.description}
+                        rate={tutor.tutor?.rate}
+                        rating={tutor.tutor?.rating}
+                        reviewCount={tutor.tutor?.reviewCount}
+                        use="my tutors"
+                        offerStatus={tutor.status}
+                      />
+                    )
+                )}
+              </SimpleGrid>
+            </TabPanel>
           </TabPanels>
         </Tabs>
       </Box>
