@@ -21,8 +21,7 @@ export const processDocument = async (data: {
 
 export const checkDocumentStatus = async ({
   studentId,
-  documentId,
-  title
+  documentId
 }: {
   studentId: string;
   documentId: string;

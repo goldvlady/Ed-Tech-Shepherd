@@ -4,9 +4,10 @@ import userStore from '../state/userStore';
 import CustomButton from './CustomComponents/CustomButton';
 import CustomModal from './CustomComponents/CustomModal/index';
 import { UploadIcon } from './icons';
-import { Spinner } from '@chakra-ui/react';
+import { Progress as ProgressBar } from '@chakra-ui/react';
 import { getAuth } from 'firebase/auth';
 import { MAX_FILE_UPLOAD_LIMIT } from '../helpers/constants';
+import { AttachmentIcon } from '@chakra-ui/icons'
 import {
   ref,
   uploadBytesResumable,
@@ -34,7 +35,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   const { user } = userStore();
   const navigate = useNavigate();
   const [fileName, setFileName] = useState('');
-  const [progress, setProgress] = useState('');
+  const [progress, setProgress] = useState(0);
   const [list, setList] = useState<Array<List>>([]);
   const [file, setFile] = useState<Blob | Uint8Array | ArrayBuffer>();
   const [selectedOption, setSelectedOption] = useState('');
@@ -134,6 +135,11 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     margin-left: 0.5rem;
   `;
 
+  const ProgressPlaceholder = styled.div`
+    width: 100%;
+    height: 18px;
+  `
+
   const PDFTextContainer = styled.div`
     text-align: center;
     margin-bottom: 1.5rem;
@@ -198,9 +204,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
       task.on(
         'state_changed',
         (snapshot) => {
-          const progress = `Upload is ${Math.round(
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          )}% done`;
+          const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
           switch (snapshot.state) {
             case 'running':
               setProgress(progress);
@@ -211,7 +215,6 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
           setUploadError(`Error: ${error.message}`);
         },
         async () => {
-          setProgress('Processing...');
           const documentURL = await getDownloadURL(task.snapshot.ref);
           const title = task.snapshot.metadata.name;
 
@@ -228,7 +231,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
                 const check = await checkDocumentStatus({
                   studentId: user?._id,
                   documentId: fileName,
-                  title,
+                  title: 'hey'
                 })
                 if (check.status === 'ingested') {
                   const metadata = {
@@ -252,7 +255,6 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
 
                 if(counter > 10 && !success) {
                   setUploadError('Failed to upload')
-                  setProgress('');
                   setIsLoading(false);
                 }
               }
@@ -336,24 +338,27 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
 
           <FileUploadButton onClick={clickInput}>
             <span className="flex items-center space-x-2">
-              <FileUploadIcon
-                className="text-primaryGray w-5 h-5"
-                onClick={undefined}
-              />
-              <span className="text-dark">Upload doc</span>
+              {fileName 
+                ? <AttachmentIcon />
+                : <FileUploadIcon
+                    className="text-primaryGray w-5 h-5"
+                    onClick={undefined}
+                />}
+              {fileName
+                ? <FileName>{fileName}</FileName>
+                : <span className="text-dark">Upload doc</span>}
             </span>
-
-            {/* Uploading Progress */}
-            {isLoading && (
-              <Spinner
-                thickness="4px"
-                speed="0.65s"
-                emptyColor="gray.200"
-                color="blue.500"
-                size="md"
-              />
-            )}
           </FileUploadButton>
+            {/* Uploading Progress */}
+            {isLoading 
+              ? <ProgressBar
+                  value={progress}
+                  colorScheme='green'
+                  hasStripe
+                  height='12px'
+                />
+              : <ProgressPlaceholder/>
+              }
           {uploadError && <p className="text-sm text-red-700">{uploadError}</p>}
           <input
             type="file"
@@ -369,8 +374,6 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
               document formats
             </Text>
           </PDFTextContainer>
-          {fileName && <FileName>{fileName}</FileName>}
-          {progress && <Progress>{progress}</Progress>}
         </div>
       </Wrapper>
     </CustomModal>
