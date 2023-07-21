@@ -196,8 +196,9 @@ const EmptyState = ({
         textAlign={'center'}
         letterSpacing="-0.048px"
       >
-        You have {flashcard?.questions?.length} questions, test your knowledge
-        on your meddeck flashcards
+        You have {flashcard?.questions?.length} question
+        {flashcard?.questions?.length > 1 ? 's' : ''} , test your knowledge on
+        your {flashcard?.deckname} flashcards
       </Text>
 
       <Button

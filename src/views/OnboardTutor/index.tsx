@@ -539,7 +539,7 @@ const OnboardTutor = () => {
           order={0}
           flexGrow={0}
         >
-          Create your Shepherd Account
+          Create your Shepherd Tutor Account
         </Text>
         <Text
           fontStyle="normal"
