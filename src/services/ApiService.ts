@@ -269,7 +269,7 @@ class ApiService {
   };
 
   // Get All Tutor Offers
-  static getTutorOffers = async () => {
+  static getOffers = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getOffers`);
   };
 

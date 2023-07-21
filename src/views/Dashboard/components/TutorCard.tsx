@@ -2,6 +2,7 @@ import Star from '../../../assets/littleStar.svg';
 import Ribbon2 from '../../../assets/ribbon-blue.svg';
 import Ribbon from '../../../assets/ribbon-grey.svg';
 import TutorAvi from '../../../assets/tutoravi.svg';
+import CustomToast from '../../../components/CustomToast';
 import ApiService from '../../../services/ApiService';
 import bookmarkedTutorsStore from '../../../state/bookmarkedTutorsStore';
 import { textTruncate } from '../../../util';
@@ -40,6 +41,7 @@ export default function TutorCard(props: any) {
     rating,
     reviewCount,
     saved,
+    offerStatus,
     handleSelectedCourse
   } = props;
   const toast = useToast();
@@ -55,17 +57,22 @@ export default function TutorCard(props: any) {
       if (saved && resp.status === 200) {
         setRibbonClicked(false);
         toast({
-          title: 'Tutor removed from Bookmarks successfully',
+          render: () => (
+            <CustomToast
+              title="Tutor removed from Bookmarks successfully"
+              status="success"
+            />
+          ),
           position: 'top-right',
-          status: 'success',
           isClosable: true
         });
       } else {
         setRibbonClicked(true);
         toast({
-          title: 'Tutor saved successfully',
+          render: () => (
+            <CustomToast title="Tutor saved successfully" status="success" />
+          ),
           position: 'top-right',
-          status: 'success',
           isClosable: true
         });
       }
@@ -158,17 +165,17 @@ export default function TutorCard(props: any) {
           {use === 'my tutors' ? (
             <Text
               width="fit-content"
-              bg="#f4f5f6"
+              bg={offerStatus === 'accepted' ? '#F1F9F1' : '#FFF2EB'}
               py={2}
               px={5}
               borderRadius={6}
               fontSize="12px"
               fontWeight={500}
-              color="text.400"
+              color={offerStatus === 'accepted' ? 'green' : '#FB8441'}
               position={'absolute'}
               bottom={5}
             >
-              Lesson 1
+              {offerStatus === 'accepted' ? 'Active' : 'Pending'}
             </Text>
           ) : (
             courses && (

@@ -179,7 +179,10 @@ code {
 }
 
 canvas {
-  width: 100% !important;
+  /* width: 80% !important; */
+  /* max-width: "645px" !important; */
+  /* display: block;
+  height: 100%; */
 }
 
 .css-mc6viy {
