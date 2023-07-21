@@ -9,7 +9,7 @@ interface CustomButtonProps {
   onClick: (event: React.SyntheticEvent<HTMLButtonElement>) => void;
   type: 'button' | 'submit' | 'reset';
   icon?: React.ReactNode;
-  active?: boolean,
+  active?: boolean;
 }
 const CustomButton = ({
   isCancel,

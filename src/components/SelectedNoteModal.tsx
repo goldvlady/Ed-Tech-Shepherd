@@ -6,7 +6,13 @@ import CustomButton from './CustomComponents/CustomButton';
 import CustomModal from './CustomComponents/CustomModal/index';
 import { UploadIcon } from './icons';
 import { AttachmentIcon } from '@chakra-ui/icons';
-import { CircularProgress as CircularProgressBar, CircularProgressLabel, Alert, AlertTitle, AlertDescription } from '@chakra-ui/react';
+import {
+  CircularProgress as CircularProgressBar,
+  CircularProgressLabel,
+  Alert,
+  AlertTitle,
+  AlertDescription
+} from '@chakra-ui/react';
 import { getAuth } from 'firebase/auth';
 import {
   ref,
@@ -32,9 +38,9 @@ interface ShowProps {
 }
 
 interface UiMessage {
-  status: "error" | "success" | "info" | "warning" | "loading" | undefined,
-  heading: string,
-  description: string,
+  status: 'error' | 'success' | 'info' | 'warning' | 'loading' | undefined;
+  heading: string;
+  description: string;
 }
 
 const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
@@ -116,7 +122,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     height: 40px;
 
     &:hover {
-      background-color: ${fileName ? "#FFF" : "#f0fff3"};
+      background-color: ${fileName ? '#FFF' : '#f0fff3'};
     }
   `;
 
@@ -191,12 +197,13 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   };
 
   const checkIfDocumentPresent = () => {
-    if (!file && !selectedOption) setUiMessage({
-      status: 'error',
-      heading: 'No document selected',
-      description: 'You haven\'t selected a note. Select one, and try again.'
-    })
-      return;
+    if (!file && !selectedOption)
+      setUiMessage({
+        status: 'error',
+        heading: 'No document selected',
+        description: "You haven't selected a note. Select one, and try again."
+      });
+    return;
   };
 
   const handleFreshUpload = async (file, user) => {
@@ -379,13 +386,9 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
             </span>
             {/* Uploading Progress */}
             {isLoading && (
-              <CircularProgressBar
-                value={progress}
-                color="#207DF7"
-                size='40px'
-              >
+              <CircularProgressBar value={progress} color="#207DF7" size="40px">
                 <CircularProgressLabel>{progress}%</CircularProgressLabel>
-                </CircularProgressBar>
+              </CircularProgressBar>
             )}
           </FileUploadButton>
           {uploadError && <p className="text-sm text-red-700">{uploadError}</p>}
@@ -406,20 +409,20 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
           {uiMessage && (
             <Alert
               status={uiMessage.status}
-              variant='subtle'
-              flexDirection='column'
-              alignItems='center'
-              justifyContent='center'
-              textAlign='center'
-              height='max-content'
-          >
-            <AlertTitle mt={2} mb={1} fontSize='md' textColor='black'>
-              {uiMessage.heading}
-            </AlertTitle>
-            <AlertDescription maxWidth='sm' textColor='black'>
-              {uiMessage.description}
-            </AlertDescription>
-          </Alert>
+              variant="subtle"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+              textAlign="center"
+              height="max-content"
+            >
+              <AlertTitle mt={2} mb={1} fontSize="md" textColor="black">
+                {uiMessage.heading}
+              </AlertTitle>
+              <AlertDescription maxWidth="sm" textColor="black">
+                {uiMessage.description}
+              </AlertDescription>
+            </Alert>
           )}
         </div>
       </Wrapper>
