@@ -212,7 +212,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
         status: 'error',
         heading: 'Your file is too large',
         description: `Your file is ${SIZE_IN_MB}MB, above our 5MB limit. Please upload a smaller document.`
-      })
+      });
       return;
     }
     const storageRef = ref(
@@ -238,7 +238,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
           status: 'error',
           heading: 'Something went wrong',
           description: error.message
-        })
+        });
       },
       async () => {
         const documentURL = await getDownloadURL(task.snapshot.ref);
@@ -275,15 +275,16 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
                   return setUiMessage({
                     status: 'error',
                     heading: 'Your document was too wordy',
-                    description: 'Your document goes over our total word limit. Consider uploading a shorter document (ideally, under 30 pages long.'
-                  })
+                    description:
+                      'Your document goes over our total word limit. Consider uploading a shorter document (ideally, under 30 pages long.'
+                  });
                 }
               } catch (e: any) {
                 setUiMessage({
                   status: 'error',
                   heading: 'Something went wrong',
                   description: e.message
-                })
+                });
               } finally {
                 counter++;
                 if (success || counter > 10) clearInterval(intervalId);
@@ -291,9 +292,10 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
                 if (counter > 10 && !success) {
                   setUiMessage({
                     status: 'error',
-                    heading: 'We couldn\'t process your document',
-                    description: 'Please send a message to someone on the Shepherd team to look into this problem.'
-                  })
+                    heading: "We couldn't process your document",
+                    description:
+                      'Please send a message to someone on the Shepherd team to look into this problem.'
+                  });
                   setIsLoading(false);
                 }
               }
