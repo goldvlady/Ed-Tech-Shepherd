@@ -1,25 +1,24 @@
 import Arrow from '../assets/card-arrow.svg';
+import Check from '../assets/checkIcon.svg';
+import Collab from '../assets/collab.svg';
 import Dashboard from '../assets/dashboard.svg';
 import Docchat from '../assets/docchat.svg';
+import FAQ from '../assets/faq.svg';
 import Flashcards from '../assets/flashcards.svg';
 import Gpt from '../assets/gpt.svg';
 import Homework from '../assets/homework.svg';
 import Marketplace from '../assets/marketplace.svg';
+import Spark from '../assets/miniSparks.svg';
 import Pricing from '../assets/pricing.svg';
+import Question from '../assets/question.svg';
 import Quiz from '../assets/quiz.svg';
+import Share from '../assets/share.svg';
 import Sparkles from '../assets/sparkles.svg';
 import Sparks from '../assets/sparks.svg';
 import Study from '../assets/study.svg';
-import Collab from '../assets/collab.svg';
-import Share from '../assets/share.svg';
-import Spark from '../assets/miniSparks.svg';
-import Question from '../assets/question.svg';
-import Check from '../assets/checkIcon.svg';
-import FAQ from '../assets/faq.svg';
 import Logo from '../components/Logo';
 import { Button, Link, Text } from '@chakra-ui/react';
 import { useNavigate } from 'react-router';
-
 
 function Landing() {
   //   const navigate = useNavigate();
@@ -187,40 +186,50 @@ function Landing() {
             LEARN TOGETHER
           </Text>
           <Text className="landing-info">Collaborate with other learners</Text>
-            <div className="landing-coming-soon">
-              <div className="landing-section-item">
-                <img className="landing-coming-soon-icon" src={Collab} />
-                <Text className="landing-desc-mini">
-                  Be a part of a learning community in your school or across other schools.
-                </Text>
-              </div>
-              <div className="landing-section-item">
-                <img className="landing-coming-soon-icon" src={Share} />
-                <Text className="landing-desc-mini">
-                  Share your notes, flashcards with other learners.
-                </Text>
-              </div>
-              <div className="landing-section-item">
-                <img className="landing-coming-soon-icon" src={Spark} />
-                <Text className="landing-desc-mini">
-                  Start a group study session moderated by Shepherd.
-                </Text>
-              </div>
-              <div className="landing-section-item">
-                <img className="landing-coming-soon-icon" src={Question} />
-                <Text className="landing-desc-mini">
-                  Ask questions and get them answered by people studying the subject.
-                </Text>
-              </div>
+          <div className="landing-coming-soon">
+            <div className="landing-section-item">
+              <img className="landing-coming-soon-icon" src={Collab} />
+              <Text className="landing-desc-mini">
+                Be a part of a learning community in your school or across other
+                schools.
+              </Text>
+            </div>
+            <div className="landing-section-item">
+              <img className="landing-coming-soon-icon" src={Share} />
+              <Text className="landing-desc-mini">
+                Share your notes, flashcards with other learners.
+              </Text>
+            </div>
+            <div className="landing-section-item">
+              <img className="landing-coming-soon-icon" src={Spark} />
+              <Text className="landing-desc-mini">
+                Start a group study session moderated by Shepherd.
+              </Text>
+            </div>
+            <div className="landing-section-item">
+              <img className="landing-coming-soon-icon" src={Question} />
+              <Text className="landing-desc-mini">
+                Ask questions and get them answered by people studying the
+                subject.
+              </Text>
+            </div>
           </div>
         </div>
-        <div className="landing-section-info" style={{backgroundColor:'#FAFAFA', padding:'80px', marginTop:'50px', gap:'12px'}}>
+        <div
+          className="landing-section-info"
+          style={{
+            backgroundColor: '#FAFAFA',
+            padding: '80px',
+            marginTop: '50px',
+            gap: '12px'
+          }}
+        >
           <img className="landing-icon" src={Pricing} />
           <Text className="landing-title-sub" style={{ color: '#FB8441' }}>
             PRICING
           </Text>
           <div className="landing-price-wrapper">
-            <div className="landing-price-card"> 
+            <div className="landing-price-card">
               <div className="landing-metric-wrapper">
                 <Text className="landing-price-level">Basic</Text>
               </div>
@@ -255,14 +264,22 @@ function Landing() {
                 <Button className="landing-price-btn">Try for Free</Button>
               </div>
             </div>
-            <div className="landing-price-card" style={{ position:'relative'}}> 
+            <div
+              className="landing-price-card"
+              style={{ position: 'relative' }}
+            >
               <Text className="landing-price-sub-bubble">Popular</Text>
               <div className="landing-metric-wrapper">
                 <Text className="landing-price-level">Intermediate</Text>
               </div>
               <div className="landing-metric-wrapper">
                 <Text className="landing-price-point">$10</Text>
-                <Text className="landing-metric-tag" style={{fontWeight: '400'}}>/Month</Text>
+                <Text
+                  className="landing-metric-tag"
+                  style={{ fontWeight: '400' }}
+                >
+                  /Month
+                </Text>
               </div>
               <div className="landing-section-item">
                 <div className="landing-price-value">
@@ -292,13 +309,18 @@ function Landing() {
                 <Button className="landing-price-btn">Subscribe Now</Button>
               </div>
             </div>
-            <div className="landing-price-card"> 
+            <div className="landing-price-card">
               <div className="landing-metric-wrapper">
                 <Text className="landing-price-level">Premium</Text>
               </div>
               <div className="landing-metric-wrapper">
                 <Text className="landing-price-point">$10</Text>
-                <Text className="landing-metric-tag" style={{fontWeight: '400'}}>/Month</Text>
+                <Text
+                  className="landing-metric-tag"
+                  style={{ fontWeight: '400' }}
+                >
+                  /Month
+                </Text>
               </div>
               <div className="landing-section-item">
                 <div className="landing-price-value">
@@ -336,7 +358,8 @@ function Landing() {
               FAQs
             </Text>
             <Text className="landing-faq-title">
-              We thought of <img className="landing-faq-icon" src={FAQ} /> you might have
+              We thought of <img className="landing-faq-icon" src={FAQ} /> you
+              might have
             </Text>
             {/* <Text className="landing-faq-title">
               might have
