@@ -606,7 +606,6 @@ canvas {
 
 .landing-section-faq {
   width: 822px;
-  height: 781px;
   border-radius: 18px;
   background-color: #f6f8f9;
   align-self: center;
@@ -616,7 +615,6 @@ canvas {
 
 .landing-faq-title-wrapper {
   width: 450px;
-  height: 144px;
   display: flex;
   flex-direction: column;
   gap: 20px;
