@@ -16,12 +16,22 @@ import Share from '../assets/share.svg';
 import Sparkles from '../assets/sparkles.svg';
 import Sparks from '../assets/sparks.svg';
 import Study from '../assets/study.svg';
+import Flash from '../assets/flashIcon.svg'
 import Logo from '../components/Logo';
-import { Button, Link, Text } from '@chakra-ui/react';
+import faqData from '../mocks/faqs.json';
+import { Button, Box, Link, Text, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon } from '@chakra-ui/react';
+import React from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
+
 
 function Landing() {
   //   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<string>('AI');
+
+  const handleTabClick = (id: string) => {
+    setActiveTab(id);
+  };
 
   return (
     <div className="landing-wrapper">
@@ -361,9 +371,77 @@ function Landing() {
               We thought of <img className="landing-faq-icon" src={FAQ} /> you
               might have
             </Text>
-            {/* <Text className="landing-faq-title">
-              might have
-            </Text> */}
+          </div>
+          <div className="landing-faq-filters">
+              <div
+                className={`landing-faq-filter ${activeTab === 'AI' ? 'active' : ''}`}
+                id="AI"
+                onClick={() => handleTabClick('AI')}
+              >
+                {' '}
+                AI
+              </div>
+              <div
+                className={`landing-faq-filter ${activeTab === 'Tutors' ? 'active' : ''}`}
+                id="Tutors"
+                onClick={() => handleTabClick('Tutors')}
+              >
+                Tutors
+              </div>
+              <div
+                className={`landing-faq-filter ${activeTab === 'Data' ? 'active' : ''}`}
+                id="Data"
+                onClick={() => handleTabClick('Data')}
+              >
+                Data
+              </div>
+              <div
+                className={`landing-faq-filter ${activeTab === 'Pricing' ? 'active' : ''}`}
+                id="Pricing"
+                onClick={() => handleTabClick('Pricing')}
+              >
+                Pricing
+              </div>
+              <div
+                className={`landing-faq-filter ${activeTab === 'General' ? 'active' : ''}`}
+                id="General"
+                onClick={() => handleTabClick('General')}
+              >
+                General
+              </div>
+          </div>
+          <div className="faq-data-wrapper">
+             <Accordion className='faq-accordion' allowToggle>
+              {faqData[activeTab].map((faq, index) => (
+                <AccordionItem className='faq-item-data' key={index}>
+                  <AccordionButton className='faq-accordion-btn'>
+                    <Box as="span" flex="1" textAlign="left">
+                      {faq.title}
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                  <AccordionPanel className='faq-accordion-panel'>
+                    {faq.content}
+                  </AccordionPanel>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </div>
+        <div className="landing-cta-banner">
+          <div className="landing-cta-banner-info">
+            <Text className="landing-title-sub" style={{ color: '#207df7' }}>
+              YOU ARE CONVINCED
+            </Text>
+            <Text className="landing-banner-title">
+              Join us today, it’s time to supercharge <img className="banner-icon" src={Flash} /> your learning
+            </Text>
+            <Text className="banner-desc">
+              Shepherd provides an integrated experience to improve your learning
+              outcomes. It understands you, your learning journey and connects you
+              to everything you need to learn better.
+            </Text>
+            <Button className="landing-banner-btn">Get Started for Free</Button>
           </div>
         </div>
       </div>
