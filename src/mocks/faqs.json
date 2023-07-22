@@ -1,0 +1,92 @@
+{
+  "AI": [
+    {
+      "title": "What does Shepherd AI do?",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ..."
+    },
+    {
+      "title": "What does Shepherd AI do?",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ..."
+    },
+    {
+      "title": "What does Shepherd AI do?",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ..."
+    },
+    {
+      "title": "What does Shepherd AI do?",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ..."
+    }
+  ],
+  "Tutors": [
+    {
+      "title": "What does Shepherd Tutors do?",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ..."
+    },
+    {
+      "title": "What does Shepherd Tutors do?",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ..."
+    },
+    {
+      "title": "What does Shepherd Tutors do?",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ..."
+    },
+    {
+      "title": "What does Shepherd Tutors do?",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ..."
+    }
+  ],
+  "Data": [
+    {
+      "title": "What does Shepherd Data do?",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ..."
+    },
+    {
+      "title": "What does Shepherd Data do?",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ..."
+    },
+    {
+      "title": "What does Shepherd Data do?",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ..."
+    },
+    {
+      "title": "What does Shepherd Data do?",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ..."
+    }
+  ],
+  "Pricing": [
+    {
+      "title": "How does Shepherd Pricing work?",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ..."
+    },
+    {
+      "title": "How does Shepherd Pricing work?",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ..."
+    },
+    {
+      "title": "How does Shepherd Pricing work?",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ..."
+    },
+    {
+      "title": "How does Shepherd Pricing work?",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ..."
+    }
+  ],
+  "General": [
+    {
+      "title": "What is Shepherd generally?",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ..."
+    },
+    {
+      "title": "What is Shepherd generally?",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ..."
+    },
+    {
+      "title": "What is Shepherd generally?",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ..."
+    },
+    {
+      "title": "What is Shepherd generally?",
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ..."
+    }
+  ]
+}
