@@ -1,4 +1,5 @@
 import { Study } from '../../types';
+import TabModal from './explanationModal';
 import StepIndicator from './flashcards_steps_indicator';
 import {
   Box as ChakraBox,
@@ -111,6 +112,17 @@ interface FlashCardProps extends ChakraBoxProps {
   onNewResult?: (selectedOptions: string | string[]) => void;
 }
 
+const truncateText = (text: string, limit: number) => {
+  if (text.length > limit) {
+    return text.substring(0, limit) + '...';
+  } else {
+    return text;
+  }
+};
+
+// The limit for words count
+const wordsLimit = 135;
+
 const FlashCard: React.FC<FlashCardProps> = ({
   height,
   study,
@@ -122,12 +134,27 @@ const FlashCard: React.FC<FlashCardProps> = ({
 }) => {
   const controls = useAnimation();
   const [isFlipped, setIsFlipped] = useState(false);
+  const [extraReading, setExtraReading] = useState<
+    'explanation' | 'answer' | null
+  >(null);
 
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+  const [typingFinished, setTypingFinished] = useState(false);
 
   const answer = useMemo(() => {
     return !isFlipped ? '' : study.answers;
   }, [isFlipped, study]);
+
+  const truncatedAnswer = useMemo(() => {
+    if (Array.isArray(answer)) return '';
+    return truncateText(answer, cardStyle === 'flippable' ? 210 : wordsLimit);
+  }, [answer, cardStyle]);
+
+  const extraReadingText = useMemo(() => {
+    if (extraReading === 'answer') return answer as string;
+    if (extraReading === 'explanation') return study.explanation as string;
+    return '';
+  }, [extraReading, answer, study.explanation]);
 
   const questionText = useMemo(() => {
     return (
@@ -150,20 +177,45 @@ const FlashCard: React.FC<FlashCardProps> = ({
   const answerText = useMemo(() => {
     return (
       <Typewriter
-        key={study?.answers as string}
+        key={truncatedAnswer as string}
         options={{
           delay: 10,
           autoStart: true,
           loop: false,
           skipAddStyles: true,
-          wrapperClassName: 'text-base'
+          wrapperClassName: 'text-sm'
         }}
         onInit={(typewriter) => {
-          typewriter.typeString(study.answers as string).start();
+          typewriter
+            .typeString(truncatedAnswer)
+            .start()
+            .callFunction(() => {
+              setTypingFinished(true);
+            });
         }}
       />
     );
-  }, [study.answers]);
+  }, [truncatedAnswer]);
+
+  const showFullAnswerText = useMemo(() => {
+    if (Array.isArray(answer)) return answer;
+    return answer.length > wordsLimit ? (
+      <Text
+        onClick={() => setExtraReading('answer')}
+        fontSize="12px"
+        fontWeight={'bold'}
+        color="#207DF7"
+        _hover={{
+          textDecoration: 'underline',
+          cursor: 'pointer'
+        }}
+      >
+        Show Full Answer
+      </Text>
+    ) : (
+      ''
+    );
+  }, [answer]);
 
   // Handle changes in option selection
   const handleOptionChange = (option: string) => {
@@ -199,10 +251,10 @@ const FlashCard: React.FC<FlashCardProps> = ({
 
   const renderFlippableCard = () => {
     return (
-      <ChakraBox height="75%" width="100%" padding="10px">
+      <ChakraBox height="65%" width="100%" padding="10px">
         <motion.div
           style={{
-            height: `calc(${height} - 100px)`,
+            height: '100%',
             width: 'full',
             borderRadius: '6px',
             display: 'flex',
@@ -232,7 +284,7 @@ const FlashCard: React.FC<FlashCardProps> = ({
           >
             <Text
               color="#212224"
-              textAlign={'center'}
+              textAlign={'left'}
               fontSize="14px"
               fontFamily="Inter"
               padding="15px"
@@ -334,16 +386,19 @@ const FlashCard: React.FC<FlashCardProps> = ({
               borderRadius: '6px',
               padding: '15px',
               display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
+              textAlign: 'left',
               backgroundColor: 'white',
               transform: 'rotateY(180deg)',
               zIndex: isFlipped ? -1 : 1
             }}
           >
-            <Text
+            <ChakraBox padding="10px">
+              {studyState === 'answer' && answerText}
+              {typingFinished && showFullAnswerText}
+            </ChakraBox>
+            {/* <Text
               color="#212224"
-              textAlign="center"
+              textAlign="start"
               fontSize="14px"
               fontFamily="Inter"
               padding="10px"
@@ -351,7 +406,7 @@ const FlashCard: React.FC<FlashCardProps> = ({
               lineHeight="22px"
             >
               {answer}
-            </Text>
+            </Text> */}
           </motion.div>
         </motion.div>
       </ChakraBox>
@@ -360,12 +415,12 @@ const FlashCard: React.FC<FlashCardProps> = ({
 
   const renderDefaultCard = () => {
     return (
-      <ChakraBox height="75%" background={'#F9FAFB'}>
+      <ChakraBox height="65%" background={'#F9FAFB'}>
         {/* Question Section */}
         <ChakraBox
           background="white"
           padding="10px"
-          height={study.options ? '100%' : '60%'}
+          height={study.options ? '100%' : '45%'}
           marginBottom="5px"
         >
           <Text
@@ -462,8 +517,9 @@ const FlashCard: React.FC<FlashCardProps> = ({
           )}
         </ChakraBox>
         {!study.options && (
-          <ChakraBox height={'50%'} padding="10px">
+          <ChakraBox height={'55%'} padding="16px">
             {studyState === 'answer' && answerText}
+            {typingFinished && showFullAnswerText}
           </ChakraBox>
         )}
       </ChakraBox>
@@ -471,42 +527,78 @@ const FlashCard: React.FC<FlashCardProps> = ({
   };
 
   return (
-    <ChakraBox
-      position="absolute"
-      top="0"
-      borderRadius="5px"
-      backgroundColor={cardStyle === 'default' ? '#F9FAFB' : '#fff'}
-      boxShadow="0 6px 24px rgba(92, 101, 112, 0.15)"
-      height={height}
-      overflow="hidden"
-      left="50%"
-      transform="translateX(-50%)"
-      width={width}
-      {...rest}
-    >
-      {cardStyle === 'flippable' ? renderFlippableCard() : renderDefaultCard()}
-
-      {/* Steps */}
+    <>
+      <TabModal
+        onChange={(index) => {
+          if (index === 1) setExtraReading('explanation');
+          else {
+            setExtraReading('answer');
+          }
+        }}
+        tabIndex={extraReading === 'explanation' ? 1 : 0}
+        text={extraReadingText}
+        isOpen={Boolean(extraReading)}
+        onCancel={() => setExtraReading(null)}
+      />
       <ChakraBox
+        position="absolute"
+        top="0"
         display={'flex'}
-        position="relative"
-        height="fit-content"
-        width="100%"
-        paddingX="20px"
-        mt="10px"
+        flexDirection={'column'}
+        justifyContent={'space-between'}
+        borderRadius="5px"
+        backgroundColor={cardStyle === 'default' ? '#F9FAFB' : '#fff'}
+        boxShadow="0 6px 24px rgba(92, 101, 112, 0.15)"
+        height={height}
+        overflow="hidden"
+        left="50%"
+        transform="translateX(-50%)"
+        width={width}
+        {...rest}
       >
-        <StepIndicator
-          isFirstAttempt={study.isFirstAttempt}
-          steps={[
-            { title: 'Week 1' },
-            { title: '1 month' },
-            { title: '3 months' },
-            { title: 'Long term' }
-          ]}
-          activeStep={study.currentStep - 1}
-        />
+        {cardStyle === 'flippable'
+          ? renderFlippableCard()
+          : renderDefaultCard()}
+        {studyState === 'answer' && !Array.isArray(study.answers) && (
+          <ChakraBox
+            width="full"
+            cursor="pointer"
+            display={'flex'}
+            background={'#F5F9FF'}
+            justifyContent={'center'}
+            alignItems={'center'}
+            onClick={() => setExtraReading('explanation')}
+            paddingY="10px"
+            fontWeight={'bold'}
+            fontSize={'12px'}
+            color="#207DF7"
+          >
+            Show Explanation
+          </ChakraBox>
+        )}
+
+        {/* Steps */}
+        <ChakraBox
+          display={'flex'}
+          position="relative"
+          height="fit-content"
+          width="100%"
+          paddingBottom={'20px'}
+          paddingX="20px"
+        >
+          <StepIndicator
+            isFirstAttempt={study.isFirstAttempt}
+            steps={[
+              { title: 'Week 1' },
+              { title: '1 month' },
+              { title: '3 months' },
+              { title: 'Long term' }
+            ]}
+            activeStep={study.currentStep - 1}
+          />
+        </ChakraBox>
       </ChakraBox>
-    </ChakraBox>
+    </>
   );
 };
 

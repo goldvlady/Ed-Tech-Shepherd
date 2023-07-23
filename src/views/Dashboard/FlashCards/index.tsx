@@ -1,5 +1,6 @@
 import EmptyIllustration from '../../../assets/empty_illustration.svg';
 import { FlashCardModal } from '../../../components/flashcardDecks';
+import LoaderOverlay from '../../../components/loaderOverlay';
 import SelectableTable, { TableColumn } from '../../../components/table';
 import { useSearch } from '../../../hooks';
 import flashcardStore from '../../../state/flashcardStore';
@@ -536,6 +537,7 @@ const CustomTable: React.FC = () => {
 
   return (
     <>
+      {isLoading && <LoaderOverlay />}
       <FlashCardModal isOpen={Boolean(flashcard)} />
       <DeleteModal
         isLoading={isLoading}
@@ -561,7 +563,7 @@ const CustomTable: React.FC = () => {
           }
         }}
       />
-      {!flashcards?.length && !hasSearched ? (
+      {!flashcards?.length && !hasSearched && !isLoading ? (
         <Box
           background={'#F8F9FB'}
           display={'flex'}
