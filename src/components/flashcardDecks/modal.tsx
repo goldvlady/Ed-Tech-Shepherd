@@ -1,6 +1,6 @@
 import FlashcardEmpty from '../../assets/flashcard_empty_state.png';
 import flashcardStore from '../../state/flashcardStore';
-import { FlashcardData, Score } from '../../types';
+import { FlashcardData, Score, Study, MinimizedStudy } from '../../types';
 import FlashCard from './deck_two';
 import DeckOverLap from './overlap';
 import ResultDisplay from './resultDisplay';
@@ -69,22 +69,13 @@ const LoaderOverlay = () => (
   </div>
 );
 
-export interface Options {
-  type: 'single' | 'multiple';
-  content: string[];
-}
-
-export interface Study {
-  id: number;
-  type: 'timed' | 'manual';
-  questions: string;
-  answers: string | string[];
-  currentStep: number;
-  isFirstAttempt: boolean;
-  options?: Options;
-}
-
-const StudyFooter = ({ showMinimize = false }: { showMinimize?: boolean }) => {
+const StudyFooter = ({
+  showMinimize = false,
+  onMinimize
+}: {
+  showMinimize?: boolean;
+  onMinimize?: () => void;
+}) => {
   const { loadFlashcard } = flashcardStore();
   return (
     <Box
@@ -106,7 +97,7 @@ const StudyFooter = ({ showMinimize = false }: { showMinimize?: boolean }) => {
           _hover={{ bg: '#207DF7', transform: 'scale(1.05)' }}
           color="black"
           onClick={() => {
-            return;
+            onMinimize && onMinimize();
           }}
         >
           <svg
@@ -205,8 +196,9 @@ const EmptyState = ({
         textAlign={'center'}
         letterSpacing="-0.048px"
       >
-        You have {flashcard?.questions?.length} questions, test your knowledge
-        on your meddeck flashcards
+        You have {flashcard?.questions?.length} question
+        {flashcard?.questions?.length > 1 ? 's' : ''} , test your knowledge on
+        your {flashcard?.deckname} flashcards
       </Text>
 
       <Button
@@ -379,8 +371,10 @@ const StudyBox = () => {
     flashcard,
     storeScore,
     updateQuestionAttempt,
+    minimizedStudy,
     isLoading,
-    loadFlashcard
+    loadFlashcard,
+    storeCurrentStudy
   } = flashcardStore();
   const [currentStudyIndex, setCurrentStudyIndex] = useState(0);
   const [studyType, setStudyType] = useState<'manual' | 'timed'>('manual');
@@ -401,6 +395,44 @@ const StudyBox = () => {
     notRemembered: 0
   } as Score);
   const [correctAnswerCount, setCorrectAnswerCount] = useState(0);
+
+  useEffect(() => {
+    if (minimizedStudy) {
+      setSavedScore(minimizedStudy.data.savedScore);
+      setCardStyle(minimizedStudy.data.cardStyle);
+      setActivityState({
+        isStarted: minimizedStudy.data.isStarted,
+        isFinished: minimizedStudy.data.isFinished
+      });
+      setProgressWidth(minimizedStudy.data.progressWidth);
+      setCurrentStudyIndex(minimizedStudy.data.currentStudyIndex);
+      setStudyType(minimizedStudy.data.studyType);
+      setStudyState(minimizedStudy.data.studyState);
+      setStudies(minimizedStudy.data.studies);
+    }
+  }, [minimizedStudy]);
+
+  const minimizeStudy = async () => {
+    const data: MinimizedStudy = {
+      flashcardId: flashcard?._id as string,
+      data: {
+        currentStudyIndex,
+        studyType,
+        isStarted,
+        isFinished,
+        progressWidth,
+        studies,
+        cardStyle,
+        timer,
+        savedScore,
+        studyState
+      }
+    };
+    if (flashcard) {
+      await storeCurrentStudy(flashcard?._id, data);
+      loadFlashcard(null);
+    }
+  };
 
   const restartStudy = () => {
     setSavedScore({
@@ -921,6 +953,34 @@ const StudyBox = () => {
                     p="6px 8px 6px 8px"
                     pl="15px"
                     background={
+                      INITIAL_TIMER === 5 || timer === 5 ? '#F2F4F7' : '#fff'
+                    }
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => {
+                      setTimer(5);
+                      setStudyType('timed');
+                    }}
+                  >
+                    5 secs
+                  </MenuItem>
+                  <MenuItem
+                    p="6px 8px 6px 8px"
+                    pl="15px"
+                    background={
+                      INITIAL_TIMER === 10 || timer === 10 ? '#F2F4F7' : '#fff'
+                    }
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => {
+                      setTimer(10);
+                      setStudyType('timed');
+                    }}
+                  >
+                    10 secs
+                  </MenuItem>
+                  <MenuItem
+                    p="6px 8px 6px 8px"
+                    pl="15px"
+                    background={
                       INITIAL_TIMER === 30 || timer === 30 ? '#F2F4F7' : '#fff'
                     }
                     _hover={{ bgColor: '#F2F4F7' }}
@@ -1018,7 +1078,10 @@ const StudyBox = () => {
           renderMainBox()
         )}
       </Box>
-      <StudyFooter showMinimize />
+      <StudyFooter
+        onMinimize={() => minimizeStudy()}
+        showMinimize={isStarted && !isFinished}
+      />
     </Box>
   );
 };

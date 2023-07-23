@@ -77,10 +77,21 @@ class ApiService {
     );
   };
 
-  static generateFlashcardQuestions = async (data: any) => {
-    return doFetch(`${ApiService.baseEndpoint}/generateFlashcardQuestions`, {
+  static storeCurrentStudy = async (flashcardId: string, data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeCurrentStudy`, {
       method: 'POST',
-      body: JSON.stringify(data)
+      body: JSON.stringify({ flashcardId, data })
+    });
+  };
+
+  static generateFlashcardQuestions = async (data: any, studentId: string) => {
+    return fetch(`${AI_API}/flash-cards/students/${studentId}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: {
+        'x-shepherd-header': HEADER_KEY,
+        'Content-Type': 'application/json'
+      }
     });
   };
 
@@ -233,6 +244,9 @@ class ApiService {
   static getBookmarkedTutors = async () => {
     return doFetch(`${ApiService.baseEndpoint}/bookmarkedTutors`);
   };
+  static getStudentTutors = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getStudentTutors`);
+  };
 
   static getActivityFeeds = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getActivityFeed`);
@@ -255,7 +269,7 @@ class ApiService {
   };
 
   // Get All Tutor Offers
-  static getTutorOffers = async () => {
+  static getOffers = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getOffers`);
   };
 

@@ -4,7 +4,7 @@ import SelectableTable, { TableColumn } from '../../../components/table';
 import { useSearch } from '../../../hooks';
 import flashcardStore from '../../../state/flashcardStore';
 import { FlashcardData, FlashcardQuestion } from '../../../types';
-import { Score } from '../../../types';
+import { Score, MinimizedStudy } from '../../../types';
 import { useToast } from '@chakra-ui/react';
 import {
   Button,
@@ -224,6 +224,7 @@ type DataSourceItem = {
   createdAt: string;
   scores: Score[];
   questions: FlashcardQuestion[];
+  currentStudy?: MinimizedStudy;
 };
 
 // const dataSource: DataSourceItem[] = Array.from({ length: 10 }, (_, i) => ({
@@ -414,6 +415,35 @@ const CustomTable: React.FC = () => {
             backgroundColor="#FFFFFF"
             boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
           >
+            {flashcard.currentStudy && (
+              <MenuItem
+                p="6px 8px 6px 8px"
+                _hover={{ bgColor: '#F2F4F7' }}
+                onClick={() =>
+                  loadFlashcard(flashcard.key, flashcard.currentStudy)
+                }
+              >
+                <StyledImage marginRight="10px">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    width="10"
+                    height="14"
+                  >
+                    <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+                  </svg>
+                </StyledImage>
+
+                <Text
+                  color="#212224"
+                  fontSize="14px"
+                  lineHeight="20px"
+                  fontWeight="400"
+                >
+                  Resume
+                </Text>
+              </MenuItem>
+            )}
             <MenuItem
               p="6px 8px 6px 8px"
               _hover={{ bgColor: '#F2F4F7' }}

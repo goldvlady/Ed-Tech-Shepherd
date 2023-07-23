@@ -10,6 +10,7 @@ import ReceiptIcon from '../../assets/receiptIcon.svg';
 import VideoIcon from '../../assets/video.svg';
 import { HelpModal } from '../../components';
 import Logo from '../../components/Logo';
+import PlanSwitchModal from '../../components/PlanSwitchModal';
 import { firebaseAuth } from '../../firebase';
 import userStore from '../../state/userStore';
 import TutorMarketplace from './Tutor';
@@ -118,7 +119,9 @@ interface NavItemProps extends FlexProps {
 const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
   const { pathname } = useLocation();
 
-  const isActive = path.includes(getComparisonPath(pathname));
+  // const isActive = path.includes(getComparisonPath(pathname));
+  const isActive = pathname === path;
+  console.log('ACTIVE', path);
 
   return (
     <Link
@@ -169,6 +172,10 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const [toggleHelpModal, setToggleHelpModal] = useState(false);
   const activateHelpModal = () => {
     setToggleHelpModal(true);
+  };
+  const [togglePlanSwitchModal, setTogglePlanSwitchModal] = useState(false);
+  const activatePlanSwitchModal = () => {
+    setTogglePlanSwitchModal(true);
   };
   const navigate = useNavigate();
   const { user, userNotifications }: any = userStore();
@@ -355,7 +362,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     </Flex>
                   </Link>
                 </MenuItem>
-                <MenuItem p={2} m={1}>
+                <MenuItem p={2} m={1} onClick={activatePlanSwitchModal}>
                   <Flex alignItems="center" gap={2}>
                     <Center
                       borderRadius="50%"
@@ -434,6 +441,10 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         toggleHelpModal={toggleHelpModal}
         setToggleHelpModal={setToggleHelpModal}
       />
+      <PlanSwitchModal
+        togglePlanSwitchModal={togglePlanSwitchModal}
+        setTogglePlanSwitchModal={setTogglePlanSwitchModal}
+      />
     </>
   );
 };
@@ -444,6 +455,8 @@ const SidebarContent = ({
   toggleMenu,
   ...rest
 }: SidebarProps) => {
+  const { pathname } = useLocation();
+
   return (
     <Box
       transition="3s ease"
@@ -461,7 +474,7 @@ const SidebarContent = ({
         </Text>
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
-      <NavItem icon={FiHome} path={'/dashboard'}>
+      <NavItem icon={FiHome} path={'/dashboard/home'}>
         Home
       </NavItem>
       <Box ml={8} color="text.400">
@@ -513,7 +526,16 @@ const SidebarContent = ({
       <Divider />
       {LinkBItems.map((link) => (
         <>
-          <NavItem key={link.name} icon={link.icon} path={link.path}>
+          <NavItem
+            key={link.name}
+            icon={link.icon}
+            path={link.path}
+            className={`${
+              pathname === link.path
+                ? 'bg-slate-100 text-primaryBlue'
+                : 'text-gray-400 hover:text-primaryBlue hover:bg-slate-100'
+            } group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold`}
+          >
             {link.name}
           </NavItem>
         </>

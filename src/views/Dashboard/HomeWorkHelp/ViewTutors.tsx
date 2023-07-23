@@ -11,7 +11,7 @@ import {
   TutorsBackIcn,
   ViewTutorSection
 } from './style';
-import { SimpleGrid, Spinner, Box } from '@chakra-ui/react';
+import { Spinner, Box } from '@chakra-ui/react';
 import moment from 'moment';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -118,26 +118,44 @@ const ViewTutors = ({ onOpenModal }: { onOpenModal?: () => void }) => {
               <Spinner />
             </Box>
           ) : (
-            <SimpleGridContainer columns={[2, null, 3]} spacing="20px">
-              {allTutors?.map((tutor: any) => (
-                <TutorCard
-                  key={tutor?.level?._id}
-                  id={tutor?.id}
-                  name={`${tutor?.user?.name?.first ?? ''} ${
-                    tutor?.user?.name?.last ?? ''
-                  }`}
-                  levelOfEducation={'BSC'}
-                  avatar={tutor?.user?.avatar ?? ''}
-                  rate={tutor?.rate ?? ''}
-                  rating={tutor?.rating ?? ''}
-                  courses={tutor?.coursesAndLevels}
-                  reviewCount={tutor?.reviewCount ?? ''}
-                  description={tutor?.description ?? ''}
-                  handleSelectedCourse={handleSelectedCourse}
-                  isViewTutors
-                />
-              ))}
-            </SimpleGridContainer>
+            <>
+              {!allTutors?.length && (
+                <div
+                  style={{
+                    display: 'table',
+                    margin: '0 auto',
+                    textAlign: 'center',
+                    alignContent: 'center'
+                  }}
+                >
+                  <NoTutorsIcn />
+                  <p>You’re yet to hire a tutor</p>
+                </div>
+              )}
+
+              {!!allTutors?.length && (
+                <SimpleGridContainer columns={[2, null, 3]} spacing="20px">
+                  {allTutors?.map((tutor: any) => (
+                    <TutorCard
+                      key={tutor?.level?._id}
+                      id={tutor?.id}
+                      name={`${tutor?.user?.name?.first ?? ''} ${
+                        tutor?.user?.name?.last ?? ''
+                      }`}
+                      levelOfEducation={'BSC'}
+                      avatar={tutor?.user?.avatar ?? ''}
+                      rate={tutor?.rate ?? ''}
+                      rating={tutor?.rating ?? ''}
+                      courses={tutor?.coursesAndLevels}
+                      reviewCount={tutor?.reviewCount ?? ''}
+                      description={tutor?.description ?? ''}
+                      handleSelectedCourse={handleSelectedCourse}
+                      isViewTutors
+                    />
+                  ))}
+                </SimpleGridContainer>
+              )}
+            </>
           )}
         </div>
         <div>
@@ -174,7 +192,7 @@ const ViewTutors = ({ onOpenModal }: { onOpenModal?: () => void }) => {
                 </div>
               )}
               {!!onLineTutors?.length && (
-                <SimpleGrid
+                <SimpleGridContainer
                   columns={[2, null, 3]}
                   spacing="20px"
                   padding="0 120px"
@@ -195,7 +213,7 @@ const ViewTutors = ({ onOpenModal }: { onOpenModal?: () => void }) => {
                       isViewTutors
                     />
                   ))}
-                </SimpleGrid>
+                </SimpleGridContainer>
               )}
             </>
           )}

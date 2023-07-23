@@ -84,23 +84,6 @@ export default function Index() {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  // const doFetchStudentReport = useCallback(async () => {
-  //   const response = await ApiService.getStudentReport();
-  //   const resp = await response.json();
-  //   setStudentReport(resp);
-  //   setChartData(resp.chartData);
-  // }, []);
-  // useEffect(() => {
-  //   doFetchStudentReport();
-  // }, [doFetchStudentReport]);
-
-  // const doFetchActivityFeeds = useCallback(async () => {
-  //   await fetchFeeds();
-  // }, []);
-  // useEffect(() => {
-  //   doFetchActivityFeeds();
-  // }, [doFetchActivityFeeds]);
-
   const fetchData = useCallback(async () => {
     try {
       const [studentReportResponse, feedsResponse] = await Promise.all([
@@ -302,7 +285,15 @@ export default function Index() {
           templateColumns="repeat(5, 1fr)"
           gap={6}
         >
-          <GridItem rowSpan={1} colSpan={2} h="200px">
+          <GridItem
+            rowSpan={1}
+            colSpan={2}
+            h="200px"
+            _hover={{
+              boxShadow: '2xl',
+              transition: 'box-shadow 0.2s ease-in-out'
+            }}
+          >
             <Card
               // bg={"#207DF7"}
               // bgImage={briefCase}
@@ -564,7 +555,14 @@ export default function Index() {
             </Card>
           </GridItem>
 
-          <GridItem colSpan={3} rowSpan={1}>
+          <GridItem
+            colSpan={3}
+            rowSpan={1}
+            _hover={{
+              boxShadow: '2xl',
+              transition: 'box-shadow 0.2s ease-in-out'
+            }}
+          >
             <Box
               border="1px solid #eeeff2"
               borderRadius={'10px'}
@@ -577,9 +575,9 @@ export default function Index() {
                 Quiz Performance
               </Text>
               {chartData.length > 0 ? (
-                <Box p={2} h={'350px'}>
+                <Center p={2} h={'350px'}>
                   <PerformanceChart chartData={chartData} />
-                </Box>
+                </Center>
               ) : (
                 <Box textAlign={'center'} px={20} mt={14}>
                   <VStack spacing={5}>
@@ -599,17 +597,29 @@ export default function Index() {
               )}
             </Box>
           </GridItem>
-          <GridItem colSpan={3}>
+          <GridItem
+            colSpan={3}
+            _hover={{
+              boxShadow: '2xl',
+              transition: 'box-shadow 0.2s ease-in-out'
+            }}
+          >
             <Box
               border="1px solid #eeeff2"
               borderRadius={'14px'}
               p={3}
               height="450px"
             >
-              <ActivityFeeds feeds={feeds} />
+              <ActivityFeeds feeds={feeds} userType="Student" />
             </Box>
           </GridItem>
-          <GridItem colSpan={2}>
+          <GridItem
+            colSpan={2}
+            _hover={{
+              boxShadow: '2xl',
+              transition: 'box-shadow 0.2s ease-in-out'
+            }}
+          >
             <Box
               border="1px solid #eeeff2"
               borderRadius={'14px'}

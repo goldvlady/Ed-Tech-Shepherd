@@ -1,5 +1,5 @@
 import ApiService from '../services/ApiService';
-import { FlashcardData, Score } from '../types';
+import { FlashcardData, Score, Study, MinimizedStudy } from '../types';
 import { create } from 'zustand';
 
 type SearchQueryParams = {
@@ -13,13 +13,19 @@ type Pagination = {
   limit: number;
   count: number;
 };
+
 type Store = {
   flashcards: FlashcardData[] | null;
   isLoading: boolean;
   pagination: Pagination;
   fetchFlashcards: (queryParams?: SearchQueryParams) => Promise<void>;
   flashcard?: FlashcardData | null;
-  loadFlashcard: (id: string | null) => void;
+  loadFlashcard: (id: string | null, currentStudy?: MinimizedStudy) => void;
+  minimizedStudy?: MinimizedStudy | null | undefined;
+  storeCurrentStudy: (
+    flashcardId: string,
+    data: MinimizedStudy
+  ) => Promise<void>;
   createFlashCard: (
     data: any,
     generatorType?: string
@@ -36,7 +42,23 @@ type Store = {
 export default create<Store>((set) => ({
   flashcards: null,
   isLoading: false,
+  minimizedStudy: null,
   pagination: { limit: 10, page: 1, count: 100 },
+  storeCurrentStudy: async (flashcardId, currentStudy: MinimizedStudy) => {
+    try {
+      set({ isLoading: true });
+      const response = await ApiService.storeCurrentStudy(
+        flashcardId,
+        currentStudy.data
+      );
+      const { data } = await response.json();
+      set({ flashcards: data.flashcards });
+    } catch (error) {
+      // console.log(error)
+    } finally {
+      set({ isLoading: false });
+    }
+  },
   fetchFlashcards: async (queryParams?: {
     search?: string;
     page?: number;
@@ -56,12 +78,18 @@ export default create<Store>((set) => ({
       set({ isLoading: false });
     }
   },
-
-  loadFlashcard: (id: string | null) => {
+  storeMinimized: (data: MinimizedStudy) => {
+    set({ minimizedStudy: data });
+  },
+  loadFlashcard: (id: string | null, currentStudy?: MinimizedStudy) => {
     set((state) => {
-      if (!id) return { flashcard: undefined };
+      if (!id) return { flashcard: undefined, minimizedStudy: null };
       const flashcard = state.flashcards?.find((card) => card._id === id);
-      return { flashcard };
+      const nextState: Partial<typeof state> = { flashcard };
+      if (currentStudy) {
+        nextState.minimizedStudy = currentStudy;
+      }
+      return nextState;
     });
   },
   deleteFlashCard: async (id: string | number) => {

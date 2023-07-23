@@ -2,6 +2,7 @@ import Star from '../../../assets/littleStar.svg';
 import Ribbon2 from '../../../assets/ribbon-blue.svg';
 import Ribbon from '../../../assets/ribbon-grey.svg';
 import TutorAvi from '../../../assets/tutoravi.svg';
+import CustomToast from '../../../components/CustomToast';
 import ApiService from '../../../services/ApiService';
 import bookmarkedTutorsStore from '../../../state/bookmarkedTutorsStore';
 import { textTruncate } from '../../../util';
@@ -40,8 +41,8 @@ export default function TutorCard(props: any) {
     rating,
     reviewCount,
     saved,
-    handleSelectedCourse,
-    isViewTutors
+    offerStatus,
+    handleSelectedCourse
   } = props;
   const toast = useToast();
   const { fetchBookmarkedTutors } = bookmarkedTutorsStore();
@@ -56,17 +57,22 @@ export default function TutorCard(props: any) {
       if (saved && resp.status === 200) {
         setRibbonClicked(false);
         toast({
-          title: 'Tutor removed from Bookmarks successfully',
+          render: () => (
+            <CustomToast
+              title="Tutor removed from Bookmarks successfully"
+              status="success"
+            />
+          ),
           position: 'top-right',
-          status: 'success',
           isClosable: true
         });
       } else {
         setRibbonClicked(true);
         toast({
-          title: 'Tutor saved successfully',
+          render: () => (
+            <CustomToast title="Tutor saved successfully" status="success" />
+          ),
           position: 'top-right',
-          status: 'success',
           isClosable: true
         });
       }
@@ -97,7 +103,7 @@ export default function TutorCard(props: any) {
         {' '}
         <Box
           bg={'white'}
-          w={{ sm: '100%', md: '100%', lg: isViewTutors ? '100%' : '370px' }}
+          w={{ sm: '100%', md: '100%', lg: '100%' }}
           height={{
             sm: '285px',
             md: '285px',
@@ -106,7 +112,7 @@ export default function TutorCard(props: any) {
           borderRadius="12px"
           border="1px solid #EBEDEF"
           _hover={{
-            boxShadow: '2xl',
+            boxShadow: 'xl',
             transition: 'box-shadow 0.3s ease-in-out'
           }}
           padding={'20px'}
@@ -156,56 +162,74 @@ export default function TutorCard(props: any) {
             </Text>
           </Box>
 
-          {courses && (
-            <Box my={1}>
-              <Flex gap={3} position="absolute" bottom={5} flexWrap="wrap">
-                {courses.map((subject, index) =>
-                  courses.length < 6 ? (
-                    <Text
-                      key={index}
-                      py={1}
-                      px={4}
-                      fontSize={12}
-                      fontWeight={500}
-                      bgColor="#F1F2F3"
-                      borderRadius={4}
-                      _hover={{ cursor: 'pointer' }}
-                      onClick={() => handleSelectedCourse(subject.course.label)}
-                    >
-                      {subject.course.label}
-                    </Text>
-                  ) : (
-                    courses.slice(0, 5).map((subject, index) => (
-                      <>
-                        <Text
-                          key={index}
-                          py={1}
-                          px={4}
-                          fontSize={12}
-                          fontWeight={500}
-                          bgColor="#F1F2F3"
-                          borderRadius={4}
-                        >
-                          {subject.course.label}
-                        </Text>
-                        {index === 4 && (
-                          <Link
-                            color="#207DF7"
-                            href="/dashboard"
+          {use === 'my tutors' ? (
+            <Text
+              width="fit-content"
+              bg={offerStatus === 'accepted' ? '#F1F9F1' : '#FFF2EB'}
+              py={2}
+              px={5}
+              borderRadius={6}
+              fontSize="12px"
+              fontWeight={500}
+              color={offerStatus === 'accepted' ? 'green' : '#FB8441'}
+              position={'absolute'}
+              bottom={5}
+            >
+              {offerStatus === 'accepted' ? 'Active' : 'Pending'}
+            </Text>
+          ) : (
+            courses && (
+              <Box my={1}>
+                <Flex gap={3} position="absolute" bottom={5} flexWrap="wrap">
+                  {courses.map((subject, index) =>
+                    courses.length < 6 ? (
+                      <Text
+                        key={index}
+                        py={1}
+                        px={4}
+                        fontSize={12}
+                        fontWeight={500}
+                        bgColor="#F1F2F3"
+                        borderRadius={4}
+                        _hover={{ cursor: 'pointer' }}
+                        onClick={() =>
+                          handleSelectedCourse(subject.course.label)
+                        }
+                      >
+                        {subject.course.label}
+                      </Text>
+                    ) : (
+                      courses.slice(0, 5).map((subject, index) => (
+                        <>
+                          <Text
+                            key={index}
+                            py={1}
+                            px={4}
                             fontSize={12}
-                            alignSelf="center"
+                            fontWeight={500}
+                            bgColor="#F1F2F3"
+                            borderRadius={4}
                           >
-                            + {courses.length - 5} more
-                          </Link>
-                        )}
-                      </>
-                    ))
-                  )
-                )}
-              </Flex>
-            </Box>
+                            {subject.course.label}
+                          </Text>
+                          {index === 4 && (
+                            <Link
+                              color="#207DF7"
+                              href="/dashboard"
+                              fontSize={12}
+                              alignSelf="center"
+                            >
+                              + {courses.length - 5} more
+                            </Link>
+                          )}
+                        </>
+                      ))
+                    )
+                  )}
+                </Flex>
+              </Box>
+            )
           )}
-
           <Image
             src={saved || ribbonClicked ? Ribbon2 : Ribbon}
             position="absolute"

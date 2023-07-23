@@ -82,7 +82,7 @@ export default function Marketplace() {
   const [fromTime, setFromTime] = useState('');
   const [toTime, setToTime] = useState('');
   const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(3);
+  const [limit, setLimit] = useState<number>(20);
   const [count, setCount] = useState<number>(5);
   const [days, setDays] = useState<Array<any>>([]);
 
@@ -123,6 +123,7 @@ export default function Marketplace() {
       startIndex + data.meta.pagination.limit,
       data.meta.pagination.count
     );
+    // console.log(startIndex, endIndex);
 
     // const visibleTutors = data.tutors.slice(startIndex, endIndex);
     setAllTutors(data.tutors);
@@ -403,37 +404,36 @@ export default function Marketplace() {
         </Box>
 
         <Box my={45} py={2} minHeight="750px">
-          <SimpleGrid
-            minChildWidth={'370px'}
-            spacing={4}
-            ref={tutorGrid}
-            justifyItems="left"
-          >
-            {allTutors.map((tutor: any) => (
-              <TutorCard
-                key={tutor._id}
-                id={tutor._id}
-                name={`${tutor.user.name.first} ${tutor.user.name.last} `}
-                levelOfEducation={tutor.highestLevelOfEducation}
-                avatar={tutor.user.avatar}
-                rate={tutor.rate}
-                description={tutor.description}
-                rating={tutor.rating}
-                reviewCount={tutor.reviewCount}
-                saved={checkBookmarks(tutor._id)}
-                courses={tutor.coursesAndLevels.map((course) => course)}
-                handleSelectedCourse={handleSelectedCourse}
+          {!loadingData && (
+            <>
+              <SimpleGrid columns={[2, null, 3]} spacing="20px" ref={tutorGrid}>
+                {allTutors.map((tutor: any) => (
+                  <TutorCard
+                    key={tutor._id}
+                    id={tutor._id}
+                    name={`${tutor.user.name.first} ${tutor.user.name.last} `}
+                    levelOfEducation={tutor.highestLevelOfEducation}
+                    avatar={tutor.user.avatar}
+                    rate={tutor.rate}
+                    description={tutor.description}
+                    rating={tutor.rating}
+                    reviewCount={tutor.reviewCount}
+                    saved={checkBookmarks(tutor._id)}
+                    courses={tutor.coursesAndLevels.map((course) => course)}
+                    handleSelectedCourse={handleSelectedCourse}
+                  />
+                ))}
+              </SimpleGrid>{' '}
+              <Pagination
+                page={pagination ? pagination.page : 0}
+                count={pagination ? pagination.count : 0}
+                limit={pagination ? pagination.limit : 0}
+                totalPages={pagination ? Math.ceil(count / limit) : 0}
+                handleNextPage={handleNextPage}
+                handlePreviousPage={handlePreviousPage}
               />
-            ))}
-          </SimpleGrid>
-          <Pagination
-            page={pagination ? pagination.page : 0}
-            count={allTutors.length}
-            limit={pagination ? pagination.limit : 0}
-            totalPages={pagination ? Math.ceil(count / limit) : 0}
-            handleNextPage={handleNextPage}
-            handlePreviousPage={handlePreviousPage}
-          />
+            </>
+          )}
         </Box>
       </Box>
     </>

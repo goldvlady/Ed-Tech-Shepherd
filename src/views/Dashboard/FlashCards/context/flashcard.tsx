@@ -9,7 +9,7 @@ import React, {
 
 interface FlashcardData {
   deckname: string;
-  label?: string;
+  level?: string;
   studyType: string;
   subject?: string;
   topic?: string;

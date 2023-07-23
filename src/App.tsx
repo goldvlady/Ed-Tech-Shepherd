@@ -144,7 +144,7 @@ const AppRoutes: React.FC = () => {
           element={
             <RequireAuth
               authenticated={<Navigate to={'/dashboard'} />}
-              unAuthenticated={<Signup />}
+              unAuthenticated={<OnboardStudent />}
             />
           }
         />

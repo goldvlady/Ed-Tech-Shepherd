@@ -77,7 +77,11 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
       title: 'Flashcards Factory',
       description:
         'Need a memory boost? Generate custom flashcards & mnemonics with Shepherd, making memorization a breeze',
-      imageURL: '/images/flashcards.svg'
+      imageURL: '/images/flashcards.svg',
+      onClick: () => {
+        handleClose();
+        navigate('/dashboard/flashcards/create');
+      }
     },
     {
       id: 2,

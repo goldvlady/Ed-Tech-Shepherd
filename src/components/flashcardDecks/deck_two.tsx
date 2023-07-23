@@ -1,5 +1,5 @@
+import { Study } from '../../types';
 import StepIndicator from './flashcards_steps_indicator';
-import { Study } from './modal';
 import {
   Box as ChakraBox,
   BoxProps as ChakraBoxProps,
@@ -124,6 +124,10 @@ const FlashCard: React.FC<FlashCardProps> = ({
   const [isFlipped, setIsFlipped] = useState(false);
 
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+
+  const answer = useMemo(() => {
+    return !isFlipped ? '' : study.answers;
+  }, [isFlipped, study]);
 
   const questionText = useMemo(() => {
     return (
@@ -346,7 +350,7 @@ const FlashCard: React.FC<FlashCardProps> = ({
               fontWeight="500"
               lineHeight="22px"
             >
-              {study.answers}
+              {answer}
             </Text>
           </motion.div>
         </motion.div>
