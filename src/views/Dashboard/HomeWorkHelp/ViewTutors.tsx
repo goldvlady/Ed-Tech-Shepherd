@@ -1,24 +1,28 @@
 import { ReactComponent as BackIcn } from '../../../assets/backIcn.svg';
+import { ReactComponent as NoTutorsIcn } from '../../../assets/noTutorsIcn.svg';
 import CustomScrollbar from '../../../components/CustomComponents/CustomScrollBar';
 import ApiService from '../../../services/ApiService';
-import bookmarkedTutorsStore from '../../../state/bookmarkedTutorsStore';
 import resourceStore from '../../../state/resourceStore';
 import TutorCard from '../../Dashboard/components/TutorCard';
 import {
   DiscoverMore,
   PreviouslyText,
+  SimpleGridContainer,
   TutorsBackIcn,
   ViewTutorSection
 } from './style';
 import { SimpleGrid, Spinner, Box } from '@chakra-ui/react';
 import moment from 'moment';
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ViewTutors = ({ onOpenModal }: { onOpenModal?: () => void }) => {
   const { courses: courseList, levels: levelOptions } = resourceStore();
   //   const { fetchBookmarkedTutors, tutors: allTutors } = bookmarkedTutorsStore();
   const [subject, setSubject] = useState<string>('Subject');
   const [allTutors, setAllTutors] = useState<any>([]);
+  const [onLineTutors] = useState<[]>([]);
+  const navigate = useNavigate();
   const [tutorDetails, setTutortDetails] = useState({
     level: {
       _id: ''
@@ -87,7 +91,7 @@ const ViewTutors = ({ onOpenModal }: { onOpenModal?: () => void }) => {
   useEffect(() => {
     getData();
     /* eslint-disable */
-  }, [tutorDetails]);
+  }, [subject, tutorDetails]);
 
   return (
     <ViewTutorSection>
@@ -114,10 +118,11 @@ const ViewTutors = ({ onOpenModal }: { onOpenModal?: () => void }) => {
               <Spinner />
             </Box>
           ) : (
-            <SimpleGrid columns={[2, null, 3]} spacing="20px" padding="0 120px">
-              {allTutors.map((tutor: any) => (
+            <SimpleGridContainer columns={[2, null, 3]} spacing="20px">
+              {allTutors?.map((tutor: any) => (
                 <TutorCard
                   key={tutor?.level?._id}
+                  id={tutor?.id}
                   name={`${tutor?.user?.name?.first ?? ''} ${
                     tutor?.user?.name?.last ?? ''
                   }`}
@@ -128,10 +133,11 @@ const ViewTutors = ({ onOpenModal }: { onOpenModal?: () => void }) => {
                   courses={tutor?.coursesAndLevels}
                   reviewCount={tutor?.reviewCount ?? ''}
                   description={tutor?.description ?? ''}
+                  handleSelectedCourse={handleSelectedCourse}
                   isViewTutors
                 />
               ))}
-            </SimpleGrid>
+            </SimpleGridContainer>
           )}
         </div>
         <div>
@@ -153,27 +159,50 @@ const ViewTutors = ({ onOpenModal }: { onOpenModal?: () => void }) => {
               <Spinner />
             </Box>
           ) : (
-            <SimpleGrid columns={[2, null, 3]} spacing="20px" padding="0 120px">
-              {allTutors.map((tutor: any) => (
-                <TutorCard
-                  key={tutor?.level?._id}
-                  name={`${tutor?.user?.name?.first ?? ''} ${
-                    tutor?.user?.name?.last ?? ''
-                  }`}
-                  levelOfEducation={'BSC'}
-                  avatar={tutor?.user?.avatar ?? ''}
-                  rate={tutor?.rate ?? ''}
-                  rating={tutor?.rating ?? ''}
-                  courses={tutor?.coursesAndLevels ?? ''}
-                  reviewCount={tutor?.reviewCount ?? ''}
-                  description={tutor?.description ?? ''}
-                  isViewTutors
-                />
-              ))}
-            </SimpleGrid>
+            <>
+              {!onLineTutors?.length && (
+                <div
+                  style={{
+                    display: 'table',
+                    margin: '0 auto',
+                    textAlign: 'center',
+                    alignContent: 'center'
+                  }}
+                >
+                  <NoTutorsIcn />
+                  <p>No tutor available</p>
+                </div>
+              )}
+              {!!onLineTutors?.length && (
+                <SimpleGrid
+                  columns={[2, null, 3]}
+                  spacing="20px"
+                  padding="0 120px"
+                >
+                  {allTutors?.map((tutor: any) => (
+                    <TutorCard
+                      key={tutor?.level?._id}
+                      name={`${tutor?.user?.name?.first ?? ''} ${
+                        tutor?.user?.name?.last ?? ''
+                      }`}
+                      levelOfEducation={'BSC'}
+                      avatar={tutor?.user?.avatar ?? ''}
+                      rate={tutor?.rate ?? ''}
+                      rating={tutor?.rating ?? ''}
+                      courses={tutor?.coursesAndLevels ?? ''}
+                      reviewCount={tutor?.reviewCount ?? ''}
+                      description={tutor?.description ?? ''}
+                      isViewTutors
+                    />
+                  ))}
+                </SimpleGrid>
+              )}
+            </>
           )}
         </div>
-        <DiscoverMore>{'Discover more tutors >>>'}</DiscoverMore>
+        <DiscoverMore onClick={() => navigate('/dashboard/find-tutor')}>
+          {'Discover more tutors >>>'}
+        </DiscoverMore>
       </CustomScrollbar>
     </ViewTutorSection>
   );
