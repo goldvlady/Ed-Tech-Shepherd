@@ -2,6 +2,7 @@ import { ReactComponent as HightLightIcon } from '../../assets/highlightIcn.svg'
 import { ReactComponent as SummaryIcon } from '../../assets/summaryIcn.svg';
 import { ReactComponent as TellMeMoreIcn } from '../../assets/tellMeMoreIcn.svg';
 import { ReactComponent as TutorBag } from '../../assets/tutor-bag.svg';
+import ChatLoader from '../../components/CustomComponents/CustomChatLoader';
 import CustomSideModal from '../../components/CustomComponents/CustomSideModal';
 import CustomTabs from '../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../components/hooks/useChatScroll';
@@ -64,6 +65,9 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const [isChatHistory, setChatHistory] = useState<boolean>(false);
   const ref = useChatScroll(messages);
+  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState({});
+  const [error, setError] = useState<string>('');
 
   const prompts = [
     "Explain this document to me like I'm five",
@@ -81,11 +85,22 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
     documentId: string;
   }) => {
     let packed = '';
-    const response = await chatWithDoc({
-      query,
-      studentId,
-      documentId
-    });
+    setLoading(true);
+
+    // const response = await chatWithDoc({
+    //   query,
+    //   studentId,
+    //   documentId
+    // });
+
+    try {
+      const responseData = await chatWithDoc({ studentId, query, documentId });
+      setResponse(responseData);
+    } catch (error) {
+      setError('An error occurred while fetching data.');
+    } finally {
+      setLoading(false);
+    }
     // @ts-ignore: there will always be a body
     const reader = response.body.getReader();
     const decoder = new TextDecoder('utf-8');
@@ -250,6 +265,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
                   {HomeWorkHelp && !isShowPrompt && (
                     <OptionsContainer>
                       <Text className="">What do you need?</Text>
+
                       <PillsContainer>
                         {homeHelp.map((need) => (
                           <StyledDiv onClick={need.onClick} key={need.id}>
@@ -295,7 +311,13 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
                       message.isUser ? (
                         <UserMessage key={index}>{message.text}</UserMessage>
                       ) : (
-                        <AiMessage key={index}>{message.text}</AiMessage>
+                        <>
+                          {loading ? (
+                            <ChatLoader />
+                          ) : (
+                            <AiMessage key={index}>{message.text}</AiMessage>
+                          )}
+                        </>
                       )
                     )}
                   </ChatContainerResponse>

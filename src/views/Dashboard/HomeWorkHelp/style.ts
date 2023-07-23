@@ -1,3 +1,4 @@
+import { SimpleGrid } from '@chakra-ui/react';
 import styled from 'styled-components';
 
 export const HomeWorkHelpContainer = styled.section`
@@ -39,10 +40,26 @@ export const PreviouslyText = styled.p`
   font-weight: 500;
   color: #212224;
   padding: 22px 120px;
+
+  @media only screen and (max-width: 768px) {
+    padding: 22px 30px;
+  }
 `;
 export const DiscoverMore = styled.p`
   color: #207df7;
   padding: 42px 120px;
   font-weight: 500;
   cursor: pointer;
+
+  @media only screen and (max-width: 768px) {
+    padding: 42px 30px;
+  }
+`;
+
+export const SimpleGridContainer = styled(SimpleGrid)`
+  padding: 0 120px;
+
+  @media only screen and (max-width: 768px) {
+    padding: 0 26px;
+  }
 `;
