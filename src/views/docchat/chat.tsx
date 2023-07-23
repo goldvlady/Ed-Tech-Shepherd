@@ -43,7 +43,7 @@ import {
   Wrapper
 } from './styles';
 import Summary from './summary';
-import { Text } from '@chakra-ui/react';
+import { Text, useToast } from '@chakra-ui/react';
 import { useState, useEffect, useCallback } from 'react';
 
 interface IChat {
@@ -58,17 +58,16 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
   const [isFlashCard, setFlashCard] = useState<boolean>(false);
   const [llmResponse, setLLMResponse] = useState('');
   const [isQuiz, setQuiz] = useState<boolean>(false);
-  const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>(
-    []
-  );
+  const [messages, setMessages] = useState<
+    { text: string; isUser: boolean; isLoading: boolean }[]
+  >([]);
   const [inputValue, setInputValue] = useState('');
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const [isChatHistory, setChatHistory] = useState<boolean>(false);
   const ref = useChatScroll(messages);
-  const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState({});
-  const [error, setError] = useState<string>('');
-
+  const toast = useToast();
+  let loading = false;
   const prompts = [
     "Explain this document to me like I'm five",
     'Who wrote this book?',
@@ -85,7 +84,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
     documentId: string;
   }) => {
     let packed = '';
-    setLoading(true);
+    loading = true;
 
     // const response = await chatWithDoc({
     //   query,
@@ -97,9 +96,14 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
       const responseData = await chatWithDoc({ studentId, query, documentId });
       setResponse(responseData);
     } catch (error) {
-      setError('An error occurred while fetching data.');
+      toast({
+        title: 'An error occurred while fetching data.',
+        status: 'error',
+        position: 'top',
+        isClosable: true
+      });
     } finally {
-      setLoading(false);
+      loading = false;
     }
     // @ts-ignore: there will always be a body
     const reader = response.body.getReader();
@@ -152,7 +156,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
 
     setMessages((prevMessages) => [
       ...prevMessages,
-      { text: inputValue, isUser: true }
+      { text: inputValue, isUser: true, isLoading: false }
     ]);
     setInputValue('');
 
@@ -160,7 +164,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
 
     setMessages((prevMessages) => [
       ...prevMessages,
-      { text: answer, isUser: false }
+      { text: answer, isUser: false, isLoading: loading }
     ]);
   };
 
@@ -268,7 +272,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
 
                       <PillsContainer>
                         {homeHelp.map((need) => (
-                          <StyledDiv onClick={need.onClick} key={need.id}>
+                          <StyledDiv key={need.id} onClick={need.onClick}>
                             {need.img}
                             {need.title}
                           </StyledDiv>
@@ -307,12 +311,12 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
                     </AskSomethingContainer>
                   )}
                   <ChatContainerResponse ref={ref}>
-                    {messages.map((message, index) =>
+                    {messages?.map((message, index) =>
                       message.isUser ? (
                         <UserMessage key={index}>{message.text}</UserMessage>
                       ) : (
                         <>
-                          {loading ? (
+                          {message.isLoading ? (
                             <ChatLoader />
                           ) : (
                             <AiMessage key={index}>{message.text}</AiMessage>
