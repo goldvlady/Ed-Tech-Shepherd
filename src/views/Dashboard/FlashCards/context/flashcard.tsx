@@ -12,6 +12,7 @@ interface FlashcardData {
   level?: string;
   studyType: string;
   subject?: string;
+  documentId?: string;
   topic?: string;
   studyPeriod: string;
   numQuestions: number;
@@ -27,11 +28,14 @@ export interface FlashcardQuestion {
   question: string;
   options?: string[]; // options is now an array of strings
   answer: string;
+  explanation?: string;
+  helperText?: string;
 }
 
 export interface FlashcardDataContextProps {
   flashcardData: FlashcardData;
   currentStep: number;
+  resetFlashcard: () => void;
   goToNextStep: () => void;
   goToStep: (step: number) => void;
   questions: FlashcardQuestion[];
@@ -59,14 +63,20 @@ export const useFlashCardState = () => {
 const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
   children
 }) => {
-  const [flashcardData, setFlashcardData] = useState<FlashcardData>({
-    deckname: '',
-    studyType: '',
-    studyPeriod: '',
-    numQuestions: 0,
-    timerDuration: '',
-    hasSubmitted: false
-  });
+  const defaultFlashcardData = useMemo(
+    () => ({
+      deckname: '',
+      studyType: '',
+      studyPeriod: '',
+      numQuestions: 0,
+      timerDuration: '',
+      hasSubmitted: false
+    }),
+    []
+  );
+
+  const [flashcardData, setFlashcardData] =
+    useState<FlashcardData>(defaultFlashcardData);
 
   const [questions, setQuestions] = useState<FlashcardQuestion[]>([]);
   const [currentStep, setCurrentStep] = useState(0);
@@ -117,6 +127,13 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [flashcardData.numQuestions]);
 
+  const resetFlashcard = useCallback(() => {
+    setFlashcardData(defaultFlashcardData);
+    setQuestions([]);
+    setCurrentStep(0);
+    setCurrentQuestionIndex(0);
+  }, [defaultFlashcardData]);
+
   const value = useMemo(
     () => ({
       flashcardData,
@@ -126,6 +143,7 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
       currentQuestionIndex,
       goToQuestion,
       deleteQuestion,
+      resetFlashcard,
       setQuestions,
       goToNextStep: () => setCurrentStep((prev) => prev + 1),
       goToStep: (stepIndex: number) => setCurrentStep(stepIndex)
@@ -136,6 +154,7 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
       questions,
       currentStep,
       currentQuestionIndex,
+      resetFlashcard,
       goToQuestion,
       deleteQuestion,
       setQuestions

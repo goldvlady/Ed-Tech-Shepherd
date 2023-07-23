@@ -120,7 +120,8 @@ const CreateFlashPage = () => {
     goToNextStep,
     setQuestions,
     goToStep,
-    setFlashcardData
+    setFlashcardData,
+    resetFlashcard
   } = useFlashCardState();
 
   const { createFlashCard, flashcard, isLoading, fetchFlashcards } =
@@ -161,6 +162,8 @@ const CreateFlashPage = () => {
         const questions = data.map((d: any) => ({
           question: d.front,
           answer: d.back,
+          explanation: d.explainer,
+          helperText: d['helpful reading'],
           questionType: 'openEnded'
         }));
 
@@ -308,7 +311,15 @@ const CreateFlashPage = () => {
     }
 
     if (isCompleted) {
-      return <SuccessState />;
+      return (
+        <SuccessState
+          reset={() => {
+            resetFlashcard();
+            setIsCompleted(false);
+            setHasSubmittedFlashCards(false);
+          }}
+        />
+      );
     }
     if (
       (settings.type === TypeEnum.FLASHCARD ||
@@ -321,7 +332,7 @@ const CreateFlashPage = () => {
       return <SetupFlashcardPage isAutomated />;
     }
     return <></>;
-  }, [settings, isCompleted]); // The callback depends on 'settings'
+  }, [settings, isCompleted, resetFlashcard]); // The callback depends on 'settings'
 
   const renderPreview = () => {
     if (settings.type === TypeEnum.INIT) {
