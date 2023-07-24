@@ -1,6 +1,14 @@
 import FlashcardEmpty from '../../assets/flashcard_empty_state.png';
+import studySessionLoggerLogger from '../../helpers/sessionLogger';
 import flashcardStore from '../../state/flashcardStore';
-import { FlashcardData, Score, Study, MinimizedStudy } from '../../types';
+import userStore from '../../state/userStore';
+import {
+  FlashcardData,
+  Score,
+  Study,
+  MinimizedStudy,
+  SessionType
+} from '../../types';
 import FlashCard from './deck_two';
 import DeckOverLap from './overlap';
 import ResultDisplay from './resultDisplay';
@@ -364,6 +372,8 @@ const CompletedState = ({
 };
 
 const StudyBox = () => {
+  let studySessionLogger: studySessionLoggerLogger | undefined = undefined;
+  const { user } = userStore();
   const [studyState, setStudyState] = useState<'question' | 'answer'>(
     'question'
   );
@@ -517,10 +527,9 @@ const StudyBox = () => {
 
   const lazyTriggerNextStep = async () => {
     if (currentStudyIndex === studies.length - 1) {
-      setTimeout(
-        () => setActivityState({ isFinished: true, isStarted: false }),
-        2000
-      );
+      setTimeout(() => {
+        finishStudy();
+      }, 2000);
       // if (flashcard) await storeScore(flashcard?._id, correctAnswerCount);
     } else {
       setTimeout(() => setCurrentStudyIndex((prev) => prev + 1), 2000);
@@ -593,6 +602,30 @@ const StudyBox = () => {
       return [...prev];
     });
     lazyTriggerNextStep();
+  };
+
+  const startStudy = () => {
+    setActivityState((prev) => ({
+      ...prev,
+      isStarted: !prev.isStarted
+    }));
+    if (user) {
+      studySessionLogger = new studySessionLoggerLogger(
+        user,
+        SessionType.FLASHCARD
+      );
+      studySessionLogger.start();
+    }
+  };
+
+  const finishStudy = () => {
+    setActivityState((prev) => ({
+      isStarted: false,
+      isFinished: true
+    }));
+    if (user && studySessionLogger) {
+      studySessionLogger.end();
+    }
   };
 
   const questionsLeft = (
@@ -923,12 +956,7 @@ const StudyBox = () => {
                 borderColor: 'none', // Remove active border
                 boxShadow: 'none' // Remove active shadow
               }}
-              onClick={() =>
-                setActivityState((prev) => ({
-                  ...prev,
-                  isStarted: !prev.isStarted
-                }))
-              }
+              onClick={() => startStudy()}
             >
               {isStarted ? 'Stop' : 'Study'}
             </Button>
