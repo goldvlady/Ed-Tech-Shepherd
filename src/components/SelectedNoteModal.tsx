@@ -31,8 +31,8 @@ type List = {
   name: string;
   fullPath: string;
   customMetadata: {
-    ingest_status: 'success' | 'too_large'
-  }
+    ingest_status: 'success' | 'too_large';
+  };
 };
 
 interface ShowProps {
@@ -65,17 +65,19 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
 
   const listUserDocuments = async (path) => {
     const listRef = ref(storage, path);
-    const items: Array<List> = []
+    const items: Array<List> = [];
     listAll(listRef).then(async (res) => {
       for (const item of res.items) {
-        const itemRef = ref(storage, item.fullPath)
+        const itemRef = ref(storage, item.fullPath);
         const customMetadata = await getMetadata(itemRef);
         // @ts-ignore: overriding the factory types, don't worry about it
         items.push(customMetadata);
       }
       // Really ghastly hack to filter out documents that were successfully ingested by the AI service.
       // A rework of this function will be one that decouples document hosting logic from firebase and moves it closer to a specialized API (one directly owned by Shepherd)
-      const filteredForSuccess = items.filter(item => item.customMetadata?.ingest_status === 'success');
+      const filteredForSuccess = items.filter(
+        (item) => item.customMetadata?.ingest_status === 'success'
+      );
       setList(filteredForSuccess);
     });
   };
@@ -124,7 +126,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     justify-content: space-between;
     align-items: center;
     border-radius: 0.375rem;
-    background-color: ${canUpload? "#fff": "#e4e5e7"};
+    background-color: ${canUpload ? '#fff' : '#e4e5e7'};
     border: 1px solid var(--primaryBlue);
     padding: 0.375rem 0.75rem;
     margin-bottom: 0.5rem;
@@ -179,7 +181,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   }, [currentUser?.uid]);
 
   const clickInput = () => {
-    if(canUpload) inputRef?.current && inputRef.current.click();
+    if (canUpload) inputRef?.current && inputRef.current.click();
   };
 
   const collectFile = async (e) => {
@@ -197,8 +199,8 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   const handleSelected = (e: any) => {
     if (e.target.value) {
       setSelectedOption(e.target.value);
-      setCanUpload(false)
-      setConfirmReady(true)
+      setCanUpload(false);
+      setConfirmReady(true);
     }
   };
 
@@ -209,7 +211,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
         heading: 'No document selected',
         description: "You haven't selected a note. Select one, and try again."
       });
-      setConfirmReady(false);
+    setConfirmReady(false);
     return;
   };
 
@@ -225,10 +227,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
       return;
     }
     setProgress(5);
-    const storageRef = ref(
-      storage,
-      `${docPath}/${readableFileName}`
-    );
+    const storageRef = ref(storage, `${docPath}/${readableFileName}`);
     const task = uploadBytesResumable(storageRef, file);
 
     task.on(
@@ -254,15 +253,16 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
         setUiMessage({
           status: 'info',
           heading: 'Document uploaded!',
-          description: 'Hang on while we check the contents of your document. This may take 1-5 minutes.'
-        })
+          description:
+            'Hang on while we check the contents of your document. This may take 1-5 minutes.'
+        });
         const documentURL = await getDownloadURL(task.snapshot.ref);
 
         await processDocument({
           studentId: user?._id,
           documentId: readableFileName,
           documentURL,
-          title: readableFileName,
+          title: readableFileName
         })
           .then(async () => {
             let counter = 0;
@@ -272,7 +272,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
               try {
                 const check = await checkDocumentStatus({
                   studentId: user?._id,
-                  documentId: readableFileName,
+                  documentId: readableFileName
                 });
                 if (check.status === 'ingested') {
                   const metadata = {
@@ -287,8 +287,9 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
                   setUiMessage({
                     status: 'info',
                     heading: 'Processing complete!',
-                    description: 'Click "confirm" to start chatting with your document.'
-                  })
+                    description:
+                      'Click "confirm" to start chatting with your document.'
+                  });
 
                   setConfirmReady(true);
                 }
@@ -409,7 +410,10 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
                 value={selectedOption || ''}
                 required
               >
-                <option disabled value=''> Select an option </option>
+                <option disabled value="">
+                  {' '}
+                  Select an option{' '}
+                </option>
                 {loadedList &&
                   list.map((item, id) => (
                     <option value={item.fullPath} key={id}>

@@ -1,4 +1,5 @@
 /* eslint-disable no-loop-func */
+
 /* eslint-disable no-unsafe-optional-chaining */
 import { ReactComponent as HightLightIcon } from '../../assets/highlightIcn.svg';
 import { ReactComponent as SummaryIcon } from '../../assets/summaryIcn.svg';
@@ -85,10 +86,10 @@ const Chat = ({ HomeWorkHelp, studentId, documentId }: IChat) => {
       studentId,
       documentId
     });
-    
+
     const reader = response.body?.getReader();
     const decoder = new TextDecoder('utf-8');
-    let temp = ''
+    let temp = '';
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
@@ -103,7 +104,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId }: IChat) => {
         break;
       }
       const chunk = decoder.decode(value);
-      temp+=chunk;
+      temp += chunk;
       setLLMResponse((llmResponse) => llmResponse + chunk);
     }
   };
@@ -297,7 +298,9 @@ const Chat = ({ HomeWorkHelp, studentId, documentId }: IChat) => {
                         <AiMessage key={index}>{message.text}</AiMessage>
                       )
                     )}
-                    {llmResponse && <AiMessage key="hey">{llmResponse}</AiMessage>}
+                    {llmResponse && (
+                      <AiMessage key="hey">{llmResponse}</AiMessage>
+                    )}
                   </ChatContainerResponse>
                 </GridContainer>
               </InnerWrapper>
