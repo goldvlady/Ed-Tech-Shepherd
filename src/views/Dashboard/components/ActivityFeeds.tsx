@@ -156,7 +156,7 @@ function ActivityFeeds(props) {
       </Box>
 
       <Box sx={{ maxHeight: '350px', overflowY: 'auto' }}>
-        {feeds.data?.length > 0 ? (
+        {feeds?.data?.length > 0 ? (
           feeds.data.map((feed: any, index) => (
             <>
               <Root px={3} my={4} key={index}>
