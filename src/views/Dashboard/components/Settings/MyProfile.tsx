@@ -1,19 +1,75 @@
+import CustomToast from '../../../../components/CustomComponents/CustomToast';
+import ApiService from '../../../../services/ApiService';
 import {
   Avatar,
+  Editable,
+  EditableInput,
+  EditableTextarea,
+  EditablePreview,
+  useEditableControls,
   Switch,
   Spacer,
   Divider,
   Button,
   Box,
   Flex,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  ModalCloseButton,
   Text,
-  Stack
+  Stack,
+  useToast
 } from '@chakra-ui/react';
-import React from 'react';
+import React, { useState } from 'react';
 import { RiArrowRightSLine } from 'react-icons/ri';
 
 function MyProfile(props) {
-  const { username, email } = props;
+  const { id, username, email } = props;
+  // const {
+  //   isEditing,
+  //   getSubmitButtonProps,
+  //   getCancelButtonProps,
+  //   getEditButtonProps
+  // } = useEditableControls();
+  const toast = useToast();
+  const [newEmail, setNewEmail] = useState(email);
+  const [isOpenTandC, setIsOpenTandC] = useState(false);
+
+  const handleOpenTandCModal = () => {
+    setIsOpenTandC(true);
+  };
+
+  const handleCloseTandCModal = () => {
+    setIsOpenTandC(false);
+  };
+  const handleSaveEmail = async () => {
+    const formData = { userId: id, email: newEmail };
+    const response = await ApiService.updateProfile(formData);
+    const resp: any = await response.json();
+    if (response.status === 200) {
+      toast({
+        render: () => (
+          <CustomToast title="Email Updated successfully" status="success" />
+        ),
+        position: 'top-right',
+        isClosable: true
+      });
+    } else {
+      toast({
+        render: () => (
+          <CustomToast title="Something went wrong.." status="error" />
+        ),
+        position: 'top-right',
+        isClosable: true
+      });
+    }
+
+    console.log('Edited Value:', response.status);
+  };
   return (
     <Box>
       <Flex
@@ -66,9 +122,13 @@ function MyProfile(props) {
               >
                 Email
               </Text>{' '}
-              <Text fontSize={12} color="text.300">
-                {email}
-              </Text>
+              <Editable
+                defaultValue={email}
+                onChange={(e: any) => setNewEmail(e)}
+              >
+                <EditablePreview fontSize={12} color="text.300" />
+                <EditableInput />
+              </Editable>
             </Stack>
             <Spacer />{' '}
             <Button
@@ -80,8 +140,14 @@ function MyProfile(props) {
                 px: 4,
                 border: '1px solid #E7E8E9',
                 color: '#5C5F64',
-                height: '29px'
+                height: '29px',
+                _hover: {
+                  color: '#207df7',
+                  backgroundColor: '#F0F6FE' // Custom background color on hover
+                }
               }}
+              isDisabled={email === newEmail} // Disable the button if the input value is not changed
+              onClick={handleSaveEmail}
             >
               Change
             </Button>
@@ -231,7 +297,40 @@ function MyProfile(props) {
                 Read Sherperd’s terms & conditions
               </Text>
             </Stack>
-            <Spacer /> <RiArrowRightSLine size="24px" color="#969CA6" />
+            <Spacer />{' '}
+            <Box _hover={{ cursor: 'pointer' }}>
+              <RiArrowRightSLine
+                size="24px"
+                color="#969CA6"
+                onClick={handleOpenTandCModal}
+              />
+            </Box>
+            <Modal
+              isOpen={isOpenTandC}
+              onClose={handleCloseTandCModal}
+              size="xl"
+            >
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>PDF Viewer</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                  <iframe
+                    title="PDF Viewer"
+                    src={
+                      'https://unec.edu.az/application/uploads/2014/12/pdf-sample.pdf'
+                    }
+                    width="100%"
+                    height="500px"
+                  />
+                </ModalBody>
+                <ModalFooter>
+                  <Button colorScheme="blue" onClick={handleCloseTandCModal}>
+                    Close
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
           </Flex>
           <Flex width={'100%'} alignItems="center">
             <Stack spacing={'2px'}>

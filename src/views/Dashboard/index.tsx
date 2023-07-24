@@ -522,18 +522,12 @@ export default function Index() {
                     <Flex h="16px" alignItems={'center'}>
                       <img src={Flash} alt="feed-icon" />{' '}
                       <Text fontSize={14} fontWeight={400} color="text.300">
-                        Current streak:{' '}
-                        <span
-                          style={{
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            color: '#000'
-                          }}
-                        >
-                          {studentReport.streak < 2
-                            ? `${studentReport.streak} day `
-                            : `${studentReport.streak} days `}
-                        </span>
+                        Current streak:
+                      </Text>{' '}
+                      <Text fontSize="14px" fontWeight="500" color="#000">
+                        {studentReport.streak < 2
+                          ? `${studentReport.streak} day `
+                          : `${studentReport.streak} days `}
                       </Text>
                     </Flex>
                   </CardFooter>

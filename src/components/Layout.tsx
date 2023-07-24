@@ -311,7 +311,7 @@ export default function Layout({ children, className }) {
         </nav>
       </Box>
 
-      <div className="lg:pl-72">
+      <div className="lg:pl-72 bg-white">
         <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
           <button
             type="button"
@@ -525,7 +525,7 @@ export default function Layout({ children, className }) {
               {/* Profile dropdown */}
               <Menu as="div" className="relative">
                 <div>
-                  <Menu.Button className="flex items-center rounded-full w-42 space-x-2 px-2 py-1 bg-slate-50 text-sm">
+                  <Menu.Button className="flex items-center rounded-full w-42 space-x-2 px-2 py-1 bg-slate-50  text-sm">
                     <HStack>
                       <Avatar
                         size="sm"

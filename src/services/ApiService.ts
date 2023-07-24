@@ -330,6 +330,12 @@ class ApiService {
       method: 'DELETE'
     });
   };
+  static updateProfile = async (formData: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/updateProfile`, {
+      method: 'PUT',
+      body: JSON.stringify(formData)
+    });
+  };
 }
 
 export default ApiService;
