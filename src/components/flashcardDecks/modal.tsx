@@ -467,13 +467,19 @@ const StudyBox = () => {
             isFirstAttempt: question.numberOfAttempts === 0
           };
           if (question.options || question.questionType === 'trueFalse') {
-            data.options = {
-              type: 'single',
-              content:
-                question.questionType === 'trueFalse'
-                  ? ['true', 'false']
-                  : question.options
-            };
+            if (question.questionType === 'trueFalse') {
+              data.options = {
+                type: 'single',
+                content: ['true', 'false']
+              };
+            } else {
+              if (question.options?.length) {
+                data.options = {
+                  type: 'single',
+                  content: question?.options
+                };
+              }
+            }
           }
           return data;
         }

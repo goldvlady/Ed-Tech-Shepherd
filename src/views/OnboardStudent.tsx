@@ -1,19 +1,16 @@
-import CourseSelect from '../components/CourseSelect';
 import DateInput, { FORMAT } from '../components/DateInput';
-import EmptyState from '../components/EmptyState';
 import LargeSelect from '../components/LargeSelect';
 import OnboardStep from '../components/OnboardStep';
 import OnboardSubmitStep from '../components/OnboardSubmitStep';
-import ScheduleBuilder from '../components/ScheduleBuilder';
-import Select from '../components/Select';
 import StepIndicator from '../components/StepIndicator';
-import TimezoneSelect from '../components/TimezoneSelect';
 import { createUserWithEmailAndPassword, firebaseAuth } from '../firebase';
+import { googleProvider } from '../firebase';
 import { useTitle } from '../hooks';
 import lottieSuccessAnimationData from '../lottie/73392-success.json';
 import ApiService from '../services/ApiService';
 import onboardStudentStore from '../state/onboardStudentStore';
 import resourceStore from '../state/resourceStore';
+import { User } from '../types';
 import { getOptionValue } from '../util';
 import {
   Box,
@@ -41,7 +38,8 @@ import {
   VStack,
   useDisclosure
 } from '@chakra-ui/react';
-import { capitalize, isEmpty, without } from 'lodash';
+import { signInWithPopup } from 'firebase/auth';
+import { capitalize, isEmpty } from 'lodash';
 import Lottie from 'lottie-react';
 import mixpanel from 'mixpanel-browser';
 import moment from 'moment';
@@ -137,7 +135,7 @@ const skillLevelOptions = [
 const OnboardStudent = () => {
   const { courses: courseList } = resourceStore();
   const [password, setPassword] = useState('');
-  const dispatch = useNavigate();
+  const navigate = useNavigate();
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -366,6 +364,35 @@ const OnboardStudent = () => {
     return response;
   };
 
+  const triggerOauth = async () => {
+    try {
+      const result = await signInWithPopup(firebaseAuth, googleProvider);
+      const { uid: firebaseId, email, photoURL } = result.user;
+      const userResp = result['_tokenResponse'];
+
+      const userPayload = {
+        email: email as string,
+        avatar: photoURL as string,
+        name: {
+          first: userResp?.firstName,
+          last: userResp?.firstName
+        },
+        dob: ''
+      };
+      await ApiService.createUser({
+        ...userPayload,
+        firebaseId,
+        type: 'student'
+      });
+      const response = await ApiService.submitStudent(data);
+      if (response.status === 200) {
+        navigate('/verification_pending');
+      }
+    } catch (error) {
+      // console.log(error);
+    }
+  };
+
   // const openEditModal = (stepId: string) => {
   //   onEditModalOpen();
   //   setEditModalStep(stepId);
@@ -384,7 +411,7 @@ const OnboardStudent = () => {
             <LargeSelect
               value={parentOrStudent}
               onChange={(v) => {
-                if (v === 'tutor') dispatch('/onboard/tutor');
+                if (v === 'tutor') navigate('/onboard/tutor');
                 else {
                   onboardStudentStore.set.parentOrStudent(v);
                   stepWizardInstance.current?.goToStep(2);
@@ -474,6 +501,8 @@ const OnboardStudent = () => {
     {
       id: 'about-you',
       stepIndicatorId: 'about-you',
+      showOAuthButton: true,
+      handleAuth: triggerOauth,
       template: (
         <Box>
           <Heading as="h3" size="lg" textAlign={'center'}>
@@ -702,7 +731,7 @@ const OnboardStudent = () => {
           {
             steps.map((s) => {
               return (
-                <OnboardStep key={s.id} canGoNext={s.canSave}>
+                <OnboardStep {...s} key={s.id} canGoNext={s.canSave}>
                   {s.template}
                 </OnboardStep>
               );
