@@ -3,7 +3,6 @@ import Header from '../../components/Header';
 import ApiService from '../../services/ApiService';
 // For making API calls.
 import { Box, CircularProgress, Text, Button } from '@chakra-ui/react';
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
