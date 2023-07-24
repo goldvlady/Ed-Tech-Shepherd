@@ -6,8 +6,9 @@ export const processDocument = async (data: {
   documentURL: string;
   tags?: Array<string>;
   courseId?: string;
+  title: string;
 }) => {
-  const processDoc = await fetch(`${AI_API}/embeddings/ingest`, {
+  const processDoc = await fetch(`${AI_API}/notes/ingest`, {
     method: 'POST',
     headers: {
       'x-shepherd-header': HEADER_KEY,
@@ -25,15 +26,14 @@ export const checkDocumentStatus = async ({
 }: {
   studentId: string;
   documentId: string;
-  title: string;
 }) => {
-  const document = await fetch(`${AI_API}/docs/check-status`, {
+  const document = await fetch(`${AI_API}/notes/status`, {
     method: 'POST',
     headers: {
       'x-shepherd-header': HEADER_KEY,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ studentId, documentId, title })
+    body: JSON.stringify({ studentId, documentId })
   }).then(async (data) => data.json());
 
   return document;
@@ -48,7 +48,7 @@ export const chatWithDoc = async ({
   query: string;
   documentId: string;
 }) => {
-  const request = await fetch(`${AI_API}/embeddings/doc-chat`, {
+  const request = await fetch(`${AI_API}/notes/chat`, {
     method: 'POST',
     headers: {
       'x-shepherd-header': HEADER_KEY,

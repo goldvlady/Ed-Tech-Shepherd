@@ -20,7 +20,8 @@ import {
   listAll,
   getDownloadURL,
   updateMetadata,
-  deleteObject
+  deleteObject,
+  getMetadata
 } from 'firebase/storage';
 import { useRef, useState, useEffect, RefObject, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -29,6 +30,9 @@ import styled from 'styled-components';
 type List = {
   name: string;
   fullPath: string;
+  customMetadata: {
+    ingest_status: 'success' | 'too_large'
+  }
 };
 
 interface ShowProps {
@@ -50,27 +54,34 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   const [progress, setProgress] = useState(0);
   const [uiMessage, setUiMessage] = useState<UiMessage | null>(null);
   const [list, setList] = useState<Array<List>>([]);
+  const [canUpload, setCanUpload] = useState(true);
   const [file, setFile] = useState<Blob | Uint8Array | ArrayBuffer>();
   const [selectedOption, setSelectedOption] = useState('');
-  const [confirmReady, setConfirmReady] = useState(true);
+  const [confirmReady, setConfirmReady] = useState(false);
   const [docPath, setDocPath] = useState('');
   const [loadedList, setLoadedList] = useState(false);
   const inputRef = useRef(null) as RefObject<HTMLInputElement>;
-  const [isLoading, setIsLoading] = useState(false);
   const { currentUser } = useMemo(() => getAuth(), []);
 
   const listUserDocuments = async (path) => {
     const listRef = ref(storage, path);
-    listAll(listRef).then((res) => setList(res.items));
+    const items: Array<List> = []
+    listAll(listRef).then(async (res) => {
+      for (const item of res.items) {
+        const itemRef = ref(storage, item.fullPath)
+        const customMetadata = await getMetadata(itemRef);
+        // @ts-ignore: overriding the factory types, don't worry about it
+        items.push(customMetadata);
+      }
+      // Really ghastly hack to filter out documents that were successfully ingested by the AI service.
+      // A rework of this function will be one that decouples document hosting logic from firebase and moves it closer to a specialized API (one directly owned by Shepherd)
+      const filteredForSuccess = items.filter(item => item.customMetadata?.ingest_status === 'success');
+      setList(filteredForSuccess);
+    });
   };
 
   const Wrapper = styled.div`
     display: block;
-  `;
-
-  const Content = styled.div`
-    padding: 16px;
-    /* Add styles for the content div */
   `;
 
   const Label = styled.label`
@@ -91,6 +102,11 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     background-color: #ffffff;
     outline: none;
     cursor: pointer;
+
+    &:valid {
+      color: #000;
+      background-color: #c9fcff;
+    }
   `;
 
   const OrText = styled.div`
@@ -108,7 +124,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     justify-content: space-between;
     align-items: center;
     border-radius: 0.375rem;
-    background-color: #fff;
+    background-color: ${canUpload? "#fff": "#e4e5e7"};
     border: 1px solid var(--primaryBlue);
     padding: 0.375rem 0.75rem;
     margin-bottom: 0.5rem;
@@ -121,7 +137,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     height: 40px;
 
     &:hover {
-      background-color: ${fileName ? '#FFF' : '#f0fff3'};
+      background-color: ${(!fileName || canUpload) && '#f0fff3'};
     }
   `;
 
@@ -135,18 +151,6 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     font-size: 0.875rem;
     font-weight: 700;
     color: #585f68;
-  `;
-
-  const Progress = styled.span`
-    font-size: 0.875rem;
-    font-weight: medium;
-    color: purple;
-    margin-left: 0.5rem;
-  `;
-
-  const ProgressPlaceholder = styled.div`
-    width: 100%;
-    height: 18px;
   `;
 
   const PDFTextContainer = styled.div`
@@ -172,10 +176,10 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
       listUserDocuments(currentUser.uid);
       setLoadedList(true);
     }
-  }, [docPath, currentUser?.uid]);
+  }, [currentUser?.uid]);
 
   const clickInput = () => {
-    inputRef?.current && inputRef.current.click();
+    if(canUpload) inputRef?.current && inputRef.current.click();
   };
 
   const collectFile = async (e) => {
@@ -183,29 +187,34 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     setUiMessage(null);
     setFileName(name);
     setFile(e.target.files[0]);
-    setIsLoading(true);
 
-    await handleFreshUpload(e.target.files[0], user);
+    await handleFreshUpload(e.target.files[0], user, name);
   };
   const handleClose = () => {
     setShow(false);
   };
 
   const handleSelected = (e: any) => {
-    setSelectedOption(e.target.value);
+    if (e.target.value) {
+      setSelectedOption(e.target.value);
+      setCanUpload(false)
+      setConfirmReady(true)
+    }
   };
 
   const checkIfDocumentPresent = () => {
-    if (!file && !selectedOption)
+    if (!selectedOption)
       setUiMessage({
         status: 'error',
         heading: 'No document selected',
         description: "You haven't selected a note. Select one, and try again."
       });
+      setConfirmReady(false);
     return;
   };
 
-  const handleFreshUpload = async (file, user) => {
+  const handleFreshUpload = async (file, user, fileName) => {
+    const readableFileName = fileName.toLowerCase().replace(/\s/g, '');
     const SIZE_IN_MB = parseInt((file?.size / 1_000_000).toFixed(2), 10);
     if (SIZE_IN_MB > MAX_FILE_UPLOAD_LIMIT) {
       setUiMessage({
@@ -215,9 +224,10 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
       });
       return;
     }
+    setProgress(5);
     const storageRef = ref(
       storage,
-      `${docPath}/${fileName.toLowerCase().replace(/\s/g, '')}`
+      `${docPath}/${readableFileName}`
     );
     const task = uploadBytesResumable(storageRef, file);
 
@@ -241,24 +251,28 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
         });
       },
       async () => {
+        setUiMessage({
+          status: 'info',
+          heading: 'Document uploaded!',
+          description: 'Hang on while we check the contents of your document. This may take 1-5 minutes.'
+        })
         const documentURL = await getDownloadURL(task.snapshot.ref);
-        const title = task.snapshot.metadata.name;
 
         await processDocument({
           studentId: user?._id,
-          documentId: fileName,
-          documentURL
+          documentId: readableFileName,
+          documentURL,
+          title: readableFileName,
         })
           .then(async () => {
             let counter = 0;
-            let success = false;
+            let done = false;
 
             const checkStatus = async () => {
               try {
                 const check = await checkDocumentStatus({
                   studentId: user?._id,
-                  documentId: fileName,
-                  title: 'hey'
+                  documentId: readableFileName,
                 });
                 if (check.status === 'ingested') {
                   const metadata = {
@@ -267,17 +281,31 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
                     }
                   };
                   await updateMetadata(storageRef, metadata);
-                  setSelectedOption(storageRef.fullPath);
-                  success = true;
+                  setSelectedOption(() => storageRef.fullPath);
+                  done = true;
+
+                  setUiMessage({
+                    status: 'info',
+                    heading: 'Processing complete!',
+                    description: 'Click "confirm" to start chatting with your document.'
+                  })
+
+                  setConfirmReady(true);
                 }
                 if (check.status === 'too_large') {
-                  await deleteObject(storageRef);
+                  const metadata = {
+                    customMetadata: {
+                      ingest_status: 'too_large'
+                    }
+                  };
+                  await updateMetadata(storageRef, metadata);
                   return setUiMessage({
                     status: 'error',
-                    heading: 'Your document was too wordy',
+                    heading: 'Your document was too long.',
                     description:
-                      'Your document goes over our total word limit. Consider uploading a shorter document (ideally, under 30 pages long.'
+                      'Your document is over 12,000 words. Consider uploading a shorter document.'
                   });
+                  done = true;
                 }
               } catch (e: any) {
                 setUiMessage({
@@ -287,21 +315,20 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
                 });
               } finally {
                 counter++;
-                if (success || counter > 10) clearInterval(intervalId);
+                if (done || counter > 20) clearInterval(intervalId);
 
-                if (counter > 10 && !success) {
+                if (counter > 20 && !done) {
                   setUiMessage({
                     status: 'error',
                     heading: "We couldn't process your document",
                     description:
-                      'Please send a message to someone on the Shepherd team to look into this problem.'
+                      'There was something wrong with your document. Please send a message to someone on the Shepherd team to look into this problem.'
                   });
-                  setIsLoading(false);
                 }
               }
             };
 
-            const intervalId = setInterval(checkStatus, 3000);
+            const intervalId = setInterval(checkStatus, 5000);
           })
           .catch(async (e: any) => {
             await deleteObject(storageRef);
@@ -315,15 +342,18 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     );
   };
 
-  const goToDocChat = async (selectedOption) => {
+  const goToDocChat = async () => {
     const documentUrl = await getDownloadURL(ref(storage, selectedOption));
     const item = list.filter((list) => list.fullPath === selectedOption);
+    console.log('Yummy', item, 'URL', documentUrl);
     navigate('/dashboard/docchat', {
       state: {
         documentUrl,
         docTitle: item[0].name
       }
     });
+
+    window.location.reload();
   };
 
   const doNothing = () => {
@@ -332,7 +362,9 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
 
   const proceed = async () => {
     checkIfDocumentPresent();
-    await goToDocChat(selectedOption);
+    await goToDocChat();
+    setShow(false);
+    setShowHelp(false);
   };
 
   return (
@@ -373,9 +405,11 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
               <Select
                 id="note"
                 name="note"
-                defaultValue="Select from your note"
                 onChange={handleSelected}
+                value={selectedOption || ''}
+                required
               >
+                <option disabled value=''> Select an option </option>
                 {loadedList &&
                   list.map((item, id) => (
                     <option value={item.fullPath} key={id}>
@@ -404,7 +438,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
               )}
             </span>
             {/* Uploading Progress */}
-            {isLoading && (
+            {!!progress && (
               <CircularProgressBar value={progress} color="#207DF7" size="40px">
                 <CircularProgressLabel>{progress}%</CircularProgressLabel>
               </CircularProgressBar>
