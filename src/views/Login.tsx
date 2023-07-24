@@ -1,5 +1,10 @@
+import GoogleIcon from '../assets/google.svg';
 import SecureInput from '../components/SecureInput';
-import { firebaseAuth, signInWithEmailAndPassword } from '../firebase';
+import {
+  firebaseAuth,
+  signInWithEmailAndPassword,
+  googleProvider
+} from '../firebase';
 import { useTitle } from '../hooks';
 import {
   Box,
@@ -13,6 +18,7 @@ import {
   Text,
   useToast
 } from '@chakra-ui/react';
+import { signInWithPopup } from 'firebase/auth';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Field, Form, Formik } from 'formik';
 import React, { useEffect } from 'react';
@@ -160,6 +166,20 @@ const Login: React.FC = () => {
                   type="submit"
                 >
                   Login
+                </Button>
+                <Button
+                  variant="solid"
+                  bg="#F2F2F3"
+                  onClick={async () => {
+                    await signInWithPopup(firebaseAuth, googleProvider);
+                    navigate('/dashboard');
+                  }}
+                  colorScheme={'primary'}
+                  size={'lg'}
+                  color="#000"
+                  leftIcon={<img src={GoogleIcon} alt="" />}
+                >
+                  Continue With Google
                 </Button>
                 <Link
                   color="primary.400"

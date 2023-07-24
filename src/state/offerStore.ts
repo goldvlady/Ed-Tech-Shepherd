@@ -21,7 +21,7 @@ export default create<Store>((set) => ({
     set({ isLoading: true });
     try {
       set({ isLoading: true });
-      const response = await ApiService.getTutorOffers();
+      const response = await ApiService.getOffers();
       const { data } = await response.json();
       set({ offers: data });
     } catch (error) {

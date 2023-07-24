@@ -21,7 +21,7 @@ ChartJS.register(
 
 export function PerformanceChart(chartData) {
   const [labels, setLabels] = useState();
-  const [values, setValues] = useState();
+  const [values, setValues] = useState([]);
 
   const arrData: Array<any> = [...chartData.chartData];
 
@@ -69,11 +69,13 @@ export function PerformanceChart(chartData) {
         label: 'Dataset 1',
         data: values,
         backgroundColor: '#207df7',
-        barThickness: 18,
+        // barThickness:
+        //   (100 - (datasetCount - 1) * categorySpacing) / datasetCount,
+        barThickness: 15,
         borderRadius: 50
       }
     ]
   };
 
-  return <Bar options={options} data={data} style={{ width: '100%' }} />;
+  return <Bar options={options} data={data} />;
 }

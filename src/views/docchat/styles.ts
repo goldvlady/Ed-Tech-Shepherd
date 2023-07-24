@@ -491,3 +491,22 @@ export const StudyFirstLayer = styled.div`
 
    > p:nth-child
 `;
+
+export const DownPillContainer = styled.div`
+  position: fixed;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  grid-column: span 12 / auto;
+  padding: 0.75rem 0.375rem;
+  height: 6rem;
+  border-radius: 0.375rem;
+  -webkit-box-pack: justify;
+  justify-content: space-between;
+  padding-left: 1.75rem;
+  font-size: 0.875rem;
+  position: fixed;
+  bottom: 55px;
+  width: 100%;
+  background: white;
+`;

@@ -5,6 +5,7 @@ import { ReactComponent as HightLightIcon } from '../../assets/highlightIcn.svg'
 import { ReactComponent as SummaryIcon } from '../../assets/summaryIcn.svg';
 import { ReactComponent as TellMeMoreIcn } from '../../assets/tellMeMoreIcn.svg';
 import { ReactComponent as TutorBag } from '../../assets/tutor-bag.svg';
+import ChatLoader from '../../components/CustomComponents/CustomChatLoader';
 import CustomSideModal from '../../components/CustomComponents/CustomSideModal';
 import CustomTabs from '../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../components/hooks/useChatScroll';
@@ -24,6 +25,7 @@ import {
   CircleContainer,
   ClockButton,
   ContentWrapper,
+  DownPillContainer,
   FlexColumnContainer,
   FlexContainer,
   Form,
@@ -51,8 +53,9 @@ interface IChat {
   HomeWorkHelp?: boolean;
   studentId?: any;
   documentId?: any;
+  onOpenModal?: () => void;
 }
-const Chat = ({ HomeWorkHelp, studentId, documentId }: IChat) => {
+const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [isFlashCard, setFlashCard] = useState<boolean>(false);
@@ -65,6 +68,9 @@ const Chat = ({ HomeWorkHelp, studentId, documentId }: IChat) => {
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const [isChatHistory, setChatHistory] = useState<boolean>(false);
   const ref = useChatScroll(messages);
+  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState({});
+  const [error, setError] = useState<string>('');
 
   const prompts = [
     "Explain this document to me like I'm five",
@@ -199,7 +205,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId }: IChat) => {
       id: 1,
       img: <TutorBag />,
       title: 'Find a tutor',
-      onClick: onClose
+      onClick: onOpenModal
     }
   ];
 
@@ -250,6 +256,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId }: IChat) => {
                   {HomeWorkHelp && !isShowPrompt && (
                     <OptionsContainer>
                       <Text className="">What do you need?</Text>
+
                       <PillsContainer>
                         {homeHelp.map((need) => (
                           <StyledDiv onClick={need.onClick} key={need.id}>
@@ -295,7 +302,13 @@ const Chat = ({ HomeWorkHelp, studentId, documentId }: IChat) => {
                       message.isUser ? (
                         <UserMessage key={index}>{message.text}</UserMessage>
                       ) : (
-                        <AiMessage key={index}>{message.text}</AiMessage>
+                        <>
+                          {loading ? (
+                            <ChatLoader />
+                          ) : (
+                            <AiMessage key={index}>{message.text}</AiMessage>
+                          )}
+                        </>
                       )
                     )}
                     {llmResponse && (
@@ -337,8 +350,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId }: IChat) => {
         )} */}
 
         {HomeWorkHelp && isShowPrompt && (
-          <OptionsContainer>
-            <Text className="">What do you need?</Text>
+          <DownPillContainer>
             <PillsContainer>
               {homeHelp.map((need) => (
                 <StyledDiv onClick={need.onClick} key={need.id}>
@@ -347,7 +359,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId }: IChat) => {
                 </StyledDiv>
               ))}
             </PillsContainer>
-          </OptionsContainer>
+          </DownPillContainer>
         )}
         <ChatbotContainer chatbotSpace={chatbotSpace}>
           <InputContainer>

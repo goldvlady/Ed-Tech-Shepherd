@@ -96,7 +96,7 @@ const PlanSwitchModal = ({
           _checked={{
             bg: 'transparent',
             color: 'white',
-            borderColor: 'teal.600'
+            borderColor: 'rgb(254 215 170 )'
           }}
           _focus={{
             boxShadow: 'outline'
@@ -115,7 +115,9 @@ const PlanSwitchModal = ({
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: 'framework',
     defaultValue: 'react',
-    onChange: console.log
+    onChange: () => {
+      return;
+    }
   });
 
   const group = getRootProps();
@@ -159,7 +161,7 @@ const PlanSwitchModal = ({
                           <XMarkIcon className="w-4 h-4" />
                         </button>
                       </div>
-                      <Box p={6}>
+                      <Box pl={'25px'} pr={8} py={6}>
                         <Box>
                           <Text fontSize={24} fontWeight={600} color="text.200">
                             Select Account
@@ -230,7 +232,7 @@ const PlanSwitchModal = ({
                           ))}
                         </div> */}
                         <Center>
-                          <HStack {...group} spacing={10} mt={'15px'}>
+                          <HStack {...group} spacing={'100px'} my={'65px'}>
                             {options.map((value) => {
                               const radio = getRadioProps({ value });
                               return (
@@ -257,14 +259,23 @@ const PlanSwitchModal = ({
                                           Leslie Peters
                                         </Text>{' '}
                                         <Box
-                                          bgColor="#EBF4FE"
-                                          color="#207DF7"
+                                          bgColor={
+                                            value === 'Tutor'
+                                              ? '#FFF2EB'
+                                              : '#EBF4FE'
+                                          }
+                                          color={
+                                            value === 'Tutor'
+                                              ? '#FB8441'
+                                              : '#207DF7'
+                                          }
                                           p="2px 8px"
                                           maxWidth="fit-content"
                                           borderRadius="4px"
+                                          alignSelf="center"
                                         >
                                           <Text fontSize={10} fontWeight={500}>
-                                            Student
+                                            {value}
                                           </Text>
                                         </Box>
                                       </Flex>
@@ -279,10 +290,9 @@ const PlanSwitchModal = ({
                             })}
                           </HStack>
                         </Center>{' '}
-                        <CustomButton
-                          buttonText="Next -> Login"
-                          float="right"
-                        />
+                        <Box ml={6} textAlign="center">
+                          <CustomButton buttonText="Next -> Login" />
+                        </Box>
                       </Box>
 
                       {/* <div className="overflow-hidden sm:w-[80%] w-full mx-auto p-6 pt-3  bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">

@@ -1,6 +1,7 @@
 import TutorAvi from '../../assets/tutoravi.svg';
 import { useTitle } from '../../hooks';
 import ApiService from '../../services/ApiService';
+import offerStore from '../../state/offerStore';
 import TutorCard from './components/TutorCard';
 import {
   Box,
@@ -13,24 +14,27 @@ import {
   Tabs,
   Text
 } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 function MyTutors() {
   useTitle('My Tutors');
   const [allTutors, setAllTutors] = useState<any>([]);
   const [loadingData, setLoadingData] = useState(false);
-  const getData = async () => {
-    setLoadingData(true);
-    const formData = {};
-    const resp = await ApiService.getAllTutors(formData);
-    const data = await resp.json();
-    setAllTutors(data);
-    setLoadingData(false);
-  };
+  const { fetchOffers, offers, isLoading } = offerStore();
+
+  const doFetchStudentTutors = useCallback(async () => {
+    const response = await ApiService.getOffers();
+    const jsonResp = await response.json();
+    setAllTutors(jsonResp);
+    /* eslint-disable */
+  }, []);
 
   useEffect(() => {
-    getData();
-  }, []);
+    doFetchStudentTutors();
+  }, [doFetchStudentTutors]);
+
+  const [tutorGrid] = useAutoAnimate();
 
   return (
     <>
@@ -46,10 +50,10 @@ function MyTutors() {
           <Text
             boxSize="fit-content"
             bgColor={'#F4F5F6'}
-            p={1}
+            p={2}
             borderRadius={'6px'}
           >
-            24
+            {allTutors.length}
           </Text>
         </Flex>
         <Tabs>
@@ -64,46 +68,59 @@ function MyTutors() {
 
           <TabPanels>
             <TabPanel>
-              <SimpleGrid minChildWidth="325px" spacing="30px">
-                <TutorCard
-                  name={'Leslie Peters'}
-                  levelOfEducation={'BSC Bachelors'}
-                  avatar={TutorAvi}
-                  use="my tutors"
-                />
-                <TutorCard
-                  name={'Leslie Peters'}
-                  levelOfEducation={'BSC Bachelors'}
-                  avatar={TutorAvi}
-                  use="my tutors"
-                />
-                <TutorCard
-                  name={'Leslie Peters'}
-                  levelOfEducation={'BSC Bachelors'}
-                  avatar={TutorAvi}
-                  use="my tutors"
-                />
-                <TutorCard
-                  name={'Leslie Peters'}
-                  levelOfEducation={'BSC Bachelors'}
-                  avatar={TutorAvi}
-                  use="my tutors"
-                />
-                <TutorCard
-                  name={'Leslie Peters'}
-                  levelOfEducation={'BSC Bachelors'}
-                  avatar={TutorAvi}
-                  use="my tutors"
-                />
-                <TutorCard
-                  name={'Leslie Peters'}
-                  levelOfEducation={'BSC Bachelors'}
-                  avatar={TutorAvi}
-                  use="my tutors"
-                />
+              <SimpleGrid
+                columns={[2, null, 3]}
+                spacing="20px"
+                ref={tutorGrid}
+                mt={4}
+              >
+                {allTutors.map((tutor: any) => (
+                  <TutorCard
+                    key={tutor.tutor?._id}
+                    id={tutor.tutor?._id}
+                    name={`${tutor.tutor.user.name.first} ${tutor.tutor.user.name.last}`}
+                    levelOfEducation={'BSC'}
+                    avatar={tutor.tutor.user.avatar}
+                    saved={true}
+                    description={tutor.tutor?.description}
+                    rate={tutor.tutor?.rate}
+                    rating={tutor.tutor?.rating}
+                    reviewCount={tutor.tutor?.reviewCount}
+                    use="my tutors"
+                    offerStatus={tutor.status}
+                  />
+                ))}
               </SimpleGrid>
             </TabPanel>
-            <TabPanel></TabPanel>
+            <TabPanel>
+              {' '}
+              <SimpleGrid
+                columns={[2, null, 3]}
+                spacing="20px"
+                ref={tutorGrid}
+                mt={4}
+              >
+                {allTutors.map(
+                  (tutor: any) =>
+                    tutor.status === 'draft' && (
+                      <TutorCard
+                        key={tutor.tutor?._id}
+                        id={tutor.tutor?._id}
+                        name={`${tutor.tutor.user.name.first} ${tutor.tutor.user.name.last}`}
+                        levelOfEducation={'BSC'}
+                        avatar={tutor.tutor.user.avatar}
+                        saved={true}
+                        description={tutor.tutor?.description}
+                        rate={tutor.tutor?.rate}
+                        rating={tutor.tutor?.rating}
+                        reviewCount={tutor.tutor?.reviewCount}
+                        use="my tutors"
+                        offerStatus={tutor.status}
+                      />
+                    )
+                )}
+              </SimpleGrid>
+            </TabPanel>
           </TabPanels>
         </Tabs>
       </Box>
