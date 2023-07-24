@@ -1,13 +1,19 @@
+import Star from '../assets/banner-star.svg';
 import Arrow from '../assets/card-arrow.svg';
 import Check from '../assets/checkIcon.svg';
 import Collab from '../assets/collab.svg';
 import Dashboard from '../assets/dashboard.svg';
 import Docchat from '../assets/docchat.svg';
+import Dot from '../assets/dot.svg';
 import FAQ from '../assets/faq.svg';
 import Flash from '../assets/flashIcon.svg';
 import Flashcards from '../assets/flashcards.svg';
 import Gpt from '../assets/gpt.svg';
+import Heart from '../assets/heart.svg';
 import Homework from '../assets/homework.svg';
+import Insta from '../assets/insta-icon.svg';
+import Linkedin from '../assets/linkedin-icon.svg';
+import Mail from '../assets/mail-icon.svg';
 import Marketplace from '../assets/marketplace.svg';
 import Spark from '../assets/miniSparks.svg';
 import Pricing from '../assets/pricing.svg';
@@ -17,13 +23,7 @@ import Share from '../assets/share.svg';
 import Sparkles from '../assets/sparkles.svg';
 import Sparks from '../assets/sparks.svg';
 import Study from '../assets/study.svg';
-import Star from '../assets/banner-star.svg';
-import Mail from '../assets/mail-icon.svg';
 import Twitter from '../assets/twitter-icon.svg';
-import Linkedin from '../assets/linkedin-icon.svg';
-import Insta from '../assets/insta-icon.svg';
-import Heart from '../assets/heart.svg';
-import Dot from '../assets/dot.svg';
 import Logo from '../components/Logo';
 import faqData from '../mocks/faqs.json';
 import {
@@ -127,10 +127,16 @@ function Landing() {
               where you need help the most.
             </Text>
             <Button className="landing-btn">Find a Tutor</Button>
-            <Text className="landing-info-mini info-accordion" style={{ color: '#969CA6' }}>
+            <Text
+              className="landing-info-mini info-accordion"
+              style={{ color: '#969CA6' }}
+            >
               Shepherd recommends a tutor
             </Text>
-            <Text className="landing-info-mini info-accordion" style={{ color: '#969CA6' }}>
+            <Text
+              className="landing-info-mini info-accordion"
+              style={{ color: '#969CA6' }}
+            >
               Interactive learning
             </Text>
           </div>
@@ -475,25 +481,25 @@ function Landing() {
         <div className="landing-footer">
           <div className="landing-links">
             <div className="landing-footer-logo">
-              <Logo customWidth="width: 124px" customHeight="height: 51px" style={{margin:'0px'}} />
+              <Logo
+                customWidth="width: 124px"
+                customHeight="height: 51px"
+                style={{ margin: '0px' }}
+              />
               <Text className="landing-address">
                 123 Hackerway,Menlo Park, CA 94025,USA
               </Text>
             </div>
             <div className="landing-links-wrapper">
               <div className="landing-link-wrapper">
-                <Text className="landing-links-title">
-                  Product
-                </Text>
+                <Text className="landing-links-title">Product</Text>
                 <Link className="landing-link">Shepherd</Link>
                 <Link className="landing-link">Become a Tutor</Link>
                 <Link className="landing-link">Pricing</Link>
                 <Link className="landing-link">FAQs</Link>
               </div>
               <div className="landing-link-wrapper">
-                <Text className="landing-links-title">
-                  Resources
-                </Text>
+                <Text className="landing-links-title">Resources</Text>
                 <Link className="landing-link">Shepherd</Link>
                 <Link className="landing-link">Become a Tutor</Link>
                 <Link className="landing-link">Pricing</Link>
@@ -502,7 +508,10 @@ function Landing() {
             </div>
             <div className="landing-footer-socials">
               <div className="landing-link-wrapper">
-                <Text className="landing-links-title" style={{color:'#7A7E85'}}>
+                <Text
+                  className="landing-links-title"
+                  style={{ color: '#7A7E85' }}
+                >
                   Reach out to us
                 </Text>
                 <div className="landing-footer-icons">
@@ -522,11 +531,17 @@ function Landing() {
               Built with love <img className="landing-heart-icon" src={Heart} />
             </Text>
             <div className="landing-terms">
-              <Text className="landing-signature-info" style={{cursor: 'pointer'}}>
+              <Text
+                className="landing-signature-info"
+                style={{ cursor: 'pointer' }}
+              >
                 Privacy policy
               </Text>
               <img className="landing-dot-icon" src={Dot} />
-              <Text className="landing-signature-info" style={{cursor: 'pointer'}}>
+              <Text
+                className="landing-signature-info"
+                style={{ cursor: 'pointer' }}
+              >
                 Terms of use
               </Text>
             </div>
