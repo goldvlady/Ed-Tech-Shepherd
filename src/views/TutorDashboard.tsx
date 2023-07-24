@@ -53,7 +53,7 @@ export default function Dashboard() {
   return (
     <Layout className="p-2 bg-white">
       <WelcomePage user={user} />
-      <Proceed />
+      <Proceed user={user} />
       <GridList />
       <Box my={3} p={6}>
         <Grid

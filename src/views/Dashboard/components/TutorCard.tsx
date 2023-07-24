@@ -2,7 +2,7 @@ import Star from '../../../assets/littleStar.svg';
 import Ribbon2 from '../../../assets/ribbon-blue.svg';
 import Ribbon from '../../../assets/ribbon-grey.svg';
 import TutorAvi from '../../../assets/tutoravi.svg';
-import CustomToast from '../../../components/CustomToast';
+import CustomToast from '../../../components/CustomComponents/CustomToast';
 import ApiService from '../../../services/ApiService';
 import bookmarkedTutorsStore from '../../../state/bookmarkedTutorsStore';
 import { textTruncate } from '../../../util';

@@ -54,7 +54,7 @@ export default function GridList() {
             fontWeight="semibold"
             color="white"
           >
-            $5160.50
+            $0
           </Text>
           <Text as="p" fontSize="sm" color="whiteAlpha.900" isTruncated>
             24hrs of tutoring completed!
@@ -98,7 +98,7 @@ export default function GridList() {
             Total Clients
           </Text>
           <Text fontSize="2xl" my={0.5} fontWeight="semibold">
-            314
+            0
           </Text>
           <Text fontSize="sm" color="green.400" isTruncated>
             + Increased 10% this month
@@ -144,7 +144,7 @@ export default function GridList() {
             Current clients
           </Text>
           <Text fontSize="2xl" my={0.5} fontWeight="semibold">
-            20
+            0
           </Text>
           <Text fontSize="sm" color="red.400" isTruncated>
             - Decreased 10% this month

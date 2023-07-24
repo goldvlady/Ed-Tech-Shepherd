@@ -1,185 +1,250 @@
-import { Layout, AllClientTab } from '../components';
-import { ArrowRightIcon, SortIcon } from '../components/icons';
-import { classNames } from '../helpers';
-import clientStore from '../state/clientStore';
+import { ReactComponent as DocIcon } from '../assets/doc.svg';
+import { ReactComponent as NewNoteIcon } from '../assets/newnote.svg';
+import { AllNotesTab, SelectedNoteModal, AllClientTab } from '../components';
+import DropdownMenu from '../components/CustomComponents/CustomDropdownMenu';
+import CustomTabs from '../components/CustomComponents/CustomTabs';
+import Layout from '../components/Layout';
+import { SortIcon, FilterByTagsIcon } from '../components/icons';
+// import ApiService from '../services/ApiService';
+import {
+  Checkbox,
+  CheckboxContainer,
+  FlexContainer,
+  Header,
+  NewList,
+  NotesWrapper,
+  SearchInput,
+  Section,
+  SectionNewList,
+  StyledHeader,
+  StyledSection
+} from './Dashboard/Notes/styles';
+// import { BlockNoteEditor } from '@blocknote/core';
+// import '@blocknote/core/style.css';
+// import { BlockNoteView, useBlockNote } from '@blocknote/react';
+import { AddIcon } from '@chakra-ui/icons';
 import { Text } from '@chakra-ui/react';
-import { Menu, Transition, Tab } from '@headlessui/react';
-import React, { useEffect, useState, Fragment } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router';
 
-const clients = [];
-// const clients = [{}];
+const getNotes = JSON.parse(localStorage.getItem('notes') as string) || [];
 
-const Clients = () => {
-  const { isLoading, fetchClients } = clientStore();
+const filteredBy = [
+  {
+    id: 1,
+    value: '#Chemistry',
+    checked: false
+  },
+  {
+    id: 2,
+    value: '#Physics',
+    checked: false
+  },
+  {
+    id: 3,
+    value: '#Biology',
+    checked: false
+  },
+  {
+    id: 4,
+    value: '#English',
+    checked: false
+  }
+];
 
-  useEffect(() => {
-    fetchClients();
-  }, []);
+const sortedBy = [
+  {
+    id: 1,
+    title: 'By date',
+    firstValue: 'Recently created',
+    secondValue: 'Recently modified'
+  },
+  {
+    id: 2,
+    title: 'By title',
+    firstValue: 'A -> Z',
+    secondValue: 'Z -> A'
+  }
+];
 
+const tabLists = [
+  {
+    id: 1,
+    title: 'All'
+  },
+  {
+    id: 2,
+    title: 'Active'
+  },
+  {
+    id: 3,
+    title: 'Pending'
+  },
+  {
+    id: 4,
+    title: 'Ended'
+  }
+];
+
+const tabPanel = [
+  {
+    id: 1,
+    component: <AllClientTab />
+  }
+];
+
+const Notes = () => {
+  const navigate = useNavigate();
+  const [toggleHelpModal, setToggleHelpModal] = useState(false);
+  // const [allNotes, setAllNotes] = useState<any>([]);
+  // const [loadingNotes, setLoadingNotes] = useState(false);
+  // const getNotes = async () => {
+  //   setLoadingNotes(true);
+  //   const resp = await ApiService.getAllNotes();
+  //   const notes = await resp.json();
+  //   setAllNotes(notes);
+  //   setLoadingNotes(false);
+  // };
+  const activateHelpModal = () => {
+    setToggleHelpModal(true);
+  };
+
+  const [checkedState, setCheckedState] = useState(
+    new Array(filteredBy.length).fill(false)
+  );
+
+  const createNewLists = [
+    {
+      id: 1,
+      iconName: <NewNoteIcon />,
+      labelText: 'New note',
+      onClick: () => navigate('/dashboard/new-note')
+    },
+    {
+      id: 2,
+      iconName: <DocIcon />,
+      labelText: 'Upload document',
+      onClick: activateHelpModal
+    }
+  ];
+
+  const handleCheckboxChange = (position: number) => {
+    const updatedCheckedState = checkedState.map((item, index) =>
+      index === position ? !item : item
+    );
+
+    setCheckedState(updatedCheckedState);
+  };
+  // const initialContent: string | null = localStorage.getItem('editorContent'); //Change to API endpoint for get /notes/{id}
+  // const editor: BlockNoteEditor | null = useBlockNote({
+  //   initialContent: initialContent ? JSON.parse(initialContent) : undefined,
+  //   onEditorContentChange: (editor) => {
+  //     localStorage.setItem(
+  //       'editorContent',
+  //       JSON.stringify(editor.topLevelBlocks)
+  //     );
+  //   }
+  // });
   return (
-    <Layout
-      className={`${
-        clients.length > 0 ? 'bg-white' : 'bg-gray-100'
-      } p-3 h-screen`}
-    >
-      <header className="flex justify-between">
-        <Text className="flex items-center space-x-2">
-          <span className="font-semibold text-2xl">Clients</span>
-          {clients.length > 0 && (
-            <span className="inline-block text-sm bg-gray-100 px-2 py-1 rounded-md text-primaryGray">
-              24
-            </span>
-          )}
-        </Text>
-        <Menu as="div" className="relative">
-          <div>
-            <Menu.Button className="flex items-center space-x-2 border p-2 rounded-md">
-              <SortIcon className="w-5 h-5" />
-              <span>Sort by</span>
-            </Menu.Button>
-          </div>
-          <Transition
-            as={Fragment}
-            enter="transition ease-out duration-100"
-            enterFrom="transform opacity-0 scale-95"
-            enterTo="transform opacity-100 scale-100"
-            leave="transition ease-in duration-75"
-            leaveFrom="transform opacity-100 scale-100"
-            leaveTo="transform opacity-0 scale-95"
-          >
-            <Menu.Items className="absolute space-y-3 p-4 right-0 z-50 mt-2.5 w-[12rem] origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-900/5 focus:outline-none">
-              <section>
-                <div className="w-full">
-                  <Text className="text-sm text-secondaryGray mb-2">
-                    By date
-                  </Text>
-                  <button className="w-full flex bg-gray-100 rounded-md  items-center justify-between p-2">
-                    <Text className="text-sm text-dark">Start date</Text>
-                  </button>
-                  <button className="w-full flex mt-2 hover:bg-gray-100 rounded-md items-center justify-between p-2">
-                    <Text className="text-sm text-dark">End date</Text>
-                  </button>
-                </div>
-
-                <div className="w-full">
-                  <Text className="text-sm text-secondaryGray mt-4 mb-2">
-                    By name
-                  </Text>
-                  <button className="w-full flex hover:bg-gray-100 rounded-md  items-center justify-between p-2">
-                    <Text className="text-xs flex space-x-2 items-center text-dark">
-                      <span>A</span>
-                      <ArrowRightIcon className="w-5" onClick={undefined} />
-                      <span>Z</span>
-                    </Text>
-                  </button>
-                  <button className="w-full flex hover:bg-gray-100 rounded-md  items-center justify-between p-2">
-                    <Text className="text-xs flex space-x-2 items-center text-dark">
-                      <span>Z</span>
-                      <ArrowRightIcon className="w-5" onClick={undefined} />
-                      <span>A</span>
-                    </Text>
-                  </button>
-                </div>
-              </section>
-            </Menu.Items>
-          </Transition>
-        </Menu>
-      </header>
-      {clients.length > 0 ? (
-        <Tab.Group as="div" className="mt-4">
-          <div className="sm:hidden">
-            <label htmlFor="tabs" className="sr-only">
-              Select a tab
-            </label>
-            {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
-            <select
-              id="tabs"
-              name="tabs"
-              className="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-            >
-              <option>All clients</option>
-              <option>Active</option>
-              <option>Pending</option>
-              <option>Ended</option>
-            </select>
-          </div>
-          <div className="hidden mb-4 sm:block">
-            <div className="border-b border-gray-200">
-              <Tab.List className="-mb-px flex space-x-8" aria-label="Tabs">
-                <Tab as={Fragment}>
-                  {({ selected }) => (
-                    <span
-                      className={classNames(
-                        selected
-                          ? 'border-primaryBlue text-primaryBlue'
-                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
-                        'group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium'
-                      )}
-                    >
-                      All clients
-                    </span>
-                  )}
-                </Tab>
-                <Tab as={Fragment}>
-                  {({ selected }) => (
-                    <span
-                      className={classNames(
-                        selected
-                          ? 'border-primaryBlue text-primaryBlue'
-                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
-                        'group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium'
-                      )}
-                    >
-                      Active
-                    </span>
-                  )}
-                </Tab>
-                <Tab as={Fragment}>
-                  {({ selected }) => (
-                    <span
-                      className={classNames(
-                        selected
-                          ? 'border-primaryBlue text-primaryBlue'
-                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
-                        'group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium'
-                      )}
-                    >
-                      Pending
-                    </span>
-                  )}
-                </Tab>
-                <Tab as={Fragment}>
-                  {({ selected }) => (
-                    <span
-                      className={classNames(
-                        selected
-                          ? 'border-primaryBlue text-primaryBlue'
-                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
-                        'group cursor-pointer border-b-4 py-4 px-1 text-sm font-medium'
-                      )}
-                    >
-                      Ended
-                    </span>
-                  )}
-                </Tab>
-              </Tab.List>
-            </div>
-          </div>
-
-          <Tab.Panels>
-            <Tab.Panel>
-              <AllClientTab />
-            </Tab.Panel>
-          </Tab.Panels>
-        </Tab.Group>
-      ) : (
-        <section className="flex justify-center items-center w-full h-full">
-          <img src="/images/client.png" alt="" />
-          {/* <p>You don't have any client yet</p> */}
-        </section>
-      )}
-    </Layout>
+    <>
+      <Layout
+        className={`${
+          getNotes.length > 0 ? 'bg-white' : 'bg-gray-100'
+        } p-3 h-screen`}
+      >
+        {getNotes?.length > 0 ? (
+          <NotesWrapper>
+            <header className="flex my-4 justify-between">
+              <StyledHeader>
+                <span className="font-bold">Clients</span>
+                <span className="count-badge">{getNotes?.length}</span>
+              </StyledHeader>
+              <FlexContainer>
+                <DropdownMenu
+                  menuTitle="Sort by"
+                  DropdownMenuIcon={<SortIcon className="w-[20%] h-[2vh]" />}
+                >
+                  <>
+                    {
+                      sortedBy?.map((sorted) => (
+                        <StyledSection key={sorted.id}>
+                          <div>
+                            <Text className="text-label">{sorted.title}</Text>
+                            <div>
+                              <Text className="text-value">
+                                {sorted.firstValue}
+                              </Text>
+                              <Text className="text-value">
+                                {sorted.secondValue}
+                              </Text>
+                            </div>
+                          </div>
+                        </StyledSection>
+                      ))[0]
+                    }
+                    {
+                      sortedBy?.map((sorted) => (
+                        <StyledSection key={sorted.id}>
+                          <div>
+                            <Text className="text-label">{sorted.title}</Text>
+                            <div>
+                              <Text className="text-value">
+                                {sorted.firstValue}
+                              </Text>
+                              <Text className="text-value">
+                                {sorted.secondValue}
+                              </Text>
+                            </div>
+                          </div>
+                        </StyledSection>
+                      ))[1]
+                    }
+                  </>
+                </DropdownMenu>
+              </FlexContainer>
+            </header>
+            <CustomTabs tablists={tabLists} tabPanel={tabPanel} />
+          </NotesWrapper>
+        ) : (
+          <NotesWrapper>
+            <Header>
+              <Text>
+                <span>My Notes</span>
+              </Text>
+            </Header>
+            <Section>
+              <div>
+                <img src="/images/notes.png" alt="notes" />
+                <Text>You don't have any notes yet!</Text>
+                <DropdownMenu
+                  isCreateNewWidth
+                  isCreateNew
+                  menuTitle="Create new"
+                  DropdownMenuIcon={
+                    <AddIcon fontWeight="700" marginRight="10px" />
+                  }
+                >
+                  {createNewLists?.map((createNewList) => (
+                    <SectionNewList key={createNewList.id}>
+                      <NewList onClick={createNewList.onClick}>
+                        {createNewList.iconName}
+                        <Text>{createNewList.labelText}</Text>
+                      </NewList>
+                    </SectionNewList>
+                  ))}
+                </DropdownMenu>
+              </div>
+            </Section>
+          </NotesWrapper>
+        )}
+        <SelectedNoteModal
+          show={toggleHelpModal}
+          setShow={setToggleHelpModal}
+          setShowHelp={setToggleHelpModal}
+        />
+      </Layout>
+    </>
   );
 };
 
-export default Clients;
+export default Notes;

@@ -100,6 +100,7 @@ function AccSettings() {
               <TabPanels>
                 <TabPanel>
                   <MyProfile
+                    id={user.id}
                     username={`${user?.name?.first} ${user?.name?.last}`}
                     email={user.email}
                   />
