@@ -261,6 +261,8 @@ export interface FlashcardQuestion {
   questionType: string;
   question: string;
   options?: string[];
+  helperText?: string;
+  explanation?: string;
   answer: string;
   numberOfAttempts: number;
   currentStep: number;
@@ -276,6 +278,8 @@ export interface Study {
   id: number;
   type: 'timed' | 'manual';
   questions: string;
+  helperText?: string;
+  explanation?: string;
   answers: string | string[];
   currentStep: number;
   isFirstAttempt: boolean;

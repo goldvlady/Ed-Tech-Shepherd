@@ -3,9 +3,10 @@ import styled from 'styled-components';
 export const StyledButton = styled.button<{
   isCancel?: boolean;
   isDelete?: boolean;
+  active?: boolean;
 }>`
-  background: ${({ isCancel, isDelete }) =>
-    isCancel ? '#FFFFFF' : isDelete ? '#F53535' : '#207DF7'};
+  background: ${({ isCancel, isDelete, active = true }) =>
+    !active ? 'gray' : isCancel ? '#FFFFFF' : isDelete ? '#F53535' : '#207DF7'};
 
   color: ${({ isCancel, isDelete }) =>
     isCancel ? '##5C5F64' : isDelete ? '#FFFFFF' : '#FFFFFF'};

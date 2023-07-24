@@ -31,9 +31,8 @@ export default create<Store>((set) => ({
   user: null,
   userNotifications: [],
   fetchUser: async () => {
-    const response = await ApiService.getUser();
     set({
-      user: await response.json()
+      user: userPatch
     });
   },
   fetchNotifications: async () => {

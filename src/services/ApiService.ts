@@ -77,6 +77,15 @@ class ApiService {
     );
   };
 
+  static verifyToken = async (token: string) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/verifyUserEmail?token=${token}`,
+      {
+        method: 'POST'
+      }
+    );
+  };
+
   static storeCurrentStudy = async (flashcardId: string, data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/storeCurrentStudy`, {
       method: 'POST',
