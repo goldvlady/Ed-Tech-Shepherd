@@ -92,9 +92,9 @@ const StudyFooter = ({
           variant="ghost"
           rounded="100%"
           padding="5px"
-          bg="#207DF7"
+          bg="#FFEFE6"
           mr="10px"
-          _hover={{ bg: '#207DF7', transform: 'scale(1.05)' }}
+          _hover={{ bg: '#FFEFE6', transform: 'scale(1.05)' }}
           color="black"
           onClick={() => {
             onMinimize && onMinimize();
@@ -121,9 +121,9 @@ const StudyFooter = ({
         variant="ghost"
         rounded="100%"
         padding="10px"
-        bg="#F53535"
+        bg="#FEECEC"
         onClick={() => loadFlashcard(null)}
-        _hover={{ bg: '#F53535', transform: 'scale(1.05)' }}
+        _hover={{ bg: '#FEECEC', transform: 'scale(1.05)' }}
         color="black"
       >
         <svg
@@ -460,8 +460,19 @@ const StudyBox = () => {
             id: index + 1,
             type: studyType,
             questions: question.question,
-            answers: question.answer,
+            answers: `
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia,
+molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum
+numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium
+optio, eaque rerum! Provident similique accusantium nemo autem. Veritatis
+obcaecati tenetur iure eius earum ut molestias architecto voluptate aliquam
+nihil, eveniet aliquid culpa officia aut! Impedit sit sunt quaerat, odit,
+tenetur error, harum nesciunt ipsum debitis quas aliquid. Reprehenderit,
+quia.
+            `,
             currentStep: question.currentStep,
+            explanation: question.explanation,
+            helperText: question.helperText,
             isFirstAttempt: question.numberOfAttempts === 0
           };
           if (question.options || question.questionType === 'trueFalse') {
@@ -639,7 +650,7 @@ const StudyBox = () => {
             left="50%"
             transform="translateX(-50%)"
             width="340px"
-            height="374px"
+            height="385px"
             fontSize="sub3Size"
             color="text.400"
           >
@@ -647,7 +658,7 @@ const StudyBox = () => {
               top="30px"
               left="50%"
               width="256px"
-              height="344px"
+              height="355px"
               boxShadow="0 6px 24px rgba(92, 101, 112, 0.15)"
               backgroundColor={studyState === 'answer' ? '#F9FAFB' : '#fff'}
             >
@@ -657,7 +668,7 @@ const StudyBox = () => {
               top="20px"
               left="50%"
               width="284px"
-              height="344px"
+              height="355px"
               boxShadow="0 6px 24px rgba(92, 101, 112, 0.15)"
               backgroundColor={studyState === 'answer' ? '#F9FAFB' : '#fff'}
             >
@@ -667,7 +678,7 @@ const StudyBox = () => {
               top="10px"
               left="50%"
               width="312px"
-              height="344px"
+              height="355px"
               boxShadow="0 6px 24px rgba(92, 101, 112, 0.15)"
               backgroundColor={studyState === 'answer' ? '#F9FAFB' : '#fff'}
             >
@@ -693,7 +704,7 @@ const StudyBox = () => {
                   : '#fff'
               }
               boxShadow="0 6px 24px rgba(92, 101, 112, 0.15)"
-              height="344px"
+              height="355px"
               overflow="hidden"
               left="50%"
               transform="translateX(-50%)"
