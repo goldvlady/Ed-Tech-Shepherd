@@ -638,16 +638,15 @@ canvas {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 10px;
+  margin: 30px 0 50px 0;
 }
 
 .landing-faq-filter {
   height: 29px;
-  padding: 3px 18px 3px 18px;
+  padding: 3px 20px 3px 20px;
   border-radius: 100px;
   gap: 10px;
   color: #969ca6;
-  margin: 20px 0 50px 0;
 }
 
 .landing-faq-filter:hover,
@@ -690,7 +689,7 @@ canvas {
 .landing-cta-banner-info {
   display: flex;
   flex-direction: column;
-  margin: 90px 120px;
+  margin: 90px 120px 85px 120px;
   width: 680px;
   gap: 25px;
 }
@@ -728,8 +727,122 @@ canvas {
   margin-top: 10px;
 }
 
+.landing-footer {
+  display: flex;
+  flex-direction: column;
+  margin: 30px 120px;
+}
+
+.landing-links {
+  display: flex;
+  gap: 50px;
+  flex-wrap: wrap;
+}
+
+.landing-footer-logo {
+  display: flex;
+  flex-direction: column;
+  width: 235px;
+  gap: 20px;
+}
+
+.landing-address {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 31px;
+  letter-spacing: 0.007em;
+  text-align: left;
+  color: #585f68;
+}
+
+.landing-links-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 100px;
+  margin: 0 150px;
+}
+
+.landing-link-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.landing-links-title {
+  font-size: 15px !important;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: -0.002em;
+  text-align: left;
+  color: #313949 !important;
+}
+
+.landing-link {
+  font-size: 15px !important;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 0em;
+  text-align: left;
+  color: #6e7682 !important;
+}
+
+.landing-footer-socials {
+  width: 180px;
+}
+
+.landing-footer-icons {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.footer-icon {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.landing-signature {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between;
+  background-color: #f6f8f9;
+  height: 79px;
+  border-radius: 12px;
+  align-items: center;
+  padding: 30px;
+  margin: 100px 0 50px 0;
+}
+
+.landing-dot-icon {
+  padding: 5px;
+}
+
+.landing-signature-info {
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  line-height: 21px;
+  letter-spacing: -0.003em;
+  text-align: left;
+  color: #6e7682;
+}
+
+.landing-terms {
+  display: flex;
+}
+
+.landing-heart-icon {
+  display: inline;
+}
+
 @media (min-width: 1500px) {
   .landing-cta-banner {
+    justify-content: center;
+  }
+
+  .landing-links {
     justify-content: center;
   }
 }
@@ -765,6 +878,10 @@ canvas {
     width: auto;
     padding: 0 40px 0 40px;
     font-size: 25px;
+  }
+
+  .info-accordion {
+    font-size: 18px !important;
   }
 
   .landing-desc-info {
@@ -815,13 +932,107 @@ canvas {
   .landing-cta-banner-info {
     margin: 60px 90px;
   }
+
+  .landing-links-wrapper {
+    margin: 0 50px;
+    gap: 50px;
+  }
+
+  .landing-links {
+    justify-content: center;
+  }
+
+  .landing-footer {
+    margin: 30px 30px;
+  }
+
+  .landing-footer-logo {
+    align-items: center;
+  }
+
+  .landing-address {
+    text-align: center;
+  }
+
+  .landing-link-wrapper {
+    align-items: center;
+  }
+
+  .landing-footer-icons {
+    justify-content: center;
+  }
+
+  .landing-signature {
+    justify-content: space-around;
+  }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 670px) {
+  .landing-signature {
+    height: auto;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 600px) {
   .landing-title {
     width: auto;
     font-size: 30px !important;
     line-height: 30px;
+  }
+
+  .landing-title-wrapper {
+    margin-top: 50px;
+  }
+
+  .landing-desc-info {
+    margin-bottom: 100px;
+  }
+
+  .landing-section-metric {
+    margin-top: 0px;
+  }
+
+  .landing-section-faq {
+    padding: 40px 0px;
+  }
+
+  .landing-faq-title-wrapper {
+    text-align: center;
+  }
+
+  .landing-faq-title {
+    font-size: 28px !important;
+    display: block;
+    text-align: center;
+  }
+
+  .landing-faq-filters {
+    justify-content: center;
+  }
+
+  .landing-info {
+    font-size: 20px;
+  }
+
+  .landing-banner-title {
+    font-size: 30px;
+  }
+
+  .landing-title-img {
+    width: 35px;
+  }
+
+  .landing-link,
+  .landing-links-title,
+  .landing-address {
+    text-align: center;
+  }
+
+  .landing-signature {
+    flex-direction: column;
+    height: auto;
+    gap: 10px;
   }
 }
 
@@ -838,4 +1049,8 @@ canvas {
   .header-cta {
     flex-wrap: wrap;
   }
+
+  /* .landing-footer-icons {
+    gap: 0;
+  } */
 }

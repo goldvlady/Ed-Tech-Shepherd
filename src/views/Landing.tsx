@@ -17,6 +17,13 @@ import Share from '../assets/share.svg';
 import Sparkles from '../assets/sparkles.svg';
 import Sparks from '../assets/sparks.svg';
 import Study from '../assets/study.svg';
+import Star from '../assets/banner-star.svg';
+import Mail from '../assets/mail-icon.svg';
+import Twitter from '../assets/twitter-icon.svg';
+import Linkedin from '../assets/linkedin-icon.svg';
+import Insta from '../assets/insta-icon.svg';
+import Heart from '../assets/heart.svg';
+import Dot from '../assets/dot.svg';
 import Logo from '../components/Logo';
 import faqData from '../mocks/faqs.json';
 import {
@@ -68,7 +75,6 @@ function Landing() {
             outcomes. It understands you, your learning journey and connects you
             to everything you need to learn better.
           </Text>
-          <Button className="landing-title-btn">Get to Know Shepherd</Button>
         </div>
         <img className="landing-img" src={Dashboard} />
       </div>
@@ -121,10 +127,10 @@ function Landing() {
               where you need help the most.
             </Text>
             <Button className="landing-btn">Find a Tutor</Button>
-            <Text className="landing-info-mini" style={{ color: '#969CA6' }}>
+            <Text className="landing-info-mini info-accordion" style={{ color: '#969CA6' }}>
               Shepherd recommends a tutor
             </Text>
-            <Text className="landing-info-mini" style={{ color: '#969CA6' }}>
+            <Text className="landing-info-mini info-accordion" style={{ color: '#969CA6' }}>
               Interactive learning
             </Text>
           </div>
@@ -205,7 +211,7 @@ function Landing() {
             LEARN TOGETHER
           </Text>
           <Text className="landing-info">Collaborate with other learners</Text>
-          <div className="landing-coming-soon">
+          {/* <div className="landing-coming-soon">
             <div className="landing-section-item">
               <img className="landing-coming-soon-icon" src={Collab} />
               <Text className="landing-desc-mini">
@@ -232,7 +238,8 @@ function Landing() {
                 subject.
               </Text>
             </div>
-          </div>
+          </div> */}
+          <Button className="landing-title-btn">Get to Know Shepherd</Button>
         </div>
         <div
           className="landing-section-info"
@@ -462,6 +469,67 @@ function Landing() {
               connects you to everything you need to learn better.
             </Text>
             <Button className="landing-banner-btn">Get Started for Free</Button>
+          </div>
+          {/* <img className="banner-img" src={Star} style={{marginTop: '200px'}} /> */}
+        </div>
+        <div className="landing-footer">
+          <div className="landing-links">
+            <div className="landing-footer-logo">
+              <Logo customWidth="width: 124px" customHeight="height: 51px" style={{margin:'0px'}} />
+              <Text className="landing-address">
+                123 Hackerway,Menlo Park, CA 94025,USA
+              </Text>
+            </div>
+            <div className="landing-links-wrapper">
+              <div className="landing-link-wrapper">
+                <Text className="landing-links-title">
+                  Product
+                </Text>
+                <Link className="landing-link">Shepherd</Link>
+                <Link className="landing-link">Become a Tutor</Link>
+                <Link className="landing-link">Pricing</Link>
+                <Link className="landing-link">FAQs</Link>
+              </div>
+              <div className="landing-link-wrapper">
+                <Text className="landing-links-title">
+                  Resources
+                </Text>
+                <Link className="landing-link">Shepherd</Link>
+                <Link className="landing-link">Become a Tutor</Link>
+                <Link className="landing-link">Pricing</Link>
+                <Link className="landing-link">FAQs</Link>
+              </div>
+            </div>
+            <div className="landing-footer-socials">
+              <div className="landing-link-wrapper">
+                <Text className="landing-links-title" style={{color:'#7A7E85'}}>
+                  Reach out to us
+                </Text>
+                <div className="landing-footer-icons">
+                  <img className="footer-icon" src={Mail} />
+                  <img className="footer-icon" src={Twitter} />
+                  <img className="footer-icon" src={Linkedin} />
+                  <img className="footer-icon" src={Insta} />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="landing-signature">
+            <Text className="landing-signature-info">
+              &#169; 2023 Shepherd Tutors
+            </Text>
+            <Text className="landing-signature-info">
+              Built with love <img className="landing-heart-icon" src={Heart} />
+            </Text>
+            <div className="landing-terms">
+              <Text className="landing-signature-info" style={{cursor: 'pointer'}}>
+                Privacy policy
+              </Text>
+              <img className="landing-dot-icon" src={Dot} />
+              <Text className="landing-signature-info" style={{cursor: 'pointer'}}>
+                Terms of use
+              </Text>
+            </div>
           </div>
         </div>
       </div>
