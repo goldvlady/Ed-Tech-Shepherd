@@ -5,6 +5,7 @@ import * as React from 'react';
 type Props = {
   children: React.ReactNode;
   hideNav?: boolean;
+  handleAuth?: () => Promise<void>;
 } & React.ComponentPropsWithoutRef<typeof OnboardNav>;
 
 const OnboardStep: React.FC<Props> = ({
@@ -16,7 +17,7 @@ const OnboardStep: React.FC<Props> = ({
   return (
     <Box pt="40px">
       <form
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
           nextStep?.();
         }}
