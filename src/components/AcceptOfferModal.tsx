@@ -4,16 +4,16 @@ import React, { Fragment } from 'react';
 
 interface AcceptOfferModalProps {
   offerModalState: boolean;
-  setOfferModalState: (state: boolean) => void;
+  onClose: () => void;
 }
 
 const AcceptOfferModal: React.FC<AcceptOfferModalProps> = ({
   offerModalState,
-  setOfferModalState
+  onClose
 }) => {
   return (
     <Transition.Root show={offerModalState} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={setOfferModalState}>
+      <Dialog as="div" className="relative z-50" onClose={() => onClose()}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -41,7 +41,7 @@ const AcceptOfferModal: React.FC<AcceptOfferModalProps> = ({
                 <div>
                   <div className="flex justify-end px-2">
                     <button
-                      onClick={() => setOfferModalState(false)}
+                      onClick={() => onClose()}
                       className="inline-flex flex-shrink-0 space-x-1 items-center rounded-md bg-gray-100 px-1.5 py-1 text-xs font-medium text-secondaryGray"
                     >
                       <span>Close</span>
@@ -69,7 +69,7 @@ const AcceptOfferModal: React.FC<AcceptOfferModalProps> = ({
                   <button
                     type="button"
                     className="inline-flex w-fit justify-center rounded-md bg-primaryBlue px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                    onClick={() => setOfferModalState(false)}
+                    // onClick={onCloseOfferModal}
                   >
                     Send a message
                   </button>

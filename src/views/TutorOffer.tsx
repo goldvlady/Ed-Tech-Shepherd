@@ -24,7 +24,7 @@ export default function Offer() {
   } = useDisclosure();
   return (
     <>
-      <Layout className="px-4">
+      <Layout className="px-4 bg-white">
         <Breadcrumb />
 
         <Box my={4}>
@@ -47,8 +47,10 @@ export default function Offer() {
           >
             {/* Offer Summary */}
             <OfferSummary
-              onOpenOfferModal={onOpenOfferModal}
-              onOpenDeclineModal={onOpenDeclineModal}
+              // onOpenOfferModal={onOpenOfferModal}
+              // onOpenDeclineModal={onOpenDeclineModal}
+              setOfferModalState={onOpenOfferModal}
+              setDeclineOfferModalState={onOpenDeclineModal}
             />
 
             <DetailsCard
@@ -70,13 +72,17 @@ export default function Offer() {
       </Layout>
 
       {/* Accept Offer Modal */}
-      <AcceptOfferModal isOpen={isOpenOfferModal} onClose={onCloseOfferModal} />
+      <AcceptOfferModal
+        setOfferModalState={onOpenOfferModal}
+        offerModalState={isOpenOfferModal}
+        onClose={onCloseOfferModal}
+      />
 
       {/* Decline Offer Modal */}
-      <DeclineOfferModal
+      {/* <DeclineOfferModal
         isOpen={isOpenDeclineModal}
         onClose={onCloseDeclineModal}
-      />
+      /> */}
     </>
   );
 }

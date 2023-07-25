@@ -1,3 +1,5 @@
+import ApiService from '../services/ApiService';
+import StudentCard from './StudentCard';
 import {
   PencilIcon,
   SparklesIcon,
@@ -16,7 +18,7 @@ import {
   Divider,
   VStack
 } from '@chakra-ui/react';
-import React from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface Status {
@@ -244,134 +246,64 @@ function Date() {
   );
 }
 
-function OfferItem({ offer, navigate }: { offer: Offer; navigate: any }) {
-  const {
-    id,
-    imageURL,
-    name,
-    offer: offerAmount,
-    subject,
-    level,
-    title,
-    status,
-    from,
-    to,
-    time
-  } = offer;
+// function OfferItem({ offer, navigate }: { offer: Offer; navigate: any }) {
+//   const {
+//     id,
+//     imageURL,
+//     name,
+//     offer: offerAmount,
+//     subject,
+//     level,
+//     title,
+//     status,
+//     from,
+//     to,
+//     time
+//   } = offer;
 
-  const handleItemClick = () => {
-    navigate(`tutordashboard/offers/${id}`);
-  };
+//   const handleItemClick = () => {
+//     navigate(`tutordashboard/offers/${id}`);
+//   };
 
-  const styles = {
-    boxShadow: '0px 4px 20px 0px #737E8C26'
-  };
+//   const styles = {
+//     boxShadow: '0px 4px 20px 0px #737E8C26'
+//   };
 
-  return (
-    <GridItem
-      onClick={handleItemClick}
-      mb={6}
-      cursor="pointer"
-      border="1px"
-      borderColor="gray.100"
-      p={3}
-      rounded="lg"
-      bg="white"
-      sx={styles}
-      gap={2}
-      colSpan={1}
-    >
-      <VStack spacing={3}>
-        <Flex w="full" justifyContent="space-between" alignItems="center">
-          <Box flexShrink={0} bg="gray.100" p={2} rounded="full">
-            <Image
-              src="/svgs/text-document.svg"
-              color="gray.400"
-              h={6}
-              w={6}
-              alt=""
-            />
-          </Box>
+//   return (
+//     <GridItem
+//       onClick={handleItemClick}
+//       mb={6}
+//       cursor="pointer"
+//       border="1px"
+//       borderColor="gray.100"
+//       p={3}
+//       rounded="lg"
+//       bg="white"
+//       sx={styles}
+//       gap={2}
+//       colSpan={1}
+//     >
+//       <StudentCard
+//         id={id}
+//         imageURL={imageURL}
+//         name={name}
+//         offer={offer}
+//         subject={subject}
+//         level={level}
+//         title={title}
+//         status={status}
+//         from={from}
+//         to={to}
+//         time={time}
+//       />
+//     </GridItem>
+//   );
+// }
 
-          <Box>
-            <Flex align="center">
-              {status.perfectOffer === 1 && <PerfectOffer />}
-              {status.updated === 1 && <Updated />}
-              {status.new === 1 && <New />}
-              {status.justDate === 1 && <Date />}
-            </Flex>
-          </Box>
-        </Flex>
-
-        <Flex w="full" alignItems="center" justifyContent="space-between">
-          <Box>
-            <Text mr="1" as="span">
-              {subject}
-            </Text>
-            <Text
-              as="p"
-              display="inline-flex"
-              align="center"
-              rounded="md"
-              bg="orange.100"
-              px={1.5}
-              py={1}
-              fontSize="xs"
-              fontWeight="medium"
-              color="orange.400"
-            >
-              <Text as="span">{level}-Level</Text>
-            </Text>
-          </Box>
-
-          <Text as="p" fontSize="md" fontWeight="medium">
-            ${offerAmount}/hr
-          </Text>
-        </Flex>
-
-        <Flex
-          as="p"
-          color="gray.500"
-          fontSize="sm"
-          fontWeight="normal"
-          ml="-8"
-          alignItems="center"
-        >
-          <Text as="span">{title}</Text>
-          <EllipsistIcon className="w-1 mx-0.5" onClick={undefined} />
-          <Text as="span">{from} PM</Text>
-          <ArrowRightIcon className="w-3 mx-0.5" onClick={undefined} />
-          <Text as="span">{to} PM</Text>
-        </Flex>
-      </VStack>
-
-      <Divider my={2} color="gray.400" />
-
-      <Flex alignItems="center" justifyContent="space-between" pt="1">
-        <Flex alignItems="center" fontSize="sm" fontWeight="normal" gap={3}>
-          <Image
-            w={8}
-            h={8}
-            flexShrink={0}
-            rounded="full"
-            bg="gray.300"
-            src={imageURL}
-            alt=""
-          />
-          <Text as="span" color="gray.600">
-            {name}
-          </Text>
-        </Flex>
-        <Text as="p" fontSize="sm" fontWeight="semibold" color="red.400">
-          {time ? `${time}hours left` : ''}
-        </Text>
-      </Flex>
-    </GridItem>
-  );
-}
-
-export default function OffersGridList({ offers }) {
+export default function OffersGridList(offers) {
   const navigate = useNavigate();
+  console.log('OFF', offers);
+
   return (
     <SimpleGrid
       //gap={6}
@@ -381,8 +313,8 @@ export default function OffersGridList({ offers }) {
       //templateColumns="repeat(1, 1fr)"
       //templateColumns={{base: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)'}}
     >
-      {offerss.map((offer) => (
-        <OfferItem key={offer.id} offer={offer} navigate={navigate} />
+      {offers.offers.map((offer) => (
+        <StudentCard key={offer.id} id={offer.id} offer={offer} />
       ))}
     </SimpleGrid>
   );

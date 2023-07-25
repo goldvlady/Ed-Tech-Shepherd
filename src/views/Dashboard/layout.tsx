@@ -121,7 +121,6 @@ const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
 
   // const isActive = path.includes(getComparisonPath(pathname));
   const isActive = pathname === path;
-  console.log('ACTIVE', path);
 
   return (
     <Link

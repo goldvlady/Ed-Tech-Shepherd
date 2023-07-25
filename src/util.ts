@@ -32,7 +32,7 @@ export const getOptionValue = (
 export const doFetch = async (
   input: RequestInfo,
   init?: RequestInit,
-  showErrorMessage = true
+  showErrorMessage = false
 ) => {
   const headers: HeadersInit = {};
 

@@ -16,35 +16,15 @@ const NotReady = () => {
 export default function DocChat() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [ingested, setIngested] = useState(false);
   const { user } = userStore();
 
   useEffect(() => {
     if (!location.state?.documentUrl) navigate('/dashboard/notes');
   }, [navigate, location.state?.documentUrl]);
 
-  const checkDocs = async () => {
-    if (user) {
-      const data = await checkDocumentStatus({
-        studentId: user?._id,
-        documentId: location.state?.docTitle
-      }).then((res) => res[0]);
-      setIngested(data.ingested);
-    }
-  };
-
-  useEffect(() => {
-    let id;
-    if (!ingested && user) {
-      id = setInterval(checkDocs, 3000);
-    }
-    return () => clearInterval(id);
-  });
-
   return (
     location.state?.documentUrl && (
       <section className="divide-y max-w-screen-xl mx-auto">
-        {!ingested && <NotReady />}
         <div className="h-screen bg-white divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
           <TempPDFViewer pdfLink={location.state.documentUrl} />
           <Chat documentId={location.state.docTitle} studentId={user?._id} />

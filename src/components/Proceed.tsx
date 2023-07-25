@@ -1,8 +1,18 @@
-import { Text, Box, HStack, Image, Button, Input } from '@chakra-ui/react';
+import {
+  Avatar,
+  CircularProgress,
+  Text,
+  Box,
+  HStack,
+  Image,
+  Button,
+  Input
+} from '@chakra-ui/react';
 import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment, FC, useRef, memo, useState } from 'react';
 
-const Proceed: FC = () => {
+const Proceed: FC = (props: any) => {
+  const { user } = props;
   const [open, setOpen] = useState(false);
 
   const cancelButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -28,29 +38,41 @@ const Proceed: FC = () => {
             flexWrap="wrap"
             alignItems="center"
           >
-            <Image
+            {/* <Image
               pos="absolute"
-              top={['2', '-0', '-2']}
-              left={['10', '8', '10']}
-              transform={['rotate(38deg)', 'rotate(14deg)', 'rotate(-16deg)']}
+              top={['2', '-3', '-2']}
+              left={['2', '4', '12']}
+              transform={['rotate(38deg)', 'rotate(16deg)', 'rotate(-16deg)']}
               alt=""
               src="/svgs/cut-border.svg"
             />
-            <Box
-              fontSize="2xl"
-              fontWeight="bold"
+            <Avatar
+              boxSize="64px"
               color="white"
-              h="14"
-              w="14"
-              rounded="full"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              bg="green.400"
-              mb={[4, 4, 0]}
-            >
-              L
-            </Box>
+              name={`${user?.name.first} ${user?.name.last}`}
+              bg="#4CAF50;"
+            /> */}
+            <div style={{ position: 'relative' }}>
+              <Avatar
+                color="white"
+                name={`${user?.name.first} ${user?.name.last}`}
+                bg="#4CAF50"
+                size="lg"
+              />
+              <CircularProgress
+                value={30}
+                size="88px"
+                color={'#207DF7'}
+                trackColor="transparent"
+                thickness="4px"
+                position="absolute"
+                capIsRound={true}
+                top={-3}
+                left={-3}
+                zIndex="1"
+              />
+            </div>
+
             <Text my={4} as="p">
               <Text
                 as="span"

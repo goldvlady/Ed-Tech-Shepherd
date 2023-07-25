@@ -141,7 +141,8 @@ function ActivityFeeds(props) {
             >
               {feedPeriod}
             </MenuButton>
-            <MenuList>
+            <MenuList minWidth={'auto'}>
+              <MenuItem onClick={() => setFeedPeriod('All')}>All</MenuItem>
               <MenuItem onClick={() => setFeedPeriod('Today')}>Today</MenuItem>
               <MenuItem onClick={() => setFeedPeriod('This week')}>
                 This week
@@ -156,7 +157,7 @@ function ActivityFeeds(props) {
       </Box>
 
       <Box sx={{ maxHeight: '350px', overflowY: 'auto' }}>
-        {feeds.data?.length > 0 ? (
+        {feeds?.data?.length > 0 ? (
           feeds.data.map((feed: any, index) => (
             <>
               <Root px={3} my={4} key={index}>
@@ -213,14 +214,17 @@ function ActivityFeeds(props) {
               <VStack spacing={5}>
                 <Image src={EmptyFeeds} />
                 <Text fontSize={13} fontWeight={500} color="text.400">
-                  Get started with our AI tools
+                  {userType === 'Student'
+                    ? 'Get started with our AI tools'
+                    : 'No Activity yet'}
                 </Text>
-
-                <CustomButton
-                  buttonText="Ask Shepherd"
-                  w="165px"
-                  onClick={activateHelpModal}
-                />
+                {userType === 'Student' && (
+                  <CustomButton
+                    buttonText="Ask Shepherd"
+                    w="165px"
+                    onClick={activateHelpModal}
+                  />
+                )}
               </VStack>
             </Box>
           </Center>

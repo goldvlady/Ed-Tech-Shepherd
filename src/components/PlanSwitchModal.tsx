@@ -291,7 +291,7 @@ const PlanSwitchModal = ({
                           </HStack>
                         </Center>{' '}
                         <Box ml={6} textAlign="center">
-                          <CustomButton buttonText="Next -> Login" />
+                          <CustomButton buttonText="Switch" />
                         </Box>
                       </Box>
 

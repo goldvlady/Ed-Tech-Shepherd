@@ -144,7 +144,7 @@ const CreateFlashPage = () => {
   const generateFlashcard = useCallback(async () => {
     try {
       flashcardStore.setState({ isLoading: true });
-      const aiData = {
+      const aiData: { [key: string]: any } = {
         topic: flashcardData.topic,
         subject: flashcardData.subject,
         count:
@@ -152,6 +152,10 @@ const CreateFlashPage = () => {
             ? parseInt(flashcardData.numQuestions)
             : flashcardData.numQuestions
       };
+
+      if (flashcardData.level) {
+        aiData.difficulty = flashcardData.level;
+      }
 
       const response = await ApiService.generateFlashcardQuestions(
         aiData,

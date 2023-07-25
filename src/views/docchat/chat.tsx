@@ -1,3 +1,6 @@
+/* eslint-disable no-loop-func */
+
+/* eslint-disable no-unsafe-optional-chaining */
 import { ReactComponent as HightLightIcon } from '../../assets/highlightIcn.svg';
 import { ReactComponent as SummaryIcon } from '../../assets/summaryIcn.svg';
 import { ReactComponent as TellMeMoreIcn } from '../../assets/tellMeMoreIcn.svg';
@@ -83,44 +86,32 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
     studentId: string;
     documentId: string;
   }) => {
-    let packed = '';
-    loading = true;
+    const response = await chatWithDoc({
+      query,
+      studentId,
+      documentId
+    });
 
-    // const response = await chatWithDoc({
-    //   query,
-    //   studentId,
-    //   documentId
-    // });
-
-    try {
-      const responseData = await chatWithDoc({ studentId, query, documentId });
-      setResponse(responseData);
-    } catch (error) {
-      toast({
-        title: 'An error occurred while fetching data.',
-        status: 'error',
-        position: 'top',
-        isClosable: true
-      });
-    } finally {
-      loading = false;
-    }
-    // @ts-ignore: there will always be a body
-    const reader = response.body.getReader();
+    const reader = response.body?.getReader();
     const decoder = new TextDecoder('utf-8');
+    let temp = '';
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      const { done, value } = await reader.read();
+      // @ts-ignore: scary scenes, but let's observe
+      const { done, value } = await reader?.read();
       if (done) {
+        setLLMResponse('');
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { text: temp, isUser: false, isLoading: false }
+        ]);
         break;
       }
       const chunk = decoder.decode(value);
-      packed += chunk;
+      temp += chunk;
       setLLMResponse((llmResponse) => llmResponse + chunk);
     }
-
-    return packed;
   };
 
   const onClose = useCallback(() => {
@@ -160,12 +151,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
     ]);
     setInputValue('');
 
-    const answer = await askLLM({ query: inputValue, studentId, documentId });
-
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { text: answer, isUser: false, isLoading: loading }
-    ]);
+    await askLLM({ query: inputValue, studentId, documentId });
   };
 
   const tabLists = [
@@ -323,6 +309,9 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
                           )}
                         </>
                       )
+                    )}
+                    {llmResponse && (
+                      <AiMessage key="hey">{llmResponse}</AiMessage>
                     )}
                   </ChatContainerResponse>
                 </GridContainer>

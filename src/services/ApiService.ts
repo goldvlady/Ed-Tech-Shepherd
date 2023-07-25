@@ -77,6 +77,15 @@ class ApiService {
     );
   };
 
+  static verifyToken = async (token: string) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/verifyUserEmail?token=${token}`,
+      {
+        method: 'POST'
+      }
+    );
+  };
+
   static storeCurrentStudy = async (flashcardId: string, data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/storeCurrentStudy`, {
       method: 'POST',
@@ -319,6 +328,12 @@ class ApiService {
   static deleteNote = async (id: string | number) => {
     return doFetch(`${ApiService.baseEndpoint}/deleteNote?id=${id}`, {
       method: 'DELETE'
+    });
+  };
+  static updateProfile = async (formData: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/updateProfile`, {
+      method: 'PUT',
+      body: JSON.stringify(formData)
     });
   };
 }
