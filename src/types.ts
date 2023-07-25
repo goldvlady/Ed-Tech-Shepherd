@@ -286,6 +286,14 @@ export interface Study {
   options?: Options;
 }
 
+export enum SessionType {
+  QUIZ = 'quiz',
+  FLASHCARD = 'flashcard',
+  NOTES = 'notes',
+  DOCCHAT = 'docchat',
+  HOMEWORK = 'homework'
+}
+
 export type LevelType = Level;
 export type BookingType = Booking;
 export type OfferType = Offer;
