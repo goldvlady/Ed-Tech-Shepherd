@@ -1,7 +1,6 @@
 import FlashcardEmpty from '../../assets/flashcard_empty_state.png';
-import studySessionLoggerLogger from '../../helpers/sessionLogger';
+import StudySessionLogger from '../../helpers/sessionLogger';
 import flashcardStore from '../../state/flashcardStore';
-import userStore from '../../state/userStore';
 import {
   FlashcardData,
   Score,
@@ -260,9 +259,9 @@ const CompletedState = ({
     const { passed, failed, notRemembered } = score;
     const total = passed + failed + notRemembered;
 
-    const passPercentage = (passed / total) * 100;
-    const failPercentage = (failed / total) * 100;
-    const notRememberedPercentage = (notRemembered / total) * 100;
+    const passPercentage = Math.floor((passed / total) * 100);
+    const failPercentage = Math.floor((failed / total) * 100);
+    const notRememberedPercentage = 100 - passPercentage - failPercentage;
 
     return {
       passPercentage,
@@ -371,9 +370,9 @@ const CompletedState = ({
   );
 };
 
+let studySessionLogger: StudySessionLogger | undefined = undefined;
+
 const StudyBox = () => {
-  let studySessionLogger: studySessionLoggerLogger | undefined = undefined;
-  const { user } = userStore();
   const [studyState, setStudyState] = useState<'question' | 'answer'>(
     'question'
   );
@@ -421,6 +420,14 @@ const StudyBox = () => {
       setStudies(minimizedStudy.data.studies);
     }
   }, [minimizedStudy]);
+
+  useEffect(() => {
+    return () => {
+      if (studySessionLogger && studySessionLogger.currentState !== 'ENDED') {
+        studySessionLogger.end();
+      }
+    };
+  }, []);
 
   const minimizeStudy = async () => {
     const data: MinimizedStudy = {
@@ -522,6 +529,9 @@ const StudyBox = () => {
   useEffect(() => {
     if (isFinished) {
       saveScore();
+      if (studySessionLogger) {
+        studySessionLogger.end();
+      }
     }
   }, [isFinished, saveScore]);
 
@@ -609,13 +619,8 @@ const StudyBox = () => {
       ...prev,
       isStarted: !prev.isStarted
     }));
-    if (user) {
-      studySessionLogger = new studySessionLoggerLogger(
-        user,
-        SessionType.FLASHCARD
-      );
-      studySessionLogger.start();
-    }
+    studySessionLogger = new StudySessionLogger(SessionType.FLASHCARD);
+    studySessionLogger.start();
   };
 
   const finishStudy = () => {
@@ -623,9 +628,6 @@ const StudyBox = () => {
       isStarted: false,
       isFinished: true
     }));
-    if (user && studySessionLogger) {
-      studySessionLogger.end();
-    }
   };
 
   const questionsLeft = (
@@ -1100,9 +1102,7 @@ const StudyBox = () => {
           <EmptyState
             flashcard={flashcard as FlashcardData}
             onClose={() => loadFlashcard(null)}
-            onStart={() =>
-              setActivityState({ isStarted: true, isFinished: false })
-            }
+            onStart={() => startStudy()}
           />
         ) : (
           renderMainBox()
