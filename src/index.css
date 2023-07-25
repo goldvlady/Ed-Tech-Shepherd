@@ -527,7 +527,6 @@ canvas {
   flex-direction: column;
   gap: 15px;
   width: 283px;
-  height: 328px;
   padding: 20px;
   border-radius: 8px;
   background-color: #ffffff;
@@ -562,11 +561,13 @@ canvas {
 
 .landing-check-icon {
   width: 18px;
+  padding: 5px 0;
 }
 
 .landing-price-value {
   display: flex;
   gap: 5px;
+  align-items: flex-start;
 }
 
 .landing-price-btn {

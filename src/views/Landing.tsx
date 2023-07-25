@@ -26,6 +26,7 @@ import Study from '../assets/study.svg';
 import Twitter from '../assets/twitter-icon.svg';
 import Logo from '../components/Logo';
 import faqData from '../mocks/faqs.json';
+import priceData from '../mocks/pricing.json';
 import {
   Button,
   Box,
@@ -42,7 +43,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 function Landing() {
-  //   const navigate = useNavigate();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>('AI');
 
   const handleTabClick = (id: string) => {
@@ -57,8 +58,8 @@ function Landing() {
             <Logo customWidth="width: 124px" customHeight="height: 51px" />
           </div>
           <div className="header-cta">
-            <Link className="header-link">Sign in</Link>
-            <Button className="header-btn">Get Started</Button>
+            <Link className="header-link" onClick={() => navigate(`/login`)}>Sign in</Link>
+            <Button className="header-btn" onClick={() => navigate(`/signup`)}>Get Started</Button>
           </div>
         </div>
         <div className="landing-title-wrapper">
@@ -126,7 +127,7 @@ function Landing() {
               Shepherd observes your learning journey and identifies the areas
               where you need help the most.
             </Text>
-            <Button className="landing-btn">Find a Tutor</Button>
+            <Button className="landing-btn" onClick={() => navigate(`/signup`)}>Find a Tutor</Button>
             <Text
               className="landing-info-mini info-accordion"
               style={{ color: '#969CA6' }}
@@ -245,7 +246,7 @@ function Landing() {
               </Text>
             </div>
           </div> */}
-          <Button className="landing-title-btn">Get to Know Shepherd</Button>
+          <Button className="landing-title-btn" onClick={() => navigate(`/signup`)}>Meet Shepherd</Button>
         </div>
         <div
           className="landing-section-info"
@@ -261,127 +262,52 @@ function Landing() {
             PRICING
           </Text>
           <div className="landing-price-wrapper">
-            <div className="landing-price-card">
-              <div className="landing-metric-wrapper">
-                <Text className="landing-price-level">Basic</Text>
-              </div>
-              <div className="landing-metric-wrapper">
-                <Text className="landing-price-point">Free</Text>
-              </div>
-              <div className="landing-section-item">
-                <div className="landing-price-value">
-                  <img className="landing-check-icon" src={Check} />
-                  <Text className="landing-desc-mini">
-                    Up to 10 flashcard decks
-                  </Text>
+            
+            {priceData.map((priceCard) => (
+              <div
+                className="landing-price-card"
+                style={{position: priceCard.popular ? 'relative' : 'static'}}
+              >
+                {priceCard.popular &&
+                  <Text className="landing-price-sub-bubble">Popular</Text>
+                }
+                <div className="landing-metric-wrapper">
+                  <Text className="landing-price-level">{priceCard.tier}</Text>
                 </div>
-                <div className="landing-price-value">
-                  <img className="landing-check-icon" src={Check} />
-                  <Text className="landing-desc-mini">
-                    Up to 10 flashcard decks
-                  </Text>
-                </div>
-                <div className="landing-price-value">
-                  <img className="landing-check-icon" src={Check} />
-                  <Text className="landing-desc-mini">
-                    Up to 10 flashcard decks
-                  </Text>
-                </div>
-                <div className="landing-price-value">
-                  <img className="landing-check-icon" src={Check} />
-                  <Text className="landing-desc-mini">
-                    Up to 10 flashcard decks
-                  </Text>
-                </div>
-                <Button className="landing-price-btn">Try for Free</Button>
-              </div>
-            </div>
-            <div
-              className="landing-price-card"
-              style={{ position: 'relative' }}
-            >
-              <Text className="landing-price-sub-bubble">Popular</Text>
-              <div className="landing-metric-wrapper">
-                <Text className="landing-price-level">Intermediate</Text>
-              </div>
-              <div className="landing-metric-wrapper">
-                <Text className="landing-price-point">$10</Text>
-                <Text
+                <div className="landing-metric-wrapper">
+                  <Text className="landing-price-point">{priceCard.price}</Text>
+                  {priceCard.cycle &&
+                  <Text
                   className="landing-metric-tag"
                   style={{ fontWeight: '400' }}
                 >
-                  /Month
+                {priceCard.cycle}
                 </Text>
-              </div>
-              <div className="landing-section-item">
-                <div className="landing-price-value">
-                  <img className="landing-check-icon" src={Check} />
-                  <Text className="landing-desc-mini">
-                    Up to 10 flashcard decks
-                  </Text>
+                }
                 </div>
-                <div className="landing-price-value">
-                  <img className="landing-check-icon" src={Check} />
-                  <Text className="landing-desc-mini">
-                    Up to 10 flashcard decks
-                  </Text>
-                </div>
-                <div className="landing-price-value">
-                  <img className="landing-check-icon" src={Check} />
-                  <Text className="landing-desc-mini">
-                    Up to 10 flashcard decks
-                  </Text>
-                </div>
-                <div className="landing-price-value">
-                  <img className="landing-check-icon" src={Check} />
-                  <Text className="landing-desc-mini">
-                    Up to 10 flashcard decks
-                  </Text>
-                </div>
-                <Button className="landing-price-btn">Subscribe Now</Button>
-              </div>
-            </div>
-            <div className="landing-price-card">
-              <div className="landing-metric-wrapper">
-                <Text className="landing-price-level">Premium</Text>
-              </div>
-              <div className="landing-metric-wrapper">
-                <Text className="landing-price-point">$10</Text>
-                <Text
+                {/* <div className="landing-metric-wrapper">
+                  {priceCard.subscription &&
+                  <Text
                   className="landing-metric-tag"
                   style={{ fontWeight: '400' }}
                 >
-                  /Month
+                {priceCard.subscription}
                 </Text>
-              </div>
-              <div className="landing-section-item">
-                <div className="landing-price-value">
-                  <img className="landing-check-icon" src={Check} />
-                  <Text className="landing-desc-mini">
-                    Up to 10 flashcard decks
-                  </Text>
+                }
+                </div> */}
+                <div className="landing-section-item">
+                  {priceCard['value'].map((value) => (
+                    <div className="landing-price-value">
+                      <img className="landing-check-icon" src={Check} />
+                      <Text className="landing-desc-mini">
+                        {value}
+                      </Text>
+                    </div>
+                  ))}
+                  <Button className="landing-price-btn">Try for Free</Button>
                 </div>
-                <div className="landing-price-value">
-                  <img className="landing-check-icon" src={Check} />
-                  <Text className="landing-desc-mini">
-                    Up to 10 flashcard decks
-                  </Text>
-                </div>
-                <div className="landing-price-value">
-                  <img className="landing-check-icon" src={Check} />
-                  <Text className="landing-desc-mini">
-                    Up to 10 flashcard decks
-                  </Text>
-                </div>
-                <div className="landing-price-value">
-                  <img className="landing-check-icon" src={Check} />
-                  <Text className="landing-desc-mini">
-                    Up to 10 flashcard decks
-                  </Text>
-                </div>
-                <Button className="landing-price-btn">Subscribe Now</Button>
-              </div>
-            </div>
+              </div> 
+            ))}       
           </div>
         </div>
         <div className="landing-section-faq">
@@ -474,7 +400,7 @@ function Landing() {
               learning outcomes. It understands you, your learning journey and
               connects you to everything you need to learn better.
             </Text>
-            <Button className="landing-banner-btn">Get Started for Free</Button>
+            <Button className="landing-banner-btn" onClick={() => navigate(`/signup`)}>Get Started for Free</Button>
           </div>
           {/* <img className="banner-img" src={Star} style={{marginTop: '200px'}} /> */}
         </div>
