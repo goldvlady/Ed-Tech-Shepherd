@@ -104,6 +104,27 @@ export const numberToDayOfWeekName = (num: number, format = 'dddd') =>
 export const DayOfWeekNameToNumber = (num: number, format = 'dddd') =>
   moment().day(num).format(format);
 
+export const isSameDay = (date1, date2) => {
+  return (
+    date1.getDate() === date2.getDate() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getFullYear() === date2.getFullYear()
+  );
+};
+
+export const isSameWeek = (date1, date2) => {
+  const oneDay = 24 * 60 * 60 * 1000;
+  const diff = Math.round(Math.abs((date1 - date2) / oneDay));
+  return diff <= 6 && date1.getDay() >= date2.getDay();
+};
+
+export const isSameMonth = (date1, date2) => {
+  return (
+    date1.getMonth() === date2.getMonth() &&
+    date1.getFullYear() === date2.getFullYear()
+  );
+};
+
 export const leadingZero = (num: number) => `0${num}`.slice(-2);
 
 export const roundDate = (
