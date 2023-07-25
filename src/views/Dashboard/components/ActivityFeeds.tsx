@@ -9,6 +9,7 @@ import NoEvent from '../../../assets/no-event.svg';
 import NoteIcon from '../../../assets/notes.svg';
 import ReceiptSmIcon from '../../../assets/receipt-sm.svg';
 import FlashcardIcon from '../../../assets/receiptIcon.svg';
+import WalletIcon from '../../../assets/wallet-money.svg';
 import HelpModal from '../../../components/HelpModal';
 import { CustomButton } from '../layout';
 import { TimeAgo } from './TimeAgo';
@@ -94,7 +95,8 @@ const getFileIconByActivityType = (activityType) => {
   }
 };
 
-function ActivityFeeds(feeds: any) {
+function ActivityFeeds(props) {
+  const { feeds, userType } = props;
   const [feedPeriod, setFeedPeriod] = useState<any>('Today');
 
   const [toggleHelpModal, setToggleHelpModal] = useState(false);
@@ -113,10 +115,14 @@ function ActivityFeeds(feeds: any) {
       <Box>
         <Flex alignItems="center">
           <HStack mb={2}>
-            <img src={FeedIcon} alt="feed-icon" width={12} />
+            <Image
+              src={userType === 'Student' ? FeedIcon : WalletIcon}
+              alt="feed-icon"
+              width={5}
+            />
 
             <Text fontSize={16} fontWeight={500} mx={2}>
-              Activity Feed
+              {userType === 'Student' ? 'Activity Feed' : 'Recent Transactions'}
             </Text>
           </HStack>
           <Spacer />
@@ -135,7 +141,8 @@ function ActivityFeeds(feeds: any) {
             >
               {feedPeriod}
             </MenuButton>
-            <MenuList>
+            <MenuList minWidth={'auto'}>
+              <MenuItem onClick={() => setFeedPeriod('All')}>All</MenuItem>
               <MenuItem onClick={() => setFeedPeriod('Today')}>Today</MenuItem>
               <MenuItem onClick={() => setFeedPeriod('This week')}>
                 This week
@@ -150,8 +157,8 @@ function ActivityFeeds(feeds: any) {
       </Box>
 
       <Box sx={{ maxHeight: '350px', overflowY: 'auto' }}>
-        {feeds.feeds?.data.length > 0 ? (
-          feeds.feeds?.data.map((feed: any, index) => (
+        {feeds?.data?.length > 0 ? (
+          feeds.data.map((feed: any, index) => (
             <>
               <Root px={3} my={4} key={index}>
                 <Image
@@ -207,14 +214,17 @@ function ActivityFeeds(feeds: any) {
               <VStack spacing={5}>
                 <Image src={EmptyFeeds} />
                 <Text fontSize={13} fontWeight={500} color="text.400">
-                  Get started with our AI tools
+                  {userType === 'Student'
+                    ? 'Get started with our AI tools'
+                    : 'No Activity yet'}
                 </Text>
-
-                <CustomButton
-                  buttonText="Ask Shepherd"
-                  w="165px"
-                  onClick={activateHelpModal}
-                />
+                {userType === 'Student' && (
+                  <CustomButton
+                    buttonText="Ask Shepherd"
+                    w="165px"
+                    onClick={activateHelpModal}
+                  />
+                )}
               </VStack>
             </Box>
           </Center>

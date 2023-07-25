@@ -119,7 +119,8 @@ interface NavItemProps extends FlexProps {
 const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
   const { pathname } = useLocation();
 
-  const isActive = path.includes(getComparisonPath(pathname));
+  // const isActive = path.includes(getComparisonPath(pathname));
+  const isActive = pathname === path;
 
   return (
     <Link
@@ -453,6 +454,8 @@ const SidebarContent = ({
   toggleMenu,
   ...rest
 }: SidebarProps) => {
+  const { pathname } = useLocation();
+
   return (
     <Box
       transition="3s ease"
@@ -470,7 +473,7 @@ const SidebarContent = ({
         </Text>
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
-      <NavItem icon={FiHome} path={'/dashboard'}>
+      <NavItem icon={FiHome} path={'/dashboard/home'}>
         Home
       </NavItem>
       <Box ml={8} color="text.400">
@@ -522,7 +525,16 @@ const SidebarContent = ({
       <Divider />
       {LinkBItems.map((link) => (
         <>
-          <NavItem key={link.name} icon={link.icon} path={link.path}>
+          <NavItem
+            key={link.name}
+            icon={link.icon}
+            path={link.path}
+            className={`${
+              pathname === link.path
+                ? 'bg-slate-100 text-primaryBlue'
+                : 'text-gray-400 hover:text-primaryBlue hover:bg-slate-100'
+            } group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold`}
+          >
             {link.name}
           </NavItem>
         </>

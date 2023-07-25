@@ -31,6 +31,7 @@ import TutorOffer from './views/TutorOffer';
 import TutorOffers from './views/TutorOffers';
 import PendingVerification from './views/VerificationPages/pending_verification';
 import VerificationSuccess from './views/VerificationPages/successful_verification';
+import VerifyEmail from './views/VerificationPages/verify_email';
 import WelcomeLayout from './views/WelcomeLayout';
 import Client from './views/client';
 import Clients from './views/clients';
@@ -83,8 +84,15 @@ const RequireAuth = ({
       setObtainedUserAuthState(true);
       setFirebaseUser(user);
       if (user) {
-        await fetchUser().catch((e) => navigate('/login'));
-        fetchNotifications();
+        await fetchUser()
+          .then(() => {
+            fetchNotifications();
+          })
+          .catch((e) => {
+            if (user.metadata.creationTime !== user.metadata.lastSignInTime) {
+              navigate('/login');
+            }
+          });
       }
       setLoadingUser(false);
     });
@@ -144,7 +152,7 @@ const AppRoutes: React.FC = () => {
           element={
             <RequireAuth
               authenticated={<Navigate to={'/dashboard'} />}
-              unAuthenticated={<Signup />}
+              unAuthenticated={<OnboardStudent />}
             />
           }
         />
@@ -164,6 +172,7 @@ const AppRoutes: React.FC = () => {
       <Route path="verification_success" element={<VerificationSuccess />} />
 
       <Route path="complete_profile" element={<CompleteProfile />} />
+      <Route path="verify_email" element={<VerifyEmail />} />
 
       <Route
         path="login"

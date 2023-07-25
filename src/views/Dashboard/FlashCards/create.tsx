@@ -2,6 +2,7 @@ import { FlashCardModal } from '../../../components/flashcardDecks';
 import LoaderOverlay from '../../../components/loaderOverlay';
 import ApiService from '../../../services/ApiService';
 import flashcardStore from '../../../state/flashcardStore';
+import userStore from '../../../state/userStore';
 import FlashcardDataProvider from './context/flashcard';
 import { useFlashCardState } from './context/flashcard';
 import MnemonicSetupProvider from './context/mneomics';
@@ -104,6 +105,7 @@ const useBoxWidth = (ref: RefObject<HTMLDivElement>): number => {
 
 const CreateFlashPage = () => {
   const toast = useToast();
+  const { user } = userStore();
   const [settings, setSettings] = useState<SettingsType>({
     type: TypeEnum.INIT,
     source: SourceEnum.MANUAL
@@ -118,7 +120,8 @@ const CreateFlashPage = () => {
     goToNextStep,
     setQuestions,
     goToStep,
-    setFlashcardData
+    setFlashcardData,
+    resetFlashcard
   } = useFlashCardState();
 
   const { createFlashCard, flashcard, isLoading, fetchFlashcards } =
@@ -141,12 +144,34 @@ const CreateFlashPage = () => {
   const generateFlashcard = useCallback(async () => {
     try {
       flashcardStore.setState({ isLoading: true });
+      const aiData: { [key: string]: any } = {
+        topic: flashcardData.topic,
+        subject: flashcardData.subject,
+        count:
+          typeof flashcardData.numQuestions === 'string'
+            ? parseInt(flashcardData.numQuestions)
+            : flashcardData.numQuestions
+      };
+
+      if (flashcardData.level) {
+        aiData.difficulty = flashcardData.level;
+      }
+
       const response = await ApiService.generateFlashcardQuestions(
-        flashcardData
+        aiData,
+        user?._id as string
       );
       if (response.status === 200) {
-        const { data } = await response.json();
-        setQuestions(data);
+        const data = await response.json();
+        const questions = data.map((d: any) => ({
+          question: d.front,
+          answer: d.back,
+          explanation: d.explainer,
+          helperText: d['helpful reading'],
+          questionType: 'openEnded'
+        }));
+
+        setQuestions(questions);
         setType(TypeEnum.FLASHCARD);
         goToNextStep();
         // fetchFlashcards();
@@ -183,14 +208,11 @@ const CreateFlashPage = () => {
   }, [
     flashcardData,
     goToNextStep,
+    user,
     setQuestions,
     setHasSubmittedFlashCards,
-    //questions,
     toast,
     setFlashcardData
-    // fetchFlashcards,
-    // createFlashCard,
-    // settings.source
   ]);
 
   const onSubmitFlashcard = useCallback(async () => {
@@ -250,6 +272,7 @@ const CreateFlashPage = () => {
       }
       if (
         settings.type !== TypeEnum.FLASHCARD &&
+        settings.type !== TypeEnum.INIT &&
         settings.source !== SourceEnum.MANUAL
       ) {
         setSettings((value) => ({ ...value, source: SourceEnum.MANUAL }));
@@ -287,15 +310,20 @@ const CreateFlashPage = () => {
   };
 
   const form = useMemo(() => {
-    if (
-      settings.type === TypeEnum.MNEOMONIC &&
-      settings.source === SourceEnum.MANUAL
-    ) {
+    if (settings.type === TypeEnum.MNEOMONIC) {
       return <MnemonicSetup />;
     }
 
     if (isCompleted) {
-      return <SuccessState />;
+      return (
+        <SuccessState
+          reset={() => {
+            resetFlashcard();
+            setIsCompleted(false);
+            setHasSubmittedFlashCards(false);
+          }}
+        />
+      );
     }
     if (
       (settings.type === TypeEnum.FLASHCARD ||
@@ -308,7 +336,7 @@ const CreateFlashPage = () => {
       return <SetupFlashcardPage isAutomated />;
     }
     return <></>;
-  }, [settings, isCompleted]); // The callback depends on 'settings'
+  }, [settings, isCompleted, resetFlashcard]); // The callback depends on 'settings'
 
   const renderPreview = () => {
     if (settings.type === TypeEnum.INIT) {
