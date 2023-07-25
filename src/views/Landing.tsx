@@ -58,8 +58,12 @@ function Landing() {
             <Logo customWidth="width: 124px" customHeight="height: 51px" />
           </div>
           <div className="header-cta">
-            <Link className="header-link" onClick={() => navigate(`/login`)}>Sign in</Link>
-            <Button className="header-btn" onClick={() => navigate(`/signup`)}>Get Started</Button>
+            <Link className="header-link" onClick={() => navigate(`/login`)}>
+              Sign in
+            </Link>
+            <Button className="header-btn" onClick={() => navigate(`/signup`)}>
+              Get Started
+            </Button>
           </div>
         </div>
         <div className="landing-title-wrapper">
@@ -127,7 +131,9 @@ function Landing() {
               Shepherd observes your learning journey and identifies the areas
               where you need help the most.
             </Text>
-            <Button className="landing-btn" onClick={() => navigate(`/signup`)}>Find a Tutor</Button>
+            <Button className="landing-btn" onClick={() => navigate(`/signup`)}>
+              Find a Tutor
+            </Button>
             <Text
               className="landing-info-mini info-accordion"
               style={{ color: '#969CA6' }}
@@ -140,6 +146,67 @@ function Landing() {
             >
               Interactive learning
             </Text>
+            {/* <Accordion allowToggle>
+              <AccordionItem>
+                <h2>
+                  <AccordionButton>
+                   <Text className="landing-info-mini">
+                    Shepherd detects your struggle
+                  </Text>
+                    <AccordionIcon />
+                  </AccordionButton>
+                </h2>
+                <AccordionPanel pb={4}>
+                 <Text className="landing-desc-mini">
+                    Shepherd observes your learning journey and identifies the areas
+                    where you need help the most.
+                  </Text>
+                  <Button className="landing-btn" onClick={() => navigate(`/signup`)}>
+                    Find a Tutor
+                  </Button>
+                </AccordionPanel>
+              </AccordionItem>
+              
+              <AccordionItem>
+                <h2>
+                  <AccordionButton>
+                    <Text
+                      className="landing-info-mini info-accordion"
+                      style={{ color: '#969CA6' }}
+                    >
+                      Shepherd recommends a tutor
+                    </Text>
+                    <AccordionIcon />
+                  </AccordionButton>
+                </h2>
+                <AccordionPanel pb={4}>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+                  tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+                  veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+                  commodo consequat.
+                </AccordionPanel>
+              </AccordionItem>
+
+              <AccordionItem>
+                <h2>
+                  <AccordionButton>
+                      <Text
+                        className="landing-info-mini info-accordion"
+                        style={{ color: '#969CA6' }}
+                      >
+                        Interactive learning
+                      </Text>
+                    <AccordionIcon />
+                  </AccordionButton>
+                </h2>
+                <AccordionPanel pb={4}>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+                  tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+                  veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+                  commodo consequat.
+                </AccordionPanel>
+              </AccordionItem>
+            </Accordion> */}
           </div>
           <img className="landing-gpt-img" src={Gpt} />
         </div>
@@ -246,7 +313,12 @@ function Landing() {
               </Text>
             </div>
           </div> */}
-          <Button className="landing-title-btn" onClick={() => navigate(`/signup`)}>Meet Shepherd</Button>
+          <Button
+            className="landing-title-btn"
+            onClick={() => navigate(`/signup`)}
+          >
+            Meet Shepherd
+          </Button>
         </div>
         <div
           className="landing-section-info"
@@ -262,28 +334,27 @@ function Landing() {
             PRICING
           </Text>
           <div className="landing-price-wrapper">
-            
             {priceData.map((priceCard) => (
               <div
                 className="landing-price-card"
-                style={{position: priceCard.popular ? 'relative' : 'static'}}
+                style={{ position: priceCard.popular ? 'relative' : 'static' }}
               >
-                {priceCard.popular &&
+                {priceCard.popular && (
                   <Text className="landing-price-sub-bubble">Popular</Text>
-                }
+                )}
                 <div className="landing-metric-wrapper">
                   <Text className="landing-price-level">{priceCard.tier}</Text>
                 </div>
                 <div className="landing-metric-wrapper">
                   <Text className="landing-price-point">{priceCard.price}</Text>
-                  {priceCard.cycle &&
-                  <Text
-                  className="landing-metric-tag"
-                  style={{ fontWeight: '400' }}
-                >
-                {priceCard.cycle}
-                </Text>
-                }
+                  {priceCard.cycle && (
+                    <Text
+                      className="landing-metric-tag"
+                      style={{ fontWeight: '400' }}
+                    >
+                      {priceCard.cycle}
+                    </Text>
+                  )}
                 </div>
                 {/* <div className="landing-metric-wrapper">
                   {priceCard.subscription &&
@@ -299,15 +370,13 @@ function Landing() {
                   {priceCard['value'].map((value) => (
                     <div className="landing-price-value">
                       <img className="landing-check-icon" src={Check} />
-                      <Text className="landing-desc-mini">
-                        {value}
-                      </Text>
+                      <Text className="landing-desc-mini">{value}</Text>
                     </div>
                   ))}
                   <Button className="landing-price-btn">Try for Free</Button>
                 </div>
-              </div> 
-            ))}       
+              </div>
+            ))}
           </div>
         </div>
         <div className="landing-section-faq">
@@ -392,7 +461,7 @@ function Landing() {
               YOU ARE CONVINCED
             </Text>
             <Text className="landing-banner-title">
-              Join us today, it’s time to supercharge{' '}
+              Join us today, it's time to supercharge{' '}
               <img className="banner-icon" src={Flash} /> your learning
             </Text>
             <Text className="banner-desc">
@@ -400,7 +469,12 @@ function Landing() {
               learning outcomes. It understands you, your learning journey and
               connects you to everything you need to learn better.
             </Text>
-            <Button className="landing-banner-btn" onClick={() => navigate(`/signup`)}>Get Started for Free</Button>
+            <Button
+              className="landing-banner-btn"
+              onClick={() => navigate(`/signup`)}
+            >
+              Get Started for Free
+            </Button>
           </div>
           {/* <img className="banner-img" src={Star} style={{marginTop: '200px'}} /> */}
         </div>
