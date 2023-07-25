@@ -11,6 +11,7 @@ import ReceiptSmIcon from '../../../assets/receipt-sm.svg';
 import FlashcardIcon from '../../../assets/receiptIcon.svg';
 import WalletIcon from '../../../assets/wallet-money.svg';
 import HelpModal from '../../../components/HelpModal';
+import { isSameDay, isSameWeek, isSameMonth } from '../../../util';
 import { CustomButton } from '../layout';
 import { TimeAgo } from './TimeAgo';
 import {
@@ -97,7 +98,9 @@ const getFileIconByActivityType = (activityType) => {
 
 function ActivityFeeds(props) {
   const { feeds, userType } = props;
-  const [feedPeriod, setFeedPeriod] = useState<any>('Today');
+  const [feedPeriod, setFeedPeriod] = useState<
+    'all' | 'today' | 'week' | 'month'
+  >('all');
 
   const [toggleHelpModal, setToggleHelpModal] = useState(false);
   const activateHelpModal = () => {
@@ -109,6 +112,31 @@ function ActivityFeeds(props) {
     const textAfterLastSlash = url.substring(lastSlashIndex + 1);
     return textAfterLastSlash;
   };
+
+  const [filteredFeeds, setFilteredFeeds] = useState<any[]>([]);
+
+  useEffect(() => {
+    const currentTime = new Date();
+
+    const filterByPeriod = (feed: any) => {
+      const feedTime = new Date(feed.updatedAt);
+
+      if (feedPeriod === 'all') {
+        return true;
+      } else if (feedPeriod === 'today') {
+        return isSameDay(currentTime, feedTime);
+      } else if (feedPeriod === 'week') {
+        return isSameWeek(currentTime, feedTime);
+      } else if (feedPeriod === 'month') {
+        return isSameMonth(currentTime, feedTime);
+      } else {
+        return false;
+      }
+    };
+
+    const filteredFeeds = feeds.data.filter(filterByPeriod);
+    setFilteredFeeds(filteredFeeds);
+  }, [feedPeriod, feeds.data]);
 
   return (
     <>
@@ -142,12 +170,12 @@ function ActivityFeeds(props) {
               {feedPeriod}
             </MenuButton>
             <MenuList minWidth={'auto'}>
-              <MenuItem onClick={() => setFeedPeriod('All')}>All</MenuItem>
-              <MenuItem onClick={() => setFeedPeriod('Today')}>Today</MenuItem>
-              <MenuItem onClick={() => setFeedPeriod('This week')}>
+              <MenuItem onClick={() => setFeedPeriod('all')}>All</MenuItem>
+              <MenuItem onClick={() => setFeedPeriod('today')}>Today</MenuItem>
+              <MenuItem onClick={() => setFeedPeriod('week')}>
                 This week
               </MenuItem>
-              <MenuItem onClick={() => setFeedPeriod('This month')}>
+              <MenuItem onClick={() => setFeedPeriod('month')}>
                 This month
               </MenuItem>
             </MenuList>
@@ -157,57 +185,59 @@ function ActivityFeeds(props) {
       </Box>
 
       <Box sx={{ maxHeight: '350px', overflowY: 'auto' }}>
-        {feeds?.data?.length > 0 ? (
-          feeds.data.map((feed: any, index) => (
-            <>
-              <Root px={3} my={4} key={index}>
-                <Image
-                  src={getIconByActivityType(feed.activityType)}
-                  alt="doc"
-                  maxHeight={45}
-                  zIndex={1}
-                />
-                <Stack direction={'column'} px={4} spacing={1}>
-                  <Text color="text.300" fontSize={12} mb={0}>
-                    <TimeAgo timestamp={feed.updatedAt} />
-                  </Text>
+        {filteredFeeds.length > 0 ? (
+          filteredFeeds
+            .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt)) //
+            .map((feed: any, index) => (
+              <>
+                <Root px={3} my={4} key={index}>
+                  <Image
+                    src={getIconByActivityType(feed.activityType)}
+                    alt="doc"
+                    maxHeight={45}
+                    zIndex={1}
+                  />
+                  <Stack direction={'column'} px={4} spacing={1}>
+                    <Text color="text.300" fontSize={12} mb={0}>
+                      <TimeAgo timestamp={feed.updatedAt} />
+                    </Text>
 
-                  <Text
-                    fontWeight={400}
-                    color="text.200"
-                    fontSize="14px"
-                    mb={0}
-                  >
-                    {feed.title}
-                  </Text>
+                    <Text
+                      fontWeight={400}
+                      color="text.200"
+                      fontSize="14px"
+                      mb={0}
+                    >
+                      {feed.title}
+                    </Text>
 
-                  <Spacer />
+                    <Spacer />
 
-                  <Box
-                    width={'fit-content'}
-                    height="40px"
-                    borderRadius={'30px'}
-                    border=" 1px dashed #E2E4E9"
-                    justifyContent="center"
-                    alignItems="center"
-                    px={3}
-                  >
-                    <Flex mt={2.5} gap={1}>
-                      <Text>
-                        <Image
-                          src={getFileIconByActivityType(feed.activityType)}
-                        />
-                      </Text>
+                    <Box
+                      width={'fit-content'}
+                      height="40px"
+                      borderRadius={'30px'}
+                      border=" 1px dashed #E2E4E9"
+                      justifyContent="center"
+                      alignItems="center"
+                      px={3}
+                    >
+                      <Flex mt={2.5} gap={1}>
+                        <Text>
+                          <Image
+                            src={getFileIconByActivityType(feed.activityType)}
+                          />
+                        </Text>
 
-                      <Text fontWeight={500} fontSize={12} color="#73777D">
-                        {getFileName(feed.link)}
-                      </Text>
-                    </Flex>
-                  </Box>
-                </Stack>
-              </Root>
-            </>
-          ))
+                        <Text fontWeight={500} fontSize={12} color="#73777D">
+                          {feed.link ? getFileName(feed.link) : feed.title}
+                        </Text>
+                      </Flex>
+                    </Box>
+                  </Stack>
+                </Root>
+              </>
+            ))
         ) : (
           <Center h="400px">
             <Box textAlign={'center'} px={20} mt={5}>
