@@ -264,9 +264,14 @@ class ApiService {
     });
   };
 
+  // Get All Bookmarked tutors
   static getBookmarkedTutors = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/bookmarkedTutors`);
+    return doFetch(
+      // `${ApiService.baseEndpoint}/bookmarkedTutors?page=${page}&limit=${limit}`
+      `${ApiService.baseEndpoint}/bookmarkedTutors`
+    );
   };
+
   static getStudentTutors = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getStudentTutors`);
   };
@@ -292,8 +297,10 @@ class ApiService {
   };
 
   // Get All Tutor Offers
-  static getOffers = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/getOffers`);
+  static getOffers = async (page: number, limit: number) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/getOffers?page=${page}&limit=${limit}`
+    );
   };
 
   // Get Singlege Tutor Offers

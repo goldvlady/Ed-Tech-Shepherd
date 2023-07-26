@@ -4,33 +4,32 @@ import offerStore from '../state/offerStore';
 import React, { useEffect, useState, useCallback } from 'react';
 
 export default function Offers() {
-  const { offers, fetchOffers } = offerStore();
+  const { offers, fetchOffers, pagination } = offerStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(20);
 
   const [allOffers, setAllOffers] = useState<any>([]);
-  const doFetchTutorOffers = useCallback(async () => {
-    setIsLoading(true);
-    const response = await ApiService.getOffers();
-
-    const jsonResp = await response.json();
-    setAllOffers(jsonResp);
-    setIsLoading(false);
+  const doFetchStudentTutors = useCallback(async () => {
+    await fetchOffers(page, limit);
+    setAllOffers(offers);
     /* eslint-disable */
   }, []);
 
   useEffect(() => {
-    doFetchTutorOffers();
-  }, [doFetchTutorOffers]);
-  // console.log('off', allOffers);
+    doFetchStudentTutors();
+  }, [doFetchStudentTutors]);
 
   return (
     <Layout className="p-4 bg-white">
       <Section
         title="Offers"
-        subtitle={allOffers.length}
+        subtitle={offers ? offers.length : 0}
         description="Easily manage and respond to offers from potential clients"
       />
-      {allOffers.length > 0 && <OffersGridList offers={allOffers} />}
+      {offers && offers.length > 0 && (
+        <OffersGridList offers={offers} pagination={pagination} />
+      )}
     </Layout>
   );
 }

@@ -4,7 +4,8 @@ import { create } from 'zustand';
 type Store = {
   offers: [] | null;
   isLoading: boolean;
-  fetchOffers: () => Promise<void>;
+  fetchOffers: (page: number, limit: number) => Promise<void>;
+  pagination: { page: number; limit: number; total: number };
 
   offer?: any | null;
   //fechOffer: (id: string | number) => void;
@@ -16,14 +17,15 @@ type Store = {
 export default create<Store>((set) => ({
   offers: null,
   isLoading: false,
-
-  fetchOffers: async () => {
+  pagination: { page: 0, limit: 0, total: 0 },
+  fetchOffers: async (page: number, limit: number) => {
     set({ isLoading: true });
     try {
       set({ isLoading: true });
-      const response = await ApiService.getOffers();
+      const response = await ApiService.getOffers(page, limit);
       const { data } = await response.json();
-      set({ offers: data });
+
+      set({ offers: data.data, pagination: data.meta.pagination });
     } catch (error) {
       // console.log(error)
     } finally {
