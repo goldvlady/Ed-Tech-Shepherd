@@ -424,7 +424,7 @@ export default function Index() {
                         <Text color="text.300">Got it right</Text>
                         <Spacer />
                         <Text fontWeight={600}>
-                          {studentReport.passPercentage}%
+                          {Math.ceil(studentReport.passPercentage)}%
                         </Text>
                       </Flex>
                       <Flex alignItems={'center'} fontSize={12} my={2}>
@@ -526,11 +526,11 @@ export default function Index() {
                     borderBottom="1px solid #eeeff2"
                     borderBottomRadius={'10px'}
                   >
-                    <Flex h="16px" alignItems={'center'}>
-                      <img src={Flash} alt="feed-icon" />{' '}
+                    <Flex h="16px" alignItems={'center'} gap={1}>
+                      <img src={Flash} alt="feed-icon" />
                       <Text fontSize={14} fontWeight={400} color="text.300">
                         Current streak:
-                      </Text>{' '}
+                      </Text>
                       <Text fontSize="14px" fontWeight="500" color="#000">
                         {studentReport.streak < 2
                           ? `${studentReport.streak} day `
@@ -575,7 +575,7 @@ export default function Index() {
               <Text fontSize={'20px'} fontWeight={600}>
                 Quiz Performance
               </Text>
-              {chartData.length > 0 ? (
+              {chartData && chartData.length > 0 ? (
                 <Center p={2} h={'350px'}>
                   <PerformanceChart chartData={chartData} />
                 </Center>
