@@ -1,6 +1,13 @@
 import FlashcardEmpty from '../../assets/flashcard_empty_state.png';
+import StudySessionLogger from '../../helpers/sessionLogger';
 import flashcardStore from '../../state/flashcardStore';
-import { FlashcardData, Score, Study, MinimizedStudy } from '../../types';
+import {
+  FlashcardData,
+  Score,
+  Study,
+  MinimizedStudy,
+  SessionType
+} from '../../types';
 import FlashCard from './deck_two';
 import DeckOverLap from './overlap';
 import ResultDisplay from './resultDisplay';
@@ -252,9 +259,9 @@ const CompletedState = ({
     const { passed, failed, notRemembered } = score;
     const total = passed + failed + notRemembered;
 
-    const passPercentage = (passed / total) * 100;
-    const failPercentage = (failed / total) * 100;
-    const notRememberedPercentage = (notRemembered / total) * 100;
+    const passPercentage = Math.floor((passed / total) * 100);
+    const failPercentage = Math.floor((failed / total) * 100);
+    const notRememberedPercentage = 100 - passPercentage - failPercentage;
 
     return {
       passPercentage,
@@ -363,6 +370,8 @@ const CompletedState = ({
   );
 };
 
+let studySessionLogger: StudySessionLogger | undefined = undefined;
+
 const StudyBox = () => {
   const [studyState, setStudyState] = useState<'question' | 'answer'>(
     'question'
@@ -411,6 +420,14 @@ const StudyBox = () => {
       setStudies(minimizedStudy.data.studies);
     }
   }, [minimizedStudy]);
+
+  useEffect(() => {
+    return () => {
+      if (studySessionLogger && studySessionLogger.currentState !== 'ENDED') {
+        studySessionLogger.end();
+      }
+    };
+  }, []);
 
   const minimizeStudy = async () => {
     const data: MinimizedStudy = {
@@ -512,15 +529,17 @@ const StudyBox = () => {
   useEffect(() => {
     if (isFinished) {
       saveScore();
+      if (studySessionLogger) {
+        studySessionLogger.end();
+      }
     }
   }, [isFinished, saveScore]);
 
   const lazyTriggerNextStep = async () => {
     if (currentStudyIndex === studies.length - 1) {
-      setTimeout(
-        () => setActivityState({ isFinished: true, isStarted: false }),
-        2000
-      );
+      setTimeout(() => {
+        finishStudy();
+      }, 2000);
       // if (flashcard) await storeScore(flashcard?._id, correctAnswerCount);
     } else {
       setTimeout(() => setCurrentStudyIndex((prev) => prev + 1), 2000);
@@ -593,6 +612,22 @@ const StudyBox = () => {
       return [...prev];
     });
     lazyTriggerNextStep();
+  };
+
+  const startStudy = () => {
+    setActivityState((prev) => ({
+      ...prev,
+      isStarted: !prev.isStarted
+    }));
+    studySessionLogger = new StudySessionLogger(SessionType.FLASHCARD);
+    studySessionLogger.start();
+  };
+
+  const finishStudy = () => {
+    setActivityState((prev) => ({
+      isStarted: false,
+      isFinished: true
+    }));
   };
 
   const questionsLeft = (
@@ -923,12 +958,7 @@ const StudyBox = () => {
                 borderColor: 'none', // Remove active border
                 boxShadow: 'none' // Remove active shadow
               }}
-              onClick={() =>
-                setActivityState((prev) => ({
-                  ...prev,
-                  isStarted: !prev.isStarted
-                }))
-              }
+              onClick={() => startStudy()}
             >
               {isStarted ? 'Stop' : 'Study'}
             </Button>
@@ -1072,9 +1102,7 @@ const StudyBox = () => {
           <EmptyState
             flashcard={flashcard as FlashcardData}
             onClose={() => loadFlashcard(null)}
-            onStart={() =>
-              setActivityState({ isStarted: true, isFinished: false })
-            }
+            onStart={() => startStudy()}
           />
         ) : (
           renderMainBox()

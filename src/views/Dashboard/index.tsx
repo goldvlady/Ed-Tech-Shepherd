@@ -424,7 +424,7 @@ export default function Index() {
                         <Text color="text.300">Got it right</Text>
                         <Spacer />
                         <Text fontWeight={600}>
-                          {Math.ceil(studentReport.passPercentage)}%
+                          {studentReport.passPercentage}%
                         </Text>
                       </Flex>
                       <Flex alignItems={'center'} fontSize={12} my={2}>
@@ -436,7 +436,9 @@ export default function Index() {
                         />
                         <Text color="text.300">Didn't remember</Text>
                         <Spacer />
-                        <Text fontWeight={600}>0%</Text>
+                        <Text fontWeight={600}>
+                          {studentReport.notRemembered}%
+                        </Text>
                       </Flex>
                       <Flex alignItems={'center'} fontSize={12} my={2}>
                         <Box
@@ -448,7 +450,12 @@ export default function Index() {
                         <Text color="text.300">Got it wrong</Text>
                         <Spacer />
                         <Text fontWeight={600}>
-                          {Math.floor(100 - studentReport.passPercentage)}%
+                          {Math.floor(
+                            100 -
+                              studentReport.passPercentage -
+                              studentReport.notRemembered
+                          )}
+                          %
                         </Text>
                       </Flex>
                     </GridItem>
