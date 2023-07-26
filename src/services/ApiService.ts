@@ -86,6 +86,13 @@ class ApiService {
     );
   };
 
+  static logStudySession = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/logStudySession`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
   static storeCurrentStudy = async (flashcardId: string, data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/storeCurrentStudy`, {
       method: 'POST',
