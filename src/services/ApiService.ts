@@ -311,7 +311,8 @@ class ApiService {
   // Notes
 
   static getAllNotes = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/notes`);
+    return doFetch(`http://localhost:9999/.netlify/functions/notes`);
+    // return doFetch(`${ApiService.baseEndpoint}/notes`);
   };
 
   static getNote = async (id: string | number) => {
@@ -326,16 +327,24 @@ class ApiService {
   };
 
   static updateNote = async (id: string | number, data: any) => {
-    return doFetch(`${ApiService.baseEndpoint}/updateNote/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data)
-    });
+    // return doFetch(`${ApiService.baseEndpoint}/updateNote/${id}`, {
+    return doFetch(
+      `http://localhost:9999/.netlify/functions/updateNote/${id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      }
+    );
   };
 
   static deleteNote = async (id: string | number) => {
-    return doFetch(`${ApiService.baseEndpoint}/deleteNote?id=${id}`, {
-      method: 'DELETE'
-    });
+    // return doFetch(`${ApiService.baseEndpoint}/deleteNote?id=${id}`, {
+    return doFetch(
+      `http://localhost:9999/.netlify/functions/deleteNote?id=${id}`,
+      {
+        method: 'DELETE'
+      }
+    );
   };
   static updateProfile = async (formData: any) => {
     return doFetch(`${ApiService.baseEndpoint}/updateProfile`, {

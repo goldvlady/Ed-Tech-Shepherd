@@ -343,7 +343,7 @@ const OnboardStudent = () => {
     mixpanel.track('Completed onboarding');
 
     const user = await firebaseAuth.currentUser;
-    let firebaseId: string | null | undefined = user?.uid;
+    let firebaseId: string | undefined = user?.uid;
 
     if (!firebaseId) {
       const firebaseUser = await createUserWithEmailAndPassword(

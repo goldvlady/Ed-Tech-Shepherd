@@ -216,14 +216,17 @@ const AppRoutes: React.FC = () => {
         }
       >
         <Route element={<DashboardLayout children />} />
-        <Route path="new-note" element={<NewNote />} />
+        <Route path="new-note">
+          <Route path="" element={<NewNote />} />
+          <Route path=":id" element={<NewNote />} />
+        </Route>
+        <Route path="notes" element={<Notes />} />
         <Route path="flashcards">
           <Route path="create" element={<CreateFlashCard />} />
           <Route path="" element={<FlashCard />}></Route>
         </Route>
         <Route path="tutor/:tutorId/offer" element={<SendTutorOffer />} />
         <Route path="offer/:offerId" element={<Offer />} />
-        <Route path="notes" element={<Notes />} />
         <Route path="home" element={<DashboardIndex />} />
         <Route path="docchat" element={<DocChat />} />
         <Route path="find-tutor" element={<Marketplace />} />

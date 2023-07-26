@@ -8,8 +8,10 @@ import { ReactComponent as ArrowRight } from '../../../../assets/small-arrow-rig
 import { ReactComponent as ZoomIcon } from '../../../../assets/square.svg';
 import { ReactComponent as TrashIcon } from '../../../../assets/trash-icn.svg';
 import CustomButton from '../../../../components/CustomComponents/CustomButton';
+import { useUserDetails } from '../../../../components/hooks/useUserDetails';
 import { uid } from '../../../../helpers/index';
 import ApiService from '../../../../services/ApiService';
+import { NoteServerResponse } from '../types';
 import {
   DropDownFirstPart,
   DropDownLists,
@@ -22,120 +24,174 @@ import {
 import { BlockNoteEditor } from '@blocknote/core';
 import '@blocknote/core/style.css';
 import { BlockNoteView, useBlockNote } from '@blocknote/react';
-import { Menu, MenuList, MenuButton, Button, Text } from '@chakra-ui/react';
+import {
+  Menu,
+  MenuList,
+  MenuButton,
+  Button,
+  Text,
+  UseToastOptions,
+  AlertStatus,
+  ToastPosition
+} from '@chakra-ui/react';
 import { useToast } from '@chakra-ui/react';
 import { EditorState, convertToRaw } from 'draft-js';
 import draftToMarkdown from 'draftjs-to-markdown';
+import { isNil } from 'lodash';
 import moment from 'moment';
-import React, { useState } from 'react';
-import { Editor } from 'react-draft-wysiwyg';
+import { useCallback, useEffect, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { FaEllipsisH } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+
+const DEFAULT_NOTE_TITLE = 'Enter Note Title';
+
+const dropDownOptions = [
+  {
+    id: 1,
+    leftIcon: <FlashCardIcn />,
+    title: 'Flashcards',
+    rightIcon: <ArrowRight />
+  },
+  {
+    id: 2,
+    leftIcon: <AddTag />,
+    title: 'Add tag',
+    rightIcon: <ArrowRight />
+  },
+  {
+    id: 3,
+    leftIcon: <SideBarPinIcn />,
+    title: 'Pin to sidebar',
+    rightIcon: <ArrowRight />
+  },
+  {
+    id: 4,
+    leftIcon: <DocIcon />,
+    title: 'Doc Chat',
+    rightIcon: <ArrowRight />
+  },
+  {
+    id: 5,
+    leftIcon: <DownloadIcon />,
+    title: 'Download',
+    rightIcon: <ArrowRight />
+  },
+  {
+    id: 6,
+    leftIcon: <TrashIcon />,
+    title: 'Delete'
+  }
+];
 
 const NewNote = () => {
+  const navigate = useNavigate();
+  // get user details
+  const DefaultNoteTitle = DEFAULT_NOTE_TITLE;
+
+  //note title from data initially or Untitled
+  const toast = useToast();
+  const [noteId, setNoteId] = useState<string>('');
+  const [editedTitle, setEditedTitle] = useState(DefaultNoteTitle);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [markdownContent, setMarkdownContent] = useState('');
-  const navigate = useNavigate();
-  const toast = useToast();
+
   const [, setNoteDirectories] = useState<{
     title: string;
     content: string;
     tags: string;
     createdDate: string;
   }>();
-  const [title, setTitle] = useState('');
   const currentTime = moment().format('DD ddd, hh:mma');
-  const initialContent: string | null = localStorage.getItem('editorContent'); //Change to API endpoint for get /notes/{id}
   const editor: BlockNoteEditor | null = useBlockNote({});
+  const userDetails = useUserDetails();
+  console.log('user details: ', userDetails);
+  // if (!userDetails.found) {
+  //   navigate('/login');
+  // }
+  // if we are loading a note, check path params
+  const { id } = useParams();
+  // if (id) {
+  //   setNoteId(id);
+  //   console.log("note ID: ", id);
+  // }
 
-  const onEditorStateChange = (newEditorState: any) => {
-    setEditorState(newEditorState);
-    const firtText = convertToRaw(editorState.getCurrentContent());
-    setTitle(firtText.blocks[0].text);
-    setMarkdownContent(
-      draftToMarkdown(convertToRaw(editorState.getCurrentContent()))
-    );
+  const onSaveNote = async () => {
+    if (!editor) return;
+    // get editor's content
+    const noteJSON = editor.topLevelBlocks;
+
+    if (!editedTitle || editedTitle === DEFAULT_NOTE_TITLE) {
+      return showToast('Note Alert', 'Enter note title', 'error');
+    }
+    if (noteJSON.length <= 0) {
+      return showToast('Note Alert', 'Note is empty', 'error');
+    }
+    console.log('NoteEditor Content', noteJSON);
+    const saveDetails = await createNote({
+      topic: editedTitle,
+      note: noteJSON
+    });
+
+    if (!saveDetails) {
+      return showToast(
+        'Note Alert',
+        'An unknown error occurs while adding note. Try again',
+        'error'
+      );
+    }
+    if (saveDetails.error) {
+      return showToast('Note Alert', saveDetails.error, 'error');
+    } else {
+      // note created successfully
+      showToast('Note Added', saveDetails.message, 'success');
+      // clear out all
+      setEditedTitle(DefaultNoteTitle);
+    }
+    console.log('note editor details: ', saveDetails);
   };
 
-  const onSaveNote = () => {
-    if (editor) {
-      console.log('NoteEditor Content', editor.topLevelBlocks);
-      // const res = await createNote(editor.topLevelBlocks); //need id and lastUpdated, etc.
-      // setEditorState(await res.json()); //console.log
+  const onDeleteNote = async () => {
+    if (!noteId || noteId === '') {
+      return showToast('Note Alert', 'No note selected', 'error');
     }
-    setNoteDirectories({
-      content: JSON.stringify(markdownContent),
-      title: '',
-      tags: '',
-      createdDate: new Date(Date.now()).toISOString()
-    });
-    const notes = JSON.parse(localStorage.getItem('notes') as string) || [];
-    notes.push({
-      id: uid(),
-      content: JSON.stringify(markdownContent),
-      title,
-      tags: '',
-      date_created: new Date(Date.now()).toISOString(),
-      last_modified: new Date(Date.now()).toISOString()
-    });
+    const details = await deleteNote(noteId);
 
-    localStorage.setItem('notes', JSON.stringify(notes));
+    if (!details) {
+      return showToast(
+        'Note Alert',
+        'An unknown error occurs while adding note. Try again',
+        'error'
+      );
+    }
+    if (details.error) {
+      return showToast('Note Alert', details.error, 'error');
+    } else {
+      showToast('Note Deleted', details.message, 'success');
+      setEditedTitle(DefaultNoteTitle);
+    }
+  };
 
-    // navigate('/dashboard/note-directory');
-
+  const showToast = (
+    title: string,
+    description: string,
+    status: AlertStatus,
+    position: ToastPosition = 'top-right',
+    duration = 5000,
+    isClosable = true
+  ) => {
     toast({
-      title: 'New Added',
-      description: `${title} successful added.`,
-      status: 'success',
-      position: 'top-right',
-      duration: 5000,
-      isClosable: true
+      title: title,
+      description: description,
+      status: status,
+      position: position,
+      duration: duration,
+      isClosable: isClosable
     });
   };
 
-  const dropDownOptions = [
-    {
-      id: 1,
-      leftIcon: <FlashCardIcn />,
-      title: 'Flashcards',
-      rightIcon: <ArrowRight />
-    },
-    {
-      id: 2,
-      leftIcon: <AddTag />,
-      title: 'Add tag',
-      rightIcon: <ArrowRight />
-    },
-    {
-      id: 3,
-      leftIcon: <SideBarPinIcn />,
-      title: 'Pin to sidebar',
-      rightIcon: <ArrowRight />
-    },
-    {
-      id: 4,
-      leftIcon: <DocIcon />,
-      title: 'Doc Chat',
-      rightIcon: <ArrowRight />
-    },
-    {
-      id: 5,
-      leftIcon: <DownloadIcon />,
-      title: 'Download',
-      rightIcon: <ArrowRight />
-    },
-    {
-      id: 6,
-      leftIcon: <TrashIcon />,
-      title: 'Delete'
-    }
-  ];
-
-  const [editedTitle, setEditedTitle] = useState(title || 'Untitled'); //note title from data initially or Untitled
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-
-  const handleTitleChange = (event) => {
+  const handleTitleChange = (event: any) => {
     setIsEditingTitle(true);
     setEditedTitle(event.target.value);
   };
@@ -153,14 +209,34 @@ const NewNote = () => {
     updateTitle();
   };
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event: any) => {
     if (event.key === 'Enter') {
       updateTitle();
     }
   };
-
   const handleHeaderClick = () => {
     setIsEditingTitle(true);
+  };
+
+  const createNote = async (data: any): Promise<any | null> => {
+    const resp = await ApiService.createNote(data);
+    const respText = await resp.text();
+    try {
+      const respDetails: any = JSON.parse(respText);
+      return respDetails;
+    } catch (error: any) {
+      return { error: error.message, message: error.message };
+    }
+  };
+  const deleteNote = async (id: string): Promise<any | null> => {
+    const resp = await ApiService.deleteNote(id);
+    const respText = await resp.text();
+    try {
+      const respDetails = JSON.parse(respText);
+      return respDetails;
+    } catch (error: any) {
+      return { error: error.message, message: error.message };
+    }
   };
 
   return (
@@ -178,7 +254,7 @@ const NewNote = () => {
                 onChange={handleTitleChange}
                 onBlur={handleFocusOut}
                 onKeyDown={handleKeyDown}
-                style={{ width: `${editedTitle.length}ch` }}
+                style={{ width: `${editedTitle.length} ch` }}
                 autoFocus
               />
             ) : (
