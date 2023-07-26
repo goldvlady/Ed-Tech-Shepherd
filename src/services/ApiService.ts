@@ -26,6 +26,13 @@ class ApiService {
     });
   };
 
+  static scheduleStudyEvent = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/scheduleStudyEvent`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
   static submitStudent = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/createStudent`, {
       method: 'POST',
