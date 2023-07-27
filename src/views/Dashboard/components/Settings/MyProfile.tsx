@@ -80,7 +80,6 @@ function MyProfile(props) {
 
   const handleUpdatePassword = async (e) => {
     e.preventDefault();
-
     const users = await firebaseAuth.currentUser;
     // const credentials = await firebaseAuth.EmailAuthProvider.credential(
     //   users.email,

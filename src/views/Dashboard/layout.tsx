@@ -10,7 +10,7 @@ import ReceiptIcon from '../../assets/receiptIcon.svg';
 import VideoIcon from '../../assets/video.svg';
 import { HelpModal } from '../../components';
 import Logo from '../../components/Logo';
-import PlanSwitchModal from '../../components/PlanSwitchModal';
+import ProfileSwitchModal from '../../components/ProfileSwitchModal';
 import { firebaseAuth } from '../../firebase';
 import userStore from '../../state/userStore';
 import TutorMarketplace from './Tutor';
@@ -172,9 +172,10 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const activateHelpModal = () => {
     setToggleHelpModal(true);
   };
-  const [togglePlanSwitchModal, setTogglePlanSwitchModal] = useState(false);
-  const activatePlanSwitchModal = () => {
-    setTogglePlanSwitchModal(true);
+  const [toggleProfileSwitchModal, setToggleProfileSwitchModal] =
+    useState(false);
+  const activateProfileSwitchModal = () => {
+    setToggleProfileSwitchModal(true);
   };
   const navigate = useNavigate();
   const { user, userNotifications }: any = userStore();
@@ -361,7 +362,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     </Flex>
                   </Link>
                 </MenuItem>
-                <MenuItem p={2} m={1} onClick={activatePlanSwitchModal}>
+                <MenuItem p={2} m={1} onClick={activateProfileSwitchModal}>
                   <Flex alignItems="center" gap={2}>
                     <Center
                       borderRadius="50%"
@@ -440,9 +441,9 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         toggleHelpModal={toggleHelpModal}
         setToggleHelpModal={setToggleHelpModal}
       />
-      <PlanSwitchModal
-        togglePlanSwitchModal={togglePlanSwitchModal}
-        setTogglePlanSwitchModal={setTogglePlanSwitchModal}
+      <ProfileSwitchModal
+        toggleProfileSwitchModal={toggleProfileSwitchModal}
+        setToggleProfileSwitchModal={setToggleProfileSwitchModal}
       />
     </>
   );
