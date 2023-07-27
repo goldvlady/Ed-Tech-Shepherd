@@ -2,6 +2,7 @@ import { Spinner } from './Spinner';
 import { testHighlights as _testHighlights } from './test-highlights';
 import { useEffect, useState } from 'react';
 import type { IHighlight, NewHighlight } from 'react-pdf-highlighter';
+import { SelectedNoteModal } from '../../components';
 import {
   PdfLoader,
   PdfHighlighter,
@@ -33,9 +34,10 @@ const HighlightPopup = ({
     </div>
   ) : null;
 
-const TempPDFViewer = ({ pdfLink }: { pdfLink: URL }) => {
+const TempPDFViewer = ({ pdfLink, name }: { pdfLink: URL, name: string }) => {
   const [highlights, setHighlights] = useState<Array<IHighlight>>([]);
   const [url, setUrl] = useState(pdfLink);
+  const [popUpNotesModal, setPopUpNotesModal] = useState(false)
   const resetHighlights = () => {
     setHighlights([]);
   };
@@ -92,17 +94,19 @@ const TempPDFViewer = ({ pdfLink }: { pdfLink: URL }) => {
   };
 
   return (
+    <>
     <div
-      style={{ display: 'flex', height: '100vh', width: '100%' }}
-      className="lg:col-span-6 flex-auto h-full"
+      style={{ display: 'flex', position: 'fixed'}}
+      className="lg:col-span-6 flex-auto h-full w-1/2"
     >
       <div
         style={{
           height: '100vh',
-          width: '75vw',
+          width: '87%',
           position: 'relative'
         }}
       >
+        <div className='absolute z-10 font-bold max-h-max max-w-max text-sm p-2 bg-green-100 rounded-xl m-1 hover:text-blue-600 hover:cursor-pointer hover:bg-yellow-100' onClick={() => setPopUpNotesModal(true)}>{name}</div>
         {/* @ts-ignore: this is a documented error regarding TS2786. I don't know how to fix yet (ref: https://stackoverflow.com/questions/72002300/ts2786-typescript-not-reconizing-ui-kitten-components)  */}
         <PdfLoader url={url} beforeLoad={<Spinner />}>
           {(pdfDocument) => (
@@ -187,6 +191,12 @@ const TempPDFViewer = ({ pdfLink }: { pdfLink: URL }) => {
         </PdfLoader>
       </div>
     </div>
+    {popUpNotesModal && <SelectedNoteModal
+      show={popUpNotesModal}
+      setShow={()=> null}
+      setShowHelp={()=> null}
+    />}
+    </>
   );
 };
 

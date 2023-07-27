@@ -17,11 +17,9 @@ import { getAuth } from 'firebase/auth';
 import {
   ref,
   uploadBytesResumable,
-  listAll,
   getDownloadURL,
   updateMetadata,
   deleteObject,
-  getMetadata
 } from 'firebase/storage';
 import { useRef, useState, useEffect, RefObject, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -48,7 +46,7 @@ interface UiMessage {
 }
 
 const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
-  const { user } = userStore();
+  const { user, userDocuments } = userStore();
   const navigate = useNavigate();
   const [fileName, setFileName] = useState('');
   const [progress, setProgress] = useState(0);
@@ -62,25 +60,6 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   const [loadedList, setLoadedList] = useState(false);
   const inputRef = useRef(null) as RefObject<HTMLInputElement>;
   const { currentUser } = useMemo(() => getAuth(), []);
-
-  const listUserDocuments = async (path) => {
-    const listRef = ref(storage, path);
-    const items: Array<List> = [];
-    listAll(listRef).then(async (res) => {
-      for (const item of res.items) {
-        const itemRef = ref(storage, item.fullPath);
-        const customMetadata = await getMetadata(itemRef);
-        // @ts-ignore: overriding the factory types, don't worry about it
-        items.push(customMetadata);
-      }
-      // Really ghastly hack to filter out documents that were successfully ingested by the AI service.
-      // A rework of this function will be one that decouples document hosting logic from firebase and moves it closer to a specialized API (one directly owned by Shepherd)
-      const filteredForSuccess = items.filter(
-        (item) => item.customMetadata?.ingest_status === 'success'
-      );
-      setList(filteredForSuccess);
-    });
-  };
 
   const Wrapper = styled.div`
     display: block;
@@ -175,10 +154,13 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   useEffect(() => {
     if (currentUser?.uid) {
       setDocPath(currentUser.uid);
-      listUserDocuments(currentUser.uid);
       setLoadedList(true);
     }
   }, [currentUser?.uid]);
+
+  useEffect(() => {
+    setList(userDocuments)
+  }, [userDocuments])
 
   const clickInput = () => {
     if (canUpload) inputRef?.current && inputRef.current.click();
