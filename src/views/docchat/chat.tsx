@@ -71,6 +71,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState({});
   const [error, setError] = useState<string>('');
+  const [botStatus, setBotStatus] = useState('Philosopher, thinker, study companion.')
 
   const prompts = [
     "Explain this document to me like I'm five",
@@ -87,6 +88,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
     studentId: string;
     documentId: string;
   }) => {
+    setBotStatus('Thinking');
     const response = await chatWithDoc({
       query,
       studentId,
@@ -99,10 +101,12 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
+      setBotStatus('Typing...');
       // @ts-ignore: scary scenes, but let's observe
       const { done, value } = await reader?.read();
       if (done) {
         setLLMResponse('');
+        setTimeout(() => setBotStatus('Philosopher, thinker, study companion.'), 1000)
         setMessages((prevMessages) => [
           ...prevMessages,
           { text: temp, isUser: false }
@@ -243,7 +247,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
                       </CircleContainer>
                       <TextContainer>
                         <Text className="font-semibold">Plato.</Text>
-                        <Text>Philosopher, thinker, study companion.</Text>
+                        <Text>{botStatus}</Text>
                       </TextContainer>
                     </FlexContainer>
                     <StyledText>
