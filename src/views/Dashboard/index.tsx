@@ -74,6 +74,10 @@ export default function Index() {
     twoDigitFormat(date.getHours()) + ':' + twoDigitFormat(date.getMinutes());
   const hours = date.getHours();
   const isDayTime = hours > 6 && hours < 20;
+  const timeStudied = (totalWeeklyStudyTime) => {
+    const [hours, minutes] = totalWeeklyStudyTime.split(':');
+    return { hour: hours, minute: minutes };
+  };
 
   const { user } = userStore();
   const { feeds, fetchFeeds } = feedsStore();
@@ -513,7 +517,9 @@ export default function Index() {
                         />
                         <Text color="text.300">Didn't remember</Text>
                         <Spacer />
-                        <Text fontWeight={600}>0%</Text>
+                        <Text fontWeight={600}>
+                          {studentReport.notRemembered}%
+                        </Text>
                       </Flex>
                       <Flex alignItems={'center'} fontSize={12} my={2}>
                         <Box
@@ -525,7 +531,12 @@ export default function Index() {
                         <Text color="text.300">Got it wrong</Text>
                         <Spacer />
                         <Text fontWeight={600}>
-                          {Math.floor(100 - studentReport.passPercentage)}%
+                          {Math.floor(
+                            100 -
+                              studentReport.passPercentage -
+                              studentReport.notRemembered
+                          )}
+                          %
                         </Text>
                       </Flex>
                     </GridItem>
@@ -596,11 +607,11 @@ export default function Index() {
                     borderBottom="1px solid #eeeff2"
                     borderBottomRadius={'10px'}
                   >
-                    <Flex h="16px" alignItems={'center'}>
-                      <img src={Flash} alt="feed-icon" />{' '}
+                    <Flex h="16px" alignItems={'center'} gap={1}>
+                      <img src={Flash} alt="feed-icon" />
                       <Text fontSize={14} fontWeight={400} color="text.300">
                         Current streak:
-                      </Text>{' '}
+                      </Text>
                       <Text fontSize="14px" fontWeight="500" color="#000">
                         {studentReport.streak < 2
                           ? `${studentReport.streak} day `
@@ -646,7 +657,7 @@ export default function Index() {
               <Text fontSize={'20px'} fontWeight={600}>
                 Quiz Performance
               </Text>
-              {chartData.length > 0 ? (
+              {chartData && chartData.length > 0 ? (
                 <Center p={2} h={'350px'}>
                   <PerformanceChart chartData={chartData} />
                 </Center>

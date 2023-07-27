@@ -4,6 +4,7 @@ import theme from './theme';
 import CreatePassword from './views/CreatePassword';
 import StudentSettings from './views/Dashboard/AccountSettings';
 import BookmarkedTutors from './views/Dashboard/BookmarkedTutors';
+import DocChat from './views/Dashboard/DocChat';
 import FlashCard from './views/Dashboard/FlashCards';
 import CreateFlashCard from './views/Dashboard/FlashCards/create';
 import HomeWorkHelp from './views/Dashboard/HomeWorkHelp';
@@ -12,32 +13,30 @@ import Messaging from './views/Dashboard/Messaging';
 import MyTutors from './views/Dashboard/MyTutors';
 import NewNote from './views/Dashboard/Notes/NewNotes';
 import Notes from './views/Dashboard/Notes/index';
+import Offer from './views/Dashboard/Offer';
+import SendTutorOffer from './views/Dashboard/SendTutorOffer';
 import Tutor from './views/Dashboard/Tutor';
 import DashboardIndex from './views/Dashboard/index';
 import DashboardLayout from './views/Dashboard/layout';
 import ForgotPassword from './views/ForgotPassword';
 import Home from './views/Home';
 import Login from './views/Login';
-import Offer from './views/Offer';
-import OnboardStudent from './views/OnboardStudent';
+import OnboardStudent from './views/OnboardStudent/index';
 import OnboardTutor from './views/OnboardTutor';
 import CompleteProfile from './views/OnboardTutor/complete_profile';
-import SendTutorOffer from './views/SendTutorOffer';
 import Session from './views/Session';
 import Signup from './views/Signup';
-import SwitchProfile from './views/SwitchProfile';
-import TutorDashboard from './views/TutorDashboard';
-import TutorOffer from './views/TutorOffer';
-import TutorOffers from './views/TutorOffers';
+import Clients from './views/TutorDashboard/Clients';
+import Client from './views/TutorDashboard/Clients/client';
+import TutorOffer from './views/TutorDashboard/Offers/TutorOffer';
+import TutorOffers from './views/TutorDashboard/Offers/index';
+import TutorDashboard from './views/TutorDashboard/index';
+import TutorSettings from './views/TutorDashboard/settings';
 import PendingVerification from './views/VerificationPages/pending_verification';
 import VerificationSuccess from './views/VerificationPages/successful_verification';
 import VerifyEmail from './views/VerificationPages/verify_email';
 import WelcomeLayout from './views/WelcomeLayout';
-import Client from './views/client';
-import Clients from './views/clients';
-import DocChat from './views/docchat';
 import Messages from './views/messages';
-import TutorSettings from './views/settings';
 import { Box, ChakraProvider, Spinner } from '@chakra-ui/react';
 import 'bootstrap/dist/css/bootstrap-grid.min.css';
 import 'bootstrap/dist/css/bootstrap-reboot.min.css';
@@ -72,7 +71,8 @@ const RequireAuth = ({
   authenticated: any;
   unAuthenticated: any;
 }) => {
-  const { fetchUser, user, fetchNotifications } = userStore();
+  const { fetchUser, user, fetchNotifications, fetchUserDocuments } =
+    userStore();
   const [loadingUser, setLoadingUser] = useState(true);
 
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
@@ -87,6 +87,7 @@ const RequireAuth = ({
         await fetchUser()
           .then(() => {
             fetchNotifications();
+            fetchUserDocuments();
           })
           .catch((e) => {
             if (user.metadata.creationTime !== user.metadata.lastSignInTime) {
@@ -204,7 +205,6 @@ const AppRoutes: React.FC = () => {
       <Route path="auth-action" element={<AuthAction />} />
 
       <Route path="home" element={<Home />} />
-      <Route path="switch-profile" element={<SwitchProfile />} />
       <Route
         path="dashboard"
         element={

@@ -9,7 +9,6 @@ const DatePickerWrapper = styled.div`
   justify-content: flex-end;
   position: relative;
   height: 44px;
-  padding: 12px 16px;
   border-radius: 6px;
   border: 1px solid #e4e5e7;
   background: #fff;

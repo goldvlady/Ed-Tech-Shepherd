@@ -1,5 +1,5 @@
-import { Layout } from '../components';
-import { ArrowRightIcon } from '../components/icons';
+import { Layout } from '../../../components';
+import { ArrowRightIcon } from '../../../components/icons';
 import { Text } from '@chakra-ui/react';
 import {
   ChevronRightIcon,

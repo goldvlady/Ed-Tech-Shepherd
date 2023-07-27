@@ -1,6 +1,6 @@
-import { ReactComponent as QuestionMark } from '../../../assets/questionMark.svg';
+import { ReactComponent as QuestionMark } from '../../../../assets/questionMark.svg';
 // import flashcardStore from '../../../state/flashcardStore';
-import { useFlashCardState } from '../../Dashboard/FlashCards/context/flashcard';
+import { useFlashCardState } from '../../FlashCards/context/flashcard';
 import { RadioInput, StyledCheckbox } from '../styles';
 import {
   Box,
@@ -204,7 +204,7 @@ const FlashcardFirstPart = ({ isAutomated }: { isAutomated?: boolean }) => {
         </div>
       </FormControl>
 
-      <FormControl mb={6}>
+      {/* <FormControl mb={6}>
         <FormLabel fontSize="0.75rem">Select question type</FormLabel>
         <div
           style={{
@@ -227,9 +227,9 @@ const FlashcardFirstPart = ({ isAutomated }: { isAutomated?: boolean }) => {
             </div>
           ))}
         </div>
-      </FormControl>
+      </FormControl> */}
 
-      <FormControl mb={6}>
+      {/* <FormControl mb={6}>
         <FormLabel fontSize="0.75rem" lineHeight="17px" color="#5C5F64" mb={3}>
           How often would you like to study?
         </FormLabel>
@@ -245,7 +245,7 @@ const FlashcardFirstPart = ({ isAutomated }: { isAutomated?: boolean }) => {
           <option value="biweekly">Twice a week</option>
           <option value="spacedRepetition">Spaced repetition</option>
         </Select>
-      </FormControl>
+      </FormControl> */}
 
       <FormControl mb={6}>
         <FormLabel
@@ -285,7 +285,7 @@ const FlashcardFirstPart = ({ isAutomated }: { isAutomated?: boolean }) => {
         />
       </FormControl>
 
-      <FormControl mb={6}>
+      {/* <FormControl mb={6}>
         <FormLabel
           fontSize="12px"
           lineHeight="17px"
@@ -331,9 +331,9 @@ const FlashcardFirstPart = ({ isAutomated }: { isAutomated?: boolean }) => {
           onChange={handleChange}
           _placeholder={{ fontSize: '0.8756rem', color: '#9A9DA2' }}
         />
-      </FormControl>
+      </FormControl> */}
 
-      <FormControl mb={6}>
+      {/* <FormControl mb={6}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Timer settings (Optional)
         </FormLabel>
@@ -351,7 +351,7 @@ const FlashcardFirstPart = ({ isAutomated }: { isAutomated?: boolean }) => {
           <option value="30">30 sec</option>
           <option value="15">15 sec</option>
         </Select>
-      </FormControl>
+      </FormControl> */}
       <HStack w="full" align={'flex-end'}>
         <Button
           variant="solid"

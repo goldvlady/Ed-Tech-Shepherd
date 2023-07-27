@@ -100,6 +100,7 @@ export default function Marketplace() {
   const toast = useToast();
 
   const getData = async () => {
+    setLoadingData(true);
     const formData = {
       courses: subject === 'Subject' ? '' : subject.toLowerCase(),
       levels: level === '' ? '' : level._id,
@@ -113,19 +114,12 @@ export default function Marketplace() {
       page: page,
       limit: limit
     };
-    setLoadingData(true);
+
     const resp = await ApiService.getAllTutors(formData);
     const data = await resp.json();
 
     setPagination(data.meta.pagination);
-    const startIndex = (page - 1) * data.meta.pagination.limit;
-    const endIndex = Math.min(
-      startIndex + data.meta.pagination.limit,
-      data.meta.pagination.count
-    );
-    // console.log(startIndex, endIndex);
 
-    // const visibleTutors = data.tutors.slice(startIndex, endIndex);
     setAllTutors(data.tutors);
     setLoadingData(false);
   };
@@ -405,7 +399,7 @@ export default function Marketplace() {
         </Box>
 
         <Box my={45} py={2} minHeight="750px">
-          {!loadingData && (
+          {!loadingData && allTutors.length > 0 ? (
             <>
               <SimpleGrid
                 columns={{ base: 1, md: 2, lg: 3 }}
@@ -433,11 +427,12 @@ export default function Marketplace() {
                 page={pagination ? pagination.page : 0}
                 count={pagination ? pagination.count : 0}
                 limit={pagination ? pagination.limit : 0}
-                totalPages={pagination ? Math.ceil(count / limit) : 0}
                 handleNextPage={handleNextPage}
                 handlePreviousPage={handlePreviousPage}
               />
             </>
+          ) : (
+            !loadingData && 'no tutors found'
           )}
         </Box>
       </Box>

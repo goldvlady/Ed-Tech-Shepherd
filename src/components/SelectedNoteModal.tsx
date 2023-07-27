@@ -4,6 +4,7 @@ import { checkDocumentStatus, processDocument } from '../services/AI';
 import userStore from '../state/userStore';
 import CustomButton from './CustomComponents/CustomButton';
 import CustomModal from './CustomComponents/CustomModal/index';
+import CustomDropdown from './CustomDropdown';
 import { UploadIcon } from './icons';
 import { AttachmentIcon } from '@chakra-ui/icons';
 import {
@@ -11,17 +12,16 @@ import {
   CircularProgressLabel,
   Alert,
   AlertTitle,
-  AlertDescription
+  AlertDescription,
+  VStack
 } from '@chakra-ui/react';
 import { getAuth } from 'firebase/auth';
 import {
   ref,
   uploadBytesResumable,
-  listAll,
   getDownloadURL,
   updateMetadata,
-  deleteObject,
-  getMetadata
+  deleteObject
 } from 'firebase/storage';
 import { useRef, useState, useEffect, RefObject, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -48,7 +48,7 @@ interface UiMessage {
 }
 
 const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
-  const { user } = userStore();
+  const { user, userDocuments } = userStore();
   const navigate = useNavigate();
   const [fileName, setFileName] = useState('');
   const [progress, setProgress] = useState(0);
@@ -56,31 +56,12 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   const [list, setList] = useState<Array<List>>([]);
   const [canUpload, setCanUpload] = useState(true);
   const [file, setFile] = useState<Blob | Uint8Array | ArrayBuffer>();
-  const [selectedOption, setSelectedOption] = useState('');
+  const [selectedOption, setSelectedOption] = useState<any>();
   const [confirmReady, setConfirmReady] = useState(false);
   const [docPath, setDocPath] = useState('');
   const [loadedList, setLoadedList] = useState(false);
   const inputRef = useRef(null) as RefObject<HTMLInputElement>;
   const { currentUser } = useMemo(() => getAuth(), []);
-
-  const listUserDocuments = async (path) => {
-    const listRef = ref(storage, path);
-    const items: Array<List> = [];
-    listAll(listRef).then(async (res) => {
-      for (const item of res.items) {
-        const itemRef = ref(storage, item.fullPath);
-        const customMetadata = await getMetadata(itemRef);
-        // @ts-ignore: overriding the factory types, don't worry about it
-        items.push(customMetadata);
-      }
-      // Really ghastly hack to filter out documents that were successfully ingested by the AI service.
-      // A rework of this function will be one that decouples document hosting logic from firebase and moves it closer to a specialized API (one directly owned by Shepherd)
-      const filteredForSuccess = items.filter(
-        (item) => item.customMetadata?.ingest_status === 'success'
-      );
-      setList(filteredForSuccess);
-    });
-  };
 
   const Wrapper = styled.div`
     display: block;
@@ -175,10 +156,13 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   useEffect(() => {
     if (currentUser?.uid) {
       setDocPath(currentUser.uid);
-      listUserDocuments(currentUser.uid);
       setLoadedList(true);
     }
   }, [currentUser?.uid]);
+
+  useEffect(() => {
+    setList(userDocuments);
+  }, [userDocuments]);
 
   const clickInput = () => {
     if (canUpload) inputRef?.current && inputRef.current.click();
@@ -196,7 +180,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     setShow(false);
   };
 
-  const handleSelected = (e: any) => {
+  const handleSelected = (e) => {
     if (e.target.value) {
       setSelectedOption(e.target.value);
       setCanUpload(false);
@@ -403,24 +387,28 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
           {loadedList && (
             <div>
               <Label htmlFor="note">Select note</Label>
-              <Select
-                id="note"
-                name="note"
-                onChange={handleSelected}
-                value={selectedOption || ''}
-                required
+              <CustomDropdown
+                value={selectedOption?.split('/').pop()}
+                placeholder="Select an Option"
               >
-                <option disabled value="">
-                  {' '}
-                  Select an option{' '}
-                </option>
-                {loadedList &&
-                  list.map((item, id) => (
-                    <option value={item.fullPath} key={id}>
-                      {item.name}
-                    </option>
-                  ))}
-              </Select>
+                <VStack alignItems={'left'} padding="10px">
+                  {loadedList &&
+                    list.map((item, id) => {
+                      return (
+                        <option
+                          value={item.fullPath}
+                          key={id}
+                          onClick={handleSelected}
+                          style={{
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {item.name}
+                        </option>
+                      );
+                    })}
+                </VStack>
+              </CustomDropdown>
               <OrText>Or</OrText>
             </div>
           )}

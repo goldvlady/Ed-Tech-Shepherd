@@ -1,16 +1,16 @@
 /* eslint-disable no-loop-func */
 
 /* eslint-disable no-unsafe-optional-chaining */
-import { ReactComponent as HightLightIcon } from '../../assets/highlightIcn.svg';
-import { ReactComponent as SummaryIcon } from '../../assets/summaryIcn.svg';
-import { ReactComponent as TellMeMoreIcn } from '../../assets/tellMeMoreIcn.svg';
-import { ReactComponent as TutorBag } from '../../assets/tutor-bag.svg';
-import ChatLoader from '../../components/CustomComponents/CustomChatLoader';
-import CustomSideModal from '../../components/CustomComponents/CustomSideModal';
-import CustomTabs from '../../components/CustomComponents/CustomTabs';
-import { useChatScroll } from '../../components/hooks/useChatScroll';
-import { chatWithDoc } from '../../services/AI';
-import FlashcardDataProvider from '../Dashboard/FlashCards/context/flashcard';
+import { ReactComponent as HightLightIcon } from '../../../assets/highlightIcn.svg';
+import { ReactComponent as SummaryIcon } from '../../../assets/summaryIcn.svg';
+import { ReactComponent as TellMeMoreIcn } from '../../../assets/tellMeMoreIcn.svg';
+import { ReactComponent as TutorBag } from '../../../assets/tutor-bag.svg';
+import ChatLoader from '../../../components/CustomComponents/CustomChatLoader';
+import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
+import CustomTabs from '../../../components/CustomComponents/CustomTabs';
+import { useChatScroll } from '../../../components/hooks/useChatScroll';
+import { chatWithDoc } from '../../../services/AI';
+import FlashcardDataProvider from '../FlashCards/context/flashcard';
 import ChatHistory from './chatHistory';
 import HighLight from './highlist';
 import SetUpFlashCards from './setupFlashCards';
@@ -72,6 +72,11 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
   const [response, setResponse] = useState({});
   const toast = useToast();
   const loading = false;
+  const [error, setError] = useState<string>('');
+  const [botStatus, setBotStatus] = useState(
+    'Philosopher, thinker, study companion.'
+  );
+
   const prompts = [
     "Explain this document to me like I'm five",
     'Who wrote this book?',
@@ -87,6 +92,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
     studentId: string;
     documentId: string;
   }) => {
+    setBotStatus('Thinking');
     const response = await chatWithDoc({
       query,
       studentId,
@@ -99,10 +105,15 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
+      setBotStatus('Typing...');
       // @ts-ignore: scary scenes, but let's observe
       const { done, value } = await reader?.read();
       if (done) {
         setLLMResponse('');
+        setTimeout(
+          () => setBotStatus('Philosopher, thinker, study companion.'),
+          1000
+        );
         setMessages((prevMessages) => [
           ...prevMessages,
           { text: temp, isUser: false, isLoading: false }
@@ -248,7 +259,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
                       </CircleContainer>
                       <TextContainer>
                         <Text className="font-semibold">Plato.</Text>
-                        <Text>Philosopher, thinker, study companion.</Text>
+                        <Text>{botStatus}</Text>
                       </TextContainer>
                     </FlexContainer>
                     <StyledText>
@@ -405,7 +416,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
       <CustomSideModal onClose={onFlashCard} isOpen={isFlashCard}>
         <div style={{ margin: '3rem 0', overflowY: 'scroll' }}>
           <FlashcardDataProvider>
-            <SetUpFlashCards documentId={documentId} studentId={studentId} />
+            <SetUpFlashCards />
           </FlashcardDataProvider>
         </div>
       </CustomSideModal>

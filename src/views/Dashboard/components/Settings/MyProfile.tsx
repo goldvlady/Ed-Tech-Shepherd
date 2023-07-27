@@ -1,11 +1,16 @@
 import CustomToast from '../../../../components/CustomComponents/CustomToast';
+import { firebaseAuth, updatePassword } from '../../../../firebase';
 import ApiService from '../../../../services/ApiService';
+import userStore from '../../../../state/userStore';
 import {
   Avatar,
   Editable,
   EditableInput,
   EditableTextarea,
   EditablePreview,
+  Input,
+  InputGroup,
+  InputRightElement,
   useEditableControls,
   Switch,
   Spacer,
@@ -24,20 +29,24 @@ import {
   Stack,
   useToast
 } from '@chakra-ui/react';
+import firebase from 'firebase/app';
+// import { updatePassword } from 'firebase/auth';
 import React, { useState } from 'react';
 import { RiArrowRightSLine } from 'react-icons/ri';
 
 function MyProfile(props) {
   const { id, username, email } = props;
-  // const {
-  //   isEditing,
-  //   getSubmitButtonProps,
-  //   getCancelButtonProps,
-  //   getEditButtonProps
-  // } = useEditableControls();
+  const { user } = userStore();
+
   const toast = useToast();
   const [newEmail, setNewEmail] = useState(email);
   const [isOpenTandC, setIsOpenTandC] = useState(false);
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [oldPassword, setOldPassword] = useState<string>('');
+  const [newPassword, setNewPassword] = useState<string>('xxxxxxxx');
+  const handleClickOld = () => setShowOldPassword(!showOldPassword);
+  const handleClickNew = () => setShowNewPassword(!showNewPassword);
 
   const handleOpenTandCModal = () => {
     setIsOpenTandC(true);
@@ -67,8 +76,39 @@ function MyProfile(props) {
         isClosable: true
       });
     }
+  };
 
-    console.log('Edited Value:', response.status);
+  const handleUpdatePassword = async (e) => {
+    e.preventDefault();
+    const users = await firebaseAuth.currentUser;
+    // const credentials = await firebaseAuth.EmailAuthProvider.credential(
+    //   users.email,
+    //   oldPassword
+    // );
+    if (users) {
+      await updatePassword(users, newPassword)
+        .then(() => {
+          toast({
+            render: () => (
+              <CustomToast
+                title="Password Updated successfully"
+                status="success"
+              />
+            ),
+            position: 'top-right',
+            isClosable: true
+          });
+        })
+        .catch((error) => {
+          toast({
+            render: () => (
+              <CustomToast title="Something went wrong.." status="error" />
+            ),
+            position: 'top-right',
+            isClosable: true
+          });
+        });
+    }
   };
   return (
     <Box>
@@ -143,7 +183,7 @@ function MyProfile(props) {
                 height: '29px',
                 _hover: {
                   color: '#207df7',
-                  backgroundColor: '#F0F6FE' // Custom background color on hover
+                  backgroundColor: '#F0F6FE'
                 }
               }}
               isDisabled={email === newEmail} // Disable the button if the input value is not changed
@@ -166,9 +206,56 @@ function MyProfile(props) {
               >
                 Password
               </Text>{' '}
-              <Text fontSize={12} color="text.200">
-                xxxxxxxxxx
-              </Text>
+              {/* <Text fontSize={12} color="text.200">
+                verify old password
+              </Text> */}
+              {/* <InputGroup size="xs" fontSize={12}>
+                <Input
+                  pr="4.5rem"
+                  type={showOldPassword ? 'text' : 'password'}
+                  placeholder="Enter old password"
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                />
+                <InputRightElement width="4.5rem">
+                  <Button
+                    variant="unstyled"
+                    onClick={handleClickOld}
+                    fontSize={10}
+                    color="text.300"
+                    mt={1}
+                  >
+                    {showOldPassword ? 'Hide' : 'Show'}
+                  </Button>
+                </InputRightElement>
+              </InputGroup>
+              <InputGroup size="xs" fontSize={12}>
+                <Input
+                  pr="4.5rem"
+                  type={showNewPassword ? 'text' : 'password'}
+                  placeholder="Enter new password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+                <InputRightElement width="4.5rem">
+                  <Button
+                    variant="unstyled"
+                    onClick={handleClickNew}
+                    fontSize={10}
+                    color="text.300"
+                    mt={1}
+                  >
+                    {showNewPassword ? 'Hide' : 'Show'}
+                  </Button>
+                </InputRightElement>
+              </InputGroup> */}
+              <Editable
+                defaultValue={newPassword}
+                onChange={(e: any) => setNewPassword(e)}
+              >
+                <EditablePreview fontSize={12} color="text.300" />
+                <EditableInput />
+              </Editable>
             </Stack>
             <Spacer />
             <Button
@@ -180,8 +267,14 @@ function MyProfile(props) {
                 px: 4,
                 border: '1px solid #E7E8E9',
                 color: '#5C5F64',
-                height: '29px'
+                height: '29px',
+                _hover: {
+                  color: '#207df7',
+                  backgroundColor: '#F0F6FE'
+                }
               }}
+              isDisabled={newPassword === 'xxxxxxxx'}
+              onClick={handleUpdatePassword}
             >
               Change
             </Button>
