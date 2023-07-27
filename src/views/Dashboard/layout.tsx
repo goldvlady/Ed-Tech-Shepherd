@@ -189,7 +189,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
       <Flex
         // ml={{ base: 0, md: 60 }}
         px={{ base: 4, md: 4 }}
-        width={{ sm: '100%', md: 'calc(100vw - 250px)' }}
+        width={{ base: '100%', sm: '100%', md: 'calc(100vw - 250px)' }}
         height="20"
         alignItems="center"
         zIndex={2}
@@ -201,7 +201,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         top="0"
         {...rest}
       >
-        <Box>
+        <Box display={{ base: 'none', md: 'flex' }}>
           <Flex
             bgColor={'transparent'}
             color="text.400"
@@ -221,8 +221,11 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             <Text> Ask Shepherd?</Text>
           </Flex>
         </Box>
-        <Spacer />
-        <Flex justifyContent={'space-between'}>
+        <Spacer display={{ base: 'none', md: 'flex' }} />
+        <Flex
+          justifyContent={'space-between'}
+          width={{ base: 'inherit', md: 'auto' }}
+        >
           {' '}
           <IconButton
             display={{ base: 'flex', md: 'none' }}
@@ -237,8 +240,28 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             fontFamily="monospace"
             fontWeight="bold"
           >
-            <Logo />{' '}
+            {/* <Logo  />{' '} */}
           </Text>
+          <Box display={{ base: 'flex', md: 'none' }}>
+            <Flex
+              bgColor={'transparent'}
+              color="text.400"
+              border="1px solid #EBECF0"
+              borderRadius={'40px'}
+              fontSize={{ base: '10px' }}
+              p="6px 16px"
+              onClick={activateHelpModal}
+              gap={2}
+              _hover={{
+                cursor: 'pointer',
+                bgColor: '#EDF2F7',
+                transform: 'translateY(-2px)'
+              }}
+            >
+              <Image src={AskIcon} />
+              <Text> Ask Shepherd?</Text>
+            </Flex>
+          </Box>
           <HStack spacing={4}>
             <Menu>
               <MenuButton>
@@ -282,7 +305,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     fontSize="14px"
                     fontWeight={500}
                     color="text.200"
-                    display={{ base: 'block', sm: 'none', md: 'block' }}
+                    display={{ base: 'none', sm: 'none', md: 'block' }}
                   >
                     {`${user?.name?.first} ${user?.name?.last}`}
                   </Text>
