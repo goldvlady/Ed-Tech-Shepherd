@@ -1,6 +1,6 @@
-import { Layout, OffersGridList, Section } from '../components';
-import ApiService from '../services/ApiService';
-import offerStore from '../state/offerStore';
+import { Layout, OffersGridList, Section } from '../../../components';
+import ApiService from '../../../services/ApiService';
+import offerStore from '../../../state/offerStore';
 import React, { useEffect, useState, useCallback } from 'react';
 
 export default function Offers() {

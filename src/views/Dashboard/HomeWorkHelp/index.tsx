@@ -1,6 +1,6 @@
 import CustomModal from '../../../components/CustomComponents/CustomModal';
-import Chat from '../../docchat/chat';
-import ChatHistory from '../../docchat/chatHistory';
+import Chat from '../DocChat/chat';
+import ChatHistory from '../DocChat/chatHistory';
 import ViewTutors from './ViewTutors';
 import {
   HomeWorkHelpChatContainer,

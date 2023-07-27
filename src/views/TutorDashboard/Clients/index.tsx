@@ -1,10 +1,14 @@
-import { ReactComponent as DocIcon } from '../assets/doc.svg';
-import { ReactComponent as NewNoteIcon } from '../assets/newnote.svg';
-import { AllNotesTab, SelectedNoteModal, AllClientTab } from '../components';
-import DropdownMenu from '../components/CustomComponents/CustomDropdownMenu';
-import CustomTabs from '../components/CustomComponents/CustomTabs';
-import Layout from '../components/Layout';
-import { SortIcon, FilterByTagsIcon } from '../components/icons';
+import { ReactComponent as DocIcon } from '../../../assets/doc.svg';
+import { ReactComponent as NewNoteIcon } from '../../../assets/newnote.svg';
+import {
+  AllNotesTab,
+  SelectedNoteModal,
+  AllClientTab
+} from '../../../components';
+import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMenu';
+import CustomTabs from '../../../components/CustomComponents/CustomTabs';
+import Layout from '../../../components/Layout';
+import { SortIcon, FilterByTagsIcon } from '../../../components/icons';
 // import ApiService from '../services/ApiService';
 import {
   Checkbox,
@@ -18,7 +22,7 @@ import {
   SectionNewList,
   StyledHeader,
   StyledSection
-} from './Dashboard/Notes/styles';
+} from '../../Dashboard/Notes/styles';
 // import { BlockNoteEditor } from '@blocknote/core';
 // import '@blocknote/core/style.css';
 // import { BlockNoteView, useBlockNote } from '@blocknote/react';

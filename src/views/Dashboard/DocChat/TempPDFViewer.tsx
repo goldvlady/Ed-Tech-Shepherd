@@ -1,4 +1,4 @@
-import { SelectedNoteModal } from '../../components';
+import { SelectedNoteModal } from '../../../components';
 import { Spinner } from './Spinner';
 import { testHighlights as _testHighlights } from './test-highlights';
 import { useEffect, useState } from 'react';

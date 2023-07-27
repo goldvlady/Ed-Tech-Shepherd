@@ -1,16 +1,16 @@
 /* eslint-disable no-loop-func */
 
 /* eslint-disable no-unsafe-optional-chaining */
-import { ReactComponent as HightLightIcon } from '../../assets/highlightIcn.svg';
-import { ReactComponent as SummaryIcon } from '../../assets/summaryIcn.svg';
-import { ReactComponent as TellMeMoreIcn } from '../../assets/tellMeMoreIcn.svg';
-import { ReactComponent as TutorBag } from '../../assets/tutor-bag.svg';
-import ChatLoader from '../../components/CustomComponents/CustomChatLoader';
-import CustomSideModal from '../../components/CustomComponents/CustomSideModal';
-import CustomTabs from '../../components/CustomComponents/CustomTabs';
-import { useChatScroll } from '../../components/hooks/useChatScroll';
-import { chatWithDoc } from '../../services/AI';
-import FlashcardDataProvider from '../Dashboard/FlashCards/context/flashcard';
+import { ReactComponent as HightLightIcon } from '../../../assets/highlightIcn.svg';
+import { ReactComponent as SummaryIcon } from '../../../assets/summaryIcn.svg';
+import { ReactComponent as TellMeMoreIcn } from '../../../assets/tellMeMoreIcn.svg';
+import { ReactComponent as TutorBag } from '../../../assets/tutor-bag.svg';
+import ChatLoader from '../../../components/CustomComponents/CustomChatLoader';
+import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
+import CustomTabs from '../../../components/CustomComponents/CustomTabs';
+import { useChatScroll } from '../../../components/hooks/useChatScroll';
+import { chatWithDoc } from '../../../services/AI';
+import FlashcardDataProvider from '../FlashCards/context/flashcard';
 import ChatHistory from './chatHistory';
 import HighLight from './highlist';
 import SetUpFlashCards from './setupFlashCards';

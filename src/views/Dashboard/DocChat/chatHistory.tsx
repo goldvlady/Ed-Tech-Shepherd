@@ -1,5 +1,5 @@
-import { ReactComponent as HistoryIcn } from '../../assets/historyIcon.svg';
-import { getDateString } from '../../helpers';
+import { ReactComponent as HistoryIcn } from '../../../assets/historyIcon.svg';
+import { getDateString } from '../../../helpers';
 import {
   ChatHistoryBlock,
   ChatHistoryBody,

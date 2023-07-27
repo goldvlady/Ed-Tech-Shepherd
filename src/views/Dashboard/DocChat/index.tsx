@@ -1,4 +1,4 @@
-import userStore from '../../state/userStore';
+import userStore from '../../../state/userStore';
 import TempPDFViewer from './TempPDFViewer';
 import Chat from './chat';
 import { useEffect, useState } from 'react';

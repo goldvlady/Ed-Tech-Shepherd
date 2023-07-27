@@ -38,7 +38,7 @@ const userPatch = {
   _id: 'whatevs'
 };
 
-const useHack = true;
+const useHack = false;
 
 export default create<Store>((set) => ({
   user: null,
