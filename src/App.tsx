@@ -72,7 +72,8 @@ const RequireAuth = ({
   authenticated: any;
   unAuthenticated: any;
 }) => {
-  const { fetchUser, user, fetchNotifications, fetchUserDocuments } = userStore();
+  const { fetchUser, user, fetchNotifications, fetchUserDocuments } =
+    userStore();
   const [loadingUser, setLoadingUser] = useState(true);
 
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);

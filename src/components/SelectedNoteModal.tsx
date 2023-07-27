@@ -19,7 +19,7 @@ import {
   uploadBytesResumable,
   getDownloadURL,
   updateMetadata,
-  deleteObject,
+  deleteObject
 } from 'firebase/storage';
 import { useRef, useState, useEffect, RefObject, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -159,8 +159,8 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   }, [currentUser?.uid]);
 
   useEffect(() => {
-    setList(userDocuments)
-  }, [userDocuments])
+    setList(userDocuments);
+  }, [userDocuments]);
 
   const clickInput = () => {
     if (canUpload) inputRef?.current && inputRef.current.click();
