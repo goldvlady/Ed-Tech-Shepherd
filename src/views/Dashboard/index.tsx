@@ -74,6 +74,10 @@ export default function Index() {
     twoDigitFormat(date.getHours()) + ':' + twoDigitFormat(date.getMinutes());
   const hours = date.getHours();
   const isDayTime = hours > 6 && hours < 20;
+  const timeStudied = (totalWeeklyStudyTime) => {
+    const [hours, minutes] = totalWeeklyStudyTime.split(':');
+    return { hour: hours, minute: minutes };
+  };
 
   const { user } = userStore();
   const { feeds, fetchFeeds } = feedsStore();
@@ -370,7 +374,10 @@ export default function Index() {
 
                         <Flex gap={1}>
                           <Text fontSize={'24px'} fontWeight={600}>
-                            05
+                            {
+                              timeStudied(studentReport.totalWeeklyStudyTime)
+                                .hour
+                            }
                             <span
                               style={{
                                 fontSize: '14px',
@@ -383,7 +390,10 @@ export default function Index() {
                             </span>
                           </Text>{' '}
                           <Text fontSize={'24px'} fontWeight={600}>
-                            30
+                            {
+                              timeStudied(studentReport.totalWeeklyStudyTime)
+                                .hour
+                            }
                             <span
                               style={{
                                 fontSize: '14px',

@@ -4,6 +4,7 @@ import { checkDocumentStatus, processDocument } from '../services/AI';
 import userStore from '../state/userStore';
 import CustomButton from './CustomComponents/CustomButton';
 import CustomModal from './CustomComponents/CustomModal/index';
+import CustomDropdown from './CustomDropdown';
 import { UploadIcon } from './icons';
 import { AttachmentIcon } from '@chakra-ui/icons';
 import {
@@ -11,7 +12,8 @@ import {
   CircularProgressLabel,
   Alert,
   AlertTitle,
-  AlertDescription
+  AlertDescription,
+  VStack
 } from '@chakra-ui/react';
 import { getAuth } from 'firebase/auth';
 import {
@@ -54,7 +56,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   const [list, setList] = useState<Array<List>>([]);
   const [canUpload, setCanUpload] = useState(true);
   const [file, setFile] = useState<Blob | Uint8Array | ArrayBuffer>();
-  const [selectedOption, setSelectedOption] = useState('');
+  const [selectedOption, setSelectedOption] = useState<any>();
   const [confirmReady, setConfirmReady] = useState(false);
   const [docPath, setDocPath] = useState('');
   const [loadedList, setLoadedList] = useState(false);
@@ -178,7 +180,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     setShow(false);
   };
 
-  const handleSelected = (e: any) => {
+  const handleSelected = (e) => {
     if (e.target.value) {
       setSelectedOption(e.target.value);
       setCanUpload(false);
@@ -385,24 +387,28 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
           {loadedList && (
             <div>
               <Label htmlFor="note">Select note</Label>
-              <Select
-                id="note"
-                name="note"
-                onChange={handleSelected}
-                value={selectedOption || ''}
-                required
+              <CustomDropdown
+                value={selectedOption?.split('/').pop()}
+                placeholder="Select an Option"
               >
-                <option disabled value="">
-                  {' '}
-                  Select an option{' '}
-                </option>
-                {loadedList &&
-                  list.map((item, id) => (
-                    <option value={item.fullPath} key={id}>
-                      {item.name}
-                    </option>
-                  ))}
-              </Select>
+                <VStack alignItems={'left'} padding="10px">
+                  {loadedList &&
+                    list.map((item, id) => {
+                      return (
+                        <option
+                          value={item.fullPath}
+                          key={id}
+                          onClick={handleSelected}
+                          style={{
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {item.name}
+                        </option>
+                      );
+                    })}
+                </VStack>
+              </CustomDropdown>
               <OrText>Or</OrText>
             </div>
           )}
