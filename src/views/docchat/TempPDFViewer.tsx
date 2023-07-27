@@ -199,7 +199,7 @@ const TempPDFViewer = ({ pdfLink, name }: { pdfLink: URL; name: string }) => {
       {popUpNotesModal && (
         <SelectedNoteModal
           show={popUpNotesModal}
-          setShow={() => null}
+          setShow={setPopUpNotesModal}
           setShowHelp={() => null}
         />
       )}
