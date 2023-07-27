@@ -134,9 +134,9 @@ function ActivityFeeds(props) {
       }
     };
 
-    const filteredFeeds = feeds.data.filter(filterByPeriod);
+    const filteredFeeds = feeds?.data.filter(filterByPeriod);
     setFilteredFeeds(filteredFeeds);
-  }, [feedPeriod, feeds.data]);
+  }, [feedPeriod, feeds?.data]);
 
   return (
     <>
@@ -185,7 +185,7 @@ function ActivityFeeds(props) {
       </Box>
 
       <Box sx={{ maxHeight: '350px', overflowY: 'auto' }}>
-        {filteredFeeds.length > 0 ? (
+        {filteredFeeds?.length > 0 ? (
           filteredFeeds
             .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt)) //
             .map((feed: any, index) => (

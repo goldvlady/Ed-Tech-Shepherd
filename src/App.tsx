@@ -72,7 +72,8 @@ const RequireAuth = ({
   authenticated: any;
   unAuthenticated: any;
 }) => {
-  const { fetchUser, user, fetchNotifications } = userStore();
+  const { fetchUser, user, fetchNotifications, fetchUserDocuments } =
+    userStore();
   const [loadingUser, setLoadingUser] = useState(true);
 
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
@@ -87,6 +88,7 @@ const RequireAuth = ({
         await fetchUser()
           .then(() => {
             fetchNotifications();
+            fetchUserDocuments();
           })
           .catch((e) => {
             if (user.metadata.creationTime !== user.metadata.lastSignInTime) {
