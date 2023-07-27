@@ -22,7 +22,7 @@ function Notifications(props) {
   `;
   return (
     <>
-      <Box>
+      <Box sx={{ maxHeight: '650px', overflowY: 'auto' }}>
         {data &&
           data.map((i) => {
             if (i.type !== 'new_offer_received') {
