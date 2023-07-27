@@ -71,7 +71,9 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState({});
   const [error, setError] = useState<string>('');
-  const [botStatus, setBotStatus] = useState('Philosopher, thinker, study companion.')
+  const [botStatus, setBotStatus] = useState(
+    'Philosopher, thinker, study companion.'
+  );
 
   const prompts = [
     "Explain this document to me like I'm five",
@@ -106,7 +108,10 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
       const { done, value } = await reader?.read();
       if (done) {
         setLLMResponse('');
-        setTimeout(() => setBotStatus('Philosopher, thinker, study companion.'), 1000)
+        setTimeout(
+          () => setBotStatus('Philosopher, thinker, study companion.'),
+          1000
+        );
         setMessages((prevMessages) => [
           ...prevMessages,
           { text: temp, isUser: false }
