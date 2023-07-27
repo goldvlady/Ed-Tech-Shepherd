@@ -88,15 +88,15 @@ function MyTutors() {
                 <>
                   {' '}
                   <SimpleGrid
-                    columns={[2, null, 3]}
+                    columns={{ base: 1, md: 2, lg: 3 }}
                     spacing="20px"
                     ref={tutorGrid}
                     mt={4}
                   >
                     {offers.map((tutor: any) => (
                       <TutorCard
-                        key={tutor.tutor?._id}
-                        id={tutor.tutor?._id}
+                        key={tutor?.tutor?._id}
+                        id={tutor?.tutor?._id}
                         name={`${tutor.tutor.user.name.first} ${tutor.tutor.user.name.last}`}
                         levelOfEducation={'BSC'}
                         avatar={tutor.tutor.user.avatar}
@@ -127,7 +127,7 @@ function MyTutors() {
                 <>
                   {' '}
                   <SimpleGrid
-                    columns={[2, null, 3]}
+                    columns={{ base: 1, md: 2, lg: 3 }}
                     spacing="20px"
                     ref={tutorGrid}
                     mt={4}

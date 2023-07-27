@@ -103,7 +103,7 @@ export default function TutorCard(props: any) {
         {' '}
         <Box
           bg={'white'}
-          w={{ sm: '100%', md: '100%', lg: '100%' }}
+          w={{ sm: '100%', md: '100%', lg: '100%', base: '100%' }}
           height={{
             sm: '285px',
             md: '285px',
