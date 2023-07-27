@@ -47,7 +47,7 @@ import {
 } from './styles';
 import Summary from './summary';
 import { Text, useToast } from '@chakra-ui/react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 interface IChat {
   HomeWorkHelp?: boolean;
@@ -67,10 +67,11 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
   const [inputValue, setInputValue] = useState('');
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const [isChatHistory, setChatHistory] = useState<boolean>(false);
+  const textAreaRef = useRef<any>();
   const ref = useChatScroll(messages);
   const [response, setResponse] = useState({});
   const toast = useToast();
-  let loading = false;
+  const loading = false;
   const prompts = [
     "Explain this document to me like I'm five",
     'Who wrote this book?',
@@ -130,7 +131,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
     setChatHistory((prevState) => !prevState);
   }, []);
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(event.target.value);
   };
 
@@ -222,6 +223,11 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
       setChatbotSpace(chatbotWidth + 24);
     });
   }, []);
+
+  useEffect(() => {
+    textAreaRef.current.style.height = '2.5rem'; // Initially set height
+    textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`; // Then adjust it
+  }, [inputValue]); // Re-run effect when `text` changes
 
   return (
     <>
@@ -363,10 +369,16 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
         <ChatbotContainer chatbotSpace={chatbotSpace}>
           <InputContainer>
             <Input
-              type="text"
+              ref={textAreaRef}
+              // type="text"
               placeholder="Tell Shepherd what to do next"
               value={inputValue}
               onChange={handleInputChange}
+              style={{
+                minHeight: '2.5rem',
+                maxHeight: '10rem',
+                overflowY: 'auto'
+              }}
             />
             <SendButton onClick={handleSendMessage}>
               <img alt="" src="/svgs/send.svg" className="w-8 h-8" />
@@ -393,7 +405,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
       <CustomSideModal onClose={onFlashCard} isOpen={isFlashCard}>
         <div style={{ margin: '3rem 0', overflowY: 'scroll' }}>
           <FlashcardDataProvider>
-            <SetUpFlashCards />
+            <SetUpFlashCards documentId={documentId} studentId={studentId} />
           </FlashcardDataProvider>
         </div>
       </CustomSideModal>

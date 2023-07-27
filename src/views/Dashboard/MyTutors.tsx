@@ -26,7 +26,7 @@ function MyTutors() {
   const doFetchStudentTutors = useCallback(async () => {
     const response = await ApiService.getOffers();
     const jsonResp = await response.json();
-    setAllTutors(jsonResp);
+    setAllTutors(jsonResp?.data?.data ?? []);
     /* eslint-disable */
   }, []);
 
@@ -53,7 +53,7 @@ function MyTutors() {
             p={2}
             borderRadius={'6px'}
           >
-            {allTutors.length}
+            {allTutors?.length}
           </Text>
         </Flex>
         <Tabs>
@@ -69,12 +69,12 @@ function MyTutors() {
           <TabPanels>
             <TabPanel>
               <SimpleGrid
-                columns={[2, null, 3]}
+                columns={{ base: 1, md: 2, lg: 3 }}
                 spacing="20px"
                 ref={tutorGrid}
                 mt={4}
               >
-                {allTutors.map((tutor: any) => (
+                {allTutors?.map((tutor: any) => (
                   <TutorCard
                     key={tutor.tutor?._id}
                     id={tutor.tutor?._id}
@@ -95,17 +95,17 @@ function MyTutors() {
             <TabPanel>
               {' '}
               <SimpleGrid
-                columns={[2, null, 3]}
+                columns={{ base: 1, md: 2, lg: 3 }}
                 spacing="20px"
                 ref={tutorGrid}
                 mt={4}
               >
-                {allTutors.map(
+                {allTutors?.map(
                   (tutor: any) =>
                     tutor.status === 'draft' && (
                       <TutorCard
-                        key={tutor.tutor?._id}
-                        id={tutor.tutor?._id}
+                        key={tutor?.tutor?._id}
+                        id={tutor?.tutor?._id}
                         name={`${tutor.tutor.user.name.first} ${tutor.tutor.user.name.last}`}
                         levelOfEducation={'BSC'}
                         avatar={tutor.tutor.user.avatar}

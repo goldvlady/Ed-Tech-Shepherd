@@ -32,12 +32,12 @@ function BookmarkedTutors() {
           </Box>
         </Flex>
         <SimpleGrid
-          columns={[2, null, 3]}
+          columns={{ base: 1, md: 2, lg: 3 }}
           spacing="20px"
           ref={tutorGrid}
           mt={4}
         >
-          {allTutors.map((tutor: any) => (
+          {allTutors?.map((tutor: any) => (
             <TutorCard
               key={tutor.tutor?._id}
               id={tutor.tutor?._id}

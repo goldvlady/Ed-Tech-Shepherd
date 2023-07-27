@@ -11,6 +11,7 @@ export default create<Store>((set) => ({
   tutors: [],
   fetchBookmarkedTutors: async () => {
     const response = await ApiService.getBookmarkedTutors();
-    set({ tutors: await response.json() });
+    const tutorData = await response.json();
+    set({ tutors: tutorData?.data?.data });
   }
 }));
