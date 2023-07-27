@@ -1,15 +1,36 @@
 import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
+import Pagination from './components/Pagination';
 import TutorCard from './components/TutorCard';
 import { Box, Flex, SimpleGrid, Text } from '@chakra-ui/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 function BookmarkedTutors() {
-  const { fetchBookmarkedTutors, tutors: allTutors } = bookmarkedTutorsStore();
+  const {
+    fetchBookmarkedTutors,
+    tutors: allTutors,
+    pagination
+  } = bookmarkedTutorsStore();
+
   const doFetchBookmarkedTutors = useCallback(async () => {
     await fetchBookmarkedTutors();
     /* eslint-disable */
   }, []);
+  // const [pagination, setPagination] = useState<PaginationType>();
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(20);
+  const [count, setCount] = useState<number>(5);
+  const [days, setDays] = useState<Array<any>>([]);
+
+  const handleNextPage = () => {
+    const nextPage = pagination.page + 1;
+    fetchBookmarkedTutors();
+  };
+
+  const handlePreviousPage = () => {
+    const prevPage = pagination.page - 1;
+    fetchBookmarkedTutors();
+  };
 
   useEffect(() => {
     doFetchBookmarkedTutors();
@@ -52,6 +73,13 @@ function BookmarkedTutors() {
             />
           ))}
         </SimpleGrid>
+        {/* <Pagination
+          page={pagination.page}
+          count={pagination.total}
+          limit={pagination.limit}
+          handleNextPage={handleNextPage}
+          handlePreviousPage={handlePreviousPage}
+        /> */}
       </Box>
     </>
   );

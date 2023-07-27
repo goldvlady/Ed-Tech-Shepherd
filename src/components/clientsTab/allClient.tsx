@@ -64,6 +64,8 @@ const AllClientsTab = () => {
   const navigate = useNavigate();
 
   const [allTutorClients, setAllTutorClients] = useState<any>([]);
+  console.log('TUYU', allTutorClients);
+
   const doFetchTutorClients = useCallback(async () => {
     const response = await ApiService.getTutorClients();
 

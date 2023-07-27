@@ -1,5 +1,10 @@
 import ApiService from '../services/ApiService';
-import { FlashcardData, Score, Study, MinimizedStudy } from '../types';
+import {
+  FlashcardData,
+  Score,
+  MinimizedStudy,
+  SchedulePayload
+} from '../types';
 import { create } from 'zustand';
 
 type SearchQueryParams = {
@@ -37,6 +42,7 @@ type Store = {
     questionText: string,
     isPassed: boolean
   ) => Promise<boolean>;
+  scheduleFlashcard: (d: SchedulePayload) => Promise<boolean>;
 };
 
 export default create<Store>((set) => ({
@@ -91,6 +97,17 @@ export default create<Store>((set) => ({
       }
       return nextState;
     });
+  },
+  scheduleFlashcard: async (data: SchedulePayload) => {
+    try {
+      set({ isLoading: true });
+      const response = await ApiService.scheduleStudyEvent(data);
+      return response.status === 200;
+    } catch (error) {
+      return false;
+    } finally {
+      set({ isLoading: false });
+    }
   },
   deleteFlashCard: async (id: string | number) => {
     try {

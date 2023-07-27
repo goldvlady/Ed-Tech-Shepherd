@@ -294,6 +294,16 @@ export enum SessionType {
   HOMEWORK = 'homework'
 }
 
+export interface SchedulePayload {
+  entityId: string;
+  entityType: string;
+  startDates: string[];
+  startTime: string;
+  recurrence?: {
+    frequency: string;
+  };
+}
+
 export type LevelType = Level;
 export type BookingType = Booking;
 export type OfferType = Offer;
