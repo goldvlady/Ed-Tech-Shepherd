@@ -4,6 +4,7 @@ import { AllNotesTab, SelectedNoteModal } from '../../../components';
 import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMenu';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { SortIcon, FilterByTagsIcon } from '../../../components/icons';
+import ApiService from '../../../services/ApiService';
 // import ApiService from '../../../services/ApiService';
 import {
   Checkbox,
@@ -18,6 +19,7 @@ import {
   StyledHeader,
   StyledSection
 } from './styles';
+import { NoteDetails, NoteServerResponse, NoteUser } from './types';
 // import { BlockNoteEditor } from '@blocknote/core';
 // import '@blocknote/core/style.css';
 // import { BlockNoteView, useBlockNote } from '@blocknote/react';
@@ -25,8 +27,6 @@ import { AddIcon } from '@chakra-ui/icons';
 import { Text } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { NoteDetails, NoteServerResponse, NoteUser } from './types';
-import ApiService from '../../../services/ApiService';
 
 // const getNotes = JSON.parse(localStorage.getItem('notes') as string) || [];
 
@@ -83,7 +83,6 @@ const tabLists = [
   }
 ];
 
-
 const Notes = () => {
   const navigate = useNavigate();
   const [toggleHelpModal, setToggleHelpModal] = useState(false);
@@ -99,12 +98,13 @@ const Notes = () => {
     const resp = await ApiService.getAllNotes();
     const respText = await resp.text();
     try {
-      const respDetails: NoteServerResponse<Array<NoteDetails>> = JSON.parse(respText);
+      const respDetails: NoteServerResponse<Array<NoteDetails>> =
+        JSON.parse(respText);
       if (respDetails.data) {
         setAllNotes(respDetails.data);
       }
       setLoadingNotes(false);
-      // set notes list 
+      // set notes list
     } catch (error: any) {
       setLoadingNotes(false);
       return;
@@ -151,9 +151,7 @@ const Notes = () => {
           isCreateNew
           isWidth
           menuTitle="Create new"
-          DropdownMenuIcon={
-            <AddIcon fontWeight="700" marginRight="10px" />
-          }
+          DropdownMenuIcon={<AddIcon fontWeight="700" marginRight="10px" />}
         >
           {createNewLists?.map((createNewList) => (
             <SectionNewList key={createNewList.id}>
@@ -176,12 +174,8 @@ const Notes = () => {
                   <div>
                     <Text className="text-label">{sorted.title}</Text>
                     <div>
-                      <Text className="text-value">
-                        {sorted.firstValue}
-                      </Text>
-                      <Text className="text-value">
-                        {sorted.secondValue}
-                      </Text>
+                      <Text className="text-value">{sorted.firstValue}</Text>
+                      <Text className="text-value">{sorted.secondValue}</Text>
                     </div>
                   </div>
                 </StyledSection>
@@ -193,12 +187,8 @@ const Notes = () => {
                   <div>
                     <Text className="text-label">{sorted.title}</Text>
                     <div>
-                      <Text className="text-value">
-                        {sorted.firstValue}
-                      </Text>
-                      <Text className="text-value">
-                        {sorted.secondValue}
-                      </Text>
+                      <Text className="text-value">{sorted.firstValue}</Text>
+                      <Text className="text-value">{sorted.secondValue}</Text>
                     </div>
                   </div>
                 </StyledSection>
@@ -227,10 +217,9 @@ const Notes = () => {
             </div>
           </section>
         </DropdownMenu>
-
       </FlexContainer>
-    )
-  }
+    );
+  };
 
   useEffect(() => {
     //  load all notes when page is loaded

@@ -44,7 +44,6 @@ const DEFAULT_NOTE_TITLE = 'Enter Note Title';
 const DELETE_NOTE_TITLE = 'Delete Note';
 const UPDATE_NOTE_TITLE = 'Note Alert';
 
-
 const createNote = async (data: any): Promise<NoteServerResponse | null> => {
   const resp = await ApiService.createNote(data);
   const respText = await resp.text();
@@ -67,7 +66,10 @@ const deleteNote = async (id: string): Promise<NoteServerResponse | null> => {
   }
 };
 
-const updateNote = async (id: string, data: any): Promise<NoteServerResponse | null> => {
+const updateNote = async (
+  id: string,
+  data: any
+): Promise<NoteServerResponse | null> => {
   const resp = await ApiService.updateNote(id, data);
   const respText = await resp.text();
   try {
@@ -86,7 +88,9 @@ const NewNote = () => {
   //note title from data initially or Untitled
   const toast = useToast();
   const params = useParams();
-  const [noteParamId, setNoteParamId] = useState<string | null>(params.id ?? null);
+  const [noteParamId, setNoteParamId] = useState<string | null>(
+    params.id ?? null
+  );
   const [noteId, setNoteId] = useState<string | null>(null);
   const [note, setNote] = useState<NoteDetails | null>(null);
   const [saveButtonState, setSaveButtonState] = useState<boolean>(true);
@@ -97,14 +101,13 @@ const NewNote = () => {
   const editor: BlockNoteEditor | null = useBlockNote({
     initialContent: editorContent,
     onEditorContentChange: (editor: BlockNoteEditor) => {
-      console.log("content changed")
-    },
+      console.log('content changed');
+    }
   });
 
   const currentTime = moment().format('DD ddd, hh:mma');
 
   const onSaveNote = async () => {
-
     if (!editor) return;
     // get editor's content
     const noteJSON = editor.topLevelBlocks;
@@ -118,11 +121,11 @@ const NewNote = () => {
     setSaveButtonState(false);
     let saveDetails: NoteServerResponse | null;
 
-    if (noteId && noteId !== "") {
+    if (noteId && noteId !== '') {
       saveDetails = await updateNote(noteId, {
         topic: editedTitle,
         note: noteJSON
-      })
+      });
     } else {
       saveDetails = await createNote({
         topic: editedTitle,
@@ -143,11 +146,15 @@ const NewNote = () => {
     } else {
       if (!saveDetails?.data) {
         setSaveButtonState(true);
-        return showToast(UPDATE_NOTE_TITLE, 'Could not get note data, please try again', 'error');
+        return showToast(
+          UPDATE_NOTE_TITLE,
+          'Could not get note data, please try again',
+          'error'
+        );
       }
       // Save noteID to state if this is a new note
       if (!noteId) {
-        setNoteId(saveDetails.data["_id"]);
+        setNoteId(saveDetails.data['_id']);
       }
       showToast(UPDATE_NOTE_TITLE, saveDetails.message, 'success');
       setSaveButtonState(true);
@@ -155,12 +162,13 @@ const NewNote = () => {
   };
 
   const onDeleteNote = async () => {
+    const noteIdInUse = noteId ?? noteParamId;
 
-    if (!noteId || noteId === '') {
+    if (!noteIdInUse || noteIdInUse === '') {
       return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
     }
 
-    const details = await deleteNote(noteId);
+    const details = await deleteNote(noteIdInUse);
 
     if (!details) {
       return showToast(
@@ -169,12 +177,14 @@ const NewNote = () => {
         'error'
       );
     }
+    console.log("details : ", details);
+
     if (details.error) {
       return showToast(DELETE_NOTE_TITLE, details.error, 'error');
     } else {
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
       setEditedTitle(defaultNoteTitle);
-      setNoteId("");
+      setNoteId('');
       clearEditor();
     }
   };
@@ -190,7 +200,9 @@ const NewNote = () => {
       if (!respDetails || respDetails.error || !respDetails.data) {
         showToast(
           UPDATE_NOTE_TITLE,
-          respDetails.error ?? respDetails.message ? respDetails.message : "Cannot load note details",
+          respDetails.error ?? respDetails.message
+            ? respDetails.message
+            : 'Cannot load note details',
           'error'
         );
         return;
@@ -204,7 +216,7 @@ const NewNote = () => {
           setNoteId(note._id);
         }
       }
-      // set note data 
+      // set note data
     } catch (error: any) {
       showToast(UPDATE_NOTE_TITLE, error.message, 'error');
       return;
@@ -240,7 +252,7 @@ const NewNote = () => {
 
   const handleHeaderClick = () => {
     if (editedTitle === defaultNoteTitle) {
-      setEditedTitle("");
+      setEditedTitle('');
     }
     setIsEditingTitle(true);
   };
@@ -257,7 +269,7 @@ const NewNote = () => {
       }
     }
     return contentFound;
-  }
+  };
 
   const clearEditor = () => {
     if (!editor) {
@@ -271,7 +283,7 @@ const NewNote = () => {
       block.content = [];
       return true;
     });
-  }
+  };
 
   const showToast = (
     title: string,
@@ -350,7 +362,7 @@ const NewNote = () => {
                 onChange={handleTitleChange}
                 onBlur={handleFocusOut}
                 onKeyDown={handleKeyDown}
-                style={{ minWidth: "200px", width: "auto" }}
+                style={{ minWidth: '200px', width: 'auto' }}
                 autoFocus
               />
             ) : (

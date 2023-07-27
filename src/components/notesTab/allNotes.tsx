@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { NoteDetails } from '../../views/Dashboard/Notes/types';
 import CustomModal from '../CustomComponents/CustomModal';
 import {
@@ -15,6 +14,7 @@ import {
   ChevronRightIcon,
   MagnifyingGlassIcon
 } from '@heroicons/react/24/solid';
+import moment from 'moment';
 import React, { FC, useLayoutEffect, useRef, useState } from 'react';
 import { FaEllipsisH } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
@@ -42,15 +42,15 @@ export interface Props {
 
 const formatTags = (tags: any): string => {
   if (tags || !Array.isArray(tags)) {
-    return "";
+    return '';
   }
-  // format tags and return 
+  // format tags and return
   // TODO: create a tag styling and attache
-  return tags.join(" ");
-}
+  return tags.join(' ');
+};
 const formatDate = (date: Date, format = "DD ddd, hh:mma'"): string => {
   return moment(date).format('DD ddd, hh:mma');
-}
+};
 
 const AllNotesTab: FC<Props> = ({ data }) => {
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
@@ -71,7 +71,7 @@ const AllNotesTab: FC<Props> = ({ data }) => {
       title: data[i]?.topic,
       tags: formatTags(data[i]?.tags),
       dateCreated: formatDate(data[i]?.createdAt), // current date in yyyy-mm-dd format
-      lastModified: formatDate(data[i]?.updatedAt)// current date in yyyy-mm-dd format
+      lastModified: formatDate(data[i]?.updatedAt) // current date in yyyy-mm-dd format
     })
   );
 
@@ -97,11 +97,11 @@ const AllNotesTab: FC<Props> = ({ data }) => {
   };
 
   const gotoEditNote = (noteId: string | number) => {
-    alert("here navigating")
-    if (noteId && noteId !== "") {
-      navigate(`/new-note/${noteId}`)
+    const noteURL = `/dashboard/new-note/${noteId}`;
+    if (noteId && noteId !== '') {
+      navigate(noteURL);
     }
-  }
+  };
 
   const clientColumn: TableColumn<DataSourceItem>[] = [
     {
@@ -112,12 +112,13 @@ const AllNotesTab: FC<Props> = ({ data }) => {
       id: 0,
       render: ({ title, id }) => (
         <>
-          <img onClick={() => gotoEditNote(id)}
+          <img
+            onClick={() => gotoEditNote(id)}
             src="/svgs/text-document.svg"
             className="text-gray-400 absolute"
             alt=""
           />
-          <Text fontWeight="500">{title}</Text>
+          <Text onClick={() => gotoEditNote(id)} fontWeight="500">{title}</Text>
         </>
       )
     },
