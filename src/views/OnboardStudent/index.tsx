@@ -326,8 +326,8 @@ const OnboardStudent = () => {
                       `${moment(s.begin).format('dddd')}: ${moment(s.begin)
                         .tz(tz)
                         .format('hh:mm A')} - ${moment(s.end)
-                        .tz(tz)
-                        .format('hh:mm A')}`
+                          .tz(tz)
+                          .format('hh:mm A')}`
                   );
                 })
                 .join('\n')}
@@ -343,7 +343,7 @@ const OnboardStudent = () => {
     mixpanel.track('Completed onboarding');
 
     const user = await firebaseAuth.currentUser;
-    let firebaseId: string | undefined = user?.uid;
+    let firebaseId: string | null | undefined = user?.uid;
 
     if (!firebaseId) {
       const firebaseUser = await createUserWithEmailAndPassword(
@@ -356,6 +356,7 @@ const OnboardStudent = () => {
 
     await ApiService.createUser({
       ...data,
+      // @ts-ignore FIXME: to resolve later
       firebaseId,
       type: 'student'
     });
