@@ -21,13 +21,13 @@ import { PiCheckCircleFill } from 'react-icons/pi';
 import Typewriter from 'typewriter-effect';
 
 interface ToggleProps {
-  setTogglePlanSwitchModal: (state: boolean) => void;
-  togglePlanSwitchModal: boolean;
+  setToggleProfileSwitchModal: (state: boolean) => void;
+  toggleProfileSwitchModal: boolean;
 }
 
-const PlanSwitchModal = ({
-  setTogglePlanSwitchModal,
-  togglePlanSwitchModal
+const ProfileSwitchModal = ({
+  setToggleProfileSwitchModal,
+  toggleProfileSwitchModal
 }: ToggleProps) => {
   const [showSelected, setShowSelected] = useState(false);
   const [currentPlan, setCurrentPlan] = useState('Basic');
@@ -71,7 +71,7 @@ const PlanSwitchModal = ({
   ];
 
   const handleClose = () => {
-    setTogglePlanSwitchModal(false);
+    setToggleProfileSwitchModal(false);
   };
 
   const handleShowSelected = () => {
@@ -123,8 +123,8 @@ const PlanSwitchModal = ({
   const group = getRootProps();
   return (
     <>
-      {togglePlanSwitchModal && (
-        <Transition.Root show={togglePlanSwitchModal} as={Fragment}>
+      {toggleProfileSwitchModal && (
+        <Transition.Root show={toggleProfileSwitchModal} as={Fragment}>
           <Dialog as="div" className="relative z-[800] " onClose={() => null}>
             <Transition.Child
               as={Fragment}
@@ -171,66 +171,6 @@ const PlanSwitchModal = ({
                             lets you tutor and be a student.
                           </Text>
                         </Box>
-                        {/* <div className="overflow-hidden py-6  bg-white sm:grid sm:grid-cols-3 sm:gap-x-6 sm:space-y-0 space-y-2">
-                          {actions1.map((action) => (
-                            <div
-                              key={action.title}
-                              //   onClick={() => {
-                              //     if (action.showModal) handleShowSelected();
-                              //   }}
-                              className="group cursor-pointer relative transform  bg-white border-1 rounded-lg  border-gray-300 p-4 hover:border-blue-500  focus:border-blue-500 hover:drop-shadow-lg "
-                            >
-                              <Flex gap={2} mb={4}>
-                                <Text fontSize={14} fontWeight={500}>
-                                  {action.title}
-                                </Text>
-                                {currentPlan === action.title && (
-                                  <Text
-                                    padding={'2px 8px'}
-                                    bgColor="#F4F5F6"
-                                    color="text.400"
-                                    fontSize={12}
-                                    fontWeight={500}
-                                    borderRadius="4px"
-                                  >
-                                    Current Plan
-                                  </Text>
-                                )}
-                              </Flex>
-                              <Flex gap={1} alignItems="center" mb={4}>
-                                <Text fontSize={24} fontWeight={600}>
-                                  ${`${action.price}`}
-                                </Text>
-
-                                <Text fontSize={12} color="text.400">
-                                  /Month
-                                </Text>
-                              </Flex>
-
-                              <Stack spacing={3} mt={2} mb={4}>
-                                {action.features?.map((ft) => (
-                                  <Flex gap={2} alignItems="center" key={ft.id}>
-                                    <PiCheckCircleFill
-                                      color="#66BD6A"
-                                      size="18px"
-                                    />
-                                    <Text fontSize={14} color="text.300">
-                                      {ft.text}
-                                    </Text>
-                                  </Flex>
-                                ))}
-                              </Stack>
-                              {action.price > 0 && (
-                                <CustomButton
-                                  width="full"
-                                  padding="10px 60px"
-                                  my={3}
-                                  buttonText="Subscribe Now"
-                                />
-                              )}
-                            </div>
-                          ))}
-                        </div> */}
                         <Center>
                           <HStack {...group} spacing={'100px'} my={'65px'}>
                             {options.map((value) => {
@@ -334,4 +274,4 @@ const PlanSwitchModal = ({
   );
 };
 
-export default PlanSwitchModal;
+export default ProfileSwitchModal;

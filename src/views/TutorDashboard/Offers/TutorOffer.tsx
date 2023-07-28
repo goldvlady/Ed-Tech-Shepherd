@@ -5,7 +5,7 @@ import {
   AcceptOfferModal,
   DeclineOfferModal,
   DetailsCard
-} from '../components';
+} from '../../../components';
 import { Box, Container, Heading, Text, Grid } from '@chakra-ui/react';
 import { useDisclosure } from '@chakra-ui/react';
 import React, { Fragment, useState } from 'react';

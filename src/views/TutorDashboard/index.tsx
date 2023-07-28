@@ -4,13 +4,13 @@ import {
   GridList,
   RecentTransactions,
   WelcomePage
-} from '../components';
-import ApiService from '../services/ApiService';
-import feedsStore from '../state/feedsStore';
-import tutorStore from '../state/tutorStore';
-import userStore from '../state/userStore';
-import ActivityFeeds from './Dashboard/components/ActivityFeeds';
-import Schedule from './Dashboard/components/Schedule';
+} from '../../components';
+import ApiService from '../../services/ApiService';
+import feedsStore from '../../state/feedsStore';
+import tutorStore from '../../state/tutorStore';
+import userStore from '../../state/userStore';
+import ActivityFeeds from '../Dashboard/components/ActivityFeeds';
+import Schedule from '../Dashboard/components/Schedule';
 import { Box, Grid, GridItem, Spinner } from '@chakra-ui/react';
 import { useState, useEffect, useCallback } from 'react';
 

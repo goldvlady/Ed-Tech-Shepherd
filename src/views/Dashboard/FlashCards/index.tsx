@@ -3,9 +3,18 @@ import { FlashCardModal } from '../../../components/flashcardDecks';
 import LoaderOverlay from '../../../components/loaderOverlay';
 import SelectableTable, { TableColumn } from '../../../components/table';
 import { useSearch } from '../../../hooks';
+import ApiService from '../../../services/ApiService';
 import flashcardStore from '../../../state/flashcardStore';
-import { FlashcardData, FlashcardQuestion } from '../../../types';
+import {
+  FlashcardData,
+  FlashcardQuestion,
+  SchedulePayload
+} from '../../../types';
 import { Score, MinimizedStudy } from '../../../types';
+import { DeleteModal } from './components/deleteModal';
+import ScheduleStudyModal, {
+  ScheduleFormState
+} from './components/scheduleModal';
 import { useToast } from '@chakra-ui/react';
 import {
   Button,
@@ -21,15 +30,8 @@ import {
   Menu,
   Image
 } from '@chakra-ui/react';
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalBody,
-  ModalFooter
-} from '@chakra-ui/react';
 import { isSameDay, isThisWeek, getISOWeek } from 'date-fns';
-import { parseISO, format } from 'date-fns';
+import { parseISO, format, parse } from 'date-fns';
 import { startCase } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
@@ -49,174 +51,6 @@ const StyledImage = styled(Box)`
   box-shadow: 0 2px 10px rgba(63, 81, 94, 0.1);
 `;
 
-export const DeleteModal = ({
-  isOpen,
-  onCancel,
-  onDelete,
-  isLoading
-}: {
-  isOpen: boolean;
-  onCancel: () => void;
-  onDelete: () => void;
-  isLoading: boolean;
-}) => {
-  return (
-    <Modal
-      onClose={() => {
-        return;
-      }}
-      isOpen={isOpen}
-      isCentered
-    >
-      <ModalOverlay />
-      <ModalContent
-        minWidth={{ base: '80%', md: '500px' }}
-        mx="auto"
-        w="fit-content"
-        borderRadius="10px"
-      >
-        <ModalBody alignItems={'center'} justifyContent={'center'}>
-          <Flex
-            flexDirection="column"
-            justifyContent={'center'}
-            padding={'40px'}
-            alignItems="center"
-          >
-            <Box>
-              <svg
-                width="73"
-                height="72"
-                viewBox="0 0 73 72"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g filter="url(#filter0_d_2506_16927)">
-                  <circle cx="36.5" cy="28" r="20" fill="white" />
-                  <circle
-                    cx="36.5"
-                    cy="28"
-                    r="19.65"
-                    stroke="#EAEAEB"
-                    stroke-width="0.7"
-                  />
-                </g>
-                <path
-                  d="M36.5002 37.1663C31.4376 37.1663 27.3335 33.0622 27.3335 27.9997C27.3335 22.9371 31.4376 18.833 36.5002 18.833C41.5627 18.833 45.6668 22.9371 45.6668 27.9997C45.6668 33.0622 41.5627 37.1663 36.5002 37.1663ZM35.5835 30.7497V32.583H37.4168V30.7497H35.5835ZM35.5835 23.4163V28.9163H37.4168V23.4163H35.5835Z"
-                  fill="#F53535"
-                />
-                <defs>
-                  <filter
-                    id="filter0_d_2506_16927"
-                    x="0.5"
-                    y="0"
-                    width="72"
-                    height="72"
-                    filterUnits="userSpaceOnUse"
-                    color-interpolation-filters="sRGB"
-                  >
-                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                    <feColorMatrix
-                      in="SourceAlpha"
-                      type="matrix"
-                      values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-                      result="hardAlpha"
-                    />
-                    <feOffset dy="8" />
-                    <feGaussianBlur stdDeviation="8" />
-                    <feComposite in2="hardAlpha" operator="out" />
-                    <feColorMatrix
-                      type="matrix"
-                      values="0 0 0 0 0.32 0 0 0 0 0.389333 0 0 0 0 0.48 0 0 0 0.11 0"
-                    />
-                    <feBlend
-                      mode="normal"
-                      in2="BackgroundImageFix"
-                      result="effect1_dropShadow_2506_16927"
-                    />
-                    <feBlend
-                      mode="normal"
-                      in="SourceGraphic"
-                      in2="effect1_dropShadow_2506_16927"
-                      result="shape"
-                    />
-                  </filter>
-                </defs>
-              </svg>
-            </Box>
-            <Text
-              fontSize="18px"
-              fontFamily="Inter"
-              fontStyle="normal"
-              fontWeight="500"
-              lineHeight="21px"
-              marginBottom={'10px'}
-              letterSpacing="0.112px"
-              color="#212224"
-            >
-              Delete flashcard?
-            </Text>
-            <Text
-              color="#6E7682"
-              textAlign="center"
-              fontSize="14px"
-              fontFamily="Inter"
-              width={'80%'}
-              fontStyle="normal"
-              fontWeight="400"
-              lineHeight="20px"
-            >
-              This will permanently remove this flashcard from your list.
-            </Text>
-          </Flex>
-        </ModalBody>
-        <ModalFooter
-          bg="#F7F7F8"
-          borderRadius="0px 0px 10px 10px"
-          p="16px"
-          justifyContent="flex-end"
-        >
-          <Button
-            disabled={isLoading}
-            _hover={{
-              backgroundColor: '#FFF',
-              boxShadow: '0px 2px 6px 0px rgba(136, 139, 143, 0.10)'
-            }}
-            color="#5C5F64"
-            fontSize="14px"
-            fontFamily="Inter"
-            fontWeight="500"
-            lineHeight="20px"
-            onClick={() => onCancel()}
-            borderRadius="8px"
-            border="1px solid #E7E8E9"
-            bg="#FFF"
-            boxShadow="0px 2px 6px 0px rgba(136, 139, 143, 0.10)"
-            mr={3}
-          >
-            Cancel
-          </Button>
-          <Button
-            isLoading={isLoading}
-            _hover={{
-              backgroundColor: '#F53535'
-            }}
-            onClick={() => onDelete()}
-            bg="#F53535"
-            color="#ffffff"
-            borderRadius="6px"
-            px="16px"
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-          >
-            Delete
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  );
-};
-
 type DataSourceItem = {
   key: string;
   deckname: string;
@@ -227,14 +61,6 @@ type DataSourceItem = {
   questions: FlashcardQuestion[];
   currentStudy?: MinimizedStudy;
 };
-
-// const dataSource: DataSourceItem[] = Array.from({ length: 10 }, (_, i) => ({
-//   key: i,
-//   title: `Title ${i + 1}`,
-//   dateCreated: new Date().toISOString().split("T")[0], // current date in yyyy-mm-dd format
-//   lastModified: new Date().toISOString().split("T")[0], // current date in yyyy-mm-dd format
-//   lastAttemptedScore: Math.floor(Math.random() * 101), // random score between 0 and 100
-// }));
 
 function findNextFlashcard(
   flashcards: FlashcardData[]
@@ -311,7 +137,8 @@ const CustomTable: React.FC = () => {
     flashcard,
     loadFlashcard,
     deleteFlashCard,
-    isLoading
+    isLoading,
+    scheduleFlashcard
   } = flashcardStore();
 
   const actionFunc = useCallback(
@@ -325,6 +152,10 @@ const CustomTable: React.FC = () => {
   const handleSearch = useSearch(actionFunc);
 
   const [deleteItem, setDeleteItem] = useState<{
+    flashcard: FlashcardData;
+  } | null>(null);
+
+  const [scheduleItem, setScheduleItem] = useState<{
     flashcard: FlashcardData;
   } | null>(null);
 
@@ -474,6 +305,41 @@ const CustomTable: React.FC = () => {
                 Study
               </Text>
             </MenuItem>
+            <MenuItem
+              p="6px 8px 6px 8px"
+              onClick={() =>
+                setScheduleItem({
+                  flashcard: flashcard as unknown as FlashcardData
+                })
+              }
+              _hover={{ bgColor: '#F2F4F7' }}
+            >
+              <StyledImage marginRight="10px">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  width="12"
+                  height="12"
+                >
+                  <path
+                    fillRule="evenodd"
+                    fill="#6E7682"
+                    d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zm13.5 9a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-7.5z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </StyledImage>
+
+              <Text
+                color="#212224"
+                fontSize="14px"
+                lineHeight="20px"
+                fontWeight="400"
+              >
+                Schedule
+              </Text>
+            </MenuItem>
             {/* <MenuItem p="6px 8px 6px 8px" _hover={{ bgColor: "#F2F4F7" }}>
               <StyledImage marginRight="10px">
                 <svg
@@ -532,13 +398,49 @@ const CustomTable: React.FC = () => {
         </Menu>
       )
     }
-    // rest of your columns...
   ];
+
+  const handleEventSchedule = async (data: ScheduleFormState) => {
+    const parsedTime = parse(data.time.toLowerCase(), 'hh:mm aa', new Date());
+    const time = format(parsedTime, 'HH:mm');
+
+    const payload: SchedulePayload = {
+      entityId: scheduleItem?.flashcard._id as string,
+      entityType: 'flashcard',
+      startDates: [data.day?.toISOString() as string],
+      startTime: time
+    };
+
+    if (data.frequency && data.frequency !== 'none') {
+      payload.recurrence = { frequency: data.frequency };
+    }
+    const isSuccess = await scheduleFlashcard(payload);
+    if (isSuccess) {
+      toast({
+        position: 'top-right',
+        title: `${scheduleItem?.flashcard.deckname} Scheduled Succesfully`,
+        status: 'success'
+      });
+      setScheduleItem(null);
+    } else {
+      toast({
+        position: 'top-right',
+        title: `Failed to schedule ${scheduleItem?.flashcard.deckname} flashcards`,
+        status: 'error'
+      });
+    }
+  };
 
   return (
     <>
       {isLoading && <LoaderOverlay />}
       <FlashCardModal isOpen={Boolean(flashcard)} />
+      <ScheduleStudyModal
+        isLoading={isLoading}
+        onSumbit={(d) => handleEventSchedule(d)}
+        onClose={() => setScheduleItem(null)}
+        isOpen={Boolean(scheduleItem)}
+      />
       <DeleteModal
         isLoading={isLoading}
         isOpen={Boolean(deleteItem)}
@@ -550,12 +452,14 @@ const CustomTable: React.FC = () => {
             );
             if (isDeleted) {
               toast({
+                position: 'top-right',
                 title: `${deleteItem?.flashcard.deckname} deleted Succesfully`,
                 status: 'success'
               });
               setDeleteItem(null);
             } else {
               toast({
+                position: 'top-right',
                 title: `Failed to delete ${deleteItem?.flashcard.deckname} flashcards`,
                 status: 'error'
               });

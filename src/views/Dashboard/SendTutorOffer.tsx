@@ -1,16 +1,16 @@
-import CalendarDateInput from '../components/CalendarDateInput';
-import LinedList from '../components/LinedList';
-import PageTitle from '../components/PageTitle';
-import Panel from '../components/Panel';
-import Select, { Option } from '../components/Select';
-import TimePicker from '../components/TimePicker';
-import TutorCard from '../components/TutorCard';
-import { useTitle } from '../hooks';
-import ApiService from '../services/ApiService';
-import resourceStore from '../state/resourceStore';
-import theme from '../theme';
-import { Tutor } from '../types';
-import { numberToDayOfWeekName } from '../util';
+import CalendarDateInput from '../../components/CalendarDateInput';
+import LinedList from '../../components/LinedList';
+import PageTitle from '../../components/PageTitle';
+import Panel from '../../components/Panel';
+import Select, { Option } from '../../components/Select';
+import TimePicker from '../../components/TimePicker';
+import TutorCard from '../../components/TutorCard';
+import { useTitle } from '../../hooks';
+import ApiService from '../../services/ApiService';
+import resourceStore from '../../state/resourceStore';
+import theme from '../../theme';
+import { Tutor } from '../../types';
+import { numberToDayOfWeekName } from '../../util';
 import {
   Alert,
   AlertDescription,

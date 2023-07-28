@@ -1,6 +1,6 @@
-import StepsIndicator, { Step } from '../../components/StepIndicator';
-import { useFlashCardState } from '../Dashboard/FlashCards/context/flashcard';
-import FlashCardQuestionsPage from '../Dashboard/FlashCards/forms/flashcard_setup/questions';
+import StepsIndicator, { Step } from '../../../components/StepIndicator';
+import { useFlashCardState } from '../FlashCards/context/flashcard';
+import FlashCardQuestionsPage from '../FlashCards/forms/flashcard_setup/questions';
 import FlashcardFirstPart from './FlashCards';
 import FlashCardStudySession from './FlashCards/FlashCardStudySession';
 import { AnimatePresence, motion } from 'framer-motion';

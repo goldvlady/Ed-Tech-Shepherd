@@ -1,4 +1,6 @@
 import ApiService from '../services/ApiService';
+import offerStore from '../state/offerStore';
+import Pagination from '../views/Dashboard/components/Pagination';
 import StudentCard from './StudentCard';
 import {
   PencilIcon,
@@ -300,22 +302,47 @@ function Date() {
 //   );
 // }
 
-export default function OffersGridList(offers) {
+export default function OffersGridList(props) {
+  // const { offers, pagination } = props;
   const navigate = useNavigate();
-  console.log('OFF', offers);
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(20);
+
+  const { fetchOffers, offers, isLoading, pagination } = offerStore();
+
+  const handleNextPage = () => {
+    const nextPage = pagination.page + 1;
+    fetchOffers(nextPage, limit);
+  };
+
+  const handlePreviousPage = () => {
+    const prevPage = pagination.page - 1;
+    fetchOffers(prevPage, limit);
+  };
 
   return (
-    <SimpleGrid
-      //gap={6}
-      columns={3}
-      spacingX="15px"
-      spacingY="0px"
-      //templateColumns="repeat(1, 1fr)"
-      //templateColumns={{base: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)'}}
-    >
-      {offers.offers.map((offer) => (
-        <StudentCard key={offer.id} id={offer.id} offer={offer} />
-      ))}
-    </SimpleGrid>
+    <>
+      {' '}
+      <SimpleGrid
+        //gap={6}
+        columns={3}
+        spacingX="15px"
+        spacingY="0px"
+        //templateColumns="repeat(1, 1fr)"
+        //templateColumns={{base: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)'}}
+      >
+        {offers &&
+          offers.map((offer: any) => (
+            <StudentCard key={offer.id} id={offer.id} offer={offer} />
+          ))}
+      </SimpleGrid>{' '}
+      <Pagination
+        page={pagination.page}
+        count={pagination.total}
+        limit={pagination.limit}
+        handleNextPage={handleNextPage}
+        handlePreviousPage={handlePreviousPage}
+      />
+    </>
   );
 }

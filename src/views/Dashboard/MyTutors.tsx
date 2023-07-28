@@ -2,6 +2,7 @@ import TutorAvi from '../../assets/tutoravi.svg';
 import { useTitle } from '../../hooks';
 import ApiService from '../../services/ApiService';
 import offerStore from '../../state/offerStore';
+import Pagination from './components/Pagination';
 import TutorCard from './components/TutorCard';
 import {
   Box,
@@ -21,18 +22,33 @@ function MyTutors() {
   useTitle('My Tutors');
   const [allTutors, setAllTutors] = useState<any>([]);
   const [loadingData, setLoadingData] = useState(false);
-  const { fetchOffers, offers, isLoading } = offerStore();
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(5);
+  const [count, setCount] = useState<number>(5);
+  const [days, setDays] = useState<Array<any>>([]);
+  const { fetchOffers, offers, isLoading, pagination } = offerStore();
 
   const doFetchStudentTutors = useCallback(async () => {
-    const response = await ApiService.getOffers();
-    const jsonResp = await response.json();
-    setAllTutors(jsonResp);
+    await fetchOffers(page, limit);
+    setAllTutors(offers);
     /* eslint-disable */
   }, []);
 
   useEffect(() => {
     doFetchStudentTutors();
   }, [doFetchStudentTutors]);
+
+  // const [pagination, setPagination] = useState<PaginationType>();
+
+  const handleNextPage = () => {
+    const nextPage = pagination.page + 1;
+    fetchOffers(nextPage, limit);
+  };
+
+  const handlePreviousPage = () => {
+    const prevPage = pagination.page - 1;
+    fetchOffers(prevPage, limit);
+  };
 
   const [tutorGrid] = useAutoAnimate();
 
@@ -53,7 +69,7 @@ function MyTutors() {
             p={2}
             borderRadius={'6px'}
           >
-            {allTutors.length}
+            {offers ? offers.length : ''}
           </Text>
         </Flex>
         <Tabs>
@@ -68,44 +84,19 @@ function MyTutors() {
 
           <TabPanels>
             <TabPanel>
-              <SimpleGrid
-                columns={[2, null, 3]}
-                spacing="20px"
-                ref={tutorGrid}
-                mt={4}
-              >
-                {allTutors.map((tutor: any) => (
-                  <TutorCard
-                    key={tutor.tutor?._id}
-                    id={tutor.tutor?._id}
-                    name={`${tutor.tutor.user.name.first} ${tutor.tutor.user.name.last}`}
-                    levelOfEducation={'BSC'}
-                    avatar={tutor.tutor.user.avatar}
-                    saved={true}
-                    description={tutor.tutor?.description}
-                    rate={tutor.tutor?.rate}
-                    rating={tutor.tutor?.rating}
-                    reviewCount={tutor.tutor?.reviewCount}
-                    use="my tutors"
-                    offerStatus={tutor.status}
-                  />
-                ))}
-              </SimpleGrid>
-            </TabPanel>
-            <TabPanel>
-              {' '}
-              <SimpleGrid
-                columns={[2, null, 3]}
-                spacing="20px"
-                ref={tutorGrid}
-                mt={4}
-              >
-                {allTutors.map(
-                  (tutor: any) =>
-                    tutor.status === 'draft' && (
+              {!isLoading && offers ? (
+                <>
+                  {' '}
+                  <SimpleGrid
+                    columns={{ base: 1, md: 2, lg: 3 }}
+                    spacing="20px"
+                    ref={tutorGrid}
+                    mt={4}
+                  >
+                    {offers.map((tutor: any) => (
                       <TutorCard
-                        key={tutor.tutor?._id}
-                        id={tutor.tutor?._id}
+                        key={tutor?.tutor?._id}
+                        id={tutor?.tutor?._id}
                         name={`${tutor.tutor.user.name.first} ${tutor.tutor.user.name.last}`}
                         levelOfEducation={'BSC'}
                         avatar={tutor.tutor.user.avatar}
@@ -117,9 +108,61 @@ function MyTutors() {
                         use="my tutors"
                         offerStatus={tutor.status}
                       />
-                    )
-                )}
-              </SimpleGrid>
+                    ))}
+                  </SimpleGrid>{' '}
+                  <Pagination
+                    page={pagination.page}
+                    count={pagination.total}
+                    limit={pagination.limit}
+                    handleNextPage={handleNextPage}
+                    handlePreviousPage={handlePreviousPage}
+                  />
+                </>
+              ) : (
+                !isLoading && 'no tutors found'
+              )}
+            </TabPanel>
+            <TabPanel>
+              {!isLoading && offers ? (
+                <>
+                  {' '}
+                  <SimpleGrid
+                    columns={{ base: 1, md: 2, lg: 3 }}
+                    spacing="20px"
+                    ref={tutorGrid}
+                    mt={4}
+                  >
+                    {offers.map(
+                      (tutor: any) =>
+                        tutor.status != 'accepted' && (
+                          <TutorCard
+                            key={tutor.tutor?._id}
+                            id={tutor.tutor?._id}
+                            name={`${tutor.tutor.user.name.first} ${tutor.tutor.user.name.last}`}
+                            levelOfEducation={'BSC'}
+                            avatar={tutor.tutor.user.avatar}
+                            // saved={checkBookmarks(tutor._id)}
+                            description={tutor.tutor?.description}
+                            rate={tutor.tutor?.rate}
+                            rating={tutor.tutor?.rating}
+                            reviewCount={tutor.tutor?.reviewCount}
+                            use="my tutors"
+                            offerStatus={tutor.status}
+                          />
+                        )
+                    )}
+                  </SimpleGrid>
+                  <Pagination
+                    page={pagination.page}
+                    count={pagination.total}
+                    limit={pagination.limit}
+                    handleNextPage={handleNextPage}
+                    handlePreviousPage={handlePreviousPage}
+                  />
+                </>
+              ) : (
+                !isLoading && 'no tutors found'
+              )}
             </TabPanel>
           </TabPanels>
         </Tabs>

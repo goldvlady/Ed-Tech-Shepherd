@@ -103,7 +103,7 @@ export default function TutorCard(props: any) {
         {' '}
         <Box
           bg={'white'}
-          w={{ sm: '100%', md: '100%', lg: '100%' }}
+          w={{ sm: '100%', md: '100%', lg: '100%', base: '100%' }}
           height={{
             sm: '285px',
             md: '285px',
@@ -230,15 +230,18 @@ export default function TutorCard(props: any) {
               </Box>
             )
           )}
-          <Image
-            src={saved || ribbonClicked ? Ribbon2 : Ribbon}
-            position="absolute"
-            top={4}
-            right={5}
-            width={saved || ribbonClicked ? 5 : 4}
-            _hover={{ cursor: 'pointer' }}
-            onClick={() => toggleBookmarkTutor(id)}
-          />
+
+          {use !== 'my tutors' && (
+            <Image
+              src={saved || ribbonClicked ? Ribbon2 : Ribbon}
+              position="absolute"
+              top={4}
+              right={5}
+              width={saved || ribbonClicked ? 5 : 4}
+              _hover={{ cursor: 'pointer' }}
+              onClick={() => toggleBookmarkTutor(id)}
+            />
+          )}
         </Box>
       </Center>
 

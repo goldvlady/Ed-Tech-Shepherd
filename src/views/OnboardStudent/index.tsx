@@ -1,17 +1,17 @@
-import DateInput, { FORMAT } from '../components/DateInput';
-import LargeSelect from '../components/LargeSelect';
-import OnboardStep from '../components/OnboardStep';
-import OnboardSubmitStep from '../components/OnboardSubmitStep';
-import StepIndicator from '../components/StepIndicator';
-import { createUserWithEmailAndPassword, firebaseAuth } from '../firebase';
-import { googleProvider } from '../firebase';
-import { useTitle } from '../hooks';
-import lottieSuccessAnimationData from '../lottie/73392-success.json';
-import ApiService from '../services/ApiService';
-import onboardStudentStore from '../state/onboardStudentStore';
-import resourceStore from '../state/resourceStore';
-import { User } from '../types';
-import { getOptionValue } from '../util';
+import DateInput, { FORMAT } from '../../components/DateInput';
+import LargeSelect from '../../components/LargeSelect';
+import OnboardStep from '../../components/OnboardStep';
+import OnboardSubmitStep from '../../components/OnboardSubmitStep';
+import StepIndicator from '../../components/StepIndicator';
+import { createUserWithEmailAndPassword, firebaseAuth } from '../../firebase';
+import { googleProvider } from '../../firebase';
+import { useTitle } from '../../hooks';
+import lottieSuccessAnimationData from '../../lottie/73392-success.json';
+import ApiService from '../../services/ApiService';
+import onboardStudentStore from '../../state/onboardStudentStore';
+import resourceStore from '../../state/resourceStore';
+import { User } from '../../types';
+import { getOptionValue } from '../../util';
 import {
   Box,
   Button,

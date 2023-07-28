@@ -9,11 +9,19 @@ import {
 import { DeleteNoteModal } from '../index';
 import { StyledMenuButton, StyledMenuSection } from '../notesTab/styles';
 import SelectableTable, { TableColumn } from '../table';
-import { Menu, MenuList, MenuButton, Button, Text } from '@chakra-ui/react';
+import {
+  Menu,
+  MenuList,
+  MenuButton,
+  Button,
+  Text,
+  Flex
+} from '@chakra-ui/react';
 import {
   ChevronRightIcon,
   MagnifyingGlassIcon
 } from '@heroicons/react/24/solid';
+import moment from 'moment';
 import React, {
   useLayoutEffect,
   useRef,
@@ -64,11 +72,13 @@ const AllClientsTab = () => {
   const navigate = useNavigate();
 
   const [allTutorClients, setAllTutorClients] = useState<any>([]);
+  console.log('TUYU', allTutorClients);
+
   const doFetchTutorClients = useCallback(async () => {
     const response = await ApiService.getTutorClients();
 
     const jsonResp = await response.json();
-    setAllTutorClients(jsonResp);
+    setAllTutorClients(jsonResp.data.data);
 
     /* eslint-disable */
   }, []);
@@ -82,13 +92,13 @@ const AllClientsTab = () => {
     (_, i) => ({
       key: i,
       id: allTutorClients[i]?._id,
-      name: allTutorClients[i]?._id,
-      subject: allTutorClients[i]?._id,
-      start_date: allTutorClients[i]?._id,
-      end_date: allTutorClients[i]?._id,
-      status: allTutorClients[i]?._id,
-      amount_earned: allTutorClients[i]?._id,
-      classes: allTutorClients[i]?._id,
+      name: `${allTutorClients[i]?.student.user.name.first} ${allTutorClients[i]?.student.user.name.last}`,
+      subject: allTutorClients[i]?.student.topic,
+      start_date: moment(allTutorClients[i]?.createdAt).format('MMMM DD, YYYY'),
+      end_date: moment(allTutorClients[i]?.updatedAt).format('MMMM DD, YYYY'),
+      status: allTutorClients[i]?.isActive === true ? 'Active' : 'Ended',
+      amount_earned: '$0',
+      classes: 'Lesson 1',
       rating: 1
     })
   );
@@ -122,12 +132,14 @@ const AllClientsTab = () => {
       align: 'left',
       render: ({ name }) => (
         <>
-          <img
-            src="/svgs/text-document.svg"
-            className="text-gray-400 absolute"
-            alt=""
-          />
-          <Text fontWeight="500">{name}</Text>
+          <Flex alignItems="center" gap={1}>
+            <img
+              src="/svgs/text-document.svg"
+              className="text-gray-400 "
+              alt=""
+            />
+            <Text fontWeight="500">{name}</Text>
+          </Flex>
         </>
       )
     },
@@ -171,7 +183,21 @@ const AllClientsTab = () => {
       title: 'Classes',
       dataIndex: 'classes',
       align: 'left',
-      id: 5
+      id: 5,
+      render: ({ classes }) => (
+        <>
+          <Text
+            fontWeight="500"
+            fontSize={12}
+            bg="#F4F5F6"
+            p={'4px 8px'}
+            borderRadius="6px"
+            color="text.400"
+          >
+            {classes}
+          </Text>
+        </>
+      )
     },
     {
       key: 'rating',
