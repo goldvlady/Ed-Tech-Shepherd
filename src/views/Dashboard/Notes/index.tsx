@@ -4,6 +4,7 @@ import { AllNotesTab, SelectedNoteModal } from '../../../components';
 import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMenu';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { SortIcon, FilterByTagsIcon } from '../../../components/icons';
+import ApiService from '../../../services/ApiService';
 // import ApiService from '../../../services/ApiService';
 import {
   Checkbox,
@@ -18,19 +19,17 @@ import {
   StyledHeader,
   StyledSection
 } from './styles';
+import { NoteDetails, NoteServerResponse, SortOrder } from './types';
 // import { BlockNoteEditor } from '@blocknote/core';
 // import '@blocknote/core/style.css';
 // import { BlockNoteView, useBlockNote } from '@blocknote/react';
 import { AddIcon } from '@chakra-ui/icons';
 import { Text } from '@chakra-ui/react';
+import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { NoteDetails, NoteServerResponse, SortOrder } from './types';
-import ApiService from '../../../services/ApiService';
-import moment from 'moment';
 
 // const getNotes = JSON.parse(localStorage.getItem('notes') as string) || [];
-
 
 const filteredBy = [
   {
@@ -88,9 +87,7 @@ const tabLists = [
   }
 ];
 
-
 const Notes = () => {
-
   const navigate = useNavigate();
   const [toggleHelpModal, setToggleHelpModal] = useState(false);
   const [allNotes, setAllNotes] = useState<Array<NoteDetails>>([]);
@@ -107,12 +104,13 @@ const Notes = () => {
     const resp = await ApiService.getAllNotes();
     const respText = await resp.text();
     try {
-      const respDetails: NoteServerResponse<Array<NoteDetails>> = JSON.parse(respText);
+      const respDetails: NoteServerResponse<Array<NoteDetails>> =
+        JSON.parse(respText);
       if (respDetails.data) {
         setAllNotes(respDetails.data);
       }
       setLoadingNotes(false);
-      // set notes list 
+      // set notes list
     } catch (error: any) {
       setLoadingNotes(false);
       return;
@@ -130,9 +128,7 @@ const Notes = () => {
     setCheckedState(updatedCheckedState);
   };
 
-
-  const orderBy = (order: SortOrder, sortBy = "createdAt") => {
-
+  const orderBy = (order: SortOrder, sortBy = 'createdAt') => {
     if (order === SortOrder.ASC) {
       const notes = [...allNotes].sort((a: any, b: any) => {
         const aDate = new Date(a[sortBy]);
@@ -158,7 +154,7 @@ const Notes = () => {
       });
       setAllNotes(notes);
     }
-  }
+  };
 
   // const orderByTitle = (order: SortOrder) => {
   //   if (order === SortOrder.ASC) {
@@ -173,11 +169,11 @@ const Notes = () => {
 
   const addFilterByTag = (tag: string) => {
     if (!tags) {
-      setTags([tag])
+      setTags([tag]);
     } else {
-      setTags(tags.concat(tag))
+      setTags(tags.concat(tag));
     }
-  }
+  };
   const updateFilterByTag = (tag: string) => {
     if (!tags) return;
     const newTags = tags.filter((curTag: string) => {
@@ -188,7 +184,7 @@ const Notes = () => {
       }
     });
     setTags(newTags);
-  }
+  };
 
   const createNewLists = [
     {
@@ -219,9 +215,7 @@ const Notes = () => {
           isCreateNew
           isWidth
           menuTitle="Create new"
-          DropdownMenuIcon={
-            <AddIcon fontWeight="700" marginRight="10px" />
-          }
+          DropdownMenuIcon={<AddIcon fontWeight="700" marginRight="10px" />}
         >
           {createNewLists?.map((createNewList) => (
             <SectionNewList key={createNewList.id}>
@@ -244,11 +238,17 @@ const Notes = () => {
                   <div>
                     <Text className="text-label">{sorted.title}</Text>
 
-                    <Text onClick={() => orderBy(sorted.firstValue.order)} className="text-value">
+                    <Text
+                      onClick={() => orderBy(sorted.firstValue.order)}
+                      className="text-value"
+                    >
                       {sorted.firstValue.label}
                     </Text>
 
-                    <Text onClick={() => orderBy(sorted.secondValue.order)} className="text-value">
+                    <Text
+                      onClick={() => orderBy(sorted.secondValue.order)}
+                      className="text-value"
+                    >
                       {sorted.secondValue.label}
                     </Text>
                   </div>
@@ -261,10 +261,20 @@ const Notes = () => {
                   <div>
                     <Text className="text-label">{sorted.title}</Text>
                     <div>
-                      <Text onClick={() => orderBy(sorted.secondValue.order, "topic")} className="text-value">
+                      <Text
+                        onClick={() =>
+                          orderBy(sorted.secondValue.order, 'topic')
+                        }
+                        className="text-value"
+                      >
                         {sorted.firstValue.label}
                       </Text>
-                      <Text onClick={() => orderBy(sorted.secondValue.order, "topic")} className="text-value">
+                      <Text
+                        onClick={() =>
+                          orderBy(sorted.secondValue.order, 'topic')
+                        }
+                        className="text-value"
+                      >
                         {sorted.secondValue.label}
                       </Text>
                     </div>
@@ -295,10 +305,9 @@ const Notes = () => {
             </div>
           </section>
         </DropdownMenu>
-
       </FlexContainer>
-    )
-  }
+    );
+  };
 
   //  load all notes when page is loaded
   useEffect(() => {
