@@ -4,7 +4,6 @@ import { AllNotesTab, SelectedNoteModal } from '../../../components';
 import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMenu';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { SortIcon, FilterByTagsIcon } from '../../../components/icons';
-import ApiService from '../../../services/ApiService';
 // import ApiService from '../../../services/ApiService';
 import {
   Checkbox,
@@ -19,16 +18,19 @@ import {
   StyledHeader,
   StyledSection
 } from './styles';
-import { NoteDetails, NoteServerResponse, NoteUser } from './types';
 // import { BlockNoteEditor } from '@blocknote/core';
 // import '@blocknote/core/style.css';
 // import { BlockNoteView, useBlockNote } from '@blocknote/react';
 import { AddIcon } from '@chakra-ui/icons';
 import { Text } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { NoteDetails, NoteServerResponse, SortOrder } from './types';
+import ApiService from '../../../services/ApiService';
+import moment from 'moment';
 
 // const getNotes = JSON.parse(localStorage.getItem('notes') as string) || [];
+
 
 const filteredBy = [
   {
@@ -53,18 +55,21 @@ const filteredBy = [
   }
 ];
 
-const sortedBy = [
+const sortedByDate = [
   {
     id: 1,
     title: 'By date',
-    firstValue: 'Recently created',
-    secondValue: 'Recently modified'
-  },
+    firstValue: { label: 'Recently created', order: SortOrder.DESC },
+    secondValue: { label: 'Recently modified', order: SortOrder.ASC }
+  }
+];
+
+const sortedByTitle = [
   {
     id: 2,
     title: 'By title',
-    firstValue: 'A -> Z',
-    secondValue: 'Z -> A'
+    firstValue: { label: 'A -> Z', order: SortOrder.ASC },
+    secondValue: { label: 'Z -> A', order: SortOrder.DESC }
   }
 ];
 
@@ -83,11 +88,15 @@ const tabLists = [
   }
 ];
 
+
 const Notes = () => {
+
   const navigate = useNavigate();
   const [toggleHelpModal, setToggleHelpModal] = useState(false);
   const [allNotes, setAllNotes] = useState<Array<NoteDetails>>([]);
   const [loadingNotes, setLoadingNotes] = useState(false);
+  const [tags, setTags] = useState<string[] | null>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>(SortOrder.ASC);
 
   const activateHelpModal = () => {
     setToggleHelpModal(true);
@@ -98,13 +107,12 @@ const Notes = () => {
     const resp = await ApiService.getAllNotes();
     const respText = await resp.text();
     try {
-      const respDetails: NoteServerResponse<Array<NoteDetails>> =
-        JSON.parse(respText);
+      const respDetails: NoteServerResponse<Array<NoteDetails>> = JSON.parse(respText);
       if (respDetails.data) {
         setAllNotes(respDetails.data);
       }
       setLoadingNotes(false);
-      // set notes list
+      // set notes list 
     } catch (error: any) {
       setLoadingNotes(false);
       return;
@@ -121,6 +129,66 @@ const Notes = () => {
     );
     setCheckedState(updatedCheckedState);
   };
+
+
+  const orderBy = (order: SortOrder, sortBy = "createdAt") => {
+
+    if (order === SortOrder.ASC) {
+      const notes = [...allNotes].sort((a: any, b: any) => {
+        const aDate = new Date(a[sortBy]);
+        const bDate = new Date(b[sortBy]);
+        if (aDate instanceof Date && bDate instanceof Date) {
+          return aDate.getTime() - bDate.getTime();
+        } else {
+          // use textual check
+          return a.topic.localeCompare(b.topic);
+        }
+      });
+      setAllNotes(notes);
+    } else {
+      const notes = [...allNotes].sort((a: any, b: any) => {
+        const aDate = new Date(a[sortBy]);
+        const bDate = new Date(b[sortBy]);
+        if (aDate instanceof Date && bDate instanceof Date) {
+          return bDate.getTime() - aDate.getTime();
+        } else {
+          // use textual check
+          return b.topic.localeCompare(a.topic);
+        }
+      });
+      setAllNotes(notes);
+    }
+  }
+
+  // const orderByTitle = (order: SortOrder) => {
+  //   if (order === SortOrder.ASC) {
+  //     const notes = allNotes.sort((a: any, b: any) => a.topic.localeCompare(b.topic));
+  //     setAllNotes(notes);
+  //   } else {
+  //     const notes = allNotes.sort((a: any, b: any) => b.topic.localeCompare(a.topic));
+  //     setAllNotes(notes);
+  //   }
+  //   console.log("new notes: ", allNotes);
+  // }
+
+  const addFilterByTag = (tag: string) => {
+    if (!tags) {
+      setTags([tag])
+    } else {
+      setTags(tags.concat(tag))
+    }
+  }
+  const updateFilterByTag = (tag: string) => {
+    if (!tags) return;
+    const newTags = tags.filter((curTag: string) => {
+      if (curTag === tag) {
+        return false;
+      } else {
+        return true;
+      }
+    });
+    setTags(newTags);
+  }
 
   const createNewLists = [
     {
@@ -151,7 +219,9 @@ const Notes = () => {
           isCreateNew
           isWidth
           menuTitle="Create new"
-          DropdownMenuIcon={<AddIcon fontWeight="700" marginRight="10px" />}
+          DropdownMenuIcon={
+            <AddIcon fontWeight="700" marginRight="10px" />
+          }
         >
           {createNewLists?.map((createNewList) => (
             <SectionNewList key={createNewList.id}>
@@ -169,26 +239,34 @@ const Notes = () => {
         >
           <>
             {
-              sortedBy?.map((sorted) => (
+              sortedByDate?.map((sorted: any) => (
                 <StyledSection key={sorted.id}>
                   <div>
                     <Text className="text-label">{sorted.title}</Text>
-                    <div>
-                      <Text className="text-value">{sorted.firstValue}</Text>
-                      <Text className="text-value">{sorted.secondValue}</Text>
-                    </div>
+
+                    <Text onClick={() => orderBy(sorted.firstValue.order)} className="text-value">
+                      {sorted.firstValue.label}
+                    </Text>
+
+                    <Text onClick={() => orderBy(sorted.secondValue.order)} className="text-value">
+                      {sorted.secondValue.label}
+                    </Text>
                   </div>
                 </StyledSection>
               ))[0]
             }
             {
-              sortedBy?.map((sorted) => (
+              sortedByTitle?.map((sorted: any) => (
                 <StyledSection key={sorted.id}>
                   <div>
                     <Text className="text-label">{sorted.title}</Text>
                     <div>
-                      <Text className="text-value">{sorted.firstValue}</Text>
-                      <Text className="text-value">{sorted.secondValue}</Text>
+                      <Text onClick={() => orderBy(sorted.secondValue.order, "topic")} className="text-value">
+                        {sorted.firstValue.label}
+                      </Text>
+                      <Text onClick={() => orderBy(sorted.secondValue.order, "topic")} className="text-value">
+                        {sorted.secondValue.label}
+                      </Text>
                     </div>
                   </div>
                 </StyledSection>
@@ -217,14 +295,23 @@ const Notes = () => {
             </div>
           </section>
         </DropdownMenu>
-      </FlexContainer>
-    );
-  };
 
+      </FlexContainer>
+    )
+  }
+
+  //  load all notes when page is loaded
   useEffect(() => {
-    //  load all notes when page is loaded
     getNotes();
   }, []);
+
+  useEffect(() => {
+    // filter based on tags or sort order
+  }, [allNotes]);
+
+  useEffect(() => {
+    // filter based on tags or sort order
+  }, [tags]);
 
   return (
     <>

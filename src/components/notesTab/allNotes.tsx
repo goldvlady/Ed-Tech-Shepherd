@@ -48,7 +48,7 @@ const formatTags = (tags: any): string => {
   // TODO: create a tag styling and attache
   return tags.join(' ');
 };
-const formatDate = (date: Date, format = "DD ddd, hh:mma"): string => {
+const formatDate = (date: Date, format = 'DD ddd, hh:mma'): string => {
   return moment(date).format(format);
 };
 

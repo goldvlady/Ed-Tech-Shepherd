@@ -1,4 +1,3 @@
-import { SlControlRewind } from 'react-icons/sl';
 import { ReactComponent as AddTag } from '../../../../assets/addTag.svg';
 import { ReactComponent as DocIcon } from '../../../../assets/doc.svg';
 import { ReactComponent as DownloadIcon } from '../../../../assets/download.svg';
@@ -36,6 +35,7 @@ import moment from 'moment';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { FaEllipsisH } from 'react-icons/fa';
+import { SlControlRewind } from 'react-icons/sl';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const DEFAULT_NOTE_TITLE = 'Enter Note Title';
@@ -79,7 +79,7 @@ const updateNote = async (
   }
 };
 
-const formatDate = (date: Date, format = "DD ddd, hh:mma"): string => {
+const formatDate = (date: Date, format = 'DD ddd, hh:mma'): string => {
   return moment(date).format(format);
 };
 
@@ -95,7 +95,7 @@ const getNoteLocal = (noteId: string | null): string | null => {
 };
 
 const getLocalStorageNoteId = (noteId: string | null): string => {
-  const genId = noteId ? noteId : "";
+  const genId = noteId ? noteId : '';
   return genId;
 };
 
@@ -112,13 +112,17 @@ const NewNote = () => {
   const [noteId, setNoteId] = useState<string | null>(null);
   const [saveButtonState, setSaveButtonState] = useState<boolean>(true);
   const [editedTitle, setEditedTitle] = useState(defaultNoteTitle);
-  const [currentTime, setCurrentTime] = useState<string>(formatDate(new Date()));
+  const [currentTime, setCurrentTime] = useState<string>(
+    formatDate(new Date())
+  );
   const [isEditingTitle, setIsEditingTitle] = useState(false);
 
-  const [initialContent, setInitialContent] = useState<any>(getNoteLocal(noteParamId));
+  const [initialContent, setInitialContent] = useState<any>(
+    getNoteLocal(noteParamId)
+  );
 
   const editor: BlockNoteEditor | null = useBlockNote({
-    initialContent: initialContent ? JSON.parse(initialContent) : undefined,
+    initialContent: initialContent ? JSON.parse(initialContent) : undefined
   });
 
   const onSaveNote = async () => {
@@ -130,7 +134,11 @@ const NewNote = () => {
     try {
       noteJSON = JSON.stringify(editor.topLevelBlocks);
     } catch (error: any) {
-      return showToast(UPDATE_NOTE_TITLE, 'Oops! Could not get note content', 'error');
+      return showToast(
+        UPDATE_NOTE_TITLE,
+        'Oops! Could not get note content',
+        'error'
+      );
     }
 
     if (!editedTitle || editedTitle === defaultNoteTitle) {
@@ -143,7 +151,7 @@ const NewNote = () => {
     setSaveButtonState(false);
     let saveDetails: NoteServerResponse<NoteDetails> | null;
 
-    if (noteId && noteId !== "") {
+    if (noteId && noteId !== '') {
       saveDetails = await updateNote(noteId, {
         topic: editedTitle,
         note: noteJSON
@@ -178,9 +186,9 @@ const NewNote = () => {
       if (!noteId) {
         const newNoteId = saveDetails.data['_id'];
         setNoteId(newNoteId);
-        saveNoteLocal(getLocalStorageNoteId(newNoteId), saveDetails.data.note)
+        saveNoteLocal(getLocalStorageNoteId(newNoteId), saveDetails.data.note);
       } else {
-        saveNoteLocal(getLocalStorageNoteId(noteId), saveDetails.data.note)
+        saveNoteLocal(getLocalStorageNoteId(noteId), saveDetails.data.note);
       }
       showToast(UPDATE_NOTE_TITLE, saveDetails.message, 'success');
       setSaveButtonState(true);
@@ -188,7 +196,6 @@ const NewNote = () => {
   };
 
   const onDeleteNote = async () => {
-
     const noteIdInUse = noteId ?? noteParamId;
 
     if (!noteIdInUse || noteIdInUse === '') {
@@ -217,7 +224,6 @@ const NewNote = () => {
   };
 
   const getNoteById = async () => {
-
     if (!noteParamId) {
       return;
     }
