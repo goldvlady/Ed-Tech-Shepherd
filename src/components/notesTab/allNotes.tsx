@@ -48,8 +48,8 @@ const formatTags = (tags: any): string => {
   // TODO: create a tag styling and attache
   return tags.join(' ');
 };
-const formatDate = (date: Date, format = "DD ddd, hh:mma'"): string => {
-  return moment(date).format('DD ddd, hh:mma');
+const formatDate = (date: Date, format = "DD ddd, hh:mma"): string => {
+  return moment(date).format(format);
 };
 
 const AllNotesTab: FC<Props> = ({ data }) => {
@@ -118,7 +118,9 @@ const AllNotesTab: FC<Props> = ({ data }) => {
             className="text-gray-400 absolute"
             alt=""
           />
-          <Text onClick={() => gotoEditNote(id)} fontWeight="500">{title}</Text>
+          <Text onClick={() => gotoEditNote(id)} fontWeight="500">
+            {title}
+          </Text>
         </>
       )
     },

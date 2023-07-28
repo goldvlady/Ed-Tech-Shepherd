@@ -1,3 +1,4 @@
+import { SlControlRewind } from 'react-icons/sl';
 import { ReactComponent as AddTag } from '../../../../assets/addTag.svg';
 import { ReactComponent as DocIcon } from '../../../../assets/doc.svg';
 import { ReactComponent as DownloadIcon } from '../../../../assets/download.svg';
@@ -8,7 +9,6 @@ import { ReactComponent as ArrowRight } from '../../../../assets/small-arrow-rig
 import { ReactComponent as ZoomIcon } from '../../../../assets/square.svg';
 import { ReactComponent as TrashIcon } from '../../../../assets/trash-icn.svg';
 import CustomButton from '../../../../components/CustomComponents/CustomButton';
-import { uid } from '../../../../helpers/index';
 import ApiService from '../../../../services/ApiService';
 import { NoteDetails, NoteServerResponse } from '../types';
 import {
@@ -28,8 +28,6 @@ import {
   MenuList,
   MenuButton,
   Button,
-  Text,
-  UseToastOptions,
   AlertStatus,
   ToastPosition
 } from '@chakra-ui/react';
@@ -43,6 +41,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 const DEFAULT_NOTE_TITLE = 'Enter Note Title';
 const DELETE_NOTE_TITLE = 'Delete Note';
 const UPDATE_NOTE_TITLE = 'Note Alert';
+const NOTE_STORAGE_KEY = 'note';
 
 const createNote = async (data: any): Promise<NoteServerResponse | null> => {
   const resp = await ApiService.createNote(data);
@@ -80,8 +79,27 @@ const updateNote = async (
   }
 };
 
+const formatDate = (date: Date, format = "DD ddd, hh:mma"): string => {
+  return moment(date).format(format);
+};
+
+const saveNoteLocal = (noteId: string, noteContent: string) => {
+  const storeId = getLocalStorageNoteId(noteId);
+  return localStorage.setItem(storeId, noteContent);
+};
+
+const getNoteLocal = (noteId: string | null): string | null => {
+  const storageId = getLocalStorageNoteId(noteId);
+  const content = localStorage.getItem(storageId);
+  return content;
+};
+
+const getLocalStorageNoteId = (noteId: string | null): string => {
+  const genId = noteId ? noteId : "";
+  return genId;
+};
+
 const NewNote = () => {
-  const navigate = useNavigate();
   // get user details
   const defaultNoteTitle = DEFAULT_NOTE_TITLE;
 
@@ -92,25 +110,28 @@ const NewNote = () => {
     params.id ?? null
   );
   const [noteId, setNoteId] = useState<string | null>(null);
-  const [note, setNote] = useState<NoteDetails | null>(null);
   const [saveButtonState, setSaveButtonState] = useState<boolean>(true);
   const [editedTitle, setEditedTitle] = useState(defaultNoteTitle);
+  const [currentTime, setCurrentTime] = useState<string>(formatDate(new Date()));
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [editorContent, setEditorContent] = useState<any>(null);
+
+  const [initialContent, setInitialContent] = useState<any>(getNoteLocal(noteParamId));
 
   const editor: BlockNoteEditor | null = useBlockNote({
-    initialContent: editorContent,
-    onEditorContentChange: (editor: BlockNoteEditor) => {
-      console.log('content changed');
-    }
+    initialContent: initialContent ? JSON.parse(initialContent) : undefined,
   });
-
-  const currentTime = moment().format('DD ddd, hh:mma');
 
   const onSaveNote = async () => {
     if (!editor) return;
+
     // get editor's content
-    const noteJSON = editor.topLevelBlocks;
+    let noteJSON: string;
+
+    try {
+      noteJSON = JSON.stringify(editor.topLevelBlocks);
+    } catch (error: any) {
+      return showToast(UPDATE_NOTE_TITLE, 'Oops! Could not get note content', 'error');
+    }
 
     if (!editedTitle || editedTitle === defaultNoteTitle) {
       return showToast(UPDATE_NOTE_TITLE, 'Enter note title', 'error');
@@ -118,10 +139,11 @@ const NewNote = () => {
     if (!editorHasContent()) {
       return showToast(UPDATE_NOTE_TITLE, 'Note is empty', 'error');
     }
-    setSaveButtonState(false);
-    let saveDetails: NoteServerResponse | null;
 
-    if (noteId && noteId !== '') {
+    setSaveButtonState(false);
+    let saveDetails: NoteServerResponse<NoteDetails> | null;
+
+    if (noteId && noteId !== "") {
       saveDetails = await updateNote(noteId, {
         topic: editedTitle,
         note: noteJSON
@@ -152,9 +174,13 @@ const NewNote = () => {
           'error'
         );
       }
-      // Save noteID to state if this is a new note
+      // Save noteID to state if this is a new note and save locally
       if (!noteId) {
-        setNoteId(saveDetails.data['_id']);
+        const newNoteId = saveDetails.data['_id'];
+        setNoteId(newNoteId);
+        saveNoteLocal(getLocalStorageNoteId(newNoteId), saveDetails.data.note)
+      } else {
+        saveNoteLocal(getLocalStorageNoteId(noteId), saveDetails.data.note)
       }
       showToast(UPDATE_NOTE_TITLE, saveDetails.message, 'success');
       setSaveButtonState(true);
@@ -162,6 +188,7 @@ const NewNote = () => {
   };
 
   const onDeleteNote = async () => {
+
     const noteIdInUse = noteId ?? noteParamId;
 
     if (!noteIdInUse || noteIdInUse === '') {
@@ -177,7 +204,7 @@ const NewNote = () => {
         'error'
       );
     }
-    console.log("details : ", details);
+    console.log('details : ', details);
 
     if (details.error) {
       return showToast(DELETE_NOTE_TITLE, details.error, 'error');
@@ -189,11 +216,12 @@ const NewNote = () => {
     }
   };
 
-  const getNoteById = async (noteId: string | null) => {
-    if (!noteId) {
+  const getNoteById = async () => {
+
+    if (!noteParamId) {
       return;
     }
-    const resp = await ApiService.getNote(noteId);
+    const resp = await ApiService.getNote(noteParamId);
     const respText = await resp.text();
     try {
       const respDetails: NoteServerResponse<NoteDetails> = JSON.parse(respText);
@@ -207,13 +235,13 @@ const NewNote = () => {
         );
         return;
       }
-      // console.log("note details: ", respDetails);
       if (respDetails.data) {
         const note = respDetails.data;
         if (note._id && note.topic && note.note) {
           setEditedTitle(note.topic);
-          setEditorContent(note.note);
-          setNoteId(note._id);
+          setCurrentTime(formatDate(note.createdAt));
+          const strippedNote = note.note.replace(/\\/g, '');
+          setInitialContent(strippedNote);
         }
       }
       // set note data
@@ -275,9 +303,6 @@ const NewNote = () => {
     if (!editor) {
       return false;
     }
-    // for (const block of editor.topLevelBlocks) {
-    //   block.content = [];
-    // }
     editor.forEachBlock((block: Block<any>) => {
       block.children = [];
       block.content = [];
@@ -341,11 +366,10 @@ const NewNote = () => {
       onClick: onDeleteNote
     }
   ];
-
   // Load notes if noteID is provided via param
   useEffect(() => {
-    getNoteById(noteParamId);
-  }, [noteParamId]);
+    getNoteById();
+  }, []);
 
   return (
     <NewNoteWrapper>
@@ -432,6 +456,7 @@ const NewNote = () => {
       </Header>
       <NoteBody>
         <BlockNoteView editor={editor} />
+        {/* <pre>{JSON.stringify(editorContent, null, 2)}</pre> */}
       </NoteBody>
     </NewNoteWrapper>
   );
