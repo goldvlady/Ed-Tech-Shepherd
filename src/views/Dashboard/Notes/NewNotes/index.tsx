@@ -106,7 +106,9 @@ const NewNote = () => {
   //note title from data initially or Untitled
   const toast = useToast();
   const params = useParams();
-  const [noteParamId, setNoteParamId] = useState<string | null>(params.id ?? null);
+  const [noteParamId, setNoteParamId] = useState<string | null>(
+    params.id ?? null
+  );
   const [noteId, setNoteId] = useState<string | null>(null);
   const [saveButtonState, setSaveButtonState] = useState<boolean>(true);
   const [editedTitle, setEditedTitle] = useState(defaultNoteTitle);
@@ -149,7 +151,7 @@ const NewNote = () => {
     setSaveButtonState(false);
     let saveDetails: NoteServerResponse<NoteDetails> | null;
 
-    if (noteId && noteId !== "") {
+    if (noteId && noteId !== '') {
       saveDetails = await updateNote(noteId, {
         topic: editedTitle,
         note: noteJSON
@@ -188,7 +190,7 @@ const NewNote = () => {
       } else {
         saveNoteLocal(getLocalStorageNoteId(noteId), saveDetails.data.note);
       }
-      setCurrentTime(formatDate(saveDetails.data.updatedAt))
+      setCurrentTime(formatDate(saveDetails.data.updatedAt));
       showToast(UPDATE_NOTE_TITLE, saveDetails.message, 'success');
       setSaveButtonState(true);
     }
@@ -329,34 +331,33 @@ const NewNote = () => {
       status: status,
       position: position,
       duration: duration,
-      isClosable: isClosable,
+      isClosable: isClosable
     });
   };
   const toggleEditorView = () => {
     if (!editorStyle) {
       setEditorStyle({
-        position: "absolute",
-        width: "100vw",
-        height: "100vh",
+        position: 'absolute',
+        width: '100vw',
+        height: '100vh',
         top: 0,
         left: 0,
         bottom: 0,
         right: 0,
-        zIndex: 1000,
+        zIndex: 1000
       });
     } else {
       setEditorStyle(null);
     }
-  }
+  };
   const handleWindowKey = (event: any) => {
     if (event && event.key) {
       const eventValue = event.key as string;
-      if (eventValue.toLowerCase() === "escape" && editorStyle) {
+      if (eventValue.toLowerCase() === 'escape' && editorStyle) {
         // editor is in full screen mode. we must close editor
         toggleEditorView();
       }
     }
-
   };
 
   const dropDownOptions = [
@@ -402,23 +403,22 @@ const NewNote = () => {
   useEffect(() => {
     getNoteById();
 
-    // event for escape to minimize window 
+    // event for escape to minimize window
     window.addEventListener('keypress', handleWindowKey);
     return () => {
       window.removeEventListener('keypress', handleWindowKey);
     };
-
   }, []);
 
   return (
     <NewNoteWrapper {...editorStyle}>
       <Header>
         <FirstSection>
-          <div className="zoom__icn" onClick={toggleEditorView} >
+          <div className="zoom__icn" onClick={toggleEditorView}>
             <ZoomIcon />
           </div>
           <div onClick={handleHeaderClick}>
-            <div className="doc__name" >
+            <div className="doc__name">
               {isEditingTitle ? (
                 <input
                   type="text"

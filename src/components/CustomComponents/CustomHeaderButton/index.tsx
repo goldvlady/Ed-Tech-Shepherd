@@ -1,7 +1,7 @@
-import React from 'react';
-import { IconWrapper, ButtonWrapper, Title } from './styles';
-import { ThemeProvider } from 'styled-components';
 import theme from '../../../theme';
+import { IconWrapper, ButtonWrapper, Title } from './styles';
+import React from 'react';
+import { ThemeProvider } from 'styled-components';
 
 interface ButtonProps {
   title: string;
@@ -10,22 +10,14 @@ interface ButtonProps {
   icon?: React.ReactNode;
   active?: boolean;
 }
-const HeaderButton = ({
-  title,
-  onClick,
-  icon
-}: ButtonProps) => {
+const HeaderButton = ({ title, onClick, icon }: ButtonProps) => {
   return (
     <ThemeProvider theme={theme}>
-      <ButtonWrapper
-        onClick={onClick}>
-        <IconWrapper>
-          {icon && icon}
-        </IconWrapper>
+      <ButtonWrapper onClick={onClick}>
+        <IconWrapper>{icon && icon}</IconWrapper>
         <Title>{title}</Title>
       </ButtonWrapper>
     </ThemeProvider>
-
   );
 };
 

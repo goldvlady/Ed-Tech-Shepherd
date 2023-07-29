@@ -87,8 +87,10 @@ const Notes = () => {
   const [toggleHelpModal, setToggleHelpModal] = useState(false);
   const [allNotes, setAllNotes] = useState<Array<NoteDetails>>([]);
   const [loadingNotes, setLoadingNotes] = useState(false);
-  const [sortOrder,] = useState<SortOrder>(SortOrder.ASC);
-  const [checkedState, setCheckedState] = useState(new Array(tagFilters.length).fill(false));
+  const [sortOrder] = useState<SortOrder>(SortOrder.ASC);
+  const [checkedState, setCheckedState] = useState(
+    new Array(tagFilters.length).fill(false)
+  );
   const [tags, setTags] = useState<string[]>([]);
 
   const getNotes = useCallback(async () => {
@@ -107,7 +109,7 @@ const Notes = () => {
       setLoadingNotes(false);
       return;
     }
-  }, [])
+  }, []);
 
   const activateHelpModal = () => {
     setToggleHelpModal(true);
@@ -121,7 +123,6 @@ const Notes = () => {
   };
 
   const orderBy = (order: SortOrder, sortBy = 'createdAt') => {
-
     if (order === SortOrder.ASC) {
       const notes = [...allNotes].sort((a: any, b: any) => {
         const aDate = new Date(a[sortBy]);
@@ -153,7 +154,7 @@ const Notes = () => {
     const index = tags.indexOf(selectedTag);
     let newTags: string[] = [];
     if (index !== -1) {
-      newTags = tags.filter(tag => tag !== selectedTag);
+      newTags = tags.filter((tag) => tag !== selectedTag);
     } else {
       newTags = [...tags, selectedTag];
     }
@@ -300,7 +301,7 @@ const Notes = () => {
     // Filter based on tags or sort order
     const filteredNotes = allNotes.filter((note: NoteDetails) => {
       if (tags.length === 0) return true;
-      return tags.some(tag => {
+      return tags.some((tag) => {
         if (note.tags && Array.isArray(note.tags)) {
           return note.tags.includes(tag);
         } else {
@@ -312,10 +313,9 @@ const Notes = () => {
     setAllNotes(filteredNotes);
   }, [tags, sortOrder]);
 
-
   const NoteView = () => {
     if (loadingNotes) {
-      return (<>{loadingNotes && <LoaderOverlay />}</>)
+      return <>{loadingNotes && <LoaderOverlay />}</>;
     } else {
       return (
         <>
@@ -368,10 +368,10 @@ const Notes = () => {
             setShowHelp={setToggleHelpModal}
           />
         </>
-      )
+      );
     }
-  }
-  return (<NoteView />);
+  };
+  return <NoteView />;
 };
 
 export default Notes;

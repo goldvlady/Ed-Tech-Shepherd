@@ -1,4 +1,3 @@
-import { ThemeProvider } from 'styled-components';
 import resourceStore from './state/resourceStore';
 import userStore from './state/userStore';
 import theme from './theme';
@@ -53,6 +52,7 @@ import {
   useSearchParams,
   useNavigate
 } from 'react-router-dom';
+import { ThemeProvider } from 'styled-components';
 
 const AuthAction = (props: any) => {
   const [params] = useSearchParams();
@@ -212,7 +212,7 @@ const AppRoutes: React.FC = () => {
           <RequireAuth
             authenticated={<DashboardLayout children />}
             unAuthenticated={<DashboardLayout children />}
-          // unAuthenticated={<Navigate to={"/login"} />}
+            // unAuthenticated={<Navigate to={"/login"} />}
           />
         }
       >
