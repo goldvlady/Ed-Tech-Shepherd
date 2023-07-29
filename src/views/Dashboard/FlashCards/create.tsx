@@ -128,7 +128,7 @@ const CreateFlashPage = () => {
     flashcardStore();
   const [isCompleted, setIsCompleted] = useState(false);
   const [hasSubmittedFlashCards, setHasSubmittedFlashCards] = useState(false);
-
+  const [switchonMobile, setSwitchMobile] = useState(true);
   const { type: activeBadge } = settings;
 
   const setActiveBadge = (badge: TypeEnum) => {
@@ -366,6 +366,10 @@ const CreateFlashPage = () => {
       );
     }
   };
+
+  const onSwitchMobile = useCallback(() => {
+    setSwitchMobile((prevState) => !prevState);
+  }, [setSwitchMobile]);
   return (
     <Box width={'100%'}>
       {isLoading && <LoaderOverlay />}
@@ -377,13 +381,14 @@ const CreateFlashPage = () => {
         display="flex"
         position={'relative'}
         justifyContent="space-between"
+        flexDirection={{ base: 'column', md: 'row' }} // Add this line
         alignItems="center"
         minH="calc(100vh - 60px)"
       >
         <HStack
           justifyContent={'start'}
           alignItems={'start'}
-          width="100%"
+          width={switchonMobile ? '100%' : 'auto'}
           display={'flex'}
           minH="calc(100vh - 60px)"
         >
@@ -393,7 +398,7 @@ const CreateFlashPage = () => {
             alignItems={'center'}
             height="100%"
             flex="1"
-            maxWidth={`${boxWidth / 2}px`}
+            maxWidth={{ md: `${boxWidth / 2}px`, base: '100%' }}
             position={'relative'}
           >
             {activeBadge !== TypeEnum.MNEOMONIC && (
@@ -404,16 +409,40 @@ const CreateFlashPage = () => {
                 width={'100%'}
                 padding="30px"
               >
-                <Text
-                  fontFamily="Inter"
-                  fontWeight="500"
-                  fontSize="18px"
-                  lineHeight="23px"
-                  color="#212224"
-                  mb={4}
+                <Box
+                  display={'flex'}
+                  width={'100%'}
+                  justifyContent="space-between"
+                  alignItems="center"
                 >
-                  Select a Source
-                </Text>
+                  <Text
+                    fontFamily="Inter"
+                    fontWeight="500"
+                    fontSize="18px"
+                    lineHeight="23px"
+                    color="#212224"
+                    mb={4}
+                  >
+                    Select a Source
+                  </Text>
+                  <Text
+                    fontFamily="Inter"
+                    fontWeight="500"
+                    fontSize="12px"
+                    lineHeight="23px"
+                    color="#212224"
+                    mb={4}
+                    display={{ base: 'flex', md: 'none' }}
+                    alignItems={{ base: 'center' }}
+                    border={'1px solid #E7E8E9'}
+                    padding="8px"
+                    borderRadius={'10%'}
+                    onClick={onSwitchMobile}
+                  >
+                    View FlashCards & Mnemonics
+                  </Text>
+                </Box>
+
                 <RadioGroup
                   onChange={(value: SourceEnum) => {
                     setSource(value as SourceEnum);
@@ -445,9 +474,15 @@ const CreateFlashPage = () => {
                 </RadioGroup>
               </Box>
             )}
-            <Box py="45px" paddingX={'30px'} width={'100%'}>
-              {form}
-            </Box>
+            {switchonMobile ? (
+              <Box py="45px" paddingX={'30px'} width={'100%'}>
+                {form}
+              </Box>
+            ) : (
+              <Box py="45px" paddingX={'30px'} width={'100%'}>
+                {renderPreview()}
+              </Box>
+            )}
           </VStack>
           {/* Render the right item here */}
           <VStack
@@ -458,6 +493,7 @@ const CreateFlashPage = () => {
             right="0"
             bottom={'0'}
             position={'fixed'}
+            display={{ base: 'none', md: 'flex' }}
           >
             {renderPreview()}
           </VStack>

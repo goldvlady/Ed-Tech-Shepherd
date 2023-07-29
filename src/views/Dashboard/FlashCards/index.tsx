@@ -15,7 +15,7 @@ import { DeleteModal } from './components/deleteModal';
 import ScheduleStudyModal, {
   ScheduleFormState
 } from './components/scheduleModal';
-import { useToast } from '@chakra-ui/react';
+import { useToast, Stack } from '@chakra-ui/react';
 import {
   Button,
   Flex,
@@ -480,13 +480,13 @@ const CustomTable: React.FC = () => {
             alignItems="center"
             justifyContent="space-between"
             color="#E5E6E6"
-            paddingTop={'20px'}
-            paddingLeft="20px"
+            pt={{ base: '10px', md: '20px' }}
+            pl={{ base: '10px', md: '20px' }}
           >
             <Text
               fontFamily="Inter"
               fontWeight="600"
-              fontSize="24px"
+              fontSize={{ base: '18px', md: '24px' }}
               lineHeight="30px"
               letterSpacing="-2%"
               color="#212224"
@@ -516,8 +516,8 @@ const CustomTable: React.FC = () => {
             </Text>
             <Button
               variant="solid"
-              marginTop={'20px'}
-              width={{ sm: '80%', md: '300px' }}
+              mt={{ base: '10px', md: '20px' }}
+              width={{ base: '100%', sm: '80%', md: '300px' }}
               borderRadius={'8px'}
               colorScheme={'primary'}
               onClick={() => navigate('/dashboard/flashcards/create')}
@@ -536,19 +536,21 @@ const CustomTable: React.FC = () => {
                   d="M12 4.5v15m7.5-7.5h-15"
                 />
               </svg>
-
-              <Text marginLeft={'10px'}>Create New</Text>
+              <Text ml={'10px'}>Create New</Text>
             </Button>
           </Box>
         </Box>
       ) : (
-        <Box padding={'50px'}>
+        <Box
+          padding={{ md: '50px', base: '20px' }}
+          overflowX={{ base: 'hidden' }}
+        >
           <Flex
             width="100%"
             marginBottom={'40px'}
             alignItems="center"
             justifyContent="space-between"
-            paddingRight={'20px'}
+            paddingRight={{ md: '20px' }}
             color="#E5E6E6"
           >
             <Text
@@ -605,19 +607,22 @@ const CustomTable: React.FC = () => {
             <FaCalendarAlt color="#96999C" size="12px" />
           </Flex> */}
           </Flex>
-          <Flex
+
+          <Stack
+            direction={{ base: 'column', md: 'row' }}
             width="100%"
-            marginBottom="40px"
+            mb={{ base: '20px', md: '40px' }}
             alignItems="center"
             justifyContent="space-between"
-            paddingRight="20px"
+            pr={{ md: '20px', base: '0' }}
             color="#E5E6E6"
+            spacing={4}
           >
             <Flex alignItems="center">
               <InputGroup
                 size="sm"
                 borderRadius="6px"
-                width="200px"
+                width={{ base: '100%', md: '200px' }}
                 height="32px"
               >
                 <InputLeftElement marginRight={'10px'} pointerEvents="none">
@@ -633,19 +638,26 @@ const CustomTable: React.FC = () => {
                 />
               </InputGroup>
             </Flex>
-            <Flex>
+            <Flex
+              direction={{ base: 'column', md: 'row' }}
+              alignItems={{ base: 'flex-start', md: 'center' }}
+              width={{ base: '100%', md: 'auto' }}
+            >
               <Flex
                 cursor="pointer"
                 border="1px solid #E5E6E6"
                 padding="5px 10px"
                 borderRadius="6px"
                 alignItems="center"
+                mb={{ base: '10px', md: '0' }}
+                width={{ base: '-webkit-fill-available', md: 'auto' }}
               >
                 <Text
                   fontWeight="400"
-                  fontSize="14px"
+                  fontSize={{ base: '12px', md: '14px' }}
                   marginRight="5px"
                   color="#5E6164"
+                  width={{ base: '100%', md: 'auto' }}
                 >
                   All Time
                 </Text>
@@ -653,9 +665,10 @@ const CustomTable: React.FC = () => {
               </Flex>
               <Button
                 variant="solid"
-                marginLeft={'20px'}
+                ml={{ base: '0', md: '20px' }}
                 borderRadius={'10px'}
                 colorScheme={'primary'}
+                width={{ base: '100%', md: 'auto' }}
                 onClick={() => {
                   if (!flashcards) return;
                   const nextFlashCard = findNextFlashcard(flashcards);
@@ -682,20 +695,22 @@ const CustomTable: React.FC = () => {
                   />
                 </svg>
 
-                <Text marginLeft={'10px'}>Practice today's cards</Text>
+                <Text ml={'10px'}>Practice today's cards</Text>
               </Button>
             </Flex>
-          </Flex>
-          {flashcards && (
-            <SelectableTable
-              isSelectable
-              columns={columns}
-              dataSource={flashcards.map((card) => ({
-                ...card,
-                key: card._id
-              }))}
-            />
-          )}
+          </Stack>
+          <Box overflowX={{ base: 'scroll', md: 'hidden' }}>
+            {flashcards && (
+              <SelectableTable
+                isSelectable
+                columns={columns}
+                dataSource={flashcards.map((card) => ({
+                  ...card,
+                  key: card._id
+                }))}
+              />
+            )}
+          </Box>
         </Box>
       )}
     </>
