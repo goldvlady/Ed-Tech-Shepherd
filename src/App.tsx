@@ -1,3 +1,4 @@
+import { ThemeProvider } from 'styled-components';
 import resourceStore from './state/resourceStore';
 import userStore from './state/userStore';
 import theme from './theme';
@@ -211,7 +212,7 @@ const AppRoutes: React.FC = () => {
           <RequireAuth
             authenticated={<DashboardLayout children />}
             unAuthenticated={<DashboardLayout children />}
-            // unAuthenticated={<Navigate to={"/login"} />}
+          // unAuthenticated={<Navigate to={"/login"} />}
           />
         }
       >
@@ -301,20 +302,22 @@ function App() {
 
   if (!resourcesLoaded) {
     return (
-      <ChakraProvider theme={theme}>
-        <Box
-          p={5}
-          textAlign="center"
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100vh'
-          }}
-        >
-          <Spinner />
-        </Box>
-      </ChakraProvider>
+      <ThemeProvider theme={theme}>
+        <ChakraProvider theme={theme}>
+          <Box
+            p={5}
+            textAlign="center"
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100vh'
+            }}
+          >
+            <Spinner />
+          </Box>
+        </ChakraProvider>
+      </ThemeProvider>
     );
   }
 

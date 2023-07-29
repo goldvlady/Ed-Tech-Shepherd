@@ -106,9 +106,7 @@ const NewNote = () => {
   //note title from data initially or Untitled
   const toast = useToast();
   const params = useParams();
-  const [noteParamId, setNoteParamId] = useState<string | null>(
-    params.id ?? null
-  );
+  const [noteParamId, setNoteParamId] = useState<string | null>(params.id ?? null);
   const [noteId, setNoteId] = useState<string | null>(null);
   const [saveButtonState, setSaveButtonState] = useState<boolean>(true);
   const [editedTitle, setEditedTitle] = useState(defaultNoteTitle);
@@ -116,10 +114,10 @@ const NewNote = () => {
     formatDate(new Date())
   );
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-
   const [initialContent, setInitialContent] = useState<any>(
     getNoteLocal(noteParamId)
   );
+  const [editorStyle, setEditorStyle] = useState<any>(null);
 
   const editor: BlockNoteEditor | null = useBlockNote({
     initialContent: initialContent ? JSON.parse(initialContent) : undefined
@@ -151,7 +149,7 @@ const NewNote = () => {
     setSaveButtonState(false);
     let saveDetails: NoteServerResponse<NoteDetails> | null;
 
-    if (noteId && noteId !== '') {
+    if (noteId && noteId !== "") {
       saveDetails = await updateNote(noteId, {
         topic: editedTitle,
         note: noteJSON
@@ -190,6 +188,7 @@ const NewNote = () => {
       } else {
         saveNoteLocal(getLocalStorageNoteId(noteId), saveDetails.data.note);
       }
+      setCurrentTime(formatDate(saveDetails.data.updatedAt))
       showToast(UPDATE_NOTE_TITLE, saveDetails.message, 'success');
       setSaveButtonState(true);
     }
@@ -245,9 +244,10 @@ const NewNote = () => {
         const note = respDetails.data;
         if (note._id && note.topic && note.note) {
           setEditedTitle(note.topic);
-          setCurrentTime(formatDate(note.createdAt));
+          setCurrentTime(formatDate(note.updatedAt));
           const strippedNote = note.note.replace(/\\/g, '');
           setInitialContent(strippedNote);
+          setNoteId(note._id);
         }
       }
       // set note data
@@ -325,13 +325,38 @@ const NewNote = () => {
     isClosable = true
   ) => {
     toast({
-      title: title,
-      description: description,
+      title: description,
       status: status,
       position: position,
       duration: duration,
-      isClosable: isClosable
+      isClosable: isClosable,
     });
+  };
+  const toggleEditorView = () => {
+    if (!editorStyle) {
+      setEditorStyle({
+        position: "absolute",
+        width: "100vw",
+        height: "100vh",
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
+        zIndex: 1000,
+      });
+    } else {
+      setEditorStyle(null);
+    }
+  }
+  const handleWindowKey = (event: any) => {
+    if (event && event.key) {
+      const eventValue = event.key as string;
+      if (eventValue.toLowerCase() === "escape" && editorStyle) {
+        // editor is in full screen mode. we must close editor
+        toggleEditorView();
+      }
+    }
+
   };
 
   const dropDownOptions = [
@@ -372,35 +397,44 @@ const NewNote = () => {
       onClick: onDeleteNote
     }
   ];
+
   // Load notes if noteID is provided via param
   useEffect(() => {
     getNoteById();
+
+    // event for escape to minimize window 
+    window.addEventListener('keypress', handleWindowKey);
+    return () => {
+      window.removeEventListener('keypress', handleWindowKey);
+    };
+
   }, []);
 
   return (
-    <NewNoteWrapper>
+    <NewNoteWrapper {...editorStyle}>
       <Header>
         <FirstSection>
-          <div className="zoom__icn">
+          <div className="zoom__icn" onClick={toggleEditorView} >
             <ZoomIcon />
           </div>
-          <div className="doc__name" onClick={handleHeaderClick}>
-            {isEditingTitle ? (
-              <input
-                type="text"
-                value={editedTitle}
-                onChange={handleTitleChange}
-                onBlur={handleFocusOut}
-                onKeyDown={handleKeyDown}
-                style={{ minWidth: '200px', width: 'auto' }}
-                autoFocus
-              />
-            ) : (
-              <div>{editedTitle}</div>
-            )}
+          <div onClick={handleHeaderClick}>
+            <div className="doc__name" >
+              {isEditingTitle ? (
+                <input
+                  type="text"
+                  value={editedTitle}
+                  onChange={handleTitleChange}
+                  onBlur={handleFocusOut}
+                  onKeyDown={handleKeyDown}
+                  autoFocus
+                />
+              ) : (
+                <>{editedTitle}</>
+              )}
+            </div>
           </div>
           <div className="timestamp">
-            <p>Created {currentTime}</p>
+            <p>Updated {currentTime}</p>
           </div>
         </FirstSection>
         <SecondSection>
