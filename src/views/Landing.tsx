@@ -3,6 +3,7 @@ import Arrow from '../assets/card-arrow.svg';
 import Check from '../assets/checkIcon.svg';
 import Collab from '../assets/collab.svg';
 import Dashboard from '../assets/dashboard.svg';
+import DashboardSmall from '../assets/dashboardSmall.svg';
 import Docchat from '../assets/docchat.svg';
 import Dot from '../assets/dot.svg';
 import FAQ from '../assets/faq.svg';
@@ -27,24 +28,24 @@ import Twitter from '../assets/twitter-icon.svg';
 import Logo from '../components/Logo';
 import faqData from '../mocks/faqs.json';
 import priceData from '../mocks/pricing.json';
-import {
-  Button,
-  Box,
-  Link,
-  Text,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  AccordionIcon
-} from '@chakra-ui/react';
+import { Button, Box, Link, Text, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Collapse, VStack } from '@chakra-ui/react';
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
-function Landing() {
+
+const Landing = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>('AI');
+  const [openAccordion, setOpenAccordion] = useState('');
+
+  const handleAccordionToggle = (accordionName) => {
+    setOpenAccordion((prevAccordion) =>
+      prevAccordion === accordionName ? '' : accordionName
+    );
+  };
+
+  const isAccordionOpen = (accordionName) => openAccordion === accordionName;
 
   const handleTabClick = (id: string) => {
     setActiveTab(id);
@@ -82,6 +83,7 @@ function Landing() {
           </Text>
         </div>
         <img className="landing-img" src={Dashboard} />
+        <img className="landing-img-small" src={DashboardSmall} />
       </div>
 
       <div className="post-gradient">
@@ -124,95 +126,92 @@ function Landing() {
         </div>
         <div className="landing-section-desc">
           <div className="landing-desc-info">
-            <Text className="landing-info-mini">
-              Shepherd detects your struggle
-            </Text>
-            <Text className="landing-desc-mini">
-              Shepherd observes your learning journey and identifies the areas
-              where you need help the most.
-            </Text>
-            <Button className="landing-btn" onClick={() => navigate(`/signup`)}>
-              Find a Tutor
-            </Button>
-            <Text
-              className="landing-info-mini info-accordion"
-              style={{ color: '#969CA6' }}
-            >
-              Shepherd recommends a tutor
-            </Text>
-            <Text
-              className="landing-info-mini info-accordion"
-              style={{ color: '#969CA6' }}
-            >
-              Interactive learning
-            </Text>
-            {/* <Accordion allowToggle>
-              <AccordionItem>
-                <h2>
-                  <AccordionButton>
-                   <Text className="landing-info-mini">
-                    Shepherd detects your struggle
+            <VStack alignItems={'flex-start'}>
+              <Text
+                className={`landing-info-mini  ${
+                  isAccordionOpen('accordion1') ? 'accordion-selected' : ''
+                }`}
+                onClick={() => handleAccordionToggle('accordion1')}
+                mb="5px !important"
+              >
+                Shepherd detects your struggle
+              </Text>
+              <Collapse in={isAccordionOpen('accordion1')} animateOpacity>
+                <VStack alignItems={'flex-start'}>
+                  <Text className="landing-desc-mini">
+                    Shepherd observes your learning journey and identifies the
+                    areas where you need help the most.
                   </Text>
-                    <AccordionIcon />
-                  </AccordionButton>
-                </h2>
-                <AccordionPanel pb={4}>
-                 <Text className="landing-desc-mini">
-                    Shepherd observes your learning journey and identifies the areas
-                    where you need help the most.
-                  </Text>
-                  <Button className="landing-btn" onClick={() => navigate(`/signup`)}>
+                  <Button
+                    mt="30px !important"
+                    className="landing-btn"
+                    onClick={() => navigate(`/signup`)}
+                  >
                     Find a Tutor
                   </Button>
-                </AccordionPanel>
-              </AccordionItem>
-              
-              <AccordionItem>
-                <h2>
-                  <AccordionButton>
-                    <Text
-                      className="landing-info-mini info-accordion"
-                      style={{ color: '#969CA6' }}
-                    >
-                      Shepherd recommends a tutor
-                    </Text>
-                    <AccordionIcon />
-                  </AccordionButton>
-                </h2>
-                <AccordionPanel pb={4}>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-                  tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-                  veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-                  commodo consequat.
-                </AccordionPanel>
-              </AccordionItem>
-
-              <AccordionItem>
-                <h2>
-                  <AccordionButton>
-                      <Text
-                        className="landing-info-mini info-accordion"
-                        style={{ color: '#969CA6' }}
-                      >
-                        Interactive learning
-                      </Text>
-                    <AccordionIcon />
-                  </AccordionButton>
-                </h2>
-                <AccordionPanel pb={4}>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-                  tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-                  veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-                  commodo consequat.
-                </AccordionPanel>
-              </AccordionItem>
-            </Accordion> */}
+                </VStack>
+              </Collapse>
+            </VStack>
+            <VStack alignItems={'flex-start'}>
+              <Text
+                className={`landing-info-mini  ${
+                  isAccordionOpen('accordion2') ? 'accordion-selected' : ''
+                }`}
+                onClick={() => handleAccordionToggle('accordion2')}
+                mb="5px !important"
+              >
+                Shepherd recommends a tutor
+              </Text>
+              <Collapse in={isAccordionOpen('accordion2')} animateOpacity>
+                <VStack alignItems={'flex-start'}>
+                  <Text className="landing-desc-mini">
+                    All Shepherd tutors are thoroughly vetted and then provided
+                    with AI enabled tools to make sure teaching is very
+                    productive.
+                  </Text>
+                  <Button
+                    mt="30px !important"
+                    className="landing-btn"
+                    onClick={() => navigate(`/signup`)}
+                  >
+                    Find a Tutor
+                  </Button>
+                </VStack>
+              </Collapse>
+            </VStack>
+            <VStack alignItems={'flex-start'}>
+              <Text
+                className={`landing-info-mini  ${
+                  isAccordionOpen('accordion3') ? 'accordion-selected' : ''
+                }`}
+                onClick={() => handleAccordionToggle('accordion3')}
+                mb="5px !important"
+              >
+                Interactive learning
+              </Text>
+              <Collapse in={isAccordionOpen('accordion3')} animateOpacity>
+                <VStack alignItems={'flex-start'}>
+                  <Text className="landing-desc-mini">
+                    Shepherd shares information about your learning experience
+                    with the tutor to make sure your learning experience is very
+                    productive.
+                  </Text>
+                  <Button
+                    marginTop="30px !important"
+                    className="landing-btn"
+                    onClick={() => navigate(`/signup`)}
+                  >
+                    Find a Tutor
+                  </Button>
+                </VStack>
+              </Collapse>
+            </VStack>
           </div>
           <img className="landing-gpt-img" src={Gpt} />
         </div>
         <div className="landing-section-metric">
           <div className="landing-metric-mini">
-            <Text className="landing-info-mini">Join Shepherd</Text>
+            <Text className="landing-info-mini" _hover={{color:'#969ca6', cursor:'default'}}>Join Shepherd</Text>
             <Text className="landing-desc-mini">
               With Shepherd, no one is left out, by leveraging our array of
               AI-powered tools everyone can tap into the transformative power of
@@ -550,6 +549,6 @@ function Landing() {
       </div>
     </div>
   );
-}
+};
 
 export default Landing;

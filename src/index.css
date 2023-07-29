@@ -201,7 +201,6 @@ canvas {
   display: flex;
   flex-direction: column;
   position: relative;
-  min-height: 100vh;
   width: 100vw;
 }
 
@@ -329,8 +328,11 @@ canvas {
 .landing-img {
   display: flex;
   align-self: center;
-  width: 90vw;
   margin-top: 10px;
+}
+
+.landing-img-small {
+  display: none;
 }
 
 .landing-icon {
@@ -406,7 +408,21 @@ canvas {
   font-weight: 501;
   line-height: 42px;
   letter-spacing: -0.004em;
+  color: #969ca6;
+}
+
+.landing-info-mini:hover {
   color: #2c313a;
+  cursor: pointer;
+}
+
+.accordion-selected {
+  color: #2c313a;
+}
+
+.accordion-content {
+  gap: 15px;
+  align-items: flex-start;
 }
 
 .landing-desc-mini {
@@ -839,6 +855,10 @@ canvas {
 }
 
 @media (min-width: 1500px) {
+  .landing-header {
+    justify-content: space-around;
+  }
+
   .landing-cta-banner {
     justify-content: center;
   }
@@ -846,13 +866,13 @@ canvas {
   .landing-links {
     justify-content: center;
   }
+
+  .landing-signature {
+    justify-content: space-around;
+  }
 }
 
 @media (max-width: 1215px) {
-  .landing-header {
-    justify-content: space-around;
-  }
-
   .landing-desc {
     width: auto;
     height: auto;
@@ -875,6 +895,10 @@ canvas {
     width: auto;
   }
 
+  .landing-img-small {
+    display: none;
+  }
+
   .landing-info {
     width: auto;
     padding: 0 40px 0 40px;
@@ -886,9 +910,6 @@ canvas {
   }
 
   .landing-desc-info {
-    width: auto;
-    align-items: center;
-    text-align: center;
     padding: 0 50px 0 50px;
     gap: 10px;
     margin-bottom: 50px;
@@ -968,20 +989,45 @@ canvas {
   }
 }
 
+@media (max-width: 988px) {
+  .landing-img {
+    display: none;
+  }
+
+  .landing-img-small {
+    display: flex;
+  }
+}
+
 @media (max-width: 670px) {
   .landing-signature {
     height: auto;
     gap: 10px;
   }
+
+  .landing-header {
+    justify-content: space-between;
+    padding: 32px 20px 0 20px;
+  }
+
+  .header-link {
+    display: none;
+  }
+
+  .landing-title {
+    width: auto;
+    font-size: 36px !important;
+    font-weight: 600;
+    line-height: 51px;
+    letter-spacing: -0.004em;
+  }
+
+  .landing-gradient::before {
+    height: 775px; /* Height until the gradient stops */
+  }
 }
 
 @media (max-width: 600px) {
-  .landing-title {
-    width: auto;
-    font-size: 30px !important;
-    line-height: 30px;
-  }
-
   .landing-title-wrapper {
     margin-top: 50px;
   }
