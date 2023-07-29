@@ -241,22 +241,26 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             <Logo />{' '}
           </Text>
           <HStack spacing={4}>
-            <Menu>
-              <MenuButton>
-                <IconButton
-                  size="md"
-                  borderRadius={'100%'}
-                  border="1px solid #ECEDEE"
-                  variant="ghost"
-                  aria-label="open menu"
-                  color={'text.300'}
-                  icon={<FaBell />}
-                />{' '}
-              </MenuButton>
-              <MenuList p={3} width={'358px'} zIndex={2}>
-                <Notifications data={userNotifications} />
-              </MenuList>
-            </Menu>
+            <Box position="relative">
+              {' '}
+              <Menu placement="right">
+                <MenuButton>
+                  <IconButton
+                    size="md"
+                    borderRadius={'100%'}
+                    border="1px solid #ECEDEE"
+                    variant="ghost"
+                    aria-label="open menu"
+                    color={'text.300'}
+                    icon={<FaBell />}
+                  />{' '}
+                </MenuButton>
+                <MenuList p={3} width={'358px'} zIndex={2}>
+                  <Notifications data={userNotifications} />
+                </MenuList>
+              </Menu>
+            </Box>
+
             <Center height="25px">
               <Divider orientation="vertical" />
             </Center>
@@ -474,7 +478,7 @@ const SidebarContent = ({
         </Text>
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
-      <NavItem icon={FiHome} path={'/dashboard/home'}>
+      <NavItem icon={FiHome} path={'/dashboard'}>
         Home
       </NavItem>
       <Box ml={8} color="text.400">

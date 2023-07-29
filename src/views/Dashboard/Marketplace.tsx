@@ -175,7 +175,12 @@ export default function Marketplace() {
   return (
     <>
       <Box p={5}>
-        <Box bgColor={'black'} borderRadius={'14px'} height={'200px'}>
+        <Box
+          bgColor={'transparent'}
+          borderRadius={'14px'}
+          border="1px solid #E2E8F0"
+          height={'200px'}
+        >
           <Banner />
         </Box>
         <Box textAlign="center">

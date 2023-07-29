@@ -84,21 +84,27 @@ export default function Index() {
 
   const [studentReport, setStudentReport] = useState<any>('');
   const [chartData, setChartData] = useState<any>('');
+  const [calendarEventData, setCalendarEventData] = useState<any>([]);
+
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const fetchData = useCallback(async () => {
     try {
-      const [studentReportResponse, feedsResponse] = await Promise.all([
-        ApiService.getStudentReport(),
-        fetchFeeds()
-      ]);
+      const [studentReportResponse, calendarResponse, feedsResponse] =
+        await Promise.all([
+          ApiService.getStudentReport(),
+          ApiService.getCalendarEvents(),
+          fetchFeeds()
+        ]);
 
       const studentReportData = await studentReportResponse.json();
+      const calendarData = await calendarResponse.json();
 
       setStudentReport(studentReportData);
       setChartData(studentReportData.chartData);
+      setCalendarEventData(calendarData.data);
       // setFeeds(feedsResponse);
     } catch (error) {
       /* empty */
@@ -111,26 +117,6 @@ export default function Index() {
     fetchData();
   }, [fetchData]);
 
-  const cards = [
-    {
-      title: 'Design Projects 1',
-      text: "The project board is an exclusive resource for contract work. It's perfect for freelancers, agencies, and moonlighters.",
-      image:
-        'https://images.unsplash.com/photo-1516796181074-bf453fbfa3e6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1yZWxhdGVkfDV8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=900&q=60'
-    },
-    {
-      title: 'Design Projects 2',
-      text: "The project board is an exclusive resource for contract work. It's perfect for freelancers, agencies, and moonlighters.",
-      image:
-        'https://images.unsplash.com/photo-1438183972690-6d4658e3290e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2274&q=80'
-    },
-    {
-      title: 'Design Projects 3',
-      text: "The project board is an exclusive resource for contract work. It's perfect for freelancers, agencies, and moonlighters.",
-      image:
-        'https://images.unsplash.com/photo-1507237998874-b4d52d1dd655?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1yZWxhdGVkfDR8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=900&q=60'
-    }
-  ];
   // Settings for the slider
   const settings = {
     dots: false,
@@ -638,7 +624,7 @@ export default function Index() {
               py={2}
               height="450px"
             >
-              <Schedule />
+              <Schedule events={calendarEventData} />
             </Box>
           </GridItem>
         </Grid>

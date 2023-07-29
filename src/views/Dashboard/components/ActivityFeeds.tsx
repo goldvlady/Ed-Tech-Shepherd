@@ -66,36 +66,6 @@ const Root = styled(Flex)`
   padding-left: 0px;
 `;
 
-const getIconByActivityType = (activityType) => {
-  switch (activityType) {
-    case 'documents':
-      return DocIcon;
-    case 'notes':
-      return NoteIcon;
-    case 'payments':
-      return ReceiptIcon;
-    case 'flashcards':
-      return FlashcardIcon;
-    default:
-      return undefined;
-  }
-};
-
-const getFileIconByActivityType = (activityType) => {
-  switch (activityType) {
-    case 'documents':
-      return AdobeIcon;
-    case 'notes':
-      return NoteSmIcon;
-    case 'payments':
-      return ReceiptSmIcon;
-    case 'flashcards':
-      return FlashcardSmIcon;
-    default:
-      return undefined;
-  }
-};
-
 function ActivityFeeds(props) {
   const { feeds, userType } = props;
   const [feedPeriod, setFeedPeriod] = useState<
@@ -111,6 +81,50 @@ function ActivityFeeds(props) {
     const lastSlashIndex = url.lastIndexOf('/');
     const textAfterLastSlash = url.substring(lastSlashIndex + 1);
     return textAfterLastSlash;
+  };
+  const getIconByActivityType = (activityType) => {
+    switch (activityType) {
+      case 'documents':
+        return DocIcon;
+      case 'notes':
+        return NoteIcon;
+      case 'payments':
+        return ReceiptIcon;
+      case 'flashcards':
+        return FlashcardIcon;
+      default:
+        return undefined;
+    }
+  };
+
+  const getFileIconByActivityType = (activityType) => {
+    switch (activityType) {
+      case 'documents':
+        return AdobeIcon;
+      case 'notes':
+        return NoteSmIcon;
+      case 'payments':
+        return ReceiptSmIcon;
+      case 'flashcards':
+        return FlashcardSmIcon;
+      default:
+        return undefined;
+    }
+  };
+
+  const getTextByActivityType = (activityType, link) => {
+    switch (activityType) {
+      case 'documents':
+        return `You uploaded ${getFileName(link)} to your workspace`;
+      case 'notes':
+        return `You created a new note ${getFileName(link)} to your workspace`;
+      case 'payments':
+        return `You made a payment of $10.95 to Leslie Peters for Chemistry lessons`;
+      case 'flashcards':
+        return `You created a new flashcard deck "${link}" from documentitle.pdf`;
+      default:
+        return undefined;
+    }
   };
 
   const [filteredFeeds, setFilteredFeeds] = useState<any[]>([]);
@@ -208,7 +222,10 @@ function ActivityFeeds(props) {
                       fontSize="14px"
                       mb={0}
                     >
-                      {feed.title}
+                      {getTextByActivityType(
+                        feed.activityType,
+                        feed.link ? feed.link : feed.title
+                      )}
                     </Text>
 
                     <Spacer />
