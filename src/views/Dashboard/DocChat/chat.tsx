@@ -54,77 +54,43 @@ interface IChat {
   studentId?: any;
   documentId?: any;
   onOpenModal?: () => void;
+  isShowPrompt?: boolean;
+  messages?: { text: string; isUser: boolean; isLoading: boolean }[];
+  llmResponse?: string;
+  botStatus?: string;
+  handleSendMessage?: any;
+  handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  inputValue: string;
+  handleKeyDown?: any;
 }
-const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
+const Chat = ({
+  HomeWorkHelp,
+  studentId,
+  documentId,
+  onOpenModal,
+  isShowPrompt,
+  messages,
+  llmResponse,
+  botStatus,
+  inputValue,
+  handleSendMessage,
+  handleInputChange,
+  handleKeyDown
+}: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [isFlashCard, setFlashCard] = useState<boolean>(false);
-  const [llmResponse, setLLMResponse] = useState('');
   const [isQuiz, setQuiz] = useState<boolean>(false);
-  const [messages, setMessages] = useState<
-    { text: string; isUser: boolean; isLoading: boolean }[]
-  >([]);
-  const [inputValue, setInputValue] = useState('');
-  const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
+
   const [isChatHistory, setChatHistory] = useState<boolean>(false);
   const textAreaRef = useRef<any>();
   const ref = useChatScroll(messages);
-  const [response, setResponse] = useState({});
-  const toast = useToast();
-  const loading = false;
-  const [error, setError] = useState<string>('');
-  const [botStatus, setBotStatus] = useState(
-    'Philosopher, thinker, study companion.'
-  );
 
   const prompts = [
     "Explain this document to me like I'm five",
     'Who wrote this book?',
     'How many chapters are in this book?'
   ];
-
-  const askLLM = async ({
-    query,
-    studentId,
-    documentId
-  }: {
-    query: string;
-    studentId: string;
-    documentId: string;
-  }) => {
-    setBotStatus('Thinking');
-    const response = await chatWithDoc({
-      query,
-      studentId,
-      documentId
-    });
-
-    const reader = response.body?.getReader();
-    const decoder = new TextDecoder('utf-8');
-    let temp = '';
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      setBotStatus('Typing...');
-      // @ts-ignore: scary scenes, but let's observe
-      const { done, value } = await reader?.read();
-      if (done) {
-        setLLMResponse('');
-        setTimeout(
-          () => setBotStatus('Philosopher, thinker, study companion.'),
-          1000
-        );
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { text: temp, isUser: false, isLoading: false }
-        ]);
-        break;
-      }
-      const chunk = decoder.decode(value);
-      temp += chunk;
-      setLLMResponse((llmResponse) => llmResponse + chunk);
-    }
-  };
 
   const onClose = useCallback(() => {
     setModalOpen((prevState) => !prevState);
@@ -141,30 +107,6 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
   const onChatHistory = useCallback(() => {
     setChatHistory((prevState) => !prevState);
   }, []);
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInputValue(event.target.value);
-  };
-
-  const handleSendMessage = async (
-    event: React.SyntheticEvent<HTMLButtonElement>
-  ) => {
-    event.preventDefault();
-
-    if (inputValue.trim() === '') {
-      return;
-    }
-
-    setShowPrompt(true);
-
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { text: inputValue, isUser: true, isLoading: false }
-    ]);
-    setInputValue('');
-
-    await askLLM({ query: inputValue, studentId, documentId });
-  };
 
   const tabLists = [
     {
@@ -202,13 +144,13 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
       img: <NeedPills src="/svgs/flashcards.svg" alt="flash cards" />,
       title: 'Flashcards',
       onClick: onFlashCard
-    },
-    {
-      id: 3,
-      img: <NeedPills src="/svgs/quiz.svg" alt="quiz" />,
-      title: 'Quiz',
-      onClick: onQuiz
     }
+    // {
+    //   id: 3,
+    //   img: <NeedPills src="/svgs/quiz.svg" alt="quiz" />,
+    //   title: 'Quiz',
+    //   onClick: onQuiz
+    // }
   ];
 
   const homeHelp = [
@@ -381,9 +323,9 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
           <InputContainer>
             <Input
               ref={textAreaRef}
-              // type="text"
               placeholder="Tell Shepherd what to do next"
               value={inputValue}
+              onKeyDown={handleKeyDown}
               onChange={handleInputChange}
               style={{
                 minHeight: '2.5rem',
@@ -391,7 +333,7 @@ const Chat = ({ HomeWorkHelp, studentId, documentId, onOpenModal }: IChat) => {
                 overflowY: 'auto'
               }}
             />
-            <SendButton onClick={handleSendMessage}>
+            <SendButton type="button" onClick={handleSendMessage}>
               <img alt="" src="/svgs/send.svg" className="w-8 h-8" />
             </SendButton>
           </InputContainer>

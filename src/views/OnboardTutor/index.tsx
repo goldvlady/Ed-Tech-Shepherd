@@ -531,13 +531,14 @@ const OnboardTutor = () => {
           fontFamily="Inter"
           fontStyle="normal"
           fontWeight={600}
-          fontSize="24px"
+          fontSize={{ md: '24px', base: '1.3rem' }}
           lineHeight="34px"
           letterSpacing="-0.02em"
           color="#212224"
           flex="none"
           order={0}
           flexGrow={0}
+          textAlign={{ base: 'center' }}
         >
           Create your Shepherd Tutor Account
         </Text>
