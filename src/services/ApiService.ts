@@ -346,8 +346,15 @@ class ApiService {
     });
   };
 
+  static updateNoteTags = async (id: string | number, data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/updateNoteTags/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+  };
+
   static deleteNote = async (id: string | number) => {
-    return doFetch(`${ApiService.baseEndpoint}/deleteNote?id=${id}`, {
+    return doFetch(`${ApiService.baseEndpoint}/deleteNote/${id}`, {
       method: 'DELETE'
     });
   };

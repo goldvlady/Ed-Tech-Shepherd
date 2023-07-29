@@ -8,8 +8,8 @@ import { ReactComponent as ArrowRight } from '../../../../assets/small-arrow-rig
 import { ReactComponent as ZoomIcon } from '../../../../assets/square.svg';
 import { ReactComponent as TrashIcon } from '../../../../assets/trash-icn.svg';
 import CustomButton from '../../../../components/CustomComponents/CustomButton';
-import { uid } from '../../../../helpers/index';
 import ApiService from '../../../../services/ApiService';
+import { NoteDetails, NoteServerResponse } from '../types';
 import {
   DropDownFirstPart,
   DropDownLists,
@@ -19,78 +19,318 @@ import {
   NoteBody,
   SecondSection
 } from './styles';
-import { BlockNoteEditor } from '@blocknote/core';
+import { Block, BlockNoteEditor } from '@blocknote/core';
 import '@blocknote/core/style.css';
 import { BlockNoteView, useBlockNote } from '@blocknote/react';
-import { Menu, MenuList, MenuButton, Button, Text } from '@chakra-ui/react';
+import {
+  Menu,
+  MenuList,
+  MenuButton,
+  Button,
+  AlertStatus,
+  ToastPosition
+} from '@chakra-ui/react';
 import { useToast } from '@chakra-ui/react';
-import { EditorState, convertToRaw } from 'draft-js';
-import draftToMarkdown from 'draftjs-to-markdown';
 import moment from 'moment';
-import React, { useState } from 'react';
-import { Editor } from 'react-draft-wysiwyg';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { FaEllipsisH } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { SlControlRewind } from 'react-icons/sl';
+import { useNavigate, useParams } from 'react-router-dom';
+
+const DEFAULT_NOTE_TITLE = 'Enter Note Title';
+const DELETE_NOTE_TITLE = 'Delete Note';
+const UPDATE_NOTE_TITLE = 'Note Alert';
+const NOTE_STORAGE_KEY = 'note';
+
+const createNote = async (data: any): Promise<NoteServerResponse | null> => {
+  const resp = await ApiService.createNote(data);
+  const respText = await resp.text();
+  try {
+    const respDetails: NoteServerResponse = JSON.parse(respText);
+    return respDetails;
+  } catch (error: any) {
+    return { error: error.message, message: error.message };
+  }
+};
+
+const deleteNote = async (id: string): Promise<NoteServerResponse | null> => {
+  const resp = await ApiService.deleteNote(id);
+  const respText = await resp.text();
+  try {
+    const respDetails: NoteServerResponse = JSON.parse(respText);
+    return respDetails;
+  } catch (error: any) {
+    return { error: error.message, message: error.message };
+  }
+};
+
+const updateNote = async (
+  id: string,
+  data: any
+): Promise<NoteServerResponse | null> => {
+  const resp = await ApiService.updateNote(id, data);
+  const respText = await resp.text();
+  try {
+    const respDetails: NoteServerResponse = JSON.parse(respText);
+    return respDetails;
+  } catch (error: any) {
+    return { error: error.message, message: error.message };
+  }
+};
+
+const formatDate = (date: Date, format = 'DD ddd, hh:mma'): string => {
+  return moment(date).format(format);
+};
+
+const saveNoteLocal = (noteId: string, noteContent: string) => {
+  const storeId = getLocalStorageNoteId(noteId);
+  return localStorage.setItem(storeId, noteContent);
+};
+
+const getNoteLocal = (noteId: string | null): string | null => {
+  const storageId = getLocalStorageNoteId(noteId);
+  const content = localStorage.getItem(storageId);
+  return content;
+};
+
+const getLocalStorageNoteId = (noteId: string | null): string => {
+  const genId = noteId ? noteId : '';
+  return genId;
+};
 
 const NewNote = () => {
-  const [editorState, setEditorState] = useState(EditorState.createEmpty());
-  const [markdownContent, setMarkdownContent] = useState('');
-  const navigate = useNavigate();
-  const toast = useToast();
-  const [, setNoteDirectories] = useState<{
-    title: string;
-    content: string;
-    tags: string;
-    createdDate: string;
-  }>();
-  const [title, setTitle] = useState('');
-  const currentTime = moment().format('DD ddd, hh:mma');
-  const initialContent: string | null = localStorage.getItem('editorContent'); //Change to API endpoint for get /notes/{id}
-  const editor: BlockNoteEditor | null = useBlockNote({});
+  // get user details
+  const defaultNoteTitle = DEFAULT_NOTE_TITLE;
 
-  const onEditorStateChange = (newEditorState: any) => {
-    setEditorState(newEditorState);
-    const firtText = convertToRaw(editorState.getCurrentContent());
-    setTitle(firtText.blocks[0].text);
-    setMarkdownContent(
-      draftToMarkdown(convertToRaw(editorState.getCurrentContent()))
-    );
+  //note title from data initially or Untitled
+  const toast = useToast();
+  const params = useParams();
+  const [noteParamId, setNoteParamId] = useState<string | null>(
+    params.id ?? null
+  );
+  const [noteId, setNoteId] = useState<string | null>(null);
+  const [saveButtonState, setSaveButtonState] = useState<boolean>(true);
+  const [editedTitle, setEditedTitle] = useState(defaultNoteTitle);
+  const [currentTime, setCurrentTime] = useState<string>(
+    formatDate(new Date())
+  );
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+
+  const [initialContent, setInitialContent] = useState<any>(
+    getNoteLocal(noteParamId)
+  );
+
+  const editor: BlockNoteEditor | null = useBlockNote({
+    initialContent: initialContent ? JSON.parse(initialContent) : undefined
+  });
+
+  const onSaveNote = async () => {
+    if (!editor) return;
+
+    // get editor's content
+    let noteJSON: string;
+
+    try {
+      noteJSON = JSON.stringify(editor.topLevelBlocks);
+    } catch (error: any) {
+      return showToast(
+        UPDATE_NOTE_TITLE,
+        'Oops! Could not get note content',
+        'error'
+      );
+    }
+
+    if (!editedTitle || editedTitle === defaultNoteTitle) {
+      return showToast(UPDATE_NOTE_TITLE, 'Enter note title', 'error');
+    }
+    if (!editorHasContent()) {
+      return showToast(UPDATE_NOTE_TITLE, 'Note is empty', 'error');
+    }
+
+    setSaveButtonState(false);
+    let saveDetails: NoteServerResponse<NoteDetails> | null;
+
+    if (noteId && noteId !== '') {
+      saveDetails = await updateNote(noteId, {
+        topic: editedTitle,
+        note: noteJSON
+      });
+    } else {
+      saveDetails = await createNote({
+        topic: editedTitle,
+        note: noteJSON
+      });
+    }
+    if (!saveDetails) {
+      setSaveButtonState(true);
+      return showToast(
+        UPDATE_NOTE_TITLE,
+        'An unknown error occurs while updating note. Try again',
+        'error'
+      );
+    }
+    if (saveDetails.error) {
+      setSaveButtonState(true);
+      return showToast(UPDATE_NOTE_TITLE, saveDetails.error, 'error');
+    } else {
+      if (!saveDetails?.data) {
+        setSaveButtonState(true);
+        return showToast(
+          UPDATE_NOTE_TITLE,
+          'Could not get note data, please try again',
+          'error'
+        );
+      }
+      // Save noteID to state if this is a new note and save locally
+      if (!noteId) {
+        const newNoteId = saveDetails.data['_id'];
+        setNoteId(newNoteId);
+        saveNoteLocal(getLocalStorageNoteId(newNoteId), saveDetails.data.note);
+      } else {
+        saveNoteLocal(getLocalStorageNoteId(noteId), saveDetails.data.note);
+      }
+      showToast(UPDATE_NOTE_TITLE, saveDetails.message, 'success');
+      setSaveButtonState(true);
+    }
   };
 
-  const onSaveNote = () => {
-    if (editor) {
-      console.log('NoteEditor Content', editor.topLevelBlocks);
-      // const res = await createNote(editor.topLevelBlocks); //need id and lastUpdated, etc.
-      // setEditorState(await res.json()); //console.log
+  const onDeleteNote = async () => {
+    const noteIdInUse = noteId ?? noteParamId;
+
+    if (!noteIdInUse || noteIdInUse === '') {
+      return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
     }
-    setNoteDirectories({
-      content: JSON.stringify(markdownContent),
-      title: '',
-      tags: '',
-      createdDate: new Date(Date.now()).toISOString()
+
+    const details = await deleteNote(noteIdInUse);
+
+    if (!details) {
+      return showToast(
+        DELETE_NOTE_TITLE,
+        'An unknown error occurs while adding note. Try again',
+        'error'
+      );
+    }
+    console.log('details : ', details);
+
+    if (details.error) {
+      return showToast(DELETE_NOTE_TITLE, details.error, 'error');
+    } else {
+      showToast(DELETE_NOTE_TITLE, details.message, 'success');
+      setEditedTitle(defaultNoteTitle);
+      setNoteId('');
+      clearEditor();
+    }
+  };
+
+  const getNoteById = async () => {
+    if (!noteParamId) {
+      return;
+    }
+    const resp = await ApiService.getNote(noteParamId);
+    const respText = await resp.text();
+    try {
+      const respDetails: NoteServerResponse<NoteDetails> = JSON.parse(respText);
+      if (!respDetails || respDetails.error || !respDetails.data) {
+        showToast(
+          UPDATE_NOTE_TITLE,
+          respDetails.error ?? respDetails.message
+            ? respDetails.message
+            : 'Cannot load note details',
+          'error'
+        );
+        return;
+      }
+      if (respDetails.data) {
+        const note = respDetails.data;
+        if (note._id && note.topic && note.note) {
+          setEditedTitle(note.topic);
+          setCurrentTime(formatDate(note.createdAt));
+          const strippedNote = note.note.replace(/\\/g, '');
+          setInitialContent(strippedNote);
+        }
+      }
+      // set note data
+    } catch (error: any) {
+      showToast(UPDATE_NOTE_TITLE, error.message, 'error');
+      return;
+    }
+  };
+
+  const handleTitleChange = (event: any) => {
+    setIsEditingTitle(true);
+    const value = event.target.value;
+    setEditedTitle(value);
+  };
+
+  const updateTitle = () => {
+    setIsEditingTitle(false);
+    if (editedTitle) {
+      if (editedTitle.trim() !== '') {
+        setEditedTitle(editedTitle.trim());
+      } else if (editedTitle.trim() === '') {
+        setEditedTitle(defaultNoteTitle);
+      }
+    }
+  };
+
+  const handleFocusOut = () => {
+    updateTitle();
+  };
+
+  const handleKeyDown = (event: any) => {
+    if (event.key === 'Enter') {
+      updateTitle();
+    }
+  };
+
+  const handleHeaderClick = () => {
+    if (editedTitle === defaultNoteTitle) {
+      setEditedTitle('');
+    }
+    setIsEditingTitle(true);
+  };
+
+  const editorHasContent = (): boolean => {
+    if (!editor) {
+      return false;
+    }
+    let contentFound = false;
+    for (const block of editor.topLevelBlocks) {
+      if (block.content.length > 0) {
+        contentFound = true;
+        break;
+      }
+    }
+    return contentFound;
+  };
+
+  const clearEditor = () => {
+    if (!editor) {
+      return false;
+    }
+    editor.forEachBlock((block: Block<any>) => {
+      block.children = [];
+      block.content = [];
+      return true;
     });
-    const notes = JSON.parse(localStorage.getItem('notes') as string) || [];
-    notes.push({
-      id: uid(),
-      content: JSON.stringify(markdownContent),
-      title,
-      tags: '',
-      date_created: new Date(Date.now()).toISOString(),
-      last_modified: new Date(Date.now()).toISOString()
-    });
+  };
 
-    localStorage.setItem('notes', JSON.stringify(notes));
-
-    // navigate('/dashboard/note-directory');
-
+  const showToast = (
+    title: string,
+    description: string,
+    status: AlertStatus,
+    position: ToastPosition = 'top-right',
+    duration = 5000,
+    isClosable = true
+  ) => {
     toast({
-      title: 'New Added',
-      description: `${title} successful added.`,
-      status: 'success',
-      position: 'top-right',
-      duration: 5000,
-      isClosable: true
+      title: title,
+      description: description,
+      status: status,
+      position: position,
+      duration: duration,
+      isClosable: isClosable
     });
   };
 
@@ -128,40 +368,14 @@ const NewNote = () => {
     {
       id: 6,
       leftIcon: <TrashIcon />,
-      title: 'Delete'
+      title: 'Delete',
+      onClick: onDeleteNote
     }
   ];
-
-  const [editedTitle, setEditedTitle] = useState(title || 'Untitled'); //note title from data initially or Untitled
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-
-  const handleTitleChange = (event) => {
-    setIsEditingTitle(true);
-    setEditedTitle(event.target.value);
-  };
-
-  const updateTitle = () => {
-    setIsEditingTitle(false);
-    if (editedTitle.trim() !== '') {
-      setEditedTitle(editedTitle.trim());
-    } else if (editedTitle.trim() === '') {
-      setEditedTitle('Untitled');
-    }
-  };
-
-  const handleFocusOut = () => {
-    updateTitle();
-  };
-
-  const handleKeyDown = (event) => {
-    if (event.key === 'Enter') {
-      updateTitle();
-    }
-  };
-
-  const handleHeaderClick = () => {
-    setIsEditingTitle(true);
-  };
+  // Load notes if noteID is provided via param
+  useEffect(() => {
+    getNoteById();
+  }, []);
 
   return (
     <NewNoteWrapper>
@@ -178,7 +392,7 @@ const NewNote = () => {
                 onChange={handleTitleChange}
                 onBlur={handleFocusOut}
                 onKeyDown={handleKeyDown}
-                style={{ width: `${editedTitle.length}ch` }}
+                style={{ minWidth: '200px', width: 'auto' }}
                 autoFocus
               />
             ) : (
@@ -195,6 +409,7 @@ const NewNote = () => {
             title="Save"
             type="button"
             onClick={onSaveNote}
+            active={saveButtonState}
           />
           <div className="pin__icn">
             <PinIcon />
@@ -221,7 +436,7 @@ const NewNote = () => {
                 <section>
                   {dropDownOptions?.map((dropDownOption) => (
                     <DropDownLists key={dropDownOption.id}>
-                      <DropDownFirstPart>
+                      <DropDownFirstPart onClick={dropDownOption.onClick}>
                         <div>
                           {dropDownOption.leftIcon}
                           <p
@@ -247,6 +462,7 @@ const NewNote = () => {
       </Header>
       <NoteBody>
         <BlockNoteView editor={editor} />
+        {/* <pre>{JSON.stringify(editorContent, null, 2)}</pre> */}
       </NoteBody>
     </NewNoteWrapper>
   );
