@@ -171,15 +171,17 @@ export const InputContainer = styled.div`
   width: 100%;
 `;
 
-export const Input = styled.input`
+export const Input = styled.textarea`
   width: 100%;
   background: #fff;
   border: 0.8px solid #cdd1d5;
   border-radius: 100px;
   outline: none;
   padding-left: 1rem;
-  height: 2.5rem;
+  padding-right: 3rem;
+  min-height: auto;
   font-size: 0.75rem;
+  resize: none;
 
   &::placeholder {
     font-size: 0.75rem;
@@ -194,7 +196,7 @@ export const SendButton = styled.button`
   height: 100%;
   width: 2.75rem;
   right: 0;
-  top: 0;
+  top: -3px;
   color: #cbd5e0;
   &:hover {
     color: #4a5568;
@@ -313,6 +315,8 @@ export const UserMessage = styled.div`
   color: #fff;
   font-size: 0.875rem;
   border-radius: 10px;
+  min-width: auto;
+  max-width: 439px;
 `;
 
 export const AiMessage = styled.div`
@@ -324,7 +328,8 @@ export const AiMessage = styled.div`
   margin-bottom: 10px;
   font-size: 0.875rem;
   border-radius: 10px;
-  width: 439px;
+  max-width: 439px;
+  min-width: auto;
 `;
 
 export const StyledPromptContainer = styled.div`

@@ -4,6 +4,7 @@ import { AllNotesTab, SelectedNoteModal } from '../../../components';
 import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMenu';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { SortIcon, FilterByTagsIcon } from '../../../components/icons';
+import ApiService from '../../../services/ApiService';
 // import ApiService from '../../../services/ApiService';
 import {
   Checkbox,
@@ -18,15 +19,17 @@ import {
   StyledHeader,
   StyledSection
 } from './styles';
+import { NoteDetails, NoteServerResponse, SortOrder } from './types';
 // import { BlockNoteEditor } from '@blocknote/core';
 // import '@blocknote/core/style.css';
 // import { BlockNoteView, useBlockNote } from '@blocknote/react';
 import { AddIcon } from '@chakra-ui/icons';
 import { Text } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import moment from 'moment';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
-const getNotes = JSON.parse(localStorage.getItem('notes') as string) || [];
+// const getNotes = JSON.parse(localStorage.getItem('notes') as string) || [];
 
 const filteredBy = [
   {
@@ -51,18 +54,21 @@ const filteredBy = [
   }
 ];
 
-const sortedBy = [
+const sortedByDate = [
   {
     id: 1,
     title: 'By date',
-    firstValue: 'Recently created',
-    secondValue: 'Recently modified'
-  },
+    firstValue: { label: 'Recently created', order: SortOrder.DESC },
+    secondValue: { label: 'Recently modified', order: SortOrder.ASC }
+  }
+];
+
+const sortedByTitle = [
   {
     id: 2,
     title: 'By title',
-    firstValue: 'A -> Z',
-    secondValue: 'Z -> A'
+    firstValue: { label: 'A -> Z', order: SortOrder.ASC },
+    secondValue: { label: 'Z -> A', order: SortOrder.DESC }
   }
 ];
 
@@ -81,32 +87,104 @@ const tabLists = [
   }
 ];
 
-const tabPanel = [
-  {
-    id: 1,
-    component: <AllNotesTab />
-  }
-];
-
 const Notes = () => {
   const navigate = useNavigate();
   const [toggleHelpModal, setToggleHelpModal] = useState(false);
-  // const [allNotes, setAllNotes] = useState<any>([]);
-  // const [loadingNotes, setLoadingNotes] = useState(false);
-  // const getNotes = async () => {
-  //   setLoadingNotes(true);
-  //   const resp = await ApiService.getAllNotes();
-  //   const notes = await resp.json();
-  //   setAllNotes(notes);
-  //   setLoadingNotes(false);
-  // };
+  const [allNotes, setAllNotes] = useState<Array<NoteDetails>>([]);
+  const [loadingNotes, setLoadingNotes] = useState(false);
+  const [tags, setTags] = useState<string[] | null>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>(SortOrder.ASC);
+
   const activateHelpModal = () => {
     setToggleHelpModal(true);
+  };
+
+  const getNotes = async () => {
+    setLoadingNotes(true);
+    const resp = await ApiService.getAllNotes();
+    const respText = await resp.text();
+    try {
+      const respDetails: NoteServerResponse<Array<NoteDetails>> =
+        JSON.parse(respText);
+      if (respDetails.data) {
+        setAllNotes(respDetails.data);
+      }
+      setLoadingNotes(false);
+      // set notes list
+    } catch (error: any) {
+      setLoadingNotes(false);
+      return;
+    }
   };
 
   const [checkedState, setCheckedState] = useState(
     new Array(filteredBy.length).fill(false)
   );
+
+  const handleCheckboxChange = (position: number) => {
+    const updatedCheckedState = checkedState.map((item, index) =>
+      index === position ? !item : item
+    );
+    setCheckedState(updatedCheckedState);
+  };
+
+  const orderBy = (order: SortOrder, sortBy = 'createdAt') => {
+    if (order === SortOrder.ASC) {
+      const notes = [...allNotes].sort((a: any, b: any) => {
+        const aDate = new Date(a[sortBy]);
+        const bDate = new Date(b[sortBy]);
+        if (aDate instanceof Date && bDate instanceof Date) {
+          return aDate.getTime() - bDate.getTime();
+        } else {
+          // use textual check
+          return a.topic.localeCompare(b.topic);
+        }
+      });
+      setAllNotes(notes);
+    } else {
+      const notes = [...allNotes].sort((a: any, b: any) => {
+        const aDate = new Date(a[sortBy]);
+        const bDate = new Date(b[sortBy]);
+        if (aDate instanceof Date && bDate instanceof Date) {
+          return bDate.getTime() - aDate.getTime();
+        } else {
+          // use textual check
+          return b.topic.localeCompare(a.topic);
+        }
+      });
+      setAllNotes(notes);
+    }
+  };
+
+  // const orderByTitle = (order: SortOrder) => {
+  //   if (order === SortOrder.ASC) {
+  //     const notes = allNotes.sort((a: any, b: any) => a.topic.localeCompare(b.topic));
+  //     setAllNotes(notes);
+  //   } else {
+  //     const notes = allNotes.sort((a: any, b: any) => b.topic.localeCompare(a.topic));
+  //     setAllNotes(notes);
+  //   }
+  //   console.log("new notes: ", allNotes);
+  // }
+
+  const addFilterByTag = (tag: string) => {
+    if (!tags) {
+      setTags([tag]);
+    } else {
+      setTags(tags.concat(tag));
+    }
+  };
+  const updateFilterByTag = (tag: string) => {
+    if (!tags) return;
+    const newTags = tags.filter((curTag: string) => {
+      if (curTag === tag) {
+        return false;
+      } else {
+        return true;
+      }
+    });
+    setTags(newTags);
+  };
 
   const createNewLists = [
     {
@@ -123,112 +201,137 @@ const Notes = () => {
     }
   ];
 
-  const handleCheckboxChange = (position: number) => {
-    const updatedCheckedState = checkedState.map((item, index) =>
-      index === position ? !item : item
-    );
+  const tabPanel = [
+    {
+      id: 1,
+      component: <AllNotesTab data={allNotes} />
+    }
+  ];
 
-    setCheckedState(updatedCheckedState);
+  const FilterMenu = () => {
+    return (
+      <FlexContainer>
+        <DropdownMenu
+          isCreateNew
+          isWidth
+          menuTitle="Create new"
+          DropdownMenuIcon={<AddIcon fontWeight="700" marginRight="10px" />}
+        >
+          {createNewLists?.map((createNewList) => (
+            <SectionNewList key={createNewList.id}>
+              <NewList onClick={createNewList.onClick}>
+                {createNewList.iconName}
+                <p>{createNewList.labelText}</p>
+              </NewList>
+            </SectionNewList>
+          ))}
+        </DropdownMenu>
+
+        <DropdownMenu
+          menuTitle="Sort by"
+          DropdownMenuIcon={<SortIcon className="w-[20%] h-[2vh]" />}
+        >
+          <>
+            {
+              sortedByDate?.map((sorted: any) => (
+                <StyledSection key={sorted.id}>
+                  <div>
+                    <Text className="text-label">{sorted.title}</Text>
+
+                    <Text
+                      onClick={() => orderBy(sorted.firstValue.order)}
+                      className="text-value"
+                    >
+                      {sorted.firstValue.label}
+                    </Text>
+
+                    <Text
+                      onClick={() => orderBy(sorted.secondValue.order)}
+                      className="text-value"
+                    >
+                      {sorted.secondValue.label}
+                    </Text>
+                  </div>
+                </StyledSection>
+              ))[0]
+            }
+            {
+              sortedByTitle?.map((sorted: any) => (
+                <StyledSection key={sorted.id}>
+                  <div>
+                    <Text className="text-label">{sorted.title}</Text>
+                    <div>
+                      <Text
+                        onClick={() =>
+                          orderBy(sorted.secondValue.order, 'topic')
+                        }
+                        className="text-value"
+                      >
+                        {sorted.firstValue.label}
+                      </Text>
+                      <Text
+                        onClick={() =>
+                          orderBy(sorted.secondValue.order, 'topic')
+                        }
+                        className="text-value"
+                      >
+                        {sorted.secondValue.label}
+                      </Text>
+                    </div>
+                  </div>
+                </StyledSection>
+              ))[1]
+            }
+          </>
+        </DropdownMenu>
+
+        <DropdownMenu
+          menuTitle="Filtered by tags"
+          DropdownMenuIcon={<FilterByTagsIcon className="w-5 h-5" />}
+        >
+          <section>
+            <SearchInput type="search" placeholder="Search tags" />
+            <div>
+              {filteredBy?.map((filtered, index) => (
+                <CheckboxContainer key={filtered.id}>
+                  <Checkbox
+                    type="checkbox"
+                    onChange={() => handleCheckboxChange(index)}
+                    checked={checkedState[index]}
+                  />
+                  <Text>{filtered.value}</Text>
+                </CheckboxContainer>
+              ))}
+            </div>
+          </section>
+        </DropdownMenu>
+      </FlexContainer>
+    );
   };
-  // const initialContent: string | null = localStorage.getItem('editorContent'); //Change to API endpoint for get /notes/{id}
-  // const editor: BlockNoteEditor | null = useBlockNote({
-  //   initialContent: initialContent ? JSON.parse(initialContent) : undefined,
-  //   onEditorContentChange: (editor) => {
-  //     localStorage.setItem(
-  //       'editorContent',
-  //       JSON.stringify(editor.topLevelBlocks)
-  //     );
-  //   }
-  // });
+
+  //  load all notes when page is loaded
+  useEffect(() => {
+    getNotes();
+  }, []);
+
+  useEffect(() => {
+    // filter based on tags or sort order
+  }, [allNotes]);
+
+  useEffect(() => {
+    // filter based on tags or sort order
+  }, [tags]);
+
   return (
     <>
-      {getNotes?.length > 0 ? (
+      {allNotes.length > 0 ? (
         <NotesWrapper>
           <header className="flex my-4 justify-between">
             <StyledHeader>
               <span className="font-bold">My Notes</span>
-              <span className="count-badge">{getNotes?.length}</span>
+              <span className="count-badge">{allNotes.length}</span>
             </StyledHeader>
-            <FlexContainer>
-              <DropdownMenu
-                isCreateNew
-                isWidth
-                menuTitle="Create new"
-                DropdownMenuIcon={
-                  <AddIcon fontWeight="700" marginRight="10px" />
-                }
-              >
-                {createNewLists?.map((createNewList) => (
-                  <SectionNewList key={createNewList.id}>
-                    <NewList onClick={createNewList.onClick}>
-                      {createNewList.iconName}
-                      <p>{createNewList.labelText}</p>
-                    </NewList>
-                  </SectionNewList>
-                ))}
-              </DropdownMenu>
-              <DropdownMenu
-                menuTitle="Sort by"
-                DropdownMenuIcon={<SortIcon className="w-[20%] h-[2vh]" />}
-              >
-                <>
-                  {
-                    sortedBy?.map((sorted) => (
-                      <StyledSection key={sorted.id}>
-                        <div>
-                          <Text className="text-label">{sorted.title}</Text>
-                          <div>
-                            <Text className="text-value">
-                              {sorted.firstValue}
-                            </Text>
-                            <Text className="text-value">
-                              {sorted.secondValue}
-                            </Text>
-                          </div>
-                        </div>
-                      </StyledSection>
-                    ))[0]
-                  }
-                  {
-                    sortedBy?.map((sorted) => (
-                      <StyledSection key={sorted.id}>
-                        <div>
-                          <Text className="text-label">{sorted.title}</Text>
-                          <div>
-                            <Text className="text-value">
-                              {sorted.firstValue}
-                            </Text>
-                            <Text className="text-value">
-                              {sorted.secondValue}
-                            </Text>
-                          </div>
-                        </div>
-                      </StyledSection>
-                    ))[1]
-                  }
-                </>
-              </DropdownMenu>
-              <DropdownMenu
-                menuTitle="Filtered by tags"
-                DropdownMenuIcon={<FilterByTagsIcon className="w-5 h-5" />}
-              >
-                <section>
-                  <SearchInput type="search" placeholder="Search tags" />
-                  <div>
-                    {filteredBy?.map((filtered, index) => (
-                      <CheckboxContainer key={filtered.id}>
-                        <Checkbox
-                          type="checkbox"
-                          onChange={() => handleCheckboxChange(index)}
-                          checked={checkedState[index]}
-                        />
-                        <Text>{filtered.value}</Text>
-                      </CheckboxContainer>
-                    ))}
-                  </div>
-                </section>
-              </DropdownMenu>
-            </FlexContainer>
+            <FilterMenu />
           </header>
           <CustomTabs tablists={tabLists} tabPanel={tabPanel} />
         </NotesWrapper>

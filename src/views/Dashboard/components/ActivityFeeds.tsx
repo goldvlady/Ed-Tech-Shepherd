@@ -78,8 +78,8 @@ function ActivityFeeds(props) {
   };
 
   const getFileName = (url: string) => {
-    const lastSlashIndex = url.lastIndexOf('/');
-    const textAfterLastSlash = url.substring(lastSlashIndex + 1);
+    const lastSlashIndex = url?.lastIndexOf('/');
+    const textAfterLastSlash = url?.substring(lastSlashIndex + 1);
     return textAfterLastSlash;
   };
   const getIconByActivityType = (activityType) => {

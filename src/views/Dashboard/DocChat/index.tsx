@@ -15,7 +15,7 @@ export default function DocChat() {
 
   return (
     location.state?.documentUrl && (
-      <section className="divide-y max-w-screen-xl mx-auto">
+      <section className="divide-y max-w-screen-xl fixed mx-auto">
         <div className="h-screen bg-white divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
           <TempPDFViewer
             pdfLink={location.state.documentUrl}

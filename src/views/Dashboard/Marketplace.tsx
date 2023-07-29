@@ -148,7 +148,7 @@ export default function Marketplace() {
   }, []);
 
   const checkBookmarks = (id: string) => {
-    const found = bookmarkedTutors.some((el) => el.tutor?._id === id);
+    const found = bookmarkedTutors?.some((tutor) => tutor._id === id);
     if (!found) {
       return false;
     } else {
@@ -189,13 +189,14 @@ export default function Marketplace() {
             gap="2"
             mt={2}
             textColor="text.400"
-            display={{ base: 'flex', sm: 'inline-grid', lg: 'flex' }}
-            justifyItems={{ sm: 'center' }}
+            direction={{ base: 'column', sm: 'row' }}
+            justifyItems={{ sm: 'center', base: 'flex-start' }}
           >
             <HStack
-              direction={{ base: 'row', sm: 'column', lg: 'row' }}
+              direction={{ base: 'row', sm: 'row', lg: 'row' }}
               spacing={{ base: 1, sm: 3 }}
-              display={{ sm: 'grid', lg: 'flex' }}
+              display={{ base: 'block', sm: 'flex', lg: 'flex' }}
+              width="100%"
             >
               <Flex
                 alignItems={'center'}
@@ -405,7 +406,11 @@ export default function Marketplace() {
         <Box my={45} py={2} minHeight="750px">
           {!loadingData && allTutors.length > 0 ? (
             <>
-              <SimpleGrid columns={[2, null, 3]} spacing="20px" ref={tutorGrid}>
+              <SimpleGrid
+                columns={{ base: 1, md: 2, lg: 3 }}
+                spacing="20px"
+                ref={tutorGrid}
+              >
                 {allTutors.map((tutor: any) => (
                   <TutorCard
                     key={tutor._id}

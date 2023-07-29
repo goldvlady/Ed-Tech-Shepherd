@@ -94,7 +94,7 @@ export default function Tutor() {
     await fetchBookmarkedTutors();
   }, [fetchBookmarkedTutors]);
   const checkBookmarks = () => {
-    const found = bookmarkedTutors.some((el) => el.tutor?._id === tutorId);
+    const found = bookmarkedTutors?.some((el) => el.tutor?._id === tutorId);
     if (!found) {
       return false;
     } else {
@@ -149,6 +149,7 @@ export default function Tutor() {
         <Breadcrumb
           spacing="8px"
           separator={<FiChevronRight size={10} color="gray.500" />}
+          padding={{ base: '18px' }}
         >
           <BreadcrumbItem>
             <BreadcrumbLink href="/dashboard/find-tutor">
@@ -163,12 +164,14 @@ export default function Tutor() {
           </BreadcrumbItem>
         </Breadcrumb>
         <Grid
+          display={{ base: 'auto', md: 'grid' }}
           minHeight="100vh"
-          templateRows="repeat(2, 1fr)"
-          templateColumns="repeat(3, 1fr)"
+          templateRows={{ base: 'repeat(3, 1fr)', sm: 'repeat(2, 1fr)' }}
+          templateColumns={{ base: '1fr', sm: 'repeat(3, 1fr)' }}
           gap={3}
+          padding={{ base: '18px' }}
         >
-          <GridItem rowSpan={2} colSpan={2}>
+          <GridItem rowSpan={{ base: 1, sm: 2 }} colSpan={{ base: 1, sm: 2 }}>
             <Center py={3}>
               <Box
                 maxW={'100%'}
@@ -549,7 +552,7 @@ export default function Tutor() {
               </Box>
             </Center>
           </GridItem>
-          <GridItem h={305} p={3} position="relative">
+          <GridItem h={{ base: 'auto', md: 305 }} p={3} position="relative">
             {/* <Box border="1px solid green" borderRadius={10} mt={3}> */}
             {/* <ReactPlayer
                 url="https://vimeo.com/243556536"
@@ -566,7 +569,12 @@ export default function Tutor() {
               /> */}
 
             <Center position="relative">
-              <AspectRatio h={'305px'} w={'full'} ratio={1} objectFit={'cover'}>
+              <AspectRatio
+                h={{ base: '50vh', md: '305px' }}
+                w={{ base: 'full', md: 'full' }}
+                ratio={1}
+                objectFit={'cover'}
+              >
                 <iframe
                   title="naruto"
                   src="https://samplelib.com/lib/preview/mp4/sample-5s.mp4"

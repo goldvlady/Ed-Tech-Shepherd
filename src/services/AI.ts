@@ -63,3 +63,16 @@ export const chatWithDoc = async ({
 
   return request;
 };
+
+export const createDocchatFlashCards = async (data: any) => {
+  const request = await fetch(`${AI_API}/flash-cards/generate-from-notes`, {
+    method: 'POST',
+    headers: {
+      'x-shepherd-header': HEADER_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
+
+  return request;
+};
