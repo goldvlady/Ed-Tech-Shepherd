@@ -58,7 +58,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
   const levelOptions = [
     { label: 'Very Easy', value: 'kindergarten' },
     { label: 'Medium', value: 'high school' },
-    { label: 'Hard', value: 'hard' },
+    { label: 'Hard', value: 'college' },
     { label: 'Very Hard', value: 'PhD' }
   ];
 
