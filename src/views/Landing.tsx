@@ -1,3 +1,4 @@
+import BackArrow from '../assets/backArrow.svg';
 import Star from '../assets/banner-star.svg';
 import Arrow from '../assets/card-arrow.svg';
 import Check from '../assets/checkIcon.svg';
@@ -5,14 +6,18 @@ import Collab from '../assets/collab.svg';
 import Dashboard from '../assets/dashboard.svg';
 import DashboardSmall from '../assets/dashboardSmall.svg';
 import Docchat from '../assets/docchat.svg';
+import DocchatSmall from '../assets/docchatSmall.svg';
 import Dot from '../assets/dot.svg';
 import FAQ from '../assets/faq.svg';
 import Flash from '../assets/flashIcon.svg';
+import FlashcardSmall from '../assets/flashcardSmall.svg';
 import Flashcards from '../assets/flashcards.svg';
+import FrontArrow from '../assets/frontArrow.svg';
 import Gpt from '../assets/gpt.svg';
 import GptHovered from '../assets/gptHovered.svg';
 import Heart from '../assets/heart.svg';
 import Homework from '../assets/homework.svg';
+import HomeworkSmall from '../assets/homeworkSmall.svg';
 import Insta from '../assets/insta-icon.svg';
 import Learn from '../assets/learning.svg';
 import Linkedin from '../assets/linkedin-icon.svg';
@@ -22,10 +27,12 @@ import Spark from '../assets/miniSparks.svg';
 import Pricing from '../assets/pricing.svg';
 import Question from '../assets/question.svg';
 import Quiz from '../assets/quiz.svg';
+import QuizSmall from '../assets/quizSmall.svg';
 import Share from '../assets/share.svg';
 import Sparkles from '../assets/sparkles.svg';
 import Sparks from '../assets/sparks.svg';
 import Study from '../assets/study.svg';
+import StudySmall from '../assets/studySmall.svg';
 import TutorCard from '../assets/tutorCard.svg';
 import Twitter from '../assets/twitter-icon.svg';
 import Logo from '../components/Logo';
@@ -51,23 +58,64 @@ import { useNavigate } from 'react-router';
 const Landing = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>('AI');
-  const [openAccordion, setOpenAccordion] = useState('');
-  const [GptImg, setGptImg] = useState(Gpt); // State to manage the hovered Gpt image
-  const [isGptImgHovered, setGptImgHovered] = useState(false); // State to manage the hovered Gpt image
-  const [isTutorImgHovered, setTutorImgHovered] = useState(false); // State to manage the hovered Tutor image
-  const [isLearnImgHovered, setLearnImgHovered] = useState(false); // State to manage the hovered Learning image
+  const [openedAccordion, setOpenedAccordion] = useState<string>('accordion1');
+  const [hoveredAccordion, setHoveredAccordion] = useState<string>('');
+  // const accordionOrder = ['accordion1', 'accordion2', 'accordion3'];
 
   const handleAccordionToggle = (accordionName) => {
-    setOpenAccordion((prevAccordion) =>
-      prevAccordion === accordionName ? '' : accordionName
-    );
+    if (openedAccordion === accordionName) {
+      setOpenedAccordion(''); // Close the accordion if it's already open
+    } else {
+      setOpenedAccordion(accordionName); // Open the clicked accordion
+      setHoveredAccordion(''); // Reset the hovered accordion
+    }
   };
 
-  const isAccordionOpen = (accordionName) => openAccordion === accordionName;
+  const isAccordionOpen = (accordionName) => openedAccordion === accordionName;
+
+  const shouldDisplayImage = (accordionName) => {
+    return (
+      (hoveredAccordion === '' && isAccordionOpen(accordionName)) || // Display when accordion is open and not hovered
+      hoveredAccordion === accordionName || // Display when hovered
+      (hoveredAccordion === '' && openedAccordion === '') // Display default image
+    );
+  };
 
   const handleTabClick = (id: string) => {
     setActiveTab(id);
   };
+
+  // const handleCarouselNavigation = (direction) => {
+  //   // Get the current index of the active accordion
+  //   const currentIndex = accordionOrder.indexOf(openedAccordion);
+
+  //   // Calculate the index of the next accordion based on the direction
+  //   let nextIndex;
+  //   if (direction === 'forward') {
+  //     nextIndex = (currentIndex + 1) % accordionOrder.length;
+  //   } else {
+  //     nextIndex = currentIndex - 1;
+  //     if (nextIndex < 0) {
+  //       nextIndex = accordionOrder.length - 1;
+  //     }
+  //   }
+
+  //   // Set the next opened accordion based on the index
+  //   setOpenedAccordion(accordionOrder[nextIndex]);
+  // };
+
+  // const CarouselArrows = ({ onForward, onBack }) => {
+  //   return (
+  //     <div className="carousel-arrows">
+  //       <button className="carousel-arrow" onClick={onBack}>
+  //         {FrontArrow}
+  //       </button>
+  //       <button className="carousel-arrow" onClick={onForward}>
+  //         {BackArrow}
+  //       </button>
+  //     </div>
+  //   );
+  // };
 
   return (
     <div className="landing-wrapper">
@@ -121,13 +169,18 @@ const Landing = () => {
         </div>
         <div className="landing-section">
           <img className="landing-hw-img" src={Homework} />
+          <img className="landing-hw-img-small" src={HomeworkSmall} />
           <div className="landing-section-img">
             <img className="landing-flash-img" src={Flashcards} />
+            <img className="landing-flash-img-small" src={FlashcardSmall} />
             <img className="landing-study-img" src={Study} />
+            <img className="landing-study-img-small" src={StudySmall} />
           </div>
           <div className="landing-section-img">
             <img className="landing-doc-img" src={Docchat} />
+            <img className="landing-doc-img-small" src={DocchatSmall} />
             <img className="landing-quiz-img" src={Quiz} />
+            <img className="landing-quiz-img-small" src={QuizSmall} />
           </div>
         </div>
         <div className="landing-section-info">
@@ -143,24 +196,17 @@ const Landing = () => {
           </Text>
         </div>
         <div className="landing-section-desc">
+          {/* <div className="landing-desc-info dweb"> */}
           <div className="landing-desc-info">
             <VStack alignItems={'flex-start'}>
               <Text
                 className={`landing-info-mini  ${
                   isAccordionOpen('accordion1') ? 'accordion-selected' : ''
                 }`}
-                onClick={() => {
-                  handleAccordionToggle('accordion1');
-                }}
                 mb="5px !important"
-                onMouseEnter={() => {
-                  setGptImgHovered(true);
-                  setGptImg(GptHovered);
-                }} // Set the Gpt to GptHovered on hover
-                onMouseLeave={() => {
-                  setGptImgHovered(false);
-                  setGptImg(Gpt);
-                }}
+                onClick={() => handleAccordionToggle('accordion1')}
+                onMouseEnter={() => setHoveredAccordion('accordion1')}
+                onMouseLeave={() => setHoveredAccordion('')}
               >
                 Shepherd detects your struggle
               </Text>
@@ -185,14 +231,10 @@ const Landing = () => {
                 className={`landing-info-mini  ${
                   isAccordionOpen('accordion2') ? 'accordion-selected' : ''
                 }`}
-                onClick={() => handleAccordionToggle('accordion2')}
                 mb="5px !important"
-                onMouseEnter={() => {
-                  setTutorImgHovered(true);
-                }}
-                onMouseLeave={() => {
-                  setTutorImgHovered(false);
-                }}
+                onClick={() => handleAccordionToggle('accordion2')}
+                onMouseEnter={() => setHoveredAccordion('accordion2')}
+                onMouseLeave={() => setHoveredAccordion('')}
               >
                 Shepherd recommends a tutor
               </Text>
@@ -218,14 +260,10 @@ const Landing = () => {
                 className={`landing-info-mini  ${
                   isAccordionOpen('accordion3') ? 'accordion-selected' : ''
                 }`}
-                onClick={() => handleAccordionToggle('accordion3')}
                 mb="5px !important"
-                onMouseEnter={() => {
-                  setLearnImgHovered(true);
-                }}
-                onMouseLeave={() => {
-                  setLearnImgHovered(false);
-                }}
+                onClick={() => handleAccordionToggle('accordion3')}
+                onMouseEnter={() => setHoveredAccordion('accordion3')}
+                onMouseLeave={() => setHoveredAccordion('')}
               >
                 Interactive learning
               </Text>
@@ -247,92 +285,49 @@ const Landing = () => {
               </Collapse>
             </VStack>
           </div>
+          {/* <div className="landing-desc-info mweb">
+            <VStack alignItems={'flex-start'}>
+              <Text
+                className='landing-info-mini'
+                mb="5px !important"
+                // onClick={() => setOpenedAccordion('accordion1')}
+              >
+                Shepherd detects your struggle
+              </Text>
+            </VStack>
+            <VStack alignItems={'flex-start'}>
+              <Text
+                className='landing-info-mini'
+                mb="5px !important"
+                // onClick={() => setOpenedAccordion('accordion2')}
+              >
+                Shepherd recommends a tutor
+              </Text>
+            </VStack>
+            <VStack alignItems={'flex-start'}>
+              <Text
+                className='landing-info-mini'
+                mb="5px !important"
+                // onClick={() => setOpenedAccordion('accordion3')}
+              >
+                Interactive learning
+              </Text>
+            </VStack>
+          </div>
+          <CarouselArrows onForward={() => handleCarouselNavigation('forward')} onBack={() => handleCarouselNavigation('back')} /> */}
           <img
             className="landing-gpt-img"
-            src={GptImg}
-            style={{
-              display:
-                !isGptImgHovered &&
-                (isAccordionOpen('accordion2') ||
-                  isAccordionOpen('accordion3') ||
-                  isLearnImgHovered ||
-                  isTutorImgHovered)
-                  ? 'none'
-                  : isAccordionOpen('accordion1') &&
-                    (isLearnImgHovered || isTutorImgHovered)
-                  ? 'none'
-                  : isGptImgHovered &&
-                    !(
-                      isAccordionOpen('accordion2') ||
-                      isAccordionOpen('accordion3')
-                    )
-                  ? 'flex'
-                  : isGptImgHovered &&
-                    (isAccordionOpen('accordion2') ||
-                      isAccordionOpen('accordion3'))
-                  ? 'flex'
-                  : 'flex'
-            }}
-          />
-          <img
-            className="landing-gpt-img"
-            src={TutorCard}
-            style={{
-              display:
-                !isTutorImgHovered &&
-                (isAccordionOpen('accordion1') ||
-                  isAccordionOpen('accordion3') ||
-                  isLearnImgHovered ||
-                  isGptImgHovered)
-                  ? 'none'
-                  : isAccordionOpen('accordion2') &&
-                    (isLearnImgHovered || isGptImgHovered)
-                  ? 'none'
-                  : isAccordionOpen('accordion2') &&
-                    !(isLearnImgHovered || isGptImgHovered)
-                  ? 'flex'
-                  : isTutorImgHovered &&
-                    !(
-                      isAccordionOpen('accordion1') ||
-                      isAccordionOpen('accordion3')
-                    )
-                  ? 'flex'
-                  : isTutorImgHovered &&
-                    (isAccordionOpen('accordion1') ||
-                      isAccordionOpen('accordion3'))
-                  ? 'flex'
-                  : 'none'
-            }}
-          />
-          <img
-            className="landing-gpt-img"
-            src={Learn}
-            style={{
-              display:
-                !isLearnImgHovered &&
-                (isAccordionOpen('accordion1') ||
-                  isAccordionOpen('accordion2') ||
-                  isTutorImgHovered ||
-                  isGptImgHovered)
-                  ? 'none'
-                  : isAccordionOpen('accordion3') &&
-                    (isTutorImgHovered || isGptImgHovered)
-                  ? 'none'
-                  : isAccordionOpen('accordion3') &&
-                    !(isTutorImgHovered || isGptImgHovered)
-                  ? 'flex'
-                  : isLearnImgHovered &&
-                    !(
-                      isAccordionOpen('accordion1') ||
-                      isAccordionOpen('accordion2')
-                    )
-                  ? 'flex'
-                  : isLearnImgHovered &&
-                    (isAccordionOpen('accordion1') ||
-                      isAccordionOpen('accordion2'))
-                  ? 'flex'
-                  : 'none'
-            }}
+            src={
+              shouldDisplayImage('accordion1')
+                ? hoveredAccordion === 'accordion1'
+                  ? GptHovered
+                  : Gpt
+                : shouldDisplayImage('accordion2')
+                ? TutorCard
+                : shouldDisplayImage('accordion3')
+                ? Learn
+                : Gpt
+            }
           />
         </div>
         <div className="landing-section-metric">
@@ -352,7 +347,7 @@ const Landing = () => {
           <div className="landing-cta-wrapper">
             <div className="landing-cta-card">
               <div className="landing-metric-wrapper">
-                <Text className="landing-metric">1M+</Text>
+                <Text className="landing-metric">100+</Text>
                 <Text className="landing-metric-tag">LEARNERS</Text>
               </div>
               <Link

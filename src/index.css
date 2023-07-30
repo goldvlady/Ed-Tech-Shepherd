@@ -371,11 +371,16 @@ canvas {
   align-self: center;
 }
 
+.landing-hw-img-small {
+  display: none;
+}
+
 .landing-section-img {
   display: flex;
   flex-wrap: wrap;
   gap: 25px;
   align-content: center;
+  justify-content: center;
 }
 
 .landing-flash-img,
@@ -384,6 +389,13 @@ canvas {
 .landing-quiz-img {
   max-width: 100%;
   flex: 1 0 auto;
+}
+
+.landing-flash-img-small,
+.landing-doc-img-small,
+.landing-study-img-small,
+.landing-quiz-img-small {
+  display: none;
 }
 
 .landing-section-desc {
@@ -402,6 +414,18 @@ canvas {
   text-align: left;
   gap: 25px;
 }
+
+/* .landing-desc-info.dweb {
+  display: flex;
+} */
+
+/* .landing-desc-info.mweb {
+  display: none;
+}
+
+.landing-desc-info.mweb .landing-info-mini{
+  font-size: 16px;
+} */
 
 .landing-info-mini {
   font-size: 30px;
@@ -989,17 +1013,45 @@ canvas {
   }
 }
 
-@media (max-width: 988px) {
-  .landing-img {
+@media (max-width: 1200px) {
+  .landing-img,
+  .landing-hw-img,
+  .landing-flash-img,
+  .landing-doc-img,
+  .landing-study-img,
+  .landing-quiz-img {
     display: none;
   }
 
-  .landing-img-small {
+  .landing-img-small,
+  .landing-hw-img-small,
+  .landing-flash-img-small,
+  .landing-doc-img-small,
+  .landing-study-img-small,
+  .landing-quiz-img-small {
     display: flex;
   }
 }
 
 @media (max-width: 670px) {
+  .landing-desc-info {
+    text-align: center;
+    align-items: center;
+  }
+
+  .landing-section-desc {
+    margin-bottom: 100px;
+  }
+
+  .landing-info-mini {
+    font-size: 19px;
+    align-self: center;
+  }
+
+  .landing-desc-info .landing-btn {
+    align-self: center;
+  }
+
   .landing-signature {
     height: auto;
     gap: 10px;
@@ -1025,15 +1077,18 @@ canvas {
   .landing-gradient::before {
     height: 775px; /* Height until the gradient stops */
   }
+
+  /* .landing-desc-info.mweb {
+    display: flex;
+  }
+  .landing-desc-info.dweb {
+    display: none;
+  } */
 }
 
 @media (max-width: 600px) {
   .landing-title-wrapper {
     margin-top: 50px;
-  }
-
-  .landing-desc-info {
-    margin-bottom: 100px;
   }
 
   .landing-section-metric {
