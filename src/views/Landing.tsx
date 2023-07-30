@@ -261,13 +261,15 @@ const Landing = () => {
                   : isAccordionOpen('accordion1') &&
                     (isLearnImgHovered || isTutorImgHovered)
                   ? 'none'
-                  : (isGptImgHovered &&
-                      !(isAccordionOpen('accordion2') ||
-                        isAccordionOpen('accordion3')))
+                  : isGptImgHovered &&
+                    !(
+                      isAccordionOpen('accordion2') ||
+                      isAccordionOpen('accordion3')
+                    )
                   ? 'flex'
-                  : (isGptImgHovered &&
-                      (isAccordionOpen('accordion2') ||
-                        isAccordionOpen('accordion3')))
+                  : isGptImgHovered &&
+                    (isAccordionOpen('accordion2') ||
+                      isAccordionOpen('accordion3'))
                   ? 'flex'
                   : 'flex'
             }}
@@ -286,16 +288,18 @@ const Landing = () => {
                   : isAccordionOpen('accordion2') &&
                     (isLearnImgHovered || isGptImgHovered)
                   ? 'none'
-                   : isAccordionOpen('accordion2') &&
+                  : isAccordionOpen('accordion2') &&
                     !(isLearnImgHovered || isGptImgHovered)
                   ? 'flex'
-                  : (isTutorImgHovered &&
-                      !(isAccordionOpen('accordion1') ||
-                        isAccordionOpen('accordion3')))
+                  : isTutorImgHovered &&
+                    !(
+                      isAccordionOpen('accordion1') ||
+                      isAccordionOpen('accordion3')
+                    )
                   ? 'flex'
-                  : (isTutorImgHovered &&
-                      (isAccordionOpen('accordion1') ||
-                        isAccordionOpen('accordion3')))
+                  : isTutorImgHovered &&
+                    (isAccordionOpen('accordion1') ||
+                      isAccordionOpen('accordion3'))
                   ? 'flex'
                   : 'none'
             }}
@@ -317,13 +321,15 @@ const Landing = () => {
                   : isAccordionOpen('accordion3') &&
                     !(isTutorImgHovered || isGptImgHovered)
                   ? 'flex'
-                  : (isLearnImgHovered &&
-                      !(isAccordionOpen('accordion1') ||
-                        isAccordionOpen('accordion2')))
+                  : isLearnImgHovered &&
+                    !(
+                      isAccordionOpen('accordion1') ||
+                      isAccordionOpen('accordion2')
+                    )
                   ? 'flex'
-                  : (isLearnImgHovered &&
-                      (isAccordionOpen('accordion1') ||
-                        isAccordionOpen('accordion2')))
+                  : isLearnImgHovered &&
+                    (isAccordionOpen('accordion1') ||
+                      isAccordionOpen('accordion2'))
                   ? 'flex'
                   : 'none'
             }}
