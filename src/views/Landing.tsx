@@ -10,9 +10,11 @@ import FAQ from '../assets/faq.svg';
 import Flash from '../assets/flashIcon.svg';
 import Flashcards from '../assets/flashcards.svg';
 import Gpt from '../assets/gpt.svg';
+import GptHovered from '../assets/gptHovered.svg';
 import Heart from '../assets/heart.svg';
 import Homework from '../assets/homework.svg';
 import Insta from '../assets/insta-icon.svg';
+import Learn from '../assets/learning.svg';
 import Linkedin from '../assets/linkedin-icon.svg';
 import Mail from '../assets/mail-icon.svg';
 import Marketplace from '../assets/marketplace.svg';
@@ -24,20 +26,36 @@ import Share from '../assets/share.svg';
 import Sparkles from '../assets/sparkles.svg';
 import Sparks from '../assets/sparks.svg';
 import Study from '../assets/study.svg';
+import TutorCard from '../assets/tutorCard.svg';
 import Twitter from '../assets/twitter-icon.svg';
 import Logo from '../components/Logo';
 import faqData from '../mocks/faqs.json';
 import priceData from '../mocks/pricing.json';
-import { Button, Box, Link, Text, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Collapse, VStack } from '@chakra-ui/react';
+import {
+  Button,
+  Box,
+  Link,
+  Text,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
+  Collapse,
+  VStack
+} from '@chakra-ui/react';
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-
 
 const Landing = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>('AI');
   const [openAccordion, setOpenAccordion] = useState('');
+  const [GptImg, setGptImg] = useState(Gpt); // State to manage the hovered Gpt image
+  const [isGptImgHovered, setGptImgHovered] = useState(false); // State to manage the hovered Gpt image
+  const [isTutorImgHovered, setTutorImgHovered] = useState(false); // State to manage the hovered Tutor image
+  const [isLearnImgHovered, setLearnImgHovered] = useState(false); // State to manage the hovered Learning image
 
   const handleAccordionToggle = (accordionName) => {
     setOpenAccordion((prevAccordion) =>
@@ -131,8 +149,18 @@ const Landing = () => {
                 className={`landing-info-mini  ${
                   isAccordionOpen('accordion1') ? 'accordion-selected' : ''
                 }`}
-                onClick={() => handleAccordionToggle('accordion1')}
+                onClick={() => {
+                  handleAccordionToggle('accordion1');
+                }}
                 mb="5px !important"
+                onMouseEnter={() => {
+                  setGptImgHovered(true);
+                  setGptImg(GptHovered);
+                }} // Set the Gpt to GptHovered on hover
+                onMouseLeave={() => {
+                  setGptImgHovered(false);
+                  setGptImg(Gpt);
+                }}
               >
                 Shepherd detects your struggle
               </Text>
@@ -159,6 +187,12 @@ const Landing = () => {
                 }`}
                 onClick={() => handleAccordionToggle('accordion2')}
                 mb="5px !important"
+                onMouseEnter={() => {
+                  setTutorImgHovered(true);
+                }}
+                onMouseLeave={() => {
+                  setTutorImgHovered(false);
+                }}
               >
                 Shepherd recommends a tutor
               </Text>
@@ -186,6 +220,12 @@ const Landing = () => {
                 }`}
                 onClick={() => handleAccordionToggle('accordion3')}
                 mb="5px !important"
+                onMouseEnter={() => {
+                  setLearnImgHovered(true);
+                }}
+                onMouseLeave={() => {
+                  setLearnImgHovered(false);
+                }}
               >
                 Interactive learning
               </Text>
@@ -207,11 +247,96 @@ const Landing = () => {
               </Collapse>
             </VStack>
           </div>
-          <img className="landing-gpt-img" src={Gpt} />
+          <img
+            className="landing-gpt-img"
+            src={GptImg}
+            style={{
+              display:
+                !isGptImgHovered &&
+                (isAccordionOpen('accordion2') ||
+                  isAccordionOpen('accordion3') ||
+                  isLearnImgHovered ||
+                  isTutorImgHovered)
+                  ? 'none'
+                  : isAccordionOpen('accordion1') &&
+                    (isLearnImgHovered || isTutorImgHovered)
+                  ? 'none'
+                  : (isGptImgHovered &&
+                      !(isAccordionOpen('accordion2') ||
+                        isAccordionOpen('accordion3')))
+                  ? 'flex'
+                  : (isGptImgHovered &&
+                      (isAccordionOpen('accordion2') ||
+                        isAccordionOpen('accordion3')))
+                  ? 'flex'
+                  : 'flex'
+            }}
+          />
+          <img
+            className="landing-gpt-img"
+            src={TutorCard}
+            style={{
+              display:
+                !isTutorImgHovered &&
+                (isAccordionOpen('accordion1') ||
+                  isAccordionOpen('accordion3') ||
+                  isLearnImgHovered ||
+                  isGptImgHovered)
+                  ? 'none'
+                  : isAccordionOpen('accordion2') &&
+                    (isLearnImgHovered || isGptImgHovered)
+                  ? 'none'
+                   : isAccordionOpen('accordion2') &&
+                    !(isLearnImgHovered || isGptImgHovered)
+                  ? 'flex'
+                  : (isTutorImgHovered &&
+                      !(isAccordionOpen('accordion1') ||
+                        isAccordionOpen('accordion3')))
+                  ? 'flex'
+                  : (isTutorImgHovered &&
+                      (isAccordionOpen('accordion1') ||
+                        isAccordionOpen('accordion3')))
+                  ? 'flex'
+                  : 'none'
+            }}
+          />
+          <img
+            className="landing-gpt-img"
+            src={Learn}
+            style={{
+              display:
+                !isLearnImgHovered &&
+                (isAccordionOpen('accordion1') ||
+                  isAccordionOpen('accordion2') ||
+                  isTutorImgHovered ||
+                  isGptImgHovered)
+                  ? 'none'
+                  : isAccordionOpen('accordion3') &&
+                    (isTutorImgHovered || isGptImgHovered)
+                  ? 'none'
+                  : isAccordionOpen('accordion3') &&
+                    !(isTutorImgHovered || isGptImgHovered)
+                  ? 'flex'
+                  : (isLearnImgHovered &&
+                      !(isAccordionOpen('accordion1') ||
+                        isAccordionOpen('accordion2')))
+                  ? 'flex'
+                  : (isLearnImgHovered &&
+                      (isAccordionOpen('accordion1') ||
+                        isAccordionOpen('accordion2')))
+                  ? 'flex'
+                  : 'none'
+            }}
+          />
         </div>
         <div className="landing-section-metric">
           <div className="landing-metric-mini">
-            <Text className="landing-info-mini" _hover={{color:'#969ca6', cursor:'default'}}>Join Shepherd</Text>
+            <Text
+              className="landing-info-mini"
+              _hover={{ color: '#969ca6', cursor: 'default' }}
+            >
+              Join Shepherd
+            </Text>
             <Text className="landing-desc-mini">
               With Shepherd, no one is left out, by leveraging our array of
               AI-powered tools everyone can tap into the transformative power of
