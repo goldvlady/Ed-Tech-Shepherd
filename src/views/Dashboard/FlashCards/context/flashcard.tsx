@@ -1,3 +1,5 @@
+import ApiService from '../../../../services/ApiService';
+import userStore from '../../../../state/userStore';
 import React, {
   createContext,
   useState,
@@ -26,7 +28,7 @@ interface FlashcardData {
 export interface FlashcardQuestion {
   questionType: string;
   question: string;
-  options?: string[]; // options is now an array of strings
+  options?: string[];
   answer: string;
   explanation?: string;
   helperText?: string;
@@ -44,6 +46,12 @@ export interface FlashcardDataContextProps {
   deleteQuestion: (index: number) => void;
   setQuestions: React.Dispatch<React.SetStateAction<FlashcardQuestion[]>>;
   setFlashcardData: React.Dispatch<React.SetStateAction<FlashcardData>>;
+  setLoader: React.Dispatch<React.SetStateAction<boolean>>;
+  isLoading: boolean;
+  generateFlashcardQuestions: (
+    d?: FlashcardData,
+    onDone?: (success: boolean) => void
+  ) => Promise<void>;
 }
 
 const FlashcardDataContext = createContext<
@@ -63,6 +71,7 @@ export const useFlashCardState = () => {
 const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
   children
 }) => {
+  const { user } = userStore();
   const defaultFlashcardData = useMemo(
     () => ({
       deckname: '',
@@ -81,8 +90,7 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
   const [questions, setQuestions] = useState<FlashcardQuestion[]>([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-
-  //...
+  const [isLoading, setIsLoading] = useState(false);
 
   const goToQuestion = useCallback(
     (arg: number | ((previousIndex: number) => number)) => {
@@ -134,10 +142,59 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
     setCurrentQuestionIndex(0);
   }, [defaultFlashcardData]);
 
+  const generateFlashcardQuestions = useCallback(
+    async (data?: FlashcardData, onDone?: (success: boolean) => void) => {
+      try {
+        setIsLoading(true);
+        const count = data?.numQuestions || flashcardData.numQuestions;
+        const aiData: { [key: string]: any } = {
+          topic: data?.topic || flashcardData.topic,
+          subject: data?.subject || flashcardData.subject,
+          count: parseInt(count as unknown as string, 10)
+        };
+
+        if (flashcardData.level || data?.level) {
+          aiData.difficulty = data?.level || flashcardData.level;
+        }
+
+        const response = await ApiService.generateFlashcardQuestions(
+          aiData,
+          user?._id as string // TODO: Get this user value from somewhere
+        );
+
+        if (response.status === 200) {
+          const data = await response.json();
+          const questions = data.flashcards.map((d: any) => ({
+            question: d.front,
+            answer: d.back,
+            explanation: d.explainer,
+            helperText: d['helpful reading'],
+            questionType: 'openEnded'
+          }));
+
+          setQuestions(questions);
+          setCurrentStep((prev) => prev + 1);
+          onDone && onDone(true);
+        } else {
+          setFlashcardData((prev) => ({ ...prev, hasSubmitted: false }));
+          onDone && onDone(false);
+        }
+      } catch (error) {
+        setFlashcardData((prev) => ({ ...prev, hasSubmitted: false }));
+        onDone && onDone(false);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [flashcardData, setQuestions, user]
+  );
+
   const value = useMemo(
     () => ({
       flashcardData,
       setFlashcardData,
+      setLoader: setIsLoading,
+      isLoading,
       questions,
       currentStep,
       currentQuestionIndex,
@@ -145,11 +202,13 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
       deleteQuestion,
       resetFlashcard,
       setQuestions,
+      generateFlashcardQuestions,
       goToNextStep: () => setCurrentStep((prev) => prev + 1),
       goToStep: (stepIndex: number) => setCurrentStep(stepIndex)
     }),
     [
       flashcardData,
+      isLoading,
       setFlashcardData,
       questions,
       currentStep,
@@ -157,7 +216,8 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
       resetFlashcard,
       goToQuestion,
       deleteQuestion,
-      setQuestions
+      setQuestions,
+      generateFlashcardQuestions
     ]
   );
 

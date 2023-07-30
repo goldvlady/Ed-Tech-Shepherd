@@ -1,6 +1,6 @@
-import { useCustomToast } from '../../../../../components/CustomComponents/CustomToast/useCustomToast';
 import CustomSelect from '../../../../../components/CustomSelect';
 import SelectComponent, { Option } from '../../../../../components/Select';
+import FileUpload from '../../components/fileUploadField';
 import { useFlashCardState } from '../../context/flashcard';
 import {
   Box,
@@ -15,14 +15,12 @@ import {
 } from '@chakra-ui/react';
 import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 
-const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
-  const {
-    flashcardData,
-    generateFlashcardQuestions,
-    setFlashcardData,
-    goToNextStep
-  } = useFlashCardState();
-  const toast = useCustomToast();
+const FlashcardFromDocumentSetup = ({
+  isAutomated
+}: {
+  isAutomated?: boolean;
+}) => {
+  const { flashcardData, setFlashcardData, goToNextStep } = useFlashCardState();
   const [localData, setLocalData] = useState<typeof flashcardData>({
     deckname: '',
     studyType: '',
@@ -84,87 +82,30 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     return Object.values(payload).every(Boolean);
   }, [localData, isAutomated]);
 
-  const handleDone = (success: boolean) => {
-    toast({
-      title: success
-        ? 'Flashcard questions generated successfully'
-        : 'Failed to generate flashcard questions',
-      position: 'top-right',
-      status: success ? 'success' : 'error',
-      isClosable: true
-    });
-  };
-
   const handleSubmit = () => {
-    const data = { ...flashcardData, ...localData, hasSubmitted: true };
     setFlashcardData((prevState) => ({
       ...prevState,
       ...localData,
       hasSubmitted: true
     }));
-    if (isAutomated) {
-      generateFlashcardQuestions(data, handleDone);
-    } else {
-      goToNextStep();
-    }
+    if (!isAutomated) goToNextStep();
   };
 
   return (
-    <Box bg="white" width="100%" mt="30px">
-      {isAutomated && (
-        <>
-          {' '}
-          <FormControl mb={8}>
-            <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-              Subject
-            </FormLabel>
-            <Input
-              type="text"
-              name="subject"
-              placeholder="e.g. Chemistry"
-              value={localData.subject}
-              onChange={handleChange}
-              _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-            />
-          </FormControl>
-          <FormControl mb={8}>
-            <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-              Topic
-            </FormLabel>
-            <Input
-              type="text"
-              name="topic"
-              placeholder="e.g. Bonds"
-              value={localData.topic}
-              onChange={handleChange}
-              _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-            />
-          </FormControl>
-          <FormControl mb={8}>
-            <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-              Level (optional)
-            </FormLabel>
-            <SelectComponent
-              name="level"
-              placeholder="Select Level"
-              defaultValue={levelOptions.find(
-                (option) => option.value === localData.level
-              )}
-              options={levelOptions}
-              size={'md'}
-              onChange={(option) => {
-                const event = {
-                  target: {
-                    name: 'level',
-                    value: (option as Option).value
-                  }
-                } as ChangeEvent<HTMLSelectElement>;
-                handleChange(event);
-              }}
-            />
-          </FormControl>
-        </>
-      )}
+    <Box bg="white" width="100%" mt="10px">
+      <Text fontSize={'24px'} fontWeight="500" marginBottom="5px">
+        Set up flashcard
+      </Text>
+      <FormControl my={8}>
+        <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+          Select A file
+        </FormLabel>
+        <FileUpload onFileSelect={(file) => console.log(file)} />
+        <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mt={3}>
+          Shepherd supports .pdf, .ppt, .jpg & .txt document formats
+        </FormLabel>
+      </FormControl>
+
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Deckname
@@ -178,7 +119,6 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
           _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />
       </FormControl>
-
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Select study type
@@ -205,7 +145,6 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
           </Radio>
         </RadioGroup>
       </FormControl>
-
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           How often would you like to study?
@@ -230,7 +169,6 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
           }}
         />
       </FormControl>
-
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Number of questions
@@ -245,7 +183,6 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
           _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />
       </FormControl>
-
       {/* <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Timer settings
@@ -293,4 +230,4 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
   );
 };
 
-export default FlashCardSetupInit;
+export default FlashcardFromDocumentSetup;

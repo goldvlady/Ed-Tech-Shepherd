@@ -21,6 +21,7 @@ type Pagination = {
 
 type Store = {
   flashcards: FlashcardData[] | null;
+  storeFlashcardTags: (flashcardId: string, tags: string[]) => Promise<boolean>;
   isLoading: boolean;
   pagination: Pagination;
   fetchFlashcards: (queryParams?: SearchQueryParams) => Promise<void>;
@@ -50,6 +51,31 @@ export default create<Store>((set) => ({
   isLoading: false,
   minimizedStudy: null,
   pagination: { limit: 10, page: 1, count: 100 },
+  storeFlashcardTags: async (flashcardId: string, tags: string[]) => {
+    try {
+      set({ isLoading: true });
+      const response = await ApiService.storeFlashcardTags(flashcardId, tags);
+      if (response.status === 200) {
+        const { data } = await response.json();
+        set((state) => {
+          const { flashcards } = state;
+          const index = flashcards?.findIndex(
+            (card) => card._id === flashcardId
+          );
+          if (index !== undefined && index >= 0 && flashcards) {
+            flashcards[index] = data;
+          }
+          return { flashcards };
+        });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
   storeCurrentStudy: async (flashcardId, currentStudy: MinimizedStudy) => {
     try {
       set({ isLoading: true });

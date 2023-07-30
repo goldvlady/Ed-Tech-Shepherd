@@ -26,6 +26,13 @@ class ApiService {
     });
   };
 
+  static storeFlashcardTags = (flashcardId: string, tags: string[]) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeFlashcardTags`, {
+      method: 'POST',
+      body: JSON.stringify({ flashcardId, tags })
+    });
+  };
+
   static scheduleStudyEvent = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/scheduleStudyEvent`, {
       method: 'POST',

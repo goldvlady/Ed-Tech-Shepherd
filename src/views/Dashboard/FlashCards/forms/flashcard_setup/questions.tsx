@@ -95,13 +95,8 @@ const FlashCardQuestionsPage = () => {
     goToQuestion((prevIndex: number) => prevIndex - 1);
   };
 
-  const handleSubmit = () => {
-    goToNextStep();
-  };
-  const isFinalQuestion = currentQuestionIndex === questionsCount - 1;
-
   return (
-    <Box width={'100%'} mt="40px" padding="0 10px">
+    <Box width={'100%'} mt="40px">
       <motion.div
         variants={questionVariants}
         initial="hidden"
