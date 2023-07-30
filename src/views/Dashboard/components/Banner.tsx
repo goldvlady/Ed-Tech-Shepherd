@@ -1,6 +1,6 @@
 // Chakra imports
 // Assets
-import banner from '../../../assets/marketBg.jpg';
+import banner from '../../../assets/market-banner.jpg';
 import { Button, Flex, Link, Text } from '@chakra-ui/react';
 
 export default function Banner() {
@@ -10,12 +10,15 @@ export default function Banner() {
       direction="column"
       bgImage={banner}
       bgSize="cover"
-      maxHeight={'100%'}
+      bgPosition={'center'}
+      bgRepeat={'no-repeat'}
+      height="100%"
+      width="100%"
       py={{ base: '30px', md: '56px' }}
       px={{ base: '30px', md: '64px' }}
       borderRadius="30px"
     >
-      <Text
+      {/* <Text
         fontSize={{ base: '24px', md: '34px' }}
         color="white"
         mb="14px"
@@ -42,7 +45,7 @@ export default function Banner() {
       >
         Find expert instructors to help meet your learning goals with as much
         flexibility as you need
-      </Text>
+      </Text> */}
     </Flex>
   );
 }

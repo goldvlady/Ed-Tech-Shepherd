@@ -81,7 +81,7 @@ export default function Dashboard() {
               height="450px"
             >
               {' '}
-              <Schedule />
+              <Schedule events={[]} />
             </Box>
           </GridItem>
         </Grid>
