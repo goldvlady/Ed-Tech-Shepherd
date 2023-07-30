@@ -2,6 +2,7 @@ import StepsIndicator, { Step } from '../../../../../components/StepIndicator';
 import { useFlashCardState } from '../../context/flashcard';
 import FlashCardSetupInit from './init';
 import FlashCardQuestionsPage from './questions';
+import { Tag, TagLabel } from '@chakra-ui/react';
 import { Box, Text } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import React, { useState, useMemo } from 'react';
@@ -36,7 +37,11 @@ const SetupFlashcardPage = ({ isAutomated }: { isAutomated?: boolean }) => {
         Set up flashcard
       </Text>
       {!isAutomated && (
-        <StepsIndicator steps={steps} activeStep={currentStep} />
+        <Tag my="10px" borderRadius="5" background="#f7f8fa" size="md">
+          <TagLabel>
+            Step {currentStep + 1} of {steps.length}
+          </TagLabel>
+        </Tag>
       )}
       <AnimatePresence>
         <motion.div
