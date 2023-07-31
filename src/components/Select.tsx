@@ -12,6 +12,7 @@ type Props = React.ComponentProps<typeof Select>;
 
 const StyledCheckbox = styled(Checkbox)`
   display: none;
+
   pointer-events: none;
   [data-invalid] {
     border-color: inherit !important;
@@ -50,7 +51,8 @@ const SelectComponent: React.FC<Props> = ({ options, ...rest }) => {
       hideSelectedOptions={false}
       chakraStyles={{
         menu: () => ({
-          zIndex: 9999,
+          zIndex: 1,
+          maxHeight: '300px',
           position: 'absolute',
           left: 0,
           right: 0
@@ -59,8 +61,9 @@ const SelectComponent: React.FC<Props> = ({ options, ...rest }) => {
           ...provided,
           color: '#585F68',
           fontWeight: '500',
-          fontSize: '14px',
+          fontSize: '12px',
           ...((isSelected || isFocused) && {
+            fontSize: '14px',
             background: '#F2F4F7'
           })
         })

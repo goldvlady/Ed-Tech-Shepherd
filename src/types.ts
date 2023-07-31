@@ -248,6 +248,7 @@ export interface FlashcardData {
   deckname: string;
   studyType: 'longTermRetention' | 'quickPractice';
   subject?: string;
+  tags: string[];
   topic?: string;
   scores: Score[];
   studyPeriod: 'daily' | 'weekly' | 'biweekly' | 'spacedRepetition';

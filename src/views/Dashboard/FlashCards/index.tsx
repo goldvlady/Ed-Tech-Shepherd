@@ -1,9 +1,9 @@
 import EmptyIllustration from '../../../assets/empty_illustration.svg';
+import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import { FlashCardModal } from '../../../components/flashcardDecks';
 import LoaderOverlay from '../../../components/loaderOverlay';
 import SelectableTable, { TableColumn } from '../../../components/table';
 import { useSearch } from '../../../hooks';
-import ApiService from '../../../services/ApiService';
 import flashcardStore from '../../../state/flashcardStore';
 import {
   FlashcardData,
@@ -15,7 +15,8 @@ import { DeleteModal } from './components/deleteModal';
 import ScheduleStudyModal, {
   ScheduleFormState
 } from './components/scheduleModal';
-import { useToast, Stack } from '@chakra-ui/react';
+import TagModal from './components/tagsModal';
+import { Stack } from '@chakra-ui/react';
 import {
   Button,
   Flex,
@@ -28,6 +29,9 @@ import {
   MenuList,
   MenuButton,
   Menu,
+  Tag,
+  TagLabel,
+  TagLeftIcon,
   Image
 } from '@chakra-ui/react';
 import { isSameDay, isThisWeek, getISOWeek } from 'date-fns';
@@ -54,12 +58,12 @@ const StyledImage = styled(Box)`
 type DataSourceItem = {
   key: string;
   deckname: string;
-  studyType: string;
   studyPeriod: string;
   createdAt: string;
   scores: Score[];
   questions: FlashcardQuestion[];
   currentStudy?: MinimizedStudy;
+  tags: string[];
 };
 
 function findNextFlashcard(
@@ -128,7 +132,7 @@ function findNextFlashcard(
 
 const CustomTable: React.FC = () => {
   const navigate = useNavigate();
-  const toast = useToast();
+  const toast = useCustomToast();
   const [hasSearched, setHasSearched] = useState(false);
 
   const {
@@ -137,6 +141,7 @@ const CustomTable: React.FC = () => {
     flashcard,
     loadFlashcard,
     deleteFlashCard,
+    storeFlashcardTags,
     isLoading,
     scheduleFlashcard
   } = flashcardStore();
@@ -159,6 +164,10 @@ const CustomTable: React.FC = () => {
     flashcard: FlashcardData;
   } | null>(null);
 
+  const [tagEditItem, setTagEditItem] = useState<{
+    flashcard: FlashcardData;
+  } | null>(null);
+
   useEffect(() => {
     fetchFlashcards();
     // eslint-disable-next-line
@@ -172,23 +181,58 @@ const CustomTable: React.FC = () => {
       render: ({ deckname }) => <Text fontWeight="500">{deckname}</Text>
     },
     {
-      title: 'Study Type',
-      dataIndex: 'studyType',
-      key: 'studyType',
-      render: ({ studyType }) => {
-        return (
-          <Text>
-            {startCase(studyType.replace(/([a-z])([A-Z])/g, '$1 $2'))}
-          </Text>
-        );
-      }
-    },
-    {
       title: 'Study Period',
       dataIndex: 'studyPeriod',
       key: 'studyPeriod',
       render: ({ studyPeriod }) => {
-        return <Text>{startCase(studyPeriod)}</Text>;
+        return <Text fontWeight="500">{startCase(studyPeriod)}</Text>;
+      }
+    },
+    {
+      title: 'Tags',
+      dataIndex: 'tags',
+      key: 'tags',
+      render: ({ tags }) => {
+        if (!tags.length) return <Text fontWeight="500">None</Text>;
+        return (
+          <Box
+            display="grid"
+            gridTemplateColumns="repeat(3, 0.5fr)"
+            alignItems="start"
+            justifyItems="start"
+            width="100%"
+            marginTop="10px"
+            gridGap="10px"
+          >
+            {tags.map((tag) => (
+              <Tag key={tag} borderRadius="5" background="#f7f8fa" size="md">
+                <TagLeftIcon>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    width="25px"
+                    height="25px"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M6 6h.008v.008H6V6z"
+                    />
+                  </svg>
+                </TagLeftIcon>
+                <TagLabel>{tag}</TagLabel>
+              </Tag>
+            ))}
+          </Box>
+        );
       }
     },
     {
@@ -198,18 +242,20 @@ const CustomTable: React.FC = () => {
       render: ({ createdAt }) => {
         const date = parseISO(createdAt); // parse the date string into a Date object
         const formattedDate = format(date, 'dd-MMMM-yyyy'); // format the date
-        return <Text>{formattedDate}</Text>;
+        return <Text fontWeight="500">{formattedDate}</Text>;
       }
     },
     {
       title: 'Last Attempted',
       key: 'lastAttempted',
       render: ({ scores }) => {
-        if (!scores?.length) return <Text>N/A</Text>;
+        if (!scores?.length) return <Text>Not Attempted</Text>;
         const date = parseISO(scores[scores.length - 1].date);
         const formattedDate = format(date, 'dd-MMMM-yyyy');
         return (
-          <Text>{formattedDate.replace('pm', 'PM').replace('am', 'AM')}</Text>
+          <Text fontWeight="500">
+            {formattedDate.replace('pm', 'PM').replace('am', 'AM')}
+          </Text>
         );
       }
     },
@@ -217,14 +263,45 @@ const CustomTable: React.FC = () => {
       title: 'Last Attempted Score',
       key: 'lastAttemptedScore',
       render: ({ scores, questions }) => {
-        if (!scores?.length) return <Text fontWeight="500">N/A</Text>;
-        const percentage = (
-          (scores[scores.length - 1]?.score / questions.length) *
-          100
-        ).toFixed(0);
-        return <Text fontWeight="500">{percentage}%</Text>;
+        if (!scores?.length) return <Text fontWeight="500">Not Attempted</Text>;
+        const percentage =
+          (scores[scores.length - 1]?.score / questions.length) * 100;
+        const percentageString = percentage.toFixed(0);
+        type ColorRange = {
+          max: number;
+          min: number;
+          color: string;
+          backgroundColor: string;
+        };
+        const colorRanges: ColorRange[] = [
+          { max: 100, min: 85.1, color: '#4CAF50', backgroundColor: '#EDF7EE' },
+          { max: 85, min: 60, color: '#FB8441', backgroundColor: '#FFEFE6' },
+          { max: 59.9, min: 0, color: '#F53535', backgroundColor: '#FEECEC' }
+        ];
+
+        const { color, backgroundColor } = colorRanges.find(
+          (range) => percentage <= range.max && percentage >= range.min
+        ) as ColorRange;
+        return (
+          <Box width={'fit-content'}>
+            <Box
+              padding="5px 10px"
+              color={color}
+              background={backgroundColor}
+              borderRadius={'5px'}
+              display={'flex'}
+              justifyContent={'center'}
+              alignItems={'center'}
+            >
+              <Text fontSize={'14px'} fontWeight="bold">
+                {percentageString}%
+              </Text>
+            </Box>
+          </Box>
+        );
       }
     },
+
     {
       title: '',
       key: 'action',
@@ -340,6 +417,57 @@ const CustomTable: React.FC = () => {
                 Schedule
               </Text>
             </MenuItem>
+            <MenuItem
+              p="6px 8px 6px 8px"
+              onClick={() =>
+                setTagEditItem({
+                  flashcard: flashcard as unknown as FlashcardData
+                })
+              }
+              _hover={{ bgColor: '#F2F4F7' }}
+            >
+              <StyledImage marginRight="10px">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    fill="#6E7682"
+                    d="M5.25 2.25a3 3 0 00-3 3v4.318a3 3 0 00.879 2.121l9.58 9.581c.92.92 2.39 1.186 3.548.428a18.849 18.849 0 005.441-5.44c.758-1.16.492-2.629-.428-3.548l-9.58-9.581a3 3 0 00-2.122-.879H5.25zM6.375 7.5a1.125 1.125 0 100-2.25 1.125 1.125 0 000 2.25z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+
+                {/* <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  width="12"
+                  height="12"
+                >
+                  <path
+                    fillRule="evenodd"
+                    fill="#6E7682"
+                    d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zm13.5 9a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-7.5z"
+                    clipRule="evenodd"
+                  />
+                </svg> */}
+              </StyledImage>
+
+              <Text
+                color="#212224"
+                fontSize="14px"
+                lineHeight="20px"
+                fontWeight="400"
+              >
+                Edit Tags
+              </Text>
+            </MenuItem>
+
             {/* <MenuItem p="6px 8px 6px 8px" _hover={{ bgColor: "#F2F4F7" }}>
               <StyledImage marginRight="10px">
                 <svg
@@ -435,6 +563,33 @@ const CustomTable: React.FC = () => {
     <>
       {isLoading && <LoaderOverlay />}
       <FlashCardModal isOpen={Boolean(flashcard)} />
+      {tagEditItem?.flashcard && (
+        <TagModal
+          tags={tagEditItem?.flashcard?.tags || []}
+          onSubmit={async (d) => {
+            const isSaved = await storeFlashcardTags(
+              tagEditItem?.flashcard?._id as string,
+              d
+            );
+            if (isSaved) {
+              toast({
+                position: 'top-right',
+                title: `Tags Added for ${tagEditItem?.flashcard.deckname}`,
+                status: 'success'
+              });
+              setTagEditItem(null);
+            } else {
+              toast({
+                position: 'top-right',
+                title: `Failed to add tags for ${tagEditItem?.flashcard.deckname} flashcards`,
+                status: 'error'
+              });
+            }
+          }}
+          onClose={() => setTagEditItem(null)}
+          isOpen={Boolean(tagEditItem)}
+        />
+      )}
       <ScheduleStudyModal
         isLoading={isLoading}
         onSumbit={(d) => handleEventSchedule(d)}
@@ -644,6 +799,7 @@ const CustomTable: React.FC = () => {
               width={{ base: '100%', md: 'auto' }}
             >
               <Flex
+                display={'none'}
                 cursor="pointer"
                 border="1px solid #E5E6E6"
                 padding="5px 10px"

@@ -47,7 +47,7 @@ import {
   useDisclosure
 } from '@chakra-ui/react';
 import { getAuth, signOut } from 'firebase/auth';
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useState, useEffect, useCallback } from 'react';
 import { IconType } from 'react-icons';
 import { BsChatLeftDots, BsPin, BsPlayCircle } from 'react-icons/bs';
 import { CgNotes } from 'react-icons/cg';
@@ -178,13 +178,22 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
     setToggleProfileSwitchModal(true);
   };
   const navigate = useNavigate();
-  const { user, userNotifications }: any = userStore();
+  const { user, userNotifications, fetchNotifications, fetchUser }: any =
+    userStore();
 
   const handleSignOut = () => {
     signOut(auth).then(() => {
       navigate('/login');
     });
   };
+  const doFetchUserData = useCallback(async () => {
+    await fetchUser();
+    await fetchNotifications();
+  }, []);
+
+  useEffect(() => {
+    doFetchUserData();
+  }, [doFetchUserData]);
   return (
     <>
       <Flex
@@ -264,22 +273,26 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             </Flex>
           </Box>
           <HStack spacing={4}>
-            <Menu>
-              <MenuButton>
-                <IconButton
-                  size="md"
-                  borderRadius={'100%'}
-                  border="1px solid #ECEDEE"
-                  variant="ghost"
-                  aria-label="open menu"
-                  color={'text.300'}
-                  icon={<FaBell />}
-                />{' '}
-              </MenuButton>
-              <MenuList p={3} width={'358px'} zIndex={2}>
-                <Notifications data={userNotifications} />
-              </MenuList>
-            </Menu>
+            <Box position="relative">
+              {' '}
+              <Menu placement="right">
+                <MenuButton>
+                  <IconButton
+                    size="md"
+                    borderRadius={'100%'}
+                    border="1px solid #ECEDEE"
+                    variant="ghost"
+                    aria-label="open menu"
+                    color={'text.300'}
+                    icon={<FaBell />}
+                  />{' '}
+                </MenuButton>
+                <MenuList p={3} width={'358px'} zIndex={2}>
+                  <Notifications data={userNotifications} />
+                </MenuList>
+              </Menu>
+            </Box>
+
             <Center height="25px">
               <Divider orientation="vertical" />
             </Center>
@@ -497,7 +510,7 @@ const SidebarContent = ({
         </Text>
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
-      <NavItem icon={FiHome} path={'/dashboard/home'}>
+      <NavItem icon={FiHome} path={'/dashboard'}>
         Home
       </NavItem>
       <Box ml={8} color="text.400">

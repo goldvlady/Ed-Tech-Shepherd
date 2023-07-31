@@ -1,5 +1,4 @@
 import { AI_API, HEADER_KEY } from '../config';
-import { string } from 'yup';
 
 export const processDocument = async (data: {
   studentId: string;

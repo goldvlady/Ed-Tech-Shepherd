@@ -23,6 +23,7 @@ interface Option {
 interface QuestionReviewCardProps {
   question: string;
   correctAnswer: string;
+  isCurrentQuestion: boolean;
   index: number;
   options?: Option[];
   onDelete: () => void;
@@ -33,6 +34,7 @@ const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({
   question,
   index,
   correctAnswer,
+  isCurrentQuestion,
   onEdit,
   options,
   onDelete
@@ -56,7 +58,7 @@ const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({
           exit={{ height: 0 }}
           borderWidth="1px"
           borderRadius="12px"
-          borderColor="#EEEFF2"
+          borderColor={!isCurrentQuestion ? '#EEEFF2' : '#207DF7'}
           bg="#FFFFFF"
           my="4"
         >
