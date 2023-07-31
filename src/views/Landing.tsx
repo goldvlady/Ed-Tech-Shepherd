@@ -10,6 +10,7 @@ import DocchatSmall from '../assets/docchatSmall.svg';
 import Dot from '../assets/dot.svg';
 import FAQ from '../assets/faq.svg';
 import Flash from '../assets/flashIcon.svg';
+import FlashcardHover from '../assets/flashcardHover.svg';
 import FlashcardSmall from '../assets/flashcardSmall.svg';
 import Flashcards from '../assets/flashcards.svg';
 import FrontArrow from '../assets/frontArrow.svg';
@@ -32,36 +33,27 @@ import Share from '../assets/share.svg';
 import Sparkles from '../assets/sparkles.svg';
 import Sparks from '../assets/sparks.svg';
 import Study from '../assets/study.svg';
+import StudyHover from '../assets/studyHovered.svg';
 import StudySmall from '../assets/studySmall.svg';
 import TutorCard from '../assets/tutorCard.svg';
 import Twitter from '../assets/twitter-icon.svg';
 import Logo from '../components/Logo';
 import faqData from '../mocks/faqs.json';
 import priceData from '../mocks/pricing.json';
-import {
-  Button,
-  Box,
-  Link,
-  Text,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  AccordionIcon,
-  Collapse,
-  VStack
-} from '@chakra-ui/react';
+import { Button, Box, Link, Text, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Collapse, VStack } from '@chakra-ui/react';
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
+
 
 const Landing = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>('AI');
   const [openedAccordion, setOpenedAccordion] = useState<string>('accordion1');
   const [hoveredAccordion, setHoveredAccordion] = useState<string>('');
+  const [hoveredFlashcard, setHoveredFlashcard] = useState(false);
+  const [hoveredStudy, setHoveredStudy] = useState(false);
   // const accordionOrder = ['accordion1', 'accordion2', 'accordion3'];
-
   const handleAccordionToggle = (accordionName) => {
     if (openedAccordion === accordionName) {
       setOpenedAccordion(''); // Close the accordion if it's already open
@@ -128,7 +120,7 @@ const Landing = () => {
             <Link className="header-link" onClick={() => navigate(`/login`)}>
               Sign in
             </Link>
-            <Button className="header-btn" onClick={() => navigate(`/signup`)}>
+            <Button className="header-btn" onClick={() => navigate(`/onboard`)}>
               Get Started
             </Button>
           </div>
@@ -171,9 +163,17 @@ const Landing = () => {
           <img className="landing-hw-img" src={Homework} />
           <img className="landing-hw-img-small" src={HomeworkSmall} />
           <div className="landing-section-img">
-            <img className="landing-flash-img" src={Flashcards} />
+            <img
+              className="landing-flash-img"
+              onMouseEnter={() => setHoveredFlashcard(true)}
+              onMouseLeave={() => setHoveredFlashcard(false)}
+              src={hoveredFlashcard ? FlashcardHover : Flashcards}
+            />
             <img className="landing-flash-img-small" src={FlashcardSmall} />
-            <img className="landing-study-img" src={Study} />
+            <img className="landing-study-img" 
+              onMouseEnter={() => setHoveredStudy(true)}
+              onMouseLeave={() => setHoveredStudy(false)}
+              src={hoveredStudy ? StudyHover : Study}  />
             <img className="landing-study-img-small" src={StudySmall} />
           </div>
           <div className="landing-section-img">
@@ -596,7 +596,7 @@ const Landing = () => {
             </Text>
             <Button
               className="landing-banner-btn"
-              onClick={() => navigate(`/signup`)}
+              onClick={() => navigate(`/onboard`)}
             >
               Get Started for Free
             </Button>
