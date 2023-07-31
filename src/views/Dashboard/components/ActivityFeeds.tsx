@@ -80,6 +80,9 @@ function ActivityFeeds(props) {
   const getFileName = (url: string) => {
     const lastSlashIndex = url?.lastIndexOf('/');
     const textAfterLastSlash = url?.substring(lastSlashIndex + 1);
+    if (textAfterLastSlash.length > 15) {
+      return textAfterLastSlash.substring(0, 10) + '...';
+    }
     return textAfterLastSlash;
   };
   const getIconByActivityType = (activityType) => {
