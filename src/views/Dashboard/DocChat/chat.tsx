@@ -63,6 +63,10 @@ interface IChat {
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   inputValue: string;
   handleKeyDown?: any;
+  handleSummary?: any;
+  summaryLoading?: boolean;
+  summaryText?: string;
+  setSummaryText?: any;
 }
 const Chat = ({
   HomeWorkHelp,
@@ -76,7 +80,11 @@ const Chat = ({
   inputValue,
   handleSendMessage,
   handleInputChange,
-  handleKeyDown
+  handleKeyDown,
+  handleSummary,
+  summaryLoading,
+  summaryText,
+  setSummaryText
 }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
@@ -125,7 +133,14 @@ const Chat = ({
   const tabPanelList = [
     {
       id: 1,
-      component: <Summary />
+      component: (
+        <Summary
+          handleSummary={handleSummary}
+          summaryLoading={summaryLoading}
+          summaryTexts={summaryText}
+          setSummaryText={setSummaryText}
+        />
+      )
     },
     {
       id: 2,

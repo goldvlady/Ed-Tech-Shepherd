@@ -1,5 +1,10 @@
 import CustomToast from '../../../components/CustomComponents/CustomToast/index';
-import { chatHistory, chatWithDoc } from '../../../services/AI';
+import {
+  chatHistory,
+  chatWithDoc,
+  generateSummary,
+  postGenerateSummary
+} from '../../../services/AI';
 import userStore from '../../../state/userStore';
 import TempPDFViewer from './TempPDFViewer';
 import Chat from './chat';
@@ -23,6 +28,8 @@ export default function DocChat() {
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const documentId = location.state.docTitle ?? '';
   const studentId = user?._id ?? '';
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryText, setSummaryText] = useState('');
 
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -106,6 +113,55 @@ export default function DocChat() {
     [handleSendMessage]
   );
 
+  const handleSummary = useCallback(
+    async (event: React.SyntheticEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      try {
+        setSummaryLoading(true);
+        const response = await postGenerateSummary({
+          documentId,
+          studentId
+        });
+        setSummaryLoading(false);
+        const reader = response.body?.getReader();
+        //@ts-ignore:convert to a readable text
+        const { value } = await reader.read();
+        const decoder = new TextDecoder('utf-8');
+        const chunk = decoder.decode(value);
+        if (chunk.length) {
+          const response = await generateSummary({
+            documentId,
+            studentId
+          });
+          setSummaryText(response?.summary);
+        }
+      } catch (error) {
+        toast({
+          render: () => (
+            <CustomToast
+              title="Failed to fetch chat history..."
+              status="error"
+            />
+          ),
+          position: 'top-right',
+          isClosable: true
+        });
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    const getSummary = async () => {
+      const response = await generateSummary({
+        documentId,
+        studentId
+      });
+      setSummaryText(response?.summary);
+    };
+    getSummary();
+  }, []);
+
   useLayoutEffect(() => {
     const fetchChatHistory = async () => {
       try {
@@ -134,7 +190,7 @@ export default function DocChat() {
       }
     };
     fetchChatHistory();
-  }, []);
+  }, [documentId, studentId]);
 
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
 
@@ -159,6 +215,10 @@ export default function DocChat() {
             handleInputChange={handleInputChange}
             inputValue={inputValue}
             handleKeyDown={handleKeyDown}
+            handleSummary={handleSummary}
+            summaryLoading={summaryLoading}
+            summaryText={summaryText}
+            setSummaryText={setSummaryText}
           />
         </div>
       </section>
