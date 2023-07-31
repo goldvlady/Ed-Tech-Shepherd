@@ -189,8 +189,8 @@ export default function Marketplace() {
             gap="2"
             mt={2}
             textColor="text.400"
-            direction={{ base: 'column', sm: 'column', lg: 'row' }}
-            justifyItems={{ sm: 'center', base: 'flex-start' }}
+            display={{ base: 'flex', sm: 'inline-grid', lg: 'flex' }}
+            justifyItems={{ sm: 'center' }}
           >
             <HStack
               direction={{ base: 'row', sm: 'column', lg: 'row' }}
