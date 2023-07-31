@@ -98,3 +98,28 @@ export const chatHomeworkHelp = async ({
 
   return request;
 };
+
+export const chatHistory = async ({
+  documentId,
+  studentId
+}: {
+  documentId: string;
+  studentId: string;
+}) => {
+  const response = await fetch(
+    `${AI_API}/notes/chat/history?studentId=${studentId}&documentId=${documentId}`,
+    {
+      method: 'GET',
+      headers: {
+        'x-shepherd-header': HEADER_KEY
+      }
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  } else {
+    const chatHistory = await response.json();
+    return chatHistory;
+  }
+};

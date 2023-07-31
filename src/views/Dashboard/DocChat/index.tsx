@@ -1,15 +1,17 @@
-import { chatWithDoc } from '../../../services/AI';
+import CustomToast from '../../../components/CustomComponents/CustomToast/index';
+import { chatHistory, chatWithDoc } from '../../../services/AI';
 import userStore from '../../../state/userStore';
 import TempPDFViewer from './TempPDFViewer';
 import Chat from './chat';
-import { useEffect, useState, useCallback } from 'react';
+import { useToast } from '@chakra-ui/react';
+import { useEffect, useState, useCallback, useLayoutEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function DocChat() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = userStore();
-  const [response, setResponse] = useState({});
+  const toast = useToast();
   const [llmResponse, setLLMResponse] = useState('');
   const [botStatus, setBotStatus] = useState(
     'Philosopher, thinker, study companion.'
@@ -80,7 +82,7 @@ export default function DocChat() {
         return;
       }
 
-      setShowPrompt(true);
+      setShowPrompt(!!messages?.length);
 
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -90,7 +92,7 @@ export default function DocChat() {
 
       await askLLM({ query: inputValue, studentId, documentId });
     },
-    [inputValue, studentId, documentId]
+    [inputValue, studentId, documentId, messages]
   );
 
   const handleKeyDown = useCallback(
@@ -103,6 +105,38 @@ export default function DocChat() {
     },
     [handleSendMessage]
   );
+
+  useLayoutEffect(() => {
+    const fetchChatHistory = async () => {
+      try {
+        const historyData = await chatHistory({
+          documentId,
+          studentId
+        });
+        const mappedData = historyData?.map((item) => ({
+          text: item.content,
+          isUser: item.role === 'user',
+          isLoading: false
+        }));
+
+        setMessages((prevMessages) => [...prevMessages, ...mappedData]);
+      } catch (error) {
+        toast({
+          render: () => (
+            <CustomToast
+              title="Failed to fetch chat history..."
+              status="error"
+            />
+          ),
+          position: 'top-right',
+          isClosable: true
+        });
+      }
+    };
+    fetchChatHistory();
+  }, []);
+
+  useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
 
   useEffect(() => {
     if (!location.state?.documentUrl) navigate('/dashboard/notes');
