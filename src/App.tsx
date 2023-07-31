@@ -89,14 +89,9 @@ const RequireAuth = ({
       setObtainedUserAuthState(true);
       setFirebaseUser(user);
 
-      if (user) {
-        await fetchUser()
+      if (user && !userData) {
+        fetchUser()
           .then(() => {
-            // navigate(
-            //   userData?.type.includes('tutor')
-            //     ? '/tutordashboard'
-            //     : '/dashboard'
-            // );
             fetchNotifications();
             fetchUserDocuments();
           })
@@ -184,7 +179,14 @@ const RenderLayout = () => {
 
 const AppRoutes: React.FC = () => {
   const location = useLocation();
-  const { user: userData, fetchUser } = userStore();
+  const {
+    user: userData,
+    fetchUser,
+    fetchNotifications,
+    fetchUserDocuments
+  } = userStore();
+  const navigate = useNavigate();
+
   useEffect(() => {
     mixpanel.track('App Page Viewed', location);
   }, [location]);
@@ -196,9 +198,36 @@ const AppRoutes: React.FC = () => {
       };
     });
   }, []);
+
+  // const [loadingUser, setLoadingUser] = useState(true);
+  // const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
+  // const [obtainedUserAuthState, setObtainedUserAuthState] = useState(false);
+
   useEffect(() => {
-    fetchUser();
+    onAuthStateChanged(getAuth(), async (user) => {
+      // setObtainedUserAuthState(true);
+      // setFirebaseUser(user);
+
+      if (user) {
+        fetchUser()
+          .then(() => {
+            fetchNotifications();
+            fetchUserDocuments();
+          })
+          .catch((e) => {
+            if (user.metadata.creationTime !== user.metadata.lastSignInTime) {
+              navigate('/login');
+            }
+          });
+      }
+      // setLoadingUser(false);
+    });
+    /* eslint-disable */
   }, []);
+
+  // useEffect(() => {
+  //   fetchUser();
+  // }, []);
 
   const types = ['student'];
   const userType =

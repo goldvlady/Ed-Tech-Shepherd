@@ -69,6 +69,8 @@ export default function DocChat() {
           () => setBotStatus('Philosopher, thinker, study companion.'),
           1000
         );
+
+        // eslint-disable-next-line
         setMessages((prevMessages) => [
           ...prevMessages,
           { text: temp, isUser: false, isLoading: false }
@@ -190,7 +192,7 @@ export default function DocChat() {
       }
     };
     fetchChatHistory();
-  }, [documentId, studentId]);
+  }, [documentId, studentId, toast]);
 
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
 

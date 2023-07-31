@@ -1,3 +1,5 @@
+import FileProcessingService from '../../../../helpers/files.helpers/fileProcessing';
+import { createDocchatFlashCards } from '../../../../services/AI';
 import ApiService from '../../../../services/ApiService';
 import userStore from '../../../../state/userStore';
 import React, {
@@ -145,16 +147,36 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
   const generateFlashcardQuestions = useCallback(
     async (data?: FlashcardData, onDone?: (success: boolean) => void) => {
       try {
+        data = data || ({} as FlashcardData);
+        const reqData = { ...flashcardData, ...data };
         setIsLoading(true);
-        const count = data?.numQuestions || flashcardData.numQuestions;
+        const count = reqData.numQuestions;
         const aiData: { [key: string]: any } = {
-          topic: data?.topic || flashcardData.topic,
-          subject: data?.subject || flashcardData.subject,
+          topic: reqData.topic,
+          subject: reqData.subject,
           count: parseInt(count as unknown as string, 10)
         };
 
-        if (flashcardData.level || data?.level) {
-          aiData.difficulty = data?.level || flashcardData.level;
+        if (reqData.level) {
+          aiData.difficulty = reqData.level;
+        }
+
+        if (reqData.documentId) {
+          const responseData = {
+            title: reqData.topic as string,
+            studentId: user?._id as string,
+            documentUrl: reqData.documentId as string
+          };
+          const fileInfo = new FileProcessingService(responseData);
+          const hasProcessedFile = await fileInfo.process();
+          // console.log(hasProcessedFile);
+          // const response = await createDocchatFlashCards({
+          //   topic: reqData.topic as string,
+          //   studentId: user?._id as string,
+          //   documentId: reqData.documentId as string,
+          //   count: parseInt(count as unknown as string, 10)
+          // });
+          // return;
         }
 
         const response = await ApiService.generateFlashcardQuestions(

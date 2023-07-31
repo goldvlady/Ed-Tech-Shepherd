@@ -305,6 +305,13 @@ export interface SchedulePayload {
   };
 }
 
+export interface StudentDocumentPayload {
+  title: string;
+  course?: string;
+  documentUrl: string;
+  tags?: string[];
+}
+
 export type LevelType = Level;
 export type BookingType = Booking;
 export type OfferType = Offer;
