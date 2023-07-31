@@ -1,15 +1,16 @@
 /* eslint-disable no-loop-func */
 
 /* eslint-disable no-unsafe-optional-chaining */
+import PultoJPG from '../../../assets/PlutoAi.jpg';
 import { ReactComponent as HightLightIcon } from '../../../assets/highlightIcn.svg';
 import { ReactComponent as SummaryIcon } from '../../../assets/summaryIcn.svg';
-import { ReactComponent as TellMeMoreIcn } from '../../../assets/tellMeMoreIcn.svg';
+// import { ReactComponent as TellMeMoreIcn } from '../../../assets/tellMeMoreIcn.svg';
 import { ReactComponent as TutorBag } from '../../../assets/tutor-bag.svg';
 import ChatLoader from '../../../components/CustomComponents/CustomChatLoader';
 import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../../components/hooks/useChatScroll';
-import { chatWithDoc } from '../../../services/AI';
+// import { chatWithDoc } from '../../../services/AI';
 import FlashcardDataProvider from '../FlashCards/context/flashcard';
 import ChatHistory from './chatHistory';
 import HighLight from './highlist';
@@ -46,7 +47,7 @@ import {
   Wrapper
 } from './styles';
 import Summary from './summary';
-import { Text, useToast } from '@chakra-ui/react';
+import { Text } from '@chakra-ui/react';
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 interface IChat {
@@ -194,8 +195,13 @@ const Chat = ({
                     <FlexContainer>
                       <CircleContainer>
                         <img
-                          src="/svgs/robot-face.svg"
-                          className="h-9 w-9 text-gray-400"
+                          src={PultoJPG}
+                          style={{
+                            objectFit: 'cover',
+                            height: 'auto',
+                            width: '100%',
+                            borderRadius: '50%'
+                          }}
                           alt=""
                         />
                       </CircleContainer>
@@ -211,7 +217,7 @@ const Chat = ({
                       Let's get learning!
                     </StyledText>
                   </GridItem>
-                  {HomeWorkHelp && !isShowPrompt && (
+                  {HomeWorkHelp && !messages?.length && !isShowPrompt && (
                     <OptionsContainer>
                       <Text className="">What do you need?</Text>
 
@@ -225,7 +231,7 @@ const Chat = ({
                       </PillsContainer>
                     </OptionsContainer>
                   )}
-                  {!HomeWorkHelp && !isShowPrompt && (
+                  {!messages?.length && !HomeWorkHelp && !isShowPrompt && (
                     <OptionsContainer>
                       <Text className="">What do you need?</Text>
                       <PillsContainer>
@@ -239,7 +245,7 @@ const Chat = ({
                     </OptionsContainer>
                   )}
 
-                  {!isShowPrompt && (
+                  {!messages?.length && !isShowPrompt && (
                     <AskSomethingContainer>
                       <AskSomethingPillHeadingText>
                         Try asking about:
@@ -277,7 +283,7 @@ const Chat = ({
               </InnerWrapper>
             </FlexColumnContainer>
           </ContentWrapper>
-          {!HomeWorkHelp && isShowPrompt && (
+          {!!messages?.length && !HomeWorkHelp && isShowPrompt && (
             <div
               style={{
                 position: 'fixed',
@@ -307,7 +313,7 @@ const Chat = ({
           </TellMeMorePill>
         )} */}
 
-        {HomeWorkHelp && isShowPrompt && (
+        {!!messages?.length && HomeWorkHelp && isShowPrompt && (
           <DownPillContainer>
             <PillsContainer>
               {homeHelp.map((need) => (
@@ -337,11 +343,11 @@ const Chat = ({
               <img alt="" src="/svgs/send.svg" className="w-8 h-8" />
             </SendButton>
           </InputContainer>
-          {!HomeWorkHelp && (
+          {/* {!HomeWorkHelp && (
             <ClockButton type="button" onClick={onChatHistory}>
               <img alt="" src="/svgs/anti-clock.svg" className="w-5 h-5" />
             </ClockButton>
-          )}
+          )} */}
         </ChatbotContainer>
       </Form>
 
