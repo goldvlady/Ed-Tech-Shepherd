@@ -40,11 +40,22 @@ import Twitter from '../assets/twitter-icon.svg';
 import Logo from '../components/Logo';
 import faqData from '../mocks/faqs.json';
 import priceData from '../mocks/pricing.json';
-import { Button, Box, Link, Text, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Collapse, VStack } from '@chakra-ui/react';
+import {
+  Button,
+  Box,
+  Link,
+  Text,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
+  Collapse,
+  VStack
+} from '@chakra-ui/react';
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -170,10 +181,12 @@ const Landing = () => {
               src={hoveredFlashcard ? FlashcardHover : Flashcards}
             />
             <img className="landing-flash-img-small" src={FlashcardSmall} />
-            <img className="landing-study-img" 
+            <img
+              className="landing-study-img"
               onMouseEnter={() => setHoveredStudy(true)}
               onMouseLeave={() => setHoveredStudy(false)}
-              src={hoveredStudy ? StudyHover : Study}  />
+              src={hoveredStudy ? StudyHover : Study}
+            />
             <img className="landing-study-img-small" src={StudySmall} />
           </div>
           <div className="landing-section-img">
