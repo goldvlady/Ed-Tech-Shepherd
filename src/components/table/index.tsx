@@ -44,7 +44,7 @@ const SelectableTable = <T extends Record<string, unknown>>({
         <StyledTr>
           {isSelectable && <StyledTh />}
           {columns.map((col) => (
-            <StyledTh key={col.key} textAlign={col.align || 'center'}>
+            <StyledTh key={col.key} textAlign={col.align || 'left'}>
               {col.title}
             </StyledTh>
           ))}
@@ -71,6 +71,8 @@ const SelectableTable = <T extends Record<string, unknown>>({
             {columns.map((col) => (
               <StyledTd
                 key={col.key}
+                fontWeight="500"
+                textAlign={col.align || 'left'}
                 tagsColor={col.dataIndex === 'tags' ? record.tags : '#585f68'}
               >
                 {col.render

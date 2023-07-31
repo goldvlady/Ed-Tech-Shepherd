@@ -1,5 +1,7 @@
+import CalendarDateInput from '../../../../components/CalendarDateInput';
 import CustomSelect from '../../../../components/CustomSelect';
 import DatePicker from '../../../../components/DatePicker';
+import Select, { Option } from '../../../../components/Select';
 import {
   Box,
   Button,
@@ -52,13 +54,22 @@ export const ScheduleStudyModal: React.FC<ScheduleStudyModalProps> = ({
     const displayMinute = minute === 0 ? '00' : String(minute);
     const period = hour < 12 ? ' AM' : ' PM';
 
-    return `${displayHour}:${displayMinute}${period}`;
+    const time = `${displayHour}:${displayMinute}${period}`;
+
+    return { label: time, value: time };
   });
 
   const handleInputChange =
     (name: keyof ScheduleFormState) => (value: string | Date | null) => {
       setScheduleFormState((prevState) => ({ ...prevState, [name]: value }));
     };
+
+  const frequencyOptions = [
+    { label: 'Daily', value: 'daily' },
+    { label: 'Weekly', value: 'weekly' },
+    { label: 'Monthly', value: 'monthly' },
+    { label: "Doesn't Repeat", value: 'none' }
+  ];
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -67,59 +78,48 @@ export const ScheduleStudyModal: React.FC<ScheduleStudyModalProps> = ({
         <ModalHeader>Schedule Study</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Box width="100%">
+          <Box width="100%" paddingBottom={'50px'}>
             <FormControl id="day" marginBottom="20px">
               <FormLabel>Day</FormLabel>
-              <DatePicker
-                placeholder="Select Day"
-                value={formState.day ? format(formState.day, 'yyyy-MM-dd') : ''}
+              <CalendarDateInput
+                inputProps={{
+                  placeholder: 'Select Day'
+                }}
+                value={formState.day as Date}
                 onChange={handleInputChange('day')}
               />
             </FormControl>
 
             <FormControl id="time" marginBottom="20px">
               <FormLabel>Time</FormLabel>
-              <CustomSelect
+              <Select
+                defaultValue={timeOptions.find(
+                  (option) => option.value === formState.time
+                )}
+                tagVariant="solid"
                 placeholder="Select Time"
-                value={formState.time}
-                onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                  handleInputChange('time')(e.target.value)
+                options={timeOptions}
+                size={'md'}
+                onChange={(option) =>
+                  handleInputChange('time')((option as Option).value)
                 }
-              >
-                {timeOptions.map((option) => (
-                  <option
-                    style={{ padding: '10px' }}
-                    key={option}
-                    value={option}
-                  >
-                    {option}
-                  </option>
-                ))}
-              </CustomSelect>
+              />
             </FormControl>
 
             <FormControl id="frequency" marginBottom="20px">
               <FormLabel>Frequency</FormLabel>
-              <CustomSelect
+              <Select
+                defaultValue={frequencyOptions.find(
+                  (option) => option.value === formState.frequency
+                )}
+                tagVariant="solid"
                 placeholder="Select Frequency"
-                value={formState.frequency}
-                onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                  handleInputChange('frequency')(e.target.value)
+                options={frequencyOptions}
+                size={'md'}
+                onChange={(option) =>
+                  handleInputChange('frequency')((option as Option).value)
                 }
-              >
-                <option style={{ padding: '10px' }} value="daily">
-                  Daily
-                </option>
-                <option style={{ padding: '10px' }} value="weekly">
-                  Weekly
-                </option>
-                <option style={{ padding: '10px' }} value="monthly">
-                  Monthly
-                </option>
-                <option style={{ padding: '10px' }} value="none">
-                  Doesn't Repeat
-                </option>
-              </CustomSelect>
+              />
             </FormControl>
           </Box>
         </ModalBody>
