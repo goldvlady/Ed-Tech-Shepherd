@@ -189,8 +189,8 @@ export default function Marketplace() {
             gap="2"
             mt={2}
             textColor="text.400"
-            direction={{ base: 'column', sm: 'row' }}
-            // justifyItems={{ sm: 'center', base: 'flex-start' }}
+            direction={{ base: 'column', sm: 'column', lg: 'row' }}
+            justifyItems={{ sm: 'center', base: 'flex-start' }}
           >
             <HStack
               direction={{ base: 'row', sm: 'column', lg: 'row' }}
@@ -391,7 +391,7 @@ export default function Marketplace() {
               </Menu>
             </HStack>
             <Spacer />
-            <Box display={{ base: 'flex', sm: 'grid' }}>
+            <Box>
               <CustomButton
                 buttonText={'Clear Filters'}
                 buttonType="outlined"

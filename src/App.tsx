@@ -224,10 +224,6 @@ const AppRoutes: React.FC = () => {
     /* eslint-disable */
   }, []);
 
-  // useEffect(() => {
-  //   fetchUser();
-  // }, []);
-
   const types = ['student'];
   const userType =
     userData?.type.includes('tutor') && userData?.type.includes('student')
