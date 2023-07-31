@@ -1,4 +1,3 @@
-import UserTypeRoutes from './UserRoutes';
 import TutorDashboardLayout from './components/Layout';
 import resourceStore from './state/resourceStore';
 import userStore from './state/userStore';
@@ -224,10 +223,6 @@ const AppRoutes: React.FC = () => {
     });
     /* eslint-disable */
   }, []);
-
-  // useEffect(() => {
-  //   fetchUser();
-  // }, []);
 
   const types = ['student'];
   const userType =

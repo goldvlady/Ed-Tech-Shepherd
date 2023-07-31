@@ -189,14 +189,13 @@ export default function Marketplace() {
             gap="2"
             mt={2}
             textColor="text.400"
-            direction={{ base: 'column', sm: 'row' }}
-            justifyItems={{ sm: 'center', base: 'flex-start' }}
+            display={{ base: 'flex', sm: 'inline-grid', lg: 'flex' }}
+            justifyItems={{ sm: 'center' }}
           >
             <HStack
-              direction={{ base: 'row', sm: 'row', lg: 'row' }}
+              direction={{ base: 'row', sm: 'column', lg: 'row' }}
               spacing={{ base: 1, sm: 3 }}
-              display={{ base: 'block', sm: 'flex', lg: 'flex' }}
-              width="100%"
+              display={{ sm: 'grid', lg: 'flex' }}
             >
               <Flex
                 alignItems={'center'}
@@ -392,14 +391,14 @@ export default function Marketplace() {
               </Menu>
             </HStack>
             <Spacer />
-            <Flex gap="2">
+            <Box>
               <CustomButton
                 buttonText={'Clear Filters'}
                 buttonType="outlined"
                 fontStyle={{ fontSize: '12px', fontWeight: 500 }}
                 onClick={resetForm}
               />
-            </Flex>
+            </Box>
           </Flex>
         </Box>
 
