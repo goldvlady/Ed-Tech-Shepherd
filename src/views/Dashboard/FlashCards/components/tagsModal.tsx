@@ -58,7 +58,6 @@ export const TagModal: React.FC<TagModalProps> = ({
   };
 
   const handleSubmit = () => {
-    console.log(newTags);
     onSubmit(newTags);
   };
 

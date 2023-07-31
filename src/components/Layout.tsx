@@ -99,7 +99,7 @@ export default function Layout({ children, className }) {
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [fetchNotifications]);
 
   const activateProfileSwitchModal = () => {
     setToggleProfileSwitchModal(true);

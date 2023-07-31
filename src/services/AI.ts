@@ -1,5 +1,11 @@
 import { AI_API, HEADER_KEY } from '../config';
 
+type DocumentType = {
+  topic: string;
+  count: number;
+  studentId: string;
+  documentId: string;
+};
 export const processDocument = async (data: {
   studentId: string;
   documentId: string;
@@ -64,7 +70,7 @@ export const chatWithDoc = async ({
   return request;
 };
 
-export const createDocchatFlashCards = async (data: any) => {
+export const createDocchatFlashCards = async (data: DocumentType) => {
   const request = await fetch(`${AI_API}/flash-cards/generate-from-notes`, {
     method: 'POST',
     headers: {

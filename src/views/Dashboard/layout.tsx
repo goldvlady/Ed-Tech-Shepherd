@@ -186,14 +186,14 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
       navigate('/login');
     });
   };
-  const doFetchUserData = useCallback(async () => {
-    await fetchUser();
-    await fetchNotifications();
-  }, []);
+  // const doFetchUserData = useCallback(async () => {
+  //   await fetchUser();
+  //   await fetchNotifications();
+  // }, []);
 
-  useEffect(() => {
-    doFetchUserData();
-  }, [doFetchUserData]);
+  // useEffect(() => {
+  //   doFetchUserData();
+  // }, [doFetchUserData]);
   return (
     <>
       <Flex

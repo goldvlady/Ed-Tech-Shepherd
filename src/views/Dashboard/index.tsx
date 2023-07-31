@@ -138,6 +138,7 @@ export default function Index() {
 
       return () => clearTimeout(timeout);
     }
+    // eslint-disable-next-line
   }, [upcomingEvent]);
 
   const createNewLists = [

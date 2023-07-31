@@ -36,19 +36,20 @@ const ProfileSwitchModal = ({
   const [selectedProfile, setSelectedProfile] = useState('');
   const [userType, setUserType] = useState<any>();
 
-  const { user, fetchUser } = userStore();
+  // const { user, fetchUser } = userStore();
 
-  const doFetchUser = useCallback(async () => {
-    const response = await ApiService.getUser();
-    const respJson = await response.json();
+  // const doFetchUser = useCallback(async () => {
+  //   console.log('Here');
+  //   const response = await ApiService.getUser();
+  //   const respJson = await response.json();
 
-    setUserType(respJson.type);
-    /* eslint-disable */
-  }, []);
+  //   setUserType(respJson.type);
+  //   /* eslint-disable */
+  // }, []);
 
-  useEffect(() => {
-    doFetchUser();
-  }, [doFetchUser]);
+  // useEffect(() => {
+  //   doFetchUser();
+  // }, [doFetchUser]);
 
   const handleClose = () => {
     setToggleProfileSwitchModal(false);
