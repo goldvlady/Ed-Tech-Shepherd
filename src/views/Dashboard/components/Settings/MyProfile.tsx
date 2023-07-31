@@ -31,7 +31,7 @@ import {
 } from '@chakra-ui/react';
 import firebase from 'firebase/app';
 // import { updatePassword } from 'firebase/auth';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RiArrowRightSLine } from 'react-icons/ri';
 
 function MyProfile(props) {
@@ -39,7 +39,8 @@ function MyProfile(props) {
   const { user } = userStore();
 
   const toast = useToast();
-  const [newEmail, setNewEmail] = useState(email);
+  const [newEmail, setNewEmail] = useState<string>(email);
+
   const [isOpenTandC, setIsOpenTandC] = useState(false);
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -162,13 +163,15 @@ function MyProfile(props) {
               >
                 Email
               </Text>{' '}
-              <Editable
-                defaultValue={email}
-                onChange={(e: any) => setNewEmail(e)}
-              >
-                <EditablePreview fontSize={12} color="text.300" />
-                <EditableInput />
-              </Editable>
+              {email && (
+                <Editable
+                  defaultValue={email}
+                  onChange={(e: any) => setNewEmail(e)}
+                >
+                  <EditablePreview fontSize={12} color="text.300" />
+                  <EditableInput />
+                </Editable>
+              )}
             </Stack>
             <Spacer />{' '}
             <Button
@@ -186,7 +189,7 @@ function MyProfile(props) {
                   backgroundColor: '#F0F6FE'
                 }
               }}
-              isDisabled={email === newEmail} // Disable the button if the input value is not changed
+              isDisabled={!newEmail || email === newEmail}
               onClick={handleSaveEmail}
             >
               Change
