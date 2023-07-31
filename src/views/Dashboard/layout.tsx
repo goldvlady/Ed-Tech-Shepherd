@@ -47,7 +47,7 @@ import {
   useDisclosure
 } from '@chakra-ui/react';
 import { getAuth, signOut } from 'firebase/auth';
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useState, useEffect, useCallback } from 'react';
 import { IconType } from 'react-icons';
 import { BsChatLeftDots, BsPin, BsPlayCircle } from 'react-icons/bs';
 import { CgNotes } from 'react-icons/cg';
@@ -178,13 +178,22 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
     setToggleProfileSwitchModal(true);
   };
   const navigate = useNavigate();
-  const { user, userNotifications }: any = userStore();
+  const { user, userNotifications, fetchNotifications, fetchUser }: any =
+    userStore();
 
   const handleSignOut = () => {
     signOut(auth).then(() => {
       navigate('/login');
     });
   };
+  const doFetchUserData = useCallback(async () => {
+    await fetchUser();
+    await fetchNotifications();
+  }, []);
+
+  useEffect(() => {
+    doFetchUserData();
+  }, [doFetchUserData]);
   return (
     <>
       <Flex

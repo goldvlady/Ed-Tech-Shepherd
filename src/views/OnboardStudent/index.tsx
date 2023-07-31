@@ -326,8 +326,8 @@ const OnboardStudent = () => {
                       `${moment(s.begin).format('dddd')}: ${moment(s.begin)
                         .tz(tz)
                         .format('hh:mm A')} - ${moment(s.end)
-                          .tz(tz)
-                          .format('hh:mm A')}`
+                        .tz(tz)
+                        .format('hh:mm A')}`
                   );
                 })
                 .join('\n')}

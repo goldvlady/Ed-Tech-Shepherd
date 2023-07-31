@@ -38,11 +38,10 @@ export default function Offer() {
   useEffect(() => {
     doFetchTutorOffer(id);
   }, [doFetchTutorOffer]);
-  console.log('lork', offer);
 
   return (
     <>
-      <Layout className="px-4 bg-white">
+      <Box className="px-4 bg-white">
         <Breadcrumb />
 
         <Box my={4}>
@@ -89,7 +88,7 @@ export default function Offer() {
             />
           </Grid>
         </Container>
-      </Layout>
+      </Box>
 
       {/* Accept Offer Modal */}
       <AcceptOfferModal

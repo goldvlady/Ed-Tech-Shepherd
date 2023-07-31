@@ -1,6 +1,7 @@
 import { Layout, OffersGridList, Section } from '../../../components';
 import ApiService from '../../../services/ApiService';
 import offerStore from '../../../state/offerStore';
+import { Box } from '@chakra-ui/react';
 import React, { useEffect, useState, useCallback } from 'react';
 
 export default function Offers() {
@@ -21,7 +22,7 @@ export default function Offers() {
   }, [doFetchStudentTutors]);
 
   return (
-    <Layout className="p-4 bg-white">
+    <Box className="p-4 bg-white">
       <Section
         title="Offers"
         subtitle={offers ? offers.length : 0}
@@ -30,6 +31,6 @@ export default function Offers() {
       {offers && offers.length > 0 && (
         <OffersGridList offers={offers} pagination={pagination} />
       )}
-    </Layout>
+    </Box>
   );
 }

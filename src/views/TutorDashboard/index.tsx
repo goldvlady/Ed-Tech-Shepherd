@@ -51,7 +51,7 @@ export default function Dashboard() {
   }
 
   return (
-    <Layout className="p-2 bg-white">
+    <>
       <WelcomePage user={user} />
       <Proceed user={user} />
       <GridList />
@@ -88,6 +88,6 @@ export default function Dashboard() {
       </Box>
 
       {/* <RecentTransactions /> */}
-    </Layout>
+    </>
   );
 }
