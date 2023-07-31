@@ -207,10 +207,8 @@ const AppRoutes: React.FC = () => {
       : userData?.type.includes('tutor')
       ? 'tutor'
       : 'student';
-  console.log('Type', userType);
 
   const userRoute = userRoutes[userType];
-  console.log('Route', userRoute);
 
   return (
     <Routes>

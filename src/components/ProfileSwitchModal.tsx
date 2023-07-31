@@ -97,7 +97,6 @@ const ProfileSwitchModal = ({
     name: 'framework',
     defaultValue: 'react',
     onChange: (value) => {
-      console.log('value', value);
       setSelectedProfile(value);
       return;
     }

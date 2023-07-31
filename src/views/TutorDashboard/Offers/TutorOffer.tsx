@@ -38,7 +38,6 @@ export default function Offer() {
   useEffect(() => {
     doFetchTutorOffer(id);
   }, [doFetchTutorOffer]);
-  console.log('lork', offer);
 
   return (
     <>
