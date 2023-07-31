@@ -1,4 +1,4 @@
-import { SelectedNoteModal } from '../../components';
+import { SelectedNoteModal } from '../../../components';
 import { Spinner } from './Spinner';
 import { testHighlights as _testHighlights } from './test-highlights';
 import { useEffect, useState } from 'react';
@@ -38,6 +38,7 @@ const TempPDFViewer = ({ pdfLink, name }: { pdfLink: URL; name: string }) => {
   const [highlights, setHighlights] = useState<Array<IHighlight>>([]);
   const [url, setUrl] = useState(pdfLink);
   const [popUpNotesModal, setPopUpNotesModal] = useState(false);
+
   const resetHighlights = () => {
     setHighlights([]);
   };

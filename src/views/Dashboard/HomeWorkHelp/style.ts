@@ -4,19 +4,22 @@ import styled from 'styled-components';
 export const HomeWorkHelpContainer = styled.section`
   display: flex;
   height: 100%;
+  position: fixed;
+  width: 100%;
 `;
 
 export const HomeWorkHelpHistoryContainer = styled.section`
-  width: 35%;
+  width: 29%;
   height: 100vh;
   padding-right: 10px;
   background: #fff;
+  overflow-y: scroll;
 `;
 
 export const HomeWorkHelpChatContainer = styled.section`
   flex-grow: 1;
   width: 65%;
-  position: relative;
+  position: fixed;
 `;
 
 export const TutorsBackIcn = styled.div`

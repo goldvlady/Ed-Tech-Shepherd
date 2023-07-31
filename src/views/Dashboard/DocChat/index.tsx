@@ -1,28 +1,26 @@
-import CustomModal from '../../../components/CustomComponents/CustomModal';
-import { chatHomeworkHelp } from '../../../services/AI';
+import { chatWithDoc } from '../../../services/AI';
 import userStore from '../../../state/userStore';
-import Chat from '../DocChat/chat';
-import ChatHistory from '../DocChat/chatHistory';
-import ViewTutors from './ViewTutors';
-import {
-  HomeWorkHelpChatContainer,
-  HomeWorkHelpContainer,
-  HomeWorkHelpHistoryContainer
-} from './style';
-import React, { useState, useCallback } from 'react';
+import TempPDFViewer from './TempPDFViewer';
+import Chat from './chat';
+import { useEffect, useState, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-const HomeWorkHelp = () => {
-  const [isOpenModal, setOpenModal] = useState(false);
-  const [inputValue, setInputValue] = useState('');
-  const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
+export default function DocChat() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const { user } = userStore();
-  const [messages, setMessages] = useState<
-    { text: string; isUser: boolean; isLoading: boolean }[]
-  >([]);
+  const [response, setResponse] = useState({});
   const [llmResponse, setLLMResponse] = useState('');
   const [botStatus, setBotStatus] = useState(
     'Philosopher, thinker, study companion.'
   );
+  const [messages, setMessages] = useState<
+    { text: string; isUser: boolean; isLoading: boolean }[]
+  >([]);
+  const [inputValue, setInputValue] = useState('');
+  const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
+  const documentId = location.state.docTitle ?? '';
+  const studentId = user?._id ?? '';
 
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -33,16 +31,18 @@ const HomeWorkHelp = () => {
 
   const askLLM = async ({
     query,
-    studentId
+    studentId,
+    documentId
   }: {
     query: string;
     studentId: string;
+    documentId: string;
   }) => {
     setBotStatus('Thinking');
-
-    const response = await chatHomeworkHelp({
+    const response = await chatWithDoc({
       query,
-      studentId
+      studentId,
+      documentId
     });
 
     const reader = response.body?.getReader();
@@ -72,10 +72,6 @@ const HomeWorkHelp = () => {
     }
   };
 
-  const onOpenModal = useCallback(() => {
-    setOpenModal((prevState) => !prevState);
-  }, []);
-
   const handleSendMessage = useCallback(
     async (event: React.SyntheticEvent<HTMLButtonElement>) => {
       event.preventDefault();
@@ -92,9 +88,9 @@ const HomeWorkHelp = () => {
       ]);
       setInputValue('');
 
-      await askLLM({ query: inputValue, studentId: user?._id ?? '' });
+      await askLLM({ query: inputValue, studentId, documentId });
     },
-    [inputValue]
+    [inputValue, studentId, documentId]
   );
 
   const handleKeyDown = useCallback(
@@ -108,39 +104,30 @@ const HomeWorkHelp = () => {
     [handleSendMessage]
   );
 
+  useEffect(() => {
+    if (!location.state?.documentUrl) navigate('/dashboard/notes');
+  }, [navigate, location.state?.documentUrl]);
+
   return (
-    <HomeWorkHelpContainer>
-      <HomeWorkHelpHistoryContainer>
-        <ChatHistory />
-      </HomeWorkHelpHistoryContainer>
-      <HomeWorkHelpChatContainer>
-        <Chat
-          HomeWorkHelp
-          isShowPrompt={isShowPrompt}
-          messages={messages}
-          llmResponse={llmResponse}
-          botStatus={botStatus}
-          onOpenModal={onOpenModal}
-          inputValue={inputValue}
-          handleInputChange={handleInputChange}
-          handleSendMessage={handleSendMessage}
-          handleKeyDown={handleKeyDown}
-        />
-      </HomeWorkHelpChatContainer>
-
-      <CustomModal
-        isOpen={isOpenModal}
-        onClose={onOpenModal}
-        modalSize="lg"
-        style={{
-          height: '100Vh',
-          maxWidth: '100%'
-        }}
-      >
-        <ViewTutors onOpenModal={onOpenModal} />
-      </CustomModal>
-    </HomeWorkHelpContainer>
+    location.state?.documentUrl && (
+      <section className="divide-y max-w-screen-xl fixed mx-auto">
+        <div className="h-screen bg-white divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
+          <TempPDFViewer
+            pdfLink={location.state.documentUrl}
+            name={location.state.docTitle}
+          />
+          <Chat
+            isShowPrompt={isShowPrompt}
+            messages={messages}
+            llmResponse={llmResponse}
+            botStatus={botStatus}
+            handleSendMessage={handleSendMessage}
+            handleInputChange={handleInputChange}
+            inputValue={inputValue}
+            handleKeyDown={handleKeyDown}
+          />
+        </div>
+      </section>
+    )
   );
-};
-
-export default HomeWorkHelp;
+}

@@ -1,7 +1,7 @@
-import { ReactComponent as CopyIcn } from '../../assets/copy.svg';
-import { ReactComponent as DeleteIcn } from '../../assets/deleteIcn.svg';
-import { ReactComponent as EditIcn } from '../../assets/editIcn.svg';
-import MainWrapper from '../Dashboard/FlashCards/create';
+import { ReactComponent as CopyIcn } from '../../../assets/copy.svg';
+import { ReactComponent as DeleteIcn } from '../../../assets/deleteIcn.svg';
+import { ReactComponent as EditIcn } from '../../../assets/editIcn.svg';
+import MainWrapper from '../FlashCards/create';
 import { IconContainer, PageCount, SummaryContainer } from './styles';
 import { ChevronRightIcon, ChevronLeftIcon } from '@chakra-ui/icons';
 import React, { useState } from 'react';

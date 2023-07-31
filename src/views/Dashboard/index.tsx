@@ -74,27 +74,37 @@ export default function Index() {
     twoDigitFormat(date.getHours()) + ':' + twoDigitFormat(date.getMinutes());
   const hours = date.getHours();
   const isDayTime = hours > 6 && hours < 20;
+  const timeStudied = (totalWeeklyStudyTime) => {
+    const [hours, minutes] = totalWeeklyStudyTime.split(':');
+    return { hour: hours, minute: minutes };
+  };
 
   const { user } = userStore();
   const { feeds, fetchFeeds } = feedsStore();
 
   const [studentReport, setStudentReport] = useState<any>('');
   const [chartData, setChartData] = useState<any>('');
+  const [calendarEventData, setCalendarEventData] = useState<any>([]);
+
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const fetchData = useCallback(async () => {
     try {
-      const [studentReportResponse, feedsResponse] = await Promise.all([
-        ApiService.getStudentReport(),
-        fetchFeeds()
-      ]);
+      const [studentReportResponse, calendarResponse, feedsResponse] =
+        await Promise.all([
+          ApiService.getStudentReport(),
+          ApiService.getCalendarEvents(),
+          fetchFeeds()
+        ]);
 
       const studentReportData = await studentReportResponse.json();
+      const calendarData = await calendarResponse.json();
 
       setStudentReport(studentReportData);
       setChartData(studentReportData.chartData);
+      setCalendarEventData(calendarData.data);
       // setFeeds(feedsResponse);
     } catch (error) {
       /* empty */
@@ -107,26 +117,6 @@ export default function Index() {
     fetchData();
   }, [fetchData]);
 
-  const cards = [
-    {
-      title: 'Design Projects 1',
-      text: "The project board is an exclusive resource for contract work. It's perfect for freelancers, agencies, and moonlighters.",
-      image:
-        'https://images.unsplash.com/photo-1516796181074-bf453fbfa3e6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1yZWxhdGVkfDV8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=900&q=60'
-    },
-    {
-      title: 'Design Projects 2',
-      text: "The project board is an exclusive resource for contract work. It's perfect for freelancers, agencies, and moonlighters.",
-      image:
-        'https://images.unsplash.com/photo-1438183972690-6d4658e3290e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2274&q=80'
-    },
-    {
-      title: 'Design Projects 3',
-      text: "The project board is an exclusive resource for contract work. It's perfect for freelancers, agencies, and moonlighters.",
-      image:
-        'https://images.unsplash.com/photo-1507237998874-b4d52d1dd655?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1yZWxhdGVkfDR8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=900&q=60'
-    }
-  ];
   // Settings for the slider
   const settings = {
     dots: false,
@@ -200,7 +190,7 @@ export default function Index() {
         initial={user?.name.first.substring(0, 1)}
       />
 
-      <Box p={5}>
+      <Box p={5} maxWidth="80em" margin="auto">
         <Box
           bgColor={'#FFF5F0'}
           py={2}
@@ -210,7 +200,7 @@ export default function Index() {
           mb={4}
           textAlign="center"
         >
-          <Flex alignItems={'center'}>
+          {/* <Flex alignItems={'center'}>
             <Box display="flex">
               <Text
                 textTransform={'uppercase'}
@@ -240,6 +230,66 @@ export default function Index() {
                 bgColor="#fff"
                 color="#5C5F64"
                 fontSize={12}
+                px={2}
+                py={0}
+                onClick={() =>
+                  sessionPrefaceDialogRef.current?.open('http://google.com')
+                }
+              >
+                Join Lesson
+              </Button>
+            </Box>
+          </Flex> */}
+          <Flex
+            alignItems={'center'}
+            direction={{ base: 'column', md: 'row' }}
+            justifyContent={{ base: 'center', md: 'space-between' }}
+          >
+            <Box
+              display="flex"
+              flexDirection={{ base: 'column', md: 'row' }}
+              alignItems={{ base: 'center', md: 'flex-start' }}
+              mb={{ base: 4, md: 0 }}
+            >
+              <Text
+                textTransform={'uppercase'}
+                color="#4CAF50"
+                fontSize={{ base: 'sm', md: 'md' }}
+                bgColor="rgba(191, 227, 193, 0.4)"
+                borderRadius="3px"
+                px={2}
+                py={1}
+                mr={{ base: 0, md: 10 }}
+                mb={{ base: 2, md: 0 }}
+                textAlign={{ base: 'center', md: 'left' }}
+              >
+                Chemistry Lesson
+              </Text>
+              <Text
+                color="text.400"
+                fontSize={{ base: 'sm', md: 'md' }}
+                textAlign={{ base: 'center', md: 'left' }}
+              >
+                Upcoming class with Leslie Peters starts
+              </Text>
+              <Text
+                fontSize={{ base: 'sm', md: 'md' }}
+                fontWeight={500}
+                color="#F53535"
+                ml={{ base: 0, md: 10 }}
+                mt={{ base: 2, md: 0 }}
+                textAlign={{ base: 'center', md: 'left' }}
+              >
+                03:30 pm
+              </Text>
+            </Box>
+
+            <Box>
+              <Button
+                variant="unstyled"
+                bgColor="#fff"
+                color="#5C5F64"
+                fontSize={{ base: 'sm', md: 'md' }}
                 px={2}
                 py={0}
                 onClick={() =>
@@ -282,13 +332,17 @@ export default function Index() {
         </Box>
         <Grid
           // templateRows="repeat(2, 1fr)"
-          templateColumns="repeat(5, 1fr)"
-          gap={6}
+          templateColumns={{
+            base: 'repeat(1, 1fr)',
+            md: 'repeat(2, 1fr)',
+            lg: 'repeat(5, 1fr)'
+          }}
+          gap={{ base: 'none', md: 6 }}
         >
           <GridItem
-            rowSpan={1}
-            colSpan={2}
-            h="200px"
+            rowSpan={{ base: 1, md: 1 }}
+            colSpan={{ base: 1, md: 2 }}
+            h={{ base: 'auto', md: '200px' }}
             _hover={{
               boxShadow: '2xl',
               transition: 'box-shadow 0.2s ease-in-out'
@@ -300,10 +354,11 @@ export default function Index() {
               // bgRepeat={"no-repeat"}
               // bgSize={"160px"}
               // bgPosition={"right -10px bottom 10px"}
-              height={'379px'}
-              borderRadius={'10px'}
+              height={{ base: 'auto', md: '379px' }}
+              borderRadius={{ base: '5px', md: '10px' }}
               border="1px solid #eeeff2"
               position={'relative'}
+              marginBottom={{ base: '26px', md: 'none' }}
             >
               <Flex gap={1} p={3} h="60px">
                 <Image src={summary} />
@@ -314,37 +369,36 @@ export default function Index() {
               {studentReport.studiedFlashcards > 0 ? (
                 <>
                   <Grid
-                    h="70px"
+                    h={{ base: 'auto', md: '70px' }}
                     px={3}
                     templateRows="repeat(1, 1fr)"
-                    templateColumns="repeat(2, 1fr)"
+                    templateColumns={{
+                      base: 'repeat(1, 1fr)',
+                      md: 'repeat(2, 1fr)'
+                    }}
                     gap={1}
                   >
-                    {/* <GridItem rowSpan={1} colSpan={2} position="relative">
-                  <Flex gap={1}>
-                    <Image src={summary} />
-                    <Text fontSize={'20px'} fontWeight={600}>
-                      Weekly Summary
-                    </Text>
-                  </Flex>
-                </GridItem> */}
-
                     <GridItem
-                      rowSpan={1}
-                      colSpan={1}
-                      // p={3}
                       borderBottom={'1px solid #eeeff2'}
                       position="relative"
+                      p={3}
                     >
-                      <Box position="absolute" bottom={2}>
-                        <Text fontSize={14} fontWeight={500} color="text.400">
+                      <Box>
+                        <Text
+                          fontSize={{ base: 'md', md: 'lg' }}
+                          fontWeight={500}
+                          color="text.400"
+                        >
                           Cards studied
                         </Text>
-                        <Text fontSize={'24px'} fontWeight={600}>
+                        <Text
+                          fontSize={{ base: 'xl', md: '2xl' }}
+                          fontWeight={600}
+                        >
                           {studentReport.studiedFlashcards}
                           <span
                             style={{
-                              fontSize: '14px',
+                              fontSize: 14,
                               fontWeight: '400',
                               color: '#6e7682'
                             }}
@@ -357,23 +411,27 @@ export default function Index() {
                     </GridItem>
 
                     <GridItem
-                      rowSpan={1}
-                      colSpan={1}
-                      // p={3}
                       borderBottom={'1px solid #eeeff2'}
                       position="relative"
+                      p={3}
                     >
-                      <Box position="absolute" bottom={2}>
-                        <Text fontSize={14} fontWeight={500} color="text.400">
+                      <Box>
+                        <Text
+                          fontSize={{ base: 'md', md: 'lg' }}
+                          fontWeight={500}
+                          color="text.400"
+                        >
                           Time studied
                         </Text>
-
                         <Flex gap={1}>
-                          <Text fontSize={'24px'} fontWeight={600}>
+                          <Text
+                            fontSize={{ base: 'xl', md: '2xl' }}
+                            fontWeight={600}
+                          >
                             05
                             <span
                               style={{
-                                fontSize: '14px',
+                                fontSize: 12,
                                 fontWeight: '400',
                                 color: '#6e7682'
                               }}
@@ -382,11 +440,14 @@ export default function Index() {
                               hrs
                             </span>
                           </Text>{' '}
-                          <Text fontSize={'24px'} fontWeight={600}>
+                          <Text
+                            fontSize={{ base: 'xl', md: '2xl' }}
+                            fontWeight={600}
+                          >
                             30
                             <span
                               style={{
-                                fontSize: '14px',
+                                fontSize: 14,
                                 fontWeight: '400',
                                 color: '#6e7682'
                               }}
@@ -400,9 +461,15 @@ export default function Index() {
                     </GridItem>
                   </Grid>
                   <Grid
-                    h="190px"
-                    templateRows="repeat(1, 1fr)"
-                    templateColumns="repeat(2, 1fr)"
+                    h={{ base: 'auto', md: '190px' }}
+                    templateRows={{
+                      base: 'repeat(2, 1fr)',
+                      md: 'repeat(1, 1fr)'
+                    }}
+                    templateColumns={{
+                      base: 'repeat(1, 1fr)',
+                      md: 'repeat(2, 1fr)'
+                    }}
                     gap={0}
                   >
                     <GridItem rowSpan={1} colSpan={1} p={3}>
@@ -571,6 +638,7 @@ export default function Index() {
               height={'380px'}
               p={2}
               position="relative"
+              marginBottom={{ base: '26px', md: '0' }}
             >
               <Text fontSize={'20px'} fontWeight={600}>
                 Quiz Performance
@@ -610,6 +678,7 @@ export default function Index() {
               borderRadius={'14px'}
               p={3}
               height="450px"
+              marginBottom={{ base: '26px', md: ' 0' }}
             >
               <ActivityFeeds feeds={feeds} userType="Student" />
             </Box>
@@ -628,7 +697,7 @@ export default function Index() {
               py={2}
               height="450px"
             >
-              <Schedule />
+              <Schedule events={calendarEventData} />
             </Box>
           </GridItem>
         </Grid>

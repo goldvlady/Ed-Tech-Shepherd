@@ -26,6 +26,13 @@ class ApiService {
     });
   };
 
+  static storeFlashcardTags = (flashcardId: string, tags: string[]) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeFlashcardTags`, {
+      method: 'POST',
+      body: JSON.stringify({ flashcardId, tags })
+    });
+  };
+
   static scheduleStudyEvent = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/scheduleStudyEvent`, {
       method: 'POST',
@@ -284,6 +291,10 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/getStudentReport`);
   };
 
+  static getCalendarEvents = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getCalenderEvents`);
+  };
+
   // Get All Tutor Clients
   static getTutorClients = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getTutorClients`);
@@ -346,8 +357,15 @@ class ApiService {
     });
   };
 
+  static updateNoteTags = async (id: string | number, data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/updateNoteTags/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+  };
+
   static deleteNote = async (id: string | number) => {
-    return doFetch(`${ApiService.baseEndpoint}/deleteNote?id=${id}`, {
+    return doFetch(`${ApiService.baseEndpoint}/deleteNote/${id}`, {
       method: 'DELETE'
     });
   };

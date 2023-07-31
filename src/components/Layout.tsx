@@ -2,7 +2,7 @@ import { classNames } from '../helpers';
 import tutorStore from '../state/tutorStore';
 import userStore from '../state/userStore';
 import Notifications from '../views/Dashboard/components/Notifications';
-import PlanSwitchModal from './PlanSwitchModal';
+import ProfileSwitchModal from './ProfileSwitchModal';
 import {
   DashboardIcon,
   OffersIcon,
@@ -87,7 +87,8 @@ export default function Layout({ children, className }) {
   const [helpModal, setHelpModal] = useState(false);
   const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [togglePlanSwitchModal, setTogglePlanSwitchModal] = useState(false);
+  const [toggleProfileSwitchModal, setToggleProfileSwitchModal] =
+    useState(false);
 
   const [navigation, setNavigation] =
     useState<NavigationItem[]>(dummyNavigation);
@@ -101,8 +102,8 @@ export default function Layout({ children, className }) {
     fetchNotifications();
   }, []);
 
-  const activatePlanSwitchModal = () => {
-    setTogglePlanSwitchModal(true);
+  const activateProfileSwitchModal = () => {
+    setToggleProfileSwitchModal(true);
   };
   const pathname = location.pathname;
 
@@ -493,7 +494,7 @@ export default function Layout({ children, className }) {
                         </Flex>
                       </Link>
                     </MenuItem>
-                    <MenuItem p={2} m={1} onClick={activatePlanSwitchModal}>
+                    <MenuItem p={2} m={1} onClick={activateProfileSwitchModal}>
                       <Flex alignItems="center" gap={2}>
                         <Center
                           borderRadius="50%"
@@ -583,9 +584,9 @@ export default function Layout({ children, className }) {
           />
         </Dialog>
       </Transition.Root>
-      <PlanSwitchModal
-        togglePlanSwitchModal={togglePlanSwitchModal}
-        setTogglePlanSwitchModal={setTogglePlanSwitchModal}
+      <ProfileSwitchModal
+        toggleProfileSwitchModal={toggleProfileSwitchModal}
+        setToggleProfileSwitchModal={setToggleProfileSwitchModal}
       />
       {/* Help Modal */}
       <Transition.Root show={helpModal} as={Fragment}>

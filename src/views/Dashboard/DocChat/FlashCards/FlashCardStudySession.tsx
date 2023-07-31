@@ -1,5 +1,5 @@
-import { ReactComponent as StudyIcon } from '../../../assets/studyIcon.svg';
-import CustomButton from '../../../components/CustomComponents/CustomButton';
+import { ReactComponent as StudyIcon } from '../../../../assets/studyIcon.svg';
+import CustomButton from '../../../../components/CustomComponents/CustomButton';
 import { StudyContainer, StudyFirstLayer } from '../styles';
 import React from 'react';
 

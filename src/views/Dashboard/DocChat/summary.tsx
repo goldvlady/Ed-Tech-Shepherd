@@ -1,9 +1,9 @@
-import { ReactComponent as CopyIcn } from '../../assets/copy.svg';
-import { ReactComponent as DeleteIcn } from '../../assets/deleteIcn.svg';
-import { ReactComponent as EditIcn } from '../../assets/editIcn.svg';
-import { ReactComponent as GenerateIcn } from '../../assets/generateIcn.svg';
-import { ReactComponent as SummaryIcn } from '../../assets/summaryIcn1.svg';
-import CustomButton from '../../components/CustomComponents/CustomButton';
+import { ReactComponent as CopyIcn } from '../../../assets/copy.svg';
+import { ReactComponent as DeleteIcn } from '../../../assets/deleteIcn.svg';
+import { ReactComponent as EditIcn } from '../../../assets/editIcn.svg';
+import { ReactComponent as GenerateIcn } from '../../../assets/generateIcn.svg';
+import { ReactComponent as SummaryIcn } from '../../../assets/summaryIcn1.svg';
+import CustomButton from '../../../components/CustomComponents/CustomButton';
 import {
   EmptyStateContainer,
   IconContainer,

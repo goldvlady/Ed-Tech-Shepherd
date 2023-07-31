@@ -63,3 +63,38 @@ export const chatWithDoc = async ({
 
   return request;
 };
+
+export const createDocchatFlashCards = async (data: any) => {
+  const request = await fetch(`${AI_API}/flash-cards/generate-from-notes`, {
+    method: 'POST',
+    headers: {
+      'x-shepherd-header': HEADER_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
+
+  return request;
+};
+
+export const chatHomeworkHelp = async ({
+  query,
+  studentId
+}: {
+  studentId: string;
+  query: string;
+}) => {
+  const request = await fetch(`${AI_API}/homework-help/chat`, {
+    method: 'POST',
+    headers: {
+      'x-shepherd-header': HEADER_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      query,
+      studentId
+    })
+  });
+
+  return request;
+};

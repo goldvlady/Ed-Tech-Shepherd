@@ -4,8 +4,8 @@ import {
   SecurityTab,
   PaymentTab,
   NotificationsTab
-} from '../components';
-import { classNames } from '../helpers';
+} from '../../components';
+import { classNames } from '../../helpers';
 import { Text } from '@chakra-ui/react';
 import { Tab } from '@headlessui/react';
 import React, { Fragment } from 'react';

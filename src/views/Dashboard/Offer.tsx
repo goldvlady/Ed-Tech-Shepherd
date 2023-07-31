@@ -1,18 +1,20 @@
 import ChoosePaymentMethodDialog, {
   ChoosePaymentMethodDialogRef
-} from '../components/ChoosePaymentMethodDialog';
-import LinedList from '../components/LinedList';
-import PageTitle from '../components/PageTitle';
-import Panel from '../components/Panel';
-import PaymentDialog, { PaymentDialogRef } from '../components/PaymentDialog';
-import StripeCheckoutForm from '../components/StripeCheckoutForm';
-import TutorCard from '../components/TutorCard';
-import { useTitle } from '../hooks';
-import ApiService from '../services/ApiService';
-import userStore from '../state/userStore';
-import theme from '../theme';
-import { Course, Offer as OfferType, PaymentMethod } from '../types';
-import { ServiceFeePercentage, numberToDayOfWeekName } from '../util';
+} from '../../components/ChoosePaymentMethodDialog';
+import LinedList from '../../components/LinedList';
+import PageTitle from '../../components/PageTitle';
+import Panel from '../../components/Panel';
+import PaymentDialog, {
+  PaymentDialogRef
+} from '../../components/PaymentDialog';
+import StripeCheckoutForm from '../../components/StripeCheckoutForm';
+import TutorCard from '../../components/TutorCard';
+import { useTitle } from '../../hooks';
+import ApiService from '../../services/ApiService';
+import userStore from '../../state/userStore';
+import theme from '../../theme';
+import { Course, Offer as OfferType, PaymentMethod } from '../../types';
+import { ServiceFeePercentage, numberToDayOfWeekName } from '../../util';
 import {
   Alert,
   AlertDescription,

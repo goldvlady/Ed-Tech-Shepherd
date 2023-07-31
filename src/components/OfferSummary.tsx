@@ -33,7 +33,7 @@ const OfferSummary: FC<OfferSummaryProps> = ({
         <div className="mt-3 text-center sm:mt-5">
           <div className="mt-2">
             <Text className="text-sm text-gray-500">
-              Respond to the offer before it expiresd
+              Respond to the offer before it expires
             </Text>
           </div>
         </div>

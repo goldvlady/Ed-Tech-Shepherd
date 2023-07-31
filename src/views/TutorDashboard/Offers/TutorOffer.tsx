@@ -5,10 +5,13 @@ import {
   AcceptOfferModal,
   DeclineOfferModal,
   DetailsCard
-} from '../components';
+} from '../../../components';
+import ApiService from '../../../services/ApiService';
 import { Box, Container, Heading, Text, Grid } from '@chakra-ui/react';
 import { useDisclosure } from '@chakra-ui/react';
-import React, { Fragment, useState } from 'react';
+import moment from 'moment';
+import React, { Fragment, useState, useCallback, useEffect } from 'react';
+import { useParams } from 'react-router';
 
 export default function Offer() {
   const {
@@ -22,6 +25,21 @@ export default function Offer() {
     onOpen: onOpenDeclineModal,
     onClose: onCloseDeclineModal
   } = useDisclosure();
+  const { id } = useParams();
+
+  const [offer, setOffer] = useState<any>([]);
+  const doFetchTutorOffer = useCallback(async (id) => {
+    const response = await ApiService.getOffer(id);
+    const resp = await response.json();
+    setOffer(resp);
+    /* eslint-disable */
+  }, []);
+
+  useEffect(() => {
+    doFetchTutorOffer(id);
+  }, [doFetchTutorOffer]);
+  console.log('lork', offer);
+
   return (
     <>
       <Layout className="px-4 bg-white">
@@ -54,12 +72,14 @@ export default function Offer() {
             />
 
             <DetailsCard
-              name="Liam Kelly"
-              avatarSrc="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-              offerExpires="June 10, 2023"
-              subjectLevel="Mathematics - A-Level"
+              name={`${offer.student?.user?.name?.first} ${offer.student?.user?.name?.last}`}
+              avatarSrc={offer.student?.user?.avatar}
+              offerExpires={moment(offer.expirationDate).format(
+                'MMMM DD, YYYY'
+              )}
+              subjectLevel={`${offer.course?.label} - ${offer.level?.label}`}
               availability="Mon, Tue, Wed"
-              note="Consequat luctus morbi suspendisse eu quis diam eleifend orci aliquet. Facilisi in lorem ultricies ligula arcu odio"
+              note={offer.note}
               hourlyRate="$25.00/hr"
               serviceFee="5% service fee (-$3.00/hr)"
               finalRate="$22.00/hr"
@@ -79,10 +99,11 @@ export default function Offer() {
       />
 
       {/* Decline Offer Modal */}
-      {/* <DeclineOfferModal
-        isOpen={isOpenDeclineModal}
+      <DeclineOfferModal
+        isOpen={onOpenDeclineModal}
+        declineOfferModalState={isOpenDeclineModal}
         onClose={onCloseDeclineModal}
-      /> */}
+      />
     </>
   );
 }

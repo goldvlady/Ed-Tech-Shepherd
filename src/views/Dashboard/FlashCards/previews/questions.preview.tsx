@@ -15,7 +15,12 @@ export default function QuestionsPreview({
   onConfirm: () => void;
   isLoading: boolean;
 }) {
-  const { questions, deleteQuestion, goToQuestion } = useFlashCardState();
+  const { questions, deleteQuestion, goToQuestion, currentQuestionIndex } =
+    useFlashCardState();
+
+  const findQuestionIndex = (question: string) => {
+    return questions.findIndex((que) => que.question === question);
+  };
 
   const generateOptions = (questionType: string, options?: string[]) => {
     if (questionType === 'trueFalse') {
@@ -144,6 +149,9 @@ export default function QuestionsPreview({
             .filter((question) => question.question)
             .map((question, index: number) => (
               <QuestionReviewCard
+                isCurrentQuestion={
+                  currentQuestionIndex === findQuestionIndex(question.question)
+                }
                 onEdit={() => goToQuestion(index)}
                 onDelete={() => deleteQuestion(index)}
                 index={index}

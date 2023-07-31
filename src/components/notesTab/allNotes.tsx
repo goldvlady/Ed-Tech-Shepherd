@@ -1,3 +1,4 @@
+import { NoteDetails } from '../../views/Dashboard/Notes/types';
 import CustomModal from '../CustomComponents/CustomModal';
 import {
   DownloadIcon,
@@ -13,7 +14,8 @@ import {
   ChevronRightIcon,
   MagnifyingGlassIcon
 } from '@heroicons/react/24/solid';
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import moment from 'moment';
+import React, { FC, useLayoutEffect, useRef, useState } from 'react';
 import { FaEllipsisH } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
@@ -25,32 +27,32 @@ interface Client {
   last_modified: string;
 }
 
-const getNotes = JSON.parse(localStorage.getItem('notes') as string) || [];
-
-const clients: Client[] = getNotes;
-
 type DataSourceItem = {
   key: number;
   title: string;
   dateCreated: string;
   lastModified: string;
   tags: string;
-  id: number;
+  id: string | number;
 };
 
-const dataSource: DataSourceItem[] = Array.from(
-  { length: getNotes?.length },
-  (_, i) => ({
-    key: i,
-    id: clients[i]?.id,
-    title: clients[i]?.title,
-    tags: clients[i]?.tags,
-    dateCreated: clients[i]?.date_created, // current date in yyyy-mm-dd format
-    lastModified: clients[i]?.last_modified // current date in yyyy-mm-dd format
-  })
-);
+export interface Props {
+  data: Array<NoteDetails>;
+}
 
-const AllNotesTab = () => {
+const formatTags = (tags: any): string => {
+  if (tags || !Array.isArray(tags)) {
+    return '';
+  }
+  // format tags and return
+  // TODO: create a tag styling and attache
+  return tags.join(' ');
+};
+const formatDate = (date: Date, format = 'DD ddd, hh:mma'): string => {
+  return moment(date).format(format);
+};
+
+const AllNotesTab: FC<Props> = ({ data }) => {
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
   const [, setDeleteAllNotesModal] = useState(false);
   const checkbox = useRef<HTMLInputElement>(null);
@@ -61,10 +63,22 @@ const AllNotesTab = () => {
   const [openTags, setOpenTags] = useState<boolean>(false);
   const navigate = useNavigate();
 
+  const dataSource: DataSourceItem[] = Array.from(
+    { length: data.length },
+    (_, i) => ({
+      key: i,
+      id: data[i]?._id,
+      title: data[i]?.topic,
+      tags: formatTags(data[i]?.tags),
+      dateCreated: formatDate(data[i]?.createdAt), // current date in yyyy-mm-dd format
+      lastModified: formatDate(data[i]?.updatedAt) // current date in yyyy-mm-dd format
+    })
+  );
+
   useLayoutEffect(() => {
     const isIndeterminate =
-      selectedPeople.length > 0 && selectedPeople.length < clients.length;
-    setChecked(selectedPeople.length === clients.length);
+      selectedPeople.length > 0 && selectedPeople.length < data.length;
+    setChecked(selectedPeople.length === data.length);
     setIndeterminate(isIndeterminate);
     if (checkbox.current) {
       checkbox.current.indeterminate = isIndeterminate;
@@ -72,7 +86,7 @@ const AllNotesTab = () => {
   }, [selectedPeople]);
 
   function toggleAll() {
-    setSelectedPeople(checked || indeterminate ? [] : clients);
+    setSelectedPeople(checked || indeterminate ? [] : data);
     setChecked(!checked && !indeterminate);
     setIndeterminate(false);
   }
@@ -82,34 +96,45 @@ const AllNotesTab = () => {
     setClientDetails(noteDetails);
   };
 
+  const gotoEditNote = (noteId: string | number) => {
+    const noteURL = `/dashboard/new-note/${noteId}`;
+    if (noteId && noteId !== '') {
+      navigate(noteURL);
+    }
+  };
+
   const clientColumn: TableColumn<DataSourceItem>[] = [
     {
       key: 'title',
       title: 'Title',
       dataIndex: 'title',
       align: 'left',
-      render: ({ title }) => (
+      id: 0,
+      render: ({ title, id }) => (
         <>
           <img
+            onClick={() => gotoEditNote(id)}
             src="/svgs/text-document.svg"
             className="text-gray-400 absolute"
             alt=""
           />
-          <Text fontWeight="500">{title}</Text>
+          <Text onClick={() => gotoEditNote(id)} fontWeight="500">
+            {title}
+          </Text>
         </>
       )
-    },
-    {
-      key: 'dateCreated',
-      title: 'Date Created',
-      dataIndex: 'dateCreated',
-      align: 'left',
-      id: 1
     },
     {
       key: 'tags',
       title: 'Tags',
       dataIndex: 'tags',
+      align: 'left',
+      id: 1
+    },
+    {
+      key: 'dateCreated',
+      title: 'Date Created',
+      dataIndex: 'dateCreated',
       align: 'left',
       id: 2
     },
@@ -385,7 +410,7 @@ const AllNotesTab = () => {
       >
         <DeleteNoteModal
           title={clientsDetails}
-          deleteNoteModal={deleteNoteModal}
+          // deleteNoteModal={deleteNoteModal}
           setDeleteNoteModal={setDeleteNoteModal}
         />
       </CustomModal>
