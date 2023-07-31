@@ -288,6 +288,10 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/getCalenderEvents`);
   };
 
+  static getUpcomingEvent = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getUpcomingEvent`);
+  };
+
   // Get All Tutor Clients
   static getTutorClients = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getTutorClients`);

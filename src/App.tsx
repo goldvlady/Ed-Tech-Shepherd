@@ -167,20 +167,19 @@ const RenderLayout = () => {
   const matchedRoute = useRoutes(userRoutes.both);
 
   const isStudentRoute = studentRoutes.some(
-    (route) => route.path === matchedRoute?.props?.path
+    (route) => route.path === matchedRoute?.props?.match?.route?.path
   );
   const isTutorRoute = tutorRoutes.some(
-    (route) => route.path === matchedRoute?.props?.path
+    (route) => route.path === matchedRoute?.props?.match?.route?.path
   );
 
-  if (isStudentRoute || (!isStudentRoute && !isTutorRoute)) {
+  if (isStudentRoute) {
     return userLayouts.student;
   } else if (isTutorRoute) {
     return userLayouts.tutor;
+  } else {
+    return <Navigate to="/404" />;
   }
-
-  // If no matching route is found, redirect to a default page (e.g., 404)
-  return <Navigate to="/404" />;
 };
 
 const AppRoutes: React.FC = () => {

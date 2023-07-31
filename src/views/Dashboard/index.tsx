@@ -18,6 +18,7 @@ import { numberToDayOfWeekName, twoDigitFormat } from '../../util';
 import { Section, SectionNewList, NewList } from './Notes/styles';
 import ActivityFeeds from './components/ActivityFeeds';
 import Carousel from './components/Carousel';
+import HourReminder from './components/HourReminder';
 import { PerformanceChart } from './components/PerformanceChart';
 import Schedule from './components/Schedule';
 import WeeklySummary from './components/WeeklySummary';
@@ -71,10 +72,6 @@ export default function Index() {
     twoDigitFormat(date.getHours()) + ':' + twoDigitFormat(date.getMinutes());
   const hours = date.getHours();
   const isDayTime = hours > 6 && hours < 20;
-  const timeStudied = (totalWeeklyStudyTime) => {
-    const [hours, minutes] = totalWeeklyStudyTime.split(':');
-    return { hour: hours, minute: minutes };
-  };
 
   const { user } = userStore();
   const { feeds, fetchFeeds } = feedsStore();
@@ -82,6 +79,8 @@ export default function Index() {
   const [studentReport, setStudentReport] = useState<any>('');
   const [chartData, setChartData] = useState<any>('');
   const [calendarEventData, setCalendarEventData] = useState<any>([]);
+  const [upcomingEvent, setUpcomingEvent] = useState<any>(null);
+  const [isWithinOneHour, setIsWithinOneHour] = useState<boolean>(false);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -89,19 +88,26 @@ export default function Index() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [studentReportResponse, calendarResponse, feedsResponse] =
-        await Promise.all([
-          ApiService.getStudentReport(),
-          ApiService.getCalendarEvents(),
-          fetchFeeds()
-        ]);
+      const [
+        studentReportResponse,
+        calendarResponse,
+        upcomingEventResponse,
+        feedsResponse
+      ] = await Promise.all([
+        ApiService.getStudentReport(),
+        ApiService.getCalendarEvents(),
+        ApiService.getUpcomingEvent(),
+        fetchFeeds()
+      ]);
 
       const studentReportData = await studentReportResponse.json();
       const calendarData = await calendarResponse.json();
+      const nextEvent = await upcomingEventResponse.json();
 
       setStudentReport(studentReportData);
       setChartData(studentReportData.chartData);
       setCalendarEventData(calendarData.data);
+      setUpcomingEvent(nextEvent);
       // setFeeds(feedsResponse);
     } catch (error) {
       /* empty */
@@ -113,6 +119,26 @@ export default function Index() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const checkTimeDifference = () => {
+    const currentTime = new Date().getTime();
+    const startTime = new Date(upcomingEvent.data?.data?.startDate).getTime();
+    const oneHourInMilliseconds = 60 * 60 * 1000;
+
+    if (startTime - currentTime <= oneHourInMilliseconds) {
+      setIsWithinOneHour(true);
+    } else {
+      setIsWithinOneHour(false);
+    }
+  };
+  useEffect(() => {
+    if (upcomingEvent) {
+      checkTimeDifference();
+      const timeout = setTimeout(checkTimeDifference, 60 * 1000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [upcomingEvent]);
 
   const createNewLists = [
     {
@@ -157,116 +183,13 @@ export default function Index() {
       />
 
       <Box p={5} maxWidth="80em" margin="auto">
-        <Box
-          bgColor={'#FFF5F0'}
-          py={2}
-          px={7}
-          pb={2}
-          borderRadius={8}
-          mb={4}
-          textAlign="center"
-        >
-          <Flex alignItems={'center'}>
-            <Box display="flex">
-              <Text
-                textTransform={'uppercase'}
-                color="#4CAF50"
-                fontSize={10}
-                bgColor="rgba(191, 227, 193, 0.4)"
-                borderRadius="3px"
-                px={2}
-                py={1}
-                mr={10}
-              >
-                Chemistry Lesson
-              </Text>
-              <Text color="text.400" fontSize={14}>
-                Upcoming class with Leslie Peters starts
-              </Text>
-              <Text fontSize={14} fontWeight={500} color="#F53535" ml={10}>
-                03:30 pm
-              </Text>
-            </Box>
+        {upcomingEvent && isWithinOneHour && (
+          <HourReminder
+            data={upcomingEvent}
+            sessionPrefaceDialogRef={sessionPrefaceDialogRef}
+          />
+        )}
 
-            <Spacer />
-            <Box>
-              {' '}
-              <Button
-                variant="unstyled"
-                bgColor="#fff"
-                color="#5C5F64"
-                fontSize={12}
-                px={2}
-                py={0}
-                onClick={() =>
-                  sessionPrefaceDialogRef.current?.open('http://google.com')
-                }
-              >
-                Join Lesson
-              </Button>
-            </Box>
-          </Flex>
-          {/* <Flex
-            alignItems={'center'}
-            direction={{ base: 'column', md: 'row' }}
-            justifyContent={{ base: 'center', md: 'space-between' }}
-          >
-            <Box
-              display="flex"
-              flexDirection={{ base: 'column', md: 'row' }}
-              alignItems={{ base: 'center', md: 'flex-start' }}
-              mb={{ base: 4, md: 0 }}
-            >
-              <Text
-                textTransform={'uppercase'}
-                color="#4CAF50"
-                fontSize={{ base: 'sm', md: 'md' }}
-                bgColor="rgba(191, 227, 193, 0.4)"
-                borderRadius="3px"
-                px={2}
-                py={1}
-                mr={{ base: 0, md: 10 }}
-                mb={{ base: 2, md: 0 }}
-                textAlign={{ base: 'center', md: 'left' }}
-              >
-                Chemistry Lesson
-              </Text>
-              <Text
-                color="text.400"
-                fontSize={{ base: 'sm', md: 'md' }}
-                textAlign={{ base: 'center', md: 'left' }}
-              >
-                Upcoming class with Leslie Peters starts
-              </Text>
-              <Text
-                fontSize={{ base: 'sm', md: 'md' }}
-                fontWeight={500}
-                color="#F53535"
-                ml={{ base: 0, md: 10 }}
-                mt={{ base: 2, md: 0 }}
-                textAlign={{ base: 'center', md: 'left' }}
-              >
-                03:30 pm
-              </Text>
-            </Box>
-
-            <Box>
-              <Button
-                variant="unstyled"
-                bgColor="#fff"
-                color="#5C5F64"
-                fontSize={{ base: 'sm', md: 'md' }}
-                px={2}
-                py={0}
-                onClick={() =>
-                  sessionPrefaceDialogRef.current?.open('http://google.com')
-                }
-              >
-                Join Lesson
-              </Button>
-            </Box>
-          </Flex> */}
-        </Box>
         <Box mb={8}>
           <Text fontSize={24} fontWeight="bold" mb={1}>
             Hi {user?.name.first}, Welcome back!

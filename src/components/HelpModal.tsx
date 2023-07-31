@@ -55,7 +55,8 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
       showModal: true,
       description:
         'Want to make the most of your notes? Chat with them via Shepherd and uncover insights to boost your grasp ',
-      imageURL: '/images/notes-navigator.svg'
+      imageURL: '/images/notes-navigator.svg',
+      onClick: () => handleShowSelected()
     },
     {
       id: 3,
@@ -162,9 +163,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
                         {actions1.map((action) => (
                           <div
                             key={action.title}
-                            onClick={() => {
-                              if (action.showModal) handleShowSelected();
-                            }}
+                            onClick={action.onClick}
                             className="group cursor-pointer relative transform  bg-white border-1 rounded-lg  border-gray-300 p-4 hover:border-blue-500  focus:border-blue-500"
                           >
                             <div>
