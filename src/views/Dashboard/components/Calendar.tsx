@@ -1,6 +1,6 @@
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
-import React, { useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Slider from 'react-slick';
 
 type CalendarProps = {
@@ -10,6 +10,7 @@ type CalendarProps = {
 };
 
 const Calendar: React.FC<CalendarProps> = ({ year, month, onDayClick }) => {
+  const sliderRef = useRef<Slider | null>(null);
   const [initialSlide, setInitialSlide] = useState<number>(0);
   const [selectedDay, setSelectedDay] = useState<number | null>(
     new Date().getDate()
@@ -17,7 +18,8 @@ const Calendar: React.FC<CalendarProps> = ({ year, month, onDayClick }) => {
   const handleDayClick = (day: number) => {
     const selectedDate = new Date(year, month, day);
     setSelectedDay(day);
-    onDayClick(selectedDate); // Pass the selected date to the parent component
+
+    onDayClick(selectedDate);
   };
   const getDaysInMonth = (year: number, month: number) => {
     return new Date(year, month + 1, 0).getDate();
@@ -103,11 +105,23 @@ const Calendar: React.FC<CalendarProps> = ({ year, month, onDayClick }) => {
     ]
   };
 
+  const isMounted = useRef(false);
+
+  useEffect(() => {
+    if (!isMounted.current) {
+      isMounted.current = true;
+      return;
+    }
+
+    setSelectedDay(null);
+  }, [month]);
+
   return (
     <>
-      <Text fontSize={12} color="#6E7682" ml={4} mt={1} fontWeight={400}>
+      <Text fontSize={12} fontWeight={500} ml={4} mt={1} color="#6E7682">
         {getMonthName(month)}
       </Text>
+
       <Box px={6}>
         {' '}
         <Slider {...settings}>
