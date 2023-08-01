@@ -88,7 +88,6 @@ export const CircleContainer = styled.div`
   height: 5rem;
   width: 4.5rem;
   flex-shrink: 0;
-  background-color: #ffad3b;
   padding: 0.5rem;
   display: flex;
   justify-content: center;
