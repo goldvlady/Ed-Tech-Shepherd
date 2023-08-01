@@ -32,24 +32,10 @@ const ProfileSwitchModal = ({
   setToggleProfileSwitchModal,
   toggleProfileSwitchModal
 }: ToggleProps) => {
+  const { user, fetchUser } = userStore();
   const [currentPlan, setCurrentPlan] = useState('Basic');
   const [selectedProfile, setSelectedProfile] = useState('');
-  const [userType, setUserType] = useState<any>();
-
-  // const { user, fetchUser } = userStore();
-
-  // const doFetchUser = useCallback(async () => {
-  //   console.log('Here');
-  //   const response = await ApiService.getUser();
-  //   const respJson = await response.json();
-
-  //   setUserType(respJson.type);
-  //   /* eslint-disable */
-  // }, []);
-
-  // useEffect(() => {
-  //   doFetchUser();
-  // }, [doFetchUser]);
+  const [userType, setUserType] = useState<any>(user?.type);
 
   const handleClose = () => {
     setToggleProfileSwitchModal(false);
