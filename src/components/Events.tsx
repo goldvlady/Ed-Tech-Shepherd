@@ -63,9 +63,9 @@ export default function Events({ event }: any) {
               )}
             </Text>
             <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
-              <span>{extractTime(event.startDate)}</span>
+              <span>{extractTime(event.data.startDate)}</span>
               <ChevronRightIcon className="w-4 h-4" />
-              <span>{extractTime(event.endDate)}</span>
+              <span>{extractTime(event.data.endDate)}</span>
             </Text>
           </div>
         </div>

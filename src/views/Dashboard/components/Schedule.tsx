@@ -24,6 +24,7 @@ import {
   extendTheme
 } from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
+import { FiChevronDown } from 'react-icons/fi';
 
 // const events = [
 //   {
@@ -107,14 +108,19 @@ import React, { useState, useEffect } from 'react';
 // ];
 
 export default function Schedule({ events }) {
-  const [selectedDate, setSelectedDate] = useState<number | null>(
-    new Date().getDate()
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const [selectedMonth, setSelectedMonth] = useState<number>(
+    new Date().getMonth()
   );
 
   const handleDateClick = (date: any) => {
     if (date) {
       setSelectedDate(date);
     }
+  };
+  const handleMonthClick = (month: any) => {
+    setSelectedDate(null);
+    setSelectedMonth(month);
   };
 
   const filteredEvents = selectedDate
@@ -139,6 +145,20 @@ export default function Schedule({ events }) {
     );
   };
 
+  const months = [
+    { value: 0, label: 'January', id: 1 },
+    { value: 1, label: 'February', id: 2 },
+    { value: 2, label: 'March', id: 3 },
+    { value: 3, label: 'April', id: 4 },
+    { value: 4, label: 'May', id: 5 },
+    { value: 5, label: 'June', id: 6 },
+    { value: 6, label: 'July', id: 7 },
+    { value: 7, label: 'August', id: 8 },
+    { value: 8, label: 'September', id: 9 },
+    { value: 9, label: 'October', id: 10 },
+    { value: 10, label: 'November', id: 11 },
+    { value: 11, label: 'December', id: 12 }
+  ];
   return (
     <>
       <Box>
@@ -152,12 +172,40 @@ export default function Schedule({ events }) {
             </Text>{' '}
           </HStack>
           <Spacer />
-          <img src={calendarDrop} alt="schedule-icon" width={45} />{' '}
+          {/* <img src={calendarDrop} alt="schedule-icon" width={45} />{' '} */}
+          <Menu>
+            <MenuButton
+              as={Button}
+              variant="unstyled"
+              fontSize={14}
+              fontWeight={500}
+              color="#5C5F64"
+              mb={2}
+              // h={'32px'}
+            >
+              <Image src={calendarDrop} alt="schedule-icon" width={45} />
+            </MenuButton>
+            <MenuList minWidth={'auto'}>
+              {months.map((month) => (
+                <MenuItem
+                  key={month.id}
+                  _hover={{ bgColor: '#F2F4F7' }}
+                  onClick={() => handleMonthClick(month.value)}
+                >
+                  {month.label}
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Menu>
         </Flex>
         <Divider />{' '}
       </Box>{' '}
       <section className="space-y-2">
-        <Calendar year={2023} month={6} onDayClick={handleDateClick} />
+        <Calendar
+          year={2023}
+          month={selectedMonth}
+          onDayClick={handleDateClick}
+        />
         <Box>
           <Text fontSize={12} fontWeight={400} color="text.400" mb={2} px={4}>
             Upcoming Events
@@ -165,7 +213,7 @@ export default function Schedule({ events }) {
           <Box h="165px" overflowY="auto">
             {' '}
             <ul className="space-y-3">
-              {filteredEvents.length > 0 ? (
+              {selectedDate && filteredEvents.length > 0 ? (
                 filteredEvents.map((event) => (
                   <Events key={event.id} event={event} />
                 ))
@@ -189,7 +237,8 @@ export default function Schedule({ events }) {
           <Box>
             {' '}
             <ul className="space-y-3">
-              {filterTomorrowsEvents().length > 0 ? (
+              {selectedDate?.toDateString() == new Date().toDateString() &&
+              filterTomorrowsEvents().length > 0 ? (
                 filterTomorrowsEvents().map((event) => (
                   <Events key={event.id} event={event} />
                 ))
