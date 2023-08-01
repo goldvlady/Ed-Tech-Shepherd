@@ -4,69 +4,67 @@ import { ReactComponent as EditIcn } from '../../../assets/editIcn.svg';
 import { ReactComponent as GenerateIcn } from '../../../assets/generateIcn.svg';
 import { ReactComponent as SummaryIcn } from '../../../assets/summaryIcn1.svg';
 import CustomButton from '../../../components/CustomComponents/CustomButton';
+import { copierHandler } from '../../../helpers';
 import {
   EmptyStateContainer,
   IconContainer,
   PageCount,
-  SummaryContainer
+  SummaryContainer,
+  SummaryContainer2
 } from './styles';
-import { ChevronRightIcon, ChevronLeftIcon } from '@chakra-ui/icons';
+// import { ChevronRightIcon, ChevronLeftIcon } from '@chakra-ui/icons';
 import React, { useState, useCallback } from 'react';
 
-const Summary = () => {
-  const [getSummaryIndex, setSummaryIndex] = useState<number>(0);
-  const [, setGenerateValue] = useState<any>(null);
+const Summary = ({
+  handleSummary,
+  summaryLoading,
+  summaryTexts,
+  setSummaryText
+}: {
+  handleSummary: () => void;
+  summaryLoading?: boolean;
+  summaryTexts?: string | undefined;
+  setSummaryText?: any;
+}) => {
+  const [isEdit, setEdit] = useState(true);
+  const [copiedView, setCopiedView] = useState(false);
 
-  const onGenerate = useCallback(
-    (event: React.SyntheticEvent<HTMLButtonElement>) => {
-      setGenerateValue(event.target);
-    },
-    []
-  );
+  const onEditToggle = useCallback(() => {
+    setEdit((prevState) => !prevState);
+  }, [setEdit]);
 
-  const summaryTexts = [
-    {
-      id: 1,
-      text: 'Nullam neque consequat risus orci. Purus tempor libero ultricies sed dignissim. Cras ipsum id aliquet faucibus accumsan. Sed amet tellus sapien pretium mauris. Ante quis amet curabitur nibh elementum lacus.'
-    },
-    {
-      id: 2,
-      text: 'Nullam neque consequat risus orci. Purus tempor libero ultricies sed dignissim. Cras ipsum id aliquet faucibus accumsan. Sed amet tellus sapien pretium mauris. Ante quis amet curabitur nibh elementum lacus.'
-    },
-    {
-      id: 3,
-      text: 'Nullam neque consequat risus orci. Purus tempor libero ultricies sed dignissim. Cras ipsum id aliquet faucibus accumsan. Sed amet tellus sapien pretium mauris. Ante quis amet curabitur nibh elementum lacus.'
-    }
-  ];
   return (
     <section>
-      {summaryTexts.length <= 0 && (
+      {!!summaryTexts?.length && (
         <>
           <PageCount>
-            <ChevronLeftIcon />
+            {/* <ChevronLeftIcon />
             {`Page ${1}`}
-            <ChevronRightIcon />
+            <ChevronRightIcon /> */}
           </PageCount>
-          {summaryTexts.map((summaryText) => (
-            <SummaryContainer
-              key={summaryText.id}
-              onClick={() => setSummaryIndex(summaryText.id)}
-            >
-              {getSummaryIndex === summaryText.id && (
-                <IconContainer>
-                  <CopyIcn />
-                  <EditIcn />
-                  <DeleteIcn />
-                </IconContainer>
-              )}
+          <IconContainer>
+            {copiedView ? (
+              <p style={{ fontSize: '.75rem', color: 'rgb(88, 95, 104)' }}>
+                {'Copied!'}
+              </p>
+            ) : (
+              <CopyIcn
+                onClick={() => copierHandler(summaryTexts, setCopiedView)}
+              />
+            )}
 
-              {summaryText.text}
-            </SummaryContainer>
-          ))}
+            <EditIcn onClick={onEditToggle} />
+            <DeleteIcn />
+          </IconContainer>
+          <SummaryContainer2
+            readOnly={isEdit}
+            value={summaryTexts}
+            onChange={(event) => setSummaryText(event.target.value!)}
+          ></SummaryContainer2>
         </>
       )}
 
-      {summaryTexts.length >= 1 && (
+      {!summaryTexts?.length && (
         <EmptyStateContainer>
           <div>
             <SummaryIcn />
@@ -74,10 +72,12 @@ const Summary = () => {
           </div>
           <div>
             <CustomButton
-              onClick={onGenerate}
+              onClick={handleSummary}
               isPrimary
               type="button"
-              title="Generate Summary"
+              title={
+                summaryLoading ? 'Generating Summary...' : 'Generate Summary'
+              }
               icon={<GenerateIcn />}
             />
           </div>

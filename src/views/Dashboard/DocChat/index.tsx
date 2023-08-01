@@ -1,15 +1,22 @@
-import { chatWithDoc } from '../../../services/AI';
+import CustomToast from '../../../components/CustomComponents/CustomToast/index';
+import {
+  chatHistory,
+  chatWithDoc,
+  generateSummary,
+  postGenerateSummary
+} from '../../../services/AI';
 import userStore from '../../../state/userStore';
 import TempPDFViewer from './TempPDFViewer';
 import Chat from './chat';
-import { useEffect, useState, useCallback } from 'react';
+import { useToast } from '@chakra-ui/react';
+import { useEffect, useState, useCallback, useLayoutEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function DocChat() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = userStore();
-  const [response, setResponse] = useState({});
+  const toast = useToast();
   const [llmResponse, setLLMResponse] = useState('');
   const [botStatus, setBotStatus] = useState(
     'Philosopher, thinker, study companion.'
@@ -21,6 +28,8 @@ export default function DocChat() {
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const documentId = location.state.docTitle ?? '';
   const studentId = user?._id ?? '';
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryText, setSummaryText] = useState('');
 
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -60,6 +69,8 @@ export default function DocChat() {
           () => setBotStatus('Philosopher, thinker, study companion.'),
           1000
         );
+
+        // eslint-disable-next-line
         setMessages((prevMessages) => [
           ...prevMessages,
           { text: temp, isUser: false, isLoading: false }
@@ -80,7 +91,7 @@ export default function DocChat() {
         return;
       }
 
-      setShowPrompt(true);
+      setShowPrompt(!!messages?.length);
 
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -90,7 +101,7 @@ export default function DocChat() {
 
       await askLLM({ query: inputValue, studentId, documentId });
     },
-    [inputValue, studentId, documentId]
+    [inputValue, studentId, documentId, messages]
   );
 
   const handleKeyDown = useCallback(
@@ -103,6 +114,87 @@ export default function DocChat() {
     },
     [handleSendMessage]
   );
+
+  const handleSummary = useCallback(
+    async (event: React.SyntheticEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      try {
+        setSummaryLoading(true);
+        const response = await postGenerateSummary({
+          documentId,
+          studentId
+        });
+        setSummaryLoading(false);
+        const reader = response.body?.getReader();
+        //@ts-ignore:convert to a readable text
+        const { value } = await reader.read();
+        const decoder = new TextDecoder('utf-8');
+        const chunk = decoder.decode(value);
+        if (chunk.length) {
+          const response = await generateSummary({
+            documentId,
+            studentId
+          });
+          setSummaryText(response?.summary);
+        }
+      } catch (error) {
+        toast({
+          render: () => (
+            <CustomToast
+              title="Failed to fetch chat history..."
+              status="error"
+            />
+          ),
+          position: 'top-right',
+          isClosable: true
+        });
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    const getSummary = async () => {
+      const response = await generateSummary({
+        documentId,
+        studentId
+      });
+      setSummaryText(response?.summary);
+    };
+    getSummary();
+  }, []);
+
+  useLayoutEffect(() => {
+    const fetchChatHistory = async () => {
+      try {
+        const historyData = await chatHistory({
+          documentId,
+          studentId
+        });
+        const mappedData = historyData?.map((item) => ({
+          text: item.content,
+          isUser: item.role === 'user',
+          isLoading: false
+        }));
+
+        setMessages((prevMessages) => [...prevMessages, ...mappedData]);
+      } catch (error) {
+        toast({
+          render: () => (
+            <CustomToast
+              title="Failed to fetch chat history..."
+              status="error"
+            />
+          ),
+          position: 'top-right',
+          isClosable: true
+        });
+      }
+    };
+    fetchChatHistory();
+  }, [documentId, studentId, toast]);
+
+  useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
 
   useEffect(() => {
     if (!location.state?.documentUrl) navigate('/dashboard/notes');
@@ -125,6 +217,10 @@ export default function DocChat() {
             handleInputChange={handleInputChange}
             inputValue={inputValue}
             handleKeyDown={handleKeyDown}
+            handleSummary={handleSummary}
+            summaryLoading={summaryLoading}
+            summaryText={summaryText}
+            setSummaryText={setSummaryText}
           />
         </div>
       </section>

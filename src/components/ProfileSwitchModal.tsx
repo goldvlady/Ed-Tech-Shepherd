@@ -1,3 +1,4 @@
+import ApiService from '../services/ApiService';
 import userStore from '../state/userStore';
 import { CustomButton } from '../views/Dashboard/layout';
 import { StarIcon } from './icons';
@@ -5,6 +6,7 @@ import { SelectedNoteModal } from './index';
 import {
   Avatar,
   Box,
+  Button,
   Flex,
   Stack,
   Text,
@@ -16,8 +18,9 @@ import {
 import { Transition, Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { getAuth } from 'firebase/auth';
-import { Fragment, useState, useEffect } from 'react';
+import { Fragment, useState, useEffect, useCallback } from 'react';
 import { PiCheckCircleFill } from 'react-icons/pi';
+import { useNavigate } from 'react-router';
 import Typewriter from 'typewriter-effect';
 
 interface ToggleProps {
@@ -29,53 +32,13 @@ const ProfileSwitchModal = ({
   setToggleProfileSwitchModal,
   toggleProfileSwitchModal
 }: ToggleProps) => {
-  const [showSelected, setShowSelected] = useState(false);
+  const { user, fetchUser } = userStore();
   const [currentPlan, setCurrentPlan] = useState('Basic');
-  const { user }: any = userStore();
-
-  const actions1 = [
-    {
-      id: 0,
-      title: 'Basic',
-      price: 0,
-      features: [
-        { id: 1, text: 'Up to 10 flashcard decks' },
-        { id: 2, text: 'Up to 10 flashcard decks' },
-        { id: 3, text: 'Up to 10 flashcard decks' },
-        { id: 4, text: 'Up to 10 flashcard decks' }
-      ]
-    },
-    {
-      id: 1,
-      title: 'Intermediate',
-      price: 10,
-      features: [
-        { id: 1, text: 'Up to 10 flashcard decks' },
-        { id: 2, text: 'Up to 10 flashcard decks' },
-        { id: 3, text: 'Up to 10 flashcard decks' },
-        { id: 4, text: 'Up to 10 flashcard decks' }
-      ]
-    },
-    {
-      id: 2,
-      title: 'Premium',
-      price: 100,
-      showModal: true,
-      features: [
-        { id: 1, text: 'Up to 10 flashcard decks' },
-        { id: 2, text: 'Up to 10 flashcard decks' },
-        { id: 3, text: 'Up to 10 flashcard decks' },
-        { id: 4, text: 'Up to 10 flashcard decks' }
-      ]
-    }
-  ];
+  const [selectedProfile, setSelectedProfile] = useState('');
+  const [userType, setUserType] = useState<any>(user?.type);
 
   const handleClose = () => {
     setToggleProfileSwitchModal(false);
-  };
-
-  const handleShowSelected = () => {
-    setShowSelected(true);
   };
 
   function RadioCard(props) {
@@ -96,7 +59,7 @@ const ProfileSwitchModal = ({
           _checked={{
             bg: 'transparent',
             color: 'white',
-            borderColor: 'rgb(254 215 170 )'
+            borderColor: input.value === 'student' ? '#FED7AA' : '#64a5fa'
           }}
           _focus={{
             boxShadow: 'outline'
@@ -112,14 +75,20 @@ const ProfileSwitchModal = ({
 
   const options = ['Student', 'Tutor'];
 
+  const isDashboardPage = window.location.pathname.includes('/dashboard');
+  const isTutorDashboardPage = window.location.pathname.includes(
+    '/dashboard/tutordashboard'
+  );
+
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: 'framework',
     defaultValue: 'react',
-    onChange: () => {
+    onChange: (value) => {
+      setSelectedProfile(value);
       return;
     }
   });
-
+  const navigate = useNavigate();
   const group = getRootProps();
   return (
     <>
@@ -173,18 +142,32 @@ const ProfileSwitchModal = ({
                         </Box>
                         <Center>
                           <HStack {...group} spacing={'100px'} my={'65px'}>
-                            {options.map((value) => {
-                              const radio = getRadioProps({ value });
-                              return (
-                                <RadioCard key={value} {...radio}>
-                                  <Flex gap={3} p={4} alignItems="center">
-                                    <Avatar
-                                      boxSize="64px"
-                                      color="white"
-                                      name={'Leslie Peters'}
-                                      bg="#4CAF50;"
-                                    />
-                                    <Stack spacing={'2px'}>
+                            {userType &&
+                              userType.map((value) => {
+                                const radio = getRadioProps({ value });
+                                return (
+                                  <RadioCard key={value} {...radio}>
+                                    <Flex gap={3} p={4} alignItems="center">
+                                      <Avatar
+                                        boxSize="64px"
+                                        color="white"
+                                        name={value}
+                                        bg="#4CAF50;"
+                                      />
+                                      <Text
+                                        fontSize="16px"
+                                        fontWeight={500}
+                                        color="text.200"
+                                        textTransform={'capitalize'}
+                                        display={{
+                                          base: 'block',
+                                          sm: 'none',
+                                          md: 'block'
+                                        }}
+                                      >
+                                        {value}
+                                      </Text>
+                                      {/* <Stack spacing={'2px'}>
                                       <Flex>
                                         <Text
                                           fontSize="16px"
@@ -223,15 +206,36 @@ const ProfileSwitchModal = ({
                                       <Text fontSize={14} color="text.400">
                                         lesliepeters@gmial.com
                                       </Text>
-                                    </Stack>
-                                  </Flex>
-                                </RadioCard>
-                              );
-                            })}
+                                    </Stack> */}
+                                    </Flex>
+                                  </RadioCard>
+                                );
+                              })}
                           </HStack>
                         </Center>{' '}
                         <Box ml={6} textAlign="center">
-                          <CustomButton buttonText="Switch" />
+                          <Button
+                            onClick={() =>
+                              navigate(
+                                selectedProfile === 'student'
+                                  ? '/dashboard'
+                                  : '/dashboard/tutordashboard'
+                              )
+                            }
+                            isDisabled={
+                              selectedProfile === '' ||
+                              (window.location.pathname.includes(
+                                '/dashboard/tutordashboard'
+                              ) &&
+                                selectedProfile === 'tutor') ||
+                              (!window.location.pathname.includes(
+                                '/dashboard/tutordashboard'
+                              ) &&
+                                selectedProfile === 'student')
+                            }
+                          >
+                            Switch
+                          </Button>
                         </Box>
                       </Box>
 

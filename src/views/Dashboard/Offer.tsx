@@ -97,6 +97,11 @@ const stripePromise = loadStripe(
 const Offer = () => {
   const { user } = userStore();
   useTitle('Offer');
+  const currentPath = window.location.pathname;
+
+  const isTutor = currentPath.includes('/dashboard/tutordashboard/');
+
+  console.log(user?.type, 'typ', isTutor);
 
   const toast = useToast();
 
@@ -108,7 +113,7 @@ const Offer = () => {
   const choosePaymentDialogRef = useRef<ChoosePaymentMethodDialogRef>(null);
   const [loadingOffer, setLoadingOffer] = useState(false);
   const [settingUpPaymentMethod, setSettingUpPaymentMethod] = useState(false);
-  const [offer, setOffer] = useState<OfferType | null>(null);
+  const [offer, setOffer] = useState<any | null>(null);
   const [acceptingOffer, setAcceptingOffer] = useState(false);
   const [declineNote, setDeclineNote] = useState('');
   const [decliningOffer, setDecliningOffer] = useState(false);
@@ -319,8 +324,9 @@ const Offer = () => {
                             color: theme.colors.text[400]
                           }}
                         >
-                          {offer.student.name.first} {offer.student.name.last}{' '}
-                          has been added to your message list
+                          {offer.student.user.name.first}{' '}
+                          {offer.student.user.name.last}has been added to your
+                          message list
                         </div>
                       </Box>
                     </Box>
@@ -435,7 +441,7 @@ const Offer = () => {
                   <BreadcrumbLink href="#">Review offer</BreadcrumbLink>
                 </BreadcrumbItem>
               </Breadcrumb>
-              {user?.type === 'tutor' && (
+              {isTutor && (
                 <PageTitle
                   marginTop={'28px'}
                   mb={10}
@@ -443,7 +449,7 @@ const Offer = () => {
                   subtitle={`Respond to offer from clients, you may also choose to renegotiate`}
                 />
               )}
-              {user?.type === 'student' && offer.status === 'accepted' && (
+              {!isTutor && offer.status === 'accepted' && (
                 <PageTitle
                   marginTop={'28px'}
                   mb={10}
@@ -455,7 +461,7 @@ const Offer = () => {
                   }
                 />
               )}
-              {user?.type === 'student' && offer.status === 'declined' && (
+              {!isTutor && offer.status === 'declined' && (
                 <PageTitle
                   marginTop={'28px'}
                   mb={10}
@@ -463,7 +469,7 @@ const Offer = () => {
                   subtitle={`Your offer has been declined, choose to update or cancel offer`}
                 />
               )}
-              {user?.type === 'student' && offer.status === 'draft' && (
+              {!isTutor && offer.status === 'draft' && (
                 <PageTitle
                   marginTop={'28px'}
                   mb={10}
@@ -471,7 +477,7 @@ const Offer = () => {
                   subtitle={`You made an offer to ${offer.tutor.user.name.first}`}
                 />
               )}
-              {user?.type === 'student' && offer.status === 'withdrawn' && (
+              {!isTutor && offer.status === 'withdrawn' && (
                 <PageTitle
                   marginTop={'28px'}
                   mb={10}
@@ -480,7 +486,7 @@ const Offer = () => {
                 />
               )}
               <VStack spacing="32px" alignItems={'stretch'}>
-                {user?.type === 'tutor' && (
+                {isTutor && (
                   <Panel display={'flex'}>
                     <Box
                       width={'100%'}
@@ -492,14 +498,14 @@ const Offer = () => {
                         <Avatar
                           width={'45px'}
                           height="45px"
-                          name={`${offer.student.name.first} ${offer.student.name.last}`}
+                          name={`${offer.student.user.name.first} ${offer.student.user.name.last}`}
                         />
                       </Box>
                       <Box flexGrow={1}>
                         <HStack justifyContent={'space-between'}>
                           <Text className="sub2" color={'text.200'} mb={0}>
-                            {capitalize(offer.student.name.first)}{' '}
-                            {capitalize(offer.student.name.last)}
+                            {capitalize(offer.student.user.name.first)}{' '}
+                            {capitalize(offer.student.user.name.last)}
                           </Text>
                         </HStack>
                         <Text
@@ -533,7 +539,7 @@ const Offer = () => {
                     </Box>
                   </Panel>
                 )}
-                {user?.type === 'student' && <TutorCard tutor={offer.tutor} />}
+                {!isTutor && <TutorCard tutor={offer.tutor} />}
                 <Panel>
                   <Text className="sub1" mb={0}>
                     Offer Settings
@@ -583,7 +589,7 @@ const Offer = () => {
                       </Box>
                       <Box>
                         <FormLabel>Level</FormLabel>
-                        <OfferValueText>{offer.level}</OfferValueText>
+                        <OfferValueText>{offer.level.label}</OfferValueText>
                       </Box>
                       <Box>
                         <FormLabel>
@@ -670,7 +676,7 @@ const Offer = () => {
                       </Box>
                     </VStack>
                   </Box>
-                  {user?.type === 'tutor' && (
+                  {isTutor && (
                     <Alert status="info" mt="22px">
                       <AlertIcon>
                         <MdInfo color={theme.colors.primary[500]} />
@@ -682,7 +688,7 @@ const Offer = () => {
                       </AlertDescription>
                     </Alert>
                   )}
-                  {user?.type === 'student' && (
+                  {!isTutor && (
                     <Alert status="info" mt="22px">
                       <AlertIcon>
                         <MdInfo color={theme.colors.primary[500]} />
@@ -739,7 +745,7 @@ const Offer = () => {
         </LeftCol>
         <div className="col-lg-4">
           <RightCol height="100%">
-            {user?.type === 'tutor' && (
+            {isTutor && (
               <VStack
                 gap={'32px'}
                 alignItems="stretch"
@@ -780,7 +786,7 @@ const Offer = () => {
                 )}
               </VStack>
             )}
-            {user?.type === 'student' && (
+            {!isTutor && (
               <VStack
                 gap={'32px'}
                 alignItems="stretch"

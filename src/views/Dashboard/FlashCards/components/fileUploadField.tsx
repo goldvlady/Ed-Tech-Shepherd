@@ -1,13 +1,15 @@
-import { Box, Button, Icon, Text } from '@chakra-ui/react';
-import React, { useRef } from 'react';
+import { Box, Button, Icon, Text, Spinner } from '@chakra-ui/react';
+import React, { useRef, useState } from 'react';
 import { FaUpload } from 'react-icons/fa';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
+  isLoading?: boolean;
 }
 
-const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect }) => {
+const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading }) => {
   const inputFile = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
 
   const onUploadClick = () => {
     inputFile.current?.click();
@@ -17,6 +19,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect }) => {
     const file = event.target?.files?.[0];
     if (file) {
       onFileSelect(file);
+      setFileName(file.name);
     }
   };
 
@@ -47,9 +50,13 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect }) => {
         alignItems={'center'}
         display={'flex'}
       >
-        <Icon color="#9A9DA2" as={FaUpload} />
+        {isLoading ? (
+          <Spinner color="black" />
+        ) : (
+          <Icon color="#9A9DA2" as={FaUpload} />
+        )}
         <Text ml="10px" color="#9A9DA2" fontSize={'14px'}>
-          Upload doc
+          {fileName || 'Upload a file'}
         </Text>
       </Box>
 

@@ -1,4 +1,3 @@
-import UserTypeRoutes from './UserRoutes';
 import TutorDashboardLayout from './components/Layout';
 import resourceStore from './state/resourceStore';
 import userStore from './state/userStore';
@@ -89,14 +88,9 @@ const RequireAuth = ({
       setObtainedUserAuthState(true);
       setFirebaseUser(user);
 
-      if (user) {
-        await fetchUser()
+      if (user && !userData) {
+        fetchUser()
           .then(() => {
-            // navigate(
-            //   userData?.type.includes('tutor')
-            //     ? '/tutordashboard'
-            //     : '/dashboard'
-            // );
             fetchNotifications();
             fetchUserDocuments();
           })
@@ -147,7 +141,7 @@ const tutorRoutes = [
   { path: 'tutordashboard', element: <TutorDashboard /> },
   { path: 'tutordashboard/clients', element: <Clients /> },
   { path: 'tutordashboard/offers', element: <TutorOffers /> },
-  { path: 'tutordashboard/offers/:id', element: <TutorOffer /> }
+  { path: 'tutordashboard/offer/:offerId', element: <Offer /> }
   // ... other tutor routes
 ];
 
@@ -167,25 +161,31 @@ const RenderLayout = () => {
   const matchedRoute = useRoutes(userRoutes.both);
 
   const isStudentRoute = studentRoutes.some(
-    (route) => route.path === matchedRoute?.props?.path
+    (route) => route.path === matchedRoute?.props?.match?.route?.path
   );
   const isTutorRoute = tutorRoutes.some(
-    (route) => route.path === matchedRoute?.props?.path
+    (route) => route.path === matchedRoute?.props?.match?.route?.path
   );
 
-  if (isStudentRoute || (!isStudentRoute && !isTutorRoute)) {
+  if (isStudentRoute) {
     return userLayouts.student;
   } else if (isTutorRoute) {
     return userLayouts.tutor;
+  } else {
+    return <Navigate to="/404" />;
   }
-
-  // If no matching route is found, redirect to a default page (e.g., 404)
-  return <Navigate to="/404" />;
 };
 
 const AppRoutes: React.FC = () => {
   const location = useLocation();
-  const { user: userData, fetchUser } = userStore();
+  const {
+    user: userData,
+    fetchUser,
+    fetchNotifications,
+    fetchUserDocuments
+  } = userStore();
+  const navigate = useNavigate();
+
   useEffect(() => {
     mixpanel.track('App Page Viewed', location);
   }, [location]);
@@ -197,8 +197,31 @@ const AppRoutes: React.FC = () => {
       };
     });
   }, []);
+
+  // const [loadingUser, setLoadingUser] = useState(true);
+  // const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
+  // const [obtainedUserAuthState, setObtainedUserAuthState] = useState(false);
+
   useEffect(() => {
-    fetchUser();
+    onAuthStateChanged(getAuth(), async (user) => {
+      // setObtainedUserAuthState(true);
+      // setFirebaseUser(user);
+
+      if (user) {
+        fetchUser()
+          .then(() => {
+            fetchNotifications();
+            fetchUserDocuments();
+          })
+          .catch((e) => {
+            if (user.metadata.creationTime !== user.metadata.lastSignInTime) {
+              navigate('/login');
+            }
+          });
+      }
+      // setLoadingUser(false);
+    });
+    /* eslint-disable */
   }, []);
 
   const types = ['student'];
@@ -208,10 +231,8 @@ const AppRoutes: React.FC = () => {
       : userData?.type.includes('tutor')
       ? 'tutor'
       : 'student';
-  console.log('Type', userType);
 
   const userRoute = userRoutes[userType];
-  console.log('Route', userRoute);
 
   return (
     <Routes>
