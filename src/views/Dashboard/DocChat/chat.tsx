@@ -7,6 +7,7 @@ import { ReactComponent as SummaryIcon } from '../../../assets/summaryIcn.svg';
 // import { ReactComponent as TellMeMoreIcn } from '../../../assets/tellMeMoreIcn.svg';
 import { ReactComponent as TutorBag } from '../../../assets/tutor-bag.svg';
 import ChatLoader from '../../../components/CustomComponents/CustomChatLoader';
+import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkdownView';
 import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../../components/hooks/useChatScroll';
@@ -49,7 +50,6 @@ import {
 import Summary from './summary';
 import { Text } from '@chakra-ui/react';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkdownView';
 
 interface IChat {
   HomeWorkHelp?: boolean;
@@ -279,7 +279,9 @@ const Chat = ({
                       )
                     )}
                     {llmResponse && (
-                      <AiMessage key="hey"><CustomMarkdownView source={llmResponse}/></AiMessage>
+                      <AiMessage key="hey">
+                        <CustomMarkdownView source={llmResponse} />
+                      </AiMessage>
                     )}
                   </ChatContainerResponse>
                 </GridContainer>
