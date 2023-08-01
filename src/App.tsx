@@ -141,7 +141,7 @@ const tutorRoutes = [
   { path: 'tutordashboard', element: <TutorDashboard /> },
   { path: 'tutordashboard/clients', element: <Clients /> },
   { path: 'tutordashboard/offers', element: <TutorOffers /> },
-  { path: 'tutordashboard/offers/:id', element: <TutorOffer /> }
+  { path: 'tutordashboard/offer/:offerId', element: <Offer /> }
   // ... other tutor routes
 ];
 
