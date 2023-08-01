@@ -49,6 +49,7 @@ import {
 import Summary from './summary';
 import { Text } from '@chakra-ui/react';
 import { useState, useEffect, useCallback, useRef } from 'react';
+import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkdownView';
 
 interface IChat {
   HomeWorkHelp?: boolean;
@@ -270,13 +271,15 @@ const Chat = ({
                           {message.isLoading ? (
                             <ChatLoader />
                           ) : (
-                            <AiMessage key={index}>{message.text}</AiMessage>
+                            <AiMessage key={index}>
+                              <CustomMarkdownView source={message.text} />
+                            </AiMessage>
                           )}
                         </>
                       )
                     )}
                     {llmResponse && (
-                      <AiMessage key="hey">{llmResponse}</AiMessage>
+                      <AiMessage key="hey"><CustomMarkdownView source={llmResponse}/></AiMessage>
                     )}
                   </ChatContainerResponse>
                 </GridContainer>
