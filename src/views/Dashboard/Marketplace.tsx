@@ -148,7 +148,7 @@ export default function Marketplace() {
   }, []);
 
   const checkBookmarks = (id: string) => {
-    const found = bookmarkedTutors.some((el) => el.tutor?._id === id);
+    const found = bookmarkedTutors?.some((tutor) => tutor._id === id);
     if (!found) {
       return false;
     } else {
@@ -175,7 +175,12 @@ export default function Marketplace() {
   return (
     <>
       <Box p={5}>
-        <Box bgColor={'black'} borderRadius={'14px'} height={'200px'}>
+        <Box
+          bgColor={'transparent'}
+          borderRadius={'14px'}
+          border="1px solid #E2E8F0"
+          height={'200px'}
+        >
           <Banner />
         </Box>
         <Box textAlign="center">
@@ -386,21 +391,25 @@ export default function Marketplace() {
               </Menu>
             </HStack>
             <Spacer />
-            <Flex gap="2">
+            <Box>
               <CustomButton
                 buttonText={'Clear Filters'}
                 buttonType="outlined"
                 fontStyle={{ fontSize: '12px', fontWeight: 500 }}
                 onClick={resetForm}
               />
-            </Flex>
+            </Box>
           </Flex>
         </Box>
 
         <Box my={45} py={2} minHeight="750px">
           {!loadingData && allTutors.length > 0 ? (
             <>
-              <SimpleGrid columns={[2, null, 3]} spacing="20px" ref={tutorGrid}>
+              <SimpleGrid
+                columns={{ base: 1, md: 2, lg: 3 }}
+                spacing="20px"
+                ref={tutorGrid}
+              >
                 {allTutors.map((tutor: any) => (
                   <TutorCard
                     key={tutor._id}
@@ -422,7 +431,6 @@ export default function Marketplace() {
                 page={pagination ? pagination.page : 0}
                 count={pagination ? pagination.count : 0}
                 limit={pagination ? pagination.limit : 0}
-                totalPages={pagination ? Math.ceil(count / limit) : 0}
                 handleNextPage={handleNextPage}
                 handlePreviousPage={handlePreviousPage}
               />

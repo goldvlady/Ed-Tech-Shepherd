@@ -1,6 +1,8 @@
 import calendarDrop from '../../../assets/calendar-drop.svg';
+import NoEvent from '../../../assets/no-event.svg';
 import ScheduleIcon from '../../../assets/timer.svg';
 import Events from '../../../components/Events';
+import Calendar from './Calendar';
 import './Scheduler/index.css';
 import {
   Box,
@@ -21,222 +23,142 @@ import {
   ChakraProvider,
   extendTheme
 } from '@chakra-ui/react';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
 import React, { useState, useEffect } from 'react';
-import Slider from 'react-slick';
+import { FiChevronDown } from 'react-icons/fi';
 
-const events = [
-  {
-    id: 1,
-    name: 'Chemistry Lesson with Leslie Peters',
-    lastSeen: '03:30 pm',
-    time: '04:30 pm',
-    color: 'bg-orange-500',
-    backgroundColor: 'bg-orange-50',
-    commenters: [
-      {
-        id: 12,
-        name: 'Emma Dorsey',
-        imageUrl:
-          'https://images.unsplash.com/photo-1505840717430-882ce147ef2d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-      },
-      {
-        id: 6,
-        name: 'Tom Cook',
-        imageUrl:
-          'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-      },
-      {
-        id: 4,
-        name: 'Lindsay Walton',
-        imageUrl: '/svgs/feather.svg',
-        backgroundColor: 'bg-blue-500'
-      }
-    ]
-  },
-  {
-    id: 2,
-    name: 'Chemistry Lesson with Leslie Peters',
-    lastSeen: '03:30 pm',
-    time: '04:30 pm',
-    color: 'bg-green-500',
-    backgroundColor: 'bg-lightGreen',
-    commenters: [
-      {
-        id: 12,
-        name: 'Emma Dorsey',
-        imageUrl:
-          'https://images.unsplash.com/photo-1505840717430-882ce147ef2d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-      },
-      {
-        id: 6,
-        name: 'Tom Cook',
-        imageUrl:
-          'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-      }
-    ]
-  }
-];
+// const events = [
+//   {
+//     id: 1,
+//     name: 'Chemistruy Lesson with Leslie Peters',
+//     fromTime: '2023-07-26T23:00:00.000Z',
+//     toTime: '2023-07-26T01:30:00.000Z',
+//     color: 'bg-orange-500',
+//     type: 'study',
+//     date: '2023-07-09T00:30:00.000Z',
+//     backgroundColor: 'bg-orange-50',
+//     commenters: [
+//       {
+//         id: 12,
+//         name: 'Emma Dorsey',
+//         imageUrl:
+//           'https://images.unsplash.com/photo-1505840717430-882ce147ef2d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+//       },
+//       {
+//         id: 6,
+//         name: 'Tom Cook',
+//         imageUrl:
+//           'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+//       },
+//       {
+//         id: 4,
+//         name: 'Lindsay Walton',
+//         imageUrl: '/svgs/feather.svg',
+//         backgroundColor: 'bg-blue-500'
+//       }
+//     ]
+//   },
+//   {
+//     id: 2,
+//     name: 'Chemistry Lesson with Leslie Peters',
+//     fromTime: '2023-07-26T23:00:00.000Z',
+//     toTime: '2023-07-26T01:30:00.000Z',
+//     color: 'bg-green-500',
+//     type: 'class',
+//     date: '2023-07-26T00:30:00.000Z',
+//     backgroundColor: 'bg-green-50',
+//     commenters: [
+//       {
+//         id: 12,
+//         name: 'Emma Dorsey',
+//         imageUrl:
+//           'https://images.unsplash.com/photo-1505840717430-882ce147ef2d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+//       },
+//       {
+//         id: 6,
+//         name: 'Tom Cook',
+//         imageUrl:
+//           'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+//       }
+//     ]
+//   },
+//   {
+//     id: 3,
+//     name: 'Chemistry Lesson with Leslie Peters',
+//     fromTime: '2023-07-26T20:00:00.000Z',
+//     toTime: '2023-07-26T01:30:00.000Z',
+//     color: 'bg-green-500',
+//     type: 'study',
+//     date: '2023-07-26T00:30:00.000Z',
+//     backgroundColor: 'bg-orange-50',
+//     commenters: [
+//       {
+//         id: 12,
+//         name: 'Emma Dorsey',
+//         imageUrl:
+//           'https://images.unsplash.com/photo-1505840717430-882ce147ef2d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+//       },
+//       {
+//         id: 6,
+//         name: 'Tom Cook',
+//         imageUrl:
+//           'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+//       }
+//     ]
+//   }
+// ];
 
-type CalendarProps = {
-  year: number;
-  month: number;
-};
-const Calendar: React.FC<CalendarProps> = ({ year, month }) => {
-  const [selectedDay, setSelectedDay] = useState<number | null>(
-    new Date().getDate()
+export default function Schedule({ events }) {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const [selectedMonth, setSelectedMonth] = useState<number>(
+    new Date().getMonth()
   );
-  const [initialSlide, setInitialSlide] = useState<number>(0);
 
-  const handleDayClick = (day: number) => {
-    setSelectedDay(day);
+  const handleDateClick = (date: any) => {
+    if (date) {
+      setSelectedDate(date);
+    }
+  };
+  const handleMonthClick = (month: any) => {
+    setSelectedDate(null);
+    setSelectedMonth(month);
   };
 
-  const getDaysInMonth = (year: number, month: number) => {
-    return new Date(year, month + 1, 0).getDate();
+  const filteredEvents = selectedDate
+    ? events.filter(
+        (event) =>
+          new Date(event.date).toDateString() ===
+          new Date(selectedDate).toDateString()
+      )
+    : events;
+
+  const getTomorrowsDate = () => {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow;
   };
 
-  const daysInMonth = Array.from(
-    { length: getDaysInMonth(year, month) },
-    (_, index) => index + 1
-  );
-  const getDayOfWeek = (day: number) => {
-    const date = new Date(year, month, day);
-    const dayOfWeek = date.getDay(); // Sunday: 0, Monday: 1, ...
-    const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-    return dayNames[dayOfWeek];
-  };
-  const getMonthName = (month: number) => {
-    const monthNames = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December'
-    ];
-    return monthNames[month];
-  };
-
-  const PrevArrow = (props: any) => {
-    const { className, style, onClick } = props;
-    return (
-      <div
-        className={className}
-        style={{ ...style, color: '#9ca3af' }}
-        onClick={onClick}
-      >
-        <ChevronLeftIcon className="arrow-icon " />
-      </div>
+  const filterTomorrowsEvents = () => {
+    const tomorrow = getTomorrowsDate();
+    return events.filter(
+      (event) => new Date(event.date).toDateString() === tomorrow.toDateString()
     );
   };
 
-  const NextArrow = (props: any) => {
-    const { className, style, onClick } = props;
-    return (
-      <div
-        className={className}
-        style={{ ...style, color: '#9ca3af' }}
-        onClick={onClick}
-      >
-        <ChevronRightIcon className="arrow-icon" />
-      </div>
-    );
-  };
-  // Settings for the slider
-  // const settings = {
-  //   dots: false,
-  //   arrows: true,
-  //   fade: true,
-  //   infinite: true,
-  //   autoplay: true,
-  //   speed: 500,
-  //   autoplaySpeed: 4000,
-  //   slidesToShow: 6,
-  //   slidesToScroll: 3,
-  //   centerMode: true,
-  //   initialSlide: daysInMonth.indexOf(1),
-  //   responsive: [
-  //     {
-  //       breakpoint: 768,
-  //       settings: {
-  //         slidesToShow: 3
-  //       }
-  //     },
-  //     {
-  //       breakpoint: 480,
-  //       settings: {
-  //         slidesToShow: 3
-  //       }
-  //     }
-  //   ]
-  // };
-  const settings = {
-    dots: false,
-    arrows: true,
-    nextArrow: <NextArrow />,
-    prevArrow: <PrevArrow />,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 6,
-    slidesToScroll: 6,
-    initialSlide: selectedDay ? selectedDay - 1 : 0,
-    responsive: [
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 3
-        }
-      },
-      {
-        breakpoint: 480,
-        settings: {
-          slidesToShow: 3
-        }
-      }
-    ]
-  };
-
-  return (
-    <>
-      <Text fontSize={12} color="#6E7682" ml={4} my={2} fontWeight={400}>
-        {getMonthName(month)}
-      </Text>
-      <Box px={6}>
-        {' '}
-        <Slider {...settings}>
-          {daysInMonth.map((day) => (
-            <div
-              className={`day ${
-                selectedDay === day ? 'selected' : ''
-              } text-gray-400 `}
-              key={day}
-              onClick={() => handleDayClick(day)}
-            >
-              <span className="block text-2xl font-normal ">{day}</span>
-              <span className="date text-uppercase block text-sm font-normal">
-                {getDayOfWeek(day)}
-              </span>
-            </div>
-          ))}
-        </Slider>
-      </Box>
-    </>
-  );
-};
-
-export default function Schedule() {
-  const [selectedDate, setSelectedDate] = useState(null);
-
-  const handleDateClick = (date) => {
-    setSelectedDate(date);
-  };
+  const months = [
+    { value: 0, label: 'January', id: 1 },
+    { value: 1, label: 'February', id: 2 },
+    { value: 2, label: 'March', id: 3 },
+    { value: 3, label: 'April', id: 4 },
+    { value: 4, label: 'May', id: 5 },
+    { value: 5, label: 'June', id: 6 },
+    { value: 6, label: 'July', id: 7 },
+    { value: 7, label: 'August', id: 8 },
+    { value: 8, label: 'September', id: 9 },
+    { value: 9, label: 'October', id: 10 },
+    { value: 10, label: 'November', id: 11 },
+    { value: 11, label: 'December', id: 12 }
+  ];
   return (
     <>
       <Box>
@@ -250,21 +172,88 @@ export default function Schedule() {
             </Text>{' '}
           </HStack>
           <Spacer />
-          <img src={calendarDrop} alt="schedule-icon" width={45} />{' '}
+          {/* <img src={calendarDrop} alt="schedule-icon" width={45} />{' '} */}
+          <Menu>
+            <MenuButton
+              as={Button}
+              variant="unstyled"
+              fontSize={14}
+              fontWeight={500}
+              color="#5C5F64"
+              mb={2}
+              // h={'32px'}
+            >
+              <Image src={calendarDrop} alt="schedule-icon" width={45} />
+            </MenuButton>
+            <MenuList minWidth={'auto'}>
+              {months.map((month) => (
+                <MenuItem
+                  key={month.id}
+                  _hover={{ bgColor: '#F2F4F7' }}
+                  onClick={() => handleMonthClick(month.value)}
+                >
+                  {month.label}
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Menu>
         </Flex>
         <Divider />{' '}
       </Box>{' '}
-      <section className="space-y-3">
-        <Calendar year={2023} month={6} />
+      <section className="space-y-2">
+        <Calendar
+          year={2023}
+          month={selectedMonth}
+          onDayClick={handleDateClick}
+        />
         <Box>
-          <Text fontSize={12} fontWeight={400} color="text.400" my={5} px={4}>
+          <Text fontSize={12} fontWeight={400} color="text.400" mb={2} px={4}>
             Upcoming Events
           </Text>
-          <ul className="space-y-3">
-            {events.map((event) => (
-              <Events key={event.id} event={event} />
-            ))}
-          </ul>
+          <Box h="165px" overflowY="auto">
+            {' '}
+            <ul className="space-y-3">
+              {selectedDate && filteredEvents.length > 0 ? (
+                filteredEvents.map((event) => (
+                  <Events key={event.id} event={event} />
+                ))
+              ) : (
+                <Center>
+                  <VStack py={3}>
+                    <Image src={NoEvent} />
+                    <Text fontSize={12} fontWeight={500} color="text.400">
+                      No Events Scheduled
+                    </Text>
+                  </VStack>
+                </Center>
+              )}
+            </ul>
+          </Box>
+        </Box>
+        <Box h="85px" overflowY="auto">
+          <Text fontSize={12} fontWeight={400} color="text.400" mb={1} px={4}>
+            Tomorrow
+          </Text>
+          <Box>
+            {' '}
+            <ul className="space-y-3">
+              {selectedDate?.toDateString() == new Date().toDateString() &&
+              filterTomorrowsEvents().length > 0 ? (
+                filterTomorrowsEvents().map((event) => (
+                  <Events key={event.id} event={event} />
+                ))
+              ) : (
+                <Center>
+                  <VStack>
+                    <Image src={NoEvent} />
+                    <Text fontSize={12} fontWeight={500} color="text.400">
+                      No Events Scheduled for tomorrow
+                    </Text>
+                  </VStack>
+                </Center>
+              )}
+            </ul>
+          </Box>
         </Box>
       </section>
     </>

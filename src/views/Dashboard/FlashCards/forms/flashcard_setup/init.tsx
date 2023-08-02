@@ -1,4 +1,6 @@
+import { useCustomToast } from '../../../../../components/CustomComponents/CustomToast/useCustomToast';
 import CustomSelect from '../../../../../components/CustomSelect';
+import SelectComponent, { Option } from '../../../../../components/Select';
 import { useFlashCardState } from '../../context/flashcard';
 import {
   Box,
@@ -14,7 +16,13 @@ import {
 import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 
 const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
-  const { flashcardData, setFlashcardData, goToNextStep } = useFlashCardState();
+  const {
+    flashcardData,
+    generateFlashcardQuestions,
+    setFlashcardData,
+    goToNextStep
+  } = useFlashCardState();
+  const toast = useCustomToast();
   const [localData, setLocalData] = useState<typeof flashcardData>({
     deckname: '',
     studyType: '',
@@ -30,6 +38,29 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     }
     // eslint-disable-next-line
   }, []);
+
+  const studyPeriodOptions = [
+    { label: 'Daily', value: 'daily' },
+    { label: 'Once a week', value: 'weekly' },
+    { label: 'Twice a week', value: 'biweekly' },
+    {
+      label:
+        localData.studyType && localData.studyType === 'quickPractice'
+          ? "Doesn't repeat"
+          : 'Spaced repetition',
+      value:
+        localData.studyType && localData.studyType === 'quickPractice'
+          ? 'doesntRepeat'
+          : 'spacedRepetition'
+    }
+  ];
+
+  const levelOptions = [
+    { label: 'Very Easy', value: 'kindergarten' },
+    { label: 'Medium', value: 'high school' },
+    { label: 'Hard', value: 'college' },
+    { label: 'Very Hard', value: 'PhD' }
+  ];
 
   const handleChange = React.useCallback(
     (
@@ -53,13 +84,29 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     return Object.values(payload).every(Boolean);
   }, [localData, isAutomated]);
 
+  const handleDone = (success: boolean) => {
+    toast({
+      title: success
+        ? 'Flashcard questions generated successfully'
+        : 'Failed to generate flashcard questions',
+      position: 'top-right',
+      status: success ? 'success' : 'error',
+      isClosable: true
+    });
+  };
+
   const handleSubmit = () => {
+    const data = { ...flashcardData, ...localData, hasSubmitted: true };
     setFlashcardData((prevState) => ({
       ...prevState,
       ...localData,
       hasSubmitted: true
     }));
-    if (!isAutomated) goToNextStep();
+    if (isAutomated) {
+      generateFlashcardQuestions(data, handleDone);
+    } else {
+      goToNextStep();
+    }
   };
 
   return (
@@ -97,18 +144,24 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
             <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
               Level (optional)
             </FormLabel>
-            <CustomSelect
+            <SelectComponent
               name="level"
               placeholder="Select Level"
-              value={localData.level}
-              onChange={handleChange}
-            >
-              <option value="kindergarten">Very Easy</option>
-              <option value="high school">Medium</option>
-              <option value="hard">Hard</option>
-              <option value="PhD">Very Hard</option>
-              <option value="genius">Genius</option>
-            </CustomSelect>
+              defaultValue={levelOptions.find(
+                (option) => option.value === localData.level
+              )}
+              options={levelOptions}
+              size={'md'}
+              onChange={(option) => {
+                const event = {
+                  target: {
+                    name: 'level',
+                    value: (option as Option).value
+                  }
+                } as ChangeEvent<HTMLSelectElement>;
+                handleChange(event);
+              }}
+            />
           </FormControl>
         </>
       )}
@@ -157,17 +210,25 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           How often would you like to study?
         </FormLabel>
-        <CustomSelect
+        <SelectComponent
           name="studyPeriod"
           placeholder="Select study period"
-          value={localData.studyPeriod}
-          onChange={handleChange}
-        >
-          <option value="daily">Daily</option>
-          <option value="weekly">Once a week</option>
-          <option value="biweekly">Twice a week</option>
-          <option value="spacedRepetition">Spaced repetition</option>
-        </CustomSelect>
+          defaultValue={studyPeriodOptions.find(
+            (option) => option.value === localData.studyPeriod
+          )}
+          tagVariant="solid"
+          options={studyPeriodOptions}
+          size={'md'}
+          onChange={(option) => {
+            const event = {
+              target: {
+                name: 'studyPeriod',
+                value: (option as Option).value
+              }
+            } as ChangeEvent<HTMLSelectElement>;
+            handleChange(event);
+          }}
+        />
       </FormControl>
 
       <FormControl mb={8}>

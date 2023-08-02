@@ -6,6 +6,7 @@ import {
 } from './icons';
 import { StarIcon } from '@chakra-ui/icons';
 import {
+  Avatar,
   Box,
   Divider,
   Image,
@@ -15,6 +16,7 @@ import {
   VStack,
   GridItem
 } from '@chakra-ui/react';
+import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router';
 
@@ -63,10 +65,10 @@ function StudentCard(props) {
     );
   }
 
-  function Date() {
+  function Date(date) {
     return (
       <Text className="inline-flex flex-shrink-0 space-x-1 items-center rounded-md bg-gray-100 px-1.5 py-1 text-xs font-medium text-secondaryGray">
-        24.09.2022
+        {moment(date).format('DD.MM.YYYY')}
       </Text>
     );
   }
@@ -88,7 +90,7 @@ function StudentCard(props) {
     }
   }
   const handleItemClick = () => {
-    navigate(`/tutordashboard/offers/${offer.id}`);
+    navigate(`/dashboard/tutordashboard/offers/${offer.id}`);
   };
 
   const styles = {
@@ -130,6 +132,7 @@ function StudentCard(props) {
                   {status.new === 1 && <New />}
                   {status.justDate === 1 && <Date />}
                 </Flex> */}
+                {Date(offer.expirationDate)}
               </Box>
             </Flex>
 
@@ -179,17 +182,13 @@ function StudentCard(props) {
           <Divider my={2} color="gray.400" />
           <Flex alignItems="center" justifyContent="space-between" pt="1">
             <Flex alignItems="center" fontSize="sm" fontWeight="normal" gap={3}>
-              <Image
-                w={8}
-                h={8}
-                flexShrink={0}
-                rounded="full"
-                bg="gray.300"
-                src={imageURL}
-                alt=""
+              <Avatar
+                name="Kent Dodds"
+                size="sm"
+                src="https://bit.ly/kent-c-dodds"
               />
-              <Text as="span" color="gray.600">
-                {offer.student.name}
+              <Text fontSize={14} fontWeight="500" color="text.300">
+                {`${offer.student.user.name.first} ${offer.student.user.name.last}`}
               </Text>
             </Flex>
             <Text as="p" fontSize="sm" fontWeight="semibold" color="red.400">

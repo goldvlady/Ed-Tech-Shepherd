@@ -1,5 +1,10 @@
 import ApiService from '../services/ApiService';
-import { FlashcardData, Score, Study, MinimizedStudy } from '../types';
+import {
+  FlashcardData,
+  Score,
+  MinimizedStudy,
+  SchedulePayload
+} from '../types';
 import { create } from 'zustand';
 
 type SearchQueryParams = {
@@ -16,6 +21,7 @@ type Pagination = {
 
 type Store = {
   flashcards: FlashcardData[] | null;
+  storeFlashcardTags: (flashcardId: string, tags: string[]) => Promise<boolean>;
   isLoading: boolean;
   pagination: Pagination;
   fetchFlashcards: (queryParams?: SearchQueryParams) => Promise<void>;
@@ -37,6 +43,7 @@ type Store = {
     questionText: string,
     isPassed: boolean
   ) => Promise<boolean>;
+  scheduleFlashcard: (d: SchedulePayload) => Promise<boolean>;
 };
 
 export default create<Store>((set) => ({
@@ -44,6 +51,31 @@ export default create<Store>((set) => ({
   isLoading: false,
   minimizedStudy: null,
   pagination: { limit: 10, page: 1, count: 100 },
+  storeFlashcardTags: async (flashcardId: string, tags: string[]) => {
+    try {
+      set({ isLoading: true });
+      const response = await ApiService.storeFlashcardTags(flashcardId, tags);
+      if (response.status === 200) {
+        const { data } = await response.json();
+        set((state) => {
+          const { flashcards } = state;
+          const index = flashcards?.findIndex(
+            (card) => card._id === flashcardId
+          );
+          if (index !== undefined && index >= 0 && flashcards) {
+            flashcards[index] = data;
+          }
+          return { flashcards };
+        });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
   storeCurrentStudy: async (flashcardId, currentStudy: MinimizedStudy) => {
     try {
       set({ isLoading: true });
@@ -91,6 +123,17 @@ export default create<Store>((set) => ({
       }
       return nextState;
     });
+  },
+  scheduleFlashcard: async (data: SchedulePayload) => {
+    try {
+      set({ isLoading: true });
+      const response = await ApiService.scheduleStudyEvent(data);
+      return response.status === 200;
+    } catch (error) {
+      return false;
+    } finally {
+      set({ isLoading: false });
+    }
   },
   deleteFlashCard: async (id: string | number) => {
     try {
