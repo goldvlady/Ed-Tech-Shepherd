@@ -1,5 +1,5 @@
-import UserTypeRoutes from './UserRoutes';
 import TutorDashboardLayout from './components/Layout';
+import { AuthProvider, useAuth } from './providers/auth.provider';
 import resourceStore from './state/resourceStore';
 import userStore from './state/userStore';
 import theme from './theme';
@@ -22,6 +22,7 @@ import DashboardIndex from './views/Dashboard/index';
 import DashboardLayout from './views/Dashboard/layout';
 import ForgotPassword from './views/ForgotPassword';
 import Home from './views/Home';
+import Landing from './views/Landing';
 import Login from './views/Login';
 import OnboardStudent from './views/OnboardStudent/index';
 import OnboardTutor from './views/OnboardTutor';
@@ -44,7 +45,7 @@ import 'bootstrap/dist/css/bootstrap-reboot.min.css';
 import 'bootstrap/dist/css/bootstrap-utilities.min.css';
 import { User, getAuth, onAuthStateChanged } from 'firebase/auth';
 import mixpanel from 'mixpanel-browser';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Navigate, Route, Router, Routes, useRoutes } from 'react-router';
 import {
@@ -73,55 +74,51 @@ const RequireAuth = ({
   unAuthenticated: any;
 }) => {
   const {
-    fetchUser,
-    user: userData,
-    fetchNotifications,
-    fetchUserDocuments
-  } = userStore();
-  const [loadingUser, setLoadingUser] = useState(true);
+    state: { isAuthenticated, loading }
+  } = useAuth();
+  // const {
+  //   fetchUser,
+  //   user: userData,
+  //   fetchNotifications,
+  //   fetchUserDocuments
+  // } = userStore();
+  // const [loadingUser, setLoadingUser] = useState(true);
 
-  const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
-  const [obtainedUserAuthState, setObtainedUserAuthState] = useState(false);
-  const navigate = useNavigate();
+  // // const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
+  // // const [obtainedUserAuthState, setObtainedUserAuthState] = useState(false);
+  // // const navigate = useNavigate();
 
-  useEffect(() => {
-    onAuthStateChanged(getAuth(), async (user) => {
-      setObtainedUserAuthState(true);
-      setFirebaseUser(user);
+  // // useEffect(() => {
+  // //   onAuthStateChanged(getAuth(), async (user) => {
+  // //     setObtainedUserAuthState(true);
+  // //     setFirebaseUser(user);
 
-      if (user) {
-        await fetchUser()
-          .then(() => {
-            // navigate(
-            //   userData?.type.includes('tutor')
-            //     ? '/tutordashboard'
-            //     : '/dashboard'
-            // );
-            fetchNotifications();
-            fetchUserDocuments();
-          })
-          .catch((e) => {
-            if (user.metadata.creationTime !== user.metadata.lastSignInTime) {
-              navigate('/login');
-            }
-          });
-      }
-      setLoadingUser(false);
-    });
-    /* eslint-disable */
-  }, []);
+  // //     if (user && !userData) {
+  // //       fetchUser()
+  // //         .then(() => {
+  // //           fetchNotifications();
+  // //           fetchUserDocuments();
+  // //         })
+  // //         .catch((e) => {
+  // //           if (user.metadata.creationTime !== user.metadata.lastSignInTime) {
+  // //             navigate('/login');
+  // //           }
+  // //         });
+  // //     }
+  // //     setLoadingUser(false);
+  // //   });
+  // //   /* eslint-disable */
+  // // }, []);
 
-  return obtainedUserAuthState && !loadingUser ? (
-    firebaseUser && userData ? (
-      authenticated
-    ) : (
-      unAuthenticated
-    )
-  ) : (
-    <Box p={5} textAlign="center">
-      <Spinner />
-    </Box>
-  );
+  if (loading) {
+    return (
+      <Box p={5} textAlign="center">
+        <Spinner />
+      </Box>
+    );
+  }
+
+  return isAuthenticated ? authenticated : unAuthenticated;
 };
 
 const studentRoutes = [
@@ -147,7 +144,7 @@ const tutorRoutes = [
   { path: 'tutordashboard', element: <TutorDashboard /> },
   { path: 'tutordashboard/clients', element: <Clients /> },
   { path: 'tutordashboard/offers', element: <TutorOffers /> },
-  { path: 'tutordashboard/offers/:id', element: <TutorOffer /> }
+  { path: 'tutordashboard/offer/:offerId', element: <Offer /> }
   // ... other tutor routes
 ];
 
@@ -184,7 +181,30 @@ const RenderLayout = () => {
 
 const AppRoutes: React.FC = () => {
   const location = useLocation();
-  const { user: userData, fetchUser } = userStore();
+  const { fetchNotifications, fetchUserDocuments } = userStore();
+  const {
+    state: { user: userData, loading, isAuthenticated }
+  } = useAuth();
+
+  const userType = useMemo(() => {
+    return userData?.type.includes('tutor') &&
+      userData?.type.includes('student')
+      ? 'both'
+      : userData?.type.includes('tutor')
+      ? 'tutor'
+      : 'student';
+  }, [userData]);
+
+  const userRoute = userRoutes[userType];
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchNotifications();
+      fetchUserDocuments();
+    }
+    /* eslint-disable */
+  }, [isAuthenticated]);
+
   useEffect(() => {
     mixpanel.track('App Page Viewed', location);
   }, [location]);
@@ -196,23 +216,45 @@ const AppRoutes: React.FC = () => {
       };
     });
   }, []);
-  useEffect(() => {
-    fetchUser();
-  }, []);
 
-  const types = ['student'];
-  const userType =
-    userData?.type.includes('tutor') && userData?.type.includes('student')
-      ? 'both'
-      : userData?.type.includes('tutor')
-      ? 'tutor'
-      : 'student';
-
-  const userRoute = userRoutes[userType];
+  if (loading) {
+    return (
+      <ChakraProvider theme={theme}>
+        <Box
+          p={5}
+          textAlign="center"
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh'
+          }}
+        >
+          <Spinner />
+        </Box>
+      </ChakraProvider>
+    );
+  }
 
   return (
     <Routes>
-      <Route element={<WelcomeLayout />}>
+      <Route
+        path=""
+        element={
+          <RequireAuth
+            authenticated={<Navigate to={'/dashboard'} />}
+            unAuthenticated={<Landing />}
+          />
+        }
+      />
+      <Route
+        element={
+          <RequireAuth
+            authenticated={<Navigate to={'/dashboard'} />}
+            unAuthenticated={<WelcomeLayout />}
+          />
+        }
+      >
         <Route path="onboard">
           <Route path="student" element={<OnboardStudent />} />
           <Route path="tutor" element={<OnboardTutor />} />
@@ -224,7 +266,7 @@ const AppRoutes: React.FC = () => {
           path="login"
           element={
             <RequireAuth
-              authenticated={<Login />}
+              authenticated={<Navigate to={'/dashboard'} />}
               unAuthenticated={<Login />}
             />
           }
@@ -299,7 +341,7 @@ const AppRoutes: React.FC = () => {
 };
 
 function App() {
-  const { fetchResources, resourcesLoaded } = resourceStore();
+  const { fetchResources } = resourceStore();
 
   const doFetchResources = useCallback(async () => {
     await fetchResources();
@@ -310,30 +352,13 @@ function App() {
     doFetchResources();
   }, [doFetchResources]);
 
-  if (!resourcesLoaded) {
-    return (
-      <ChakraProvider theme={theme}>
-        <Box
-          p={5}
-          textAlign="center"
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100vh'
-          }}
-        >
-          <Spinner />
-        </Box>
-      </ChakraProvider>
-    );
-  }
-
   return (
     <ChakraProvider theme={theme}>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </AuthProvider>
     </ChakraProvider>
   );
 }

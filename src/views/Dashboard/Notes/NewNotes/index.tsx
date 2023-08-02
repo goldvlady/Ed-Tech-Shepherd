@@ -211,7 +211,6 @@ const NewNote = () => {
         'error'
       );
     }
-    console.log('details : ', details);
 
     if (details.error) {
       return showToast(DELETE_NOTE_TITLE, details.error, 'error');
@@ -375,6 +374,7 @@ const NewNote = () => {
   // Load notes if noteID is provided via param
   useEffect(() => {
     getNoteById();
+    // eslint-disable-next-line
   }, []);
 
   return (

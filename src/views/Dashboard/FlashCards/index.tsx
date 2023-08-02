@@ -561,7 +561,7 @@ const CustomTable: React.FC = () => {
 
   return (
     <>
-      {isLoading && <LoaderOverlay />}
+      {isLoading && !flashcards?.length && <LoaderOverlay />}
       <FlashCardModal isOpen={Boolean(flashcard)} />
       {tagEditItem?.flashcard && (
         <TagModal

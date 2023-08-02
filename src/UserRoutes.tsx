@@ -54,7 +54,7 @@ const RequireAuth = ({
       setFirebaseUser(user);
 
       if (user) {
-        await fetchUser()
+        fetchUser()
           .then(() => {
             // navigate(
             //   userData?.type.includes('tutor')

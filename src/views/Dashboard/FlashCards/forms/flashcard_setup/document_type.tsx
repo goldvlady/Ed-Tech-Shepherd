@@ -1,5 +1,7 @@
+import { useCustomToast } from '../../../../../components/CustomComponents/CustomToast/useCustomToast';
 import CustomSelect from '../../../../../components/CustomSelect';
 import SelectComponent, { Option } from '../../../../../components/Select';
+import uploadFile from '../../../../../helpers/file.helpers';
 import FileUpload from '../../components/fileUploadField';
 import { useFlashCardState } from '../../context/flashcard';
 import {
@@ -20,14 +22,22 @@ const FlashcardFromDocumentSetup = ({
 }: {
   isAutomated?: boolean;
 }) => {
-  const { flashcardData, setFlashcardData, goToNextStep } = useFlashCardState();
+  const toast = useCustomToast();
+  const {
+    flashcardData,
+    setFlashcardData,
+    goToNextStep,
+    generateFlashcardQuestions
+  } = useFlashCardState();
+  const [isLoading, setIsLoading] = useState(false);
   const [localData, setLocalData] = useState<typeof flashcardData>({
     deckname: '',
     studyType: '',
     studyPeriod: '',
     numQuestions: 0,
     timerDuration: '',
-    hasSubmitted: false
+    hasSubmitted: false,
+    documentId: ''
   }); // A local state for storing user inputs
 
   useEffect(() => {
@@ -74,13 +84,20 @@ const FlashcardFromDocumentSetup = ({
 
   const isValid = useMemo(() => {
     const { timerDuration, hasSubmitted, subject, topic, ...data } = localData;
-    let payload: { [key: string]: any } = { ...data };
-    if (isAutomated) {
-      payload = { ...payload, subject };
-    }
-
+    const payload: { [key: string]: any } = { ...data };
     return Object.values(payload).every(Boolean);
-  }, [localData, isAutomated]);
+  }, [localData]);
+
+  const handleDone = (success: boolean) => {
+    toast({
+      title: success
+        ? 'Flashcard questions generated successfully'
+        : 'Failed to generate flashcard questions',
+      position: 'top-right',
+      status: success ? 'success' : 'error',
+      isClosable: true
+    });
+  };
 
   const handleSubmit = () => {
     setFlashcardData((prevState) => ({
@@ -88,7 +105,27 @@ const FlashcardFromDocumentSetup = ({
       ...localData,
       hasSubmitted: true
     }));
-    if (!isAutomated) goToNextStep();
+    if (isAutomated) {
+      generateFlashcardQuestions(localData, handleDone);
+    } else {
+      goToNextStep();
+    }
+  };
+
+  const onHandleFile = (file: File) => {
+    const uploadEmitter = uploadFile(file);
+    uploadEmitter.on('progress', (progress: number) => {
+      if (progress && progress < 99 && !isLoading) {
+        setIsLoading(true);
+      }
+    });
+    uploadEmitter.on('complete', (uploadFile) => {
+      setLocalData((prev) => ({ ...prev, documentId: uploadFile }));
+      setIsLoading(false);
+    });
+    uploadEmitter.on('error', (error) => {
+      setIsLoading(false);
+    });
   };
 
   return (
@@ -96,14 +133,28 @@ const FlashcardFromDocumentSetup = ({
       <Text fontSize={'24px'} fontWeight="500" marginBottom="5px">
         Set up flashcard
       </Text>
+
       <FormControl my={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Select A file
         </FormLabel>
-        <FileUpload onFileSelect={(file) => console.log(file)} />
+        <FileUpload isLoading={isLoading} onFileSelect={onHandleFile} />
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mt={3}>
           Shepherd supports .pdf, .ppt, .jpg & .txt document formats
         </FormLabel>
+      </FormControl>
+      <FormControl mb={8}>
+        <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+          Topic
+        </FormLabel>
+        <Input
+          type="text"
+          name="topic"
+          placeholder="e.g. Bonds"
+          value={localData.topic}
+          onChange={handleChange}
+          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+        />
       </FormControl>
 
       <FormControl mb={8}>
@@ -119,6 +170,7 @@ const FlashcardFromDocumentSetup = ({
           _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />
       </FormControl>
+
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Select study type
