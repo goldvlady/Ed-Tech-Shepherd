@@ -317,7 +317,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     color="text.200"
                     display={{ base: 'none', sm: 'none', md: 'block' }}
                   >
-                    {`${user?.name?.first} ${user?.name?.last}`}
+                    {`${user?.name?.first ?? ''} ${user?.name?.last ?? ''}`}
                   </Text>
 
                   <Box display={{ base: 'none', md: 'flex' }}>
