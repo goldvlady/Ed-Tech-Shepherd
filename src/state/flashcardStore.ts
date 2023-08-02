@@ -1,5 +1,10 @@
 import ApiService from '../services/ApiService';
-import { FlashcardData, Score } from '../types';
+import {
+  FlashcardData,
+  Score,
+  MinimizedStudy,
+  SchedulePayload
+} from '../types';
 import { create } from 'zustand';
 
 type SearchQueryParams = {
@@ -13,13 +18,20 @@ type Pagination = {
   limit: number;
   count: number;
 };
+
 type Store = {
   flashcards: FlashcardData[] | null;
+  storeFlashcardTags: (flashcardId: string, tags: string[]) => Promise<boolean>;
   isLoading: boolean;
   pagination: Pagination;
   fetchFlashcards: (queryParams?: SearchQueryParams) => Promise<void>;
   flashcard?: FlashcardData | null;
-  loadFlashcard: (id: string | null) => void;
+  loadFlashcard: (id: string | null, currentStudy?: MinimizedStudy) => void;
+  minimizedStudy?: MinimizedStudy | null | undefined;
+  storeCurrentStudy: (
+    flashcardId: string,
+    data: MinimizedStudy
+  ) => Promise<void>;
   createFlashCard: (
     data: any,
     generatorType?: string
@@ -31,12 +43,54 @@ type Store = {
     questionText: string,
     isPassed: boolean
   ) => Promise<boolean>;
+  scheduleFlashcard: (d: SchedulePayload) => Promise<boolean>;
 };
 
 export default create<Store>((set) => ({
   flashcards: null,
   isLoading: false,
+  minimizedStudy: null,
   pagination: { limit: 10, page: 1, count: 100 },
+  storeFlashcardTags: async (flashcardId: string, tags: string[]) => {
+    try {
+      set({ isLoading: true });
+      const response = await ApiService.storeFlashcardTags(flashcardId, tags);
+      if (response.status === 200) {
+        const { data } = await response.json();
+        set((state) => {
+          const { flashcards } = state;
+          const index = flashcards?.findIndex(
+            (card) => card._id === flashcardId
+          );
+          if (index !== undefined && index >= 0 && flashcards) {
+            flashcards[index] = data;
+          }
+          return { flashcards };
+        });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+  storeCurrentStudy: async (flashcardId, currentStudy: MinimizedStudy) => {
+    try {
+      set({ isLoading: true });
+      const response = await ApiService.storeCurrentStudy(
+        flashcardId,
+        currentStudy.data
+      );
+      const { data } = await response.json();
+      set({ flashcards: data.flashcards });
+    } catch (error) {
+      // console.log(error)
+    } finally {
+      set({ isLoading: false });
+    }
+  },
   fetchFlashcards: async (queryParams?: {
     search?: string;
     page?: number;
@@ -56,13 +110,30 @@ export default create<Store>((set) => ({
       set({ isLoading: false });
     }
   },
-
-  loadFlashcard: (id: string | null) => {
+  storeMinimized: (data: MinimizedStudy) => {
+    set({ minimizedStudy: data });
+  },
+  loadFlashcard: (id: string | null, currentStudy?: MinimizedStudy) => {
     set((state) => {
-      if (!id) return { flashcard: undefined };
+      if (!id) return { flashcard: undefined, minimizedStudy: null };
       const flashcard = state.flashcards?.find((card) => card._id === id);
-      return { flashcard };
+      const nextState: Partial<typeof state> = { flashcard };
+      if (currentStudy) {
+        nextState.minimizedStudy = currentStudy;
+      }
+      return nextState;
     });
+  },
+  scheduleFlashcard: async (data: SchedulePayload) => {
+    try {
+      set({ isLoading: true });
+      const response = await ApiService.scheduleStudyEvent(data);
+      return response.status === 200;
+    } catch (error) {
+      return false;
+    } finally {
+      set({ isLoading: false });
+    }
   },
   deleteFlashCard: async (id: string | number) => {
     try {

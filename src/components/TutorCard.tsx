@@ -24,15 +24,15 @@ const TutorCard: React.FC<Props> = ({ tutor, ...rest }) => {
           <Avatar
             width={'45px'}
             height="45px"
-            name={`${tutor.user.name.first} ${tutor.user.name.last}`}
+            name={`${tutor?.user?.name?.first} ${tutor?.user?.name?.last}`}
             src={tutor.avatar}
           />
         </Box>
         <Box flexGrow={1}>
           <HStack justifyContent={'space-between'}>
             <Text className="sub2" color={'text.200'} mb={0}>
-              {capitalize(tutor.user.name.first)}{' '}
-              {capitalize(tutor.user.name.last)}
+              {capitalize(tutor?.user?.name?.first)}{' '}
+              {capitalize(tutor?.user?.name?.last)}
             </Text>
           </HStack>
           <Text
@@ -43,11 +43,11 @@ const TutorCard: React.FC<Props> = ({ tutor, ...rest }) => {
             className="body2"
             color={'text.200'}
           >
-            {tutor.description}
+            {tutor?.description}
           </Text>
         </Box>
         <Text color="text.200" className="sub2" mb={0}>
-          ${tutor.rate}/hour
+          ${tutor?.rate}/hour
         </Text>
       </Box>
     </Root>

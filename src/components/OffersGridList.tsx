@@ -1,12 +1,26 @@
+import ApiService from '../services/ApiService';
+import offerStore from '../state/offerStore';
+import Pagination from '../views/Dashboard/components/Pagination';
+import StudentCard from './StudentCard';
 import {
   PencilIcon,
   SparklesIcon,
-  StarIcon,
   ArrowRightIcon,
   EllipsistIcon
 } from './icons';
-import { Text } from '@chakra-ui/react';
-import React from 'react';
+import { StarIcon } from '@chakra-ui/icons';
+import {
+  Box,
+  Text,
+  Flex,
+  Image,
+  SimpleGrid,
+  Grid,
+  GridItem,
+  Divider,
+  VStack
+} from '@chakra-ui/react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface Status {
@@ -30,7 +44,7 @@ interface Offer {
   imageURL: string;
 }
 
-const offers: Offer[] = [
+const offerss: Offer[] = [
   {
     id: 1,
     subject: 'Economics',
@@ -187,17 +201,31 @@ const offers: Offer[] = [
 
 function Updated() {
   return (
-    <Text className="inline-flex flex-shrink-0 space-x-1 items-center rounded-md bg-blue-100 px-1.5 py-1 text-xs font-medium text-secondaryBlue">
+    <Text
+      as="p"
+      display="inline-flex"
+      flexShrink={0}
+      alignItems="center"
+      rounded="md"
+      py="1"
+      px="1.5"
+      bg="blue.50"
+      fontSize="xs"
+      mr="2"
+      fontWeight="medium"
+      color="blue.500"
+      className="space-x-1"
+    >
       <PencilIcon className="w-4 h-4" onClick={undefined} />
-      <span>Updated</span>
+      <Text as="span">Updated</Text>
     </Text>
   );
 }
 
 function PerfectOffer() {
   return (
-    <Text className="inline-flex flex-shrink-0 space-x-1 items-center rounded-md bg-blue-100 px-1.5 py-1 text-xs font-medium text-secondaryBlue">
-      <StarIcon className="w-4 h-4" onClick={undefined} />
+    <Text className="inline-flex flex-shrink-0 mr-2 space-x-1 items-center rounded-md bg-blue-100 px-1.5 py-1 text-xs font-medium text-secondaryBlue">
+      <StarIcon w={4} h={4} />
       <span>Perfect Offer</span>
     </Text>
   );
@@ -220,96 +248,101 @@ function Date() {
   );
 }
 
-function OfferItem({ offer, navigate }: { offer: Offer; navigate: any }) {
-  const {
-    id,
-    imageURL,
-    name,
-    offer: offerAmount,
-    subject,
-    level,
-    title,
-    status,
-    from,
-    to,
-    time
-  } = offer;
+// function OfferItem({ offer, navigate }: { offer: Offer; navigate: any }) {
+//   const {
+//     id,
+//     imageURL,
+//     name,
+//     offer: offerAmount,
+//     subject,
+//     level,
+//     title,
+//     status,
+//     from,
+//     to,
+//     time
+//   } = offer;
 
-  const handleItemClick = () => {
-    navigate(`/offers/${id}`);
+//   const handleItemClick = () => {
+//     navigate(`tutordashboard/offers/${id}`);
+//   };
+
+//   const styles = {
+//     boxShadow: '0px 4px 20px 0px #737E8C26'
+//   };
+
+//   return (
+//     <GridItem
+//       onClick={handleItemClick}
+//       mb={6}
+//       cursor="pointer"
+//       border="1px"
+//       borderColor="gray.100"
+//       p={3}
+//       rounded="lg"
+//       bg="white"
+//       sx={styles}
+//       gap={2}
+//       colSpan={1}
+//     >
+//       <StudentCard
+//         id={id}
+//         imageURL={imageURL}
+//         name={name}
+//         offer={offer}
+//         subject={subject}
+//         level={level}
+//         title={title}
+//         status={status}
+//         from={from}
+//         to={to}
+//         time={time}
+//       />
+//     </GridItem>
+//   );
+// }
+
+export default function OffersGridList(props) {
+  // const { offers, pagination } = props;
+  const navigate = useNavigate();
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(20);
+
+  const { fetchOffers, offers, isLoading, pagination } = offerStore();
+
+  const handleNextPage = () => {
+    const nextPage = pagination.page + 1;
+    fetchOffers(nextPage, limit);
+  };
+
+  const handlePreviousPage = () => {
+    const prevPage = pagination.page - 1;
+    fetchOffers(prevPage, limit);
   };
 
   return (
-    <li
-      onClick={handleItemClick}
-      className="col-span-1 space-y-2 mb-6 cursor-pointer divide-y divide-gray-200 border-0.5 p-3 rounded-lg bg-white shadow-md"
-    >
-      <div className="space-y-3">
-        <div className="flex w-full items-center justify-between space-x-6">
-          <div className="flex-shrink-0 bg-gray-100 p-2 rounded-full">
-            <img
-              src="/svgs/text-document.svg"
-              className="h-6 w-6 text-gray-400"
-              alt=""
-            />
-          </div>
-
-          <div>
-            <div className="flex items-center space-x-3">
-              {status.perfectOffer === 1 && <PerfectOffer />}
-              {status.updated === 1 && <Updated />}
-              {status.new === 1 && <New />}
-              {status.justDate === 1 && <Date />}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex w-full items-center justify-between space-x-6">
-          <div className="flex-shrink-0">
-            <span>{subject}</span>
-            <Text className="inline-flex flex-shrink-0 space-x-1 items-center rounded-md bg-orange-100 px-1.5 py-1 text-xs font-medium text-orange-400">
-              <span>{level}-Level</span>
-            </Text>
-          </div>
-
-          <Text className="inline-flex flex-shrink-0 space-x-1 items-center text-md font-medium">
-            ${offerAmount}/hr
-          </Text>
-        </div>
-
-        <Text className="text-secondaryGray flex items-center text-sm font-normal">
-          <span>{title}</span>
-          <EllipsistIcon className="w-1 mx-0.5" onClick={undefined} />
-          <span>{from} PM</span>
-          <ArrowRightIcon className="w-3 mx-0.5" onClick={undefined} />
-          <span>{to} PM</span>
-        </Text>
-      </div>
-
-      <div className="flex items-center pt-3 justify-between">
-        <div className="flex items-center  gap-x-3 text-sm font-normal">
-          <img
-            className="h-8 w-8 flex-shrink-0 rounded-full bg-gray-300"
-            src={imageURL}
-            alt=""
-          />
-          <span className="text-primaryGray">{name}</span>
-        </div>
-        <Text className="text-sm font-semibold text-red-400">
-          {time ? `${time}hours left` : ''}
-        </Text>
-      </div>
-    </li>
-  );
-}
-
-export default function OffersGridList() {
-  const navigate = useNavigate();
-  return (
-    <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {offers.map((offer) => (
-        <OfferItem key={offer.id} offer={offer} navigate={navigate} />
-      ))}
-    </ul>
+    <>
+      {' '}
+      <SimpleGrid
+        //gap={6}
+        columns={3}
+        spacingX="15px"
+        spacingY="0px"
+        //templateColumns="repeat(1, 1fr)"
+        //templateColumns={{base: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)'}}
+      >
+        {offers &&
+          offers.map((offer: any) => (
+            <StudentCard key={offer.id} id={offer.id} offer={offer} />
+          ))}
+      </SimpleGrid>{' '}
+      <Pagination
+        page={pagination.page}
+        count={pagination.total}
+        limit={pagination.limit}
+        handleNextPage={handleNextPage}
+        handlePreviousPage={handlePreviousPage}
+      />
+    </>
   );
 }

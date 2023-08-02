@@ -28,7 +28,7 @@ import { RiArrowRightSLine } from 'react-icons/ri';
 function AccSettings() {
   useTitle('Account Settings');
   const [togglePlansModal, setTogglePlansModal] = useState(false);
-  const { user }: any = userStore();
+  const { user } = userStore();
 
   const activatePlansModal = () => {
     setTogglePlansModal(true);
@@ -100,14 +100,15 @@ function AccSettings() {
               <TabPanels>
                 <TabPanel>
                   <MyProfile
+                    id={user?._id}
                     username={`${user?.name?.first} ${user?.name?.last}`}
-                    email={user.email}
+                    email={user?.email}
                   />
                 </TabPanel>
                 <TabPanel>
                   <Billing
                     username={`${user?.name?.first} ${user?.name?.last}`}
-                    email={user.email}
+                    email={user?.email}
                   />
                 </TabPanel>
               </TabPanels>

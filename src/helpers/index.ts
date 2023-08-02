@@ -34,3 +34,11 @@ export const getDateString = (date: Date): string => {
   }
   return '';
 };
+
+export const copierHandler = (copiedText = '', setSwitchView: any) => {
+  navigator.clipboard.writeText(copiedText);
+  setSwitchView(true);
+  setTimeout(() => {
+    setSwitchView(false);
+  }, 700);
+};

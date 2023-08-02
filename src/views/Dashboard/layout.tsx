@@ -10,6 +10,7 @@ import ReceiptIcon from '../../assets/receiptIcon.svg';
 import VideoIcon from '../../assets/video.svg';
 import { HelpModal } from '../../components';
 import Logo from '../../components/Logo';
+import ProfileSwitchModal from '../../components/ProfileSwitchModal';
 import { firebaseAuth } from '../../firebase';
 import userStore from '../../state/userStore';
 import TutorMarketplace from './Tutor';
@@ -46,7 +47,7 @@ import {
   useDisclosure
 } from '@chakra-ui/react';
 import { getAuth, signOut } from 'firebase/auth';
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useState, useEffect, useCallback } from 'react';
 import { IconType } from 'react-icons';
 import { BsChatLeftDots, BsPin, BsPlayCircle } from 'react-icons/bs';
 import { CgNotes } from 'react-icons/cg';
@@ -118,7 +119,8 @@ interface NavItemProps extends FlexProps {
 const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
   const { pathname } = useLocation();
 
-  const isActive = path.includes(getComparisonPath(pathname));
+  // const isActive = path.includes(getComparisonPath(pathname));
+  const isActive = pathname === path;
 
   return (
     <Link
@@ -170,20 +172,30 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const activateHelpModal = () => {
     setToggleHelpModal(true);
   };
+  const [toggleProfileSwitchModal, setToggleProfileSwitchModal] =
+    useState(false);
+  const activateProfileSwitchModal = () => {
+    setToggleProfileSwitchModal(true);
+  };
   const navigate = useNavigate();
-  const { user, userNotifications }: any = userStore();
+  const { user, userNotifications, fetchNotifications, fetchUser }: any =
+    userStore();
 
   const handleSignOut = () => {
     signOut(auth).then(() => {
       navigate('/login');
     });
   };
+
+  // useEffect(() => {
+  //   doFetchUserData();
+  // }, [doFetchUserData]);
   return (
     <>
       <Flex
         // ml={{ base: 0, md: 60 }}
         px={{ base: 4, md: 4 }}
-        width={{ sm: '100%', md: 'calc(100vw - 250px)' }}
+        width={{ base: '100%', sm: '100%', md: 'calc(100vw - 250px)' }}
         height="20"
         alignItems="center"
         zIndex={2}
@@ -195,7 +207,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         top="0"
         {...rest}
       >
-        <Box>
+        <Box display={{ base: 'none', md: 'flex' }}>
           <Flex
             bgColor={'transparent'}
             color="text.400"
@@ -215,8 +227,11 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             <Text> Ask Shepherd?</Text>
           </Flex>
         </Box>
-        <Spacer />
-        <Flex justifyContent={'space-between'}>
+        <Spacer display={{ base: 'none', md: 'flex' }} />
+        <Flex
+          justifyContent={'space-between'}
+          width={{ base: 'inherit', md: 'auto' }}
+        >
           {' '}
           <IconButton
             display={{ base: 'flex', md: 'none' }}
@@ -231,25 +246,49 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             fontFamily="monospace"
             fontWeight="bold"
           >
-            <Logo />{' '}
+            {/* <Logo  />{' '} */}
           </Text>
+          <Box display={{ base: 'flex', md: 'none' }}>
+            <Flex
+              bgColor={'transparent'}
+              color="text.400"
+              border="1px solid #EBECF0"
+              borderRadius={'40px'}
+              fontSize={{ base: '10px' }}
+              p="6px 16px"
+              onClick={activateHelpModal}
+              gap={2}
+              _hover={{
+                cursor: 'pointer',
+                bgColor: '#EDF2F7',
+                transform: 'translateY(-2px)'
+              }}
+            >
+              <Image src={AskIcon} />
+              <Text> Ask Shepherd?</Text>
+            </Flex>
+          </Box>
           <HStack spacing={4}>
-            <Menu>
-              <MenuButton>
-                <IconButton
-                  size="md"
-                  borderRadius={'100%'}
-                  border="1px solid #ECEDEE"
-                  variant="ghost"
-                  aria-label="open menu"
-                  color={'text.300'}
-                  icon={<FaBell />}
-                />{' '}
-              </MenuButton>
-              <MenuList p={3} width={'358px'} zIndex={2}>
-                <Notifications data={userNotifications} />
-              </MenuList>
-            </Menu>
+            <Box position="relative">
+              {' '}
+              <Menu placement="right">
+                <MenuButton>
+                  <IconButton
+                    size="md"
+                    borderRadius={'100%'}
+                    border="1px solid #ECEDEE"
+                    variant="ghost"
+                    aria-label="open menu"
+                    color={'text.300'}
+                    icon={<FaBell />}
+                  />{' '}
+                </MenuButton>
+                <MenuList p={3} width={'358px'} zIndex={2}>
+                  <Notifications data={userNotifications} />
+                </MenuList>
+              </Menu>
+            </Box>
+
             <Center height="25px">
               <Divider orientation="vertical" />
             </Center>
@@ -276,7 +315,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     fontSize="14px"
                     fontWeight={500}
                     color="text.200"
-                    display={{ base: 'block', sm: 'none', md: 'block' }}
+                    display={{ base: 'none', sm: 'none', md: 'block' }}
                   >
                     {`${user?.name?.first} ${user?.name?.last}`}
                   </Text>
@@ -355,7 +394,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     </Flex>
                   </Link>
                 </MenuItem>
-                <MenuItem p={2} m={1}>
+                <MenuItem p={2} m={1} onClick={activateProfileSwitchModal}>
                   <Flex alignItems="center" gap={2}>
                     <Center
                       borderRadius="50%"
@@ -434,6 +473,10 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         toggleHelpModal={toggleHelpModal}
         setToggleHelpModal={setToggleHelpModal}
       />
+      <ProfileSwitchModal
+        toggleProfileSwitchModal={toggleProfileSwitchModal}
+        setToggleProfileSwitchModal={setToggleProfileSwitchModal}
+      />
     </>
   );
 };
@@ -444,6 +487,8 @@ const SidebarContent = ({
   toggleMenu,
   ...rest
 }: SidebarProps) => {
+  const { pathname } = useLocation();
+
   return (
     <Box
       transition="3s ease"
@@ -513,7 +558,16 @@ const SidebarContent = ({
       <Divider />
       {LinkBItems.map((link) => (
         <>
-          <NavItem key={link.name} icon={link.icon} path={link.path}>
+          <NavItem
+            key={link.name}
+            icon={link.icon}
+            path={link.path}
+            className={`${
+              pathname === link.path
+                ? 'bg-slate-100 text-primaryBlue'
+                : 'text-gray-400 hover:text-primaryBlue hover:bg-slate-100'
+            } group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold`}
+          >
             {link.name}
           </NavItem>
         </>

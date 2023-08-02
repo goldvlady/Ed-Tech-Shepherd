@@ -1,11 +1,22 @@
 import EmptyIllustration from '../../../assets/empty_illustration.svg';
+import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import { FlashCardModal } from '../../../components/flashcardDecks';
+import LoaderOverlay from '../../../components/loaderOverlay';
 import SelectableTable, { TableColumn } from '../../../components/table';
 import { useSearch } from '../../../hooks';
 import flashcardStore from '../../../state/flashcardStore';
-import { FlashcardData, FlashcardQuestion } from '../../../types';
-import { Score } from '../../../types';
-import { useToast } from '@chakra-ui/react';
+import {
+  FlashcardData,
+  FlashcardQuestion,
+  SchedulePayload
+} from '../../../types';
+import { Score, MinimizedStudy } from '../../../types';
+import { DeleteModal } from './components/deleteModal';
+import ScheduleStudyModal, {
+  ScheduleFormState
+} from './components/scheduleModal';
+import TagModal from './components/tagsModal';
+import { Stack } from '@chakra-ui/react';
 import {
   Button,
   Flex,
@@ -18,17 +29,13 @@ import {
   MenuList,
   MenuButton,
   Menu,
+  Tag,
+  TagLabel,
+  TagLeftIcon,
   Image
 } from '@chakra-ui/react';
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalBody,
-  ModalFooter
-} from '@chakra-ui/react';
 import { isSameDay, isThisWeek, getISOWeek } from 'date-fns';
-import { parseISO, format } from 'date-fns';
+import { parseISO, format, parse } from 'date-fns';
 import { startCase } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
@@ -48,191 +55,16 @@ const StyledImage = styled(Box)`
   box-shadow: 0 2px 10px rgba(63, 81, 94, 0.1);
 `;
 
-export const DeleteModal = ({
-  isOpen,
-  onCancel,
-  onDelete,
-  isLoading
-}: {
-  isOpen: boolean;
-  onCancel: () => void;
-  onDelete: () => void;
-  isLoading: boolean;
-}) => {
-  return (
-    <Modal
-      onClose={() => {
-        return;
-      }}
-      isOpen={isOpen}
-      isCentered
-    >
-      <ModalOverlay />
-      <ModalContent
-        minWidth={{ base: '80%', md: '500px' }}
-        mx="auto"
-        w="fit-content"
-        borderRadius="10px"
-      >
-        <ModalBody alignItems={'center'} justifyContent={'center'}>
-          <Flex
-            flexDirection="column"
-            justifyContent={'center'}
-            padding={'40px'}
-            alignItems="center"
-          >
-            <Box>
-              <svg
-                width="73"
-                height="72"
-                viewBox="0 0 73 72"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g filter="url(#filter0_d_2506_16927)">
-                  <circle cx="36.5" cy="28" r="20" fill="white" />
-                  <circle
-                    cx="36.5"
-                    cy="28"
-                    r="19.65"
-                    stroke="#EAEAEB"
-                    stroke-width="0.7"
-                  />
-                </g>
-                <path
-                  d="M36.5002 37.1663C31.4376 37.1663 27.3335 33.0622 27.3335 27.9997C27.3335 22.9371 31.4376 18.833 36.5002 18.833C41.5627 18.833 45.6668 22.9371 45.6668 27.9997C45.6668 33.0622 41.5627 37.1663 36.5002 37.1663ZM35.5835 30.7497V32.583H37.4168V30.7497H35.5835ZM35.5835 23.4163V28.9163H37.4168V23.4163H35.5835Z"
-                  fill="#F53535"
-                />
-                <defs>
-                  <filter
-                    id="filter0_d_2506_16927"
-                    x="0.5"
-                    y="0"
-                    width="72"
-                    height="72"
-                    filterUnits="userSpaceOnUse"
-                    color-interpolation-filters="sRGB"
-                  >
-                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                    <feColorMatrix
-                      in="SourceAlpha"
-                      type="matrix"
-                      values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-                      result="hardAlpha"
-                    />
-                    <feOffset dy="8" />
-                    <feGaussianBlur stdDeviation="8" />
-                    <feComposite in2="hardAlpha" operator="out" />
-                    <feColorMatrix
-                      type="matrix"
-                      values="0 0 0 0 0.32 0 0 0 0 0.389333 0 0 0 0 0.48 0 0 0 0.11 0"
-                    />
-                    <feBlend
-                      mode="normal"
-                      in2="BackgroundImageFix"
-                      result="effect1_dropShadow_2506_16927"
-                    />
-                    <feBlend
-                      mode="normal"
-                      in="SourceGraphic"
-                      in2="effect1_dropShadow_2506_16927"
-                      result="shape"
-                    />
-                  </filter>
-                </defs>
-              </svg>
-            </Box>
-            <Text
-              fontSize="18px"
-              fontFamily="Inter"
-              fontStyle="normal"
-              fontWeight="500"
-              lineHeight="21px"
-              marginBottom={'10px'}
-              letterSpacing="0.112px"
-              color="#212224"
-            >
-              Delete flashcard?
-            </Text>
-            <Text
-              color="#6E7682"
-              textAlign="center"
-              fontSize="14px"
-              fontFamily="Inter"
-              width={'80%'}
-              fontStyle="normal"
-              fontWeight="400"
-              lineHeight="20px"
-            >
-              This will permanently remove this flashcard from your list.
-            </Text>
-          </Flex>
-        </ModalBody>
-        <ModalFooter
-          bg="#F7F7F8"
-          borderRadius="0px 0px 10px 10px"
-          p="16px"
-          justifyContent="flex-end"
-        >
-          <Button
-            disabled={isLoading}
-            _hover={{
-              backgroundColor: '#FFF',
-              boxShadow: '0px 2px 6px 0px rgba(136, 139, 143, 0.10)'
-            }}
-            color="#5C5F64"
-            fontSize="14px"
-            fontFamily="Inter"
-            fontWeight="500"
-            lineHeight="20px"
-            onClick={() => onCancel()}
-            borderRadius="8px"
-            border="1px solid #E7E8E9"
-            bg="#FFF"
-            boxShadow="0px 2px 6px 0px rgba(136, 139, 143, 0.10)"
-            mr={3}
-          >
-            Cancel
-          </Button>
-          <Button
-            isLoading={isLoading}
-            _hover={{
-              backgroundColor: '#F53535'
-            }}
-            onClick={() => onDelete()}
-            bg="#F53535"
-            color="#ffffff"
-            borderRadius="6px"
-            px="16px"
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-          >
-            Delete
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  );
-};
-
 type DataSourceItem = {
   key: string;
   deckname: string;
-  studyType: string;
   studyPeriod: string;
   createdAt: string;
   scores: Score[];
   questions: FlashcardQuestion[];
+  currentStudy?: MinimizedStudy;
+  tags: string[];
 };
-
-// const dataSource: DataSourceItem[] = Array.from({ length: 10 }, (_, i) => ({
-//   key: i,
-//   title: `Title ${i + 1}`,
-//   dateCreated: new Date().toISOString().split("T")[0], // current date in yyyy-mm-dd format
-//   lastModified: new Date().toISOString().split("T")[0], // current date in yyyy-mm-dd format
-//   lastAttemptedScore: Math.floor(Math.random() * 101), // random score between 0 and 100
-// }));
 
 function findNextFlashcard(
   flashcards: FlashcardData[]
@@ -300,7 +132,7 @@ function findNextFlashcard(
 
 const CustomTable: React.FC = () => {
   const navigate = useNavigate();
-  const toast = useToast();
+  const toast = useCustomToast();
   const [hasSearched, setHasSearched] = useState(false);
 
   const {
@@ -309,7 +141,9 @@ const CustomTable: React.FC = () => {
     flashcard,
     loadFlashcard,
     deleteFlashCard,
-    isLoading
+    storeFlashcardTags,
+    isLoading,
+    scheduleFlashcard
   } = flashcardStore();
 
   const actionFunc = useCallback(
@@ -326,6 +160,14 @@ const CustomTable: React.FC = () => {
     flashcard: FlashcardData;
   } | null>(null);
 
+  const [scheduleItem, setScheduleItem] = useState<{
+    flashcard: FlashcardData;
+  } | null>(null);
+
+  const [tagEditItem, setTagEditItem] = useState<{
+    flashcard: FlashcardData;
+  } | null>(null);
+
   useEffect(() => {
     fetchFlashcards();
     // eslint-disable-next-line
@@ -339,23 +181,58 @@ const CustomTable: React.FC = () => {
       render: ({ deckname }) => <Text fontWeight="500">{deckname}</Text>
     },
     {
-      title: 'Study Type',
-      dataIndex: 'studyType',
-      key: 'studyType',
-      render: ({ studyType }) => {
-        return (
-          <Text>
-            {startCase(studyType.replace(/([a-z])([A-Z])/g, '$1 $2'))}
-          </Text>
-        );
-      }
-    },
-    {
       title: 'Study Period',
       dataIndex: 'studyPeriod',
       key: 'studyPeriod',
       render: ({ studyPeriod }) => {
-        return <Text>{startCase(studyPeriod)}</Text>;
+        return <Text fontWeight="500">{startCase(studyPeriod)}</Text>;
+      }
+    },
+    {
+      title: 'Tags',
+      dataIndex: 'tags',
+      key: 'tags',
+      render: ({ tags }) => {
+        if (!tags.length) return <Text fontWeight="500">None</Text>;
+        return (
+          <Box
+            display="grid"
+            gridTemplateColumns="repeat(3, 0.5fr)"
+            alignItems="start"
+            justifyItems="start"
+            width="100%"
+            marginTop="10px"
+            gridGap="10px"
+          >
+            {tags.map((tag) => (
+              <Tag key={tag} borderRadius="5" background="#f7f8fa" size="md">
+                <TagLeftIcon>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    width="25px"
+                    height="25px"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M6 6h.008v.008H6V6z"
+                    />
+                  </svg>
+                </TagLeftIcon>
+                <TagLabel>{tag}</TagLabel>
+              </Tag>
+            ))}
+          </Box>
+        );
       }
     },
     {
@@ -365,18 +242,20 @@ const CustomTable: React.FC = () => {
       render: ({ createdAt }) => {
         const date = parseISO(createdAt); // parse the date string into a Date object
         const formattedDate = format(date, 'dd-MMMM-yyyy'); // format the date
-        return <Text>{formattedDate}</Text>;
+        return <Text fontWeight="500">{formattedDate}</Text>;
       }
     },
     {
       title: 'Last Attempted',
       key: 'lastAttempted',
       render: ({ scores }) => {
-        if (!scores?.length) return <Text>N/A</Text>;
+        if (!scores?.length) return <Text>Not Attempted</Text>;
         const date = parseISO(scores[scores.length - 1].date);
         const formattedDate = format(date, 'dd-MMMM-yyyy');
         return (
-          <Text>{formattedDate.replace('pm', 'PM').replace('am', 'AM')}</Text>
+          <Text fontWeight="500">
+            {formattedDate.replace('pm', 'PM').replace('am', 'AM')}
+          </Text>
         );
       }
     },
@@ -384,14 +263,45 @@ const CustomTable: React.FC = () => {
       title: 'Last Attempted Score',
       key: 'lastAttemptedScore',
       render: ({ scores, questions }) => {
-        if (!scores?.length) return <Text fontWeight="500">N/A</Text>;
-        const percentage = (
-          (scores[scores.length - 1]?.score / questions.length) *
-          100
-        ).toFixed(0);
-        return <Text fontWeight="500">{percentage}%</Text>;
+        if (!scores?.length) return <Text fontWeight="500">Not Attempted</Text>;
+        const percentage =
+          (scores[scores.length - 1]?.score / questions.length) * 100;
+        const percentageString = percentage.toFixed(0);
+        type ColorRange = {
+          max: number;
+          min: number;
+          color: string;
+          backgroundColor: string;
+        };
+        const colorRanges: ColorRange[] = [
+          { max: 100, min: 85.1, color: '#4CAF50', backgroundColor: '#EDF7EE' },
+          { max: 85, min: 60, color: '#FB8441', backgroundColor: '#FFEFE6' },
+          { max: 59.9, min: 0, color: '#F53535', backgroundColor: '#FEECEC' }
+        ];
+
+        const { color, backgroundColor } = colorRanges.find(
+          (range) => percentage <= range.max && percentage >= range.min
+        ) as ColorRange;
+        return (
+          <Box width={'fit-content'}>
+            <Box
+              padding="5px 10px"
+              color={color}
+              background={backgroundColor}
+              borderRadius={'5px'}
+              display={'flex'}
+              justifyContent={'center'}
+              alignItems={'center'}
+            >
+              <Text fontSize={'14px'} fontWeight="bold">
+                {percentageString}%
+              </Text>
+            </Box>
+          </Box>
+        );
       }
     },
+
     {
       title: '',
       key: 'action',
@@ -414,6 +324,35 @@ const CustomTable: React.FC = () => {
             backgroundColor="#FFFFFF"
             boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
           >
+            {flashcard.currentStudy && (
+              <MenuItem
+                p="6px 8px 6px 8px"
+                _hover={{ bgColor: '#F2F4F7' }}
+                onClick={() =>
+                  loadFlashcard(flashcard.key, flashcard.currentStudy)
+                }
+              >
+                <StyledImage marginRight="10px">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    width="10"
+                    height="14"
+                  >
+                    <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+                  </svg>
+                </StyledImage>
+
+                <Text
+                  color="#212224"
+                  fontSize="14px"
+                  lineHeight="20px"
+                  fontWeight="400"
+                >
+                  Resume
+                </Text>
+              </MenuItem>
+            )}
             <MenuItem
               p="6px 8px 6px 8px"
               _hover={{ bgColor: '#F2F4F7' }}
@@ -443,6 +382,92 @@ const CustomTable: React.FC = () => {
                 Study
               </Text>
             </MenuItem>
+            <MenuItem
+              p="6px 8px 6px 8px"
+              onClick={() =>
+                setScheduleItem({
+                  flashcard: flashcard as unknown as FlashcardData
+                })
+              }
+              _hover={{ bgColor: '#F2F4F7' }}
+            >
+              <StyledImage marginRight="10px">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  width="12"
+                  height="12"
+                >
+                  <path
+                    fillRule="evenodd"
+                    fill="#6E7682"
+                    d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zm13.5 9a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-7.5z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </StyledImage>
+
+              <Text
+                color="#212224"
+                fontSize="14px"
+                lineHeight="20px"
+                fontWeight="400"
+              >
+                Schedule
+              </Text>
+            </MenuItem>
+            <MenuItem
+              p="6px 8px 6px 8px"
+              onClick={() =>
+                setTagEditItem({
+                  flashcard: flashcard as unknown as FlashcardData
+                })
+              }
+              _hover={{ bgColor: '#F2F4F7' }}
+            >
+              <StyledImage marginRight="10px">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    fill="#6E7682"
+                    d="M5.25 2.25a3 3 0 00-3 3v4.318a3 3 0 00.879 2.121l9.58 9.581c.92.92 2.39 1.186 3.548.428a18.849 18.849 0 005.441-5.44c.758-1.16.492-2.629-.428-3.548l-9.58-9.581a3 3 0 00-2.122-.879H5.25zM6.375 7.5a1.125 1.125 0 100-2.25 1.125 1.125 0 000 2.25z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+
+                {/* <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  width="12"
+                  height="12"
+                >
+                  <path
+                    fillRule="evenodd"
+                    fill="#6E7682"
+                    d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zm13.5 9a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-7.5z"
+                    clipRule="evenodd"
+                  />
+                </svg> */}
+              </StyledImage>
+
+              <Text
+                color="#212224"
+                fontSize="14px"
+                lineHeight="20px"
+                fontWeight="400"
+              >
+                Edit Tags
+              </Text>
+            </MenuItem>
+
             {/* <MenuItem p="6px 8px 6px 8px" _hover={{ bgColor: "#F2F4F7" }}>
               <StyledImage marginRight="10px">
                 <svg
@@ -501,12 +526,76 @@ const CustomTable: React.FC = () => {
         </Menu>
       )
     }
-    // rest of your columns...
   ];
+
+  const handleEventSchedule = async (data: ScheduleFormState) => {
+    const parsedTime = parse(data.time.toLowerCase(), 'hh:mm aa', new Date());
+    const time = format(parsedTime, 'HH:mm');
+
+    const payload: SchedulePayload = {
+      entityId: scheduleItem?.flashcard._id as string,
+      entityType: 'flashcard',
+      startDates: [data.day?.toISOString() as string],
+      startTime: time
+    };
+
+    if (data.frequency && data.frequency !== 'none') {
+      payload.recurrence = { frequency: data.frequency };
+    }
+    const isSuccess = await scheduleFlashcard(payload);
+    if (isSuccess) {
+      toast({
+        position: 'top-right',
+        title: `${scheduleItem?.flashcard.deckname} Scheduled Succesfully`,
+        status: 'success'
+      });
+      setScheduleItem(null);
+    } else {
+      toast({
+        position: 'top-right',
+        title: `Failed to schedule ${scheduleItem?.flashcard.deckname} flashcards`,
+        status: 'error'
+      });
+    }
+  };
 
   return (
     <>
+      {isLoading && <LoaderOverlay />}
       <FlashCardModal isOpen={Boolean(flashcard)} />
+      {tagEditItem?.flashcard && (
+        <TagModal
+          tags={tagEditItem?.flashcard?.tags || []}
+          onSubmit={async (d) => {
+            const isSaved = await storeFlashcardTags(
+              tagEditItem?.flashcard?._id as string,
+              d
+            );
+            if (isSaved) {
+              toast({
+                position: 'top-right',
+                title: `Tags Added for ${tagEditItem?.flashcard.deckname}`,
+                status: 'success'
+              });
+              setTagEditItem(null);
+            } else {
+              toast({
+                position: 'top-right',
+                title: `Failed to add tags for ${tagEditItem?.flashcard.deckname} flashcards`,
+                status: 'error'
+              });
+            }
+          }}
+          onClose={() => setTagEditItem(null)}
+          isOpen={Boolean(tagEditItem)}
+        />
+      )}
+      <ScheduleStudyModal
+        isLoading={isLoading}
+        onSumbit={(d) => handleEventSchedule(d)}
+        onClose={() => setScheduleItem(null)}
+        isOpen={Boolean(scheduleItem)}
+      />
       <DeleteModal
         isLoading={isLoading}
         isOpen={Boolean(deleteItem)}
@@ -518,12 +607,14 @@ const CustomTable: React.FC = () => {
             );
             if (isDeleted) {
               toast({
+                position: 'top-right',
                 title: `${deleteItem?.flashcard.deckname} deleted Succesfully`,
                 status: 'success'
               });
               setDeleteItem(null);
             } else {
               toast({
+                position: 'top-right',
                 title: `Failed to delete ${deleteItem?.flashcard.deckname} flashcards`,
                 status: 'error'
               });
@@ -531,7 +622,7 @@ const CustomTable: React.FC = () => {
           }
         }}
       />
-      {!flashcards?.length && !hasSearched ? (
+      {!flashcards?.length && !hasSearched && !isLoading ? (
         <Box
           background={'#F8F9FB'}
           display={'flex'}
@@ -544,13 +635,13 @@ const CustomTable: React.FC = () => {
             alignItems="center"
             justifyContent="space-between"
             color="#E5E6E6"
-            paddingTop={'20px'}
-            paddingLeft="20px"
+            pt={{ base: '10px', md: '20px' }}
+            pl={{ base: '10px', md: '20px' }}
           >
             <Text
               fontFamily="Inter"
               fontWeight="600"
-              fontSize="24px"
+              fontSize={{ base: '18px', md: '24px' }}
               lineHeight="30px"
               letterSpacing="-2%"
               color="#212224"
@@ -580,8 +671,8 @@ const CustomTable: React.FC = () => {
             </Text>
             <Button
               variant="solid"
-              marginTop={'20px'}
-              width={{ sm: '80%', md: '300px' }}
+              mt={{ base: '10px', md: '20px' }}
+              width={{ base: '100%', sm: '80%', md: '300px' }}
               borderRadius={'8px'}
               colorScheme={'primary'}
               onClick={() => navigate('/dashboard/flashcards/create')}
@@ -600,19 +691,21 @@ const CustomTable: React.FC = () => {
                   d="M12 4.5v15m7.5-7.5h-15"
                 />
               </svg>
-
-              <Text marginLeft={'10px'}>Create New</Text>
+              <Text ml={'10px'}>Create New</Text>
             </Button>
           </Box>
         </Box>
       ) : (
-        <Box padding={'50px'}>
+        <Box
+          padding={{ md: '50px', base: '20px' }}
+          overflowX={{ base: 'hidden' }}
+        >
           <Flex
             width="100%"
             marginBottom={'40px'}
             alignItems="center"
             justifyContent="space-between"
-            paddingRight={'20px'}
+            paddingRight={{ md: '20px' }}
             color="#E5E6E6"
           >
             <Text
@@ -669,19 +762,22 @@ const CustomTable: React.FC = () => {
             <FaCalendarAlt color="#96999C" size="12px" />
           </Flex> */}
           </Flex>
-          <Flex
+
+          <Stack
+            direction={{ base: 'column', md: 'row' }}
             width="100%"
-            marginBottom="40px"
+            mb={{ base: '20px', md: '40px' }}
             alignItems="center"
             justifyContent="space-between"
-            paddingRight="20px"
+            pr={{ md: '20px', base: '0' }}
             color="#E5E6E6"
+            spacing={4}
           >
             <Flex alignItems="center">
               <InputGroup
                 size="sm"
                 borderRadius="6px"
-                width="200px"
+                width={{ base: '100%', md: '200px' }}
                 height="32px"
               >
                 <InputLeftElement marginRight={'10px'} pointerEvents="none">
@@ -697,19 +793,27 @@ const CustomTable: React.FC = () => {
                 />
               </InputGroup>
             </Flex>
-            <Flex>
+            <Flex
+              direction={{ base: 'column', md: 'row' }}
+              alignItems={{ base: 'flex-start', md: 'center' }}
+              width={{ base: '100%', md: 'auto' }}
+            >
               <Flex
+                display={'none'}
                 cursor="pointer"
                 border="1px solid #E5E6E6"
                 padding="5px 10px"
                 borderRadius="6px"
                 alignItems="center"
+                mb={{ base: '10px', md: '0' }}
+                width={{ base: '-webkit-fill-available', md: 'auto' }}
               >
                 <Text
                   fontWeight="400"
-                  fontSize="14px"
+                  fontSize={{ base: '12px', md: '14px' }}
                   marginRight="5px"
                   color="#5E6164"
+                  width={{ base: '100%', md: 'auto' }}
                 >
                   All Time
                 </Text>
@@ -717,9 +821,10 @@ const CustomTable: React.FC = () => {
               </Flex>
               <Button
                 variant="solid"
-                marginLeft={'20px'}
+                ml={{ base: '0', md: '20px' }}
                 borderRadius={'10px'}
                 colorScheme={'primary'}
+                width={{ base: '100%', md: 'auto' }}
                 onClick={() => {
                   if (!flashcards) return;
                   const nextFlashCard = findNextFlashcard(flashcards);
@@ -746,20 +851,22 @@ const CustomTable: React.FC = () => {
                   />
                 </svg>
 
-                <Text marginLeft={'10px'}>Practice today's cards</Text>
+                <Text ml={'10px'}>Practice today's cards</Text>
               </Button>
             </Flex>
-          </Flex>
-          {flashcards && (
-            <SelectableTable
-              isSelectable
-              columns={columns}
-              dataSource={flashcards.map((card) => ({
-                ...card,
-                key: card._id
-              }))}
-            />
-          )}
+          </Stack>
+          <Box overflowX={{ base: 'scroll', md: 'hidden' }}>
+            {flashcards && (
+              <SelectableTable
+                isSelectable
+                columns={columns}
+                dataSource={flashcards.map((card) => ({
+                  ...card,
+                  key: card._id
+                }))}
+              />
+            )}
+          </Box>
         </Box>
       )}
     </>

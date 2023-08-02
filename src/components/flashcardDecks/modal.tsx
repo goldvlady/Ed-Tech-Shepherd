@@ -1,6 +1,13 @@
 import FlashcardEmpty from '../../assets/flashcard_empty_state.png';
+import StudySessionLogger from '../../helpers/sessionLogger';
 import flashcardStore from '../../state/flashcardStore';
-import { FlashcardData, Score } from '../../types';
+import {
+  FlashcardData,
+  Score,
+  Study,
+  MinimizedStudy,
+  SessionType
+} from '../../types';
 import FlashCard from './deck_two';
 import DeckOverLap from './overlap';
 import ResultDisplay from './resultDisplay';
@@ -69,22 +76,13 @@ const LoaderOverlay = () => (
   </div>
 );
 
-export interface Options {
-  type: 'single' | 'multiple';
-  content: string[];
-}
-
-export interface Study {
-  id: number;
-  type: 'timed' | 'manual';
-  questions: string;
-  answers: string | string[];
-  currentStep: number;
-  isFirstAttempt: boolean;
-  options?: Options;
-}
-
-const StudyFooter = ({ showMinimize = false }: { showMinimize?: boolean }) => {
+const StudyFooter = ({
+  showMinimize = false,
+  onMinimize
+}: {
+  showMinimize?: boolean;
+  onMinimize?: () => void;
+}) => {
   const { loadFlashcard } = flashcardStore();
   return (
     <Box
@@ -101,12 +99,12 @@ const StudyFooter = ({ showMinimize = false }: { showMinimize?: boolean }) => {
           variant="ghost"
           rounded="100%"
           padding="5px"
-          bg="#207DF7"
+          bg="#FFEFE6"
           mr="10px"
-          _hover={{ bg: '#207DF7', transform: 'scale(1.05)' }}
+          _hover={{ bg: '#FFEFE6', transform: 'scale(1.05)' }}
           color="black"
           onClick={() => {
-            return;
+            onMinimize && onMinimize();
           }}
         >
           <svg
@@ -130,9 +128,9 @@ const StudyFooter = ({ showMinimize = false }: { showMinimize?: boolean }) => {
         variant="ghost"
         rounded="100%"
         padding="10px"
-        bg="#F53535"
+        bg="#FEECEC"
         onClick={() => loadFlashcard(null)}
-        _hover={{ bg: '#F53535', transform: 'scale(1.05)' }}
+        _hover={{ bg: '#FEECEC', transform: 'scale(1.05)' }}
         color="black"
       >
         <svg
@@ -205,8 +203,9 @@ const EmptyState = ({
         textAlign={'center'}
         letterSpacing="-0.048px"
       >
-        You have {flashcard?.questions?.length} questions, test your knowledge
-        on your meddeck flashcards
+        You have {flashcard?.questions?.length} question
+        {flashcard?.questions?.length > 1 ? 's' : ''} , test your knowledge on
+        your {flashcard?.deckname} flashcards
       </Text>
 
       <Button
@@ -260,9 +259,9 @@ const CompletedState = ({
     const { passed, failed, notRemembered } = score;
     const total = passed + failed + notRemembered;
 
-    const passPercentage = (passed / total) * 100;
-    const failPercentage = (failed / total) * 100;
-    const notRememberedPercentage = (notRemembered / total) * 100;
+    const passPercentage = Math.floor((passed / total) * 100);
+    const failPercentage = Math.floor((failed / total) * 100);
+    const notRememberedPercentage = 100 - passPercentage - failPercentage;
 
     return {
       passPercentage,
@@ -371,6 +370,8 @@ const CompletedState = ({
   );
 };
 
+let studySessionLogger: StudySessionLogger | undefined = undefined;
+
 const StudyBox = () => {
   const [studyState, setStudyState] = useState<'question' | 'answer'>(
     'question'
@@ -379,8 +380,10 @@ const StudyBox = () => {
     flashcard,
     storeScore,
     updateQuestionAttempt,
+    minimizedStudy,
     isLoading,
-    loadFlashcard
+    loadFlashcard,
+    storeCurrentStudy
   } = flashcardStore();
   const [currentStudyIndex, setCurrentStudyIndex] = useState(0);
   const [studyType, setStudyType] = useState<'manual' | 'timed'>('manual');
@@ -401,6 +404,52 @@ const StudyBox = () => {
     notRemembered: 0
   } as Score);
   const [correctAnswerCount, setCorrectAnswerCount] = useState(0);
+
+  useEffect(() => {
+    if (minimizedStudy) {
+      setSavedScore(minimizedStudy.data.savedScore);
+      setCardStyle(minimizedStudy.data.cardStyle);
+      setActivityState({
+        isStarted: minimizedStudy.data.isStarted,
+        isFinished: minimizedStudy.data.isFinished
+      });
+      setProgressWidth(minimizedStudy.data.progressWidth);
+      setCurrentStudyIndex(minimizedStudy.data.currentStudyIndex);
+      setStudyType(minimizedStudy.data.studyType);
+      setStudyState(minimizedStudy.data.studyState);
+      setStudies(minimizedStudy.data.studies);
+    }
+  }, [minimizedStudy]);
+
+  useEffect(() => {
+    return () => {
+      if (studySessionLogger && studySessionLogger.currentState !== 'ENDED') {
+        studySessionLogger.end();
+      }
+    };
+  }, []);
+
+  const minimizeStudy = async () => {
+    const data: MinimizedStudy = {
+      flashcardId: flashcard?._id as string,
+      data: {
+        currentStudyIndex,
+        studyType,
+        isStarted,
+        isFinished,
+        progressWidth,
+        studies,
+        cardStyle,
+        timer,
+        savedScore,
+        studyState
+      }
+    };
+    if (flashcard) {
+      await storeCurrentStudy(flashcard?._id, data);
+      loadFlashcard(null);
+    }
+  };
 
   const restartStudy = () => {
     setSavedScore({
@@ -430,6 +479,8 @@ const StudyBox = () => {
             questions: question.question,
             answers: question.answer,
             currentStep: question.currentStep,
+            explanation: question.explanation,
+            helperText: question.helperText,
             isFirstAttempt: question.numberOfAttempts === 0
           };
           if (question.options || question.questionType === 'trueFalse') {
@@ -478,15 +529,17 @@ const StudyBox = () => {
   useEffect(() => {
     if (isFinished) {
       saveScore();
+      if (studySessionLogger) {
+        studySessionLogger.end();
+      }
     }
   }, [isFinished, saveScore]);
 
   const lazyTriggerNextStep = async () => {
     if (currentStudyIndex === studies.length - 1) {
-      setTimeout(
-        () => setActivityState({ isFinished: true, isStarted: false }),
-        2000
-      );
+      setTimeout(() => {
+        finishStudy();
+      }, 2000);
       // if (flashcard) await storeScore(flashcard?._id, correctAnswerCount);
     } else {
       setTimeout(() => setCurrentStudyIndex((prev) => prev + 1), 2000);
@@ -561,6 +614,22 @@ const StudyBox = () => {
     lazyTriggerNextStep();
   };
 
+  const startStudy = () => {
+    setActivityState((prev) => ({
+      ...prev,
+      isStarted: !prev.isStarted
+    }));
+    studySessionLogger = new StudySessionLogger(SessionType.FLASHCARD);
+    studySessionLogger.start();
+  };
+
+  const finishStudy = () => {
+    setActivityState((prev) => ({
+      isStarted: false,
+      isFinished: true
+    }));
+  };
+
   const questionsLeft = (
     <Box
       position="relative"
@@ -607,7 +676,7 @@ const StudyBox = () => {
             left="50%"
             transform="translateX(-50%)"
             width="340px"
-            height="374px"
+            height="385px"
             fontSize="sub3Size"
             color="text.400"
           >
@@ -615,7 +684,7 @@ const StudyBox = () => {
               top="30px"
               left="50%"
               width="256px"
-              height="344px"
+              height="355px"
               boxShadow="0 6px 24px rgba(92, 101, 112, 0.15)"
               backgroundColor={studyState === 'answer' ? '#F9FAFB' : '#fff'}
             >
@@ -625,7 +694,7 @@ const StudyBox = () => {
               top="20px"
               left="50%"
               width="284px"
-              height="344px"
+              height="355px"
               boxShadow="0 6px 24px rgba(92, 101, 112, 0.15)"
               backgroundColor={studyState === 'answer' ? '#F9FAFB' : '#fff'}
             >
@@ -635,7 +704,7 @@ const StudyBox = () => {
               top="10px"
               left="50%"
               width="312px"
-              height="344px"
+              height="355px"
               boxShadow="0 6px 24px rgba(92, 101, 112, 0.15)"
               backgroundColor={studyState === 'answer' ? '#F9FAFB' : '#fff'}
             >
@@ -661,7 +730,7 @@ const StudyBox = () => {
                   : '#fff'
               }
               boxShadow="0 6px 24px rgba(92, 101, 112, 0.15)"
-              height="344px"
+              height="355px"
               overflow="hidden"
               left="50%"
               transform="translateX(-50%)"
@@ -889,12 +958,7 @@ const StudyBox = () => {
                 borderColor: 'none', // Remove active border
                 boxShadow: 'none' // Remove active shadow
               }}
-              onClick={() =>
-                setActivityState((prev) => ({
-                  ...prev,
-                  isStarted: !prev.isStarted
-                }))
-              }
+              onClick={() => startStudy()}
             >
               {isStarted ? 'Stop' : 'Study'}
             </Button>
@@ -917,6 +981,34 @@ const StudyBox = () => {
                 boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
               >
                 <MenuGroup margin={0} title="Timer">
+                  <MenuItem
+                    p="6px 8px 6px 8px"
+                    pl="15px"
+                    background={
+                      INITIAL_TIMER === 5 || timer === 5 ? '#F2F4F7' : '#fff'
+                    }
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => {
+                      setTimer(5);
+                      setStudyType('timed');
+                    }}
+                  >
+                    5 secs
+                  </MenuItem>
+                  <MenuItem
+                    p="6px 8px 6px 8px"
+                    pl="15px"
+                    background={
+                      INITIAL_TIMER === 10 || timer === 10 ? '#F2F4F7' : '#fff'
+                    }
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => {
+                      setTimer(10);
+                      setStudyType('timed');
+                    }}
+                  >
+                    10 secs
+                  </MenuItem>
                   <MenuItem
                     p="6px 8px 6px 8px"
                     pl="15px"
@@ -1010,15 +1102,16 @@ const StudyBox = () => {
           <EmptyState
             flashcard={flashcard as FlashcardData}
             onClose={() => loadFlashcard(null)}
-            onStart={() =>
-              setActivityState({ isStarted: true, isFinished: false })
-            }
+            onStart={() => startStudy()}
           />
         ) : (
           renderMainBox()
         )}
       </Box>
-      <StudyFooter showMinimize />
+      <StudyFooter
+        onMinimize={() => minimizeStudy()}
+        showMinimize={isStarted && !isFinished}
+      />
     </Box>
   );
 };

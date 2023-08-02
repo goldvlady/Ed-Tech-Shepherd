@@ -88,6 +88,22 @@ export interface PaymentMethod extends TimestampedEntity {
   user: User;
 }
 
+export type MinimizedStudy = {
+  flashcardId: string;
+  data: {
+    currentStudyIndex: number;
+    studyType: 'manual' | 'timed';
+    isStarted: boolean;
+    isFinished: boolean;
+    progressWidth: string;
+    studies: Study[];
+    cardStyle: 'flippable' | 'default';
+    timer: number;
+    savedScore: Score;
+    studyState: 'question' | 'answer';
+  };
+};
+
 export enum UserNotificationTypes {
   LESSON_SESSION_STARTED = 'lesson_session_started',
   NEW_OFFER_RECEIVED = 'new_offer_received',
@@ -167,6 +183,7 @@ export interface Offer extends TimestampedEntity {
   course: Course;
   level: Level;
   schedule: SingleSchedule;
+  _id: string;
   rate: number;
   note: string;
   status: STATUS;
@@ -231,22 +248,68 @@ export interface FlashcardData {
   deckname: string;
   studyType: 'longTermRetention' | 'quickPractice';
   subject?: string;
+  tags: string[];
   topic?: string;
   scores: Score[];
   studyPeriod: 'daily' | 'weekly' | 'biweekly' | 'spacedRepetition';
   questions: FlashcardQuestion[];
   createdAt: string;
   updatedAt: string;
+  currentStudy?: MinimizedStudy;
 }
 
 export interface FlashcardQuestion {
   questionType: string;
   question: string;
   options?: string[];
+  helperText?: string;
+  explanation?: string;
   answer: string;
   numberOfAttempts: number;
   currentStep: number;
   totalSteps: number;
+}
+
+export interface Options {
+  type: 'single' | 'multiple';
+  content: string[];
+}
+
+export interface Study {
+  id: number;
+  type: 'timed' | 'manual';
+  questions: string;
+  helperText?: string;
+  explanation?: string;
+  answers: string | string[];
+  currentStep: number;
+  isFirstAttempt: boolean;
+  options?: Options;
+}
+
+export enum SessionType {
+  QUIZ = 'quiz',
+  FLASHCARD = 'flashcard',
+  NOTES = 'notes',
+  DOCCHAT = 'docchat',
+  HOMEWORK = 'homework'
+}
+
+export interface SchedulePayload {
+  entityId: string;
+  entityType: string;
+  startDates: string[];
+  startTime: string;
+  recurrence?: {
+    frequency: string;
+  };
+}
+
+export interface StudentDocumentPayload {
+  title: string;
+  course?: string;
+  documentUrl: string;
+  tags?: string[];
 }
 
 export type LevelType = Level;

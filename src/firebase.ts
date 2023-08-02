@@ -1,11 +1,13 @@
 import { initializeApp } from 'firebase/app';
 import {
-    GoogleAuthProvider,
-    confirmPasswordReset as firebaseConfirmPasswordReset,
-    createUserWithEmailAndPassword as firebaseCreateUserWithEmailAndPassword,
-    sendPasswordResetEmail as firebaseSendPasswordResetEmail,
-    signInWithEmailAndPassword as firebaseSignInWithEmailAndPassword,
-    getAuth,
+  GoogleAuthProvider,
+  confirmPasswordReset as firebaseConfirmPasswordReset,
+  createUserWithEmailAndPassword as firebaseCreateUserWithEmailAndPassword,
+  sendPasswordResetEmail as firebaseSendPasswordResetEmail,
+  signInWithEmailAndPassword as firebaseSignInWithEmailAndPassword,
+  updatePassword as firebaseUpdatePassword,
+  EmailAuthProvider,
+  getAuth
 } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 
@@ -13,12 +15,12 @@ import { getStorage } from 'firebase/storage';
 
 // Your web app's Firebase configuration
 export const firebaseConfig = {
-    apiKey: 'AIzaSyAMifcZweS5BG3BfMQpjbbDP-pkF9cow2s',
-    authDomain: 'shepherd-app-382114.firebaseapp.com',
-    projectId: 'shepherd-app-382114',
-    storageBucket: 'shepherd-app-382114.appspot.com',
-    messagingSenderId: '675537393578',
-    appId: '1:675537393578:web:9a57af7df8fec9f8293dd3',
+  apiKey: 'AIzaSyAMifcZweS5BG3BfMQpjbbDP-pkF9cow2s',
+  authDomain: 'shepherd-app-382114.firebaseapp.com',
+  projectId: 'shepherd-app-382114',
+  storageBucket: 'shepherd-app-382114.appspot.com',
+  messagingSenderId: '675537393578',
+  appId: '1:675537393578:web:9a57af7df8fec9f8293dd3'
 };
 
 // Initialize Firebase
@@ -29,5 +31,6 @@ export const googleProvider = new GoogleAuthProvider();
 export const sendPasswordResetEmail = firebaseSendPasswordResetEmail;
 export const confirmPasswordReset = firebaseConfirmPasswordReset;
 export const createUserWithEmailAndPassword =
-    firebaseCreateUserWithEmailAndPassword;
+  firebaseCreateUserWithEmailAndPassword;
 export const signInWithEmailAndPassword = firebaseSignInWithEmailAndPassword;
+export const updatePassword = firebaseUpdatePassword;

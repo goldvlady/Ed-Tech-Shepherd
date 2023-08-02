@@ -1,6 +1,18 @@
 import { classNames } from '../helpers';
 import { Date } from './index';
-import { Text } from '@chakra-ui/react';
+import {
+  Text,
+  Flex,
+  Box,
+  Image,
+  Container,
+  Button,
+  UnorderedList,
+  ListItem,
+  Grid,
+  GridItem,
+  Heading
+} from '@chakra-ui/react';
 import { Menu, Transition } from '@headlessui/react';
 import {
   ChevronDownIcon,
@@ -81,8 +93,8 @@ const events: Event[] = [
     name: 'Upcoming chemistry session with Liam Kelly',
     lastSeen: '03:30 pm',
     time: '04:30 pm',
-    color: 'bg-orange-500',
-    backgroundColor: 'bg-orange-50',
+    color: 'orange.500',
+    backgroundColor: 'orange.50',
     commenters: [
       {
         id: 12,
@@ -100,7 +112,7 @@ const events: Event[] = [
         id: 4,
         name: 'Lindsay Walton',
         imageUrl: '/svgs/feather.svg',
-        backgroundColor: 'bg-blue-500'
+        backgroundColor: 'blue.500'
       }
     ]
   },
@@ -109,8 +121,8 @@ const events: Event[] = [
     name: 'Upcoming chemistry session with Liam Kelly',
     lastSeen: '03:30 pm',
     time: '04:30 pm',
-    color: 'bg-blue-500',
-    backgroundColor: 'bg-blue-50',
+    color: 'blue.500',
+    backgroundColor: 'blue.50',
     commenters: [
       {
         id: 12,
@@ -130,106 +142,193 @@ const events: Event[] = [
 
 function EventItem({ event }: { event: Event }) {
   return (
-    <li className={`flex gap-x-3 ${event.backgroundColor}`}>
-      <div
-        className={`min-h-fit w-1 rounded-tr-full rounded-br-full ${event.color}`}
+    <Flex as="li" bg={event.backgroundColor} gap={3}>
+      <Box
+        bg={event.color}
+        roundedBottomRight="full"
+        roundedTopRight="full"
+        w={1}
+        minH="fit-content"
       />
-      <div className="py-2">
-        <div className="flex gap-x-1">
-          <div className="min-w-0 flex-auto">
-            <Text className="text-xs font-normal leading-6 text-gray-500">
+      <Box py={2}>
+        <Flex gap={1}>
+          <Box minW={0}>
+            <Text as="p" fontSize="xs" fontWeight="normal" color="gray.500">
               {event.name}
             </Text>
-            <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
-              <span>{event.lastSeen}</span>
+            <Flex
+              as="p"
+              mt={1}
+              alignItems="center"
+              isTruncated
+              fontSize="xs"
+              color="gray.500"
+            >
+              <Text as="span">{event.lastSeen}</Text>
               <ChevronRightIcon className="w-4 h-4" />
-              <span>{event.time}</span>
-            </Text>
-          </div>
-        </div>
-        <div className="flex -space-x-0.5">
-          <dt className="sr-only">Commenters</dt>
+              <Text as="span">{event.time}</Text>
+            </Flex>
+          </Box>
+        </Flex>
+        <Box className="flex -space-x-0.5">
+          <Box as="dt" className="sr-only">
+            Commenters
+          </Box>
           {event.commenters.map((commenter) => (
-            <dd key={commenter.id}>
-              <img
-                className={`h-5 w-5 rounded-full ${
+            <Box key={commenter.id}>
+              <Image
+                bg={
                   commenter.backgroundColor
                     ? commenter.backgroundColor
-                    : 'bg-gray-50'
-                } ring-2 ring-white`}
+                    : 'gray.50'
+                }
+                ring={2}
+                ringColor="white"
+                h={5}
+                w={5}
+                rounded="full"
                 src={commenter.imageUrl}
                 alt={commenter.name}
               />
-            </dd>
+            </Box>
           ))}
-        </div>
-      </div>
-    </li>
+        </Box>
+      </Box>
+    </Flex>
   );
 }
 
 export default function RecentTransaction() {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-      <div className="mx-auto grid max-w-2xl grid-cols-1 grid-rows-1 items-start gap-x-8 gap-y-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+    <Container maxW="7xl" mx="auto" py="10" paddingX={{ base: '4', md: '6' }}>
+      <Grid
+        mx={{ lg: '0' }}
+        maxW={{ lg: 'none' }}
+        alignItems="start"
+        gap={8}
+        templateColumns={{ base: '1fr', lg: 'repeat(3, 1fr)' }}
+        templateRows={{ base: '1fr', lg: 'repeat(1, 1fr)' }}
+      >
         {/* Invoice summary */}
-        <div className="lg:col-start-3 lg:col-span-2 lg:row-end-1 p-2 rounded-lg shadow-sm ring-1 ring-gray-900/5">
-          <Text className="sr-only">Summary</Text>
-          <header className="flex items-center justify-between border-b pb-4">
-            <div className="flex items-center space-x-2">
-              <img src="/svgs/timer.svg" alt="" className="h-6 w-6 mx-auto" />
-              <h4 className="font-semibold">Schedule</h4>
-            </div>
+        <GridItem
+          gridColumnStart={{ lg: 3 }}
+          gridRowEnd={{ lg: 1 }}
+          p={2}
+          rounded="lg"
+          shadow="sm"
+          ring="1"
+          ringColor="gray.200"
+        >
+          <Heading as="h2" srOnly>
+            Summary
+          </Heading>
 
-            <div className="flex items-center justify-center bg-white p-2 rounded-full border">
-              <img
+          <Flex
+            alignItems="center"
+            justifyContent="space-between"
+            borderBottom="1px"
+            borderBottomColor="gray.200"
+            pb={4}
+          >
+            <Flex align="center">
+              <Image src="/svgs/timer.svg" alt="" h={6} w={6} mx="auto" />
+              <Text as="h4" ml={2} fontWeight="semibold">
+                Schedule
+              </Text>
+            </Flex>
+
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              bg="white"
+              p={2}
+              borderRadius="full"
+              border="1px"
+              borderColor="gray.300"
+            >
+              <Image
                 src="/svgs/calender-drop.svg"
                 alt=""
-                className="h-5 w-5 mx-auto"
+                h={5}
+                w={5}
+                mx="auto"
               />
-            </div>
-          </header>
+            </Box>
+          </Flex>
 
-          <section className="space-y-3">
-            <Text className="text-gray-400 text-sm mt-4 ml-8">May</Text>
+          <Box>
+            <Heading color="gray.400" fontSize="sm" mt={4} ml={4} as="h3">
+              May
+            </Heading>
             <Date />
-          </section>
+          </Box>
 
-          <ul className="space-y-3">
-            <Text className="text-gray-400 text-sm mt-4 ml-8">
+          <Box as="ul">
+            <Text as="h3" size="sm" color="gray.400" mt={4} ml={8}>
               Upcoming Events
             </Text>
-            <ul className="space-y-3">
+            <UnorderedList as="ul" spacing={3} ml={0} mt={2}>
               {events.map((event) => (
                 <EventItem key={event.id} event={event} />
               ))}
-            </ul>
-          </ul>
+            </UnorderedList>
+          </Box>
 
-          <section className="space-y-3">
-            <Text className="text-gray-400 text-sm mt-4 ml-8">Tommorrow</Text>
-            <div className="space-y-3">
-              <img
+          <Box>
+            <Text as="h3" size="sm" color="gray.400" mt={4} ml={8}>
+              Tomorrow
+            </Text>
+            <Box>
+              <Image
                 src="/svgs/calender.svg"
                 alt=""
-                className="h-10 w-10 mx-auto"
+                boxSize={10}
+                mx="auto"
+                my="2"
               />
-              <Text className="text-center font-bold text-sm text-gray-300">
-                No classes scheduled for tommorrow
+              <Text
+                textAlign="center"
+                fontWeight="bold"
+                fontSize="sm"
+                color="gray.300"
+              >
+                No classes scheduled for tomorrow
               </Text>
-            </div>
-          </section>
-        </div>
+            </Box>
+          </Box>
+        </GridItem>
 
         {/* Invoice */}
-        <div className="-mx-4 p-2 shadow-sm ring-1 ring-gray-900/5 sm:mx-0 sm:rounded-lg lg:col-span-2 lg:row-span-2 lg:row-end-2">
-          <header className="flex items-center justify-between border-b pb-4">
-            <div className="flex items-center space-x-3">
-              <img className="h-5 w-5" src="/svgs/wallet-money.svg" alt="" />
-              <Text>Recent events</Text>
-            </div>
+        <Box
+          mx={[-4, 0]}
+          p={2}
+          boxShadow="sm"
+          ring="1px"
+          ringColor="gray.200"
+          rounded={['md', 'lg']}
+          gridColumn={{ lg: 'span 2' }}
+          gridRow={{ lg: 'span 2', lgEnd: 2 }}
+        >
+          <Flex
+            alignItems="center"
+            justifyContent="space-between"
+            borderBottom="1px"
+            pb="4"
+            borderBottomColor="gray.200"
+          >
+            <Flex align="center">
+              <Image src="/svgs/wallet-money.svg" alt="" h={5} w={5} />
+              <Text ml={3} as="h4">
+                Recent Transactions
+              </Text>
+            </Flex>
 
-            <div className="hidden md:ml-4 md:flex md:items-center">
+            <Box
+              display={{ base: 'none', md: 'flex' }}
+              ml={4}
+              alignItems="center"
+            >
               <Menu as="div" className="relative">
                 <Menu.Button
                   type="button"
@@ -260,8 +359,7 @@ export default function RecentTransaction() {
                     <div className="py-1">
                       <Menu.Item>
                         {({ active }) => (
-                          <a
-                            href="https://google.com"
+                          <button
                             className={classNames(
                               active
                                 ? 'bg-gray-100 text-gray-900'
@@ -270,13 +368,12 @@ export default function RecentTransaction() {
                             )}
                           >
                             This week
-                          </a>
+                          </button>
                         )}
                       </Menu.Item>
                       <Menu.Item>
                         {({ active }) => (
-                          <a
-                            href="https://google.com"
+                          <button
                             className={classNames(
                               active
                                 ? 'bg-gray-100 text-gray-900'
@@ -285,13 +382,12 @@ export default function RecentTransaction() {
                             )}
                           >
                             Last week
-                          </a>
+                          </button>
                         )}
                       </Menu.Item>
                       <Menu.Item>
                         {({ active }) => (
-                          <a
-                            href="https://google.com"
+                          <button
                             className={classNames(
                               active
                                 ? 'bg-gray-100 text-gray-900'
@@ -300,14 +396,14 @@ export default function RecentTransaction() {
                             )}
                           >
                             This month
-                          </a>
+                          </button>
                         )}
                       </Menu.Item>
                     </div>
                   </Menu.Items>
                 </Transition>
               </Menu>
-            </div>
+            </Box>
             <Menu as="div" className="relative ml-6 md:hidden">
               <Menu.Button className="-mx-2 flex items-center rounded-full border border-transparent p-2 text-gray-400 hover:text-gray-500">
                 <span className="sr-only">Open menu</span>
@@ -330,8 +426,7 @@ export default function RecentTransaction() {
                   <div className="py-1">
                     <Menu.Item>
                       {({ active }) => (
-                        <a
-                          href="https://google.com"
+                        <button
                           className={classNames(
                             active
                               ? 'bg-gray-100 text-gray-900'
@@ -340,13 +435,12 @@ export default function RecentTransaction() {
                           )}
                         >
                           This week
-                        </a>
+                        </button>
                       )}
                     </Menu.Item>
                     <Menu.Item>
                       {({ active }) => (
-                        <a
-                          href="https://google.com"
+                        <button
                           className={classNames(
                             active
                               ? 'bg-gray-100 text-gray-900'
@@ -355,13 +449,12 @@ export default function RecentTransaction() {
                           )}
                         >
                           Last week
-                        </a>
+                        </button>
                       )}
                     </Menu.Item>
                     <Menu.Item>
                       {({ active }) => (
-                        <a
-                          href="https://google.com"
+                        <button
                           className={classNames(
                             active
                               ? 'bg-gray-100 text-gray-900'
@@ -370,65 +463,115 @@ export default function RecentTransaction() {
                           )}
                         >
                           This month
-                        </a>
+                        </button>
                       )}
                     </Menu.Item>
                   </div>
                 </Menu.Items>
               </Transition>
             </Menu>
-          </header>
+          </Flex>
 
-          <div className="flow-root mt-4">
-            <ul className="-mb-8">
+          <Box mt={4}>
+            <UnorderedList listStyleType="none" mb="-8">
               {transactions.map((transaction, transactionIdx) => (
-                <li key={transaction.id}>
-                  <div className="relative pb-8">
+                <ListItem key={transaction.id}>
+                  <Box pos="relative" pb={8}>
                     {transactionIdx !== transactions.length - 1 ? (
-                      <span
-                        className="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200/70"
+                      <Text
+                        as="span"
+                        pos="absolute"
+                        left={4}
+                        top={4}
+                        w="0.5"
+                        h="full"
+                        bg="gray.200"
+                        ml="-px"
                         aria-hidden="true"
                       />
                     ) : null}
-                    <div className="relative flex space-x-3">
-                      <div>
-                        <span className="h-8 w-8 bg-orange-100 rounded-full flex items-center justify-center ring-8 ring-white">
-                          <img
-                            className="h-5 w-5"
+                    <Flex pos="relative">
+                      <Box>
+                        <Flex
+                          h={8}
+                          w={8}
+                          bg="orange.100"
+                          rounded="full"
+                          alignItems="center"
+                          justifyContent="center"
+                          ring={8}
+                          ringColor="white"
+                        >
+                          <Image
+                            h="5"
+                            w="5"
                             src="/svgs/circlestack.svg"
                             alt=""
                           />
-                        </span>
-                      </div>
-                      <div className="ml-3 w-0 flex-1 pt-0.5">
-                        <Text className="text-sm font-normal text-gray-400">
+                        </Flex>
+                      </Box>
+                      <Box flex="1" ml="3" pt="0.5">
+                        <Text
+                          as="p"
+                          fontSize="sm"
+                          fontWeight="normal"
+                          color="gray.400"
+                        >
                           {transaction.date}
                         </Text>
-                        <Text className="mt-1 text-sm font-medium text-gray-500">
+                        <Text
+                          as="p"
+                          mt="1"
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          color="gray.600"
+                        >
                           {transaction.content}
                         </Text>
-                        <div className="mt-3 flex space-x-7">
-                          <button
+                        <Flex mt="3">
+                          <Button
                             type="button"
-                            className="rounded-full flex items-center space-x-2 border-2 border-dashed p-2 text-sm font-medium text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                            rounded="full"
+                            alignItems="center"
+                            display="flex"
+                            border="1px"
+                            borderStyle="dashed"
+                            bg="white"
+                            p="3"
+                            fontWeight="medium"
+                            color="gray.400"
+                            fontSize="sm"
+                            _hover={{
+                              color: 'gray.500'
+                            }}
+                            _focus={{
+                              outline: 'none',
+                              ring: '2',
+                              ringColor: 'gray.500',
+                              ringOffset: '2'
+                            }}
                           >
-                            <img
+                            <Image
+                              h="5"
+                              w="5"
                               className="h-5 w-5"
                               src="/svgs/receipt.svg"
                               alt=""
                             />
-                            <span>Transaction receipt</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </li>
+                            <Text as="span" display="inline-block" ml="1">
+                              Transaction receipt
+                            </Text>
+                          </Button>
+                        </Flex>
+                      </Box>
+                    </Flex>
+                  </Box>
+                </ListItem>
               ))}
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
+            </UnorderedList>
+          </Box>
+        </Box>
+      </Grid>
+    </Container>
   );
 }

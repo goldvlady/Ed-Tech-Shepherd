@@ -1,24 +1,38 @@
 import { storage } from '../firebase';
-import { processDocument } from '../services/AI';
+import { MAX_FILE_UPLOAD_LIMIT } from '../helpers/constants';
+import { checkDocumentStatus, processDocument } from '../services/AI';
 import userStore from '../state/userStore';
 import CustomButton from './CustomComponents/CustomButton';
 import CustomModal from './CustomComponents/CustomModal/index';
+import CustomDropdown from './CustomDropdown';
 import { UploadIcon } from './icons';
-import { Spinner } from '@chakra-ui/react';
+import { AttachmentIcon } from '@chakra-ui/icons';
+import {
+  CircularProgress as CircularProgressBar,
+  CircularProgressLabel,
+  Alert,
+  AlertTitle,
+  AlertDescription,
+  VStack
+} from '@chakra-ui/react';
 import { getAuth } from 'firebase/auth';
 import {
   ref,
   uploadBytesResumable,
-  listAll,
-  getDownloadURL
+  getDownloadURL,
+  updateMetadata,
+  deleteObject
 } from 'firebase/storage';
-import { useRef, useState, useEffect, RefObject } from 'react';
+import { useRef, useState, useEffect, RefObject, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 type List = {
   name: string;
   fullPath: string;
+  customMetadata: {
+    ingest_status: 'success' | 'too_large';
+  };
 };
 
 interface ShowProps {
@@ -27,27 +41,31 @@ interface ShowProps {
   setShowHelp: (showHelp: boolean) => void;
 }
 
+interface UiMessage {
+  status: 'error' | 'success' | 'info' | 'warning' | 'loading' | undefined;
+  heading: string;
+  description: string;
+}
+
 const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
-  const { user } = userStore();
+  const { user, userDocuments } = userStore();
   const navigate = useNavigate();
   const [fileName, setFileName] = useState('');
-  const [progress, setProgress] = useState('');
+  const [progress, setProgress] = useState(0);
+  const [uiMessage, setUiMessage] = useState<UiMessage | null>(null);
   const [list, setList] = useState<Array<List>>([]);
+  const [canUpload, setCanUpload] = useState(true);
   const [file, setFile] = useState<Blob | Uint8Array | ArrayBuffer>();
-  const [selectedOption, setSelectedOption] = useState('');
+  const [selectedOption, setSelectedOption] = useState<any>();
+  const [confirmReady, setConfirmReady] = useState(false);
   const [docPath, setDocPath] = useState('');
-  const [uploadError, setUploadError] = useState('');
   const [loadedList, setLoadedList] = useState(false);
   const inputRef = useRef(null) as RefObject<HTMLInputElement>;
-  const [isLoading, setIsLoading] = useState(false);
+  const { currentUser } = useMemo(() => getAuth(), []);
 
   const Wrapper = styled.div`
     display: block;
-  `;
-
-  const Content = styled.div`
-    padding: 16px;
-    /* Add styles for the content div */
+    width: 100%;
   `;
 
   const Label = styled.label`
@@ -68,6 +86,11 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     background-color: #ffffff;
     outline: none;
     cursor: pointer;
+
+    &:valid {
+      color: #000;
+      background-color: #c9fcff;
+    }
   `;
 
   const OrText = styled.div`
@@ -85,7 +108,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     justify-content: space-between;
     align-items: center;
     border-radius: 0.375rem;
-    background-color: #fff;
+    background-color: ${canUpload ? '#fff' : '#e4e5e7'};
     border: 1px solid var(--primaryBlue);
     padding: 0.375rem 0.75rem;
     margin-bottom: 0.5rem;
@@ -94,10 +117,11 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     color: var(--text-color);
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.03s;
+    height: 40px;
 
     &:hover {
-      background-color: var(--blue-50);
+      background-color: ${(!fileName || canUpload) && '#f0fff3'};
     }
   `;
 
@@ -113,20 +137,13 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     color: #585f68;
   `;
 
-  const Progress = styled.span`
-    font-size: 0.875rem;
-    font-weight: medium;
-    color: purple;
-    margin-left: 0.5rem;
-  `;
-
   const PDFTextContainer = styled.div`
     text-align: center;
     margin-bottom: 1.5rem;
   `;
 
   const Text = styled.p`
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     text-align: left;
     line-height: 1.5;
     color: var(--gray-600);
@@ -138,109 +155,201 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   `;
 
   useEffect(() => {
-    const { currentUser } = getAuth();
-    const listEverything = async (path) => {
-      const listRef = ref(storage, path);
-      listAll(listRef).then((res) => setList(res.items));
-    };
-
     if (currentUser?.uid) {
       setDocPath(currentUser.uid);
-      listEverything(currentUser?.uid);
       setLoadedList(true);
     }
-  }, [docPath]);
+  }, [currentUser?.uid]);
+
+  useEffect(() => {
+    setList(userDocuments);
+  }, [userDocuments]);
 
   const clickInput = () => {
-    inputRef?.current && inputRef.current.click();
+    if (canUpload) inputRef?.current && inputRef.current.click();
   };
 
-  const collectFile = (e) => {
+  const collectFile = async (e) => {
     const { name } = e.target.files[0];
-    setUploadError('');
+    setUiMessage(null);
     setFileName(name);
     setFile(e.target.files[0]);
-    setIsLoading(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
+    await handleFreshUpload(e.target.files[0], user, name);
   };
   const handleClose = () => {
     setShow(false);
   };
 
-  const handleSelected = (e: any) => {
-    setSelectedOption(e.target.value);
+  const handleSelected = (e) => {
+    if (e.target.value) {
+      setSelectedOption(e.target.value);
+      setCanUpload(false);
+      setConfirmReady(true);
+    }
   };
 
-  const processOrContinue = async () => {
-    if (!file && !selectedOption)
-      return setUploadError("You haven't uploaded a file or selected a note.");
-
-    if (selectedOption && user) {
-      const documentUrl = await getDownloadURL(ref(storage, selectedOption));
-      const item = list.filter((list) => list.fullPath === selectedOption);
-      await processDocument({
-        studentId: user?._id,
-        documentId: item[0].name,
-        documentURL: documentUrl
-      }).then(() => {
-        setShow(false);
-        setShowHelp(false);
-        navigate('/dashboard/docchat', {
-          state: {
-            documentUrl,
-            docTitle: item[0].name
-          }
-        });
+  const checkIfDocumentPresent = () => {
+    if (!selectedOption)
+      setUiMessage({
+        status: 'error',
+        heading: 'No document selected',
+        description: "You haven't selected a note. Select one, and try again."
       });
+    setConfirmReady(false);
+    return;
+  };
+
+  const handleFreshUpload = async (file, user, fileName) => {
+    const readableFileName = fileName.toLowerCase().replace(/\s/g, '');
+    const SIZE_IN_MB = parseInt((file?.size / 1_000_000).toFixed(2), 10);
+    if (SIZE_IN_MB > MAX_FILE_UPLOAD_LIMIT) {
+      setUiMessage({
+        status: 'error',
+        heading: 'Your file is too large',
+        description: `Your file is ${SIZE_IN_MB}MB, above our 5MB limit. Please upload a smaller document.`
+      });
+      return;
     }
+    setProgress(5);
+    const storageRef = ref(storage, `${docPath}/${readableFileName}`);
+    const task = uploadBytesResumable(storageRef, file);
 
-    if (file && user) {
-      const storageRef = ref(
-        storage,
-        `${docPath}/${fileName.toLowerCase().replace(/\s/g, '')}`
-      );
-      const task = uploadBytesResumable(storageRef, file);
+    task.on(
+      'state_changed',
+      (snapshot) => {
+        const progress = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
+        switch (snapshot.state) {
+          case 'running':
+            setProgress(progress);
+            break;
+        }
+      },
+      (error) => {
+        setUiMessage({
+          status: 'error',
+          heading: 'Something went wrong',
+          description: error.message
+        });
+      },
+      async () => {
+        setUiMessage({
+          status: 'info',
+          heading: 'Document uploaded!',
+          description:
+            'Hang on while we check the contents of your document. This may take 1-5 minutes.'
+        });
+        const documentURL = await getDownloadURL(task.snapshot.ref);
 
-      task.on(
-        'state_changed',
-        (snapshot) => {
-          const progress = `Upload is ${Math.round(
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          )}% done`;
-          switch (snapshot.state) {
-            case 'running':
-              setProgress(progress);
-              break;
-          }
-        },
-        (error) => {
-          setUploadError(`Error: ${error.message}`);
-        },
-        async () => {
-          setProgress('Complete!');
-          const documentURL = await getDownloadURL(task.snapshot.ref);
-          const title = task.snapshot.metadata.name;
+        await processDocument({
+          studentId: user?._id,
+          documentId: readableFileName,
+          documentURL,
+          title: readableFileName
+        })
+          .then(async () => {
+            let counter = 0;
+            let done = false;
 
-          await processDocument({
-            studentId: user?._id,
-            documentId: fileName,
-            documentURL
-          }).then(() => {
-            setShow(false);
-            setShowHelp(false);
-            navigate('/dashboard/docchat', {
-              state: {
-                documentUrl: documentURL,
-                docTitle: title
+            const checkStatus = async () => {
+              try {
+                const check = await checkDocumentStatus({
+                  studentId: user?._id,
+                  documentId: readableFileName
+                });
+                if (check.status === 'ingested') {
+                  const metadata = {
+                    customMetadata: {
+                      ingest_status: 'success'
+                    }
+                  };
+                  await updateMetadata(storageRef, metadata);
+                  setSelectedOption(() => storageRef.fullPath);
+                  done = true;
+
+                  setUiMessage({
+                    status: 'info',
+                    heading: 'Processing complete!',
+                    description:
+                      'Click "confirm" to start chatting with your document.'
+                  });
+
+                  setConfirmReady(true);
+                }
+                if (check.status === 'too_large') {
+                  const metadata = {
+                    customMetadata: {
+                      ingest_status: 'too_large'
+                    }
+                  };
+                  await updateMetadata(storageRef, metadata);
+                  return setUiMessage({
+                    status: 'error',
+                    heading: 'Your document was too long.',
+                    description:
+                      'Your document is over 12,000 words. Consider uploading a shorter document.'
+                  });
+                  done = true;
+                }
+              } catch (e: any) {
+                setUiMessage({
+                  status: 'error',
+                  heading: 'Something went wrong',
+                  description: e.message
+                });
+              } finally {
+                counter++;
+                if (done || counter > 20) clearInterval(intervalId);
+
+                if (counter > 20 && !done) {
+                  setUiMessage({
+                    status: 'error',
+                    heading: "We couldn't process your document",
+                    description:
+                      'There was something wrong with your document. Please send a message to someone on the Shepherd team to look into this problem.'
+                  });
+                }
               }
+            };
+
+            const intervalId = setInterval(checkStatus, 5000);
+          })
+          .catch(async (e: any) => {
+            await deleteObject(storageRef);
+            return setUiMessage({
+              status: 'error',
+              heading: 'Something went wrong. Reload this page and try again.',
+              description: e.message
             });
           });
-        }
-      );
-    }
+      }
+    );
+  };
+
+  const goToDocChat = async () => {
+    const documentUrl = await getDownloadURL(ref(storage, selectedOption));
+    const item = list.filter((list) => list.fullPath === selectedOption);
+    navigate('/dashboard/docchat', {
+      state: {
+        documentUrl,
+        docTitle: item[0].name
+      }
+    });
+
+    window.location.reload();
+  };
+
+  const doNothing = () => {
+    return;
+  };
+
+  const proceed = async () => {
+    checkIfDocumentPresent();
+    await goToDocChat();
+    setShow(false);
+    setShowHelp(false);
   };
 
   return (
@@ -266,55 +375,67 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
           />
           <CustomButton
             type="button"
-            onClick={processOrContinue}
+            onClick={confirmReady ? proceed : doNothing}
+            active={confirmReady}
             title="Confirm"
           />
         </div>
       }
     >
       <Wrapper>
-        <div className="p-4">
+        <div className="p-4" style={{ width: '100%' }}>
           {loadedList && (
-            <div>
+            <div style={{ width: '-webkit-fill-available' }}>
               <Label htmlFor="note">Select note</Label>
-              <Select
-                id="note"
-                name="note"
-                defaultValue="Select from your note"
-                onChange={handleSelected}
+              <CustomDropdown
+                value={selectedOption?.split('/').pop()}
+                placeholder="Select an Option"
               >
-                {loadedList &&
-                  list.map((item, id) => (
-                    <option value={item.fullPath} key={id}>
-                      {item.name}
-                    </option>
-                  ))}
-              </Select>
+                <VStack alignItems={'left'} padding="10px">
+                  {loadedList &&
+                    list.map((item, id) => {
+                      return (
+                        <option
+                          value={item.fullPath}
+                          key={id}
+                          onClick={handleSelected}
+                          style={{
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {item.name}
+                        </option>
+                      );
+                    })}
+                </VStack>
+              </CustomDropdown>
               <OrText>Or</OrText>
             </div>
           )}
 
           <FileUploadButton onClick={clickInput}>
             <span className="flex items-center space-x-2">
-              <FileUploadIcon
-                className="text-primaryGray w-5 h-5"
-                onClick={undefined}
-              />
-              <span className="text-dark">Upload doc</span>
+              {fileName ? (
+                <AttachmentIcon />
+              ) : (
+                <FileUploadIcon
+                  className="text-primaryGray w-5 h-5"
+                  onClick={undefined}
+                />
+              )}
+              {fileName ? (
+                <FileName>{fileName}</FileName>
+              ) : (
+                <span className="text-dark">Upload doc</span>
+              )}
             </span>
-
             {/* Uploading Progress */}
-            {isLoading && (
-              <Spinner
-                thickness="4px"
-                speed="0.65s"
-                emptyColor="gray.200"
-                color="blue.500"
-                size="md"
-              />
+            {!!progress && (
+              <CircularProgressBar value={progress} color="#207DF7" size="40px">
+                <CircularProgressLabel>{progress}%</CircularProgressLabel>
+              </CircularProgressBar>
             )}
           </FileUploadButton>
-          {uploadError && <p className="text-sm text-red-700">{uploadError}</p>}
           <input
             type="file"
             accept="application/pdf"
@@ -325,12 +446,27 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
           />
           <PDFTextContainer>
             <Text>
-              Shepherd supports <Format>.pdf, .ppt, .jpg & .txt</Format>{' '}
-              document formats
+              Shepherd supports <Format>.pdf</Format> document formats
             </Text>
           </PDFTextContainer>
-          {fileName && <FileName>{fileName}</FileName>}
-          {progress && <Progress>{progress}</Progress>}
+          {uiMessage && (
+            <Alert
+              status={uiMessage.status}
+              variant="subtle"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+              textAlign="center"
+              height="max-content"
+            >
+              <AlertTitle mt={2} mb={1} fontSize="md" textColor="black">
+                {uiMessage.heading}
+              </AlertTitle>
+              <AlertDescription maxWidth="sm" textColor="black">
+                {uiMessage.description}
+              </AlertDescription>
+            </Alert>
+          )}
         </div>
       </Wrapper>
     </CustomModal>

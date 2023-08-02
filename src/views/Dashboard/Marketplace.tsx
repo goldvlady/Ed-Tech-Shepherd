@@ -82,7 +82,7 @@ export default function Marketplace() {
   const [fromTime, setFromTime] = useState('');
   const [toTime, setToTime] = useState('');
   const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(3);
+  const [limit, setLimit] = useState<number>(20);
   const [count, setCount] = useState<number>(5);
   const [days, setDays] = useState<Array<any>>([]);
 
@@ -100,6 +100,7 @@ export default function Marketplace() {
   const toast = useToast();
 
   const getData = async () => {
+    setLoadingData(true);
     const formData = {
       courses: subject === 'Subject' ? '' : subject.toLowerCase(),
       levels: level === '' ? '' : level._id,
@@ -113,18 +114,12 @@ export default function Marketplace() {
       page: page,
       limit: limit
     };
-    setLoadingData(true);
+
     const resp = await ApiService.getAllTutors(formData);
     const data = await resp.json();
 
     setPagination(data.meta.pagination);
-    const startIndex = (page - 1) * data.meta.pagination.limit;
-    const endIndex = Math.min(
-      startIndex + data.meta.pagination.limit,
-      data.meta.pagination.count
-    );
 
-    // const visibleTutors = data.tutors.slice(startIndex, endIndex);
     setAllTutors(data.tutors);
     setLoadingData(false);
   };
@@ -153,7 +148,7 @@ export default function Marketplace() {
   }, []);
 
   const checkBookmarks = (id: string) => {
-    const found = bookmarkedTutors.some((el) => el.tutor?._id === id);
+    const found = bookmarkedTutors?.some((tutor) => tutor._id === id);
     if (!found) {
       return false;
     } else {
@@ -180,7 +175,12 @@ export default function Marketplace() {
   return (
     <>
       <Box p={5}>
-        <Box bgColor={'black'} borderRadius={'14px'} height={'200px'}>
+        <Box
+          bgColor={'transparent'}
+          borderRadius={'14px'}
+          border="1px solid #E2E8F0"
+          height={'200px'}
+        >
           <Banner />
         </Box>
         <Box textAlign="center">
@@ -391,49 +391,53 @@ export default function Marketplace() {
               </Menu>
             </HStack>
             <Spacer />
-            <Flex gap="2">
+            <Box>
               <CustomButton
                 buttonText={'Clear Filters'}
                 buttonType="outlined"
                 fontStyle={{ fontSize: '12px', fontWeight: 500 }}
                 onClick={resetForm}
               />
-            </Flex>
+            </Box>
           </Flex>
         </Box>
 
         <Box my={45} py={2} minHeight="750px">
-          <SimpleGrid
-            minChildWidth={'370px'}
-            spacing={4}
-            ref={tutorGrid}
-            justifyItems="left"
-          >
-            {allTutors.map((tutor: any) => (
-              <TutorCard
-                key={tutor._id}
-                id={tutor._id}
-                name={`${tutor.user.name.first} ${tutor.user.name.last} `}
-                levelOfEducation={tutor.highestLevelOfEducation}
-                avatar={tutor.user.avatar}
-                rate={tutor.rate}
-                description={tutor.description}
-                rating={tutor.rating}
-                reviewCount={tutor.reviewCount}
-                saved={checkBookmarks(tutor._id)}
-                courses={tutor.coursesAndLevels.map((course) => course)}
-                handleSelectedCourse={handleSelectedCourse}
+          {!loadingData && allTutors.length > 0 ? (
+            <>
+              <SimpleGrid
+                columns={{ base: 1, md: 2, lg: 3 }}
+                spacing="20px"
+                ref={tutorGrid}
+              >
+                {allTutors.map((tutor: any) => (
+                  <TutorCard
+                    key={tutor._id}
+                    id={tutor._id}
+                    name={`${tutor.user.name.first} ${tutor.user.name.last} `}
+                    levelOfEducation={tutor.highestLevelOfEducation}
+                    avatar={tutor.user.avatar}
+                    rate={tutor.rate}
+                    description={tutor.description}
+                    rating={tutor.rating}
+                    reviewCount={tutor.reviewCount}
+                    saved={checkBookmarks(tutor._id)}
+                    courses={tutor.coursesAndLevels.map((course) => course)}
+                    handleSelectedCourse={handleSelectedCourse}
+                  />
+                ))}
+              </SimpleGrid>{' '}
+              <Pagination
+                page={pagination ? pagination.page : 0}
+                count={pagination ? pagination.count : 0}
+                limit={pagination ? pagination.limit : 0}
+                handleNextPage={handleNextPage}
+                handlePreviousPage={handlePreviousPage}
               />
-            ))}
-          </SimpleGrid>
-          <Pagination
-            page={pagination ? pagination.page : 0}
-            count={pagination ? pagination.count : 0}
-            limit={pagination ? pagination.limit : 0}
-            totalPages={pagination ? Math.ceil(count / limit) : 0}
-            handleNextPage={handleNextPage}
-            handlePreviousPage={handlePreviousPage}
-          />
+            </>
+          ) : (
+            !loadingData && 'no tutors found'
+          )}
         </Box>
       </Box>
     </>
