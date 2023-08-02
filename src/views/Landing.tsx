@@ -534,7 +534,12 @@ const Landing = () => {
                       <Text className="landing-desc-mini">{value}</Text>
                     </div>
                   ))}
-                  <Button className="landing-price-btn" onClick={() => openModal('Trials Coming Soon')}>Try for Free</Button>
+                  <Button
+                    className="landing-price-btn"
+                    onClick={() => openModal('Trials Coming Soon')}
+                  >
+                    Try for Free
+                  </Button>
                 </div>
               </div>
             ))}
