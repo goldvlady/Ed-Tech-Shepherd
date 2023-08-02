@@ -16,40 +16,22 @@ type List = {
 type Store = {
   user: User | null;
   userNotifications: Array<UserNotifications>;
-  fetchUser: () => Promise<void>;
+  fetchUser: () => Promise<boolean>;
   fetchNotifications: () => Promise<void>;
   fetchUserDocuments: () => Promise<Array<any>>;
   userDocuments: Array<List> | [];
 };
 
-const userPatch = {
-  name: {
-    first: 'Chigo',
-    last: 'Ofurum'
-  },
-  email: 'chigo@gmail.com',
-  isVerified: true,
-  type: 'student' as const,
-  paymentMethods: [],
-  firebaseId: 'hackety hack',
-  dob: '2022-10-10',
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  _id: 'whatevs'
-};
-
-const useHack = false;
-
 export default create<Store>((set) => ({
   user: null,
   userNotifications: [],
   userDocuments: [],
-  fetchUser: useHack
-    ? async () => set({ user: userPatch })
-    : async () => {
-        const response = await ApiService.getUser();
-        set({ user: await response.json() });
-      },
+  fetchUser: async () => {
+    const response = await ApiService.getUser();
+    if (response.status !== 200) return false;
+    set({ user: await response.json() });
+    return true;
+  },
   fetchNotifications: async () => {
     const notificationsResponse = await ApiService.getUserNotifications();
     set({
