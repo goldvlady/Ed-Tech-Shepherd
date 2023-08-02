@@ -457,7 +457,7 @@ const Offer = () => {
                   subtitle={
                     offer.completed
                       ? `Your offer has been completed`
-                      : `Your offer has been accepted, proceed to make payment`
+                      : `Your offer  accepted, proceed to make payment`
                   }
                 />
               )}
