@@ -40,10 +40,26 @@ import Twitter from '../assets/twitter-icon.svg';
 import Logo from '../components/Logo';
 import faqData from '../mocks/faqs.json';
 import priceData from '../mocks/pricing.json';
-import { Button, Box, Link, Text, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Collapse, VStack, Modal, ModalOverlay, ModalContent, ModalCloseButton, ModalBody } from '@chakra-ui/react';
+import {
+  Button,
+  Box,
+  Link,
+  Text,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
+  Collapse,
+  VStack,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalCloseButton,
+  ModalBody
+} from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
-
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -583,10 +599,7 @@ const Landing = () => {
             </div>
           </div>
           <div className="faq-data-wrapper">
-            <Accordion
-              className="faq-accordion"
-              allowToggle
-            >
+            <Accordion className="faq-accordion" allowToggle>
               {faqData[activeTab].map((faq, index) => (
                 <AccordionItem className="faq-item-data" key={index}>
                   <AccordionButton className="faq-accordion-btn">
