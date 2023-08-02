@@ -249,7 +249,7 @@ const Landing = () => {
                   <Button
                     mt="30px !important"
                     className="landing-btn"
-                    onClick={() => navigate(`/signup`)}
+                    onClick={() => navigate(`/onboard/student`)}
                   >
                     Find a Tutor
                   </Button>
@@ -278,7 +278,7 @@ const Landing = () => {
                   <Button
                     mt="30px !important"
                     className="landing-btn"
-                    onClick={() => navigate(`/signup`)}
+                    onClick={() => navigate(`/onboard/student`)}
                   >
                     Find a Tutor
                   </Button>
@@ -307,7 +307,7 @@ const Landing = () => {
                   <Button
                     marginTop="30px !important"
                     className="landing-btn"
-                    onClick={() => navigate(`/signup`)}
+                    onClick={() => navigate(`/onboard/student`)}
                   >
                     Find a Tutor
                   </Button>
@@ -409,7 +409,7 @@ const Landing = () => {
                   fontWeight: '500',
                   color: '#207df7'
                 }}
-                onClick={() => openModal('Tutor Application Coming Soon')}
+                onClick={() => navigate(`/onboard/tutor`)}
               >
                 Become a tutor{' '}
                 <img className="landing-card-arrow" src={Arrow} />
@@ -534,7 +534,7 @@ const Landing = () => {
                       <Text className="landing-desc-mini">{value}</Text>
                     </div>
                   ))}
-                  <Button className="landing-price-btn">Try for Free</Button>
+                  <Button className="landing-price-btn" onClick={() => openModal('Trials Coming Soon')}>Try for Free</Button>
                 </div>
               </div>
             ))}
