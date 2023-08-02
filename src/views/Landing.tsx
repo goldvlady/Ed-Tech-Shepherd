@@ -40,22 +40,10 @@ import Twitter from '../assets/twitter-icon.svg';
 import Logo from '../components/Logo';
 import faqData from '../mocks/faqs.json';
 import priceData from '../mocks/pricing.json';
-import {
-  Button,
-  Box,
-  Link,
-  Text,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  AccordionIcon,
-  Collapse,
-  VStack
-} from '@chakra-ui/react';
-import React from 'react';
-import { useEffect, useState } from 'react';
+import { Button, Box, Link, Text, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Collapse, VStack, Modal, ModalOverlay, ModalContent, ModalCloseButton, ModalBody } from '@chakra-ui/react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
+
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -119,6 +107,19 @@ const Landing = () => {
   //     </div>
   //   );
   // };
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState('');
+  const faqAccordionRef = useRef<HTMLDivElement>(null);
+
+  const openModal = (content) => {
+    setModalContent(content);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalContent('');
+  };
 
   return (
     <div className="landing-wrapper">
@@ -364,6 +365,7 @@ const Landing = () => {
                 <Text className="landing-metric-tag">LEARNERS</Text>
               </div>
               <Link
+                as="button"
                 className="landing-title-sub"
                 style={{
                   display: 'flex',
@@ -371,6 +373,7 @@ const Landing = () => {
                   fontWeight: '500',
                   color: '#207df7'
                 }}
+                onClick={() => openModal('Waitlist Coming Soon')}
               >
                 Join our waitlist{' '}
                 <img className="landing-card-arrow" src={Arrow} />
@@ -382,6 +385,7 @@ const Landing = () => {
                 <Text className="landing-metric-tag">TUTORS</Text>
               </div>
               <Link
+                as="button"
                 className="landing-title-sub"
                 style={{
                   display: 'flex',
@@ -389,6 +393,7 @@ const Landing = () => {
                   fontWeight: '500',
                   color: '#207df7'
                 }}
+                onClick={() => openModal('Tutor Application Coming Soon')}
               >
                 Become a tutor{' '}
                 <img className="landing-card-arrow" src={Arrow} />
@@ -400,6 +405,7 @@ const Landing = () => {
                 <Text className="landing-metric-tag">SCHOOLS</Text>
               </div>
               <Link
+                as="button"
                 className="landing-title-sub"
                 style={{
                   display: 'flex',
@@ -407,6 +413,7 @@ const Landing = () => {
                   fontWeight: '500',
                   color: '#207df7'
                 }}
+                onClick={() => openModal('Institution Application Coming Soon')}
               >
                 Bring Shepherd to your school{' '}
                 <img className="landing-card-arrow" src={Arrow} />
@@ -517,7 +524,7 @@ const Landing = () => {
             ))}
           </div>
         </div>
-        <div className="landing-section-faq">
+        <div className="landing-section-faq" ref={faqAccordionRef}>
           <div className="landing-faq-title-wrapper">
             <Text className="landing-title-sub" style={{ color: '#207df7' }}>
               FAQs
@@ -576,7 +583,10 @@ const Landing = () => {
             </div>
           </div>
           <div className="faq-data-wrapper">
-            <Accordion className="faq-accordion" allowToggle>
+            <Accordion
+              className="faq-accordion"
+              allowToggle
+            >
               {faqData[activeTab].map((faq, index) => (
                 <AccordionItem className="faq-item-data" key={index}>
                   <AccordionButton className="faq-accordion-btn">
@@ -631,17 +641,37 @@ const Landing = () => {
             <div className="landing-links-wrapper">
               <div className="landing-link-wrapper">
                 <Text className="landing-links-title">Product</Text>
-                <Link className="landing-link">Shepherd</Link>
-                <Link className="landing-link">Become a Tutor</Link>
-                <Link className="landing-link">Pricing</Link>
-                <Link className="landing-link">FAQs</Link>
+                <Link
+                  as="button"
+                  className="landing-link"
+                  onClick={() => navigate(`/onboard`)}
+                >
+                  Shepherd
+                </Link>
+                <Link
+                  as="button"
+                  className="landing-link"
+                  onClick={() => openModal('Tutor Application Coming Soon')}
+                >
+                  Become a Tutor
+                </Link>
               </div>
               <div className="landing-link-wrapper">
                 <Text className="landing-links-title">Resources</Text>
-                <Link className="landing-link">Shepherd</Link>
-                <Link className="landing-link">Become a Tutor</Link>
-                <Link className="landing-link">Pricing</Link>
-                <Link className="landing-link">FAQs</Link>
+                <Link
+                  as="button"
+                  className="landing-link"
+                  onClick={() => openModal('Pricing Details Coming Soon')}
+                >
+                  Pricing
+                </Link>
+                <Link
+                  as="button"
+                  className="landing-link"
+                  onClick={() => faqAccordionRef.current?.scrollIntoView()}
+                >
+                  FAQs
+                </Link>
               </div>
             </div>
             <div className="landing-footer-socials">
@@ -653,10 +683,18 @@ const Landing = () => {
                   Reach out to us
                 </Text>
                 <div className="landing-footer-icons">
-                  <img className="footer-icon" src={Mail} />
-                  <img className="footer-icon" src={Twitter} />
-                  <img className="footer-icon" src={Linkedin} />
-                  <img className="footer-icon" src={Insta} />
+                  <a href="#footer-icon">
+                    <img className="footer-icon" src={Mail} />
+                  </a>
+                  <a href="https://twitter.com/ShepherdLearn">
+                    <img className="footer-icon" src={Twitter} />
+                  </a>
+                  <a href="#footer-icon">
+                    <img className="footer-icon" src={Linkedin} />
+                  </a>
+                  <a href="https://www.instagram.com/shepherdtutors/">
+                    <img className="footer-icon" src={Insta} />
+                  </a>
                 </div>
               </div>
             </div>
@@ -670,15 +708,19 @@ const Landing = () => {
             </Text>
             <div className="landing-terms">
               <Text
+                as="button"
                 className="landing-signature-info"
                 style={{ cursor: 'pointer' }}
+                onClick={() => openModal('Policy Details Coming Soon')}
               >
                 Privacy policy
               </Text>
               <img className="landing-dot-icon" src={Dot} />
               <Text
+                as="button"
                 className="landing-signature-info"
                 style={{ cursor: 'pointer' }}
+                onClick={() => openModal('Term Details Coming Soon')}
               >
                 Terms of use
               </Text>
@@ -686,6 +728,15 @@ const Landing = () => {
           </div>
         </div>
       </div>
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalCloseButton />
+          <ModalBody>
+            <p>{modalContent}</p>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </div>
   );
 };
