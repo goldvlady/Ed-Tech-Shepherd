@@ -80,11 +80,20 @@ function ActivityFeeds(props) {
   const getFileName = (url: string) => {
     const lastSlashIndex = url?.lastIndexOf('/');
     const textAfterLastSlash = url?.substring(lastSlashIndex + 1);
-    if (textAfterLastSlash.length > 15) {
-      return textAfterLastSlash.substring(0, 10) + '...';
-    }
-    return textAfterLastSlash;
+
+    const startIndex =
+      textAfterLastSlash.indexOf('uploads%2F') + 'uploads%2F'.length;
+    const endIndex = textAfterLastSlash.indexOf('?alt');
+    const extractedText = textAfterLastSlash.substring(startIndex, endIndex);
+
+    const result = extractedText.replace(/%20/g, ' ');
+
+    // if (result.length > 15) {
+    //   return result.substring(0, 15) + '...';
+    // }
+    return result;
   };
+
   const getIconByActivityType = (activityType) => {
     switch (activityType) {
       case 'documents':
