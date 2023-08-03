@@ -1,5 +1,5 @@
+import { useCustomToast as useToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import ApiService from '../../../../services/ApiService';
-import { useToast } from '@chakra-ui/react';
 import React, {
   createContext,
   useState,
@@ -81,7 +81,7 @@ const MnemonicSetupProvider: React.FC<{ children: React.ReactNode }> = ({
             updatedMnemonics[index] = {
               ...updatedMnemonics[index],
               explanation: data?.explainer?.context,
-              answer: formatPairing(data.explainer.pairings)
+              answer: data?.explainer.answer
             };
             return updatedMnemonics;
           });

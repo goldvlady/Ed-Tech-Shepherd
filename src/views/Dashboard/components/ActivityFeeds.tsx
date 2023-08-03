@@ -36,7 +36,7 @@ import React, { useState, useEffect } from 'react';
 import { BsChevronDown, BsFiletypeDoc } from 'react-icons/bs';
 import { RiCalendar2Fill } from 'react-icons/ri';
 import { SlEnergy } from 'react-icons/sl';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 const Item = styled(Box)``;
@@ -66,36 +66,6 @@ const Root = styled(Flex)`
   padding-left: 0px;
 `;
 
-const getIconByActivityType = (activityType) => {
-  switch (activityType) {
-    case 'documents':
-      return DocIcon;
-    case 'notes':
-      return NoteIcon;
-    case 'payments':
-      return ReceiptIcon;
-    case 'flashcards':
-      return FlashcardIcon;
-    default:
-      return undefined;
-  }
-};
-
-const getFileIconByActivityType = (activityType) => {
-  switch (activityType) {
-    case 'documents':
-      return AdobeIcon;
-    case 'notes':
-      return NoteSmIcon;
-    case 'payments':
-      return ReceiptSmIcon;
-    case 'flashcards':
-      return FlashcardSmIcon;
-    default:
-      return undefined;
-  }
-};
-
 function ActivityFeeds(props) {
   const { feeds, userType } = props;
   const [feedPeriod, setFeedPeriod] = useState<
@@ -106,11 +76,67 @@ function ActivityFeeds(props) {
   const activateHelpModal = () => {
     setToggleHelpModal(true);
   };
-
+  const navigate = useNavigate();
   const getFileName = (url: string) => {
     const lastSlashIndex = url?.lastIndexOf('/');
     const textAfterLastSlash = url?.substring(lastSlashIndex + 1);
-    return textAfterLastSlash;
+
+    const startIndex =
+      textAfterLastSlash.indexOf('uploads%2F') + 'uploads%2F'.length;
+    const endIndex = textAfterLastSlash.indexOf('?alt');
+    const extractedText = textAfterLastSlash.substring(startIndex, endIndex);
+
+    const result = extractedText.replace(/%20/g, ' ');
+
+    // if (result.length > 15) {
+    //   return result.substring(0, 15) + '...';
+    // }
+    return result;
+  };
+
+  const getIconByActivityType = (activityType) => {
+    switch (activityType) {
+      case 'documents':
+        return DocIcon;
+      case 'notes':
+        return NoteIcon;
+      case 'payments':
+        return ReceiptIcon;
+      case 'flashcards':
+        return FlashcardIcon;
+      default:
+        return undefined;
+    }
+  };
+
+  const getFileIconByActivityType = (activityType) => {
+    switch (activityType) {
+      case 'documents':
+        return AdobeIcon;
+      case 'notes':
+        return NoteSmIcon;
+      case 'payments':
+        return ReceiptSmIcon;
+      case 'flashcards':
+        return FlashcardSmIcon;
+      default:
+        return undefined;
+    }
+  };
+
+  const getTextByActivityType = (activityType, link) => {
+    switch (activityType) {
+      case 'documents':
+        return `You uploaded ${getFileName(link)} to your workspace`;
+      case 'notes':
+        return `You created a new note ${getFileName(link)} to your workspace`;
+      case 'payments':
+        return `You made a payment of $10.95 to Leslie Peters for Chemistry lessons`;
+      case 'flashcards':
+        return `You created a new flashcard deck "${link}" from documentitle.pdf`;
+      default:
+        return undefined;
+    }
   };
 
   const [filteredFeeds, setFilteredFeeds] = useState<any[]>([]);
@@ -208,7 +234,10 @@ function ActivityFeeds(props) {
                       fontSize="14px"
                       mb={0}
                     >
-                      {feed.title}
+                      {getTextByActivityType(
+                        feed.activityType,
+                        feed.link ? feed.link : feed.title
+                      )}
                     </Text>
 
                     <Spacer />
@@ -221,6 +250,16 @@ function ActivityFeeds(props) {
                       justifyContent="center"
                       alignItems="center"
                       px={3}
+                      _hover={{ cursor: 'pointer', bgColor: '#dcdfe5' }}
+                      onClick={() =>
+                        navigate(
+                          `${
+                            feed.activityType === 'documents'
+                              ? `/dashboard/new-note/${feed.id}`
+                              : '/dashboard/flashcards'
+                          }`
+                        )
+                      }
                     >
                       <Flex mt={2.5} gap={1}>
                         <Text>

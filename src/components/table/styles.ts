@@ -6,6 +6,7 @@ export const StyledTh = styled(Th)<{ textAlign?: string }>`
   color: #6e7682;
   font-weight: bold;
   font-size: 12px;
+  padding: 1rem 0rem;
   line-height: 17px;
   text-align: ${(props) => props.textAlign || 'center'};
   border-radius: 5px;
@@ -25,7 +26,10 @@ export const StyledTr = styled(ChakraTr)<{
   cursor: ${(props) => (props.selectable ? 'pointer' : 'default')};
 `;
 
-export const StyledTd = styled(ChakraTd)<{ tagsColor: string }>`
+export const StyledTd = styled(ChakraTd)<{
+  tagsColor: string;
+  textAlign?: string;
+}>`
   padding: 15px 0;
   &:first-child,
   &:last-child {

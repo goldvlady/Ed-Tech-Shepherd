@@ -48,6 +48,7 @@ const PaymentDialog = React.forwardRef<PaymentDialogRef, Props>(
     const [paymentIntentClientSecret, setPaymentIntentClientSecret] = useState<
       string | null
     >(null);
+    console.log(paymentIntentClientSecret, 'secret');
 
     React.useImperativeHandle(ref, () => {
       return {

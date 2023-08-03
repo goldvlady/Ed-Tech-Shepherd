@@ -1,0 +1,52 @@
+[
+  {
+    "tier": "Basic",
+    "price": "$4.99",
+    "cycle": "/month",
+    "subscription": "[Try it Free for 2 weeks] $48/year (20% discount)",
+    "value": [
+      "Ad supported",
+      "AI powered by GPT-3.5",
+      "Access to tutor marketplace",
+      "Unlimited manual flashcards generation with spaced repetiton",
+      "500 AI-generated Flashcards/month  Flashcards with spaced repetition",
+      "Adaptive quizzes",
+      "Document AI chat - 8,000 word limit",
+      "Upload files up to 100 mb limit per file",
+      "Take notes in Notion-style editor",
+      "30 questions per day to chatbot",
+      "Smart reminders",
+      "Study analytics"
+    ]
+  },
+  {
+    "tier": "Premium",
+    "price": "$14.99",
+    "cycle": "/month",
+    "subscription": "Premium [Try it Free for 4 weeks] $135/year (25% discount)",
+    "value": [
+      "Everything in Basic",
+      "Focused studying: No ads",
+      "AI powered by GPT-4",
+      "Access to stored videos and transcripts of tutor sessions",
+      "Unlimited AI-generated Flashcards/month",
+      "Document AI chat - 13,000 word limit",
+      "Upload files up to 250mb limit per file",
+      "Import/Export flashcards from CSV (e.g., Anki)",
+      "200 questions per day to chatbots",
+      "Study plan (coming soon)",
+      "Research assistant (coming soon)"
+    ],
+    "popular": true
+  },
+  {
+    "tier": "Founding member",
+    "price": "$300",
+    "cycle": "Lifetime membership",
+    "value": [
+      "Everything in Premium",
+      "Unlimited questions per day to chatbots",
+      "Early access to new features"
+    ]
+  }
+]

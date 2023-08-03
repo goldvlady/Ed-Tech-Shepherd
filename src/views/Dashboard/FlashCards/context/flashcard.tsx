@@ -1,4 +1,4 @@
-// import FileProcessingService from '../../../../helpers/files.helpers/fileProcessing';
+import FileProcessingService from '../../../../helpers/files.helpers/fileProcessing';
 import { createDocchatFlashCards } from '../../../../services/AI';
 import ApiService from '../../../../services/ApiService';
 import userStore from '../../../../state/userStore';
@@ -167,8 +167,8 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
             studentId: user?._id as string,
             documentUrl: reqData.documentId as string
           };
-          // const fileInfo = new FileProcessingService(responseData);
-          // const hasProcessedFile = await fileInfo.process();
+          const fileInfo = new FileProcessingService(responseData);
+          const hasProcessedFile = await fileInfo.process();
           // console.log(hasProcessedFile);
           // const response = await createDocchatFlashCards({
           //   topic: reqData.topic as string,

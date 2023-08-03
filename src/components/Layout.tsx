@@ -47,7 +47,7 @@ import { getAuth, signOut } from 'firebase/auth';
 import React, { Fragment, useEffect, useState } from 'react';
 import { FaBell } from 'react-icons/fa';
 import { FiChevronDown } from 'react-icons/fi';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { useLocation, Link, useNavigate, Outlet } from 'react-router-dom';
 
 interface NavigationItem {
   name: string;
@@ -59,25 +59,25 @@ interface NavigationItem {
 const dummyNavigation: NavigationItem[] = [
   {
     name: 'Dashboard',
-    href: '/tutordashboard',
+    href: '/dashboard/tutordashboard',
     icon: DashboardIcon,
     current: true
   },
   {
     name: 'Clients',
-    href: '/tutordashboard/clients',
+    href: '/dashboard/tutordashboard/clients',
     icon: UserGroupIcon,
     current: false
   },
   {
     name: 'Offers',
-    href: '/tutordashboard/offers',
+    href: '/dashboard/tutordashboard/offers',
     icon: OffersIcon,
     current: false
   },
   {
     name: 'Messages',
-    href: '/tutordashboard/messages',
+    href: '/dashboard/tutordashboard/messages',
     icon: MessagesIcon,
     current: false
   }
@@ -94,13 +94,12 @@ export default function Layout({ children, className }) {
     useState<NavigationItem[]>(dummyNavigation);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, userNotifications } = userStore();
+  const { user, userNotifications, fetchNotifications } = userStore();
   const auth = getAuth();
-  const { tutorNotifications, fetchNotifications } = tutorStore();
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [fetchNotifications]);
 
   const activateProfileSwitchModal = () => {
     setToggleProfileSwitchModal(true);
@@ -568,7 +567,10 @@ export default function Layout({ children, className }) {
           </div>
         </div>
 
-        <main className={className}>{children}</main>
+        {/* <main className={className}>{children}</main>  */}
+        <Box pt={2}>
+          <Outlet />
+        </Box>
       </div>
 
       {/* Upload Document Modal */}

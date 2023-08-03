@@ -16,6 +16,7 @@ import { DeleteModal } from './components/deleteModal';
 import ScheduleStudyModal, {
   ScheduleFormState
 } from './components/scheduleModal';
+// import TagModal from './components/tagsModal';
 import { Stack } from '@chakra-ui/react';
 import {
   Button,
@@ -561,7 +562,7 @@ const CustomTable: React.FC = () => {
 
   return (
     <>
-      {isLoading && <LoaderOverlay />}
+      {isLoading && !flashcards?.length && <LoaderOverlay />}
       <FlashCardModal isOpen={Boolean(flashcard)} />
       {tagEditItem?.flashcard && (
         <TagModal

@@ -92,6 +92,7 @@ const ChoosePaymentMethodDialog = React.forwardRef<
   Props
 >(({ prefix }, ref) => {
   const { user } = userStore();
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [currentPaymentMethod, setCurrentPaymentMethod] =
     useState<PaymentMethod | null>(null);
@@ -128,7 +129,7 @@ const ChoosePaymentMethodDialog = React.forwardRef<
           <ModalBody flexDirection={'column'}>
             {prefix}
             <VStack width={'100%'}>
-              {user?.paymentMethods.map((pm) => (
+              {/* {user?.paymentMethods.map((pm) => (
                 <CardRoot
                   onClick={() => setCurrentPaymentMethod(pm)}
                   key={pm._id}
@@ -145,7 +146,7 @@ const ChoosePaymentMethodDialog = React.forwardRef<
                     isChecked={currentPaymentMethod?._id === pm._id}
                   />
                 </CardRoot>
-              ))}
+              ))} */}
             </VStack>
             <Box width={'100%'} mt={5}>
               <Button

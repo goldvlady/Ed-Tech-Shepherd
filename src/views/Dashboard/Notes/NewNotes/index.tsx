@@ -463,7 +463,6 @@ const NewNote = () => {
   // Load notes if noteID is provided via param
   useEffect(() => {
     getNoteById();
-
     // event for escape to minimize window
     window.addEventListener('keypress', handleWindowKey);
     return () => {

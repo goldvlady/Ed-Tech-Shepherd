@@ -1,4 +1,5 @@
 import { useCustomToast } from '../../../../../components/CustomComponents/CustomToast/useCustomToast';
+import CustomSelect from '../../../../../components/CustomSelect';
 import SelectComponent, { Option } from '../../../../../components/Select';
 import { useFlashCardState } from '../../context/flashcard';
 import {

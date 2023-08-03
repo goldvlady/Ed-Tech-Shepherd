@@ -1,3 +1,5 @@
+import TutorDashboardLayout from './components/Layout';
+import { AuthProvider, useAuth } from './providers/auth.provider';
 import resourceStore from './state/resourceStore';
 import userStore from './state/userStore';
 import theme from './theme';
@@ -20,6 +22,7 @@ import DashboardIndex from './views/Dashboard/index';
 import DashboardLayout from './views/Dashboard/layout';
 import ForgotPassword from './views/ForgotPassword';
 import Home from './views/Home';
+import Landing from './views/Landing';
 import Login from './views/Login';
 import OnboardStudent from './views/OnboardStudent/index';
 import OnboardTutor from './views/OnboardTutor';
@@ -31,7 +34,6 @@ import Client from './views/TutorDashboard/Clients/client';
 import TutorOffer from './views/TutorDashboard/Offers/TutorOffer';
 import TutorOffers from './views/TutorDashboard/Offers/index';
 import TutorDashboard from './views/TutorDashboard/index';
-import TutorSettings from './views/TutorDashboard/settings';
 import PendingVerification from './views/VerificationPages/pending_verification';
 import VerificationSuccess from './views/VerificationPages/successful_verification';
 import VerifyEmail from './views/VerificationPages/verify_email';
@@ -43,9 +45,9 @@ import 'bootstrap/dist/css/bootstrap-reboot.min.css';
 import 'bootstrap/dist/css/bootstrap-utilities.min.css';
 import { User, getAuth, onAuthStateChanged } from 'firebase/auth';
 import mixpanel from 'mixpanel-browser';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
-import { Navigate, Route, Routes } from 'react-router';
+import { Navigate, Route, Router, Routes, useRoutes } from 'react-router';
 import {
   BrowserRouter,
   useLocation,
@@ -72,50 +74,137 @@ const RequireAuth = ({
   authenticated: any;
   unAuthenticated: any;
 }) => {
-  const { fetchUser, user, fetchNotifications, fetchUserDocuments } =
-    userStore();
-  const [loadingUser, setLoadingUser] = useState(true);
+  const {
+    state: { isAuthenticated, loading }
+  } = useAuth();
+  // const {
+  //   fetchUser,
+  //   user: userData,
+  //   fetchNotifications,
+  //   fetchUserDocuments
+  // } = userStore();
+  // const [loadingUser, setLoadingUser] = useState(true);
 
-  const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
-  const [obtainedUserAuthState, setObtainedUserAuthState] = useState(false);
-  const navigate = useNavigate();
+  // // const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
+  // // const [obtainedUserAuthState, setObtainedUserAuthState] = useState(false);
+  // // const navigate = useNavigate();
 
-  useEffect(() => {
-    onAuthStateChanged(getAuth(), async (user) => {
-      setObtainedUserAuthState(true);
-      setFirebaseUser(user);
-      if (user) {
-        await fetchUser()
-          .then(() => {
-            fetchNotifications();
-            fetchUserDocuments();
-          })
-          .catch((e) => {
-            if (user.metadata.creationTime !== user.metadata.lastSignInTime) {
-              navigate('/login');
-            }
-          });
-      }
-      setLoadingUser(false);
-    });
-    /* eslint-disable */
-  }, []);
+  // // useEffect(() => {
+  // //   onAuthStateChanged(getAuth(), async (user) => {
+  // //     setObtainedUserAuthState(true);
+  // //     setFirebaseUser(user);
 
-  return obtainedUserAuthState && !loadingUser ? (
-    firebaseUser && user ? (
-      authenticated
-    ) : (
-      unAuthenticated
-    )
-  ) : (
-    <Box p={5} textAlign="center">
-      <Spinner />
-    </Box>
+  // //     if (user && !userData) {
+  // //       fetchUser()
+  // //         .then(() => {
+  // //           fetchNotifications();
+  // //           fetchUserDocuments();
+  // //         })
+  // //         .catch((e) => {
+  // //           if (user.metadata.creationTime !== user.metadata.lastSignInTime) {
+  // //             navigate('/login');
+  // //           }
+  // //         });
+  // //     }
+  // //     setLoadingUser(false);
+  // //   });
+  // //   /* eslint-disable */
+  // // }, []);
+
+  if (loading) {
+    return (
+      <Box p={5} textAlign="center">
+        <Spinner />
+      </Box>
+    );
+  }
+
+  return isAuthenticated ? authenticated : unAuthenticated;
+};
+
+const studentRoutes = [
+  { path: 'new-note', element: <NewNote /> },
+  { path: 'tutor/:tutorId/offer', element: <SendTutorOffer /> },
+  { path: 'offer/:offerId', element: <Offer /> },
+  { path: 'notes', element: <Notes /> },
+  { path: '', element: <DashboardIndex /> },
+  { path: 'docchat', element: <DocChat /> },
+  { path: 'find-tutor', element: <Marketplace /> },
+  { path: 'find-tutor/tutor/', element: <Tutor /> },
+  { path: 'my-tutors', element: <MyTutors /> },
+  { path: 'saved-tutors', element: <BookmarkedTutors /> },
+  { path: 'messaging', element: <Messaging /> },
+  { path: 'account-settings', element: <StudentSettings /> },
+  { path: 'ace-homework', element: <HomeWorkHelp /> },
+  { path: 'flashcards/create', element: <CreateFlashCard /> },
+  { path: 'flashcards', element: <FlashCard /> }
+];
+
+// Tutor specific routes configuration
+const tutorRoutes = [
+  { path: 'tutordashboard', element: <TutorDashboard /> },
+  { path: 'tutordashboard/clients', element: <Clients /> },
+  { path: 'tutordashboard/offers', element: <TutorOffers /> },
+  { path: 'tutordashboard/offer/:offerId', element: <Offer /> }
+  // ... other tutor routes
+];
+
+const userLayouts = {
+  student: <DashboardLayout children />,
+  tutor: <TutorDashboardLayout children className />
+};
+
+// Routes based on userType
+const userRoutes = {
+  student: studentRoutes,
+  tutor: tutorRoutes,
+  both: [...studentRoutes, ...tutorRoutes]
+};
+
+const RenderLayout = () => {
+  const matchedRoute = useRoutes(userRoutes.both);
+
+  const isStudentRoute = studentRoutes.some(
+    (route) => route.path === matchedRoute?.props?.match?.route?.path
   );
+  const isTutorRoute = tutorRoutes.some(
+    (route) => route.path === matchedRoute?.props?.match?.route?.path
+  );
+
+  if (isStudentRoute) {
+    return userLayouts.student;
+  } else if (isTutorRoute) {
+    return userLayouts.tutor;
+  } else {
+    return <Navigate to="/404" />;
+  }
 };
 
 const AppRoutes: React.FC = () => {
   const location = useLocation();
+  const { fetchNotifications, fetchUserDocuments } = userStore();
+  const {
+    state: { user: userData, loading, isAuthenticated }
+  } = useAuth();
+
+  const userType = useMemo(() => {
+    return userData?.type.includes('tutor') &&
+      userData?.type.includes('student')
+      ? 'both'
+      : userData?.type.includes('tutor')
+      ? 'tutor'
+      : 'student';
+  }, [userData]);
+
+  const userRoute = userRoutes[userType];
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchNotifications();
+      fetchUserDocuments();
+    }
+    /* eslint-disable */
+  }, [isAuthenticated]);
 
   useEffect(() => {
     mixpanel.track('App Page Viewed', location);
@@ -129,9 +218,44 @@ const AppRoutes: React.FC = () => {
     });
   }, []);
 
+  if (loading) {
+    return (
+      <ChakraProvider theme={theme}>
+        <Box
+          p={5}
+          textAlign="center"
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh'
+          }}
+        >
+          <Spinner />
+        </Box>
+      </ChakraProvider>
+    );
+  }
+
   return (
     <Routes>
-      <Route element={<WelcomeLayout />}>
+      <Route
+        path=""
+        element={
+          <RequireAuth
+            authenticated={<Navigate to={'/dashboard'} />}
+            unAuthenticated={<Landing />}
+          />
+        }
+      />
+      <Route
+        element={
+          <RequireAuth
+            authenticated={<Navigate to={'/dashboard'} />}
+            unAuthenticated={<WelcomeLayout />}
+          />
+        }
+      >
         <Route path="onboard">
           <Route path="student" element={<OnboardStudent />} />
           <Route path="tutor" element={<OnboardTutor />} />
@@ -177,15 +301,6 @@ const AppRoutes: React.FC = () => {
       <Route path="verify_email" element={<VerifyEmail />} />
 
       <Route
-        path="login"
-        element={
-          <RequireAuth
-            authenticated={<Navigate to={'/dashboard'} />}
-            unAuthenticated={<Login />}
-          />
-        }
-      />
-      <Route
         path="signup"
         element={
           <RequireAuth
@@ -206,40 +321,6 @@ const AppRoutes: React.FC = () => {
       <Route path="auth-action" element={<AuthAction />} />
 
       <Route path="home" element={<Home />} />
-      <Route
-        path="dashboard"
-        element={
-          <RequireAuth
-            authenticated={<DashboardLayout children />}
-            unAuthenticated={<DashboardLayout children />}
-            // unAuthenticated={<Navigate to={"/login"} />}
-          />
-        }
-      >
-        <Route element={<DashboardLayout children />} />
-        <Route path="new-note">
-          <Route path="" element={<NewNote />} />
-          <Route path=":id" element={<NewNote />} />
-        </Route>
-        <Route path="notes" element={<Notes />} />
-        <Route path="flashcards">
-          <Route path="create" element={<CreateFlashCard />} />
-          <Route path="" element={<FlashCard />}></Route>
-        </Route>
-        <Route path="tutor/:tutorId/offer" element={<SendTutorOffer />} />
-        <Route path="offer/:offerId" element={<Offer />} />
-        <Route path="home" element={<DashboardIndex />} />
-        <Route path="docchat" element={<DocChat />} />
-        <Route path="find-tutor" element={<Marketplace />} />
-        <Route path="find-tutor/tutor/" element={<Tutor />} />
-        <Route path="my-tutors" element={<MyTutors />} />
-        <Route path="saved-tutors" element={<BookmarkedTutors />} />
-        <Route path="messaging" element={<Messaging />} />{' '}
-        <Route path="account-settings" element={<StudentSettings />} />
-        <Route path="ace-homework" element={<HomeWorkHelp />} />
-        <Route path="" element={<Navigate to="home" />} />
-        <Route path="*" element={<Navigate to="home" />} />
-      </Route>
 
       <Route
         path="session/:bookingId"
@@ -250,46 +331,18 @@ const AppRoutes: React.FC = () => {
           />
         }
       />
-
-      <Route
-        path="tutordashboard"
-        element={
-          <RequireAuth
-            authenticated={<TutorDashboard />}
-            unAuthenticated={<Navigate to={'/login'} />}
-          />
-        }
-      />
-
-      <Route
-        path="tutordashboard/clients"
-        element={
-          <RequireAuth
-            authenticated={<Clients />}
-            unAuthenticated={<Navigate to={'/login'} />}
-          />
-        }
-      />
-
-      <Route
-        path="tutordashboard/offers"
-        element={
-          <RequireAuth
-            authenticated={<TutorOffers />}
-            unAuthenticated={<Navigate to={'/login'} />}
-          />
-        }
-      />
-
-      <Route path="tutordashboard/offers/:id" element={<TutorOffer />} />
-      <Route path="tutordashboard/messages" element={<Messages />} />
-      <Route path="tutordashboard/tutorsettings" element={<TutorSettings />} />
+      <Route path="/dashboard" element={<RenderLayout />}>
+        {userRoute &&
+          userRoute.map((route) => (
+            <Route key={route.path} path={route.path} element={route.element} />
+          ))}
+      </Route>
     </Routes>
   );
 };
 
 function App() {
-  const { fetchResources, resourcesLoaded } = resourceStore();
+  const { fetchResources } = resourceStore();
 
   const doFetchResources = useCallback(async () => {
     await fetchResources();
@@ -300,32 +353,13 @@ function App() {
     doFetchResources();
   }, [doFetchResources]);
 
-  if (!resourcesLoaded) {
-    return (
-      <ThemeProvider theme={theme}>
-        <ChakraProvider theme={theme}>
-          <Box
-            p={5}
-            textAlign="center"
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '100vh'
-            }}
-          >
-            <Spinner />
-          </Box>
-        </ChakraProvider>
-      </ThemeProvider>
-    );
-  }
-
   return (
     <ChakraProvider theme={theme}>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </AuthProvider>
     </ChakraProvider>
   );
 }

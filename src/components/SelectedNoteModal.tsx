@@ -331,7 +331,6 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   const goToDocChat = async () => {
     const documentUrl = await getDownloadURL(ref(storage, selectedOption));
     const item = list.filter((list) => list.fullPath === selectedOption);
-    console.log('Yummy', item, 'URL', documentUrl);
     navigate('/dashboard/docchat', {
       state: {
         documentUrl,
