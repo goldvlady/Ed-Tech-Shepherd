@@ -8,7 +8,12 @@ import { ReactComponent as ArrowRight } from '../../../../assets/small-arrow-rig
 import { ReactComponent as ZoomIcon } from '../../../../assets/square.svg';
 import { ReactComponent as TrashIcon } from '../../../../assets/trash-icn.svg';
 import CustomButton from '../../../../components/CustomComponents/CustomButton';
+import { saveHTMLAsPDF } from '../../../../library/fs';
 import ApiService from '../../../../services/ApiService';
+import flashcardStore from '../../../../state/flashcardStore';
+import { FlashcardData } from '../../../../types';
+import TagModal from '../../FlashCards/components/TagModal';
+import { DeleteModal } from '../../FlashCards/components/deleteModal';
 import { NoteDetails, NoteServerResponse } from '../types';
 import {
   DropDownFirstPart,
@@ -17,6 +22,7 @@ import {
   Header,
   NewNoteWrapper,
   NoteBody,
+  PDFWrapper,
   SecondSection
 } from './styles';
 import { Block, BlockNoteEditor } from '@blocknote/core';
@@ -32,11 +38,10 @@ import {
 } from '@chakra-ui/react';
 import { useToast } from '@chakra-ui/react';
 import moment from 'moment';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { FaEllipsisH } from 'react-icons/fa';
-import { SlControlRewind } from 'react-icons/sl';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 const DEFAULT_NOTE_TITLE = 'Enter Note Title';
 const DELETE_NOTE_TITLE = 'Delete Note';
@@ -99,7 +104,17 @@ const getLocalStorageNoteId = (noteId: string | null): string => {
   return genId;
 };
 
+const handleOptionClick = (
+  onClick: ((...args: any[]) => void) | undefined,
+  ...params: any
+) => {
+  if (typeof onClick === 'function') {
+    onClick.call(null, ...(params || []));
+  }
+};
+
 const NewNote = () => {
+  const [deleteNoteModal, setDeleteNoteModal] = useState(false);
   // get user details
   const defaultNoteTitle = DEFAULT_NOTE_TITLE;
 
@@ -109,6 +124,7 @@ const NewNote = () => {
   const [noteParamId, setNoteParamId] = useState<string | null>(
     params.id ?? null
   );
+  const [openTags, setOpenTags] = useState<boolean>(false);
   const [noteId, setNoteId] = useState<string | null>(null);
   const [saveButtonState, setSaveButtonState] = useState<boolean>(true);
   const [editedTitle, setEditedTitle] = useState(defaultNoteTitle);
@@ -124,6 +140,35 @@ const NewNote = () => {
   const editor: BlockNoteEditor | null = useBlockNote({
     initialContent: initialContent ? JSON.parse(initialContent) : undefined
   });
+
+  const onCancel = () => {
+    setDeleteNoteModal(!deleteNoteModal);
+  };
+
+  const onDeleteNoteBtn = () => {
+    setDeleteNoteModal(true);
+  };
+
+  const downloadAsPDF = async () => {
+    if (!noteId || !editor) {
+      return showToast(
+        UPDATE_NOTE_TITLE,
+        'Cannot download note. Please select a note',
+        'error'
+      );
+    }
+    const noteHTML: string = await editor.blocksToHTML(editor.topLevelBlocks);
+    if (!noteHTML) {
+      return showToast(
+        UPDATE_NOTE_TITLE,
+        'Could not extract note content. Please try again',
+        'error'
+      );
+    }
+    alert('HTML :' + noteHTML);
+    const noteName = `note_${noteId}`;
+    saveHTMLAsPDF(noteName, noteHTML);
+  };
 
   const onSaveNote = async () => {
     if (!editor) return;
@@ -200,23 +245,27 @@ const NewNote = () => {
     const noteIdInUse = noteId ?? noteParamId;
 
     if (!noteIdInUse || noteIdInUse === '') {
+      setDeleteNoteModal(false);
       return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
     }
 
     const details = await deleteNote(noteIdInUse);
 
     if (!details) {
+      setDeleteNoteModal(false);
       return showToast(
         DELETE_NOTE_TITLE,
         'An unknown error occurs while adding note. Try again',
         'error'
       );
     }
-    console.log('details : ', details);
+    // console.log('details : ', details);
 
     if (details.error) {
+      setDeleteNoteModal(false);
       return showToast(DELETE_NOTE_TITLE, details.error, 'error');
     } else {
+      setDeleteNoteModal(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
       setEditedTitle(defaultNoteTitle);
       setNoteId('');
@@ -286,6 +335,8 @@ const NewNote = () => {
     }
   };
 
+  const { storeFlashcardTags } = flashcardStore();
+
   const handleHeaderClick = () => {
     if (editedTitle === defaultNoteTitle) {
       setEditedTitle('');
@@ -334,6 +385,7 @@ const NewNote = () => {
       isClosable: isClosable
     });
   };
+
   const toggleEditorView = () => {
     if (!editorStyle) {
       setEditorStyle({
@@ -360,6 +412,14 @@ const NewNote = () => {
     }
   };
 
+  const [tagEditItem, setTagEditItem] = useState<{
+    flashcard: FlashcardData;
+  } | null>(null);
+
+  const showTagsDropdown = () => {
+    setOpenTags((prevState) => !prevState);
+  };
+
   const dropDownOptions = [
     {
       id: 1,
@@ -371,7 +431,8 @@ const NewNote = () => {
       id: 2,
       leftIcon: <AddTag />,
       title: 'Add tag',
-      rightIcon: <ArrowRight />
+      rightIcon: <ArrowRight />,
+      onClick: showTagsDropdown
     },
     {
       id: 3,
@@ -389,13 +450,14 @@ const NewNote = () => {
       id: 5,
       leftIcon: <DownloadIcon />,
       title: 'Download',
-      rightIcon: <ArrowRight />
+      rightIcon: <ArrowRight />,
+      onClick: downloadAsPDF
     },
     {
       id: 6,
       leftIcon: <TrashIcon />,
       title: 'Delete',
-      onClick: onDeleteNote
+      onClick: onDeleteNoteBtn
     }
   ];
 
@@ -470,7 +532,11 @@ const NewNote = () => {
                 <section>
                   {dropDownOptions?.map((dropDownOption) => (
                     <DropDownLists key={dropDownOption.id}>
-                      <DropDownFirstPart onClick={dropDownOption.onClick}>
+                      <DropDownFirstPart
+                        onClick={() =>
+                          handleOptionClick(dropDownOption.onClick)
+                        }
+                      >
                         <div>
                           {dropDownOption.leftIcon}
                           <p
@@ -491,13 +557,54 @@ const NewNote = () => {
                 </section>
               </MenuList>
             </Menu>
+            {openTags && (
+              <TagModal
+                tags={tagEditItem?.flashcard?.tags || []}
+                isOpen={true}
+                onSubmit={async (d) => {
+                  const isSaved = await storeFlashcardTags(
+                    tagEditItem?.flashcard?._id as string,
+                    d
+                  );
+                  if (isSaved) {
+                    toast({
+                      position: 'top-right',
+                      title: `Tags Added for ${tagEditItem?.flashcard.deckname}`,
+                      status: 'success'
+                    });
+                    setTagEditItem(null);
+                    setOpenTags(false);
+                  } else {
+                    toast({
+                      position: 'top-right',
+                      title: `Failed to add tags for ${tagEditItem?.flashcard.deckname} flashcards`,
+                      status: 'error'
+                    });
+                  }
+                  setOpenTags(false);
+                }}
+                onClose={() => setOpenTags(false)}
+              />
+            )}
           </div>
         </SecondSection>
       </Header>
       <NoteBody>
         <BlockNoteView editor={editor} />
-        {/* <pre>{JSON.stringify(editorContent, null, 2)}</pre> */}
+        {/* We will show PDF once endpoint is implemented */}
+        {/* <PDFWrapper>
+          <PDFViewer
+            url={"https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"}
+            page={1} />
+        </PDFWrapper> */}
       </NoteBody>
+      <DeleteModal
+        isLoading={false}
+        isOpen={deleteNoteModal}
+        onCancel={() => onCancel()}
+        onDelete={() => onDeleteNote()}
+        onClose={() => setDeleteNoteModal(false)}
+      />
     </NewNoteWrapper>
   );
 };

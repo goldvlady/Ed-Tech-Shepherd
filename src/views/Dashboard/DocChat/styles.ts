@@ -85,8 +85,8 @@ export const FlexContainer = styled.div`
 `;
 
 export const CircleContainer = styled.div`
-  height: 4rem;
-  width: 4rem;
+  height: 5rem;
+  width: 4.5rem;
   flex-shrink: 0;
   background-color: #ffad3b;
   padding: 0.5rem;
@@ -224,9 +224,25 @@ export const SummaryContainer = styled.div`
   font-size: 0.875rem;
   padding: 12px;
   line-height: 2;
-  margin: 18px 0;
+  margin: 20px 0 80px 0;
   position: relative;
   cursor: pointer;
+`;
+
+export const SummaryContainer2 = styled.textarea`
+  border-radius: 8px;
+  background: #f4f5f6;
+  color: #585f68;
+  font-size: 0.875rem;
+  padding: 12px;
+  line-height: 2;
+  margin: 20px 0;
+  position: relative;
+  cursor: pointer;
+  resize: none;
+  width: -webkit-fill-available;
+  height: 70vh;
+  border: none;
 `;
 
 export const PageCount = styled.div`
@@ -248,7 +264,7 @@ export const IconContainer = styled.div`
   justify-content: end;
   position: absolute;
   right: 17px;
-  top: 2px;
+  top: 54px;
 
   > svg {
     cursor: pointer;
@@ -416,14 +432,14 @@ export const ChatHistoryHeader = styled.div`
 `;
 
 export const AskSomethingContainer = styled.div`
-  display:flex;
+  display: flex;
   flex-direction: column;
   justify-content: space-between;
   grid-column: 1 / -1;
   padding: 0.25rem 2rem;
   height: 9rem;
   border-radius: 8px;
-  margin-left: 1.75rem
+  margin-left: 1.75rem;
   font-size: 0.875rem;
 `;
 
@@ -494,7 +510,8 @@ export const StudyContainer = styled.section`
 export const StudyFirstLayer = styled.div`
   text-align: center;
 
-   > p:nth-child
+  > p:nth-child {
+  }
 `;
 
 export const DownPillContainer = styled.div`

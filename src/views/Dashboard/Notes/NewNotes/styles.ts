@@ -15,6 +15,7 @@ export const NewNoteWrapper = styled.section<{
   padding: 0;
   position: ${(props) => props.position ?? 'relative'};
   width: ${(props) => props.width ?? '210mm'};
+  margin: 0 auto;
   height: ${(props) => props.height ?? '297mm'};
   top: ${(props) => props.top ?? undefined};
   right: ${(props) => props.right ?? undefined};
@@ -22,6 +23,15 @@ export const NewNoteWrapper = styled.section<{
   left: ${(props) => props.left ?? undefined};
   z-index: ${(props) => props.zIndex ?? undefined};
   background-color: ${(props) => props.background ?? theme.color.background};
+`;
+
+export const PDFWrapper = styled.div`
+  display: flex;
+  width: '100%';
+  flex-direction: column;
+  height: '100%';
+  align-items: flex-start;
+  justify-content: center;
 `;
 
 export const Header = styled.section`

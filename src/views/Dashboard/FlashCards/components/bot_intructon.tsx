@@ -14,7 +14,7 @@ const BotIntructionBox = () => {
               lineHeight="21px"
               color="#212224"
             >
-              Your text here
+              Aristotle. Questioner, ethicist, Flashcard Facilitator
             </Text>
             <Text
               fontWeight="400"
@@ -33,9 +33,10 @@ const BotIntructionBox = () => {
           lineHeight="20px"
           color="#383D42"
         >
-          Nibh augue arcu congue gravida risus diam. Turpis nulla ac urna
-          elementum est enim mi bibendum varius. Nunc urna maecenas sodales
-          volutpat ullamcorper, ilmora tun dun kabash yato.
+          Greetings, learner! I'm here to sharpen your mind with the power of
+          repetition. Give me your material, and I will forge flashcards to
+          stimulate your memory. Together, let's make your revision process a
+          journey of self-discovery!
         </Text>
       </Flex>
     </Box>

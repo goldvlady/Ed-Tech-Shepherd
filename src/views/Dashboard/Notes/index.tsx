@@ -211,11 +211,12 @@ const Notes = () => {
         </DropdownMenu>
 
         <DropdownMenu
+          isWidth
           menuTitle="Sort by"
           DropdownMenuIcon={<SortIcon className="w-[20%] h-[2vh]" />}
         >
           <>
-            {/* {
+            {
               sortedByDate?.map((sorted: any) => (
                 <StyledSection key={sorted.id}>
                   <div>
@@ -237,7 +238,7 @@ const Notes = () => {
                   </div>
                 </StyledSection>
               ))[0]
-            } */}
+            }
             {
               sortedByTitle?.map((sorted: any) => (
                 <StyledSection key={sorted.id}>
@@ -323,7 +324,7 @@ const Notes = () => {
             <NotesWrapper>
               <header className="flex my-4 justify-between">
                 <StyledHeader>
-                  <span className="font-bold">My Notes</span>
+                  <span className="font-bold">My Documents</span>
                   <span className="count-badge">{allNotes.length}</span>
                 </StyledHeader>
                 <FilterMenu />

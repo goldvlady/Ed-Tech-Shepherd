@@ -65,6 +65,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
 
   const Wrapper = styled.div`
     display: block;
+    width: 100%;
   `;
 
   const Label = styled.label`
@@ -383,9 +384,9 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
       }
     >
       <Wrapper>
-        <div className="p-4">
+        <div className="p-4" style={{ width: '100%' }}>
           {loadedList && (
-            <div>
+            <div style={{ width: '-webkit-fill-available' }}>
               <Label htmlFor="note">Select note</Label>
               <CustomDropdown
                 value={selectedOption?.split('/').pop()}
@@ -446,8 +447,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
           />
           <PDFTextContainer>
             <Text>
-              Shepherd supports <Format>.pdf, .ppt, .jpg & .txt</Format>{' '}
-              document formats
+              Shepherd supports <Format>.doc, .txt</Format> document formats
             </Text>
           </PDFTextContainer>
           {uiMessage && (

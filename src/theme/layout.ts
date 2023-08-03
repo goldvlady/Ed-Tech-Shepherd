@@ -8,7 +8,8 @@ type Layout = {
 };
 
 const padding = {
-  paddingSmall: 5
+  paddingSmall: 5,
+  paddingEditor: 50
 };
 
 const margin = {

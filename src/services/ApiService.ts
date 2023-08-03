@@ -1,11 +1,28 @@
 import { REACT_APP_API_ENDPOINT } from '../config';
 import { AI_API, HEADER_KEY } from '../config';
 import { objectToQueryString } from '../helpers/http.helpers';
-import { User } from '../types';
+import { User, StudentDocumentPayload } from '../types';
 import { doFetch } from '../util';
+import {
+  processDocument,
+  checkDocumentStatus,
+  chatWithDoc,
+  createDocchatFlashCards,
+  chatHomeworkHelp,
+  chatHistory
+} from './AI';
+
+// Suppose these functions are in 'apiFunctions.ts' file
 
 class ApiService {
   static baseEndpoint = REACT_APP_API_ENDPOINT;
+
+  static processDocument = processDocument;
+  static checkDocumentStatus = checkDocumentStatus;
+  static chatWithDoc = chatWithDoc;
+  static createDocchatFlashCards = createDocchatFlashCards;
+  static chatHomeworkHelp = chatHomeworkHelp;
+  static chatHistory = chatHistory;
 
   static getResources = async () => {
     return doFetch(`${ApiService.baseEndpoint}/resources`);
@@ -23,6 +40,13 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/createUser`, {
       method: 'POST',
       body: JSON.stringify(data)
+    });
+  };
+
+  static storeFlashcardTags = (flashcardId: string, tags: string[]) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeFlashcardTags`, {
+      method: 'POST',
+      body: JSON.stringify({ flashcardId, tags })
     });
   };
 
@@ -52,6 +76,13 @@ class ApiService {
 
   static storeFlashcardScore = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/storeScore`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static saveStudentDocument = async (data: StudentDocumentPayload) => {
+    return doFetch(`${ApiService.baseEndpoint}/createStudentDocument`, {
       method: 'POST',
       body: JSON.stringify(data)
     });
@@ -282,6 +313,14 @@ class ApiService {
 
   static getStudentReport = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getStudentReport`);
+  };
+
+  static getCalendarEvents = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getCalenderEvents`);
+  };
+
+  static getUpcomingEvent = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getUpcomingEvent`);
   };
 
   // Get All Tutor Clients
