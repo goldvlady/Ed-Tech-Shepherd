@@ -154,22 +154,43 @@ export const DeleteModal = ({
           >
             Cancel
           </Button>
-          <Button
-            isLoading={isLoading}
-            _hover={{
-              backgroundColor: '#F53535'
-            }}
-            onClick={() => onDelete()}
-            bg="#F53535"
-            color="#ffffff"
-            borderRadius="6px"
-            px="16px"
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-          >
-            Delete
-          </Button>
+
+          {isLoading ? (
+            <Button
+              _hover={{
+                backgroundColor: '#F53535'
+              }}
+              colorScheme="grey"
+              onClick={() => onDelete()}
+              color="#ffffff"
+              borderRadius="6px"
+              px="16px"
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              isLoading={isLoading}
+              loadingText="Deleting..."
+            >
+              Submit
+            </Button>
+          ) : (
+            <Button
+              colorScheme="blue"
+              _hover={{
+                backgroundColor: '#F53535'
+              }}
+              onClick={() => onDelete()}
+              color="#ffffff"
+              borderRadius="6px"
+              px="16px"
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              isLoading={isLoading}
+            >
+              Submit
+            </Button>
+          )}
         </ModalFooter>
       </ModalContent>
     </Modal>

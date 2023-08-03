@@ -140,6 +140,7 @@ const NewNote = () => {
   const editor: BlockNoteEditor | null = useBlockNote({
     initialContent: initialContent ? JSON.parse(initialContent) : undefined
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const onCancel = () => {
     setDeleteNoteModal(!deleteNoteModal);
@@ -247,9 +248,10 @@ const NewNote = () => {
       setDeleteNoteModal(false);
       return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
     }
+    setIsLoading(true);
 
     const details = await deleteNote(noteIdInUse);
-
+    setIsLoading(false);
     if (!details) {
       setDeleteNoteModal(false);
       return showToast(
@@ -597,7 +599,7 @@ const NewNote = () => {
         </PDFWrapper> */}
       </NoteBody>
       <DeleteModal
-        isLoading={false}
+        isLoading={isLoading}
         isOpen={deleteNoteModal}
         onCancel={() => onCancel()}
         onDelete={() => onDeleteNote()}
