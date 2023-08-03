@@ -1,11 +1,11 @@
 import { storage } from '../firebase';
 import { MAX_FILE_UPLOAD_LIMIT } from '../helpers/constants';
+import FileProcessingService from '../helpers/files.helpers/fileProcessing';
 import { processDocument } from '../services/AI';
 import userStore from '../state/userStore';
 import CustomButton from './CustomComponents/CustomButton';
 import CustomModal from './CustomComponents/CustomModal/index';
 import CustomDropdown from './CustomDropdown';
-import FileProcessingService from '../helpers/files.helpers/fileProcessing';
 import { UploadIcon } from './icons';
 import { AttachmentIcon } from '@chakra-ui/icons';
 import {
@@ -209,7 +209,8 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
       return setUiMessage({
         status: 'error',
         heading: 'Something went wrong',
-        description: 'We couldn\'t retrieve your user details to start the upload process.'
+        description:
+          "We couldn't retrieve your user details to start the upload process."
       });
     }
     const SIZE_IN_MB = parseInt((file?.size / 1_000_000).toFixed(2), 10);
@@ -263,7 +264,10 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
             const checkStatus = async () => {
               try {
                 const FileProcessor = new FileProcessingService({});
-                const status = await FileProcessor.checkIngested(user._id, readableFileName);
+                const status = await FileProcessor.checkIngested(
+                  user._id,
+                  readableFileName
+                );
 
                 if (status === 'ingested') {
                   const metadata = {
@@ -310,8 +314,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
                   return setUiMessage({
                     status: 'error',
                     heading: 'Something went wrong',
-                    description:
-                      'Please contact ShepherdTutors for help.'
+                    description: 'Please contact ShepherdTutors for help.'
                   });
                 }
               } catch (e: any) {
@@ -323,7 +326,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
               }
             };
 
-            await checkStatus()
+            await checkStatus();
           })
           .catch(async (e: any) => {
             await deleteObject(storageRef);
@@ -343,7 +346,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     navigate('/dashboard/docchat', {
       state: {
         documentUrl,
-        docTitle: item[0]?.name || docTitle,
+        docTitle: item[0]?.name || docTitle
       }
     });
 
