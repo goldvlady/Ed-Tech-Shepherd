@@ -193,8 +193,8 @@ const AppRoutes: React.FC = () => {
       userData?.type.includes('student')
       ? 'both'
       : userData?.type.includes('tutor')
-        ? 'tutor'
-        : 'student';
+      ? 'tutor'
+      : 'student';
   }, [userData]);
 
   const userRoute = userRoutes[userType];
