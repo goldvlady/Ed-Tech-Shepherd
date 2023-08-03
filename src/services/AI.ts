@@ -33,14 +33,14 @@ export const checkDocumentStatus = async ({
   studentId: string;
   documentId: string;
 }) => {
-  const document = await fetch(`${AI_API}/notes/status`, {
-    method: 'POST',
-    headers: {
-      'x-shepherd-header': HEADER_KEY,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ studentId, documentId })
-  }).then(async (data) => data.json());
+  const document = await fetch(
+    `${AI_API}/notes/status?studentId=${studentId}&documentId=${documentId}`,
+    {
+      headers: {
+        'x-shepherd-header': HEADER_KEY
+      }
+    }
+  );
 
   return document;
 };

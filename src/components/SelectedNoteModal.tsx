@@ -1,6 +1,7 @@
 import { storage } from '../firebase';
 import { MAX_FILE_UPLOAD_LIMIT } from '../helpers/constants';
-import { checkDocumentStatus, processDocument } from '../services/AI';
+import FileProcessingService from '../helpers/files.helpers/fileProcessing';
+import { processDocument } from '../services/AI';
 import userStore from '../state/userStore';
 import CustomButton from './CustomComponents/CustomButton';
 import CustomModal from './CustomComponents/CustomModal/index';
@@ -49,6 +50,7 @@ interface UiMessage {
 
 const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   const { user, userDocuments } = userStore();
+  const [docTitle, setDocTitle] = useState('');
   const navigate = useNavigate();
   const [fileName, setFileName] = useState('');
   const [progress, setProgress] = useState(0);
@@ -202,6 +204,15 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
 
   const handleFreshUpload = async (file, user, fileName) => {
     const readableFileName = fileName.toLowerCase().replace(/\s/g, '');
+
+    if (!user?._id || !readableFileName) {
+      return setUiMessage({
+        status: 'error',
+        heading: 'Something went wrong',
+        description:
+          "We couldn't retrieve your user details to start the upload process."
+      });
+    }
     const SIZE_IN_MB = parseInt((file?.size / 1_000_000).toFixed(2), 10);
     if (SIZE_IN_MB > MAX_FILE_UPLOAD_LIMIT) {
       setUiMessage({
@@ -244,22 +255,21 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
         const documentURL = await getDownloadURL(task.snapshot.ref);
 
         await processDocument({
-          studentId: user?._id,
+          studentId: user._id,
           documentId: readableFileName,
           documentURL,
           title: readableFileName
         })
           .then(async () => {
-            let counter = 0;
-            let done = false;
-
             const checkStatus = async () => {
               try {
-                const check = await checkDocumentStatus({
-                  studentId: user?._id,
-                  documentId: readableFileName
-                });
-                if (check.status === 'ingested') {
+                const FileProcessor = new FileProcessingService({});
+                const status = await FileProcessor.checkIngested(
+                  user._id,
+                  readableFileName
+                );
+
+                if (status === 'ingested') {
                   const metadata = {
                     customMetadata: {
                       ingest_status: 'success'
@@ -267,7 +277,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
                   };
                   await updateMetadata(storageRef, metadata);
                   setSelectedOption(() => storageRef.fullPath);
-                  done = true;
+                  setDocTitle(() => readableFileName);
 
                   setUiMessage({
                     status: 'info',
@@ -278,7 +288,8 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
 
                   setConfirmReady(true);
                 }
-                if (check.status === 'too_large') {
+
+                if (status === 'too_large') {
                   const metadata = {
                     customMetadata: {
                       ingest_status: 'too_large'
@@ -291,7 +302,20 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
                     description:
                       'Your document is over 12,000 words. Consider uploading a shorter document.'
                   });
-                  done = true;
+                }
+
+                if (status === 'failed' || status === 'document not found') {
+                  const metadata = {
+                    customMetadata: {
+                      ingest_status: 'failed'
+                    }
+                  };
+                  await updateMetadata(storageRef, metadata);
+                  return setUiMessage({
+                    status: 'error',
+                    heading: 'Something went wrong',
+                    description: 'Please contact ShepherdTutors for help.'
+                  });
                 }
               } catch (e: any) {
                 setUiMessage({
@@ -299,22 +323,10 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
                   heading: 'Something went wrong',
                   description: e.message
                 });
-              } finally {
-                counter++;
-                if (done || counter > 20) clearInterval(intervalId);
-
-                if (counter > 20 && !done) {
-                  setUiMessage({
-                    status: 'error',
-                    heading: "We couldn't process your document",
-                    description:
-                      'There was something wrong with your document. Please send a message to someone on the Shepherd team to look into this problem.'
-                  });
-                }
               }
             };
 
-            const intervalId = setInterval(checkStatus, 5000);
+            await checkStatus();
           })
           .catch(async (e: any) => {
             await deleteObject(storageRef);
@@ -334,7 +346,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     navigate('/dashboard/docchat', {
       state: {
         documentUrl,
-        docTitle: item[0].name
+        docTitle: item[0]?.name || docTitle
       }
     });
 
