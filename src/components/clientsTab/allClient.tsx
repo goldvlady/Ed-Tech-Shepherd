@@ -470,7 +470,7 @@ const AllClientsTab = () => {
       >
         <DeleteNoteModal
           title={clientsDetails}
-          deleteNoteModal={deleteNoteModal}
+          // deleteNoteModal={deleteNoteModal}
           setDeleteNoteModal={setDeleteNoteModal}
         />
       </CustomModal>

@@ -1,5 +1,5 @@
-import { MenuButton } from "@chakra-ui/react";
-import styled from "styled-components";
+import { MenuButton } from '@chakra-ui/react';
+import styled from 'styled-components';
 
 export const StyledMenuButton = styled(MenuButton)`
   display: flex;
@@ -33,6 +33,17 @@ export const ModalFooter = styled.div`
   > button:nth-child(2) {
     margin-left: 10px;
   }
+`;
+
+export const TableTitleWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+`;
+
+export const TitleIcon = styled.img`
+  margin-right: 100;
 `;
 
 export const DeleteConfirmationContainer = styled.div`

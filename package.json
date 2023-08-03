@@ -50,6 +50,8 @@
     "firebase-admin": "^11.8.0",
     "formik": "^2.2.9",
     "framer-motion": "^10.9.1",
+    "html2pdf.js": "^0.10.1",
+    "jspdf": "^2.5.1",
     "lodash": "^4.17.21",
     "lottie-react": "^2.4.0",
     "mixpanel-browser": "^2.46.0",

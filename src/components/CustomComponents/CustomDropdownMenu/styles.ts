@@ -8,6 +8,7 @@ export const StyledMenuButton = styled(MenuButton)<{
 }>`
   display: flex;
   align-items: center;
+  justify-content: center;
   margin: auto;
   border: 1px solid #e8eaed;
   border-radius: 6px;
@@ -23,6 +24,7 @@ export const StyledMenuButton = styled(MenuButton)<{
     align-items: center;
     padding: 10px;
     gap: 6px;
+    /* justify-content: center; */
   }
   font-weight: ${({ isCreateNew }) => isCreateNew && '700'};
   font-size: 0.875rem;

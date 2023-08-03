@@ -431,14 +431,14 @@ export const ChatHistoryHeader = styled.div`
 `;
 
 export const AskSomethingContainer = styled.div`
-  display:flex;
+  display: flex;
   flex-direction: column;
   justify-content: space-between;
   grid-column: 1 / -1;
   padding: 0.25rem 2rem;
   height: 9rem;
   border-radius: 8px;
-  margin-left: 1.75rem
+  margin-left: 1.75rem;
   font-size: 0.875rem;
 `;
 
@@ -509,7 +509,8 @@ export const StudyContainer = styled.section`
 export const StudyFirstLayer = styled.div`
   text-align: center;
 
-   > p:nth-child
+  > p:nth-child {
+  }
 `;
 
 export const DownPillContainer = styled.div`

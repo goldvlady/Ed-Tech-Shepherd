@@ -54,6 +54,7 @@ import {
   useSearchParams,
   useNavigate
 } from 'react-router-dom';
+import { ThemeProvider } from 'styled-components';
 
 const AuthAction = (props: any) => {
   const [params] = useSearchParams();
@@ -123,9 +124,10 @@ const RequireAuth = ({
 
 const studentRoutes = [
   { path: 'new-note', element: <NewNote /> },
+  { path: 'new-note/:id', element: <NewNote /> },
+  { path: 'notes', element: <Notes /> },
   { path: 'tutor/:tutorId/offer', element: <SendTutorOffer /> },
   { path: 'offer/:offerId', element: <Offer /> },
-  { path: 'notes', element: <Notes /> },
   { path: '', element: <DashboardIndex /> },
   { path: 'docchat', element: <DocChat /> },
   { path: 'find-tutor', element: <Marketplace /> },

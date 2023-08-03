@@ -17,7 +17,6 @@ import {
   GridItem
 } from '@chakra-ui/react';
 import moment from 'moment';
-import React from 'react';
 import { useNavigate } from 'react-router';
 
 function StudentCard(props) {
