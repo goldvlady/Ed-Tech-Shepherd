@@ -165,7 +165,6 @@ const NewNote = () => {
         'error'
       );
     }
-    alert('HTML :' + noteHTML);
     const noteName = `note_${noteId}`;
     saveHTMLAsPDF(noteName, noteHTML);
   };
