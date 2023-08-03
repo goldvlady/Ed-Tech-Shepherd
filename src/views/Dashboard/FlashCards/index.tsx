@@ -11,11 +11,12 @@ import {
   SchedulePayload
 } from '../../../types';
 import { Score, MinimizedStudy } from '../../../types';
+import TagModal from './components/TagModal';
 import { DeleteModal } from './components/deleteModal';
 import ScheduleStudyModal, {
   ScheduleFormState
 } from './components/scheduleModal';
-import TagModal from './components/tagsModal';
+// import TagModal from './components/tagsModal';
 import { Stack } from '@chakra-ui/react';
 import {
   Button,
@@ -561,7 +562,7 @@ const CustomTable: React.FC = () => {
 
   return (
     <>
-      {isLoading && <LoaderOverlay />}
+      {isLoading && !flashcards?.length && <LoaderOverlay />}
       <FlashCardModal isOpen={Boolean(flashcard)} />
       {tagEditItem?.flashcard && (
         <TagModal
@@ -621,6 +622,7 @@ const CustomTable: React.FC = () => {
             }
           }
         }}
+        onClose={() => null}
       />
       {!flashcards?.length && !hasSearched && !isLoading ? (
         <Box

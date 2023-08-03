@@ -1,7 +1,37 @@
+import theme from '../../../../theme/';
 import styled from 'styled-components';
 
-export const NewNoteWrapper = styled.section`
+export const NewNoteWrapper = styled.section<{
+  position?: string;
+  width?: string;
+  height?: string;
+  background?: string;
+  top?: number;
+  left?: number;
+  bottom?: number;
+  right?: number;
+  zIndex?: number;
+}>`
   padding: 0;
+  position: ${(props) => props.position ?? 'relative'};
+  width: ${(props) => props.width ?? '210mm'};
+  margin: 0 auto;
+  height: ${(props) => props.height ?? '297mm'};
+  top: ${(props) => props.top ?? undefined};
+  right: ${(props) => props.right ?? undefined};
+  bottom: ${(props) => props.bottom ?? undefined};
+  left: ${(props) => props.left ?? undefined};
+  z-index: ${(props) => props.zIndex ?? undefined};
+  background-color: ${(props) => props.background ?? theme.color.background};
+`;
+
+export const PDFWrapper = styled.div`
+  display: flex;
+  width: '100%';
+  flex-direction: column;
+  height: '100%';
+  align-items: flex-start;
+  justify-content: center;
 `;
 
 export const Header = styled.section`
@@ -26,25 +56,25 @@ export const FirstSection = styled.div`
   }
 
   .doc__name {
+    cursor: text;
+    color: #525456;
+    display: flex;
+    flex-direction: row;
+    font-size: 11pt;
+    min-width: 120px;
+    max-height: 30px;
+    width: '100%';
     border-right: 1px solid #e0e1e1;
-    padding-right: 20px;
-
-    > div {
-      cursor: text;
-      color: #525456;
-      font-size: 0.875rem;
-      border: 1px solid #fafafa;
-      padding: 2px;
-      display: inline-block;
-      max-width: 500px;
-    }
-
+    padding-right: 10px;
     > input {
-      font-size: 0.875rem;
-      border: 1px solid #e0e1e1;
-      padding: 2px;
-      min-width: 5px;
-      max-width: 500px;
+      width: inherit;
+      height: 'inherit';
+      margin: 0;
+      padding: 0;
+      border-style: flat !important;
+      font-size: 11pt;
+      color: #525456;
+      background: #fafafa !important;
     }
   }
 
@@ -77,7 +107,7 @@ export const SecondSection = styled.div`
 export const NoteBody = styled.section`
   padding: 10px 10px;
   height: 100vh;
-  background: ;
+  background: '#ffffff';
 `;
 
 export const DropDownLists = styled.div`

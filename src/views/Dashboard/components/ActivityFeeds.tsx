@@ -36,7 +36,7 @@ import React, { useState, useEffect } from 'react';
 import { BsChevronDown, BsFiletypeDoc } from 'react-icons/bs';
 import { RiCalendar2Fill } from 'react-icons/ri';
 import { SlEnergy } from 'react-icons/sl';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 const Item = styled(Box)``;
@@ -76,15 +76,24 @@ function ActivityFeeds(props) {
   const activateHelpModal = () => {
     setToggleHelpModal(true);
   };
-
+  const navigate = useNavigate();
   const getFileName = (url: string) => {
     const lastSlashIndex = url?.lastIndexOf('/');
     const textAfterLastSlash = url?.substring(lastSlashIndex + 1);
-    if (textAfterLastSlash.length > 15) {
-      return textAfterLastSlash.substring(0, 10) + '...';
-    }
-    return textAfterLastSlash;
+
+    const startIndex =
+      textAfterLastSlash.indexOf('uploads%2F') + 'uploads%2F'.length;
+    const endIndex = textAfterLastSlash.indexOf('?alt');
+    const extractedText = textAfterLastSlash.substring(startIndex, endIndex);
+
+    const result = extractedText.replace(/%20/g, ' ');
+
+    // if (result.length > 15) {
+    //   return result.substring(0, 15) + '...';
+    // }
+    return result;
   };
+
   const getIconByActivityType = (activityType) => {
     switch (activityType) {
       case 'documents':
@@ -241,6 +250,16 @@ function ActivityFeeds(props) {
                       justifyContent="center"
                       alignItems="center"
                       px={3}
+                      _hover={{ cursor: 'pointer', bgColor: '#dcdfe5' }}
+                      onClick={() =>
+                        navigate(
+                          `${
+                            feed.activityType === 'documents'
+                              ? `/dashboard/new-note/${feed.id}`
+                              : '/dashboard/flashcards'
+                          }`
+                        )
+                      }
                     >
                       <Flex mt={2.5} gap={1}>
                         <Text>

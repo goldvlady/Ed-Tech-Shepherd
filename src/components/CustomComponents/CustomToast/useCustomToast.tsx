@@ -1,6 +1,6 @@
 import CustomToast from './index';
 import { useToast, UseToastOptions } from '@chakra-ui/react';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 
 export function useCustomToast() {
   const toast = useToast();

@@ -446,7 +446,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
           />
           <PDFTextContainer>
             <Text>
-              Shepherd supports <Format>.pdf</Format> document formats
+              Shepherd supports <Format>.doc, .txt</Format> document formats
             </Text>
           </PDFTextContainer>
           {uiMessage && (

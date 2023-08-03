@@ -1,23 +1,38 @@
-import { NoteDetails } from '../../views/Dashboard/Notes/types';
-import CustomModal from '../CustomComponents/CustomModal';
+import ApiService from '../../services/ApiService';
+import flashcardStore from '../../state/flashcardStore';
+import { FlashcardData } from '../../types';
+import TagModal from '../../views/Dashboard/FlashCards/components/TagModal';
+import { DeleteModal } from '../../views/Dashboard/FlashCards/components/deleteModal';
+import {
+  NoteDetails,
+  NoteServerResponse
+} from '../../views/Dashboard/Notes/types';
 import {
   DownloadIcon,
   FlashCardsIcon,
   FlashCardsSolidIcon,
   TrashIcon
 } from '../icons';
-import { DeleteNoteModal } from '../index';
 import SelectableTable, { TableColumn } from '../table';
-import { StyledMenuButton, StyledMenuSection } from './styles';
+import {
+  StyledMenuButton,
+  StyledMenuSection,
+  TableTitleWrapper,
+  TitleIcon
+} from './styles';
+import { Block, BlockNoteEditor } from '@blocknote/core';
+import { BlockNoteView, useBlockNote } from '@blocknote/react';
 import { Menu, MenuList, MenuButton, Button, Text } from '@chakra-ui/react';
+import { AlertStatus, ToastPosition } from '@chakra-ui/react';
+import { useToast } from '@chakra-ui/react';
 import {
   ChevronRightIcon,
   MagnifyingGlassIcon
 } from '@heroicons/react/24/solid';
 import moment from 'moment';
-import React, { FC, useLayoutEffect, useRef, useState } from 'react';
+import { FC, useLayoutEffect, useRef, useState } from 'react';
 import { FaEllipsisH } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 interface Client {
   id: number;
@@ -53,6 +68,8 @@ const formatDate = (date: Date, format = 'DD ddd, hh:mma'): string => {
 };
 
 const AllNotesTab: FC<Props> = ({ data }) => {
+  const params = useParams();
+  const toast = useToast();
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
   const [, setDeleteAllNotesModal] = useState(false);
   const checkbox = useRef<HTMLInputElement>(null);
@@ -61,7 +78,36 @@ const AllNotesTab: FC<Props> = ({ data }) => {
   const [selectedPeople, setSelectedPeople] = useState<any[]>([]);
   const [clientsDetails, setClientDetails] = useState('');
   const [openTags, setOpenTags] = useState<boolean>(false);
+  const [openTagsModal, setOpenTagsModal] = useState<boolean>(false);
+  const [noteId, setNoteId] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [noteParamId, setNoteParamId] = useState<string | null>(
+    params.id ?? null
+  );
+  const getNoteLocal = (noteId: string | null): string | null => {
+    const storageId = getLocalStorageNoteId(noteId);
+    const content = localStorage.getItem(storageId);
+    return content;
+  };
+
+  const onCancel = () => {
+    setDeleteNoteModal(!deleteNoteModal);
+  };
+
+  const getLocalStorageNoteId = (noteId: string | null): string => {
+    const genId = noteId ? noteId : '';
+    return genId;
+  };
+  const [initialContent, setInitialContent] = useState<any>(
+    getNoteLocal(noteParamId)
+  );
+
+  const DELETE_NOTE_TITLE = 'Delete Note';
+  const DEFAULT_NOTE_TITLE = 'Enter Note Title';
+  // get user details
+  const defaultNoteTitle = DEFAULT_NOTE_TITLE;
+
+  const [editedTitle, setEditedTitle] = useState(defaultNoteTitle);
 
   const dataSource: DataSourceItem[] = Array.from(
     { length: data.length },
@@ -91,15 +137,94 @@ const AllNotesTab: FC<Props> = ({ data }) => {
     setIndeterminate(false);
   }
 
-  const onDeleteNote = (isOpenDeleteModal: boolean, noteDetails: string) => {
+  const onDeleteNote = (
+    isOpenDeleteModal: boolean,
+    noteDetails: string,
+    noteId: any
+  ) => {
     setDeleteNoteModal(isOpenDeleteModal);
     setClientDetails(noteDetails);
+    setNoteId(noteId);
   };
 
   const gotoEditNote = (noteId: string | number) => {
     const noteURL = `/dashboard/new-note/${noteId}`;
     if (noteId && noteId !== '') {
       navigate(noteURL);
+    }
+  };
+
+  const editor: BlockNoteEditor | null = useBlockNote({
+    initialContent: initialContent ? JSON.parse(initialContent) : undefined
+  });
+
+  const deleteNote = async (id: string): Promise<NoteServerResponse | null> => {
+    const resp = await ApiService.deleteNote(id);
+    const respText = await resp.text();
+    try {
+      const respDetails: NoteServerResponse = JSON.parse(respText);
+      return respDetails;
+    } catch (error: any) {
+      return { error: error.message, message: error.message };
+    }
+  };
+
+  const clearEditor = () => {
+    if (!editor) {
+      return false;
+    }
+    editor.forEachBlock((block: Block<any>) => {
+      block.children = [];
+      block.content = [];
+      return true;
+    });
+  };
+
+  const showToast = (
+    title: string,
+    description: string,
+    status: AlertStatus,
+    position: ToastPosition = 'top-right',
+    duration = 5000,
+    isClosable = true
+  ) => {
+    toast({
+      title: description,
+      status: status,
+      position: position,
+      duration: duration,
+      isClosable: isClosable
+    });
+  };
+
+  const DeleteNote = async () => {
+    const noteIdInUse = noteId ?? noteParamId;
+
+    if (!noteIdInUse || noteIdInUse === '') {
+      setDeleteNoteModal(false);
+      return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
+    }
+
+    const details = await deleteNote(noteIdInUse);
+
+    if (!details) {
+      setDeleteNoteModal(false);
+      return showToast(
+        DELETE_NOTE_TITLE,
+        'An unknown error occurs while adding note. Try again',
+        'error'
+      );
+    }
+
+    if (details.error) {
+      setDeleteNoteModal(false);
+      return showToast(DELETE_NOTE_TITLE, details.error, 'error');
+    } else {
+      setDeleteNoteModal(false);
+      showToast(DELETE_NOTE_TITLE, details.message, 'success');
+      setEditedTitle(defaultNoteTitle);
+      setNoteId('');
+      clearEditor();
     }
   };
 
@@ -111,17 +236,17 @@ const AllNotesTab: FC<Props> = ({ data }) => {
       align: 'left',
       id: 0,
       render: ({ title, id }) => (
-        <>
-          <img
+        <TableTitleWrapper>
+          <TitleIcon
             onClick={() => gotoEditNote(id)}
             src="/svgs/text-document.svg"
-            className="text-gray-400 absolute"
+            className="text-gray-400 "
             alt=""
-          />
+          ></TitleIcon>
           <Text onClick={() => gotoEditNote(id)} fontWeight="500">
             {title}
           </Text>
-        </>
+        </TableTitleWrapper>
       )
     },
     {
@@ -190,7 +315,7 @@ const AllNotesTab: FC<Props> = ({ data }) => {
                   <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
                     <FlashCardsSolidIcon
                       className="w-4 h-4 text-primaryGray"
-                      onClick={undefined}
+                      onClick={() => setOpenTagsModal(true)}
                     />
                   </div>
                   <Text className="text-sm text-secondaryGray font-medium">
@@ -215,7 +340,10 @@ const AllNotesTab: FC<Props> = ({ data }) => {
               </button>
             </section>
             <div
-              onClick={() => onDeleteNote(true, title)}
+              onClick={() => {
+                onDeleteNote(true, title, id);
+                console.log({ id, title });
+              }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -244,6 +372,12 @@ const AllNotesTab: FC<Props> = ({ data }) => {
       )
     }
   ];
+
+  const [tagEditItem, setTagEditItem] = useState<{
+    flashcard: FlashcardData;
+  } | null>(null);
+
+  const { storeFlashcardTags } = flashcardStore();
 
   return (
     <>
@@ -399,21 +533,43 @@ const AllNotesTab: FC<Props> = ({ data }) => {
           </div>
         </div>
       </div>
-
-      <CustomModal
-        modalTitle=""
-        isModalCloseButton
-        onClose={() => setDeleteNoteModal(false)}
-        isOpen={deleteNoteModal}
-        modalSize="md"
-        style={{ height: '327px', maxWidth: '100%' }}
-      >
-        <DeleteNoteModal
-          title={clientsDetails}
-          // deleteNoteModal={deleteNoteModal}
-          setDeleteNoteModal={setDeleteNoteModal}
+      {openTagsModal && (
+        <TagModal
+          tags={tagEditItem?.flashcard?.tags || []}
+          onSubmit={async (d) => {
+            const isSaved = await storeFlashcardTags(
+              tagEditItem?.flashcard?._id as string,
+              d
+            );
+            if (isSaved) {
+              toast({
+                position: 'top-right',
+                title: `Tags Added for ${tagEditItem?.flashcard.deckname}`,
+                status: 'success'
+              });
+              setTagEditItem(null);
+              setOpenTagsModal(false);
+            } else {
+              toast({
+                position: 'top-right',
+                title: `Failed to add tags for ${tagEditItem?.flashcard.deckname} flashcards`,
+                status: 'error'
+              });
+            }
+            setOpenTagsModal(false);
+          }}
+          onClose={() => setOpenTagsModal(!openTagsModal)}
+          isOpen={true}
         />
-      </CustomModal>
+      )}
+
+      <DeleteModal
+        isLoading={false}
+        isOpen={deleteNoteModal}
+        onCancel={() => onCancel()}
+        onDelete={() => DeleteNote()}
+        onClose={() => setDeleteNoteModal(false)}
+      />
     </>
   );
 };

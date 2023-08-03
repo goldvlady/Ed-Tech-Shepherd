@@ -22,7 +22,7 @@ const DeleteNoteModal: React.FC<DeleteNoteModalProps> = ({
   }, [setDeleteNoteModal]);
 
   return (
-    <section>
+    <>
       <DeleteConfirmationContainer>
         <DeleteConfirmationImage
           src="/svgs/text-document.svg"
@@ -54,7 +54,7 @@ const DeleteNoteModal: React.FC<DeleteNoteModalProps> = ({
           onClick={onDeleteNote}
         />
       </ModalFooter>
-    </section>
+    </>
   );
 };
 

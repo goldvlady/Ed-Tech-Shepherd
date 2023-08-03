@@ -1,4 +1,3 @@
-import DatePicker from '../../../../components/DatePicker';
 import {
   Box,
   Button,
@@ -12,28 +11,22 @@ import {
   ModalBody,
   ModalCloseButton
 } from '@chakra-ui/react';
-import { format } from 'date-fns';
-import React, { useState, ChangeEvent } from 'react';
 
 export const DeleteModal = ({
   isOpen,
   onCancel,
   onDelete,
-  isLoading
+  isLoading,
+  onClose
 }: {
   isOpen: boolean;
   onCancel: () => void;
   onDelete: () => void;
+  onClose: () => void;
   isLoading: boolean;
 }) => {
   return (
-    <Modal
-      onClose={() => {
-        return;
-      }}
-      isOpen={isOpen}
-      isCentered
-    >
+    <Modal onClose={onClose} isOpen={isOpen} isCentered>
       <ModalOverlay />
       <ModalContent
         minWidth={{ base: '80%', md: '500px' }}
