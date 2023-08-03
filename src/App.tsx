@@ -124,9 +124,10 @@ const RequireAuth = ({
 
 const studentRoutes = [
   { path: 'new-note', element: <NewNote /> },
+  { path: 'new-note/:id', element: <NewNote /> },
+  { path: 'notes', element: <Notes /> },
   { path: 'tutor/:tutorId/offer', element: <SendTutorOffer /> },
   { path: 'offer/:offerId', element: <Offer /> },
-  { path: 'notes', element: <Notes /> },
   { path: '', element: <DashboardIndex /> },
   { path: 'docchat', element: <DocChat /> },
   { path: 'find-tutor', element: <Marketplace /> },
@@ -192,8 +193,8 @@ const AppRoutes: React.FC = () => {
       userData?.type.includes('student')
       ? 'both'
       : userData?.type.includes('tutor')
-      ? 'tutor'
-      : 'student';
+        ? 'tutor'
+        : 'student';
   }, [userData]);
 
   const userRoute = userRoutes[userType];
