@@ -85,10 +85,12 @@ export const createDocchatFlashCards = async (data: DocumentType) => {
 
 export const chatHomeworkHelp = async ({
   query,
-  studentId
+  studentId,
+  topic
 }: {
   studentId: string;
   query: string;
+  topic: string;
 }) => {
   const request = await fetch(`${AI_API}/homework-help/chat`, {
     method: 'POST',
@@ -98,7 +100,8 @@ export const chatHomeworkHelp = async ({
     },
     body: JSON.stringify({
       query,
-      studentId
+      studentId,
+      topic
     })
   });
 

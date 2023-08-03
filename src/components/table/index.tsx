@@ -39,7 +39,7 @@ const SelectableTable = <T extends Record<string, unknown>>({
   };
 
   return (
-    <Table variant="unstyled">
+    <Table variant="unstyled" width={{ base: '100em' }}>
       <Thead marginBottom={10}>
         <StyledTr>
           {isSelectable && <StyledTh />}

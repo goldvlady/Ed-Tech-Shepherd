@@ -71,8 +71,6 @@ interface IChat {
 }
 const Chat = ({
   HomeWorkHelp,
-  studentId,
-  documentId,
   onOpenModal,
   isShowPrompt,
   messages,
