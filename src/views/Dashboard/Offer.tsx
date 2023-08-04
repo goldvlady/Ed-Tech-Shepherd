@@ -101,8 +101,6 @@ const Offer = () => {
 
   const isTutor = currentPath.includes('/dashboard/tutordashboard/');
 
-  console.log(user?.type, 'typ', isTutor);
-
   const toast = useToast();
 
   const { offerId } = useParams() as { offerId: string };

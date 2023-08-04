@@ -306,9 +306,9 @@ export interface SchedulePayload {
 }
 
 export interface StudentDocumentPayload {
-  title: string;
+  title?: string;
   course?: string;
-  documentUrl: string;
+  documentUrl?: string;
   tags?: string[];
 }
 

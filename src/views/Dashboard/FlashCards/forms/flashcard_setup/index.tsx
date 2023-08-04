@@ -2,8 +2,8 @@ import StepsIndicator, { Step } from '../../../../../components/StepIndicator';
 import { useFlashCardState } from '../../context/flashcard';
 import FlashCardSetupInit from './init';
 import FlashCardQuestionsPage from './questions';
-import { Tag, TagLabel } from '@chakra-ui/react';
 import { Box, Text } from '@chakra-ui/react';
+import { Tag, TagLabel } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import React, { useState, useMemo } from 'react';
 

@@ -8,7 +8,7 @@ import { classNames } from '../../helpers';
 import { Text } from '@chakra-ui/react';
 import { Menu, Transition, Tab } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/24/outline';
-import React, { Fragment } from 'react';
+import { Fragment } from 'react';
 
 const notes = [{}];
 
@@ -201,7 +201,7 @@ export default function Notes() {
 
             <Tab.Panels>
               <Tab.Panel>
-                <AllNotesTab />
+                <AllNotesTab data={[]} />
               </Tab.Panel>
             </Tab.Panels>
           </Tab.Group>

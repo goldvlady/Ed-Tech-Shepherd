@@ -31,7 +31,6 @@ const StepContainer = styled.div<IStepContainerProps>`
     transform: translateY(-50%);
     left: 0;
   }
-
   @media only screen and (max-width: 992px) {
     padding: 0 20px;
   }
