@@ -42,7 +42,7 @@ class FileProcessingService {
         .then((res) => res.json());
 
       if (response.pollStatus === 'done') {
-        status = response.documentStatus;
+        Promise.resolve(documentId);
       } else {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         await subscribe();

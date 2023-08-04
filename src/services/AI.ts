@@ -1,7 +1,7 @@
 import { AI_API, HEADER_KEY } from '../config';
 
 type DocumentType = {
-  topic: string;
+  topic?: string;
   count: number;
   studentId: string;
   documentId: string;

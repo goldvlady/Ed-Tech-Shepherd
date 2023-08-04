@@ -285,7 +285,6 @@ const CreateFlashPage = () => {
   return (
     <Box width={'100%'}>
       {(isLoading || loading) && <LoaderOverlay />}
-      <FlashCardModal isOpen={Boolean(flashcard)} />
       <Wrapper
         ref={wrapperRef}
         bg="white"
