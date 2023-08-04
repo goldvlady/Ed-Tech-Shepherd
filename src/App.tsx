@@ -1,5 +1,7 @@
 import TutorDashboardLayout from './components/Layout';
+import { FlashCardModal } from './components/flashcardDecks';
 import { AuthProvider, useAuth } from './providers/auth.provider';
+import flashcardStore from './state/flashcardStore';
 import resourceStore from './state/resourceStore';
 import userStore from './state/userStore';
 import theme from './theme';
@@ -311,6 +313,7 @@ const AppRoutes: React.FC = () => {
 
 function App() {
   const { fetchResources } = resourceStore();
+  const { flashcard } = flashcardStore();
 
   const doFetchResources = useCallback(async () => {
     await fetchResources();
@@ -325,6 +328,7 @@ function App() {
     <ChakraProvider theme={theme}>
       <AuthProvider>
         <BrowserRouter>
+          <FlashCardModal isOpen={Boolean(flashcard)} />
           <AppRoutes />
         </BrowserRouter>
       </AuthProvider>
