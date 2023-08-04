@@ -157,8 +157,14 @@ const CustomTable: React.FC = () => {
 
   const handleSearch = useSearch(actionFunc);
 
+  const [selectedFlashcards, setSelectedFlashcard] = useState<Array<string>>(
+    []
+  );
+
   const [deleteItem, setDeleteItem] = useState<{
-    flashcard: FlashcardData;
+    flashcard?: FlashcardData;
+    flashcardIds?: string[];
+    currentDeleteType: 'single' | 'multiple';
   } | null>(null);
 
   const [scheduleItem, setScheduleItem] = useState<{
@@ -179,7 +185,15 @@ const CustomTable: React.FC = () => {
       title: 'Deckname',
       dataIndex: 'deckname',
       key: 'deckname',
-      render: ({ deckname }) => <Text fontWeight="500">{deckname}</Text>
+      render: ({ deckname, key }) => (
+        <Text
+          color="#207DF7"
+          onClick={() => loadFlashcard(key)}
+          fontWeight="500"
+        >
+          {deckname}
+        </Text>
+      )
     },
     {
       title: 'Study Period',
@@ -499,7 +513,8 @@ const CustomTable: React.FC = () => {
               color="#F53535"
               onClick={() =>
                 setDeleteItem({
-                  flashcard: flashcard as unknown as FlashcardData
+                  flashcard: flashcard as unknown as FlashcardData,
+                  currentDeleteType: 'single'
                 })
               }
               _hover={{ bgColor: '#F2F4F7' }}
@@ -602,24 +617,23 @@ const CustomTable: React.FC = () => {
         isOpen={Boolean(deleteItem)}
         onCancel={() => setDeleteItem(null)}
         onDelete={async () => {
-          if (deleteFlashCard) {
-            const isDeleted = await deleteFlashCard(
-              deleteItem?.flashcard._id as string
-            );
-            if (isDeleted) {
-              toast({
-                position: 'top-right',
-                title: `${deleteItem?.flashcard.deckname} deleted Succesfully`,
-                status: 'success'
-              });
-              setDeleteItem(null);
-            } else {
-              toast({
-                position: 'top-right',
-                title: `Failed to delete ${deleteItem?.flashcard.deckname} flashcards`,
-                status: 'error'
-              });
-            }
+          const id =
+            deleteItem?.flashcard?._id || deleteItem?.flashcardIds?.join(',');
+
+          const isDeleted = await deleteFlashCard(id as string);
+          if (isDeleted) {
+            toast({
+              position: 'top-right',
+              title: `${deleteItem?.flashcard?.deckname} deleted Succesfully`,
+              status: 'success'
+            });
+            setDeleteItem(null);
+          } else {
+            toast({
+              position: 'top-right',
+              title: `Failed to delete ${deleteItem?.flashcard?.deckname} flashcards`,
+              status: 'error'
+            });
           }
         }}
         onClose={() => null}
@@ -800,27 +814,83 @@ const CustomTable: React.FC = () => {
               alignItems={{ base: 'flex-start', md: 'center' }}
               width={{ base: '100%', md: 'auto' }}
             >
-              <Flex
-                display={'none'}
-                cursor="pointer"
-                border="1px solid #E5E6E6"
-                padding="5px 10px"
-                borderRadius="6px"
-                alignItems="center"
-                mb={{ base: '10px', md: '0' }}
-                width={{ base: '-webkit-fill-available', md: 'auto' }}
-              >
-                <Text
-                  fontWeight="400"
-                  fontSize={{ base: '12px', md: '14px' }}
-                  marginRight="5px"
-                  color="#5E6164"
-                  width={{ base: '100%', md: 'auto' }}
+              <Menu>
+                <MenuButton>
+                  <Flex
+                    cursor="pointer"
+                    border="1px solid #E5E6E6"
+                    padding="5px 10px"
+                    borderRadius="6px"
+                    alignItems="center"
+                    mb={{ base: '10px', md: '0' }}
+                    width={{ base: '-webkit-fill-available', md: 'auto' }}
+                  >
+                    <Text
+                      fontWeight="400"
+                      fontSize={{ base: '12px', md: '14px' }}
+                      marginRight="5px"
+                      color="#5E6164"
+                      width={{ base: '100%', md: 'auto' }}
+                    >
+                      Sort By
+                    </Text>
+                    <FaCalendarAlt color="#96999C" size="12px" />
+                  </Flex>
+                </MenuButton>
+                <MenuList
+                  fontSize="14px"
+                  minWidth={'185px'}
+                  borderRadius="8px"
+                  backgroundColor="#FFFFFF"
+                  boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
                 >
-                  All Time
-                </Text>
-                <FaCalendarAlt color="#96999C" size="12px" />
-              </Flex>
+                  <MenuItem
+                    color="#212224"
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => fetchFlashcards({ sort: 'createdAt' })}
+                    fontSize="14px"
+                    lineHeight="20px"
+                    fontWeight="400"
+                    p="6px 8px 6px 8px"
+                  >
+                    Date
+                  </MenuItem>
+                  <MenuItem
+                    color="#212224"
+                    fontSize="14px"
+                    onClick={() => fetchFlashcards({ sort: 'lastAttempted' })}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    lineHeight="20px"
+                    fontWeight="400"
+                    p="6px 8px 6px 8px"
+                  >
+                    Last Attempted
+                  </MenuItem>
+                  <MenuItem
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    color="#212224"
+                    fontSize="14px"
+                    onClick={() => fetchFlashcards({ sort: 'deckname' })}
+                    lineHeight="20px"
+                    fontWeight="400"
+                    p="6px 8px 6px 8px"
+                  >
+                    Deckname
+                  </MenuItem>
+                  <MenuItem
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    color="#212224"
+                    onClick={() => fetchFlashcards({ sort: 'subject' })}
+                    fontSize="14px"
+                    lineHeight="20px"
+                    fontWeight="400"
+                    p="6px 8px 6px 8px"
+                  >
+                    Subject
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+
               <Button
                 variant="solid"
                 ml={{ base: '0', md: '20px' }}
@@ -858,8 +928,45 @@ const CustomTable: React.FC = () => {
             </Flex>
           </Stack>
           <Box overflowX={{ base: 'scroll', md: 'hidden' }}>
+            {selectedFlashcards.length ? (
+              <Box>
+                <Button
+                  variant="solid"
+                  mb="10px"
+                  borderRadius={'10px'}
+                  colorScheme={'#F53535'}
+                  bg="#F53535"
+                  width={{ base: '100%', md: 'auto' }}
+                  onClick={() => {
+                    if (!flashcards) return;
+                    setDeleteItem((prev) => ({
+                      ...prev,
+                      currentDeleteType: 'multiple',
+                      flashcardIds: selectedFlashcards
+                    }));
+                  }}
+                >
+                  <svg
+                    width="16"
+                    height="18"
+                    viewBox="0 0 16 18"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M3.83317 4.00033V1.50033C3.83317 1.04009 4.20627 0.666992 4.6665 0.666992H14.6665C15.1267 0.666992 15.4998 1.04009 15.4998 1.50033V13.167C15.4998 13.6272 15.1267 14.0003 14.6665 14.0003H12.1665V16.4996C12.1665 16.9602 11.7916 17.3337 11.3275 17.3337H1.33888C0.875492 17.3337 0.5 16.9632 0.5 16.4996L0.502167 4.83438C0.50225 4.37375 0.8772 4.00033 1.34118 4.00033H3.83317ZM5.49983 4.00033H12.1665V12.3337H13.8332V2.33366H5.49983V4.00033ZM3.83317 8.16699V9.83366H8.83317V8.16699H3.83317ZM3.83317 11.5003V13.167H8.83317V11.5003H3.83317Z"
+                      fill="white"
+                    />
+                  </svg>
+                  <Text ml="5px">Delete Selected Flashcards</Text>
+                </Button>
+              </Box>
+            ) : (
+              ''
+            )}
             {flashcards && (
               <SelectableTable
+                onSelect={(selected) => setSelectedFlashcard(selected)}
                 isSelectable
                 columns={columns}
                 dataSource={flashcards.map((card) => ({

@@ -77,39 +77,6 @@ const RequireAuth = ({
   const {
     state: { isAuthenticated, loading }
   } = useAuth();
-  // const {
-  //   fetchUser,
-  //   user: userData,
-  //   fetchNotifications,
-  //   fetchUserDocuments
-  // } = userStore();
-  // const [loadingUser, setLoadingUser] = useState(true);
-
-  // // const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
-  // // const [obtainedUserAuthState, setObtainedUserAuthState] = useState(false);
-  // // const navigate = useNavigate();
-
-  // // useEffect(() => {
-  // //   onAuthStateChanged(getAuth(), async (user) => {
-  // //     setObtainedUserAuthState(true);
-  // //     setFirebaseUser(user);
-
-  // //     if (user && !userData) {
-  // //       fetchUser()
-  // //         .then(() => {
-  // //           fetchNotifications();
-  // //           fetchUserDocuments();
-  // //         })
-  // //         .catch((e) => {
-  // //           if (user.metadata.creationTime !== user.metadata.lastSignInTime) {
-  // //             navigate('/login');
-  // //           }
-  // //         });
-  // //     }
-  // //     setLoadingUser(false);
-  // //   });
-  // //   /* eslint-disable */
-  // // }, []);
 
   if (loading) {
     return (

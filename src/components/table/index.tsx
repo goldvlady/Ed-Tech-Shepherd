@@ -26,6 +26,7 @@ const SelectableTable = <T extends Record<string, unknown>>({
   onSelect
 }: TableProps<T>) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
+  const [allChecked, setAllChecked] = useState<boolean>(false);
 
   const handleSelect = (record: T) => {
     const key = record.key as string;
@@ -38,11 +39,27 @@ const SelectableTable = <T extends Record<string, unknown>>({
     }
   };
 
+  const handleSelectAll = () => {
+    if (!allChecked) {
+      const newSelectedRowKeys = dataSource.map((data) => data.key as string);
+      setSelectedRowKeys(newSelectedRowKeys);
+      onSelect && onSelect(newSelectedRowKeys);
+    } else {
+      setSelectedRowKeys([]);
+      onSelect && onSelect([]);
+    }
+    setAllChecked(!allChecked);
+  };
+
   return (
     <Table variant="unstyled">
       <Thead marginBottom={10}>
         <StyledTr>
-          {isSelectable && <StyledTh />}
+          {isSelectable && (
+            <StyledTh>
+              <Checkbox isChecked={allChecked} onChange={handleSelectAll} />
+            </StyledTh>
+          )}
           {columns.map((col) => (
             <StyledTh key={col.key} textAlign={col.align || 'left'}>
               {col.title}

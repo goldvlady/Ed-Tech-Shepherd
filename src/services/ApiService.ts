@@ -92,6 +92,7 @@ class ApiService {
     search?: string;
     page?: number;
     limit?: number;
+    sort?: string;
   }) => {
     const queryString = objectToQueryString(queryParams);
     return doFetch(
