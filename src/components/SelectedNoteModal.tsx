@@ -403,7 +403,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
                 value={selectedOption?.split('/').pop()}
                 placeholder="Select an Option"
               >
-                <VStack alignItems={'left'} padding="10px">
+                <VStack alignItems={'left'} padding="10px" width="100%">
                   {loadedList &&
                     list.map((item, id) => {
                       return (
@@ -412,7 +412,8 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
                           key={id}
                           onClick={handleSelected}
                           style={{
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            width: '100%'
                           }}
                         >
                           {item.name}

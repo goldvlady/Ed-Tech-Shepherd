@@ -10,6 +10,7 @@ interface CustomButtonProps {
   type: 'button' | 'submit' | 'reset';
   icon?: React.ReactNode;
   active?: boolean;
+  disabled?: boolean;
 }
 const CustomButton = ({
   isCancel,
@@ -18,10 +19,12 @@ const CustomButton = ({
   onClick,
   active,
   type,
-  icon
+  icon,
+  disabled
 }: CustomButtonProps) => {
   return (
     <StyledButton
+      disabled={disabled}
       isCancel={isCancel}
       isDelete={isDelete}
       onClick={onClick}

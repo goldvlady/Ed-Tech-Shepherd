@@ -778,10 +778,11 @@ const StudyBox = () => {
           !currentStudy?.options && (
             <Box
               width="100%"
-              display="flex"
+              display={{ base: 'block', md: 'flex' }}
               justifyContent="space-between"
               px="20px"
               pb="40px"
+              fontSize={{ base: '0.75rem', md: '1rem' }}
             >
               <Button
                 leftIcon={<Icon as={FiCheck} fontSize={'16px'} />}
@@ -803,8 +804,10 @@ const StudyBox = () => {
                 padding="16.5px 45.5px 16.5px 47.5px"
                 boxShadow="0px 2px 6px 0px rgba(136, 139, 143, 0.10)"
                 color="#4CAF50"
-                marginRight="10px"
+                marginRight={{ md: '10px' }}
+                marginBottom={{ base: '15px' }}
                 height="54px"
+                width={{ base: '100%', md: 'auto' }}
                 transition="transform 0.3s"
                 _hover={{
                   background: '#EDF7EE',
@@ -822,7 +825,9 @@ const StudyBox = () => {
                 color="#FB8441"
                 flex="1"
                 fontSize="16px"
-                marginRight="10px"
+                marginRight={{ md: '10px' }}
+                marginBottom={{ base: '15px' }}
+                width={{ base: '100%', md: 'auto' }}
                 onClick={() => {
                   rejectAnswer(true);
                   // setStudies(prev => {
@@ -851,10 +856,12 @@ const StudyBox = () => {
                 alignItems="center"
                 borderRadius="8px"
                 fontSize="16px"
+                marginBottom={{ base: '15px' }}
                 backgroundColor="#FEECEC"
                 color="#F53535"
                 flex="1"
                 height="54px"
+                width={{ base: '100%', md: 'auto' }}
                 onClick={() => {
                   rejectAnswer();
                   // setStudies(prev => {

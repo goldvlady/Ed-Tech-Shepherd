@@ -71,8 +71,6 @@ interface IChat {
 }
 const Chat = ({
   HomeWorkHelp,
-  studentId,
-  documentId,
   onOpenModal,
   isShowPrompt,
   messages,
@@ -197,7 +195,14 @@ const Chat = ({
   useEffect(() => {
     textAreaRef.current.style.height = '2.5rem'; // Initially set height
     textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`; // Then adjust it
-  }, [inputValue]); // Re-run effect when `text` changes
+
+    // Adjust border radius based on inputValue
+    if (inputValue.length > 0) {
+      textAreaRef.current.style.borderRadius = '16px';
+    } else {
+      textAreaRef.current.style.borderRadius = '100px'; // Set initial border radius
+    }
+  }, [inputValue]);
 
   return (
     <>
