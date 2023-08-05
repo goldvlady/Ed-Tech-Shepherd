@@ -89,7 +89,7 @@ function StudentCard(props) {
     }
   }
   const handleItemClick = () => {
-    navigate(`/dashboard/tutordashboard/offers/${offer.id}`);
+    navigate(`/dashboard/tutordashboard/offer/${offer.id}`);
   };
 
   const styles = {
@@ -182,9 +182,9 @@ function StudentCard(props) {
           <Flex alignItems="center" justifyContent="space-between" pt="1">
             <Flex alignItems="center" fontSize="sm" fontWeight="normal" gap={3}>
               <Avatar
-                name="Kent Dodds"
+                name={`${offer.student.user.name.first} ${offer.student.user.name.last}`}
                 size="sm"
-                src="https://bit.ly/kent-c-dodds"
+                src={offer.student.user.avatar}
               />
               <Text fontSize={14} fontWeight="500" color="text.300">
                 {`${offer.student.user.name.first} ${offer.student.user.name.last}`}

@@ -107,13 +107,15 @@ const studentRoutes = [
   { path: 'account-settings', element: <StudentSettings /> },
   { path: 'ace-homework', element: <HomeWorkHelp /> },
   { path: 'flashcards/create', element: <CreateFlashCard /> },
-  { path: 'flashcards', element: <FlashCard /> }
+  { path: 'flashcards', element: <FlashCard /> },
+  { path: 'flashcards/:flashcardId', element: <FlashCard /> }
 ];
 
 // Tutor specific routes configuration
 const tutorRoutes = [
   { path: 'tutordashboard', element: <TutorDashboard /> },
   { path: 'tutordashboard/clients', element: <Clients /> },
+  { path: 'tutordashboard/clients/:clientId', element: <Client /> },
   { path: 'tutordashboard/offers', element: <TutorOffers /> },
   { path: 'tutordashboard/offer/:offerId', element: <Offer /> }
   // ... other tutor routes

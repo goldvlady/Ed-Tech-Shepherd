@@ -1,25 +1,43 @@
 import { Layout, OffersGridList, Section } from '../../../components';
 import ApiService from '../../../services/ApiService';
 import offerStore from '../../../state/offerStore';
-import { Box } from '@chakra-ui/react';
+import { Box, Spinner } from '@chakra-ui/react';
 import React, { useEffect, useState, useCallback } from 'react';
 
 export default function Offers() {
   const { offers, fetchOffers, pagination } = offerStore();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(20);
 
   const [allOffers, setAllOffers] = useState<any>([]);
   const doFetchStudentTutors = useCallback(async () => {
-    await fetchOffers(page, limit);
+    await fetchOffers(page, limit, 'tutor');
     setAllOffers(offers);
+    setIsLoading(false);
     /* eslint-disable */
   }, []);
 
   useEffect(() => {
     doFetchStudentTutors();
   }, [doFetchStudentTutors]);
+
+  if (isLoading) {
+    return (
+      <Box
+        p={5}
+        textAlign="center"
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh'
+        }}
+      >
+        <Spinner />
+      </Box>
+    );
+  }
 
   return (
     <Box className="p-4 bg-white">

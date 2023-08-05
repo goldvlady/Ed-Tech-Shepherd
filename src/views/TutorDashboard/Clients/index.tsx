@@ -9,7 +9,7 @@ import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMen
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import Layout from '../../../components/Layout';
 import { SortIcon, FilterByTagsIcon } from '../../../components/icons';
-// import ApiService from '../services/ApiService';
+import ApiService from '../../../services/ApiService';
 import {
   Checkbox,
   CheckboxContainer,
@@ -23,12 +23,9 @@ import {
   StyledHeader,
   StyledSection
 } from '../../Dashboard/Notes/styles';
-// import { BlockNoteEditor } from '@blocknote/core';
-// import '@blocknote/core/style.css';
-// import { BlockNoteView, useBlockNote } from '@blocknote/react';
 import { AddIcon } from '@chakra-ui/icons';
-import { Text } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import { Text, Box, Spinner } from '@chakra-ui/react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 
 const getNotes = JSON.parse(localStorage.getItem('notes') as string) || [];
@@ -71,39 +68,52 @@ const sortedBy = [
   }
 ];
 
-const tabLists = [
-  {
-    id: 1,
-    title: 'All'
-  },
-  {
-    id: 2,
-    title: 'Active'
-  },
-  {
-    id: 3,
-    title: 'Pending'
-  },
-  {
-    id: 4,
-    title: 'Ended'
-  }
-];
-
-const tabPanel = [
-  {
-    id: 1,
-    component: <AllClientTab />
-  }
-];
-
-const Notes = () => {
+const Clients = () => {
   const navigate = useNavigate();
+
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [allTutorClients, setAllTutorClients] = useState<any>([]);
+
+  const doFetchTutorClients = useCallback(async () => {
+    const response = await ApiService.getTutorClients();
+
+    const jsonResp = await response.json();
+    setAllTutorClients(jsonResp.data.data);
+    setIsLoading(false);
+
+    /* eslint-disable */
+  }, []);
+
+  useEffect(() => {
+    doFetchTutorClients();
+  }, [doFetchTutorClients]);
 
   const [checkedState, setCheckedState] = useState(
     new Array(filteredBy.length).fill(false)
   );
 
+  const tabLists = [
+    {
+      id: 1,
+      title: 'All'
+    },
+    {
+      id: 2,
+      title: 'Active'
+    },
+
+    {
+      id: 3,
+      title: 'Ended'
+    }
+  ];
+
+  const tabPanel = [
+    {
+      id: 1,
+      component: <AllClientTab allTutorClients={allTutorClients} />
+    }
+  ];
   const createNewLists = [
     {
       id: 1,
@@ -127,25 +137,29 @@ const Notes = () => {
 
     setCheckedState(updatedCheckedState);
   };
-  // const initialContent: string | null = localStorage.getItem('editorContent'); //Change to API endpoint for get /notes/{id}
-  // const editor: BlockNoteEditor | null = useBlockNote({
-  //   initialContent: initialContent ? JSON.parse(initialContent) : undefined,
-  //   onEditorContentChange: (editor) => {
-  //     localStorage.setItem(
-  //       'editorContent',
-  //       JSON.stringify(editor.topLevelBlocks)
-  //     );
-  //   }
-  // });
+  if (isLoading) {
+    return (
+      <Box
+        p={5}
+        textAlign="center"
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh'
+        }}
+      >
+        <Spinner />
+      </Box>
+    );
+  }
   return (
     <>
-      {/* <Layout className={`${'bg-white'} p-3 h-screen`}> */}
-      {/* {getNotes?.length > 0 ? ( */}
       <NotesWrapper>
         <header className="flex my-4 justify-between">
           <StyledHeader>
             <span className="font-bold">Clients</span>
-            <span className="count-badge">{getNotes?.length}</span>
+            <span className="count-badge">{allTutorClients?.length}</span>
           </StyledHeader>
           <FlexContainer>
             <DropdownMenu
@@ -236,4 +250,4 @@ const Notes = () => {
   );
 };
 
-export default Notes;
+export default Clients;

@@ -41,7 +41,7 @@ import { startCase } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaEllipsisH, FaCalendarAlt } from 'react-icons/fa';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 const StyledImage = styled(Box)`
@@ -133,6 +133,7 @@ function findNextFlashcard(
 
 const CustomTable: React.FC = () => {
   const navigate = useNavigate();
+
   const toast = useCustomToast();
   const [hasSearched, setHasSearched] = useState(false);
 
@@ -174,11 +175,19 @@ const CustomTable: React.FC = () => {
   const [tagEditItem, setTagEditItem] = useState<{
     flashcard: FlashcardData;
   } | null>(null);
+  const { flashcardId } = useParams();
 
   useEffect(() => {
     fetchFlashcards();
     // eslint-disable-next-line
   }, []);
+
+  useEffect(() => {
+    if (flashcardId) {
+      loadFlashcard(flashcardId);
+      navigate('/dashboard/flashcards');
+    }
+  }, [flashcardId]);
 
   const columns: TableColumn<DataSourceItem>[] = [
     {
