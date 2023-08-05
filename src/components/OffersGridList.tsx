@@ -312,12 +312,12 @@ export default function OffersGridList(props) {
 
   const handleNextPage = () => {
     const nextPage = pagination.page + 1;
-    fetchOffers(nextPage, limit);
+    fetchOffers(nextPage, limit, 'tutor');
   };
 
   const handlePreviousPage = () => {
     const prevPage = pagination.page - 1;
-    fetchOffers(prevPage, limit);
+    fetchOffers(prevPage, limit, 'tutor');
   };
 
   return (

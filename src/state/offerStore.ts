@@ -4,7 +4,7 @@ import { create } from 'zustand';
 type Store = {
   offers: [] | null;
   isLoading: boolean;
-  fetchOffers: (page: number, limit: number) => Promise<void>;
+  fetchOffers: (page: number, limit: number, userType: string) => Promise<void>;
   pagination: { page: number; limit: number; total: number };
 
   offer?: any | null;
@@ -18,11 +18,11 @@ export default create<Store>((set) => ({
   offers: null,
   isLoading: false,
   pagination: { page: 0, limit: 0, total: 0 },
-  fetchOffers: async (page: number, limit: number) => {
+  fetchOffers: async (page: number, limit: number, userType: string) => {
     set({ isLoading: true });
     try {
       set({ isLoading: true });
-      const response = await ApiService.getOffers(page, limit);
+      const response = await ApiService.getOffers(page, limit, userType);
       const { data } = await response.json();
 
       set({ offers: data.data, pagination: data.meta.pagination });
