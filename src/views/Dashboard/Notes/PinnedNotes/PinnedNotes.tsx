@@ -1,12 +1,11 @@
-import { ReactComponent as DocIcon } from '../../../assets/doc.svg';
-import { ReactComponent as NewNoteIcon } from '../../../assets/newnote.svg';
-import { AllNotesTab, SelectedNoteModal } from '../../../components';
-import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMenu';
-import CustomTabs from '../../../components/CustomComponents/CustomTabs';
-import { SortIcon, FilterByTagsIcon } from '../../../components/icons';
-import LoaderOverlay from '../../../components/loaderOverlay';
-import ApiService from '../../../services/ApiService';
-// import ApiService from '../../../services/ApiService';
+import { ReactComponent as DocIcon } from '../../../../assets/doc.svg';
+import { ReactComponent as NewNoteIcon } from '../../../../assets/newnote.svg';
+import { SelectedNoteModal } from '../../../../components';
+import DropdownMenu from '../../../../components/CustomComponents/CustomDropdownMenu';
+import CustomTabs from '../../../../components/CustomComponents/CustomTabs';
+import { SortIcon, FilterByTagsIcon } from '../../../../components/icons';
+import LoaderOverlay from '../../../../components/loaderOverlay';
+import ApiService from '../../../../services/ApiService';
 import {
   Checkbox,
   CheckboxContainer,
@@ -19,12 +18,28 @@ import {
   SectionNewList,
   StyledHeader,
   StyledSection
-} from './styles';
-import { NoteDetails, NoteServerResponse, SortOrder } from './types';
+} from '../styles';
+import { NoteServerResponse, PinnedNoteDetails, SortOrder } from '../types';
+import PinnedNotesTab from './PinnedNotesTab';
 import { AddIcon } from '@chakra-ui/icons';
 import { Text } from '@chakra-ui/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
+
+const tabLists = [
+  {
+    id: 1,
+    title: 'All'
+  },
+  {
+    id: 2,
+    title: 'Documents'
+  },
+  {
+    id: 3,
+    title: 'Notes'
+  }
+];
 
 const tagFilters = [
   {
@@ -67,25 +82,12 @@ const sortedByTitle = [
   }
 ];
 
-const tabLists = [
-  {
-    id: 1,
-    title: 'All'
-  },
-  {
-    id: 2,
-    title: 'Documents'
-  },
-  {
-    id: 3,
-    title: 'Notes'
-  }
-];
-
-const Notes = () => {
+const PinnedNotes = () => {
   const navigate = useNavigate();
   const [toggleHelpModal, setToggleHelpModal] = useState(false);
-  const [allNotes, setAllNotes] = useState<Array<NoteDetails>>([]);
+  const [allPinnedNotes, setAllPinnedNotes] = useState<
+    Array<PinnedNoteDetails>
+  >([]);
   const [loadingNotes, setLoadingNotes] = useState(false);
   const [sortOrder] = useState<SortOrder>(SortOrder.ASC);
   const [checkedState, setCheckedState] = useState(
@@ -98,10 +100,10 @@ const Notes = () => {
     const resp = await ApiService.getAllNotes();
     const respText = await resp.text();
     try {
-      const respDetails: NoteServerResponse<Array<NoteDetails>> =
+      const respDetails: NoteServerResponse<Array<PinnedNoteDetails>> =
         JSON.parse(respText);
       if (respDetails.data) {
-        setAllNotes(respDetails.data);
+        setAllPinnedNotes(respDetails.data);
       }
       setLoadingNotes(false);
       // set notes list
@@ -125,7 +127,7 @@ const Notes = () => {
 
   const orderBy = (order: SortOrder, sortBy = 'createdAt') => {
     if (order === SortOrder.ASC) {
-      const notes = [...allNotes].sort((a: any, b: any) => {
+      const notes = [...allPinnedNotes].sort((a: any, b: any) => {
         const aDate = new Date(a[sortBy]);
         const bDate = new Date(b[sortBy]);
         if (aDate instanceof Date && bDate instanceof Date) {
@@ -135,9 +137,9 @@ const Notes = () => {
           return a.topic.localeCompare(b.topic);
         }
       });
-      setAllNotes(notes);
+      setAllPinnedNotes(notes);
     } else {
-      const notes = [...allNotes].sort((a: any, b: any) => {
+      const notes = [...allPinnedNotes].sort((a: any, b: any) => {
         const aDate = new Date(a[sortBy]);
         const bDate = new Date(b[sortBy]);
         if (aDate instanceof Date && bDate instanceof Date) {
@@ -147,7 +149,7 @@ const Notes = () => {
           return b.topic.localeCompare(a.topic);
         }
       });
-      setAllNotes(notes);
+      setAllPinnedNotes(notes);
     }
   };
 
@@ -174,21 +176,6 @@ const Notes = () => {
       iconName: <DocIcon />,
       labelText: 'Upload document',
       onClick: activateHelpModal
-    }
-  ];
-
-  const tabPanel = [
-    {
-      id: 1,
-      component: <AllNotesTab data={allNotes} />
-    },
-    {
-      id: 2,
-      component: <></>
-    },
-    {
-      id: 3,
-      component: <AllNotesTab data={allNotes} />
     }
   ];
 
@@ -294,39 +281,91 @@ const Notes = () => {
     );
   };
 
-  //  load all notes when page is loaded
-  useEffect(() => {
-    getNotes();
-  }, [getNotes]);
+  // Define the type for the pinned note
+  type PinnedNote = {
+    noteId: string | null;
+    pinnedNoteJSON: any;
+  };
 
-  useEffect(() => {
-    // Filter based on tags or sort order
-    const filteredNotes = allNotes.filter((note: NoteDetails) => {
-      if (tags.length === 0) return true;
-      return tags.some((tag) => {
-        if (note.tags && Array.isArray(note.tags)) {
-          return note.tags.includes(tag);
-        } else {
-          // Default to true if no tag present on note item
-          return true;
+  // Helper function to convert PinnedNote to PinnedNoteDetails
+  const convertToPinnedNoteDetails = (
+    pinnedNote: PinnedNote
+  ): PinnedNoteDetails => {
+    // Extract properties from pinnedNote.pinnedNoteJSON
+    const {
+      data: { topic, note, tags, createdAt, updatedAt, user }
+    } = pinnedNote.pinnedNoteJSON;
+
+    return {
+      user: user || {},
+      topic: topic || '',
+      note: note || '',
+      tags: tags || [],
+
+      _id: pinnedNote.noteId || '',
+      createdAt: new Date(createdAt) || new Date(),
+      updatedAt: new Date(updatedAt) || new Date()
+    };
+  };
+
+  // Function to get pinned notes from local storage
+  const getPinnedNotesFromLocalStorage = (): PinnedNote[] => {
+    const storageId = 'pinned_notes';
+    const pinnedNotesString = localStorage.getItem(storageId);
+    try {
+      if (pinnedNotesString) {
+        const parsedPinnedNotes = JSON.parse(pinnedNotesString);
+        if (Array.isArray(parsedPinnedNotes)) {
+          return parsedPinnedNotes;
         }
-      });
-    });
-    setAllNotes(filteredNotes);
-  }, [tags, sortOrder]);
+      }
+    } catch (error) {
+      console.error('Error parsing pinned notes from local storage:', error);
+    }
 
-  const NoteView = () => {
+    return [];
+  };
+
+  useEffect(() => {
+    const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
+    if (pinnedNotesFromLocalStorage) {
+      const convertedPinnedNotes = pinnedNotesFromLocalStorage.map(
+        convertToPinnedNoteDetails
+      );
+      setAllPinnedNotes((prevPinnedNotes) => [
+        ...prevPinnedNotes,
+        ...convertedPinnedNotes
+      ]);
+    }
+  }, []);
+
+  const tabPanel = [
+    {
+      id: 1,
+      component: <PinnedNotesTab data={allPinnedNotes} />
+    },
+    {
+      id: 2,
+      component: <></>
+    },
+    {
+      id: 3,
+      component: <PinnedNotesTab data={allPinnedNotes} />
+    }
+  ];
+
+  const PinnedNoteView = () => {
     if (loadingNotes) {
       return <>{loadingNotes && <LoaderOverlay />}</>;
     } else {
       return (
         <>
-          {allNotes.length > 0 ? (
+          {allPinnedNotes.length > 0 ? (
             <NotesWrapper>
               <header className="flex my-4 justify-between">
                 <StyledHeader>
-                  <span className="font-bold">My Documents</span>
-                  <span className="count-badge">{allNotes.length}</span>
+                  <span className="font-bold">My Pinned Notes</span>
+                  <span className="count-badge">{allPinnedNotes.length}</span>
                 </StyledHeader>
                 <FilterMenu />
               </header>
@@ -373,7 +412,8 @@ const Notes = () => {
       );
     }
   };
-  return <NoteView />;
+
+  return <PinnedNoteView />;
 };
 
-export default Notes;
+export default PinnedNotes;

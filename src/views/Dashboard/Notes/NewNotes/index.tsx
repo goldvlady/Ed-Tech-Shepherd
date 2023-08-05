@@ -10,8 +10,6 @@ import { ReactComponent as TrashIcon } from '../../../../assets/trash-icn.svg';
 import CustomButton from '../../../../components/CustomComponents/CustomButton';
 import { saveHTMLAsPDF } from '../../../../library/fs';
 import ApiService from '../../../../services/ApiService';
-import flashcardStore from '../../../../state/flashcardStore';
-import { FlashcardData } from '../../../../types';
 import TagModal from '../../FlashCards/components/TagModal';
 import { DeleteModal } from '../../FlashCards/components/deleteModal';
 import { NoteDetails, NoteServerResponse } from '../types';
@@ -118,6 +116,16 @@ const NewNote = () => {
   // get user details
   const defaultNoteTitle = DEFAULT_NOTE_TITLE;
 
+  // Define the type for the pinned note
+  type PinnedNote = {
+    noteId: string | null;
+    pinnedNoteJSON: any;
+  };
+  const [saveDetails, setSaveDetails] =
+    useState<NoteServerResponse<NoteDetails> | null>(null);
+  const [pinnedNotes, setPinnedNotes] = useState<PinnedNote[]>([]);
+  const [isPinned, setIsPinned] = useState(false);
+
   //note title from data initially or Untitled
   const toast = useToast();
   const params = useParams();
@@ -140,6 +148,7 @@ const NewNote = () => {
   const editor: BlockNoteEditor | null = useBlockNote({
     initialContent: initialContent ? JSON.parse(initialContent) : undefined
   });
+
   const [isLoading, setIsLoading] = useState(false);
 
   const onCancel = () => {
@@ -166,6 +175,7 @@ const NewNote = () => {
         'error'
       );
     }
+    alert('HTML :' + noteHTML);
     const noteName = `note_${noteId}`;
     saveHTMLAsPDF(noteName, noteHTML);
   };
@@ -194,19 +204,34 @@ const NewNote = () => {
     }
 
     setSaveButtonState(false);
-    let saveDetails: NoteServerResponse<NoteDetails> | null;
+    // let saveDetails: NoteServerResponse<NoteDetails> | null;
+
+    // if (noteId && noteId !== '') {
+    //   saveDetails = await updateNote(noteId, {
+    //     topic: editedTitle,
+    //     note: noteJSON
+    //   });
+    // } else {
+    //   saveDetails = await createNote({
+    //     topic: editedTitle,
+    //     note: noteJSON
+    //   });
+    // }
 
     if (noteId && noteId !== '') {
-      saveDetails = await updateNote(noteId, {
+      const updatedSaveDetails = await updateNote(noteId, {
         topic: editedTitle,
         note: noteJSON
       });
+      setSaveDetails(updatedSaveDetails);
     } else {
-      saveDetails = await createNote({
+      const updatedSaveDetails = await createNote({
         topic: editedTitle,
         note: noteJSON
       });
+      setSaveDetails(updatedSaveDetails);
     }
+
     if (!saveDetails) {
       setSaveButtonState(true);
       return showToast(
@@ -326,6 +351,47 @@ const NewNote = () => {
     }
   };
 
+  const savePinnedNoteLocal = (pinnedNotesArray) => {
+    const storageId = 'pinned_notes'; // Unique identifier for the array in local storage
+    localStorage.setItem(storageId, JSON.stringify(pinnedNotesArray));
+  };
+
+  // Function to toggle pin state when the pin icon is clicked
+  const handlePinClick = () => {
+    setIsPinned((prevIsPinned) => !prevIsPinned);
+    // Save the note to local storage when pinned
+    if (!isPinned && saveDetails?.data) {
+      const updatedPinnedNotes = [
+        ...pinnedNotes,
+        {
+          noteId: saveDetails?.data['_id'],
+          pinnedNoteJSON: saveDetails
+        }
+      ];
+      setPinnedNotes(updatedPinnedNotes);
+      savePinnedNoteLocal(updatedPinnedNotes);
+    }
+  };
+
+  // Function to get pinned notes from local storage
+  const getPinnedNotesFromLocalStorage = (): PinnedNote[] | null => {
+    const storageId = 'pinned_notes';
+    const pinnedNotesString = localStorage.getItem(storageId);
+    if (pinnedNotesString) {
+      return JSON.parse(pinnedNotesString);
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
+    if (pinnedNotesFromLocalStorage) {
+      setPinnedNotes(pinnedNotesFromLocalStorage);
+    } else {
+      setPinnedNotes([]);
+    }
+  }, []);
+
   const handleFocusOut = () => {
     updateTitle();
   };
@@ -335,8 +401,6 @@ const NewNote = () => {
       updateTitle();
     }
   };
-
-  const { storeFlashcardTags } = flashcardStore();
 
   const handleHeaderClick = () => {
     if (editedTitle === defaultNoteTitle) {
@@ -413,10 +477,6 @@ const NewNote = () => {
     }
   };
 
-  const [tagEditItem, setTagEditItem] = useState<{
-    flashcard: FlashcardData;
-  } | null>(null);
-
   const showTagsDropdown = () => {
     setOpenTags((prevState) => !prevState);
   };
@@ -465,12 +525,73 @@ const NewNote = () => {
   // Load notes if noteID is provided via param
   useEffect(() => {
     getNoteById();
+
     // event for escape to minimize window
     window.addEventListener('keypress', handleWindowKey);
     return () => {
       window.removeEventListener('keypress', handleWindowKey);
     };
   }, []);
+
+  const [tags, setTags] = useState<string[]>([]);
+  const [newTags, setNewTags] = useState<string[]>(tags);
+  const [inputValue, setInputValue] = useState('');
+
+  const addTag = async (
+    id: string,
+    tags: string[]
+  ): Promise<NoteServerResponse | null> => {
+    const data = { tags: tags }; // Wrap the tags array in an object with the key "tags"
+    const resp = await ApiService.updateNoteTags(id, data);
+    const respText = await resp.text();
+    try {
+      const respDetails: NoteServerResponse = JSON.parse(respText);
+      return respDetails;
+    } catch (error: any) {
+      return { error: error.message, message: error.message };
+    }
+  };
+
+  const AddTags = async () => {
+    const noteIdInUse = noteId ?? noteParamId;
+
+    if (!noteIdInUse || noteIdInUse === '') {
+      setOpenTags(false);
+      return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
+    }
+
+    const details = await addTag(noteIdInUse, newTags);
+
+    if (!details) {
+      setOpenTags(false);
+      return showToast(
+        DELETE_NOTE_TITLE,
+        'An unknown error occurs while adding tag. Try again',
+        'error'
+      );
+    }
+
+    if (details.error) {
+      setOpenTags(false);
+      return showToast(DELETE_NOTE_TITLE, details.error, 'error');
+    } else {
+      setOpenTags(false);
+      showToast(DELETE_NOTE_TITLE, details.message, 'success');
+      setNoteId('');
+      clearEditor();
+      setTags(details.data.tags);
+    }
+
+    console.log({ tag: details.data.tags, tags });
+  };
+
+  const handleAddTag = () => {
+    const value = inputValue.toLowerCase().trim();
+    if (inputValue && !newTags.includes(value)) {
+      setNewTags([...newTags, value]);
+    }
+    setInputValue('');
+  };
 
   return (
     <NewNoteWrapper {...editorStyle}>
@@ -507,7 +628,7 @@ const NewNote = () => {
             onClick={onSaveNote}
             active={saveButtonState}
           />
-          <div className="pin__icn">
+          <div className="pin__icn" onClick={handlePinClick}>
             <PinIcon />
           </div>
           <div>
@@ -557,33 +678,18 @@ const NewNote = () => {
                 </section>
               </MenuList>
             </Menu>
+
             {openTags && (
               <TagModal
-                tags={tagEditItem?.flashcard?.tags || []}
-                isOpen={true}
-                onSubmit={async (d) => {
-                  const isSaved = await storeFlashcardTags(
-                    tagEditItem?.flashcard?._id as string,
-                    d
-                  );
-                  if (isSaved) {
-                    toast({
-                      position: 'top-right',
-                      title: `Tags Added for ${tagEditItem?.flashcard.deckname}`,
-                      status: 'success'
-                    });
-                    setTagEditItem(null);
-                    setOpenTags(false);
-                  } else {
-                    toast({
-                      position: 'top-right',
-                      title: `Failed to add tags for ${tagEditItem?.flashcard.deckname} flashcards`,
-                      status: 'error'
-                    });
-                  }
-                  setOpenTags(false);
-                }}
+                onSubmit={AddTags}
+                isOpen={openTags}
                 onClose={() => setOpenTags(false)}
+                tags={tags}
+                inputValue={inputValue}
+                handleAddTag={handleAddTag}
+                newTags={newTags}
+                setNewTags={setNewTags}
+                setInputValue={setInputValue}
               />
             )}
           </div>
