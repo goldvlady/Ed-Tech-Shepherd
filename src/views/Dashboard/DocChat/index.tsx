@@ -141,7 +141,7 @@ export default function DocChat() {
         toast({
           render: () => (
             <CustomToast
-              title="Failed to fetch chat history..."
+              title="Unable to process your request at this time. Please try again later."
               status="error"
             />
           ),
@@ -155,11 +155,24 @@ export default function DocChat() {
 
   useEffect(() => {
     const getSummary = async () => {
-      const response = await generateSummary({
-        documentId,
-        studentId
-      });
-      setSummaryText(response?.summary);
+      try {
+        const response = await generateSummary({
+          documentId,
+          studentId
+        });
+        setSummaryText(response?.summary);
+      } catch (error) {
+        toast({
+          render: () => (
+            <CustomToast
+              title="Unable to process your request at this time. Please try again later."
+              status="error"
+            />
+          ),
+          position: 'top-right',
+          isClosable: true
+        });
+      }
     };
     getSummary();
   }, []);

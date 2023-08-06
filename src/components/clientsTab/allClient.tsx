@@ -14,6 +14,8 @@ import {
   MenuList,
   MenuButton,
   Button,
+  Box,
+  Spinner,
   Text,
   Flex
 } from '@chakra-ui/react';
@@ -60,7 +62,8 @@ type DataSourceItem = {
   rating: number;
 };
 
-const AllClientsTab = () => {
+const AllClientsTab = (props) => {
+  const { allTutorClients } = props;
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
   const [, setDeleteAllNotesModal] = useState(false);
   const checkbox = useRef<HTMLInputElement>(null);
@@ -69,22 +72,8 @@ const AllClientsTab = () => {
   const [selectedPeople, setSelectedPeople] = useState<any[]>([]);
   const [clientsDetails, setClientDetails] = useState('');
   const [openTags, setOpenTags] = useState<boolean>(false);
+
   const navigate = useNavigate();
-
-  const [allTutorClients, setAllTutorClients] = useState<any>([]);
-
-  const doFetchTutorClients = useCallback(async () => {
-    const response = await ApiService.getTutorClients();
-
-    const jsonResp = await response.json();
-    setAllTutorClients(jsonResp.data.data);
-
-    /* eslint-disable */
-  }, []);
-
-  useEffect(() => {
-    doFetchTutorClients();
-  }, [doFetchTutorClients]);
 
   const dataSource: DataSourceItem[] = Array.from(
     { length: allTutorClients?.length },
@@ -229,7 +218,7 @@ const AllClientsTab = () => {
           >
             <section className="space-y-2 border-b pb-2">
               <button
-                onClick={() => navigate(`/clients/${id}`)}
+                onClick={() => navigate(`${id}`)}
                 className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
               >
                 <div className=" flex items-center space-x-1">
@@ -240,7 +229,7 @@ const AllClientsTab = () => {
                     />
                   </div>
                   <Text className="text-sm text-secondaryGray font-medium">
-                    Flashcards
+                    Contract
                   </Text>
                 </div>
                 <ChevronRightIcon className="w-2.5 h-2.5" />
@@ -254,7 +243,7 @@ const AllClientsTab = () => {
                     />
                   </div>
                   <Text className="text-sm text-secondaryGray font-medium">
-                    Add tag
+                    Monthly report
                   </Text>
                 </div>
                 <ChevronRightIcon className="w-2.5 h-2.5" />
@@ -268,7 +257,7 @@ const AllClientsTab = () => {
                     />
                   </div>
                   <Text className="text-sm text-secondaryGray font-medium">
-                    Download
+                    Client review
                   </Text>
                 </div>
                 <ChevronRightIcon className="w-2.5 h-2.5" />
@@ -312,7 +301,7 @@ const AllClientsTab = () => {
           <div className="inline-block min-w-full py-2 align-middle h-screen sm:px-6 lg:px-8 z-10">
             <div className="relative">
               <div className="table-columns  fixed bottom-[80px] right-[36%] left-[36%]">
-                {selectedPeople.length > 0 && (
+                {/* {selectedPeople.length > 0 && (
                   <div className="top-0 border px-4 py-8 text-sm rounded-md flex h-12 items-center justify-between space-x-3 w-[600px] bg-white sm:left-12">
                     <p className="text-gray-600">
                       {selectedPeople.length} items selected
@@ -446,7 +435,7 @@ const AllClientsTab = () => {
                       Done
                     </button>
                   </div>
-                )}
+                )} */}
               </div>
               <SelectableTable
                 columns={clientColumn}

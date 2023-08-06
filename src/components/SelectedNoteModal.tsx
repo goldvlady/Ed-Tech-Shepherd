@@ -319,7 +319,8 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
                           key={id}
                           onClick={handleSelected}
                           style={{
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            width: '100%'
                           }}
                         >
                           {item.title}

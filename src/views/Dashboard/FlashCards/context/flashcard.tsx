@@ -168,7 +168,31 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
             documentUrl: reqData.documentId as string
           };
           const fileInfo = new FileProcessingService(responseData);
-          const hasProcessedFile = await fileInfo.process();
+          const documentId = await fileInfo.process();
+          const response = await ApiService.createDocchatFlashCards({
+            topic: reqData.topic as string,
+            studentId: user?._id as string,
+            documentId: documentId as string,
+            count: parseInt(count as unknown as string, 10)
+          });
+
+          if (response.status === 200) {
+            const data = await response.json();
+            const questions = data.flashcards.map((d: any) => ({
+              question: d.front,
+              answer: d.back,
+              explanation: d.explainer,
+              helperText: d['helpful reading'],
+              questionType: 'openEnded'
+            }));
+
+            setQuestions(questions);
+            setCurrentStep((prev) => prev + 1);
+            onDone && onDone(true);
+          } else {
+            setFlashcardData((prev) => ({ ...prev, hasSubmitted: false }));
+            onDone && onDone(false);
+          }
           // console.log(hasProcessedFile);
           // const response = await createDocchatFlashCards({
           //   topic: reqData.topic as string,
@@ -177,29 +201,29 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
           //   count: parseInt(count as unknown as string, 10)
           // });
           // return;
-        }
-
-        const response = await ApiService.generateFlashcardQuestions(
-          aiData,
-          user?._id as string // TODO: Get this user value from somewhere
-        );
-
-        if (response.status === 200) {
-          const data = await response.json();
-          const questions = data.flashcards.map((d: any) => ({
-            question: d.front,
-            answer: d.back,
-            explanation: d.explainer,
-            helperText: d['helpful reading'],
-            questionType: 'openEnded'
-          }));
-
-          setQuestions(questions);
-          setCurrentStep((prev) => prev + 1);
-          onDone && onDone(true);
         } else {
-          setFlashcardData((prev) => ({ ...prev, hasSubmitted: false }));
-          onDone && onDone(false);
+          const response = await ApiService.generateFlashcardQuestions(
+            aiData,
+            user?._id as string // TODO: Get this user value from somewhere
+          );
+
+          if (response.status === 200) {
+            const data = await response.json();
+            const questions = data.flashcards.map((d: any) => ({
+              question: d.front,
+              answer: d.back,
+              explanation: d.explainer,
+              helperText: d['helpful reading'],
+              questionType: 'openEnded'
+            }));
+
+            setQuestions(questions);
+            setCurrentStep((prev) => prev + 1);
+            onDone && onDone(true);
+          } else {
+            setFlashcardData((prev) => ({ ...prev, hasSubmitted: false }));
+            onDone && onDone(false);
+          }
         }
       } catch (error) {
         setFlashcardData((prev) => ({ ...prev, hasSubmitted: false }));

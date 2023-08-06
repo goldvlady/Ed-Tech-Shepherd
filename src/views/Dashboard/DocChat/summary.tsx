@@ -4,8 +4,10 @@ import { ReactComponent as EditIcn } from '../../../assets/editIcn.svg';
 import { ReactComponent as GenerateIcn } from '../../../assets/generateIcn.svg';
 import { ReactComponent as SummaryIcn } from '../../../assets/summaryIcn1.svg';
 import CustomButton from '../../../components/CustomComponents/CustomButton';
+import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkdownView';
 import { copierHandler } from '../../../helpers';
 import {
+  DefaultSummaryContainer,
   EmptyStateContainer,
   IconContainer,
   PageCount,
@@ -56,11 +58,16 @@ const Summary = ({
             <EditIcn onClick={onEditToggle} />
             <DeleteIcn />
           </IconContainer>
-          <SummaryContainer2
-            readOnly={isEdit}
-            value={summaryTexts}
-            onChange={(event) => setSummaryText(event.target.value!)}
-          ></SummaryContainer2>
+          {isEdit ? (
+            <DefaultSummaryContainer>
+              <CustomMarkdownView source={summaryTexts} />
+            </DefaultSummaryContainer>
+          ) : (
+            <SummaryContainer2
+              value={summaryTexts}
+              onChange={(event) => setSummaryText(event.target.value!)}
+            ></SummaryContainer2>
+          )}
         </>
       )}
 

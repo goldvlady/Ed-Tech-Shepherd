@@ -21,16 +21,24 @@ function Notifications(props) {
   const currentPath = window.location.pathname;
 
   const isTutor = currentPath.includes('/dashboard/tutordashboard');
+
+  const isWithinAWeek = (createdAt) => {
+    const aWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    return new Date(createdAt) >= new Date(aWeekAgo);
+  };
   const filteredData = data.filter((item) => {
     if (isTutor) {
       return (
-        item.type === 'new_offer_received' || item.type === 'upcoming_class'
+        (item.type === 'new_offer_received' ||
+          item.type === 'upcoming_class') &&
+        isWithinAWeek(item.createdAt)
       );
     } else {
-      return item.type !== 'new_offer_received';
+      return (
+        item.type !== 'new_offer_received' && isWithinAWeek(item.createdAt)
+      );
     }
   });
-  console.log(isTutor, 'tutt');
 
   const Divide = styled(Divider)`
     &:last-child {

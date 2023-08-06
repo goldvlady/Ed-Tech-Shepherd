@@ -92,6 +92,7 @@ class ApiService {
     search?: string;
     page?: number;
     limit?: number;
+    sort?: string;
   }) => {
     const queryString = objectToQueryString(queryParams);
     return doFetch(
@@ -330,15 +331,15 @@ class ApiService {
 
   // Get Single Tutor Clients
   static getTutorSingleClients = async (id: string) => {
-    return doFetch(`${ApiService.baseEndpoint}/getClients?id=${id}`, {
+    return doFetch(`${ApiService.baseEndpoint}/getClient?id=${id}`, {
       method: 'GET'
     });
   };
 
   // Get All Tutor Offers
-  static getOffers = async (page: number, limit: number) => {
+  static getOffers = async (page: number, limit: number, userType: string) => {
     return doFetch(
-      `${ApiService.baseEndpoint}/getOffers?page=${page}&limit=${limit}`
+      `${ApiService.baseEndpoint}/getOffers?userType=${userType}&page=${page}&limit=${limit}`
     );
   };
 
