@@ -175,7 +175,7 @@ const AppRoutes: React.FC = () => {
   useEffect(() => {
     if (isAuthenticated) {
       fetchNotifications();
-      fetchUserDocuments(userData._id);
+      userData && fetchUserDocuments(userData._id);
     }
     /* eslint-disable */
   }, [isAuthenticated]);
