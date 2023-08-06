@@ -46,3 +46,7 @@ export enum SortOrder {
   ASC = 'asc',
   DESC = 'desc'
 }
+
+export enum NoteEnums {
+  PINNED_NOTE_STORE_ID = 'pinned_notes'
+}

@@ -364,6 +364,7 @@ const Notes = () => {
               </Section>
             </NotesWrapper>
           )}
+
           <SelectedNoteModal
             show={toggleHelpModal}
             setShow={setToggleHelpModal}

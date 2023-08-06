@@ -1,6 +1,7 @@
 import ApiService from '../../services/ApiService';
 import TagModal from '../../views/Dashboard/FlashCards/components/TagModal';
 import { DeleteModal } from '../../views/Dashboard/FlashCards/components/deleteModal';
+import { NoteModal } from '../../views/Dashboard/Notes/Modal';
 import {
   NoteDetails,
   NoteServerResponse
@@ -624,8 +625,9 @@ const AllNotesTab: FC<Props> = ({ data }) => {
           setInputValue={setInputValue}
         />
       )}
-
-      <DeleteModal
+      <NoteModal
+        title="Delete Notes"
+        description="Are you sure you want to delete  Note?"
         isLoading={isLoading}
         isOpen={deleteNoteModal}
         onCancel={() => onCancel()}

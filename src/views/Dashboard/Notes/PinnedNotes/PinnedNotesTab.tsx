@@ -1,50 +1,27 @@
+import { TrashIcon } from '../../../../components/icons';
 import {
-  DownloadIcon,
-  FlashCardsIcon,
-  FlashCardsSolidIcon,
-  TrashIcon
-} from '../../../../components/icons';
-import {
-  StyledMenuButton,
-  StyledMenuSection,
   TableTitleWrapper,
   TitleIcon
 } from '../../../../components/notesTab/styles';
 import SelectableTable, { TableColumn } from '../../../../components/table';
-import ApiService from '../../../../services/ApiService';
-import TagModal from '../../FlashCards/components/TagModal';
-import { DeleteModal } from '../../FlashCards/components/deleteModal';
-// import TagModal from '../../views/Dashboard/FlashCards/components/TagModal';
-// import { DeleteModal } from '../../views/Dashboard/FlashCards/components/deleteModal';
-import { NoteServerResponse, PinnedNoteDetails } from '../types';
-import { Block, BlockNoteEditor } from '@blocknote/core';
-import { useBlockNote } from '@blocknote/react';
+import { NoteModal } from '../Modal';
+import { NoteEnums, PinnedNoteDetails } from '../types';
 import { Menu, MenuList, MenuButton, Button, Text } from '@chakra-ui/react';
 import { AlertStatus, ToastPosition } from '@chakra-ui/react';
 import { useToast } from '@chakra-ui/react';
-import {
-  ChevronRightIcon,
-  MagnifyingGlassIcon
-} from '@heroicons/react/24/solid';
 import moment from 'moment';
 import { FC, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { FaEllipsisH } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-
-interface Client {
-  id: number;
-  title: string;
-  date_created: string;
-  tags: string;
-  last_modified: string;
-}
 
 interface Props {
   data: Array<PinnedNoteDetails>;
 }
 
 const PinnedNotesTab: FC<Props> = ({ data }) => {
-  const params = useParams();
+  const DELETE_NOTE_TITLE = 'Delete Note';
+  const DEFAULT_NOTE_TITLE = 'Enter Note Title';
+
   const toast = useToast();
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
   const [, setDeleteAllNotesModal] = useState(false);
@@ -52,29 +29,16 @@ const PinnedNotesTab: FC<Props> = ({ data }) => {
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
   const [selectedPeople, setSelectedPeople] = useState<any[]>([]);
-  const [clientsDetails, setClientDetails] = useState('');
-  const [openTags, setOpenTags] = useState<boolean>(false);
-  const [openTagsModal, setOpenTagsModal] = useState<boolean>(false);
   const [noteId, setNoteId] = useState<string | null>(null);
   const navigate = useNavigate();
-  const [noteParamId, setNoteParamId] = useState<string | null>(
-    params.id ?? null
-  );
 
-  const [inputValue, setInputValue] = useState('');
-  const [tags, setTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [pinnedNotes, setPinnedNotes] = useState<PinnedNote[]>([]);
+  const [dataSource, setDataSource] = useState<DataSourceItem[]>([]);
 
   const onCancel = () => {
     setDeleteNoteModal(!deleteNoteModal);
   };
-
-  const DELETE_NOTE_TITLE = 'Delete Note';
-  const DEFAULT_NOTE_TITLE = 'Enter Note Title';
-  // get user details
-  const defaultNoteTitle = DEFAULT_NOTE_TITLE;
-
-  const [editedTitle, setEditedTitle] = useState(defaultNoteTitle);
 
   useLayoutEffect(() => {
     const isIndeterminate =
@@ -92,23 +56,8 @@ const PinnedNotesTab: FC<Props> = ({ data }) => {
     setIndeterminate(false);
   }
 
-  const onDeleteNote = (
-    isOpenDeleteModal: boolean,
-    noteDetails: string,
-    noteId: any
-  ) => {
+  const onDeleteNote = (isOpenDeleteModal: boolean, noteId: any) => {
     setDeleteNoteModal(isOpenDeleteModal);
-    setClientDetails(noteDetails);
-    setNoteId(noteId);
-  };
-
-  const onAddTag = (
-    openTagsModal: boolean,
-    noteDetails: string,
-    noteId: any
-  ) => {
-    setOpenTagsModal(openTagsModal);
-    setClientDetails(noteDetails);
     setNoteId(noteId);
   };
 
@@ -117,68 +66,6 @@ const PinnedNotesTab: FC<Props> = ({ data }) => {
     if (noteId && noteId !== '') {
       navigate(noteURL);
     }
-  };
-
-  const getLocalStorageNoteId = (noteId: string | null): string => {
-    const genId = noteId ? noteId : '';
-    return genId;
-  };
-
-  const getNoteLocal = (noteId: string | null): string | null => {
-    const storageId = getLocalStorageNoteId(noteId);
-    const content = localStorage.getItem(storageId);
-    return content;
-  };
-
-  const [initialContent, setInitialContent] = useState<any>(
-    getNoteLocal(noteParamId)
-  );
-
-  const editor: BlockNoteEditor | null = useBlockNote({
-    initialContent: initialContent ? JSON.parse(initialContent) : undefined
-  });
-
-  const deleteNote = async (id: string): Promise<NoteServerResponse | null> => {
-    const resp = await ApiService.deleteNote(id);
-    const respText = await resp.text();
-    try {
-      const respDetails: NoteServerResponse = JSON.parse(respText);
-      if (!respDetails.error) {
-        // If there is no error, delete the note from local storage
-        const storageId = getLocalStorageNoteId(id);
-        localStorage.removeItem(storageId);
-      }
-
-      return respDetails;
-    } catch (error: any) {
-      return { error: error.message, message: error.message };
-    }
-  };
-
-  const addTag = async (
-    id: string,
-    tags: string[]
-  ): Promise<NoteServerResponse | null> => {
-    const data = { tags: tags }; // Wrap the tags array in an object with the key "tags"
-    const resp = await ApiService.updateNoteTags(id, data);
-    const respText = await resp.text();
-    try {
-      const respDetails: NoteServerResponse = JSON.parse(respText);
-      return respDetails;
-    } catch (error: any) {
-      return { error: error.message, message: error.message };
-    }
-  };
-
-  const clearEditor = () => {
-    if (!editor) {
-      return false;
-    }
-    editor.forEachBlock((block: Block<any>) => {
-      block.children = [];
-      block.content = [];
-      return true;
-    });
   };
 
   const showToast = (
@@ -199,7 +86,7 @@ const PinnedNotesTab: FC<Props> = ({ data }) => {
   };
 
   const DeleteNote = async () => {
-    const noteIdInUse = noteId ?? noteParamId;
+    const noteIdInUse = noteId;
 
     if (!noteIdInUse || noteIdInUse === '') {
       setDeleteNoteModal(false);
@@ -207,75 +94,30 @@ const PinnedNotesTab: FC<Props> = ({ data }) => {
     }
 
     setIsLoading(true);
-
-    const details = await deleteNote(noteIdInUse);
-    setIsLoading(false);
-
-    if (!details) {
-      setDeleteNoteModal(false);
-      return showToast(
-        DELETE_NOTE_TITLE,
-        'An unknown error occurs while adding note. Try again',
-        'error'
-      );
-    }
-
-    if (details.error) {
-      setDeleteNoteModal(false);
-      return showToast(DELETE_NOTE_TITLE, details.error, 'error');
-    } else {
-      setDeleteNoteModal(false);
-      showToast(DELETE_NOTE_TITLE, details.message, 'success');
-      setEditedTitle(defaultNoteTitle);
-      setNoteId('');
-
+    try {
       // Remove the deleted note from the dataSource
-      setDataSource((prevDataSource) =>
-        prevDataSource.filter((item) => item.id !== noteIdInUse)
-      );
-      clearEditor();
+      setDataSource((prevDataSource) => {
+        return prevDataSource.filter((item: any) => {
+          if (item.id === noteIdInUse) {
+            try {
+              const storageId = NoteEnums.PINNED_NOTE_STORE_ID;
+              localStorage.removeItem(storageId);
+              showToast(DELETE_NOTE_TITLE, 'Pinned note deleted', 'success');
+            } catch (error: any) {
+              showToast(DELETE_NOTE_TITLE, error.message, 'error');
+              setIsLoading(false);
+              setDeleteNoteModal(false);
+            }
+          }
+          // filter and return all items except deleted items
+          return item.id !== noteIdInUse;
+        });
+      });
+      setIsLoading(false);
+      setDeleteNoteModal(false);
+    } catch (error: any) {
+      showToast(DELETE_NOTE_TITLE, error.message, 'error');
     }
-  };
-
-  const [newTags, setNewTags] = useState<string[]>(tags);
-
-  const AddTag = async () => {
-    const noteIdInUse = noteId ?? noteParamId;
-
-    if (!noteIdInUse || noteIdInUse === '') {
-      setOpenTagsModal(false);
-      return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
-    }
-
-    const details = await addTag(noteIdInUse, newTags);
-
-    if (!details) {
-      setOpenTagsModal(false);
-      return showToast(
-        DELETE_NOTE_TITLE,
-        'An unknown error occurs while adding tag. Try again',
-        'error'
-      );
-    }
-
-    if (details.error) {
-      setOpenTagsModal(false);
-      return showToast(DELETE_NOTE_TITLE, details.error, 'error');
-    } else {
-      setOpenTagsModal(false);
-      showToast(DELETE_NOTE_TITLE, details.message, 'success');
-      setNoteId('');
-      clearEditor();
-      setTags(details.data.tags);
-    }
-  };
-
-  const handleAddTag = () => {
-    const value = inputValue.toLowerCase().trim();
-    if (inputValue && !newTags.includes(value)) {
-      setNewTags([...newTags, value]);
-    }
-    setInputValue('');
   };
 
   // Define the type for the pinned note
@@ -283,8 +125,6 @@ const PinnedNotesTab: FC<Props> = ({ data }) => {
     noteId: string | null;
     pinnedNoteJSON: any;
   };
-
-  const [pinnedNotes, setPinnedNotes] = useState<PinnedNote[]>([]);
 
   // Function to get pinned notes from local storage
   const getPinnedNotesFromLocalStorage = (): PinnedNote[] | null => {
@@ -329,8 +169,6 @@ const PinnedNotesTab: FC<Props> = ({ data }) => {
     const formattedDate = moment(date).format(format);
     return formattedDate;
   };
-
-  const [dataSource, setDataSource] = useState<DataSourceItem[]>([]);
 
   useEffect(() => {
     const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
@@ -417,58 +255,9 @@ const PinnedNotesTab: FC<Props> = ({ data }) => {
             backgroundColor="#FFFFFF"
             boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
           >
-            <section className="space-y-2 border-b pb-2">
-              <button
-                onClick={() => navigate(`/clients/${id}`)}
-                className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
-              >
-                <div className=" flex items-center space-x-1">
-                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
-                    <FlashCardsIcon
-                      className="w-4 h-4 text-primaryGray"
-                      onClick={undefined}
-                    />
-                  </div>
-                  <Text className="text-sm text-secondaryGray font-medium">
-                    Flashcards
-                  </Text>
-                </div>
-                <ChevronRightIcon className="w-2.5 h-2.5" />
-              </button>
-              <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
-                <div className="flex items-center space-x-1">
-                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
-                    <FlashCardsSolidIcon
-                      className="w-4 h-4 text-primaryGray"
-                      onClick={() => {
-                        onAddTag(true, title, id);
-                      }}
-                    />
-                  </div>
-                  <Text className="text-sm text-secondaryGray font-medium">
-                    Add tag
-                  </Text>
-                </div>
-                <ChevronRightIcon className="w-2.5 h-2.5" />
-              </button>
-              <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
-                <div className="flex items-center space-x-1">
-                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
-                    <DownloadIcon
-                      className="w-4 h-4 text-primaryGray"
-                      onClick={undefined}
-                    />
-                  </div>
-                  <Text className="text-sm text-secondaryGray font-medium">
-                    Download
-                  </Text>
-                </div>
-                <ChevronRightIcon className="w-2.5 h-2.5" />
-              </button>
-            </section>
             <div
               onClick={() => {
-                onDeleteNote(true, title, id);
+                onDeleteNote(true, id);
               }}
               style={{
                 display: 'flex',
@@ -516,112 +305,6 @@ const PinnedNotesTab: FC<Props> = ({ data }) => {
                       <button className="text-gray-600" onClick={toggleAll}>
                         Select all
                       </button>
-                      <Menu>
-                        <StyledMenuButton
-                          as={Button}
-                          variant="unstyled"
-                          borderRadius="full"
-                          p={0}
-                          minW="auto"
-                          height="auto"
-                          background="#F4F5F5"
-                          display="flex"
-                          className="flex items-center gap-2"
-                          onClick={() => setOpenTags((prevState) => !prevState)}
-                        >
-                          <FlashCardsSolidIcon
-                            className="w-5"
-                            onClick={undefined}
-                          />
-                          Add tag
-                        </StyledMenuButton>
-                      </Menu>
-
-                      {openTags && (
-                        <Menu>
-                          <StyledMenuSection>
-                            <form
-                              className="relative flex flex-1 py-2"
-                              action="#"
-                              method="GET"
-                            >
-                              <label htmlFor="search-field" className="sr-only">
-                                Search
-                              </label>
-                              <MagnifyingGlassIcon
-                                className="pl-2 pointer-events-none absolute inset-y-0 left-0 h-full w-7 text-gray-400"
-                                aria-hidden="true"
-                              />
-                              <input
-                                id="search-field"
-                                className="block rounded-lg border-gray-400 w-full h-10 border py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
-                                placeholder="Search Clients..."
-                                type="search"
-                                name="search"
-                              />
-                            </form>
-                            <div className="relative cursor-pointer bg-lightGray px-2 py-1 rounded-lg flex items-start">
-                              <div className="flex h-6 items-center">
-                                <input
-                                  id="comments"
-                                  aria-describedby="comments-description"
-                                  name="comments"
-                                  type="checkbox"
-                                  className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
-                                />
-                              </div>
-                              <div className="ml-3 text-sm leading-6">
-                                <label
-                                  htmlFor="comments"
-                                  className="font-normal text-dark"
-                                >
-                                  #Chemistry
-                                </label>
-                              </div>
-                            </div>
-
-                            <div className="relative cursor-pointer hover:bg-lightGray px-2 py-1 rounded-lg flex items-start">
-                              <div className="flex h-6 items-center">
-                                <input
-                                  id="comments"
-                                  aria-describedby="comments-description"
-                                  name="comments"
-                                  type="checkbox"
-                                  className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
-                                />
-                              </div>
-                              <div className="ml-3 text-sm leading-6">
-                                <label
-                                  htmlFor="comments"
-                                  className="font-normal text-dark"
-                                >
-                                  #Person
-                                </label>
-                              </div>
-                            </div>
-
-                            <div className="relative cursor-pointer hover:bg-lightGray px-2 py-1 rounded-lg flex items-start">
-                              <div className="flex h-6 items-center">
-                                <input
-                                  id="comments"
-                                  aria-describedby="comments-description"
-                                  name="comments"
-                                  type="checkbox"
-                                  className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
-                                />
-                              </div>
-                              <div className="ml-3 text-sm leading-6">
-                                <label
-                                  htmlFor="comments"
-                                  className="font-normal text-dark"
-                                >
-                                  #Favorites
-                                </label>
-                              </div>
-                            </div>
-                          </StyledMenuSection>
-                        </Menu>
-                      )}
 
                       <button
                         onClick={() => setDeleteAllNotesModal(true)}
@@ -653,21 +336,10 @@ const PinnedNotesTab: FC<Props> = ({ data }) => {
           </div>
         </div>
       </div>
-      {openTagsModal && (
-        <TagModal
-          onSubmit={AddTag}
-          isOpen={openTagsModal}
-          onClose={() => setOpenTagsModal(false)}
-          tags={tags}
-          inputValue={inputValue}
-          handleAddTag={handleAddTag}
-          newTags={newTags}
-          setNewTags={setNewTags}
-          setInputValue={setInputValue}
-        />
-      )}
 
-      <DeleteModal
+      <NoteModal
+        title="Delete Pinned Notes"
+        description="Are you sure you want to delete pinned Notes?"
         isLoading={isLoading}
         isOpen={deleteNoteModal}
         onCancel={() => onCancel()}

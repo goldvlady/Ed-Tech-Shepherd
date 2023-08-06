@@ -11,7 +11,7 @@ import CustomButton from '../../../../components/CustomComponents/CustomButton';
 import { saveHTMLAsPDF } from '../../../../library/fs';
 import ApiService from '../../../../services/ApiService';
 import TagModal from '../../FlashCards/components/TagModal';
-import { DeleteModal } from '../../FlashCards/components/deleteModal';
+import { NoteModal } from '../Modal';
 import { NoteDetails, NoteServerResponse } from '../types';
 import {
   DropDownFirstPart,
@@ -324,6 +324,7 @@ const NewNote = () => {
           setCurrentTime(formatDate(note.updatedAt));
           const strippedNote = note.note.replace(/\\/g, '');
           setInitialContent(strippedNote);
+          setSaveDetails(respDetails);
           setNoteId(note._id);
         }
       }
@@ -351,16 +352,22 @@ const NewNote = () => {
     }
   };
 
-  const savePinnedNoteLocal = (pinnedNotesArray) => {
+  const savePinnedNoteLocal = (pinnedNotesArray: any) => {
     const storageId = 'pinned_notes'; // Unique identifier for the array in local storage
     localStorage.setItem(storageId, JSON.stringify(pinnedNotesArray));
   };
 
   // Function to toggle pin state when the pin icon is clicked
   const handlePinClick = () => {
-    setIsPinned((prevIsPinned) => !prevIsPinned);
+    if (!saveDetails) {
+      return showToast(UPDATE_NOTE_TITLE, 'Note already pinned', 'error');
+    }
+    // setIsPinned((prevIsPinned) => !prevIsPinned);
     // Save the note to local storage when pinned
-    if (!isPinned && saveDetails?.data) {
+    if (saveDetails?.data) {
+      if (isNoteAlreadyPinned(saveDetails.data._id)) {
+        return showToast(UPDATE_NOTE_TITLE, 'Note already pinned', 'warning');
+      }
       const updatedPinnedNotes = [
         ...pinnedNotes,
         {
@@ -370,7 +377,17 @@ const NewNote = () => {
       ];
       setPinnedNotes(updatedPinnedNotes);
       savePinnedNoteLocal(updatedPinnedNotes);
+      return showToast(UPDATE_NOTE_TITLE, 'Note pinned', 'success');
     }
+  };
+
+  const isNoteAlreadyPinned = (noteId: string): boolean => {
+    for (const note of pinnedNotes) {
+      if (note.noteId === noteId) {
+        return true;
+      }
+    }
+    return false;
   };
 
   // Function to get pinned notes from local storage
@@ -581,8 +598,7 @@ const NewNote = () => {
       clearEditor();
       setTags(details.data.tags);
     }
-
-    console.log({ tag: details.data.tags, tags });
+    // console.log({ tag: details.data.tags, tags });
   };
 
   const handleAddTag = () => {
@@ -704,7 +720,10 @@ const NewNote = () => {
             page={1} />
         </PDFWrapper> */}
       </NoteBody>
-      <DeleteModal
+
+      <NoteModal
+        title="Delete Note"
+        description="This will delete Note. Are you sure?"
         isLoading={isLoading}
         isOpen={deleteNoteModal}
         onCancel={() => onCancel()}
