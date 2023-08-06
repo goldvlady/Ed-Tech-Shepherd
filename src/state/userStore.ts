@@ -1,4 +1,5 @@
 import { storage } from '../firebase';
+import { fetchStudentDocuments } from '../services/AI';
 import ApiService from '../services/ApiService';
 import { User, UserNotifications } from '../types';
 import { getAuth } from 'firebase/auth';
@@ -18,8 +19,24 @@ type Store = {
   userNotifications: Array<UserNotifications>;
   fetchUser: () => Promise<boolean>;
   fetchNotifications: () => Promise<void>;
-  fetchUserDocuments: () => Promise<Array<any>>;
+  fetchUserDocuments: (userId: string) => Promise<void>;
   userDocuments: Array<List> | [];
+};
+
+const userPatch = {
+  name: {
+    first: 'Chigo',
+    last: 'Ofurum'
+  },
+  email: 'chigo@gmail.com',
+  isVerified: true,
+  type: 'student' as const,
+  paymentMethods: [],
+  firebaseId: 'hackety hack',
+  dob: '2022-10-10',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  _id: 'whatevs'
 };
 
 export default create<Store>((set) => ({
@@ -27,42 +44,16 @@ export default create<Store>((set) => ({
   userNotifications: [],
   userDocuments: [],
   fetchUser: async () => {
-    const response = await ApiService.getUser();
-    if (response.status !== 200) return false;
-    set({ user: await response.json() });
+    set({ user: userPatch });
     return true;
   },
   fetchNotifications: async () => {
-    const notificationsResponse = await ApiService.getUserNotifications();
     set({
-      userNotifications: await notificationsResponse.json()
+      userNotifications: []
     });
   },
-  fetchUserDocuments: async () => {
-    const { currentUser } = getAuth();
-    if (currentUser?.uid) {
-      const listRef = ref(storage, currentUser?.uid);
-      const items: Array<List> = [];
-      listAll(listRef).then(async (res) => {
-        for (const item of res.items) {
-          const itemRef = ref(storage, item.fullPath);
-          const customMetadata = await getMetadata(itemRef);
-
-          // @ts-ignore: overriding the factory types, don't worry about it
-          items.push(customMetadata);
-        }
-        // Really ghastly hack to filter out documents that were successfully ingested by the AI service.
-        // A rework of this function will be one that decouples document hosting logic from firebase and moves it closer to a specialized API (one directly owned by Shepherd)
-        const filteredDocuments = items.filter(
-          (item) => item.customMetadata?.ingest_status === 'success'
-        );
-
-        set({
-          userDocuments: filteredDocuments
-        });
-      });
-    }
-
-    return [];
+  fetchUserDocuments: async (userId: string) => {
+    const userDocuments = await fetchStudentDocuments(userId);
+    set({ userDocuments });
   }
 }));
