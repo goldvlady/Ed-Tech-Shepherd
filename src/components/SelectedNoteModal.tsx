@@ -15,11 +15,7 @@ import {
   AlertDescription,
   VStack
 } from '@chakra-ui/react';
-import {
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-} from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { useRef, useState, useEffect, RefObject, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -52,8 +48,8 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   const [confirmReady, setConfirmReady] = useState(false);
   const [loadedStudentDocs, setLoadedStudentDocs] = useState(false);
   const inputRef = useRef(null) as RefObject<HTMLInputElement>;
-  const [studentDocuments, setStudentDocuments] = useState<Array<any>>([])
-  const [documentURL, setDocumentURL] = useState('')
+  const [studentDocuments, setStudentDocuments] = useState<Array<any>>([]);
+  const [documentURL, setDocumentURL] = useState('');
   const [documentName, setDocumentName] = useState('');
 
   const Wrapper = styled.div`
@@ -150,7 +146,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   useEffect(() => {
     if (userDocuments.length) {
       setLoadedStudentDocs(true);
-      setStudentDocuments(userDocuments)
+      setStudentDocuments(userDocuments);
     }
   }, [userDocuments]);
 
@@ -174,7 +170,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     if (value && innerText) {
       setDocumentURL(() => value);
       setDocumentName(() => innerText);
-      setSelectedOption(innerText)
+      setSelectedOption(innerText);
       setCanUpload(false);
       setConfirmReady(true);
     }
@@ -201,7 +197,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
       return;
     }
     setProgress(5);
-    const customFirestorePath = `${user._id}/${readableFileName}`
+    const customFirestorePath = `${user._id}/${readableFileName}`;
     const storageRef = ref(storage, customFirestorePath);
     const task = uploadBytesResumable(storageRef, file);
 
@@ -229,9 +225,9 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
           status: 'info',
           heading: 'Processing.',
           description:
-            'We\'re preparing your document. This will take a few seconds. Please keep this window open.'
+            "We're preparing your document. This will take a few seconds. Please keep this window open."
         });
-        
+
         const documentURL = await getDownloadURL(task.snapshot.ref);
 
         const uploaded = await processDocument({
@@ -239,16 +235,15 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
           documentId: readableFileName,
           documentURL,
           title: readableFileName
-        })
-          .catch(async (e: any) => {
-            return setUiMessage({
-              status: 'error',
-              heading: 'Something went wrong. Reload this page and try again.',
-              description: e.message
-            });
+        }).catch(async (e: any) => {
+          return setUiMessage({
+            status: 'error',
+            heading: 'Something went wrong. Reload this page and try again.',
+            description: e.message
           });
+        });
 
-        const { documentURL: url, title} = uploaded.data[0];
+        const { documentURL: url, title } = uploaded.data[0];
         goToDocChat(url, title);
       }
     );
@@ -260,7 +255,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
         documentUrl,
         docTitle
       }
-    })
+    });
     setShowHelp(false);
     setShow(false);
     window.location.reload();
