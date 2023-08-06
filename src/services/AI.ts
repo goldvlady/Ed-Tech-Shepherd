@@ -6,6 +6,14 @@ type DocumentType = {
   studentId: string;
   documentId: string;
 };
+
+export const fetchStudentDocuments = async (studentId: string) => {
+  return await fetch(`${AI_API}/notes?studentId=${studentId}`, {
+    headers: {
+      'x-shepherd-header': HEADER_KEY
+    }
+  }).then((documents) => documents.json());
+};
 export const processDocument = async (data: {
   studentId: string;
   documentId: string;

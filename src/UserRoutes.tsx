@@ -62,7 +62,7 @@ const RequireAuth = ({
             //     : '/dashboard'
             // );
             fetchNotifications();
-            fetchUserDocuments();
+            userData && fetchUserDocuments(userData._id);
           })
           .catch((e) => {
             if (user.metadata.creationTime !== user.metadata.lastSignInTime) {
