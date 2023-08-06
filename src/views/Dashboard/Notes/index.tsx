@@ -114,6 +114,7 @@ const Notes = () => {
   const activateHelpModal = () => {
     setToggleHelpModal(true);
   };
+
   const handleCheckboxChange = (position: number) => {
     const updatedCheckedState = checkedState.map((item, index) =>
       index === position ? !item : item
@@ -363,6 +364,7 @@ const Notes = () => {
               </Section>
             </NotesWrapper>
           )}
+
           <SelectedNoteModal
             show={toggleHelpModal}
             setShow={setToggleHelpModal}

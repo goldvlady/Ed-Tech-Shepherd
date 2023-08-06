@@ -22,17 +22,28 @@ interface TagModalProps {
   onSubmit: (tags: string[]) => void;
   isOpen: boolean;
   onClose: () => void;
+  inputValue?: string;
+  setInputValue?: any;
+  handleAddTag?: () => void;
+  newTags?: string[];
+  setNewTags?: any;
 }
 
 export const TagModal: React.FC<TagModalProps> = ({
   tags,
   onSubmit,
   isOpen,
-  onClose
+  onClose,
+  inputValue: propInputValue,
+  setInputValue: propSetInputValue,
+  handleAddTag: propHandleAddTag,
+  newTags: propNewTags,
+  setNewTags: propSetNewTags
 }) => {
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState(propInputValue || '');
   const [hasLoadedDefaultTags, setHasLoadedDefaultTags] = useState(false);
-  const [newTags, setNewTags] = useState<string[]>(tags);
+  const [newTags, setNewTags] = useState(propNewTags || tags);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (tags.length && !hasLoadedDefaultTags) {
@@ -43,12 +54,18 @@ export const TagModal: React.FC<TagModalProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
+    if (propSetInputValue) {
+      propSetInputValue(e.target.value);
+    }
   };
 
   const handleAddTag = () => {
     const value = inputValue.toLowerCase().trim();
-    if (inputValue && !newTags.includes(inputValue)) {
+    if (inputValue && !newTags.includes(value)) {
       setNewTags([...newTags, value]);
+      if (propSetNewTags) {
+        propSetNewTags([...newTags, value]);
+      }
     }
     setInputValue('');
   };
@@ -57,8 +74,14 @@ export const TagModal: React.FC<TagModalProps> = ({
     setNewTags(newTags.filter((t) => t !== tag));
   };
 
-  const handleSubmit = () => {
-    onSubmit(newTags);
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    try {
+      await onSubmit(newTags);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -108,9 +131,20 @@ export const TagModal: React.FC<TagModalProps> = ({
           </VStack>
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="blue" onClick={() => handleSubmit()}>
-            Submit
-          </Button>
+          {isLoading ? (
+            <Button
+              colorScheme="grey"
+              onClick={handleSubmit}
+              isLoading
+              loadingText="Adding..."
+            >
+              Submit
+            </Button>
+          ) : (
+            <Button colorScheme="blue" onClick={handleSubmit}>
+              Submit
+            </Button>
+          )}
         </ModalFooter>
       </ModalContent>
     </Modal>

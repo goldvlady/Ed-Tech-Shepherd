@@ -16,6 +16,7 @@ import Marketplace from './views/Dashboard/Marketplace';
 import Messaging from './views/Dashboard/Messaging';
 import MyTutors from './views/Dashboard/MyTutors';
 import NewNote from './views/Dashboard/Notes/NewNotes';
+import PinnedNotes from './views/Dashboard/Notes/PinnedNotes/PinnedNotes';
 import Notes from './views/Dashboard/Notes/index';
 import Offer from './views/Dashboard/Offer';
 import SendTutorOffer from './views/Dashboard/SendTutorOffer';
@@ -95,6 +96,7 @@ const studentRoutes = [
   { path: 'new-note', element: <NewNote /> },
   { path: 'new-note/:id', element: <NewNote /> },
   { path: 'notes', element: <Notes /> },
+  { path: 'pinned', element: <PinnedNotes /> },
   { path: 'tutor/:tutorId/offer', element: <SendTutorOffer /> },
   { path: 'offer/:offerId', element: <Offer /> },
   { path: '', element: <DashboardIndex /> },
