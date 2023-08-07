@@ -1,9 +1,6 @@
-import { storage } from '../firebase';
 import { fetchStudentDocuments } from '../services/AI';
 import ApiService from '../services/ApiService';
 import { User, UserNotifications } from '../types';
-import { getAuth } from 'firebase/auth';
-import { ref, listAll, getMetadata } from 'firebase/storage';
 import { create } from 'zustand';
 
 type List = {
@@ -23,28 +20,14 @@ type Store = {
   userDocuments: Array<List> | [];
 };
 
-const userPatch = {
-  name: {
-    first: 'Chigo',
-    last: 'Ofurum'
-  },
-  email: 'chigo@gmail.com',
-  isVerified: true,
-  type: 'student' as const,
-  paymentMethods: [],
-  firebaseId: 'hackety hack',
-  dob: '2022-10-10',
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  _id: 'whatevs'
-};
-
 export default create<Store>((set) => ({
   user: null,
   userNotifications: [],
   userDocuments: [],
   fetchUser: async () => {
-    set({ user: userPatch });
+    const response = await ApiService.getUser();
+    if (response.status !== 200) return false;
+    set({ user: await response.json() });
     return true;
   },
   fetchNotifications: async () => {

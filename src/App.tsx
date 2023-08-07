@@ -162,10 +162,10 @@ const AppRoutes: React.FC = () => {
   } = useAuth();
 
   const userType = useMemo(() => {
-    return userData?.type.includes('tutor') &&
-      userData?.type.includes('student')
+    return userData?.type?.includes('tutor') &&
+      userData?.type?.includes('student')
       ? 'both'
-      : userData?.type.includes('tutor')
+      : userData?.type?.includes('tutor')
       ? 'tutor'
       : 'student';
   }, [userData]);
