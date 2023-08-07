@@ -1,10 +1,18 @@
 import { AI_API, HEADER_KEY } from '../config';
 
 type DocumentType = {
-  topic: string;
+  topic?: string;
   count: number;
   studentId: string;
   documentId: string;
+};
+
+export const fetchStudentDocuments = async (studentId: string) => {
+  return await fetch(`${AI_API}/notes?studentId=${studentId}`, {
+    headers: {
+      'x-shepherd-header': HEADER_KEY
+    }
+  }).then((documents) => documents.json());
 };
 export const processDocument = async (data: {
   studentId: string;
@@ -33,14 +41,14 @@ export const checkDocumentStatus = async ({
   studentId: string;
   documentId: string;
 }) => {
-  const document = await fetch(`${AI_API}/notes/status`, {
-    method: 'POST',
-    headers: {
-      'x-shepherd-header': HEADER_KEY,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ studentId, documentId })
-  }).then(async (data) => data.json());
+  const document = await fetch(
+    `${AI_API}/notes/status?studentId=${studentId}&documentId=${documentId}`,
+    {
+      headers: {
+        'x-shepherd-header': HEADER_KEY
+      }
+    }
+  );
 
   return document;
 };
@@ -85,10 +93,12 @@ export const createDocchatFlashCards = async (data: DocumentType) => {
 
 export const chatHomeworkHelp = async ({
   query,
-  studentId
+  studentId,
+  topic
 }: {
   studentId: string;
   query: string;
+  topic: string;
 }) => {
   const request = await fetch(`${AI_API}/homework-help/chat`, {
     method: 'POST',
@@ -98,7 +108,8 @@ export const chatHomeworkHelp = async ({
     },
     body: JSON.stringify({
       query,
-      studentId
+      studentId,
+      topic
     })
   });
 

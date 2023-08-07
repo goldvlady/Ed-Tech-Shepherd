@@ -29,7 +29,7 @@ function MyTutors() {
   const { fetchOffers, offers, isLoading, pagination } = offerStore();
 
   const doFetchStudentTutors = useCallback(async () => {
-    await fetchOffers(page, limit);
+    await fetchOffers(page, limit, 'student');
     setAllTutors(offers);
     /* eslint-disable */
   }, []);
@@ -42,12 +42,12 @@ function MyTutors() {
 
   const handleNextPage = () => {
     const nextPage = pagination.page + 1;
-    fetchOffers(nextPage, limit);
+    fetchOffers(nextPage, limit, 'student');
   };
 
   const handlePreviousPage = () => {
     const prevPage = pagination.page - 1;
-    fetchOffers(prevPage, limit);
+    fetchOffers(prevPage, limit, 'student');
   };
 
   const [tutorGrid] = useAutoAnimate();

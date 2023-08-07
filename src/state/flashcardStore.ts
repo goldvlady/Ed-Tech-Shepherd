@@ -11,6 +11,7 @@ type SearchQueryParams = {
   search?: string;
   page?: number;
   limit?: number;
+  sort?: string;
 };
 
 type Pagination = {
@@ -36,7 +37,7 @@ type Store = {
     data: any,
     generatorType?: string
   ) => Promise<Response | undefined>;
-  deleteFlashCard: (id: string | number) => Promise<boolean>;
+  deleteFlashCard: (id: string) => Promise<boolean>;
   storeScore: (flashcardId: string, score: Score) => Promise<boolean>;
   updateQuestionAttempt: (
     flashcardId: string,
@@ -95,6 +96,7 @@ export default create<Store>((set) => ({
     search?: string;
     page?: number;
     limit?: number;
+    sort?: string;
   }) => {
     try {
       const params = queryParams || {};
@@ -135,17 +137,22 @@ export default create<Store>((set) => ({
       set({ isLoading: false });
     }
   },
-  deleteFlashCard: async (id: string | number) => {
+  deleteFlashCard: async (id: string) => {
     try {
       set({ isLoading: true });
       const response = await ApiService.deleteFlashcard(id);
       if (response.status === 200) {
         set((state) => {
           const { flashcards } = state;
-          const index = flashcards?.findIndex((card) => card._id === id);
-          if (index !== undefined && index >= 0 && flashcards) {
-            flashcards.splice(index, 1);
-          }
+          const ids = id.split(',');
+          ids.forEach((idString) => {
+            const index = flashcards?.findIndex(
+              (card) => card._id === idString
+            );
+            if (index !== undefined && index >= 0 && flashcards) {
+              flashcards.splice(index, 1);
+            }
+          });
           return { flashcards };
         });
         return true;

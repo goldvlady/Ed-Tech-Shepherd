@@ -1,11 +1,14 @@
 import userStore from '../state/userStore';
+import ViewHomeWorkHelpDetails from '../views/Dashboard/HomeWorkHelp/ViewHomeWorkHelpDetails';
+import CustomButton from './CustomComponents/CustomButton';
+import CustomModal from './CustomComponents/CustomModal/index';
 import { StarIcon } from './icons';
 import { SelectedNoteModal } from './index';
 import { Text } from '@chakra-ui/react';
 import { Transition, Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { getAuth } from 'firebase/auth';
-import { Fragment, useState, useEffect } from 'react';
+import { Fragment, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Typewriter from 'typewriter-effect';
 
@@ -16,6 +19,7 @@ interface ToggleProps {
 
 const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
   const [showSelected, setShowSelected] = useState(false);
+  const [openAceHomework, setAceHomeWork] = useState(false);
   const navigate = useNavigate();
   const { user }: any = userStore();
 
@@ -26,6 +30,12 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
   const handleShowSelected = () => {
     setShowSelected(true);
   };
+
+  const handleAceHomeWorkHelp = useCallback(
+    () => setAceHomeWork((prevState) => !prevState),
+    [setAceHomeWork]
+  );
+
   const actions1 = [
     {
       id: 0,
@@ -34,8 +44,9 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
         'Stuck with your homework, Shepherd can guide you through it step by step for quick & easy completion',
       imageURL: '/images/ace-homework.svg',
       onClick: () => {
-        handleClose();
-        navigate('/dashboard/ace-homework');
+        // handleClose();
+        handleAceHomeWorkHelp();
+        // navigate('/dashboard/ace-homework');
       }
     },
     {
@@ -223,6 +234,13 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
           show={showSelected}
           setShow={setShowSelected}
           setShowHelp={setToggleHelpModal}
+        />
+      )}
+      {openAceHomework && (
+        <ViewHomeWorkHelpDetails
+          openAceHomework={openAceHomework}
+          handleClose={handleClose}
+          handleAceHomeWorkHelp={handleAceHomeWorkHelp}
         />
       )}
     </>

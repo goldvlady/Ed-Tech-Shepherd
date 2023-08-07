@@ -228,6 +228,22 @@ export const SummaryContainer = styled.div`
   cursor: pointer;
 `;
 
+export const DefaultSummaryContainer = styled.div`
+  border-radius: 8px;
+  background: #f4f5f6;
+  color: #585f68;
+  font-size: 0.875rem;
+  padding: 12px;
+  line-height: 2;
+  margin: 20px 0;
+  position: relative;
+  cursor: pointer;
+  width: -webkit-fill-available;
+  height: 70vh;
+  border: none;
+  overflow-y: scroll;
+`;
+
 export const SummaryContainer2 = styled.textarea`
   border-radius: 8px;
   background: #f4f5f6;

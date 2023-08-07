@@ -5,6 +5,7 @@ import {
   generateSummary,
   postGenerateSummary
 } from '../../../services/AI';
+import socketWithAuth from '../../../socket';
 import userStore from '../../../state/userStore';
 import TempPDFViewer from './TempPDFViewer';
 import Chat from './chat';
@@ -30,6 +31,19 @@ export default function DocChat() {
   const studentId = user?._id ?? '';
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryText, setSummaryText] = useState('');
+
+  useEffect(() => {
+    const socket = socketWithAuth({
+      studentId,
+      documentId
+    }).connect();
+
+    // Leave this in. Still WIP.
+
+    // socket.on('loaded history', (history) => {
+    //   console.log('History loaded', history)
+    // })
+  }, [studentId, documentId]);
 
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -141,7 +155,7 @@ export default function DocChat() {
         toast({
           render: () => (
             <CustomToast
-              title="Failed to fetch chat history..."
+              title="Unable to process your request at this time. Please try again later."
               status="error"
             />
           ),
@@ -155,11 +169,24 @@ export default function DocChat() {
 
   useEffect(() => {
     const getSummary = async () => {
-      const response = await generateSummary({
-        documentId,
-        studentId
-      });
-      setSummaryText(response?.summary);
+      try {
+        const response = await generateSummary({
+          documentId,
+          studentId
+        });
+        setSummaryText(response?.summary);
+      } catch (error) {
+        toast({
+          render: () => (
+            <CustomToast
+              title="Unable to process your request at this time. Please try again later."
+              status="error"
+            />
+          ),
+          position: 'top-right',
+          isClosable: true
+        });
+      }
     };
     getSummary();
   }, []);

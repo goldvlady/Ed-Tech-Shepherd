@@ -10,10 +10,12 @@ import {
   HomeWorkHelpHistoryContainer
 } from './style';
 import React, { useState, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const HomeWorkHelp = () => {
   const [isOpenModal, setOpenModal] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const location = useLocation();
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const { user } = userStore();
   const [messages, setMessages] = useState<
@@ -33,16 +35,19 @@ const HomeWorkHelp = () => {
 
   const askLLM = async ({
     query,
-    studentId
+    studentId,
+    topic
   }: {
     query: string;
     studentId: string;
+    topic: string;
   }) => {
     setBotStatus('Thinking');
 
     const response = await chatHomeworkHelp({
       query,
-      studentId
+      studentId,
+      topic
     });
 
     const reader = response.body?.getReader();
@@ -92,7 +97,11 @@ const HomeWorkHelp = () => {
       ]);
       setInputValue('');
 
-      await askLLM({ query: inputValue, studentId: user?._id ?? '' });
+      await askLLM({
+        query: inputValue,
+        studentId: user?._id ?? '',
+        topic: location?.state?.topic
+      });
     },
     [inputValue]
   );

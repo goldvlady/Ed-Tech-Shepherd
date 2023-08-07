@@ -1,6 +1,6 @@
 import { storage } from '../firebase';
 import { MAX_FILE_UPLOAD_LIMIT } from '../helpers/constants';
-import { checkDocumentStatus, processDocument } from '../services/AI';
+import { processDocument } from '../services/AI';
 import userStore from '../state/userStore';
 import CustomButton from './CustomComponents/CustomButton';
 import CustomModal from './CustomComponents/CustomModal/index';
@@ -15,24 +15,14 @@ import {
   AlertDescription,
   VStack
 } from '@chakra-ui/react';
-import { getAuth } from 'firebase/auth';
-import {
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-  updateMetadata,
-  deleteObject
-} from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { useRef, useState, useEffect, RefObject, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-type List = {
-  name: string;
-  fullPath: string;
-  customMetadata: {
-    ingest_status: 'success' | 'too_large';
-  };
+type Documents = {
+  title: string;
+  documentURL: string;
 };
 
 interface ShowProps {
@@ -53,15 +43,14 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   const [fileName, setFileName] = useState('');
   const [progress, setProgress] = useState(0);
   const [uiMessage, setUiMessage] = useState<UiMessage | null>(null);
-  const [list, setList] = useState<Array<List>>([]);
   const [canUpload, setCanUpload] = useState(true);
-  const [file, setFile] = useState<Blob | Uint8Array | ArrayBuffer>();
   const [selectedOption, setSelectedOption] = useState<any>();
   const [confirmReady, setConfirmReady] = useState(false);
-  const [docPath, setDocPath] = useState('');
-  const [loadedList, setLoadedList] = useState(false);
+  const [loadedStudentDocs, setLoadedStudentDocs] = useState(false);
   const inputRef = useRef(null) as RefObject<HTMLInputElement>;
-  const { currentUser } = useMemo(() => getAuth(), []);
+  const [studentDocuments, setStudentDocuments] = useState<Array<any>>([]);
+  const [documentURL, setDocumentURL] = useState('');
+  const [documentName, setDocumentName] = useState('');
 
   const Wrapper = styled.div`
     display: block;
@@ -155,14 +144,10 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   `;
 
   useEffect(() => {
-    if (currentUser?.uid) {
-      setDocPath(currentUser.uid);
-      setLoadedList(true);
+    if (userDocuments.length) {
+      setLoadedStudentDocs(true);
+      setStudentDocuments(userDocuments);
     }
-  }, [currentUser?.uid]);
-
-  useEffect(() => {
-    setList(userDocuments);
   }, [userDocuments]);
 
   const clickInput = () => {
@@ -172,8 +157,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   const collectFile = async (e) => {
     const { name } = e.target.files[0];
     setUiMessage(null);
-    setFileName(name);
-    setFile(e.target.files[0]);
+    setFileName(() => name);
 
     await handleFreshUpload(e.target.files[0], user, name);
   };
@@ -182,37 +166,39 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   };
 
   const handleSelected = (e) => {
-    if (e.target.value) {
-      setSelectedOption(e.target.value);
+    const { innerText, value } = e.target;
+    if (value && innerText) {
+      setDocumentURL(() => value);
+      setDocumentName(() => innerText);
+      setSelectedOption(innerText);
       setCanUpload(false);
       setConfirmReady(true);
     }
   };
 
-  const checkIfDocumentPresent = () => {
-    if (!selectedOption)
-      setUiMessage({
-        status: 'error',
-        heading: 'No document selected',
-        description: "You haven't selected a note. Select one, and try again."
-      });
-    setConfirmReady(false);
-    return;
-  };
-
   const handleFreshUpload = async (file, user, fileName) => {
     const readableFileName = fileName.toLowerCase().replace(/\s/g, '');
+
+    if (!user?._id || !readableFileName) {
+      return setUiMessage({
+        status: 'error',
+        heading: 'Something went wrong',
+        description:
+          "We couldn't retrieve your user details to start the upload process."
+      });
+    }
     const SIZE_IN_MB = parseInt((file?.size / 1_000_000).toFixed(2), 10);
     if (SIZE_IN_MB > MAX_FILE_UPLOAD_LIMIT) {
       setUiMessage({
         status: 'error',
         heading: 'Your file is too large',
-        description: `Your file is ${SIZE_IN_MB}MB, above our 5MB limit. Please upload a smaller document.`
+        description: `Your file is ${SIZE_IN_MB}MB, above our ${MAX_FILE_UPLOAD_LIMIT}MB limit. Please upload a smaller document.`
       });
       return;
     }
     setProgress(5);
-    const storageRef = ref(storage, `${docPath}/${readableFileName}`);
+    const customFirestorePath = `${user._id}/${readableFileName}`;
+    const storageRef = ref(storage, customFirestorePath);
     const task = uploadBytesResumable(storageRef, file);
 
     task.on(
@@ -230,114 +216,48 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
       (error) => {
         setUiMessage({
           status: 'error',
-          heading: 'Something went wrong',
+          heading: 'Something went wrong. Please attempt the upload again.',
           description: error.message
         });
       },
       async () => {
         setUiMessage({
           status: 'info',
-          heading: 'Document uploaded!',
+          heading: 'Processing.',
           description:
-            'Hang on while we check the contents of your document. This may take 1-5 minutes.'
+            "We're preparing your document. This will take a few seconds. Please keep this window open."
         });
+
         const documentURL = await getDownloadURL(task.snapshot.ref);
 
-        await processDocument({
-          studentId: user?._id,
+        const uploaded = await processDocument({
+          studentId: user._id,
           documentId: readableFileName,
           documentURL,
           title: readableFileName
-        })
-          .then(async () => {
-            let counter = 0;
-            let done = false;
-
-            const checkStatus = async () => {
-              try {
-                const check = await checkDocumentStatus({
-                  studentId: user?._id,
-                  documentId: readableFileName
-                });
-                if (check.status === 'ingested') {
-                  const metadata = {
-                    customMetadata: {
-                      ingest_status: 'success'
-                    }
-                  };
-                  await updateMetadata(storageRef, metadata);
-                  setSelectedOption(() => storageRef.fullPath);
-                  done = true;
-
-                  setUiMessage({
-                    status: 'info',
-                    heading: 'Processing complete!',
-                    description:
-                      'Click "confirm" to start chatting with your document.'
-                  });
-
-                  setConfirmReady(true);
-                }
-                if (check.status === 'too_large') {
-                  const metadata = {
-                    customMetadata: {
-                      ingest_status: 'too_large'
-                    }
-                  };
-                  await updateMetadata(storageRef, metadata);
-                  return setUiMessage({
-                    status: 'error',
-                    heading: 'Your document was too long.',
-                    description:
-                      'Your document is over 12,000 words. Consider uploading a shorter document.'
-                  });
-                  done = true;
-                }
-              } catch (e: any) {
-                setUiMessage({
-                  status: 'error',
-                  heading: 'Something went wrong',
-                  description: e.message
-                });
-              } finally {
-                counter++;
-                if (done || counter > 20) clearInterval(intervalId);
-
-                if (counter > 20 && !done) {
-                  setUiMessage({
-                    status: 'error',
-                    heading: "We couldn't process your document",
-                    description:
-                      'There was something wrong with your document. Please send a message to someone on the Shepherd team to look into this problem.'
-                  });
-                }
-              }
-            };
-
-            const intervalId = setInterval(checkStatus, 5000);
-          })
-          .catch(async (e: any) => {
-            await deleteObject(storageRef);
-            return setUiMessage({
-              status: 'error',
-              heading: 'Something went wrong. Reload this page and try again.',
-              description: e.message
-            });
+        }).catch(async (e: any) => {
+          return setUiMessage({
+            status: 'error',
+            heading: 'Something went wrong. Reload this page and try again.',
+            description: e.message
           });
+        });
+
+        const { documentURL: url, title } = uploaded.data[0];
+        goToDocChat(url, title);
       }
     );
   };
 
-  const goToDocChat = async () => {
-    const documentUrl = await getDownloadURL(ref(storage, selectedOption));
-    const item = list.filter((list) => list.fullPath === selectedOption);
+  const goToDocChat = async (documentUrl, docTitle) => {
     navigate('/dashboard/docchat', {
       state: {
         documentUrl,
-        docTitle: item[0].name
+        docTitle
       }
     });
-
+    setShowHelp(false);
+    setShow(false);
     window.location.reload();
   };
 
@@ -346,8 +266,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   };
 
   const proceed = async () => {
-    checkIfDocumentPresent();
-    await goToDocChat();
+    await goToDocChat(documentURL, documentName);
     setShow(false);
     setShowHelp(false);
   };
@@ -384,7 +303,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     >
       <Wrapper>
         <div className="p-4" style={{ width: '100%' }}>
-          {loadedList && (
+          {loadedStudentDocs && (
             <div style={{ width: '-webkit-fill-available' }}>
               <Label htmlFor="note">Select note</Label>
               <CustomDropdown
@@ -392,18 +311,19 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
                 placeholder="Select an Option"
               >
                 <VStack alignItems={'left'} padding="10px">
-                  {loadedList &&
-                    list.map((item, id) => {
+                  {loadedStudentDocs &&
+                    studentDocuments.map((item, id) => {
                       return (
                         <option
-                          value={item.fullPath}
+                          value={item.documentURL}
                           key={id}
                           onClick={handleSelected}
                           style={{
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            width: '100%'
                           }}
                         >
-                          {item.name}
+                          {item.title}
                         </option>
                       );
                     })}
