@@ -68,6 +68,8 @@ interface IChat {
   summaryLoading?: boolean;
   summaryText?: string;
   setSummaryText?: any;
+  handleClickPrompt?: any;
+  homeWorkHelpPlaceholder?: any;
 }
 const Chat = ({
   HomeWorkHelp,
@@ -83,7 +85,10 @@ const Chat = ({
   handleSummary,
   summaryLoading,
   summaryText,
-  setSummaryText
+  setSummaryText,
+  documentId,
+  handleClickPrompt,
+  homeWorkHelpPlaceholder
 }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
@@ -274,7 +279,10 @@ const Chat = ({
                       <AskSomethingPillContainer>
                         {prompts.map((prompt, key) => {
                           return (
-                            <AskSomethingPill key={key}>
+                            <AskSomethingPill
+                              key={key}
+                              onClick={(e) => handleClickPrompt(e, prompt)}
+                            >
                               <Text>{prompt}</Text>
                             </AskSomethingPill>
                           );
@@ -354,7 +362,11 @@ const Chat = ({
           <InputContainer>
             <Input
               ref={textAreaRef}
-              placeholder="Tell Shepherd what to do next"
+              placeholder={
+                HomeWorkHelp
+                  ? homeWorkHelpPlaceholder
+                  : `Ask Shepherd about ${documentId}`
+              }
               value={inputValue}
               onKeyDown={handleKeyDown}
               onChange={handleInputChange}
