@@ -14,7 +14,8 @@ export const NewNoteWrapper = styled.section<{
 }>`
   padding: 0;
   position: ${(props) => props.position ?? 'relative'};
-  width: ${(props) => props.width ?? '210mm'};
+  /* width: ${(props) => props.width ?? '210mm'}; */
+  width: ${(props) => props.width ?? '250mm'};
   margin: 0 auto;
   height: ${(props) => props.height ?? '297mm'};
   top: ${(props) => props.top ?? undefined};
@@ -48,7 +49,15 @@ export const FirstSection = styled.div`
   align-items: center;
   gap: 10px;
   padding: 6px;
-
+  .back-btn {
+    font-size: 0.875rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 1.25rem;
+    color: #585f68;
+    margin-left: -0.5em;
+    cursor: pointer;
+  }
   .zoom__icn {
     border-right: 1px solid #e0e1e1;
     padding-right: 20px;
@@ -148,4 +157,17 @@ export const DropDownDelete = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
+`;
+
+export const HeaderButton = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  cursor: pointer;
+  padding: ${(props) => theme.layout.padding.paddingMedium + 'px'};
+`;
+
+export const HeaderButtonText = styled.p`
+  margin-left: ${(props) => theme.layout.padding.paddingMedium + 'px'};
+  font-size: 10pt;
 `;

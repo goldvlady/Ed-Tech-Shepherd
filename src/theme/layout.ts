@@ -9,6 +9,7 @@ type Layout = {
 
 const padding = {
   paddingSmall: 5,
+  paddingMedium: 10,
   paddingEditor: 50
 };
 

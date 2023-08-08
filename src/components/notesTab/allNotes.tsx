@@ -1,11 +1,12 @@
+import { saveMarkdownAsPDF } from '../../library/fs';
 import ApiService from '../../services/ApiService';
 import TagModal from '../../views/Dashboard/FlashCards/components/TagModal';
-import { DeleteModal } from '../../views/Dashboard/FlashCards/components/deleteModal';
 import { NoteModal } from '../../views/Dashboard/Notes/Modal';
 import {
   NoteDetails,
   NoteServerResponse
 } from '../../views/Dashboard/Notes/types';
+import TableTag from '../CustomComponents/CustomTag';
 import {
   DownloadIcon,
   FlashCardsIcon,
@@ -16,8 +17,7 @@ import SelectableTable, { TableColumn } from '../table';
 import {
   StyledMenuButton,
   StyledMenuSection,
-  TableTitleWrapper,
-  TitleIcon
+  TableTitleWrapper
 } from './styles';
 import { Block, BlockNoteEditor } from '@blocknote/core';
 import { useBlockNote } from '@blocknote/react';
@@ -46,7 +46,7 @@ type DataSourceItem = {
   title: string;
   dateCreated: string;
   lastModified: string;
-  tags: string;
+  tags: any[];
   id: string | number;
 };
 
@@ -54,14 +54,26 @@ export interface Props {
   data: Array<NoteDetails>;
 }
 
-const formatTags = (tags: any): string => {
-  if (tags || !Array.isArray(tags)) {
-    return '';
+const formatTags = (tags: string | string[]): any[] => {
+  if (!tags) {
+    return [];
   }
-  // format tags and return
-  // TODO: create a tag styling and attache
-  return tags.join(' ');
+  if (typeof tags === 'string') {
+    // If tags is a string, split it into an array and return
+    return tags.split(',').map((tag) => {
+      return <TableTag label={tag.trim()} />;
+    });
+  } else if (Array.isArray(tags)) {
+    // If tags is an array, trim each tag and return it as it is
+    return tags.map((tag) => {
+      return <TableTag label={tag.trim()} />;
+    });
+  } else {
+    // If tags is neither a string nor an array, return an empty array
+    return [];
+  }
 };
+
 const formatDate = (date: Date, format = 'DD ddd, hh:mma'): string => {
   return moment(date).format(format);
 };
@@ -70,12 +82,12 @@ const AllNotesTab: FC<Props> = ({ data }) => {
   const params = useParams();
   const toast = useToast();
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
-  const [, setDeleteAllNotesModal] = useState(false);
+  // const [, setDeleteAllNotesModal] = useState(false);
   const checkbox = useRef<HTMLInputElement>(null);
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
   const [selectedPeople, setSelectedPeople] = useState<any[]>([]);
-  const [clientsDetails, setClientDetails] = useState('');
+  // const [clientsDetails, setClientDetails] = useState('');
   const [openTags, setOpenTags] = useState<boolean>(false);
   const [openTagsModal, setOpenTagsModal] = useState<boolean>(false);
   const [noteId, setNoteId] = useState<string | null>(null);
@@ -83,14 +95,17 @@ const AllNotesTab: FC<Props> = ({ data }) => {
   const [noteParamId, setNoteParamId] = useState<string | null>(
     params.id ?? null
   );
+  const [inputValue, setInputValue] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
+
+  const [newTags, setNewTags] = useState<string[]>(tags);
 
   const getNoteLocal = (noteId: string | null): string | null => {
     const storageId = getLocalStorageNoteId(noteId);
     const content = localStorage.getItem(storageId);
     return content;
   };
-  const [inputValue, setInputValue] = useState('');
-  const [tags, setTags] = useState<string[]>([]);
+
   const [isLoading, setIsLoading] = useState(false);
 
   const onCancel = () => {
@@ -101,16 +116,12 @@ const AllNotesTab: FC<Props> = ({ data }) => {
     const genId = noteId ? noteId : '';
     return genId;
   };
+
   const [initialContent, setInitialContent] = useState<any>(
     getNoteLocal(noteParamId)
   );
 
   const DELETE_NOTE_TITLE = 'Delete Note';
-  const DEFAULT_NOTE_TITLE = 'Enter Note Title';
-  // get user details
-  const defaultNoteTitle = DEFAULT_NOTE_TITLE;
-
-  const [editedTitle, setEditedTitle] = useState(defaultNoteTitle);
 
   const [dataSource, setDataSource] = useState<DataSourceItem[]>(
     Array.from({ length: data.length }, (_, i) => ({
@@ -136,8 +147,21 @@ const AllNotesTab: FC<Props> = ({ data }) => {
   function toggleAll() {
     setSelectedPeople(checked || indeterminate ? [] : data);
     setChecked(!checked && !indeterminate);
+    console.log({ checked, selectedPeople });
     setIndeterminate(false);
   }
+
+  function Done() {
+    setChecked(false);
+    setIndeterminate(false);
+    setSelectedPeople([]);
+    console.log({ checked, selectedPeople });
+  }
+
+  useEffect(() => {
+    // Done();
+    console.log({ checked, selectedPeople });
+  }, [checked, selectedPeople]);
 
   const onDeleteNote = (
     isOpenDeleteModal: boolean,
@@ -145,18 +169,16 @@ const AllNotesTab: FC<Props> = ({ data }) => {
     noteId: any
   ) => {
     setDeleteNoteModal(isOpenDeleteModal);
-    setClientDetails(noteDetails);
+    // setClientDetails(noteDetails);
     setNoteId(noteId);
   };
 
-  const onAddTag = (
-    openTagsModal: boolean,
-    noteDetails: string,
-    noteId: any
-  ) => {
+  const onAddTag = (openTagsModal: boolean, noteId: any, tags: any[]) => {
     setOpenTagsModal(openTagsModal);
-    setClientDetails(noteDetails);
+    // setClientDetails(noteDetails);
     setNoteId(noteId);
+    // set current tabs on modal open
+    // setNewTags(tags);
   };
 
   const gotoEditNote = (noteId: string | number) => {
@@ -191,7 +213,7 @@ const AllNotesTab: FC<Props> = ({ data }) => {
     id: string,
     tags: string[]
   ): Promise<NoteServerResponse | null> => {
-    const data = { tags: tags }; // Wrap the tags array in an object with the key "tags"
+    const data = { tags: tags };
     const resp = await ApiService.updateNoteTags(id, data);
     const respText = await resp.text();
     try {
@@ -258,7 +280,7 @@ const AllNotesTab: FC<Props> = ({ data }) => {
     } else {
       setDeleteNoteModal(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
-      setEditedTitle(defaultNoteTitle);
+      // setEditedTitle(defaultNoteTitle);
       setNoteId('');
 
       // Remove the deleted note from the dataSource
@@ -269,16 +291,35 @@ const AllNotesTab: FC<Props> = ({ data }) => {
     }
   };
 
-  const [newTags, setNewTags] = useState<string[]>(tags);
+  const downloadAsPDF = async (noteId: string | number, title: string) => {
+    if (!noteId || !editor) {
+      return showToast(
+        'Download Alert',
+        'Cannot download note. Please select a note',
+        'error'
+      );
+    }
+    // const noteMarkdown: string = await editor.blocksToMarkdown(editor.topLevelBlocks);
+    // if (!noteMarkdown) {
+    //   return showToast(
+    //     "Download Alert",
+    //     'Could not extract note content. Please try again',
+    //     'error'
+    //   );
+    // }
+    // use note name also in other
+    const noteName = `${title}`;
+    // saveMarkdownAsPDF(noteName, noteMarkdown);
+    saveMarkdownAsPDF(noteName, '');
+  };
 
   const AddTag = async () => {
     const noteIdInUse = noteId ?? noteParamId;
-
     if (!noteIdInUse || noteIdInUse === '') {
       setOpenTagsModal(false);
       return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
     }
-
+    console.log('curent tags: ', newTags);
     const details = await addTag(noteIdInUse, newTags);
 
     if (!details) {
@@ -299,9 +340,17 @@ const AllNotesTab: FC<Props> = ({ data }) => {
       setNoteId('');
       clearEditor();
       setTags(details.data.tags);
-    }
 
-    console.log({ tag: details.data.tags, tags });
+      // Update tags for the specific note
+      setDataSource((prevDataSource) => {
+        return prevDataSource.map((item) => {
+          if (item.id === noteIdInUse) {
+            return { ...item, tags: formatTags(newTags) };
+          }
+          return item;
+        });
+      });
+    }
   };
 
   const handleAddTag = () => {
@@ -321,12 +370,6 @@ const AllNotesTab: FC<Props> = ({ data }) => {
       id: 0,
       render: ({ title, id }) => (
         <TableTitleWrapper>
-          <TitleIcon
-            onClick={() => gotoEditNote(id)}
-            src="/svgs/text-document.svg"
-            className="text-gray-400 "
-            alt=""
-          ></TitleIcon>
           <Text onClick={() => gotoEditNote(id)} fontWeight="500">
             {title}
           </Text>
@@ -338,7 +381,8 @@ const AllNotesTab: FC<Props> = ({ data }) => {
       title: 'Tags',
       dataIndex: 'tags',
       align: 'left',
-      id: 1
+      id: 1,
+      render: ({ tags }) => <>{tags}</>
     },
     {
       key: 'dateCreated',
@@ -357,7 +401,7 @@ const AllNotesTab: FC<Props> = ({ data }) => {
     {
       key: 'actions',
       title: '',
-      render: ({ title, id }) => (
+      render: ({ title, id, tags }) => (
         <Menu>
           <MenuButton
             as={Button}
@@ -394,14 +438,17 @@ const AllNotesTab: FC<Props> = ({ data }) => {
                 </div>
                 <ChevronRightIcon className="w-2.5 h-2.5" />
               </button>
-              <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
+              <button
+                onClick={() => {
+                  onAddTag(true, id, tags);
+                }}
+                className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
+              >
                 <div className="flex items-center space-x-1">
                   <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
                     <FlashCardsSolidIcon
+                      onClick={undefined}
                       className="w-4 h-4 text-primaryGray"
-                      onClick={() => {
-                        onAddTag(true, title, id);
-                      }}
                     />
                   </div>
                   <Text className="text-sm text-secondaryGray font-medium">
@@ -410,8 +457,9 @@ const AllNotesTab: FC<Props> = ({ data }) => {
                 </div>
                 <ChevronRightIcon className="w-2.5 h-2.5" />
               </button>
-              <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
-                <div className="flex items-center space-x-1">
+              {/* <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
+                <div className="flex items-center space-x-1"
+                  onClick={() => { downloadAsPDF(id, title) }}>
                   <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
                     <DownloadIcon
                       className="w-4 h-4 text-primaryGray"
@@ -423,7 +471,7 @@ const AllNotesTab: FC<Props> = ({ data }) => {
                   </Text>
                 </div>
                 <ChevronRightIcon className="w-2.5 h-2.5" />
-              </button>
+              </button> */}
             </section>
             <div
               onClick={() => {
@@ -457,7 +505,9 @@ const AllNotesTab: FC<Props> = ({ data }) => {
       )
     }
   ];
-
+  useEffect(() => {
+    console.log('new tags loaded: ', newTags);
+  }, [newTags]);
   return (
     <>
       <div className="mt-8 flow-root">
@@ -583,7 +633,10 @@ const AllNotesTab: FC<Props> = ({ data }) => {
                       )}
 
                       <button
-                        onClick={() => setDeleteAllNotesModal(true)}
+                        // onClick={() => setDeleteAllNotesModal(true)}
+                        // onClick={() => {
+                        //   onDeleteNote(true, title, id);
+                        // }}
                         type="button"
                         className="inline-flex items-center space-x-2 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
                       >
@@ -595,6 +648,7 @@ const AllNotesTab: FC<Props> = ({ data }) => {
                     <button
                       type="button"
                       className="inline-flex items-center rounded-lg bg-white px-6 py-2 text-sm text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                      onClick={Done}
                     >
                       Done
                     </button>

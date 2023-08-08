@@ -34,7 +34,6 @@ const PinnedNotes = () => {
     const {
       data: { topic, note, tags, createdAt, updatedAt, user }
     } = pinnedNote.pinnedNoteJSON;
-
     return {
       user: user || {},
       topic: topic || '',

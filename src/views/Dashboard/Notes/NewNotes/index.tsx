@@ -1,4 +1,5 @@
 import { ReactComponent as AddTag } from '../../../../assets/addTag.svg';
+import { ReactComponent as BackArrow } from '../../../../assets/backArrowFill.svg';
 import { ReactComponent as DocIcon } from '../../../../assets/doc.svg';
 import { ReactComponent as DownloadIcon } from '../../../../assets/download.svg';
 import { ReactComponent as FlashCardIcn } from '../../../../assets/flashCardIcn.svg';
@@ -8,7 +9,7 @@ import { ReactComponent as ArrowRight } from '../../../../assets/small-arrow-rig
 import { ReactComponent as ZoomIcon } from '../../../../assets/square.svg';
 import { ReactComponent as TrashIcon } from '../../../../assets/trash-icn.svg';
 import CustomButton from '../../../../components/CustomComponents/CustomButton';
-import { saveHTMLAsPDF } from '../../../../library/fs';
+import { saveMarkdownAsPDF } from '../../../../library/fs';
 import ApiService from '../../../../services/ApiService';
 import TagModal from '../../FlashCards/components/TagModal';
 import { NoteModal } from '../Modal';
@@ -18,6 +19,8 @@ import {
   DropDownLists,
   FirstSection,
   Header,
+  HeaderButton,
+  HeaderButtonText,
   NewNoteWrapper,
   NoteBody,
   PDFWrapper,
@@ -36,15 +39,21 @@ import {
 } from '@chakra-ui/react';
 import { useToast } from '@chakra-ui/react';
 import moment from 'moment';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { FaEllipsisH } from 'react-icons/fa';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const DEFAULT_NOTE_TITLE = 'Enter Note Title';
 const DELETE_NOTE_TITLE = 'Delete Note';
 const UPDATE_NOTE_TITLE = 'Note Alert';
 const NOTE_STORAGE_KEY = 'note';
+
+// Define the type for the pinned note
+type PinnedNote = {
+  noteId: string | null;
+  pinnedNoteJSON: any;
+};
 
 const createNote = async (data: any): Promise<NoteServerResponse | null> => {
   const resp = await ApiService.createNote(data);
@@ -113,20 +122,12 @@ const handleOptionClick = (
 
 const NewNote = () => {
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
-  // get user details
   const defaultNoteTitle = DEFAULT_NOTE_TITLE;
 
-  // Define the type for the pinned note
-  type PinnedNote = {
-    noteId: string | null;
-    pinnedNoteJSON: any;
-  };
   const [saveDetails, setSaveDetails] =
     useState<NoteServerResponse<NoteDetails> | null>(null);
   const [pinnedNotes, setPinnedNotes] = useState<PinnedNote[]>([]);
-  const [isPinned, setIsPinned] = useState(false);
 
-  //note title from data initially or Untitled
   const toast = useToast();
   const params = useParams();
   const [noteParamId, setNoteParamId] = useState<string | null>(
@@ -144,12 +145,20 @@ const NewNote = () => {
     getNoteLocal(noteParamId)
   );
   const [editorStyle, setEditorStyle] = useState<any>(null);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   const editor: BlockNoteEditor | null = useBlockNote({
     initialContent: initialContent ? JSON.parse(initialContent) : undefined
   });
 
   const [isLoading, setIsLoading] = useState(false);
+
+  const [tags, setTags] = useState<string[]>([]);
+  const [newTags, setNewTags] = useState<string[]>(tags);
+  const [inputValue, setInputValue] = useState('');
+
+  const inputContainerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const onCancel = () => {
     setDeleteNoteModal(!deleteNoteModal);
@@ -167,17 +176,19 @@ const NewNote = () => {
         'error'
       );
     }
-    const noteHTML: string = await editor.blocksToHTML(editor.topLevelBlocks);
-    if (!noteHTML) {
+    const noteMarkdown: string = await editor.blocksToMarkdown(
+      editor.topLevelBlocks
+    );
+    if (!noteMarkdown) {
       return showToast(
         UPDATE_NOTE_TITLE,
         'Could not extract note content. Please try again',
         'error'
       );
     }
-    alert('HTML :' + noteHTML);
-    const noteName = `note_${noteId}`;
-    saveHTMLAsPDF(noteName, noteHTML);
+    // use note name also in other
+    const noteName = `${editedTitle}`;
+    saveMarkdownAsPDF(noteName, noteMarkdown);
   };
 
   const onSaveNote = async () => {
@@ -204,34 +215,20 @@ const NewNote = () => {
     }
 
     setSaveButtonState(false);
-    // let saveDetails: NoteServerResponse<NoteDetails> | null;
 
-    // if (noteId && noteId !== '') {
-    //   saveDetails = await updateNote(noteId, {
-    //     topic: editedTitle,
-    //     note: noteJSON
-    //   });
-    // } else {
-    //   saveDetails = await createNote({
-    //     topic: editedTitle,
-    //     note: noteJSON
-    //   });
-    // }
+    let saveDetails: NoteServerResponse<NoteDetails> | null;
 
     if (noteId && noteId !== '') {
-      const updatedSaveDetails = await updateNote(noteId, {
+      saveDetails = await updateNote(noteId, {
         topic: editedTitle,
         note: noteJSON
       });
-      setSaveDetails(updatedSaveDetails);
     } else {
-      const updatedSaveDetails = await createNote({
+      saveDetails = await createNote({
         topic: editedTitle,
         note: noteJSON
       });
-      setSaveDetails(updatedSaveDetails);
     }
-
     if (!saveDetails) {
       setSaveButtonState(true);
       return showToast(
@@ -260,6 +257,8 @@ const NewNote = () => {
       } else {
         saveNoteLocal(getLocalStorageNoteId(noteId), saveDetails.data.note);
       }
+      // save note details and other essential params
+      setSaveDetails(saveDetails);
       setCurrentTime(formatDate(saveDetails.data.updatedAt));
       showToast(UPDATE_NOTE_TITLE, saveDetails.message, 'success');
       setSaveButtonState(true);
@@ -322,8 +321,7 @@ const NewNote = () => {
         if (note._id && note.topic && note.note) {
           setEditedTitle(note.topic);
           setCurrentTime(formatDate(note.updatedAt));
-          const strippedNote = note.note.replace(/\\/g, '');
-          setInitialContent(strippedNote);
+          setInitialContent(note.note);
           setSaveDetails(respDetails);
           setNoteId(note._id);
         }
@@ -344,11 +342,9 @@ const NewNote = () => {
   const updateTitle = () => {
     setIsEditingTitle(false);
     if (editedTitle) {
-      if (editedTitle.trim() !== '') {
-        setEditedTitle(editedTitle.trim());
-      } else if (editedTitle.trim() === '') {
-        setEditedTitle(defaultNoteTitle);
-      }
+      setEditedTitle(editedTitle.trim());
+    } else {
+      setEditedTitle(defaultNoteTitle);
     }
   };
 
@@ -360,7 +356,11 @@ const NewNote = () => {
   // Function to toggle pin state when the pin icon is clicked
   const handlePinClick = () => {
     if (!saveDetails) {
-      return showToast(UPDATE_NOTE_TITLE, 'Note already pinned', 'error');
+      return showToast(
+        UPDATE_NOTE_TITLE,
+        'Please ensure note is loaded ',
+        'error'
+      );
     }
     // setIsPinned((prevIsPinned) => !prevIsPinned);
     // Save the note to local storage when pinned
@@ -410,7 +410,13 @@ const NewNote = () => {
   }, []);
 
   const handleFocusOut = () => {
-    updateTitle();
+    // Check if the click event target is inside the inputContainerRef
+    if (
+      inputContainerRef.current &&
+      !inputContainerRef.current.contains(document.activeElement as Node) // Type assertion here
+    ) {
+      updateTitle();
+    }
   };
 
   const handleKeyDown = (event: any) => {
@@ -480,10 +486,13 @@ const NewNote = () => {
         right: 0,
         zIndex: 1000
       });
+      setIsFullScreen(true);
     } else {
       setEditorStyle(null);
+      setIsFullScreen(false);
     }
   };
+
   const handleWindowKey = (event: any) => {
     if (event && event.key) {
       const eventValue = event.key as string;
@@ -516,7 +525,8 @@ const NewNote = () => {
       id: 3,
       leftIcon: <SideBarPinIcn />,
       title: 'Pin to sidebar',
-      rightIcon: <ArrowRight />
+      rightIcon: <ArrowRight />,
+      onClick: handlePinClick
     },
     {
       id: 4,
@@ -542,17 +552,12 @@ const NewNote = () => {
   // Load notes if noteID is provided via param
   useEffect(() => {
     getNoteById();
-
     // event for escape to minimize window
     window.addEventListener('keypress', handleWindowKey);
     return () => {
       window.removeEventListener('keypress', handleWindowKey);
     };
   }, []);
-
-  const [tags, setTags] = useState<string[]>([]);
-  const [newTags, setNewTags] = useState<string[]>(tags);
-  const [inputValue, setInputValue] = useState('');
 
   const addTag = async (
     id: string,
@@ -609,128 +614,156 @@ const NewNote = () => {
     setInputValue('');
   };
 
+  const handleBackClick = () => {
+    navigate('/dashboard/notes');
+  };
+
   return (
-    <NewNoteWrapper {...editorStyle}>
-      <Header>
-        <FirstSection>
-          <div className="zoom__icn" onClick={toggleEditorView}>
-            <ZoomIcon />
-          </div>
-          <div onClick={handleHeaderClick}>
-            <div className="doc__name">
-              {isEditingTitle ? (
-                <input
-                  type="text"
-                  value={editedTitle}
-                  onChange={handleTitleChange}
-                  onBlur={handleFocusOut}
-                  onKeyDown={handleKeyDown}
-                  autoFocus
+    <>
+      <HeaderButton onClick={handleBackClick}>
+        <BackArrow />
+        <HeaderButtonText> Back</HeaderButtonText>
+      </HeaderButton>
+      <NewNoteWrapper {...editorStyle}>
+        <Header>
+          <FirstSection>
+            {isFullScreen ? (
+              <div className="zoom__icn" onClick={toggleEditorView}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="18"
+                  viewBox="0 0 20 18"
+                  fill="none"
+                >
+                  <path
+                    d="M15.4997 4.41667H19.1663V6.25H13.6663V0.75H15.4997V4.41667ZM6.33301 6.25H0.833008V4.41667H4.49967V0.75H6.33301V6.25ZM15.4997 13.5833V17.25H13.6663V11.75H19.1663V13.5833H15.4997ZM6.33301 11.75V17.25H4.49967V13.5833H0.833008V11.75H6.33301Z"
+                    fill="#7E8591"
+                  />
+                </svg>
+              </div>
+            ) : (
+              <div className="zoom__icn" onClick={toggleEditorView}>
+                <ZoomIcon />
+              </div>
+            )}
+            <div onClick={handleHeaderClick} ref={inputContainerRef}>
+              <div className="doc__name">
+                {isEditingTitle ? (
+                  <input
+                    type="text"
+                    value={editedTitle}
+                    onChange={handleTitleChange}
+                    onBlur={handleFocusOut}
+                    onKeyDown={handleKeyDown}
+                    autoFocus
+                  />
+                ) : (
+                  <>{editedTitle}</>
+                )}
+              </div>
+            </div>
+            <div className="timestamp">
+              <p>Updated {currentTime}</p>
+            </div>
+          </FirstSection>
+          <SecondSection>
+            <CustomButton
+              isPrimary
+              title="Save"
+              type="button"
+              onClick={onSaveNote}
+              active={saveButtonState}
+            />
+            <div className="pin__icn" onClick={handlePinClick}>
+              <PinIcon />
+            </div>
+            <div>
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  variant="unstyled"
+                  borderRadius="full"
+                  p={0}
+                  minW="auto"
+                  height="auto"
+                >
+                  <FaEllipsisH fontSize={'12px'} />
+                </MenuButton>
+                <MenuList
+                  fontSize="0.875rem"
+                  minWidth={'185px'}
+                  borderRadius="8px"
+                  backgroundColor="#FFFFFF"
+                  boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
+                >
+                  <section>
+                    {dropDownOptions?.map((dropDownOption) => (
+                      <DropDownLists key={dropDownOption.id}>
+                        <DropDownFirstPart
+                          onClick={() =>
+                            handleOptionClick(dropDownOption.onClick)
+                          }
+                        >
+                          <div>
+                            {dropDownOption.leftIcon}
+                            <p
+                              style={{
+                                color:
+                                  dropDownOption.title === 'Delete'
+                                    ? '#F53535'
+                                    : ''
+                              }}
+                            >
+                              {dropDownOption.title}
+                            </p>
+                          </div>
+                          <div>{dropDownOption.rightIcon}</div>
+                        </DropDownFirstPart>
+                      </DropDownLists>
+                    ))}
+                  </section>
+                </MenuList>
+              </Menu>
+
+              {openTags && (
+                <TagModal
+                  onSubmit={AddTags}
+                  isOpen={openTags}
+                  onClose={() => setOpenTags(false)}
+                  tags={tags}
+                  inputValue={inputValue}
+                  handleAddTag={handleAddTag}
+                  newTags={newTags}
+                  setNewTags={setNewTags}
+                  setInputValue={setInputValue}
                 />
-              ) : (
-                <>{editedTitle}</>
               )}
             </div>
-          </div>
-          <div className="timestamp">
-            <p>Updated {currentTime}</p>
-          </div>
-        </FirstSection>
-        <SecondSection>
-          <CustomButton
-            isPrimary
-            title="Save"
-            type="button"
-            onClick={onSaveNote}
-            active={saveButtonState}
-          />
-          <div className="pin__icn" onClick={handlePinClick}>
-            <PinIcon />
-          </div>
-          <div>
-            <Menu>
-              <MenuButton
-                as={Button}
-                variant="unstyled"
-                borderRadius="full"
-                p={0}
-                minW="auto"
-                height="auto"
-              >
-                <FaEllipsisH fontSize={'12px'} />
-              </MenuButton>
-              <MenuList
-                fontSize="0.875rem"
-                minWidth={'185px'}
-                borderRadius="8px"
-                backgroundColor="#FFFFFF"
-                boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
-              >
-                <section>
-                  {dropDownOptions?.map((dropDownOption) => (
-                    <DropDownLists key={dropDownOption.id}>
-                      <DropDownFirstPart
-                        onClick={() =>
-                          handleOptionClick(dropDownOption.onClick)
-                        }
-                      >
-                        <div>
-                          {dropDownOption.leftIcon}
-                          <p
-                            style={{
-                              color:
-                                dropDownOption.title === 'Delete'
-                                  ? '#F53535'
-                                  : ''
-                            }}
-                          >
-                            {dropDownOption.title}
-                          </p>
-                        </div>
-                        <div>{dropDownOption.rightIcon}</div>
-                      </DropDownFirstPart>
-                    </DropDownLists>
-                  ))}
-                </section>
-              </MenuList>
-            </Menu>
-
-            {openTags && (
-              <TagModal
-                onSubmit={AddTags}
-                isOpen={openTags}
-                onClose={() => setOpenTags(false)}
-                tags={tags}
-                inputValue={inputValue}
-                handleAddTag={handleAddTag}
-                newTags={newTags}
-                setNewTags={setNewTags}
-                setInputValue={setInputValue}
-              />
-            )}
-          </div>
-        </SecondSection>
-      </Header>
-      <NoteBody>
-        <BlockNoteView editor={editor} />
-        {/* We will show PDF once endpoint is implemented */}
-        {/* <PDFWrapper>
+          </SecondSection>
+        </Header>
+        <NoteBody>
+          <BlockNoteView editor={editor} />
+          {/* We will show PDF once endpoint is implemented */}
+          {/* <PDFWrapper>
           <PDFViewer
             url={"https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"}
             page={1} />
         </PDFWrapper> */}
-      </NoteBody>
+        </NoteBody>
 
-      <NoteModal
-        title="Delete Note"
-        description="This will delete Note. Are you sure?"
-        isLoading={isLoading}
-        isOpen={deleteNoteModal}
-        onCancel={() => onCancel()}
-        onDelete={() => onDeleteNote()}
-        onClose={() => setDeleteNoteModal(false)}
-      />
-    </NewNoteWrapper>
+        <NoteModal
+          title="Delete Note"
+          description="This will delete Note. Are you sure?"
+          isLoading={isLoading}
+          isOpen={deleteNoteModal}
+          actionButtonText="Delete"
+          onCancel={() => onCancel()}
+          onDelete={() => onDeleteNote()}
+          onClose={() => setDeleteNoteModal(false)}
+        />
+      </NewNoteWrapper>
+    </>
   );
 };
 

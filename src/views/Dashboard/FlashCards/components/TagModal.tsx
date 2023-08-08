@@ -19,7 +19,7 @@ import React, { useState, useEffect } from 'react';
 
 interface TagModalProps {
   tags: string[];
-  onSubmit: (tags: string[]) => void;
+  onSubmit: (tags: string[], noteId?: string | undefined) => void;
   isOpen: boolean;
   onClose: () => void;
   inputValue?: string;
@@ -27,6 +27,7 @@ interface TagModalProps {
   handleAddTag?: () => void;
   newTags?: string[];
   setNewTags?: any;
+  noteIdInUse?: any;
 }
 
 export const TagModal: React.FC<TagModalProps> = ({
@@ -38,7 +39,8 @@ export const TagModal: React.FC<TagModalProps> = ({
   setInputValue: propSetInputValue,
   handleAddTag: propHandleAddTag,
   newTags: propNewTags,
-  setNewTags: propSetNewTags
+  setNewTags: propSetNewTags,
+  noteIdInUse
 }) => {
   const [inputValue, setInputValue] = useState(propInputValue || '');
   const [hasLoadedDefaultTags, setHasLoadedDefaultTags] = useState(false);
@@ -101,7 +103,7 @@ export const TagModal: React.FC<TagModalProps> = ({
                 onKeyDown={(event) => {
                   if (event.key === 'Enter') {
                     handleAddTag();
-                    event.preventDefault(); // To prevent form submission
+                    event.preventDefault();
                   }
                 }}
               />
