@@ -30,12 +30,29 @@ export default function DocChat() {
   const studentId = user?._id ?? '';
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryText, setSummaryText] = useState('');
+  const [promptText, setPromptText] = useState('');
 
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
       setInputValue(event.target.value);
     },
     [setInputValue]
+  );
+
+  const handleClickPrompt = useCallback(
+    async (event: React.SyntheticEvent<HTMLDivElement>, prompt: string) => {
+      event.preventDefault();
+
+      setShowPrompt(!!messages?.length);
+
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { text: prompt, isUser: true, isLoading: false }
+      ]);
+
+      await askLLM({ query: prompt, studentId, documentId });
+    },
+    [promptText]
   );
 
   const askLLM = async ({
@@ -234,6 +251,8 @@ export default function DocChat() {
             summaryLoading={summaryLoading}
             summaryText={summaryText}
             setSummaryText={setSummaryText}
+            documentId={documentId}
+            handleClickPrompt={handleClickPrompt}
           />
         </div>
       </section>
