@@ -1,8 +1,6 @@
+import TableTag from '../../../../components/CustomComponents/CustomTag';
 import { TrashIcon } from '../../../../components/icons';
-import {
-  TableTitleWrapper,
-  TitleIcon
-} from '../../../../components/notesTab/styles';
+import { TableTitleWrapper } from '../../../../components/notesTab/styles';
 import SelectableTable, { TableColumn } from '../../../../components/table';
 import { NoteModal } from '../Modal';
 import { NoteEnums, PinnedNoteDetails } from '../types';
@@ -12,7 +10,7 @@ import { useToast } from '@chakra-ui/react';
 import moment from 'moment';
 import { FC, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { FaEllipsisH } from 'react-icons/fa';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   data: Array<PinnedNoteDetails>;
@@ -20,7 +18,6 @@ interface Props {
 
 const PinnedNotesTab: FC<Props> = ({ data }) => {
   const DELETE_NOTE_TITLE = 'Delete Note';
-  const DEFAULT_NOTE_TITLE = 'Enter Note Title';
 
   const toast = useToast();
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
@@ -144,7 +141,6 @@ const PinnedNotesTab: FC<Props> = ({ data }) => {
         ...pinnedNotesFromLocalStorage
       ]);
     }
-    // console.log({ pinnedNotes }); this has the array from the localstorage
   }, []);
 
   type DataSourceItem = {
@@ -152,17 +148,28 @@ const PinnedNotesTab: FC<Props> = ({ data }) => {
     title: string;
     dateCreated: string;
     lastModified: string;
-    tags: string;
+    tags: string[];
     id: string | number;
   };
 
-  const formatTags = (tags: any): string => {
-    if (tags || !Array.isArray(tags)) {
-      return '';
+  const formatTags = (tags: string | string[]): any[] => {
+    if (!tags) {
+      return [];
     }
-    // format tags and return
-    // TODO: create a tag styling and attache
-    return tags.join(' ');
+    if (typeof tags === 'string') {
+      // If tags is a string, split it into an array and return
+      return tags.split(',').map((tag) => {
+        return <TableTag label={tag.trim()} />;
+      });
+    } else if (Array.isArray(tags)) {
+      // If tags is an array, trim each tag and return it as it is
+      return tags.map((tag) => {
+        return <TableTag label={tag.trim()} />;
+      });
+    } else {
+      // If tags is neither a string nor an array, return an empty array
+      return [];
+    }
   };
 
   const formatDate = (date: Date, format = 'DD ddd, hh:mma'): string => {
@@ -200,12 +207,6 @@ const PinnedNotesTab: FC<Props> = ({ data }) => {
       id: 0,
       render: ({ title, id }) => (
         <TableTitleWrapper>
-          <TitleIcon
-            onClick={() => gotoEditNote(id)}
-            src="/svgs/text-document.svg"
-            className="text-gray-400 "
-            alt=""
-          ></TitleIcon>
           <Text onClick={() => gotoEditNote(id)} fontWeight="500">
             {title}
           </Text>
@@ -217,7 +218,8 @@ const PinnedNotesTab: FC<Props> = ({ data }) => {
       title: 'Tags',
       dataIndex: 'tags',
       align: 'left',
-      id: 1
+      id: 1,
+      render: ({ tags }) => <>{tags}</>
     },
     {
       key: 'dateCreated',
@@ -342,6 +344,7 @@ const PinnedNotesTab: FC<Props> = ({ data }) => {
         description="Are you sure you want to delete pinned Notes?"
         isLoading={isLoading}
         isOpen={deleteNoteModal}
+        actionButtonText="Delete"
         onCancel={() => onCancel()}
         onDelete={() => DeleteNote()}
         onClose={() => setDeleteNoteModal(false)}

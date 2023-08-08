@@ -16,6 +16,8 @@ import { FC } from 'react';
 export interface ModalProps {
   title?: string;
   description?: string;
+  actionButtonText?: string;
+  cancelButtonText?: string;
   isOpen: boolean;
   onCancel: () => void;
   onDelete: () => void;
@@ -30,8 +32,12 @@ export const NoteModal: FC<ModalProps> = ({
   onCancel,
   onDelete,
   isLoading,
-  onClose
+  onClose,
+  actionButtonText,
+  cancelButtonText
 }) => {
+  const actionText = actionButtonText ? actionButtonText : 'Submit';
+  const cancelText = cancelButtonText ? cancelButtonText : 'Cancel';
   return (
     <Modal onClose={onClose} isOpen={isOpen} isCentered>
       <ModalOverlay />
@@ -159,7 +165,7 @@ export const NoteModal: FC<ModalProps> = ({
             boxShadow="0px 2px 6px 0px rgba(136, 139, 143, 0.10)"
             mr={3}
           >
-            Cancel
+            {cancelText}
           </Button>
 
           {isLoading ? (
@@ -178,7 +184,7 @@ export const NoteModal: FC<ModalProps> = ({
               isLoading={isLoading}
               loadingText="Deleting..."
             >
-              Submit
+              {actionText}
             </Button>
           ) : (
             <Button

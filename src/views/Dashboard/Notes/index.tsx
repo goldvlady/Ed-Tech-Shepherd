@@ -67,21 +67,6 @@ const sortedByTitle = [
   }
 ];
 
-const tabLists = [
-  {
-    id: 1,
-    title: 'All'
-  },
-  {
-    id: 2,
-    title: 'Documents'
-  },
-  {
-    id: 3,
-    title: 'Notes'
-  }
-];
-
 const Notes = () => {
   const navigate = useNavigate();
   const [toggleHelpModal, setToggleHelpModal] = useState(false);
@@ -174,6 +159,21 @@ const Notes = () => {
       iconName: <DocIcon />,
       labelText: 'Upload document',
       onClick: activateHelpModal
+    }
+  ];
+
+  const tabLists = [
+    {
+      id: 1,
+      title: 'All'
+    },
+    {
+      id: 2,
+      title: 'Documents'
+    },
+    {
+      id: 3,
+      title: 'Notes'
     }
   ];
 
