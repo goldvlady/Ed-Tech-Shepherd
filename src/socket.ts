@@ -1,10 +1,10 @@
-import { SOCKET_URL } from './config';
+import { AI_API, HEADER_KEY } from './config';
 import io from 'socket.io-client';
 
 const socketWithAuth = (payload: { studentId: string; documentId: string }) =>
-  io(SOCKET_URL, {
+  io(AI_API, {
     extraHeaders: {
-      'x-shepherd-header': 'vunderkind23'
+      'x-shepherd-header': HEADER_KEY
     },
     autoConnect: false,
     auth: (cb) => {

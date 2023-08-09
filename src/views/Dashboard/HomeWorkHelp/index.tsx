@@ -33,6 +33,27 @@ const HomeWorkHelp = () => {
     [setInputValue]
   );
 
+  const handleClickPrompt = useCallback(
+    async (event: React.SyntheticEvent<HTMLDivElement>, prompt: string) => {
+      event.preventDefault();
+
+      setShowPrompt(true);
+
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { text: prompt, isUser: true, isLoading: false }
+      ]);
+      setInputValue('');
+
+      await askLLM({
+        query: prompt,
+        studentId: user?._id ?? '',
+        topic: location?.state?.topic
+      });
+    },
+    [location?.state?.topic, user?._id]
+  );
+
   const askLLM = async ({
     query,
     studentId,
@@ -103,7 +124,7 @@ const HomeWorkHelp = () => {
         topic: location?.state?.topic
       });
     },
-    [inputValue]
+    [inputValue, location?.state?.topic, user?._id]
   );
 
   const handleKeyDown = useCallback(
@@ -124,6 +145,7 @@ const HomeWorkHelp = () => {
       </HomeWorkHelpHistoryContainer>
       <HomeWorkHelpChatContainer>
         <Chat
+          isReadyToChat={true}
           HomeWorkHelp
           isShowPrompt={isShowPrompt}
           messages={messages}
@@ -134,6 +156,8 @@ const HomeWorkHelp = () => {
           handleInputChange={handleInputChange}
           handleSendMessage={handleSendMessage}
           handleKeyDown={handleKeyDown}
+          homeWorkHelpPlaceholder={'How can Shepherd help with your homework?'}
+          handleClickPrompt={handleClickPrompt}
         />
       </HomeWorkHelpChatContainer>
 
@@ -146,7 +170,10 @@ const HomeWorkHelp = () => {
           maxWidth: '100%'
         }}
       >
-        <ViewTutors onOpenModal={onOpenModal} />
+        <ViewTutors
+          onOpenModal={onOpenModal}
+          subjectID={location?.state?.subject}
+        />
       </CustomModal>
     </HomeWorkHelpContainer>
   );

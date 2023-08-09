@@ -8,6 +8,7 @@ import { ReactComponent as SummaryIcon } from '../../../assets/summaryIcn.svg';
 import { ReactComponent as TutorBag } from '../../../assets/tutor-bag.svg';
 import ChatLoader from '../../../components/CustomComponents/CustomChatLoader';
 import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkdownView';
+import CustomMarkdownViewLLM from '../../../components/CustomComponents/CustomMarkdownViewLLM';
 import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../../components/hooks/useChatScroll';
@@ -49,7 +50,7 @@ import {
 } from './styles';
 import Summary from './summary';
 import { Text } from '@chakra-ui/react';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
 interface IChat {
   HomeWorkHelp?: boolean;
@@ -65,12 +66,16 @@ interface IChat {
   inputValue: string;
   handleKeyDown?: any;
   handleSummary?: any;
+  isReadyToChat: boolean;
   summaryLoading?: boolean;
   summaryText?: string;
   setSummaryText?: any;
+  handleClickPrompt?: any;
+  homeWorkHelpPlaceholder?: any;
 }
 const Chat = ({
   HomeWorkHelp,
+  isReadyToChat,
   onOpenModal,
   isShowPrompt,
   messages,
@@ -83,7 +88,10 @@ const Chat = ({
   handleSummary,
   summaryLoading,
   summaryText,
-  setSummaryText
+  setSummaryText,
+  documentId,
+  handleClickPrompt,
+  homeWorkHelpPlaceholder
 }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
@@ -115,6 +123,11 @@ const Chat = ({
   const onChatHistory = useCallback(() => {
     setChatHistory((prevState) => !prevState);
   }, []);
+
+  const isShowPills = useMemo(
+    () => !!messages?.length && !HomeWorkHelp && !!isShowPrompt,
+    [messages, HomeWorkHelp, isShowPrompt]
+  );
 
   const tabLists = [
     {
@@ -266,7 +279,7 @@ const Chat = ({
                     </OptionsContainer>
                   )}
 
-                  {!messages?.length && !isShowPrompt && (
+                  {!HomeWorkHelp && !messages?.length && !isShowPrompt && (
                     <AskSomethingContainer>
                       <AskSomethingPillHeadingText>
                         Try asking about:
@@ -274,7 +287,10 @@ const Chat = ({
                       <AskSomethingPillContainer>
                         {prompts.map((prompt, key) => {
                           return (
-                            <AskSomethingPill key={key}>
+                            <AskSomethingPill
+                              key={key}
+                              onClick={(e) => handleClickPrompt(e, prompt)}
+                            >
                               <Text>{prompt}</Text>
                             </AskSomethingPill>
                           );
@@ -291,7 +307,7 @@ const Chat = ({
                           {message.isLoading ? (
                             <ChatLoader />
                           ) : (
-                            <AiMessage key={index}>
+                            <AiMessage key={index + 1}>
                               <CustomMarkdownView source={message.text} />
                             </AiMessage>
                           )}
@@ -308,7 +324,7 @@ const Chat = ({
               </InnerWrapper>
             </FlexColumnContainer>
           </ContentWrapper>
-          {!!messages?.length && !HomeWorkHelp && isShowPrompt && (
+          {isShowPills && (
             <div
               style={{
                 position: 'fixed',
@@ -354,9 +370,14 @@ const Chat = ({
           <InputContainer>
             <Input
               ref={textAreaRef}
-              placeholder="Tell Shepherd what to do next"
+              placeholder={
+                HomeWorkHelp
+                  ? homeWorkHelpPlaceholder
+                  : `Ask Shepherd about ${documentId}`
+              }
               value={inputValue}
               onKeyDown={handleKeyDown}
+              disabled={!isReadyToChat}
               onChange={handleInputChange}
               style={{
                 minHeight: '2.5rem',

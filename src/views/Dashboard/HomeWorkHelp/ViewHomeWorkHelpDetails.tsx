@@ -1,10 +1,31 @@
 import CustomButton from '../../../components/CustomComponents/CustomButton/index';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
-import { Box, FormControl, FormLabel, HStack, Input } from '@chakra-ui/react';
+import SelectComponent, { Option } from '../../../components/Select';
+import resourceStore from '../../../state/resourceStore';
+import {
+  Box,
+  FormControl,
+  FormLabel,
+  HStack,
+  Input,
+  Select,
+  VStack,
+  extendTheme,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Button
+} from '@chakra-ui/react';
 import React, { ChangeEvent, useCallback, useState, useMemo } from 'react';
-import { Button } from 'react-day-picker';
+import { FiChevronDown } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
+interface FlashcardData {
+  level?: string;
+  topic: string;
+  subject?: string;
+}
 const ViewHomeWorkHelpDetails = ({
   openAceHomework,
   handleClose,
@@ -14,19 +35,33 @@ const ViewHomeWorkHelpDetails = ({
   handleClose: () => void;
   handleAceHomeWorkHelp: () => void;
 }) => {
-  const [localData, setLocalData] = useState<{
-    subject: string;
-    topic: string;
-    deckName: string;
-  }>({
-    subject: '',
-    topic: '',
-    deckName: ''
+  const { courses: courseList, levels: levelOptions } = resourceStore();
+  const [subjectId, setSubject] = useState<string>('Subject');
+  const [searchValue, setSearchValue] = useState('');
+  const [localData, setLocalData] = useState<FlashcardData>({
+    subject: subjectId,
+    topic: ''
   });
+  const [level, setLevel] = useState<any>('');
+
+  const searchQuery = (searchValue, courseList) => {
+    setSearchValue(searchValue);
+    return courseList?.filter((item) =>
+      item.label
+        ?.toLocaleLowerCase?.()
+        ?.includes(searchValue?.toLocaleLowerCase())
+    );
+  };
+
+  const filteredOptions = useMemo(
+    () => searchQuery(searchValue, courseList),
+    [courseList, searchValue]
+  );
+
   const navigate = useNavigate();
 
   const handleChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       const { name, value } = e.target;
       setLocalData((prevState: any) => ({
         ...prevState,
@@ -44,9 +79,9 @@ const ViewHomeWorkHelpDetails = ({
     handleClose();
     handleAceHomeWorkHelp();
     navigate('/dashboard/ace-homework', {
-      state: localData
+      state: { subject: subjectId, topic: localData.topic, level }
     });
-  }, [localData]);
+  }, [subjectId, localData, level]);
 
   return (
     <CustomModal
@@ -86,14 +121,64 @@ const ViewHomeWorkHelpDetails = ({
           >
             Subject
           </FormLabel>
-          <Input
-            type="text"
-            name="subject"
-            placeholder="e.g. biology"
-            value={localData.subject}
-            onChange={handleChange}
-            _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
-          />
+          <Menu>
+            <MenuButton
+              as={Button}
+              variant="outline"
+              rightIcon={<FiChevronDown />}
+              fontSize={14}
+              borderRadius="8px"
+              fontWeight={400}
+              width="100%"
+              height="42px"
+              color="text.400"
+              textAlign="left"
+            >
+              {subjectId !== 'Subject'
+                ? courseList.map((course) => {
+                    if (course._id === subjectId) {
+                      return course.label;
+                    }
+                  })
+                : 'e.g Biology'}
+            </MenuButton>
+            <MenuList zIndex={3} width="24em">
+              <input
+                style={{
+                  height: '38px',
+                  borderRadius: '8px',
+                  fontSize: '0.75rem',
+                  width: '100%',
+                  margin: '10px 0'
+                }}
+                onChange={(e) => setSearchValue(e.target.value)}
+                placeholder="Search Subject"
+                onClick={function (e) {
+                  e.stopPropagation();
+                }}
+                onKeyDown={(e) => {
+                  e.code === 'Space' && e.stopPropagation();
+                }}
+              />
+              <div
+                style={{
+                  maxHeight: '200px',
+                  overflowY: 'auto'
+                }}
+              >
+                {filteredOptions.map((course) => (
+                  <MenuItem
+                    fontSize="0.875rem"
+                    key={course._id}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => setSubject(course._id)}
+                  >
+                    {course.label}
+                  </MenuItem>
+                ))}
+              </div>
+            </MenuList>
+          </Menu>
         </FormControl>
         <FormControl mb={6}>
           <FormLabel
@@ -113,7 +198,7 @@ const ViewHomeWorkHelpDetails = ({
             _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
           />
         </FormControl>
-        <FormControl mb={6}>
+        {/* <FormControl mb={6}>
           <FormLabel
             fontSize="0.75rem"
             lineHeight="17px"
@@ -130,6 +215,38 @@ const ViewHomeWorkHelpDetails = ({
             onChange={handleChange}
             _placeholder={{ fontSize: '0.8756rem', color: '#9A9DA2' }}
           />
+        </FormControl> */}
+        <FormControl mb={8}>
+          <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+            Level (optional)
+          </FormLabel>
+          <Menu>
+            <MenuButton
+              as={Button}
+              variant="outline"
+              rightIcon={<FiChevronDown />}
+              fontSize={14}
+              borderRadius="8px"
+              fontWeight={400}
+              color="text.400"
+              width="100%"
+              height="42px"
+              textAlign="left"
+            >
+              {level === '' ? 'Level' : level.label}
+            </MenuButton>
+            <MenuList minWidth={'auto'}>
+              {levelOptions.map((level) => (
+                <MenuItem
+                  key={level._id}
+                  _hover={{ bgColor: '#F2F4F7' }}
+                  onClick={() => setLevel(level)}
+                >
+                  {level.label}
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Menu>
         </FormControl>
       </Box>
     </CustomModal>

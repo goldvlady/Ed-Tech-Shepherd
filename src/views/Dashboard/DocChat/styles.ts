@@ -311,13 +311,14 @@ export const ChatContainerResponse = styled.div`
   display: flex;
   flex-direction: column;
   grid-column: span 12;
-  overflow-y: auto;
+  overflow-y: scroll;
   scrollbar-width: thin;
   padding: 0px 24px 20px 24px;
   max-height: 42vh;
+  // min-height: 100vh;
 
   /* Scrollable content */
-  overflow-y: auto;
+  overflow-y: scroll;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
 
@@ -451,7 +452,7 @@ export const AskSomethingContainer = styled.div`
   flex-direction: column;
   justify-content: space-between;
   grid-column: 1 / -1;
-  padding: 0.25rem 2rem;
+  padding: 0.25rem 0.3rem;
   height: 9rem;
   border-radius: 8px;
   margin-left: 1.75rem;

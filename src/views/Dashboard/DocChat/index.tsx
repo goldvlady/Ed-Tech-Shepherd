@@ -19,6 +19,8 @@ export default function DocChat() {
   const { user } = userStore();
   const toast = useToast();
   const [llmResponse, setLLMResponse] = useState('');
+  const [readyToChat, setReadyToChat] = useState(false);
+  const [chatHistoryLoaded, setChatHistoryLoaded] = useState(false);
   const [botStatus, setBotStatus] = useState(
     'Philosopher, thinker, study companion.'
   );
@@ -31,53 +33,32 @@ export default function DocChat() {
   const studentId = user?._id ?? '';
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryText, setSummaryText] = useState('');
+  const [promptText, setPromptText] = useState('');
+  const [socket, setSocket] = useState<any>(null);
 
   useEffect(() => {
-    const socket = socketWithAuth({
-      studentId,
-      documentId
-    }).connect();
+    if (!socket) {
+      const authSocket = socketWithAuth({
+        studentId,
+        documentId
+      }).connect();
+      setSocket(authSocket);
+    }
+  }, [socket, studentId, documentId]);
 
-    // Leave this in. Still WIP.
+  useEffect(() => {
+    if (socket) {
+      socket.on('ready', (ready) => {
+        setReadyToChat(ready);
+      });
 
-    // socket.on('loaded history', (history) => {
-    //   console.log('History loaded', history)
-    // })
-  }, [studentId, documentId]);
+      return () => socket.off('ready');
+    }
+  }, [socket]);
 
-  const handleInputChange = useCallback(
-    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setInputValue(event.target.value);
-    },
-    [setInputValue]
-  );
-
-  const askLLM = async ({
-    query,
-    studentId,
-    documentId
-  }: {
-    query: string;
-    studentId: string;
-    documentId: string;
-  }) => {
-    setBotStatus('Thinking');
-    const response = await chatWithDoc({
-      query,
-      studentId,
-      documentId
-    });
-
-    const reader = response.body?.getReader();
-    const decoder = new TextDecoder('utf-8');
-    let temp = '';
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      setBotStatus('Typing...');
-      // @ts-ignore: scary scenes, but let's observe
-      const { done, value } = await reader.read();
-      if (done) {
+  useEffect(() => {
+    if (socket) {
+      socket.on('bot response done', (completeText) => {
         setLLMResponse('');
         setTimeout(
           () => setBotStatus('Philosopher, thinker, study companion.'),
@@ -87,15 +68,83 @@ export default function DocChat() {
         // eslint-disable-next-line
         setMessages((prevMessages) => [
           ...prevMessages,
-          { text: temp, isUser: false, isLoading: false }
+          { text: completeText, isUser: false, isLoading: false }
         ]);
-        break;
-      }
-      const chunk = decoder.decode(value);
-      temp += chunk;
-      setLLMResponse((llmResponse) => llmResponse + chunk);
+      });
+
+      return () => socket.off('bot response done');
     }
-  };
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('bot response', async (token) => {
+        setBotStatus('Typing...');
+        setLLMResponse((llmResponse) => llmResponse + token);
+      });
+
+      return () => socket.off('bot response');
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('summary generating', async (token) => {
+        setSummaryText((summary) => summary + token);
+      });
+
+      return () => socket.off('summary generating');
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('summary done', async () => {
+        setSummaryLoading(false);
+      });
+
+      return () => socket.off('summary done');
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    const summaryNeeded =
+      socket && readyToChat && chatHistoryLoaded && !messages?.length;
+    if (summaryNeeded) {
+      socket.emit('generate summary');
+    }
+  }, [readyToChat, socket, messages?.length, chatHistoryLoaded]);
+
+  useEffect(() => {
+    const fetchSummary = async () => {
+      const { summary } = await generateSummary({ documentId, studentId });
+      setSummaryText(summary);
+    };
+    fetchSummary();
+  }, [documentId, studentId]);
+
+  const handleInputChange = useCallback(
+    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setInputValue(event.target.value);
+    },
+    [setInputValue]
+  );
+
+  const handleClickPrompt = useCallback(
+    async (event: React.SyntheticEvent<HTMLDivElement>, prompt: string) => {
+      event.preventDefault();
+
+      setShowPrompt(!!messages?.length);
+
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { text: prompt, isUser: true, isLoading: false }
+      ]);
+
+      socket.emit('chat message');
+    },
+    [socket, messages?.length]
+  );
 
   const handleSendMessage = useCallback(
     async (event: React.SyntheticEvent<HTMLButtonElement>) => {
@@ -113,9 +162,9 @@ export default function DocChat() {
       ]);
       setInputValue('');
 
-      await askLLM({ query: inputValue, studentId, documentId });
+      socket.emit('chat message', inputValue);
     },
-    [inputValue, studentId, documentId, messages]
+    [inputValue, messages, socket]
   );
 
   const handleKeyDown = useCallback(
@@ -133,23 +182,9 @@ export default function DocChat() {
     async (event: React.SyntheticEvent<HTMLButtonElement>) => {
       event.preventDefault();
       try {
-        setSummaryLoading(true);
-        const response = await postGenerateSummary({
-          documentId,
-          studentId
-        });
-        setSummaryLoading(false);
-        const reader = response.body?.getReader();
-        //@ts-ignore:convert to a readable text
-        const { value } = await reader.read();
-        const decoder = new TextDecoder('utf-8');
-        const chunk = decoder.decode(value);
-        if (chunk.length) {
-          const response = await generateSummary({
-            documentId,
-            studentId
-          });
-          setSummaryText(response?.summary);
+        if (socket) {
+          setSummaryLoading(true);
+          socket.emit('generate summary');
         }
       } catch (error) {
         toast({
@@ -164,32 +199,8 @@ export default function DocChat() {
         });
       }
     },
-    []
+    [socket, toast]
   );
-
-  useEffect(() => {
-    const getSummary = async () => {
-      try {
-        const response = await generateSummary({
-          documentId,
-          studentId
-        });
-        setSummaryText(response?.summary);
-      } catch (error) {
-        toast({
-          render: () => (
-            <CustomToast
-              title="Unable to process your request at this time. Please try again later."
-              status="error"
-            />
-          ),
-          position: 'top-right',
-          isClosable: true
-        });
-      }
-    };
-    getSummary();
-  }, []);
 
   useLayoutEffect(() => {
     const fetchChatHistory = async () => {
@@ -205,6 +216,7 @@ export default function DocChat() {
         }));
 
         setMessages((prevMessages) => [...prevMessages, ...mappedData]);
+        setChatHistoryLoaded(true);
       } catch (error) {
         toast({
           render: () => (
@@ -237,6 +249,7 @@ export default function DocChat() {
           />
           <Chat
             isShowPrompt={isShowPrompt}
+            isReadyToChat={readyToChat}
             messages={messages}
             llmResponse={llmResponse}
             botStatus={botStatus}
@@ -248,6 +261,8 @@ export default function DocChat() {
             summaryLoading={summaryLoading}
             summaryText={summaryText}
             setSummaryText={setSummaryText}
+            documentId={documentId}
+            handleClickPrompt={handleClickPrompt}
           />
         </div>
       </section>
