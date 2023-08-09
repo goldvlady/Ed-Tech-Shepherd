@@ -282,7 +282,8 @@ const Chat = ({
                       </OptionsContainer>
                     )}
 
-                  {!messages?.length &&
+                  {!HomeWorkHelp &&
+                    !messages?.length &&
                     !historyArr?.length &&
                     !isShowPrompt && (
                       <AskSomethingContainer>

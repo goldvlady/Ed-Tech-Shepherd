@@ -138,6 +138,8 @@ const HomeWorkHelp = () => {
     [handleSendMessage]
   );
 
+  console.log('location?.state?.subject ==>', location?.state);
+
   return (
     <HomeWorkHelpContainer>
       <HomeWorkHelpHistoryContainer>
@@ -169,7 +171,10 @@ const HomeWorkHelp = () => {
           maxWidth: '100%'
         }}
       >
-        <ViewTutors onOpenModal={onOpenModal} />
+        <ViewTutors
+          onOpenModal={onOpenModal}
+          subjectID={location?.state?.subject}
+        />
       </CustomModal>
     </HomeWorkHelpContainer>
   );
