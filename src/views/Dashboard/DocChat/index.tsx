@@ -19,6 +19,7 @@ export default function DocChat() {
   const { user } = userStore();
   const toast = useToast();
   const [llmResponse, setLLMResponse] = useState('');
+  const [readyToChat, setReadyToChat] = useState(false);
   const [botStatus, setBotStatus] = useState(
     'Philosopher, thinker, study companion.'
   );
@@ -32,69 +33,28 @@ export default function DocChat() {
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryText, setSummaryText] = useState('');
   const [promptText, setPromptText] = useState('');
+  const [socket, setSocket] = useState<any>(null);
 
   useEffect(() => {
-    const socket = socketWithAuth({
-      studentId,
-      documentId
-    }).connect();
+    if (!socket) {
+      const authSocket = socketWithAuth({
+        studentId,
+        documentId
+      }).connect();
+      setSocket(authSocket);
+    }
 
-    // Leave this in. Still WIP.
+    if (socket) {
+      socket.on('ready', (ready) => {
+        setReadyToChat(ready);
+      });
 
-    // socket.on('loaded history', (history) => {
-    //   console.log('History loaded', history)
-    // })
-  }, [studentId, documentId]);
+      socket.on('bot response', async (token) => {
+        setBotStatus('Typing...');
+        setLLMResponse((llmResponse) => llmResponse + token);
+      });
 
-  const handleInputChange = useCallback(
-    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setInputValue(event.target.value);
-    },
-    [setInputValue]
-  );
-
-  const handleClickPrompt = useCallback(
-    async (event: React.SyntheticEvent<HTMLDivElement>, prompt: string) => {
-      event.preventDefault();
-
-      setShowPrompt(!!messages?.length);
-
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { text: prompt, isUser: true, isLoading: false }
-      ]);
-
-      await askLLM({ query: prompt, studentId, documentId });
-    },
-    [promptText]
-  );
-
-  const askLLM = async ({
-    query,
-    studentId,
-    documentId
-  }: {
-    query: string;
-    studentId: string;
-    documentId: string;
-  }) => {
-    setBotStatus('Thinking');
-    const response = await chatWithDoc({
-      query,
-      studentId,
-      documentId
-    });
-
-    const reader = response.body?.getReader();
-    const decoder = new TextDecoder('utf-8');
-    let temp = '';
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      setBotStatus('Typing...');
-      // @ts-ignore: scary scenes, but let's observe
-      const { done, value } = await reader.read();
-      if (done) {
+      socket.on('bot response done', (completeText) => {
         setLLMResponse('');
         setTimeout(
           () => setBotStatus('Philosopher, thinker, study companion.'),
@@ -104,15 +64,18 @@ export default function DocChat() {
         // eslint-disable-next-line
         setMessages((prevMessages) => [
           ...prevMessages,
-          { text: temp, isUser: false, isLoading: false }
+          { text: completeText, isUser: false, isLoading: false }
         ]);
-        break;
-      }
-      const chunk = decoder.decode(value);
-      temp += chunk;
-      setLLMResponse((llmResponse) => llmResponse + chunk);
+      });
     }
-  };
+  }, [socket, documentId, studentId]);
+
+  const handleInputChange = useCallback(
+    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setInputValue(event.target.value);
+    },
+    [setInputValue]
+  );
 
   const handleSendMessage = useCallback(
     async (event: React.SyntheticEvent<HTMLButtonElement>) => {
@@ -130,9 +93,9 @@ export default function DocChat() {
       ]);
       setInputValue('');
 
-      await askLLM({ query: inputValue, studentId, documentId });
+      socket.emit('chat message', inputValue);
     },
-    [inputValue, studentId, documentId, messages]
+    [inputValue, messages, socket]
   );
 
   const handleKeyDown = useCallback(
@@ -254,6 +217,7 @@ export default function DocChat() {
           />
           <Chat
             isShowPrompt={isShowPrompt}
+            isReadyToChat={readyToChat}
             messages={messages}
             llmResponse={llmResponse}
             botStatus={botStatus}

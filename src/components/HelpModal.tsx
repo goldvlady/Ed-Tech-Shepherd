@@ -154,7 +154,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
                               typewriter
                                 .typeString(
                                   `Hi ${
-                                    user.name.first || 'there'
+                                    user?.name?.first || 'there'
                                   }, How can Shepherd make your study time more effective today?`
                                 )
                                 .start();
