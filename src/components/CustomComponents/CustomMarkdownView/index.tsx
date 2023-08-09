@@ -28,7 +28,7 @@ const CustomMarkdownView: React.FC<{ source: string }> = ({ source }) => {
       className="custom_markdown"
       remarkPlugins={[remarkGfm]}
       rehypePlugins={[rehypeRaw, rehypePrism]}
-      children={displayedText}
+      children={source}
     />
   );
 };

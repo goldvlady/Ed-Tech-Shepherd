@@ -43,17 +43,20 @@ export default function DocChat() {
       }).connect();
       setSocket(authSocket);
     }
+  }, [socket, studentId, documentId]);
 
+  useEffect(() => {
     if (socket) {
       socket.on('ready', (ready) => {
         setReadyToChat(ready);
       });
 
-      socket.on('bot response', async (token) => {
-        setBotStatus('Typing...');
-        setLLMResponse((llmResponse) => llmResponse + token);
-      });
+      return () => socket.off('ready');
+    }
+  }, [socket]);
 
+  useEffect(() => {
+    if (socket) {
       socket.on('bot response done', (completeText) => {
         setLLMResponse('');
         setTimeout(
@@ -67,14 +70,43 @@ export default function DocChat() {
           { text: completeText, isUser: false, isLoading: false }
         ]);
       });
+
+      return () => socket.off('bot response done');
     }
-  }, [socket, documentId, studentId]);
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('bot response', async (token) => {
+        setBotStatus('Typing...');
+        setLLMResponse((llmResponse) => llmResponse + token);
+      });
+
+      return () => socket.off('bot response');
+    }
+  }, [socket]);
 
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
       setInputValue(event.target.value);
     },
     [setInputValue]
+  );
+
+  const handleClickPrompt = useCallback(
+    async (event: React.SyntheticEvent<HTMLDivElement>, prompt: string) => {
+      event.preventDefault();
+
+      setShowPrompt(!!messages?.length);
+
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { text: prompt, isUser: true, isLoading: false }
+      ]);
+
+      socket.emit('chat message');
+    },
+    [socket, messages?.length]
   );
 
   const handleSendMessage = useCallback(

@@ -371,7 +371,7 @@ const Chat = ({
               }
               value={inputValue}
               onKeyDown={handleKeyDown}
-              disabled={isReadyToChat}
+              disabled={!isReadyToChat}
               onChange={handleInputChange}
               style={{
                 minHeight: '2.5rem',
