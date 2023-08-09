@@ -5,24 +5,34 @@ import rehypePrism from 'rehype-prism';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 
-const CustomMarkdownView: React.FC<{ source: string }> = ({ source }) => {
+const CustomMarkdownView: React.FC<{
+  source: string;
+  key?: number;
+  length?: number;
+}> = ({ source, key, length }) => {
   const [displayedText, setDisplayedText] = useState('');
   const delay = 20; // Adjust this to change the speed of the "streaming" effect
 
   useEffect(() => {
     let index = 0;
     const interval = setInterval(() => {
-      if (index < source.length) {
-        setDisplayedText((prevText) => prevText + source[index]);
-        index++;
+      if (key && length) {
+        if (key === length - 1) {
+          if (index < source.length) {
+            setDisplayedText((prevText) => prevText + source[index]);
+            index++;
+          } else {
+            clearInterval(interval);
+          }
+        }
       } else {
-        clearInterval(interval);
+        setDisplayedText(source);
       }
     }, delay);
 
     // Clear the interval when the component unmounts
     return () => clearInterval(interval);
-  }, [source]);
+  }, [source, key, length]);
   return (
     <ReactMarkdown
       className="custom_markdown"

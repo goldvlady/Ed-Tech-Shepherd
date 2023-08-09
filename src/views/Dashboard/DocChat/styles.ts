@@ -311,13 +311,14 @@ export const ChatContainerResponse = styled.div`
   display: flex;
   flex-direction: column;
   grid-column: span 12;
-  overflow-y: auto;
+  overflow-y: scroll;
   scrollbar-width: thin;
   padding: 0px 24px 20px 24px;
   // max-height: 42vh;
+  padding-bottom: 300px;
 
   /* Scrollable content */
-  overflow-y: auto;
+  overflow-y: scroll;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
 

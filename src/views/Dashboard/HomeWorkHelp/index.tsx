@@ -146,6 +146,7 @@ const HomeWorkHelp = () => {
       <HomeWorkHelpChatContainer>
         <Chat
           HomeWorkHelp
+          isReadyToChat={true}
           isShowPrompt={isShowPrompt}
           messages={messages}
           llmResponse={llmResponse}

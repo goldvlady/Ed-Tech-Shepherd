@@ -65,6 +65,7 @@ interface IChat {
   inputValue: string;
   handleKeyDown?: any;
   handleSummary?: any;
+  isReadyToChat: boolean;
   summaryLoading?: boolean;
   summaryText?: string;
   setSummaryText?: any;
@@ -73,6 +74,7 @@ interface IChat {
 }
 const Chat = ({
   HomeWorkHelp,
+  isReadyToChat,
   onOpenModal,
   isShowPrompt,
   messages,
@@ -300,7 +302,11 @@ const Chat = ({
                             <ChatLoader />
                           ) : (
                             <AiMessage key={index}>
-                              <CustomMarkdownView source={message.text} />
+                              <CustomMarkdownView
+                                source={message.text}
+                                key={index}
+                                length={messages.length}
+                              />
                             </AiMessage>
                           )}
                         </>
@@ -369,6 +375,7 @@ const Chat = ({
               }
               value={inputValue}
               onKeyDown={handleKeyDown}
+              disabled={!isReadyToChat}
               onChange={handleInputChange}
               style={{
                 minHeight: '2.5rem',
