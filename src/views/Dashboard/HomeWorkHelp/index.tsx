@@ -145,8 +145,8 @@ const HomeWorkHelp = () => {
       </HomeWorkHelpHistoryContainer>
       <HomeWorkHelpChatContainer>
         <Chat
-          HomeWorkHelp
           isReadyToChat={true}
+          HomeWorkHelp
           isShowPrompt={isShowPrompt}
           messages={messages}
           llmResponse={llmResponse}
@@ -170,7 +170,10 @@ const HomeWorkHelp = () => {
           maxWidth: '100%'
         }}
       >
-        <ViewTutors onOpenModal={onOpenModal} />
+        <ViewTutors
+          onOpenModal={onOpenModal}
+          subjectID={location?.state?.subject}
+        />
       </CustomModal>
     </HomeWorkHelpContainer>
   );

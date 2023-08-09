@@ -24,7 +24,7 @@ export default create<Store>((set) => ({
   user: null,
   userNotifications: [],
   userDocuments: [],
- fetchUser: async () => {
+  fetchUser: async () => {
     const response = await ApiService.getUser();
     if (response.status !== 200) return false;
     set({ user: await response.json() });

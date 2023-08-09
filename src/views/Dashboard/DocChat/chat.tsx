@@ -8,6 +8,7 @@ import { ReactComponent as SummaryIcon } from '../../../assets/summaryIcn.svg';
 import { ReactComponent as TutorBag } from '../../../assets/tutor-bag.svg';
 import ChatLoader from '../../../components/CustomComponents/CustomChatLoader';
 import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkdownView';
+import CustomMarkdownViewLLM from '../../../components/CustomComponents/CustomMarkdownViewLLM';
 import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../../components/hooks/useChatScroll';
@@ -49,7 +50,7 @@ import {
 } from './styles';
 import Summary from './summary';
 import { Text } from '@chakra-ui/react';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
 interface IChat {
   HomeWorkHelp?: boolean;
@@ -122,6 +123,11 @@ const Chat = ({
   const onChatHistory = useCallback(() => {
     setChatHistory((prevState) => !prevState);
   }, []);
+
+  const isShowPills = useMemo(
+    () => !!messages?.length && !HomeWorkHelp && !!isShowPrompt,
+    [messages, HomeWorkHelp, isShowPrompt]
+  );
 
   const tabLists = [
     {
@@ -273,7 +279,7 @@ const Chat = ({
                     </OptionsContainer>
                   )}
 
-                  {!messages?.length && !isShowPrompt && (
+                  {!HomeWorkHelp && !messages?.length && !isShowPrompt && (
                     <AskSomethingContainer>
                       <AskSomethingPillHeadingText>
                         Try asking about:
@@ -301,12 +307,8 @@ const Chat = ({
                           {message.isLoading ? (
                             <ChatLoader />
                           ) : (
-                            <AiMessage key={index}>
-                              <CustomMarkdownView
-                                source={message.text}
-                                key={index}
-                                length={messages.length}
-                              />
+                            <AiMessage key={index + 1}>
+                              <CustomMarkdownView source={message.text} />
                             </AiMessage>
                           )}
                         </>
@@ -322,7 +324,7 @@ const Chat = ({
               </InnerWrapper>
             </FlexColumnContainer>
           </ContentWrapper>
-          {!!messages?.length && !HomeWorkHelp && isShowPrompt && (
+          {isShowPills && (
             <div
               style={{
                 position: 'fixed',
