@@ -316,7 +316,6 @@ export const ChatContainerResponse = styled.div`
   padding: 0px 24px 20px 24px;
   // max-height: 42vh;
   padding-bottom: 300px;
-  margin-bottom: 100px;
 
   /* Scrollable content */
   overflow-y: scroll;

@@ -11,7 +11,7 @@ const CustomMarkdownView: React.FC<{
   length?: number;
 }> = ({ source, key, length }) => {
   const [displayedText, setDisplayedText] = useState('');
-  const delay = 50; // Adjust this to change the speed of the "streaming" effect
+  const delay = 20; // Adjust this to change the speed of the "streaming" effect
 
   useEffect(() => {
     let index = 0;
