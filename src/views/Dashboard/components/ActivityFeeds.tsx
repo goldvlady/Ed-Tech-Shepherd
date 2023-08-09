@@ -11,6 +11,7 @@ import ReceiptSmIcon from '../../../assets/receipt-sm.svg';
 import FlashcardIcon from '../../../assets/receiptIcon.svg';
 import WalletIcon from '../../../assets/wallet-money.svg';
 import HelpModal from '../../../components/HelpModal';
+import flashcardStore from '../../../state/flashcardStore';
 import { isSameDay, isSameWeek, isSameMonth } from '../../../util';
 import { CustomButton } from '../layout';
 import { TimeAgo } from './TimeAgo';
@@ -68,6 +69,7 @@ const Root = styled(Flex)`
 
 function ActivityFeeds(props) {
   const { feeds, userType } = props;
+  const { loadFlashcard } = flashcardStore();
   const [feedPeriod, setFeedPeriod] = useState<
     'all' | 'today' | 'week' | 'month'
   >('all');
@@ -127,13 +129,15 @@ function ActivityFeeds(props) {
   const getTextByActivityType = (activityType, link) => {
     switch (activityType) {
       case 'documents':
-        return `You uploaded ${getFileName(link)} to your workspace`;
+        return `You uploaded "${getFileName(link)}" to your workspace`;
       case 'notes':
-        return `You created a new note ${getFileName(link)} to your workspace`;
+        return `You created a new note "${getFileName(
+          link
+        )}" to your workspace`;
       case 'payments':
         return `You made a payment of $10.95 to Leslie Peters for Chemistry lessons`;
       case 'flashcards':
-        return `You created a new flashcard deck "${link}" from documentitle.pdf`;
+        return `You created a new flashcard deck "${link}" `;
       default:
         return undefined;
     }
@@ -251,15 +255,15 @@ function ActivityFeeds(props) {
                       alignItems="center"
                       px={3}
                       _hover={{ cursor: 'pointer', bgColor: '#dcdfe5' }}
-                      onClick={() =>
+                      onClick={() => {
                         navigate(
                           `${
                             feed.activityType === 'documents'
                               ? `/dashboard/new-note/${feed.id}`
-                              : '/dashboard/flashcards'
+                              : `/dashboard/flashcards/${feed.flashcard}`
                           }`
-                        )
-                      }
+                        );
+                      }}
                     >
                       <Flex mt={2.5} gap={1}>
                         <Text>

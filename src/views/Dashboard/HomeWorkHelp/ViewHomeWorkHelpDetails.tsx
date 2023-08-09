@@ -142,7 +142,7 @@ const ViewHomeWorkHelpDetails = ({
                   })
                 : 'e.g Biology'}
             </MenuButton>
-            <MenuList zIndex={3} width="100%">
+            <MenuList zIndex={3} width="24em">
               <input
                 style={{
                   height: '38px',

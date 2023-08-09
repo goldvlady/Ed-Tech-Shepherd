@@ -98,7 +98,7 @@ const ViewTutors = ({
     getData();
     /* eslint-disable */
   }, [subject, tutorDetails]);
-  console.log('subjectID ==>', subjectID);
+
   useEffect(() => {
     setSubject(subjectID ?? '');
   }, [subjectID]);

@@ -6,8 +6,8 @@ export function useChatScroll<T>(
   const ref = React.useRef<HTMLDivElement>();
   React.useEffect(() => {
     if (ref.current) {
-      ref.current.scrollTop = ref.current.scrollHeight;
+      ref.current.scrollTop = ref.current.scrollHeight + 1000;
     }
-  }, [dep]);
+  }, [dep, ref?.current?.scrollHeight]);
   return ref as any;
 }

@@ -291,7 +291,7 @@ export default function WeeklySummary(props) {
               borderBottom="1px solid #eeeff2"
               borderBottomRadius={'10px'}
             >
-              <Flex h="16px" alignItems={'center'} gap={1}>
+              <Flex h="16px" alignItems={'center'} gap={1} direction="row">
                 <img src={Flash} alt="feed-icon" />
                 <Text fontSize={14} fontWeight={400} color="text.300">
                   Current streak:

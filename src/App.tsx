@@ -16,6 +16,7 @@ import Marketplace from './views/Dashboard/Marketplace';
 import Messaging from './views/Dashboard/Messaging';
 import MyTutors from './views/Dashboard/MyTutors';
 import NewNote from './views/Dashboard/Notes/NewNotes';
+import PinnedNotes from './views/Dashboard/Notes/PinnedNotes/PinnedNotes';
 import Notes from './views/Dashboard/Notes/index';
 import Offer from './views/Dashboard/Offer';
 import SendTutorOffer from './views/Dashboard/SendTutorOffer';
@@ -95,6 +96,7 @@ const studentRoutes = [
   { path: 'new-note', element: <NewNote /> },
   { path: 'new-note/:id', element: <NewNote /> },
   { path: 'notes', element: <Notes /> },
+  { path: 'pinned', element: <PinnedNotes /> },
   { path: 'tutor/:tutorId/offer', element: <SendTutorOffer /> },
   { path: 'offer/:offerId', element: <Offer /> },
   { path: '', element: <DashboardIndex /> },
@@ -107,13 +109,15 @@ const studentRoutes = [
   { path: 'account-settings', element: <StudentSettings /> },
   { path: 'ace-homework', element: <HomeWorkHelp /> },
   { path: 'flashcards/create', element: <CreateFlashCard /> },
-  { path: 'flashcards', element: <FlashCard /> }
+  { path: 'flashcards', element: <FlashCard /> },
+  { path: 'flashcards/:flashcardId', element: <FlashCard /> }
 ];
 
 // Tutor specific routes configuration
 const tutorRoutes = [
   { path: 'tutordashboard', element: <TutorDashboard /> },
   { path: 'tutordashboard/clients', element: <Clients /> },
+  { path: 'tutordashboard/clients/:clientId', element: <Client /> },
   { path: 'tutordashboard/offers', element: <TutorOffers /> },
   { path: 'tutordashboard/offer/:offerId', element: <Offer /> }
   // ... other tutor routes
@@ -158,10 +162,10 @@ const AppRoutes: React.FC = () => {
   } = useAuth();
 
   const userType = useMemo(() => {
-    return userData?.type.includes('tutor') &&
-      userData?.type.includes('student')
+    return userData?.type?.includes('tutor') &&
+      userData?.type?.includes('student')
       ? 'both'
-      : userData?.type.includes('tutor')
+      : userData?.type?.includes('tutor')
       ? 'tutor'
       : 'student';
   }, [userData]);
@@ -171,7 +175,7 @@ const AppRoutes: React.FC = () => {
   useEffect(() => {
     if (isAuthenticated) {
       fetchNotifications();
-      fetchUserDocuments();
+      userData && fetchUserDocuments(userData._id);
     }
     /* eslint-disable */
   }, [isAuthenticated]);

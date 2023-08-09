@@ -1,4 +1,5 @@
 import { ReactComponent as AddTag } from '../../../../assets/addTag.svg';
+import { ReactComponent as BackArrow } from '../../../../assets/backArrowFill.svg';
 import { ReactComponent as DocIcon } from '../../../../assets/doc.svg';
 import { ReactComponent as DownloadIcon } from '../../../../assets/download.svg';
 import { ReactComponent as FlashCardIcn } from '../../../../assets/flashCardIcn.svg';
@@ -8,18 +9,18 @@ import { ReactComponent as ArrowRight } from '../../../../assets/small-arrow-rig
 import { ReactComponent as ZoomIcon } from '../../../../assets/square.svg';
 import { ReactComponent as TrashIcon } from '../../../../assets/trash-icn.svg';
 import CustomButton from '../../../../components/CustomComponents/CustomButton';
-import { saveHTMLAsPDF } from '../../../../library/fs';
+import { saveMarkdownAsPDF } from '../../../../library/fs';
 import ApiService from '../../../../services/ApiService';
-import flashcardStore from '../../../../state/flashcardStore';
-import { FlashcardData } from '../../../../types';
 import TagModal from '../../FlashCards/components/TagModal';
-import { DeleteModal } from '../../FlashCards/components/deleteModal';
+import { NoteModal } from '../Modal';
 import { NoteDetails, NoteServerResponse } from '../types';
 import {
   DropDownFirstPart,
   DropDownLists,
   FirstSection,
   Header,
+  HeaderButton,
+  HeaderButtonText,
   NewNoteWrapper,
   NoteBody,
   PDFWrapper,
@@ -38,15 +39,21 @@ import {
 } from '@chakra-ui/react';
 import { useToast } from '@chakra-ui/react';
 import moment from 'moment';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { FaEllipsisH } from 'react-icons/fa';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const DEFAULT_NOTE_TITLE = 'Enter Note Title';
 const DELETE_NOTE_TITLE = 'Delete Note';
 const UPDATE_NOTE_TITLE = 'Note Alert';
 const NOTE_STORAGE_KEY = 'note';
+
+// Define the type for the pinned note
+type PinnedNote = {
+  noteId: string | null;
+  pinnedNoteJSON: any;
+};
 
 const createNote = async (data: any): Promise<NoteServerResponse | null> => {
   const resp = await ApiService.createNote(data);
@@ -115,10 +122,12 @@ const handleOptionClick = (
 
 const NewNote = () => {
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
-  // get user details
   const defaultNoteTitle = DEFAULT_NOTE_TITLE;
 
-  //note title from data initially or Untitled
+  const [saveDetails, setSaveDetails] =
+    useState<NoteServerResponse<NoteDetails> | null>(null);
+  const [pinnedNotes, setPinnedNotes] = useState<PinnedNote[]>([]);
+
   const toast = useToast();
   const params = useParams();
   const [noteParamId, setNoteParamId] = useState<string | null>(
@@ -136,10 +145,20 @@ const NewNote = () => {
     getNoteLocal(noteParamId)
   );
   const [editorStyle, setEditorStyle] = useState<any>(null);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   const editor: BlockNoteEditor | null = useBlockNote({
     initialContent: initialContent ? JSON.parse(initialContent) : undefined
   });
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [tags, setTags] = useState<string[]>([]);
+  const [newTags, setNewTags] = useState<string[]>(tags);
+  const [inputValue, setInputValue] = useState('');
+
+  const inputContainerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const onCancel = () => {
     setDeleteNoteModal(!deleteNoteModal);
@@ -157,16 +176,19 @@ const NewNote = () => {
         'error'
       );
     }
-    const noteHTML: string = await editor.blocksToHTML(editor.topLevelBlocks);
-    if (!noteHTML) {
+    const noteMarkdown: string = await editor.blocksToMarkdown(
+      editor.topLevelBlocks
+    );
+    if (!noteMarkdown) {
       return showToast(
         UPDATE_NOTE_TITLE,
         'Could not extract note content. Please try again',
         'error'
       );
     }
-    const noteName = `note_${noteId}`;
-    saveHTMLAsPDF(noteName, noteHTML);
+    // use note name also in other
+    const noteName = `${editedTitle}`;
+    saveMarkdownAsPDF(noteName, noteMarkdown);
   };
 
   const onSaveNote = async () => {
@@ -193,6 +215,7 @@ const NewNote = () => {
     }
 
     setSaveButtonState(false);
+
     let saveDetails: NoteServerResponse<NoteDetails> | null;
 
     if (noteId && noteId !== '') {
@@ -234,6 +257,8 @@ const NewNote = () => {
       } else {
         saveNoteLocal(getLocalStorageNoteId(noteId), saveDetails.data.note);
       }
+      // save note details and other essential params
+      setSaveDetails(saveDetails);
       setCurrentTime(formatDate(saveDetails.data.updatedAt));
       showToast(UPDATE_NOTE_TITLE, saveDetails.message, 'success');
       setSaveButtonState(true);
@@ -247,9 +272,10 @@ const NewNote = () => {
       setDeleteNoteModal(false);
       return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
     }
+    setIsLoading(true);
 
     const details = await deleteNote(noteIdInUse);
-
+    setIsLoading(false);
     if (!details) {
       setDeleteNoteModal(false);
       return showToast(
@@ -295,8 +321,8 @@ const NewNote = () => {
         if (note._id && note.topic && note.note) {
           setEditedTitle(note.topic);
           setCurrentTime(formatDate(note.updatedAt));
-          const strippedNote = note.note.replace(/\\/g, '');
-          setInitialContent(strippedNote);
+          setInitialContent(note.note);
+          setSaveDetails(respDetails);
           setNoteId(note._id);
         }
       }
@@ -316,16 +342,81 @@ const NewNote = () => {
   const updateTitle = () => {
     setIsEditingTitle(false);
     if (editedTitle) {
-      if (editedTitle.trim() !== '') {
-        setEditedTitle(editedTitle.trim());
-      } else if (editedTitle.trim() === '') {
-        setEditedTitle(defaultNoteTitle);
-      }
+      setEditedTitle(editedTitle.trim());
+    } else {
+      setEditedTitle(defaultNoteTitle);
     }
   };
 
+  const savePinnedNoteLocal = (pinnedNotesArray: any) => {
+    const storageId = 'pinned_notes'; // Unique identifier for the array in local storage
+    localStorage.setItem(storageId, JSON.stringify(pinnedNotesArray));
+  };
+
+  // Function to toggle pin state when the pin icon is clicked
+  const handlePinClick = () => {
+    if (!saveDetails) {
+      return showToast(
+        UPDATE_NOTE_TITLE,
+        'Please ensure note is loaded ',
+        'error'
+      );
+    }
+    // setIsPinned((prevIsPinned) => !prevIsPinned);
+    // Save the note to local storage when pinned
+    if (saveDetails?.data) {
+      if (isNoteAlreadyPinned(saveDetails.data._id)) {
+        return showToast(UPDATE_NOTE_TITLE, 'Note already pinned', 'warning');
+      }
+      const updatedPinnedNotes = [
+        ...pinnedNotes,
+        {
+          noteId: saveDetails?.data['_id'],
+          pinnedNoteJSON: saveDetails
+        }
+      ];
+      setPinnedNotes(updatedPinnedNotes);
+      savePinnedNoteLocal(updatedPinnedNotes);
+      return showToast(UPDATE_NOTE_TITLE, 'Note pinned', 'success');
+    }
+  };
+
+  const isNoteAlreadyPinned = (noteId: string): boolean => {
+    for (const note of pinnedNotes) {
+      if (note.noteId === noteId) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // Function to get pinned notes from local storage
+  const getPinnedNotesFromLocalStorage = (): PinnedNote[] | null => {
+    const storageId = 'pinned_notes';
+    const pinnedNotesString = localStorage.getItem(storageId);
+    if (pinnedNotesString) {
+      return JSON.parse(pinnedNotesString);
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
+    if (pinnedNotesFromLocalStorage) {
+      setPinnedNotes(pinnedNotesFromLocalStorage);
+    } else {
+      setPinnedNotes([]);
+    }
+  }, []);
+
   const handleFocusOut = () => {
-    updateTitle();
+    // Check if the click event target is inside the inputContainerRef
+    if (
+      inputContainerRef.current &&
+      !inputContainerRef.current.contains(document.activeElement as Node) // Type assertion here
+    ) {
+      updateTitle();
+    }
   };
 
   const handleKeyDown = (event: any) => {
@@ -333,8 +424,6 @@ const NewNote = () => {
       updateTitle();
     }
   };
-
-  const { storeFlashcardTags } = flashcardStore();
 
   const handleHeaderClick = () => {
     if (editedTitle === defaultNoteTitle) {
@@ -397,10 +486,13 @@ const NewNote = () => {
         right: 0,
         zIndex: 1000
       });
+      setIsFullScreen(true);
     } else {
       setEditorStyle(null);
+      setIsFullScreen(false);
     }
   };
+
   const handleWindowKey = (event: any) => {
     if (event && event.key) {
       const eventValue = event.key as string;
@@ -410,10 +502,6 @@ const NewNote = () => {
       }
     }
   };
-
-  const [tagEditItem, setTagEditItem] = useState<{
-    flashcard: FlashcardData;
-  } | null>(null);
 
   const showTagsDropdown = () => {
     setOpenTags((prevState) => !prevState);
@@ -437,7 +525,8 @@ const NewNote = () => {
       id: 3,
       leftIcon: <SideBarPinIcn />,
       title: 'Pin to sidebar',
-      rightIcon: <ArrowRight />
+      rightIcon: <ArrowRight />,
+      onClick: handlePinClick
     },
     {
       id: 4,
@@ -470,140 +559,211 @@ const NewNote = () => {
     };
   }, []);
 
+  const addTag = async (
+    id: string,
+    tags: string[]
+  ): Promise<NoteServerResponse | null> => {
+    const data = { tags: tags }; // Wrap the tags array in an object with the key "tags"
+    const resp = await ApiService.updateNoteTags(id, data);
+    const respText = await resp.text();
+    try {
+      const respDetails: NoteServerResponse = JSON.parse(respText);
+      return respDetails;
+    } catch (error: any) {
+      return { error: error.message, message: error.message };
+    }
+  };
+
+  const AddTags = async () => {
+    const noteIdInUse = noteId ?? noteParamId;
+
+    if (!noteIdInUse || noteIdInUse === '') {
+      setOpenTags(false);
+      return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
+    }
+
+    const details = await addTag(noteIdInUse, newTags);
+
+    if (!details) {
+      setOpenTags(false);
+      return showToast(
+        DELETE_NOTE_TITLE,
+        'An unknown error occurs while adding tag. Try again',
+        'error'
+      );
+    }
+
+    if (details.error) {
+      setOpenTags(false);
+      return showToast(DELETE_NOTE_TITLE, details.error, 'error');
+    } else {
+      setOpenTags(false);
+      showToast(DELETE_NOTE_TITLE, details.message, 'success');
+      setNoteId('');
+      clearEditor();
+      setTags(details.data.tags);
+    }
+    // console.log({ tag: details.data.tags, tags });
+  };
+
+  const handleAddTag = () => {
+    const value = inputValue.toLowerCase().trim();
+    if (inputValue && !newTags.includes(value)) {
+      setNewTags([...newTags, value]);
+    }
+    setInputValue('');
+  };
+
+  const handleBackClick = () => {
+    navigate('/dashboard/notes');
+  };
+
   return (
-    <NewNoteWrapper {...editorStyle}>
-      <Header>
-        <FirstSection>
-          <div className="zoom__icn" onClick={toggleEditorView}>
-            <ZoomIcon />
-          </div>
-          <div onClick={handleHeaderClick}>
-            <div className="doc__name">
-              {isEditingTitle ? (
-                <input
-                  type="text"
-                  value={editedTitle}
-                  onChange={handleTitleChange}
-                  onBlur={handleFocusOut}
-                  onKeyDown={handleKeyDown}
-                  autoFocus
+    <>
+      <HeaderButton onClick={handleBackClick}>
+        <BackArrow />
+        <HeaderButtonText> Back</HeaderButtonText>
+      </HeaderButton>
+      <NewNoteWrapper {...editorStyle}>
+        <Header>
+          <FirstSection>
+            {isFullScreen ? (
+              <div className="zoom__icn" onClick={toggleEditorView}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="18"
+                  viewBox="0 0 20 18"
+                  fill="none"
+                >
+                  <path
+                    d="M15.4997 4.41667H19.1663V6.25H13.6663V0.75H15.4997V4.41667ZM6.33301 6.25H0.833008V4.41667H4.49967V0.75H6.33301V6.25ZM15.4997 13.5833V17.25H13.6663V11.75H19.1663V13.5833H15.4997ZM6.33301 11.75V17.25H4.49967V13.5833H0.833008V11.75H6.33301Z"
+                    fill="#7E8591"
+                  />
+                </svg>
+              </div>
+            ) : (
+              <div className="zoom__icn" onClick={toggleEditorView}>
+                <ZoomIcon />
+              </div>
+            )}
+            <div onClick={handleHeaderClick} ref={inputContainerRef}>
+              <div className="doc__name">
+                {isEditingTitle ? (
+                  <input
+                    type="text"
+                    value={editedTitle}
+                    onChange={handleTitleChange}
+                    onBlur={handleFocusOut}
+                    onKeyDown={handleKeyDown}
+                    autoFocus
+                  />
+                ) : (
+                  <>{editedTitle}</>
+                )}
+              </div>
+            </div>
+            <div className="timestamp">
+              <p>Updated {currentTime}</p>
+            </div>
+          </FirstSection>
+          <SecondSection>
+            <CustomButton
+              isPrimary
+              title="Save"
+              type="button"
+              onClick={onSaveNote}
+              active={saveButtonState}
+            />
+            <div className="pin__icn" onClick={handlePinClick}>
+              <PinIcon />
+            </div>
+            <div>
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  variant="unstyled"
+                  borderRadius="full"
+                  p={0}
+                  minW="auto"
+                  height="auto"
+                >
+                  <FaEllipsisH fontSize={'12px'} />
+                </MenuButton>
+                <MenuList
+                  fontSize="0.875rem"
+                  minWidth={'185px'}
+                  borderRadius="8px"
+                  backgroundColor="#FFFFFF"
+                  boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
+                >
+                  <section>
+                    {dropDownOptions?.map((dropDownOption) => (
+                      <DropDownLists key={dropDownOption.id}>
+                        <DropDownFirstPart
+                          onClick={() =>
+                            handleOptionClick(dropDownOption.onClick)
+                          }
+                        >
+                          <div>
+                            {dropDownOption.leftIcon}
+                            <p
+                              style={{
+                                color:
+                                  dropDownOption.title === 'Delete'
+                                    ? '#F53535'
+                                    : ''
+                              }}
+                            >
+                              {dropDownOption.title}
+                            </p>
+                          </div>
+                          <div>{dropDownOption.rightIcon}</div>
+                        </DropDownFirstPart>
+                      </DropDownLists>
+                    ))}
+                  </section>
+                </MenuList>
+              </Menu>
+
+              {openTags && (
+                <TagModal
+                  onSubmit={AddTags}
+                  isOpen={openTags}
+                  onClose={() => setOpenTags(false)}
+                  tags={tags}
+                  inputValue={inputValue}
+                  handleAddTag={handleAddTag}
+                  newTags={newTags}
+                  setNewTags={setNewTags}
+                  setInputValue={setInputValue}
                 />
-              ) : (
-                <>{editedTitle}</>
               )}
             </div>
-          </div>
-          <div className="timestamp">
-            <p>Updated {currentTime}</p>
-          </div>
-        </FirstSection>
-        <SecondSection>
-          <CustomButton
-            isPrimary
-            title="Save"
-            type="button"
-            onClick={onSaveNote}
-            active={saveButtonState}
-          />
-          <div className="pin__icn">
-            <PinIcon />
-          </div>
-          <div>
-            <Menu>
-              <MenuButton
-                as={Button}
-                variant="unstyled"
-                borderRadius="full"
-                p={0}
-                minW="auto"
-                height="auto"
-              >
-                <FaEllipsisH fontSize={'12px'} />
-              </MenuButton>
-              <MenuList
-                fontSize="0.875rem"
-                minWidth={'185px'}
-                borderRadius="8px"
-                backgroundColor="#FFFFFF"
-                boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
-              >
-                <section>
-                  {dropDownOptions?.map((dropDownOption) => (
-                    <DropDownLists key={dropDownOption.id}>
-                      <DropDownFirstPart
-                        onClick={() =>
-                          handleOptionClick(dropDownOption.onClick)
-                        }
-                      >
-                        <div>
-                          {dropDownOption.leftIcon}
-                          <p
-                            style={{
-                              color:
-                                dropDownOption.title === 'Delete'
-                                  ? '#F53535'
-                                  : ''
-                            }}
-                          >
-                            {dropDownOption.title}
-                          </p>
-                        </div>
-                        <div>{dropDownOption.rightIcon}</div>
-                      </DropDownFirstPart>
-                    </DropDownLists>
-                  ))}
-                </section>
-              </MenuList>
-            </Menu>
-            {openTags && (
-              <TagModal
-                tags={tagEditItem?.flashcard?.tags || []}
-                isOpen={true}
-                onSubmit={async (d) => {
-                  const isSaved = await storeFlashcardTags(
-                    tagEditItem?.flashcard?._id as string,
-                    d
-                  );
-                  if (isSaved) {
-                    toast({
-                      position: 'top-right',
-                      title: `Tags Added for ${tagEditItem?.flashcard.deckname}`,
-                      status: 'success'
-                    });
-                    setTagEditItem(null);
-                    setOpenTags(false);
-                  } else {
-                    toast({
-                      position: 'top-right',
-                      title: `Failed to add tags for ${tagEditItem?.flashcard.deckname} flashcards`,
-                      status: 'error'
-                    });
-                  }
-                  setOpenTags(false);
-                }}
-                onClose={() => setOpenTags(false)}
-              />
-            )}
-          </div>
-        </SecondSection>
-      </Header>
-      <NoteBody>
-        <BlockNoteView editor={editor} />
-        {/* We will show PDF once endpoint is implemented */}
-        {/* <PDFWrapper>
+          </SecondSection>
+        </Header>
+        <NoteBody>
+          <BlockNoteView editor={editor} />
+          {/* We will show PDF once endpoint is implemented */}
+          {/* <PDFWrapper>
           <PDFViewer
             url={"https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"}
             page={1} />
         </PDFWrapper> */}
-      </NoteBody>
-      <DeleteModal
-        isLoading={false}
-        isOpen={deleteNoteModal}
-        onCancel={() => onCancel()}
-        onDelete={() => onDeleteNote()}
-        onClose={() => setDeleteNoteModal(false)}
-      />
-    </NewNoteWrapper>
+        </NoteBody>
+
+        <NoteModal
+          title="Delete Note"
+          description="This will delete Note. Are you sure?"
+          isLoading={isLoading}
+          isOpen={deleteNoteModal}
+          actionButtonText="Delete"
+          onCancel={() => onCancel()}
+          onDelete={() => onDeleteNote()}
+          onClose={() => setDeleteNoteModal(false)}
+        />
+      </NewNoteWrapper>
+    </>
   );
 };
 

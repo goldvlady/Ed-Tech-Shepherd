@@ -66,15 +66,16 @@ interface IChat {
   inputValue: string;
   handleKeyDown?: any;
   handleSummary?: any;
+  isReadyToChat: boolean;
   summaryLoading?: boolean;
   summaryText?: string;
   setSummaryText?: any;
   handleClickPrompt?: any;
   homeWorkHelpPlaceholder?: any;
-  historyArr?: any[];
 }
 const Chat = ({
   HomeWorkHelp,
+  isReadyToChat,
   onOpenModal,
   isShowPrompt,
   messages,
@@ -90,8 +91,7 @@ const Chat = ({
   setSummaryText,
   documentId,
   handleClickPrompt,
-  homeWorkHelpPlaceholder,
-  historyArr
+  homeWorkHelpPlaceholder
 }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
@@ -125,8 +125,8 @@ const Chat = ({
   }, []);
 
   const isShowPills = useMemo(
-    () => !!historyArr?.length && !HomeWorkHelp && !!isShowPrompt,
-    [historyArr, HomeWorkHelp, isShowPrompt]
+    () => !!messages?.length && !HomeWorkHelp && !!isShowPrompt,
+    [messages, HomeWorkHelp, isShowPrompt]
   );
 
   const tabLists = [
@@ -265,63 +265,40 @@ const Chat = ({
                       </PillsContainer>
                     </OptionsContainer>
                   )}
-                  {!messages?.length &&
-                    !historyArr?.length &&
-                    !HomeWorkHelp &&
-                    !isShowPrompt && (
-                      <OptionsContainer>
-                        <Text className="">What do you need?</Text>
-                        <PillsContainer>
-                          {yourNeeds.map((need) => (
-                            <StyledDiv onClick={need.onClick} key={need.id}>
-                              {need.img}
-                              {need.title}
-                            </StyledDiv>
-                          ))}
-                        </PillsContainer>
-                      </OptionsContainer>
-                    )}
+                  {!messages?.length && !HomeWorkHelp && !isShowPrompt && (
+                    <OptionsContainer>
+                      <Text className="">What do you need?</Text>
+                      <PillsContainer>
+                        {yourNeeds.map((need) => (
+                          <StyledDiv onClick={need.onClick} key={need.id}>
+                            {need.img}
+                            {need.title}
+                          </StyledDiv>
+                        ))}
+                      </PillsContainer>
+                    </OptionsContainer>
+                  )}
 
-                  {!HomeWorkHelp &&
-                    !messages?.length &&
-                    !historyArr?.length &&
-                    !isShowPrompt && (
-                      <AskSomethingContainer>
-                        <AskSomethingPillHeadingText>
-                          Try asking about:
-                        </AskSomethingPillHeadingText>
-                        <AskSomethingPillContainer>
-                          {prompts.map((prompt, key) => {
-                            return (
-                              <AskSomethingPill
-                                key={key}
-                                onClick={(e) => handleClickPrompt(e, prompt)}
-                              >
-                                <Text>{prompt}</Text>
-                              </AskSomethingPill>
-                            );
-                          })}
-                        </AskSomethingPillContainer>
-                      </AskSomethingContainer>
-                    )}
+                  {!HomeWorkHelp && !messages?.length && !isShowPrompt && (
+                    <AskSomethingContainer>
+                      <AskSomethingPillHeadingText>
+                        Try asking about:
+                      </AskSomethingPillHeadingText>
+                      <AskSomethingPillContainer>
+                        {prompts.map((prompt, key) => {
+                          return (
+                            <AskSomethingPill
+                              key={key}
+                              onClick={(e) => handleClickPrompt(e, prompt)}
+                            >
+                              <Text>{prompt}</Text>
+                            </AskSomethingPill>
+                          );
+                        })}
+                      </AskSomethingPillContainer>
+                    </AskSomethingContainer>
+                  )}
                   <ChatContainerResponse ref={ref}>
-                    {historyArr?.map((history, index) =>
-                      history?.isUser ? (
-                        <UserMessage key={index + 1}>
-                          {history.text}
-                        </UserMessage>
-                      ) : (
-                        <>
-                          {history?.isLoading ? (
-                            <ChatLoader />
-                          ) : (
-                            <AiMessage key={index * 1}>
-                              <CustomMarkdownView source={history?.text} />
-                            </AiMessage>
-                          )}
-                        </>
-                      )
-                    )}
                     {messages?.map((message, index) =>
                       message.isUser ? (
                         <UserMessage key={index}>{message.text}</UserMessage>
@@ -331,7 +308,7 @@ const Chat = ({
                             <ChatLoader />
                           ) : (
                             <AiMessage key={index + 1}>
-                              <CustomMarkdownViewLLM source={message.text} />
+                              <CustomMarkdownView source={message.text} />
                             </AiMessage>
                           )}
                         </>
@@ -347,32 +324,27 @@ const Chat = ({
               </InnerWrapper>
             </FlexColumnContainer>
           </ContentWrapper>
-          {
-            // When isShowPills is true and messages is either falsey or has length of 0
-            (isShowPills && (!messages || messages.length === 0)) ||
-            // When isShowPills is false and messages has a length greater than 0
-            (isShowPills && messages && messages.length >= 1) ? (
-              <div
-                style={{
-                  position: 'fixed',
-                  width: '100%',
-                  bottom: '60px',
-                  background: 'white'
-                }}
-              >
-                <OptionsContainer>
-                  <PillsContainer>
-                    {yourNeeds.map((need) => (
-                      <StyledDiv onClick={need.onClick} key={need.id}>
-                        {need.img}
-                        {need.title}
-                      </StyledDiv>
-                    ))}
-                  </PillsContainer>
-                </OptionsContainer>
-              </div>
-            ) : null
-          }
+          {isShowPills && (
+            <div
+              style={{
+                position: 'fixed',
+                width: '100%',
+                bottom: '60px',
+                background: 'white'
+              }}
+            >
+              <OptionsContainer>
+                <PillsContainer>
+                  {yourNeeds.map((need) => (
+                    <StyledDiv onClick={need.onClick} key={need.id}>
+                      {need.img}
+                      {need.title}
+                    </StyledDiv>
+                  ))}
+                </PillsContainer>
+              </OptionsContainer>
+            </div>
+          )}
         </Wrapper>
 
         {/* {isShowPrompt && (
@@ -405,6 +377,7 @@ const Chat = ({
               }
               value={inputValue}
               onKeyDown={handleKeyDown}
+              disabled={!isReadyToChat}
               onChange={handleInputChange}
               style={{
                 minHeight: '2.5rem',

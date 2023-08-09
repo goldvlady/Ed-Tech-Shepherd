@@ -8,16 +8,18 @@ const WHITE = '#ffffff';
 const WHITE_SHADE = '#F4F5F6';
 const BLACK = '#000000';
 const BLACK_TINT = '#ffffff';
-const GRAY = '';
+const GRAY = '#f7f8fa';
 const LIGHT_GRAY = '';
 
 interface ColorPalette {
   // primary: string;
   // secondary: string;
   background: string;
-  // text: string;
+  textPrimary: string;
+  textSecondary: string;
   // success: string;
   // error: string;
+  gray: string;
   whiteShade: string;
 }
 
@@ -30,9 +32,11 @@ const lightColor: ColorPalette = {
   // primary: '#007bff',
   // secondary: '#6c757d',
   background: WHITE,
-  // text: '#333',
+  textPrimary: '#6E7682',
+  textSecondary: BLACK,
   // success: '#28a745',
   // error: '#dc3545',
+  gray: GRAY,
   whiteShade: WHITE_SHADE
 };
 
@@ -40,9 +44,11 @@ const darkColor: ColorPalette = {
   // primary: '#007bff',
   // secondary: '#6c757d',
   background: BLACK_TINT,
-  // text: '#333',
+  textPrimary: BLACK_TINT,
+  textSecondary: BLACK,
   // success: '#28a745',
   // error: '#dc3545',
+  gray: GRAY,
   whiteShade: WHITE_SHADE
 };
 

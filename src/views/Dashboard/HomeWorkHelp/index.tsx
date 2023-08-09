@@ -138,8 +138,6 @@ const HomeWorkHelp = () => {
     [handleSendMessage]
   );
 
-  console.log('location?.state?.subject ==>', location?.state);
-
   return (
     <HomeWorkHelpContainer>
       <HomeWorkHelpHistoryContainer>
@@ -147,6 +145,7 @@ const HomeWorkHelp = () => {
       </HomeWorkHelpHistoryContainer>
       <HomeWorkHelpChatContainer>
         <Chat
+          isReadyToChat={true}
           HomeWorkHelp
           isShowPrompt={isShowPrompt}
           messages={messages}

@@ -1,6 +1,5 @@
 import EmptyIllustration from '../../../assets/empty_illustration.svg';
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
-import { FlashCardModal } from '../../../components/flashcardDecks';
 import LoaderOverlay from '../../../components/loaderOverlay';
 import SelectableTable, { TableColumn } from '../../../components/table';
 import { useSearch } from '../../../hooks';
@@ -41,7 +40,7 @@ import { startCase } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaEllipsisH, FaCalendarAlt } from 'react-icons/fa';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 const StyledImage = styled(Box)`
@@ -133,6 +132,7 @@ function findNextFlashcard(
 
 const CustomTable: React.FC = () => {
   const navigate = useNavigate();
+
   const toast = useCustomToast();
   const [hasSearched, setHasSearched] = useState(false);
 
@@ -174,11 +174,19 @@ const CustomTable: React.FC = () => {
   const [tagEditItem, setTagEditItem] = useState<{
     flashcard: FlashcardData;
   } | null>(null);
+  const { flashcardId } = useParams();
 
   useEffect(() => {
     fetchFlashcards();
     // eslint-disable-next-line
   }, []);
+
+  useEffect(() => {
+    if (flashcardId) {
+      loadFlashcard(flashcardId);
+      navigate('/dashboard/flashcards');
+    }
+  }, [flashcardId]);
 
   const columns: TableColumn<DataSourceItem>[] = [
     {
@@ -216,6 +224,7 @@ const CustomTable: React.FC = () => {
             alignItems="start"
             justifyItems="start"
             width="100%"
+            minWidth="300px"
             marginTop="10px"
             gridGap="10px"
           >
@@ -243,7 +252,13 @@ const CustomTable: React.FC = () => {
                     />
                   </svg>
                 </TagLeftIcon>
-                <TagLabel>{tag}</TagLabel>
+                <TagLabel
+                  whiteSpace="normal" // Allows text to wrap to the next line
+                  overflow="visible" // Allows text to overflow
+                  textOverflow="clip"
+                >
+                  {tag?.toLowerCase()}
+                </TagLabel>
               </Tag>
             ))}
           </Box>
@@ -712,7 +727,7 @@ const CustomTable: React.FC = () => {
         </Box>
       ) : (
         <Box
-          padding={{ md: '50px', base: '20px' }}
+          padding={{ md: '20px', base: '10px' }}
           overflowX={{ base: 'hidden' }}
         >
           <Flex
@@ -723,16 +738,24 @@ const CustomTable: React.FC = () => {
             paddingRight={{ md: '20px' }}
             color="#E5E6E6"
           >
-            <Text
-              fontFamily="Inter"
-              fontWeight="600"
-              fontSize="24px"
-              lineHeight="30px"
-              letterSpacing="-2%"
-              color="#212224"
-            >
-              Flashcard
-            </Text>
+            <Box display="flex">
+              <Text
+                fontFamily="Inter"
+                fontWeight="600"
+                fontSize="24px"
+                lineHeight="30px"
+                letterSpacing="-2%"
+                color="#212224"
+              >
+                Flashcard
+              </Text>
+              <Tag ml="10px" borderRadius="5" background="#f7f8fa" size="md">
+                <TagLabel fontWeight={'bold'}>
+                  {' '}
+                  {flashcards?.length || 0}
+                </TagLabel>
+              </Tag>
+            </Box>
             <Button
               variant="solid"
               marginLeft={'20px'}

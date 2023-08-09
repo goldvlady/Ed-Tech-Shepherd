@@ -67,21 +67,6 @@ const sortedByTitle = [
   }
 ];
 
-const tabLists = [
-  {
-    id: 1,
-    title: 'All'
-  },
-  {
-    id: 2,
-    title: 'Documents'
-  },
-  {
-    id: 3,
-    title: 'Notes'
-  }
-];
-
 const Notes = () => {
   const navigate = useNavigate();
   const [toggleHelpModal, setToggleHelpModal] = useState(false);
@@ -114,6 +99,7 @@ const Notes = () => {
   const activateHelpModal = () => {
     setToggleHelpModal(true);
   };
+
   const handleCheckboxChange = (position: number) => {
     const updatedCheckedState = checkedState.map((item, index) =>
       index === position ? !item : item
@@ -173,6 +159,21 @@ const Notes = () => {
       iconName: <DocIcon />,
       labelText: 'Upload document',
       onClick: activateHelpModal
+    }
+  ];
+
+  const tabLists = [
+    {
+      id: 1,
+      title: 'All'
+    },
+    {
+      id: 2,
+      title: 'Documents'
+    },
+    {
+      id: 3,
+      title: 'Notes'
     }
   ];
 
@@ -363,6 +364,7 @@ const Notes = () => {
               </Section>
             </NotesWrapper>
           )}
+
           <SelectedNoteModal
             show={toggleHelpModal}
             setShow={setToggleHelpModal}

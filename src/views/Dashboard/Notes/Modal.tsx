@@ -11,20 +11,33 @@ import {
   ModalBody,
   ModalCloseButton
 } from '@chakra-ui/react';
+import { FC } from 'react';
 
-export const DeleteModal = ({
-  isOpen,
-  onCancel,
-  onDelete,
-  isLoading,
-  onClose
-}: {
+export interface ModalProps {
+  title?: string;
+  description?: string;
+  actionButtonText?: string;
+  cancelButtonText?: string;
   isOpen: boolean;
   onCancel: () => void;
   onDelete: () => void;
   onClose: () => void;
   isLoading: boolean;
+}
+
+export const NoteModal: FC<ModalProps> = ({
+  title,
+  description,
+  isOpen,
+  onCancel,
+  onDelete,
+  isLoading,
+  onClose,
+  actionButtonText,
+  cancelButtonText
 }) => {
+  const actionText = actionButtonText ? actionButtonText : 'Submit';
+  const cancelText = cancelButtonText ? cancelButtonText : 'Cancel';
   return (
     <Modal onClose={onClose} isOpen={isOpen} isCentered>
       <ModalOverlay />
@@ -112,7 +125,7 @@ export const DeleteModal = ({
               letterSpacing="0.112px"
               color="#212224"
             >
-              Delete flashcard?
+              {title}
             </Text>
             <Text
               color="#6E7682"
@@ -124,7 +137,7 @@ export const DeleteModal = ({
               fontWeight="400"
               lineHeight="20px"
             >
-              This will permanently remove this flashcard from your list.
+              {description}
             </Text>
           </Flex>
         </ModalBody>
@@ -152,7 +165,7 @@ export const DeleteModal = ({
             boxShadow="0px 2px 6px 0px rgba(136, 139, 143, 0.10)"
             mr={3}
           >
-            Cancel
+            {cancelText}
           </Button>
 
           {isLoading ? (
@@ -171,7 +184,7 @@ export const DeleteModal = ({
               isLoading={isLoading}
               loadingText="Deleting..."
             >
-              Submit
+              {actionText}
             </Button>
           ) : (
             <Button
