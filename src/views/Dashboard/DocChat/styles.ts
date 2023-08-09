@@ -314,7 +314,8 @@ export const ChatContainerResponse = styled.div`
   overflow-y: auto;
   scrollbar-width: thin;
   padding: 0px 24px 20px 24px;
-  // max-height: 42vh;
+  max-height: 42vh;
+  // min-height: 100vh;
 
   /* Scrollable content */
   overflow-y: auto;
@@ -333,15 +334,6 @@ export const ChatContainerResponse = styled.div`
   ::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.2);
     border-radius: 3px;
-  }
-
-  @media only screen and (min-width: 1530px) and (max-width: 1542px) {
-    max-height: 80vh !important;
-  }
-
-  /* Large desktops */
-  @media only screen and (min-width: 1281px) {
-    max-height: 48vh;
   }
 `;
 

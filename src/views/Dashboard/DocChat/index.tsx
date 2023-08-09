@@ -31,6 +31,7 @@ export default function DocChat() {
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryText, setSummaryText] = useState('');
   const [promptText, setPromptText] = useState('');
+  const [historyArr, setHistoryArr] = useState([]);
 
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -87,7 +88,6 @@ export default function DocChat() {
           1000
         );
 
-        // eslint-disable-next-line
         setMessages((prevMessages) => [
           ...prevMessages,
           { text: temp, isUser: false, isLoading: false }
@@ -207,7 +207,8 @@ export default function DocChat() {
           isLoading: false
         }));
 
-        setMessages((prevMessages) => [...prevMessages, ...mappedData]);
+        setHistoryArr(mappedData);
+        setShowPrompt(!!mappedData?.length);
       } catch (error) {
         toast({
           render: () => (
@@ -222,7 +223,7 @@ export default function DocChat() {
       }
     };
     fetchChatHistory();
-  }, [documentId, studentId, toast]);
+  }, [documentId, studentId, toast, historyArr]);
 
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
 
@@ -253,6 +254,7 @@ export default function DocChat() {
             setSummaryText={setSummaryText}
             documentId={documentId}
             handleClickPrompt={handleClickPrompt}
+            historyArr={historyArr}
           />
         </div>
       </section>

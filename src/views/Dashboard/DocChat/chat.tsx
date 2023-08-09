@@ -8,6 +8,7 @@ import { ReactComponent as SummaryIcon } from '../../../assets/summaryIcn.svg';
 import { ReactComponent as TutorBag } from '../../../assets/tutor-bag.svg';
 import ChatLoader from '../../../components/CustomComponents/CustomChatLoader';
 import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkdownView';
+import CustomMarkdownViewLLM from '../../../components/CustomComponents/CustomMarkdownViewLLM';
 import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../../components/hooks/useChatScroll';
@@ -49,7 +50,7 @@ import {
 } from './styles';
 import Summary from './summary';
 import { Text } from '@chakra-ui/react';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
 interface IChat {
   HomeWorkHelp?: boolean;
@@ -70,6 +71,7 @@ interface IChat {
   setSummaryText?: any;
   handleClickPrompt?: any;
   homeWorkHelpPlaceholder?: any;
+  historyArr?: any[];
 }
 const Chat = ({
   HomeWorkHelp,
@@ -88,7 +90,8 @@ const Chat = ({
   setSummaryText,
   documentId,
   handleClickPrompt,
-  homeWorkHelpPlaceholder
+  homeWorkHelpPlaceholder,
+  historyArr
 }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
@@ -120,6 +123,11 @@ const Chat = ({
   const onChatHistory = useCallback(() => {
     setChatHistory((prevState) => !prevState);
   }, []);
+
+  const isShowPills = useMemo(
+    () => !!historyArr?.length && !HomeWorkHelp && !!isShowPrompt,
+    [historyArr, HomeWorkHelp, isShowPrompt]
+  );
 
   const tabLists = [
     {
@@ -257,40 +265,62 @@ const Chat = ({
                       </PillsContainer>
                     </OptionsContainer>
                   )}
-                  {!messages?.length && !HomeWorkHelp && !isShowPrompt && (
-                    <OptionsContainer>
-                      <Text className="">What do you need?</Text>
-                      <PillsContainer>
-                        {yourNeeds.map((need) => (
-                          <StyledDiv onClick={need.onClick} key={need.id}>
-                            {need.img}
-                            {need.title}
-                          </StyledDiv>
-                        ))}
-                      </PillsContainer>
-                    </OptionsContainer>
-                  )}
+                  {!messages?.length &&
+                    !historyArr?.length &&
+                    !HomeWorkHelp &&
+                    !isShowPrompt && (
+                      <OptionsContainer>
+                        <Text className="">What do you need?</Text>
+                        <PillsContainer>
+                          {yourNeeds.map((need) => (
+                            <StyledDiv onClick={need.onClick} key={need.id}>
+                              {need.img}
+                              {need.title}
+                            </StyledDiv>
+                          ))}
+                        </PillsContainer>
+                      </OptionsContainer>
+                    )}
 
-                  {!messages?.length && !isShowPrompt && (
-                    <AskSomethingContainer>
-                      <AskSomethingPillHeadingText>
-                        Try asking about:
-                      </AskSomethingPillHeadingText>
-                      <AskSomethingPillContainer>
-                        {prompts.map((prompt, key) => {
-                          return (
-                            <AskSomethingPill
-                              key={key}
-                              onClick={(e) => handleClickPrompt(e, prompt)}
-                            >
-                              <Text>{prompt}</Text>
-                            </AskSomethingPill>
-                          );
-                        })}
-                      </AskSomethingPillContainer>
-                    </AskSomethingContainer>
-                  )}
+                  {!messages?.length &&
+                    !historyArr?.length &&
+                    !isShowPrompt && (
+                      <AskSomethingContainer>
+                        <AskSomethingPillHeadingText>
+                          Try asking about:
+                        </AskSomethingPillHeadingText>
+                        <AskSomethingPillContainer>
+                          {prompts.map((prompt, key) => {
+                            return (
+                              <AskSomethingPill
+                                key={key}
+                                onClick={(e) => handleClickPrompt(e, prompt)}
+                              >
+                                <Text>{prompt}</Text>
+                              </AskSomethingPill>
+                            );
+                          })}
+                        </AskSomethingPillContainer>
+                      </AskSomethingContainer>
+                    )}
                   <ChatContainerResponse ref={ref}>
+                    {historyArr?.map((history, index) =>
+                      history?.isUser ? (
+                        <UserMessage key={index + 1}>
+                          {history.text}
+                        </UserMessage>
+                      ) : (
+                        <>
+                          {history?.isLoading ? (
+                            <ChatLoader />
+                          ) : (
+                            <AiMessage key={index * 1}>
+                              <CustomMarkdownView source={history?.text} />
+                            </AiMessage>
+                          )}
+                        </>
+                      )
+                    )}
                     {messages?.map((message, index) =>
                       message.isUser ? (
                         <UserMessage key={index}>{message.text}</UserMessage>
@@ -299,8 +329,8 @@ const Chat = ({
                           {message.isLoading ? (
                             <ChatLoader />
                           ) : (
-                            <AiMessage key={index}>
-                              <CustomMarkdownView source={message.text} />
+                            <AiMessage key={index + 1}>
+                              <CustomMarkdownViewLLM source={message.text} />
                             </AiMessage>
                           )}
                         </>
@@ -316,27 +346,32 @@ const Chat = ({
               </InnerWrapper>
             </FlexColumnContainer>
           </ContentWrapper>
-          {!!messages?.length && !HomeWorkHelp && isShowPrompt && (
-            <div
-              style={{
-                position: 'fixed',
-                width: '100%',
-                bottom: '60px',
-                background: 'white'
-              }}
-            >
-              <OptionsContainer>
-                <PillsContainer>
-                  {yourNeeds.map((need) => (
-                    <StyledDiv onClick={need.onClick} key={need.id}>
-                      {need.img}
-                      {need.title}
-                    </StyledDiv>
-                  ))}
-                </PillsContainer>
-              </OptionsContainer>
-            </div>
-          )}
+          {
+            // When isShowPills is true and messages is either falsey or has length of 0
+            (isShowPills && (!messages || messages.length === 0)) ||
+            // When isShowPills is false and messages has a length greater than 0
+            (isShowPills && messages && messages.length >= 1) ? (
+              <div
+                style={{
+                  position: 'fixed',
+                  width: '100%',
+                  bottom: '60px',
+                  background: 'white'
+                }}
+              >
+                <OptionsContainer>
+                  <PillsContainer>
+                    {yourNeeds.map((need) => (
+                      <StyledDiv onClick={need.onClick} key={need.id}>
+                        {need.img}
+                        {need.title}
+                      </StyledDiv>
+                    ))}
+                  </PillsContainer>
+                </OptionsContainer>
+              </div>
+            ) : null
+          }
         </Wrapper>
 
         {/* {isShowPrompt && (
