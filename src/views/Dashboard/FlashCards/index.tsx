@@ -1,5 +1,6 @@
 import EmptyIllustration from '../../../assets/empty_illustration.svg';
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
+import DropDownFilter from '../../../components/CustomComponents/DropDownFilter';
 import LoaderOverlay from '../../../components/loaderOverlay';
 import SelectableTable, { TableColumn } from '../../../components/table';
 import { useSearch } from '../../../hooks';
@@ -15,7 +16,6 @@ import { DeleteModal } from './components/deleteModal';
 import ScheduleStudyModal, {
   ScheduleFormState
 } from './components/scheduleModal';
-// import TagModal from './components/tagsModal';
 import { Stack } from '@chakra-ui/react';
 import {
   Button,
@@ -139,6 +139,7 @@ const CustomTable: React.FC = () => {
   const {
     fetchFlashcards,
     flashcards,
+    tags,
     flashcard,
     loadFlashcard,
     deleteFlashCard,
@@ -172,7 +173,8 @@ const CustomTable: React.FC = () => {
   } | null>(null);
 
   const [tagEditItem, setTagEditItem] = useState<{
-    flashcard: FlashcardData;
+    flashcard?: FlashcardData;
+    flashcardIds?: string[];
   } | null>(null);
   const { flashcardId } = useParams();
 
@@ -216,20 +218,26 @@ const CustomTable: React.FC = () => {
       dataIndex: 'tags',
       key: 'tags',
       render: ({ tags }) => {
-        if (!tags.length) return <Text fontWeight="500">None</Text>;
+        if (!tags?.length) return <Text fontWeight="500">None</Text>;
         return (
           <Box
             display="grid"
-            gridTemplateColumns="repeat(3, 0.5fr)"
-            alignItems="start"
-            justifyItems="start"
+            gridTemplateColumns="repeat(auto-fit, minmax(100px, 1fr))" // Adjusts number of columns based on container width
             width="100%"
-            minWidth="300px"
+            marginRight="10px"
             marginTop="10px"
-            gridGap="10px"
+            minWidth={'fit-content'}
+            gridGap="2px"
           >
             {tags.map((tag) => (
-              <Tag key={tag} borderRadius="5" background="#f7f8fa" size="md">
+              <Tag
+                width={'fit-content'}
+                maxWidth={'fit-content'}
+                key={tag}
+                borderRadius="5"
+                background="#f7f8fa"
+                size="md"
+              >
                 <TagLeftIcon>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -253,7 +261,7 @@ const CustomTable: React.FC = () => {
                   </svg>
                 </TagLeftIcon>
                 <TagLabel
-                  whiteSpace="normal" // Allows text to wrap to the next line
+                  whiteSpace={'nowrap'}
                   overflow="visible" // Allows text to overflow
                   textOverflow="clip"
                 >
@@ -593,25 +601,30 @@ const CustomTable: React.FC = () => {
   return (
     <>
       {isLoading && !flashcards?.length && <LoaderOverlay />}
-      {tagEditItem?.flashcard && (
+      {(tagEditItem?.flashcard || tagEditItem?.flashcardIds) && (
         <TagModal
           tags={tagEditItem?.flashcard?.tags || []}
           onSubmit={async (d) => {
-            const isSaved = await storeFlashcardTags(
-              tagEditItem?.flashcard?._id as string,
-              d
-            );
+            const ids =
+              tagEditItem?.flashcardIds ||
+              (tagEditItem?.flashcard?._id as string);
+
+            const isSaved = await storeFlashcardTags(ids, d);
             if (isSaved) {
               toast({
                 position: 'top-right',
-                title: `Tags Added for ${tagEditItem?.flashcard.deckname}`,
+                title: `Tags Added for ${
+                  tagEditItem?.flashcard?.deckname || 'Flashcards'
+                }`,
                 status: 'success'
               });
               setTagEditItem(null);
             } else {
               toast({
                 position: 'top-right',
-                title: `Failed to add tags for ${tagEditItem?.flashcard.deckname} flashcards`,
+                title: `Failed to add tags for ${
+                  tagEditItem?.flashcard?.deckname || ''
+                } flashcards`,
                 status: 'error'
               });
             }
@@ -836,6 +849,24 @@ const CustomTable: React.FC = () => {
               alignItems={{ base: 'flex-start', md: 'center' }}
               width={{ base: '100%', md: 'auto' }}
             >
+              <DropDownFilter
+                multi
+                style={{ marginRight: '20px' }}
+                filterLabel="Filter By Tags"
+                onSelectionChange={(item) => {
+                  const tags = Array.isArray(item)
+                    ? item.join(',')
+                    : (item as string);
+
+                  const query: { [key: string]: any } = {};
+                  if (tags || tags.length) {
+                    query.tags = tags;
+                  }
+
+                  fetchFlashcards(query);
+                }}
+                items={tags.map((tag) => ({ id: tag, value: tag }))}
+              />
               <Menu>
                 <MenuButton>
                   <Flex
@@ -957,6 +988,7 @@ const CustomTable: React.FC = () => {
                   mb="10px"
                   borderRadius={'10px'}
                   colorScheme={'#F53535'}
+                  _hover={{ bg: '#F53535' }}
                   bg="#F53535"
                   width={{ base: '100%', md: 'auto' }}
                   onClick={() => {
@@ -980,7 +1012,45 @@ const CustomTable: React.FC = () => {
                       fill="white"
                     />
                   </svg>
-                  <Text ml="5px">Delete Selected Flashcards</Text>
+                  <Text ml="5px">Delete Flashcards</Text>
+                </Button>
+
+                <Button
+                  variant="solid"
+                  mb="10px"
+                  borderRadius={'10px'}
+                  marginLeft={'10px'}
+                  colorScheme={'primary'}
+                  width={{ base: '100%', md: 'auto' }}
+                  onClick={() => {
+                    if (!flashcards) return;
+                    setTagEditItem((prev) => ({
+                      ...prev,
+                      flashcardIds: selectedFlashcards
+                    }));
+                  }}
+                >
+                  <svg
+                    width="16"
+                    height="18"
+                    viewBox="0 0 16 18"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      fill="white"
+                      d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 6h.008v.008H6V6z"
+                    />
+                  </svg>
+
+                  <Text ml="5px">Add Tag</Text>
                 </Button>
               </Box>
             ) : (
