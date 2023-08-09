@@ -290,6 +290,15 @@ const NewNote = () => {
       setDeleteNoteModal(false);
       return showToast(DELETE_NOTE_TITLE, details.error, 'error');
     } else {
+      // Remove the deleted note from pinned notes in local storage
+      const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
+      if (pinnedNotesFromLocalStorage) {
+        const updatedPinnedNotes = pinnedNotesFromLocalStorage.filter(
+          (pinnedNote) => pinnedNote.noteId !== noteIdInUse
+        );
+        savePinnedNoteLocal(updatedPinnedNotes);
+      }
+      handleBackClick();
       setDeleteNoteModal(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
       setEditedTitle(defaultNoteTitle);
@@ -670,7 +679,7 @@ const NewNote = () => {
           <SecondSection>
             <CustomButton
               isPrimary
-              title="Save"
+              title={!saveButtonState ? 'Saving' : 'Save'}
               type="button"
               onClick={onSaveNote}
               active={saveButtonState}

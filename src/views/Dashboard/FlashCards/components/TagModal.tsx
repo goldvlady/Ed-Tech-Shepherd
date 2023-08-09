@@ -46,6 +46,7 @@ export const TagModal: React.FC<TagModalProps> = ({
   const [hasLoadedDefaultTags, setHasLoadedDefaultTags] = useState(false);
   const [newTags, setNewTags] = useState(propNewTags || tags);
   const [isLoading, setIsLoading] = useState(false);
+  const noteTags = tags[noteIdInUse] || [];
 
   useEffect(() => {
     if (tags.length && !hasLoadedDefaultTags) {
@@ -79,7 +80,11 @@ export const TagModal: React.FC<TagModalProps> = ({
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      await onSubmit(newTags);
+      if (propSetNewTags) {
+        await onSubmit(propSetNewTags);
+      } else {
+        await onSubmit(newTags);
+      }
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
@@ -126,6 +131,7 @@ export const TagModal: React.FC<TagModalProps> = ({
                   p="10px 20px"
                 >
                   <TagLabel>{tag}</TagLabel>
+
                   <TagCloseButton onClick={() => handleRemoveTag(tag)} />
                 </Tag>
               ))}

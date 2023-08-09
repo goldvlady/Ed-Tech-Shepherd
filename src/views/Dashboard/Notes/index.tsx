@@ -67,6 +67,11 @@ const sortedByTitle = [
   }
 ];
 
+const getLocalStorageNoteId = (noteId: string | null): string => {
+  const genId = noteId ? noteId : '';
+  return genId;
+};
+
 const Notes = () => {
   const navigate = useNavigate();
   const [toggleHelpModal, setToggleHelpModal] = useState(false);
@@ -95,6 +100,11 @@ const Notes = () => {
       return;
     }
   }, []);
+
+  //  load all notes when page is loaded
+  useEffect(() => {
+    getNotes();
+  }, [getNotes]);
 
   const activateHelpModal = () => {
     setToggleHelpModal(true);
@@ -180,7 +190,7 @@ const Notes = () => {
   const tabPanel = [
     {
       id: 1,
-      component: <AllNotesTab data={allNotes} />
+      component: <AllNotesTab data={allNotes} getNotes={getNotes} />
     },
     {
       id: 2,
@@ -188,7 +198,7 @@ const Notes = () => {
     },
     {
       id: 3,
-      component: <AllNotesTab data={allNotes} />
+      component: <AllNotesTab data={allNotes} getNotes={getNotes} />
     }
   ];
 
@@ -293,11 +303,6 @@ const Notes = () => {
       </FlexContainer>
     );
   };
-
-  //  load all notes when page is loaded
-  useEffect(() => {
-    getNotes();
-  }, [getNotes]);
 
   useEffect(() => {
     // Filter based on tags or sort order
