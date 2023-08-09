@@ -302,7 +302,11 @@ const Chat = ({
                             <ChatLoader />
                           ) : (
                             <AiMessage key={index}>
-                              <CustomMarkdownView source={message.text} />
+                              <CustomMarkdownView
+                                source={message.text}
+                                key={index}
+                                length={messages.length}
+                              />
                             </AiMessage>
                           )}
                         </>
