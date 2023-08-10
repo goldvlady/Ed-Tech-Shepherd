@@ -3,6 +3,7 @@ import { chatHomeworkHelp } from '../../../services/AI';
 import userStore from '../../../state/userStore';
 import Chat from '../DocChat/chat';
 import ChatHistory from '../DocChat/chatHistory';
+import ViewHomeWorkHelpDetails from './ViewHomeWorkHelpDetails';
 import ViewTutors from './ViewTutors';
 import {
   HomeWorkHelpChatContainer,
@@ -17,6 +18,7 @@ const HomeWorkHelp = () => {
   const [inputValue, setInputValue] = useState('');
   const location = useLocation();
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
+  const [openAceHomework, setAceHomeWork] = useState(false);
   const { user } = userStore();
   const [messages, setMessages] = useState<
     { text: string; isUser: boolean; isLoading: boolean }[]
@@ -25,12 +27,40 @@ const HomeWorkHelp = () => {
   const [botStatus, setBotStatus] = useState(
     'Philosopher, thinker, study companion.'
   );
+  const [countNeedTutor, setCountNeedTutor] = useState<number>(0);
 
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
       setInputValue(event.target.value);
     },
     [setInputValue]
+  );
+
+  const handleClose = () => {
+    setAceHomeWork((prevState) => !prevState);
+  };
+
+  const handleAceHomeWorkHelp = useCallback(() => {
+    setMessages([]);
+    setAceHomeWork((prevState) => !prevState);
+  }, [setAceHomeWork, setMessages]);
+
+  const onCountTutor = useCallback(
+    async (message: string) => {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { text: message, isUser: true, isLoading: false }
+      ]);
+
+      await askLLM({
+        query: message,
+        studentId: user?._id ?? '',
+        topic: location?.state?.topic
+      });
+
+      setCountNeedTutor((prevState) => prevState + 1);
+    },
+    [setMessages, setCountNeedTutor]
   );
 
   const handleClickPrompt = useCallback(
@@ -138,6 +168,8 @@ const HomeWorkHelp = () => {
     [handleSendMessage]
   );
 
+  console.log('location ==>', location);
+
   return (
     <HomeWorkHelpContainer>
       <HomeWorkHelpHistoryContainer>
@@ -158,6 +190,9 @@ const HomeWorkHelp = () => {
           handleKeyDown={handleKeyDown}
           homeWorkHelpPlaceholder={'How can Shepherd help with your homework?'}
           handleClickPrompt={handleClickPrompt}
+          countNeedTutor={countNeedTutor}
+          onCountTutor={onCountTutor}
+          handleAceHomeWorkHelp={handleAceHomeWorkHelp}
         />
       </HomeWorkHelpChatContainer>
 
@@ -175,6 +210,15 @@ const HomeWorkHelp = () => {
           subjectID={location?.state?.subject}
         />
       </CustomModal>
+
+      {openAceHomework && (
+        <ViewHomeWorkHelpDetails
+          isHomeWorkHelp
+          openAceHomework={openAceHomework}
+          handleClose={handleClose}
+          handleAceHomeWorkHelp={handleAceHomeWorkHelp}
+        />
+      )}
     </HomeWorkHelpContainer>
   );
 };

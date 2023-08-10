@@ -17,7 +17,13 @@ import {
   MenuItem,
   Button
 } from '@chakra-ui/react';
-import React, { ChangeEvent, useCallback, useState, useMemo } from 'react';
+import React, {
+  ChangeEvent,
+  useCallback,
+  useState,
+  useMemo,
+  useEffect
+} from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
@@ -29,11 +35,13 @@ interface FlashcardData {
 const ViewHomeWorkHelpDetails = ({
   openAceHomework,
   handleClose,
-  handleAceHomeWorkHelp
+  handleAceHomeWorkHelp,
+  isHomeWorkHelp
 }: {
   openAceHomework: boolean;
   handleClose: () => void;
   handleAceHomeWorkHelp: () => void;
+  isHomeWorkHelp?: boolean;
 }) => {
   const { courses: courseList, levels: levelOptions } = resourceStore();
   const [subjectId, setSubject] = useState<string>('Subject');
@@ -44,19 +52,13 @@ const ViewHomeWorkHelpDetails = ({
   });
   const [level, setLevel] = useState<any>('');
 
-  const searchQuery = (searchValue, courseList) => {
-    setSearchValue(searchValue);
-    return courseList?.filter((item) =>
-      item.label
-        ?.toLocaleLowerCase?.()
-        ?.includes(searchValue?.toLocaleLowerCase())
+  const searchQuery = useCallback((searchValue: string, courseList: any[]) => {
+    return courseList.filter((course) =>
+      course.label.toLowerCase().includes(searchValue.toLowerCase())
     );
-  };
+  }, []);
 
-  const filteredOptions = useMemo(
-    () => searchQuery(searchValue, courseList),
-    [courseList, searchValue]
-  );
+  const filteredOptions = searchQuery(searchValue, courseList);
 
   const navigate = useNavigate();
 
@@ -77,11 +79,11 @@ const ViewHomeWorkHelpDetails = ({
 
   const onRouteHomeWorkHelp = useCallback(() => {
     handleClose();
-    handleAceHomeWorkHelp();
+    !isHomeWorkHelp && handleAceHomeWorkHelp();
     navigate('/dashboard/ace-homework', {
       state: { subject: subjectId, topic: localData.topic, level }
     });
-  }, [subjectId, localData, level]);
+  }, [subjectId, localData, level, isHomeWorkHelp]);
 
   return (
     <CustomModal
@@ -143,22 +145,11 @@ const ViewHomeWorkHelpDetails = ({
                 : 'e.g Biology'}
             </MenuButton>
             <MenuList zIndex={3} width="24em">
-              <input
-                style={{
-                  height: '38px',
-                  borderRadius: '8px',
-                  fontSize: '0.75rem',
-                  width: '100%',
-                  margin: '10px 0'
-                }}
+              <Input
+                size="sm"
                 onChange={(e) => setSearchValue(e.target.value)}
                 placeholder="Search Subject"
-                onClick={function (e) {
-                  e.stopPropagation();
-                }}
-                onKeyDown={(e) => {
-                  e.code === 'Space' && e.stopPropagation();
-                }}
+                value={searchValue}
               />
               <div
                 style={{
