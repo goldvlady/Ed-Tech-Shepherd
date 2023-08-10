@@ -3,12 +3,12 @@
 /* eslint-disable no-unsafe-optional-chaining */
 import PultoJPG from '../../../assets/PlutoAi.jpg';
 import { ReactComponent as HightLightIcon } from '../../../assets/highlightIcn.svg';
+import SocratesImg from '../../../assets/socrates-image.png';
 import { ReactComponent as SummaryIcon } from '../../../assets/summaryIcn.svg';
 // import { ReactComponent as TellMeMoreIcn } from '../../../assets/tellMeMoreIcn.svg';
 import { ReactComponent as TutorBag } from '../../../assets/tutor-bag.svg';
 import ChatLoader from '../../../components/CustomComponents/CustomChatLoader';
 import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkdownView';
-import CustomMarkdownViewLLM from '../../../components/CustomComponents/CustomMarkdownViewLLM';
 import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../../components/hooks/useChatScroll';
@@ -72,6 +72,9 @@ interface IChat {
   setSummaryText?: any;
   handleClickPrompt?: any;
   homeWorkHelpPlaceholder?: any;
+  countNeedTutor?: number | undefined;
+  onCountTutor?: any;
+  handleAceHomeWorkHelp?: () => void;
 }
 const Chat = ({
   HomeWorkHelp,
@@ -91,13 +94,15 @@ const Chat = ({
   setSummaryText,
   documentId,
   handleClickPrompt,
-  homeWorkHelpPlaceholder
+  homeWorkHelpPlaceholder,
+  countNeedTutor,
+  onCountTutor,
+  handleAceHomeWorkHelp
 }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [isFlashCard, setFlashCard] = useState<boolean>(false);
   const [isQuiz, setQuiz] = useState<boolean>(false);
-
   const [isChatHistory, setChatHistory] = useState<boolean>(false);
   const textAreaRef = useRef<any>();
   const ref = useChatScroll(messages);
@@ -128,6 +133,12 @@ const Chat = ({
     () => !!messages?.length && !HomeWorkHelp && !!isShowPrompt,
     [messages, HomeWorkHelp, isShowPrompt]
   );
+
+  const isFindTutor = useMemo(() => {
+    return (
+      countNeedTutor! >= 3 && HomeWorkHelp && !messages?.length && !isShowPrompt
+    );
+  }, [countNeedTutor, messages, HomeWorkHelp, isShowPrompt]);
 
   const tabLists = [
     {
@@ -185,8 +196,16 @@ const Chat = ({
     {
       id: 1,
       img: <TutorBag />,
-      title: 'Find a tutor',
-      onClick: onOpenModal
+      title: countNeedTutor! <= 3 ? "I don't understand" : 'Find a tutor',
+      onClick:
+        countNeedTutor! <= 3
+          ? () => onCountTutor("I don't understand")
+          : onOpenModal
+    },
+    {
+      id: 2,
+      title: 'Start New Conversation',
+      onClick: handleAceHomeWorkHelp
     }
   ];
 
@@ -229,7 +248,7 @@ const Chat = ({
                     <FlexContainer>
                       <CircleContainer>
                         <img
-                          src={PultoJPG}
+                          src={HomeWorkHelp ? SocratesImg : PultoJPG}
                           style={{
                             objectFit: 'cover',
                             height: 'auto',
@@ -240,18 +259,31 @@ const Chat = ({
                         />
                       </CircleContainer>
                       <TextContainer>
-                        <Text className="font-semibold">Plato.</Text>
+                        <Text className="font-semibold">
+                          {HomeWorkHelp ? 'Socrates' : 'Plato.'}
+                        </Text>
                         <Text>{botStatus}</Text>
                       </TextContainer>
                     </FlexContainer>
-                    <StyledText>
-                      Welcome! I'm here to help you make the most of your time
-                      and your notes. Ask me questions, and I'll find the
-                      answers that match, given the information you've supplied.
-                      Let's get learning!
-                    </StyledText>
+                    {HomeWorkHelp ? (
+                      <StyledText>
+                        I understand you're seeking knowledge and understanding.
+                        Instead of providing you with mere answers, I wish to
+                        guide you in asking the right questions. Do not expect
+                        me to fill your vessel with knowledge, but rather to
+                        kindle a flame of inquiry within you. Now, tell me, what
+                        is it that you wish to understand?
+                      </StyledText>
+                    ) : (
+                      <StyledText>
+                        Welcome! I'm here to help you make the most of your time
+                        and your notes. Ask me questions, and I'll find the
+                        answers that match, given the information you've
+                        supplied. Let's get learning!
+                      </StyledText>
+                    )}
                   </GridItem>
-                  {HomeWorkHelp && !messages?.length && !isShowPrompt && (
+                  {isFindTutor && (
                     <OptionsContainer>
                       <Text className="">What do you need?</Text>
 
