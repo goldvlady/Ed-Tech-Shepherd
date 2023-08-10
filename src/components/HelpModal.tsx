@@ -8,7 +8,7 @@ import { Text } from '@chakra-ui/react';
 import { Transition, Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { getAuth } from 'firebase/auth';
-import { Fragment, useState, useCallback } from 'react';
+import { Fragment, useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Typewriter from 'typewriter-effect';
 
@@ -20,6 +20,8 @@ interface ToggleProps {
 const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
   const [showSelected, setShowSelected] = useState(false);
   const [openAceHomework, setAceHomeWork] = useState(false);
+  const [actions1Visible, setActions1Visible] = useState(false);
+  const [actions2Visible, setActions2Visible] = useState(false);
   const navigate = useNavigate();
   const { user }: any = userStore();
 
@@ -36,9 +38,26 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
     [setAceHomeWork]
   );
 
+  useEffect(() => {
+    if (toggleHelpModal) {
+      const actions1Timeout = setTimeout(() => {
+        setActions1Visible(true);
+      }, 100);
+
+      const actions2Timeout = setTimeout(() => {
+        setActions2Visible(true);
+      }, 200);
+
+      return () => {
+        clearTimeout(actions1Timeout);
+        clearTimeout(actions2Timeout);
+      };
+    }
+  }, [toggleHelpModal]);
+
   const actions1 = [
     {
-      id: 0,
+      id: 1,
       title: 'Ace Homework',
       description:
         'Stuck with your homework, Shepherd can guide you through it step by step for quick & easy completion',
@@ -50,7 +69,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
       }
     },
     {
-      id: 1,
+      id: 2,
       title: 'Flashcards Factory',
       description:
         'Need a memory boost? Generate custom flashcards & mnemonics with Shepherd, making memorization a breeze',
@@ -61,7 +80,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
       }
     },
     {
-      id: 2,
+      id: 3,
       title: 'Notes Navigator',
       showModal: true,
       description:
@@ -70,7 +89,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
       onClick: () => handleShowSelected()
     },
     {
-      id: 3,
+      id: 4,
       title: 'Test Prep',
       description:
         'Got a test coming? Shepherd has you covered with quizzes & prep resources priming you for the big day',
@@ -80,7 +99,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
 
   const actions2 = [
     {
-      id: 0,
+      id: 5,
       title: 'Deep Dives',
       description:
         'Struggling with a tricky topic? Let Shepherd simplify it for you with in-depth analysis & detailed explanations',
@@ -88,7 +107,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
     },
 
     {
-      id: 1,
+      id: 6,
       title: 'Research Assistant',
       showModal: false,
       description:
@@ -96,7 +115,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
       imageURL: '/images/research-assistant.svg'
     },
     {
-      id: 2,
+      id: 7,
       title: 'Study Roadmap',
       showModal: false,
       description:
@@ -175,7 +194,10 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
                           <div
                             key={action.title}
                             onClick={action.onClick}
-                            className="group cursor-pointer relative transform  bg-white border-1 rounded-lg  border-gray-300 p-4 hover:border-blue-500  focus:border-blue-500"
+                            className={`group cursor-pointer relative transform bg-white border-1 rounded-lg border-gray-300 p-4 hover:border-blue-500 focus:border-blue-500 action-card ${
+                              actions1Visible && 'slide-in'
+                            }`}
+                            style={{ animationDelay: `${action.id * 0.7}s` }}
                           >
                             <div>
                               <img src={action.imageURL} alt={action.title} />
@@ -201,7 +223,10 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
                           <div
                             onClick={action.onClick}
                             key={action.title}
-                            className="group cursor-pointer relative transform  bg-white border-1 rounded-lg  border-gray-300 p-4 focus-within:border-blue-500 hover:border-blue-500"
+                            className={`group cursor-pointer relative transform bg-white border-1 rounded-lg border-gray-300 p-4 focus-within:border-blue-500 hover:border-blue-500 action-card ${
+                              actions2Visible && 'slide-in'
+                            }`}
+                            style={{ animationDelay: `${action.id * 0.7}s` }}
                           >
                             <div>
                               <img src={action.imageURL} alt={action.title} />

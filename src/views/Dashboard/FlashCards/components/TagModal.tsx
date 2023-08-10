@@ -149,7 +149,11 @@ export const TagModal: React.FC<TagModalProps> = ({
               Submit
             </Button>
           ) : (
-            <Button colorScheme="blue" onClick={handleSubmit}>
+            <Button
+              isDisabled={!newTags.length}
+              colorScheme="blue"
+              onClick={handleSubmit}
+            >
               Submit
             </Button>
           )}

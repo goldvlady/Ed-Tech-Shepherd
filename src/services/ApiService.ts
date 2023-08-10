@@ -43,10 +43,13 @@ class ApiService {
     });
   };
 
-  static storeFlashcardTags = (flashcardId: string, tags: string[]) => {
+  static storeFlashcardTags = (
+    flashcardIds: string[] | string,
+    tags: string[]
+  ) => {
     return doFetch(`${ApiService.baseEndpoint}/storeFlashcardTags`, {
       method: 'POST',
-      body: JSON.stringify({ flashcardId, tags })
+      body: JSON.stringify({ flashcardIds, tags })
     });
   };
 
