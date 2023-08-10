@@ -1,5 +1,6 @@
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import { chatHomeworkHelp } from '../../../services/AI';
+import socketWithAuth from '../../../socket';
 import userStore from '../../../state/userStore';
 import Chat from '../DocChat/chat';
 import ChatHistory from '../DocChat/chatHistory';
@@ -10,7 +11,7 @@ import {
   HomeWorkHelpContainer,
   HomeWorkHelpHistoryContainer
 } from './style';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 const HomeWorkHelp = () => {
@@ -24,10 +25,65 @@ const HomeWorkHelp = () => {
     { text: string; isUser: boolean; isLoading: boolean }[]
   >([]);
   const [llmResponse, setLLMResponse] = useState('');
+  const [readyToChat, setReadyToChat] = useState(false);
   const [botStatus, setBotStatus] = useState(
     'Philosopher, thinker, study companion.'
   );
-  const [countNeedTutor, setCountNeedTutor] = useState<number>(0);
+  const studentId = user?._id ?? '';
+  const topic = location?.state?.topic;
+  const [countNeedTutor, setCountNeedTutor] = useState<number>(1);
+  const [socket, setSocket] = useState<any>(null);
+
+  useEffect(() => {
+    if (!socket) {
+      const authSocket = socketWithAuth({
+        studentId,
+        topic
+      }).connect();
+      setSocket(authSocket);
+    }
+  }, [socket, studentId, topic]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('ready', (ready) => {
+        setReadyToChat(ready);
+      });
+
+      return () => socket.off('ready');
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('bot response done', (completeText) => {
+        setLLMResponse('');
+        setTimeout(
+          () => setBotStatus('Philosopher, thinker, study companion.'),
+          1000
+        );
+
+        // eslint-disable-next-line
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { text: completeText, isUser: false, isLoading: false }
+        ]);
+      });
+
+      return () => socket.off('bot response done');
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('homeworkhelp response', async (token) => {
+        setBotStatus('Typing...');
+        setLLMResponse((llmResponse) => llmResponse + token);
+      });
+
+      return () => socket.off('bot response');
+    }
+  }, [socket]);
 
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -41,9 +97,8 @@ const HomeWorkHelp = () => {
   };
 
   const handleAceHomeWorkHelp = useCallback(() => {
-    setMessages([]);
     setAceHomeWork((prevState) => !prevState);
-  }, [setAceHomeWork, setMessages]);
+  }, [setAceHomeWork]);
 
   const onCountTutor = useCallback(
     async (message: string) => {
@@ -52,15 +107,11 @@ const HomeWorkHelp = () => {
         { text: message, isUser: true, isLoading: false }
       ]);
 
-      await askLLM({
-        query: message,
-        studentId: user?._id ?? '',
-        topic: location?.state?.topic
-      });
-
       setCountNeedTutor((prevState) => prevState + 1);
+
+      socket.emit('chat message');
     },
-    [setMessages, setCountNeedTutor]
+    [setMessages, setCountNeedTutor, socket]
   );
 
   const handleClickPrompt = useCallback(
@@ -75,58 +126,10 @@ const HomeWorkHelp = () => {
       ]);
       setInputValue('');
 
-      await askLLM({
-        query: prompt,
-        studentId: user?._id ?? '',
-        topic: location?.state?.topic
-      });
+      socket.emit('chat message');
     },
-    [location?.state?.topic, user?._id]
+    [socket]
   );
-
-  const askLLM = async ({
-    query,
-    studentId,
-    topic
-  }: {
-    query: string;
-    studentId: string;
-    topic: string;
-  }) => {
-    setBotStatus('Thinking');
-
-    const response = await chatHomeworkHelp({
-      query,
-      studentId,
-      topic
-    });
-
-    const reader = response.body?.getReader();
-    const decoder = new TextDecoder('utf-8');
-    let temp = '';
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      setBotStatus('Typing...');
-      // @ts-ignore: scary scenes, but let's observe
-      const { done, value } = await reader.read();
-      if (done) {
-        setLLMResponse('');
-        setTimeout(
-          () => setBotStatus('Philosopher, thinker, study companion.'),
-          1000
-        );
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { text: temp, isUser: false, isLoading: false }
-        ]);
-        break;
-      }
-      const chunk = decoder.decode(value);
-      temp += chunk;
-      setLLMResponse((llmResponse) => llmResponse + chunk);
-    }
-  };
 
   const onOpenModal = useCallback(() => {
     setOpenModal((prevState) => !prevState);
@@ -148,13 +151,9 @@ const HomeWorkHelp = () => {
       ]);
       setInputValue('');
 
-      await askLLM({
-        query: inputValue,
-        studentId: user?._id ?? '',
-        topic: location?.state?.topic
-      });
+      socket.emit('chat message', inputValue);
     },
-    [inputValue, location?.state?.topic, user?._id]
+    [inputValue, socket]
   );
 
   const handleKeyDown = useCallback(
@@ -167,8 +166,6 @@ const HomeWorkHelp = () => {
     },
     [handleSendMessage]
   );
-
-  console.log('location ==>', location);
 
   return (
     <HomeWorkHelpContainer>
@@ -216,6 +213,7 @@ const HomeWorkHelp = () => {
           isHomeWorkHelp
           openAceHomework={openAceHomework}
           handleClose={handleClose}
+          setMessages={setMessages}
           handleAceHomeWorkHelp={handleAceHomeWorkHelp}
         />
       )}

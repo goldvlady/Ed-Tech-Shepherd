@@ -36,12 +36,14 @@ const ViewHomeWorkHelpDetails = ({
   openAceHomework,
   handleClose,
   handleAceHomeWorkHelp,
-  isHomeWorkHelp
+  isHomeWorkHelp,
+  setMessages
 }: {
   openAceHomework: boolean;
   handleClose: () => void;
   handleAceHomeWorkHelp: () => void;
   isHomeWorkHelp?: boolean;
+  setMessages?: any;
 }) => {
   const { courses: courseList, levels: levelOptions } = resourceStore();
   const [subjectId, setSubject] = useState<string>('Subject');
@@ -83,7 +85,17 @@ const ViewHomeWorkHelpDetails = ({
     navigate('/dashboard/ace-homework', {
       state: { subject: subjectId, topic: localData.topic, level }
     });
-  }, [subjectId, localData, level, isHomeWorkHelp]);
+    setMessages([]);
+  }, [
+    subjectId,
+    localData,
+    level,
+    isHomeWorkHelp,
+    setMessages,
+    handleClose,
+    handleAceHomeWorkHelp,
+    navigate
+  ]);
 
   return (
     <CustomModal
