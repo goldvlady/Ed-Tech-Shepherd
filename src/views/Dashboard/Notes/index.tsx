@@ -374,11 +374,11 @@ const Notes = () => {
             </NotesWrapper>
           )}
 
-          {/* <SelectedNoteModal
+          <SelectedNoteModal
             show={toggleHelpModal}
             setShow={setToggleHelpModal}
             setShowHelp={setToggleHelpModal}
-          /> */}
+          />
         </>
       );
     }
