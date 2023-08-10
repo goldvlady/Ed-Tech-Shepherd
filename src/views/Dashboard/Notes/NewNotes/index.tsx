@@ -10,10 +10,16 @@ import { ReactComponent as ZoomIcon } from '../../../../assets/square.svg';
 import { ReactComponent as TrashIcon } from '../../../../assets/trash-icn.svg';
 import CustomButton from '../../../../components/CustomComponents/CustomButton';
 import { saveMarkdownAsPDF } from '../../../../library/fs';
+import { uploadBlockNoteDocument } from '../../../../services/AI';
 import ApiService from '../../../../services/ApiService';
 import TagModal from '../../FlashCards/components/TagModal';
 import { NoteModal } from '../Modal';
-import { NoteDetails, NoteServerResponse } from '../types';
+import {
+  NoteDetails,
+  NoteServerResponse,
+  WorkerCallback,
+  WorkerProcess
+} from '../types';
 import {
   DropDownFirstPart,
   DropDownLists,
@@ -26,6 +32,7 @@ import {
   PDFWrapper,
   SecondSection
 } from './styles';
+import { initNoteIngestWorker } from './worker/ingest';
 import { Block, BlockNoteEditor } from '@blocknote/core';
 import '@blocknote/core/style.css';
 import { BlockNoteView, useBlockNote } from '@blocknote/react';
@@ -54,6 +61,8 @@ type PinnedNote = {
   noteId: string | null;
   pinnedNoteJSON: any;
 };
+
+type Toast = (...args: any) => void;
 
 const createNote = async (data: any): Promise<NoteServerResponse | null> => {
   const resp = await ApiService.createNote(data);
@@ -89,6 +98,102 @@ const updateNote = async (
   } catch (error: any) {
     return { error: error.message, message: error.message };
   }
+};
+
+// const extractEditorContent = (noteDetails: NoteDetails | null): string[] | null => {
+
+//   if (!noteDetails) {
+//     return null;
+//   }
+//   console.log("notes: ", noteDetails.note);
+//   let contentArray: string[] = [];
+
+//   try {
+//     const noteList = JSON.parse(noteDetails.note);
+//     noteList.forEach((block: Block<any>) => {
+//       if (block.children === "text") {
+//         // contentArray = contentArray.concat(block);
+//         contentArray = contentArray.concat(block.content[0].t);
+//       } else {
+//         // continue list
+//       }
+//       return true;
+//     });
+//   } catch (error: any) {
+//     console.log(error.message);
+//   }
+
+//   return contentArray;
+// };
+
+const extractEditorContent = (
+  noteDetails: NoteDetails | null
+): string[] | null => {
+  if (!noteDetails) {
+    return null;
+  }
+  try {
+    const notes: Array<any> = JSON.parse(noteDetails.note);
+    const textArray: string[] = [];
+
+    const traverseNote = (note: any) => {
+      if (note.type === 'text') {
+        console.log('cur note found: ' + note);
+        if (note.content && note.content[0]?.text) {
+          alert('test found: ' + note.content[0].text);
+          textArray.push(note.content[0].text);
+        }
+      }
+
+      if (note.children && note.children.length > 0) {
+        for (const child of note.children) {
+          traverseNote(child);
+        }
+      }
+    };
+
+    for (const note of notes) {
+      traverseNote(note);
+    }
+
+    return textArray;
+  } catch (error: any) {
+    return null;
+  }
+};
+
+const ingestEditorContent = async (
+  noteDetails: NoteDetails,
+  callBack: WorkerCallback
+) => {
+  const editorContentArray = extractEditorContent(noteDetails);
+  console.log('editor content extracted', editorContentArray);
+  const worker = initNoteIngestWorker(callBack);
+  if (!editorContentArray || editorContentArray.length <= 0) {
+    // log
+    return;
+  }
+
+  //post request data
+  // worker.postMessage(editorContentArray);
+
+  const resp = await uploadBlockNoteDocument({
+    studentId: noteDetails.user._id,
+    documentId: noteDetails._id,
+    document: editorContentArray ?? ['sample', 'hello'],
+    title: noteDetails.topic,
+    tags: noteDetails.tags
+    // courseId?: string;
+  });
+  console.log('response:', resp);
+
+  // const respText = await resp.text();
+  // try {
+  //   const respDetails: NoteServerResponse = JSON.parse(respText);
+  //   return respDetails;
+  // } catch (error: any) {
+  //   return { error: error.message, message: error.message };
+  // }
 };
 
 const formatDate = (date: Date, format = 'DD ddd, hh:mma'): string => {
@@ -210,7 +315,7 @@ const NewNote = () => {
     if (!editedTitle || editedTitle === defaultNoteTitle) {
       return showToast(UPDATE_NOTE_TITLE, 'Enter note title', 'error');
     }
-    if (!editorHasContent()) {
+    if (!editorHasContent(editor)) {
       return showToast(UPDATE_NOTE_TITLE, 'Note is empty', 'error');
     }
 
@@ -258,10 +363,19 @@ const NewNote = () => {
         saveNoteLocal(getLocalStorageNoteId(noteId), saveDetails.data.note);
       }
       // save note details and other essential params
-      setSaveDetails(saveDetails);
       setCurrentTime(formatDate(saveDetails.data.updatedAt));
       showToast(UPDATE_NOTE_TITLE, saveDetails.message, 'success');
       setSaveButtonState(true);
+      setSaveDetails(saveDetails);
+
+      // after successfully saving the note content, we must call the API service to ingest
+      // Ingestion will run in the background
+
+      const callback = (data: any) => {
+        alert('call back fetching:');
+        console.log('callback: ', data);
+      };
+      ingestEditorContent(saveDetails.data, callback);
     }
   };
 
@@ -303,7 +417,7 @@ const NewNote = () => {
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
       setEditedTitle(defaultNoteTitle);
       setNoteId('');
-      clearEditor();
+      clearEditor(editor);
     }
   };
 
@@ -441,7 +555,7 @@ const NewNote = () => {
     setIsEditingTitle(true);
   };
 
-  const editorHasContent = (): boolean => {
+  const editorHasContent = (editor: BlockNoteEditor | null): boolean => {
     if (!editor) {
       return false;
     }
@@ -455,7 +569,7 @@ const NewNote = () => {
     return contentFound;
   };
 
-  const clearEditor = () => {
+  const clearEditor = (editor: BlockNoteEditor | null) => {
     if (!editor) {
       return false;
     }
@@ -557,17 +671,6 @@ const NewNote = () => {
       onClick: onDeleteNoteBtn
     }
   ];
-
-  // Load notes if noteID is provided via param
-  useEffect(() => {
-    getNoteById();
-    // event for escape to minimize window
-    window.addEventListener('keypress', handleWindowKey);
-    return () => {
-      window.removeEventListener('keypress', handleWindowKey);
-    };
-  }, []);
-
   const addTag = async (
     id: string,
     tags: string[]
@@ -609,7 +712,7 @@ const NewNote = () => {
       setOpenTags(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
       setNoteId('');
-      clearEditor();
+      clearEditor(editor);
       setTags(details.data.tags);
     }
     // console.log({ tag: details.data.tags, tags });
@@ -626,6 +729,16 @@ const NewNote = () => {
   const handleBackClick = () => {
     navigate('/dashboard/notes');
   };
+
+  // Load notes if noteID is provided via param
+  useEffect(() => {
+    getNoteById();
+    // event for escape to minimize window
+    window.addEventListener('keypress', handleWindowKey);
+    return () => {
+      window.removeEventListener('keypress', handleWindowKey);
+    };
+  }, []);
 
   return (
     <>

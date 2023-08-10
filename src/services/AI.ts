@@ -185,3 +185,23 @@ export const postGenerateSummary = async ({
 
   return request;
 };
+
+export const uploadBlockNoteDocument = async (data: {
+  studentId: string;
+  documentId: string;
+  document: Array<string>;
+  title: string;
+  tags?: Array<string>;
+  courseId?: string;
+}) => {
+  const processDoc = await fetch(`${AI_API}/notes/create`, {
+    method: 'POST',
+    headers: {
+      'x-shepherd-header': HEADER_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  }).then(async (data) => data.json());
+
+  return processDoc;
+};
