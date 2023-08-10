@@ -791,8 +791,9 @@ const NewNote = () => {
           </FirstSection>
           <SecondSection>
             <CustomButton
+              disabled={!saveButtonState}
               isPrimary
-              title={!saveButtonState ? 'Saving' : 'Save'}
+              title={!saveButtonState ? 'Saving...' : 'Save'}
               type="button"
               onClick={onSaveNote}
               active={saveButtonState}

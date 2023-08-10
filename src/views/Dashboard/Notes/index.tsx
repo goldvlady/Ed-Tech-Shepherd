@@ -82,29 +82,33 @@ const Notes = () => {
     new Array(tagFilters.length).fill(false)
   );
   const [tags, setTags] = useState<string[]>([]);
+  const [notesLoaded, setNotesLoaded] = useState(false);
 
   const getNotes = useCallback(async () => {
     setLoadingNotes(true);
-    const resp = await ApiService.getAllNotes();
-    const respText = await resp.text();
     try {
+      const resp = await ApiService.getAllNotes();
+      const respText = await resp.text();
       const respDetails: NoteServerResponse<Array<NoteDetails>> =
         JSON.parse(respText);
+
       if (respDetails.data) {
         setAllNotes(respDetails.data);
       }
-      setLoadingNotes(false);
-      // set notes list
     } catch (error: any) {
+      // Handle the error appropriately, e.g., show an error message
       setLoadingNotes(false);
-      return;
+    } finally {
+      setLoadingNotes(false);
     }
   }, []);
 
   //  load all notes when page is loaded
   useEffect(() => {
-    getNotes();
-  }, [getNotes]);
+    getNotes().then(() => {
+      setNotesLoaded(true);
+    });
+  }, []);
 
   const activateHelpModal = () => {
     setToggleHelpModal(true);
@@ -321,8 +325,8 @@ const Notes = () => {
   }, [tags, sortOrder]);
 
   const NoteView = () => {
-    if (loadingNotes) {
-      return <>{loadingNotes && <LoaderOverlay />}</>;
+    if (!notesLoaded) {
+      return <LoaderOverlay />;
     } else {
       return (
         <>
@@ -370,15 +374,16 @@ const Notes = () => {
             </NotesWrapper>
           )}
 
-          <SelectedNoteModal
+          {/* <SelectedNoteModal
             show={toggleHelpModal}
             setShow={setToggleHelpModal}
             setShowHelp={setToggleHelpModal}
-          />
+          /> */}
         </>
       );
     }
   };
+
   return <NoteView />;
 };
 

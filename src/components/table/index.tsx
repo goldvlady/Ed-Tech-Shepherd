@@ -22,6 +22,10 @@ export type TableProps<T = any> = {
   handleSelectAll?: () => void;
   allChecked?: boolean;
   setAllChecked?: any;
+  setSelectedNoteIdToDelete?: any;
+  selectedNoteIdToDelete?: any;
+  setSelectedNoteIdToDeleteArray?: any;
+  selectedNoteIdToDeleteArray?: any;
 };
 
 const SelectableTable = <T extends Record<string, unknown>>({
@@ -31,20 +35,35 @@ const SelectableTable = <T extends Record<string, unknown>>({
   onSelect,
   selectedRowKeys,
   setSelectedRowKeys,
+  setSelectedNoteIdToDelete,
+  selectedNoteIdToDelete,
+  setSelectedNoteIdToDeleteArray,
+  selectedNoteIdToDeleteArray,
   handleSelectAll,
-  allChecked,
-  setAllChecked
+  allChecked
 }: TableProps<T>) => {
   const handleSelect = (record: T) => {
     const key = record.key as string;
 
+    const id = record.id as any;
+
     if (selectedRowKeys?.includes(key)) {
       setSelectedRowKeys?.(selectedRowKeys.filter((k) => k !== key));
+      onSelect &&
+        onSelect([...(selectedRowKeys?.filter((k) => k !== key) || [])]);
       onSelect && onSelect(selectedRowKeys?.filter((k) => k !== key) || []);
+
+      setSelectedNoteIdToDeleteArray((prevArray) =>
+        prevArray.filter((noteId) => noteId !== id)
+      );
     } else {
       setSelectedRowKeys?.([...(selectedRowKeys || []), key]);
       onSelect && onSelect([...(selectedRowKeys || []), key]);
     }
+
+    // Set the selected note ID for deletion
+    setSelectedNoteIdToDelete(id);
+    setSelectedNoteIdToDeleteArray((prevArray) => [...prevArray, id]);
   };
 
   return (

@@ -396,11 +396,33 @@ class ApiService {
     });
   };
 
+  static updateAllNoteTags = async (id: string[] | number, data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/updateAllNoteTags/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+  };
+
   static deleteNote = async (id: string | number) => {
     return doFetch(`${ApiService.baseEndpoint}/deleteNote/${id}`, {
       method: 'DELETE'
     });
   };
+
+  static deleteAllNote = async (noteIds: string[]): Promise<Response> => {
+    const requestPayload = {
+      noteIds: noteIds
+    };
+
+    return doFetch(`${ApiService.baseEndpoint}/deleteAllNotes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requestPayload)
+    });
+  };
+
   static updateProfile = async (formData: any) => {
     return doFetch(`${ApiService.baseEndpoint}/updateProfile`, {
       method: 'PUT',

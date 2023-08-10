@@ -89,6 +89,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
   const params = useParams();
   const toast = useToast();
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
+  const [deleteAllNoteModal, setDeleteAllNoteModal] = useState(false);
   const checkbox = useRef<HTMLInputElement>(null);
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
@@ -100,15 +101,18 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
   const [noteParamId, setNoteParamId] = useState<string | null>(
     params.id ?? null
   );
-  const [inputValue, setInputValue] = useState('');
-  const [tags, setTags] = useState<string[]>([]);
-
-  const [newTags, setNewTags] = useState<string[]>(tags);
 
   const [, setPinnedNotes] = useState<PinnedNote[]>([]);
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const [allChecked, setAllChecked] = useState<boolean>(false);
+  const [selectedNoteIdToDelete, setSelectedNoteIdToDelete] = useState(null);
+  const [selectedNoteIdToDeleteArray, setSelectedNoteIdToDeleteArray] =
+    useState<string[]>([]);
+  const [inputValue, setInputValue] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
+
+  const [newTags, setNewTags] = useState<string[]>(tags);
 
   const getNoteLocal = (noteId: string | null): string | null => {
     const storageId = getLocalStorageNoteId(noteId);
@@ -120,6 +124,8 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
 
   const onCancel = () => {
     setDeleteNoteModal(!deleteNoteModal);
+    setSelectedRowKeys([]);
+    setSelectedPeople([]);
   };
 
   const getLocalStorageNoteId = (noteId: string | null): string => {
@@ -176,12 +182,13 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
     // console.log({ checked, selectedPeople });
   }, [checked, selectedPeople]);
 
-  const onDeleteNote = (
-    isOpenDeleteModal: boolean,
-    noteDetails: string,
-    noteId: any
-  ) => {
+  const onDeleteNote = (isOpenDeleteModal: boolean, noteId: any) => {
     setDeleteNoteModal(isOpenDeleteModal);
+    setSelectedPeople([]);
+    setNoteId(noteId);
+  };
+  const onDeleteAllNote = (isOpenDeleteModal: boolean, noteId: any) => {
+    setDeleteAllNoteModal(isOpenDeleteModal);
     setSelectedPeople([]);
     setNoteId(noteId);
   };
@@ -213,6 +220,27 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
         // If there is no error, delete the note from local storage
         const storageId = getLocalStorageNoteId(id);
         localStorage.removeItem(storageId);
+      }
+
+      return respDetails;
+    } catch (error: any) {
+      return { error: error.message, message: error.message };
+    }
+  };
+
+  const deleteAllNote = async (
+    id: string[]
+  ): Promise<NoteServerResponse | null> => {
+    const resp = await ApiService.deleteAllNote(id);
+    const respText = await resp.text();
+    try {
+      const respDetails: NoteServerResponse = JSON.parse(respText);
+      if (!respDetails.error) {
+        // If there is no error, delete the note from local storage
+        for (const singleId of id) {
+          const storageId = getLocalStorageNoteId(singleId);
+          localStorage.removeItem(storageId);
+        }
       }
 
       return respDetails;
@@ -330,6 +358,63 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
       // Remove the deleted note from the dataSource
       setDataSource((prevDataSource) =>
         prevDataSource.filter((item) => item.id !== noteIdInUse)
+      );
+      clearEditor();
+    }
+  };
+
+  const DeleteAllNote = async () => {
+    let noteIdsInUse: string[] = [];
+
+    if (Array.isArray(noteId)) {
+      noteIdsInUse = noteId;
+    } else if (noteId) {
+      noteIdsInUse.push(noteId);
+    } else if (noteParamId) {
+      noteIdsInUse.push(noteParamId);
+    } else {
+      setDeleteNoteModal(false);
+      return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
+    }
+
+    setIsLoading(true);
+
+    console.log({ noteIdsInUse });
+
+    const details = await deleteAllNote(noteIdsInUse);
+    setIsLoading(false);
+
+    if (!details) {
+      setDeleteNoteModal(false);
+      return showToast(
+        DELETE_NOTE_TITLE,
+        'An unknown error occurred while deleting the note. Please try again.',
+        'error'
+      );
+    }
+
+    if (details.error) {
+      setDeleteNoteModal(false);
+      return showToast(DELETE_NOTE_TITLE, details.error, 'error');
+    } else {
+      // Remove the deleted notes from pinned notes in local storage
+      const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
+      if (pinnedNotesFromLocalStorage) {
+        const updatedPinnedNotes = pinnedNotesFromLocalStorage.filter(
+          (pinnedNote) => !noteIdsInUse.includes(pinnedNote.noteId as string)
+        );
+        savePinnedNoteLocal(updatedPinnedNotes);
+      }
+      showToast(DELETE_NOTE_TITLE, details.message, 'success');
+      console.log({ details });
+      setNoteId('');
+      getNotes();
+
+      // Remove the deleted notes from the dataSource
+      setDataSource((prevDataSource) =>
+        prevDataSource.filter(
+          (item) => !noteIdsInUse.includes(item.id as string)
+        )
       );
       clearEditor();
     }
@@ -519,7 +604,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
             </section>
             <div
               onClick={() => {
-                onDeleteNote(true, title, id);
+                onDeleteNote(true, id);
               }}
               style={{
                 display: 'flex',
@@ -549,18 +634,9 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
       )
     }
   ];
-
-  const DeleteButton = ({ id, title }: { id: any; title: string }) => (
-    <button
-      type="button"
-      className="inline-flex items-center space-x-2 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-      onClick={() => onDeleteNote(true, title, id)}
-    >
-      <TrashIcon className="w-5" onClick={undefined} />
-      <span>Delete</span>
-    </button>
-  );
-
+  useEffect(() => {
+    // console.log('new tags loaded: ', newTags);
+  }, [newTags]);
   return (
     <>
       <div className="mt-8 flow-root">
@@ -568,7 +644,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
           <div className="inline-block min-w-full py-2 align-middle h-screen sm:px-6 lg:px-8 z-10">
             <div className="relative">
               <div className="table-columns  fixed bottom-[80px] right-[36%] left-[36%]">
-                {selectedPeople.length > 0 && (
+                {selectedPeople.length > 0 || allChecked ? (
                   <div className="top-0 border px-4 py-8 text-sm rounded-md flex h-12 items-center justify-between space-x-3 w-[600px] bg-white sm:left-12">
                     <p className="text-gray-600">
                       {selectedPeople.length} items selected
@@ -687,13 +763,37 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
                           </StyledMenuSection>
                         </Menu>
                       )}
-
-                      {dataSource.map((item) => (
-                        <div key={item.id}>
-                          <DeleteButton id={item.id} title={item.title} />
-                        </div>
-                      ))}
                     </div>
+
+                    {selectedPeople.length > 1 || allChecked ? (
+                      <button
+                        type="button"
+                        className="inline-flex items-center space-x-2 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                        onClick={() => {
+                          if (selectedNoteIdToDeleteArray) {
+                            onDeleteAllNote(true, selectedNoteIdToDeleteArray);
+                            setSelectedNoteIdToDeleteArray([]);
+                          }
+                        }}
+                      >
+                        <TrashIcon className="w-5" onClick={undefined} />
+                        <span>Delete All</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="inline-flex items-center space-x-2 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                        onClick={() => {
+                          if (selectedNoteIdToDelete) {
+                            onDeleteNote(true, selectedNoteIdToDelete);
+                            setSelectedNoteIdToDelete(null);
+                          }
+                        }}
+                      >
+                        <TrashIcon className="w-5" onClick={undefined} />
+                        <span>Delete</span>
+                      </button>
+                    )}
 
                     <button
                       type="button"
@@ -703,7 +803,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
                       Done
                     </button>
                   </div>
-                )}
+                ) : null}
               </div>
               <SelectableTable
                 columns={clientColumn}
@@ -716,6 +816,10 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
                 handleSelectAll={handleSelectAll}
                 allChecked={allChecked}
                 setAllChecked={setAllChecked}
+                setSelectedNoteIdToDelete={setSelectedNoteIdToDelete}
+                selectedNoteIdToDelete={selectedNoteIdToDelete}
+                setSelectedNoteIdToDeleteArray={setSelectedNoteIdToDeleteArray}
+                selectedNoteIdToDeleteArray={selectedNoteIdToDeleteArray}
               />
             </div>
           </div>
@@ -736,12 +840,21 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
       )}
       <NoteModal
         title="Delete Notes"
-        description="Are you sure you want to delete  Note?"
+        description="Are you sure you want to delete Note?"
         isLoading={isLoading}
         isOpen={deleteNoteModal}
         onCancel={() => onCancel()}
         onDelete={() => DeleteNote()}
         onClose={() => setDeleteNoteModal(false)}
+      />
+      <NoteModal
+        title="Delete All Notes"
+        description="Are you sure you want to delete all the marked Notes?"
+        isLoading={isLoading}
+        isOpen={deleteAllNoteModal}
+        onCancel={() => onCancel()}
+        onDelete={() => DeleteAllNote()}
+        onClose={() => setDeleteAllNoteModal(false)}
       />
     </>
   );
