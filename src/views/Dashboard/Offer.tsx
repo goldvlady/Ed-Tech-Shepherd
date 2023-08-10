@@ -683,44 +683,46 @@ const Offer = () => {
                       </AlertDescription>
                     </Alert>
                   )}
-                  <HStack
-                    justifyContent={'flex-end'}
-                    gap={'19px'}
-                    marginTop={'48px'}
-                    textAlign="right"
-                  >
-                    {offer?.status === 'draft' && (
-                      <Button
-                        onClick={() => onWithdrawOfferModalOpen()}
-                        size="md"
-                        variant="destructiveSolidLight"
-                      >
-                        Withdraw Offer
-                      </Button>
-                    )}
-                    {offer?.status === 'accepted' &&
-                      !offer?.completed &&
-                      isEmpty(user?.paymentMethods) && (
+                  {!isTutor && (
+                    <HStack
+                      justifyContent={'flex-end'}
+                      gap={'19px'}
+                      marginTop={'48px'}
+                      textAlign="right"
+                    >
+                      {offer?.status === 'draft' && (
                         <Button
-                          isLoading={settingUpPaymentMethod}
-                          onClick={setupPaymentMethod}
+                          onClick={() => onWithdrawOfferModalOpen()}
                           size="md"
+                          variant="destructiveSolidLight"
                         >
-                          Book
+                          Withdraw Offer
                         </Button>
                       )}
-                    {offer?.status === 'accepted' &&
-                      !offer?.completed &&
-                      !isEmpty(user?.paymentMethods) && (
-                        <Button
-                          isLoading={bookingOffer}
-                          onClick={bookOffer}
-                          size="md"
-                        >
-                          Book
-                        </Button>
-                      )}
-                  </HStack>
+                      {offer?.status === 'accepted' &&
+                        !offer?.completed &&
+                        isEmpty(user?.paymentMethods) && (
+                          <Button
+                            isLoading={settingUpPaymentMethod}
+                            onClick={setupPaymentMethod}
+                            size="md"
+                          >
+                            Book
+                          </Button>
+                        )}
+                      {offer?.status === 'accepted' &&
+                        !offer?.completed &&
+                        !isEmpty(user?.paymentMethods) && (
+                          <Button
+                            isLoading={bookingOffer}
+                            onClick={bookOffer}
+                            size="md"
+                          >
+                            Book
+                          </Button>
+                        )}
+                    </HStack>
+                  )}
                 </Panel>
               </VStack>
             </Box>
