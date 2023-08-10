@@ -31,9 +31,10 @@ export default create<Store>((set) => ({
     return true;
   },
   fetchNotifications: async () => {
-    set({
-      userNotifications: []
-    });
+    const response = await ApiService.getUserNotifications();
+    // if (response.status !== 200) return false;
+    set({ userNotifications: await response.json() });
+    // return true;
   },
   fetchUserDocuments: async (userId: string) => {
     const userDocuments = await fetchStudentDocuments(userId);

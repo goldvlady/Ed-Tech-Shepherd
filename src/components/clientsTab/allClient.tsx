@@ -85,7 +85,7 @@ const AllClientsTab = (props) => {
       start_date: moment(allTutorClients[i]?.createdAt).format('MMMM DD, YYYY'),
       end_date: moment(allTutorClients[i]?.updatedAt).format('MMMM DD, YYYY'),
       status: allTutorClients[i]?.isActive === true ? 'Active' : 'Ended',
-      amount_earned: '$0',
+      amount_earned: '$000.00',
       classes: 'Lesson 1',
       rating: 1
     })
@@ -174,16 +174,17 @@ const AllClientsTab = (props) => {
       id: 5,
       render: ({ classes }) => (
         <>
-          <Text
-            fontWeight="500"
-            fontSize={12}
+          <Box
             bg="#F4F5F6"
-            p={'4px 8px'}
+            py={'4px'}
+            pr={'1px'}
+            textAlign={'center'}
             borderRadius="6px"
-            color="text.400"
           >
-            {classes}
-          </Text>
+            <Text fontWeight="500" fontSize={12} color="text.400">
+              {classes}
+            </Text>
+          </Box>
         </>
       )
     },
@@ -191,7 +192,7 @@ const AllClientsTab = (props) => {
       key: 'rating',
       title: 'Rating',
       dataIndex: 'rating',
-      align: 'left',
+      align: 'center',
       id: 6
     },
     {

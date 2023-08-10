@@ -57,8 +57,8 @@ const sortedBy = [
   {
     id: 1,
     title: 'By date',
-    firstValue: 'Recently created',
-    secondValue: 'Recently modified'
+    firstValue: 'Start Date',
+    secondValue: 'End Date'
   },
   {
     id: 2,
@@ -207,45 +207,6 @@ const Clients = () => {
         </header>
         <CustomTabs tablists={tabLists} tabPanel={tabPanel} />
       </NotesWrapper>
-      {/* ) :
-         (
-          <NotesWrapper>
-            <Header>
-              <Text>
-                <span>My Notes</span>
-              </Text>
-            </Header>
-            <Section>
-              <div>
-                <img src="/images/notes.png" alt="notes" />
-                <Text>You don't have any notes yet!</Text>
-                <DropdownMenu
-                  isCreateNewWidth
-                  isCreateNew
-                  menuTitle="Create new"
-                  DropdownMenuIcon={
-                    <AddIcon fontWeight="700" marginRight="10px" />
-                  }
-                >
-                  {createNewLists?.map((createNewList) => (
-                    <SectionNewList key={createNewList.id}>
-                      <NewList onClick={createNewList.onClick}>
-                        {createNewList.iconName}
-                        <Text>{createNewList.labelText}</Text>
-                      </NewList>
-                    </SectionNewList>
-                  ))}
-                </DropdownMenu>
-              </div>
-            </Section>
-          </NotesWrapper>
-        )} */}
-      {/* <SelectedNoteModal
-          show={toggleHelpModal}
-          setShow={setToggleHelpModal}
-          setShowHelp={setToggleHelpModal} 
-        />*/}
-      {/* </Layout> */}
     </>
   );
 };
