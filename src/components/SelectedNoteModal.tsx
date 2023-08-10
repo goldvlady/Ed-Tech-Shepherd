@@ -2,9 +2,9 @@ import { storage } from '../firebase';
 import { MAX_FILE_UPLOAD_LIMIT } from '../helpers/constants';
 import { processDocument } from '../services/AI';
 import userStore from '../state/userStore';
+import AutocompleteDropdown from './AutocompleteDropdown';
 import CustomButton from './CustomComponents/CustomButton';
 import CustomModal from './CustomComponents/CustomModal/index';
-import CustomDropdown from './CustomDropdown';
 import { UploadIcon } from './icons';
 import { AttachmentIcon } from '@chakra-ui/icons';
 import {
@@ -166,11 +166,12 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   };
 
   const handleSelected = (e) => {
-    const { innerText, value } = e.target;
-    if (value && innerText) {
+    const { label, value } = e;
+
+    if (value && label) {
       setDocumentURL(() => value);
-      setDocumentName(() => innerText);
-      setSelectedOption(innerText);
+      setDocumentName(() => e.label);
+      setSelectedOption(e.label);
       setCanUpload(false);
       setConfirmReady(true);
     }
@@ -306,29 +307,13 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
           {loadedStudentDocs && (
             <div style={{ width: '-webkit-fill-available' }}>
               <Label htmlFor="note">Select note</Label>
-              <CustomDropdown
-                value={selectedOption?.split('/').pop()}
-                placeholder="Select an Option"
-              >
-                <VStack alignItems={'left'} padding="10px">
-                  {loadedStudentDocs &&
-                    studentDocuments.map((item, id) => {
-                      return (
-                        <option
-                          value={item.documentURL}
-                          key={id}
-                          onClick={handleSelected}
-                          style={{
-                            cursor: 'pointer',
-                            width: '100%'
-                          }}
-                        >
-                          {item.title}
-                        </option>
-                      );
-                    })}
-                </VStack>
-              </CustomDropdown>
+              <AutocompleteDropdown
+                handleSelected={handleSelected}
+                selectedOption={selectedOption}
+                studentDocuments={studentDocuments}
+                placeholder={'Select an Option'}
+              />
+
               <OrText>Or</OrText>
             </div>
           )}
