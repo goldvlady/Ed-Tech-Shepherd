@@ -1,6 +1,6 @@
 import { StyledTd, StyledTh, StyledTr } from './styles';
 import { Table, Thead, Tbody, Checkbox } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export type TableColumn<T = any> = {
   title: string;
@@ -17,38 +17,53 @@ export type TableProps<T = any> = {
   isSelectable?: boolean;
   onSelect?: (selectedRowKeys: string[]) => void;
   fileImage?: any;
+  selectedRowKeys?: string[];
+  setSelectedRowKeys?: React.Dispatch<React.SetStateAction<string[]>>;
+  handleSelectAll?: () => void;
+  allChecked?: boolean;
+  setAllChecked?: any;
+  setSelectedNoteIdToDelete?: any;
+  selectedNoteIdToDelete?: any;
+  setSelectedNoteIdToDeleteArray?: any;
+  selectedNoteIdToDeleteArray?: any;
 };
 
 const SelectableTable = <T extends Record<string, unknown>>({
   columns,
   dataSource,
   isSelectable,
-  onSelect
+  onSelect,
+  selectedRowKeys,
+  setSelectedRowKeys,
+  setSelectedNoteIdToDelete,
+  selectedNoteIdToDelete,
+  setSelectedNoteIdToDeleteArray,
+  selectedNoteIdToDeleteArray,
+  handleSelectAll,
+  allChecked
 }: TableProps<T>) => {
-  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
-  const [allChecked, setAllChecked] = useState<boolean>(false);
-
   const handleSelect = (record: T) => {
     const key = record.key as string;
-    if (selectedRowKeys.includes(key)) {
-      setSelectedRowKeys(selectedRowKeys.filter((k) => k !== key));
-      onSelect && onSelect(selectedRowKeys.filter((k) => k !== key));
-    } else {
-      setSelectedRowKeys([...selectedRowKeys, key]);
-      onSelect && onSelect([...selectedRowKeys, key]);
-    }
-  };
 
-  const handleSelectAll = () => {
-    if (!allChecked) {
-      const newSelectedRowKeys = dataSource.map((data) => data.key as string);
-      setSelectedRowKeys(newSelectedRowKeys);
-      onSelect && onSelect(newSelectedRowKeys);
+    const id = record.id as any;
+
+    if (selectedRowKeys?.includes(key)) {
+      setSelectedRowKeys?.(selectedRowKeys.filter((k) => k !== key));
+      onSelect &&
+        onSelect([...(selectedRowKeys?.filter((k) => k !== key) || [])]);
+      onSelect && onSelect(selectedRowKeys?.filter((k) => k !== key) || []);
+
+      setSelectedNoteIdToDeleteArray((prevArray) =>
+        prevArray.filter((noteId) => noteId !== id)
+      );
     } else {
-      setSelectedRowKeys([]);
-      onSelect && onSelect([]);
+      setSelectedRowKeys?.([...(selectedRowKeys || []), key]);
+      onSelect && onSelect([...(selectedRowKeys || []), key]);
     }
-    setAllChecked(!allChecked);
+
+    // Set the selected note ID for deletion
+    setSelectedNoteIdToDelete(id);
+    setSelectedNoteIdToDeleteArray((prevArray) => [...prevArray, id]);
   };
 
   return (
@@ -60,6 +75,7 @@ const SelectableTable = <T extends Record<string, unknown>>({
               <Checkbox isChecked={allChecked} onChange={handleSelectAll} />
             </StyledTh>
           )}
+
           {columns.map((col) => (
             <StyledTh key={col.key} textAlign={col.align || 'left'}>
               {col.title}
@@ -71,7 +87,7 @@ const SelectableTable = <T extends Record<string, unknown>>({
         {dataSource.map((record) => (
           <StyledTr
             key={record.key as string}
-            active={selectedRowKeys.includes(record.key as string)}
+            active={selectedRowKeys?.includes(record.key as string)}
             selectable={isSelectable}
           >
             {isSelectable && (
@@ -79,12 +95,13 @@ const SelectableTable = <T extends Record<string, unknown>>({
                 <div style={{ padding: '0 5px' }}>
                   <Checkbox
                     borderRadius={'5px'}
-                    isChecked={selectedRowKeys.includes(record.key as string)}
+                    isChecked={selectedRowKeys?.includes(record.key as string)}
                     onChange={() => handleSelect(record)}
                   />
                 </div>
               </StyledTd>
             )}
+
             {columns.map((col) => (
               <StyledTd
                 key={col.key}

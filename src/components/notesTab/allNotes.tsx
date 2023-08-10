@@ -52,6 +52,7 @@ type DataSourceItem = {
 
 export interface Props {
   data: Array<NoteDetails>;
+  getNotes: () => void;
 }
 
 const formatTags = (tags: string | string[]): any[] => {
@@ -78,16 +79,21 @@ const formatDate = (date: Date, format = 'DD ddd, hh:mma'): string => {
   return moment(date).format(format);
 };
 
-const AllNotesTab: FC<Props> = ({ data }) => {
+// Define the type for the pinned note
+type PinnedNote = {
+  noteId: string | null;
+  pinnedNoteJSON: any;
+};
+
+const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
   const params = useParams();
   const toast = useToast();
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
-  // const [, setDeleteAllNotesModal] = useState(false);
+  const [deleteAllNoteModal, setDeleteAllNoteModal] = useState(false);
   const checkbox = useRef<HTMLInputElement>(null);
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
   const [selectedPeople, setSelectedPeople] = useState<any[]>([]);
-  // const [clientsDetails, setClientDetails] = useState('');
   const [openTags, setOpenTags] = useState<boolean>(false);
   const [openTagsModal, setOpenTagsModal] = useState<boolean>(false);
   const [noteId, setNoteId] = useState<string | null>(null);
@@ -95,6 +101,14 @@ const AllNotesTab: FC<Props> = ({ data }) => {
   const [noteParamId, setNoteParamId] = useState<string | null>(
     params.id ?? null
   );
+
+  const [, setPinnedNotes] = useState<PinnedNote[]>([]);
+
+  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
+  const [allChecked, setAllChecked] = useState<boolean>(false);
+  const [selectedNoteIdToDelete, setSelectedNoteIdToDelete] = useState(null);
+  const [selectedNoteIdToDeleteArray, setSelectedNoteIdToDeleteArray] =
+    useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [tags, setTags] = useState<string[]>([]);
 
@@ -110,6 +124,8 @@ const AllNotesTab: FC<Props> = ({ data }) => {
 
   const onCancel = () => {
     setDeleteNoteModal(!deleteNoteModal);
+    setSelectedRowKeys([]);
+    setSelectedPeople([]);
   };
 
   const getLocalStorageNoteId = (noteId: string | null): string => {
@@ -144,41 +160,44 @@ const AllNotesTab: FC<Props> = ({ data }) => {
     }
   }, [selectedPeople]);
 
-  function toggleAll() {
-    setSelectedPeople(checked || indeterminate ? [] : data);
-    setChecked(!checked && !indeterminate);
-    console.log({ checked, selectedPeople });
-    setIndeterminate(false);
-  }
+  const handleSelectAll = () => {
+    if (!allChecked) {
+      const newSelectedRowKeys = dataSource.map(
+        (data) => data.key as unknown as string
+      );
+      setSelectedRowKeys(newSelectedRowKeys);
+    } else {
+      setSelectedRowKeys([]);
+      setSelectedPeople([]);
+    }
+    setAllChecked(!allChecked);
+  };
 
   function Done() {
-    setChecked(false);
-    setIndeterminate(false);
+    setSelectedRowKeys([]);
     setSelectedPeople([]);
-    console.log({ checked, selectedPeople });
   }
 
   useEffect(() => {
-    // Done();
-    console.log({ checked, selectedPeople });
+    // console.log({ checked, selectedPeople });
   }, [checked, selectedPeople]);
 
-  const onDeleteNote = (
-    isOpenDeleteModal: boolean,
-    noteDetails: string,
-    noteId: any
-  ) => {
+  const onDeleteNote = (isOpenDeleteModal: boolean, noteId: any) => {
     setDeleteNoteModal(isOpenDeleteModal);
-    // setClientDetails(noteDetails);
+    setSelectedPeople([]);
+    setNoteId(noteId);
+  };
+  const onDeleteAllNote = (isOpenDeleteModal: boolean, noteId: any) => {
+    setDeleteAllNoteModal(isOpenDeleteModal);
+    setSelectedPeople([]);
     setNoteId(noteId);
   };
 
-  const onAddTag = (openTagsModal: boolean, noteId: any, tags: any[]) => {
+  const onAddTag = (openTagsModal: boolean, noteId: any, tags: string[]) => {
     setOpenTagsModal(openTagsModal);
-    // setClientDetails(noteDetails);
     setNoteId(noteId);
-    // set current tabs on modal open
-    // setNewTags(tags);
+    // setTags(tags);
+    // console.log({ tags });
   };
 
   const gotoEditNote = (noteId: string | number) => {
@@ -201,6 +220,27 @@ const AllNotesTab: FC<Props> = ({ data }) => {
         // If there is no error, delete the note from local storage
         const storageId = getLocalStorageNoteId(id);
         localStorage.removeItem(storageId);
+      }
+
+      return respDetails;
+    } catch (error: any) {
+      return { error: error.message, message: error.message };
+    }
+  };
+
+  const deleteAllNote = async (
+    id: string[]
+  ): Promise<NoteServerResponse | null> => {
+    const resp = await ApiService.deleteAllNote(id);
+    const respText = await resp.text();
+    try {
+      const respDetails: NoteServerResponse = JSON.parse(respText);
+      if (!respDetails.error) {
+        // If there is no error, delete the note from local storage
+        for (const singleId of id) {
+          const storageId = getLocalStorageNoteId(singleId);
+          localStorage.removeItem(storageId);
+        }
       }
 
       return respDetails;
@@ -252,6 +292,30 @@ const AllNotesTab: FC<Props> = ({ data }) => {
     });
   };
 
+  const savePinnedNoteLocal = (pinnedNotesArray: any) => {
+    const storageId = 'pinned_notes'; // Unique identifier for the array in local storage
+    localStorage.setItem(storageId, JSON.stringify(pinnedNotesArray));
+  };
+
+  // Function to get pinned notes from local storage
+  const getPinnedNotesFromLocalStorage = (): PinnedNote[] | null => {
+    const storageId = 'pinned_notes';
+    const pinnedNotesString = localStorage.getItem(storageId);
+    if (pinnedNotesString) {
+      return JSON.parse(pinnedNotesString);
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
+    if (pinnedNotesFromLocalStorage) {
+      setPinnedNotes(pinnedNotesFromLocalStorage);
+    } else {
+      setPinnedNotes([]);
+    }
+  }, []);
+
   const DeleteNote = async () => {
     const noteIdInUse = noteId ?? noteParamId;
 
@@ -278,14 +342,79 @@ const AllNotesTab: FC<Props> = ({ data }) => {
       setDeleteNoteModal(false);
       return showToast(DELETE_NOTE_TITLE, details.error, 'error');
     } else {
+      // Remove the deleted note from pinned notes in local storage
+      const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
+      if (pinnedNotesFromLocalStorage) {
+        const updatedPinnedNotes = pinnedNotesFromLocalStorage.filter(
+          (pinnedNote) => pinnedNote.noteId !== noteIdInUse
+        );
+        savePinnedNoteLocal(updatedPinnedNotes);
+      }
       setDeleteNoteModal(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
-      // setEditedTitle(defaultNoteTitle);
       setNoteId('');
+      getNotes();
 
       // Remove the deleted note from the dataSource
       setDataSource((prevDataSource) =>
         prevDataSource.filter((item) => item.id !== noteIdInUse)
+      );
+      clearEditor();
+    }
+  };
+
+  const DeleteAllNote = async () => {
+    let noteIdsInUse: string[] = [];
+
+    if (Array.isArray(noteId)) {
+      noteIdsInUse = noteId;
+    } else if (noteId) {
+      noteIdsInUse.push(noteId);
+    } else if (noteParamId) {
+      noteIdsInUse.push(noteParamId);
+    } else {
+      setDeleteNoteModal(false);
+      return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
+    }
+
+    setIsLoading(true);
+
+    console.log({ noteIdsInUse });
+
+    const details = await deleteAllNote(noteIdsInUse);
+    setIsLoading(false);
+
+    if (!details) {
+      setDeleteNoteModal(false);
+      return showToast(
+        DELETE_NOTE_TITLE,
+        'An unknown error occurred while deleting the note. Please try again.',
+        'error'
+      );
+    }
+
+    if (details.error) {
+      setDeleteNoteModal(false);
+      return showToast(DELETE_NOTE_TITLE, details.error, 'error');
+    } else {
+      // Remove the deleted notes from pinned notes in local storage
+      const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
+      if (pinnedNotesFromLocalStorage) {
+        const updatedPinnedNotes = pinnedNotesFromLocalStorage.filter(
+          (pinnedNote) => !noteIdsInUse.includes(pinnedNote.noteId as string)
+        );
+        savePinnedNoteLocal(updatedPinnedNotes);
+      }
+      showToast(DELETE_NOTE_TITLE, details.message, 'success');
+      console.log({ details });
+      setNoteId('');
+      getNotes();
+
+      // Remove the deleted notes from the dataSource
+      setDataSource((prevDataSource) =>
+        prevDataSource.filter(
+          (item) => !noteIdsInUse.includes(item.id as string)
+        )
       );
       clearEditor();
     }
@@ -319,7 +448,6 @@ const AllNotesTab: FC<Props> = ({ data }) => {
       setOpenTagsModal(false);
       return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
     }
-    console.log('curent tags: ', newTags);
     const details = await addTag(noteIdInUse, newTags);
 
     if (!details) {
@@ -339,9 +467,10 @@ const AllNotesTab: FC<Props> = ({ data }) => {
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
       setNoteId('');
       clearEditor();
-      setTags(details.data.tags);
+      getNotes();
 
-      // Update tags for the specific note
+      // setTags(details.data.tags);
+
       setDataSource((prevDataSource) => {
         return prevDataSource.map((item) => {
           if (item.id === noteIdInUse) {
@@ -475,7 +604,7 @@ const AllNotesTab: FC<Props> = ({ data }) => {
             </section>
             <div
               onClick={() => {
-                onDeleteNote(true, title, id);
+                onDeleteNote(true, id);
               }}
               style={{
                 display: 'flex',
@@ -506,7 +635,7 @@ const AllNotesTab: FC<Props> = ({ data }) => {
     }
   ];
   useEffect(() => {
-    console.log('new tags loaded: ', newTags);
+    // console.log('new tags loaded: ', newTags);
   }, [newTags]);
   return (
     <>
@@ -515,15 +644,18 @@ const AllNotesTab: FC<Props> = ({ data }) => {
           <div className="inline-block min-w-full py-2 align-middle h-screen sm:px-6 lg:px-8 z-10">
             <div className="relative">
               <div className="table-columns  fixed bottom-[80px] right-[36%] left-[36%]">
-                {selectedPeople.length > 0 && (
+                {selectedPeople.length > 0 || allChecked ? (
                   <div className="top-0 border px-4 py-8 text-sm rounded-md flex h-12 items-center justify-between space-x-3 w-[600px] bg-white sm:left-12">
                     <p className="text-gray-600">
                       {selectedPeople.length} items selected
                     </p>
 
                     <div className="flex items-center space-x-4">
-                      <button className="text-gray-600" onClick={toggleAll}>
-                        Select all
+                      <button
+                        className="text-gray-600"
+                        onClick={handleSelectAll}
+                      >
+                        {allChecked ? 'Deselect all' : 'Select all'}
                       </button>
                       <Menu>
                         <StyledMenuButton
@@ -631,19 +763,37 @@ const AllNotesTab: FC<Props> = ({ data }) => {
                           </StyledMenuSection>
                         </Menu>
                       )}
+                    </div>
 
+                    {selectedPeople.length > 1 || allChecked ? (
                       <button
-                        // onClick={() => setDeleteAllNotesModal(true)}
-                        // onClick={() => {
-                        //   onDeleteNote(true, title, id);
-                        // }}
                         type="button"
                         className="inline-flex items-center space-x-2 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                        onClick={() => {
+                          if (selectedNoteIdToDeleteArray) {
+                            onDeleteAllNote(true, selectedNoteIdToDeleteArray);
+                            setSelectedNoteIdToDeleteArray([]);
+                          }
+                        }}
+                      >
+                        <TrashIcon className="w-5" onClick={undefined} />
+                        <span>Delete All</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="inline-flex items-center space-x-2 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                        onClick={() => {
+                          if (selectedNoteIdToDelete) {
+                            onDeleteNote(true, selectedNoteIdToDelete);
+                            setSelectedNoteIdToDelete(null);
+                          }
+                        }}
                       >
                         <TrashIcon className="w-5" onClick={undefined} />
                         <span>Delete</span>
                       </button>
-                    </div>
+                    )}
 
                     <button
                       type="button"
@@ -653,7 +803,7 @@ const AllNotesTab: FC<Props> = ({ data }) => {
                       Done
                     </button>
                   </div>
-                )}
+                ) : null}
               </div>
               <SelectableTable
                 columns={clientColumn}
@@ -661,6 +811,15 @@ const AllNotesTab: FC<Props> = ({ data }) => {
                 isSelectable
                 fileImage
                 onSelect={(e) => setSelectedPeople(e)}
+                selectedRowKeys={selectedRowKeys}
+                setSelectedRowKeys={setSelectedRowKeys}
+                handleSelectAll={handleSelectAll}
+                allChecked={allChecked}
+                setAllChecked={setAllChecked}
+                setSelectedNoteIdToDelete={setSelectedNoteIdToDelete}
+                selectedNoteIdToDelete={selectedNoteIdToDelete}
+                setSelectedNoteIdToDeleteArray={setSelectedNoteIdToDeleteArray}
+                selectedNoteIdToDeleteArray={selectedNoteIdToDeleteArray}
               />
             </div>
           </div>
@@ -681,12 +840,21 @@ const AllNotesTab: FC<Props> = ({ data }) => {
       )}
       <NoteModal
         title="Delete Notes"
-        description="Are you sure you want to delete  Note?"
+        description="Are you sure you want to delete Note?"
         isLoading={isLoading}
         isOpen={deleteNoteModal}
         onCancel={() => onCancel()}
         onDelete={() => DeleteNote()}
         onClose={() => setDeleteNoteModal(false)}
+      />
+      <NoteModal
+        title="Delete All Notes"
+        description="Are you sure you want to delete all the marked Notes?"
+        isLoading={isLoading}
+        isOpen={deleteAllNoteModal}
+        onCancel={() => onCancel()}
+        onDelete={() => DeleteAllNote()}
+        onClose={() => setDeleteAllNoteModal(false)}
       />
     </>
   );

@@ -50,3 +50,7 @@ export enum SortOrder {
 export enum NoteEnums {
   PINNED_NOTE_STORE_ID = 'pinned_notes'
 }
+
+export type WorkerCallback = (...args: any) => any;
+
+export type WorkerProcess = (...args: any) => any;

@@ -1,7 +1,7 @@
 import { SelectedNoteModal } from '../../../../components';
 import CustomTabs from '../../../../components/CustomComponents/CustomTabs';
 import LoaderOverlay from '../../../../components/loaderOverlay';
-import { Header, NotesWrapper, StyledHeader } from '../styles';
+import { Header, NotesWrapper, Section, StyledHeader, Text } from '../styles';
 import { PinnedNoteDetails } from '../types';
 import PinnedNotesTab from './PinnedNotesTab';
 import { useEffect, useState } from 'react';
@@ -106,6 +106,12 @@ const PinnedNotes = () => {
                   <span className="font-bold">My Pinned Notes</span>
                 </StyledHeader>
               </Header>
+              <Section>
+                <div>
+                  <img src="/images/notes.png" alt="notes" />
+                  <Text>You don't have any pinned notes yet!</Text>
+                </div>
+              </Section>
             </NotesWrapper>
           )}
           <SelectedNoteModal

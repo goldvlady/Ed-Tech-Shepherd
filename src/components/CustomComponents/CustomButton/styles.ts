@@ -4,12 +4,14 @@ export const StyledButton = styled.button<{
   isCancel?: boolean;
   isDelete?: boolean;
   active?: boolean;
+  disabled?: boolean;
 }>`
   background: ${({ isCancel, isDelete, active = true }) =>
-    !active ? 'gray' : isCancel ? '#FFFFFF' : isDelete ? '#F53535' : '#207DF7'};
+    !active ? 'grey' : isCancel ? '#FFFFFF' : isDelete ? '#F53535' : '#207DF7'};
 
   color: ${({ isCancel, isDelete }) =>
     isCancel ? '##5C5F64' : isDelete ? '#FFFFFF' : '#FFFFFF'};
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : '')};
 
   border: ${({ isCancel }) => (isCancel ? '1px solid #E7E8E9' : 'none')};
   font-weight: 600;
