@@ -197,7 +197,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
                             className={`group cursor-pointer relative transform bg-white border-1 rounded-lg border-gray-300 p-4 hover:border-blue-500 focus:border-blue-500 action-card ${
                               actions1Visible && 'slide-in'
                             }`}
-                            style={{ animationDelay: `${action.id * 0.7}s` }}
+                            style={{ animationDelay: `${action.id * 0.2}s` }}
                           >
                             <div>
                               <img src={action.imageURL} alt={action.title} />
@@ -226,7 +226,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
                             className={`group cursor-pointer relative transform bg-white border-1 rounded-lg border-gray-300 p-4 focus-within:border-blue-500 hover:border-blue-500 action-card ${
                               actions2Visible && 'slide-in'
                             }`}
-                            style={{ animationDelay: `${action.id * 0.7}s` }}
+                            style={{ animationDelay: `${action.id * 0.2}s` }}
                           >
                             <div>
                               <img src={action.imageURL} alt={action.title} />
