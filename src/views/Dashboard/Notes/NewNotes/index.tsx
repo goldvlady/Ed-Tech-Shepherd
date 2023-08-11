@@ -729,7 +729,7 @@ const NewNote = () => {
   };
 
   const handleBackClick = () => {
-    navigate('/dashboard/notes');
+    navigate(-1);
   };
 
   // Load notes if noteID is provided via param
