@@ -2,6 +2,7 @@ import CustomModal from '../../../components/CustomComponents/CustomModal';
 import { chatHomeworkHelp } from '../../../services/AI';
 import socketWithAuth from '../../../socket';
 import userStore from '../../../state/userStore';
+import { FlashcardData } from '../../../types';
 import Chat from '../DocChat/chat';
 import ChatHistory from '../DocChat/chatHistory';
 import ViewHomeWorkHelpDetails from './ViewHomeWorkHelpDetails';
@@ -12,7 +13,7 @@ import {
   HomeWorkHelpHistoryContainer
 } from './style';
 import React, { useState, useCallback, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const HomeWorkHelp = () => {
   const [isOpenModal, setOpenModal] = useState(false);
@@ -33,6 +34,13 @@ const HomeWorkHelp = () => {
   const topic = location?.state?.topic;
   const [countNeedTutor, setCountNeedTutor] = useState<number>(1);
   const [socket, setSocket] = useState<any>(null);
+  const [subjectId, setSubject] = useState<string>('Subject');
+  const [localData, setLocalData] = useState<any>({
+    subject: subjectId,
+    topic: ''
+  });
+  const [level, setLevel] = useState<any>('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!socket) {
@@ -76,7 +84,7 @@ const HomeWorkHelp = () => {
 
   useEffect(() => {
     if (socket) {
-      socket.on('homeworkhelp response', async (token) => {
+      socket.on('homework chatbot response', async (token) => {
         setBotStatus('Typing...');
         setLLMResponse((llmResponse) => llmResponse + token);
       });
@@ -167,6 +175,22 @@ const HomeWorkHelp = () => {
     [handleSendMessage]
   );
 
+  const onRouteHomeWorkHelp = useCallback(() => {
+    handleClose();
+    navigate('/dashboard/ace-homework', {
+      state: { subject: subjectId, topic: topic, level }
+    });
+    setMessages([]);
+  }, [
+    subjectId,
+    localData,
+    level,
+    setMessages,
+    handleClose,
+    handleAceHomeWorkHelp,
+    navigate
+  ]);
+
   return (
     <HomeWorkHelpContainer>
       <HomeWorkHelpHistoryContainer>
@@ -215,6 +239,13 @@ const HomeWorkHelp = () => {
           handleClose={handleClose}
           setMessages={setMessages}
           handleAceHomeWorkHelp={handleAceHomeWorkHelp}
+          setSubject={setSubject}
+          subjectId={subjectId}
+          setLocalData={setLocalData}
+          setLevel={setLevel}
+          localData={localData}
+          level={level}
+          onRouteHomeWorkHelp={onRouteHomeWorkHelp}
         />
       )}
     </HomeWorkHelpContainer>

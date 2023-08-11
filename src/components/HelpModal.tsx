@@ -24,6 +24,12 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
   const [actions2Visible, setActions2Visible] = useState(false);
   const navigate = useNavigate();
   const { user }: any = userStore();
+  const [subjectId, setSubject] = useState<string>('Subject');
+  const [localData, setLocalData] = useState<any>({
+    subject: subjectId,
+    topic: ''
+  });
+  const [level, setLevel] = useState<any>('');
 
   const handleClose = () => {
     setToggleHelpModal(false);
@@ -124,6 +130,21 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
       onClick: () => handleShowSelected()
     }
   ];
+
+  const onRouteHomeWorkHelp = useCallback(() => {
+    handleClose();
+    handleAceHomeWorkHelp();
+    navigate('/dashboard/ace-homework', {
+      state: { subject: subjectId, topic: localData.topic, level }
+    });
+  }, [
+    subjectId,
+    localData,
+    level,
+    handleClose,
+    handleAceHomeWorkHelp,
+    navigate
+  ]);
 
   return (
     <>
@@ -266,6 +287,13 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
           openAceHomework={openAceHomework}
           handleClose={handleClose}
           handleAceHomeWorkHelp={handleAceHomeWorkHelp}
+          setSubject={setSubject}
+          subjectId={subjectId}
+          setLocalData={setLocalData}
+          setLevel={setLevel}
+          localData={localData}
+          level={level}
+          onRouteHomeWorkHelp={onRouteHomeWorkHelp}
         />
       )}
     </>
