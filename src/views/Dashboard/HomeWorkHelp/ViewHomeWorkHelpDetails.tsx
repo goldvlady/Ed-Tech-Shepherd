@@ -34,25 +34,30 @@ interface FlashcardData {
 }
 const ViewHomeWorkHelpDetails = ({
   openAceHomework,
-  handleClose,
   handleAceHomeWorkHelp,
-  isHomeWorkHelp,
-  setMessages
+  setSubject,
+  subjectId,
+  setLocalData,
+  setLevel,
+  localData,
+  level,
+  onRouteHomeWorkHelp
 }: {
   openAceHomework: boolean;
   handleClose: () => void;
   handleAceHomeWorkHelp: () => void;
   isHomeWorkHelp?: boolean;
   setMessages?: any;
+  setSubject?: any;
+  subjectId?: any;
+  setLocalData?: any;
+  setLevel?: any;
+  localData?: any;
+  level?: any;
+  onRouteHomeWorkHelp?: any;
 }) => {
   const { courses: courseList, levels: levelOptions } = resourceStore();
-  const [subjectId, setSubject] = useState<string>('Subject');
   const [searchValue, setSearchValue] = useState('');
-  const [localData, setLocalData] = useState<FlashcardData>({
-    subject: subjectId,
-    topic: ''
-  });
-  const [level, setLevel] = useState<any>('');
 
   const searchQuery = useCallback((searchValue: string, courseList: any[]) => {
     return courseList.filter((course) =>
@@ -78,24 +83,6 @@ const ViewHomeWorkHelpDetails = ({
   const isDisabledBtn = useMemo(() => {
     return !Object.values(localData).some((value) => value === '');
   }, [localData]);
-
-  const onRouteHomeWorkHelp = useCallback(() => {
-    handleClose();
-    !isHomeWorkHelp && handleAceHomeWorkHelp();
-    navigate('/dashboard/ace-homework', {
-      state: { subject: subjectId, topic: localData.topic, level }
-    });
-    setMessages([]);
-  }, [
-    subjectId,
-    localData,
-    level,
-    isHomeWorkHelp,
-    setMessages,
-    handleClose,
-    handleAceHomeWorkHelp,
-    navigate
-  ]);
 
   return (
     <CustomModal
