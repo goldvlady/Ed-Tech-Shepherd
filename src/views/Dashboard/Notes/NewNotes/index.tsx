@@ -30,6 +30,7 @@ import {
   NewNoteWrapper,
   NoteBody,
   PDFWrapper,
+  FullScreenNoteWrapper,
   SecondSection
 } from './styles';
 import { initNoteIngestWorker } from './worker/ingest';
@@ -601,7 +602,8 @@ const NewNote = () => {
     if (!editorStyle) {
       setEditorStyle({
         position: 'absolute',
-        width: '100vw',
+        // width: '100vw',
+        width: '100%',
         height: '100vh',
         top: 0,
         left: 0,
@@ -727,7 +729,7 @@ const NewNote = () => {
   };
 
   const handleBackClick = () => {
-    navigate('/dashboard/notes');
+    navigate(-1);
   };
 
   // Load notes if noteID is provided via param
@@ -746,146 +748,306 @@ const NewNote = () => {
         <BackArrow />
         <HeaderButtonText> Back</HeaderButtonText>
       </HeaderButton>
-      <NewNoteWrapper {...editorStyle}>
-        <Header>
-          <FirstSection>
-            {isFullScreen ? (
-              <div className="zoom__icn" onClick={toggleEditorView}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="18"
-                  viewBox="0 0 20 18"
-                  fill="none"
-                >
-                  <path
-                    d="M15.4997 4.41667H19.1663V6.25H13.6663V0.75H15.4997V4.41667ZM6.33301 6.25H0.833008V4.41667H4.49967V0.75H6.33301V6.25ZM15.4997 13.5833V17.25H13.6663V11.75H19.1663V13.5833H15.4997ZM6.33301 11.75V17.25H4.49967V13.5833H0.833008V11.75H6.33301Z"
-                    fill="#7E8591"
-                  />
-                </svg>
-              </div>
-            ) : (
-              <div className="zoom__icn" onClick={toggleEditorView}>
-                <ZoomIcon />
-              </div>
-            )}
-            <div onClick={handleHeaderClick} ref={inputContainerRef}>
-              <div className="doc__name">
-                {isEditingTitle ? (
-                  <input
-                    type="text"
-                    value={editedTitle}
-                    onChange={handleTitleChange}
-                    onBlur={handleFocusOut}
-                    onKeyDown={handleKeyDown}
-                    autoFocus
-                  />
-                ) : (
-                  <>{editedTitle}</>
-                )}
-              </div>
-            </div>
-            <div className="timestamp">
-              <p>Updated {currentTime}</p>
-            </div>
-          </FirstSection>
-          <SecondSection>
-            <CustomButton
-              disabled={!saveButtonState}
-              isPrimary
-              title={!saveButtonState ? 'Saving...' : 'Save'}
-              type="button"
-              onClick={onSaveNote}
-              active={saveButtonState}
-            />
-            <div className="pin__icn" onClick={handlePinClick}>
-              <PinIcon />
-            </div>
-            <div>
-              <Menu>
-                <MenuButton
-                  as={Button}
-                  variant="unstyled"
-                  borderRadius="full"
-                  p={0}
-                  minW="auto"
-                  height="auto"
-                >
-                  <FaEllipsisH fontSize={'12px'} />
-                </MenuButton>
-                <MenuList
-                  fontSize="0.875rem"
-                  minWidth={'185px'}
-                  borderRadius="8px"
-                  backgroundColor="#FFFFFF"
-                  boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
-                >
-                  <section>
-                    {dropDownOptions?.map((dropDownOption) => (
-                      <DropDownLists key={dropDownOption.id}>
-                        <DropDownFirstPart
-                          onClick={() =>
-                            handleOptionClick(dropDownOption.onClick)
-                          }
-                        >
-                          <div>
-                            {dropDownOption.leftIcon}
-                            <p
-                              style={{
-                                color:
-                                  dropDownOption.title === 'Delete'
-                                    ? '#F53535'
-                                    : ''
-                              }}
-                            >
-                              {dropDownOption.title}
-                            </p>
-                          </div>
-                          <div>{dropDownOption.rightIcon}</div>
-                        </DropDownFirstPart>
-                      </DropDownLists>
-                    ))}
-                  </section>
-                </MenuList>
-              </Menu>
 
-              {openTags && (
-                <TagModal
-                  onSubmit={AddTags}
-                  isOpen={openTags}
-                  onClose={() => setOpenTags(false)}
-                  tags={tags}
-                  inputValue={inputValue}
-                  handleAddTag={handleAddTag}
-                  newTags={newTags}
-                  setNewTags={setNewTags}
-                  setInputValue={setInputValue}
+      {isFullScreen ? (
+        // <FullScreenNoteWrapper>
+        <NewNoteWrapper {...editorStyle}>
+          <FullScreenNoteWrapper>
+            {' '}
+            {isFullScreen ? (
+              <HeaderButton onClick={handleBackClick}>
+                <BackArrow />
+                <HeaderButtonText> Back</HeaderButtonText>
+              </HeaderButton>
+            ) : null}
+            <Header>
+              <FirstSection>
+                {isFullScreen ? (
+                  <div className="zoom__icn" onClick={toggleEditorView}>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="18"
+                      viewBox="0 0 20 18"
+                      fill="none"
+                    >
+                      <path
+                        d="M15.4997 4.41667H19.1663V6.25H13.6663V0.75H15.4997V4.41667ZM6.33301 6.25H0.833008V4.41667H4.49967V0.75H6.33301V6.25ZM15.4997 13.5833V17.25H13.6663V11.75H19.1663V13.5833H15.4997ZM6.33301 11.75V17.25H4.49967V13.5833H0.833008V11.75H6.33301Z"
+                        fill="#7E8591"
+                      />
+                    </svg>
+                  </div>
+                ) : (
+                  <div className="zoom__icn" onClick={toggleEditorView}>
+                    <ZoomIcon />
+                  </div>
+                )}
+                <div onClick={handleHeaderClick} ref={inputContainerRef}>
+                  <div className="doc__name">
+                    {isEditingTitle ? (
+                      <input
+                        type="text"
+                        value={editedTitle}
+                        onChange={handleTitleChange}
+                        onBlur={handleFocusOut}
+                        onKeyDown={handleKeyDown}
+                        autoFocus
+                      />
+                    ) : (
+                      <>{editedTitle}</>
+                    )}
+                  </div>
+                </div>
+                <div className="timestamp">
+                  <p>Updated {currentTime}</p>
+                </div>
+              </FirstSection>
+              <SecondSection>
+                <CustomButton
+                  disabled={!saveButtonState}
+                  isPrimary
+                  title={!saveButtonState ? 'Saving...' : 'Save'}
+                  type="button"
+                  onClick={onSaveNote}
+                  active={saveButtonState}
                 />
-              )}
-            </div>
-          </SecondSection>
-        </Header>
-        <NoteBody>
-          <BlockNoteView editor={editor} />
-          {/* We will show PDF once endpoint is implemented */}
-          {/* <PDFWrapper>
+                <div className="pin__icn" onClick={handlePinClick}>
+                  <PinIcon />
+                </div>
+                <div>
+                  <Menu>
+                    <MenuButton
+                      as={Button}
+                      variant="unstyled"
+                      borderRadius="full"
+                      p={0}
+                      minW="auto"
+                      height="auto"
+                    >
+                      <FaEllipsisH fontSize={'12px'} />
+                    </MenuButton>
+                    <MenuList
+                      fontSize="0.875rem"
+                      minWidth={'185px'}
+                      borderRadius="8px"
+                      backgroundColor="#FFFFFF"
+                      boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
+                    >
+                      <section>
+                        {dropDownOptions?.map((dropDownOption) => (
+                          <DropDownLists key={dropDownOption.id}>
+                            <DropDownFirstPart
+                              onClick={() =>
+                                handleOptionClick(dropDownOption.onClick)
+                              }
+                            >
+                              <div>
+                                {dropDownOption.leftIcon}
+                                <p
+                                  style={{
+                                    color:
+                                      dropDownOption.title === 'Delete'
+                                        ? '#F53535'
+                                        : ''
+                                  }}
+                                >
+                                  {dropDownOption.title}
+                                </p>
+                              </div>
+                              <div>{dropDownOption.rightIcon}</div>
+                            </DropDownFirstPart>
+                          </DropDownLists>
+                        ))}
+                      </section>
+                    </MenuList>
+                  </Menu>
+
+                  {openTags && (
+                    <TagModal
+                      onSubmit={AddTags}
+                      isOpen={openTags}
+                      onClose={() => setOpenTags(false)}
+                      tags={tags}
+                      inputValue={inputValue}
+                      handleAddTag={handleAddTag}
+                      newTags={newTags}
+                      setNewTags={setNewTags}
+                      setInputValue={setInputValue}
+                    />
+                  )}
+                </div>
+              </SecondSection>
+            </Header>
+            <NoteBody>
+              <BlockNoteView editor={editor} />
+              {/* We will show PDF once endpoint is implemented */}
+              {/* <PDFWrapper>
           <PDFViewer
             url={"https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"}
             page={1} />
         </PDFWrapper> */}
-        </NoteBody>
+            </NoteBody>
+            <NoteModal
+              title="Delete Note"
+              description="This will delete Note. Are you sure?"
+              isLoading={isLoading}
+              isOpen={deleteNoteModal}
+              actionButtonText="Delete"
+              onCancel={() => onCancel()}
+              onDelete={() => onDeleteNote()}
+              onClose={() => setDeleteNoteModal(false)}
+            />
+          </FullScreenNoteWrapper>
+        </NewNoteWrapper>
+      ) : (
+        <NewNoteWrapper {...editorStyle}>
+          {isFullScreen ? (
+            <HeaderButton onClick={handleBackClick}>
+              <BackArrow />
+              <HeaderButtonText> Back</HeaderButtonText>
+            </HeaderButton>
+          ) : null}
 
-        <NoteModal
-          title="Delete Note"
-          description="This will delete Note. Are you sure?"
-          isLoading={isLoading}
-          isOpen={deleteNoteModal}
-          actionButtonText="Delete"
-          onCancel={() => onCancel()}
-          onDelete={() => onDeleteNote()}
-          onClose={() => setDeleteNoteModal(false)}
-        />
-      </NewNoteWrapper>
+          <Header>
+            <FirstSection>
+              {isFullScreen ? (
+                <div className="zoom__icn" onClick={toggleEditorView}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="18"
+                    viewBox="0 0 20 18"
+                    fill="none"
+                  >
+                    <path
+                      d="M15.4997 4.41667H19.1663V6.25H13.6663V0.75H15.4997V4.41667ZM6.33301 6.25H0.833008V4.41667H4.49967V0.75H6.33301V6.25ZM15.4997 13.5833V17.25H13.6663V11.75H19.1663V13.5833H15.4997ZM6.33301 11.75V17.25H4.49967V13.5833H0.833008V11.75H6.33301Z"
+                      fill="#7E8591"
+                    />
+                  </svg>
+                </div>
+              ) : (
+                <div className="zoom__icn" onClick={toggleEditorView}>
+                  <ZoomIcon />
+                </div>
+              )}
+              <div onClick={handleHeaderClick} ref={inputContainerRef}>
+                <div className="doc__name">
+                  {isEditingTitle ? (
+                    <input
+                      type="text"
+                      value={editedTitle}
+                      onChange={handleTitleChange}
+                      onBlur={handleFocusOut}
+                      onKeyDown={handleKeyDown}
+                      autoFocus
+                    />
+                  ) : (
+                    <>{editedTitle}</>
+                  )}
+                </div>
+              </div>
+              <div className="timestamp">
+                <p>Updated {currentTime}</p>
+              </div>
+            </FirstSection>
+            <SecondSection>
+              <CustomButton
+                disabled={!saveButtonState}
+                isPrimary
+                title={!saveButtonState ? 'Saving...' : 'Save'}
+                type="button"
+                onClick={onSaveNote}
+                active={saveButtonState}
+              />
+              <div className="pin__icn" onClick={handlePinClick}>
+                <PinIcon />
+              </div>
+              <div>
+                <Menu>
+                  <MenuButton
+                    as={Button}
+                    variant="unstyled"
+                    borderRadius="full"
+                    p={0}
+                    minW="auto"
+                    height="auto"
+                  >
+                    <FaEllipsisH fontSize={'12px'} />
+                  </MenuButton>
+                  <MenuList
+                    fontSize="0.875rem"
+                    minWidth={'185px'}
+                    borderRadius="8px"
+                    backgroundColor="#FFFFFF"
+                    boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
+                  >
+                    <section>
+                      {dropDownOptions?.map((dropDownOption) => (
+                        <DropDownLists key={dropDownOption.id}>
+                          <DropDownFirstPart
+                            onClick={() =>
+                              handleOptionClick(dropDownOption.onClick)
+                            }
+                          >
+                            <div>
+                              {dropDownOption.leftIcon}
+                              <p
+                                style={{
+                                  color:
+                                    dropDownOption.title === 'Delete'
+                                      ? '#F53535'
+                                      : ''
+                                }}
+                              >
+                                {dropDownOption.title}
+                              </p>
+                            </div>
+                            <div>{dropDownOption.rightIcon}</div>
+                          </DropDownFirstPart>
+                        </DropDownLists>
+                      ))}
+                    </section>
+                  </MenuList>
+                </Menu>
+
+                {openTags && (
+                  <TagModal
+                    onSubmit={AddTags}
+                    isOpen={openTags}
+                    onClose={() => setOpenTags(false)}
+                    tags={tags}
+                    inputValue={inputValue}
+                    handleAddTag={handleAddTag}
+                    newTags={newTags}
+                    setNewTags={setNewTags}
+                    setInputValue={setInputValue}
+                  />
+                )}
+              </div>
+            </SecondSection>
+          </Header>
+          <NoteBody>
+            <BlockNoteView editor={editor} />
+            {/* We will show PDF once endpoint is implemented */}
+            {/* <PDFWrapper>
+          <PDFViewer
+            url={"https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"}
+            page={1} />
+        </PDFWrapper> */}
+          </NoteBody>
+
+          <NoteModal
+            title="Delete Note"
+            description="This will delete Note. Are you sure?"
+            isLoading={isLoading}
+            isOpen={deleteNoteModal}
+            actionButtonText="Delete"
+            onCancel={() => onCancel()}
+            onDelete={() => onDeleteNote()}
+            onClose={() => setDeleteNoteModal(false)}
+          />
+        </NewNoteWrapper>
+      )}
     </>
   );
 };
