@@ -11,6 +11,7 @@ interface CustomButtonProps {
   icon?: React.ReactNode;
   active?: boolean;
   disabled?: boolean;
+  className?: string;
 }
 const CustomButton = ({
   isCancel,
@@ -20,7 +21,8 @@ const CustomButton = ({
   active,
   type,
   icon,
-  disabled
+  disabled,
+  className
 }: CustomButtonProps) => {
   return (
     <StyledButton
@@ -30,6 +32,7 @@ const CustomButton = ({
       onClick={onClick}
       active={active}
       type={type}
+      className={className}
     >
       {icon && icon}
       {title}

@@ -165,10 +165,22 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
       const newSelectedRowKeys = dataSource.map(
         (data) => data.key as unknown as string
       );
+
       setSelectedRowKeys(newSelectedRowKeys);
+
+      const newSelectedNoteIds = dataSource.map((data) => data.id);
+      const newSelectedNoteIdsAsString = newSelectedNoteIds.map((id) =>
+        id.toString()
+      );
+      // Append the new selected note IDs to the existing array
+      setSelectedNoteIdToDeleteArray((prevArray) => [
+        ...prevArray,
+        ...newSelectedNoteIdsAsString
+      ]);
     } else {
       setSelectedRowKeys([]);
       setSelectedPeople([]);
+      setSelectedNoteIdToDelete(null);
     }
     setAllChecked(!allChecked);
   };
@@ -176,6 +188,9 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
   function Done() {
     setSelectedRowKeys([]);
     setSelectedPeople([]);
+    setAllChecked(false);
+
+    setSelectedNoteIdToDelete(null);
   }
 
   useEffect(() => {
@@ -406,7 +421,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
         savePinnedNoteLocal(updatedPinnedNotes);
       }
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
-      console.log({ details });
       setNoteId('');
       getNotes();
 
@@ -586,9 +600,13 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
                 </div>
                 <ChevronRightIcon className="w-2.5 h-2.5" />
               </button>
-              {/* <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
-                <div className="flex items-center space-x-1"
-                  onClick={() => { downloadAsPDF(id, title) }}>
+              <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
+                <div
+                  className="flex items-center space-x-1"
+                  onClick={() => {
+                    downloadAsPDF(id, title);
+                  }}
+                >
                   <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
                     <DownloadIcon
                       className="w-4 h-4 text-primaryGray"
@@ -600,7 +618,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
                   </Text>
                 </div>
                 <ChevronRightIcon className="w-2.5 h-2.5" />
-              </button> */}
+              </button>
             </section>
             <div
               onClick={() => {
