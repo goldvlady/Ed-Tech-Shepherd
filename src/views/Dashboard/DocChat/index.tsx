@@ -32,7 +32,6 @@ export default function DocChat() {
   const studentId = user?._id ?? '';
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryText, setSummaryText] = useState('');
-  const [promptText, setPromptText] = useState('');
   const [socket, setSocket] = useState<any>(null);
 
   useEffect(() => {
@@ -176,7 +175,7 @@ export default function DocChat() {
         });
       }
     },
-    []
+    [documentId, studentId, toast]
   );
 
   useEffect(() => {
@@ -201,7 +200,7 @@ export default function DocChat() {
       }
     };
     getSummary();
-  }, []);
+  }, [documentId, studentId, toast]);
 
   useLayoutEffect(() => {
     const fetchChatHistory = async () => {
@@ -246,6 +245,7 @@ export default function DocChat() {
           <TempPDFViewer
             pdfLink={location.state.documentUrl}
             name={location.state.docTitle}
+            documentId={documentId}
           />
           <Chat
             isShowPrompt={isShowPrompt}
