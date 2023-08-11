@@ -753,13 +753,6 @@ const NewNote = () => {
         // <FullScreenNoteWrapper>
         <NewNoteWrapper {...editorStyle}>
           <FullScreenNoteWrapper>
-            {' '}
-            {isFullScreen ? (
-              <HeaderButton onClick={handleBackClick}>
-                <BackArrow />
-                <HeaderButtonText> Back</HeaderButtonText>
-              </HeaderButton>
-            ) : null}
             <Header>
               <FirstSection>
                 {isFullScreen ? (
