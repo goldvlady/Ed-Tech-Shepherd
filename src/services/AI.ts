@@ -205,3 +205,45 @@ export const uploadBlockNoteDocument = async (data: {
 
   return processDoc;
 };
+
+export const postPDFHighlight = async ({
+  documentId,
+  highlight
+}: {
+  documentId: any;
+  highlight: object;
+}) => {
+  const request = await fetch(`${AI_API}/highlights`, {
+    method: 'POST',
+    headers: {
+      'x-shepherd-header': HEADER_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      documentId,
+      highlight
+    })
+  });
+
+  return request;
+};
+
+export const getPDFHighlight = async ({
+  documentId
+}: {
+  documentId?: string;
+}) => {
+  const response = await fetch(`${AI_API}/highlights/${documentId}`, {
+    method: 'POST',
+    headers: {
+      'x-shepherd-header': HEADER_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      documentId
+    })
+  });
+
+  return response;
+  // https://ai.shepherdtutors.com/highlights
+};

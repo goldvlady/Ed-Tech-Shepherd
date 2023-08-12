@@ -34,7 +34,15 @@ const HighlightPopup = ({
     </div>
   ) : null;
 
-const TempPDFViewer = ({ pdfLink, name }: { pdfLink: URL; name: string }) => {
+const TempPDFViewer = ({
+  pdfLink,
+  name,
+  documentId
+}: {
+  pdfLink: URL;
+  name: string;
+  documentId?: string;
+}) => {
   const [highlights, setHighlights] = useState<Array<IHighlight>>([]);
   const [url, setUrl] = useState(pdfLink);
   const [popUpNotesModal, setPopUpNotesModal] = useState(false);

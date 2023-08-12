@@ -181,6 +181,8 @@ const HomeWorkHelp = () => {
       state: { subject: subjectId, topic: topic, level }
     });
     setMessages([]);
+    setCountNeedTutor(1);
+    setInputValue('');
   }, [
     subjectId,
     localData,
