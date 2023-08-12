@@ -122,7 +122,7 @@ export interface User extends TimestampedEntity {
   tutor?: Tutor;
   student?: Student;
   isVerified: boolean;
-  type: 'student' | 'tutor';
+  type: any;
   stripeCustomerId?: string;
   paymentMethods: PaymentMethod[];
 }

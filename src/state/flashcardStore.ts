@@ -12,6 +12,7 @@ type SearchQueryParams = {
   page?: number;
   limit?: number;
   sort?: string;
+  tags?: string;
 };
 
 type Pagination = {
@@ -22,7 +23,11 @@ type Pagination = {
 
 type Store = {
   flashcards: FlashcardData[] | null;
-  storeFlashcardTags: (flashcardId: string, tags: string[]) => Promise<boolean>;
+  tags: string[];
+  storeFlashcardTags: (
+    flashcardId: string[] | string,
+    tags: string[]
+  ) => Promise<boolean>;
   isLoading: boolean;
   pagination: Pagination;
   fetchFlashcards: (queryParams?: SearchQueryParams) => Promise<void>;
@@ -50,22 +55,46 @@ type Store = {
 export default create<Store>((set) => ({
   flashcards: null,
   isLoading: false,
+  tags: [],
   minimizedStudy: null,
   pagination: { limit: 10, page: 1, count: 100 },
-  storeFlashcardTags: async (flashcardId: string, tags: string[]) => {
+  storeFlashcardTags: async (
+    flashcardIds: string[] | string,
+    tags: string[]
+  ) => {
     try {
       set({ isLoading: true });
-      const response = await ApiService.storeFlashcardTags(flashcardId, tags);
+      // if (Array.isArray(flashcardIds) && flashcardIds.length === 1) {
+      //   flashcardIds = flashcardIds[0];
+      // }
+      const response = await ApiService.storeFlashcardTags(flashcardIds, tags);
       if (response.status === 200) {
         const { data } = await response.json();
         set((state) => {
           const { flashcards } = state;
-          const index = flashcards?.findIndex(
-            (card) => card._id === flashcardId
-          );
-          if (index !== undefined && index >= 0 && flashcards) {
-            flashcards[index] = data;
+          if (Array.isArray(flashcardIds)) {
+            (flashcardIds as Array<string>).forEach((flashcardId) => {
+              const index = flashcards?.findIndex(
+                (card) => card._id === flashcardId
+              );
+              const record = data.find((d) => d._id === flashcardId);
+              if (index !== undefined && index >= 0 && flashcards) {
+                flashcards[index] = record;
+              }
+            });
+          } else {
+            const index = flashcards?.findIndex(
+              (card) => card._id === (flashcardIds as string)
+            );
+
+            if (index !== undefined && index >= 0 && flashcards) {
+              const record = data.find(
+                (d) => d._id === (flashcardIds as string)
+              );
+              flashcards[index] = record;
+            }
           }
+
           return { flashcards };
         });
         return true;
@@ -92,20 +121,25 @@ export default create<Store>((set) => ({
       set({ isLoading: false });
     }
   },
-  fetchFlashcards: async (queryParams?: {
-    search?: string;
-    page?: number;
-    limit?: number;
-    sort?: string;
-  }) => {
+  fetchFlashcards: async (queryParams?: SearchQueryParams) => {
     try {
-      const params = queryParams || {};
+      const params = queryParams || ({} as SearchQueryParams);
       if (!params.page) params.page = 1;
       if (!params.limit) params.limit = 10;
       set({ isLoading: true });
       const response = await ApiService.getFlashcards(params || {});
-      const { data } = await response.json();
-      set({ flashcards: data, pagination: data?.meta?.pagination });
+      const { data, meta } = await response.json();
+
+      set((prev) => {
+        const d: any = {
+          flashcards: data,
+          pagination: meta?.pagination
+        };
+        if (!prev.tags.length) {
+          d.tags = meta?.tags;
+        }
+        return { ...d };
+      });
     } catch (error) {
       // console.log(error)
     } finally {
