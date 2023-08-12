@@ -183,6 +183,8 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
 
   const handleSignOut = () => {
     signOut(auth).then(() => {
+      sessionStorage.clear();
+      localStorage.clear();
       navigate('/login');
     });
   };

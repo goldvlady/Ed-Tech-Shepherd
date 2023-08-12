@@ -19,6 +19,9 @@ import styled from 'styled-components';
 
 function Billing(props) {
   const { username, email } = props;
+  const currentPath = window.location.pathname;
+
+  const isTutor = currentPath.includes('/dashboard/tutordashboard/');
 
   const CardBrand = styled.img`
     height: 30px;
@@ -120,110 +123,192 @@ function Billing(props) {
       >
         <Flex alignItems="center" my={2}>
           <Text fontSize={'12px'} color="text.400" textTransform={'uppercase'}>
-            Manage Billing Methods
+            {isTutor ? 'Payment' : 'Manage Billing Methods'}
           </Text>
           <Spacer />
-          <Button
-            variant="unstyled"
-            sx={{
-              borderRadius: '8px',
-              fontSize: '12px',
-              fontWeight: '500',
-              px: 4,
-              border: '1px solid #E7E8E9',
-              color: '#5C5F64',
-              height: '29px'
-            }}
-          >
-            Add new
-          </Button>
+          {!isTutor && (
+            <Button
+              variant="unstyled"
+              sx={{
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: '500',
+                px: 4,
+                border: '1px solid #E7E8E9',
+                color: '#5C5F64',
+                height: '29px'
+              }}
+            >
+              Add new
+            </Button>
+          )}
         </Flex>
 
         <Divider />
         <Flex gap={5} direction="column" py={2} mb={8}>
-          <Flex width={'100%'} alignItems="center">
-            <Stack spacing={'2px'}>
-              <Text
-                fontSize="14px"
-                fontWeight={500}
-                color="text.200"
-                display={{
-                  base: 'block',
-                  sm: 'none',
-                  md: 'block'
-                }}
-              >
-                Primary
-              </Text>{' '}
-              <Text fontSize={12} color="text.300">
-                Your primary billing methods is used for all recurring payments
-              </Text>
-            </Stack>
-          </Flex>
-          <Divider />
-          <Flex width={'100%'} alignItems="center">
-            <Stack spacing={'2px'}>
-              {/* <Text
-                fontSize="14px"
-                fontWeight={500}
-                color="text.200"
-                display={{
-                  base: 'block',
-                  sm: 'none',
-                  md: 'block'
-                }}
-              >
-                Account number
-              </Text>{' '} */}
-              {/* <Text fontSize={12} color="text.300">
-                0215824341
-              </Text> */}
-
-              {paymentMethods.map((pm) => (
-                <Flex
-                  onClick={() => setCurrentPaymentMethod(pm)}
-                  key={pm._id}
-                  gap={2}
-                  alignItems="center"
-                >
-                  {getBrandLogo(pm.brand)}
-
-                  <Text fontSize={14} color="text.300" fontWeight={500}>
-                    Ending in •••• {pm.last4}
+          {!isTutor ? (
+            <>
+              <Flex width={'100%'} alignItems="center">
+                <Stack spacing={'2px'}>
+                  <Text
+                    fontSize="14px"
+                    fontWeight={500}
+                    color="text.200"
+                    display={{
+                      base: 'block',
+                      sm: 'none',
+                      md: 'block'
+                    }}
+                  >
+                    Primary
                   </Text>
+                  <Text fontSize={12} color="text.300">
+                    Your primary billing methods is used for all recurring
+                    payments
+                  </Text>
+                </Stack>
+              </Flex>
+              <Divider />
+              <Flex width={'100%'} alignItems="center">
+                <Stack spacing={'2px'}>
+                  {paymentMethods.map((pm) => (
+                    <Flex
+                      onClick={() => setCurrentPaymentMethod(pm)}
+                      key={pm._id}
+                      gap={2}
+                      alignItems="center"
+                    >
+                      {getBrandLogo(pm.brand)}
 
-                  {/* <Radio isChecked={currentPaymentMethod?._id === pm._id} /> */}
-                </Flex>
-              ))}
-            </Stack>
-            <Spacer />
-            <Text fontSize={12} color="text.300">
+                      <Text fontSize={14} color="text.300" fontWeight={500}>
+                        Ending in •••• {pm.last4}
+                      </Text>
+                    </Flex>
+                  ))}
+                </Stack>
+                <Spacer />
+                <Text fontSize={12} color="text.300">
+                  {' '}
+                  remove
+                </Text>
+              </Flex>
+              <Flex width={'100%'} alignItems="center">
+                <Stack spacing={'2px'}>
+                  <Text fontSize={12} color="text.300">
+                    You need a primary billing method when you have an active
+                    contract due. To remove this, set a new primary billing
+                    method first
+                  </Text>
+                </Stack>
+              </Flex>
+            </>
+          ) : (
+            <>
               {' '}
-              remove
-            </Text>
-          </Flex>
-
-          <Flex width={'100%'} alignItems="center">
-            <Stack spacing={'2px'}>
-              {/* <Text
-                fontSize="14px"
-                fontWeight={500}
-                color="text.200"
-                display={{
-                  base: 'block',
-                  sm: 'none',
-                  md: 'block'
-                }}
-              >
-                Bank name
-              </Text>{' '} */}
-              <Text fontSize={12} color="text.300">
-                You need a primary billing method when you have an active
-                contract due. To remove this, set a new primary billing method
-                first
-              </Text>
-            </Stack>
-          </Flex>
+              <Flex width={'100%'} alignItems="center">
+                <Stack spacing={'2px'}>
+                  <Text
+                    fontSize="14px"
+                    fontWeight={500}
+                    color="text.200"
+                    display={{
+                      base: 'block',
+                      sm: 'none',
+                      md: 'block'
+                    }}
+                  >
+                    Account name
+                  </Text>{' '}
+                  <Text fontSize={12} color="text.300">
+                    LateefKolade@gmail.com
+                  </Text>
+                </Stack>
+                <Spacer />{' '}
+                <Button
+                  variant="unstyled"
+                  sx={{
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    px: 4,
+                    border: '1px solid #E7E8E9',
+                    color: '#5C5F64',
+                    height: '29px'
+                  }}
+                >
+                  Change
+                </Button>
+              </Flex>
+              <Flex width={'100%'} alignItems="center">
+                <Stack spacing={'2px'}>
+                  <Text
+                    fontSize="14px"
+                    fontWeight={500}
+                    color="text.200"
+                    display={{
+                      base: 'block',
+                      sm: 'none',
+                      md: 'block'
+                    }}
+                  >
+                    Account number
+                  </Text>{' '}
+                  <Text fontSize={12} color="text.300">
+                    000111222333
+                  </Text>
+                </Stack>
+                <Spacer />{' '}
+                <Button
+                  variant="unstyled"
+                  sx={{
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    px: 4,
+                    border: '1px solid #E7E8E9',
+                    color: '#5C5F64',
+                    height: '29px'
+                  }}
+                >
+                  Change
+                </Button>
+              </Flex>
+              <Flex width={'100%'} alignItems="center">
+                <Stack spacing={'2px'}>
+                  <Text
+                    fontSize="14px"
+                    fontWeight={500}
+                    color="text.200"
+                    display={{
+                      base: 'block',
+                      sm: 'none',
+                      md: 'block'
+                    }}
+                  >
+                    Bank name
+                  </Text>{' '}
+                  <Text fontSize={12} color="text.300">
+                    Bank of America
+                  </Text>
+                </Stack>
+                <Spacer />{' '}
+                <Button
+                  variant="unstyled"
+                  sx={{
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    px: 4,
+                    border: '1px solid #E7E8E9',
+                    color: '#5C5F64',
+                    height: '29px'
+                  }}
+                >
+                  Change
+                </Button>
+              </Flex>
+            </>
+          )}
         </Flex>
       </Box>
 

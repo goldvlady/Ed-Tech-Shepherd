@@ -119,6 +119,7 @@ export default function Layout({ children, className }) {
   }, [pathname]);
 
   const handleSignOut = () => {
+    sessionStorage.clear();
     signOut(auth).then(() => {
       navigate('/login');
     });
@@ -461,7 +462,7 @@ export default function Layout({ children, className }) {
                     </Flex>
                     <Divider />
                     <MenuItem p={2} m={1}>
-                      <Link to="/dashboard/account-settings">
+                      <Link to="/dashboard/tutordashboard/account-settings">
                         <Flex alignItems="center" gap={2}>
                           {/* <PiUserCircleLight size="24px" /> */}
                           <Center
