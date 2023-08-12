@@ -53,7 +53,7 @@ export default function Dashboard() {
   return (
     <>
       <WelcomePage user={user} />
-      <Proceed user={user} />
+      {/* <Proceed user={user} /> */}
       <GridList />
       <Box my={3} p={6}>
         <Grid

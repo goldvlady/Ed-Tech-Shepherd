@@ -32,9 +32,9 @@ import OnboardTutor from './views/OnboardTutor';
 import CompleteProfile from './views/OnboardTutor/complete_profile';
 import Session from './views/Session';
 import Signup from './views/Signup';
+import TutorSettings from './views/TutorDashboard/AccountSettings';
 import Clients from './views/TutorDashboard/Clients';
 import Client from './views/TutorDashboard/Clients/client';
-import TutorOffer from './views/TutorDashboard/Offers/TutorOffer';
 import TutorOffers from './views/TutorDashboard/Offers/index';
 import TutorDashboard from './views/TutorDashboard/index';
 import PendingVerification from './views/VerificationPages/pending_verification';
@@ -119,8 +119,8 @@ const tutorRoutes = [
   { path: 'tutordashboard/clients', element: <Clients /> },
   { path: 'tutordashboard/clients/:clientId', element: <Client /> },
   { path: 'tutordashboard/offers', element: <TutorOffers /> },
-  { path: 'tutordashboard/offer/:offerId', element: <Offer /> }
-  // ... other tutor routes
+  { path: 'tutordashboard/offer/:offerId', element: <Offer /> },
+  { path: 'tutordashboard/account-settings', element: <TutorSettings /> }
 ];
 
 const userLayouts = {
