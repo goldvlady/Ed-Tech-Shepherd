@@ -61,12 +61,14 @@ const SelectableTable = <T extends Record<string, unknown>>({
         onSelect([...(selectedRowKeys?.filter((k) => k !== key) || [])]);
       onSelect && onSelect(selectedRowKeys?.filter((k) => k !== key) || []);
 
-      setSelectedNoteIdToDeleteArray((prevArray) =>
-        prevArray.filter((noteId) => noteId !== id)
-      );
-      setSelectedNoteIdToAddTagsArray((prevArray) =>
-        prevArray.filter((noteId) => noteId !== id)
-      );
+      setSelectedNoteIdToDeleteArray &&
+        setSelectedNoteIdToDeleteArray((prevArray) =>
+          prevArray.filter((noteId) => noteId !== id)
+        );
+      setSelectedNoteIdToAddTagsArray &&
+        setSelectedNoteIdToAddTagsArray((prevArray) =>
+          prevArray.filter((noteId) => noteId !== id)
+        );
     } else {
       setSelectedRowKeys?.([...(selectedRowKeys || []), key]);
       onSelect && onSelect([...(selectedRowKeys || []), key]);
@@ -74,12 +76,14 @@ const SelectableTable = <T extends Record<string, unknown>>({
 
     // Set the selected note ID for deletion
 
-    setSelectedNoteIdToDelete(id);
-    setSelectedNoteIdToDeleteArray((prevArray) => [...prevArray, id]);
+    setSelectedNoteIdToDelete && setSelectedNoteIdToDelete(id);
+    setSelectedNoteIdToDeleteArray &&
+      setSelectedNoteIdToDeleteArray((prevArray) => [...prevArray, id]);
 
     // Set the selected note ID add tags
-    setSelectedNoteIdToAddTags(id);
-    setSelectedNoteIdToAddTagsArray((prevArray) => [...prevArray, id]);
+    setSelectedNoteIdToAddTags && setSelectedNoteIdToAddTags(id);
+    setSelectedNoteIdToAddTagsArray &&
+      setSelectedNoteIdToAddTagsArray((prevArray) => [...prevArray, id]);
   };
 
   return (
