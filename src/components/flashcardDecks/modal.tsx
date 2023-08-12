@@ -27,7 +27,10 @@ import {
   ModalFooter,
   Menu,
   Spinner,
-  MenuGroup
+  MenuGroup,
+  Tag,
+  TagLabel,
+  TagLeftIcon
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import React, {
@@ -83,7 +86,51 @@ const StudyFooter = ({
   showMinimize?: boolean;
   onMinimize?: () => void;
 }) => {
-  const { loadFlashcard } = flashcardStore();
+  const { loadFlashcard, flashcard } = flashcardStore();
+
+  const renderTag = () => {
+    return [...(flashcard?.tags || [])].splice(0, 3).map((tag) => (
+      <Tag
+        width={'fit-content'}
+        maxWidth={'fit-content'}
+        key={tag}
+        borderRadius="5"
+        marginRight="10px"
+        background="#f7f8fa"
+        size="md"
+      >
+        <TagLeftIcon>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            width="25px"
+            height="25px"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"
+            />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 6h.008v.008H6V6z"
+            />
+          </svg>
+        </TagLeftIcon>
+        <TagLabel
+          whiteSpace={'nowrap'}
+          overflow="visible" // Allows text to overflow
+          textOverflow="clip"
+        >
+          {tag?.toLowerCase()}
+        </TagLabel>
+      </Tag>
+    ));
+  };
   return (
     <Box
       display="flex"
@@ -92,20 +139,48 @@ const StudyFooter = ({
       width={'100%'}
       borderTop="1px solid #eee"
       p={4}
-      justifyContent={'flex-end'}
+      justifyContent={'space-between'}
     >
-      {showMinimize && (
+      <Box>{renderTag()}</Box>
+      <Box>
+        {showMinimize && (
+          <Button
+            variant="ghost"
+            rounded="100%"
+            padding="5px"
+            bg="#FFEFE6"
+            mr="10px"
+            _hover={{ bg: '#FFEFE6', transform: 'scale(1.05)' }}
+            color="black"
+            onClick={() => {
+              onMinimize && onMinimize();
+            }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              width={'15px'}
+              height={'15px'}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19.5 12h-15"
+              />
+            </svg>
+          </Button>
+        )}
         <Button
           variant="ghost"
           rounded="100%"
-          padding="5px"
-          bg="#FFEFE6"
-          mr="10px"
-          _hover={{ bg: '#FFEFE6', transform: 'scale(1.05)' }}
+          padding="10px"
+          bg="#FEECEC"
+          onClick={() => loadFlashcard(null)}
+          _hover={{ bg: '#FEECEC', transform: 'scale(1.05)' }}
           color="black"
-          onClick={() => {
-            onMinimize && onMinimize();
-          }}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -119,36 +194,11 @@ const StudyFooter = ({
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
-              d="M19.5 12h-15"
+              d="M6 18L18 6M6 6l12 12"
             />
           </svg>
         </Button>
-      )}
-      <Button
-        variant="ghost"
-        rounded="100%"
-        padding="10px"
-        bg="#FEECEC"
-        onClick={() => loadFlashcard(null)}
-        _hover={{ bg: '#FEECEC', transform: 'scale(1.05)' }}
-        color="black"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={2}
-          stroke="currentColor"
-          width={'15px'}
-          height={'15px'}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
-      </Button>
+      </Box>
     </Box>
   );
 };

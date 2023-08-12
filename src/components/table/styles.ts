@@ -29,8 +29,22 @@ export const StyledTr = styled(ChakraTr)<{
 export const StyledTd = styled(ChakraTd)<{
   tagsColor: string;
   textAlign?: string;
+  width?: string | number; // <-- Add this line
+  height?: string | number; // <-- Add this line
 }>`
   padding: 15px 0;
+  width: ${(props) =>
+    props.width
+      ? typeof props.width === 'number'
+        ? `${props.width}px`
+        : props.width
+      : 'auto'};
+  height: ${(props) =>
+    props.height
+      ? typeof props.height === 'number'
+        ? `${props.height}px`
+        : props.height
+      : 'auto'};
   &:first-child,
   &:last-child {
     padding: 22px 5px;
