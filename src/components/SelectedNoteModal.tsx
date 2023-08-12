@@ -2,9 +2,9 @@ import { storage } from '../firebase';
 import { MAX_FILE_UPLOAD_LIMIT } from '../helpers/constants';
 import { processDocument } from '../services/AI';
 import userStore from '../state/userStore';
-import AutocompleteDropdown from './AutocompleteDropdown';
 import CustomButton from './CustomComponents/CustomButton';
 import CustomModal from './CustomComponents/CustomModal/index';
+import CustomDropdown from './CustomDropdown';
 import { UploadIcon } from './icons';
 import { AttachmentIcon } from '@chakra-ui/icons';
 import {
@@ -16,7 +16,7 @@ import {
   VStack
 } from '@chakra-ui/react';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { useRef, useState, useEffect, RefObject, useMemo } from 'react';
+import { useRef, useState, useEffect, RefObject } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -45,8 +45,8 @@ const SelectedModal = ({
   setShow,
   setShowHelp,
   chatButton = true,
-  okayButton,
-  cancelButton = true
+  cancelButton = true,
+  okayButton
 }: ShowProps) => {
   const { user, userDocuments } = userStore();
   const navigate = useNavigate();
@@ -223,21 +223,8 @@ const SelectedModal = ({
     }
   };
 
-  const handleSelected = (e) => {
-    const { label, value } = e;
-
-    if (value && label) {
-      setDocumentURL(() => value);
-      setDocumentName(() => e.label);
-      setSelectedOption(e.label);
-      setCanUpload(false);
-      setConfirmReady(true);
-    }
-  };
-
-  const handleInputFreshUpload = async (file, user, fileName) => {
-    const readableFileName = fileName.toLowerCase().replace(/\s/g, '');
-
+  const handleInputFreshUpload = async (file, user, fileNamet) => {
+    const readableFileName = fileNamet.toLowerCase().replace(/\s/g, '');
     if (!user?._id || !readableFileName) {
       return setUiMessage({
         status: 'error',
@@ -309,6 +296,17 @@ const SelectedModal = ({
         });
       }
     );
+  };
+
+  const handleSelected = async (e) => {
+    const { innerText, value } = e.target;
+    if (value && innerText) {
+      setDocumentURL(() => value);
+      setDocumentName(() => innerText);
+      setSelectedOption(innerText);
+      setCanUpload(false);
+      setConfirmReady(true);
+    }
   };
 
   const handleFreshUpload = async (file, user, fileName) => {
@@ -393,7 +391,6 @@ const SelectedModal = ({
     });
     setShowHelp(false);
     setShow(false);
-    window.location.reload();
   };
 
   const doNothing = () => {
@@ -401,9 +398,44 @@ const SelectedModal = ({
   };
 
   const proceed = async () => {
-    await goToDocChat(documentURL, documentName);
-    setShow(false);
-    setShowHelp(false);
+    setLoading(true);
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await goToDocChat(documentURL, documentName);
+    } catch (error) {
+      // Handle error
+    } finally {
+      setShow(false);
+      setShowHelp(false);
+    }
+  };
+
+  const ChatButton = () => {
+    if (!chatButton) {
+      return <></>;
+    }
+    if (canUpload) {
+      return (
+        <CustomButton
+          type="button"
+          onClick={collectFile}
+          disabled={loading}
+          title={loading ? 'Loading...' : 'Chat'}
+          className="chat-btn"
+        />
+      );
+    } else {
+      return (
+        <CustomButton
+          type="button"
+          active={confirmReady}
+          onClick={confirmReady ? proceed : doNothing}
+          title={loading ? 'Loading...' : 'Chat'}
+          className="chat-btn"
+        />
+      );
+    }
   };
 
   return (
@@ -429,24 +461,9 @@ const SelectedModal = ({
               title="Cancel"
             />
           )}
-          {chatButton && (
-            <CustomButton
-              type="button"
-              active={confirmReady}
-              onClick={collectFile}
-              disabled={loading}
-              title={loading ? 'Loading...' : 'Chat'}
-              className="chat-btn"
-            />
-          )}
+          <ChatButton />
           {okayButton && (
-            <CustomButton
-              type="button"
-              onClick={handleClose}
-              // onClick={confirmReady ? proceed : doNothing}
-              // active={confirmReady}
-              title="Okay"
-            />
+            <CustomButton type="button" onClick={handleClose} title="Ok" />
           )}
         </div>
       }
@@ -456,13 +473,29 @@ const SelectedModal = ({
           {loadedStudentDocs && (
             <div style={{ width: '-webkit-fill-available' }}>
               <Label htmlFor="note">Select note</Label>
-              <AutocompleteDropdown
-                handleSelected={handleSelected}
-                selectedOption={selectedOption}
-                studentDocuments={studentDocuments}
-                placeholder={'Select an Option'}
-              />
-
+              <CustomDropdown
+                value={selectedOption?.split('/').pop()}
+                placeholder="Select an Option"
+              >
+                <VStack alignItems={'left'} padding="10px">
+                  {loadedStudentDocs &&
+                    studentDocuments.map((item, id) => {
+                      return (
+                        <option
+                          value={item.documentURL}
+                          key={id}
+                          onClick={handleSelected}
+                          style={{
+                            cursor: 'pointer',
+                            width: '100%'
+                          }}
+                        >
+                          {item.title}
+                        </option>
+                      );
+                    })}
+                </VStack>
+              </CustomDropdown>
               <OrText>Or</OrText>
             </div>
           )}

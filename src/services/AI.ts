@@ -14,6 +14,26 @@ export const fetchStudentDocuments = async (studentId: string) => {
     }
   }).then((documents) => documents.json());
 };
+// export const processDocument = async (data: {
+//   studentId: string;
+//   documentId: string;
+//   documentURL: string;
+//   tags?: Array<string>;
+//   courseId?: string;
+//   title: string;
+// }) => {
+//   const processDoc = await fetch(`${AI_API}/notes/ingest`, {
+//     method: 'POST',
+//     headers: {
+//       'x-shepherd-header': HEADER_KEY,
+//       'Content-Type': 'application/json'
+//     },
+//     body: JSON.stringify(data)
+//   }).then(async (data) => data.json());
+
+//   return processDoc;
+// };
+
 export const processDocument = async (data: {
   studentId: string;
   documentId: string;
@@ -22,16 +42,21 @@ export const processDocument = async (data: {
   courseId?: string;
   title: string;
 }) => {
-  const processDoc = await fetch(`${AI_API}/notes/ingest`, {
+  const processDocResponse = await fetch(`${AI_API}/notes/ingest`, {
     method: 'POST',
     headers: {
       'x-shepherd-header': HEADER_KEY,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(data)
-  }).then(async (data) => data.json());
+  });
 
-  return processDoc;
+  if (!processDocResponse.ok) {
+    throw new Error('Invalid file format');
+  }
+
+  const processDocData = await processDocResponse.json();
+  return processDocData;
 };
 
 export const checkDocumentStatus = async ({

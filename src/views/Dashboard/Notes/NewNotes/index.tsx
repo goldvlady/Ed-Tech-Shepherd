@@ -9,9 +9,15 @@ import { ReactComponent as ArrowRight } from '../../../../assets/small-arrow-rig
 import { ReactComponent as ZoomIcon } from '../../../../assets/square.svg';
 import { ReactComponent as TrashIcon } from '../../../../assets/trash-icn.svg';
 import CustomButton from '../../../../components/CustomComponents/CustomButton';
+import { storage } from '../../../../firebase';
+import { MAX_FILE_UPLOAD_LIMIT } from '../../../../helpers/constants';
 import { saveMarkdownAsPDF } from '../../../../library/fs';
-import { uploadBlockNoteDocument } from '../../../../services/AI';
+import {
+  processDocument,
+  uploadBlockNoteDocument
+} from '../../../../services/AI';
 import ApiService from '../../../../services/ApiService';
+import userStore from '../../../../state/userStore';
 import TagModal from '../../FlashCards/components/TagModal';
 import { NoteModal } from '../Modal';
 import {
@@ -46,6 +52,7 @@ import {
   ToastPosition
 } from '@chakra-ui/react';
 import { useToast } from '@chakra-ui/react';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import moment from 'moment';
 import { useEffect, useRef, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
@@ -265,6 +272,16 @@ const NewNote = () => {
 
   const inputContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+
+  const [loadingDoc, setLoadingDoc] = useState(false);
+  const { userDocuments } = userStore();
+  const [studentDocuments, setStudentDocuments] = useState<Array<any>>([]);
+
+  useEffect(() => {
+    if (userDocuments.length) {
+      setStudentDocuments(userDocuments);
+    }
+  }, [userDocuments]);
 
   const onCancel = () => {
     setDeleteNoteModal(!deleteNoteModal);
@@ -632,6 +649,35 @@ const NewNote = () => {
     setOpenTags((prevState) => !prevState);
   };
 
+  const goToDocChat = async (documentUrl, docTitle) => {
+    try {
+      navigate('/dashboard/docchat', {
+        state: {
+          documentUrl,
+          docTitle
+        }
+      });
+      // window.location.reload();
+    } catch (error) {
+      setLoadingDoc(false);
+    }
+  };
+
+  const proceed = async () => {
+    setLoadingDoc(true);
+
+    const url = studentDocuments[0]?.documentURL;
+    const name = studentDocuments[0]?.title;
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await goToDocChat(url, name);
+    } catch (error) {
+      // Handle error
+    } finally {
+      setLoadingDoc(false);
+    }
+  };
+
   const dropDownOptions = [
     {
       id: 1,
@@ -656,8 +702,9 @@ const NewNote = () => {
     {
       id: 4,
       leftIcon: <DocIcon />,
-      title: 'Doc Chat',
-      rightIcon: <ArrowRight />
+      title: loadingDoc ? 'Uploading...' : 'Doc Chat',
+      rightIcon: <ArrowRight />,
+      onClick: proceed
     },
     {
       id: 5,
@@ -677,7 +724,7 @@ const NewNote = () => {
     id: string,
     tags: string[]
   ): Promise<NoteServerResponse | null> => {
-    const data = { tags: tags }; // Wrap the tags array in an object with the key "tags"
+    const data = { tags: tags };
     const resp = await ApiService.updateNoteTags(id, data);
     const respText = await resp.text();
     try {
@@ -744,15 +791,15 @@ const NewNote = () => {
 
   return (
     <>
-      <HeaderButton onClick={handleBackClick}>
-        <BackArrow />
-        <HeaderButtonText> Back</HeaderButtonText>
-      </HeaderButton>
-
       {isFullScreen ? (
-        // <FullScreenNoteWrapper>
         <NewNoteWrapper {...editorStyle}>
           <FullScreenNoteWrapper>
+            {isFullScreen ? (
+              <HeaderButton onClick={handleBackClick}>
+                <BackArrow />
+                <HeaderButtonText> Back</HeaderButtonText>
+              </HeaderButton>
+            ) : null}
             <Header>
               <FirstSection>
                 {isFullScreen ? (
