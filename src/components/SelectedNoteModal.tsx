@@ -29,6 +29,9 @@ interface ShowProps {
   show: boolean;
   setShow: (show: boolean) => void;
   setShowHelp: (showHelp: boolean) => void;
+  chatButton?: boolean;
+  okayButton?: boolean;
+  cancelButton?: boolean;
 }
 
 interface UiMessage {
@@ -37,7 +40,14 @@ interface UiMessage {
   description: string;
 }
 
-const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
+const SelectedModal = ({
+  show,
+  setShow,
+  setShowHelp,
+  chatButton = true,
+  okayButton,
+  cancelButton = true
+}: ShowProps) => {
   const { user, userDocuments } = userStore();
   const navigate = useNavigate();
   const [fileName, setFileName] = useState('');
@@ -411,27 +421,33 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
       }}
       footerContent={
         <div style={{ display: 'flex', gap: '8px' }}>
-          <CustomButton
-            type="button"
-            isCancel
-            onClick={handleClose}
-            title="Cancel"
-          />
-          <CustomButton
-            type="button"
-            active={confirmReady}
-            onClick={collectFile}
-            disabled={loading}
-            title={loading ? 'Loading...' : 'Chat'}
-            className="chat-btn"
-          />
-          <CustomButton
-            type="button"
-            onClick={handleClose}
-            // onClick={confirmReady ? proceed : doNothing}
-            // active={confirmReady}
-            title="Ok"
-          />
+          {cancelButton && (
+            <CustomButton
+              type="button"
+              isCancel
+              onClick={handleClose}
+              title="Cancel"
+            />
+          )}
+          {chatButton && (
+            <CustomButton
+              type="button"
+              active={confirmReady}
+              onClick={collectFile}
+              disabled={loading}
+              title={loading ? 'Loading...' : 'Chat'}
+              className="chat-btn"
+            />
+          )}
+          {okayButton && (
+            <CustomButton
+              type="button"
+              onClick={handleClose}
+              // onClick={confirmReady ? proceed : doNothing}
+              // active={confirmReady}
+              title="Okay"
+            />
+          )}
         </div>
       }
     >
