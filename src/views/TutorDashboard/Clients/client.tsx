@@ -61,7 +61,10 @@ export default function Client() {
                 className="h-5 w-5 flex-shrink-0 text-gray-400"
                 aria-hidden="true"
               />
-              <Text className="text-sm font-medium">Liam Kelly</Text>
+              <Text className="text-sm font-medium">
+                {' '}
+                {`${client?.student?.user?.name.first} ${client?.student?.user?.name.last}`}
+              </Text>
             </div>
           </li>
           <li>
@@ -79,7 +82,7 @@ export default function Client() {
       </nav>
       <section className="my-4">
         <Text className="space-x-2">
-          <span className="font-bold text-2xl">Contract</span>
+          <span className="font-bold px-4 text-2xl">Contract</span>
         </Text>
       </section>
 
@@ -157,7 +160,9 @@ export default function Client() {
                   <Text className="text-secondaryGray">
                     Frequency of class sessions
                   </Text>
-                  <h4>Weekly</h4>
+                  <Text className="text-xl mb-4 font-semibold tracking-wider">
+                    Weekly
+                  </Text>
                 </li>
                 <li className="text-sm space-y-2 font-normal">
                   <Text className="text-secondaryGray">Time</Text>
