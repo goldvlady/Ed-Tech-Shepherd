@@ -144,7 +144,7 @@ export default function QuestionsPreview({
           ''
         )}
 
-        <VStack width={'100%'}>
+        <VStack spacing={10} width={'100%'}>
           {questions
             .filter((question) => question.question)
             .map((question, index: number) => (

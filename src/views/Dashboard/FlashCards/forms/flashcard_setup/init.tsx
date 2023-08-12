@@ -50,7 +50,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
           : 'Spaced repetition',
       value:
         localData.studyType && localData.studyType === 'quickPractice'
-          ? 'doesntRepeat'
+          ? 'noRepeat'
           : 'spacedRepetition'
     }
   ];
@@ -191,6 +191,10 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
               handleChange({
                 target: { name: 'studyPeriod', value: 'spacedRepetition' }
               } as ChangeEvent<HTMLInputElement>);
+            } else {
+              handleChange({
+                target: { name: 'studyPeriod', value: 'noRepeat' }
+              } as ChangeEvent<HTMLInputElement>);
             }
             handleChange({
               target: { name: 'studyType', value }
@@ -206,31 +210,32 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
         </RadioGroup>
       </FormControl>
 
-      <FormControl mb={8}>
-        <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-          How often would you like to study?
-        </FormLabel>
-        <SelectComponent
-          name="studyPeriod"
-          placeholder="Select study period"
-          defaultValue={studyPeriodOptions.find(
-            (option) => option.value === localData.studyPeriod
-          )}
-          tagVariant="solid"
-          options={studyPeriodOptions}
-          size={'md'}
-          onChange={(option) => {
-            const event = {
-              target: {
-                name: 'studyPeriod',
-                value: (option as Option).value
-              }
-            } as ChangeEvent<HTMLSelectElement>;
-            handleChange(event);
-          }}
-        />
-      </FormControl>
-
+      {localData.studyType === 'longTermRetention' && (
+        <FormControl mb={8}>
+          <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+            How often would you like to study?
+          </FormLabel>
+          <SelectComponent
+            name="studyPeriod"
+            placeholder="Select study period"
+            defaultValue={studyPeriodOptions.find(
+              (option) => option.value === localData.studyPeriod
+            )}
+            tagVariant="solid"
+            options={studyPeriodOptions}
+            size={'md'}
+            onChange={(option) => {
+              const event = {
+                target: {
+                  name: 'studyPeriod',
+                  value: (option as Option).value
+                }
+              } as ChangeEvent<HTMLSelectElement>;
+              handleChange(event);
+            }}
+          />
+        </FormControl>
+      )}
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Number of questions
@@ -246,21 +251,6 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
         />
       </FormControl>
 
-      {/* <FormControl mb={8}>
-        <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-          Timer settings
-        </FormLabel>
-        <Select
-          name="timerDuration"
-          placeholder="Select a duration"
-          value={localData.timerDuration}
-          onChange={handleChange}
-          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-        >
-          <option value="30">30 sec</option>
-          <option value="15">15 sec</option>
-        </Select>
-      </FormControl> */}
       <HStack w="full" align={'flex-end'}>
         <Button
           variant="solid"

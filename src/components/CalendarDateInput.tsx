@@ -11,13 +11,14 @@ import {
 } from '@chakra-ui/react';
 import moment from 'moment';
 import React, { useRef, useState } from 'react';
-import { DayPicker } from 'react-day-picker';
+import { DayPicker, Matcher } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import { RiCalendarEventFill } from 'react-icons/ri';
 import styled from 'styled-components';
 
 interface DateInputProps {
   value: Date;
+  disabledDate?: Matcher;
   inputProps?: InputProps;
   onChange: (value: Date) => void;
 }
@@ -59,6 +60,7 @@ const StyledDatePicker = styled(DayPicker)`
 const CalendarDateInput: React.FC<DateInputProps> = ({
   value,
   onChange,
+  disabledDate,
   inputProps = {},
   ...rest
 }) => {
@@ -83,7 +85,16 @@ const CalendarDateInput: React.FC<DateInputProps> = ({
             isInvalid={!moment(value, FORMAT, true).isValid() && !!value}
             {...rest}
           />
-          <InputRightAddon children={<RiCalendarEventFill color="#969CA6" />} />
+          <InputRightAddon
+            cursor={'pointer'}
+            onClick={(e) => {
+              setPopoverOpen(true);
+              if (inputProps.onClick) {
+                inputProps.onClick(e as unknown as any);
+              }
+            }}
+            children={<RiCalendarEventFill color="#969CA6" />}
+          />
         </InputGroup>
       </PopoverTrigger>
       <PopoverContent>
@@ -91,6 +102,7 @@ const CalendarDateInput: React.FC<DateInputProps> = ({
           <StyledDatePicker
             mode="single"
             selected={value}
+            disabled={disabledDate}
             onSelect={(d) => {
               onChange(d as Date);
               setPopoverOpen(false);

@@ -136,7 +136,7 @@ const FlashcardFromDocumentSetup = ({
 
       <FormControl my={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-          Select A file
+          Upload a source document
         </FormLabel>
         <FileUpload isLoading={isLoading} onFileSelect={onHandleFile} />
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mt={3}>

@@ -302,6 +302,7 @@ export interface SchedulePayload {
   startTime: string;
   recurrence?: {
     frequency: string;
+    endDate?: string;
   };
 }
 
