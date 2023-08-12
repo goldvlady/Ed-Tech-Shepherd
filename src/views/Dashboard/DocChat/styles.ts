@@ -127,12 +127,15 @@ export const PillsContainer = styled.div`
   gap: 10px;
 `;
 
-export const StyledDiv = styled.div`
+export const StyledDiv = styled.div<{
+  needIndex?: boolean;
+}>`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  border: 1px solid #cbd5e0;
+  border: ${({ needIndex }) =>
+    !needIndex ? '1px solid #cbd5e0' : '1px solid #FB8441'};
   border-radius: 9999px;
   padding: 0.5rem 0.75rem;
   cursor: pointer;
