@@ -81,11 +81,15 @@ const AllClientsTab = (props) => {
       key: i,
       id: allTutorClients[i]?._id,
       name: `${allTutorClients[i]?.student.user.name.first} ${allTutorClients[i]?.student.user.name.last}`,
-      subject: allTutorClients[i]?.student.topic,
-      start_date: moment(allTutorClients[i]?.createdAt).format('MMMM DD, YYYY'),
-      end_date: moment(allTutorClients[i]?.updatedAt).format('MMMM DD, YYYY'),
+      subject: allTutorClients[i]?.offer?.course?.label,
+      start_date: moment(allTutorClients[i]?.offer?.contractStartDate).format(
+        'MMMM DD, YYYY'
+      ),
+      end_date: moment(allTutorClients[i]?.offer?.contractEndDate).format(
+        'MMMM DD, YYYY'
+      ),
       status: allTutorClients[i]?.isActive === true ? 'Active' : 'Ended',
-      amount_earned: '$000.00',
+      amount_earned: `$${allTutorClients[i]?.offer?.amount}`,
       classes: 'Lesson 1',
       rating: 1
     })
