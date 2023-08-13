@@ -258,17 +258,70 @@ export const getPDFHighlight = async ({
 }: {
   documentId?: string;
 }) => {
-  const response = await fetch(`${AI_API}/highlights/${documentId}`, {
-    method: 'POST',
-    headers: {
-      'x-shepherd-header': HEADER_KEY,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      documentId
-    })
-  });
+  const response = await fetch(
+    `${AI_API}/highlights?documentId=${documentId}`,
+    {
+      method: 'GET',
+      headers: {
+        'x-shepherd-header': HEADER_KEY
+      }
+    }
+  );
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  } else {
+    const highlight = await response.json();
+    return highlight;
+  }
+};
 
-  return response;
-  // https://ai.shepherdtutors.com/highlights
+export const deleteGeneratedSummary = async ({
+  studentId,
+  documentId
+}: {
+  studentId: string;
+  documentId: string;
+}) => {
+  const request = await fetch(
+    `${AI_API}/notes/summary?studentId=${studentId}&documentId=${documentId}`,
+    {
+      method: 'DELETE',
+      headers: {
+        'x-shepherd-header': HEADER_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        documentId,
+        studentId
+      })
+    }
+  );
+  return request;
+};
+
+export const updateGeneratedSummary = async ({
+  studentId,
+  documentId,
+  summary
+}: {
+  studentId: string;
+  documentId: string;
+  summary: string;
+}) => {
+  const request = await fetch(
+    `${AI_API}/notes/summary?studentId=${studentId}&documentId=${documentId}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'x-shepherd-header': HEADER_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        documentId,
+        studentId,
+        summary
+      })
+    }
+  );
+  return request;
 };

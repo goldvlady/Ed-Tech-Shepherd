@@ -226,7 +226,7 @@ export const SummaryContainer = styled.div`
   font-size: 0.875rem;
   padding: 12px;
   line-height: 2;
-  margin: 20px 0 80px 0;
+  margin: 20px 0 40px 0;
   position: relative;
   cursor: pointer;
 `;

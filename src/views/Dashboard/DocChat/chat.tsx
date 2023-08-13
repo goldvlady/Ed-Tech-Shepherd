@@ -75,6 +75,12 @@ interface IChat {
   countNeedTutor?: number | undefined;
   onCountTutor?: any;
   handleAceHomeWorkHelp?: () => void;
+  handleDeleteSummary?: () => void;
+  handleUpdateSummary?: () => void;
+  hightlightedText?: any[];
+  loading?: boolean;
+  setHightlightedText?: any;
+  setLoading?: any;
 }
 const Chat = ({
   HomeWorkHelp,
@@ -97,7 +103,13 @@ const Chat = ({
   homeWorkHelpPlaceholder,
   countNeedTutor,
   onCountTutor,
-  handleAceHomeWorkHelp
+  handleAceHomeWorkHelp,
+  handleDeleteSummary,
+  handleUpdateSummary,
+  hightlightedText,
+  loading,
+  setHightlightedText,
+  setLoading
 }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
@@ -162,12 +174,17 @@ const Chat = ({
           summaryLoading={summaryLoading}
           summaryTexts={summaryText}
           setSummaryText={setSummaryText}
+          handleDeleteSummary={handleDeleteSummary}
+          handleUpdateSummary={handleUpdateSummary}
+          loading={loading}
         />
       )
     },
     {
       id: 2,
-      component: <HighLight />
+      component: (
+        <HighLight hightlightedText={hightlightedText!} loading={loading!} />
+      )
     }
   ];
 
