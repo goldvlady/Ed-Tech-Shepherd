@@ -28,6 +28,7 @@ import {
   ChevronRightIcon,
   MagnifyingGlassIcon
 } from '@heroicons/react/24/solid';
+import { setTag } from '@sentry/react';
 import moment from 'moment';
 import { FC, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { FaEllipsisH } from 'react-icons/fa';
@@ -90,6 +91,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
   const toast = useToast();
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
   const [deleteAllNoteModal, setDeleteAllNoteModal] = useState(false);
+  const [tagAllNoteModal, setTagAllNoteModal] = useState(false);
   const checkbox = useRef<HTMLInputElement>(null);
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
@@ -109,9 +111,13 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
   const [selectedNoteIdToDelete, setSelectedNoteIdToDelete] = useState(null);
   const [selectedNoteIdToDeleteArray, setSelectedNoteIdToDeleteArray] =
     useState<string[]>([]);
+  const [selectedNoteIdToAddTagsArray, setSelectedNoteIdToAddTagsArray] =
+    useState<string[]>([]);
+  const [selectedNoteIdToAddTags, setSelectedNoteIdToAddTags] = useState(null);
   const [inputValue, setInputValue] = useState('');
   const [tags, setTags] = useState<string[]>([]);
-
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [newTags, setNewTags] = useState<string[]>(tags);
 
   const getNoteLocal = (noteId: string | null): string | null => {
@@ -119,8 +125,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
     const content = localStorage.getItem(storageId);
     return content;
   };
-
-  const [isLoading, setIsLoading] = useState(false);
 
   const onCancel = () => {
     setDeleteNoteModal(!deleteNoteModal);
@@ -177,10 +181,16 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
         ...prevArray,
         ...newSelectedNoteIdsAsString
       ]);
+
+      setSelectedNoteIdToAddTagsArray((prevArray) => [
+        ...prevArray,
+        ...newSelectedNoteIdsAsString
+      ]);
     } else {
       setSelectedRowKeys([]);
       setSelectedPeople([]);
       setSelectedNoteIdToDelete(null);
+      setSelectedNoteIdToAddTags(null);
     }
     setAllChecked(!allChecked);
   };
@@ -202,9 +212,28 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
     setSelectedPeople([]);
     setNoteId(noteId);
   };
+
   const onDeleteAllNote = (isOpenDeleteModal: boolean, noteId: any) => {
     setDeleteAllNoteModal(isOpenDeleteModal);
     setSelectedPeople([]);
+    setNoteId(noteId);
+  };
+
+  const onAddTagToMultipleNotes = (
+    isOpenTagAllNoteModal: boolean,
+    noteId: any,
+    tags: string[]
+  ) => {
+    setTagAllNoteModal(isOpenTagAllNoteModal);
+    setNoteId(noteId);
+  };
+
+  const onAddTagBottomModal = (
+    isOpenTagBottomNoteModal: boolean,
+    noteId: any,
+    tags: string[]
+  ) => {
+    setTagAllNoteModal(isOpenTagBottomNoteModal);
     setNoteId(noteId);
   };
 
@@ -270,6 +299,20 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
   ): Promise<NoteServerResponse | null> => {
     const data = { tags: tags };
     const resp = await ApiService.updateNoteTags(id, data);
+    const respText = await resp.text();
+    try {
+      const respDetails: NoteServerResponse = JSON.parse(respText);
+      return respDetails;
+    } catch (error: any) {
+      return { error: error.message, message: error.message };
+    }
+  };
+
+  const addAllNoteTags = async (
+    id: string[],
+    tags: string[]
+  ): Promise<NoteServerResponse | null> => {
+    const resp = await ApiService.updateAllNoteTags(id, tags);
     const respText = await resp.text();
     try {
       const respDetails: NoteServerResponse = JSON.parse(respText);
@@ -456,13 +499,14 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
     saveMarkdownAsPDF(noteName, '');
   };
 
-  const AddTag = async () => {
+  const AddTag = async (tagsArray) => {
+    setIsLoading(true);
     const noteIdInUse = noteId ?? noteParamId;
     if (!noteIdInUse || noteIdInUse === '') {
       setOpenTagsModal(false);
       return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
     }
-    const details = await addTag(noteIdInUse, newTags);
+    const details = await addTag(noteIdInUse, tagsArray);
 
     if (!details) {
       setOpenTagsModal(false);
@@ -478,6 +522,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
       return showToast(DELETE_NOTE_TITLE, details.error, 'error');
     } else {
       setOpenTagsModal(false);
+      setIsLoading(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
       setNoteId('');
       clearEditor();
@@ -494,6 +539,59 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
         });
       });
     }
+    setIsLoading(false);
+  };
+
+  const AddAllNoteTags = async () => {
+    setIsLoading(true);
+    let noteIdsInUse: string[] = [];
+
+    if (Array.isArray(noteId)) {
+      noteIdsInUse = noteId;
+    } else if (noteId) {
+      noteIdsInUse.push(noteId);
+    } else if (noteParamId) {
+      noteIdsInUse.push(noteParamId);
+    } else {
+      setTagAllNoteModal(false);
+      return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
+    }
+
+    setIsLoading(true);
+
+    const details = await addAllNoteTags(noteIdsInUse, selectedTags);
+    setIsLoading(false);
+    // console.log({ noteIdsInUse, selectedTags });
+
+    if (!details) {
+      setTagAllNoteModal(false);
+      return showToast(
+        DELETE_NOTE_TITLE,
+        'An unknown error occurs while adding tag. Try again',
+        'error'
+      );
+    }
+
+    if (details.error) {
+      setTagAllNoteModal(false);
+      return showToast(DELETE_NOTE_TITLE, details.error, 'error');
+    } else {
+      setIsLoading(false);
+      showToast(DELETE_NOTE_TITLE, details.message, 'success');
+      setNoteId('');
+      getNotes();
+
+      setDataSource((prevDataSource) => {
+        return prevDataSource.filter((item) => {
+          if (!noteIdsInUse.includes(item.id as string)) {
+            return { ...item, tags: formatTags(newTags) };
+          }
+          return item;
+        });
+      });
+      clearEditor();
+    }
+    setIsLoading(false);
   };
 
   const handleAddTag = () => {
@@ -502,6 +600,18 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
       setNewTags([...newTags, value]);
     }
     setInputValue('');
+  };
+
+  const handleTagChange = (event, tag) => {
+    const tagValue = tag.toLowerCase();
+
+    if (event.target.checked) {
+      setSelectedTags([...selectedTags, tagValue]);
+    } else {
+      setSelectedTags(
+        selectedTags.filter((selectedTag) => selectedTag !== tagValue)
+      );
+    }
   };
 
   const clientColumn: TableColumn<DataSourceItem>[] = [
@@ -675,28 +785,69 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
                       >
                         {allChecked ? 'Deselect all' : 'Select all'}
                       </button>
+
                       <Menu>
-                        <StyledMenuButton
-                          as={Button}
-                          variant="unstyled"
-                          borderRadius="full"
-                          p={0}
-                          minW="auto"
-                          height="auto"
-                          background="#F4F5F5"
-                          display="flex"
-                          className="flex items-center gap-2"
-                          onClick={() => setOpenTags((prevState) => !prevState)}
-                        >
-                          <FlashCardsSolidIcon
-                            className="w-5"
-                            onClick={undefined}
-                          />
-                          Add tag
-                        </StyledMenuButton>
+                        {selectedPeople.length > 1 || allChecked ? (
+                          <StyledMenuButton
+                            as={Button}
+                            variant="unstyled"
+                            borderRadius="full"
+                            p={0}
+                            minW="auto"
+                            height="auto"
+                            background="#F4F5F5"
+                            display="flex"
+                            className="flex items-center gap-2"
+                            onClick={() => {
+                              if (selectedNoteIdToAddTagsArray) {
+                                onAddTagToMultipleNotes(
+                                  true,
+                                  selectedNoteIdToAddTagsArray,
+                                  selectedTags
+                                );
+                                setSelectedNoteIdToAddTagsArray([]);
+                              }
+                            }}
+                          >
+                            <FlashCardsSolidIcon
+                              className="w-5"
+                              onClick={undefined}
+                            />
+                            Add tags to all notes
+                          </StyledMenuButton>
+                        ) : (
+                          <StyledMenuButton
+                            as={Button}
+                            variant="unstyled"
+                            borderRadius="full"
+                            p={0}
+                            minW="auto"
+                            height="auto"
+                            background="#F4F5F5"
+                            display="flex"
+                            className="flex items-center gap-2"
+                            onClick={() => {
+                              if (setSelectedNoteIdToAddTags) {
+                                onAddTagBottomModal(
+                                  true,
+                                  selectedNoteIdToAddTags,
+                                  selectedTags
+                                );
+
+                                setSelectedNoteIdToAddTags(null);
+                              }
+                            }}
+                          >
+                            <FlashCardsSolidIcon
+                              className="w-5"
+                              onClick={undefined}
+                            />
+                            Add tag
+                          </StyledMenuButton>
+                        )}
                       </Menu>
 
-                      {openTags && (
+                      {tagAllNoteModal && (
                         <Menu>
                           <StyledMenuSection>
                             <form
@@ -726,6 +877,9 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
                                   aria-describedby="comments-description"
                                   name="comments"
                                   type="checkbox"
+                                  onChange={(e) =>
+                                    handleTagChange(e, 'Chemistry')
+                                  }
                                   className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
                                 />
                               </div>
@@ -746,6 +900,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
                                   aria-describedby="comments-description"
                                   name="comments"
                                   type="checkbox"
+                                  onChange={(e) => handleTagChange(e, 'Person')}
                                   className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
                                 />
                               </div>
@@ -766,6 +921,9 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
                                   aria-describedby="comments-description"
                                   name="comments"
                                   type="checkbox"
+                                  onChange={(e) =>
+                                    handleTagChange(e, 'Favorites')
+                                  }
                                   className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
                                 />
                               </div>
@@ -777,6 +935,30 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
                                   #Favorites
                                 </label>
                               </div>
+                            </div>
+
+                            <div className="bottom-addTags-btn-cont">
+                              {selectedPeople.length > 1 || allChecked ? (
+                                <Button
+                                  className={`bottom-addTags-btn ${
+                                    isLoading ? 'loading-button' : ''
+                                  }`}
+                                  onClick={AddAllNoteTags}
+                                  disabled={isLoading}
+                                >
+                                  {isLoading ? 'Adding...' : 'Add tag'}
+                                </Button>
+                              ) : (
+                                <Button
+                                  className={`bottom-addTags-btn ${
+                                    isLoading ? 'loading-button' : ''
+                                  }`}
+                                  onClick={() => AddTag(selectedTags)}
+                                  disabled={isLoading}
+                                >
+                                  {isLoading ? 'Adding...' : 'Add tag'}
+                                </Button>
+                              )}
                             </div>
                           </StyledMenuSection>
                         </Menu>
@@ -838,6 +1020,12 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
                 selectedNoteIdToDelete={selectedNoteIdToDelete}
                 setSelectedNoteIdToDeleteArray={setSelectedNoteIdToDeleteArray}
                 selectedNoteIdToDeleteArray={selectedNoteIdToDeleteArray}
+                selectedNoteIdToAddTagsArray={selectedNoteIdToAddTagsArray}
+                setSelectedNoteIdToAddTagsArray={
+                  setSelectedNoteIdToAddTagsArray
+                }
+                selectedNoteIdToAddTags={selectedNoteIdToAddTags}
+                setSelectedNoteIdToAddTags={setSelectedNoteIdToAddTags}
               />
             </div>
           </div>
@@ -845,7 +1033,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
       </div>
       {openTagsModal && (
         <TagModal
-          onSubmit={AddTag}
+          onSubmit={() => AddTag(newTags)}
           isOpen={openTagsModal}
           onClose={() => setOpenTagsModal(false)}
           tags={tags}
@@ -870,9 +1058,13 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
         description="Are you sure you want to delete all the marked Notes?"
         isLoading={isLoading}
         isOpen={deleteAllNoteModal}
-        onCancel={() => onCancel()}
+        onCancel={() => {
+          setDeleteAllNoteModal(!deleteAllNoteModal);
+          setSelectedRowKeys([]);
+          setSelectedPeople([]);
+        }}
         onDelete={() => DeleteAllNote()}
-        onClose={() => setDeleteAllNoteModal(false)}
+        onClose={() => setDeleteAllNoteModal(!deleteAllNoteModal)}
       />
     </>
   );

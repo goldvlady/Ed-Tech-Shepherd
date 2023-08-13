@@ -21,6 +21,7 @@ import React, { useState, ChangeEvent, useMemo } from 'react';
 export interface ScheduleFormState {
   day: Date | null;
   time: string;
+  endDate?: Date | null;
   frequency: string;
 }
 
@@ -37,10 +38,12 @@ export const ScheduleStudyModal: React.FC<ScheduleStudyModalProps> = ({
   isLoading,
   onSumbit
 }) => {
+  const today = useMemo(() => new Date(), []);
   const [formState, setScheduleFormState] = useState<ScheduleFormState>({
     day: null,
     time: '',
-    frequency: ''
+    frequency: '',
+    endDate: null
   });
 
   const isValid = useMemo(() => {
@@ -82,6 +85,7 @@ export const ScheduleStudyModal: React.FC<ScheduleStudyModalProps> = ({
             <FormControl id="day" marginBottom="20px">
               <FormLabel>Day</FormLabel>
               <CalendarDateInput
+                disabledDate={{ before: today }}
                 inputProps={{
                   placeholder: 'Select Day'
                 }}
@@ -121,6 +125,23 @@ export const ScheduleStudyModal: React.FC<ScheduleStudyModalProps> = ({
                 }
               />
             </FormControl>
+            {formState.frequency && formState.frequency !== 'none' ? (
+              <FormControl id="frequency" marginBottom="20px">
+                <FormLabel>Repetition End Date(optional)</FormLabel>
+                <CalendarDateInput
+                  disabledDate={{
+                    before: formState.day ? (formState.day as Date) : today
+                  }}
+                  inputProps={{
+                    placeholder: 'Select Day'
+                  }}
+                  value={formState.endDate as Date}
+                  onChange={handleInputChange('endDate')}
+                />
+              </FormControl>
+            ) : (
+              ''
+            )}
           </Box>
         </ModalBody>
 

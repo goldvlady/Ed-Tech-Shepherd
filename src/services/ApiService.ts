@@ -396,10 +396,14 @@ class ApiService {
     });
   };
 
-  static updateAllNoteTags = async (id: string[] | number, tags: any) => {
-    return doFetch(`${ApiService.baseEndpoint}/updateAllNoteTags/${id}`, {
+  static updateAllNoteTags = async (id: string[] | number, tags: string[]) => {
+    const requestPayload = {
+      noteIds: id,
+      tags: tags
+    };
+    return doFetch(`${ApiService.baseEndpoint}/updateAllNoteTags`, {
       method: 'PUT',
-      body: JSON.stringify(tags)
+      body: JSON.stringify(requestPayload)
     });
   };
 

@@ -22,6 +22,7 @@ interface FilterItem {
 
 interface DropdownFilterProps {
   items: FilterItem[];
+  selectedItems?: Array<number | string>;
   onSelectionChange: (
     selectedItems: Array<string | number> | string | number
   ) => void;
@@ -37,6 +38,7 @@ type SelectedItems = Array<string | number>;
 
 const DropdownFilter: React.FC<DropdownFilterProps> = ({
   items,
+  selectedItems,
   onSelectionChange,
   style = {},
   showSearch = true,
@@ -49,6 +51,12 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
   const [selectedItemIds, setSelectedItemIds] = useState<
     Array<string | number>
   >([]);
+
+  useEffect(() => {
+    if (selectedItems && selectedItems.length) {
+      setSelectedItemIds(selectedItems);
+    }
+  }, [selectedItems]);
 
   useEffect(() => {
     if (searchTerm === '') {

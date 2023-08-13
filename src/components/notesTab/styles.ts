@@ -19,6 +19,27 @@ export const StyledMenuSection = styled.section`
   width: 245px;
   padding: 8px;
   border-radius: 8px;
+  .bottom-addTags-btn-cont {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    justify-items: center;
+    .bottom-addTags-btn {
+      width: 100%;
+      margin: 0 auto;
+      color: #fff;
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+    }
+    .loading-button {
+      cursor: not-allowed;
+      opacity: 0.7;
+      background-color: grey;
+      :hover {
+        background-color: grey !important;
+      }
+    }
+  }
 `;
 
 export const ModalFooter = styled.div`
