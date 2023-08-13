@@ -6,8 +6,8 @@ import { ReactComponent as HightLightIcon } from '../../../assets/highlightIcn.s
 import SocratesImg from '../../../assets/socrates-image.png';
 import { ReactComponent as SummaryIcon } from '../../../assets/summaryIcn.svg';
 // import { ReactComponent as TellMeMoreIcn } from '../../../assets/tellMeMoreIcn.svg';
-import { ReactComponent as TutorBag } from '../../../assets/tutor-bag.svg';
 import ChatLoader from '../../../components/CustomComponents/CustomChatLoader';
+import { TutorBagIcon } from '../../../components/CustomComponents/CustomImage/tutor-bag';
 import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkdownView';
 import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
@@ -195,17 +195,22 @@ const Chat = ({
   const homeHelp = [
     {
       id: 1,
-      img: <TutorBag />,
-      title: countNeedTutor! <= 3 ? "I don't understand" : 'Find a tutor',
-      onClick:
-        countNeedTutor! <= 3
-          ? () => onCountTutor("I don't understand")
-          : onOpenModal
+      title: "I don't understand",
+      onClick: () => onCountTutor("I don't understand"),
+      show: true
     },
     {
       id: 2,
+      img: <TutorBagIcon iconColor="#FB8441" />,
+      title: 'Find a tutor',
+      onClick: onOpenModal,
+      show: countNeedTutor! > 3
+    },
+    {
+      id: 3,
       title: 'Start New Conversation',
-      onClick: handleAceHomeWorkHelp
+      onClick: handleAceHomeWorkHelp,
+      show: true
     }
   ];
 
@@ -390,10 +395,22 @@ const Chat = ({
           <DownPillContainer>
             <PillsContainer>
               {homeHelp.map((need) => (
-                <StyledDiv onClick={need.onClick} key={need.id}>
-                  {need.img}
-                  {need.title}
-                </StyledDiv>
+                <>
+                  {!!need.show && (
+                    <StyledDiv
+                      onClick={need.onClick}
+                      needIndex={need.id === 2}
+                      style={{
+                        color: need.id === 2 ? '#FB8441' : '',
+                        background: need.id === 2 ? 'white' : ''
+                      }}
+                      key={need.id}
+                    >
+                      {need.img}
+                      {need.title}
+                    </StyledDiv>
+                  )}
+                </>
               ))}
             </PillsContainer>
           </DownPillContainer>

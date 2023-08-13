@@ -6,8 +6,15 @@ const BotIntructionBox = () => {
     <Box bg="#F7F7F7" borderRadius="10px" p="20px" w="100%">
       <Flex w="100%" direction="column" align="flex-start">
         <HStack w="100%">
-          <Image width={'60px'} height={'60px'} src={robot}></Image>
-          <VStack ml={'20px'} spacing={2} align="flex-start">
+          <Image
+            width={'80px'}
+            height={'80px'}
+            borderRadius={'full'}
+            src={
+              'https://firebasestorage.googleapis.com/v0/b/shepherd-app-382114.appspot.com/o/assets%2Fscreenshot_2023-07-28_at_4.59.43_pm.jpg?alt=media&token=24b55940-12ec-427f-a8f4-76d79fc02d4f'
+            }
+          ></Image>
+          <VStack ml={'50px'} spacing={2} align="flex-start">
             <Text
               fontWeight="500"
               fontSize="16px"

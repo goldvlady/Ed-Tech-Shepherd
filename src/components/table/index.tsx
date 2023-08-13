@@ -2,13 +2,34 @@ import { StyledTd, StyledTh, StyledTr } from './styles';
 import { Table, Thead, Tbody, Checkbox } from '@chakra-ui/react';
 import { useState } from 'react';
 
+const scrollbarStyles = {
+  '&::-webkit-scrollbar': {
+    width: '2px',
+    height: '6px'
+  },
+  '&::-webkit-scrollbar-thumb': {
+    background: '#F2F4F7',
+    borderRadius: '15px'
+  },
+  '&::-webkit-scrollbar-track': {
+    background: '#F2F4F7',
+    borderRadius: '15px'
+  },
+  scrollbarWidth: 'thin',
+  scrollbarColor: '#888 #F2F4F7'
+};
+
 export type TableColumn<T = any> = {
   title: string;
   dataIndex?: keyof T;
   key: string;
+  scrollX?: boolean; // New
+  scrollY?: boolean; // New
   render?: (record: T) => JSX.Element;
   align?: 'center' | 'left';
   id?: number;
+  height?: string | number; // <-- Added optional height
+  width?: string | number; // <-- Add this line for the optional width
 };
 
 export type TableProps<T = any> = {
@@ -87,7 +108,7 @@ const SelectableTable = <T extends Record<string, unknown>>({
   };
 
   return (
-    <Table variant="unstyled" width={{ base: '100em', md: '100%' }}>
+    <Table size="sm" variant="unstyled" width={{ base: '100em', md: '100%' }}>
       <Thead marginBottom={10}>
         <StyledTr>
           {isSelectable && (
@@ -97,7 +118,13 @@ const SelectableTable = <T extends Record<string, unknown>>({
           )}
 
           {columns.map((col) => (
-            <StyledTh key={col.key} textAlign={col.align || 'left'}>
+            <StyledTh
+              key={col.key}
+              textAlign={col.align || 'left'}
+              width={col.width}
+            >
+              {' '}
+              {/* Set width here */}
               {col.title}
             </StyledTh>
           ))}
@@ -126,7 +153,17 @@ const SelectableTable = <T extends Record<string, unknown>>({
               <StyledTd
                 key={col.key}
                 fontWeight="500"
+                maxW={col.width}
+                marginRight={col.width && '10px'}
+                maxH={col.height}
+                overflowX={col.scrollX ? 'hidden' : 'auto'}
+                overflowY={col.scrollY ? 'hidden' : 'auto'}
+                css={scrollbarStyles}
                 textAlign={col.align || 'left'}
+                style={{
+                  width: col.width,
+                  height: col.height
+                }}
                 tagsColor={col.dataIndex === 'tags' ? record.tags : '#585f68'}
               >
                 {col.render
