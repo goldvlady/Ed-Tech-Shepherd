@@ -1,28 +1,38 @@
 import { ReactComponent as CopyIcn } from '../../../assets/copy.svg';
 import { ReactComponent as DeleteIcn } from '../../../assets/deleteIcn.svg';
 import { ReactComponent as EditIcn } from '../../../assets/editIcn.svg';
-import MainWrapper from '../FlashCards/create';
+import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkdownView';
 import { IconContainer, PageCount, SummaryContainer } from './styles';
 import { ChevronRightIcon, ChevronLeftIcon } from '@chakra-ui/icons';
+import { Box, Spinner } from '@chakra-ui/react';
 import React, { useState } from 'react';
 
-const HighLight = () => {
+const HighLight = ({
+  hightlightedText,
+  loading
+}: {
+  hightlightedText: any[];
+  loading: boolean;
+}) => {
   const [getHighIndex, setHightIndex] = useState<number>(0);
 
-  const summaryTexts = [
-    {
-      id: 1,
-      text: 'Nullam neque consequat risus orci. Purus tempor libero ultricies sed dignissim. Cras ipsum id aliquet faucibus accumsan. Sed amet tellus sapien pretium mauris. Ante quis amet curabitur nibh elementum lacus.'
-    },
-    {
-      id: 2,
-      text: 'Nullam neque consequat risus orci. Purus tempor libero ultricies sed dignissim. Cras ipsum id aliquet faucibus accumsan. Sed amet tellus sapien pretium mauris. Ante quis amet curabitur nibh elementum lacus.'
-    },
-    {
-      id: 3,
-      text: 'Nullam neque consequat risus orci. Purus tempor libero ultricies sed dignissim. Cras ipsum id aliquet faucibus accumsan. Sed amet tellus sapien pretium mauris. Ante quis amet curabitur nibh elementum lacus.'
-    }
-  ];
+  if (loading) {
+    return (
+      <Box
+        p={5}
+        textAlign="center"
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh'
+        }}
+      >
+        <Spinner />
+      </Box>
+    );
+  }
+
   return (
     <section>
       <PageCount>
@@ -30,22 +40,39 @@ const HighLight = () => {
         {`Page ${1}`}
         <ChevronRightIcon />
       </PageCount>
-      {summaryTexts.map((summaryText) => (
-        <SummaryContainer
-          key={summaryText.id}
-          onClick={() => setHightIndex(summaryText.id)}
+      {loading && (
+        <Box
+          p={5}
+          textAlign="center"
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh'
+          }}
         >
-          {getHighIndex === summaryText.id && (
-            <IconContainer>
-              <CopyIcn />
-              <EditIcn />
-              <DeleteIcn />
-            </IconContainer>
-          )}
-
-          {summaryText.text}
-        </SummaryContainer>
-      ))}
+          <Spinner />
+        </Box>
+      )}
+      {!loading && (
+        <>
+          {hightlightedText.map((hightlight) => (
+            <SummaryContainer
+              key={hightlight?.id}
+              onClick={() => setHightIndex(hightlight?.id)}
+            >
+              {getHighIndex === hightlight.id && (
+                <IconContainer>
+                  <CopyIcn />
+                  <EditIcn />
+                  <DeleteIcn />
+                </IconContainer>
+              )}
+              <CustomMarkdownView source={hightlight?.highlight?.name} />
+            </SummaryContainer>
+          ))}
+        </>
+      )}
     </section>
   );
 };

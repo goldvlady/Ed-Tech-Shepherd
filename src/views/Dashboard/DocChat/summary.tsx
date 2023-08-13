@@ -14,19 +14,26 @@ import {
   SummaryContainer,
   SummaryContainer2
 } from './styles';
+import { Box, Spinner } from '@chakra-ui/react';
 // import { ChevronRightIcon, ChevronLeftIcon } from '@chakra-ui/icons';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 
 const Summary = ({
   handleSummary,
   summaryLoading,
   summaryTexts,
-  setSummaryText
+  setSummaryText,
+  handleDeleteSummary,
+  handleUpdateSummary,
+  loading
 }: {
   handleSummary: () => void;
   summaryLoading?: boolean;
   summaryTexts?: string | undefined;
   setSummaryText?: any;
+  handleDeleteSummary?: () => void;
+  handleUpdateSummary?: () => void;
+  loading?: boolean;
 }) => {
   const [isEdit, setEdit] = useState(true);
   const [copiedView, setCopiedView] = useState(false);
@@ -34,6 +41,12 @@ const Summary = ({
   const onEditToggle = useCallback(() => {
     setEdit((prevState) => !prevState);
   }, [setEdit]);
+
+  useEffect(() => {
+    if (!loading) {
+      onEditToggle();
+    }
+  }, [loading]);
 
   return (
     <section>
@@ -55,18 +68,49 @@ const Summary = ({
               />
             )}
 
-            <EditIcn onClick={onEditToggle} />
-            <DeleteIcn />
+            {!isEdit ? (
+              <p
+                style={{
+                  fontSize: '0.875rem',
+                  color: '#FB8441',
+                  cursor: 'pointer'
+                }}
+                onClick={handleUpdateSummary}
+              >
+                Save
+              </p>
+            ) : (
+              <EditIcn onClick={onEditToggle} />
+            )}
+            <DeleteIcn onClick={handleDeleteSummary} />
           </IconContainer>
-          {isEdit ? (
-            <DefaultSummaryContainer>
-              <CustomMarkdownView source={summaryTexts} />
-            </DefaultSummaryContainer>
-          ) : (
-            <SummaryContainer2
-              value={summaryTexts}
-              onChange={(event) => setSummaryText(event.target.value!)}
-            ></SummaryContainer2>
+          {loading && (
+            <Box
+              p={5}
+              textAlign="center"
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh'
+              }}
+            >
+              <Spinner />
+            </Box>
+          )}
+          {!loading && (
+            <>
+              {isEdit ? (
+                <DefaultSummaryContainer>
+                  <CustomMarkdownView source={summaryTexts} />
+                </DefaultSummaryContainer>
+              ) : (
+                <SummaryContainer2
+                  value={summaryTexts}
+                  onChange={(event) => setSummaryText(event.target.value!)}
+                ></SummaryContainer2>
+              )}
+            </>
           )}
         </>
       )}

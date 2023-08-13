@@ -1,7 +1,10 @@
 import { SelectedNoteModal } from '../../../components';
+import { getPDFHighlight, postPDFHighlight } from '../../../services/AI';
 import { Spinner } from './Spinner';
 import { testHighlights as _testHighlights } from './test-highlights';
-import { useEffect, useState } from 'react';
+import { useToast } from '@chakra-ui/react';
+import { HandRaisedIcon } from '@heroicons/react/20/solid';
+import { useEffect, useState, useCallback } from 'react';
 import type { IHighlight, NewHighlight } from 'react-pdf-highlighter';
 import {
   PdfLoader,
@@ -37,15 +40,20 @@ const HighlightPopup = ({
 const TempPDFViewer = ({
   pdfLink,
   name,
-  documentId
+  documentId,
+  setLoading,
+  setHightlightedText
 }: {
   pdfLink: URL;
   name: string;
   documentId?: string;
+  setLoading?: any;
+  setHightlightedText?: any;
 }) => {
   const [highlights, setHighlights] = useState<Array<IHighlight>>([]);
   const [url, setUrl] = useState(pdfLink);
   const [popUpNotesModal, setPopUpNotesModal] = useState(false);
+  const toast = useToast();
 
   const resetHighlights = () => {
     setHighlights([]);
@@ -76,6 +84,40 @@ const TempPDFViewer = ({
     setHighlights([{ ...highlight, id: getNextId() }, ...highlights]);
   };
 
+  const handleHighlight = useCallback(async () => {
+    try {
+      const response = await postPDFHighlight({
+        documentId,
+        highlight: {
+          name: highlights[0]?.content?.text
+        }
+      });
+      if ([200].includes(response.status)) {
+        toast({
+          title: 'Hightlighted words saved successfully',
+          position: 'top-right',
+          status: 'success',
+          isClosable: true
+        });
+
+        const getHighlight = async () => {
+          setLoading(true);
+          const response = await getPDFHighlight({ documentId });
+          setHightlightedText(response);
+          setLoading(false);
+        };
+        getHighlight();
+      }
+    } catch (error) {
+      toast({
+        title: 'Unable to process this request.Please try again later',
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
+      });
+    }
+  }, [documentId, highlights[0]?.content?.text]);
+
   const updateHighlight = (
     highlightId: string,
     position: object,
@@ -101,6 +143,10 @@ const TempPDFViewer = ({
 
     setHighlights(updated);
   };
+
+  useEffect(() => {
+    !!highlights.length && handleHighlight();
+  }, [highlights]);
 
   return (
     <>

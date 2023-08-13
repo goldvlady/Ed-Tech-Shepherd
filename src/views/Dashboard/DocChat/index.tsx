@@ -1,9 +1,13 @@
 import CustomToast from '../../../components/CustomComponents/CustomToast/index';
+import { AI_API } from '../../../config';
 import {
   chatHistory,
   chatWithDoc,
+  deleteGeneratedSummary,
   generateSummary,
-  postGenerateSummary
+  getPDFHighlight,
+  postGenerateSummary,
+  updateGeneratedSummary
 } from '../../../services/AI';
 import socketWithAuth from '../../../socket';
 import userStore from '../../../state/userStore';
@@ -34,6 +38,8 @@ export default function DocChat() {
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryText, setSummaryText] = useState('');
   const [socket, setSocket] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [hightlightedText, setHightlightedText] = useState<any[]>([]);
 
   useEffect(() => {
     if (!socket) {
@@ -201,6 +207,75 @@ export default function DocChat() {
     [socket, toast]
   );
 
+  const handleDeleteSummary = useCallback(async () => {
+    try {
+      const data = await deleteGeneratedSummary({
+        documentId,
+        studentId
+      });
+      if (data) {
+        const fetchSummary = async () => {
+          const { summary } = await generateSummary({ documentId, studentId });
+          setSummaryText(summary);
+        };
+        fetchSummary();
+      }
+    } catch (error) {
+      toast({
+        render: () => (
+          <CustomToast
+            title="Unable to process your request at this time. Please try again later."
+            status="error"
+          />
+        ),
+        position: 'top-right',
+        isClosable: true
+      });
+    }
+  }, [documentId, studentId]);
+
+  const handleUpdateSummary = useCallback(async () => {
+    setLoading(true);
+    try {
+      const request = await updateGeneratedSummary({
+        documentId,
+        studentId,
+        summary: summaryText
+      });
+      if ([200, 201].includes(request.status)) {
+        setLoading(true);
+        toast({
+          render: () => (
+            <CustomToast
+              title={`Summary for ${documentId} has be updated successfully`}
+              status="success"
+            />
+          ),
+          position: 'top-right',
+          isClosable: true
+        });
+        const fetchSummary = async () => {
+          const { summary } = await generateSummary({ documentId, studentId });
+          setSummaryText(summary);
+        };
+        fetchSummary();
+        setLoading(false);
+      }
+    } catch (error) {
+      toast({
+        render: () => (
+          <CustomToast
+            title="Unable to process your request at this time. Please try again later."
+            status="error"
+          />
+        ),
+        position: 'top-right',
+        isClosable: true
+      });
+      setLoading(false);
+    }
+  }, [documentId, studentId, summaryText]);
+
   useLayoutEffect(() => {
     const fetchChatHistory = async () => {
       try {
@@ -235,6 +310,16 @@ export default function DocChat() {
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
 
   useEffect(() => {
+    const getHighlight = async () => {
+      setLoading(true);
+      const response = await getPDFHighlight({ documentId });
+      setHightlightedText(response);
+      setLoading(false);
+    };
+    getHighlight();
+  }, [documentId]);
+
+  useEffect(() => {
     if (!location.state?.documentUrl) navigate('/dashboard/notes');
   }, [navigate, location.state?.documentUrl]);
 
@@ -246,6 +331,8 @@ export default function DocChat() {
             pdfLink={location.state.documentUrl}
             name={location.state.docTitle}
             documentId={documentId}
+            setLoading={setLoading}
+            setHightlightedText={setHightlightedText}
           />
           <Chat
             isShowPrompt={isShowPrompt}
@@ -263,6 +350,10 @@ export default function DocChat() {
             setSummaryText={setSummaryText}
             documentId={documentId}
             handleClickPrompt={handleClickPrompt}
+            handleDeleteSummary={handleDeleteSummary}
+            handleUpdateSummary={handleUpdateSummary}
+            hightlightedText={hightlightedText}
+            loading={loading}
           />
         </div>
       </section>
