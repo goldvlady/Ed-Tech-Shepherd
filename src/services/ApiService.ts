@@ -5,8 +5,6 @@ import { User, StudentDocumentPayload } from '../types';
 import { doFetch } from '../util';
 import {
   processDocument,
-  checkDocumentStatus,
-  chatWithDoc,
   createDocchatFlashCards,
   chatHomeworkHelp,
   chatHistory
@@ -18,8 +16,6 @@ class ApiService {
   static baseEndpoint = REACT_APP_API_ENDPOINT;
 
   static processDocument = processDocument;
-  static checkDocumentStatus = checkDocumentStatus;
-  static chatWithDoc = chatWithDoc;
   static createDocchatFlashCards = createDocchatFlashCards;
   static chatHomeworkHelp = chatHomeworkHelp;
   static chatHistory = chatHistory;

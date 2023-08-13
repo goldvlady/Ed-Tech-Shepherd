@@ -1,8 +1,12 @@
 import { AI_API, HEADER_KEY } from './config';
 import io from 'socket.io-client';
 
-const socketWithAuth = (payload: { studentId: string; documentId: string }) =>
-  io(AI_API, {
+const socketWithAuth = (payload: {
+  studentId: string;
+  documentId: string;
+  namespace: string;
+}) =>
+  io(`${AI_API}/${payload.namespace}`, {
     extraHeaders: {
       'x-shepherd-header': HEADER_KEY
     },

@@ -1,7 +1,6 @@
 import CustomToast from '../../../components/CustomComponents/CustomToast/index';
 import {
   chatHistory,
-  chatWithDoc,
   generateSummary,
   postGenerateSummary
 } from '../../../services/AI';
@@ -40,7 +39,8 @@ export default function DocChat() {
     if (!socket) {
       const authSocket = socketWithAuth({
         studentId,
-        documentId
+        documentId,
+        namespace: 'doc-chat'
       }).connect();
       setSocket(authSocket);
     }
@@ -58,7 +58,7 @@ export default function DocChat() {
 
   useEffect(() => {
     if (socket) {
-      socket.on('bot response done', (completeText) => {
+      socket.on('chat response end', (completeText) => {
         setLLMResponse('');
         setTimeout(
           () => setBotStatus('Philosopher, thinker, study companion.'),
@@ -72,18 +72,19 @@ export default function DocChat() {
         ]);
       });
 
-      return () => socket.off('bot response done');
+      return () => socket.off('chat response end');
     }
   }, [socket]);
 
   useEffect(() => {
     if (socket) {
-      socket.on('bot response', async (token) => {
+      socket.on('chat response start', async (token) => {
         setBotStatus('Typing...');
+
         setLLMResponse((llmResponse) => llmResponse + token);
       });
 
-      return () => socket.off('bot response');
+      return () => socket.off('chat response start');
     }
   }, [socket]);
 
