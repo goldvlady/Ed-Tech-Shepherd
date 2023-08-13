@@ -12,7 +12,6 @@ import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkd
 import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../../components/hooks/useChatScroll';
-// import { chatWithDoc } from '../../../services/AI';
 import FlashcardDataProvider from '../FlashCards/context/flashcard';
 import ChatHistory from './chatHistory';
 import HighLight from './highlist';
