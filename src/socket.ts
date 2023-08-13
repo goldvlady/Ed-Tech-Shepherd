@@ -8,7 +8,7 @@ const socketWithAuth = (payload: {
   topic?: string;
   subject?: string;
 }) =>
-  io(`http://localhost:9000/${payload.namespace}`, {
+  io(`${AI_API}/${payload.namespace}`, {
     extraHeaders: {
       'x-shepherd-header': HEADER_KEY
     },
