@@ -213,53 +213,53 @@ const Offer = () => {
           position: 'top',
           isClosable: true
         });
-        // const stripe = await stripePromise;
-        // const setupIntent = await stripe?.retrieveSetupIntent(clientSecret);
-        // await ApiService.addPaymentMethod(
-        //   setupIntent?.setupIntent?.payment_method as string
-        // );
-        // await fetchUser();
-        // switch (setupIntent?.setupIntent?.status) {
-        //   case 'succeeded':
-        //     bookOffer();
-        //     toast({
-        //       title: 'Your payment method has been saved.',
-        //       status: 'success',
-        //       position: 'top',
-        //       isClosable: true
-        //     });
-        //     break;
-        //   case 'processing':
-        //     toast({
-        //       // TODO: Handle setup intent processing state
-        //       title:
-        //         "Processing payment details. We'll update you when processing is complete.",
-        //       status: 'loading',
-        //       position: 'top',
-        //       isClosable: true
-        //     });
-        //     break;
-        //   case 'requires_payment_method':
-        //     toast({
-        //       title:
-        //         'Failed to process payment details. Please try another payment method.',
-        //       status: 'error',
-        //       position: 'top',
-        //       isClosable: true
-        //     });
-        //     break;
-        //   default:
-        //     toast({
-        //       title: 'Something went wrong.',
-        //       status: 'error',
-        //       position: 'top',
-        //       isClosable: true
-        //     });
-        //     break;
-        // }
-        // setSettingUpPaymentMethod(false);
+        const stripe = await stripePromise;
+        const setupIntent = await stripe?.retrieveSetupIntent(clientSecret);
+        await ApiService.addPaymentMethod(
+          setupIntent?.setupIntent?.payment_method as string
+        );
+        await fetchUser();
+        switch (setupIntent?.setupIntent?.status) {
+          case 'succeeded':
+            bookOffer();
+            toast({
+              title: 'Your payment method has been saved.',
+              status: 'success',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          case 'processing':
+            toast({
+              // TODO: Handle setup intent processing state
+              title:
+                "Processing payment details. We'll update you when processing is complete.",
+              status: 'loading',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          case 'requires_payment_method':
+            toast({
+              title:
+                'Failed to process payment details. Please try another payment method.',
+              status: 'error',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          default:
+            toast({
+              title: 'Something went wrong.',
+              status: 'error',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+        }
+        setSettingUpPaymentMethod(false);
 
-        // bookOffer();
+        bookOffer();
       })();
     }
     /* eslint-disable */
