@@ -1,3 +1,4 @@
+import userStore from '../../../../state/userStore';
 import theme from '../../../../theme';
 import { PaymentMethod } from '../../../../types';
 import {
@@ -19,6 +20,7 @@ import styled from 'styled-components';
 
 function Billing(props) {
   const { username, email } = props;
+  const { user } = userStore();
   const currentPath = window.location.pathname;
 
   const isTutor = currentPath.includes('/dashboard/tutordashboard/');
@@ -171,7 +173,7 @@ function Billing(props) {
               <Divider />
               <Flex width={'100%'} alignItems="center">
                 <Stack spacing={'2px'}>
-                  {paymentMethods.map((pm) => (
+                  {user?.paymentMethods.map((pm) => (
                     <Flex
                       onClick={() => setCurrentPaymentMethod(pm)}
                       key={pm._id}
