@@ -8,6 +8,7 @@ import {
   Stack,
   RadioGroup,
   Radio,
+  keyframes,
   HStack
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -29,6 +30,36 @@ interface QuestionReviewCardProps {
   onDelete: () => void;
   onEdit: () => void;
 }
+
+const spreadBorderColor = keyframes`
+  0% {
+    border-top-color: #207DF7;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+  }
+  25% {
+    border-top-color: #207DF7;
+    border-right-color: #207DF7;
+  }
+  50% {
+    border-top-color: #207DF7;
+    border-right-color: #207DF7;
+    border-bottom-color: #207DF7;
+  }
+  75% {
+    border-top-color: #207DF7;
+    border-right-color: #207DF7;
+    border-bottom-color: #207DF7;
+    border-left-color: #207DF7;
+  }
+  100% {
+    border-top-color: #207DF7;
+    border-right-color: #207DF7;
+    border-bottom-color: #207DF7;
+    border-left-color: #207DF7;
+  }
+`;
 
 const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({
   question,
@@ -54,13 +85,18 @@ const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({
       {isVisible && (
         <MotionBox
           initial={{ height: 'auto' }}
+          animate={{}}
           width={'100%'}
           exit={{ height: 0 }}
-          borderWidth="1px"
-          borderRadius="12px"
-          borderColor={!isCurrentQuestion ? '#EEEFF2' : '#207DF7'}
+          height="auto"
+          borderWidth="1.5px"
+          borderRadius="15px"
           bg="#FFFFFF"
-          my="4"
+          boxShadow="rgba(149, 157, 165, 0.2) 0px 8px 24px"
+          borderColor={!isCurrentQuestion ? 'transparent' : '#207DF7'}
+          animation={
+            isCurrentQuestion ? `${spreadBorderColor} 2s forwards` : undefined
+          }
         >
           <Box p="24px">
             <Text

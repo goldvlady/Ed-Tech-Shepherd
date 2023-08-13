@@ -378,6 +378,7 @@ const Notes = () => {
             show={toggleHelpModal}
             setShow={setToggleHelpModal}
             setShowHelp={setToggleHelpModal}
+            okayButton={true}
           />
         </>
       );
