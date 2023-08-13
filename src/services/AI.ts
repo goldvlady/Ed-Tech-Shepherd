@@ -145,7 +145,7 @@ export const chatHistory = async ({
   documentId,
   studentId
 }: {
-  documentId: string;
+  documentId?: string;
   studentId: string;
 }) => {
   const response = await fetch(

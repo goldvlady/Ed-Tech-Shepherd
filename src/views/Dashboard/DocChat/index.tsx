@@ -48,6 +48,7 @@ export default function DocChat() {
         documentId,
         namespace: 'doc-chat'
       }).connect();
+
       setSocket(authSocket);
     }
   }, [socket, studentId, documentId]);
@@ -249,7 +250,7 @@ export default function DocChat() {
         toast({
           render: () => (
             <CustomToast
-              title={`Summary for ${documentId} has be updated successfully`}
+              title={`Summary for ${documentId} has been updated successfully`}
               status="success"
             />
           ),
