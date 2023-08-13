@@ -35,7 +35,6 @@ const ProfileSwitchModal = ({
   const { user, fetchUser } = userStore();
   const [currentPlan, setCurrentPlan] = useState('Basic');
   const [selectedProfile, setSelectedProfile] = useState('');
-  const [userType, setUserType] = useState<any>(user?.type);
 
   const handleClose = () => {
     setToggleProfileSwitchModal(false);
@@ -142,8 +141,8 @@ const ProfileSwitchModal = ({
                         </Box>
                         <Center>
                           <HStack {...group} spacing={'100px'} my={'65px'}>
-                            {userType &&
-                              userType.map((value) => {
+                            {user &&
+                              user?.type.map((value) => {
                                 const radio = getRadioProps({ value });
                                 return (
                                   <RadioCard key={value} {...radio}>

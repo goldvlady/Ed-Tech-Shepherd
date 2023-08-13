@@ -16,7 +16,13 @@ import moment from 'moment';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const ViewTutors = ({ onOpenModal }: { onOpenModal?: () => void }) => {
+const ViewTutors = ({
+  onOpenModal,
+  subjectID
+}: {
+  onOpenModal?: () => void;
+  subjectID?: string;
+}) => {
   const { courses: courseList, levels: levelOptions } = resourceStore();
   //   const { fetchBookmarkedTutors, tutors: allTutors } = bookmarkedTutorsStore();
   const [subject, setSubject] = useState<string>('Subject');
@@ -92,6 +98,10 @@ const ViewTutors = ({ onOpenModal }: { onOpenModal?: () => void }) => {
     getData();
     /* eslint-disable */
   }, [subject, tutorDetails]);
+
+  useEffect(() => {
+    setSubject(subjectID ?? '');
+  }, [subjectID]);
 
   return (
     <ViewTutorSection>

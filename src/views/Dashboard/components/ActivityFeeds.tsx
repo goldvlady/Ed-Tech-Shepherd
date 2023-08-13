@@ -145,6 +145,10 @@ function ActivityFeeds(props) {
 
   const [filteredFeeds, setFilteredFeeds] = useState<any[]>([]);
 
+  const currentPath = window.location.pathname;
+
+  const isTutor = currentPath.includes('/dashboard/tutordashboard');
+
   useEffect(() => {
     const currentTime = new Date();
 
@@ -163,9 +167,15 @@ function ActivityFeeds(props) {
         return false;
       }
     };
-
-    const filteredFeeds = feeds?.data.filter(filterByPeriod);
-    setFilteredFeeds(filteredFeeds);
+    if (isTutor) {
+      setFilteredFeeds(
+        feeds?.data
+          .filter((feed) => feed.activityType === 'transaction')
+          .filter(filterByPeriod)
+      );
+    } else {
+      setFilteredFeeds(feeds?.data.filter(filterByPeriod));
+    }
   }, [feedPeriod, feeds?.data]);
 
   return (

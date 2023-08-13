@@ -67,6 +67,11 @@ const sortedByTitle = [
   }
 ];
 
+const getLocalStorageNoteId = (noteId: string | null): string => {
+  const genId = noteId ? noteId : '';
+  return genId;
+};
+
 const Notes = () => {
   const navigate = useNavigate();
   const [toggleHelpModal, setToggleHelpModal] = useState(false);
@@ -77,23 +82,32 @@ const Notes = () => {
     new Array(tagFilters.length).fill(false)
   );
   const [tags, setTags] = useState<string[]>([]);
+  const [notesLoaded, setNotesLoaded] = useState(false);
 
   const getNotes = useCallback(async () => {
     setLoadingNotes(true);
-    const resp = await ApiService.getAllNotes();
-    const respText = await resp.text();
     try {
+      const resp = await ApiService.getAllNotes();
+      const respText = await resp.text();
       const respDetails: NoteServerResponse<Array<NoteDetails>> =
         JSON.parse(respText);
+
       if (respDetails.data) {
         setAllNotes(respDetails.data);
       }
-      setLoadingNotes(false);
-      // set notes list
     } catch (error: any) {
+      // Handle the error appropriately, e.g., show an error message
       setLoadingNotes(false);
-      return;
+    } finally {
+      setLoadingNotes(false);
     }
+  }, []);
+
+  //  load all notes when page is loaded
+  useEffect(() => {
+    getNotes().then(() => {
+      setNotesLoaded(true);
+    });
   }, []);
 
   const activateHelpModal = () => {
@@ -180,7 +194,7 @@ const Notes = () => {
   const tabPanel = [
     {
       id: 1,
-      component: <AllNotesTab data={allNotes} />
+      component: <AllNotesTab data={allNotes} getNotes={getNotes} />
     },
     {
       id: 2,
@@ -188,7 +202,7 @@ const Notes = () => {
     },
     {
       id: 3,
-      component: <AllNotesTab data={allNotes} />
+      component: <AllNotesTab data={allNotes} getNotes={getNotes} />
     }
   ];
 
@@ -294,11 +308,6 @@ const Notes = () => {
     );
   };
 
-  //  load all notes when page is loaded
-  useEffect(() => {
-    getNotes();
-  }, [getNotes]);
-
   useEffect(() => {
     // Filter based on tags or sort order
     const filteredNotes = allNotes.filter((note: NoteDetails) => {
@@ -316,8 +325,8 @@ const Notes = () => {
   }, [tags, sortOrder]);
 
   const NoteView = () => {
-    if (loadingNotes) {
-      return <>{loadingNotes && <LoaderOverlay />}</>;
+    if (!notesLoaded) {
+      return <LoaderOverlay />;
     } else {
       return (
         <>
@@ -369,11 +378,13 @@ const Notes = () => {
             show={toggleHelpModal}
             setShow={setToggleHelpModal}
             setShowHelp={setToggleHelpModal}
+            okayButton={true}
           />
         </>
       );
     }
   };
+
   return <NoteView />;
 };
 

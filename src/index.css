@@ -1015,6 +1015,9 @@ canvas {
     justify-content: space-around;
   }
 }
+.chat-btn {
+  background-color: rgb(32, 125, 247) !important;
+}
 
 @media (max-width: 1200px) {
   .landing-img,
@@ -1158,4 +1161,29 @@ canvas {
   /* .landing-footer-icons {
     gap: 0;
   } */
+}
+
+.slide-in {
+  animation: slideIn 1s ease forwards;
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+@keyframes slideIn {
+  from {
+    left: 20%;
+    /* width: 100%; */
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.action-card {
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.action-card:hover {
+  box-shadow: 0 0 11px rgba(33, 33, 33, 0.2);
+  transform: scale(1.04);
 }

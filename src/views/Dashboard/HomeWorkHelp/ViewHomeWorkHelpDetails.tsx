@@ -1,8 +1,30 @@
 import CustomButton from '../../../components/CustomComponents/CustomButton/index';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import SelectComponent, { Option } from '../../../components/Select';
-import { Box, FormControl, FormLabel, HStack, Input } from '@chakra-ui/react';
-import React, { ChangeEvent, useCallback, useState, useMemo } from 'react';
+import resourceStore from '../../../state/resourceStore';
+import {
+  Box,
+  FormControl,
+  FormLabel,
+  HStack,
+  Input,
+  Select,
+  VStack,
+  extendTheme,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Button
+} from '@chakra-ui/react';
+import React, {
+  ChangeEvent,
+  useCallback,
+  useState,
+  useMemo,
+  useEffect
+} from 'react';
+import { FiChevronDown } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
 interface FlashcardData {
@@ -12,24 +34,38 @@ interface FlashcardData {
 }
 const ViewHomeWorkHelpDetails = ({
   openAceHomework,
-  handleClose,
-  handleAceHomeWorkHelp
+  handleAceHomeWorkHelp,
+  setSubject,
+  subjectId,
+  setLocalData,
+  setLevel,
+  localData,
+  level,
+  onRouteHomeWorkHelp
 }: {
   openAceHomework: boolean;
   handleClose: () => void;
   handleAceHomeWorkHelp: () => void;
+  isHomeWorkHelp?: boolean;
+  setMessages?: any;
+  setSubject?: any;
+  subjectId?: any;
+  setLocalData?: any;
+  setLevel?: any;
+  localData?: any;
+  level?: any;
+  onRouteHomeWorkHelp?: any;
 }) => {
-  const [localData, setLocalData] = useState<FlashcardData>({
-    subject: '',
-    topic: ''
-  });
+  const { courses: courseList, levels: levelOptions } = resourceStore();
+  const [searchValue, setSearchValue] = useState('');
 
-  const levelOptions = [
-    { label: 'Very Easy', value: 'kindergarten' },
-    { label: 'Medium', value: 'high school' },
-    { label: 'Hard', value: 'college' },
-    { label: 'Very Hard', value: 'PhD' }
-  ];
+  const searchQuery = useCallback((searchValue: string, courseList: any[]) => {
+    return courseList.filter((course) =>
+      course.label.toLowerCase().includes(searchValue.toLowerCase())
+    );
+  }, []);
+
+  const filteredOptions = searchQuery(searchValue, courseList);
 
   const navigate = useNavigate();
 
@@ -46,14 +82,6 @@ const ViewHomeWorkHelpDetails = ({
 
   const isDisabledBtn = useMemo(() => {
     return !Object.values(localData).some((value) => value === '');
-  }, [localData]);
-
-  const onRouteHomeWorkHelp = useCallback(() => {
-    handleClose();
-    handleAceHomeWorkHelp();
-    navigate('/dashboard/ace-homework', {
-      state: localData
-    });
   }, [localData]);
 
   return (
@@ -94,14 +122,53 @@ const ViewHomeWorkHelpDetails = ({
           >
             Subject
           </FormLabel>
-          <Input
-            type="text"
-            name="subject"
-            placeholder="e.g. biology"
-            value={localData.subject}
-            onChange={handleChange}
-            _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
-          />
+          <Menu>
+            <MenuButton
+              as={Button}
+              variant="outline"
+              rightIcon={<FiChevronDown />}
+              fontSize={14}
+              borderRadius="8px"
+              fontWeight={400}
+              width="100%"
+              height="42px"
+              color="text.400"
+              textAlign="left"
+            >
+              {subjectId !== 'Subject'
+                ? courseList.map((course) => {
+                    if (course._id === subjectId) {
+                      return course.label;
+                    }
+                  })
+                : 'e.g Biology'}
+            </MenuButton>
+            <MenuList zIndex={3} width="24em">
+              <Input
+                size="sm"
+                onChange={(e) => setSearchValue(e.target.value)}
+                placeholder="Search Subject"
+                value={searchValue}
+              />
+              <div
+                style={{
+                  maxHeight: '200px',
+                  overflowY: 'auto'
+                }}
+              >
+                {filteredOptions.map((course) => (
+                  <MenuItem
+                    fontSize="0.875rem"
+                    key={course._id}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => setSubject(course._id)}
+                  >
+                    {course.label}
+                  </MenuItem>
+                ))}
+              </div>
+            </MenuList>
+          </Menu>
         </FormControl>
         <FormControl mb={6}>
           <FormLabel
@@ -143,24 +210,33 @@ const ViewHomeWorkHelpDetails = ({
           <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
             Level (optional)
           </FormLabel>
-          <SelectComponent
-            name="level"
-            placeholder="Select Level"
-            defaultValue={levelOptions.find(
-              (option) => option.value === localData.level
-            )}
-            options={levelOptions}
-            size={'md'}
-            onChange={(option) => {
-              const event = {
-                target: {
-                  name: 'level',
-                  value: (option as Option).value
-                }
-              } as ChangeEvent<HTMLSelectElement>;
-              handleChange(event);
-            }}
-          />
+          <Menu>
+            <MenuButton
+              as={Button}
+              variant="outline"
+              rightIcon={<FiChevronDown />}
+              fontSize={14}
+              borderRadius="8px"
+              fontWeight={400}
+              color="text.400"
+              width="100%"
+              height="42px"
+              textAlign="left"
+            >
+              {level === '' ? 'Level' : level.label}
+            </MenuButton>
+            <MenuList minWidth={'auto'}>
+              {levelOptions.map((level) => (
+                <MenuItem
+                  key={level._id}
+                  _hover={{ bgColor: '#F2F4F7' }}
+                  onClick={() => setLevel(level)}
+                >
+                  {level.label}
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Menu>
         </FormControl>
       </Box>
     </CustomModal>

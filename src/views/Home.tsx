@@ -9,7 +9,8 @@ function Home() {
   const logOut = () => {
     signOut(firebaseAuth)
       .then(() => {
-        // Sign-out successful.
+        sessionStorage.clear();
+
         navigate('/login');
       })
       .catch((error) => {

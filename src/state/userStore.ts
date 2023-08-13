@@ -11,22 +11,6 @@ type List = {
   };
 };
 
-const userPatch = {
-  name: {
-    first: 'Chigo',
-    last: 'Ofurum'
-  },
-  email: 'chigo@gmail.com',
-  isVerified: true,
-  type: 'student' as const,
-  paymentMethods: [],
-  firebaseId: 'hackety hack',
-  dob: '2022-10-10',
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  _id: 'whatevs'
-};
-
 type Store = {
   user: User | null;
   userNotifications: Array<UserNotifications>;
@@ -41,13 +25,16 @@ export default create<Store>((set) => ({
   userNotifications: [],
   userDocuments: [],
   fetchUser: async () => {
-    set({ user: userPatch });
+    const response = await ApiService.getUser();
+    if (response.status !== 200) return false;
+    set({ user: await response.json() });
     return true;
   },
   fetchNotifications: async () => {
-    set({
-      userNotifications: []
-    });
+    const response = await ApiService.getUserNotifications();
+    // if (response.status !== 200) return false;
+    set({ userNotifications: await response.json() });
+    // return true;
   },
   fetchUserDocuments: async (userId: string) => {
     const userDocuments = await fetchStudentDocuments(userId);

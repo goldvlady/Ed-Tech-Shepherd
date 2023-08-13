@@ -39,10 +39,13 @@ class ApiService {
     });
   };
 
-  static storeFlashcardTags = (flashcardId: string, tags: string[]) => {
+  static storeFlashcardTags = (
+    flashcardIds: string[] | string,
+    tags: string[]
+  ) => {
     return doFetch(`${ApiService.baseEndpoint}/storeFlashcardTags`, {
       method: 'POST',
-      body: JSON.stringify({ flashcardId, tags })
+      body: JSON.stringify({ flashcardIds, tags })
     });
   };
 
@@ -389,11 +392,37 @@ class ApiService {
     });
   };
 
+  static updateAllNoteTags = async (id: string[] | number, tags: string[]) => {
+    const requestPayload = {
+      noteIds: id,
+      tags: tags
+    };
+    return doFetch(`${ApiService.baseEndpoint}/updateAllNoteTags`, {
+      method: 'PUT',
+      body: JSON.stringify(requestPayload)
+    });
+  };
+
   static deleteNote = async (id: string | number) => {
     return doFetch(`${ApiService.baseEndpoint}/deleteNote/${id}`, {
       method: 'DELETE'
     });
   };
+
+  static deleteAllNote = async (noteIds: string[]): Promise<Response> => {
+    const requestPayload = {
+      noteIds: noteIds
+    };
+
+    return doFetch(`${ApiService.baseEndpoint}/deleteAllNotes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requestPayload)
+    });
+  };
+
   static updateProfile = async (formData: any) => {
     return doFetch(`${ApiService.baseEndpoint}/updateProfile`, {
       method: 'PUT',

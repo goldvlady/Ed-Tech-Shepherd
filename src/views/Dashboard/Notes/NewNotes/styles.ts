@@ -25,6 +25,10 @@ export const NewNoteWrapper = styled.section<{
   z-index: ${(props) => props.zIndex ?? undefined};
   background-color: ${(props) => props.background ?? theme.color.background};
 `;
+export const FullScreenNoteWrapper = styled.div`
+  width: 70% !important;
+  margin: 0 auto;
+`;
 
 export const PDFWrapper = styled.div`
   display: flex;

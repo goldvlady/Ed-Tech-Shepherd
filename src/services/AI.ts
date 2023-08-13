@@ -14,6 +14,26 @@ export const fetchStudentDocuments = async (studentId: string) => {
     }
   }).then((documents) => documents.json());
 };
+// export const processDocument = async (data: {
+//   studentId: string;
+//   documentId: string;
+//   documentURL: string;
+//   tags?: Array<string>;
+//   courseId?: string;
+//   title: string;
+// }) => {
+//   const processDoc = await fetch(`${AI_API}/notes/ingest`, {
+//     method: 'POST',
+//     headers: {
+//       'x-shepherd-header': HEADER_KEY,
+//       'Content-Type': 'application/json'
+//     },
+//     body: JSON.stringify(data)
+//   }).then(async (data) => data.json());
+
+//   return processDoc;
+// };
+
 export const processDocument = async (data: {
   studentId: string;
   documentId: string;
@@ -22,16 +42,21 @@ export const processDocument = async (data: {
   courseId?: string;
   title: string;
 }) => {
-  const processDoc = await fetch(`${AI_API}/notes/ingest`, {
+  const processDocResponse = await fetch(`${AI_API}/notes/ingest`, {
     method: 'POST',
     headers: {
       'x-shepherd-header': HEADER_KEY,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(data)
-  }).then(async (data) => data.json());
+  });
 
-  return processDoc;
+  if (!processDocResponse.ok) {
+    throw new Error('Invalid file format');
+  }
+
+  const processDocData = await processDocResponse.json();
+  return processDocData;
 };
 
 export const checkDocumentStatus = async ({
@@ -183,5 +208,120 @@ export const postGenerateSummary = async ({
     })
   });
 
+  return request;
+};
+
+export const uploadBlockNoteDocument = async (data: {
+  studentId: string;
+  documentId: string;
+  document: Array<string>;
+  title: string;
+  tags?: Array<string>;
+  courseId?: string;
+}) => {
+  const processDoc = await fetch(`${AI_API}/notes/create`, {
+    method: 'POST',
+    headers: {
+      'x-shepherd-header': HEADER_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  }).then(async (data) => data.json());
+
+  return processDoc;
+};
+
+export const postPDFHighlight = async ({
+  documentId,
+  highlight
+}: {
+  documentId: any;
+  highlight: object;
+}) => {
+  const request = await fetch(`${AI_API}/highlights`, {
+    method: 'POST',
+    headers: {
+      'x-shepherd-header': HEADER_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      documentId,
+      highlight
+    })
+  });
+
+  return request;
+};
+
+export const getPDFHighlight = async ({
+  documentId
+}: {
+  documentId?: string;
+}) => {
+  const response = await fetch(
+    `${AI_API}/highlights?documentId=${documentId}`,
+    {
+      method: 'GET',
+      headers: {
+        'x-shepherd-header': HEADER_KEY
+      }
+    }
+  );
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  } else {
+    const highlight = await response.json();
+    return highlight;
+  }
+};
+
+export const deleteGeneratedSummary = async ({
+  studentId,
+  documentId
+}: {
+  studentId: string;
+  documentId: string;
+}) => {
+  const request = await fetch(
+    `${AI_API}/notes/summary?studentId=${studentId}&documentId=${documentId}`,
+    {
+      method: 'DELETE',
+      headers: {
+        'x-shepherd-header': HEADER_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        documentId,
+        studentId
+      })
+    }
+  );
+  return request;
+};
+
+export const updateGeneratedSummary = async ({
+  studentId,
+  documentId,
+  summary
+}: {
+  studentId: string;
+  documentId: string;
+  summary: string;
+}) => {
+  const request = await fetch(
+    `${AI_API}/notes/summary?studentId=${studentId}&documentId=${documentId}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'x-shepherd-header': HEADER_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        documentId,
+        studentId,
+        summary
+      })
+    }
+  );
   return request;
 };

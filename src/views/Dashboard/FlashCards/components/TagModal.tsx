@@ -27,7 +27,6 @@ interface TagModalProps {
   handleAddTag?: () => void;
   newTags?: string[];
   setNewTags?: any;
-  noteIdInUse?: any;
 }
 
 export const TagModal: React.FC<TagModalProps> = ({
@@ -39,8 +38,7 @@ export const TagModal: React.FC<TagModalProps> = ({
   setInputValue: propSetInputValue,
   handleAddTag: propHandleAddTag,
   newTags: propNewTags,
-  setNewTags: propSetNewTags,
-  noteIdInUse
+  setNewTags: propSetNewTags
 }) => {
   const [inputValue, setInputValue] = useState(propInputValue || '');
   const [hasLoadedDefaultTags, setHasLoadedDefaultTags] = useState(false);
@@ -79,7 +77,11 @@ export const TagModal: React.FC<TagModalProps> = ({
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      await onSubmit(newTags);
+      if (propSetNewTags) {
+        await onSubmit(propSetNewTags);
+      } else {
+        await onSubmit(newTags);
+      }
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
@@ -126,6 +128,7 @@ export const TagModal: React.FC<TagModalProps> = ({
                   p="10px 20px"
                 >
                   <TagLabel>{tag}</TagLabel>
+
                   <TagCloseButton onClick={() => handleRemoveTag(tag)} />
                 </Tag>
               ))}
@@ -143,7 +146,11 @@ export const TagModal: React.FC<TagModalProps> = ({
               Submit
             </Button>
           ) : (
-            <Button colorScheme="blue" onClick={handleSubmit}>
+            <Button
+              isDisabled={!newTags.length}
+              colorScheme="blue"
+              onClick={handleSubmit}
+            >
               Submit
             </Button>
           )}

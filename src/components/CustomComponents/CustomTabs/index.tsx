@@ -6,17 +6,18 @@ import {
   TabPanel,
   TabIndicator
 } from '@chakra-ui/react';
-import React from 'react';
+import { useEffect, useState } from 'react';
 
 interface ICustomTabs {
   tablists: any[];
   tabPanel: any[];
+  refreshFunction?: () => void;
   isSideComponent?: boolean;
 }
 
 const CustomTabs = ({ tablists, tabPanel, isSideComponent }: ICustomTabs) => {
   return (
-    <Tabs position="relative" variant="unstyled">
+    <Tabs position="relative" variant="unstyled" isLazy>
       <TabList
         _focus={{ outline: 'none' }}
         borderBottom={!isSideComponent ? '1px solid #EBECF0' : ''}

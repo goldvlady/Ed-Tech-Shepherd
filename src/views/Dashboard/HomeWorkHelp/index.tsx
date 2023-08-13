@@ -1,36 +1,125 @@
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import { chatHomeworkHelp } from '../../../services/AI';
+import socketWithAuth from '../../../socket';
 import userStore from '../../../state/userStore';
+import { FlashcardData } from '../../../types';
 import Chat from '../DocChat/chat';
 import ChatHistory from '../DocChat/chatHistory';
+import ViewHomeWorkHelpDetails from './ViewHomeWorkHelpDetails';
 import ViewTutors from './ViewTutors';
 import {
   HomeWorkHelpChatContainer,
   HomeWorkHelpContainer,
   HomeWorkHelpHistoryContainer
 } from './style';
-import React, { useState, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useCallback, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const HomeWorkHelp = () => {
   const [isOpenModal, setOpenModal] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const location = useLocation();
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
+  const [openAceHomework, setAceHomeWork] = useState(false);
   const { user } = userStore();
   const [messages, setMessages] = useState<
     { text: string; isUser: boolean; isLoading: boolean }[]
   >([]);
   const [llmResponse, setLLMResponse] = useState('');
+  const [readyToChat, setReadyToChat] = useState(false);
   const [botStatus, setBotStatus] = useState(
     'Philosopher, thinker, study companion.'
   );
+  const studentId = user?._id ?? '';
+  const topic = location?.state?.topic;
+  const [countNeedTutor, setCountNeedTutor] = useState<number>(1);
+  const [socket, setSocket] = useState<any>(null);
+  const [subjectId, setSubject] = useState<string>('Subject');
+  const [localData, setLocalData] = useState<any>({
+    subject: subjectId,
+    topic: ''
+  });
+  const [level, setLevel] = useState<any>('');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!socket) {
+      const authSocket = socketWithAuth({
+        studentId,
+        topic
+      }).connect();
+      setSocket(authSocket);
+    }
+  }, [socket, studentId, topic]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('ready', (ready) => {
+        setReadyToChat(ready);
+      });
+
+      return () => socket.off('ready');
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('bot response done', (completeText) => {
+        setLLMResponse('');
+        setTimeout(
+          () => setBotStatus('Philosopher, thinker, study companion.'),
+          1000
+        );
+
+        // eslint-disable-next-line
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { text: completeText, isUser: false, isLoading: false }
+        ]);
+      });
+
+      return () => socket.off('bot response done');
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('homework chatbot response', async (token) => {
+        setBotStatus('Typing...');
+        setLLMResponse((llmResponse) => llmResponse + token);
+      });
+
+      return () => socket.off('bot response');
+    }
+  }, [socket]);
 
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
       setInputValue(event.target.value);
     },
     [setInputValue]
+  );
+
+  const handleClose = () => {
+    setAceHomeWork((prevState) => !prevState);
+  };
+
+  const handleAceHomeWorkHelp = useCallback(() => {
+    setAceHomeWork((prevState) => !prevState);
+  }, [setAceHomeWork]);
+
+  const onCountTutor = useCallback(
+    async (message: string) => {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { text: message, isUser: true, isLoading: false }
+      ]);
+
+      setCountNeedTutor((prevState) => prevState + 1);
+
+      socket.emit('chat message');
+    },
+    [setMessages, setCountNeedTutor, socket]
   );
 
   const handleClickPrompt = useCallback(
@@ -45,58 +134,10 @@ const HomeWorkHelp = () => {
       ]);
       setInputValue('');
 
-      await askLLM({
-        query: prompt,
-        studentId: user?._id ?? '',
-        topic: location?.state?.topic
-      });
+      socket.emit('chat message');
     },
-    [location?.state?.topic, user?._id]
+    [socket]
   );
-
-  const askLLM = async ({
-    query,
-    studentId,
-    topic
-  }: {
-    query: string;
-    studentId: string;
-    topic: string;
-  }) => {
-    setBotStatus('Thinking');
-
-    const response = await chatHomeworkHelp({
-      query,
-      studentId,
-      topic
-    });
-
-    const reader = response.body?.getReader();
-    const decoder = new TextDecoder('utf-8');
-    let temp = '';
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      setBotStatus('Typing...');
-      // @ts-ignore: scary scenes, but let's observe
-      const { done, value } = await reader.read();
-      if (done) {
-        setLLMResponse('');
-        setTimeout(
-          () => setBotStatus('Philosopher, thinker, study companion.'),
-          1000
-        );
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { text: temp, isUser: false, isLoading: false }
-        ]);
-        break;
-      }
-      const chunk = decoder.decode(value);
-      temp += chunk;
-      setLLMResponse((llmResponse) => llmResponse + chunk);
-    }
-  };
 
   const onOpenModal = useCallback(() => {
     setOpenModal((prevState) => !prevState);
@@ -118,13 +159,9 @@ const HomeWorkHelp = () => {
       ]);
       setInputValue('');
 
-      await askLLM({
-        query: inputValue,
-        studentId: user?._id ?? '',
-        topic: location?.state?.topic
-      });
+      socket.emit('chat message', inputValue);
     },
-    [inputValue, location?.state?.topic, user?._id]
+    [inputValue, socket]
   );
 
   const handleKeyDown = useCallback(
@@ -138,6 +175,24 @@ const HomeWorkHelp = () => {
     [handleSendMessage]
   );
 
+  const onRouteHomeWorkHelp = useCallback(() => {
+    handleClose();
+    navigate('/dashboard/ace-homework', {
+      state: { subject: subjectId, topic: topic, level }
+    });
+    setMessages([]);
+    setCountNeedTutor(1);
+    setInputValue('');
+  }, [
+    subjectId,
+    localData,
+    level,
+    setMessages,
+    handleClose,
+    handleAceHomeWorkHelp,
+    navigate
+  ]);
+
   return (
     <HomeWorkHelpContainer>
       <HomeWorkHelpHistoryContainer>
@@ -145,8 +200,8 @@ const HomeWorkHelp = () => {
       </HomeWorkHelpHistoryContainer>
       <HomeWorkHelpChatContainer>
         <Chat
-          HomeWorkHelp
           isReadyToChat={true}
+          HomeWorkHelp
           isShowPrompt={isShowPrompt}
           messages={messages}
           llmResponse={llmResponse}
@@ -158,6 +213,9 @@ const HomeWorkHelp = () => {
           handleKeyDown={handleKeyDown}
           homeWorkHelpPlaceholder={'How can Shepherd help with your homework?'}
           handleClickPrompt={handleClickPrompt}
+          countNeedTutor={countNeedTutor}
+          onCountTutor={onCountTutor}
+          handleAceHomeWorkHelp={handleAceHomeWorkHelp}
         />
       </HomeWorkHelpChatContainer>
 
@@ -170,8 +228,28 @@ const HomeWorkHelp = () => {
           maxWidth: '100%'
         }}
       >
-        <ViewTutors onOpenModal={onOpenModal} />
+        <ViewTutors
+          onOpenModal={onOpenModal}
+          subjectID={location?.state?.subject}
+        />
       </CustomModal>
+
+      {openAceHomework && (
+        <ViewHomeWorkHelpDetails
+          isHomeWorkHelp
+          openAceHomework={openAceHomework}
+          handleClose={handleClose}
+          setMessages={setMessages}
+          handleAceHomeWorkHelp={handleAceHomeWorkHelp}
+          setSubject={setSubject}
+          subjectId={subjectId}
+          setLocalData={setLocalData}
+          setLevel={setLevel}
+          localData={localData}
+          level={level}
+          onRouteHomeWorkHelp={onRouteHomeWorkHelp}
+        />
+      )}
     </HomeWorkHelpContainer>
   );
 };

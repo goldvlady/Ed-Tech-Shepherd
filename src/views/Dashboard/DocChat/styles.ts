@@ -127,12 +127,15 @@ export const PillsContainer = styled.div`
   gap: 10px;
 `;
 
-export const StyledDiv = styled.div`
+export const StyledDiv = styled.div<{
+  needIndex?: boolean;
+}>`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  border: 1px solid #cbd5e0;
+  border: ${({ needIndex }) =>
+    !needIndex ? '1px solid #cbd5e0' : '1px solid #FB8441'};
   border-radius: 9999px;
   padding: 0.5rem 0.75rem;
   cursor: pointer;
@@ -223,7 +226,7 @@ export const SummaryContainer = styled.div`
   font-size: 0.875rem;
   padding: 12px;
   line-height: 2;
-  margin: 20px 0 80px 0;
+  margin: 20px 0 40px 0;
   position: relative;
   cursor: pointer;
 `;
@@ -314,8 +317,8 @@ export const ChatContainerResponse = styled.div`
   overflow-y: scroll;
   scrollbar-width: thin;
   padding: 0px 24px 20px 24px;
-  // max-height: 42vh;
-  padding-bottom: 300px;
+  max-height: 42vh;
+  // min-height: 100vh;
 
   /* Scrollable content */
   overflow-y: scroll;
@@ -334,15 +337,6 @@ export const ChatContainerResponse = styled.div`
   ::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.2);
     border-radius: 3px;
-  }
-
-  @media only screen and (min-width: 1530px) and (max-width: 1542px) {
-    max-height: 80vh !important;
-  }
-
-  /* Large desktops */
-  @media only screen and (min-width: 1281px) {
-    max-height: 48vh;
   }
 `;
 
