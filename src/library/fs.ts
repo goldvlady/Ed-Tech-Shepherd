@@ -1,5 +1,5 @@
-import html2pdf from 'html2pdf.js';
 import jsPDF from 'jspdf';
+import { marked } from 'marked';
 
 /**
  * Save a content as a PDF File
@@ -30,20 +30,95 @@ export const saveHTMLAsPDF = async (
   x = 10,
   y = 10
 ): Promise<boolean> => {
-  const doc = new jsPDF({ orientation: 'landscape' });
+  const doc = new jsPDF();
   const element = document.createElement('div');
   element.innerHTML = content;
 
   try {
-    doc.html(element, {
-      x,
-      y,
-      callback: () => {
-        doc.save(fileName);
-      }
-    });
+    // Set font size and line height for styling similar to a blocknote
+    const fontSize = 12;
+    const lineHeight = 15;
+
+    // Loop through each paragraph and add it to the PDF
+    const paragraphs = element.getElementsByTagName('p');
+    let offsetY = y;
+    for (let i = 0; i < paragraphs.length; i++) {
+      const paragraph = paragraphs[i];
+      doc.text(paragraph.innerText, x, offsetY);
+      offsetY += lineHeight;
+    }
+    // Save the PDF
+    doc.save(fileName);
     return true;
   } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
+// export const saveMarkdownAsPDF = async (
+//   fileName: string,
+//   markdownContent: string,
+//   x = 10,
+//   y = 10
+// ): Promise<boolean> => {
+//   const doc = new jsPDF();
+//   const element = document.createElement('div');
+//   element.innerHTML = marked(markdownContent);
+
+//   try {
+//     // Convert the entire element to an image
+//     const dataUrl= await htmlToImage.toPng(element);
+//     console.log("image data URL: ", dataUrl);
+//     // Add the image to the PDF
+//     doc.addImage(dataUrl, 'PNG', x, y, 100, 100); // Adjust width and height as needed
+//     // Save the PDF
+//     doc.save(fileName);
+
+//     return true;
+//   } catch (error) {
+//     console.error(error);
+//     return false;
+//   }
+// };
+
+export const saveMarkdownAsPDF = async (
+  fileName: string,
+  markdownContent: string,
+  x = 10,
+  y = 10
+): Promise<boolean> => {
+  const doc = new jsPDF();
+  const element = document.createElement('div');
+  element.innerHTML = marked(markdownContent);
+
+  try {
+    // Set font size and line height for styling
+    const fontSize = 12;
+    const lineHeight = 15;
+
+    // Loop through each child element and add it to the PDF
+    const childNodes = element.childNodes;
+    let offsetY = y;
+    for (let i = 0; i < childNodes.length; i++) {
+      const childNode = childNodes[i];
+      if (childNode.nodeType === Node.TEXT_NODE) {
+        const nodeValue: string | string[] = childNode.nodeValue
+          ? childNode.nodeValue
+          : '';
+        doc.text(nodeValue, x, offsetY);
+        offsetY += lineHeight;
+      } else if (childNode.nodeType === Node.ELEMENT_NODE) {
+        const innerText = childNode.textContent || '';
+        doc.text(innerText, x, offsetY);
+        offsetY += lineHeight;
+      }
+    }
+    // Save the PDF
+    doc.save(fileName);
+    return true;
+  } catch (error) {
+    console.error(error);
     return false;
   }
 };

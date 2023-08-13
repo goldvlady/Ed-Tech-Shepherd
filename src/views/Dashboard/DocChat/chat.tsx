@@ -3,15 +3,15 @@
 /* eslint-disable no-unsafe-optional-chaining */
 import PultoJPG from '../../../assets/PlutoAi.jpg';
 import { ReactComponent as HightLightIcon } from '../../../assets/highlightIcn.svg';
+import SocratesImg from '../../../assets/socrates-image.png';
 import { ReactComponent as SummaryIcon } from '../../../assets/summaryIcn.svg';
 // import { ReactComponent as TellMeMoreIcn } from '../../../assets/tellMeMoreIcn.svg';
-import { ReactComponent as TutorBag } from '../../../assets/tutor-bag.svg';
 import ChatLoader from '../../../components/CustomComponents/CustomChatLoader';
+import { TutorBagIcon } from '../../../components/CustomComponents/CustomImage/tutor-bag';
 import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkdownView';
 import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../../components/hooks/useChatScroll';
-// import { chatWithDoc } from '../../../services/AI';
 import FlashcardDataProvider from '../FlashCards/context/flashcard';
 import ChatHistory from './chatHistory';
 import HighLight from './highlist';
@@ -49,7 +49,7 @@ import {
 } from './styles';
 import Summary from './summary';
 import { Text } from '@chakra-ui/react';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
 interface IChat {
   HomeWorkHelp?: boolean;
@@ -65,12 +65,25 @@ interface IChat {
   inputValue: string;
   handleKeyDown?: any;
   handleSummary?: any;
+  isReadyToChat: boolean;
   summaryLoading?: boolean;
   summaryText?: string;
   setSummaryText?: any;
+  handleClickPrompt?: any;
+  homeWorkHelpPlaceholder?: any;
+  countNeedTutor?: number | undefined;
+  onCountTutor?: any;
+  handleAceHomeWorkHelp?: () => void;
+  handleDeleteSummary?: () => void;
+  handleUpdateSummary?: () => void;
+  hightlightedText?: any[];
+  loading?: boolean;
+  setHightlightedText?: any;
+  setLoading?: any;
 }
 const Chat = ({
   HomeWorkHelp,
+  isReadyToChat,
   onOpenModal,
   isShowPrompt,
   messages,
@@ -83,13 +96,24 @@ const Chat = ({
   handleSummary,
   summaryLoading,
   summaryText,
-  setSummaryText
+  setSummaryText,
+  documentId,
+  handleClickPrompt,
+  homeWorkHelpPlaceholder,
+  countNeedTutor,
+  onCountTutor,
+  handleAceHomeWorkHelp,
+  handleDeleteSummary,
+  handleUpdateSummary,
+  hightlightedText,
+  loading,
+  setHightlightedText,
+  setLoading
 }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [isFlashCard, setFlashCard] = useState<boolean>(false);
   const [isQuiz, setQuiz] = useState<boolean>(false);
-
   const [isChatHistory, setChatHistory] = useState<boolean>(false);
   const textAreaRef = useRef<any>();
   const ref = useChatScroll(messages);
@@ -116,6 +140,17 @@ const Chat = ({
     setChatHistory((prevState) => !prevState);
   }, []);
 
+  const isShowPills = useMemo(
+    () => !!messages?.length && !HomeWorkHelp && !!isShowPrompt,
+    [messages, HomeWorkHelp, isShowPrompt]
+  );
+
+  const isFindTutor = useMemo(() => {
+    return (
+      countNeedTutor! >= 3 && HomeWorkHelp && !messages?.length && !isShowPrompt
+    );
+  }, [countNeedTutor, messages, HomeWorkHelp, isShowPrompt]);
+
   const tabLists = [
     {
       id: 1,
@@ -138,12 +173,17 @@ const Chat = ({
           summaryLoading={summaryLoading}
           summaryTexts={summaryText}
           setSummaryText={setSummaryText}
+          handleDeleteSummary={handleDeleteSummary}
+          handleUpdateSummary={handleUpdateSummary}
+          loading={loading}
         />
       )
     },
     {
       id: 2,
-      component: <HighLight />
+      component: (
+        <HighLight hightlightedText={hightlightedText!} loading={loading!} />
+      )
     }
   ];
 
@@ -171,9 +211,22 @@ const Chat = ({
   const homeHelp = [
     {
       id: 1,
-      img: <TutorBag />,
+      title: "I don't understand",
+      onClick: () => onCountTutor("I don't understand"),
+      show: true
+    },
+    {
+      id: 2,
+      img: <TutorBagIcon iconColor="#FB8441" />,
       title: 'Find a tutor',
-      onClick: onOpenModal
+      onClick: onOpenModal,
+      show: countNeedTutor! > 3
+    },
+    {
+      id: 3,
+      title: 'Start New Conversation',
+      onClick: handleAceHomeWorkHelp,
+      show: true
     }
   ];
 
@@ -216,7 +269,7 @@ const Chat = ({
                     <FlexContainer>
                       <CircleContainer>
                         <img
-                          src={PultoJPG}
+                          src={HomeWorkHelp ? SocratesImg : PultoJPG}
                           style={{
                             objectFit: 'cover',
                             height: 'auto',
@@ -227,18 +280,31 @@ const Chat = ({
                         />
                       </CircleContainer>
                       <TextContainer>
-                        <Text className="font-semibold">Plato.</Text>
+                        <Text className="font-semibold">
+                          {HomeWorkHelp ? 'Socrates' : 'Plato.'}
+                        </Text>
                         <Text>{botStatus}</Text>
                       </TextContainer>
                     </FlexContainer>
-                    <StyledText>
-                      Welcome! I'm here to help you make the most of your time
-                      and your notes. Ask me questions, and I'll find the
-                      answers that match, given the information you've supplied.
-                      Let's get learning!
-                    </StyledText>
+                    {HomeWorkHelp ? (
+                      <StyledText>
+                        I understand you're seeking knowledge and understanding.
+                        Instead of providing you with mere answers, I wish to
+                        guide you in asking the right questions. Do not expect
+                        me to fill your vessel with knowledge, but rather to
+                        kindle a flame of inquiry within you. Now, tell me, what
+                        is it that you wish to understand?
+                      </StyledText>
+                    ) : (
+                      <StyledText>
+                        Welcome! I'm here to help you make the most of your time
+                        and your notes. Ask me questions, and I'll find the
+                        answers that match, given the information you've
+                        supplied. Let's get learning!
+                      </StyledText>
+                    )}
                   </GridItem>
-                  {HomeWorkHelp && !messages?.length && !isShowPrompt && (
+                  {isFindTutor && (
                     <OptionsContainer>
                       <Text className="">What do you need?</Text>
 
@@ -266,7 +332,7 @@ const Chat = ({
                     </OptionsContainer>
                   )}
 
-                  {!messages?.length && !isShowPrompt && (
+                  {!HomeWorkHelp && !messages?.length && !isShowPrompt && (
                     <AskSomethingContainer>
                       <AskSomethingPillHeadingText>
                         Try asking about:
@@ -274,7 +340,10 @@ const Chat = ({
                       <AskSomethingPillContainer>
                         {prompts.map((prompt, key) => {
                           return (
-                            <AskSomethingPill key={key}>
+                            <AskSomethingPill
+                              key={key}
+                              onClick={(e) => handleClickPrompt(e, prompt)}
+                            >
                               <Text>{prompt}</Text>
                             </AskSomethingPill>
                           );
@@ -291,7 +360,7 @@ const Chat = ({
                           {message.isLoading ? (
                             <ChatLoader />
                           ) : (
-                            <AiMessage key={index}>
+                            <AiMessage key={index + 1}>
                               <CustomMarkdownView source={message.text} />
                             </AiMessage>
                           )}
@@ -308,7 +377,7 @@ const Chat = ({
               </InnerWrapper>
             </FlexColumnContainer>
           </ContentWrapper>
-          {!!messages?.length && !HomeWorkHelp && isShowPrompt && (
+          {isShowPills && (
             <div
               style={{
                 position: 'fixed',
@@ -342,10 +411,22 @@ const Chat = ({
           <DownPillContainer>
             <PillsContainer>
               {homeHelp.map((need) => (
-                <StyledDiv onClick={need.onClick} key={need.id}>
-                  {need.img}
-                  {need.title}
-                </StyledDiv>
+                <>
+                  {!!need.show && (
+                    <StyledDiv
+                      onClick={need.onClick}
+                      needIndex={need.id === 2}
+                      style={{
+                        color: need.id === 2 ? '#FB8441' : '',
+                        background: need.id === 2 ? 'white' : ''
+                      }}
+                      key={need.id}
+                    >
+                      {need.img}
+                      {need.title}
+                    </StyledDiv>
+                  )}
+                </>
               ))}
             </PillsContainer>
           </DownPillContainer>
@@ -354,9 +435,14 @@ const Chat = ({
           <InputContainer>
             <Input
               ref={textAreaRef}
-              placeholder="Tell Shepherd what to do next"
+              placeholder={
+                HomeWorkHelp
+                  ? homeWorkHelpPlaceholder
+                  : `Ask Shepherd about ${documentId}`
+              }
               value={inputValue}
               onKeyDown={handleKeyDown}
+              disabled={!isReadyToChat}
               onChange={handleInputChange}
               style={{
                 minHeight: '2.5rem',

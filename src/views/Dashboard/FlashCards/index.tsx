@@ -1,5 +1,6 @@
 import EmptyIllustration from '../../../assets/empty_illustration.svg';
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
+import DropDownFilter from '../../../components/CustomComponents/DropDownFilter';
 import LoaderOverlay from '../../../components/loaderOverlay';
 import SelectableTable, { TableColumn } from '../../../components/table';
 import { useSearch } from '../../../hooks';
@@ -15,7 +16,6 @@ import { DeleteModal } from './components/deleteModal';
 import ScheduleStudyModal, {
   ScheduleFormState
 } from './components/scheduleModal';
-// import TagModal from './components/tagsModal';
 import { Stack } from '@chakra-ui/react';
 import {
   Button,
@@ -135,11 +135,12 @@ const CustomTable: React.FC = () => {
 
   const toast = useCustomToast();
   const [hasSearched, setHasSearched] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<Array<string | number>>([]);
 
   const {
     fetchFlashcards,
     flashcards,
-    flashcard,
+    tags,
     loadFlashcard,
     deleteFlashCard,
     storeFlashcardTags,
@@ -172,7 +173,8 @@ const CustomTable: React.FC = () => {
   } | null>(null);
 
   const [tagEditItem, setTagEditItem] = useState<{
-    flashcard: FlashcardData;
+    flashcard?: FlashcardData;
+    flashcardIds?: string[];
   } | null>(null);
   const { flashcardId } = useParams();
 
@@ -186,6 +188,7 @@ const CustomTable: React.FC = () => {
       loadFlashcard(flashcardId);
       navigate('/dashboard/flashcards');
     }
+    // eslint-disable-next-line
   }, [flashcardId]);
 
   const columns: TableColumn<DataSourceItem>[] = [
@@ -204,32 +207,40 @@ const CustomTable: React.FC = () => {
       )
     },
     {
-      title: 'Study Period',
-      dataIndex: 'studyPeriod',
-      key: 'studyPeriod',
-      render: ({ studyPeriod }) => {
-        return <Text fontWeight="500">{startCase(studyPeriod)}</Text>;
+      title: 'Number of Cards',
+      dataIndex: 'questions',
+      key: 'questions',
+      render: ({ questions }) => {
+        return <Text fontWeight="500">{questions.length}</Text>;
       }
     },
     {
       title: 'Tags',
       dataIndex: 'tags',
       key: 'tags',
+      width: '350px',
+      height: '50px',
+      scrollY: true,
       render: ({ tags }) => {
-        if (!tags.length) return <Text fontWeight="500">None</Text>;
+        if (!tags?.length) return <Text fontWeight="500">None</Text>;
         return (
-          <Box
-            display="grid"
-            gridTemplateColumns="repeat(3, 0.5fr)"
-            alignItems="start"
-            justifyItems="start"
-            width="100%"
-            minWidth="300px"
-            marginTop="10px"
-            gridGap="10px"
-          >
-            {tags.map((tag) => (
-              <Tag key={tag} borderRadius="5" background="#f7f8fa" size="md">
+          <Box display="flex" width="100%" minWidth={'fit-content'} gap="10px">
+            {tags.map((tag, index) => (
+              <Tag
+                width={'fit-content'}
+                maxWidth={'fit-content'}
+                key={tag}
+                marginRight={
+                  tags.length > 3 && index === tags.length ? '10px' : '0px'
+                }
+                onClick={() => {
+                  setSelectedTags([tag]);
+                  fetchFlashcards({ tags: tag });
+                }}
+                borderRadius="5"
+                background="#f7f8fa"
+                size="md"
+              >
                 <TagLeftIcon>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -253,7 +264,7 @@ const CustomTable: React.FC = () => {
                   </svg>
                 </TagLeftIcon>
                 <TagLabel
-                  whiteSpace="normal" // Allows text to wrap to the next line
+                  whiteSpace={'nowrap'}
                   overflow="visible" // Allows text to overflow
                   textOverflow="clip"
                 >
@@ -498,31 +509,6 @@ const CustomTable: React.FC = () => {
               </Text>
             </MenuItem>
 
-            {/* <MenuItem p="6px 8px 6px 8px" _hover={{ bgColor: "#F2F4F7" }}>
-              <StyledImage marginRight="10px">
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 12 12"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M0.243811 6.9511C0.137604 6.31182 0.14111 5.66963 0.244325 5.04867C0.886697 5.0643 1.46441 4.75612 1.68895 4.21404C1.91348 3.67197 1.72289 3.04554 1.25764 2.60235C1.62373 2.09028 2.07534 1.63371 2.60248 1.25678C3.0457 1.72231 3.67231 1.91306 4.21453 1.68846C4.75675 1.46387 5.06497 0.885899 5.04917 0.243322C5.68844 0.137115 6.33063 0.140621 6.95159 0.243842C6.93596 0.886208 7.24419 1.46392 7.78622 1.68846C8.32832 1.913 8.95476 1.7224 9.39792 1.25715C9.91002 1.62324 10.3666 2.07485 10.7435 2.602C10.278 3.04521 10.0872 3.67182 10.3118 4.21404C10.5364 4.75626 11.1144 5.06448 11.757 5.04867C11.8631 5.68795 11.8596 6.33014 11.7564 6.9511C11.1141 6.93552 10.5363 7.2437 10.3118 7.78573C10.0873 8.32782 10.2779 8.95426 10.7431 9.39742C10.377 9.90953 9.92542 10.3661 9.39826 10.743C8.95505 10.2775 8.32843 10.0867 7.78622 10.3113C7.24402 10.5359 6.93584 11.1139 6.95159 11.7565C6.31232 11.8627 5.67012 11.8592 5.04917 11.756C5.0648 11.1136 4.75661 10.5359 4.21453 10.3113C3.67246 10.0868 3.04603 10.2774 2.60284 10.7426C2.09077 10.3765 1.6342 9.92493 1.25727 9.39783C1.72279 8.95461 1.91354 8.328 1.68895 7.78573C1.46435 7.24352 0.886388 6.93535 0.243811 6.9511ZM6.00041 7.74991C6.96687 7.74991 7.75041 6.96638 7.75041 5.99991C7.75041 5.03339 6.96687 4.2499 6.00041 4.2499C5.03388 4.2499 4.25038 5.03339 4.25038 5.99991C4.25038 6.96638 5.03388 7.74991 6.00041 7.74991Z"
-                    fill="#6E7682"
-                  />
-                </svg>
-              </StyledImage>
-
-              <Text
-                color="#212224"
-                fontSize="14px"
-                lineHeight="20px"
-                fontWeight="400"
-              >
-                Update Setting
-              </Text>
-            </MenuItem> */}
             <MenuItem
               p="6px 8px 6px 8px"
               color="#F53535"
@@ -572,6 +558,9 @@ const CustomTable: React.FC = () => {
 
     if (data.frequency && data.frequency !== 'none') {
       payload.recurrence = { frequency: data.frequency };
+      if (data.endDate) {
+        payload.recurrence.endDate = data.endDate.toISOString();
+      }
     }
     const isSuccess = await scheduleFlashcard(payload);
     if (isSuccess) {
@@ -593,25 +582,30 @@ const CustomTable: React.FC = () => {
   return (
     <>
       {isLoading && !flashcards?.length && <LoaderOverlay />}
-      {tagEditItem?.flashcard && (
+      {(tagEditItem?.flashcard || tagEditItem?.flashcardIds) && (
         <TagModal
           tags={tagEditItem?.flashcard?.tags || []}
           onSubmit={async (d) => {
-            const isSaved = await storeFlashcardTags(
-              tagEditItem?.flashcard?._id as string,
-              d
-            );
+            const ids =
+              tagEditItem?.flashcardIds ||
+              (tagEditItem?.flashcard?._id as string);
+
+            const isSaved = await storeFlashcardTags(ids, d);
             if (isSaved) {
               toast({
                 position: 'top-right',
-                title: `Tags Added for ${tagEditItem?.flashcard.deckname}`,
+                title: `Tags Added for ${
+                  tagEditItem?.flashcard?.deckname || 'Flashcards'
+                }`,
                 status: 'success'
               });
               setTagEditItem(null);
             } else {
               toast({
                 position: 'top-right',
-                title: `Failed to add tags for ${tagEditItem?.flashcard.deckname} flashcards`,
+                title: `Failed to add tags for ${
+                  tagEditItem?.flashcard?.deckname || ''
+                } flashcards`,
                 status: 'error'
               });
             }
@@ -836,6 +830,25 @@ const CustomTable: React.FC = () => {
               alignItems={{ base: 'flex-start', md: 'center' }}
               width={{ base: '100%', md: 'auto' }}
             >
+              <DropDownFilter
+                selectedItems={selectedTags}
+                multi
+                style={{ marginRight: '20px' }}
+                filterLabel="Filter By Tags"
+                onSelectionChange={(item) => {
+                  const tags = Array.isArray(item)
+                    ? item.join(',')
+                    : (item as string);
+
+                  const query: { [key: string]: any } = {};
+                  if (tags || tags.length) {
+                    query.tags = tags;
+                  }
+
+                  fetchFlashcards(query);
+                }}
+                items={tags.map((tag) => ({ id: tag, value: tag }))}
+              />
               <Menu>
                 <MenuButton>
                   <Flex
@@ -957,6 +970,7 @@ const CustomTable: React.FC = () => {
                   mb="10px"
                   borderRadius={'10px'}
                   colorScheme={'#F53535'}
+                  _hover={{ bg: '#F53535' }}
                   bg="#F53535"
                   width={{ base: '100%', md: 'auto' }}
                   onClick={() => {
@@ -980,7 +994,45 @@ const CustomTable: React.FC = () => {
                       fill="white"
                     />
                   </svg>
-                  <Text ml="5px">Delete Selected Flashcards</Text>
+                  <Text ml="5px">Delete Flashcards</Text>
+                </Button>
+
+                <Button
+                  variant="solid"
+                  mb="10px"
+                  borderRadius={'10px'}
+                  marginLeft={'10px'}
+                  colorScheme={'primary'}
+                  width={{ base: '100%', md: 'auto' }}
+                  onClick={() => {
+                    if (!flashcards) return;
+                    setTagEditItem((prev) => ({
+                      ...prev,
+                      flashcardIds: selectedFlashcards
+                    }));
+                  }}
+                >
+                  <svg
+                    width="16"
+                    height="18"
+                    viewBox="0 0 16 18"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      fill="white"
+                      d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 6h.008v.008H6V6z"
+                    />
+                  </svg>
+
+                  <Text ml="5px">Add Tag</Text>
                 </Button>
               </Box>
             ) : (

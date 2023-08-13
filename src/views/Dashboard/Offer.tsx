@@ -144,7 +144,7 @@ const Offer = () => {
       offerId: offer?._id
     });
 
-    const data = await paymentIntent.json();
+    const { data } = await paymentIntent.json();
 
     paymentDialogRef.current?.startPayment(
       data.clientSecret,
@@ -207,53 +207,59 @@ const Offer = () => {
     if (clientSecret) {
       (async () => {
         setSettingUpPaymentMethod(true);
-        const stripe = await stripePromise;
-        const setupIntent = await stripe?.retrieveSetupIntent(clientSecret);
-        await ApiService.addPaymentMethod(
-          setupIntent?.setupIntent?.payment_method as string
-        );
-        await fetchUser();
-        switch (setupIntent?.setupIntent?.status) {
-          case 'succeeded':
-            bookOffer();
-            toast({
-              title: 'Your payment method has been saved.',
-              status: 'success',
-              position: 'top',
-              isClosable: true
-            });
-            break;
-          case 'processing':
-            toast({
-              // TODO: Handle setup intent processing state
-              title:
-                "Processing payment details. We'll update you when processing is complete.",
-              status: 'loading',
-              position: 'top',
-              isClosable: true
-            });
-            break;
-          case 'requires_payment_method':
-            toast({
-              title:
-                'Failed to process payment details. Please try another payment method.',
-              status: 'error',
-              position: 'top',
-              isClosable: true
-            });
-            break;
-          default:
-            toast({
-              title: 'Something went wrong.',
-              status: 'error',
-              position: 'top',
-              isClosable: true
-            });
-            break;
-        }
-        setSettingUpPaymentMethod(false);
+        toast({
+          title: 'Your Payment Method has been saved',
+          status: 'success',
+          position: 'top',
+          isClosable: true
+        });
+        //   const stripe = await stripePromise;
+        //   const setupIntent = await stripe?.retrieveSetupIntent(clientSecret);
+        //   await ApiService.addPaymentMethod(
+        //     setupIntent?.setupIntent?.payment_method as string
+        //   );
+        //   await fetchUser();
+        //   switch (setupIntent?.setupIntent?.status) {
+        //     case 'succeeded':
+        //       bookOffer();
+        //       toast({
+        //         title: 'Your payment method has been saved.',
+        //         status: 'success',
+        //         position: 'top',
+        //         isClosable: true
+        //       });
+        //       break;
+        //     case 'processing':
+        //       toast({
+        //         // TODO: Handle setup intent processing state
+        //         title:
+        //           "Processing payment details. We'll update you when processing is complete.",
+        //         status: 'loading',
+        //         position: 'top',
+        //         isClosable: true
+        //       });
+        //       break;
+        //     case 'requires_payment_method':
+        //       toast({
+        //         title:
+        //           'Failed to process payment details. Please try another payment method.',
+        //         status: 'error',
+        //         position: 'top',
+        //         isClosable: true
+        //       });
+        //       break;
+        //     default:
+        //       toast({
+        //         title: 'Something went wrong.',
+        //         status: 'error',
+        //         position: 'top',
+        //         isClosable: true
+        //       });
+        //       break;
+        //   }
+        //   setSettingUpPaymentMethod(false);
 
-        bookOffer();
+        //   bookOffer();
       })();
     }
     /* eslint-disable */
@@ -636,27 +642,6 @@ const Offer = () => {
                       <Box>
                         <FormLabel>Hourly rate</FormLabel>
                         <OfferValueText>${offer.rate}/hr</OfferValueText>
-                        <Text
-                          color="text.300"
-                          mt={'10px'}
-                          mb={0}
-                          fontSize="12px"
-                          fontWeight={'500'}
-                        >
-                          Shepherd charges a{' '}
-                          <Box color="primary.400" as={'span'}>
-                            {ServiceFeePercentage * 100}% service fee (-$
-                            {(offer.rate * ServiceFeePercentage).toFixed(2)}
-                            /hr)
-                          </Box>
-                        </Text>
-                      </Box>
-                      <Box>
-                        <FormLabel>You’ll receive</FormLabel>
-                        <OfferValueText>
-                          ${offer.rate - offer.rate * ServiceFeePercentage}
-                          /hr
-                        </OfferValueText>
                       </Box>
                       <Box>
                         <FormLabel>Total amount</FormLabel>
@@ -698,44 +683,46 @@ const Offer = () => {
                       </AlertDescription>
                     </Alert>
                   )}
-                  <HStack
-                    justifyContent={'flex-end'}
-                    gap={'19px'}
-                    marginTop={'48px'}
-                    textAlign="right"
-                  >
-                    {offer?.status === 'draft' && (
-                      <Button
-                        onClick={() => onWithdrawOfferModalOpen()}
-                        size="md"
-                        variant="destructiveSolidLight"
-                      >
-                        Withdraw Offer
-                      </Button>
-                    )}
-                    {offer?.status === 'accepted' &&
-                      !offer?.completed &&
-                      isEmpty(user?.paymentMethods) && (
+                  {!isTutor && (
+                    <HStack
+                      justifyContent={'flex-end'}
+                      gap={'19px'}
+                      marginTop={'48px'}
+                      textAlign="right"
+                    >
+                      {offer?.status === 'draft' && (
                         <Button
-                          isLoading={settingUpPaymentMethod}
-                          onClick={setupPaymentMethod}
+                          onClick={() => onWithdrawOfferModalOpen()}
                           size="md"
+                          variant="destructiveSolidLight"
                         >
-                          Book
+                          Withdraw Offer
                         </Button>
                       )}
-                    {offer?.status === 'accepted' &&
-                      !offer?.completed &&
-                      !isEmpty(user?.paymentMethods) && (
-                        <Button
-                          isLoading={bookingOffer}
-                          onClick={bookOffer}
-                          size="md"
-                        >
-                          Book
-                        </Button>
-                      )}
-                  </HStack>
+                      {offer?.status === 'accepted' &&
+                        !offer?.completed &&
+                        isEmpty(user?.paymentMethods) && (
+                          <Button
+                            isLoading={settingUpPaymentMethod}
+                            onClick={setupPaymentMethod}
+                            size="md"
+                          >
+                            Book
+                          </Button>
+                        )}
+                      {offer?.status === 'accepted' &&
+                        !offer?.completed &&
+                        !isEmpty(user?.paymentMethods) && (
+                          <Button
+                            isLoading={bookingOffer}
+                            onClick={bookOffer}
+                            size="md"
+                          >
+                            Book
+                          </Button>
+                        )}
+                    </HStack>
+                  )}
                 </Panel>
               </VStack>
             </Box>

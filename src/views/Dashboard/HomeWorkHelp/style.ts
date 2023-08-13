@@ -9,11 +9,19 @@ export const HomeWorkHelpContainer = styled.section`
 `;
 
 export const HomeWorkHelpHistoryContainer = styled.section`
-  width: 29%;
+  // width: 29%;
+  // height: 100vh;
+  // padding-right: 10px;
+  // background: #fff;
+  // overflow-y: scroll;
+  max-width: 25%;
   height: 100vh;
-  padding-right: 10px;
-  background: #fff;
+  background: rgb(255, 255, 255);
   overflow-y: scroll;
+  mzrgin: 0 auto;
+  margin: 0px 20px;
+  position: absolute;
+  left: 15px;
 `;
 
 export const HomeWorkHelpChatContainer = styled.section`

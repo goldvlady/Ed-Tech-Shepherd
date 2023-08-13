@@ -16,7 +16,7 @@ import {
   VStack
 } from '@chakra-ui/react';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { useRef, useState, useEffect, RefObject, useMemo } from 'react';
+import { useRef, useState, useEffect, RefObject } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -29,6 +29,9 @@ interface ShowProps {
   show: boolean;
   setShow: (show: boolean) => void;
   setShowHelp: (showHelp: boolean) => void;
+  chatButton?: boolean;
+  okayButton?: boolean;
+  cancelButton?: boolean;
 }
 
 interface UiMessage {
@@ -37,10 +40,18 @@ interface UiMessage {
   description: string;
 }
 
-const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
+const SelectedModal = ({
+  show,
+  setShow,
+  setShowHelp,
+  chatButton = true,
+  cancelButton = true,
+  okayButton
+}: ShowProps) => {
   const { user, userDocuments } = userStore();
   const navigate = useNavigate();
   const [fileName, setFileName] = useState('');
+  const [file, setFile] = useState(null);
   const [progress, setProgress] = useState(0);
   const [uiMessage, setUiMessage] = useState<UiMessage | null>(null);
   const [canUpload, setCanUpload] = useState(true);
@@ -51,10 +62,15 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   const [studentDocuments, setStudentDocuments] = useState<Array<any>>([]);
   const [documentURL, setDocumentURL] = useState('');
   const [documentName, setDocumentName] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const Wrapper = styled.div`
     display: block;
     width: 100%;
+    .error-message {
+      text-align: center !important;
+      color: red;
+    }
   `;
 
   const Label = styled.label`
@@ -154,18 +170,135 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     if (canUpload) inputRef?.current && inputRef.current.click();
   };
 
-  const collectFile = async (e) => {
-    const { name } = e.target.files[0];
-    setUiMessage(null);
-    setFileName(() => name);
-
-    await handleFreshUpload(e.target.files[0], user, name);
-  };
   const handleClose = () => {
     setShow(false);
   };
 
-  const handleSelected = (e) => {
+  const collectFileInput = async (e) => {
+    const inputFile = e.target.files[0];
+    if (inputFile) {
+      setLoading(true);
+      setUiMessage({
+        status: 'info',
+        heading: 'Uploading...',
+        description: ''
+      });
+      try {
+        setFile(inputFile);
+        setFileName(inputFile.name);
+        await handleInputFreshUpload(inputFile, user, inputFile.name);
+      } catch (error) {
+        // Handle error
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const collectFile = async () => {
+    if (!file) {
+      setUiMessage({
+        status: 'error',
+        heading: 'Please select a file',
+        description: 'Input cannot be empty.'
+      });
+      return;
+    }
+    if (file) {
+      setLoading(true);
+      setUiMessage({
+        status: 'info',
+        heading: 'Processing...',
+        description: ''
+      });
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await handleFreshUpload(file, user, fileName);
+      } catch (error) {
+        // Handle error
+      } finally {
+        setLoading(false);
+        setFile(null);
+      }
+    }
+  };
+
+  const handleInputFreshUpload = async (file, user, fileNamet) => {
+    const readableFileName = fileNamet.toLowerCase().replace(/\s/g, '');
+    if (!user?._id || !readableFileName) {
+      return setUiMessage({
+        status: 'error',
+        heading: 'Something went wrong',
+        description:
+          "We couldn't retrieve your user details to start the upload process."
+      });
+    }
+    const SIZE_IN_MB = parseInt((file?.size / 1_000_000).toFixed(2), 10);
+    if (SIZE_IN_MB > MAX_FILE_UPLOAD_LIMIT) {
+      setUiMessage({
+        status: 'error',
+        heading: 'Your file is too large',
+        description: `Your file is ${SIZE_IN_MB}MB, above our ${MAX_FILE_UPLOAD_LIMIT}MB limit. Please upload a smaller document.`
+      });
+      return;
+    }
+    setProgress(5);
+    const customFirestorePath = `${user._id}/${readableFileName}`;
+    const storageRef = ref(storage, customFirestorePath);
+    const task = uploadBytesResumable(storageRef, file);
+
+    task.on(
+      'state_changed',
+      (snapshot) => {
+        const progress = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
+        switch (snapshot.state) {
+          case 'running':
+            setProgress(progress);
+            break;
+        }
+      },
+      (error) => {
+        setUiMessage({
+          status: 'error',
+          heading: 'Something went wrong. Please attempt the upload again.',
+          description: error.message
+        });
+      },
+      async () => {
+        setUiMessage({
+          status: 'info',
+          heading: 'Processing...',
+          description:
+            "We're preparing your document. This will take a few seconds. Please keep this window open."
+        });
+
+        const documentURL = await getDownloadURL(task.snapshot.ref);
+
+        await processDocument({
+          studentId: user._id,
+          documentId: readableFileName,
+          documentURL,
+          title: readableFileName
+        }).catch(async (e: any) => {
+          return setUiMessage({
+            status: 'error',
+            heading: 'Something went wrong. Reload this page and try again.',
+            description: e.message
+          });
+        });
+
+        setUiMessage({
+          status: 'success',
+          heading: 'Done',
+          description: 'Document has been uploaded.'
+        });
+      }
+    );
+  };
+
+  const handleSelected = async (e) => {
     const { innerText, value } = e.target;
     if (value && innerText) {
       setDocumentURL(() => value);
@@ -223,7 +356,7 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
       async () => {
         setUiMessage({
           status: 'info',
-          heading: 'Processing.',
+          heading: 'Processing...',
           description:
             "We're preparing your document. This will take a few seconds. Please keep this window open."
         });
@@ -258,7 +391,6 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
     });
     setShowHelp(false);
     setShow(false);
-    window.location.reload();
   };
 
   const doNothing = () => {
@@ -266,9 +398,44 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
   };
 
   const proceed = async () => {
-    await goToDocChat(documentURL, documentName);
-    setShow(false);
-    setShowHelp(false);
+    setLoading(true);
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await goToDocChat(documentURL, documentName);
+    } catch (error) {
+      // Handle error
+    } finally {
+      setShow(false);
+      setShowHelp(false);
+    }
+  };
+
+  const ChatButton = () => {
+    if (!chatButton) {
+      return <></>;
+    }
+    if (canUpload) {
+      return (
+        <CustomButton
+          type="button"
+          onClick={collectFile}
+          disabled={loading}
+          title={loading ? 'Loading...' : 'Chat'}
+          className="chat-btn"
+        />
+      );
+    } else {
+      return (
+        <CustomButton
+          type="button"
+          active={confirmReady}
+          onClick={confirmReady ? proceed : doNothing}
+          title={loading ? 'Loading...' : 'Chat'}
+          className="chat-btn"
+        />
+      );
+    }
   };
 
   return (
@@ -286,18 +453,18 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
       }}
       footerContent={
         <div style={{ display: 'flex', gap: '8px' }}>
-          <CustomButton
-            type="button"
-            isCancel
-            onClick={handleClose}
-            title="Cancel"
-          />
-          <CustomButton
-            type="button"
-            onClick={confirmReady ? proceed : doNothing}
-            active={confirmReady}
-            title="Confirm"
-          />
+          {cancelButton && (
+            <CustomButton
+              type="button"
+              isCancel
+              onClick={handleClose}
+              title="Cancel"
+            />
+          )}
+          <ChatButton />
+          {okayButton && (
+            <CustomButton type="button" onClick={handleClose} title="Ok" />
+          )}
         </div>
       }
     >
@@ -358,17 +525,20 @@ const SelectedModal = ({ show, setShow, setShowHelp }: ShowProps) => {
           </FileUploadButton>
           <input
             type="file"
-            accept="application/pdf"
+            accept=".doc, .txt, .pdf"
+            // accept="application/pdf"
             className="hidden"
             id="file-upload"
             ref={inputRef}
-            onChange={collectFile}
+            onChange={collectFileInput}
           />
           <PDFTextContainer>
             <Text>
-              Shepherd supports <Format>.doc, .txt</Format> document formats
+              Shepherd supports <Format>.doc, .txt, .pdf</Format> document
+              formats.
             </Text>
           </PDFTextContainer>
+
           {uiMessage && (
             <Alert
               status={uiMessage.status}

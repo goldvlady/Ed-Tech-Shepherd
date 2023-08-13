@@ -1,11 +1,12 @@
+import { saveMarkdownAsPDF } from '../../library/fs';
 import ApiService from '../../services/ApiService';
 import TagModal from '../../views/Dashboard/FlashCards/components/TagModal';
-import { DeleteModal } from '../../views/Dashboard/FlashCards/components/deleteModal';
 import { NoteModal } from '../../views/Dashboard/Notes/Modal';
 import {
   NoteDetails,
   NoteServerResponse
 } from '../../views/Dashboard/Notes/types';
+import TableTag from '../CustomComponents/CustomTag';
 import {
   DownloadIcon,
   FlashCardsIcon,
@@ -16,8 +17,7 @@ import SelectableTable, { TableColumn } from '../table';
 import {
   StyledMenuButton,
   StyledMenuSection,
-  TableTitleWrapper,
-  TitleIcon
+  TableTitleWrapper
 } from './styles';
 import { Block, BlockNoteEditor } from '@blocknote/core';
 import { useBlockNote } from '@blocknote/react';
@@ -28,6 +28,7 @@ import {
   ChevronRightIcon,
   MagnifyingGlassIcon
 } from '@heroicons/react/24/solid';
+import { setTag } from '@sentry/react';
 import moment from 'moment';
 import { FC, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { FaEllipsisH } from 'react-icons/fa';
@@ -46,36 +47,55 @@ type DataSourceItem = {
   title: string;
   dateCreated: string;
   lastModified: string;
-  tags: string;
+  tags: any[];
   id: string | number;
 };
 
 export interface Props {
   data: Array<NoteDetails>;
+  getNotes: () => void;
 }
 
-const formatTags = (tags: any): string => {
-  if (tags || !Array.isArray(tags)) {
-    return '';
+const formatTags = (tags: string | string[]): any[] => {
+  if (!tags) {
+    return [];
   }
-  // format tags and return
-  // TODO: create a tag styling and attache
-  return tags.join(' ');
+  if (typeof tags === 'string') {
+    // If tags is a string, split it into an array and return
+    return tags.split(',').map((tag) => {
+      return <TableTag label={tag.trim()} />;
+    });
+  } else if (Array.isArray(tags)) {
+    // If tags is an array, trim each tag and return it as it is
+    return tags.map((tag) => {
+      return <TableTag label={tag.trim()} />;
+    });
+  } else {
+    // If tags is neither a string nor an array, return an empty array
+    return [];
+  }
 };
+
 const formatDate = (date: Date, format = 'DD ddd, hh:mma'): string => {
   return moment(date).format(format);
 };
 
-const AllNotesTab: FC<Props> = ({ data }) => {
+// Define the type for the pinned note
+type PinnedNote = {
+  noteId: string | null;
+  pinnedNoteJSON: any;
+};
+
+const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
   const params = useParams();
   const toast = useToast();
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
-  const [, setDeleteAllNotesModal] = useState(false);
+  const [deleteAllNoteModal, setDeleteAllNoteModal] = useState(false);
+  const [tagAllNoteModal, setTagAllNoteModal] = useState(false);
   const checkbox = useRef<HTMLInputElement>(null);
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
   const [selectedPeople, setSelectedPeople] = useState<any[]>([]);
-  const [clientsDetails, setClientDetails] = useState('');
   const [openTags, setOpenTags] = useState<boolean>(false);
   const [openTagsModal, setOpenTagsModal] = useState<boolean>(false);
   const [noteId, setNoteId] = useState<string | null>(null);
@@ -84,33 +104,44 @@ const AllNotesTab: FC<Props> = ({ data }) => {
     params.id ?? null
   );
 
+  const [, setPinnedNotes] = useState<PinnedNote[]>([]);
+
+  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
+  const [allChecked, setAllChecked] = useState<boolean>(false);
+  const [selectedNoteIdToDelete, setSelectedNoteIdToDelete] = useState(null);
+  const [selectedNoteIdToDeleteArray, setSelectedNoteIdToDeleteArray] =
+    useState<string[]>([]);
+  const [selectedNoteIdToAddTagsArray, setSelectedNoteIdToAddTagsArray] =
+    useState<string[]>([]);
+  const [selectedNoteIdToAddTags, setSelectedNoteIdToAddTags] = useState(null);
+  const [inputValue, setInputValue] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [newTags, setNewTags] = useState<string[]>(tags);
+
   const getNoteLocal = (noteId: string | null): string | null => {
     const storageId = getLocalStorageNoteId(noteId);
     const content = localStorage.getItem(storageId);
     return content;
   };
-  const [inputValue, setInputValue] = useState('');
-  const [tags, setTags] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
 
   const onCancel = () => {
     setDeleteNoteModal(!deleteNoteModal);
+    setSelectedRowKeys([]);
+    setSelectedPeople([]);
   };
 
   const getLocalStorageNoteId = (noteId: string | null): string => {
     const genId = noteId ? noteId : '';
     return genId;
   };
+
   const [initialContent, setInitialContent] = useState<any>(
     getNoteLocal(noteParamId)
   );
 
   const DELETE_NOTE_TITLE = 'Delete Note';
-  const DEFAULT_NOTE_TITLE = 'Enter Note Title';
-  // get user details
-  const defaultNoteTitle = DEFAULT_NOTE_TITLE;
-
-  const [editedTitle, setEditedTitle] = useState(defaultNoteTitle);
 
   const [dataSource, setDataSource] = useState<DataSourceItem[]>(
     Array.from({ length: data.length }, (_, i) => ({
@@ -133,30 +164,84 @@ const AllNotesTab: FC<Props> = ({ data }) => {
     }
   }, [selectedPeople]);
 
-  function toggleAll() {
-    setSelectedPeople(checked || indeterminate ? [] : data);
-    setChecked(!checked && !indeterminate);
-    setIndeterminate(false);
+  const handleSelectAll = () => {
+    if (!allChecked) {
+      const newSelectedRowKeys = dataSource.map(
+        (data) => data.key as unknown as string
+      );
+
+      setSelectedRowKeys(newSelectedRowKeys);
+
+      const newSelectedNoteIds = dataSource.map((data) => data.id);
+      const newSelectedNoteIdsAsString = newSelectedNoteIds.map((id) =>
+        id.toString()
+      );
+      // Append the new selected note IDs to the existing array
+      setSelectedNoteIdToDeleteArray((prevArray) => [
+        ...prevArray,
+        ...newSelectedNoteIdsAsString
+      ]);
+
+      setSelectedNoteIdToAddTagsArray((prevArray) => [
+        ...prevArray,
+        ...newSelectedNoteIdsAsString
+      ]);
+    } else {
+      setSelectedRowKeys([]);
+      setSelectedPeople([]);
+      setSelectedNoteIdToDelete(null);
+      setSelectedNoteIdToAddTags(null);
+    }
+    setAllChecked(!allChecked);
+  };
+
+  function Done() {
+    setSelectedRowKeys([]);
+    setSelectedPeople([]);
+    setAllChecked(false);
+
+    setSelectedNoteIdToDelete(null);
   }
 
-  const onDeleteNote = (
-    isOpenDeleteModal: boolean,
-    noteDetails: string,
-    noteId: any
-  ) => {
+  useEffect(() => {
+    // console.log({ checked, selectedPeople });
+  }, [checked, selectedPeople]);
+
+  const onDeleteNote = (isOpenDeleteModal: boolean, noteId: any) => {
     setDeleteNoteModal(isOpenDeleteModal);
-    setClientDetails(noteDetails);
+    setSelectedPeople([]);
     setNoteId(noteId);
   };
 
-  const onAddTag = (
-    openTagsModal: boolean,
-    noteDetails: string,
-    noteId: any
-  ) => {
-    setOpenTagsModal(openTagsModal);
-    setClientDetails(noteDetails);
+  const onDeleteAllNote = (isOpenDeleteModal: boolean, noteId: any) => {
+    setDeleteAllNoteModal(isOpenDeleteModal);
+    setSelectedPeople([]);
     setNoteId(noteId);
+  };
+
+  const onAddTagToMultipleNotes = (
+    isOpenTagAllNoteModal: boolean,
+    noteId: any,
+    tags: string[]
+  ) => {
+    setTagAllNoteModal(isOpenTagAllNoteModal);
+    setNoteId(noteId);
+  };
+
+  const onAddTagBottomModal = (
+    isOpenTagBottomNoteModal: boolean,
+    noteId: any,
+    tags: string[]
+  ) => {
+    setTagAllNoteModal(isOpenTagBottomNoteModal);
+    setNoteId(noteId);
+  };
+
+  const onAddTag = (openTagsModal: boolean, noteId: any, tags: string[]) => {
+    setOpenTagsModal(openTagsModal);
+    setNoteId(noteId);
+    // setTags(tags);
+    // console.log({ tags });
   };
 
   const gotoEditNote = (noteId: string | number) => {
@@ -187,12 +272,47 @@ const AllNotesTab: FC<Props> = ({ data }) => {
     }
   };
 
+  const deleteAllNote = async (
+    id: string[]
+  ): Promise<NoteServerResponse | null> => {
+    const resp = await ApiService.deleteAllNote(id);
+    const respText = await resp.text();
+    try {
+      const respDetails: NoteServerResponse = JSON.parse(respText);
+      if (!respDetails.error) {
+        // If there is no error, delete the note from local storage
+        for (const singleId of id) {
+          const storageId = getLocalStorageNoteId(singleId);
+          localStorage.removeItem(storageId);
+        }
+      }
+
+      return respDetails;
+    } catch (error: any) {
+      return { error: error.message, message: error.message };
+    }
+  };
+
   const addTag = async (
     id: string,
     tags: string[]
   ): Promise<NoteServerResponse | null> => {
-    const data = { tags: tags }; // Wrap the tags array in an object with the key "tags"
+    const data = { tags: tags };
     const resp = await ApiService.updateNoteTags(id, data);
+    const respText = await resp.text();
+    try {
+      const respDetails: NoteServerResponse = JSON.parse(respText);
+      return respDetails;
+    } catch (error: any) {
+      return { error: error.message, message: error.message };
+    }
+  };
+
+  const addAllNoteTags = async (
+    id: string[],
+    tags: string[]
+  ): Promise<NoteServerResponse | null> => {
+    const resp = await ApiService.updateAllNoteTags(id, tags);
     const respText = await resp.text();
     try {
       const respDetails: NoteServerResponse = JSON.parse(respText);
@@ -230,6 +350,30 @@ const AllNotesTab: FC<Props> = ({ data }) => {
     });
   };
 
+  const savePinnedNoteLocal = (pinnedNotesArray: any) => {
+    const storageId = 'pinned_notes'; // Unique identifier for the array in local storage
+    localStorage.setItem(storageId, JSON.stringify(pinnedNotesArray));
+  };
+
+  // Function to get pinned notes from local storage
+  const getPinnedNotesFromLocalStorage = (): PinnedNote[] | null => {
+    const storageId = 'pinned_notes';
+    const pinnedNotesString = localStorage.getItem(storageId);
+    if (pinnedNotesString) {
+      return JSON.parse(pinnedNotesString);
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
+    if (pinnedNotesFromLocalStorage) {
+      setPinnedNotes(pinnedNotesFromLocalStorage);
+    } else {
+      setPinnedNotes([]);
+    }
+  }, []);
+
   const DeleteNote = async () => {
     const noteIdInUse = noteId ?? noteParamId;
 
@@ -256,10 +400,18 @@ const AllNotesTab: FC<Props> = ({ data }) => {
       setDeleteNoteModal(false);
       return showToast(DELETE_NOTE_TITLE, details.error, 'error');
     } else {
+      // Remove the deleted note from pinned notes in local storage
+      const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
+      if (pinnedNotesFromLocalStorage) {
+        const updatedPinnedNotes = pinnedNotesFromLocalStorage.filter(
+          (pinnedNote) => pinnedNote.noteId !== noteIdInUse
+        );
+        savePinnedNoteLocal(updatedPinnedNotes);
+      }
       setDeleteNoteModal(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
-      setEditedTitle(defaultNoteTitle);
       setNoteId('');
+      getNotes();
 
       // Remove the deleted note from the dataSource
       setDataSource((prevDataSource) =>
@@ -269,17 +421,92 @@ const AllNotesTab: FC<Props> = ({ data }) => {
     }
   };
 
-  const [newTags, setNewTags] = useState<string[]>(tags);
+  const DeleteAllNote = async () => {
+    let noteIdsInUse: string[] = [];
 
-  const AddTag = async () => {
+    if (Array.isArray(noteId)) {
+      noteIdsInUse = noteId;
+    } else if (noteId) {
+      noteIdsInUse.push(noteId);
+    } else if (noteParamId) {
+      noteIdsInUse.push(noteParamId);
+    } else {
+      setDeleteNoteModal(false);
+      return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
+    }
+
+    setIsLoading(true);
+
+    console.log({ noteIdsInUse });
+
+    const details = await deleteAllNote(noteIdsInUse);
+    setIsLoading(false);
+
+    if (!details) {
+      setDeleteNoteModal(false);
+      return showToast(
+        DELETE_NOTE_TITLE,
+        'An unknown error occurred while deleting the note. Please try again.',
+        'error'
+      );
+    }
+
+    if (details.error) {
+      setDeleteNoteModal(false);
+      return showToast(DELETE_NOTE_TITLE, details.error, 'error');
+    } else {
+      // Remove the deleted notes from pinned notes in local storage
+      const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
+      if (pinnedNotesFromLocalStorage) {
+        const updatedPinnedNotes = pinnedNotesFromLocalStorage.filter(
+          (pinnedNote) => !noteIdsInUse.includes(pinnedNote.noteId as string)
+        );
+        savePinnedNoteLocal(updatedPinnedNotes);
+      }
+      showToast(DELETE_NOTE_TITLE, details.message, 'success');
+      setNoteId('');
+      getNotes();
+
+      // Remove the deleted notes from the dataSource
+      setDataSource((prevDataSource) =>
+        prevDataSource.filter(
+          (item) => !noteIdsInUse.includes(item.id as string)
+        )
+      );
+      clearEditor();
+    }
+  };
+
+  const downloadAsPDF = async (noteId: string | number, title: string) => {
+    if (!noteId || !editor) {
+      return showToast(
+        'Download Alert',
+        'Cannot download note. Please select a note',
+        'error'
+      );
+    }
+    // const noteMarkdown: string = await editor.blocksToMarkdown(editor.topLevelBlocks);
+    // if (!noteMarkdown) {
+    //   return showToast(
+    //     "Download Alert",
+    //     'Could not extract note content. Please try again',
+    //     'error'
+    //   );
+    // }
+    // use note name also in other
+    const noteName = `${title}`;
+    // saveMarkdownAsPDF(noteName, noteMarkdown);
+    saveMarkdownAsPDF(noteName, '');
+  };
+
+  const AddTag = async (tagsArray) => {
+    setIsLoading(true);
     const noteIdInUse = noteId ?? noteParamId;
-
     if (!noteIdInUse || noteIdInUse === '') {
       setOpenTagsModal(false);
       return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
     }
-
-    const details = await addTag(noteIdInUse, newTags);
+    const details = await addTag(noteIdInUse, tagsArray);
 
     if (!details) {
       setOpenTagsModal(false);
@@ -295,13 +522,76 @@ const AllNotesTab: FC<Props> = ({ data }) => {
       return showToast(DELETE_NOTE_TITLE, details.error, 'error');
     } else {
       setOpenTagsModal(false);
+      setIsLoading(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
       setNoteId('');
       clearEditor();
-      setTags(details.data.tags);
+      getNotes();
+
+      // setTags(details.data.tags);
+
+      setDataSource((prevDataSource) => {
+        return prevDataSource.map((item) => {
+          if (item.id === noteIdInUse) {
+            return { ...item, tags: formatTags(newTags) };
+          }
+          return item;
+        });
+      });
+    }
+    setIsLoading(false);
+  };
+
+  const AddAllNoteTags = async () => {
+    setIsLoading(true);
+    let noteIdsInUse: string[] = [];
+
+    if (Array.isArray(noteId)) {
+      noteIdsInUse = noteId;
+    } else if (noteId) {
+      noteIdsInUse.push(noteId);
+    } else if (noteParamId) {
+      noteIdsInUse.push(noteParamId);
+    } else {
+      setTagAllNoteModal(false);
+      return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
     }
 
-    console.log({ tag: details.data.tags, tags });
+    setIsLoading(true);
+
+    const details = await addAllNoteTags(noteIdsInUse, selectedTags);
+    setIsLoading(false);
+    // console.log({ noteIdsInUse, selectedTags });
+
+    if (!details) {
+      setTagAllNoteModal(false);
+      return showToast(
+        DELETE_NOTE_TITLE,
+        'An unknown error occurs while adding tag. Try again',
+        'error'
+      );
+    }
+
+    if (details.error) {
+      setTagAllNoteModal(false);
+      return showToast(DELETE_NOTE_TITLE, details.error, 'error');
+    } else {
+      setIsLoading(false);
+      showToast(DELETE_NOTE_TITLE, details.message, 'success');
+      setNoteId('');
+      getNotes();
+
+      setDataSource((prevDataSource) => {
+        return prevDataSource.filter((item) => {
+          if (!noteIdsInUse.includes(item.id as string)) {
+            return { ...item, tags: formatTags(newTags) };
+          }
+          return item;
+        });
+      });
+      clearEditor();
+    }
+    setIsLoading(false);
   };
 
   const handleAddTag = () => {
@@ -310,6 +600,18 @@ const AllNotesTab: FC<Props> = ({ data }) => {
       setNewTags([...newTags, value]);
     }
     setInputValue('');
+  };
+
+  const handleTagChange = (event, tag) => {
+    const tagValue = tag.toLowerCase();
+
+    if (event.target.checked) {
+      setSelectedTags([...selectedTags, tagValue]);
+    } else {
+      setSelectedTags(
+        selectedTags.filter((selectedTag) => selectedTag !== tagValue)
+      );
+    }
   };
 
   const clientColumn: TableColumn<DataSourceItem>[] = [
@@ -321,12 +623,6 @@ const AllNotesTab: FC<Props> = ({ data }) => {
       id: 0,
       render: ({ title, id }) => (
         <TableTitleWrapper>
-          <TitleIcon
-            onClick={() => gotoEditNote(id)}
-            src="/svgs/text-document.svg"
-            className="text-gray-400 "
-            alt=""
-          ></TitleIcon>
           <Text onClick={() => gotoEditNote(id)} fontWeight="500">
             {title}
           </Text>
@@ -338,7 +634,8 @@ const AllNotesTab: FC<Props> = ({ data }) => {
       title: 'Tags',
       dataIndex: 'tags',
       align: 'left',
-      id: 1
+      id: 1,
+      render: ({ tags }) => <>{tags}</>
     },
     {
       key: 'dateCreated',
@@ -357,7 +654,7 @@ const AllNotesTab: FC<Props> = ({ data }) => {
     {
       key: 'actions',
       title: '',
-      render: ({ title, id }) => (
+      render: ({ title, id, tags }) => (
         <Menu>
           <MenuButton
             as={Button}
@@ -394,14 +691,17 @@ const AllNotesTab: FC<Props> = ({ data }) => {
                 </div>
                 <ChevronRightIcon className="w-2.5 h-2.5" />
               </button>
-              <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
+              <button
+                onClick={() => {
+                  onAddTag(true, id, tags);
+                }}
+                className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
+              >
                 <div className="flex items-center space-x-1">
                   <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
                     <FlashCardsSolidIcon
+                      onClick={undefined}
                       className="w-4 h-4 text-primaryGray"
-                      onClick={() => {
-                        onAddTag(true, title, id);
-                      }}
                     />
                   </div>
                   <Text className="text-sm text-secondaryGray font-medium">
@@ -411,7 +711,12 @@ const AllNotesTab: FC<Props> = ({ data }) => {
                 <ChevronRightIcon className="w-2.5 h-2.5" />
               </button>
               <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
-                <div className="flex items-center space-x-1">
+                <div
+                  className="flex items-center space-x-1"
+                  onClick={() => {
+                    downloadAsPDF(id, title);
+                  }}
+                >
                   <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
                     <DownloadIcon
                       className="w-4 h-4 text-primaryGray"
@@ -427,7 +732,7 @@ const AllNotesTab: FC<Props> = ({ data }) => {
             </section>
             <div
               onClick={() => {
-                onDeleteNote(true, title, id);
+                onDeleteNote(true, id);
               }}
               style={{
                 display: 'flex',
@@ -457,7 +762,9 @@ const AllNotesTab: FC<Props> = ({ data }) => {
       )
     }
   ];
-
+  useEffect(() => {
+    // console.log('new tags loaded: ', newTags);
+  }, [newTags]);
   return (
     <>
       <div className="mt-8 flow-root">
@@ -465,38 +772,82 @@ const AllNotesTab: FC<Props> = ({ data }) => {
           <div className="inline-block min-w-full py-2 align-middle h-screen sm:px-6 lg:px-8 z-10">
             <div className="relative">
               <div className="table-columns  fixed bottom-[80px] right-[36%] left-[36%]">
-                {selectedPeople.length > 0 && (
+                {selectedPeople.length > 0 || allChecked ? (
                   <div className="top-0 border px-4 py-8 text-sm rounded-md flex h-12 items-center justify-between space-x-3 w-[600px] bg-white sm:left-12">
                     <p className="text-gray-600">
                       {selectedPeople.length} items selected
                     </p>
 
                     <div className="flex items-center space-x-4">
-                      <button className="text-gray-600" onClick={toggleAll}>
-                        Select all
+                      <button
+                        className="text-gray-600"
+                        onClick={handleSelectAll}
+                      >
+                        {allChecked ? 'Deselect all' : 'Select all'}
                       </button>
+
                       <Menu>
-                        <StyledMenuButton
-                          as={Button}
-                          variant="unstyled"
-                          borderRadius="full"
-                          p={0}
-                          minW="auto"
-                          height="auto"
-                          background="#F4F5F5"
-                          display="flex"
-                          className="flex items-center gap-2"
-                          onClick={() => setOpenTags((prevState) => !prevState)}
-                        >
-                          <FlashCardsSolidIcon
-                            className="w-5"
-                            onClick={undefined}
-                          />
-                          Add tag
-                        </StyledMenuButton>
+                        {selectedPeople.length > 1 || allChecked ? (
+                          <StyledMenuButton
+                            as={Button}
+                            variant="unstyled"
+                            borderRadius="full"
+                            p={0}
+                            minW="auto"
+                            height="auto"
+                            background="#F4F5F5"
+                            display="flex"
+                            className="flex items-center gap-2"
+                            onClick={() => {
+                              if (selectedNoteIdToAddTagsArray) {
+                                onAddTagToMultipleNotes(
+                                  true,
+                                  selectedNoteIdToAddTagsArray,
+                                  selectedTags
+                                );
+                                setSelectedNoteIdToAddTagsArray([]);
+                              }
+                            }}
+                          >
+                            <FlashCardsSolidIcon
+                              className="w-5"
+                              onClick={undefined}
+                            />
+                            Add tags to all notes
+                          </StyledMenuButton>
+                        ) : (
+                          <StyledMenuButton
+                            as={Button}
+                            variant="unstyled"
+                            borderRadius="full"
+                            p={0}
+                            minW="auto"
+                            height="auto"
+                            background="#F4F5F5"
+                            display="flex"
+                            className="flex items-center gap-2"
+                            onClick={() => {
+                              if (setSelectedNoteIdToAddTags) {
+                                onAddTagBottomModal(
+                                  true,
+                                  selectedNoteIdToAddTags,
+                                  selectedTags
+                                );
+
+                                setSelectedNoteIdToAddTags(null);
+                              }
+                            }}
+                          >
+                            <FlashCardsSolidIcon
+                              className="w-5"
+                              onClick={undefined}
+                            />
+                            Add tag
+                          </StyledMenuButton>
+                        )}
                       </Menu>
 
-                      {openTags && (
+                      {tagAllNoteModal && (
                         <Menu>
                           <StyledMenuSection>
                             <form
@@ -526,6 +877,9 @@ const AllNotesTab: FC<Props> = ({ data }) => {
                                   aria-describedby="comments-description"
                                   name="comments"
                                   type="checkbox"
+                                  onChange={(e) =>
+                                    handleTagChange(e, 'Chemistry')
+                                  }
                                   className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
                                 />
                               </div>
@@ -546,6 +900,7 @@ const AllNotesTab: FC<Props> = ({ data }) => {
                                   aria-describedby="comments-description"
                                   name="comments"
                                   type="checkbox"
+                                  onChange={(e) => handleTagChange(e, 'Person')}
                                   className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
                                 />
                               </div>
@@ -566,6 +921,9 @@ const AllNotesTab: FC<Props> = ({ data }) => {
                                   aria-describedby="comments-description"
                                   name="comments"
                                   type="checkbox"
+                                  onChange={(e) =>
+                                    handleTagChange(e, 'Favorites')
+                                  }
                                   className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
                                 />
                               </div>
@@ -578,28 +936,74 @@ const AllNotesTab: FC<Props> = ({ data }) => {
                                 </label>
                               </div>
                             </div>
+
+                            <div className="bottom-addTags-btn-cont">
+                              {selectedPeople.length > 1 || allChecked ? (
+                                <Button
+                                  className={`bottom-addTags-btn ${
+                                    isLoading ? 'loading-button' : ''
+                                  }`}
+                                  onClick={AddAllNoteTags}
+                                  disabled={isLoading}
+                                >
+                                  {isLoading ? 'Adding...' : 'Add tag'}
+                                </Button>
+                              ) : (
+                                <Button
+                                  className={`bottom-addTags-btn ${
+                                    isLoading ? 'loading-button' : ''
+                                  }`}
+                                  onClick={() => AddTag(selectedTags)}
+                                  disabled={isLoading}
+                                >
+                                  {isLoading ? 'Adding...' : 'Add tag'}
+                                </Button>
+                              )}
+                            </div>
                           </StyledMenuSection>
                         </Menu>
                       )}
+                    </div>
 
+                    {selectedPeople.length > 1 || allChecked ? (
                       <button
-                        onClick={() => setDeleteAllNotesModal(true)}
                         type="button"
                         className="inline-flex items-center space-x-2 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                        onClick={() => {
+                          if (selectedNoteIdToDeleteArray) {
+                            onDeleteAllNote(true, selectedNoteIdToDeleteArray);
+                            setSelectedNoteIdToDeleteArray([]);
+                          }
+                        }}
+                      >
+                        <TrashIcon className="w-5" onClick={undefined} />
+                        <span>Delete All</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="inline-flex items-center space-x-2 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                        onClick={() => {
+                          if (selectedNoteIdToDelete) {
+                            onDeleteNote(true, selectedNoteIdToDelete);
+                            setSelectedNoteIdToDelete(null);
+                          }
+                        }}
                       >
                         <TrashIcon className="w-5" onClick={undefined} />
                         <span>Delete</span>
                       </button>
-                    </div>
+                    )}
 
                     <button
                       type="button"
                       className="inline-flex items-center rounded-lg bg-white px-6 py-2 text-sm text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                      onClick={Done}
                     >
                       Done
                     </button>
                   </div>
-                )}
+                ) : null}
               </div>
               <SelectableTable
                 columns={clientColumn}
@@ -607,6 +1011,21 @@ const AllNotesTab: FC<Props> = ({ data }) => {
                 isSelectable
                 fileImage
                 onSelect={(e) => setSelectedPeople(e)}
+                selectedRowKeys={selectedRowKeys}
+                setSelectedRowKeys={setSelectedRowKeys}
+                handleSelectAll={handleSelectAll}
+                allChecked={allChecked}
+                setAllChecked={setAllChecked}
+                setSelectedNoteIdToDelete={setSelectedNoteIdToDelete}
+                selectedNoteIdToDelete={selectedNoteIdToDelete}
+                setSelectedNoteIdToDeleteArray={setSelectedNoteIdToDeleteArray}
+                selectedNoteIdToDeleteArray={selectedNoteIdToDeleteArray}
+                selectedNoteIdToAddTagsArray={selectedNoteIdToAddTagsArray}
+                setSelectedNoteIdToAddTagsArray={
+                  setSelectedNoteIdToAddTagsArray
+                }
+                selectedNoteIdToAddTags={selectedNoteIdToAddTags}
+                setSelectedNoteIdToAddTags={setSelectedNoteIdToAddTags}
               />
             </div>
           </div>
@@ -614,7 +1033,7 @@ const AllNotesTab: FC<Props> = ({ data }) => {
       </div>
       {openTagsModal && (
         <TagModal
-          onSubmit={AddTag}
+          onSubmit={() => AddTag(newTags)}
           isOpen={openTagsModal}
           onClose={() => setOpenTagsModal(false)}
           tags={tags}
@@ -627,12 +1046,25 @@ const AllNotesTab: FC<Props> = ({ data }) => {
       )}
       <NoteModal
         title="Delete Notes"
-        description="Are you sure you want to delete  Note?"
+        description="Are you sure you want to delete Note?"
         isLoading={isLoading}
         isOpen={deleteNoteModal}
         onCancel={() => onCancel()}
         onDelete={() => DeleteNote()}
         onClose={() => setDeleteNoteModal(false)}
+      />
+      <NoteModal
+        title="Delete All Notes"
+        description="Are you sure you want to delete all the marked Notes?"
+        isLoading={isLoading}
+        isOpen={deleteAllNoteModal}
+        onCancel={() => {
+          setDeleteAllNoteModal(!deleteAllNoteModal);
+          setSelectedRowKeys([]);
+          setSelectedPeople([]);
+        }}
+        onDelete={() => DeleteAllNote()}
+        onClose={() => setDeleteAllNoteModal(!deleteAllNoteModal)}
       />
     </>
   );

@@ -101,12 +101,12 @@ const LinkItems: Array<LinkItemProps> = [
 ];
 
 const LinkBItems: Array<LinkItemProps> = [
-  { name: 'Performance', icon: FiBarChart2, path: '/dashboard/performance' },
-  {
-    name: 'Study Plans',
-    icon: TbClipboardText,
-    path: '/dashboard/study-plans'
-  },
+  // { name: 'Performance', icon: FiBarChart2, path: '/dashboard/performance' },
+  // {
+  //   name: 'Study Plans',
+  //   icon: TbClipboardText,
+  //   path: '/dashboard/study-plans'
+  // },
   { name: 'Notes', icon: CgNotes, path: '/dashboard/notes' },
   { name: 'Flashcards', icon: TbCards, path: '/dashboard/flashcards' }
 ];
@@ -183,6 +183,8 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
 
   const handleSignOut = () => {
     signOut(auth).then(() => {
+      sessionStorage.clear();
+      localStorage.clear();
       navigate('/login');
     });
   };
@@ -283,7 +285,12 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     icon={<FaBell />}
                   />{' '}
                 </MenuButton>
-                <MenuList p={3} width={'358px'} zIndex={2}>
+                <MenuList
+                  p={3}
+                  width={'358px'}
+                  zIndex={2}
+                  sx={{ position: 'absolute', top: '50px' }}
+                >
                   <Notifications data={userNotifications} />
                 </MenuList>
               </Menu>

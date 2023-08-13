@@ -19,7 +19,7 @@ import React, { useState, useEffect } from 'react';
 
 interface TagModalProps {
   tags: string[];
-  onSubmit: (tags: string[]) => void;
+  onSubmit: (tags: string[], noteId?: string | undefined) => void;
   isOpen: boolean;
   onClose: () => void;
   inputValue?: string;
@@ -77,7 +77,11 @@ export const TagModal: React.FC<TagModalProps> = ({
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      await onSubmit(newTags);
+      if (propSetNewTags) {
+        await onSubmit(propSetNewTags);
+      } else {
+        await onSubmit(newTags);
+      }
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
@@ -101,7 +105,7 @@ export const TagModal: React.FC<TagModalProps> = ({
                 onKeyDown={(event) => {
                   if (event.key === 'Enter') {
                     handleAddTag();
-                    event.preventDefault(); // To prevent form submission
+                    event.preventDefault();
                   }
                 }}
               />
@@ -124,6 +128,7 @@ export const TagModal: React.FC<TagModalProps> = ({
                   p="10px 20px"
                 >
                   <TagLabel>{tag}</TagLabel>
+
                   <TagCloseButton onClick={() => handleRemoveTag(tag)} />
                 </Tag>
               ))}
@@ -141,7 +146,11 @@ export const TagModal: React.FC<TagModalProps> = ({
               Submit
             </Button>
           ) : (
-            <Button colorScheme="blue" onClick={handleSubmit}>
+            <Button
+              isDisabled={!newTags.length}
+              colorScheme="blue"
+              onClick={handleSubmit}
+            >
               Submit
             </Button>
           )}
