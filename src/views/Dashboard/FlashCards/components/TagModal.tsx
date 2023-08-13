@@ -27,7 +27,6 @@ interface TagModalProps {
   handleAddTag?: () => void;
   newTags?: string[];
   setNewTags?: any;
-  noteIdInUse?: any;
 }
 
 export const TagModal: React.FC<TagModalProps> = ({
@@ -39,14 +38,12 @@ export const TagModal: React.FC<TagModalProps> = ({
   setInputValue: propSetInputValue,
   handleAddTag: propHandleAddTag,
   newTags: propNewTags,
-  setNewTags: propSetNewTags,
-  noteIdInUse
+  setNewTags: propSetNewTags
 }) => {
   const [inputValue, setInputValue] = useState(propInputValue || '');
   const [hasLoadedDefaultTags, setHasLoadedDefaultTags] = useState(false);
   const [newTags, setNewTags] = useState(propNewTags || tags);
   const [isLoading, setIsLoading] = useState(false);
-  const noteTags = tags[noteIdInUse] || [];
 
   useEffect(() => {
     if (tags.length && !hasLoadedDefaultTags) {
