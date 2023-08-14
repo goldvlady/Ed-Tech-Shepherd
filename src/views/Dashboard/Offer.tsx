@@ -139,19 +139,25 @@ const Offer = () => {
   const clientSecret = params.get('setup_intent_client_secret');
 
   const setupPaymentMethod = async () => {
-    setSettingUpPaymentMethod(true);
-    const paymentIntent = await ApiService.createStripeSetupPaymentIntent({
-      offerId: offer?._id
-    });
+    try {
+      setSettingUpPaymentMethod(true);
+      const paymentIntent = await ApiService.createStripeSetupPaymentIntent({
+        offerId: offer?._id
+      });
+      console.log(paymentIntent);
 
-    const { data } = await paymentIntent.json();
+      const { data } = await paymentIntent.json();
+      console.log(paymentIntent, data);
 
-    paymentDialogRef.current?.startPayment(
-      data.clientSecret,
-      `${window.location.href}`
-    );
+      paymentDialogRef.current?.startPayment(
+        data.clientSecret,
+        `${window.location.href}`
+      );
 
-    setSettingUpPaymentMethod(false);
+      setSettingUpPaymentMethod(false);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const loadOffer = useCallback(async () => {

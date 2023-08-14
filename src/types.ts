@@ -198,6 +198,20 @@ export interface Offer extends TimestampedEntity {
   expired: boolean;
 }
 
+export type SearchQueryParams = {
+  search?: string;
+  page?: number;
+  limit?: number;
+  sort?: string;
+  tags?: string;
+};
+
+export type Pagination = {
+  page: number;
+  limit: number;
+  count: number;
+};
+
 export interface BookmarkedTutor extends TimestampedEntity {
   user: User;
   tutor: Tutor;

@@ -11,14 +11,21 @@ const MotionBox = motion(Box);
 
 const MnemonicCard: React.FC<MnemonicCardProps> = ({ answer, explanation }) => {
   const [showExplanation, setShowExplanation] = useState(false);
+  const [showMoreAnswer, setShowMoreAnswer] = useState(false);
+  const [isAnswerTooLong, setIsAnswerTooLong] = useState(false);
 
-  const toggleExplanation = () => {
-    setShowExplanation(!showExplanation);
+  const maxHeight = 320; // you can adjust this value
+
+  const checkIfAnswerIsTooLong = (ref) => {
+    if (ref && ref.scrollHeight > maxHeight) {
+      setIsAnswerTooLong(true);
+    }
   };
 
   return (
     <Box
       bg="#FFFFFF"
+      height="fit-content"
       width="100%"
       borderRadius="8px"
       borderWidth="1px"
@@ -28,7 +35,13 @@ const MnemonicCard: React.FC<MnemonicCardProps> = ({ answer, explanation }) => {
       }}
       borderColor="#EEEFF2"
     >
-      <Box width="100%">
+      <Box
+        minHeight={`${maxHeight}px`}
+        maxHeight={
+          showMoreAnswer || showExplanation ? 'none' : `${maxHeight}px`
+        }
+        width="100%"
+      >
         <Box
           width="100%"
           padding="25px"
@@ -36,9 +49,35 @@ const MnemonicCard: React.FC<MnemonicCardProps> = ({ answer, explanation }) => {
           fontSize="14px"
           lineHeight="22px"
           color="#212224"
+          minHeight={`${maxHeight - 20}px`}
+          maxHeight={showMoreAnswer ? 'none' : `${maxHeight - 20}px`}
+          height="100%"
+          overflow="hidden"
+          ref={checkIfAnswerIsTooLong}
         >
           <Text whiteSpace={'pre-line'}>{answer}</Text>
         </Box>
+
+        {isAnswerTooLong && (
+          <Box
+            width="100%"
+            display={'flex'}
+            justifyContent={'center'} // Right align the button
+            alignItems={'center'}
+          >
+            <Button
+              variant="link" // Use link variant for button without a background
+              color="#207DF7"
+              fontSize="12px"
+              _hover={{ textDecoration: 'none', color: '#207DF7' }}
+              _active={{ textDecoration: 'none', color: '#207DF7' }}
+              _focus={{ boxShadow: 'none' }}
+              onClick={() => setShowMoreAnswer((prev) => !prev)}
+            >
+              {!showMoreAnswer ? 'Show More' : 'Hide'}
+            </Button>
+          </Box>
+        )}
         <AnimatePresence mode="wait">
           {showExplanation && (
             <MotionBox
@@ -71,7 +110,7 @@ const MnemonicCard: React.FC<MnemonicCardProps> = ({ answer, explanation }) => {
           variant="unstyled"
           color="#207DF7"
           fontSize="12px"
-          onClick={toggleExplanation}
+          onClick={() => setShowExplanation(!showExplanation)}
           _hover={{ bg: 'none', color: '#207DF7' }}
           _active={{ bg: 'none', color: '#207DF7' }}
           _focus={{ boxShadow: 'none' }}
