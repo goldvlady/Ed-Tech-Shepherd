@@ -97,21 +97,21 @@ export default function DocChat() {
 
   useEffect(() => {
     if (socket) {
-      socket.on('summary generating', async (token) => {
+      socket.on('summary start', async (token) => {
         setSummaryText((summary) => summary + token);
       });
 
-      return () => socket.off('summary generating');
+      return () => socket.off('summary start');
     }
   }, [socket]);
 
   useEffect(() => {
     if (socket) {
-      socket.on('summary done', async () => {
+      socket.on('summary end', async () => {
         setSummaryLoading(false);
       });
 
-      return () => socket.off('summary done');
+      return () => socket.off('summary end');
     }
   }, [socket]);
 

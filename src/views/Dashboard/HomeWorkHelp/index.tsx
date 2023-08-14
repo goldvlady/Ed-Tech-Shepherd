@@ -69,6 +69,7 @@ const HomeWorkHelp = () => {
     if (socket) {
       socket.on('ready', (ready) => {
         setReadyToChat(ready);
+        socket.emit('chat message', 'Shall we begin, Socrates?');
       });
 
       return () => socket.off('ready');
