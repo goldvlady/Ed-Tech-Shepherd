@@ -382,7 +382,11 @@ class ApiService {
     });
   };
 
-  static updateNote = async (id: string | number, data: any) => {
+  static updateNote = async (
+    id: string | number,
+    data: any,
+    tags?: string[]
+  ) => {
     return doFetch(`${ApiService.baseEndpoint}/updateNote/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data)
