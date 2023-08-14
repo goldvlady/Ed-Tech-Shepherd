@@ -63,6 +63,20 @@ class ApiService {
     });
   };
 
+  static getMnemonics = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/getMnemonics`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static createMnemonic = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/createMneomics`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
   static updateQuestionAttempt = async (data: any) => {
     return doFetch(
       `${ApiService.baseEndpoint}/updateFlashcardQuestionAttempt`,
