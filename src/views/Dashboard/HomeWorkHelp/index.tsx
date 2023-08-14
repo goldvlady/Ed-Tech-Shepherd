@@ -1,5 +1,7 @@
 import CustomModal from '../../../components/CustomComponents/CustomModal';
+import CustomToast from '../../../components/CustomComponents/CustomToast/index';
 import { chatHomeworkHelp } from '../../../services/AI';
+import { chatHistory } from '../../../services/AI';
 import socketWithAuth from '../../../socket';
 import userStore from '../../../state/userStore';
 import { FlashcardData } from '../../../types';
@@ -12,12 +14,19 @@ import {
   HomeWorkHelpContainer,
   HomeWorkHelpHistoryContainer
 } from './style';
-import React, { useState, useCallback, useEffect } from 'react';
+import { useToast } from '@chakra-ui/react';
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useLayoutEffect
+} from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const HomeWorkHelp = () => {
   const [isOpenModal, setOpenModal] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const toast = useToast();
   const location = useLocation();
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const [openAceHomework, setAceHomeWork] = useState(false);
@@ -42,11 +51,15 @@ const HomeWorkHelp = () => {
   const [level, setLevel] = useState<any>('');
   const navigate = useNavigate();
 
+  const subject = 'biology';
+
   useEffect(() => {
     if (!socket) {
       const authSocket = socketWithAuth({
         studentId,
-        topic
+        topic,
+        subject,
+        namespace: 'homework-help'
       }).connect();
       setSocket(authSocket);
     }
@@ -64,7 +77,7 @@ const HomeWorkHelp = () => {
 
   useEffect(() => {
     if (socket) {
-      socket.on('bot response done', (completeText) => {
+      socket.on('chat response end', (completeText) => {
         setLLMResponse('');
         setTimeout(
           () => setBotStatus('Philosopher, thinker, study companion.'),
@@ -78,20 +91,50 @@ const HomeWorkHelp = () => {
         ]);
       });
 
-      return () => socket.off('bot response done');
+      return () => socket.off('chat response end');
     }
   }, [socket]);
 
   useEffect(() => {
     if (socket) {
-      socket.on('homework chatbot response', async (token) => {
+      socket.on('chat response start', async (token: string) => {
         setBotStatus('Typing...');
         setLLMResponse((llmResponse) => llmResponse + token);
       });
 
-      return () => socket.off('bot response');
+      return () => socket.off('chat response end');
     }
   }, [socket]);
+
+  useLayoutEffect(() => {
+    const fetchChatHistory = async () => {
+      try {
+        const historyData = await chatHistory({
+          studentId
+        });
+        const mappedData = historyData?.map((item) => ({
+          text: item.content,
+          isUser: item.role === 'user',
+          isLoading: false
+        }));
+
+        setMessages((prevMessages) => [...prevMessages, ...mappedData]);
+        // setChatHistoryLoaded(true);
+      } catch (error) {
+        toast({
+          render: () => (
+            <CustomToast
+              title="Failed to fetch chat history..."
+              status="error"
+            />
+          ),
+          position: 'top-right',
+          isClosable: true
+        });
+      }
+    };
+    fetchChatHistory();
+  }, [studentId, toast]);
 
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
