@@ -6,6 +6,7 @@ import {
   Button,
   Image,
   Radio,
+  RadioGroup,
   Text,
   Spacer,
   Stack,
@@ -90,6 +91,7 @@ function Billing(props) {
   ];
 
   const [currentPaymentMethod, setCurrentPaymentMethod] = useState<any>(null);
+
   return (
     <Box>
       <Flex
@@ -171,29 +173,27 @@ function Billing(props) {
                 </Stack>
               </Flex>
               <Divider />
-              <Flex width={'100%'} alignItems="center">
-                <Stack spacing={'2px'}>
-                  {user?.paymentMethods.map((pm) => (
-                    <Flex
-                      onClick={() => setCurrentPaymentMethod(pm)}
-                      key={pm._id}
-                      gap={2}
-                      alignItems="center"
-                    >
+              <RadioGroup onChange={(value) => setCurrentPaymentMethod(value)}>
+                {user?.paymentMethods.map((pm) => (
+                  <Flex width="100%" alignItems="center" my={3}>
+                    <Flex gap={2} alignItems="center" flex="1">
                       {getBrandLogo(pm.brand)}
-
                       <Text fontSize={14} color="text.300" fontWeight={500}>
                         Ending in •••• {pm.last4}
                       </Text>
                     </Flex>
-                  ))}
-                </Stack>
-                <Spacer />
-                <Text fontSize={12} color="text.300">
-                  {' '}
-                  remove
-                </Text>
-              </Flex>
+
+                    <Spacer />
+                    <Flex gap={2}>
+                      <Text fontSize={12} color="text.300">
+                        Remove
+                      </Text>
+                      <Radio value={pm._id} key={pm._id} />
+                    </Flex>
+                  </Flex>
+                ))}
+              </RadioGroup>
+
               <Flex width={'100%'} alignItems="center">
                 <Stack spacing={'2px'}>
                   <Text fontSize={12} color="text.300">
@@ -222,7 +222,7 @@ function Billing(props) {
                     Account name
                   </Text>{' '}
                   <Text fontSize={12} color="text.300">
-                    LateefKolade@gmail.com
+                    {user?.tutor?.bankInfo?.accountName}
                   </Text>
                 </Stack>
                 <Spacer />{' '}
@@ -256,7 +256,7 @@ function Billing(props) {
                     Account number
                   </Text>{' '}
                   <Text fontSize={12} color="text.300">
-                    000111222333
+                    {user?.tutor?.bankInfo?.accountNumber}
                   </Text>
                 </Stack>
                 <Spacer />{' '}
@@ -290,7 +290,7 @@ function Billing(props) {
                     Bank name
                   </Text>{' '}
                   <Text fontSize={12} color="text.300">
-                    Bank of America
+                    {user?.tutor?.bankInfo?.bankName}
                   </Text>
                 </Stack>
                 <Spacer />{' '}

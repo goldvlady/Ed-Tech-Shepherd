@@ -62,7 +62,7 @@ const sortedBy = [
   },
   {
     id: 2,
-    title: 'By title',
+    title: 'By name',
     firstValue: 'A -> Z',
     secondValue: 'Z -> A'
   }
@@ -112,6 +112,26 @@ const Clients = () => {
     {
       id: 1,
       component: <AllClientTab allTutorClients={allTutorClients} />
+    },
+    {
+      id: 2,
+      component: (
+        <AllClientTab
+          allTutorClients={allTutorClients.filter(
+            (tutor) => tutor.isActive === true
+          )}
+        />
+      )
+    },
+    {
+      id: 3,
+      component: (
+        <AllClientTab
+          allTutorClients={allTutorClients.filter(
+            (tutor) => tutor.isActive !== true
+          )}
+        />
+      )
     }
   ];
   const createNewLists = [
