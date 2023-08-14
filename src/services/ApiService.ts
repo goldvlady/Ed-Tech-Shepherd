@@ -5,8 +5,6 @@ import { User, StudentDocumentPayload } from '../types';
 import { doFetch } from '../util';
 import {
   processDocument,
-  checkDocumentStatus,
-  chatWithDoc,
   createDocchatFlashCards,
   chatHomeworkHelp,
   chatHistory
@@ -18,8 +16,6 @@ class ApiService {
   static baseEndpoint = REACT_APP_API_ENDPOINT;
 
   static processDocument = processDocument;
-  static checkDocumentStatus = checkDocumentStatus;
-  static chatWithDoc = chatWithDoc;
   static createDocchatFlashCards = createDocchatFlashCards;
   static chatHomeworkHelp = chatHomeworkHelp;
   static chatHistory = chatHistory;
@@ -62,6 +58,20 @@ class ApiService {
 
   static submitStudent = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/createStudent`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static getMnemonics = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/getMnemonics`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static createMnemonic = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/createMneomics`, {
       method: 'POST',
       body: JSON.stringify(data)
     });

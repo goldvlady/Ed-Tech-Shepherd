@@ -93,14 +93,14 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
         'Want to make the most of your notes? Chat with them via Shepherd and uncover insights to boost your grasp ',
       imageURL: '/images/notes-navigator.svg',
       onClick: () => handleShowSelected()
-    },
-    {
-      id: 4,
-      title: 'Test Prep',
-      description:
-        'Got a test coming? Shepherd has you covered with quizzes & prep resources priming you for the big day',
-      imageURL: '/images/test.svg'
     }
+    // {
+    //   id: 4,
+    //   title: 'Test Prep',
+    //   description:
+    //     'Got a test coming? Shepherd has you covered with quizzes & prep resources priming you for the big day',
+    //   imageURL: '/images/test.svg'
+    // }
   ];
 
   const actions2 = [
@@ -210,7 +210,8 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
                         </button>
                       </div>
 
-                      <div className="overflow-hidden p-6 pb-2 bg-white sm:grid sm:grid-cols-4 sm:gap-x-4 sm:space-y-0 space-y-2">
+                      {/* <div className="overflow-hidden p-6 pb-2 bg-white sm:grid sm:grid-cols-4 sm:gap-x-4 sm:space-y-0 space-y-2 "> */}
+                      <div className="overflow-hidden sm:w-[80%] w-full mx-auto p-6 pt-3  bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">
                         {actions1.map((action) => (
                           <div
                             key={action.title}
@@ -236,7 +237,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
                         ))}
                       </div>
 
-                      <div className="overflow-hidden sm:w-[80%] w-full mx-auto p-6 pt-3  bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">
+                      {/* <div className="overflow-hidden sm:w-[80%] w-full mx-auto p-6 pt-3  bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">
                         {actions2.map((action) => (
                           <div
                             onClick={action.onClick}
@@ -260,7 +261,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
                             </div>
                           </div>
                         ))}
-                      </div>
+                      </div> */}
                     </div>
                   </Dialog.Panel>
                 </Transition.Child>

@@ -6,6 +6,7 @@ import {
   ChevronRightIcon,
   QuestionMarkCircleIcon
 } from '@heroicons/react/20/solid';
+import moment from 'moment';
 import React, { useState, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
@@ -23,6 +24,37 @@ export default function Client() {
   useEffect(() => {
     doFetchTutorClient(clientId);
   }, [doFetchTutorClient]);
+
+  const dayMappings = {
+    0: 'Sun',
+    1: 'Mon',
+    2: 'Tue',
+    3: 'Wed',
+    4: 'Thu',
+    5: 'Fri',
+    6: 'Sat'
+  };
+
+  function getDaysOfWeek(schedule) {
+    const selectedDays = Object.keys(schedule).map((key) => dayMappings[key]);
+    const daysOfWeek = selectedDays.join(',');
+    return daysOfWeek;
+  }
+
+  function formatTimeRange(begin: string, end: string): string {
+    return `${begin} -> ${end}`;
+  }
+
+  function getFormattedTimeRanges(
+    schedule: Record<string, { begin: string; end: string }>
+  ): string {
+    const formattedTimeRanges = Object.values(schedule).map(
+      ({ begin, end }) => {
+        return formatTimeRange(begin, end);
+      }
+    );
+    return formattedTimeRanges.join(', ');
+  }
 
   if (isLoading) {
     return (
@@ -130,13 +162,17 @@ export default function Client() {
                 <Text className="">
                   <span className="block whitespace-nowrap">{`${client?.student?.user?.name.first} ${client?.student?.user?.name.last}`}</span>
                   <span className="inline-block text-gray-400 text-sm">
-                    Your contract with Liam ends 29th June, 2023
+                    {`  Your contract with ${
+                      client?.student?.user?.name.first
+                    } ends ${moment(client?.offer?.contractEndDate).format(
+                      'MMMM DD, YYYY'
+                    )}`}
                   </span>
                 </Text>
               </section>
               <div className="flex flex-none items-center gap-x-4">
                 <Text className="rounded-md bg-gray-50 px-2.5 py-1.5 text-sm font-semibold text-gray-500 shadow-sm hover:bg-gray-50 sm:block">
-                  24.09.2022
+                  {moment(client?.offer?.contractEndDate).format('DD.MM.YYYY')}
                 </Text>
               </div>
             </div>
@@ -148,47 +184,45 @@ export default function Client() {
               <ul className="space-y-4">
                 <li className="text-sm space-y-2 font-normal">
                   <Text className="text-secondaryGray">Subject & Level</Text>
-                  <Text>Mathematics - A-Level</Text>
+                  <Text>{`${client?.offer?.course.label} - ${client?.offer?.level.label}`}</Text>
                 </li>
                 <li className="text-sm space-y-2 font-normal">
                   <Text className="text-secondaryGray">
                     What days would you like to have your classes
                   </Text>
-                  <Text>Mon, Tue, Wed</Text>
+                  <Text>{getDaysOfWeek(client?.offer.schedule)}</Text>
                 </li>
                 <li className="text-sm space-y-2 font-normal">
                   <Text className="text-secondaryGray">
                     Frequency of class sessions
                   </Text>
-                  <Text className="text-xl mb-4 font-semibold tracking-wider">
-                    Weekly
-                  </Text>
+                  <Text>Weekly</Text>
                 </li>
                 <li className="text-sm space-y-2 font-normal">
                   <Text className="text-secondaryGray">Time</Text>
                   <Text className="flex items-center space-x-1">
-                    <span>05:00 PM</span>{' '}
-                    <ArrowRightIcon
-                      className="w-4 h-4 text-secondaryGray"
-                      onClick={undefined}
-                    />{' '}
-                    <span>08:00 PM</span>
+                    {getFormattedTimeRanges(client.offer.schedule)}
                   </Text>
                 </li>
                 <li className="text-sm space-y-2 font-normal">
                   <Text className="text-secondaryGray">Start date</Text>
-                  <Text>June 21, 2023</Text>
+                  <Text>
+                    {moment(client?.offer?.contractStartDate).format(
+                      'MMMM DD, YYYY'
+                    )}
+                  </Text>
                 </li>
                 <li className="text-sm space-y-2 font-normal">
                   <Text className="text-secondaryGray">End date</Text>
-                  <Text>June 24, 2023</Text>
+                  <Text>
+                    {moment(client?.offer?.contractEndDate).format(
+                      'MMMM DD, YYYY'
+                    )}
+                  </Text>
                 </li>
                 <li className="text-sm space-y-2 font-normal">
                   <Text className="text-secondaryGray">Note</Text>
-                  <Text>
-                    Consequat luctus morbi suspendisse eu quis diam eleifend
-                    orci aliquet. Facilisi in lorem ultricies ligula arcu odio
-                  </Text>
+                  <Text>{client.offer.note}</Text>
                 </li>
               </ul>
             </div>
@@ -200,11 +234,11 @@ export default function Client() {
               <ul className="space-y-4">
                 <li className="text-sm space-y-2 font-normal">
                   <Text className="text-secondaryGray">Hourly rate</Text>
-                  <Text className="text-gray-800">$25.00/hr</Text>
+                  <Text className="text-gray-800">{`$${client.offer.rate}.00/hr`}</Text>
                   <Text className="flex space-x-1 text-sm">
                     <span>Shepherd charges a</span>
                     <span className="text-secondaryBlue">
-                      5% service fee (-$3.00/hr)
+                      {` 5% service fee (-$${client.offer.rate * 0.05}.00/hr)`}
                     </span>
                     <QuestionMarkCircleIcon className="h-4 w-4 rounded-full text-gray-200 bg-secondaryGray" />
                   </Text>
@@ -212,12 +246,14 @@ export default function Client() {
 
                 <li className="text-sm space-y-2 font-normal">
                   <Text className="text-secondaryGray">You'll receive</Text>
-                  <Text className="text-gray-800">$22.00/hr</Text>
+                  <Text className="text-gray-800">{`$${
+                    client.offer.rate - client.offer.rate * 0.05
+                  }.00/hr`}</Text>
                 </li>
 
                 <li className="text-sm mb-4 space-y-2 font-normal">
                   <Text className="text-secondaryGray">Total amount</Text>
-                  <Text className="text-gray-800">$214.00</Text>
+                  <Text className="text-gray-800">$000.00</Text>
                   <Text className="flex space-x-1 text-sm">
                     You'll be paid after each session
                   </Text>

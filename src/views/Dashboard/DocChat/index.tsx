@@ -45,8 +45,10 @@ export default function DocChat() {
     if (!socket) {
       const authSocket = socketWithAuth({
         studentId,
-        documentId
+        documentId,
+        namespace: 'doc-chat'
       }).connect();
+
       setSocket(authSocket);
     }
   }, [socket, studentId, documentId]);
@@ -63,7 +65,7 @@ export default function DocChat() {
 
   useEffect(() => {
     if (socket) {
-      socket.on('bot response done', (completeText) => {
+      socket.on('chat response end', (completeText) => {
         setLLMResponse('');
         setTimeout(
           () => setBotStatus('Philosopher, thinker, study companion.'),
@@ -77,38 +79,39 @@ export default function DocChat() {
         ]);
       });
 
-      return () => socket.off('bot response done');
+      return () => socket.off('chat response end');
     }
   }, [socket]);
 
   useEffect(() => {
     if (socket) {
-      socket.on('bot response', async (token) => {
+      socket.on('chat response start', async (token) => {
         setBotStatus('Typing...');
+
         setLLMResponse((llmResponse) => llmResponse + token);
       });
 
-      return () => socket.off('bot response');
+      return () => socket.off('chat response start');
     }
   }, [socket]);
 
   useEffect(() => {
     if (socket) {
-      socket.on('summary generating', async (token) => {
+      socket.on('summary start', async (token) => {
         setSummaryText((summary) => summary + token);
       });
 
-      return () => socket.off('summary generating');
+      return () => socket.off('summary start');
     }
   }, [socket]);
 
   useEffect(() => {
     if (socket) {
-      socket.on('summary done', async () => {
+      socket.on('summary end', async () => {
         setSummaryLoading(false);
       });
 
-      return () => socket.off('summary done');
+      return () => socket.off('summary end');
     }
   }, [socket]);
 
@@ -247,7 +250,7 @@ export default function DocChat() {
         toast({
           render: () => (
             <CustomToast
-              title={`Summary for ${documentId} has be updated successfully`}
+              title={`Summary for ${documentId} has been updated successfully`}
               status="success"
             />
           ),

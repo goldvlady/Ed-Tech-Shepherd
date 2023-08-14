@@ -49,7 +49,7 @@ import {
 import { getAuth, signOut } from 'firebase/auth';
 import React, { ReactNode, useState, useEffect, useCallback } from 'react';
 import { IconType } from 'react-icons';
-import { BsChatLeftDots, BsPin, BsPlayCircle } from 'react-icons/bs';
+import { BsChatLeftDots, BsPin, BsPlayCircle, BsBook } from 'react-icons/bs';
 import { CgNotes } from 'react-icons/cg';
 import { FaBell } from 'react-icons/fa';
 import {
@@ -101,12 +101,12 @@ const LinkItems: Array<LinkItemProps> = [
 ];
 
 const LinkBItems: Array<LinkItemProps> = [
-  { name: 'Performance', icon: FiBarChart2, path: '/dashboard/performance' },
-  {
-    name: 'Study Plans',
-    icon: TbClipboardText,
-    path: '/dashboard/study-plans'
-  },
+  // { name: 'Performance', icon: FiBarChart2, path: '/dashboard/performance' },
+  // {
+  //   name: 'Study Plans',
+  //   icon: TbClipboardText,
+  //   path: '/dashboard/study-plans'
+  // },
   { name: 'Notes', icon: CgNotes, path: '/dashboard/notes' },
   { name: 'Flashcards', icon: TbCards, path: '/dashboard/flashcards' }
 ];
@@ -285,7 +285,12 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     icon={<FaBell />}
                   />{' '}
                 </MenuButton>
-                <MenuList p={3} width={'358px'} zIndex={2}>
+                <MenuList
+                  p={3}
+                  width={'358px'}
+                  zIndex={2}
+                  sx={{ position: 'absolute', top: '50px' }}
+                >
                   <Notifications data={userNotifications} />
                 </MenuList>
               </Menu>
@@ -577,6 +582,9 @@ const SidebarContent = ({
       <Divider />
       <NavItem icon={BsPin} path={'/dashboard/pinned'}>
         Pinned Notes
+      </NavItem>
+      <NavItem icon={BsBook} path={'/dashboard/library'}>
+        Library
       </NavItem>
     </Box>
   );
