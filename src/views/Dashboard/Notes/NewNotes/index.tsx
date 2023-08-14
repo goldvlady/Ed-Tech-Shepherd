@@ -22,6 +22,7 @@ import TagModal from '../../FlashCards/components/TagModal';
 import { NoteModal } from '../Modal';
 import {
   NoteDetails,
+  NoteEnums,
   NoteServerResponse,
   WorkerCallback,
   WorkerProcess
@@ -182,6 +183,7 @@ const NewNote = () => {
   const [loadingDoc, setLoadingDoc] = useState(false);
   const { userDocuments } = userStore();
   const [studentDocuments, setStudentDocuments] = useState<Array<any>>([]);
+  const [pinned, setPinned] = useState<boolean>(false);
 
   useEffect(() => {
     if (userDocuments.length) {
@@ -393,8 +395,23 @@ const NewNote = () => {
     localStorage.setItem(storageId, JSON.stringify(pinnedNotesArray));
   };
 
-  // Function to toggle pin state when the pin icon is clicked
-  const handlePinClick = () => {
+  const unPinNote = async () => {
+    const noteIdInUse = noteId;
+    if (!noteIdInUse || noteIdInUse === '') {
+      return showToast(DELETE_NOTE_TITLE, 'No note  to unpin', 'warning');
+    }
+    try {
+      // Remove the deleted note from the dataSource
+      const storageId = NoteEnums.PINNED_NOTE_STORE_ID;
+      localStorage.removeItem(storageId);
+      showToast(DELETE_NOTE_TITLE, 'Note unpinned', 'success');
+      setPinned(false);
+    } catch (error: any) {
+      showToast(DELETE_NOTE_TITLE, error.message, 'error');
+    }
+  };
+
+  const pinNote = () => {
     if (!saveDetails) {
       return showToast(
         UPDATE_NOTE_TITLE,
@@ -406,7 +423,9 @@ const NewNote = () => {
     // Save the note to local storage when pinned
     if (saveDetails?.data) {
       if (isNoteAlreadyPinned(saveDetails.data._id)) {
-        return showToast(UPDATE_NOTE_TITLE, 'Note already pinned', 'warning');
+        unPinNote();
+        // return showToast(UPDATE_NOTE_TITLE, 'Note already pinned', 'warning');
+        return;
       }
       const updatedPinnedNotes = [
         ...pinnedNotes,
@@ -417,8 +436,14 @@ const NewNote = () => {
       ];
       setPinnedNotes(updatedPinnedNotes);
       savePinnedNoteLocal(updatedPinnedNotes);
+      setPinned(true);
       return showToast(UPDATE_NOTE_TITLE, 'Note pinned', 'success');
     }
+  };
+
+  // Function to toggle pin state when the pin icon is clicked
+  const handlePinClick = () => {
+    pinNote();
   };
 
   const isNoteAlreadyPinned = (noteId: string): boolean => {
