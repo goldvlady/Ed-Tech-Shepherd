@@ -129,6 +129,10 @@ class ApiService {
     );
   };
 
+  static getSingleFlashcard = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/getStudentFlashcard/${id}`);
+  };
+
   static verifyToken = async (token: string) => {
     return doFetch(
       `${ApiService.baseEndpoint}/verifyUserEmail?token=${token}`,

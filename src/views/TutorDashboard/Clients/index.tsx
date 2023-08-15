@@ -157,6 +157,7 @@ const Clients = () => {
 
     setCheckedState(updatedCheckedState);
   };
+
   if (isLoading) {
     return (
       <Box
