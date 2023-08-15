@@ -240,7 +240,7 @@ const HomeWorkHelp = () => {
   return (
     <HomeWorkHelpContainer>
       <HomeWorkHelpHistoryContainer>
-        <ChatHistory />
+        <ChatHistory studentId={studentId} />
       </HomeWorkHelpHistoryContainer>
       <HomeWorkHelpChatContainer>
         <Chat
