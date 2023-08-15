@@ -9,8 +9,6 @@ import { ReactComponent as ArrowRight } from '../../../../assets/small-arrow-rig
 import { ReactComponent as ZoomIcon } from '../../../../assets/square.svg';
 import { ReactComponent as TrashIcon } from '../../../../assets/trash-icn.svg';
 import CustomButton from '../../../../components/CustomComponents/CustomButton';
-import { storage } from '../../../../firebase';
-import { MAX_FILE_UPLOAD_LIMIT } from '../../../../helpers/constants';
 import { saveMarkdownAsPDF } from '../../../../library/fs';
 import {
   processDocument,
