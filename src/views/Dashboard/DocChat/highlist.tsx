@@ -35,11 +35,11 @@ const HighLight = ({
 
   return (
     <section>
-      <PageCount>
+      {/* <PageCount>
         <ChevronLeftIcon />
         {`Page ${1}`}
         <ChevronRightIcon />
-      </PageCount>
+      </PageCount> */}
       {loading && (
         <Box
           p={5}

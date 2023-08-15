@@ -224,7 +224,6 @@ export const SummaryContainer = styled.div`
   background: #f4f5f6;
   color: #585f68;
   font-size: 0.875rem;
-  padding: 12px;
   line-height: 2;
   margin: 20px 0 40px 0;
   position: relative;
@@ -236,7 +235,6 @@ export const DefaultSummaryContainer = styled.div`
   background: #f4f5f6;
   color: #585f68;
   font-size: 0.875rem;
-  padding: 12px;
   line-height: 2;
   margin: 20px 0;
   position: relative;
@@ -252,7 +250,6 @@ export const SummaryContainer2 = styled.textarea`
   background: #f4f5f6;
   color: #585f68;
   font-size: 0.875rem;
-  padding: 12px;
   line-height: 2;
   margin: 20px 0;
   position: relative;
@@ -358,7 +355,6 @@ export const AiMessage = styled.div`
   align-self: flex-start;
   background: #f7f7f7;
   color: #333;
-  padding: 10px;
   border-radius: 5px;
   margin-bottom: 10px;
   font-size: 0.875rem;
