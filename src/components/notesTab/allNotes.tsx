@@ -49,6 +49,7 @@ type DataSourceItem = {
   lastModified: string;
   tags: any[];
   id: string | number;
+  status: string;
 };
 
 export interface Props {
@@ -63,15 +64,13 @@ const formatTags = (tags: string | string[]): any[] => {
   if (typeof tags === 'string') {
     // If tags is a string, split it into an array and return
     return tags.split(',').map((tag) => {
-      return <TableTag label={tag.trim()} />;
+      return <TableTag label={tag} />;
     });
   } else if (Array.isArray(tags)) {
-    // If tags is an array, trim each tag and return it as it is
     return tags.map((tag) => {
-      return <TableTag label={tag.trim()} />;
+      return <TableTag label={tag} />;
     });
   } else {
-    // If tags is neither a string nor an array, return an empty array
     return [];
   }
 };
@@ -150,7 +149,8 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
       title: data[i]?.topic,
       tags: formatTags(data[i]?.tags),
       dateCreated: formatDate(data[i]?.createdAt),
-      lastModified: formatDate(data[i]?.updatedAt)
+      lastModified: formatDate(data[i]?.updatedAt),
+      status: data[i]?.status
     }))
   );
 
@@ -621,7 +621,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
       dataIndex: 'title',
       align: 'left',
       id: 0,
-      render: ({ title, id }) => (
+      render: ({ title, id, status }) => (
         <TableTitleWrapper>
           <Text onClick={() => gotoEditNote(id)} fontWeight="500">
             {title}
@@ -635,21 +635,54 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
       dataIndex: 'tags',
       align: 'left',
       id: 1,
-      render: ({ tags }) => <>{tags}</>
+      render: ({ tags }) => (
+        <>
+          {' '}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            width="25px"
+            height="25px"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"
+            />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 6h.008v.008H6V6z"
+            />
+          </svg>
+          {tags}
+        </>
+      )
+    },
+    {
+      key: 'status',
+      title: 'Staus',
+      dataIndex: 'status',
+      align: 'left',
+      id: 2,
+      render: ({ status }) => <>{status}</>
     },
     {
       key: 'dateCreated',
       title: 'Date Created',
       dataIndex: 'dateCreated',
       align: 'left',
-      id: 2
+      id: 3
     },
     {
       key: 'lastModified',
       title: 'Last Modified',
       dataIndex: 'lastModified',
       align: 'left',
-      id: 3
+      id: 4
     },
     {
       key: 'actions',
@@ -765,6 +798,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
   useEffect(() => {
     // console.log('new tags loaded: ', newTags);
   }, [newTags]);
+
   return (
     <>
       <div className="mt-8 flow-root">
@@ -803,9 +837,8 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
                                 onAddTagToMultipleNotes(
                                   true,
                                   selectedNoteIdToAddTagsArray,
-                                  selectedTags
+                                  newTags
                                 );
-                                setSelectedNoteIdToAddTagsArray([]);
                               }
                             }}
                           >
@@ -828,12 +861,11 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
                             className="flex items-center gap-2"
                             onClick={() => {
                               if (setSelectedNoteIdToAddTags) {
-                                onAddTagBottomModal(
+                                onAddTag(
                                   true,
                                   selectedNoteIdToAddTags,
-                                  selectedTags
+                                  newTags
                                 );
-
                                 setSelectedNoteIdToAddTags(null);
                               }
                             }}
@@ -848,120 +880,17 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
                       </Menu>
 
                       {tagAllNoteModal && (
-                        <Menu>
-                          <StyledMenuSection>
-                            <form
-                              className="relative flex flex-1 py-2"
-                              action="#"
-                              method="GET"
-                            >
-                              <label htmlFor="search-field" className="sr-only">
-                                Search
-                              </label>
-                              <MagnifyingGlassIcon
-                                className="pl-2 pointer-events-none absolute inset-y-0 left-0 h-full w-7 text-gray-400"
-                                aria-hidden="true"
-                              />
-                              <input
-                                id="search-field"
-                                className="block rounded-lg border-gray-400 w-full h-10 border py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
-                                placeholder="Search Clients..."
-                                type="search"
-                                name="search"
-                              />
-                            </form>
-                            <div className="relative cursor-pointer bg-lightGray px-2 py-1 rounded-lg flex items-start">
-                              <div className="flex h-6 items-center">
-                                <input
-                                  id="comments"
-                                  aria-describedby="comments-description"
-                                  name="comments"
-                                  type="checkbox"
-                                  onChange={(e) =>
-                                    handleTagChange(e, 'Chemistry')
-                                  }
-                                  className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
-                                />
-                              </div>
-                              <div className="ml-3 text-sm leading-6">
-                                <label
-                                  htmlFor="comments"
-                                  className="font-normal text-dark"
-                                >
-                                  #Chemistry
-                                </label>
-                              </div>
-                            </div>
-
-                            <div className="relative cursor-pointer hover:bg-lightGray px-2 py-1 rounded-lg flex items-start">
-                              <div className="flex h-6 items-center">
-                                <input
-                                  id="comments"
-                                  aria-describedby="comments-description"
-                                  name="comments"
-                                  type="checkbox"
-                                  onChange={(e) => handleTagChange(e, 'Person')}
-                                  className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
-                                />
-                              </div>
-                              <div className="ml-3 text-sm leading-6">
-                                <label
-                                  htmlFor="comments"
-                                  className="font-normal text-dark"
-                                >
-                                  #Person
-                                </label>
-                              </div>
-                            </div>
-
-                            <div className="relative cursor-pointer hover:bg-lightGray px-2 py-1 rounded-lg flex items-start">
-                              <div className="flex h-6 items-center">
-                                <input
-                                  id="comments"
-                                  aria-describedby="comments-description"
-                                  name="comments"
-                                  type="checkbox"
-                                  onChange={(e) =>
-                                    handleTagChange(e, 'Favorites')
-                                  }
-                                  className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
-                                />
-                              </div>
-                              <div className="ml-3 text-sm leading-6">
-                                <label
-                                  htmlFor="comments"
-                                  className="font-normal text-dark"
-                                >
-                                  #Favorites
-                                </label>
-                              </div>
-                            </div>
-
-                            <div className="bottom-addTags-btn-cont">
-                              {selectedPeople.length > 1 || allChecked ? (
-                                <Button
-                                  className={`bottom-addTags-btn ${
-                                    isLoading ? 'loading-button' : ''
-                                  }`}
-                                  onClick={AddAllNoteTags}
-                                  disabled={isLoading}
-                                >
-                                  {isLoading ? 'Adding...' : 'Add tag'}
-                                </Button>
-                              ) : (
-                                <Button
-                                  className={`bottom-addTags-btn ${
-                                    isLoading ? 'loading-button' : ''
-                                  }`}
-                                  onClick={() => AddTag(selectedTags)}
-                                  disabled={isLoading}
-                                >
-                                  {isLoading ? 'Adding...' : 'Add tag'}
-                                </Button>
-                              )}
-                            </div>
-                          </StyledMenuSection>
-                        </Menu>
+                        <TagModal
+                          onSubmit={AddAllNoteTags}
+                          isOpen={tagAllNoteModal}
+                          onClose={() => setTagAllNoteModal(false)}
+                          tags={tags}
+                          inputValue={inputValue}
+                          handleAddTag={handleAddTag}
+                          newTags={newTags}
+                          setNewTags={setNewTags}
+                          setInputValue={setInputValue}
+                        />
                       )}
                     </div>
 
