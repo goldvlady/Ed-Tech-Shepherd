@@ -12,6 +12,7 @@ import DocChat from './views/Dashboard/DocChat';
 import FlashCard from './views/Dashboard/FlashCards';
 import CreateFlashCard from './views/Dashboard/FlashCards/create';
 import HomeWorkHelp from './views/Dashboard/HomeWorkHelp';
+import Library from './views/Dashboard/Library';
 import Marketplace from './views/Dashboard/Marketplace';
 import Messaging from './views/Dashboard/Messaging';
 import MyTutors from './views/Dashboard/MyTutors';
@@ -110,7 +111,8 @@ const studentRoutes = [
   { path: 'ace-homework', element: <HomeWorkHelp /> },
   { path: 'flashcards/create', element: <CreateFlashCard /> },
   { path: 'flashcards', element: <FlashCard /> },
-  { path: 'flashcards/:flashcardId', element: <FlashCard /> }
+  { path: 'flashcards/:flashcardId', element: <FlashCard /> },
+  { path: 'library', element: <Library /> }
 ];
 
 // Tutor specific routes configuration

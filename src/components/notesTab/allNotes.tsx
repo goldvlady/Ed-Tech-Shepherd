@@ -705,7 +705,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
                     />
                   </div>
                   <Text className="text-sm text-secondaryGray font-medium">
-                    Add tag
+                    Edit tag
                   </Text>
                 </div>
                 <ChevronRightIcon className="w-2.5 h-2.5" />

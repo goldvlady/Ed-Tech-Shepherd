@@ -3,10 +3,12 @@ import { ReactComponent as NewNoteIcon } from '../../../assets/newnote.svg';
 import { AllNotesTab, SelectedNoteModal } from '../../../components';
 import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMenu';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
+import AllDocumentTab from '../../../components/documentTab/allDocument';
 import { SortIcon, FilterByTagsIcon } from '../../../components/icons';
 import LoaderOverlay from '../../../components/loaderOverlay';
+import { useAuth } from '../../../providers/auth.provider';
 import ApiService from '../../../services/ApiService';
-// import ApiService from '../../../services/ApiService';
+import userStore from '../../../state/userStore';
 import {
   Checkbox,
   CheckboxContainer,
@@ -83,6 +85,15 @@ const Notes = () => {
   );
   const [tags, setTags] = useState<string[]>([]);
   const [notesLoaded, setNotesLoaded] = useState(false);
+
+  const { user, userDocuments, fetchUserDocuments } = userStore();
+  const {
+    state: { user: userData, loading, isAuthenticated }
+  } = useAuth();
+
+  useEffect(() => {
+    console.log({ userDocuments });
+  }, [userDocuments]);
 
   const getNotes = useCallback(async () => {
     setLoadingNotes(true);
@@ -198,7 +209,7 @@ const Notes = () => {
     },
     {
       id: 2,
-      component: <></>
+      component: <AllDocumentTab data={userDocuments} />
     },
     {
       id: 3,

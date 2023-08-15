@@ -3,23 +3,11 @@ import {
   FlashcardData,
   Score,
   MinimizedStudy,
-  SchedulePayload
+  SchedulePayload,
+  SearchQueryParams,
+  Pagination
 } from '../types';
 import { create } from 'zustand';
-
-type SearchQueryParams = {
-  search?: string;
-  page?: number;
-  limit?: number;
-  sort?: string;
-  tags?: string;
-};
-
-type Pagination = {
-  page: number;
-  limit: number;
-  count: number;
-};
 
 type Store = {
   flashcards: FlashcardData[] | null;

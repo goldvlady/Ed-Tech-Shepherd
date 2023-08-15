@@ -40,6 +40,7 @@ export default function DocChat() {
   const [socket, setSocket] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [hightlightedText, setHightlightedText] = useState<any[]>([]);
+  const [isUpdatedSummary, setUpdatedSummary] = useState<boolean>(false);
 
   useEffect(() => {
     if (!socket) {
@@ -97,21 +98,21 @@ export default function DocChat() {
 
   useEffect(() => {
     if (socket) {
-      socket.on('summary generating', async (token) => {
+      socket.on('summary start', async (token) => {
         setSummaryText((summary) => summary + token);
       });
 
-      return () => socket.off('summary generating');
+      return () => socket.off('summary start');
     }
   }, [socket]);
 
   useEffect(() => {
     if (socket) {
-      socket.on('summary done', async () => {
+      socket.on('summary end', async () => {
         setSummaryLoading(false);
       });
 
-      return () => socket.off('summary done');
+      return () => socket.off('summary end');
     }
   }, [socket]);
 
@@ -247,16 +248,14 @@ export default function DocChat() {
       });
       if ([200, 201].includes(request.status)) {
         setLoading(true);
+        setUpdatedSummary(true);
         toast({
-          render: () => (
-            <CustomToast
-              title={`Summary for ${documentId} has been updated successfully`}
-              status="success"
-            />
-          ),
+          title: `Summary for ${documentId} has been updated successfully`,
           position: 'top-right',
+          status: 'success',
           isClosable: true
         });
+
         const fetchSummary = async () => {
           const { summary } = await generateSummary({ documentId, studentId });
           setSummaryText(summary);
@@ -357,6 +356,7 @@ export default function DocChat() {
             handleUpdateSummary={handleUpdateSummary}
             hightlightedText={hightlightedText}
             loading={loading}
+            isUpdatedSummary={isUpdatedSummary}
           />
         </div>
       </section>
