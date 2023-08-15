@@ -201,7 +201,12 @@ export default function Notes() {
 
             <Tab.Panels>
               <Tab.Panel>
-                <AllNotesTab data={[]} />
+                <AllNotesTab
+                  data={[]}
+                  getNotes={function (): void {
+                    throw new Error('Function not implemented.');
+                  }}
+                />
               </Tab.Panel>
             </Tab.Panels>
           </Tab.Group>
