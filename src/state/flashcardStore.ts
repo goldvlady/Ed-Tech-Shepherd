@@ -31,6 +31,7 @@ type Store = {
   isLoading: boolean;
   pagination: Pagination;
   fetchFlashcards: (queryParams?: SearchQueryParams) => Promise<void>;
+  fetchSingleFlashcard: (id: string) => void;
   flashcard?: FlashcardData | null;
   loadFlashcard: (id: string | null, currentStudy?: MinimizedStudy) => void;
   minimizedStudy?: MinimizedStudy | null | undefined;
@@ -146,13 +147,24 @@ export default create<Store>((set) => ({
       set({ isLoading: false });
     }
   },
+  fetchSingleFlashcard: async (id: string) => {
+    const response = await ApiService.getSingleFlashcard(id);
+    const respJson = await response.json();
+    set({ flashcard: respJson });
+  },
   storeMinimized: (data: MinimizedStudy) => {
     set({ minimizedStudy: data });
   },
-  loadFlashcard: (id: string | null, currentStudy?: MinimizedStudy) => {
+  loadFlashcard: async (id: string | null, currentStudy?: MinimizedStudy) => {
     set((state) => {
       if (!id) return { flashcard: undefined, minimizedStudy: null };
       const flashcard = state.flashcards?.find((card) => card._id === id);
+      // if (!flashcard) {
+      //   const response = ApiService.getSingleFlashcard(id);
+      //   const respJson = await response.json();
+      //   set({ flashcard: respJson });
+      // }
+
       const nextState: Partial<typeof state> = { flashcard };
       if (currentStudy) {
         nextState.minimizedStudy = currentStudy;
