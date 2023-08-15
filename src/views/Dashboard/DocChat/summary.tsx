@@ -16,7 +16,7 @@ import {
 } from './styles';
 import { Box, Spinner } from '@chakra-ui/react';
 // import { ChevronRightIcon, ChevronLeftIcon } from '@chakra-ui/icons';
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 
 const Summary = ({
   handleSummary,
@@ -25,7 +25,8 @@ const Summary = ({
   setSummaryText,
   handleDeleteSummary,
   handleUpdateSummary,
-  loading
+  loading,
+  isUpdatedSummary
 }: {
   handleSummary: () => void;
   summaryLoading?: boolean;
@@ -34,6 +35,7 @@ const Summary = ({
   handleDeleteSummary?: () => void;
   handleUpdateSummary?: () => void;
   loading?: boolean;
+  isUpdatedSummary?: boolean;
 }) => {
   const [isEdit, setEdit] = useState(true);
   const [copiedView, setCopiedView] = useState(false);
@@ -42,11 +44,11 @@ const Summary = ({
     setEdit((prevState) => !prevState);
   }, [setEdit]);
 
-  useEffect(() => {
-    if (!loading) {
+  React.useEffect(() => {
+    if (isUpdatedSummary) {
       onEditToggle();
     }
-  }, [loading]);
+  }, [isUpdatedSummary]);
 
   return (
     <section>
@@ -100,15 +102,15 @@ const Summary = ({
           )}
           {!loading && (
             <>
-              {isEdit ? (
-                <DefaultSummaryContainer>
-                  <CustomMarkdownView source={summaryTexts} />
-                </DefaultSummaryContainer>
-              ) : (
+              {!isEdit ? (
                 <SummaryContainer2
                   value={summaryTexts}
                   onChange={(event) => setSummaryText(event.target.value!)}
                 ></SummaryContainer2>
+              ) : (
+                <DefaultSummaryContainer>
+                  <CustomMarkdownView source={summaryTexts} />
+                </DefaultSummaryContainer>
               )}
             </>
           )}
