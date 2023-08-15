@@ -157,7 +157,7 @@ const TempPDFViewer = ({
         <div
           style={{
             height: '100vh',
-            width: '100%',
+            width: '80%',
             position: 'relative'
           }}
         >

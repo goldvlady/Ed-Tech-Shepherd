@@ -31,22 +31,22 @@ import { useNavigate } from 'react-router';
 const tagFilters = [
   {
     id: 1,
-    value: '#Chemistry',
+    value: 'Chemistry',
     checked: false
   },
   {
     id: 2,
-    value: '#Physics',
+    value: 'Physics',
     checked: false
   },
   {
     id: 3,
-    value: '#Biology',
+    value: 'Biology',
     checked: false
   },
   {
     id: 4,
-    value: '#English',
+    value: 'English',
     checked: false
   }
 ];
@@ -85,14 +85,43 @@ const Notes = () => {
   );
   const [tags, setTags] = useState<string[]>([]);
   const [notesLoaded, setNotesLoaded] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<any[]>([]);
+  const [sortedNotes, setSortedNotes] = useState(allNotes);
 
-  const { user, userDocuments, fetchUserDocuments } = userStore();
-  const {
-    state: { user: userData, loading, isAuthenticated }
-  } = useAuth();
+  const { userDocuments } = userStore();
+
+  const handleTagSelection = (tagId) => {
+    const lowerCaseTagId = tagId.toLowerCase();
+    if (selectedTags.includes(lowerCaseTagId)) {
+      setSelectedTags(selectedTags.filter((id) => id !== lowerCaseTagId));
+    } else {
+      // setSelectedTags([...selectedTags, lowerCaseTagId]);
+      setSelectedTags([lowerCaseTagId]);
+    }
+  };
+
+  // Handle sorting of notes based on selected tags
+  useEffect(() => {
+    if (selectedTags.length === 0) {
+      setSortedNotes(allNotes);
+    } else {
+      const sorted = allNotes.filter((note) => {
+        const matchingTags = note.tags.filter((tag) =>
+          selectedTags.includes(tag.toLowerCase())
+        );
+        return matchingTags.length > 0;
+      });
+      setSortedNotes(sorted);
+    }
+  }, [selectedTags, allNotes]);
+
+  const HandleCheckboxChange = (index) => {
+    const selectedTag = tagFilters[index].value;
+    handleTagSelection(selectedTag);
+  };
 
   useEffect(() => {
-    console.log({ userDocuments });
+    // console.log({ allNotes });
   }, [userDocuments]);
 
   const getNotes = useCallback(async () => {
@@ -125,14 +154,6 @@ const Notes = () => {
     setToggleHelpModal(true);
   };
 
-  const handleCheckboxChange = (position: number) => {
-    const updatedCheckedState = checkedState.map((item, index) =>
-      index === position ? !item : item
-    );
-    updateTagFilter(tagFilters[position]?.value);
-    setCheckedState(updatedCheckedState);
-  };
-
   const orderBy = (order: SortOrder, sortBy = 'createdAt') => {
     if (order === SortOrder.ASC) {
       const notes = [...allNotes].sort((a: any, b: any) => {
@@ -159,17 +180,6 @@ const Notes = () => {
       });
       setAllNotes(notes);
     }
-  };
-
-  const updateTagFilter = (selectedTag: string) => {
-    const index = tags.indexOf(selectedTag);
-    let newTags: string[] = [];
-    if (index !== -1) {
-      newTags = tags.filter((tag) => tag !== selectedTag);
-    } else {
-      newTags = [...tags, selectedTag];
-    }
-    setTags(newTags);
   };
 
   const createNewLists = [
@@ -205,7 +215,7 @@ const Notes = () => {
   const tabPanel = [
     {
       id: 1,
-      component: <AllNotesTab data={allNotes} getNotes={getNotes} />
+      component: <AllNotesTab data={sortedNotes} getNotes={getNotes} />
     },
     {
       id: 2,
@@ -213,7 +223,7 @@ const Notes = () => {
     },
     {
       id: 3,
-      component: <AllNotesTab data={allNotes} getNotes={getNotes} />
+      component: <AllNotesTab data={sortedNotes} getNotes={getNotes} />
     }
   ];
 
@@ -306,7 +316,7 @@ const Notes = () => {
                 <CheckboxContainer key={filtered.id}>
                   <Checkbox
                     type="checkbox"
-                    onChange={() => handleCheckboxChange(index)}
+                    onChange={() => HandleCheckboxChange(index)}
                     checked={checkedState[index]}
                   />
                   <Text>{filtered.value}</Text>
@@ -336,7 +346,7 @@ const Notes = () => {
   }, [tags, sortOrder]);
 
   const NoteView = () => {
-    if (!notesLoaded) {
+    if (!notesLoaded || sortedNotes.length < 1) {
       return <LoaderOverlay />;
     } else {
       return (
@@ -350,7 +360,16 @@ const Notes = () => {
                 </StyledHeader>
                 <FilterMenu />
               </header>
-              <CustomTabs tablists={tabLists} tabPanel={tabPanel} />
+              {sortedNotes.length > 0 ? (
+                <CustomTabs tablists={tabLists} tabPanel={tabPanel} />
+              ) : (
+                <Section>
+                  <div>
+                    <img src="/images/notes.png" alt="notes" />
+                    <Text>Sorry, no notes for the selected tag.</Text>
+                  </div>
+                </Section>
+              )}
             </NotesWrapper>
           ) : (
             <NotesWrapper>
