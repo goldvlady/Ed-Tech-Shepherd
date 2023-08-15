@@ -10,19 +10,21 @@ import {
 } from './styles';
 import { useState, useEffect } from 'react';
 import React from 'react';
+import styled from 'styled-components';
+
+const Clock = styled.div`
+  width: 20px;
+  height: 20px;
+  padding: 5px;
+  margin: 5px;
+  margin-top: 0;
+`;
 
 const ChatHistory = ({ studentId }: { studentId: string }) => {
   const placeholder = [
     {
       id: 1,
-      message:
-        'What are 5 teaching strategies that can be used to engaged people...',
-      createdDated: getDateString(new Date())
-    },
-    {
-      id: 2,
-      message:
-        'What are 5 teaching strategies that can be used to engaged people...',
+      message: 'No conversations — yet',
       createdDated: getDateString(new Date())
     }
   ];
@@ -34,12 +36,15 @@ const ChatHistory = ({ studentId }: { studentId: string }) => {
     const historyWithContent = chatHistory
       .filter((chat) => chat.ConversationLogs.length > 0)
       .map((convo) => {
+        const message = convo.ConversationLogs.at(-1).log.content;
         return {
           id: convo.id,
-          message: convo.ConversationLogs.at(-1).log.content,
-          createdDate: getDateString(new Date(convo.createdAt))
+          message:
+            message.length < 140 ? message : message.substring(0, 139) + '...',
+          createdDated: getDateString(new Date(convo.createdAt))
         };
-      });
+      })
+      .reverse();
     setChatHistory(historyWithContent);
   };
 
@@ -57,7 +62,9 @@ const ChatHistory = ({ studentId }: { studentId: string }) => {
         <ChatHistoryBlock key={history.id}>
           <ChatHistoryDate>{history.createdDated}</ChatHistoryDate>
           <ChatHistoryBody>
-            <HistoryIcn />
+            <Clock>
+              <HistoryIcn />
+            </Clock>
             <p>{history.message}</p>
           </ChatHistoryBody>
         </ChatHistoryBlock>
