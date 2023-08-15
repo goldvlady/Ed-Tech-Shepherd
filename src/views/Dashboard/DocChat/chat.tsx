@@ -13,7 +13,6 @@ import CustomSideModal from '../../../components/CustomComponents/CustomSideModa
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../../components/hooks/useChatScroll';
 import FlashcardDataProvider from '../FlashCards/context/flashcard';
-import ChatHistory from './chatHistory';
 import HighLight from './highlist';
 import SetUpFlashCards from './setupFlashCards';
 import {
@@ -480,9 +479,10 @@ const Chat = ({
         </div>
       </CustomSideModal>
 
-      <CustomSideModal onClose={onChatHistory} isOpen={isChatHistory}>
-        <ChatHistory />
-      </CustomSideModal>
+      <CustomSideModal
+        onClose={onChatHistory}
+        isOpen={isChatHistory}
+      ></CustomSideModal>
     </>
   );
 };
