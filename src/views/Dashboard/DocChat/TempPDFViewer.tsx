@@ -151,13 +151,13 @@ const TempPDFViewer = ({
   return (
     <>
       <div
-        style={{ display: 'flex', position: 'fixed' }}
-        className="lg:col-span-6 flex-auto h-full w-1/2"
+        style={{ display: 'flex', position: 'fixed', width: '70%' }}
+        className="lg:col-span-6 flex-auto h-full"
       >
         <div
           style={{
             height: '100vh',
-            width: '87%',
+            width: '100%',
             position: 'relative'
           }}
         >

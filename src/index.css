@@ -1157,10 +1157,9 @@ canvas {
   .header-cta {
     flex-wrap: wrap;
   }
-
-  /* .landing-footer-icons {
-    gap: 0;
-  } */
+}
+.PdfHighlighter::-webkit-scrollbar {
+  display: none;
 }
 
 .slide-in {

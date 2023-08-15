@@ -482,10 +482,6 @@ const Chat = ({
           </FlashcardDataProvider>
         </div>
       </CustomSideModal>
-
-      <CustomSideModal onClose={onChatHistory} isOpen={isChatHistory}>
-        <ChatHistory />
-      </CustomSideModal>
     </>
   );
 };

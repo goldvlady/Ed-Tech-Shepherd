@@ -168,7 +168,9 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
             documentUrl: reqData.documentId as string
           };
           const fileInfo = new FileProcessingService(responseData);
-          const documentId = await fileInfo.process();
+          const {
+            data: [{ documentId }]
+          } = await fileInfo.process();
           const response = await ApiService.createDocchatFlashCards({
             topic: reqData.topic as string,
             studentId: user?._id as string,
