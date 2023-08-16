@@ -221,11 +221,11 @@ const NewNote = () => {
     saveMarkdownAsPDF(noteName, noteMarkdown);
   };
 
+  // get editor's content
+  let noteJSON: string;
+
   const onSaveNote = async () => {
     if (!editor) return;
-
-    // get editor's content
-    let noteJSON: string;
 
     try {
       noteJSON = JSON.stringify(editor.topLevelBlocks);
@@ -296,6 +296,76 @@ const NewNote = () => {
       setSaveButtonState(true);
     }
   };
+
+  // Create a state to track the web worker
+  const [saveWorker, setSaveWorker] = useState<any>(null);
+
+  const [editorContent, setEditorContent] = useState<any>([]);
+
+  useEffect(() => {
+    // Cleanup the worker when the component unmounts
+    return () => {
+      if (saveWorker) {
+        saveWorker.terminate();
+      }
+    };
+  }, [saveWorker]);
+
+  // Define a function to check if two arrays are equal
+  const arraysAreEqual = (arr1, arr2) => {
+    if (arr1.length !== arr2.length) {
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    if (!editor) return;
+
+    const handleContentChange = async () => {
+      try {
+        noteJSON = JSON.stringify(editor.topLevelBlocks);
+      } catch (error: any) {
+        return;
+      }
+
+      if (
+        editorHasContent() &&
+        !arraysAreEqual(editor.topLevelBlocks, noteJSON)
+      ) {
+        setEditorContent(noteJSON);
+
+        const saveWorkerCode = `
+        self.addEventListener('message', async (event) => {
+          const { noteJSON, editedTitle, noteId } = event.data;
+          // Implement your save logic here...
+          // Similar to onSaveNote logic, but without UI interactions
+          // ... (auto-saving logic)
+          self.postMessage({ success: true });
+        });
+      `;
+        const blob = new Blob([saveWorkerCode], {
+          type: 'application/javascript'
+        });
+
+        if (saveWorker) {
+          saveWorker.terminate();
+        }
+
+        const newSaveWorker = new Worker(URL.createObjectURL(blob));
+        setSaveWorker(newSaveWorker);
+
+        const noteData = {
+          noteJSON: JSON.stringify(editor.topLevelBlocks),
+          editedTitle,
+          noteId: noteJSON
+        };
+
+        newSaveWorker.postMessage(noteData);
+      }
+    };
+
+    handleContentChange();
+  }, [editorContent, editor, editedTitle]);
 
   const onDeleteNote = async () => {
     const noteIdInUse = noteId ?? noteParamId;
