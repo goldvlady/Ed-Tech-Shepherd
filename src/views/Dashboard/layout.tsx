@@ -96,8 +96,8 @@ interface SidebarProps extends BoxProps {
   setTutorMenu: (value: boolean) => void;
 }
 const LinkItems: Array<LinkItemProps> = [
-  { name: 'Messages', icon: BsChatLeftDots, path: '/dashboard/messaging' },
-  { name: 'Library', icon: BsPlayCircle, path: '/library' }
+  { name: 'Messages', icon: BsChatLeftDots, path: '/dashboard/messaging' }
+  // { name: 'Library', icon: BsPlayCircle, path: '/library' }
 ];
 
 const LinkBItems: Array<LinkItemProps> = [
@@ -289,7 +289,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                   p={3}
                   width={'358px'}
                   zIndex={2}
-                  sx={{ position: 'absolute', top: '50px' }}
+                  sx={{ position: 'absolute', top: '30px', right: '2px' }}
                 >
                   <Notifications data={userNotifications} />
                 </MenuList>
@@ -569,11 +569,11 @@ const SidebarContent = ({
             key={link.name}
             icon={link.icon}
             path={link.path}
-            className={`${
-              pathname === link.path
-                ? 'bg-slate-100 text-primaryBlue'
-                : 'text-gray-400 hover:text-primaryBlue hover:bg-slate-100'
-            } group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold`}
+            // className={`${
+            //   pathname === link.path
+            //     ? 'bg-slate-100 text-primaryBlue'
+            //     : 'text-gray-400 hover:text-primaryBlue hover:bg-slate-100'
+            // } group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold`}
           >
             {link.name}
           </NavItem>
