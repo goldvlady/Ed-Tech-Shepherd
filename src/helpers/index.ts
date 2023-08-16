@@ -42,3 +42,19 @@ export const copierHandler = (copiedText = '', setSwitchView: any) => {
     setSwitchView(false);
   }, 700);
 };
+
+const getDateStringTest = (date: any) => {
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(date).toLocaleDateString(undefined, options as any);
+};
+
+export const arrangeDataByDate = (data: any) => {
+  return data.reduce((acc, item) => {
+    const date = item.createdAt.split('T')[0];
+    if (!acc[date]) {
+      acc[date] = [];
+    }
+    acc[date].push(item);
+    return acc;
+  }, {});
+};
