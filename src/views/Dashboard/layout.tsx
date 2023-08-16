@@ -289,7 +289,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                   p={3}
                   width={'358px'}
                   zIndex={2}
-                  sx={{ position: 'absolute', top: '50px' }}
+                  sx={{ position: 'absolute', top: '30px', right: '2px' }}
                 >
                   <Notifications data={userNotifications} />
                 </MenuList>
