@@ -174,7 +174,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
                   leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                   leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 >
-                  <Dialog.Panel className="relative transform overflow-hidden rounded-2xl bg-white mt-10 text-left shadow-xl transition-all sm:w-full sm:max-w-5xl">
+                  <Dialog.Panel className="relative transform overflow-hidden rounded-2xl bg-white mt-10 text-left shadow-xl transition-all sm:w-xl sm:max-w-3xl">
                     <div>
                       <div className="flex justify-between align-middle border-b pb-2 px-2">
                         <div className="flex items-center space-x-2 p-3 pb-2">
@@ -211,7 +211,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
                       </div>
 
                       {/* <div className="overflow-hidden p-6 pb-2 bg-white sm:grid sm:grid-cols-4 sm:gap-x-4 sm:space-y-0 space-y-2 "> */}
-                      <div className="overflow-hidden sm:w-[80%] w-full mx-auto p-6 pt-3  bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">
+                      <div className="overflow-hidden  w-full mx-auto p-6 pt-3  bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">
                         {actions1.map((action) => (
                           <div
                             key={action.title}
