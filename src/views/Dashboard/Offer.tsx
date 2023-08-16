@@ -142,12 +142,10 @@ const Offer = () => {
     try {
       setSettingUpPaymentMethod(true);
       const paymentIntent = await ApiService.createStripeSetupPaymentIntent({
-        offerId: offer?._id
+        metadata: { offerId: offer?.id }
       });
-      console.log(paymentIntent);
 
       const { data } = await paymentIntent.json();
-      console.log(paymentIntent, data);
 
       paymentDialogRef.current?.startPayment(
         data.clientSecret,
@@ -176,6 +174,7 @@ const Offer = () => {
       chosenPaymentMethod?._id
     );
     setBookingOffer(false);
+    window.location.reload();
   };
 
   const acceptOffer = async () => {
