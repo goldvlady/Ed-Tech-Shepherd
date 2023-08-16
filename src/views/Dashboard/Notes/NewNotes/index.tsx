@@ -9,21 +9,21 @@ import { ReactComponent as ArrowRight } from '../../../../assets/small-arrow-rig
 import { ReactComponent as ZoomIcon } from '../../../../assets/square.svg';
 import { ReactComponent as TrashIcon } from '../../../../assets/trash-icn.svg';
 import CustomButton from '../../../../components/CustomComponents/CustomButton';
-import { storage } from '../../../../firebase';
-import { MAX_FILE_UPLOAD_LIMIT } from '../../../../helpers/constants';
 import { saveMarkdownAsPDF } from '../../../../library/fs';
-import { processDocument } from '../../../../services/AI';
+import { uploadBlockNoteDocument } from '../../../../services/AI';
 import ApiService from '../../../../services/ApiService';
 import userStore from '../../../../state/userStore';
 import TempPDFViewer from '../../DocChat/TempPDFViewer';
 import TagModal from '../../FlashCards/components/TagModal';
 import { NoteModal } from '../Modal';
 import {
+  AIServiceResponse,
+  NoteData,
   NoteDetails,
+  NoteDocumentDetails,
   NoteEnums,
   NoteServerResponse,
-  WorkerCallback,
-  WorkerProcess
+  NoteStatus
 } from '../types';
 import {
   DropDownFirstPart,
@@ -34,11 +34,9 @@ import {
   HeaderButtonText,
   NewNoteWrapper,
   NoteBody,
-  PDFWrapper,
   FullScreenNoteWrapper,
   SecondSection
 } from './styles';
-import { initNoteIngestWorker } from './worker/ingest';
 import { Block, BlockNoteEditor } from '@blocknote/core';
 import '@blocknote/core/style.css';
 import { BlockNoteView, useBlockNote } from '@blocknote/react';
@@ -51,7 +49,6 @@ import {
   ToastPosition
 } from '@chakra-ui/react';
 import { useToast } from '@chakra-ui/react';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import moment from 'moment';
 import { useEffect, useRef, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
@@ -70,8 +67,7 @@ type PinnedNote = {
 };
 
 const createNote = async (
-  data: any,
-  tags?: string[]
+  data: NoteData
 ): Promise<NoteServerResponse | null> => {
   const resp = await ApiService.createNote(data);
   const respText = await resp.text();
@@ -96,8 +92,7 @@ const deleteNote = async (id: string): Promise<NoteServerResponse | null> => {
 
 const updateNote = async (
   id: string,
-  data: any,
-  tags?: string[]
+  data: NoteData
 ): Promise<NoteServerResponse | null> => {
   const resp = await ApiService.updateNote(id, data);
   const respText = await resp.text();
@@ -154,6 +149,7 @@ const NewNote = () => {
   );
   const [openTags, setOpenTags] = useState<boolean>(false);
   const [noteId, setNoteId] = useState<string | null>(null);
+  const [draftNoteId, setDraftNoteId] = useState<string>('');
   const [saveButtonState, setSaveButtonState] = useState<boolean>(true);
   const [editedTitle, setEditedTitle] = useState(defaultNoteTitle);
   const [currentTime, setCurrentTime] = useState<string>(
@@ -167,7 +163,8 @@ const NewNote = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
 
   const editor: BlockNoteEditor | null = useBlockNote({
-    initialContent: initialContent ? JSON.parse(initialContent) : undefined
+    initialContent: initialContent ? JSON.parse(initialContent) : undefined,
+    onEditorContentChange: (editor) => handleAutoSave(editor)
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -183,12 +180,11 @@ const NewNote = () => {
   const { userDocuments } = userStore();
   const [studentDocuments, setStudentDocuments] = useState<Array<any>>([]);
   const [pinned, setPinned] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (userDocuments.length) {
-      setStudentDocuments(userDocuments);
-    }
-  }, [userDocuments]);
+  // Create a state to track the web worker
+  const [saveWorker, setSaveWorker] = useState<any>(null);
+  const [editorContent, setEditorContent] = useState<any>([]);
+  // get editor's content
+  let noteJSON: string;
 
   const onCancel = () => {
     setDeleteNoteModal(!deleteNoteModal);
@@ -221,9 +217,6 @@ const NewNote = () => {
     saveMarkdownAsPDF(noteName, noteMarkdown);
   };
 
-  // get editor's content
-  let noteJSON: string;
-
   const onSaveNote = async () => {
     if (!editor) return;
 
@@ -252,13 +245,13 @@ const NewNote = () => {
       saveDetails = await updateNote(noteId, {
         topic: editedTitle,
         note: noteJSON,
-        newTags
+        tags: newTags
       });
     } else {
       saveDetails = await createNote({
         topic: editedTitle,
         note: noteJSON,
-        newTags
+        tags: newTags
       });
     }
     if (!saveDetails) {
@@ -294,78 +287,10 @@ const NewNote = () => {
       setCurrentTime(formatDate(saveDetails.data.updatedAt));
       showToast(UPDATE_NOTE_TITLE, saveDetails.message, 'success');
       setSaveButtonState(true);
+      // ingest Note content
+      ingestNote(saveDetails.data);
     }
   };
-
-  // Create a state to track the web worker
-  const [saveWorker, setSaveWorker] = useState<any>(null);
-
-  const [editorContent, setEditorContent] = useState<any>([]);
-
-  useEffect(() => {
-    // Cleanup the worker when the component unmounts
-    return () => {
-      if (saveWorker) {
-        saveWorker.terminate();
-      }
-    };
-  }, [saveWorker]);
-
-  // Define a function to check if two arrays are equal
-  const arraysAreEqual = (arr1, arr2) => {
-    if (arr1.length !== arr2.length) {
-      return false;
-    }
-  };
-
-  useEffect(() => {
-    if (!editor) return;
-
-    const handleContentChange = async () => {
-      try {
-        noteJSON = JSON.stringify(editor.topLevelBlocks);
-      } catch (error: any) {
-        return;
-      }
-
-      if (
-        editorHasContent() &&
-        !arraysAreEqual(editor.topLevelBlocks, noteJSON)
-      ) {
-        setEditorContent(noteJSON);
-
-        const saveWorkerCode = `
-        self.addEventListener('message', async (event) => {
-          const { noteJSON, editedTitle, noteId } = event.data;
-          // Implement your save logic here...
-          // Similar to onSaveNote logic, but without UI interactions
-          // ... (auto-saving logic)
-          self.postMessage({ success: true });
-        });
-      `;
-        const blob = new Blob([saveWorkerCode], {
-          type: 'application/javascript'
-        });
-
-        if (saveWorker) {
-          saveWorker.terminate();
-        }
-
-        const newSaveWorker = new Worker(URL.createObjectURL(blob));
-        setSaveWorker(newSaveWorker);
-
-        const noteData = {
-          noteJSON: JSON.stringify(editor.topLevelBlocks),
-          editedTitle,
-          noteId: noteJSON
-        };
-
-        newSaveWorker.postMessage(noteData);
-      }
-    };
-
-    handleContentChange();
-  }, [editorContent, editor, editedTitle]);
 
   const onDeleteNote = async () => {
     const noteIdInUse = noteId ?? noteParamId;
@@ -534,15 +459,6 @@ const NewNote = () => {
     return null;
   };
 
-  useEffect(() => {
-    const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
-    if (pinnedNotesFromLocalStorage) {
-      setPinnedNotes(pinnedNotesFromLocalStorage);
-    } else {
-      setPinnedNotes([]);
-    }
-  }, []);
-
   const handleFocusOut = () => {
     // Check if the click event target is inside the inputContainerRef
     if (
@@ -642,7 +558,7 @@ const NewNote = () => {
     setOpenTags((prevState) => !prevState);
   };
 
-  const goToDocChat = async (documentUrl, docTitle) => {
+  const goToDocChat = async (documentUrl: string, docTitle: string) => {
     try {
       navigate('/dashboard/docchat', {
         state: {
@@ -656,10 +572,16 @@ const NewNote = () => {
   };
 
   const proceed = async () => {
+    if (!saveDetails?.data || !saveDetails.data.documentId) {
+      return;
+    }
     setLoadingDoc(true);
-
-    const url = studentDocuments[0]?.documentURL;
-    const name = studentDocuments[0]?.title;
+    const noteData = saveDetails.data;
+    const url = noteData.documentId;
+    const name = noteData.topic;
+    if (!url || !name) {
+      return;
+    }
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       await goToDocChat(url, name);
@@ -712,16 +634,6 @@ const NewNote = () => {
       onClick: onDeleteNoteBtn
     }
   ];
-
-  // Load notes if noteID is provided via param
-  useEffect(() => {
-    getNoteById();
-    // event for escape to minimize window
-    window.addEventListener('keypress', handleWindowKey);
-    return () => {
-      window.removeEventListener('keypress', handleWindowKey);
-    };
-  }, []);
 
   const addTag = async (
     id: string,
@@ -787,6 +699,219 @@ const NewNote = () => {
   const handleBackClick = () => {
     navigate('/dashboard/notes');
   };
+
+  /**
+   * Ingest note content. This sends the note content to the AI service for processing
+   */
+  const ingestNote = async (noteDetails: NoteDetails) => {
+    const noteArrayContent = [noteDetails.note];
+
+    uploadBlockNoteDocument({
+      studentId: noteDetails.user._id,
+      documentId: noteDetails.id,
+      document: noteArrayContent,
+      title: noteDetails.topic,
+      tags: noteDetails.tags
+    }).then((response: AIServiceResponse) => {
+      if (!response) {
+        showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
+        return false;
+      }
+      if (!Array.isArray(response.data) || response.data.length <= 0) {
+        showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
+      }
+      // get data documentID is not already updated. Pick the first value in
+      const documentDetails: NoteDocumentDetails = response.data[0];
+      if (
+        !documentDetails?.documentURL ||
+        documentDetails?.documentURL === ''
+      ) {
+        showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
+      }
+      // TODO: update with full note details
+      const resp = ApiService.updateNoteDocumentId(
+        noteDetails.id,
+        documentDetails.documentURL
+      )
+        .then((response) => {
+          console.log('update note details: ', response);
+          showToast(
+            UPDATE_NOTE_TITLE,
+            'Note document details saved',
+            'success'
+          );
+        })
+        .catch((error: any) => {
+          showToast(
+            UPDATE_NOTE_TITLE,
+            'Could not save note document URL',
+            'error'
+          );
+        });
+    });
+    return true;
+  };
+
+  const handleAutoSave = (editor: any) => {
+    // use debounce filter
+    // TODO: we must move this to web worker
+    console.log('attempting auto save');
+    autoSaveNote(editor);
+  };
+
+  /**
+   * Auto-save note contents
+   *
+   * @returns
+   */
+  const autoSaveNote = async (editor: any) => {
+    if (!editor) return;
+
+    let noteIdToUse: string;
+    let noteStatus: NoteStatus;
+
+    if (noteId || noteParamId) {
+      noteIdToUse = noteId ? noteId : noteParamId ?? '';
+      noteStatus = NoteStatus.SAVED;
+    } else {
+      noteIdToUse = draftNoteId;
+      noteStatus = NoteStatus.DRAFT;
+    }
+    try {
+      noteJSON = JSON.stringify(editor.topLevelBlocks);
+    } catch (error: any) {
+      return;
+    }
+    let saveDetails: NoteServerResponse<NoteDetails> | null;
+
+    if (noteIdToUse && noteIdToUse !== '') {
+      updateNote(noteIdToUse, {
+        topic: editedTitle,
+        note: noteJSON,
+        tags: newTags,
+        status: noteStatus
+      }).then((saveDetails) => {
+        console.log('existing note updated ', saveDetails);
+      });
+    } else {
+      if (draftNoteId && draftNoteId !== '') {
+        // update existing draft note
+        updateNote(draftNoteId, {
+          topic: editedTitle,
+          note: noteJSON,
+          tags: newTags,
+          status: noteStatus
+        }).then((saveDetails) => {
+          console.log('existing draft note updated ', saveDetails);
+        });
+      } else {
+        // create a new draft note
+        createNote({
+          topic: editedTitle,
+          note: noteJSON,
+          tags: newTags,
+          status: noteStatus
+        }).then((saveDetails) => {
+          console.log('existing  draft note created ', saveDetails);
+          // save new draft note details for update
+          if (saveDetails?.data) {
+            alert('saved note ID: ' + draftNoteId);
+            setDraftNoteId(saveDetails.data['_id']);
+          }
+        });
+      }
+    }
+  };
+
+  // Load notes if noteID is provided via param
+  useEffect(() => {
+    getNoteById();
+    // event for escape to minimize window
+    window.addEventListener('keypress', handleWindowKey);
+    return () => {
+      window.removeEventListener('keypress', handleWindowKey);
+    };
+  }, [draftNoteId, noteId]);
+
+  useEffect(() => {
+    const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
+    if (pinnedNotesFromLocalStorage) {
+      setPinnedNotes(pinnedNotesFromLocalStorage);
+    } else {
+      setPinnedNotes([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Cleanup the worker when the component unmounts
+    return () => {
+      if (saveWorker) {
+        saveWorker.terminate();
+      }
+    };
+  }, [saveWorker]);
+
+  useEffect(() => {
+    if (userDocuments.length) {
+      setStudentDocuments(userDocuments);
+    }
+  }, [userDocuments]);
+
+  // Define a function to check if two arrays are equal
+  const arraysAreEqual = (arr1, arr2) => {
+    if (arr1.length !== arr2.length) {
+      return false;
+    }
+  };
+
+  // useEffect(() => {
+  //   if (!editor) return;
+
+  //   const handleContentChange = async () => {
+  //     try {
+  //       noteJSON = JSON.stringify(editor.topLevelBlocks);
+  //     } catch (error: any) {
+  //       return;
+  //     }
+
+  //     if (
+  //       editorHasContent() &&
+  //       !arraysAreEqual(editor.topLevelBlocks, noteJSON)
+  //     ) {
+  //       setEditorContent(noteJSON);
+
+  //       const saveWorkerCode = `
+  //       self.addEventListener('message', async (event) => {
+  //         const { noteJSON, editedTitle, noteId } = event.data;
+  //         // Implement your save logic here...
+  //         // Similar to onSaveNote logic, but without UI interactions
+  //         // ... (auto-saving logic)
+  //         self.postMessage({ success: true });
+  //       });
+  //     `;
+  //       const blob = new Blob([saveWorkerCode], {
+  //         type: 'application/javascript'
+  //       });
+
+  //       if (saveWorker) {
+  //         saveWorker.terminate();
+  //       }
+
+  //       const newSaveWorker = new Worker(URL.createObjectURL(blob));
+  //       setSaveWorker(newSaveWorker);
+
+  //       const noteData = {
+  //         noteJSON: JSON.stringify(editor.topLevelBlocks),
+  //         editedTitle,
+  //         noteId: noteJSON
+  //       };
+
+  //       newSaveWorker.postMessage(noteData);
+  //     }
+  //   };
+
+  //   handleContentChange();
+  // }, [editorContent, editor, editedTitle]);
 
   return (
     <>

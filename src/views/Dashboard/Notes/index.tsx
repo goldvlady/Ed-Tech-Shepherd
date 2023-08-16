@@ -69,11 +69,6 @@ const sortedByTitle = [
   }
 ];
 
-const getLocalStorageNoteId = (noteId: string | null): string => {
-  const genId = noteId ? noteId : '';
-  return genId;
-};
-
 const Notes = () => {
   const navigate = useNavigate();
   const [toggleHelpModal, setToggleHelpModal] = useState(false);
