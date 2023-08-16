@@ -1,5 +1,5 @@
 import { ReactComponent as HistoryIcn } from '../../../assets/historyIcon.svg';
-import { getDateString } from '../../../helpers';
+import { arrangeDataByDate, getDateString } from '../../../helpers';
 import { fetchStudentConversations } from '../../../services/AI';
 import {
   ChatHistoryBlock,
@@ -20,23 +20,34 @@ const Clock = styled.div`
   margin-top: 0;
 `;
 
+type Chat = {
+  id: string;
+  message: string;
+  createdDated: string;
+};
+
+type GroupedChat = {
+  date: string;
+  messages: Chat[];
+};
+
 const ChatHistory = ({ studentId }: { studentId: string }) => {
-  const placeholder = [
-    {
-      id: 1,
-      message: 'No conversations — yet',
-      createdDated: getDateString(new Date())
-    }
-  ];
+  // const placeholder = [
+  //   {
+  //     messages: ['No conversations — yet'],
+  //     date: getDateString(new Date())
+  //   }
+  // ];
 
-  const [chatHistory, setChatHistory] = useState(placeholder);
+  const [chatHistory, setChatHistory] = useState([]);
 
-  const retrieveChatHistory = async (studentId: string) => {
+  async function retrieveChatHistory(studentId: string): Promise<void> {
     const chatHistory = await fetchStudentConversations(studentId);
-    const historyWithContent = chatHistory
+
+    const historyWithContent: any = chatHistory
       .filter((chat) => chat.ConversationLogs.length > 0)
       .map((convo) => {
-        const message = convo.ConversationLogs.at(-1).log.content;
+        const message = convo.ConversationLogs.at(-1)?.log?.content || '';
         return {
           id: convo.id,
           message:
@@ -45,8 +56,25 @@ const ChatHistory = ({ studentId }: { studentId: string }) => {
         };
       })
       .reverse();
+
     setChatHistory(historyWithContent);
-  };
+  }
+
+  function groupChatsByDate(chatHistory: Chat[]): GroupedChat[] {
+    return chatHistory.reduce((groupedChats, chat) => {
+      const currentGroup = groupedChats.find(
+        (group) => group.date === chat.createdDated
+      );
+      if (currentGroup) {
+        currentGroup.messages.push(chat);
+      } else {
+        groupedChats.push({ date: chat.createdDated, messages: [chat] });
+      }
+      return groupedChats;
+    }, [] as GroupedChat[]);
+  }
+
+  const groupChatsByDateArr: GroupedChat[] = groupChatsByDate(chatHistory);
 
   useEffect(() => {
     retrieveChatHistory(studentId);
@@ -58,15 +86,17 @@ const ChatHistory = ({ studentId }: { studentId: string }) => {
         <p>Chat history</p>
         <p>Clear history</p>
       </ChatHistoryHeader>
-      {chatHistory?.map((history) => (
-        <ChatHistoryBlock key={history.id}>
-          <ChatHistoryDate>{history.createdDated}</ChatHistoryDate>
-          <ChatHistoryBody>
-            <Clock>
-              <HistoryIcn />
-            </Clock>
-            <p>{history.message}</p>
-          </ChatHistoryBody>
+      {groupChatsByDateArr?.map((history, index) => (
+        <ChatHistoryBlock key={index}>
+          <ChatHistoryDate>{history.date}</ChatHistoryDate>
+          {history.messages.map((message) => (
+            <ChatHistoryBody key={message.id}>
+              <Clock>
+                <HistoryIcn />
+              </Clock>
+              <p>{message.message}</p>
+            </ChatHistoryBody>
+          ))}
         </ChatHistoryBlock>
       ))}
     </ChatHistoryContainer>
