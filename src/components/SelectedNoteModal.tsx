@@ -76,6 +76,14 @@ const SelectedModal = ({
       text-align: center !important;
       color: red;
     }
+    .drop-down-container {
+      max-height: 150px;
+      max-width: 100%;
+      overflow: scroll;
+      ::-webkit-scrollbar {
+        display: none;
+      }
+    }
   `;
 
   const Label = styled.label`
@@ -482,6 +490,7 @@ const SelectedModal = ({
                 <CustomDropdown
                   value={selectedOption?.split('/').pop()}
                   placeholder="Select an Option"
+                  className="drop-down-container"
                 >
                   <VStack alignItems={'left'} padding="10px">
                     {loadedStudentDocs &&

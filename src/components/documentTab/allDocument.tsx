@@ -102,30 +102,6 @@ const AllDocumentTab: FC<Props> = ({ data }) => {
     setSelectedNoteIdToDelete(null);
   }
 
-  const showToast = (
-    title: string,
-    description: string,
-    status: AlertStatus,
-    position: ToastPosition = 'top-right',
-    duration = 5000,
-    isClosable = true
-  ) => {
-    toast({
-      title: description,
-      status: status,
-      position: position,
-      duration: duration,
-      isClosable: isClosable
-    });
-  };
-
-  const gotoEditNote = (noteId: string | number) => {
-    const noteURL = `/dashboard/new-note/${noteId}`;
-    if (noteId && noteId !== '') {
-      navigate(noteURL);
-    }
-  };
-
   const gotoEditPdf = async (
     noteId: string | number,
     documentUrl,
@@ -139,7 +115,7 @@ const AllDocumentTab: FC<Props> = ({ data }) => {
         }
       });
     } catch (error) {
-      console.log({ error });
+      // console.log({ error });
     }
   };
 

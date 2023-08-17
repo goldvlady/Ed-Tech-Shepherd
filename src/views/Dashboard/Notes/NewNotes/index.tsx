@@ -52,6 +52,7 @@ import { useToast } from '@chakra-ui/react';
 import moment from 'moment';
 import { useEffect, useRef, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import { BsFillPinFill } from 'react-icons/bs';
 import { FaEllipsisH } from 'react-icons/fa';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
@@ -219,6 +220,9 @@ const NewNote = () => {
 
   const onSaveNote = async () => {
     if (!editor) return;
+
+    // get editor's content
+    let noteJSON: string;
 
     try {
       noteJSON = JSON.stringify(editor.topLevelBlocks);
@@ -421,6 +425,7 @@ const NewNote = () => {
         // return showToast(UPDATE_NOTE_TITLE, 'Note already pinned', 'warning');
         return;
       }
+
       const updatedPinnedNotes = [
         ...pinnedNotes,
         {
@@ -443,6 +448,7 @@ const NewNote = () => {
   const isNoteAlreadyPinned = (noteId: string): boolean => {
     for (const note of pinnedNotes) {
       if (note.noteId === noteId) {
+        setPinned(true);
         return true;
       }
     }
@@ -755,8 +761,7 @@ const NewNote = () => {
   const handleAutoSave = (editor: any) => {
     // use debounce filter
     // TODO: we must move this to web worker
-    console.log('attempting auto save');
-    autoSaveNote(editor);
+    // autoSaveNote(editor);
   };
 
   /**
@@ -922,12 +927,6 @@ const NewNote = () => {
       {isFullScreen ? (
         <NewNoteWrapper {...editorStyle}>
           <FullScreenNoteWrapper>
-            {isFullScreen ? (
-              <HeaderButton onClick={handleBackClick}>
-                <BackArrow />
-                <HeaderButtonText> Back</HeaderButtonText>
-              </HeaderButton>
-            ) : null}
             {location.state?.documentUrl ? (
               ''
             ) : (
@@ -982,8 +981,14 @@ const NewNote = () => {
                     onClick={onSaveNote}
                     active={saveButtonState}
                   />
-                  <div className="pin__icn" onClick={handlePinClick}>
-                    <PinIcon />
+                  <div onClick={handlePinClick}>
+                    <BsFillPinFill
+                      className={`pin-icon ${
+                        pinnedNotes.some((note) => note.noteId === noteId)
+                          ? 'pinned'
+                          : 'not-pinned'
+                      }`}
+                    />
                   </div>
                   <div>
                     <Menu>
@@ -1052,8 +1057,6 @@ const NewNote = () => {
             )}
 
             <NoteBody>
-              {/* We will show PDF once endpoint is implemented */}
-
               {location.state?.documentUrl ? (
                 <TempPDFViewer
                   pdfLink={location.state.documentUrl}
@@ -1131,8 +1134,14 @@ const NewNote = () => {
                   onClick={onSaveNote}
                   active={saveButtonState}
                 />
-                <div className="pin__icn" onClick={handlePinClick}>
-                  <PinIcon />
+                <div onClick={handlePinClick}>
+                  <BsFillPinFill
+                    className={`pin-icon ${
+                      pinnedNotes.some((note) => note.noteId === noteId)
+                        ? 'pinned'
+                        : 'not-pinned'
+                    }`}
+                  />
                 </div>
                 <div>
                   <Menu>

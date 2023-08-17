@@ -32,6 +32,18 @@ export interface NoteDocumentDetails {
   updatedAt: Date;
   createdAt: Date;
 }
+export interface AllNoteDetails {
+  user: NoteUser;
+  topic: string;
+  title?: string;
+  note: string;
+  tags: Array<string>;
+  _id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  [propName: string]: any;
+  documentURL?: any;
+}
 
 export interface PinnedNoteDetails {
   user: NoteUser;

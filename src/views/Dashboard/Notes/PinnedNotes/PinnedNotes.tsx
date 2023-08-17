@@ -63,6 +63,13 @@ const PinnedNotes = () => {
     return [];
   };
 
+  const tabPanel = [
+    {
+      id: 1,
+      component: <PinnedNotesTab data={allPinnedNotes} />
+    }
+  ];
+
   useEffect(() => {
     const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
     if (pinnedNotesFromLocalStorage) {
@@ -75,13 +82,6 @@ const PinnedNotes = () => {
       ]);
     }
   }, []);
-
-  const tabPanel = [
-    {
-      id: 1,
-      component: <PinnedNotesTab data={allPinnedNotes} />
-    }
-  ];
 
   const PinnedNoteView = () => {
     if (loadingNotes) {

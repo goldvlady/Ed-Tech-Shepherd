@@ -115,6 +115,18 @@ export const SecondSection = styled.div`
     padding-right: 20px;
     cursor: pointer;
   }
+  .pin-icon {
+    cursor: pointer;
+    font-size: 1.5em;
+  }
+
+  .pin-icon.pinned {
+    color: rgb(32, 125, 247);
+  }
+
+  .pin-icon.not-pinned {
+    color: grey;
+  }
 `;
 
 export const NoteBody = styled.section`

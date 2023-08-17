@@ -28,7 +28,6 @@ import {
   ChevronRightIcon,
   MagnifyingGlassIcon
 } from '@heroicons/react/24/solid';
-import { setTag } from '@sentry/react';
 import moment from 'moment';
 import { FC, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { FaEllipsisH } from 'react-icons/fa';
@@ -50,30 +49,14 @@ type DataSourceItem = {
   tags: any[];
   id: string | number;
   status: string;
+  unFormatedTags?: any;
 };
 
 export interface Props {
   data: Array<NoteDetails>;
   getNotes: () => void;
+  handleTagSelection: any;
 }
-
-const formatTags = (tags: string | string[]): any[] => {
-  if (!tags) {
-    return [];
-  }
-  if (typeof tags === 'string') {
-    // If tags is a string, split it into an array and return
-    return tags.split(',').map((tag) => {
-      return <TableTag label={tag} />;
-    });
-  } else if (Array.isArray(tags)) {
-    return tags.map((tag) => {
-      return <TableTag label={tag} />;
-    });
-  } else {
-    return [];
-  }
-};
 
 const formatDate = (date: Date, format = 'DD ddd, hh:mma'): string => {
   return moment(date).format(format);
@@ -85,7 +68,7 @@ type PinnedNote = {
   pinnedNoteJSON: any;
 };
 
-const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
+const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
   const params = useParams();
   const toast = useToast();
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
@@ -95,7 +78,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
   const [selectedPeople, setSelectedPeople] = useState<any[]>([]);
-  const [openTags, setOpenTags] = useState<boolean>(false);
   const [openTagsModal, setOpenTagsModal] = useState<boolean>(false);
   const [noteId, setNoteId] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -104,7 +86,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
   );
 
   const [, setPinnedNotes] = useState<PinnedNote[]>([]);
-
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const [allChecked, setAllChecked] = useState<boolean>(false);
   const [selectedNoteIdToDelete, setSelectedNoteIdToDelete] = useState(null);
@@ -118,6 +99,28 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [newTags, setNewTags] = useState<string[]>(tags);
+
+  const formatTags = (tags: string | string[]): any[] => {
+    if (!tags) {
+      return [];
+    }
+    if (typeof tags === 'string') {
+      // If tags is a string, split it into an array and return
+      return tags.split(',').map((tag) => {
+        return <TableTag label={tag} onClick={() => sortTags(tag)} />;
+      });
+    } else if (Array.isArray(tags)) {
+      return tags.map((tag) => {
+        return <TableTag label={tag} onClick={() => sortTags(tag)} />;
+      });
+    } else {
+      return [];
+    }
+  };
+
+  const sortTags = (tagElement) => {
+    handleTagSelection(tagElement);
+  };
 
   const getNoteLocal = (noteId: string | null): string | null => {
     const storageId = getLocalStorageNoteId(noteId);
@@ -148,6 +151,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
       id: data[i]?._id,
       title: data[i]?.topic,
       tags: formatTags(data[i]?.tags),
+      unFormatedTags: data[i]?.tags,
       dateCreated: formatDate(data[i]?.createdAt),
       lastModified: formatDate(data[i]?.updatedAt),
       status: data[i]?.status
@@ -203,10 +207,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
     setSelectedNoteIdToDelete(null);
   }
 
-  useEffect(() => {
-    // console.log({ checked, selectedPeople });
-  }, [checked, selectedPeople]);
-
   const onDeleteNote = (isOpenDeleteModal: boolean, noteId: any) => {
     setDeleteNoteModal(isOpenDeleteModal);
     setSelectedPeople([]);
@@ -228,20 +228,10 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
     setNoteId(noteId);
   };
 
-  const onAddTagBottomModal = (
-    isOpenTagBottomNoteModal: boolean,
-    noteId: any,
-    tags: string[]
-  ) => {
-    setTagAllNoteModal(isOpenTagBottomNoteModal);
-    setNoteId(noteId);
-  };
-
   const onAddTag = (openTagsModal: boolean, noteId: any, tags: string[]) => {
     setOpenTagsModal(openTagsModal);
     setNoteId(noteId);
-    // setTags(tags);
-    // console.log({ tags });
+    setTags(tags);
   };
 
   const gotoEditNote = (noteId: string | number) => {
@@ -437,8 +427,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
 
     setIsLoading(true);
 
-    console.log({ noteIdsInUse });
-
     const details = await deleteAllNote(noteIdsInUse);
     setIsLoading(false);
 
@@ -506,6 +494,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
       setOpenTagsModal(false);
       return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
     }
+
     const details = await addTag(noteIdInUse, tagsArray);
 
     if (!details) {
@@ -527,8 +516,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
       setNoteId('');
       clearEditor();
       getNotes();
-
-      // setTags(details.data.tags);
 
       setDataSource((prevDataSource) => {
         return prevDataSource.map((item) => {
@@ -561,7 +548,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
 
     const details = await addAllNoteTags(noteIdsInUse, selectedTags);
     setIsLoading(false);
-    // console.log({ noteIdsInUse, selectedTags });
 
     if (!details) {
       setTagAllNoteModal(false);
@@ -600,18 +586,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
       setNewTags([...newTags, value]);
     }
     setInputValue('');
-  };
-
-  const handleTagChange = (event, tag) => {
-    const tagValue = tag.toLowerCase();
-
-    if (event.target.checked) {
-      setSelectedTags([...selectedTags, tagValue]);
-    } else {
-      setSelectedTags(
-        selectedTags.filter((selectedTag) => selectedTag !== tagValue)
-      );
-    }
   };
 
   const clientColumn: TableColumn<DataSourceItem>[] = [
@@ -662,7 +636,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
     {
       key: 'actions',
       title: '',
-      render: ({ title, id, tags }) => (
+      render: ({ title, id, tags, unFormatedTags }) => (
         <Menu>
           <MenuButton
             as={Button}
@@ -701,7 +675,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
               </button>
               <button
                 onClick={() => {
-                  onAddTag(true, id, tags);
+                  onAddTag(true, id, unFormatedTags);
                 }}
                 className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
               >
@@ -770,6 +744,11 @@ const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
       )
     }
   ];
+
+  useEffect(() => {
+    // console.log({ checked, selectedPeople });
+  }, [checked, selectedPeople]);
+
   useEffect(() => {
     // console.log('new tags loaded: ', newTags);
   }, [newTags]);
