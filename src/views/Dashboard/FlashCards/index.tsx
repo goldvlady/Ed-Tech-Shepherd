@@ -188,7 +188,7 @@ const CustomTable: React.FC = () => {
   const loadFlashcardModal = async (id: string) => {
     await fetchFlashcards();
     loadFlashcard(id);
-    navigate('/dashboard/flashcards');
+    // navigate('/dashboard/flashcards');
   };
 
   useEffect(() => {
