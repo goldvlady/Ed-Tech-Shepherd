@@ -314,7 +314,7 @@ export const ChatContainerResponse = styled.div`
   grid-column: span 12;
   overflow-y: scroll;
   scrollbar-width: thin;
-  padding: 240px 24px 20px 24px;
+  margin: 240px 24px 20px 24px;
   position: absolute;
   right: 0;
   // bottom:  170px;
