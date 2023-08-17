@@ -162,7 +162,7 @@ export const ChatbotContainer = styled.div<{
   display: flex;
   flex-direction: row;
   align-items: center;
-  height: 89px;
+  height: auto;
   padding: 1rem;
   gap: 10px;
   border-left: 1px solid #eeeff2;
@@ -194,12 +194,12 @@ export const Input = styled.textarea`
 export const SendButton = styled.button`
   position: absolute;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   height: 100%;
   width: 2.75rem;
   right: 0;
-  top: -3px;
+  top: -11px;
   color: #cbd5e0;
   &:hover {
     color: #4a5568;
