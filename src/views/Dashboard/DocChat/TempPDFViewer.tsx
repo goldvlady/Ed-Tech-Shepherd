@@ -15,8 +15,6 @@ import {
   AreaHighlight
 } from 'react-pdf-highlighter';
 
-const testHighlights: Record<string, Array<IHighlight>> = _testHighlights;
-
 const getNextId = () => String(Math.random()).slice(2);
 
 const parseIdFromHash = () =>
@@ -54,6 +52,10 @@ const TempPDFViewer = ({
   const [url, setUrl] = useState(pdfLink);
   const [popUpNotesModal, setPopUpNotesModal] = useState(false);
   const toast = useToast();
+
+  useEffect(() => {
+    setUrl(pdfLink);
+  }, [pdfLink]);
 
   const resetHighlights = () => {
     setHighlights([]);
@@ -151,13 +153,13 @@ const TempPDFViewer = ({
   return (
     <>
       <div
-        style={{ display: 'flex', position: 'fixed', width: '70%' }}
-        className="lg:col-span-6 flex-auto h-full"
+        style={{ display: 'flex', position: 'fixed' }}
+        className="lg:col-span-6 flex-auto h-full w-1/2"
       >
         <div
           style={{
             height: '100vh',
-            width: '50%',
+            width: '87%',
             position: 'relative'
           }}
         >

@@ -1,9 +1,17 @@
+import CustomToast from '../../../../components/CustomComponents/CustomToast';
+import PaymentDialog, {
+  PaymentDialogRef
+} from '../../../../components/PaymentDialog';
+import ApiService from '../../../../services/ApiService';
 import userStore from '../../../../state/userStore';
 import theme from '../../../../theme';
 import { PaymentMethod } from '../../../../types';
 import {
   Box,
   Button,
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Image,
   Radio,
   RadioGroup,
@@ -13,16 +21,20 @@ import {
   Avatar,
   Flex,
   Divider,
-  VStack
+  VStack,
+  useToast
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
+import React, { useState, useRef, useEffect } from 'react';
+import { MdInfo } from 'react-icons/md';
 import { RiArrowRightSLine } from 'react-icons/ri';
 import styled from 'styled-components';
 
 function Billing(props) {
   const { username, email } = props;
-  const { user } = userStore();
+  const { user, fetchUser } = userStore();
   const currentPath = window.location.pathname;
+  const toast = useToast();
 
   const isTutor = currentPath.includes('/dashboard/tutordashboard/');
 
@@ -91,9 +103,132 @@ function Billing(props) {
   ];
 
   const [currentPaymentMethod, setCurrentPaymentMethod] = useState<any>(null);
+  const [settingUpPaymentMethod, setSettingUpPaymentMethod] = useState(false);
+
+  const paymentDialogRef = useRef<PaymentDialogRef>(null);
+
+  const handleRemovePayMethod = async (id: string) => {
+    const resp = await ApiService.deletePaymentMethod(id);
+    if (resp.status === 200) {
+      toast({
+        render: () => (
+          <CustomToast
+            title="Payment Method Removed Successfully"
+            status="success"
+          />
+        ),
+        position: 'top-right',
+        isClosable: true
+      });
+      fetchUser();
+    } else {
+      toast({
+        render: () => (
+          <CustomToast title="Something went wrong.." status="error" />
+        ),
+        position: 'top-right',
+        isClosable: true
+      });
+    }
+  };
+  const setupPaymentMethod = async () => {
+    try {
+      setSettingUpPaymentMethod(true);
+      const paymentIntent = await ApiService.createStripeSetupPaymentIntent();
+
+      const { data } = await paymentIntent.json();
+      console.log(data, 'intent');
+
+      paymentDialogRef.current?.startPayment(
+        data.clientSecret,
+        `${window.location.href}`
+      );
+
+      setSettingUpPaymentMethod(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const url: URL = new URL(window.location.href);
+  const params: URLSearchParams = url.searchParams;
+  const clientSecret = params.get('setup_intent_client_secret');
+  const stripePromise = loadStripe(
+    process.env.REACT_APP_STRIPE_PUBLIC_KEY as string
+  );
+  useEffect(() => {
+    if (clientSecret) {
+      (async () => {
+        setSettingUpPaymentMethod(true);
+        toast({
+          title: 'Your Payment Method has been saved',
+          status: 'success',
+          position: 'top',
+          isClosable: true
+        });
+        const stripe = await stripePromise;
+        const setupIntent = await stripe?.retrieveSetupIntent(clientSecret);
+        await ApiService.addPaymentMethod(
+          setupIntent?.setupIntent?.payment_method as string
+        );
+        await fetchUser();
+        switch (setupIntent?.setupIntent?.status) {
+          case 'succeeded':
+            toast({
+              title: 'Your payment method has been saved.',
+              status: 'success',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          case 'processing':
+            toast({
+              title:
+                "Processing payment details. We'll update you when processing is complete.",
+              status: 'loading',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          case 'requires_payment_method':
+            toast({
+              title:
+                'Failed to process payment details. Please try another payment method.',
+              status: 'error',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          default:
+            toast({
+              title: 'Something went wrong.',
+              status: 'error',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+        }
+        setSettingUpPaymentMethod(false);
+      })();
+    }
+    /* eslint-disable */
+  }, [clientSecret]);
 
   return (
     <Box>
+      <PaymentDialog
+        ref={paymentDialogRef}
+        prefix={
+          <Alert status="info" mb="22px">
+            <AlertIcon>
+              <MdInfo color={theme.colors.primary[500]} />
+            </AlertIcon>
+            <AlertDescription>
+              Payment will not be deducted until after your first lesson, You
+              may decide to cancel after your initial lesson.
+            </AlertDescription>
+          </Alert>
+        }
+      />
       <Flex
         gap={3}
         p={4}
@@ -142,6 +277,7 @@ function Billing(props) {
                 color: '#5C5F64',
                 height: '29px'
               }}
+              onClick={setupPaymentMethod}
             >
               Add new
             </Button>
@@ -185,9 +321,14 @@ function Billing(props) {
 
                     <Spacer />
                     <Flex gap={2}>
-                      <Text fontSize={12} color="text.300">
+                      <Button
+                        variant={'unstyled'}
+                        fontSize={12}
+                        color="text.300"
+                        onClick={() => handleRemovePayMethod(pm._id)}
+                      >
                         Remove
-                      </Text>
+                      </Button>
                       <Radio value={pm._id} key={pm._id} />
                     </Flex>
                   </Flex>

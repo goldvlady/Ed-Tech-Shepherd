@@ -129,6 +129,10 @@ class ApiService {
     );
   };
 
+  static getSingleFlashcard = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/getStudentFlashcard/${id}`);
+  };
+
   static verifyToken = async (token: string) => {
     return doFetch(
       `${ApiService.baseEndpoint}/verifyUserEmail?token=${token}`,
@@ -209,7 +213,7 @@ class ApiService {
     });
   };
 
-  static createStripeSetupPaymentIntent = async (data: any) => {
+  static createStripeSetupPaymentIntent = async (data: any = {}) => {
     return doFetch(
       `${ApiService.baseEndpoint}/createStripeSetupPaymentIntent`,
       {
@@ -223,6 +227,12 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/addPaymentMethod`, {
       method: 'POST',
       body: JSON.stringify({ stripeId })
+    });
+  };
+  static deletePaymentMethod = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/deletePaymentMethod`, {
+      method: 'POST',
+      body: JSON.stringify({ id })
     });
   };
 

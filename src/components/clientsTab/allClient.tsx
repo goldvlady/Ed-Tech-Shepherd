@@ -9,7 +9,14 @@ import {
 import { DeleteNoteModal } from '../index';
 import { StyledMenuButton, StyledMenuSection } from '../notesTab/styles';
 import SelectableTable, { TableColumn } from '../table';
+import { useDisclosure } from '@chakra-ui/hooks';
 import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
   Menu,
   MenuList,
   MenuButton,
@@ -17,7 +24,9 @@ import {
   Box,
   Spinner,
   Text,
-  Flex
+  Flex,
+  Divider,
+  VStack
 } from '@chakra-ui/react';
 import {
   ChevronRightIcon,
@@ -71,6 +80,7 @@ const AllClientsTab = (props) => {
   const [indeterminate, setIndeterminate] = useState(false);
   const [selectedPeople, setSelectedPeople] = useState<any[]>([]);
   const [clientsDetails, setClientDetails] = useState('');
+  const [clientName, setClientName] = useState('');
   const [openTags, setOpenTags] = useState<boolean>(false);
 
   const navigate = useNavigate();
@@ -114,6 +124,11 @@ const AllClientsTab = (props) => {
   const onDeleteNote = (isOpenDeleteModal: boolean, noteDetails: string) => {
     setDeleteNoteModal(isOpenDeleteModal);
     setClientDetails(noteDetails);
+  };
+
+  const onClientReview = (name) => {
+    setClientName(name);
+    openReviewModal();
   };
 
   const clientColumn: TableColumn<DataSourceItem>[] = [
@@ -253,7 +268,10 @@ const AllClientsTab = (props) => {
                 </div>
                 <ChevronRightIcon className="w-2.5 h-2.5" />
               </button>
-              <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
+              <button
+                className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
+                onClick={() => onClientReview(name)}
+              >
                 <div className="flex items-center space-x-1">
                   <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
                     <DownloadIcon
@@ -299,6 +317,16 @@ const AllClientsTab = (props) => {
     }
   ];
 
+  const {
+    isOpen: isReviewModalOpen,
+    onOpen: openReviewModal,
+    onClose: closeReviewModal
+  } = useDisclosure();
+
+  // // Handler to open the modal when the "Client review" button is clicked
+  // const openReviewModal = () => {
+  //   onOpen();
+  // };
   return (
     <>
       <div className="mt-8 flow-root">
@@ -468,6 +496,78 @@ const AllClientsTab = (props) => {
           setDeleteNoteModal={setDeleteNoteModal}
         />
       </CustomModal>
+      {/* Modal for Client review */}
+      <Modal isOpen={isReviewModalOpen} onClose={closeReviewModal} size="md">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader
+            textAlign={'center'}
+            fontSize={14}
+          >{`${clientName} dropped a feedback for you`}</ModalHeader>
+          <Divider />
+          <ModalBody>
+            <VStack>
+              <Text textAlign={'left'}>Rating</Text>
+              <Flex gap={2}>
+                <Button
+                  variant={'unstyled'}
+                  borderRadius="6px"
+                  border=" 1px solid #E4E5E7"
+                  p={'12px'}
+                >
+                  1
+                </Button>
+                <Button
+                  variant={'unstyled'}
+                  borderRadius="6px"
+                  border=" 1px solid #E4E5E7"
+                  p={'12px 15px'}
+                >
+                  2
+                </Button>
+                <Button
+                  variant={'unstyled'}
+                  borderRadius="6px"
+                  border=" 1px solid #E4E5E7"
+                  p={'12px'}
+                >
+                  3
+                </Button>
+                <Button
+                  variant={'unstyled'}
+                  borderRadius="6px"
+                  border=" 1px solid #E4E5E7"
+                  p={'12px'}
+                >
+                  4
+                </Button>
+                <Button
+                  variant={'unstyled'}
+                  borderRadius="6px"
+                  border=" 1px solid #E4E5E7"
+                  p={'12px'}
+                >
+                  5
+                </Button>
+              </Flex>
+              <Box p={3} border=" 1px solid #E4E5E7">
+                <Text>
+                  Risus purus sed integer arcu sollicitudin eros tellus
+                  phasellus viverra. Dolor suspendisse quisque proin velit nulla
+                  diam. Vitae in mauris condimentum s
+                </Text>
+              </Box>
+            </VStack>
+
+            {/* ... (content for the client review modal) */}
+          </ModalBody>
+          <ModalFooter>
+            <Button onClick={closeReviewModal} variant="outline">
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 };

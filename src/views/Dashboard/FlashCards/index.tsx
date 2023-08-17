@@ -139,6 +139,7 @@ const CustomTable: React.FC = () => {
 
   const {
     fetchFlashcards,
+    fetchSingleFlashcard,
     flashcards,
     tags,
     loadFlashcard,
@@ -176,6 +177,7 @@ const CustomTable: React.FC = () => {
     flashcard?: FlashcardData;
     flashcardIds?: string[];
   } | null>(null);
+
   const { flashcardId } = useParams();
 
   useEffect(() => {
@@ -183,10 +185,15 @@ const CustomTable: React.FC = () => {
     // eslint-disable-next-line
   }, []);
 
+  const loadFlashcardModal = async (id: string) => {
+    await fetchFlashcards();
+    loadFlashcard(id);
+    navigate('/dashboard/flashcards');
+  };
+
   useEffect(() => {
-    if (flashcardId) {
-      loadFlashcard(flashcardId);
-      navigate('/dashboard/flashcards');
+    if (flashcardId && !isLoading) {
+      loadFlashcardModal(flashcardId);
     }
     // eslint-disable-next-line
   }, [flashcardId]);
