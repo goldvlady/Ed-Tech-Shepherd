@@ -159,12 +159,12 @@ const PinnedNotesTab: FC<Props> = ({ data }) => {
     if (typeof tags === 'string') {
       // If tags is a string, split it into an array and return
       return tags.split(',').map((tag) => {
-        return <TableTag label={tag.trim()} />;
+        return <TableTag label={tag} />;
       });
     } else if (Array.isArray(tags)) {
       // If tags is an array, trim each tag and return it as it is
       return tags.map((tag) => {
-        return <TableTag label={tag.trim()} />;
+        return <TableTag label={tag} />;
       });
     } else {
       // If tags is neither a string nor an array, return an empty array

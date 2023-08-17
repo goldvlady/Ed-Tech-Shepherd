@@ -49,7 +49,7 @@ import {
 import { getAuth, signOut } from 'firebase/auth';
 import React, { ReactNode, useState, useEffect, useCallback } from 'react';
 import { IconType } from 'react-icons';
-import { BsChatLeftDots, BsPin, BsPlayCircle } from 'react-icons/bs';
+import { BsChatLeftDots, BsPin, BsPlayCircle, BsBook } from 'react-icons/bs';
 import { CgNotes } from 'react-icons/cg';
 import { FaBell } from 'react-icons/fa';
 import {
@@ -96,8 +96,8 @@ interface SidebarProps extends BoxProps {
   setTutorMenu: (value: boolean) => void;
 }
 const LinkItems: Array<LinkItemProps> = [
-  { name: 'Messages', icon: BsChatLeftDots, path: '/dashboard/messaging' },
-  { name: 'Library', icon: BsPlayCircle, path: '/library' }
+  { name: 'Messages', icon: BsChatLeftDots, path: '/dashboard/messaging' }
+  // { name: 'Library', icon: BsPlayCircle, path: '/library' }
 ];
 
 const LinkBItems: Array<LinkItemProps> = [
@@ -289,7 +289,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                   p={3}
                   width={'358px'}
                   zIndex={2}
-                  sx={{ position: 'absolute', top: '50px' }}
+                  sx={{ position: 'absolute', top: '30px', right: '2px' }}
                 >
                   <Notifications data={userNotifications} />
                 </MenuList>
@@ -569,11 +569,11 @@ const SidebarContent = ({
             key={link.name}
             icon={link.icon}
             path={link.path}
-            className={`${
-              pathname === link.path
-                ? 'bg-slate-100 text-primaryBlue'
-                : 'text-gray-400 hover:text-primaryBlue hover:bg-slate-100'
-            } group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold`}
+            // className={`${
+            //   pathname === link.path
+            //     ? 'bg-slate-100 text-primaryBlue'
+            //     : 'text-gray-400 hover:text-primaryBlue hover:bg-slate-100'
+            // } group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold`}
           >
             {link.name}
           </NavItem>
@@ -582,6 +582,9 @@ const SidebarContent = ({
       <Divider />
       <NavItem icon={BsPin} path={'/dashboard/pinned'}>
         Pinned Notes
+      </NavItem>
+      <NavItem icon={BsBook} path={'/dashboard/library'}>
+        Library
       </NavItem>
     </Box>
   );

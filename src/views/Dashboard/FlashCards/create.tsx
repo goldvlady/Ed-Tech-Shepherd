@@ -23,6 +23,7 @@ import {
   useRef,
   RefObject
 } from 'react';
+import { useParams, useLocation } from 'react-router';
 import styled from 'styled-components';
 
 const Wrapper = styled(Box)`
@@ -107,6 +108,8 @@ const useBoxWidth = (ref: RefObject<HTMLDivElement>): number => {
 const CreateFlashPage = () => {
   const toast = useCustomToast();
   const { user } = userStore();
+  const location = useLocation();
+
   const [settings, setSettings] = useState<SettingsType>({
     type: TypeEnum.INIT,
     source: SourceEnum.SUBJECT
@@ -124,15 +127,26 @@ const CreateFlashPage = () => {
     isLoading: loading
   } = useFlashCardState();
 
-  const { createFlashCard, flashcard, isLoading, fetchFlashcards } =
-    flashcardStore();
+  const { createFlashCard, isLoading, fetchFlashcards } = flashcardStore();
   const [isCompleted, setIsCompleted] = useState(false);
   const [switchonMobile, setSwitchMobile] = useState(true);
   const { type: activeBadge } = settings;
 
+  const queryParams = new URLSearchParams(location.search);
+
+  const type = queryParams.get('type');
+
   const setActiveBadge = (badge: TypeEnum) => {
     setSettings((value) => ({ ...value, type: badge }));
   };
+
+  useEffect(() => {
+    if (type) {
+      if (type === 'mnemonics') {
+        setActiveBadge(TypeEnum.MNEOMONIC);
+      }
+    }
+  }, [type]);
 
   const onSubmitFlashcard = useCallback(async () => {
     try {

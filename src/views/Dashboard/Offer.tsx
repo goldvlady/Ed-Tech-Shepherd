@@ -139,19 +139,23 @@ const Offer = () => {
   const clientSecret = params.get('setup_intent_client_secret');
 
   const setupPaymentMethod = async () => {
-    setSettingUpPaymentMethod(true);
-    const paymentIntent = await ApiService.createStripeSetupPaymentIntent({
-      offerId: offer?._id
-    });
+    try {
+      setSettingUpPaymentMethod(true);
+      const paymentIntent = await ApiService.createStripeSetupPaymentIntent({
+        metadata: { offerId: offer?.id }
+      });
 
-    const { data } = await paymentIntent.json();
+      const { data } = await paymentIntent.json();
 
-    paymentDialogRef.current?.startPayment(
-      data.clientSecret,
-      `${window.location.href}`
-    );
+      paymentDialogRef.current?.startPayment(
+        data.clientSecret,
+        `${window.location.href}`
+      );
 
-    setSettingUpPaymentMethod(false);
+      setSettingUpPaymentMethod(false);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const loadOffer = useCallback(async () => {
@@ -170,6 +174,7 @@ const Offer = () => {
       chosenPaymentMethod?._id
     );
     setBookingOffer(false);
+    window.location.reload();
   };
 
   const acceptOffer = async () => {

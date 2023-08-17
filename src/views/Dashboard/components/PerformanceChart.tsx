@@ -20,15 +20,13 @@ ChartJS.register(
 );
 
 export function PerformanceChart(chartData) {
-  const [labels, setLabels] = useState();
+  const [labels, setLabels] = useState([]);
   const [values, setValues] = useState([]);
 
   const arrData: Array<any> = [...chartData.chartData];
 
   useEffect(() => {
-    const flashcardNames: any = arrData.map((item) =>
-      item.flashcardName.substring(0, 3)
-    );
+    const flashcardNames: any = arrData.map((item) => item.flashcardName);
     const flashcardPercentages: any = arrData.map(
       (item) => item.scorePercentage
     );
@@ -36,8 +34,26 @@ export function PerformanceChart(chartData) {
     setValues(flashcardPercentages);
   }, [chartData]);
 
+  const abbreviatedLabels = labels.map((label: string) =>
+    label.substring(0, 3)
+  );
+
   const options = {
     responsive: true,
+    // tooltips: {
+    //   callbacks: {
+    //     title: (tooltipItems, data) => {
+    //       // Customize the title text
+    //       return 'Custom Title';
+    //     },
+    //     label: (tooltipItem, data) => {
+    //       // Customize the label text for each dataset
+    //       const datasetLabel =
+    //         data.datasets[tooltipItem.datasetIndex].label || '';
+    //       return `${datasetLabel}: ${tooltipItem.yLabel}`;
+    //     }
+    //   }
+    // },
     plugins: {
       legend: {
         position: 'top' as const,
@@ -52,21 +68,26 @@ export function PerformanceChart(chartData) {
       x: {
         grid: {
           display: false
+        },
+        ticks: {
+          callback: (value, index) => abbreviatedLabels[index]
         }
       },
       y: {
         grid: {
           display: true
-        }
+        },
+        max: 100,
+        beginAtZero: true
       }
     }
   };
 
   const data = {
-    labels,
+    labels: labels,
     datasets: [
       {
-        label: 'Dataset 1',
+        label: 'Score',
         data: values,
         backgroundColor: '#207df7',
         // barThickness:

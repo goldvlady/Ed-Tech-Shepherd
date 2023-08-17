@@ -141,6 +141,22 @@ export const chatHomeworkHelp = async ({
   return request;
 };
 
+export const fetchStudentConversations = async (studentId: string) => {
+  const request = await fetch(
+    `${AI_API}/notes/conversations?studentId=${studentId}`,
+    {
+      headers: {
+        'x-shepherd-header': HEADER_KEY,
+        'Content-Type': 'application/json'
+      }
+    }
+  );
+
+  const response = await request.json();
+
+  return response;
+};
+
 export const chatHistory = async ({
   documentId,
   studentId

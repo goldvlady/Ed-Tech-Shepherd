@@ -22,6 +22,15 @@ export const HomeWorkHelpHistoryContainer = styled.section`
   margin: 0px 20px;
   position: absolute;
   left: 15px;
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for Firefox */
+  scrollbar-width: none;
+  -ms-overflow-style: none; /* IE and Edge */
 `;
 
 export const HomeWorkHelpChatContainer = styled.section`

@@ -20,6 +20,11 @@ import { useRef, useState, useEffect, RefObject } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
+const DocumentListWrapper = styled.div`
+  max-height: 200px;
+  background-color: 'green';
+`;
+
 type Documents = {
   title: string;
   documentURL: string;
@@ -473,29 +478,31 @@ const SelectedModal = ({
           {loadedStudentDocs && (
             <div style={{ width: '-webkit-fill-available' }}>
               <Label htmlFor="note">Select note</Label>
-              <CustomDropdown
-                value={selectedOption?.split('/').pop()}
-                placeholder="Select an Option"
-              >
-                <VStack alignItems={'left'} padding="10px">
-                  {loadedStudentDocs &&
-                    studentDocuments.map((item, id) => {
-                      return (
-                        <option
-                          value={item.documentURL}
-                          key={id}
-                          onClick={handleSelected}
-                          style={{
-                            cursor: 'pointer',
-                            width: '100%'
-                          }}
-                        >
-                          {item.title}
-                        </option>
-                      );
-                    })}
-                </VStack>
-              </CustomDropdown>
+              <DocumentListWrapper>
+                <CustomDropdown
+                  value={selectedOption?.split('/').pop()}
+                  placeholder="Select an Option"
+                >
+                  <VStack alignItems={'left'} padding="10px">
+                    {loadedStudentDocs &&
+                      studentDocuments.map((item, id) => {
+                        return (
+                          <option
+                            value={item.documentURL}
+                            key={id}
+                            onClick={handleSelected}
+                            style={{
+                              cursor: 'pointer',
+                              width: '100%'
+                            }}
+                          >
+                            {item.title}
+                          </option>
+                        );
+                      })}
+                  </VStack>
+                </CustomDropdown>
+              </DocumentListWrapper>
               <OrText>Or</OrText>
             </div>
           )}

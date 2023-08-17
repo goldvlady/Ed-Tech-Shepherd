@@ -80,6 +80,7 @@ interface IChat {
   loading?: boolean;
   setHightlightedText?: any;
   setLoading?: any;
+  isUpdatedSummary?: boolean;
 }
 const Chat = ({
   HomeWorkHelp,
@@ -108,7 +109,8 @@ const Chat = ({
   hightlightedText,
   loading,
   setHightlightedText,
-  setLoading
+  setLoading,
+  isUpdatedSummary
 }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
@@ -176,6 +178,7 @@ const Chat = ({
           handleDeleteSummary={handleDeleteSummary}
           handleUpdateSummary={handleUpdateSummary}
           loading={loading}
+          isUpdatedSummary={isUpdatedSummary}
         />
       )
     },
@@ -478,10 +481,6 @@ const Chat = ({
             <SetUpFlashCards />
           </FlashcardDataProvider>
         </div>
-      </CustomSideModal>
-
-      <CustomSideModal onClose={onChatHistory} isOpen={isChatHistory}>
-        <ChatHistory />
       </CustomSideModal>
     </>
   );

@@ -63,6 +63,20 @@ class ApiService {
     });
   };
 
+  static getMnemonics = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/getMnemonics`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static createMnemonic = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/createMneomics`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
   static updateQuestionAttempt = async (data: any) => {
     return doFetch(
       `${ApiService.baseEndpoint}/updateFlashcardQuestionAttempt`,
@@ -113,6 +127,10 @@ class ApiService {
         body: JSON.stringify(data)
       }
     );
+  };
+
+  static getSingleFlashcard = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/getStudentFlashcard/${id}`);
   };
 
   static verifyToken = async (token: string) => {
@@ -195,7 +213,7 @@ class ApiService {
     });
   };
 
-  static createStripeSetupPaymentIntent = async (data: any) => {
+  static createStripeSetupPaymentIntent = async (data: any = {}) => {
     return doFetch(
       `${ApiService.baseEndpoint}/createStripeSetupPaymentIntent`,
       {
@@ -209,6 +227,12 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/addPaymentMethod`, {
       method: 'POST',
       body: JSON.stringify({ stripeId })
+    });
+  };
+  static deletePaymentMethod = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/deletePaymentMethod`, {
+      method: 'POST',
+      body: JSON.stringify({ id })
     });
   };
 
@@ -378,7 +402,11 @@ class ApiService {
     });
   };
 
-  static updateNote = async (id: string | number, data: any) => {
+  static updateNote = async (
+    id: string | number,
+    data: any,
+    tags?: string[]
+  ) => {
     return doFetch(`${ApiService.baseEndpoint}/updateNote/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data)
