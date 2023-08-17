@@ -782,7 +782,6 @@ const NewNote = () => {
     } catch (error: any) {
       return;
     }
-    let saveDetails: NoteServerResponse<NoteDetails> | null;
 
     if (noteIdToUse && noteIdToUse !== '') {
       updateNote(noteIdToUse, {
@@ -831,7 +830,7 @@ const NewNote = () => {
     return () => {
       window.removeEventListener('keypress', handleWindowKey);
     };
-  }, [draftNoteId, noteId]);
+  }, []);
 
   useEffect(() => {
     const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
