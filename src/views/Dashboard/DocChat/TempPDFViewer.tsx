@@ -53,6 +53,10 @@ const TempPDFViewer = ({
   const [popUpNotesModal, setPopUpNotesModal] = useState(false);
   const toast = useToast();
 
+  useEffect(() => {
+    setUrl(pdfLink);
+  }, [pdfLink]);
+
   const resetHighlights = () => {
     setHighlights([]);
   };
