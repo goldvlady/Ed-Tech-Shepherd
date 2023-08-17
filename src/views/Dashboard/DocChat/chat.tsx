@@ -255,6 +255,7 @@ const Chat = ({
     // Adjust border radius based on inputValue
     if (inputValue.length > 0) {
       textAreaRef.current.style.borderRadius = '16px';
+      textAreaRef.current.style.maxheight = '2.5rem';
     } else {
       textAreaRef.current.style.borderRadius = '100px'; // Set initial border radius
     }
@@ -409,7 +410,6 @@ const Chat = ({
             <TellMeMoreIcn />
           </TellMeMorePill>
         )} */}
-
         {!!messages?.length && HomeWorkHelp && isShowPrompt && (
           <DownPillContainer>
             <PillsContainer>
