@@ -224,7 +224,10 @@ function ActivityFeeds(props) {
         <Divider />
       </Box>
 
-      <Box sx={{ maxHeight: '350px', overflowY: 'auto' }}>
+      <Box
+        sx={{ maxHeight: '350px', overflowY: 'auto' }}
+        className="custom-scroll"
+      >
         {filteredFeeds?.length > 0 ? (
           filteredFeeds
             .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt)) //
