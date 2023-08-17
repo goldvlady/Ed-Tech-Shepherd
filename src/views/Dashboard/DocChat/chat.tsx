@@ -409,7 +409,6 @@ const Chat = ({
             <TellMeMoreIcn />
           </TellMeMorePill>
         )} */}
-
         {!!messages?.length && HomeWorkHelp && isShowPrompt && (
           <DownPillContainer>
             <PillsContainer>
