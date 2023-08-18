@@ -420,6 +420,7 @@ export const ChatHistoryBody = styled.div`
   padding: 8px;
   border-radius: 8px;
   margin-top: 20px;
+  cursor: pointer;
 `;
 
 export const ChatHistoryContainer = styled.div`
