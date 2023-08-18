@@ -19,7 +19,7 @@ export const HomeWorkHelpHistoryContainer = styled.section`
   background: rgb(255, 255, 255);
   overflow-y: scroll;
   mzrgin: 0 auto;
-  margin: 0px 20px;
+  margin: 0px 10px;
   position: absolute;
   left: 15px;
 
