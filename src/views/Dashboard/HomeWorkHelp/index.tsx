@@ -226,8 +226,8 @@ const HomeWorkHelp = () => {
       });
 
       const previousConvoData = response?.map((conversation) => ({
-        text: conversation.log.content,
-        isUser: conversation.log.role === 'user',
+        text: conversation?.log?.content,
+        isUser: conversation?.log?.role === 'user',
         isLoading: false
       }));
       setMessages((prevMessages) => [...prevMessages, ...previousConvoData]);
@@ -240,9 +240,12 @@ const HomeWorkHelp = () => {
     navigate('/dashboard/ace-homework', {
       state: { subject: subjectId, topic: topic, level }
     });
+
     setMessages([]);
     setCountNeedTutor(1);
     setInputValue('');
+    socket.emit('chat message', localData.topic);
+    setLocalData({});
   }, [
     subjectId,
     localData,
@@ -250,7 +253,9 @@ const HomeWorkHelp = () => {
     setMessages,
     handleClose,
     handleAceHomeWorkHelp,
-    navigate
+    navigate,
+    socket,
+    topic
   ]);
 
   return (
