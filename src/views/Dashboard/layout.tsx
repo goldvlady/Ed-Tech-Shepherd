@@ -13,6 +13,7 @@ import Logo from '../../components/Logo';
 import ProfileSwitchModal from '../../components/ProfileSwitchModal';
 import { firebaseAuth } from '../../firebase';
 import userStore from '../../state/userStore';
+import FlashCardEventNotifier from './FlashCards/components/flashcard_event_notification';
 import TutorMarketplace from './Tutor';
 import AskShepherd from './components/AskShepherd';
 import MenuLinedList from './components/MenuLinedList';
@@ -603,7 +604,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <>
-      {' '}
+      <FlashCardEventNotifier />
       <Flex direction="column" bg="white">
         <Grid templateColumns={{ base: '1fr', md: '250px 1fr' }}>
           <Box w="full" flexShrink={0} overflowY="auto">

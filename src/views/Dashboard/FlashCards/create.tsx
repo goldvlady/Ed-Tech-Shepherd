@@ -5,10 +5,11 @@ import ApiService from '../../../services/ApiService';
 import flashcardStore from '../../../state/flashcardStore';
 import userStore from '../../../state/userStore';
 import FlashcardDataProvider from './context/flashcard';
-import { useFlashCardState } from './context/flashcard';
+import { useFlashcardWizard } from './context/flashcard';
 import MnemonicSetupProvider from './context/mneomics';
 import SetupFlashcardPage from './forms/flashcard_setup';
 import FlashcardFromDocumentSetup from './forms/flashcard_setup/document_type';
+import LoaderScreen from './forms/flashcard_setup/loader_page';
 import SuccessState from './forms/flashcard_setup/success_page';
 import MnemonicSetup from './forms/mneomics_setup';
 import InitSetupPreview from './previews/init.preview';
@@ -110,10 +111,10 @@ const CreateFlashPage = () => {
   const { user } = userStore();
   const location = useLocation();
 
-  const [settings, setSettings] = useState<SettingsType>({
-    type: TypeEnum.INIT,
-    source: SourceEnum.SUBJECT
-  });
+  // const [settings, setSettings] = useState<SettingsType>({
+  //   type: TypeEnum.INIT,
+  //   source: SourceEnum.SUBJECT
+  // });
   const wrapperRef = useRef<HTMLDivElement | null>(null);
 
   const boxWidth = useBoxWidth(wrapperRef);
@@ -124,8 +125,12 @@ const CreateFlashPage = () => {
     goToStep,
     setFlashcardData,
     resetFlashcard,
-    isLoading: loading
-  } = useFlashCardState();
+    isLoading: loading,
+    currentStep,
+    settings,
+    setSettings,
+    setMinimized
+  } = useFlashcardWizard();
 
   const { createFlashCard, isLoading, fetchFlashcards } = flashcardStore();
   const [isCompleted, setIsCompleted] = useState(false);
@@ -147,6 +152,16 @@ const CreateFlashPage = () => {
       }
     }
   }, [type]);
+
+  useEffect(() => {
+    setMinimized(false);
+
+    return () => {
+      if (loading) {
+        setMinimized(true);
+      }
+    };
+  }, [loading]);
 
   const onSubmitFlashcard = useCallback(async () => {
     try {
@@ -219,13 +234,6 @@ const CreateFlashPage = () => {
     // if (badge === TypeEnum.MNEOMONIC) setSource(SourceEnum.MANUAL);
   };
 
-  const setType = (type: TypeEnum) => {
-    setSettings((val) => ({
-      ...val,
-      type
-    }));
-  };
-
   const setSource = (source: SourceEnum) => {
     setSettings((val) => ({
       ...val,
@@ -248,6 +256,17 @@ const CreateFlashPage = () => {
         />
       );
     }
+    if (loading) {
+      return <LoaderScreen />;
+    }
+    if (
+      (settings.type === TypeEnum.FLASHCARD ||
+        settings.type === TypeEnum.INIT) &&
+      (settings.source === SourceEnum.MANUAL ||
+        (settings.source === SourceEnum.DOCUMENT && currentStep === 1))
+    ) {
+      return <SetupFlashcardPage />;
+    }
     if (
       (settings.type === TypeEnum.FLASHCARD ||
         settings.type === TypeEnum.INIT) &&
@@ -262,7 +281,7 @@ const CreateFlashPage = () => {
       return <FlashcardFromDocumentSetup isAutomated />;
     }
     return <></>;
-  }, [settings, isCompleted, resetFlashcard]); // The callback depends on 'settings'
+  }, [settings, isCompleted, resetFlashcard, loading, currentStep]); // The callback depends on 'settings'
 
   const renderPreview = () => {
     if (settings.type === TypeEnum.INIT) {
@@ -298,7 +317,7 @@ const CreateFlashPage = () => {
   }, [setSwitchMobile]);
   return (
     <Box width={'100%'}>
-      {(isLoading || loading) && <LoaderOverlay />}
+      {isLoading && <LoaderOverlay />}
       <Wrapper
         ref={wrapperRef}
         bg="white"
@@ -432,11 +451,9 @@ const CreateFlashPage = () => {
 
 const MainWrapper = () => {
   return (
-    <FlashcardDataProvider>
-      <MnemonicSetupProvider>
-        <CreateFlashPage />
-      </MnemonicSetupProvider>
-    </FlashcardDataProvider>
+    <MnemonicSetupProvider>
+      <CreateFlashPage />
+    </MnemonicSetupProvider>
   );
 };
 

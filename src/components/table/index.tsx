@@ -58,54 +58,81 @@ const SelectableTable = <T extends Record<string, unknown>>({
   dataSource,
   isSelectable,
   onSelect,
-  selectedRowKeys,
-  setSelectedRowKeys,
+  selectedRowKeys: selectedKeysProps,
   setSelectedNoteIdToDelete,
   selectedNoteIdToDelete,
   setSelectedNoteIdToDeleteArray,
   selectedNoteIdToDeleteArray,
-  handleSelectAll,
-  allChecked,
+  handleSelectAll: handleSelectAllProps,
+  allChecked: allCheckProps,
   setSelectedNoteIdToAddTagsArray,
   selectedNoteIdToAddTagsArray,
   selectedNoteIdToAddTags,
   setSelectedNoteIdToAddTags
 }: TableProps<T>) => {
+  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>(
+    selectedKeysProps || []
+  );
+  const [allChecked, setAllChecked] = useState<boolean>(allCheckProps || false);
+
   const handleSelect = (record: T) => {
     const key = record.key as string;
-
-    const id = record.id as any;
-
-    if (selectedRowKeys?.includes(key)) {
-      setSelectedRowKeys?.(selectedRowKeys.filter((k) => k !== key));
-      onSelect &&
-        onSelect([...(selectedRowKeys?.filter((k) => k !== key) || [])]);
-      onSelect && onSelect(selectedRowKeys?.filter((k) => k !== key) || []);
-
-      setSelectedNoteIdToDeleteArray &&
-        setSelectedNoteIdToDeleteArray((prevArray) =>
-          prevArray.filter((noteId) => noteId !== id)
-        );
-      setSelectedNoteIdToAddTagsArray &&
-        setSelectedNoteIdToAddTagsArray((prevArray) =>
-          prevArray.filter((noteId) => noteId !== id)
-        );
+    if (selectedRowKeys.includes(key)) {
+      setSelectedRowKeys(selectedRowKeys.filter((k) => k !== key));
+      onSelect && onSelect(selectedRowKeys.filter((k) => k !== key));
     } else {
-      setSelectedRowKeys?.([...(selectedRowKeys || []), key]);
-      onSelect && onSelect([...(selectedRowKeys || []), key]);
+      setSelectedRowKeys([...selectedRowKeys, key]);
+      onSelect && onSelect([...selectedRowKeys, key]);
     }
-
-    // Set the selected note ID for deletion
-
-    setSelectedNoteIdToDelete && setSelectedNoteIdToDelete(id);
-    setSelectedNoteIdToDeleteArray &&
-      setSelectedNoteIdToDeleteArray((prevArray) => [...prevArray, id]);
-
-    // Set the selected note ID add tags
-    setSelectedNoteIdToAddTags && setSelectedNoteIdToAddTags(id);
-    setSelectedNoteIdToAddTagsArray &&
-      setSelectedNoteIdToAddTagsArray((prevArray) => [...prevArray, id]);
   };
+
+  const handleSelectAll = () => {
+    if (!allChecked) {
+      const newSelectedRowKeys = dataSource.map((data) => data.key as string);
+      setSelectedRowKeys(newSelectedRowKeys);
+      onSelect && onSelect(newSelectedRowKeys);
+    } else {
+      setSelectedRowKeys([]);
+      onSelect && onSelect([]);
+    }
+    setAllChecked(!allChecked);
+  };
+
+  // const handleSelect = (record: T) => {
+  //   const key = record.key as string;
+
+  //   const id = record.id as any;
+
+  //   if (selectedRowKeys?.includes(key)) {
+  //     setSelectedRowKeys?.(selectedRowKeys.filter((k) => k !== key));
+  //     onSelect &&
+  //       onSelect([...(selectedRowKeys?.filter((k) => k !== key) || [])]);
+  //     onSelect && onSelect(selectedRowKeys?.filter((k) => k !== key) || []);
+
+  //     setSelectedNoteIdToDeleteArray &&
+  //       setSelectedNoteIdToDeleteArray((prevArray) =>
+  //         prevArray.filter((noteId) => noteId !== id)
+  //       );
+  //     setSelectedNoteIdToAddTagsArray &&
+  //       setSelectedNoteIdToAddTagsArray((prevArray) =>
+  //         prevArray.filter((noteId) => noteId !== id)
+  //       );
+  //   } else {
+  //     setSelectedRowKeys?.([...(selectedRowKeys || []), key]);
+  //     onSelect && onSelect([...(selectedRowKeys || []), key]);
+  //   }
+
+  //   // Set the selected note ID for deletion
+
+  //   setSelectedNoteIdToDelete && setSelectedNoteIdToDelete(id);
+  //   setSelectedNoteIdToDeleteArray &&
+  //     setSelectedNoteIdToDeleteArray((prevArray) => [...prevArray, id]);
+
+  //   // Set the selected note ID add tags
+  //   setSelectedNoteIdToAddTags && setSelectedNoteIdToAddTags(id);
+  //   setSelectedNoteIdToAddTagsArray &&
+  //     setSelectedNoteIdToAddTagsArray((prevArray) => [...prevArray, id]);
+  // };
 
   return (
     <Table size="sm" variant="unstyled" width={{ base: '100em', md: '100%' }}>
