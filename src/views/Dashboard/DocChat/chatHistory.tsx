@@ -31,7 +31,13 @@ type GroupedChat = {
   messages: Chat[];
 };
 
-const ChatHistory = ({ studentId }: { studentId: string }) => {
+const ChatHistory = ({
+  studentId,
+  setConversationId
+}: {
+  studentId: string;
+  setConversationId: (conversationId: string) => void;
+}) => {
   // const placeholder = [
   //   {
   //     messages: ['No conversations — yet'],
@@ -90,7 +96,10 @@ const ChatHistory = ({ studentId }: { studentId: string }) => {
         <ChatHistoryBlock key={index}>
           <ChatHistoryDate>{history.date}</ChatHistoryDate>
           {history.messages.map((message) => (
-            <ChatHistoryBody key={message.id}>
+            <ChatHistoryBody
+              key={message.id}
+              onClick={() => setConversationId(message.id)}
+            >
               <Clock>
                 <HistoryIcn />
               </Clock>

@@ -7,8 +7,8 @@ const BotIntructionBox = () => {
       <Flex w="100%" direction="column" align="flex-start">
         <HStack w="100%">
           <Image
-            width={'80px'}
-            height={'80px'}
+            width={'64px'}
+            height={'56px'}
             borderRadius={'full'}
             src={
               'https://firebasestorage.googleapis.com/v0/b/shepherd-app-382114.appspot.com/o/assets%2Fscreenshot_2023-07-28_at_4.59.43_pm.jpg?alt=media&token=24b55940-12ec-427f-a8f4-76d79fc02d4f'
@@ -29,14 +29,14 @@ const BotIntructionBox = () => {
               lineHeight="16.94px"
               color="#585F68"
             >
-              Aristotle. Questioner, ethicist, Flashcard Facilitator
+              Questioner, ethicist, Flashcard Facilitator
             </Text>
           </VStack>
         </HStack>
         <Text
           marginTop="10px"
-          fontWeight="400"
-          fontSize="13px"
+          fontWeight="600"
+          fontSize="0.875rem"
           lineHeight="20px"
           color="#383D42"
         >

@@ -73,6 +73,7 @@ export const GridItem = styled.div`
   color: #1f2937;
   font-weight: lighter;
   place-content: center;
+  z-index: 1;
 `;
 
 export const FlexContainer = styled.div`
@@ -161,7 +162,7 @@ export const ChatbotContainer = styled.div<{
   display: flex;
   flex-direction: row;
   align-items: center;
-  height: 89px;
+  height: auto;
   padding: 1rem;
   gap: 10px;
   border-left: 1px solid #eeeff2;
@@ -193,12 +194,12 @@ export const Input = styled.textarea`
 export const SendButton = styled.button`
   position: absolute;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   height: 100%;
   width: 2.75rem;
   right: 0;
-  top: -3px;
+  top: -11px;
   color: #cbd5e0;
   &:hover {
     color: #4a5568;
@@ -313,9 +314,13 @@ export const ChatContainerResponse = styled.div`
   grid-column: span 12;
   overflow-y: scroll;
   scrollbar-width: thin;
-  padding: 0px 24px 20px 24px;
-  max-height: 42vh;
-  // min-height: 100vh;
+  margin: 240px 24px 20px 24px;
+  position: absolute;
+  right: 0;
+  // bottom:  170px;
+  bottom: 236px;
+  height: -webkit-fill-available;
+  width: -webkit-fill-available;
 
   /* Scrollable content */
   overflow-y: scroll;
@@ -415,10 +420,11 @@ export const ChatHistoryBody = styled.div`
   padding: 8px;
   border-radius: 8px;
   margin-top: 20px;
+  cursor: pointer;
 `;
 
 export const ChatHistoryContainer = styled.div`
-  margin: 50px 0;
+  margin: 112px 0;
 `;
 
 export const ChatHistoryBlock = styled.div`
@@ -431,6 +437,11 @@ export const ChatHistoryHeader = styled.div`
   justify-content: space-between;
   border-bottom: 1px solid #eeeff2;
   margin-bottom: 15px;
+  position: fixed;
+  height: 10vh;
+  width: 25%;
+  top: 64px;
+  background: white;
 
   p:nth-child(1) {
     font-size: 1.125rem;

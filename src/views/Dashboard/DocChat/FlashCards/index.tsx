@@ -1,6 +1,6 @@
 import { ReactComponent as QuestionMark } from '../../../../assets/questionMark.svg';
 // import flashcardStore from '../../../state/flashcardStore';
-import { useFlashCardState } from '../../FlashCards/context/flashcard';
+import { useFlashcardWizard } from '../../FlashCards/context/flashcard';
 import { RadioInput, StyledCheckbox } from '../styles';
 import {
   Box,
@@ -19,7 +19,8 @@ import {
 import { useEffect, useMemo, useState, useCallback, ChangeEvent } from 'react';
 
 const FlashcardFirstPart = ({ isAutomated }: { isAutomated?: boolean }) => {
-  const { flashcardData, setFlashcardData, goToNextStep } = useFlashCardState();
+  const { flashcardData, setFlashcardData, goToNextStep } =
+    useFlashcardWizard();
   // const { createFlashCard, flashcard, isLoading, fetchFlashcards } =
   //   flashcardStore();
   const [localData, setLocalData] = useState<typeof flashcardData>({
