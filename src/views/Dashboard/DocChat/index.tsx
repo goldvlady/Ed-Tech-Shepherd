@@ -291,7 +291,7 @@ export default function DocChat() {
           isLoading: false
         }));
 
-        setMessages((prevMessages) => [...prevMessages, ...mappedData]);
+        setMessages(mappedData);
         setChatHistoryLoaded(true);
       } catch (error) {
         toast({
