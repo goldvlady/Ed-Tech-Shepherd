@@ -1,6 +1,6 @@
 import OptionBadge from '../components/optionBadge';
 import QuestionReviewCard from '../components/question_preview_card';
-import { useFlashCardState } from '../context/flashcard';
+import { useFlashcardWizard } from '../context/flashcard';
 import { TypeEnum } from '../create';
 import { Box, Button, HStack, Text, VStack, Flex } from '@chakra-ui/react';
 
@@ -16,7 +16,7 @@ export default function QuestionsPreview({
   isLoading: boolean;
 }) {
   const { questions, deleteQuestion, goToQuestion, currentQuestionIndex } =
-    useFlashCardState();
+    useFlashcardWizard();
 
   const findQuestionIndex = (question: string) => {
     return questions.findIndex((que) => que.question === question);
