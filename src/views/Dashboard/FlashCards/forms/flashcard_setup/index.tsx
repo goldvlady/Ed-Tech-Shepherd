@@ -1,5 +1,5 @@
 import StepsIndicator, { Step } from '../../../../../components/StepIndicator';
-import { useFlashCardState } from '../../context/flashcard';
+import { useFlashcardWizard } from '../../context/flashcard';
 import FlashCardSetupInit from './init';
 import FlashCardQuestionsPage from './questions';
 import { Box, Text } from '@chakra-ui/react';
@@ -19,7 +19,7 @@ const slideVariants = {
 };
 
 const SetupFlashcardPage = ({ isAutomated }: { isAutomated?: boolean }) => {
-  const { currentStep } = useFlashCardState();
+  const { currentStep } = useFlashcardWizard();
   const steps: Step[] = [{ title: '' }, { title: '' }, { title: '' }];
   const formComponents = useMemo(
     () => [FlashCardSetupInit, FlashCardQuestionsPage],

@@ -1,7 +1,7 @@
 import { useCustomToast } from '../../../../../components/CustomComponents/CustomToast/useCustomToast';
 import CustomSelect from '../../../../../components/CustomSelect';
 import SelectComponent, { Option } from '../../../../../components/Select';
-import { useFlashCardState } from '../../context/flashcard';
+import { useFlashcardWizard } from '../../context/flashcard';
 import {
   Box,
   FormControl,
@@ -21,7 +21,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     generateFlashcardQuestions,
     setFlashcardData,
     goToNextStep
-  } = useFlashCardState();
+  } = useFlashcardWizard();
   const toast = useCustomToast();
   const [localData, setLocalData] = useState<typeof flashcardData>({
     deckname: '',
