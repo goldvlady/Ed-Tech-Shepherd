@@ -5,6 +5,14 @@ const AutocompleteDropdown = (props) => {
   const { studentDocuments, selectedOption, placeholder, handleSelected } =
     props;
 
+  const customStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      // borderColor: 'red',
+      boxShadow: state.isFocused ? 'none' : provided.boxShadow
+    })
+  };
+
   const options = studentDocuments.map((item, id) => ({
     value: item.documentURL,
     label: item.title,
@@ -20,6 +28,7 @@ const AutocompleteDropdown = (props) => {
         placeholder={selectedOption ? selectedOption : placeholder}
         getOptionLabel={(option) => option.label}
         getOptionValue={(option) => option.value}
+        styles={customStyles}
       />
     </div>
   );
