@@ -308,7 +308,9 @@ export const RadioInput = styled.input`
   width: 14px;
 `;
 
-export const ChatContainerResponse = styled.div`
+export const ChatContainerResponse = styled.div<{
+  messages: any;
+}>`
   display: flex;
   flex-direction: column;
   grid-column: span 12;
@@ -321,6 +323,7 @@ export const ChatContainerResponse = styled.div`
   bottom: 236px;
   height: -webkit-fill-available;
   width: -webkit-fill-available;
+  z-index: ${({ messages }) => (messages ? '10' : '-1')};
 
   /* Scrollable content */
   overflow-y: scroll;
