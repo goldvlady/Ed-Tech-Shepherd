@@ -122,8 +122,8 @@ const Chat = ({
 
   const prompts = [
     "Explain this document to me like I'm five",
-    'Who wrote this book?',
-    'How many chapters are in this book?'
+    'What do I need to know to understand this document?',
+    'What other topics should I explore after this document?'
   ];
 
   const onClose = useCallback(() => {
@@ -355,7 +355,10 @@ const Chat = ({
                       </AskSomethingPillContainer>
                     </AskSomethingContainer>
                   )}
-                  <ChatContainerResponse ref={ref}>
+                  <ChatContainerResponse
+                    ref={ref}
+                    messages={messages && messages.length >= 1}
+                  >
                     {messages?.map((message, index) =>
                       message.isUser ? (
                         <UserMessage key={index}>{message.text}</UserMessage>
