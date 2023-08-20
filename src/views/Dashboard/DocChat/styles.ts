@@ -428,6 +428,7 @@ export const ChatHistoryBody = styled.div`
 
 export const ChatHistoryContainer = styled.div`
   margin: 112px 0;
+  width: 100%;
 `;
 
 export const ChatHistoryBlock = styled.div`
@@ -441,9 +442,9 @@ export const ChatHistoryHeader = styled.div`
   border-bottom: 1px solid #eeeff2;
   margin-bottom: 15px;
   position: fixed;
-  height: 10vh;
+  height: 7vh;
   width: 25%;
-  top: 64px;
+  top: 78px;
   background: white;
 
   p:nth-child(1) {
