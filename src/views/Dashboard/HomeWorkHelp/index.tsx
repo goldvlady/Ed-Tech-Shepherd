@@ -230,10 +230,18 @@ const HomeWorkHelp = () => {
         isUser: conversation?.log?.role === 'user',
         isLoading: false
       }));
-      setMessages((prevMessages) => [...prevMessages, ...previousConvoData]);
+      setMessages((prevState) => [...previousConvoData]);
+      if (socket) {
+        socket.on('ready', (ready) => {
+          setReadyToChat(ready);
+          socket.emit('chat message', inputValue);
+        });
+
+        return () => socket.off('ready');
+      }
     };
     fetchConversationId();
-  }, [conversationId]);
+  }, [conversationId, socket]);
 
   const onRouteHomeWorkHelp = useCallback(() => {
     handleClose();
