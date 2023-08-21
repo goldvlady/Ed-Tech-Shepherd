@@ -241,6 +241,7 @@ const HomeWorkHelp = () => {
       }
     };
     fetchConversationId();
+    if (conversationId) setShowPrompt(true);
   }, [conversationId, socket]);
 
   const onRouteHomeWorkHelp = useCallback(() => {
@@ -248,11 +249,10 @@ const HomeWorkHelp = () => {
     navigate('/dashboard/ace-homework', {
       state: { subject: subjectId, topic: topic, level }
     });
-
+    socket.emit('chat message', localData.topic);
     setMessages([]);
     setCountNeedTutor(1);
     setInputValue('');
-    socket.emit('chat message', localData.topic);
     setLocalData({});
   }, [
     subjectId,
