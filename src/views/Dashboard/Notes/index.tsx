@@ -3,6 +3,7 @@ import { ReactComponent as NewNoteIcon } from '../../../assets/newnote.svg';
 import { AllNotesTab, SelectedNoteModal } from '../../../components';
 import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMenu';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
+import AllTab from '../../../components/allTab/allTab';
 import AllDocumentTab from '../../../components/documentTab/allDocument';
 import LoaderOverlay from '../../../components/loaderOverlay';
 import ApiService from '../../../services/ApiService';
@@ -84,7 +85,7 @@ const Notes = () => {
   const [sortedNotes, setSortedNotes] = useState(allNotes);
 
   const { userDocuments } = userStore();
-  // const combinedData: any = [...userDocuments, ...allNotes];
+  const combinedData: any = [...allNotes, ...userDocuments];
 
   const handleTagSelection = (tagElement) => {
     const lowerCaseTagId = tagElement.toLowerCase();
@@ -188,7 +189,7 @@ const Notes = () => {
     {
       id: 1,
       component: (
-        <AllNotesTab
+        <AllTab
           data={sortedNotes}
           getNotes={getNotes}
           handleTagSelection={handleTagSelection}
@@ -225,7 +226,7 @@ const Notes = () => {
         <Flex alignItems="center">
           <StyledHeader>
             <span className="font-bold">My Documents</span>
-            <span className="count-badge">{allNotes.length}</span>
+            <span className="count-badge">{combinedData.length}</span>
           </StyledHeader>
         </Flex>
 
@@ -363,9 +364,9 @@ const Notes = () => {
   // Handle sorting of notes based on selected tags
   useEffect(() => {
     if (selectedTags.length === 0) {
-      setSortedNotes(allNotes);
+      setSortedNotes(combinedData);
     } else {
-      const sorted = allNotes.filter((note) => {
+      const sorted = combinedData.filter((note) => {
         const tags = note.tags || [];
         const matchingTags = tags.filter((tag) =>
           selectedTags.includes(tag.toLowerCase())
@@ -374,15 +375,15 @@ const Notes = () => {
       });
       setSortedNotes(sorted);
     }
-  }, [selectedTags, allNotes]);
+  }, [selectedTags, allNotes, userDocuments]);
 
   useEffect(() => {
     const loaderTimer = setTimeout(() => {
       setShowLoader(false);
     }, 2000);
 
-    // Ensure that the loader stays visible for at least 200 milliseconds to ensure both the getnotes and sortednotes array are gotten
-    const minLoaderDisplayTime = 2000; // Adjust as needed
+    // Ensure that the loader stays visible for at least 3000 milliseconds to ensure both the getnotes and sortednotes array are gotten
+    const minLoaderDisplayTime = 3000; // Adjust as needed
     const minLoaderTimer = setTimeout(() => {
       setShowLoader(false);
     }, minLoaderDisplayTime);
@@ -403,12 +404,12 @@ const Notes = () => {
     } else {
       return (
         <>
-          {allNotes.length > 0 ? (
+          {combinedData.length > 0 ? (
             <NotesWrapper>
               <header className="flex my-4 justify-between">
                 <FilterMenu />
               </header>
-              {/* {selectedTags.length >= 1 && (
+              {selectedTags.length >= 1 && (
                 <Button
                   variant="solid"
                   mb="10px"
@@ -440,17 +441,17 @@ const Notes = () => {
 
                   <Text ml="5px">Clear filter</Text>
                 </Button>
-              )} */}
+              )}
 
-              {sortedNotes.length > 0 ? (
-                <CustomTabs tablists={tabLists} tabPanel={tabPanel} />
-              ) : (
+              {sortedNotes.length === 0 && selectedTags.length ? (
                 <Section>
                   <div>
                     <img src="/images/notes.png" alt="notes" />
                     <Text>Sorry, no notes for the selected tag.</Text>
                   </div>
                 </Section>
+              ) : (
+                <CustomTabs tablists={tabLists} tabPanel={tabPanel} />
               )}
             </NotesWrapper>
           ) : (
@@ -463,7 +464,7 @@ const Notes = () => {
               <Section>
                 <div>
                   <img src="/images/notes.png" alt="notes" />
-                  <Text>You don't have any notes yet!</Text>
+                  <Text>You don't have any notes/documents yet!</Text>
                   <DropdownMenu
                     isCreateNewWidth
                     isCreateNew
