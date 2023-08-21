@@ -291,7 +291,7 @@ export default function DocChat() {
           isLoading: false
         }));
 
-        setMessages((prevMessages) => [...prevMessages, ...mappedData]);
+        setMessages((prevMessages) => [...mappedData]);
         setChatHistoryLoaded(true);
       } catch (error) {
         toast({
@@ -307,7 +307,14 @@ export default function DocChat() {
       }
     };
     fetchChatHistory();
-  }, [documentId, studentId, toast]);
+    if (socket) {
+      socket.on('ready', (ready) => {
+        setReadyToChat(ready);
+      });
+
+      return () => socket.off('ready');
+    }
+  }, [documentId, studentId, toast, socket]);
 
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
 

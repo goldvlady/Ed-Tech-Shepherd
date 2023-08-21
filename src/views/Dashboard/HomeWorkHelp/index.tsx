@@ -161,7 +161,7 @@ const HomeWorkHelp = () => {
 
       setCountNeedTutor((prevState) => prevState + 1);
 
-      socket.emit('chat message');
+      socket.emit('chat message', message);
     },
     [setMessages, setCountNeedTutor, socket]
   );
