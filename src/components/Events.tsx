@@ -48,7 +48,7 @@ export default function Events({ event }: any) {
           event.type
         )}`}
       />
-      <div className="py-1">
+      <div className="py-2">
         <div className="flex gap-x-1">
           <div className="min-w-0 flex-auto">
             <Text className="text-xs font-normal leading-6 text-gray-500">
@@ -57,8 +57,8 @@ export default function Events({ event }: any) {
                 event.data.entity?.deckname
                   ? event.data.entity.deckname
                   : {
-                      subject: event.data.offer.course.label,
-                      tutor: `${event.data.offer.tutor.user.name.first} ${event.data.offer.tutor.user.name.last}`
+                      subject: event.data?.offer?.course?.label,
+                      tutor: `${event.data?.offer?.tutor?.user?.name?.first} ${event.data?.offer?.tutor?.user?.name?.last}`
                     }
               )}
             </Text>

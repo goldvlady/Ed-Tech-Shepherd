@@ -291,7 +291,7 @@ export default function DocChat() {
           isLoading: false
         }));
 
-        setMessages((prevMessages) => [...mappedData]);
+        setMessages(mappedData);
         setChatHistoryLoaded(true);
       } catch (error) {
         toast({
@@ -307,13 +307,6 @@ export default function DocChat() {
       }
     };
     fetchChatHistory();
-    if (socket) {
-      socket.on('ready', (ready) => {
-        setReadyToChat(ready);
-      });
-
-      return () => socket.off('ready');
-    }
   }, [documentId, studentId, toast, socket]);
 
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);

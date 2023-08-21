@@ -283,6 +283,12 @@ class ApiService {
     });
   };
 
+  static sendOtp = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/sendOttp`, {
+      method: 'POST'
+    });
+  };
+
   static getAllTutors = async (formData: any) => {
     let filterParams = '';
 
