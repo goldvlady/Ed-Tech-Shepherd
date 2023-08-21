@@ -73,7 +73,7 @@ export const GridItem = styled.div`
   color: #1f2937;
   font-weight: lighter;
   place-content: center;
-  z-index: 1;
+  z-index: 9999;
 `;
 
 export const FlexContainer = styled.div`
@@ -308,29 +308,30 @@ export const RadioInput = styled.input`
   width: 14px;
 `;
 
-export const ChatContainerResponse = styled.div<{
-  messages: any;
-}>`
+export const ChatContainerResponse = styled.div<{ messages: any }>`
   display: flex;
   flex-direction: column;
   grid-column: span 12;
-  overflow-y: scroll;
-  scrollbar-width: thin;
-  margin: 240px 24px 20px 24px;
+  margin-top: 240px;
+  margin-right: 24px;
+  margin-bottom: 20px;
+  margin-left: 24px;
+
   position: absolute;
   right: 0;
-  // bottom:  170px;
   bottom: 236px;
-  height: -webkit-fill-available;
+  height: 400px; /* Specific height as a fallback */
+  height: -webkit-fill-available; /* For Safari */
+  width: 100%; /* fallback for browsers not supporting -webkit-fill-available */
   width: -webkit-fill-available;
   z-index: ${({ messages }) => (messages ? '10' : '-1')};
-
+  width: -moz-available;
   /* Scrollable content */
   overflow-y: scroll;
   scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 
-  /* Custom styling for the scrollbar */
+  /* Custom styling for the scrollbar - for Webkit browsers */
   ::-webkit-scrollbar {
     width: 6px;
   }
