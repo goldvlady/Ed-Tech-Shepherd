@@ -636,11 +636,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     {
       key: 'actions',
       title: '',
-<<<<<<< HEAD
-      render: ({ title, id, tags, unFormatedTags }) => (
-=======
       render: ({ title, id, unFormatedTags }) => (
->>>>>>> feature/note_fixes
         <Menu>
           <MenuButton
             as={Button}
