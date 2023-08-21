@@ -1,5 +1,5 @@
 import StepsIndicator, { Step } from '../../../components/StepIndicator';
-import { useFlashCardState } from '../FlashCards/context/flashcard';
+import { useFlashcardWizard } from '../FlashCards/context/flashcard';
 import FlashCardQuestionsPage from '../FlashCards/forms/flashcard_setup/questions';
 import FlashcardFirstPart from './FlashCards';
 import FlashCardStudySession from './FlashCards/FlashCardStudySession';
@@ -18,7 +18,7 @@ const slideVariants = {
 };
 
 const SetUpFlashCards = ({ isAutomated }: { isAutomated?: boolean }) => {
-  const { currentStep } = useFlashCardState();
+  const { currentStep } = useFlashcardWizard();
   const steps: Step[] = [{ title: '' }, { title: '' }, { title: '' }];
   const formComponents = useMemo(
     () => [FlashcardFirstPart, FlashCardQuestionsPage, FlashCardStudySession],

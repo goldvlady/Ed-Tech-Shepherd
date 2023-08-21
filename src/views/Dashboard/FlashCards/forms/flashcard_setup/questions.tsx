@@ -1,4 +1,4 @@
-import { useFlashCardState, FlashcardQuestion } from '../../context/flashcard';
+import { useFlashcardWizard, FlashcardQuestion } from '../../context/flashcard';
 import { HStack, Textarea } from '@chakra-ui/react';
 import {
   Box,
@@ -21,7 +21,7 @@ const FlashCardQuestionsPage = () => {
     goToQuestion,
     currentQuestionIndex,
     questions
-  } = useFlashCardState();
+  } = useFlashcardWizard();
 
   const [currentQuestion, setCurrentQuestion] = useState<FlashcardQuestion>({
     questionType: '',

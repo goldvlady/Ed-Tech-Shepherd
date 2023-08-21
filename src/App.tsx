@@ -10,6 +10,8 @@ import StudentSettings from './views/Dashboard/AccountSettings';
 import BookmarkedTutors from './views/Dashboard/BookmarkedTutors';
 import DocChat from './views/Dashboard/DocChat';
 import FlashCard from './views/Dashboard/FlashCards';
+import FlashCardEventNotifier from './views/Dashboard/FlashCards/components/flashcard_event_notification';
+import FlashcardWizardProvider from './views/Dashboard/FlashCards/context/flashcard';
 import CreateFlashCard from './views/Dashboard/FlashCards/create';
 import HomeWorkHelp from './views/Dashboard/HomeWorkHelp';
 import Library from './views/Dashboard/Library';
@@ -47,7 +49,6 @@ import { Box, ChakraProvider, Spinner } from '@chakra-ui/react';
 import 'bootstrap/dist/css/bootstrap-grid.min.css';
 import 'bootstrap/dist/css/bootstrap-reboot.min.css';
 import 'bootstrap/dist/css/bootstrap-utilities.min.css';
-import { User, getAuth, onAuthStateChanged } from 'firebase/auth';
 import mixpanel from 'mixpanel-browser';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -334,8 +335,10 @@ function App() {
     <ChakraProvider theme={theme}>
       <AuthProvider>
         <BrowserRouter>
-          <FlashCardModal isOpen={Boolean(flashcard)} />
-          <AppRoutes />
+          <FlashcardWizardProvider>
+            <FlashCardModal isOpen={Boolean(flashcard)} />
+            <AppRoutes />
+          </FlashcardWizardProvider>
         </BrowserRouter>
       </AuthProvider>
     </ChakraProvider>

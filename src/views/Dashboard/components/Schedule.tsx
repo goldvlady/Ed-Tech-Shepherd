@@ -168,7 +168,7 @@ export default function Schedule({ events }) {
           <HStack>
             <img src={ScheduleIcon} alt="feed-icon" width={18} />{' '}
             <Text fontSize={16} fontWeight={500} mx={2}>
-              Schedule{' '}
+              Schedule
             </Text>{' '}
           </HStack>
           <Spacer />
@@ -210,7 +210,7 @@ export default function Schedule({ events }) {
           <Text fontSize={12} fontWeight={400} color="text.400" mb={2} px={4}>
             Upcoming Events
           </Text>
-          <Box h="165px" overflowY="auto">
+          <Box h="165px" overflowY="auto" className="custom-scroll">
             {' '}
             <ul className="space-y-3">
               {selectedDate && filteredEvents.length > 0 ? (
@@ -230,12 +230,11 @@ export default function Schedule({ events }) {
             </ul>
           </Box>
         </Box>
-        <Box h="85px" overflowY="auto">
-          <Text fontSize={12} fontWeight={400} color="text.400" mb={1} px={4}>
+        <Box>
+          <Text fontSize={12} fontWeight={400} color="text.400" my={1} px={4}>
             Tomorrow
           </Text>
-          <Box>
-            {' '}
+          <Box h="85px" overflowY="auto" className="custom-scroll">
             <ul className="space-y-3">
               {selectedDate?.toDateString() == new Date().toDateString() &&
               filterTomorrowsEvents().length > 0 ? (

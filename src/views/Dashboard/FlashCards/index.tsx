@@ -188,7 +188,7 @@ const CustomTable: React.FC = () => {
   const loadFlashcardModal = async (id: string) => {
     await fetchFlashcards();
     loadFlashcard(id);
-    navigate('/dashboard/flashcards');
+    // navigate('/dashboard/flashcards');
   };
 
   useEffect(() => {
@@ -736,7 +736,6 @@ const CustomTable: React.FC = () => {
             marginBottom={'40px'}
             alignItems="center"
             justifyContent="space-between"
-            paddingRight={{ md: '20px' }}
             color="#E5E6E6"
           >
             <Box display="flex">
@@ -808,7 +807,6 @@ const CustomTable: React.FC = () => {
             mb={{ base: '20px', md: '40px' }}
             alignItems="center"
             justifyContent="space-between"
-            pr={{ md: '20px', base: '0' }}
             color="#E5E6E6"
             spacing={4}
           >

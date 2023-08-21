@@ -2,6 +2,7 @@ import { storage } from '../firebase';
 import { MAX_FILE_UPLOAD_LIMIT } from '../helpers/constants';
 import { processDocument } from '../services/AI';
 import userStore from '../state/userStore';
+import AutocompleteDropdown from './AutocompleteDropdown';
 import CustomButton from './CustomComponents/CustomButton';
 import CustomModal from './CustomComponents/CustomModal/index';
 import CustomDropdown from './CustomDropdown';
@@ -312,11 +313,10 @@ const SelectedModal = ({
   };
 
   const handleSelected = async (e) => {
-    const { innerText, value } = e.target;
-    if (value && innerText) {
-      setDocumentURL(() => value);
-      setDocumentName(() => innerText);
-      setSelectedOption(innerText);
+    if (e.value && e.label) {
+      setDocumentURL(() => e.value);
+      setDocumentName(() => e.label);
+      setSelectedOption(e.label);
       setCanUpload(false);
       setConfirmReady(true);
     }
@@ -487,7 +487,13 @@ const SelectedModal = ({
             <div style={{ width: '-webkit-fill-available' }}>
               <Label htmlFor="note">Select note</Label>
               <DocumentListWrapper>
-                <CustomDropdown
+                <AutocompleteDropdown
+                  studentDocuments={studentDocuments}
+                  placeholder="Select an Option"
+                  selectedOption={selectedOption}
+                  handleSelected={handleSelected}
+                ></AutocompleteDropdown>{' '}
+                {/* <CustomDropdown
                   value={selectedOption?.split('/').pop()}
                   placeholder="Select an Option"
                   className="drop-down-container"
@@ -510,7 +516,7 @@ const SelectedModal = ({
                         );
                       })}
                   </VStack>
-                </CustomDropdown>
+                </CustomDropdown> */}
               </DocumentListWrapper>
               <OrText>Or</OrText>
             </div>

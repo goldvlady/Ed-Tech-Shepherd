@@ -1,11 +1,11 @@
 import flashcardStore from '../../../../../state/flashcardStore';
-import { useFlashCardState } from '../../context/flashcard';
+import { useFlashcardWizard } from '../../context/flashcard';
 import { Button, Text, Flex, HStack } from '@chakra-ui/react';
 import React from 'react';
 
 const SuccessState = ({ reset }: { reset: () => void }) => {
   const { flashcards, loadFlashcard } = flashcardStore();
-  const { flashcardData } = useFlashCardState();
+  const { flashcardData } = useFlashcardWizard();
 
   const handleStudyClick = () => {
     const flashcard = flashcards?.find(

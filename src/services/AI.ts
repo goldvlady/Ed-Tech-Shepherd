@@ -340,3 +340,25 @@ export const updateGeneratedSummary = async ({
   );
   return request;
 };
+
+export const getConversionById = async ({
+  conversationId
+}: {
+  conversationId: string;
+}) => {
+  const response = await fetch(
+    `${AI_API}/notes/conversations/${conversationId}`,
+    {
+      method: 'GET',
+      headers: {
+        'x-shepherd-header': HEADER_KEY
+      }
+    }
+  );
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  } else {
+    const conversation = await response.json();
+    return conversation;
+  }
+};

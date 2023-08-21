@@ -1,6 +1,6 @@
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast/index';
-import { chatHomeworkHelp } from '../../../services/AI';
+import { chatHomeworkHelp, getConversionById } from '../../../services/AI';
 import { chatHistory } from '../../../services/AI';
 import socketWithAuth from '../../../socket';
 import userStore from '../../../state/userStore';
@@ -50,7 +50,7 @@ const HomeWorkHelp = () => {
   });
   const [level, setLevel] = useState<any>('');
   const navigate = useNavigate();
-
+  const [conversationId, setConversationId] = useState('');
   const subject = 'biology';
 
   useEffect(() => {
@@ -219,14 +219,41 @@ const HomeWorkHelp = () => {
     [handleSendMessage]
   );
 
+  useEffect(() => {
+    const fetchConversationId = async () => {
+      const response = await getConversionById({
+        conversationId
+      });
+
+      const previousConvoData = response?.map((conversation) => ({
+        text: conversation?.log?.content,
+        isUser: conversation?.log?.role === 'user',
+        isLoading: false
+      }));
+      setMessages((prevState) => [...previousConvoData]);
+      if (socket) {
+        socket.on('ready', (ready) => {
+          setReadyToChat(ready);
+          socket.emit('chat message', inputValue);
+        });
+
+        return () => socket.off('ready');
+      }
+    };
+    fetchConversationId();
+  }, [conversationId, socket]);
+
   const onRouteHomeWorkHelp = useCallback(() => {
     handleClose();
     navigate('/dashboard/ace-homework', {
       state: { subject: subjectId, topic: topic, level }
     });
+
     setMessages([]);
     setCountNeedTutor(1);
     setInputValue('');
+    socket.emit('chat message', localData.topic);
+    setLocalData({});
   }, [
     subjectId,
     localData,
@@ -234,13 +261,18 @@ const HomeWorkHelp = () => {
     setMessages,
     handleClose,
     handleAceHomeWorkHelp,
-    navigate
+    navigate,
+    socket,
+    topic
   ]);
 
   return (
     <HomeWorkHelpContainer>
       <HomeWorkHelpHistoryContainer>
-        <ChatHistory studentId={studentId} />
+        <ChatHistory
+          studentId={studentId}
+          setConversationId={setConversationId}
+        />
       </HomeWorkHelpHistoryContainer>
       <HomeWorkHelpChatContainer>
         <Chat

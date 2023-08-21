@@ -3,7 +3,7 @@ import CustomSelect from '../../../../../components/CustomSelect';
 import SelectComponent, { Option } from '../../../../../components/Select';
 import uploadFile from '../../../../../helpers/file.helpers';
 import FileUpload from '../../components/fileUploadField';
-import { useFlashCardState } from '../../context/flashcard';
+import { useFlashcardWizard } from '../../context/flashcard';
 import {
   Box,
   FormControl,
@@ -28,7 +28,7 @@ const FlashcardFromDocumentSetup = ({
     setFlashcardData,
     goToNextStep,
     generateFlashcardQuestions
-  } = useFlashCardState();
+  } = useFlashcardWizard();
   const [isLoading, setIsLoading] = useState(false);
   const [localData, setLocalData] = useState<typeof flashcardData>({
     deckname: '',

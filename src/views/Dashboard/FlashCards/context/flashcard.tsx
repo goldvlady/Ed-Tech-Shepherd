@@ -11,6 +11,28 @@ import React, {
   useMemo
 } from 'react';
 
+export enum TypeEnum {
+  FLASHCARD = 'flashcard',
+  MNEOMONIC = 'mneomonic',
+  INIT = 'init'
+}
+
+export enum SourceEnum {
+  DOCUMENT = 'document',
+  SUBJECT = 'subject',
+  MANUAL = 'manual'
+}
+
+export enum QuestionGenerationStatusEnum {
+  INIT = 'INIT',
+  SUCCESSFUL = 'SUCCESSFUL',
+  FAILED = 'FAILED'
+}
+type SettingsType = {
+  type: TypeEnum;
+  source: SourceEnum;
+};
+
 interface FlashcardData {
   deckname: string;
   level?: string;
@@ -48,32 +70,43 @@ export interface FlashcardDataContextProps {
   deleteQuestion: (index: number) => void;
   setQuestions: React.Dispatch<React.SetStateAction<FlashcardQuestion[]>>;
   setFlashcardData: React.Dispatch<React.SetStateAction<FlashcardData>>;
+  setSettings: React.Dispatch<React.SetStateAction<SettingsType>>;
+  settings: SettingsType;
   setLoader: React.Dispatch<React.SetStateAction<boolean>>;
   isLoading: boolean;
+  isMinimized: boolean;
+  setMinimized: React.Dispatch<React.SetStateAction<boolean>>;
   generateFlashcardQuestions: (
     d?: FlashcardData,
     onDone?: (success: boolean) => void
   ) => Promise<void>;
+  questionGenerationStatus: QuestionGenerationStatusEnum;
 }
 
 const FlashcardDataContext = createContext<
   FlashcardDataContextProps | undefined
 >(undefined);
 
-export const useFlashCardState = () => {
+export const useFlashcardWizard = () => {
   const context = useContext(FlashcardDataContext);
   if (!context) {
     throw new Error(
-      'useFlashcardDataContext must be used within a FlashcardDataProvider'
+      'useFlashcardDataContext must be used within a FlashcardWizardProvider'
     );
   }
   return context;
 };
 
-const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
+const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
   children
 }) => {
   const { user } = userStore();
+
+  const [settings, setSettings] = useState<SettingsType>({
+    type: TypeEnum.INIT,
+    source: SourceEnum.SUBJECT
+  });
+
   const defaultFlashcardData = useMemo(
     () => ({
       deckname: '',
@@ -88,11 +121,13 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const [flashcardData, setFlashcardData] =
     useState<FlashcardData>(defaultFlashcardData);
-
   const [questions, setQuestions] = useState<FlashcardQuestion[]>([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [questionGenerationStatus, setQuestionGenerationStatus] =
+    useState<QuestionGenerationStatusEnum>(QuestionGenerationStatusEnum.INIT);
+  const [isMinimized, setMinimized] = useState(false);
 
   const goToQuestion = useCallback(
     (arg: number | ((previousIndex: number) => number)) => {
@@ -173,7 +208,7 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
           } = await fileInfo.process();
           const response = await ApiService.createDocchatFlashCards({
             topic: reqData.topic as string,
-            studentId: user?._id as string,
+            studentId: user?.student?._id as string,
             documentId: documentId as string,
             count: parseInt(count as unknown as string, 10)
           });
@@ -190,8 +225,12 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
 
             setQuestions(questions);
             setCurrentStep((prev) => prev + 1);
+            setQuestionGenerationStatus(
+              QuestionGenerationStatusEnum.SUCCESSFUL
+            );
             onDone && onDone(true);
           } else {
+            setQuestionGenerationStatus(QuestionGenerationStatusEnum.FAILED);
             setFlashcardData((prev) => ({ ...prev, hasSubmitted: false }));
             onDone && onDone(false);
           }
@@ -221,13 +260,18 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
 
             setQuestions(questions);
             setCurrentStep((prev) => prev + 1);
+            setQuestionGenerationStatus(
+              QuestionGenerationStatusEnum.SUCCESSFUL
+            );
             onDone && onDone(true);
           } else {
             setFlashcardData((prev) => ({ ...prev, hasSubmitted: false }));
+            setQuestionGenerationStatus(QuestionGenerationStatusEnum.FAILED);
             onDone && onDone(false);
           }
         }
       } catch (error) {
+        setQuestionGenerationStatus(QuestionGenerationStatusEnum.FAILED);
         setFlashcardData((prev) => ({ ...prev, hasSubmitted: false }));
         onDone && onDone(false);
       } finally {
@@ -252,7 +296,12 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
       setQuestions,
       generateFlashcardQuestions,
       goToNextStep: () => setCurrentStep((prev) => prev + 1),
-      goToStep: (stepIndex: number) => setCurrentStep(stepIndex)
+      goToStep: (stepIndex: number) => setCurrentStep(stepIndex),
+      settings,
+      setMinimized,
+      isMinimized,
+      setSettings,
+      questionGenerationStatus
     }),
     [
       flashcardData,
@@ -265,7 +314,12 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
       goToQuestion,
       deleteQuestion,
       setQuestions,
-      generateFlashcardQuestions
+      generateFlashcardQuestions,
+      settings,
+      setSettings,
+      setMinimized,
+      isMinimized,
+      questionGenerationStatus
     ]
   );
 
@@ -276,4 +330,4 @@ const FlashcardDataProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-export default FlashcardDataProvider;
+export default FlashcardWizardProvider;

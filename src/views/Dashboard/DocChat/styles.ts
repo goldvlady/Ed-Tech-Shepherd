@@ -73,6 +73,7 @@ export const GridItem = styled.div`
   color: #1f2937;
   font-weight: lighter;
   place-content: center;
+  z-index: 9999;
 `;
 
 export const FlexContainer = styled.div`
@@ -161,7 +162,7 @@ export const ChatbotContainer = styled.div<{
   display: flex;
   flex-direction: row;
   align-items: center;
-  height: 89px;
+  height: auto;
   padding: 1rem;
   gap: 10px;
   border-left: 1px solid #eeeff2;
@@ -193,12 +194,12 @@ export const Input = styled.textarea`
 export const SendButton = styled.button`
   position: absolute;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   height: 100%;
   width: 2.75rem;
   right: 0;
-  top: -3px;
+  top: -11px;
   color: #cbd5e0;
   &:hover {
     color: #4a5568;
@@ -307,22 +308,30 @@ export const RadioInput = styled.input`
   width: 14px;
 `;
 
-export const ChatContainerResponse = styled.div`
+export const ChatContainerResponse = styled.div<{ messages: any }>`
   display: flex;
   flex-direction: column;
   grid-column: span 12;
-  overflow-y: scroll;
-  scrollbar-width: thin;
-  padding: 0px 24px 20px 24px;
-  max-height: 42vh;
-  // min-height: 100vh;
+  margin-top: 240px;
+  margin-right: 24px;
+  margin-bottom: 20px;
+  margin-left: 24px;
 
+  position: absolute;
+  right: 0;
+  bottom: 236px;
+  height: 400px; /* Specific height as a fallback */
+  height: -webkit-fill-available; /* For Safari */
+  width: 100%; /* fallback for browsers not supporting -webkit-fill-available */
+  width: -webkit-fill-available;
+  z-index: ${({ messages }) => (messages ? '10' : '-1')};
+  width: -moz-available;
   /* Scrollable content */
   overflow-y: scroll;
   scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 
-  /* Custom styling for the scrollbar */
+  /* Custom styling for the scrollbar - for Webkit browsers */
   ::-webkit-scrollbar {
     width: 6px;
   }
@@ -415,10 +424,12 @@ export const ChatHistoryBody = styled.div`
   padding: 8px;
   border-radius: 8px;
   margin-top: 20px;
+  cursor: pointer;
 `;
 
 export const ChatHistoryContainer = styled.div`
-  margin: 50px 0;
+  margin: 112px 0;
+  width: 100%;
 `;
 
 export const ChatHistoryBlock = styled.div`
@@ -431,6 +442,11 @@ export const ChatHistoryHeader = styled.div`
   justify-content: space-between;
   border-bottom: 1px solid #eeeff2;
   margin-bottom: 15px;
+  position: fixed;
+  height: 7vh;
+  width: 25%;
+  top: 78px;
+  background: white;
 
   p:nth-child(1) {
     font-size: 1.125rem;
