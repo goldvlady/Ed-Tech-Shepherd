@@ -43,7 +43,7 @@ export default function DocChat() {
   const [isUpdatedSummary, setUpdatedSummary] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!socket) {
+    if (documentId && studentId) {
       const authSocket = socketWithAuth({
         studentId,
         documentId,
@@ -52,7 +52,7 @@ export default function DocChat() {
 
       setSocket(authSocket);
     }
-  }, [socket, studentId, documentId]);
+  }, [studentId, documentId]);
 
   useEffect(() => {
     if (socket) {
