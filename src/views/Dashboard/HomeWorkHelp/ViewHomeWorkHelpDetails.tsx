@@ -1,6 +1,7 @@
 import CustomButton from '../../../components/CustomComponents/CustomButton/index';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import SelectComponent, { Option } from '../../../components/Select';
+import { uid } from '../../../helpers';
 import resourceStore from '../../../state/resourceStore';
 import {
   Box,
@@ -56,9 +57,10 @@ const ViewHomeWorkHelpDetails = ({
   level?: any;
   onRouteHomeWorkHelp?: any;
 }) => {
-  const { courses: courseList, levels: levelOptions } = resourceStore();
+  const { courses: courseListRaw, levels: levelOptions } = resourceStore();
   const [searchValue, setSearchValue] = useState('');
-
+  const [isShowInput, setShowInput] = useState('');
+  const courseList = [...courseListRaw, { _id: uid(), label: 'Others' }];
   const searchQuery = useCallback((searchValue: string, courseList: any[]) => {
     return courseList.filter((course) =>
       course.label.toLowerCase().includes(searchValue.toLowerCase())
@@ -122,53 +124,68 @@ const ViewHomeWorkHelpDetails = ({
           >
             Subject
           </FormLabel>
-          <Menu>
-            <MenuButton
-              as={Button}
-              variant="outline"
-              rightIcon={<FiChevronDown />}
-              fontSize={14}
-              borderRadius="8px"
-              fontWeight={400}
-              width="100%"
-              height="42px"
-              color="text.400"
-              textAlign="left"
-            >
-              {subjectId !== 'Subject'
-                ? courseList.map((course) => {
-                    if (course._id === subjectId) {
-                      return course.label;
-                    }
-                  })
-                : 'e.g Biology'}
-            </MenuButton>
-            <MenuList zIndex={3} width="24em">
-              <Input
-                size="sm"
-                onChange={(e) => setSearchValue(e.target.value)}
-                placeholder="Search Subject"
-                value={searchValue}
-              />
-              <div
-                style={{
-                  maxHeight: '200px',
-                  overflowY: 'auto'
-                }}
+          {isShowInput.toLowerCase() === 'others' ? (
+            <Input
+              type="text"
+              name="others"
+              placeholder="e.g Biology"
+              value={localData?.others}
+              onChange={handleChange}
+              _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
+            />
+          ) : (
+            <Menu>
+              <MenuButton
+                as={Button}
+                variant="outline"
+                rightIcon={<FiChevronDown />}
+                fontSize={14}
+                borderRadius="8px"
+                fontWeight={400}
+                width="100%"
+                height="42px"
+                color="text.400"
+                textAlign="left"
+                placeholder="e.g Biology"
               >
-                {filteredOptions.map((course) => (
-                  <MenuItem
-                    fontSize="0.875rem"
-                    key={course._id}
-                    _hover={{ bgColor: '#F2F4F7' }}
-                    onClick={() => setSubject(course._id)}
-                  >
-                    {course.label}
-                  </MenuItem>
-                ))}
-              </div>
-            </MenuList>
-          </Menu>
+                {subjectId !== 'Subject'
+                  ? courseList.map((course) => {
+                      if (course._id === subjectId) {
+                        return course.label;
+                      }
+                    })
+                  : 'e.g Biology'}
+              </MenuButton>
+              <MenuList zIndex={3} width="24em">
+                <Input
+                  size="sm"
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  placeholder="Search Subject"
+                  value={searchValue}
+                />
+                <div
+                  style={{
+                    maxHeight: '200px',
+                    overflowY: 'auto'
+                  }}
+                >
+                  {filteredOptions.map((course) => (
+                    <MenuItem
+                      fontSize="0.875rem"
+                      key={course._id}
+                      _hover={{ bgColor: '#F2F4F7' }}
+                      onClick={() => {
+                        setSubject(course._id);
+                        setShowInput(course.label);
+                      }}
+                    >
+                      {course.label}
+                    </MenuItem>
+                  ))}
+                </div>
+              </MenuList>
+            </Menu>
+          )}
         </FormControl>
         <FormControl mb={6}>
           <FormLabel
