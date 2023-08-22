@@ -34,10 +34,12 @@ type GroupedChat = {
 
 const ChatHistory = ({
   studentId,
-  setConversationId
+  setConversationId,
+  conversationId
 }: {
   studentId: string;
   setConversationId: (conversationId: string) => void;
+  conversationId: string;
 }) => {
   // const placeholder = [
   //   {
