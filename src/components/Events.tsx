@@ -57,8 +57,8 @@ export default function Events({ event }: any) {
                 event.data.entity?.deckname
                   ? event.data.entity.deckname
                   : {
-                      subject: event.data.offer.course.label,
-                      tutor: `${event.data.offer.tutor.user.name.first} ${event.data.offer.tutor.user.name.last}`
+                      subject: event.data?.offer?.course?.label,
+                      tutor: `${event.data?.offer?.tutor?.user?.name?.first} ${event.data?.offer?.tutor?.user?.name?.last}`
                     }
               )}
             </Text>

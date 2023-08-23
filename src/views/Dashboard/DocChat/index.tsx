@@ -43,7 +43,7 @@ export default function DocChat() {
   const [isUpdatedSummary, setUpdatedSummary] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!socket) {
+    if (documentId && studentId) {
       const authSocket = socketWithAuth({
         studentId,
         documentId,
@@ -52,7 +52,7 @@ export default function DocChat() {
 
       setSocket(authSocket);
     }
-  }, [socket, studentId, documentId]);
+  }, [studentId, documentId]);
 
   useEffect(() => {
     if (socket) {
@@ -150,7 +150,7 @@ export default function DocChat() {
         { text: prompt, isUser: true, isLoading: false }
       ]);
 
-      socket.emit('chat message');
+      socket.emit('chat message', prompt);
     },
     [socket, messages?.length]
   );
@@ -307,7 +307,7 @@ export default function DocChat() {
       }
     };
     fetchChatHistory();
-  }, [documentId, studentId, toast]);
+  }, [documentId, studentId, toast, socket]);
 
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
 

@@ -122,8 +122,8 @@ const Chat = ({
 
   const prompts = [
     "Explain this document to me like I'm five",
-    'Who wrote this book?',
-    'How many chapters are in this book?'
+    'What do I need to know to understand this document?',
+    'What other topics should I explore after this document?'
   ];
 
   const onClose = useCallback(() => {
@@ -292,12 +292,10 @@ const Chat = ({
                     </FlexContainer>
                     {HomeWorkHelp ? (
                       <StyledText>
-                        I understand you're seeking knowledge and understanding.
-                        Instead of providing you with mere answers, I wish to
-                        guide you in asking the right questions. Do not expect
-                        me to fill your vessel with knowledge, but rather to
-                        kindle a flame of inquiry within you. Now, tell me, what
-                        is it that you wish to understand?
+                        Welcome! I'm here to help you make the most of your time
+                        and your notes. Ask me questions, and I'll find the
+                        answers that match, given the information you've
+                        supplied. Let's get learning!
                       </StyledText>
                     ) : (
                       <StyledText>
@@ -355,7 +353,10 @@ const Chat = ({
                       </AskSomethingPillContainer>
                     </AskSomethingContainer>
                   )}
-                  <ChatContainerResponse ref={ref}>
+                  <ChatContainerResponse
+                    ref={ref}
+                    messages={messages && messages.length >= 1}
+                  >
                     {messages?.map((message, index) =>
                       message.isUser ? (
                         <UserMessage key={index}>{message.text}</UserMessage>

@@ -8,6 +8,7 @@ import {
   ChatHistoryDate,
   ChatHistoryHeader
 } from './styles';
+import { Box, Spinner } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 import React from 'react';
 import styled from 'styled-components';
@@ -33,10 +34,12 @@ type GroupedChat = {
 
 const ChatHistory = ({
   studentId,
-  setConversationId
+  setConversationId,
+  conversationId
 }: {
   studentId: string;
   setConversationId: (conversationId: string) => void;
+  conversationId: string;
 }) => {
   // const placeholder = [
   //   {
@@ -46,8 +49,10 @@ const ChatHistory = ({
   // ];
 
   const [chatHistory, setChatHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   async function retrieveChatHistory(studentId: string): Promise<void> {
+    setLoading(true);
     const chatHistory = await fetchStudentConversations(studentId);
 
     const historyWithContent: any = chatHistory
@@ -64,6 +69,7 @@ const ChatHistory = ({
       .reverse();
 
     setChatHistory(historyWithContent);
+    setLoading(false);
   }
 
   function groupChatsByDate(chatHistory: Chat[]): GroupedChat[] {
@@ -92,22 +98,42 @@ const ChatHistory = ({
         <p>Chat history</p>
         <p>Clear history</p>
       </ChatHistoryHeader>
-      {groupChatsByDateArr?.map((history, index) => (
-        <ChatHistoryBlock key={index}>
-          <ChatHistoryDate>{history.date}</ChatHistoryDate>
-          {history.messages.map((message) => (
-            <ChatHistoryBody
-              key={message.id}
-              onClick={() => setConversationId(message.id)}
-            >
-              <Clock>
-                <HistoryIcn />
-              </Clock>
-              <p>{message.message}</p>
-            </ChatHistoryBody>
+      {loading && (
+        <Box
+          p={5}
+          textAlign="center"
+          margin="0 auto"
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '40vh',
+            width: '24vw'
+          }}
+        >
+          <Spinner />
+        </Box>
+      )}
+      {!loading && (
+        <>
+          {groupChatsByDateArr?.map((history, index) => (
+            <ChatHistoryBlock key={index}>
+              <ChatHistoryDate>{history.date}</ChatHistoryDate>
+              {history.messages.map((message) => (
+                <ChatHistoryBody
+                  key={message.id}
+                  onClick={() => setConversationId(message.id)}
+                >
+                  <Clock>
+                    <HistoryIcn />
+                  </Clock>
+                  <p>{message.message}</p>
+                </ChatHistoryBody>
+              ))}
+            </ChatHistoryBlock>
           ))}
-        </ChatHistoryBlock>
-      ))}
+        </>
+      )}
     </ChatHistoryContainer>
   );
 };
