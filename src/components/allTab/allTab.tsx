@@ -1,5 +1,6 @@
 import { saveMarkdownAsPDF } from '../../library/fs';
 import ApiService from '../../services/ApiService';
+import FlashModal from '../../views/Dashboard/FlashCards/components/FlashModal';
 import TagModal from '../../views/Dashboard/FlashCards/components/TagModal';
 import { NoteModal } from '../../views/Dashboard/Notes/Modal';
 import {
@@ -7,6 +8,7 @@ import {
   NoteServerResponse
 } from '../../views/Dashboard/Notes/types';
 import TableTag from '../CustomComponents/CustomTag';
+import { useCustomToast } from '../CustomComponents/CustomToast/useCustomToast';
 import {
   DownloadIcon,
   FlashCardsIcon,
@@ -61,7 +63,7 @@ type PinnedNote = {
 
 const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
   const params = useParams();
-  const toast = useToast();
+  const toast = useCustomToast();
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
   const [deleteAllNoteModal, setDeleteAllNoteModal] = useState(false);
   const [tagAllNoteModal, setTagAllNoteModal] = useState(false);
@@ -93,6 +95,19 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
   const [newTags, setNewTags] = useState<string[]>(tags);
 
   const DELETE_NOTE_TITLE = 'Delete Note';
+
+  const [openFlashCard, setOpenFlashCard] = useState<boolean>(false);
+
+  const [openDocumentFlashCard, setOpenDocumentFlashCard] =
+    useState<boolean>(false);
+
+  const showFlashCardDropdown = () => {
+    setOpenFlashCard((prevState) => !prevState);
+  };
+
+  const showDocumentFlashCardDropdown = () => {
+    setOpenFlashCard((prevState) => !prevState);
+  };
 
   const formatTags = (tags: string | string[]): any[] => {
     if (!tags) {
@@ -627,14 +642,14 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
       width: '350px',
       render: ({ tags }) => <TableTagWrapper>{tags}</TableTagWrapper>
     },
-    {
-      key: 'status',
-      title: 'Staus',
-      dataIndex: 'status',
-      align: 'left',
-      id: 2,
-      render: ({ status }) => <>{status}</>
-    },
+    // {
+    //   key: 'status',
+    //   title: 'Staus',
+    //   dataIndex: 'status',
+    //   align: 'left',
+    //   id: 2,
+    //   render: ({ status }) => <>{status}</>
+    // },
     {
       key: 'dateCreated',
       title: 'Date Created',
@@ -652,7 +667,7 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     {
       key: 'actions',
       title: '',
-      render: ({ topic, id, unFormatedTags }) =>
+      render: ({ topic, id, unFormatedTags, title }) =>
         topic ? (
           <Menu>
             <MenuButton
@@ -674,9 +689,10 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
             >
               <section className="space-y-2 border-b pb-2">
                 <button
-                  onClick={() => {
-                    navigate(`/clients/${id}`);
-                  }}
+                  // onClick={() => {
+                  //   navigate(`/clients/${id}`);
+                  // }}
+                  onClick={showFlashCardDropdown}
                   className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
                 >
                   <div className=" flex items-center space-x-1">
@@ -780,11 +796,50 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
               boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
             >
               <section className="space-y-2 border-b pb-2">
+                <button
+                  // onClick={() => {
+                  //   navigate(`/clients/${id}`);
+                  // }}
+                  onClick={showDocumentFlashCardDropdown}
+                  className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
+                >
+                  <div className=" flex items-center space-x-1">
+                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                      <FlashCardsIcon
+                        className="w-4 h-4 text-primaryGray"
+                        onClick={undefined}
+                      />
+                    </div>
+                    <Text className="text-sm text-secondaryGray font-medium">
+                      Flashcards
+                    </Text>
+                  </div>
+                  <ChevronRightIcon className="w-2.5 h-2.5" />
+                </button>
+                <button
+                  onClick={() => {
+                    // onAddTag(true, id, unFormatedTags);
+                  }}
+                  className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
+                >
+                  <div className="flex items-center space-x-1">
+                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                      <FlashCardsSolidIcon
+                        onClick={undefined}
+                        className="w-4 h-4 text-primaryGray"
+                      />
+                    </div>
+                    <Text className="text-sm text-secondaryGray font-medium">
+                      Edit tag
+                    </Text>
+                  </div>
+                  <ChevronRightIcon className="w-2.5 h-2.5" />
+                </button>
                 <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
                   <div
                     className="flex items-center space-x-1"
                     onClick={() => {
-                      downloadAsPDF(id, topic);
+                      // downloadAsPDF(id, topic);
                     }}
                   >
                     <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
@@ -802,7 +857,7 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
               </section>
               <div
                 onClick={() => {
-                  // onDeletePdf(true, id);
+                  // onDeleteNote(true, id);
                 }}
                 style={{
                   display: 'flex',
@@ -1042,6 +1097,32 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
         onDelete={() => DeleteAllNote()}
         onClose={() => setDeleteAllNoteModal(!deleteAllNoteModal)}
       />
+
+      {openFlashCard && (
+        <FlashModal
+          isOpen={openFlashCard}
+          onClose={() => setOpenFlashCard(false)}
+          title="Flash Card Title"
+          loadingButtonText="Creating..."
+          buttonText="Create"
+          onSubmit={(noteId) => {
+            // submission here
+          }}
+        />
+      )}
+
+      {openDocumentFlashCard && (
+        <FlashModal
+          isOpen={openFlashCard}
+          onClose={() => setOpenFlashCard(false)}
+          title="Flash Card Title"
+          loadingButtonText="Creating..."
+          buttonText="Create"
+          onSubmit={(noteId) => {
+            // submission here
+          }}
+        />
+      )}
     </>
   );
 };

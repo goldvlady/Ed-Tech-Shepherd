@@ -1,11 +1,21 @@
-import { TrashIcon } from '../icons';
+import { saveMarkdownAsPDF } from '../../library/fs';
+import FlashModal from '../../views/Dashboard/FlashCards/components/FlashModal';
+import { useCustomToast } from '../CustomComponents/CustomToast/useCustomToast';
+import {
+  DownloadIcon,
+  FlashCardsIcon,
+  FlashCardsSolidIcon,
+  TrashIcon
+} from '../icons';
 import { TableTitleWrapper } from '../notesTab/styles';
 import SelectableTable, { TableColumn } from '../table';
-import { Text } from '@chakra-ui/react';
+import { Button, Menu, MenuButton, MenuList, Text } from '@chakra-ui/react';
 import { AlertStatus, ToastPosition } from '@chakra-ui/react';
 import { useToast } from '@chakra-ui/react';
+import { ChevronRightIcon } from '@heroicons/react/24/solid';
 import moment from 'moment';
 import { FC, useLayoutEffect, useRef, useState } from 'react';
+import { FaEllipsisH } from 'react-icons/fa';
 import { useNavigate } from 'react-router';
 
 type DataSourceItem = {
@@ -26,7 +36,7 @@ const formatDate = (date: Date, format = 'DD ddd, hh:mma'): string => {
 };
 
 const AllDocumentTab: FC<Props> = ({ data }) => {
-  const toast = useToast();
+  const toast = useCustomToast();
   const navigate = useNavigate();
 
   const checkbox = useRef<HTMLInputElement>(null);
@@ -41,6 +51,12 @@ const AllDocumentTab: FC<Props> = ({ data }) => {
   const [selectedNoteIdToAddTagsArray, setSelectedNoteIdToAddTagsArray] =
     useState<string[]>([]);
   const [selectedNoteIdToAddTags, setSelectedNoteIdToAddTags] = useState(null);
+
+  const [openFlashCard, setOpenFlashCard] = useState<boolean>(false);
+
+  const showFlashCardDropdown = () => {
+    setOpenFlashCard((prevState) => !prevState);
+  };
 
   const [dataSource] = useState<DataSourceItem[]>(
     Array.from({ length: data.length }, (_, i) => ({
@@ -119,6 +135,23 @@ const AllDocumentTab: FC<Props> = ({ data }) => {
     }
   };
 
+  const showToast = (
+    title: string,
+    description: string,
+    status: AlertStatus,
+    position: ToastPosition = 'top-right',
+    duration = 5000,
+    isClosable = true
+  ) => {
+    toast({
+      title: description,
+      status: status,
+      position: position,
+      duration: duration,
+      isClosable: isClosable
+    });
+  };
+
   const clientColumn: TableColumn<DataSourceItem>[] = [
     {
       key: 'title',
@@ -150,6 +183,119 @@ const AllDocumentTab: FC<Props> = ({ data }) => {
       dataIndex: 'lastModified',
       align: 'left',
       id: 3
+    },
+    {
+      key: 'actions',
+      title: '',
+      render: ({ id, title }) => (
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="unstyled"
+            borderRadius="full"
+            p={0}
+            minW="auto"
+            height="auto"
+          >
+            <FaEllipsisH fontSize={'12px'} />
+          </MenuButton>
+          <MenuList
+            fontSize="14px"
+            minWidth={'185px'}
+            borderRadius="8px"
+            backgroundColor="#FFFFFF"
+            boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
+          >
+            <section className="space-y-2 border-b pb-2">
+              <button
+                // onClick={() => {
+                //   navigate(`/clients/${id}`);
+                // }}
+                onClick={showFlashCardDropdown}
+                className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
+              >
+                <div className=" flex items-center space-x-1">
+                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                    <FlashCardsIcon
+                      className="w-4 h-4 text-primaryGray"
+                      onClick={undefined}
+                    />
+                  </div>
+                  <Text className="text-sm text-secondaryGray font-medium">
+                    Flashcards
+                  </Text>
+                </div>
+                <ChevronRightIcon className="w-2.5 h-2.5" />
+              </button>
+              <button
+                onClick={() => {
+                  // onAddTag(true, id, unFormatedTags);
+                }}
+                className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
+              >
+                <div className="flex items-center space-x-1">
+                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                    <FlashCardsSolidIcon
+                      onClick={undefined}
+                      className="w-4 h-4 text-primaryGray"
+                    />
+                  </div>
+                  <Text className="text-sm text-secondaryGray font-medium">
+                    Edit tag
+                  </Text>
+                </div>
+                <ChevronRightIcon className="w-2.5 h-2.5" />
+              </button>
+              <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
+                <div
+                  className="flex items-center space-x-1"
+                  onClick={() => {
+                    // downloadAsPDF(id, topic);
+                  }}
+                >
+                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                    <DownloadIcon
+                      className="w-4 h-4 text-primaryGray"
+                      onClick={undefined}
+                    />
+                  </div>
+                  <Text className="text-sm text-secondaryGray font-medium">
+                    Download
+                  </Text>
+                </div>
+                <ChevronRightIcon className="w-2.5 h-2.5" />
+              </button>
+            </section>
+            <div
+              onClick={() => {
+                // onDeleteNote(true, id);
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '15px'
+              }}
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M3.08317 2.50033V0.750326C3.08317 0.428162 3.34434 0.166992 3.6665 0.166992H8.33317C8.65535 0.166992 8.9165 0.428162 8.9165 0.750326V2.50033H11.8332V3.66699H10.6665V11.2503C10.6665 11.5725 10.4053 11.8337 10.0832 11.8337H1.9165C1.59434 11.8337 1.33317 11.5725 1.33317 11.2503V3.66699H0.166504V2.50033H3.08317ZM4.24984 1.33366V2.50033H7.74984V1.33366H4.24984Z"
+                  fill="#F53535"
+                />
+              </svg>
+              <Text fontSize="14px" lineHeight="20px" fontWeight="400">
+                Delete
+              </Text>
+            </div>
+          </MenuList>
+        </Menu>
+      )
     }
   ];
 
@@ -227,6 +373,19 @@ const AllDocumentTab: FC<Props> = ({ data }) => {
                 selectedNoteIdToAddTags={selectedNoteIdToAddTags}
                 setSelectedNoteIdToAddTags={setSelectedNoteIdToAddTags}
               />
+
+              {openFlashCard && (
+                <FlashModal
+                  isOpen={openFlashCard}
+                  onClose={() => setOpenFlashCard(false)}
+                  title="Flash Card Title"
+                  loadingButtonText="Creating..."
+                  buttonText="Create"
+                  onSubmit={(noteId) => {
+                    // submission here
+                  }}
+                />
+              )}
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { saveMarkdownAsPDF } from '../../library/fs';
 import ApiService from '../../services/ApiService';
+import FlashModal from '../../views/Dashboard/FlashCards/components/FlashModal';
 import TagModal from '../../views/Dashboard/FlashCards/components/TagModal';
 import { NoteModal } from '../../views/Dashboard/Notes/Modal';
 import {
@@ -7,6 +8,7 @@ import {
   NoteServerResponse
 } from '../../views/Dashboard/Notes/types';
 import TableTag from '../CustomComponents/CustomTag';
+import { useCustomToast } from '../CustomComponents/CustomToast/useCustomToast';
 import {
   DownloadIcon,
   FlashCardsIcon,
@@ -71,7 +73,7 @@ type PinnedNote = {
 
 const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
   const params = useParams();
-  const toast = useToast();
+  const toast = useCustomToast();
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
   const [deleteAllNoteModal, setDeleteAllNoteModal] = useState(false);
   const [tagAllNoteModal, setTagAllNoteModal] = useState(false);
@@ -100,6 +102,12 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [newTags, setNewTags] = useState<string[]>(tags);
+
+  const [openFlashCard, setOpenFlashCard] = useState<boolean>(false);
+
+  const showFlashCardDropdown = () => {
+    setOpenFlashCard((prevState) => !prevState);
+  };
 
   const formatTags = (tags: string | string[]): any[] => {
     if (!tags) {
@@ -404,6 +412,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
       }
       setDeleteNoteModal(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
+
       setNoteId('');
       getNotes();
 
@@ -456,6 +465,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
         savePinnedNoteLocal(updatedPinnedNotes);
       }
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
+
       setNoteId('');
       getNotes();
 
@@ -517,6 +527,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
       setOpenTagsModal(false);
       setIsLoading(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
+
       setNoteId('');
       clearEditor();
       getNotes();
@@ -568,6 +579,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     } else {
       setIsLoading(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
+
       setNoteId('');
       getNotes();
 
@@ -616,14 +628,14 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
       width: '350px',
       render: ({ tags }) => <TableTagWrapper>{tags}</TableTagWrapper>
     },
-    {
-      key: 'status',
-      title: 'Staus',
-      dataIndex: 'status',
-      align: 'left',
-      id: 2,
-      render: ({ status }) => <>{status}</>
-    },
+    // {
+    //   key: 'status',
+    //   title: 'Staus',
+    //   dataIndex: 'status',
+    //   align: 'left',
+    //   id: 2,
+    //   render: ({ status }) => <>{status}</>
+    // },
     {
       key: 'dateCreated',
       title: 'Date Created',
@@ -662,9 +674,10 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
           >
             <section className="space-y-2 border-b pb-2">
               <button
-                onClick={() => {
-                  navigate(`/clients/${id}`);
-                }}
+                // onClick={() => {
+                //   navigate(`/clients/${id}`);
+                // }}
+                onClick={showFlashCardDropdown}
                 className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
               >
                 <div className=" flex items-center space-x-1">
@@ -956,6 +969,19 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
         onDelete={() => DeleteAllNote()}
         onClose={() => setDeleteAllNoteModal(!deleteAllNoteModal)}
       />
+
+      {openFlashCard && (
+        <FlashModal
+          isOpen={openFlashCard}
+          onClose={() => setOpenFlashCard(false)}
+          title="Flash Card Title"
+          loadingButtonText="Creating..."
+          buttonText="Create"
+          onSubmit={(noteId) => {
+            // submission here
+          }}
+        />
+      )}
     </>
   );
 };

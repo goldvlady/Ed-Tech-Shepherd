@@ -9,6 +9,7 @@ import { ReactComponent as ZoomIcon } from '../../../../assets/square.svg';
 import { ReactComponent as TrashIcon } from '../../../../assets/trash-icn.svg';
 import CustomButton from '../../../../components/CustomComponents/CustomButton';
 import TableTag from '../../../../components/CustomComponents/CustomTag';
+import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import useDebounce from '../../../../hooks/useDebounce';
 import { saveMarkdownAsPDF } from '../../../../library/fs';
 import { uploadBlockNoteDocument } from '../../../../services/AI';
@@ -163,7 +164,7 @@ const NewNote = () => {
     useState<NoteServerResponse<NoteDetails> | null>(null);
   const [pinnedNotes, setPinnedNotes] = useState<PinnedNote[]>([]);
 
-  const toast = useToast();
+  const toast = useCustomToast();
   const params = useParams();
   const location = useLocation();
   const [noteParamId, setNoteParamId] = useState<string | null>(
@@ -172,7 +173,6 @@ const NewNote = () => {
   const [openTags, setOpenTags] = useState<boolean>(false);
   const [openFlashCard, setOpenFlashCard] = useState<boolean>(false);
   const [noteId, setNoteId] = useState<any | null>(null);
-  // const [draftNoteId, setDraftNoteId] = useState<string>('');
   const [saveButtonState, setSaveButtonState] = useState<boolean>(true);
   const [editedTitle, setEditedTitle] = useState(defaultNoteTitle);
   const editedTitleRef = useRef<any>(null);
@@ -604,17 +604,32 @@ const NewNote = () => {
     }
   };
 
+  // const proceed = async () => {
+  //   if (!saveDetails?.data || !saveDetails.data.documentId) {
+  //     return;
+  //   }
+  //   setLoadingDoc(true);
+  //   const noteData = saveDetails.data;
+  //   const url = noteData.documentId;
+  //   const name = noteData.topic;
+  //   if (!url || !name) {
+  //     return;
+  //   }
+  //   try {
+  //     await new Promise((resolve) => setTimeout(resolve, 1000));
+  //     await goToDocChat(url, name);
+  //   } catch (error) {
+  //     // Handle error
+  //   } finally {
+  //     setLoadingDoc(false);
+  //   }
+  // };
+
   const proceed = async () => {
-    if (!saveDetails?.data || !saveDetails.data.documentId) {
-      return;
-    }
     setLoadingDoc(true);
-    const noteData = saveDetails.data;
-    const url = noteData.documentId;
-    const name = noteData.topic;
-    if (!url || !name) {
-      return;
-    }
+
+    const url = studentDocuments[0]?.documentURL;
+    const name = studentDocuments[0]?.title;
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       await goToDocChat(url, name);
@@ -730,7 +745,7 @@ const NewNote = () => {
   };
 
   const handleBackClick = () => {
-    navigate('/dashboard/notes');
+    window.history.back();
   };
 
   /**
@@ -841,7 +856,7 @@ const NewNote = () => {
         tags: tags,
         status: noteStatus
       }).then((saveDetails) => {
-        console.log('existing note updated ', saveDetails);
+        // console.log('existing note updated ', saveDetails);
         saveCallback(noteIdToUse, noteJSON);
       });
     } else {
@@ -854,7 +869,7 @@ const NewNote = () => {
           status: noteStatus
         }).then((saveDetails) => {
           saveCallback(draftNoteIdToUse, noteJSON);
-          console.log('existing draft note updated ', saveDetails);
+          // console.log('existing draft note updated ', saveDetails);
         });
       } else {
         // create a new draft note
@@ -864,7 +879,7 @@ const NewNote = () => {
           tags: newTags,
           status: noteStatus
         }).then((saveDetails) => {
-          console.log('draft note  created ', saveDetails);
+          // console.log('draft note  created ', saveDetails);
           // save new draft note details for update
           if (saveDetails?.data) {
             draftNoteId.current.value = saveDetails.data['_id'];
@@ -903,15 +918,16 @@ const NewNote = () => {
   useEffect(() => {
     if (editedTitleRef.current && editedTitle !== editedTitleRef.current) {
       editedTitleRef.current.value = editedTitle;
-      console.log('ref value: ', editedTitleRef.current.value);
     }
   }, [editedTitle]);
 
   return (
     <>
       <HeaderWrapper>
-        <input type="text" ref={editedTitleRef} />
-        <input type="text" ref={draftNoteId} />
+        <div style={{ display: 'none' }}>
+          <input type="text" ref={editedTitleRef} />
+          <input type="text" ref={draftNoteId} />
+        </div>
         <HeaderButton onClick={handleBackClick}>
           <BackArrow />
           <HeaderButtonText> Back</HeaderButtonText>
@@ -1234,6 +1250,8 @@ const NewNote = () => {
           isOpen={openFlashCard}
           onClose={() => setOpenFlashCard(false)}
           title="Flash Card Title"
+          loadingButtonText="Creating..."
+          buttonText="Create"
           onSubmit={(noteId) => {
             // submission here
           }}

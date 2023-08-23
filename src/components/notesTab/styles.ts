@@ -65,10 +65,12 @@ export const TableTitleWrapper = styled.div`
 `;
 
 export const TableTagWrapper = styled.div`
-  max-height: 50px;
-  overflow-y: scroll;
-  ::-webkit-scrollbar {
-    display: none;
+  display: flex;
+  max-width: 90%;
+  flex-direction: row;
+  overflow-x: hidden;
+  :hover {
+    overflow-x: scroll;
   }
 `;
 

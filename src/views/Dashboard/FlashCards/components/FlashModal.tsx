@@ -19,13 +19,17 @@ interface FlashModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
+  buttonText: string;
+  loadingButtonText: string;
 }
 
 export const FlashModal: React.FC<FlashModalProps> = ({
   onSubmit,
   isOpen,
   onClose,
-  title
+  title,
+  buttonText,
+  loadingButtonText
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -44,12 +48,15 @@ export const FlashModal: React.FC<FlashModalProps> = ({
       <ModalContent>
         <ModalHeader>{title}</ModalHeader>
         <ModalCloseButton />
+        <Box width="80%" margin="0 auto" marginTop="2em">
+          Add the number(s) of flashcard to generate.
+        </Box>
         <ModalBody paddingTop={'0px'}>
           <VStack width={'full'}>
             <FormControl mt="20px">
               <Input
                 _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-                placeholder="Add a flashCard and press enter"
+                placeholder="Enter a number"
               />
             </FormControl>
             <Box
@@ -68,9 +75,9 @@ export const FlashModal: React.FC<FlashModalProps> = ({
               colorScheme="grey"
               onClick={handleSubmit}
               isLoading
-              loadingText="Adding..."
+              loadingText={loadingButtonText}
             >
-              Submit
+              {buttonText}
             </Button>
           ) : (
             <Button
@@ -78,7 +85,7 @@ export const FlashModal: React.FC<FlashModalProps> = ({
               colorScheme="blue"
               onClick={handleSubmit}
             >
-              Submit
+              {buttonText}
             </Button>
           )}
         </ModalFooter>
