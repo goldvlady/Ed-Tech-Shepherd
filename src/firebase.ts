@@ -9,6 +9,7 @@ import {
   EmailAuthProvider,
   getAuth
 } from 'firebase/auth';
+import { getDatabase } from 'firebase/database';
 import { getStorage } from 'firebase/storage';
 
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -20,12 +21,14 @@ export const firebaseConfig = {
   projectId: 'shepherd-app-382114',
   storageBucket: 'shepherd-app-382114.appspot.com',
   messagingSenderId: '675537393578',
+  databaseUrl: 'https://shepherd-app-382114-default-rtdb.firebaseio.com',
   appId: '1:675537393578:web:9a57af7df8fec9f8293dd3'
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const storage = getStorage(app);
+export const database = getDatabase(app);
 export const firebaseAuth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 export const sendPasswordResetEmail = firebaseSendPasswordResetEmail;
