@@ -408,7 +408,11 @@ class ApiService {
     });
   };
 
-  static updateNote = async (id: string | number, data: any) => {
+  static updateNote = async (
+    id: string | number,
+    data: any,
+    tags?: string[]
+  ) => {
     return doFetch(`${ApiService.baseEndpoint}/updateNote/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data)
@@ -451,19 +455,6 @@ class ApiService {
       },
       body: JSON.stringify(requestPayload)
     });
-  };
-
-  static updateNoteDocumentId = async (
-    id: string | number,
-    documentURL: string | undefined
-  ) => {
-    if (!documentURL) {
-      return;
-    }
-    return doFetch(`${ApiService.baseEndpoint}/updateNoteDocumentId/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify({ documentId: documentURL })
-    }).then((response) => response.json());
   };
 
   static updateProfile = async (formData: any) => {

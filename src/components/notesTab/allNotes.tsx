@@ -1,6 +1,5 @@
 import { saveMarkdownAsPDF } from '../../library/fs';
 import ApiService from '../../services/ApiService';
-import FlashModal from '../../views/Dashboard/FlashCards/components/FlashModal';
 import TagModal from '../../views/Dashboard/FlashCards/components/TagModal';
 import { NoteModal } from '../../views/Dashboard/Notes/Modal';
 import {
@@ -8,7 +7,6 @@ import {
   NoteServerResponse
 } from '../../views/Dashboard/Notes/types';
 import TableTag from '../CustomComponents/CustomTag';
-import { useCustomToast } from '../CustomComponents/CustomToast/useCustomToast';
 import {
   DownloadIcon,
   FlashCardsIcon,
@@ -19,8 +17,7 @@ import SelectableTable, { TableColumn } from '../table';
 import {
   StyledMenuButton,
   StyledMenuSection,
-  TableTitleWrapper,
-  TableTagWrapper
+  TableTitleWrapper
 } from './styles';
 import { Block, BlockNoteEditor } from '@blocknote/core';
 import { useBlockNote } from '@blocknote/react';
@@ -31,6 +28,7 @@ import {
   ChevronRightIcon,
   MagnifyingGlassIcon
 } from '@heroicons/react/24/solid';
+import { setTag } from '@sentry/react';
 import moment from 'moment';
 import { FC, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { FaEllipsisH } from 'react-icons/fa';
@@ -52,14 +50,30 @@ type DataSourceItem = {
   tags: any[];
   id: string | number;
   status: string;
-  unFormatedTags?: any;
 };
 
 export interface Props {
   data: Array<NoteDetails>;
   getNotes: () => void;
-  handleTagSelection: any;
 }
+
+const formatTags = (tags: string | string[]): any[] => {
+  if (!tags) {
+    return [];
+  }
+  if (typeof tags === 'string') {
+    // If tags is a string, split it into an array and return
+    return tags.split(',').map((tag) => {
+      return <TableTag label={tag} />;
+    });
+  } else if (Array.isArray(tags)) {
+    return tags.map((tag) => {
+      return <TableTag label={tag} />;
+    });
+  } else {
+    return [];
+  }
+};
 
 const formatDate = (date: Date, format = 'DD ddd, hh:mma'): string => {
   return moment(date).format(format);
@@ -71,9 +85,9 @@ type PinnedNote = {
   pinnedNoteJSON: any;
 };
 
-const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
+const AllNotesTab: FC<Props> = ({ data, getNotes }) => {
   const params = useParams();
-  const toast = useCustomToast();
+  const toast = useToast();
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
   const [deleteAllNoteModal, setDeleteAllNoteModal] = useState(false);
   const [tagAllNoteModal, setTagAllNoteModal] = useState(false);
@@ -81,6 +95,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
   const [selectedPeople, setSelectedPeople] = useState<any[]>([]);
+  const [openTags, setOpenTags] = useState<boolean>(false);
   const [openTagsModal, setOpenTagsModal] = useState<boolean>(false);
   const [noteId, setNoteId] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -89,6 +104,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
   );
 
   const [, setPinnedNotes] = useState<PinnedNote[]>([]);
+
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const [allChecked, setAllChecked] = useState<boolean>(false);
   const [selectedNoteIdToDelete, setSelectedNoteIdToDelete] = useState(null);
@@ -102,34 +118,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [newTags, setNewTags] = useState<string[]>(tags);
-
-  const [openFlashCard, setOpenFlashCard] = useState<boolean>(false);
-
-  const showFlashCardDropdown = () => {
-    setOpenFlashCard((prevState) => !prevState);
-  };
-
-  const formatTags = (tags: string | string[]): any[] => {
-    if (!tags) {
-      return [];
-    }
-    if (typeof tags === 'string') {
-      // If tags is a string, split it into an array and return
-      return tags.split(',').map((tag) => {
-        return <TableTag label={tag} onClick={() => sortTags(tag)} />;
-      });
-    } else if (Array.isArray(tags)) {
-      return tags.map((tag) => {
-        return <TableTag label={tag} onClick={() => sortTags(tag)} />;
-      });
-    } else {
-      return [];
-    }
-  };
-
-  const sortTags = (tagElement) => {
-    handleTagSelection(tagElement);
-  };
 
   const getNoteLocal = (noteId: string | null): string | null => {
     const storageId = getLocalStorageNoteId(noteId);
@@ -160,7 +148,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
       id: data[i]?._id,
       title: data[i]?.topic,
       tags: formatTags(data[i]?.tags),
-      unFormatedTags: data[i]?.tags,
       dateCreated: formatDate(data[i]?.createdAt),
       lastModified: formatDate(data[i]?.updatedAt),
       status: data[i]?.status
@@ -185,13 +172,10 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
 
       setSelectedRowKeys(newSelectedRowKeys);
 
-      const newSelectedNoteIds = dataSource
-        .filter((data) => typeof data.id !== 'undefined')
-        .map((data) => data.id);
+      const newSelectedNoteIds = dataSource.map((data) => data.id);
       const newSelectedNoteIdsAsString = newSelectedNoteIds.map((id) =>
         id.toString()
       );
-
       // Append the new selected note IDs to the existing array
       setSelectedNoteIdToDeleteArray((prevArray) => [
         ...prevArray,
@@ -219,6 +203,10 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     setSelectedNoteIdToDelete(null);
   }
 
+  useEffect(() => {
+    // console.log({ checked, selectedPeople });
+  }, [checked, selectedPeople]);
+
   const onDeleteNote = (isOpenDeleteModal: boolean, noteId: any) => {
     setDeleteNoteModal(isOpenDeleteModal);
     setSelectedPeople([]);
@@ -240,10 +228,20 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     setNoteId(noteId);
   };
 
+  const onAddTagBottomModal = (
+    isOpenTagBottomNoteModal: boolean,
+    noteId: any,
+    tags: string[]
+  ) => {
+    setTagAllNoteModal(isOpenTagBottomNoteModal);
+    setNoteId(noteId);
+  };
+
   const onAddTag = (openTagsModal: boolean, noteId: any, tags: string[]) => {
     setOpenTagsModal(openTagsModal);
     setNoteId(noteId);
-    setTags(tags);
+    // setTags(tags);
+    // console.log({ tags });
   };
 
   const gotoEditNote = (noteId: string | number) => {
@@ -412,7 +410,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
       }
       setDeleteNoteModal(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
-
       setNoteId('');
       getNotes();
 
@@ -440,6 +437,8 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
 
     setIsLoading(true);
 
+    console.log({ noteIdsInUse });
+
     const details = await deleteAllNote(noteIdsInUse);
     setIsLoading(false);
 
@@ -465,7 +464,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
         savePinnedNoteLocal(updatedPinnedNotes);
       }
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
-
       setNoteId('');
       getNotes();
 
@@ -508,7 +506,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
       setOpenTagsModal(false);
       return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
     }
-
     const details = await addTag(noteIdInUse, tagsArray);
 
     if (!details) {
@@ -527,10 +524,11 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
       setOpenTagsModal(false);
       setIsLoading(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
-
       setNoteId('');
       clearEditor();
       getNotes();
+
+      // setTags(details.data.tags);
 
       setDataSource((prevDataSource) => {
         return prevDataSource.map((item) => {
@@ -563,6 +561,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
 
     const details = await addAllNoteTags(noteIdsInUse, selectedTags);
     setIsLoading(false);
+    // console.log({ noteIdsInUse, selectedTags });
 
     if (!details) {
       setTagAllNoteModal(false);
@@ -579,7 +578,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     } else {
       setIsLoading(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
-
       setNoteId('');
       getNotes();
 
@@ -604,6 +602,18 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     setInputValue('');
   };
 
+  const handleTagChange = (event, tag) => {
+    const tagValue = tag.toLowerCase();
+
+    if (event.target.checked) {
+      setSelectedTags([...selectedTags, tagValue]);
+    } else {
+      setSelectedTags(
+        selectedTags.filter((selectedTag) => selectedTag !== tagValue)
+      );
+    }
+  };
+
   const clientColumn: TableColumn<DataSourceItem>[] = [
     {
       key: 'title',
@@ -611,7 +621,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
       dataIndex: 'title',
       align: 'left',
       id: 0,
-      render: ({ title, id }) => (
+      render: ({ title, id, status }) => (
         <TableTitleWrapper>
           <Text onClick={() => gotoEditNote(id)} fontWeight="500">
             {title}
@@ -625,17 +635,16 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
       dataIndex: 'tags',
       align: 'left',
       id: 1,
-      width: '350px',
-      render: ({ tags }) => <TableTagWrapper>{tags}</TableTagWrapper>
+      render: ({ tags }) => <>{tags}</>
     },
-    // {
-    //   key: 'status',
-    //   title: 'Staus',
-    //   dataIndex: 'status',
-    //   align: 'left',
-    //   id: 2,
-    //   render: ({ status }) => <>{status}</>
-    // },
+    {
+      key: 'status',
+      title: 'Staus',
+      dataIndex: 'status',
+      align: 'left',
+      id: 2,
+      render: ({ status }) => <>{status}</>
+    },
     {
       key: 'dateCreated',
       title: 'Date Created',
@@ -653,7 +662,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     {
       key: 'actions',
       title: '',
-      render: ({ title, id, unFormatedTags }) => (
+      render: ({ title, id, tags }) => (
         <Menu>
           <MenuButton
             as={Button}
@@ -674,10 +683,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
           >
             <section className="space-y-2 border-b pb-2">
               <button
-                // onClick={() => {
-                //   navigate(`/clients/${id}`);
-                // }}
-                onClick={showFlashCardDropdown}
+                onClick={() => navigate(`/clients/${id}`)}
                 className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
               >
                 <div className=" flex items-center space-x-1">
@@ -695,7 +701,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
               </button>
               <button
                 onClick={() => {
-                  onAddTag(true, id, unFormatedTags);
+                  onAddTag(true, id, tags);
                 }}
                 className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
               >
@@ -764,11 +770,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
       )
     }
   ];
-
-  useEffect(() => {
-    // console.log({ checked, selectedPeople });
-  }, [checked, selectedPeople]);
-
   useEffect(() => {
     // console.log('new tags loaded: ', newTags);
   }, [newTags]);
@@ -969,19 +970,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
         onDelete={() => DeleteAllNote()}
         onClose={() => setDeleteAllNoteModal(!deleteAllNoteModal)}
       />
-
-      {openFlashCard && (
-        <FlashModal
-          isOpen={openFlashCard}
-          onClose={() => setOpenFlashCard(false)}
-          title="Flash Card Title"
-          loadingButtonText="Creating..."
-          buttonText="Create"
-          onSubmit={(noteId) => {
-            // submission here
-          }}
-        />
-      )}
     </>
   );
 };

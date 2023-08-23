@@ -7,10 +7,6 @@ export const StyledTag = styled(Tag)`
   background: ${(props) => theme.color.gray};
   margin-left: 2px;
   margin-right: 2px;
-  margin-top: 3px;
-  margin-bottom: 3px;
-  padding: 5px;
-  min-width: fit-content;
   &:hover {
     opacity: 0.5;
   }
