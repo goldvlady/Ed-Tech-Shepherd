@@ -13,7 +13,11 @@ import {
   FlashCardsSolidIcon,
   TrashIcon
 } from '../icons';
-import { StyledMenuButton, TableTitleWrapper } from '../notesTab/styles';
+import {
+  StyledMenuButton,
+  TableTitleWrapper,
+  TableTagWrapper
+} from '../notesTab/styles';
 import SelectableTable, { TableColumn } from '../table';
 import { Block, BlockNoteEditor } from '@blocknote/core';
 import { useBlockNote } from '@blocknote/react';
@@ -166,7 +170,9 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
 
       setSelectedRowKeys(newSelectedRowKeys);
 
-      const newSelectedNoteIds = dataSource.map((data) => data.id);
+      const newSelectedNoteIds = dataSource
+        .filter((data) => typeof data.id !== 'undefined')
+        .map((data) => data.id);
       const newSelectedNoteIdsAsString = newSelectedNoteIds.map((id) =>
         id.toString()
       );
@@ -618,7 +624,8 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
       dataIndex: 'tags',
       align: 'left',
       id: 1,
-      render: ({ tags }) => <>{tags}</>
+      width: '350px',
+      render: ({ tags }) => <TableTagWrapper>{tags}</TableTagWrapper>
     },
     {
       key: 'status',

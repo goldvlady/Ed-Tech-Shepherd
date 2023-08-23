@@ -17,7 +17,8 @@ import SelectableTable, { TableColumn } from '../table';
 import {
   StyledMenuButton,
   StyledMenuSection,
-  TableTitleWrapper
+  TableTitleWrapper,
+  TableTagWrapper
 } from './styles';
 import { Block, BlockNoteEditor } from '@blocknote/core';
 import { useBlockNote } from '@blocknote/react';
@@ -176,10 +177,13 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
 
       setSelectedRowKeys(newSelectedRowKeys);
 
-      const newSelectedNoteIds = dataSource.map((data) => data.id);
+      const newSelectedNoteIds = dataSource
+        .filter((data) => typeof data.id !== 'undefined')
+        .map((data) => data.id);
       const newSelectedNoteIdsAsString = newSelectedNoteIds.map((id) =>
         id.toString()
       );
+
       // Append the new selected note IDs to the existing array
       setSelectedNoteIdToDeleteArray((prevArray) => [
         ...prevArray,
@@ -609,7 +613,8 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
       dataIndex: 'tags',
       align: 'left',
       id: 1,
-      render: ({ tags }) => <>{tags}</>
+      width: '350px',
+      render: ({ tags }) => <TableTagWrapper>{tags}</TableTagWrapper>
     },
     {
       key: 'status',

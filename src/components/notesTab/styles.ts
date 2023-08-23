@@ -61,6 +61,15 @@ export const TableTitleWrapper = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
+  color: rgb(32, 125, 247);
+`;
+
+export const TableTagWrapper = styled.div`
+  max-height: 50px;
+  overflow-y: scroll;
+  ::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 export const TitleIcon = styled.img`

@@ -9,11 +9,15 @@ import { ReactComponent as ArrowRight } from '../../../../assets/small-arrow-rig
 import { ReactComponent as ZoomIcon } from '../../../../assets/square.svg';
 import { ReactComponent as TrashIcon } from '../../../../assets/trash-icn.svg';
 import CustomButton from '../../../../components/CustomComponents/CustomButton';
+import TableTag from '../../../../components/CustomComponents/CustomTag';
+import { storage } from '../../../../firebase';
+import { MAX_FILE_UPLOAD_LIMIT } from '../../../../helpers/constants';
 import { saveMarkdownAsPDF } from '../../../../library/fs';
 import { uploadBlockNoteDocument } from '../../../../services/AI';
 import ApiService from '../../../../services/ApiService';
 import userStore from '../../../../state/userStore';
 import TempPDFViewer from '../../DocChat/TempPDFViewer';
+import FlashModal from '../../FlashCards/components/FlashModal';
 import TagModal from '../../FlashCards/components/TagModal';
 import { NoteModal } from '../Modal';
 import {
@@ -31,9 +35,11 @@ import {
   FirstSection,
   Header,
   HeaderButton,
+  HeaderWrapper,
   HeaderButtonText,
   NewNoteWrapper,
   NoteBody,
+  HeaderTagsWrapper,
   FullScreenNoteWrapper,
   SecondSection
 } from './styles';
@@ -59,7 +65,24 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 const DEFAULT_NOTE_TITLE = 'Enter Note Title';
 const DELETE_NOTE_TITLE = 'Delete Note';
 const UPDATE_NOTE_TITLE = 'Note Alert';
-const NOTE_STORAGE_KEY = 'note';
+
+const formatTags = (tags: string | string[]): any[] => {
+  if (!tags) {
+    return [];
+  }
+  if (typeof tags === 'string') {
+    // If tags is a string, split it into an array and return
+    return tags.split(',').map((tag) => {
+      return <TableTag label={tag} />;
+    });
+  } else if (Array.isArray(tags)) {
+    return tags.map((tag) => {
+      return <TableTag label={tag} />;
+    });
+  } else {
+    return [];
+  }
+};
 
 // Define the type for the pinned note
 type PinnedNote = {
@@ -149,7 +172,8 @@ const NewNote = () => {
     params.id ?? null
   );
   const [openTags, setOpenTags] = useState<boolean>(false);
-  const [noteId, setNoteId] = useState<string | null>(null);
+  const [openFlashCard, setOpenFlashCard] = useState<boolean>(false);
+  const [noteId, setNoteId] = useState<any | null>(null);
   const [draftNoteId, setDraftNoteId] = useState<string>('');
   const [saveButtonState, setSaveButtonState] = useState<boolean>(true);
   const [editedTitle, setEditedTitle] = useState(defaultNoteTitle);
@@ -181,11 +205,6 @@ const NewNote = () => {
   const { userDocuments } = userStore();
   const [studentDocuments, setStudentDocuments] = useState<Array<any>>([]);
   const [pinned, setPinned] = useState<boolean>(false);
-  // Create a state to track the web worker
-  const [saveWorker, setSaveWorker] = useState<any>(null);
-  const [editorContent, setEditorContent] = useState<any>([]);
-  // get editor's content
-  let noteJSON: string;
 
   const onCancel = () => {
     setDeleteNoteModal(!deleteNoteModal);
@@ -364,6 +383,7 @@ const NewNote = () => {
           setInitialContent(note.note);
           setSaveDetails(respDetails);
           setNoteId(note._id);
+          setTags(note.tags);
         }
       }
       // set note data
@@ -564,7 +584,11 @@ const NewNote = () => {
     setOpenTags((prevState) => !prevState);
   };
 
-  const goToDocChat = async (documentUrl: string, docTitle: string) => {
+  const showFlashCardDropdown = () => {
+    setOpenFlashCard((prevState) => !prevState);
+  };
+
+  const goToDocChat = async (documentUrl, docTitle) => {
     try {
       navigate('/dashboard/docchat', {
         state: {
@@ -603,7 +627,8 @@ const NewNote = () => {
       id: 1,
       leftIcon: <FlashCardIcn />,
       title: 'Flashcards',
-      rightIcon: <ArrowRight />
+      rightIcon: <ArrowRight />,
+      onClick: showFlashCardDropdown
     },
     {
       id: 2,
@@ -688,9 +713,8 @@ const NewNote = () => {
       setOpenTags(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
       // setNoteId('');
-      setNewTags([]);
+      // setNewTags([]);
       clearEditor();
-      setTags(details.data.tags);
     }
   };
 
@@ -782,6 +806,7 @@ const NewNote = () => {
       noteIdToUse = draftNoteId;
       noteStatus = NoteStatus.DRAFT;
     }
+    let noteJSON;
     try {
       noteJSON = JSON.stringify(editor.topLevelBlocks);
     } catch (error: any) {
@@ -844,16 +869,7 @@ const NewNote = () => {
     } else {
       setPinnedNotes([]);
     }
-  }, []);
-
-  useEffect(() => {
-    // Cleanup the worker when the component unmounts
-    return () => {
-      if (saveWorker) {
-        saveWorker.terminate();
-      }
-    };
-  }, [saveWorker]);
+  }, [pinnedNotes]);
 
   useEffect(() => {
     if (userDocuments.length) {
@@ -861,68 +877,15 @@ const NewNote = () => {
     }
   }, [userDocuments]);
 
-  // Define a function to check if two arrays are equal
-  const arraysAreEqual = (arr1, arr2) => {
-    if (arr1.length !== arr2.length) {
-      return false;
-    }
-  };
-
-  // useEffect(() => {
-  //   if (!editor) return;
-
-  //   const handleContentChange = async () => {
-  //     try {
-  //       noteJSON = JSON.stringify(editor.topLevelBlocks);
-  //     } catch (error: any) {
-  //       return;
-  //     }
-
-  //     if (
-  //       editorHasContent() &&
-  //       !arraysAreEqual(editor.topLevelBlocks, noteJSON)
-  //     ) {
-  //       setEditorContent(noteJSON);
-
-  //       const saveWorkerCode = `
-  //       self.addEventListener('message', async (event) => {
-  //         const { noteJSON, editedTitle, noteId } = event.data;
-  //         // Implement your save logic here...
-  //         // Similar to onSaveNote logic, but without UI interactions
-  //         // ... (auto-saving logic)
-  //         self.postMessage({ success: true });
-  //       });
-  //     `;
-  //       const blob = new Blob([saveWorkerCode], {
-  //         type: 'application/javascript'
-  //       });
-
-  //       if (saveWorker) {
-  //         saveWorker.terminate();
-  //       }
-
-  //       const newSaveWorker = new Worker(URL.createObjectURL(blob));
-  //       setSaveWorker(newSaveWorker);
-
-  //       const noteData = {
-  //         noteJSON: JSON.stringify(editor.topLevelBlocks),
-  //         editedTitle,
-  //         noteId: noteJSON
-  //       };
-
-  //       newSaveWorker.postMessage(noteData);
-  //     }
-  //   };
-
-  //   handleContentChange();
-  // }, [editorContent, editor, editedTitle]);
-
   return (
     <>
-      <HeaderButton onClick={handleBackClick}>
-        <BackArrow />
-        <HeaderButtonText> Back</HeaderButtonText>
-      </HeaderButton>
+      <HeaderWrapper>
+        <HeaderButton onClick={handleBackClick}>
+          <BackArrow />
+          <HeaderButtonText> Back</HeaderButtonText>
+        </HeaderButton>
+        <HeaderTagsWrapper>{formatTags(tags)}</HeaderTagsWrapper>
+      </HeaderWrapper>
 
       {isFullScreen ? (
         <NewNoteWrapper {...editorStyle}>
@@ -1232,6 +1195,17 @@ const NewNote = () => {
             onClose={() => setDeleteNoteModal(false)}
           />
         </NewNoteWrapper>
+      )}
+
+      {openFlashCard && (
+        <FlashModal
+          isOpen={openFlashCard}
+          onClose={() => setOpenFlashCard(false)}
+          title="Flash Card Title"
+          onSubmit={(noteId) => {
+            // submission here
+          }}
+        />
       )}
     </>
   );

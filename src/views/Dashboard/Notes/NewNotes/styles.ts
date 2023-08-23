@@ -183,6 +183,18 @@ export const HeaderButton = styled.div`
   padding: ${(props) => theme.layout.padding.paddingMedium + 'px'};
 `;
 
+export const HeaderWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  column-gap: 2em;
+  padding: ${(props) => theme.layout.padding.paddingMedium + 'px'};
+`;
+
+export const HeaderTagsWrapper = styled.div`
+  width: 85%;
+`;
+
 export const HeaderButtonText = styled.p`
   margin-left: ${(props) => theme.layout.padding.paddingMedium + 'px'};
   font-size: 10pt;

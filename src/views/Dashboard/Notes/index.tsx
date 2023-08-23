@@ -271,7 +271,6 @@ const Notes = () => {
 
           <Box marginLeft={'1.5em'}>
             <DropdownMenu
-              isWidth
               menuTitle="Sort by"
               iconPlacement="after"
               DropdownMenuIcon={<FaCalendarAlt color="#96999C" size="12px" />}
