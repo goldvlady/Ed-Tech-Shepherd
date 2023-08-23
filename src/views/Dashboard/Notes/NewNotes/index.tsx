@@ -3,15 +3,13 @@ import { ReactComponent as BackArrow } from '../../../../assets/backArrowFill.sv
 import { ReactComponent as DocIcon } from '../../../../assets/doc.svg';
 import { ReactComponent as DownloadIcon } from '../../../../assets/download.svg';
 import { ReactComponent as FlashCardIcn } from '../../../../assets/flashCardIcn.svg';
-import { ReactComponent as PinIcon } from '../../../../assets/pin.svg';
 import { ReactComponent as SideBarPinIcn } from '../../../../assets/sideBarPin.svg';
 import { ReactComponent as ArrowRight } from '../../../../assets/small-arrow-right.svg';
 import { ReactComponent as ZoomIcon } from '../../../../assets/square.svg';
 import { ReactComponent as TrashIcon } from '../../../../assets/trash-icn.svg';
 import CustomButton from '../../../../components/CustomComponents/CustomButton';
 import TableTag from '../../../../components/CustomComponents/CustomTag';
-import { storage } from '../../../../firebase';
-import { MAX_FILE_UPLOAD_LIMIT } from '../../../../helpers/constants';
+import useDebounce from '../../../../hooks/useDebounce';
 import { saveMarkdownAsPDF } from '../../../../library/fs';
 import { uploadBlockNoteDocument } from '../../../../services/AI';
 import ApiService from '../../../../services/ApiService';
@@ -174,9 +172,11 @@ const NewNote = () => {
   const [openTags, setOpenTags] = useState<boolean>(false);
   const [openFlashCard, setOpenFlashCard] = useState<boolean>(false);
   const [noteId, setNoteId] = useState<any | null>(null);
-  const [draftNoteId, setDraftNoteId] = useState<string>('');
+  // const [draftNoteId, setDraftNoteId] = useState<string>('');
   const [saveButtonState, setSaveButtonState] = useState<boolean>(true);
   const [editedTitle, setEditedTitle] = useState(defaultNoteTitle);
+  const editedTitleRef = useRef<any>(null);
+  const draftNoteId = useRef<any>();
   const [currentTime, setCurrentTime] = useState<string>(
     formatDate(new Date())
   );
@@ -205,6 +205,7 @@ const NewNote = () => {
   const { userDocuments } = userStore();
   const [studentDocuments, setStudentDocuments] = useState<Array<any>>([]);
   const [pinned, setPinned] = useState<boolean>(false);
+  const debounce = useDebounce(1000, 10);
 
   const onCancel = () => {
     setDeleteNoteModal(!deleteNoteModal);
@@ -268,13 +269,15 @@ const NewNote = () => {
       saveDetails = await updateNote(noteId, {
         topic: editedTitle,
         note: noteJSON,
-        tags: newTags
+        tags: tags,
+        status: NoteStatus.SAVED
       });
     } else {
       saveDetails = await createNote({
         topic: editedTitle,
         note: noteJSON,
-        tags: newTags
+        tags: tags,
+        status: NoteStatus.SAVED
       });
     }
     if (!saveDetails) {
@@ -785,7 +788,18 @@ const NewNote = () => {
   const handleAutoSave = (editor: any) => {
     // use debounce filter
     // TODO: we must move this to web worker
-    // autoSaveNote(editor);
+    // additional condition for use to save note details
+
+    const saveLocalCallback = (noteId: string, note: string) => {
+      saveNoteLocal(getLocalStorageNoteId(noteId), note);
+    };
+    // evaluate other conditions to true or false
+    const saveCondition = () => true;
+    // note save callback wrapper
+    const saveCallback = () => {
+      autoSaveNote(editor, saveLocalCallback);
+    };
+    debounce(saveCallback, saveCondition);
   };
 
   /**
@@ -793,59 +807,68 @@ const NewNote = () => {
    *
    * @returns
    */
-  const autoSaveNote = async (editor: any) => {
+  const autoSaveNote = async (
+    editor: any,
+    saveCallback: (noteId: string, note: string) => any
+  ) => {
     if (!editor) return;
 
-    let noteIdToUse: string;
+    const noteTitle = editedTitleRef.current.value ?? editedTitle;
+
+    let noteIdToUse = '';
+    let draftNoteIdToUse = '';
+    let noteJSON = '';
     let noteStatus: NoteStatus;
 
-    if (noteId || noteParamId) {
-      noteIdToUse = noteId ? noteId : noteParamId ?? '';
-      noteStatus = NoteStatus.SAVED;
-    } else {
-      noteIdToUse = draftNoteId;
-      noteStatus = NoteStatus.DRAFT;
-    }
-    let noteJSON;
     try {
       noteJSON = JSON.stringify(editor.topLevelBlocks);
     } catch (error: any) {
       return;
     }
 
+    if (noteId || noteParamId) {
+      noteIdToUse = noteId ? noteId : noteParamId ?? '';
+      noteStatus = NoteStatus.SAVED;
+    } else {
+      draftNoteIdToUse = draftNoteId.current ? draftNoteId.current.value : '';
+      noteStatus = NoteStatus.DRAFT;
+    }
+
     if (noteIdToUse && noteIdToUse !== '') {
       updateNote(noteIdToUse, {
-        topic: editedTitle,
+        topic: noteTitle,
         note: noteJSON,
-        tags: newTags,
+        tags: tags,
         status: noteStatus
       }).then((saveDetails) => {
         console.log('existing note updated ', saveDetails);
+        saveCallback(noteIdToUse, noteJSON);
       });
     } else {
-      if (draftNoteId && draftNoteId !== '') {
+      if (draftNoteIdToUse && draftNoteIdToUse !== '') {
         // update existing draft note
-        updateNote(draftNoteId, {
-          topic: editedTitle,
+        updateNote(draftNoteIdToUse, {
+          topic: noteTitle,
           note: noteJSON,
           tags: newTags,
           status: noteStatus
         }).then((saveDetails) => {
+          saveCallback(draftNoteIdToUse, noteJSON);
           console.log('existing draft note updated ', saveDetails);
         });
       } else {
         // create a new draft note
         createNote({
-          topic: editedTitle,
+          topic: noteTitle,
           note: noteJSON,
           tags: newTags,
           status: noteStatus
         }).then((saveDetails) => {
-          console.log('existing  draft note created ', saveDetails);
+          console.log('draft note  created ', saveDetails);
           // save new draft note details for update
           if (saveDetails?.data) {
-            alert('saved note ID: ' + draftNoteId);
-            setDraftNoteId(saveDetails.data['_id']);
+            draftNoteId.current.value = saveDetails.data['_id'];
+            saveCallback(draftNoteIdToUse, noteJSON);
           }
         });
       }
@@ -877,9 +900,18 @@ const NewNote = () => {
     }
   }, [userDocuments]);
 
+  useEffect(() => {
+    if (editedTitleRef.current && editedTitle !== editedTitleRef.current) {
+      editedTitleRef.current.value = editedTitle;
+      console.log('ref value: ', editedTitleRef.current.value);
+    }
+  }, [editedTitle]);
+
   return (
     <>
       <HeaderWrapper>
+        <input type="text" ref={editedTitleRef} />
+        <input type="text" ref={draftNoteId} />
         <HeaderButton onClick={handleBackClick}>
           <BackArrow />
           <HeaderButtonText> Back</HeaderButtonText>
