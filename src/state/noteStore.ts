@@ -9,4 +9,5 @@ type Store = {
 export default create<Store>((set) => ({
   pinnedNotes: [],
   pinnedNotesCount: 0
+  // other definitions here. For now, we will only add local pinned notes loading
 }));
