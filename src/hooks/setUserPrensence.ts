@@ -37,7 +37,6 @@ export const useActiveUserPresence = () => {
   }, []); // Empty dependency array ensures this effect runs only once
 
   useEffect(() => {
-    console.log(userId);
     if (!userId) return;
 
     const userStatusDatabaseRef = ref(database, '/status/' + userId);
