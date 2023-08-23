@@ -10,6 +10,7 @@ interface CustomDropdownProps {
   useDefaultWidth?: boolean;
   disabled?: boolean;
   automaticClose?: boolean;
+  className?: any;
 }
 
 function CustomDropdown({
@@ -18,7 +19,8 @@ function CustomDropdown({
   children,
   useDefaultWidth,
   disabled,
-  automaticClose
+  automaticClose,
+  className
 }: CustomDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -83,6 +85,7 @@ function CustomDropdown({
             initial="closed"
             animate="open"
             exit="closed"
+            className={className}
             style={{
               position: 'absolute',
               top: '100%',

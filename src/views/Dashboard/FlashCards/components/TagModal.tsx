@@ -46,7 +46,7 @@ export const TagModal: React.FC<TagModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (tags.length && !hasLoadedDefaultTags) {
+    if (tags?.length && !hasLoadedDefaultTags) {
       setNewTags(tags);
       setHasLoadedDefaultTags(true);
     }
@@ -71,7 +71,11 @@ export const TagModal: React.FC<TagModalProps> = ({
   };
 
   const handleRemoveTag = (tag: string) => {
-    setNewTags(newTags.filter((t) => t !== tag));
+    const updatedTags = newTags.filter((t) => t !== tag);
+    setNewTags(updatedTags);
+    if (propSetNewTags) {
+      propSetNewTags(updatedTags);
+    }
   };
 
   const handleSubmit = async () => {
