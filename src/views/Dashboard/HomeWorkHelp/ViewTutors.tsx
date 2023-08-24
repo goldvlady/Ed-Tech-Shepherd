@@ -48,37 +48,6 @@ const ViewTutors = ({
   //     /* eslint-disable */
   //   }, []);
 
-  const getData = async () => {
-    const formData = {
-      courses: subject === 'Subject' ? '' : subject.toLowerCase(),
-      levels: tutorDetails.level?._id.length < 0 ? '' : tutorDetails.level?._id,
-      availability: '',
-      tz: moment.tz.guess(),
-      days: tutorDetails.days,
-      price:
-        tutorDetails.price.value.length < 0 ? '' : tutorDetails.price.value,
-      floorRating:
-        tutorDetails.rating.value.length < 0 ? '' : tutorDetails.rating.value,
-      startTime: tutorDetails.toTime,
-      endTime: tutorDetails.fromTime,
-      page: tutorDetails.page,
-      limit: tutorDetails.limit
-    };
-    setLoadingData(true);
-    const resp = await ApiService.getAllTutors(formData);
-    const data = await resp.json();
-
-    // setPagination(data.meta.pagination);
-    // const startIndex = (page - 1) * data.meta.pagination.limit;
-    // const endIndex = Math.min(
-    //   startIndex + data.meta.pagination.limit,
-    //   data.meta.pagination.count
-    // );
-    // const visibleTutors = data.tutors.slice(startIndex, endIndex);
-    setAllTutors(data?.tutors);
-    setLoadingData(false);
-  };
-
   //   useEffect(() => {
   //     doFetchBookmarkedTutors();
   //   }, [doFetchBookmarkedTutors]);
@@ -95,9 +64,44 @@ const ViewTutors = ({
   };
 
   useEffect(() => {
+    const getData = async () => {
+      const formData = {
+        courses: subject === 'Subject' ? '' : subject.toLowerCase(),
+        levels:
+          tutorDetails.level?._id.length < 0 ? '' : tutorDetails.level?._id,
+        availability: '',
+        tz: moment.tz.guess(),
+        days: tutorDetails.days,
+        price:
+          tutorDetails.price.value.length < 0 ? '' : tutorDetails.price.value,
+        floorRating:
+          tutorDetails.rating.value.length < 0 ? '' : tutorDetails.rating.value,
+        startTime: tutorDetails.toTime,
+        endTime: tutorDetails.fromTime,
+        page: tutorDetails.page,
+        limit: tutorDetails.limit
+      };
+      setLoadingData(true);
+      if (subject && subjectID) {
+        const resp = await ApiService.getAllTutors(formData);
+        const data = await resp.json();
+
+        setAllTutors(data?.tutors ?? []);
+      }
+
+      // setPagination(data.meta.pagination);
+      // const startIndex = (page - 1) * data.meta.pagination.limit;
+      // const endIndex = Math.min(
+      //   startIndex + data.meta.pagination.limit,
+      //   data.meta.pagination.count
+      // );
+      // const visibleTutors = data.tutors.slice(startIndex, endIndex);
+
+      setLoadingData(false);
+    };
     getData();
     /* eslint-disable */
-  }, [subject, tutorDetails]);
+  }, [subjectID, subject, tutorDetails, setLoadingData, setAllTutors]);
 
   useEffect(() => {
     setSubject(subjectID ?? '');
@@ -129,7 +133,7 @@ const ViewTutors = ({
             </Box>
           ) : (
             <>
-              {!allTutors?.length && (
+              {!loadingData && !allTutors?.length && (
                 <div
                   style={{
                     display: 'table',
@@ -143,7 +147,7 @@ const ViewTutors = ({
                 </div>
               )}
 
-              {!!allTutors?.length && (
+              {!loadingData && !!allTutors?.length && (
                 <SimpleGridContainer columns={[2, null, 3]} spacing="20px">
                   {allTutors?.map((tutor: any) => (
                     <TutorCard
