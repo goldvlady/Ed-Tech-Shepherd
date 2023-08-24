@@ -146,7 +146,8 @@ const CustomTable: React.FC = () => {
     deleteFlashCard,
     storeFlashcardTags,
     isLoading,
-    scheduleFlashcard
+    scheduleFlashcard,
+    pagination
   } = flashcardStore();
 
   const actionFunc = useCallback(
@@ -588,7 +589,7 @@ const CustomTable: React.FC = () => {
 
   return (
     <>
-      {isLoading && !flashcards?.length && <LoaderOverlay />}
+      {isLoading && <LoaderOverlay />}
       {(tagEditItem?.flashcard || tagEditItem?.flashcardIds) && (
         <TagModal
           tags={tagEditItem?.flashcard?.tags || []}
@@ -1045,6 +1046,12 @@ const CustomTable: React.FC = () => {
             )}
             {flashcards && (
               <SelectableTable
+                pagination
+                currentPage={pagination.page}
+                handlePagination={(nextPage) =>
+                  fetchFlashcards({ page: nextPage, limit: pagination.limit })
+                }
+                pageCount={Math.ceil(pagination.count / pagination.limit)}
                 onSelect={(selected) => setSelectedFlashcard(selected)}
                 isSelectable
                 columns={columns}
