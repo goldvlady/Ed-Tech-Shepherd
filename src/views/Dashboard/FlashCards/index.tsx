@@ -215,7 +215,7 @@ const CustomTable: React.FC = () => {
       )
     },
     {
-      title: 'Number of Cards',
+      title: 'No of Cards',
       dataIndex: 'questions',
       key: 'questions',
       render: ({ questions }) => {
@@ -894,7 +894,7 @@ const CustomTable: React.FC = () => {
                     fontWeight="400"
                     p="6px 8px 6px 8px"
                   >
-                    Date
+                    Created At
                   </MenuItem>
                   <MenuItem
                     color="#212224"
@@ -918,7 +918,7 @@ const CustomTable: React.FC = () => {
                   >
                     Deckname
                   </MenuItem>
-                  <MenuItem
+                  {/* <MenuItem
                     _hover={{ bgColor: '#F2F4F7' }}
                     color="#212224"
                     onClick={() => fetchFlashcards({ sort: 'subject' })}
@@ -928,7 +928,7 @@ const CustomTable: React.FC = () => {
                     p="6px 8px 6px 8px"
                   >
                     Subject
-                  </MenuItem>
+                  </MenuItem> */}
                 </MenuList>
               </Menu>
 
