@@ -312,7 +312,7 @@ export const ChatContainerResponse = styled.div<{ messages: any }>`
   display: flex;
   flex-direction: column;
   grid-column: span 12;
-  margin-top: 240px;
+  margin-top: 230px;
   margin-right: 24px;
   margin-bottom: 20px;
   margin-left: 24px;

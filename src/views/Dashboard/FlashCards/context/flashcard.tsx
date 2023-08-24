@@ -180,7 +180,11 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [defaultFlashcardData]);
 
   const generateFlashcardQuestions = useCallback(
-    async (data?: FlashcardData, onDone?: (success: boolean) => void) => {
+    async (
+      data?: FlashcardData,
+      onDone?: (success: boolean) => void,
+      ingestDoc = true
+    ) => {
       try {
         data = data || ({} as FlashcardData);
         const reqData = { ...flashcardData, ...data };
@@ -202,10 +206,14 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
             studentId: user?._id as string,
             documentUrl: reqData.documentId as string
           };
-          const fileInfo = new FileProcessingService(responseData);
-          const {
-            data: [{ documentId }]
-          } = await fileInfo.process();
+          let documentId = reqData.documentId;
+          if (ingestDoc) {
+            const fileInfo = new FileProcessingService(responseData);
+            const {
+              data: [{ documentId: docId }]
+            } = await fileInfo.process();
+            documentId = docId;
+          }
           const response = await ApiService.createDocchatFlashCards({
             topic: reqData.topic as string,
             studentId: user?.student?._id as string,
@@ -234,14 +242,6 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
             setFlashcardData((prev) => ({ ...prev, hasSubmitted: false }));
             onDone && onDone(false);
           }
-          // console.log(hasProcessedFile);
-          // const response = await createDocchatFlashCards({
-          //   topic: reqData.topic as string,
-          //   studentId: user?._id as string,
-          //   documentId: reqData.documentId as string,
-          //   count: parseInt(count as unknown as string, 10)
-          // });
-          // return;
         } else {
           const response = await ApiService.generateFlashcardQuestions(
             aiData,

@@ -146,7 +146,8 @@ const CustomTable: React.FC = () => {
     deleteFlashCard,
     storeFlashcardTags,
     isLoading,
-    scheduleFlashcard
+    scheduleFlashcard,
+    pagination
   } = flashcardStore();
 
   const actionFunc = useCallback(
@@ -214,7 +215,7 @@ const CustomTable: React.FC = () => {
       )
     },
     {
-      title: 'Number of Cards',
+      title: 'No of Cards',
       dataIndex: 'questions',
       key: 'questions',
       render: ({ questions }) => {
@@ -588,7 +589,7 @@ const CustomTable: React.FC = () => {
 
   return (
     <>
-      {isLoading && !flashcards?.length && <LoaderOverlay />}
+      {isLoading && <LoaderOverlay />}
       {(tagEditItem?.flashcard || tagEditItem?.flashcardIds) && (
         <TagModal
           tags={tagEditItem?.flashcard?.tags || []}
@@ -893,7 +894,7 @@ const CustomTable: React.FC = () => {
                     fontWeight="400"
                     p="6px 8px 6px 8px"
                   >
-                    Date
+                    Created At
                   </MenuItem>
                   <MenuItem
                     color="#212224"
@@ -917,7 +918,7 @@ const CustomTable: React.FC = () => {
                   >
                     Deckname
                   </MenuItem>
-                  <MenuItem
+                  {/* <MenuItem
                     _hover={{ bgColor: '#F2F4F7' }}
                     color="#212224"
                     onClick={() => fetchFlashcards({ sort: 'subject' })}
@@ -927,7 +928,7 @@ const CustomTable: React.FC = () => {
                     p="6px 8px 6px 8px"
                   >
                     Subject
-                  </MenuItem>
+                  </MenuItem> */}
                 </MenuList>
               </Menu>
 
@@ -1045,6 +1046,12 @@ const CustomTable: React.FC = () => {
             )}
             {flashcards && (
               <SelectableTable
+                pagination
+                currentPage={pagination.page}
+                handlePagination={(nextPage) =>
+                  fetchFlashcards({ page: nextPage, limit: pagination.limit })
+                }
+                pageCount={Math.ceil(pagination.count / pagination.limit)}
                 onSelect={(selected) => setSelectedFlashcard(selected)}
                 isSelectable
                 columns={columns}

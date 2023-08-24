@@ -1,5 +1,6 @@
 import TutorDashboardLayout from './components/Layout';
 import { FlashCardModal } from './components/flashcardDecks';
+import { useActiveUserPresence } from './hooks/setUserPrensence';
 import { AuthProvider, useAuth } from './providers/auth.provider';
 import flashcardStore from './state/flashcardStore';
 import resourceStore from './state/resourceStore';
@@ -10,7 +11,6 @@ import StudentSettings from './views/Dashboard/AccountSettings';
 import BookmarkedTutors from './views/Dashboard/BookmarkedTutors';
 import DocChat from './views/Dashboard/DocChat';
 import FlashCard from './views/Dashboard/FlashCards';
-import FlashCardEventNotifier from './views/Dashboard/FlashCards/components/flashcard_event_notification';
 import FlashcardWizardProvider from './views/Dashboard/FlashCards/context/flashcard';
 import CreateFlashCard from './views/Dashboard/FlashCards/create';
 import HomeWorkHelp from './views/Dashboard/HomeWorkHelp';
@@ -321,6 +321,7 @@ const AppRoutes: React.FC = () => {
 function App() {
   const { fetchResources } = resourceStore();
   const { flashcard } = flashcardStore();
+  useActiveUserPresence();
 
   const doFetchResources = useCallback(async () => {
     await fetchResources();
