@@ -46,7 +46,8 @@ const HomeWorkHelp = () => {
   const [subjectId, setSubject] = useState<string>('Subject');
   const [localData, setLocalData] = useState<any>({
     subject: subjectId,
-    topic: ''
+    topic: '',
+    others: ''
   });
   const [level, setLevel] = useState<any>('');
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ const HomeWorkHelp = () => {
   const subject = 'biology';
 
   useEffect(() => {
-    if (!socket) {
+    if (!socket && studentId && topic) {
       const authSocket = socketWithAuth({
         studentId,
         topic,
@@ -120,7 +121,6 @@ const HomeWorkHelp = () => {
         }));
 
         setMessages((prevMessages) => [...prevMessages, ...mappedData]);
-        // setChatHistoryLoaded(true);
       } catch (error) {
         toast({
           render: () => (
@@ -161,7 +161,7 @@ const HomeWorkHelp = () => {
 
       setCountNeedTutor((prevState) => prevState + 1);
 
-      socket.emit('chat message');
+      socket.emit('chat message', message);
     },
     [setMessages, setCountNeedTutor, socket]
   );
@@ -230,21 +230,21 @@ const HomeWorkHelp = () => {
         isUser: conversation?.log?.role === 'user',
         isLoading: false
       }));
-      setMessages((prevMessages) => [...prevMessages, ...previousConvoData]);
+      setMessages((prevState) => [...previousConvoData]);
     };
     fetchConversationId();
-  }, [conversationId]);
+    if (conversationId) setShowPrompt(true);
+  }, [conversationId, socket]);
 
   const onRouteHomeWorkHelp = useCallback(() => {
     handleClose();
     navigate('/dashboard/ace-homework', {
       state: { subject: subjectId, topic: topic, level }
     });
-
+    socket.emit('chat message', localData.topic);
     setMessages([]);
     setCountNeedTutor(1);
     setInputValue('');
-    socket.emit('chat message', localData.topic);
     setLocalData({});
   }, [
     subjectId,
@@ -264,6 +264,7 @@ const HomeWorkHelp = () => {
         <ChatHistory
           studentId={studentId}
           setConversationId={setConversationId}
+          conversationId={conversationId}
         />
       </HomeWorkHelpHistoryContainer>
       <HomeWorkHelpChatContainer>

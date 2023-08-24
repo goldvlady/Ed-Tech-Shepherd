@@ -305,12 +305,9 @@ const SelectedModal = ({
   };
 
   const handleSelected = async (e) => {
-    const { innerText, value } = e;
-    console.log(e, 'ghtre');
-
     if (e.value && e.label) {
       setDocumentURL(() => e.value);
-      setDocumentName(() => e.value);
+      setDocumentName(() => e.label);
       setSelectedOption(e.label);
       setCanUpload(false);
       setConfirmReady(true);
@@ -487,7 +484,7 @@ const SelectedModal = ({
                   placeholder="Select an Option"
                   selectedOption={selectedOption}
                   handleSelected={handleSelected}
-                ></AutocompleteDropdown>
+                ></AutocompleteDropdown>{' '}
                 {/* <CustomDropdown
                   value={selectedOption?.split('/').pop()}
                   placeholder="Select an Option"
