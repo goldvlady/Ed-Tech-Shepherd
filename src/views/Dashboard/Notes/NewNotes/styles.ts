@@ -115,6 +115,18 @@ export const SecondSection = styled.div`
     padding-right: 20px;
     cursor: pointer;
   }
+  .pin-icon {
+    cursor: pointer;
+    font-size: 1.5em;
+  }
+
+  .pin-icon.pinned {
+    color: rgb(32, 125, 247);
+  }
+
+  .pin-icon.not-pinned {
+    color: grey;
+  }
 `;
 
 export const NoteBody = styled.section`
@@ -169,6 +181,18 @@ export const HeaderButton = styled.div`
   align-items: center;
   cursor: pointer;
   padding: ${(props) => theme.layout.padding.paddingMedium + 'px'};
+`;
+
+export const HeaderWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  column-gap: 2em;
+  padding: ${(props) => theme.layout.padding.paddingMedium + 'px'};
+`;
+
+export const HeaderTagsWrapper = styled.div`
+  width: 85%;
 `;
 
 export const HeaderButtonText = styled.p`

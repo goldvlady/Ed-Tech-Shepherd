@@ -1,4 +1,5 @@
 import { AI_API, HEADER_KEY } from '../config';
+import { AIServiceResponse } from '../views/Dashboard/Notes/types';
 
 type DocumentType = {
   topic?: string;
@@ -235,7 +236,7 @@ export const uploadBlockNoteDocument = async (data: {
   tags?: Array<string>;
   courseId?: string;
 }) => {
-  const processDoc = await fetch(`${AI_API}/notes/create`, {
+  return fetch(`${AI_API}/notes/create`, {
     method: 'POST',
     headers: {
       'x-shepherd-header': HEADER_KEY,
@@ -243,8 +244,6 @@ export const uploadBlockNoteDocument = async (data: {
     },
     body: JSON.stringify(data)
   }).then(async (data) => data.json());
-
-  return processDoc;
 };
 
 export const postPDFHighlight = async ({

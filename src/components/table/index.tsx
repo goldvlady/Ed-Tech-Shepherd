@@ -66,6 +66,7 @@ export type TableProps<T = any> = {
   currentPage?: number; // Current page number
   pageCount?: number; // Total number of pages
   handlePagination?: (page: number) => void; // Callback when a page is changed
+  handleSelect?: any;
 };
 
 const SelectableTable = <T extends Record<string, unknown>>({
@@ -74,10 +75,6 @@ const SelectableTable = <T extends Record<string, unknown>>({
   isSelectable,
   onSelect,
   selectedRowKeys: selectedKeysProps,
-  setSelectedNoteIdToDelete,
-  selectedNoteIdToDelete,
-  setSelectedNoteIdToDeleteArray,
-  selectedNoteIdToDeleteArray,
   handleSelectAll: handleSelectAllProps,
   allChecked: allCheckProps,
   setSelectedNoteIdToAddTagsArray,
@@ -87,7 +84,8 @@ const SelectableTable = <T extends Record<string, unknown>>({
   pagination,
   currentPage = 1,
   pageCount = 1,
-  handlePagination
+  handlePagination,
+  handleSelect: handleSelectProps
 }: TableProps<T>) => {
   console.log(pageCount);
 
@@ -118,42 +116,6 @@ const SelectableTable = <T extends Record<string, unknown>>({
     }
     setAllChecked(!allChecked);
   };
-
-  // const handleSelect = (record: T) => {
-  //   const key = record.key as string;
-
-  //   const id = record.id as any;
-
-  //   if (selectedRowKeys?.includes(key)) {
-  //     setSelectedRowKeys?.(selectedRowKeys.filter((k) => k !== key));
-  //     onSelect &&
-  //       onSelect([...(selectedRowKeys?.filter((k) => k !== key) || [])]);
-  //     onSelect && onSelect(selectedRowKeys?.filter((k) => k !== key) || []);
-
-  //     setSelectedNoteIdToDeleteArray &&
-  //       setSelectedNoteIdToDeleteArray((prevArray) =>
-  //         prevArray.filter((noteId) => noteId !== id)
-  //       );
-  //     setSelectedNoteIdToAddTagsArray &&
-  //       setSelectedNoteIdToAddTagsArray((prevArray) =>
-  //         prevArray.filter((noteId) => noteId !== id)
-  //       );
-  //   } else {
-  //     setSelectedRowKeys?.([...(selectedRowKeys || []), key]);
-  //     onSelect && onSelect([...(selectedRowKeys || []), key]);
-  //   }
-
-  //   // Set the selected note ID for deletion
-
-  //   setSelectedNoteIdToDelete && setSelectedNoteIdToDelete(id);
-  //   setSelectedNoteIdToDeleteArray &&
-  //     setSelectedNoteIdToDeleteArray((prevArray) => [...prevArray, id]);
-
-  //   // Set the selected note ID add tags
-  //   setSelectedNoteIdToAddTags && setSelectedNoteIdToAddTags(id);
-  //   setSelectedNoteIdToAddTagsArray &&
-  //     setSelectedNoteIdToAddTagsArray((prevArray) => [...prevArray, id]);
-  // };
 
   return (
     <Box>

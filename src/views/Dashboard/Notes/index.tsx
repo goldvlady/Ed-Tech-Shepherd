@@ -3,16 +3,14 @@ import { ReactComponent as NewNoteIcon } from '../../../assets/newnote.svg';
 import { AllNotesTab, SelectedNoteModal } from '../../../components';
 import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMenu';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
+import AllTab from '../../../components/allTab/allTab';
 import AllDocumentTab from '../../../components/documentTab/allDocument';
-import { SortIcon, FilterByTagsIcon } from '../../../components/icons';
 import LoaderOverlay from '../../../components/loaderOverlay';
-import { useAuth } from '../../../providers/auth.provider';
 import ApiService from '../../../services/ApiService';
 import userStore from '../../../state/userStore';
 import {
   Checkbox,
   CheckboxContainer,
-  FlexContainer,
   Header,
   NewList,
   NotesWrapper,
@@ -24,8 +22,12 @@ import {
 } from './styles';
 import { NoteDetails, NoteServerResponse, SortOrder } from './types';
 import { AddIcon } from '@chakra-ui/icons';
-import { Text } from '@chakra-ui/react';
+import { Button, IconButton, Text } from '@chakra-ui/react';
+import { Stack } from '@chakra-ui/react';
+import { Flex, Box } from '@chakra-ui/react';
 import { useCallback, useEffect, useState } from 'react';
+import { FaCalendarAlt } from 'react-icons/fa';
+import { FaFilter as FilterIcon, FaSearch as SearchIcon } from 'react-icons/fa';
 import { useNavigate } from 'react-router';
 
 const tagFilters = [
@@ -69,29 +71,27 @@ const sortedByTitle = [
   }
 ];
 
-const getLocalStorageNoteId = (noteId: string | null): string => {
-  const genId = noteId ? noteId : '';
-  return genId;
-};
-
 const Notes = () => {
   const navigate = useNavigate();
   const [toggleHelpModal, setToggleHelpModal] = useState(false);
   const [allNotes, setAllNotes] = useState<Array<NoteDetails>>([]);
-  const [loadingNotes, setLoadingNotes] = useState(false);
+  const [showLoader, setShowLoader] = useState(true);
   const [sortOrder] = useState<SortOrder>(SortOrder.ASC);
   const [checkedState, setCheckedState] = useState(
     new Array(tagFilters.length).fill(false)
   );
-  const [tags, setTags] = useState<string[]>([]);
   const [notesLoaded, setNotesLoaded] = useState(false);
   const [selectedTags, setSelectedTags] = useState<any[]>([]);
   const [sortedNotes, setSortedNotes] = useState(allNotes);
 
-  const { userDocuments } = userStore();
+  const [sortedCombinedData, setSortedCombinedData] = useState(allNotes);
 
-  const handleTagSelection = (tagId) => {
-    const lowerCaseTagId = tagId.toLowerCase();
+  const { userDocuments } = userStore();
+  const combinedData: any = [...allNotes, ...userDocuments];
+
+  const handleTagSelection = (tagElement) => {
+    const lowerCaseTagId = tagElement.toLowerCase();
+
     if (selectedTags.includes(lowerCaseTagId)) {
       setSelectedTags(selectedTags.filter((id) => id !== lowerCaseTagId));
     } else {
@@ -100,32 +100,18 @@ const Notes = () => {
     }
   };
 
-  // Handle sorting of notes based on selected tags
-  useEffect(() => {
-    if (selectedTags.length === 0) {
-      setSortedNotes(allNotes);
-    } else {
-      const sorted = allNotes.filter((note) => {
-        const matchingTags = note.tags.filter((tag) =>
-          selectedTags.includes(tag.toLowerCase())
-        );
-        return matchingTags.length > 0;
-      });
-      setSortedNotes(sorted);
-    }
-  }, [selectedTags, allNotes]);
+  const handleClearCombinedDataFilter = () => {
+    setSortedCombinedData(combinedData);
+    setSortedNotes(allNotes);
+    setSelectedTags([]);
+  };
 
   const HandleCheckboxChange = (index) => {
     const selectedTag = tagFilters[index].value;
     handleTagSelection(selectedTag);
   };
 
-  useEffect(() => {
-    // console.log({ allNotes });
-  }, [userDocuments]);
-
   const getNotes = useCallback(async () => {
-    setLoadingNotes(true);
     try {
       const resp = await ApiService.getAllNotes();
       const respText = await resp.text();
@@ -137,17 +123,7 @@ const Notes = () => {
       }
     } catch (error: any) {
       // Handle the error appropriately, e.g., show an error message
-      setLoadingNotes(false);
-    } finally {
-      setLoadingNotes(false);
     }
-  }, []);
-
-  //  load all notes when page is loaded
-  useEffect(() => {
-    getNotes().then(() => {
-      setNotesLoaded(true);
-    });
   }, []);
 
   const activateHelpModal = () => {
@@ -215,160 +191,290 @@ const Notes = () => {
   const tabPanel = [
     {
       id: 1,
-      component: <AllNotesTab data={sortedNotes} getNotes={getNotes} />
+      component: (
+        <AllTab
+          data={sortedCombinedData}
+          getNotes={getNotes}
+          handleTagSelection={handleTagSelection}
+        />
+      )
     },
     {
       id: 2,
-      component: <AllDocumentTab data={userDocuments} />
+      component: (
+        <AllDocumentTab
+          data={userDocuments}
+          handleTagSelection={handleTagSelection}
+        />
+      )
     },
     {
       id: 3,
-      component: <AllNotesTab data={sortedNotes} getNotes={getNotes} />
+      component: (
+        <AllNotesTab
+          data={sortedNotes}
+          getNotes={getNotes}
+          handleTagSelection={handleTagSelection}
+        />
+      )
     }
   ];
 
   const FilterMenu = () => {
     return (
-      <FlexContainer>
-        <DropdownMenu
-          isCreateNew
-          isWidth
-          menuTitle="Create new"
-          DropdownMenuIcon={<AddIcon fontWeight="700" marginRight="10px" />}
+      <Stack
+        direction={{ base: 'column', md: 'row' }}
+        width="95%"
+        mb={{ base: '20px', md: '40px' }}
+        alignItems="center"
+        justifyContent="space-between"
+        pr={{ md: '20px', base: '0' }}
+        spacing={4}
+      >
+        <Flex alignItems="center">
+          <StyledHeader>
+            <span className="font-bold">My Documents</span>
+            <span className="count-badge">{combinedData.length}</span>
+          </StyledHeader>
+        </Flex>
+
+        <Flex
+          direction={{ base: 'column', md: 'row' }}
+          alignItems={{ base: 'flex-start', md: 'center' }}
+          width={{ base: '100%', md: 'auto' }}
         >
-          {createNewLists?.map((createNewList) => (
-            <SectionNewList key={createNewList.id}>
-              <NewList onClick={createNewList.onClick}>
-                {createNewList.iconName}
-                <p>{createNewList.labelText}</p>
-              </NewList>
-            </SectionNewList>
-          ))}
-        </DropdownMenu>
+          <DropdownMenu
+            menuTitle={`Filter by tags (${selectedTags.length})`}
+            iconPlacement="after"
+            DropdownMenuIcon={<FilterIcon color="#96999C" size="12px" />}
+          >
+            <section>
+              <Flex mb="5px">
+                <IconButton
+                  borderRadius="8px"
+                  backgroundColor="#FFFFFF"
+                  border="none"
+                  p="0px"
+                  aria-label="Search"
+                  _hover={{ bgColor: '#FFFFFF', border: 'none' }}
+                  icon={<SearchIcon color="#212224" />}
+                  size="sm"
+                />
+                <SearchInput type="search" placeholder="Search tags" />
+              </Flex>
+              <div>
+                {tagFilters?.map((filtered, index) => (
+                  <CheckboxContainer key={filtered.id}>
+                    <Checkbox
+                      type="checkbox"
+                      onChange={() => HandleCheckboxChange(index)}
+                      checked={checkedState[index]}
+                    />
+                    <Text>{filtered.value}</Text>
+                  </CheckboxContainer>
+                ))}
+              </div>
+            </section>
+          </DropdownMenu>
 
-        <DropdownMenu
-          isWidth
-          menuTitle="Sort by"
-          DropdownMenuIcon={<SortIcon className="w-[20%] h-[2vh]" />}
-        >
-          <>
-            {
-              sortedByDate?.map((sorted: any) => (
-                <StyledSection key={sorted.id}>
-                  <div>
-                    <Text className="text-label">{sorted.title}</Text>
+          <Box marginLeft={'1.5em'}>
+            <DropdownMenu
+              menuTitle="Sort by"
+              iconPlacement="after"
+              DropdownMenuIcon={<FaCalendarAlt color="#96999C" size="12px" />}
+            >
+              <>
+                {
+                  sortedByDate?.map((sorted: any) => (
+                    <StyledSection key={sorted.id}>
+                      <div>
+                        <Text className="text-label">{sorted.title}</Text>
 
-                    <Text
-                      onClick={() => orderBy(sorted.firstValue.order)}
-                      className="text-value"
-                    >
-                      {sorted.firstValue.label}
-                    </Text>
+                        <Text
+                          onClick={() => orderBy(sorted.firstValue.order)}
+                          className="text-value"
+                        >
+                          {sorted.firstValue.label}
+                        </Text>
 
-                    <Text
-                      onClick={() => orderBy(sorted.secondValue.order)}
-                      className="text-value"
-                    >
-                      {sorted.secondValue.label}
-                    </Text>
-                  </div>
-                </StyledSection>
-              ))[0]
-            }
-            {
-              sortedByTitle?.map((sorted: any) => (
-                <StyledSection key={sorted.id}>
-                  <div>
-                    <Text className="text-label">{sorted.title}</Text>
-                    <div>
-                      <Text
-                        onClick={() =>
-                          orderBy(sorted.secondValue.order, 'topic')
-                        }
-                        className="text-value"
-                      >
-                        {sorted.firstValue.label}
-                      </Text>
-                      <Text
-                        onClick={() =>
-                          orderBy(sorted.secondValue.order, 'topic')
-                        }
-                        className="text-value"
-                      >
-                        {sorted.secondValue.label}
-                      </Text>
-                    </div>
-                  </div>
-                </StyledSection>
-              ))[1]
-            }
-          </>
-        </DropdownMenu>
+                        <Text
+                          onClick={() => orderBy(sorted.secondValue.order)}
+                          className="text-value"
+                        >
+                          {sorted.secondValue.label}
+                        </Text>
+                      </div>
+                    </StyledSection>
+                  ))[0]
+                }
+                {
+                  sortedByTitle?.map((sorted: any) => (
+                    <StyledSection key={sorted.id}>
+                      <div>
+                        <Text className="text-label">{sorted.title}</Text>
+                        <div>
+                          <Text
+                            onClick={() =>
+                              orderBy(sorted.secondValue.order, 'topic')
+                            }
+                            className="text-value"
+                          >
+                            {sorted.firstValue.label}
+                          </Text>
+                          <Text
+                            onClick={() =>
+                              orderBy(sorted.secondValue.order, 'topic')
+                            }
+                            className="text-value"
+                          >
+                            {sorted.secondValue.label}
+                          </Text>
+                        </div>
+                      </div>
+                    </StyledSection>
+                  ))[1]
+                }
+              </>
+            </DropdownMenu>
+          </Box>
 
-        <DropdownMenu
-          menuTitle="Filtered by tags"
-          DropdownMenuIcon={<FilterByTagsIcon className="w-5 h-5" />}
-        >
-          <section>
-            <SearchInput type="search" placeholder="Search tags" />
-            <div>
-              {tagFilters?.map((filtered, index) => (
-                <CheckboxContainer key={filtered.id}>
-                  <Checkbox
-                    type="checkbox"
-                    onChange={() => HandleCheckboxChange(index)}
-                    checked={checkedState[index]}
-                  />
-                  <Text>{filtered.value}</Text>
-                </CheckboxContainer>
+          <Box marginLeft={'1.5em'}>
+            <DropdownMenu
+              isCreateNew
+              isWidth
+              iconPlacement="before"
+              DropdownMenuIcon={<AddIcon fontWeight="700" marginRight="10px" />}
+              menuTitle="Create new"
+            >
+              {createNewLists?.map((createNewList) => (
+                <SectionNewList key={createNewList.id}>
+                  <NewList onClick={createNewList.onClick}>
+                    {createNewList.iconName}
+                    <p>{createNewList.labelText}</p>
+                  </NewList>
+                </SectionNewList>
               ))}
-            </div>
-          </section>
-        </DropdownMenu>
-      </FlexContainer>
+            </DropdownMenu>
+          </Box>
+        </Flex>
+      </Stack>
     );
   };
 
+  //  load all notes when page is loaded
   useEffect(() => {
-    // Filter based on tags or sort order
-    const filteredNotes = allNotes.filter((note: NoteDetails) => {
-      if (tags.length === 0) return true;
-      return tags.some((tag) => {
-        if (note.tags && Array.isArray(note.tags)) {
-          return note.tags.includes(tag);
-        } else {
-          // Default to true if no tag present on note item
-          return true;
-        }
-      });
+    getNotes().then(() => {
+      setNotesLoaded(true);
     });
-    setAllNotes(filteredNotes);
-  }, [tags, sortOrder]);
+  }, []);
+
+  // Handle sorting of notes and document based on selected tags
+  useEffect(() => {
+    if (selectedTags.length === 0) {
+      setSortedCombinedData(combinedData);
+    } else {
+      const sorted = combinedData.filter((note) => {
+        const tags = note.tags || [];
+        const matchingTags = tags.filter((tag) =>
+          selectedTags.includes(tag.toLowerCase())
+        );
+        return matchingTags.length > 0;
+      });
+      setSortedCombinedData(sorted);
+    }
+  }, [selectedTags, allNotes, userDocuments]);
+
+  // Handle sorting of notes based on selected tags
+  useEffect(() => {
+    if (selectedTags.length === 0) {
+      setSortedNotes(allNotes);
+    } else {
+      const sorted = allNotes.filter((note) => {
+        const tags = note.tags || [];
+        const matchingTags = tags.filter((tag) =>
+          selectedTags.includes(tag.toLowerCase())
+        );
+        return matchingTags.length > 0;
+      });
+      setSortedNotes(sorted);
+    }
+  }, [selectedTags, allNotes]);
+
+  useEffect(() => {
+    const loaderTimer = setTimeout(() => {
+      setShowLoader(false);
+    }, 2000);
+
+    // Ensure that the loader stays visible for at least 3000 milliseconds to ensure both the getnotes and sortednotes array are gotten
+    const minLoaderDisplayTime = 3000; // Adjust as needed
+    const minLoaderTimer = setTimeout(() => {
+      setShowLoader(false);
+    }, minLoaderDisplayTime);
+
+    return () => {
+      clearTimeout(loaderTimer);
+      clearTimeout(minLoaderTimer);
+    };
+  }, []);
+
+  if (showLoader) {
+    return <LoaderOverlay />;
+  }
 
   const NoteView = () => {
-    if (!notesLoaded || sortedNotes.length < 1) {
+    if (!notesLoaded) {
       return <LoaderOverlay />;
     } else {
       return (
         <>
-          {allNotes.length > 0 ? (
+          {combinedData.length > 0 ? (
             <NotesWrapper>
               <header className="flex my-4 justify-between">
-                <StyledHeader>
-                  <span className="font-bold">My Documents</span>
-                  <span className="count-badge">{allNotes.length}</span>
-                </StyledHeader>
                 <FilterMenu />
               </header>
-              {sortedNotes.length > 0 ? (
-                <CustomTabs tablists={tabLists} tabPanel={tabPanel} />
-              ) : (
+              {selectedTags.length >= 1 && (
+                <Button
+                  variant="solid"
+                  mb="10px"
+                  borderRadius={'10px'}
+                  marginLeft={'10px'}
+                  colorScheme={'primary'}
+                  width={{ base: '100%', md: 'auto' }}
+                  onClick={handleClearCombinedDataFilter}
+                >
+                  <svg
+                    width="16"
+                    height="18"
+                    viewBox="0 0 16 18"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      fill="white"
+                      d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 6h.008v.008H6V6z"
+                    />
+                  </svg>
+
+                  <Text ml="5px">Clear filter</Text>
+                </Button>
+              )}
+
+              {sortedNotes.length === 0 && selectedTags.length ? (
                 <Section>
                   <div>
                     <img src="/images/notes.png" alt="notes" />
                     <Text>Sorry, no notes for the selected tag.</Text>
                   </div>
                 </Section>
+              ) : (
+                <CustomTabs tablists={tabLists} tabPanel={tabPanel} />
               )}
             </NotesWrapper>
           ) : (
@@ -381,7 +487,7 @@ const Notes = () => {
               <Section>
                 <div>
                   <img src="/images/notes.png" alt="notes" />
-                  <Text>You don't have any notes yet!</Text>
+                  <Text>You don't have any notes/documents yet!</Text>
                   <DropdownMenu
                     isCreateNewWidth
                     isCreateNew
