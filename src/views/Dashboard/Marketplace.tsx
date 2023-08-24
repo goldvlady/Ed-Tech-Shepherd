@@ -1,5 +1,7 @@
 import Star5 from '../../assets/5star.svg';
+import Sally from '../../assets/saly.svg';
 import CustomSelect from '../../components/Select';
+import SelectComponent, { Option } from '../../components/Select';
 import TimePicker from '../../components/TimePicker';
 import TimezoneSelect from '../../components/TimezoneSelect';
 import ApiService from '../../services/ApiService';
@@ -19,6 +21,8 @@ import {
   Grid,
   GridItem,
   HStack,
+  Image,
+  Input,
   Menu,
   MenuButton,
   MenuItem,
@@ -28,13 +32,19 @@ import {
   Spacer,
   Stack,
   Text,
-  useToast
+  useToast,
+  useDisclosure,
+  Modal,
+  ModalContent,
+  ModalFooter,
+  ModalOverlay,
+  VStack
 } from '@chakra-ui/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { Select as MultiSelect } from 'chakra-react-select';
 import { useFormik } from 'formik';
 import moment from 'moment';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, ChangeEvent } from 'react';
 import { BsStarFill } from 'react-icons/bs';
 import { FiChevronDown } from 'react-icons/fi';
 import { MdTune } from 'react-icons/md';
@@ -172,6 +182,11 @@ export default function Marketplace() {
     /* eslint-disable */
   }, []);
 
+  const {
+    isOpen: isBountyModalOpen,
+    onOpen: openBountyModal,
+    onClose: closeBountyModal
+  } = useDisclosure();
   return (
     <>
       <Box p={5}>
@@ -440,6 +455,106 @@ export default function Marketplace() {
           )}
         </Box>
       </Box>
+      <Box
+        position="fixed"
+        bottom={3}
+        right={3}
+        bg={'white'}
+        borderRadius={'10px'}
+        width="328px"
+        borderColor="grey"
+        textAlign="center"
+        boxShadow="0px 4px 20px 0px rgba(115, 126, 140, 0.25)"
+      >
+        <Image
+          src={Sally}
+          alt="instant tutoring"
+          borderTopLeftRadius={'10px'}
+          borderTopRightRadius={'10px'}
+        />
+        <VStack p={3} gap={2}>
+          <Text>Need Instant Tutoring ?</Text>
+          <Button onClick={openBountyModal}>Place Bounty</Button>
+        </VStack>
+      </Box>
+      <Modal isOpen={isBountyModalOpen} onClose={closeBountyModal}>
+        <ModalOverlay />
+        <ModalContent>
+          <Box p={4} borderWidth="1px" borderRadius="lg">
+            <FormControl mb={3}>
+              <FormLabel
+                fontSize="0.75rem"
+                lineHeight="17px"
+                color="#5C5F64"
+                mb={3}
+              >
+                Subject
+              </FormLabel>
+              <Input
+                type="text"
+                name="subject"
+                placeholder="e.g. biology"
+                value={'localData.subject'}
+                // onChange={handleChange}
+                _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
+              />
+            </FormControl>
+            <FormControl mb={3}>
+              <FormLabel
+                fontSize="0.75rem"
+                lineHeight="17px"
+                color="#5C5F64"
+                mb={3}
+              >
+                Topic
+              </FormLabel>
+              <Input
+                type="text"
+                name="topic"
+                placeholder="e.g genetics"
+                value={'localData.topic'}
+                // onChange={handleChange}
+                _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
+              />
+            </FormControl>
+            <FormControl mb={8}>
+              <FormLabel
+                fontSize="12px"
+                lineHeight="17px"
+                color="#5C5F64"
+                mb={3}
+              >
+                Level (optional)
+              </FormLabel>
+              <SelectComponent
+                name="level"
+                placeholder="Select Level"
+                options={levelOptions}
+                size={'md'}
+                onChange={(option) => {
+                  const event = {
+                    target: {
+                      name: 'level',
+                      value: (option as Option).value
+                    }
+                  } as ChangeEvent<HTMLSelectElement>;
+                  // handleChange(event);
+                }}
+              />
+            </FormControl>
+          </Box>
+          <ModalFooter>
+            <Flex gap={2}>
+              <Button onClick={closeBountyModal} variant="outline">
+                Cancel
+              </Button>
+              <Button onClick={closeBountyModal} variant="outline">
+                Update
+              </Button>
+            </Flex>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 }
