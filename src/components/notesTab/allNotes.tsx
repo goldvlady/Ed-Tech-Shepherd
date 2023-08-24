@@ -167,16 +167,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     }))
   );
 
-  useLayoutEffect(() => {
-    const isIndeterminate =
-      selectedPeople.length > 0 && selectedPeople.length < data.length;
-    setChecked(selectedPeople.length === data.length);
-    setIndeterminate(isIndeterminate);
-    if (checkbox.current) {
-      checkbox.current.indeterminate = isIndeterminate;
-    }
-  }, [selectedPeople]);
-
   const handleSelectAll = () => {
     if (!allChecked) {
       const newSelectedRowKeys = dataSource.map(
@@ -211,6 +201,46 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     setAllChecked(!allChecked);
   };
 
+  const handleSelect = (record: any) => {
+    const key = record.key as string;
+
+    const id = record.id as any;
+
+    const onSelect = (e) => {
+      setSelectedPeople(e);
+    };
+
+    if (selectedRowKeys?.includes(key)) {
+      setSelectedRowKeys?.(selectedRowKeys.filter((k) => k !== key));
+      onSelect &&
+        onSelect([...(selectedRowKeys?.filter((k) => k !== key) || [])]);
+      onSelect && onSelect(selectedRowKeys?.filter((k) => k !== key) || []);
+
+      setSelectedNoteIdToDeleteArray &&
+        setSelectedNoteIdToDeleteArray((prevArray) =>
+          prevArray.filter((noteId) => noteId !== id)
+        );
+      setSelectedNoteIdToAddTagsArray &&
+        setSelectedNoteIdToAddTagsArray((prevArray) =>
+          prevArray.filter((noteId) => noteId !== id)
+        );
+    } else {
+      setSelectedRowKeys?.([...(selectedRowKeys || []), key]);
+      onSelect && onSelect([...(selectedRowKeys || []), key]);
+    }
+
+    // Set the selected note ID for deletion
+
+    setSelectedNoteIdToDelete && setSelectedNoteIdToDelete(id);
+    setSelectedNoteIdToDeleteArray &&
+      setSelectedNoteIdToDeleteArray((prevArray) => [...prevArray, id]);
+
+    // Set the selected note ID add tags
+    setSelectedNoteIdToAddTags && setSelectedNoteIdToAddTags(id);
+    setSelectedNoteIdToAddTagsArray &&
+      setSelectedNoteIdToAddTagsArray((prevArray) => [...prevArray, id]);
+  };
+
   function Done() {
     setSelectedRowKeys([]);
     setSelectedPeople([]);
@@ -238,6 +268,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
   ) => {
     setTagAllNoteModal(isOpenTagAllNoteModal);
     setNoteId(noteId);
+    setSelectedTags(tags);
   };
 
   const onAddTag = (openTagsModal: boolean, noteId: any, tags: string[]) => {
@@ -366,15 +397,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     }
     return null;
   };
-
-  useEffect(() => {
-    const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
-    if (pinnedNotesFromLocalStorage) {
-      setPinnedNotes(pinnedNotesFromLocalStorage);
-    } else {
-      setPinnedNotes([]);
-    }
-  }, []);
 
   const DeleteNote = async () => {
     const noteIdInUse = noteId ?? noteParamId;
@@ -544,7 +566,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     setIsLoading(false);
   };
 
-  const AddAllNoteTags = async () => {
+  const AddAllNoteTags = async (tagsArray) => {
     setIsLoading(true);
     let noteIdsInUse: string[] = [];
 
@@ -561,7 +583,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
 
     setIsLoading(true);
 
-    const details = await addAllNoteTags(noteIdsInUse, selectedTags);
+    const details = await addAllNoteTags(noteIdsInUse, tagsArray);
     setIsLoading(false);
 
     if (!details) {
@@ -765,6 +787,25 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     }
   ];
 
+  useLayoutEffect(() => {
+    const isIndeterminate =
+      selectedPeople.length > 0 && selectedPeople.length < data.length;
+    setChecked(selectedPeople.length === data.length);
+    setIndeterminate(isIndeterminate);
+    if (checkbox.current) {
+      checkbox.current.indeterminate = isIndeterminate;
+    }
+  }, [selectedPeople]);
+
+  useEffect(() => {
+    const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
+    if (pinnedNotesFromLocalStorage) {
+      setPinnedNotes(pinnedNotesFromLocalStorage);
+    } else {
+      setPinnedNotes([]);
+    }
+  }, []);
+
   useEffect(() => {
     // console.log({ checked, selectedPeople });
   }, [checked, selectedPeople]);
@@ -855,10 +896,10 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
 
                       {tagAllNoteModal && (
                         <TagModal
-                          onSubmit={AddAllNoteTags}
+                          onSubmit={() => AddAllNoteTags(newTags)}
                           isOpen={tagAllNoteModal}
                           onClose={() => setTagAllNoteModal(false)}
-                          tags={tags}
+                          tags={selectedTags}
                           inputValue={inputValue}
                           handleAddTag={handleAddTag}
                           newTags={newTags}
@@ -917,6 +958,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
                 selectedRowKeys={selectedRowKeys}
                 setSelectedRowKeys={setSelectedRowKeys}
                 handleSelectAll={handleSelectAll}
+                handleSelect={handleSelect}
                 allChecked={allChecked}
                 setAllChecked={setAllChecked}
                 setSelectedNoteIdToDelete={setSelectedNoteIdToDelete}

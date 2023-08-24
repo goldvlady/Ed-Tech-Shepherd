@@ -147,7 +147,7 @@ export const TagModal: React.FC<TagModalProps> = ({
               isLoading
               loadingText="Adding..."
             >
-              Submit
+              Add
             </Button>
           ) : (
             <Button
@@ -155,7 +155,7 @@ export const TagModal: React.FC<TagModalProps> = ({
               colorScheme="blue"
               onClick={handleSubmit}
             >
-              Submit
+              Add
             </Button>
           )}
         </ModalFooter>

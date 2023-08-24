@@ -1,5 +1,8 @@
-import { saveMarkdownAsPDF } from '../../library/fs';
+import { saveAsPDF, saveMarkdownAsPDF } from '../../library/fs';
 import FlashModal from '../../views/Dashboard/FlashCards/components/FlashModal';
+import TagModal from '../../views/Dashboard/FlashCards/components/TagModal';
+import { NoteModal } from '../../views/Dashboard/Notes/Modal';
+import TableTag from '../CustomComponents/CustomTag';
 import { useCustomToast } from '../CustomComponents/CustomToast/useCustomToast';
 import {
   DownloadIcon,
@@ -7,7 +10,12 @@ import {
   FlashCardsSolidIcon,
   TrashIcon
 } from '../icons';
-import { TableTitleWrapper } from '../notesTab/styles';
+import {
+  StyledMenuButton,
+  StyledMenuSection,
+  TableTitleWrapper,
+  TableTagWrapper
+} from '../notesTab/styles';
 import SelectableTable, { TableColumn } from '../table';
 import { Button, Menu, MenuButton, MenuList, Text } from '@chakra-ui/react';
 import { AlertStatus, ToastPosition } from '@chakra-ui/react';
@@ -25,17 +33,19 @@ type DataSourceItem = {
   lastModified: string;
   id: string | number;
   documentURL?: string;
+  unFormatedTags: any;
 };
 
 export interface Props {
   data: any;
+  handleTagSelection: any;
 }
 
 const formatDate = (date: Date, format = 'DD ddd, hh:mma'): string => {
   return moment(date).format(format);
 };
 
-const AllDocumentTab: FC<Props> = ({ data }) => {
+const AllDocumentTab: FC<Props> = ({ data, handleTagSelection }) => {
   const toast = useCustomToast();
   const navigate = useNavigate();
 
@@ -45,17 +55,93 @@ const AllDocumentTab: FC<Props> = ({ data }) => {
   const [selectedPeople, setSelectedPeople] = useState<any[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const [allChecked, setAllChecked] = useState<boolean>(false);
-  const [selectedNoteIdToDelete, setSelectedNoteIdToDelete] = useState(null);
-  const [selectedNoteIdToDeleteArray, setSelectedNoteIdToDeleteArray] =
+  const [selectedDocumentIdToDelete, setSelectedDocumentIdToDelete] =
+    useState(null);
+  const [selectedDocumentIdToDeleteArray, setSelectedDocumentIdToDeleteArray] =
     useState<string[]>([]);
-  const [selectedNoteIdToAddTagsArray, setSelectedNoteIdToAddTagsArray] =
+  const [selectedDocumentIdToAddTagsArray, setSelectedNoteIdToAddTagsArray] =
     useState<string[]>([]);
-  const [selectedNoteIdToAddTags, setSelectedNoteIdToAddTags] = useState(null);
+  const [selectedDocumentIdToAddTags, setSelectedDocumentIdToAddTags] =
+    useState(null);
+  const [documentId, setDocumentId] = useState<string | null>(null);
 
   const [openFlashCard, setOpenFlashCard] = useState<boolean>(false);
 
+  const [deleteDocumentModal, setDeleteDocumentModal] = useState(false);
+  const [deleteAllDocumentsModal, setDeleteAllDocumentsModal] = useState(false);
+
+  const [tagAllDocumentModal, setTagAllDocumentModal] = useState(false);
+  const [openTagsModal, setOpenTagsModal] = useState<boolean>(false);
+  const [tags, setTags] = useState<string[]>([]);
+  const [newTags, setNewTags] = useState<string[]>(tags);
+  const [inputValue, setInputValue] = useState('');
+
+  const [isLoading, setIsLoading] = useState(false);
+
   const showFlashCardDropdown = () => {
     setOpenFlashCard((prevState) => !prevState);
+  };
+  const onDeleteDocument = (isOpenDeleteModal: boolean, noteId: any) => {
+    setDeleteDocumentModal(isOpenDeleteModal);
+    setSelectedPeople([]);
+    setDocumentId(noteId);
+  };
+
+  const onDeleteAllDocument = (isOpenDeleteModal: boolean, noteId: any) => {
+    setDeleteAllDocumentsModal(isOpenDeleteModal);
+    setSelectedPeople([]);
+    setDocumentId(noteId);
+  };
+
+  const onCancel = () => {
+    setDeleteDocumentModal(!deleteDocumentModal);
+    setSelectedRowKeys([]);
+    setSelectedPeople([]);
+  };
+
+  const onAddTagToMultipleNotes = (
+    isOpenTagAllDocumentModal: boolean,
+    noteId: any,
+    tags: string[]
+  ) => {
+    setTagAllDocumentModal(isOpenTagAllDocumentModal);
+    setDocumentId(noteId);
+  };
+
+  const onAddTag = (openTagsModal: boolean, noteId: any, tags: string[]) => {
+    setOpenTagsModal(openTagsModal);
+    setDocumentId(noteId);
+    setTags(tags);
+  };
+
+  const handleAddTag = () => {
+    const value = inputValue.toLowerCase().trim();
+    if (inputValue && !newTags.includes(value)) {
+      setNewTags([...newTags, value]);
+    }
+    setInputValue('');
+  };
+
+  const sortTags = (tagElement) => {
+    handleTagSelection(tagElement);
+  };
+
+  const formatTags = (tags: string | string[]): any[] => {
+    if (!tags) {
+      return [];
+    }
+    if (typeof tags === 'string') {
+      // If tags is a string, split it into an array and return
+      return tags.split(',').map((tag) => {
+        return <TableTag label={tag} onClick={() => sortTags(tag)} />;
+      });
+    } else if (Array.isArray(tags)) {
+      return tags.map((tag) => {
+        return <TableTag label={tag} onClick={() => sortTags(tag)} />;
+      });
+    } else {
+      return [];
+    }
   };
 
   const [dataSource] = useState<DataSourceItem[]>(
@@ -63,6 +149,8 @@ const AllDocumentTab: FC<Props> = ({ data }) => {
       key: i,
       id: data[i]?.id,
       title: data[i]?.title,
+      unFormatedTags: data[i]?.tags,
+      tags: formatTags(data[i]?.tags),
       dateCreated: formatDate(data[i]?.createdAt),
       lastModified: formatDate(data[i]?.updatedAt),
       documentURL: data[i]?.documentURL
@@ -87,25 +175,25 @@ const AllDocumentTab: FC<Props> = ({ data }) => {
 
       setSelectedRowKeys(newSelectedRowKeys);
 
-      const newSelectedNoteIds = dataSource.map((data) => data.id);
-      const newSelectedNoteIdsAsString = newSelectedNoteIds.map((id) =>
+      const newSelectedDocumentIds = dataSource.map((data) => data.id);
+      const newSelectedDocumentIdsAsString = newSelectedDocumentIds.map((id) =>
         id.toString()
       );
       // Append the new selected note IDs to the existing array
-      setSelectedNoteIdToDeleteArray((prevArray) => [
+      setSelectedDocumentIdToDeleteArray((prevArray) => [
         ...prevArray,
-        ...newSelectedNoteIdsAsString
+        ...newSelectedDocumentIdsAsString
       ]);
 
       setSelectedNoteIdToAddTagsArray((prevArray) => [
         ...prevArray,
-        ...newSelectedNoteIdsAsString
+        ...newSelectedDocumentIdsAsString
       ]);
     } else {
       setSelectedRowKeys([]);
       setSelectedPeople([]);
-      setSelectedNoteIdToDelete(null);
-      setSelectedNoteIdToAddTags(null);
+      setSelectedDocumentIdToDelete(null);
+      setSelectedDocumentIdToAddTags(null);
     }
     setAllChecked(!allChecked);
   };
@@ -115,7 +203,7 @@ const AllDocumentTab: FC<Props> = ({ data }) => {
     setSelectedPeople([]);
     setAllChecked(false);
 
-    setSelectedNoteIdToDelete(null);
+    setSelectedDocumentIdToDelete(null);
   }
 
   const gotoEditPdf = async (
@@ -150,6 +238,18 @@ const AllDocumentTab: FC<Props> = ({ data }) => {
       duration: duration,
       isClosable: isClosable
     });
+  };
+
+  const downloadDocument = async (documentId: string | number, title: any) => {
+    if (!documentId) {
+      return showToast(
+        'Download Alert',
+        'Cannot download document. Please select a document',
+        'error'
+      );
+    }
+    const documentName = `${title}`;
+    saveAsPDF(documentName, '');
   };
 
   const clientColumn: TableColumn<DataSourceItem>[] = [
@@ -187,7 +287,7 @@ const AllDocumentTab: FC<Props> = ({ data }) => {
     {
       key: 'actions',
       title: '',
-      render: ({ id, title }) => (
+      render: ({ id, title, unFormatedTags }) => (
         <Menu>
           <MenuButton
             as={Button}
@@ -208,9 +308,6 @@ const AllDocumentTab: FC<Props> = ({ data }) => {
           >
             <section className="space-y-2 border-b pb-2">
               <button
-                // onClick={() => {
-                //   navigate(`/clients/${id}`);
-                // }}
                 onClick={showFlashCardDropdown}
                 className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
               >
@@ -229,7 +326,7 @@ const AllDocumentTab: FC<Props> = ({ data }) => {
               </button>
               <button
                 onClick={() => {
-                  // onAddTag(true, id, unFormatedTags);
+                  onAddTag(true, id, unFormatedTags);
                 }}
                 className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
               >
@@ -250,7 +347,7 @@ const AllDocumentTab: FC<Props> = ({ data }) => {
                 <div
                   className="flex items-center space-x-1"
                   onClick={() => {
-                    // downloadAsPDF(id, topic);
+                    downloadDocument(id, title);
                   }}
                 >
                   <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
@@ -268,7 +365,7 @@ const AllDocumentTab: FC<Props> = ({ data }) => {
             </section>
             <div
               onClick={() => {
-                // onDeleteNote(true, id);
+                onDeleteDocument(true, id);
               }}
               style={{
                 display: 'flex',
@@ -319,13 +416,96 @@ const AllDocumentTab: FC<Props> = ({ data }) => {
                       >
                         {allChecked ? 'Deselect all' : 'Select all'}
                       </button>
+
+                      <Menu>
+                        {selectedPeople.length > 1 || allChecked ? (
+                          <StyledMenuButton
+                            as={Button}
+                            variant="unstyled"
+                            borderRadius="full"
+                            p={0}
+                            minW="auto"
+                            height="auto"
+                            background="#F4F5F5"
+                            display="flex"
+                            className="flex items-center gap-2"
+                            onClick={() => {
+                              if (selectedDocumentIdToAddTagsArray) {
+                                onAddTagToMultipleNotes(
+                                  true,
+                                  selectedDocumentIdToAddTagsArray,
+                                  newTags
+                                );
+                              }
+                            }}
+                          >
+                            <FlashCardsSolidIcon
+                              className="w-5"
+                              onClick={undefined}
+                            />
+                            Add tags to all Doc
+                          </StyledMenuButton>
+                        ) : (
+                          <StyledMenuButton
+                            as={Button}
+                            variant="unstyled"
+                            borderRadius="full"
+                            p={0}
+                            minW="auto"
+                            height="auto"
+                            background="#F4F5F5"
+                            display="flex"
+                            className="flex items-center gap-2"
+                            onClick={() => {
+                              if (setSelectedDocumentIdToAddTags) {
+                                onAddTag(
+                                  true,
+                                  selectedDocumentIdToAddTags,
+                                  newTags
+                                );
+                                setSelectedDocumentIdToAddTags(null);
+                              }
+                            }}
+                          >
+                            <FlashCardsSolidIcon
+                              className="w-5"
+                              onClick={undefined}
+                            />
+                            Add tag
+                          </StyledMenuButton>
+                        )}
+                      </Menu>
+
+                      {tagAllDocumentModal && (
+                        <TagModal
+                          onSubmit={() => {
+                            // console.log("first")
+                          }}
+                          isOpen={tagAllDocumentModal}
+                          onClose={() => setTagAllDocumentModal(false)}
+                          tags={tags}
+                          inputValue={inputValue}
+                          handleAddTag={handleAddTag}
+                          newTags={newTags}
+                          setNewTags={setNewTags}
+                          setInputValue={setInputValue}
+                        />
+                      )}
                     </div>
 
                     {selectedPeople.length > 1 || allChecked ? (
                       <button
                         type="button"
                         className="inline-flex items-center space-x-2 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                        onClick={undefined}
+                        onClick={() => {
+                          if (selectedDocumentIdToDeleteArray) {
+                            onDeleteAllDocument(
+                              true,
+                              selectedDocumentIdToDeleteArray
+                            );
+                            setSelectedDocumentIdToDeleteArray([]);
+                          }
+                        }}
                       >
                         <TrashIcon className="w-5" onClick={undefined} />
                         <span>Delete All</span>
@@ -334,7 +514,12 @@ const AllDocumentTab: FC<Props> = ({ data }) => {
                       <button
                         type="button"
                         className="inline-flex items-center space-x-2 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                        onClick={undefined}
+                        onClick={() => {
+                          if (selectedDocumentIdToDelete) {
+                            onDeleteDocument(true, selectedDocumentIdToDelete);
+                            setSelectedDocumentIdToDelete(null);
+                          }
+                        }}
                       >
                         <TrashIcon className="w-5" onClick={undefined} />
                         <span>Delete</span>
@@ -362,17 +547,65 @@ const AllDocumentTab: FC<Props> = ({ data }) => {
                 handleSelectAll={handleSelectAll}
                 allChecked={allChecked}
                 setAllChecked={setAllChecked}
-                setSelectedNoteIdToDelete={setSelectedNoteIdToDelete}
-                selectedNoteIdToDelete={selectedNoteIdToDelete}
-                setSelectedNoteIdToDeleteArray={setSelectedNoteIdToDeleteArray}
-                selectedNoteIdToDeleteArray={selectedNoteIdToDeleteArray}
-                selectedNoteIdToAddTagsArray={selectedNoteIdToAddTagsArray}
+                setSelectedNoteIdToDelete={setSelectedDocumentIdToDelete}
+                selectedNoteIdToDelete={selectedDocumentIdToDelete}
+                setSelectedNoteIdToDeleteArray={
+                  setSelectedDocumentIdToDeleteArray
+                }
+                selectedNoteIdToDeleteArray={selectedDocumentIdToDeleteArray}
+                selectedNoteIdToAddTagsArray={selectedDocumentIdToAddTagsArray}
                 setSelectedNoteIdToAddTagsArray={
                   setSelectedNoteIdToAddTagsArray
                 }
-                selectedNoteIdToAddTags={selectedNoteIdToAddTags}
-                setSelectedNoteIdToAddTags={setSelectedNoteIdToAddTags}
+                selectedNoteIdToAddTags={selectedDocumentIdToAddTags}
+                setSelectedNoteIdToAddTags={setSelectedDocumentIdToAddTags}
               />
+
+              <NoteModal
+                title="Delete Document"
+                description="Are you sure you want to delete Document?"
+                isLoading={isLoading}
+                isOpen={deleteDocumentModal}
+                onCancel={() => onCancel()}
+                onClose={() => setDeleteDocumentModal(false)}
+                onDelete={function (): void {
+                  // throw new Error('Function not implemented.');
+                }}
+              />
+
+              <NoteModal
+                title="Delete All Documents"
+                description="Are you sure you want to delete all the marked Documents?"
+                isLoading={isLoading}
+                isOpen={deleteAllDocumentsModal}
+                onCancel={() => {
+                  setDeleteAllDocumentsModal(!deleteAllDocumentsModal);
+                  setSelectedRowKeys([]);
+                  setSelectedPeople([]);
+                }}
+                onDelete={function (): void {
+                  // throw new Error('Function not implemented.');
+                }}
+                onClose={() =>
+                  setDeleteAllDocumentsModal(!deleteAllDocumentsModal)
+                }
+              />
+
+              {openTagsModal && (
+                <TagModal
+                  isOpen={openTagsModal}
+                  onClose={() => setOpenTagsModal(false)}
+                  tags={tags}
+                  inputValue={inputValue}
+                  handleAddTag={handleAddTag}
+                  newTags={newTags}
+                  setNewTags={setNewTags}
+                  setInputValue={setInputValue}
+                  onSubmit={() => {
+                    // throw new Error('Function not implemented.');
+                  }}
+                />
+              )}
 
               {openFlashCard && (
                 <FlashModal

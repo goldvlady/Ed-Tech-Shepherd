@@ -1,4 +1,4 @@
-import { saveMarkdownAsPDF } from '../../library/fs';
+import { saveMarkdownAsPDF, saveAsPDF } from '../../library/fs';
 import ApiService from '../../services/ApiService';
 import FlashModal from '../../views/Dashboard/FlashCards/components/FlashModal';
 import TagModal from '../../views/Dashboard/FlashCards/components/TagModal';
@@ -41,6 +41,7 @@ type DataSourceItem = {
   tags: any[];
   id: string | number;
   status: string;
+  documentId: any;
   documentURL?: string;
   unFormatedTags?: any;
 };
@@ -66,14 +67,18 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
   const toast = useCustomToast();
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
   const [deleteAllNoteModal, setDeleteAllNoteModal] = useState(false);
+  const [deleteDocumentModal, setDeleteDocumentModal] = useState(false);
+  const [deleteAllDocumentsModal, setDeleteAllDocumentsModal] = useState(false);
   const [tagAllNoteModal, setTagAllNoteModal] = useState(false);
   const checkbox = useRef<HTMLInputElement>(null);
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
   const [selectedPeople, setSelectedPeople] = useState<any[]>([]);
-  const [openTags, setOpenTags] = useState<boolean>(false);
   const [openTagsModal, setOpenTagsModal] = useState<boolean>(false);
+  const [openDocumentTagsModal, setOpenDocumentTagsModal] =
+    useState<boolean>(false);
   const [noteId, setNoteId] = useState<string | null>(null);
+  const [documentId, setDocumentId] = useState<string | null>(null);
   const navigate = useNavigate();
   const [noteParamId, setNoteParamId] = useState<string | null>(
     params.id ?? null
@@ -90,6 +95,7 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
   const [selectedNoteIdToAddTags, setSelectedNoteIdToAddTags] = useState(null);
   const [inputValue, setInputValue] = useState('');
   const [tags, setTags] = useState<string[]>([]);
+  const [documentTags, setDocumentTags] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [newTags, setNewTags] = useState<string[]>(tags);
@@ -143,6 +149,12 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     setSelectedPeople([]);
   };
 
+  const onCancelDocumentModal = () => {
+    setDeleteDocumentModal(!deleteDocumentModal);
+    setSelectedRowKeys([]);
+    setSelectedPeople([]);
+  };
+
   const getLocalStorageNoteId = (noteId: string | null): string => {
     const genId = noteId ? noteId : '';
     return genId;
@@ -156,6 +168,7 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     Array.from({ length: data.length }, (_, i) => ({
       key: i,
       id: data[i]?._id,
+      documentId: data[i]?.id,
       topic: data[i]?.topic,
       tags: formatTags(data[i]?.tags),
       dateCreated: formatDate(data[i]?.createdAt),
@@ -166,16 +179,6 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
       title: data[i]?.title
     }))
   );
-
-  useLayoutEffect(() => {
-    const isIndeterminate =
-      selectedPeople.length > 0 && selectedPeople.length < data.length;
-    setChecked(selectedPeople.length === data.length);
-    setIndeterminate(isIndeterminate);
-    if (checkbox.current) {
-      checkbox.current.indeterminate = isIndeterminate;
-    }
-  }, [selectedPeople]);
 
   const handleSelectAll = () => {
     if (!allChecked) {
@@ -234,6 +237,21 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     setNoteId(noteId);
   };
 
+  const onDeleteDocument = (
+    isOpenDocumentDeleteModal: boolean,
+    noteId: any
+  ) => {
+    setDeleteDocumentModal(isOpenDocumentDeleteModal);
+    setSelectedPeople([]);
+    setNoteId(noteId);
+  };
+
+  const onDeleteAllDocument = (isOpenDeleteModal: boolean, noteId: any) => {
+    setDeleteAllDocumentsModal(isOpenDeleteModal);
+    setSelectedPeople([]);
+    setNoteId(noteId);
+  };
+
   const onAddTagToMultipleNotes = (
     isOpenTagAllNoteModal: boolean,
     noteId: any,
@@ -241,12 +259,23 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
   ) => {
     setTagAllNoteModal(isOpenTagAllNoteModal);
     setNoteId(noteId);
+    setSelectedTags(tags);
   };
 
   const onAddTag = (openTagsModal: boolean, noteId: any, tags: string[]) => {
     setOpenTagsModal(openTagsModal);
     setNoteId(noteId);
     setTags(tags);
+  };
+
+  const onAddDocumentTag = (
+    openDocumentTagsModal: boolean,
+    noteId: any,
+    tags: string[]
+  ) => {
+    setOpenTagsModal(openDocumentTagsModal);
+    setDocumentId(noteId);
+    setDocumentTags(tags);
   };
 
   const gotoEditNote = (noteId: string | number) => {
@@ -526,7 +555,7 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     setIsLoading(false);
   };
 
-  const AddAllNoteTags = async () => {
+  const AddAllNoteTags = async (tagsArray) => {
     setIsLoading(true);
     let noteIdsInUse: string[] = [];
 
@@ -543,7 +572,9 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
 
     setIsLoading(true);
 
-    const details = await addAllNoteTags(noteIdsInUse, selectedTags);
+    console.log({ tagsArray });
+
+    const details = await addAllNoteTags(noteIdsInUse, tagsArray);
     setIsLoading(false);
 
     if (!details) {
@@ -609,6 +640,58 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     }
   };
 
+  const downloadDocument = async (documentId: string | number, title: any) => {
+    if (!documentId) {
+      return showToast(
+        'Download Alert',
+        'Cannot download document. Please select a document',
+        'error'
+      );
+    }
+    const documentName = `${title}`;
+    saveAsPDF(documentName, '');
+  };
+
+  const handleSelect = (record: any) => {
+    const key = record.key as string;
+
+    const id = record.id as any;
+
+    const onSelect = (e) => {
+      setSelectedPeople(e);
+    };
+
+    if (selectedRowKeys?.includes(key)) {
+      setSelectedRowKeys?.(selectedRowKeys.filter((k) => k !== key));
+      onSelect &&
+        onSelect([...(selectedRowKeys?.filter((k) => k !== key) || [])]);
+      onSelect && onSelect(selectedRowKeys?.filter((k) => k !== key) || []);
+
+      setSelectedNoteIdToDeleteArray &&
+        setSelectedNoteIdToDeleteArray((prevArray) =>
+          prevArray.filter((noteId) => noteId !== id)
+        );
+      setSelectedNoteIdToAddTagsArray &&
+        setSelectedNoteIdToAddTagsArray((prevArray) =>
+          prevArray.filter((noteId) => noteId !== id)
+        );
+    } else {
+      setSelectedRowKeys?.([...(selectedRowKeys || []), key]);
+      onSelect && onSelect([...(selectedRowKeys || []), key]);
+    }
+
+    // Set the selected note ID for deletion
+
+    setSelectedNoteIdToDelete && setSelectedNoteIdToDelete(id);
+    setSelectedNoteIdToDeleteArray &&
+      setSelectedNoteIdToDeleteArray((prevArray) => [...prevArray, id]);
+
+    // Set the selected note ID add tags
+    setSelectedNoteIdToAddTags && setSelectedNoteIdToAddTags(id);
+    setSelectedNoteIdToAddTagsArray &&
+      setSelectedNoteIdToAddTagsArray((prevArray) => [...prevArray, id]);
+  };
+
   const clientColumn: TableColumn<DataSourceItem>[] = [
     {
       key: 'title',
@@ -616,14 +699,14 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
       dataIndex: 'topic',
       align: 'left',
       id: 0,
-      render: ({ topic, id, title, documentURL }) => (
+      render: ({ topic, id, title, documentURL, documentId }) => (
         <TableTitleWrapper>
           <Text
             onClick={() => {
               if (topic) {
                 gotoEditNote(id);
               } else {
-                gotoEditPdf(id, documentURL, title);
+                gotoEditPdf(documentId, documentURL, title);
               }
             }}
             fontWeight="500"
@@ -667,7 +750,7 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     {
       key: 'actions',
       title: '',
-      render: ({ topic, id, unFormatedTags, title }) =>
+      render: ({ topic, id, unFormatedTags, title, documentId }) =>
         topic ? (
           <Menu>
             <MenuButton
@@ -797,9 +880,6 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
             >
               <section className="space-y-2 border-b pb-2">
                 <button
-                  // onClick={() => {
-                  //   navigate(`/clients/${id}`);
-                  // }}
                   onClick={showDocumentFlashCardDropdown}
                   className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
                 >
@@ -818,7 +898,7 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
                 </button>
                 <button
                   onClick={() => {
-                    // onAddTag(true, id, unFormatedTags);
+                    onAddDocumentTag(true, documentId, unFormatedTags);
                   }}
                   className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
                 >
@@ -839,7 +919,7 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
                   <div
                     className="flex items-center space-x-1"
                     onClick={() => {
-                      // downloadAsPDF(id, topic);
+                      downloadDocument(documentId, title);
                     }}
                   >
                     <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
@@ -857,7 +937,7 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
               </section>
               <div
                 onClick={() => {
-                  // onDeleteNote(true, id);
+                  onDeleteDocument(true, documentId);
                 }}
                 style={{
                   display: 'flex',
@@ -887,6 +967,16 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
         )
     }
   ];
+
+  useLayoutEffect(() => {
+    const isIndeterminate =
+      selectedPeople.length > 0 && selectedPeople.length < data.length;
+    setChecked(selectedPeople.length === data.length);
+    setIndeterminate(isIndeterminate);
+    if (checkbox.current) {
+      checkbox.current.indeterminate = isIndeterminate;
+    }
+  }, [selectedPeople]);
 
   useEffect(() => {
     const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
@@ -983,10 +1073,10 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
 
                       {tagAllNoteModal && (
                         <TagModal
-                          onSubmit={AddAllNoteTags}
+                          onSubmit={() => AddAllNoteTags(newTags)}
                           isOpen={tagAllNoteModal}
                           onClose={() => setTagAllNoteModal(false)}
-                          tags={tags}
+                          tags={selectedTags}
                           inputValue={inputValue}
                           handleAddTag={handleAddTag}
                           newTags={newTags}
@@ -1055,6 +1145,7 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
                 setSelectedNoteIdToAddTagsArray={
                   setSelectedNoteIdToAddTagsArray
                 }
+                handleSelect={handleSelect}
                 selectedNoteIdToAddTags={selectedNoteIdToAddTags}
                 setSelectedNoteIdToAddTags={setSelectedNoteIdToAddTags}
               />
@@ -1098,6 +1189,18 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
         onClose={() => setDeleteAllNoteModal(!deleteAllNoteModal)}
       />
 
+      <NoteModal
+        title="Delete Document"
+        description="Are you sure you want to delete Document?"
+        isLoading={isLoading}
+        isOpen={deleteDocumentModal}
+        onCancel={() => onCancelDocumentModal()}
+        onClose={() => setDeleteDocumentModal(false)}
+        onDelete={function (): void {
+          // throw new Error('Function not implemented.');
+        }}
+      />
+
       {openFlashCard && (
         <FlashModal
           isOpen={openFlashCard}
@@ -1107,6 +1210,22 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
           buttonText="Create"
           onSubmit={(noteId) => {
             // submission here
+          }}
+        />
+      )}
+
+      {openDocumentTagsModal && (
+        <TagModal
+          isOpen={openDocumentTagsModal}
+          onClose={() => setOpenDocumentTagsModal(false)}
+          tags={documentTags}
+          inputValue={inputValue}
+          handleAddTag={handleAddTag}
+          newTags={newTags}
+          setNewTags={setNewTags}
+          setInputValue={setInputValue}
+          onSubmit={() => {
+            // throw new Error('Function not implemented.');
           }}
         />
       )}

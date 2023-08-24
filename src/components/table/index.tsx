@@ -51,6 +51,7 @@ export type TableProps<T = any> = {
   setSelectedNoteIdToAddTagsArray?: any;
   setSelectedNoteIdToAddTags?: any;
   selectedNoteIdToAddTags?: any;
+  handleSelect?: any;
 };
 
 const SelectableTable = <T extends Record<string, unknown>>({
@@ -59,16 +60,9 @@ const SelectableTable = <T extends Record<string, unknown>>({
   isSelectable,
   onSelect,
   selectedRowKeys: selectedKeysProps,
-  setSelectedNoteIdToDelete,
-  selectedNoteIdToDelete,
-  setSelectedNoteIdToDeleteArray,
-  selectedNoteIdToDeleteArray,
   handleSelectAll: handleSelectAllProps,
-  allChecked: allCheckProps,
-  setSelectedNoteIdToAddTagsArray,
-  selectedNoteIdToAddTagsArray,
-  selectedNoteIdToAddTags,
-  setSelectedNoteIdToAddTags
+  handleSelect: handleSelectProps,
+  allChecked: allCheckProps
 }: TableProps<T>) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>(
     selectedKeysProps || []
@@ -97,42 +91,6 @@ const SelectableTable = <T extends Record<string, unknown>>({
     }
     setAllChecked(!allChecked);
   };
-
-  // const handleSelect = (record: T) => {
-  //   const key = record.key as string;
-
-  //   const id = record.id as any;
-
-  //   if (selectedRowKeys?.includes(key)) {
-  //     setSelectedRowKeys?.(selectedRowKeys.filter((k) => k !== key));
-  //     onSelect &&
-  //       onSelect([...(selectedRowKeys?.filter((k) => k !== key) || [])]);
-  //     onSelect && onSelect(selectedRowKeys?.filter((k) => k !== key) || []);
-
-  //     setSelectedNoteIdToDeleteArray &&
-  //       setSelectedNoteIdToDeleteArray((prevArray) =>
-  //         prevArray.filter((noteId) => noteId !== id)
-  //       );
-  //     setSelectedNoteIdToAddTagsArray &&
-  //       setSelectedNoteIdToAddTagsArray((prevArray) =>
-  //         prevArray.filter((noteId) => noteId !== id)
-  //       );
-  //   } else {
-  //     setSelectedRowKeys?.([...(selectedRowKeys || []), key]);
-  //     onSelect && onSelect([...(selectedRowKeys || []), key]);
-  //   }
-
-  //   // Set the selected note ID for deletion
-
-  //   setSelectedNoteIdToDelete && setSelectedNoteIdToDelete(id);
-  //   setSelectedNoteIdToDeleteArray &&
-  //     setSelectedNoteIdToDeleteArray((prevArray) => [...prevArray, id]);
-
-  //   // Set the selected note ID add tags
-  //   setSelectedNoteIdToAddTags && setSelectedNoteIdToAddTags(id);
-  //   setSelectedNoteIdToAddTagsArray &&
-  //     setSelectedNoteIdToAddTagsArray((prevArray) => [...prevArray, id]);
-  // };
 
   return (
     <Table size="sm" variant="unstyled" width={{ base: '100em', md: '100%' }}>
@@ -170,7 +128,12 @@ const SelectableTable = <T extends Record<string, unknown>>({
                   <Checkbox
                     borderRadius={'5px'}
                     isChecked={selectedRowKeys?.includes(record.key as string)}
-                    onChange={() => handleSelect(record)}
+                    onChange={() => {
+                      handleSelect(record);
+                      if (handleSelectProps) {
+                        handleSelectProps(record); // Call the handleSelectProps function
+                      }
+                    }}
                   />
                 </div>
               </StyledTd>

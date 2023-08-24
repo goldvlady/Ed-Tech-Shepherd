@@ -84,6 +84,8 @@ const Notes = () => {
   const [selectedTags, setSelectedTags] = useState<any[]>([]);
   const [sortedNotes, setSortedNotes] = useState(allNotes);
 
+  const [sortedCombinedData, setSortedCombinedData] = useState(allNotes);
+
   const { userDocuments } = userStore();
   const combinedData: any = [...allNotes, ...userDocuments];
 
@@ -98,7 +100,8 @@ const Notes = () => {
     }
   };
 
-  const handleClearFilter = () => {
+  const handleClearCombinedDataFilter = () => {
+    setSortedCombinedData(combinedData);
     setSortedNotes(allNotes);
     setSelectedTags([]);
   };
@@ -190,7 +193,7 @@ const Notes = () => {
       id: 1,
       component: (
         <AllTab
-          data={sortedNotes}
+          data={sortedCombinedData}
           getNotes={getNotes}
           handleTagSelection={handleTagSelection}
         />
@@ -198,7 +201,12 @@ const Notes = () => {
     },
     {
       id: 2,
-      component: <AllDocumentTab data={userDocuments} />
+      component: (
+        <AllDocumentTab
+          data={userDocuments}
+          handleTagSelection={handleTagSelection}
+        />
+      )
     },
     {
       id: 3,
@@ -360,10 +368,10 @@ const Notes = () => {
     });
   }, []);
 
-  // Handle sorting of notes based on selected tags
+  // Handle sorting of notes and document based on selected tags
   useEffect(() => {
     if (selectedTags.length === 0) {
-      setSortedNotes(combinedData);
+      setSortedCombinedData(combinedData);
     } else {
       const sorted = combinedData.filter((note) => {
         const tags = note.tags || [];
@@ -372,9 +380,25 @@ const Notes = () => {
         );
         return matchingTags.length > 0;
       });
-      setSortedNotes(sorted);
+      setSortedCombinedData(sorted);
     }
   }, [selectedTags, allNotes, userDocuments]);
+
+  // Handle sorting of notes based on selected tags
+  useEffect(() => {
+    if (selectedTags.length === 0) {
+      setSortedNotes(allNotes);
+    } else {
+      const sorted = allNotes.filter((note) => {
+        const tags = note.tags || [];
+        const matchingTags = tags.filter((tag) =>
+          selectedTags.includes(tag.toLowerCase())
+        );
+        return matchingTags.length > 0;
+      });
+      setSortedNotes(sorted);
+    }
+  }, [selectedTags, allNotes]);
 
   useEffect(() => {
     const loaderTimer = setTimeout(() => {
@@ -416,7 +440,7 @@ const Notes = () => {
                   marginLeft={'10px'}
                   colorScheme={'primary'}
                   width={{ base: '100%', md: 'auto' }}
-                  onClick={handleClearFilter}
+                  onClick={handleClearCombinedDataFilter}
                 >
                   <svg
                     width="16"
