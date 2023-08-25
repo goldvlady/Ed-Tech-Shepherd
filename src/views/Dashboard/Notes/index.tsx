@@ -405,7 +405,8 @@ const Notes = () => {
       setShowLoader(false);
     }, 2000);
 
-    // Ensure that the loader stays visible for at least 3000 milliseconds to ensure both the getnotes and sortednotes array are gotten
+    // Ensure that the loader stays visible for at least 3000 milliseconds to ensure both the
+    // get-notes and sorted-notes array are available
     const minLoaderDisplayTime = 3000; // Adjust as needed
     const minLoaderTimer = setTimeout(() => {
       setShowLoader(false);

@@ -522,6 +522,7 @@ const NewNote = () => {
         break;
       }
     }
+
     return contentFound;
   };
 
@@ -591,12 +592,19 @@ const NewNote = () => {
     setOpenFlashCard((prevState) => !prevState);
   };
 
-  const goToDocChat = async (documentUrl, docTitle) => {
+  const goToNoteChat = async (
+    noteUrl: string,
+    noteTitle: string,
+    content: any
+  ) => {
     try {
       navigate('/dashboard/docchat', {
         state: {
-          documentUrl,
-          docTitle
+          // documentUrl: noteUrl,
+          // docTitle: noteTitle,
+          noteUrl,
+          noteTitle,
+          content
         }
       });
     } catch (error) {
@@ -604,35 +612,17 @@ const NewNote = () => {
     }
   };
 
-  // const proceed = async () => {
-  //   if (!saveDetails?.data || !saveDetails.data.documentId) {
-  //     return;
-  //   }
-  //   setLoadingDoc(true);
-  //   const noteData = saveDetails.data;
-  //   const url = noteData.documentId;
-  //   const name = noteData.topic;
-  //   if (!url || !name) {
-  //     return;
-  //   }
-  //   try {
-  //     await new Promise((resolve) => setTimeout(resolve, 1000));
-  //     await goToDocChat(url, name);
-  //   } catch (error) {
-  //     // Handle error
-  //   } finally {
-  //     setLoadingDoc(false);
-  //   }
-  // };
-
   const proceed = async () => {
     setLoadingDoc(true);
-
-    const url = studentDocuments[0]?.documentURL;
-    const name = studentDocuments[0]?.title;
+    if (!saveDetails || !saveDetails.data) {
+      return showToast(DEFAULT_NOTE_TITLE, 'Note not loaded', 'warning');
+    }
+    const note = saveDetails.data;
+    const url = note.documentId ?? '';
+    const topic = note.topic;
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      await goToDocChat(url, name);
+      await goToNoteChat(url, topic, initialContent);
     } catch (error) {
       // Handle error
     } finally {
