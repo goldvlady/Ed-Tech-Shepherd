@@ -1,10 +1,10 @@
-import { saveMarkdownAsPDF } from '../../library/fs';
+import { saveMarkdownAsPDF, saveAsPDF } from '../../library/fs';
 import ApiService from '../../services/ApiService';
 import FlashModal from '../../views/Dashboard/FlashCards/components/FlashModal';
 import TagModal from '../../views/Dashboard/FlashCards/components/TagModal';
 import { NoteModal } from '../../views/Dashboard/Notes/Modal';
 import {
-  NoteDetails,
+  AllNoteDetails,
   NoteServerResponse
 } from '../../views/Dashboard/Notes/types';
 import TableTag from '../CustomComponents/CustomTag';
@@ -15,48 +15,39 @@ import {
   FlashCardsSolidIcon,
   TrashIcon
 } from '../icons';
-import SelectableTable, { TableColumn } from '../table';
 import {
   StyledMenuButton,
-  StyledMenuSection,
   TableTitleWrapper,
   TableTagWrapper
-} from './styles';
+} from '../notesTab/styles';
+import SelectableTable, { TableColumn } from '../table';
 import { Block, BlockNoteEditor } from '@blocknote/core';
 import { useBlockNote } from '@blocknote/react';
 import { Menu, MenuList, MenuButton, Button, Text } from '@chakra-ui/react';
 import { AlertStatus, ToastPosition } from '@chakra-ui/react';
 import { useToast } from '@chakra-ui/react';
-import {
-  ChevronRightIcon,
-  MagnifyingGlassIcon
-} from '@heroicons/react/24/solid';
+import { ChevronRightIcon } from '@heroicons/react/24/solid';
 import moment from 'moment';
 import { FC, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { FaEllipsisH } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 
-interface Client {
-  id: number;
-  title: string;
-  date_created: string;
-  tags: string;
-  last_modified: string;
-}
-
 type DataSourceItem = {
   key: number;
-  title: string;
+  topic: string;
+  title?: string;
   dateCreated: string;
   lastModified: string;
   tags: any[];
   id: string | number;
   status: string;
+  documentId: any;
+  documentURL?: string;
   unFormatedTags?: any;
 };
 
 export interface Props {
-  data: Array<NoteDetails>;
+  data: Array<AllNoteDetails>;
   getNotes: () => void;
   handleTagSelection: any;
 }
@@ -71,18 +62,23 @@ type PinnedNote = {
   pinnedNoteJSON: any;
 };
 
-const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
+const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
   const params = useParams();
   const toast = useCustomToast();
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
   const [deleteAllNoteModal, setDeleteAllNoteModal] = useState(false);
+  const [deleteDocumentModal, setDeleteDocumentModal] = useState(false);
+  const [deleteAllDocumentsModal, setDeleteAllDocumentsModal] = useState(false);
   const [tagAllNoteModal, setTagAllNoteModal] = useState(false);
   const checkbox = useRef<HTMLInputElement>(null);
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
   const [selectedPeople, setSelectedPeople] = useState<any[]>([]);
   const [openTagsModal, setOpenTagsModal] = useState<boolean>(false);
+  const [openDocumentTagsModal, setOpenDocumentTagsModal] =
+    useState<boolean>(false);
   const [noteId, setNoteId] = useState<string | null>(null);
+  const [documentId, setDocumentId] = useState<string | null>(null);
   const navigate = useNavigate();
   const [noteParamId, setNoteParamId] = useState<string | null>(
     params.id ?? null
@@ -99,13 +95,23 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
   const [selectedNoteIdToAddTags, setSelectedNoteIdToAddTags] = useState(null);
   const [inputValue, setInputValue] = useState('');
   const [tags, setTags] = useState<string[]>([]);
+  const [documentTags, setDocumentTags] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [newTags, setNewTags] = useState<string[]>(tags);
 
+  const DELETE_NOTE_TITLE = 'Delete Note';
+
   const [openFlashCard, setOpenFlashCard] = useState<boolean>(false);
 
+  const [openDocumentFlashCard, setOpenDocumentFlashCard] =
+    useState<boolean>(false);
+
   const showFlashCardDropdown = () => {
+    setOpenFlashCard((prevState) => !prevState);
+  };
+
+  const showDocumentFlashCardDropdown = () => {
     setOpenFlashCard((prevState) => !prevState);
   };
 
@@ -143,6 +149,12 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     setSelectedPeople([]);
   };
 
+  const onCancelDocumentModal = () => {
+    setDeleteDocumentModal(!deleteDocumentModal);
+    setSelectedRowKeys([]);
+    setSelectedPeople([]);
+  };
+
   const getLocalStorageNoteId = (noteId: string | null): string => {
     const genId = noteId ? noteId : '';
     return genId;
@@ -152,18 +164,19 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     getNoteLocal(noteParamId)
   );
 
-  const DELETE_NOTE_TITLE = 'Delete Note';
-
   const [dataSource, setDataSource] = useState<DataSourceItem[]>(
     Array.from({ length: data.length }, (_, i) => ({
       key: i,
       id: data[i]?._id,
-      title: data[i]?.topic,
+      documentId: data[i]?.id,
+      topic: data[i]?.topic,
       tags: formatTags(data[i]?.tags),
-      unFormatedTags: data[i]?.tags,
       dateCreated: formatDate(data[i]?.createdAt),
       lastModified: formatDate(data[i]?.updatedAt),
-      status: data[i]?.status
+      status: data[i]?.status,
+      unFormatedTags: data[i]?.tags,
+      documentURL: data[i]?.documentURL,
+      title: data[i]?.title
     }))
   );
 
@@ -181,7 +194,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
       const newSelectedNoteIdsAsString = newSelectedNoteIds.map((id) =>
         id.toString()
       );
-
       // Append the new selected note IDs to the existing array
       setSelectedNoteIdToDeleteArray((prevArray) => [
         ...prevArray,
@@ -201,46 +213,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     setAllChecked(!allChecked);
   };
 
-  const handleSelect = (record: any) => {
-    const key = record.key as string;
-
-    const id = record.id as any;
-
-    const onSelect = (e) => {
-      setSelectedPeople(e);
-    };
-
-    if (selectedRowKeys?.includes(key)) {
-      setSelectedRowKeys?.(selectedRowKeys.filter((k) => k !== key));
-      onSelect &&
-        onSelect([...(selectedRowKeys?.filter((k) => k !== key) || [])]);
-      onSelect && onSelect(selectedRowKeys?.filter((k) => k !== key) || []);
-
-      setSelectedNoteIdToDeleteArray &&
-        setSelectedNoteIdToDeleteArray((prevArray) =>
-          prevArray.filter((noteId) => noteId !== id)
-        );
-      setSelectedNoteIdToAddTagsArray &&
-        setSelectedNoteIdToAddTagsArray((prevArray) =>
-          prevArray.filter((noteId) => noteId !== id)
-        );
-    } else {
-      setSelectedRowKeys?.([...(selectedRowKeys || []), key]);
-      onSelect && onSelect([...(selectedRowKeys || []), key]);
-    }
-
-    // Set the selected note ID for deletion
-
-    setSelectedNoteIdToDelete && setSelectedNoteIdToDelete(id);
-    setSelectedNoteIdToDeleteArray &&
-      setSelectedNoteIdToDeleteArray((prevArray) => [...prevArray, id]);
-
-    // Set the selected note ID add tags
-    setSelectedNoteIdToAddTags && setSelectedNoteIdToAddTags(id);
-    setSelectedNoteIdToAddTagsArray &&
-      setSelectedNoteIdToAddTagsArray((prevArray) => [...prevArray, id]);
-  };
-
   function Done() {
     setSelectedRowKeys([]);
     setSelectedPeople([]);
@@ -248,6 +220,10 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
 
     setSelectedNoteIdToDelete(null);
   }
+
+  useEffect(() => {
+    // console.log({ checked, selectedPeople });
+  }, [checked, selectedPeople]);
 
   const onDeleteNote = (isOpenDeleteModal: boolean, noteId: any) => {
     setDeleteNoteModal(isOpenDeleteModal);
@@ -257,6 +233,21 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
 
   const onDeleteAllNote = (isOpenDeleteModal: boolean, noteId: any) => {
     setDeleteAllNoteModal(isOpenDeleteModal);
+    setSelectedPeople([]);
+    setNoteId(noteId);
+  };
+
+  const onDeleteDocument = (
+    isOpenDocumentDeleteModal: boolean,
+    noteId: any
+  ) => {
+    setDeleteDocumentModal(isOpenDocumentDeleteModal);
+    setSelectedPeople([]);
+    setNoteId(noteId);
+  };
+
+  const onDeleteAllDocument = (isOpenDeleteModal: boolean, noteId: any) => {
+    setDeleteAllDocumentsModal(isOpenDeleteModal);
     setSelectedPeople([]);
     setNoteId(noteId);
   };
@@ -275,6 +266,16 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     setOpenTagsModal(openTagsModal);
     setNoteId(noteId);
     setTags(tags);
+  };
+
+  const onAddDocumentTag = (
+    openDocumentTagsModal: boolean,
+    noteId: any,
+    tags: string[]
+  ) => {
+    setOpenTagsModal(openDocumentTagsModal);
+    setDocumentId(noteId);
+    setDocumentTags(tags);
   };
 
   const gotoEditNote = (noteId: string | number) => {
@@ -434,7 +435,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
       }
       setDeleteNoteModal(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
-
       setNoteId('');
       getNotes();
 
@@ -487,7 +487,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
         savePinnedNoteLocal(updatedPinnedNotes);
       }
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
-
       setNoteId('');
       getNotes();
 
@@ -509,17 +508,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
         'error'
       );
     }
-    // const noteMarkdown: string = await editor.blocksToMarkdown(editor.topLevelBlocks);
-    // if (!noteMarkdown) {
-    //   return showToast(
-    //     "Download Alert",
-    //     'Could not extract note content. Please try again',
-    //     'error'
-    //   );
-    // }
-    // use note name also in other
     const noteName = `${title}`;
-    // saveMarkdownAsPDF(noteName, noteMarkdown);
     saveMarkdownAsPDF(noteName, '');
   };
 
@@ -530,7 +519,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
       setOpenTagsModal(false);
       return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
     }
-
     const details = await addTag(noteIdInUse, tagsArray);
 
     if (!details) {
@@ -549,10 +537,11 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
       setOpenTagsModal(false);
       setIsLoading(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
-
       setNoteId('');
       clearEditor();
       getNotes();
+
+      // setTags(details.data.tags);
 
       setDataSource((prevDataSource) => {
         return prevDataSource.map((item) => {
@@ -583,6 +572,8 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
 
     setIsLoading(true);
 
+    console.log({ tagsArray });
+
     const details = await addAllNoteTags(noteIdsInUse, tagsArray);
     setIsLoading(false);
 
@@ -601,7 +592,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     } else {
       setIsLoading(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
-
       setNoteId('');
       getNotes();
 
@@ -626,17 +616,102 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     setInputValue('');
   };
 
+  const truncateText = (text, maxLength) => {
+    if (text.length > maxLength) {
+      return text.substring(0, maxLength) + '...';
+    }
+    return text;
+  };
+
+  const gotoEditPdf = async (
+    noteId: string | number,
+    documentUrl,
+    docTitle
+  ) => {
+    try {
+      navigate(`/dashboard/new-note`, {
+        state: {
+          documentUrl,
+          docTitle
+        }
+      });
+    } catch (error) {
+      // console.log({ error });
+    }
+  };
+
+  const downloadDocument = async (documentId: string | number, title: any) => {
+    if (!documentId) {
+      return showToast(
+        'Download Alert',
+        'Cannot download document. Please select a document',
+        'error'
+      );
+    }
+    const documentName = `${title}`;
+    saveAsPDF(documentName, '');
+  };
+
+  const handleSelect = (record: any) => {
+    const key = record.key as string;
+
+    const id = record.id as any;
+
+    const onSelect = (e) => {
+      setSelectedPeople(e);
+    };
+
+    if (selectedRowKeys?.includes(key)) {
+      setSelectedRowKeys?.(selectedRowKeys.filter((k) => k !== key));
+      onSelect &&
+        onSelect([...(selectedRowKeys?.filter((k) => k !== key) || [])]);
+      onSelect && onSelect(selectedRowKeys?.filter((k) => k !== key) || []);
+
+      setSelectedNoteIdToDeleteArray &&
+        setSelectedNoteIdToDeleteArray((prevArray) =>
+          prevArray.filter((noteId) => noteId !== id)
+        );
+      setSelectedNoteIdToAddTagsArray &&
+        setSelectedNoteIdToAddTagsArray((prevArray) =>
+          prevArray.filter((noteId) => noteId !== id)
+        );
+    } else {
+      setSelectedRowKeys?.([...(selectedRowKeys || []), key]);
+      onSelect && onSelect([...(selectedRowKeys || []), key]);
+    }
+
+    // Set the selected note ID for deletion
+
+    setSelectedNoteIdToDelete && setSelectedNoteIdToDelete(id);
+    setSelectedNoteIdToDeleteArray &&
+      setSelectedNoteIdToDeleteArray((prevArray) => [...prevArray, id]);
+
+    // Set the selected note ID add tags
+    setSelectedNoteIdToAddTags && setSelectedNoteIdToAddTags(id);
+    setSelectedNoteIdToAddTagsArray &&
+      setSelectedNoteIdToAddTagsArray((prevArray) => [...prevArray, id]);
+  };
+
   const clientColumn: TableColumn<DataSourceItem>[] = [
     {
       key: 'title',
       title: 'Title',
-      dataIndex: 'title',
+      dataIndex: 'topic',
       align: 'left',
       id: 0,
-      render: ({ title, id }) => (
+      render: ({ topic, id, title, documentURL, documentId }) => (
         <TableTitleWrapper>
-          <Text onClick={() => gotoEditNote(id)} fontWeight="500">
-            {title}
+          <Text
+            onClick={() => {
+              if (topic) {
+                gotoEditNote(id);
+              } else {
+                gotoEditPdf(documentId, documentURL, title);
+              }
+            }}
+            fontWeight="500"
+          >
+            {topic ? topic : truncateText(title, 20)}
           </Text>
         </TableTitleWrapper>
       )
@@ -675,115 +750,221 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     {
       key: 'actions',
       title: '',
-      render: ({ title, id, unFormatedTags }) => (
-        <Menu>
-          <MenuButton
-            as={Button}
-            variant="unstyled"
-            borderRadius="full"
-            p={0}
-            minW="auto"
-            height="auto"
-          >
-            <FaEllipsisH fontSize={'12px'} />
-          </MenuButton>
-          <MenuList
-            fontSize="14px"
-            minWidth={'185px'}
-            borderRadius="8px"
-            backgroundColor="#FFFFFF"
-            boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
-          >
-            <section className="space-y-2 border-b pb-2">
-              <button
-                // onClick={() => {
-                //   navigate(`/clients/${id}`);
-                // }}
-                onClick={showFlashCardDropdown}
-                className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
-              >
-                <div className=" flex items-center space-x-1">
-                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
-                    <FlashCardsIcon
-                      className="w-4 h-4 text-primaryGray"
-                      onClick={undefined}
-                    />
-                  </div>
-                  <Text className="text-sm text-secondaryGray font-medium">
-                    Flashcards
-                  </Text>
-                </div>
-                <ChevronRightIcon className="w-2.5 h-2.5" />
-              </button>
-              <button
-                onClick={() => {
-                  onAddTag(true, id, unFormatedTags);
-                }}
-                className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
-              >
-                <div className="flex items-center space-x-1">
-                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
-                    <FlashCardsSolidIcon
-                      onClick={undefined}
-                      className="w-4 h-4 text-primaryGray"
-                    />
-                  </div>
-                  <Text className="text-sm text-secondaryGray font-medium">
-                    Edit tag
-                  </Text>
-                </div>
-                <ChevronRightIcon className="w-2.5 h-2.5" />
-              </button>
-              <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
-                <div
-                  className="flex items-center space-x-1"
-                  onClick={() => {
-                    downloadAsPDF(id, title);
-                  }}
-                >
-                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
-                    <DownloadIcon
-                      className="w-4 h-4 text-primaryGray"
-                      onClick={undefined}
-                    />
-                  </div>
-                  <Text className="text-sm text-secondaryGray font-medium">
-                    Download
-                  </Text>
-                </div>
-                <ChevronRightIcon className="w-2.5 h-2.5" />
-              </button>
-            </section>
-            <div
-              onClick={() => {
-                onDeleteNote(true, id);
-              }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '15px'
-              }}
+      render: ({ topic, id, unFormatedTags, title, documentId }) =>
+        topic ? (
+          <Menu>
+            <MenuButton
+              as={Button}
+              variant="unstyled"
+              borderRadius="full"
+              p={0}
+              minW="auto"
+              height="auto"
             >
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
+              <FaEllipsisH fontSize={'12px'} />
+            </MenuButton>
+            <MenuList
+              fontSize="14px"
+              minWidth={'185px'}
+              borderRadius="8px"
+              backgroundColor="#FFFFFF"
+              boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
+            >
+              <section className="space-y-2 border-b pb-2">
+                <button
+                  // onClick={() => {
+                  //   navigate(`/clients/${id}`);
+                  // }}
+                  onClick={showFlashCardDropdown}
+                  className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
+                >
+                  <div className=" flex items-center space-x-1">
+                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                      <FlashCardsIcon
+                        className="w-4 h-4 text-primaryGray"
+                        onClick={undefined}
+                      />
+                    </div>
+                    <Text className="text-sm text-secondaryGray font-medium">
+                      Flashcards
+                    </Text>
+                  </div>
+                  <ChevronRightIcon className="w-2.5 h-2.5" />
+                </button>
+                <button
+                  onClick={() => {
+                    onAddTag(true, id, unFormatedTags);
+                  }}
+                  className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
+                >
+                  <div className="flex items-center space-x-1">
+                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                      <FlashCardsSolidIcon
+                        onClick={undefined}
+                        className="w-4 h-4 text-primaryGray"
+                      />
+                    </div>
+                    <Text className="text-sm text-secondaryGray font-medium">
+                      Edit tag
+                    </Text>
+                  </div>
+                  <ChevronRightIcon className="w-2.5 h-2.5" />
+                </button>
+                <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
+                  <div
+                    className="flex items-center space-x-1"
+                    onClick={() => {
+                      downloadAsPDF(id, topic);
+                    }}
+                  >
+                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                      <DownloadIcon
+                        className="w-4 h-4 text-primaryGray"
+                        onClick={undefined}
+                      />
+                    </div>
+                    <Text className="text-sm text-secondaryGray font-medium">
+                      Download
+                    </Text>
+                  </div>
+                  <ChevronRightIcon className="w-2.5 h-2.5" />
+                </button>
+              </section>
+              <div
+                onClick={() => {
+                  onDeleteNote(true, id);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '15px'
+                }}
               >
-                <path
-                  d="M3.08317 2.50033V0.750326C3.08317 0.428162 3.34434 0.166992 3.6665 0.166992H8.33317C8.65535 0.166992 8.9165 0.428162 8.9165 0.750326V2.50033H11.8332V3.66699H10.6665V11.2503C10.6665 11.5725 10.4053 11.8337 10.0832 11.8337H1.9165C1.59434 11.8337 1.33317 11.5725 1.33317 11.2503V3.66699H0.166504V2.50033H3.08317ZM4.24984 1.33366V2.50033H7.74984V1.33366H4.24984Z"
-                  fill="#F53535"
-                />
-              </svg>
-              <Text fontSize="14px" lineHeight="20px" fontWeight="400">
-                Delete
-              </Text>
-            </div>
-          </MenuList>
-        </Menu>
-      )
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 12 12"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3.08317 2.50033V0.750326C3.08317 0.428162 3.34434 0.166992 3.6665 0.166992H8.33317C8.65535 0.166992 8.9165 0.428162 8.9165 0.750326V2.50033H11.8332V3.66699H10.6665V11.2503C10.6665 11.5725 10.4053 11.8337 10.0832 11.8337H1.9165C1.59434 11.8337 1.33317 11.5725 1.33317 11.2503V3.66699H0.166504V2.50033H3.08317ZM4.24984 1.33366V2.50033H7.74984V1.33366H4.24984Z"
+                    fill="#F53535"
+                  />
+                </svg>
+                <Text fontSize="14px" lineHeight="20px" fontWeight="400">
+                  Delete
+                </Text>
+              </div>
+            </MenuList>
+          </Menu>
+        ) : (
+          <Menu>
+            <MenuButton
+              as={Button}
+              variant="unstyled"
+              borderRadius="full"
+              p={0}
+              minW="auto"
+              height="auto"
+            >
+              <FaEllipsisH fontSize={'12px'} />
+            </MenuButton>
+            <MenuList
+              fontSize="14px"
+              minWidth={'185px'}
+              borderRadius="8px"
+              backgroundColor="#FFFFFF"
+              boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
+            >
+              <section className="space-y-2 border-b pb-2">
+                <button
+                  onClick={showDocumentFlashCardDropdown}
+                  className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
+                >
+                  <div className=" flex items-center space-x-1">
+                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                      <FlashCardsIcon
+                        className="w-4 h-4 text-primaryGray"
+                        onClick={undefined}
+                      />
+                    </div>
+                    <Text className="text-sm text-secondaryGray font-medium">
+                      Flashcards
+                    </Text>
+                  </div>
+                  <ChevronRightIcon className="w-2.5 h-2.5" />
+                </button>
+                <button
+                  onClick={() => {
+                    onAddDocumentTag(true, documentId, unFormatedTags);
+                  }}
+                  className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
+                >
+                  <div className="flex items-center space-x-1">
+                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                      <FlashCardsSolidIcon
+                        onClick={undefined}
+                        className="w-4 h-4 text-primaryGray"
+                      />
+                    </div>
+                    <Text className="text-sm text-secondaryGray font-medium">
+                      Edit tag
+                    </Text>
+                  </div>
+                  <ChevronRightIcon className="w-2.5 h-2.5" />
+                </button>
+                <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
+                  <div
+                    className="flex items-center space-x-1"
+                    onClick={() => {
+                      downloadDocument(documentId, title);
+                    }}
+                  >
+                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                      <DownloadIcon
+                        className="w-4 h-4 text-primaryGray"
+                        onClick={undefined}
+                      />
+                    </div>
+                    <Text className="text-sm text-secondaryGray font-medium">
+                      Download
+                    </Text>
+                  </div>
+                  <ChevronRightIcon className="w-2.5 h-2.5" />
+                </button>
+              </section>
+              <div
+                onClick={() => {
+                  onDeleteDocument(true, documentId);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '15px'
+                }}
+              >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 12 12"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3.08317 2.50033V0.750326C3.08317 0.428162 3.34434 0.166992 3.6665 0.166992H8.33317C8.65535 0.166992 8.9165 0.428162 8.9165 0.750326V2.50033H11.8332V3.66699H10.6665V11.2503C10.6665 11.5725 10.4053 11.8337 10.0832 11.8337H1.9165C1.59434 11.8337 1.33317 11.5725 1.33317 11.2503V3.66699H0.166504V2.50033H3.08317ZM4.24984 1.33366V2.50033H7.74984V1.33366H4.24984Z"
+                    fill="#F53535"
+                  />
+                </svg>
+                <Text fontSize="14px" lineHeight="20px" fontWeight="400">
+                  Delete
+                </Text>
+              </div>
+            </MenuList>
+          </Menu>
+        )
     }
   ];
 
@@ -805,10 +986,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
       setPinnedNotes([]);
     }
   }, []);
-
-  useEffect(() => {
-    // console.log({ checked, selectedPeople });
-  }, [checked, selectedPeople]);
 
   useEffect(() => {
     // console.log('new tags loaded: ', newTags);
@@ -958,7 +1135,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
                 selectedRowKeys={selectedRowKeys}
                 setSelectedRowKeys={setSelectedRowKeys}
                 handleSelectAll={handleSelectAll}
-                handleSelect={handleSelect}
                 allChecked={allChecked}
                 setAllChecked={setAllChecked}
                 setSelectedNoteIdToDelete={setSelectedNoteIdToDelete}
@@ -969,6 +1145,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
                 setSelectedNoteIdToAddTagsArray={
                   setSelectedNoteIdToAddTagsArray
                 }
+                handleSelect={handleSelect}
                 selectedNoteIdToAddTags={selectedNoteIdToAddTags}
                 setSelectedNoteIdToAddTags={setSelectedNoteIdToAddTags}
               />
@@ -1012,7 +1189,48 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
         onClose={() => setDeleteAllNoteModal(!deleteAllNoteModal)}
       />
 
+      <NoteModal
+        title="Delete Document"
+        description="Are you sure you want to delete Document?"
+        isLoading={isLoading}
+        isOpen={deleteDocumentModal}
+        onCancel={() => onCancelDocumentModal()}
+        onClose={() => setDeleteDocumentModal(false)}
+        onDelete={function (): void {
+          // throw new Error('Function not implemented.');
+        }}
+      />
+
       {openFlashCard && (
+        <FlashModal
+          isOpen={openFlashCard}
+          onClose={() => setOpenFlashCard(false)}
+          title="Flash Card Title"
+          loadingButtonText="Creating..."
+          buttonText="Create"
+          onSubmit={(noteId) => {
+            // submission here
+          }}
+        />
+      )}
+
+      {openDocumentTagsModal && (
+        <TagModal
+          isOpen={openDocumentTagsModal}
+          onClose={() => setOpenDocumentTagsModal(false)}
+          tags={documentTags}
+          inputValue={inputValue}
+          handleAddTag={handleAddTag}
+          newTags={newTags}
+          setNewTags={setNewTags}
+          setInputValue={setInputValue}
+          onSubmit={() => {
+            // throw new Error('Function not implemented.');
+          }}
+        />
+      )}
+
+      {openDocumentFlashCard && (
         <FlashModal
           isOpen={openFlashCard}
           onClose={() => setOpenFlashCard(false)}
@@ -1028,4 +1246,4 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
   );
 };
 
-export default AllNotesTab;
+export default AllTab;
