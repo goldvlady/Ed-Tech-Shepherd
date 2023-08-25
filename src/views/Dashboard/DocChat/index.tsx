@@ -333,7 +333,7 @@ export default function DocChat() {
     if (!location.state?.documentUrl && !location.state?.docTitle) {
       // navigate('/dashboard/notes')
     }
-  }, [navigate, location.state?.documentUrl, !location.state?.docTitle]);
+  }, [navigate, location.state?.documentUrl, location.state?.docTitle]);
 
   return (
     <section className="divide-y max-w-screen-xl fixed mx-auto">
