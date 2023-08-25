@@ -150,7 +150,7 @@ export default function DocChat() {
         { text: prompt, isUser: true, isLoading: false }
       ]);
 
-      socket.emit('chat message');
+      socket.emit('chat message', prompt);
     },
     [socket, messages?.length]
   );

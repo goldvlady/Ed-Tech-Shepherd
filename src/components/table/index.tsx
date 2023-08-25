@@ -1,6 +1,17 @@
 import { StyledTd, StyledTh, StyledTr } from './styles';
-import { Table, Thead, Tbody, Checkbox } from '@chakra-ui/react';
+import {
+  Table,
+  Thead,
+  Tbody,
+  Checkbox,
+  Box,
+  HStack,
+  Center,
+  IconButton,
+  Text
+} from '@chakra-ui/react';
 import { useState } from 'react';
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 const scrollbarStyles = {
   '&::-webkit-scrollbar': {
@@ -51,6 +62,10 @@ export type TableProps<T = any> = {
   setSelectedNoteIdToAddTagsArray?: any;
   setSelectedNoteIdToAddTags?: any;
   selectedNoteIdToAddTags?: any;
+  pagination?: boolean; // To conditionally render pagination
+  currentPage?: number; // Current page number
+  pageCount?: number; // Total number of pages
+  handlePagination?: (page: number) => void; // Callback when a page is changed
   handleSelect?: any;
 };
 
@@ -61,9 +76,19 @@ const SelectableTable = <T extends Record<string, unknown>>({
   onSelect,
   selectedRowKeys: selectedKeysProps,
   handleSelectAll: handleSelectAllProps,
-  handleSelect: handleSelectProps,
-  allChecked: allCheckProps
+  allChecked: allCheckProps,
+  setSelectedNoteIdToAddTagsArray,
+  selectedNoteIdToAddTagsArray,
+  selectedNoteIdToAddTags,
+  setSelectedNoteIdToAddTags,
+  pagination,
+  currentPage = 1,
+  pageCount = 1,
+  handlePagination,
+  handleSelect: handleSelectProps
 }: TableProps<T>) => {
+  console.log(pageCount);
+
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>(
     selectedKeysProps || []
   );
@@ -93,80 +118,114 @@ const SelectableTable = <T extends Record<string, unknown>>({
   };
 
   return (
-    <Table size="sm" variant="unstyled" width={{ base: '100em', md: '100%' }}>
-      <Thead marginBottom={10}>
-        <StyledTr>
-          {isSelectable && (
-            <StyledTh>
-              <Checkbox isChecked={allChecked} onChange={handleSelectAll} />
-            </StyledTh>
-          )}
-
-          {columns.map((col) => (
-            <StyledTh
-              key={col.key}
-              textAlign={col.align || 'left'}
-              width={col.width}
-            >
-              {' '}
-              {/* Set width here */}
-              {col.title}
-            </StyledTh>
-          ))}
-        </StyledTr>
-      </Thead>
-      <Tbody>
-        {dataSource.map((record) => (
-          <StyledTr
-            key={record.key as string}
-            active={selectedRowKeys?.includes(record.key as string)}
-            selectable={isSelectable}
-          >
+    <Box>
+      <Table size="sm" variant="unstyled" width={{ base: '100em', md: '100%' }}>
+        <Thead marginBottom={10}>
+          <StyledTr>
             {isSelectable && (
-              <StyledTd tagsColor={[record.tags].includes('#Che')}>
-                <div style={{ padding: '0 5px' }}>
-                  <Checkbox
-                    borderRadius={'5px'}
-                    isChecked={selectedRowKeys?.includes(record.key as string)}
-                    onChange={() => {
-                      handleSelect(record);
-                      if (handleSelectProps) {
-                        handleSelectProps(record); // Call the handleSelectProps function
-                      }
-                    }}
-                  />
-                </div>
-              </StyledTd>
+              <StyledTh>
+                <Checkbox isChecked={allChecked} onChange={handleSelectAll} />
+              </StyledTh>
             )}
 
             {columns.map((col) => (
-              <StyledTd
+              <StyledTh
                 key={col.key}
-                fontWeight="500"
-                maxW={col.width}
-                marginRight={col.width && '10px'}
-                maxH={col.height}
-                overflowX={col.scrollX ? 'hidden' : 'auto'}
-                overflowY={col.scrollY ? 'hidden' : 'auto'}
-                css={scrollbarStyles}
                 textAlign={col.align || 'left'}
-                style={{
-                  width: col.width,
-                  height: col.height
-                }}
-                tagsColor={col.dataIndex === 'tags' ? record.tags : '#585f68'}
+                width={col.width}
               >
-                {col.render
-                  ? col.render(record)
-                  : col.dataIndex
-                  ? record[col?.dataIndex]
-                  : null}
-              </StyledTd>
+                {' '}
+                {/* Set width here */}
+                {col.title}
+              </StyledTh>
             ))}
           </StyledTr>
-        ))}
-      </Tbody>
-    </Table>
+        </Thead>
+        <Tbody>
+          {dataSource.map((record) => (
+            <StyledTr
+              key={record.key as string}
+              active={selectedRowKeys?.includes(record.key as string)}
+              selectable={isSelectable}
+            >
+              {isSelectable && (
+                <StyledTd tagsColor={[record.tags].includes('#Che')}>
+                  <div style={{ padding: '0 5px' }}>
+                    <Checkbox
+                      borderRadius={'5px'}
+                      isChecked={selectedRowKeys?.includes(
+                        record.key as string
+                      )}
+                      onChange={() => handleSelect(record)}
+                    />
+                  </div>
+                </StyledTd>
+              )}
+
+              {columns.map((col) => (
+                <StyledTd
+                  key={col.key}
+                  fontWeight="500"
+                  maxW={col.width}
+                  marginRight={col.width && '10px'}
+                  maxH={col.height}
+                  overflowX={col.scrollX ? 'hidden' : 'auto'}
+                  overflowY={col.scrollY ? 'hidden' : 'auto'}
+                  css={scrollbarStyles}
+                  textAlign={col.align || 'left'}
+                  style={{
+                    width: col.width,
+                    height: col.height
+                  }}
+                  tagsColor={col.dataIndex === 'tags' ? record.tags : '#585f68'}
+                >
+                  {col.render
+                    ? col.render(record)
+                    : col.dataIndex
+                    ? record[col?.dataIndex]
+                    : null}
+                </StyledTd>
+              ))}
+            </StyledTr>
+          ))}
+        </Tbody>
+      </Table>
+      {pagination && (
+        <Center mt={4}>
+          <IconButton
+            size="sm"
+            icon={<FaChevronLeft />}
+            aria-label="Previous Page"
+            isDisabled={currentPage <= 1}
+            onClick={() =>
+              handlePagination && handlePagination(currentPage - 1)
+            }
+            colorScheme="gray"
+            variant="outline"
+            fontSize="12px"
+            mr={2}
+          />
+
+          <Text fontWeight={'bold'} fontSize="12px">
+            {currentPage} / {pageCount}
+          </Text>
+
+          <IconButton
+            size="sm"
+            icon={<FaChevronRight />}
+            aria-label="Next Page"
+            isDisabled={currentPage >= pageCount}
+            onClick={() =>
+              handlePagination && handlePagination(currentPage + 1)
+            }
+            colorScheme="gray"
+            variant="outline"
+            fontSize="12px"
+            ml={2}
+          />
+        </Center>
+      )}
+    </Box>
   );
 };
 

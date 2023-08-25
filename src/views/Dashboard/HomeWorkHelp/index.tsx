@@ -46,7 +46,8 @@ const HomeWorkHelp = () => {
   const [subjectId, setSubject] = useState<string>('Subject');
   const [localData, setLocalData] = useState<any>({
     subject: subjectId,
-    topic: ''
+    topic: '',
+    others: ''
   });
   const [level, setLevel] = useState<any>('');
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ const HomeWorkHelp = () => {
   const subject = 'biology';
 
   useEffect(() => {
-    if (!socket) {
+    if (!socket && studentId && topic) {
       const authSocket = socketWithAuth({
         studentId,
         topic,
@@ -120,7 +121,6 @@ const HomeWorkHelp = () => {
         }));
 
         setMessages((prevMessages) => [...prevMessages, ...mappedData]);
-        // setChatHistoryLoaded(true);
       } catch (error) {
         toast({
           render: () => (
@@ -231,14 +231,6 @@ const HomeWorkHelp = () => {
         isLoading: false
       }));
       setMessages((prevState) => [...previousConvoData]);
-      if (socket) {
-        socket.on('ready', (ready) => {
-          setReadyToChat(ready);
-          socket.emit('chat message', inputValue);
-        });
-
-        return () => socket.off('ready');
-      }
     };
     fetchConversationId();
     if (conversationId) setShowPrompt(true);
@@ -272,6 +264,7 @@ const HomeWorkHelp = () => {
         <ChatHistory
           studentId={studentId}
           setConversationId={setConversationId}
+          conversationId={conversationId}
         />
       </HomeWorkHelpHistoryContainer>
       <HomeWorkHelpChatContainer>
