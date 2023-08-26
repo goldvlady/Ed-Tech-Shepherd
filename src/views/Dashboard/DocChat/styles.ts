@@ -257,7 +257,7 @@ export const SummaryContainer2 = styled.textarea`
   cursor: pointer;
   resize: none;
   width: -webkit-fill-available;
-  height: 70vh;
+  height: auto;
   border: none;
 `;
 
@@ -428,7 +428,7 @@ export const ChatHistoryBody = styled.div`
 `;
 
 export const ChatHistoryContainer = styled.div`
-  margin: 112px 0;
+  margin: 78px 0;
   width: 100%;
 `;
 
@@ -447,6 +447,7 @@ export const ChatHistoryHeader = styled.div`
   width: 25%;
   top: 78px;
   background: white;
+  z-index: 999;
 
   p:nth-child(1) {
     font-size: 1.125rem;
@@ -562,4 +563,17 @@ export const DownPillContainer = styled.div`
   bottom: 55px;
   width: 100%;
   background: white;
+`;
+
+export const HomeWorkHelpChatContainer2 = styled.textarea`
+  border-radius: 8px;
+  background: #f4f5f6;
+  color: #585f68;
+  font-size: 0.875rem;
+  position: relative;
+  cursor: pointer;
+  resize: none;
+  width: -webkit-fill-available;
+  height: auto;
+  border: none;
 `;
