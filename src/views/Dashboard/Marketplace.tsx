@@ -1,5 +1,7 @@
 import Star5 from '../../assets/5star.svg';
 import Sally from '../../assets/saly.svg';
+import CustomButton2 from '../../components/CustomComponents/CustomButton/index';
+import CustomModal from '../../components/CustomComponents/CustomModal';
 import CustomSelect from '../../components/Select';
 import SelectComponent, { Option } from '../../components/Select';
 import TimePicker from '../../components/TimePicker';
@@ -11,6 +13,7 @@ import { educationLevelOptions, numberToDayOfWeekName } from '../../util';
 import Banner from './components/Banner';
 import Pagination from './components/Pagination';
 import TutorCard from './components/TutorCard';
+import BountyOfferModal from './components/bountyOfferModal';
 import { CustomButton } from './layout';
 import {
   Box,
@@ -27,6 +30,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Radio,
   Select,
   SimpleGrid,
   Spacer,
@@ -38,13 +42,20 @@ import {
   ModalContent,
   ModalFooter,
   ModalOverlay,
-  VStack
+  VStack,
+  RadioGroup
 } from '@chakra-ui/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { Select as MultiSelect } from 'chakra-react-select';
 import { useFormik } from 'formik';
 import moment from 'moment';
-import React, { useCallback, useEffect, useState, ChangeEvent } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  ChangeEvent,
+  useMemo
+} from 'react';
 import { BsStarFill } from 'react-icons/bs';
 import { FiChevronDown } from 'react-icons/fi';
 import { MdTune } from 'react-icons/md';
@@ -95,6 +106,8 @@ export default function Marketplace() {
   const [limit, setLimit] = useState<number>(20);
   const [count, setCount] = useState<number>(5);
   const [days, setDays] = useState<Array<any>>([]);
+
+  const [isShowInput, setShowInput] = useState('');
 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -187,6 +200,7 @@ export default function Marketplace() {
     onOpen: openBountyModal,
     onClose: closeBountyModal
   } = useDisclosure();
+
   return (
     <>
       <Box p={5}>
@@ -477,84 +491,10 @@ export default function Marketplace() {
           <Button onClick={openBountyModal}>Place Bounty</Button>
         </VStack>
       </Box>
-      <Modal isOpen={isBountyModalOpen} onClose={closeBountyModal}>
-        <ModalOverlay />
-        <ModalContent>
-          <Box p={4} borderWidth="1px" borderRadius="lg">
-            <FormControl mb={3}>
-              <FormLabel
-                fontSize="0.75rem"
-                lineHeight="17px"
-                color="#5C5F64"
-                mb={3}
-              >
-                Subject
-              </FormLabel>
-              <Input
-                type="text"
-                name="subject"
-                placeholder="e.g. biology"
-                value={'localData.subject'}
-                // onChange={handleChange}
-                _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
-              />
-            </FormControl>
-            <FormControl mb={3}>
-              <FormLabel
-                fontSize="0.75rem"
-                lineHeight="17px"
-                color="#5C5F64"
-                mb={3}
-              >
-                Topic
-              </FormLabel>
-              <Input
-                type="text"
-                name="topic"
-                placeholder="e.g genetics"
-                value={'localData.topic'}
-                // onChange={handleChange}
-                _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
-              />
-            </FormControl>
-            <FormControl mb={8}>
-              <FormLabel
-                fontSize="12px"
-                lineHeight="17px"
-                color="#5C5F64"
-                mb={3}
-              >
-                Level (optional)
-              </FormLabel>
-              <SelectComponent
-                name="level"
-                placeholder="Select Level"
-                options={levelOptions}
-                size={'md'}
-                onChange={(option) => {
-                  const event = {
-                    target: {
-                      name: 'level',
-                      value: (option as Option).value
-                    }
-                  } as ChangeEvent<HTMLSelectElement>;
-                  // handleChange(event);
-                }}
-              />
-            </FormControl>
-          </Box>
-          <ModalFooter>
-            <Flex gap={2}>
-              <Button onClick={closeBountyModal} variant="outline">
-                Cancel
-              </Button>
-              <Button onClick={closeBountyModal} variant="outline">
-                Update
-              </Button>
-            </Flex>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <BountyOfferModal
+        isBountyModalOpen={isBountyModalOpen}
+        closeBountyModal={closeBountyModal}
+      />
     </>
   );
 }

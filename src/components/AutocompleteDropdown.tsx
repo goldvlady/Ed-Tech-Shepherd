@@ -10,6 +10,14 @@ const AutocompleteDropdown = (props) => {
       ...provided,
       // borderColor: 'red',
       boxShadow: state.isFocused ? 'none' : provided.boxShadow
+    }),
+    menu: (provided) => ({
+      ...provided,
+      maxHeight: '180px'
+    }),
+    menuList: (provided) => ({
+      ...provided,
+      maxHeight: '180px'
     })
   };
 
@@ -20,7 +28,7 @@ const AutocompleteDropdown = (props) => {
   }));
 
   return (
-    <div style={{ width: '300px', margin: '20px' }}>
+    <div style={{}}>
       <Select
         value={selectedOption}
         onChange={handleSelected}
