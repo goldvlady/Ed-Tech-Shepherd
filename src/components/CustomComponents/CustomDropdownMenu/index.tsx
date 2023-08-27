@@ -9,6 +9,7 @@ interface IDropdownProps {
   isCreateNew?: boolean;
   isWidth?: boolean;
   isCreateNewWidth?: boolean;
+  iconPlacement?: any;
 }
 
 const DropdownMenu = ({
@@ -17,7 +18,8 @@ const DropdownMenu = ({
   children,
   isCreateNew,
   isWidth,
-  isCreateNewWidth
+  isCreateNewWidth,
+  iconPlacement = 'before'
 }: IDropdownProps) => {
   return (
     <Menu>
@@ -26,8 +28,10 @@ const DropdownMenu = ({
         isCreateNewWidth={isCreateNewWidth}
         isCreateNew={isCreateNew}
       >
-        {DropdownMenuIcon}
+        {iconPlacement === 'before' && DropdownMenuIcon}
         <span>{menuTitle}</span>
+
+        {iconPlacement === 'after' && DropdownMenuIcon}
       </StyledMenuButton>
       <StyledMenuList isCreateNew={isCreateNew}>{children}</StyledMenuList>
     </Menu>

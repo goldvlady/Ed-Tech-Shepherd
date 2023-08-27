@@ -43,28 +43,42 @@ const HomeWorkHelp = () => {
   const topic = location?.state?.topic;
   const [countNeedTutor, setCountNeedTutor] = useState<number>(1);
   const [socket, setSocket] = useState<any>(null);
-  const [subjectId, setSubject] = useState<string>('Subject');
+  const [subjectId, setSubject] = useState<string>('');
   const [localData, setLocalData] = useState<any>({
-    subject: subjectId,
-    topic: '',
-    others: ''
+    subject: '',
+    topic: ''
   });
   const [level, setLevel] = useState<any>('');
   const navigate = useNavigate();
   const [conversationId, setConversationId] = useState('');
-  const subject = 'biology';
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!socket && studentId && topic) {
+    if (!socket) {
       const authSocket = socketWithAuth({
         studentId,
-        topic,
-        subject,
+        topic: localData.topic,
+        subject: localData.subject,
+        // conversationId,
         namespace: 'homework-help'
       }).connect();
       setSocket(authSocket);
     }
-  }, [socket, studentId, topic]);
+  }, [socket]);
+
+  useEffect(() => {
+    if (isSubmitted) {
+      const authSocket = socketWithAuth({
+        studentId,
+        topic: localData.topic,
+        subject: localData.subject,
+        // conversationId,
+        namespace: 'homework-help'
+      }).connect();
+      setSocket(authSocket);
+    }
+    return () => setIsSubmitted(false);
+  }, [isSubmitted]);
 
   useEffect(() => {
     if (socket) {
@@ -178,7 +192,7 @@ const HomeWorkHelp = () => {
       ]);
       setInputValue('');
 
-      socket.emit('chat message');
+      socket.emit('chat message', prompt);
     },
     [socket]
   );
@@ -203,7 +217,8 @@ const HomeWorkHelp = () => {
       ]);
       setInputValue('');
 
-      socket.emit('chat message', inputValue);
+      socket && socket.emit('chat message', inputValue);
+      // setIsSubmitted(true);
     },
     [inputValue, socket]
   );
@@ -238,25 +253,45 @@ const HomeWorkHelp = () => {
 
   const onRouteHomeWorkHelp = useCallback(() => {
     handleClose();
-    navigate('/dashboard/ace-homework', {
-      state: { subject: subjectId, topic: topic, level }
-    });
-    socket.emit('chat message', localData.topic);
+    setIsSubmitted(true);
     setMessages([]);
     setCountNeedTutor(1);
     setInputValue('');
-    setLocalData({});
   }, [
     subjectId,
     localData,
     level,
     setMessages,
     handleClose,
-    handleAceHomeWorkHelp,
     navigate,
     socket,
-    topic
+    topic,
+    studentId,
+    localData.topic,
+    setIsSubmitted
   ]);
+
+  useEffect(() => {
+    if (isSubmitted) {
+      setMessages([]);
+      setConversationId('');
+    }
+  }, [isSubmitted]);
+
+  useEffect(() => {
+    const storedConvoId = localStorage.getItem('conversationId');
+
+    if (conversationId && (!storedConvoId || conversationId !== storedConvoId))
+      localStorage.setItem('conversationId', conversationId);
+  }, [conversationId]);
+
+  useEffect(() => {
+    const storedConvoId = localStorage.getItem('conversationId');
+
+    if (storedConvoId) {
+      setConversationId(storedConvoId);
+    }
+  }, []);
 
   return (
     <HomeWorkHelpContainer>
@@ -265,6 +300,7 @@ const HomeWorkHelp = () => {
           studentId={studentId}
           setConversationId={setConversationId}
           conversationId={conversationId}
+          isSubmitted={isSubmitted}
         />
       </HomeWorkHelpHistoryContainer>
       <HomeWorkHelpChatContainer>

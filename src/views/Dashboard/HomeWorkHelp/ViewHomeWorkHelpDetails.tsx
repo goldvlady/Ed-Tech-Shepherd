@@ -27,6 +27,7 @@ import React, {
 } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import CreatableSelect from 'react-select/creatable';
 
 interface FlashcardData {
   level?: string;
@@ -69,6 +70,41 @@ const ViewHomeWorkHelpDetails = ({
 
   const filteredOptions = searchQuery(searchValue, courseList);
 
+  const SearchableDropdown = () => {
+    const options = [
+      { value: 'chocolate', label: 'Chocolate' },
+      { value: 'vanilla', label: 'Vanilla' },
+      { value: 'strawberry', label: 'Strawberry' }
+      // ... add more options
+    ];
+  };
+
+  const [selectedOption, setSelectedOption] = useState(null);
+
+  const handleOnChange = (newValue) => {
+    setSelectedOption(newValue);
+    setLocalData((prevState: any) => ({
+      ...prevState,
+      subject: newValue?.label
+    }));
+  };
+
+  const handleOnCreateOption = (inputValue) => {
+    // Create a new option
+    const newOption = {
+      value: inputValue,
+      label: inputValue
+    };
+
+    // Set the new option as the selected value
+    setSelectedOption(newOption as any);
+
+    setLocalData((prevState: any) => ({
+      ...prevState,
+      subject: newOption.value
+    }));
+  };
+
   const navigate = useNavigate();
 
   const handleChange = useCallback(
@@ -81,6 +117,11 @@ const ViewHomeWorkHelpDetails = ({
     },
     [setLocalData]
   );
+
+  const getSelectedCourseLabel = () => {
+    const course = courseList.find((c) => c._id === subjectId);
+    return course ? course.label : 'e.g Biology';
+  };
 
   const isDisabledBtn = useMemo(() => {
     return !Object.values(localData).some((value) => value === '');
@@ -124,69 +165,16 @@ const ViewHomeWorkHelpDetails = ({
           >
             Subject
           </FormLabel>
-          {isShowInput.toLowerCase() === 'others' ? (
-            <Input
-              type="text"
-              name="others"
-              placeholder="e.g Biology"
-              value={localData?.others}
-              onChange={handleChange}
-              _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
-            />
-          ) : (
-            <Menu>
-              <MenuButton
-                as={Button}
-                variant="outline"
-                rightIcon={<FiChevronDown />}
-                fontSize={14}
-                borderRadius="8px"
-                fontWeight={400}
-                width="100%"
-                height="42px"
-                color="text.400"
-                textAlign="left"
-                placeholder="e.g Biology"
-              >
-                {subjectId !== 'Subject'
-                  ? courseList.map((course) => {
-                      if (course._id === subjectId) {
-                        return course.label;
-                      }
-                    })
-                  : 'e.g Biology'}
-              </MenuButton>
-              <MenuList zIndex={3} width="24em">
-                <Input
-                  size="sm"
-                  onChange={(e) => setSearchValue(e.target.value)}
-                  placeholder="Search Subject"
-                  value={searchValue}
-                />
-                <div
-                  style={{
-                    maxHeight: '200px',
-                    overflowY: 'auto'
-                  }}
-                >
-                  {filteredOptions.map((course) => (
-                    <MenuItem
-                      fontSize="0.875rem"
-                      key={course._id}
-                      _hover={{ bgColor: '#F2F4F7' }}
-                      onClick={() => {
-                        setSubject(course._id);
-                        setShowInput(course.label);
-                      }}
-                    >
-                      {course.label}
-                    </MenuItem>
-                  ))}
-                </div>
-              </MenuList>
-            </Menu>
-          )}
+          <CreatableSelect
+            isClearable
+            onChange={handleOnChange}
+            onCreateOption={handleOnCreateOption}
+            options={courseList}
+            value={selectedOption}
+            placeholder="Search or select an option..."
+          />
         </FormControl>
+
         <FormControl mb={6}>
           <FormLabel
             fontSize="0.75rem"

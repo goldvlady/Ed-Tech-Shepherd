@@ -3,27 +3,30 @@ import { ReactComponent as BackArrow } from '../../../../assets/backArrowFill.sv
 import { ReactComponent as DocIcon } from '../../../../assets/doc.svg';
 import { ReactComponent as DownloadIcon } from '../../../../assets/download.svg';
 import { ReactComponent as FlashCardIcn } from '../../../../assets/flashCardIcn.svg';
-import { ReactComponent as PinIcon } from '../../../../assets/pin.svg';
 import { ReactComponent as SideBarPinIcn } from '../../../../assets/sideBarPin.svg';
 import { ReactComponent as ArrowRight } from '../../../../assets/small-arrow-right.svg';
 import { ReactComponent as ZoomIcon } from '../../../../assets/square.svg';
 import { ReactComponent as TrashIcon } from '../../../../assets/trash-icn.svg';
 import CustomButton from '../../../../components/CustomComponents/CustomButton';
-import { storage } from '../../../../firebase';
-import { MAX_FILE_UPLOAD_LIMIT } from '../../../../helpers/constants';
+import TableTag from '../../../../components/CustomComponents/CustomTag';
+import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
+import useDebounce from '../../../../hooks/useDebounce';
 import { saveMarkdownAsPDF } from '../../../../library/fs';
-import { processDocument } from '../../../../services/AI';
+import { uploadBlockNoteDocument } from '../../../../services/AI';
 import ApiService from '../../../../services/ApiService';
 import userStore from '../../../../state/userStore';
 import TempPDFViewer from '../../DocChat/TempPDFViewer';
+import FlashModal from '../../FlashCards/components/FlashModal';
 import TagModal from '../../FlashCards/components/TagModal';
 import { NoteModal } from '../Modal';
 import {
+  AIServiceResponse,
+  NoteData,
   NoteDetails,
+  NoteDocumentDetails,
   NoteEnums,
   NoteServerResponse,
-  WorkerCallback,
-  WorkerProcess
+  NoteStatus
 } from '../types';
 import {
   DropDownFirstPart,
@@ -31,14 +34,14 @@ import {
   FirstSection,
   Header,
   HeaderButton,
+  HeaderWrapper,
   HeaderButtonText,
   NewNoteWrapper,
   NoteBody,
-  PDFWrapper,
+  HeaderTagsWrapper,
   FullScreenNoteWrapper,
   SecondSection
 } from './styles';
-import { initNoteIngestWorker } from './worker/ingest';
 import { Block, BlockNoteEditor } from '@blocknote/core';
 import '@blocknote/core/style.css';
 import { BlockNoteView, useBlockNote } from '@blocknote/react';
@@ -51,17 +54,34 @@ import {
   ToastPosition
 } from '@chakra-ui/react';
 import { useToast } from '@chakra-ui/react';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import moment from 'moment';
 import { useEffect, useRef, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import { BsFillPinFill } from 'react-icons/bs';
 import { FaEllipsisH } from 'react-icons/fa';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 const DEFAULT_NOTE_TITLE = 'Enter Note Title';
 const DELETE_NOTE_TITLE = 'Delete Note';
 const UPDATE_NOTE_TITLE = 'Note Alert';
-const NOTE_STORAGE_KEY = 'note';
+
+const formatTags = (tags: string | string[]): any[] => {
+  if (!tags) {
+    return [];
+  }
+  if (typeof tags === 'string') {
+    // If tags is a string, split it into an array and return
+    return tags.split(',').map((tag) => {
+      return <TableTag label={tag} />;
+    });
+  } else if (Array.isArray(tags)) {
+    return tags.map((tag) => {
+      return <TableTag label={tag} />;
+    });
+  } else {
+    return [];
+  }
+};
 
 // Define the type for the pinned note
 type PinnedNote = {
@@ -70,8 +90,7 @@ type PinnedNote = {
 };
 
 const createNote = async (
-  data: any,
-  tags?: string[]
+  data: NoteData
 ): Promise<NoteServerResponse | null> => {
   const resp = await ApiService.createNote(data);
   const respText = await resp.text();
@@ -96,8 +115,7 @@ const deleteNote = async (id: string): Promise<NoteServerResponse | null> => {
 
 const updateNote = async (
   id: string,
-  data: any,
-  tags?: string[]
+  data: NoteData
 ): Promise<NoteServerResponse | null> => {
   const resp = await ApiService.updateNote(id, data);
   const respText = await resp.text();
@@ -146,16 +164,19 @@ const NewNote = () => {
     useState<NoteServerResponse<NoteDetails> | null>(null);
   const [pinnedNotes, setPinnedNotes] = useState<PinnedNote[]>([]);
 
-  const toast = useToast();
+  const toast = useCustomToast();
   const params = useParams();
   const location = useLocation();
   const [noteParamId, setNoteParamId] = useState<string | null>(
     params.id ?? null
   );
   const [openTags, setOpenTags] = useState<boolean>(false);
-  const [noteId, setNoteId] = useState<string | null>(null);
+  const [openFlashCard, setOpenFlashCard] = useState<boolean>(false);
+  const [noteId, setNoteId] = useState<any | null>(null);
   const [saveButtonState, setSaveButtonState] = useState<boolean>(true);
   const [editedTitle, setEditedTitle] = useState(defaultNoteTitle);
+  const editedTitleRef = useRef<any>(null);
+  const draftNoteId = useRef<any>();
   const [currentTime, setCurrentTime] = useState<string>(
     formatDate(new Date())
   );
@@ -167,7 +188,8 @@ const NewNote = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
 
   const editor: BlockNoteEditor | null = useBlockNote({
-    initialContent: initialContent ? JSON.parse(initialContent) : undefined
+    initialContent: initialContent ? JSON.parse(initialContent) : undefined,
+    onEditorContentChange: (editor) => handleAutoSave(editor)
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -183,12 +205,7 @@ const NewNote = () => {
   const { userDocuments } = userStore();
   const [studentDocuments, setStudentDocuments] = useState<Array<any>>([]);
   const [pinned, setPinned] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (userDocuments.length) {
-      setStudentDocuments(userDocuments);
-    }
-  }, [userDocuments]);
+  const debounce = useDebounce(1000, 10);
 
   const onCancel = () => {
     setDeleteNoteModal(!deleteNoteModal);
@@ -221,11 +238,11 @@ const NewNote = () => {
     saveMarkdownAsPDF(noteName, noteMarkdown);
   };
 
-  // get editor's content
-  let noteJSON: string;
-
   const onSaveNote = async () => {
     if (!editor) return;
+
+    // get editor's content
+    let noteJSON: string;
 
     try {
       noteJSON = JSON.stringify(editor.topLevelBlocks);
@@ -252,13 +269,15 @@ const NewNote = () => {
       saveDetails = await updateNote(noteId, {
         topic: editedTitle,
         note: noteJSON,
-        newTags
+        tags: tags,
+        status: NoteStatus.SAVED
       });
     } else {
       saveDetails = await createNote({
         topic: editedTitle,
         note: noteJSON,
-        newTags
+        tags: tags,
+        status: NoteStatus.SAVED
       });
     }
     if (!saveDetails) {
@@ -294,78 +313,10 @@ const NewNote = () => {
       setCurrentTime(formatDate(saveDetails.data.updatedAt));
       showToast(UPDATE_NOTE_TITLE, saveDetails.message, 'success');
       setSaveButtonState(true);
+      // ingest Note content
+      ingestNote(saveDetails.data);
     }
   };
-
-  // Create a state to track the web worker
-  const [saveWorker, setSaveWorker] = useState<any>(null);
-
-  const [editorContent, setEditorContent] = useState<any>([]);
-
-  useEffect(() => {
-    // Cleanup the worker when the component unmounts
-    return () => {
-      if (saveWorker) {
-        saveWorker.terminate();
-      }
-    };
-  }, [saveWorker]);
-
-  // Define a function to check if two arrays are equal
-  const arraysAreEqual = (arr1, arr2) => {
-    if (arr1.length !== arr2.length) {
-      return false;
-    }
-  };
-
-  useEffect(() => {
-    if (!editor) return;
-
-    const handleContentChange = async () => {
-      try {
-        noteJSON = JSON.stringify(editor.topLevelBlocks);
-      } catch (error: any) {
-        return;
-      }
-
-      if (
-        editorHasContent() &&
-        !arraysAreEqual(editor.topLevelBlocks, noteJSON)
-      ) {
-        setEditorContent(noteJSON);
-
-        const saveWorkerCode = `
-        self.addEventListener('message', async (event) => {
-          const { noteJSON, editedTitle, noteId } = event.data;
-          // Implement your save logic here...
-          // Similar to onSaveNote logic, but without UI interactions
-          // ... (auto-saving logic)
-          self.postMessage({ success: true });
-        });
-      `;
-        const blob = new Blob([saveWorkerCode], {
-          type: 'application/javascript'
-        });
-
-        if (saveWorker) {
-          saveWorker.terminate();
-        }
-
-        const newSaveWorker = new Worker(URL.createObjectURL(blob));
-        setSaveWorker(newSaveWorker);
-
-        const noteData = {
-          noteJSON: JSON.stringify(editor.topLevelBlocks),
-          editedTitle,
-          noteId: noteJSON
-        };
-
-        newSaveWorker.postMessage(noteData);
-      }
-    };
-
-    handleContentChange();
-  }, [editorContent, editor, editedTitle]);
 
   const onDeleteNote = async () => {
     const noteIdInUse = noteId ?? noteParamId;
@@ -435,6 +386,7 @@ const NewNote = () => {
           setInitialContent(note.note);
           setSaveDetails(respDetails);
           setNoteId(note._id);
+          setTags(note.tags);
         }
       }
       // set note data
@@ -496,6 +448,7 @@ const NewNote = () => {
         // return showToast(UPDATE_NOTE_TITLE, 'Note already pinned', 'warning');
         return;
       }
+
       const updatedPinnedNotes = [
         ...pinnedNotes,
         {
@@ -518,6 +471,7 @@ const NewNote = () => {
   const isNoteAlreadyPinned = (noteId: string): boolean => {
     for (const note of pinnedNotes) {
       if (note.noteId === noteId) {
+        setPinned(true);
         return true;
       }
     }
@@ -533,15 +487,6 @@ const NewNote = () => {
     }
     return null;
   };
-
-  useEffect(() => {
-    const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
-    if (pinnedNotesFromLocalStorage) {
-      setPinnedNotes(pinnedNotesFromLocalStorage);
-    } else {
-      setPinnedNotes([]);
-    }
-  }, []);
 
   const handleFocusOut = () => {
     // Check if the click event target is inside the inputContainerRef
@@ -577,6 +522,7 @@ const NewNote = () => {
         break;
       }
     }
+
     return contentFound;
   };
 
@@ -642,12 +588,23 @@ const NewNote = () => {
     setOpenTags((prevState) => !prevState);
   };
 
-  const goToDocChat = async (documentUrl, docTitle) => {
+  const showFlashCardDropdown = () => {
+    setOpenFlashCard((prevState) => !prevState);
+  };
+
+  const goToNoteChat = async (
+    noteUrl: string,
+    noteTitle: string,
+    content: any
+  ) => {
     try {
       navigate('/dashboard/docchat', {
         state: {
-          documentUrl,
-          docTitle
+          // documentUrl: noteUrl,
+          // docTitle: noteTitle,
+          noteUrl,
+          noteTitle,
+          content
         }
       });
     } catch (error) {
@@ -657,12 +614,15 @@ const NewNote = () => {
 
   const proceed = async () => {
     setLoadingDoc(true);
-
-    const url = studentDocuments[0]?.documentURL;
-    const name = studentDocuments[0]?.title;
+    if (!saveDetails || !saveDetails.data) {
+      return showToast(DEFAULT_NOTE_TITLE, 'Note not loaded', 'warning');
+    }
+    const note = saveDetails.data;
+    const url = note.documentId ?? '';
+    const topic = note.topic;
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      await goToDocChat(url, name);
+      await goToNoteChat(url, topic, initialContent);
     } catch (error) {
       // Handle error
     } finally {
@@ -675,7 +635,8 @@ const NewNote = () => {
       id: 1,
       leftIcon: <FlashCardIcn />,
       title: 'Flashcards',
-      rightIcon: <ArrowRight />
+      rightIcon: <ArrowRight />,
+      onClick: showFlashCardDropdown
     },
     {
       id: 2,
@@ -712,16 +673,6 @@ const NewNote = () => {
       onClick: onDeleteNoteBtn
     }
   ];
-
-  // Load notes if noteID is provided via param
-  useEffect(() => {
-    getNoteById();
-    // event for escape to minimize window
-    window.addEventListener('keypress', handleWindowKey);
-    return () => {
-      window.removeEventListener('keypress', handleWindowKey);
-    };
-  }, []);
 
   const addTag = async (
     id: string,
@@ -770,9 +721,8 @@ const NewNote = () => {
       setOpenTags(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
       // setNoteId('');
-      setNewTags([]);
+      // setNewTags([]);
       clearEditor();
-      setTags(details.data.tags);
     }
   };
 
@@ -785,25 +735,199 @@ const NewNote = () => {
   };
 
   const handleBackClick = () => {
-    navigate('/dashboard/notes');
+    window.history.back();
   };
+
+  /**
+   * Ingest note content. This sends the note content to the AI service for processing
+   */
+  const ingestNote = async (noteDetails: NoteDetails) => {
+    const noteArrayContent = [noteDetails.note];
+
+    uploadBlockNoteDocument({
+      studentId: noteDetails.user._id,
+      documentId: noteDetails.id,
+      document: noteArrayContent,
+      title: noteDetails.topic,
+      tags: noteDetails.tags
+    }).then((response: AIServiceResponse) => {
+      if (!response) {
+        showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
+        return false;
+      }
+      if (!Array.isArray(response.data) || response.data.length <= 0) {
+        showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
+      }
+      // get data documentID is not already updated. Pick the first value in
+      const documentDetails: NoteDocumentDetails = response.data[0];
+      if (
+        !documentDetails?.documentURL ||
+        documentDetails?.documentURL === ''
+      ) {
+        showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
+      }
+      // TODO: update with full note details
+      const resp = ApiService.updateNoteDocumentId(
+        noteDetails.id,
+        documentDetails.documentURL
+      )
+        .then((response) => {
+          console.log('update note details: ', response);
+          showToast(
+            UPDATE_NOTE_TITLE,
+            'Note document details saved',
+            'success'
+          );
+        })
+        .catch((error: any) => {
+          showToast(
+            UPDATE_NOTE_TITLE,
+            'Could not save note document URL',
+            'error'
+          );
+        });
+    });
+    return true;
+  };
+
+  const handleAutoSave = (editor: any) => {
+    // use debounce filter
+    // TODO: we must move this to web worker
+    // additional condition for use to save note details
+
+    const saveLocalCallback = (noteId: string, note: string) => {
+      saveNoteLocal(getLocalStorageNoteId(noteId), note);
+    };
+    // evaluate other conditions to true or false
+    const saveCondition = () => true;
+    // note save callback wrapper
+    const saveCallback = () => {
+      autoSaveNote(editor, saveLocalCallback);
+    };
+    debounce(saveCallback, saveCondition);
+  };
+
+  /**
+   * Auto-save note contents
+   *
+   * @returns
+   */
+  const autoSaveNote = async (
+    editor: any,
+    saveCallback: (noteId: string, note: string) => any
+  ) => {
+    if (!editor) return;
+
+    const noteTitle = editedTitleRef.current.value ?? editedTitle;
+
+    let noteIdToUse = '';
+    let draftNoteIdToUse = '';
+    let noteJSON = '';
+    let noteStatus: NoteStatus;
+
+    try {
+      noteJSON = JSON.stringify(editor.topLevelBlocks);
+    } catch (error: any) {
+      return;
+    }
+
+    if (noteId || noteParamId) {
+      noteIdToUse = noteId ? noteId : noteParamId ?? '';
+      noteStatus = NoteStatus.SAVED;
+    } else {
+      draftNoteIdToUse = draftNoteId.current ? draftNoteId.current.value : '';
+      noteStatus = NoteStatus.DRAFT;
+    }
+
+    if (noteIdToUse && noteIdToUse !== '') {
+      updateNote(noteIdToUse, {
+        topic: noteTitle,
+        note: noteJSON,
+        tags: tags,
+        status: noteStatus
+      }).then((saveDetails) => {
+        // console.log('existing note updated ', saveDetails);
+        saveCallback(noteIdToUse, noteJSON);
+      });
+    } else {
+      if (draftNoteIdToUse && draftNoteIdToUse !== '') {
+        // update existing draft note
+        updateNote(draftNoteIdToUse, {
+          topic: noteTitle,
+          note: noteJSON,
+          tags: newTags,
+          status: noteStatus
+        }).then((saveDetails) => {
+          saveCallback(draftNoteIdToUse, noteJSON);
+          // console.log('existing draft note updated ', saveDetails);
+        });
+      } else {
+        // create a new draft note
+        createNote({
+          topic: noteTitle,
+          note: noteJSON,
+          tags: newTags,
+          status: noteStatus
+        }).then((saveDetails) => {
+          // console.log('draft note  created ', saveDetails);
+          // save new draft note details for update
+          if (saveDetails?.data) {
+            draftNoteId.current.value = saveDetails.data['_id'];
+            saveCallback(draftNoteIdToUse, noteJSON);
+          }
+        });
+      }
+    }
+  };
+
+  // Load notes if noteID is provided via param
+  useEffect(() => {
+    getNoteById();
+    // event for escape to minimize window
+    window.addEventListener('keypress', handleWindowKey);
+    return () => {
+      window.removeEventListener('keypress', handleWindowKey);
+    };
+  }, []);
+
+  useEffect(() => {
+    const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
+    if (pinnedNotesFromLocalStorage) {
+      setPinnedNotes(pinnedNotesFromLocalStorage);
+    } else {
+      setPinnedNotes([]);
+    }
+  }, [pinnedNotes]);
+
+  useEffect(() => {
+    if (userDocuments.length) {
+      setStudentDocuments(userDocuments);
+    }
+  }, [userDocuments]);
+
+  useEffect(() => {
+    if (editedTitleRef.current && editedTitle !== editedTitleRef.current) {
+      editedTitleRef.current.value = editedTitle;
+    }
+  }, [editedTitle]);
 
   return (
     <>
-      <HeaderButton onClick={handleBackClick}>
-        <BackArrow />
-        <HeaderButtonText> Back</HeaderButtonText>
-      </HeaderButton>
+      <HeaderWrapper>
+        <div style={{ display: 'none' }}>
+          <input type="text" ref={editedTitleRef} />
+          <input type="text" ref={draftNoteId} />
+        </div>
+        <HeaderButton onClick={handleBackClick}>
+          <BackArrow />
+          <HeaderButtonText> Back</HeaderButtonText>
+        </HeaderButton>
+        <HeaderTagsWrapper>{formatTags(tags)}</HeaderTagsWrapper>
+      </HeaderWrapper>
 
       {isFullScreen ? (
         <NewNoteWrapper {...editorStyle}>
           <FullScreenNoteWrapper>
-            {isFullScreen ? (
-              <HeaderButton onClick={handleBackClick}>
-                <BackArrow />
-                <HeaderButtonText> Back</HeaderButtonText>
-              </HeaderButton>
-            ) : null}
             {location.state?.documentUrl ? (
               ''
             ) : (
@@ -858,8 +982,14 @@ const NewNote = () => {
                     onClick={onSaveNote}
                     active={saveButtonState}
                   />
-                  <div className="pin__icn" onClick={handlePinClick}>
-                    <PinIcon />
+                  <div onClick={handlePinClick}>
+                    <BsFillPinFill
+                      className={`pin-icon ${
+                        pinnedNotes.some((note) => note.noteId === noteId)
+                          ? 'pinned'
+                          : 'not-pinned'
+                      }`}
+                    />
                   </div>
                   <div>
                     <Menu>
@@ -928,8 +1058,6 @@ const NewNote = () => {
             )}
 
             <NoteBody>
-              {/* We will show PDF once endpoint is implemented */}
-
               {location.state?.documentUrl ? (
                 <TempPDFViewer
                   pdfLink={location.state.documentUrl}
@@ -1007,8 +1135,14 @@ const NewNote = () => {
                   onClick={onSaveNote}
                   active={saveButtonState}
                 />
-                <div className="pin__icn" onClick={handlePinClick}>
-                  <PinIcon />
+                <div onClick={handlePinClick}>
+                  <BsFillPinFill
+                    className={`pin-icon ${
+                      pinnedNotes.some((note) => note.noteId === noteId)
+                        ? 'pinned'
+                        : 'not-pinned'
+                    }`}
+                  />
                 </div>
                 <div>
                   <Menu>
@@ -1099,6 +1233,19 @@ const NewNote = () => {
             onClose={() => setDeleteNoteModal(false)}
           />
         </NewNoteWrapper>
+      )}
+
+      {openFlashCard && (
+        <FlashModal
+          isOpen={openFlashCard}
+          onClose={() => setOpenFlashCard(false)}
+          title="Flash Card Title"
+          loadingButtonText="Creating..."
+          buttonText="Create"
+          onSubmit={(noteId) => {
+            // submission here
+          }}
+        />
       )}
     </>
   );

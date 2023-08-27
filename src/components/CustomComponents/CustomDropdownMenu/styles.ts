@@ -18,7 +18,6 @@ export const StyledMenuButton = styled(MenuButton)<{
   background: ${({ isCreateNew }) => (isCreateNew ? '#207DF7' : 'transparent')};
   text-align: center;
   color: ${({ isCreateNew }) => (isCreateNew ? '#FFFF' : '#585F68')};
-
   > span {
     display: ${({ isCreateNew }) => (isCreateNew ? '' : 'flex')};
     align-items: center;
