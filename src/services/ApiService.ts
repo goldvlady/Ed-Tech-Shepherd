@@ -472,6 +472,12 @@ class ApiService {
       body: JSON.stringify(formData)
     });
   };
+  static createBounty = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/createBounty`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
 }
 
 export default ApiService;

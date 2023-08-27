@@ -116,7 +116,7 @@ const SelectedModal = ({
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 1.5rem;
+    margin-top: 0.5rem;
     font-size: 0.875rem;
     font-weight: medium;
     color: var(--gray-400);

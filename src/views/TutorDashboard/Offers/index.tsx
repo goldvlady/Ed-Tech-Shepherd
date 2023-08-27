@@ -1,7 +1,15 @@
 import { Layout, OffersGridList, Section } from '../../../components';
 import ApiService from '../../../services/ApiService';
 import offerStore from '../../../state/offerStore';
-import { Box, Spinner } from '@chakra-ui/react';
+import {
+  Box,
+  Spinner,
+  Tab,
+  Tabs,
+  TabList,
+  TabPanel,
+  TabPanels
+} from '@chakra-ui/react';
 import React, { useEffect, useState, useCallback } from 'react';
 
 export default function Offers() {
@@ -46,9 +54,26 @@ export default function Offers() {
         subtitle={offers ? offers.length : 0}
         description="Easily manage and respond to offers from potential clients"
       />
-      {offers && offers.length > 0 && (
-        <OffersGridList offers={offers} pagination={pagination} />
-      )}
+
+      <Tabs>
+        <TabList className="tab-list">
+          <Tab fontSize={16} fontWeight={500} color="text.400">
+            Offers
+          </Tab>
+          <Tab fontSize={16} fontWeight={500} color="text.400">
+            Instant Offers
+          </Tab>
+        </TabList>
+
+        <TabPanels>
+          <TabPanel>
+            {offers && offers.length > 0 && (
+              <OffersGridList offers={offers} pagination={pagination} />
+            )}
+          </TabPanel>
+          <TabPanel>kljkhjghfgd</TabPanel>
+        </TabPanels>
+      </Tabs>
     </Box>
   );
 }
