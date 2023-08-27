@@ -292,10 +292,12 @@ const Chat = ({
                     </FlexContainer>
                     {HomeWorkHelp ? (
                       <StyledText>
-                        Welcome! I'm here to help you make the most of your time
-                        and your notes. Ask me questions, and I'll find the
-                        answers that match, given the information you've
-                        supplied. Let's get learning!
+                        Hello! I'm Socrates. I'm here to help you with your
+                        homework. Instead of just giving you answers, I prefer
+                        to ask questions that'll help you think and understand
+                        the topic better. Let's work together to explore the
+                        subjects you're studying. What would you like to start
+                        with?
                       </StyledText>
                     ) : (
                       <StyledText>
