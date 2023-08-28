@@ -37,6 +37,7 @@ export default function DocChat() {
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const documentId = location.state.docTitle ?? '';
   const studentId = user?._id ?? '';
+  const directStudentId = user?.student?._id;
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryText, setSummaryText] = useState('');
   const [socket, setSocket] = useState<any>(null);
@@ -378,6 +379,7 @@ export default function DocChat() {
           hightlightedText={hightlightedText}
           loading={loading}
           isUpdatedSummary={isUpdatedSummary}
+          directStudentId={directStudentId}
         />
       </div>
     </section>
