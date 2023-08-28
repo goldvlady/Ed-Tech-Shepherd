@@ -61,7 +61,7 @@ const ViewHomeWorkHelpDetails = ({
   const { courses: courseListRaw, levels: levelOptions } = resourceStore();
   const [searchValue, setSearchValue] = useState('');
   const [isShowInput, setShowInput] = useState('');
-  const courseList = [...courseListRaw, { _id: uid(), label: 'Others' }];
+  const courseList = [...courseListRaw];
   const searchQuery = useCallback((searchValue: string, courseList: any[]) => {
     return courseList.filter((course) =>
       course.label.toLowerCase().includes(searchValue.toLowerCase())
@@ -69,15 +69,6 @@ const ViewHomeWorkHelpDetails = ({
   }, []);
 
   const filteredOptions = searchQuery(searchValue, courseList);
-
-  const SearchableDropdown = () => {
-    const options = [
-      { value: 'chocolate', label: 'Chocolate' },
-      { value: 'vanilla', label: 'Vanilla' },
-      { value: 'strawberry', label: 'Strawberry' }
-      // ... add more options
-    ];
-  };
 
   const [selectedOption, setSelectedOption] = useState(null);
 
@@ -117,11 +108,6 @@ const ViewHomeWorkHelpDetails = ({
     },
     [setLocalData]
   );
-
-  const getSelectedCourseLabel = () => {
-    const course = courseList.find((c) => c._id === subjectId);
-    return course ? course.label : 'e.g Biology';
-  };
 
   const isDisabledBtn = useMemo(() => {
     return !Object.values(localData).some((value) => value === '');
