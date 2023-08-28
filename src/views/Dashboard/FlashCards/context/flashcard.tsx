@@ -78,7 +78,8 @@ export interface FlashcardDataContextProps {
   setMinimized: React.Dispatch<React.SetStateAction<boolean>>;
   generateFlashcardQuestions: (
     d?: FlashcardData,
-    onDone?: (success: boolean) => void
+    onDone?: (success: boolean) => void,
+    ingestDoc?: boolean
   ) => Promise<void>;
   questionGenerationStatus: QuestionGenerationStatusEnum;
 }
