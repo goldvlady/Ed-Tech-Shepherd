@@ -918,17 +918,6 @@ const CustomTable: React.FC = () => {
                   >
                     Deckname
                   </MenuItem>
-                  {/* <MenuItem
-                    _hover={{ bgColor: '#F2F4F7' }}
-                    color="#212224"
-                    onClick={() => fetchFlashcards({ sort: 'subject' })}
-                    fontSize="14px"
-                    lineHeight="20px"
-                    fontWeight="400"
-                    p="6px 8px 6px 8px"
-                  >
-                    Subject
-                  </MenuItem> */}
                 </MenuList>
               </Menu>
 
