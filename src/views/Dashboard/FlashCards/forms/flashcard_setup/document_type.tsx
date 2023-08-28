@@ -145,7 +145,7 @@ const FlashcardFromDocumentSetup = ({
       </FormControl>
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-          Topics
+          Topic
         </FormLabel>
         <Input
           type="text"

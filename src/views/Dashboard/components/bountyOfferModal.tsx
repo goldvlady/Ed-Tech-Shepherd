@@ -1,5 +1,6 @@
 import CustomButton2 from '../../../components/CustomComponents/CustomButton';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
+import CustomToast from '../../../components/CustomComponents/CustomToast';
 import ApiService from '../../../services/ApiService';
 import resourceStore from '../../../state/resourceStore';
 import {
@@ -14,7 +15,8 @@ import {
   MenuItem,
   MenuList,
   Radio,
-  RadioGroup
+  RadioGroup,
+  useToast
 } from '@chakra-ui/react';
 import React, { useCallback, useState, useMemo } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
@@ -40,7 +42,7 @@ function BountyOfferModal(props) {
     { value: '15-20', label: '$15.00 - $20.00', id: 3 },
     { value: '20-25', label: '$20.00 - $25.00', id: 4 }
   ];
-
+  const toast = useToast();
   const searchQuery = useCallback((searchValue: string, courseList: any[]) => {
     return courseList.filter((course) =>
       course.label.toLowerCase().includes(searchValue.toLowerCase())
@@ -57,12 +59,35 @@ function BountyOfferModal(props) {
     const newObject = {
       topic: bountyOffer.topic,
       description: `Need help understanding the basics of ${bountyOffer.subject} including ${bountyOffer.topic}.`,
-      subject: bountyOffer.subject,
+      subject: '',
       reward: parseInt(bountyOffer.price, 10) || 0,
-      type: bountyOffer.instructionMode
+      type: bountyOffer.instructionMode,
+      courseId: bountyOffer.subject,
+      levelId: bountyOffer.level,
+      expiryDate: 'Tue Aug 29 2023'
     };
     const response = await ApiService.createBounty(newObject);
-    console.log(response, 'bounty response');
+    closeBountyModal();
+    if (response.status === 200) {
+      toast({
+        render: () => (
+          <CustomToast
+            title="Bounty Offer Placed Successfully"
+            status="success"
+          />
+        ),
+        position: 'top-right',
+        isClosable: true
+      });
+    } else {
+      toast({
+        render: () => (
+          <CustomToast title="Something went wrong.." status="error" />
+        ),
+        position: 'top-right',
+        isClosable: true
+      });
+    }
   };
 
   return (
