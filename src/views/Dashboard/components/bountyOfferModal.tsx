@@ -92,7 +92,6 @@ function BountyOfferModal(props) {
 
   return (
     <>
-      {' '}
       <CustomModal
         isOpen={isBountyModalOpen}
         modalTitle="Place Bounty"

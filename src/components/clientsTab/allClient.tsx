@@ -254,7 +254,7 @@ const AllClientsTab = (props) => {
                 </div>
                 <ChevronRightIcon className="w-2.5 h-2.5" />
               </button>
-              <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
+              {/* <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
                 <div className="flex items-center space-x-1">
                   <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
                     <FlashCardsSolidIcon
@@ -267,7 +267,7 @@ const AllClientsTab = (props) => {
                   </Text>
                 </div>
                 <ChevronRightIcon className="w-2.5 h-2.5" />
-              </button>
+              </button> */}
               <button
                 className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
                 onClick={() => onClientReview(name)}
