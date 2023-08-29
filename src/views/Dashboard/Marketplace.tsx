@@ -11,9 +11,9 @@ import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
 import resourceStore from '../../state/resourceStore';
 import { educationLevelOptions, numberToDayOfWeekName } from '../../util';
 import Banner from './components/Banner';
-import BountyOfferModal from './components/BountyOfferModal';
 import Pagination from './components/Pagination';
 import TutorCard from './components/TutorCard';
+import BountyOfferModal from './components/bountyOfferModal';
 import { CustomButton } from './layout';
 import {
   Box,

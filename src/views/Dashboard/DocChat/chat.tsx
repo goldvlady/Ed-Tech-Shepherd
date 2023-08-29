@@ -81,6 +81,7 @@ interface IChat {
   setHightlightedText?: any;
   setLoading?: any;
   isUpdatedSummary?: boolean;
+  directStudentId?: string;
 }
 const Chat = ({
   HomeWorkHelp,
@@ -108,9 +109,8 @@ const Chat = ({
   handleUpdateSummary,
   hightlightedText,
   loading,
-  setHightlightedText,
-  setLoading,
-  isUpdatedSummary
+  isUpdatedSummary,
+  directStudentId
 }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
@@ -268,7 +268,12 @@ const Chat = ({
           <ContentWrapper>
             <FlexColumnContainer>
               <InnerWrapper>
-                <GridContainer>
+                <div
+                  style={{
+                    position: 'fixed',
+                    width: 'auto'
+                  }}
+                >
                   <GridItem>
                     <FlexContainer>
                       <CircleContainer>
@@ -308,6 +313,9 @@ const Chat = ({
                       </StyledText>
                     )}
                   </GridItem>
+                </div>
+
+                <GridContainer isHomeWorkHelp={HomeWorkHelp}>
                   {isFindTutor && (
                     <OptionsContainer>
                       <Text className="">What do you need?</Text>
