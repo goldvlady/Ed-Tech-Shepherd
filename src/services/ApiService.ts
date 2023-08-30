@@ -481,6 +481,10 @@ class ApiService {
   static getBountyOffers = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getBounties`);
   };
+
+  static getOnlineTutors = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getOnlineTutors`)
+  }
 }
 
 export default ApiService;
