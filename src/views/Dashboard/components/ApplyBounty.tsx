@@ -16,18 +16,22 @@ import {
   MenuList,
   Radio,
   RadioGroup,
-  useToast
+  useToast,
+  Center,
+  VStack,
+  HStack
 } from '@chakra-ui/react';
+import moment from 'moment';
 import React, { useCallback, useState, useMemo } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 
 function ApplyBounty(props) {
-  const { isApplyBountyOpen, closeApplyBounty, id } = props;
+  const { isApplyBountyOpen, closeApplyBounty, bounty } = props;
   const { courses: courseList, levels: levelOptions } = resourceStore();
-  console.log(id, 'Bounty id');
+
   const toast = useToast();
   const handleSubmitBounty = async () => {
-    const obj = { bountyId: id, message: `${id}` };
+    const obj = { bountyId: bounty.id, message: `${bounty.id}` };
     const response = await ApiService.applyForBounty(obj);
     closeApplyBounty();
     if (response.status === 200) {
@@ -73,17 +77,93 @@ function ApplyBounty(props) {
             <CustomButton2
               type="button"
               onClick={handleSubmitBounty}
-              // active={isDisabledBtn}
               title="Apply"
-              // disabled={!isDisabledBtn}
             />
           </div>
         }
         onClose={closeApplyBounty}
       >
-        <Box bg="white" width="100%" mt="30px" padding="0 28px">
-          Message
-        </Box>
+        <VStack width="100%" p={3}>
+          <Box
+            boxShadow="md"
+            p={4}
+            borderRadius="md"
+            backgroundColor="white"
+            width="100%"
+          >
+            <Text
+              textTransform="capitalize"
+              fontSize={12}
+              fontWeight={500}
+              color="#000"
+            >
+              Price
+            </Text>
+            <Text fontSize={16} fontWeight={500} color="#207df7">
+              ${bounty.reward}
+            </Text>
+            <Text>via {bounty.type}</Text>
+          </Box>
+          <HStack width="100%">
+            <Box
+              boxShadow="md"
+              p={4}
+              borderRadius="md"
+              backgroundColor="white"
+              width="100%"
+            >
+              <Text
+                textTransform="capitalize"
+                fontSize={12}
+                fontWeight={500}
+                color="#000"
+              >
+                Duration
+              </Text>
+              <Text fontSize={14} fontWeight={500}>
+                30 mins
+              </Text>
+            </Box>
+            <Box
+              boxShadow="md"
+              p={4}
+              borderRadius="md"
+              backgroundColor="white"
+              width="100%"
+            >
+              <Text
+                textTransform="capitalize"
+                fontSize={12}
+                fontWeight={500}
+                color="#000"
+              >
+                Expiry Date
+              </Text>
+              <Text fontWeight={500}>
+                {moment(bounty.expiryDate).format('MMMM DD, YYYY')}
+              </Text>
+            </Box>
+          </HStack>
+          <Box
+            boxShadow="md"
+            p={4}
+            borderRadius="md"
+            backgroundColor="white"
+            width="100%"
+            textAlign="left"
+          >
+            <Text
+              textTransform="capitalize"
+              fontSize={12}
+              marginRight="auto"
+              fontWeight={500}
+              color="#000"
+            >
+              Description
+            </Text>
+            <Text fontWeight={500}>{bounty.description}</Text>
+          </Box>
+        </VStack>
       </CustomModal>
     </>
   );

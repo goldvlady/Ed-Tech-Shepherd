@@ -551,6 +551,10 @@ const SidebarContent = ({
               {
                 title: 'Bookmarks',
                 path: '/dashboard/saved-tutors'
+              },
+              {
+                title: 'Bounties',
+                path: '/dashboard/bounties'
               }
             ]}
           />

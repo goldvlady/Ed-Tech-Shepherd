@@ -8,6 +8,7 @@ import {
   OffersIcon,
   MessagesIcon,
   UserGroupIcon,
+  BountyIcon,
   UserIcon,
   ChevronRightIcon, // NotesIcon,
   LogoutIcon
@@ -73,6 +74,12 @@ const dummyNavigation: NavigationItem[] = [
     name: 'Offers',
     href: '/dashboard/tutordashboard/offers',
     icon: OffersIcon,
+    current: false
+  },
+  {
+    name: 'Bounties',
+    href: '/dashboard/tutordashboard/bounties',
+    icon: BountyIcon,
     current: false
   },
   {

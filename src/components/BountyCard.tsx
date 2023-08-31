@@ -158,8 +158,8 @@ function BountyCard(props) {
             <Flex w="full" alignItems="center" justifyContent="space-between">
               <Flex gap={1} alignItems="center">
                 <Text fontSize={16} fontWeight="500">
-                  {/* {bounty && getSubject(bounty.subject)} */}
-                  {bounty.subject}
+                  {bounty.course ? getSubject(bounty.course) : bounty.subject}
+                  {/* {bounty.subject} */}
                 </Text>
                 <Text
                   as="p"
@@ -173,7 +173,7 @@ function BountyCard(props) {
                   fontWeight="medium"
                   color="#FB8441"
                 >
-                  {/* <Text as="span">{offer.level.label}-Level</Text> */}
+                  {bounty.type}
                 </Text>
               </Flex>
 
@@ -222,7 +222,7 @@ function BountyCard(props) {
       <ApplyBountyModal
         isApplyBountyOpen={isApplyBountyOpen}
         closeApplyBounty={closeApplyBounty}
-        id={bounty.id}
+        bounty={bounty}
       />
     </>
   );
