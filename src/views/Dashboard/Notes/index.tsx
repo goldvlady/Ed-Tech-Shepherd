@@ -3,6 +3,7 @@ import { ReactComponent as NewNoteIcon } from '../../../assets/newnote.svg';
 import { AllNotesTab, SelectedNoteModal } from '../../../components';
 import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMenu';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
+import DropdownFilter from '../../../components/CustomComponents/DropDownFilter';
 import AllTab from '../../../components/allTab/allTab';
 import AllDocumentTab from '../../../components/documentTab/allDocument';
 import LoaderOverlay from '../../../components/loaderOverlay';
@@ -75,6 +76,9 @@ const Notes = () => {
   const navigate = useNavigate();
   const [toggleHelpModal, setToggleHelpModal] = useState(false);
   const [allNotes, setAllNotes] = useState<Array<NoteDetails>>([]);
+  const [pagination, setPagination] = useState<{ page: number; total: number }>(
+    { page: 1, total: 10 }
+  );
   const [showLoader, setShowLoader] = useState(true);
   const [sortOrder] = useState<SortOrder>(SortOrder.ASC);
   const [checkedState, setCheckedState] = useState(
@@ -89,15 +93,28 @@ const Notes = () => {
   const { userDocuments } = userStore();
   const combinedData: any = [...allNotes, ...userDocuments];
 
-  const handleTagSelection = (tagElement) => {
-    const lowerCaseTagId = tagElement.toLowerCase();
+  const handleTagSelection = (tagElement: string | string[]) => {
+    let newTags: string[] = [];
 
-    if (selectedTags.includes(lowerCaseTagId)) {
-      setSelectedTags(selectedTags.filter((id) => id !== lowerCaseTagId));
-    } else {
-      // setSelectedTags([...selectedTags, lowerCaseTagId]);
-      setSelectedTags([lowerCaseTagId]);
+    // Check if tagElement is a string or an array and convert to lower case
+    if (!Array.isArray(tagElement)) {
+      newTags = [tagElement];
     }
+    // Filter out tags that are already selected
+    newTags = newTags.filter((tag) => !selectedTags.includes(tag));
+
+    // Remove selected tags that are in the newTags list
+    const filteredSelectedTags = selectedTags.filter(
+      (tag) => !newTags.includes(tag)
+    );
+
+    // Merge the old and new tag lists, while removing duplicates
+    const updatedTags = Array.from(
+      new Set([...filteredSelectedTags, ...newTags])
+    );
+
+    // Update the selected tags
+    setSelectedTags(updatedTags);
   };
 
   const handleClearCombinedDataFilter = () => {
@@ -115,11 +132,14 @@ const Notes = () => {
     try {
       const resp = await ApiService.getAllNotes();
       const respText = await resp.text();
-      const respDetails: NoteServerResponse<Array<NoteDetails>> =
-        JSON.parse(respText);
+      const respDetails: NoteServerResponse<{
+        data: Array<NoteDetails>;
+        meta: { pagination: { total: number; page: number } };
+      }> = JSON.parse(respText);
 
       if (respDetails.data) {
-        setAllNotes(respDetails.data);
+        setAllNotes(respDetails.data.data);
+        setPagination(respDetails.data?.meta?.pagination);
       }
     } catch (error: any) {
       // Handle the error appropriately, e.g., show an error message
@@ -243,39 +263,19 @@ const Notes = () => {
           alignItems={{ base: 'flex-start', md: 'center' }}
           width={{ base: '100%', md: 'auto' }}
         >
-          <DropdownMenu
-            menuTitle={`Filter by tags (${selectedTags.length})`}
-            iconPlacement="after"
-            DropdownMenuIcon={<FilterIcon color="#96999C" size="12px" />}
-          >
-            <section>
-              <Flex mb="5px">
-                <IconButton
-                  borderRadius="8px"
-                  backgroundColor="#FFFFFF"
-                  border="none"
-                  p="0px"
-                  aria-label="Search"
-                  _hover={{ bgColor: '#FFFFFF', border: 'none' }}
-                  icon={<SearchIcon color="#212224" />}
-                  size="sm"
-                />
-                <SearchInput type="search" placeholder="Search tags" />
-              </Flex>
-              <div>
-                {tagFilters?.map((filtered, index) => (
-                  <CheckboxContainer key={filtered.id}>
-                    <Checkbox
-                      type="checkbox"
-                      onChange={() => HandleCheckboxChange(index)}
-                      checked={checkedState[index]}
-                    />
-                    <Text>{filtered.value}</Text>
-                  </CheckboxContainer>
-                ))}
-              </div>
-            </section>
-          </DropdownMenu>
+          <DropdownFilter
+            selectedItems={selectedTags}
+            multi
+            style={{ marginRight: '20px' }}
+            filterLabel="Filter By Tags"
+            onSelectionChange={(item) => {
+              handleTagSelection(item as string);
+            }}
+            items={tagFilters.map((tag) => ({
+              id: tag.value,
+              value: tag.value
+            }))}
+          />
 
           <Box marginLeft={'1.5em'}>
             <DropdownMenu
