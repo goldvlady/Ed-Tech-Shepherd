@@ -13,6 +13,8 @@ import socketWithAuth from '../../../socket';
 import userStore from '../../../state/userStore';
 import TempPDFViewer from './TempPDFViewer';
 import Chat from './chat';
+import { BlockNoteEditor } from '@blocknote/core';
+import { BlockNoteView, useBlockNote } from '@blocknote/react';
 import { useToast } from '@chakra-ui/react';
 import { useEffect, useState, useCallback, useLayoutEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -35,12 +37,19 @@ export default function DocChat() {
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const documentId = location.state.docTitle ?? '';
   const studentId = user?._id ?? '';
+  const directStudentId = user?.student?._id;
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryText, setSummaryText] = useState('');
   const [socket, setSocket] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [hightlightedText, setHightlightedText] = useState<any[]>([]);
   const [isUpdatedSummary, setUpdatedSummary] = useState<boolean>(false);
+  const content = location.state?.content;
+  const [initialContent, setInitialContent] = useState<any>(content);
+  const editor: BlockNoteEditor | null = useBlockNote({
+    initialContent: initialContent ? JSON.parse(initialContent) : undefined,
+    editable: false
+  });
 
   useEffect(() => {
     if (documentId && studentId) {
@@ -322,13 +331,15 @@ export default function DocChat() {
   }, [documentId]);
 
   useEffect(() => {
-    if (!location.state?.documentUrl) navigate('/dashboard/notes');
-  }, [navigate, location.state?.documentUrl]);
+    if (!location.state?.documentUrl && !location.state?.docTitle) {
+      // navigate('/dashboard/notes')
+    }
+  }, [navigate, location.state?.documentUrl, location.state?.docTitle]);
 
   return (
-    location.state?.documentUrl && (
-      <section className="divide-y max-w-screen-xl fixed mx-auto">
-        <div className="h-screen bg-white divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
+    <section className="divide-y max-w-screen-xl fixed mx-auto">
+      <div className="h-screen bg-white divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
+        {location.state?.documentUrl ? (
           <TempPDFViewer
             pdfLink={location.state.documentUrl}
             name={location.state.docTitle}
@@ -336,30 +347,42 @@ export default function DocChat() {
             setLoading={setLoading}
             setHightlightedText={setHightlightedText}
           />
-          <Chat
-            isShowPrompt={isShowPrompt}
-            isReadyToChat={readyToChat}
-            messages={messages}
-            llmResponse={llmResponse}
-            botStatus={botStatus}
-            handleSendMessage={handleSendMessage}
-            handleInputChange={handleInputChange}
-            inputValue={inputValue}
-            handleKeyDown={handleKeyDown}
-            handleSummary={handleSummary}
-            summaryLoading={summaryLoading}
-            summaryText={summaryText}
-            setSummaryText={setSummaryText}
-            documentId={documentId}
-            handleClickPrompt={handleClickPrompt}
-            handleDeleteSummary={handleDeleteSummary}
-            handleUpdateSummary={handleUpdateSummary}
-            hightlightedText={hightlightedText}
-            loading={loading}
-            isUpdatedSummary={isUpdatedSummary}
-          />
-        </div>
-      </section>
-    )
+        ) : (
+          <div
+            style={{ display: 'flex', position: 'fixed', paddingTop: '2em' }}
+            className="lg:col-span-6 flex-auto h-full w-1/2"
+          >
+            <div style={{ width: '87%' }}>
+              <BlockNoteView editor={editor} />
+            </div>
+          </div>
+        )}
+
+        <Chat
+          isShowPrompt={isShowPrompt}
+          isReadyToChat={readyToChat}
+          messages={messages}
+          llmResponse={llmResponse}
+          botStatus={botStatus}
+          handleSendMessage={handleSendMessage}
+          handleInputChange={handleInputChange}
+          inputValue={inputValue}
+          handleKeyDown={handleKeyDown}
+          handleSummary={handleSummary}
+          summaryLoading={summaryLoading}
+          summaryText={summaryText}
+          setSummaryText={setSummaryText}
+          documentId={documentId}
+          handleClickPrompt={handleClickPrompt}
+          handleDeleteSummary={handleDeleteSummary}
+          handleUpdateSummary={handleUpdateSummary}
+          hightlightedText={hightlightedText}
+          loading={loading}
+          isUpdatedSummary={isUpdatedSummary}
+          directStudentId={directStudentId}
+        />
+      </div>
+    </section>
+    // )
   );
 }

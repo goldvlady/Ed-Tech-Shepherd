@@ -3,8 +3,11 @@ import { create } from 'zustand';
 
 type Store = {
   offers: [] | null;
+  bounties: [] | any;
   isLoading: boolean;
   fetchOffers: (page: number, limit: number, userType: string) => Promise<void>;
+  fetchBountyOffers: (page: number, limit: number) => Promise<void>;
+
   pagination: { page: number; limit: number; total: number };
 
   offer?: any | null;
@@ -16,6 +19,7 @@ type Store = {
 
 export default create<Store>((set) => ({
   offers: null,
+  bounties: null,
   isLoading: false,
   pagination: { page: 0, limit: 0, total: 0 },
   fetchOffers: async (page: number, limit: number, userType: string) => {
@@ -26,6 +30,20 @@ export default create<Store>((set) => ({
       const { data } = await response.json();
 
       set({ offers: data.data, pagination: data.meta.pagination });
+    } catch (error) {
+      // console.log(error)
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+  fetchBountyOffers: async (page: number, limit: number) => {
+    set({ isLoading: true });
+    try {
+      set({ isLoading: true });
+      const response = await ApiService.getBountyOffers();
+      const { data } = await response.json();
+
+      set({ bounties: data });
     } catch (error) {
       // console.log(error)
     } finally {

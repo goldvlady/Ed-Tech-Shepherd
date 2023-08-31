@@ -215,7 +215,7 @@ const CustomTable: React.FC = () => {
       )
     },
     {
-      title: 'Number of Cards',
+      title: 'No of Cards',
       dataIndex: 'questions',
       key: 'questions',
       render: ({ questions }) => {
@@ -826,7 +826,7 @@ const CustomTable: React.FC = () => {
                   variant="outline"
                   onChange={(e) => handleSearch(e.target.value)}
                   size="sm"
-                  placeholder="     Search"
+                  placeholder="Search"
                   borderRadius="6px"
                 />
               </InputGroup>
@@ -894,7 +894,7 @@ const CustomTable: React.FC = () => {
                     fontWeight="400"
                     p="6px 8px 6px 8px"
                   >
-                    Date
+                    Created At
                   </MenuItem>
                   <MenuItem
                     color="#212224"
@@ -917,17 +917,6 @@ const CustomTable: React.FC = () => {
                     p="6px 8px 6px 8px"
                   >
                     Deckname
-                  </MenuItem>
-                  <MenuItem
-                    _hover={{ bgColor: '#F2F4F7' }}
-                    color="#212224"
-                    onClick={() => fetchFlashcards({ sort: 'subject' })}
-                    fontSize="14px"
-                    lineHeight="20px"
-                    fontWeight="400"
-                    p="6px 8px 6px 8px"
-                  >
-                    Subject
                   </MenuItem>
                 </MenuList>
               </Menu>

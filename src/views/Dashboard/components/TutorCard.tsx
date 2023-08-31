@@ -42,7 +42,8 @@ export default function TutorCard(props: any) {
     reviewCount,
     saved,
     offerStatus,
-    handleSelectedCourse
+    handleSelectedCourse,
+    isTutorOnline
   } = props;
   const toast = useToast();
   const { fetchBookmarkedTutors } = bookmarkedTutorsStore();
@@ -120,20 +121,23 @@ export default function TutorCard(props: any) {
         >
           <Flex gap={2} alignItems="center" position="relative">
             <Avatar size="lg" name={name} src={avatar} />
-            <div>
-              <div
-                style={{
-                  width: '16px',
-                  height: '16px',
-                  background: 'linear-gradient(0deg, #66BD6A, #66BD6A)',
-                  border: '2.5px solid #FFFFFF',
-                  borderRadius: '50%',
-                  position: 'absolute',
-                  top: '46px',
-                  left: '50px'
-                }}
-              ></div>
-            </div>
+            {isTutorOnline && (
+              <div>
+                <div
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    background: 'linear-gradient(0deg, #66BD6A, #66BD6A)',
+                    border: '2.5px solid #FFFFFF',
+                    borderRadius: '50%',
+                    position: 'absolute',
+                    top: '46px',
+                    left: '50px'
+                  }}
+                ></div>
+              </div>
+            )}
+
             <LinkOverlay href={`/dashboard/find-tutor/tutor/?id=${id}`}>
               <Flex pt={1} direction={'column'}>
                 <Text fontSize={'16px'} fontWeight={'semibold'} mb={0}>

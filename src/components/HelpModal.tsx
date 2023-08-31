@@ -30,7 +30,6 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
     topic: ''
   });
   const [level, setLevel] = useState<any>('');
-
   const handleClose = () => {
     setToggleHelpModal(false);
   };
@@ -69,9 +68,9 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
         'Stuck with your homework, Shepherd can guide you through it step by step for quick & easy completion',
       imageURL: '/images/ace-homework.svg',
       onClick: () => {
-        // handleClose();
-        handleAceHomeWorkHelp();
-        // navigate('/dashboard/ace-homework');
+        handleClose();
+        // handleAceHomeWorkHelp();
+        navigate('/dashboard/ace-homework');
       }
     },
     {
@@ -137,6 +136,8 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
     navigate('/dashboard/ace-homework', {
       state: { subject: subjectId, topic: localData.topic, level }
     });
+    setSubject('');
+    setLocalData({});
   }, [
     subjectId,
     localData,
@@ -277,7 +278,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
           setShowHelp={setToggleHelpModal}
         />
       )}
-      {openAceHomework && (
+      {/* {openAceHomework && (
         <ViewHomeWorkHelpDetails
           openAceHomework={openAceHomework}
           handleClose={handleClose}
@@ -290,7 +291,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
           level={level}
           onRouteHomeWorkHelp={onRouteHomeWorkHelp}
         />
-      )}
+      )} */}
     </>
   );
 };

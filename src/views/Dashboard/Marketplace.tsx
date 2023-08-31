@@ -1,5 +1,10 @@
 import Star5 from '../../assets/5star.svg';
+import Sally from '../../assets/saly.svg';
+import CustomButton2 from '../../components/CustomComponents/CustomButton/index';
+import CustomModal from '../../components/CustomComponents/CustomModal';
+import CustomToast from '../../components/CustomComponents/CustomToast';
 import CustomSelect from '../../components/Select';
+import SelectComponent, { Option } from '../../components/Select';
 import TimePicker from '../../components/TimePicker';
 import TimezoneSelect from '../../components/TimezoneSelect';
 import ApiService from '../../services/ApiService';
@@ -9,6 +14,7 @@ import { educationLevelOptions, numberToDayOfWeekName } from '../../util';
 import Banner from './components/Banner';
 import Pagination from './components/Pagination';
 import TutorCard from './components/TutorCard';
+import BountyOfferModal from './components/bountyOfferModal';
 import { CustomButton } from './layout';
 import {
   Box,
@@ -19,22 +25,38 @@ import {
   Grid,
   GridItem,
   HStack,
+  Image,
+  Input,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
+  Radio,
   Select,
   SimpleGrid,
   Spacer,
   Stack,
   Text,
-  useToast
+  useToast,
+  useDisclosure,
+  Modal,
+  ModalContent,
+  ModalFooter,
+  ModalOverlay,
+  VStack,
+  RadioGroup
 } from '@chakra-ui/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { Select as MultiSelect } from 'chakra-react-select';
 import { useFormik } from 'formik';
 import moment from 'moment';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  ChangeEvent,
+  useMemo
+} from 'react';
 import { BsStarFill } from 'react-icons/bs';
 import { FiChevronDown } from 'react-icons/fi';
 import { MdTune } from 'react-icons/md';
@@ -85,6 +107,9 @@ export default function Marketplace() {
   const [limit, setLimit] = useState<number>(20);
   const [count, setCount] = useState<number>(5);
   const [days, setDays] = useState<Array<any>>([]);
+  const [onlineTutorsId, setOnlineTutorsId] = useState<string[]>([]);
+
+  const [isShowInput, setShowInput] = useState('');
 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -170,6 +195,35 @@ export default function Marketplace() {
     setToTime('');
     getData();
     /* eslint-disable */
+  }, []);
+
+  const {
+    isOpen: isBountyModalOpen,
+    onOpen: openBountyModal,
+    onClose: closeBountyModal
+  } = useDisclosure();
+
+  useEffect(() => {
+    const getNotes = async () => {
+      try {
+        const resp = await ApiService.getOnlineTutors();
+
+        const response = await resp.json();
+        setOnlineTutorsId(response?.data);
+      } catch (error: any) {
+        toast({
+          render: () => (
+            <CustomToast
+              title="Failed to fetch chat history..."
+              status="error"
+            />
+          ),
+          position: 'top-right',
+          isClosable: true
+        });
+      }
+    };
+    getNotes();
   }, []);
 
   return (
@@ -410,7 +464,7 @@ export default function Marketplace() {
                 spacing="20px"
                 ref={tutorGrid}
               >
-                {allTutors.map((tutor: any) => (
+                {allTutors?.map((tutor: any) => (
                   <TutorCard
                     key={tutor._id}
                     id={tutor._id}
@@ -424,6 +478,7 @@ export default function Marketplace() {
                     saved={checkBookmarks(tutor._id)}
                     courses={tutor.coursesAndLevels.map((course) => course)}
                     handleSelectedCourse={handleSelectedCourse}
+                    isTutorOnline={onlineTutorsId?.includes(tutor?._id)}
                   />
                 ))}
               </SimpleGrid>{' '}
@@ -440,6 +495,32 @@ export default function Marketplace() {
           )}
         </Box>
       </Box>
+      <Box
+        position="fixed"
+        bottom={3}
+        right={3}
+        bg={'white'}
+        borderRadius={'10px'}
+        width="328px"
+        borderColor="grey"
+        textAlign="center"
+        boxShadow="0px 4px 20px 0px rgba(115, 126, 140, 0.25)"
+      >
+        <Image
+          src={Sally}
+          alt="instant tutoring"
+          borderTopLeftRadius={'10px'}
+          borderTopRightRadius={'10px'}
+        />
+        <VStack p={3} gap={2}>
+          <Text>Need Instant Tutoring ?</Text>
+          <Button onClick={openBountyModal}>Place Bounty</Button>
+        </VStack>
+      </Box>
+      <BountyOfferModal
+        isBountyModalOpen={isBountyModalOpen}
+        closeBountyModal={closeBountyModal}
+      />
     </>
   );
 }

@@ -51,7 +51,7 @@ function MyProfile(props) {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [oldPassword, setOldPassword] = useState<string>('');
-  const [newPassword, setNewPassword] = useState<string>('xxxxxxxx');
+  const [newPassword, setNewPassword] = useState<string>('');
   const handleClickOld = () => setShowOldPassword(!showOldPassword);
   const handleClickNew = () => setShowNewPassword(!showNewPassword);
 
@@ -77,23 +77,26 @@ function MyProfile(props) {
     // In a real application, this would be done through a backend API.
     // For this example, we'll just set isEmailSent to true.
     setIsEmailSent(true);
-    const response = ApiService.sendOtp();
+    if (isUpdatePasswordModalOpen || isUpdateEmailModalOpen) {
+      const response = ApiService.sendOtp();
+    }
+
     // Simulate receiving the OTP after a delay (e.g., 2 seconds).
     // In a real application, you would receive the OTP through email or SMS.
-    const timeoutId = setTimeout(() => {
-      const receivedOtp = '123456'; // Replace with the actual OTP from the server
-      setOtp(receivedOtp);
-      setIsOtpVerified(true); // Automatically verify OTP
-    }, 2000); // Simulated delay
+    // const timeoutId = setTimeout(() => {
+    //   const receivedOtp = '123456'; // Replace with the actual OTP from the server
+    //   setOtp(receivedOtp);
+    //   setIsOtpVerified(true); // Automatically verify OTP
+    // }, 2000); // Simulated delay
 
-    return () => clearTimeout(timeoutId);
-  }, []);
+    // return () => clearTimeout(timeoutId);
+  }, [isUpdateEmailModalOpen, isUpdatePasswordModalOpen]);
 
   const handleChangeEmail = (e) => {
     setNewEmail(e.target.value);
   };
   const handleChangePassword = (e) => {
-    setNewEmail(e.target.value);
+    setNewPassword(e.target.value);
   };
 
   const handleOpenTandCModal = () => {
@@ -104,7 +107,7 @@ function MyProfile(props) {
     setIsOpenTandC(false);
   };
   const handleSaveEmail = async () => {
-    const formData = { email: newEmail, otp: otp };
+    const formData = { email: newEmail, ottp: otp };
     const response = await ApiService.updateProfile(formData);
     const resp: any = await response.json();
     closeUpdateEmailModal();
@@ -127,7 +130,7 @@ function MyProfile(props) {
     }
   };
   const handleUpdatePassword = async () => {
-    const formData = { password: newPassword, otp: otp };
+    const formData = { password: newPassword, ottp: otp };
     const response = await ApiService.updateProfile(formData);
     const resp: any = await response.json();
     closeUpdatePasswordModal();

@@ -9,13 +9,14 @@ export const Form = styled.form<{ isHomeWorkHelp?: boolean }>`
   width: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? '54%' : '40.7%')};
   right: 0;
   border-left: 1px solid #eeeff2;
+  background: white;
 `;
 
 export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   flex: auto;
-  height: 100%;
+  // height: 100%;
 `;
 
 export const ContentWrapper = styled.div`
@@ -24,14 +25,11 @@ export const ContentWrapper = styled.div`
   flex: auto;
   flex-shrink: 0;
   background-color: white;
-  height: 100%;
-  overflow: scroll;
 `;
 
 export const InnerWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100%;
 `;
 
 export const ChatContainer = styled.div`
@@ -54,10 +52,15 @@ export const FlexColumnContainer = styled.div`
   margin-bottom: 1rem;
 `;
 
-export const GridContainer = styled.div`
+export const GridContainer = styled.div<{ isHomeWorkHelp?: boolean }>`
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: 0.5rem;
+  position: fixed;
+  top: 300px;
+  height: 100%;
+  width: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? '54%' : '40.7%')};
+  // width: -moz-available;
 `;
 
 export const GridItem = styled.div`
@@ -83,6 +86,7 @@ export const FlexContainer = styled.div`
   grid-column-end: 13;
   padding-bottom: 0.5rem;
   grid-row-span: 2;
+  width: 100%;
 `;
 
 export const CircleContainer = styled.div`
@@ -257,7 +261,7 @@ export const SummaryContainer2 = styled.textarea`
   cursor: pointer;
   resize: none;
   width: -webkit-fill-available;
-  height: 70vh;
+  height: auto;
   border: none;
 `;
 
@@ -312,16 +316,17 @@ export const ChatContainerResponse = styled.div<{ messages: any }>`
   display: flex;
   flex-direction: column;
   grid-column: span 12;
-  margin-top: 240px;
+  margin-top: 8px;
   margin-right: 24px;
   margin-bottom: 20px;
   margin-left: 24px;
-
-  position: absolute;
+  height: auto;
+  width: 80%;
+  // position: absolute;
   right: 0;
   bottom: 236px;
-  height: 400px; /* Specific height as a fallback */
-  height: -webkit-fill-available; /* For Safari */
+  // height: 400px; /* Specific height as a fallback */
+  // height: -webkit-fill-available; /* For Safari */
   width: 100%; /* fallback for browsers not supporting -webkit-fill-available */
   width: -webkit-fill-available;
   z-index: ${({ messages }) => (messages ? '10' : '-1')};
@@ -330,10 +335,12 @@ export const ChatContainerResponse = styled.div<{ messages: any }>`
   overflow-y: scroll;
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  z-index: 1;
+  padding-bottom: 440px;
 
   /* Custom styling for the scrollbar - for Webkit browsers */
   ::-webkit-scrollbar {
-    width: 6px;
+    width: 0px;
   }
 
   ::-webkit-scrollbar-track {
@@ -428,7 +435,7 @@ export const ChatHistoryBody = styled.div`
 `;
 
 export const ChatHistoryContainer = styled.div`
-  margin: 112px 0;
+  margin: 78px 0;
   width: 100%;
 `;
 
@@ -447,6 +454,7 @@ export const ChatHistoryHeader = styled.div`
   width: 25%;
   top: 78px;
   background: white;
+  z-index: 999;
 
   p:nth-child(1) {
     font-size: 1.125rem;
@@ -558,8 +566,20 @@ export const DownPillContainer = styled.div`
   justify-content: space-between;
   padding-left: 1.75rem;
   font-size: 0.875rem;
-  position: fixed;
   bottom: 55px;
   width: 100%;
   background: white;
+`;
+
+export const HomeWorkHelpChatContainer2 = styled.textarea`
+  border-radius: 8px;
+  background: #f4f5f6;
+  color: #585f68;
+  font-size: 0.875rem;
+  position: relative;
+  cursor: pointer;
+  resize: none;
+  width: -webkit-fill-available;
+  height: auto;
+  border: none;
 `;
