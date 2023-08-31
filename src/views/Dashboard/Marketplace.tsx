@@ -2,6 +2,7 @@ import Star5 from '../../assets/5star.svg';
 import Sally from '../../assets/saly.svg';
 import CustomButton2 from '../../components/CustomComponents/CustomButton/index';
 import CustomModal from '../../components/CustomComponents/CustomModal';
+import CustomToast from '../../components/CustomComponents/CustomToast';
 import CustomSelect from '../../components/Select';
 import SelectComponent, { Option } from '../../components/Select';
 import TimePicker from '../../components/TimePicker';
@@ -106,6 +107,7 @@ export default function Marketplace() {
   const [limit, setLimit] = useState<number>(20);
   const [count, setCount] = useState<number>(5);
   const [days, setDays] = useState<Array<any>>([]);
+  const [onlineTutorsId, setOnlineTutorsId] = useState<string[]>([]);
 
   const [isShowInput, setShowInput] = useState('');
 
@@ -200,6 +202,29 @@ export default function Marketplace() {
     onOpen: openBountyModal,
     onClose: closeBountyModal
   } = useDisclosure();
+
+  useEffect(() => {
+    const getNotes = async () => {
+      try {
+        const resp = await ApiService.getOnlineTutors();
+
+        const response = await resp.json();
+        setOnlineTutorsId(response?.data);
+      } catch (error: any) {
+        toast({
+          render: () => (
+            <CustomToast
+              title="Failed to fetch chat history..."
+              status="error"
+            />
+          ),
+          position: 'top-right',
+          isClosable: true
+        });
+      }
+    };
+    getNotes();
+  }, []);
 
   return (
     <>
@@ -439,7 +464,7 @@ export default function Marketplace() {
                 spacing="20px"
                 ref={tutorGrid}
               >
-                {allTutors.map((tutor: any) => (
+                {allTutors?.map((tutor: any) => (
                   <TutorCard
                     key={tutor._id}
                     id={tutor._id}
@@ -453,6 +478,7 @@ export default function Marketplace() {
                     saved={checkBookmarks(tutor._id)}
                     courses={tutor.coursesAndLevels.map((course) => course)}
                     handleSelectedCourse={handleSelectedCourse}
+                    isTutorOnline={onlineTutorsId?.includes(tutor?._id)}
                   />
                 ))}
               </SimpleGrid>{' '}

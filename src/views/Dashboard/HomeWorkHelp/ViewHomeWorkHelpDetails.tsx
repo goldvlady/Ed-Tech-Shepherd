@@ -74,9 +74,11 @@ const ViewHomeWorkHelpDetails = ({
 
   const handleOnChange = (newValue) => {
     setSelectedOption(newValue);
+
     setLocalData((prevState: any) => ({
       ...prevState,
-      subject: newValue?.label
+      subject: newValue?.label,
+      subjectId: newValue?._id
     }));
   };
 

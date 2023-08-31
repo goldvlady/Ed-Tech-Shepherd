@@ -18,16 +18,17 @@ import { useNavigate } from 'react-router-dom';
 
 const ViewTutors = ({
   onOpenModal,
-  subjectID
+  subjectID,
+  onlineTutorsId
 }: {
   onOpenModal?: () => void;
   subjectID?: string;
+  onlineTutorsId?: string[];
 }) => {
   const { courses: courseList, levels: levelOptions } = resourceStore();
   //   const { fetchBookmarkedTutors, tutors: allTutors } = bookmarkedTutorsStore();
   const [subject, setSubject] = useState<string>('Subject');
   const [allTutors, setAllTutors] = useState<any>([]);
-  const [onLineTutors] = useState<[]>([]);
   const navigate = useNavigate();
   const [tutorDetails, setTutortDetails] = useState({
     level: {
@@ -64,44 +65,50 @@ const ViewTutors = ({
   };
 
   useEffect(() => {
+    if (!subject) {
+      return; // No need to proceed if subjectID is not available
+    }
+
+    const cachedTutors = allTutors.find(
+      (tutor) => tutor.subject === subject.toLowerCase()
+    );
+
+    if (cachedTutors) {
+      // If data is already cached, update the state and return
+      setAllTutors([cachedTutors]);
+      setLoadingData(false);
+      return;
+    }
+
+    const formData = {
+      courses: subject === 'Subject' ? '' : subject.toLowerCase(),
+      levels: tutorDetails?.level?._id || '',
+      availability: '',
+      tz: moment.tz.guess(),
+      days: tutorDetails?.days || [],
+      price: tutorDetails?.price?.value || '',
+      floorRating: tutorDetails?.rating?.value || '',
+      startTime: tutorDetails?.fromTime || '',
+      endTime: tutorDetails?.toTime || '',
+      page: tutorDetails?.page || 1, // Default page value
+      limit: tutorDetails?.limit || 10 // Default limit value
+    };
+
     const getData = async () => {
-      const formData = {
-        courses: subject === 'Subject' ? '' : subject.toLowerCase(),
-        levels:
-          tutorDetails.level?._id.length < 0 ? '' : tutorDetails.level?._id,
-        availability: '',
-        tz: moment.tz.guess(),
-        days: tutorDetails.days,
-        price:
-          tutorDetails.price.value.length < 0 ? '' : tutorDetails.price.value,
-        floorRating:
-          tutorDetails.rating.value.length < 0 ? '' : tutorDetails.rating.value,
-        startTime: tutorDetails.toTime,
-        endTime: tutorDetails.fromTime,
-        page: tutorDetails.page,
-        limit: tutorDetails.limit
-      };
       setLoadingData(true);
-      if (subject && subjectID) {
+      try {
         const resp = await ApiService.getAllTutors(formData);
         const data = await resp.json();
-
         setAllTutors(data?.tutors ?? []);
+      } catch (error) {
+        console.error('Error fetching tutors:', error);
+      } finally {
+        setLoadingData(false);
       }
-
-      // setPagination(data.meta.pagination);
-      // const startIndex = (page - 1) * data.meta.pagination.limit;
-      // const endIndex = Math.min(
-      //   startIndex + data.meta.pagination.limit,
-      //   data.meta.pagination.count
-      // );
-      // const visibleTutors = data.tutors.slice(startIndex, endIndex);
-
-      setLoadingData(false);
     };
+
     getData();
-    /* eslint-disable */
-  }, [subjectID, subject, tutorDetails, setLoadingData, setAllTutors]);
+  }, [subjectID, subject, tutorDetails]);
 
   useEffect(() => {
     setSubject(subjectID ?? '');
@@ -192,7 +199,7 @@ const ViewTutors = ({
             </Box>
           ) : (
             <>
-              {!onLineTutors?.length && (
+              {!onlineTutorsId?.length && (
                 <div
                   style={{
                     display: 'table',
@@ -205,7 +212,7 @@ const ViewTutors = ({
                   <p>No tutor available</p>
                 </div>
               )}
-              {!!onLineTutors?.length && (
+              {!!onlineTutorsId?.length && (
                 <SimpleGridContainer
                   columns={[2, null, 3]}
                   spacing="20px"
@@ -224,6 +231,7 @@ const ViewTutors = ({
                       courses={tutor?.coursesAndLevels ?? ''}
                       reviewCount={tutor?.reviewCount ?? ''}
                       description={tutor?.description ?? ''}
+                      isTutorOnline={onlineTutorsId?.includes(tutor?.id)}
                       isViewTutors
                     />
                   ))}
