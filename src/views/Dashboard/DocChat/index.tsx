@@ -35,7 +35,7 @@ export default function DocChat() {
   >([]);
   const [inputValue, setInputValue] = useState('');
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
-  const documentId = location.state.docTitle ?? '';
+  const documentId = location.state.documentId ?? '';
   const studentId = user?._id ?? '';
   const directStudentId = user?.student?._id;
   const [summaryLoading, setSummaryLoading] = useState(false);

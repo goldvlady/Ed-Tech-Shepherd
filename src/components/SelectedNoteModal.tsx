@@ -68,6 +68,7 @@ const SelectedModal = ({
   const [studentDocuments, setStudentDocuments] = useState<Array<any>>([]);
   const [documentURL, setDocumentURL] = useState('');
   const [documentName, setDocumentName] = useState('');
+  const [documentId, setDocumentId] = useState('')
   const [loading, setLoading] = useState(false);
 
   const Wrapper = styled.div`
@@ -313,9 +314,10 @@ const SelectedModal = ({
   };
 
   const handleSelected = async (e) => {
-    if (e.value && e.label) {
+    if (e.value && e.label && e.id) {
       setDocumentURL(() => e.value);
       setDocumentName(() => e.label);
+      setDocumentId(() => e.id);
       setSelectedOption(e.label);
       setCanUpload(false);
       setConfirmReady(true);
@@ -389,17 +391,18 @@ const SelectedModal = ({
           });
         });
 
-        const { documentURL: url, title } = uploaded.data[0];
-        goToDocChat(url, title);
+        const { documentURL: url, title, documentId } = uploaded.data[0];
+        goToDocChat(url, title, documentId);
       }
     );
   };
 
-  const goToDocChat = async (documentUrl, docTitle) => {
+  const goToDocChat = async (documentUrl, docTitle, documentId) => {
     navigate('/dashboard/docchat', {
       state: {
         documentUrl,
-        docTitle
+        docTitle,
+        documentId,
       }
     });
     setShowHelp(false);
@@ -415,7 +418,7 @@ const SelectedModal = ({
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      await goToDocChat(documentURL, documentName);
+      await goToDocChat(documentURL, documentName, documentId);
     } catch (error) {
       // Handle error
     } finally {
