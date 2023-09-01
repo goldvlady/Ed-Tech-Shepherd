@@ -12,6 +12,7 @@ import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkd
 import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../../components/hooks/useChatScroll';
+import { snip } from '../../../helpers/file.helpers';
 import FlashcardDataProvider from '../FlashCards/context/flashcard';
 import ChatHistory from './chatHistory';
 import HighLight from './highlist';
@@ -55,6 +56,7 @@ interface IChat {
   HomeWorkHelp?: boolean;
   studentId?: any;
   documentId?: any;
+  title?: string;
   onOpenModal?: () => void;
   isShowPrompt?: boolean;
   messages?: { text: string; isUser: boolean; isLoading: boolean }[];
@@ -100,6 +102,7 @@ const Chat = ({
   summaryText,
   setSummaryText,
   documentId,
+  title,
   handleClickPrompt,
   homeWorkHelpPlaceholder,
   countNeedTutor,
@@ -452,7 +455,7 @@ const Chat = ({
               placeholder={
                 HomeWorkHelp
                   ? homeWorkHelpPlaceholder
-                  : `Ask Shepherd about ${documentId}`
+                  : `Ask Shepherd about ${snip(title, 40)}`
               }
               value={inputValue}
               onKeyDown={handleKeyDown}

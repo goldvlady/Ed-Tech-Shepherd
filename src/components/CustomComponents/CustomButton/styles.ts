@@ -7,7 +7,13 @@ export const StyledButton = styled.button<{
   disabled?: boolean;
 }>`
   background: ${({ isCancel, isDelete, active = true }) =>
-    !active ? 'grey' : isCancel ? '#FFFFFF' : isDelete ? '#F53535' : '#207DF7'};
+    !active
+      ? 'grey'
+      : isCancel
+      ? '#FFFFFF'
+      : isDelete
+      ? '#F53535'
+      : 'rgb(32, 125, 247)'};
 
   color: ${({ isCancel, isDelete }) =>
     isCancel ? '##5C5F64' : isDelete ? '#FFFFFF' : '#FFFFFF'};

@@ -1,4 +1,5 @@
 import { SelectedNoteModal } from '../../../components';
+import { snip } from '../../../helpers/file.helpers';
 import { getPDFHighlight, postPDFHighlight } from '../../../services/AI';
 import { Spinner } from './Spinner';
 import { testHighlights as _testHighlights } from './test-highlights';
@@ -167,7 +168,7 @@ const TempPDFViewer = ({
             className="absolute z-10 font-bold max-h-max max-w-max text-sm p-2 bg-green-100 rounded-xl m-1 hover:text-blue-600 hover:cursor-pointer hover:bg-yellow-100"
             onClick={() => setPopUpNotesModal(true)}
           >
-            {name}
+            {snip(name, 40)}
           </div>
           {/* @ts-ignore: this is a documented error regarding TS2786. I don't know how to fix yet (ref: https://stackoverflow.com/questions/72002300/ts2786-typescript-not-reconizing-ui-kitten-components)  */}
           <PdfLoader url={url} beforeLoad={<Spinner />}>
