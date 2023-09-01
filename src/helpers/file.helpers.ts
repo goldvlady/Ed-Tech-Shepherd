@@ -50,4 +50,14 @@ export const uploadFile = (file: File) => {
   return emitter;
 };
 
+export const snip = (text, n = 25) => {
+  if (text.length > n) {
+    const mid = Math.floor(n / 2);
+    const truncatedText =
+      text.slice(0, mid - 1) + '...' + text.slice(text.length - mid + 2);
+    return truncatedText;
+  }
+  return text;
+};
+
 export default uploadFile;
