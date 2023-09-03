@@ -1,3 +1,4 @@
+import CalendarDateInput from '../../../components/CalendarDateInput';
 import CustomButton2 from '../../../components/CustomComponents/CustomButton';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast';
@@ -9,6 +10,8 @@ import {
   FormControl,
   FormLabel,
   Input,
+  InputGroup,
+  InputLeftElement,
   Text,
   Menu,
   MenuButton,
@@ -28,11 +31,13 @@ function BountyOfferModal(props) {
   const [bountyOffer, setBountyOffer] = useState({
     subject: '',
     topic: '',
+    description: '',
     level: '',
     price: '',
     rating: 0,
     instructionMode: '',
-    time: ''
+    time: '',
+    expirationDate: new Date()
   });
 
   const [searchValue, setSearchValue] = useState('');
@@ -58,13 +63,13 @@ function BountyOfferModal(props) {
   const handleSubmitBounty = async () => {
     const newObject = {
       topic: bountyOffer.topic,
-      description: `Need help understanding the basics of ${bountyOffer.subject} including ${bountyOffer.topic}.`,
+      description: bountyOffer.description,
       subject: '',
       reward: parseInt(bountyOffer.price, 10) || 0,
       type: bountyOffer.instructionMode,
       courseId: bountyOffer.subject,
       levelId: bountyOffer.level,
-      expiryDate: 'Tue Aug 29 2023'
+      expiryDate: bountyOffer.expirationDate.toDateString()
     };
     const response = await ApiService.createBounty(newObject);
     closeBountyModal();
@@ -90,9 +95,10 @@ function BountyOfferModal(props) {
     }
   };
 
+  const today = useMemo(() => new Date(), []);
+
   return (
     <>
-      {' '}
       <CustomModal
         isOpen={isBountyModalOpen}
         modalTitle="Place Bounty"
@@ -210,6 +216,30 @@ function BountyOfferModal(props) {
           </FormControl>
 
           <FormControl mb={4}>
+            <FormLabel
+              fontSize="0.75rem"
+              lineHeight="17px"
+              color="#5C5F64"
+              mb={3}
+            >
+              Description
+            </FormLabel>
+            <Input
+              type="text"
+              name="description"
+              placeholder="e.g genetics"
+              value={bountyOffer.description}
+              onChange={(e) =>
+                setBountyOffer((prevState) => ({
+                  ...prevState,
+                  description: e.target.value
+                }))
+              }
+              _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
+            />
+          </FormControl>
+
+          <FormControl mb={4}>
             <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
               Level
             </FormLabel>
@@ -277,66 +307,29 @@ function BountyOfferModal(props) {
           </FormControl>
           <FormControl mb={4}>
             <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-              Price
+              Price ($)
             </FormLabel>
-            <Menu>
-              <MenuButton
-                as={Button}
-                variant="outline"
-                rightIcon={<FiChevronDown />}
-                fontSize={14}
-                borderRadius="8px"
-                fontWeight={400}
-                color="text.400"
-                width="100%"
-                height="42px"
-                textAlign="left"
-              >
-                {bountyOffer.price === '' ? 'Price' : bountyOffer.price}
-              </MenuButton>
-              <MenuList minWidth={'auto'}>
-                {priceOptions.map((price) => (
-                  <MenuItem
-                    key={price.id}
-                    _hover={{ bgColor: '#F2F4F7' }}
-                    onClick={() => {
-                      setBountyOffer((prevState) => ({
-                        ...prevState,
-                        price: price.value
-                      }));
-                    }}
-                  >
-                    {price.label}
-                  </MenuItem>
-                ))}
-              </MenuList>
-            </Menu>
-            {/* <Menu>
-          <MenuButton
-            as={Button}
-            variant="outline"
-            rightIcon={<FiChevronDown />}
-            fontSize={14}
-            borderRadius="40px"
-            height="36px"
-            fontWeight={400}
-            color="text.400"
-          >
-            {rating === '' ? 'Rating' : rating.label}
-          </MenuButton>
-          <MenuList minWidth={'auto'}>
-            {ratingOptions.map((rating) => (
-              <MenuItem
-                key={rating.id}
-                _hover={{ bgColor: '#F2F4F7' }}
-                onClick={() => setRating(rating)}
-              >
-                {rating.label}
-              </MenuItem>
-            ))}
-          </MenuList>
-        </Menu> */}
+
+            <Input
+              type="number"
+              fontSize={14}
+              borderRadius="8px"
+              fontWeight={400}
+              color="text.400"
+              width="100%"
+              height="42px"
+              textAlign="left"
+              value={bountyOffer.price}
+              onChange={(e) => {
+                setBountyOffer((prevState) => ({
+                  ...prevState,
+                  price: e.target.value
+                }));
+              }}
+              placeholder="Enter Price"
+            />
           </FormControl>
+
           <FormControl mb={4}>
             <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
               Select mode of instruction
@@ -358,6 +351,22 @@ function BountyOfferModal(props) {
                 <Text fontSize="14px"> Video</Text>
               </Radio>
             </RadioGroup>
+          </FormControl>
+          <FormControl id="day" marginBottom="20px">
+            <FormLabel>Expiration Date</FormLabel>
+            <CalendarDateInput
+              disabledDate={{ before: today }}
+              inputProps={{
+                placeholder: 'Select Expiration Date'
+              }}
+              value={bountyOffer.expirationDate as Date}
+              onChange={(value) => {
+                setBountyOffer((prevState) => ({
+                  ...prevState,
+                  expirationDate: value
+                }));
+              }}
+            />
           </FormControl>
         </Box>
       </CustomModal>

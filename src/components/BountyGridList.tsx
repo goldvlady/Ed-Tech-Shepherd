@@ -94,7 +94,7 @@ function Date() {
   );
 }
 
-export default function BounntyGridList(props) {
+export default function BountyGridList(props) {
   // const { offers, pagination } = props;
   const navigate = useNavigate();
   const [page, setPage] = useState<number>(1);

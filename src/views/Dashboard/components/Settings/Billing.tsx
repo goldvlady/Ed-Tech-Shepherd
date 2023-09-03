@@ -315,7 +315,7 @@ function Billing(props) {
                       Primary
                     </Text>
                     <Text fontSize={12} color="text.300">
-                      Your primary billing methods is used for all recurring
+                      Your primary billing method is used for all recurring
                       payments
                     </Text>
                   </Stack>
@@ -526,10 +526,13 @@ function Billing(props) {
                   Contact support
                 </Text>{' '}
                 <Text fontSize={12} color="text.300">
-                  Need help? Kindly reach out to our support team via mail
+                  Need help? Please reach out to our support team.
                 </Text>
               </Stack>
-              <Spacer /> <RiArrowRightSLine size="24px" color="#969CA6" />
+              <Spacer />
+              <Text fontSize={12} color="text.300">
+                help@shepherd.learn{' '}
+              </Text>
             </Flex>
           </Flex>
         </Box>

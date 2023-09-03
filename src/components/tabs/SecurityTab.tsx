@@ -65,10 +65,10 @@ export default function SecurityTab() {
           <Text className="text-sm">
             <span className="block font-[500] text-dark">Contact Support</span>
             <span className="block text-secondaryGray">
-              Need help? Kindly reach out to our support team via mail
+              Need help? Please reach out to our support team.
             </span>
           </Text>
-          <ChevronRightIcon className="w-4 text-secondaryGray" />
+          <Text>help@shepherd.learn</Text>
         </div>
 
         <div
@@ -80,7 +80,7 @@ export default function SecurityTab() {
               Delete my account
             </span>
             <span className="block text-secondaryGray">
-              Permanently delete your Sherpherd account
+              Permanently delete your Shepherd account
             </span>
           </Text>
           <ChevronRightIcon className="w-4 text-secondaryGray" />

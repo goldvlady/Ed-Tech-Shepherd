@@ -1,4 +1,5 @@
 import resourceStore from '../state/resourceStore';
+import ApplyBountyModal from '../views/Dashboard/components/ApplyBounty';
 import {
   PencilIcon,
   SparklesIcon,
@@ -15,7 +16,8 @@ import {
   Flex,
   HStack,
   VStack,
-  GridItem
+  GridItem,
+  useDisclosure
 } from '@chakra-ui/react';
 import moment from 'moment';
 import { useNavigate } from 'react-router';
@@ -98,8 +100,16 @@ function BountyCard(props) {
       }
     });
   }
+
+  const {
+    isOpen: isApplyBountyOpen,
+    onOpen: openApplyBounty,
+    onClose: closeApplyBounty
+  } = useDisclosure();
+
   const handleItemClick = () => {
-    navigate(`/dashboard/tutordashboard/offer/${bounty.id}`);
+    openApplyBounty();
+    // navigate(`/dashboard/tutordashboard/offer/${bounty.id}`);
   };
 
   const styles = {
@@ -148,8 +158,8 @@ function BountyCard(props) {
             <Flex w="full" alignItems="center" justifyContent="space-between">
               <Flex gap={1} alignItems="center">
                 <Text fontSize={16} fontWeight="500">
-                  {/* {bounty && getSubject(bounty.subject)} */}
-                  {bounty.subject}
+                  {bounty.course ? getSubject(bounty.course) : bounty.subject}
+                  {/* {bounty.subject} */}
                 </Text>
                 <Text
                   as="p"
@@ -163,7 +173,7 @@ function BountyCard(props) {
                   fontWeight="medium"
                   color="#FB8441"
                 >
-                  {/* <Text as="span">{offer.level.label}-Level</Text> */}
+                  {bounty.type}
                 </Text>
               </Flex>
 
@@ -209,6 +219,11 @@ function BountyCard(props) {
           </Flex>
         </Box>
       </GridItem>
+      <ApplyBountyModal
+        isApplyBountyOpen={isApplyBountyOpen}
+        closeApplyBounty={closeApplyBounty}
+        bounty={bounty}
+      />
     </>
   );
 }

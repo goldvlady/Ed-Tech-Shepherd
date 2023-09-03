@@ -8,6 +8,7 @@ import {
   OffersIcon,
   MessagesIcon,
   UserGroupIcon,
+  BountyIcon,
   UserIcon,
   ChevronRightIcon, // NotesIcon,
   LogoutIcon
@@ -73,6 +74,12 @@ const dummyNavigation: NavigationItem[] = [
     name: 'Offers',
     href: '/dashboard/tutordashboard/offers',
     icon: OffersIcon,
+    current: false
+  },
+  {
+    name: 'Bounties',
+    href: '/dashboard/tutordashboard/bounties',
+    icon: BountyIcon,
     current: false
   },
   {
@@ -357,7 +364,7 @@ export default function Layout({ children, className }) {
                     alt=""
                   />
                 </div>
-                <Text className="text-primaryGray">Ask Shepherd?</Text>
+                <Text className="text-primaryGray">Ask Shep?</Text>
               </button>
             )}
             <div className="flex items-center gap-x-4 lg:gap-x-6">

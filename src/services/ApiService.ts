@@ -482,9 +482,25 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/getBounties`);
   };
 
+  static applyForBounty = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/applyForBounty`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+  static acceptBounty = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/handleBountyBid`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+  static getBountyBids = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/getBountyBids/${data}`);
+  };
+
   static getOnlineTutors = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/getOnlineTutors`)
-  }
+    return doFetch(`${ApiService.baseEndpoint}/getOnlineTutors`);
+  };
 }
 
 export default ApiService;

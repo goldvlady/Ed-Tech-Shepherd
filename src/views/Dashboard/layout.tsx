@@ -227,7 +227,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             }}
           >
             <Image src={AskIcon} />
-            <Text> Ask Shepherd?</Text>
+            <Text> Ask Shep?</Text>
           </Flex>
         </Box>
         <Spacer display={{ base: 'none', md: 'flex' }} />
@@ -268,7 +268,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               }}
             >
               <Image src={AskIcon} />
-              <Text> Ask Shepherd?</Text>
+              <Text> Ask Shep?</Text>
             </Flex>
           </Box>
           <HStack spacing={4}>
@@ -535,22 +535,26 @@ const SidebarContent = ({
             )
           }
         >
-          Find a tutor
+          Shepherds
         </Button>
         <Box display={tutorMenu ? 'block' : 'none'}>
           <MenuLinedList
             items={[
               {
-                title: 'Marketplace',
+                title: 'Find a Shepherd',
                 path: '/dashboard/find-tutor'
               },
               {
-                title: 'My Tutors',
+                title: 'My Shepherds',
                 path: '/dashboard/my-tutors'
               },
               {
                 title: 'Bookmarks',
                 path: '/dashboard/saved-tutors'
+              },
+              {
+                title: 'Bounties',
+                path: '/dashboard/bounties'
               }
             ]}
           />

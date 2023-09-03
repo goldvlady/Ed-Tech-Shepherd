@@ -9,6 +9,8 @@ import theme from './theme';
 import CreatePassword from './views/CreatePassword';
 import StudentSettings from './views/Dashboard/AccountSettings';
 import BookmarkedTutors from './views/Dashboard/BookmarkedTutors';
+import StudentBounty from './views/Dashboard/Bounties/Bounty';
+import Bounties from './views/Dashboard/Bounties/index';
 import DocChat from './views/Dashboard/DocChat';
 import FlashCard from './views/Dashboard/FlashCards';
 import FlashcardWizardProvider from './views/Dashboard/FlashCards/context/flashcard';
@@ -36,6 +38,7 @@ import CompleteProfile from './views/OnboardTutor/complete_profile';
 import Session from './views/Session';
 import Signup from './views/Signup';
 import TutorSettings from './views/TutorDashboard/AccountSettings';
+import TutorBounties from './views/TutorDashboard/Bounties/index';
 import Clients from './views/TutorDashboard/Clients';
 import Client from './views/TutorDashboard/Clients/client';
 import TutorOffers from './views/TutorDashboard/Offers/index';
@@ -106,6 +109,8 @@ const studentRoutes = [
   { path: 'find-tutor', element: <Marketplace /> },
   { path: 'find-tutor/tutor/', element: <Tutor /> },
   { path: 'my-tutors', element: <MyTutors /> },
+  { path: 'bounties', element: <Bounties /> },
+  { path: 'bounties/:bountyId', element: <StudentBounty /> },
   { path: 'saved-tutors', element: <BookmarkedTutors /> },
   { path: 'messaging', element: <Messaging /> },
   { path: 'account-settings', element: <StudentSettings /> },
@@ -123,6 +128,7 @@ const tutorRoutes = [
   { path: 'tutordashboard/clients/:clientId', element: <Client /> },
   { path: 'tutordashboard/offers', element: <TutorOffers /> },
   { path: 'tutordashboard/offer/:offerId', element: <Offer /> },
+  { path: 'tutordashboard/bounties', element: <TutorBounties /> },
   { path: 'tutordashboard/account-settings', element: <TutorSettings /> }
 ];
 

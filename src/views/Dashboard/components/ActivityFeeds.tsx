@@ -306,7 +306,7 @@ function ActivityFeeds(props) {
                 </Text>
                 {userType === 'Student' && (
                   <CustomButton
-                    buttonText="Ask Shepherd"
+                    buttonText="Ask Shep"
                     w="165px"
                     onClick={activateHelpModal}
                   />

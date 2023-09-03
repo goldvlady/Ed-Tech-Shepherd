@@ -63,7 +63,7 @@ const ProfileSwitchModal = ({
           _focus={{
             boxShadow: 'outline'
           }}
-          width="350px"
+          width="250px"
           py={2}
         >
           {props.children}
@@ -135,12 +135,11 @@ const ProfileSwitchModal = ({
                             Select Account
                           </Text>
                           <Text fontSize={14} fontWeight={500} color="text.400">
-                            You can create up to two accounts on Shepherd, this
-                            lets you tutor and be a student.
+                            You can create a tutor and student account.
                           </Text>
                         </Box>
                         <Center>
-                          <HStack {...group} spacing={'100px'} my={'65px'}>
+                          <HStack {...group} spacing={8} my={'65px'}>
                             {user &&
                               user?.type.map((value) => {
                                 const radio = getRadioProps({ value });

@@ -274,7 +274,7 @@ export default function Index() {
                       width={'200px'}
                     />
                     <Text fontSize={13} fontWeight={500} color="text.400">
-                      You’re yet to create a quiz
+                      You have no quizzes at this moment.
                     </Text>
                     <Link to="/dashboard/flashcards">
                       <CustomButton buttonText="Create Quiz" width="165px" />
