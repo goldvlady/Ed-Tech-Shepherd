@@ -481,6 +481,7 @@ class ApiService {
   static getBountyOffers = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getBounties`);
   };
+
   static applyForBounty = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/applyForBounty`, {
       method: 'POST',
@@ -495,6 +496,10 @@ class ApiService {
   };
   static getBountyBids = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/getBountyBids/${data}`);
+  };
+
+  static getOnlineTutors = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getOnlineTutors`);
   };
 }
 

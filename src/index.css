@@ -1015,9 +1015,6 @@ canvas {
     justify-content: space-around;
   }
 }
-.chat-btn {
-  background-color: rgb(32, 125, 247) !important;
-}
 
 @media (max-width: 1200px) {
   .landing-img,

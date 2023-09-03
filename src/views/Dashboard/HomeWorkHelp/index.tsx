@@ -2,6 +2,7 @@ import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast/index';
 import { chatHomeworkHelp, getConversionById } from '../../../services/AI';
 import { chatHistory } from '../../../services/AI';
+import ApiService from '../../../services/ApiService';
 import socketWithAuth from '../../../socket';
 import userStore from '../../../state/userStore';
 import { FlashcardData } from '../../../types';
@@ -52,9 +53,11 @@ const HomeWorkHelp = () => {
   const navigate = useNavigate();
   const [conversationId, setConversationId] = useState('');
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [onlineTutorsId, setOnlineTutorsId] = useState([]);
+  const storedConvoId = localStorage.getItem('conversationId');
 
   useEffect(() => {
-    if (!socket) {
+    if (!socket && storedConvoId) {
       const authSocket = socketWithAuth({
         studentId,
         topic: localData.topic,
@@ -64,7 +67,7 @@ const HomeWorkHelp = () => {
       }).connect();
       setSocket(authSocket);
     }
-  }, [socket]);
+  }, [socket, storedConvoId]);
 
   useEffect(() => {
     if (isSubmitted) {
@@ -293,6 +296,29 @@ const HomeWorkHelp = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const getNotes = async () => {
+      try {
+        const resp = await ApiService.getOnlineTutors();
+
+        const response = await resp.json();
+        setOnlineTutorsId(response?.data);
+      } catch (error: any) {
+        toast({
+          render: () => (
+            <CustomToast
+              title="Failed to fetch chat history..."
+              status="error"
+            />
+          ),
+          position: 'top-right',
+          isClosable: true
+        });
+      }
+    };
+    getNotes();
+  }, []);
+
   return (
     <HomeWorkHelpContainer>
       <HomeWorkHelpHistoryContainer>
@@ -335,7 +361,8 @@ const HomeWorkHelp = () => {
       >
         <ViewTutors
           onOpenModal={onOpenModal}
-          subjectID={location?.state?.subject}
+          subjectID={localData.subjectId}
+          onlineTutorsId={onlineTutorsId}
         />
       </CustomModal>
 
