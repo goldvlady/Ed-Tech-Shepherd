@@ -18,26 +18,30 @@ import {
 } from '@chakra-ui/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import React, { useEffect, useState, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 
 function Bounties() {
   useTitle('Bounties');
-  const [allTutors, setAllTutors] = useState<any>([]);
+  const [bountyBids, setBountyBids] = useState<any>([]);
   const [loadingData, setLoadingData] = useState(false);
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(5);
   const [count, setCount] = useState<number>(5);
   const [days, setDays] = useState<Array<any>>([]);
   const { fetchOffers, offers, isLoading, pagination } = offerStore();
+  const { bountyId } = useParams();
+  console.log(bountyBids, 'BIDS');
 
-  const doFetchStudentTutors = useCallback(async () => {
-    await fetchOffers(page, limit, 'student');
-    setAllTutors(offers);
+  const doFetchBountyBids = useCallback(async () => {
+    const response = await ApiService.getBountyBids(bountyId);
+    const data = response.json();
+    setBountyBids(data);
     /* eslint-disable */
   }, []);
 
   useEffect(() => {
-    doFetchStudentTutors();
-  }, [doFetchStudentTutors]);
+    doFetchBountyBids();
+  }, [doFetchBountyBids]);
 
   // const [pagination, setPagination] = useState<PaginationType>();
 

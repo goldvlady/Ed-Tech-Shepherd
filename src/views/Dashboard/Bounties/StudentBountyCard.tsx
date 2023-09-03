@@ -44,7 +44,12 @@ const StudentBountyCard = ({ bounty }) => {
           <Text fontSize="md" fontWeight="semibold" color="#000" mb={2}>
             {bounty.course ? getSubject(bounty.course) : bounty.subject}
           </Text>
-          <Badge colorScheme="teal" mb={2}>
+          <Badge
+            bgColor={bounty.type === 'chat' ? `#f0fdf4` : `#FFF5F0`}
+            color={bounty.type === 'chat' ? `#4CAF50` : `#fb9c3c`}
+            fontSize="12px"
+            mb={2}
+          >
             {bounty.type}
           </Badge>
           <Text fontSize="sm" color="gray.500" mb={2}>

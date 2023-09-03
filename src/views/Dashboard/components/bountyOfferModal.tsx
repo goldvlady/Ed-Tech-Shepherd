@@ -10,6 +10,8 @@ import {
   FormControl,
   FormLabel,
   Input,
+  InputGroup,
+  InputLeftElement,
   Text,
   Menu,
   MenuButton,
@@ -305,66 +307,29 @@ function BountyOfferModal(props) {
           </FormControl>
           <FormControl mb={4}>
             <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-              Price
+              Price ($)
             </FormLabel>
-            <Menu>
-              <MenuButton
-                as={Button}
-                variant="outline"
-                rightIcon={<FiChevronDown />}
-                fontSize={14}
-                borderRadius="8px"
-                fontWeight={400}
-                color="text.400"
-                width="100%"
-                height="42px"
-                textAlign="left"
-              >
-                {bountyOffer.price === '' ? 'Price' : bountyOffer.price}
-              </MenuButton>
-              <MenuList minWidth={'auto'}>
-                {priceOptions.map((price) => (
-                  <MenuItem
-                    key={price.id}
-                    _hover={{ bgColor: '#F2F4F7' }}
-                    onClick={() => {
-                      setBountyOffer((prevState) => ({
-                        ...prevState,
-                        price: price.value
-                      }));
-                    }}
-                  >
-                    {price.label}
-                  </MenuItem>
-                ))}
-              </MenuList>
-            </Menu>
-            {/* <Menu>
-          <MenuButton
-            as={Button}
-            variant="outline"
-            rightIcon={<FiChevronDown />}
-            fontSize={14}
-            borderRadius="40px"
-            height="36px"
-            fontWeight={400}
-            color="text.400"
-          >
-            {rating === '' ? 'Rating' : rating.label}
-          </MenuButton>
-          <MenuList minWidth={'auto'}>
-            {ratingOptions.map((rating) => (
-              <MenuItem
-                key={rating.id}
-                _hover={{ bgColor: '#F2F4F7' }}
-                onClick={() => setRating(rating)}
-              >
-                {rating.label}
-              </MenuItem>
-            ))}
-          </MenuList>
-        </Menu> */}
+
+            <Input
+              type="number"
+              fontSize={14}
+              borderRadius="8px"
+              fontWeight={400}
+              color="text.400"
+              width="100%"
+              height="42px"
+              textAlign="left"
+              value={bountyOffer.price}
+              onChange={(e) => {
+                setBountyOffer((prevState) => ({
+                  ...prevState,
+                  price: e.target.value
+                }));
+              }}
+              placeholder="Enter Price"
+            />
           </FormControl>
+
           <FormControl mb={4}>
             <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
               Select mode of instruction

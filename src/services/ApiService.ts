@@ -493,6 +493,9 @@ class ApiService {
       body: JSON.stringify(data)
     });
   };
+  static getBountyBids = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/getBountyBids/${data}`);
+  };
 }
 
 export default ApiService;

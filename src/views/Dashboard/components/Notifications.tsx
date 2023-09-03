@@ -62,7 +62,7 @@ function Notifications(props) {
   const getTextByNotificationType = (NotificationType) => {
     switch (NotificationType) {
       case 'note_created':
-        return 'You have created a new note';
+        return 'New note created';
       case 'new_offer_created':
         return 'Your offer has been sent ';
       case 'new_offer_received':

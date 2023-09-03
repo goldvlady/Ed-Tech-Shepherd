@@ -526,12 +526,12 @@ function MyProfile(props) {
                     Contact support
                   </Text>{' '}
                   <Text fontSize={12} color="text.300">
-                    Need help? Kindly reach out to our support team via mail
+                    Need help? Please reach out to our support team.
                   </Text>
                 </Stack>
                 <Spacer />
                 <Text fontSize={12} color="text.300">
-                  support@shepherd.mail
+                  help@shepherd.learn{' '}
                 </Text>
               </Flex>
               <Flex width={'100%'} alignItems="center">
@@ -549,7 +549,7 @@ function MyProfile(props) {
                     Delete my account
                   </Text>{' '}
                   <Text fontSize={12} color="text.300">
-                    Permanently delete your Sherpherd account
+                    Permanently delete your Shepherd account
                   </Text>
                 </Stack>
                 <Spacer /> <RiArrowRightSLine size="24px" color="#969CA6" />

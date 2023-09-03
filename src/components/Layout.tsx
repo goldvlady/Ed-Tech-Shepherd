@@ -364,7 +364,7 @@ export default function Layout({ children, className }) {
                     alt=""
                   />
                 </div>
-                <Text className="text-primaryGray">Ask Shepherd?</Text>
+                <Text className="text-primaryGray">Ask Shep?</Text>
               </button>
             )}
             <div className="flex items-center gap-x-4 lg:gap-x-6">

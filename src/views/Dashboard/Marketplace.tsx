@@ -2,6 +2,9 @@ import Star5 from '../../assets/5star.svg';
 import Sally from '../../assets/saly.svg';
 import CustomButton2 from '../../components/CustomComponents/CustomButton/index';
 import CustomModal from '../../components/CustomComponents/CustomModal';
+import PaymentDialog, {
+  PaymentDialogRef
+} from '../../components/PaymentDialog';
 import CustomSelect from '../../components/Select';
 import SelectComponent, { Option } from '../../components/Select';
 import TimePicker from '../../components/TimePicker';
@@ -9,6 +12,8 @@ import TimezoneSelect from '../../components/TimezoneSelect';
 import ApiService from '../../services/ApiService';
 import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
 import resourceStore from '../../state/resourceStore';
+import userStore from '../../state/userStore';
+import theme from '../../theme';
 import { educationLevelOptions, numberToDayOfWeekName } from '../../util';
 import Banner from './components/Banner';
 import BountyOfferModal from './components/BountyOfferModal';
@@ -16,6 +21,9 @@ import Pagination from './components/Pagination';
 import TutorCard from './components/TutorCard';
 import { CustomButton } from './layout';
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Box,
   Button,
   Flex,
@@ -46,6 +54,7 @@ import {
   RadioGroup
 } from '@chakra-ui/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
+import { loadStripe } from '@stripe/stripe-js';
 import { Select as MultiSelect } from 'chakra-react-select';
 import { useFormik } from 'formik';
 import moment from 'moment';
@@ -53,11 +62,14 @@ import React, {
   useCallback,
   useEffect,
   useState,
+  useRef,
   ChangeEvent,
   useMemo
 } from 'react';
 import { BsStarFill } from 'react-icons/bs';
 import { FiChevronDown } from 'react-icons/fi';
+import { IoIosAlert } from 'react-icons/io';
+import { MdInfo } from 'react-icons/md';
 import { MdTune } from 'react-icons/md';
 import { useSearchParams } from 'react-router-dom';
 
@@ -90,6 +102,7 @@ const defaultTime = '';
 
 export default function Marketplace() {
   const { courses: courseList, levels: levelOptions } = resourceStore();
+  const { user } = userStore();
   const [allTutors, setAllTutors] = useState<any>([]);
   const [pagination, setPagination] = useState<PaginationType>();
 
@@ -106,6 +119,16 @@ export default function Marketplace() {
   const [limit, setLimit] = useState<number>(20);
   const [count, setCount] = useState<number>(5);
   const [days, setDays] = useState<Array<any>>([]);
+  const [settingUpPaymentMethod, setSettingUpPaymentMethod] = useState(false);
+
+  //Payment Method Handlers
+  const paymentDialogRef = useRef<PaymentDialogRef>(null);
+  const url: URL = new URL(window.location.href);
+  const params: URLSearchParams = url.searchParams;
+  const clientSecret = params.get('setup_intent_client_secret');
+  const stripePromise = loadStripe(
+    process.env.REACT_APP_STRIPE_PUBLIC_KEY as string
+  );
 
   const [isShowInput, setShowInput] = useState('');
 
@@ -194,6 +217,83 @@ export default function Marketplace() {
     getData();
     /* eslint-disable */
   }, []);
+
+  const setupPaymentMethod = async () => {
+    try {
+      setSettingUpPaymentMethod(true);
+      const paymentIntent = await ApiService.createStripeSetupPaymentIntent();
+
+      const { data } = await paymentIntent.json();
+      console.log(data, 'intent');
+
+      paymentDialogRef.current?.startPayment(
+        data.clientSecret,
+        `${window.location.href}`
+      );
+
+      setSettingUpPaymentMethod(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (clientSecret) {
+      (async () => {
+        setSettingUpPaymentMethod(true);
+        toast({
+          title: 'Your Payment Method has been saved',
+          status: 'success',
+          position: 'top',
+          isClosable: true
+        });
+        const stripe = await stripePromise;
+        const setupIntent = await stripe?.retrieveSetupIntent(clientSecret);
+        await ApiService.addPaymentMethod(
+          setupIntent?.setupIntent?.payment_method as string
+        );
+        // await fetchUser();
+        switch (setupIntent?.setupIntent?.status) {
+          case 'succeeded':
+            toast({
+              title: 'Your payment method has been saved.',
+              status: 'success',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          case 'processing':
+            toast({
+              title:
+                "Processing payment details. We'll update you when processing is complete.",
+              status: 'loading',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          case 'requires_payment_method':
+            toast({
+              title:
+                'Failed to process payment details. Please try another payment method.',
+              status: 'error',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          default:
+            toast({
+              title: 'Something went wrong.',
+              status: 'error',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+        }
+        setSettingUpPaymentMethod(false);
+      })();
+    }
+    /* eslint-disable */
+  }, [clientSecret]);
 
   const {
     isOpen: isBountyModalOpen,
@@ -488,12 +588,34 @@ export default function Marketplace() {
         />
         <VStack p={3} gap={2}>
           <Text>Need Instant Tutoring ?</Text>
-          <Button onClick={openBountyModal}>Place Bounty</Button>
+          <Button
+            onClick={
+              user && user.paymentMethods?.length > 0
+                ? openBountyModal
+                : setupPaymentMethod
+            }
+          >
+            Place Bounty
+          </Button>
         </VStack>
       </Box>
       <BountyOfferModal
         isBountyModalOpen={isBountyModalOpen}
         closeBountyModal={closeBountyModal}
+      />
+      <PaymentDialog
+        ref={paymentDialogRef}
+        prefix={
+          <Alert status="info" mb="22px">
+            <AlertIcon>
+              <MdInfo color={theme.colors.primary[500]} />
+            </AlertIcon>
+            <AlertDescription>
+              Payment will not be deducted until after your first lesson, You
+              may decide to cancel after your initial lesson.
+            </AlertDescription>
+          </Alert>
+        }
       />
     </>
   );

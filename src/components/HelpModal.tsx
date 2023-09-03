@@ -196,7 +196,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
                                 .typeString(
                                   `Hi ${
                                     user?.name?.first || 'there'
-                                  }, How can Shepherd make your study time more effective today?`
+                                  }, how can Shepherd make your study time more effective today?`
                                 )
                                 .start();
                             }}
