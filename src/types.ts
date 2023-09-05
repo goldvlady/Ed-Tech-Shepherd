@@ -88,6 +88,12 @@ export interface PaymentMethod extends TimestampedEntity {
   user: User;
 }
 
+export interface StreamToken {
+  token: string;
+  type: 'student' | 'tutor';
+  user: User;
+}
+
 export type MinimizedStudy = {
   flashcardId: string;
   data: {
@@ -125,6 +131,7 @@ export interface User extends TimestampedEntity {
   type: any;
   stripeCustomerId?: string;
   paymentMethods: PaymentMethod[];
+  streamTokens?: StreamToken[];
 }
 
 export interface Student extends TimestampedEntity {

@@ -62,6 +62,7 @@ import {
   useSearchParams,
   useNavigate
 } from 'react-router-dom';
+import 'stream-chat-react/dist/scss/v2/index.scss';
 import { ThemeProvider } from 'styled-components';
 
 const AuthAction = (props: any) => {
@@ -129,7 +130,8 @@ const tutorRoutes = [
   { path: 'tutordashboard/offers', element: <TutorOffers /> },
   { path: 'tutordashboard/offer/:offerId', element: <Offer /> },
   { path: 'tutordashboard/bounties', element: <TutorBounties /> },
-  { path: 'tutordashboard/account-settings', element: <TutorSettings /> }
+  { path: 'tutordashboard/account-settings', element: <TutorSettings /> },
+  { path: 'tutordashboard/messages', element: <Messaging /> }
 ];
 
 const userLayouts = {
