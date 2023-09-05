@@ -97,7 +97,7 @@ interface SidebarProps extends BoxProps {
   setTutorMenu: (value: boolean) => void;
 }
 const LinkItems: Array<LinkItemProps> = [
-  { name: 'Messages', icon: BsChatLeftDots, path: '/dashboard/messaging' }
+  { name: 'Tutor Chats', icon: BsChatLeftDots, path: '/dashboard/messaging' }
   // { name: 'Library', icon: BsPlayCircle, path: '/library' }
 ];
 
