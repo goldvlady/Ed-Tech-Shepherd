@@ -252,17 +252,19 @@ const Chat = ({
   }, []);
 
   useEffect(() => {
-    textAreaRef.current.style.height = '2.5rem'; // Initially set height
-    textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`; // Then adjust it
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = '2.5rem'; // Initially set height
+      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`; // Then adjust it
 
-    // Adjust border radius based on inputValue
-    if (inputValue.length > 0) {
-      textAreaRef.current.style.borderRadius = '16px';
-      textAreaRef.current.style.maxheight = '2.5rem';
-    } else {
-      textAreaRef.current.style.borderRadius = '100px'; // Set initial border radius
+      // Adjust border radius based on inputValue
+      if (inputValue.length > 0) {
+        textAreaRef.current.style.borderRadius = '16px';
+        textAreaRef.current.style.maxheight = '2.5rem';
+      } else {
+        textAreaRef.current.style.borderRadius = '100px'; // Set initial border radius
+      }
     }
-  }, [inputValue]);
+  }, [inputValue, textAreaRef.current]);
 
   return (
     <>
@@ -319,6 +321,28 @@ const Chat = ({
                 </div>
 
                 <GridContainer isHomeWorkHelp={HomeWorkHelp}>
+                  {HomeWorkHelp && messages && messages.length < 1 && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '210px',
+                        right: '36%',
+                        /* width: 100%; */
+                        zIndex: '111111111'
+                      }}
+                    >
+                      <StyledDiv
+                        onClick={handleAceHomeWorkHelp}
+                        style={{
+                          color: '#FB8441',
+                          background: 'white'
+                        }}
+                        needIndex
+                      >
+                        Start New Conversation
+                      </StyledDiv>
+                    </div>
+                  )}
                   {isFindTutor && (
                     <OptionsContainer>
                       <Text className="">What do you need?</Text>
@@ -346,7 +370,6 @@ const Chat = ({
                       </PillsContainer>
                     </OptionsContainer>
                   )}
-
                   {!HomeWorkHelp && !messages?.length && !isShowPrompt && (
                     <AskSomethingContainer>
                       <AskSomethingPillHeadingText>
@@ -448,35 +471,68 @@ const Chat = ({
             </PillsContainer>
           </DownPillContainer>
         )}
-        <ChatbotContainer chatbotSpace={chatbotSpace}>
-          <InputContainer>
-            <Input
-              ref={textAreaRef}
-              placeholder={
-                HomeWorkHelp
-                  ? homeWorkHelpPlaceholder
-                  : `Ask Shepherd about ${snip(title, 40)}`
-              }
-              value={inputValue}
-              onKeyDown={handleKeyDown}
-              disabled={!isReadyToChat}
-              onChange={handleInputChange}
-              style={{
-                minHeight: '2.5rem',
-                maxHeight: '10rem',
-                overflowY: 'auto'
-              }}
-            />
-            <SendButton type="button" onClick={handleSendMessage}>
-              <img alt="" src="/svgs/send.svg" className="w-8 h-8" />
-            </SendButton>
-          </InputContainer>
-          {/* {!HomeWorkHelp && (
+        {HomeWorkHelp && !!messages?.length && (
+          <ChatbotContainer chatbotSpace={chatbotSpace}>
+            <InputContainer>
+              <Input
+                ref={textAreaRef}
+                placeholder={
+                  HomeWorkHelp
+                    ? homeWorkHelpPlaceholder
+                    : `Ask Shepherd about ${documentId}`
+                }
+                value={inputValue}
+                onKeyDown={handleKeyDown}
+                disabled={!isReadyToChat}
+                onChange={handleInputChange}
+                style={{
+                  minHeight: '2.5rem',
+                  maxHeight: '10rem',
+                  overflowY: 'auto'
+                }}
+              />
+              <SendButton type="button" onClick={handleSendMessage}>
+                <img alt="" src="/svgs/send.svg" className="w-8 h-8" />
+              </SendButton>
+            </InputContainer>
+            {/* {!HomeWorkHelp && (
             <ClockButton type="button" onClick={onChatHistory}>
               <img alt="" src="/svgs/anti-clock.svg" className="w-5 h-5" />
             </ClockButton>
           )} */}
-        </ChatbotContainer>
+          </ChatbotContainer>
+        )}
+        {!HomeWorkHelp && (
+          <ChatbotContainer chatbotSpace={chatbotSpace}>
+            <InputContainer>
+              <Input
+                ref={textAreaRef}
+                placeholder={
+                  HomeWorkHelp
+                    ? homeWorkHelpPlaceholder
+                    : `Ask Shepherd about ${documentId}`
+                }
+                value={inputValue}
+                onKeyDown={handleKeyDown}
+                disabled={!isReadyToChat}
+                onChange={handleInputChange}
+                style={{
+                  minHeight: '2.5rem',
+                  maxHeight: '10rem',
+                  overflowY: 'auto'
+                }}
+              />
+              <SendButton type="button" onClick={handleSendMessage}>
+                <img alt="" src="/svgs/send.svg" className="w-8 h-8" />
+              </SendButton>
+            </InputContainer>
+            {/* {!HomeWorkHelp && (
+            <ClockButton type="button" onClick={onChatHistory}>
+              <img alt="" src="/svgs/anti-clock.svg" className="w-5 h-5" />
+            </ClockButton>
+          )} */}
+          </ChatbotContainer>
+        )}
       </Form>
 
       <CustomSideModal onClose={onClose} isOpen={isModalOpen}>
