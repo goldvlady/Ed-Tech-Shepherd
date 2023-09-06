@@ -1,72 +1,100 @@
+import { StyledTd, StyledTh, StyledTr } from './styles';
 import {
   Table,
   Thead,
   Tbody,
-  Tr as ChakraTr,
-  Th,
-  Td as ChakraTd,
   Checkbox,
-} from "@chakra-ui/react";
-import styled from "styled-components";
-import { useState } from "react";
+  Box,
+  HStack,
+  Center,
+  IconButton,
+  Text
+} from '@chakra-ui/react';
+import { useState } from 'react';
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
-export type TableColumn<T> = {
+const scrollbarStyles = {
+  '&::-webkit-scrollbar': {
+    width: '2px',
+    height: '6px'
+  },
+  '&::-webkit-scrollbar-thumb': {
+    background: '#F2F4F7',
+    borderRadius: '15px'
+  },
+  '&::-webkit-scrollbar-track': {
+    background: '#F2F4F7',
+    borderRadius: '15px'
+  },
+  scrollbarWidth: 'thin',
+  scrollbarColor: '#888 #F2F4F7'
+};
+
+export type TableColumn<T = any> = {
   title: string;
   dataIndex?: keyof T;
   key: string;
+  scrollX?: boolean; // New
+  scrollY?: boolean; // New
   render?: (record: T) => JSX.Element;
-  align?: "center" | "left";
+  align?: 'center' | 'left';
+  id?: number;
+  height?: string | number; // <-- Added optional height
+  width?: string | number; // <-- Add this line for the optional width
 };
 
-export type TableProps<T> = {
+export type TableProps<T = any> = {
   columns: TableColumn<T>[];
   dataSource: T[];
   isSelectable?: boolean;
   onSelect?: (selectedRowKeys: string[]) => void;
+  fileImage?: any;
+  selectedRowKeys?: string[];
+  setSelectedRowKeys?: React.Dispatch<React.SetStateAction<string[]>>;
+  handleSelectAll?: () => void;
+  allChecked?: boolean;
+  setAllChecked?: any;
+  setSelectedNoteIdToDelete?: any;
+  selectedNoteIdToDelete?: any;
+  setSelectedNoteIdToDeleteArray?: any;
+  selectedNoteIdToDeleteArray?: any;
+  selectedNoteIdToAddTagsArray?: any;
+  setSelectedNoteIdToAddTagsArray?: any;
+  setSelectedNoteIdToAddTags?: any;
+  selectedNoteIdToAddTags?: any;
+  pagination?: boolean; // To conditionally render pagination
+  currentPage?: number; // Current page number
+  pageCount?: number; // Total number of pages
+  handlePagination?: (page: number) => void; // Callback when a page is changed
+  handleSelect?: any;
 };
-
-const StyledTh = styled(Th)<{}>`
-  background: #f7f8fa;
-  color: #6e7682;
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 17px;
-  text-align: center;
-  border-radius: 5px;
-`;
-
-const StyledTr = styled(ChakraTr)<{ selectable?: boolean }>`
-  &:hover {
-    background: ${(props) => (props.selectable ? "#EEEFF2" : "inherit")};
-  }
-
-  cursor: ${(props) => (props.selectable ? "pointer" : "default")};
-`;
-
-const StyledTd = styled(ChakraTd)<{}>`
-  padding: 15px 0;
-  &:first-child,
-  &:last-child {
-    padding: 15px 5px;
-  }
-  border-bottom: 0.8px solid #eeeff2;
-  text-align: center;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 20px;
-  color: #585f68;
-`;
 
 const SelectableTable = <T extends Record<string, unknown>>({
   columns,
   dataSource,
   isSelectable,
   onSelect,
+  selectedRowKeys: selectedKeysProps,
+  handleSelectAll: handleSelectAllProps,
+  allChecked: allCheckProps,
+  setSelectedNoteIdToAddTagsArray,
+  selectedNoteIdToAddTagsArray,
+  selectedNoteIdToAddTags,
+  setSelectedNoteIdToAddTags,
+  pagination,
+  currentPage = 1,
+  pageCount = 1,
+  handlePagination,
+  handleSelect: handleSelectProps
 }: TableProps<T>) => {
-  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
+  console.log(pageCount);
+
+  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>(
+    selectedKeysProps || []
+  );
+  const [allChecked, setAllChecked] = useState<boolean>(allCheckProps || false);
 
   const handleSelect = (record: T) => {
-    console.log();
     const key = record.key as string;
     if (selectedRowKeys.includes(key)) {
       setSelectedRowKeys(selectedRowKeys.filter((k) => k !== key));
@@ -77,45 +105,127 @@ const SelectableTable = <T extends Record<string, unknown>>({
     }
   };
 
+  const handleSelectAll = () => {
+    if (!allChecked) {
+      const newSelectedRowKeys = dataSource.map((data) => data.key as string);
+      setSelectedRowKeys(newSelectedRowKeys);
+      onSelect && onSelect(newSelectedRowKeys);
+    } else {
+      setSelectedRowKeys([]);
+      onSelect && onSelect([]);
+    }
+    setAllChecked(!allChecked);
+  };
+
   return (
-    <Table variant="unstyled">
-      <Thead marginBottom={10}>
-        <StyledTr>
-          {isSelectable && <StyledTh />}
-          {columns.map((col) => (
-            <StyledTh key={col.key} textAlign={col.align || "center"}>
-              {col.title}
-            </StyledTh>
-          ))}
-        </StyledTr>
-      </Thead>
-      <Tbody>
-        {dataSource.map((record) => (
-          <StyledTr key={record.key as string} selectable={isSelectable}>
+    <Box>
+      <Table size="sm" variant="unstyled" width={{ base: '100em', md: '100%' }}>
+        <Thead marginBottom={10}>
+          <StyledTr>
             {isSelectable && (
-              <StyledTd>
-                <div style={{ padding: "0 5px" }}>
-                  <Checkbox
-                    borderRadius={"5px"}
-                    isChecked={selectedRowKeys.includes(record.key as string)}
-                    onChange={() => handleSelect(record)}
-                  />
-                </div>
-              </StyledTd>
+              <StyledTh>
+                <Checkbox isChecked={allChecked} onChange={handleSelectAll} />
+              </StyledTh>
             )}
+
             {columns.map((col) => (
-              <StyledTd key={col.key}>
-                {col.render
-                  ? col.render(record)
-                  : col.dataIndex
-                  ? record[col?.dataIndex]
-                  : null}
-              </StyledTd>
+              <StyledTh
+                key={col.key}
+                textAlign={col.align || 'left'}
+                width={col.width}
+              >
+                {' '}
+                {/* Set width here */}
+                {col.title}
+              </StyledTh>
             ))}
           </StyledTr>
-        ))}
-      </Tbody>
-    </Table>
+        </Thead>
+        <Tbody>
+          {dataSource.map((record) => (
+            <StyledTr
+              key={record.key as string}
+              active={selectedRowKeys?.includes(record.key as string)}
+              selectable={isSelectable}
+            >
+              {isSelectable && (
+                <StyledTd tagsColor={[record.tags].includes('#Che')}>
+                  <div style={{ padding: '0 5px' }}>
+                    <Checkbox
+                      borderRadius={'5px'}
+                      isChecked={selectedRowKeys?.includes(
+                        record.key as string
+                      )}
+                      onChange={() => handleSelect(record)}
+                    />
+                  </div>
+                </StyledTd>
+              )}
+
+              {columns.map((col) => (
+                <StyledTd
+                  key={col.key}
+                  fontWeight="500"
+                  maxW={col.width}
+                  marginRight={col.width && '10px'}
+                  maxH={col.height}
+                  overflowX={col.scrollX ? 'hidden' : 'auto'}
+                  overflowY={col.scrollY ? 'hidden' : 'auto'}
+                  css={scrollbarStyles}
+                  textAlign={col.align || 'left'}
+                  style={{
+                    width: col.width,
+                    height: col.height
+                  }}
+                  tagsColor={col.dataIndex === 'tags' ? record.tags : '#585f68'}
+                >
+                  {col.render
+                    ? col.render(record)
+                    : col.dataIndex
+                    ? record[col?.dataIndex]
+                    : null}
+                </StyledTd>
+              ))}
+            </StyledTr>
+          ))}
+        </Tbody>
+      </Table>
+      {pagination && (
+        <Center mt={4}>
+          <IconButton
+            size="sm"
+            icon={<FaChevronLeft />}
+            aria-label="Previous Page"
+            isDisabled={currentPage <= 1}
+            onClick={() =>
+              handlePagination && handlePagination(currentPage - 1)
+            }
+            colorScheme="gray"
+            variant="outline"
+            fontSize="12px"
+            mr={2}
+          />
+
+          <Text fontWeight={'bold'} fontSize="12px">
+            {currentPage} / {pageCount}
+          </Text>
+
+          <IconButton
+            size="sm"
+            icon={<FaChevronRight />}
+            aria-label="Next Page"
+            isDisabled={currentPage >= pageCount}
+            onClick={() =>
+              handlePagination && handlePagination(currentPage + 1)
+            }
+            colorScheme="gray"
+            variant="outline"
+            fontSize="12px"
+            ml={2}
+          />
+        </Center>
+      )}
+    </Box>
   );
 };
 

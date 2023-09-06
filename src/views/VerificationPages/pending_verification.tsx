@@ -1,10 +1,10 @@
-import { Box, Text, Button } from "@chakra-ui/react";
-import { User, getAuth, onAuthStateChanged } from "firebase/auth";
-import { AiOutlineFileDone } from "react-icons/ai";
-import React, { useEffect, useState } from "react";
-import { Outlet } from "react-router";
-import styled from "styled-components";
-import Header from "../../components/Header";
+import Header from '../../components/Header';
+import { Box, Text, Button, Link } from '@chakra-ui/react';
+import { User, getAuth, onAuthStateChanged } from 'firebase/auth';
+import React, { useEffect, useState } from 'react';
+import { AiOutlineFileDone } from 'react-icons/ai';
+import { Outlet } from 'react-router';
+import styled from 'styled-components';
 
 const Root = styled(Box)`
   display: flex;
@@ -22,7 +22,6 @@ const PendingVerification = () => {
     onAuthStateChanged(getAuth(), async (user) => {
       setObtainedUserAuthState(true);
       setFirebaseUser(user);
-      console.log(user, "USE");
     });
   }, []);
 
@@ -31,11 +30,11 @@ const PendingVerification = () => {
       <Header />
       <Root>
         <Box
-          display={"flex"}
-          maxWidth={"55%"}
-          flexDirection={"column"}
-          justifyContent={"center"}
-          alignItems={"center"}
+          display={'flex'}
+          maxWidth={'55%'}
+          flexDirection={'column'}
+          justifyContent={'center'}
+          alignItems={'center'}
           width="100%"
           margin="150px"
           paddingY="100px"
@@ -79,34 +78,37 @@ const PendingVerification = () => {
           </Text>
           <Text
             fontSize="md"
-            fontWeight={"400"}
-            width={"60%"}
+            fontWeight={'400'}
+            width={'60%'}
             color="#585F68"
             textAlign="center"
             mt={1}
             lineHeight="1.5"
           >
-            We will send you an email to the address:{"   "}
+            We will send you an email to the address:{'   '}
             <Text as="span" color="blue.500">
               {firebaseUser?.email}
-            </Text>{" "}
+            </Text>{' '}
             once we verify your account.
           </Text>
 
-          <Button
+          <Link
+            target="_blank"
+            rel="noopener noreferrer"
+            href="mailto:hello@shepherdtutors.com"
             display="flex"
             flexDirection="row"
+            color="white"
             justifyContent="center"
             alignItems="center"
-            padding="14px 178px"
+            padding="14px 100px"
             marginTop="30px"
-            width="343px"
             height="48px"
             background="#207DF7"
             borderRadius="8px"
           >
             Contact Support
-          </Button>
+          </Link>
         </Box>
       </Root>
     </>

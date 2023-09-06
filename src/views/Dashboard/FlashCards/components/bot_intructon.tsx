@@ -1,21 +1,27 @@
-import { Box, Flex, Icon, Image, HStack, Text, VStack } from "@chakra-ui/react";
-import robot from "../../../../assets/robot.png";
-import { AiFillCiCircle } from "react-icons/ai";
+import robot from '../../../../assets/robot.png';
+import { Box, Flex, Image, HStack, Text, VStack } from '@chakra-ui/react';
 
 const BotIntructionBox = () => {
   return (
     <Box bg="#F7F7F7" borderRadius="10px" p="20px" w="100%">
       <Flex w="100%" direction="column" align="flex-start">
         <HStack w="100%">
-          <Image width={"60px"} height={"60px"} src={robot}></Image>
-          <VStack ml={"20px"} spacing={2} align="flex-start">
+          <Image
+            width={'64px'}
+            height={'56px'}
+            borderRadius={'full'}
+            src={
+              'https://firebasestorage.googleapis.com/v0/b/shepherd-app-382114.appspot.com/o/assets%2Fscreenshot_2023-07-28_at_4.59.43_pm.jpg?alt=media&token=24b55940-12ec-427f-a8f4-76d79fc02d4f'
+            }
+          ></Image>
+          <VStack ml={'50px'} spacing={2} align="flex-start">
             <Text
               fontWeight="500"
               fontSize="16px"
               lineHeight="21px"
               color="#212224"
             >
-              Your text here
+              Aristotle
             </Text>
             <Text
               fontWeight="400"
@@ -23,20 +29,21 @@ const BotIntructionBox = () => {
               lineHeight="16.94px"
               color="#585F68"
             >
-              Your text here
+              Questioner, ethicist, Flashcard Facilitator
             </Text>
           </VStack>
         </HStack>
         <Text
           marginTop="10px"
-          fontWeight="400"
-          fontSize="13px"
+          fontWeight="600"
+          fontSize="0.875rem"
           lineHeight="20px"
           color="#383D42"
         >
-          Nibh augue arcu congue gravida risus diam. Turpis nulla ac urna
-          elementum est enim mi bibendum varius. Nunc urna maecenas sodales
-          volutpat ullamcorper, ilmora tun dun kabash yato.
+          Greetings, learner! I'm here to sharpen your mind with the power of
+          repetition. Give me your material, and I will forge flashcards to
+          stimulate your memory. Together, let's make your revision process a
+          journey of self-discovery!"
         </Text>
       </Flex>
     </Box>

@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent } from "aws-lambda";
+import { APIGatewayProxyEvent } from 'aws-lambda';
 
 export type Entity = {
   _id: string;
@@ -11,16 +11,16 @@ export interface TimestampedEntity extends Entity {
 
 export type Rating = 1 | 2 | 3 | 4 | 5;
 
-type Attributes = Record<"offerId", {}>;
+type Attributes = Record<'offerId', object>;
 
 export enum STATUS {
-  UNCONFIRMED = "unconfirmed",
-  CONFIRMED = "confirmed",
-  CANCELED = "cenceled",
-  DRAFT = "draft",
-  ACCEPTED = "accepted",
-  DECLINED = "declined",
-  WITHDRAWN = "withdrawn",
+  UNCONFIRMED = 'unconfirmed',
+  CONFIRMED = 'confirmed',
+  CANCELED = 'cenceled',
+  DRAFT = 'draft',
+  ACCEPTED = 'accepted',
+  DECLINED = 'declined',
+  WITHDRAWN = 'withdrawn'
 }
 
 export interface Level extends Entity {
@@ -28,14 +28,15 @@ export interface Level extends Entity {
 }
 
 export interface SkillLevel {
-  course: String;
-  skillLevel: String;
+  course: string;
+  skillLevel: string;
 }
 
 export interface TutorBankInfo {
   accountName: string;
   accountNumber: string;
   bankName: string;
+  swiftCode?: string;
 }
 
 export interface TutorQualification {
@@ -43,6 +44,7 @@ export interface TutorQualification {
   degree: string;
   startDate: Date;
   endDate: Date;
+  transcript?: string;
 }
 
 export interface Country {
@@ -74,22 +76,44 @@ export interface PaymentMethod extends TimestampedEntity {
   last4: string;
   country: string;
   brand:
-    | "amex"
-    | "diners"
-    | "discover"
-    | "eftpos_au"
-    | "jcb"
-    | "mastercard"
-    | "unionpay"
-    | "visa"
-    | "unknown";
+    | 'amex'
+    | 'diners'
+    | 'discover'
+    | 'eftpos_au'
+    | 'jcb'
+    | 'mastercard'
+    | 'unionpay'
+    | 'visa'
+    | 'unknown';
   user: User;
 }
 
+export interface StreamToken {
+  token: string;
+  type: 'student' | 'tutor';
+  user: User;
+}
+
+export type MinimizedStudy = {
+  flashcardId: string;
+  data: {
+    currentStudyIndex: number;
+    studyType: 'manual' | 'timed';
+    isStarted: boolean;
+    isFinished: boolean;
+    progressWidth: string;
+    studies: Study[];
+    cardStyle: 'flippable' | 'default';
+    timer: number;
+    savedScore: Score;
+    studyState: 'question' | 'answer';
+  };
+};
+
 export enum UserNotificationTypes {
-  LESSON_SESSION_STARTED = "lesson_session_started",
-  NEW_OFFER_RECEIVED = "new_offer_received",
-  OFFER_WITHDRAWN = "offer_withdrawn",
+  LESSON_SESSION_STARTED = 'lesson_session_started',
+  NEW_OFFER_RECEIVED = 'new_offer_received',
+  OFFER_WITHDRAWN = 'offer_withdrawn'
 }
 
 export interface User extends TimestampedEntity {
@@ -104,9 +128,10 @@ export interface User extends TimestampedEntity {
   tutor?: Tutor;
   student?: Student;
   isVerified: boolean;
-  type: "student" | "tutor";
+  type: any;
   stripeCustomerId?: string;
   paymentMethods: PaymentMethod[];
+  streamTokens?: StreamToken[];
 }
 
 export interface Student extends TimestampedEntity {
@@ -117,7 +142,7 @@ export interface Student extends TimestampedEntity {
   email: string;
   parentOrStudent: string;
   dob: string;
-  courses: Array<Course> | Array<String>;
+  courses: Array<Course> | Array<string>;
   gradeLevel?: string;
   somethingElse?: string;
   topic?: string;
@@ -165,6 +190,7 @@ export interface Offer extends TimestampedEntity {
   course: Course;
   level: Level;
   schedule: SingleSchedule;
+  _id: string;
   rate: number;
   note: string;
   status: STATUS;
@@ -178,6 +204,20 @@ export interface Offer extends TimestampedEntity {
   paymentMethod?: PaymentMethod;
   expired: boolean;
 }
+
+export type SearchQueryParams = {
+  search?: string;
+  page?: number;
+  limit?: number;
+  sort?: string;
+  tags?: string;
+};
+
+export type Pagination = {
+  page: number;
+  limit: number;
+  count: number;
+};
 
 export interface BookmarkedTutor extends TimestampedEntity {
   user: User;
@@ -195,12 +235,12 @@ export interface Booking extends TimestampedEntity {
   offer: Offer;
 }
 
-export interface UserNotification extends TimestampedEntity {
-  user: User;
+export interface UserNotifications {
+  _id: string;
   text: string;
   type: UserNotificationTypes;
-  attributes?: Attributes;
-  readAt?: Date;
+  createdAt?: Date;
+  __v?: number;
 }
 
 export interface FirebaseUser {
@@ -213,6 +253,85 @@ export interface FirebaseUser {
 export interface HTTPEvent extends APIGatewayProxyEvent {
   firebaseUser: FirebaseUser;
   user: User;
+}
+
+export interface Score {
+  score: number;
+  passed: number;
+  failed: number;
+  notRemembered: number;
+  date: string;
+}
+
+export interface FlashcardData {
+  _id: string;
+  student: Student;
+  deckname: string;
+  studyType: 'longTermRetention' | 'quickPractice';
+  subject?: string;
+  tags: string[];
+  topic?: string;
+  scores: Score[];
+  studyPeriod: 'daily' | 'weekly' | 'biweekly' | 'spacedRepetition';
+  questions: FlashcardQuestion[];
+  createdAt: string;
+  updatedAt: string;
+  currentStudy?: MinimizedStudy;
+}
+
+export interface FlashcardQuestion {
+  questionType: string;
+  question: string;
+  options?: string[];
+  helperText?: string;
+  explanation?: string;
+  answer: string;
+  numberOfAttempts: number;
+  currentStep: number;
+  totalSteps: number;
+}
+
+export interface Options {
+  type: 'single' | 'multiple';
+  content: string[];
+}
+
+export interface Study {
+  id: number;
+  type: 'timed' | 'manual';
+  questions: string;
+  helperText?: string;
+  explanation?: string;
+  answers: string | string[];
+  currentStep: number;
+  isFirstAttempt: boolean;
+  options?: Options;
+}
+
+export enum SessionType {
+  QUIZ = 'quiz',
+  FLASHCARD = 'flashcard',
+  NOTES = 'notes',
+  DOCCHAT = 'docchat',
+  HOMEWORK = 'homework'
+}
+
+export interface SchedulePayload {
+  entityId: string;
+  entityType: string;
+  startDates: string[];
+  startTime: string;
+  recurrence?: {
+    frequency: string;
+    endDate?: string;
+  };
+}
+
+export interface StudentDocumentPayload {
+  title?: string;
+  course?: string;
+  documentUrl?: string;
+  tags?: string[];
 }
 
 export type LevelType = Level;

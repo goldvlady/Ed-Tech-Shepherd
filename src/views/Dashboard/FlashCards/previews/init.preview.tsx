@@ -1,17 +1,24 @@
-import { Box, HStack, Text } from "@chakra-ui/react";
-import OptionBadge from "../components/optionBadge";
-import { TypeEnum } from "../create";
-import BotIntructionBox from "../components/bot_intructon";
+import BotIntructionBox from '../components/bot_intructon';
+import OptionBadge from '../components/optionBadge';
+import { TypeEnum } from '../create';
+import { Box, HStack, Text } from '@chakra-ui/react';
 
 const InitSetupPreview = ({
   activeBadge,
-  handleBadgeClick,
+  handleBadgeClick
 }: {
   activeBadge: string;
   handleBadgeClick: (v: any) => void;
 }) => {
   return (
-    <Box w="full" p="40px" pr="40px" h="100%">
+    <Box
+      width="100%"
+      display={'flex'}
+      flexDirection={'column'}
+      padding="20px"
+      paddingTop="40px"
+      justifyContent={'center'}
+    >
       <BotIntructionBox />
       <Text
         fontSize="15px"
@@ -36,7 +43,7 @@ const InitSetupPreview = ({
                 strokeWidth={1.5}
                 stroke="currentColor"
                 className="w-6 h-6"
-                color={isActive ? "#FFFFFF" : "#6E7682"}
+                color={isActive ? '#FFFFFF' : '#6E7682'}
               >
                 <path
                   strokeLinecap="round"
@@ -59,7 +66,7 @@ const InitSetupPreview = ({
               strokeWidth={1.5}
               stroke="currentColor"
               className="w-6 h-6"
-              color={isActive ? "#FFFFFF" : "#6E7682"}
+              color={isActive ? '#FFFFFF' : '#6E7682'}
             >
               <path
                 strokeLinecap="round"

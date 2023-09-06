@@ -1,29 +1,66 @@
-import React, { ChangeEvent, useEffect, useMemo, useState } from "react";
-import { useFlashCardState } from "../../context/flashcard";
+import { useCustomToast } from '../../../../../components/CustomComponents/CustomToast/useCustomToast';
+import CustomSelect from '../../../../../components/CustomSelect';
+import SelectComponent, { Option } from '../../../../../components/Select';
+import { useFlashcardWizard } from '../../context/flashcard';
 import {
   Box,
   FormControl,
-  Image,
   FormLabel,
   Input,
   Radio,
   RadioGroup,
-  Select,
   Button,
-  HStack,
-  useEditable,
-} from "@chakra-ui/react";
+  Text,
+  HStack
+} from '@chakra-ui/react';
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 
 const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
-  const { flashcardData, setFlashcardData, goToNextStep } = useFlashCardState();
+  const {
+    flashcardData,
+    generateFlashcardQuestions,
+    setFlashcardData,
+    goToNextStep
+  } = useFlashcardWizard();
+  const toast = useCustomToast();
   const [localData, setLocalData] = useState<typeof flashcardData>({
-    deckname: "",
-    studyType: "",
-    studyPeriod: "",
-    numOptions: 0,
-    timerDuration: "",
-    hasSubmitted: false,
+    deckname: '',
+    studyType: '',
+    studyPeriod: '',
+    numQuestions: 0,
+    timerDuration: '',
+    hasSubmitted: false
   }); // A local state for storing user inputs
+
+  useEffect(() => {
+    if (flashcardData.deckname) {
+      setLocalData(flashcardData);
+    }
+    // eslint-disable-next-line
+  }, []);
+
+  const studyPeriodOptions = [
+    { label: 'Daily', value: 'daily' },
+    { label: 'Once a week', value: 'weekly' },
+    { label: 'Twice a week', value: 'biweekly' },
+    {
+      label:
+        localData.studyType && localData.studyType === 'quickPractice'
+          ? "Doesn't repeat"
+          : 'Spaced repetition',
+      value:
+        localData.studyType && localData.studyType === 'quickPractice'
+          ? 'noRepeat'
+          : 'spacedRepetition'
+    }
+  ];
+
+  const levelOptions = [
+    { label: 'Very Easy', value: 'kindergarten' },
+    { label: 'Medium', value: 'high school' },
+    { label: 'Hard', value: 'college' },
+    { label: 'Very Hard', value: 'PhD' }
+  ];
 
   const handleChange = React.useCallback(
     (
@@ -45,22 +82,38 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     }
 
     return Object.values(payload).every(Boolean);
-  }, [localData]);
+  }, [localData, isAutomated]);
+
+  const handleDone = (success: boolean) => {
+    toast({
+      title: success
+        ? 'Flashcard questions generated successfully'
+        : 'Failed to generate flashcard questions',
+      position: 'top-right',
+      status: success ? 'success' : 'error',
+      isClosable: true
+    });
+  };
 
   const handleSubmit = () => {
+    const data = { ...flashcardData, ...localData, hasSubmitted: true };
     setFlashcardData((prevState) => ({
       ...prevState,
       ...localData,
-      hasSubmitted: true,
+      hasSubmitted: true
     }));
-    goToNextStep();
+    if (isAutomated) {
+      generateFlashcardQuestions(data, handleDone);
+    } else {
+      goToNextStep();
+    }
   };
 
   return (
     <Box bg="white" width="100%" mt="30px">
       {isAutomated && (
         <>
-          {" "}
+          {' '}
           <FormControl mb={8}>
             <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
               Subject
@@ -71,12 +124,12 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
               placeholder="e.g. Chemistry"
               value={localData.subject}
               onChange={handleChange}
-              _placeholder={{ fontSize: "14px", color: "#9A9DA2" }}
+              _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
             />
           </FormControl>
           <FormControl mb={8}>
             <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-              Topic (optional)
+              Topic
             </FormLabel>
             <Input
               type="text"
@@ -84,7 +137,30 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
               placeholder="e.g. Bonds"
               value={localData.topic}
               onChange={handleChange}
-              _placeholder={{ fontSize: "14px", color: "#9A9DA2" }}
+              _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+            />
+          </FormControl>
+          <FormControl mb={8}>
+            <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+              Level (optional)
+            </FormLabel>
+            <SelectComponent
+              name="level"
+              placeholder="Select Level"
+              defaultValue={levelOptions.find(
+                (option) => option.value === localData.level
+              )}
+              options={levelOptions}
+              size={'md'}
+              onChange={(option) => {
+                const event = {
+                  target: {
+                    name: 'level',
+                    value: (option as Option).value
+                  }
+                } as ChangeEvent<HTMLSelectElement>;
+                handleChange(event);
+              }}
             />
           </FormControl>
         </>
@@ -99,7 +175,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
           placeholder="e.g. Deckname"
           value={localData.deckname}
           onChange={handleChange}
-          _placeholder={{ fontSize: "14px", color: "#9A9DA2" }}
+          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />
       </FormControl>
 
@@ -110,80 +186,85 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
         <RadioGroup
           name="studyType"
           value={localData.studyType}
-          onChange={(value) =>
+          onChange={(value) => {
+            if (value === 'longTermRetention') {
+              handleChange({
+                target: { name: 'studyPeriod', value: 'spacedRepetition' }
+              } as ChangeEvent<HTMLInputElement>);
+            } else {
+              handleChange({
+                target: { name: 'studyPeriod', value: 'noRepeat' }
+              } as ChangeEvent<HTMLInputElement>);
+            }
             handleChange({
-              target: { name: "studyType", value },
-            } as ChangeEvent<HTMLInputElement>)
-          }
+              target: { name: 'studyType', value }
+            } as ChangeEvent<HTMLInputElement>);
+          }}
         >
-          <Radio value="longTermRetention">Long term retention</Radio>
-          <Radio ml={"10px"} value="quickPractice">
-            Quick Practice
+          <Radio value="longTermRetention">
+            <Text fontSize="14px">Long term retention</Text>
+          </Radio>
+          <Radio ml={'10px'} value="quickPractice">
+            <Text fontSize="14px"> Quick Practice</Text>
           </Radio>
         </RadioGroup>
       </FormControl>
 
+      {localData.studyType === 'longTermRetention' && (
+        <FormControl mb={8}>
+          <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+            How often would you like to study?
+          </FormLabel>
+          <SelectComponent
+            name="studyPeriod"
+            placeholder="Select study period"
+            defaultValue={studyPeriodOptions.find(
+              (option) => option.value === localData.studyPeriod
+            )}
+            tagVariant="solid"
+            options={studyPeriodOptions}
+            size={'md'}
+            onChange={(option) => {
+              const event = {
+                target: {
+                  name: 'studyPeriod',
+                  value: (option as Option).value
+                }
+              } as ChangeEvent<HTMLSelectElement>;
+              handleChange(event);
+            }}
+          />
+        </FormControl>
+      )}
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-          How often would you like to study?
-        </FormLabel>
-        <Select
-          name="studyPeriod"
-          placeholder="Select study period"
-          value={localData.studyPeriod}
-          onChange={handleChange}
-          _placeholder={{ fontSize: "14px", color: "#9A9DA2" }}
-        >
-          <option value="daily">Daily</option>
-          <option value="weekly">Once a week</option>
-          <option value="biweekly">Twice a week</option>
-          <option value="spacedRepetition">Spaced repetition</option>
-        </Select>
-      </FormControl>
-
-      <FormControl mb={8}>
-        <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-          Number of options
+          Number of questions
         </FormLabel>
         <Input
           type="number"
-          name="numOptions"
-          placeholder="Number of options"
-          value={localData.numOptions}
+          min={1}
+          name="numQuestions"
+          placeholder="Number of questions"
+          value={localData.numQuestions}
           onChange={handleChange}
-          _placeholder={{ fontSize: "14px", color: "#9A9DA2" }}
+          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />
       </FormControl>
 
-      <FormControl mb={8}>
-        <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-          Timer settings
-        </FormLabel>
-        <Select
-          name="timerDuration"
-          placeholder="Select a duration"
-          value={localData.timerDuration}
-          onChange={handleChange}
-          _placeholder={{ fontSize: "14px", color: "#9A9DA2" }}
-        >
-          <option value="30">30 sec</option>
-          <option value="15">15 sec</option>
-        </Select>
-      </FormControl>
-      <HStack w="full" align={"flex-end"}>
+      <HStack w="full" align={'flex-end'}>
         <Button
           variant="solid"
           isDisabled={!isValid}
           colorScheme="primary"
           size="sm"
           ml="auto"
-          fontSize={"14px"}
+          fontSize={'14px'}
           mt={4}
           padding="20px 25px"
           onClick={() => handleSubmit()}
         >
           <svg
-            style={{ marginRight: "4px" }}
+            style={{ marginRight: '4px' }}
             width="20"
             height="20"
             viewBox="0 0 20 20"

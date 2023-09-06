@@ -1,13 +1,26 @@
+import { classNames } from '../helpers';
+import { Date } from './index';
+import {
+  Text,
+  Flex,
+  Box,
+  Image,
+  Container,
+  Button,
+  UnorderedList,
+  ListItem,
+  Grid,
+  GridItem,
+  Heading
+} from '@chakra-ui/react';
+import { Menu, Transition } from '@headlessui/react';
 import {
   ChevronDownIcon,
   ChevronRightIcon,
   EllipsisHorizontalIcon,
-  CircleStackIcon,
-} from '@heroicons/react/20/solid'
+  CircleStackIcon
+} from '@heroicons/react/20/solid';
 import React, { Fragment } from 'react';
-import { Menu, Transition } from '@headlessui/react';
-import { classNames } from "../helpers";
-import {Date} from './index';
 
 interface Transaction {
   id: number;
@@ -16,7 +29,6 @@ interface Transaction {
   href: string;
   date: string;
   icon: React.ComponentType<any>;
-  
 }
 
 interface Event {
@@ -39,37 +51,41 @@ interface Commenter {
 const transactions: Transaction[] = [
   {
     id: 1,
-    content: ' Your received a payment of $10.95 from Leslie Peters for Chemistry Lessons',
+    content:
+      ' Your received a payment of $10.95 from Leslie Peters for Chemistry Lessons',
     target: 'Front End Developer',
     href: '#',
     date: '17 May 2023 . 13:00',
-    icon: CircleStackIcon,
+    icon: CircleStackIcon
   },
   {
     id: 2,
-    content: ' Your received a payment of $10.95 from Leslie Peters for Chemistry Lessons',
+    content:
+      ' Your received a payment of $10.95 from Leslie Peters for Chemistry Lessons',
     target: 'Front End Developer',
     href: '#',
     date: '17 May 2023 . 13:00',
-    icon: CircleStackIcon,
+    icon: CircleStackIcon
   },
   {
     id: 3,
-    content: ' Your received a payment of $10.95 from Leslie Peters for Chemistry Lessons',
+    content:
+      ' Your received a payment of $10.95 from Leslie Peters for Chemistry Lessons',
     target: 'Front End Developer',
     href: '#',
     date: '17 May 2023 . 13:00',
-    icon: CircleStackIcon,
+    icon: CircleStackIcon
   },
   {
     id: 4,
-    content: ' Your received a payment of $10.95 from Leslie Peters for Chemistry Lessons',
+    content:
+      ' Your received a payment of $10.95 from Leslie Peters for Chemistry Lessons',
     target: 'Front End Developer',
     href: '#',
     date: '17 May 2023 . 13:00',
-    icon: CircleStackIcon,
-  },
-]
+    icon: CircleStackIcon
+  }
+];
 
 const events: Event[] = [
   {
@@ -77,147 +93,257 @@ const events: Event[] = [
     name: 'Upcoming chemistry session with Liam Kelly',
     lastSeen: '03:30 pm',
     time: '04:30 pm',
-    color: 'bg-orange-500',
-    backgroundColor: 'bg-orange-50',
+    color: 'orange.500',
+    backgroundColor: 'orange.50',
     commenters: [
       {
         id: 12,
         name: 'Emma Dorsey',
         imageUrl:
-          'https://images.unsplash.com/photo-1505840717430-882ce147ef2d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+          'https://images.unsplash.com/photo-1505840717430-882ce147ef2d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
       },
       {
         id: 6,
         name: 'Tom Cook',
         imageUrl:
-          'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+          'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
       },
       {
         id: 4,
         name: 'Lindsay Walton',
-        imageUrl:
-          '/svgs/feather.svg',
-        backgroundColor: 'bg-blue-500'
+        imageUrl: '/svgs/feather.svg',
+        backgroundColor: 'blue.500'
       }
-    ],
+    ]
   },
   {
     id: 2,
     name: 'Upcoming chemistry session with Liam Kelly',
     lastSeen: '03:30 pm',
     time: '04:30 pm',
-    color: 'bg-blue-500',
-    backgroundColor: 'bg-blue-50',
+    color: 'blue.500',
+    backgroundColor: 'blue.50',
     commenters: [
       {
         id: 12,
         name: 'Emma Dorsey',
         imageUrl:
-          'https://images.unsplash.com/photo-1505840717430-882ce147ef2d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+          'https://images.unsplash.com/photo-1505840717430-882ce147ef2d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
       },
       {
         id: 6,
         name: 'Tom Cook',
         imageUrl:
-          'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+          'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
       }
-    ],
-  },
-]
+    ]
+  }
+];
 
 function EventItem({ event }: { event: Event }) {
   return (
-    <li className={`flex gap-x-3 ${event.backgroundColor}`}>
-      <div className={`min-h-fit w-1 rounded-tr-full rounded-br-full ${event.color}`}/>
-      <div className='py-2'>
-        <div className="flex gap-x-1">
-          <div className="min-w-0 flex-auto">
-            <p className="text-xs font-normal leading-6 text-gray-500">{event.name}</p>
-            <p className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
-              <span>{event.lastSeen}</span>
-              <ChevronRightIcon className="w-4 h-4"/>
-              <span>{event.time}</span>
-            </p>
-          </div>
-        </div>
-        <div className="flex -space-x-0.5">
-          <dt className="sr-only">Commenters</dt>
+    <Flex as="li" bg={event.backgroundColor} gap={3}>
+      <Box
+        bg={event.color}
+        roundedBottomRight="full"
+        roundedTopRight="full"
+        w={1}
+        minH="fit-content"
+      />
+      <Box py={2}>
+        <Flex gap={1}>
+          <Box minW={0}>
+            <Text as="p" fontSize="xs" fontWeight="normal" color="gray.500">
+              {event.name}
+            </Text>
+            <Flex
+              as="p"
+              mt={1}
+              alignItems="center"
+              isTruncated
+              fontSize="xs"
+              color="gray.500"
+            >
+              <Text as="span">{event.lastSeen}</Text>
+              <ChevronRightIcon className="w-4 h-4" />
+              <Text as="span">{event.time}</Text>
+            </Flex>
+          </Box>
+        </Flex>
+        <Box className="flex -space-x-0.5">
+          <Box as="dt" className="sr-only">
+            Commenters
+          </Box>
           {event.commenters.map((commenter) => (
-            <dd key={commenter.id}>
-              <img
-                className={`h-5 w-5 rounded-full ${commenter.backgroundColor ? commenter.backgroundColor : 'bg-gray-50'} ring-2 ring-white`}
+            <Box key={commenter.id}>
+              <Image
+                bg={
+                  commenter.backgroundColor
+                    ? commenter.backgroundColor
+                    : 'gray.50'
+                }
+                ring={2}
+                ringColor="white"
+                h={5}
+                w={5}
+                rounded="full"
                 src={commenter.imageUrl}
                 alt={commenter.name}
               />
-            </dd>
+            </Box>
           ))}
-        </div>
-      </div>
-    </li>
+        </Box>
+      </Box>
+    </Flex>
   );
 }
 
 export default function RecentTransaction() {
-
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-      <div className="mx-auto grid max-w-2xl grid-cols-1 grid-rows-1 items-start gap-x-8 gap-y-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+    <Container maxW="7xl" mx="auto" py="10" paddingX={{ base: '4', md: '6' }}>
+      <Grid
+        mx={{ lg: '0' }}
+        maxW={{ lg: 'none' }}
+        alignItems="start"
+        gap={8}
+        templateColumns={{ base: '1fr', lg: 'repeat(3, 1fr)' }}
+        templateRows={{ base: '1fr', lg: 'repeat(1, 1fr)' }}
+      >
         {/* Invoice summary */}
-        <div className="lg:col-start-3 lg:col-span-2 lg:row-end-1 p-2 rounded-lg shadow-sm ring-1 ring-gray-900/5">
-          <h2 className="sr-only">Summary</h2>
-          <header className="flex items-center justify-between border-b pb-4">
-            
-            <div className='flex items-center space-x-2'>
-              <img src="/svgs/timer.svg" alt="" className="h-6 w-6 mx-auto" />
-              <h4 className='font-semibold'>Schedule</h4>
-            </div>
+        <GridItem
+          gridColumnStart={{ lg: 3 }}
+          gridRowEnd={{ lg: 1 }}
+          p={2}
+          rounded="lg"
+          shadow="sm"
+          ring="1"
+          ringColor="gray.200"
+        >
+          <Heading as="h2" srOnly>
+            Summary
+          </Heading>
 
-            <div className="flex items-center justify-center bg-white p-2 rounded-full border">
-              <img src="/svgs/calender-drop.svg" alt="" className="h-5 w-5 mx-auto" />
-            </div>
-          </header>
+          <Flex
+            alignItems="center"
+            justifyContent="space-between"
+            borderBottom="1px"
+            borderBottomColor="gray.200"
+            pb={4}
+          >
+            <Flex align="center">
+              <Image src="/svgs/timer.svg" alt="" h={6} w={6} mx="auto" />
+              <Text as="h4" ml={2} fontWeight="semibold">
+                Schedule
+              </Text>
+            </Flex>
 
-          <section className="space-y-3">
-            <h3 className='text-gray-400 text-sm mt-4 ml-8'>May</h3>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              bg="white"
+              p={2}
+              borderRadius="full"
+              border="1px"
+              borderColor="gray.300"
+            >
+              <Image
+                src="/svgs/calender-drop.svg"
+                alt=""
+                h={5}
+                w={5}
+                mx="auto"
+              />
+            </Box>
+          </Flex>
+
+          <Box>
+            <Heading color="gray.400" fontSize="sm" mt={4} ml={4} as="h3">
+              May
+            </Heading>
             <Date />
-          </section>
+          </Box>
 
-          <ul className="space-y-3">
-            <h3 className='text-gray-400 text-sm mt-4 ml-8'>Upcoming Events</h3>
-            <ul className="space-y-3">
-            {events.map((event) => (
-              <EventItem key={event.id} event={event} />
-            ))}
-          </ul>
-          </ul>
+          <Box as="ul">
+            <Text as="h3" size="sm" color="gray.400" mt={4} ml={8}>
+              Upcoming Events
+            </Text>
+            <UnorderedList as="ul" spacing={3} ml={0} mt={2}>
+              {events.map((event) => (
+                <EventItem key={event.id} event={event} />
+              ))}
+            </UnorderedList>
+          </Box>
 
-          <section className="space-y-3">
-            <h3 className='text-gray-400 text-sm mt-4 ml-8'>Tommorrow</h3>
-            <div className='space-y-3'>
-              <img src="/svgs/calender.svg" alt="" className="h-10 w-10 mx-auto" />
-              <p className='text-center font-bold text-sm text-gray-300'>No classes scheduled for tommorrow</p>
-            </div>
-          </section>
-        </div>
+          <Box>
+            <Text as="h3" size="sm" color="gray.400" mt={4} ml={8}>
+              Tomorrow
+            </Text>
+            <Box>
+              <Image
+                src="/svgs/calender.svg"
+                alt=""
+                boxSize={10}
+                mx="auto"
+                my="2"
+              />
+              <Text
+                textAlign="center"
+                fontWeight="bold"
+                fontSize="sm"
+                color="gray.300"
+              >
+                No classes scheduled for tomorrow
+              </Text>
+            </Box>
+          </Box>
+        </GridItem>
 
         {/* Invoice */}
-        <div className="-mx-4 p-2 shadow-sm ring-1 ring-gray-900/5 sm:mx-0 sm:rounded-lg lg:col-span-2 lg:row-span-2 lg:row-end-2">
-          <header className="flex items-center justify-between border-b pb-4">
-            
-            <div className='flex items-center space-x-3'>
-              <img className='h-5 w-5' src="/svgs/wallet-money.svg" alt=""/>
-              <h4>Recent events</h4>
-            </div>
+        <Box
+          mx={[-4, 0]}
+          p={2}
+          boxShadow="sm"
+          ring="1px"
+          ringColor="gray.200"
+          rounded={['md', 'lg']}
+          gridColumn={{ lg: 'span 2' }}
+          gridRow={{ lg: 'span 2', lgEnd: 2 }}
+        >
+          <Flex
+            alignItems="center"
+            justifyContent="space-between"
+            borderBottom="1px"
+            pb="4"
+            borderBottomColor="gray.200"
+          >
+            <Flex align="center">
+              <Image src="/svgs/wallet-money.svg" alt="" h={5} w={5} />
+              <Text ml={3} as="h4">
+                Recent Transactions
+              </Text>
+            </Flex>
 
-            <div className="hidden md:ml-4 md:flex md:items-center">
+            <Box
+              display={{ base: 'none', md: 'flex' }}
+              ml={4}
+              alignItems="center"
+            >
               <Menu as="div" className="relative">
                 <Menu.Button
                   type="button"
                   className="flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
                 >
-                  <img className='h-5 w-5 -mr-1' src="/svgs/calender-fill.svg" alt=""/>
+                  <img
+                    className="h-5 w-5 -mr-1"
+                    src="/svgs/calender-fill.svg"
+                    alt=""
+                  />
                   <span>This week</span>
-                  <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+                  <ChevronDownIcon
+                    className="-mr-1 h-5 w-5 text-gray-400"
+                    aria-hidden="true"
+                  />
                 </Menu.Button>
 
                 <Transition
@@ -233,52 +359,58 @@ export default function RecentTransaction() {
                     <div className="py-1">
                       <Menu.Item>
                         {({ active }) => (
-                          <a
-                            href="#"
+                          <button
                             className={classNames(
-                              active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                              active
+                                ? 'bg-gray-100 text-gray-900'
+                                : 'text-gray-700',
                               'block px-4 py-2 text-sm'
                             )}
                           >
                             This week
-                          </a>
+                          </button>
                         )}
                       </Menu.Item>
                       <Menu.Item>
                         {({ active }) => (
-                          <a
-                            href="#"
+                          <button
                             className={classNames(
-                              active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                              active
+                                ? 'bg-gray-100 text-gray-900'
+                                : 'text-gray-700',
                               'block px-4 py-2 text-sm'
                             )}
                           >
                             Last week
-                          </a>
+                          </button>
                         )}
                       </Menu.Item>
                       <Menu.Item>
                         {({ active }) => (
-                          <a
-                            href="#"
+                          <button
                             className={classNames(
-                              active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                              active
+                                ? 'bg-gray-100 text-gray-900'
+                                : 'text-gray-700',
                               'block px-4 py-2 text-sm'
                             )}
                           >
                             This month
-                          </a>
+                          </button>
                         )}
                       </Menu.Item>
                     </div>
                   </Menu.Items>
                 </Transition>
               </Menu>
-            </div>
+            </Box>
             <Menu as="div" className="relative ml-6 md:hidden">
               <Menu.Button className="-mx-2 flex items-center rounded-full border border-transparent p-2 text-gray-400 hover:text-gray-500">
                 <span className="sr-only">Open menu</span>
-                <EllipsisHorizontalIcon className="h-5 w-5" aria-hidden="true" />
+                <EllipsisHorizontalIcon
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                />
               </Menu.Button>
 
               <Transition
@@ -294,89 +426,152 @@ export default function RecentTransaction() {
                   <div className="py-1">
                     <Menu.Item>
                       {({ active }) => (
-                        <a
-                          href="#"
+                        <button
                           className={classNames(
-                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                            active
+                              ? 'bg-gray-100 text-gray-900'
+                              : 'text-gray-700',
                             'block px-4 py-2 text-sm'
                           )}
                         >
                           This week
-                        </a>
+                        </button>
                       )}
                     </Menu.Item>
                     <Menu.Item>
                       {({ active }) => (
-                        <a
-                          href="#"
+                        <button
                           className={classNames(
-                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                            active
+                              ? 'bg-gray-100 text-gray-900'
+                              : 'text-gray-700',
                             'block px-4 py-2 text-sm'
                           )}
                         >
                           Last week
-                        </a>
+                        </button>
                       )}
                     </Menu.Item>
                     <Menu.Item>
                       {({ active }) => (
-                        <a
-                          href="#"
+                        <button
                           className={classNames(
-                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                            active
+                              ? 'bg-gray-100 text-gray-900'
+                              : 'text-gray-700',
                             'block px-4 py-2 text-sm'
                           )}
                         >
                           This month
-                        </a>
+                        </button>
                       )}
                     </Menu.Item>
                   </div>
                 </Menu.Items>
               </Transition>
             </Menu>
-          </header>
-          
-          <div className="flow-root mt-4">
-            <ul className="-mb-8">
-              {transactions.map((transaction, transactionIdx) => (
-                <li key={transaction.id}>
-                  <div className="relative pb-8">
-                    {transactionIdx !== transactions.length - 1 ? (
-                      <span className="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200/70" aria-hidden="true" />
-                    ) : null}
-                    <div className="relative flex space-x-3">
-                      <div>
-                        <span
-                          className="h-8 w-8 bg-orange-100 rounded-full flex items-center justify-center ring-8 ring-white"
-                        >
-                          <img className='h-5 w-5' src="/svgs/circlestack.svg" alt=""/>
-                        </span>
-                      </div>
-                      <div className="ml-3 w-0 flex-1 pt-0.5">
-                        <p className="text-sm font-normal text-gray-400">{transaction.date}</p>
-                        <p className="mt-1 text-sm font-medium text-gray-500">
-                          {transaction.content}
-                        </p>
-                        <div className="mt-3 flex space-x-7">
-                          <button
-                            type="button"
-                            className="rounded-full flex items-center space-x-2 border-2 border-dashed p-2 text-sm font-medium text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                          >
-                            <img className='h-5 w-5' src="/svgs/receipt.svg" alt=""/>
-                            <span>Transaction receipt</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+          </Flex>
 
-      </div>
-    </div>
-  )
+          <Box mt={4}>
+            <UnorderedList listStyleType="none" mb="-8">
+              {transactions.map((transaction, transactionIdx) => (
+                <ListItem key={transaction.id}>
+                  <Box pos="relative" pb={8}>
+                    {transactionIdx !== transactions.length - 1 ? (
+                      <Text
+                        as="span"
+                        pos="absolute"
+                        left={4}
+                        top={4}
+                        w="0.5"
+                        h="full"
+                        bg="gray.200"
+                        ml="-px"
+                        aria-hidden="true"
+                      />
+                    ) : null}
+                    <Flex pos="relative">
+                      <Box>
+                        <Flex
+                          h={8}
+                          w={8}
+                          bg="orange.100"
+                          rounded="full"
+                          alignItems="center"
+                          justifyContent="center"
+                          ring={8}
+                          ringColor="white"
+                        >
+                          <Image
+                            h="5"
+                            w="5"
+                            src="/svgs/circlestack.svg"
+                            alt=""
+                          />
+                        </Flex>
+                      </Box>
+                      <Box flex="1" ml="3" pt="0.5">
+                        <Text
+                          as="p"
+                          fontSize="sm"
+                          fontWeight="normal"
+                          color="gray.400"
+                        >
+                          {transaction.date}
+                        </Text>
+                        <Text
+                          as="p"
+                          mt="1"
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          color="gray.600"
+                        >
+                          {transaction.content}
+                        </Text>
+                        <Flex mt="3">
+                          <Button
+                            type="button"
+                            rounded="full"
+                            alignItems="center"
+                            display="flex"
+                            border="1px"
+                            borderStyle="dashed"
+                            bg="white"
+                            p="3"
+                            fontWeight="medium"
+                            color="gray.400"
+                            fontSize="sm"
+                            _hover={{
+                              color: 'gray.500'
+                            }}
+                            _focus={{
+                              outline: 'none',
+                              ring: '2',
+                              ringColor: 'gray.500',
+                              ringOffset: '2'
+                            }}
+                          >
+                            <Image
+                              h="5"
+                              w="5"
+                              className="h-5 w-5"
+                              src="/svgs/receipt.svg"
+                              alt=""
+                            />
+                            <Text as="span" display="inline-block" ml="1">
+                              Transaction receipt
+                            </Text>
+                          </Button>
+                        </Flex>
+                      </Box>
+                    </Flex>
+                  </Box>
+                </ListItem>
+              ))}
+            </UnorderedList>
+          </Box>
+        </Box>
+      </Grid>
+    </Container>
+  );
 }

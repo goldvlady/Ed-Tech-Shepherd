@@ -1,6 +1,6 @@
-import EnergyUp from "../../../assets/energy-up.svg";
-import OnFire from "../../../assets/fire.svg";
-import Less50 from "../../../assets/less-50.svg";
+import EnergyUp from '../../../assets/energy-up.svg';
+import OnFire from '../../../assets/fire.svg';
+import Less50 from '../../../assets/less-50.svg';
 import {
   Box,
   Center,
@@ -10,12 +10,12 @@ import {
   HStack,
   Image,
   Stack,
-  Text,
-} from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
-import { CircularProgressbar } from "react-circular-progressbar";
-import "react-circular-progressbar/dist/styles.css";
-import styled from "styled-components";
+  Text
+} from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { CircularProgressbar } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
+import styled from 'styled-components';
 
 const CircleProgressBox = styled(CircularProgressLabel)`
   z-index: 1;
@@ -25,40 +25,40 @@ const CircleProgressBox = styled(CircularProgressLabel)`
 
 export default function Carousel() {
   const arrowStyles = {
-    cursor: "pointer",
-    pos: "absolute",
-    top: "30%",
-    w: "auto",
-    mt: "-22px",
-    p: "16px",
-    color: "#6E7682",
-    fontWeight: "bold",
-    fontSize: "18px",
-    transition: "0.6s ease",
-    borderRadius: "0 3px 3px 0",
-    userSelect: "none",
+    cursor: 'pointer',
+    pos: 'absolute',
+    top: '30%',
+    w: 'auto',
+    mt: '-22px',
+    p: '16px',
+    color: '#6E7682',
+    fontWeight: 'bold',
+    fontSize: '18px',
+    transition: '0.6s ease',
+    borderRadius: '0 3px 3px 0',
+    userSelect: 'none',
     _hover: {
-      opacity: 0.8,
+      opacity: 0.8
       //   bg: "black",
-    },
+    }
   } as const;
 
   const slides = [
     {
       //   img: OnFire,
       //   description: "spend a little extra time learning",
-      label: "You’ve scored a total of 65% in all quizzes this week!",
+      label: 'You’ve scored a total of 65% in all quizzes this week!'
     },
     {
       img: EnergyUp,
-      description: "Complete a flash deck to make it 4",
-      label: "You’re on a 3 day streak!",
+      description: 'Complete a flash deck to make it 4',
+      label: 'You’re on a 3 day streak!'
     },
     {
       img: OnFire,
-      description: "spend a little extra time learning",
-      label: "You spent 5 hours learning this week",
-    },
+      description: 'spend a little extra time learning',
+      label: 'You spent 5 hours learning this week'
+    }
   ];
 
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -75,12 +75,12 @@ export default function Carousel() {
     setCurrentSlide(slide);
   };
   const carouselStyle = {
-    transition: "all .5s",
-    ml: `-${currentSlide * 100}%`,
+    transition: 'all .5s',
+    ml: `-${currentSlide * 100}%`
   };
 
   const SLIDES_INTERVAL_TIME = 10000;
-  const ANIMATION_DIRECTION = "right";
+  const ANIMATION_DIRECTION = 'right';
   useEffect(() => {
     const prevSlide = () => {
       setCurrentSlide((s) => (s === 0 ? slidesCount - 1 : s - 1));
@@ -91,7 +91,7 @@ export default function Carousel() {
     };
 
     const automatedSlide = setInterval(() => {
-      ANIMATION_DIRECTION.toLowerCase() === "left" ? prevSlide() : nextSlide();
+      ANIMATION_DIRECTION.toLowerCase() === 'left' ? prevSlide() : nextSlide();
     }, SLIDES_INTERVAL_TIME);
     return () => clearInterval(automatedSlide);
   }, [slidesCount]);
@@ -100,7 +100,7 @@ export default function Carousel() {
     <Flex
       w="full"
       //   bg="#edf3f8"
-      _dark={{ bg: "#3e3e3e" }}
+      _dark={{ bg: '#3e3e3e' }}
       p={5}
       alignItems="center"
       justifyContent="center"
@@ -136,14 +136,14 @@ export default function Carousel() {
                     alt="carousel image"
                     boxSize="100px"
                     backgroundSize="cover"
-                    alignSelf={"center"}
+                    alignSelf={'center'}
                   />
                 ) : (
                   <div
                     style={{
-                      height: "90px",
-                      width: "90px",
-                      marginBottom: "7px",
+                      height: '90px',
+                      width: '90px',
+                      marginBottom: '7px'
                     }}
                   >
                     <svg style={{ height: 0 }}>
@@ -159,10 +159,10 @@ export default function Carousel() {
                     </svg>
                     <div
                       style={{
-                        display: "flex",
-                        position: "relative",
+                        display: 'flex',
+                        position: 'relative',
                         // alignItems: "center",
-                        justifyContent: "center",
+                        justifyContent: 'center'
                       }}
                     >
                       <CircularProgressbar
@@ -172,18 +172,18 @@ export default function Carousel() {
                         styles={{
                           path: {
                             stroke: `url(#hello)`,
-                            height: "100%",
+                            height: '100%'
                           },
                           trail: {
-                            stroke: "#e7eaee",
-                          },
+                            stroke: '#e7eaee'
+                          }
                         }}
-                      />{" "}
+                      />{' '}
                       <div
                         style={{
-                          position: "absolute",
+                          position: 'absolute',
                           zIndex: 1,
-                          top: "20%",
+                          top: '20%'
                         }}
                       >
                         <Image src={Less50} />
@@ -231,7 +231,7 @@ export default function Carousel() {
               width="120px"
               height="3px"
               m="0 2px"
-              bg={currentSlide === slide ? "#207DF7" : "#EEF0F1"}
+              bg={currentSlide === slide ? '#207DF7' : '#EEF0F1'}
               //   rounded="100%"
               display="inline-block"
               transition="background-color 0.6s ease"

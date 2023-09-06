@@ -1,21 +1,25 @@
-import { Box, Button } from "@chakra-ui/react";
-import * as React from "react";
-import { FiArrowLeft } from "react-icons/fi";
-import { StepWizardChildProps } from "react-step-wizard";
+import GoogleIcon from '../assets/google.svg';
+import { Box, Button } from '@chakra-ui/react';
+import * as React from 'react';
+import { StepWizardChildProps } from 'react-step-wizard';
 
 type Props = {
   canGoNext: boolean;
+  showOAuthButton?: boolean;
+  handleAuth?: () => void;
 } & Partial<StepWizardChildProps>;
 
 const OnboardNav: React.FC<Props> = ({
   previousStep,
+  showOAuthButton = false,
   nextStep,
   currentStep,
   canGoNext,
+  handleAuth
 }) => {
   return (
     <Box
-      display={"flex"}
+      display={'flex'}
       flexDirection="column"
       gap={4}
       marginTop={45}
@@ -23,13 +27,28 @@ const OnboardNav: React.FC<Props> = ({
     >
       <Button
         variant="solid"
-        colorScheme={"primary"}
+        colorScheme={'primary'}
         type="submit"
         isDisabled={!canGoNext}
-        size={"lg"}
+        size={'lg'}
       >
         Next
       </Button>
+
+      {showOAuthButton && (
+        <Button
+          variant="solid"
+          bg="#F2F2F3"
+          onClick={() => handleAuth && handleAuth()}
+          colorScheme={'primary'}
+          type="submit"
+          size={'lg'}
+          color="#000"
+          leftIcon={<img src={GoogleIcon} alt="" />}
+        >
+          Continue With Google
+        </Button>
+      )}
       {currentStep !== undefined && currentStep > 1 && (
         <Button onClick={previousStep} variant="link">
           Previous

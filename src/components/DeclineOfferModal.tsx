@@ -1,15 +1,54 @@
-import React, {Fragment} from 'react';
+import CustomToast from '../components/CustomComponents/CustomToast';
+import ApiService from '../services/ApiService';
+import { Box, Text, Textarea, useToast } from '@chakra-ui/react';
 import { Transition, Dialog } from '@headlessui/react';
+import React, { Fragment, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 interface DeclineOfferModalProps {
   declineOfferModalState: boolean;
-  setDeclineOfferModalState: (state: boolean) => void;
-};
+  onClose: () => void;
+}
 
-const DeclineOfferModal: React.FC<DeclineOfferModalProps> = ({ declineOfferModalState, setDeclineOfferModalState }) => {
+const DeclineOfferModal: React.FC<DeclineOfferModalProps> = ({
+  declineOfferModalState,
+  onClose
+}) => {
+  const [comment, setComment] = useState('');
+
+  const handleChangeComment = (event) => {
+    setComment(event.target.value);
+  };
+
+  const { id } = useParams();
+  const toast = useToast();
+
+  const declineOffer = async (id) => {
+    // setAcceptingOffer(true);
+    const resp = await ApiService.declineOffer(id, comment);
+    if (resp.status === 200) {
+      toast({
+        render: () => (
+          <CustomToast title="Offer Declined successfully" status="success" />
+        ),
+        position: 'top-right',
+        isClosable: true
+      });
+    } else {
+      toast({
+        render: () => (
+          <CustomToast title="Something went wrong.." status="error" />
+        ),
+        position: 'top-right',
+        isClosable: true
+      });
+    }
+    onClose();
+    // setAcceptingOffer(false);
+  };
   return (
     <Transition.Root show={declineOfferModalState} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={setDeclineOfferModalState}>
+      <Dialog as="div" className="relative z-50" onClose={() => onClose()}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -34,33 +73,49 @@ const DeclineOfferModal: React.FC<DeclineOfferModalProps> = ({ declineOfferModal
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
               <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white pt-5 text-left shadow-xl transition-all sm:w-full sm:max-w-sm">
-                <div>
-                  <div className='flex justify-center px-2 border-b pb-4'>
-                    <p className="text-md font-medium">
+                <Box>
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    px={2}
+                    borderBottom="1px"
+                    pb={4}
+                  >
+                    <Text fontSize="md" fontWeight="medium">
                       Decline Offer
-                    </p>
-                  </div>
-                  <form className='px-10 mt-2'>
-                    <label htmlFor="comment" className="block text-sm font-medium leading-6 text-gray-900">
+                    </Text>
+                  </Box>
+                  <Box px={10} mt={2}>
+                    <label
+                      htmlFor="comment"
+                      className="block text-sm font-medium leading-6 text-gray-900"
+                    >
                       Add a note (optional)
                     </label>
-                    <div className="mt-2">
-                      <textarea
+                    <Box mt={2}>
+                      <Textarea
                         rows={4}
                         name="comment"
                         id="comment"
-                        placeholder='Let the client knows what your terms are'
-                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-error700 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6"
-                        defaultValue={''}
+                        placeholder="Let the client knows what your terms are"
+                        variant="outline"
+                        borderColor="gray.200"
+                        color="gray.900"
+                        shadow="sm"
+                        focusBorderColor="red.600"
+                        _placeholder={{ color: 'gray.400' }}
+                        size="sm"
+                        value={comment}
+                        onChange={handleChangeComment}
                       />
-                    </div>
-                  </form>
-                </div>
+                    </Box>
+                  </Box>
+                </Box>
                 <div className="mt-5 p-3 flex justify-end w-full bg-gray-100 sm:mt-6">
                   <button
                     type="button"
                     className="inline-flex w-fit justify-center rounded-md bg-error px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-                    onClick={() => setDeclineOfferModalState(false)}
+                    onClick={() => declineOffer(id)}
                   >
                     Confirm
                   </button>

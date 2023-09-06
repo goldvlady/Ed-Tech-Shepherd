@@ -1,16 +1,31 @@
-import { useState, useEffect, useCallback } from "react";
-import SetupFlashcardPage from "./forms/flashcard_setup";
-import SuccessState from "./forms/flashcard_setup/success_page";
-import MnemonicSetup from "./forms/mneomics_setup";
-import InitSetupPreview from "./previews/init.preview";
-import MnemonicPreview from "./previews/mneomics.preview";
-import QuestionsPreview from "./previews/questions.preview";
-import FlashcardDataProvider from "./context/flashcard";
-import MnemonicSetupProvider from "./context/mneomics";
-import { useFlashCardState } from "./context/flashcard";
-import { Box, HStack, Text, Radio, RadioGroup } from "@chakra-ui/react";
-
-import styled from "styled-components";
+import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
+import { FlashCardModal } from '../../../components/flashcardDecks';
+import LoaderOverlay from '../../../components/loaderOverlay';
+import ApiService from '../../../services/ApiService';
+import flashcardStore from '../../../state/flashcardStore';
+import userStore from '../../../state/userStore';
+import FlashcardDataProvider from './context/flashcard';
+import { useFlashcardWizard } from './context/flashcard';
+import MnemonicSetupProvider from './context/mneomics';
+import SetupFlashcardPage from './forms/flashcard_setup';
+import FlashcardFromDocumentSetup from './forms/flashcard_setup/document_type';
+import LoaderScreen from './forms/flashcard_setup/loader_page';
+import SuccessState from './forms/flashcard_setup/success_page';
+import MnemonicSetup from './forms/mneomics_setup';
+import InitSetupPreview from './previews/init.preview';
+import MnemonicPreview from './previews/mneomics.preview';
+import QuestionsPreview from './previews/questions.preview';
+import { Box, HStack, Text, Radio, RadioGroup, VStack } from '@chakra-ui/react';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+  RefObject
+} from 'react';
+import { useParams, useLocation } from 'react-router';
+import styled from 'styled-components';
 
 const Wrapper = styled(Box)`
   select {
@@ -49,15 +64,15 @@ const Wrapper = styled(Box)`
 `;
 
 export enum TypeEnum {
-  FLASHCARD = "flashcard",
-  MNEOMONIC = "mneomonic",
-  INIT = "init",
+  FLASHCARD = 'flashcard',
+  MNEOMONIC = 'mneomonic',
+  INIT = 'init'
 }
 
 export enum SourceEnum {
-  DOCUMENT = "document",
-  SUBJECT = "subject",
-  MANUAL = "manual",
+  DOCUMENT = 'document',
+  SUBJECT = 'subject',
+  MANUAL = 'manual'
 }
 
 type SettingsType = {
@@ -65,66 +80,192 @@ type SettingsType = {
   source: SourceEnum;
 };
 
-const CreateFlashPage = () => {
-  const [settings, setSettings] = useState<SettingsType>({
-    type: TypeEnum.INIT,
-    source: SourceEnum.MANUAL,
-  });
-  const { flashcardData } = useFlashCardState();
-  const [isCompleted, setIsCompleted] = useState(false);
-  const [hasSubmittedFlashCards, setHasSubmittedFlashCards] = useState(false);
+const useBoxWidth = (ref: RefObject<HTMLDivElement>): number => {
+  const [boxWidth, setBoxWidth] = useState<number>(0);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (ref.current) {
+        const newWidth = ref.current.offsetWidth;
+        setBoxWidth(newWidth);
+      }
+    };
+
+    // Initial width calculation
+    handleResize();
+
+    // Add event listener for window resize
+    window.addEventListener('resize', handleResize);
+
+    // Clean up the event listener on unmount
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [ref]);
+
+  return boxWidth;
+};
+
+const CreateFlashPage = () => {
+  const toast = useCustomToast();
+  const { user } = userStore();
+  const location = useLocation();
+
+  // const [settings, setSettings] = useState<SettingsType>({
+  //   type: TypeEnum.INIT,
+  //   source: SourceEnum.SUBJECT
+  // });
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+
+  const boxWidth = useBoxWidth(wrapperRef);
+
+  const {
+    flashcardData,
+    questions,
+    goToStep,
+    setFlashcardData,
+    resetFlashcard,
+    isLoading: loading,
+    currentStep,
+    settings,
+    setSettings,
+    setMinimized
+  } = useFlashcardWizard();
+
+  const { createFlashCard, isLoading, fetchFlashcards } = flashcardStore();
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [switchonMobile, setSwitchMobile] = useState(true);
   const { type: activeBadge } = settings;
 
-  console.log(activeBadge);
+  const queryParams = new URLSearchParams(location.search);
+
+  const type = queryParams.get('type');
 
   const setActiveBadge = (badge: TypeEnum) => {
     setSettings((value) => ({ ...value, type: badge }));
   };
-  // const [activeBadge, setActiveBadge] = useState<TypeEnum>(TypeEnum.INIT);
 
   useEffect(() => {
-    if (flashcardData.hasSubmitted && !hasSubmittedFlashCards) {
-      setHasSubmittedFlashCards(true);
-      if (settings.source === SourceEnum.SUBJECT) {
-        setIsCompleted(true);
-      }
-      if (
-        settings.type !== TypeEnum.FLASHCARD &&
-        settings.source === SourceEnum.MANUAL
-      ) {
-        setSettings((value) => ({ ...value, type: TypeEnum.FLASHCARD }));
+    if (type) {
+      if (type === 'mnemonics') {
+        setActiveBadge(TypeEnum.MNEOMONIC);
       }
     }
-  }, [flashcardData, hasSubmittedFlashCards, settings.type]);
+  }, [type]);
+
+  useEffect(() => {
+    setMinimized(false);
+
+    return () => {
+      if (loading) {
+        setMinimized(true);
+      }
+    };
+  }, [loading]);
+
+  const onSubmitFlashcard = useCallback(async () => {
+    try {
+      const response = await createFlashCard(
+        { ...flashcardData, questions },
+        'manual'
+      );
+      if (response) {
+        if (response.status === 200) {
+          setIsCompleted(true);
+          toast({
+            title: 'Flash Card Created Successfully',
+            position: 'top-right',
+            status: 'success',
+            isClosable: true
+          });
+          fetchFlashcards();
+        } else {
+          setFlashcardData((value) => ({ ...value, hasSubmitted: false }));
+          toast({
+            title: 'Failed to create flashcard, try again',
+            position: 'top-right',
+            status: 'error',
+            isClosable: true
+          });
+        }
+      }
+    } catch (error) {
+      setFlashcardData((value) => ({ ...value, hasSubmitted: false }));
+      toast({
+        title: 'Failed to create flashcard, try again',
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
+      });
+    }
+  }, [
+    flashcardData,
+    questions,
+    toast,
+    setFlashcardData,
+    fetchFlashcards,
+    createFlashCard
+  ]);
+
+  useEffect(() => {
+    if (flashcardData.hasSubmitted) {
+      if (settings.type !== TypeEnum.FLASHCARD) {
+        setSettings((value) => ({ ...value, type: TypeEnum.FLASHCARD }));
+      }
+      // if (
+      //   settings.type !== TypeEnum.FLASHCARD &&
+      //   settings.type !== TypeEnum.INIT &&
+      //   settings.source !== SourceEnum.MANUAL
+      // ) {
+      //   setSettings((value) => ({ ...value, source: SourceEnum.MANUAL }));
+      // }
+    }
+  }, [flashcardData.hasSubmitted, settings.type, settings.source]);
 
   const handleBadgeClick = (badge: TypeEnum) => {
+    if (
+      (settings.source === SourceEnum.DOCUMENT &&
+        badge !== TypeEnum.FLASHCARD) ||
+      flashcardData.hasSubmitted
+    )
+      return;
     setActiveBadge(badge);
-  };
 
-  const setType = (type: TypeEnum) => {
-    setSettings((val) => ({
-      ...val,
-      type,
-    }));
+    // if (badge === TypeEnum.MNEOMONIC) setSource(SourceEnum.MANUAL);
   };
 
   const setSource = (source: SourceEnum) => {
     setSettings((val) => ({
       ...val,
-      source,
+      source
     }));
   };
 
-  const renderForms = useCallback(() => {
+  const form = useMemo(() => {
+    if (settings.type === TypeEnum.MNEOMONIC) {
+      return <MnemonicSetup />;
+    }
+
     if (isCompleted) {
-      return <SuccessState />;
+      return (
+        <SuccessState
+          reset={() => {
+            resetFlashcard();
+            setIsCompleted(false);
+          }}
+        />
+      );
+    }
+    if (loading) {
+      return <LoaderScreen />;
     }
     if (
-      settings.type === TypeEnum.MNEOMONIC &&
-      settings.source === SourceEnum.MANUAL
+      (settings.type === TypeEnum.FLASHCARD ||
+        settings.type === TypeEnum.INIT) &&
+      (settings.source === SourceEnum.MANUAL ||
+        (settings.source === SourceEnum.DOCUMENT && currentStep === 1))
     ) {
-      return <MnemonicSetup />;
+      return <SetupFlashcardPage />;
     }
     if (
       (settings.type === TypeEnum.FLASHCARD ||
@@ -136,7 +277,11 @@ const CreateFlashPage = () => {
     if (settings.source === SourceEnum.SUBJECT) {
       return <SetupFlashcardPage isAutomated />;
     }
-  }, [settings, isCompleted]); // The callback depends on 'settings'
+    if (settings.source === SourceEnum.DOCUMENT) {
+      return <FlashcardFromDocumentSetup isAutomated />;
+    }
+    return <></>;
+  }, [settings, isCompleted, resetFlashcard, loading, currentStep]); // The callback depends on 'settings'
 
   const renderPreview = () => {
     if (settings.type === TypeEnum.INIT) {
@@ -150,7 +295,8 @@ const CreateFlashPage = () => {
     if (settings.type === TypeEnum.FLASHCARD) {
       return (
         <QuestionsPreview
-          onConfirm={() => setIsCompleted(true)}
+          isLoading={isLoading}
+          onConfirm={() => onSubmitFlashcard()}
           activeBadge={activeBadge}
           handleBadgeClick={handleBadgeClick}
         ></QuestionsPreview>
@@ -165,76 +311,149 @@ const CreateFlashPage = () => {
       );
     }
   };
+
+  const onSwitchMobile = useCallback(() => {
+    setSwitchMobile((prevState) => !prevState);
+  }, [setSwitchMobile]);
   return (
-    <Wrapper
-      bg="white"
-      width="100%"
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
-      alignItems="center"
-    >
-      <HStack
-        justifyContent={"start"}
-        alignItems={"start"}
+    <Box width={'100%'}>
+      {isLoading && <LoaderOverlay />}
+      <Wrapper
+        ref={wrapperRef}
+        bg="white"
         width="100%"
+        display="flex"
+        position={'relative'}
+        justifyContent="space-between"
+        flexDirection={{ base: 'column', md: 'row' }} // Add this line
+        alignItems="center"
         minH="calc(100vh - 60px)"
       >
-        <Box p="60px" height="100%" width="50%">
-          <Text
-            fontFamily="Inter"
-            fontWeight="500"
-            fontSize="18px"
-            lineHeight="23px"
-            color="#212224"
-            mb={4}
-          >
-            Select a Source
-          </Text>
-          <RadioGroup
-            onChange={(value) => setSource(value as SourceEnum)}
-            value={settings.source}
-          >
-            <HStack align="start" spacing={7}>
-              <Radio value={SourceEnum.DOCUMENT}>
-                <Text color="#585F68">Document</Text>
-              </Radio>
-              <Radio value={SourceEnum.SUBJECT}>
-                <Text color="#585F68">Subject</Text>
-              </Radio>
-              <Radio value={SourceEnum.MANUAL}>
-                <Text color="#585F68">Manual</Text>
-              </Radio>
-            </HStack>
-          </RadioGroup>
-          <Box mt="20px" pr="20px" width="100%">
-            {renderForms()}
-          </Box>
-        </Box>
-
-        <Box
-          position="fixed"
-          top="60px"
-          bottom="0"
-          right="0"
-          borderLeft="1px solid #E7E8E9"
-          width="45%"
-          paddingTop={"20px"}
+        <HStack
+          justifyContent={'start'}
+          alignItems={'start'}
+          width={switchonMobile ? '100%' : 'auto'}
+          display={'flex'}
+          minH="calc(100vh - 60px)"
         >
-          {renderPreview()}
-        </Box>
-      </HStack>
-    </Wrapper>
+          <VStack
+            display={'flex'}
+            justifyContent={'start'}
+            alignItems={'center'}
+            height="100%"
+            flex="1"
+            maxWidth={{ md: `${boxWidth / 2}px`, base: '100%' }}
+            position={'relative'}
+          >
+            {activeBadge !== TypeEnum.MNEOMONIC && (
+              <Box
+                display={'flex'}
+                borderBottom={'1px solid #E7E8E9'}
+                flexDirection={'column'}
+                width={'100%'}
+                padding="30px"
+              >
+                <Box
+                  display={'flex'}
+                  width={'100%'}
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Text
+                    fontFamily="Inter"
+                    fontWeight="500"
+                    fontSize="18px"
+                    lineHeight="23px"
+                    color="#212224"
+                    mb={4}
+                  >
+                    Select a Source
+                  </Text>
+                  <Text
+                    fontFamily="Inter"
+                    fontWeight="500"
+                    fontSize="12px"
+                    lineHeight="23px"
+                    color="#212224"
+                    mb={4}
+                    display={{ base: 'flex', md: 'none' }}
+                    alignItems={{ base: 'center' }}
+                    border={'1px solid #E7E8E9'}
+                    padding="8px"
+                    borderRadius={'10%'}
+                    onClick={onSwitchMobile}
+                  >
+                    View FlashCards & Mnemonics
+                  </Text>
+                </Box>
+
+                <RadioGroup
+                  onChange={(value: SourceEnum) => {
+                    setSource(value as SourceEnum);
+                    if (
+                      value === SourceEnum.SUBJECT &&
+                      settings.source !== SourceEnum.SUBJECT
+                    ) {
+                      goToStep(0);
+                      setFlashcardData((value) => ({
+                        ...value,
+                        hasSubmitted: false
+                      }));
+                    }
+                    if (value === SourceEnum.DOCUMENT) {
+                      handleBadgeClick(TypeEnum.FLASHCARD);
+                    }
+                  }}
+                  value={settings.source}
+                >
+                  <HStack align="start" spacing={7}>
+                    <Radio value={SourceEnum.DOCUMENT}>
+                      <Text color="#585F68">Document</Text>
+                    </Radio>
+                    <Radio value={SourceEnum.SUBJECT}>
+                      <Text color="#585F68">Auto</Text>
+                    </Radio>
+                    <Radio value={SourceEnum.MANUAL}>
+                      <Text color="#585F68">Manual</Text>
+                    </Radio>
+                  </HStack>
+                </RadioGroup>
+              </Box>
+            )}
+            {switchonMobile ? (
+              <Box py="45px" paddingX={'30px'} width={'100%'}>
+                {form}
+              </Box>
+            ) : (
+              <Box py="45px" paddingX={'30px'} width={'100%'}>
+                {renderPreview()}
+              </Box>
+            )}
+          </VStack>
+          {/* Render the right item here */}
+          <VStack
+            borderLeft="1px solid #E7E8E9"
+            top="60px"
+            width={`${boxWidth / 2}px`}
+            maxWidth={`${boxWidth / 2}px`}
+            right="0"
+            bottom={'0'}
+            position={'fixed'}
+            display={{ base: 'none', md: 'flex' }}
+          >
+            {renderPreview()}
+          </VStack>
+        </HStack>
+      </Wrapper>
+    </Box>
   );
 };
 
 const MainWrapper = () => {
   return (
-    <FlashcardDataProvider>
-      <MnemonicSetupProvider>
-        <CreateFlashPage />
-      </MnemonicSetupProvider>
-    </FlashcardDataProvider>
+    <MnemonicSetupProvider>
+      <CreateFlashPage />
+    </MnemonicSetupProvider>
   );
 };
 

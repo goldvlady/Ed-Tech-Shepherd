@@ -1,54 +1,48 @@
-import TutorAvi from "../../assets/tutoravi.svg";
-import { useTitle } from "../../hooks";
-import ApiService from "../../services/ApiService";
-import bookmarkedTutorsStore from "../../state/bookmarkedTutorsStore";
-import TutorCard from "./components/TutorCard";
-import {
-  Box,
-  Flex,
-  SimpleGrid,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-  Text,
-} from "@chakra-ui/react";
-import React, { useCallback, useEffect, useState } from "react";
+import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
+import Pagination from './components/Pagination';
+import TutorCard from './components/TutorCard';
+import { Box, Flex, SimpleGrid, Text } from '@chakra-ui/react';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
+import { useCallback, useEffect, useState } from 'react';
 
 function BookmarkedTutors() {
-  const [loadingData, setLoadingData] = useState(false);
+  const {
+    fetchBookmarkedTutors,
+    tutors: allTutors,
+    pagination
+  } = bookmarkedTutorsStore();
 
-  // const getBookmarkedTutors = async () => {
-  //   setLoadingData(true);
-  //   try {
-  //     const resp = await ApiService.getBookmarkedTutors();
-  //     const data = await resp.json();
-
-  //     setAllTutors(data);
-  //   } catch (e) {}
-  //   setLoadingData(false);
-  // };
-  // useEffect(() => {
-  //   getBookmarkedTutors();
-  // }, []);
-
-  const { fetchBookmarkedTutors, tutors: allTutors } = bookmarkedTutorsStore();
   const doFetchBookmarkedTutors = useCallback(async () => {
     await fetchBookmarkedTutors();
+    /* eslint-disable */
   }, []);
+  // const [pagination, setPagination] = useState<PaginationType>();
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(20);
+  const [count, setCount] = useState<number>(5);
+  const [days, setDays] = useState<Array<any>>([]);
+
+  const handleNextPage = () => {
+    const nextPage = pagination.page + 1;
+    fetchBookmarkedTutors();
+  };
+
+  const handlePreviousPage = () => {
+    const prevPage = pagination.page - 1;
+    fetchBookmarkedTutors();
+  };
 
   useEffect(() => {
     doFetchBookmarkedTutors();
   }, [doFetchBookmarkedTutors]);
 
-  console.log("saved tutors", allTutors);
+  const [tutorGrid] = useAutoAnimate();
 
   return (
     <>
-      <Box p={3} minH={"100vh"}>
-        {" "}
-        <Flex alignItems={"center"} gap={1}>
+      <Box p={3} minH={'100vh'}>
+        {' '}
+        <Flex alignItems={'center'} gap={1}>
           <Box>
             <Text fontSize={24} fontWeight={600} color="text.200" mb={0}>
               Saved Tutors
@@ -59,20 +53,17 @@ function BookmarkedTutors() {
           </Box>
         </Flex>
         <SimpleGrid
-          // minChildWidth="360px"
-          justifyItems={"left"}
-          templateColumns={{ sm: "repeat(1, 1fr)", lg: "repeat(3, 1fr)" }}
-          mt={2}
-          // spacingX="-40px"
-          spacingY="20px"
-          gap={3}
+          columns={{ base: 1, md: 2, lg: 3 }}
+          spacing="20px"
+          ref={tutorGrid}
+          mt={4}
         >
-          {allTutors.map((tutor: any) => (
+          {allTutors?.map((tutor: any) => (
             <TutorCard
               key={tutor.tutor?._id}
               id={tutor.tutor?._id}
               name={`${tutor.tutor.user.name.first} ${tutor.tutor.user.name.last}`}
-              levelOfEducation={"BSC"}
+              levelOfEducation={'BSC'}
               avatar={tutor.tutor.user.avatar}
               saved={true}
               description={tutor.tutor?.description}
@@ -82,6 +73,13 @@ function BookmarkedTutors() {
             />
           ))}
         </SimpleGrid>
+        {/* <Pagination
+          page={pagination.page}
+          count={pagination.total}
+          limit={pagination.limit}
+          handleNextPage={handleNextPage}
+          handlePreviousPage={handlePreviousPage}
+        /> */}
       </Box>
     </>
   );

@@ -1,41 +1,47 @@
-import React, { useState } from "react";
-import { useFlashCardState } from "../../context/flashcard";
-import FlashCardQuestionsPage from "./questions";
-import FlashCardSetupInit from "./init";
-import { Box, Text } from "@chakra-ui/react";
-import StepsIndicator, { Step } from "../../../../../components/StepIndicator";
-import { motion, AnimatePresence } from "framer-motion";
+import StepsIndicator, { Step } from '../../../../../components/StepIndicator';
+import { useFlashcardWizard } from '../../context/flashcard';
+import FlashCardSetupInit from './init';
+import FlashCardQuestionsPage from './questions';
+import { Box, Text } from '@chakra-ui/react';
+import { Tag, TagLabel } from '@chakra-ui/react';
+import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useMemo } from 'react';
 
 const transition = {
   duration: 0.3,
-  ease: "easeInOut",
+  ease: 'easeInOut'
 };
 
 const slideVariants = {
-  hidden: { x: "-100%" },
-  visible: { x: "0%" },
-  exit: { x: "100%" },
+  hidden: { x: '-100%' },
+  visible: { x: '0%' },
+  exit: { x: '100%' }
 };
 
 const SetupFlashcardPage = ({ isAutomated }: { isAutomated?: boolean }) => {
-  const { currentStep } = useFlashCardState();
-  const steps: Step[] = [{ title: "" }, { title: "" }, { title: "" }];
+  const { currentStep } = useFlashcardWizard();
+  const steps: Step[] = [{ title: '' }, { title: '' }, { title: '' }];
+  const formComponents = useMemo(
+    () => [FlashCardSetupInit, FlashCardQuestionsPage],
+    []
+  );
 
-  const forms: (() => JSX.Element)[] = [
-    () => <FlashCardSetupInit isAutomated={isAutomated} />,
-    FlashCardQuestionsPage,
-    // Add other form components for different steps
-  ];
-
-  const Form = forms[currentStep];
+  const CurrentForm = useMemo(
+    () => formComponents[currentStep],
+    [currentStep, formComponents]
+  );
 
   return (
-    <Box>
-      <Text fontSize={"24px"} fontWeight="500" marginBottom="5px">
+    <Box width={'100%'}>
+      <Text fontSize={'24px'} fontWeight="500" marginBottom="5px">
         Set up flashcard
       </Text>
       {!isAutomated && (
-        <StepsIndicator steps={steps} activeStep={currentStep} />
+        <Tag my="10px" borderRadius="5" background="#f7f8fa" size="md">
+          <TagLabel>
+            Step {currentStep + 1} of {steps.length}
+          </TagLabel>
+        </Tag>
       )}
       <AnimatePresence>
         <motion.div
@@ -46,7 +52,7 @@ const SetupFlashcardPage = ({ isAutomated }: { isAutomated?: boolean }) => {
           variants={slideVariants}
           transition={transition}
         >
-          <Form />
+          <CurrentForm isAutomated={isAutomated} />
         </motion.div>
       </AnimatePresence>
     </Box>

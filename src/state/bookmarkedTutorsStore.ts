@@ -1,17 +1,37 @@
-import { create } from 'zustand';
-
 import ApiService from '../services/ApiService';
 import { BookmarkedTutor } from '../types';
+import { create } from 'zustand';
 
 type Store = {
-    tutors: Array<BookmarkedTutor>;
-    fetchBookmarkedTutors: () => Promise<void>;
+  tutors: Array<BookmarkedTutor>;
+  fetchBookmarkedTutors: () => Promise<void>;
+  pagination: { page: number; limit: number; total: number };
 };
 
 export default create<Store>((set) => ({
-    tutors: [],
-    fetchBookmarkedTutors: async () => {
-        const response = await ApiService.getBookmarkedTutors();
-        set({ tutors: await response.json() });
-    },
+  tutors: [],
+  pagination: { page: 0, limit: 0, total: 0 },
+  fetchBookmarkedTutors: async () => {
+    const response = await ApiService.getBookmarkedTutors();
+    const resp = await response.json();
+
+    set({ tutors: resp.data.data, pagination: resp.data.meta.pagination });
+  }
 }));
+// type Store = {
+//   tutors: Array<BookmarkedTutor>;
+//   totalCount: number;
+//   currentPage: number;
+//   fetchBookmarkedTutors: (page: number) => Promise<void>;
+// };
+
+// export default create<Store>((set) => ({
+//   tutors: [],
+//   totalCount: 0,
+//   currentPage: 1,
+//   fetchBookmarkedTutors: async (page: number) => {
+//     const response = await ApiService.getBookmarkedTutors(page);
+//     const { data, count } = await response.json();
+//     set({ tutors: data, totalCount: count, currentPage: page });
+//   },
+// }));

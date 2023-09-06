@@ -1,4 +1,3 @@
-import React, {useState, useEffect} from "react";
 import {
   Box,
   Button,
@@ -9,9 +8,10 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Text,
-} from "@chakra-ui/react";
-import { motion } from "framer-motion";
+  Text
+} from '@chakra-ui/react';
+import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -22,10 +22,10 @@ interface EditProfileModalProps {
   mainText?: string;
   supportingText?: string;
   children?: React.ReactNode;
-  key: string | number
+  key: string | number;
 }
 
-const HAS_SAVED_MEMO = false
+const HAS_SAVED_MEMO = false;
 const EditProfileModal: React.FC<EditProfileModalProps> = ({
   isOpen,
   onClose,
@@ -37,26 +37,27 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   value,
   key
 }) => {
-  const [memoValue, setMemoValue] = useState()
+  const [memoValue, setMemoValue] = useState();
 
   useEffect(() => {
-    setMemoValue(value)
-  }, [key])
-   
+    setMemoValue(value);
+    /* eslint-disable */
+  }, [key]);
+
   const containerVariants = {
     hidden: { opacity: 0, x: -20 },
     visible: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: 20 },
+    exit: { opacity: 0, x: 20 }
   };
 
   const textVariants = {
     hidden: { opacity: 0, y: -20 },
     visible: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: 20 },
+    exit: { opacity: 0, y: 20 }
   };
 
   return (
-    <Modal isOpen={(isOpen && Boolean(children))} onClose={onClose} size="xl">
+    <Modal isOpen={isOpen && Boolean(children)} onClose={onClose} size="xl">
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Edit Profile</ModalHeader>
@@ -66,7 +67,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             initial="hidden"
             animate="visible"
             exit="exit"
-            style={{width: "100%"}}
+            style={{ width: '100%' }}
           >
             <Text
               fontFamily="Inter"
@@ -90,7 +91,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
               fontStyle="normal"
               fontWeight={400}
               width="80%"
-              marginTop={"10px"}
+              marginTop={'10px'}
               fontSize="14px"
               lineHeight="21px"
               color="#585F68"
@@ -106,7 +107,11 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
           </motion.div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="ghost" colorScheme="white" onClick={() => onCancel(memoValue)}>
+          <Button
+            variant="ghost"
+            colorScheme="white"
+            onClick={() => onCancel(memoValue)}
+          >
             Cancel
           </Button>
           <Button onClick={onSave} colorScheme="blue" ml={3}>
