@@ -262,7 +262,7 @@ const Chat = ({
     } else {
       textAreaRef.current.style.borderRadius = '100px'; // Set initial border radius
     }
-  }, [inputValue, HomeWorkHelp]);
+  }, [inputValue]);
 
   return (
     <>
