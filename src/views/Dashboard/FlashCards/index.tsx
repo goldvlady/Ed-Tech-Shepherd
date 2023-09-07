@@ -1,7 +1,10 @@
 import EmptyIllustration from '../../../assets/empty_illustration.svg';
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import DropDownFilter from '../../../components/CustomComponents/DropDownFilter';
+import TagModal from '../../../components/TagModal';
+import { DeleteModal } from '../../../components/deleteModal';
 import LoaderOverlay from '../../../components/loaderOverlay';
+import CustomTabPanel from '../../../components/tabPanel';
 import SelectableTable, { TableColumn } from '../../../components/table';
 import { useSearch } from '../../../hooks';
 import flashcardStore from '../../../state/flashcardStore';
@@ -11,8 +14,6 @@ import {
   SchedulePayload
 } from '../../../types';
 import { Score, MinimizedStudy } from '../../../types';
-import TagModal from './components/TagModal';
-import { DeleteModal } from './components/deleteModal';
 import ScheduleStudyModal, {
   ScheduleFormState
 } from './components/scheduleModal';
@@ -490,21 +491,6 @@ const CustomTable: React.FC = () => {
                     clipRule="evenodd"
                   />
                 </svg>
-
-                {/* <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  width="12"
-                  height="12"
-                >
-                  <path
-                    fillRule="evenodd"
-                    fill="#6E7682"
-                    d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zm13.5 9a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-7.5z"
-                    clipRule="evenodd"
-                  />
-                </svg> */}
               </StyledImage>
 
               <Text
@@ -781,25 +767,6 @@ const CustomTable: React.FC = () => {
 
               <Text marginLeft={'10px'}>Create a Flashcard</Text>
             </Button>
-            {/* <Flex
-            cursor={"pointer"}
-            border="1px solid #E5E6E6"
-            padding="5px 10px"
-            borderRadius={"6px"}
-            alignItems="center"
-          >
-            
-
-            <Text
-              fontWeight="400"
-              fontSize="14px"
-              marginRight={"5px"}
-              color="#5E6164"
-            >
-              All Time
-            </Text>
-            <FaCalendarAlt color="#96999C" size="12px" />
-          </Flex> */}
           </Flex>
 
           <Stack

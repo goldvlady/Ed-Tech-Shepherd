@@ -1,3 +1,4 @@
+import { useCustomToast } from '../../../../../components/CustomComponents/CustomToast/useCustomToast';
 import { useFlashcardWizard, FlashcardQuestion } from '../../context/flashcard';
 import { HStack, Textarea } from '@chakra-ui/react';
 import {
@@ -10,18 +11,43 @@ import {
   Text
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FiChevronRight } from 'react-icons/fi';
 
 const FlashCardQuestionsPage = () => {
   const {
     flashcardData,
     goToNextStep,
+    saveFlashcardData,
     setQuestions,
     goToQuestion,
     currentQuestionIndex,
     questions
   } = useFlashcardWizard();
+
+  const toast = useCustomToast();
+
+  const questionTextareaRef = React.useRef<HTMLTextAreaElement | null>(null);
+  const answerTextRef = React.useRef<HTMLTextAreaElement | null>(null);
+
+  // Set the initial height of the Textarea
+  const [textareaHeight, setTextareaHeight] = useState('auto');
+  // Set the initial height of the Textarea
+  const [textareaAnswerHeight, setAnswerTextHeight] = useState('auto');
+
+  useEffect(() => {
+    if (questionTextareaRef.current) {
+      const scrollHeight = questionTextareaRef.current.scrollHeight;
+      setTextareaHeight(`${scrollHeight + 20}px`); // Add 20px to the content height
+    }
+  }, [currentQuestionIndex]); // Adjust height when the question changes
+
+  useEffect(() => {
+    if (answerTextRef.current) {
+      const scrollHeight = answerTextRef.current.scrollHeight;
+      setAnswerTextHeight(`${scrollHeight + 20}px`); // Add 20px to the content height
+    }
+  }, [currentQuestionIndex]); // Adjust height when the question changes
 
   const [currentQuestion, setCurrentQuestion] = useState<FlashcardQuestion>({
     questionType: '',
@@ -30,10 +56,27 @@ const FlashCardQuestionsPage = () => {
     answer: ''
   });
 
+  const handleDone = (success: boolean) => {
+    toast({
+      title: success
+        ? 'Flashcard questions generated successfully'
+        : 'Failed to generate flashcard questions',
+      position: 'top-right',
+      status: success ? 'success' : 'error',
+      isClosable: true
+    });
+  };
+
   const questionVariants = {
     hidden: { x: '-100vw' },
-    visible: { x: 0, transition: { type: 'spring', stiffness: 120 } },
-    exit: { x: '100vw', transition: { ease: 'easeInOut' } }
+    visible: {
+      x: 0,
+      transition: { type: 'spring', stiffness: 120, when: 'beforeChildren' }
+    },
+    exit: {
+      x: '100vw',
+      transition: { ease: 'easeInOut', when: 'afterChildren' }
+    }
   };
 
   const answerVariants = {
@@ -99,6 +142,7 @@ const FlashCardQuestionsPage = () => {
     <Box width={'100%'} mt="40px">
       <motion.div
         variants={questionVariants}
+        key={currentQuestionIndex}
         initial="hidden"
         animate="visible"
         exit="exit"
@@ -145,6 +189,8 @@ const FlashCardQuestionsPage = () => {
           <Textarea
             _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
             name="question"
+            ref={questionTextareaRef}
+            height={textareaHeight}
             placeholder="Enter your question here"
             value={currentQuestion.question}
             onChange={handleChange}
@@ -168,12 +214,7 @@ const FlashCardQuestionsPage = () => {
               </FormControl>
             ))}
         </>
-        <motion.div
-          variants={answerVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-        >
+        <motion.div initial="hidden" animate="visible" exit="exit">
           {currentQuestion.questionType && (
             <FormControl mb={4}>
               <FormLabel>Answer:</FormLabel>
@@ -206,6 +247,8 @@ const FlashCardQuestionsPage = () => {
                 <Textarea
                   _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
                   name="answer"
+                  ref={questionTextareaRef}
+                  height={textareaAnswerHeight}
                   placeholder="Select answer"
                   value={currentQuestion.answer}
                   onChange={handleChange}
@@ -250,11 +293,15 @@ const FlashCardQuestionsPage = () => {
             variant="solid"
             colorScheme="primary"
             onClick={() => {
-              handleQuestionSubmit();
+              currentQuestionIndex !== questions.length - 1
+                ? handleQuestionSubmit()
+                : saveFlashcardData(handleDone);
             }}
             ml={5}
           >
-            Next Question
+            {currentQuestionIndex !== questions.length - 1
+              ? ' Next Question'
+              : 'Save'}
           </Button>
           )
         </HStack>

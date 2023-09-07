@@ -6,16 +6,14 @@ type PaginationProps = {
   page: number;
   limit: number;
   count: number;
-  handlePreviousPage: () => void;
-  handleNextPage: () => void;
+  handlePagination?: (page: number) => void; // Callback when a page is changed
 };
 
 const Pagination: React.FC<PaginationProps> = ({
   page,
   limit,
   count,
-  handlePreviousPage,
-  handleNextPage
+  handlePagination
 }) => {
   const totalPages = Math.ceil(count / limit);
   const startIndex = (page - 1) * limit + 1;
@@ -32,7 +30,7 @@ const Pagination: React.FC<PaginationProps> = ({
         </Text>
         <IconButton
           icon={<RiArrowLeftSLine />}
-          onClick={handlePreviousPage}
+          onClick={() => handlePagination && handlePagination(page - 1)}
           isDisabled={isOnFirstPage}
           color={isOnFirstPage ? '#CACCCE' : 'text.300'}
           border="1px solid #EFEFF0"
@@ -41,7 +39,7 @@ const Pagination: React.FC<PaginationProps> = ({
         />
         <IconButton
           icon={<RiArrowRightSLine />}
-          onClick={handleNextPage}
+          onClick={() => handlePagination && handlePagination(page + 1)}
           isDisabled={isOnLastPage}
           color={isOnLastPage ? '#CACCCE' : 'text.300'}
           border="1px solid #EFEFF0"

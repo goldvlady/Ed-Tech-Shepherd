@@ -588,8 +588,7 @@ export default function Marketplace() {
                 page={pagination ? pagination.page : 0}
                 count={pagination ? pagination.count : 0}
                 limit={pagination ? pagination.limit : 0}
-                handleNextPage={handleNextPage}
-                handlePreviousPage={handlePreviousPage}
+                handlePagination={(nextPage) => setPage(nextPage)}
               />
             </>
           ) : (

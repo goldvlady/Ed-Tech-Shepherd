@@ -40,14 +40,8 @@ function MyTutors() {
 
   // const [pagination, setPagination] = useState<PaginationType>();
 
-  const handleNextPage = () => {
-    const nextPage = pagination.page + 1;
+  const handlePagination = (nextPage: number) => {
     fetchOffers(nextPage, limit, 'student');
-  };
-
-  const handlePreviousPage = () => {
-    const prevPage = pagination.page - 1;
-    fetchOffers(prevPage, limit, 'student');
   };
 
   const [tutorGrid] = useAutoAnimate();
@@ -114,8 +108,7 @@ function MyTutors() {
                     page={pagination.page}
                     count={pagination.total}
                     limit={pagination.limit}
-                    handleNextPage={handleNextPage}
-                    handlePreviousPage={handlePreviousPage}
+                    handlePagination={handlePagination}
                   />
                 </>
               ) : (
@@ -156,8 +149,7 @@ function MyTutors() {
                     page={pagination.page}
                     count={pagination.total}
                     limit={pagination.limit}
-                    handleNextPage={handleNextPage}
-                    handlePreviousPage={handlePreviousPage}
+                    handlePagination={handlePagination}
                   />
                 </>
               ) : (

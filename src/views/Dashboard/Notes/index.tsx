@@ -1,439 +1,784 @@
-import { ReactComponent as DocIcon } from '../../../assets/doc.svg';
-import { ReactComponent as NewNoteIcon } from '../../../assets/newnote.svg';
-import { AllNotesTab, SelectedNoteModal } from '../../../components';
-import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMenu';
-import CustomTabs from '../../../components/CustomComponents/CustomTabs';
-import DropdownFilter from '../../../components/CustomComponents/DropDownFilter';
-import AllTab from '../../../components/allTab/allTab';
-import AllDocumentTab from '../../../components/documentTab/allDocument';
+import EmptyIllustration from '../../../assets/empty_illustration.svg';
+import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
+import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
+import DropDownFilter from '../../../components/CustomComponents/DropDownFilter';
+import DocumentCard from '../../../components/DocumentCard';
+import TagModal from '../../../components/TagModal';
+import UploadModal from '../../../components/UploadModal';
+import { DeleteModal } from '../../../components/deleteModal';
 import LoaderOverlay from '../../../components/loaderOverlay';
-import ApiService from '../../../services/ApiService';
-import userStore from '../../../state/userStore';
+import CustomTabPanel from '../../../components/tabPanel';
+import uploadFile from '../../../helpers/file.helpers';
+import FileProcessingService from '../../../helpers/files.helpers/fileProcessing';
+import { useSearch } from '../../../hooks';
+import documentStore from '../../../state/documentStore';
+import flashcardStore from '../../../state/flashcardStore';
+import noteStore from '../../../state/noteStore';
+import { NoteDetails, StudentDocument } from '../../../types';
+import { useFlashcardWizard } from '../FlashCards/context/flashcard';
+import SetupFlashcardPage from '../FlashCards/forms/flashcard_setup';
+import Pagination from '../components/Pagination';
+import ActionDropdown from './components/actionButton';
 import {
-  Checkbox,
-  CheckboxContainer,
-  Header,
-  NewList,
-  NotesWrapper,
-  SearchInput,
-  Section,
-  SectionNewList,
-  StyledHeader,
-  StyledSection
-} from './styles';
-import { NoteDetails, NoteServerResponse, SortOrder } from './types';
-import { AddIcon } from '@chakra-ui/icons';
-import { Button, IconButton, Text } from '@chakra-ui/react';
-import { Stack } from '@chakra-ui/react';
-import { Flex, Box } from '@chakra-ui/react';
-import { useCallback, useEffect, useState } from 'react';
+  SimpleGrid,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Tab,
+  Text,
+  Flex,
+  Button,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  MenuItem,
+  MenuList,
+  MenuButton,
+  Tag,
+  TagLabel,
+  Box,
+  Image,
+  Stack,
+  Menu,
+  Center
+} from '@chakra-ui/react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { BsSearch } from 'react-icons/bs';
 import { FaCalendarAlt } from 'react-icons/fa';
-import { FaFilter as FilterIcon, FaSearch as SearchIcon } from 'react-icons/fa';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 
-const tagFilters = [
-  {
-    id: 1,
-    value: 'Chemistry',
-    checked: false
-  },
-  {
-    id: 2,
-    value: 'Physics',
-    checked: false
-  },
-  {
-    id: 3,
-    value: 'Biology',
-    checked: false
-  },
-  {
-    id: 4,
-    value: 'English',
-    checked: false
-  }
-];
+const StyledImage = styled(Box)`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  border-radius: 50%;
+  height: 26px;
+  width: 26px;
+  border: 0.6px solid #eaeaeb;
+  box-shadow: 0 2px 10px rgba(63, 81, 94, 0.1);
+`;
 
-const sortedByDate = [
-  {
-    id: 1,
-    title: 'By date',
-    firstValue: { label: 'Recently created', order: SortOrder.DESC },
-    secondValue: { label: 'Recently modified', order: SortOrder.ASC }
-  }
-];
+const YourFlashCardIcon = () => (
+  <StyledImage marginRight="10px">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width="10"
+      height="14"
+    >
+      <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+    </svg>
+  </StyledImage>
+);
 
-const sortedByTitle = [
-  {
-    id: 2,
-    title: 'By title',
-    firstValue: { label: 'A -> Z', order: SortOrder.ASC },
-    secondValue: { label: 'Z -> A', order: SortOrder.DESC }
-  }
-];
+// YourEditTagsIcon.jsx
+const YourEditTagsIcon = () => (
+  <StyledImage marginRight="10px">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+    >
+      <path
+        fillRule="evenodd"
+        fill="#6E7682"
+        d="M5.25 2.25a3 3 0 00-3 3v4.318a3 3 0 00.879 2.121l9.58 9.581c.92.92 2.39 1.186 3.548.428a18.849 18.849 0 005.441-5.44c.758-1.16.492-2.629-.428-3.548l-9.58-9.581a3 3 0 00-2.122-.879H5.25zM6.375 7.5a1.125 1.125 0 100-2.25 1.125 1.125 0 000 2.25z"
+      />
+    </svg>
+  </StyledImage>
+);
 
-const Notes = () => {
+// YourDeleteIcon.jsx
+const YourDeleteIcon = () => (
+  <StyledImage marginRight="10px">
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M3.08317 2.50033V0.750326C3.08317 0.428162 3.34434 0.166992 3.6665 0.166992H8.33317C8.65535 0.166992 8.9165 0.428162 8.9165 0.750326V2.50033H11.8332V3.66699H10.6665V11.2503C10.6665 11.5725 10.4053 11.8337 10.0832 11.8337H1.9165C1.59434 11.8337 1.33317 11.5725 1.33317 11.2503V3.66699H0.166504V2.50033H3.08317ZM4.24984 1.33366V2.50033H7.74984V1.33366H4.24984Z"
+        fill="#F53535"
+      />
+    </svg>
+  </StyledImage>
+);
+
+const NotesDirectory: React.FC = () => {
   const navigate = useNavigate();
-  const [toggleHelpModal, setToggleHelpModal] = useState(false);
-  const [allNotes, setAllNotes] = useState<Array<NoteDetails>>([]);
-  const [pagination, setPagination] = useState<{ page: number; total: number }>(
-    { page: 1, total: 10 }
+
+  const toast = useCustomToast();
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const [openUploadModal, setOpenUploadModal] = useState(false);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<Array<string | number>>([]);
+  const [activeTab, setActiveTab] = useState<'notes' | 'files'>('notes');
+  const { fetchFlashcards } = flashcardStore();
+  const { setFlashcardData, resetFlashcard } = useFlashcardWizard();
+
+  const {
+    fetchNotes,
+    pagination: notesPagination,
+    storeNoteTags,
+    isLoading: notesIsLoading,
+    deleteNote,
+    notes,
+    tags: noteTags
+  } = noteStore();
+
+  const {
+    fetchStudentDocuments,
+    pagination: docsPagination,
+    storeDocumentTags,
+    isLoading: docsIsLoading,
+    deleteStudentDocument,
+    studentDocuments,
+    tags: docTags,
+    saveDocument
+  } = documentStore();
+
+  const actionFunc = useCallback(
+    (query: string) => {
+      if (!hasSearched) setHasSearched(true);
+      fetchNotes({ search: query });
+    },
+    [fetchNotes, hasSearched]
   );
-  const [showLoader, setShowLoader] = useState(true);
-  const [sortOrder] = useState<SortOrder>(SortOrder.ASC);
-  const [checkedState, setCheckedState] = useState(
-    new Array(tagFilters.length).fill(false)
-  );
-  const [notesLoaded, setNotesLoaded] = useState(false);
-  const [selectedTags, setSelectedTags] = useState<any[]>([]);
-  const [sortedNotes, setSortedNotes] = useState(allNotes);
 
-  const [sortedCombinedData, setSortedCombinedData] = useState(allNotes);
+  const handleSearch = useSearch(actionFunc);
 
-  const { userDocuments } = userStore();
-  const combinedData: any = [...allNotes, ...userDocuments];
+  const [selectedContent, setSelectedContent] = useState<Array<string>>([]);
 
-  const handleTagSelection = (tagElement: string | string[]) => {
-    let newTags: string[] = [];
-
-    // Check if tagElement is a string or an array and convert to lower case
-    if (!Array.isArray(tagElement)) {
-      newTags = [tagElement];
-    }
-    // Filter out tags that are already selected
-    newTags = newTags.filter((tag) => !selectedTags.includes(tag));
-
-    // Remove selected tags that are in the newTags list
-    const filteredSelectedTags = selectedTags.filter(
-      (tag) => !newTags.includes(tag)
-    );
-
-    // Merge the old and new tag lists, while removing duplicates
-    const updatedTags = Array.from(
-      new Set([...filteredSelectedTags, ...newTags])
-    );
-
-    // Update the selected tags
-    setSelectedTags(updatedTags);
-  };
-
-  const handleClearCombinedDataFilter = () => {
-    setSortedCombinedData(combinedData);
-    setSortedNotes(allNotes);
-    setSelectedTags([]);
-  };
-
-  const HandleCheckboxChange = (index) => {
-    const selectedTag = tagFilters[index].value;
-    handleTagSelection(selectedTag);
-  };
-
-  const getNotes = useCallback(async () => {
-    try {
-      const resp = await ApiService.getAllNotes();
-      const respText = await resp.text();
-      const respDetails: NoteServerResponse<{
-        data: Array<NoteDetails>;
-        meta: { pagination: { total: number; page: number } };
-      }> = JSON.parse(respText);
-
-      if (respDetails.data) {
-        setAllNotes(respDetails.data.data);
-        setPagination(respDetails.data?.meta?.pagination);
+  const handleSelectChange = (id: string, checked: boolean) => {
+    setSelectedContent((prevselectedContent) => {
+      if (checked) {
+        return [...prevselectedContent, id];
+      } else {
+        return prevselectedContent.filter((existingId) => existingId !== id);
       }
-    } catch (error: any) {
-      // Handle the error appropriately, e.g., show an error message
-    }
-  }, []);
-
-  const activateHelpModal = () => {
-    setToggleHelpModal(true);
-  };
-
-  const orderBy = (order: SortOrder, sortBy = 'createdAt') => {
-    if (order === SortOrder.ASC) {
-      const notes = [...allNotes].sort((a: any, b: any) => {
-        const aDate = new Date(a[sortBy]);
-        const bDate = new Date(b[sortBy]);
-        if (aDate instanceof Date && bDate instanceof Date) {
-          return aDate.getTime() - bDate.getTime();
-        } else {
-          // use textual check
-          return a.topic.localeCompare(b.topic);
-        }
-      });
-      setAllNotes(notes);
-    } else {
-      const notes = [...allNotes].sort((a: any, b: any) => {
-        const aDate = new Date(a[sortBy]);
-        const bDate = new Date(b[sortBy]);
-        if (aDate instanceof Date && bDate instanceof Date) {
-          return bDate.getTime() - aDate.getTime();
-        } else {
-          // use textual check
-          return b.topic.localeCompare(a.topic);
-        }
-      });
-      setAllNotes(notes);
-    }
-  };
-
-  const createNewLists = [
-    {
-      id: 1,
-      iconName: <NewNoteIcon />,
-      labelText: 'New note',
-      onClick: () => navigate('/dashboard/new-note')
-    },
-    {
-      id: 2,
-      iconName: <DocIcon />,
-      labelText: 'Upload document',
-      onClick: activateHelpModal
-    }
-  ];
-
-  const tabLists = [
-    {
-      id: 1,
-      title: 'All'
-    },
-    {
-      id: 2,
-      title: 'Documents'
-    },
-    {
-      id: 3,
-      title: 'Notes'
-    }
-  ];
-
-  const tabPanel = [
-    {
-      id: 1,
-      component: (
-        <AllTab
-          data={sortedCombinedData}
-          getNotes={getNotes}
-          handleTagSelection={handleTagSelection}
-        />
-      )
-    },
-    {
-      id: 2,
-      component: (
-        <AllDocumentTab
-          data={userDocuments}
-          handleTagSelection={handleTagSelection}
-        />
-      )
-    },
-    {
-      id: 3,
-      component: (
-        <AllNotesTab
-          data={sortedNotes}
-          getNotes={getNotes}
-          handleTagSelection={handleTagSelection}
-        />
-      )
-    }
-  ];
-
-  const FilterMenu = () => {
-    return (
-      <Stack
-        direction={{ base: 'column', md: 'row' }}
-        width="95%"
-        mb={{ base: '20px', md: '40px' }}
-        alignItems="center"
-        justifyContent="space-between"
-        pr={{ md: '20px', base: '0' }}
-        spacing={4}
-      >
-        <Flex alignItems="center">
-          <StyledHeader>
-            <span className="font-bold">My Documents</span>
-            <span className="count-badge">{combinedData.length}</span>
-          </StyledHeader>
-        </Flex>
-
-        <Flex
-          direction={{ base: 'column', md: 'row' }}
-          alignItems={{ base: 'flex-start', md: 'center' }}
-          width={{ base: '100%', md: 'auto' }}
-        >
-          <DropdownFilter
-            selectedItems={selectedTags}
-            multi
-            style={{ marginRight: '20px' }}
-            filterLabel="Filter By Tags"
-            onSelectionChange={(item) => {
-              handleTagSelection(item as string);
-            }}
-            items={tagFilters.map((tag) => ({
-              id: tag.value,
-              value: tag.value
-            }))}
-          />
-
-          <Box marginLeft={'1.5em'}>
-            <DropdownMenu
-              menuTitle="Sort by"
-              iconPlacement="after"
-              DropdownMenuIcon={<FaCalendarAlt color="#96999C" size="12px" />}
-            >
-              <>
-                {
-                  sortedByDate?.map((sorted: any) => (
-                    <StyledSection key={sorted.id}>
-                      <div>
-                        <Text className="text-label">{sorted.title}</Text>
-
-                        <Text
-                          onClick={() => orderBy(sorted.firstValue.order)}
-                          className="text-value"
-                        >
-                          {sorted.firstValue.label}
-                        </Text>
-
-                        <Text
-                          onClick={() => orderBy(sorted.secondValue.order)}
-                          className="text-value"
-                        >
-                          {sorted.secondValue.label}
-                        </Text>
-                      </div>
-                    </StyledSection>
-                  ))[0]
-                }
-                {
-                  sortedByTitle?.map((sorted: any) => (
-                    <StyledSection key={sorted.id}>
-                      <div>
-                        <Text className="text-label">{sorted.title}</Text>
-                        <div>
-                          <Text
-                            onClick={() =>
-                              orderBy(sorted.secondValue.order, 'topic')
-                            }
-                            className="text-value"
-                          >
-                            {sorted.firstValue.label}
-                          </Text>
-                          <Text
-                            onClick={() =>
-                              orderBy(sorted.secondValue.order, 'topic')
-                            }
-                            className="text-value"
-                          >
-                            {sorted.secondValue.label}
-                          </Text>
-                        </div>
-                      </div>
-                    </StyledSection>
-                  ))[1]
-                }
-              </>
-            </DropdownMenu>
-          </Box>
-
-          <Box marginLeft={'1.5em'}>
-            <DropdownMenu
-              isCreateNew
-              isWidth
-              iconPlacement="before"
-              DropdownMenuIcon={<AddIcon fontWeight="700" marginRight="10px" />}
-              menuTitle="Create new"
-            >
-              {createNewLists?.map((createNewList) => (
-                <SectionNewList key={createNewList.id}>
-                  <NewList onClick={createNewList.onClick}>
-                    {createNewList.iconName}
-                    <p>{createNewList.labelText}</p>
-                  </NewList>
-                </SectionNewList>
-              ))}
-            </DropdownMenu>
-          </Box>
-        </Flex>
-      </Stack>
-    );
-  };
-
-  //  load all notes when page is loaded
-  useEffect(() => {
-    getNotes().then(() => {
-      setNotesLoaded(true);
     });
-  }, []);
+  };
 
-  // Handle sorting of notes and document based on selected tags
-  useEffect(() => {
-    if (selectedTags.length === 0) {
-      setSortedCombinedData(combinedData);
+  const fetchItems = activeTab === 'notes' ? fetchNotes : fetchStudentDocuments;
+  const pagination = activeTab === 'notes' ? notesPagination : docsPagination;
+
+  const isLoading =
+    activeTab === 'notes' ? notesIsLoading : docsIsLoading || loading;
+  const [openSideModal, setOpenSideModal] = useState(false);
+  const storeTags = activeTab === 'notes' ? storeNoteTags : storeDocumentTags;
+  // const deleteItem = activeTab === 'notes' ? deleteNote : deleteStudentDocument;
+  const items = activeTab === 'notes' ? notes : studentDocuments;
+  const tags = activeTab === 'notes' ? noteTags : docTags;
+
+  const isAllSelected = useMemo(() => {
+    if (activeTab === 'notes') {
+      return notes.every((note) => selectedContent.includes(note._id));
     } else {
-      const sorted = combinedData.filter((note) => {
-        const tags = note.tags || [];
-        const matchingTags = tags.filter((tag) =>
-          selectedTags.includes(tag.toLowerCase())
-        );
-        return matchingTags.length > 0;
-      });
-      setSortedCombinedData(sorted);
+      return studentDocuments.every((document) =>
+        selectedContent.includes(document._id)
+      );
     }
-  }, [selectedTags, allNotes, userDocuments]);
+  }, [notes, selectedContent, studentDocuments, activeTab]);
 
-  // Handle sorting of notes based on selected tags
-  useEffect(() => {
-    if (selectedTags.length === 0) {
-      setSortedNotes(allNotes);
-    } else {
-      const sorted = allNotes.filter((note) => {
-        const tags = note.tags || [];
-        const matchingTags = tags.filter((tag) =>
-          selectedTags.includes(tag.toLowerCase())
-        );
-        return matchingTags.length > 0;
+  const gotoEditNote = (note: NoteDetails) => {
+    const noteURL = `/dashboard/new-note/${note._id}`;
+    navigate(noteURL);
+  };
+
+  const gotoEditPdf = async (document: StudentDocument) => {
+    const { title, documentUrl } = document;
+    try {
+      navigate(`/dashboard/new-note`, {
+        state: {
+          documentUrl,
+          docTitle: title
+        }
       });
-      setSortedNotes(sorted);
+    } catch (error) {
+      // console.log({ error });
     }
-  }, [selectedTags, allNotes]);
+  };
+
+  const [deleteItem, setDeleteItem] = useState<{
+    note?: NoteDetails;
+    document?: StudentDocument; // New field for Document details
+    ids?: string[];
+    currentDeleteType: 'single' | 'multiple';
+  } | null>(null);
+
+  const [tagEditItem, setTagEditItem] = useState<{
+    note?: NoteDetails;
+    document?: StudentDocument; // New field for Document details
+    ids?: string[];
+  } | null>(null);
 
   useEffect(() => {
-    const loaderTimer = setTimeout(() => {
-      setShowLoader(false);
-    }, 2000);
-
-    // Ensure that the loader stays visible for at least 3000 milliseconds to ensure both the
-    // get-notes and sorted-notes array are available
-    const minLoaderDisplayTime = 3000; // Adjust as needed
-    const minLoaderTimer = setTimeout(() => {
-      setShowLoader(false);
-    }, minLoaderDisplayTime);
-
     return () => {
-      clearTimeout(loaderTimer);
-      clearTimeout(minLoaderTimer);
+      resetFlashcard();
     };
+  }, [resetFlashcard]);
+
+  useEffect(() => {
+    fetchStudentDocuments({ page: 1, limit: 20 }); // Replace with your actual fetchStudentDocuments function
+    fetchNotes({ page: 1, limit: 20 });
   }, []);
 
-  if (showLoader) {
-    return <LoaderOverlay />;
-  }
+  const ingestDocument = async (document: StudentDocument) => {
+    try {
+      setLoading(true);
+      if (document.ingestId) {
+        navigate('/dashboard/docchat', {
+          state: {
+            documentUrl: document.documentUrl,
+            docTitle: document.title,
+            documentId: document.ingestId
+          }
+        });
+      } else {
+        const fileProcessor = new FileProcessingService(document, true);
+        const processData = await fileProcessor.process();
 
-  const NoteView = () => {
-    if (!notesLoaded) {
-      return <LoaderOverlay />;
+        const {
+          data: [{ documentId }]
+        } = processData;
+
+        navigate('/dashboard/docchat', {
+          state: {
+            documentUrl: document.documentUrl,
+            docTitle: document.title,
+            documentId
+          }
+        });
+      }
+    } catch (error) {
+      toast({ title: 'Failed to load document', status: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const options = (note: NoteDetails) => [
+    {
+      label: 'Generate flashcard',
+      onClick: () => {
+        resetFlashcard();
+        setFlashcardData((prev) => ({
+          ...prev,
+          noteDoc: note.note
+        }));
+        setOpenSideModal(true);
+      },
+      icon: <YourFlashCardIcon />
+    },
+    {
+      label: 'Edit Tags',
+      onClick: () => setTagEditItem({ note }),
+      icon: <YourEditTagsIcon />
+    },
+    {
+      label: 'Delete',
+      onClick: () => setDeleteItem({ note, currentDeleteType: 'single' }),
+      color: '#F53535',
+      icon: <YourDeleteIcon />
+    }
+  ];
+
+  const documentOptions = (studentDocument: StudentDocument) => [
+    {
+      label: 'Flashcard',
+      onClick: () => {
+        resetFlashcard();
+        setFlashcardData((prev) => ({
+          ...prev,
+          ingestId: studentDocument.ingestId,
+          documentId: studentDocument.documentUrl
+        }));
+        setOpenSideModal(true);
+      },
+      icon: <YourFlashCardIcon />
+    },
+    {
+      label: 'Edit Tags',
+      onClick: () => setTagEditItem({ document: studentDocument }),
+      icon: <YourEditTagsIcon />
+    },
+    {
+      label: 'Open in DocChat',
+      onClick: () => ingestDocument(studentDocument),
+      icon: <YourEditTagsIcon />
+    },
+    {
+      label: 'Delete',
+      onClick: () =>
+        setDeleteItem({
+          document: studentDocument,
+          currentDeleteType: 'single'
+        }),
+      color: '#F53535',
+      icon: <YourDeleteIcon />
+    }
+  ];
+
+  const handleTagClick = (tag: string) => {
+    setSelectedTags([tag]);
+    fetchNotes({ tags: tag });
+  };
+
+  const onTagSubmit = async (tags: string[]) => {
+    const ids =
+      tagEditItem?.ids ||
+      ((activeTab === 'notes'
+        ? tagEditItem?.note?._id
+        : tagEditItem?.document?._id) as string);
+
+    const isSaved = await storeTags(ids, tags); // Using storeTags based on activeTab
+
+    if (isSaved) {
+      toast({
+        position: 'top-right',
+        title: `Tags Added for ${
+          tagEditItem?.note?.topic || tagEditItem?.document?.title || 'Item'
+        }`,
+        status: 'success'
+      });
+      setTagEditItem(null);
     } else {
-      return (
-        <>
-          {combinedData.length > 0 ? (
-            <NotesWrapper>
-              <header className="flex my-4 justify-between">
-                <FilterMenu />
-              </header>
-              {selectedTags.length >= 1 && (
+      toast({
+        position: 'top-right',
+        title: `Failed to add tags for ${
+          tagEditItem?.note?.topic || tagEditItem?.document?.title || 'Item'
+        }`,
+        status: 'error'
+      });
+    }
+  };
+
+  const editableTags = useMemo(() => {
+    if (activeTab === 'notes') return tagEditItem?.note?.tags || [];
+    return tagEditItem?.document?.tags || [];
+  }, [activeTab, tagEditItem]);
+
+  const onTagDelete = async () => {
+    // Generate the ID or IDs to delete based on whether you are in 'notes' or 'documents' tab
+    const id =
+      deleteItem?.ids?.join(',') ||
+      ((activeTab === 'notes'
+        ? deleteItem?.note?._id
+        : deleteItem?.document?._id) as string);
+
+    // Assume you have a deleteItem function that works for documents, similar to deleteNote for notes
+    const deleteFunc =
+      activeTab === 'notes' ? deleteNote : deleteStudentDocument;
+
+    const isDeleted = await deleteFunc(id);
+
+    if (isDeleted) {
+      toast({
+        position: 'top-right',
+        title: `${
+          deleteItem?.note?.topic || deleteItem?.document?.title
+        } deleted successfully`,
+        status: 'success'
+      });
+      setDeleteItem(null);
+    } else {
+      toast({
+        position: 'top-right',
+        title: `Failed to delete ${
+          deleteItem?.note?.topic || deleteItem?.document?.title
+        }`,
+        status: 'error'
+      });
+    }
+  };
+
+  const onSelectionChange = (item: string | number | (string | number)[]) => {
+    const tags = Array.isArray(item) ? item.join(',') : (item as string);
+
+    const query: { [key: string]: any } = {};
+    if (tags || tags.length) {
+      query.tags = tags;
+    }
+    fetchItems(query);
+  };
+
+  return (
+    <>
+      {isLoading && <LoaderOverlay />}
+      {(tagEditItem?.note || tagEditItem?.document || tagEditItem?.ids) && (
+        <TagModal
+          tags={editableTags}
+          onSubmit={onTagSubmit}
+          onClose={() => setTagEditItem(null)}
+          isOpen={Boolean(tagEditItem)}
+        />
+      )}
+
+      <UploadModal
+        isOpen={openUploadModal}
+        onClose={() => setOpenUploadModal(false)}
+        accept="application/pdf"
+        isLoading={isUploadingFile}
+        onUpload={(file) => {
+          const uploadEmitter = uploadFile(file);
+          uploadEmitter.on('progress', (progress: number) => {
+            if (!isUploadingFile) {
+              setIsUploadingFile(true);
+            }
+          });
+          uploadEmitter.on('complete', async (documentUrl: string) => {
+            try {
+              const title = decodeURIComponent(
+                (documentUrl.match(/\/([^/]+)(?=\.\w+\?)/) || [])[1] || ''
+              ).replace('uploads/', '');
+
+              const response = await saveDocument({ title, documentUrl });
+              if (response) {
+                setOpenUploadModal(false);
+                toast({
+                  title: 'Document saved',
+                  status: 'success',
+                  position: 'top-right'
+                });
+              } else {
+                toast({
+                  title: 'Failed to save document',
+                  status: 'error',
+                  position: 'top-right'
+                });
+              }
+              setIsUploadingFile(false);
+            } catch (error) {
+              toast({
+                title: 'Failed to save document',
+                status: 'error',
+                position: 'top-right'
+              });
+            } finally {
+              setIsUploadingFile(false);
+            }
+          });
+          uploadEmitter.on('error', (error) => {
+            toast({
+              title: 'Failed to save document',
+              status: 'error',
+              position: 'top-right'
+            });
+            setIsUploadingFile(false);
+          });
+        }}
+      />
+
+      <CustomSideModal
+        onClose={() => {
+          resetFlashcard();
+          setOpenSideModal(false);
+        }}
+        isOpen={openSideModal}
+      >
+        <div style={{ margin: '3rem 0', overflowY: 'auto' }}>
+          <SetupFlashcardPage isAutomated />
+        </div>
+      </CustomSideModal>
+
+      <DeleteModal
+        entity={activeTab === 'notes' ? 'note' : 'document'} // Set entity based on activeTab
+        isLoading={isLoading}
+        isOpen={Boolean(deleteItem)}
+        onCancel={() => setDeleteItem(null)}
+        onDelete={() => onTagDelete()}
+        onClose={() => null}
+      />
+      {!notes?.length && !hasSearched && !isLoading ? (
+        <Box
+          background={'#F8F9FB'}
+          display={'flex'}
+          flexDirection={'column'}
+          justifyContent={'start'}
+          height={'calc(100vh - 80px)'}
+        >
+          <Flex
+            width="100%"
+            alignItems="center"
+            justifyContent="space-between"
+            color="#E5E6E6"
+            pt={{ base: '10px', md: '20px' }}
+            pl={{ base: '10px', md: '20px' }}
+          >
+            <Text
+              fontFamily="Inter"
+              fontWeight="600"
+              fontSize={{ base: '18px', md: '24px' }}
+              lineHeight="30px"
+              letterSpacing="-2%"
+              color="#212224"
+            >
+              My Notes
+            </Text>
+          </Flex>
+          <Box
+            width={'100%'}
+            display={'flex'}
+            height="100%"
+            justifyContent={'center'}
+            flexDirection={'column'}
+            alignItems={'center'}
+          >
+            <Image src={EmptyIllustration} />
+            <Text
+              color="text.300"
+              fontFamily="Inter"
+              fontSize="16px"
+              fontStyle="normal"
+              fontWeight="500"
+              lineHeight="21px"
+              letterSpacing="0.112px"
+            >
+              You don’t have any documents yet!
+            </Text>
+            <Button
+              variant="solid"
+              mt={{ base: '10px', md: '20px' }}
+              width={{ base: '100%', sm: '80%', md: '300px' }}
+              borderRadius={'8px'}
+              colorScheme={'primary'}
+              onClick={() => navigate('/dashboard/flashcards/create')}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
+              </svg>
+              <Text ml={'10px'}>Create New</Text>
+            </Button>
+          </Box>
+        </Box>
+      ) : (
+        <Box
+          padding={{ md: '20px', base: '10px' }}
+          overflowX={{ base: 'hidden' }}
+        >
+          <Flex
+            width="100%"
+            marginBottom={'40px'}
+            alignItems="center"
+            justifyContent="space-between"
+            color="#E5E6E6"
+          >
+            <Box display="flex">
+              <Text
+                fontFamily="Inter"
+                fontWeight="600"
+                fontSize="24px"
+                lineHeight="30px"
+                letterSpacing="-2%"
+                color="#212224"
+              >
+                Notes
+              </Text>
+              <Tag ml="10px" borderRadius="5" background="#f7f8fa" size="md">
+                <TagLabel fontWeight={'bold'}> {notes?.length || 0}</TagLabel>
+              </Tag>
+            </Box>
+            <ActionDropdown
+              onOptionClick={(option) => {
+                if (option === 'upload-document') {
+                  setOpenUploadModal(true);
+                } else {
+                  navigate('/dashboard/new-note');
+                }
+              }}
+            />
+          </Flex>
+
+          <Stack
+            direction={{ base: 'column', md: 'row' }}
+            width="100%"
+            mb={{ base: '20px', md: '40px' }}
+            alignItems="center"
+            justifyContent="space-between"
+            color="#E5E6E6"
+            spacing={4}
+          >
+            <Flex alignItems="center">
+              <InputGroup
+                size="sm"
+                borderRadius="6px"
+                width={{ base: '100%', md: '200px' }}
+                height="32px"
+              >
+                <InputLeftElement marginRight={'10px'} pointerEvents="none">
+                  <BsSearch color="#5E6164" size="14px" />
+                </InputLeftElement>
+                <Input
+                  type="text"
+                  variant="outline"
+                  onChange={(e) => handleSearch(e.target.value)}
+                  size="sm"
+                  placeholder="Search"
+                  borderRadius="6px"
+                />
+              </InputGroup>
+            </Flex>
+            <Flex
+              direction={{ base: 'column', md: 'row' }}
+              alignItems={{ base: 'flex-start', md: 'center' }}
+              width={{ base: '100%', md: 'auto' }}
+            >
+              <DropDownFilter
+                selectedItems={selectedTags}
+                multi
+                style={{ marginRight: '20px' }}
+                filterLabel="Filter By Tags"
+                onSelectionChange={onSelectionChange}
+                items={tags.map((tag) => ({ id: tag, value: tag }))}
+              />
+              <Menu>
+                <MenuButton>
+                  <Flex
+                    cursor="pointer"
+                    border="1px solid #E5E6E6"
+                    padding="5px 10px"
+                    borderRadius="6px"
+                    alignItems="center"
+                    mb={{ base: '10px', md: '0' }}
+                    width={{ base: '-webkit-fill-available', md: 'auto' }}
+                  >
+                    <Text
+                      fontWeight="400"
+                      fontSize={{ base: '12px', md: '14px' }}
+                      marginRight="5px"
+                      color="#5E6164"
+                      width={{ base: '100%', md: 'auto' }}
+                    >
+                      Sort By
+                    </Text>
+                    <FaCalendarAlt color="#96999C" size="12px" />
+                  </Flex>
+                </MenuButton>
+                <MenuList
+                  fontSize="14px"
+                  minWidth={'185px'}
+                  borderRadius="8px"
+                  backgroundColor="#FFFFFF"
+                  boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
+                >
+                  <MenuItem
+                    color="#212224"
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => fetchFlashcards({ sort: 'createdAt' })}
+                    fontSize="14px"
+                    lineHeight="20px"
+                    fontWeight="400"
+                    p="6px 8px 6px 8px"
+                  >
+                    Created At
+                  </MenuItem>
+                  <MenuItem
+                    color="#212224"
+                    fontSize="14px"
+                    onClick={() => fetchFlashcards({ sort: 'updatedAt' })}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    lineHeight="20px"
+                    fontWeight="400"
+                    p="6px 8px 6px 8px"
+                  >
+                    Last Updated
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            </Flex>
+          </Stack>
+          <Box overflowX={{ base: 'scroll', md: 'hidden' }}>
+            {selectedContent.length ? (
+              <Box>
+                <Button
+                  variant="solid"
+                  mb="10px"
+                  borderRadius={'10px'}
+                  width={{ base: '100%', md: 'auto' }}
+                  onClick={() => {
+                    const items =
+                      activeTab === 'notes' ? notes : studentDocuments;
+
+                    if (isAllSelected) setSelectedContent([]);
+                    else {
+                      setSelectedContent(items.map((item) => item._id));
+                    }
+                  }}
+                >
+                  <svg
+                    width="16"
+                    height="18"
+                    viewBox="0 0 16 18"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M3.83317 4.00033V1.50033C3.83317 1.04009 4.20627 0.666992 4.6665 0.666992H14.6665C15.1267 0.666992 15.4998 1.04009 15.4998 1.50033V13.167C15.4998 13.6272 15.1267 14.0003 14.6665 14.0003H12.1665V16.4996C12.1665 16.9602 11.7916 17.3337 11.3275 17.3337H1.33888C0.875492 17.3337 0.5 16.9632 0.5 16.4996L0.502167 4.83438C0.50225 4.37375 0.8772 4.00033 1.34118 4.00033H3.83317ZM5.49983 4.00033H12.1665V12.3337H13.8332V2.33366H5.49983V4.00033ZM3.83317 8.16699V9.83366H8.83317V8.16699H3.83317ZM3.83317 11.5003V13.167H8.83317V11.5003H3.83317Z"
+                      fill="white"
+                    />
+                  </svg>
+                  <Text ml="5px">
+                    {isAllSelected ? 'Deselect All' : 'Select All'}
+                  </Text>
+                </Button>
+
+                <Button
+                  variant="solid"
+                  mb="10px"
+                  marginLeft={'10px'}
+                  borderRadius={'10px'}
+                  colorScheme={'#F53535'}
+                  _hover={{ bg: '#F53535' }}
+                  bg="#F53535"
+                  width={{ base: '100%', md: 'auto' }}
+                  onClick={() => {
+                    const items =
+                      activeTab === 'notes' ? notes : studentDocuments;
+
+                    if (!items) return;
+
+                    setDeleteItem((prev) => ({
+                      ...prev,
+                      currentDeleteType: 'multiple',
+                      ids: selectedContent // Using a generic "ids" field instead of "notesIds"
+                    }));
+                  }}
+                >
+                  <svg
+                    width="16"
+                    height="18"
+                    viewBox="0 0 16 18"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M3.83317 4.00033V1.50033C3.83317 1.04009 4.20627 0.666992 4.6665 0.666992H14.6665C15.1267 0.666992 15.4998 1.04009 15.4998 1.50033V13.167C15.4998 13.6272 15.1267 14.0003 14.6665 14.0003H12.1665V16.4996C12.1665 16.9602 11.7916 17.3337 11.3275 17.3337H1.33888C0.875492 17.3337 0.5 16.9632 0.5 16.4996L0.502167 4.83438C0.50225 4.37375 0.8772 4.00033 1.34118 4.00033H3.83317ZM5.49983 4.00033H12.1665V12.3337H13.8332V2.33366H5.49983V4.00033ZM3.83317 8.16699V9.83366H8.83317V8.16699H3.83317ZM3.83317 11.5003V13.167H8.83317V11.5003H3.83317Z"
+                      fill="white"
+                    />
+                  </svg>
+                  <Text ml="5px">Delete Notes</Text>
+                </Button>
+
                 <Button
                   variant="solid"
                   mb="10px"
@@ -441,7 +786,13 @@ const Notes = () => {
                   marginLeft={'10px'}
                   colorScheme={'primary'}
                   width={{ base: '100%', md: 'auto' }}
-                  onClick={handleClearCombinedDataFilter}
+                  onClick={() => {
+                    if (!notes) return;
+                    setTagEditItem((prev) => ({
+                      ...prev,
+                      ids: selectedContent
+                    }));
+                  }}
                 >
                   <svg
                     width="16"
@@ -463,66 +814,111 @@ const Notes = () => {
                     />
                   </svg>
 
-                  <Text ml="5px">Clear filter</Text>
+                  <Text ml="5px">Add Tag</Text>
                 </Button>
-              )}
-
-              {sortedNotes.length === 0 && selectedTags.length ? (
-                <Section>
-                  <div>
-                    <img src="/images/notes.png" alt="notes" />
-                    <Text>Sorry, no notes for the selected tag.</Text>
-                  </div>
-                </Section>
-              ) : (
-                <CustomTabs tablists={tabLists} tabPanel={tabPanel} />
-              )}
-            </NotesWrapper>
-          ) : (
-            <NotesWrapper>
-              <Header>
-                <Text>
-                  <span>My Notes</span>
-                </Text>
-              </Header>
-              <Section>
-                <div>
-                  <img src="/images/notes.png" alt="notes" />
-                  <Text>You don't have any notes/documents yet!</Text>
-                  <DropdownMenu
-                    isCreateNewWidth
-                    isCreateNew
-                    menuTitle="Create new"
-                    DropdownMenuIcon={
-                      <AddIcon fontWeight="700" marginRight="10px" />
-                    }
+              </Box>
+            ) : (
+              ''
+            )}
+          </Box>
+          <Tabs
+            onChange={(index) => {
+              setActiveTab(index === 0 ? 'notes' : 'files');
+              if (selectedTags.length) {
+                setSelectedTags([]);
+              }
+              setDeleteItem(null);
+              setTagEditItem(null);
+            }}
+          >
+            <TabList mb="1em">
+              <Tab>Notes</Tab>
+              <Tab>Files</Tab>
+              {/* Add other tabs as needed */}
+            </TabList>
+            <TabPanels>
+              <TabPanel>
+                <Box>
+                  <SimpleGrid
+                    columns={{ base: 1, md: 2, lg: 3, xl: 4 }}
+                    spacing={15}
                   >
-                    {createNewLists?.map((createNewList) => (
-                      <SectionNewList key={createNewList.id}>
-                        <NewList onClick={createNewList.onClick}>
-                          {createNewList.iconName}
-                          <Text>{createNewList.labelText}</Text>
-                        </NewList>
-                      </SectionNewList>
+                    {notes.map((note, index) => (
+                      <DocumentCard
+                        onTagClick={handleTagClick}
+                        onClick={() => gotoEditNote(note)}
+                        isSelected={selectedContent.includes(note._id)}
+                        onSelect={(checked) =>
+                          handleSelectChange(note._id, checked)
+                        }
+                        options={options(note)}
+                        key={index}
+                        data={{
+                          topic: note.topic,
+                          tags: note.tags,
+                          updatedAt: note.updatedAt as unknown as string
+                        }}
+                      />
                     ))}
-                  </DropdownMenu>
-                </div>
-              </Section>
-            </NotesWrapper>
-          )}
-
-          <SelectedNoteModal
-            show={toggleHelpModal}
-            setShow={setToggleHelpModal}
-            setShowHelp={setToggleHelpModal}
-            okayButton={true}
-          />
-        </>
-      );
-    }
-  };
-
-  return <NoteView />;
+                  </SimpleGrid>
+                  <Center mt={4}>
+                    <Pagination
+                      limit={pagination.limit}
+                      page={pagination.page}
+                      handlePagination={(nextPage) =>
+                        fetchNotes({ page: nextPage, limit: pagination.limit })
+                      }
+                      count={pagination.count}
+                    />
+                  </Center>
+                </Box>
+              </TabPanel>
+              <TabPanel>
+                <Box>
+                  <SimpleGrid
+                    columns={{ base: 1, md: 2, lg: 3, xl: 4 }}
+                    spacing={15}
+                  >
+                    {studentDocuments.map((studentDocument, index) => (
+                      <DocumentCard
+                        footerColor="#fb8747"
+                        onTagClick={handleTagClick}
+                        onClick={() => gotoEditPdf(studentDocument)}
+                        isSelected={selectedContent.includes(
+                          studentDocument._id
+                        )}
+                        onSelect={(checked) =>
+                          handleSelectChange(studentDocument._id, checked)
+                        }
+                        options={documentOptions(studentDocument)}
+                        key={index}
+                        data={{
+                          topic: studentDocument.title,
+                          tags: studentDocument.tags,
+                          updatedAt:
+                            studentDocument.updatedAt as unknown as string
+                        }}
+                      />
+                    ))}
+                  </SimpleGrid>
+                  <Center mt={4}>
+                    <Pagination
+                      limit={pagination.limit}
+                      page={pagination.page}
+                      handlePagination={(nextPage) =>
+                        fetchItems({ page: nextPage, limit: pagination.limit })
+                      }
+                      count={pagination.count}
+                    />
+                  </Center>
+                </Box>
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        </Box>
+      )}
+    </>
+  );
 };
 
-export default Notes;
+export default NotesDirectory;

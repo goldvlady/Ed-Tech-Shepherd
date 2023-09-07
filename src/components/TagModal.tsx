@@ -98,7 +98,7 @@ export const TagModal: React.FC<TagModalProps> = ({
       <ModalContent>
         <ModalHeader>Add Tag</ModalHeader>
         <ModalCloseButton />
-        <ModalBody paddingTop={'0px'}>
+        <ModalBody style={{ paddingTop: '0px' }} paddingTop={'0px'}>
           <VStack width={'full'}>
             <FormControl mt="20px">
               <Input

@@ -1,9 +1,9 @@
 import { saveAsPDF, saveMarkdownAsPDF } from '../../library/fs';
 import FlashModal from '../../views/Dashboard/FlashCards/components/FlashModal';
-import TagModal from '../../views/Dashboard/FlashCards/components/TagModal';
 import { NoteModal } from '../../views/Dashboard/Notes/Modal';
 import TableTag from '../CustomComponents/CustomTag';
 import { useCustomToast } from '../CustomComponents/CustomToast/useCustomToast';
+import TagModal from '../TagModal';
 import {
   DownloadIcon,
   FlashCardsIcon,
