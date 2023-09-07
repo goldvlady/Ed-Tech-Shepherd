@@ -56,7 +56,6 @@ interface IChat {
   HomeWorkHelp?: boolean;
   studentId?: any;
   documentId?: any;
-  title?: string;
   onOpenModal?: () => void;
   isShowPrompt?: boolean;
   messages?: { text: string; isUser: boolean; isLoading: boolean }[];
@@ -84,6 +83,7 @@ interface IChat {
   setLoading?: any;
   isUpdatedSummary?: boolean;
   directStudentId?: string;
+  title?: string;
 }
 const Chat = ({
   HomeWorkHelp,
@@ -102,7 +102,6 @@ const Chat = ({
   summaryText,
   setSummaryText,
   documentId,
-  title,
   handleClickPrompt,
   homeWorkHelpPlaceholder,
   countNeedTutor,
@@ -113,6 +112,7 @@ const Chat = ({
   hightlightedText,
   loading,
   isUpdatedSummary,
+  title,
   directStudentId
 }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
@@ -319,6 +319,28 @@ const Chat = ({
                 </div>
 
                 <GridContainer isHomeWorkHelp={HomeWorkHelp}>
+                  {HomeWorkHelp && messages && messages.length < 1 && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '210px',
+                        right: '36%',
+                        /* width: 100%; */
+                        zIndex: '111111111'
+                      }}
+                    >
+                      <StyledDiv
+                        onClick={handleAceHomeWorkHelp}
+                        style={{
+                          color: '#FB8441',
+                          background: 'white'
+                        }}
+                        needIndex
+                      >
+                        Start New Conversation
+                      </StyledDiv>
+                    </div>
+                  )}
                   {isFindTutor && (
                     <OptionsContainer>
                       <Text className="">What do you need?</Text>
@@ -346,7 +368,6 @@ const Chat = ({
                       </PillsContainer>
                     </OptionsContainer>
                   )}
-
                   {!HomeWorkHelp && !messages?.length && !isShowPrompt && (
                     <AskSomethingContainer>
                       <AskSomethingPillHeadingText>
@@ -448,35 +469,68 @@ const Chat = ({
             </PillsContainer>
           </DownPillContainer>
         )}
-        <ChatbotContainer chatbotSpace={chatbotSpace}>
-          <InputContainer>
-            <Input
-              ref={textAreaRef}
-              placeholder={
-                HomeWorkHelp
-                  ? homeWorkHelpPlaceholder
-                  : `Ask Shepherd about ${snip(title, 40)}`
-              }
-              value={inputValue}
-              onKeyDown={handleKeyDown}
-              disabled={!isReadyToChat}
-              onChange={handleInputChange}
-              style={{
-                minHeight: '2.5rem',
-                maxHeight: '10rem',
-                overflowY: 'auto'
-              }}
-            />
-            <SendButton type="button" onClick={handleSendMessage}>
-              <img alt="" src="/svgs/send.svg" className="w-8 h-8" />
-            </SendButton>
-          </InputContainer>
-          {/* {!HomeWorkHelp && (
+        {HomeWorkHelp && !!messages?.length && (
+          <ChatbotContainer chatbotSpace={chatbotSpace}>
+            <InputContainer>
+              <Input
+                ref={textAreaRef}
+                placeholder={
+                  HomeWorkHelp
+                    ? homeWorkHelpPlaceholder
+                    : `Ask Shepherd about ${snip(title, 40)}`
+                }
+                value={inputValue}
+                onKeyDown={handleKeyDown}
+                disabled={!isReadyToChat}
+                onChange={handleInputChange}
+                style={{
+                  minHeight: '2.5rem',
+                  maxHeight: '10rem',
+                  overflowY: 'auto'
+                }}
+              />
+              <SendButton type="button" onClick={handleSendMessage}>
+                <img alt="" src="/svgs/send.svg" className="w-8 h-8" />
+              </SendButton>
+            </InputContainer>
+            {/* {!HomeWorkHelp && (
             <ClockButton type="button" onClick={onChatHistory}>
               <img alt="" src="/svgs/anti-clock.svg" className="w-5 h-5" />
             </ClockButton>
           )} */}
-        </ChatbotContainer>
+          </ChatbotContainer>
+        )}
+        {!HomeWorkHelp && (
+          <ChatbotContainer chatbotSpace={chatbotSpace}>
+            <InputContainer>
+              <Input
+                ref={textAreaRef}
+                placeholder={
+                  HomeWorkHelp
+                    ? homeWorkHelpPlaceholder
+                    : `Ask Shepherd about ${documentId}`
+                }
+                value={inputValue}
+                onKeyDown={handleKeyDown}
+                disabled={!isReadyToChat}
+                onChange={handleInputChange}
+                style={{
+                  minHeight: '2.5rem',
+                  maxHeight: '10rem',
+                  overflowY: 'auto'
+                }}
+              />
+              <SendButton type="button" onClick={handleSendMessage}>
+                <img alt="" src="/svgs/send.svg" className="w-8 h-8" />
+              </SendButton>
+            </InputContainer>
+            {/* {!HomeWorkHelp && (
+            <ClockButton type="button" onClick={onChatHistory}>
+              <img alt="" src="/svgs/anti-clock.svg" className="w-5 h-5" />
+            </ClockButton>
+          )} */}
+          </ChatbotContainer>
+        )}
       </Form>
 
       <CustomSideModal onClose={onClose} isOpen={isModalOpen}>

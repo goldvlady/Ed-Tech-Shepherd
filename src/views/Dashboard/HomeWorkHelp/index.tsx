@@ -243,11 +243,13 @@ const HomeWorkHelp = () => {
         conversationId
       });
 
-      const previousConvoData = response?.map((conversation) => ({
-        text: conversation?.log?.content,
-        isUser: conversation?.log?.role === 'user',
-        isLoading: false
-      }));
+      const previousConvoData = response
+        ?.map((conversation) => ({
+          text: conversation?.log?.content,
+          isUser: conversation?.log?.role === 'user',
+          isLoading: false
+        }))
+        .slice(1);
       setMessages((prevState) => [...previousConvoData]);
     };
     fetchConversationId();
@@ -297,7 +299,7 @@ const HomeWorkHelp = () => {
   }, []);
 
   useEffect(() => {
-    const getNotes = async () => {
+    const getOnlineTutors = async () => {
       try {
         const resp = await ApiService.getOnlineTutors();
 
@@ -316,7 +318,7 @@ const HomeWorkHelp = () => {
         });
       }
     };
-    getNotes();
+    getOnlineTutors();
   }, []);
 
   return (

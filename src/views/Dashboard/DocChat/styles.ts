@@ -186,9 +186,9 @@ export const Input = styled.textarea`
   outline: none;
   padding-left: 1rem;
   padding-right: 3rem;
-  min-height: auto;
   font-size: 0.75rem;
   resize: none;
+  min-height: 2.5rem;
 
   &::placeholder {
     font-size: 0.75rem;
@@ -261,7 +261,7 @@ export const SummaryContainer2 = styled.textarea`
   cursor: pointer;
   resize: none;
   width: -webkit-fill-available;
-  height: auto;
+  height: 72vh;
   border: none;
 `;
 

@@ -92,7 +92,7 @@ const SelectedModal = ({
   cancelButton = true,
   okayButton
 }: ShowProps) => {
-  const { user, userDocuments } = userStore();
+  const { user, userDocuments, fetchUserDocuments } = userStore();
   const navigate = useNavigate();
   const [fileName, setFileName] = useState('');
   const [countdown, setCountdown] = useState({
@@ -101,6 +101,7 @@ const SelectedModal = ({
   });
   const [progress, setProgress] = useState(0);
   const [uiMessage, setUiMessage] = useState<UiMessage | null>(null);
+  const [alreadyExist, setAlreadyExist] = useState(false);
   const [canUpload, setCanUpload] = useState(true);
   const [selectedOption, setSelectedOption] = useState<any>();
   const [confirmReady, setConfirmReady] = useState(false);
@@ -207,6 +208,28 @@ const SelectedModal = ({
     font-weight: bold;
     color: var(--secondaryGray);
   `;
+  const ErrorDiv = styled.div`
+    height: auto;
+    border-radius: 8px;
+    background: red;
+    width: auto;
+    color: white;
+    text-align: center;
+    line-height: 40px;
+    padding: 10px; /* Add some padding to the div */
+
+    /* Style the header */
+    p:first-child {
+      font-size: 0.875rem;
+      font-weight: bold;
+    }
+
+    /* Style the message */
+    p:last-child {
+      font-size: 0.75rem;
+      line-height: 2;
+    }
+  `;
 
   const toast = useToast();
 
@@ -223,19 +246,6 @@ const SelectedModal = ({
 
   const handleClose = () => {
     setShow(false);
-  };
-
-  const collectFileInput = async (e) => {
-    const inputFile = e.target.files[0];
-    if (inputFile) {
-      setLoading(true);
-      try {
-        setFileName(snip(inputFile.name));
-        await handleInputFreshUpload(inputFile, user, inputFile.name);
-      } catch (error) {
-        // Handle error
-      }
-    }
   };
 
   const handleInputFreshUpload = async (file, user, fileName) => {
@@ -265,6 +275,7 @@ const SelectedModal = ({
       });
       return;
     }
+
     setProgress(5);
     const customFirestorePath = `${user._id}/${readableFileName}`;
     const storageRef = ref(storage, customFirestorePath);
@@ -328,6 +339,38 @@ const SelectedModal = ({
     );
   };
 
+  function doesTitleExist(title: string) {
+    const readableFileName = title
+      .toLowerCase()
+      .replace(/\.pdf$/, '')
+      .replace(/_/g, ' ');
+
+    // Check if the modified title exists in the array
+    const exists = studentDocuments.some(
+      (item) => item.title === readableFileName
+    );
+
+    return exists;
+  }
+
+  const collectFileInput = async (e) => {
+    const inputFile = e.target.files[0];
+    const fileChecked = doesTitleExist(inputFile?.name);
+
+    if (fileChecked) {
+      setAlreadyExist(true);
+    } else {
+      setAlreadyExist(false);
+      setLoading(true);
+      try {
+        setFileName(snip(inputFile.name));
+        await handleInputFreshUpload(inputFile, user, inputFile.name);
+      } catch (error) {
+        // Handle errors
+      }
+    }
+  };
+
   const handleSelected = async (e) => {
     if (e.value && e.label && e.id) {
       setDocumentURL(() => e.value);
@@ -349,6 +392,7 @@ const SelectedModal = ({
     });
     setShowHelp(false);
     setShow(false);
+    user && fetchUserDocuments(user._id);
   };
 
   const doNothing = () => {
@@ -473,6 +517,17 @@ const SelectedModal = ({
               confirmReady={confirmReady}
               countdown={countdown}
             />
+          )}
+
+          {alreadyExist && (
+            <ErrorDiv>
+              <p>File Already Exists!</p>
+              <p>
+                The document you're trying to upload already exists. Please
+                choose a different document or consider renaming it to avoid
+                duplicates.
+              </p>
+            </ErrorDiv>
           )}
         </div>
       </Wrapper>
