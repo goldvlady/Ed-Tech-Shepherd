@@ -56,7 +56,6 @@ interface IChat {
   HomeWorkHelp?: boolean;
   studentId?: any;
   documentId?: any;
-  title?: string;
   onOpenModal?: () => void;
   isShowPrompt?: boolean;
   messages?: { text: string; isUser: boolean; isLoading: boolean }[];
@@ -84,6 +83,7 @@ interface IChat {
   setLoading?: any;
   isUpdatedSummary?: boolean;
   directStudentId?: string;
+  title?: string;
 }
 const Chat = ({
   HomeWorkHelp,
@@ -102,7 +102,6 @@ const Chat = ({
   summaryText,
   setSummaryText,
   documentId,
-  title,
   handleClickPrompt,
   homeWorkHelpPlaceholder,
   countNeedTutor,
@@ -113,6 +112,7 @@ const Chat = ({
   hightlightedText,
   loading,
   isUpdatedSummary,
+  title,
   directStudentId
 }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
@@ -252,19 +252,17 @@ const Chat = ({
   }, []);
 
   useEffect(() => {
-    if (textAreaRef.current) {
-      textAreaRef.current.style.height = '2.5rem'; // Initially set height
-      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`; // Then adjust it
+    textAreaRef.current.style.height = '2.5rem'; // Initially set height
+    textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`; // Then adjust it
 
-      // Adjust border radius based on inputValue
-      if (inputValue.length > 0) {
-        textAreaRef.current.style.borderRadius = '16px';
-        textAreaRef.current.style.maxheight = '2.5rem';
-      } else {
-        textAreaRef.current.style.borderRadius = '100px'; // Set initial border radius
-      }
+    // Adjust border radius based on inputValue
+    if (inputValue.length > 0) {
+      textAreaRef.current.style.borderRadius = '16px';
+      textAreaRef.current.style.maxheight = '2.5rem';
+    } else {
+      textAreaRef.current.style.borderRadius = '100px'; // Set initial border radius
     }
-  }, [inputValue, textAreaRef.current]);
+  }, [inputValue]);
 
   return (
     <>
@@ -479,7 +477,7 @@ const Chat = ({
                 placeholder={
                   HomeWorkHelp
                     ? homeWorkHelpPlaceholder
-                    : `Ask Shepherd about ${documentId}`
+                    : `Ask Shepherd about ${snip(title, 40)}`
                 }
                 value={inputValue}
                 onKeyDown={handleKeyDown}
