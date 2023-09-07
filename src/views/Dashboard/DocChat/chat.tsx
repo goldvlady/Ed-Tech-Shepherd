@@ -252,17 +252,19 @@ const Chat = ({
   }, []);
 
   useEffect(() => {
-    textAreaRef.current.style.height = '2.5rem'; // Initially set height
-    textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`; // Then adjust it
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = '2.5rem'; // Initially set height
+      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`; // Then adjust it
 
-    // Adjust border radius based on inputValue
-    if (inputValue.length > 0) {
-      textAreaRef.current.style.borderRadius = '16px';
-      textAreaRef.current.style.minHeight = '2.5rem';
-    } else {
-      textAreaRef.current.style.borderRadius = '100px'; // Set initial border radius
+      // Adjust border radius based on inputValue
+      if (inputValue.length > 0) {
+        textAreaRef.current.style.borderRadius = '16px';
+        textAreaRef.current.style.minHeight = '2.5rem';
+      } else {
+        textAreaRef.current.style.borderRadius = '100px'; // Set initial border radius
+      }
     }
-  }, [inputValue]);
+  }, [inputValue, textAreaRef.current]);
 
   return (
     <>
@@ -508,7 +510,7 @@ const Chat = ({
                 placeholder={
                   HomeWorkHelp
                     ? homeWorkHelpPlaceholder
-                    : `Ask Shepherd about ${documentId}`
+                    : `Ask Shepherd about ${snip(title, 40)}`
                 }
                 value={inputValue}
                 onKeyDown={handleKeyDown}
