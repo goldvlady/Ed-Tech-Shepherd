@@ -20,7 +20,13 @@ const slideVariants = {
   exit: { x: '100%' }
 };
 
-const SetupFlashcardPage = ({ isAutomated }: { isAutomated?: boolean }) => {
+const SetupFlashcardPage = ({
+  isAutomated,
+  showConfirm
+}: {
+  isAutomated?: boolean;
+  showConfirm?: boolean;
+}) => {
   const { currentStep, isLoading, isSaveSuccessful, resetFlashcard } =
     useFlashcardWizard();
   const steps: Step[] = [{ title: '' }, { title: '' }, { title: '' }];
@@ -67,7 +73,7 @@ const SetupFlashcardPage = ({ isAutomated }: { isAutomated?: boolean }) => {
           variants={slideVariants}
           transition={transition}
         >
-          <CurrentForm isAutomated={isAutomated} />
+          <CurrentForm showConfirm={showConfirm} isAutomated={isAutomated} />
         </motion.div>
       </AnimatePresence>
     </Box>

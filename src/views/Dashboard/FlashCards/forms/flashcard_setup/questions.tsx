@@ -14,7 +14,7 @@ import { motion } from 'framer-motion';
 import React, { useEffect, useRef, useState } from 'react';
 import { FiChevronRight } from 'react-icons/fi';
 
-const FlashCardQuestionsPage = () => {
+const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
   const {
     flashcardData,
     goToNextStep,
@@ -257,53 +257,74 @@ const FlashCardQuestionsPage = () => {
             </FormControl>
           )}
         </motion.div>
-
         <HStack
           w="100%"
           alignItems={'center'}
-          justifyContent={'end'}
+          justifyContent={'space-between'} // updated to space-between to place buttons on opposite ends
           marginTop="40px"
           align={'flex-end'}
         >
-          {currentQuestionIndex > 0 && (
+          {showConfirm && (
             <Button
-              aria-label="Edit"
-              height={'fit-content'}
-              width={'fit-content'}
-              variant="unstyled"
-              fontWeight={500}
-              p={0}
-              color={'#207DF7'}
-              _hover={{ bg: 'none', padding: '0px' }}
-              _active={{ bg: 'none', padding: '0px' }}
-              _focus={{ boxShadow: 'none' }}
+              borderRadius="8px"
+              p="10px 20px"
+              fontSize="14px"
+              lineHeight="20px"
+              variant="solid"
               colorScheme="primary"
-              onClick={handlePreviousQuestion}
-              mr={2}
+              onClick={() => saveFlashcardData(handleDone)}
+              ml={2}
             >
-              Previous
+              Confirm
             </Button>
           )}
-          (
-          <Button
-            borderRadius="8px"
-            p="10px 20px"
-            fontSize="14px"
-            lineHeight="20px"
-            variant="solid"
-            colorScheme="primary"
-            onClick={() => {
-              currentQuestionIndex !== questions.length - 1
-                ? handleQuestionSubmit()
-                : saveFlashcardData(handleDone);
-            }}
-            ml={5}
+          <HStack
+            w="100%"
+            alignItems={'center'}
+            justifyContent={'end'}
+            marginTop="40px"
+            align={'flex-end'}
           >
-            {currentQuestionIndex !== questions.length - 1
-              ? ' Next Question'
-              : 'Save'}
-          </Button>
-          )
+            {currentQuestionIndex > 0 && (
+              <Button
+                aria-label="Edit"
+                height={'fit-content'}
+                width={'fit-content'}
+                variant="unstyled"
+                fontWeight={500}
+                p={0}
+                color={'#207DF7'}
+                _hover={{ bg: 'none', padding: '0px' }}
+                _active={{ bg: 'none', padding: '0px' }}
+                _focus={{ boxShadow: 'none' }}
+                colorScheme="primary"
+                onClick={handlePreviousQuestion}
+                mr={2}
+              >
+                Previous
+              </Button>
+            )}
+            (
+            <Button
+              borderRadius="8px"
+              p="10px 20px"
+              fontSize="14px"
+              lineHeight="20px"
+              variant="solid"
+              colorScheme="primary"
+              onClick={() => {
+                currentQuestionIndex !== questions.length - 1
+                  ? handleQuestionSubmit()
+                  : saveFlashcardData(handleDone);
+              }}
+              ml={5}
+            >
+              {currentQuestionIndex !== questions.length - 1
+                ? ' Next Question'
+                : 'Save'}
+            </Button>
+            )
+          </HStack>
         </HStack>
       </motion.div>
     </Box>
