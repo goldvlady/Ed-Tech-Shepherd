@@ -367,7 +367,8 @@ const NewNote = () => {
     const resp = await ApiService.getNote(noteParamId);
     const respText = await resp.text();
     try {
-      const respDetails: NoteServerResponse<NoteDetails> = JSON.parse(respText);
+      const respDetails: NoteServerResponse<{ data: NoteDetails }> =
+        JSON.parse(respText);
       if (!respDetails || respDetails.error || !respDetails.data) {
         showToast(
           UPDATE_NOTE_TITLE,
@@ -379,12 +380,13 @@ const NewNote = () => {
         return;
       }
       if (respDetails.data) {
-        const note = respDetails.data;
+        const { data: note } = respDetails.data;
         if (note._id && note.topic && note.note) {
+          console.log(note.note);
           setEditedTitle(note.topic);
           setCurrentTime(formatDate(note.updatedAt));
           setInitialContent(note.note);
-          setSaveDetails(respDetails);
+          setSaveDetails({ ...respDetails, data: respDetails.data.data });
           setNoteId(note._id);
           setTags(note.tags);
         }
@@ -894,10 +896,8 @@ const NewNote = () => {
     const pinnedNotesFromLocalStorage = getPinnedNotesFromLocalStorage();
     if (pinnedNotesFromLocalStorage) {
       setPinnedNotes(pinnedNotesFromLocalStorage);
-    } else {
-      setPinnedNotes([]);
     }
-  }, [pinnedNotes]);
+  }, []);
 
   useEffect(() => {
     if (userDocuments.length) {

@@ -117,7 +117,10 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
                   borderRadius={'4px'}
                   fontSize="sm"
                   cursor="pointer"
-                  onClick={() => onTagClick(tag)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onTagClick(tag);
+                  }}
                 >
                   {tag}
                 </Tag>
@@ -136,6 +139,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
       >
         <Checkbox
           isChecked={isSelected}
+          iconColor="white"
           onChange={(e) => onSelect && onSelect(e.target.checked)}
         />
         <Menu>

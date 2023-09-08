@@ -486,7 +486,7 @@ const NotesDirectory: React.FC = () => {
         isOpen={openSideModal}
       >
         <div style={{ margin: '3rem 0', overflowY: 'auto' }}>
-          <SetupFlashcardPage isAutomated />
+          <SetupFlashcardPage showConfirm isAutomated />
         </div>
       </CustomSideModal>
 
@@ -498,7 +498,9 @@ const NotesDirectory: React.FC = () => {
         onDelete={() => onTagDelete()}
         onClose={() => null}
       />
-      {!notes?.length && !hasSearched && !isLoading ? (
+      {(!notes?.length || !studentDocuments.length) &&
+      !hasSearched &&
+      !isLoading ? (
         <Box
           background={'#F8F9FB'}
           display={'flex'}
@@ -543,32 +545,17 @@ const NotesDirectory: React.FC = () => {
               lineHeight="21px"
               letterSpacing="0.112px"
             >
-              You don’t have any documents yet!
+              You don’t have a note
             </Text>
-            <Button
-              variant="solid"
-              mt={{ base: '10px', md: '20px' }}
-              width={{ base: '100%', sm: '80%', md: '300px' }}
-              borderRadius={'8px'}
-              colorScheme={'primary'}
-              onClick={() => navigate('/dashboard/flashcards/create')}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 4.5v15m7.5-7.5h-15"
-                />
-              </svg>
-              <Text ml={'10px'}>Create New</Text>
-            </Button>
+            <ActionDropdown
+              onOptionClick={(option) => {
+                if (option === 'upload-document') {
+                  setOpenUploadModal(true);
+                } else {
+                  navigate('/dashboard/new-note');
+                }
+              }}
+            />
           </Box>
         </Box>
       ) : (
@@ -881,7 +868,7 @@ const NotesDirectory: React.FC = () => {
                   >
                     {studentDocuments.map((studentDocument, index) => (
                       <DocumentCard
-                        footerColor="#fb8747"
+                        footerColor="#FB8441"
                         onTagClick={handleTagClick}
                         onClick={() => gotoEditPdf(studentDocument)}
                         isSelected={selectedContent.includes(
