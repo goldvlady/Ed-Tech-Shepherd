@@ -1,6 +1,7 @@
 import FileProcessingService from '../../../../helpers/files.helpers/fileProcessing';
 import { createDocchatFlashCards } from '../../../../services/AI';
 import ApiService from '../../../../services/ApiService';
+import flashcardStore from '../../../../state/flashcardStore';
 import userStore from '../../../../state/userStore';
 import React, {
   createContext,
@@ -47,6 +48,8 @@ interface FlashcardData {
   studyDuration?: string;
   selectQuestionTypes?: string[];
   selectPagesInclude?: number;
+  ingestId?: string;
+  noteDoc?: string;
 }
 
 export interface FlashcardQuestion {
@@ -58,6 +61,14 @@ export interface FlashcardQuestion {
   helperText?: string;
 }
 
+export type AIRequestBody = {
+  topic?: string;
+  count: number;
+  subject?: string;
+  difficulty?: string;
+  note?: string;
+};
+
 export interface FlashcardDataContextProps {
   flashcardData: FlashcardData;
   currentStep: number;
@@ -66,6 +77,7 @@ export interface FlashcardDataContextProps {
   goToStep: (step: number) => void;
   questions: FlashcardQuestion[];
   currentQuestionIndex: number;
+  isSaveSuccessful: boolean;
   goToQuestion: (index: number | ((previousIndex: number) => number)) => void;
   deleteQuestion: (index: number) => void;
   setQuestions: React.Dispatch<React.SetStateAction<FlashcardQuestion[]>>;
@@ -82,6 +94,9 @@ export interface FlashcardDataContextProps {
     ingestDoc?: boolean
   ) => Promise<void>;
   questionGenerationStatus: QuestionGenerationStatusEnum;
+  saveFlashcardData: (
+    onDone?: ((success: boolean) => void) | undefined
+  ) => Promise<void>;
 }
 
 const FlashcardDataContext = createContext<
@@ -102,6 +117,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
   children
 }) => {
   const { user } = userStore();
+  const { createFlashCard } = flashcardStore();
 
   const [settings, setSettings] = useState<SettingsType>({
     type: TypeEnum.INIT,
@@ -126,6 +142,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
   const [currentStep, setCurrentStep] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaveSuccessful, setSaveSuccessful] = useState(false);
   const [questionGenerationStatus, setQuestionGenerationStatus] =
     useState<QuestionGenerationStatusEnum>(QuestionGenerationStatusEnum.INIT);
   const [isMinimized, setMinimized] = useState(false);
@@ -176,9 +193,76 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
   const resetFlashcard = useCallback(() => {
     setFlashcardData(defaultFlashcardData);
     setQuestions([]);
+    setSaveSuccessful(false);
     setCurrentStep(0);
     setCurrentQuestionIndex(0);
   }, [defaultFlashcardData]);
+
+  // Process the document-related request
+  const processDocumentRequest = useCallback(
+    async (
+      reqData: FlashcardData,
+      ingestDoc: boolean,
+      aiData: AIRequestBody
+    ) => {
+      const responseData = {
+        title: reqData.topic as string,
+        studentId: user?._id as string,
+        documentUrl: reqData.documentId as string
+      };
+
+      let documentId = reqData.ingestId || reqData.documentId;
+
+      if (ingestDoc && !reqData.ingestId) {
+        const fileInfo = new FileProcessingService(responseData);
+        const {
+          data: [{ documentId: docId }]
+        } = await fileInfo.process();
+        documentId = docId;
+      }
+
+      return await ApiService.createDocchatFlashCards({
+        ...aiData,
+        studentId: user?.student?._id as string,
+        documentId: documentId as string
+      });
+    },
+    [user]
+  );
+
+  const handleError = useCallback(
+    (onDone?: (success: boolean) => void) => {
+      setQuestionGenerationStatus(QuestionGenerationStatusEnum.FAILED);
+      setFlashcardData((prev) => ({ ...prev, hasSubmitted: false }));
+      onDone && onDone(false);
+    },
+    [setQuestionGenerationStatus, setFlashcardData]
+  );
+
+  // Handle the API response
+  const handleResponse = useCallback(
+    async (response: Response, onDone?: (success: boolean) => void) => {
+      if (response.status === 200) {
+        const data = await response.json();
+        const questions = data.flashcards.map((d: any) => ({
+          question: d.front,
+          answer: d.back,
+          explanation: d.explainer,
+          helperText: d['helpful reading'],
+          questionType: 'openEnded'
+        }));
+
+        console.log('questions', questions);
+        setQuestions(questions);
+        setCurrentStep((prev) => prev + 1);
+        setQuestionGenerationStatus(QuestionGenerationStatusEnum.SUCCESSFUL);
+        onDone && onDone(true);
+      } else {
+        handleError(onDone);
+      }
+    },
+    [setQuestions, setCurrentStep, setQuestionGenerationStatus, handleError]
+  );
 
   const generateFlashcardQuestions = useCallback(
     async (
@@ -189,85 +273,55 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         data = data || ({} as FlashcardData);
         const reqData = { ...flashcardData, ...data };
+
         setIsLoading(true);
-        const count = reqData.numQuestions;
-        const aiData: { [key: string]: any } = {
+
+        const aiData: AIRequestBody = {
           topic: reqData.topic,
           subject: reqData.subject,
-          count: parseInt(count as unknown as string, 10)
+          count: parseInt(reqData.numQuestions as unknown as string, 10),
+          ...(reqData.level && { difficulty: reqData.level }),
+          ...(reqData.noteDoc && { note: reqData.noteDoc })
         };
 
-        if (reqData.level) {
-          aiData.difficulty = reqData.level;
-        }
+        let response;
 
         if (reqData.documentId) {
-          const responseData = {
-            title: reqData.topic as string,
-            studentId: user?._id as string,
-            documentUrl: reqData.documentId as string
-          };
-          let documentId = reqData.documentId;
-          if (ingestDoc) {
-            const fileInfo = new FileProcessingService(responseData);
-            const {
-              data: [{ documentId: docId }]
-            } = await fileInfo.process();
-            documentId = docId;
-          }
-          const response = await ApiService.createDocchatFlashCards({
-            topic: reqData.topic as string,
-            studentId: user?.student?._id as string,
-            documentId: documentId as string,
-            count: parseInt(count as unknown as string, 10)
-          });
-
-          if (response.status === 200) {
-            const data = await response.json();
-            const questions = data.flashcards.map((d: any) => ({
-              question: d.front,
-              answer: d.back,
-              explanation: d.explainer,
-              helperText: d['helpful reading'],
-              questionType: 'openEnded'
-            }));
-
-            setQuestions(questions);
-            setCurrentStep((prev) => prev + 1);
-            setQuestionGenerationStatus(
-              QuestionGenerationStatusEnum.SUCCESSFUL
-            );
-            onDone && onDone(true);
-          } else {
-            setQuestionGenerationStatus(QuestionGenerationStatusEnum.FAILED);
-            setFlashcardData((prev) => ({ ...prev, hasSubmitted: false }));
-            onDone && onDone(false);
-          }
+          response = await processDocumentRequest(reqData, ingestDoc, aiData);
         } else {
-          const response = await ApiService.generateFlashcardQuestions(
-            aiData,
-            user?._id as string // TODO: Get this user value from somewhere
-          );
+          const requestFunc = !reqData.noteDoc
+            ? ApiService.generateFlashcardQuestions
+            : ApiService.generateFlashcardQuestionsForNotes;
 
+          response = await requestFunc(aiData, user?._id as string);
+        }
+
+        await handleResponse(response, onDone);
+      } catch (error) {
+        handleError(onDone);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [flashcardData, user, handleError, processDocumentRequest, handleResponse]
+  );
+
+  // Handle errors
+
+  const saveFlashcardData = useCallback(
+    async (onDone?: (success: boolean) => void) => {
+      try {
+        setIsLoading(true);
+        console.log(questions);
+        const response = await createFlashCard(
+          { ...flashcardData, questions },
+          'manual'
+        );
+        if (response) {
           if (response.status === 200) {
-            const data = await response.json();
-            const questions = data.flashcards.map((d: any) => ({
-              question: d.front,
-              answer: d.back,
-              explanation: d.explainer,
-              helperText: d['helpful reading'],
-              questionType: 'openEnded'
-            }));
-
-            setQuestions(questions);
-            setCurrentStep((prev) => prev + 1);
-            setQuestionGenerationStatus(
-              QuestionGenerationStatusEnum.SUCCESSFUL
-            );
+            setSaveSuccessful(true);
             onDone && onDone(true);
           } else {
-            setFlashcardData((prev) => ({ ...prev, hasSubmitted: false }));
-            setQuestionGenerationStatus(QuestionGenerationStatusEnum.FAILED);
             onDone && onDone(false);
           }
         }
@@ -279,7 +333,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
         setIsLoading(false);
       }
     },
-    [flashcardData, setQuestions, user]
+    [flashcardData, createFlashCard, questions]
   );
 
   const value = useMemo(
@@ -288,6 +342,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       setFlashcardData,
       setLoader: setIsLoading,
       isLoading,
+      isSaveSuccessful,
       questions,
       currentStep,
       currentQuestionIndex,
@@ -302,10 +357,12 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       setMinimized,
       isMinimized,
       setSettings,
-      questionGenerationStatus
+      questionGenerationStatus,
+      saveFlashcardData
     }),
     [
       flashcardData,
+      isSaveSuccessful,
       isLoading,
       setFlashcardData,
       questions,
@@ -320,7 +377,8 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       setSettings,
       setMinimized,
       isMinimized,
-      questionGenerationStatus
+      questionGenerationStatus,
+      saveFlashcardData
     ]
   );
 

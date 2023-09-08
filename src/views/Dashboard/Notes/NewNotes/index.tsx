@@ -10,6 +10,7 @@ import { ReactComponent as TrashIcon } from '../../../../assets/trash-icn.svg';
 import CustomButton from '../../../../components/CustomComponents/CustomButton';
 import TableTag from '../../../../components/CustomComponents/CustomTag';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
+import TagModal from '../../../../components/TagModal';
 import useDebounce from '../../../../hooks/useDebounce';
 import { saveMarkdownAsPDF } from '../../../../library/fs';
 import { uploadBlockNoteDocument } from '../../../../services/AI';
@@ -17,7 +18,6 @@ import ApiService from '../../../../services/ApiService';
 import userStore from '../../../../state/userStore';
 import TempPDFViewer from '../../DocChat/TempPDFViewer';
 import FlashModal from '../../FlashCards/components/FlashModal';
-import TagModal from '../../FlashCards/components/TagModal';
 import { NoteModal } from '../Modal';
 import {
   AIServiceResponse,

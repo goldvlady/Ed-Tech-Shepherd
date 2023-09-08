@@ -53,10 +53,14 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
   >([]);
 
   useEffect(() => {
-    if (selectedItems && selectedItems.length) {
+    if (selectedItems) {
       setSelectedItemIds(selectedItems);
     }
   }, [selectedItems]);
+
+  useEffect(() => {
+    throttledHandleSelectionChange(selectedItemIds);
+  }, [selectedItemIds]);
 
   useEffect(() => {
     if (searchTerm === '') {
@@ -95,12 +99,12 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
         const newIds = prevState.includes(itemId)
           ? prevState.filter((id) => id !== itemId)
           : [...prevState, itemId];
-        throttledHandleSelectionChange(newIds);
+        // throttledHandleSelectionChange([itemId]);
         return newIds;
       });
     } else {
       setSelectedItemIds([itemId]);
-      throttledHandleSelectionChange([itemId]);
+      // throttledHandleSelectionChange([itemId]);
     }
   };
 

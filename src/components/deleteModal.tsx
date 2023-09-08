@@ -16,6 +16,7 @@ export const DeleteModal = ({
   isOpen,
   onCancel,
   onDelete,
+  entity = 'Flashcard',
   isLoading,
   onClose
 }: {
@@ -24,6 +25,7 @@ export const DeleteModal = ({
   onDelete: () => void;
   onClose: () => void;
   isLoading: boolean;
+  entity?: string;
 }) => {
   return (
     <Modal onClose={onClose} isOpen={isOpen} isCentered>
@@ -112,7 +114,7 @@ export const DeleteModal = ({
               letterSpacing="0.112px"
               color="#212224"
             >
-              Delete flashcard?
+              Delete {entity}?
             </Text>
             <Text
               color="#6E7682"

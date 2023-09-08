@@ -77,12 +77,19 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
   const isValid = useMemo(() => {
     const { timerDuration, hasSubmitted, subject, topic, ...data } = localData;
     let payload: { [key: string]: any } = { ...data };
+    if (flashcardData.noteDoc) {
+      return [
+        localData.deckname,
+        localData.numQuestions,
+        localData.studyType
+      ].every(Boolean);
+    }
     if (isAutomated) {
       payload = { ...payload, subject };
     }
 
     return Object.values(payload).every(Boolean);
-  }, [localData, isAutomated]);
+  }, [localData, isAutomated, flashcardData]);
 
   const handleDone = (success: boolean) => {
     toast({
@@ -111,7 +118,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
 
   return (
     <Box bg="white" width="100%" mt="30px">
-      {isAutomated && (
+      {isAutomated && !flashcardData?.noteDoc && (
         <>
           {' '}
           <FormControl mb={8}>

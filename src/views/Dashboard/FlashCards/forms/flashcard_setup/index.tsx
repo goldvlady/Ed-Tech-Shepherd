@@ -1,7 +1,9 @@
 import StepsIndicator, { Step } from '../../../../../components/StepIndicator';
 import { useFlashcardWizard } from '../../context/flashcard';
 import FlashCardSetupInit from './init';
+import LoaderScreen from './loader_page';
 import FlashCardQuestionsPage from './questions';
+import SuccessState from './success_page';
 import { Box, Text } from '@chakra-ui/react';
 import { Tag, TagLabel } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -19,7 +21,8 @@ const slideVariants = {
 };
 
 const SetupFlashcardPage = ({ isAutomated }: { isAutomated?: boolean }) => {
-  const { currentStep } = useFlashcardWizard();
+  const { currentStep, isLoading, isSaveSuccessful, resetFlashcard } =
+    useFlashcardWizard();
   const steps: Step[] = [{ title: '' }, { title: '' }, { title: '' }];
   const formComponents = useMemo(
     () => [FlashCardSetupInit, FlashCardQuestionsPage],
@@ -30,6 +33,18 @@ const SetupFlashcardPage = ({ isAutomated }: { isAutomated?: boolean }) => {
     () => formComponents[currentStep],
     [currentStep, formComponents]
   );
+
+  if (isSaveSuccessful) {
+    return <SuccessState reset={() => resetFlashcard()} />;
+  }
+
+  if (isLoading) {
+    return (
+      <Box width={'100%'} height={'100%'}>
+        <LoaderScreen />
+      </Box>
+    );
+  }
 
   return (
     <Box width={'100%'}>

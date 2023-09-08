@@ -310,14 +310,8 @@ export default function OffersGridList(props) {
 
   const { fetchOffers, offers, isLoading, pagination } = offerStore();
 
-  const handleNextPage = () => {
-    const nextPage = pagination.page + 1;
+  const handlePagination = (nextPage: number) => {
     fetchOffers(nextPage, limit, 'tutor');
-  };
-
-  const handlePreviousPage = () => {
-    const prevPage = pagination.page - 1;
-    fetchOffers(prevPage, limit, 'tutor');
   };
 
   return (
@@ -340,8 +334,7 @@ export default function OffersGridList(props) {
         page={pagination.page}
         count={pagination.total}
         limit={pagination.limit}
-        handleNextPage={handleNextPage}
-        handlePreviousPage={handlePreviousPage}
+        handlePagination={handlePagination}
       />
     </>
   );

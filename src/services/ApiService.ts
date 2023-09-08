@@ -49,6 +49,13 @@ class ApiService {
     });
   };
 
+  static storeNotesTags = (noteIds: string[] | string, tags: string[]) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeNotesTags`, {
+      method: 'POST',
+      body: JSON.stringify({ noteIds, tags })
+    });
+  };
+
   static scheduleStudyEvent = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/scheduleStudyEvent`, {
       method: 'POST',
@@ -119,6 +126,25 @@ class ApiService {
     });
   };
 
+  static deleteStudentDocument = async (id: string | number) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/deleteStudentDocument?id=${id}`,
+      {
+        method: 'POST'
+      }
+    );
+  };
+
+  static updateStudentDocument = async (
+    id: string | number,
+    updates: Partial<StudentDocumentPayload>
+  ) => {
+    return doFetch(`${ApiService.baseEndpoint}/updateStudentDocument`, {
+      method: 'POST',
+      body: JSON.stringify({ documentId: id, updates })
+    });
+  };
+
   static createFlashcard = async (data: any, generatorType = 'manual') => {
     return doFetch(
       `${ApiService.baseEndpoint}/createFlashcard?generatorType=${generatorType}`,
@@ -160,6 +186,24 @@ class ApiService {
     return fetch(`${AI_API}/flash-cards/students/${studentId}`, {
       method: 'POST',
       body: JSON.stringify(data),
+      headers: {
+        'x-shepherd-header': HEADER_KEY,
+        'Content-Type': 'application/json'
+      }
+    });
+  };
+
+  static generateFlashcardQuestionsForNotes = async (
+    data: any,
+    studentId: string
+  ) => {
+    return fetch(`${AI_API}/flash-cards/generate-from-plain-notes`, {
+      method: 'POST',
+      body: JSON.stringify({
+        note: data.note,
+        count: data.count,
+        studentId: studentId
+      }),
       headers: {
         'x-shepherd-header': HEADER_KEY,
         'Content-Type': 'application/json'
@@ -393,8 +437,15 @@ class ApiService {
 
   // Notes
 
-  static getAllNotes = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/notes`);
+  static getAllNotes = async (queryParams: {
+    search?: string;
+    page?: number;
+    limit?: number;
+    sort?: string;
+    type?: string;
+  }) => {
+    const queryString = objectToQueryString(queryParams);
+    return doFetch(`${ApiService.baseEndpoint}/notes?${queryString}`);
   };
 
   static getNote = async (id: string | number) => {
@@ -501,6 +552,57 @@ class ApiService {
   static getOnlineTutors = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getOnlineTutors`);
   };
+
+  // CREATE: Create a new student document
+  static createStudentDocument = async (data: StudentDocumentPayload) => {
+    return await doFetch(`${ApiService.baseEndpoint}/studentDocuments`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static storeDocumentTags = (
+    documentIds: string[] | string,
+    tags: string[]
+  ) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeStudentDocumentTag`, {
+      method: 'POST',
+      body: JSON.stringify({ documentIds, tags })
+    });
+  };
+
+  // READ: Get a specific student document by ID
+  static getStudentDocument = async (id: string) => {
+    return await doFetch(`${ApiService.baseEndpoint}/studentDocuments/${id}`, {
+      method: 'GET'
+    });
+  };
+
+  // READ: Get all student documents for a particular student
+  static getStudentDocuments = async (queryParams: {
+    search?: string;
+    page?: number;
+    limit?: number;
+    sort?: string;
+    type?: string;
+  }) => {
+    const queryString = objectToQueryString(queryParams);
+    return await doFetch(
+      `${ApiService.baseEndpoint}/getStudentDocuments?${queryString}`,
+      {
+        method: 'GET'
+      }
+    );
+  };
+
+  // Utility function to perform the fetch operations
+  private static async doFetch(url: string, options: RequestInit) {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  }
 }
 
 export default ApiService;
