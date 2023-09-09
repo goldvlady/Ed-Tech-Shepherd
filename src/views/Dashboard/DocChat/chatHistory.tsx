@@ -14,6 +14,7 @@ import {
 import { Box, Spinner } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 import React from 'react';
+import { messageCodeBlocks } from 'stream-chat-react';
 import styled from 'styled-components';
 
 const Clock = styled.div`
@@ -96,10 +97,21 @@ const ChatHistory = ({
   const groupChatsByDateArr: GroupedChat[] = groupChatsByDate(chatHistory);
 
   const toggleMessage = (id) => {
-    setToggleHistoryBox((prevState) => ({
-      ...prevState,
-      [id]: !prevState[id]
-    }));
+    setToggleHistoryBox((prevState) => {
+      const updatedState = { ...prevState };
+
+      // Toggle the state of the clicked item
+      updatedState[id] = !updatedState[id];
+
+      // Close all previous items except the one clicked
+      for (const key in updatedState) {
+        if (key !== id) {
+          updatedState[key] = false;
+        }
+      }
+
+      return updatedState;
+    });
   };
 
   useEffect(() => {

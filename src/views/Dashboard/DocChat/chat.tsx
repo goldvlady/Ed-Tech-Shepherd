@@ -321,28 +321,29 @@ const Chat = ({
                 </div>
 
                 <GridContainer isHomeWorkHelp={HomeWorkHelp}>
-                  {HomeWorkHelp && messages && messages.length < 1 && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '210px',
-                        right: '36%',
-                        /* width: 100%; */
-                        zIndex: '111111111'
-                      }}
-                    >
-                      <StyledDiv
-                        onClick={handleAceHomeWorkHelp}
+                  {HomeWorkHelp && messages && messages.length < 1 ? (
+                    botStatus?.toLowerCase() === 'typing' ? null : (
+                      <div
                         style={{
-                          color: '#FB8441',
-                          background: 'white'
+                          position: 'absolute',
+                          top: '210px',
+                          right: '36%',
+                          zIndex: '111111111'
                         }}
-                        needIndex
                       >
-                        Start New Conversation
-                      </StyledDiv>
-                    </div>
-                  )}
+                        <StyledDiv
+                          onClick={handleAceHomeWorkHelp}
+                          style={{
+                            color: '#FB8441',
+                            background: 'white'
+                          }}
+                          needIndex
+                        >
+                          Start New Conversation
+                        </StyledDiv>
+                      </div>
+                    )
+                  ) : null}
                   {isFindTutor && (
                     <OptionsContainer>
                       <Text className="">What do you need?</Text>

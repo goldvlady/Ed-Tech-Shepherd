@@ -432,6 +432,13 @@ export const ChatHistoryBody = styled.div`
   border-radius: 8px;
   margin-top: 20px;
   cursor: pointer;
+  transition: all 0.3s ease; /* Smooth transition over 0.3 seconds */
+
+  &:hover {
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    border-color: #007bff;
+    cursor: pointer;
+  }
 `;
 
 export const ChatHistoryContainer = styled.div`
@@ -441,6 +448,7 @@ export const ChatHistoryContainer = styled.div`
 
 export const ChatHistoryBlock = styled.div`
   margin-top: 25px;
+  padding: 10px;
 `;
 
 export const ChatHistoryHeader = styled.div`
@@ -580,6 +588,6 @@ export const HomeWorkHelpChatContainer2 = styled.textarea`
   cursor: pointer;
   resize: none;
   width: -webkit-fill-available;
-  height: auto;
+  height: 20vh;
   border: none;
 `;

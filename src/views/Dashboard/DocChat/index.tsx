@@ -317,7 +317,7 @@ export default function DocChat() {
       }
     };
     fetchChatHistory();
-  }, [documentId, studentId, toast, socket]);
+  }, [documentId, studentId]);
 
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
 

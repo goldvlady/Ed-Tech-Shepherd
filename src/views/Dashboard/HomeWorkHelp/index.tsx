@@ -20,7 +20,8 @@ import React, {
   useState,
   useCallback,
   useEffect,
-  useLayoutEffect
+  useLayoutEffect,
+  useRef
 } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -55,19 +56,19 @@ const HomeWorkHelp = () => {
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [onlineTutorsId, setOnlineTutorsId] = useState([]);
   const storedConvoId = localStorage.getItem('conversationId');
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
-    if (!socket && storedConvoId) {
+    if (!socket && messages.length >= 2 && storedConvoId) {
       const authSocket = socketWithAuth({
         studentId,
         topic: localData.topic,
         subject: localData.subject,
-        // conversationId,
         namespace: 'homework-help'
       }).connect();
       setSocket(authSocket);
     }
-  }, [socket, storedConvoId]);
+  }, [socket, messages, storedConvoId, studentId, localData]);
 
   useEffect(() => {
     if (isSubmitted) {
@@ -249,6 +250,15 @@ const HomeWorkHelp = () => {
           isUser: conversation?.log?.role === 'user',
           isLoading: false
         }))
+        ?.sort((a, b) => {
+          const dateA = new Date(a.createdAt);
+          const dateB = new Date(b.createdAt);
+          // If dates are the same
+          if (dateA.getTime() === dateB.getTime()) {
+            return a.id - b.id;
+          }
+          return dateA.getTime() - dateB.getTime();
+        })
         .slice(1);
       setMessages((prevState) => [...previousConvoData]);
     };
