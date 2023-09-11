@@ -13,7 +13,6 @@ import {
 } from './styles';
 import { Box, Spinner } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
-import React from 'react';
 import { messageCodeBlocks } from 'stream-chat-react';
 import styled from 'styled-components';
 

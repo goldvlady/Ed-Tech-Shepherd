@@ -57,9 +57,11 @@ const HomeWorkHelp = () => {
   const [onlineTutorsId, setOnlineTutorsId] = useState([]);
   const storedConvoId = localStorage.getItem('conversationId');
   const isFirstRender = useRef(true);
+  const authSocketConnected =
+    localStorage.getItem('authSocketConnected') || 'false';
 
   useEffect(() => {
-    if (!socket && messages.length >= 2 && storedConvoId) {
+    if (!socket) {
       const authSocket = socketWithAuth({
         studentId,
         topic: localData.topic,
@@ -68,7 +70,7 @@ const HomeWorkHelp = () => {
       }).connect();
       setSocket(authSocket);
     }
-  }, [socket, messages, storedConvoId, studentId, localData]);
+  }, [socket]);
 
   useEffect(() => {
     if (isSubmitted) {
@@ -79,6 +81,15 @@ const HomeWorkHelp = () => {
         // conversationId,
         namespace: 'homework-help'
       }).connect();
+
+      // authSocket.on('connect', () => {
+      //   // The socket is connected; you can set it in localStorage here
+      //   localStorage.setItem(
+      //     'authSocketConnected',
+      //     JSON.stringify(authSocket.active)
+      //   );
+      // });
+
       setSocket(authSocket);
     }
     return () => setIsSubmitted(false);

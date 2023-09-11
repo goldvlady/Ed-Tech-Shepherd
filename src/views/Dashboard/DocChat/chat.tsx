@@ -322,7 +322,7 @@ const Chat = ({
 
                 <GridContainer isHomeWorkHelp={HomeWorkHelp}>
                   {HomeWorkHelp && messages && messages.length < 1 ? (
-                    botStatus?.toLowerCase() === 'typing' ? null : (
+                    botStatus === 'Typing...' ? null : (
                       <div
                         style={{
                           position: 'absolute',
