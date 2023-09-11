@@ -111,7 +111,9 @@ export default function BountyGridList(props) {
     const prevPage = pagination.page - 1;
     fetchBountyOffers(prevPage, limit);
   };
-
+  const handlePagination = (nextPage: number) => {
+    fetchBountyOffers(nextPage, limit);
+  };
   return (
     <>
       {' '}
@@ -128,13 +130,12 @@ export default function BountyGridList(props) {
             <BountyCard key={bounty.id} id={bounty.id} bounty={bounty} />
           ))}
       </SimpleGrid>{' '}
-      {/* <Pagination
+      <Pagination
         page={pagination.page}
         count={pagination.total}
         limit={pagination.limit}
-        handleNextPage={handleNextPage}
-        handlePreviousPage={handlePreviousPage}
-      /> */}
+        handlePagination={handlePagination}
+      />
     </>
   );
 }

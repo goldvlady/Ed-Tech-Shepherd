@@ -8,6 +8,7 @@ import {
   Spacer,
   Flex
 } from '@chakra-ui/react';
+import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router';
 
@@ -57,7 +58,7 @@ const StudentBountyCard = ({ bounty }) => {
             {bounty.interestedTutors ? bounty.interestedTutors : 3}
           </Text>
           <Text fontSize="sm" color="gray.500" mb={2}>
-            Expiry Date: {bounty.expiryDate}
+            Expiry Date: {moment(bounty.expiryDate).format('DD MMMM , YYYY')}
           </Text>
         </Box>
         <Spacer />

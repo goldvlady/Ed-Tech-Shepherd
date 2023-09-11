@@ -7,8 +7,10 @@ import TutorCard from '../components/TutorCard';
 import {
   Badge,
   Box,
+  Center,
   Flex,
   SimpleGrid,
+  Spinner,
   Tab,
   TabList,
   TabPanel,
@@ -27,15 +29,18 @@ function Bounties() {
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(5);
   const [count, setCount] = useState<number>(5);
-  const [days, setDays] = useState<Array<any>>([]);
+
   const { fetchOffers, offers, isLoading, pagination } = offerStore();
   const { bountyId } = useParams();
-  console.log(bountyBids, 'BIDS');
 
   const doFetchBountyBids = useCallback(async () => {
+    setLoadingData(true);
     const response = await ApiService.getBountyBids(bountyId);
-    const data = response.json();
-    setBountyBids(data);
+    const data: any = await response.json();
+
+    setBountyBids(data.data);
+    setLoadingData(false);
+
     /* eslint-disable */
   }, []);
 
@@ -50,7 +55,22 @@ function Bounties() {
   };
 
   const [tutorGrid] = useAutoAnimate();
-
+  if (loadingData) {
+    return (
+      <Box
+        p={5}
+        textAlign="center"
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh'
+        }}
+      >
+        <Spinner />
+      </Box>
+    );
+  }
   return (
     <>
       <Box p={3}>
@@ -62,12 +82,12 @@ function Bounties() {
             </Text>
           </Box>
           <Badge bgColor={'#F4F5F6'} p={2} borderRadius={'6px'}>
-            {offers ? offers.length : ''}
+            {bountyBids ? bountyBids.length : ''}
           </Badge>
         </Flex>
         <Box>
           {' '}
-          {!isLoading && offers ? (
+          {!loadingData && bountyBids.length > 0 ? (
             <>
               {' '}
               <SimpleGrid
@@ -76,32 +96,46 @@ function Bounties() {
                 ref={tutorGrid}
                 mt={4}
               >
-                {offers.map((tutor: any) => (
+                {bountyBids.map((tutor: any) => (
                   <TutorCard
-                    key={tutor?.tutor?._id}
-                    id={tutor?.tutor?._id}
-                    name={`${tutor.tutor.user.name.first} ${tutor.tutor.user.name.last}`}
+                    key={tutor?.bounty}
+                    id={tutor?.bounty}
+                    name={`Tutor Name`}
                     levelOfEducation={'BSC'}
-                    avatar={tutor.tutor.user.avatar}
-                    saved={true}
-                    description={tutor.tutor?.description}
-                    rate={tutor.tutor?.rate}
-                    rating={tutor.tutor?.rating}
-                    reviewCount={tutor.tutor?.reviewCount}
+                    // avatar={tutor.tutor.user.avatar}
+                    // saved={true}
+                    // description={tutor.tutor?.description}
+                    // rate={tutor.tutor?.rate}
+                    // rating={tutor.tutor?.rating}
+                    // reviewCount={tutor.tutor?.reviewCount}
                     use="bounty"
                     offerStatus={tutor.status}
                   />
                 ))}
               </SimpleGrid>{' '}
-              <Pagination
+              {/* <Pagination
                 page={pagination.page}
                 count={pagination.total}
                 limit={pagination.limit}
                 handlePagination={handlePagination}
-              />
+              /> */}
             </>
           ) : (
-            !isLoading && 'no tutors found'
+            !loadingData && (
+              <Center>
+                <div className="text-center">
+                  <img src="/images/notes.png" alt="" />
+                  <Text>No Tutors have shown interest yet!</Text>
+                  {/* <button
+                    type="button"
+                    className="inline-flex items-center justify-center mt-4 gap-x-2 w-[286px] rounded-md bg-secondaryBlue px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                  >
+                    <PlusIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
+                    Create new
+                  </button> */}
+                </div>
+              </Center>
+            )
           )}
         </Box>
       </Box>

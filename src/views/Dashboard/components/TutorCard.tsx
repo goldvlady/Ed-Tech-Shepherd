@@ -45,8 +45,7 @@ export default function TutorCard(props: any) {
     reviewCount,
     saved,
     offerStatus,
-    handleSelectedCourse,
-    isTutorOnline
+    handleSelectedCourse
   } = props;
   const toast = useToast();
   const { fetchBookmarkedTutors } = bookmarkedTutorsStore();
@@ -131,40 +130,42 @@ export default function TutorCard(props: any) {
             }}
             padding={'20px'}
             position="relative"
+            onClick={() =>
+              use === 'bounty'
+                ? handleBountyClick()
+                : navigate(`/dashboard/find-tutor/tutor/?id=${id}`)
+            }
           >
             <Flex gap={2} alignItems="center" position="relative">
               <Avatar size="lg" name={name} src={avatar} />
-              {isTutorOnline && (
-                <div>
-                  <div
-                    style={{
-                      width: '16px',
-                      height: '16px',
-                      background: 'linear-gradient(0deg, #66BD6A, #66BD6A)',
-                      border: '2.5px solid #FFFFFF',
-                      borderRadius: '50%',
-                      position: 'absolute',
-                      top: '46px',
-                      left: '50px'
-                    }}
-                  ></div>
-                </div>
-              )}
-
-              <LinkOverlay href={`/dashboard/find-tutor/tutor/?id=${id}`}>
+              {/* <div>
+                <div
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    background: 'linear-gradient(0deg, #66BD6A, #66BD6A)',
+                    border: '2.5px solid #FFFFFF',
+                    borderRadius: '50%',
+                    position: 'absolute',
+                    top: '46px',
+                    left: '50px'
+                  }}
+                ></div>
+              </div> */}
+              <LinkOverlay href={``}>
                 <Flex pt={1} direction={'column'}>
                   <Text fontSize={'16px'} fontWeight={'semibold'} mb={0}>
                     {name}
+                    <Text
+                      fontWeight={400}
+                      color={'#212224'}
+                      fontSize="14px"
+                      mb={'2px'}
+                    >
+                      {levelOfEducation}
+                    </Text>
                   </Text>
-                  <Text
-                    fontWeight={400}
-                    color={'#212224'}
-                    fontSize="14px"
-                    mb={'2px'}
-                  >
-                    {levelOfEducation}
-                  </Text>
-                </Flex>
+                </Flex>{' '}
               </LinkOverlay>
             </Flex>
             <Box my={2}>

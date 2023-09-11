@@ -570,7 +570,7 @@ const Offer = () => {
                           <FormLabel>Contract starts</FormLabel>
                           <OfferValueText>
                             {moment(offer.contractStartDate).format(
-                              'MMMM Do YYYY'
+                              'Do MMMM YYYY'
                             )}
                           </OfferValueText>
                         </Box>
@@ -578,7 +578,7 @@ const Offer = () => {
                           <FormLabel>Contract ends</FormLabel>
                           <OfferValueText>
                             {moment(offer.contractEndDate).format(
-                              'MMMM Do YYYY'
+                              'Do MMMM YYYY'
                             )}
                           </OfferValueText>
                         </Box>

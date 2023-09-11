@@ -157,6 +157,8 @@ const SendTutorOffer = () => {
       return { label: numberToDayOfWeekName(i), value: i };
     });
 
+  const today = useMemo(() => new Date(), []);
+
   return (
     <Root className="container-fluid">
       <Box className="row">
@@ -281,6 +283,7 @@ const SendTutorOffer = () => {
                                 <FormLabel>Offer expiration date</FormLabel>
                                 {isEditing ? (
                                   <CalendarDateInput
+                                    disabledDate={{ before: today }}
                                     value={field.value}
                                     onChange={(d) =>
                                       form.setFieldValue(field.name, d)
@@ -311,28 +314,19 @@ const SendTutorOffer = () => {
                                   }
                                 >
                                   <FormLabel>Contract starts</FormLabel>
-                                  {isEditing ? (
-                                    <CalendarDateInput
-                                      inputProps={{
-                                        placeholder: 'Select date',
-                                        onClick: () =>
-                                          form.setTouched({
-                                            ...form.touched,
-                                            [field.name]: true
-                                          })
-                                      }}
-                                      value={field.value}
-                                      onChange={(d) =>
-                                        form.setFieldValue(field.name, d)
-                                      }
-                                    />
-                                  ) : (
-                                    <EditField>
-                                      {moment(field.value).format(
-                                        'MMMM Do YYYY'
-                                      )}
-                                    </EditField>
-                                  )}
+                                  <CalendarDateInput
+                                    disabledDate={{ before: today }}
+                                    value={field.value}
+                                    onChange={(d) => {
+                                      form.setFieldValue(field.name, d);
+                                      // Dynamically set the minDate for contractEndDate
+                                      form.setFieldValue(
+                                        'contractEndDate',
+                                        null
+                                      ); // Reset contractEndDate
+                                      form.setFieldError('contractEndDate', ''); // Clear any previous error
+                                    }}
+                                  />
                                   <FormErrorMessage>
                                     {form.errors[field.name] as string}
                                   </FormErrorMessage>
@@ -348,28 +342,23 @@ const SendTutorOffer = () => {
                                   }
                                 >
                                   <FormLabel>Contract ends</FormLabel>
-                                  {isEditing ? (
-                                    <CalendarDateInput
-                                      inputProps={{
-                                        placeholder: 'Select date',
-                                        onClick: () =>
-                                          form.setTouched({
-                                            ...form.touched,
-                                            [field.name]: true
-                                          })
-                                      }}
-                                      value={field.value}
-                                      onChange={(d) =>
-                                        form.setFieldValue(field.name, d)
-                                      }
-                                    />
-                                  ) : (
-                                    <EditField>
-                                      {moment(field.value).format(
-                                        'MMMM Do YYYY'
-                                      )}
-                                    </EditField>
-                                  )}
+                                  <CalendarDateInput
+                                    inputProps={{
+                                      placeholder: 'Select date',
+                                      onClick: () =>
+                                        form.setTouched({
+                                          ...form.touched,
+                                          [field.name]: true
+                                        })
+                                    }}
+                                    value={field.value}
+                                    disabledDate={{
+                                      before: form.values.contractStartDate
+                                    }}
+                                    onChange={(d) =>
+                                      form.setFieldValue(field.name, d)
+                                    }
+                                  />
                                   <FormErrorMessage>
                                     {form.errors[field.name] as string}
                                   </FormErrorMessage>

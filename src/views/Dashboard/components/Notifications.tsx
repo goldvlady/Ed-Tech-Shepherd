@@ -53,8 +53,22 @@ function Notifications(props) {
         return OfferIcon;
       case 'new_offer_received':
         return OfferIcon;
+      case 'offer_accepted':
+        return OfferIcon;
+      case 'offer_rejected':
+        return OfferIcon;
       case 'upcoming_class':
         return VideoIcon;
+      case 'BOUNTY_CREATED':
+        return OfferIcon;
+      case 'BOUNTY_ACCEPTED':
+        return OfferIcon;
+      case 'BOUNTY_BID_ACCEPTED':
+        return OfferIcon;
+      case 'BOUNTY_BID_RECIEVED':
+        return OfferIcon;
+      case 'BOUNTY_BID_REJECTED':
+        return OfferIcon;
       default:
         return undefined;
     }
@@ -67,8 +81,23 @@ function Notifications(props) {
         return 'Your offer has been sent ';
       case 'new_offer_received':
         return 'You have received an offer  ';
+      case 'offer_accepted':
+        return 'Your Offer has been accepted';
+      case 'offer_rejected':
+        return 'Your Offer has been rejected';
       case 'upcoming_class':
         return 'Your chemistry lesson session with Leslie Peters started';
+      case 'BOUNTY_CREATED':
+        return 'Your Bounty has been placed';
+      case 'BOUNTY_ACCEPTED':
+        return 'Bounty Offer accepted';
+      case 'BOUNTY_BID_ACCEPTED':
+        return 'Bounty bid accepted';
+      case 'BOUNTY_BID_RECIEVED':
+        return 'Bounty bid received';
+      case 'BOUNTY_BID_REJECTED':
+        return 'Bounty bid rejected';
+
       default:
         return undefined;
     }

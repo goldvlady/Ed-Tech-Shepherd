@@ -398,10 +398,11 @@ class ApiService {
   };
 
   // Get All Tutor Clients
-  static getTutorClients = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/getTutorClients`);
+  static getTutorClients = async (page: number, limit: number) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/getTutorClients?page=${page}&limit=${limit}`
+    );
   };
-
   // Get Single Tutor Clients
   static getTutorSingleClients = async (id: string) => {
     return doFetch(`${ApiService.baseEndpoint}/getClient?id=${id}`, {
@@ -529,8 +530,10 @@ class ApiService {
       body: JSON.stringify(data)
     });
   };
-  static getBountyOffers = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/getBounties`);
+  static getBountyOffers = async (page: number, limit: number) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/getBounties?page=${page}&limit=${limit}`
+    );
   };
 
   static applyForBounty = async (data: any) => {
@@ -545,8 +548,14 @@ class ApiService {
       body: JSON.stringify(data)
     });
   };
+
   static getBountyBids = async (data: any) => {
-    return doFetch(`${ApiService.baseEndpoint}/getBountyBids/${data}`);
+    const queryParams = new URLSearchParams({ bountyId: data }).toString();
+    const url = `${ApiService.baseEndpoint}/getBountyBids?${queryParams}`;
+
+    return doFetch(url, {
+      method: 'GET'
+    });
   };
 
   static getOnlineTutors = async () => {

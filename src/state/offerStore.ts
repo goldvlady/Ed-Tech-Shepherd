@@ -40,10 +40,10 @@ export default create<Store>((set) => ({
     set({ isLoading: true });
     try {
       set({ isLoading: true });
-      const response = await ApiService.getBountyOffers();
-      const { data } = await response.json();
+      const response = await ApiService.getBountyOffers(page, limit);
+      const { data, meta } = await response.json();
 
-      set({ bounties: data });
+      set({ bounties: data, pagination: meta.pagination });
     } catch (error) {
       // console.log(error)
     } finally {

@@ -13,6 +13,7 @@ import {
   InputGroup,
   InputLeftElement,
   Text,
+  Textarea,
   Menu,
   MenuButton,
   MenuItem,
@@ -24,7 +25,7 @@ import {
 import React, { useCallback, useState, useMemo } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 
-function BountyOfferModal(props) {
+export default function BountyOfferModal(props) {
   const { isBountyModalOpen, closeBountyModal } = props;
   const { courses: courseList, levels: levelOptions } = resourceStore();
 
@@ -36,7 +37,7 @@ function BountyOfferModal(props) {
     price: '',
     rating: 0,
     instructionMode: '',
-    time: '',
+    // time: '',
     expirationDate: new Date()
   });
 
@@ -224,10 +225,9 @@ function BountyOfferModal(props) {
             >
               Description
             </FormLabel>
-            <Input
-              type="text"
+            <Textarea
               name="description"
-              placeholder="e.g genetics"
+              placeholder="e.g epigenetics"
               value={bountyOffer.description}
               onChange={(e) =>
                 setBountyOffer((prevState) => ({
@@ -235,7 +235,7 @@ function BountyOfferModal(props) {
                   description: e.target.value
                 }))
               }
-              _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
+              // _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
             />
           </FormControl>
 
@@ -283,7 +283,7 @@ function BountyOfferModal(props) {
               </MenuList>
             </Menu>
           </FormControl>
-          <FormControl mb={4}>
+          {/* <FormControl mb={4}>
             <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
               Select Time
             </FormLabel>
@@ -304,7 +304,7 @@ function BountyOfferModal(props) {
                 <Text fontSize="14px"> 1 hour</Text>
               </Radio>
             </RadioGroup>
-          </FormControl>
+          </FormControl> */}
           <FormControl mb={4}>
             <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
               Price ($)
@@ -374,4 +374,4 @@ function BountyOfferModal(props) {
   );
 }
 
-export default BountyOfferModal;
+// export default BountyOfferModal;
