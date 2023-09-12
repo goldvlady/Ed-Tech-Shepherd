@@ -1,6 +1,11 @@
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast/index';
-import { chatHomeworkHelp, getConversionById } from '../../../services/AI';
+import {
+  chatHomeworkHelp,
+  editConversationId,
+  getConversionById,
+  updateGeneratedSummary
+} from '../../../services/AI';
 import { chatHistory } from '../../../services/AI';
 import ApiService from '../../../services/ApiService';
 import socketWithAuth from '../../../socket';
@@ -55,22 +60,22 @@ const HomeWorkHelp = () => {
   const [conversationId, setConversationId] = useState('');
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [onlineTutorsId, setOnlineTutorsId] = useState([]);
+  const [visibleButton, setVisibleButton] = useState(true);
   const storedConvoId = localStorage.getItem('conversationId');
   const isFirstRender = useRef(true);
-  const authSocketConnected =
-    localStorage.getItem('authSocketConnected') || 'false';
+  const authSocketConnected = '';
 
-  useEffect(() => {
-    if (!socket) {
-      const authSocket = socketWithAuth({
-        studentId,
-        topic: localData.topic,
-        subject: localData.subject,
-        namespace: 'homework-help'
-      }).connect();
-      setSocket(authSocket);
-    }
-  }, [socket]);
+  // useEffect(() => {
+  //   if (studentId) {
+  //     const authSocket = socketWithAuth({
+  //       studentId,
+  //       topic: localData.topic,
+  //       subject: localData.subject,
+  //       namespace: 'homework-help'
+  //     }).connect();
+  //     setSocket(authSocket);
+  //   }
+  // }, [studentId]);
 
   useEffect(() => {
     if (isSubmitted) {
@@ -82,14 +87,6 @@ const HomeWorkHelp = () => {
         namespace: 'homework-help'
       }).connect();
 
-      // authSocket.on('connect', () => {
-      //   // The socket is connected; you can set it in localStorage here
-      //   localStorage.setItem(
-      //     'authSocketConnected',
-      //     JSON.stringify(authSocket.active)
-      //   );
-      // });
-
       setSocket(authSocket);
     }
     return () => setIsSubmitted(false);
@@ -99,12 +96,14 @@ const HomeWorkHelp = () => {
     if (socket) {
       socket.on('ready', (ready) => {
         setReadyToChat(ready);
-        socket.emit('chat message', 'Shall we begin, Socrates?');
+        if (!messages.length || conversationId) {
+          socket.emit('chat message', 'Shall we begin, Socrates?');
+        }
       });
 
       return () => socket.off('ready');
     }
-  }, [socket]);
+  }, [socket, messages]);
 
   useEffect(() => {
     if (socket) {
@@ -255,6 +254,10 @@ const HomeWorkHelp = () => {
         conversationId
       });
 
+      if (response) {
+        setVisibleButton(false);
+      }
+
       const previousConvoData = response
         ?.map((conversation) => ({
           text: conversation?.log?.content,
@@ -274,7 +277,9 @@ const HomeWorkHelp = () => {
       setMessages((prevState) => [...previousConvoData]);
     };
     fetchConversationId();
-    if (conversationId) setShowPrompt(true);
+    if (conversationId) {
+      setShowPrompt(true);
+    }
   }, [conversationId, socket]);
 
   const onRouteHomeWorkHelp = useCallback(() => {
@@ -301,6 +306,7 @@ const HomeWorkHelp = () => {
     if (isSubmitted) {
       setMessages([]);
       setConversationId('');
+      setVisibleButton(false);
     }
   }, [isSubmitted]);
 
@@ -370,6 +376,7 @@ const HomeWorkHelp = () => {
           countNeedTutor={countNeedTutor}
           onCountTutor={onCountTutor}
           handleAceHomeWorkHelp={handleAceHomeWorkHelp}
+          visibleButton={visibleButton}
         />
       </HomeWorkHelpChatContainer>
 

@@ -362,3 +362,42 @@ export const getConversionById = async ({
     return conversation;
   }
 };
+
+export const deleteConversationId = async ({
+  conversationId
+}: {
+  conversationId: string;
+}) => {
+  const request = await fetch(
+    `${AI_API}/notes/conversations/${conversationId}`,
+    {
+      method: 'DELETE',
+      headers: {
+        'x-shepherd-header': HEADER_KEY
+      }
+    }
+  );
+  return request;
+};
+
+export const editConversationId = async ({
+  conversationId,
+  newTitle
+}: {
+  conversationId: string;
+  newTitle: string;
+}) => {
+  const request = await fetch(
+    `${AI_API}/notes/conversations/${conversationId}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'x-shepherd-header': HEADER_KEY
+      },
+      body: JSON.stringify({
+        newTitle
+      })
+    }
+  );
+  return request;
+};

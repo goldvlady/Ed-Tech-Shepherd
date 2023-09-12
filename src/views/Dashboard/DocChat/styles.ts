@@ -433,6 +433,7 @@ export const ChatHistoryBody = styled.div`
   margin-top: 20px;
   cursor: pointer;
   transition: all 0.3s ease; /* Smooth transition over 0.3 seconds */
+  justify-content: space-between;
 
   &:hover {
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);

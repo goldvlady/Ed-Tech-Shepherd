@@ -84,6 +84,7 @@ interface IChat {
   isUpdatedSummary?: boolean;
   directStudentId?: string;
   title?: string;
+  visibleButton?: boolean;
 }
 const Chat = ({
   HomeWorkHelp,
@@ -113,7 +114,8 @@ const Chat = ({
   loading,
   isUpdatedSummary,
   title,
-  directStudentId
+  directStudentId,
+  visibleButton
 }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
@@ -121,6 +123,7 @@ const Chat = ({
   const [isQuiz, setQuiz] = useState<boolean>(false);
   const [isChatHistory, setChatHistory] = useState<boolean>(false);
   const textAreaRef = useRef<any>();
+  const textAreaRef2 = useRef<any>();
   const ref = useChatScroll(messages);
 
   const prompts = [
@@ -266,6 +269,21 @@ const Chat = ({
     }
   }, [inputValue, textAreaRef.current]);
 
+  useEffect(() => {
+    if (textAreaRef2.current) {
+      textAreaRef2.current.style.height = '2.5rem'; // Initially set height
+      textAreaRef2.current.style.height = `${textAreaRef2.current.scrollHeight}px`; // Then adjust it
+
+      // Adjust border radius based on inputValue
+      if (inputValue.length > 0) {
+        textAreaRef2.current.style.borderRadius = '16px';
+        textAreaRef2.current.style.minHeight = '2.5rem';
+      } else {
+        textAreaRef2.current.style.borderRadius = '100px'; // Set initial border radius
+      }
+    }
+  }, [inputValue, textAreaRef2.current, visibleButton]);
+
   return (
     <>
       <Form id="chatbot" isHomeWorkHelp={HomeWorkHelp}>
@@ -321,28 +339,26 @@ const Chat = ({
                 </div>
 
                 <GridContainer isHomeWorkHelp={HomeWorkHelp}>
-                  {HomeWorkHelp && messages && messages.length < 1 ? (
-                    botStatus === 'Typing...' ? null : (
-                      <div
+                  {HomeWorkHelp && visibleButton ? (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '210px',
+                        right: '36%',
+                        zIndex: '111111111'
+                      }}
+                    >
+                      <StyledDiv
+                        onClick={handleAceHomeWorkHelp}
                         style={{
-                          position: 'absolute',
-                          top: '210px',
-                          right: '36%',
-                          zIndex: '111111111'
+                          color: '#FB8441',
+                          background: 'white'
                         }}
+                        needIndex
                       >
-                        <StyledDiv
-                          onClick={handleAceHomeWorkHelp}
-                          style={{
-                            color: '#FB8441',
-                            background: 'white'
-                          }}
-                          needIndex
-                        >
-                          Start New Conversation
-                        </StyledDiv>
-                      </div>
-                    )
+                        Start New Conversation
+                      </StyledDiv>
+                    </div>
                   ) : null}
                   {isFindTutor && (
                     <OptionsContainer>
@@ -472,11 +488,11 @@ const Chat = ({
             </PillsContainer>
           </DownPillContainer>
         )}
-        {HomeWorkHelp && !!messages?.length && (
+        {HomeWorkHelp && !visibleButton ? (
           <ChatbotContainer chatbotSpace={chatbotSpace}>
             <InputContainer>
               <Input
-                ref={textAreaRef}
+                ref={textAreaRef2}
                 placeholder={
                   HomeWorkHelp
                     ? homeWorkHelpPlaceholder
@@ -502,7 +518,7 @@ const Chat = ({
             </ClockButton>
           )} */}
           </ChatbotContainer>
-        )}
+        ) : null}
         {!HomeWorkHelp && (
           <ChatbotContainer chatbotSpace={chatbotSpace}>
             <InputContainer>
