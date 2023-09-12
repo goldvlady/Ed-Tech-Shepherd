@@ -3,6 +3,7 @@ import { storage } from '../firebase';
 import { MAX_FILE_UPLOAD_LIMIT } from '../helpers/constants';
 import { snip } from '../helpers/file.helpers';
 import { processDocument } from '../services/AI';
+import ApiService from '../services/ApiService';
 import userStore from '../state/userStore';
 import AutocompleteDropdown from './AutocompleteDropdown';
 import CustomButton from './CustomComponents/CustomButton';
@@ -326,6 +327,12 @@ const SelectedModal = ({
             setDocumentName(() => title);
             setDocumentURL(() => documentURL);
             setLoading(false);
+
+            ApiService.saveStudentDocument({
+              documentUrl: documentURL,
+              title,
+              ingestId: documentId
+            });
           })
           .catch(async (e: any) => {
             setCountdown((prev) => ({

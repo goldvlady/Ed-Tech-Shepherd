@@ -207,7 +207,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     ) => {
       const responseData = {
         title: reqData.topic as string,
-        studentId: user?._id as string,
+        student: user?._id as string,
         documentUrl: reqData.documentId as string
       };
 
