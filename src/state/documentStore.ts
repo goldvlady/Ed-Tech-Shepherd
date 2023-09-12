@@ -65,10 +65,11 @@ export default create<StudentDocumentStore>((set) => ({
       set({ isLoading: true });
       const response = await ApiService.saveStudentDocument(data);
       if (response.status === 200) {
-        const newNote = await response.json();
+        const { data: newNote } = await response.json();
+        console.log('new note', newNote);
         set((state) => ({
           ...state,
-          notes: [...state.studentDocuments, newNote]
+          studentDocuments: [newNote, ...state.studentDocuments]
         }));
         return true;
       }

@@ -14,6 +14,7 @@ import { useSearch } from '../../../hooks';
 import documentStore from '../../../state/documentStore';
 import flashcardStore from '../../../state/flashcardStore';
 import noteStore from '../../../state/noteStore';
+import userStore from '../../../state/userStore';
 import { NoteDetails, StudentDocument } from '../../../types';
 import { useFlashcardWizard } from '../FlashCards/context/flashcard';
 import SetupFlashcardPage from '../FlashCards/forms/flashcard_setup';
@@ -124,6 +125,8 @@ const NotesDirectory: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'notes' | 'files'>('notes');
   const { fetchFlashcards } = flashcardStore();
   const { setFlashcardData, resetFlashcard } = useFlashcardWizard();
+
+  const { user } = userStore();
 
   const {
     fetchNotes,
@@ -244,7 +247,10 @@ const NotesDirectory: React.FC = () => {
           }
         });
       } else {
-        const fileProcessor = new FileProcessingService(document, true);
+        const fileProcessor = new FileProcessingService(
+          { ...document, student: user?._id },
+          true
+        );
         const processData = await fileProcessor.process();
 
         const {
@@ -498,7 +504,8 @@ const NotesDirectory: React.FC = () => {
         onDelete={() => onTagDelete()}
         onClose={() => null}
       />
-      {(!notes?.length || !studentDocuments.length) &&
+      {!notes?.length &&
+      !studentDocuments.length &&
       !hasSearched &&
       !isLoading ? (
         <Box
@@ -539,6 +546,7 @@ const NotesDirectory: React.FC = () => {
             <Text
               color="text.300"
               fontFamily="Inter"
+              mb="10px"
               fontSize="16px"
               fontStyle="normal"
               fontWeight="500"
@@ -849,14 +857,21 @@ const NotesDirectory: React.FC = () => {
                     ))}
                   </SimpleGrid>
                   <Center mt={4}>
-                    <Pagination
-                      limit={pagination.limit}
-                      page={pagination.page}
-                      handlePagination={(nextPage) =>
-                        fetchNotes({ page: nextPage, limit: pagination.limit })
-                      }
-                      count={pagination.count}
-                    />
+                    {notes.length ? (
+                      <Pagination
+                        limit={pagination.limit}
+                        page={pagination.page}
+                        handlePagination={(nextPage) =>
+                          fetchNotes({
+                            page: nextPage,
+                            limit: pagination.limit
+                          })
+                        }
+                        count={pagination.count}
+                      />
+                    ) : (
+                      ''
+                    )}
                   </Center>
                 </Box>
               </TabPanel>
@@ -889,14 +904,21 @@ const NotesDirectory: React.FC = () => {
                     ))}
                   </SimpleGrid>
                   <Center mt={4}>
-                    <Pagination
-                      limit={pagination.limit}
-                      page={pagination.page}
-                      handlePagination={(nextPage) =>
-                        fetchItems({ page: nextPage, limit: pagination.limit })
-                      }
-                      count={pagination.count}
-                    />
+                    {studentDocuments.length ? (
+                      <Pagination
+                        limit={pagination.limit}
+                        page={pagination.page}
+                        handlePagination={(nextPage) =>
+                          fetchNotes({
+                            page: nextPage,
+                            limit: pagination.limit
+                          })
+                        }
+                        count={pagination.count}
+                      />
+                    ) : (
+                      ''
+                    )}
                   </Center>
                 </Box>
               </TabPanel>
