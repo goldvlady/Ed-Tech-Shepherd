@@ -1,3 +1,6 @@
+import PaymentDialog, {
+  PaymentDialogRef
+} from '../../../components/PaymentDialog';
 import {
   PencilIcon,
   SparklesIcon,
@@ -7,54 +10,139 @@ import {
 import { useTitle } from '../../../hooks';
 import ApiService from '../../../services/ApiService';
 import offerStore from '../../../state/offerStore';
+import userStore from '../../../state/userStore';
 import TutorAvi from '../../assets/tutoravi.svg';
+import BountyOfferModal from '../components/BountyOfferModal';
 import Pagination from '../components/Pagination';
 import TutorCard from '../components/TutorCard';
 import StudentBountyCard from './StudentBountyCard';
 import {
   Avatar,
   Box,
+  Button,
   Divider,
   Flex,
   Image,
   SimpleGrid,
+  Spinner,
   Tab,
   TabList,
   TabPanel,
   TabPanels,
   Tabs,
   Text,
-  VStack
+  VStack,
+  useToast,
+  useDisclosure
 } from '@chakra-ui/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
-import React, { useEffect, useState, useCallback } from 'react';
+import { PlusIcon } from '@heroicons/react/24/outline';
+import { loadStripe } from '@stripe/stripe-js';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 
 function AllBounties() {
   useTitle('Bounties');
   const [allTutors, setAllTutors] = useState<any>([]);
   const [loadingData, setLoadingData] = useState(false);
   const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(5);
+  const [limit, setLimit] = useState<number>(20);
   const [count, setCount] = useState<number>(5);
   const [days, setDays] = useState<Array<any>>([]);
-  const {
-    fetchOffers,
-    offers,
-    isLoading,
-    pagination,
-    bounties,
-    fetchBountyOffers
-  } = offerStore();
+  const { isLoading, pagination, bounties, fetchBountyOffers } = offerStore();
+  const { user } = userStore();
+  const toast = useToast();
+  const [settingUpPaymentMethod, setSettingUpPaymentMethod] = useState(false);
 
-  const doFetchStudentTutors = useCallback(async () => {
-    await fetchOffers(page, limit, 'student');
-    setAllTutors(offers);
-    /* eslint-disable */
-  }, []);
+  //Payment Method Handlers
+  const paymentDialogRef = useRef<PaymentDialogRef>(null);
+  const url: URL = new URL(window.location.href);
+  const params: URLSearchParams = url.searchParams;
+  const clientSecret = params.get('setup_intent_client_secret');
+  const stripePromise = loadStripe(
+    process.env.REACT_APP_STRIPE_PUBLIC_KEY as string
+  );
+  const setupPaymentMethod = async () => {
+    try {
+      setSettingUpPaymentMethod(true);
+      const paymentIntent = await ApiService.createStripeSetupPaymentIntent();
+
+      const { data } = await paymentIntent.json();
+      console.log(data, 'intent');
+
+      paymentDialogRef.current?.startPayment(
+        data.clientSecret,
+        `${window.location.href}`
+      );
+
+      setSettingUpPaymentMethod(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
-    doFetchStudentTutors();
-  }, [doFetchStudentTutors]);
+    if (clientSecret) {
+      (async () => {
+        setSettingUpPaymentMethod(true);
+        toast({
+          title: 'Your Payment Method has been saved',
+          status: 'success',
+          position: 'top',
+          isClosable: true
+        });
+        const stripe = await stripePromise;
+        const setupIntent = await stripe?.retrieveSetupIntent(clientSecret);
+        await ApiService.addPaymentMethod(
+          setupIntent?.setupIntent?.payment_method as string
+        );
+        // await fetchUser();
+        switch (setupIntent?.setupIntent?.status) {
+          case 'succeeded':
+            toast({
+              title: 'Your payment method has been saved.',
+              status: 'success',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          case 'processing':
+            toast({
+              title:
+                "Processing payment details. We'll update you when processing is complete.",
+              status: 'loading',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          case 'requires_payment_method':
+            toast({
+              title:
+                'Failed to process payment details. Please try another payment method.',
+              status: 'error',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          default:
+            toast({
+              title: 'Something went wrong.',
+              status: 'error',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+        }
+        setSettingUpPaymentMethod(false);
+      })();
+    }
+    /* eslint-disable */
+  }, [clientSecret]);
+
+  const {
+    isOpen: isBountyModalOpen,
+    onOpen: openBountyModal,
+    onClose: closeBountyModal
+  } = useDisclosure();
 
   const doFetchBountyOffers = useCallback(async () => {
     await fetchBountyOffers(page, limit);
@@ -77,8 +165,27 @@ function AllBounties() {
     const prevPage = pagination.page - 1;
     fetchBountyOffers(prevPage, limit);
   };
-
+  const handlePagination = (nextPage: number) => {
+    fetchBountyOffers(nextPage, limit);
+  };
   const [tutorGrid] = useAutoAnimate();
+
+  if (isLoading) {
+    return (
+      <Box
+        p={5}
+        textAlign="center"
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh'
+        }}
+      >
+        <Spinner />
+      </Box>
+    );
+  }
 
   return (
     <>
@@ -97,47 +204,49 @@ function AllBounties() {
             p={2}
             borderRadius={'6px'}
           >
-            {bounties ? bounties.length : ''}
+            {bounties ? pagination.total : ''}
           </Text>
         </Flex>
       </Box>
-      <Box p={3}>
-        {
-          // [
-          //   {
-          //     id: 1,
-          //     reward: 50,
-          //     subject: 'Mathematics',
-          //     modeOfInstruction: 'Chat',
-          //     interestedTutors: 3,
-          //     duration: 60,
-          //     expiryDate: '2023-12-31'
-          //   },
-          //   {
-          //     id: 2,
-          //     reward: 50,
-          //     subject: 'Physics',
-          //     modeOfInstruction: 'Chat',
-          //     interestedTutors: 6,
-          //     duration: 60,
-          //     expiryDate: '2023-12-31'
-          //   },
-          //   {
-          //     id: 3,
-          //     reward: 50,
-          //     subject: 'Mathematics',
-          //     modeOfInstruction: 'Chat',
-          //     interestedTutors: 3,
-          //     duration: 30,
-          //     expiryDate: '2023-12-31'
-          //   }
-          // ]
-          bounties &&
-            bounties.map((bounty) => (
-              <StudentBountyCard key={bounty.id} bounty={bounty} />
-            ))
-        }
-      </Box>
+      {bounties.length > 0 ? (
+        <>
+          <Box p={3}>
+            {bounties &&
+              bounties.map((bounty) => (
+                <StudentBountyCard key={bounty.id} bounty={bounty} />
+              ))}
+          </Box>
+          <Pagination
+            page={pagination.page}
+            count={pagination.total}
+            limit={pagination.limit}
+            handlePagination={handlePagination}
+          />
+        </>
+      ) : (
+        <section className="flex justify-center items-center mt-28 w-full">
+          <div className="text-center">
+            <img src="/images/notes.png" alt="" />
+            <Text>You have not placed any bounties yet!</Text>
+            <Button
+              onClick={
+                user && user.paymentMethods?.length > 0
+                  ? openBountyModal
+                  : setupPaymentMethod
+              }
+            >
+              Place Bounty
+            </Button>
+            {/* <button
+              type="button"
+              className="inline-flex items-center justify-center mt-4 gap-x-2 w-[286px] rounded-md bg-secondaryBlue px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+            >
+              <PlusIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
+              Place Bounty
+            </button> */}
+          </div>
+        </section>
+      )}
     </>
   );
 }
