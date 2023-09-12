@@ -288,7 +288,7 @@ export default function DocChat() {
     }
   }, [documentId, studentId, summaryText]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const fetchChatHistory = async () => {
       try {
         const historyData = await chatHistory({
