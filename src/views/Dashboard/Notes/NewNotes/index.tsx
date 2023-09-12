@@ -746,50 +746,50 @@ const NewNote = () => {
   const ingestNote = async (noteDetails: NoteDetails) => {
     const noteArrayContent = [noteDetails.note];
 
-    uploadBlockNoteDocument({
-      studentId: noteDetails.user._id,
-      documentId: noteDetails.id,
-      document: noteArrayContent,
-      title: noteDetails.topic,
-      tags: noteDetails.tags
-    }).then((response: AIServiceResponse) => {
-      if (!response) {
-        showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
-        return false;
-      }
-      if (!Array.isArray(response.data) || response.data.length <= 0) {
-        showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
-      }
-      // get data documentID is not already updated. Pick the first value in
-      const documentDetails: NoteDocumentDetails = response.data[0];
-      if (
-        !documentDetails?.documentURL ||
-        documentDetails?.documentURL === ''
-      ) {
-        showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
-      }
-      // TODO: update with full note details
-      const resp = ApiService.updateNoteDocumentId(
-        noteDetails.id,
-        documentDetails.documentURL
-      )
-        .then((response) => {
-          console.log('update note details: ', response);
-          showToast(
-            UPDATE_NOTE_TITLE,
-            'Note document details saved',
-            'success'
-          );
-        })
-        .catch((error: any) => {
-          showToast(
-            UPDATE_NOTE_TITLE,
-            'Could not save note document URL',
-            'error'
-          );
-        });
-    });
-    return true;
+    // uploadBlockNoteDocument({
+    //   studentId: noteDetails.user._id,
+    //   documentId: noteDetails.id,
+    //   document: noteArrayContent,
+    //   title: noteDetails.topic,
+    //   tags: noteDetails.tags
+    // }).then((response: AIServiceResponse) => {
+    //   if (!response) {
+    //     showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
+    //     return false;
+    //   }
+    //   if (!Array.isArray(response.data) || response.data.length <= 0) {
+    //     showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
+    //   }
+    //   // get data documentID is not already updated. Pick the first value in
+    //   const documentDetails: NoteDocumentDetails = response.data[0];
+    //   if (
+    //     !documentDetails?.documentURL ||
+    //     documentDetails?.documentURL === ''
+    //   ) {
+    //     showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
+    //   }
+    //   // TODO: update with full note details
+    //   const resp = ApiService.updateNoteDocumentId(
+    //     noteDetails.id,
+    //     documentDetails.documentURL
+    //   )
+    //     .then((response) => {
+    //       console.log('update note details: ', response);
+    //       showToast(
+    //         UPDATE_NOTE_TITLE,
+    //         'Note document details saved',
+    //         'success'
+    //       );
+    //     })
+    //     .catch((error: any) => {
+    //       showToast(
+    //         UPDATE_NOTE_TITLE,
+    //         'Could not save note document URL',
+    //         'error'
+    //       );
+    //     });
+    // });
+    // return true;
   };
 
   const handleAutoSave = (editor: any) => {
