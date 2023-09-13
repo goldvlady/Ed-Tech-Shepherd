@@ -66,7 +66,7 @@ const HomeWorkHelp = () => {
   const authSocketConnected = '';
 
   useEffect(() => {
-    if (conversationId.length) {
+    if (storedConvoId || conversationId.length) {
       const authSocket = socketWithAuth({
         studentId,
         topic: localData.topic,
@@ -76,7 +76,7 @@ const HomeWorkHelp = () => {
       }).connect();
       setSocket(authSocket);
     }
-  }, [conversationId]);
+  }, [conversationId, storedConvoId]);
 
   useEffect(() => {
     if (isSubmitted) {
@@ -94,7 +94,7 @@ const HomeWorkHelp = () => {
   }, [isSubmitted]);
 
   useEffect(() => {
-    if (socket) {
+    if (socket && !messages.length) {
       socket.on('ready', (ready) => {
         setReadyToChat(ready);
         if (!messages.length) {
@@ -104,7 +104,7 @@ const HomeWorkHelp = () => {
 
       return () => socket.off('ready');
     }
-  }, [socket, messages]);
+  }, [socket, messages.length]);
 
   useEffect(() => {
     if (socket) {

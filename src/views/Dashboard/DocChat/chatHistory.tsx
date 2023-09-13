@@ -219,7 +219,6 @@ const ChatHistory = ({
   }, [conversationId]);
 
   useEffect(() => {
-    // const storedGroupChatsArr = localStorage.getItem('groupChatsByDateArr');
     // const groupedChats =
     //   storedGroupChatsArr && JSON.parse(storedGroupChatsArr ?? '');
 
@@ -304,6 +303,7 @@ const ChatHistory = ({
                     <p
                       onClick={() => {
                         setConversationId(message.id);
+                        retrieveChatHistory(studentId);
                         setCountNeedTutor(1);
                       }}
                     >

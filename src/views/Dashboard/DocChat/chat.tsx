@@ -464,7 +464,7 @@ const Chat = ({
             <TellMeMoreIcn />
           </TellMeMorePill>
         )} */}
-        {!!messages?.length && HomeWorkHelp && isShowPrompt && (
+        {!visibleButton && HomeWorkHelp && isShowPrompt && (
           <DownPillContainer>
             <PillsContainer>
               {homeHelp.map((need) => (
