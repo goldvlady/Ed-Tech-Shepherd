@@ -60,6 +60,7 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { BsFillPinFill } from 'react-icons/bs';
 import { FaEllipsisH } from 'react-icons/fa';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import LexicalEditor from "./LexicalEditor";
 
 const DEFAULT_NOTE_TITLE = 'Enter Note Title';
 const DELETE_NOTE_TITLE = 'Delete Note';
@@ -1063,7 +1064,11 @@ const NewNote = () => {
                   name={location.state.docTitle}
                 />
               ) : (
+                <div className='note-editor-test'>
                 <BlockNoteView editor={editor} />
+                 <LexicalEditor />
+                {/* <LexicalEditor editorHistory={initialContent} /> */}
+                </div>
               )}
             </NoteBody>
             <NoteModal
@@ -1217,7 +1222,11 @@ const NewNote = () => {
                 name={location.state.docTitle}
               />
             ) : (
-              <BlockNoteView editor={editor} />
+              <div className='note-editor-test'>
+                <BlockNoteView editor={editor} />
+                <LexicalEditor />
+                {/* <LexicalEditor editorHistory={initialContent} /> */}
+                </div>
             )}
           </NoteBody>
 
