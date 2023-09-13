@@ -11,12 +11,16 @@ import { useTitle } from '../../../hooks';
 import ApiService from '../../../services/ApiService';
 import offerStore from '../../../state/offerStore';
 import userStore from '../../../state/userStore';
+import theme from '../../../theme';
 import TutorAvi from '../../assets/tutoravi.svg';
 import BountyOfferModal from '../components/BountyOfferModal';
 import Pagination from '../components/Pagination';
 import TutorCard from '../components/TutorCard';
 import StudentBountyCard from './StudentBountyCard';
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Avatar,
   Box,
   Button,
@@ -39,6 +43,7 @@ import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { loadStripe } from '@stripe/stripe-js';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { MdInfo } from 'react-icons/md';
 
 function AllBounties() {
   useTitle('Bounties');
@@ -208,7 +213,7 @@ function AllBounties() {
           </Text>
         </Flex>
       </Box>
-      {bounties.length > 0 ? (
+      {bounties && bounties.length > 0 ? (
         <>
           <Box p={3}>
             {bounties &&
@@ -224,28 +229,48 @@ function AllBounties() {
           />
         </>
       ) : (
-        <section className="flex justify-center items-center mt-28 w-full">
-          <div className="text-center">
-            <img src="/images/notes.png" alt="" />
-            <Text>You have not placed any bounties yet!</Text>
-            <Button
-              onClick={
-                user && user.paymentMethods?.length > 0
-                  ? openBountyModal
-                  : setupPaymentMethod
-              }
-            >
-              Place Bounty
-            </Button>
-            {/* <button
+        <>
+          <section className="flex justify-center items-center mt-28 w-full">
+            <div className="text-center">
+              <img src="/images/notes.png" alt="" />
+              <Text>You have not placed any bounties yet!</Text>
+              <Button
+                onClick={
+                  user && user.paymentMethods?.length > 0
+                    ? openBountyModal
+                    : setupPaymentMethod
+                }
+              >
+                Place Bounty
+              </Button>
+              {/* <button
               type="button"
               className="inline-flex items-center justify-center mt-4 gap-x-2 w-[286px] rounded-md bg-secondaryBlue px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
             >
               <PlusIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
               Place Bounty
             </button> */}
-          </div>
-        </section>
+            </div>
+          </section>
+          <BountyOfferModal
+            isBountyModalOpen={isBountyModalOpen}
+            closeBountyModal={closeBountyModal}
+          />
+          <PaymentDialog
+            ref={paymentDialogRef}
+            prefix={
+              <Alert status="info" mb="22px">
+                <AlertIcon>
+                  <MdInfo color={theme.colors.primary[500]} />
+                </AlertIcon>
+                <AlertDescription>
+                  Payment will not be deducted until after your first lesson,
+                  You may decide to cancel after your initial lesson.
+                </AlertDescription>
+              </Alert>
+            }
+          />
+        </>
       )}
     </>
   );

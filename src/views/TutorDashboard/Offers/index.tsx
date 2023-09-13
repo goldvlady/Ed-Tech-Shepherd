@@ -4,12 +4,14 @@ import ApiService from '../../../services/ApiService';
 import offerStore from '../../../state/offerStore';
 import {
   Box,
+  Image,
   Spinner,
   Tab,
   Tabs,
   TabList,
   TabPanel,
-  TabPanels
+  TabPanels,
+  Text
 } from '@chakra-ui/react';
 import React, { useEffect, useState, useCallback } from 'react';
 
@@ -65,8 +67,15 @@ export default function Offers() {
 
         <TabPanels>
           <TabPanel>
-            {offers && offers.length > 0 && (
+            {offers && offers.length > 0 ? (
               <OffersGridList offers={offers} pagination={pagination} />
+            ) : (
+              <section className="flex justify-center items-center mt-28 w-full">
+                <div className="text-center">
+                  <Image src="/images/notes.png" alt="empty" m="auto" />
+                  <Text textAlign={'center'}>You have no offers yet.</Text>
+                </div>
+              </section>
             )}
           </TabPanel>
         </TabPanels>
