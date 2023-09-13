@@ -46,12 +46,14 @@ const ChatHistory = ({
   studentId,
   setConversationId,
   conversationId,
-  isSubmitted
+  isSubmitted,
+  setCountNeedTutor
 }: {
   studentId: string;
   setConversationId: (conversationId: string) => void;
   conversationId: string;
   isSubmitted?: boolean;
+  setCountNeedTutor: any;
 }) => {
   // const placeholder = [
   //   {
@@ -299,7 +301,12 @@ const ChatHistory = ({
                       }}
                     ></HomeWorkHelpChatContainer2>
                   ) : (
-                    <p onClick={() => setConversationId(message.id)}>
+                    <p
+                      onClick={() => {
+                        setConversationId(message.id);
+                        setCountNeedTutor(1);
+                      }}
+                    >
                       {message.message}
                     </p>
                   )}

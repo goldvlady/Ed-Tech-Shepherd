@@ -65,17 +65,18 @@ const HomeWorkHelp = () => {
   const isFirstRender = useRef(true);
   const authSocketConnected = '';
 
-  // useEffect(() => {
-  //   if (studentId) {
-  //     const authSocket = socketWithAuth({
-  //       studentId,
-  //       topic: localData.topic,
-  //       subject: localData.subject,
-  //       namespace: 'homework-help'
-  //     }).connect();
-  //     setSocket(authSocket);
-  //   }
-  // }, [studentId]);
+  useEffect(() => {
+    if (conversationId) {
+      const authSocket = socketWithAuth({
+        studentId,
+        topic: localData.topic,
+        subject: localData.subject,
+        namespace: 'homework-help',
+        conversationId: conversationId ?? storedConvoId
+      }).connect();
+      setSocket(authSocket);
+    }
+  }, [conversationId]);
 
   useEffect(() => {
     if (isSubmitted) {
@@ -96,7 +97,7 @@ const HomeWorkHelp = () => {
     if (socket) {
       socket.on('ready', (ready) => {
         setReadyToChat(ready);
-        if (!messages.length || conversationId) {
+        if (!messages.length) {
           socket.emit('chat message', 'Shall we begin, Socrates?');
         }
       });
@@ -307,6 +308,7 @@ const HomeWorkHelp = () => {
       setMessages([]);
       setConversationId('');
       setVisibleButton(false);
+      setCountNeedTutor(1);
     }
   }, [isSubmitted]);
 
@@ -322,6 +324,7 @@ const HomeWorkHelp = () => {
 
     if (storedConvoId) {
       setConversationId(storedConvoId);
+      setCountNeedTutor(1);
     }
   }, []);
 
@@ -356,6 +359,7 @@ const HomeWorkHelp = () => {
           setConversationId={setConversationId}
           conversationId={conversationId}
           isSubmitted={isSubmitted}
+          setCountNeedTutor={setCountNeedTutor}
         />
       </HomeWorkHelpHistoryContainer>
       <HomeWorkHelpChatContainer>
