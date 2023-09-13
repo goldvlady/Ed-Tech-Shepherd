@@ -66,7 +66,7 @@ const HomeWorkHelp = () => {
   const authSocketConnected = '';
 
   useEffect(() => {
-    if (conversationId) {
+    if (conversationId.length) {
       const authSocket = socketWithAuth({
         studentId,
         topic: localData.topic,
