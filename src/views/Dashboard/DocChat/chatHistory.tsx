@@ -47,16 +47,28 @@ const ChatHistory = ({
   setConversationId,
   conversationId,
   isSubmitted,
-  setCountNeedTutor
+  setCountNeedTutor,
+  setMessages,
+  setDeleteConservationModal,
+  deleteConservationModal,
+  setSocket,
+  setVisibleButton,
+  setCertainConversationId
 }: {
   studentId: string;
   setConversationId: (conversationId: string) => void;
   conversationId: string;
   isSubmitted?: boolean;
   setCountNeedTutor: any;
+  setMessages: any;
+  setDeleteConservationModal: any;
+  deleteConservationModal: boolean;
+  setSocket: any;
+  setVisibleButton: any;
+  setCertainConversationId: any;
 }) => {
   // const placeholder = [
-  //   {
+  //   {ß
   //     messages: ['No conversations — yet'],
   //     date: getDateString(new Date())
   //   }
@@ -67,7 +79,6 @@ const ChatHistory = ({
   const [updateChatHistory, setUpdateChatHistory] = useState({});
   const [updatedChat, setUpdatedChat] = useState('');
   const [toggleHistoryBox, setToggleHistoryBox] = useState({});
-  const [deleteConservationModal, setDeleteConservationModal] = useState(false);
   const toast = useToast();
 
   async function retrieveChatHistory(studentId: string): Promise<void> {
@@ -196,6 +207,11 @@ const ChatHistory = ({
       if (response) {
         retrieveChatHistory(studentId);
         setDeleteConservationModal(false);
+        setSocket(null);
+        setMessages([]);
+        setVisibleButton(true);
+        setCertainConversationId('');
+        localStorage.removeItem('conversationId');
         toast({
           render: () => (
             <CustomToast
@@ -324,9 +340,10 @@ const ChatHistory = ({
                     )}
                     {/* <EditIcn onClick={handleUpdateConversation} /> */}
                     <DeleteIcn
-                      onClick={() =>
-                        setDeleteConservationModal((prevState) => !prevState)
-                      }
+                      onClick={() => {
+                        setDeleteConservationModal((prevState) => !prevState);
+                        setConversationId(message.id);
+                      }}
                     />
                   </div>
                 </ChatHistoryBody>

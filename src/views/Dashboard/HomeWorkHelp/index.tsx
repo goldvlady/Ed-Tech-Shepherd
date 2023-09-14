@@ -1,5 +1,9 @@
+import Sally from '../../../assets/saly.svg';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast/index';
+import PaymentDialog, {
+  PaymentDialogRef
+} from '../../../components/PaymentDialog';
 import {
   chatHomeworkHelp,
   editConversationId,
@@ -10,9 +14,11 @@ import { chatHistory } from '../../../services/AI';
 import ApiService from '../../../services/ApiService';
 import socketWithAuth from '../../../socket';
 import userStore from '../../../state/userStore';
+import theme from '../../../theme';
 import { FlashcardData } from '../../../types';
 import Chat from '../DocChat/chat';
 import ChatHistory from '../DocChat/chatHistory';
+import BountyOfferModal from '../components/BountyOfferModal';
 import ViewHomeWorkHelpDetails from './ViewHomeWorkHelpDetails';
 import ViewTutors from './ViewTutors';
 import {
@@ -20,7 +26,18 @@ import {
   HomeWorkHelpContainer,
   HomeWorkHelpHistoryContainer
 } from './style';
-import { useToast } from '@chakra-ui/react';
+import {
+  useToast,
+  useDisclosure,
+  Box,
+  Image,
+  VStack,
+  Text,
+  Button,
+  Alert,
+  AlertIcon,
+  AlertDescription
+} from '@chakra-ui/react';
 import React, {
   useState,
   useCallback,
@@ -28,6 +45,8 @@ import React, {
   useLayoutEffect,
   useRef
 } from 'react';
+import { MdInfo } from 'react-icons/md';
+import { MdTune } from 'react-icons/md';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const HomeWorkHelp = () => {
@@ -62,21 +81,29 @@ const HomeWorkHelp = () => {
   const [onlineTutorsId, setOnlineTutorsId] = useState([]);
   const [visibleButton, setVisibleButton] = useState(true);
   const storedConvoId = localStorage.getItem('conversationId');
+  const [deleteConservationModal, setDeleteConservationModal] = useState(false);
+  const [certainConversationId, setCertainConversationId] = useState('');
+  const paymentDialogRef = useRef<PaymentDialogRef>(null);
   const isFirstRender = useRef(true);
   const authSocketConnected = '';
+  const {
+    isOpen: isBountyModalOpen,
+    onOpen: openBountyModal,
+    onClose: closeBountyModal
+  } = useDisclosure();
 
   useEffect(() => {
-    if (storedConvoId || conversationId.length) {
+    if (certainConversationId) {
       const authSocket = socketWithAuth({
         studentId,
         topic: localData.topic,
         subject: localData.subject,
         namespace: 'homework-help',
-        conversationId: conversationId ?? storedConvoId
+        conversationId: certainConversationId ?? storedConvoId
       }).connect();
       setSocket(authSocket);
     }
-  }, [conversationId, storedConvoId]);
+  }, [certainConversationId]);
 
   useEffect(() => {
     if (isSubmitted) {
@@ -101,10 +128,9 @@ const HomeWorkHelp = () => {
           socket.emit('chat message', 'Shall we begin, Socrates?');
         }
       });
-
       return () => socket.off('ready');
     }
-  }, [socket, messages.length]);
+  }, [messages, socket]);
 
   useEffect(() => {
     if (socket) {
@@ -213,7 +239,9 @@ const HomeWorkHelp = () => {
   );
 
   const onOpenModal = useCallback(() => {
-    setOpenModal((prevState) => !prevState);
+    user &&
+      user.paymentMethods?.length > 0 &&
+      setOpenModal((prevState) => !prevState);
   }, []);
 
   const handleSendMessage = useCallback(
@@ -303,6 +331,22 @@ const HomeWorkHelp = () => {
     setIsSubmitted
   ]);
 
+  const setupPaymentMethod = async () => {
+    try {
+      const paymentIntent = await ApiService.createStripeSetupPaymentIntent();
+
+      const { data } = await paymentIntent.json();
+      console.log(data, 'intent');
+
+      paymentDialogRef.current?.startPayment(
+        data.clientSecret,
+        `${window.location.href}`
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     if (isSubmitted) {
       setMessages([]);
@@ -317,6 +361,7 @@ const HomeWorkHelp = () => {
 
     if (conversationId && (!storedConvoId || conversationId !== storedConvoId))
       localStorage.setItem('conversationId', conversationId);
+    setCertainConversationId(conversationId);
   }, [conversationId]);
 
   useEffect(() => {
@@ -360,6 +405,12 @@ const HomeWorkHelp = () => {
           conversationId={conversationId}
           isSubmitted={isSubmitted}
           setCountNeedTutor={setCountNeedTutor}
+          setMessages={setMessages}
+          setDeleteConservationModal={setDeleteConservationModal}
+          deleteConservationModal={deleteConservationModal}
+          setVisibleButton={setVisibleButton}
+          setSocket={setSocket}
+          setCertainConversationId={setCertainConversationId}
         />
       </HomeWorkHelpHistoryContainer>
       <HomeWorkHelpChatContainer>
@@ -416,6 +467,57 @@ const HomeWorkHelp = () => {
           onRouteHomeWorkHelp={onRouteHomeWorkHelp}
         />
       )}
+      {countNeedTutor >= 3 && (
+        <Box
+          position="fixed"
+          bottom={3}
+          right={3}
+          bg={'white'}
+          borderRadius={'10px'}
+          width="328px"
+          borderColor="grey"
+          textAlign="center"
+          boxShadow="0px 4px 20px 0px rgba(115, 126, 140, 0.25)"
+        >
+          <Image
+            src={Sally}
+            alt="instant tutoring"
+            borderTopLeftRadius={'10px'}
+            borderTopRightRadius={'10px'}
+          />
+          <VStack p={3} gap={2}>
+            <Text>Need Instant Tutoring ?</Text>
+            <Button
+              onClick={
+                user && user.paymentMethods?.length > 0
+                  ? openBountyModal
+                  : setupPaymentMethod
+              }
+            >
+              Place Bounty
+            </Button>
+          </VStack>
+        </Box>
+      )}
+
+      <BountyOfferModal
+        isBountyModalOpen={isBountyModalOpen}
+        closeBountyModal={closeBountyModal}
+      />
+      <PaymentDialog
+        ref={paymentDialogRef}
+        prefix={
+          <Alert status="info" mb="22px">
+            <AlertIcon>
+              <MdInfo color={theme.colors.primary[500]} />
+            </AlertIcon>
+            <AlertDescription>
+              Payment will not be deducted until after your first lesson, You
+              may decide to cancel after your initial lesson.
+            </AlertDescription>
+          </Alert>
+        }
+      />
     </HomeWorkHelpContainer>
   );
 };
