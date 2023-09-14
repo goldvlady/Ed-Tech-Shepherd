@@ -239,10 +239,12 @@ const HomeWorkHelp = () => {
   );
 
   const onOpenModal = useCallback(() => {
-    user &&
-      user.paymentMethods?.length > 0 &&
-      setOpenModal((prevState) => !prevState);
-  }, []);
+    if (user && user.paymentMethods?.length > 0) {
+      openBountyModal();
+    } else {
+      setupPaymentMethod();
+    }
+  }, [user]);
 
   const handleSendMessage = useCallback(
     async (event: React.SyntheticEvent<HTMLButtonElement>) => {
@@ -466,38 +468,6 @@ const HomeWorkHelp = () => {
           level={level}
           onRouteHomeWorkHelp={onRouteHomeWorkHelp}
         />
-      )}
-      {countNeedTutor >= 3 && (
-        <Box
-          position="fixed"
-          bottom={3}
-          right={3}
-          bg={'white'}
-          borderRadius={'10px'}
-          width="328px"
-          borderColor="grey"
-          textAlign="center"
-          boxShadow="0px 4px 20px 0px rgba(115, 126, 140, 0.25)"
-        >
-          <Image
-            src={Sally}
-            alt="instant tutoring"
-            borderTopLeftRadius={'10px'}
-            borderTopRightRadius={'10px'}
-          />
-          <VStack p={3} gap={2}>
-            <Text>Need Instant Tutoring ?</Text>
-            <Button
-              onClick={
-                user && user.paymentMethods?.length > 0
-                  ? openBountyModal
-                  : setupPaymentMethod
-              }
-            >
-              Place Bounty
-            </Button>
-          </VStack>
-        </Box>
       )}
 
       <BountyOfferModal
