@@ -28,6 +28,7 @@ import { FiChevronDown } from 'react-icons/fi';
 export default function BountyOfferModal(props) {
   const { isBountyModalOpen, closeBountyModal } = props;
   const { courses: courseList, levels: levelOptions } = resourceStore();
+  const [isLoading, setIsLoading] = useState(false);
 
   const [bountyOffer, setBountyOffer] = useState({
     subject: '',
@@ -62,6 +63,7 @@ export default function BountyOfferModal(props) {
   }, [bountyOffer]);
 
   const handleSubmitBounty = async () => {
+    setIsLoading(true);
     const newObject = {
       topic: bountyOffer.topic,
       description: bountyOffer.description,
@@ -73,6 +75,7 @@ export default function BountyOfferModal(props) {
       expiryDate: bountyOffer.expirationDate.toDateString()
     };
     const response = await ApiService.createBounty(newObject);
+    setIsLoading(false);
     closeBountyModal();
     if (response.status === 200) {
       toast({
@@ -120,8 +123,8 @@ export default function BountyOfferModal(props) {
               type="button"
               onClick={handleSubmitBounty}
               active={isDisabledBtn}
-              title="Confirm"
-              disabled={!isDisabledBtn}
+              title={isLoading ? 'Submitting...' : 'Confirm'}
+              disabled={!isDisabledBtn || isLoading}
             />
           </div>
         }

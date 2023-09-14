@@ -90,10 +90,11 @@ function ActivityFeeds(props) {
 
     const result = extractedText.replace(/%20/g, ' ');
 
-    // if (result.length > 15) {
-    //   return result.substring(0, 15) + '...';
-    // }
-    return result;
+    if (result.length > 30) {
+      return result.substring(0, 20) + '...';
+    } else {
+      return result;
+    }
   };
 
   const getIconByActivityType = (activityType) => {

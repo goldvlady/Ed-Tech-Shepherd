@@ -55,7 +55,7 @@ const StudentBountyCard = ({ bounty }) => {
           </Badge>
           <Text fontSize="sm" color="gray.500" mb={2}>
             Interested Tutors:
-            {bounty.interestedTutors ? bounty.interestedTutors : 3}
+            {bounty.bidCount}
           </Text>
           <Text fontSize="sm" color="gray.500" mb={2}>
             Expiry Date: {moment(bounty.expiryDate).format('DD MMMM , YYYY')}

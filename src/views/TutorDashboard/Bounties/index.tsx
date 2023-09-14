@@ -1,7 +1,7 @@
 import { Section } from '../../../components';
 import BountyGridList from '../../../components/BountyGridList';
 import offerStore from '../../../state/offerStore';
-import { Box, Spinner } from '@chakra-ui/react';
+import { Box, Image, Spinner, Text } from '@chakra-ui/react';
 import React, { useState, useCallback, useEffect } from 'react';
 
 function TutorBounties() {
@@ -21,6 +21,7 @@ function TutorBounties() {
   useEffect(() => {
     doFetchBountyOffers();
   }, [doFetchBountyOffers]);
+  console.log(bounties, 'Bounti');
 
   if (isLoading) {
     return (
@@ -44,13 +45,27 @@ function TutorBounties() {
       <Box className="p-4 bg-white">
         <Section
           title="Bounties"
-          subtitle={bounties.length}
+          subtitle={bounties ? pagination.total : ''}
           description="Easily manage and respond to active bounty offers from potential clients"
         />
 
         <Box>
-          {bounties && bounties.length > 0 && (
-            <BountyGridList offers={bounties} pagination={pagination} />
+          {bounties && bounties.length > 0 ? (
+            <>
+              <BountyGridList offers={bounties} pagination={pagination} />
+            </>
+          ) : (
+            <>
+              <section className="flex justify-center items-center mt-28 w-full">
+                <div className="text-center">
+                  <Image src="/images/notes.png" alt="empty" m="auto" />
+                  <Text textAlign={'center'}>
+                    There are currently no active bounties that match your
+                    profile!
+                  </Text>
+                </div>
+              </section>
+            </>
           )}
         </Box>
       </Box>

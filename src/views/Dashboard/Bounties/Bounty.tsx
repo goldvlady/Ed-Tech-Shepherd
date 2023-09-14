@@ -100,14 +100,14 @@ function Bounties() {
                   <TutorCard
                     key={tutor?.bounty}
                     id={tutor?.bounty}
-                    name={`Tutor Name`}
+                    avatar={tutor.tutor.user.avatar}
+                    name={`${tutor.tutor.user.name.first} ${tutor.tutor.user.name.last}`}
                     levelOfEducation={'BSC'}
-                    // avatar={tutor.tutor.user.avatar}
+                    description={tutor.tutor?.description}
+                    rate={tutor.tutor?.rate}
+                    rating={tutor.tutor?.rating}
+                    reviewCount={tutor.tutor?.reviewCount}
                     // saved={true}
-                    // description={tutor.tutor?.description}
-                    // rate={tutor.tutor?.rate}
-                    // rating={tutor.tutor?.rating}
-                    // reviewCount={tutor.tutor?.reviewCount}
                     use="bounty"
                     offerStatus={tutor.status}
                   />
