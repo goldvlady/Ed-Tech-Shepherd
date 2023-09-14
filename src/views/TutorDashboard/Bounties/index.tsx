@@ -50,27 +50,24 @@ function TutorBounties() {
         />
 
         <Box>
-          {bounties && bounties.length > 0 && (
-            <BountyGridList offers={bounties} pagination={pagination} />
+          {bounties && bounties.length > 0 ? (
+            <>
+              <BountyGridList offers={bounties} pagination={pagination} />
+            </>
+          ) : (
+            <>
+              <section className="flex justify-center items-center mt-28 w-full">
+                <div className="text-center">
+                  <Image src="/images/notes.png" alt="empty" m="auto" />
+                  <Text textAlign={'center'}>
+                    There are currently no active bounties that match your
+                    profile!
+                  </Text>
+                </div>
+              </section>
+            </>
           )}
         </Box>
-        {bounties && bounties.length > 0 ? (
-          <>
-            <BountyGridList offers={bounties} pagination={pagination} />
-          </>
-        ) : (
-          <>
-            <section className="flex justify-center items-center mt-28 w-full">
-              <div className="text-center">
-                <Image src="/images/notes.png" alt="empty" m="auto" />
-                <Text textAlign={'center'}>
-                  There are currently no active bounties that match your
-                  profile!
-                </Text>
-              </div>
-            </section>
-          </>
-        )}
       </Box>
     </>
   );
