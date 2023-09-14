@@ -102,17 +102,17 @@ export default function BountyGridList(props) {
 
   const { fetchBountyOffers, bounties, isLoading, pagination } = offerStore();
 
-  const handleNextPage = () => {
-    const nextPage = pagination.page + 1;
-    fetchBountyOffers(nextPage, limit);
-  };
+  // const handleNextPage = () => {
+  //   const nextPage = pagination.page + 1;
+  //   fetchBountyOffers(nextPage, limit);
+  // };
 
-  const handlePreviousPage = () => {
-    const prevPage = pagination.page - 1;
-    fetchBountyOffers(prevPage, limit);
-  };
+  // const handlePreviousPage = () => {
+  //   const prevPage = pagination.page - 1;
+  //   fetchBountyOffers(prevPage, limit);
+  // };
   const handlePagination = (nextPage: number) => {
-    fetchBountyOffers(nextPage, limit);
+    fetchBountyOffers(nextPage, limit, 'tutor');
   };
   return (
     <>

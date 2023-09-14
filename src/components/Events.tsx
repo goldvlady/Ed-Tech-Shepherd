@@ -41,6 +41,20 @@ export default function Events({ event }: any) {
     return date.format('hh:mm A');
   };
 
+  const convertTo12HourFormat = (timeString) => {
+    const [hours, minutes] = timeString.split(':').map(Number);
+
+    const period = hours >= 12 ? 'PM' : 'AM';
+
+    const hours12 = hours % 12 || 12;
+
+    const time12Hour = `${hours12.toString().padStart(2, '0')}:${minutes
+      .toString()
+      .padStart(2, '0')} ${period}`;
+
+    return time12Hour;
+  };
+
   return (
     <li className={`flex gap-x-3 ${getColorByEventType(event.type)}`}>
       <div
@@ -63,9 +77,13 @@ export default function Events({ event }: any) {
               )}
             </Text>
             <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
-              <span>{extractTime(event.data.startDate)}</span>
+              <span>
+                {convertTo12HourFormat(event.data.startDate.substring(11, 16))}
+              </span>
               <ChevronRightIcon className="w-4 h-4" />
-              <span>{extractTime(event.data.endDate)}</span>
+              <span>
+                {convertTo12HourFormat(event.data.endDate.substring(11, 16))}
+              </span>
             </Text>
           </div>
         </div>

@@ -117,7 +117,7 @@ const ProfileSwitchModal = ({
                   leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                   leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 >
-                  <Dialog.Panel className="relative transform overflow-hidden rounded-2xl bg-white mt-10 text-left shadow-xl transition-all sm:w-full sm:max-w-5xl w-md">
+                  <Dialog.Panel className="relative transform overflow-hidden rounded-2xl bg-white mt-10 text-left shadow-xl transition-all w-md">
                     <div>
                       <div className="flex justify-between align-middle border-b pb-2 px-2">
                         <div className="flex items-center space-x-2 p-3 pb-2"></div>
@@ -139,7 +139,7 @@ const ProfileSwitchModal = ({
                           </Text>
                         </Box>
                         <Center>
-                          <HStack {...group} spacing={8} my={'65px'}>
+                          <HStack {...group} spacing={8} my={'45px'}>
                             {user &&
                               user?.type.map((value) => {
                                 const radio = getRadioProps({ value });
