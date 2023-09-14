@@ -89,7 +89,7 @@ export default create<StudentDocumentStore>((set) => ({
         set((state) => ({
           ...state,
           studentDocuments: state.studentDocuments.filter(
-            (doc) => doc._id !== id
+            (doc) => !id.split(',').includes(doc._id)
           )
         }));
         return true;

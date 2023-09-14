@@ -150,7 +150,7 @@ export default create<NoteStore>((set) => ({
       if (response.status === 200) {
         set((state) => ({
           ...state,
-          notes: state.notes.filter((note) => note._id !== id)
+          notes: state.notes.filter((note) => !id.split(',').includes(note._id))
         }));
         return true;
       }

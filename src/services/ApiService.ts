@@ -486,7 +486,7 @@ class ApiService {
   };
 
   static deleteNote = async (id: string | number) => {
-    return doFetch(`${ApiService.baseEndpoint}/deleteNote/${id}`, {
+    return doFetch(`${ApiService.baseEndpoint}/deleteNote?id=${id}`, {
       method: 'DELETE'
     });
   };
