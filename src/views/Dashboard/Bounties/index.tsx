@@ -150,7 +150,7 @@ function AllBounties() {
   } = useDisclosure();
 
   const doFetchBountyOffers = useCallback(async () => {
-    await fetchBountyOffers(page, limit);
+    await fetchBountyOffers(page, limit, 'student');
     setAllTutors(bounties);
     /* eslint-disable */
   }, []);
@@ -161,17 +161,17 @@ function AllBounties() {
 
   // const [pagination, setPagination] = useState<PaginationType>();
 
-  const handleNextPage = () => {
-    const nextPage = pagination.page + 1;
-    fetchBountyOffers(nextPage, limit);
-  };
+  // const handleNextPage = () => {
+  //   const nextPage = pagination.page + 1;
+  //   fetchBountyOffers(nextPage, limit);
+  // };
 
-  const handlePreviousPage = () => {
-    const prevPage = pagination.page - 1;
-    fetchBountyOffers(prevPage, limit);
-  };
+  // const handlePreviousPage = () => {
+  //   const prevPage = pagination.page - 1;
+  //   fetchBountyOffers(prevPage, limit);
+  // };
   const handlePagination = (nextPage: number) => {
-    fetchBountyOffers(nextPage, limit);
+    fetchBountyOffers(nextPage, limit, 'Student');
   };
   const [tutorGrid] = useAutoAnimate();
 

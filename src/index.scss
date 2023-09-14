@@ -1203,6 +1203,7 @@ input[type='text']:focus {
 .stream-chat-wrapper {
   height: calc(100vh - 80px);
   display: flex;
+  font: 14px 'Inter';
 }
 
 #root {
@@ -1215,6 +1216,23 @@ input[type='text']:focus {
     position: initial;
     // border: none;
     width: 30%;
+  }
+
+  .channel-preview {
+    border-bottom: 1px solid #ebecf0;
+    padding: 20px 10px;
+  }
+
+  .str-chat__message--other .str-chat__message-inner .str-chat__message-bubble {
+    background-color: #fff;
+    color: #585f68;
+    font-size: 14px;
+  }
+
+  .str-chat__message--me .str-chat__message-inner .str-chat__message-bubble {
+    background-color: #207df7;
+    color: #fff;
+    font-size: 14px;
   }
 
   .str-chat-channel {

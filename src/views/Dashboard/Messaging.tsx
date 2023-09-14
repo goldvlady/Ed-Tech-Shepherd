@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { StreamChat } from 'stream-chat';
 import {
+  Avatar,
   Chat,
   Channel,
   ChannelHeader,
@@ -74,6 +75,27 @@ export default function Messages() {
     }
   }, [userRoleId, userRoleToken]);
 
+  const CustomChannelPreviewMessenger = (props) => {
+    const { channel, setActiveChannel } = props;
+
+    return (
+      <div
+        className="custom-channel-preview"
+        onClick={() => setActiveChannel(channel)}
+      >
+        <Avatar image={channel.data.image} size={40} />
+        <div className="channel-info">
+          <div className="channel-name">{channel.data.name}</div>
+          <div className="last-message">
+            {channel.data.last_message
+              ? channel.data.last_message.text
+              : 'No messages'}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="stream-chat-wrapper">
       {isConnected && (
@@ -82,13 +104,22 @@ export default function Messages() {
             filters={{ members: { $in: [userRoleId] } }}
             sort={{ last_message_at: -1 }}
             showChannelSearch
-            Preview={ChannelPreviewMessenger}
+            // Preview={(props) => (
+            //   <CustomChannelPreviewMessenger
+            //     {...props}
+            //     className="channel-preview"
+            //   />
+            // )}
+            Preview={(props) => (
+              <ChannelPreviewMessenger {...props} className="channel-preview" />
+            )}
             additionalChannelSearchProps={{
               clearSearchOnClickOutside: true,
               popupResults: true,
               searchForChannels: true
             }}
           />
+
           <Channel MessageNotification={ScrollToBottomButton}>
             <Window>
               <ChannelHeader />
