@@ -1,3 +1,5 @@
+/* eslint-disable react/jsx-pascal-case */
+
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -9,11 +11,20 @@ import Button from '../../ui/Button';
 import Modal from '../../ui/Modal';
 import './ExcalidrawModal.css';
 import { Excalidraw } from '@excalidraw/excalidraw';
-import { AppState, BinaryFiles, ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types/types';
+import {
+  AppState,
+  BinaryFiles,
+  ExcalidrawImperativeAPI
+} from '@excalidraw/excalidraw/types/types';
 import * as React from 'react';
-import { ReactPortal, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  ReactPortal,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState
+} from 'react';
 import { createPortal } from 'react-dom';
-
 
 export type ExcalidrawElementFragment = {
   isDeleted?: boolean;
@@ -51,7 +62,7 @@ type Props = {
   onSave: (
     elements: ReadonlyArray<ExcalidrawElementFragment>,
     appState: Partial<AppState>,
-    files: BinaryFiles,
+    files: BinaryFiles
   ) => void;
 };
 
@@ -68,7 +79,7 @@ export default function ExcalidrawModal({
   initialFiles,
   isShown = false,
   onDelete,
-  onClose,
+  onClose
 }: Props): ReactPortal | null {
   const excaliDrawModelRef = useRef<HTMLDivElement | null>(null);
   const excaliDrawSceneRef = useRef<ExcalidrawImperativeAPI>(null);
@@ -146,7 +157,7 @@ export default function ExcalidrawModal({
         viewBackgroundColor: appState?.viewBackgroundColor,
         viewModeEnabled: appState?.viewModeEnabled,
         zenModeEnabled: appState?.zenModeEnabled,
-        zoom: appState?.zoom,
+        zoom: appState?.zoom
       };
       onSave(elements, partialState, files);
     } else {
@@ -172,20 +183,23 @@ export default function ExcalidrawModal({
         onClose={() => {
           setDiscardModalOpen(false);
         }}
-        closeOnClickOutside={false}>
+        closeOnClickOutside={false}
+      >
         Are you sure you want to discard the changes?
         <div className="ExcalidrawModal__discardModal">
           <Button
             onClick={() => {
               setDiscardModalOpen(false);
               onClose();
-            }}>
+            }}
+          >
             Discard
           </Button>{' '}
           <Button
             onClick={() => {
               setDiscardModalOpen(false);
-            }}>
+            }}
+          >
             Cancel
           </Button>
         </div>
@@ -200,7 +214,7 @@ export default function ExcalidrawModal({
   const onChange = (
     els: ReadonlyArray<ExcalidrawElementFragment>,
     _: AppState,
-    fls: BinaryFiles,
+    fls: BinaryFiles
   ) => {
     setElements(els);
     setFiles(fls);
@@ -211,23 +225,24 @@ export default function ExcalidrawModal({
   // like a module resolution issue with ESM vs CJS?
   // const _Excalidraw =
   //   Excalidraw.$$typeof != null ? Excalidraw : Excalidraw.default;
-    const _Excalidraw = Excalidraw;
+  const _Excalidraw = Excalidraw;
 
   return createPortal(
     <div className="ExcalidrawModal__overlay" role="dialog">
       <div
         className="ExcalidrawModal__modal"
         ref={excaliDrawModelRef}
-        tabIndex={-1}>
+        tabIndex={-1}
+      >
         <div className="ExcalidrawModal__row">
           {discardModalOpen && <ShowDiscardDialog />}
           <_Excalidraw
             onChange={onChange}
             ref={excaliDrawSceneRef}
             initialData={{
-              appState: initialAppState || {isLoading: false},
+              appState: initialAppState || { isLoading: false },
               elements: initialElements,
-              files: initialFiles,
+              files: initialFiles
             }}
           />
           <div className="ExcalidrawModal__actions">
@@ -241,6 +256,6 @@ export default function ExcalidrawModal({
         </div>
       </div>
     </div>,
-    document.body,
+    document.body
   );
 }

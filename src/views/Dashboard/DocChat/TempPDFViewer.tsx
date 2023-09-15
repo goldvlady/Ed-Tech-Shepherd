@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { SelectedNoteModal } from '../../../components';
 import { snip } from '../../../helpers/file.helpers';
 import { getPDFHighlight, postPDFHighlight } from '../../../services/AI';
@@ -155,7 +156,7 @@ const TempPDFViewer = ({
     <>
       <div
         style={{ display: 'flex', position: 'fixed' }}
-        className="lg:col-span-6 flex-auto h-full w-1/2"
+        className="flex-auto w-1/2 h-full lg:col-span-6"
       >
         <div
           style={{
@@ -165,7 +166,7 @@ const TempPDFViewer = ({
           }}
         >
           <div
-            className="absolute z-10 font-bold max-h-max max-w-max text-sm p-2 bg-green-100 rounded-xl m-1 hover:text-blue-600 hover:cursor-pointer hover:bg-yellow-100"
+            className="absolute z-10 p-2 m-1 text-sm font-bold bg-green-100 max-h-max max-w-max rounded-xl hover:text-blue-600 hover:cursor-pointer hover:bg-yellow-100"
             onClick={() => setPopUpNotesModal(true)}
           >
             {snip(name, 40)}

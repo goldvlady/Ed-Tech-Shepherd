@@ -156,7 +156,7 @@ export default function Schedule({ events }) {
           </Text>
           <Box h="85px" overflowY="auto" className="custom-scroll">
             <ul className="space-y-3">
-              {selectedDate?.toDateString() == new Date().toDateString() &&
+              {selectedDate?.toDateString() === new Date().toDateString() &&
               filterTomorrowsEvents().length > 0 ? (
                 filterTomorrowsEvents().map((event) => (
                   <Events key={event.id} event={event} />

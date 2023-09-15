@@ -263,7 +263,7 @@ function getSelectedIDs(
     return [];
   }
   const { startX, endY, endX, startY } = rect;
-  const ids = [];
+  const ids: any[] = [];
 
   for (let x = startX; x <= endX; x++) {
     for (let y = startY; y <= endY; y++) {
@@ -1518,8 +1518,8 @@ export default function TableComponent({
               number
             ];
             event.preventDefault();
-            let nextX = null;
-            let nextY = null;
+            let nextX: number | null = null;
+            let nextY: number | null = null;
             if (x === 0 && isBackward) {
               if (y !== 0) {
                 nextY = y - 1;

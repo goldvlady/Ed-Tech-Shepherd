@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
+import katex from 'katex';
 import type {
   DOMConversionMap,
   DOMConversionOutput,
@@ -13,17 +13,15 @@ import type {
   LexicalNode,
   NodeKey,
   SerializedLexicalNode,
-  Spread,
+  Spread
 } from 'lexical';
-
-import katex from 'katex';
-import {$applyNodeReplacement, DecoratorNode, DOMExportOutput} from 'lexical';
+import { $applyNodeReplacement, DecoratorNode, DOMExportOutput } from 'lexical';
 import * as React from 'react';
-import {Suspense} from 'react';
+import { Suspense } from 'react';
 
 const EquationComponent = React.lazy(
-  // @ts-ignore
-  () => import('./EquationComponent'),
+  // @ts-ignore: no description
+  () => import('./EquationComponent')
 );
 
 export type SerializedEquationNode = Spread<
@@ -35,7 +33,7 @@ export type SerializedEquationNode = Spread<
 >;
 
 function convertEquationElement(
-  domNode: HTMLElement,
+  domNode: HTMLElement
 ): null | DOMConversionOutput {
   let equation = domNode.getAttribute('data-lexical-equation');
   const inline = domNode.getAttribute('data-lexical-inline') === 'true';
@@ -43,7 +41,7 @@ function convertEquationElement(
   equation = atob(equation || '');
   if (equation) {
     const node = $createEquationNode(equation, inline);
-    return {node};
+    return { node };
   }
 
   return null;
@@ -70,7 +68,7 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
   static importJSON(serializedNode: SerializedEquationNode): EquationNode {
     const node = $createEquationNode(
       serializedNode.equation,
-      serializedNode.inline,
+      serializedNode.inline
     );
     return node;
   }
@@ -80,7 +78,7 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
       equation: this.getEquation(),
       inline: this.__inline,
       type: 'equation',
-      version: 1,
+      version: 1
     };
   }
 
@@ -103,9 +101,9 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
       output: 'html',
       strict: 'warn',
       throwOnError: false,
-      trust: false,
+      trust: false
     });
-    return {element};
+    return { element };
   }
 
   static importDOM(): DOMConversionMap | null {
@@ -116,7 +114,7 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
         }
         return {
           conversion: convertEquationElement,
-          priority: 2,
+          priority: 2
         };
       },
       span: (domNode: HTMLElement) => {
@@ -125,9 +123,9 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
         }
         return {
           conversion: convertEquationElement,
-          priority: 1,
+          priority: 1
         };
-      },
+      }
     };
   }
 
@@ -164,14 +162,14 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
 
 export function $createEquationNode(
   equation = '',
-  inline = false,
+  inline = false
 ): EquationNode {
   const equationNode = new EquationNode(equation, inline);
   return $applyNodeReplacement(equationNode);
 }
 
 export function $isEquationNode(
-  node: LexicalNode | null | undefined,
+  node: LexicalNode | null | undefined
 ): node is EquationNode {
   return node instanceof EquationNode;
 }

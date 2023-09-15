@@ -5,7 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
+import {
+  $createEquationNode,
+  $isEquationNode,
+  EquationNode
+} from '../../nodes/EquationNode';
+import {
+  $createImageNode,
+  $isImageNode,
+  ImageNode
+} from '../../nodes/ImageNode';
+import {
+  $createTweetNode,
+  $isTweetNode,
+  TweetNode
+} from '../../nodes/TweetNode';
+import emojiList from '../../utils/emoji-list';
 import {
   $convertFromMarkdownString,
   $convertToMarkdownString,
@@ -15,12 +30,12 @@ import {
   TEXT_FORMAT_TRANSFORMERS,
   TEXT_MATCH_TRANSFORMERS,
   TextMatchTransformer,
-  Transformer,
+  Transformer
 } from '@lexical/markdown';
 import {
   $createHorizontalRuleNode,
   $isHorizontalRuleNode,
-  HorizontalRuleNode,
+  HorizontalRuleNode
 } from '@lexical/react/LexicalHorizontalRuleNode';
 import {
   $createTableCellNode,
@@ -32,23 +47,14 @@ import {
   TableCellHeaderStates,
   TableCellNode,
   TableNode,
-  TableRowNode,
+  TableRowNode
 } from '@lexical/table';
 import {
   $createTextNode,
   $isParagraphNode,
   $isTextNode,
-  LexicalNode,
+  LexicalNode
 } from 'lexical';
-
-import {
-  $createEquationNode,
-  $isEquationNode,
-  EquationNode,
-} from '../../nodes/EquationNode';
-import {$createImageNode, $isImageNode, ImageNode} from '../../nodes/ImageNode';
-import {$createTweetNode, $isTweetNode, TweetNode} from '../../nodes/TweetNode';
-import emojiList from '../../utils/emoji-list';
 
 export const HR: ElementTransformer = {
   dependencies: [HorizontalRuleNode],
@@ -68,7 +74,7 @@ export const HR: ElementTransformer = {
 
     line.selectNext();
   },
-  type: 'element',
+  type: 'element'
 };
 
 export const IMAGE: TextMatchTransformer = {
@@ -87,12 +93,12 @@ export const IMAGE: TextMatchTransformer = {
     const imageNode = $createImageNode({
       altText,
       maxWidth: 800,
-      src,
+      src
     });
     textNode.replace(imageNode);
   },
   trigger: ')',
-  type: 'text-match',
+  type: 'text-match'
 };
 
 export const EMOJI: TextMatchTransformer = {
@@ -107,7 +113,7 @@ export const EMOJI: TextMatchTransformer = {
     }
   },
   trigger: ':',
-  type: 'text-match',
+  type: 'text-match'
 };
 
 export const EQUATION: TextMatchTransformer = {
@@ -127,7 +133,7 @@ export const EQUATION: TextMatchTransformer = {
     textNode.replace(equationNode);
   },
   trigger: '$',
-  type: 'text-match',
+  type: 'text-match'
 };
 
 export const TWEET: ElementTransformer = {
@@ -145,7 +151,7 @@ export const TWEET: ElementTransformer = {
     const tweetNode = $createTweetNode(id);
     textNode.replace(tweetNode);
   },
-  type: 'element',
+  type: 'element'
 };
 
 // Very primitive table setup
@@ -162,7 +168,7 @@ export const TABLE: ElementTransformer = {
     const output: string[] = [];
 
     for (const row of node.getChildren()) {
-      const rowOutput = [];
+      const rowOutput: string[] = [];
       if (!$isTableRowNode(row)) {
         continue;
       }
@@ -174,8 +180,8 @@ export const TABLE: ElementTransformer = {
           rowOutput.push(
             $convertToMarkdownString(PLAYGROUND_TRANSFORMERS, cell).replace(
               /\n/g,
-              '\\n',
-            ),
+              '\\n'
+            )
           );
           if (cell.__headerState === TableCellHeaderStates.ROW) {
             isHeaderRow = true;
@@ -281,7 +287,7 @@ export const TABLE: ElementTransformer = {
 
     table.selectEnd();
   },
-  type: 'element',
+  type: 'element'
 };
 
 function getTableColumnsSize(table: TableNode) {
@@ -314,5 +320,5 @@ export const PLAYGROUND_TRANSFORMERS: Array<Transformer> = [
   CHECK_LIST,
   ...ELEMENT_TRANSFORMERS,
   ...TEXT_FORMAT_TRANSFORMERS,
-  ...TEXT_MATCH_TRANSFORMERS,
+  ...TEXT_MATCH_TRANSFORMERS
 ];

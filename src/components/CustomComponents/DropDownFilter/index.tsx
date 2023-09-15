@@ -60,6 +60,7 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
 
   useEffect(() => {
     throttledHandleSelectionChange(selectedItemIds);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedItemIds]);
 
   const clearAllSelections = useCallback(() => {

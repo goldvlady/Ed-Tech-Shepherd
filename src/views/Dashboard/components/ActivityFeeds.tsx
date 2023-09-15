@@ -196,7 +196,7 @@ function ActivityFeeds(props) {
           .filter(filterByPeriod)
       );
     }
-  }, [feedPeriod, feeds?.data]);
+  }, [isTutor, feedPeriod, feeds?.data]);
 
   return (
     <>

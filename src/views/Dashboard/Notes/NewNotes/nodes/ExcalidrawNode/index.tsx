@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
 import type {
   DOMConversionMap,
   DOMConversionOutput,
@@ -15,16 +14,15 @@ import type {
   LexicalNode,
   NodeKey,
   SerializedLexicalNode,
-  Spread,
+  Spread
 } from 'lexical';
-
-import {DecoratorNode} from 'lexical';
+import { DecoratorNode } from 'lexical';
 import * as React from 'react';
-import {Suspense} from 'react';
+import { Suspense } from 'react';
 
 const ExcalidrawComponent = React.lazy(
-  // @ts-ignore
-  () => import('./ExcalidrawComponent'),
+  // @ts-ignore: no description
+  () => import('./ExcalidrawComponent')
 );
 
 export type SerializedExcalidrawNode = Spread<
@@ -35,14 +33,14 @@ export type SerializedExcalidrawNode = Spread<
 >;
 
 function convertExcalidrawElement(
-  domNode: HTMLElement,
+  domNode: HTMLElement
 ): DOMConversionOutput | null {
   const excalidrawData = domNode.getAttribute('data-lexical-excalidraw-json');
   if (excalidrawData) {
     const node = $createExcalidrawNode();
     node.__data = excalidrawData;
     return {
-      node,
+      node
     };
   }
   return null;
@@ -67,7 +65,7 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
     return {
       data: this.__data,
       type: 'excalidraw',
-      version: 1,
+      version: 1
     };
   }
 
@@ -99,9 +97,9 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
         }
         return {
           conversion: convertExcalidrawElement,
-          priority: 1,
+          priority: 1
         };
-      },
+      }
     };
   }
 
@@ -115,7 +113,7 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
       }
     }
     element.setAttribute('data-lexical-excalidraw-json', this.__data);
-    return {element};
+    return { element };
   }
 
   setData(data: string): void {
@@ -137,7 +135,7 @@ export function $createExcalidrawNode(): ExcalidrawNode {
 }
 
 export function $isExcalidrawNode(
-  node: LexicalNode | null,
+  node: LexicalNode | null
 ): node is ExcalidrawNode {
   return node instanceof ExcalidrawNode;
 }

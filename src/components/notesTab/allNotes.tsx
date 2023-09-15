@@ -694,22 +694,22 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
             backgroundColor="#FFFFFF"
             boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
           >
-            <section className="space-y-2 border-b pb-2">
+            <section className="pb-2 space-y-2 border-b">
               <button
                 // onClick={() => {
                 //   navigate(`/clients/${id}`);
                 // }}
                 onClick={showFlashCardDropdown}
-                className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
+                className="flex items-center justify-between w-full p-2 bg-gray-100 rounded-md"
               >
-                <div className=" flex items-center space-x-1">
-                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                <div className="flex items-center space-x-1 ">
+                  <div className="flex items-center justify-center bg-white border rounded-full w-7 h-7">
                     <FlashCardsIcon
                       className="w-4 h-4 text-primaryGray"
                       onClick={undefined}
                     />
                   </div>
-                  <Text className="text-sm text-secondaryGray font-medium">
+                  <Text className="text-sm font-medium text-secondaryGray">
                     Flashcards
                   </Text>
                 </div>
@@ -719,35 +719,35 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
                 onClick={() => {
                   onAddTag(true, id, unFormatedTags);
                 }}
-                className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
+                className="flex items-center justify-between w-full p-2 rounded-md hover:bg-gray-100"
               >
                 <div className="flex items-center space-x-1">
-                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                  <div className="flex items-center justify-center bg-white border rounded-full w-7 h-7">
                     <FlashCardsSolidIcon
                       onClick={undefined}
                       className="w-4 h-4 text-primaryGray"
                     />
                   </div>
-                  <Text className="text-sm text-secondaryGray font-medium">
+                  <Text className="text-sm font-medium text-secondaryGray">
                     Edit tag
                   </Text>
                 </div>
                 <ChevronRightIcon className="w-2.5 h-2.5" />
               </button>
-              <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
+              <button className="flex items-center justify-between w-full p-2 rounded-md hover:bg-gray-100">
                 <div
                   className="flex items-center space-x-1"
                   onClick={() => {
                     downloadAsPDF(id, title);
                   }}
                 >
-                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                  <div className="flex items-center justify-center bg-white border rounded-full w-7 h-7">
                     <DownloadIcon
                       className="w-4 h-4 text-primaryGray"
                       onClick={undefined}
                     />
                   </div>
-                  <Text className="text-sm text-secondaryGray font-medium">
+                  <Text className="text-sm font-medium text-secondaryGray">
                     Download
                   </Text>
                 </div>
@@ -795,6 +795,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     if (checkbox.current) {
       checkbox.current.indeterminate = isIndeterminate;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPeople]);
 
   useEffect(() => {
@@ -816,9 +817,9 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
 
   return (
     <>
-      <div className="mt-8 flow-root">
+      <div className="flow-root mt-8">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full py-2 align-middle h-screen sm:px-6 lg:px-8 z-10">
+          <div className="z-10 inline-block h-screen min-w-full py-2 align-middle sm:px-6 lg:px-8">
             <div className="relative">
               <div className="table-columns  fixed bottom-[80px] right-[36%] left-[36%]">
                 {selectedPeople.length > 0 || allChecked ? (
@@ -941,7 +942,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
 
                     <button
                       type="button"
-                      className="inline-flex items-center rounded-lg bg-white px-6 py-2 text-sm text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                      className="inline-flex items-center px-6 py-2 text-sm text-gray-700 bg-white rounded-lg shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
                       onClick={Done}
                     >
                       Done

@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
 import {
   DecoratorNode,
   DOMConversionMap,
@@ -14,10 +13,10 @@ import {
   LexicalNode,
   NodeKey,
   SerializedLexicalNode,
-  Spread,
+  Spread
 } from 'lexical';
 import * as React from 'react';
-import {Suspense} from 'react';
+import { Suspense } from 'react';
 
 export type Options = ReadonlyArray<Option>;
 
@@ -28,8 +27,8 @@ export type Option = Readonly<{
 }>;
 
 const PollComponent = React.lazy(
-  // @ts-ignore
-  () => import('./PollComponent'),
+  // @ts-ignore: no description
+  () => import('./PollComponent')
 );
 
 function createUID(): string {
@@ -43,19 +42,19 @@ export function createPollOption(text = ''): Option {
   return {
     text,
     uid: createUID(),
-    votes: [],
+    votes: []
   };
 }
 
 function cloneOption(
   option: Option,
   text: string,
-  votes?: Array<number>,
+  votes?: Array<number>
 ): Option {
   return {
     text,
     uid: option.uid,
-    votes: votes || Array.from(option.votes),
+    votes: votes || Array.from(option.votes)
   };
 }
 
@@ -72,7 +71,7 @@ function convertPollElement(domNode: HTMLElement): DOMConversionOutput | null {
   const options = domNode.getAttribute('data-lexical-poll-options');
   if (question !== null && options !== null) {
     const node = $createPollNode(question, JSON.parse(options));
-    return {node};
+    return { node };
   }
   return null;
 }
@@ -92,7 +91,7 @@ export class PollNode extends DecoratorNode<JSX.Element> {
   static importJSON(serializedNode: SerializedPollNode): PollNode {
     const node = $createPollNode(
       serializedNode.question,
-      serializedNode.options,
+      serializedNode.options
     );
     serializedNode.options.forEach(node.addOption);
     return node;
@@ -109,7 +108,7 @@ export class PollNode extends DecoratorNode<JSX.Element> {
       options: this.__options,
       question: this.__question,
       type: 'poll',
-      version: 1,
+      version: 1
     };
   }
 
@@ -162,9 +161,9 @@ export class PollNode extends DecoratorNode<JSX.Element> {
         }
         return {
           conversion: convertPollElement,
-          priority: 2,
+          priority: 2
         };
-      },
+      }
     };
   }
 
@@ -173,9 +172,9 @@ export class PollNode extends DecoratorNode<JSX.Element> {
     element.setAttribute('data-lexical-poll-question', this.__question);
     element.setAttribute(
       'data-lexical-poll-options',
-      JSON.stringify(this.__options),
+      JSON.stringify(this.__options)
     );
-    return {element};
+    return { element };
   }
 
   createDOM(): HTMLElement {
@@ -206,7 +205,7 @@ export function $createPollNode(question: string, options: Options): PollNode {
 }
 
 export function $isPollNode(
-  node: LexicalNode | null | undefined,
+  node: LexicalNode | null | undefined
 ): node is PollNode {
   return node instanceof PollNode;
 }

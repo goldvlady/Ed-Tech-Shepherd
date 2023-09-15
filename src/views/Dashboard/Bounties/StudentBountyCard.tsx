@@ -24,6 +24,7 @@ const StudentBountyCard = ({ bounty }) => {
       if (course._id === id) {
         return course.label;
       }
+      return null;
     });
   }
   return (

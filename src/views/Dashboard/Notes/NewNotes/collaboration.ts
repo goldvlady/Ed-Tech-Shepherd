@@ -5,10 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import {Provider} from '@lexical/yjs';
-import {WebsocketProvider} from 'y-websocket';
-import {Doc} from 'yjs';
+import { Provider } from '@lexical/yjs';
+import { WebsocketProvider } from 'y-websocket';
+import { Doc } from 'yjs';
 
 const url = new URL(window.location.href);
 const params = new URLSearchParams(url.search);
@@ -20,7 +19,7 @@ const WEBSOCKET_ID = params.get('collabId') || '0';
 // parent dom -> child doc
 export function createWebsocketProvider(
   id: string,
-  yjsDocMap: Map<string, Doc>,
+  yjsDocMap: Map<string, Doc>
 ): Provider {
   let doc = yjsDocMap.get(id);
 
@@ -31,13 +30,13 @@ export function createWebsocketProvider(
     doc.load();
   }
 
-  // @ts-ignore
+  // @ts-ignore: no description
   return new WebsocketProvider(
     WEBSOCKET_ENDPOINT,
     WEBSOCKET_SLUG + '/' + WEBSOCKET_ID + '/' + id,
     doc,
     {
-      connect: false,
-    },
+      connect: false
+    }
   );
 }

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import FileProcessingService from '../../../../helpers/files.helpers/fileProcessing';
 import { createDocchatFlashCards } from '../../../../services/AI';
 import ApiService from '../../../../services/ApiService';

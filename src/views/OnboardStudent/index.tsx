@@ -580,6 +580,7 @@ const OnboardStudent = () => {
       canSave: validatePasswordStep
     }
   ];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const activeStepObj = useMemo(() => steps[activeStep - 1], [activeStep]);
 
   const stepIndicatorActiveStep = useMemo(

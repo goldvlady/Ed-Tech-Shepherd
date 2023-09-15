@@ -7,7 +7,7 @@
  */
 
 export default function warnOnlyOnce(message: string) {
-  if (!__DEV__) {
+  if (!eval('__DEV__')) {
     return;
   }
   let run = false;

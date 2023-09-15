@@ -5,41 +5,38 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import type {LexicalCommand, LexicalEditor, RangeSelection} from 'lexical';
-
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+import useReport from '../../hooks/useReport';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import type { LexicalCommand, LexicalEditor, RangeSelection } from 'lexical';
 import {
   $getSelection,
   $isRangeSelection,
   COMMAND_PRIORITY_EDITOR,
   createCommand,
   REDO_COMMAND,
-  UNDO_COMMAND,
+  UNDO_COMMAND
 } from 'lexical';
-import {useEffect, useRef, useState} from 'react';
-
-import useReport from '../../hooks/useReport';
+import { useEffect, useRef, useState } from 'react';
 
 export const SPEECH_TO_TEXT_COMMAND: LexicalCommand<boolean> = createCommand(
-  'SPEECH_TO_TEXT_COMMAND',
+  'SPEECH_TO_TEXT_COMMAND'
 );
 
 const VOICE_COMMANDS: Readonly<
   Record<
     string,
-    (arg0: {editor: LexicalEditor; selection: RangeSelection}) => void
+    (arg0: { editor: LexicalEditor; selection: RangeSelection }) => void
   >
 > = {
-  '\n': ({selection}) => {
+  '\n': ({ selection }) => {
     selection.insertParagraph();
   },
-  redo: ({editor}) => {
+  redo: ({ editor }) => {
     editor.dispatchCommand(REDO_COMMAND, undefined);
   },
-  undo: ({editor}) => {
+  undo: ({ editor }) => {
     editor.dispatchCommand(UNDO_COMMAND, undefined);
-  },
+  }
 };
 
 export const SUPPORT_SPEECH_RECOGNITION: boolean =
@@ -49,7 +46,7 @@ function SpeechToTextPlugin(): null {
   const [editor] = useLexicalComposerContext();
   const [isEnabled, setIsEnabled] = useState<boolean>(false);
   const SpeechRecognition =
-    // @ts-ignore
+    // @ts-ignore: no description
     window.SpeechRecognition || window.webkitSpeechRecognition;
   const recognition = useRef<typeof SpeechRecognition | null>(null);
   const report = useReport();
@@ -63,7 +60,7 @@ function SpeechToTextPlugin(): null {
         'result',
         (event: typeof SpeechRecognition) => {
           const resultItem = event.results.item(event.resultIndex);
-          const {transcript} = resultItem.item(0);
+          const { transcript } = resultItem.item(0);
           report(transcript);
 
           if (!resultItem.isFinal) {
@@ -79,7 +76,7 @@ function SpeechToTextPlugin(): null {
               if (command) {
                 command({
                   editor,
-                  selection,
+                  selection
                 });
               } else if (transcript.match(/\s*\n\s*/)) {
                 selection.insertParagraph();
@@ -88,7 +85,7 @@ function SpeechToTextPlugin(): null {
               }
             }
           });
-        },
+        }
       );
     }
 
@@ -113,7 +110,7 @@ function SpeechToTextPlugin(): null {
         setIsEnabled(_isEnabled);
         return true;
       },
-      COMMAND_PRIORITY_EDITOR,
+      COMMAND_PRIORITY_EDITOR
     );
   }, [editor]);
 

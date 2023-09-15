@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -5,17 +7,21 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
+import { useSharedAutocompleteContext } from '../../context/SharedAutocompleteContext';
+import {
+  $createAutocompleteNode,
+  AutocompleteNode
+} from '../../nodes/AutocompleteNode';
+import { addSwipeRightListener } from '../../utils/swipe';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $isAtNodeEnd } from '@lexical/selection';
+import { mergeRegister } from '@lexical/utils';
 import type {
   GridSelection,
   NodeKey,
   NodeSelection,
-  RangeSelection,
+  RangeSelection
 } from 'lexical';
-
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {$isAtNodeEnd} from '@lexical/selection';
-import {mergeRegister} from '@lexical/utils';
 import {
   $createTextNode,
   $getNodeByKey,
@@ -25,16 +31,9 @@ import {
   $setSelection,
   COMMAND_PRIORITY_LOW,
   KEY_ARROW_RIGHT_COMMAND,
-  KEY_TAB_COMMAND,
+  KEY_TAB_COMMAND
 } from 'lexical';
-import {useCallback, useEffect} from 'react';
-
-import {useSharedAutocompleteContext} from '../../context/SharedAutocompleteContext';
-import {
-  $createAutocompleteNode,
-  AutocompleteNode,
-} from '../../nodes/AutocompleteNode';
-import {addSwipeRightListener} from '../../utils/swipe';
+import { useCallback, useEffect } from 'react';
 
 type SearchPromise = {
   dismiss: () => void;
@@ -48,7 +47,7 @@ export const uuid = Math.random()
 
 // TODO lookup should be custom
 function $search(
-  selection: null | RangeSelection | NodeSelection | GridSelection,
+  selection: null | RangeSelection | NodeSelection | GridSelection
 ): [boolean, string] {
   if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
     return [false, ''];
@@ -59,7 +58,7 @@ function $search(
   if (!$isTextNode(node) || !node.isSimpleText() || !$isAtNodeEnd(anchor)) {
     return [false, ''];
   }
-  const word = [];
+  const word: any[] = [];
   const text = node.getTextContent();
   let i = node.getTextContentSize();
   let c;
@@ -112,7 +111,7 @@ export default function AutocompletePlugin(): JSX.Element | null {
     }
     function updateAsyncSuggestion(
       refSearchPromise: SearchPromise,
-      newSuggestion: null | string,
+      newSuggestion: null | string
     ) {
       if (searchPromise !== refSearchPromise || newSuggestion === null) {
         // Outdated or no suggestion
@@ -138,7 +137,7 @@ export default function AutocompletePlugin(): JSX.Element | null {
           lastSuggestion = newSuggestion;
           setSuggestion(newSuggestion);
         },
-        {tag: 'history-merge'},
+        { tag: 'history-merge' }
       );
     }
 
@@ -213,23 +212,23 @@ export default function AutocompletePlugin(): JSX.Element | null {
     return mergeRegister(
       editor.registerNodeTransform(
         AutocompleteNode,
-        handleAutocompleteNodeTransform,
+        handleAutocompleteNodeTransform
       ),
       editor.registerUpdateListener(handleUpdate),
       editor.registerCommand(
         KEY_TAB_COMMAND,
         $handleKeypressCommand,
-        COMMAND_PRIORITY_LOW,
+        COMMAND_PRIORITY_LOW
       ),
       editor.registerCommand(
         KEY_ARROW_RIGHT_COMMAND,
         $handleKeypressCommand,
-        COMMAND_PRIORITY_LOW,
+        COMMAND_PRIORITY_LOW
       ),
       ...(rootElem !== null
         ? [addSwipeRightListener(rootElem, handleSwipeRight)]
         : []),
-      unmountSuggestion,
+      unmountSuggestion
     );
   }, [editor, query, setSuggestion]);
 
@@ -267,7 +266,7 @@ class AutocompleteServer {
           : searchText;
         const match = this.DATABASE.find(
           (dictionaryWord) =>
-            dictionaryWord.startsWith(caseInsensitiveSearchText) ?? null,
+            dictionaryWord.startsWith(caseInsensitiveSearchText) ?? null
         );
         if (match === undefined) {
           return resolve(null);
@@ -285,7 +284,7 @@ class AutocompleteServer {
 
     return {
       dismiss,
-      promise,
+      promise
     };
   };
 }
@@ -2532,5 +2531,5 @@ const DICTIONARY = [
   'swaziland',
   'varieties',
   'mediawiki',
-  'configurations',
+  'configurations'
 ];

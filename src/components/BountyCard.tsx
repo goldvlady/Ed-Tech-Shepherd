@@ -99,6 +99,7 @@ function BountyCard(props) {
       if (course._id === id) {
         return course.label;
       }
+      return null;
     });
   }
 

@@ -49,6 +49,7 @@ import ToolbarPlugin from './plugins/ToolbarPlugin';
 import TreeViewPlugin from './plugins/TreeViewPlugin';
 import TwitterPlugin from './plugins/TwitterPlugin';
 import YouTubePlugin from './plugins/YouTubePlugin';
+import { CAN_USE_DOM } from './plugins/shared/src/canUseDOM';
 import PlaygroundEditorTheme from './themes/PlaygroundEditorTheme';
 import ContentEditable from './ui/ContentEditable';
 import Placeholder from './ui/Placeholder';
@@ -70,10 +71,9 @@ import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import useLexicalEditable from '@lexical/react/useLexicalEditable';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { CAN_USE_DOM } from './plugins/shared/src/canUseDOM';
 
 const skipCollaborationInit =
-  // @ts-ignore
+  // @ts-ignore: no description
   window.parent != null && window.parent.frames.right === window;
 
 export default function Editor(): JSX.Element {
@@ -101,9 +101,9 @@ export default function Editor(): JSX.Element {
     : 'Enter some plain text...';
   const placeholder = <Placeholder>{text}</Placeholder>;
   const [floatingAnchorElem, setFloatingAnchorElem] =
-    useState<HTMLDivElement | null >(null);
+    useState<HTMLDivElement | null>(null);
   const [isSmallWidthViewport, setIsSmallWidthViewport] =
-    useState<Boolean>(false);
+    useState<boolean>(false);
 
   const onRef = (_floatingAnchorElem: HTMLDivElement) => {
     if (_floatingAnchorElem !== null) {

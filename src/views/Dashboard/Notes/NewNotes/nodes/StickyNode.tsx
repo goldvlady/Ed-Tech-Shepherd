@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
 import type {
   EditorConfig,
   LexicalEditor,
@@ -13,17 +12,16 @@ import type {
   NodeKey,
   SerializedEditor,
   SerializedLexicalNode,
-  Spread,
+  Spread
 } from 'lexical';
-
-import {$setSelection, createEditor, DecoratorNode} from 'lexical';
+import { $setSelection, createEditor, DecoratorNode } from 'lexical';
 import * as React from 'react';
-import {Suspense} from 'react';
-import {createPortal} from 'react-dom';
+import { Suspense } from 'react';
+import { createPortal } from 'react-dom';
 
 const StickyComponent = React.lazy(
-  // @ts-ignore
-  () => import('./StickyComponent'),
+  // @ts-ignore: no description
+  () => import('./StickyComponent')
 );
 
 type StickyNoteColor = 'pink' | 'yellow';
@@ -54,14 +52,14 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
       node.__y,
       node.__color,
       node.__caption,
-      node.__key,
+      node.__key
     );
   }
   static importJSON(serializedNode: SerializedStickyNode): StickyNode {
     const stickyNode = new StickyNode(
       serializedNode.xOffset,
       serializedNode.yOffset,
-      serializedNode.color,
+      serializedNode.color
     );
     const caption = serializedNode.caption;
     const nestedEditor = stickyNode.__caption;
@@ -77,7 +75,7 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
     y: number,
     color: 'pink' | 'yellow',
     caption?: LexicalEditor,
-    key?: NodeKey,
+    key?: NodeKey
   ) {
     super(key);
     this.__x = x;
@@ -93,7 +91,7 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
       type: 'sticky',
       version: 1,
       xOffset: this.__x,
-      yOffset: this.__y,
+      yOffset: this.__y
     };
   }
 
@@ -130,7 +128,7 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
           caption={this.__caption}
         />
       </Suspense>,
-      document.body,
+      document.body
     );
   }
 
@@ -140,14 +138,14 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
 }
 
 export function $isStickyNode(
-  node: LexicalNode | null | undefined,
+  node: LexicalNode | null | undefined
 ): node is StickyNode {
   return node instanceof StickyNode;
 }
 
 export function $createStickyNode(
   xOffset: number,
-  yOffset: number,
+  yOffset: number
 ): StickyNode {
   return new StickyNode(xOffset, yOffset, 'yellow');
 }

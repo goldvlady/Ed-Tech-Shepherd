@@ -30,9 +30,10 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
     topic: ''
   });
   const [level, setLevel] = useState<any>('');
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setToggleHelpModal(false);
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleShowSelected = () => {
     setShowSelected(true);
@@ -161,11 +162,11 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+              <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
             </Transition.Child>
 
             <div className="fixed inset-0 z-10 overflow-y-auto">
-              <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+              <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
                 <Transition.Child
                   as={Fragment}
                   enter="ease-out duration-300"
@@ -175,12 +176,12 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
                   leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                   leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 >
-                  <Dialog.Panel className="relative transform overflow-hidden rounded-2xl bg-white mt-10 text-left shadow-xl transition-all sm:w-xl sm:max-w-3xl">
+                  <Dialog.Panel className="relative mt-10 overflow-hidden text-left transition-all transform bg-white shadow-xl rounded-2xl sm:w-xl sm:max-w-3xl">
                     <div>
-                      <div className="flex justify-between align-middle border-b pb-2 px-2">
-                        <div className="flex items-center space-x-2 p-3 pb-2">
+                      <div className="flex justify-between px-2 pb-2 align-middle border-b">
+                        <div className="flex items-center p-3 pb-2 space-x-2">
                           <StarIcon
-                            className="text-primaryBlue h-4 w-4"
+                            className="w-4 h-4 text-primaryBlue"
                             onClick={undefined}
                           />
                           <Typewriter
@@ -204,15 +205,15 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
                         </div>
                         <button
                           onClick={handleClose}
-                          className="inline-flex h-6 space-x-1 items-center rounded-full bg-gray-100 px-2 py-1 mt-4 mb-2 mr-4 text-xs font-medium text-secondaryGray hover:bg-orange-200 hover:text-orange-600"
+                          className="inline-flex items-center h-6 px-2 py-1 mt-4 mb-2 mr-4 space-x-1 text-xs font-medium bg-gray-100 rounded-full text-secondaryGray hover:bg-orange-200 hover:text-orange-600"
                         >
                           <span>Close</span>
                           <XMarkIcon className="w-4 h-4" />
                         </button>
                       </div>
 
-                      {/* <div className="overflow-hidden p-6 pb-2 bg-white sm:grid sm:grid-cols-4 sm:gap-x-4 sm:space-y-0 space-y-2 "> */}
-                      <div className="overflow-hidden  w-full mx-auto p-6 pt-3  bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">
+                      {/* <div className="p-6 pb-2 space-y-2 overflow-hidden bg-white sm:grid sm:grid-cols-4 sm:gap-x-4 sm:space-y-0 "> */}
+                      <div className="w-full p-6 pt-3 mx-auto space-y-2 overflow-hidden bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0">
                         {actions1.map((action) => (
                           <div
                             key={action.title}

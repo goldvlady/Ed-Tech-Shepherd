@@ -5,21 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
+import { BlockWithAlignableContents } from '@lexical/react/LexicalBlockWithAlignableContents';
+import {
+  DecoratorBlockNode,
+  SerializedDecoratorBlockNode
+} from '@lexical/react/LexicalDecoratorBlockNode';
 import type {
   EditorConfig,
   ElementFormatType,
   LexicalEditor,
   LexicalNode,
   NodeKey,
-  Spread,
+  Spread
 } from 'lexical';
-
-import {BlockWithAlignableContents} from '@lexical/react/LexicalBlockWithAlignableContents';
-import {
-  DecoratorBlockNode,
-  SerializedDecoratorBlockNode,
-} from '@lexical/react/LexicalDecoratorBlockNode';
 import * as React from 'react';
 
 type FigmaComponentProps = Readonly<{
@@ -36,19 +34,21 @@ function FigmaComponent({
   className,
   format,
   nodeKey,
-  documentID,
+  documentID
 }: FigmaComponentProps) {
   return (
     <BlockWithAlignableContents
       className={className}
       format={format}
-      nodeKey={nodeKey}>
+      nodeKey={nodeKey}
+    >
       <iframe
         width="560"
         height="315"
         src={`https://www.figma.com/embed?embed_host=lexical&url=\
         https://www.figma.com/file/${documentID}`}
         allowFullScreen={true}
+        title={`documentID-${documentID}`}
       />
     </BlockWithAlignableContents>
   );
@@ -83,7 +83,7 @@ export class FigmaNode extends DecoratorBlockNode {
       ...super.exportJSON(),
       documentID: this.__id,
       type: 'figma',
-      version: 1,
+      version: 1
     };
   }
 
@@ -102,7 +102,7 @@ export class FigmaNode extends DecoratorBlockNode {
 
   getTextContent(
     _includeInert?: boolean | undefined,
-    _includeDirectionless?: false | undefined,
+    _includeDirectionless?: false | undefined
   ): string {
     return `https://www.figma.com/file/${this.__id}`;
   }
@@ -111,7 +111,7 @@ export class FigmaNode extends DecoratorBlockNode {
     const embedBlockTheme = config.theme.embedBlock || {};
     const className = {
       base: embedBlockTheme.base || '',
-      focus: embedBlockTheme.focus || '',
+      focus: embedBlockTheme.focus || ''
     };
     return (
       <FigmaComponent
@@ -129,7 +129,7 @@ export function $createFigmaNode(documentID: string): FigmaNode {
 }
 
 export function $isFigmaNode(
-  node: FigmaNode | LexicalNode | null | undefined,
+  node: FigmaNode | LexicalNode | null | undefined
 ): node is FigmaNode {
   return node instanceof FigmaNode;
 }

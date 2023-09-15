@@ -5,14 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import {createHeadlessEditor} from '@lexical/headless';
-import {$isMarkNode, $unwrapMarkNode} from '@lexical/mark';
-import * as http from 'http';
-import {$getRoot, $isElementNode, LexicalNode} from 'lexical';
-import * as url from 'url';
-
 import PlaygroundNodes from '../nodes/PlaygroundNodes';
+// @ts-ignore: cannot find modules for @lexical/headless
+import { createHeadlessEditor } from '@lexical/headless';
+import { $isMarkNode, $unwrapMarkNode } from '@lexical/mark';
+import * as http from 'http';
+import { $getRoot, $isElementNode, LexicalNode } from 'lexical';
+import * as url from 'url';
 
 const hostname = 'localhost';
 const port = 1235;
@@ -26,7 +25,7 @@ const editor = createHeadlessEditor({
   nodes: [...PlaygroundNodes],
   onError: (error) => {
     console.error(error);
-  },
+  }
 });
 
 const getJSONData = (req: http.IncomingMessage): Promise<string> => {
@@ -60,7 +59,7 @@ const sanitizeNode = (node: LexicalNode): void => {
 };
 
 const validateEditorState = async (
-  stringifiedJSON: string,
+  stringifiedJSON: string
 ): Promise<boolean> => {
   if (stringifiedEditorStateJSON === stringifiedJSON) {
     return true;
@@ -92,7 +91,7 @@ const validateEditorState = async (
 const server = http.createServer(async (req, res) => {
   // @ts-ignore
   const pathname = url.parse(req.url).pathname;
-  const {method} = req;
+  const { method } = req;
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Request-Method', '*');
@@ -128,6 +127,6 @@ const server = http.createServer(async (req, res) => {
 server.listen(port, hostname, () => {
   // eslint-disable-next-line no-console
   console.log(
-    `Read-only validation server running at http://${hostname}:${port}/`,
+    `Read-only validation server running at http://${hostname}:${port}/`
   );
 });

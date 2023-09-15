@@ -5,21 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   LexicalTypeaheadMenuPlugin,
   MenuOption,
-  useBasicTypeaheadTriggerMatch,
+  useBasicTypeaheadTriggerMatch
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
 import {
   $createTextNode,
   $getSelection,
   $isRangeSelection,
-  TextNode,
+  TextNode
 } from 'lexical';
 import * as React from 'react';
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as ReactDOM from 'react-dom';
 
 class EmojiOption extends MenuOption {
@@ -32,7 +31,7 @@ class EmojiOption extends MenuOption {
     emoji: string,
     options: {
       keywords?: Array<string>;
-    },
+    }
   ) {
     super(title);
     this.title = title;
@@ -45,7 +44,7 @@ function EmojiMenuItem({
   isSelected,
   onClick,
   onMouseEnter,
-  option,
+  option
 }: {
   index: number;
   isSelected: boolean;
@@ -67,7 +66,8 @@ function EmojiMenuItem({
       aria-selected={isSelected}
       id={'typeahead-item-' + index}
       onMouseEnter={onMouseEnter}
-      onClick={onClick}>
+      onClick={onClick}
+    >
       <span className="text">
         {option.emoji} {option.title}
       </span>
@@ -94,7 +94,7 @@ export default function EmojiPickerPlugin() {
   const [emojis, setEmojis] = useState<Array<Emoji>>([]);
 
   useEffect(() => {
-    // @ts-ignore
+    // @ts-ignore: no description
     import('../../utils/emoji-list.ts').then((file) => setEmojis(file.default));
   }, []);
 
@@ -102,17 +102,17 @@ export default function EmojiPickerPlugin() {
     () =>
       emojis != null
         ? emojis.map(
-            ({emoji, aliases, tags}) =>
+            ({ emoji, aliases, tags }) =>
               new EmojiOption(aliases[0], emoji, {
-                keywords: [...aliases, ...tags],
-              }),
+                keywords: [...aliases, ...tags]
+              })
           )
         : [],
-    [emojis],
+    [emojis]
   );
 
   const checkForTriggerMatch = useBasicTypeaheadTriggerMatch(':', {
-    minLength: 0,
+    minLength: 0
   });
 
   const options: Array<EmojiOption> = useMemo(() => {
@@ -122,7 +122,7 @@ export default function EmojiPickerPlugin() {
           ? new RegExp(queryString, 'gi').exec(option.title) ||
             option.keywords != null
             ? option.keywords.some((keyword: string) =>
-                new RegExp(queryString, 'gi').exec(keyword),
+                new RegExp(queryString, 'gi').exec(keyword)
               )
             : false
           : emojiOptions;
@@ -134,7 +134,7 @@ export default function EmojiPickerPlugin() {
     (
       selectedOption: EmojiOption,
       nodeToRemove: TextNode | null,
-      closeMenu: () => void,
+      closeMenu: () => void
     ) => {
       editor.update(() => {
         const selection = $getSelection();
@@ -152,7 +152,7 @@ export default function EmojiPickerPlugin() {
         closeMenu();
       });
     },
-    [editor],
+    [editor]
   );
 
   return (
@@ -163,7 +163,7 @@ export default function EmojiPickerPlugin() {
       options={options}
       menuRenderFn={(
         anchorElementRef,
-        {selectedIndex, selectOptionAndCleanUp, setHighlightedIndex},
+        { selectedIndex, selectOptionAndCleanUp, setHighlightedIndex }
       ) => {
         if (anchorElementRef.current == null || options.length === 0) {
           return null;
@@ -191,7 +191,7 @@ export default function EmojiPickerPlugin() {
                   ))}
                 </ul>
               </div>,
-              anchorElementRef.current,
+              anchorElementRef.current
             )
           : null;
       }}

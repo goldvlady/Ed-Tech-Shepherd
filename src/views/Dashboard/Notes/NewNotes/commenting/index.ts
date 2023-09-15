@@ -1,3 +1,5 @@
+/* eslint-disable no-loop-func */
+
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -5,18 +7,16 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import type {LexicalEditor} from 'lexical';
-
-import {Provider, TOGGLE_CONNECT_COMMAND} from '@lexical/yjs';
-import {COMMAND_PRIORITY_LOW} from 'lexical';
-import {useEffect, useState} from 'react';
+import { Provider, TOGGLE_CONNECT_COMMAND } from '@lexical/yjs';
+import type { LexicalEditor } from 'lexical';
+import { COMMAND_PRIORITY_LOW } from 'lexical';
+import { useEffect, useState } from 'react';
 import {
   Array as YArray,
   Map as YMap,
   Transaction,
   YArrayEvent,
-  YEvent,
+  YEvent
 } from 'yjs';
 
 export type Comment = {
@@ -49,7 +49,7 @@ export function createComment(
   author: string,
   id?: string,
   timeStamp?: number,
-  deleted?: boolean,
+  deleted?: boolean
 ): Comment {
   return {
     author,
@@ -57,20 +57,20 @@ export function createComment(
     deleted: deleted === undefined ? false : deleted,
     id: id === undefined ? createUID() : id,
     timeStamp: timeStamp === undefined ? performance.now() : timeStamp,
-    type: 'comment',
+    type: 'comment'
   };
 }
 
 export function createThread(
   quote: string,
   comments: Array<Comment>,
-  id?: string,
+  id?: string
 ): Thread {
   return {
     comments,
     id: id === undefined ? createUID() : id,
     quote,
-    type: 'thread',
+    type: 'thread'
   };
 }
 
@@ -79,7 +79,7 @@ function cloneThread(thread: Thread): Thread {
     comments: Array.from(thread.comments),
     id: thread.id,
     quote: thread.quote,
-    type: 'thread',
+    type: 'thread'
   };
 }
 
@@ -90,7 +90,7 @@ function markDeleted(comment: Comment): Comment {
     deleted: true,
     id: comment.id,
     timeStamp: comment.timeStamp,
-    type: 'comment',
+    type: 'comment'
   };
 }
 
@@ -125,7 +125,7 @@ export class CommentStore {
   addComment(
     commentOrThread: Comment | Thread,
     thread?: Thread,
-    offset?: number,
+    offset?: number
   ): void {
     const nextComments = Array.from(this._comments);
     // The YJS types explicitly use `any` as well.
@@ -169,8 +169,8 @@ export class CommentStore {
 
   deleteCommentOrThread(
     commentOrThread: Comment | Thread,
-    thread?: Thread,
-  ): {markedComment: Comment; index: number} | null {
+    thread?: Thread
+  ): { markedComment: Comment; index: number } | null {
     const nextComments = Array.from(this._comments);
     // The YJS types explicitly use `any` as well.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -212,7 +212,7 @@ export class CommentStore {
     if (commentOrThread.type === 'comment') {
       return {
         index: commentIndex as number,
-        markedComment: markDeleted(commentOrThread as Comment),
+        markedComment: markDeleted(commentOrThread as Comment)
       };
     }
 
@@ -317,14 +317,14 @@ export class CommentStore {
 
         return false;
       },
-      COMMAND_PRIORITY_LOW,
+      COMMAND_PRIORITY_LOW
     );
 
     const onSharedCommentChanges = (
       // The YJS types explicitly use `any` as well.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       events: Array<YEvent<any>>,
-      transaction: Transaction,
+      transaction: Transaction
     ) => {
       if (transaction.origin !== this) {
         for (let i = 0; i < events.length; i++) {
@@ -370,30 +370,30 @@ export class CommentStore {
                                   innerComment: Map<
                                     string,
                                     string | number | boolean
-                                  >,
+                                  >
                                 ) =>
                                   createComment(
                                     innerComment.get('content') as string,
                                     innerComment.get('author') as string,
                                     innerComment.get('id') as string,
                                     innerComment.get('timeStamp') as number,
-                                    innerComment.get('deleted') as boolean,
-                                  ),
+                                    innerComment.get('deleted') as boolean
+                                  )
                               ),
-                            id,
+                            id
                           )
                         : createComment(
                             map.get('content'),
                             map.get('author'),
                             id,
                             map.get('timeStamp'),
-                            map.get('deleted'),
+                            map.get('deleted')
                           );
                     this._withLocalTransaction(() => {
                       this.addComment(
                         commentOrThread,
                         parentThread as Thread,
-                        offset,
+                        offset
                       );
                     });
                   });
@@ -408,7 +408,7 @@ export class CommentStore {
                   this._withLocalTransaction(() => {
                     this.deleteCommentOrThread(
                       commentOrThread,
-                      parentThread as Thread,
+                      parentThread as Thread
                     );
                   });
                   offset++;
@@ -438,7 +438,7 @@ export class CommentStore {
 
 export function useCommentStore(commentStore: CommentStore): Comments {
   const [comments, setComments] = useState<Comments>(
-    commentStore.getComments(),
+    commentStore.getComments()
   );
 
   useEffect(() => {

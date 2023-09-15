@@ -81,6 +81,7 @@ const PinnedNotes = () => {
         ...convertedPinnedNotes
       ]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const PinnedNoteView = () => {
@@ -91,7 +92,7 @@ const PinnedNotes = () => {
         <>
           {allPinnedNotes.length > 0 ? (
             <NotesWrapper>
-              <header className="flex my-4 justify-between">
+              <header className="flex justify-between my-4">
                 <StyledHeader>
                   <span className="font-bold">Pinned Notes</span>
                   <span className="count-badge">{allPinnedNotes.length}</span>

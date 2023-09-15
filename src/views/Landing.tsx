@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 import BackArrow from '../assets/backArrow.svg';
 import Star from '../assets/banner-star.svg';
 import Arrow from '../assets/card-arrow.svg';
