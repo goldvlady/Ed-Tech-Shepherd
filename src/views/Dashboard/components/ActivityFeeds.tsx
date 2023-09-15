@@ -150,8 +150,8 @@ function ActivityFeeds(props) {
         return `You created a new flashcard deck "${link}" `;
       case 'bounty':
         return isTutor
-          ? `Click here to begin your session "${link}" `
-          : `Click here to join your Shepherd for your session "${link}" `;
+          ? `Click here to begin your session`
+          : `Click here to join your Shepherd for your session`;
       default:
         return undefined;
     }
@@ -281,13 +281,17 @@ function ActivityFeeds(props) {
                       px={3}
                       _hover={{ cursor: 'pointer', bgColor: '#dcdfe5' }}
                       onClick={() => {
-                        navigate(
-                          `${
-                            feed.activityType === 'documents'
-                              ? `/dashboard/new-note/${feed.id}`
-                              : `/dashboard/flashcards/${feed.flashcard}`
-                          }`
-                        );
+                        feed.activityType === 'bounty'
+                          ? window.open(`${feed.link}`, '_blank')
+                          : navigate(
+                              `${
+                                feed.activityType === 'documents'
+                                  ? `/dashboard/new-note/${feed.id}`
+                                  : feed.activityType === 'bounty'
+                                  ? `${feed.link}`
+                                  : `/dashboard/flashcards/${feed.flashcard}`
+                              }`
+                            );
                       }}
                     >
                       <Flex mt={2.5} gap={1}>
