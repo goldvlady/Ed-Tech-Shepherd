@@ -97,6 +97,11 @@ function ActivityFeeds(props) {
     }
   };
 
+  const [filteredFeeds, setFilteredFeeds] = useState<any[]>([]);
+
+  const currentPath = window.location.pathname;
+
+  const isTutor = currentPath.includes('/dashboard/tutordashboard');
   const getIconByActivityType = (activityType) => {
     switch (activityType) {
       case 'documents':
@@ -139,16 +144,14 @@ function ActivityFeeds(props) {
         return `You made a payment of $10.95 to Leslie Peters for Chemistry lessons`;
       case 'flashcards':
         return `You created a new flashcard deck "${link}" `;
+      case 'bounty':
+        return isTutor
+          ? `Click here to join your Shepherd for your session "${link}" `
+          : `Click here to join your Shepherd for your session "${link}" `;
       default:
         return undefined;
     }
   };
-
-  const [filteredFeeds, setFilteredFeeds] = useState<any[]>([]);
-
-  const currentPath = window.location.pathname;
-
-  const isTutor = currentPath.includes('/dashboard/tutordashboard');
 
   useEffect(() => {
     const currentTime = new Date();
@@ -171,7 +174,11 @@ function ActivityFeeds(props) {
     if (isTutor) {
       setFilteredFeeds(
         feeds?.data
-          .filter((feed) => feed.activityType === 'transaction')
+          .filter(
+            (feed) =>
+              feed.activityType === 'transaction' ||
+              feed.activityType === 'bounty'
+          )
           .filter(filterByPeriod)
       );
     } else {
