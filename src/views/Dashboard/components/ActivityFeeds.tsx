@@ -112,6 +112,8 @@ function ActivityFeeds(props) {
         return ReceiptIcon;
       case 'flashcards':
         return FlashcardIcon;
+      case 'bounty':
+        return ReceiptIcon;
       default:
         return undefined;
     }
@@ -127,6 +129,8 @@ function ActivityFeeds(props) {
         return ReceiptSmIcon;
       case 'flashcards':
         return FlashcardSmIcon;
+      case 'bounty':
+        return ReceiptSmIcon;
       default:
         return undefined;
     }
@@ -146,7 +150,7 @@ function ActivityFeeds(props) {
         return `You created a new flashcard deck "${link}" `;
       case 'bounty':
         return isTutor
-          ? `Click here to join your Shepherd for your session "${link}" `
+          ? `Click here to begin your session "${link}" `
           : `Click here to join your Shepherd for your session "${link}" `;
       default:
         return undefined;
