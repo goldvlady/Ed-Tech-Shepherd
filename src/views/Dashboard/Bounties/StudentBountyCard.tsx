@@ -58,7 +58,8 @@ const StudentBountyCard = ({ bounty }) => {
             {bounty.bidCount}
           </Text>
           <Text fontSize="sm" color="gray.500" mb={2}>
-            Expiry Date: {moment(bounty.expiryDate).format('DD MMMM , YYYY')}
+            Expiry Date:{' '}
+            {moment.utc(bounty.expiryDate).format('DD MMMM , YYYY')}
           </Text>
         </Box>
         <Spacer />

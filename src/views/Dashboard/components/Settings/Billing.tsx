@@ -132,6 +132,14 @@ function Billing(props) {
       });
     }
   };
+
+  const url: URL = new URL(window.location.href);
+  const params: URLSearchParams = url.searchParams;
+  const clientSecret = params.get('setup_intent_client_secret');
+  const stripePromise = loadStripe(
+    process.env.REACT_APP_STRIPE_PUBLIC_KEY as string
+  );
+
   const setupPaymentMethod = async () => {
     try {
       setSettingUpPaymentMethod(true);
@@ -150,22 +158,12 @@ function Billing(props) {
       console.log(error);
     }
   };
-  const url: URL = new URL(window.location.href);
-  const params: URLSearchParams = url.searchParams;
-  const clientSecret = params.get('setup_intent_client_secret');
-  const stripePromise = loadStripe(
-    process.env.REACT_APP_STRIPE_PUBLIC_KEY as string
-  );
+
   useEffect(() => {
     if (clientSecret) {
       (async () => {
         setSettingUpPaymentMethod(true);
-        toast({
-          title: 'Your Payment Method has been saved',
-          status: 'success',
-          position: 'top',
-          isClosable: true
-        });
+
         const stripe = await stripePromise;
         const setupIntent = await stripe?.retrieveSetupIntent(clientSecret);
         await ApiService.addPaymentMethod(
