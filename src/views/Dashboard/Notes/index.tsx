@@ -47,7 +47,7 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaCalendarAlt } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 const StyledImage = styled(Box)`
@@ -114,6 +114,7 @@ const YourDeleteIcon = () => (
 
 const NotesDirectory: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const toast = useCustomToast();
   const [hasSearched, setHasSearched] = useState(false);
@@ -333,6 +334,28 @@ const NotesDirectory: React.FC = () => {
       icon: <YourDeleteIcon />
     }
   ];
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const activeTabFromQuery = queryParams.get('activeTab');
+
+    if (activeTabFromQuery && activeTabFromQuery !== activeTab) {
+      setActiveTab(activeTabFromQuery as 'notes' | 'files');
+    }
+  }, [location, activeTab]);
+
+  const handleTabChange = (index: number) => {
+    const tab = index === 0 ? 'notes' : 'files';
+    setActiveTab(tab);
+    const currentQuery = new URLSearchParams(location.search);
+    currentQuery.set('activeTab', tab);
+    navigate(`${location.pathname}?${currentQuery.toString()}`);
+    if (selectedTags.length) {
+      setSelectedTags([]);
+    }
+    setDeleteItem(null);
+    setTagEditItem(null);
+  };
 
   const handleTagClick = (tag: string) => {
     setSelectedTags([tag]);
@@ -798,16 +821,7 @@ const NotesDirectory: React.FC = () => {
             ''
           )}
         </Box>
-        <Tabs
-          onChange={(index) => {
-            setActiveTab(index === 0 ? 'notes' : 'files');
-            if (selectedTags.length) {
-              setSelectedTags([]);
-            }
-            setDeleteItem(null);
-            setTagEditItem(null);
-          }}
-        >
+        <Tabs index={activeTab === 'notes' ? 0 : 1} onChange={handleTabChange}>
           <TabList mb="1em">
             <Tab>Notes</Tab>
             <Tab>Files</Tab>
