@@ -22,7 +22,10 @@ class FileProcessingService {
       if (saveFile.status === 200) {
         const { data } = await saveFile.json();
 
-        const response = await this.processDocumentData(data);
+        const response = await this.processDocumentData({
+          ...data,
+          student: this.documentInfo.student
+        });
 
         return response;
       }
@@ -38,7 +41,6 @@ class FileProcessingService {
   }
 
   async processDocumentData(data: StudentDocument) {
-    console.log(data);
     const response = await this.apiService.processDocument({
       studentId:
         typeof data.student === 'string' ? data.student : data.student?._id,
