@@ -144,7 +144,7 @@ function AllBounties() {
   } = useDisclosure();
 
   const doFetchBountyOffers = useCallback(async () => {
-    await fetchBountyOffers(page, limit);
+    await fetchBountyOffers(page, limit, 'student');
     setAllTutors(bounties);
     /* eslint-disable */
   }, []);
@@ -165,7 +165,7 @@ function AllBounties() {
   //   fetchBountyOffers(prevPage, limit);
   // };
   const handlePagination = (nextPage: number) => {
-    fetchBountyOffers(nextPage, limit);
+    fetchBountyOffers(nextPage, limit, 'student');
   };
   const [tutorGrid] = useAutoAnimate();
 

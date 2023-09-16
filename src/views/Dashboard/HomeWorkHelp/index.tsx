@@ -38,6 +38,7 @@ import {
   AlertIcon,
   AlertDescription
 } from '@chakra-ui/react';
+import { loadStripe } from '@stripe/stripe-js';
 import React, {
   useState,
   useCallback,
@@ -83,6 +84,7 @@ const HomeWorkHelp = () => {
   const storedConvoId = localStorage.getItem('conversationId');
   const [deleteConservationModal, setDeleteConservationModal] = useState(false);
   const [certainConversationId, setCertainConversationId] = useState('');
+
   const paymentDialogRef = useRef<PaymentDialogRef>(null);
   const isFirstRender = useRef(true);
   const authSocketConnected = '';
@@ -333,6 +335,14 @@ const HomeWorkHelp = () => {
     setIsSubmitted
   ]);
 
+  //Payment Method Handlers
+  const url: URL = new URL(window.location.href);
+  const params: URLSearchParams = url.searchParams;
+  const clientSecret = params.get('setup_intent_client_secret');
+  const stripePromise = loadStripe(
+    process.env.REACT_APP_STRIPE_PUBLIC_KEY as string
+  );
+
   const setupPaymentMethod = async () => {
     try {
       const paymentIntent = await ApiService.createStripeSetupPaymentIntent();
@@ -348,6 +358,58 @@ const HomeWorkHelp = () => {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (clientSecret) {
+      (async () => {
+        const stripe = await stripePromise;
+        const setupIntent = await stripe?.retrieveSetupIntent(clientSecret);
+        await ApiService.addPaymentMethod(
+          setupIntent?.setupIntent?.payment_method as string
+        );
+        // await fetchUser();
+        switch (setupIntent?.setupIntent?.status) {
+          case 'succeeded':
+            toast({
+              title: 'Your payment method has been saved.',
+              status: 'success',
+              position: 'top',
+              isClosable: true
+            });
+            openBountyModal();
+            break;
+          case 'processing':
+            toast({
+              title:
+                "Processing payment details. We'll update you when processing is complete.",
+              status: 'loading',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          case 'requires_payment_method':
+            toast({
+              title:
+                'Failed to process payment details. Please try another payment method.',
+              status: 'error',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          default:
+            toast({
+              title: 'Something went wrong.',
+              status: 'error',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+        }
+        // setSettingUpPaymentMethod(false);
+      })();
+    }
+    /* eslint-disable */
+  }, [clientSecret]);
 
   useEffect(() => {
     if (isSubmitted) {
