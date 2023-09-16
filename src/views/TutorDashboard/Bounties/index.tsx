@@ -12,7 +12,7 @@ function TutorBounties() {
   const [limit, setLimit] = useState<number>(20);
 
   const doFetchBountyOffers = useCallback(async () => {
-    await fetchBountyOffers(page, limit);
+    await fetchBountyOffers(page, limit, 'tutor');
 
     setIsLoading(false);
     /* eslint-disable */
