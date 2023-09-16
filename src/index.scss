@@ -1234,6 +1234,35 @@ input[type='text']:focus {
     color: #fff;
     font-size: 14px;
   }
+  .str-chat__edit-message-cancel {
+  }
+
+  /* Style for the cancel button */
+  button.str-chat__edit-message-cancel {
+    background-color: #ff0000; /* Change the background color */
+    color: #ffffff; /* Change the text color */
+    border: none;
+    padding: 8px 16px; /* Adjust padding as needed */
+    border-radius: 4px; /* Add rounded corners if desired */
+    cursor: pointer;
+    margin-right: 10px; /* Add margin between buttons */
+  }
+
+  /* Style for the send button */
+  button.str-chat__edit-message-send {
+    background-color: #007bff; /* Change the background color */
+    color: #ffffff; /* Change the text color */
+    border: none;
+    padding: 8px 16px; /* Adjust padding as needed */
+    border-radius: 4px; /* Add rounded corners if desired */
+    cursor: pointer;
+  }
+
+  /* Hover effect for buttons */
+  button.str-chat__edit-message-cancel:hover,
+  button.str-chat__edit-message-send:hover {
+    opacity: 0.8; /* Reduce opacity on hover for a visual effect */
+  }
 
   .str-chat-channel {
     flex: 1;
