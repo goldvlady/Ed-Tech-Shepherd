@@ -112,7 +112,7 @@ export default function BountyGridList(props) {
   //   fetchBountyOffers(prevPage, limit);
   // };
   const handlePagination = (nextPage: number) => {
-    fetchBountyOffers(nextPage, limit, 'tutor');
+    fetchBountyOffers(nextPage, limit);
   };
   return (
     <>

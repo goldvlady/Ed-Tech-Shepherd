@@ -156,7 +156,11 @@ function ActivityFeeds(props) {
         return undefined;
     }
   };
-
+  const navigateToChat = () => {
+    isTutor
+      ? navigate('/dashboard/tutordashboard/messages')
+      : navigate('/dashboard/tutordashboard/messages');
+  };
   useEffect(() => {
     const currentTime = new Date();
 
@@ -282,7 +286,9 @@ function ActivityFeeds(props) {
                       _hover={{ cursor: 'pointer', bgColor: '#dcdfe5' }}
                       onClick={() => {
                         feed.activityType === 'bounty'
-                          ? window.open(`${feed.link}`, '_blank')
+                          ? feed.link
+                            ? window.open(`${feed.link}`, '_blank')
+                            : navigateToChat()
                           : navigate(
                               `${
                                 feed.activityType === 'documents'

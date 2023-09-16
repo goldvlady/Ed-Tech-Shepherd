@@ -532,11 +532,11 @@ class ApiService {
   };
   static getBountyOffers = async (
     page: number,
-    limit: number,
-    userType: string
+    limit: number
+    // userType: string
   ) => {
     return doFetch(
-      `${ApiService.baseEndpoint}/getBounties?userType=${userType}&page=${page}&limit=${limit}`
+      `${ApiService.baseEndpoint}/getBounties?page=${page}&limit=${limit}`
     );
   };
 
