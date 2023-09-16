@@ -37,6 +37,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { IoIosAlert } from 'react-icons/io';
 import { MdInfo } from 'react-icons/md';
 import { RiArrowRightSLine } from 'react-icons/ri';
+import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 
 function Billing(props) {
@@ -44,6 +45,7 @@ function Billing(props) {
   const { user, fetchUser } = userStore();
   const currentPath = window.location.pathname;
   const toast = useToast();
+  const navigate = useNavigate();
 
   const isTutor = currentPath.includes('/dashboard/tutordashboard/');
 
@@ -132,13 +134,20 @@ function Billing(props) {
       });
     }
   };
+
+  const url: URL = new URL(window.location.href);
+  const params: URLSearchParams = url.searchParams;
+  const clientSecret = params.get('setup_intent_client_secret');
+  const stripePromise = loadStripe(
+    process.env.REACT_APP_STRIPE_PUBLIC_KEY as string
+  );
+
   const setupPaymentMethod = async () => {
     try {
       setSettingUpPaymentMethod(true);
       const paymentIntent = await ApiService.createStripeSetupPaymentIntent();
 
       const { data } = await paymentIntent.json();
-      console.log(data, 'intent');
 
       paymentDialogRef.current?.startPayment(
         data.clientSecret,
@@ -150,22 +159,12 @@ function Billing(props) {
       console.log(error);
     }
   };
-  const url: URL = new URL(window.location.href);
-  const params: URLSearchParams = url.searchParams;
-  const clientSecret = params.get('setup_intent_client_secret');
-  const stripePromise = loadStripe(
-    process.env.REACT_APP_STRIPE_PUBLIC_KEY as string
-  );
+
   useEffect(() => {
     if (clientSecret) {
       (async () => {
         setSettingUpPaymentMethod(true);
-        toast({
-          title: 'Your Payment Method has been saved',
-          status: 'success',
-          position: 'top',
-          isClosable: true
-        });
+
         const stripe = await stripePromise;
         const setupIntent = await stripe?.retrieveSetupIntent(clientSecret);
         await ApiService.addPaymentMethod(
@@ -209,6 +208,7 @@ function Billing(props) {
             break;
         }
         setSettingUpPaymentMethod(false);
+        navigate('/dashboard/account-settings');
       })();
     }
     /* eslint-disable */

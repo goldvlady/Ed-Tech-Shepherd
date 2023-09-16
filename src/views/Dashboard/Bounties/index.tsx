@@ -72,7 +72,6 @@ function AllBounties() {
       const paymentIntent = await ApiService.createStripeSetupPaymentIntent();
 
       const { data } = await paymentIntent.json();
-      console.log(data, 'intent');
 
       paymentDialogRef.current?.startPayment(
         data.clientSecret,
@@ -89,12 +88,7 @@ function AllBounties() {
     if (clientSecret) {
       (async () => {
         setSettingUpPaymentMethod(true);
-        toast({
-          title: 'Your Payment Method has been saved',
-          status: 'success',
-          position: 'top',
-          isClosable: true
-        });
+
         const stripe = await stripePromise;
         const setupIntent = await stripe?.retrieveSetupIntent(clientSecret);
         await ApiService.addPaymentMethod(

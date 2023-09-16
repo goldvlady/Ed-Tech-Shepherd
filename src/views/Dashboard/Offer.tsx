@@ -138,26 +138,6 @@ const Offer = () => {
   const params: URLSearchParams = url.searchParams;
   const clientSecret = params.get('setup_intent_client_secret');
 
-  const setupPaymentMethod = async () => {
-    try {
-      setSettingUpPaymentMethod(true);
-      const paymentIntent = await ApiService.createStripeSetupPaymentIntent({
-        metadata: { offerId: offer?.id }
-      });
-
-      const { data } = await paymentIntent.json();
-
-      paymentDialogRef.current?.startPayment(
-        data.clientSecret,
-        `${window.location.href}`
-      );
-
-      setSettingUpPaymentMethod(false);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const loadOffer = useCallback(async () => {
     setLoadingOffer(true);
     const resp = await ApiService.getOffer(offerId);
@@ -202,6 +182,27 @@ const Offer = () => {
     setOffer(await resp.json());
     onWithdrawOfferModalClose();
     setWithdrawingOffer(false);
+  };
+
+  const setupPaymentMethod = async () => {
+    try {
+      setSettingUpPaymentMethod(true);
+      const paymentIntent = await ApiService.createStripeSetupPaymentIntent({
+        metadata: { offerId: offer?.id }
+      });
+
+      const { data } = await paymentIntent.json();
+
+      paymentDialogRef.current?.startPayment(
+        data.clientSecret,
+        `${window.location.href}`
+      );
+
+      setSettingUpPaymentMethod(false);
+      bookOffer();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {

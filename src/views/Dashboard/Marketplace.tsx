@@ -245,12 +245,6 @@ export default function Marketplace() {
     if (clientSecret) {
       (async () => {
         setSettingUpPaymentMethod(true);
-        toast({
-          title: 'Your Payment Method has been saved',
-          status: 'success',
-          position: 'top',
-          isClosable: true
-        });
         const stripe = await stripePromise;
         const setupIntent = await stripe?.retrieveSetupIntent(clientSecret);
         await ApiService.addPaymentMethod(
