@@ -151,7 +151,7 @@ function ActivityFeeds(props) {
       case 'bounty':
         return isTutor
           ? `Click here to begin your session`
-          : `Click here to join your Shepherd for your session`;
+          : `Click to join your Shepherd for your session`;
       default:
         return undefined;
     }
