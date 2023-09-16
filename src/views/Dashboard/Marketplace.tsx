@@ -265,6 +265,7 @@ export default function Marketplace() {
               position: 'top',
               isClosable: true
             });
+            openBountyModal;
             break;
           case 'processing':
             toast({
