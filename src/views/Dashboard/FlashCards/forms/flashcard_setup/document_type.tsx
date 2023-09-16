@@ -143,7 +143,7 @@ const FlashcardFromDocumentSetup = ({
           Shepherd supports .pdf, .ppt, .jpg & .txt document formats
         </FormLabel>
       </FormControl>
-      <FormControl mb={8}>
+      {/* <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Topic
         </FormLabel>
@@ -155,7 +155,7 @@ const FlashcardFromDocumentSetup = ({
           onChange={handleChange}
           _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />
-      </FormControl>
+      </FormControl> */}
 
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
