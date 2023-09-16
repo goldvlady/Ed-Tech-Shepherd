@@ -37,6 +37,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { IoIosAlert } from 'react-icons/io';
 import { MdInfo } from 'react-icons/md';
 import { RiArrowRightSLine } from 'react-icons/ri';
+import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 
 function Billing(props) {
@@ -44,6 +45,7 @@ function Billing(props) {
   const { user, fetchUser } = userStore();
   const currentPath = window.location.pathname;
   const toast = useToast();
+  const navigate = useNavigate();
 
   const isTutor = currentPath.includes('/dashboard/tutordashboard/');
 
@@ -146,7 +148,6 @@ function Billing(props) {
       const paymentIntent = await ApiService.createStripeSetupPaymentIntent();
 
       const { data } = await paymentIntent.json();
-      console.log(data, 'intent');
 
       paymentDialogRef.current?.startPayment(
         data.clientSecret,
@@ -207,6 +208,7 @@ function Billing(props) {
             break;
         }
         setSettingUpPaymentMethod(false);
+        navigate('/dashboard/account-settings');
       })();
     }
     /* eslint-disable */
