@@ -223,7 +223,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
 
       return await ApiService.createDocchatFlashCards({
         ...aiData,
-        studentId: user?.student?._id as string,
+        studentId: user?._id as string,
         documentId: documentId as string
       });
     },

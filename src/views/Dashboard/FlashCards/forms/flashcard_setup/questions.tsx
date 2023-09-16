@@ -69,20 +69,15 @@ const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
 
   const questionVariants = {
     hidden: { x: '-100vw' },
-    visible: {
-      x: 0,
-      transition: { type: 'spring', stiffness: 120, when: 'beforeChildren' }
-    },
-    exit: {
-      x: '100vw',
-      transition: { ease: 'easeInOut', when: 'afterChildren' }
-    }
+    visible: { x: 0, transition: { duration: 0.5, ease: 'easeInOut' } },
+    exit: { x: '100vw', transition: { duration: 0.5, ease: 'easeInOut' } }
   };
 
+  // Slide animations for answers:
   const answerVariants = {
     hidden: { y: '100vh' },
-    visible: { y: 0, transition: { type: 'spring', stiffness: 120 } },
-    exit: { y: '-100vh', transition: { ease: 'easeInOut' } }
+    visible: { y: 0, transition: { duration: 0.5, ease: 'easeInOut' } },
+    exit: { y: '-100vh', transition: { duration: 0.5, ease: 'easeInOut' } }
   };
 
   useEffect(() => {
@@ -90,6 +85,13 @@ const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
       setCurrentQuestion(questions[currentQuestionIndex]);
     }
   }, [currentQuestionIndex, questions]);
+
+  useEffect(() => {
+    if (answerTextRef.current) {
+      const scrollHeight = answerTextRef.current.scrollHeight;
+      setAnswerTextHeight(`${scrollHeight + 20}px`); // Add 20px to the content height
+    }
+  }, [currentQuestionIndex]);
 
   const questionsCount = flashcardData.numQuestions;
 
@@ -247,7 +249,7 @@ const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
                 <Textarea
                   _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
                   name="answer"
-                  ref={questionTextareaRef}
+                  ref={answerTextRef}
                   height={textareaAnswerHeight}
                   placeholder="Select answer"
                   value={currentQuestion.answer}
