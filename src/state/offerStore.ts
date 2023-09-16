@@ -6,7 +6,11 @@ type Store = {
   bounties: [] | any;
   isLoading: boolean;
   fetchOffers: (page: number, limit: number, userType: string) => Promise<void>;
-  fetchBountyOffers: (page: number, limit: number) => Promise<void>;
+  fetchBountyOffers: (
+    page: number,
+    limit: number,
+    userType: string
+  ) => Promise<void>;
 
   pagination: { page: number; limit: number; total: number };
 
@@ -36,7 +40,7 @@ export default create<Store>((set) => ({
       set({ isLoading: false });
     }
   },
-  fetchBountyOffers: async (page: number, limit: number) => {
+  fetchBountyOffers: async (page: number, limit: number, userType: string) => {
     set({ isLoading: true });
     try {
       set({ isLoading: true });
