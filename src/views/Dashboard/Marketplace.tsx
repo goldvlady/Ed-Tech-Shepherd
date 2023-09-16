@@ -72,6 +72,7 @@ import { FiChevronDown } from 'react-icons/fi';
 import { IoIosAlert } from 'react-icons/io';
 import { MdInfo } from 'react-icons/md';
 import { MdTune } from 'react-icons/md';
+import { useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 
 type PaginationType = {
@@ -103,7 +104,7 @@ const defaultTime = '';
 
 export default function Marketplace() {
   const { courses: courseList, levels: levelOptions } = resourceStore();
-  const { user } = userStore();
+  const { user, fetchUser } = userStore();
   const [allTutors, setAllTutors] = useState<any>([]);
   const [pagination, setPagination] = useState<PaginationType>();
 
@@ -148,7 +149,7 @@ export default function Marketplace() {
 
   const [tutorGrid] = useAutoAnimate();
   const toast = useToast();
-
+  const navigate = useNavigate();
   const getData = async () => {
     setLoadingData(true);
     const formData = {
@@ -240,6 +241,11 @@ export default function Marketplace() {
       console.log(error);
     }
   };
+  const {
+    isOpen: isBountyModalOpen,
+    onOpen: openBountyModal,
+    onClose: closeBountyModal
+  } = useDisclosure();
 
   useEffect(() => {
     if (clientSecret) {
@@ -250,7 +256,7 @@ export default function Marketplace() {
         await ApiService.addPaymentMethod(
           setupIntent?.setupIntent?.payment_method as string
         );
-        // await fetchUser();
+        await fetchUser();
         switch (setupIntent?.setupIntent?.status) {
           case 'succeeded':
             toast({
@@ -259,7 +265,7 @@ export default function Marketplace() {
               position: 'top',
               isClosable: true
             });
-            openBountyModal;
+            openBountyModal();
             break;
           case 'processing':
             toast({
@@ -289,16 +295,11 @@ export default function Marketplace() {
             break;
         }
         setSettingUpPaymentMethod(false);
+        navigate('/dashboard/find-tutor');
       })();
     }
     /* eslint-disable */
   }, [clientSecret]);
-
-  const {
-    isOpen: isBountyModalOpen,
-    onOpen: openBountyModal,
-    onClose: closeBountyModal
-  } = useDisclosure();
 
   useEffect(() => {
     const getNotes = async () => {
