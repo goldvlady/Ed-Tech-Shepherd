@@ -74,8 +74,7 @@ const HomeWorkHelp = () => {
   const [subjectId, setSubject] = useState<string>('');
   const [localData, setLocalData] = useState<any>({
     subject: '',
-    topic: '',
-    level: ''
+    topic: ''
   });
   const [level, setLevel] = useState<any>('');
   const navigate = useNavigate();
