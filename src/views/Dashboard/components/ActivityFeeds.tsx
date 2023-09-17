@@ -159,7 +159,7 @@ function ActivityFeeds(props) {
   const navigateToChat = () => {
     isTutor
       ? navigate('/dashboard/tutordashboard/messages')
-      : navigate('/dashboard/tutordashboard/messages');
+      : navigate('/dashboard/messages');
   };
   useEffect(() => {
     const currentTime = new Date();
