@@ -30,10 +30,16 @@ function ApplyBounty(props) {
   const { courses: courseList, levels: levelOptions } = resourceStore();
 
   const toast = useToast();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSubmitBounty = async () => {
+    setIsSubmitting(true);
+
     const obj = { bountyId: bounty.id, message: `${bounty.id}` };
     const response = await ApiService.applyForBounty(obj);
     closeApplyBounty();
+    setIsSubmitting(false);
     if (response.status === 200) {
       toast({
         render: () => (
@@ -78,6 +84,7 @@ function ApplyBounty(props) {
               type="button"
               onClick={handleSubmitBounty}
               title="Apply"
+              disabled={isSubmitting}
             />
           </div>
         }

@@ -2,6 +2,7 @@ import Star from '../../../assets/littleStar.svg';
 import Ribbon2 from '../../../assets/ribbon-blue.svg';
 import Ribbon from '../../../assets/ribbon-grey.svg';
 import TutorAvi from '../../../assets/tutoravi.svg';
+import CustomButton from '../../../components/CustomComponents/CustomButton';
 import CustomToast from '../../../components/CustomComponents/CustomToast';
 import ApiService from '../../../services/ApiService';
 import bookmarkedTutorsStore from '../../../state/bookmarkedTutorsStore';
@@ -130,11 +131,7 @@ export default function TutorCard(props: any) {
             }}
             padding={'20px'}
             position="relative"
-            onClick={() =>
-              use === 'bounty'
-                ? handleBountyClick()
-                : navigate(`/dashboard/find-tutor/tutor/?id=${id}`)
-            }
+            onClick={() => navigate(`/dashboard/find-tutor/tutor/?id=${id}`)}
           >
             <Flex gap={2} alignItems="center" position="relative">
               <Avatar size="lg" name={name} src={avatar} />
@@ -262,7 +259,24 @@ export default function TutorCard(props: any) {
                 </Box>
               )
             )}
-
+            {use === 'bounty' && (
+              <Button
+                variant={'unstyled'}
+                fontSize={12}
+                fontWeight={500}
+                bgColor="#207df7"
+                borderRadius={4}
+                position="absolute"
+                color="#fff"
+                bottom={4}
+                right={5}
+                px={2}
+                py={'1px'}
+                onClick={() => handleBountyClick()}
+              >
+                Accept Bid
+              </Button>
+            )}
             {use !== 'my tutors' && (
               <Image
                 src={saved || ribbonClicked ? Ribbon2 : Ribbon}
