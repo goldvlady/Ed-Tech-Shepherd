@@ -44,7 +44,7 @@ export default create<Store>((set) => ({
     set({ isLoading: true });
     try {
       set({ isLoading: true });
-      const response = await ApiService.getBountyOffers(page, limit);
+      const response = await ApiService.getBountyOffers(page, limit, userType);
       const { data, meta } = await response.json();
 
       set({ bounties: data, pagination: meta.pagination });
