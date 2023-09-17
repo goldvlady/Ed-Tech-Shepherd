@@ -74,7 +74,8 @@ const HomeWorkHelp = () => {
   const [subjectId, setSubject] = useState<string>('');
   const [localData, setLocalData] = useState<any>({
     subject: '',
-    topic: ''
+    topic: '',
+    level: ''
   });
   const [level, setLevel] = useState<any>('');
   const navigate = useNavigate();
@@ -106,6 +107,7 @@ const HomeWorkHelp = () => {
         studentId,
         topic: localData.topic,
         subject: localData.subject,
+        level: level.label,
         namespace: 'homework-help',
         conversationId: certainConversationId ?? storedConvoId
       }).connect();
@@ -119,6 +121,7 @@ const HomeWorkHelp = () => {
         studentId,
         topic: localData.topic,
         subject: localData.subject,
+        level: level.label,
         // conversationId,
         namespace: 'homework-help'
       }).connect();

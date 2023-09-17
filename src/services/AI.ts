@@ -392,7 +392,8 @@ export const editConversationId = async ({
     {
       method: 'POST',
       headers: {
-        'x-shepherd-header': HEADER_KEY
+        'x-shepherd-header': HEADER_KEY,
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         newTitle

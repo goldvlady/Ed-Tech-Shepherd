@@ -7,6 +7,7 @@ const socketWithAuth = (payload: {
   namespace: string;
   topic?: string;
   subject?: string;
+  level?: string;
   conversationId?: string;
 }) =>
   io(`${AI_SOCKET}/${payload.namespace}`, {
