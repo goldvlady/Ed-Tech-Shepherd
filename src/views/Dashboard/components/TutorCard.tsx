@@ -152,7 +152,7 @@ export default function TutorCard(props: any) {
                   }}
                 ></div>
               </div> */}
-              <LinkOverlay href={``}>
+              <Box>
                 <Flex pt={1} direction={'column'}>
                   <Text fontSize={'16px'} fontWeight={'semibold'} mb={0}>
                     {name}
@@ -166,7 +166,7 @@ export default function TutorCard(props: any) {
                     </Text>
                   </Text>
                 </Flex>{' '}
-              </LinkOverlay>
+              </Box>
             </Flex>
             <Box my={2}>
               <Flex alignItems="center">
