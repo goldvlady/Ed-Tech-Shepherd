@@ -381,16 +381,16 @@ export const deleteConversationId = async ({
 };
 
 export const editConversationId = async ({
-  conversationId,
+  editConversation,
   newTitle
 }: {
-  conversationId: string;
+  editConversation: string;
   newTitle: string;
 }) => {
   const request = await fetch(
-    `${AI_API}/notes/conversations/${conversationId}`,
+    `${AI_API}/notes/conversations/${editConversation}/update`,
     {
-      method: 'PATCH',
+      method: 'POST',
       headers: {
         'x-shepherd-header': HEADER_KEY
       },

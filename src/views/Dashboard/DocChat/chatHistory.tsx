@@ -19,8 +19,7 @@ import {
   HomeWorkHelpChatContainer2
 } from './styles';
 import { Box, Spinner, useToast } from '@chakra-ui/react';
-import { useState, useEffect, useCallback } from 'react';
-import { messageCodeBlocks } from 'stream-chat-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import styled from 'styled-components';
 
 const Clock = styled.div`
@@ -35,6 +34,7 @@ type Chat = {
   id: string;
   message: string;
   createdDated: string;
+  title: string;
 };
 
 type GroupedChat = {
@@ -53,7 +53,8 @@ const ChatHistory = ({
   deleteConservationModal,
   setSocket,
   setVisibleButton,
-  setCertainConversationId
+  setCertainConversationId,
+  messages
 }: {
   studentId: string;
   setConversationId: (conversationId: string) => void;
@@ -66,6 +67,7 @@ const ChatHistory = ({
   setSocket: any;
   setVisibleButton: any;
   setCertainConversationId: any;
+  messages: any;
 }) => {
   // const placeholder = [
   //   {ß
@@ -79,10 +81,34 @@ const ChatHistory = ({
   const [updateChatHistory, setUpdateChatHistory] = useState({});
   const [updatedChat, setUpdatedChat] = useState('');
   const [toggleHistoryBox, setToggleHistoryBox] = useState({});
+  const [groupChatsByDateArr, setGroupChatsByDateArr] = useState<GroupedChat[]>(
+    []
+  );
   const toast = useToast();
+  const showSearchRef = useRef(null) as any;
+  const [editConversation, setEditConversationId] = useState('');
+  const [removeIndex, setRemoveIndex] = useState(0);
+  const [currentStoredArr, setCurrentStoredArr] = useState<any>();
+
+  const handleClickOutside = (event) => {
+    if (
+      showSearchRef.current &&
+      !showSearchRef.current.contains(event.target as Node)
+    ) {
+      setToggleHistoryBox({});
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSearchRef]);
 
   async function retrieveChatHistory(studentId: string): Promise<void> {
-    setLoading(false);
+    setLoading(true);
     const chatHistory = await fetchStudentConversations(studentId);
 
     const historyWithContent: any = chatHistory
@@ -91,6 +117,7 @@ const ChatHistory = ({
         const message = convo.ConversationLogs.at(-1)?.log?.content || '';
         return {
           id: convo.id,
+          title: convo?.title,
           message:
             message.length < 140 ? message : message.substring(0, 139) + '...',
           createdDated: getDateString(new Date(convo.createdAt))
@@ -103,20 +130,20 @@ const ChatHistory = ({
   }
 
   function groupChatsByDate(chatHistory: Chat[]): GroupedChat[] {
-    return chatHistory.reduce((groupedChats, chat) => {
-      const currentGroup = groupedChats.find(
+    return chatHistory?.reduce((groupedChats, chat) => {
+      const currentGroup = groupedChats?.find(
         (group) => group.date === chat.createdDated
       );
       if (currentGroup) {
-        currentGroup.messages.push(chat);
+        currentGroup?.messages.push(chat);
       } else {
-        groupedChats.push({ date: chat.createdDated, messages: [chat] });
+        groupedChats?.push({ date: chat.createdDated, messages: [chat] });
       }
       return groupedChats;
     }, [] as GroupedChat[]);
   }
 
-  const groupChatsByDateArr: GroupedChat[] = groupChatsByDate(chatHistory);
+  // const groupChatsByDateArr: GroupedChat[] = groupChatsByDate(chatHistory);
 
   const toggleMessage = (id) => {
     setToggleHistoryBox((prevState) => {
@@ -139,11 +166,12 @@ const ChatHistory = ({
   const handleUpdateConversation = useCallback(async () => {
     try {
       const request = await editConversationId({
-        conversationId,
+        editConversation,
         newTitle: updatedChat
       });
       if ([200, 201].includes(request.status)) {
         retrieveChatHistory(studentId);
+        setToggleHistoryBox({});
       }
     } catch (error) {
       toast({
@@ -165,7 +193,7 @@ const ChatHistory = ({
 
     groupChatsByDateArr?.forEach((history) => {
       history.messages.forEach((message) => {
-        newChatHistory[message.id] = message.message;
+        newChatHistory[message.id] = message.title;
       });
     });
     setUpdateChatHistory(newChatHistory);
@@ -175,30 +203,36 @@ const ChatHistory = ({
   //   retrieveChatHistory(studentId);
   // }, [studentId]);
 
-  // useEffect(() => {
-  //   if (groupChatsByDateArr.length) {
-  //     localStorage.setItem(
-  //       'groupChatsByDateArr',
-  //       JSON.stringify(groupChatsByDateArr)
-  //     );
-  //   }
-  // }, [groupChatsByDateArr]);
+  useEffect(() => {
+    if (groupChatsByDateArr.length) {
+      localStorage.setItem(
+        'groupChatsByDateArr',
+        JSON.stringify(groupChatsByDateArr)
+      );
+    }
+  }, [groupChatsByDateArr]);
 
-  // useEffect(() => {
-  //   const storedGroupChatsArr = localStorage.getItem('groupChatsByDateArr');
-  //   const groupedChats = JSON.parse(storedGroupChatsArr ?? '');
-
-  //   console.log(
-  //     'storedGroupChatsArr ==>',
-  //     JSON.parse(storedGroupChatsArr ?? '')
-  //   );
-  // }, []);
+  useEffect(() => {
+    if (groupChatsByDateArr.length) {
+      const storedGroup = JSON.parse(
+        localStorage.getItem('groupChatsByDateArr') as any
+      );
+      setCurrentStoredArr(storedGroup);
+    }
+  }, [groupChatsByDateArr]);
 
   const onCloseDeleteModal = useCallback(() => {
     setDeleteConservationModal((prevState) => !prevState);
   }, [setDeleteConservationModal]);
 
+  const handleDeleteItem = (index) => {
+    const newArray = groupChatsByDateArr.filter((_, idx) => idx !== index);
+    setGroupChatsByDateArr(newArray);
+  };
+
   const onDelete = useCallback(async () => {
+    setLoading(true); // Start loading state
+
     try {
       const response = await deleteConversationId({
         conversationId
@@ -231,6 +265,8 @@ const ChatHistory = ({
         position: 'top-right',
         isClosable: true
       });
+    } finally {
+      setLoading(false); // End loading state
     }
   }, [conversationId]);
 
@@ -244,6 +280,12 @@ const ChatHistory = ({
     retrieveChatHistory(studentId);
   }, [studentId]);
 
+  useEffect(() => {
+    if (isSubmitted) {
+      retrieveChatHistory(studentId);
+    }
+  }, [studentId, isSubmitted]);
+
   // useEffect(() => {
   //   if (chatHistory?.length) {
   //     localStorage.setItem('groupChatsByDateArr', JSON.stringify(chatHistory));
@@ -255,6 +297,12 @@ const ChatHistory = ({
       retrieveChatHistory(studentId);
     }
   }, [isSubmitted, studentId]);
+
+  useEffect(() => {
+    const groupedChats = groupChatsByDate(chatHistory);
+
+    setGroupChatsByDateArr(groupedChats ?? []);
+  }, [chatHistory]);
 
   return (
     <ChatHistoryContainer>
@@ -278,7 +326,7 @@ const ChatHistory = ({
           <Spinner />
         </Box>
       )}
-      {!groupChatsByDateArr.length && (
+      {!loading && !groupChatsByDateArr?.length && (
         <div
           style={{
             fontStyle: 'italic',
@@ -294,64 +342,116 @@ const ChatHistory = ({
           </p>
         </div>
       )}
-      {!loading && (
-        <>
-          {groupChatsByDateArr?.map((history, index) => (
-            <ChatHistoryBlock key={index}>
-              <ChatHistoryDate>{history.date}</ChatHistoryDate>
-              {history.messages.map((message) => (
-                <ChatHistoryBody key={message.id}>
-                  <Clock>
-                    <HistoryIcn />
-                  </Clock>
-                  {toggleHistoryBox[message.id] ? (
-                    <HomeWorkHelpChatContainer2
-                      value={updateChatHistory[message.id]}
-                      onChange={(event) => {
-                        setUpdatedChat(event.target.value);
-                        setUpdateChatHistory((prevChatHistory) => ({
-                          ...prevChatHistory,
-                          [message.id]: event.target.value
-                        }));
-                      }}
-                    ></HomeWorkHelpChatContainer2>
-                  ) : (
-                    <p
-                      onClick={() => {
-                        setConversationId(message.id);
-                        retrieveChatHistory(studentId);
-                        setCountNeedTutor(1);
-                      }}
-                    >
-                      {message.message}
-                    </p>
-                  )}
 
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'baseline'
-                    }}
-                  >
-                    {updateChatHistory[conversationId] ? (
-                      <EditIcn onClick={handleUpdateConversation} />
+      {!loading ? (
+        <>
+          {groupChatsByDateArr.length > 0 &&
+            groupChatsByDateArr?.map((history, index) => (
+              <ChatHistoryBlock key={index}>
+                <ChatHistoryDate>{history.date}</ChatHistoryDate>
+                {history.messages.map((message, index) => (
+                  <>
+                    {!toggleHistoryBox[message.id] ? (
+                      <ChatHistoryBody key={message.id}>
+                        <Clock>
+                          <HistoryIcn />
+                        </Clock>
+                        {toggleHistoryBox[message.id] ? (
+                          <HomeWorkHelpChatContainer2
+                            value={updateChatHistory[message.id]}
+                            onChange={(event) => {
+                              setUpdatedChat(event.target.value);
+                              setUpdateChatHistory((prevChatHistory) => ({
+                                ...prevChatHistory,
+                                [message.id]: event.target.value
+                              }));
+                            }}
+                          ></HomeWorkHelpChatContainer2>
+                        ) : (
+                          <p
+                            onClick={() => {
+                              setConversationId(message.id);
+                              retrieveChatHistory(studentId);
+                              setCountNeedTutor(1);
+                              setLoading(false);
+                            }}
+                          >
+                            {message.title}
+                          </p>
+                        )}
+
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'inherit'
+                          }}
+                        >
+                          {toggleHistoryBox[message.id] ? (
+                            // <EditIcn onClick={handleUpdateConversation} />
+                            <p onClick={handleUpdateConversation}>Save</p>
+                          ) : (
+                            <EditIcn
+                              onClick={() => {
+                                setEditConversationId(message.id);
+                                toggleMessage(message.id);
+                              }}
+                            />
+                          )}
+                          {/* <EditIcn onClick={handleUpdateConversation} /> */}
+                          <DeleteIcn
+                            onClick={() => {
+                              setDeleteConservationModal(
+                                (prevState) => !prevState
+                              );
+                              setConversationId(message.id);
+                              setRemoveIndex(index);
+                            }}
+                          />
+                        </div>
+                      </ChatHistoryBody>
                     ) : (
-                      <EditIcn onClick={() => toggleMessage(message.id)} />
+                      <ChatHistoryBody key={message.id} ref={showSearchRef}>
+                        <Clock>
+                          <HistoryIcn />
+                        </Clock>
+                        <HomeWorkHelpChatContainer2
+                          value={updateChatHistory[message.id]}
+                          onChange={(event) => {
+                            setUpdatedChat(event.target.value);
+                            setUpdateChatHistory((prevChatHistory) => ({
+                              ...prevChatHistory,
+                              [message.id]: event.target.value
+                            }));
+                          }}
+                        ></HomeWorkHelpChatContainer2>
+
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'inherit'
+                          }}
+                        >
+                          <p onClick={handleUpdateConversation}>Save</p>
+
+                          {/* <EditIcn onClick={handleUpdateConversation} /> */}
+                          <DeleteIcn
+                            onClick={() => {
+                              setDeleteConservationModal(
+                                (prevState) => !prevState
+                              );
+                              setConversationId(message.id);
+                              setRemoveIndex(index);
+                            }}
+                          />
+                        </div>
+                      </ChatHistoryBody>
                     )}
-                    {/* <EditIcn onClick={handleUpdateConversation} /> */}
-                    <DeleteIcn
-                      onClick={() => {
-                        setDeleteConservationModal((prevState) => !prevState);
-                        setConversationId(message.id);
-                      }}
-                    />
-                  </div>
-                </ChatHistoryBody>
-              ))}
-            </ChatHistoryBlock>
-          ))}
+                  </>
+                ))}
+              </ChatHistoryBlock>
+            ))}
         </>
-      )}
+      ) : null}
       <CustomModal
         modalTitle=""
         isModalCloseButton

@@ -424,7 +424,7 @@ export const ChatHistoryDate = styled.div`
 
 export const ChatHistoryBody = styled.div`
   background: #f4f5f6;
-  display: flex;
+  display: grid;
   gap: 6px;
   font-size: 0.875rem;
   color: #585f68;
@@ -433,7 +433,9 @@ export const ChatHistoryBody = styled.div`
   margin-top: 20px;
   cursor: pointer;
   transition: all 0.3s ease; /* Smooth transition over 0.3 seconds */
-  justify-content: space-between;
+  // justify-content: space-between;
+  grid-template-columns: 9% 66% 20% 8%;
+  align-items: center;
 
   &:hover {
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
@@ -589,6 +591,6 @@ export const HomeWorkHelpChatContainer2 = styled.textarea`
   cursor: pointer;
   resize: none;
   width: -webkit-fill-available;
-  height: 20vh;
+  height: 10vh;
   border: none;
 `;

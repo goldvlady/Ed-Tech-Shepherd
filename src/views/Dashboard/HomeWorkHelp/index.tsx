@@ -4,6 +4,7 @@ import CustomToast from '../../../components/CustomComponents/CustomToast/index'
 import PaymentDialog, {
   PaymentDialogRef
 } from '../../../components/PaymentDialog';
+import { SHALL_WE_BEGIN } from '../../../helpers/constants';
 import {
   chatHomeworkHelp,
   editConversationId,
@@ -83,9 +84,11 @@ const HomeWorkHelp = () => {
   const [visibleButton, setVisibleButton] = useState(true);
   const storedConvoId = localStorage.getItem('conversationId');
   const [deleteConservationModal, setDeleteConservationModal] = useState(false);
+  const [recentConversationId, setRecentConverstionId] = useState(null);
   const [certainConversationId, setCertainConversationId] = useState('');
 
   const paymentDialogRef = useRef<PaymentDialogRef>(null);
+  const [loading, setLoading] = useState(false);
   const isFirstRender = useRef(true);
   const authSocketConnected = '';
   const {
@@ -93,6 +96,9 @@ const HomeWorkHelp = () => {
     onOpen: openBountyModal,
     onClose: closeBountyModal
   } = useDisclosure();
+  const storedGroupChatsArr = JSON.parse(
+    localStorage.getItem('groupChatsByDateArr') as any
+  );
 
   useEffect(() => {
     if (certainConversationId) {
@@ -127,7 +133,7 @@ const HomeWorkHelp = () => {
       socket.on('ready', (ready) => {
         setReadyToChat(ready);
         if (!messages.length) {
-          socket.emit('chat message', 'Shall we begin, Socrates?');
+          socket.emit('chat message', SHALL_WE_BEGIN);
         }
       });
       return () => socket.off('ready');
@@ -263,7 +269,6 @@ const HomeWorkHelp = () => {
         { text: inputValue, isUser: true, isLoading: false }
       ]);
       setInputValue('');
-
       socket && socket.emit('chat message', inputValue);
       // setIsSubmitted(true);
     },
@@ -283,8 +288,9 @@ const HomeWorkHelp = () => {
 
   useEffect(() => {
     const fetchConversationId = async () => {
+      setLoading(true);
       const response = await getConversionById({
-        conversationId
+        conversationId: recentConversationId ?? conversationId
       });
 
       if (response) {
@@ -297,6 +303,7 @@ const HomeWorkHelp = () => {
           isUser: conversation?.log?.role === 'user',
           isLoading: false
         }))
+        ?.filter((convo) => convo.text !== SHALL_WE_BEGIN)
         ?.sort((a, b) => {
           const dateA = new Date(a.createdAt);
           const dateB = new Date(b.createdAt);
@@ -305,15 +312,15 @@ const HomeWorkHelp = () => {
             return a.id - b.id;
           }
           return dateA.getTime() - dateB.getTime();
-        })
-        .slice(1);
+        });
       setMessages((prevState) => [...previousConvoData]);
+      setLoading(false);
     };
     fetchConversationId();
     if (conversationId) {
       setShowPrompt(true);
     }
-  }, [conversationId, socket]);
+  }, [conversationId, socket, recentConversationId]);
 
   const onRouteHomeWorkHelp = useCallback(() => {
     handleClose();
@@ -348,7 +355,6 @@ const HomeWorkHelp = () => {
       const paymentIntent = await ApiService.createStripeSetupPaymentIntent();
 
       const { data } = await paymentIntent.json();
-      console.log(data, 'intent');
 
       paymentDialogRef.current?.startPayment(
         data.clientSecret,
@@ -434,6 +440,7 @@ const HomeWorkHelp = () => {
     if (storedConvoId) {
       setConversationId(storedConvoId);
       setCountNeedTutor(1);
+      setRecentConverstionId(null);
     }
   }, []);
 
@@ -460,6 +467,19 @@ const HomeWorkHelp = () => {
     getOnlineTutors();
   }, []);
 
+  // useEffect(() => {
+  //   if (messages.length || conversationId) {
+  //     localStorage.setItem('recentMessages', JSON.stringify(messages));
+  //   }
+  // }, [messages, conversationId]);
+
+  // useEffect(() => {
+  //   const firstId = storedGroupChatsArr?.[0]?.messages[0]?.id;
+  //   if (!storedConvoId) {
+  //     setRecentConverstionId(firstId);
+  //   }
+  // }, [storedConvoId]);
+
   return (
     <HomeWorkHelpContainer>
       <HomeWorkHelpHistoryContainer>
@@ -475,6 +495,7 @@ const HomeWorkHelp = () => {
           setVisibleButton={setVisibleButton}
           setSocket={setSocket}
           setCertainConversationId={setCertainConversationId}
+          messages={messages}
         />
       </HomeWorkHelpHistoryContainer>
       <HomeWorkHelpChatContainer>
