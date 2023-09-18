@@ -319,6 +319,17 @@ const HomeWorkHelp = () => {
           }
           return dateA.getTime() - dateB.getTime();
         });
+
+      const countOfIDontUnderstand = previousConvoData.filter(
+        (convo) => convo.text === "I don't understand"
+      ).length;
+
+      const hasContentThreeTimes = countOfIDontUnderstand >= 3;
+
+      if (hasContentThreeTimes) {
+        setCountNeedTutor((prevState) => prevState + 2);
+      }
+
       setMessages((prevState) => [...previousConvoData]);
       setLoading(false);
     };
