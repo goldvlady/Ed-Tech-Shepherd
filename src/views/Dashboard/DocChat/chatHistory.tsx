@@ -35,6 +35,9 @@ type Chat = {
   message: string;
   createdDated: string;
   title: string;
+  subject: string;
+  topic: string;
+  level: string;
 };
 
 type GroupedChat = {
@@ -54,7 +57,8 @@ const ChatHistory = ({
   setSocket,
   setVisibleButton,
   setCertainConversationId,
-  messages
+  messages,
+  setSomeBountyOpt
 }: {
   studentId: string;
   setConversationId: (conversationId: string) => void;
@@ -68,6 +72,7 @@ const ChatHistory = ({
   setVisibleButton: any;
   setCertainConversationId: any;
   messages: any;
+  setSomeBountyOpt: any;
 }) => {
   // const placeholder = [
   //   {ß
@@ -115,9 +120,13 @@ const ChatHistory = ({
       .filter((chat) => chat.ConversationLogs.length > 0)
       .map((convo) => {
         const message = convo.ConversationLogs.at(-1)?.log?.content || '';
+
         return {
           id: convo.id,
           title: convo?.title,
+          topic: convo?.topic,
+          subject: convo?.subject,
+          level: convo?.level,
           message:
             message.length < 140 ? message : message.substring(0, 139) + '...',
           createdDated: getDateString(new Date(convo.createdAt))
@@ -374,6 +383,11 @@ const ChatHistory = ({
                               retrieveChatHistory(studentId);
                               setCountNeedTutor(1);
                               setLoading(false);
+                              setSomeBountyOpt({
+                                subject: message.subject,
+                                topic: message.topic,
+                                level: message.level
+                              });
                             }}
                           >
                             {message.title}

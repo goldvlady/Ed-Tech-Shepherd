@@ -86,6 +86,11 @@ const HomeWorkHelp = () => {
   const [deleteConservationModal, setDeleteConservationModal] = useState(false);
   const [recentConversationId, setRecentConverstionId] = useState(null);
   const [certainConversationId, setCertainConversationId] = useState('');
+  const [someBountyOpt, setSomeBountyOpt] = useState({
+    subject: '',
+    topic: '',
+    level: ''
+  });
 
   const paymentDialogRef = useRef<PaymentDialogRef>(null);
   const [loading, setLoading] = useState(false);
@@ -298,7 +303,6 @@ const HomeWorkHelp = () => {
       if (response) {
         setVisibleButton(false);
       }
-
       const previousConvoData = response
         ?.map((conversation) => ({
           text: conversation?.log?.content,
@@ -498,6 +502,7 @@ const HomeWorkHelp = () => {
           setSocket={setSocket}
           setCertainConversationId={setCertainConversationId}
           messages={messages}
+          setSomeBountyOpt={setSomeBountyOpt}
         />
       </HomeWorkHelpHistoryContainer>
       <HomeWorkHelpChatContainer>
@@ -558,6 +563,9 @@ const HomeWorkHelp = () => {
       <BountyOfferModal
         isBountyModalOpen={isBountyModalOpen}
         closeBountyModal={closeBountyModal}
+        topic={localData?.topic || someBountyOpt?.topic}
+        subject={localData?.subject || someBountyOpt?.subject}
+        level={level.label || someBountyOpt?.level}
       />
       <PaymentDialog
         ref={paymentDialogRef}

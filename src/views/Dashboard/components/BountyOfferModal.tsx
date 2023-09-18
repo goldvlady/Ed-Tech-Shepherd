@@ -22,19 +22,18 @@ import {
   RadioGroup,
   useToast
 } from '@chakra-ui/react';
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useState, useMemo, useEffect } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 
 export default function BountyOfferModal(props) {
-  const { isBountyModalOpen, closeBountyModal } = props;
+  const { isBountyModalOpen, closeBountyModal, subject, topic, level } = props;
   const { courses: courseList, levels: levelOptions } = resourceStore();
   const [isLoading, setIsLoading] = useState(false);
-
   const [bountyOffer, setBountyOffer] = useState({
-    subject: '',
-    topic: '',
+    subject: subject || '',
+    topic: topic || '',
     description: '',
-    level: '',
+    level: level || '',
     price: '',
     rating: 0,
     instructionMode: '',
@@ -100,6 +99,20 @@ export default function BountyOfferModal(props) {
   };
 
   const today = useMemo(() => new Date(), []);
+
+  useEffect(() => {
+    const levelId =
+      (levelOptions.find((option) => option.label === level) || {})._id || '';
+    const subjectId =
+      (courseList.find((option) => option.label === subject) || {})._id || '';
+
+    setBountyOffer((prevState) => ({
+      ...prevState,
+      subject: subjectId,
+      topic: topic || '',
+      level: levelId
+    }));
+  }, [subject, topic, level, levelOptions, courseList]);
 
   return (
     <>
@@ -260,12 +273,12 @@ export default function BountyOfferModal(props) {
                 textAlign="left"
               >
                 {bountyOffer.level !== 'Level'
-                  ? levelOptions.map((level) => {
-                      if (level._id === bountyOffer.level) {
-                        return level.label;
-                      }
-                    })
-                  : bountyOffer.level}
+                  ? (
+                      levelOptions.find(
+                        (level) => level._id === bountyOffer.level
+                      ) || {}
+                    ).label || 'Select Level'
+                  : 'Level'}
               </MenuButton>
               <MenuList minWidth={'auto'}>
                 {levelOptions.map((level) => (
