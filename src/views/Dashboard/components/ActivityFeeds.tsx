@@ -83,8 +83,7 @@ function ActivityFeeds(props) {
     const lastSlashIndex = url?.lastIndexOf('/');
     const textAfterLastSlash = url?.substring(lastSlashIndex + 1);
 
-    const startIndex =
-      textAfterLastSlash.indexOf('uploads%2F') + 'uploads%2F'.length;
+    const startIndex = textAfterLastSlash.indexOf('%2F') + '%2F'.length;
     const endIndex = textAfterLastSlash.indexOf('?alt');
     const extractedText = textAfterLastSlash.substring(startIndex, endIndex);
 
@@ -285,19 +284,28 @@ function ActivityFeeds(props) {
                       px={3}
                       _hover={{ cursor: 'pointer', bgColor: '#dcdfe5' }}
                       onClick={() => {
-                        feed.activityType === 'bounty'
-                          ? feed.link
-                            ? window.open(`${feed.link}`, '_blank')
-                            : navigateToChat()
-                          : navigate(
-                              `${
-                                feed.activityType === 'documents'
-                                  ? `/dashboard/new-note/${feed.id}`
-                                  : feed.activityType === 'bounty'
-                                  ? `${feed.link}`
-                                  : `/dashboard/flashcards/${feed.flashcard}`
-                              }`
-                            );
+                        if (feed.activityType === 'bounty') {
+                          if (feed.link) {
+                            window.open(`${feed.link}`, '_blank');
+                          } else {
+                            navigateToChat();
+                          }
+                        } else if (feed.activityType === 'documents') {
+                          navigate(`/dashboard/new-note`, {
+                            state: {
+                              documentUrl: feed.link,
+                              docTitle: feed.title
+                            }
+                          });
+                        } else {
+                          navigate(
+                            `${
+                              feed.activityType === 'bounty'
+                                ? `${feed.link}`
+                                : `/dashboard/flashcards/${feed.flashcard}`
+                            }`
+                          );
+                        }
                       }}
                     >
                       <Flex mt={2.5} gap={1}>
