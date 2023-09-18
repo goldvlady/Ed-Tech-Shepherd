@@ -294,7 +294,7 @@ function ActivityFeeds(props) {
                           navigate(`/dashboard/new-note`, {
                             state: {
                               documentUrl: feed.link,
-                              docTitle: feed.title
+                              docTitle: getFileName(feed.link)
                             }
                           });
                         } else {
