@@ -89,7 +89,7 @@ export default create<NoteStore>((set) => ({
               notes[index] = record;
             }
           }
-          return { notes };
+          return { notes, tags: [...state.tags, ...tags] };
         });
         return true;
       }

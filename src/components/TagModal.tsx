@@ -140,24 +140,13 @@ export const TagModal: React.FC<TagModalProps> = ({
           </VStack>
         </ModalBody>
         <ModalFooter>
-          {isLoading ? (
-            <Button
-              colorScheme="grey"
-              onClick={handleSubmit}
-              isLoading
-              loadingText="Adding..."
-            >
-              Add
-            </Button>
-          ) : (
-            <Button
-              isDisabled={!newTags.length}
-              colorScheme="blue"
-              onClick={handleSubmit}
-            >
-              Add
-            </Button>
-          )}
+          <Button
+            colorScheme={isLoading ? 'grey' : 'blue'}
+            isLoading={isLoading}
+            onClick={handleSubmit}
+          >
+            {isLoading ? 'Saving' : 'Save'}
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

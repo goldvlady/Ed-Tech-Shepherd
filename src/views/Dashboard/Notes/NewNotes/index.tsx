@@ -820,6 +820,7 @@ const NewNote = () => {
   ) => {
     if (!editor) return;
 
+    console.log(editor.topLevelBlocks);
     const noteTitle = editedTitleRef.current.value ?? editedTitle;
 
     let noteIdToUse = '';

@@ -876,7 +876,7 @@ const NotesDirectory: React.FC = () => {
               )}
             </TabPanel>
             <TabPanel>
-              {!isLoading && studentDocuments.length ? (
+              {studentDocuments.length ? (
                 <Box>
                   <SimpleGrid
                     columns={{ base: 1, md: 2, lg: 3, xl: 4 }}
