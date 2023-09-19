@@ -129,7 +129,7 @@ export default create<StudentDocumentStore>((set) => ({
               studentDocuments[index] = record;
             }
           }
-          return { studentDocuments };
+          return { studentDocuments, tags: [...state.tags, ...tags] };
         });
         return true;
       }

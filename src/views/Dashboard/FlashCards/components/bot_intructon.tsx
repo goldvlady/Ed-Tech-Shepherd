@@ -1,4 +1,5 @@
 import robot from '../../../../assets/robot.png';
+import { CircleContainer } from '../../DocChat/styles';
 import { Box, Flex, Image, HStack, Text, VStack } from '@chakra-ui/react';
 
 const BotIntructionBox = () => {
@@ -6,14 +7,20 @@ const BotIntructionBox = () => {
     <Box bg="#F7F7F7" borderRadius="10px" p="20px" w="100%">
       <Flex w="100%" direction="column" align="flex-start">
         <HStack w="100%">
-          <Image
-            width={'64px'}
-            height={'56px'}
-            borderRadius={'full'}
-            src={
-              'https://firebasestorage.googleapis.com/v0/b/shepherd-app-382114.appspot.com/o/assets%2Fscreenshot_2023-07-28_at_4.59.43_pm.jpg?alt=media&token=24b55940-12ec-427f-a8f4-76d79fc02d4f'
-            }
-          ></Image>
+          <CircleContainer>
+            <img
+              style={{
+                objectFit: 'cover',
+                height: 'auto',
+                width: '100%',
+                borderRadius: '50%'
+              }}
+              alt=""
+              src={
+                'https://firebasestorage.googleapis.com/v0/b/shepherd-app-382114.appspot.com/o/assets%2Fscreenshot_2023-07-28_at_4.59.43_pm.jpg?alt=media&token=24b55940-12ec-427f-a8f4-76d79fc02d4f'
+              }
+            />
+          </CircleContainer>
           <VStack ml={'50px'} spacing={2} align="flex-start">
             <Text
               fontWeight="500"

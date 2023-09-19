@@ -84,7 +84,7 @@ export default create<Store>((set) => ({
             }
           }
 
-          return { flashcards };
+          return { flashcards, tags: [...state.tags, ...tags] };
         });
         return true;
       }
