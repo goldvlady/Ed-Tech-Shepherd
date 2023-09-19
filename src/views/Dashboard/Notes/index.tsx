@@ -910,7 +910,7 @@ const NotesDirectory: React.FC = () => {
                         limit={pagination.limit}
                         page={pagination.page}
                         handlePagination={(nextPage) =>
-                          fetchNotes({
+                          fetchStudentDocuments({
                             page: nextPage,
                             limit: pagination.limit
                           })
