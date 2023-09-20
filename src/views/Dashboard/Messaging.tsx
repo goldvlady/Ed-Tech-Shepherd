@@ -13,7 +13,8 @@ import {
   MessageInput,
   Window,
   ScrollToBottomButton,
-  Thread
+  Thread,
+  useChatContext
 } from 'stream-chat-react';
 
 const client = new StreamChat(
@@ -96,6 +97,46 @@ export default function Messages() {
     );
   };
 
+  const RenderChannel = () => {
+    // Access the Chat context to get the active channel
+    const { channel } = useChatContext();
+    console.log('CHANNEL: ', channel);
+    // If channel is frozen apply disabled channel styles
+    return channel?.data?.frozen ? (
+      <div className="stream-chat-frozen-wrapper">
+        <Channel MessageNotification={ScrollToBottomButton}>
+          <Window>
+            <ChannelHeader />
+            <VirtualizedMessageList
+              additionalVirtuosoProps={{
+                increaseViewportBy: { top: 400, bottom: 200 }
+              }}
+            />
+            {/* <MessageInput /> */}
+            <div className="stream-disabled-message">
+              This chat has been disabled because your contract with this tutor
+              has ended.
+            </div>
+          </Window>
+          <Thread />
+        </Channel>
+      </div>
+    ) : (
+      <Channel MessageNotification={ScrollToBottomButton}>
+        <Window>
+          <ChannelHeader />
+          <VirtualizedMessageList
+            additionalVirtuosoProps={{
+              increaseViewportBy: { top: 400, bottom: 200 }
+            }}
+          />
+          <MessageInput />
+        </Window>
+        <Thread />
+      </Channel>
+    );
+  };
+
   return (
     <div className="stream-chat-wrapper">
       {isConnected && (
@@ -103,6 +144,11 @@ export default function Messages() {
           <ChannelList
             filters={{ members: { $in: [userRoleId] } }}
             sort={{ last_message_at: -1 }}
+            additionalChannelSearchProps={{
+              clearSearchOnClickOutside: true,
+              popupResults: true,
+              searchForChannels: true
+            }}
             showChannelSearch
             // Preview={(props) => (
             //   <CustomChannelPreviewMessenger
@@ -113,25 +159,8 @@ export default function Messages() {
             Preview={(props) => (
               <ChannelPreviewMessenger {...props} className="channel-preview" />
             )}
-            additionalChannelSearchProps={{
-              clearSearchOnClickOutside: true,
-              popupResults: true,
-              searchForChannels: true
-            }}
           />
-
-          <Channel MessageNotification={ScrollToBottomButton}>
-            <Window>
-              <ChannelHeader />
-              <VirtualizedMessageList
-                additionalVirtuosoProps={{
-                  increaseViewportBy: { top: 400, bottom: 200 }
-                }}
-              />
-              <MessageInput />
-            </Window>
-            <Thread />
-          </Channel>
+          <RenderChannel />
         </Chat>
       )}
     </div>
