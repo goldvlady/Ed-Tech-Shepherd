@@ -109,6 +109,7 @@ function Bounties() {
                     reviewCount={tutor.tutor?.reviewCount}
                     // saved={true}
                     use="bounty"
+                    bidId={tutor.id}
                     offerStatus={tutor.status}
                   />
                 ))}
