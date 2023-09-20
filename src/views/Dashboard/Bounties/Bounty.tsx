@@ -98,8 +98,8 @@ function Bounties() {
               >
                 {bountyBids.map((tutor: any) => (
                   <TutorCard
-                    key={tutor?.id}
-                    id={tutor?.id}
+                    key={tutor.tutor?.id}
+                    id={tutor.tutor?.id}
                     avatar={tutor.tutor.user.avatar}
                     name={`${tutor.tutor.user.name.first} ${tutor.tutor.user.name.last}`}
                     levelOfEducation={'BSC'}

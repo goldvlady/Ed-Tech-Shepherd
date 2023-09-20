@@ -131,11 +131,13 @@ export default function TutorCard(props: any) {
             }}
             padding={'20px'}
             position="relative"
-            onClick={() => navigate(`/dashboard/find-tutor/tutor/?id=${id}`)}
           >
-            <Flex gap={2} alignItems="center" position="relative">
-              <Avatar size="lg" name={name} src={avatar} />
-              {/* <div>
+            <Box
+              onClick={() => navigate(`/dashboard/find-tutor/tutor/?id=${id}`)}
+            >
+              <Flex gap={2} alignItems="center" position="relative">
+                <Avatar size="lg" name={name} src={avatar} />
+                {/* <div>
                 <div
                   style={{
                     width: '16px',
@@ -149,38 +151,40 @@ export default function TutorCard(props: any) {
                   }}
                 ></div>
               </div> */}
-              <Box>
-                <Flex pt={1} direction={'column'}>
-                  <Text fontSize={'16px'} fontWeight={'semibold'} mb={0}>
-                    {name}
-                    <Text
-                      fontWeight={400}
-                      color={'#212224'}
-                      fontSize="14px"
-                      mb={'2px'}
-                    >
-                      {levelOfEducation}
+                <Box>
+                  <Flex pt={1} direction={'column'}>
+                    <Text fontSize={'16px'} fontWeight={'semibold'} mb={0}>
+                      {name}
+                      <Text
+                        fontWeight={400}
+                        color={'#212224'}
+                        fontSize="14px"
+                        mb={'2px'}
+                      >
+                        {levelOfEducation}
+                      </Text>
                     </Text>
-                  </Text>
-                </Flex>{' '}
-              </Box>
-            </Flex>
-            <Box my={2}>
-              <Flex alignItems="center">
-                <Text fontSize={16} fontWeight={'semibold'}>
-                  ${`${rate}.00 / hr`}
-                </Text>
-
-                <Spacer />
-                <Flex>
-                  {' '}
-                  <Image src={Star} boxSize={4} />
-                  <Text fontSize={12} fontWeight={400} color="#6E7682">
-                    {`${rating}(${reviewCount})`}
-                  </Text>
-                </Flex>
+                  </Flex>{' '}
+                </Box>
               </Flex>
+              <Box my={2}>
+                <Flex alignItems="center">
+                  <Text fontSize={16} fontWeight={'semibold'}>
+                    ${`${rate}.00 / hr`}
+                  </Text>
+
+                  <Spacer />
+                  <Flex>
+                    {' '}
+                    <Image src={Star} boxSize={4} />
+                    <Text fontSize={12} fontWeight={400} color="#6E7682">
+                      {`${rating}(${reviewCount})`}
+                    </Text>
+                  </Flex>
+                </Flex>
+              </Box>
             </Box>
+
             <Divider />
             <Box my={2}>
               <Text
@@ -261,15 +265,14 @@ export default function TutorCard(props: any) {
             )}
             {use === 'bounty' && (
               <Button
-                variant={'unstyled'}
                 fontSize={12}
                 fontWeight={500}
-                bgColor="#207df7"
                 borderRadius={4}
-                position="absolute"
+                // position="absolute"
+                zIndex={1}
                 color="#fff"
-                bottom={4}
-                right={5}
+                // bottom={4}
+                right={0}
                 px={2}
                 py={'1px'}
                 onClick={() => handleBountyClick()}
