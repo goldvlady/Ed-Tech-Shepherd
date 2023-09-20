@@ -1218,6 +1218,53 @@ input[type='text']:focus {
     width: 30%;
   }
 
+  .stream-chat-frozen-wrapper {
+    // pointer-events: none;
+    flex: 1;
+
+    .str-chat__message
+      .str-chat__message-inner
+      .str-chat__message-options
+      .str-chat__message-actions-box-button,
+    .str-chat__message
+      .str-chat__message-inner
+      .str-chat__message-options
+      .str-chat__message-actions-container,
+    .str-chat__quoted-message-preview
+      .str-chat__message-inner
+      .str-chat__message-options
+      .str-chat__message-actions-box-button,
+    .str-chat__quoted-message-preview
+      .str-chat__message-inner
+      .str-chat__message-options
+      .str-chat__message-actions-container {
+      pointer-events: none;
+    }
+
+    .str-chat__list-notifications,
+    .str-chat__message-input {
+      display: none;
+    }
+
+    .str-chat__message-simple__actions .str-chat__message-options {
+      display: none;
+    }
+
+    //hide message option menu (on hover)
+    .str-chat__message-inner .str-chat__message-options {
+      visibility: hidden;
+    }
+  }
+
+  .stream-disabled-message {
+    height: 14%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #207df7;
+    text-align: center;
+  }
+
   .channel-preview {
     border-bottom: 1px solid #ebecf0;
     padding: 20px 10px;
