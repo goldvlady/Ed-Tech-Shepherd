@@ -143,6 +143,49 @@ export default function Tutor() {
     );
   }
 
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
+  // Generate table headers
+  const tableHeaders = (
+    <Thead>
+      <Tr>
+        <Th width={'150px'}></Th>
+        {days.map((day, index) => (
+          <Th key={index} px={1}>
+            {day}
+          </Th>
+        ))}
+      </Tr>
+    </Thead>
+  );
+  const tableRows: any = [];
+  for (let i = 0; i < 24; i += 4) {
+    // Assuming each time slot is 4 hours
+    const beginTime = `${i % 12 === 0 ? 12 : i % 12}AM`;
+    const endTime = `${(i + 4) % 12 === 0 ? 12 : (i + 4) % 12}PM`;
+    const row = (
+      <Tr key={i}>
+        <Td bgColor={'#FAFAFA'} px={2}>
+          <Text color="text.300" fontSize={14} fontWeight={500} display="flex">
+            <Image src={Day} mr={3} /> {beginTime} {'->'} {endTime}
+          </Text>
+        </Td>
+        {days.map((day, dayIndex) => {
+          const daySchedule = tutorData.schedule[dayIndex];
+          const isSlotAvailable =
+            daySchedule &&
+            daySchedule.some(
+              (slot) => slot.begin === beginTime && slot.end === endTime
+            );
+          return (
+            <Td key={dayIndex} className={isSlotAvailable ? '' : 'stripeBox'}>
+              {isSlotAvailable && <Image src={Check} mr={3} />}
+            </Td>
+          );
+        })}
+      </Tr>
+    );
+    tableRows.push(row);
+  }
   return (
     <>
       <Box>
@@ -368,136 +411,8 @@ export default function Tutor() {
                                   }}
                                   variant="simple"
                                 >
-                                  {/* <TableCaption>Imperial to metric conversion factors</TableCaption> */}
-                                  <Thead>
-                                    <Tr
-                                      sx={{
-                                        th: {
-                                          fontSize: '11px',
-                                          fontWeight: 500,
-                                          textTransform: 'none',
-                                          color: '#000',
-                                          textAlign: 'center',
-                                          letterSpacing: '0px'
-                                        }
-                                      }}
-                                    >
-                                      <Th width={'150px'}></Th>
-                                      <Th px={1}>Mon </Th>
-                                      <Th>Tue </Th>
-                                      <Th>Wed </Th>
-                                      <Th>Thur </Th>
-                                      <Th>Fri </Th>
-                                      <Th>Sat </Th>
-                                      <Th>Sun </Th>
-                                    </Tr>
-                                  </Thead>
-                                  <Tbody>
-                                    <Tr
-                                      sx={{
-                                        td: {
-                                          textAlign: 'center',
-                                          color: 'text.300'
-                                        }
-                                      }}
-                                    >
-                                      <Td bgColor={'#FAFAFA'} px={2}>
-                                        <Text
-                                          color="text.300"
-                                          fontSize={14}
-                                          fontWeight={500}
-                                          display="flex"
-                                        >
-                                          <Image src={Day} mr={3} /> 8AM {'->'}{' '}
-                                          12PM
-                                        </Text>
-                                      </Td>
-                                      <Td className="stripeBox"></Td>
-                                      <Td className="stripeBox"></Td>
-                                      <Td className="stripeBox"></Td>{' '}
-                                      <Td className="stripeBox"></Td>{' '}
-                                      <Td className="stripeBox"></Td>{' '}
-                                      <Td className="stripeBox"></Td>{' '}
-                                      <Td className="stripeBox"></Td>
-                                    </Tr>
-
-                                    <Tr
-                                      sx={{
-                                        td: {
-                                          textAlign: 'center',
-                                          color: 'text.300'
-                                        }
-                                      }}
-                                    >
-                                      <Td bgColor={'#FAFAFA'} px={1}>
-                                        {' '}
-                                        <Text
-                                          color="text.300"
-                                          fontSize={14}
-                                          fontWeight={500}
-                                          display="flex"
-                                        >
-                                          <Image src={Day} mr={3} /> 12PM {'->'}{' '}
-                                          5PM
-                                        </Text>
-                                      </Td>
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>
-                                      <Td className="stripeBox"></Td>{' '}
-                                      <Td className="stripeBox"></Td>
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>{' '}
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>{' '}
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>
-                                    </Tr>
-                                    <Tr
-                                      sx={{
-                                        td: {
-                                          textAlign: 'center',
-                                          color: 'text.300'
-                                        }
-                                      }}
-                                    >
-                                      <Td bgColor={'#FAFAFA'} px={1}>
-                                        {' '}
-                                        <Text
-                                          color="text.300"
-                                          fontSize={14}
-                                          fontWeight={500}
-                                          display="flex"
-                                        >
-                                          <Image src={Day} mr={3} /> 5PM {'->'}{' '}
-                                          9PM
-                                        </Text>
-                                      </Td>
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>
-                                      <Td className="stripeBox"></Td>{' '}
-                                      <Td className="stripeBox"></Td>
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>{' '}
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>{' '}
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>
-                                    </Tr>
-                                  </Tbody>
+                                  {tableHeaders}
+                                  <Tbody>{tableRows}</Tbody>
                                 </Table>
                               </Box>
                             </TableContainer>
