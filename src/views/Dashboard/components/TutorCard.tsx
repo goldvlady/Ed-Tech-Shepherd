@@ -35,6 +35,7 @@ import { useNavigate } from 'react-router';
 export default function TutorCard(props: any) {
   const {
     id,
+    bidId,
     name,
     levelOfEducation,
     avatar,
@@ -297,7 +298,7 @@ export default function TutorCard(props: any) {
       <AcceptBountyModal
         isAcceptBountyOpen={isAcceptBountyOpen}
         closeAcceptBounty={closeAcceptBounty}
-        bounty={id}
+        bounty={bidId}
       />
     </>
   );
