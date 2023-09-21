@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
 import {
   AutoLinkPlugin,
-  createLinkMatcherWithRegExp,
+  createLinkMatcherWithRegExp
 } from '@lexical/react/LexicalAutoLinkPlugin';
+// import {AutoLinkPlugin} from '@lexical/link'
 import * as React from 'react';
 
 const URL_REGEX =
@@ -24,7 +24,7 @@ const MATCHERS = [
   }),
   createLinkMatcherWithRegExp(EMAIL_REGEX, (text) => {
     return `mailto:${text}`;
-  }),
+  })
 ];
 
 export default function LexicalAutoLinkPlugin(): JSX.Element {

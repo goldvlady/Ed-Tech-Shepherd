@@ -5,16 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import type {EditorThemeClasses} from 'lexical';
-
 import './CommentEditorTheme.css';
-
-import baseTheme from './PlaygroundEditorTheme';
+import baseTheme from './ShepherdEditorTheme';
+import type { EditorThemeClasses } from 'lexical';
 
 const theme: EditorThemeClasses = {
   ...baseTheme,
-  paragraph: 'CommentEditorTheme__paragraph',
+  paragraph: 'CommentEditorTheme__paragraph'
 };
 
 export default theme;

@@ -21,7 +21,8 @@ export type SettingName =
   | 'emptyEditor'
   | 'showTableOfContents'
   | 'tableCellMerge'
-  | 'tableCellBackgroundColor';
+  | 'tableCellBackgroundColor'
+  | 'showActionsPlugin';
 
 export type Settings = Record<SettingName, boolean>;
 
@@ -43,7 +44,8 @@ export const DEFAULT_SETTINGS: Settings = {
   shouldUseLexicalContextMenu: false,
   showNestedEditorTreeView: false,
   showTableOfContents: false,
-  showTreeView: true,
+  showTreeView: false,
   tableCellBackgroundColor: true,
   tableCellMerge: true,
+  showActionsPlugin: false
 };

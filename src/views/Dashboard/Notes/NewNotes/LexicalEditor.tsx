@@ -50,9 +50,10 @@ import TreeViewPlugin from './plugins/TreeViewPlugin';
 import TwitterPlugin from './plugins/TwitterPlugin';
 import YouTubePlugin from './plugins/YouTubePlugin';
 import { CAN_USE_DOM } from './plugins/shared/src/canUseDOM';
-import PlaygroundEditorTheme from './themes/PlaygroundEditorTheme';
+import ShepherdEditorTheme from './themes/ShepherdEditorTheme';
 import ContentEditable from './ui/ContentEditable';
 import Placeholder from './ui/Placeholder';
+// import ListPlugin from '@lexical/list';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { CharacterLimitPlugin } from '@lexical/react/LexicalCharacterLimitPlugin';
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
@@ -90,14 +91,15 @@ export default function Editor(): JSX.Element {
       showTableOfContents,
       shouldUseLexicalContextMenu,
       tableCellMerge,
-      tableCellBackgroundColor
+      tableCellBackgroundColor,
+      showActionsPlugin
     }
   } = useSettings();
   const isEditable = useLexicalEditable();
   const text = isCollab
     ? 'Enter some collaborative rich text...'
     : isRichText
-    ? 'Enter some rich text...'
+    ? 'Start Noting...'
     : 'Enter some plain text...';
   const placeholder = <Placeholder>{text}</Placeholder>;
   const [floatingAnchorElem, setFloatingAnchorElem] =
@@ -112,12 +114,12 @@ export default function Editor(): JSX.Element {
   };
 
   const cellEditorConfig = {
-    namespace: 'Playground',
+    namespace: 'Shepherd',
     nodes: [...TableCellNodes],
     onError: (error: Error) => {
       throw error;
     },
-    theme: PlaygroundEditorTheme
+    theme: ShepherdEditorTheme
   };
 
   useEffect(() => {
@@ -138,7 +140,7 @@ export default function Editor(): JSX.Element {
   }, [isSmallWidthViewport]);
 
   return (
-    <>
+    <div className="editor-shell">
       {isRichText && <ToolbarPlugin />}
       <div
         className={`editor-container ${showTreeView ? 'tree-view' : ''} ${
@@ -260,9 +262,9 @@ export default function Editor(): JSX.Element {
         {isAutocomplete && <AutocompletePlugin />}
         <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
         {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
-        <ActionsPlugin isRichText={isRichText} />
+        {!showActionsPlugin && <ActionsPlugin isRichText={isRichText} />}
       </div>
       {showTreeView && <TreeViewPlugin />}
-    </>
+    </div>
   );
 }

@@ -5,45 +5,43 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import {$createCodeNode} from '@lexical/code';
+import useModal from '../../hooks/useModal';
+import catTypingGif from '../../images/cat-typing.gif';
+import { EmbedConfigs } from '../AutoEmbedPlugin';
+import { INSERT_COLLAPSIBLE_COMMAND } from '../CollapsiblePlugin';
+import { InsertEquationDialog } from '../EquationsPlugin';
+import { INSERT_EXCALIDRAW_COMMAND } from '../ExcalidrawPlugin';
+import { INSERT_IMAGE_COMMAND, InsertImageDialog } from '../ImagesPlugin';
+import { INSERT_PAGE_BREAK } from '../PageBreakPlugin';
+import { InsertPollDialog } from '../PollPlugin';
+import { InsertNewTableDialog, InsertTableDialog } from '../TablePlugin';
+import { $createCodeNode } from '@lexical/code';
 import {
   INSERT_CHECK_LIST_COMMAND,
   INSERT_ORDERED_LIST_COMMAND,
-  INSERT_UNORDERED_LIST_COMMAND,
+  INSERT_UNORDERED_LIST_COMMAND
 } from '@lexical/list';
-import {INSERT_EMBED_COMMAND} from '@lexical/react/LexicalAutoEmbedPlugin';
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {INSERT_HORIZONTAL_RULE_COMMAND} from '@lexical/react/LexicalHorizontalRuleNode';
+import { INSERT_EMBED_COMMAND } from '@lexical/react/LexicalAutoEmbedPlugin';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode';
 import {
   LexicalTypeaheadMenuPlugin,
   MenuOption,
-  useBasicTypeaheadTriggerMatch,
+  useBasicTypeaheadTriggerMatch
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
-import {$createHeadingNode, $createQuoteNode} from '@lexical/rich-text';
-import {$setBlocksType} from '@lexical/selection';
-import {INSERT_TABLE_COMMAND} from '@lexical/table';
+import { $createHeadingNode, $createQuoteNode } from '@lexical/rich-text';
+import { $setBlocksType } from '@lexical/selection';
+import { INSERT_TABLE_COMMAND } from '@lexical/table';
 import {
   $createParagraphNode,
   $getSelection,
   $isRangeSelection,
   FORMAT_ELEMENT_COMMAND,
-  TextNode,
+  TextNode
 } from 'lexical';
-import {useCallback, useMemo, useState} from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-
-import useModal from '../../hooks/useModal';
-import catTypingGif from '../../images/cat-typing.gif';
-import {EmbedConfigs} from '../AutoEmbedPlugin';
-import {INSERT_COLLAPSIBLE_COMMAND} from '../CollapsiblePlugin';
-import {InsertEquationDialog} from '../EquationsPlugin';
-import {INSERT_EXCALIDRAW_COMMAND} from '../ExcalidrawPlugin';
-import {INSERT_IMAGE_COMMAND, InsertImageDialog} from '../ImagesPlugin';
-import {INSERT_PAGE_BREAK} from '../PageBreakPlugin';
-import {InsertPollDialog} from '../PollPlugin';
-import {InsertNewTableDialog, InsertTableDialog} from '../TablePlugin';
 
 class ComponentPickerOption extends MenuOption {
   // What shows up in the editor
@@ -64,7 +62,7 @@ class ComponentPickerOption extends MenuOption {
       keywords?: Array<string>;
       keyboardShortcut?: string;
       onSelect: (queryString: string) => void;
-    },
+    }
   ) {
     super(title);
     this.title = title;
@@ -80,7 +78,7 @@ function ComponentPickerMenuItem({
   isSelected,
   onClick,
   onMouseEnter,
-  option,
+  option
 }: {
   index: number;
   isSelected: boolean;
@@ -102,7 +100,8 @@ function ComponentPickerMenuItem({
       aria-selected={isSelected}
       id={'typeahead-item-' + index}
       onMouseEnter={onMouseEnter}
-      onClick={onClick}>
+      onClick={onClick}
+    >
       {option.icon}
       <span className="text">{option.title}</span>
     </li>
@@ -115,7 +114,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
   const [queryString, setQueryString] = useState<string | null>(null);
 
   const checkForTriggerMatch = useBasicTypeaheadTriggerMatch('/', {
-    minLength: 0,
+    minLength: 0
   });
 
   const getDynamicOptions = useCallback(() => {
@@ -138,27 +137,27 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
 
       options.push(
         new ComponentPickerOption(`${rows}x${columns} Table`, {
-          icon: <i className="icon table" />,
+          icon: <i className="table icon" />,
           keywords: ['table'],
           onSelect: () =>
             // @ts-ignore Correct types, but since they're dynamic TS doesn't like it.
-            editor.dispatchCommand(INSERT_TABLE_COMMAND, {columns, rows}),
-        }),
+            editor.dispatchCommand(INSERT_TABLE_COMMAND, { columns, rows })
+        })
       );
     } else if (partialTableMatch) {
       const rows = parseInt(partialTableMatch[0], 10);
 
       options.push(
-        ...Array.from({length: 5}, (_, i) => i + 1).map(
+        ...Array.from({ length: 5 }, (_, i) => i + 1).map(
           (columns) =>
             new ComponentPickerOption(`${rows}x${columns} Table`, {
-              icon: <i className="icon table" />,
+              icon: <i className="table icon" />,
               keywords: ['table'],
               onSelect: () =>
                 // @ts-ignore Correct types, but since they're dynamic TS doesn't like it.
-                editor.dispatchCommand(INSERT_TABLE_COMMAND, {columns, rows}),
-            }),
-        ),
+                editor.dispatchCommand(INSERT_TABLE_COMMAND, { columns, rows })
+            })
+        )
       );
     }
 
@@ -176,9 +175,9 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
             if ($isRangeSelection(selection)) {
               $setBlocksType(selection, () => $createParagraphNode());
             }
-          }),
+          })
       }),
-      ...Array.from({length: 3}, (_, i) => i + 1).map(
+      ...Array.from({ length: 3 }, (_, i) => i + 1).map(
         (n) =>
           new ComponentPickerOption(`Heading ${n}`, {
             icon: <i className={`icon h${n}`} />,
@@ -189,45 +188,45 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
                 if ($isRangeSelection(selection)) {
                   $setBlocksType(selection, () =>
                     // @ts-ignore Correct types, but since they're dynamic TS doesn't like it.
-                    $createHeadingNode(`h${n}`),
+                    $createHeadingNode(`h${n}`)
                   );
                 }
-              }),
-          }),
+              })
+          })
       ),
       new ComponentPickerOption('Table', {
-        icon: <i className="icon table" />,
+        icon: <i className="table icon" />,
         keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
         onSelect: () =>
           showModal('Insert Table', (onClose) => (
             <InsertTableDialog activeEditor={editor} onClose={onClose} />
-          )),
+          ))
       }),
       new ComponentPickerOption('Table (Experimental)', {
-        icon: <i className="icon table" />,
+        icon: <i className="table icon" />,
         keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
         onSelect: () =>
           showModal('Insert Table', (onClose) => (
             <InsertNewTableDialog activeEditor={editor} onClose={onClose} />
-          )),
+          ))
       }),
       new ComponentPickerOption('Numbered List', {
         icon: <i className="icon number" />,
         keywords: ['numbered list', 'ordered list', 'ol'],
         onSelect: () =>
-          editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined),
+          editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined)
       }),
       new ComponentPickerOption('Bulleted List', {
         icon: <i className="icon bullet" />,
         keywords: ['bulleted list', 'unordered list', 'ul'],
         onSelect: () =>
-          editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined),
+          editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined)
       }),
       new ComponentPickerOption('Check List', {
         icon: <i className="icon check" />,
         keywords: ['check list', 'todo list'],
         onSelect: () =>
-          editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined),
+          editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined)
       }),
       new ComponentPickerOption('Quote', {
         icon: <i className="icon quote" />,
@@ -238,7 +237,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
             if ($isRangeSelection(selection)) {
               $setBlocksType(selection, () => $createQuoteNode());
             }
-          }),
+          })
       }),
       new ComponentPickerOption('Code', {
         icon: <i className="icon code" />,
@@ -258,24 +257,24 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
                 selection.insertRawText(textContent);
               }
             }
-          }),
+          })
       }),
       new ComponentPickerOption('Divider', {
         icon: <i className="icon horizontal-rule" />,
         keywords: ['horizontal rule', 'divider', 'hr'],
         onSelect: () =>
-          editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined),
+          editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined)
       }),
       new ComponentPickerOption('Page Break', {
         icon: <i className="icon page-break" />,
         keywords: ['page break', 'divider'],
-        onSelect: () => editor.dispatchCommand(INSERT_PAGE_BREAK, undefined),
+        onSelect: () => editor.dispatchCommand(INSERT_PAGE_BREAK, undefined)
       }),
       new ComponentPickerOption('Excalidraw', {
         icon: <i className="icon diagram-2" />,
         keywords: ['excalidraw', 'diagram', 'drawing'],
         onSelect: () =>
-          editor.dispatchCommand(INSERT_EXCALIDRAW_COMMAND, undefined),
+          editor.dispatchCommand(INSERT_EXCALIDRAW_COMMAND, undefined)
       }),
       new ComponentPickerOption('Poll', {
         icon: <i className="icon poll" />,
@@ -283,7 +282,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
         onSelect: () =>
           showModal('Insert Poll', (onClose) => (
             <InsertPollDialog activeEditor={editor} onClose={onClose} />
-          )),
+          ))
       }),
       ...EmbedConfigs.map(
         (embedConfig) =>
@@ -291,8 +290,8 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
             icon: embedConfig.icon,
             keywords: [...embedConfig.keywords, 'embed'],
             onSelect: () =>
-              editor.dispatchCommand(INSERT_EMBED_COMMAND, embedConfig.type),
-          }),
+              editor.dispatchCommand(INSERT_EMBED_COMMAND, embedConfig.type)
+          })
       ),
       new ComponentPickerOption('Equation', {
         icon: <i className="icon equation" />,
@@ -300,7 +299,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
         onSelect: () =>
           showModal('Insert Equation', (onClose) => (
             <InsertEquationDialog activeEditor={editor} onClose={onClose} />
-          )),
+          ))
       }),
       new ComponentPickerOption('GIF', {
         icon: <i className="icon gif" />,
@@ -308,8 +307,8 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
         onSelect: () =>
           editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
             altText: 'Cat typing on a laptop',
-            src: catTypingGif,
-          }),
+            src: catTypingGif
+          })
       }),
       new ComponentPickerOption('Image', {
         icon: <i className="icon image" />,
@@ -317,13 +316,13 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
         onSelect: () =>
           showModal('Insert Image', (onClose) => (
             <InsertImageDialog activeEditor={editor} onClose={onClose} />
-          )),
+          ))
       }),
       new ComponentPickerOption('Collapsible', {
         icon: <i className="icon caret-right" />,
         keywords: ['collapse', 'collapsible', 'toggle'],
         onSelect: () =>
-          editor.dispatchCommand(INSERT_COLLAPSIBLE_COMMAND, undefined),
+          editor.dispatchCommand(INSERT_COLLAPSIBLE_COMMAND, undefined)
       }),
       ...['left', 'center', 'right', 'justify'].map(
         (alignment) =>
@@ -332,9 +331,9 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
             keywords: ['align', 'justify', alignment],
             onSelect: () =>
               // @ts-ignore Correct types, but since they're dynamic TS doesn't like it.
-              editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, alignment),
-          }),
-      ),
+              editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, alignment)
+          })
+      )
     ];
 
     const dynamicOptions = getDynamicOptions();
@@ -346,10 +345,10 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
             return new RegExp(queryString, 'gi').exec(option.title) ||
               option.keywords != null
               ? option.keywords.some((keyword) =>
-                  new RegExp(queryString, 'gi').exec(keyword),
+                  new RegExp(queryString, 'gi').exec(keyword)
                 )
               : false;
-          }),
+          })
         ]
       : baseOptions;
   }, [editor, getDynamicOptions, queryString, showModal]);
@@ -359,7 +358,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
       selectedOption: ComponentPickerOption,
       nodeToRemove: TextNode | null,
       closeMenu: () => void,
-      matchingString: string,
+      matchingString: string
     ) => {
       editor.update(() => {
         if (nodeToRemove) {
@@ -369,7 +368,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
         closeMenu();
       });
     },
-    [editor],
+    [editor]
   );
 
   return (
@@ -382,7 +381,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
         options={options}
         menuRenderFn={(
           anchorElementRef,
-          {selectedIndex, selectOptionAndCleanUp, setHighlightedIndex},
+          { selectedIndex, selectOptionAndCleanUp, setHighlightedIndex }
         ) =>
           anchorElementRef.current && options.length
             ? ReactDOM.createPortal(
@@ -405,7 +404,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
                     ))}
                   </ul>
                 </div>,
-                anchorElementRef.current,
+                anchorElementRef.current
               )
             : null
         }

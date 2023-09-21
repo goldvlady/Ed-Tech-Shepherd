@@ -433,6 +433,13 @@ const CreateFlashPage = () => {
                 borderRadius="10px"
                 height="70vh"
                 overflowY="scroll"
+                sx={{
+                  '::-webkit-scrollbar': {
+                    display: 'none'
+                  },
+                  'scrollbar-width': 'none',
+                  '-ms-overflow-style': 'none'
+                }}
               >
                 {form}
               </Box>
@@ -445,6 +452,13 @@ const CreateFlashPage = () => {
                 borderRadius="10px"
                 height="80vh"
                 overflowY="scroll"
+                sx={{
+                  '::-webkit-scrollbar': {
+                    display: 'none'
+                  },
+                  'scrollbar-width': 'none',
+                  '-ms-overflow-style': 'none'
+                }}
               >
                 {renderPreview()}
               </Box>

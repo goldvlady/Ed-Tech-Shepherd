@@ -13,7 +13,11 @@ import {
   SUPPORT_SPEECH_RECOGNITION
 } from '../SpeechToTextPlugin';
 import { $createCodeNode, $isCodeNode } from '@lexical/code';
-import { exportFile, importFile } from '@lexical/file';
+import {
+  // exportFile,
+  importFile
+} from '@lexical/file';
+import { $generateHtmlFromNodes } from '@lexical/html';
 import {
   $convertFromMarkdownString,
   $convertToMarkdownString
@@ -22,13 +26,17 @@ import { useCollaborationContext } from '@lexical/react/LexicalCollaborationCont
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { mergeRegister } from '@lexical/utils';
 import { CONNECTED_COMMAND, TOGGLE_CONNECT_COMMAND } from '@lexical/yjs';
+import html2pdf from 'html2pdf.js';
 import type { LexicalEditor } from 'lexical';
 import {
   $createTextNode,
   $getRoot,
   $isParagraphNode,
   CLEAR_EDITOR_COMMAND,
-  COMMAND_PRIORITY_EDITOR
+  COMMAND_PRIORITY_EDITOR,
+  $getSelection,
+  $isRangeSelection,
+  DEPRECATED_$isGridSelection
 } from 'lexical';
 import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
@@ -156,7 +164,7 @@ export default function ActionsPlugin({
 
   return (
     <div className="actions">
-      {SUPPORT_SPEECH_RECOGNITION && (
+      {false && SUPPORT_SPEECH_RECOGNITION && (
         <button
           onClick={() => {
             editor.dispatchCommand(SPEECH_TO_TEXT_COMMAND, !isSpeechToText);
@@ -172,22 +180,44 @@ export default function ActionsPlugin({
           <i className="mic" />
         </button>
       )}
-      <button
-        className="action-button import"
-        onClick={() => importFile(editor)}
-        title="Import"
-        aria-label="Import editor state from JSON"
-      >
-        <i className="import" />
-      </button>
+      {false && (
+        <button
+          className="action-button import"
+          onClick={() => importFile(editor)}
+          title="Import"
+          aria-label="Import editor state from JSON"
+        >
+          <i className="import" />
+        </button>
+      )}
       <button
         className="action-button export"
-        onClick={() =>
-          exportFile(editor, {
-            fileName: `Playground ${new Date().toISOString()}`,
-            source: 'Playground'
-          })
-        }
+        onClick={() => {
+          editor.update(() => {
+            const filename = `Shepherd_${new Date().toISOString()}.pdf`;
+            const htmlString = $generateHtmlFromNodes(editor, null);
+
+            const styledHtml = `<div style="padding:32px 32px 50px">${htmlString}</div>`;
+
+            // const doc = new jsPDF('p', 'mm', [300, 300]);
+
+            // // fromHTML Method
+            // doc.htm(styledHtml);
+            // doc.save(filename);
+            html2pdf().from(styledHtml, 'string').toPdf().save(filename);
+
+            // const editorState = editor.getEditorState();
+            // const jsonString = JSON.stringify(editorState);
+
+            // console.log('json ====> ', jsonString);
+          });
+
+          // const htmlString = $generateHtmlFromNodes(editor, selection | null);
+          //  exportFile(editor, {
+          //   fileName: `Shepherd_${new Date().toISOString()}`,
+          //   source: 'Shepherd'
+          // })}
+        }}
         title="Export"
         aria-label="Export editor state to JSON"
       >
@@ -206,29 +236,33 @@ export default function ActionsPlugin({
       >
         <i className="clear" />
       </button>
-      <button
-        className={`action-button ${!isEditable ? 'unlock' : 'lock'}`}
-        onClick={() => {
-          // Send latest editor state to commenting validation server
-          if (isEditable) {
-            sendEditorState(editor);
-          }
-          editor.setEditable(!editor.isEditable());
-        }}
-        title="Read-Only Mode"
-        aria-label={`${!isEditable ? 'Unlock' : 'Lock'} read-only mode`}
-      >
-        <i className={!isEditable ? 'unlock' : 'lock'} />
-      </button>
-      <button
-        className="action-button"
-        onClick={handleMarkdownToggle}
-        title="Convert From Markdown"
-        aria-label="Convert from markdown"
-      >
-        <i className="markdown" />
-      </button>
-      {isCollabActive && (
+      {false && (
+        <button
+          className={`action-button ${!isEditable ? 'unlock' : 'lock'}`}
+          onClick={() => {
+            // Send latest editor state to commenting validation server
+            if (isEditable) {
+              sendEditorState(editor);
+            }
+            editor.setEditable(!editor.isEditable());
+          }}
+          title="Read-Only Mode"
+          aria-label={`${!isEditable ? 'Unlock' : 'Lock'} read-only mode`}
+        >
+          <i className={!isEditable ? 'unlock' : 'lock'} />
+        </button>
+      )}
+      {false && (
+        <button
+          className="action-button"
+          onClick={handleMarkdownToggle}
+          title="Convert From Markdown"
+          aria-label="Convert from markdown"
+        >
+          <i className="markdown" />
+        </button>
+      )}
+      {false && isCollabActive && (
         <button
           className="action-button connect"
           onClick={() => {
