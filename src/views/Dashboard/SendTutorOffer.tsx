@@ -10,7 +10,11 @@ import ApiService from '../../services/ApiService';
 import resourceStore from '../../state/resourceStore';
 import theme from '../../theme';
 import { Tutor } from '../../types';
-import { numberToDayOfWeekName } from '../../util';
+import {
+  convertTimeStringToISOString,
+  convertTimeToUserTimezone,
+  numberToDayOfWeekName
+} from '../../util';
 import {
   Alert,
   AlertDescription,
@@ -151,13 +155,21 @@ const SendTutorOffer = () => {
     formikRef.current?.setFieldValue('schedule', scheduleValue);
   };
 
-  const dayOptions = [...new Array(7)]
+  const dayOptions = [...new Array(6)]
     .filter((_, i) => !!tutor?.schedule[i])
     .map((_, i) => {
       return { label: numberToDayOfWeekName(i), value: i };
     });
 
+  function mapScheduleKeysToValue(schedule) {
+    return Object.keys(schedule).map((key) => ({
+      label: numberToDayOfWeekName(Number(key)),
+      value: key
+    }));
+  }
   const today = useMemo(() => new Date(), []);
+
+  console.log(convertTimeStringToISOString('9PM'), 'Time');
 
   return (
     <Root className="container-fluid">
@@ -491,11 +503,15 @@ const SendTutorOffer = () => {
                                   isMulti
                                   defaultValue={(field.value as number[]).map(
                                     (v) =>
-                                      dayOptions.find((d: any) => d.value === v)
+                                      mapScheduleKeysToValue(
+                                        tutor.schedule
+                                      ).find((d: any) => d.value === v)
                                   )}
                                   tagVariant="solid"
                                   placeholder="Select days"
-                                  options={dayOptions}
+                                  options={mapScheduleKeysToValue(
+                                    tutor.schedule
+                                  )}
                                   size={'md'}
                                   onFocus={() =>
                                     form.setTouched({
@@ -579,7 +595,17 @@ const SendTutorOffer = () => {
                                     {!!tutor.schedule[d] &&
                                       tutor.schedule[d].map((s) => (
                                         <Text className="body3" mb={0}>
-                                          {s.begin} - {s.end}
+                                          {convertTimeToUserTimezone(
+                                            convertTimeStringToISOString(
+                                              s.begin
+                                            ),
+                                            tutor.tz
+                                          )}
+                                          -{' '}
+                                          {convertTimeToUserTimezone(
+                                            convertTimeStringToISOString(s.end),
+                                            tutor.tz
+                                          )}
                                         </Text>
                                       ))}
                                   </Box>

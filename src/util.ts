@@ -104,6 +104,47 @@ export const numberToDayOfWeekName = (num: number, format = 'dddd') =>
 export const DayOfWeekNameToNumber = (num: number, format = 'dddd') =>
   moment().day(num).format(format);
 
+export const convertTimeToUserTimezone = (time, timezone) => {
+  console.log(time, 'tym');
+
+  // Create a moment object with the input time and timezone
+  const uTime = moment.utc(time);
+  const userTime = moment.tz(time, timezone);
+
+  console.log(userTime, 'tymu');
+
+  if (!userTime.isValid()) {
+    // Invalid time, return null or handle the error accordingly
+    return null;
+  }
+
+  // Format the userTime in 12-hour format with 'h:mm A'
+  let formattedUserTime = moment.utc(userTime).format('h:mm A');
+  console.log(formattedUserTime, 'tymuf');
+
+  // Check if the formatted time is '00:00' and replace it with '12:00'
+  if (formattedUserTime === '12:00 AM') {
+    formattedUserTime = '12:00 AM';
+  } else if (formattedUserTime === '12:00 PM') {
+    formattedUserTime = '12:00 PM';
+  }
+
+  return formattedUserTime;
+};
+export const convertTimeStringToISOString = (timeFormat) => {
+  // Parse the time using moment and assume it's in the 'hA' format (e.g., '9AM')
+  const parsedTime = moment(timeFormat, 'h:mm A');
+
+  if (!parsedTime.isValid()) {
+    // Invalid time format, return null or handle the error accordingly
+    return null;
+  }
+
+  // Format the parsed time as ISO string
+  console.log(parsedTime.toISOString(), 'resu');
+
+  return parsedTime.toISOString();
+};
 export const isSameDay = (date1, date2) => {
   return (
     date1.getDate() === date2.getDate() &&
