@@ -9,6 +9,7 @@ import {
   chatHomeworkHelp,
   editConversationId,
   getConversionById,
+  getDescriptionById,
   updateGeneratedSummary
 } from '../../../services/AI';
 import { chatHistory } from '../../../services/AI';
@@ -86,11 +87,13 @@ const HomeWorkHelp = () => {
   const [deleteConservationModal, setDeleteConservationModal] = useState(false);
   const [recentConversationId, setRecentConverstionId] = useState(null);
   const [certainConversationId, setCertainConversationId] = useState('');
+  const bountyOption = JSON.parse(localStorage.getItem('bountyOpt') as any);
   const [someBountyOpt, setSomeBountyOpt] = useState({
-    subject: '',
-    topic: '',
-    level: ''
+    subject: bountyOption?.subject,
+    topic: bountyOption?.topic,
+    level: bountyOption?.level
   });
+  const [description, setDescription] = useState('');
 
   const paymentDialogRef = useRef<PaymentDialogRef>(null);
   const [loading, setLoading] = useState(false);
@@ -339,6 +342,17 @@ const HomeWorkHelp = () => {
     }
   }, [conversationId, socket, recentConversationId]);
 
+  useEffect(() => {
+    const fectchDescriptionById = async () => {
+      const response = await getDescriptionById({
+        conversationId: recentConversationId ?? conversationId
+      });
+      setDescription(response?.data);
+    };
+
+    fectchDescriptionById();
+  }, [conversationId, recentConversationId]);
+
   const onRouteHomeWorkHelp = useCallback(() => {
     handleClose();
     setIsSubmitted(true);
@@ -577,6 +591,7 @@ const HomeWorkHelp = () => {
         topic={localData?.topic || someBountyOpt?.topic}
         subject={localData?.subject || someBountyOpt?.subject}
         level={level.label || someBountyOpt?.level}
+        description={description}
       />
       <PaymentDialog
         ref={paymentDialogRef}

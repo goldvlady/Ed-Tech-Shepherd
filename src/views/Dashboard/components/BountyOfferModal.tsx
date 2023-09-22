@@ -26,7 +26,15 @@ import React, { useCallback, useState, useMemo, useEffect } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 
 export default function BountyOfferModal(props) {
-  const { isBountyModalOpen, closeBountyModal, subject, topic, level } = props;
+  const {
+    isBountyModalOpen,
+    closeBountyModal,
+    subject,
+    topic,
+    level,
+    description
+  } = props;
+
   const { courses: courseList, levels: levelOptions } = resourceStore();
   const [isLoading, setIsLoading] = useState(false);
   const [bountyOffer, setBountyOffer] = useState({
@@ -110,9 +118,10 @@ export default function BountyOfferModal(props) {
       ...prevState,
       subject: subjectId,
       topic: topic || '',
-      level: levelId
+      level: levelId,
+      description: description
     }));
-  }, [subject, topic, level, levelOptions, courseList]);
+  }, [subject, description, topic, level, levelOptions, courseList]);
 
   return (
     <>

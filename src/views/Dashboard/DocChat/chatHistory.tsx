@@ -18,8 +18,19 @@ import {
   ChatHistoryHeader,
   HomeWorkHelpChatContainer2
 } from './styles';
-import { Box, Spinner, useToast } from '@chakra-ui/react';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import {
+  Box,
+  Button,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Spinner,
+  useToast
+} from '@chakra-ui/react';
+import { AnyMxRecord } from 'dns';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { FiChevronDown } from 'react-icons/fi';
 import styled from 'styled-components';
 
 const Clock = styled.div`
@@ -81,7 +92,7 @@ const ChatHistory = ({
   //   }
   // ];
 
-  const [chatHistory, setChatHistory] = useState([]);
+  const [chatHistory, setChatHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [updateChatHistory, setUpdateChatHistory] = useState({});
   const [updatedChat, setUpdatedChat] = useState('');
@@ -94,6 +105,8 @@ const ChatHistory = ({
   const [editConversation, setEditConversationId] = useState('');
   const [removeIndex, setRemoveIndex] = useState(0);
   const [currentStoredArr, setCurrentStoredArr] = useState<any>();
+  const [hostoryTopics, setHistoryTopics] = useState<any>([]);
+  const [selectedTopic, setSelectedTopic] = useState('Default');
 
   const handleClickOutside = (event) => {
     if (
@@ -134,9 +147,20 @@ const ChatHistory = ({
       })
       .reverse();
 
+    const uniqueTopicsArray = Array.from(
+      new Set(historyWithContent.map((convo) => convo.topic))
+    );
+
+    setHistoryTopics(['Default', ...uniqueTopicsArray]);
     setChatHistory(historyWithContent);
     setLoading(false);
   }
+
+  const filteredHistory = useMemo(() => {
+    return selectedTopic !== 'Default'
+      ? chatHistory.filter((convo) => convo.topic === selectedTopic)
+      : chatHistory;
+  }, [selectedTopic, chatHistory]);
 
   function groupChatsByDate(chatHistory: Chat[]): GroupedChat[] {
     return chatHistory?.reduce((groupedChats, chat) => {
@@ -308,10 +332,10 @@ const ChatHistory = ({
   }, [isSubmitted, studentId]);
 
   useEffect(() => {
-    const groupedChats = groupChatsByDate(chatHistory);
+    const groupedChats = groupChatsByDate(filteredHistory);
 
     setGroupChatsByDateArr(groupedChats ?? []);
-  }, [chatHistory]);
+  }, [filteredHistory]);
 
   return (
     <ChatHistoryContainer>
@@ -319,6 +343,44 @@ const ChatHistory = ({
         <p>Chat history</p>
         <p>Clear history</p>
       </ChatHistoryHeader>
+      <Menu>
+        <p
+          style={{
+            fontSize: '0.875rem',
+            marginBottom: '10px'
+          }}
+        >
+          Filter history by selected topic
+        </p>
+        <MenuButton
+          as={Button}
+          variant="outline"
+          rightIcon={<FiChevronDown />}
+          fontSize={14}
+          borderRadius="40px"
+          fontWeight={400}
+          width={{ sm: '400px', lg: 'auto' }}
+          height="36px"
+          color="text.400"
+        >
+          {selectedTopic || 'Select a topic'}
+        </MenuButton>
+        <MenuList zIndex={3}>
+          {hostoryTopics
+            .filter(
+              (topic) => topic !== null && topic !== undefined && topic !== ''
+            )
+            .map((topic, index) => (
+              <MenuItem
+                key={index}
+                _hover={{ bgColor: '#F2F4F7' }}
+                onClick={() => setSelectedTopic(topic)}
+              >
+                {topic}
+              </MenuItem>
+            ))}
+        </MenuList>
+      </Menu>
       {loading && (
         <Box
           p={5}
@@ -383,6 +445,14 @@ const ChatHistory = ({
                               retrieveChatHistory(studentId);
                               setCountNeedTutor(1);
                               setLoading(false);
+                              localStorage.setItem(
+                                'bountyOpt',
+                                JSON.stringify({
+                                  subject: message.subject,
+                                  topic: message.topic,
+                                  level: message.level
+                                })
+                              );
                               setSomeBountyOpt({
                                 subject: message.subject,
                                 topic: message.topic,
