@@ -148,7 +148,7 @@ const ChatHistory = ({
       .reverse();
 
     const uniqueTopicsArray = Array.from(
-      new Set(historyWithContent.map((convo) => convo.topic))
+      new Set(historyWithContent.map((convo) => convo.subject))
     );
 
     setHistoryTopics(['Default', ...uniqueTopicsArray]);
@@ -158,7 +158,7 @@ const ChatHistory = ({
 
   const filteredHistory = useMemo(() => {
     return selectedTopic !== 'Default'
-      ? chatHistory.filter((convo) => convo.topic === selectedTopic)
+      ? chatHistory.filter((convo) => convo.subject === selectedTopic)
       : chatHistory;
   }, [selectedTopic, chatHistory]);
 
@@ -350,7 +350,7 @@ const ChatHistory = ({
             marginBottom: '10px'
           }}
         >
-          Filter history by selected topic
+          Filter history by selected subject
         </p>
         <MenuButton
           as={Button}
