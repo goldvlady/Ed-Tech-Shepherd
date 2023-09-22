@@ -1,3 +1,4 @@
+import { convertTimeToUserTimezone } from '../util';
 import { Text } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import moment from 'moment';
@@ -78,11 +79,16 @@ export default function Events({ event }: any) {
             </Text>
             <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
               <span>
-                {convertTo12HourFormat(event.data.startDate.substring(11, 16))}
+                {/* {convertTo12HourFormat(event.data.startDate.substring(11, 16))} */}
+                {convertTimeToUserTimezone(
+                  event.data.startDate,
+                  'Africa/Lagos'
+                )}
               </span>
               <ChevronRightIcon className="w-4 h-4" />
               <span>
-                {convertTo12HourFormat(event.data.endDate.substring(11, 16))}
+                {/* {convertTo12HourFormat(event.data.endDate.substring(11, 16))} */}
+                {convertTimeToUserTimezone(event.data.endDate, 'Europe/London')}
               </span>
             </Text>
           </div>

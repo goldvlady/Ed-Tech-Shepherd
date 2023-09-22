@@ -72,7 +72,7 @@ function ActivityFeeds(props) {
   const { loadFlashcard } = flashcardStore();
   const [feedPeriod, setFeedPeriod] = useState<
     'all' | 'today' | 'week' | 'month'
-  >('all');
+  >('today');
 
   const [toggleHelpModal, setToggleHelpModal] = useState(false);
   const activateHelpModal = () => {
