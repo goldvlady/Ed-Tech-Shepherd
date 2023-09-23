@@ -193,6 +193,7 @@ const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
             name="question"
             ref={questionTextareaRef}
             height={textareaHeight}
+            maxHeight={'100px'}
             placeholder="Enter your question here"
             value={currentQuestion.question}
             onChange={handleChange}

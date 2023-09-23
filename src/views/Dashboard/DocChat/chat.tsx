@@ -14,9 +14,9 @@ import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../../components/hooks/useChatScroll';
 import { snip } from '../../../helpers/file.helpers';
 import FlashcardDataProvider from '../FlashCards/context/flashcard';
+import SetupFlashcardPage from '../FlashCards/forms/flashcard_setup';
 import ChatHistory from './chatHistory';
 import HighLight from './highlist';
-import SetUpFlashCards from './setupFlashCards';
 import {
   AiMessage,
   AskSomethingContainer,
@@ -563,10 +563,8 @@ const Chat = ({
       </CustomSideModal>
 
       <CustomSideModal onClose={onFlashCard} isOpen={isFlashCard}>
-        <div style={{ margin: '3rem 0', overflowY: 'scroll' }}>
-          <FlashcardDataProvider>
-            <SetUpFlashCards />
-          </FlashcardDataProvider>
+        <div style={{ margin: '3rem 0', overflowY: 'auto' }}>
+          <SetupFlashcardPage showConfirm isAutomated />
         </div>
       </CustomSideModal>
     </>

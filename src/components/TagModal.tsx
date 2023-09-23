@@ -84,7 +84,11 @@ export const TagModal: React.FC<TagModalProps> = ({
       if (propSetNewTags) {
         await onSubmit(propSetNewTags);
       } else {
-        await onSubmit(newTags);
+        const data = [...newTags];
+        if (inputValue) {
+          data.push(inputValue);
+        }
+        await onSubmit(data);
       }
       setIsLoading(false);
     } catch (error) {

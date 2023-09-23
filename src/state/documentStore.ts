@@ -66,7 +66,6 @@ export default create<StudentDocumentStore>((set) => ({
       const response = await ApiService.saveStudentDocument(data);
       if (response.status === 200) {
         const { data: newNote } = await response.json();
-        console.log('new note', newNote);
         set((state) => ({
           ...state,
           studentDocuments: [newNote, ...state.studentDocuments]
