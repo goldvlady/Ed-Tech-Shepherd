@@ -1,4 +1,5 @@
 import userStore from '../../state/userStore';
+import React from 'react';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { StreamChat } from 'stream-chat';
@@ -114,8 +115,9 @@ export default function Messages() {
             />
             {/* <MessageInput /> */}
             <div className="stream-disabled-message">
-              This chat has been disabled because your contract with this tutor
-              has ended.
+              {currentRoute.includes('tutordashboard')
+                ? 'This chat has been disabled because your contract with this student has ended.'
+                : 'This chat has been disabled because your contract with this Shepherd has ended.'}
             </div>
           </Window>
           <Thread />
@@ -143,12 +145,6 @@ export default function Messages() {
         <Chat client={client}>
           <ChannelList
             filters={{ members: { $in: [userRoleId] } }}
-            sort={{ last_message_at: -1 }}
-            additionalChannelSearchProps={{
-              clearSearchOnClickOutside: true,
-              popupResults: true,
-              searchForChannels: true
-            }}
             showChannelSearch
             // Preview={(props) => (
             //   <CustomChannelPreviewMessenger
