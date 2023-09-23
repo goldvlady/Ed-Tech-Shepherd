@@ -73,6 +73,7 @@ export interface FlashcardDataContextProps {
   flashcardData: FlashcardData;
   currentStep: number;
   resetFlashcard: () => void;
+  isResetted: boolean;
   goToNextStep: () => void;
   goToStep: (step: number) => void;
   questions: FlashcardQuestion[];
@@ -124,6 +125,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     source: SourceEnum.SUBJECT
   });
 
+  const [isResetted, setResetted] = useState(false);
   const defaultFlashcardData = useMemo(
     () => ({
       deckname: '',
@@ -154,6 +156,13 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     },
     [currentQuestionIndex]
   );
+
+  useEffect(() => {
+    if (isResetted) {
+      setResetted(false);
+    }
+    // eslint-disable-next-line
+  }, [flashcardData]);
 
   const deleteQuestion = useCallback((index: number) => {
     setQuestions((prev) => {
@@ -196,6 +205,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     setSaveSuccessful(false);
     setCurrentStep(0);
     setCurrentQuestionIndex(0);
+    setResetted(true);
   }, [defaultFlashcardData]);
 
   // Process the document-related request
@@ -252,7 +262,6 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
           questionType: 'openEnded'
         }));
 
-        console.log('questions', questions);
         setQuestions(questions);
         setCurrentStep((prev) => prev + 1);
         setQuestionGenerationStatus(QuestionGenerationStatusEnum.SUCCESSFUL);
@@ -312,7 +321,6 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     async (onDone?: (success: boolean) => void) => {
       try {
         setIsLoading(true);
-        console.log(questions);
         const response = await createFlashCard(
           { ...flashcardData, questions },
           'manual'
@@ -358,7 +366,8 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       isMinimized,
       setSettings,
       questionGenerationStatus,
-      saveFlashcardData
+      saveFlashcardData,
+      isResetted
     }),
     [
       flashcardData,
@@ -378,7 +387,8 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       setMinimized,
       isMinimized,
       questionGenerationStatus,
-      saveFlashcardData
+      saveFlashcardData,
+      isResetted
     ]
   );
 

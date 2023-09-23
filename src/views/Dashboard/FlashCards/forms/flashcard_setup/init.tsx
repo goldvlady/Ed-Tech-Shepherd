@@ -20,17 +20,29 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     flashcardData,
     generateFlashcardQuestions,
     setFlashcardData,
-    goToNextStep
+    goToNextStep,
+    isResetted
   } = useFlashcardWizard();
+
   const toast = useCustomToast();
-  const [localData, setLocalData] = useState<typeof flashcardData>({
+
+  const dummyData = {
     deckname: '',
     studyType: '',
     studyPeriod: '',
     numQuestions: 0,
     timerDuration: '',
     hasSubmitted: false
-  }); // A local state for storing user inputs
+  };
+
+  const [localData, setLocalData] = useState<typeof flashcardData>(dummyData); // A local state for storing user inputs
+
+  useEffect(() => {
+    if (isResetted) {
+      setLocalData(dummyData);
+    }
+    // eslint-disable-next-line
+  }, [isResetted]);
 
   useEffect(() => {
     if (flashcardData.deckname) {

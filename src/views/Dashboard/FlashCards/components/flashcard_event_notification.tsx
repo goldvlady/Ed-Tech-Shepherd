@@ -108,7 +108,9 @@ const FlashCardEventNotifier = () => {
               p="10px 40px"
               mt="15px"
               colorScheme="blue"
-              onClick={() => navigate('/dashboard/flashcards/create')}
+              onClick={() =>
+                navigate('/dashboard/flashcards/create?type=flashcard')
+              }
             >
               Continue
             </Button>

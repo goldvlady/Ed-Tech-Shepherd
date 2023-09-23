@@ -150,6 +150,9 @@ const CreateFlashPage = () => {
       if (type === 'mnemonics') {
         setActiveBadge(TypeEnum.MNEOMONIC);
       }
+      if (type === 'flashcard') {
+        setActiveBadge(TypeEnum.FLASHCARD);
+      }
     }
   }, [type]);
 

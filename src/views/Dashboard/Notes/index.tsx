@@ -125,9 +125,25 @@ const NotesDirectory: React.FC = () => {
   const [selectedTags, setSelectedTags] = useState<Array<string | number>>([]);
   const [activeTab, setActiveTab] = useState<'notes' | 'files'>('notes');
   const { fetchFlashcards } = flashcardStore();
-  const { setFlashcardData, resetFlashcard } = useFlashcardWizard();
+  const {
+    setFlashcardData,
+    flashcardData,
+    resetFlashcard,
+    isMinimized,
+    isLoading: flashcardWizardLoading,
+    setMinimized
+  } = useFlashcardWizard();
 
   const { user } = userStore();
+
+  useEffect(() => {
+    if (flashcardData.documentId) {
+      setMinimized(false);
+    }
+    return () => {
+      setMinimized(flashcardWizardLoading);
+    };
+  }, [flashcardWizardLoading]);
 
   const {
     fetchNotes,
@@ -224,12 +240,6 @@ const NotesDirectory: React.FC = () => {
     document?: StudentDocument; // New field for Document details
     ids?: string[];
   } | null>(null);
-
-  useEffect(() => {
-    return () => {
-      resetFlashcard();
-    };
-  }, [resetFlashcard]);
 
   useEffect(() => {
     fetchStudentDocuments({ page: 1, limit: 20 }); // Replace with your actual fetchStudentDocuments function
@@ -553,8 +563,8 @@ const NotesDirectory: React.FC = () => {
 
       <CustomSideModal
         onClose={() => {
-          resetFlashcard();
           setOpenSideModal(false);
+          resetFlashcard();
         }}
         isOpen={openSideModal}
       >
