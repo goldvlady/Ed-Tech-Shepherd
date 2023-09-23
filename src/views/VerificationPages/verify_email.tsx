@@ -117,7 +117,7 @@ const VerificationSuccess = () => {
               lineHeight="1.5"
             >
               {verified
-                ? 'You can now sign up and use the full functionality of Shepherd Tutors'
+                ? 'You can now sign up and use the full functionality of Shepherd'
                 : 'Invalid or expired token'}
               {/* We’ve sent an email to the address: We will send you an email to
               the address:{'   '}

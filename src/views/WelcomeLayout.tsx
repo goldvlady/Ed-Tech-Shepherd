@@ -175,7 +175,10 @@ const WelcomeLayout = () => (
       <ContentColumn className="col-sm-7 offset-sm-5 py-5">
         <Box maxWidth={'500px'} width="100%">
           <Box display={'flex'} marginBottom="50px" justifyContent="center">
-            <Logo noFixedWidth />
+            <Logo
+              style={{ height: '93px', width: '200px', margin: 'auto' }}
+              noFixedWidth
+            />
           </Box>
           <Outlet />
         </Box>

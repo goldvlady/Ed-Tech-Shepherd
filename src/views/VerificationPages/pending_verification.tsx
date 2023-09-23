@@ -85,17 +85,18 @@ const PendingVerification = () => {
             mt={1}
             lineHeight="1.5"
           >
-            We will send you an email to the address:{'   '}
+            We have sent a verification an email to the address: {'   '}
             <Text as="span" color="blue.500">
               {firebaseUser?.email}
             </Text>{' '}
-            once we verify your account.
+            to verify your account. Don't forget to check spam if you haven't
+            received it.
           </Text>
 
           <Link
             target="_blank"
             rel="noopener noreferrer"
-            href="mailto:hello@shepherdtutors.com"
+            href="mailto:help@shepherd.study"
             display="flex"
             flexDirection="row"
             color="white"

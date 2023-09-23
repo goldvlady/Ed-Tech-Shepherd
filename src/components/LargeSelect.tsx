@@ -4,8 +4,8 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 const Title = styled(Text)`
-  font-weight: 400;
-  font-size: 16px;
+  font-weight: bolder;
+  font-size: 1.2rem;
   line-height: 21px;
   letter-spacing: -0.003em;
   color: #212224;
