@@ -200,6 +200,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [flashcardData.numQuestions]);
 
   const resetFlashcard = useCallback(() => {
+    console.log(defaultFlashcardData);
     setFlashcardData(defaultFlashcardData);
     setQuestions([]);
     setSaveSuccessful(false);

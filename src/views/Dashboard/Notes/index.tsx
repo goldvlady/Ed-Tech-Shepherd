@@ -289,7 +289,12 @@ const NotesDirectory: React.FC = () => {
       onClick: () => {
         resetFlashcard();
         setFlashcardData((prev) => ({
-          ...prev,
+          deckname: '',
+          studyType: '',
+          studyPeriod: '',
+          numQuestions: 0,
+          timerDuration: '',
+          hasSubmitted: false,
           noteDoc: note.note
         }));
         setOpenSideModal(true);
@@ -315,7 +320,12 @@ const NotesDirectory: React.FC = () => {
       onClick: () => {
         resetFlashcard();
         setFlashcardData((prev) => ({
-          ...prev,
+          deckname: '',
+          studyType: '',
+          studyPeriod: '',
+          numQuestions: 0,
+          timerDuration: '',
+          hasSubmitted: false,
           ingestId: studentDocument.ingestId,
           documentId: studentDocument.documentUrl
         }));

@@ -84,7 +84,7 @@ export default create<Store>((set) => ({
             }
           }
 
-          return { flashcards, tags: [...state.tags, ...tags] };
+          return { flashcards, tags: [...state.tags, ...tags].sort() };
         });
         return true;
       }
@@ -125,7 +125,7 @@ export default create<Store>((set) => ({
           pagination: meta?.pagination
         };
         if (!prev.tags.length) {
-          d.tags = meta?.tags;
+          d.tags = meta?.tags.sort();
         }
         return { ...d };
       });

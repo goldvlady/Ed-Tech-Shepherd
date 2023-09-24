@@ -62,6 +62,18 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
     throttledHandleSelectionChange(selectedItemIds);
   }, [selectedItemIds]);
 
+  const clearAllSelections = useCallback(() => {
+    setSelectedItemIds([]);
+    onSelectionChange([]);
+  }, [onSelectionChange]);
+
+  const handleSearchChange = useCallback(
+    throttle((term) => {
+      setSearchTerm(term);
+    }, 300),
+    []
+  );
+
   useEffect(() => {
     if (searchTerm === '') {
       setFilteredItems(items);
@@ -74,6 +86,17 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
   }, [searchTerm, items]);
 
   const menuCloseRef = useRef<(() => void) | null>(null);
+
+  const closeTimerRef = useRef<number | null>(null);
+
+  const startCloseTimer = () => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+    }
+    closeTimerRef.current = window.setTimeout(() => {
+      menuCloseRef.current && menuCloseRef.current();
+    }, 3000);
+  };
 
   const handleSelectionChange = useCallback(
     (ids: SelectedItems) => {
@@ -106,6 +129,7 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
       setSelectedItemIds([itemId]);
       // throttledHandleSelectionChange([itemId]);
     }
+    // startCloseTimer();
   };
 
   return (
@@ -175,16 +199,23 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
                     type="search"
                     placeholder="Search items"
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      setSearchTerm(e.target.value);
+                    }}
                   />
                 </Flex>
               )}
 
               {filteredItems?.map((item) => (
                 <MenuItem
+                  closeOnSelect={false}
                   color="#212224"
                   _hover={{ bgColor: '#F2F4F7' }}
-                  onClick={() => !multi && handleCheckboxChange(item.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    !multi && handleCheckboxChange(item.id);
+                  }}
                   fontSize="14px"
                   lineHeight="20px"
                   fontWeight="400"
@@ -192,7 +223,10 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
                 >
                   {multi && (
                     <Checkbox
-                      onChange={() => handleCheckboxChange(item.id)}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        handleCheckboxChange(item.id);
+                      }}
                       isChecked={selectedItemIds.includes(item.id)}
                       isDisabled={
                         !multi &&
@@ -204,6 +238,15 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
                   <Text ml={2}>{item.value}</Text>
                 </MenuItem>
               ))}
+              <Button
+                w="full"
+                mt="10px"
+                colorScheme="red"
+                size="sm"
+                onClick={clearAllSelections}
+              >
+                Clear All
+              </Button>
             </MenuList>
           </>
         );
