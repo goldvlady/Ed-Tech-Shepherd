@@ -189,20 +189,32 @@ export const calculateTimeDifference = (timeString, sourceTimeZone) => {
 // );
 
 export const convertTimeStringToISOString = (timeString) => {
+  // Get the current date
   const currentDate = new Date();
 
+  // Extract the current year, month, and day from the current date
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const day = currentDate.getDate();
 
-  const [hoursStr, minutesStr] = timeString.match(/\d+/g) || [];
+  // Extract the hours and AM/PM from the timeString
+  const timeParts = timeString.match(/(\d+)(AM|PM)/i);
 
-  const hours = parseInt(hoursStr, 10) || 0;
-  const minutes = parseInt(minutesStr, 10) || 0;
+  if (!timeParts) {
+    throw new Error('Invalid timeString format');
+  }
 
-  const dateWithTime = new Date(year, month, day, hours, minutes);
+  let hours = parseInt(timeParts[1], 10) || 0;
+  const amPm = (timeParts[2] || '').toUpperCase();
 
-  return dateWithTime;
+  if (amPm === 'PM' && hours !== 12) {
+    hours += 12;
+  } else if (amPm === 'AM' && hours === 12) {
+    hours = 0;
+  }
+
+  const dateWithTime = new Date(year, month, day, hours, 0); // Minutes set to 0
+  return dateWithTime.toISOString();
 };
 
 export const isSameDay = (date1, date2) => {
