@@ -395,7 +395,6 @@ export default function Tutor() {
                                 borderRadius={8}
                                 // width="700px"
                               >
-                                <Text>TIMEZONE: {moment.tz.guess()}</Text>
                                 <Table variant="simple">
                                   <Thead>
                                     <Tr>
