@@ -21,7 +21,6 @@ function TutorBounties() {
   useEffect(() => {
     doFetchBountyOffers();
   }, [doFetchBountyOffers]);
-  console.log(bounties, 'Bounti');
 
   if (isLoading) {
     return (
