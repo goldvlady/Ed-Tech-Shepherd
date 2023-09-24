@@ -125,16 +125,26 @@ const SendTutorOffer = () => {
       })) || [],
     [tutor]
   );
-  const levelOptions = useMemo(
-    () =>
-      tutor?.coursesAndLevels.map((c) => ({
-        // label: 'AP',
-        // value: '648737ac0185fdef253922be'
-        label: c.level?.label,
-        value: c.level?._id
-      })) || [],
-    [tutor]
-  );
+  const levelOptions = useMemo(() => {
+    const uniqueLevels = new Set(); // Use a Set to store unique values
+
+    return (
+      tutor?.coursesAndLevels
+        .map((c) => ({
+          label: c.level.label,
+          value: c.level._id
+        }))
+        .filter((level) => {
+          // Filter out duplicates by checking if the value is already in the Set
+          if (uniqueLevels.has(level.value)) {
+            return false; // Duplicate, skip it
+          } else {
+            uniqueLevels.add(level.value); // Not a duplicate, add it to the Set
+            return true;
+          }
+        }) || []
+    );
+  }, [tutor]);
 
   useEffect(() => {
     loadTutor();
