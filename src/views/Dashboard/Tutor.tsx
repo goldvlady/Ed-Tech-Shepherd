@@ -61,6 +61,7 @@ import {
   useColorModeValue,
   useToast
 } from '@chakra-ui/react';
+import moment from 'moment';
 import { toNamespacedPath } from 'path';
 import React, { useCallback, useEffect, useState } from 'react';
 import { BiPlayCircle } from 'react-icons/bi';
@@ -394,6 +395,7 @@ export default function Tutor() {
                                 borderRadius={8}
                                 // width="700px"
                               >
+                                <Text>TIMEZONE: {moment.tz.guess()}</Text>
                                 <Table variant="simple">
                                   <Thead>
                                     <Tr>
