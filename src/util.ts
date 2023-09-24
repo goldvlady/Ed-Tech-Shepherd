@@ -169,8 +169,8 @@ export const calculateTimeDifference = (timeString, sourceTimeZone) => {
   const newtz: any = new Date(
     now.toLocaleString('en-US', {
       // timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-      // timeZone: moment.tz.guess()
-      timeZone: 'America/Chicago'
+      timeZone: moment.tz.guess()
+      // timeZone: 'America/Chicago'
     })
   );
   const oldtz: any = new Date(
@@ -203,10 +203,10 @@ export const calculateTimeDifference = (timeString, sourceTimeZone) => {
   return formattedHours;
 };
 
-console.log(
-  `${calculateTimeDifference('2023-09-23T12:00:00', 'Africa/Lagos')}`,
-  'yao'
-);
+// console.log(
+//   `${calculateTimeDifference('2023-09-23T12:00:00', 'Africa/Lagos')}`,
+//   'yao'
+// );
 
 export const convertTimeStringToISOString = (timeString) => {
   // Get the current date
