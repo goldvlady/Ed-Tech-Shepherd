@@ -43,7 +43,7 @@ export default create<NoteStore>((set) => ({
       set({
         notes: data,
         pagination: { ...pagination, count: pagination?.total },
-        tags
+        tags: tags.sort()
       });
     } catch (error) {
       // Handle error (e.g., log to console)
@@ -89,7 +89,7 @@ export default create<NoteStore>((set) => ({
               notes[index] = record;
             }
           }
-          return { notes, tags: [...state.tags, ...tags] };
+          return { notes, tags: [...state.tags, ...tags].sort() };
         });
         return true;
       }

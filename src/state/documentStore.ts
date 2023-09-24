@@ -36,7 +36,7 @@ export default create<StudentDocumentStore>((set) => ({
         meta: { pagination, tags }
       } = await response.json();
 
-      set({ studentDocuments: data, pagination, tags });
+      set({ studentDocuments: data, pagination, tags: tags.sort() });
     } catch (error) {
       // Handle error
     } finally {
@@ -128,7 +128,7 @@ export default create<StudentDocumentStore>((set) => ({
               studentDocuments[index] = record;
             }
           }
-          return { studentDocuments, tags: [...state.tags, ...tags] };
+          return { studentDocuments, tags: [...state.tags, ...tags].sort() };
         });
         return true;
       }

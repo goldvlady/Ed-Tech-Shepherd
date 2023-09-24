@@ -13,7 +13,13 @@ import {
   Text,
   HStack
 } from '@chakra-ui/react';
-import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import React, {
+  ChangeEvent,
+  useEffect,
+  useMemo,
+  useState,
+  useCallback
+} from 'react';
 
 const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
   const {
@@ -30,6 +36,9 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     deckname: '',
     studyType: '',
     studyPeriod: '',
+    subject: '',
+    topic: '',
+    level: '',
     numQuestions: 0,
     timerDuration: '',
     hasSubmitted: false
@@ -46,6 +55,8 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
 
   useEffect(() => {
     if (flashcardData.deckname) {
+      console.log(flashcardData);
+      console.log('entered here');
       setLocalData(flashcardData);
     }
     // eslint-disable-next-line
@@ -128,62 +139,67 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     }
   };
 
+  const renderOptional = useCallback(() => {
+    console.log('reopen hereeeeee', localData.subject);
+    return (
+      <>
+        {' '}
+        <FormControl mb={8}>
+          <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+            Subject
+          </FormLabel>
+          <Input
+            type="text"
+            name="subject"
+            placeholder="e.g. Chemistry"
+            value={localData.subject}
+            onChange={handleChange}
+            _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+          />
+        </FormControl>
+        <FormControl mb={8}>
+          <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+            Topic
+          </FormLabel>
+          <Input
+            type="text"
+            name="topic"
+            placeholder="e.g. Bonds"
+            value={localData.topic}
+            onChange={handleChange}
+            _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+          />
+        </FormControl>
+        <FormControl mb={8}>
+          <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+            Level (optional)
+          </FormLabel>
+          <SelectComponent
+            name="level"
+            placeholder="Select Level"
+            defaultValue={levelOptions.find(
+              (option) => option.value === localData.level
+            )}
+            options={levelOptions}
+            size={'md'}
+            onChange={(option) => {
+              const event = {
+                target: {
+                  name: 'level',
+                  value: (option as Option).value
+                }
+              } as ChangeEvent<HTMLSelectElement>;
+              handleChange(event);
+            }}
+          />
+        </FormControl>
+      </>
+    );
+  }, [localData]);
+
   return (
     <Box bg="white" width="100%" mt="30px">
-      {isAutomated && !flashcardData?.noteDoc && (
-        <>
-          {' '}
-          <FormControl mb={8}>
-            <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-              Subject
-            </FormLabel>
-            <Input
-              type="text"
-              name="subject"
-              placeholder="e.g. Chemistry"
-              value={localData.subject}
-              onChange={handleChange}
-              _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-            />
-          </FormControl>
-          <FormControl mb={8}>
-            <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-              Topic
-            </FormLabel>
-            <Input
-              type="text"
-              name="topic"
-              placeholder="e.g. Bonds"
-              value={localData.topic}
-              onChange={handleChange}
-              _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-            />
-          </FormControl>
-          <FormControl mb={8}>
-            <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-              Level (optional)
-            </FormLabel>
-            <SelectComponent
-              name="level"
-              placeholder="Select Level"
-              defaultValue={levelOptions.find(
-                (option) => option.value === localData.level
-              )}
-              options={levelOptions}
-              size={'md'}
-              onChange={(option) => {
-                const event = {
-                  target: {
-                    name: 'level',
-                    value: (option as Option).value
-                  }
-                } as ChangeEvent<HTMLSelectElement>;
-                handleChange(event);
-              }}
-            />
-          </FormControl>
-        </>
-      )}
+      {isAutomated && !flashcardData?.noteDoc && renderOptional()}
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Deckname
