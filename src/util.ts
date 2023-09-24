@@ -134,23 +134,43 @@ export const adjustDateTimeByHours = (
   const originalDate = new Date(dateTimeString);
 
   const adjustedDate = new Date(
-    originalDate.getTime() + (timeDifferenceInHours + 1) * 60 * 60 * 1000
+    originalDate.getTime() + timeDifferenceInHours * 60 * 60 * 1000
   );
 
-  const adjustedDateTimeString = adjustedDate.toISOString().slice(0, -1); // Remove the 'Z' at the end
+  // const adjustedDateTimeString = adjustedDate.toISOString().slice(0, -1); // Remove the 'Z' at the end
+
+  // Extract the date and time components
+  const year = adjustedDate.getFullYear();
+  const month = (adjustedDate.getMonth() + 1).toString().padStart(2, '0'); // Add 1 to month because it's zero-based
+  const day = adjustedDate.getDate().toString().padStart(2, '0');
+  const hours = adjustedDate.getHours().toString().padStart(2, '0');
+  const minutes = adjustedDate.getMinutes().toString().padStart(2, '0');
+  const seconds = adjustedDate.getSeconds().toString().padStart(2, '0');
+
+  // Create the desired formatted string
+  const adjustedDateTimeString = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.000`;
+
+  console.log(
+    dateTimeString,
+    originalDate,
+    timeDifferenceInHours,
+    adjustedDate,
+    adjustedDateTimeString,
+    'Term'
+  );
 
   return adjustedDateTimeString;
 };
 
 export const calculateTimeDifference = (timeString, sourceTimeZone) => {
   const now = new Date();
-  console.log('UR TIMEZONE', moment.tz.guess());
+  console.log('UR TIMEZONE', moment.tz.guess(), timeString);
 
   const newtz: any = new Date(
     now.toLocaleString('en-US', {
       // timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-      timeZone: moment.tz.guess()
-      // timeZone: 'America/New_York'
+      // timeZone: moment.tz.guess()
+      timeZone: 'America/Chicago'
     })
   );
   const oldtz: any = new Date(
@@ -163,6 +183,7 @@ export const calculateTimeDifference = (timeString, sourceTimeZone) => {
 
   const adjustedTime = adjustDateTimeByHours(timeString, timeDifferenceHours);
   const date = new Date(adjustedTime);
+  console.log(date, adjustedTime, timeDifferenceHours, 'adj');
 
   let hours = date.getHours();
   let amOrPm = 'AM';
@@ -182,14 +203,10 @@ export const calculateTimeDifference = (timeString, sourceTimeZone) => {
   return formattedHours;
 };
 
-// console.log(
-//   `${calculateTimeDifference(
-//     '2023-09-23T12:00:00',
-//     'America/New_York',
-//     'Africa/Lagos'
-//   )}`,
-//   'yao'
-// );
+console.log(
+  `${calculateTimeDifference('2023-09-23T12:00:00', 'Africa/Lagos')}`,
+  'yao'
+);
 
 export const convertTimeStringToISOString = (timeString) => {
   // Get the current date
