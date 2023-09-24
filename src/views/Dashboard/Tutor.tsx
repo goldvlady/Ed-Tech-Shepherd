@@ -430,13 +430,24 @@ export default function Tutor() {
                                                       ),
                                                       tutorData.tz
                                                     ) ===
-                                                      timeSlot.split(' ')[0] &&
+                                                      calculateTimeDifference(
+                                                        convertTimeStringToISOString(
+                                                          timeSlot.split(' ')[0]
+                                                        ),
+                                                        tutorData.tz
+                                                      ) &&
                                                     calculateTimeDifference(
                                                       convertTimeStringToISOString(
                                                         slot.end
                                                       ),
                                                       tutorData.tz
-                                                    ) === timeSlot.split(' ')[2]
+                                                    ) ===
+                                                      calculateTimeDifference(
+                                                        convertTimeStringToISOString(
+                                                          timeSlot.split(' ')[2]
+                                                        ),
+                                                        tutorData.tz
+                                                      )
                                                 )
                                                   ? ''
                                                   : 'stripeBox'
@@ -455,13 +466,24 @@ export default function Tutor() {
                                                     ),
                                                     tutorData.tz
                                                   ) ===
-                                                    timeSlot.split(' ')[0] &&
+                                                    calculateTimeDifference(
+                                                      convertTimeStringToISOString(
+                                                        timeSlot.split(' ')[0]
+                                                      ),
+                                                      tutorData.tz
+                                                    ) &&
                                                   calculateTimeDifference(
                                                     convertTimeStringToISOString(
                                                       slot.end
                                                     ),
                                                     tutorData.tz
-                                                  ) === timeSlot.split(' ')[2]
+                                                  ) ===
+                                                    calculateTimeDifference(
+                                                      convertTimeStringToISOString(
+                                                        timeSlot.split(' ')[2]
+                                                      ),
+                                                      tutorData.tz
+                                                    )
                                               ) ? (
                                                 <Image src={Check} mr={3} />
                                               ) : null}
