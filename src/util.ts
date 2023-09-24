@@ -144,10 +144,12 @@ export const adjustDateTimeByHours = (
 
 export const calculateTimeDifference = (timeString, sourceTimeZone) => {
   const now = new Date();
+  console.log('UR TIMEZONE', moment.tz.guess());
 
   const newtz: any = new Date(
     now.toLocaleString('en-US', {
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      // timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      timeZone: moment.tz.guess()
     })
   );
   const oldtz: any = new Date(
