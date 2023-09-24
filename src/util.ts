@@ -1,7 +1,7 @@
 import { firebaseAuth } from './firebase';
 import { ToastId, createStandaloneToast } from '@chakra-ui/react';
 import { isArray } from 'lodash';
-import moment, { Duration, Moment } from 'moment';
+import moment, { Duration, Moment } from 'moment-timezone';
 
 const { toast } = createStandaloneToast();
 
@@ -104,47 +104,107 @@ export const numberToDayOfWeekName = (num: number, format = 'dddd') =>
 export const DayOfWeekNameToNumber = (num: number, format = 'dddd') =>
   moment().day(num).format(format);
 
-export const convertTimeToUserTimezone = (time, timezone) => {
-  console.log(time, 'tym');
+// export const convertTimeToUserTimezone = (time, timezone) => {
+//   console.log(time, 'tym', timezone);
 
-  // Create a moment object with the input time and timezone
-  const uTime = moment.utc(time);
-  const userTime = moment.tz(time, timezone);
+//   // Parse the input time as UTC without DST adjustments
+//   const uTime = moment(time);
 
-  console.log(userTime, 'tymu');
+//   // Convert the UTC time to the specified user timezone
+//   const userTime = uTime.tz(timezone);
 
-  if (!userTime.isValid()) {
-    // Invalid time, return null or handle the error accordingly
-    return null;
-  }
+//   console.log(userTime, 'tymu');
 
-  // Format the userTime in 12-hour format with 'h:mm A'
-  let formattedUserTime = moment.utc(userTime).format('h:mm A');
-  console.log(formattedUserTime, 'tymuf');
+//   if (!userTime.isValid()) {
+//     // Invalid time, return null or handle the error accordingly
+//     return null;
+//   }
 
-  // Check if the formatted time is '00:00' and replace it with '12:00'
-  if (formattedUserTime === '12:00 AM') {
-    formattedUserTime = '12:00 AM';
-  } else if (formattedUserTime === '12:00 PM') {
-    formattedUserTime = '12:00 PM';
-  }
+//   // Format the userTime in 12-hour format with 'h:mm A'
+//   const formattedUserTime = userTime.format('hA');
+//   console.log(formattedUserTime, 'tymuf');
 
-  return formattedUserTime;
+//   return formattedUserTime;
+// };
+
+export const adjustDateTimeByHours = (
+  dateTimeString,
+  timeDifferenceInHours
+) => {
+  const originalDate = new Date(dateTimeString);
+
+  const adjustedDate = new Date(
+    originalDate.getTime() + (timeDifferenceInHours + 1) * 60 * 60 * 1000
+  );
+
+  const adjustedDateTimeString = adjustedDate.toISOString().slice(0, -1); // Remove the 'Z' at the end
+
+  return adjustedDateTimeString;
 };
-export const convertTimeStringToISOString = (timeFormat) => {
-  // Parse the time using moment and assume it's in the 'hA' format (e.g., '9AM')
-  const parsedTime = moment(timeFormat, 'h:mm A');
 
-  if (!parsedTime.isValid()) {
-    // Invalid time format, return null or handle the error accordingly
-    return null;
+export const calculateTimeDifference = (timeString, sourceTimeZone) => {
+  const now = new Date();
+
+  const newtz: any = new Date(
+    now.toLocaleString('en-US', {
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    })
+  );
+  const oldtz: any = new Date(
+    now.toLocaleString('en-US', { timeZone: sourceTimeZone })
+  );
+
+  const timeDifferenceMillis = newtz - oldtz;
+
+  const timeDifferenceHours = timeDifferenceMillis / (1000 * 60 * 60);
+
+  const adjustedTime = adjustDateTimeByHours(timeString, timeDifferenceHours);
+  const date = new Date(adjustedTime);
+
+  let hours = date.getHours();
+  let amOrPm = 'AM';
+
+  // Determine AM or PM
+  if (hours >= 12) {
+    amOrPm = 'PM';
+    if (hours > 12) {
+      hours -= 12;
+    }
+  } else if (hours === 0) {
+    hours = 12; // 12 AM
   }
 
-  // Format the parsed time as ISO string
-  console.log(parsedTime.toISOString(), 'resu');
+  const formattedHours = `${hours}${amOrPm}`;
 
-  return parsedTime.toISOString();
+  return formattedHours;
 };
+
+// console.log(
+//   `${calculateTimeDifference(
+//     '2023-09-23T12:00:00',
+//     'America/New_York',
+//     'Africa/Lagos'
+//   )}`,
+//   'yao'
+// );
+
+export const convertTimeStringToISOString = (timeString) => {
+  const currentDate = new Date();
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const day = currentDate.getDate();
+
+  const [hoursStr, minutesStr] = timeString.match(/\d+/g) || [];
+
+  const hours = parseInt(hoursStr, 10) || 0;
+  const minutes = parseInt(minutesStr, 10) || 0;
+
+  const dateWithTime = new Date(year, month, day, hours, minutes);
+
+  return dateWithTime;
+};
+
 export const isSameDay = (date1, date2) => {
   return (
     date1.getDate() === date2.getDate() &&

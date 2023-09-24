@@ -169,8 +169,6 @@ const Clients = () => {
   };
 
   const sortByStartDate = (direction) => {
-    console.log([...allTutorClients], 'SCALIMENTAL');
-
     const sortedWithStartDate = [...allTutorClients].filter(
       (item) => item.offer?.contractStartDate
     );

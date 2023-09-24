@@ -30,12 +30,15 @@ function Notifications(props) {
     if (isTutor) {
       return (
         (item.type === 'new_offer_received' ||
-          item.type === 'upcoming_class') &&
+          item.type === 'upcoming_class' ||
+          item.type === 'BOUNTY_ACCEPTED') &&
         isWithinAWeek(item.createdAt)
       );
     } else {
       return (
-        item.type !== 'new_offer_received' && isWithinAWeek(item.createdAt)
+        item.type !== 'new_offer_received' &&
+        item.type !== 'BOUNTY_ACCEPTED' &&
+        isWithinAWeek(item.createdAt)
       );
     }
   });

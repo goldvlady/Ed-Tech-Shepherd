@@ -11,6 +11,10 @@ import vidHolder from '../../assets/vid-holder.png';
 import LinedList from '../../components/LinedList';
 import ApiService from '../../services/ApiService';
 import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
+import {
+  calculateTimeDifference,
+  convertTimeStringToISOString
+} from '../../util';
 import HowItWorks from './components/HowItWorks';
 import { CustomButton } from './layout';
 import {
@@ -151,6 +155,27 @@ export default function Tutor() {
     '9PM -> 12AM'
   ];
 
+  const timeSlotsInUserTimezone = fixedTimeSlots.map((timeSlot) => {
+    const [startTime, endTime] = timeSlot.split(' -> ');
+
+    const startTimeInUserTimezone = calculateTimeDifference(
+      convertTimeStringToISOString(startTime),
+      tutorData.tz
+    );
+
+    const endTimeInUserTimezone = calculateTimeDifference(
+      convertTimeStringToISOString(endTime),
+      tutorData.tz
+    );
+
+    let timeSlotInUserTimezone = `${startTimeInUserTimezone} -> ${endTimeInUserTimezone}`;
+    console.log('tz', timeSlotInUserTimezone);
+
+    timeSlotInUserTimezone = timeSlotInUserTimezone.replace(/:\d+\s/g, '');
+
+    return timeSlotInUserTimezone;
+  });
+  const fixedTimeSlotswithTimezone = timeSlotsInUserTimezone;
   return (
     <>
       <Box>
@@ -369,182 +394,6 @@ export default function Tutor() {
                                 borderRadius={8}
                                 // width="700px"
                               >
-                                {/* <Table
-                                  sx={{
-                                    tableLayout: 'fixed',
-                                    width: 'full'
-                                  }}
-                                  variant="simple"
-                                >
-                                  <Thead>
-                                    <Tr
-                                      sx={{
-                                        th: {
-                                          fontSize: '11px',
-                                          fontWeight: 500,
-                                          textTransform: 'none',
-                                          color: '#000',
-                                          textAlign: 'center',
-                                          letterSpacing: '0px'
-                                        }
-                                      }}
-                                    >
-                                      <Th width={'150px'}></Th>
-                                      <Th px={1}>Mon </Th>
-                                      <Th>Tue </Th>
-                                      <Th>Wed </Th>
-                                      <Th>Thur </Th>
-                                      <Th>Fri </Th>
-                                      <Th>Sat </Th>
-                                      <Th>Sun </Th>
-                                    </Tr>
-                                  </Thead>
-                                  <Tbody>
-                                    <Tr
-                                      sx={{
-                                        td: {
-                                          textAlign: 'center',
-                                          color: 'text.300'
-                                        }
-                                      }}
-                                    >
-                                      <Td bgColor={'#FAFAFA'} px={2}>
-                                        <Text
-                                          color="text.300"
-                                          fontSize={14}
-                                          fontWeight={500}
-                                          display="flex"
-                                        >
-                                          <Image src={Day} mr={3} /> 8AM {'->'}{' '}
-                                          12PM
-                                        </Text>
-                                      </Td>
-                                      <Td className="stripeBox"></Td>
-                                      <Td className="stripeBox"></Td>
-                                      <Td className="stripeBox"></Td>{' '}
-                                      <Td className="stripeBox"></Td>{' '}
-                                      <Td className="stripeBox"></Td>{' '}
-                                      <Td className="stripeBox"></Td>{' '}
-                                      <Td className="stripeBox"></Td>
-                                    </Tr>
-
-                                    <Tr
-                                      sx={{
-                                        td: {
-                                          textAlign: 'center',
-                                          color: 'text.300'
-                                        }
-                                      }}
-                                    >
-                                      <Td bgColor={'#FAFAFA'} px={1}>
-                                        {' '}
-                                        <Text
-                                          color="text.300"
-                                          fontSize={14}
-                                          fontWeight={500}
-                                          display="flex"
-                                        >
-                                          <Image src={Day} mr={3} /> 12PM {'->'}{' '}
-                                          5PM
-                                        </Text>
-                                      </Td>
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>
-                                      <Td className="stripeBox"></Td>{' '}
-                                      <Td className="stripeBox"></Td>
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>{' '}
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>{' '}
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>
-                                    </Tr>
-                                    <Tr
-                                      sx={{
-                                        td: {
-                                          textAlign: 'center',
-                                          color: 'text.300'
-                                        }
-                                      }}
-                                    >
-                                      <Td bgColor={'#FAFAFA'} px={1}>
-                                        {' '}
-                                        <Text
-                                          color="text.300"
-                                          fontSize={14}
-                                          fontWeight={500}
-                                          display="flex"
-                                        >
-                                          <Image src={Day} mr={3} /> 5PM {'->'}{' '}
-                                          9PM
-                                        </Text>
-                                      </Td>
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>
-                                      <Td className="stripeBox"></Td>{' '}
-                                      <Td className="stripeBox"></Td>
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>{' '}
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>{' '}
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>
-                                    </Tr>
-                                    <Tr
-                                      sx={{
-                                        td: {
-                                          textAlign: 'center',
-                                          color: 'text.300'
-                                        }
-                                      }}
-                                    >
-                                      <Td bgColor={'#FAFAFA'} px={1}>
-                                        {' '}
-                                        <Text
-                                          color="text.300"
-                                          fontSize={14}
-                                          fontWeight={500}
-                                          display="flex"
-                                        >
-                                          <Image src={Day} mr={3} /> 9PM {'->'}{' '}
-                                          12AM
-                                        </Text>
-                                      </Td>
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>
-                                      <Td className="stripeBox"></Td>{' '}
-                                      <Td className="stripeBox"></Td>
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>{' '}
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>{' '}
-                                      <Td>
-                                        <Image src={Check} mr={3} />{' '}
-                                      </Td>
-                                    </Tr>
-                                  </Tbody>
-                                </Table> */}
-
                                 <Table variant="simple">
                                   <Thead>
                                     <Tr>
@@ -555,7 +404,7 @@ export default function Tutor() {
                                     </Tr>
                                   </Thead>
                                   <Tbody>
-                                    {fixedTimeSlots.map(
+                                    {fixedTimeSlotswithTimezone.map(
                                       (timeSlot, timeIndex) => (
                                         <Tr key={timeIndex}>
                                           <Td fontSize={12}>
@@ -575,10 +424,19 @@ export default function Tutor() {
                                                   dayIndex.toString()
                                                 ].some(
                                                   (slot) =>
-                                                    slot.begin ===
+                                                    calculateTimeDifference(
+                                                      convertTimeStringToISOString(
+                                                        slot.begin
+                                                      ),
+                                                      tutorData.tz
+                                                    ) ===
                                                       timeSlot.split(' ')[0] &&
-                                                    slot.end ===
-                                                      timeSlot.split(' ')[2]
+                                                    calculateTimeDifference(
+                                                      convertTimeStringToISOString(
+                                                        slot.end
+                                                      ),
+                                                      tutorData.tz
+                                                    ) === timeSlot.split(' ')[2]
                                                 )
                                                   ? ''
                                                   : 'stripeBox'
@@ -591,10 +449,19 @@ export default function Tutor() {
                                                 dayIndex.toString()
                                               ].some(
                                                 (slot) =>
-                                                  slot.begin ===
+                                                  calculateTimeDifference(
+                                                    convertTimeStringToISOString(
+                                                      slot.begin
+                                                    ),
+                                                    tutorData.tz
+                                                  ) ===
                                                     timeSlot.split(' ')[0] &&
-                                                  slot.end ===
-                                                    timeSlot.split(' ')[2]
+                                                  calculateTimeDifference(
+                                                    convertTimeStringToISOString(
+                                                      slot.end
+                                                    ),
+                                                    tutorData.tz
+                                                  ) === timeSlot.split(' ')[2]
                                               ) ? (
                                                 <Image src={Check} mr={3} />
                                               ) : null}
