@@ -149,7 +149,8 @@ export const calculateTimeDifference = (timeString, sourceTimeZone) => {
   const newtz: any = new Date(
     now.toLocaleString('en-US', {
       // timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-      timeZone: moment.tz.guess()
+      // timeZone: moment.tz.guess()
+      timeZone: 'America/New_York'
     })
   );
   const oldtz: any = new Date(
