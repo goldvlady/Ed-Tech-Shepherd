@@ -53,6 +53,7 @@ export default function TutorCard(props: any) {
   const { fetchBookmarkedTutors } = bookmarkedTutorsStore();
 
   const [ribbonClicked, setRibbonClicked] = useState(false);
+  console.log(courses);
 
   const toggleBookmarkTutor = async (id: string) => {
     setRibbonClicked(!ribbonClicked);
@@ -215,25 +216,25 @@ export default function TutorCard(props: any) {
               courses && (
                 <Box my={1}>
                   <Flex gap={3} position="absolute" bottom={5} flexWrap="wrap">
-                    {courses.map((subject, index) =>
-                      courses.length < 6 ? (
-                        <Text
-                          key={index}
-                          py={1}
-                          px={4}
-                          fontSize={12}
-                          fontWeight={500}
-                          bgColor="#F1F2F3"
-                          borderRadius={4}
-                          _hover={{ cursor: 'pointer' }}
-                          onClick={() =>
-                            handleSelectedCourse(subject.course.label)
-                          }
-                        >
-                          {subject.course.label}
-                        </Text>
-                      ) : (
-                        courses.slice(0, 5).map((subject, index) => (
+                    {courses.length < 6
+                      ? courses.map((subject, index) => (
+                          <Text
+                            key={index}
+                            py={1}
+                            px={4}
+                            fontSize={12}
+                            fontWeight={500}
+                            bgColor="#F1F2F3"
+                            borderRadius={4}
+                            _hover={{ cursor: 'pointer' }}
+                            onClick={() =>
+                              handleSelectedCourse(subject.course.label)
+                            }
+                          >
+                            {subject.course.label}
+                          </Text>
+                        ))
+                      : courses.slice(0, 5).map((subject, index) => (
                           <>
                             <Text
                               key={index}
@@ -257,9 +258,7 @@ export default function TutorCard(props: any) {
                               </Link>
                             )}
                           </>
-                        ))
-                      )
-                    )}
+                        ))}
                   </Flex>
                 </Box>
               )

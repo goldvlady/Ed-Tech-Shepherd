@@ -12,8 +12,8 @@ import theme from '../../theme';
 import { Tutor } from '../../types';
 import {
   convertTimeStringToISOString,
-  convertTimeToUserTimezone,
-  numberToDayOfWeekName
+  numberToDayOfWeekName,
+  calculateTimeDifference
 } from '../../util';
 import {
   Alert,
@@ -168,8 +168,6 @@ const SendTutorOffer = () => {
     }));
   }
   const today = useMemo(() => new Date(), []);
-
-  console.log(convertTimeStringToISOString('9PM'), 'Time');
 
   return (
     <Root className="container-fluid">
@@ -595,14 +593,14 @@ const SendTutorOffer = () => {
                                     {!!tutor.schedule[d] &&
                                       tutor.schedule[d].map((s) => (
                                         <Text className="body3" mb={0}>
-                                          {convertTimeToUserTimezone(
+                                          {calculateTimeDifference(
                                             convertTimeStringToISOString(
                                               s.begin
                                             ),
                                             tutor.tz
                                           )}
                                           -{' '}
-                                          {convertTimeToUserTimezone(
+                                          {calculateTimeDifference(
                                             convertTimeStringToISOString(s.end),
                                             tutor.tz
                                           )}
