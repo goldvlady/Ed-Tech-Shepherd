@@ -424,11 +424,27 @@ const CreateFlashPage = () => {
               </Box>
             )}
             {switchonMobile ? (
-              <Box py="45px" paddingX={'30px'} width={'100%'}>
+              <Box
+                py="45px"
+                paddingX={'30px'}
+                boxShadow="0px 0px 10px rgba(0, 0, 0, 0.2)"
+                width="95%"
+                borderRadius="10px"
+                height="70vh"
+                overflowY="scroll"
+              >
                 {form}
               </Box>
             ) : (
-              <Box py="45px" paddingX={'30px'} width={'100%'}>
+              <Box
+                py="45px"
+                paddingX={'30px'}
+                boxShadow="0px 0px 10px rgba(0, 0, 0, 0.2)"
+                width="95%"
+                borderRadius="10px"
+                height="80vh"
+                overflowY="scroll"
+              >
                 {renderPreview()}
               </Box>
             )}
