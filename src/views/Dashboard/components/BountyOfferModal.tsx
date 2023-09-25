@@ -168,14 +168,16 @@ export default function BountyOfferModal(props) {
                 as={Button}
                 variant="outline"
                 rightIcon={<FiChevronDown />}
-                fontSize={14}
                 borderRadius="8px"
-                fontWeight={400}
                 width="100%"
                 height="42px"
-                color="text.400"
+                fontSize="0.875rem"
+                fontFamily="Inter"
+                color=" #212224"
+                fontWeight="400"
                 textAlign="left"
                 placeholder="e.g Biology"
+                _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
               >
                 {bountyOffer.subject !== 'Subject'
                   ? courseList.map((course) => {
@@ -227,8 +229,12 @@ export default function BountyOfferModal(props) {
               Topic
             </FormLabel>
             <Input
+              fontSize="0.875rem"
+              fontFamily="Inter"
+              fontWeight="400"
               type="text"
               name="topic"
+              color=" #212224"
               placeholder="e.g genetics"
               value={bountyOffer.topic}
               onChange={(e) =>
@@ -251,6 +257,10 @@ export default function BountyOfferModal(props) {
               Description
             </FormLabel>
             <Textarea
+              fontSize="0.875rem"
+              fontFamily="Inter"
+              fontWeight="400"
+              color="#212224"
               name="description"
               placeholder="e.g epigenetics"
               value={bountyOffer.description}
@@ -273,10 +283,11 @@ export default function BountyOfferModal(props) {
                 as={Button}
                 variant="outline"
                 rightIcon={<FiChevronDown />}
-                fontSize={14}
                 borderRadius="8px"
-                fontWeight={400}
-                color="text.400"
+                fontSize="0.875rem"
+                fontFamily="Inter"
+                color="#212224"
+                fontWeight="400"
                 width="100%"
                 height="42px"
                 textAlign="left"
@@ -336,11 +347,13 @@ export default function BountyOfferModal(props) {
             </FormLabel>
 
             <Input
-              type="number"
-              fontSize={14}
+              fontSize="0.875rem"
+              fontFamily="Inter"
+              color="#212224"
+              fontWeight="400"
+              type="text"
+              inputMode="numeric"
               borderRadius="8px"
-              fontWeight={400}
-              color="text.400"
               width="100%"
               height="42px"
               textAlign="left"
@@ -348,10 +361,11 @@ export default function BountyOfferModal(props) {
               onChange={(e) => {
                 setBountyOffer((prevState) => ({
                   ...prevState,
-                  price: e.target.value
+                  price: e.target.value.replace(/\D/g, '')
                 }));
               }}
               placeholder="Enter Price"
+              _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
             />
           </FormControl>
 

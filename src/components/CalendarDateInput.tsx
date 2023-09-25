@@ -75,6 +75,8 @@ const CalendarDateInput: React.FC<DateInputProps> = ({
             {...inputProps}
             readOnly
             ref={inputRef}
+            fontSize="0.875rem"
+            fontFamily="Inter"
             onClick={(e) => {
               setPopoverOpen(true);
               if (inputProps.onClick) {

@@ -13,7 +13,9 @@ import {
   HStack,
   useRadio,
   useRadioGroup,
-  Center
+  Center,
+  RadioGroup,
+  Radio
 } from '@chakra-ui/react';
 import { Transition, Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
@@ -35,9 +37,15 @@ const ProfileSwitchModal = ({
   const { user, fetchUser } = userStore();
   const [currentPlan, setCurrentPlan] = useState('Basic');
   const [selectedProfile, setSelectedProfile] = useState('');
+  const [isChecked, setIsChecked] = useState(false);
+  const [level, setLevel] = useState('1');
 
   const handleClose = () => {
     setToggleProfileSwitchModal(false);
+  };
+
+  const handleToggle = () => {
+    setIsChecked(!isChecked);
   };
 
   function RadioCard(props) {
@@ -53,25 +61,25 @@ const ProfileSwitchModal = ({
           {...checkbox}
           cursor="pointer"
           borderWidth="1px"
-          borderRadius="md"
-          boxShadow="md"
+          borderRadius="10px"
+          boxShadow="0px 2px 4px 0px #888B8F1A"
           _checked={{
             bg: 'transparent',
             color: 'white',
-            borderColor: input.value === 'student' ? '#FED7AA' : '#64a5fa'
+            borderColor: input.value === 'student' ? '#64a5fa' : '#FED7AA'
           }}
           _focus={{
-            boxShadow: 'outline'
+            boxShadow: '0px 2px 4px 0px #888B8F1A'
           }}
-          width="250px"
-          py={2}
+          height="80px"
+          width="339px"
         >
           {props.children}
         </Box>
       </Box>
     );
   }
-
+  console.log('selectedProfile ==>', selectedProfile);
   const options = ['Student', 'Tutor'];
 
   const isDashboardPage = window.location.pathname.includes('/dashboard');
@@ -89,6 +97,7 @@ const ProfileSwitchModal = ({
   });
   const navigate = useNavigate();
   const group = getRootProps();
+
   return (
     <>
       {toggleProfileSwitchModal && (
@@ -135,25 +144,50 @@ const ProfileSwitchModal = ({
                             Select Account
                           </Text>
                           <Text fontSize={14} fontWeight={500} color="text.400">
-                            You can create a tutor and student account.
+                            You can create up to two accounts on Sherpherd, this
+                            lets you tutor and be a student.
                           </Text>
                         </Box>
                         <Center>
-                          <HStack {...group} spacing={8} my={'45px'}>
+                          <HStack
+                            {...group}
+                            spacing={{ base: 4, md: 8 }}
+                            my={{ base: '24px', md: '45px' }}
+                            wrap="wrap"
+                          >
                             {user &&
                               user?.type.map((value) => {
                                 const radio = getRadioProps({ value });
                                 return (
                                   <RadioCard key={value} {...radio}>
-                                    <Flex gap={3} p={4} alignItems="center">
+                                    <RadioGroup
+                                      value={selectedProfile?.toLowerCase()}
+                                      onChange={setSelectedProfile}
+                                      style={{
+                                        marginLeft: '300px',
+                                        marginTop: '8px'
+                                      }}
+                                    >
+                                      <Stack direction="row">
+                                        <Radio
+                                          value={
+                                            value?.toLowerCase() === 'student'
+                                              ? 'student'
+                                              : 'tutor'
+                                          }
+                                        ></Radio>
+                                      </Stack>
+                                    </RadioGroup>
+
+                                    <Flex gap={3} px={4} alignItems="center">
                                       <Avatar
-                                        boxSize="64px"
+                                        boxSize="40px"
                                         color="white"
-                                        name={value}
+                                        name={`${user?.name?.first} ${user?.name?.last}`}
                                         bg="#4CAF50;"
                                       />
                                       <Text
-                                        fontSize="16px"
+                                        fontSize="0.875rem"
                                         fontWeight={500}
                                         color="text.200"
                                         textTransform={'capitalize'}
@@ -163,8 +197,28 @@ const ProfileSwitchModal = ({
                                           md: 'block'
                                         }}
                                       >
-                                        {value}
+                                        {`${user?.name?.first} ${user?.name?.last}`}
                                       </Text>
+                                      <div
+                                        style={{
+                                          background:
+                                            value?.toLowerCase() === 'student'
+                                              ? '#EBF4FE'
+                                              : '#FFF2EB',
+                                          color:
+                                            value?.toLowerCase() === 'student'
+                                              ? ' #207DF7'
+                                              : '#FB8441',
+                                          fontSize: '0.625rem',
+                                          width: 'auto',
+                                          height: '18px',
+                                          padding: '2px 8px 2px 8px',
+                                          borderRadius: '4px',
+                                          gap: '10px'
+                                        }}
+                                      >
+                                        {value?.toUpperCase()}
+                                      </div>
                                       {/* <Stack spacing={'2px'}>
                                       <Flex>
                                         <Text
