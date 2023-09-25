@@ -422,7 +422,8 @@ const OnboardStudent = () => {
                 {
                   value: 'student',
                   title: 'Student',
-                  subtitle: 'Enroll as a student and unlock limitless learning',
+                  subtitle:
+                    'Enroll as a student and unlock your learning potential',
                   icon: <img src="/images/studentIcon.svg" alt="student icon" />
                 },
                 {
