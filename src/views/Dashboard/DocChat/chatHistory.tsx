@@ -106,7 +106,7 @@ const ChatHistory = ({
   const [removeIndex, setRemoveIndex] = useState(0);
   const [currentStoredArr, setCurrentStoredArr] = useState<any>();
   const [hostoryTopics, setHistoryTopics] = useState<any>([]);
-  const [selectedTopic, setSelectedTopic] = useState('Default');
+  const [selectedTopic, setSelectedTopic] = useState('All');
 
   const handleClickOutside = (event) => {
     if (
@@ -151,13 +151,13 @@ const ChatHistory = ({
       new Set(historyWithContent.map((convo) => convo.subject))
     );
 
-    setHistoryTopics(['Default', ...uniqueTopicsArray]);
+    setHistoryTopics(['All', ...uniqueTopicsArray]);
     setChatHistory(historyWithContent);
     setLoading(false);
   }
 
   const filteredHistory = useMemo(() => {
-    return selectedTopic !== 'Default'
+    return selectedTopic !== 'All'
       ? chatHistory.filter((convo) => convo.subject === selectedTopic)
       : chatHistory;
   }, [selectedTopic, chatHistory]);
