@@ -40,7 +40,6 @@ export const DeleteModal = ({
           <Flex
             flexDirection="column"
             justifyContent={'center'}
-            padding={'40px'}
             alignItems="center"
           >
             <Box>

@@ -115,6 +115,9 @@ const Signup: React.FC = () => {
                     >
                       <FormLabel>First Name</FormLabel>
                       <Input
+                        fontSize="0.875rem"
+                        fontFamily="Inter"
+                        fontWeight="400"
                         size={'lg'}
                         isInvalid={
                           !!form.errors[field.name] &&
@@ -138,6 +141,9 @@ const Signup: React.FC = () => {
                     >
                       <FormLabel>Last Name</FormLabel>
                       <Input
+                        fontSize="0.875rem"
+                        fontFamily="Inter"
+                        fontWeight="400"
                         size={'lg'}
                         isInvalid={
                           !!form.errors[field.name] &&
@@ -159,6 +165,9 @@ const Signup: React.FC = () => {
                     >
                       <FormLabel>Email</FormLabel>
                       <Input
+                        fontSize="0.875rem"
+                        fontFamily="Inter"
+                        fontWeight="400"
                         size={'lg'}
                         isInvalid={form.errors.email && form.touched.email}
                         {...field}
@@ -175,6 +184,9 @@ const Signup: React.FC = () => {
                     >
                       <FormLabel>Password</FormLabel>
                       <SecureInput
+                        fontSize="0.875rem"
+                        fontFamily="Inter"
+                        fontWeight="400"
                         size={'lg'}
                         isInvalid={
                           form.errors.password && form.touched.password
@@ -198,6 +210,9 @@ const Signup: React.FC = () => {
                     >
                       <FormLabel>Confirm Password</FormLabel>
                       <SecureInput
+                        fontSize="0.875rem"
+                        fontFamily="Inter"
+                        fontWeight="400"
                         size={'lg'}
                         isInvalid={
                           form.errors.passwordConfirmation &&

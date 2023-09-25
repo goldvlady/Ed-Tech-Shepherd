@@ -128,6 +128,9 @@ const ForgotPassword: React.FC = () => {
                       >
                         <FormLabel>Email</FormLabel>
                         <Input
+                          fontSize="0.875rem"
+                          fontFamily="Inter"
+                          fontWeight="400"
                           size={'lg'}
                           isInvalid={form.errors.email && form.touched.email}
                           {...field}

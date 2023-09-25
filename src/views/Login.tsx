@@ -113,6 +113,9 @@ const Login: React.FC = () => {
                   >
                     <FormLabel>Email</FormLabel>
                     <Input
+                      fontSize="0.875rem"
+                      fontFamily="Inter"
+                      fontWeight="400"
                       size={'lg'}
                       isInvalid={form.errors.email && form.touched.email}
                       {...field}
@@ -131,6 +134,9 @@ const Login: React.FC = () => {
                   >
                     <FormLabel>Password</FormLabel>
                     <SecureInput
+                      fontSize="0.875rem"
+                      fontFamily="Inter"
+                      fontWeight="400"
                       size={'lg'}
                       isInvalid={form.errors.password && form.touched.password}
                       {...field}

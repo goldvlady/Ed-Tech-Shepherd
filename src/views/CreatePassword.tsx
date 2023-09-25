@@ -110,6 +110,9 @@ const CreatePassword: React.FC = () => {
                   >
                     <FormLabel>Password</FormLabel>
                     <SecureInput
+                      fontSize="0.875rem"
+                      fontFamily="Inter"
+                      fontWeight="400"
                       size={'lg'}
                       isInvalid={form.errors.password && form.touched.password}
                       {...field}
@@ -131,6 +134,9 @@ const CreatePassword: React.FC = () => {
                   >
                     <FormLabel>Confirm Password</FormLabel>
                     <SecureInput
+                      fontSize="0.875rem"
+                      fontFamily="Inter"
+                      fontWeight="400"
                       size={'lg'}
                       isInvalid={
                         form.errors.passwordConfirmation &&
