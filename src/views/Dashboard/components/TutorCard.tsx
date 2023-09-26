@@ -53,7 +53,6 @@ export default function TutorCard(props: any) {
   const { fetchBookmarkedTutors } = bookmarkedTutorsStore();
 
   const [ribbonClicked, setRibbonClicked] = useState(false);
-  console.log(courses);
 
   const toggleBookmarkTutor = async (id: string) => {
     setRibbonClicked(!ribbonClicked);

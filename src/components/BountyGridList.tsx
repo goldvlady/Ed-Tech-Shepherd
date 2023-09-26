@@ -130,7 +130,6 @@ export default function BountyGridList(props) {
       openApplyBounty();
     }
   }, [selectedBid]);
-  console.log(selectedBid, 'BIDDD');
 
   const handlePagination = (nextPage: number) => {
     fetchBountyOffers(nextPage, limit, 'tutor');

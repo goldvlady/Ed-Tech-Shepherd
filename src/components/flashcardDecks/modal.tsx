@@ -531,6 +531,7 @@ const StudyBox = () => {
             currentStep: question.currentStep,
             explanation: question.explanation,
             helperText: question.helperText,
+            numberOfAttempts: question.numberOfAttempts,
             isFirstAttempt: question.numberOfAttempts === 0
           };
           if (question.options || question.questionType === 'trueFalse') {

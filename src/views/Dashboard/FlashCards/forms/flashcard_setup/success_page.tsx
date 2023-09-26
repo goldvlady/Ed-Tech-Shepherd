@@ -11,7 +11,6 @@ const SuccessState = ({ reset }: { reset: () => void }) => {
     const flashcard = flashcards?.find(
       (flashcard) => flashcard.deckname === flashcardData.deckname
     );
-    console.log(flashcard);
     if (flashcard) {
       loadFlashcard(flashcard._id);
     }

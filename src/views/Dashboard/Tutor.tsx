@@ -170,7 +170,6 @@ export default function Tutor() {
     );
 
     let timeSlotInUserTimezone = `${startTimeInUserTimezone} -> ${endTimeInUserTimezone}`;
-    console.log('tz', timeSlotInUserTimezone);
 
     timeSlotInUserTimezone = timeSlotInUserTimezone.replace(/:\d+\s/g, '');
 

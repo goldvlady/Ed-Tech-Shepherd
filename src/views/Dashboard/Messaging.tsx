@@ -101,7 +101,6 @@ export default function Messages() {
   const RenderChannel = () => {
     // Access the Chat context to get the active channel
     const { channel } = useChatContext();
-    console.log('CHANNEL: ', channel);
     // If channel is frozen apply disabled channel styles
     return channel?.data?.frozen ? (
       <div className="stream-chat-frozen-wrapper">

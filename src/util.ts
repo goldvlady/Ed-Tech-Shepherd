@@ -150,21 +150,11 @@ export const adjustDateTimeByHours = (
   // Create the desired formatted string
   const adjustedDateTimeString = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.000`;
 
-  console.log(
-    dateTimeString,
-    originalDate,
-    timeDifferenceInHours,
-    adjustedDate,
-    adjustedDateTimeString,
-    'Term'
-  );
-
   return adjustedDateTimeString;
 };
 
 export const calculateTimeDifference = (timeString, sourceTimeZone) => {
   const now = new Date();
-  console.log('UR TIMEZONE', moment.tz.guess(), timeString);
 
   const newtz: any = new Date(
     now.toLocaleString('en-US', {
@@ -183,7 +173,6 @@ export const calculateTimeDifference = (timeString, sourceTimeZone) => {
 
   const adjustedTime = adjustDateTimeByHours(timeString, timeDifferenceHours);
   const date = new Date(adjustedTime);
-  console.log(date, adjustedTime, timeDifferenceHours, 'adj');
 
   let hours = date.getHours();
   let amOrPm = 'AM';

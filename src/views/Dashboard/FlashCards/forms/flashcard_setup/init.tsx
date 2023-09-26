@@ -55,8 +55,6 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
 
   useEffect(() => {
     if (flashcardData.deckname) {
-      console.log(flashcardData);
-      console.log('entered here');
       setLocalData(flashcardData);
     }
     // eslint-disable-next-line
@@ -140,7 +138,6 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
   };
 
   const renderOptional = useCallback(() => {
-    console.log('reopen hereeeeee', localData.subject);
     return (
       <>
         {' '}

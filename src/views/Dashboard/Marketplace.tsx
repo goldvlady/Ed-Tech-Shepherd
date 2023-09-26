@@ -229,7 +229,6 @@ export default function Marketplace() {
       const paymentIntent = await ApiService.createStripeSetupPaymentIntent();
 
       const { data } = await paymentIntent.json();
-      console.log(data, 'intent');
 
       paymentDialogRef.current?.startPayment(
         data.clientSecret,
