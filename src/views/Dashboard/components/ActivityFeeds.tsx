@@ -1,3 +1,4 @@
+import BountyIcon from '../../../assets/Frame-2.svg';
 import AdobeIcon from '../../../assets/adobedoc.svg';
 import FeedIcon from '../../../assets/blue-energy.svg';
 import DocIcon from '../../../assets/doc-icon.svg';
@@ -112,7 +113,7 @@ function ActivityFeeds(props) {
       case 'flashcards':
         return FlashcardIcon;
       case 'bounty':
-        return ReceiptIcon;
+        return BountyIcon;
       default:
         return undefined;
     }
@@ -189,7 +190,11 @@ function ActivityFeeds(props) {
           .filter(filterByPeriod)
       );
     } else {
-      setFilteredFeeds(feeds?.data.filter(filterByPeriod));
+      setFilteredFeeds(
+        feeds?.data
+          .filter((feed) => feed.activityType !== 'contract')
+          .filter(filterByPeriod)
+      );
     }
   }, [feedPeriod, feeds?.data]);
 

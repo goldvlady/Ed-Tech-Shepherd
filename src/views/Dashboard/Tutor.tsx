@@ -309,7 +309,7 @@ export default function Tutor() {
 
                         <TabPanels>
                           <TabPanel>
-                            <Flex px={3} gap={0} direction={'row'} my={2}>
+                            {/* <Flex px={3} gap={0} direction={'row'} my={2}>
                               <Avatar
                                 name="Kola Tioluwani"
                                 src="https://bit.ly/tioluwani-kolawole"
@@ -341,7 +341,15 @@ export default function Tutor() {
 
                                 <Divider />
                               </Stack>
-                            </Flex>
+                            </Flex> */}
+                            <Text
+                              fontWeight={400}
+                              color={'#585F68'}
+                              fontSize="14px"
+                              mb={'2px'}
+                            >
+                              You have no reviews yet
+                            </Text>
                           </TabPanel>
                           <TabPanel>
                             {tutorData.qualifications.map((q) => (
@@ -551,7 +559,8 @@ export default function Tutor() {
               >
                 <iframe
                   title="naruto"
-                  src="https://samplelib.com/lib/preview/mp4/sample-5s.mp4"
+                  // src={'https://samplelib.com/lib/preview/mp4/sample-5s.mp4'}
+                  src={tutorData.introVideo}
                   allowFullScreen
                   style={{ borderRadius: 10 }}
                 />

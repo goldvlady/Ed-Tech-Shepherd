@@ -18,10 +18,30 @@ export default function Dashboard() {
   const { feeds, fetchFeeds } = feedsStore();
   const { user } = userStore();
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [calendarEventData, setCalendarEventData] = useState<any>([]);
+  const [upcomingEvent, setUpcomingEvent] = useState<any>([]);
 
   const fetchData = useCallback(async () => {
     try {
-      const feedsResponse = await fetchFeeds();
+      const [
+        // studentReportResponse,
+        calendarResponse,
+        upcomingEventResponse,
+        feedsResponse
+      ] = await Promise.all([
+        // ApiService.getStudentReport(),
+        ApiService.getCalendarEvents(),
+        ApiService.getUpcomingEvent(),
+        fetchFeeds()
+      ]);
+
+      // const studentReportData = await studentReportResponse.json();
+      const calendarData = await calendarResponse.json();
+      const nextEvent = await upcomingEventResponse.json();
+
+      setCalendarEventData(calendarData.data);
+      setUpcomingEvent(nextEvent);
+      // setFeeds(feedsResponse);
     } catch (error) {
       /* empty */
     } finally {
@@ -81,7 +101,7 @@ export default function Dashboard() {
               height="450px"
             >
               {' '}
-              <Schedule events={[]} />
+              <Schedule events={calendarEventData} />
             </Box>
           </GridItem>
         </Grid>

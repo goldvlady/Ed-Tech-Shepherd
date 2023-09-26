@@ -7,7 +7,9 @@ import TutorCard from './components/TutorCard';
 import {
   Box,
   Flex,
+  Image,
   SimpleGrid,
+  Spinner,
   Tab,
   TabList,
   TabPanel,
@@ -19,7 +21,7 @@ import { useAutoAnimate } from '@formkit/auto-animate/react';
 import React, { useEffect, useState, useCallback } from 'react';
 
 function MyTutors() {
-  useTitle('My Tutors');
+  useTitle('My Shepherds');
   const [allTutors, setAllTutors] = useState<any>([]);
   const [loadingData, setLoadingData] = useState(false);
   const [page, setPage] = useState<number>(1);
@@ -46,6 +48,23 @@ function MyTutors() {
 
   const [tutorGrid] = useAutoAnimate();
 
+  if (isLoading) {
+    return (
+      <Box
+        p={5}
+        textAlign="center"
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh'
+        }}
+      >
+        <Spinner />
+      </Box>
+    );
+  }
+
   return (
     <>
       <Box p={3}>
@@ -53,7 +72,7 @@ function MyTutors() {
         <Flex alignItems={'center'} gap={1}>
           <Box>
             <Text fontSize={24} fontWeight={600} color="text.200">
-              My Tutors
+              My Shepherds
             </Text>
           </Box>
 
@@ -78,7 +97,7 @@ function MyTutors() {
 
           <TabPanels>
             <TabPanel>
-              {!isLoading && offers ? (
+              {offers && offers.length > 0 ? (
                 <>
                   {' '}
                   <SimpleGrid
@@ -112,11 +131,20 @@ function MyTutors() {
                   />
                 </>
               ) : (
-                !isLoading && 'no tutors found'
+                <>
+                  <section className="flex justify-center items-center mt-28 w-full">
+                    <div className="text-center">
+                      <Image src="/images/notes.png" alt="empty" m="auto" />
+                      <Text textAlign={'center'}>
+                        You currently have no active shepherds!
+                      </Text>
+                    </div>
+                  </section>
+                </>
               )}
             </TabPanel>
             <TabPanel>
-              {!isLoading && offers ? (
+              {offers && offers.length > 0 ? (
                 <>
                   {' '}
                   <SimpleGrid
@@ -153,7 +181,16 @@ function MyTutors() {
                   />
                 </>
               ) : (
-                !isLoading && 'no tutors found'
+                <>
+                  <section className="flex justify-center items-center mt-28 w-full">
+                    <div className="text-center">
+                      <Image src="/images/notes.png" alt="empty" m="auto" />
+                      <Text textAlign={'center'}>
+                        You currently have no active shepherds!
+                      </Text>
+                    </div>
+                  </section>
+                </>
               )}
             </TabPanel>
           </TabPanels>

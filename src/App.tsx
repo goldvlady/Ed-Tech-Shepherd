@@ -130,6 +130,7 @@ const tutorRoutes = [
   { path: 'tutordashboard/offers', element: <TutorOffers /> },
   { path: 'tutordashboard/offer/:offerId', element: <Offer /> },
   { path: 'tutordashboard/bounties', element: <TutorBounties /> },
+  { path: 'tutordashboard/bounties/:bidId', element: <TutorBounties /> },
   { path: 'tutordashboard/account-settings', element: <TutorSettings /> },
   { path: 'tutordashboard/messages', element: <Messaging /> }
 ];

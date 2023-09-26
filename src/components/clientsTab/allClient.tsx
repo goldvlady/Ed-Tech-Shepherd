@@ -40,6 +40,8 @@ import React, {
   useCallback,
   useEffect
 } from 'react';
+import { IconContext } from 'react-icons';
+import { AiFillStar } from 'react-icons/ai';
 import { FaEllipsisH } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
@@ -93,10 +95,10 @@ const AllClientsTab = (props) => {
       name: `${allTutorClients[i]?.student.user.name.first} ${allTutorClients[i]?.student.user.name.last}`,
       subject: allTutorClients[i]?.offer?.course?.label,
       start_date: moment(allTutorClients[i]?.offer?.contractStartDate).format(
-        'MMMM DD, YYYY'
+        'DD MMMM , YYYY'
       ),
       end_date: moment(allTutorClients[i]?.offer?.contractEndDate).format(
-        'MMMM DD, YYYY'
+        'DD MMMM , YYYY'
       ),
       status: allTutorClients[i]?.isActive === true ? 'Active' : 'Ended',
       amount_earned: `$${allTutorClients[i]?.offer?.amount}`,
@@ -124,6 +126,23 @@ const AllClientsTab = (props) => {
   const onDeleteNote = (isOpenDeleteModal: boolean, noteDetails: string) => {
     setDeleteNoteModal(isOpenDeleteModal);
     setClientDetails(noteDetails);
+  };
+
+  //function to render stars based on the rating value
+
+  const renderStars = (rating: number) => {
+    const stars: JSX.Element[] = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <IconContext.Provider
+          key={i}
+          value={{ color: i <= rating ? 'gold' : 'gray', size: '2em' }}
+        >
+          <AiFillStar />
+        </IconContext.Provider>
+      );
+    }
+    return stars;
   };
 
   const onClientReview = (name) => {
@@ -508,48 +527,7 @@ const AllClientsTab = (props) => {
           <ModalBody>
             <VStack>
               <Text textAlign={'left'}>Rating</Text>
-              <Flex gap={2}>
-                <Button
-                  variant={'unstyled'}
-                  borderRadius="6px"
-                  border=" 1px solid #E4E5E7"
-                  p={'12px'}
-                >
-                  1
-                </Button>
-                <Button
-                  variant={'unstyled'}
-                  borderRadius="6px"
-                  border=" 1px solid #E4E5E7"
-                  p={'12px 15px'}
-                >
-                  2
-                </Button>
-                <Button
-                  variant={'unstyled'}
-                  borderRadius="6px"
-                  border=" 1px solid #E4E5E7"
-                  p={'12px'}
-                >
-                  3
-                </Button>
-                <Button
-                  variant={'unstyled'}
-                  borderRadius="6px"
-                  border=" 1px solid #E4E5E7"
-                  p={'12px'}
-                >
-                  4
-                </Button>
-                <Button
-                  variant={'unstyled'}
-                  borderRadius="6px"
-                  border=" 1px solid #E4E5E7"
-                  p={'12px'}
-                >
-                  5
-                </Button>
-              </Flex>
+              <Flex gap={2}>{renderStars(3)}</Flex>
               <Box p={3} border=" 1px solid #E4E5E7">
                 <Text>
                   Risus purus sed integer arcu sollicitudin eros tellus
