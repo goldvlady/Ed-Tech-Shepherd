@@ -79,7 +79,6 @@ const ProfileSwitchModal = ({
       </Box>
     );
   }
-  console.log('selectedProfile ==>', selectedProfile);
   const options = ['Student', 'Tutor'];
 
   const isDashboardPage = window.location.pathname.includes('/dashboard');

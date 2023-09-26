@@ -87,8 +87,6 @@ const SelectableTable = <T extends Record<string, unknown>>({
   handlePagination,
   handleSelect: handleSelectProps
 }: TableProps<T>) => {
-  console.log(pageCount);
-
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>(
     selectedKeysProps || []
   );

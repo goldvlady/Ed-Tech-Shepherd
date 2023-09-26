@@ -21,8 +21,6 @@ const FlashCardEventNotifier = () => {
   const { isMinimized, flashcardData, questionGenerationStatus } =
     useFlashcardWizard();
 
-  console.log(questionGenerationStatus);
-
   useEffect(() => {
     if (
       isMinimized &&
