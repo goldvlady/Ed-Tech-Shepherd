@@ -205,6 +205,7 @@ export default create<Store>((set) => ({
       const response = await ApiService.createFlashcard(data, generatorType);
       if (response.status === 200) {
         const { data } = await response.json();
+        console.log(data);
         set((store) => {
           const { flashcards } = store;
           flashcards?.push(data);
