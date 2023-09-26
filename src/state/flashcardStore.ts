@@ -212,7 +212,7 @@ export default create<Store>((set) => ({
             flashcardData = flashcards;
           }
           flashcardData.push(data);
-          return { flashcards };
+          return { flashcards: flashcardData };
         });
       }
       return response;
