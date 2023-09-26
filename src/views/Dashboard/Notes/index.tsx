@@ -137,11 +137,10 @@ const NotesDirectory: React.FC = () => {
   const { user } = userStore();
 
   useEffect(() => {
-    if (flashcardData.documentId) {
+    if (flashcardData.documentId || flashcardData.noteDoc) {
       setMinimized(false);
     }
     return () => {
-      console.log(flashcardWizardLoading);
       setMinimized(flashcardWizardLoading);
     };
   }, [flashcardWizardLoading]);
