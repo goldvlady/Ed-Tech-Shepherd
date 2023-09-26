@@ -38,7 +38,7 @@ export default function BountyOfferModal(props) {
     price: '',
     rating: 0,
     instructionMode: '',
-    // time: '',
+    time: '',
     expirationDate: new Date()
   });
 
@@ -286,7 +286,7 @@ export default function BountyOfferModal(props) {
               </MenuList>
             </Menu>
           </FormControl>
-          {/* <FormControl mb={4}>
+          <FormControl mb={4}>
             <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
               Select Time
             </FormLabel>
@@ -307,7 +307,7 @@ export default function BountyOfferModal(props) {
                 <Text fontSize="14px"> 1 hour</Text>
               </Radio>
             </RadioGroup>
-          </FormControl> */}
+          </FormControl>
           <FormControl mb={4}>
             <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
               Price ($)

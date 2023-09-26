@@ -20,13 +20,14 @@ import {
   useDisclosure
 } from '@chakra-ui/react';
 import moment from 'moment';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 function BountyCard(props) {
   const navigate = useNavigate();
   const { courses: courseList, levels: levelOptions } = resourceStore();
 
-  const { id, imageURL, name, bounty, time } = props;
+  const { id, bounty, handleItemClick } = props;
 
   function Updated() {
     return (
@@ -107,10 +108,11 @@ function BountyCard(props) {
     onClose: closeApplyBounty
   } = useDisclosure();
 
-  const handleItemClick = () => {
-    openApplyBounty();
-    // navigate(`/dashboard/tutordashboard/offer/${bounty.id}`);
-  };
+  // const handleItemClick = () => {
+  //   // openApplyBounty();
+  //   // navigate(`/dashboard/tutordashboard/offer/${bounty.id}`);
+  //   setSelectedBid(bounty);
+  // };
 
   const styles = {
     boxShadow: '0px 4px 20px 0px #737E8C26'
@@ -118,7 +120,7 @@ function BountyCard(props) {
   return (
     <>
       <GridItem
-        onClick={handleItemClick}
+        onClick={() => handleItemClick(bounty)}
         mb={6}
         cursor="pointer"
         border="1px"

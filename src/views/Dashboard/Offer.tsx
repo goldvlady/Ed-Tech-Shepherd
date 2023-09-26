@@ -95,7 +95,6 @@ const stripePromise = loadStripe(
 );
 
 const Offer = () => {
-  const { user } = userStore();
   useTitle('Offer');
   const currentPath = window.location.pathname;
 
@@ -105,7 +104,7 @@ const Offer = () => {
 
   const { offerId } = useParams() as { offerId: string };
 
-  const { fetchUser } = userStore();
+  const { fetchUser, user } = userStore();
   const navigate = useNavigate();
   const paymentDialogRef = useRef<PaymentDialogRef>(null);
   const choosePaymentDialogRef = useRef<ChoosePaymentMethodDialogRef>(null);
@@ -153,8 +152,46 @@ const Offer = () => {
       offer?._id as string,
       chosenPaymentMethod?._id
     );
+    console.log(resp, 'resppp');
+    switch (resp?.status) {
+      case 200:
+        toast({
+          title: 'Your offer has been booked successfully.',
+          status: 'success',
+          position: 'top',
+          isClosable: true
+        });
+        loadOffer();
+        break;
+      case 400:
+        toast({
+          title: 'Something went wrong',
+          status: 'error',
+          position: 'top',
+          isClosable: true
+        });
+        break;
+      case 401: // Handle payment failure separately
+        toast({
+          title:
+            'Failed to process payment details. Please try another payment method.',
+          status: 'error',
+          position: 'top',
+          isClosable: true
+        });
+        break;
+      default:
+        toast({
+          title: 'Something went wrong.',
+          status: 'error',
+          position: 'top',
+          isClosable: true
+        });
+        break;
+    }
+    // setOffer(await resp.json());
     setBookingOffer(false);
-    window.location.reload();
+    // window.location.reload();
   };
 
   const acceptOffer = async () => {
@@ -199,7 +236,6 @@ const Offer = () => {
       );
 
       setSettingUpPaymentMethod(false);
-      bookOffer();
     } catch (error) {
       console.log(error);
     }
@@ -213,59 +249,51 @@ const Offer = () => {
     if (clientSecret) {
       (async () => {
         setSettingUpPaymentMethod(true);
-        toast({
-          title: 'Your Payment Method has been saved',
-          status: 'success',
-          position: 'top',
-          isClosable: true
-        });
-        //   const stripe = await stripePromise;
-        //   const setupIntent = await stripe?.retrieveSetupIntent(clientSecret);
-        //   await ApiService.addPaymentMethod(
-        //     setupIntent?.setupIntent?.payment_method as string
-        //   );
-        //   await fetchUser();
-        //   switch (setupIntent?.setupIntent?.status) {
-        //     case 'succeeded':
-        //       bookOffer();
-        //       toast({
-        //         title: 'Your payment method has been saved.',
-        //         status: 'success',
-        //         position: 'top',
-        //         isClosable: true
-        //       });
-        //       break;
-        //     case 'processing':
-        //       toast({
-        //         // TODO: Handle setup intent processing state
-        //         title:
-        //           "Processing payment details. We'll update you when processing is complete.",
-        //         status: 'loading',
-        //         position: 'top',
-        //         isClosable: true
-        //       });
-        //       break;
-        //     case 'requires_payment_method':
-        //       toast({
-        //         title:
-        //           'Failed to process payment details. Please try another payment method.',
-        //         status: 'error',
-        //         position: 'top',
-        //         isClosable: true
-        //       });
-        //       break;
-        //     default:
-        //       toast({
-        //         title: 'Something went wrong.',
-        //         status: 'error',
-        //         position: 'top',
-        //         isClosable: true
-        //       });
-        //       break;
-        //   }
-        //   setSettingUpPaymentMethod(false);
 
-        //   bookOffer();
+        const stripe = await stripePromise;
+        const setupIntent = await stripe?.retrieveSetupIntent(clientSecret);
+        await ApiService.addPaymentMethod(
+          setupIntent?.setupIntent?.payment_method as string
+        );
+        await fetchUser();
+        switch (setupIntent?.setupIntent?.status) {
+          case 'succeeded':
+            toast({
+              title: 'Your payment method has been saved.',
+              status: 'success',
+              position: 'top',
+              isClosable: true
+            });
+            bookOffer();
+            break;
+          case 'processing':
+            toast({
+              title:
+                "Processing payment details. We'll update you when processing is complete.",
+              status: 'loading',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          case 'requires_payment_method':
+            toast({
+              title:
+                'Failed to process payment details. Please try another payment method.',
+              status: 'error',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          default:
+            toast({
+              title: 'Something went wrong.',
+              status: 'error',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+        }
+        setSettingUpPaymentMethod(false);
       })();
     }
     /* eslint-disable */
@@ -291,6 +319,7 @@ const Offer = () => {
       />
       <ChoosePaymentMethodDialog
         ref={choosePaymentDialogRef}
+        // onclose
         prefix={
           <Alert status="info" mb="22px">
             <AlertIcon>
@@ -334,9 +363,9 @@ const Offer = () => {
                             color: theme.colors.text[400]
                           }}
                         >
-                          {offer.student.user.name.first}{' '}
-                          {offer.student.user.name.last}has been added to your
-                          message list
+                          {offer.student?.user?.name?.first}{' '}
+                          {offer.student?.user?.name?.last}has been added to
+                          your message list
                         </div>
                       </Box>
                     </Box>
@@ -372,7 +401,7 @@ const Offer = () => {
                           }}
                         >
                           Are you sure you want to withdraw your offer to{' '}
-                          {offer.tutor.user.name.first}?
+                          {offer.tutor?.user?.name?.first}?
                         </div>
                       </Box>
                     </Box>

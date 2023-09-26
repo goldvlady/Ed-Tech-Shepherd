@@ -42,13 +42,14 @@ export default function Schedule({ events }) {
     setSelectedMonth(month);
   };
 
-  const filteredEvents = selectedDate
-    ? events.filter(
-        (event) =>
-          new Date(event.date).toDateString() ===
-          new Date(selectedDate).toDateString()
-      )
-    : events;
+  const filteredEvents =
+    selectedDate && events
+      ? events.filter(
+          (event) =>
+            new Date(event.date).toDateString() ===
+            new Date(selectedDate).toDateString()
+        )
+      : events;
 
   const getTomorrowsDate = () => {
     const today = new Date();
@@ -132,7 +133,7 @@ export default function Schedule({ events }) {
           <Box h="165px" overflowY="auto" className="custom-scroll">
             {' '}
             <ul className="space-y-3">
-              {selectedDate && filteredEvents.length > 0 ? (
+              {selectedDate && filteredEvents && filteredEvents.length > 0 ? (
                 filteredEvents.map((event) => (
                   <Events key={event.id} event={event} />
                 ))

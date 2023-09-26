@@ -250,7 +250,7 @@ export default function TutorCard(props: any) {
                             {index === 4 && (
                               <Link
                                 color="#207DF7"
-                                href="/dashboard"
+                                href={`/dashboard/find-tutor/tutor/?id=${id}`}
                                 fontSize={12}
                                 alignSelf="center"
                               >

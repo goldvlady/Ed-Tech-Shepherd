@@ -1,5 +1,6 @@
 import ApiService from '../services/ApiService';
 import offerStore from '../state/offerStore';
+import ApplyBountyModal from '../views/Dashboard/components/ApplyBounty';
 import Pagination from '../views/Dashboard/components/Pagination';
 import BountyCard from './BountyCard';
 import StudentCard from './StudentCard';
@@ -19,10 +20,11 @@ import {
   Grid,
   GridItem,
   Divider,
-  VStack
+  VStack,
+  useDisclosure
 } from '@chakra-ui/react';
 import React, { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 interface Status {
   new: number;
@@ -99,21 +101,41 @@ export default function BountyGridList(props) {
   const navigate = useNavigate();
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(20);
-
+  const [selectedBid, setSelectedBid] = useState('');
+  const { bidId } = useParams();
   const { fetchBountyOffers, bounties, isLoading, pagination } = offerStore();
+  const {
+    isOpen: isApplyBountyOpen,
+    onOpen: openApplyBounty,
+    onClose: closeApplyBounty
+  } = useDisclosure();
+  const handleItemClick = (bounty) => {
+    // openApplyBounty();
+    // navigate(`/dashboard/tutordashboard/offer/${bounty.id}`);
+    setSelectedBid(bounty);
+    openApplyBounty();
+  };
 
-  // const handleNextPage = () => {
-  //   const nextPage = pagination.page + 1;
-  //   fetchBountyOffers(nextPage, limit);
-  // };
+  useEffect(() => {
+    if (bidId && !isLoading) {
+      const bounty = bounties.find((obj) => obj.id === bidId);
+      navigate(`/dashboard/tutordashboard/bounties`);
+      setSelectedBid(bounty);
+      openApplyBounty();
+    }
+    // eslint-disable-next-line
+  }, [bidId]);
+  useEffect(() => {
+    if (selectedBid) {
+      openApplyBounty();
+    }
+  }, [selectedBid]);
+  console.log(selectedBid, 'BIDDD');
 
-  // const handlePreviousPage = () => {
-  //   const prevPage = pagination.page - 1;
-  //   fetchBountyOffers(prevPage, limit);
-  // };
   const handlePagination = (nextPage: number) => {
     fetchBountyOffers(nextPage, limit, 'tutor');
   };
+
   return (
     <>
       {' '}
@@ -127,7 +149,12 @@ export default function BountyGridList(props) {
       >
         {bounties &&
           bounties.map((bounty: any) => (
-            <BountyCard key={bounty.id} id={bounty.id} bounty={bounty} />
+            <BountyCard
+              key={bounty.id}
+              id={bounty.id}
+              bounty={bounty}
+              handleItemClick={handleItemClick}
+            />
           ))}
       </SimpleGrid>{' '}
       <Pagination
@@ -135,6 +162,11 @@ export default function BountyGridList(props) {
         count={pagination.total}
         limit={pagination.limit}
         handlePagination={handlePagination}
+      />
+      <ApplyBountyModal
+        isApplyBountyOpen={isApplyBountyOpen}
+        closeApplyBounty={closeApplyBounty}
+        bounty={selectedBid}
       />
     </>
   );

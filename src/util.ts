@@ -237,6 +237,28 @@ export const convertTimeStringToISOString = (timeString) => {
   return dateWithTime.toISOString();
 };
 
+export const formatDateToAMPM = (dateTimeString) => {
+  const date = new Date(dateTimeString);
+
+  // Extract the hour and minute components from the Date object
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+
+  // Determine whether it's AM or PM
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+
+  // Convert hours from 24-hour format to 12-hour format
+  const formattedHours = hours % 12 || 12;
+
+  // Format the minutes to have leading zeros if necessary
+  const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+
+  // Construct the formatted time string
+  const formattedTime = `${formattedHours}:${formattedMinutes}${ampm}`;
+
+  return formattedTime;
+};
+
 export const isSameDay = (date1, date2) => {
   return (
     date1.getDate() === date2.getDate() &&
