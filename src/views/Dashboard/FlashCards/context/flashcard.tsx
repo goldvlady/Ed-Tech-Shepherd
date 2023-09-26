@@ -206,6 +206,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     setSaveSuccessful(false);
     setCurrentStep(0);
     setCurrentQuestionIndex(0);
+    setQuestionGenerationStatus(QuestionGenerationStatusEnum.INIT);
     setResetted(true);
   }, [defaultFlashcardData]);
 
@@ -285,6 +286,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
         const reqData = { ...flashcardData, ...data };
 
         setIsLoading(true);
+        setQuestionGenerationStatus(QuestionGenerationStatusEnum.INIT);
 
         const aiData: AIRequestBody = {
           topic: reqData.topic,

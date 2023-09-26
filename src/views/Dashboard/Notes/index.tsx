@@ -141,6 +141,7 @@ const NotesDirectory: React.FC = () => {
       setMinimized(false);
     }
     return () => {
+      console.log(flashcardWizardLoading);
       setMinimized(flashcardWizardLoading);
     };
   }, [flashcardWizardLoading]);
@@ -289,6 +290,7 @@ const NotesDirectory: React.FC = () => {
       onClick: () => {
         resetFlashcard();
         setFlashcardData((prev) => ({
+          ...prev,
           deckname: '',
           studyType: '',
           studyPeriod: '',
@@ -320,6 +322,7 @@ const NotesDirectory: React.FC = () => {
       onClick: () => {
         resetFlashcard();
         setFlashcardData((prev) => ({
+          ...prev,
           deckname: '',
           studyType: '',
           studyPeriod: '',
