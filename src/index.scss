@@ -1206,6 +1206,31 @@ input[type='text']:focus {
   font: 14px 'Inter';
 }
 
+.rmsc .dropdown-container {
+  border: 0;
+  margin-right: 15px;
+}
+
+.rmsc .dropdown-heading {
+  width: 150px;
+  border: 1px solid #e4e6e7 !important;
+  border-radius: 8px;
+}
+
+.rmsc .dropdown-content {
+  color: black;
+  font-size: 0.875rem;
+  font-family: 'Inter';
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+  z-index: 11111;
+
+  input {
+    border-radius: 4px;
+  }
+}
+
 #root {
   .str-chat__channel-header {
     height: 76px;

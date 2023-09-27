@@ -41,6 +41,7 @@ import { startCase } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaEllipsisH, FaCalendarAlt } from 'react-icons/fa';
+import { MultiSelect } from 'react-multi-select-component';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -131,12 +132,18 @@ function findNextFlashcard(
   return undefined;
 }
 
+interface Option {
+  label: string;
+  value: string;
+}
+
 const CustomTable: React.FC = () => {
   const navigate = useNavigate();
 
   const toast = useCustomToast();
   const [hasSearched, setHasSearched] = useState(false);
   const [selectedTags, setSelectedTags] = useState<Array<string | number>>([]);
+  const [multiSelected, setMultiSelected] = useState<any>([]);
 
   const {
     fetchFlashcards,
@@ -150,6 +157,11 @@ const CustomTable: React.FC = () => {
     scheduleFlashcard,
     pagination
   } = flashcardStore();
+
+  const options: Option[] = tags.map((tag) => ({
+    label: tag,
+    value: tag
+  }));
 
   const actionFunc = useCallback(
     (query: string) => {
@@ -181,6 +193,21 @@ const CustomTable: React.FC = () => {
   } | null>(null);
 
   const { flashcardId } = useParams();
+
+  const handleSelectionChange = (selectedOptions: Option[]) => {
+    setMultiSelected(selectedOptions);
+
+    const selectedTags = selectedOptions
+      .map((option) => option.value)
+      .join(',');
+
+    const query: { [key: string]: any } = {};
+    if (selectedTags) {
+      query.tags = selectedTags;
+    }
+
+    fetchFlashcards(query);
+  };
 
   useEffect(() => {
     fetchFlashcards();
@@ -573,6 +600,15 @@ const CustomTable: React.FC = () => {
     }
   };
 
+  const customValueRenderer = (selected: Option[], options: Option[]) => {
+    if (selected.length <= 2) {
+      return selected.map((s) => s.label).join(', ');
+    }
+    return `${selected[0].label}, ${selected[1].label} +${
+      selected.length - 2
+    } more`;
+  };
+
   return (
     <>
       {isLoading && <LoaderOverlay />}
@@ -803,7 +839,15 @@ const CustomTable: React.FC = () => {
               alignItems={{ base: 'flex-start', md: 'center' }}
               width={{ base: '100%', md: 'auto' }}
             >
-              <DropDownFilter
+              <MultiSelect
+                options={options}
+                value={multiSelected}
+                onChange={handleSelectionChange}
+                labelledBy="Select"
+                valueRenderer={customValueRenderer}
+              />
+
+              {/* <DropDownFilter
                 selectedItems={selectedTags}
                 multi
                 style={{ marginRight: '20px' }}
@@ -817,11 +861,11 @@ const CustomTable: React.FC = () => {
                   if (tags || tags.length) {
                     query.tags = tags;
                   }
-
+                  console.log('query ==>', query);
                   fetchFlashcards(query);
                 }}
                 items={tags.map((tag) => ({ id: tag, value: tag }))}
-              />
+              /> */}
               <Menu>
                 <MenuButton>
                   <Flex
