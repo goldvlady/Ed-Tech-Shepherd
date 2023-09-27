@@ -376,7 +376,7 @@ const OnboardStudent = () => {
         avatar: photoURL as string,
         name: {
           first: userResp?.firstName,
-          last: userResp?.firstName
+          last: userResp?.lastName
         },
         dob: ''
       };

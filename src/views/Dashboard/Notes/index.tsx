@@ -137,11 +137,10 @@ const NotesDirectory: React.FC = () => {
   const { user } = userStore();
 
   useEffect(() => {
-    if (flashcardData.documentId) {
+    if (flashcardData.documentId || flashcardData.noteDoc) {
       setMinimized(false);
     }
     return () => {
-      console.log(flashcardWizardLoading);
       setMinimized(flashcardWizardLoading);
     };
   }, [flashcardWizardLoading]);
@@ -196,8 +195,9 @@ const NotesDirectory: React.FC = () => {
     activeTab === 'notes' ? notesIsLoading : docsIsLoading || loading;
   const [openSideModal, setOpenSideModal] = useState(false);
   const storeTags = activeTab === 'notes' ? storeNoteTags : storeDocumentTags;
-  // const deleteItem = activeTab === 'notes' ? deleteNote : deleteStudentDocument;
   const items = activeTab === 'notes' ? notes : studentDocuments;
+  const itemsCount = items.length;
+  const itemName = activeTab === 'notes' ? 'Notes' : 'Files';
   const tags = activeTab === 'notes' ? noteTags : docTags;
 
   const isAllSelected = useMemo(() => {
@@ -615,10 +615,10 @@ const NotesDirectory: React.FC = () => {
               letterSpacing="-2%"
               color="#212224"
             >
-              Notes
+              {itemName}
             </Text>
             <Tag ml="10px" borderRadius="5" background="#f7f8fa" size="md">
-              <TagLabel fontWeight={'bold'}> {notes?.length || 0}</TagLabel>
+              <TagLabel fontWeight={'bold'}> {itemsCount}</TagLabel>
             </Tag>
           </Box>
           <ActionDropdown
