@@ -1,5 +1,5 @@
 import userStore from '../../state/userStore';
-import React from 'react';
+import React, { SetStateAction } from 'react';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { StreamChat } from 'stream-chat';
@@ -15,7 +15,8 @@ import {
   Window,
   ScrollToBottomButton,
   Thread,
-  useChatContext
+  useChatContext,
+  ChannelSearchFunctionParams
 } from 'stream-chat-react';
 
 const client = new StreamChat(
@@ -101,6 +102,7 @@ export default function Messages() {
   const RenderChannel = () => {
     // Access the Chat context to get the active channel
     const { channel } = useChatContext();
+    // console.log('CHANNEL', channel);
     // If channel is frozen apply disabled channel styles
     return channel?.data?.frozen ? (
       <div className="stream-chat-frozen-wrapper">
@@ -138,12 +140,54 @@ export default function Messages() {
     );
   };
 
+  const customSearchFunction = async (
+    props: ChannelSearchFunctionParams,
+    event: { target: { value: string } },
+    client: StreamChat
+  ) => {
+    const { setResults, setSearching, setQuery } = props;
+    const value = event.target.value;
+    // console.log('VALUE', value);
+    // Check if the value is empty and handle an empty search query
+    if (value === '') {
+      setQuery('');
+      setResults([]);
+      setSearching(false);
+    } else {
+      setQuery(value);
+      setSearching(true);
+      const filters = {
+        'member.user.name': { $autocomplete: value },
+        members: { $in: [userRoleId] }
+      };
+      const sort = { last_message_at: -1 };
+
+      try {
+        // @ts-ignore: streamchat documented filter example
+        const channels = await client.queryChannels(filters, sort);
+
+        // console.log(channels);
+        setResults(channels);
+      } catch (error) {
+        // Handle the error here, e.g., display an error message
+        console.error('Error querying channels:', error);
+      } finally {
+        setSearching(false);
+      }
+    }
+  };
+
   return (
     <div className="stream-chat-wrapper">
       {isConnected && (
         <Chat client={client}>
           <ChannelList
             filters={{ members: { $in: [userRoleId] } }}
+            additionalChannelSearchProps={{
+              searchFunction: (params, event) => {
+                return customSearchFunction(params, event, client);
+              }
+            }}
             showChannelSearch
             // Preview={(props) => (
             //   <CustomChannelPreviewMessenger
