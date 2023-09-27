@@ -1206,15 +1206,29 @@ input[type='text']:focus {
   font: 14px 'Inter';
 }
 
+.rmsc {
+  position: relative;
+  z-index: 1000; /* Adjust this value as needed */
+}
+
 .rmsc .dropdown-container {
   border: 0;
   margin-right: 15px;
 }
 
 .rmsc .dropdown-heading {
-  width: 150px;
+  width: 160px;
   border: 1px solid #e4e6e7 !important;
   border-radius: 8px;
+  height: 35px;
+  font-size: 0.875rem;
+  position: relative;
+}
+
+/* Remove focus border */
+
+.rmsc .dropdown-content {
+  z-index: 1000; /* Adjust this value as needed */
 }
 
 .rmsc .dropdown-content {
@@ -1224,11 +1238,17 @@ input[type='text']:focus {
   border-radius: 8px;
   display: flex;
   align-items: flex-start;
-  z-index: 11111;
+  position: absolute;
+  z-index: -11111;
 
   input {
     border-radius: 4px;
   }
+}
+
+.rmsc .dropdown-heading:focus {
+  outline: none !important;
+  box-shadow: none !important; /* In case the component uses a box-shadow for focus indication */
 }
 
 #root {

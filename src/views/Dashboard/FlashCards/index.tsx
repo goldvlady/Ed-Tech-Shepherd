@@ -844,7 +844,13 @@ const CustomTable: React.FC = () => {
                 value={multiSelected}
                 onChange={handleSelectionChange}
                 labelledBy="Select"
-                valueRenderer={customValueRenderer}
+                valueRenderer={() => (
+                  <span
+                    style={{ fontWeight: '500', color: 'rgb(110, 118, 130)' }}
+                  >
+                    Filter by tags
+                  </span>
+                )}
               />
 
               {/* <DropDownFilter
