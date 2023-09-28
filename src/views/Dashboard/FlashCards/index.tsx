@@ -753,6 +753,7 @@ const CustomTable: React.FC = () => {
         <Box
           padding={{ md: '20px', base: '10px' }}
           overflowX={{ base: 'hidden' }}
+          minHeight="100vh"
         >
           <Flex
             width="100%"
@@ -846,9 +847,14 @@ const CustomTable: React.FC = () => {
                 labelledBy="Select"
                 valueRenderer={() => (
                   <span
-                    style={{ fontWeight: '500', color: 'rgb(110, 118, 130)' }}
+                    style={{
+                      fontWeight: '500',
+                      color: 'rgb(110, 118, 130)',
+                      fontSize: '0.875rem',
+                      whiteSpace: 'nowrap'
+                    }}
                   >
-                    Filter by tags
+                    Filter By Tags
                   </span>
                 )}
               />
