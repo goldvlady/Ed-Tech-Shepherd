@@ -572,8 +572,6 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
 
     setIsLoading(true);
 
-    console.log({ tagsArray });
-
     const details = await addAllNoteTags(noteIdsInUse, tagsArray);
     setIsLoading(false);
 

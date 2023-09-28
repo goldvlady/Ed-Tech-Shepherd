@@ -147,7 +147,6 @@ export default create<Store>((set) => ({
     set((state) => {
       if (!id) return { flashcard: undefined, minimizedStudy: null };
       const flashcard = state.flashcards?.find((card) => card._id === id);
-      console.log(flashcard);
       // if (!flashcard) {
       //   const response = ApiService.getSingleFlashcard(id);
       //   const respJson = await response.json();
@@ -205,11 +204,14 @@ export default create<Store>((set) => ({
       const response = await ApiService.createFlashcard(data, generatorType);
       if (response.status === 200) {
         const { data } = await response.json();
-        console.log(data);
         set((store) => {
           const { flashcards } = store;
-          flashcards?.push(data);
-          return { flashcards };
+          let flashcardData: any = [];
+          if (flashcards) {
+            flashcardData = flashcards;
+          }
+          flashcardData.push(data);
+          return { flashcards: flashcardData };
         });
       }
       return response;

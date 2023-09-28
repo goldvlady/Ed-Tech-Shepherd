@@ -152,7 +152,6 @@ const Offer = () => {
       offer?._id as string,
       chosenPaymentMethod?._id
     );
-    console.log(resp, 'resppp');
     switch (resp?.status) {
       case 200:
         toast({

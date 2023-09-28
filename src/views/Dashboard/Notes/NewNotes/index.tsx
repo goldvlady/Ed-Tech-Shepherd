@@ -382,7 +382,6 @@ const NewNote = () => {
       if (respDetails.data) {
         const { data: note } = respDetails.data;
         if (note._id && note.topic && note.note) {
-          console.log(note.note);
           setEditedTitle(note.topic);
           setCurrentTime(formatDate(note.updatedAt));
           setInitialContent(note.note);
@@ -820,7 +819,6 @@ const NewNote = () => {
   ) => {
     if (!editor) return;
 
-    console.log(editor.topLevelBlocks);
     const noteTitle = editedTitleRef.current.value ?? editedTitle;
 
     let noteIdToUse = '';

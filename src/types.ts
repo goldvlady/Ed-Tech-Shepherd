@@ -305,6 +305,7 @@ export interface Study {
   explanation?: string;
   answers: string | string[];
   currentStep: number;
+  numberOfAttempts: number;
   isFirstAttempt: boolean;
   options?: Options;
 }

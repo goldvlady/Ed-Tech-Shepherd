@@ -47,6 +47,7 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaCalendarAlt } from 'react-icons/fa';
+import { MultiSelect } from 'react-multi-select-component';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -112,6 +113,11 @@ const YourDeleteIcon = () => (
   </StyledImage>
 );
 
+interface Option {
+  label: string;
+  value: string;
+}
+
 const NotesDirectory: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -133,15 +139,15 @@ const NotesDirectory: React.FC = () => {
     isLoading: flashcardWizardLoading,
     setMinimized
   } = useFlashcardWizard();
+  const [multiSelected, setMultiSelected] = useState<any>([]);
 
   const { user } = userStore();
 
   useEffect(() => {
-    if (flashcardData.documentId) {
+    if (flashcardData.documentId || flashcardData.noteDoc) {
       setMinimized(false);
     }
     return () => {
-      console.log(flashcardWizardLoading);
       setMinimized(flashcardWizardLoading);
     };
   }, [flashcardWizardLoading]);
@@ -189,6 +195,21 @@ const NotesDirectory: React.FC = () => {
     });
   };
 
+  const handleSelectionChange = (selectedOptions: Option[]) => {
+    setMultiSelected(selectedOptions);
+
+    const selectedTags = selectedOptions
+      .map((option) => option.value)
+      .join(',');
+
+    const query: { [key: string]: any } = {};
+    if (selectedTags) {
+      query.tags = selectedTags;
+    }
+
+    fetchItems(query);
+  };
+
   const fetchItems = activeTab === 'notes' ? fetchNotes : fetchStudentDocuments;
   const pagination = activeTab === 'notes' ? notesPagination : docsPagination;
 
@@ -196,9 +217,15 @@ const NotesDirectory: React.FC = () => {
     activeTab === 'notes' ? notesIsLoading : docsIsLoading || loading;
   const [openSideModal, setOpenSideModal] = useState(false);
   const storeTags = activeTab === 'notes' ? storeNoteTags : storeDocumentTags;
-  // const deleteItem = activeTab === 'notes' ? deleteNote : deleteStudentDocument;
   const items = activeTab === 'notes' ? notes : studentDocuments;
+  const itemsCount = items.length;
+  const itemName = activeTab === 'notes' ? 'Notes' : 'Files';
   const tags = activeTab === 'notes' ? noteTags : docTags;
+
+  const filterOptions: Option[] = tags.map((tag) => ({
+    label: tag,
+    value: tag
+  }));
 
   const isAllSelected = useMemo(() => {
     if (activeTab === 'notes') {
@@ -615,10 +642,10 @@ const NotesDirectory: React.FC = () => {
               letterSpacing="-2%"
               color="#212224"
             >
-              Notes
+              {itemName}
             </Text>
             <Tag ml="10px" borderRadius="5" background="#f7f8fa" size="md">
-              <TagLabel fontWeight={'bold'}> {notes?.length || 0}</TagLabel>
+              <TagLabel fontWeight={'bold'}> {itemsCount}</TagLabel>
             </Tag>
           </Box>
           <ActionDropdown
@@ -666,14 +693,32 @@ const NotesDirectory: React.FC = () => {
             alignItems={{ base: 'flex-start', md: 'center' }}
             width={{ base: '100%', md: 'auto' }}
           >
-            <DropDownFilter
+            <MultiSelect
+              options={filterOptions}
+              value={multiSelected}
+              onChange={handleSelectionChange}
+              labelledBy="Select"
+              valueRenderer={() => (
+                <span
+                  style={{
+                    fontWeight: '500',
+                    color: 'rgb(110, 118, 130)',
+                    fontSize: '0.875rem',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  Filter By Tags
+                </span>
+              )}
+            />
+            {/* <DropDownFilter
               selectedItems={selectedTags}
               multi
               style={{ marginRight: '20px' }}
               filterLabel="Filter By Tags"
               onSelectionChange={onSelectionChange}
               items={tags.map((tag) => ({ id: tag, value: tag }))}
-            />
+            /> */}
             <Menu>
               <MenuButton>
                 <Flex

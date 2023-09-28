@@ -249,6 +249,14 @@ const FlashCard: React.FC<FlashCardProps> = ({
     }
   }, [studyState, onNewResult, study.options, selectedOptions]);
 
+  const generateAttempts = (numberOfAttempts: number) => {
+    if (numberOfAttempts === 0) return [];
+
+    return Array.from({ length: numberOfAttempts }, (_, index) => ({
+      title: `attempt ${index + 1}`
+    }));
+  };
+
   const renderFlippableCard = () => {
     return (
       <ChakraBox height="65%" width="100%" padding="10px">
@@ -588,12 +596,7 @@ const FlashCard: React.FC<FlashCardProps> = ({
         >
           <StepIndicator
             isFirstAttempt={study.isFirstAttempt}
-            steps={[
-              { title: 'Week 1' },
-              { title: '1 month' },
-              { title: '3 months' },
-              { title: 'Long term' }
-            ]}
+            steps={generateAttempts(4)}
             activeStep={study.currentStep - 1}
           />
         </ChakraBox>
