@@ -1206,11 +1206,6 @@ input[type='text']:focus {
   font: 14px 'Inter';
 }
 
-.rmsc {
-  position: relative;
-  z-index: 1000; /* Adjust this value as needed */
-}
-
 .rmsc .dropdown-container {
   border: 0 !important;
   margin-right: 15px !important;
@@ -1236,18 +1231,14 @@ input[type='text']:focus {
 /* Remove focus border */
 
 .rmsc .dropdown-content {
-  z-index: 1000; /* Adjust this value as needed */
-}
-
-.rmsc .dropdown-content {
   color: black !important;
   font-size: 0.875rem !important;
   font-family: 'Inter' !important;
   border-radius: 8px !important;
   display: flex !important;
   align-items: flex-start !important;
-  position: absolute !important;
-  z-index: -11111 !important;
+  // position: absolute !important;
+  // z-index: -11111 !important;
 
   input {
     border-radius: 4px !important;
