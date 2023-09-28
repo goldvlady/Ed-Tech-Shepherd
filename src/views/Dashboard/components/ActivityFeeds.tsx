@@ -1,6 +1,7 @@
-import BountyIcon from '../../../assets/Frame-2.svg';
 import AdobeIcon from '../../../assets/adobedoc.svg';
 import FeedIcon from '../../../assets/blue-energy.svg';
+import BountyChat from '../../../assets/bounty-chat.svg';
+import BountyVid from '../../../assets/bounty-video.svg';
 import DocIcon from '../../../assets/doc-icon.svg';
 import NoteSmIcon from '../../../assets/doc-sm.svg';
 import FlashcardSmIcon from '../../../assets/flashcard-sm.svg';
@@ -113,7 +114,7 @@ function ActivityFeeds(props) {
       case 'flashcards':
         return FlashcardIcon;
       case 'bounty':
-        return BountyIcon;
+        return BountyChat;
       default:
         return undefined;
     }

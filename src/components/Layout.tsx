@@ -1,7 +1,9 @@
+import BellDot from '../assets/bell-dot.svg';
 import { classNames } from '../helpers';
 import tutorStore from '../state/tutorStore';
 import userStore from '../state/userStore';
 import Notifications from '../views/Dashboard/components/Notifications';
+import useNotifications from '../views/Dashboard/components/useNotification';
 import ProfileSwitchModal from './ProfileSwitchModal';
 import {
   DashboardIcon,
@@ -20,6 +22,7 @@ import {
   Flex,
   HStack,
   Icon,
+  Image,
   MenuButton,
   Text,
   IconButton,
@@ -101,12 +104,11 @@ export default function Layout({ children, className }) {
     useState<NavigationItem[]>(dummyNavigation);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, userNotifications, fetchNotifications } = userStore();
+  const { user, fetchUser } = userStore();
+  const userId = user?._id || '';
+  const { notifications, hasUnreadNotification, markAsRead, markAllAsRead } =
+    useNotifications(userId);
   const auth = getAuth();
-
-  useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
 
   const activateProfileSwitchModal = () => {
     setToggleProfileSwitchModal(true);
@@ -389,11 +391,17 @@ export default function Layout({ children, className }) {
                       variant="ghost"
                       aria-label="open menu"
                       color={'text.300'}
-                      icon={<FaBell />}
-                    />{' '}
+                      icon={
+                        hasUnreadNotification ? (
+                          <Image src={BellDot} />
+                        ) : (
+                          <FaBell />
+                        )
+                      }
+                    />
                   </MenuButton>
                   <MenuList p={3} width={'358px'} zIndex={2}>
-                    <Notifications data={userNotifications} />
+                    <Notifications data={notifications} />
                   </MenuList>
                 </Menu>
                 <Center height="25px">

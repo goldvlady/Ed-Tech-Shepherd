@@ -86,16 +86,19 @@ export default function Events({ event }: any) {
                 {/* {convertTo12HourFormat(event.data.startDate.substring(11, 16))} */}
                 {/* {event.data.startDate} */}
                 {calculateTimeDifference(
-                  convertTimeStringToISOString(
-                    formatDateToAMPM(event.data.startDate)
-                  ),
+                  event.data.startDate,
                   'Africa/Lagos'
+                  // 'America/New_York'
                 )}
               </span>
               <ChevronRightIcon className="w-4 h-4" />
               <span>
                 {/* {convertTo12HourFormat(event.data.endDate.substring(11, 16))} */}
-                {calculateTimeDifference(event.data.endDate, 'Africa/Lagos')}
+                {calculateTimeDifference(
+                  event.data.endDate,
+                  'Africa/Lagos'
+                  // 'America/New_York'
+                )}
               </span>
             </Text>
           </div>

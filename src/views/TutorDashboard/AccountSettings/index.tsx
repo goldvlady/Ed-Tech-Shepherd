@@ -2,7 +2,10 @@ import PlansModal from '../../../components/PlansModal';
 import { useTitle } from '../../../hooks';
 import userStore from '../../../state/userStore';
 import Billing from '../../Dashboard/components/Settings/Billing';
-import MyProfile from '../../Dashboard/components/Settings/MyProfile';
+// import MyProfile from '../../Dashboard/components/Settings/MyProfile';
+import MyProfile from './AvailabilityEditForm.tsx';
+import AvailabilityEditForm from './AvailabilityEditForm.tsx';
+import TutorProfile from './TutorProfile';
 import {
   Avatar,
   Box,
@@ -98,18 +101,18 @@ function AccSettings() {
             <Box width="900px" px={6}>
               <TabPanels>
                 <TabPanel>
-                  <MyProfile
+                  <TutorProfile
                     id={user?._id}
                     username={`${user?.name?.first} ${user?.name?.last}`}
                     email={user?.email}
                   />
                 </TabPanel>
                 <TabPanel>
-                  <MyProfile
+                  {/* <MyProfile
                     id={user?._id}
                     username={`${user?.name?.first} ${user?.name?.last}`}
                     email={user?.email}
-                  />
+                  /> */}
                 </TabPanel>
                 <TabPanel>
                   <Billing

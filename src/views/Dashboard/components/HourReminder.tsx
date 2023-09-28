@@ -112,7 +112,9 @@ export default function HourReminder(props) {
                 px={2}
                 py={0}
                 onClick={() =>
-                  sessionPrefaceDialogRef.current?.open('http://google.com')
+                  sessionPrefaceDialogRef.current?.open(
+                    `${data.data.data.conferenceRoomUrl}`
+                  )
                 }
               >
                 Join Lesson
