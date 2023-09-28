@@ -1,6 +1,4 @@
-/* eslint-disable no-loop-func */
-
-/* eslint-disable no-unsafe-optional-chaining */
+/* eslint-disable no-loop-func,@typescript-eslint/no-non-null-assertion,no-unsafe-optional-chaining,react-hooks/exhaustive-deps */
 import PultoJPG from '../../../assets/PlutoAi.jpg';
 import { ReactComponent as HightLightIcon } from '../../../assets/highlightIcn.svg';
 import SocratesImg from '../../../assets/socrates-image.png';

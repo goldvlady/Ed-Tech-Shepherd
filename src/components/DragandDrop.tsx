@@ -45,6 +45,7 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
       setFileSelected(false);
       setFileName(''); // Set the selected file name
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [file]);
 
   const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {

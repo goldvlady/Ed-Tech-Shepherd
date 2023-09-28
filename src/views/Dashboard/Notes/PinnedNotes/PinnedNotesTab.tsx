@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import TableTag from '../../../../components/CustomComponents/CustomTag';
 import { TrashIcon } from '../../../../components/icons';
 import { TableTitleWrapper } from '../../../../components/notesTab/styles';
@@ -292,9 +293,9 @@ const PinnedNotesTab: FC<Props> = ({ data }) => {
 
   return (
     <>
-      <div className="mt-8 flow-root">
+      <div className="flow-root mt-8">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full py-2 align-middle h-screen sm:px-6 lg:px-8 z-10">
+          <div className="z-10 inline-block h-screen min-w-full py-2 align-middle sm:px-6 lg:px-8">
             <div className="relative">
               <div className="table-columns  fixed bottom-[80px] right-[36%] left-[36%]">
                 {selectedPeople.length > 0 && (
@@ -320,7 +321,7 @@ const PinnedNotesTab: FC<Props> = ({ data }) => {
 
                     <button
                       type="button"
-                      className="inline-flex items-center rounded-lg bg-white px-6 py-2 text-sm text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                      className="inline-flex items-center px-6 py-2 text-sm text-gray-700 bg-white rounded-lg shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
                     >
                       Done
                     </button>

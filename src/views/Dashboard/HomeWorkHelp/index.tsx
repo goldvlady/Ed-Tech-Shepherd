@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import Sally from '../../../assets/saly.svg';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast/index';

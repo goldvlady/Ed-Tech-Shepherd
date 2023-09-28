@@ -98,8 +98,11 @@ const RequireAuth = ({
   return isAuthenticated ? authenticated : unAuthenticated;
 };
 
+const TestNewNote = () => <div>this is the new note </div>;
+
 const studentRoutes = [
   { path: 'new-note', element: <NewNote /> },
+  // { path: 'new-note', element: <TestNewNote /> },
   { path: 'new-note/:id', element: <NewNote /> },
   { path: 'notes', element: <Notes /> },
   { path: 'pinned', element: <PinnedNotes /> },

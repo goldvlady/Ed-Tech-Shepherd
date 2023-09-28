@@ -32,6 +32,7 @@ export function PerformanceChart(chartData) {
     );
     setLabels(flashcardNames);
     setValues(flashcardPercentages);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chartData]);
 
   const abbreviatedLabels = labels.map((label: string) =>

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import userStore from '../../state/userStore';
 import React, { SetStateAction } from 'react';
 import { useEffect, useState } from 'react';

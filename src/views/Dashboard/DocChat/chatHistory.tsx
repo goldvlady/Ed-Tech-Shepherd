@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { ReactComponent as DeleteIcn } from '../../../assets/deleteIcn.svg';
 import { ReactComponent as EditIcn } from '../../../assets/editIcn.svg';
 import { ReactComponent as HistoryIcn } from '../../../assets/historyIcon.svg';

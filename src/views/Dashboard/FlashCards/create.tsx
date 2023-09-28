@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import { FlashCardModal } from '../../../components/flashcardDecks';
 import LoaderOverlay from '../../../components/loaderOverlay';

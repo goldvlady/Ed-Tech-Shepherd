@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import CustomToast from '../../../components/CustomComponents/CustomToast/index';
 import { AI_API } from '../../../config';
 import {
@@ -338,7 +339,7 @@ export default function DocChat() {
   }, [navigate, location.state?.documentUrl, location.state?.docTitle]);
 
   return (
-    <section className="divide-y max-w-screen-xl fixed mx-auto">
+    <section className="fixed max-w-screen-xl mx-auto divide-y">
       <div className="h-screen bg-white divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
         {location.state?.documentUrl ? (
           <TempPDFViewer
@@ -351,7 +352,7 @@ export default function DocChat() {
         ) : (
           <div
             style={{ display: 'flex', position: 'fixed', paddingTop: '2em' }}
-            className="lg:col-span-6 flex-auto h-full w-1/2"
+            className="flex-auto w-1/2 h-full lg:col-span-6"
           >
             <div style={{ width: '87%' }}>
               <BlockNoteView editor={editor} />

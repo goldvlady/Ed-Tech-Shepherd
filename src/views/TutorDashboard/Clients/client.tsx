@@ -23,7 +23,7 @@ export default function Client() {
   }, []);
   useEffect(() => {
     doFetchTutorClient(clientId);
-  }, [doFetchTutorClient]);
+  }, [doFetchTutorClient, clientId]);
 
   const dayMappings = {
     0: 'Sun',
@@ -90,7 +90,7 @@ export default function Client() {
           <li>
             <div className="flex items-center text-gray-400">
               <ChevronRightIcon
-                className="h-5 w-5 flex-shrink-0 text-gray-400"
+                className="flex-shrink-0 w-5 h-5 text-gray-400"
                 aria-hidden="true"
               />
               <Text className="text-sm font-medium">
@@ -102,7 +102,7 @@ export default function Client() {
           <li>
             <div className="flex items-center">
               <ChevronRightIcon
-                className="h-5 w-5 flex-shrink-0 text-gray-400"
+                className="flex-shrink-0 w-5 h-5 text-gray-400"
                 aria-hidden="true"
               />
               <Text className="text-sm font-normal text-secondaryBlue hover:text-blue-700">
@@ -114,25 +114,25 @@ export default function Client() {
       </nav>
       <section className="my-4">
         <Text className="space-x-2">
-          <span className="font-bold px-4 text-2xl">Contract</span>
+          <span className="px-4 text-2xl font-bold">Contract</span>
         </Text>
       </section>
 
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-2">
-        <div className="mx-auto grid max-w-2xl grid-cols-1 grid-rows-1 items-start gap-x-8 gap-y-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+      <div className="px-4 py-10 mx-auto max-w-7xl sm:px-2">
+        <div className="grid items-start max-w-2xl grid-cols-1 grid-rows-1 mx-auto gap-x-8 gap-y-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
           {/* Invoice summary */}
-          <div className="lg:col-start-3 bg-white lg:col-span-2 lg:row-end-1 p-2 rounded-lg shadow-sm ring-1 ring-gray-900/5">
+          <div className="p-2 bg-white rounded-lg shadow-sm lg:col-start-3 lg:col-span-2 lg:row-end-1 ring-1 ring-gray-900/5">
             <div>
-              <div className="h-14 w-14 mx-auto flex items-center justify-center bg-gray-100 p-2 rounded-full">
+              <div className="flex items-center justify-center p-2 mx-auto bg-gray-100 rounded-full h-14 w-14">
                 <img
                   src="/svgs/text-document.svg"
-                  className="h-6 w-6 text-gray-400"
+                  className="w-6 h-6 text-gray-400"
                   alt=""
                 />
               </div>
               <div className="mt-3 text-center sm:mt-5">
                 <div className="mt-2 space-y-1">
-                  <Text className="text-dark font-semibold">
+                  <Text className="font-semibold text-dark">
                     You have an active contract
                   </Text>
                   <Text className="text-sm text-gray-500">
@@ -144,7 +144,7 @@ export default function Client() {
             <div className="mt-5 sm:mt-6">
               <button
                 type="button"
-                className="inline-flex w-full justify-center border rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-500 shadow-sm hover:text-gray-560 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
+                className="inline-flex justify-center w-full px-3 py-2 text-sm font-semibold text-gray-500 bg-white border rounded-md shadow-sm hover:text-gray-560 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
               >
                 Send message
               </button>
@@ -152,8 +152,8 @@ export default function Client() {
           </div>
 
           <div className="-mx-4 space-y-4 sm:mx-0 lg:col-span-2 lg:row-span-2 lg:row-end-2">
-            <div className="flex shadow-sm sm:rounded-lg p-4 ring-1 ring-gray-900/5 lg:space-y-0 space-y-3 items-center justify-between">
-              <section className="flex items-center sm:space-y-0 space-y-3 sm:space-x-4">
+            <div className="flex items-center justify-between p-4 space-y-3 shadow-sm sm:rounded-lg ring-1 ring-gray-900/5 lg:space-y-0">
+              <section className="flex items-center space-y-3 sm:space-y-0 sm:space-x-4">
                 <Avatar
                   name={`${client?.student?.user?.name.first} ${client?.student?.user?.name.last}`}
                   src={client?.student?.user?.avatar}
@@ -161,7 +161,7 @@ export default function Client() {
 
                 <Text className="">
                   <span className="block whitespace-nowrap">{`${client?.student?.user?.name.first} ${client?.student?.user?.name.last}`}</span>
-                  <span className="inline-block text-gray-400 text-sm">
+                  <span className="inline-block text-sm text-gray-400">
                     {`  Your contract with ${
                       client?.student?.user?.name.first
                     } ends ${moment(client?.offer?.contractEndDate).format(
@@ -170,41 +170,41 @@ export default function Client() {
                   </span>
                 </Text>
               </section>
-              <div className="flex flex-none items-center gap-x-4">
+              <div className="flex items-center flex-none gap-x-4">
                 <Text className="rounded-md bg-gray-50 px-2.5 py-1.5 text-sm font-semibold text-gray-500 shadow-sm hover:bg-gray-50 sm:block">
                   {moment(client?.offer?.contractEndDate).format('DD.MM.YYYY')}
                 </Text>
               </div>
             </div>
 
-            <div className="shadow-sm sm:rounded-lg p-4 ring-1 ring-gray-900/5 lg:space-y-0 space-y-3">
-              <Text className="text-xl mb-4 font-semibold tracking-wider">
+            <div className="p-4 space-y-3 shadow-sm sm:rounded-lg ring-1 ring-gray-900/5 lg:space-y-0">
+              <Text className="mb-4 text-xl font-semibold tracking-wider">
                 Offer Details
               </Text>
               <ul className="space-y-4">
-                <li className="text-sm space-y-2 font-normal">
+                <li className="space-y-2 text-sm font-normal">
                   <Text className="text-secondaryGray">Subject & Level</Text>
                   <Text>{`${client?.offer?.course.label} - ${client?.offer?.level.label}`}</Text>
                 </li>
-                <li className="text-sm space-y-2 font-normal">
+                <li className="space-y-2 text-sm font-normal">
                   <Text className="text-secondaryGray">
                     What days would you like to have your classes
                   </Text>
                   <Text>{getDaysOfWeek(client?.offer.schedule)}</Text>
                 </li>
-                <li className="text-sm space-y-2 font-normal">
+                <li className="space-y-2 text-sm font-normal">
                   <Text className="text-secondaryGray">
                     Frequency of class sessions
                   </Text>
                   <Text>Weekly</Text>
                 </li>
-                <li className="text-sm space-y-2 font-normal">
+                <li className="space-y-2 text-sm font-normal">
                   <Text className="text-secondaryGray">Time</Text>
                   <Text className="flex items-center space-x-1">
                     {getFormattedTimeRanges(client.offer.schedule)}
                   </Text>
                 </li>
-                <li className="text-sm space-y-2 font-normal">
+                <li className="space-y-2 text-sm font-normal">
                   <Text className="text-secondaryGray">Start date</Text>
                   <Text>
                     {moment(client?.offer?.contractStartDate).format(
@@ -212,7 +212,7 @@ export default function Client() {
                     )}
                   </Text>
                 </li>
-                <li className="text-sm space-y-2 font-normal">
+                <li className="space-y-2 text-sm font-normal">
                   <Text className="text-secondaryGray">End date</Text>
                   <Text>
                     {moment(client?.offer?.contractEndDate).format(
@@ -220,19 +220,19 @@ export default function Client() {
                     )}
                   </Text>
                 </li>
-                <li className="text-sm space-y-2 font-normal">
+                <li className="space-y-2 text-sm font-normal">
                   <Text className="text-secondaryGray">Note</Text>
                   <Text>{client.offer.note}</Text>
                 </li>
               </ul>
             </div>
 
-            <div className="shadow-sm sm:rounded-lg p-4 ring-1 ring-gray-900/5 lg:space-y-0 space-y-3">
-              <Text className="text-xl mb-4 font-semibold tracking-wider">
+            <div className="p-4 space-y-3 shadow-sm sm:rounded-lg ring-1 ring-gray-900/5 lg:space-y-0">
+              <Text className="mb-4 text-xl font-semibold tracking-wider">
                 Payment Details
               </Text>
               <ul className="space-y-4">
-                <li className="text-sm space-y-2 font-normal">
+                <li className="space-y-2 text-sm font-normal">
                   <Text className="text-secondaryGray">Hourly rate</Text>
                   <Text className="text-gray-800">{`$${client.offer.rate}.00/hr`}</Text>
                   <Text className="flex space-x-1 text-sm">
@@ -240,18 +240,18 @@ export default function Client() {
                     <span className="text-secondaryBlue">
                       {` 5% service fee (-$${client.offer.rate * 0.05}.00/hr)`}
                     </span>
-                    <QuestionMarkCircleIcon className="h-4 w-4 rounded-full text-gray-200 bg-secondaryGray" />
+                    <QuestionMarkCircleIcon className="w-4 h-4 text-gray-200 rounded-full bg-secondaryGray" />
                   </Text>
                 </li>
 
-                <li className="text-sm space-y-2 font-normal">
+                <li className="space-y-2 text-sm font-normal">
                   <Text className="text-secondaryGray">You'll receive</Text>
                   <Text className="text-gray-800">{`$${
                     client.offer.rate - client.offer.rate * 0.05
                   }.00/hr`}</Text>
                 </li>
 
-                <li className="text-sm mb-4 space-y-2 font-normal">
+                <li className="mb-4 space-y-2 text-sm font-normal">
                   <Text className="text-secondaryGray">Total amount</Text>
                   <Text className="text-gray-800">$000.00</Text>
                   <Text className="flex space-x-1 text-sm">
@@ -262,9 +262,9 @@ export default function Client() {
 
               <div
                 style={{ marginTop: '1rem' }}
-                className="flex items-start space-x-2 font-semibold bg-blue-100 text-gray-500 p-3 rounded-md"
+                className="flex items-start p-3 space-x-2 font-semibold text-gray-500 bg-blue-100 rounded-md"
               >
-                <div className="flex justify-center items-center text-sm font-bold bg-primaryColor text-white w-10 rounded-full">
+                <div className="flex items-center justify-center w-10 text-sm font-bold text-white rounded-full bg-primaryColor">
                   i
                 </div>
                 <Text className="text-sm">

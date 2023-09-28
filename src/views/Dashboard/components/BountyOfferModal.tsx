@@ -185,6 +185,7 @@ export default function BountyOfferModal(props) {
                       if (course._id === bountyOffer.subject) {
                         return course.label;
                       }
+                      return null;
                     })
                   : bountyOffer.subject}
               </MenuButton>
@@ -294,12 +295,13 @@ export default function BountyOfferModal(props) {
                 textAlign="left"
               >
                 {bountyOffer.level !== 'Level'
-                  ? (
-                      levelOptions.find(
-                        (level) => level._id === bountyOffer.level
-                      ) || {}
-                    ).label || 'Select Level'
-                  : 'Level'}
+                  ? levelOptions.map((level) => {
+                      if (level._id === bountyOffer.level) {
+                        return level.label;
+                      }
+                      return null;
+                    })
+                  : bountyOffer.level}
               </MenuButton>
               <MenuList minWidth={'auto'}>
                 {levelOptions.map((level) => (

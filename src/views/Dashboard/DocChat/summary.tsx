@@ -48,6 +48,7 @@ const Summary = ({
     if (isUpdatedSummary) {
       onEditToggle();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isUpdatedSummary]);
 
   return (
@@ -105,6 +106,7 @@ const Summary = ({
               {!isEdit ? (
                 <SummaryContainer2
                   value={summaryTexts}
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                   onChange={(event) => setSummaryText(event.target.value!)}
                 ></SummaryContainer2>
               ) : (

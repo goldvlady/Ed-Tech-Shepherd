@@ -130,7 +130,7 @@ export const SecondSection = styled.div`
 `;
 
 export const NoteBody = styled.section`
-  padding: 10px 10px;
+  padding: 10px 0;
   height: 100vh;
   background: '#ffffff';
 `;

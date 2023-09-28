@@ -101,6 +101,7 @@ const ViewTutors = ({
         const data = await resp.json();
         setAllTutors(data?.tutors ?? []);
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error('Error fetching tutors:', error);
       } finally {
         setLoadingData(false);
@@ -108,6 +109,7 @@ const ViewTutors = ({
     };
 
     getData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subjectID, subject, tutorDetails]);
 
   useEffect(() => {

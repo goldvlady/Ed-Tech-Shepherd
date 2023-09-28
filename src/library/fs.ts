@@ -51,6 +51,7 @@ export const saveHTMLAsPDF = async (
     doc.save(fileName);
     return true;
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(error);
     return false;
   }
@@ -118,6 +119,7 @@ export const saveMarkdownAsPDF = async (
     doc.save(fileName);
     return true;
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(error);
     return false;
   }
