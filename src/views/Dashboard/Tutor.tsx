@@ -170,6 +170,7 @@ export default function Tutor() {
     );
 
     let timeSlotInUserTimezone = `${startTimeInUserTimezone} -> ${endTimeInUserTimezone}`;
+    console.log('tz', timeSlotInUserTimezone);
 
     timeSlotInUserTimezone = timeSlotInUserTimezone.replace(/:\d+\s/g, '');
 
@@ -198,14 +199,15 @@ export default function Tutor() {
         </Breadcrumb>
         <Grid
           display={{ base: 'auto', md: 'grid' }}
-          minHeight="100vh"
+          // minHeight="100vh"
           templateRows={{ base: 'repeat(3, 1fr)', sm: 'repeat(2, 1fr)' }}
           templateColumns={{ base: '1fr', sm: 'repeat(3, 1fr)' }}
-          gap={3}
+          gap={4}
+          height="120vh"
           padding={{ base: '18px' }}
         >
           <GridItem rowSpan={{ base: 1, sm: 2 }} colSpan={{ base: 1, sm: 2 }}>
-            <Center py={3}>
+            <Center>
               <Box
                 maxW={'100%'}
                 w={'full'}
@@ -533,23 +535,8 @@ export default function Tutor() {
               </Box>
             </Center>
           </GridItem>
-          <GridItem h={{ base: 'auto', md: 305 }} p={3} position="relative">
-            {/* <Box border="1px solid green" borderRadius={10} mt={3}> */}
-            {/* <ReactPlayer
-                url="https://vimeo.com/243556536"
-                width="100%"
-                height="305px"
-                playing
-                playIcon={
-                  <>
-                    <p>Watch intro video</p>
-                    <button>Play</button>
-                  </>
-                }
-                light={vidHolder}
-              /> */}
-
-            <Center position="relative">
+          <GridItem h={{ base: 'auto', md: 305 }} position="relative">
+            <Center position="relative" borderRadius={10}>
               <AspectRatio
                 h={{ base: '50vh', md: '305px' }}
                 w={{ base: 'full', md: 'full' }}
@@ -616,7 +603,8 @@ export default function Tutor() {
               </Link>
             </Text>
           </GridItem>
-          <GridItem h={{ base: 'auto', md: 305 }} p={3} position="fixed">
+
+          <GridItem>
             <Card>
               <Box
                 px={4}
