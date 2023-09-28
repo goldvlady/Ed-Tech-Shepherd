@@ -617,8 +617,7 @@ export default function Tutor() {
               </Link>
             </Text>
           </GridItem>
-
-          <GridItem mt={-8}>
+          <GridItem h={{ base: 'auto', md: 305 }} p={3} position="fixed">
             <Card>
               <Box
                 px={4}

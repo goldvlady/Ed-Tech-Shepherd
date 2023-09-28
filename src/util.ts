@@ -1,6 +1,7 @@
 import { firebaseAuth } from './firebase';
 import { ToastId, createStandaloneToast } from '@chakra-ui/react';
 import { isArray } from 'lodash';
+import { DateTime, IANAZone } from 'luxon';
 import moment, { Duration, Moment } from 'moment-timezone';
 
 const { toast } = createStandaloneToast();
@@ -137,8 +138,8 @@ export const adjustDateTimeByHours = (
     originalDate.getTime() + timeDifferenceInHours * 60 * 60 * 1000
   );
 
-  // const adjustedDateTimeString = adjustedDate.toISOString().slice(0, -1); // Remove the 'Z' at the end
-
+  // Remove the 'Z' at the end
+  // .slice(0, -1)
   // Extract the date and time components
   const year = adjustedDate.getFullYear();
   const month = (adjustedDate.getMonth() + 1).toString().padStart(2, '0'); // Add 1 to month because it's zero-based
@@ -155,7 +156,6 @@ export const adjustDateTimeByHours = (
     originalDate,
     timeDifferenceInHours,
     adjustedDate,
-    adjustedDateTimeString,
     'Term'
   );
 
@@ -209,32 +209,49 @@ export const calculateTimeDifference = (timeString, sourceTimeZone) => {
 // );
 
 export const convertTimeStringToISOString = (timeString) => {
-  // Get the current date
+  // // Get the current date
+  // const currentDate = new Date();
+
+  // // Split the input time string into hours and AM/PM
+  // const [time, ampm] = timeString.match(/(\d+)([APap][Mm])/).slice(1);
+
+  // // Extract hours and minutes from the time
+  // const hours = parseInt(time);
+  // const minutes =
+  //   ampm.toLowerCase() === 'pm' && hours !== 12 ? hours + 12 : hours;
+
+  // // Set the time in the current date object
+  // currentDate.setHours(minutes, 0, 0, 0);
+
+  // // Convert the date to ISO string format
+  // const isoString = currentDate.toISOString();
+  // console.log(timeString, currentDate, isoString, 'iso');
+
+  // return isoString;
+
   const currentDate = new Date();
+  const [hours, minutes] = timeString
+    .match(/(\d+)(?::(\d+))?([APap][Mm])?/)
+    .slice(1, 4);
 
-  // Extract the current year, month, and day from the current date
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-  const day = currentDate.getDate();
+  if (hours) {
+    let isPM = false;
+    if (minutes && minutes.toLowerCase() === 'pm') {
+      isPM = true;
+    }
 
-  // Extract the hours and AM/PM from the timeString
-  const timeParts = timeString.match(/(\d+)(AM|PM)/i);
+    // Convert to 24-hour format
+    let hourValue = parseInt(hours);
+    if (isPM && hourValue !== 12) {
+      hourValue += 12;
+    } else if (!isPM && hourValue === 12) {
+      hourValue = 0;
+    }
 
-  if (!timeParts) {
-    throw new Error('Invalid timeString format');
+    currentDate.setHours(hourValue, minutes ? parseInt(minutes) : 0, 0, 0);
   }
-
-  let hours = parseInt(timeParts[1], 10) || 0;
-  const amPm = (timeParts[2] || '').toUpperCase();
-
-  if (amPm === 'PM' && hours !== 12) {
-    hours += 12;
-  } else if (amPm === 'AM' && hours === 12) {
-    hours = 0;
-  }
-
-  const dateWithTime = new Date(year, month, day, hours, 0); // Minutes set to 0
-  return dateWithTime.toISOString();
+  console.log(timeString, currentDate.toLocaleString(), 'time to iso');
+  return currentDate.toISOString();
 };
 
 export const formatDateToAMPM = (dateTimeString) => {
