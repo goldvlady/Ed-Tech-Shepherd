@@ -7,6 +7,7 @@ import resourceStore from '../../../state/resourceStore';
 import {
   Box,
   Button,
+  Flex,
   FormControl,
   FormLabel,
   Input,
@@ -322,7 +323,8 @@ export default function BountyOfferModal(props) {
               </MenuList>
             </Menu>
           </FormControl>
-          <HStack>
+
+          <Flex gap={2} mb={4} alignItems="center">
             <FormControl>
               <FormLabel
                 fontSize="12px"
@@ -355,7 +357,8 @@ export default function BountyOfferModal(props) {
                 _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
               />
             </FormControl>
-            <FormControl mt={3}>
+
+            <FormControl>
               {/* <FormLabel
                 fontSize="12px"
                 lineHeight="17px"
@@ -373,6 +376,7 @@ export default function BountyOfferModal(props) {
                     time: value
                   }));
                 }}
+                mt={5}
               >
                 <Radio value="30min">
                   <Text fontSize="14px">30 mins</Text>
@@ -382,7 +386,7 @@ export default function BountyOfferModal(props) {
                 </Radio>
               </RadioGroup>
             </FormControl>
-          </HStack>
+          </Flex>
 
           <FormControl mb={4}>
             <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
