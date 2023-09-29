@@ -30,7 +30,7 @@ import {
 } from '../types';
 import LexicalEditor from './LexicalEditor';
 import ContextProvider from './context';
-import './index.scss';
+// import './index.scss';
 import {
   DropDownFirstPart,
   DropDownLists,
