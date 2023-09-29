@@ -389,6 +389,10 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/getStudentReport`);
   };
 
+  static getTutorReport = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/tutorStats`);
+  };
+
   static getCalendarEvents = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getCalenderEvents`);
   };

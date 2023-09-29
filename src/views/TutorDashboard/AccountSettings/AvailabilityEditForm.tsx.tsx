@@ -534,7 +534,13 @@ const AvailabilityEditForm = (props) => {
             />
           </CustomDropdown>
         </FormControl>
-        <Button isDisabled={allSlotsHaveLengthGreaterThanZero()}>Update</Button>
+        <Button
+          isDisabled={
+            !Object.keys(availability) || allSlotsHaveLengthGreaterThanZero()
+          }
+        >
+          Update
+        </Button>
       </Stack>
     </Box>
   );
