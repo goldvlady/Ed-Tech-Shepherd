@@ -110,7 +110,6 @@ export default function EditorApp({ children }): JSX.Element {
     namespace: 'shepherd-editor',
     nodes: [...Nodes],
     onError: (error: Error) => {
-      // console.log('error =======>> ', error);
       throw error;
     },
     theme: PlaygroundEditorTheme
