@@ -15,6 +15,7 @@ import {
   calculateTimeDifference,
   convertTimeStringToISOString
 } from '../../util';
+import AvailabilityTable from './components/AvailabilityTable';
 import HowItWorks from './components/HowItWorks';
 import { CustomButton } from './layout';
 import {
@@ -398,92 +399,7 @@ export default function Tutor() {
                             ))}
                           </TabPanel>
                           <TabPanel>
-                            <TableContainer my={2}>
-                              <Box
-                                border={'1px solid #EEEFF2'}
-                                borderRadius={8}
-                                // width="700px"
-                              >
-                                <Table variant="simple">
-                                  <Thead>
-                                    <Tr>
-                                      <Th width={'155px'}></Th>
-                                      {daysOfWeek.map((day, index) => (
-                                        <Th key={index}>{day}</Th>
-                                      ))}
-                                    </Tr>
-                                  </Thead>
-                                  <Tbody>
-                                    {fixedTimeSlotswithTimezone.map(
-                                      (timeSlot, timeIndex) => (
-                                        <Tr key={timeIndex}>
-                                          <Td fontSize={12}>
-                                            <Flex>
-                                              <Image src={Day} ml={-15} />{' '}
-                                              {timeSlot}
-                                            </Flex>
-                                          </Td>
-                                          {daysOfWeek.map((day, dayIndex) => (
-                                            <Td
-                                              key={dayIndex}
-                                              className={
-                                                tutorData.schedule[
-                                                  dayIndex.toString()
-                                                ] &&
-                                                tutorData.schedule[
-                                                  dayIndex.toString()
-                                                ].some(
-                                                  (slot) =>
-                                                    calculateTimeDifference(
-                                                      convertTimeStringToISOString(
-                                                        slot.begin
-                                                      ),
-                                                      tutorData.tz
-                                                    ) ===
-                                                      timeSlot.split(' ')[0] &&
-                                                    calculateTimeDifference(
-                                                      convertTimeStringToISOString(
-                                                        slot.end
-                                                      ),
-                                                      tutorData.tz
-                                                    ) === timeSlot.split(' ')[2]
-                                                )
-                                                  ? ''
-                                                  : 'stripeBox'
-                                              }
-                                            >
-                                              {tutorData.schedule[
-                                                dayIndex.toString()
-                                              ] &&
-                                              tutorData.schedule[
-                                                dayIndex.toString()
-                                              ].some(
-                                                (slot) =>
-                                                  calculateTimeDifference(
-                                                    convertTimeStringToISOString(
-                                                      slot.begin
-                                                    ),
-                                                    tutorData.tz
-                                                  ) ===
-                                                    timeSlot.split(' ')[0] &&
-                                                  calculateTimeDifference(
-                                                    convertTimeStringToISOString(
-                                                      slot.end
-                                                    ),
-                                                    tutorData.tz
-                                                  ) === timeSlot.split(' ')[2]
-                                              ) ? (
-                                                <Image src={Check} mr={3} />
-                                              ) : null}
-                                            </Td>
-                                          ))}
-                                        </Tr>
-                                      )
-                                    )}
-                                  </Tbody>
-                                </Table>
-                              </Box>
-                            </TableContainer>
+                            <AvailabilityTable data={tutorData} />
                           </TabPanel>
                           <TabPanel>
                             <TableContainer my={4}>
