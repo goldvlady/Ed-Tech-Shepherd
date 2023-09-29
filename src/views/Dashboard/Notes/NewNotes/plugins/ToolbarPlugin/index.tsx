@@ -1093,18 +1093,20 @@ export default function ToolbarPlugin(): JSX.Element {
               <i className="icon image" />
               <span className="text">Inline Image</span>
             </DropDownItem>
-            <DropDownItem
-              onClick={() =>
-                insertGifOnClick({
-                  altText: 'Cat typing on a laptop',
-                  src: catTypingGif
-                })
-              }
-              className="item"
-            >
-              <i className="icon gif" />
-              <span className="text">GIF</span>
-            </DropDownItem>
+            {false && (
+              <DropDownItem
+                onClick={() =>
+                  insertGifOnClick({
+                    altText: 'Cat typing on a laptop',
+                    src: catTypingGif
+                  })
+                }
+                className="item"
+              >
+                <i className="icon gif" />
+                <span className="text">GIF</span>
+              </DropDownItem>
+            )}
             <DropDownItem
               onClick={() => {
                 activeEditor.dispatchCommand(

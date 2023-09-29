@@ -21,6 +21,7 @@ import Marketplace from './views/Dashboard/Marketplace';
 import Messaging from './views/Dashboard/Messaging';
 import MyTutors from './views/Dashboard/MyTutors';
 import NewNote from './views/Dashboard/Notes/NewNotes';
+import LexicalContext from './views/Dashboard/Notes/NewNotes/context';
 import PinnedNotes from './views/Dashboard/Notes/PinnedNotes/PinnedNotes';
 import Notes from './views/Dashboard/Notes/index';
 import Offer from './views/Dashboard/Offer';
@@ -345,16 +346,18 @@ function App() {
   }, [doFetchResources]);
 
   return (
-    <ChakraProvider theme={theme}>
-      <AuthProvider>
-        <BrowserRouter>
-          <FlashcardWizardProvider>
-            <FlashCardModal isOpen={Boolean(flashcard)} />
-            <AppRoutes />
-          </FlashcardWizardProvider>
-        </BrowserRouter>
-      </AuthProvider>
-    </ChakraProvider>
+    <LexicalContext>
+      <ChakraProvider theme={theme}>
+        <AuthProvider>
+          <BrowserRouter>
+            <FlashcardWizardProvider>
+              <FlashCardModal isOpen={Boolean(flashcard)} />
+              <AppRoutes />
+            </FlashcardWizardProvider>
+          </BrowserRouter>
+        </AuthProvider>
+      </ChakraProvider>
+    </LexicalContext>
   );
 }
 

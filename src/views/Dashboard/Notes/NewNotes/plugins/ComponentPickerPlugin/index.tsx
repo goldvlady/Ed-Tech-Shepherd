@@ -194,14 +194,14 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
               })
           })
       ),
-      new ComponentPickerOption('Table', {
-        icon: <i className="table icon" />,
-        keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
-        onSelect: () =>
-          showModal('Insert Table', (onClose) => (
-            <InsertTableDialog activeEditor={editor} onClose={onClose} />
-          ))
-      }),
+      // new ComponentPickerOption('Table', {
+      //   icon: <i className="table icon" />,
+      //   keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
+      //   onSelect: () =>
+      //     showModal('Insert Table', (onClose) => (
+      //       <InsertTableDialog activeEditor={editor} onClose={onClose} />
+      //     ))
+      // }),
       new ComponentPickerOption('Table (Experimental)', {
         icon: <i className="table icon" />,
         keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
@@ -301,15 +301,15 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
             <InsertEquationDialog activeEditor={editor} onClose={onClose} />
           ))
       }),
-      new ComponentPickerOption('GIF', {
-        icon: <i className="icon gif" />,
-        keywords: ['gif', 'animate', 'image', 'file'],
-        onSelect: () =>
-          editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-            altText: 'Cat typing on a laptop',
-            src: catTypingGif
-          })
-      }),
+      // new ComponentPickerOption('GIF', {
+      //   icon: <i className="icon gif" />,
+      //   keywords: ['gif', 'animate', 'image', 'file'],
+      //   onSelect: () =>
+      //     editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+      //       altText: 'Cat typing on a laptop',
+      //       src: catTypingGif
+      //     })
+      // }),
       new ComponentPickerOption('Image', {
         icon: <i className="icon image" />,
         keywords: ['image', 'photo', 'picture', 'file'],
@@ -318,12 +318,12 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
             <InsertImageDialog activeEditor={editor} onClose={onClose} />
           ))
       }),
-      new ComponentPickerOption('Collapsible', {
-        icon: <i className="icon caret-right" />,
-        keywords: ['collapse', 'collapsible', 'toggle'],
-        onSelect: () =>
-          editor.dispatchCommand(INSERT_COLLAPSIBLE_COMMAND, undefined)
-      }),
+      // new ComponentPickerOption('Collapsible', {
+      //   icon: <i className="icon caret-right" />,
+      //   keywords: ['collapse', 'collapsible', 'toggle'],
+      //   onSelect: () =>
+      //     editor.dispatchCommand(INSERT_COLLAPSIBLE_COMMAND, undefined)
+      // }),
       ...['left', 'center', 'right', 'justify'].map(
         (alignment) =>
           new ComponentPickerOption(`Align ${alignment}`, {

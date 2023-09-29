@@ -124,6 +124,8 @@ export default function ActionsPlugin({
         }
         editor.getEditorState().read(() => {
           const root = $getRoot();
+
+          // console.log('root======>> ', root);
           const children = root.getChildren();
 
           if (children.length > 1) {

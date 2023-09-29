@@ -30,6 +30,7 @@ import {
 } from '../types';
 import LexicalEditor from './LexicalEditor';
 import ContextProvider from './context';
+import './index.scss';
 import {
   DropDownFirstPart,
   DropDownLists,
@@ -55,6 +56,8 @@ import {
   AlertStatus,
   ToastPosition
 } from '@chakra-ui/react';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { EditorState } from 'lexical';
 // import { useToast } from '@chakra-ui/react';
 import moment from 'moment';
 import { useEffect, useRef, useState } from 'react';
@@ -194,10 +197,12 @@ const NewNote = () => {
   const [editorStyle, setEditorStyle] = useState<any>({});
   const [isFullScreen, setIsFullScreen] = useState(false);
 
-  const editor: BlockNoteEditor | null = useBlockNote({
-    initialContent: initialContent ? JSON.parse(initialContent) : undefined,
-    onEditorContentChange: (editor) => handleAutoSave(editor)
-  });
+  // const editor: BlockNoteEditor | null = useBlockNote({
+  //   initialContent: initialContent ? JSON.parse(initialContent) : undefined,
+  //   onEditorContentChange: (editor) => handleAutoSave(editor)
+  // });
+
+  const [editor] = useLexicalComposerContext();
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -230,19 +235,19 @@ const NewNote = () => {
         'error'
       );
     }
-    const noteMarkdown: string = await editor.blocksToMarkdown(
-      editor.topLevelBlocks
-    );
-    if (!noteMarkdown) {
-      return showToast(
-        UPDATE_NOTE_TITLE,
-        'Could not extract note content. Please try again',
-        'error'
-      );
-    }
-    // use note name also in other
-    const noteName = `${editedTitle}`;
-    saveMarkdownAsPDF(noteName, noteMarkdown);
+    // const noteMarkdown: string = await editor.blocksToMarkdown(
+    //   editor.topLevelBlocks
+    // );
+    // if (!noteMarkdown) {
+    //   return showToast(
+    //     UPDATE_NOTE_TITLE,
+    //     'Could not extract note content. Please try again',
+    //     'error'
+    //   );
+    // }
+    // // use note name also in other
+    // const noteName = `${editedTitle}`;
+    // saveMarkdownAsPDF(noteName, noteMarkdown);
   };
 
   const onSaveNote = async () => {
@@ -251,78 +256,78 @@ const NewNote = () => {
     // get editor's content
     let noteJSON: string;
 
-    try {
-      noteJSON = JSON.stringify(editor.topLevelBlocks);
-    } catch (error: any) {
-      return showToast(
-        UPDATE_NOTE_TITLE,
-        'Oops! Could not get note content',
-        'error'
-      );
-    }
+    // try {
+    //   noteJSON = JSON.stringify(editor.topLevelBlocks);
+    // } catch (error: any) {
+    //   return showToast(
+    //     UPDATE_NOTE_TITLE,
+    //     'Oops! Could not get note content',
+    //     'error'
+    //   );
+    // }
 
-    if (!editedTitle || editedTitle === defaultNoteTitle) {
-      return showToast(UPDATE_NOTE_TITLE, 'Enter note title', 'error');
-    }
-    if (!editorHasContent()) {
-      return showToast(UPDATE_NOTE_TITLE, 'Note is empty', 'error');
-    }
+    // if (!editedTitle || editedTitle === defaultNoteTitle) {
+    //   return showToast(UPDATE_NOTE_TITLE, 'Enter note title', 'error');
+    // }
+    // if (!editorHasContent()) {
+    //   return showToast(UPDATE_NOTE_TITLE, 'Note is empty', 'error');
+    // }
 
-    setSaveButtonState(false);
+    // setSaveButtonState(false);
 
-    let saveDetails: NoteServerResponse<NoteDetails> | null;
+    // let saveDetails: NoteServerResponse<NoteDetails> | null;
 
-    if (noteId && noteId !== '') {
-      saveDetails = await updateNote(noteId, {
-        topic: editedTitle,
-        note: noteJSON,
-        tags: tags,
-        status: NoteStatus.SAVED
-      });
-    } else {
-      saveDetails = await createNote({
-        topic: editedTitle,
-        note: noteJSON,
-        tags: tags,
-        status: NoteStatus.SAVED
-      });
-    }
-    if (!saveDetails) {
-      setSaveButtonState(true);
-      return showToast(
-        UPDATE_NOTE_TITLE,
-        'An unknown error occurs while updating note. Try again',
-        'error'
-      );
-    }
-    if (saveDetails.error) {
-      setSaveButtonState(true);
-      return showToast(UPDATE_NOTE_TITLE, saveDetails.error, 'error');
-    } else {
-      if (!saveDetails?.data) {
-        setSaveButtonState(true);
-        return showToast(
-          UPDATE_NOTE_TITLE,
-          'Could not get note data, please try again',
-          'error'
-        );
-      }
-      // Save noteID to state if this is a new note and save locally
-      if (!noteId) {
-        const newNoteId = saveDetails.data['_id'];
-        setNoteId(newNoteId);
-        saveNoteLocal(getLocalStorageNoteId(newNoteId), saveDetails.data.note);
-      } else {
-        saveNoteLocal(getLocalStorageNoteId(noteId), saveDetails.data.note);
-      }
-      // save note details and other essential params
-      setSaveDetails(saveDetails);
-      setCurrentTime(formatDate(saveDetails.data.updatedAt));
-      showToast(UPDATE_NOTE_TITLE, saveDetails.message, 'success');
-      setSaveButtonState(true);
-      // ingest Note content
-      ingestNote(saveDetails.data);
-    }
+    // if (noteId && noteId !== '') {
+    //   saveDetails = await updateNote(noteId, {
+    //     topic: editedTitle,
+    //     note: noteJSON,
+    //     tags: tags,
+    //     status: NoteStatus.SAVED
+    //   });
+    // } else {
+    //   saveDetails = await createNote({
+    //     topic: editedTitle,
+    //     note: noteJSON,
+    //     tags: tags,
+    //     status: NoteStatus.SAVED
+    //   });
+    // }
+    // if (!saveDetails) {
+    //   setSaveButtonState(true);
+    //   return showToast(
+    //     UPDATE_NOTE_TITLE,
+    //     'An unknown error occurs while updating note. Try again',
+    //     'error'
+    //   );
+    // }
+    // if (saveDetails.error) {
+    //   setSaveButtonState(true);
+    //   return showToast(UPDATE_NOTE_TITLE, saveDetails.error, 'error');
+    // } else {
+    //   if (!saveDetails?.data) {
+    //     setSaveButtonState(true);
+    //     return showToast(
+    //       UPDATE_NOTE_TITLE,
+    //       'Could not get note data, please try again',
+    //       'error'
+    //     );
+    //   }
+    //   // Save noteID to state if this is a new note and save locally
+    //   if (!noteId) {
+    //     const newNoteId = saveDetails.data['_id'];
+    //     setNoteId(newNoteId);
+    //     saveNoteLocal(getLocalStorageNoteId(newNoteId), saveDetails.data.note);
+    //   } else {
+    //     saveNoteLocal(getLocalStorageNoteId(noteId), saveDetails.data.note);
+    //   }
+    //   // save note details and other essential params
+    //   setSaveDetails(saveDetails);
+    //   setCurrentTime(formatDate(saveDetails.data.updatedAt));
+    //   showToast(UPDATE_NOTE_TITLE, saveDetails.message, 'success');
+    //   setSaveButtonState(true);
+    //   // ingest Note content
+    //   ingestNote(saveDetails.data);
+    // }
   };
 
   const onDeleteNote = async () => {
@@ -523,13 +528,13 @@ const NewNote = () => {
     if (!editor) {
       return false;
     }
-    let contentFound = false;
-    for (const block of editor.topLevelBlocks) {
-      if (block.content.length > 0) {
-        contentFound = true;
-        break;
-      }
-    }
+    const contentFound = false;
+    // for (const block of editor.topLevelBlocks) {
+    //   if (block.content.length > 0) {
+    //     contentFound = true;
+    //     break;
+    //   }
+    // }
 
     return contentFound;
   };
@@ -538,11 +543,11 @@ const NewNote = () => {
     if (!editor) {
       return false;
     }
-    editor.forEachBlock((block: Block<any>) => {
-      block.children = [];
-      block.content = [];
-      return true;
-    });
+    // editor.forEachBlock((block: Block<any>) => {
+    //   block.children = [];
+    //   block.content = [];
+    //   return true;
+    // });
   };
 
   const showToast = (
@@ -834,7 +839,7 @@ const NewNote = () => {
     let noteStatus: NoteStatus;
 
     try {
-      noteJSON = JSON.stringify(editor.topLevelBlocks);
+      noteJSON = JSON.stringify(editor?.getEditorState().toJSON());
     } catch (error: any) {
       return;
     }
@@ -918,181 +923,54 @@ const NewNote = () => {
     }
   }, [editedTitle]);
 
+  useEffect(() => {
+    return editor.registerUpdateListener(({ editorState }) => {
+      // The latest EditorState can be found as `editorState`.
+      // To read the contents of the EditorState, use the following API:
+      // console.log('editorState.toJSON() =======>> ', editorState.toJSON());
+      editorState.read(() => {
+        // Just like editor.update(), .read() expects a closure where you can use
+        // the $ prefixed helper functions.
+        // console.log('eeditorState.toJSON() =======>> ', editorState.toJSON());
+        handleAutoSave(editor);
+      });
+    });
+    // return removeUpdateListener();
+  }, [editor]);
+
+  // useEffect(() => {
+  // const removeUpdateListener = editor.registerUpdateListener(
+  //   ({ editorState }) => {
+  //     // The latest EditorState can be found as `editorState`.
+  //     // To read the contents of the EditorState, use the following API:
+  //     console.log('editorState.toJSON() =======>> ', editorState.toJSON());
+  //     editorState.read(() => {
+  //       // Just like editor.update(), .read() expects a closure where you can use
+  //       // the $ prefixed helper functions.
+  //     });
+  //   }
+  // );
+  // removeUpdateListener();
+  // console.log('editorState ========>> ', editor.getEditorState().toJSON());
+  // }, [editor]);
+
   return (
     <>
-      <ContextProvider>
-        <HeaderWrapper>
-          <div style={{ display: 'none' }}>
-            <input type="text" ref={editedTitleRef} />
-            <input type="text" ref={draftNoteId} />
-          </div>
-          <HeaderButton onClick={handleBackClick}>
-            <BackArrow />
-            <HeaderButtonText> Back</HeaderButtonText>
-          </HeaderButton>
-          <HeaderTagsWrapper>{formatTags(tags)}</HeaderTagsWrapper>
-        </HeaderWrapper>
+      <HeaderWrapper>
+        <div style={{ display: 'none' }}>
+          <input type="text" ref={editedTitleRef} />
+          <input type="text" ref={draftNoteId} />
+        </div>
+        <HeaderButton onClick={handleBackClick}>
+          <BackArrow />
+          <HeaderButtonText> Back</HeaderButtonText>
+        </HeaderButton>
+        <HeaderTagsWrapper>{formatTags(tags)}</HeaderTagsWrapper>
+      </HeaderWrapper>
 
-        {isFullScreen ? (
-          <NewNoteWrapper {...editorStyle}>
-            <FullScreenNoteWrapper>
-              {location.state?.documentUrl ? (
-                ''
-              ) : (
-                <Header>
-                  <FirstSection>
-                    {isFullScreen ? (
-                      <div className="zoom__icn" onClick={toggleEditorView}>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="20"
-                          height="18"
-                          viewBox="0 0 20 18"
-                          fill="none"
-                        >
-                          <path
-                            d="M15.4997 4.41667H19.1663V6.25H13.6663V0.75H15.4997V4.41667ZM6.33301 6.25H0.833008V4.41667H4.49967V0.75H6.33301V6.25ZM15.4997 13.5833V17.25H13.6663V11.75H19.1663V13.5833H15.4997ZM6.33301 11.75V17.25H4.49967V13.5833H0.833008V11.75H6.33301Z"
-                            fill="#7E8591"
-                          />
-                        </svg>
-                      </div>
-                    ) : (
-                      <div className="zoom__icn" onClick={toggleEditorView}>
-                        <ZoomIcon />
-                      </div>
-                    )}
-                    <div onClick={handleHeaderClick} ref={inputContainerRef}>
-                      <div className="doc__name">
-                        {isEditingTitle ? (
-                          <input
-                            type="text"
-                            value={editedTitle}
-                            onChange={handleTitleChange}
-                            onBlur={handleFocusOut}
-                            onKeyDown={handleKeyDown}
-                            autoFocus
-                          />
-                        ) : (
-                          <>{editedTitle}</>
-                        )}
-                      </div>
-                    </div>
-                    <div className="timestamp">
-                      <p>Updated {currentTime}</p>
-                    </div>
-                  </FirstSection>
-                  <SecondSection>
-                    <CustomButton
-                      disabled={!saveButtonState}
-                      isPrimary
-                      title={!saveButtonState ? 'Saving...' : 'Save'}
-                      type="button"
-                      onClick={onSaveNote}
-                      active={saveButtonState}
-                    />
-                    <div onClick={handlePinClick}>
-                      <BsFillPinFill
-                        className={`pin-icon ${
-                          pinnedNotes.some((note) => note.noteId === noteId)
-                            ? 'pinned'
-                            : 'not-pinned'
-                        }`}
-                      />
-                    </div>
-                    <div>
-                      <Menu>
-                        <MenuButton
-                          as={Button}
-                          variant="unstyled"
-                          borderRadius="full"
-                          p={0}
-                          minW="auto"
-                          height="auto"
-                        >
-                          <FaEllipsisH fontSize={'12px'} />
-                        </MenuButton>
-                        <MenuList
-                          fontSize="0.875rem"
-                          minWidth={'185px'}
-                          borderRadius="8px"
-                          backgroundColor="#FFFFFF"
-                          boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
-                        >
-                          <section>
-                            {dropDownOptions?.map((dropDownOption) => (
-                              <DropDownLists key={dropDownOption.id}>
-                                <DropDownFirstPart
-                                  onClick={() =>
-                                    handleOptionClick(dropDownOption.onClick)
-                                  }
-                                >
-                                  <div>
-                                    {dropDownOption.leftIcon}
-                                    <p
-                                      style={{
-                                        color:
-                                          dropDownOption.title === 'Delete'
-                                            ? '#F53535'
-                                            : ''
-                                      }}
-                                    >
-                                      {dropDownOption.title}
-                                    </p>
-                                  </div>
-                                  <div>{dropDownOption.rightIcon}</div>
-                                </DropDownFirstPart>
-                              </DropDownLists>
-                            ))}
-                          </section>
-                        </MenuList>
-                      </Menu>
-
-                      {openTags && (
-                        <TagModal
-                          onSubmit={AddTags}
-                          isOpen={openTags}
-                          onClose={() => setOpenTags(false)}
-                          tags={tags}
-                          inputValue={inputValue}
-                          handleAddTag={handleAddTag}
-                          newTags={newTags}
-                          setNewTags={setNewTags}
-                          setInputValue={setInputValue}
-                        />
-                      )}
-                    </div>
-                  </SecondSection>
-                </Header>
-              )}
-
-              <NoteBody>
-                {location.state?.documentUrl ? (
-                  <TempPDFViewer
-                    pdfLink={location.state.documentUrl}
-                    name={location.state.docTitle}
-                  />
-                ) : (
-                  <div className="note-editor-test">
-                    {/* <BlockNoteView editor={editor} /> */}
-                    <LexicalEditor />
-                    {/* <LexicalEditor editorHistory={initialContent} /> */}
-                  </div>
-                )}
-              </NoteBody>
-              <NoteModal
-                title="Delete Note"
-                description="This will delete Note. Are you sure?"
-                isLoading={isLoading}
-                isOpen={deleteNoteModal}
-                actionButtonText="Delete"
-                onCancel={() => onCancel()}
-                onDelete={() => onDeleteNote()}
-                onClose={() => setDeleteNoteModal(false)}
-              />
-            </FullScreenNoteWrapper>
-          </NewNoteWrapper>
-        ) : (
-          <NewNoteWrapper {...{ ...editorStyle, width: '290mm' }}>
+      {isFullScreen ? (
+        <NewNoteWrapper {...editorStyle}>
+          <FullScreenNoteWrapper>
             {location.state?.documentUrl ? (
               ''
             ) : (
@@ -1169,6 +1047,7 @@ const NewNote = () => {
                         <FaEllipsisH fontSize={'12px'} />
                       </MenuButton>
                       <MenuList
+                        zIndex={3}
                         fontSize="0.875rem"
                         minWidth={'185px'}
                         borderRadius="8px"
@@ -1223,7 +1102,6 @@ const NewNote = () => {
             )}
 
             <NoteBody>
-              {/* We will show PDF once endpoint is implemented */}
               {location.state?.documentUrl ? (
                 <TempPDFViewer
                   pdfLink={location.state.documentUrl}
@@ -1237,7 +1115,6 @@ const NewNote = () => {
                 </div>
               )}
             </NoteBody>
-
             <NoteModal
               title="Delete Note"
               description="This will delete Note. Are you sure?"
@@ -1248,22 +1125,181 @@ const NewNote = () => {
               onDelete={() => onDeleteNote()}
               onClose={() => setDeleteNoteModal(false)}
             />
-          </NewNoteWrapper>
-        )}
+          </FullScreenNoteWrapper>
+        </NewNoteWrapper>
+      ) : (
+        <NewNoteWrapper {...{ ...editorStyle, width: '290mm' }}>
+          {location.state?.documentUrl ? (
+            ''
+          ) : (
+            <Header>
+              <FirstSection>
+                {isFullScreen ? (
+                  <div className="zoom__icn" onClick={toggleEditorView}>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="18"
+                      viewBox="0 0 20 18"
+                      fill="none"
+                    >
+                      <path
+                        d="M15.4997 4.41667H19.1663V6.25H13.6663V0.75H15.4997V4.41667ZM6.33301 6.25H0.833008V4.41667H4.49967V0.75H6.33301V6.25ZM15.4997 13.5833V17.25H13.6663V11.75H19.1663V13.5833H15.4997ZM6.33301 11.75V17.25H4.49967V13.5833H0.833008V11.75H6.33301Z"
+                        fill="#7E8591"
+                      />
+                    </svg>
+                  </div>
+                ) : (
+                  <div className="zoom__icn" onClick={toggleEditorView}>
+                    <ZoomIcon />
+                  </div>
+                )}
+                <div onClick={handleHeaderClick} ref={inputContainerRef}>
+                  <div className="doc__name">
+                    {isEditingTitle ? (
+                      <input
+                        type="text"
+                        value={editedTitle}
+                        onChange={handleTitleChange}
+                        onBlur={handleFocusOut}
+                        onKeyDown={handleKeyDown}
+                        autoFocus
+                      />
+                    ) : (
+                      <>{editedTitle}</>
+                    )}
+                  </div>
+                </div>
+                <div className="timestamp">
+                  <p>Updated {currentTime}</p>
+                </div>
+              </FirstSection>
+              <SecondSection>
+                <CustomButton
+                  disabled={!saveButtonState}
+                  isPrimary
+                  title={!saveButtonState ? 'Saving...' : 'Save'}
+                  type="button"
+                  onClick={onSaveNote}
+                  active={saveButtonState}
+                />
+                <div onClick={handlePinClick}>
+                  <BsFillPinFill
+                    className={`pin-icon ${
+                      pinnedNotes.some((note) => note.noteId === noteId)
+                        ? 'pinned'
+                        : 'not-pinned'
+                    }`}
+                  />
+                </div>
+                <div>
+                  <Menu>
+                    <MenuButton
+                      as={Button}
+                      variant="unstyled"
+                      borderRadius="full"
+                      p={0}
+                      minW="auto"
+                      height="auto"
+                    >
+                      <FaEllipsisH fontSize={'12px'} />
+                    </MenuButton>
+                    <MenuList
+                      zIndex={3}
+                      fontSize="0.875rem"
+                      minWidth={'185px'}
+                      borderRadius="8px"
+                      backgroundColor="#FFFFFF"
+                      boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
+                    >
+                      <section>
+                        {dropDownOptions?.map((dropDownOption) => (
+                          <DropDownLists key={dropDownOption.id}>
+                            <DropDownFirstPart
+                              onClick={() =>
+                                handleOptionClick(dropDownOption.onClick)
+                              }
+                            >
+                              <div>
+                                {dropDownOption.leftIcon}
+                                <p
+                                  style={{
+                                    color:
+                                      dropDownOption.title === 'Delete'
+                                        ? '#F53535'
+                                        : ''
+                                  }}
+                                >
+                                  {dropDownOption.title}
+                                </p>
+                              </div>
+                              <div>{dropDownOption.rightIcon}</div>
+                            </DropDownFirstPart>
+                          </DropDownLists>
+                        ))}
+                      </section>
+                    </MenuList>
+                  </Menu>
 
-        {openFlashCard && (
-          <FlashModal
-            isOpen={openFlashCard}
-            onClose={() => setOpenFlashCard(false)}
-            title="Flash Card Title"
-            loadingButtonText="Creating..."
-            buttonText="Create"
-            onSubmit={(noteId) => {
-              // submission here
-            }}
+                  {openTags && (
+                    <TagModal
+                      onSubmit={AddTags}
+                      isOpen={openTags}
+                      onClose={() => setOpenTags(false)}
+                      tags={tags}
+                      inputValue={inputValue}
+                      handleAddTag={handleAddTag}
+                      newTags={newTags}
+                      setNewTags={setNewTags}
+                      setInputValue={setInputValue}
+                    />
+                  )}
+                </div>
+              </SecondSection>
+            </Header>
+          )}
+
+          <NoteBody>
+            {/* We will show PDF once endpoint is implemented */}
+            {location.state?.documentUrl ? (
+              <TempPDFViewer
+                pdfLink={location.state.documentUrl}
+                name={location.state.docTitle}
+              />
+            ) : (
+              <div className="note-editor-test">
+                {/* <BlockNoteView editor={editor} /> */}
+                <LexicalEditor />
+                {/* <LexicalEditor editorHistory={initialContent} /> */}
+              </div>
+            )}
+          </NoteBody>
+
+          <NoteModal
+            title="Delete Note"
+            description="This will delete Note. Are you sure?"
+            isLoading={isLoading}
+            isOpen={deleteNoteModal}
+            actionButtonText="Delete"
+            onCancel={() => onCancel()}
+            onDelete={() => onDeleteNote()}
+            onClose={() => setDeleteNoteModal(false)}
           />
-        )}
-      </ContextProvider>
+        </NewNoteWrapper>
+      )}
+
+      {openFlashCard && (
+        <FlashModal
+          isOpen={openFlashCard}
+          onClose={() => setOpenFlashCard(false)}
+          title="Flash Card Title"
+          loadingButtonText="Creating..."
+          buttonText="Create"
+          onSubmit={(noteId) => {
+            // submission here
+          }}
+        />
+      )}
     </>
   );
 };
