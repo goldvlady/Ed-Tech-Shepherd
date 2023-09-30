@@ -66,7 +66,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { BsFillPinFill } from 'react-icons/bs';
 import { FaEllipsisH } from 'react-icons/fa';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useBeforeUnload
+} from 'react-router-dom';
 
 // import LexicalEditor from './LexicalEditor';
 // import html2pdf from 'html2pdf.js';
@@ -550,9 +555,12 @@ const NewNote = () => {
   };
 
   const clearEditor = () => {
+    console.log('this should clear the editor');
     if (editor.getEditorState().isEmpty()) {
       return false;
     }
+
+    console.log('clear editor');
 
     editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
     editor.focus();
@@ -756,7 +764,10 @@ const NewNote = () => {
   };
 
   const handleBackClick = () => {
-    window.history.back();
+    clearEditor();
+    setTimeout(() => {
+      navigate(-1);
+    }, 100);
   };
 
   /**
@@ -909,6 +920,7 @@ const NewNote = () => {
     window.addEventListener('keypress', handleWindowKey);
     return () => {
       window.removeEventListener('keypress', handleWindowKey);
+      clearEditor();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -969,6 +981,8 @@ const NewNote = () => {
       editor.setEditorState(editorState);
     }
   }, [editor, initialContent]);
+
+  // useBeforeUnload(clearEditor);
 
   return (
     <>
