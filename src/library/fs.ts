@@ -1,3 +1,4 @@
+import html2pdf from 'html2pdf.js';
 import jsPDF from 'jspdf';
 import { marked } from 'marked';
 
@@ -28,27 +29,34 @@ export const saveHTMLAsPDF = async (
   fileName: string,
   content: string,
   x = 10,
-  y = 10
+  y = 10,
+  useManual = false
 ): Promise<boolean> => {
   const doc = new jsPDF();
   const element = document.createElement('div');
+  element.style.cssText += 'padding:32px;';
   element.innerHTML = content;
 
   try {
     // Set font size and line height for styling similar to a blocknote
-    const fontSize = 12;
-    const lineHeight = 15;
+    if (useManual) {
+      const fontSize = 12;
+      const lineHeight = 15;
 
-    // Loop through each paragraph and add it to the PDF
-    const paragraphs = element.getElementsByTagName('p');
-    let offsetY = y;
-    for (let i = 0; i < paragraphs.length; i++) {
-      const paragraph = paragraphs[i];
-      doc.text(paragraph.innerText, x, offsetY);
-      offsetY += lineHeight;
+      // Loop through each paragraph and add it to the PDF
+      const paragraphs = element.getElementsByTagName('p');
+      let offsetY = y;
+      for (let i = 0; i < paragraphs.length; i++) {
+        const paragraph = paragraphs[i];
+        doc.text(paragraph.innerText, x, offsetY);
+        offsetY += lineHeight;
+      }
+      // Save the PDF
+      doc.save(fileName);
+    } else {
+      const styledHtml = `<div style="padding:32px 32px 50px">${content}</div>`;
+      html2pdf().from(styledHtml, 'string').toPdf().save(fileName);
     }
-    // Save the PDF
-    doc.save(fileName);
     return true;
   } catch (error) {
     // eslint-disable-next-line no-console

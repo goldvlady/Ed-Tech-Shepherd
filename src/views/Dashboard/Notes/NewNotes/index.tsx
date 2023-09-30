@@ -1,4 +1,3 @@
-// import LexicalEditor from './LexicalEditor';
 import { ReactComponent as AddTag } from '../../../../assets/addTag.svg';
 import { ReactComponent as BackArrow } from '../../../../assets/backArrowFill.svg';
 import { ReactComponent as DocIcon } from '../../../../assets/doc.svg';
@@ -13,24 +12,23 @@ import TableTag from '../../../../components/CustomComponents/CustomTag';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import TagModal from '../../../../components/TagModal';
 import useDebounce from '../../../../hooks/useDebounce';
-import { saveMarkdownAsPDF } from '../../../../library/fs';
-// import { uploadBlockNoteDocument } from '../../../../services/AI';
+import {
+  // saveMarkdownAsPDF,
+  saveHTMLAsPDF
+} from '../../../../library/fs';
 import ApiService from '../../../../services/ApiService';
 import userStore from '../../../../state/userStore';
 import TempPDFViewer from '../../DocChat/TempPDFViewer';
 import FlashModal from '../../FlashCards/components/FlashModal';
 import { NoteModal } from '../Modal';
 import {
-  // AIServiceResponse,
   NoteData,
-  NoteDetails, // NoteDocumentDetails,
+  NoteDetails,
   NoteEnums,
   NoteServerResponse,
   NoteStatus
 } from '../types';
 import LexicalEditor from './LexicalEditor';
-import ContextProvider from './context';
-// import './index.scss';
 import {
   DropDownFirstPart,
   DropDownLists,
@@ -45,9 +43,7 @@ import {
   FullScreenNoteWrapper,
   SecondSection
 } from './styles';
-import { Block, BlockNoteEditor } from '@blocknote/core';
 import '@blocknote/core/style.css';
-import { BlockNoteView, useBlockNote } from '@blocknote/react';
 import {
   Menu,
   MenuList,
@@ -56,15 +52,29 @@ import {
   AlertStatus,
   ToastPosition
 } from '@chakra-ui/react';
+import { $generateHtmlFromNodes } from '@lexical/html';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { EditorState } from 'lexical';
-// import { useToast } from '@chakra-ui/react';
+import {
+  $getRoot,
+  CLEAR_EDITOR_COMMAND // $createParagraphNode,
+  // $getSelection,
+  // $createTextNode
+} from 'lexical';
+import { defaultTo, isEmpty, isNil } from 'lodash';
 import moment from 'moment';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { BsFillPinFill } from 'react-icons/bs';
 import { FaEllipsisH } from 'react-icons/fa';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+
+// import LexicalEditor from './LexicalEditor';
+// import html2pdf from 'html2pdf.js';
+// import { uploadBlockNoteDocument } from '../../../../services/AI';
+// import { useToast } from '@chakra-ui/react';
+// import { Block, BlockNoteEditor } from '@blocknote/core';
+// import { BlockNoteView, useBlockNote } from '@blocknote/react';
+// import { init } from '@sentry/browser';
 
 // import {
 //   // Editor as LexicalEditor,
@@ -177,9 +187,7 @@ const NewNote = () => {
   const toast = useCustomToast();
   const params = useParams();
   const location = useLocation();
-  const [noteParamId, setNoteParamId] = useState<string | null>(
-    params.id ?? null
-  );
+  const [noteParamId, setNoteParamId] = useState<string | null>(null);
   const [openTags, setOpenTags] = useState<boolean>(false);
   const [openFlashCard, setOpenFlashCard] = useState<boolean>(false);
   const [noteId, setNoteId] = useState<any | null>(null);
@@ -191,9 +199,7 @@ const NewNote = () => {
     formatDate(new Date())
   );
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [initialContent, setInitialContent] = useState<any>(
-    getNoteLocal(noteParamId)
-  );
+  const [initialContent, setInitialContent] = useState<string | null>('');
   const [editorStyle, setEditorStyle] = useState<any>({});
   const [isFullScreen, setIsFullScreen] = useState(false);
 
@@ -228,112 +234,106 @@ const NewNote = () => {
   };
 
   const downloadAsPDF = async () => {
-    if (!noteId || !editor) {
+    if (editor.getEditorState().isEmpty()) {
+      // if (!noteId || !editor.getEditorState().isEmpty()) {
       return showToast(
         UPDATE_NOTE_TITLE,
         'Cannot download note. Please select a note',
         'error'
       );
     }
-    // const noteMarkdown: string = await editor.blocksToMarkdown(
-    //   editor.topLevelBlocks
-    // );
-    // if (!noteMarkdown) {
-    //   return showToast(
-    //     UPDATE_NOTE_TITLE,
-    //     'Could not extract note content. Please try again',
-    //     'error'
-    //   );
-    // }
-    // // use note name also in other
-    // const noteName = `${editedTitle}`;
-    // saveMarkdownAsPDF(noteName, noteMarkdown);
+
+    editor.update(() => {
+      const htmlString = $generateHtmlFromNodes(editor, null);
+      saveHTMLAsPDF(editedTitle, htmlString);
+    });
   };
 
   const onSaveNote = async () => {
     if (!editor) return;
 
     // get editor's content
-    let noteJSON: string;
+    let noteJSON = '';
 
-    // try {
-    //   noteJSON = JSON.stringify(editor.topLevelBlocks);
-    // } catch (error: any) {
-    //   return showToast(
-    //     UPDATE_NOTE_TITLE,
-    //     'Oops! Could not get note content',
-    //     'error'
-    //   );
-    // }
+    try {
+      const editorJson = await editor?.getEditorState().toJSON();
+      noteJSON = JSON.stringify(editorJson);
+    } catch (error: any) {
+      return showToast(
+        UPDATE_NOTE_TITLE,
+        'Oops! Could not get note content',
+        'error'
+      );
+    }
 
-    // if (!editedTitle || editedTitle === defaultNoteTitle) {
-    //   return showToast(UPDATE_NOTE_TITLE, 'Enter note title', 'error');
-    // }
-    // if (!editorHasContent()) {
-    //   return showToast(UPDATE_NOTE_TITLE, 'Note is empty', 'error');
-    // }
+    if (!editedTitle || editedTitle === defaultNoteTitle) {
+      return showToast(UPDATE_NOTE_TITLE, 'Enter note title', 'error');
+    }
+    if (!editorHasContent()) {
+      return showToast(UPDATE_NOTE_TITLE, 'Note is empty', 'error');
+    }
 
-    // setSaveButtonState(false);
+    setSaveButtonState(false);
 
-    // let saveDetails: NoteServerResponse<NoteDetails> | null;
+    let saveDetails: NoteServerResponse<NoteDetails> | null;
 
-    // if (noteId && noteId !== '') {
-    //   saveDetails = await updateNote(noteId, {
-    //     topic: editedTitle,
-    //     note: noteJSON,
-    //     tags: tags,
-    //     status: NoteStatus.SAVED
-    //   });
-    // } else {
-    //   saveDetails = await createNote({
-    //     topic: editedTitle,
-    //     note: noteJSON,
-    //     tags: tags,
-    //     status: NoteStatus.SAVED
-    //   });
-    // }
-    // if (!saveDetails) {
-    //   setSaveButtonState(true);
-    //   return showToast(
-    //     UPDATE_NOTE_TITLE,
-    //     'An unknown error occurs while updating note. Try again',
-    //     'error'
-    //   );
-    // }
-    // if (saveDetails.error) {
-    //   setSaveButtonState(true);
-    //   return showToast(UPDATE_NOTE_TITLE, saveDetails.error, 'error');
-    // } else {
-    //   if (!saveDetails?.data) {
-    //     setSaveButtonState(true);
-    //     return showToast(
-    //       UPDATE_NOTE_TITLE,
-    //       'Could not get note data, please try again',
-    //       'error'
-    //     );
-    //   }
-    //   // Save noteID to state if this is a new note and save locally
-    //   if (!noteId) {
-    //     const newNoteId = saveDetails.data['_id'];
-    //     setNoteId(newNoteId);
-    //     saveNoteLocal(getLocalStorageNoteId(newNoteId), saveDetails.data.note);
-    //   } else {
-    //     saveNoteLocal(getLocalStorageNoteId(noteId), saveDetails.data.note);
-    //   }
-    //   // save note details and other essential params
-    //   setSaveDetails(saveDetails);
-    //   setCurrentTime(formatDate(saveDetails.data.updatedAt));
-    //   showToast(UPDATE_NOTE_TITLE, saveDetails.message, 'success');
-    //   setSaveButtonState(true);
-    //   // ingest Note content
-    //   ingestNote(saveDetails.data);
-    // }
+    if (!isEmpty(noteId)) {
+      saveDetails = await updateNote(noteId, {
+        topic: editedTitle,
+        note: noteJSON,
+        tags: tags,
+        status: NoteStatus.SAVED
+      });
+    } else {
+      saveDetails = await createNote({
+        topic: editedTitle,
+        note: noteJSON,
+        tags: tags,
+        status: NoteStatus.SAVED
+      });
+    }
+    if (!saveDetails) {
+      setSaveButtonState(true);
+      return showToast(
+        UPDATE_NOTE_TITLE,
+        'An unknown error occurs while updating note. Try again',
+        'error'
+      );
+    }
+    if (saveDetails.error) {
+      setSaveButtonState(true);
+      return showToast(UPDATE_NOTE_TITLE, saveDetails.error, 'error');
+    } else {
+      if (!saveDetails?.data) {
+        setSaveButtonState(true);
+        return showToast(
+          UPDATE_NOTE_TITLE,
+          'Could not get note data, please try again',
+          'error'
+        );
+      }
+      // Save noteID to state if this is a new note and save locally
+      if (!noteId) {
+        const newNoteId = saveDetails.data['_id'];
+        setNoteId(newNoteId);
+        saveNoteLocal(getLocalStorageNoteId(newNoteId), saveDetails.data.note);
+      } else {
+        saveNoteLocal(getLocalStorageNoteId(noteId), saveDetails.data.note);
+      }
+      // save note details and other essential params
+      setSaveDetails(saveDetails);
+      setCurrentTime(formatDate(saveDetails.data.updatedAt));
+      showToast(UPDATE_NOTE_TITLE, saveDetails.message, 'success');
+      setSaveButtonState(true);
+      // ingest Note content
+      ingestNote(saveDetails.data);
+    }
   };
 
   const onDeleteNote = async () => {
     const noteIdInUse = noteId ?? noteParamId;
 
-    if (!noteIdInUse || noteIdInUse === '') {
+    if (isEmpty(noteIdInUse)) {
       setDeleteNoteModal(false);
       return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
     }
@@ -341,7 +341,7 @@ const NewNote = () => {
 
     const details = await deleteNote(noteIdInUse);
     setIsLoading(false);
-    if (!details) {
+    if (isEmpty(details) || isNil(details)) {
       setDeleteNoteModal(false);
       return showToast(
         DELETE_NOTE_TITLE,
@@ -349,7 +349,6 @@ const NewNote = () => {
         'error'
       );
     }
-    // console.log('details : ', details);
 
     if (details.error) {
       setDeleteNoteModal(false);
@@ -372,16 +371,22 @@ const NewNote = () => {
     }
   };
 
-  const getNoteById = async () => {
-    if (!noteParamId) {
+  const getNoteById = async (paramsIdForNote = noteParamId) => {
+    if (isEmpty(paramsIdForNote)) {
       return;
     }
-    const resp = await ApiService.getNote(noteParamId);
+    const resp = await ApiService.getNote(paramsIdForNote as string);
     const respText = await resp.text();
     try {
       const respDetails: NoteServerResponse<{ data: NoteDetails }> =
         JSON.parse(respText);
-      if (!respDetails || respDetails.error || !respDetails.data) {
+
+      const emptyRespDetails =
+        isEmpty(respDetails) ||
+        isNil(respDetails) ||
+        isEmpty(respDetails.data) ||
+        isNil(respDetails.data);
+      if (emptyRespDetails || respDetails.error) {
         showToast(
           UPDATE_NOTE_TITLE,
           respDetails.error ?? respDetails.message
@@ -528,26 +533,27 @@ const NewNote = () => {
     if (!editor) {
       return false;
     }
-    const contentFound = false;
-    // for (const block of editor.topLevelBlocks) {
-    //   if (block.content.length > 0) {
-    //     contentFound = true;
-    //     break;
-    //   }
-    // }
+    let contentFound = false;
+    editor.update(() => {
+      const root = $getRoot();
+
+      const children = root.getChildren();
+
+      if (!isEmpty(children)) {
+        contentFound = true;
+      }
+    });
 
     return contentFound;
   };
 
   const clearEditor = () => {
-    if (!editor) {
+    if (editor.getEditorState().isEmpty()) {
       return false;
     }
-    // editor.forEachBlock((block: Block<any>) => {
-    //   block.children = [];
-    //   block.content = [];
-    //   return true;
-    // });
+
+    editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
+    editor.focus();
   };
 
   const showToast = (
@@ -559,7 +565,7 @@ const NewNote = () => {
     isClosable = true
   ) => {
     toast({
-      title: description,
+      title: description ?? title,
       status: status,
       position: position,
       duration: duration,
@@ -803,7 +809,7 @@ const NewNote = () => {
     // return true;
   };
 
-  const handleAutoSave = (editor: any) => {
+  const handleAutoSave = useCallback((editor: any) => {
     // use debounce filter
     // TODO: we must move this to web worker
     // additional condition for use to save note details
@@ -818,7 +824,8 @@ const NewNote = () => {
       autoSaveNote(editor, saveLocalCallback);
     };
     debounce(saveCallback, saveCondition);
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /**
    * Auto-save note contents
@@ -839,7 +846,8 @@ const NewNote = () => {
     let noteStatus: NoteStatus;
 
     try {
-      noteJSON = JSON.stringify(editor?.getEditorState().toJSON());
+      const editorJson = editor?.getEditorState().toJSON();
+      noteJSON = JSON.stringify(editorJson);
     } catch (error: any) {
       return;
     }
@@ -895,7 +903,6 @@ const NewNote = () => {
 
   // Load notes if noteID is provided via param
   useEffect(() => {
-    getNoteById();
     // event for escape to minimize window
     window.addEventListener('keypress', handleWindowKey);
     return () => {
@@ -912,6 +919,13 @@ const NewNote = () => {
   }, []);
 
   useEffect(() => {
+    if (!isEmpty(params?.id)) {
+      setNoteParamId(params?.id as string);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     if (userDocuments.length) {
       setStudentDocuments(userDocuments);
     }
@@ -925,34 +939,33 @@ const NewNote = () => {
 
   useEffect(() => {
     return editor.registerUpdateListener(({ editorState }) => {
-      // The latest EditorState can be found as `editorState`.
-      // To read the contents of the EditorState, use the following API:
-      // console.log('editorState.toJSON() =======>> ', editorState.toJSON());
       editorState.read(() => {
-        // Just like editor.update(), .read() expects a closure where you can use
-        // the $ prefixed helper functions.
-        // console.log('eeditorState.toJSON() =======>> ', editorState.toJSON());
         handleAutoSave(editor);
       });
     });
-    // return removeUpdateListener();
-  }, [editor]);
+  }, [editor, handleAutoSave]);
 
-  // useEffect(() => {
-  // const removeUpdateListener = editor.registerUpdateListener(
-  //   ({ editorState }) => {
-  //     // The latest EditorState can be found as `editorState`.
-  //     // To read the contents of the EditorState, use the following API:
-  //     console.log('editorState.toJSON() =======>> ', editorState.toJSON());
-  //     editorState.read(() => {
-  //       // Just like editor.update(), .read() expects a closure where you can use
-  //       // the $ prefixed helper functions.
-  //     });
-  //   }
-  // );
-  // removeUpdateListener();
-  // console.log('editorState ========>> ', editor.getEditorState().toJSON());
-  // }, [editor]);
+  useEffect(() => {
+    (async () => {
+      if (!isEmpty(noteParamId) || !isNil(noteParamId)) {
+        setInitialContent(getNoteLocal(noteParamId) as string);
+        await getNoteById();
+      }
+    })();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [noteParamId]);
+
+  useEffect(() => {
+    const initialValue =
+      '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
+    if (!isEmpty(initialContent)) {
+      const editorState = editor.parseEditorState(
+        defaultTo(initialContent, initialValue)
+      );
+      editor.setEditorState(editorState);
+    }
+  }, [editor, initialContent]);
 
   return (
     <>
