@@ -262,7 +262,7 @@ export default function Editor(): JSX.Element {
         {isAutocomplete && <AutocompletePlugin />}
         <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
         {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
-        {!showActionsPlugin && <ActionsPlugin isRichText={isRichText} />}
+        {showActionsPlugin && <ActionsPlugin isRichText={isRichText} />}
       </div>
       {showTreeView && <TreeViewPlugin />}
     </div>
