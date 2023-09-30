@@ -60,7 +60,7 @@ import {
   // $getSelection,
   // $createTextNode
 } from 'lexical';
-import { defaultTo, isEmpty, isNil, toString } from 'lodash';
+import { defaultTo, isEmpty, isNil } from 'lodash';
 import moment from 'moment';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
@@ -187,9 +187,7 @@ const NewNote = () => {
   const toast = useCustomToast();
   const params = useParams();
   const location = useLocation();
-  const [noteParamId, setNoteParamId] = useState<string | null>(
-    params.id ?? null
-  );
+  const [noteParamId, setNoteParamId] = useState<string | null>(null);
   const [openTags, setOpenTags] = useState<boolean>(false);
   const [openFlashCard, setOpenFlashCard] = useState<boolean>(false);
   const [noteId, setNoteId] = useState<any | null>(null);
@@ -201,7 +199,7 @@ const NewNote = () => {
     formatDate(new Date())
   );
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [initialContent, setInitialContent] = useState<string>('');
+  const [initialContent, setInitialContent] = useState<string | null>('');
   const [editorStyle, setEditorStyle] = useState<any>({});
   const [isFullScreen, setIsFullScreen] = useState(false);
 
@@ -373,20 +371,24 @@ const NewNote = () => {
     }
   };
 
-  const getNoteById = async () => {
-    if (isEmpty(noteParamId)) {
+  const getNoteById = async (paramsIdForNote = noteParamId) => {
+    if (isEmpty(paramsIdForNote)) {
       return;
     }
-    const resp = await ApiService.getNote(noteParamId as string);
+    const resp = await ApiService.getNote(paramsIdForNote as string);
+
     const respText = await resp.text();
     try {
       const respDetails: NoteServerResponse<{ data: NoteDetails }> =
         JSON.parse(respText);
-      if (
+
+      const emptyRespDetails =
         isEmpty(respDetails) ||
-        respDetails.error ||
-        isEmpty(respDetails.data)
-      ) {
+        isNil(respDetails) ||
+        isEmpty(respDetails.data) ||
+        isNil(respDetails.data);
+      if (emptyRespDetails || respDetails.error) {
+
         showToast(
           UPDATE_NOTE_TITLE,
           respDetails.error ?? respDetails.message
@@ -554,11 +556,6 @@ const NewNote = () => {
 
     editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
     editor.focus();
-    // editor.forEachBlock((block: Block<any>) => {
-    //   block.children = [];
-    //   block.content = [];
-    //   return true;
-    // });
   };
 
   const showToast = (
@@ -570,7 +567,7 @@ const NewNote = () => {
     isClosable = true
   ) => {
     toast({
-      title: description,
+      title: description ?? title,
       status: status,
       position: position,
       duration: duration,
@@ -908,7 +905,6 @@ const NewNote = () => {
 
   // Load notes if noteID is provided via param
   useEffect(() => {
-    getNoteById();
     // event for escape to minimize window
     window.addEventListener('keypress', handleWindowKey);
     return () => {
@@ -922,6 +918,13 @@ const NewNote = () => {
     if (pinnedNotesFromLocalStorage) {
       setPinnedNotes(pinnedNotesFromLocalStorage);
     }
+  }, []);
+
+  useEffect(() => {
+    if (!isEmpty(params?.id)) {
+      setNoteParamId(params?.id as string);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -945,15 +948,23 @@ const NewNote = () => {
   }, [editor, handleAutoSave]);
 
   useEffect(() => {
-    if (!isEmpty(noteParamId)) {
-      setInitialContent(getNoteLocal(noteParamId) as string);
-    }
+    (async () => {
+      if (!isEmpty(noteParamId) || !isNil(noteParamId)) {
+        setInitialContent(getNoteLocal(noteParamId) as string);
+        await getNoteById();
+      }
+    })();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [noteParamId]);
 
   useEffect(() => {
+    const initialValue =
+      '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
     if (!isEmpty(initialContent)) {
       const editorState = editor.parseEditorState(
-        defaultTo(toString(initialContent), '{}')
+        defaultTo(initialContent, initialValue)
+
       );
       editor.setEditorState(editorState);
     }
