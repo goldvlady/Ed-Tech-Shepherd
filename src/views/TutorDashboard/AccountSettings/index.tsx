@@ -101,11 +101,7 @@ function AccSettings() {
             <Box width="900px" px={6}>
               <TabPanels>
                 <TabPanel>
-                  <TutorProfile
-                    id={user?._id}
-                    username={`${user?.name?.first} ${user?.name?.last}`}
-                    email={user?.email}
-                  />
+                  <TutorProfile tutorData={user} />
                 </TabPanel>
                 <TabPanel>
                   {/* <MyProfile

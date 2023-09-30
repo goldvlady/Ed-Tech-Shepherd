@@ -19,26 +19,28 @@ export default function Dashboard() {
   const { user } = userStore();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [calendarEventData, setCalendarEventData] = useState<any>([]);
+  const [tutorReport, setTutorReport] = useState<any>([]);
   const [upcomingEvent, setUpcomingEvent] = useState<any>([]);
 
   const fetchData = useCallback(async () => {
     try {
       const [
-        // studentReportResponse,
+        tutorReportResponse,
         calendarResponse,
         upcomingEventResponse,
         feedsResponse
       ] = await Promise.all([
-        // ApiService.getStudentReport(),
+        ApiService.getTutorReport(),
         ApiService.getCalendarEvents(),
         ApiService.getUpcomingEvent(),
         fetchFeeds()
       ]);
 
-      // const studentReportData = await studentReportResponse.json();
+      const tutorReportData = await tutorReportResponse.json();
       const calendarData = await calendarResponse.json();
       const nextEvent = await upcomingEventResponse.json();
 
+      setTutorReport(tutorReportData.data);
       setCalendarEventData(calendarData.data);
       setUpcomingEvent(nextEvent);
       // setFeeds(feedsResponse);
@@ -52,6 +54,7 @@ export default function Dashboard() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+  console.log(tutorReport, 'report');
 
   if (isLoading) {
     return (
@@ -74,7 +77,7 @@ export default function Dashboard() {
     <>
       <WelcomePage user={user} />
       {/* <Proceed user={user} /> */}
-      <GridList />
+      <GridList data={tutorReport} />
       <Box my={3} p={6}>
         <Grid
           templateRows="repeat(1, 1fr)"

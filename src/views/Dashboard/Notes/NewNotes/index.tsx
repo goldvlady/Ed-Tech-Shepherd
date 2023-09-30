@@ -376,6 +376,7 @@ const NewNote = () => {
       return;
     }
     const resp = await ApiService.getNote(paramsIdForNote as string);
+
     const respText = await resp.text();
     try {
       const respDetails: NoteServerResponse<{ data: NoteDetails }> =
@@ -387,6 +388,7 @@ const NewNote = () => {
         isEmpty(respDetails.data) ||
         isNil(respDetails.data);
       if (emptyRespDetails || respDetails.error) {
+
         showToast(
           UPDATE_NOTE_TITLE,
           respDetails.error ?? respDetails.message
@@ -962,6 +964,7 @@ const NewNote = () => {
     if (!isEmpty(initialContent)) {
       const editorState = editor.parseEditorState(
         defaultTo(initialContent, initialValue)
+
       );
       editor.setEditorState(editorState);
     }
