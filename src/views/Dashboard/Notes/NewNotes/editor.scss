@@ -94,35 +94,36 @@ $border-color_1: blue;
 }
 
 body {
-  margin: 0;
-  font-family: $font-family_1;
+  // margin: 0;
+  // font-family: $font-family_1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #eee;
-  padding: 0 20px;
+  // background: #eee;
+  // padding: 0 20px;
 }
 header {
   max-width: 580px;
-  margin: auto;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  a {
-    max-width: 220px;
-    margin: 20px 0 0 0;
-    display: block;
-  }
-  img {
-    display: block;
-    height: 100%;
-    width: 100%;
-  }
-  h1 {
-    text-align: left;
-    color: $color_1;
-    display: inline-block;
-    margin: 20px 0 0 0;
-  }
+  // margin: auto;
+  // position: relative;
+  // display: flex;
+  // justify-content: center;
+  // a {
+  //   max-width: 220px;
+  //   margin: 20px 0 0 0;
+  //   display: block;
+  // }
+  // img {
+  //   display: block;
+  //   height: 100%;
+  //   width: 100%;
+  // }
+  // h1 {
+  //   text-align: left;
+  //   color: $color_1;
+  //   display: inline-block;
+  //   margin: 20px 0 0 0;
+  // }
+
 }
 .editor-shell {
   margin: 20px auto;
