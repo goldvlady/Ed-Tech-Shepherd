@@ -96,13 +96,13 @@ $border-color_1: blue;
 body {
   // margin: 0;
   // font-family: $font-family_1;
-  // -webkit-font-smoothing: antialiased;
-  // -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   // background: #eee;
   // padding: 0 20px;
 }
 header {
-  // max-width: 580px;
+  max-width: 580px;
   // margin: auto;
   // position: relative;
   // display: flex;
@@ -1619,7 +1619,7 @@ button.item.dropdown-item-active {
   word-break: break-word;
   z-index: 3;
 }
-.PlaygroundEditorTheme__blockCursor {
+.ShepherdEditorTheme__blockCursor {
   display: block;
   pointer-events: none;
   position: absolute;
