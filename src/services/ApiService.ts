@@ -200,7 +200,7 @@ class ApiService {
     return fetch(`${AI_API}/flash-cards/generate-from-plain-notes`, {
       method: 'POST',
       body: JSON.stringify({
-        note: data.note,
+        noteId: data.note,
         count: data.count,
         studentId: studentId
       }),
