@@ -1,8 +1,14 @@
 import MessageIcon from '../../../assets/message.svg';
 import OfferIcon from '../../../assets/offer.svg';
+import ReadIcon from '../../../assets/read.svg';
+import UnreadIcon from '../../../assets/unread.svg';
 import VideoIcon from '../../../assets/video.svg';
+import { database } from '../../../firebase';
+import userStore from '../../../state/userStore';
 import { TimeAgo } from './TimeAgo';
+import useNotifications from './useNotification';
 import {
+  Badge,
   Box,
   Flex,
   Spacer,
@@ -11,14 +17,17 @@ import {
   Image,
   Stack
 } from '@chakra-ui/react';
-import React from 'react';
+import { ref, onValue, DataSnapshot, off } from 'firebase/database';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 // import OfferIcon from 'svgs/text-document.svg';
 
 function Notifications(props) {
-  const { data } = props;
+  const { data, handleRead, handleAllRead } = props;
+  const { user } = userStore();
   const currentPath = window.location.pathname;
+  // const parsedNotifications = data.map((item) => item.notification);
 
   const isTutor = currentPath.includes('/dashboard/tutordashboard');
 
@@ -26,22 +35,38 @@ function Notifications(props) {
     const aWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     return new Date(createdAt) >= new Date(aWeekAgo);
   };
-  const filteredData = data.filter((item) => {
-    if (isTutor) {
-      return (
-        (item.type === 'new_offer_received' ||
-          item.type === 'upcoming_class' ||
-          item.type === 'BOUNTY_ACCEPTED') &&
-        isWithinAWeek(item.createdAt)
-      );
-    } else {
-      return (
-        item.type !== 'new_offer_received' &&
-        item.type !== 'BOUNTY_ACCEPTED' &&
-        isWithinAWeek(item.createdAt)
-      );
-    }
-  });
+  const filteredData = data
+    .filter((item) => {
+      if (isTutor) {
+        const allowedTypes = [
+          'new_offer_received',
+          'upcoming_class',
+          'BOUNTY_ACCEPTED',
+          'BOUNTY_BID_ACCEPTED'
+        ];
+        return (
+          allowedTypes.includes(item.type) && isWithinAWeek(item.createdAt)
+        );
+      } else {
+        const allowedTypes = [
+          'new_offer_created',
+          'offer_accepted',
+          'offer_rejected',
+          'upcoming_class',
+          'BOUNTY_BID_RECIEVED',
+          'BOUNTY_CREATED'
+        ];
+        return (
+          allowedTypes.includes(item.type) && isWithinAWeek(item.createdAt)
+        );
+      }
+    })
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+
+  console.log('filteredData', data, filteredData);
 
   const Divide = styled(Divider)`
     &:last-child {
@@ -105,43 +130,128 @@ function Notifications(props) {
         return undefined;
     }
   };
+  // const [notifications, setNotifications] = useState<string[]>([]);
+  // const [hasUnreadNotification, setHasUnreadNotification] =
+  //   useState<boolean>(false);
+  // console.log(notifications, 'nino');
+
+  // useEffect(() => {
+  //   const notificationsRef = ref(database, `notifications`);
+
+  //   const fetchNotifications = () => {
+  //     onValue(notificationsRef, (snapshot: DataSnapshot) => {
+  //       const data = snapshot.val();
+
+  //       if (data) {
+  //         const notificationsArray: string[] = Object.values(data);
+  //         setNotifications(notificationsArray);
+  //       } else {
+  //         setNotifications([]);
+  //       }
+  //     });
+  //   };
+
+  //   // Call the fetchNotifications function when the component mounts
+  //   fetchNotifications();
+
+  //   // Clean up the Firebase listener when the component unmounts
+  //   return () => {
+  //     off(notificationsRef); // This removes the listener
+  //   };
+  // }, []);
+  const userId = user?._id || '';
+  const { notifications, hasUnreadNotification, markAsRead, markAllAsRead } =
+    useNotifications(userId);
+
+  const handleNotificationClick = (notificationId) => {
+    // Mark the notification as read in the database
+    // const notificationRef = ref(database, `notifications/${notificationId}`);
+    // update(notificationRef, { read: true })
+    //   .then(() => {
+    console.log(`Notification ${notificationId} marked as read`);
+    //   })
+    //   .catch((error) => {
+    //     console.error('Error marking notification as read:', error);
+    //   });
+  };
 
   return (
     <>
       <Box sx={{ maxHeight: '500px', overflowY: 'auto' }}>
+        <Flex>
+          <Text
+            fontSize={10}
+            fontWeight={500}
+            color="text.400"
+            textTransform={'uppercase'}
+          >
+            notifications
+            <Badge bgColor="#EBF4FE" color="#207df7" fontSize={10}>
+              <Text>{filteredData ? filteredData.length : ''}</Text>
+            </Badge>
+          </Text>
+          <Spacer />{' '}
+          <Text
+            fontSize={10}
+            fontWeight={500}
+            color="#207df7"
+            onClick={handleAllRead}
+            cursor="pointer"
+          >
+            Mark all as read{' '}
+          </Text>
+        </Flex>
+
         {data &&
           filteredData.map((i) => (
             <>
-              <Flex
-                alignItems="flex-start"
-                px={3}
-                direction={'row'}
-                my={1}
-                py={2}
+              <div
+                className={`notification-item ${i.read ? 'read' : ''}`}
                 key={i._id}
               >
-                <Image
-                  src={getIconByANotificationType(i.type)}
-                  alt="doc"
-                  maxHeight={45}
-                  zIndex={1}
-                />
-                <Stack direction={'column'} px={4} spacing={1}>
-                  <Text color="text.300" fontSize={12} mb={0}>
-                    {<TimeAgo timestamp={i.createdAt} />}
-                  </Text>
-                  <Text
-                    fontWeight={400}
-                    color="text.200"
-                    fontSize="14px"
-                    mb={0}
-                  >
-                    {getTextByNotificationType(i.type)}
-                  </Text>
+                <Flex
+                  alignItems="flex-start"
+                  px={3}
+                  direction={'row'}
+                  my={1}
+                  py={2}
+                  key={i._id}
+                  position="relative"
+                  onClick={() => markAsRead(i._id)}
+                >
+                  <Image
+                    src={getIconByANotificationType(i.type)}
+                    alt="doc"
+                    maxHeight={45}
+                    zIndex={1}
+                  />
+                  <Stack direction={'column'} px={4} spacing={1}>
+                    <Text color="text.300" fontSize={12} mb={0}>
+                      {<TimeAgo timestamp={i.createdAt} />}
+                    </Text>
+                    <Text
+                      fontWeight={400}
+                      color="text.200"
+                      fontSize="14px"
+                      mb={0}
+                    >
+                      {getTextByNotificationType(i.type)}
+                    </Text>
 
-                  <Spacer />
-                </Stack>
-              </Flex>
+                    <Spacer />
+                  </Stack>
+                  <Image
+                    src={i.status === 'unviewed' ? ReadIcon : UnreadIcon}
+                    alt="read"
+                    maxHeight={45}
+                    zIndex={1}
+                    position="absolute"
+                    right={0}
+                    top={5}
+                  />
+                </Flex>
+              </div>
+
               <Divide />
             </>
           ))}

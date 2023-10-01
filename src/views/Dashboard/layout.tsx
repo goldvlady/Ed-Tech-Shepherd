@@ -1,4 +1,5 @@
 import AskIcon from '../../assets/avatar-male.svg';
+import BellDot from '../../assets/bell-dot.svg';
 import FeedIcon from '../../assets/blue-energy.svg';
 import DocIcon from '../../assets/doc-icon.svg';
 import Doc from '../../assets/doc.svg';
@@ -18,6 +19,7 @@ import TutorMarketplace from './Tutor';
 import AskShepherd from './components/AskShepherd';
 import MenuLinedList from './components/MenuLinedList';
 import Notifications from './components/Notifications';
+import useNotifications from './components/useNotification';
 import DashboardIndex from './index';
 import {
   Avatar,
@@ -179,9 +181,12 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
     setToggleProfileSwitchModal(true);
   };
   const navigate = useNavigate();
-  const { user, userNotifications, fetchNotifications, fetchUser }: any =
-    userStore();
+  const { user, fetchUser } = userStore();
+  const userId = user?._id || '';
+  const { notifications, hasUnreadNotification, markAsRead, markAllAsRead } =
+    useNotifications(userId);
 
+  console.log(notifications, hasUnreadNotification, 'fb not');
   const handleSignOut = () => {
     signOut(auth).then(() => {
       sessionStorage.clear();
@@ -193,6 +198,10 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   // useEffect(() => {
   //   doFetchUserData();
   // }, [doFetchUserData]);
+
+  function handleMenuButtonClick(callback) {
+    setTimeout(callback, 15000);
+  }
   return (
     <>
       <Flex
@@ -283,8 +292,15 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     variant="ghost"
                     aria-label="open menu"
                     color={'text.300'}
-                    icon={<FaBell />}
-                  />{' '}
+                    icon={
+                      hasUnreadNotification ? (
+                        <Image src={BellDot} />
+                      ) : (
+                        <FaBell />
+                      )
+                    }
+                    onClick={() => handleMenuButtonClick(markAllAsRead)}
+                  />
                 </MenuButton>
                 <MenuList
                   p={3}
@@ -292,7 +308,11 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                   zIndex={2}
                   sx={{ position: 'absolute', top: '30px', right: '2px' }}
                 >
-                  <Notifications data={userNotifications} />
+                  <Notifications
+                    data={notifications}
+                    handleRead={markAsRead}
+                    handleAllRead={markAllAsRead}
+                  />
                 </MenuList>
               </Menu>
             </Box>

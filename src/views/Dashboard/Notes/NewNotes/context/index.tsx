@@ -8,7 +8,7 @@
 import { SettingsContext, useSettings } from '../context/SettingsContext';
 import { SharedAutocompleteContext } from '../context/SharedAutocompleteContext';
 import { SharedHistoryContext } from '../context/SharedHistoryContext';
-import Nodes from '../nodes/PlaygroundNodes';
+import Nodes from '../nodes/Nodes';
 import { TableContext } from '../plugins/TablePlugin';
 import PlaygroundEditorTheme from '../themes/ShepherdEditorTheme';
 // import { $createLinkNode } from '@lexical/link';
@@ -110,7 +110,6 @@ export default function EditorApp({ children }): JSX.Element {
     namespace: 'shepherd-editor',
     nodes: [...Nodes],
     onError: (error: Error) => {
-      // console.log('error =======>> ', error);
       throw error;
     },
     theme: PlaygroundEditorTheme

@@ -325,7 +325,7 @@ const NotesDirectory: React.FC = () => {
           numQuestions: 0,
           timerDuration: '',
           hasSubmitted: false,
-          noteDoc: note.note
+          noteDoc: note._id
         }));
         setOpenSideModal(true);
       },

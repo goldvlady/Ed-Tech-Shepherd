@@ -33,12 +33,11 @@ import {
   $getRoot,
   $isParagraphNode,
   CLEAR_EDITOR_COMMAND,
-  COMMAND_PRIORITY_EDITOR,
-  $getSelection,
-  $isRangeSelection,
-  DEPRECATED_$isGridSelection
+  COMMAND_PRIORITY_EDITOR // $getSelection,
+  // $isRangeSelection,
+  // DEPRECATED_$isGridSelection
 } from 'lexical';
-import * as React from 'react';
+// import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 
 async function sendEditorState(editor: LexicalEditor): Promise<void> {
@@ -124,6 +123,8 @@ export default function ActionsPlugin({
         }
         editor.getEditorState().read(() => {
           const root = $getRoot();
+
+          // console.log('root======>> ', root);
           const children = root.getChildren();
 
           if (children.length > 1) {

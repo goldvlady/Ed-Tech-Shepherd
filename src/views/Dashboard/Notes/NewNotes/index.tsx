@@ -30,6 +30,7 @@ import {
 } from '../types';
 import LexicalEditor from './LexicalEditor';
 import './editor.css';
+
 import {
   DropDownFirstPart,
   DropDownLists,
@@ -67,7 +68,20 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { BsFillPinFill } from 'react-icons/bs';
 import { FaEllipsisH } from 'react-icons/fa';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useBeforeUnload
+} from 'react-router-dom';
+
+// import LexicalEditor from './LexicalEditor';
+// import html2pdf from 'html2pdf.js';
+// import { uploadBlockNoteDocument } from '../../../../services/AI';
+// import { useToast } from '@chakra-ui/react';
+// import { Block, BlockNoteEditor } from '@blocknote/core';
+// import { BlockNoteView, useBlockNote } from '@blocknote/react';
+// import { init } from '@sentry/browser';
 
 // import LexicalEditor from './LexicalEditor';
 // import html2pdf from 'html2pdf.js';
@@ -550,9 +564,11 @@ const NewNote = () => {
   };
 
   const clearEditor = () => {
+
     if (editor.getEditorState().isEmpty()) {
       return false;
     }
+
 
     editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
     editor.focus();

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import PlaygroundNodes from '../nodes/PlaygroundNodes';
+import PlaygroundNodes from '../nodes/Nodes';
 // @ts-ignore: cannot find modules for @lexical/headless
 import { createHeadlessEditor } from '@lexical/headless';
 import { $isMarkNode, $unwrapMarkNode } from '@lexical/mark';

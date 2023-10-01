@@ -196,8 +196,29 @@ const Offer = () => {
   const acceptOffer = async () => {
     setAcceptingOffer(true);
     const resp = await ApiService.acceptOffer(offer?._id as string);
-    setOffer(await resp.json());
-    onOfferAcceptedModalOpen();
+    // setOffer(await resp.json());
+    switch (resp?.status) {
+      case 200:
+        onOfferAcceptedModalOpen();
+        break;
+      case 400:
+        toast({
+          title: 'Something went wrong',
+          status: 'error',
+          position: 'top',
+          isClosable: true
+        });
+        break;
+
+      default:
+        toast({
+          title: 'Something went wrong.',
+          status: 'error',
+          position: 'top',
+          isClosable: true
+        });
+        break;
+    }
     setAcceptingOffer(false);
   };
 
@@ -363,7 +384,7 @@ const Offer = () => {
                           }}
                         >
                           {offer.student?.user?.name?.first}{' '}
-                          {offer.student?.user?.name?.last}has been added to
+                          {offer.student?.user?.name?.last} has been added to
                           your message list
                         </div>
                       </Box>
@@ -371,7 +392,7 @@ const Offer = () => {
                   </ModalBody>
 
                   <ModalFooter>
-                    <Button onClick={() => navigate('/dashboard')}>
+                    <Button onClick={() => navigate('/dashboard/messaging')}>
                       Send a message
                     </Button>
                   </ModalFooter>
@@ -536,14 +557,14 @@ const Offer = () => {
                         <Avatar
                           width={'45px'}
                           height="45px"
-                          name={`${offer.student.user.name.first} ${offer.student.user.name.last}`}
+                          name={`${offer.student?.user?.name?.first} ${offer.student?.user?.name?.last}`}
                         />
                       </Box>
                       <Box flexGrow={1}>
                         <HStack justifyContent={'space-between'}>
                           <Text className="sub2" color={'text.200'} mb={0}>
-                            {capitalize(offer.student.user.name.first)}{' '}
-                            {capitalize(offer.student.user.name.last)}
+                            {capitalize(offer.student?.user?.name?.first)}{' '}
+                            {capitalize(offer.student?.user?.name?.last)}
                           </Text>
                         </HStack>
                         <Text

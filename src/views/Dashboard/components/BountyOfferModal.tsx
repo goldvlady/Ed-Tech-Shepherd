@@ -7,6 +7,7 @@ import resourceStore from '../../../state/resourceStore';
 import {
   Box,
   Button,
+  Flex,
   FormControl,
   FormLabel,
   Input,
@@ -20,7 +21,8 @@ import {
   MenuList,
   Radio,
   RadioGroup,
-  useToast
+  useToast,
+  HStack
 } from '@chakra-ui/react';
 import React, { useCallback, useState, useMemo, useEffect } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
@@ -321,55 +323,70 @@ export default function BountyOfferModal(props) {
               </MenuList>
             </Menu>
           </FormControl>
-          <FormControl mb={4}>
-            <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-              Select Time
-            </FormLabel>
-            <RadioGroup
-              name="time"
-              value={bountyOffer.time}
-              onChange={(value) => {
-                setBountyOffer((prevState) => ({
-                  ...prevState,
-                  time: value
-                }));
-              }}
-            >
-              <Radio value="30min">
-                <Text fontSize="14px">30 mins</Text>
-              </Radio>
-              <Radio ml={'10px'} value="60min">
-                <Text fontSize="14px"> 1 hour</Text>
-              </Radio>
-            </RadioGroup>
-          </FormControl>
-          <FormControl mb={4}>
-            <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-              Price ($)
-            </FormLabel>
 
-            <Input
-              fontSize="0.875rem"
-              fontFamily="Inter"
-              color="#212224"
-              fontWeight="400"
-              type="text"
-              inputMode="numeric"
-              borderRadius="8px"
-              width="100%"
-              height="42px"
-              textAlign="left"
-              value={bountyOffer.price}
-              onChange={(e) => {
-                setBountyOffer((prevState) => ({
-                  ...prevState,
-                  price: e.target.value.replace(/\D/g, '')
-                }));
-              }}
-              placeholder="Enter Price"
-              _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
-            />
-          </FormControl>
+          <Flex gap={2} mb={4} alignItems="center">
+            <FormControl>
+              <FormLabel
+                fontSize="12px"
+                lineHeight="17px"
+                color="#5C5F64"
+                mb={3}
+              >
+                Price ($)
+              </FormLabel>
+
+              <Input
+                fontSize="0.875rem"
+                fontFamily="Inter"
+                color="#212224"
+                fontWeight="400"
+                type="text"
+                inputMode="numeric"
+                borderRadius="8px"
+                width="100%"
+                height="42px"
+                textAlign="left"
+                value={bountyOffer.price}
+                onChange={(e) => {
+                  setBountyOffer((prevState) => ({
+                    ...prevState,
+                    price: e.target.value.replace(/\D/g, '')
+                  }));
+                }}
+                placeholder="Enter Price"
+                _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
+              />
+            </FormControl>
+
+            <FormControl>
+              {/* <FormLabel
+                fontSize="12px"
+                lineHeight="17px"
+                color="#5C5F64"
+                mb={3}
+              >
+                Select Time
+              </FormLabel> */}
+              <RadioGroup
+                name="time"
+                value={bountyOffer.time}
+                onChange={(value) => {
+                  setBountyOffer((prevState) => ({
+                    ...prevState,
+                    time: value
+                  }));
+                }}
+                mt={5}
+              >
+                <Radio value="30min">
+                  <Text fontSize="14px">30 mins</Text>
+                </Radio>
+                <Radio ml={'10px'} value="60min">
+                  <Text fontSize="14px"> 1 hour</Text>
+                </Radio>
+              </RadioGroup>
+            </FormControl>
+          </Flex>
 
           <FormControl mb={4}>
             <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>

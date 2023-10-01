@@ -1,7 +1,10 @@
 import { Text, Grid, Box, Flex, Image } from '@chakra-ui/react';
 import React from 'react';
 
-export default function GridList() {
+export default function GridList(props) {
+  const { data } = props;
+  console.log(data, 'dase');
+
   return (
     <Grid
       templateColumns={{ base: '1fr', sm: 'repeat(3, 1fr)' }}
@@ -54,7 +57,7 @@ export default function GridList() {
             fontWeight="semibold"
             color="white"
           >
-            $0
+            {` $${data.totalAmountEarned}`}
           </Text>
           <Text as="p" fontSize="sm" color="whiteAlpha.900" isTruncated>
             24hrs of tutoring completed!
@@ -98,7 +101,7 @@ export default function GridList() {
             Total Clients
           </Text>
           <Text fontSize="2xl" my={0.5} fontWeight="semibold">
-            0
+            {data.completedClientsCount}
           </Text>
           <Text fontSize="sm" color="green.400" isTruncated>
             + Increased 10% this month
