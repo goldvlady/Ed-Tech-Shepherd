@@ -179,8 +179,10 @@ export default function Index() {
     <>
       <SessionPrefaceDialog
         ref={sessionPrefaceDialogRef}
-        title={`Hey ${capitalize(user?.name.first)}, get ready for your lesson`}
-        initial={user?.name.first.substring(0, 1)}
+        title={`Hey ${capitalize(
+          user?.name?.first
+        )}, get ready for your lesson`}
+        initial={user?.name?.first.substring(0, 1)}
       />
 
       <Box p={5} maxWidth="80em" margin="auto">
@@ -193,7 +195,7 @@ export default function Index() {
 
         <Box mb={8}>
           <Text fontSize={24} fontWeight="bold" mb={1}>
-            Hi {user?.name.first}, Welcome back!
+            Hi {user?.name?.first}, Welcome back!
           </Text>
 
           <Flex
