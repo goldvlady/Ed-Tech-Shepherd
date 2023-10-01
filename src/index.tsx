@@ -1,4 +1,5 @@
 import App from './App';
+// import './base.scss';
 import './index.scss';
 import reportWebVitals from './reportWebVitals';
 import './tailwind.css';
