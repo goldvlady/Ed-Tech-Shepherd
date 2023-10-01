@@ -29,6 +29,8 @@ import {
   NoteStatus
 } from '../types';
 import LexicalEditor from './LexicalEditor';
+import './editor.css';
+
 import {
   DropDownFirstPart,
   DropDownLists,
@@ -72,6 +74,14 @@ import {
   useParams,
   useBeforeUnload
 } from 'react-router-dom';
+
+// import LexicalEditor from './LexicalEditor';
+// import html2pdf from 'html2pdf.js';
+// import { uploadBlockNoteDocument } from '../../../../services/AI';
+// import { useToast } from '@chakra-ui/react';
+// import { Block, BlockNoteEditor } from '@blocknote/core';
+// import { BlockNoteView, useBlockNote } from '@blocknote/react';
+// import { init } from '@sentry/browser';
 
 // import LexicalEditor from './LexicalEditor';
 // import html2pdf from 'html2pdf.js';
@@ -393,7 +403,6 @@ const NewNote = () => {
         isEmpty(respDetails.data) ||
         isNil(respDetails.data);
       if (emptyRespDetails || respDetails.error) {
-
         showToast(
           UPDATE_NOTE_TITLE,
           respDetails.error ?? respDetails.message
@@ -555,12 +564,11 @@ const NewNote = () => {
   };
 
   const clearEditor = () => {
-    console.log('this should clear the editor');
+
     if (editor.getEditorState().isEmpty()) {
       return false;
     }
 
-    console.log('clear editor');
 
     editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
     editor.focus();
@@ -954,7 +962,7 @@ const NewNote = () => {
   useEffect(() => {
     return editor.registerUpdateListener(({ editorState }) => {
       editorState.read(() => {
-        handleAutoSave(editor);
+        if (process.env.NODE_ENV === 'production') handleAutoSave(editor);
       });
     });
   }, [editor, handleAutoSave]);
@@ -976,13 +984,10 @@ const NewNote = () => {
     if (!isEmpty(initialContent)) {
       const editorState = editor.parseEditorState(
         defaultTo(initialContent, initialValue)
-
       );
       editor.setEditorState(editorState);
     }
   }, [editor, initialContent]);
-
-  // useBeforeUnload(clearEditor);
 
   return (
     <>
