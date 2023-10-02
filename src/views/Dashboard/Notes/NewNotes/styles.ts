@@ -11,6 +11,9 @@ export const NewNoteWrapper = styled.section<{
   bottom?: number;
   right?: number;
   zIndex?: number;
+  overflow: string;
+  overflowY: string;
+  overflowZ: string;
 }>`
   padding: 0;
   position: ${(props) => props.position ?? 'relative'};
@@ -24,6 +27,9 @@ export const NewNoteWrapper = styled.section<{
   left: ${(props) => props.left ?? undefined};
   z-index: ${(props) => props.zIndex ?? undefined};
   background-color: ${(props) => props.background ?? theme.color.background};
+  overflow: ${(props) => props.overflow ?? undefined};
+  overflow-y: ${(props) => props.overflowY ?? undefined};
+  overflow-x: ${(props) => props.overflowZ ?? undefined};
 `;
 export const FullScreenNoteWrapper = styled.div`
   width: 70% !important;
