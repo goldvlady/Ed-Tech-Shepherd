@@ -32,7 +32,7 @@ import {
   NoteStatus
 } from '../types';
 import LexicalEditor from './LexicalEditor';
-import './editor.css';
+
 import {
   DropDownFirstPart,
   DropDownLists,
@@ -77,8 +77,7 @@ import { FaEllipsisH } from 'react-icons/fa';
 import {
   useLocation,
   useNavigate,
-  useParams,
-  useBeforeUnload
+  useParams
 } from 'react-router-dom';
 
 // import LexicalEditor from './LexicalEditor';
@@ -226,7 +225,6 @@ const NewNote = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [canStartSaving, setCanStartSaving] = useState(false);
   const [openSideModal, setOpenSideModal] = useState(false);
-
 
   // const editor: BlockNoteEditor | null = useBlockNote({
   //   initialContent: initialContent ? JSON.parse(initialContent) : undefined,
@@ -1018,7 +1016,7 @@ const NewNote = () => {
   }, [initialContent]);
 
   return (
-    <>
+    <Box overflowY={'auto'} minHeight={'920px'}>
       <HeaderWrapper>
         <div style={{ display: 'none' }}>
           <input type="text" ref={editedTitleRef} />
@@ -1044,7 +1042,12 @@ const NewNote = () => {
       </CustomSideModal>
 
       {isFullScreen ? (
-        <NewNoteWrapper {...editorStyle}>
+        <NewNoteWrapper
+          {...{
+            ...editorStyle,
+            overflowY: 'auto'
+          }}
+        >
           <FullScreenNoteWrapper>
             {location.state?.documentUrl ? (
               ''
@@ -1369,7 +1372,7 @@ const NewNote = () => {
           }}
         />
       )}
-    </>
+    </Box>
   );
 };
 

@@ -909,7 +909,7 @@ i.page-break {
   }
   display: flex;
   margin-bottom: 1px;
-  // background: #fff;
+  background: #fff;
   padding: 4px;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
@@ -917,7 +917,7 @@ i.page-break {
   overflow: auto;
   height: 36px;
   position: sticky;
-  top: 0;
+  top: 0px;
   z-index: 2;
   .code-language {
     width: 150px;
