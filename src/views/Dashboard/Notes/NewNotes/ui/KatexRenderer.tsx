@@ -5,15 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
 import katex from 'katex';
 import * as React from 'react';
-import {useEffect, useRef} from 'react';
+import { useEffect, useRef } from 'react';
 
 export default function KatexRenderer({
   equation,
   inline,
-  onDoubleClick,
+  onDoubleClick
 }: Readonly<{
   equation: string;
   inline: boolean;
@@ -31,7 +30,7 @@ export default function KatexRenderer({
         output: 'html',
         strict: 'warn',
         throwOnError: false,
-        trust: false,
+        trust: false
       });
     }
   }, [equation, inline]);

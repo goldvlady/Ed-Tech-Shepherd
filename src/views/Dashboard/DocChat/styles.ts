@@ -410,14 +410,14 @@ export const StyledPrompt = styled.div`
 `;
 
 export const ChatHistoryDate = styled.div`
-  width: 82px;
+  width: 170px;
   border: 1px solid #f0f1f4;
   box-shadow: 0px 3px 5px 0px #757e8a0f;
   color: #6e7682;
   background: #ffffff;
   font-size: 0.75rem;
-  border-radius: 4px;
-  padding: 2px;
+  border-radius: 8px;
+  padding: 10px;
   margin: 0 auto;
   text-align: center;
 `;

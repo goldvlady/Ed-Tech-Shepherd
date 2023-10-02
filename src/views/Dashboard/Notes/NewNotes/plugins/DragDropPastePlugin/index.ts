@@ -5,21 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {DRAG_DROP_PASTE} from '@lexical/rich-text';
-import {isMimeType, mediaFileReader} from '@lexical/utils';
-import {COMMAND_PRIORITY_LOW} from 'lexical';
-import {useEffect} from 'react';
-
-import {INSERT_IMAGE_COMMAND} from '../ImagesPlugin';
+import { INSERT_IMAGE_COMMAND } from '../ImagesPlugin';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { DRAG_DROP_PASTE } from '@lexical/rich-text';
+import { isMimeType, mediaFileReader } from '@lexical/utils';
+import { COMMAND_PRIORITY_LOW } from 'lexical';
+import { useEffect } from 'react';
 
 const ACCEPTABLE_IMAGE_TYPES = [
   'image/',
   'image/heic',
   'image/heif',
   'image/gif',
-  'image/webp',
+  'image/webp'
 ];
 
 export default function DragDropPaste(): null {
@@ -31,20 +29,20 @@ export default function DragDropPaste(): null {
         (async () => {
           const filesResult = await mediaFileReader(
             files,
-            [ACCEPTABLE_IMAGE_TYPES].flatMap((x) => x),
+            [ACCEPTABLE_IMAGE_TYPES].flatMap((x) => x)
           );
-          for (const {file, result} of filesResult) {
+          for (const { file, result } of filesResult) {
             if (isMimeType(file, ACCEPTABLE_IMAGE_TYPES)) {
               editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
                 altText: file.name,
-                src: result,
+                src: result
               });
             }
           }
         })();
         return true;
       },
-      COMMAND_PRIORITY_LOW,
+      COMMAND_PRIORITY_LOW
     );
   }, [editor]);
   return null;

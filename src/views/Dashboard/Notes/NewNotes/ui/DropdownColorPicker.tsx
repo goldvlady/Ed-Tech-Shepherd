@@ -5,11 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import * as React from 'react';
-
 import ColorPicker from './ColorPicker';
 import DropDown from './DropDown';
+import * as React from 'react';
 
 type Props = {
   disabled?: boolean;
@@ -34,7 +32,8 @@ export default function DropdownColorPicker({
     <DropDown
       {...rest}
       disabled={disabled}
-      stopCloseOnClickSelf={stopCloseOnClickSelf}>
+      stopCloseOnClickSelf={stopCloseOnClickSelf}
+    >
       <ColorPicker color={color} onChange={onChange} />
     </DropDown>
   );

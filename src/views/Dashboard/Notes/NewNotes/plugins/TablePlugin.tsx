@@ -5,9 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {INSERT_TABLE_COMMAND} from '@lexical/table';
+import { $createTableNodeWithDimensions, TableNode } from '../nodes/TableNode';
+import Button from '../ui/Button';
+import { DialogActions } from '../ui/Dialog';
+import TextInput from '../ui/TextInput';
+import invariant from './shared/src/invariant';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { INSERT_TABLE_COMMAND } from '@lexical/table';
 import {
   $insertNodes,
   COMMAND_PRIORITY_EDITOR,
@@ -16,16 +20,10 @@ import {
   Klass,
   LexicalCommand,
   LexicalEditor,
-  LexicalNode,
+  LexicalNode
 } from 'lexical';
-import {createContext, useContext, useEffect, useMemo, useState} from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import * as React from 'react';
-import invariant from './shared/src/invariant';
-
-import {$createTableNodeWithDimensions, TableNode} from '../nodes/TableNode';
-import Button from '../ui/Button';
-import {DialogActions} from '../ui/Dialog';
-import TextInput from '../ui/TextInput';
 
 export type InsertTableCommandPayload = Readonly<{
   columns: string;
@@ -38,7 +36,7 @@ export type CellContextShape = {
   cellEditorPlugins: null | JSX.Element | Array<JSX.Element>;
   set: (
     cellEditorConfig: null | CellEditorConfig,
-    cellEditorPlugins: null | JSX.Element | Array<JSX.Element>,
+    cellEditorPlugins: null | JSX.Element | Array<JSX.Element>
   ) => void;
 };
 
@@ -58,16 +56,16 @@ export const CellContext = createContext<CellContextShape>({
   cellEditorPlugins: null,
   set: () => {
     // Empty
-  },
+  }
 });
 
-export function TableContext({children}: {children: JSX.Element}) {
+export function TableContext({ children }: { children: JSX.Element }) {
   const [contextValue, setContextValue] = useState<{
     cellEditorConfig: null | CellEditorConfig;
     cellEditorPlugins: null | JSX.Element | Array<JSX.Element>;
   }>({
     cellEditorConfig: null,
-    cellEditorPlugins: null,
+    cellEditorPlugins: null
   });
   return (
     <CellContext.Provider
@@ -76,11 +74,12 @@ export function TableContext({children}: {children: JSX.Element}) {
           cellEditorConfig: contextValue.cellEditorConfig,
           cellEditorPlugins: contextValue.cellEditorPlugins,
           set: (cellEditorConfig, cellEditorPlugins) => {
-            setContextValue({cellEditorConfig, cellEditorPlugins});
-          },
+            setContextValue({ cellEditorConfig, cellEditorPlugins });
+          }
         }),
-        [contextValue.cellEditorConfig, contextValue.cellEditorPlugins],
-      )}>
+        [contextValue.cellEditorConfig, contextValue.cellEditorPlugins]
+      )}
+    >
       {children}
     </CellContext.Provider>
   );
@@ -88,7 +87,7 @@ export function TableContext({children}: {children: JSX.Element}) {
 
 export function InsertTableDialog({
   activeEditor,
-  onClose,
+  onClose
 }: {
   activeEditor: LexicalEditor;
   onClose: () => void;
@@ -110,7 +109,7 @@ export function InsertTableDialog({
   const onClick = () => {
     activeEditor.dispatchCommand(INSERT_TABLE_COMMAND, {
       columns,
-      rows,
+      rows
     });
 
     onClose();
@@ -145,7 +144,7 @@ export function InsertTableDialog({
 
 export function InsertNewTableDialog({
   activeEditor,
-  onClose,
+  onClose
 }: {
   activeEditor: LexicalEditor;
   onClose: () => void;
@@ -165,7 +164,7 @@ export function InsertNewTableDialog({
   }, [rows, columns]);
 
   const onClick = () => {
-    activeEditor.dispatchCommand(INSERT_NEW_TABLE_COMMAND, {columns, rows});
+    activeEditor.dispatchCommand(INSERT_NEW_TABLE_COMMAND, { columns, rows });
     onClose();
   };
 
@@ -198,7 +197,7 @@ export function InsertNewTableDialog({
 
 export function TablePlugin({
   cellEditorConfig,
-  children,
+  children
 }: {
   cellEditorConfig: CellEditorConfig;
   children: JSX.Element | Array<JSX.Element>;
@@ -215,16 +214,16 @@ export function TablePlugin({
 
     return editor.registerCommand<InsertTableCommandPayload>(
       INSERT_NEW_TABLE_COMMAND,
-      ({columns, rows, includeHeaders}) => {
+      ({ columns, rows, includeHeaders }) => {
         const tableNode = $createTableNodeWithDimensions(
           Number(rows),
           Number(columns),
-          includeHeaders,
+          includeHeaders
         );
         $insertNodes([tableNode]);
         return true;
       },
-      COMMAND_PRIORITY_EDITOR,
+      COMMAND_PRIORITY_EDITOR
     );
   }, [cellContext, cellEditorConfig, children, editor]);
 

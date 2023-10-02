@@ -1206,6 +1206,49 @@ input[type='text']:focus {
   font: 14px 'Inter';
 }
 
+.rmsc .dropdown-container {
+  border: 0 !important;
+  margin-right: 15px !important;
+}
+
+.rmsc .dropdown-heading {
+  width: 160px !important;
+  border: 1px solid #e4e6e7 !important;
+  border-radius: 8px !important;
+  height: 35px !important;
+  font-size: 0.875rem !important;
+  // position: relative !important;
+}
+
+.rmsc .search {
+  /* Apply your custom styles here. For example: */
+  width: 100%; // make it full width
+  padding: 5px; // add some padding
+  border-radius: 5px; // round the corners a bit
+  // ... any other styles you want
+}
+
+/* Remove focus border */
+
+.rmsc .dropdown-content {
+  color: black !important;
+  font-size: 0.875rem !important;
+  font-family: 'Inter' !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  // position: absolute !important;
+  // z-index: -11111 !important;
+
+  input {
+    border-radius: 4px !important;
+  }
+}
+x .rmsc .dropdown-heading:focus {
+  outline: none !important;
+  box-shadow: none !important; /* In case the component uses a box-shadow for focus indication */
+}
+
 #root {
   .str-chat__channel-header {
     height: 76px;
@@ -1396,4 +1439,3 @@ input[type='text']:focus {
     }
   }
 }
-

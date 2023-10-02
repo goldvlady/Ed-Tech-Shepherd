@@ -5,11 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   LexicalContextMenuPlugin,
-  MenuOption,
+  MenuOption
 } from '@lexical/react/LexicalContextMenuPlugin';
 import {
   type LexicalNode,
@@ -17,9 +16,9 @@ import {
   $isRangeSelection,
   COPY_COMMAND,
   CUT_COMMAND,
-  PASTE_COMMAND,
+  PASTE_COMMAND
 } from 'lexical';
-import {useCallback, useMemo} from 'react';
+import { useCallback, useMemo } from 'react';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
@@ -28,7 +27,7 @@ function ContextMenuItem({
   isSelected,
   onClick,
   onMouseEnter,
-  option,
+  option
 }: {
   index: number;
   isSelected: boolean;
@@ -50,7 +49,8 @@ function ContextMenuItem({
       aria-selected={isSelected}
       id={'typeahead-item-' + index}
       onMouseEnter={onMouseEnter}
-      onClick={onClick}>
+      onClick={onClick}
+    >
       <span className="text">{option.title}</span>
     </li>
   );
@@ -60,7 +60,7 @@ function ContextMenu({
   options,
   selectedItemIndex,
   onOptionClick,
-  onOptionMouseEnter,
+  onOptionMouseEnter
 }: {
   selectedItemIndex: number | null;
   onOptionClick: (option: ContextMenuOption, index: number) => void;
@@ -92,7 +92,7 @@ export class ContextMenuOption extends MenuOption {
     title: string,
     options: {
       onSelect: (targetNode: LexicalNode | null) => void;
-    },
+    }
   ) {
     super(title);
     this.title = title;
@@ -108,12 +108,12 @@ export default function ContextMenuPlugin(): JSX.Element {
       new ContextMenuOption(`Copy`, {
         onSelect: (_node) => {
           editor.dispatchCommand(COPY_COMMAND, null);
-        },
+        }
       }),
       new ContextMenuOption(`Cut`, {
         onSelect: (_node) => {
           editor.dispatchCommand(CUT_COMMAND, null);
-        },
+        }
       }),
       new ContextMenuOption(`Paste`, {
         onSelect: (_node) => {
@@ -125,7 +125,7 @@ export default function ContextMenuPlugin(): JSX.Element {
 
             const permission = await navigator.permissions.query({
               // @ts-ignore These types are incorrect.
-              name: 'clipboard-read',
+              name: 'clipboard-read'
             });
             if (permission.state === 'denied') {
               alert('Not allowed to paste from clipboard.');
@@ -138,19 +138,19 @@ export default function ContextMenuPlugin(): JSX.Element {
             }
 
             const event = new ClipboardEvent('paste', {
-              clipboardData: data,
+              clipboardData: data
             });
 
             editor.dispatchCommand(PASTE_COMMAND, event);
           });
-        },
+        }
       }),
       new ContextMenuOption(`Paste as Plain Text`, {
         onSelect: (_node) => {
           navigator.clipboard.read().then(async (...args) => {
             const permission = await navigator.permissions.query({
               // @ts-ignore These types are incorrect.
-              name: 'clipboard-read',
+              name: 'clipboard-read'
             });
 
             if (permission.state === 'denied') {
@@ -163,11 +163,11 @@ export default function ContextMenuPlugin(): JSX.Element {
             data.setData('text/plain', items);
 
             const event = new ClipboardEvent('paste', {
-              clipboardData: data,
+              clipboardData: data
             });
             editor.dispatchCommand(PASTE_COMMAND, event);
           });
-        },
+        }
       }),
       new ContextMenuOption(`Delete Node`, {
         onSelect: (_node) => {
@@ -180,8 +180,8 @@ export default function ContextMenuPlugin(): JSX.Element {
 
             ancestorNodeWithRootAsParent?.remove();
           }
-        },
-      }),
+        }
+      })
     ];
   }, [editor]);
 
@@ -189,14 +189,14 @@ export default function ContextMenuPlugin(): JSX.Element {
     (
       selectedOption: ContextMenuOption,
       targetNode: LexicalNode | null,
-      closeMenu: () => void,
+      closeMenu: () => void
     ) => {
       editor.update(() => {
         selectedOption.onSelect(targetNode);
         closeMenu();
       });
     },
-    [editor],
+    [editor]
   );
 
   return (
@@ -209,9 +209,9 @@ export default function ContextMenuPlugin(): JSX.Element {
           selectedIndex,
           options: _options,
           selectOptionAndCleanUp,
-          setHighlightedIndex,
+          setHighlightedIndex
         },
-        {setMenuRef},
+        { setMenuRef }
       ) =>
         anchorElementRef.current
           ? ReactDOM.createPortal(
@@ -220,9 +220,10 @@ export default function ContextMenuPlugin(): JSX.Element {
                 style={{
                   marginLeft: anchorElementRef.current.style.width,
                   userSelect: 'none',
-                  width: 200,
+                  width: 200
                 }}
-                ref={setMenuRef}>
+                ref={setMenuRef}
+              >
                 <ContextMenu
                   options={options}
                   selectedItemIndex={selectedIndex}
@@ -235,7 +236,7 @@ export default function ContextMenuPlugin(): JSX.Element {
                   }}
                 />
               </div>,
-              anchorElementRef.current,
+              anchorElementRef.current
             )
           : null
       }

@@ -5,9 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {mergeRegister} from '@lexical/utils';
+import EquationEditor from '../ui/EquationEditor';
+import KatexRenderer from '../ui/KatexRenderer';
+import { $isEquationNode } from './EquationNode';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { mergeRegister } from '@lexical/utils';
 import {
   $getNodeByKey,
   $getSelection,
@@ -15,15 +17,11 @@ import {
   COMMAND_PRIORITY_HIGH,
   KEY_ESCAPE_COMMAND,
   NodeKey,
-  SELECTION_CHANGE_COMMAND,
+  SELECTION_CHANGE_COMMAND
 } from 'lexical';
 import * as React from 'react';
-import {useCallback, useEffect, useRef, useState} from 'react';
-import {ErrorBoundary} from 'react-error-boundary';
-
-import EquationEditor from '../ui/EquationEditor';
-import KatexRenderer from '../ui/KatexRenderer';
-import {$isEquationNode} from './EquationNode';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 
 type EquationComponentProps = {
   equation: string;
@@ -34,7 +32,7 @@ type EquationComponentProps = {
 export default function EquationComponent({
   equation,
   inline,
-  nodeKey,
+  nodeKey
 }: EquationComponentProps): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const [equationValue, setEquationValue] = useState(equation);
@@ -54,7 +52,7 @@ export default function EquationComponent({
         }
       });
     },
-    [editor, equationValue, nodeKey],
+    [editor, equationValue, nodeKey]
   );
 
   useEffect(() => {
@@ -76,7 +74,7 @@ export default function EquationComponent({
             }
             return false;
           },
-          COMMAND_PRIORITY_HIGH,
+          COMMAND_PRIORITY_HIGH
         ),
         editor.registerCommand(
           KEY_ESCAPE_COMMAND,
@@ -89,11 +87,11 @@ export default function EquationComponent({
             }
             return false;
           },
-          COMMAND_PRIORITY_HIGH,
-        ),
+          COMMAND_PRIORITY_HIGH
+        )
       );
     } else {
-      return editor.registerUpdateListener(({editorState}) => {
+      return editor.registerUpdateListener(({ editorState }) => {
         const isSelected = editorState.read(() => {
           const selection = $getSelection();
           return (

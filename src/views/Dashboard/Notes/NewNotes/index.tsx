@@ -33,7 +33,6 @@ import {
 } from '../types';
 import LexicalEditor from './LexicalEditor';
 import './editor.css';
-
 import {
   DropDownFirstPart,
   DropDownLists,
@@ -573,11 +572,9 @@ const NewNote = () => {
   };
 
   const clearEditor = () => {
-
     if (editor.getEditorState().isEmpty()) {
       return false;
     }
-
 
     editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
     editor.focus();

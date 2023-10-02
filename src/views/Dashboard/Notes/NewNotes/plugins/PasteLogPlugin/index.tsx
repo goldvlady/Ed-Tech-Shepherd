@@ -5,24 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {COMMAND_PRIORITY_NORMAL, PASTE_COMMAND} from 'lexical';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { COMMAND_PRIORITY_NORMAL, PASTE_COMMAND } from 'lexical';
 import * as React from 'react';
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 
 export default function PasteLogPlugin(): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const [isActive, setIsActive] = useState(false);
   const [lastClipboardData, setLastClipboardData] = useState<string | null>(
-    null,
+    null
   );
   useEffect(() => {
     if (isActive) {
       return editor.registerCommand(
         PASTE_COMMAND,
         (e: ClipboardEvent) => {
-          const {clipboardData} = e;
+          const { clipboardData } = e;
           const allData: string[] = [];
           if (clipboardData && clipboardData.types) {
             clipboardData.types.forEach((type) => {
@@ -32,7 +31,7 @@ export default function PasteLogPlugin(): JSX.Element {
           setLastClipboardData(allData.join('\n\n'));
           return false;
         },
-        COMMAND_PRIORITY_NORMAL,
+        COMMAND_PRIORITY_NORMAL
       );
     }
   }, [editor, isActive]);

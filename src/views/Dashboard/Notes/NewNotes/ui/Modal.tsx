@@ -5,18 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
 import './Modal.css';
-
 import * as React from 'react';
-import {ReactNode, useEffect, useRef} from 'react';
-import {createPortal} from 'react-dom';
+import { ReactNode, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 function PortalImpl({
   onClose,
   children,
   title,
-  closeOnClickOutside,
+  closeOnClickOutside
 }: {
   children: ReactNode;
   closeOnClickOutside: boolean;
@@ -74,7 +72,8 @@ function PortalImpl({
           className="Modal__closeButton"
           aria-label="Close modal"
           type="button"
-          onClick={onClose}>
+          onClick={onClose}
+        >
           X
         </button>
         <div className="Modal__content">{children}</div>
@@ -87,7 +86,7 @@ export default function Modal({
   onClose,
   children,
   title,
-  closeOnClickOutside = false,
+  closeOnClickOutside = false
 }: {
   children: ReactNode;
   closeOnClickOutside?: boolean;
@@ -98,9 +97,10 @@ export default function Modal({
     <PortalImpl
       onClose={onClose}
       title={title}
-      closeOnClickOutside={closeOnClickOutside}>
+      closeOnClickOutside={closeOnClickOutside}
+    >
       {children}
     </PortalImpl>,
-    document.body,
+    document.body
   );
 }
