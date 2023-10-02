@@ -5,15 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
 import * as React from 'react';
-import {useMemo} from 'react';
+import { useMemo } from 'react';
 
 export default function Switch({
   checked,
   onClick,
   text,
-  id,
+  id
 }: Readonly<{
   checked: boolean;
   id?: string;
@@ -28,7 +27,8 @@ export default function Switch({
         role="switch"
         aria-checked={checked}
         id={buttonId}
-        onClick={onClick}>
+        onClick={onClick}
+      >
         <span />
       </button>
     </div>

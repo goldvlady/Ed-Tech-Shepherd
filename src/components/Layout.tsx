@@ -106,7 +106,7 @@ export default function Layout({ children, className }) {
   const navigate = useNavigate();
   const { user, fetchUser } = userStore();
   const userId = user?._id || '';
-  const { notifications, hasUnreadNotification, markAsRead, markAllAsRead } =
+  const { notifications, hasUnreadNotification, markAllAsRead } =
     useNotifications(userId);
   const auth = getAuth();
 
@@ -401,7 +401,10 @@ export default function Layout({ children, className }) {
                     />
                   </MenuButton>
                   <MenuList p={3} width={'358px'} zIndex={2}>
-                    <Notifications data={notifications} />
+                    <Notifications
+                      data={notifications}
+                      handleAllRead={markAllAsRead}
+                    />
                   </MenuList>
                 </Menu>
                 <Center height="25px">

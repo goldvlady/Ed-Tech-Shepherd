@@ -5,16 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {$insertNodeToNearestRoot} from '@lexical/utils';
-import {COMMAND_PRIORITY_EDITOR, createCommand, LexicalCommand} from 'lexical';
-import {useEffect} from 'react';
-
-import {$createFigmaNode, FigmaNode} from '../../nodes/FigmaNode';
+import { $createFigmaNode, FigmaNode } from '../../nodes/FigmaNode';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $insertNodeToNearestRoot } from '@lexical/utils';
+import {
+  COMMAND_PRIORITY_EDITOR,
+  createCommand,
+  LexicalCommand
+} from 'lexical';
+import { useEffect } from 'react';
 
 export const INSERT_FIGMA_COMMAND: LexicalCommand<string> = createCommand(
-  'INSERT_FIGMA_COMMAND',
+  'INSERT_FIGMA_COMMAND'
 );
 
 export default function FigmaPlugin(): JSX.Element | null {
@@ -32,7 +34,7 @@ export default function FigmaPlugin(): JSX.Element | null {
         $insertNodeToNearestRoot(figmaNode);
         return true;
       },
-      COMMAND_PRIORITY_EDITOR,
+      COMMAND_PRIORITY_EDITOR
     );
   }, [editor]);
 

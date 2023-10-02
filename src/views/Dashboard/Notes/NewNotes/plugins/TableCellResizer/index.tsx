@@ -5,27 +5,25 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import type {Cell} from '@lexical/table';
-import type {LexicalEditor} from 'lexical';
-
 import './index.css';
-
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import useLexicalEditable from '@lexical/react/useLexicalEditable';
+import type { Cell } from '@lexical/table';
 import {
   $getTableColumnIndexFromTableCellNode,
   $getTableNodeFromLexicalNodeOrThrow,
   $getTableRowIndexFromTableCellNode,
   $isTableCellNode,
   $isTableRowNode,
-  getCellFromTarget,
+  getCellFromTarget
 } from '@lexical/table';
+import type { LexicalEditor } from 'lexical';
 import {
   $getNearestNodeFromDOMNode,
   $getSelection,
   COMMAND_PRIORITY_HIGH,
   DEPRECATED_$isGridSelection,
-  SELECTION_CHANGE_COMMAND,
+  SELECTION_CHANGE_COMMAND
 } from 'lexical';
 import * as React from 'react';
 import {
@@ -35,9 +33,9 @@ import {
   useEffect,
   useMemo,
   useRef,
-  useState,
+  useState
 } from 'react';
-import {createPortal} from 'react-dom';
+import { createPortal } from 'react-dom';
 
 type MousePosition = {
   x: number;
@@ -49,7 +47,7 @@ type MouseDraggingDirection = 'right' | 'bottom';
 const MIN_ROW_HEIGHT = 33;
 const MIN_COLUMN_WIDTH = 50;
 
-function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
+function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
   const targetRef = useRef<HTMLElement | null>(null);
   const resizerRef = useRef<HTMLDivElement | null>(null);
   const tableRectRef = useRef<ClientRect | null>(null);
@@ -76,7 +74,7 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
 
         return false;
       },
-      COMMAND_PRIORITY_HIGH,
+      COMMAND_PRIORITY_HIGH
     );
   });
 
@@ -96,7 +94,7 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
         if (draggingDirection) {
           updateMouseCurrentPos({
             x: event.clientX,
-            y: event.clientY,
+            y: event.clientY
           });
           return;
         }
@@ -178,7 +176,7 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
         tableRow.setHeight(newHeight);
       });
     },
-    [activeCell, editor],
+    [activeCell, editor]
   );
 
   const updateColumnWidth = useCallback(
@@ -222,7 +220,7 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
         }
       });
     },
-    [activeCell, editor],
+    [activeCell, editor]
   );
 
   const toggleResize = useCallback(
@@ -236,13 +234,13 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
         }
 
         if (draggingDirection === direction && mouseStartPosRef.current) {
-          const {x, y} = mouseStartPosRef.current;
+          const { x, y } = mouseStartPosRef.current;
 
           if (activeCell === null) {
             return;
           }
 
-          const {height, width} = activeCell.elem.getBoundingClientRect();
+          const { height, width } = activeCell.elem.getBoundingClientRect();
 
           if (isHeightChanging(direction)) {
             const heightChange = Math.abs(event.clientY - y);
@@ -252,8 +250,8 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
             updateRowHeight(
               Math.max(
                 isShrinking ? height - heightChange : heightChange + height,
-                MIN_ROW_HEIGHT,
-              ),
+                MIN_ROW_HEIGHT
+              )
             );
           } else {
             const widthChange = Math.abs(event.clientX - x);
@@ -263,8 +261,8 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
             updateColumnWidth(
               Math.max(
                 isShrinking ? width - widthChange : widthChange + width,
-                MIN_COLUMN_WIDTH,
-              ),
+                MIN_COLUMN_WIDTH
+              )
             );
           }
 
@@ -272,7 +270,7 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
         } else {
           mouseStartPosRef.current = {
             x: event.clientX,
-            y: event.clientY,
+            y: event.clientY
           };
           updateMouseCurrentPos(mouseStartPosRef.current);
           updateDraggingDirection(direction);
@@ -283,13 +281,13 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
       draggingDirection,
       resetState,
       updateColumnWidth,
-      updateRowHeight,
-    ],
+      updateRowHeight
+    ]
   );
 
   const getResizers = useCallback(() => {
     if (activeCell) {
-      const {height, width, top, left} =
+      const { height, width, top, left } =
         activeCell.elem.getBoundingClientRect();
 
       const styles = {
@@ -299,7 +297,7 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
           height: '10px',
           left: `${window.pageXOffset + left}px`,
           top: `${window.pageYOffset + top + height}px`,
-          width: `${width}px`,
+          width: `${width}px`
         },
         right: {
           backgroundColor: 'none',
@@ -307,8 +305,8 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
           height: `${height}px`,
           left: `${window.pageXOffset + left + width}px`,
           top: `${window.pageYOffset + top}px`,
-          width: '10px',
-        },
+          width: '10px'
+        }
       };
 
       const tableRect = tableRectRef.current;
@@ -344,7 +342,7 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
       bottom: null,
       left: null,
       right: null,
-      top: null,
+      top: null
     };
   }, [activeCell, draggingDirection, mouseCurrentPos]);
 
@@ -381,6 +379,6 @@ export default function TableCellResizerPlugin(): null | ReactPortal {
       isEditable
         ? createPortal(<TableCellResizer editor={editor} />, document.body)
         : null,
-    [editor, isEditable],
+    [editor, isEditable]
   );
 }

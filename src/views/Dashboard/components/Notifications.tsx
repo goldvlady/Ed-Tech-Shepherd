@@ -160,8 +160,7 @@ function Notifications(props) {
   //   };
   // }, []);
   const userId = user?._id || '';
-  const { notifications, hasUnreadNotification, markAsRead, markAllAsRead } =
-    useNotifications(userId);
+  const { notifications, hasUnreadNotification } = useNotifications(userId);
 
   const handleNotificationClick = (notificationId) => {
     // Mark the notification as read in the database
@@ -217,7 +216,7 @@ function Notifications(props) {
                   py={2}
                   key={i._id}
                   position="relative"
-                  onClick={() => markAsRead(i._id)}
+                  // onClick={() => markAsRead(i._id)}
                 >
                   <Image
                     src={getIconByANotificationType(i.type)}

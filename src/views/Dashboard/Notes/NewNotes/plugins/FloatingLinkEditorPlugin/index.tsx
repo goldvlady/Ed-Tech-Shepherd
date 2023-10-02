@@ -5,11 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+import { getSelectedNode } from '../../utils/getSelectedNode';
+import { setFloatingElemPositionForLinkEditor } from '../../utils/setFloatingElemPositionForLinkEditor';
+import { sanitizeUrl } from '../../utils/url';
 import './index.css';
-
-import {$isAutoLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {$findMatchingParent, mergeRegister} from '@lexical/utils';
+import {
+  $isAutoLinkNode,
+  $isLinkNode,
+  TOGGLE_LINK_COMMAND
+} from '@lexical/link';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $findMatchingParent, mergeRegister } from '@lexical/utils';
 import {
   $getSelection,
   $isRangeSelection,
@@ -21,21 +27,17 @@ import {
   LexicalEditor,
   NodeSelection,
   RangeSelection,
-  SELECTION_CHANGE_COMMAND,
+  SELECTION_CHANGE_COMMAND
 } from 'lexical';
-import {Dispatch, useCallback, useEffect, useRef, useState} from 'react';
+import { Dispatch, useCallback, useEffect, useRef, useState } from 'react';
 import * as React from 'react';
-import {createPortal} from 'react-dom';
-
-import {getSelectedNode} from '../../utils/getSelectedNode';
-import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
-import {sanitizeUrl} from '../../utils/url';
+import { createPortal } from 'react-dom';
 
 function FloatingLinkEditor({
   editor,
   isLink,
   setIsLink,
-  anchorElem,
+  anchorElem
 }: {
   editor: LexicalEditor;
   isLink: boolean;
@@ -126,7 +128,7 @@ function FloatingLinkEditor({
 
   useEffect(() => {
     return mergeRegister(
-      editor.registerUpdateListener(({editorState}) => {
+      editor.registerUpdateListener(({ editorState }) => {
         editorState.read(() => {
           updateLinkEditor();
         });
@@ -138,7 +140,7 @@ function FloatingLinkEditor({
           updateLinkEditor();
           return true;
         },
-        COMMAND_PRIORITY_LOW,
+        COMMAND_PRIORITY_LOW
       ),
       editor.registerCommand(
         KEY_ESCAPE_COMMAND,
@@ -149,8 +151,8 @@ function FloatingLinkEditor({
           }
           return false;
         },
-        COMMAND_PRIORITY_HIGH,
-      ),
+        COMMAND_PRIORITY_HIGH
+      )
     );
   }, [editor, updateLinkEditor, setIsLink, isLink]);
 
@@ -167,7 +169,7 @@ function FloatingLinkEditor({
   }, [isEditMode]);
 
   const monitorInputInteraction = (
-    event: React.KeyboardEvent<HTMLInputElement>,
+    event: React.KeyboardEvent<HTMLInputElement>
   ) => {
     if (event.key === 'Enter') {
       event.preventDefault();
@@ -227,7 +229,8 @@ function FloatingLinkEditor({
           <a
             href={sanitizeUrl(linkUrl)}
             target="_blank"
-            rel="noopener noreferrer">
+            rel="noopener noreferrer"
+          >
             {linkUrl}
           </a>
           <div
@@ -257,7 +260,7 @@ function FloatingLinkEditor({
 
 function useFloatingLinkEditorToolbar(
   editor: LexicalEditor,
-  anchorElem: HTMLElement,
+  anchorElem: HTMLElement
 ): JSX.Element | null {
   const [activeEditor, setActiveEditor] = useState(editor);
   const [isLink, setIsLink] = useState(false);
@@ -280,7 +283,7 @@ function useFloatingLinkEditorToolbar(
 
   useEffect(() => {
     return mergeRegister(
-      editor.registerUpdateListener(({editorState}) => {
+      editor.registerUpdateListener(({ editorState }) => {
         editorState.read(() => {
           updateToolbar();
         });
@@ -292,8 +295,8 @@ function useFloatingLinkEditorToolbar(
           setActiveEditor(newEditor);
           return false;
         },
-        COMMAND_PRIORITY_CRITICAL,
-      ),
+        COMMAND_PRIORITY_CRITICAL
+      )
     );
   }, [editor, updateToolbar]);
 
@@ -304,12 +307,12 @@ function useFloatingLinkEditorToolbar(
       anchorElem={anchorElem}
       setIsLink={setIsLink}
     />,
-    anchorElem,
+    anchorElem
   );
 }
 
 export default function FloatingLinkEditorPlugin({
-  anchorElem = document.body,
+  anchorElem = document.body
 }: {
   anchorElem?: HTMLElement;
 }): JSX.Element | null {

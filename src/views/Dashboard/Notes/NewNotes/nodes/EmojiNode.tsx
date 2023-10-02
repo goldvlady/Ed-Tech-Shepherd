@@ -5,16 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
 import type {
   EditorConfig,
   LexicalNode,
   NodeKey,
   SerializedTextNode,
-  Spread,
+  Spread
 } from 'lexical';
-
-import {$applyNodeReplacement, TextNode} from 'lexical';
+import { $applyNodeReplacement, TextNode } from 'lexical';
 
 export type SerializedEmojiNode = Spread<
   {
@@ -51,7 +49,7 @@ export class EmojiNode extends TextNode {
   updateDOM(
     prevNode: TextNode,
     dom: HTMLElement,
-    config: EditorConfig,
+    config: EditorConfig
   ): boolean {
     const inner = dom.firstChild;
     if (inner === null) {
@@ -64,7 +62,7 @@ export class EmojiNode extends TextNode {
   static importJSON(serializedNode: SerializedEmojiNode): EmojiNode {
     const node = $createEmojiNode(
       serializedNode.className,
-      serializedNode.text,
+      serializedNode.text
     );
     node.setFormat(serializedNode.format);
     node.setDetail(serializedNode.detail);
@@ -77,7 +75,7 @@ export class EmojiNode extends TextNode {
     return {
       ...super.exportJSON(),
       className: this.getClassName(),
-      type: 'emoji',
+      type: 'emoji'
     };
   }
 
@@ -88,14 +86,14 @@ export class EmojiNode extends TextNode {
 }
 
 export function $isEmojiNode(
-  node: LexicalNode | null | undefined,
+  node: LexicalNode | null | undefined
 ): node is EmojiNode {
   return node instanceof EmojiNode;
 }
 
 export function $createEmojiNode(
   className: string,
-  emojiText: string,
+  emojiText: string
 ): EmojiNode {
   const node = new EmojiNode(className, emojiText).setMode('token');
   return $applyNodeReplacement(node);

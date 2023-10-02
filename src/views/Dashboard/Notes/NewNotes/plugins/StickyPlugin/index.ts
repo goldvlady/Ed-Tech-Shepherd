@@ -5,11 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {useEffect} from 'react';
-
-import {StickyNode} from '../../nodes/StickyNode';
+import { StickyNode } from '../../nodes/StickyNode';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { useEffect } from 'react';
 
 export default function StickyPlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();

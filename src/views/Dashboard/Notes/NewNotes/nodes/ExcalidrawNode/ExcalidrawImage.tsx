@@ -5,15 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import {exportToSvg} from '@excalidraw/excalidraw';
+import { exportToSvg } from '@excalidraw/excalidraw';
 import {
   ExcalidrawElement,
-  NonDeleted,
+  NonDeleted
 } from '@excalidraw/excalidraw/types/element/types';
-import {AppState, BinaryFiles} from '@excalidraw/excalidraw/types/types';
+import { AppState, BinaryFiles } from '@excalidraw/excalidraw/types/types';
 import * as React from 'react';
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 
 type ImageType = 'svg' | 'canvas';
 
@@ -41,7 +40,7 @@ type Props = {
   /**
    * The ref object to be used to render the image
    */
-  imageContainerRef: {current: null | HTMLDivElement};
+  imageContainerRef: { current: null | HTMLDivElement };
   /**
    * The type of image to be rendered
    */
@@ -84,7 +83,7 @@ export default function ExcalidrawImage({
   files,
   imageContainerRef,
   appState,
-  rootClassName = null,
+  rootClassName = null
 }: Props): JSX.Element {
   const [Svg, setSvg] = useState<SVGElement | null>(null);
 
@@ -93,7 +92,7 @@ export default function ExcalidrawImage({
       const svg: SVGElement = await exportToSvg({
         appState,
         elements,
-        files,
+        files
       });
       removeStyleFromSvg_HACK(svg);
 
@@ -110,7 +109,7 @@ export default function ExcalidrawImage({
     <div
       ref={imageContainerRef}
       className={rootClassName ?? ''}
-      dangerouslySetInnerHTML={{__html: Svg?.outerHTML ?? ''}}
+      dangerouslySetInnerHTML={{ __html: Svg?.outerHTML ?? '' }}
     />
   );
 }

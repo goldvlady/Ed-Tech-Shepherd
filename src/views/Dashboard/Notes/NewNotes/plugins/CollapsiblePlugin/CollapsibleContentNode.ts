@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
 import {
   DOMConversionMap,
   DOMConversionOutput,
@@ -13,17 +12,17 @@ import {
   EditorConfig,
   ElementNode,
   LexicalNode,
-  SerializedElementNode,
+  SerializedElementNode
 } from 'lexical';
 
 type SerializedCollapsibleContentNode = SerializedElementNode;
 
 export function convertCollapsibleContentElement(
-  domNode: HTMLElement,
+  domNode: HTMLElement
 ): DOMConversionOutput | null {
   const node = $createCollapsibleContentNode();
   return {
-    node,
+    node
   };
 }
 
@@ -54,20 +53,20 @@ export class CollapsibleContentNode extends ElementNode {
         }
         return {
           conversion: convertCollapsibleContentElement,
-          priority: 2,
+          priority: 2
         };
-      },
+      }
     };
   }
 
   exportDOM(): DOMExportOutput {
     const element = document.createElement('div');
     element.setAttribute('data-lexical-collapsible-content', 'true');
-    return {element};
+    return { element };
   }
 
   static importJSON(
-    serializedNode: SerializedCollapsibleContentNode,
+    serializedNode: SerializedCollapsibleContentNode
   ): CollapsibleContentNode {
     return $createCollapsibleContentNode();
   }
@@ -80,7 +79,7 @@ export class CollapsibleContentNode extends ElementNode {
     return {
       ...super.exportJSON(),
       type: 'collapsible-content',
-      version: 1,
+      version: 1
     };
   }
 }
@@ -90,7 +89,7 @@ export function $createCollapsibleContentNode(): CollapsibleContentNode {
 }
 
 export function $isCollapsibleContentNode(
-  node: LexicalNode | null | undefined,
+  node: LexicalNode | null | undefined
 ): node is CollapsibleContentNode {
   return node instanceof CollapsibleContentNode;
 }

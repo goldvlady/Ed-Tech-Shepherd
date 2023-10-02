@@ -5,9 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import type {Spread} from 'lexical';
-
+import type { Spread } from 'lexical';
 import {
   type DOMConversionMap,
   type DOMConversionOutput,
@@ -17,7 +15,7 @@ import {
   type NodeKey,
   type SerializedTextNode,
   $applyNodeReplacement,
-  TextNode,
+  TextNode
 } from 'lexical';
 
 export type SerializedMentionNode = Spread<
@@ -28,14 +26,14 @@ export type SerializedMentionNode = Spread<
 >;
 
 function convertMentionElement(
-  domNode: HTMLElement,
+  domNode: HTMLElement
 ): DOMConversionOutput | null {
   const textContent = domNode.textContent;
 
   if (textContent !== null) {
     const node = $createMentionNode(textContent);
     return {
-      node,
+      node
     };
   }
 
@@ -73,7 +71,7 @@ export class MentionNode extends TextNode {
       ...super.exportJSON(),
       mentionName: this.__mention,
       type: 'mention',
-      version: 1,
+      version: 1
     };
   }
 
@@ -88,7 +86,7 @@ export class MentionNode extends TextNode {
     const element = document.createElement('span');
     element.setAttribute('data-lexical-mention', 'true');
     element.textContent = this.__text;
-    return {element};
+    return { element };
   }
 
   static importDOM(): DOMConversionMap | null {
@@ -99,9 +97,9 @@ export class MentionNode extends TextNode {
         }
         return {
           conversion: convertMentionElement,
-          priority: 1,
+          priority: 1
         };
-      },
+      }
     };
   }
 
@@ -125,7 +123,7 @@ export function $createMentionNode(mentionName: string): MentionNode {
 }
 
 export function $isMentionNode(
-  node: LexicalNode | null | undefined,
+  node: LexicalNode | null | undefined
 ): node is MentionNode {
   return node instanceof MentionNode;
 }
