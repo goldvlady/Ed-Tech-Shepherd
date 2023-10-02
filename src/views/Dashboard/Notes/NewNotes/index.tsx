@@ -1002,7 +1002,7 @@ const NewNote = () => {
   // });
 
   return (
-    <Box overflowY={'auto'} maxHeight={'920px'}>
+    <Box overflowY={'auto'} minHeight={'920px'}>
       <HeaderWrapper>
         <div style={{ display: 'none' }}>
           <input type="text" ref={editedTitleRef} />
@@ -1016,7 +1016,12 @@ const NewNote = () => {
       </HeaderWrapper>
 
       {isFullScreen ? (
-        <NewNoteWrapper {...editorStyle}>
+        <NewNoteWrapper
+          {...{
+            ...editorStyle,
+            overflowY: 'auto'
+          }}
+        >
           <FullScreenNoteWrapper>
             {location.state?.documentUrl ? (
               ''
