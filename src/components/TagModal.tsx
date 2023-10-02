@@ -15,6 +15,7 @@ import {
   TagLabel,
   VStack
 } from '@chakra-ui/react';
+import { isEmpty } from 'lodash';
 import React, { useState, useEffect } from 'react';
 
 interface TagModalProps {
@@ -148,6 +149,7 @@ export const TagModal: React.FC<TagModalProps> = ({
             colorScheme={isLoading ? 'grey' : 'blue'}
             isLoading={isLoading}
             onClick={handleSubmit}
+            isDisabled={isEmpty(newTags)}
           >
             {isLoading ? 'Saving' : 'Save'}
           </Button>
