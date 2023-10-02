@@ -36,7 +36,7 @@ import LinkPlugin from './plugins/LinkPlugin';
 import ListMaxIndentLevelPlugin from './plugins/ListMaxIndentLevelPlugin';
 import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin';
 import { MaxLengthPlugin } from './plugins/MaxLengthPlugin';
-import MentionsPlugin from './plugins/MentionsPlugin';
+// import MentionsPlugin from './plugins/MentionsPlugin';
 import PageBreakPlugin from './plugins/PageBreakPlugin';
 import PollPlugin from './plugins/PollPlugin';
 import SpeechToTextPlugin from './plugins/SpeechToTextPlugin';
@@ -155,7 +155,7 @@ export default function Editor(): JSX.Element {
         <EmojiPickerPlugin />
         <AutoEmbedPlugin />
 
-        <MentionsPlugin />
+        {/* <MentionsPlugin /> */}
         <EmojisPlugin />
         <HashtagPlugin />
         <KeywordsPlugin />
@@ -205,7 +205,7 @@ export default function Editor(): JSX.Element {
                 placeholder={null}
                 ErrorBoundary={LexicalErrorBoundary}
               />
-              <MentionsPlugin />
+              {/* <MentionsPlugin /> */}
               <HistoryPlugin />
               <ImagesPlugin captionsEnabled={false} />
               <LinkPlugin />
