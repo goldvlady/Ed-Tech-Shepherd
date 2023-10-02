@@ -183,7 +183,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const navigate = useNavigate();
   const { user, fetchUser } = userStore();
   const userId = user?._id || '';
-  const { notifications, hasUnreadNotification, markAsRead, markAllAsRead } =
+  const { notifications, hasUnreadNotification, markAllAsRead } =
     useNotifications(userId);
 
   console.log(notifications, hasUnreadNotification, 'fb not');
@@ -199,9 +199,9 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   //   doFetchUserData();
   // }, [doFetchUserData]);
 
-  function handleMenuButtonClick(callback) {
-    setTimeout(callback, 15000);
-  }
+  // function handleMenuButtonClick(callback) {
+  //   setTimeout(callback, 15000);
+  // }
   return (
     <>
       <Flex
@@ -299,7 +299,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                         <FaBell />
                       )
                     }
-                    onClick={() => handleMenuButtonClick(markAllAsRead)}
+                    // onClick={() => handleMenuButtonClick(markAllAsRead)}
                   />
                 </MenuButton>
                 <MenuList
@@ -310,7 +310,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                 >
                   <Notifications
                     data={notifications}
-                    handleRead={markAsRead}
+                    // handleRead={markAsRead}
                     handleAllRead={markAllAsRead}
                   />
                 </MenuList>

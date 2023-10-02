@@ -5,19 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import type {Spread} from 'lexical';
-
+import { useSharedAutocompleteContext } from '../context/SharedAutocompleteContext';
+import { uuid as UUID } from '../plugins/AutocompletePlugin';
+import type { Spread } from 'lexical';
 import {
   DecoratorNode,
   EditorConfig,
   NodeKey,
-  SerializedLexicalNode,
+  SerializedLexicalNode
 } from 'lexical';
 import * as React from 'react';
-
-import {useSharedAutocompleteContext} from '../context/SharedAutocompleteContext';
-import {uuid as UUID} from '../plugins/AutocompletePlugin';
 
 declare global {
   interface Navigator {
@@ -47,7 +44,7 @@ export class AutocompleteNode extends DecoratorNode<JSX.Element | null> {
   }
 
   static importJSON(
-    serializedNode: SerializedAutocompleteNode,
+    serializedNode: SerializedAutocompleteNode
   ): AutocompleteNode {
     const node = $createAutocompleteNode(serializedNode.uuid);
     return node;
@@ -58,7 +55,7 @@ export class AutocompleteNode extends DecoratorNode<JSX.Element | null> {
       ...super.exportJSON(),
       type: 'autocomplete',
       uuid: this.__uuid,
-      version: 1,
+      version: 1
     };
   }
 
@@ -70,7 +67,7 @@ export class AutocompleteNode extends DecoratorNode<JSX.Element | null> {
   updateDOM(
     prevNode: unknown,
     dom: HTMLElement,
-    config: EditorConfig,
+    config: EditorConfig
   ): boolean {
     return false;
   }
@@ -100,7 +97,7 @@ function AutocompleteComponent(): JSX.Element {
       : window.innerWidth <= 800 && window.innerHeight <= 600;
   // TODO Move to theme
   return (
-    <span style={{color: '#ccc'}} spellCheck="false">
+    <span style={{ color: '#ccc' }} spellCheck="false">
       {suggestion} {isMobile ? '(SWIPE \u2B95)' : '(TAB)'}
     </span>
   );

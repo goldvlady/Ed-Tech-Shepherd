@@ -5,15 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import type {TableOfContentsEntry} from '@lexical/react/LexicalTableOfContents';
-import type {HeadingTagType} from '@lexical/rich-text';
-import type {NodeKey} from 'lexical';
-
 import './index.css';
-
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import type { TableOfContentsEntry } from '@lexical/react/LexicalTableOfContents';
 import LexicalTableOfContents from '@lexical/react/LexicalTableOfContents';
-import {useEffect, useRef, useState} from 'react';
+import type { HeadingTagType } from '@lexical/rich-text';
+import type { NodeKey } from 'lexical';
+import { useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 
 const MARGIN_ABOVE_EDITOR = 624;
@@ -44,7 +42,7 @@ function isHeadingBelowTheTopOfThePage(element: HTMLElement): boolean {
 }
 
 function TableOfContentsList({
-  tableOfContents,
+  tableOfContents
 }: {
   tableOfContents: Array<TableOfContentsEntry>;
 }): JSX.Element {
@@ -70,7 +68,7 @@ function TableOfContentsList({
         selectedIndex.current < tableOfContents.length - 1
       ) {
         let currentHeading = editor.getElementByKey(
-          tableOfContents[selectedIndex.current][0],
+          tableOfContents[selectedIndex.current][0]
         );
         if (currentHeading !== null) {
           if (isHeadingBelowTheTopOfThePage(currentHeading)) {
@@ -81,7 +79,7 @@ function TableOfContentsList({
               selectedIndex.current > 0
             ) {
               const prevHeading = editor.getElementByKey(
-                tableOfContents[selectedIndex.current - 1][0],
+                tableOfContents[selectedIndex.current - 1][0]
               );
               if (
                 prevHeading !== null &&
@@ -102,7 +100,7 @@ function TableOfContentsList({
               selectedIndex.current < tableOfContents.length - 1
             ) {
               const nextHeading = editor.getElementByKey(
-                tableOfContents[selectedIndex.current + 1][0],
+                tableOfContents[selectedIndex.current + 1][0]
               );
               if (
                 nextHeading !== null &&
@@ -147,7 +145,8 @@ function TableOfContentsList({
                   className="first-heading"
                   onClick={() => scrollToNode(key, index)}
                   role="button"
-                  tabIndex={0}>
+                  tabIndex={0}
+                >
                   {('' + text).length > 20
                     ? text.substring(0, 20) + '...'
                     : text}
@@ -161,17 +160,20 @@ function TableOfContentsList({
                 className={`normal-heading-wrapper ${
                   selectedKey === key ? 'selected-heading-wrapper' : ''
                 }`}
-                key={key}>
+                key={key}
+              >
                 <div
                   onClick={() => scrollToNode(key, index)}
                   role="button"
                   className={indent(tag)}
-                  tabIndex={0}>
+                  tabIndex={0}
+                >
                   <li
                     className={`normal-heading ${
                       selectedKey === key ? 'selected-heading' : ''
                     }
-                    `}>
+                    `}
+                  >
                     {('' + text).length > 27
                       ? text.substring(0, 27) + '...'
                       : text}

@@ -5,18 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
+import { addClassNamesToElement } from '@lexical/utils';
 import type {
   DOMConversionMap,
   EditorConfig,
   LexicalNode,
   NodeKey,
   SerializedElementNode,
-  Spread,
+  Spread
 } from 'lexical';
-
-import {addClassNamesToElement} from '@lexical/utils';
-import {ElementNode} from 'lexical';
+import { ElementNode } from 'lexical';
 
 export type SerializedLayoutContainerNode = Spread<
   {
@@ -74,7 +72,7 @@ export class LayoutContainerNode extends ElementNode {
       ...super.exportJSON(),
       templateColumns: this.__templateColumns,
       type: 'layout-container',
-      version: 1,
+      version: 1
     };
   }
 
@@ -88,13 +86,13 @@ export class LayoutContainerNode extends ElementNode {
 }
 
 export function $createLayoutContainerNode(
-  templateColumns: string,
+  templateColumns: string
 ): LayoutContainerNode {
   return new LayoutContainerNode(templateColumns);
 }
 
 export function $isLayoutContainerNode(
-  node: LexicalNode | null | undefined,
+  node: LexicalNode | null | undefined
 ): node is LayoutContainerNode {
   return node instanceof LayoutContainerNode;
 }

@@ -75,7 +75,7 @@ function useNotifications(userId: string) {
 
     // Clean up the Firebase listener when the component unmounts
     return () => {
-      unsubscribe(); // Call the unsubscribe function directly
+      unsubscribe();
     };
   }, [userId]);
 

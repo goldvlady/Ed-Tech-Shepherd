@@ -5,16 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import './KatexEquationAlterer.css';
-
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import * as React from 'react';
-import {useCallback, useState} from 'react';
-import {ErrorBoundary} from 'react-error-boundary';
-
 import Button from '../ui/Button';
+import './KatexEquationAlterer.css';
 import KatexRenderer from './KatexRenderer';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import * as React from 'react';
+import { useCallback, useState } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 
 type Props = {
   initialEquation?: string;
@@ -23,7 +20,7 @@ type Props = {
 
 export default function KatexEquationAlterer({
   onConfirm,
-  initialEquation = '',
+  initialEquation = ''
 }: Props): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const [equation, setEquation] = useState<string>(initialEquation);

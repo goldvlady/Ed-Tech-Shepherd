@@ -5,8 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import {CAN_USE_DOM} from './canUseDOM';
+import { CAN_USE_DOM } from './canUseDOM';
 
 declare global {
   interface Document {

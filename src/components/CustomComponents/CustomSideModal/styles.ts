@@ -8,7 +8,7 @@ export const SidebarContainer = styled.div<{
   right: ${({ isOpen }) => (isOpen ? '0' : '-100%')};
   height: 100vh;
   width: 392px;
-  z-index: 1;
+  z-index: 3;
   background-color: #fff; /* Replace with your desired background color */
   transition: right 0.3s ease-in-out;
   box-shadow: 0px 8px 20px 0px #454b5433;
