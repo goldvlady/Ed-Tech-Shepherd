@@ -67,17 +67,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { BsFillPinFill } from 'react-icons/bs';
 import { FaEllipsisH } from 'react-icons/fa';
-import {
-  useLocation,
-  useNavigate,
-  useParams,
-  useBeforeUnload
-} from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
-// import LexicalEditor from './LexicalEditor';
-// import html2pdf from 'html2pdf.js';
 // import { uploadBlockNoteDocument } from '../../../../services/AI';
-// import { useToast } from '@chakra-ui/react';
 // import { Block, BlockNoteEditor } from '@blocknote/core';
 // import { BlockNoteView, useBlockNote } from '@blocknote/react';
 // import { init } from '@sentry/browser';
@@ -89,11 +81,6 @@ import {
 // import { Block, BlockNoteEditor } from '@blocknote/core';
 // import { BlockNoteView, useBlockNote } from '@blocknote/react';
 // import { init } from '@sentry/browser';
-
-// import {
-//   // Editor as LexicalEditor,
-//   EditorContext as LexicalEditorContextProvider
-// } from 'shepherd-editor';
 
 const DEFAULT_NOTE_TITLE = 'Enter Note Title';
 const DELETE_NOTE_TITLE = 'Delete Note';
@@ -250,7 +237,6 @@ const NewNote = () => {
 
   const downloadAsPDF = async () => {
     if (editor.getEditorState().isEmpty()) {
-      // if (!noteId || !editor.getEditorState().isEmpty()) {
       return showToast(
         UPDATE_NOTE_TITLE,
         'Cannot download note. Please select a note',
@@ -995,11 +981,6 @@ const NewNote = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialContent]);
-
-  // useBeforeUnload(() => {
-  //   setCanStartSaving(false);
-  //   clearEditor();
-  // });
 
   return (
     <Box
