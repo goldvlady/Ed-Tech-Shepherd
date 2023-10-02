@@ -64,11 +64,11 @@ import { $generateHtmlFromNodes } from '@lexical/html';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $getRoot,
-  CLEAR_EDITOR_COMMAND // $createParagraphNode,
-  // $getSelection,
+  CLEAR_EDITOR_COMMAND, // $createParagraphNode,
+  LexicalEditor as EditorType // $getSelection,
   // $createTextNode
 } from 'lexical';
-import { defaultTo, isEmpty, isNil } from 'lodash';
+import { defaultTo, isEmpty, isNil, union } from 'lodash';
 import moment from 'moment';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
@@ -224,7 +224,9 @@ const NewNote = () => {
   const [initialContent, setInitialContent] = useState<string | null>('');
   const [editorStyle, setEditorStyle] = useState<any>({});
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [canStartSaving, setCanStartSaving] = useState(false);
   const [openSideModal, setOpenSideModal] = useState(false);
+
 
   // const editor: BlockNoteEditor | null = useBlockNote({
   //   initialContent: initialContent ? JSON.parse(initialContent) : undefined,
@@ -304,14 +306,14 @@ const NewNote = () => {
       saveDetails = await updateNote(noteId, {
         topic: editedTitle,
         note: noteJSON,
-        tags: tags,
+        tags: union(newTags, tags),
         status: NoteStatus.SAVED
       });
     } else {
       saveDetails = await createNote({
         topic: editedTitle,
         note: noteJSON,
-        tags: tags,
+        tags: union(newTags, tags),
         status: NoteStatus.SAVED
       });
     }
@@ -327,7 +329,7 @@ const NewNote = () => {
       setSaveButtonState(true);
       return showToast(UPDATE_NOTE_TITLE, saveDetails.error, 'error');
     } else {
-      if (!saveDetails?.data) {
+      if (isEmpty(saveDetails?.data) || isNil(saveDetails?.data)) {
         setSaveButtonState(true);
         return showToast(
           UPDATE_NOTE_TITLE,
@@ -336,7 +338,7 @@ const NewNote = () => {
         );
       }
       // Save noteID to state if this is a new note and save locally
-      if (!noteId) {
+      if (isEmpty(noteId)) {
         const newNoteId = saveDetails.data['_id'];
         setNoteId(newNoteId);
         saveNoteLocal(getLocalStorageNoteId(newNoteId), saveDetails.data.note);
@@ -410,7 +412,7 @@ const NewNote = () => {
         isNil(respDetails) ||
         isEmpty(respDetails.data) ||
         isNil(respDetails.data);
-      if (emptyRespDetails || respDetails.error) {
+      if (respDetails.error || emptyRespDetails) {
         showToast(
           UPDATE_NOTE_TITLE,
           respDetails.error ?? respDetails.message
@@ -420,7 +422,7 @@ const NewNote = () => {
         );
         return;
       }
-      if (respDetails.data) {
+      if (!isEmpty(respDetails.data)) {
         const { data: note } = respDetails.data;
         if (note._id && note.topic && note.note) {
           setEditedTitle(note.topic);
@@ -745,20 +747,21 @@ const NewNote = () => {
   };
 
   const AddTags = async () => {
-    const noteIdInUse = noteId ?? noteParamId;
+    const noteIdInUse = defaultTo(noteId, noteParamId);
+
     if (editedTitle === '' || editedTitle === defaultNoteTitle) {
       // simply save the note title
       setOpenTags(false);
       return;
     }
-    if (!noteIdInUse || noteIdInUse === '') {
+    if (isEmpty(noteIdInUse)) {
       setOpenTags(false);
       return showToast(DELETE_NOTE_TITLE, 'No note selected', 'error');
     }
 
     const details = await addTag(noteIdInUse, newTags);
 
-    if (!details) {
+    if (isEmpty(details) || isNil(details)) {
       setOpenTags(false);
       showToast(
         DELETE_NOTE_TITLE,
@@ -766,18 +769,17 @@ const NewNote = () => {
         'error'
       );
       return;
-    }
-
-    if (details.error) {
+    } else if (details.error) {
       setOpenTags(false);
       showToast(DELETE_NOTE_TITLE, details.error, 'error');
       return;
     } else {
       setOpenTags(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
+      setTags(union(details.data.tags, [...tags, ...newTags]));
       // setNoteId('');
       // setNewTags([]);
-      clearEditor();
+      // clearEditor();
     }
   };
 
@@ -790,6 +792,7 @@ const NewNote = () => {
   };
 
   const handleBackClick = () => {
+    setCanStartSaving(false);
     clearEditor();
     setTimeout(() => {
       navigate(-1);
@@ -848,7 +851,7 @@ const NewNote = () => {
     // return true;
   };
 
-  const handleAutoSave = useCallback((editor: any) => {
+  const handleAutoSave = (editor: EditorType) => {
     // use debounce filter
     // TODO: we must move this to web worker
     // additional condition for use to save note details
@@ -857,14 +860,13 @@ const NewNote = () => {
       saveNoteLocal(getLocalStorageNoteId(noteId), note);
     };
     // evaluate other conditions to true or false
-    const saveCondition = () => true;
+    const saveCondition = () => !editor.getEditorState().isEmpty();
     // note save callback wrapper
     const saveCallback = () => {
       autoSaveNote(editor, saveLocalCallback);
     };
     debounce(saveCallback, saveCondition);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  };
 
   /**
    * Auto-save note contents
@@ -872,12 +874,13 @@ const NewNote = () => {
    * @returns
    */
   const autoSaveNote = async (
-    editor: any,
+    editor: EditorType,
     saveCallback: (noteId: string, note: string) => any
   ) => {
     if (!editor) return;
+    if (editor.getEditorState().isEmpty()) return;
 
-    const noteTitle = editedTitleRef.current.value ?? editedTitle;
+    const noteTitle = editedTitleRef?.current?.value ?? editedTitle;
 
     let noteIdToUse = '';
     let draftNoteIdToUse = '';
@@ -891,22 +894,24 @@ const NewNote = () => {
       return;
     }
 
-    if (noteId || noteParamId) {
-      noteIdToUse = noteId ? noteId : noteParamId ?? '';
+    if (!isEmpty(noteId) || !isEmpty(noteParamId)) {
+      noteIdToUse = defaultTo(noteId, noteParamId);
       noteStatus = NoteStatus.SAVED;
     } else {
-      draftNoteIdToUse = draftNoteId.current ? draftNoteId.current.value : '';
+      draftNoteIdToUse =
+        draftNoteId?.current && draftNoteId?.current?.value
+          ? draftNoteId.current.value
+          : '';
       noteStatus = NoteStatus.DRAFT;
     }
 
-    if (noteIdToUse && noteIdToUse !== '') {
+    if (!isEmpty(noteIdToUse)) {
       updateNote(noteIdToUse, {
         topic: noteTitle,
         note: noteJSON,
-        tags: tags,
+        tags: union(newTags, tags),
         status: noteStatus
-      }).then((saveDetails) => {
-        // console.log('existing note updated ', saveDetails);
+      }).then(() => {
         saveCallback(noteIdToUse, noteJSON);
       });
     } else {
@@ -915,24 +920,23 @@ const NewNote = () => {
         updateNote(draftNoteIdToUse, {
           topic: noteTitle,
           note: noteJSON,
-          tags: newTags,
+          tags: union(newTags, tags),
           status: noteStatus
-        }).then((saveDetails) => {
+        }).then(() => {
           saveCallback(draftNoteIdToUse, noteJSON);
-          // console.log('existing draft note updated ', saveDetails);
         });
       } else {
         // create a new draft note
         createNote({
           topic: noteTitle,
           note: noteJSON,
-          tags: newTags,
+          tags: union(newTags, tags),
           status: noteStatus
         }).then((saveDetails) => {
-          // console.log('draft note  created ', saveDetails);
           // save new draft note details for update
           if (saveDetails?.data) {
             draftNoteId.current.value = saveDetails.data['_id'];
+            setNoteId(saveDetails.data['_id']);
             saveCallback(draftNoteIdToUse, noteJSON);
           }
         });
@@ -980,17 +984,22 @@ const NewNote = () => {
   useEffect(() => {
     return editor.registerUpdateListener(({ editorState }) => {
       editorState.read(() => {
-        if (process.env.NODE_ENV === 'production') handleAutoSave(editor);
+        // if (process.env.NODE_ENV === 'production')
+        if (canStartSaving) {
+          handleAutoSave(editor);
+        }
       });
     });
-  }, [editor, handleAutoSave]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor, canStartSaving, tags]);
 
   useEffect(() => {
     (async () => {
       if (!isEmpty(noteParamId) || !isNil(noteParamId)) {
         setInitialContent(getNoteLocal(noteParamId) as string);
-        await getNoteById();
+        await getNoteById(noteParamId);
       }
+      setCanStartSaving(true);
     })();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1005,7 +1014,8 @@ const NewNote = () => {
       );
       editor.setEditorState(editorState);
     }
-  }, [editor, initialContent]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialContent]);
 
   return (
     <>
