@@ -5,15 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $getSelection,
   $isRangeSelection,
   $setSelection,
-  FOCUS_COMMAND,
+  FOCUS_COMMAND
 } from 'lexical';
-import {useEffect} from 'react';
+import { useEffect } from 'react';
 
 const COMMAND_PRIORITY_LOW = 1;
 const TAB_TO_FOCUS_INTERVAL = 100;
@@ -30,7 +29,7 @@ function registerKeyTimeStampTracker() {
         lastTabKeyDownTimestamp = event.timeStamp;
       }
     },
-    true,
+    true
   );
 }
 
@@ -57,7 +56,7 @@ export default function TabFocusPlugin(): null {
         }
         return false;
       },
-      COMMAND_PRIORITY_LOW,
+      COMMAND_PRIORITY_LOW
     );
   }, [editor]);
 

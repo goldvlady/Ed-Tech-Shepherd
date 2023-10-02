@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import {useEffect, useLayoutEffect} from 'react';
-import {CAN_USE_DOM} from './canUseDOM';
+import { CAN_USE_DOM } from './canUseDOM';
+import { useEffect, useLayoutEffect } from 'react';
 
 const useLayoutEffectImpl: typeof useLayoutEffect = CAN_USE_DOM
   ? useLayoutEffect

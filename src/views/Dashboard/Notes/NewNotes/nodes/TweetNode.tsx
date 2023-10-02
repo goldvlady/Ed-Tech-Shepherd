@@ -5,7 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
+import { BlockWithAlignableContents } from '@lexical/react/LexicalBlockWithAlignableContents';
+import {
+  DecoratorBlockNode,
+  SerializedDecoratorBlockNode
+} from '@lexical/react/LexicalDecoratorBlockNode';
 import type {
   DOMConversionMap,
   DOMConversionOutput,
@@ -15,16 +19,10 @@ import type {
   LexicalEditor,
   LexicalNode,
   NodeKey,
-  Spread,
+  Spread
 } from 'lexical';
-
-import {BlockWithAlignableContents} from '@lexical/react/LexicalBlockWithAlignableContents';
-import {
-  DecoratorBlockNode,
-  SerializedDecoratorBlockNode,
-} from '@lexical/react/LexicalDecoratorBlockNode';
 import * as React from 'react';
-import {useCallback, useEffect, useRef, useState} from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const WIDGET_SCRIPT_URL = 'https://platform.twitter.com/widgets.js';
 
@@ -42,12 +40,12 @@ type TweetComponentProps = Readonly<{
 }>;
 
 function convertTweetElement(
-  domNode: HTMLDivElement,
+  domNode: HTMLDivElement
 ): DOMConversionOutput | null {
   const id = domNode.getAttribute('data-lexical-tweet-id');
   if (id) {
     const node = $createTweetNode(id);
-    return {node};
+    return { node };
   }
   return null;
 }
@@ -61,7 +59,7 @@ function TweetComponent({
   nodeKey,
   onError,
   onLoad,
-  tweetID,
+  tweetID
 }: TweetComponentProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -113,10 +111,11 @@ function TweetComponent({
     <BlockWithAlignableContents
       className={className}
       format={format}
-      nodeKey={nodeKey}>
+      nodeKey={nodeKey}
+    >
       {isTweetLoading ? loadingComponent : null}
       <div
-        style={{display: 'inline-block', width: '550px'}}
+        style={{ display: 'inline-block', width: '550px' }}
         ref={containerRef}
       />
     </BlockWithAlignableContents>
@@ -152,7 +151,7 @@ export class TweetNode extends DecoratorBlockNode {
       ...super.exportJSON(),
       id: this.getId(),
       type: 'tweet',
-      version: 1,
+      version: 1
     };
   }
 
@@ -164,9 +163,9 @@ export class TweetNode extends DecoratorBlockNode {
         }
         return {
           conversion: convertTweetElement,
-          priority: 2,
+          priority: 2
         };
-      },
+      }
     };
   }
 
@@ -175,7 +174,7 @@ export class TweetNode extends DecoratorBlockNode {
     element.setAttribute('data-lexical-tweet-id', this.__id);
     const text = document.createTextNode(this.getTextContent());
     element.append(text);
-    return {element};
+    return { element };
   }
 
   constructor(id: string, format?: ElementFormatType, key?: NodeKey) {
@@ -189,7 +188,7 @@ export class TweetNode extends DecoratorBlockNode {
 
   getTextContent(
     _includeInert?: boolean | undefined,
-    _includeDirectionless?: false | undefined,
+    _includeDirectionless?: false | undefined
   ): string {
     return `https://twitter.com/i/web/status/${this.__id}`;
   }
@@ -198,7 +197,7 @@ export class TweetNode extends DecoratorBlockNode {
     const embedBlockTheme = config.theme.embedBlock || {};
     const className = {
       base: embedBlockTheme.base || '',
-      focus: embedBlockTheme.focus || '',
+      focus: embedBlockTheme.focus || ''
     };
     return (
       <TweetComponent
@@ -217,7 +216,7 @@ export function $createTweetNode(tweetID: string): TweetNode {
 }
 
 export function $isTweetNode(
-  node: TweetNode | LexicalNode | null | undefined,
+  node: TweetNode | LexicalNode | null | undefined
 ): node is TweetNode {
   return node instanceof TweetNode;
 }

@@ -5,13 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import * as React from 'react';
-import {useMemo, useState} from 'react';
-
-import {isDevPlayground} from './appSettings';
-import {useSettings} from './context/SettingsContext';
+import { isDevPlayground } from './appSettings';
+import { useSettings } from './context/SettingsContext';
 import Switch from './ui/Switch';
+import * as React from 'react';
+import { useMemo, useState } from 'react';
 
 export default function Settings(): JSX.Element {
   const windowLocation = window.location;
@@ -29,8 +27,8 @@ export default function Settings(): JSX.Element {
       showNestedEditorTreeView,
       disableBeforeInput,
       showTableOfContents,
-      shouldUseLexicalContextMenu,
-    },
+      shouldUseLexicalContextMenu
+    }
   } = useSettings();
   const [showSettings, setShowSettings] = useState(false);
   const [isSplitScreen, search] = useMemo(() => {
@@ -137,7 +135,7 @@ export default function Settings(): JSX.Element {
             onClick={() => {
               setOption(
                 'shouldUseLexicalContextMenu',
-                !shouldUseLexicalContextMenu,
+                !shouldUseLexicalContextMenu
               );
             }}
             checked={shouldUseLexicalContextMenu}
