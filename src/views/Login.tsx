@@ -18,7 +18,7 @@ import {
   Text,
   useToast
 } from '@chakra-ui/react';
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithPopup, fetchSignInMethodsForEmail } from 'firebase/auth';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Field, Form, Formik } from 'formik';
 import React, { useEffect } from 'react';
@@ -177,8 +177,42 @@ const Login: React.FC = () => {
                   variant="solid"
                   bg="#F2F2F3"
                   onClick={async () => {
-                    await signInWithPopup(firebaseAuth, googleProvider);
-                    navigate('/dashboard');
+                    try {
+                      const result = await signInWithPopup(
+                        firebaseAuth,
+                        googleProvider
+                      );
+                      const userEmail = result?.user?.email;
+                      if (!userEmail) {
+                        toast({
+                          title: 'Invalid User',
+                          position: 'top-right',
+                          status: 'error',
+                          isClosable: true
+                        });
+                      }
+
+                      // Check if user exists
+                      const signInMethods = await fetchSignInMethodsForEmail(
+                        firebaseAuth,
+                        userEmail as string
+                      );
+
+                      // If there are no sign-in methods for this email, it means the user doesn't exist.
+                      if (signInMethods.length === 0) {
+                        toast({
+                          title: "User doesn't exist, not signing in.",
+                          position: 'top-right',
+                          status: 'error',
+                          isClosable: true
+                        });
+                        return;
+                      }
+
+                      navigate('/dashboard');
+                    } catch (error) {
+                      console.error('Error during sign-in:', error);
+                    }
                   }}
                   colorScheme={'primary'}
                   size={'lg'}
