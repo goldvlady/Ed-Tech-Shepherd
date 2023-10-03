@@ -11,10 +11,6 @@ import vidHolder from '../../assets/vid-holder.png';
 import LinedList from '../../components/LinedList';
 import ApiService from '../../services/ApiService';
 import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
-import {
-  calculateTimeDifference,
-  convertTimeStringToISOString
-} from '../../util';
 import AvailabilityTable from './components/AvailabilityTable';
 import HowItWorks from './components/HowItWorks';
 import { CustomButton } from './layout';
@@ -150,34 +146,7 @@ export default function Tutor() {
   }
 
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
-  const fixedTimeSlots = [
-    '8AM -> 12PM',
-    '12PM -> 5PM',
-    '5PM -> 9PM',
-    '9PM -> 12AM'
-  ];
 
-  const timeSlotsInUserTimezone = fixedTimeSlots.map((timeSlot) => {
-    const [startTime, endTime] = timeSlot.split(' -> ');
-
-    const startTimeInUserTimezone = calculateTimeDifference(
-      convertTimeStringToISOString(startTime),
-      tutorData.tz
-    );
-
-    const endTimeInUserTimezone = calculateTimeDifference(
-      convertTimeStringToISOString(endTime),
-      tutorData.tz
-    );
-
-    let timeSlotInUserTimezone = `${startTimeInUserTimezone} -> ${endTimeInUserTimezone}`;
-    console.log('tz', timeSlotInUserTimezone);
-
-    timeSlotInUserTimezone = timeSlotInUserTimezone.replace(/:\d+\s/g, '');
-
-    return timeSlotInUserTimezone;
-  });
-  const fixedTimeSlotswithTimezone = timeSlotsInUserTimezone;
   return (
     <>
       <Box>

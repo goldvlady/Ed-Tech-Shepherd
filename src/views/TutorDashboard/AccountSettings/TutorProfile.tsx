@@ -53,6 +53,7 @@ import {
   HStack
 } from '@chakra-ui/react';
 import firebase from 'firebase/app';
+import moment from 'moment';
 // import { updatePassword } from 'firebase/auth';
 import React, { useState, useEffect, useMemo } from 'react';
 import { BiPlayCircle } from 'react-icons/bi';
@@ -122,29 +123,46 @@ function MyProfile(props) {
     [tutorEarnings, rate]
   );
 
-  //   const handleSaveEmail = async () => {
-  //     const formData = { email: newEmail, ottp: otp };
-  //     const response = await ApiService.updateProfile(formData);
-  //     const resp: any = await response.json();
-  //     closeUpdateEmailModal();
-  //     if (response.status === 200) {
-  //       toast({
-  //         render: () => (
-  //           <CustomToast title="Email Updated successfully" status="success" />
-  //         ),
-  //         position: 'top-right',
-  //         isClosable: true
-  //       });
-  //     } else {
-  //       toast({
-  //         render: () => (
-  //           <CustomToast title="Something went wrong.." status="error" />
-  //         ),
-  //         position: 'top-right',
-  //         isClosable: true
-  //       });
-  //     }
-  //   };
+  const handleUpdateTutor = async () => {
+    const formData = {
+      email: newEmail,
+      ottp: otp,
+      coursesAndLevels: [],
+      schedule: {},
+      tz: moment.tz.guess(),
+      qualifications: [],
+      rate: 0,
+      cv: '',
+      bankInfo: {},
+      avatar: '',
+      reviewCount: 0,
+      rating: 0,
+      description: '',
+      country: '',
+      identityDocument: '',
+      introVideo: ''
+    };
+    const response = await ApiService.updateTutor(formData);
+    const resp: any = await response.json();
+    // closeUpdateEmailModal();
+    if (response.status === 200) {
+      toast({
+        render: () => (
+          <CustomToast title="Email Updated successfully" status="success" />
+        ),
+        position: 'top-right',
+        isClosable: true
+      });
+    } else {
+      toast({
+        render: () => (
+          <CustomToast title="Something went wrong.." status="error" />
+        ),
+        position: 'top-right',
+        isClosable: true
+      });
+    }
+  };
 
   return (
     <Box>
