@@ -127,6 +127,13 @@ export default function Layout({ children, className }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
+  useEffect(() => {
+    const isActive = user?.tutor?.isActive;
+    if (!isActive) {
+      navigate('/verification_pending');
+    }
+  }, [user]);
+
   const handleSignOut = () => {
     sessionStorage.clear();
     signOut(auth).then(() => {

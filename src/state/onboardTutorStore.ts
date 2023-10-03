@@ -25,6 +25,7 @@ export default createStore('onboardTutorStore')<Type>({
   cv: '',
   bankInfo: {} as TutorBankInfo,
   avatar: '',
+  isActive: false,
   reviewCount: 0,
   rating: 0,
   description: '',

@@ -166,7 +166,7 @@ export interface Tutor extends TimestampedEntity {
   qualifications?: Array<TutorQualification>;
   country?: string;
   bankInfo?: TutorBankInfo;
-
+  isActive: boolean;
   pipedriveDealId?: string;
 
   // virtuals

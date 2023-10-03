@@ -84,8 +84,9 @@ const RequireAuth = ({
   authenticated: any;
   unAuthenticated: any;
 }) => {
+  const navigate = useNavigate();
   const {
-    state: { isAuthenticated, loading }
+    state: { isAuthenticated, loading, user }
   } = useAuth();
 
   if (loading) {
@@ -96,6 +97,9 @@ const RequireAuth = ({
     );
   }
 
+  if (isAuthenticated && !user?.isVerified) {
+    navigate('/verify_email');
+  }
   return isAuthenticated ? authenticated : unAuthenticated;
 };
 
