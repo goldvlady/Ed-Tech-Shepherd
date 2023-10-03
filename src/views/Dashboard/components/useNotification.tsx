@@ -63,6 +63,7 @@ function useNotifications(userId: string) {
       setHasUnreadNotification(unreadNotifications.length > 0);
       setNotifications(validNotifications);
       console.log(validNotifications, 'Parsed Notifications');
+       console.log(rawData, "RawData");
     };
 
     const unsubscribe = onValue(
