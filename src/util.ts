@@ -105,176 +105,101 @@ export const numberToDayOfWeekName = (num: number, format = 'dddd') =>
 export const DayOfWeekNameToNumber = (num: number, format = 'dddd') =>
   moment().day(num).format(format);
 
-// export const convertTimeToUserTimezone = (time, timezone) => {
-//   console.log(time, 'tym', timezone);
-
-//   // Parse the input time as UTC without DST adjustments
-//   const uTime = moment(time);
-
-//   // Convert the UTC time to the specified user timezone
-//   const userTime = uTime.tz(timezone);
-
-//   console.log(userTime, 'tymu');
-
-//   if (!userTime.isValid()) {
-//     // Invalid time, return null or handle the error accordingly
-//     return null;
-//   }
-
-//   // Format the userTime in 12-hour format with 'h:mm A'
-//   const formattedUserTime = userTime.format('hA');
-//   console.log(formattedUserTime, 'tymuf');
-
-//   return formattedUserTime;
-// };
-
-export const adjustDateTimeByHours = (
-  dateTimeString,
-  timeDifferenceInHours
-) => {
-  const originalDate = new Date(dateTimeString);
-
-  const adjustedDate = new Date(
-    originalDate.getTime() + timeDifferenceInHours * 60 * 60 * 1000
-  );
-
-  // Remove the 'Z' at the end
-  // .slice(0, -1)
-  // Extract the date and time components
-  const year = adjustedDate.getFullYear();
-  const month = (adjustedDate.getMonth() + 1).toString().padStart(2, '0'); // Add 1 to month because it's zero-based
-  const day = adjustedDate.getDate().toString().padStart(2, '0');
-  const hours = adjustedDate.getHours().toString().padStart(2, '0');
-  const minutes = adjustedDate.getMinutes().toString().padStart(2, '0');
-  const seconds = adjustedDate.getSeconds().toString().padStart(2, '0');
-
-  // Create the desired formatted string
-  const adjustedDateTimeString = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.000`;
-
-  console.log(
-    dateTimeString,
-    originalDate,
-    timeDifferenceInHours,
-    adjustedDate,
-    'Term'
-  );
-
-  return adjustedDateTimeString;
-};
-
-export const calculateTimeDifference = (timeString, sourceTimeZone) => {
-  const now = new Date();
-  console.log('UR TIMEZONE', moment.tz.guess(), timeString);
-
-  const newtz: any = new Date(
-    now.toLocaleString('en-US', {
-      // timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-      timeZone: moment.tz.guess()
-      // timeZone: 'America/Chicago'
-    })
-  );
-  const oldtz: any = new Date(
-    now.toLocaleString('en-US', { timeZone: sourceTimeZone })
-  );
-
-  const timeDifferenceMillis = newtz - oldtz;
-
-  const timeDifferenceHours = timeDifferenceMillis / (1000 * 60 * 60);
-
-  const adjustedTime = adjustDateTimeByHours(timeString, timeDifferenceHours);
-  const date = new Date(adjustedTime);
-  console.log(date, adjustedTime, timeDifferenceHours, 'adj');
-
-  let hours = date.getHours();
-  let amOrPm = 'AM';
-
-  // Determine AM or PM
-  if (hours >= 12) {
-    amOrPm = 'PM';
-    if (hours > 12) {
-      hours -= 12;
-    }
-  } else if (hours === 0) {
-    hours = 12; // 12 AM
-  }
-
-  const formattedHours = `${hours}${amOrPm}`;
-
-  return formattedHours;
-};
-
-// console.log(
-//   `${calculateTimeDifference('2023-09-23T12:00:00', 'Africa/Lagos')}`,
-//   'yao'
-// );
-
-export const convertTimeStringToISOString = (timeString) => {
-  // // Get the current date
-  // const currentDate = new Date();
-
-  // // Split the input time string into hours and AM/PM
-  // const [time, ampm] = timeString.match(/(\d+)([APap][Mm])/).slice(1);
-
-  // // Extract hours and minutes from the time
-  // const hours = parseInt(time);
-  // const minutes =
-  //   ampm.toLowerCase() === 'pm' && hours !== 12 ? hours + 12 : hours;
-
-  // // Set the time in the current date object
-  // currentDate.setHours(minutes, 0, 0, 0);
-
-  // // Convert the date to ISO string format
-  // const isoString = currentDate.toISOString();
-  // console.log(timeString, currentDate, isoString, 'iso');
-
-  // return isoString;
-
+export const convertTimeToDateTime = (time) => {
   const currentDate = new Date();
-  const [hours, minutes] = timeString
-    .match(/(\d+)(?::(\d+))?([APap][Mm])?/)
-    .slice(1, 4);
 
-  if (hours) {
-    let isPM = false;
-    if (minutes && minutes.toLowerCase() === 'pm') {
-      isPM = true;
-    }
+  // Regular expression to match different time formats
+  const timeRegex = /^(\d{1,2})(?::(\d{2}))?(AM|PM)?$/i;
+  const matches = time.match(timeRegex);
 
-    // Convert to 24-hour format
-    let hourValue = parseInt(hours);
-    if (isPM && hourValue !== 12) {
-      hourValue += 12;
-    } else if (!isPM && hourValue === 12) {
-      hourValue = 0;
-    }
-
-    currentDate.setHours(hourValue, minutes ? parseInt(minutes) : 0, 0, 0);
+  if (!matches) {
+    return null; // Invalid time format
   }
-  console.log(timeString, currentDate.toLocaleString(), 'time to iso');
-  return currentDate.toISOString();
+
+  let hours = parseInt(matches[1], 10);
+  const minutes = parseInt(matches[2] || 0, 10);
+  const ampm = (matches[3] || '').toLowerCase();
+
+  if (ampm === 'pm' && hours !== 12) {
+    hours += 12;
+  } else if (ampm === 'am' && hours === 12) {
+    hours = 0;
+  }
+
+  currentDate.setHours(hours);
+  currentDate.setMinutes(minutes);
+  currentDate.setSeconds(0);
+  currentDate.setMilliseconds(0);
+
+  const year = currentDate.getFullYear();
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+  const day = String(currentDate.getDate()).padStart(2, '0');
+  const hours24 = String(currentDate.getHours()).padStart(2, '0');
+  const minutesStr = String(currentDate.getMinutes()).padStart(2, '0');
+  const seconds = '00';
+
+  return `${year}-${month}-${day} ${hours24}:${minutesStr}:${seconds}`;
 };
 
-export const formatDateToAMPM = (dateTimeString) => {
-  const date = new Date(dateTimeString);
+// Function to convert time from one timezone to another and format it as "5PM"
+export const convertTimeToTimeZone = (inputTime, inputTimeZone) => {
+  // Define an array of possible date/time formats
+  const inputFormats = ['YYYY-MM-DDTHH:mm:ss.SSSZ', 'YYYY-MM-DD HH:mm:ss'];
 
-  // Extract the hour and minute components from the Date object
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
+  // Attempt to parse the input time using different formats
+  const inputMoment = moment.tz(inputTime, inputFormats, inputTimeZone);
 
-  // Determine whether it's AM or PM
-  const ampm = hours >= 12 ? 'PM' : 'AM';
+  if (!inputMoment.isValid()) {
+    return 'Invalid input time format';
+  }
 
-  // Convert hours from 24-hour format to 12-hour format
-  const formattedHours = hours % 12 || 12;
+  // Convert to the output timezone
+  const outputMoment = inputMoment.clone().tz(moment.tz.guess());
 
-  // Format the minutes to have leading zeros if necessary
-  const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-
-  // Construct the formatted time string
-  const formattedTime = `${formattedHours}:${formattedMinutes}${ampm}`;
+  // Format the result as "5PM"
+  const formattedTime = outputMoment.format('h:mmA');
 
   return formattedTime;
 };
+
+export const convertISOToCustomFormat = (isoString) => {
+  const date = new Date(isoString);
+
+  // Get date components
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
+
+  // Get time components
+  const hours = String(date.getUTCHours()).padStart(2, '0');
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+  const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+
+  // Create the custom format
+  const customFormat = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+  return customFormat;
+};
+
+// // Example usage:
+// const inputTime1 = '2023-10-03T09:30:00.000Z'; // ISO format
+// const inputTime2 = '2023-10-03 09:30:00'; // Custom format
+// const inputTime3 = '9AM'; // Custom format
+// const inputTimeZone = 'America/New_York'; // Input timezone
+// const outputTimeZone = 'Europe/London'; // Output timezone
+
+// const formattedTime1 = convertTimeToTimeZone(
+//   convertISOToCustomFormat(inputTime1),
+//   inputTimeZone
+// );
+// const formattedTime2 = convertTimeToTimeZone(inputTime2, inputTimeZone);
+// const formattedTime3 = convertTimeToTimeZone(
+//   convertTimeToDateTime(inputTime3),
+//   inputTimeZone
+// );
+// console.log(`Formatted time 1: ${formattedTime1}`);
+// console.log(`Formatted time 2: ${formattedTime2}`);
+// console.log(`Formatted time 3: ${formattedTime3}`);
 
 export const isSameDay = (date1, date2) => {
   return (

@@ -11,9 +11,9 @@ import resourceStore from '../../state/resourceStore';
 import theme from '../../theme';
 import { Tutor } from '../../types';
 import {
-  convertTimeStringToISOString,
   numberToDayOfWeekName,
-  calculateTimeDifference
+  convertTimeToTimeZone,
+  convertTimeToDateTime
 } from '../../util';
 import {
   Alert,
@@ -603,15 +603,13 @@ const SendTutorOffer = () => {
                                     {!!tutor.schedule[d] &&
                                       tutor.schedule[d].map((s) => (
                                         <Text className="body3" mb={0}>
-                                          {calculateTimeDifference(
-                                            convertTimeStringToISOString(
-                                              s.begin
-                                            ),
+                                          {convertTimeToTimeZone(
+                                            convertTimeToDateTime(s.begin),
                                             tutor.tz
                                           )}
                                           -{' '}
-                                          {calculateTimeDifference(
-                                            convertTimeStringToISOString(s.end),
+                                          {convertTimeToTimeZone(
+                                            convertTimeToDateTime(s.end),
                                             tutor.tz
                                           )}
                                         </Text>

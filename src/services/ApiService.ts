@@ -333,6 +333,13 @@ class ApiService {
     });
   };
 
+  static updateTutor = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/updateTutor`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+  };
+
   static getAllTutors = async (formData: any) => {
     let filterParams = '';
 
