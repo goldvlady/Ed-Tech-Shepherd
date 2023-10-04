@@ -261,16 +261,17 @@ export default function WeeklySummary(props) {
               >
                 <Box
                   h={'full'}
-                  width={'220px'}
+                  width={'full'}
                   position="absolute"
                   p={3}
                   bottom={2}
                 >
-                  <Center py={4}>
-                    {' '}
-                    <Slider {...settings}>
-                      {studentReport.badges.map((slide) => (
-                        <div>
+                  {' '}
+                  <Slider {...settings}>
+                    {studentReport.badges.map((slide) => (
+                      <div>
+                        {' '}
+                        <Center py={4}>
                           <VStack>
                             <Image src={getBadgeIconByBadgeType(slide.name)} />
                             <Text
@@ -287,10 +288,10 @@ export default function WeeklySummary(props) {
                           {/* <Text fontSize="12px" fontWeight={400}>
                 {slide.description}
               </Text> */}
-                        </div>
-                      ))}
-                    </Slider>{' '}
-                  </Center>
+                        </Center>{' '}
+                      </div>
+                    ))}
+                  </Slider>{' '}
                 </Box>
               </GridItem>
             </Grid>
