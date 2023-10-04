@@ -98,11 +98,11 @@ function useNotifications(userId: string) {
     const updates: { [key: string]: any } = {};
     notifications.forEach((notification) => {
       if (notification.status === 'unviewed' && notification.id) {
-        updates[`notifications/${userId}/${notification.id}`] = {
+        updates[`notifications/${userId}/${notification.id}`] = JSON.stringify({
           ...notification,
           status: 'viewed',
           readAt: new Date().toISOString()
-        };
+        });
       }
     });
     update(ref(database), updates);
