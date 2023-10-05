@@ -18,7 +18,12 @@ import {
   Text,
   useToast
 } from '@chakra-ui/react';
-import { signInWithPopup, fetchSignInMethodsForEmail } from 'firebase/auth';
+import {
+  signInWithPopup,
+  fetchSignInMethodsForEmail,
+  signOut,
+  getAuth
+} from 'firebase/auth';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Field, Form, Formik } from 'formik';
 import React, { useEffect } from 'react';
@@ -39,7 +44,7 @@ const Login: React.FC = () => {
   useTitle('Login');
   const toast = useToast();
   const navigate = useNavigate();
-
+  const auth = getAuth();
   useEffect(() => {
     onAuthStateChanged(firebaseAuth, (user: any) => {
       if (user) {
@@ -79,7 +84,25 @@ const Login: React.FC = () => {
                 values.email,
                 values.password
               );
-              navigate('/dashboard');
+              onAuthStateChanged(firebaseAuth, (user: any) => {
+                if (user && user.emailVerified) {
+                  sessionStorage.setItem('UserDetails', JSON.stringify(user));
+
+                  const email = user.email;
+                  const photoURL = user.photoURL;
+                  const emailVerified = user.emailVerified;
+                  const uid = user.uid;
+                  sessionStorage.setItem('Username', user.displayName);
+                  navigate('/dashboard');
+                  // ...
+                } else {
+                  signOut(auth).then(() => {
+                    sessionStorage.clear();
+                    localStorage.clear();
+                    navigate('/verification_pending');
+                  });
+                }
+              });
             } catch (e: any) {
               let errorMessage = '';
               switch (e.code) {

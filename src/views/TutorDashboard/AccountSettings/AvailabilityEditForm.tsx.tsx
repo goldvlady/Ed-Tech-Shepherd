@@ -248,7 +248,7 @@ function SelectTimeSlot({ onConfirm, day, value }: MyComponentProps) {
 }
 
 const AvailabilityEditForm = (props) => {
-  const { id, username, email } = props;
+  const { updateSchedule } = props;
 
   const { schedule, tz: timezone } = onboardTutorStore.useStore();
   const [showCheckboxes, setShowCheckboxes] = useState(false);
@@ -257,7 +257,6 @@ const AvailabilityEditForm = (props) => {
   const [availability, setTutorAvailability] = useState<{
     [key: string]: SlotData;
   }>({});
-  console.log(availability, schedule, 'davido');
 
   const availabilityDays = Object.keys(availability);
 
@@ -374,6 +373,37 @@ const AvailabilityEditForm = (props) => {
 
     return availability;
   }
+  function transformSchedule(inputData) {
+    console.log(inputData, 'input');
+
+    const transformedData = {};
+
+    // Loop through the keys in the input data
+    for (const key in inputData) {
+      if (inputData[key]) {
+        // Get the array of objects for the current key
+        const timeRanges = inputData[key];
+
+        // Initialize an array to store the transformed time ranges
+        const transformedTimeRanges: any = [];
+
+        // Loop through the time ranges for the current key
+        timeRanges.forEach((timeRange) => {
+          // Split the "begin" and "end" strings by ' → ' to separate the times
+          const [begin, end] = timeRange.begin.split(' → ');
+
+          // Push the transformed time range object into the array
+          transformedTimeRanges.push({ begin, end });
+        });
+
+        // Add the transformed time ranges array to the transformedData object
+        transformedData[key] = transformedTimeRanges;
+      }
+    }
+
+    return transformedData;
+  }
+  console.log(availability, 'gg', formatAvailabilityData(availability));
 
   useEffect(() => {
     if (Object.keys(schedule).length) {
@@ -494,7 +524,7 @@ const AvailabilityEditForm = (props) => {
           </FormLabel>
           <CustomSelect
             placeholder="Select a time zone"
-            value={timezone}
+            value={'Africa/Lagos'}
             onChange={(e) => onboardTutorStore.set.tz(e.target.value)}
           >
             {timezones.map((timezone) => (
@@ -530,17 +560,18 @@ const AvailabilityEditForm = (props) => {
                     ? 0
                     : currentDayIndex + 1
                 );
+                updateSchedule(transformSchedule(schedule));
               }}
             />
           </CustomDropdown>
         </FormControl>
-        <Button
+        {/* <Button
           isDisabled={
             !Object.keys(availability) || allSlotsHaveLengthGreaterThanZero()
           }
         >
           Update
-        </Button>
+        </Button> */}
       </Stack>
     </Box>
   );
