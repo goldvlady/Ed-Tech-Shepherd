@@ -335,7 +335,7 @@ class ApiService {
 
   static updateTutor = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/updateTutor`, {
-      method: 'PUT',
+      method: 'POST',
       body: JSON.stringify(data)
     });
   };

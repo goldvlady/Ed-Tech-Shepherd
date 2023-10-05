@@ -194,7 +194,7 @@ const AppRoutes: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      fetchNotifications();
+      // fetchNotifications();
       userData && fetchUserDocuments(userData._id);
     }
     /* eslint-disable */
@@ -260,10 +260,11 @@ const AppRoutes: React.FC = () => {
         <Route
           path="login"
           element={
-            <RequireAuth
-              authenticated={<Navigate to={'/dashboard'} />}
-              unAuthenticated={<Login />}
-            />
+            <Login />
+            // <RequireAuth
+            //   authenticated={<Navigate to={'/dashboard'} />}
+            //   unAuthenticated={<Login />}
+            // />
           }
         />
 

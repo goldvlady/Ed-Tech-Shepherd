@@ -6,6 +6,7 @@ import ApiService from '../../../services/ApiService';
 import resourceStore from '../../../state/resourceStore';
 import userStore from '../../../state/userStore';
 import AvailabilityTable from '../../Dashboard/components/AvailabilityTable';
+import AddSubjectForm from '../../OnboardTutor/components/steps/add_subjects';
 import AvailabilityEditForm from './AvailabilityEditForm.tsx';
 import {
   Avatar,
@@ -55,7 +56,7 @@ import {
 import firebase from 'firebase/app';
 import moment from 'moment';
 // import { updatePassword } from 'firebase/auth';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { BiPlayCircle } from 'react-icons/bi';
 import { IoIosAlert } from 'react-icons/io';
 import { MdEdit } from 'react-icons/md';
@@ -63,13 +64,13 @@ import { RiArrowRightSLine } from 'react-icons/ri';
 
 function MyProfile(props) {
   const { tutorData } = props;
-  const { user } = userStore();
+  const { user, fetchUser } = userStore();
   const { rate } = resourceStore();
 
   const toast = useToast();
   const [newEmail, setNewEmail] = useState<string>(tutorData.email);
 
-  const [isOpenTandC, setIsOpenTandC] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [oldPassword, setOldPassword] = useState<string>('');
@@ -78,6 +79,7 @@ function MyProfile(props) {
   const handleClickNew = () => setShowNewPassword(!showNewPassword);
   const [vidOverlay, setVidOverlay] = useState<boolean>(true);
   const [description, setDescription] = useState(tutorData.tutor.description);
+  const [schedule, setSchedule] = useState('');
   const [hourlyRate, setHourlyRate] = useState(tutorData.tutor.description);
   // const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
@@ -96,11 +98,24 @@ function MyProfile(props) {
     onClose: closeUpdateAvailabilityModal
   } = useDisclosure();
   const {
+    isOpen: isUpdateSubjectModalOpen,
+    onOpen: openUpdateSubjectModal,
+    onClose: closeUpdateSubjectModal
+  } = useDisclosure();
+  const {
     isOpen: isUpdateDescriptionModalOpen,
     onOpen: openUpdateDescriptionModal,
     onClose: closeUpdateDescriptionModal
   } = useDisclosure();
-  console.log(tutorData);
+
+  const hasAnyEmptyArray = (obj) => {
+    for (const key in obj) {
+      if (obj[key] && Array.isArray(obj[key]) && obj[key].length === 0) {
+        return true;
+      }
+    }
+    return false;
+  };
 
   const handleHourlyRateChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -123,36 +138,43 @@ function MyProfile(props) {
     [tutorEarnings, rate]
   );
 
-  const handleUpdateTutor = async () => {
+  const updateSchedule = (value) => {
+    setSchedule(value);
+  };
+
+  const handleUpdateTutor = async (updateField, value) => {
     const formData = {
-      email: newEmail,
-      ottp: otp,
-      coursesAndLevels: [],
-      schedule: {},
-      tz: moment.tz.guess(),
-      qualifications: [],
-      rate: 0,
-      cv: '',
-      bankInfo: {},
-      avatar: '',
-      reviewCount: 0,
-      rating: 0,
-      description: '',
-      country: '',
-      identityDocument: '',
-      introVideo: ''
+      //   email: newEmail,
+      //   ottp: otp,
+      //   coursesAndLevels: [],
+      //   schedule: {},
+      //   tz: moment.tz.guess(),
+      //   qualifications: [],
+      //   rate: 0,
+      //   cv: '',
+      //   bankInfo: {},
+      //   avatar: '',
+      //   reviewCount: 0,
+      //   rating: 0,
+      //   description: '',
+      //   country: '',
+      //   identityDocument: '',
+      //   introVideo: ''
     };
+    setIsUpdating(true);
+    formData[updateField] = value;
+
     const response = await ApiService.updateTutor(formData);
     const resp: any = await response.json();
-    // closeUpdateEmailModal();
     if (response.status === 200) {
       toast({
         render: () => (
-          <CustomToast title="Email Updated successfully" status="success" />
+          <CustomToast title=" Updated successfully" status="success" />
         ),
         position: 'top-right',
         isClosable: true
       });
+      fetchUser();
     } else {
       toast({
         render: () => (
@@ -162,6 +184,7 @@ function MyProfile(props) {
         isClosable: true
       });
     }
+    setIsUpdating(false);
   };
 
   return (
@@ -349,7 +372,20 @@ function MyProfile(props) {
                 Subject Offered
               </Text>
               <Spacer />
-              <MdEdit />
+              <Box
+                w="30px"
+                h="30px"
+                borderRadius="full"
+                borderWidth="1px"
+                borderColor="gray.200"
+                position="relative"
+                cursor={'pointer'}
+                onClick={openUpdateSubjectModal}
+              >
+                <Center w="100%" h="100%" position="absolute">
+                  <MdEdit />
+                </Center>
+              </Box>
             </Flex>
             <TableContainer my={4}>
               <Box border={'1px solid #EEEFF2'} borderRadius={8} py={3}>
@@ -486,18 +522,21 @@ function MyProfile(props) {
         isModalCloseButton
         style={{
           maxWidth: '400px',
-          height: 'fit-content'
+          height: '100%'
         }}
-        // footerContent={
-        //   <div style={{ display: 'flex', gap: '8px' }}>
-        //     <Button>Update</Button>
-        //   </div>
-        // }
+        footerContent={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button
+              isDisabled={hasAnyEmptyArray(schedule) || !schedule || isUpdating}
+              onClick={() => handleUpdateTutor('schedule', schedule)}
+            >
+              {isUpdating ? 'Updating...' : 'Update'}
+            </Button>
+          </div>
+        }
         onClose={closeUpdateAvailabilityModal}
       >
-        <Box overflowY={'scroll'}>
-          <AvailabilityEditForm />
-        </Box>
+        <AvailabilityEditForm updateSchedule={updateSchedule} />
       </CustomModal>
       <CustomModal
         isOpen={isUpdateDescriptionModalOpen}
@@ -509,7 +548,10 @@ function MyProfile(props) {
         }}
         footerContent={
           <div style={{ display: 'flex', gap: '8px' }}>
-            <Button isDisabled={description === tutorData.tutor.description}>
+            <Button
+              isDisabled={description === tutorData.tutor.description}
+              onClick={() => handleUpdateTutor('description', description)}
+            >
               Update
             </Button>
           </div>
@@ -693,6 +735,25 @@ function MyProfile(props) {
               </InputGroup>
             </FormControl>
           </Stack>
+        </Box>
+      </CustomModal>
+      <CustomModal
+        isOpen={isUpdateSubjectModalOpen}
+        modalTitle="Update Subject"
+        isModalCloseButton
+        style={{
+          maxWidth: '400px',
+          height: 'fit-content'
+        }}
+        // footerContent={
+        //   <div style={{ display: 'flex', gap: '8px' }}>
+        //     <Button>Update</Button>
+        //   </div>
+        // }
+        onClose={closeUpdateSubjectModal}
+      >
+        <Box overflowY={'scroll'}>
+          <AddSubjectForm />
         </Box>
       </CustomModal>
     </Box>

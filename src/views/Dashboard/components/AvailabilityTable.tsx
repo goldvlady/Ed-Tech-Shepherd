@@ -80,8 +80,8 @@ function AvailabilityTable(props) {
                     <Td
                       key={dayIndex}
                       className={
-                        data.schedule[dayIndex.toString()] &&
-                        data.schedule[dayIndex.toString()].some(
+                        data.schedule[(dayIndex + 1).toString()] &&
+                        data.schedule[(dayIndex + 1).toString()].some(
                           (slot) =>
                             convertTimeToTimeZone(
                               convertTimeToDateTime(slot.begin),
@@ -96,8 +96,8 @@ function AvailabilityTable(props) {
                           : 'stripeBox'
                       }
                     >
-                      {data.schedule[dayIndex.toString()] &&
-                      data.schedule[dayIndex.toString()].some(
+                      {data.schedule[(dayIndex + 1).toString()] &&
+                      data.schedule[(dayIndex + 1).toString()].some(
                         (slot) =>
                           convertTimeToTimeZone(
                             convertTimeToDateTime(slot.begin),
