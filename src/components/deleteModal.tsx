@@ -125,7 +125,7 @@ export const DeleteModal = ({
               fontWeight="400"
               lineHeight="20px"
             >
-              This will permanently remove this flashcard from your list.
+              This will permanently remove this {entity} from your list.
             </Text>
           </Flex>
         </ModalBody>

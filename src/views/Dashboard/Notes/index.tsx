@@ -478,6 +478,7 @@ const NotesDirectory: React.FC = () => {
             You don’t have a {activeTab ? 'note' : 'file'}
           </Text>
           <ActionDropdown
+            activeTab={activeTab}
             onOptionClick={(option) => {
               if (option === 'upload-document') {
                 setOpenUploadModal(true);
@@ -650,6 +651,7 @@ const NotesDirectory: React.FC = () => {
             </Tag>
           </Box>
           <ActionDropdown
+            activeTab={activeTab}
             onOptionClick={(option) => {
               if (option === 'upload-document') {
                 setOpenUploadModal(true);
