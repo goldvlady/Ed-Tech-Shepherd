@@ -39,11 +39,11 @@ class ApiService {
     });
   };
 
-  static resendUserEmail = async () => {
-    const data = { email: sessionStorage.getItem('email') };
+  static resendUserEmail = async (data: any) => {
+    const payload = { email: data };
     return doFetch(`${ApiService.baseEndpoint}/resendUserEmail`, {
       method: 'POST',
-      body: JSON.stringify(data)
+      body: JSON.stringify(payload)
     });
   };
 
