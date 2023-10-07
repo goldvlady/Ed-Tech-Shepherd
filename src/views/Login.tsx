@@ -6,6 +6,7 @@ import {
   googleProvider
 } from '../firebase';
 import { useTitle } from '../hooks';
+import userStore from '../state/userStore';
 import {
   Box,
   Button,
@@ -45,23 +46,24 @@ const Login: React.FC = () => {
   const toast = useToast();
   const navigate = useNavigate();
   const auth = getAuth();
-  useEffect(() => {
-    onAuthStateChanged(firebaseAuth, (user: any) => {
-      if (user) {
-        sessionStorage.setItem('UserDetails', JSON.stringify(user));
-        const email = user.email;
-        const photoURL = user.photoURL;
-        const emailVerified = user.emailVerified;
-        const uid = user.uid;
-        sessionStorage.setItem('Username', user.displayName);
+  const { user: appUser, fetchUser } = userStore();
+  // useEffect(() => {
+  //   onAuthStateChanged(firebaseAuth, (user: any) => {
+  //     if (user) {
+  //       sessionStorage.setItem('UserDetails', JSON.stringify(user));
+  //       const email = user.email;
+  //       const photoURL = user.photoURL;
+  //       const emailVerified = user.emailVerified;
+  //       const uid = user.uid;
+  //       sessionStorage.setItem('Username', user.displayName);
 
-        // ...
-      } else {
-        // User is signed out
-        // ...
-      }
-    });
-  }, []);
+  //       // ...
+  //     } else {
+  //       // User is signed out
+  //       // ...
+  //     }
+  //   });
+  // }, []);
 
   return (
     <Root>
@@ -86,6 +88,7 @@ const Login: React.FC = () => {
               );
               onAuthStateChanged(firebaseAuth, (user: any) => {
                 if (user && user.emailVerified) {
+                  fetchUser();
                   sessionStorage.setItem('UserDetails', JSON.stringify(user));
 
                   const email = user.email;
@@ -93,7 +96,16 @@ const Login: React.FC = () => {
                   const emailVerified = user.emailVerified;
                   const uid = user.uid;
                   sessionStorage.setItem('Username', user.displayName);
-                  navigate('/dashboard');
+                  if (appUser) {
+                    navigate(
+                      appUser?.type.includes('tutor')
+                        ? appUser.signedUpAsTutor && !appUser.tutor
+                          ? '/complete_profile'
+                          : '/dashboard/tutordashboard'
+                        : '/dashboard'
+                    );
+                  }
+
                   // ...
                 } else {
                   signOut(auth).then(() => {
@@ -101,6 +113,7 @@ const Login: React.FC = () => {
                     localStorage.clear();
                     navigate('/verification_pending');
                   });
+                  // navigate('/dashboard');
                 }
               });
             } catch (e: any) {

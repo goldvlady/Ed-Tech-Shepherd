@@ -1,5 +1,6 @@
 import Header from '../../components/Header';
-import { Box, Text, Button, Link } from '@chakra-ui/react';
+import ApiService from '../../services/ApiService';
+import { Box, Text, Button, Link, useToast } from '@chakra-ui/react';
 import { User, getAuth, onAuthStateChanged } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
 import { AiOutlineFileDone } from 'react-icons/ai';
@@ -17,6 +18,35 @@ const Root = styled(Box)`
 const PendingVerification = () => {
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
   const [obtainedUserAuthState, setObtainedUserAuthState] = useState(false);
+  const toast = useToast();
+  const handleResendLink = async () => {
+    try {
+      const response = await ApiService.resendUserEmail();
+      if (response.status === 200) {
+        toast({
+          title: 'Email has been resent',
+          position: 'top-right',
+          status: 'success',
+          isClosable: true
+        });
+      } else {
+        toast({
+          title: 'Something went wrong',
+          position: 'top-right',
+          status: 'error',
+          isClosable: true
+        });
+      }
+    } catch (e) {
+      console.log(e);
+      toast({
+        title: 'Something went wrong',
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
+      });
+    }
+  };
 
   useEffect(() => {
     onAuthStateChanged(getAuth(), async (user) => {
@@ -85,11 +115,11 @@ const PendingVerification = () => {
             mt={1}
             lineHeight="1.5"
           >
-            We have sent a verification an email to the address: {'   '}
+            We have sent a verification link to your email address.
             <Text as="span" color="blue.500">
               {firebaseUser?.email}
             </Text>{' '}
-            to verify your account. Don't forget to check spam if you haven't
+            To verify your account. Don't forget to check spam if you haven't
             received it.
           </Text>
 
@@ -107,8 +137,9 @@ const PendingVerification = () => {
             height="48px"
             background="#207DF7"
             borderRadius="8px"
+            onClick={handleResendLink}
           >
-            Contact Support
+            Resend Verification Link
           </Link>
         </Box>
       </Root>
