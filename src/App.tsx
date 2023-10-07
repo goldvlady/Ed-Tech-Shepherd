@@ -44,6 +44,7 @@ import Clients from './views/TutorDashboard/Clients';
 import Client from './views/TutorDashboard/Clients/client';
 import TutorOffers from './views/TutorDashboard/Offers/index';
 import TutorDashboard from './views/TutorDashboard/index';
+import PendingActivation from './views/VerificationPages/pending_activation';
 import PendingVerification from './views/VerificationPages/pending_verification';
 import VerificationSuccess from './views/VerificationPages/successful_verification';
 import VerifyEmail from './views/VerificationPages/verify_email';
@@ -295,6 +296,7 @@ const AppRoutes: React.FC = () => {
 
       <Route path="complete_profile" element={<CompleteProfile />} />
       <Route path="verify_email" element={<VerifyEmail />} />
+      <Route path="activation_pending" element={<PendingActivation />} />
 
       <Route
         path="signup"
