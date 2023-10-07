@@ -1,6 +1,17 @@
+import CustomModal from '../../components/CustomComponents/CustomModal';
 import Header from '../../components/Header';
 import ApiService from '../../services/ApiService';
-import { Box, Text, Button, Link, useToast } from '@chakra-ui/react';
+import {
+  Box,
+  Text,
+  Button,
+  Link,
+  useToast,
+  useDisclosure,
+  FormControl,
+  FormLabel,
+  Input
+} from '@chakra-ui/react';
 import { User, getAuth, onAuthStateChanged } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
 import { AiOutlineFileDone } from 'react-icons/ai';
@@ -18,10 +29,19 @@ const Root = styled(Box)`
 const PendingVerification = () => {
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
   const [obtainedUserAuthState, setObtainedUserAuthState] = useState(false);
+  const [email, setEmail] = useState('');
+
   const toast = useToast();
-  const handleResendLink = async () => {
+
+  const {
+    isOpen: isEmailModalOpen,
+    onOpen: openEmailModal,
+    onClose: closeEmailModal
+  } = useDisclosure();
+
+  const handleResendLink = async (email) => {
     try {
-      const response = await ApiService.resendUserEmail();
+      const response = await ApiService.resendUserEmail(email);
       if (response.status === 200) {
         toast({
           title: 'Email has been resent',
@@ -29,6 +49,7 @@ const PendingVerification = () => {
           status: 'success',
           isClosable: true
         });
+        closeEmailModal();
       } else {
         toast({
           title: 'Something went wrong',
@@ -124,9 +145,9 @@ const PendingVerification = () => {
           </Text>
 
           <Link
-            target="_blank"
-            rel="noopener noreferrer"
-            href="mailto:help@shepherd.study"
+            // target="_blank"
+            // rel="noopener noreferrer"
+            // href="mailto:help@shepherd.study"
             display="flex"
             flexDirection="row"
             color="white"
@@ -137,12 +158,48 @@ const PendingVerification = () => {
             height="48px"
             background="#207DF7"
             borderRadius="8px"
-            onClick={handleResendLink}
+            onClick={openEmailModal}
           >
             Resend Verification Link
           </Link>
         </Box>
       </Root>
+      <CustomModal
+        isOpen={isEmailModalOpen}
+        modalTitle="Enter Email"
+        isModalCloseButton
+        style={{
+          maxWidth: '400px',
+          height: 'fit-content'
+        }}
+        footerContent={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button isDisabled={!email} onClick={() => handleResendLink(email)}>
+              Send
+            </Button>
+          </div>
+        }
+        onClose={closeEmailModal}
+      >
+        {' '}
+        <FormControl p={3} alignItems="center">
+          <FormLabel fontSize="14px" fontWeight="medium" htmlFor="description">
+            Email
+          </FormLabel>
+          <Input
+            fontSize="0.875rem"
+            fontFamily="Inter"
+            fontWeight="400"
+            type="text"
+            name="topic"
+            color=" #212224"
+            placeholder="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
+          />
+        </FormControl>
+      </CustomModal>
     </>
   );
 };
