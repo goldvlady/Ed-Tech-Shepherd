@@ -95,7 +95,6 @@ const HomeWorkHelp = () => {
     level: bountyOption?.level
   });
   const [description, setDescription] = useState('');
-
   const paymentDialogRef = useRef<PaymentDialogRef>(null);
   const [loading, setLoading] = useState(false);
   const isFirstRender = useRef(true);
@@ -108,7 +107,8 @@ const HomeWorkHelp = () => {
   const storedGroupChatsArr = JSON.parse(
     localStorage.getItem('groupChatsByDateArr') as any
   );
-
+  const [freshConversationId, setFreshConversationId] = useState('');
+  const [newConversationId, setNewConversationId] = useState('');
   useEffect(() => {
     if (certainConversationId) {
       const authSocket = socketWithAuth({
@@ -180,6 +180,24 @@ const HomeWorkHelp = () => {
 
       return () => socket.off('chat response end');
     }
+  }, [socket]);
+
+  useEffect(() => {
+    // Return early if there's no socket or if isSubmitted is false.
+    const handleNewConversation = (conversationId: string) => {
+      // setConversationId(conversationId);
+    };
+
+    // Attach the listener since isSubmitted is true.
+    if (socket) {
+      socket.on('current_conversation', handleNewConversation);
+    }
+
+    // Cleanup: remove the listener when isSubmitted becomes false,
+    // when the socket changes, or when the component unmounts.
+    return () => {
+      socket && socket.off('current_conversation', handleNewConversation);
+    };
   }, [socket]);
 
   useLayoutEffect(() => {
@@ -344,15 +362,19 @@ const HomeWorkHelp = () => {
   }, [conversationId, socket, recentConversationId]);
 
   useEffect(() => {
-    const fectchDescriptionById = async () => {
-      const response = await getDescriptionById({
-        conversationId: recentConversationId ?? conversationId
-      });
-      setDescription(response?.data);
+    const fetchDescription = async (id: string) => {
+      const response = await getDescriptionById({ conversationId: id });
+      if (response?.data) {
+        setDescription(response.data);
+      }
     };
 
-    fectchDescriptionById();
-  }, [conversationId, recentConversationId]);
+    const effectiveConversationId = conversationId;
+
+    if (effectiveConversationId) {
+      fetchDescription(effectiveConversationId);
+    }
+  }, [conversationId]);
 
   const onRouteHomeWorkHelp = useCallback(() => {
     handleClose();
@@ -529,6 +551,9 @@ const HomeWorkHelp = () => {
           setCertainConversationId={setCertainConversationId}
           messages={messages}
           setSomeBountyOpt={setSomeBountyOpt}
+          setNewConversationId={setNewConversationId}
+          isBountyModalOpen={isBountyModalOpen}
+          setLocalData={setLocalData}
         />
       </HomeWorkHelpHistoryContainer>
       <HomeWorkHelpChatContainer>

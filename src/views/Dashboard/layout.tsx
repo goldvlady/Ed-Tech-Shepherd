@@ -674,7 +674,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 }
 
 export const CustomButton = (props: any) => {
-  const { buttonText, fontStyle, buttonType, onClick, padding } = props;
+  const { buttonText, fontStyle, buttonType, onClick, padding, icon } = props;
   return (
     <Box
       as="button"
@@ -707,7 +707,7 @@ export const CustomButton = (props: any) => {
       onClick={onClick}
       {...props}
     >
-      {buttonText}
+      <span style={{ marginRight: '10px' }}>{icon}</span> {buttonText}
     </Box>
   );
 };
