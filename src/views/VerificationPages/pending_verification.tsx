@@ -193,7 +193,6 @@ const PendingVerification = () => {
             type="text"
             name="topic"
             color=" #212224"
-            placeholder="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}

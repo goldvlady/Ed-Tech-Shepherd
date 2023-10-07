@@ -244,10 +244,11 @@ const AppRoutes: React.FC = () => {
       />
       <Route
         element={
-          <RequireAuth
-            authenticated={<Navigate to={'/dashboard'} />}
-            unAuthenticated={<WelcomeLayout />}
-          />
+          <WelcomeLayout />
+          // <RequireAuth
+          //   authenticated={<Navigate to={'/dashboard'} />}
+          //   unAuthenticated={<WelcomeLayout />}
+          // />
         }
       >
         <Route path="onboard">
