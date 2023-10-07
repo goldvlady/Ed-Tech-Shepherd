@@ -87,6 +87,7 @@ const Login: React.FC = () => {
                 values.password
               );
               onAuthStateChanged(firebaseAuth, (user: any) => {
+                sessionStorage.setItem('email', user.email);
                 if (user && user.emailVerified) {
                   fetchUser();
                   sessionStorage.setItem('UserDetails', JSON.stringify(user));
@@ -95,7 +96,7 @@ const Login: React.FC = () => {
                   const photoURL = user.photoURL;
                   const emailVerified = user.emailVerified;
                   const uid = user.uid;
-                  sessionStorage.setItem('Username', user.displayName);
+
                   if (appUser) {
                     navigate(
                       appUser?.type.includes('tutor')
@@ -109,7 +110,6 @@ const Login: React.FC = () => {
                   // ...
                 } else {
                   signOut(auth).then(() => {
-                    sessionStorage.clear();
                     localStorage.clear();
                     navigate('/verification_pending');
                   });
@@ -218,6 +218,7 @@ const Login: React.FC = () => {
                         firebaseAuth,
                         googleProvider
                       );
+                      await fetchUser();
                       const userEmail = result?.user?.email;
                       if (!userEmail) {
                         toast({
@@ -244,8 +245,15 @@ const Login: React.FC = () => {
                         });
                         return;
                       }
-
-                      navigate('/dashboard');
+                      if (appUser) {
+                        navigate(
+                          appUser?.type.includes('tutor')
+                            ? appUser.signedUpAsTutor && !appUser.tutor
+                              ? '/complete_profile'
+                              : '/dashboard/tutordashboard'
+                            : '/dashboard'
+                        );
+                      }
                     } catch (error) {
                       console.error('Error during sign-in:', error);
                     }

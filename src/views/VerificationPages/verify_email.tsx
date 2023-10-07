@@ -117,7 +117,7 @@ const VerificationSuccess = () => {
               lineHeight="1.5"
             >
               {verified
-                ? 'You can now sign up and use the full functionality of Shepherd'
+                ? 'You can now finish setting up your profile and use the full functionality of Shepherd'
                 : 'Invalid or expired token'}
               {/* We’ve sent an email to the address: We will send you an email to
               the address:{'   '}
@@ -129,7 +129,7 @@ const VerificationSuccess = () => {
 
             {verified && (
               <Button
-                onClick={() => navigate('/login')}
+                onClick={() => navigate('/complete_profile')}
                 display="flex"
                 flexDirection="row"
                 justifyContent="center"
@@ -141,7 +141,7 @@ const VerificationSuccess = () => {
                 background="#207DF7"
                 borderRadius="8px"
               >
-                Sign In
+                Complete Profile
               </Button>
             )}
           </Box>
