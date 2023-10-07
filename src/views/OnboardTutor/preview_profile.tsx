@@ -856,7 +856,7 @@ const PreviewProfile = () => {
           status: 'success',
           isClosable: true
         });
-        navigator('/dashboard/tutordashboard');
+        navigator('/activation_pending');
       }
     } catch (error) {
       toast({
