@@ -39,6 +39,14 @@ class ApiService {
     });
   };
 
+  static resendUserEmail = async () => {
+    const data = { email: sessionStorage.getItem('email') };
+    return doFetch(`${ApiService.baseEndpoint}/resendUserEmail`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
   static storeFlashcardTags = (
     flashcardIds: string[] | string,
     tags: string[]

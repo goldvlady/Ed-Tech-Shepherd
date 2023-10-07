@@ -326,7 +326,15 @@ const AppRoutes: React.FC = () => {
           />
         }
       />
-      <Route path="/dashboard" element={<RenderLayout />}>
+      <Route
+        path="/dashboard"
+        element={
+          <RequireAuth
+            authenticated={<RenderLayout />}
+            unAuthenticated={<Navigate to={'/login'} />}
+          />
+        }
+      >
         {userRoute &&
           userRoute.map((route) => (
             <Route key={route.path} path={route.path} element={route.element} />

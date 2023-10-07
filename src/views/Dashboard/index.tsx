@@ -50,6 +50,7 @@ import {
   VStack,
   Spinner
 } from '@chakra-ui/react';
+import { signInWithPopup, signOut, getAuth } from 'firebase/auth';
 import { capitalize } from 'lodash';
 import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -62,7 +63,7 @@ import Slider from 'react-slick';
 export default function Index() {
   const top = useBreakpointValue({ base: '90%', md: '50%' });
   const side = useBreakpointValue({ base: '30%', md: '40px' });
-
+  const auth = getAuth();
   //Date
   const date = new Date();
   const weekday = numberToDayOfWeekName(date.getDay(), 'dddd');
@@ -99,6 +100,20 @@ export default function Index() {
         ApiService.getUpcomingEvent(),
         fetchFeeds()
       ]);
+
+      // Check for 401 status code in each response and log the user out if found
+      if (
+        studentReportResponse.status === 401 ||
+        calendarResponse.status === 401 ||
+        upcomingEventResponse.status === 401
+      ) {
+        signOut(auth).then(() => {
+          sessionStorage.clear();
+          localStorage.clear();
+          window.location.href = '/login';
+        });
+        return; // Exit the function to prevent further processing
+      }
 
       const studentReportData = await studentReportResponse.json();
       const calendarData = await calendarResponse.json();

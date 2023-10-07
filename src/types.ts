@@ -130,6 +130,7 @@ export interface User extends TimestampedEntity {
   isVerified: boolean;
   type: any;
   stripeCustomerId?: string;
+  signedUpAsTutor?: string;
   paymentMethods: PaymentMethod[];
   streamTokens?: StreamToken[];
 }
