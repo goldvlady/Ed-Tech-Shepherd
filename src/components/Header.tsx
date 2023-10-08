@@ -16,6 +16,7 @@ import {
 import { getAuth, signOut } from 'firebase/auth';
 import * as React from 'react';
 import { FiChevronDown } from 'react-icons/fi';
+import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 
 const Root = styled(Box)`
@@ -37,7 +38,7 @@ type Props = {
 
 const Header: React.FC<Props> = ({ left, right, showUserPill = true }) => {
   const { user } = userStore();
-
+  const navigate = useNavigate();
   const auth = getAuth();
 
   const handleSignOut = async () => {
@@ -49,9 +50,8 @@ const Header: React.FC<Props> = ({ left, right, showUserPill = true }) => {
 
   return (
     <Root as="header">
-      <a href="https://shepherdtutors.com">
-        <Logo />
-      </a>
+      <Logo onClick={navigate('/')} />
+
       <HStack flexGrow="1" justifyContent="space-between">
         <Box>{left}</Box>
         <Box>
