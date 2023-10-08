@@ -948,7 +948,7 @@ const PreviewProfile = () => {
             <ProfileDiv
               isLoading={isLoading}
               onComplete={() => completeProfile()}
-              name={`${user?.name.last} ${user?.name.last}`}
+              name={`${user?.name.first} ${user?.name.last}`}
               onEdit={(editName) => setCurrentlyEditing(editName)}
             />
             <VideoViewingSection
