@@ -24,19 +24,20 @@ const VerificationSuccess = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [verified, setVerified] = useState(false);
+  const navigateToDashboard = () =>
+    navigate(
+      user?.signedUpAsTutor ? '/dashboard/tutordashboard/' : '/dashboard'
+    );
 
   async function verifyToken(token: string) {
     try {
       setLoading(true);
       const response = await ApiService.verifyToken(token);
-      console.log(response.status);
       if (response.status === 200) {
-        console.log('in here');
-        // Do something with the response data.
         setUserData({ isVerified: true });
         setVerified(true);
         if (user) {
-          navigate('/dashboard');
+          navigateToDashboard();
         } else {
           navigate('/login');
         }
@@ -46,7 +47,6 @@ const VerificationSuccess = () => {
         setLoading(false);
       }
     } catch (error) {
-      console.log(error);
       setLoading(false);
     } finally {
       setLoading(false);
@@ -60,7 +60,7 @@ const VerificationSuccess = () => {
       verifyToken(token);
     }
     if (!token && user?.isVerified) {
-      navigate('/dashboard');
+      navigateToDashboard();
     }
   }, [location.search]);
 
@@ -132,12 +132,6 @@ const VerificationSuccess = () => {
               {verified
                 ? 'You can now finish setting up your profile and use the full functionality of Shepherd'
                 : 'Invalid or expired token'}
-              {/* We’ve sent an email to the address: We will send you an email to
-              the address:{'   '}
-              <Text as="span" color="blue.500">
-                {firebaseUser?.email}
-              </Text>{' '}
-              , Check your mail click on the link provided to finish setting up.{' '} */}
             </Text>
 
             {verified && (
