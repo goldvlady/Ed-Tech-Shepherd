@@ -368,7 +368,7 @@ const ChatHistory = ({
         groupChatsByDateArr[selectedIndex]?.messages[selectedIndex]?.id;
       setConversationId(firstMessageId);
     }
-  }, [isSubmitted, groupChatsByDateArr, isBountyModalOpen]);
+  }, [isSubmitted, groupChatsByDateArr, isBountyModalOpen, selectedIndex]);
 
   return (
     <ChatHistoryContainer>
