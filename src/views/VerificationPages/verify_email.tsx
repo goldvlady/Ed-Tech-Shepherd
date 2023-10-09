@@ -1,6 +1,7 @@
 // CircularProgress for loader.
 import Header from '../../components/Header';
 import ApiService from '../../services/ApiService';
+import userStore from '../../state/userStore';
 // For making API calls.
 import { Box, CircularProgress, Text, Button } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
@@ -18,19 +19,28 @@ const Root = styled(Box)`
 
 const VerificationSuccess = () => {
   const navigate = useNavigate();
+  const { setUserData, user } = userStore();
   const location = useLocation();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [verified, setVerified] = useState(false);
+  const navigateToDashboard = () =>
+    navigate(
+      user?.signedUpAsTutor ? '/dashboard/tutordashboard/' : '/dashboard'
+    );
 
   async function verifyToken(token: string) {
     try {
       setLoading(true);
       const response = await ApiService.verifyToken(token);
       if (response.status === 200) {
-        // Do something with the response data.
-
-        setVerified(true); // Modify this according to your API response.
+        setUserData({ isVerified: true });
+        setVerified(true);
+        if (user) {
+          navigateToDashboard();
+        } else {
+          navigate('/login');
+        }
       } else {
         const data = await response.json();
         setError(data.message);
@@ -48,6 +58,9 @@ const VerificationSuccess = () => {
     const token = searchParams.get('token');
     if (token) {
       verifyToken(token);
+    }
+    if (!token && user?.isVerified) {
+      navigateToDashboard();
     }
   }, [location.search]);
 
@@ -119,12 +132,6 @@ const VerificationSuccess = () => {
               {verified
                 ? 'You can now finish setting up your profile and use the full functionality of Shepherd'
                 : 'Invalid or expired token'}
-              {/* We’ve sent an email to the address: We will send you an email to
-              the address:{'   '}
-              <Text as="span" color="blue.500">
-                {firebaseUser?.email}
-              </Text>{' '}
-              , Check your mail click on the link provided to finish setting up.{' '} */}
             </Text>
 
             {verified && (
