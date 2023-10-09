@@ -19,7 +19,7 @@ const Root = styled(Box)`
 
 const VerificationSuccess = () => {
   const navigate = useNavigate();
-  const { setUserData } = userStore();
+  const { setUserData, user } = userStore();
   const location = useLocation();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -34,6 +34,11 @@ const VerificationSuccess = () => {
 
         setVerified(true);
         setUserData({ isVerified: true });
+        if (user) {
+          navigate('/dashboard');
+        } else {
+          navigate('/login');
+        }
       } else {
         const data = await response.json();
         setError(data.message);
