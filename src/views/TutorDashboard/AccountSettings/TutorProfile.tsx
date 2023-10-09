@@ -1,10 +1,14 @@
 import FileAvi2 from '../../../assets/file-avi2.svg';
+import AddSubjectLevel from '../../../components/AddSubjectLevel';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast';
+import DragAndDrop from '../../../components/DragandDrop';
 import { firebaseAuth, updatePassword } from '../../../firebase';
+import { storage } from '../../../firebase';
 import ApiService from '../../../services/ApiService';
 import resourceStore from '../../../state/resourceStore';
 import userStore from '../../../state/userStore';
+import { Course, LevelType } from '../../../types';
 import AvailabilityTable from '../../Dashboard/components/AvailabilityTable';
 import AddSubjectForm from '../../OnboardTutor/components/steps/add_subjects';
 import AvailabilityEditForm from './AvailabilityEditForm.tsx';
@@ -53,14 +57,26 @@ import {
   InputLeftElement,
   HStack
 } from '@chakra-ui/react';
-import firebase from 'firebase/app';
+import { ref } from '@firebase/storage';
+import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import moment from 'moment';
 // import { updatePassword } from 'firebase/auth';
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef
+} from 'react';
 import { BiPlayCircle } from 'react-icons/bi';
 import { IoIosAlert } from 'react-icons/io';
 import { MdEdit } from 'react-icons/md';
 import { RiArrowRightSLine } from 'react-icons/ri';
+
+interface SubjectLevel {
+  subject: string;
+  level: string;
+}
 
 function MyProfile(props) {
   const { tutorData } = props;
@@ -80,12 +96,19 @@ function MyProfile(props) {
   const [vidOverlay, setVidOverlay] = useState<boolean>(true);
   const [description, setDescription] = useState(tutorData.tutor.description);
   const [schedule, setSchedule] = useState('');
-  const [hourlyRate, setHourlyRate] = useState(tutorData.tutor.description);
+  const [subjectLevel, setSubjectLevel] = useState<any>(
+    tutorData.tutor.coursesAndLevels
+  );
+  const [hourlyRate, setHourlyRate] = useState(tutorData.tutor.rate);
+  const [isLoading, setIsLoading] = useState(false);
+  const [introVideo, setIntroVideo] = useState<any>(null);
+  const [introVideoLink, setIntroVideoLink] = useState<any>(null);
+  console.log(subjectLevel, 'sub-lev');
+
   // const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [isOtpVerified, setIsOtpVerified] = useState(false);
-
   const {
     isOpen: isUpdateHourlyRateModalOpen,
     onOpen: openUpdateHourlyRateModal,
@@ -107,6 +130,61 @@ function MyProfile(props) {
     onOpen: openUpdateDescriptionModal,
     onClose: closeUpdateDescriptionModal
   } = useDisclosure();
+  const {
+    isOpen: isUpdateVideoModalOpen,
+    onOpen: openUpdateVideoModal,
+    onClose: closeUpdateVideoModal
+  } = useDisclosure();
+
+  const handleIntroVideoUpload = (file: File) => {
+    if (!file) return;
+
+    if (file?.size > 10000000) {
+      setIsLoading(true);
+      toast({
+        title: 'Please upload a file under 10MB',
+        status: 'error',
+        position: 'top',
+        isClosable: true
+      });
+      return;
+    } else {
+      // const storageRef = ref(storage, `files/${introVideo.name}`);
+      // const uploadTask = uploadBytesResumable(storageRef, introVideo);
+      setIntroVideo(file);
+    }
+  };
+
+  useEffect(() => {
+    if (!introVideo) return;
+    else {
+      const storageRef = ref(storage, `files/${introVideo.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, introVideo);
+
+      setIsLoading(true);
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress = Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          );
+          // setCvUploadPercent(progress);
+        },
+        (error) => {
+          setIsLoading(false);
+          // setCvUploadPercent(0);
+          alert(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            setIntroVideoLink(downloadURL);
+            setIsLoading(false);
+          });
+        }
+      );
+    }
+    /* eslint-disable */
+  }, [introVideo]);
 
   const hasAnyEmptyArray = (obj) => {
     for (const key in obj) {
@@ -128,15 +206,12 @@ function MyProfile(props) {
     const baseEarning = 0;
     if (!hourlyRate) return baseEarning.toFixed(2);
     const rateNumber = hourlyRate;
-    const earnings = rateNumber * (1 - rate);
+    const earnings = rateNumber - rate * 0.01 * rateNumber;
 
     return earnings.toFixed(2);
   }, [hourlyRate, rate]);
 
-  const cost = useMemo(
-    () => parseInt(tutorEarnings) * rate,
-    [tutorEarnings, rate]
-  );
+  const cost = useMemo(() => rate * 0.01 * hourlyRate, [hourlyRate, rate]);
 
   const updateSchedule = (value) => {
     setSchedule(value);
@@ -185,6 +260,59 @@ function MyProfile(props) {
       });
     }
     setIsUpdating(false);
+    closeUpdateAvailabilityModal();
+    closeUpdateDescriptionModal();
+    closeUpdateHourlyRateModal();
+    closeUpdateSubjectModal();
+    closeUpdateVideoModal();
+  };
+
+  // const subjectLevels: SubjectLevel = tutorData.tutor.coursesAndLevels;
+  // const [subject, setsubject] = useState(second);
+
+  const handleSubjectLevelChange = (f: (d: typeof subjectLevel) => any) => {
+    const data: any = f(subjectLevel);
+    setSubjectLevel(data);
+  };
+
+  useEffect(() => {
+    if (!subjectLevel.length) {
+      addSubject();
+    }
+    /* eslint-disable */
+  }, [subjectLevel.length]);
+
+  const [loadingCourses, setLoadingCourses] = useState(false);
+
+  const handleSubjectChange = (index: number, value: string) => {
+    handleSubjectLevelChange((prevSubjectLevels) => {
+      const updatedSubjectLevels = [...prevSubjectLevels];
+      updatedSubjectLevels[index].course.label = value;
+      return updatedSubjectLevels;
+    });
+  };
+
+  const handleLevelChange = (index: number, value: string) => {
+    handleSubjectLevelChange((prevSubjectLevels) => {
+      const updatedSubjectLevels = [...prevSubjectLevels];
+      updatedSubjectLevels[index].level.label = value;
+      return updatedSubjectLevels;
+    });
+  };
+
+  const addSubject = () => {
+    handleSubjectLevelChange((prevSubjectLevels) => [
+      ...prevSubjectLevels,
+      { course: {} as Course, level: {} as LevelType }
+    ]);
+  };
+
+  const removeSubject = (index: number) => {
+    handleSubjectLevelChange((prevSubjectLevels) => {
+      const updatedSubjectLevels = [...prevSubjectLevels];
+      updatedSubjectLevels.splice(index, 1);
+      return updatedSubjectLevels;
+    });
   };
 
   return (
@@ -269,8 +397,33 @@ function MyProfile(props) {
             alignItems="center"
             my={4}
           >
-            {' '}
-            <Center position="relative" borderRadius={10}>
+            <Flex alignItems="center">
+              <Text
+                color="#6E7682"
+                fontSize="12px"
+                fontWeight="400"
+                wordBreak={'break-word'}
+                textTransform="uppercase"
+              >
+                Intro Video
+              </Text>
+              <Spacer />
+              <Box
+                w="30px"
+                h="30px"
+                borderRadius="full"
+                borderWidth="1px"
+                borderColor="gray.200"
+                position="relative"
+                cursor={'pointer'}
+                onClick={openUpdateVideoModal}
+              >
+                <Center w="100%" h="100%" position="absolute">
+                  <MdEdit />
+                </Center>
+              </Box>
+            </Flex>
+            <Center position="relative" borderRadius={10} my={2}>
               <AspectRatio
                 h={{ base: '170px', md: '170px' }}
                 w={{ base: 'full', md: 'full' }}
@@ -539,6 +692,42 @@ function MyProfile(props) {
         <AvailabilityEditForm updateSchedule={updateSchedule} />
       </CustomModal>
       <CustomModal
+        isOpen={isUpdateVideoModalOpen}
+        modalTitle="Update Intro Video"
+        isModalCloseButton
+        style={{
+          maxWidth: '400px',
+          height: 'fit-content'
+        }}
+        footerContent={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button
+              isDisabled={!introVideoLink || introVideo === null || isLoading}
+              onClick={() => handleUpdateTutor('introVideo', introVideoLink)}
+            >
+              Update
+            </Button>
+          </div>
+        }
+        onClose={closeUpdateVideoModal}
+      >
+        <Box width="100%" p={2}>
+          <Box marginTop="10px">
+            <DragAndDrop
+              isLoading={isLoading}
+              supportingText="Click to upload a video"
+              accept="video/*"
+              onDelete={() => setIntroVideo(null)}
+              onFileUpload={handleIntroVideoUpload}
+              boxStyles={{ width: '250px', marginTop: '10px', height: '50px' }}
+            />
+            {introVideo && (
+              <Text marginTop="1rem">Selected file: {introVideo.name}</Text>
+            )}
+          </Box>
+        </Box>
+      </CustomModal>
+      <CustomModal
         isOpen={isUpdateDescriptionModalOpen}
         modalTitle="Update Description"
         isModalCloseButton
@@ -588,7 +777,10 @@ function MyProfile(props) {
         }}
         footerContent={
           <div style={{ display: 'flex', gap: '8px' }}>
-            <Button isDisabled={description === tutorData.tutor.description}>
+            <Button
+              isDisabled={hourlyRate === tutorData.tutor.rate}
+              onClick={() => handleUpdateTutor('rate', parseInt(hourlyRate))}
+            >
               Update
             </Button>
           </div>
@@ -753,7 +945,13 @@ function MyProfile(props) {
         onClose={closeUpdateSubjectModal}
       >
         <Box overflowY={'scroll'}>
-          <AddSubjectForm />
+          <AddSubjectLevel
+            subjectLevels={subjectLevel}
+            addSubject={addSubject}
+            removeSubject={removeSubject}
+            handleLevelChange={handleLevelChange}
+            handleSubjectChange={handleSubjectChange}
+          />
         </Box>
       </CustomModal>
     </Box>
