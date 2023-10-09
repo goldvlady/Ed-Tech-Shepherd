@@ -7,6 +7,7 @@ import { Text } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import moment from 'moment';
 import React from 'react';
+import { MdOutlineSentimentNeutral } from 'react-icons/md';
 
 export default function Events({ event }: any) {
   const getTextByEventType = (eventType, name) => {
@@ -92,7 +93,7 @@ export default function Events({ event }: any) {
                         convertISOToCustomFormat(event.data.startDate),
                         'Africa/Lagos'
                       )
-                    : event.data.startDate}
+                    : moment(event.data.startDate).format('h:mmA')}
                 </span>
                 <ChevronRightIcon className="w-4 h-4" />
                 <span>
@@ -101,7 +102,7 @@ export default function Events({ event }: any) {
                         convertISOToCustomFormat(event.data.endDate),
                         'Africa/Lagos'
                       )
-                    : event.data.endDate}
+                    : moment(event.data.endDate).format('h:mmA')}
                 </span>
               </Text>
             )}
