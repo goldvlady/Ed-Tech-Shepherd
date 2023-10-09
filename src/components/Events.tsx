@@ -59,6 +59,9 @@ export default function Events({ event }: any) {
 
     return time12Hour;
   };
+  const currentPath = window.location.pathname;
+
+  const isTutor = currentPath.includes('/dashboard/tutordashboard/');
 
   return (
     <li className={`flex gap-x-3 ${getColorByEventType(event.type)}`}>
@@ -81,21 +84,27 @@ export default function Events({ event }: any) {
                     }
               )}
             </Text>
-            <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
-              <span>
-                {convertTimeToTimeZone(
-                  convertISOToCustomFormat(event.data.startDate),
-                  'Africa/Lagos'
-                )}
-              </span>
-              <ChevronRightIcon className="w-4 h-4" />
-              <span>
-                {convertTimeToTimeZone(
-                  convertISOToCustomFormat(event.data.endDate),
-                  'Africa/Lagos'
-                )}
-              </span>
-            </Text>
+            {event.type !== 'study' && (
+              <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
+                <span>
+                  {isTutor
+                    ? convertTimeToTimeZone(
+                        convertISOToCustomFormat(event.data.startDate),
+                        'Africa/Lagos'
+                      )
+                    : event.data.startDate}
+                </span>
+                <ChevronRightIcon className="w-4 h-4" />
+                <span>
+                  {isTutor
+                    ? convertTimeToTimeZone(
+                        convertISOToCustomFormat(event.data.endDate),
+                        'Africa/Lagos'
+                      )
+                    : event.data.endDate}
+                </span>
+              </Text>
+            )}
           </div>
         </div>
         {/* <div className="flex -space-x-0.5">
