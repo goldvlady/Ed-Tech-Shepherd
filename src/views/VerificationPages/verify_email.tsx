@@ -29,11 +29,12 @@ const VerificationSuccess = () => {
     try {
       setLoading(true);
       const response = await ApiService.verifyToken(token);
+      console.log(response.status);
       if (response.status === 200) {
+        console.log('in here');
         // Do something with the response data.
-
-        setVerified(true);
         setUserData({ isVerified: true });
+        setVerified(true);
         if (user) {
           navigate('/dashboard');
         } else {
