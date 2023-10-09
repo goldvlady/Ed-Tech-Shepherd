@@ -1,6 +1,7 @@
 // CircularProgress for loader.
 import Header from '../../components/Header';
 import ApiService from '../../services/ApiService';
+import userStore from '../../state/userStore';
 // For making API calls.
 import { Box, CircularProgress, Text, Button } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
@@ -18,6 +19,7 @@ const Root = styled(Box)`
 
 const VerificationSuccess = () => {
   const navigate = useNavigate();
+  const { setUserData } = userStore();
   const location = useLocation();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -30,7 +32,8 @@ const VerificationSuccess = () => {
       if (response.status === 200) {
         // Do something with the response data.
 
-        setVerified(true); // Modify this according to your API response.
+        setVerified(true);
+        setUserData({ isVerified: true });
       } else {
         const data = await response.json();
         setError(data.message);
