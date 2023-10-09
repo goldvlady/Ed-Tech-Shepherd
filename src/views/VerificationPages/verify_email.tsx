@@ -59,6 +59,9 @@ const VerificationSuccess = () => {
     if (token) {
       verifyToken(token);
     }
+    if (!token && user?.isVerified) {
+      navigate('/dashboard');
+    }
   }, [location.search]);
 
   return (

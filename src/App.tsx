@@ -98,9 +98,9 @@ const RequireAuth = ({
     );
   }
 
-  if (isAuthenticated && !user?.isVerified) {
-    navigate('/verify_email');
-  }
+  // if (isAuthenticated && !user?.isVerified) {
+  //   navigate('/verify_email');
+  // }
   return isAuthenticated ? authenticated : unAuthenticated;
 };
 
