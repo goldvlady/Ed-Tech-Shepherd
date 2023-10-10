@@ -1,3 +1,4 @@
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import DateInput, { FORMAT } from '../../components/DateInput';
 import LargeSelect from '../../components/LargeSelect';
 import OnboardStep from '../../components/OnboardStep';
@@ -141,6 +142,7 @@ const OnboardStudent = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const location = useLocation();
+  const toast = useCustomToast();
 
   const stepWizardInstance = useRef<StepWizardChildProps | null>(null);
 
@@ -346,12 +348,21 @@ const OnboardStudent = () => {
     let firebaseId: string | null | undefined = user?.uid;
 
     if (!firebaseId) {
-      const firebaseUser = await createUserWithEmailAndPassword(
-        firebaseAuth,
-        data.email,
-        password
-      );
-      firebaseId = firebaseUser.user.uid;
+      createUserWithEmailAndPassword(firebaseAuth, data.email, password)
+        .then((userCredential) => {
+          // Successfully created a new user account
+          firebaseId = userCredential.user.uid;
+        })
+        .catch((error) => {
+          if (error.code === 'auth/email-already-in-use') {
+            toast({
+              title: 'Email already exist',
+              status: 'error',
+              position: 'top-right'
+            });
+          }
+          throw error;
+        });
     }
 
     await ApiService.createUser({
