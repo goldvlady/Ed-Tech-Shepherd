@@ -1,4 +1,5 @@
 // CircularProgress for loader.
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import Header from '../../components/Header';
 import ApiService from '../../services/ApiService';
 import userStore from '../../state/userStore';
@@ -19,6 +20,7 @@ const Root = styled(Box)`
 
 const VerificationSuccess = () => {
   const navigate = useNavigate();
+  const toast = useCustomToast();
   const { setUserData, user } = userStore();
   const location = useLocation();
   const [error, setError] = useState<string | null>(null);
@@ -37,9 +39,14 @@ const VerificationSuccess = () => {
         setUserData({ isVerified: true });
         setVerified(true);
         if (user) {
-          navigateToDashboard();
-        } else {
-          navigate('/login');
+          toast({
+            title: 'Email verification was successful',
+            status: 'success',
+            position: 'top-right'
+          });
+          if (user.isVerified) {
+            navigateToDashboard();
+          }
         }
       } else {
         const data = await response.json();
@@ -136,7 +143,13 @@ const VerificationSuccess = () => {
 
             {verified && (
               <Button
-                onClick={() => navigate('/complete_profile')}
+                onClick={() =>
+                  navigate(
+                    user?.type?.includes('tutor')
+                      ? '/complete_profile'
+                      : '/dashboard'
+                  )
+                }
                 display="flex"
                 flexDirection="row"
                 justifyContent="center"
@@ -148,7 +161,9 @@ const VerificationSuccess = () => {
                 background="#207DF7"
                 borderRadius="8px"
               >
-                Complete Profile
+                {user?.type?.includes('tutor')
+                  ? 'Complete Profile'
+                  : 'Go To Your Dashboard'}
               </Button>
             )}
           </Box>
