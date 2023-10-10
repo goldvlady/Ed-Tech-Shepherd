@@ -44,7 +44,9 @@ const VerificationSuccess = () => {
             status: 'success',
             position: 'top-right'
           });
-          navigateToDashboard();
+          if (user.isVerified) {
+            navigateToDashboard();
+          }
         }
       } else {
         const data = await response.json();
