@@ -1,4 +1,5 @@
 // CircularProgress for loader.
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import Header from '../../components/Header';
 import ApiService from '../../services/ApiService';
 import userStore from '../../state/userStore';
@@ -19,6 +20,7 @@ const Root = styled(Box)`
 
 const VerificationSuccess = () => {
   const navigate = useNavigate();
+  const toast = useCustomToast();
   const { setUserData, user } = userStore();
   const location = useLocation();
   const [error, setError] = useState<string | null>(null);
@@ -37,9 +39,12 @@ const VerificationSuccess = () => {
         setUserData({ isVerified: true });
         setVerified(true);
         if (user) {
+          toast({
+            title: 'Email verification was successful',
+            status: 'success',
+            position: 'top-right'
+          });
           navigateToDashboard();
-        } else {
-          navigate('/login');
         }
       } else {
         const data = await response.json();
