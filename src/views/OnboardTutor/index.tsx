@@ -225,9 +225,9 @@ const OnboardTutor = () => {
   }, [selectedAvatar]);
 
   const doSubmit = async () => {
-    let firebaseId = null;
+    let firebaseId: string | null = null;
     if (!firebaseId) {
-      createUserWithEmailAndPassword(firebaseAuth, data.email, password)
+      createUserWithEmailAndPassword(firebaseAuth, userFields.email, password)
         .then((firebaseUser) => {
           // Successfully created a new user account
           firebaseId = firebaseUser.user.uid;
@@ -246,8 +246,8 @@ const OnboardTutor = () => {
     mixpanel.track('Sumbitting Onboarding Date');
     return ApiService.createUser({
       ...userFields,
-      firebaseId: firebaseId,
-      type: 'tutor'
+      firebaseId: firebaseId as unknown as string,
+      isTutor: true
     });
     // return ApiService.submitTutor(data);
   };
