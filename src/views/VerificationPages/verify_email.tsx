@@ -143,7 +143,13 @@ const VerificationSuccess = () => {
 
             {verified && (
               <Button
-                onClick={() => navigate('/complete_profile')}
+                onClick={() =>
+                  navigate(
+                    user?.type?.includes('tutor')
+                      ? '/complete_profile'
+                      : '/dashboard'
+                  )
+                }
                 display="flex"
                 flexDirection="row"
                 justifyContent="center"
@@ -155,7 +161,9 @@ const VerificationSuccess = () => {
                 background="#207DF7"
                 borderRadius="8px"
               >
-                Complete Profile
+                {user?.type?.includes('tutor')
+                  ? 'Complete Profile'
+                  : 'Go To Your Dashboard'}
               </Button>
             )}
           </Box>
