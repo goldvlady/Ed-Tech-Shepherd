@@ -227,7 +227,11 @@ const OnboardTutor = () => {
   const doSubmit = async () => {
     let firebaseId: string | null = null;
     if (!firebaseId) {
-      createUserWithEmailAndPassword(firebaseAuth, userFields.email, password)
+      await createUserWithEmailAndPassword(
+        firebaseAuth,
+        userFields.email,
+        password
+      )
         .then((firebaseUser) => {
           // Successfully created a new user account
           firebaseId = firebaseUser.user.uid;

@@ -348,7 +348,7 @@ const OnboardStudent = () => {
     let firebaseId: string | null | undefined = user?.uid;
 
     if (!firebaseId) {
-      createUserWithEmailAndPassword(firebaseAuth, data.email, password)
+      await createUserWithEmailAndPassword(firebaseAuth, data.email, password)
         .then((userCredential) => {
           // Successfully created a new user account
           firebaseId = userCredential.user.uid;

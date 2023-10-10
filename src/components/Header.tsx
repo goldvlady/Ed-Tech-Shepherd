@@ -50,7 +50,7 @@ const Header: React.FC<Props> = ({ left, right, showUserPill = true }) => {
 
   return (
     <Root as="header">
-      <Logo onClick={navigate('/')} />
+      <Logo onClick={() => navigate('/')} />
 
       <HStack flexGrow="1" justifyContent="space-between">
         <Box>{left}</Box>
