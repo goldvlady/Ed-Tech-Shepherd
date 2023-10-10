@@ -225,16 +225,33 @@ const OnboardTutor = () => {
   }, [selectedAvatar]);
 
   const doSubmit = async () => {
-    const firebaseUser = await createUserWithEmailAndPassword(
-      firebaseAuth,
-      userFields.email,
-      password
-    );
+    let firebaseId: string | null = null;
+    if (!firebaseId) {
+      await createUserWithEmailAndPassword(
+        firebaseAuth,
+        userFields.email,
+        password
+      )
+        .then((firebaseUser) => {
+          // Successfully created a new user account
+          firebaseId = firebaseUser.user.uid;
+        })
+        .catch((error) => {
+          if (error.code === 'auth/email-already-in-use') {
+            toast({
+              title: 'Email already exist',
+              status: 'error',
+              position: 'top-right'
+            });
+          }
+          throw error;
+        });
+    }
     mixpanel.track('Sumbitting Onboarding Date');
     return ApiService.createUser({
       ...userFields,
-      firebaseId: firebaseUser.user.uid,
-      type: 'tutor'
+      firebaseId: firebaseId as unknown as string,
+      isTutor: true
     });
     // return ApiService.submitTutor(data);
   };

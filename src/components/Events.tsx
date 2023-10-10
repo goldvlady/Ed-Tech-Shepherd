@@ -7,6 +7,7 @@ import { Text } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import moment from 'moment';
 import React from 'react';
+import { MdOutlineSentimentNeutral } from 'react-icons/md';
 
 export default function Events({ event }: any) {
   const getTextByEventType = (eventType, name) => {
@@ -59,6 +60,9 @@ export default function Events({ event }: any) {
 
     return time12Hour;
   };
+  const currentPath = window.location.pathname;
+
+  const isTutor = currentPath.includes('/dashboard/tutordashboard/');
 
   return (
     <li className={`flex gap-x-3 ${getColorByEventType(event.type)}`}>
@@ -81,21 +85,27 @@ export default function Events({ event }: any) {
                     }
               )}
             </Text>
-            <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
-              <span>
-                {convertTimeToTimeZone(
-                  convertISOToCustomFormat(event.data.startDate),
-                  'Africa/Lagos'
-                )}
-              </span>
-              <ChevronRightIcon className="w-4 h-4" />
-              <span>
-                {convertTimeToTimeZone(
-                  convertISOToCustomFormat(event.data.endDate),
-                  'Africa/Lagos'
-                )}
-              </span>
-            </Text>
+            {event.type !== 'study' && (
+              <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
+                <span>
+                  {isTutor
+                    ? convertTimeToTimeZone(
+                        convertISOToCustomFormat(event.data.startDate),
+                        'Africa/Lagos'
+                      )
+                    : moment(event.data.startDate).format('h:mmA')}
+                </span>
+                <ChevronRightIcon className="w-4 h-4" />
+                <span>
+                  {isTutor
+                    ? convertTimeToTimeZone(
+                        convertISOToCustomFormat(event.data.endDate),
+                        'Africa/Lagos'
+                      )
+                    : moment(event.data.endDate).format('h:mmA')}
+                </span>
+              </Text>
+            )}
           </div>
         </div>
         {/* <div className="flex -space-x-0.5">
