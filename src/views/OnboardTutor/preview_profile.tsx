@@ -833,9 +833,8 @@ const PreviewProfile = () => {
           course: courseList.find(
             (course) => course.label === courseLevel.course.label
           )?._id,
-          level: courseList.find(
-            (course) => course.label === courseLevel.course.label
-          )?._id
+          level: levels.find((level) => level.label === courseLevel.level.label)
+            ?._id
         })
       );
 
