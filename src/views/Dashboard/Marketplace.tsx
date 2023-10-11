@@ -587,7 +587,16 @@ export default function Marketplace() {
               />
             </>
           ) : (
-            !loadingData && 'no tutors found'
+            !loadingData && (
+              <>
+                <section className="flex justify-center items-center mt-28 w-full">
+                  <div className="text-center">
+                    <Image src="/images/notes.png" alt="empty" m="auto" />
+                    <Text textAlign={'center'}>No Tutors Found!</Text>
+                  </div>
+                </section>
+              </>
+            )
           )}
         </Box>
       </Box>
