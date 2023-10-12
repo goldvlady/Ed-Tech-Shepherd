@@ -328,20 +328,21 @@ const HomeWorkHelp = () => {
         setVisibleButton(false);
       }
       const previousConvoData = response
-        ?.map((conversation) => ({
-          text: conversation?.log?.content,
-          isUser: conversation?.log?.role === 'user',
-          isLoading: false
-        }))
-        ?.filter((convo) => convo.text !== SHALL_WE_BEGIN)
-        ?.sort((a, b) => {
-          const dateA = new Date(a.createdAt);
-          const dateB = new Date(b.createdAt);
-          // If dates are the same
-          if (dateA.getTime() === dateB.getTime()) {
-            return a.id - b.id;
-          }
-          return dateA.getTime() - dateB.getTime();
+        ?.map((conversation) => {
+          // Make sure there's a createdAt attribute
+          const createdAt = conversation?.createdAt || new Date(0); // Default date in case createdAt is not present
+
+          return {
+            text: conversation?.log?.content,
+            isUser: conversation?.log?.role === 'user',
+            isLoading: false,
+            createdAt: new Date(createdAt), // Convert createdAt to a Date object
+            id: conversation?.id // Assuming each conversation has a unique id
+          };
+        })
+        .filter((convo) => convo.text !== SHALL_WE_BEGIN)
+        .sort((a, b) => {
+          return a.createdAt.getTime() - b.createdAt.getTime();
         });
 
       const countOfIDontUnderstand = previousConvoData.filter(
