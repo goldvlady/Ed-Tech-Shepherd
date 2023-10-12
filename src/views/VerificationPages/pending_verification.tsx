@@ -1,4 +1,5 @@
 import CustomModal from '../../components/CustomComponents/CustomModal';
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import Header from '../../components/Header';
 import ApiService from '../../services/ApiService';
 import {
@@ -31,7 +32,7 @@ const PendingVerification = () => {
   const [obtainedUserAuthState, setObtainedUserAuthState] = useState(false);
   const [email, setEmail] = useState('');
 
-  const toast = useToast();
+  const toast = useCustomToast();
 
   const {
     isOpen: isEmailModalOpen,
