@@ -235,11 +235,15 @@ const SendTutorOffer = () => {
                 separator={<FiChevronRight size={10} color="gray.500" />}
               >
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="#">Shepherds</BreadcrumbLink>
+                  <BreadcrumbLink href="/dashboard/find-tutor">
+                    Shepherds
+                  </BreadcrumbLink>
                 </BreadcrumbItem>
 
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="#">
+                  <BreadcrumbLink
+                    href={`/dashboard/find-tutor/tutor/?id=${tutorId}`}
+                  >
                     {tutor.user.name.first} {tutor.user.name.last}
                   </BreadcrumbLink>
                 </BreadcrumbItem>
