@@ -279,6 +279,23 @@ export default function TutorCard(props: any) {
                 Accept Bid
               </Button>
             )}
+            {use === 'my tutors' && (
+              <Button
+                fontSize={12}
+                fontWeight={500}
+                borderRadius={4}
+                // position="absolute"
+                zIndex={1}
+                color="#fff"
+                // bottom={4}
+                right={0}
+                px={2}
+                py={'1px'}
+                // onClick={() => handleBountyClick()}
+              >
+                Review{' '}
+              </Button>
+            )}
             {use !== 'my tutors' && (
               <Image
                 src={saved || ribbonClicked ? Ribbon2 : Ribbon}
