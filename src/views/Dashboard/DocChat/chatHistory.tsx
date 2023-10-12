@@ -73,7 +73,8 @@ const ChatHistory = ({
   setSomeBountyOpt,
   setNewConversationId,
   isBountyModalOpen,
-  setLocalData
+  setLocalData,
+  setFreshConversationId
 }: {
   studentId: string;
   setConversationId: (conversationId: string) => void;
@@ -91,6 +92,7 @@ const ChatHistory = ({
   setNewConversationId: any;
   isBountyModalOpen: boolean;
   setLocalData: any;
+  setFreshConversationId: any;
 }) => {
   // const placeholder = [
   //   {ß
@@ -356,19 +358,19 @@ const ChatHistory = ({
     setGroupChatsByDateArr(groupedChats ?? []);
   }, [filteredHistory]);
 
-  useEffect(() => {
-    const fetchStoredConvoId = () =>
-      localStorage.getItem('freshConversationId') as string;
-    const storeConvoId = (id: string) =>
-      localStorage.setItem('freshConversationId', id);
+  // useEffect(() => {
+  //   const fetchStoredConvoId = () =>
+  //     localStorage.getItem('freshConversationId') as string;
+  //   const storeConvoId = (id: string) =>
+  //     localStorage.setItem('freshConversationId', id);
 
-    const storedConvoId = fetchStoredConvoId();
-    if (isBountyModalOpen) {
-      const firstMessageId =
-        groupChatsByDateArr[selectedIndex]?.messages[selectedIndex]?.id;
-      setConversationId(firstMessageId);
-    }
-  }, [isSubmitted, groupChatsByDateArr, isBountyModalOpen, selectedIndex]);
+  //   const storedConvoId = fetchStoredConvoId();
+  //   if (isBountyModalOpen) {
+  //     const firstMessageId =
+  //       groupChatsByDateArr[selectedIndex]?.messages[selectedIndex]?.id;
+  //     setConversationId(firstMessageId);
+  //   }
+  // }, [isSubmitted, groupChatsByDateArr, isBountyModalOpen, selectedIndex]);
 
   return (
     <ChatHistoryContainer>
@@ -480,7 +482,7 @@ const ChatHistory = ({
                               setCountNeedTutor(1);
                               setLoading(false);
                               setLocalData({});
-
+                              setFreshConversationId('');
                               localStorage.setItem(
                                 'bountyOpt',
                                 JSON.stringify({

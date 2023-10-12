@@ -117,11 +117,12 @@ const HomeWorkHelp = () => {
         subject: localData.subject,
         level: level.label,
         namespace: 'homework-help',
-        conversationId: certainConversationId ?? storedConvoId
+        conversationId:
+          certainConversationId ?? storedConvoId ?? freshConversationId
       }).connect();
       setSocket(authSocket);
     }
-  }, [certainConversationId]);
+  }, [certainConversationId, freshConversationId]);
 
   useEffect(() => {
     if (isSubmitted) {
@@ -185,7 +186,7 @@ const HomeWorkHelp = () => {
   useEffect(() => {
     // Return early if there's no socket or if isSubmitted is false.
     const handleNewConversation = (conversationId: string) => {
-      // setConversationId(conversationId);
+      setFreshConversationId(conversationId);
     };
 
     // Attach the listener since isSubmitted is true.
@@ -319,7 +320,8 @@ const HomeWorkHelp = () => {
     const fetchConversationId = async () => {
       setLoading(true);
       const response = await getConversionById({
-        conversationId: recentConversationId ?? conversationId
+        conversationId:
+          recentConversationId ?? conversationId ?? freshConversationId
       });
 
       if (response) {
@@ -369,12 +371,12 @@ const HomeWorkHelp = () => {
       }
     };
 
-    const effectiveConversationId = conversationId;
+    const effectiveConversationId = conversationId ?? freshConversationId;
 
     if (effectiveConversationId) {
       fetchDescription(effectiveConversationId);
     }
-  }, [conversationId]);
+  }, [conversationId, freshConversationId]);
 
   const onRouteHomeWorkHelp = useCallback(() => {
     handleClose();
@@ -477,6 +479,7 @@ const HomeWorkHelp = () => {
       setConversationId('');
       setVisibleButton(false);
       setCountNeedTutor(1);
+      localStorage.removeItem('conversationId');
     }
   }, [isSubmitted]);
 
@@ -554,6 +557,7 @@ const HomeWorkHelp = () => {
           setNewConversationId={setNewConversationId}
           isBountyModalOpen={isBountyModalOpen}
           setLocalData={setLocalData}
+          setFreshConversationId={setFreshConversationId}
         />
       </HomeWorkHelpHistoryContainer>
       <HomeWorkHelpChatContainer>

@@ -5,8 +5,8 @@ export const Form = styled.form<{ isHomeWorkHelp?: boolean }>`
   grid-column: span 6;
   flex: auto;
   height: 100%;
-  position: fixed;
-  width: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? '54%' : '40.7%')};
+  position: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? 'none' : 'fixed')};
+  width: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? '100%' : '40.7%')};
   right: 0;
   border-left: 1px solid #eeeff2;
   background: white;
@@ -59,7 +59,8 @@ export const GridContainer = styled.div<{ isHomeWorkHelp?: boolean }>`
   position: fixed;
   top: 300px;
   height: 100%;
-  width: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? '54%' : '40.7%')};
+  width: ${({ isHomeWorkHelp }) =>
+    isHomeWorkHelp ? '-webkit-fill-available' : '40.7%'};
   // width: -moz-available;
 `;
 
@@ -158,24 +159,29 @@ export const ChatbotContainer = styled.div<{
   chatbotSpace: number;
 }>`
   width: inherit;
-  position: fixed;
+  // position: fixed;
   z-index: 50;
-  background: #f9f9fb;
+  // background: #f9f9fb;
   bottom: 0;
   right: 0;
   display: flex;
   flex-direction: row;
   align-items: center;
   height: auto;
-  padding: 1rem;
+  // padding: 1rem;
   gap: 10px;
   border-left: 1px solid #eeeff2;
 `;
 
 export const InputContainer = styled.div`
-  flex-grow: 1;
-  position: relative;
-  width: 100%;
+  // flex-grow: 1;
+  // position: relative;
+  // width: 100%;
+  position: fixed;
+  width: -webkit-fill-available;
+  bottom: 0;
+  background: rgb(249, 249, 251);
+  padding: 10px;
 `;
 
 export const Input = styled.textarea`
@@ -202,8 +208,8 @@ export const SendButton = styled.button`
   justify-content: center;
   height: 100%;
   width: 2.75rem;
-  right: 0;
-  top: -11px;
+  right: 10px;
+  top: -20px;
   color: #cbd5e0;
   &:hover {
     color: #4a5568;
@@ -465,7 +471,7 @@ export const ChatHistoryHeader = styled.div`
   width: 25%;
   top: 78px;
   background: white;
-  z-index: 999;
+  // z-index: 999;
 
   p:nth-child(1) {
     font-size: 1.125rem;
