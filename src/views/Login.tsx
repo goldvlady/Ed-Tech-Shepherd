@@ -92,10 +92,10 @@ const Login: React.FC = () => {
                   fetchUser();
                   sessionStorage.setItem('UserDetails', JSON.stringify(user));
 
-                  const email = user.email;
-                  const photoURL = user.photoURL;
-                  const emailVerified = user.emailVerified;
-                  const uid = user.uid;
+                  // const email = user.email;
+                  // const photoURL = user.photoURL;
+                  // const emailVerified = user.emailVerified;
+                  // const uid = user.uid;
 
                   if (appUser) {
                     navigate(

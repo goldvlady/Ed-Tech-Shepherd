@@ -560,7 +560,12 @@ canvas {
   text-align: left;
   width: 297px;
 }
-
+.landing-section-item-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  text-align: left;
+}
 .landing-coming-soon-icon {
   width: 30px;
 }
@@ -584,7 +589,8 @@ canvas {
   display: flex;
   flex-wrap: wrap;
   gap: 30px;
-  margin-top: 70px;
+  margin-top: 50px;
+  justify-content: center;
 }
 
 .landing-price-level {

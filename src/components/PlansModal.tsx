@@ -1,8 +1,21 @@
+import Check from '../assets/checkIcon.svg';
+import priceData from '../mocks/pricing.json';
 import userStore from '../state/userStore';
 import { CustomButton } from '../views/Dashboard/layout';
 import { StarIcon } from './icons';
 import { SelectedNoteModal } from './index';
-import { Box, Flex, Stack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalCloseButton,
+  ModalBody,
+  Stack,
+  Text
+} from '@chakra-ui/react';
 import { Transition, Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { getAuth } from 'firebase/auth';
@@ -20,43 +33,18 @@ const PlansModal = ({ setTogglePlansModal, togglePlansModal }: ToggleProps) => {
   const [currentPlan, setCurrentPlan] = useState('Basic');
   const { user }: any = userStore();
 
-  const actions1 = [
-    {
-      id: 0,
-      title: 'Basic',
-      price: 0,
-      features: [
-        { id: 1, text: 'Up to 10 flashcard decks' },
-        { id: 2, text: 'Up to 10 flashcard decks' },
-        { id: 3, text: 'Up to 10 flashcard decks' },
-        { id: 4, text: 'Up to 10 flashcard decks' }
-      ]
-    },
-    {
-      id: 1,
-      title: 'Intermediate',
-      price: 10,
-      features: [
-        { id: 1, text: 'Up to 10 flashcard decks' },
-        { id: 2, text: 'Up to 10 flashcard decks' },
-        { id: 3, text: 'Up to 10 flashcard decks' },
-        { id: 4, text: 'Up to 10 flashcard decks' }
-      ]
-    },
-    {
-      id: 2,
-      title: 'Premium',
-      price: 100,
-      showModal: true,
-      features: [
-        { id: 1, text: 'Up to 10 flashcard decks' },
-        { id: 2, text: 'Up to 10 flashcard decks' },
-        { id: 3, text: 'Up to 10 flashcard decks' },
-        { id: 4, text: 'Up to 10 flashcard decks' }
-      ]
-    }
-  ];
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState('');
 
+  const openModal = (content) => {
+    setModalContent(content);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalContent('');
+  };
   //   useEffect(() => {
   //     const { currentUser } = getAuth();
   //     currentUser?.displayName &&
@@ -101,19 +89,7 @@ const PlansModal = ({ setTogglePlansModal, togglePlansModal }: ToggleProps) => {
                   <Dialog.Panel className="relative transform overflow-hidden rounded-2xl bg-white mt-10 text-left shadow-xl transition-all sm:w-full sm:max-w-5xl">
                     <div>
                       <div className="flex justify-between align-middle border-b pb-2 px-2">
-                        <div className="flex items-center space-x-2 p-3 pb-2">
-                          Plans
-                        </div>
-                        <button
-                          onClick={handleClose}
-                          className="inline-flex h-6 space-x-1 items-center rounded-full bg-gray-100 px-2 py-1 mt-4 mb-2 mr-4 text-xs font-medium text-secondaryGray hover:bg-orange-200 hover:text-orange-600"
-                        >
-                          <span>Close</span>
-                          <XMarkIcon className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <Box p={10}>
-                        <Box>
+                        <Box p={2}>
                           <Text fontSize={24} fontWeight={600} color="text.200">
                             Select your Plan
                           </Text>
@@ -122,8 +98,16 @@ const PlansModal = ({ setTogglePlansModal, togglePlansModal }: ToggleProps) => {
                             AI study tools
                           </Text>
                         </Box>
-
-                        <div className="overflow-hidden py-6  bg-white sm:grid sm:grid-cols-3 sm:gap-x-6 sm:space-y-0 space-y-2">
+                        <button
+                          onClick={handleClose}
+                          className="inline-flex h-6 space-x-1 items-center rounded-full bg-gray-100 px-2 py-1 mt-4 mb-2 mr-4 text-xs font-medium text-secondaryGray hover:bg-orange-200 hover:text-orange-600"
+                        >
+                          <span>Close</span>
+                          <XMarkIcon className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <Box>
+                        {/* <div className="overflow-hidden py-6  bg-white sm:grid sm:grid-cols-3 sm:gap-x-6 sm:space-y-0 space-y-2">
                           {actions1.map((action) => (
                             <div
                               key={action.title}
@@ -182,8 +166,78 @@ const PlansModal = ({ setTogglePlansModal, togglePlansModal }: ToggleProps) => {
                               )}
                             </div>
                           ))}
+                        </div> */}
+                        <div className="landing-price-wrapper">
+                          {priceData.map((priceCard) => (
+                            <div
+                              className="landing-price-card"
+                              style={{
+                                position: priceCard.popular
+                                  ? 'relative'
+                                  : 'static'
+                              }}
+                            >
+                              {priceCard.popular && (
+                                <Text className="landing-price-sub-bubble">
+                                  Popular
+                                </Text>
+                              )}
+                              <div className="landing-metric-wrapper">
+                                <Text className="landing-price-level">
+                                  {priceCard.tier}
+                                </Text>
+                              </div>
+                              <div className="landing-metric-wrapper">
+                                <Text className="landing-price-point">
+                                  {priceCard.price}
+                                </Text>
+                                {priceCard.cycle && (
+                                  <Text
+                                    className="landing-metric-tag"
+                                    style={{ fontWeight: '400' }}
+                                  >
+                                    {priceCard.cycle}
+                                  </Text>
+                                )}
+                              </div>
+                              {/* <div className="landing-metric-wrapper">
+                  {priceCard.subscription &&
+                  <Text
+                  className="landing-metric-tag"
+                  style={{ fontWeight: '400' }}
+                >
+                {priceCard.subscription}
+                </Text>
+                }
+                </div> */}
+                              <div className="landing-section-item-modal">
+                                {priceCard['value'].map((value) => (
+                                  <div className="landing-price-value">
+                                    <img
+                                      className="landing-check-icon"
+                                      src={Check}
+                                      alt="price"
+                                    />
+                                    <Text
+                                      className="landing-desc-mini"
+                                      fontSize={14}
+                                    >
+                                      {value}
+                                    </Text>
+                                  </div>
+                                ))}
+                                <Button
+                                  className="landing-price-btn"
+                                  onClick={() =>
+                                    openModal('Trials Coming Soon')
+                                  }
+                                >
+                                  Try for Free
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-
                         <Text
                           textAlign="center"
                           my={2}
@@ -231,6 +285,15 @@ const PlansModal = ({ setTogglePlansModal, togglePlansModal }: ToggleProps) => {
           </Dialog>
         </Transition.Root>
       )}
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalCloseButton />
+          <ModalBody>
+            <p>{modalContent}</p>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 };
