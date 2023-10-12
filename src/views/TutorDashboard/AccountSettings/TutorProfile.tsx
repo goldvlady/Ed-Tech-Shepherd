@@ -81,7 +81,7 @@ interface SubjectLevel {
 function MyProfile(props) {
   const { tutorData } = props;
   const { user, fetchUser } = userStore();
-  const { rate } = resourceStore();
+  const { courses: courseList, levels, rate } = resourceStore();
 
   const toast = useToast();
   const [newEmail, setNewEmail] = useState<string>(tutorData.email);
@@ -97,8 +97,14 @@ function MyProfile(props) {
   const [description, setDescription] = useState(tutorData.tutor.description);
   const [schedule, setSchedule] = useState('');
   const [subjectLevel, setSubjectLevel] = useState<any>(
-    tutorData.tutor.coursesAndLevels
+    tutorData.tutor.coursesAndLevels.map((item) => ({
+      course: {
+        label: item.course && item.course.label ? item.course.label : ''
+      },
+      level: { label: item.level && item.level.label ? item.level.label : '' }
+    }))
   );
+
   const [hourlyRate, setHourlyRate] = useState(tutorData.tutor.rate);
   const [isLoading, setIsLoading] = useState(false);
   const [introVideo, setIntroVideo] = useState<any>(null);
@@ -185,6 +191,18 @@ function MyProfile(props) {
     }
     /* eslint-disable */
   }, [introVideo]);
+
+  useEffect(() => {
+    if (tutorData.tutor.intro && !introVideo) {
+      fetch(tutorData.tutor.intro)
+        .then((response) => response.blob())
+        .then((blob) => {
+          const file = new File([blob], 'intro_video', { type: blob.type }); // replace 'filename' with your desired filename
+          setIntroVideo(file);
+        });
+    }
+  }, [tutorData.tutor.intro, introVideo]);
+  console.log(introVideo, 'iiii');
 
   const hasAnyEmptyArray = (obj) => {
     for (const key in obj) {
@@ -274,6 +292,7 @@ function MyProfile(props) {
     const data: any = f(subjectLevel);
     setSubjectLevel(data);
   };
+  console.log(subjectLevel, 's-l');
 
   useEffect(() => {
     if (!subjectLevel.length) {
@@ -424,20 +443,33 @@ function MyProfile(props) {
               </Box>
             </Flex>
             <Center position="relative" borderRadius={10} my={2}>
-              <AspectRatio
+              {/* <AspectRatio
                 h={{ base: '170px', md: '170px' }}
                 w={{ base: 'full', md: 'full' }}
                 ratio={1}
                 objectFit={'cover'}
-              >
-                <iframe
+              > */}
+              {/* <iframe
                   title="naruto"
                   // src={'https://samplelib.com/lib/preview/mp4/sample-5s.mp4'}
                   src={tutorData.tutor.introVideo}
                   allowFullScreen
                   style={{ borderRadius: 10 }}
-                />
-              </AspectRatio>
+                /> */}
+              <Box
+                h={{ base: '170px', md: '170px' }}
+                w={{ base: 'full', md: 'full' }}
+              >
+                <video
+                  title="tutor-video"
+                  controls
+                  style={{ borderRadius: 10, width: '100%', height: '100%' }}
+                >
+                  <source src={tutorData.tutor.introVideo} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </Box>{' '}
+              {/* </AspectRatio> */}
               <Center
                 color="white"
                 display={vidOverlay ? 'flex' : 'none'}
@@ -937,14 +969,28 @@ function MyProfile(props) {
           maxWidth: '400px',
           height: 'fit-content'
         }}
-        // footerContent={
-        //   <div style={{ display: 'flex', gap: '8px' }}>
-        //     <Button>Update</Button>
-        //   </div>
-        // }
+        footerContent={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button
+              onClick={() => {
+                const coursesAndLevels = subjectLevel.map((courseLevel) => ({
+                  course: courseList.find(
+                    (course) => course.label === courseLevel.course.label
+                  )?._id,
+                  level: levels.find(
+                    (level) => level.label === courseLevel.level.label
+                  )?._id
+                }));
+                handleUpdateTutor('coursesAndLevels', coursesAndLevels);
+              }}
+            >
+              Update
+            </Button>
+          </div>
+        }
         onClose={closeUpdateSubjectModal}
       >
-        <Box overflowY={'scroll'}>
+        <Box overflowY={'scroll'} p={3}>
           <AddSubjectLevel
             subjectLevels={subjectLevel}
             addSubject={addSubject}

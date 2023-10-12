@@ -356,7 +356,7 @@ class ApiService {
         const rateArray = formData['price'].split('-');
         const minRate = rateArray[0];
         const maxRate = rateArray[1];
-        filterParams += `&rate>=${minRate}&rate<=${maxRate}`;
+        filterParams += `&rateGT=${minRate}&rateLT=${maxRate}`;
       } else if (key === 'days' && !!formData['days']) {
         const daysArray = formData['days'];
         // eslint-disable-next-line

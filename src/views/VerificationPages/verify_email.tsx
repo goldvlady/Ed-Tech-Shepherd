@@ -1,10 +1,21 @@
 // CircularProgress for loader.
+import CustomModal from '../../components/CustomComponents/CustomModal';
 import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import Header from '../../components/Header';
 import ApiService from '../../services/ApiService';
 import userStore from '../../state/userStore';
 // For making API calls.
-import { Box, CircularProgress, Text, Button } from '@chakra-ui/react';
+import {
+  Box,
+  CircularProgress,
+  Text,
+  Button,
+  useDisclosure,
+  FormControl,
+  FormLabel,
+  Input,
+  Link
+} from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
@@ -26,10 +37,17 @@ const VerificationSuccess = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [verified, setVerified] = useState(false);
+  const [email, setEmail] = useState('');
   const navigateToDashboard = () =>
     navigate(
       user?.signedUpAsTutor ? '/dashboard/tutordashboard/' : '/dashboard'
     );
+
+  const {
+    isOpen: isEmailModalOpen,
+    onOpen: openEmailModal,
+    onClose: closeEmailModal
+  } = useDisclosure();
 
   async function verifyToken(token: string) {
     try {
@@ -59,6 +77,36 @@ const VerificationSuccess = () => {
       setLoading(false);
     }
   }
+
+  const handleResendLink = async (email) => {
+    try {
+      const response = await ApiService.resendUserEmail(email);
+      if (response.status === 200) {
+        toast({
+          title: 'Email has been resent',
+          position: 'top-right',
+          status: 'success',
+          isClosable: true
+        });
+        closeEmailModal();
+      } else {
+        toast({
+          title: 'Something went wrong',
+          position: 'top-right',
+          status: 'error',
+          isClosable: true
+        });
+      }
+    } catch (e) {
+      console.log(e);
+      toast({
+        title: 'Something went wrong',
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
+      });
+    }
+  };
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -141,7 +189,7 @@ const VerificationSuccess = () => {
                 : 'Invalid or expired token'}
             </Text>
 
-            {verified && (
+            {verified ? (
               <Button
                 onClick={() =>
                   navigate(
@@ -165,10 +213,64 @@ const VerificationSuccess = () => {
                   ? 'Complete Profile'
                   : 'Go To Your Dashboard'}
               </Button>
+            ) : (
+              <Link
+                // target="_blank"
+                // rel="noopener noreferrer"
+                // href="mailto:help@shepherd.study"
+                display="flex"
+                flexDirection="row"
+                color="white"
+                justifyContent="center"
+                alignItems="center"
+                padding="14px 100px"
+                marginTop="30px"
+                height="48px"
+                background="#207DF7"
+                borderRadius="8px"
+                onClick={openEmailModal}
+              >
+                Resend Verification Link
+              </Link>
             )}
           </Box>
         )}
       </Root>
+      <CustomModal
+        isOpen={isEmailModalOpen}
+        modalTitle="Enter Email"
+        isModalCloseButton
+        style={{
+          maxWidth: '400px',
+          height: 'fit-content'
+        }}
+        footerContent={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button isDisabled={!email} onClick={() => handleResendLink(email)}>
+              Send
+            </Button>
+          </div>
+        }
+        onClose={closeEmailModal}
+      >
+        {' '}
+        <FormControl p={3} alignItems="center">
+          <FormLabel fontSize="14px" fontWeight="medium" htmlFor="description">
+            Email
+          </FormLabel>
+          <Input
+            fontSize="0.875rem"
+            fontFamily="Inter"
+            fontWeight="400"
+            type="text"
+            name="topic"
+            color=" #212224"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
+          />
+        </FormControl>
+      </CustomModal>
     </>
   );
 };
