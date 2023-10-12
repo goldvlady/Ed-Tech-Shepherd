@@ -478,7 +478,7 @@ export default function Tutor() {
                   />
                 </Stack> */}
 
-            <Text fontSize={14} mt={8}>
+            {/* <Text fontSize={14} mt={8}>
               <Link
                 color="#207DF7"
                 href="/dashboard/find-tutor"
@@ -486,7 +486,7 @@ export default function Tutor() {
               >
                 More Economics tutors
               </Link>
-            </Text>
+            </Text> */}
           </GridItem>
 
           <GridItem>
