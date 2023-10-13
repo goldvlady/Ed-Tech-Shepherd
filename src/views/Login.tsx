@@ -87,10 +87,10 @@ const Login: React.FC = () => {
                 values.email,
                 values.password
               );
-              onAuthStateChanged(firebaseAuth, (user: any) => {
-                sessionStorage.setItem('email', user.email);
+              onAuthStateChanged(firebaseAuth, async (user: any) => {
                 if (user && user.emailVerified) {
-                  fetchUser();
+                  sessionStorage.setItem('email', user.email);
+                  await fetchUser();
                   sessionStorage.setItem('UserDetails', JSON.stringify(user));
 
                   // const email = user.email;
@@ -141,7 +141,7 @@ const Login: React.FC = () => {
             setSubmitting(false);
           }}
         >
-          {({ errors, isSubmitting }) => (
+          {({ errors, isSubmitting, submitForm }) => (
             <Form>
               <Field name="email">
                 {({ field, form }: { field: any; form: any }) => (
@@ -206,7 +206,10 @@ const Login: React.FC = () => {
                   isLoading={isSubmitting}
                   width={'100%'}
                   size="lg"
-                  type="submit"
+                  onClick={() => {
+                    console.log('clicked');
+                    submitForm();
+                  }}
                 >
                   Login
                 </Button>
