@@ -1,4 +1,5 @@
 import CustomToast from '../../../../components/CustomComponents/CustomToast';
+import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import PaymentDialog, {
   PaymentDialogRef
 } from '../../../../components/PaymentDialog';
@@ -44,7 +45,7 @@ function Billing(props) {
   const { username, email } = props;
   const { user, fetchUser } = userStore();
   const currentPath = window.location.pathname;
-  const toast = useToast();
+  const toast = useCustomToast();
   const navigate = useNavigate();
 
   const isTutor = currentPath.includes('/dashboard/tutordashboard/');
@@ -114,21 +115,16 @@ function Billing(props) {
     closeDeleteConfirmModal();
     if (resp.status === 200) {
       toast({
-        render: () => (
-          <CustomToast
-            title="Payment Method Removed Successfully"
-            status="success"
-          />
-        ),
+        title: 'Payment Method Removed Successfully',
+        status: 'success',
         position: 'top-right',
         isClosable: true
       });
       fetchUser();
     } else {
       toast({
-        render: () => (
-          <CustomToast title="Something went wrong.." status="error" />
-        ),
+        title: 'Something went wrong..',
+        status: 'error',
         position: 'top-right',
         isClosable: true
       });

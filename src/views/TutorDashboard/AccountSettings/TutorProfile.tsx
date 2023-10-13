@@ -2,6 +2,7 @@ import FileAvi2 from '../../../assets/file-avi2.svg';
 import AddSubjectLevel from '../../../components/AddSubjectLevel';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast';
+import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import DragAndDrop from '../../../components/DragandDrop';
 import { firebaseAuth, updatePassword } from '../../../firebase';
 import { storage } from '../../../firebase';
@@ -83,7 +84,7 @@ function MyProfile(props) {
   const { user, fetchUser } = userStore();
   const { courses: courseList, levels, rate } = resourceStore();
 
-  const toast = useToast();
+  const toast = useCustomToast();
   const [newEmail, setNewEmail] = useState<string>(tutorData.email);
 
   const [isUpdating, setIsUpdating] = useState(false);
@@ -261,18 +262,16 @@ function MyProfile(props) {
     const resp: any = await response.json();
     if (response.status === 200) {
       toast({
-        render: () => (
-          <CustomToast title=" Updated successfully" status="success" />
-        ),
+        title: ' Updated successfully',
+        status: 'success',
         position: 'top-right',
         isClosable: true
       });
       fetchUser();
     } else {
       toast({
-        render: () => (
-          <CustomToast title="Something went wrong.." status="error" />
-        ),
+        title: 'Something went wrong..',
+        status: 'error',
         position: 'top-right',
         isClosable: true
       });

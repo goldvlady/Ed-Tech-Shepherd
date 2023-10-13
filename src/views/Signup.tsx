@@ -1,4 +1,5 @@
 import CriteriaCheck from '../components/CriteriaCheck';
+import { useCustomToast } from '../components/CustomComponents/CustomToast/useCustomToast';
 import SecureInput from '../components/SecureInput';
 import { createUserWithEmailAndPassword, firebaseAuth } from '../firebase';
 import { useTitle } from '../hooks';
@@ -48,7 +49,7 @@ const SignupSchema = Yup.object().shape({
 
 const Signup: React.FC = () => {
   useTitle('Sign up');
-  const toast = useToast();
+  const toast = useCustomToast();
   const navigate = useNavigate();
   return (
     <Root>

@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import TableTag from '../../../../components/CustomComponents/CustomTag';
+import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import { TrashIcon } from '../../../../components/icons';
 import { TableTitleWrapper } from '../../../../components/notesTab/styles';
 import SelectableTable, { TableColumn } from '../../../../components/table';
@@ -20,7 +21,7 @@ interface Props {
 const PinnedNotesTab: FC<Props> = ({ data }) => {
   const DELETE_NOTE_TITLE = 'Delete Note';
 
-  const toast = useToast();
+  const toast = useCustomToast();
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
   const [, setDeleteAllNotesModal] = useState(false);
   const checkbox = useRef<HTMLInputElement>(null);

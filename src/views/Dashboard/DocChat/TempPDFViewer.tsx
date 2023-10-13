@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { SelectedNoteModal } from '../../../components';
+import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import { snip } from '../../../helpers/file.helpers';
 import { getPDFHighlight, postPDFHighlight } from '../../../services/AI';
 import { Spinner } from './Spinner';
@@ -53,7 +54,7 @@ const TempPDFViewer = ({
   const [highlights, setHighlights] = useState<Array<IHighlight>>([]);
   const [url, setUrl] = useState(pdfLink);
   const [popUpNotesModal, setPopUpNotesModal] = useState(false);
-  const toast = useToast();
+  const toast = useCustomToast();
 
   useEffect(() => {
     setUrl(pdfLink);

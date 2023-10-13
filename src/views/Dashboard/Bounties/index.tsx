@@ -1,3 +1,4 @@
+import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import PaymentDialog, {
   PaymentDialogRef
 } from '../../../components/PaymentDialog';
@@ -55,7 +56,7 @@ function AllBounties() {
   const [days, setDays] = useState<Array<any>>([]);
   const { isLoading, pagination, bounties, fetchBountyOffers } = offerStore();
   const { user } = userStore();
-  const toast = useToast();
+  const toast = useCustomToast();
   const [settingUpPaymentMethod, setSettingUpPaymentMethod] = useState(false);
 
   //Payment Method Handlers

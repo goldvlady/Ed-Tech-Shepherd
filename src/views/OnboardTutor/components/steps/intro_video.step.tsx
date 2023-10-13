@@ -1,3 +1,4 @@
+import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import DragAndDrop from '../../../../components/DragandDrop';
 import { storage } from '../../../../firebase';
 import onboardTutorStore from '../../../../state/onboardTutorStore';
@@ -7,7 +8,7 @@ import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import React, { useState, useEffect } from 'react';
 
 const IntroVideoForm = () => {
-  const toast = useToast();
+  const toast = useCustomToast();
   const { introVideo: uploadedLink } = onboardTutorStore.useStore();
   const [isLoading, setIsLoading] = useState(false);
   const [introVideo, setIntroVideo] = useState<File | null>(null);

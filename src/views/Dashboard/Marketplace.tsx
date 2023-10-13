@@ -3,6 +3,7 @@ import Sally from '../../assets/saly.svg';
 import CustomButton2 from '../../components/CustomComponents/CustomButton/index';
 import CustomModal from '../../components/CustomComponents/CustomModal';
 import CustomToast from '../../components/CustomComponents/CustomToast';
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import PaymentDialog, {
   PaymentDialogRef
 } from '../../components/PaymentDialog';
@@ -148,7 +149,7 @@ export default function Marketplace() {
   };
 
   const [tutorGrid] = useAutoAnimate();
-  const toast = useToast();
+  const toast = useCustomToast();
   const navigate = useNavigate();
   const getData = async () => {
     setLoadingData(true);

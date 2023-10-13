@@ -1,4 +1,5 @@
 import cloud from '../../assets/cloud.svg';
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import Header from '../../components/Header';
 import ApiService from '../../services/ApiService';
 import onboardTutorStore from '../../state/onboardTutorStore';
@@ -701,7 +702,7 @@ const PreviewSegment = ({
 
 const PreviewProfile = () => {
   const [showModal, setShowModal] = useState(false);
-  const toast = useToast();
+  const toast = useCustomToast();
   const navigator = useNavigate();
   const [isLoading, setLoading] = useState(false);
   const { fetchUser, user } = userStore();
