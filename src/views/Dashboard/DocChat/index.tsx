@@ -110,13 +110,18 @@ export default function DocChat() {
   }, [socket]);
 
   useEffect(() => {
-    if (summaryStart && socket) {
-      socket.on('summary start', async (token) => {
-        setSummaryText((summary) => summary + token);
-      });
+    if (!summaryStart || !socket) return;
 
-      return () => socket.off('summary start');
-    }
+    const handleSummaryStart = (token) => {
+      if (token) {
+        setSummaryText((prevSummary) => prevSummary + token);
+      }
+    };
+
+    socket.on('summary start', handleSummaryStart);
+
+    // Cleanup listener when the component is unmounted or when dependencies change
+    return () => socket.off('summary start', handleSummaryStart);
   }, [summaryStart, socket]);
 
   useEffect(() => {

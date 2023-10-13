@@ -105,7 +105,7 @@ const Summary = ({
             <>
               {!isEdit ? (
                 <SummaryContainer2
-                  value={summaryTexts}
+                  value={summaryTexts?.replace(/null/g, '')}
                   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                   onChange={(event) => setSummaryText(event.target.value!)}
                 ></SummaryContainer2>
@@ -123,7 +123,7 @@ const Summary = ({
         <EmptyStateContainer>
           <div>
             <SummaryIcn />
-            <p>You’re yet to request for a summary</p>
+            {/* <p>You’re yet to request for a summary</p> */}
           </div>
           <div>
             <CustomButton

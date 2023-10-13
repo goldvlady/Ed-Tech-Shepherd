@@ -468,7 +468,7 @@ export const ChatHistoryHeader = styled.div`
   margin-bottom: 15px;
   position: fixed;
   height: 7vh;
-  width: 25%;
+  width: 26%;
   top: 78px;
   background: white;
   // z-index: 999;
