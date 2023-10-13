@@ -160,7 +160,7 @@ export default function Marketplace() {
       tz: moment.tz.guess(),
       days: days,
       price: price === '' ? '' : price.value,
-      floorRating: rating === '' ? '' : rating.value,
+      rating: rating === '' ? '' : rating.value,
       startTime: toTime,
       endTime: fromTime,
       page: page,

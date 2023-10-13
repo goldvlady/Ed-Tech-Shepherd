@@ -482,7 +482,7 @@ function MyProfile(props) {
                     onClick={() => setVidOverlay(false)}
                     size={'50px'}
                   />
-                  <Text display={'inline'}> update intro video</Text>
+                  <Text display={'inline'}> Play intro video</Text>
                 </VStack>
               </Center>
             </Center>
