@@ -88,8 +88,8 @@ const Login: React.FC = () => {
                 values.password
               );
               onAuthStateChanged(firebaseAuth, async (user: any) => {
-                sessionStorage.setItem('email', user.email);
                 if (user && user.emailVerified) {
+                  sessionStorage.setItem('email', user.email);
                   await fetchUser();
                   sessionStorage.setItem('UserDetails', JSON.stringify(user));
 
