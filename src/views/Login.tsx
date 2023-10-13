@@ -141,7 +141,7 @@ const Login: React.FC = () => {
             setSubmitting(false);
           }}
         >
-          {({ errors, isSubmitting }) => (
+          {({ errors, isSubmitting, submitForm }) => (
             <Form>
               <Field name="email">
                 {({ field, form }: { field: any; form: any }) => (
@@ -206,7 +206,10 @@ const Login: React.FC = () => {
                   isLoading={isSubmitting}
                   width={'100%'}
                   size="lg"
-                  type="submit"
+                  onClick={() => {
+                    console.log('clicked');
+                    submitForm();
+                  }}
                 >
                   Login
                 </Button>
