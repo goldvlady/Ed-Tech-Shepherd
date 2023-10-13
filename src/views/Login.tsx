@@ -82,7 +82,7 @@ const Login: React.FC = () => {
           validationSchema={LoginSchema}
           onSubmit={async (values, { setSubmitting }) => {
             try {
-              const user = await signInWithEmailAndPassword(
+              await signInWithEmailAndPassword(
                 firebaseAuth,
                 values.email,
                 values.password
