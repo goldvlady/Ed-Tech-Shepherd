@@ -5,6 +5,7 @@ import { ReactComponent as HistoryIcn } from '../../../assets/historyIcon.svg';
 import CustomButton from '../../../components/CustomComponents/CustomButton';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast';
+import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import { arrangeDataByDate, getDateString } from '../../../helpers';
 import {
   deleteConversationId,
@@ -109,7 +110,7 @@ const ChatHistory = ({
   const [groupChatsByDateArr, setGroupChatsByDateArr] = useState<GroupedChat[]>(
     []
   );
-  const toast = useToast();
+  const toast = useCustomToast();
   const showSearchRef = useRef(null) as any;
   const [editConversation, setEditConversationId] = useState('');
   const [removeIndex, setRemoveIndex] = useState(0);
@@ -221,12 +222,9 @@ const ChatHistory = ({
       }
     } catch (error) {
       toast({
-        render: () => (
-          <CustomToast
-            title="Unable to process your request at this time. Please try again later."
-            status="error"
-          />
-        ),
+        title:
+          'Unable to process your request at this time. Please try again later.',
+        status: 'error',
         position: 'top-right',
         isClosable: true
       });
@@ -293,21 +291,16 @@ const ChatHistory = ({
         setCertainConversationId('');
         localStorage.removeItem('conversationId');
         toast({
-          render: () => (
-            <CustomToast
-              title="Conversation deleted successfully"
-              status="success"
-            />
-          ),
+          title: 'Conversation deleted successfully',
+          status: 'success',
           position: 'top-right',
           isClosable: true
         });
       }
     } catch (error) {
       toast({
-        render: () => (
-          <CustomToast title="Failed to fetch chat history..." status="error" />
-        ),
+        title: 'Failed to fetch chat history...',
+        status: 'error',
         position: 'top-right',
         isClosable: true
       });

@@ -1,3 +1,4 @@
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import CustomSelect from '../../components/CustomSelect';
 import { FORMAT } from '../../components/DateInput';
 import DragAndDrop from '../../components/DragandDrop';
@@ -68,7 +69,7 @@ const stepIndicatorSteps = [
 ];
 
 const OnboardTutor = () => {
-  const toast = useToast();
+  const toast = useCustomToast();
   const { countries } = resourceStore();
   const [confirmDocument, setConfirmDocument] = useState(false);
   const [password, setPassword] = useState('');

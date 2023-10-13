@@ -239,9 +239,10 @@ export default function Layout({ children, className }) {
                       </li>
                       <li className="border-t pt-4">
                         <a
-                          href="tutordashboard/tutorsettings"
+                          href="/dashboard/tutordashboard/account-settings"
                           className={classNames(
-                            pathname === 'tutordashboard/tutorsettings'
+                            pathname ===
+                              '/dashboard/tutordashboard/account-settings'
                               ? 'bg-slate-100 text-blue-400'
                               : 'text-gray-400 hover:text-blue-400 hover:bg-slate-100',
                             'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
@@ -249,7 +250,8 @@ export default function Layout({ children, className }) {
                         >
                           <Cog6ToothIcon
                             className={classNames(
-                              pathname === 'tutordashboard/tutorsettings'
+                              pathname ===
+                                '/dashboard/tutordashboard/account-settings'
                                 ? 'text-blue-500'
                                 : 'text-gray-400 group-hover:text-blue-400',
                               'h-6 w-6 shrink-0'
@@ -314,9 +316,9 @@ export default function Layout({ children, className }) {
           </Box>
           <Box className="border-t pt-4">
             <Link
-              to="tutordashboard/tutorsettings"
+              to="tutordashboard/account-settings"
               className={`${
-                pathname === 'tutordashboard/tutorsettings'
+                pathname === '/dashboard/tutordashboard/account-settings'
                   ? 'bg-slate-100 text-primaryBlue'
                   : 'text-gray-400 hover:text-primaryBlue hover:bg-slate-100'
               } group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold`}
@@ -325,7 +327,7 @@ export default function Layout({ children, className }) {
             >
               <Cog6ToothIcon
                 className={classNames(
-                  pathname === 'tutordashboard/tutorsettings'
+                  pathname === '/dashboard/tutordashboard/account-settings'
                     ? 'text-blue-500'
                     : 'text-gray-400 group-hover:text-primaryBlue',
                   'h-6 w-6 shrink-0'
@@ -335,7 +337,9 @@ export default function Layout({ children, className }) {
               <Text
                 fontSize={14}
                 fontWeight={
-                  pathname === 'tutordashboard/tutorsettings' ? '500' : '400'
+                  pathname === '/dashboard/tutordashboard/account-settings'
+                    ? '500'
+                    : '400'
                 }
               >
                 Settings

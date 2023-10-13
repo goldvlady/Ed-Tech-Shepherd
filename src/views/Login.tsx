@@ -1,4 +1,5 @@
 import GoogleIcon from '../assets/google.svg';
+import { useCustomToast } from '../components/CustomComponents/CustomToast/useCustomToast';
 import SecureInput from '../components/SecureInput';
 import {
   firebaseAuth,
@@ -43,7 +44,7 @@ const LoginSchema = Yup.object().shape({
 
 const Login: React.FC = () => {
   useTitle('Login');
-  const toast = useToast();
+  const toast = useCustomToast();
   const navigate = useNavigate();
   const auth = getAuth();
   const { user: appUser, fetchUser } = userStore();

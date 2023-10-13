@@ -4,6 +4,7 @@ import Ribbon from '../../../assets/ribbon-grey.svg';
 import TutorAvi from '../../../assets/tutoravi.svg';
 import CustomButton from '../../../components/CustomComponents/CustomButton';
 import CustomToast from '../../../components/CustomComponents/CustomToast';
+import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import ApiService from '../../../services/ApiService';
 import bookmarkedTutorsStore from '../../../state/bookmarkedTutorsStore';
 import { textTruncate } from '../../../util';
@@ -49,7 +50,7 @@ export default function TutorCard(props: any) {
     offerStatus,
     handleSelectedCourse
   } = props;
-  const toast = useToast();
+  const toast = useCustomToast();
   const { fetchBookmarkedTutors } = bookmarkedTutorsStore();
 
   const [ribbonClicked, setRibbonClicked] = useState(false);
@@ -62,21 +63,16 @@ export default function TutorCard(props: any) {
       if (saved && resp.status === 200) {
         setRibbonClicked(false);
         toast({
-          render: () => (
-            <CustomToast
-              title="Tutor removed from Bookmarks successfully"
-              status="success"
-            />
-          ),
+          title: 'Tutor removed from Bookmarks successfully',
+          status: 'error',
           position: 'top-right',
           isClosable: true
         });
       } else {
         setRibbonClicked(true);
         toast({
-          render: () => (
-            <CustomToast title="Tutor saved successfully" status="success" />
-          ),
+          title: 'Tutor saved successfully',
+          status: 'success',
           position: 'top-right',
           isClosable: true
         });

@@ -31,8 +31,6 @@ const PendingActivation = () => {
   const [obtainedUserAuthState, setObtainedUserAuthState] = useState(false);
   const [email, setEmail] = useState('');
 
-  const toast = useToast();
-
   useEffect(() => {
     onAuthStateChanged(getAuth(), async (user) => {
       setObtainedUserAuthState(true);
@@ -89,7 +87,7 @@ const PendingActivation = () => {
             </svg>
           </Box>
           <Text fontSize="2xl" fontWeight="600" textAlign="center">
-            Your account is pending Activation
+            Your account is pending activation
           </Text>
           <Text
             fontSize="md"
@@ -100,7 +98,7 @@ const PendingActivation = () => {
             mt={1}
             lineHeight="1.5"
           >
-            We would notify your email when your account has been activated.
+            We will notify your email when your account has been activated.
           </Text>
         </Box>
       </Root>

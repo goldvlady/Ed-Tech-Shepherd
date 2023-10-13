@@ -1,3 +1,4 @@
+import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import DragAndDrop from '../../../../components/DragandDrop';
 import { storage } from '../../../../firebase';
 import onboardTutorStore from '../../../../state/onboardTutorStore';
@@ -8,7 +9,7 @@ import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import React, { useState, useRef, ChangeEvent, useEffect } from 'react';
 
 const ProfilePictureForm: React.FC = () => {
-  const toast = useToast();
+  const toast = useCustomToast();
   const { avatar: storedAvatar } = onboardTutorStore.useStore();
 
   const [avatar, setAvatar] = useState<string>(

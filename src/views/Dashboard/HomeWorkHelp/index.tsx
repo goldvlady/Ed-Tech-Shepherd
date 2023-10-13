@@ -2,6 +2,7 @@
 import Sally from '../../../assets/saly.svg';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast/index';
+import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import PaymentDialog, {
   PaymentDialogRef
 } from '../../../components/PaymentDialog';
@@ -56,7 +57,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 const HomeWorkHelp = () => {
   const [isOpenModal, setOpenModal] = useState(false);
   const [inputValue, setInputValue] = useState('');
-  const toast = useToast();
+  const toast = useCustomToast();
   const location = useLocation();
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const [openAceHomework, setAceHomeWork] = useState(false);
@@ -216,12 +217,8 @@ const HomeWorkHelp = () => {
         setMessages((prevMessages) => [...prevMessages, ...mappedData]);
       } catch (error) {
         toast({
-          render: () => (
-            <CustomToast
-              title="Failed to fetch chat history..."
-              status="error"
-            />
-          ),
+          title: 'Failed to fetch chat history...',
+          status: 'error',
           position: 'top-right',
           isClosable: true
         });
@@ -511,12 +508,8 @@ const HomeWorkHelp = () => {
         setOnlineTutorsId(response?.data);
       } catch (error: any) {
         toast({
-          render: () => (
-            <CustomToast
-              title="Failed to fetch chat history..."
-              status="error"
-            />
-          ),
+          title: 'Failed to fetch chat history...',
+          status: 'error',
           position: 'top-right',
           isClosable: true
         });
