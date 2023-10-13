@@ -82,15 +82,15 @@ const Login: React.FC = () => {
           validationSchema={LoginSchema}
           onSubmit={async (values, { setSubmitting }) => {
             try {
-              await signInWithEmailAndPassword(
+              const user = await signInWithEmailAndPassword(
                 firebaseAuth,
                 values.email,
                 values.password
               );
-              onAuthStateChanged(firebaseAuth, (user: any) => {
+              onAuthStateChanged(firebaseAuth, async (user: any) => {
                 sessionStorage.setItem('email', user.email);
                 if (user && user.emailVerified) {
-                  fetchUser();
+                  await fetchUser();
                   sessionStorage.setItem('UserDetails', JSON.stringify(user));
 
                   // const email = user.email;
