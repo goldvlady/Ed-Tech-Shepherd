@@ -361,6 +361,13 @@ const HomeWorkHelp = () => {
     }
   }, [conversationId, socket, recentConversationId]);
 
+  const fetchDescription = async (id: string) => {
+    const response = await getDescriptionById({ conversationId: id });
+    if (response?.data) {
+      setDescription(response.data);
+    }
+  };
+
   useEffect(() => {
     const fetchDescription = async (id: string) => {
       const response = await getDescriptionById({ conversationId: id });
@@ -573,6 +580,8 @@ const HomeWorkHelp = () => {
           onCountTutor={onCountTutor}
           handleAceHomeWorkHelp={handleAceHomeWorkHelp}
           visibleButton={visibleButton}
+          fetchDescription={fetchDescription}
+          freshConversationId={freshConversationId}
         />
       </HomeWorkHelpChatContainer>
 
