@@ -158,6 +158,10 @@ const FONT_SIZE_OPTIONS: [string, string][] = [
 const ELEMENT_FORMAT_OPTIONS: {
   [key: string]: { icon: string; name: string };
 } = {
+  start: {
+    icon: 'left-align',
+    name: 'Left Align'
+  },
   center: {
     icon: 'center-align',
     name: 'Center Align'

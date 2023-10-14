@@ -984,10 +984,12 @@ const NewNote = () => {
 
   return (
     <Box
-      overflowY={'auto'}
-      minHeight={'920px'}
-      maxHeight={isFullScreen ? '100%' : '920px'}
-      backgroundColor={'pink'}
+    // overflowY={'auto'}
+    // minHeight={'920px'}
+    // maxHeight={isFullScreen ? undefined : '100vh'}
+    // maxHeight={isFullScreen ? '100%' : '920px'}
+    // backgroundColor={'pink'}
+    // position={"relative"}
     >
       <HeaderWrapper>
         <div style={{ display: 'none' }}>
@@ -1005,6 +1007,7 @@ const NewNote = () => {
         <NewNoteWrapper
           {...{
             ...editorStyle,
+            minHeight: '120vh',
             overflowY: 'auto'
           }}
         >
