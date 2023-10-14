@@ -61,27 +61,27 @@ export default create<Store>((set) => ({
         const { data } = await response.json();
         set((state) => {
           const { flashcards } = state;
-          if (Array.isArray(flashcardIds)) {
-            (flashcardIds as Array<string>).forEach((flashcardId) => {
-              const index = flashcards?.findIndex(
-                (card) => card._id === flashcardId
-              );
-              const record = data.find((d) => d._id === flashcardId);
-              if (index !== undefined && index >= 0 && flashcards) {
-                flashcards[index] = record;
-              }
-            });
-          } else {
-            const index = flashcards?.findIndex(
-              (card) => card._id === (flashcardIds as string)
-            );
 
-            if (index !== undefined && index >= 0 && flashcards) {
-              const record = data.find(
-                (d) => d._id === (flashcardIds as string)
-              );
+          const updateFlashcard = (flashcardId: string) => {
+            const index = flashcards?.findIndex(
+              (card) => card._id === flashcardId
+            );
+            const record = data.find((d) => d._id === flashcardId);
+
+            if (
+              typeof index !== 'undefined' &&
+              index >= 0 &&
+              record &&
+              flashcards
+            ) {
               flashcards[index] = record;
             }
+          };
+
+          if (Array.isArray(flashcardIds)) {
+            flashcardIds.forEach(updateFlashcard);
+          } else {
+            updateFlashcard(flashcardIds);
           }
 
           return { flashcards, tags: [...state.tags, ...tags].sort() };
