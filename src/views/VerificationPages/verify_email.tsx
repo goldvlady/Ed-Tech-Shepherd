@@ -193,7 +193,7 @@ const VerificationSuccess = () => {
               <Button
                 onClick={() =>
                   navigate(
-                    user?.type?.includes('tutor')
+                    !user?.type?.includes('tutor') && user?.signedUpAsTutor
                       ? '/complete_profile'
                       : '/dashboard'
                   )
