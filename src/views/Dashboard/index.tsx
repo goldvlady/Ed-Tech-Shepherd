@@ -276,7 +276,7 @@ export default function Index() {
               marginBottom={{ base: '26px', md: '0' }}
             >
               <Text fontSize={'20px'} fontWeight={600}>
-                Flashcards Performance by Deck
+                Create Flashcards
               </Text>
               {chartData && chartData.length > 0 ? (
                 <Center p={2} h={'350px'}>

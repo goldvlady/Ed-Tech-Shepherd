@@ -159,6 +159,12 @@ const ViewHomeWorkHelpDetails = ({
             onCreateOption={handleOnCreateOption}
             options={courseList}
             value={selectedOption}
+            styles={{
+              control: (base) => ({
+                ...base,
+                fontSize: '0.875rem'
+              })
+            }}
             placeholder="Search or select an option..."
           />
         </FormControl>
@@ -179,6 +185,7 @@ const ViewHomeWorkHelpDetails = ({
             value={localData.topic}
             onChange={handleChange}
             _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
+            style={{ fontSize: '0.875rem' }}
           />
         </FormControl>
         {/* <FormControl mb={6}>
@@ -208,13 +215,14 @@ const ViewHomeWorkHelpDetails = ({
               as={Button}
               variant="outline"
               rightIcon={<FiChevronDown />}
-              fontSize={14}
               borderRadius="8px"
               fontWeight={400}
-              color="text.400"
               width="100%"
               height="42px"
               textAlign="left"
+              fontSize="0.875rem"
+              fontFamily="Inter"
+              color=" #212224"
             >
               {level === '' ? 'Level' : level.label}
             </MenuButton>

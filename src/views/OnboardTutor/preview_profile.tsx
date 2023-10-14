@@ -732,7 +732,7 @@ const PreviewProfile = () => {
       value: onboardingData.coursesAndLevels,
       mainText: 'Please inform us of the subjects you would like to teach ',
       supportingText:
-        'Kindly select your area of expertise and proficiency level, you may add multiple subjects'
+        'Please choose your areas of expertise and indicate your proficiency level. You can select multiple subjects.'
     },
     {
       id: 'qualifications',

@@ -228,7 +228,7 @@ const Chat = ({
       title: "I don't understand",
       onClick: () => {
         onCountTutor("I don't understand");
-        fetchDescription(freshConversationId);
+        freshConversationId?.length && fetchDescription(freshConversationId);
       },
       show: true
     },
