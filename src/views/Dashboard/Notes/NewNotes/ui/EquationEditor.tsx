@@ -5,13 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import type {Ref, RefObject} from 'react';
-
 import './EquationEditor.css';
-
+import type { Ref, RefObject } from 'react';
 import * as React from 'react';
-import {ChangeEvent, forwardRef} from 'react';
+import { ChangeEvent, forwardRef } from 'react';
 
 type BaseEquationEditorProps = {
   equation: string;
@@ -20,8 +17,8 @@ type BaseEquationEditorProps = {
 };
 
 function EquationEditor(
-  {equation, setEquation, inline}: BaseEquationEditorProps,
-  forwardedRef: Ref<HTMLInputElement | HTMLTextAreaElement>,
+  { equation, setEquation, inline }: BaseEquationEditorProps,
+  forwardedRef: Ref<HTMLInputElement | HTMLTextAreaElement>
 ): JSX.Element {
   const onChange = (event: ChangeEvent) => {
     setEquation((event.target as HTMLInputElement).value);

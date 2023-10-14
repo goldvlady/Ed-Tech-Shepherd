@@ -128,8 +128,10 @@ export interface User extends TimestampedEntity {
   tutor?: Tutor;
   student?: Student;
   isVerified: boolean;
+  isTutor?: boolean;
   type: any;
   stripeCustomerId?: string;
+  signedUpAsTutor?: string;
   paymentMethods: PaymentMethod[];
   streamTokens?: StreamToken[];
 }
@@ -166,7 +168,7 @@ export interface Tutor extends TimestampedEntity {
   qualifications?: Array<TutorQualification>;
   country?: string;
   bankInfo?: TutorBankInfo;
-
+  isActive: boolean;
   pipedriveDealId?: string;
 
   // virtuals

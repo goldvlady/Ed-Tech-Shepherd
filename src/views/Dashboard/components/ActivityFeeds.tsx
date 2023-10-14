@@ -322,7 +322,11 @@ function ActivityFeeds(props) {
                         </Text>
 
                         <Text fontWeight={500} fontSize={12} color="#73777D">
-                          {feed.link ? getFileName(feed.link) : feed.title}
+                          {feed.link
+                            ? feed.activityType === 'bounty'
+                              ? 'New Bounty Started'
+                              : getFileName(feed.link)
+                            : feed.title}
                         </Text>
                       </Flex>
                     </Box>

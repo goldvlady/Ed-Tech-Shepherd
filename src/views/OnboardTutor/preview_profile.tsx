@@ -1,4 +1,5 @@
 import cloud from '../../assets/cloud.svg';
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import Header from '../../components/Header';
 import ApiService from '../../services/ApiService';
 import onboardTutorStore from '../../state/onboardTutorStore';
@@ -701,7 +702,7 @@ const PreviewSegment = ({
 
 const PreviewProfile = () => {
   const [showModal, setShowModal] = useState(false);
-  const toast = useToast();
+  const toast = useCustomToast();
   const navigator = useNavigate();
   const [isLoading, setLoading] = useState(false);
   const { fetchUser, user } = userStore();
@@ -833,9 +834,8 @@ const PreviewProfile = () => {
           course: courseList.find(
             (course) => course.label === courseLevel.course.label
           )?._id,
-          level: courseList.find(
-            (course) => course.label === courseLevel.course.label
-          )?._id
+          level: levels.find((level) => level.label === courseLevel.level.label)
+            ?._id
         })
       );
 
@@ -856,7 +856,7 @@ const PreviewProfile = () => {
           status: 'success',
           isClosable: true
         });
-        navigator('/dashboard');
+        navigator('/activation_pending');
       }
     } catch (error) {
       toast({
@@ -948,7 +948,7 @@ const PreviewProfile = () => {
             <ProfileDiv
               isLoading={isLoading}
               onComplete={() => completeProfile()}
-              name={`${user?.name.last} ${user?.name.last}`}
+              name={`${user?.name.first} ${user?.name.last}`}
               onEdit={(editName) => setCurrentlyEditing(editName)}
             />
             <VideoViewingSection

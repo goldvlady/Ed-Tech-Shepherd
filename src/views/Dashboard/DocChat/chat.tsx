@@ -1,6 +1,7 @@
 /* eslint-disable no-loop-func,@typescript-eslint/no-non-null-assertion,no-unsafe-optional-chaining,react-hooks/exhaustive-deps */
 import PultoJPG from '../../../assets/PlutoAi.jpg';
 import { ReactComponent as HightLightIcon } from '../../../assets/highlightIcn.svg';
+import { ReactComponent as PinLogo } from '../../../assets/pin.svg';
 import SocratesImg from '../../../assets/socrates-image.png';
 import { ReactComponent as SummaryIcon } from '../../../assets/summaryIcn.svg';
 // import { ReactComponent as TellMeMoreIcn } from '../../../assets/tellMeMoreIcn.svg';
@@ -83,6 +84,8 @@ interface IChat {
   directStudentId?: string;
   title?: string;
   visibleButton?: boolean;
+  fetchDescription?: any;
+  freshConversationId?: any;
 }
 const Chat = ({
   HomeWorkHelp,
@@ -113,7 +116,9 @@ const Chat = ({
   isUpdatedSummary,
   title,
   directStudentId,
-  visibleButton
+  visibleButton,
+  fetchDescription,
+  freshConversationId
 }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
@@ -123,6 +128,8 @@ const Chat = ({
   const textAreaRef = useRef<any>();
   const textAreaRef2 = useRef<any>();
   const ref = useChatScroll(messages);
+  const [hoveredIndex, setHoveredIndex] = useState(0);
+  const [hoveredUserIndex, setHoveredUserIndex] = useState(0);
 
   const prompts = [
     "Explain this document to me like I'm five",
@@ -219,7 +226,10 @@ const Chat = ({
     {
       id: 1,
       title: "I don't understand",
-      onClick: () => onCountTutor("I don't understand"),
+      onClick: () => {
+        onCountTutor("I don't understand");
+        fetchDescription(freshConversationId);
+      },
       show: true
     },
     {
@@ -408,21 +418,54 @@ const Chat = ({
                     ref={ref}
                     messages={messages && messages.length >= 1}
                   >
-                    {messages?.map((message, index) =>
-                      message.isUser ? (
-                        <UserMessage key={index}>{message.text}</UserMessage>
-                      ) : (
-                        <>
-                          {message.isLoading ? (
-                            <ChatLoader />
-                          ) : (
-                            <AiMessage key={index + 1}>
-                              <CustomMarkdownView source={message.text} />
-                            </AiMessage>
-                          )}
-                        </>
-                      )
-                    )}
+                    <>
+                      {messages?.map((message, index) => {
+                        const isHovered = index === hoveredIndex;
+                        const isUserHovered = index === hoveredUserIndex;
+                        return message.isUser ? (
+                          <UserMessage
+                            key={index}
+                            // style={{ position: 'relative' }}
+                            // onMouseEnter={() => setHoveredUserIndex(index)}
+                            // onMouseLeave={() => setHoveredUserIndex(0)}
+                          >
+                            {/* <PinLogo
+                              style={{
+                                display: isUserHovered ? 'block' : 'none',
+                                cursor: 'pointer',
+                                marginLeft: 'auto'
+                              }}
+                            /> */}
+                            {message.text}
+                          </UserMessage>
+                        ) : (
+                          <div
+                            key={index}
+                            onMouseEnter={() => setHoveredIndex(index)}
+                            onMouseLeave={() => setHoveredIndex(0)}
+                          >
+                            {message.isLoading ? (
+                              <ChatLoader />
+                            ) : (
+                              <div style={{ maxWidth: '439px' }}>
+                                <AiMessage style={{ position: 'relative' }}>
+                                  {/* <PinLogo
+                                    style={{
+                                      display: isHovered ? 'block' : 'none',
+                                      cursor: 'pointer',
+                                      bottom: '-10px',
+                                      left: '15px',
+                                      position: 'relative'
+                                    }}
+                                  /> */}
+                                  <CustomMarkdownView source={message.text} />
+                                </AiMessage>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </>
                     {llmResponse && (
                       <AiMessage key="hey">
                         <CustomMarkdownView source={llmResponse} />

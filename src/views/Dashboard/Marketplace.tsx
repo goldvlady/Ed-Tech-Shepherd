@@ -3,6 +3,7 @@ import Sally from '../../assets/saly.svg';
 import CustomButton2 from '../../components/CustomComponents/CustomButton/index';
 import CustomModal from '../../components/CustomComponents/CustomModal';
 import CustomToast from '../../components/CustomComponents/CustomToast';
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import PaymentDialog, {
   PaymentDialogRef
 } from '../../components/PaymentDialog';
@@ -148,7 +149,7 @@ export default function Marketplace() {
   };
 
   const [tutorGrid] = useAutoAnimate();
-  const toast = useToast();
+  const toast = useCustomToast();
   const navigate = useNavigate();
   const getData = async () => {
     setLoadingData(true);
@@ -587,7 +588,16 @@ export default function Marketplace() {
               />
             </>
           ) : (
-            !loadingData && 'no tutors found'
+            !loadingData && (
+              <>
+                <section className="flex justify-center items-center mt-28 w-full">
+                  <div className="text-center">
+                    <Image src="/images/notes.png" alt="empty" m="auto" />
+                    <Text textAlign={'center'}>No Tutors Found!</Text>
+                  </div>
+                </section>
+              </>
+            )
           )}
         </Box>
       </Box>

@@ -2,6 +2,7 @@
 import Sally from '../../../assets/saly.svg';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast/index';
+import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import PaymentDialog, {
   PaymentDialogRef
 } from '../../../components/PaymentDialog';
@@ -56,7 +57,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 const HomeWorkHelp = () => {
   const [isOpenModal, setOpenModal] = useState(false);
   const [inputValue, setInputValue] = useState('');
-  const toast = useToast();
+  const toast = useCustomToast();
   const location = useLocation();
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const [openAceHomework, setAceHomeWork] = useState(false);
@@ -95,7 +96,6 @@ const HomeWorkHelp = () => {
     level: bountyOption?.level
   });
   const [description, setDescription] = useState('');
-
   const paymentDialogRef = useRef<PaymentDialogRef>(null);
   const [loading, setLoading] = useState(false);
   const isFirstRender = useRef(true);
@@ -108,7 +108,8 @@ const HomeWorkHelp = () => {
   const storedGroupChatsArr = JSON.parse(
     localStorage.getItem('groupChatsByDateArr') as any
   );
-
+  const [freshConversationId, setFreshConversationId] = useState('');
+  const [newConversationId, setNewConversationId] = useState('');
   useEffect(() => {
     if (certainConversationId) {
       const authSocket = socketWithAuth({
@@ -117,11 +118,12 @@ const HomeWorkHelp = () => {
         subject: localData.subject,
         level: level.label,
         namespace: 'homework-help',
-        conversationId: certainConversationId ?? storedConvoId
+        conversationId:
+          certainConversationId ?? storedConvoId ?? freshConversationId
       }).connect();
       setSocket(authSocket);
     }
-  }, [certainConversationId]);
+  }, [certainConversationId, freshConversationId]);
 
   useEffect(() => {
     if (isSubmitted) {
@@ -182,6 +184,24 @@ const HomeWorkHelp = () => {
     }
   }, [socket]);
 
+  useEffect(() => {
+    // Return early if there's no socket or if isSubmitted is false.
+    const handleNewConversation = (conversationId: string) => {
+      setFreshConversationId(conversationId);
+    };
+
+    // Attach the listener since isSubmitted is true.
+    if (socket) {
+      socket.on('current_conversation', handleNewConversation);
+    }
+
+    // Cleanup: remove the listener when isSubmitted becomes false,
+    // when the socket changes, or when the component unmounts.
+    return () => {
+      socket && socket.off('current_conversation', handleNewConversation);
+    };
+  }, [socket]);
+
   useLayoutEffect(() => {
     const fetchChatHistory = async () => {
       try {
@@ -197,12 +217,8 @@ const HomeWorkHelp = () => {
         setMessages((prevMessages) => [...prevMessages, ...mappedData]);
       } catch (error) {
         toast({
-          render: () => (
-            <CustomToast
-              title="Failed to fetch chat history..."
-              status="error"
-            />
-          ),
+          title: 'Failed to fetch chat history...',
+          status: 'error',
           position: 'top-right',
           isClosable: true
         });
@@ -301,27 +317,29 @@ const HomeWorkHelp = () => {
     const fetchConversationId = async () => {
       setLoading(true);
       const response = await getConversionById({
-        conversationId: recentConversationId ?? conversationId
+        conversationId:
+          recentConversationId ?? conversationId ?? freshConversationId
       });
 
       if (response) {
         setVisibleButton(false);
       }
       const previousConvoData = response
-        ?.map((conversation) => ({
-          text: conversation?.log?.content,
-          isUser: conversation?.log?.role === 'user',
-          isLoading: false
-        }))
-        ?.filter((convo) => convo.text !== SHALL_WE_BEGIN)
-        ?.sort((a, b) => {
-          const dateA = new Date(a.createdAt);
-          const dateB = new Date(b.createdAt);
-          // If dates are the same
-          if (dateA.getTime() === dateB.getTime()) {
-            return a.id - b.id;
-          }
-          return dateA.getTime() - dateB.getTime();
+        ?.map((conversation) => {
+          // Make sure there's a createdAt attribute
+          const createdAt = conversation?.createdAt || new Date(0); // Default date in case createdAt is not present
+
+          return {
+            text: conversation?.log?.content,
+            isUser: conversation?.log?.role === 'user',
+            isLoading: false,
+            createdAt: new Date(createdAt), // Convert createdAt to a Date object
+            id: conversation?.id // Assuming each conversation has a unique id
+          };
+        })
+        .filter((convo) => convo.text !== SHALL_WE_BEGIN)
+        .sort((a, b) => {
+          return a.createdAt.getTime() - b.createdAt.getTime();
         });
 
       const countOfIDontUnderstand = previousConvoData.filter(
@@ -343,16 +361,27 @@ const HomeWorkHelp = () => {
     }
   }, [conversationId, socket, recentConversationId]);
 
+  const fetchDescription = async (id: string) => {
+    const response = await getDescriptionById({ conversationId: id });
+    if (response?.data) {
+      setDescription(response.data);
+    }
+  };
+
   useEffect(() => {
-    const fectchDescriptionById = async () => {
-      const response = await getDescriptionById({
-        conversationId: recentConversationId ?? conversationId
-      });
-      setDescription(response?.data);
+    const fetchDescription = async (id: string) => {
+      const response = await getDescriptionById({ conversationId: id });
+      if (response?.data) {
+        setDescription(response.data);
+      }
     };
 
-    fectchDescriptionById();
-  }, [conversationId, recentConversationId]);
+    const effectiveConversationId = conversationId ?? freshConversationId;
+
+    if (effectiveConversationId) {
+      fetchDescription(effectiveConversationId);
+    }
+  }, [conversationId, freshConversationId]);
 
   const onRouteHomeWorkHelp = useCallback(() => {
     handleClose();
@@ -455,6 +484,7 @@ const HomeWorkHelp = () => {
       setConversationId('');
       setVisibleButton(false);
       setCountNeedTutor(1);
+      localStorage.removeItem('conversationId');
     }
   }, [isSubmitted]);
 
@@ -485,12 +515,8 @@ const HomeWorkHelp = () => {
         setOnlineTutorsId(response?.data);
       } catch (error: any) {
         toast({
-          render: () => (
-            <CustomToast
-              title="Failed to fetch chat history..."
-              status="error"
-            />
-          ),
+          title: 'Failed to fetch chat history...',
+          status: 'error',
           position: 'top-right',
           isClosable: true
         });
@@ -529,6 +555,10 @@ const HomeWorkHelp = () => {
           setCertainConversationId={setCertainConversationId}
           messages={messages}
           setSomeBountyOpt={setSomeBountyOpt}
+          setNewConversationId={setNewConversationId}
+          isBountyModalOpen={isBountyModalOpen}
+          setLocalData={setLocalData}
+          setFreshConversationId={setFreshConversationId}
         />
       </HomeWorkHelpHistoryContainer>
       <HomeWorkHelpChatContainer>
@@ -550,6 +580,8 @@ const HomeWorkHelp = () => {
           onCountTutor={onCountTutor}
           handleAceHomeWorkHelp={handleAceHomeWorkHelp}
           visibleButton={visibleButton}
+          fetchDescription={fetchDescription}
+          freshConversationId={freshConversationId}
         />
       </HomeWorkHelpChatContainer>
 

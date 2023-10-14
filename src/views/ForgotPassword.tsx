@@ -1,3 +1,4 @@
+import { useCustomToast } from '../components/CustomComponents/CustomToast/useCustomToast';
 import { firebaseAuth, sendPasswordResetEmail } from '../firebase';
 import { useTitle } from '../hooks';
 import {
@@ -28,7 +29,7 @@ const ForgotPasswordSchema = Yup.object().shape({
 
 const ForgotPassword: React.FC = () => {
   useTitle('Forgot password');
-  const toast = useToast();
+  const toast = useCustomToast();
   const [email, setEmail] = useState('');
   const [emailSent, setEmailSent] = useState(false);
   return (

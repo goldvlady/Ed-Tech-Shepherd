@@ -14,13 +14,13 @@ export const HomeWorkHelpHistoryContainer = styled.section`
   // padding-right: 10px;
   // background: #fff;
   // overflow-y: scroll;
-  max-width: 25%;
+  width: 100%;
   height: 100vh;
   background: rgb(255, 255, 255);
   overflow-y: scroll;
   mzrgin: 0 auto;
   margin: 0px 10px;
-  position: absolute;
+  // position: absolute;
   left: 15px;
 
   /* Hide scrollbar for Chrome, Safari and Opera */
@@ -35,8 +35,8 @@ export const HomeWorkHelpHistoryContainer = styled.section`
 
 export const HomeWorkHelpChatContainer = styled.section`
   flex-grow: 1;
-  width: 65%;
-  position: fixed;
+  width: 280%;
+  // position: fixed;
 `;
 
 export const TutorsBackIcn = styled.div`

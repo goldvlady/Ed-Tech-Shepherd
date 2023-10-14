@@ -5,16 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
+import { addClassNamesToElement } from '@lexical/utils';
 import type {
   DOMConversionMap,
   EditorConfig,
   LexicalNode,
-  SerializedElementNode,
+  SerializedElementNode
 } from 'lexical';
-
-import {addClassNamesToElement} from '@lexical/utils';
-import {ElementNode} from 'lexical';
+import { ElementNode } from 'lexical';
 
 export type SerializedLayoutItemNode = SerializedElementNode;
 
@@ -55,7 +53,7 @@ export class LayoutItemNode extends ElementNode {
     return {
       ...super.exportJSON(),
       type: 'layout-item',
-      version: 1,
+      version: 1
     };
   }
 }
@@ -65,7 +63,7 @@ export function $createLayoutItemNode(): LayoutItemNode {
 }
 
 export function $isLayoutItemNode(
-  node: LexicalNode | null | undefined,
+  node: LexicalNode | null | undefined
 ): node is LayoutItemNode {
   return node instanceof LayoutItemNode;
 }

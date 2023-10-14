@@ -1,9 +1,6 @@
 import Check from '../../../assets/check.svg';
 import Day from '../../../assets/day.svg';
-import {
-  calculateTimeDifference,
-  convertTimeStringToISOString
-} from '../../../util';
+import { convertTimeToTimeZone, convertTimeToDateTime } from '../../../util';
 import {
   Box,
   Flex,
@@ -35,18 +32,18 @@ function AvailabilityTable(props) {
   const timeSlotsInUserTimezone = fixedTimeSlots.map((timeSlot) => {
     const [startTime, endTime] = timeSlot.split(' -> ');
 
-    const startTimeInUserTimezone = calculateTimeDifference(
-      convertTimeStringToISOString(startTime),
+    const startTimeInUserTimezone = convertTimeToTimeZone(
+      convertTimeToDateTime(startTime),
       data.tz
     );
 
-    const endTimeInUserTimezone = calculateTimeDifference(
-      convertTimeStringToISOString(endTime),
+    const endTimeInUserTimezone = convertTimeToTimeZone(
+      convertTimeToDateTime(endTime),
       data.tz
     );
 
     let timeSlotInUserTimezone = `${startTimeInUserTimezone} -> ${endTimeInUserTimezone}`;
-    console.log('tz', timeSlotInUserTimezone);
+    console.log('tz', timeSlotInUserTimezone, data.tz);
 
     timeSlotInUserTimezone = timeSlotInUserTimezone.replace(/:\d+\s/g, '');
 
@@ -83,15 +80,15 @@ function AvailabilityTable(props) {
                     <Td
                       key={dayIndex}
                       className={
-                        data.schedule[dayIndex.toString()] &&
-                        data.schedule[dayIndex.toString()].some(
+                        data.schedule[(dayIndex + 1).toString()] &&
+                        data.schedule[(dayIndex + 1).toString()].some(
                           (slot) =>
-                            calculateTimeDifference(
-                              convertTimeStringToISOString(slot.begin),
+                            convertTimeToTimeZone(
+                              convertTimeToDateTime(slot.begin),
                               data.tz
                             ) === timeSlot.split(' ')[0] &&
-                            calculateTimeDifference(
-                              convertTimeStringToISOString(slot.end),
+                            convertTimeToTimeZone(
+                              convertTimeToDateTime(slot.end),
                               data.tz
                             ) === timeSlot.split(' ')[2]
                         )
@@ -99,15 +96,15 @@ function AvailabilityTable(props) {
                           : 'stripeBox'
                       }
                     >
-                      {data.schedule[dayIndex.toString()] &&
-                      data.schedule[dayIndex.toString()].some(
+                      {data.schedule[(dayIndex + 1).toString()] &&
+                      data.schedule[(dayIndex + 1).toString()].some(
                         (slot) =>
-                          calculateTimeDifference(
-                            convertTimeStringToISOString(slot.begin),
+                          convertTimeToTimeZone(
+                            convertTimeToDateTime(slot.begin),
                             data.tz
                           ) === timeSlot.split(' ')[0] &&
-                          calculateTimeDifference(
-                            convertTimeStringToISOString(slot.end),
+                          convertTimeToTimeZone(
+                            convertTimeToDateTime(slot.end),
                             data.tz
                           ) === timeSlot.split(' ')[2]
                       ) ? (

@@ -18,6 +18,7 @@ type Store = {
   fetchNotifications: () => Promise<void>;
   fetchUserDocuments: (userId: string) => Promise<void>;
   userDocuments: Array<List> | [];
+  setUserData: (data: Partial<User>) => void;
 };
 
 export default create<Store>((set) => ({
@@ -29,6 +30,15 @@ export default create<Store>((set) => ({
     if (response.status !== 200) return false;
     set({ user: await response.json() });
     return true;
+  },
+  setUserData: (data: Partial<User>) => {
+    set((state) => {
+      if (state.user) {
+        return { user: { ...state.user, ...data } };
+      } else {
+        return state;
+      }
+    });
   },
   fetchNotifications: async () => {
     const response = await ApiService.getUserNotifications();

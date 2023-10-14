@@ -1,8 +1,21 @@
 // CircularProgress for loader.
+import CustomModal from '../../components/CustomComponents/CustomModal';
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import Header from '../../components/Header';
 import ApiService from '../../services/ApiService';
+import userStore from '../../state/userStore';
 // For making API calls.
-import { Box, CircularProgress, Text, Button } from '@chakra-ui/react';
+import {
+  Box,
+  CircularProgress,
+  Text,
+  Button,
+  useDisclosure,
+  FormControl,
+  FormLabel,
+  Input,
+  Link
+} from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
@@ -18,19 +31,41 @@ const Root = styled(Box)`
 
 const VerificationSuccess = () => {
   const navigate = useNavigate();
+  const toast = useCustomToast();
+  const { setUserData, user } = userStore();
   const location = useLocation();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [verified, setVerified] = useState(false);
+  const [email, setEmail] = useState('');
+  const navigateToDashboard = () =>
+    navigate(
+      user?.signedUpAsTutor ? '/dashboard/tutordashboard/' : '/dashboard'
+    );
+
+  const {
+    isOpen: isEmailModalOpen,
+    onOpen: openEmailModal,
+    onClose: closeEmailModal
+  } = useDisclosure();
 
   async function verifyToken(token: string) {
     try {
       setLoading(true);
       const response = await ApiService.verifyToken(token);
       if (response.status === 200) {
-        // Do something with the response data.
-
-        setVerified(true); // Modify this according to your API response.
+        setUserData({ isVerified: true });
+        setVerified(true);
+        if (user) {
+          toast({
+            title: 'Email verification was successful',
+            status: 'success',
+            position: 'top-right'
+          });
+          if (user.isVerified) {
+            navigateToDashboard();
+          }
+        }
       } else {
         const data = await response.json();
         setError(data.message);
@@ -43,11 +78,44 @@ const VerificationSuccess = () => {
     }
   }
 
+  const handleResendLink = async (email) => {
+    try {
+      const response = await ApiService.resendUserEmail(email);
+      if (response.status === 200) {
+        toast({
+          title: 'Email has been resent',
+          position: 'top-right',
+          status: 'success',
+          isClosable: true
+        });
+        closeEmailModal();
+      } else {
+        toast({
+          title: 'Something went wrong',
+          position: 'top-right',
+          status: 'error',
+          isClosable: true
+        });
+      }
+    } catch (e) {
+      console.log(e);
+      toast({
+        title: 'Something went wrong',
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
+      });
+    }
+  };
+
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const token = searchParams.get('token');
     if (token) {
       verifyToken(token);
+    }
+    if (!token && user?.isVerified) {
+      navigateToDashboard();
     }
   }, [location.search]);
 
@@ -117,19 +185,19 @@ const VerificationSuccess = () => {
               lineHeight="1.5"
             >
               {verified
-                ? 'You can now sign up and use the full functionality of Shepherd'
+                ? 'You can now finish setting up your profile and use the full functionality of Shepherd'
                 : 'Invalid or expired token'}
-              {/* We’ve sent an email to the address: We will send you an email to
-              the address:{'   '}
-              <Text as="span" color="blue.500">
-                {firebaseUser?.email}
-              </Text>{' '}
-              , Check your mail click on the link provided to finish setting up.{' '} */}
             </Text>
 
-            {verified && (
+            {verified ? (
               <Button
-                onClick={() => navigate('/login')}
+                onClick={() =>
+                  navigate(
+                    user?.type?.includes('tutor')
+                      ? '/complete_profile'
+                      : '/dashboard'
+                  )
+                }
                 display="flex"
                 flexDirection="row"
                 justifyContent="center"
@@ -141,12 +209,68 @@ const VerificationSuccess = () => {
                 background="#207DF7"
                 borderRadius="8px"
               >
-                Sign In
+                {user?.type?.includes('tutor')
+                  ? 'Complete Profile'
+                  : 'Go To Your Dashboard'}
               </Button>
+            ) : (
+              <Link
+                // target="_blank"
+                // rel="noopener noreferrer"
+                // href="mailto:help@shepherd.study"
+                display="flex"
+                flexDirection="row"
+                color="white"
+                justifyContent="center"
+                alignItems="center"
+                padding="14px 100px"
+                marginTop="30px"
+                height="48px"
+                background="#207DF7"
+                borderRadius="8px"
+                onClick={openEmailModal}
+              >
+                Resend Verification Link
+              </Link>
             )}
           </Box>
         )}
       </Root>
+      <CustomModal
+        isOpen={isEmailModalOpen}
+        modalTitle="Enter Email"
+        isModalCloseButton
+        style={{
+          maxWidth: '400px',
+          height: 'fit-content'
+        }}
+        footerContent={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button isDisabled={!email} onClick={() => handleResendLink(email)}>
+              Send
+            </Button>
+          </div>
+        }
+        onClose={closeEmailModal}
+      >
+        {' '}
+        <FormControl p={3} alignItems="center">
+          <FormLabel fontSize="14px" fontWeight="medium" htmlFor="description">
+            Email
+          </FormLabel>
+          <Input
+            fontSize="0.875rem"
+            fontFamily="Inter"
+            fontWeight="400"
+            type="text"
+            name="topic"
+            color=" #212224"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
+          />
+        </FormControl>
+      </CustomModal>
     </>
   );
 };

@@ -17,20 +17,18 @@ import React, { useState, useMemo } from 'react';
 const HourlyRateForm: React.FC = () => {
   const { rate: hourlyRate } = onboardTutorStore.useStore();
   const { rate } = resourceStore();
+  console.log(rate, hourlyRate);
 
   const tutorEarnings = useMemo(() => {
     const baseEarning = 0;
     if (!hourlyRate) return baseEarning.toFixed(2);
     const rateNumber = hourlyRate;
-    const earnings = rateNumber * (1 - rate);
+    const earnings = rateNumber - rate * 0.01 * rateNumber;
 
     return earnings.toFixed(2);
   }, [hourlyRate, rate]);
 
-  const cost = useMemo(
-    () => parseInt(tutorEarnings) * rate,
-    [tutorEarnings, rate]
-  );
+  const cost = useMemo(() => rate * 0.01 * hourlyRate, [hourlyRate, rate]);
 
   const handleHourlyRateChange = (
     event: React.ChangeEvent<HTMLInputElement>

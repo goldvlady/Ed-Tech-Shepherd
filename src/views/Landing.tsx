@@ -149,16 +149,11 @@ const Landing = () => {
             <Link
               as="button" //remove when live
               className="header-link"
-              // onClick={() => navigate(`/login`)}
-              onClick={() => openModal('Coming Soon')}
+              onClick={() => navigate(`/login`)}
             >
               Sign in
             </Link>
-            <Button
-              className="header-btn"
-              // onClick={() => navigate(`/onboard`)}
-              onClick={() => openModal('Coming Soon')}
-            >
+            <Button className="header-btn" onClick={() => navigate(`/signup`)}>
               Get Started
             </Button>
           </div>
@@ -319,8 +314,7 @@ const Landing = () => {
                   <Button
                     marginTop="30px !important"
                     className="landing-btn"
-                    // onClick={() => navigate(`/onboard/student`)}
-                    onClick={() => openModal('Coming Soon')}
+                    onClick={() => navigate(`/onboard/student`)}
                   >
                     Find a Tutor
                   </Button>
@@ -422,8 +416,7 @@ const Landing = () => {
                   fontWeight: '500',
                   color: '#207df7'
                 }}
-                // onClick={() => navigate(`/onboard/tutor`)}
-                onClick={() => openModal('Coming Soon')}
+                onClick={() => navigate(`/onboard/tutor`)}
               >
                 Become a tutor{' '}
                 <img className="landing-card-arrow" src={Arrow} />
@@ -491,7 +484,7 @@ const Landing = () => {
           <Button
             className="landing-title-btn"
             // onClick={() => navigate(`/signup`)}
-            onClick={() => openModal('Coming Soon')}
+            onClick={() => navigate('/signup')}
           >
             Meet Shepherd
           </Button>
@@ -653,7 +646,7 @@ const Landing = () => {
             <Button
               className="landing-banner-btn"
               // onClick={() => navigate(`/onboard`)}
-              onClick={() => openModal('Coming Soon')}
+              onClick={() => navigate('/signup')}
             >
               Get Started for Free
             </Button>
@@ -679,14 +672,14 @@ const Landing = () => {
                   as="button"
                   className="landing-link"
                   // onClick={() => navigate(`/onboard`)}
-                  onClick={() => openModal('Coming Soon')}
+                  onClick={() => navigate('/signup')}
                 >
                   Shepherd
                 </Link>
                 <Link
                   as="button"
                   className="landing-link"
-                  onClick={() => openModal('Tutor Application Coming Soon')}
+                  onClick={() => navigate('/signup')}
                 >
                   Become a Tutor
                 </Link>

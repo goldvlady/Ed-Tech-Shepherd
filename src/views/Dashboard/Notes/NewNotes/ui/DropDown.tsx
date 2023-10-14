@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
 import * as React from 'react';
 import {
   ReactNode,
@@ -13,9 +12,9 @@ import {
   useEffect,
   useMemo,
   useRef,
-  useState,
+  useState
 } from 'react';
-import {createPortal} from 'react-dom';
+import { createPortal } from 'react-dom';
 
 type DropDownContextType = {
   registerItem: (ref: React.RefObject<HTMLButtonElement>) => void;
@@ -29,7 +28,7 @@ export function DropDownItem({
   children,
   className,
   onClick,
-  title,
+  title
 }: {
   children: React.ReactNode;
   className: string;
@@ -44,7 +43,7 @@ export function DropDownItem({
     throw new Error('DropDownItem must be used within a DropDown');
   }
 
-  const {registerItem} = dropDownContext;
+  const { registerItem } = dropDownContext;
 
   useEffect(() => {
     if (ref && ref.current) {
@@ -58,7 +57,8 @@ export function DropDownItem({
       onClick={onClick}
       ref={ref}
       title={title}
-      type="button">
+      type="button"
+    >
       {children}
     </button>
   );
@@ -67,7 +67,7 @@ export function DropDownItem({
 function DropDownItems({
   children,
   dropDownRef,
-  onClose,
+  onClose
 }: {
   children: React.ReactNode;
   dropDownRef: React.Ref<HTMLDivElement>;
@@ -81,7 +81,7 @@ function DropDownItems({
     (itemRef: React.RefObject<HTMLButtonElement>) => {
       setItems((prev) => (prev ? [...prev, itemRef] : [itemRef]));
     },
-    [setItems],
+    [setItems]
   );
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -111,9 +111,9 @@ function DropDownItems({
 
   const contextValue = useMemo(
     () => ({
-      registerItem,
+      registerItem
     }),
-    [registerItem],
+    [registerItem]
   );
 
   useEffect(() => {
@@ -142,7 +142,7 @@ export default function DropDown({
   buttonClassName,
   buttonIconClassName,
   children,
-  stopCloseOnClickSelf,
+  stopCloseOnClickSelf
 }: {
   disabled?: boolean;
   buttonAriaLabel?: string;
@@ -168,11 +168,11 @@ export default function DropDown({
     const dropDown = dropDownRef.current;
 
     if (showDropDown && button !== null && dropDown !== null) {
-      const {top, left} = button.getBoundingClientRect();
+      const { top, left } = button.getBoundingClientRect();
       dropDown.style.top = `${top + button.offsetHeight + dropDownPadding}px`;
       dropDown.style.left = `${Math.min(
         left,
-        window.innerWidth - dropDown.offsetWidth - 20,
+        window.innerWidth - dropDown.offsetWidth - 20
       )}px`;
     }
   }, [dropDownRef, buttonRef, showDropDown]);
@@ -208,7 +208,7 @@ export default function DropDown({
         const button = buttonRef.current;
         const dropDown = dropDownRef.current;
         if (button !== null && dropDown !== null) {
-          const {top} = button.getBoundingClientRect();
+          const { top } = button.getBoundingClientRect();
           const newPosition = top + button.offsetHeight + dropDownPadding;
           if (newPosition !== dropDown.getBoundingClientRect().top) {
             dropDown.style.top = `${newPosition}px`;
@@ -232,7 +232,8 @@ export default function DropDown({
         aria-label={buttonAriaLabel || buttonLabel}
         className={buttonClassName}
         onClick={() => setShowDropDown(!showDropDown)}
-        ref={buttonRef}>
+        ref={buttonRef}
+      >
         {buttonIconClassName && <span className={buttonIconClassName} />}
         {buttonLabel && (
           <span className="text dropdown-button-text">{buttonLabel}</span>
@@ -245,7 +246,7 @@ export default function DropDown({
           <DropDownItems dropDownRef={dropDownRef} onClose={handleClose}>
             {children}
           </DropDownItems>,
-          document.body,
+          document.body
         )}
     </>
   );

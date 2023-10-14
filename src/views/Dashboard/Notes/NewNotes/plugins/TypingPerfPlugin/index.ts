@@ -5,10 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import {useEffect} from 'react';
-
 import useReport from '../../hooks/useReport';
+import { useEffect } from 'react';
 
 const validInputTypes = new Set([
   'insertText',
@@ -26,7 +24,7 @@ const validInputTypes = new Set([
   'deleteHardLineBackward',
   'deleteSoftLineBackward',
   'deleteHardLineForward',
-  'deleteSoftLineForward',
+  'deleteSoftLineForward'
 ]);
 
 export default function TypingPerfPlugin(): JSX.Element | null {

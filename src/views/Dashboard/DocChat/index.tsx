@@ -52,6 +52,8 @@ export default function DocChat() {
     initialContent: initialContent ? JSON.parse(initialContent) : undefined,
     editable: false
   });
+  const [summaryStart, setSummaryStart] = useState(false);
+  const [summaryError, setSummaryError] = useState(false);
 
   useEffect(() => {
     if (documentId && studentId) {
@@ -108,14 +110,19 @@ export default function DocChat() {
   }, [socket]);
 
   useEffect(() => {
-    if (socket) {
-      socket.on('summary start', async (token) => {
-        setSummaryText((summary) => summary + token);
-      });
+    if (!summaryStart || !socket) return;
 
-      return () => socket.off('summary start');
-    }
-  }, [socket]);
+    const handleSummaryStart = (token) => {
+      if (token) {
+        setSummaryText((prevSummary) => prevSummary + token);
+      }
+    };
+
+    socket.on('summary start', handleSummaryStart);
+
+    // Cleanup listener when the component is unmounted or when dependencies change
+    return () => socket.off('summary start', handleSummaryStart);
+  }, [summaryStart, socket]);
 
   useEffect(() => {
     if (socket) {
@@ -134,6 +141,31 @@ export default function DocChat() {
       socket.emit('generate summary');
     }
   }, [readyToChat, socket, messages?.length, chatHistoryLoaded]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('summary_generation_error', async (data) => {
+        setSummaryError(true);
+        showToast(data.title, data.status);
+      });
+
+      return () => socket.off('summary_generation_error');
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    if (summaryError) {
+      socket.emit('summary_generation_error', {
+        title:
+          'Unable to process your request at this time. Please try again later.',
+        status: 'error'
+      });
+    }
+  }, [summaryError]);
+
+  function showToast(title: string, status: string) {
+    <CustomToast title={title} status={status} />;
+  }
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -201,25 +233,10 @@ export default function DocChat() {
   const handleSummary = useCallback(
     async (event: React.SyntheticEvent<HTMLButtonElement>) => {
       event.preventDefault();
-      try {
-        if (socket) {
-          setSummaryLoading(true);
-          socket.emit('generate summary');
-        }
-      } catch (error) {
-        toast({
-          render: () => (
-            <CustomToast
-              title="Unable to process your request at this time. Please try again later."
-              status="error"
-            />
-          ),
-          position: 'top-right',
-          isClosable: true
-        });
-      }
+      setSummaryStart(true);
+      socket.emit('generate summary');
     },
-    [socket, toast]
+    [socket]
   );
 
   const handleDeleteSummary = useCallback(async () => {
@@ -232,6 +249,7 @@ export default function DocChat() {
         const fetchSummary = async () => {
           const { summary } = await generateSummary({ documentId, studentId });
           setSummaryText(summary);
+          setSummaryStart(false);
         };
         fetchSummary();
       }
@@ -260,6 +278,7 @@ export default function DocChat() {
       if ([200, 201].includes(request.status)) {
         setLoading(true);
         setUpdatedSummary(true);
+        setSummaryStart(false);
         toast({
           title: `Summary for ${documentId} has been updated successfully`,
           position: 'top-right',
@@ -337,6 +356,14 @@ export default function DocChat() {
       // navigate('/dashboard/notes')
     }
   }, [navigate, location.state?.documentUrl, location.state?.docTitle]);
+
+  useEffect(() => {
+    if (summaryStart) {
+      setSummaryLoading(true);
+    } else {
+      setSummaryLoading(false);
+    }
+  }, [summaryStart]);
 
   return (
     <section className="fixed max-w-screen-xl mx-auto divide-y">

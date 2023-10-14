@@ -1,4 +1,5 @@
 import GoogleIcon from '../assets/google.svg';
+import { useCustomToast } from '../components/CustomComponents/CustomToast/useCustomToast';
 import SecureInput from '../components/SecureInput';
 import {
   firebaseAuth,
@@ -6,6 +7,7 @@ import {
   googleProvider
 } from '../firebase';
 import { useTitle } from '../hooks';
+import userStore from '../state/userStore';
 import {
   Box,
   Button,
@@ -18,7 +20,12 @@ import {
   Text,
   useToast
 } from '@chakra-ui/react';
-import { signInWithPopup } from 'firebase/auth';
+import {
+  signInWithPopup,
+  fetchSignInMethodsForEmail,
+  signOut,
+  getAuth
+} from 'firebase/auth';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Field, Form, Formik } from 'formik';
 import React, { useEffect } from 'react';
@@ -37,26 +44,27 @@ const LoginSchema = Yup.object().shape({
 
 const Login: React.FC = () => {
   useTitle('Login');
-  const toast = useToast();
+  const toast = useCustomToast();
   const navigate = useNavigate();
+  const auth = getAuth();
+  const { user: appUser, fetchUser } = userStore();
+  // useEffect(() => {
+  //   onAuthStateChanged(firebaseAuth, (user: any) => {
+  //     if (user) {
+  //       sessionStorage.setItem('UserDetails', JSON.stringify(user));
+  //       const email = user.email;
+  //       const photoURL = user.photoURL;
+  //       const emailVerified = user.emailVerified;
+  //       const uid = user.uid;
+  //       sessionStorage.setItem('Username', user.displayName);
 
-  useEffect(() => {
-    onAuthStateChanged(firebaseAuth, (user: any) => {
-      if (user) {
-        sessionStorage.setItem('UserDetails', JSON.stringify(user));
-        const email = user.email;
-        const photoURL = user.photoURL;
-        const emailVerified = user.emailVerified;
-        const uid = user.uid;
-        sessionStorage.setItem('Username', user.displayName);
-
-        // ...
-      } else {
-        // User is signed out
-        // ...
-      }
-    });
-  }, []);
+  //       // ...
+  //     } else {
+  //       // User is signed out
+  //       // ...
+  //     }
+  //   });
+  // }, []);
 
   return (
     <Root>
@@ -79,7 +87,36 @@ const Login: React.FC = () => {
                 values.email,
                 values.password
               );
-              navigate('/dashboard');
+              onAuthStateChanged(firebaseAuth, async (user: any) => {
+                if (user && user.emailVerified) {
+                  sessionStorage.setItem('email', user.email);
+                  await fetchUser();
+                  sessionStorage.setItem('UserDetails', JSON.stringify(user));
+
+                  // const email = user.email;
+                  // const photoURL = user.photoURL;
+                  // const emailVerified = user.emailVerified;
+                  // const uid = user.uid;
+
+                  if (appUser) {
+                    navigate(
+                      appUser?.type.includes('tutor')
+                        ? appUser.signedUpAsTutor && !appUser.tutor
+                          ? '/complete_profile'
+                          : '/dashboard/tutordashboard'
+                        : '/dashboard'
+                    );
+                  }
+
+                  // ...
+                } else {
+                  signOut(auth).then(() => {
+                    localStorage.clear();
+                    navigate('/verification_pending');
+                  });
+                  // navigate('/dashboard');
+                }
+              });
             } catch (e: any) {
               let errorMessage = '';
               switch (e.code) {
@@ -104,7 +141,7 @@ const Login: React.FC = () => {
             setSubmitting(false);
           }}
         >
-          {({ errors, isSubmitting }) => (
+          {({ errors, isSubmitting, submitForm }) => (
             <Form>
               <Field name="email">
                 {({ field, form }: { field: any; form: any }) => (
@@ -169,7 +206,10 @@ const Login: React.FC = () => {
                   isLoading={isSubmitting}
                   width={'100%'}
                   size="lg"
-                  type="submit"
+                  onClick={() => {
+                    console.log('clicked');
+                    submitForm();
+                  }}
                 >
                   Login
                 </Button>
@@ -177,8 +217,50 @@ const Login: React.FC = () => {
                   variant="solid"
                   bg="#F2F2F3"
                   onClick={async () => {
-                    await signInWithPopup(firebaseAuth, googleProvider);
-                    navigate('/dashboard');
+                    try {
+                      const result = await signInWithPopup(
+                        firebaseAuth,
+                        googleProvider
+                      );
+                      await fetchUser();
+                      const userEmail = result?.user?.email;
+                      if (!userEmail) {
+                        toast({
+                          title: 'Invalid User',
+                          position: 'top-right',
+                          status: 'error',
+                          isClosable: true
+                        });
+                      }
+
+                      // Check if user exists
+                      const signInMethods = await fetchSignInMethodsForEmail(
+                        firebaseAuth,
+                        userEmail as string
+                      );
+
+                      // If there are no sign-in methods for this email, it means the user doesn't exist.
+                      if (signInMethods.length === 0) {
+                        toast({
+                          title: "User doesn't exist, not signing in.",
+                          position: 'top-right',
+                          status: 'error',
+                          isClosable: true
+                        });
+                        return;
+                      }
+                      if (appUser) {
+                        navigate(
+                          appUser?.type.includes('tutor')
+                            ? appUser.signedUpAsTutor && !appUser.tutor
+                              ? '/complete_profile'
+                              : '/dashboard/tutordashboard'
+                            : '/dashboard'
+                        );
+                      }
+                    } catch (error) {
+                      console.error('Error during sign-in:', error);
+                    }
                   }}
                   colorScheme={'primary'}
                   size={'lg'}

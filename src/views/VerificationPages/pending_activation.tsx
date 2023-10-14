@@ -1,5 +1,4 @@
 import CustomModal from '../../components/CustomComponents/CustomModal';
-import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import Header from '../../components/Header';
 import ApiService from '../../services/ApiService';
 import {
@@ -27,48 +26,10 @@ const Root = styled(Box)`
   width: 100%;
 `;
 
-const PendingVerification = () => {
+const PendingActivation = () => {
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
   const [obtainedUserAuthState, setObtainedUserAuthState] = useState(false);
   const [email, setEmail] = useState('');
-
-  const toast = useCustomToast();
-
-  const {
-    isOpen: isEmailModalOpen,
-    onOpen: openEmailModal,
-    onClose: closeEmailModal
-  } = useDisclosure();
-
-  const handleResendLink = async (email) => {
-    try {
-      const response = await ApiService.resendUserEmail(email);
-      if (response.status === 200) {
-        toast({
-          title: 'Email has been resent',
-          position: 'top-right',
-          status: 'success',
-          isClosable: true
-        });
-        closeEmailModal();
-      } else {
-        toast({
-          title: 'Something went wrong',
-          position: 'top-right',
-          status: 'error',
-          isClosable: true
-        });
-      }
-    } catch (e) {
-      console.log(e);
-      toast({
-        title: 'Something went wrong',
-        position: 'top-right',
-        status: 'error',
-        isClosable: true
-      });
-    }
-  };
 
   useEffect(() => {
     onAuthStateChanged(getAuth(), async (user) => {
@@ -126,7 +87,7 @@ const PendingVerification = () => {
             </svg>
           </Box>
           <Text fontSize="2xl" fontWeight="600" textAlign="center">
-            Your account is being Verified
+            Your account is pending activation
           </Text>
           <Text
             fontSize="md"
@@ -137,70 +98,11 @@ const PendingVerification = () => {
             mt={1}
             lineHeight="1.5"
           >
-            We have sent a verification link to your email address.
-            <Text as="span" color="blue.500">
-              {firebaseUser?.email}
-            </Text>{' '}
-            To verify your account. Don't forget to check spam if you haven't
-            received it.
+            We will notify your email when your account has been activated.
           </Text>
-
-          <Link
-            // target="_blank"
-            // rel="noopener noreferrer"
-            // href="mailto:help@shepherd.study"
-            display="flex"
-            flexDirection="row"
-            color="white"
-            justifyContent="center"
-            alignItems="center"
-            padding="14px 100px"
-            marginTop="30px"
-            height="48px"
-            background="#207DF7"
-            borderRadius="8px"
-            onClick={openEmailModal}
-          >
-            Resend Verification Link
-          </Link>
         </Box>
       </Root>
-      <CustomModal
-        isOpen={isEmailModalOpen}
-        modalTitle="Enter Email"
-        isModalCloseButton
-        style={{
-          maxWidth: '400px',
-          height: 'fit-content'
-        }}
-        footerContent={
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <Button isDisabled={!email} onClick={() => handleResendLink(email)}>
-              Send
-            </Button>
-          </div>
-        }
-        onClose={closeEmailModal}
-      >
-        {' '}
-        <FormControl p={3} alignItems="center">
-          <FormLabel fontSize="14px" fontWeight="medium" htmlFor="description">
-            Email
-          </FormLabel>
-          <Input
-            fontSize="0.875rem"
-            fontFamily="Inter"
-            fontWeight="400"
-            type="text"
-            name="topic"
-            color=" #212224"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
-          />
-        </FormControl>
-      </CustomModal>
     </>
   );
 };
-export default PendingVerification;
+export default PendingActivation;

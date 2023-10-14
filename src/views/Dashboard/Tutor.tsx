@@ -8,13 +8,10 @@ import Ribbon2 from '../../assets/ribbon-blue.svg';
 import Ribbon from '../../assets/ribbon-grey.svg';
 import TutorAvi from '../../assets/tutoravi.svg';
 import vidHolder from '../../assets/vid-holder.png';
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import LinedList from '../../components/LinedList';
 import ApiService from '../../services/ApiService';
 import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
-import {
-  calculateTimeDifference,
-  convertTimeStringToISOString
-} from '../../util';
 import AvailabilityTable from './components/AvailabilityTable';
 import HowItWorks from './components/HowItWorks';
 import { CustomButton } from './layout';
@@ -80,7 +77,7 @@ export default function Tutor() {
   const tutorId: any = searchParams.get('id');
 
   const navigate = useNavigate();
-  const toast = useToast();
+  const toast = useCustomToast();
 
   const getData = useCallback(async () => {
     setLoadingData(true);
@@ -119,7 +116,7 @@ export default function Tutor() {
         toast({
           title: 'Tutor removed from Bookmarks successfully',
           position: 'top-right',
-          status: 'success',
+          status: 'error',
           isClosable: true
         });
       } else {
@@ -150,34 +147,7 @@ export default function Tutor() {
   }
 
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
-  const fixedTimeSlots = [
-    '8AM -> 12PM',
-    '12PM -> 5PM',
-    '5PM -> 9PM',
-    '9PM -> 12AM'
-  ];
 
-  const timeSlotsInUserTimezone = fixedTimeSlots.map((timeSlot) => {
-    const [startTime, endTime] = timeSlot.split(' -> ');
-
-    const startTimeInUserTimezone = calculateTimeDifference(
-      convertTimeStringToISOString(startTime),
-      tutorData.tz
-    );
-
-    const endTimeInUserTimezone = calculateTimeDifference(
-      convertTimeStringToISOString(endTime),
-      tutorData.tz
-    );
-
-    let timeSlotInUserTimezone = `${startTimeInUserTimezone} -> ${endTimeInUserTimezone}`;
-    console.log('tz', timeSlotInUserTimezone);
-
-    timeSlotInUserTimezone = timeSlotInUserTimezone.replace(/:\d+\s/g, '');
-
-    return timeSlotInUserTimezone;
-  });
-  const fixedTimeSlotswithTimezone = timeSlotsInUserTimezone;
   return (
     <>
       <Box>
@@ -350,7 +320,7 @@ export default function Tutor() {
                               fontSize="14px"
                               mb={'2px'}
                             >
-                              You have no reviews yet
+                              This tutor has no reviews yet
                             </Text>
                           </TabPanel>
                           <TabPanel>
@@ -452,21 +422,34 @@ export default function Tutor() {
             </Center>
           </GridItem>
           <GridItem h={{ base: 'auto', md: 305 }} position="relative">
-            <Center position="relative" borderRadius={10}>
-              <AspectRatio
-                h={{ base: '50vh', md: '305px' }}
+            <Center position="relative" borderRadius={10} my={2}>
+              {/* <AspectRatio
+                h={{ base: '170px', md: '170px' }}
                 w={{ base: 'full', md: 'full' }}
                 ratio={1}
                 objectFit={'cover'}
-              >
-                <iframe
+              > */}
+              {/* <iframe
                   title="naruto"
                   // src={'https://samplelib.com/lib/preview/mp4/sample-5s.mp4'}
-                  src={tutorData.introVideo}
+                  src={tutorData.tutor.introVideo}
                   allowFullScreen
                   style={{ borderRadius: 10 }}
-                />
-              </AspectRatio>
+                /> */}
+              <Box
+                h={{ base: '170px', md: '170px' }}
+                w={{ base: 'full', md: 'full' }}
+              >
+                <video
+                  title="tutor-video"
+                  controls
+                  style={{ borderRadius: 10, width: '100%', height: '100%' }}
+                >
+                  <source src={tutorData.introVideo} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </Box>{' '}
+              {/* </AspectRatio> */}
               <Center
                 color="white"
                 display={vidOverlay ? 'flex' : 'none'}
@@ -480,7 +463,7 @@ export default function Tutor() {
                     onClick={() => setVidOverlay(false)}
                     size={'50px'}
                   />
-                  <Text display={'inline'}> watch intro video</Text>
+                  <Text display={'inline'}> update intro video</Text>
                 </VStack>
               </Center>
             </Center>
@@ -509,7 +492,7 @@ export default function Tutor() {
                   />
                 </Stack> */}
 
-            <Text fontSize={14} mt={8}>
+            {/* <Text fontSize={14} mt={8}>
               <Link
                 color="#207DF7"
                 href="/dashboard/find-tutor"
@@ -517,7 +500,7 @@ export default function Tutor() {
               >
                 More Economics tutors
               </Link>
-            </Text>
+            </Text> */}
           </GridItem>
 
           <GridItem>

@@ -5,11 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
 import './Input.css';
-
 import * as React from 'react';
-import {HTMLInputTypeAttribute} from 'react';
+import { HTMLInputTypeAttribute } from 'react';
 
 type Props = Readonly<{
   'data-test-id'?: string;
@@ -26,7 +24,7 @@ export default function TextInput({
   onChange,
   placeholder = '',
   'data-test-id': dataTestId,
-  type = 'text',
+  type = 'text'
 }: Props): JSX.Element {
   return (
     <div className="Input__wrapper">

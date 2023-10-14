@@ -1,8 +1,14 @@
 import { ReactComponent as CopyIcn } from '../../../assets/copy.svg';
 import { ReactComponent as DeleteIcn } from '../../../assets/deleteIcn.svg';
 import { ReactComponent as EditIcn } from '../../../assets/editIcn.svg';
+import { ReactComponent as SummaryIcn } from '../../../assets/summaryIcn1.svg';
 import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkdownView';
-import { IconContainer, PageCount, SummaryContainer } from './styles';
+import {
+  EmptyStateContainer,
+  IconContainer,
+  PageCount,
+  SummaryContainer
+} from './styles';
 import { ChevronRightIcon, ChevronLeftIcon } from '@chakra-ui/icons';
 import { Box, Spinner } from '@chakra-ui/react';
 import React, { useState } from 'react';
@@ -54,7 +60,8 @@ const HighLight = ({
           <Spinner />
         </Box>
       )}
-      {!loading && (
+
+      {hightlightedText.length >= 1 && (
         <>
           {hightlightedText.map((hightlight) => (
             <SummaryContainer
@@ -72,6 +79,15 @@ const HighLight = ({
             </SummaryContainer>
           ))}
         </>
+      )}
+
+      {hightlightedText.length === 0 && (
+        <EmptyStateContainer>
+          <div>
+            <SummaryIcn />
+            <p>You’re yet to highlight a word.</p>
+          </div>
+        </EmptyStateContainer>
       )}
     </section>
   );

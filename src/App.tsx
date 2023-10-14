@@ -44,6 +44,7 @@ import Clients from './views/TutorDashboard/Clients';
 import Client from './views/TutorDashboard/Clients/client';
 import TutorOffers from './views/TutorDashboard/Offers/index';
 import TutorDashboard from './views/TutorDashboard/index';
+import PendingActivation from './views/VerificationPages/pending_activation';
 import PendingVerification from './views/VerificationPages/pending_verification';
 import VerificationSuccess from './views/VerificationPages/successful_verification';
 import VerifyEmail from './views/VerificationPages/verify_email';
@@ -79,8 +80,9 @@ const RequireAuth = ({
   authenticated: any;
   unAuthenticated: any;
 }) => {
+  const navigate = useNavigate();
   const {
-    state: { isAuthenticated, loading }
+    state: { isAuthenticated, loading, user }
   } = useAuth();
 
   if (loading) {
@@ -91,6 +93,9 @@ const RequireAuth = ({
     );
   }
 
+  if (isAuthenticated && !user?.isVerified) {
+    navigate('/verify_email');
+  }
   return isAuthenticated ? authenticated : unAuthenticated;
 };
 
@@ -185,7 +190,7 @@ const AppRoutes: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      fetchNotifications();
+      // fetchNotifications();
       userData && fetchUserDocuments(userData._id);
     }
     /* eslint-disable */
@@ -235,10 +240,11 @@ const AppRoutes: React.FC = () => {
       />
       <Route
         element={
-          <RequireAuth
-            authenticated={<Navigate to={'/dashboard'} />}
-            unAuthenticated={<WelcomeLayout />}
-          />
+          <WelcomeLayout />
+          // <RequireAuth
+          //   authenticated={<Navigate to={'/dashboard'} />}
+          //   unAuthenticated={<WelcomeLayout />}
+          // />
         }
       >
         <Route path="onboard">
@@ -251,10 +257,11 @@ const AppRoutes: React.FC = () => {
         <Route
           path="login"
           element={
-            <RequireAuth
-              authenticated={<Navigate to={'/dashboard'} />}
-              unAuthenticated={<Login />}
-            />
+            <Login />
+            // <RequireAuth
+            //   authenticated={<Navigate to={'/dashboard'} />}
+            //   unAuthenticated={<Login />}
+            // />
           }
         />
 
@@ -284,6 +291,7 @@ const AppRoutes: React.FC = () => {
 
       <Route path="complete_profile" element={<CompleteProfile />} />
       <Route path="verify_email" element={<VerifyEmail />} />
+      <Route path="activation_pending" element={<PendingActivation />} />
 
       <Route
         path="signup"
@@ -316,7 +324,15 @@ const AppRoutes: React.FC = () => {
           />
         }
       />
-      <Route path="/dashboard" element={<RenderLayout />}>
+      <Route
+        path="/dashboard"
+        element={
+          <RequireAuth
+            authenticated={<RenderLayout />}
+            unAuthenticated={<Navigate to={'/login'} />}
+          />
+        }
+      >
         {userRoute &&
           userRoute.map((route) => (
             <Route key={route.path} path={route.path} element={route.element} />

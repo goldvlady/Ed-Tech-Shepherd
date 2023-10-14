@@ -1,3 +1,4 @@
+import Badge50 from '../../../assets/badge-50.svg';
 import EnergyUp from '../../../assets/energy-up.svg';
 import OnFire from '../../../assets/fire.svg';
 import Flash from '../../../assets/flash.svg';
@@ -37,15 +38,15 @@ export default function WeeklySummary(props) {
     autoplay: true,
     centerMode: true,
     speed: 500,
-    autoplaySpeed: 1000,
+    autoplaySpeed: 3000,
     slidesToShow: 1,
     slidesToScroll: 1
   };
 
   const slides = [
     {
-      //   img: OnFire,
-      //   description: "spend a little extra time learning",
+      img: OnFire,
+      description: 'spend a little extra time learning',
       label: 'You’ve scored a total of 65% in all quizzes this week!'
     },
     {
@@ -63,6 +64,34 @@ export default function WeeklySummary(props) {
   const timeStudied = (totalWeeklyStudyTime) => {
     const [hours, minutes] = totalWeeklyStudyTime.split(':');
     return { hour: hours, minute: minutes };
+  };
+
+  const getBadgeIconByBadgeType = (badgeType) => {
+    switch (badgeType) {
+      case 'Created First Flashcard':
+        return EnergyUp;
+      case 'Bronze Flashcard Achievement':
+        return Badge50;
+      case '...':
+        return OnFire;
+
+      default:
+        return undefined;
+    }
+  };
+
+  const getTextByBadgeType = (badgeType) => {
+    switch (badgeType) {
+      case 'Created First Flashcard':
+        return 'You have just created your first flashcard';
+      case 'Bronze Flashcard Achievement':
+        return 'You’ve scored above 65% in all quizzes this week!';
+      case 'flashcards':
+        return `You created a new flashcard deck `;
+
+      default:
+        return undefined;
+    }
   };
   return (
     <>
@@ -230,58 +259,39 @@ export default function WeeklySummary(props) {
                 position="relative"
                 borderLeft="1px solid #eeeff2"
               >
-                <Box h={'full'} position="absolute" width={'full'}>
+                <Box
+                  h={'full'}
+                  width={'full'}
+                  position="absolute"
+                  p={3}
+                  bottom={2}
+                >
+                  {' '}
                   <Slider {...settings}>
-                    <div>
-                      <Center px={2} py={4}>
-                        <VStack>
-                          <Image src={OnFire} />
-                          <Text
-                            fontSize="12px"
-                            fontWeight={400}
-                            color="text.300"
-                            textAlign="center"
-                          >
-                            You spent 5 hours learning this week
-                          </Text>
-                        </VStack>
+                    {studentReport.badges.map((slide) => (
+                      <div>
+                        {' '}
+                        <Center py={4}>
+                          <VStack>
+                            <Image src={getBadgeIconByBadgeType(slide.name)} />
+                            <Text
+                              fontSize="12px"
+                              fontWeight={400}
+                              color="text.300"
+                              textAlign="center"
+                              width={'220px'}
+                            >
+                              {getTextByBadgeType(slide.name)}
+                            </Text>
+                          </VStack>
 
-                        {/* <Text fontSize="12px" fontWeight={400}>
+                          {/* <Text fontSize="12px" fontWeight={400}>
                 {slide.description}
               </Text> */}
-                      </Center>
-                    </div>
-                    <div>
-                      <Center px={2} py={4}>
-                        <VStack>
-                          <Image src={EnergyUp} />
-                          <Text
-                            fontSize="12px"
-                            fontWeight={400}
-                            color="text.300"
-                            textAlign="center"
-                          >
-                            You spent 5 hours learning this week
-                          </Text>
-                        </VStack>
-                      </Center>
-                    </div>
-                    <div>
-                      <Center px={2} py={4}>
-                        <VStack>
-                          <Image src={OnFire} />
-                          <Text
-                            fontSize="12px"
-                            fontWeight={400}
-                            color="text.300"
-                            textAlign="center"
-                          >
-                            You’ve studied 10m/1hr today
-                          </Text>
-                        </VStack>
-                      </Center>
-                    </div>
-                  </Slider>
+                        </Center>{' '}
+                      </div>
+                    ))}
+                  </Slider>{' '}
                 </Box>
               </GridItem>
             </Grid>

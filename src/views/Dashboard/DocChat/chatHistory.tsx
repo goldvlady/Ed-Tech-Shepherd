@@ -5,6 +5,7 @@ import { ReactComponent as HistoryIcn } from '../../../assets/historyIcon.svg';
 import CustomButton from '../../../components/CustomComponents/CustomButton';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast';
+import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import { arrangeDataByDate, getDateString } from '../../../helpers';
 import {
   deleteConversationId,
@@ -70,7 +71,11 @@ const ChatHistory = ({
   setVisibleButton,
   setCertainConversationId,
   messages,
-  setSomeBountyOpt
+  setSomeBountyOpt,
+  setNewConversationId,
+  isBountyModalOpen,
+  setLocalData,
+  setFreshConversationId
 }: {
   studentId: string;
   setConversationId: (conversationId: string) => void;
@@ -85,6 +90,10 @@ const ChatHistory = ({
   setCertainConversationId: any;
   messages: any;
   setSomeBountyOpt: any;
+  setNewConversationId: any;
+  isBountyModalOpen: boolean;
+  setLocalData: any;
+  setFreshConversationId: any;
 }) => {
   // const placeholder = [
   //   {ß
@@ -101,14 +110,14 @@ const ChatHistory = ({
   const [groupChatsByDateArr, setGroupChatsByDateArr] = useState<GroupedChat[]>(
     []
   );
-  const toast = useToast();
+  const toast = useCustomToast();
   const showSearchRef = useRef(null) as any;
   const [editConversation, setEditConversationId] = useState('');
   const [removeIndex, setRemoveIndex] = useState(0);
   const [currentStoredArr, setCurrentStoredArr] = useState<any>();
   const [hostoryTopics, setHistoryTopics] = useState<any>([]);
   const [selectedTopic, setSelectedTopic] = useState('All');
-
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const handleClickOutside = (event) => {
     if (
       showSearchRef.current &&
@@ -126,8 +135,11 @@ const ChatHistory = ({
     };
   }, [showSearchRef]);
 
-  async function retrieveChatHistory(studentId: string): Promise<void> {
-    setLoading(true);
+  async function retrieveChatHistory(
+    studentId: string,
+    isLoader: boolean
+  ): Promise<void> {
+    setLoading(isLoader);
     const chatHistory = await fetchStudentConversations(studentId);
 
     const historyWithContent: any = chatHistory
@@ -143,10 +155,11 @@ const ChatHistory = ({
           level: convo?.level,
           message:
             message.length < 140 ? message : message.substring(0, 139) + '...',
-          createdDated: getDateString(new Date(convo.createdAt))
+          createdDated: getDateString(new Date(convo.createdAt)),
+          createdAt: new Date(convo.createdAt) // Add the raw timestamp for sorting
         };
       })
-      .reverse();
+      .sort((a, b) => b.createdAt - a.createdAt); // Sort using the raw timestamp
 
     const uniqueTopicsArray = Array.from(
       new Set(historyWithContent.map((convo) => convo.subject))
@@ -204,17 +217,14 @@ const ChatHistory = ({
         newTitle: updatedChat
       });
       if ([200, 201].includes(request.status)) {
-        retrieveChatHistory(studentId);
+        retrieveChatHistory(studentId, true);
         setToggleHistoryBox({});
       }
     } catch (error) {
       toast({
-        render: () => (
-          <CustomToast
-            title="Unable to process your request at this time. Please try again later."
-            status="error"
-          />
-        ),
+        title:
+          'Unable to process your request at this time. Please try again later.',
+        status: 'error',
         position: 'top-right',
         isClosable: true
       });
@@ -273,7 +283,7 @@ const ChatHistory = ({
       });
 
       if (response) {
-        retrieveChatHistory(studentId);
+        retrieveChatHistory(studentId, true);
         setDeleteConservationModal(false);
         setSocket(null);
         setMessages([]);
@@ -281,21 +291,16 @@ const ChatHistory = ({
         setCertainConversationId('');
         localStorage.removeItem('conversationId');
         toast({
-          render: () => (
-            <CustomToast
-              title="Conversation deleted successfully"
-              status="success"
-            />
-          ),
+          title: 'Conversation deleted successfully',
+          status: 'success',
           position: 'top-right',
           isClosable: true
         });
       }
     } catch (error) {
       toast({
-        render: () => (
-          <CustomToast title="Failed to fetch chat history..." status="error" />
-        ),
+        title: 'Failed to fetch chat history...',
+        status: 'error',
         position: 'top-right',
         isClosable: true
       });
@@ -311,14 +316,15 @@ const ChatHistory = ({
     // if (groupedChats) {
     //   setChatHistory(groupedChats);
     // }
-    retrieveChatHistory(studentId);
+    retrieveChatHistory(studentId, true);
   }, [studentId]);
 
   useEffect(() => {
     if (isSubmitted) {
-      retrieveChatHistory(studentId);
+      setLoading(false);
+      retrieveChatHistory(studentId, false);
     }
-  }, [studentId, isSubmitted]);
+  }, [studentId, isSubmitted, messages]);
 
   // useEffect(() => {
   //   if (chatHistory?.length) {
@@ -327,16 +333,37 @@ const ChatHistory = ({
   // }, [chatHistory]);
 
   useEffect(() => {
-    if (isSubmitted && studentId) {
-      retrieveChatHistory(studentId);
+    if (isSubmitted && studentId && messages.length === 1) {
+      setLoading(false);
+      retrieveChatHistory(studentId, false);
     }
-  }, [isSubmitted, studentId]);
+  }, [isSubmitted, studentId, messages]);
+
+  useEffect(() => {
+    if (messages?.length) {
+      retrieveChatHistory(studentId, false);
+    }
+  }, [messages, studentId]);
 
   useEffect(() => {
     const groupedChats = groupChatsByDate(filteredHistory);
 
     setGroupChatsByDateArr(groupedChats ?? []);
   }, [filteredHistory]);
+
+  // useEffect(() => {
+  //   const fetchStoredConvoId = () =>
+  //     localStorage.getItem('freshConversationId') as string;
+  //   const storeConvoId = (id: string) =>
+  //     localStorage.setItem('freshConversationId', id);
+
+  //   const storedConvoId = fetchStoredConvoId();
+  //   if (isBountyModalOpen) {
+  //     const firstMessageId =
+  //       groupChatsByDateArr[selectedIndex]?.messages[selectedIndex]?.id;
+  //     setConversationId(firstMessageId);
+  //   }
+  // }, [isSubmitted, groupChatsByDateArr, isBountyModalOpen, selectedIndex]);
 
   return (
     <ChatHistoryContainer>
@@ -442,10 +469,13 @@ const ChatHistory = ({
                         ) : (
                           <p
                             onClick={() => {
+                              setSelectedIndex(index);
                               setConversationId(message.id);
-                              retrieveChatHistory(studentId);
+                              retrieveChatHistory(studentId, false);
                               setCountNeedTutor(1);
                               setLoading(false);
+                              setLocalData({});
+                              setFreshConversationId('');
                               localStorage.setItem(
                                 'bountyOpt',
                                 JSON.stringify({

@@ -5,13 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import './Button.css';
-
-import * as React from 'react';
-import {ReactNode} from 'react';
-
 import joinClasses from '../utils/joinClasses';
+import './Button.css';
+import * as React from 'react';
+import { ReactNode } from 'react';
 
 export default function Button({
   'data-test-id': dataTestId,
@@ -20,7 +17,7 @@ export default function Button({
   onClick,
   disabled,
   small,
-  title,
+  title
 }: {
   'data-test-id'?: string;
   children: ReactNode;
@@ -37,12 +34,13 @@ export default function Button({
         'Button__root',
         disabled && 'Button__disabled',
         small && 'Button__small',
-        className,
+        className
       )}
       onClick={onClick}
       title={title}
       aria-label={title}
-      {...(dataTestId && {'data-test-id': dataTestId})}>
+      {...(dataTestId && { 'data-test-id': dataTestId })}
+    >
       {children}
     </button>
   );

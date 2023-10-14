@@ -39,6 +39,14 @@ class ApiService {
     });
   };
 
+  static resendUserEmail = async (data: any) => {
+    const payload = { email: data };
+    return doFetch(`${ApiService.baseEndpoint}/resendUserEmail`, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  };
+
   static storeFlashcardTags = (
     flashcardIds: string[] | string,
     tags: string[]
@@ -333,6 +341,13 @@ class ApiService {
     });
   };
 
+  static updateTutor = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/updateTutor`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
   static getAllTutors = async (formData: any) => {
     let filterParams = '';
 
@@ -341,7 +356,7 @@ class ApiService {
         const rateArray = formData['price'].split('-');
         const minRate = rateArray[0];
         const maxRate = rateArray[1];
-        filterParams += `&rate>=${minRate}&rate<=${maxRate}`;
+        filterParams += `&rateGT=${minRate}&rateLT=${maxRate}`;
       } else if (key === 'days' && !!formData['days']) {
         const daysArray = formData['days'];
         // eslint-disable-next-line

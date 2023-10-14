@@ -1,6 +1,7 @@
 import ChoosePaymentMethodDialog, {
   ChoosePaymentMethodDialogRef
 } from '../../components/ChoosePaymentMethodDialog';
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import LinedList from '../../components/LinedList';
 import PageTitle from '../../components/PageTitle';
 import Panel from '../../components/Panel';
@@ -100,7 +101,7 @@ const Offer = () => {
 
   const isTutor = currentPath.includes('/dashboard/tutordashboard/');
 
-  const toast = useToast();
+  const toast = useCustomToast();
 
   const { offerId } = useParams() as { offerId: string };
 

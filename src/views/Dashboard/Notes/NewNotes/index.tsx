@@ -8,6 +8,7 @@ import { ReactComponent as ArrowRight } from '../../../../assets/small-arrow-rig
 import { ReactComponent as ZoomIcon } from '../../../../assets/square.svg';
 import { ReactComponent as TrashIcon } from '../../../../assets/trash-icn.svg';
 import CustomButton from '../../../../components/CustomComponents/CustomButton';
+import CustomSideModal from '../../../../components/CustomComponents/CustomSideModal';
 import TableTag from '../../../../components/CustomComponents/CustomTag';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import TagModal from '../../../../components/TagModal';
@@ -20,6 +21,8 @@ import ApiService from '../../../../services/ApiService';
 import userStore from '../../../../state/userStore';
 import TempPDFViewer from '../../DocChat/TempPDFViewer';
 import FlashModal from '../../FlashCards/components/FlashModal';
+import { useFlashcardWizard } from '../../FlashCards/context/flashcard';
+import SetupFlashcardPage from '../../FlashCards/forms/flashcard_setup';
 import { NoteModal } from '../Modal';
 import {
   NoteData,
@@ -51,6 +54,9 @@ import {
   Button,
   AlertStatus,
   ToastPosition,
+  IconButton,
+  MenuItem,
+  Text,
   Box
 } from '@chakra-ui/react';
 import { $generateHtmlFromNodes } from '@lexical/html';
@@ -184,6 +190,7 @@ const NewNote = () => {
   const [saveDetails, setSaveDetails] =
     useState<NoteServerResponse<NoteDetails> | null>(null);
   const [pinnedNotes, setPinnedNotes] = useState<PinnedNote[]>([]);
+  const { resetFlashcard, setFlashcardData } = useFlashcardWizard();
 
   const toast = useCustomToast();
   const params = useParams();
@@ -204,6 +211,7 @@ const NewNote = () => {
   const [editorStyle, setEditorStyle] = useState<any>({});
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [canStartSaving, setCanStartSaving] = useState(false);
+  const [openSideModal, setOpenSideModal] = useState(false);
 
   // const editor: BlockNoteEditor | null = useBlockNote({
   //   initialContent: initialContent ? JSON.parse(initialContent) : undefined,
@@ -606,11 +614,23 @@ const NewNote = () => {
   };
 
   const showTagsDropdown = () => {
-    setOpenTags((prevState) => !prevState);
+    setOpenTags((prev) => !prev);
   };
 
   const showFlashCardDropdown = () => {
-    setOpenFlashCard((prevState) => !prevState);
+    console.log(noteParamId);
+    resetFlashcard();
+    setFlashcardData((prev) => ({
+      ...prev,
+      deckname: '',
+      studyType: '',
+      studyPeriod: '',
+      numQuestions: 0,
+      timerDuration: '',
+      hasSubmitted: false,
+      noteDoc: noteParamId as string
+    }));
+    setOpenSideModal(true);
   };
 
   const goToNoteChat = async (
@@ -756,7 +776,6 @@ const NewNote = () => {
   };
 
   const handleBackClick = () => {
-    // navigate(-1);
     setCanStartSaving(false);
     clearEditor();
     setTimeout(() => {
@@ -984,12 +1003,6 @@ const NewNote = () => {
 
   return (
     <Box
-    // overflowY={'auto'}
-    // minHeight={'920px'}
-    // maxHeight={isFullScreen ? undefined : '100vh'}
-    // maxHeight={isFullScreen ? '100%' : '920px'}
-    // backgroundColor={'pink'}
-    // position={"relative"}
     >
       <HeaderWrapper>
         <div style={{ display: 'none' }}>
@@ -1002,6 +1015,18 @@ const NewNote = () => {
         </HeaderButton>
         <HeaderTagsWrapper>{formatTags(tags)}</HeaderTagsWrapper>
       </HeaderWrapper>
+
+      <CustomSideModal
+        onClose={() => {
+          setOpenSideModal(false);
+          resetFlashcard();
+        }}
+        isOpen={openSideModal}
+      >
+        <div style={{ margin: '3rem 0', overflowY: 'auto' }}>
+          <SetupFlashcardPage showConfirm isAutomated />
+        </div>
+      </CustomSideModal>
 
       {isFullScreen ? (
         <NewNoteWrapper
@@ -1078,49 +1103,43 @@ const NewNote = () => {
                   <div>
                     <Menu>
                       <MenuButton
-                        as={Button}
-                        variant="unstyled"
-                        borderRadius="full"
-                        p={0}
-                        minW="auto"
-                        height="auto"
-                      >
-                        <FaEllipsisH fontSize={'12px'} />
-                      </MenuButton>
+                        as={IconButton}
+                        aria-label="More options"
+                        icon={<FaEllipsisH fontSize={'12px'} />}
+                        size="sm"
+                        variant="ghost"
+                      />
                       <MenuList
-                        zIndex={3}
-                        fontSize="0.875rem"
+                        fontSize="14px"
                         minWidth={'185px'}
                         borderRadius="8px"
-                        backgroundColor="#FFFFFF"
-                        boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
                       >
-                        <section>
-                          {dropDownOptions?.map((dropDownOption) => (
-                            <DropDownLists key={dropDownOption.id}>
-                              <DropDownFirstPart
-                                onClick={() =>
-                                  handleOptionClick(dropDownOption.onClick)
-                                }
-                              >
-                                <div>
-                                  {dropDownOption.leftIcon}
-                                  <p
-                                    style={{
-                                      color:
-                                        dropDownOption.title === 'Delete'
-                                          ? '#F53535'
-                                          : ''
-                                    }}
-                                  >
-                                    {dropDownOption.title}
-                                  </p>
-                                </div>
-                                <div>{dropDownOption.rightIcon}</div>
-                              </DropDownFirstPart>
-                            </DropDownLists>
-                          ))}
-                        </section>
+                        {dropDownOptions?.map((dropDownOption, index) => (
+                          <MenuItem
+                            key={index}
+                            p="6px 8px 6px 8px"
+                            color={
+                              dropDownOption.title === 'Delete'
+                                ? '#F53535'
+                                : '#212224'
+                            }
+                            _hover={{ bgColor: '#F2F4F7' }}
+                            onClick={() =>
+                              dropDownOption.onClick && dropDownOption.onClick()
+                            }
+                          >
+                            {dropDownOption.leftIcon && (
+                              <Box mr={2}>{dropDownOption.leftIcon}</Box>
+                            )}
+                            <Text
+                              fontSize="14px"
+                              lineHeight="20px"
+                              fontWeight="400"
+                            >
+                              {dropDownOption.title}
+                            </Text>
+                          </MenuItem>
+                        ))}
                       </MenuList>
                     </Menu>
 

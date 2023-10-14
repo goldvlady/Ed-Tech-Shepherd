@@ -5,24 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
+import { CopyButton } from './components/CopyButton';
+import { canBePrettier, PrettierButton } from './components/PrettierButton';
 import './index.css';
-
+import { useDebounce } from './utils';
 import {
   $isCodeNode,
   CodeNode,
   getLanguageFriendlyName,
-  normalizeCodeLang,
+  normalizeCodeLang
 } from '@lexical/code';
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {$getNearestNodeFromDOMNode} from 'lexical';
-import {useEffect, useRef, useState} from 'react';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $getNearestNodeFromDOMNode } from 'lexical';
+import { useEffect, useRef, useState } from 'react';
 import * as React from 'react';
-import {createPortal} from 'react-dom';
-
-import {CopyButton} from './components/CopyButton';
-import {canBePrettier, PrettierButton} from './components/PrettierButton';
-import {useDebounce} from './utils';
+import { createPortal } from 'react-dom';
 
 const CODE_PADDING = 8;
 
@@ -32,7 +29,7 @@ interface Position {
 }
 
 function CodeActionMenuContainer({
-  anchorElem,
+  anchorElem
 }: {
   anchorElem: HTMLElement;
 }): JSX.Element {
@@ -44,7 +41,7 @@ function CodeActionMenuContainer({
     useState<boolean>(false);
   const [position, setPosition] = useState<Position>({
     right: '0',
-    top: '0',
+    top: '0'
   });
   const codeSetRef = useRef<Set<string>>(new Set());
   const codeDOMNodeRef = useRef<HTMLElement | null>(null);
@@ -55,7 +52,7 @@ function CodeActionMenuContainer({
 
   const debouncedOnMouseMove = useDebounce(
     (event: MouseEvent) => {
-      const {codeDOMNode, isOutside} = getMouseInfo(event);
+      const { codeDOMNode, isOutside } = getMouseInfo(event);
       if (isOutside) {
         setShown(false);
         return;
@@ -80,19 +77,19 @@ function CodeActionMenuContainer({
       });
 
       if (codeNode) {
-        const {y: editorElemY, right: editorElemRight} =
+        const { y: editorElemY, right: editorElemRight } =
           anchorElem.getBoundingClientRect();
-        const {y, right} = codeDOMNode.getBoundingClientRect();
+        const { y, right } = codeDOMNode.getBoundingClientRect();
         setLang(_lang);
         setShown(true);
         setPosition({
           right: `${editorElemRight - right + CODE_PADDING}px`,
-          top: `${y - editorElemY}px`,
+          top: `${y - editorElemY}px`
         });
       }
     },
     50,
-    1000,
+    1000
   );
 
   useEffect(() => {
@@ -135,7 +132,7 @@ function CodeActionMenuContainer({
   return (
     <>
       {isShown ? (
-        <div className="code-action-menu-container" style={{...position}}>
+        <div className="code-action-menu-container" style={{ ...position }}>
           <div className="code-highlight-language">{codeFriendlyName}</div>
           <CopyButton editor={editor} getCodeDOMNode={getCodeDOMNode} />
           {canBePrettier(normalizedLang) ? (
@@ -159,26 +156,26 @@ function getMouseInfo(event: MouseEvent): {
 
   if (target && target instanceof HTMLElement) {
     const codeDOMNode = target.closest<HTMLElement>(
-      'code.PlaygroundEditorTheme__code',
+      'code.PlaygroundEditorTheme__code'
     );
     const isOutside = !(
       codeDOMNode ||
       target.closest<HTMLElement>('div.code-action-menu-container')
     );
 
-    return {codeDOMNode, isOutside};
+    return { codeDOMNode, isOutside };
   } else {
-    return {codeDOMNode: null, isOutside: true};
+    return { codeDOMNode: null, isOutside: true };
   }
 }
 
 export default function CodeActionMenuPlugin({
-  anchorElem = document.body,
+  anchorElem = document.body
 }: {
   anchorElem?: HTMLElement;
 }): React.ReactPortal | null {
   return createPortal(
     <CodeActionMenuContainer anchorElem={anchorElem} />,
-    anchorElem,
+    anchorElem
   );
 }

@@ -63,6 +63,7 @@ function useNotifications(userId: string) {
       setHasUnreadNotification(unreadNotifications.length > 0);
       setNotifications(validNotifications);
       console.log(validNotifications, 'Parsed Notifications');
+      console.log(rawData, 'RawData');
     };
 
     const unsubscribe = onValue(
@@ -75,7 +76,7 @@ function useNotifications(userId: string) {
 
     // Clean up the Firebase listener when the component unmounts
     return () => {
-      unsubscribe(); // Call the unsubscribe function directly
+      unsubscribe();
     };
   }, [userId]);
 
@@ -97,11 +98,11 @@ function useNotifications(userId: string) {
     const updates: { [key: string]: any } = {};
     notifications.forEach((notification) => {
       if (notification.status === 'unviewed' && notification.id) {
-        updates[`notifications/${userId}/${notification.id}`] = {
+        updates[`notifications/${userId}/${notification.id}`] = JSON.stringify({
           ...notification,
           status: 'viewed',
           readAt: new Date().toISOString()
-        };
+        });
       }
     });
     update(ref(database), updates);

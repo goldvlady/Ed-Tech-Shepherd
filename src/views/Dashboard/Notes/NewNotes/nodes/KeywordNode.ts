@@ -5,10 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-import type {EditorConfig, LexicalNode, SerializedTextNode} from 'lexical';
-
-import {TextNode} from 'lexical';
+import type { EditorConfig, LexicalNode, SerializedTextNode } from 'lexical';
+import { TextNode } from 'lexical';
 
 export type SerializedKeywordNode = SerializedTextNode;
 
@@ -34,7 +32,7 @@ export class KeywordNode extends TextNode {
     return {
       ...super.exportJSON(),
       type: 'keyword',
-      version: 1,
+      version: 1
     };
   }
 

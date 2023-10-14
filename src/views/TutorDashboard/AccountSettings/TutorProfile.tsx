@@ -1,11 +1,17 @@
 import FileAvi2 from '../../../assets/file-avi2.svg';
+import AddSubjectLevel from '../../../components/AddSubjectLevel';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast';
+import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
+import DragAndDrop from '../../../components/DragandDrop';
 import { firebaseAuth, updatePassword } from '../../../firebase';
+import { storage } from '../../../firebase';
 import ApiService from '../../../services/ApiService';
 import resourceStore from '../../../state/resourceStore';
 import userStore from '../../../state/userStore';
+import { Course, LevelType } from '../../../types';
 import AvailabilityTable from '../../Dashboard/components/AvailabilityTable';
+import AddSubjectForm from '../../OnboardTutor/components/steps/add_subjects';
 import AvailabilityEditForm from './AvailabilityEditForm.tsx';
 import {
   Avatar,
@@ -52,23 +58,36 @@ import {
   InputLeftElement,
   HStack
 } from '@chakra-ui/react';
-import firebase from 'firebase/app';
+import { ref } from '@firebase/storage';
+import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
+import moment from 'moment';
 // import { updatePassword } from 'firebase/auth';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef
+} from 'react';
 import { BiPlayCircle } from 'react-icons/bi';
 import { IoIosAlert } from 'react-icons/io';
 import { MdEdit } from 'react-icons/md';
 import { RiArrowRightSLine } from 'react-icons/ri';
 
+interface SubjectLevel {
+  subject: string;
+  level: string;
+}
+
 function MyProfile(props) {
   const { tutorData } = props;
-  const { user } = userStore();
-  const { rate } = resourceStore();
+  const { user, fetchUser } = userStore();
+  const { courses: courseList, levels, rate } = resourceStore();
 
-  const toast = useToast();
+  const toast = useCustomToast();
   const [newEmail, setNewEmail] = useState<string>(tutorData.email);
 
-  const [isOpenTandC, setIsOpenTandC] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [oldPassword, setOldPassword] = useState<string>('');
@@ -77,12 +96,26 @@ function MyProfile(props) {
   const handleClickNew = () => setShowNewPassword(!showNewPassword);
   const [vidOverlay, setVidOverlay] = useState<boolean>(true);
   const [description, setDescription] = useState(tutorData.tutor.description);
-  const [hourlyRate, setHourlyRate] = useState(tutorData.tutor.description);
+  const [schedule, setSchedule] = useState('');
+  const [subjectLevel, setSubjectLevel] = useState<any>(
+    tutorData.tutor.coursesAndLevels.map((item) => ({
+      course: {
+        label: item.course && item.course.label ? item.course.label : ''
+      },
+      level: { label: item.level && item.level.label ? item.level.label : '' }
+    }))
+  );
+
+  const [hourlyRate, setHourlyRate] = useState(tutorData.tutor.rate);
+  const [isLoading, setIsLoading] = useState(false);
+  const [introVideo, setIntroVideo] = useState<any>(null);
+  const [introVideoLink, setIntroVideoLink] = useState<any>(null);
+  console.log(subjectLevel, 'sub-lev');
+
   // const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [isOtpVerified, setIsOtpVerified] = useState(false);
-
   const {
     isOpen: isUpdateHourlyRateModalOpen,
     onOpen: openUpdateHourlyRateModal,
@@ -95,11 +128,91 @@ function MyProfile(props) {
     onClose: closeUpdateAvailabilityModal
   } = useDisclosure();
   const {
+    isOpen: isUpdateSubjectModalOpen,
+    onOpen: openUpdateSubjectModal,
+    onClose: closeUpdateSubjectModal
+  } = useDisclosure();
+  const {
     isOpen: isUpdateDescriptionModalOpen,
     onOpen: openUpdateDescriptionModal,
     onClose: closeUpdateDescriptionModal
   } = useDisclosure();
-  console.log(tutorData);
+  const {
+    isOpen: isUpdateVideoModalOpen,
+    onOpen: openUpdateVideoModal,
+    onClose: closeUpdateVideoModal
+  } = useDisclosure();
+
+  const handleIntroVideoUpload = (file: File) => {
+    if (!file) return;
+
+    if (file?.size > 10000000) {
+      setIsLoading(true);
+      toast({
+        title: 'Please upload a file under 10MB',
+        status: 'error',
+        position: 'top',
+        isClosable: true
+      });
+      return;
+    } else {
+      // const storageRef = ref(storage, `files/${introVideo.name}`);
+      // const uploadTask = uploadBytesResumable(storageRef, introVideo);
+      setIntroVideo(file);
+    }
+  };
+
+  useEffect(() => {
+    if (!introVideo) return;
+    else {
+      const storageRef = ref(storage, `files/${introVideo.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, introVideo);
+
+      setIsLoading(true);
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress = Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          );
+          // setCvUploadPercent(progress);
+        },
+        (error) => {
+          setIsLoading(false);
+          // setCvUploadPercent(0);
+          alert(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            setIntroVideoLink(downloadURL);
+            setIsLoading(false);
+          });
+        }
+      );
+    }
+    /* eslint-disable */
+  }, [introVideo]);
+
+  useEffect(() => {
+    if (tutorData.tutor.intro && !introVideo) {
+      fetch(tutorData.tutor.intro)
+        .then((response) => response.blob())
+        .then((blob) => {
+          const file = new File([blob], 'intro_video', { type: blob.type }); // replace 'filename' with your desired filename
+          setIntroVideo(file);
+        });
+    }
+  }, [tutorData.tutor.intro, introVideo]);
+  console.log(introVideo, 'iiii');
+
+  const hasAnyEmptyArray = (obj) => {
+    for (const key in obj) {
+      if (obj[key] && Array.isArray(obj[key]) && obj[key].length === 0) {
+        return true;
+      }
+    }
+    return false;
+  };
 
   const handleHourlyRateChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -112,39 +225,113 @@ function MyProfile(props) {
     const baseEarning = 0;
     if (!hourlyRate) return baseEarning.toFixed(2);
     const rateNumber = hourlyRate;
-    const earnings = rateNumber * (1 - rate);
+    const earnings = rateNumber - rate * 0.01 * rateNumber;
 
     return earnings.toFixed(2);
   }, [hourlyRate, rate]);
 
-  const cost = useMemo(
-    () => parseInt(tutorEarnings) * rate,
-    [tutorEarnings, rate]
-  );
+  const cost = useMemo(() => rate * 0.01 * hourlyRate, [hourlyRate, rate]);
 
-  //   const handleSaveEmail = async () => {
-  //     const formData = { email: newEmail, ottp: otp };
-  //     const response = await ApiService.updateProfile(formData);
-  //     const resp: any = await response.json();
-  //     closeUpdateEmailModal();
-  //     if (response.status === 200) {
-  //       toast({
-  //         render: () => (
-  //           <CustomToast title="Email Updated successfully" status="success" />
-  //         ),
-  //         position: 'top-right',
-  //         isClosable: true
-  //       });
-  //     } else {
-  //       toast({
-  //         render: () => (
-  //           <CustomToast title="Something went wrong.." status="error" />
-  //         ),
-  //         position: 'top-right',
-  //         isClosable: true
-  //       });
-  //     }
-  //   };
+  const updateSchedule = (value) => {
+    setSchedule(value);
+  };
+
+  const handleUpdateTutor = async (updateField, value) => {
+    const formData = {
+      //   email: newEmail,
+      //   ottp: otp,
+      //   coursesAndLevels: [],
+      //   schedule: {},
+      //   tz: moment.tz.guess(),
+      //   qualifications: [],
+      //   rate: 0,
+      //   cv: '',
+      //   bankInfo: {},
+      //   avatar: '',
+      //   reviewCount: 0,
+      //   rating: 0,
+      //   description: '',
+      //   country: '',
+      //   identityDocument: '',
+      //   introVideo: ''
+    };
+    setIsUpdating(true);
+    formData[updateField] = value;
+
+    const response = await ApiService.updateTutor(formData);
+    const resp: any = await response.json();
+    if (response.status === 200) {
+      toast({
+        title: ' Updated successfully',
+        status: 'success',
+        position: 'top-right',
+        isClosable: true
+      });
+      fetchUser();
+    } else {
+      toast({
+        title: 'Something went wrong..',
+        status: 'error',
+        position: 'top-right',
+        isClosable: true
+      });
+    }
+    setIsUpdating(false);
+    closeUpdateAvailabilityModal();
+    closeUpdateDescriptionModal();
+    closeUpdateHourlyRateModal();
+    closeUpdateSubjectModal();
+    closeUpdateVideoModal();
+  };
+
+  // const subjectLevels: SubjectLevel = tutorData.tutor.coursesAndLevels;
+  // const [subject, setsubject] = useState(second);
+
+  const handleSubjectLevelChange = (f: (d: typeof subjectLevel) => any) => {
+    const data: any = f(subjectLevel);
+    setSubjectLevel(data);
+  };
+  console.log(subjectLevel, 's-l');
+
+  useEffect(() => {
+    if (!subjectLevel.length) {
+      addSubject();
+    }
+    /* eslint-disable */
+  }, [subjectLevel.length]);
+
+  const [loadingCourses, setLoadingCourses] = useState(false);
+
+  const handleSubjectChange = (index: number, value: string) => {
+    handleSubjectLevelChange((prevSubjectLevels) => {
+      const updatedSubjectLevels = [...prevSubjectLevels];
+      updatedSubjectLevels[index].course.label = value;
+      return updatedSubjectLevels;
+    });
+  };
+
+  const handleLevelChange = (index: number, value: string) => {
+    handleSubjectLevelChange((prevSubjectLevels) => {
+      const updatedSubjectLevels = [...prevSubjectLevels];
+      updatedSubjectLevels[index].level.label = value;
+      return updatedSubjectLevels;
+    });
+  };
+
+  const addSubject = () => {
+    handleSubjectLevelChange((prevSubjectLevels) => [
+      ...prevSubjectLevels,
+      { course: {} as Course, level: {} as LevelType }
+    ]);
+  };
+
+  const removeSubject = (index: number) => {
+    handleSubjectLevelChange((prevSubjectLevels) => {
+      const updatedSubjectLevels = [...prevSubjectLevels];
+      updatedSubjectLevels.splice(index, 1);
+      return updatedSubjectLevels;
+    });
+  };
 
   return (
     <Box>
@@ -228,22 +415,60 @@ function MyProfile(props) {
             alignItems="center"
             my={4}
           >
-            {' '}
-            <Center position="relative" borderRadius={10}>
-              <AspectRatio
+            <Flex alignItems="center">
+              <Text
+                color="#6E7682"
+                fontSize="12px"
+                fontWeight="400"
+                wordBreak={'break-word'}
+                textTransform="uppercase"
+              >
+                Intro Video
+              </Text>
+              <Spacer />
+              <Box
+                w="30px"
+                h="30px"
+                borderRadius="full"
+                borderWidth="1px"
+                borderColor="gray.200"
+                position="relative"
+                cursor={'pointer'}
+                onClick={openUpdateVideoModal}
+              >
+                <Center w="100%" h="100%" position="absolute">
+                  <MdEdit />
+                </Center>
+              </Box>
+            </Flex>
+            <Center position="relative" borderRadius={10} my={2}>
+              {/* <AspectRatio
                 h={{ base: '170px', md: '170px' }}
                 w={{ base: 'full', md: 'full' }}
                 ratio={1}
                 objectFit={'cover'}
-              >
-                <iframe
+              > */}
+              {/* <iframe
                   title="naruto"
                   // src={'https://samplelib.com/lib/preview/mp4/sample-5s.mp4'}
                   src={tutorData.tutor.introVideo}
                   allowFullScreen
                   style={{ borderRadius: 10 }}
-                />
-              </AspectRatio>
+                /> */}
+              <Box
+                h={{ base: '170px', md: '170px' }}
+                w={{ base: 'full', md: 'full' }}
+              >
+                <video
+                  title="tutor-video"
+                  controls
+                  style={{ borderRadius: 10, width: '100%', height: '100%' }}
+                >
+                  <source src={tutorData.tutor.introVideo} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </Box>{' '}
+              {/* </AspectRatio> */}
               <Center
                 color="white"
                 display={vidOverlay ? 'flex' : 'none'}
@@ -331,7 +556,20 @@ function MyProfile(props) {
                 Subject Offered
               </Text>
               <Spacer />
-              <MdEdit />
+              <Box
+                w="30px"
+                h="30px"
+                borderRadius="full"
+                borderWidth="1px"
+                borderColor="gray.200"
+                position="relative"
+                cursor={'pointer'}
+                onClick={openUpdateSubjectModal}
+              >
+                <Center w="100%" h="100%" position="absolute">
+                  <MdEdit />
+                </Center>
+              </Box>
             </Flex>
             <TableContainer my={4}>
               <Box border={'1px solid #EEEFF2'} borderRadius={8} py={3}>
@@ -468,17 +706,56 @@ function MyProfile(props) {
         isModalCloseButton
         style={{
           maxWidth: '400px',
-          height: 'fit-content'
+          height: '100%'
         }}
-        // footerContent={
-        //   <div style={{ display: 'flex', gap: '8px' }}>
-        //     <Button>Update</Button>
-        //   </div>
-        // }
+        footerContent={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button
+              isDisabled={hasAnyEmptyArray(schedule) || !schedule || isUpdating}
+              onClick={() => handleUpdateTutor('schedule', schedule)}
+            >
+              {isUpdating ? 'Updating...' : 'Update'}
+            </Button>
+          </div>
+        }
         onClose={closeUpdateAvailabilityModal}
       >
-        <Box overflowY={'scroll'}>
-          <AvailabilityEditForm />
+        <AvailabilityEditForm updateSchedule={updateSchedule} />
+      </CustomModal>
+      <CustomModal
+        isOpen={isUpdateVideoModalOpen}
+        modalTitle="Update Intro Video"
+        isModalCloseButton
+        style={{
+          maxWidth: '400px',
+          height: 'fit-content'
+        }}
+        footerContent={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button
+              isDisabled={!introVideoLink || introVideo === null || isLoading}
+              onClick={() => handleUpdateTutor('introVideo', introVideoLink)}
+            >
+              Update
+            </Button>
+          </div>
+        }
+        onClose={closeUpdateVideoModal}
+      >
+        <Box width="100%" p={2}>
+          <Box marginTop="10px">
+            <DragAndDrop
+              isLoading={isLoading}
+              supportingText="Click to upload a video"
+              accept="video/*"
+              onDelete={() => setIntroVideo(null)}
+              onFileUpload={handleIntroVideoUpload}
+              boxStyles={{ width: '250px', marginTop: '10px', height: '50px' }}
+            />
+            {introVideo && (
+              <Text marginTop="1rem">Selected file: {introVideo.name}</Text>
+            )}
+          </Box>
         </Box>
       </CustomModal>
       <CustomModal
@@ -491,7 +768,10 @@ function MyProfile(props) {
         }}
         footerContent={
           <div style={{ display: 'flex', gap: '8px' }}>
-            <Button isDisabled={description === tutorData.tutor.description}>
+            <Button
+              isDisabled={description === tutorData.tutor.description}
+              onClick={() => handleUpdateTutor('description', description)}
+            >
               Update
             </Button>
           </div>
@@ -528,7 +808,10 @@ function MyProfile(props) {
         }}
         footerContent={
           <div style={{ display: 'flex', gap: '8px' }}>
-            <Button isDisabled={description === tutorData.tutor.description}>
+            <Button
+              isDisabled={hourlyRate === tutorData.tutor.rate}
+              onClick={() => handleUpdateTutor('rate', parseInt(hourlyRate))}
+            >
               Update
             </Button>
           </div>
@@ -675,6 +958,45 @@ function MyProfile(props) {
               </InputGroup>
             </FormControl>
           </Stack>
+        </Box>
+      </CustomModal>
+      <CustomModal
+        isOpen={isUpdateSubjectModalOpen}
+        modalTitle="Update Subject"
+        isModalCloseButton
+        style={{
+          maxWidth: '400px',
+          height: 'fit-content'
+        }}
+        footerContent={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button
+              onClick={() => {
+                const coursesAndLevels = subjectLevel.map((courseLevel) => ({
+                  course: courseList.find(
+                    (course) => course.label === courseLevel.course.label
+                  )?._id,
+                  level: levels.find(
+                    (level) => level.label === courseLevel.level.label
+                  )?._id
+                }));
+                handleUpdateTutor('coursesAndLevels', coursesAndLevels);
+              }}
+            >
+              Update
+            </Button>
+          </div>
+        }
+        onClose={closeUpdateSubjectModal}
+      >
+        <Box overflowY={'scroll'} p={3}>
+          <AddSubjectLevel
+            subjectLevels={subjectLevel}
+            addSubject={addSubject}
+            removeSubject={removeSubject}
+            handleLevelChange={handleLevelChange}
+            handleSubjectChange={handleSubjectChange}
+          />
         </Box>
       </CustomModal>
     </Box>
