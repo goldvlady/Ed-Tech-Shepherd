@@ -1,7 +1,8 @@
 import {
   convertTimeToDateTime,
   convertTimeToTimeZone,
-  convertISOToCustomFormat
+  convertISOToCustomFormat,
+  convertUtcToUserTime
 } from '../util';
 import { Text } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
@@ -85,27 +86,32 @@ export default function Events({ event }: any) {
                     }
               )}
             </Text>
-            {event.type !== 'study' && (
-              <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
-                <span>
-                  {isTutor
-                    ? convertTimeToTimeZone(
-                        convertISOToCustomFormat(event.data.startDate),
-                        'Africa/Lagos'
-                      )
-                    : moment(event.data.startDate).format('h:mmA')}
-                </span>
-                <ChevronRightIcon className="w-4 h-4" />
-                <span>
-                  {isTutor
-                    ? convertTimeToTimeZone(
-                        convertISOToCustomFormat(event.data.endDate),
-                        'Africa/Lagos'
-                      )
-                    : moment(event.data.endDate).format('h:mmA')}
-                </span>
-              </Text>
-            )}
+            <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
+              <span>
+                {isTutor
+                  ? convertUtcToUserTime(event.data.startDate)
+                  : // convertTimeToTimeZone(
+                    //     convertISOToCustomFormat(),
+                    //     'Africa/Lagos'
+                    //   )
+                    moment(event.data.startDate).format('h:mmA')}
+              </span>
+              {event.type !== 'study' && (
+                <>
+                  {' '}
+                  <ChevronRightIcon className="w-4 h-4" />
+                  <span>
+                    {isTutor
+                      ? convertUtcToUserTime(event.data.endDate)
+                      : // convertTimeToTimeZone(
+                        //     convertISOToCustomFormat(event.data.endDate),
+                        //     'Africa/Lagos'
+                        //   )
+                        moment(event.data.endDate).format('h:mmA')}
+                  </span>
+                </>
+              )}
+            </Text>
           </div>
         </div>
         {/* <div className="flex -space-x-0.5">

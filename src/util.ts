@@ -105,6 +105,19 @@ export const numberToDayOfWeekName = (num: number, format = 'dddd') =>
 export const DayOfWeekNameToNumber = (num: number, format = 'dddd') =>
   moment().day(num).format(format);
 
+export const convertUtcToUserTime = (utcTime) => {
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  // Parse the UTC time string using Moment.js
+  const utcMoment = moment.utc(utcTime);
+
+  // Convert the UTC time to the user's timezone
+  const userMoment = utcMoment.tz(userTimezone);
+
+  // Format the user's time in a desired format
+  return userMoment.format('h:mm A');
+};
+
 export const convertTimeToDateTime = (time) => {
   const currentDate = new Date();
 

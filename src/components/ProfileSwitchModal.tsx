@@ -3,10 +3,12 @@ import userStore from '../state/userStore';
 import { CustomButton } from '../views/Dashboard/layout';
 import { StarIcon } from './icons';
 import { SelectedNoteModal } from './index';
+import { SmallAddIcon } from '@chakra-ui/icons';
 import {
   Avatar,
   Box,
   Button,
+  Circle,
   Flex,
   Stack,
   Text,
@@ -21,6 +23,9 @@ import { Transition, Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { getAuth } from 'firebase/auth';
 import { Fragment, useState, useEffect, useCallback } from 'react';
+import { AiOutlinePlus } from 'react-icons/ai';
+import { HiPlusCircle } from 'react-icons/hi';
+import { MdEdit, MdPlusOne } from 'react-icons/md';
 import { PiCheckCircleFill } from 'react-icons/pi';
 import { useNavigate } from 'react-router';
 import Typewriter from 'typewriter-effect';
@@ -262,32 +267,112 @@ const ProfileSwitchModal = ({
                                   </RadioCard>
                                 );
                               })}
+                            {user?.type.length === 1 && (
+                              <Box>
+                                <Flex
+                                  className=" h-20 pl-4 pr-[199px] py-[26px] bg-white rounded-[10px]  border border-gray-100 justify-start items-center inline-flex"
+                                  direction="row"
+                                  alignItems="center"
+                                  justifyContent="flex-start"
+                                  gap={2}
+                                >
+                                  {/* <Flex
+                                    align="center"
+                                    justify="center"
+                                    gap={2.5}
+                                  >
+                                    <Circle
+                                      size="40px"
+                                      bg="zinc.100"
+                                      rounded="full"
+                                    >
+                                      <Box
+                                        width="18px"
+                                        height="18px"
+                                        left="5px"
+                                        top="5px"
+                                        position="absolute"
+                                      />
+                                    </Circle>
+                                    <Flex
+                                      direction="column"
+                                      justify="start"
+                                      alignItems="start"
+                                      gap={0.5}
+                                    >
+                                      <Flex
+                                        align="start"
+                                        justify="center"
+                                        gap={1.5}
+                                      >
+                                        <SmallAddIcon />
+                                        <Text
+                                          color="zinc.400"
+                                          fontSize="sm"
+                                          fontWeight="medium"
+                                          fontFamily="Inter"
+                                          lineHeight="tight"
+                                        >
+                                          Add account
+                                        </Text>
+                                      </Flex>
+                                    </Flex>
+                                  </Flex> */}
+                                  <Box
+                                    w="30px"
+                                    h="30px"
+                                    borderRadius="full"
+                                    borderWidth="1px"
+                                    borderColor="gray.200"
+                                    position="relative"
+                                    cursor={'pointer'}
+                                    onClick={() =>
+                                      navigate('/complete_profile')
+                                    }
+                                  >
+                                    <Center
+                                      w="100%"
+                                      h="100%"
+                                      position="absolute"
+                                    >
+                                      <AiOutlinePlus />
+                                    </Center>
+                                  </Box>
+                                  <Text fontSize={14} color="#969ca6">
+                                    {' '}
+                                    Add Account
+                                  </Text>
+                                </Flex>
+                              </Box>
+                            )}
                           </HStack>
                         </Center>{' '}
-                        <Box ml={6} textAlign="center">
-                          <Button
-                            onClick={() =>
-                              navigate(
-                                selectedProfile === 'student'
-                                  ? '/dashboard'
-                                  : '/dashboard/tutordashboard'
-                              )
-                            }
-                            isDisabled={
-                              selectedProfile === '' ||
-                              (window.location.pathname.includes(
-                                '/dashboard/tutordashboard'
-                              ) &&
-                                selectedProfile === 'tutor') ||
-                              (!window.location.pathname.includes(
-                                '/dashboard/tutordashboard'
-                              ) &&
-                                selectedProfile === 'student')
-                            }
-                          >
-                            Switch
-                          </Button>
-                        </Box>
+                        {user?.type.length > 1 && (
+                          <Box ml={6} textAlign="center">
+                            <Button
+                              onClick={() =>
+                                navigate(
+                                  selectedProfile === 'student'
+                                    ? '/dashboard'
+                                    : '/dashboard/tutordashboard'
+                                )
+                              }
+                              isDisabled={
+                                selectedProfile === '' ||
+                                (window.location.pathname.includes(
+                                  '/dashboard/tutordashboard'
+                                ) &&
+                                  selectedProfile === 'tutor') ||
+                                (!window.location.pathname.includes(
+                                  '/dashboard/tutordashboard'
+                                ) &&
+                                  selectedProfile === 'student')
+                              }
+                            >
+                              Switch
+                            </Button>
+                          </Box>
+                        )}
                       </Box>
 
                       {/* <div className="overflow-hidden sm:w-[80%] w-full mx-auto p-6 pt-3  bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">

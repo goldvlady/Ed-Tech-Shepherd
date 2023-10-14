@@ -13,6 +13,7 @@ import { Course, LevelType } from '../../../types';
 import AvailabilityTable from '../../Dashboard/components/AvailabilityTable';
 import AddSubjectForm from '../../OnboardTutor/components/steps/add_subjects';
 import AvailabilityEditForm from './AvailabilityEditForm.tsx';
+import QualificationsEditForm from './QualificationsEditForm';
 import {
   Avatar,
   AspectRatio,
@@ -97,6 +98,8 @@ function MyProfile(props) {
   const [vidOverlay, setVidOverlay] = useState<boolean>(true);
   const [description, setDescription] = useState(tutorData.tutor.description);
   const [schedule, setSchedule] = useState('');
+  const [qualifications, setQualifications] = useState('');
+
   const [subjectLevel, setSubjectLevel] = useState<any>(
     tutorData.tutor.coursesAndLevels.map((item) => ({
       course: {
@@ -126,6 +129,11 @@ function MyProfile(props) {
     isOpen: isUpdateAvailabilityModalOpen,
     onOpen: openUpdateAvailabilityModal,
     onClose: closeUpdateAvailabilityModal
+  } = useDisclosure();
+  const {
+    isOpen: isUpdateQualificationsModalOpen,
+    onOpen: openUpdateQualificationsModal,
+    onClose: closeUpdateQualificationsModal
   } = useDisclosure();
   const {
     isOpen: isUpdateSubjectModalOpen,
@@ -235,7 +243,9 @@ function MyProfile(props) {
   const updateSchedule = (value) => {
     setSchedule(value);
   };
-
+  const updateQualifications = (value) => {
+    setQualifications(value);
+  };
   const handleUpdateTutor = async (updateField, value) => {
     const formData = {
       //   email: newEmail,
@@ -706,7 +716,7 @@ function MyProfile(props) {
         isModalCloseButton
         style={{
           maxWidth: '400px',
-          height: '100%'
+          height: 'fit-content'
         }}
         footerContent={
           <div style={{ display: 'flex', gap: '8px' }}>
@@ -720,7 +730,9 @@ function MyProfile(props) {
         }
         onClose={closeUpdateAvailabilityModal}
       >
-        <AvailabilityEditForm updateSchedule={updateSchedule} />
+        <Box overflowY={'scroll'}>
+          <AvailabilityEditForm updateSchedule={updateSchedule} />
+        </Box>
       </CustomModal>
       <CustomModal
         isOpen={isUpdateVideoModalOpen}
@@ -997,6 +1009,29 @@ function MyProfile(props) {
             handleLevelChange={handleLevelChange}
             handleSubjectChange={handleSubjectChange}
           />
+        </Box>
+      </CustomModal>
+      <CustomModal
+        isOpen={isUpdateQualificationsModalOpen}
+        modalTitle="Update Qualifications"
+        isModalCloseButton
+        style={{
+          maxWidth: '600px',
+          height: 'fit-content'
+        }}
+        footerContent={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button
+              onClick={() => handleUpdateTutor('qualifications', schedule)}
+            >
+              {isUpdating ? 'Updating...' : 'Update'}
+            </Button>
+          </div>
+        }
+        onClose={closeUpdateQualificationsModal}
+      >
+        <Box overflowY={'scroll'} p={3} w="full">
+          <QualificationsEditForm updateQualifications={updateQualifications} />
         </Box>
       </CustomModal>
     </Box>
