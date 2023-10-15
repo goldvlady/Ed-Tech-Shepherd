@@ -107,7 +107,7 @@ export default function Events({ event }: any) {
                         //     convertISOToCustomFormat(event.data.endDate),
                         //     'Africa/Lagos'
                         //   )
-                        moment(event.data.endDate).format('h:mmA')}
+                        event.data.endDate
                   </span>
                 </>
               )}
