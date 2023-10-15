@@ -57,13 +57,6 @@ class ApiService {
     });
   };
 
-  static storeNotesTags = (noteIds: string[] | string, tags: string[]) => {
-    return doFetch(`${ApiService.baseEndpoint}/storeNotesTags`, {
-      method: 'POST',
-      body: JSON.stringify({ noteIds, tags })
-    });
-  };
-
   static scheduleStudyEvent = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/scheduleStudyEvent`, {
       method: 'POST',
@@ -483,6 +476,13 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/updateNote/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data)
+    });
+  };
+
+  static storeNotesTags = (noteIds: string[] | string, tags: string[]) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeNotesTags`, {
+      method: 'POST',
+      body: JSON.stringify({ noteIds, tags })
     });
   };
 

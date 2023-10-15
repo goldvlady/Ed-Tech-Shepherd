@@ -13,10 +13,7 @@ import TableTag from '../../../../components/CustomComponents/CustomTag';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import TagModal from '../../../../components/TagModal';
 import useDebounce from '../../../../hooks/useDebounce';
-import {
-  // saveMarkdownAsPDF,
-  saveHTMLAsPDF
-} from '../../../../library/fs';
+import { saveHTMLAsPDF } from '../../../../library/fs';
 import ApiService from '../../../../services/ApiService';
 import userStore from '../../../../state/userStore';
 import TempPDFViewer from '../../DocChat/TempPDFViewer';
@@ -63,30 +60,16 @@ import { $generateHtmlFromNodes } from '@lexical/html';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $getRoot,
-  CLEAR_EDITOR_COMMAND, // $createParagraphNode,
-  LexicalEditor as EditorType // $getSelection,
-  // $createTextNode
+  CLEAR_EDITOR_COMMAND,
+  LexicalEditor as EditorType
 } from 'lexical';
-import { defaultTo, isEmpty, isNil, union } from 'lodash';
+import { defaultTo, isEmpty, isNil, isString, union } from 'lodash';
 import moment from 'moment';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { BsFillPinFill } from 'react-icons/bs';
 import { FaEllipsisH } from 'react-icons/fa';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-
-// import { uploadBlockNoteDocument } from '../../../../services/AI';
-// import { Block, BlockNoteEditor } from '@blocknote/core';
-// import { BlockNoteView, useBlockNote } from '@blocknote/react';
-// import { init } from '@sentry/browser';
-
-// import LexicalEditor from './LexicalEditor';
-// import html2pdf from 'html2pdf.js';
-// import { uploadBlockNoteDocument } from '../../../../services/AI';
-// import { useToast } from '@chakra-ui/react';
-// import { Block, BlockNoteEditor } from '@blocknote/core';
-// import { BlockNoteView, useBlockNote } from '@blocknote/react';
-// import { init } from '@sentry/browser';
 
 const DEFAULT_NOTE_TITLE = 'Enter Note Title';
 const DELETE_NOTE_TITLE = 'Delete Note';
@@ -213,11 +196,6 @@ const NewNote = () => {
   const [canStartSaving, setCanStartSaving] = useState(false);
   const [openSideModal, setOpenSideModal] = useState(false);
 
-  // const editor: BlockNoteEditor | null = useBlockNote({
-  //   initialContent: initialContent ? JSON.parse(initialContent) : undefined,
-  //   onEditorContentChange: (editor) => handleAutoSave(editor)
-  // });
-
   const [editor] = useLexicalComposerContext();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -286,20 +264,20 @@ const NewNote = () => {
 
     let saveDetails: NoteServerResponse<NoteDetails> | null;
 
+    const data: NoteData = {
+      topic: editedTitle,
+      note: noteJSON,
+      status: NoteStatus.SAVED
+    };
+
+    const unionTags = union(newTags, tags);
+
+    if (!isEmpty(unionTags)) data.tags = unionTags;
+
     if (!isEmpty(noteId)) {
-      saveDetails = await updateNote(noteId, {
-        topic: editedTitle,
-        note: noteJSON,
-        tags: union(newTags, tags),
-        status: NoteStatus.SAVED
-      });
+      saveDetails = await updateNote(noteId, data);
     } else {
-      saveDetails = await createNote({
-        topic: editedTitle,
-        note: noteJSON,
-        tags: union(newTags, tags),
-        status: NoteStatus.SAVED
-      });
+      saveDetails = await createNote(data as NoteData);
     }
     if (!saveDetails) {
       setSaveButtonState(true);
@@ -381,7 +359,7 @@ const NewNote = () => {
   };
 
   const getNoteById = async (paramsIdForNote = noteParamId) => {
-    if (isEmpty(paramsIdForNote)) {
+    if (isEmpty(paramsIdForNote) || isNil(paramsIdForNote)) {
       return;
     }
     const resp = await ApiService.getNote(paramsIdForNote as string);
@@ -719,7 +697,8 @@ const NewNote = () => {
     tags: string[]
   ): Promise<NoteServerResponse | null> => {
     const data = { tags: tags };
-    const resp = await ApiService.updateNoteTags(id, data);
+    // const resp = await ApiService.updateNoteTags(id, data);
+    const resp = await ApiService.storeNotesTags(id, tags);
     const respText = await resp.text();
     try {
       const respDetails: NoteServerResponse = JSON.parse(respText);
@@ -888,42 +867,41 @@ const NewNote = () => {
       noteStatus = NoteStatus.DRAFT;
     }
 
-    if (!isEmpty(noteIdToUse)) {
-      updateNote(noteIdToUse, {
-        topic: noteTitle,
-        note: noteJSON,
-        tags: union(newTags, tags),
-        status: noteStatus
-      }).then(() => {
+    const idToUse =
+      !isEmpty(noteIdToUse) && !isNil(noteIdToUse)
+        ? noteIdToUse
+        : !isEmpty(draftNoteIdToUse) && !isNil(draftNoteIdToUse)
+        ? draftNoteIdToUse
+        : false;
+
+    const data: {
+      topic: string;
+      note: string;
+      status: string;
+      tags?: string[];
+    } = {
+      topic: noteTitle,
+      note: noteJSON,
+      status: noteStatus
+    };
+    const unionTags = union(newTags, tags);
+
+    if (!isEmpty(unionTags)) data.tags = unionTags;
+
+    if (idToUse) {
+      updateNote(noteIdToUse, data as NoteData).then((updatedDetails) => {
         saveCallback(noteIdToUse, noteJSON);
       });
     } else {
-      if (draftNoteIdToUse && draftNoteIdToUse !== '') {
-        // update existing draft note
-        updateNote(draftNoteIdToUse, {
-          topic: noteTitle,
-          note: noteJSON,
-          tags: union(newTags, tags),
-          status: noteStatus
-        }).then(() => {
+      // create a new draft note
+      createNote(data as NoteData).then((saveDetails) => {
+        // save new draft note details for update
+        if (saveDetails?.data) {
+          draftNoteId.current.value = saveDetails.data['_id'];
+          setNoteId(saveDetails.data['_id']);
           saveCallback(draftNoteIdToUse, noteJSON);
-        });
-      } else {
-        // create a new draft note
-        createNote({
-          topic: noteTitle,
-          note: noteJSON,
-          tags: union(newTags, tags),
-          status: noteStatus
-        }).then((saveDetails) => {
-          // save new draft note details for update
-          if (saveDetails?.data) {
-            draftNoteId.current.value = saveDetails.data['_id'];
-            setNoteId(saveDetails.data['_id']);
-            saveCallback(draftNoteIdToUse, noteJSON);
-          }
-        });
-      }
+        }
+      });
     }
   };
 
@@ -967,7 +945,6 @@ const NewNote = () => {
   useEffect(() => {
     return editor.registerUpdateListener(({ editorState }) => {
       editorState.read(() => {
-        // if (process.env.NODE_ENV === 'production')
         if (canStartSaving) {
           handleAutoSave(editor);
         }
@@ -991,10 +968,14 @@ const NewNote = () => {
   useEffect(() => {
     const initialValue =
       '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
-    if (!isEmpty(initialContent)) {
-      const editorState = editor.parseEditorState(
-        defaultTo(initialContent, initialValue)
-      );
+    const editorState = editor.parseEditorState(initialValue);
+    editor.setEditorState(editorState);
+    if (
+      isString(initialContent) &&
+      !isEmpty(initialContent) &&
+      !isNil(initialContent)
+    ) {
+      const editorState = editor.parseEditorState(initialContent);
       editor.setEditorState(editorState);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
