@@ -634,7 +634,7 @@ function MyProfile(props) {
                 borderColor="gray.200"
                 position="relative"
                 cursor={'pointer'}
-                onClick={openUpdateAvailabilityModal}
+                onClick={openUpdateQualificationsModal}
               >
                 <Center w="100%" h="100%" position="absolute">
                   <MdEdit />
@@ -1022,7 +1022,7 @@ function MyProfile(props) {
         footerContent={
           <div style={{ display: 'flex', gap: '8px' }}>
             <Button
-              onClick={() => handleUpdateTutor('qualifications', schedule)}
+              onClick={() => handleUpdateTutor('qualifications', qualifications)}
             >
               {isUpdating ? 'Updating...' : 'Update'}
             </Button>
