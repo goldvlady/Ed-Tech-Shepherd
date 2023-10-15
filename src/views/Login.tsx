@@ -52,7 +52,6 @@ const Login: React.FC = () => {
   const { user: appUser, fetchUser } = userStore();
 
   const handleNavigation = useCallback(() => {
-    console.log('APPP USER', appUser);
     let path = '/dashboard';
 
     if (appUser?.type.includes('tutor')) {
@@ -65,7 +64,13 @@ const Login: React.FC = () => {
     if (appUser?.signedUpAsTutor) {
       path = '/dashboard/tutordashboard';
     }
-    console.log('PATH', path);
+    if (
+      appUser?.tutor &&
+      !appUser.tutor.isActive &&
+      appUser?.type.includes('student')
+    ) {
+      path = '/dashboard';
+    }
 
     navigate(path);
   }, [appUser, navigate]);
@@ -242,7 +247,6 @@ const Login: React.FC = () => {
                   width={'100%'}
                   size="lg"
                   onClick={() => {
-                    console.log('clicked');
                     submitForm();
                   }}
                 >
