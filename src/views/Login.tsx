@@ -28,7 +28,7 @@ import {
 } from 'firebase/auth';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Field, Form, Formik } from 'formik';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import * as Yup from 'yup';
@@ -48,6 +48,18 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const auth = getAuth();
   const { user: appUser, fetchUser } = userStore();
+
+  const handleNavigation = useCallback(
+    () =>
+      navigate(
+        appUser?.type.includes('tutor')
+          ? appUser.signedUpAsTutor && !appUser.tutor
+            ? '/complete_profile'
+            : '/dashboard/tutordashboard'
+          : '/dashboard'
+      ),
+    [appUser, navigate]
+  );
   // useEffect(() => {
   //   onAuthStateChanged(firebaseAuth, (user: any) => {
   //     if (user) {
@@ -66,6 +78,47 @@ const Login: React.FC = () => {
   //   });
   // }, []);
 
+  const loginWithGoogle = useCallback(async () => {
+    try {
+      const result = await signInWithPopup(firebaseAuth, googleProvider);
+      await fetchUser();
+      const userEmail = result?.user?.email;
+      if (!userEmail) {
+        toast({
+          title: 'Invalid User',
+          position: 'top-right',
+          status: 'error',
+          isClosable: true
+        });
+      }
+
+      // Check if user exists
+      const signInMethods = await fetchSignInMethodsForEmail(
+        firebaseAuth,
+        userEmail as string
+      );
+
+      // If there are no sign-in methods for this email, it means the user doesn't exist.
+      if (signInMethods.length === 0) {
+        toast({
+          title: "User doesn't exist, not signing in.",
+          position: 'top-right',
+          status: 'error',
+          isClosable: true
+        });
+        return;
+      }
+      handleNavigation();
+    } catch (error) {
+      toast({
+        title: 'Invalid User',
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
+      });
+    }
+  }, [appUser]);
+
   return (
     <Root>
       <Box mb={'20px'}>
@@ -82,42 +135,62 @@ const Login: React.FC = () => {
           validationSchema={LoginSchema}
           onSubmit={async (values, { setSubmitting }) => {
             try {
-              await signInWithEmailAndPassword(
+              const { user } = await signInWithEmailAndPassword(
                 firebaseAuth,
                 values.email,
                 values.password
               );
-              onAuthStateChanged(firebaseAuth, async (user: any) => {
-                if (user && user.emailVerified) {
-                  sessionStorage.setItem('email', user.email);
-                  await fetchUser();
-                  sessionStorage.setItem('UserDetails', JSON.stringify(user));
 
-                  // const email = user.email;
-                  // const photoURL = user.photoURL;
-                  // const emailVerified = user.emailVerified;
-                  // const uid = user.uid;
+              if (user && user.emailVerified) {
+                sessionStorage.setItem('email', user.email as string);
+                sessionStorage.setItem('UserDetails', JSON.stringify(user));
+                await fetchUser();
 
-                  if (appUser) {
-                    navigate(
-                      appUser?.type.includes('tutor')
-                        ? appUser.signedUpAsTutor && !appUser.tutor
-                          ? '/complete_profile'
-                          : '/dashboard/tutordashboard'
-                        : '/dashboard'
-                    );
-                  }
+                // const email = user.email;
+                // const photoURL = user.photoURL;
+                // const emailVerified = user.emailVerified;
+                // const uid = user.uid;
 
-                  // ...
-                } else {
-                  signOut(auth).then(() => {
-                    sessionStorage.clear();
-                    localStorage.clear();
-                    navigate('/verification_pending');
-                  });
-                  // navigate('/dashboard');
-                }
-              });
+                handleNavigation();
+                // ...
+              } else {
+                signOut(auth).then(() => {
+                  localStorage.clear();
+                  navigate('/verification_pending');
+                });
+                // navigate('/dashboard');
+              }
+
+              // onAuthStateChanged(firebaseAuth, async (user: any) => {
+              //   if (user && user.emailVerified) {
+              //     sessionStorage.setItem('email', user.email);
+              //     await fetchUser();
+              //     sessionStorage.setItem('UserDetails', JSON.stringify(user));
+
+              //     // const email = user.email;
+              //     // const photoURL = user.photoURL;
+              //     // const emailVerified = user.emailVerified;
+              //     // const uid = user.uid;
+
+              //     if (appUser) {
+              //       navigate(
+              //         appUser?.type.includes('tutor')
+              //           ? appUser.signedUpAsTutor && !appUser.tutor
+              //             ? '/complete_profile'
+              //             : '/dashboard/tutordashboard'
+              //           : '/dashboard'
+              //       );
+              //     }
+
+              //     // ...
+              //   } else {
+              //     signOut(auth).then(() => {
+              //       localStorage.clear();
+              //       navigate('/verification_pending');
+              //     });
+              //     // navigate('/dashboard');
+              //   }
+              // });
             } catch (e: any) {
               let errorMessage = '';
               switch (e.code) {
@@ -217,52 +290,7 @@ const Login: React.FC = () => {
                 <Button
                   variant="solid"
                   bg="#F2F2F3"
-                  onClick={async () => {
-                    try {
-                      const result = await signInWithPopup(
-                        firebaseAuth,
-                        googleProvider
-                      );
-                      await fetchUser();
-                      const userEmail = result?.user?.email;
-                      if (!userEmail) {
-                        toast({
-                          title: 'Invalid User',
-                          position: 'top-right',
-                          status: 'error',
-                          isClosable: true
-                        });
-                      }
-
-                      // Check if user exists
-                      const signInMethods = await fetchSignInMethodsForEmail(
-                        firebaseAuth,
-                        userEmail as string
-                      );
-
-                      // If there are no sign-in methods for this email, it means the user doesn't exist.
-                      if (signInMethods.length === 0) {
-                        toast({
-                          title: "User doesn't exist, not signing in.",
-                          position: 'top-right',
-                          status: 'error',
-                          isClosable: true
-                        });
-                        return;
-                      }
-                      if (appUser) {
-                        navigate(
-                          appUser?.type.includes('tutor')
-                            ? appUser.signedUpAsTutor && !appUser.tutor
-                              ? '/complete_profile'
-                              : '/dashboard/tutordashboard'
-                            : '/dashboard'
-                        );
-                      }
-                    } catch (error) {
-                      console.error('Error during sign-in:', error);
-                    }
-                  }}
+                  onClick={() => loginWithGoogle()}
                   colorScheme={'primary'}
                   size={'lg'}
                   color="#000"
