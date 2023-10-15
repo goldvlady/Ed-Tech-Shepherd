@@ -134,19 +134,19 @@ const Login: React.FC = () => {
           values.password
         );
 
-        if (user && user.emailVerified) {
-          sessionStorage.setItem('email', user.email as string);
-          sessionStorage.setItem('UserDetails', JSON.stringify(user));
-          await fetchUser();
-          handleNavigation();
-          // ...
-        } else {
-          signOut(auth).then(() => {
-            localStorage.clear();
-            navigate('/verification_pending');
-          });
-          // navigate('/dashboard');
-        }
+        // if (user && user.emailVerified) {
+        //   sessionStorage.setItem('email', user.email as string);
+        //   sessionStorage.setItem('UserDetails', JSON.stringify(user));
+        //   await fetchUser();
+        //   handleNavigation();
+        //   // ...
+        // } else {
+        //   signOut(auth).then(() => {
+        //     localStorage.clear();
+        //     navigate('/verification_pending');
+        //   });
+        //   // navigate('/dashboard');
+        // }
       } catch (e: any) {
         let errorMessage = '';
         switch (e.code) {
