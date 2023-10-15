@@ -185,50 +185,7 @@ const Login: React.FC = () => {
         <Formik
           initialValues={{ email: '', password: '' }}
           validationSchema={LoginSchema}
-          onSubmit={async (values, { setSubmitting }) => {
-            try {
-              const { user } = await signInWithEmailAndPassword(
-                firebaseAuth,
-                values.email,
-                values.password
-              );
-
-              if (user && user.emailVerified) {
-                sessionStorage.setItem('email', user.email as string);
-                sessionStorage.setItem('UserDetails', JSON.stringify(user));
-                await fetchUser();
-                handleNavigation();
-                // ...
-              } else {
-                signOut(auth).then(() => {
-                  localStorage.clear();
-                  navigate('/verification_pending');
-                });
-                // navigate('/dashboard');
-              }
-            } catch (e: any) {
-              let errorMessage = '';
-              switch (e.code) {
-                case 'auth/user-not-found':
-                  errorMessage = 'Invalid email or password';
-                  break;
-                case 'auth/wrong-password':
-                  errorMessage = 'Invalid email or password';
-                  break;
-                default:
-                  errorMessage = 'An unexpected error occurred';
-                  break;
-              }
-
-              toast({
-                title: errorMessage,
-                position: 'top-right',
-                status: 'error',
-                isClosable: true
-              });
-            }
-            setSubmitting(false);
-          }}
+          onSubmit={loginWithoutEmail}
         >
           {({ errors, isSubmitting, submitForm }) => (
             <Form>
