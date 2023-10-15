@@ -28,7 +28,7 @@ import {
 } from 'firebase/auth';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Field, Form, Formik } from 'formik';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import * as Yup from 'yup';
@@ -42,29 +42,128 @@ const LoginSchema = Yup.object().shape({
   password: Yup.string().required('A password is required')
 });
 
+let authBasis = 'normal';
+let handleSubmitting: any;
 const Login: React.FC = () => {
   useTitle('Login');
   const toast = useCustomToast();
   const navigate = useNavigate();
   const auth = getAuth();
   const { user: appUser, fetchUser } = userStore();
-  // useEffect(() => {
-  //   onAuthStateChanged(firebaseAuth, (user: any) => {
-  //     if (user) {
-  //       sessionStorage.setItem('UserDetails', JSON.stringify(user));
-  //       const email = user.email;
-  //       const photoURL = user.photoURL;
-  //       const emailVerified = user.emailVerified;
-  //       const uid = user.uid;
-  //       sessionStorage.setItem('Username', user.displayName);
 
-  //       // ...
-  //     } else {
-  //       // User is signed out
-  //       // ...
-  //     }
-  //   });
-  // }, []);
+  const handleNavigation = useCallback(() => {
+    let path = '/dashboard';
+
+    if (appUser?.type.includes('tutor')) {
+      path = '/dashboard/tutordashboard';
+    }
+
+    if (appUser?.signedUpAsTutor && !appUser?.tutor) {
+      path = '/complete_profile';
+    }
+    if (appUser?.signedUpAsTutor) {
+      path = '/dashboard/tutordashboard';
+    }
+    if (
+      appUser?.tutor &&
+      !appUser.tutor.isActive &&
+      appUser?.type.includes('student')
+    ) {
+      path = '/dashboard';
+    }
+
+    navigate(path);
+  }, [appUser, navigate]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
+      if (user && !user.emailVerified) {
+        signOut(auth).then(() => {
+          localStorage.clear();
+          navigate('/verification_pending');
+        });
+      }
+      if (user && appUser) {
+        if (authBasis === 'google') {
+          const signInMethods = await fetchSignInMethodsForEmail(
+            firebaseAuth,
+            user.email as string
+          );
+          if (signInMethods.length === 0) {
+            toast({
+              title: "User doesn't exist, not signing in.",
+              position: 'top-right',
+              status: 'error',
+              isClosable: true
+            });
+          } else {
+            handleNavigation();
+          }
+        } else {
+          handleNavigation();
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, [auth, appUser, navigate, handleNavigation]);
+
+  const loginWithGoogle = useCallback(async () => {
+    try {
+      authBasis = 'google';
+      const result = await signInWithPopup(firebaseAuth, googleProvider);
+      await fetchUser();
+      const userEmail = result?.user?.email;
+      if (!userEmail) {
+        toast({
+          title: 'Invalid User',
+          position: 'top-right',
+          status: 'error',
+          isClosable: true
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Invalid User',
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
+      });
+    }
+  }, [appUser]);
+
+  const loginWithEmail = useCallback(
+    async (values, { setSubmitting }) => {
+      try {
+        await signInWithEmailAndPassword(
+          firebaseAuth,
+          values.email,
+          values.password
+        );
+      } catch (e: any) {
+        let errorMessage = '';
+        switch (e.code) {
+          case 'auth/user-not-found':
+            errorMessage = 'Invalid email or password';
+            break;
+          case 'auth/wrong-password':
+            errorMessage = 'Invalid email or password';
+            break;
+          default:
+            errorMessage = 'An unexpected error occurred';
+            break;
+        }
+
+        toast({
+          title: errorMessage,
+          position: 'top-right',
+          status: 'error',
+          isClosable: true
+        });
+      }
+    },
+    [handleNavigation, appUser, navigate, fetchUser]
+  );
 
   return (
     <Root>
@@ -80,67 +179,7 @@ const Login: React.FC = () => {
         <Formik
           initialValues={{ email: '', password: '' }}
           validationSchema={LoginSchema}
-          onSubmit={async (values, { setSubmitting }) => {
-            try {
-              await signInWithEmailAndPassword(
-                firebaseAuth,
-                values.email,
-                values.password
-              );
-              onAuthStateChanged(firebaseAuth, async (user: any) => {
-                if (user && user.emailVerified) {
-                  sessionStorage.setItem('email', user.email);
-                  await fetchUser();
-                  sessionStorage.setItem('UserDetails', JSON.stringify(user));
-
-                  // const email = user.email;
-                  // const photoURL = user.photoURL;
-                  // const emailVerified = user.emailVerified;
-                  // const uid = user.uid;
-
-                  if (appUser) {
-                    navigate(
-                      appUser?.type.includes('tutor')
-                        ? appUser.signedUpAsTutor && !appUser.tutor
-                          ? '/complete_profile'
-                          : '/dashboard/tutordashboard'
-                        : '/dashboard'
-                    );
-                  }
-
-                  // ...
-                } else {
-                  signOut(auth).then(() => {
-                    sessionStorage.clear();
-                    localStorage.clear();
-                    navigate('/verification_pending');
-                  });
-                  // navigate('/dashboard');
-                }
-              });
-            } catch (e: any) {
-              let errorMessage = '';
-              switch (e.code) {
-                case 'auth/user-not-found':
-                  errorMessage = 'Invalid email or password';
-                  break;
-                case 'auth/wrong-password':
-                  errorMessage = 'Invalid email or password';
-                  break;
-                default:
-                  errorMessage = 'An unexpected error occurred';
-                  break;
-              }
-
-              toast({
-                title: errorMessage,
-                position: 'top-right',
-                status: 'error',
-                isClosable: true
-              });
-            }
-            setSubmitting(false);
-          }}
+          onSubmit={loginWithEmail}
         >
           {({ errors, isSubmitting, submitForm }) => (
             <Form>
@@ -208,7 +247,6 @@ const Login: React.FC = () => {
                   width={'100%'}
                   size="lg"
                   onClick={() => {
-                    console.log('clicked');
                     submitForm();
                   }}
                 >
@@ -217,52 +255,7 @@ const Login: React.FC = () => {
                 <Button
                   variant="solid"
                   bg="#F2F2F3"
-                  onClick={async () => {
-                    try {
-                      const result = await signInWithPopup(
-                        firebaseAuth,
-                        googleProvider
-                      );
-                      await fetchUser();
-                      const userEmail = result?.user?.email;
-                      if (!userEmail) {
-                        toast({
-                          title: 'Invalid User',
-                          position: 'top-right',
-                          status: 'error',
-                          isClosable: true
-                        });
-                      }
-
-                      // Check if user exists
-                      const signInMethods = await fetchSignInMethodsForEmail(
-                        firebaseAuth,
-                        userEmail as string
-                      );
-
-                      // If there are no sign-in methods for this email, it means the user doesn't exist.
-                      if (signInMethods.length === 0) {
-                        toast({
-                          title: "User doesn't exist, not signing in.",
-                          position: 'top-right',
-                          status: 'error',
-                          isClosable: true
-                        });
-                        return;
-                      }
-                      if (appUser) {
-                        navigate(
-                          appUser?.type.includes('tutor')
-                            ? appUser.signedUpAsTutor && !appUser.tutor
-                              ? '/complete_profile'
-                              : '/dashboard/tutordashboard'
-                            : '/dashboard'
-                        );
-                      }
-                    } catch (error) {
-                      console.error('Error during sign-in:', error);
-                    }
-                  }}
+                  onClick={() => loginWithGoogle()}
                   colorScheme={'primary'}
                   size={'lg'}
                   color="#000"

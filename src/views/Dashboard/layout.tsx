@@ -181,7 +181,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
     setToggleProfileSwitchModal(true);
   };
   const navigate = useNavigate();
-  const { user, fetchUser } = userStore();
+  const { user, fetchUser, logoutUser } = userStore();
   const userId = user?._id || '';
   const { notifications, hasUnreadNotification, markAllAsRead } =
     useNotifications(userId);
@@ -191,6 +191,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
     signOut(auth).then(() => {
       sessionStorage.clear();
       localStorage.clear();
+      logoutUser();
       navigate('/login');
     });
   };
