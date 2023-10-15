@@ -19,6 +19,7 @@ type Store = {
   fetchUserDocuments: (userId: string) => Promise<void>;
   userDocuments: Array<List> | [];
   setUserData: (data: Partial<User>) => void;
+  logoutUser: () => void;
 };
 
 export default create<Store>((set) => ({
@@ -30,6 +31,9 @@ export default create<Store>((set) => ({
     if (response.status !== 200) return false;
     set({ user: await response.json() });
     return true;
+  },
+  logoutUser: () => {
+    set({ user: null });
   },
   setUserData: (data: Partial<User>) => {
     set((state) => {

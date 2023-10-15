@@ -70,7 +70,7 @@ const authReducer = (state: State, action: Action) => {
 };
 
 export const AuthProvider = ({ children }: { children: any }) => {
-  const { fetchUser, user: currentUser } = userStore();
+  const { fetchUser, user: currentUser, logoutUser } = userStore();
   const [state, dispatch] = useReducer(authReducer, initialState);
 
   const reloadAuth = useCallback(() => {
@@ -101,6 +101,7 @@ export const AuthProvider = ({ children }: { children: any }) => {
           }
         }
       } else {
+        logoutUser();
         dispatch({ type: ActionTypes.AUTH_FAILURE });
       }
       dispatch({ type: ActionTypes.AUTH_ATTEMPTED });
