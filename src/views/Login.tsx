@@ -67,23 +67,22 @@ const Login: React.FC = () => {
 
     navigate(path);
   }, [appUser, navigate]);
-  // useEffect(() => {
-  //   onAuthStateChanged(firebaseAuth, (user: any) => {
-  //     if (user) {
-  //       sessionStorage.setItem('UserDetails', JSON.stringify(user));
-  //       const email = user.email;
-  //       const photoURL = user.photoURL;
-  //       const emailVerified = user.emailVerified;
-  //       const uid = user.uid;
-  //       sessionStorage.setItem('Username', user.displayName);
 
-  //       // ...
-  //     } else {
-  //       // User is signed out
-  //       // ...
-  //     }
-  //   });
-  // }, []);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
+      if (user && !user.emailVerified) {
+        signOut(auth).then(() => {
+          localStorage.clear();
+          navigate('/verification_pending');
+        });
+      }
+      if (user && appUser) {
+        handleNavigation();
+      }
+    });
+
+    return () => unsubscribe();
+  }, [auth, appUser, navigate, handleNavigation]);
 
   const loginWithGoogle = useCallback(async () => {
     try {
