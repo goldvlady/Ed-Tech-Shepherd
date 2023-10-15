@@ -61,7 +61,7 @@ const Login: React.FC = () => {
       path = '/complete_profile';
     }
     if (appUser?.signedUpAsTutor) {
-      path = '/complete_profile';
+      path = '/dashboard/tutordashboard';
     }
     console.log('PATH', path);
 
