@@ -49,17 +49,21 @@ const Login: React.FC = () => {
   const auth = getAuth();
   const { user: appUser, fetchUser } = userStore();
 
-  const handleNavigation = useCallback(
-    () =>
-      navigate(
-        appUser?.type.includes('tutor')
-          ? appUser.signedUpAsTutor && !appUser.tutor
-            ? '/complete_profile'
-            : '/dashboard/tutordashboard'
-          : '/dashboard'
-      ),
-    [appUser, navigate]
-  );
+  const handleNavigation = useCallback(() => {
+    console.log('APPP USER', appUser);
+    let path = '/dashboard';
+
+    if (appUser?.type.includes('tutor')) {
+      path = '/dashboard/tutordashboard';
+    }
+
+    if (appUser?.signedUpAsTutor && !appUser?.tutor) {
+      path = '/complete_profile';
+    }
+    console.log('PATH', path);
+
+    navigate(path);
+  }, [appUser, navigate]);
   // useEffect(() => {
   //   onAuthStateChanged(firebaseAuth, (user: any) => {
   //     if (user) {
@@ -117,7 +121,55 @@ const Login: React.FC = () => {
         isClosable: true
       });
     }
-  }, [appUser]);
+  }, [appUser, handleNavigation]);
+
+  const loginWithoutEmail = useCallback(
+    async (values, { setSubmitting }) => {
+      try {
+        const { user } = await signInWithEmailAndPassword(
+          firebaseAuth,
+          values.email,
+          values.password
+        );
+
+        if (user && user.emailVerified) {
+          sessionStorage.setItem('email', user.email as string);
+          sessionStorage.setItem('UserDetails', JSON.stringify(user));
+          await fetchUser();
+          handleNavigation();
+          // ...
+        } else {
+          signOut(auth).then(() => {
+            localStorage.clear();
+            navigate('/verification_pending');
+          });
+          // navigate('/dashboard');
+        }
+      } catch (e: any) {
+        let errorMessage = '';
+        switch (e.code) {
+          case 'auth/user-not-found':
+            errorMessage = 'Invalid email or password';
+            break;
+          case 'auth/wrong-password':
+            errorMessage = 'Invalid email or password';
+            break;
+          default:
+            errorMessage = 'An unexpected error occurred';
+            break;
+        }
+
+        toast({
+          title: errorMessage,
+          position: 'top-right',
+          status: 'error',
+          isClosable: true
+        });
+      }
+      setSubmitting(false);
+    },
+    [handleNavigation, appUser, navigate, fetchUser]
+  );
 
   return (
     <Root>
@@ -145,12 +197,6 @@ const Login: React.FC = () => {
                 sessionStorage.setItem('email', user.email as string);
                 sessionStorage.setItem('UserDetails', JSON.stringify(user));
                 await fetchUser();
-
-                // const email = user.email;
-                // const photoURL = user.photoURL;
-                // const emailVerified = user.emailVerified;
-                // const uid = user.uid;
-
                 handleNavigation();
                 // ...
               } else {
@@ -160,37 +206,6 @@ const Login: React.FC = () => {
                 });
                 // navigate('/dashboard');
               }
-
-              // onAuthStateChanged(firebaseAuth, async (user: any) => {
-              //   if (user && user.emailVerified) {
-              //     sessionStorage.setItem('email', user.email);
-              //     await fetchUser();
-              //     sessionStorage.setItem('UserDetails', JSON.stringify(user));
-
-              //     // const email = user.email;
-              //     // const photoURL = user.photoURL;
-              //     // const emailVerified = user.emailVerified;
-              //     // const uid = user.uid;
-
-              //     if (appUser) {
-              //       navigate(
-              //         appUser?.type.includes('tutor')
-              //           ? appUser.signedUpAsTutor && !appUser.tutor
-              //             ? '/complete_profile'
-              //             : '/dashboard/tutordashboard'
-              //           : '/dashboard'
-              //       );
-              //     }
-
-              //     // ...
-              //   } else {
-              //     signOut(auth).then(() => {
-              //       localStorage.clear();
-              //       navigate('/verification_pending');
-              //     });
-              //     // navigate('/dashboard');
-              //   }
-              // });
             } catch (e: any) {
               let errorMessage = '';
               switch (e.code) {
