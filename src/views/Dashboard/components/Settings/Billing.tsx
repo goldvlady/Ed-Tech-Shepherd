@@ -1,5 +1,5 @@
+import CustomModal from '../../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../../components/CustomComponents/CustomToast';
-import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import PaymentDialog, {
   PaymentDialogRef
 } from '../../../../components/PaymentDialog';
@@ -31,7 +31,10 @@ import {
   ModalContent,
   ModalBody,
   ModalFooter,
-  ModalHeader
+  ModalHeader,
+  Input,
+  FormLabel,
+  FormControl
 } from '@chakra-ui/react';
 import { loadStripe } from '@stripe/stripe-js';
 import React, { useState, useRef, useEffect } from 'react';
@@ -45,7 +48,7 @@ function Billing(props) {
   const { username, email } = props;
   const { user, fetchUser } = userStore();
   const currentPath = window.location.pathname;
-  const toast = useCustomToast();
+  const toast = useToast();
   const navigate = useNavigate();
 
   const isTutor = currentPath.includes('/dashboard/tutordashboard/');
@@ -107,30 +110,77 @@ function Billing(props) {
   const [currentPaymentMethod, setCurrentPaymentMethod] = useState<any>(null);
   const [settingUpPaymentMethod, setSettingUpPaymentMethod] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
+  const [accountName, setAccountName] = useState(
+    user?.tutor?.bankInfo?.accountName
+  );
+  const [accountNumber, setAccountNumber] = useState(
+    user?.tutor?.bankInfo?.accountNumber
+  );
+  const [bankName, setBankName] = useState(user?.tutor?.bankInfo?.bankName);
+  const [swiftCode, setSwiftCode] = useState('');
 
   const paymentDialogRef = useRef<PaymentDialogRef>(null);
+
+  const {
+    isOpen: isUpdateTutorPaymentModalOpen,
+    onOpen: openUpdateTutorPaymentModal,
+    onClose: closeUpdateTutorPaymentModal
+  } = useDisclosure();
 
   const handleRemovePayMethod = async (id: string) => {
     const resp = await ApiService.deletePaymentMethod(id);
     closeDeleteConfirmModal();
     if (resp.status === 200) {
       toast({
-        title: 'Payment Method Removed Successfully',
-        status: 'success',
+        render: () => (
+          <CustomToast
+            title="Payment Method Removed Successfully"
+            status="success"
+          />
+        ),
         position: 'top-right',
         isClosable: true
       });
       fetchUser();
     } else {
       toast({
-        title: 'Something went wrong..',
-        status: 'error',
+        render: () => (
+          <CustomToast title="Something went wrong.." status="error" />
+        ),
         position: 'top-right',
         isClosable: true
       });
     }
   };
 
+  const handleUpdateTutorPayInfo = async (updateField, value) => {
+    const formData = {};
+    // setIsUpdating(true);
+    formData[updateField] = value;
+
+    const response = await ApiService.updateTutor(formData);
+    const resp: any = await response.json();
+    if (response.status === 200) {
+      toast({
+        render: () => (
+          <CustomToast title=" Updated successfully" status="success" />
+        ),
+        position: 'top-right',
+        isClosable: true
+      });
+      fetchUser();
+    } else {
+      toast({
+        render: () => (
+          <CustomToast title="Something went wrong.." status="error" />
+        ),
+        position: 'top-right',
+        isClosable: true
+      });
+    }
+    // setIsUpdating(false);
+    closeUpdateTutorPaymentModal();
+  };
   const url: URL = new URL(window.location.href);
   const params: URLSearchParams = url.searchParams;
   const clientSecret = params.get('setup_intent_client_secret');
@@ -152,7 +202,6 @@ function Billing(props) {
 
       setSettingUpPaymentMethod(false);
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.log(error);
     }
   };
@@ -274,23 +323,24 @@ function Billing(props) {
               {isTutor ? 'Payment' : 'Manage Billing Methods'}
             </Text>
             <Spacer />
-            {!isTutor && (
-              <Button
-                variant="unstyled"
-                sx={{
-                  borderRadius: '8px',
-                  fontSize: '12px',
-                  fontWeight: '500',
-                  px: 4,
-                  border: '1px solid #E7E8E9',
-                  color: '#5C5F64',
-                  height: '29px'
-                }}
-                onClick={setupPaymentMethod}
-              >
-                Add new
-              </Button>
-            )}
+
+            <Button
+              variant="unstyled"
+              sx={{
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: '500',
+                px: 4,
+                border: '1px solid #E7E8E9',
+                color: '#5C5F64',
+                height: '29px'
+              }}
+              onClick={
+                isTutor ? openUpdateTutorPaymentModal : setupPaymentMethod
+              }
+            >
+              {isTutor ? 'Change' : 'Add new'}
+            </Button>
           </Flex>
 
           <Divider />
@@ -387,21 +437,6 @@ function Billing(props) {
                       {user?.tutor?.bankInfo?.accountName}
                     </Text>
                   </Stack>
-                  <Spacer />{' '}
-                  <Button
-                    variant="unstyled"
-                    sx={{
-                      borderRadius: '8px',
-                      fontSize: '12px',
-                      fontWeight: '500',
-                      px: 4,
-                      border: '1px solid #E7E8E9',
-                      color: '#5C5F64',
-                      height: '29px'
-                    }}
-                  >
-                    Change
-                  </Button>
                 </Flex>
                 <Flex width={'100%'} alignItems="center">
                   <Stack spacing={'2px'}>
@@ -421,21 +456,6 @@ function Billing(props) {
                       {user?.tutor?.bankInfo?.accountNumber}
                     </Text>
                   </Stack>
-                  <Spacer />{' '}
-                  <Button
-                    variant="unstyled"
-                    sx={{
-                      borderRadius: '8px',
-                      fontSize: '12px',
-                      fontWeight: '500',
-                      px: 4,
-                      border: '1px solid #E7E8E9',
-                      color: '#5C5F64',
-                      height: '29px'
-                    }}
-                  >
-                    Change
-                  </Button>
                 </Flex>
                 <Flex width={'100%'} alignItems="center">
                   <Stack spacing={'2px'}>
@@ -455,21 +475,6 @@ function Billing(props) {
                       {user?.tutor?.bankInfo?.bankName}
                     </Text>
                   </Stack>
-                  <Spacer />{' '}
-                  <Button
-                    variant="unstyled"
-                    sx={{
-                      borderRadius: '8px',
-                      fontSize: '12px',
-                      fontWeight: '500',
-                      px: 4,
-                      border: '1px solid #E7E8E9',
-                      color: '#5C5F64',
-                      height: '29px'
-                    }}
-                  >
-                    Change
-                  </Button>
                 </Flex>
               </>
             )}
@@ -534,6 +539,123 @@ function Billing(props) {
           </Flex>
         </Box>
       </Box>
+      <CustomModal
+        isOpen={isUpdateTutorPaymentModalOpen}
+        modalTitle="Update Payment Info"
+        isModalCloseButton
+        style={{
+          maxWidth: '400px',
+          height: 'fit-content'
+        }}
+        footerContent={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button
+              isDisabled={!accountName || !accountNumber || !bankName}
+              onClick={() =>
+                handleUpdateTutorPayInfo('bankInfo', {
+                  accountName: accountName,
+                  accountNumber: accountNumber,
+                  bankName: bankName
+                })
+              }
+            >
+              Update
+            </Button>
+          </div>
+        }
+        onClose={closeUpdateTutorPaymentModal}
+      >
+        <VStack spacing={4} width="100%" p={3}>
+          <FormControl>
+            <FormLabel
+              fontSize="0.75rem"
+              lineHeight="17px"
+              color="#5C5F64"
+              mb={1}
+            >
+              Account Name
+            </FormLabel>
+            <Input
+              fontSize="0.875rem"
+              fontFamily="Inter"
+              fontWeight="400"
+              type="text"
+              name="accountName"
+              color=" #212224"
+              placeholder="Account Name"
+              value={accountName}
+              onChange={(e) => setAccountName(e.target.value)}
+              _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel
+              fontSize="0.75rem"
+              lineHeight="17px"
+              color="#5C5F64"
+              mb={1}
+            >
+              Account Number
+            </FormLabel>
+            <Input
+              fontSize="0.875rem"
+              fontFamily="Inter"
+              fontWeight="400"
+              type="text"
+              name="accountNumber"
+              color=" #212224"
+              placeholder="Account Number"
+              value={accountNumber}
+              onChange={(e) => setAccountNumber(e.target.value)}
+              _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel
+              fontSize="0.75rem"
+              lineHeight="17px"
+              color="#5C5F64"
+              mb={1}
+            >
+              Bank Name
+            </FormLabel>
+            <Input
+              fontSize="0.875rem"
+              fontFamily="Inter"
+              fontWeight="400"
+              type="text"
+              name="bankName"
+              color=" #212224"
+              placeholder="Bank Name"
+              value={bankName}
+              onChange={(e) => setBankName(e.target.value)}
+              _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel
+              fontSize="0.75rem"
+              lineHeight="17px"
+              color="#5C5F64"
+              mb={1}
+            >
+              Swift Code
+            </FormLabel>
+            <Input
+              fontSize="0.875rem"
+              fontFamily="Inter"
+              fontWeight="400"
+              type="text"
+              name="swiftCode"
+              color=" #212224"
+              placeholder="Swift Code"
+              value={swiftCode}
+              onChange={(e) => setSwiftCode(e.target.value)}
+              _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
+            />
+          </FormControl>
+        </VStack>
+      </CustomModal>
       {/* CONFIRM DELETE PAY METHOD */}
       <Modal
         isOpen={isDeleteConfirmModalOpen}

@@ -111,6 +111,7 @@ const Login: React.FC = () => {
                   // ...
                 } else {
                   signOut(auth).then(() => {
+                    sessionStorage.clear();
                     localStorage.clear();
                     navigate('/verification_pending');
                   });
