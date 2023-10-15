@@ -58,7 +58,12 @@ import mixpanel from 'mixpanel-browser';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Navigate, Route, Router, Routes, useRoutes } from 'react-router';
-import { BrowserRouter, useLocation, useSearchParams } from 'react-router-dom';
+import {
+  BrowserRouter,
+  useLocation,
+  useSearchParams,
+  useNavigate
+} from 'react-router-dom';
 import 'stream-chat-react/dist/scss/v2/index.scss';
 import { ThemeProvider } from 'styled-components';
 

@@ -70,14 +70,42 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import useLexicalEditable from '@lexical/react/useLexicalEditable';
-import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import { useInView } from 'react-intersection-observer';
 
 const skipCollaborationInit =
   // @ts-ignore: no description
   window.parent != null && window.parent.frames.right === window;
 
 export default function Editor(): JSX.Element {
+  const toolBarRef = useRef<HTMLDivElement>();
+  const hiddenComponentRef = useRef<HTMLDivElement>();
+  const { ref: toolBarInViewRef, inView: toolBarInView } = useInView();
+  const { ref: hiddenComponentInViewRef, inView: hiddenComponentInView } =
+    useInView();
+
+  const setHiddenComponentRefs = useCallback(
+    (node) => {
+      // Ref's from useRef needs to have the node assigned to `current`
+      hiddenComponentRef.current = node as any;
+
+      // Callback refs, like the one from `useInView`, is a function that takes the node as an argument
+      hiddenComponentInViewRef(node);
+    },
+    [hiddenComponentInViewRef]
+  );
+
+  const setRefs = useCallback(
+    (node) => {
+      // Ref's from useRef needs to have the node assigned to `current`
+      toolBarRef.current = node as any;
+
+      // Callback refs, like the one from `useInView`, is a function that takes the node as an argument
+      toolBarInViewRef(node);
+    },
+    [toolBarInViewRef]
+  );
+
   const { historyState } = useSharedHistoryContext();
   const {
     settings: {
@@ -141,7 +169,16 @@ export default function Editor(): JSX.Element {
 
   return (
     <div className="editor-shell">
-      {isRichText && <ToolbarPlugin />}
+      {isRichText && (
+        <div ref={setHiddenComponentRefs}>
+          <ToolbarPlugin
+            inView={toolBarInView}
+            ref={setRefs}
+            parentInView={hiddenComponentInView}
+          />
+        </div>
+      )}
+
       <div
         className={`editor-container ${showTreeView ? 'tree-view' : ''} ${
           !isRichText ? 'plain-text' : ''

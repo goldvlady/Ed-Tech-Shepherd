@@ -618,7 +618,6 @@ const NewNote = () => {
   };
 
   const showFlashCardDropdown = () => {
-    console.log(noteParamId);
     resetFlashcard();
     setFlashcardData((prev) => ({
       ...prev,
@@ -1002,8 +1001,7 @@ const NewNote = () => {
   }, [initialContent]);
 
   return (
-    <Box
-    >
+    <Box>
       <HeaderWrapper>
         <div style={{ display: 'none' }}>
           <input type="text" ref={editedTitleRef} />
@@ -1168,10 +1166,12 @@ const NewNote = () => {
                   name={location.state.docTitle}
                 />
               ) : (
-                <div className="note-editor-test">
-                  {/* <BlockNoteView editor={editor} /> */}
+                <div
+                  className={`note-editor-test ${
+                    isFullScreen && 'full-screen'
+                  }`}
+                >
                   <LexicalEditor />
-                  {/* <LexicalEditor editorHistory={initialContent} /> */}
                 </div>
               )}
             </NoteBody>
@@ -1327,10 +1327,8 @@ const NewNote = () => {
                 name={location.state.docTitle}
               />
             ) : (
-              <div className="note-editor-test">
-                {/* <BlockNoteView editor={editor} /> */}
+              <div className={`note-editor-test`}>
                 <LexicalEditor />
-                {/* <LexicalEditor editorHistory={initialContent} /> */}
               </div>
             )}
           </NoteBody>

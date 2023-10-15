@@ -52,6 +52,8 @@ $background-color_25: #ccc;
 $border-color_1: blue;
 
 @import 'https://fonts.googleapis.com/css?family=Reenie+Beanie';
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
 
 @keyframes slide-in {
   0% {
@@ -102,37 +104,17 @@ $border-color_1: blue;
   }
 }
 
-body {
-  // margin: 0;
-  // font-family: $font-family_1;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  // background: #eee;
-  // padding: 0 20px;
-}
+.note-editor-test {
+  .toolbar {
+    // position: relative;
+    top: 80px;
+  }
 
-header {
-  max-width: 580px;
-  // margin: auto;
-  // position: relative;
-  // display: flex;
-  // justify-content: center;
-  // a {
-  //   max-width: 220px;
-  //   margin: 20px 0 0 0;
-  //   display: block;
-  // }
-  // img {
-  //   display: block;
-  //   height: 100%;
-  //   width: 100%;
-  // }
-  // h1 {
-  //   text-align: left;
-  //   color: $color_1;
-  //   display: inline-block;
-  //   margin: 20px 0 0 0;
-  // }
+  &.full-screen {
+    .toolbar {
+      top: 0px !important;
+    }
+  }
 }
 
 .editor-shell {
@@ -143,17 +125,11 @@ header {
   position: relative;
   line-height: 1.7;
   font-weight: 400;
-  // position: relative;
 
-  //  ol, ul, menu {
-  //   //  list-style: initial;
-  //   }
   .editor-container {
     background: #fff;
     position: relative;
     display: block;
-    // margin: 20px auto 20px auto;
-    // max-width: 600px;
     border-radius: 2px;
     color: #000;
     position: relative;
@@ -1078,10 +1054,19 @@ i.page-break {
   border-top-right-radius: 10px;
   vertical-align: middle;
   overflow: auto;
-  height: 36px;
+  min-height: 36px;
   position: sticky;
-  top: 80px;
+  // top: 0px;
   z-index: 2;
+
+  &.out-view {
+    position: fixed;
+    padding: 8px;
+    transition-property: position;
+    transition-duration: 2s;
+    transition-timing-function: ease-in;
+    transition-delay: 1s;
+  }
 
   .code-language {
     width: 150px;
