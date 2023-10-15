@@ -42,6 +42,8 @@ const LoginSchema = Yup.object().shape({
   password: Yup.string().required('A password is required')
 });
 
+let authBasis = 'normal';
+let handleSubmitting: any;
 const Login: React.FC = () => {
   useTitle('Login');
   const toast = useCustomToast();
@@ -77,7 +79,24 @@ const Login: React.FC = () => {
         });
       }
       if (user && appUser) {
-        handleNavigation();
+        if (authBasis === 'google') {
+          const signInMethods = await fetchSignInMethodsForEmail(
+            firebaseAuth,
+            user.email as string
+          );
+          if (signInMethods.length === 0) {
+            toast({
+              title: "User doesn't exist, not signing in.",
+              position: 'top-right',
+              status: 'error',
+              isClosable: true
+            });
+          } else {
+            handleNavigation();
+          }
+        } else {
+          handleNavigation();
+        }
       }
     });
 
@@ -86,6 +105,7 @@ const Login: React.FC = () => {
 
   const loginWithGoogle = useCallback(async () => {
     try {
+      authBasis = 'google';
       const result = await signInWithPopup(firebaseAuth, googleProvider);
       await fetchUser();
       const userEmail = result?.user?.email;
@@ -97,24 +117,6 @@ const Login: React.FC = () => {
           isClosable: true
         });
       }
-
-      // Check if user exists
-      const signInMethods = await fetchSignInMethodsForEmail(
-        firebaseAuth,
-        userEmail as string
-      );
-
-      // If there are no sign-in methods for this email, it means the user doesn't exist.
-      if (signInMethods.length === 0) {
-        toast({
-          title: "User doesn't exist, not signing in.",
-          position: 'top-right',
-          status: 'error',
-          isClosable: true
-        });
-        return;
-      }
-      handleNavigation();
     } catch (error) {
       toast({
         title: 'Invalid User',
@@ -123,30 +125,16 @@ const Login: React.FC = () => {
         isClosable: true
       });
     }
-  }, [appUser, handleNavigation]);
+  }, [appUser]);
 
-  const loginWithoutEmail = useCallback(
+  const loginWithEmail = useCallback(
     async (values, { setSubmitting }) => {
       try {
-        const { user } = await signInWithEmailAndPassword(
+        await signInWithEmailAndPassword(
           firebaseAuth,
           values.email,
           values.password
         );
-
-        // if (user && user.emailVerified) {
-        //   sessionStorage.setItem('email', user.email as string);
-        //   sessionStorage.setItem('UserDetails', JSON.stringify(user));
-        //   await fetchUser();
-        //   handleNavigation();
-        //   // ...
-        // } else {
-        //   signOut(auth).then(() => {
-        //     localStorage.clear();
-        //     navigate('/verification_pending');
-        //   });
-        //   // navigate('/dashboard');
-        // }
       } catch (e: any) {
         let errorMessage = '';
         switch (e.code) {
@@ -168,7 +156,6 @@ const Login: React.FC = () => {
           isClosable: true
         });
       }
-      setSubmitting(false);
     },
     [handleNavigation, appUser, navigate, fetchUser]
   );
@@ -187,7 +174,7 @@ const Login: React.FC = () => {
         <Formik
           initialValues={{ email: '', password: '' }}
           validationSchema={LoginSchema}
-          onSubmit={loginWithoutEmail}
+          onSubmit={loginWithEmail}
         >
           {({ errors, isSubmitting, submitForm }) => (
             <Form>
