@@ -60,6 +60,9 @@ const Login: React.FC = () => {
     if (appUser?.signedUpAsTutor && !appUser?.tutor) {
       path = '/complete_profile';
     }
+    if (appUser?.signedUpAsTutor) {
+      path = '/complete_profile';
+    }
     console.log('PATH', path);
 
     navigate(path);

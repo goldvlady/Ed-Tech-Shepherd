@@ -74,7 +74,7 @@ export default function Index() {
   const hours = date.getHours();
   const isDayTime = hours > 6 && hours < 20;
 
-  const { user } = userStore();
+  const { user, logoutUser } = userStore();
   const { feeds, fetchFeeds } = feedsStore();
 
   const [studentReport, setStudentReport] = useState<any>('');
@@ -110,6 +110,7 @@ export default function Index() {
         signOut(auth).then(() => {
           sessionStorage.clear();
           localStorage.clear();
+          logoutUser();
           window.location.href = '/login';
         });
         return; // Exit the function to prevent further processing
