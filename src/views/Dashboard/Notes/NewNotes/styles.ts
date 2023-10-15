@@ -5,6 +5,7 @@ export const NewNoteWrapper = styled.section<{
   position?: string;
   width?: string;
   height?: string;
+  minHeight?: string;
   background?: string;
   top?: number;
   left?: number;
@@ -21,6 +22,7 @@ export const NewNoteWrapper = styled.section<{
   width: ${(props) => props.width ?? '250mm'};
   margin: 0 auto;
   height: ${(props) => props.height ?? '297mm'};
+  min-height: ${(props) => props.minHeight ?? '100vh'};
   top: ${(props) => props.top ?? undefined};
   right: ${(props) => props.right ?? undefined};
   bottom: ${(props) => props.bottom ?? undefined};
@@ -34,6 +36,7 @@ export const NewNoteWrapper = styled.section<{
 export const FullScreenNoteWrapper = styled.div`
   width: 70% !important;
   margin: 0 auto;
+  position: relative;
 `;
 
 export const PDFWrapper = styled.div`

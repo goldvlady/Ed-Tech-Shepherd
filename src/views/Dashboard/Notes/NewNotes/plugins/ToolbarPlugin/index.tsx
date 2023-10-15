@@ -7,6 +7,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+// import { useInView } from 'react-intersection-observer';
+import useDebounce from '../../../../../../hooks/useDebounce';
 import useModal from '../../hooks/useModal';
 import catTypingGif from '../../images/cat-typing.gif';
 import { $createStickyNode } from '../../nodes/StickyNode';
@@ -95,8 +97,7 @@ import {
   SELECTION_CHANGE_COMMAND,
   UNDO_COMMAND
 } from 'lexical';
-import { useCallback, useEffect, useState } from 'react';
-import * as React from 'react';
+import { useCallback, useEffect, useState, forwardRef } from 'react';
 
 const blockTypeToBlockName = {
   bullet: 'Bulleted List',
@@ -136,6 +137,8 @@ const FONT_FAMILY_OPTIONS: [string, string][] = [
   ['Arial', 'Arial'],
   ['Courier New', 'Courier New'],
   ['Georgia', 'Georgia'],
+  ['Montserrat', 'Montserrat'],
+  ['Open Sans', 'Open Sans'],
   ['Times New Roman', 'Times New Roman'],
   ['Trebuchet MS', 'Trebuchet MS'],
   ['Verdana', 'Verdana']
@@ -152,12 +155,18 @@ const FONT_SIZE_OPTIONS: [string, string][] = [
   ['17px', '17px'],
   ['18px', '18px'],
   ['19px', '19px'],
-  ['20px', '20px']
+  ['20px', '20px'],
+  ['24px', '24px'],
+  ['32px', '32px']
 ];
 
 const ELEMENT_FORMAT_OPTIONS: {
   [key: string]: { icon: string; name: string };
 } = {
+  start: {
+    icon: 'left-align',
+    name: 'Left Align'
+  },
   center: {
     icon: 'center-align',
     name: 'Center Align'
@@ -494,7 +503,13 @@ function ElementFormatDropdown({
   );
 }
 
-export default function ToolbarPlugin(): JSX.Element {
+export default forwardRef<any, any>(function ToolbarPlugin(
+  { inView, parentInView },
+  ref
+): JSX.Element {
+  // const ref = useRef<HTMLDivElement>();
+  // const { ref: inViewRef, inView } = useInView();
+
   const [editor] = useLexicalComposerContext();
   const [activeEditor, setActiveEditor] = useState(editor);
   const [blockType, setBlockType] =
@@ -523,6 +538,8 @@ export default function ToolbarPlugin(): JSX.Element {
   const [isRTL, setIsRTL] = useState(false);
   const [codeLanguage, setCodeLanguage] = useState<string>('');
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
+  const [positonToolbar, setPositionToolbar] = useState(false);
+  const debounce = useDebounce(100);
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -803,8 +820,24 @@ export default function ToolbarPlugin(): JSX.Element {
     activeEditor.dispatchCommand(INSERT_IMAGE_COMMAND, payload);
   };
 
+  useEffect(() => {
+    debounce(
+      () => {
+        if (!inView && !parentInView) {
+          setPositionToolbar(true);
+        } else if (inView && !parentInView) {
+          setPositionToolbar(true);
+        } else {
+          setPositionToolbar(false);
+        }
+      },
+      () => true
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inView, parentInView]);
+
   return (
-    <div className="toolbar">
+    <div ref={ref} className={`toolbar ${positonToolbar && 'out-view'}`}>
       <button
         disabled={!canUndo || !isEditable}
         onClick={() => {
@@ -1250,4 +1283,4 @@ export default function ToolbarPlugin(): JSX.Element {
       {modal}
     </div>
   );
-}
+});
