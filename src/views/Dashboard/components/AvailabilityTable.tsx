@@ -1,6 +1,10 @@
 import Check from '../../../assets/check.svg';
 import Day from '../../../assets/day.svg';
-import { convertTimeToTimeZone, convertTimeToDateTime } from '../../../util';
+import {
+  convertTimeToTimeZone,
+  convertTimeToDateTime,
+  numberToDayOfWeekName
+} from '../../../util';
 import {
   Box,
   Flex,
@@ -43,7 +47,6 @@ function AvailabilityTable(props) {
     );
 
     let timeSlotInUserTimezone = `${startTimeInUserTimezone} -> ${endTimeInUserTimezone}`;
-    console.log('tz', timeSlotInUserTimezone, data.tz);
 
     timeSlotInUserTimezone = timeSlotInUserTimezone.replace(/:\d+\s/g, '');
 
@@ -64,7 +67,7 @@ function AvailabilityTable(props) {
               <Tr>
                 <Th width={'155px'}></Th>
                 {daysOfWeek.map((day, index) => (
-                  <Th key={index}>{day}</Th>
+                  <Th key={index + 1}>{day}</Th>
                 ))}
               </Tr>
             </Thead>
@@ -78,7 +81,7 @@ function AvailabilityTable(props) {
                   </Td>
                   {daysOfWeek.map((day, dayIndex) => (
                     <Td
-                      key={dayIndex}
+                      key={dayIndex + 1}
                       className={
                         data.schedule[(dayIndex + 1).toString()] &&
                         data.schedule[(dayIndex + 1).toString()].some(

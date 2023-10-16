@@ -45,6 +45,7 @@ const QualificationsForm = (props) => {
   useEffect(() => {
     if (qualificationsData.length === 1 && !addQualificationClicked) {
       setFormData(qualificationsData[0]);
+      updateQualification(qualificationsData[0]);
     }
   }, [qualificationsData, addQualificationClicked]);
 
@@ -133,6 +134,7 @@ const QualificationsForm = (props) => {
     const isFormValid = Object.values(formData).every(Boolean);
     if (!isFormValid) return;
     setQualificationsData([...qualificationsData, formData]);
+    updateQualification([...qualificationsData, formData]);
     setFormData({
       institution: '',
       degree: '',
@@ -160,7 +162,7 @@ const QualificationsForm = (props) => {
           qual.degree
         }${qual.startDate?.getTime()}${qual.endDate?.getTime()}` !== id
     );
-    onboardTutorStore.set.qualifications?.(updatedQualifications);
+    updateQualification(updatedQualifications);
   };
 
   const renderQualifications = () => {

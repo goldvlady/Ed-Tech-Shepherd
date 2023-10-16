@@ -383,7 +383,7 @@ export default function Tutor() {
                                   <Thead>
                                     <Tr>
                                       <Th></Th>
-                                      <Th>Qualification</Th>
+                                      <Th>Level</Th>
                                       <Th>Price</Th>
                                     </Tr>
                                   </Thead>
