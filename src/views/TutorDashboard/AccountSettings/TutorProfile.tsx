@@ -1022,7 +1022,9 @@ function MyProfile(props) {
         footerContent={
           <div style={{ display: 'flex', gap: '8px' }}>
             <Button
-              onClick={() => handleUpdateTutor('qualifications', qualifications)}
+              onClick={() =>
+                handleUpdateTutor('qualifications', qualifications)
+              }
             >
               {isUpdating ? 'Updating...' : 'Update'}
             </Button>

@@ -374,8 +374,6 @@ const AvailabilityEditForm = (props) => {
     return availability;
   }
   function transformSchedule(inputData) {
-    console.log(inputData, 'input');
-
     const transformedData = {};
 
     // Loop through the keys in the input data
@@ -403,7 +401,6 @@ const AvailabilityEditForm = (props) => {
 
     return transformedData;
   }
-  console.log(availability, 'gg', formatAvailabilityData(availability));
 
   useEffect(() => {
     if (Object.keys(schedule).length) {

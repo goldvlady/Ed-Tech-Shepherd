@@ -94,7 +94,7 @@ export default function Events({ event }: any) {
                     //     convertISOToCustomFormat(),
                     //     'Africa/Lagos'
                     //   )
-                    event.data.startDate
+                    event.data.startDate}
               </span>
               {event.type !== 'study' && (
                 <>
@@ -107,7 +107,7 @@ export default function Events({ event }: any) {
                         //     convertISOToCustomFormat(event.data.endDate),
                         //     'Africa/Lagos'
                         //   )
-                        event.data.endDate
+                        event.data.endDate}
                   </span>
                 </>
               )}
