@@ -88,13 +88,17 @@ export default function Events({ event }: any) {
             </Text>
             <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
               <span>
-                {isTutor
-                  ? convertUtcToUserTime(event.data.startDate)
-                  : // convertTimeToTimeZone(
-                    //     convertISOToCustomFormat(),
-                    //     'Africa/Lagos'
-                    //   )
-                    event.data.startDate}
+                {
+                  isTutor
+                    ? convertUtcToUserTime(event.data.startDate)
+                    : // convertTimeToTimeZone(
+                      //     convertISOToCustomFormat(),
+                      //     'Africa/Lagos'
+                      //   )
+                      moment(event.data.startDate).format('hh:mm A')
+
+                  // Format the time as "11:00 AM"
+                }
               </span>
               {event.type !== 'study' && (
                 <>
@@ -107,7 +111,7 @@ export default function Events({ event }: any) {
                         //     convertISOToCustomFormat(event.data.endDate),
                         //     'Africa/Lagos'
                         //   )
-                        event.data.endDate}
+                        moment(event.data.endDate).format('hh:mm A')}
                   </span>
                 </>
               )}
