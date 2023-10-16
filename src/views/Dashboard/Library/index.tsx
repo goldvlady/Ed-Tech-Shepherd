@@ -229,7 +229,7 @@ const Library: React.FC = () => {
                   variant="outline"
                   onChange={(e) => handleSearch(e.target.value)}
                   size="sm"
-                  placeholder="     Search"
+                  placeholder="Search"
                   borderRadius="6px"
                 />
               </InputGroup>

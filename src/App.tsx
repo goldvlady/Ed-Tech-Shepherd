@@ -1,6 +1,7 @@
 import TutorDashboardLayout from './components/Layout';
 import { FlashCardModal } from './components/flashcardDecks';
 import { useActiveUserPresence } from './hooks/setUserPrensence';
+import { StreamChatProvider } from './providers/StreamChatProvider';
 import { AuthProvider, useAuth } from './providers/auth.provider';
 import flashcardStore from './state/flashcardStore';
 import resourceStore from './state/resourceStore';
@@ -368,7 +369,9 @@ function App() {
           <BrowserRouter>
             <FlashcardWizardProvider>
               <FlashCardModal isOpen={Boolean(flashcard)} />
-              <AppRoutes />
+              <StreamChatProvider>
+                <AppRoutes />
+              </StreamChatProvider>
             </FlashcardWizardProvider>
           </BrowserRouter>
         </AuthProvider>

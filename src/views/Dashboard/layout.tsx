@@ -13,6 +13,7 @@ import { HelpModal } from '../../components';
 import Logo from '../../components/Logo';
 import ProfileSwitchModal from '../../components/ProfileSwitchModal';
 import { firebaseAuth } from '../../firebase';
+import { useStreamChat } from '../../providers/StreamChatProvider';
 import userStore from '../../state/userStore';
 import FlashCardEventNotifier from './FlashCards/components/flashcard_event_notification';
 import TutorMarketplace from './Tutor';
@@ -23,6 +24,7 @@ import useNotifications from './components/useNotification';
 import DashboardIndex from './index';
 import {
   Avatar,
+  Badge,
   Box,
   BoxProps,
   Button,
@@ -97,6 +99,7 @@ interface SidebarProps extends BoxProps {
   toggleMenu: () => void;
   tutorMenu: boolean;
   setTutorMenu: (value: boolean) => void;
+  unreadCount: number;
 }
 const LinkItems: Array<LinkItemProps> = [
   { name: 'Shepherd Chats', icon: BsChatLeftDots, path: '/dashboard/messaging' }
@@ -514,10 +517,11 @@ const SidebarContent = ({
   tutorMenu,
   setTutorMenu,
   toggleMenu,
+  unreadCount,
   ...rest
 }: SidebarProps) => {
   const { pathname } = useLocation();
-
+  // const { unreadCount } = useStreamChat();
   return (
     <Box
       transition="3s ease"
@@ -585,6 +589,11 @@ const SidebarContent = ({
         <>
           <NavItem key={link.name} icon={link.icon} path={link.path}>
             {link.name}
+            {unreadCount > 0 && ( // Display badge if there are unread messages
+              <Badge colorScheme="red" ml={2}>
+                {unreadCount}
+              </Badge>
+            )}
           </NavItem>
         </>
       ))}{' '}
@@ -621,11 +630,39 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
   const { user }: any = userStore();
   const { pathname } = useLocation();
+  const {
+    unreadCount,
+    connectUserToChat,
+    userType,
+    setUserRoleInfo,
+    userRoleId,
+    userRoleToken,
+    disconnectAndReset
+  } = useStreamChat();
 
   const toggleMenu = () => {
     setTutorMenu(!tutorMenu);
   };
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  useEffect(() => {
+    if (user) {
+      const role = user[userType];
+      const token = user.streamTokens?.find((token) => token.type === userType);
+      //@ts-ignore: petty ts check
+      setUserRoleInfo(role?._id, token?.token);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (userRoleId && userRoleToken) {
+      connectUserToChat();
+    }
+  }, [userRoleId, userRoleToken]);
+
+  // useEffect(() => {
+  //   connectUserToChat();
+  // }, []);
 
   return (
     <>
@@ -639,6 +676,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               setTutorMenu={setTutorMenu}
               toggleMenu={() => setTutorMenu(!tutorMenu)}
               display={{ base: 'none', md: 'block' }}
+              unreadCount={unreadCount}
             />
             <Drawer
               autoFocus={false}
@@ -655,6 +693,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   tutorMenu={tutorMenu}
                   setTutorMenu={setTutorMenu}
                   toggleMenu={() => setTutorMenu(!tutorMenu)}
+                  unreadCount={unreadCount}
                 />
               </DrawerContent>
             </Drawer>

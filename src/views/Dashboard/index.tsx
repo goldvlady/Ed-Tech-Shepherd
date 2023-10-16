@@ -11,6 +11,7 @@ import DropdownMenu from '../../components/CustomComponents/CustomDropdownMenu';
 import SessionPrefaceDialog, {
   SessionPrefaceDialogRef
 } from '../../components/SessionPrefaceDialog';
+import { useStreamChat } from '../../providers/StreamChatProvider';
 import ApiService from '../../services/ApiService';
 import feedsStore from '../../state/feedsStore';
 import userStore from '../../state/userStore';
@@ -86,7 +87,7 @@ export default function Index() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-
+  const { disconnectAndReset } = useStreamChat();
   const fetchData = useCallback(async () => {
     try {
       const [
@@ -108,6 +109,7 @@ export default function Index() {
         upcomingEventResponse.status === 401
       ) {
         signOut(auth).then(() => {
+          disconnectAndReset();
           sessionStorage.clear();
           localStorage.clear();
           logoutUser();
