@@ -370,6 +370,16 @@ class ApiService {
     return doFetch(url);
   };
 
+  static submitReview = async (clientId: string | number, data: any) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/createClientReview?id=${clientId}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }
+    );
+  };
+
   static toggleBookmarkedTutor = async (id: string) => {
     return doFetch(`${ApiService.baseEndpoint}/toggleBookmarkedTutor`, {
       method: 'POST',

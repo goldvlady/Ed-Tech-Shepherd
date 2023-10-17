@@ -3,10 +3,12 @@ import Ribbon2 from '../../../assets/ribbon-blue.svg';
 import Ribbon from '../../../assets/ribbon-grey.svg';
 import TutorAvi from '../../../assets/tutoravi.svg';
 import CustomButton from '../../../components/CustomComponents/CustomButton';
+import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast';
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import ApiService from '../../../services/ApiService';
 import bookmarkedTutorsStore from '../../../state/bookmarkedTutorsStore';
+import userStore from '../../../state/userStore';
 import { textTruncate } from '../../../util';
 import AcceptBountyModal from './AcceptBounty';
 import {
@@ -28,9 +30,15 @@ import {
   useColorModeValue,
   useToast,
   Divider,
+  Textarea,
+  NumberInput,
+  NumberInputField,
   useDisclosure
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
+import { IconContext } from 'react-icons';
+import { AiFillStar } from 'react-icons/ai';
+import { FaStar } from 'react-icons/fa';
 import { useNavigate } from 'react-router';
 
 export default function TutorCard(props: any) {
@@ -52,8 +60,11 @@ export default function TutorCard(props: any) {
   } = props;
   const toast = useCustomToast();
   const { fetchBookmarkedTutors } = bookmarkedTutorsStore();
+  const { user } = userStore();
 
   const [ribbonClicked, setRibbonClicked] = useState(false);
+  const [reviewRate, setReviewRate] = useState<any>(5);
+  const [review, setReview] = useState('');
 
   const toggleBookmarkTutor = async (id: string) => {
     setRibbonClicked(!ribbonClicked);
@@ -63,16 +74,21 @@ export default function TutorCard(props: any) {
       if (saved && resp.status === 200) {
         setRibbonClicked(false);
         toast({
-          title: 'Tutor removed from Bookmarks successfully',
-          status: 'error',
+          render: () => (
+            <CustomToast
+              title="Tutor removed from Bookmarks successfully"
+              status="success"
+            />
+          ),
           position: 'top-right',
           isClosable: true
         });
       } else {
         setRibbonClicked(true);
         toast({
-          title: 'Tutor saved successfully',
-          status: 'success',
+          render: () => (
+            <CustomToast title="Tutor saved successfully" status="success" />
+          ),
           position: 'top-right',
           isClosable: true
         });
@@ -104,9 +120,74 @@ export default function TutorCard(props: any) {
     onClose: closeAcceptBounty
   } = useDisclosure();
 
+  const {
+    isOpen: isReviewModalOpen,
+    onOpen: openReviewModal,
+    onClose: closeReviewModal
+  } = useDisclosure();
+
   const handleBountyClick = () => {
     openAcceptBounty();
   };
+
+  const handleSubmitReview = async () => {
+    const formData = {
+      reviewerId: user?._id,
+      entityType: 'student',
+      rating: reviewRate,
+      review: review
+    };
+
+    try {
+      const resp = await ApiService.submitReview(id, formData);
+
+      if (resp.status === 200) {
+        toast({
+          render: () => (
+            <CustomToast
+              title="Review Submitted successfully"
+              status="success"
+            />
+          ),
+          position: 'top-right',
+          isClosable: true
+        });
+      } else {
+        toast({
+          render: () => (
+            <CustomToast title="Something went wrong" status="error" />
+          ),
+          position: 'top-right',
+          isClosable: true
+        });
+      }
+    } catch (e) {
+      toast({
+        title: 'An unknown error occured',
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
+      });
+    }
+  };
+
+  const handleRatingClick = (selectedRating) => {
+    setReviewRate(selectedRating);
+  };
+
+  const renderStars = () => {
+    const stars: any = [];
+    for (let i = 1; i <= 5; i++) {
+      const starColor = i <= reviewRate ? 'gold' : 'gray';
+      stars.push(
+        <IconContext.Provider key={i} value={{ color: starColor, size: '2em' }}>
+          <AiFillStar onClick={() => setReviewRate(i)} />
+        </IconContext.Provider>
+      );
+    }
+    return stars;
+  };
+
   return (
     <>
       <LinkBox as="article">
@@ -277,19 +358,20 @@ export default function TutorCard(props: any) {
             )}
             {use === 'my tutors' && (
               <Button
+                variant={'unstyled'}
                 fontSize={12}
                 fontWeight={500}
                 borderRadius={4}
-                // position="absolute"
+                border="1px solid grey"
+                position="absolute"
                 zIndex={1}
-                color="#fff"
-                // bottom={4}
-                right={0}
+                color="grey"
+                bottom={4}
+                right={5}
                 px={2}
-                py={'1px'}
-                // onClick={() => handleBountyClick()}
+                onClick={openReviewModal}
               >
-                Review{' '}
+                Review
               </Button>
             )}
             {use !== 'my tutors' && (
@@ -311,6 +393,42 @@ export default function TutorCard(props: any) {
         closeAcceptBounty={closeAcceptBounty}
         bounty={bidId}
       />
+      <CustomModal
+        isOpen={isReviewModalOpen}
+        modalTitle="Drop a Review"
+        isModalCloseButton
+        style={{
+          maxWidth: '400px',
+          height: 'fit-content'
+        }}
+        footerContent={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button
+              isDisabled={!reviewRate || !review}
+              onClick={() => handleSubmitReview()}
+            >
+              Update
+            </Button>
+          </div>
+        }
+        onClose={closeReviewModal}
+      >
+        <VStack p={5} width="100%">
+          <Box mb={4} justifyContent="center">
+            {/* <label>Rating:</label> */}
+            <Flex gap={2}> {renderStars()}</Flex>
+          </Box>
+          <Box width="100%">
+            {/* <label>Review:</label> */}
+            <Textarea
+              placeholder="Enter your review here..."
+              value={review}
+              onChange={(e) => setReview(e.target.value)}
+              size="sm"
+            />
+          </Box>
+        </VStack>
+      </CustomModal>
     </>
   );
 }
