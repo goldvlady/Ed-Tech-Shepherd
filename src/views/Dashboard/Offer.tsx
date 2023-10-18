@@ -15,7 +15,12 @@ import ApiService from '../../services/ApiService';
 import userStore from '../../state/userStore';
 import theme from '../../theme';
 import { Course, Offer as OfferType, PaymentMethod } from '../../types';
-import { ServiceFeePercentage, numberToDayOfWeekName } from '../../util';
+import {
+  ServiceFeePercentage,
+  numberToDayOfWeekName,
+  convertTimeToTimeZone,
+  convertTimeToDateTime
+} from '../../util';
 import {
   Alert,
   AlertDescription,
@@ -672,11 +677,19 @@ const Offer = () => {
                             </FormLabel>
                             <Flex gap="1px" alignItems="center">
                               <OfferValueText>
-                                {offer.schedule[n].begin}
+                                {convertTimeToTimeZone(
+                                  convertTimeToDateTime(
+                                    offer.schedule[n].begin
+                                  ),
+                                  offer.scheduleTz
+                                )}
                               </OfferValueText>
                               <FiArrowRight color="#6E7682" size={'15px'} />
                               <OfferValueText>
-                                {offer.schedule[n].end}
+                                {convertTimeToTimeZone(
+                                  convertTimeToDateTime(offer.schedule[n].end),
+                                  offer.scheduleTz
+                                )}
                               </OfferValueText>
                             </Flex>
                           </Box>

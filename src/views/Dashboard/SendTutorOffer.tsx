@@ -13,7 +13,8 @@ import { Tutor } from '../../types';
 import {
   numberToDayOfWeekName,
   convertTimeToTimeZone,
-  convertTimeToDateTime
+  convertTimeToDateTime,
+  convertScheduleToUTC
 } from '../../util';
 import {
   Alert,
@@ -280,7 +281,8 @@ const SendTutorOffer = () => {
                   } else {
                     await ApiService.createOffer({
                       ...values,
-                      tutor: tutorId
+                      tutor: tutorId,
+                      schedule: convertScheduleToUTC(values.schedule)
                     });
                     onSuccessModalOpen();
                     setSubmitting(false);

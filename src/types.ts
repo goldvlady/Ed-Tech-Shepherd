@@ -192,6 +192,7 @@ export interface Offer extends TimestampedEntity {
   course: Course;
   level: Level;
   schedule: SingleSchedule;
+  scheduleTz: string;
   _id: string;
   rate: number;
   note: string;

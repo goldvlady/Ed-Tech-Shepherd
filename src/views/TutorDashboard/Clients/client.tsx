@@ -1,6 +1,7 @@
 import { Layout } from '../../../components';
 import { ArrowRightIcon } from '../../../components/icons';
 import ApiService from '../../../services/ApiService';
+import { convertTimeToDateTime, convertUtcToUserTime } from '../../../util';
 import { Avatar, Text, Box, Spinner } from '@chakra-ui/react';
 import {
   ChevronRightIcon,
@@ -50,7 +51,10 @@ export default function Client() {
   ): string {
     const formattedTimeRanges = Object.values(schedule).map(
       ({ begin, end }) => {
-        return formatTimeRange(begin, end);
+        return formatTimeRange(
+          convertUtcToUserTime(convertTimeToDateTime(begin)),
+          convertUtcToUserTime(convertTimeToDateTime(end))
+        );
       }
     );
     return formattedTimeRanges.join(', ');
