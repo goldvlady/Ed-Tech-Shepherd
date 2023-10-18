@@ -27,13 +27,13 @@ export default function Client() {
   }, [doFetchTutorClient, clientId]);
 
   const dayMappings = {
-    0: 'Sun',
-    1: 'Mon',
-    2: 'Tue',
-    3: 'Wed',
-    4: 'Thu',
-    5: 'Fri',
-    6: 'Sat'
+    1: 'Sun',
+    2: 'Mon',
+    3: 'Tue',
+    4: 'Wed',
+    5: 'Thu',
+    6: 'Fri',
+    7: 'Sat'
   };
 
   function getDaysOfWeek(schedule) {
@@ -176,7 +176,7 @@ export default function Client() {
               </section>
               <div className="flex items-center flex-none gap-x-4">
                 <Text className="rounded-md bg-gray-50 px-2.5 py-1.5 text-sm font-semibold text-gray-500 shadow-sm hover:bg-gray-50 sm:block">
-                  {moment(client?.offer?.contractEndDate).format('DD.MM.YYYY')}
+                  {moment(client?.offer?.contractEndDate).format('MM.DD.YYYY')}
                 </Text>
               </div>
             </div>
