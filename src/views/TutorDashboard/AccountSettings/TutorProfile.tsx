@@ -2,7 +2,6 @@ import FileAvi2 from '../../../assets/file-avi2.svg';
 import AddSubjectLevel from '../../../components/AddSubjectLevel';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast';
-import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import DragAndDrop from '../../../components/DragandDrop';
 import { firebaseAuth, updatePassword } from '../../../firebase';
 import { storage } from '../../../firebase';
@@ -85,7 +84,7 @@ function MyProfile(props) {
   const { user, fetchUser } = userStore();
   const { courses: courseList, levels, rate } = resourceStore();
 
-  const toast = useCustomToast();
+  const toast = useToast();
   const [newEmail, setNewEmail] = useState<string>(tutorData.email);
 
   const [isUpdating, setIsUpdating] = useState(false);
@@ -99,7 +98,6 @@ function MyProfile(props) {
   const [description, setDescription] = useState(tutorData.tutor.description);
   const [schedule, setSchedule] = useState('');
   const [qualifications, setQualifications] = useState('');
-
   const [subjectLevel, setSubjectLevel] = useState<any>(
     tutorData.tutor.coursesAndLevels.map((item) => ({
       course: {
@@ -113,7 +111,6 @@ function MyProfile(props) {
   const [isLoading, setIsLoading] = useState(false);
   const [introVideo, setIntroVideo] = useState<any>(null);
   const [introVideoLink, setIntroVideoLink] = useState<any>(null);
-  console.log(subjectLevel, 'sub-lev');
 
   // const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
@@ -244,27 +241,12 @@ function MyProfile(props) {
     setSchedule(value);
   };
   const updateQualifications = (value) => {
-    setQualifications(value);
+    const qualifications: any = [...tutorData.tutor.qualifications, value];
+    setQualifications(qualifications);
   };
+
   const handleUpdateTutor = async (updateField, value) => {
-    const formData = {
-      //   email: newEmail,
-      //   ottp: otp,
-      //   coursesAndLevels: [],
-      //   schedule: {},
-      //   tz: moment.tz.guess(),
-      //   qualifications: [],
-      //   rate: 0,
-      //   cv: '',
-      //   bankInfo: {},
-      //   avatar: '',
-      //   reviewCount: 0,
-      //   rating: 0,
-      //   description: '',
-      //   country: '',
-      //   identityDocument: '',
-      //   introVideo: ''
-    };
+    const formData = {};
     setIsUpdating(true);
     formData[updateField] = value;
 
@@ -272,16 +254,18 @@ function MyProfile(props) {
     const resp: any = await response.json();
     if (response.status === 200) {
       toast({
-        title: ' Updated successfully',
-        status: 'success',
+        render: () => (
+          <CustomToast title=" Updated successfully" status="success" />
+        ),
         position: 'top-right',
         isClosable: true
       });
       fetchUser();
     } else {
       toast({
-        title: 'Something went wrong..',
-        status: 'error',
+        render: () => (
+          <CustomToast title="Something went wrong.." status="error" />
+        ),
         position: 'top-right',
         isClosable: true
       });
@@ -292,10 +276,8 @@ function MyProfile(props) {
     closeUpdateHourlyRateModal();
     closeUpdateSubjectModal();
     closeUpdateVideoModal();
+    closeUpdateQualificationsModal();
   };
-
-  // const subjectLevels: SubjectLevel = tutorData.tutor.coursesAndLevels;
-  // const [subject, setsubject] = useState(second);
 
   const handleSubjectLevelChange = (f: (d: typeof subjectLevel) => any) => {
     const data: any = f(subjectLevel);
@@ -492,7 +474,7 @@ function MyProfile(props) {
                     onClick={() => setVidOverlay(false)}
                     size={'50px'}
                   />
-                  <Text display={'inline'}> Play intro video</Text>
+                  <Text display={'inline'}> play intro video</Text>
                 </VStack>
               </Center>
             </Center>
@@ -731,6 +713,7 @@ function MyProfile(props) {
         onClose={closeUpdateAvailabilityModal}
       >
         <Box overflowY={'scroll'}>
+          {' '}
           <AvailabilityEditForm updateSchedule={updateSchedule} />
         </Box>
       </CustomModal>
@@ -1033,6 +1016,7 @@ function MyProfile(props) {
         onClose={closeUpdateQualificationsModal}
       >
         <Box overflowY={'scroll'} p={3} w="full">
+          {' '}
           <QualificationsEditForm updateQualifications={updateQualifications} />
         </Box>
       </CustomModal>

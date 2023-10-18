@@ -22,7 +22,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { RiPencilLine } from 'react-icons/ri';
 
 const QualificationsForm = (props) => {
-  const { updateQualification } = props;
+  const { updateQualifications } = props;
   const toast = useToast();
   const { user } = userStore();
   const [qualificationsData, setQualificationsData] = useState<any>(
@@ -45,7 +45,6 @@ const QualificationsForm = (props) => {
   useEffect(() => {
     if (qualificationsData.length === 1 && !addQualificationClicked) {
       setFormData(qualificationsData[0]);
-      updateQualification(qualificationsData[0]);
     }
   }, [qualificationsData, addQualificationClicked]);
 
@@ -97,6 +96,7 @@ const QualificationsForm = (props) => {
       [e.target.name]: e.target.value
     };
     setFormData(updatedFormData);
+    updateQualifications(updatedFormData);
 
     // if (!addQualificationClicked) {
     //   setQualificationsData([updatedFormData]);
@@ -130,107 +130,107 @@ const QualificationsForm = (props) => {
     return Object.values(formData).every(Boolean);
   }, [formData]);
 
-  const handleAddQualification = () => {
-    const isFormValid = Object.values(formData).every(Boolean);
-    if (!isFormValid) return;
-    setQualificationsData([...qualificationsData, formData]);
-    updateQualification([...qualificationsData, formData]);
-    setFormData({
-      institution: '',
-      degree: '',
-      startDate: null as unknown as Date,
-      endDate: null as unknown as Date,
-      transcript: ''
-    });
-    setAddQualificationClicked(true);
-  };
-  const handleEditQualification = (id: string) => {
-    if (!qualificationsData) return;
-    const selectedQualificationIndex = qualificationsData.findIndex(
-      (qual) =>
-        `${qual.institution}${
-          qual.degree
-        }${qual.startDate?.getTime()}${qual.endDate?.getTime()}` === id
-    );
-    if (selectedQualificationIndex === -1) return;
-    const selectedQualification =
-      qualificationsData[selectedQualificationIndex];
-    setFormData(selectedQualification);
-    const updatedQualifications = qualificationsData.filter(
-      (qual) =>
-        `${qual.institution}${
-          qual.degree
-        }${qual.startDate?.getTime()}${qual.endDate?.getTime()}` !== id
-    );
-    updateQualification(updatedQualifications);
-  };
+  //   const handleAddQualification = () => {
+  //     const isFormValid = Object.values(formData).every(Boolean);
+  //     if (!isFormValid) return;
+  //     setQualificationsData([...qualificationsData, formData]);
+  //     updateQualification([...qualificationsData, formData]);
+  //     setFormData({
+  //       institution: '',
+  //       degree: '',
+  //       startDate: null as unknown as Date,
+  //       endDate: null as unknown as Date,
+  //       transcript: ''
+  //     });
+  //     setAddQualificationClicked(true);
+  //   };
+  //   const handleEditQualification = (id: string) => {
+  //     if (!qualificationsData) return;
+  //     const selectedQualificationIndex = qualificationsData.findIndex(
+  //       (qual) =>
+  //         `${qual.institution}${
+  //           qual.degree
+  //         }${qual.startDate?.getTime()}${qual.endDate?.getTime()}` === id
+  //     );
+  //     if (selectedQualificationIndex === -1) return;
+  //     const selectedQualification =
+  //       qualificationsData[selectedQualificationIndex];
+  //     setFormData(selectedQualification);
+  //     const updatedQualifications = qualificationsData.filter(
+  //       (qual) =>
+  //         `${qual.institution}${
+  //           qual.degree
+  //         }${qual.startDate?.getTime()}${qual.endDate?.getTime()}` !== id
+  //     );
+  //     updateQualification(selectedQualification);
+  //     console.log(selectedQualification, 'derg');
+  //   };
 
-  const renderQualifications = () => {
-    if (!addQualificationClicked || qualificationsData.length === 0)
-      return null;
+  //   const renderQualifications = () => {
+  //     if (!addQualificationClicked || qualificationsData.length === 0)
+  //       return null;
 
-    const uniqueQualifications = qualificationsData.filter(
-      (qualification, index, self) =>
-        index ===
-        self.findIndex(
-          (qual) =>
-            `${qual.institution}${
-              qual.degree
-            }${qual.startDate?.getTime()}${qual.endDate?.getTime()}` ===
-            `${qualification.institution}${
-              qualification.degree
-            }${qualification.startDate?.getTime()}${qualification.endDate?.getTime()}`
-        )
-    );
-    console.log(uniqueQualifications, 'uniq');
+  //     const uniqueQualifications = qualificationsData.filter(
+  //       (qualification, index, self) =>
+  //         index ===
+  //         self.findIndex(
+  //           (qual) =>
+  //             `${qual.institution}${
+  //               qual.degree
+  //             }${qual.startDate?.getTime()}${qual.endDate?.getTime()}` ===
+  //             `${qualification.institution}${
+  //               qualification.degree
+  //             }${qualification.startDate?.getTime()}${qualification.endDate?.getTime()}`
+  //         )
+  //     );
 
-    return uniqueQualifications.map((qualification) => {
-      const startDate = new Date(qualification.startDate as Date);
-      const endDate = new Date(qualification.endDate as Date);
-      const formattedStartDate = startDate.getFullYear();
-      const formattedEndDate = endDate.getFullYear();
-      const id = `${qualification.institution}${
-        qualification.degree
-      }${startDate.getTime()}${endDate.getTime()}`;
+  //     return uniqueQualifications.map((qualification) => {
+  //       const startDate = new Date(qualification.startDate as Date);
+  //       const endDate = new Date(qualification.endDate as Date);
+  //       const formattedStartDate = startDate.getFullYear();
+  //       const formattedEndDate = endDate.getFullYear();
+  //       const id = `${qualification.institution}${
+  //         qualification.degree
+  //       }${startDate.getTime()}${endDate.getTime()}`;
 
-      return (
-        <Box
-          key={id}
-          background="#FFFFFF"
-          border="1px solid #EFEFF1"
-          boxShadow="0px 3px 10px rgba(136, 139, 143, 0.09)"
-          borderRadius="6px"
-          padding="5px 15px"
-          marginBottom="20px"
-          position="relative"
-        >
-          <HStack justifyContent="space-between">
-            <HStack>
-              <Box fontWeight="bold">
-                {qualification.institution},{' '}
-                {`${formattedStartDate}-${formattedEndDate}`}
-              </Box>
-            </HStack>
+  //       return (
+  //         <Box
+  //           key={id}
+  //           background="#FFFFFF"
+  //           border="1px solid #EFEFF1"
+  //           boxShadow="0px 3px 10px rgba(136, 139, 143, 0.09)"
+  //           borderRadius="6px"
+  //           padding="5px 15px"
+  //           marginBottom="20px"
+  //           position="relative"
+  //         >
+  //           <HStack justifyContent="space-between">
+  //             <HStack>
+  //               <Box fontWeight="bold">
+  //                 {qualification.institution},{' '}
+  //                 {`${formattedStartDate}-${formattedEndDate}`}
+  //               </Box>
+  //             </HStack>
 
-            <Button
-              border="1px solid #ECEDEE"
-              color="#212224"
-              onClick={() => handleEditQualification(id)}
-              borderRadius="50%"
-              p="5px"
-              backgroundColor="transparent"
-            >
-              <RiPencilLine size={14} />
-            </Button>
-          </HStack>
-        </Box>
-      );
-    });
-  };
+  //             <Button
+  //               border="1px solid #ECEDEE"
+  //               color="#212224"
+  //               onClick={() => handleEditQualification(id)}
+  //               borderRadius="50%"
+  //               p="5px"
+  //               backgroundColor="transparent"
+  //             >
+  //               <RiPencilLine size={14} />
+  //             </Button>
+  //           </HStack>
+  //         </Box>
+  //       );
+  //     });
+  //   };
 
   return (
     <Box>
-      <AnimatePresence>
+      {/* <AnimatePresence>
         {qualificationsData.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -241,7 +241,7 @@ const QualificationsForm = (props) => {
             {renderQualifications()}
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence> */}
       <FormControl id="institution" marginBottom="20px">
         <FormLabel>Institution</FormLabel>
         <Input
@@ -305,7 +305,7 @@ const QualificationsForm = (props) => {
         />
       </FormControl>
 
-      <Button
+      {/* <Button
         margin={0}
         padding={0}
         color={'#207DF7'}
@@ -318,7 +318,7 @@ const QualificationsForm = (props) => {
         onClick={handleAddQualification}
       >
         + Add to qualifications
-      </Button>
+      </Button> */}
     </Box>
   );
 };
