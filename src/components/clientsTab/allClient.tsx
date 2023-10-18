@@ -101,7 +101,9 @@ const AllClientsTab = (props) => {
         'DD MMMM , YYYY'
       ),
       status: allTutorClients[i]?.isActive === true ? 'Active' : 'Ended',
-      amount_earned: `$${allTutorClients[i]?.offer?.amount}`,
+      amount_earned: `$${
+        allTutorClients[i].offer.amount ? allTutorClients[i]?.offer?.amount : 0
+      }`,
       classes: 'Lesson 1',
       rating: 1
     })

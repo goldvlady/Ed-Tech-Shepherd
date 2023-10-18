@@ -63,7 +63,7 @@ export default function TutorCard(props: any) {
   const { user } = userStore();
 
   const [ribbonClicked, setRibbonClicked] = useState(false);
-  const [reviewRate, setReviewRate] = useState<any>(5);
+  const [reviewRate, setReviewRate] = useState<any>(1);
   const [review, setReview] = useState('');
 
   const toggleBookmarkTutor = async (id: string) => {
@@ -191,202 +191,163 @@ export default function TutorCard(props: any) {
   return (
     <>
       <LinkBox as="article">
-        <Center>
-          {' '}
-          <Box
-            bg={'white'}
-            w={{ sm: '100%', md: '100%', lg: '100%', base: '100%' }}
-            height={{
-              sm: '285px',
-              md: '285px',
-              lg: '325px'
-            }}
-            borderRadius="12px"
-            border="1px solid #EBEDEF"
-            _hover={{
-              boxShadow: 'xl',
-              transition: 'box-shadow 0.3s ease-in-out'
-            }}
-            padding={'20px'}
-            position="relative"
-          >
-            <Box
-              onClick={() => navigate(`/dashboard/find-tutor/tutor/?id=${id}`)}
-            >
-              <Flex gap={2} alignItems="center" position="relative">
-                <Avatar size="lg" name={name} src={avatar} />
-                {/* <div>
-                <div
-                  style={{
-                    width: '16px',
-                    height: '16px',
-                    background: 'linear-gradient(0deg, #66BD6A, #66BD6A)',
-                    border: '2.5px solid #FFFFFF',
-                    borderRadius: '50%',
-                    position: 'absolute',
-                    top: '46px',
-                    left: '50px'
-                  }}
-                ></div>
-              </div> */}
-                <Box>
-                  <Flex pt={1} direction={'column'}>
-                    <Text fontSize={'16px'} fontWeight={'semibold'} mb={0}>
-                      {name}
-                      <Text
-                        fontWeight={400}
-                        color={'#212224'}
-                        fontSize="14px"
-                        mb={'2px'}
-                      >
-                        {levelOfEducation}
-                      </Text>
-                    </Text>
-                  </Flex>{' '}
-                </Box>
-              </Flex>
-              <Box my={2}>
-                <Flex alignItems="center">
-                  <Text fontSize={16} fontWeight={'semibold'}>
-                    ${`${rate}.00 / hr`}
-                  </Text>
+        <Box
+          bg={'white'}
+          border="1px solid #EBEDEF"
+          borderRadius="12px"
+          _hover={{
+            boxShadow: 'xl',
+            transition: 'box-shadow 0.3s ease-in-out'
+          }}
+          padding={4}
+          width="100%"
+          mb={4}
+        >
+          <Flex flexDir={['column', 'row']} alignItems="center">
+            <Avatar
+              size="lg"
+              name={name}
+              src={avatar}
+              mr={[0, 4]}
+              mb={[4, 0]}
+            />
 
-                  <Spacer />
-                  <Flex>
-                    {' '}
-                    <Image src={Star} boxSize={4} />
-                    <Text fontSize={12} fontWeight={400} color="#6E7682">
-                      {`${rating}(${reviewCount})`}
-                    </Text>
-                  </Flex>
+            <Box flex={1}>
+              <Text fontSize="lg" fontWeight="semibold" mb={1}>
+                {name}
+              </Text>
+              <Text fontWeight={400} color="#212224" fontSize="md">
+                {levelOfEducation}
+              </Text>
+            </Box>
+          </Flex>
+
+          <Box my={4}>
+            <Flex alignItems="center">
+              <Text fontSize="lg" fontWeight="semibold">
+                ${`${rate}.00 / hr`}
+              </Text>
+              <Spacer />
+              <Flex alignItems="center">
+                <Image src={Star} boxSize={4} mr={1} />
+                <Text fontSize="sm" fontWeight={400} color="#6E7682">
+                  {`${rating}(${reviewCount})`}
+                </Text>
+              </Flex>
+            </Flex>
+          </Box>
+
+          <Text fontSize="sm" color={useColorModeValue('gray.700', 'gray.400')}>
+            {description ? textTruncate(description, 200) : ''}
+          </Text>
+
+          {use === 'my tutors' ? (
+            <Text
+              bg={offerStatus === 'accepted' ? '#F1F9F1' : '#FFF2EB'}
+              py={2}
+              px={5}
+              borderRadius={6}
+              fontSize="sm"
+              fontWeight={500}
+              color={offerStatus === 'accepted' ? 'green' : '#FB8441'}
+              mt={4}
+              width="fit-content"
+            >
+              {offerStatus === 'accepted' ? 'Active' : 'Pending'}
+            </Text>
+          ) : (
+            courses && (
+              <Box mt={2}>
+                <Flex flexWrap="wrap" gap={2}>
+                  {courses.length <= 5
+                    ? courses.map((subject, index) => (
+                        <Text
+                          key={index}
+                          py={2}
+                          px={4}
+                          fontSize="sm"
+                          fontWeight={500}
+                          bgColor="#F1F2F3"
+                          borderRadius={4}
+                          _hover={{ cursor: 'pointer' }}
+                          onClick={() =>
+                            handleSelectedCourse(subject.course.label)
+                          }
+                        >
+                          {subject.course.label}
+                        </Text>
+                      ))
+                    : courses.slice(0, 5).map((subject, index) => (
+                        <Text
+                          key={index}
+                          py={2}
+                          px={4}
+                          fontSize="sm"
+                          fontWeight={500}
+                          bgColor="#F1F2F3"
+                          borderRadius={4}
+                        >
+                          {subject.course.label}
+                        </Text>
+                      ))}
+                  {courses.length > 5 && (
+                    <Link
+                      color="#207DF7"
+                      href={`/dashboard/find-tutor/tutor/?id=${id}`}
+                      fontSize="sm"
+                      mt={2}
+                    >
+                      + {courses.length - 5} more
+                    </Link>
+                  )}
                 </Flex>
               </Box>
-            </Box>
+            )
+          )}
 
-            <Divider />
-            <Box my={2}>
-              <Text
-                fontSize={'12px'}
-                color={useColorModeValue('gray.700', 'gray.400')}
-              >
-                {description ? textTruncate(description, 200) : ''}
-              </Text>
-            </Box>
-
-            {use === 'my tutors' ? (
-              <Text
-                width="fit-content"
-                bg={offerStatus === 'accepted' ? '#F1F9F1' : '#FFF2EB'}
-                py={2}
-                px={5}
-                borderRadius={6}
-                fontSize="12px"
-                fontWeight={500}
-                color={offerStatus === 'accepted' ? 'green' : '#FB8441'}
-                position={'absolute'}
-                bottom={5}
-              >
-                {offerStatus === 'accepted' ? 'Active' : 'Pending'}
-              </Text>
-            ) : (
-              courses && (
-                <Box my={1}>
-                  <Flex gap={3} position="absolute" bottom={5} flexWrap="wrap">
-                    {courses.length < 6
-                      ? courses.map((subject, index) => (
-                          <Text
-                            key={index}
-                            py={1}
-                            px={4}
-                            fontSize={12}
-                            fontWeight={500}
-                            bgColor="#F1F2F3"
-                            borderRadius={4}
-                            _hover={{ cursor: 'pointer' }}
-                            onClick={() =>
-                              handleSelectedCourse(subject.course.label)
-                            }
-                          >
-                            {subject.course.label}
-                          </Text>
-                        ))
-                      : courses.slice(0, 5).map((subject, index) => (
-                          <>
-                            <Text
-                              key={index}
-                              py={1}
-                              px={4}
-                              fontSize={12}
-                              fontWeight={500}
-                              bgColor="#F1F2F3"
-                              borderRadius={4}
-                            >
-                              {subject.course.label}
-                            </Text>
-                            {index === 4 && (
-                              <Link
-                                color="#207DF7"
-                                href={`/dashboard/find-tutor/tutor/?id=${id}`}
-                                fontSize={12}
-                                alignSelf="center"
-                              >
-                                + {courses.length - 5} more
-                              </Link>
-                            )}
-                          </>
-                        ))}
-                  </Flex>
-                </Box>
-              )
-            )}
-            {use === 'bounty' && (
-              <Button
-                fontSize={12}
-                fontWeight={500}
-                borderRadius={4}
-                // position="absolute"
-                zIndex={1}
-                color="#fff"
-                // bottom={4}
-                right={0}
-                px={2}
-                py={'1px'}
-                onClick={() => handleBountyClick()}
-              >
-                Accept Bid
-              </Button>
-            )}
-            {use === 'my tutors' && (
-              <Button
-                variant={'unstyled'}
-                fontSize={12}
-                fontWeight={500}
-                borderRadius={4}
-                border="1px solid grey"
-                position="absolute"
-                zIndex={1}
-                color="grey"
-                bottom={4}
-                right={5}
-                px={2}
-                onClick={openReviewModal}
-              >
-                Review
-              </Button>
-            )}
-            {use !== 'my tutors' && (
-              <Image
-                src={saved || ribbonClicked ? Ribbon2 : Ribbon}
-                position="absolute"
-                top={4}
-                right={5}
-                width={saved || ribbonClicked ? 5 : 4}
-                _hover={{ cursor: 'pointer' }}
-                onClick={() => toggleBookmarkTutor(id)}
-              />
-            )}
-          </Box>
-        </Center>
+          {use === 'bounty' && (
+            <Button
+              fontSize="sm"
+              fontWeight={500}
+              borderRadius={4}
+              color="#fff"
+              px={2}
+              py={1}
+              mt={4}
+              onClick={() => handleBountyClick()}
+            >
+              Accept Bid
+            </Button>
+          )}
+          {use === 'my tutors' && offerStatus === 'accepted' && (
+            <Button
+              variant="unstyled"
+              fontSize="sm"
+              fontWeight={500}
+              borderRadius={4}
+              border="1px solid grey"
+              color="grey"
+              position="absolute"
+              bottom={8}
+              right={4}
+              px={2}
+              onClick={openReviewModal}
+            >
+              Review
+            </Button>
+          )}
+          {use !== 'my tutors' && (
+            <Image
+              src={saved || ribbonClicked ? Ribbon2 : Ribbon}
+              boxSize="5"
+              _hover={{ cursor: 'pointer' }}
+              onClick={() => toggleBookmarkTutor(id)}
+              position="absolute"
+              top={4}
+              right={4}
+            />
+          )}
+        </Box>
       </LinkBox>
       <AcceptBountyModal
         isAcceptBountyOpen={isAcceptBountyOpen}
@@ -415,11 +376,9 @@ export default function TutorCard(props: any) {
       >
         <VStack p={5} width="100%">
           <Box mb={4} justifyContent="center">
-            {/* <label>Rating:</label> */}
             <Flex gap={2}> {renderStars()}</Flex>
           </Box>
           <Box width="100%">
-            {/* <label>Review:</label> */}
             <Textarea
               placeholder="Enter your review here..."
               value={review}

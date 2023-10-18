@@ -19,6 +19,7 @@ import {
 } from '@chakra-ui/react';
 import { ref, onValue, DataSnapshot, off } from 'firebase/database';
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 
 // import OfferIcon from 'svgs/text-document.svg';
@@ -26,6 +27,7 @@ import styled from 'styled-components';
 function Notifications(props) {
   const { data, handleRead, handleAllRead } = props;
   const { user } = userStore();
+  const navigate = useNavigate();
   const currentPath = window.location.pathname;
   // const parsedNotifications = data.map((item) => item.notification);
 
@@ -216,7 +218,14 @@ function Notifications(props) {
                   py={2}
                   key={i._id}
                   position="relative"
-                  // onClick={() => markAsRead(i._id)}
+                  onClick={() => {
+                    if (i.attributes.offerId) {
+                      const url = isTutor
+                        ? `/dashboard/tutordashboard/offer/${i.attributes.offerId}`
+                        : `/dashboard/offer/${i.attributes.offerId}`;
+                      navigate(url);
+                    }
+                  }}
                 >
                   <Image
                     src={getIconByANotificationType(i.type)}
