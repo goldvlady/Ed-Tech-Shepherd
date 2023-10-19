@@ -139,11 +139,9 @@ export const convertScheduleToUTC = (schedule: Schedule) => {
 };
 
 export const numberToDayOfWeekName = (num: number, format = 'dddd') => {
-  // Adjust the input number to match the desired numbering (1 for Sunday, 2 for Monday, ..., 7 for Saturday)
-  const adjustedNum = num === 1 ? 0 : num - 1;
-
   // Use the adjusted number to get the day of the week's name
-  return moment().day(adjustedNum).format(format);
+  // 0 for Sunday, 1 for Monday and so on...
+  return moment().day(num).format(format);
 };
 export const DayOfWeekNameToNumber = (num: number, format = 'dddd') =>
   moment().day(num).format(format);
