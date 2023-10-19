@@ -95,17 +95,17 @@ const AllClientsTab = (props) => {
       name: `${allTutorClients[i]?.student.user.name.first} ${allTutorClients[i]?.student.user.name.last}`,
       subject: allTutorClients[i]?.offer?.course?.label,
       start_date: moment(allTutorClients[i]?.offer?.contractStartDate).format(
-        'DD MMMM , YYYY'
+        'MMMM DD  , YYYY'
       ),
       end_date: moment(allTutorClients[i]?.offer?.contractEndDate).format(
-        'DD MMMM , YYYY'
+        'MMMM DD  , YYYY'
       ),
       status: allTutorClients[i]?.isActive === true ? 'Active' : 'Ended',
       amount_earned: `$${
-        allTutorClients[i].offer.amount ? allTutorClients[i]?.offer?.amount : 0
+        allTutorClients[i].offer?.amount ? allTutorClients[i].offer.amount : 0
       }`,
-      classes: 'Lesson 1',
-      rating: 1
+      classes: '',
+      rating: 0
     })
   );
 

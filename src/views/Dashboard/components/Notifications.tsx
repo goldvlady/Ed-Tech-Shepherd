@@ -206,9 +206,18 @@ function Notifications(props) {
         {data &&
           filteredData.map((i) => (
             <>
-              <div
+              <Box
                 className={`notification-item ${i.read ? 'read' : ''}`}
                 key={i._id}
+                _hover={{ cursor: 'pointer', bg: '#EDF2F7', borderRadius: 8 }}
+                onClick={() => {
+                  if (i.attributes.offerId) {
+                    const url = isTutor
+                      ? `/dashboard/tutordashboard/offer/${i.attributes.offerId}`
+                      : `/dashboard/offer/${i.attributes.offerId}`;
+                    navigate(url);
+                  }
+                }}
               >
                 <Flex
                   alignItems="flex-start"
@@ -218,14 +227,6 @@ function Notifications(props) {
                   py={2}
                   key={i._id}
                   position="relative"
-                  onClick={() => {
-                    if (i.attributes.offerId) {
-                      const url = isTutor
-                        ? `/dashboard/tutordashboard/offer/${i.attributes.offerId}`
-                        : `/dashboard/offer/${i.attributes.offerId}`;
-                      navigate(url);
-                    }
-                  }}
                 >
                   <Image
                     src={getIconByANotificationType(i.type)}
@@ -254,11 +255,11 @@ function Notifications(props) {
                     maxHeight={45}
                     zIndex={1}
                     position="absolute"
-                    right={0}
+                    right={3}
                     top={5}
                   />
                 </Flex>
-              </div>
+              </Box>
 
               <Divide />
             </>
