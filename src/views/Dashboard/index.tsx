@@ -11,7 +11,6 @@ import DropdownMenu from '../../components/CustomComponents/CustomDropdownMenu';
 import SessionPrefaceDialog, {
   SessionPrefaceDialogRef
 } from '../../components/SessionPrefaceDialog';
-import { useStreamChat } from '../../providers/StreamChatProvider';
 import ApiService from '../../services/ApiService';
 import feedsStore from '../../state/feedsStore';
 import userStore from '../../state/userStore';
@@ -75,7 +74,7 @@ export default function Index() {
   const hours = date.getHours();
   const isDayTime = hours > 6 && hours < 20;
 
-  const { user, logoutUser } = userStore();
+  const { user } = userStore();
   const { feeds, fetchFeeds } = feedsStore();
 
   const [studentReport, setStudentReport] = useState<any>('');
@@ -87,7 +86,7 @@ export default function Index() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { disconnectAndReset } = useStreamChat();
+
   const fetchData = useCallback(async () => {
     try {
       const [
@@ -109,10 +108,8 @@ export default function Index() {
         upcomingEventResponse.status === 401
       ) {
         signOut(auth).then(() => {
-          disconnectAndReset();
           sessionStorage.clear();
           localStorage.clear();
-          logoutUser();
           window.location.href = '/login';
         });
         return; // Exit the function to prevent further processing
@@ -294,10 +291,14 @@ export default function Index() {
                       width={'200px'}
                     />
                     <Text fontSize={13} fontWeight={500} color="text.400">
-                      You have no quizzes at this moment.
+                      {/* You have no quizzes at this moment. */}
+                      You have no flashcards
                     </Text>
                     <Link to="/dashboard/flashcards">
-                      <CustomButton buttonText="Create Quiz" width="165px" />
+                      <CustomButton
+                        buttonText="Create Flashcard"
+                        width="165px"
+                      />
                     </Link>
                   </VStack>
                 </Box>
