@@ -645,6 +645,20 @@ class ApiService {
     }
     return await response.json();
   }
+
+  //Quizzes
+
+  static getQuizzes = async (queryParams: {
+    search?: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const queryString = objectToQueryString(queryParams);
+    return doFetch(
+      `${ApiService.baseEndpoint}/getStudentQuizzes?${queryString}`
+    );
+    // return {};
+  };
 }
 
 export default ApiService;

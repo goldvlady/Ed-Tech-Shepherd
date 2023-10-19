@@ -64,6 +64,7 @@ import {
   FiHome,
   FiMenu
 } from 'react-icons/fi';
+import { LuFileQuestion } from 'react-icons/lu';
 import {
   MdOutlineKeyboardArrowDown,
   MdOutlineKeyboardArrowUp
@@ -114,7 +115,8 @@ const LinkBItems: Array<LinkItemProps> = [
   //   path: '/dashboard/study-plans'
   // },
   { name: 'Notes', icon: CgNotes, path: '/dashboard/notes' },
-  { name: 'Flashcards', icon: TbCards, path: '/dashboard/flashcards' }
+  { name: 'Flashcards', icon: TbCards, path: '/dashboard/flashcards' },
+  { name: 'Quizzes', icon: LuFileQuestion, path: '/dashboard/quizzes' }
 ];
 
 interface NavItemProps extends FlexProps {

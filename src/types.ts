@@ -456,3 +456,30 @@ export interface StudentDocument {
   ingestId?: string;
   student: any; // Assuming this is the ObjectId of the student
 }
+
+export interface QuizQuestion {
+  questionType: string;
+  question: string;
+  options?: string[];
+  helperText?: string;
+  explanation?: string;
+  answer: string;
+  numberOfAttempts: number;
+  currentStep: number;
+  totalSteps: number;
+}
+
+export interface QuizData {
+  _id: string;
+  student: Student;
+  quizname: string;
+  studyType: 'timedSession' | 'untimedSession';
+  subject?: string;
+  topic?: string;
+  scores: Score[];
+  studyPeriod: 'daily' | 'weekly' | 'biweekly' | 'spacedRepetition';
+  questions: QuizQuestion[];
+  createdAt: string;
+  updatedAt: string;
+  currentStudy?: MinimizedStudy;
+}
