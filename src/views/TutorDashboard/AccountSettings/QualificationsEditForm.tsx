@@ -298,8 +298,8 @@ const QualificationsForm = (props) => {
         <DragAndDrop
           isLoading={isLoading}
           file={formData.transcript}
-          supportingText="Click to upload a video"
-          accept="image/*"
+          supportingText="Click to upload your transcript"
+          accept="image/*, application/pdf"
           onFileUpload={(file) => handleUploadInput(file, 'transcript')}
           boxStyles={{ minWidth: '250px', marginTop: '10px', height: '50px' }}
         />

@@ -307,7 +307,7 @@ const AvailabilityTable = () => {
     setTutorAvailability(availability);
   }, [schedule]);
 
-  const timeSlots = ['8AM → 12PM', '12AM → 5PM', '5PM → 9PM', '9PM → 12AM'];
+  const timeSlots = ['8AM → 12PM', '12PM → 5PM', '5PM → 9PM', '9PM → 12AM'];
 
   const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
