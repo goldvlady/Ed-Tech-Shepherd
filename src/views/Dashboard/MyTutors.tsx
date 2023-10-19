@@ -25,7 +25,7 @@ function MyTutors() {
   const [allTutors, setAllTutors] = useState<any>([]);
   const [loadingData, setLoadingData] = useState(false);
   const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(5);
+  const [limit, setLimit] = useState<number>(30);
   const [count, setCount] = useState<number>(5);
   const [days, setDays] = useState<Array<any>>([]);
   const { fetchOffers, offers, isLoading, pagination } = offerStore();
