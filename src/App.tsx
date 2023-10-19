@@ -27,6 +27,7 @@ import PinnedNotes from './views/Dashboard/Notes/PinnedNotes/PinnedNotes';
 import Notes from './views/Dashboard/Notes/index';
 import Offer from './views/Dashboard/Offer';
 import Quizzes from './views/Dashboard/Quizzes';
+import CreateQuizzes from './views/Dashboard/Quizzes/create';
 import SendTutorOffer from './views/Dashboard/SendTutorOffer';
 import Tutor from './views/Dashboard/Tutor';
 import DashboardIndex from './views/Dashboard/index';
@@ -132,7 +133,9 @@ const studentRoutes = [
   { path: 'flashcards/:flashcardId', element: <FlashCard /> },
   { path: 'library', element: <Library /> },
 
-  { path: 'quizzes', element: <Quizzes /> }
+  // quizzes
+  { path: 'quizzes', element: <Quizzes /> },
+  { path: 'quizzes/create', element: <CreateQuizzes /> }
 ];
 
 // Tutor specific routes configuration
