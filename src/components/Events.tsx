@@ -11,6 +11,7 @@ import React from 'react';
 import { MdOutlineSentimentNeutral } from 'react-icons/md';
 
 export default function Events({ event }: any) {
+  // console.log("EVENT", event);
   const getTextByEventType = (eventType, name) => {
     switch (eventType) {
       case 'study':
@@ -43,24 +44,20 @@ export default function Events({ event }: any) {
         return undefined;
     }
   };
-  const extractTime = (dateStr: string) => {
-    const date = moment.utc(dateStr).local();
-    return date.format('hh:mm A');
-  };
 
-  const convertTo12HourFormat = (timeString) => {
-    const [hours, minutes] = timeString.split(':').map(Number);
+  function extractAndConvertTimeFromUTC(
+    utcDateString: string,
+    userTimeZone: string
+  ): string {
+    // Parse the UTC date string
+    const utcDate = moment.utc(utcDateString);
+    // Convert the UTC date to the user's local timezone
+    const localDate = utcDate.clone().tz(userTimeZone);
+    // Extract the time part in the user's local timezone
+    const localTime = localDate.format('hh:mm A');
+    return localTime;
+  }
 
-    const period = hours >= 12 ? 'PM' : 'AM';
-
-    const hours12 = hours % 12 || 12;
-
-    const time12Hour = `${hours12.toString().padStart(2, '0')}:${minutes
-      .toString()
-      .padStart(2, '0')} ${period}`;
-
-    return time12Hour;
-  };
   const currentPath = window.location.pathname;
 
   const isTutor = currentPath.includes('/dashboard/tutordashboard/');
@@ -88,52 +85,19 @@ export default function Events({ event }: any) {
             </Text>
             <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
               <span>
-                {
-                  isTutor
-                    ? convertUtcToUserTime(event.data.startDate)
-                    : // convertTimeToTimeZone(
-                      //     convertISOToCustomFormat(),
-                      //     'Africa/Lagos'
-                      //   )
-                      moment(event.data.startDate).format('hh:mm A')
-
-                  // Format the time as "11:00 AM"
-                }
+                {convertUtcToUserTime(event.data.startDate)}
+                {/* Format the time as "11:00 AM" */}
               </span>
               {event.type !== 'study' && (
                 <>
                   {' '}
                   <ChevronRightIcon className="w-4 h-4" />
-                  <span>
-                    {isTutor
-                      ? convertUtcToUserTime(event.data.endDate)
-                      : // convertTimeToTimeZone(
-                        //     convertISOToCustomFormat(event.data.endDate),
-                        //     'Africa/Lagos'
-                        //   )
-                        moment(event.data.endDate).format('hh:mm A')}
-                  </span>
+                  <span>{convertUtcToUserTime(event.data.endDate)}</span>
                 </>
               )}
             </Text>
           </div>
         </div>
-        {/* <div className="flex -space-x-0.5">
-          <dt className="sr-only">Commenters</dt>
-          {event.commenters.map((commenter: any) => (
-            <dd key={commenter.id}>
-              <img
-                className={`h-5 w-5 rounded-full ${
-                  commenter.backgroundColor
-                    ? commenter.backgroundColor
-                    : 'bg-gray-50'
-                } ring-2 ring-white`}
-                src={commenter.imageUrl}
-                alt={commenter.name}
-              />
-            </dd>
-          ))}
-        </div> */}
       </div>
     </li>
   );

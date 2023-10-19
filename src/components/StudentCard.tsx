@@ -1,3 +1,4 @@
+import { convertTimeToTimeZone, convertTimeToDateTime } from '../util';
 import {
   PencilIcon,
   SparklesIcon,
@@ -173,9 +174,19 @@ function StudentCard(props) {
                 {Object.keys(offer.schedule).length} lesson weekly
               </Text>
               <EllipsistIcon className="w-1 mx-0.5" onClick={undefined} />
-              <Text as="span">{getBeginTime(offer.schedule)} </Text>
+              <Text as="span">
+                {convertTimeToTimeZone(
+                  convertTimeToDateTime(getBeginTime(offer.schedule)),
+                  offer.scheduleTz
+                )}
+              </Text>
               <ArrowRightIcon className="w-3 mx-0.5" onClick={undefined} />
-              <Text as="span">{getEndTime(offer.schedule)} </Text>
+              <Text as="span">
+                {convertTimeToTimeZone(
+                  convertTimeToDateTime(getEndTime(offer.schedule)),
+                  offer.scheduleTz
+                )}
+              </Text>
             </Flex>
           </VStack>
           <Divider my={2} color="gray.400" />

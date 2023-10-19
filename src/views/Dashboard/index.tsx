@@ -74,7 +74,7 @@ export default function Index() {
   const hours = date.getHours();
   const isDayTime = hours > 6 && hours < 20;
 
-  const { user, logoutUser } = userStore();
+  const { user } = userStore();
   const { feeds, fetchFeeds } = feedsStore();
 
   const [studentReport, setStudentReport] = useState<any>('');
@@ -110,7 +110,6 @@ export default function Index() {
         signOut(auth).then(() => {
           sessionStorage.clear();
           localStorage.clear();
-          logoutUser();
           window.location.href = '/login';
         });
         return; // Exit the function to prevent further processing
@@ -277,7 +276,7 @@ export default function Index() {
               marginBottom={{ base: '26px', md: '0' }}
             >
               <Text fontSize={'20px'} fontWeight={600}>
-                Create Flashcards
+                Flashcard Performance by Deck
               </Text>
               {chartData && chartData.length > 0 ? (
                 <Center p={2} h={'350px'}>
@@ -292,10 +291,14 @@ export default function Index() {
                       width={'200px'}
                     />
                     <Text fontSize={13} fontWeight={500} color="text.400">
-                      You have no quizzes at this moment.
+                      {/* You have no quizzes at this moment. */}
+                      You have no flashcards
                     </Text>
                     <Link to="/dashboard/flashcards">
-                      <CustomButton buttonText="Create Quiz" width="165px" />
+                      <CustomButton
+                        buttonText="Create Flashcard"
+                        width="100%"
+                      />
                     </Link>
                   </VStack>
                 </Box>

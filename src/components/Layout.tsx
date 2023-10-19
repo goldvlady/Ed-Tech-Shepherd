@@ -1,5 +1,6 @@
 import BellDot from '../assets/bell-dot.svg';
 import { classNames } from '../helpers';
+import { useStreamChat } from '../providers/StreamChatProvider';
 import tutorStore from '../state/tutorStore';
 import userStore from '../state/userStore';
 import Notifications from '../views/Dashboard/components/Notifications';
@@ -18,6 +19,7 @@ import {
 import { HelpModal, UploadDocumentModal } from './index';
 import {
   Avatar,
+  Badge,
   Box,
   Flex,
   HStack,
@@ -114,6 +116,15 @@ export default function Layout({ children, className }) {
     setToggleProfileSwitchModal(true);
   };
   const pathname = location.pathname;
+  const {
+    unreadCount,
+    connectUserToChat,
+    userType,
+    setUserRoleInfo,
+    userRoleId,
+    userRoleToken,
+    disconnectAndReset
+  } = useStreamChat();
 
   useEffect(() => {
     const temp: NavigationItem[] = navigation.map((nav) => {
@@ -134,7 +145,35 @@ export default function Layout({ children, className }) {
     }
   }, [user]);
 
+  useEffect(() => {
+    // disconnectAndReset();
+    if (user) {
+      const role = user[userType];
+      const token = user.streamTokens?.find((token) => token.type === userType);
+      //@ts-ignore: petty ts check
+      setUserRoleInfo(role?._id, token?.token);
+      // return () => {
+      //   connectUserToChat();
+      // };
+    }
+
+    // return () => {
+    //   disconnectAndReset();
+    // };
+  }, [user]);
+
+  useEffect(() => {
+    if (userRoleId && userRoleToken) {
+      connectUserToChat();
+    }
+  }, [userRoleId, userRoleToken]);
+
+  //  useEffect(() => {
+  //    connectUserToChat();
+  //  }, []);
+
   const handleSignOut = () => {
+    disconnectAndReset();
     sessionStorage.clear();
     signOut(auth).then(() => {
       navigate('/login');
@@ -309,6 +348,12 @@ export default function Layout({ children, className }) {
                     <Text fontSize={14} fontWeight={activePath ? '500' : '400'}>
                       {item.name}
                     </Text>
+                    {item.name === 'Messages' &&
+                      unreadCount > 0 && ( // Display badge if there are unread messages
+                        <Badge colorScheme="red" ml={2}>
+                          {unreadCount}
+                        </Badge>
+                      )}
                   </Link>
                 </Box>
               );

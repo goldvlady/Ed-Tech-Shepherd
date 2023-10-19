@@ -59,8 +59,7 @@ export const GridContainer = styled.div<{ isHomeWorkHelp?: boolean }>`
   position: fixed;
   top: 300px;
   height: 100%;
-  width: ${({ isHomeWorkHelp }) =>
-    isHomeWorkHelp ? '-webkit-fill-available' : '40.7%'};
+  width: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? '55%' : '40.7%')};
   // width: -moz-available;
 `;
 

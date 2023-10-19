@@ -67,7 +67,7 @@ function AvailabilityTable(props) {
               <Tr>
                 <Th width={'155px'}></Th>
                 {daysOfWeek.map((day, index) => (
-                  <Th key={index + 1}>{day}</Th>
+                  <Th key={index}>{day}</Th>
                 ))}
               </Tr>
             </Thead>
@@ -81,10 +81,10 @@ function AvailabilityTable(props) {
                   </Td>
                   {daysOfWeek.map((day, dayIndex) => (
                     <Td
-                      key={dayIndex + 1}
+                      key={dayIndex}
                       className={
-                        data.schedule[(dayIndex + 1).toString()] &&
-                        data.schedule[(dayIndex + 1).toString()].some(
+                        data.schedule[dayIndex.toString()] &&
+                        data.schedule[dayIndex.toString()].some(
                           (slot) =>
                             convertTimeToTimeZone(
                               convertTimeToDateTime(slot.begin),
@@ -99,8 +99,8 @@ function AvailabilityTable(props) {
                           : 'stripeBox'
                       }
                     >
-                      {data.schedule[(dayIndex + 1).toString()] &&
-                      data.schedule[(dayIndex + 1).toString()].some(
+                      {data.schedule[dayIndex.toString()] &&
+                      data.schedule[dayIndex.toString()].some(
                         (slot) =>
                           convertTimeToTimeZone(
                             convertTimeToDateTime(slot.begin),

@@ -129,7 +129,7 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
           Drag file here to upload or choose file
         </Text>
         <Text fontSize="sm" color="gray.500" mt={2}>
-          {supportingText ? supportingText : 'Supports PNG, JPG & JPEG formats'}
+          {supportingText ? supportingText : 'Supports PDF formats'}
         </Text>
         <Box color="blue.500">{fileName ? fileName : ''}</Box>
       </>

@@ -1,3 +1,4 @@
+import { useStreamChat } from '../providers/StreamChatProvider';
 import ApiService from '../services/ApiService';
 import userStore from '../state/userStore';
 import { CustomButton } from '../views/Dashboard/layout';
@@ -117,6 +118,7 @@ const ProfileSwitchModal = ({
   const toast = useCustomToast();
   const group = getRootProps();
 
+
   const handleCreateStudentAccount = async () => {
     const response = await ApiService.createStudentFromTutor();
 
@@ -138,6 +140,9 @@ const ProfileSwitchModal = ({
       });
     }
   };
+
+  const { disconnectAndReset } = useStreamChat();
+
   return (
     <>
       {toggleProfileSwitchModal && (
@@ -388,13 +393,14 @@ const ProfileSwitchModal = ({
                         {user?.type.length > 1 && (
                           <Box ml={6} textAlign="center">
                             <Button
-                              onClick={() =>
+                              onClick={async () => {
+                                await disconnectAndReset();
                                 navigate(
                                   selectedProfile === 'student'
                                     ? '/dashboard'
                                     : '/dashboard/tutordashboard'
-                                )
-                              }
+                                );
+                              }}
                               isDisabled={
                                 selectedProfile === '' ||
                                 (window.location.pathname.includes(

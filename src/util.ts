@@ -99,13 +99,49 @@ export const educationLevelOptions = [
     value: 'vocation-technical-cert'
   }
 ];
+interface Schedule {
+  [day: string]: {
+    begin: string;
+    end: string;
+  };
+}
+
+export const convertTimeToUTC = (time: string, tzIdentifier: string) => {
+  // Parse the input time string
+  const parsedTime = moment.tz(time, 'hh:mm A', tzIdentifier);
+
+  // Convert the parsed time to UTC+0 with the same format
+  const utcTime = parsedTime.utc().format('hh:mm A');
+
+  return utcTime;
+};
+
+export const convertScheduleToUTC = (schedule: Schedule) => {
+  const tzIdentifier = moment.tz.guess();
+  const utcSchedule = {};
+
+  for (const day in schedule) {
+    if (schedule[day]) {
+      const beginTime = schedule[day].begin;
+      const endTime = schedule[day].end;
+
+      const beginUTC = convertTimeToUTC(beginTime, tzIdentifier);
+      const endUTC = convertTimeToUTC(endTime, tzIdentifier);
+
+      utcSchedule[day] = {
+        begin: beginUTC,
+        end: endUTC
+      };
+    }
+  }
+
+  return utcSchedule;
+};
 
 export const numberToDayOfWeekName = (num: number, format = 'dddd') => {
-  // Adjust the input number to match the desired numbering (1 for Sunday, 2 for Monday, ..., 7 for Saturday)
-  const adjustedNum = num === 1 ? 0 : num - 1;
-
   // Use the adjusted number to get the day of the week's name
-  return moment().day(adjustedNum).format(format);
+  // 0 for Sunday, 1 for Monday and so on...
+  return moment().day(num).format(format);
 };
 export const DayOfWeekNameToNumber = (num: number, format = 'dddd') =>
   moment().day(num).format(format);
@@ -127,7 +163,8 @@ export const convertTimeToDateTime = (time) => {
   const currentDate = new Date();
 
   // Regular expression to match different time formats
-  const timeRegex = /^(\d{1,2})(?::(\d{2}))?(AM|PM)?$/i;
+  const timeRegex =
+    /^(\d{1,2}|0\d{1,2})(?::(\d{2}))?(?:\s)?(AM|PM)$|^(\d{1,2}|0\d{1,2})(AM|PM)$/i;
   const matches = time.match(timeRegex);
 
   if (!matches) {
@@ -155,7 +192,6 @@ export const convertTimeToDateTime = (time) => {
   const hours24 = String(currentDate.getHours()).padStart(2, '0');
   const minutesStr = String(currentDate.getMinutes()).padStart(2, '0');
   const seconds = '00';
-
   return `${year}-${month}-${day} ${hours24}:${minutesStr}:${seconds}`;
 };
 
