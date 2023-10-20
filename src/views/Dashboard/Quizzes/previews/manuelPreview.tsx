@@ -8,16 +8,9 @@ interface QuizQuestion {
   answer: string;
 }
 
-// interface QuizPreviewerProps {
-//   questions: QuizQuestion[];
-// }
-
 const QuizPreviewer = ({ questions }) => {
   return (
-    <Box
-      //   width={['100%', '100%', '50%', '70%']}
-      padding={['0 10%', '0 20%', '0 20%', '0 20%']}
-    >
+    <Box padding={['0 10%', '0 20%', '0 20%', '0 20%']}>
       <Text
         fontFamily="Inter"
         fontWeight="500"

@@ -39,6 +39,7 @@ import {
   useDisclosure
 } from '@chakra-ui/react';
 import { getAuth, signOut } from 'firebase/auth';
+import { includes, last, split } from 'lodash';
 import { ReactNode, useState, useEffect } from 'react';
 import { IconType } from 'react-icons';
 import { BsChatLeftDots, BsPin, BsBook } from 'react-icons/bs';
@@ -83,7 +84,19 @@ interface NavItemProps extends FlexProps {
 const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
   const { pathname } = useLocation();
 
-  const isActive = pathname === path;
+  const pathArray = split(path, '/');
+
+  let isActive =
+    pathArray.length === 2 && path === pathname
+      ? includes(pathArray, 'dashboard')
+      : false;
+
+  if (pathArray.length === 3 && path !== '/dashboard') {
+    isActive =
+      pathArray.length === 3
+        ? includes(pathname, last(pathArray))
+        : includes(pathname, pathArray[pathArray.length - 1]);
+  }
 
   return (
     <Link to={path} style={{ textDecoration: 'none' }}>
