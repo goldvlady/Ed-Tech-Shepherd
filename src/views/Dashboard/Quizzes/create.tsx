@@ -2,7 +2,13 @@ import LoaderOverlay from '../../../components/loaderOverlay';
 import quizStore from '../../../state/quizStore';
 // import { QuizQuestion } from '../../../types';
 import QuizDataProvider, { QuizQuestion } from './context';
-import { ManualQuizForm } from './forms';
+import {
+  ManualQuizForm,
+  TextQuizForm,
+  UploadQuizForm,
+  TopicQuizForm
+} from './forms';
+import { QuizModal } from './modal';
 import { manualPreview as QuizPreviewer } from './previews';
 import './styles.css';
 import {
@@ -15,9 +21,11 @@ import {
   TabPanels,
   Tab,
   TabPanel,
-  Flex
+  Flex,
+  TabIndicator,
+  useDisclosure
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const CreateQuizPage = () => {
   const {
@@ -26,8 +34,26 @@ const CreateQuizPage = () => {
     // quiz,
     //  fetchQuizzes
   } = quizStore();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+  const [questions, setQuestions] = useState<QuizQuestion[]>([
+    // { question: 'question 1', questionType: 'multipleChoice', answer: '' },
+    // { question: 'question 2', questionType: 'trueFalse', answer: '' },
+    // { question: 'question 3', questionType: 'openEnded', answer: '' }
+  ]);
+
+  useEffect(() => {
+    setQuestions([
+      {
+        question: 'question 1',
+        questionType: 'multipleChoice',
+        answer: '',
+        options: ['option A', 'option B', 'option C', 'option D']
+      },
+      { question: 'question 2', questionType: 'trueFalse', answer: '' },
+      { question: 'question 3', questionType: 'openEnded', answer: '' }
+    ]);
+  }, []);
 
   const addQuestion = (question: QuizQuestion) => {
     setQuestions([...questions, question]);
@@ -41,7 +67,7 @@ const CreateQuizPage = () => {
       flexWrap="wrap"
     >
       {isLoading && <LoaderOverlay />}
-      {/* <QuizModal isOpen={Boolean(quiz)} /> */}
+      <QuizModal isOpen={isOpen} onClose={onClose} />
 
       <Box
         className="create-quiz-wrapper"
@@ -61,19 +87,36 @@ const CreateQuizPage = () => {
         </Text>
         <Tabs isLazy isFitted>
           <TabList display="flex">
-            <Tab flex="1">Upload</Tab>
-            <Tab flex="1">Topic</Tab>
-            <Tab flex="1">Manual</Tab>
+            <Tab _selected={{ color: '#207DF7' }} flex="1">
+              Upload
+            </Tab>
+            <Tab _selected={{ color: '#207DF7' }} flex="1">
+              Topic
+            </Tab>
+            <Tab _selected={{ color: '#207DF7' }} flex="1">
+              Text
+            </Tab>
+            <Tab _selected={{ color: '#207DF7' }} flex="1">
+              Manual
+            </Tab>
           </TabList>
+
+          <TabIndicator
+            mt="-1.5px"
+            height="2px"
+            bg="#207DF7"
+            borderRadius="1px"
+          />
 
           <TabPanels>
             <TabPanel>
-              <p>renderUploadForm</p>
-              {/* {renderUploadForm()} */}
+              <UploadQuizForm addQuestion={addQuestion} />
             </TabPanel>
             <TabPanel>
-              <p>renderTopicForm</p>
-              {/* {renderTopicForm()} */}
+              <TopicQuizForm addQuestion={addQuestion} />
+            </TabPanel>
+            <TabPanel>
+              <TextQuizForm addQuestion={addQuestion} />
             </TabPanel>
             <TabPanel>
               <ManualQuizForm addQuestion={addQuestion} />
@@ -87,8 +130,7 @@ const CreateQuizPage = () => {
         bg="#F9F9FB"
         borderLeft="1px solid #E7E8E9"
       >
-        {/* {renderPreview()} */}
-        <QuizPreviewer questions={questions} />
+        <QuizPreviewer questions={questions} onOpen={onOpen} />
       </Box>
     </Flex>
   );

@@ -1,20 +1,28 @@
+import { UploadIcon, WardIcon } from '../../../../components/icons';
 import { useQuizState, QuizQuestion } from '../context';
+import { QuestionIcon } from '@chakra-ui/icons';
 import {
   Box,
   Text,
   FormControl,
   FormLabel,
+  FormHelperText,
   Select,
   Textarea,
   Input,
   HStack,
-  Button
+  Button,
+  InputGroup,
+  InputLeftElement,
+  Tooltip
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { FiChevronRight } from 'react-icons/fi';
 
-const ManualQuizForm = ({ addQuestion }) => {
+// DownloadIcon
+
+const TopicQuizForm = ({ addQuestion }) => {
   const {
     quizData,
     goToNextStep,
@@ -88,17 +96,37 @@ const ManualQuizForm = ({ addQuestion }) => {
 
   return (
     <Box width={'100%'} mt="20px" padding="0 10px">
-      <FormControl mb={4}>
-        <FormLabel>Select question type:</FormLabel>
+      <FormControl mb={7}>
+        <FormLabel color={'text.500'}>Enter a topic</FormLabel>
+        <Input
+          type="text"
+          _placeholder={{
+            color: 'text.200',
+            fontSize: '14px'
+          }}
+        />
+        <FormHelperText textColor={'text.600'} fontSize={'14px'}>
+          Enter a topic to generate questions from. We'll search the web for
+          reliable sources first. For very specific topics, we recommend adding
+          your own content in the{' '}
+          <Text display={'inline'} color={'#207DF7'}>
+            text input mode
+          </Text>{' '}
+          instead.
+        </FormHelperText>
+      </FormControl>
+
+      <FormControl mb={7}>
+        <FormLabel color={'text.500'}>Question type:</FormLabel>
         <Select
+          height={'48px'}
           sx={{
             padding: '8px'
           }}
-          height={'48px'}
           name="questionType"
           value={currentQuestion.questionType}
           onChange={handleChange}
-          defaultValue="multipleChoice"
+          textColor={'text.700'}
         >
           <option value="multipleChoice">Multiple Choice</option>
           <option value="openEnded">Open Ended</option>
@@ -106,43 +134,26 @@ const ManualQuizForm = ({ addQuestion }) => {
         </Select>
       </FormControl>
 
-      <FormControl mb={4}>
-        <FormLabel>Enter your question:</FormLabel>
-        <Textarea
-          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-          name="question"
-          placeholder="Enter your question here"
-          value={currentQuestion.question}
-          onChange={handleChange}
-        />
+      <FormControl mb={7}>
+        <FormLabel color={'text.500'}>
+          Number of questions
+          <Tooltip
+            hasArrow
+            label="Number of questions to create"
+            placement="right-end"
+          >
+            <QuestionIcon mx={2} w={3} h={3} />
+          </Tooltip>
+        </FormLabel>
+        <Input textColor={'text.700'} height={'48px'} type="number" />
       </FormControl>
-      <>
-        {currentQuestion.questionType === 'multipleChoice' &&
-          Array.from({ length: 4 }).map((_, index) => (
-            <FormControl key={index} mb={4}>
-              <FormLabel>{`Option ${String.fromCharCode(
-                65 + index
-              )}:`}</FormLabel>
-              <Input
-                type="text"
-                name={`option${index}`}
-                _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-                placeholder={`Option ${String.fromCharCode(65 + index)}`}
-                value={currentQuestion.options?.[index] || ''}
-                onChange={handleChange}
-              />
-            </FormControl>
-          ))}
-      </>
+
+      {/* 
       {currentQuestion.questionType && (
         <FormControl mb={4}>
           <FormLabel>Answer:</FormLabel>
           {currentQuestion.questionType === 'multipleChoice' && (
             <Select
-              sx={{
-                padding: '8px'
-              }}
-              height={'48px'}
               name="answer"
               placeholder="Select answer"
               value={currentQuestion.answer}
@@ -157,10 +168,6 @@ const ManualQuizForm = ({ addQuestion }) => {
 
           {currentQuestion.questionType === 'trueFalse' && (
             <Select
-              sx={{
-                padding: '8px'
-              }}
-              height={'48px'}
               name="answer"
               placeholder="Select answer"
               value={currentQuestion.answer}
@@ -180,7 +187,7 @@ const ManualQuizForm = ({ addQuestion }) => {
             />
           )}
         </FormControl>
-      )}
+      )} */}
 
       <HStack
         w="100%"
@@ -210,6 +217,7 @@ const ManualQuizForm = ({ addQuestion }) => {
         )}
         (
         <Button
+          width={'180px'}
           borderRadius="8px"
           p="10px 20px"
           fontSize="14px"
@@ -219,7 +227,8 @@ const ManualQuizForm = ({ addQuestion }) => {
           onClick={handleQuestionAdd}
           ml={5}
         >
-          Add Question
+          <WardIcon className={'h-[20px] w-[20px] mx-2'} onClick={() => ''} />
+          Generate
         </Button>
         )
       </HStack>
@@ -227,4 +236,4 @@ const ManualQuizForm = ({ addQuestion }) => {
   );
 };
 
-export default ManualQuizForm;
+export default TopicQuizForm;

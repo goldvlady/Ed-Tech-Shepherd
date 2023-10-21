@@ -364,3 +364,102 @@ export const UploadIcon = ({ className, onClick }) => {
     </svg>
   );
 };
+
+export const WardIcon = ({ className, onClick }) => {
+  return (
+    <svg
+      className={className}
+      onClick={onClick}
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g id="Frame">
+        <path
+          id="Vector"
+          d="M12.6862 12.9228L10.8423 16.7979C10.7236 17.0473 10.4253 17.1533 10.1759 17.0346C10.1203 17.0082 10.0701 16.9717 10.0278 16.9269L7.07658 13.8113C6.99758 13.7279 6.89228 13.6743 6.77838 13.6594L2.52314 13.1032C2.24932 13.0673 2.05637 12.8164 2.09216 12.5426C2.10014 12.4815 2.11933 12.4225 2.14876 12.3684L4.19993 8.59893C4.25484 8.49801 4.27333 8.38126 4.25229 8.26835L3.46634 4.0495C3.41576 3.77803 3.59484 3.51696 3.86631 3.46638C3.92684 3.45511 3.98893 3.45511 4.04946 3.46638L8.26831 4.25233C8.38126 4.27337 8.49801 4.25488 8.59884 4.19998L12.3683 2.1488C12.6109 2.01681 12.9146 2.10644 13.0465 2.349C13.076 2.40308 13.0952 2.46213 13.1031 2.52318L13.6593 6.77842C13.6743 6.89233 13.7279 6.99763 13.8113 7.07662L16.9269 10.0278C17.1274 10.2177 17.136 10.5342 16.9461 10.7346C16.9038 10.7793 16.8535 10.8158 16.7979 10.8423L12.9228 12.6862C12.8191 12.7356 12.7355 12.8191 12.6862 12.9228ZM13.3502 14.5288L14.5287 13.3503L18.0643 16.8858L16.8858 18.0643L13.3502 14.5288Z"
+          fill="currentColor"
+        />
+      </g>
+    </svg>
+  );
+};
+
+export const LightningBoltIcon = ({ className, onClick }) => {
+  return (
+    <svg
+      className={className}
+      onClick={onClick}
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g id="Frame">
+        <path
+          id="Vector"
+          d="M10.833 8.33301H16.6663L9.16634 19.1663V11.6663H3.33301L10.833 0.833008V8.33301Z"
+          fill="currentColor"
+        />
+      </g>
+    </svg>
+  );
+};
+
+export const KeepQuizIcon = ({ className, onClick }) => {
+  return (
+    <svg
+      className={className}
+      onClick={onClick}
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g id="Frame">
+        <path
+          id="Vector"
+          d="M6.66746 10.1136L12.7957 3.98535L13.7385 4.92816L6.66746 11.9992L2.4248 7.7566L3.36761 6.81381L6.66746 10.1136Z"
+          fill="currentColor"
+        />
+      </g>
+    </svg>
+  );
+};
+
+export const EditQuizIcon = ({ className, onClick }) => {
+  return (
+    <svg
+      className={className}
+      onClick={onClick}
+      viewBox="0 0 18 18"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g id="Frame">
+        <path
+          id="Vector"
+          d="M5.43198 13.4974H2.25V10.3155L10.8263 1.7392C11.1192 1.44631 11.594 1.44631 11.8869 1.7392L14.0083 3.86052C14.3012 4.15341 14.3012 4.62829 14.0083 4.92118L5.43198 13.4974ZM2.25 14.9974H15.75V16.4974H2.25V14.9974Z"
+          fill="currentColor"
+        />
+      </g>
+    </svg>
+  );
+};
+export const DeleteQuizIcon = ({ className, onClick }) => {
+  return (
+    <svg
+      className={className}
+      onClick={onClick}
+      viewBox="0 0 18 18"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g id="Frame">
+        <path
+          id="Vector"
+          d="M5.25 4.5V2.25C5.25 1.83579 5.58579 1.5 6 1.5H12C12.4142 1.5 12.75 1.83579 12.75 2.25V4.5H16.5V6H15V15.75C15 16.1642 14.6642 16.5 14.25 16.5H3.75C3.33579 16.5 3 16.1642 3 15.75V6H1.5V4.5H5.25ZM6.75 3V4.5H11.25V3H6.75Z"
+          fill="currentColor"
+        />
+      </g>
+    </svg>
+  );
+};

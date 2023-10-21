@@ -1,1 +1,1 @@
-export { default as manualPreview } from './manuelPreview';
+export { default as manualPreview } from './mainPreview';

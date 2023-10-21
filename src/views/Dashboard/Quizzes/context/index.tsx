@@ -162,6 +162,7 @@ const QuizDataProvider: React.FC<{ children: React.ReactNode }> = ({
       goToStep: (stepIndex: number) =>
         dispatch({ type: ActionTypes.GoToStep, payload: stepIndex })
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [quizData, questions, currentStep, currentQuestionIndex]
   );
 
