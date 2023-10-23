@@ -19,7 +19,8 @@ import {
   Input
 } from '@chakra-ui/react';
 import { isEmpty, toLower } from 'lodash';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useOnClickOutside } from 'usehooks-ts';
 
 const PreviewQuizCard = ({
   question,
@@ -28,6 +29,7 @@ const PreviewQuizCard = ({
   question: QuizQuestion;
   index: number;
 }) => {
+  const ref = useRef(null);
   const [isEditable, setIsEditable] = useState(false);
   const [answer, setAnswer] = useState('');
   const [optionAnswer, setOptionAnswer] = useState('');
@@ -51,8 +53,10 @@ const PreviewQuizCard = ({
     }
   }, [isEditable, question?.answer, question.type]);
 
+  useOnClickOutside(ref, handleSetIsDisabled);
+
   return (
-    <Box borderRadius={'8px'} mt={10} bg="white" w="100%">
+    <Box ref={ref} borderRadius={'8px'} mt={10} bg="white" w="100%">
       <VStack
         alignItems={'flex-start'}
         justifyContent={'flex-start'}
