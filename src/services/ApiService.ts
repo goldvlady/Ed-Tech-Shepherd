@@ -1,7 +1,7 @@
 import { REACT_APP_API_ENDPOINT } from '../config';
 import { AI_API, HEADER_KEY } from '../config';
 import { objectToQueryString } from '../helpers/http.helpers';
-import { User, StudentDocumentPayload } from '../types';
+import { User, StudentDocumentPayload, QuizData, QuizQuestion } from '../types';
 import { doFetch } from '../util';
 import {
   processDocument,
@@ -647,7 +647,6 @@ class ApiService {
   }
 
   //Quizzes
-
   static getQuizzes = async (queryParams: {
     search?: string;
     page?: number;
@@ -658,6 +657,17 @@ class ApiService {
       `${ApiService.baseEndpoint}/getStudentQuizzes?${queryString}`
     );
     // return {};
+  };
+
+  static createQuiz = async (data: {
+    questions: QuizQuestion[];
+    title: string;
+    tags: string[];
+  }) => {
+    return doFetch(`${ApiService.baseEndpoint}/createQuiz`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
   };
 }
 

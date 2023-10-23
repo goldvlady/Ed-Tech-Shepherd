@@ -4,7 +4,8 @@ import {
   EditQuizIcon,
   DeleteQuizIcon
 } from '../../../../components/icons';
-import { QuizQuestion } from '../context';
+import { QuizQuestion } from '../../../../types';
+import { CheckIcon, CloseIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -14,16 +15,244 @@ import {
   Radio,
   RadioGroup,
   Stack,
-  Textarea
+  Textarea,
+  Input
 } from '@chakra-ui/react';
-import React from 'react';
+import { isEmpty, toLower } from 'lodash';
+import React, { useEffect, useState } from 'react';
+
+const PreviewQuizCard = ({
+  question,
+  index
+}: {
+  question: QuizQuestion;
+  index: number;
+}) => {
+  const [isEditable, setIsEditable] = useState(false);
+  const [answer, setAnswer] = useState('');
+  const [optionAnswer, setOptionAnswer] = useState('');
+  const [quizQuestion, setQuizQuestion] = useState('');
+
+  const handleSetIsEditiable = () => setIsEditable(true);
+  const handleSetIsDisabled = () => setIsEditable(false);
+  const handleUpdateQuiz = () => {
+    console.log('answer ======>> ', answer);
+    handleSetIsDisabled();
+  };
+
+  useEffect(() => {
+    if (isEditable) {
+      if (question.type === 'openEnded') {
+        setAnswer(question?.answer as string);
+      }
+    } else {
+      setAnswer('');
+      setOptionAnswer('');
+    }
+  }, [isEditable, question?.answer, question.type]);
+
+  return (
+    <Box borderRadius={'8px'} mt={10} bg="white" w="100%">
+      <VStack
+        alignItems={'flex-start'}
+        justifyContent={'flex-start'}
+        p={'18px 16px'}
+      >
+        <HStack
+          mb={'17px'}
+          alignItems={'center'}
+          minW={'30%'}
+          flexWrap={'nowrap'}
+        >
+          <Text fontSize="md" fontWeight="semibold">
+            {index + 1}.
+          </Text>
+          {isEditable ? (
+            <Input
+              onChange={(e) => setQuizQuestion(e.target.value)}
+              value={!isEmpty(quizQuestion) ? quizQuestion : question?.question}
+            />
+          ) : (
+            <Text fontSize="md" fontWeight="semibold">
+              {question.question}
+            </Text>
+          )}
+        </HStack>
+        {question.type === 'multipleChoiceSingle' && (
+          <RadioGroup
+            onChange={(e) => {
+              setOptionAnswer(e);
+            }}
+            value={'1'}
+            mb="24px"
+          >
+            <Stack direction="column">
+              {question?.options?.map((option, optionIndex) => (
+                <Box
+                  key={optionIndex}
+                  display={'flex'}
+                  flexDirection={'row'}
+                  alignItems={'center'}
+                >
+                  <label
+                    className="font-[Inter] text-dark font-[400] text-[14px] leading-[20px]  flex justify-center items-center cursor-pointer"
+                    htmlFor={`option${optionIndex}`}
+                  >
+                    <Radio
+                      value={
+                        !isEmpty(optionAnswer)
+                          ? optionAnswer === `question:${optionIndex}`
+                            ? '1'
+                            : `question:${optionIndex}`
+                          : option?.isCorrect
+                          ? '1'
+                          : `question:${optionIndex}`
+                      }
+                      type="radio"
+                      id={`option${optionIndex}`}
+                      name={`question:${optionIndex}`}
+                      mr={1}
+                      isDisabled={!isEditable}
+                    />
+
+                    {option?.content}
+                  </label>
+                </Box>
+              ))}
+            </Stack>
+          </RadioGroup>
+        )}
+        {question.type === 'trueFalse' && (
+          <RadioGroup
+            onChange={(e) => {
+              setOptionAnswer(e);
+            }}
+            value={'1'}
+            mb="24px"
+          >
+            <Stack direction="column">
+              {question?.options?.map((option, optionIndex) => (
+                <Box
+                  key={optionIndex}
+                  display={'flex'}
+                  flexDirection={'row'}
+                  alignItems={'center'}
+                >
+                  <label
+                    className="font-[Inter] text-dark font-[400] text-[14px] leading-[20px] flex justify-center items-center cursor-pointer"
+                    htmlFor={`${toLower(option.content)}-${optionIndex}`}
+                  >
+                    <Radio
+                      value={
+                        !isEmpty(optionAnswer)
+                          ? optionAnswer === `question:${optionIndex}`
+                            ? '1'
+                            : `question:${optionIndex}`
+                          : option?.isCorrect
+                          ? '1'
+                          : `question:${optionIndex}`
+                      }
+                      type="radio"
+                      id={`${toLower(option.content)}-${optionIndex}`}
+                      name={`question:${optionIndex}`}
+                      mr={1}
+                      isDisabled={!isEditable}
+                    />
+
+                    {option.content}
+                  </label>
+                </Box>
+              ))}
+            </Stack>
+          </RadioGroup>
+        )}
+        {question.type === 'openEnded' && (
+          <Box mt={2} w={'100%'} mb="24px">
+            <Textarea
+              w={'100%'}
+              h={'69px'}
+              p={'12px 14px'}
+              isDisabled={!isEditable}
+              value={isEmpty(answer) ? question.answer : answer}
+              onChange={(e) => setAnswer(e.target.value)}
+            />
+          </Box>
+        )}
+      </VStack>
+      <hr className="w-full border border-gray-400" />
+      <Box minH={'24px'} p="16px">
+        <HStack justifyContent={'space-between'}>
+          {isEditable && (
+            <Box
+              display={'flex'}
+              borderRadius={'50%'}
+              bg={'#F4F5F6'}
+              alignItems={'center'}
+              justifyContent={'center'}
+              w={'30px'}
+              h={'30px'}
+              _hover={{ opacity: '0.5', cursor: 'pointer' }}
+            >
+              <KeepQuizIcon
+                className={'h-[24px] w-[24px] text-gray-500 cursor-pointer'}
+                onClick={handleUpdateQuiz}
+              />
+            </Box>
+          )}
+          <HStack ml={'auto'}>
+            {!isEditable && (
+              <EditQuizIcon
+                className={
+                  'h-[24px] w-[24px] text-gray-500 mx-3 hover:opacity-50 cursor-pointer'
+                }
+                onClick={handleSetIsEditiable}
+              />
+            )}
+            {isEditable && (
+              <Box
+                display={'flex'}
+                borderRadius={'50%'}
+                bg={'#F4F5F6'}
+                alignItems={'center'}
+                justifyContent={'center'}
+                w={'30px'}
+                h={'30px'}
+                _hover={{ opacity: '0.5', cursor: 'pointer' }}
+              >
+                <CloseIcon
+                  color={'text.800'}
+                  w={'14px'}
+                  h={'14px'}
+                  onClick={handleSetIsDisabled}
+                />
+              </Box>
+            )}
+
+            {!isEditable && (
+              <DeleteQuizIcon
+                className={
+                  'h-[24px] w-[24px] text-gray-500 hover:opacity-50 cursor-pointer'
+                }
+                onClick={() => ''}
+              />
+            )}
+          </HStack>
+        </HStack>
+      </Box>
+    </Box>
+  );
+};
 
 const QuizPreviewer = ({
   questions,
-  onOpen
+  onOpen,
+  createQuiz,
+  isLoadingButton
 }: {
   questions: QuizQuestion[];
   onOpen: () => void;
+  createQuiz: () => void;
+  isLoadingButton: boolean;
 }) => {
   return (
     <Box
@@ -32,10 +261,14 @@ const QuizPreviewer = ({
       display={'flex'}
       flexDirection={'column'}
       alignItems={'center'}
+      h={'100%'}
+      maxH={'100%'}
+      overflowY={'auto'}
     >
-      <VStack w="70%" maxW="650px" mb={10}>
-        <HStack
-          alignItems={'center'}
+      <Box w="70%" maxW="700px" mb={10}>
+        <Box
+          display={'flex'}
+          alignItems={'flex-start'}
           justifyContent={'space-between'}
           w={'100%'}
         >
@@ -48,163 +281,63 @@ const QuizPreviewer = ({
           >
             Review Your Quiz
           </Text>
-          <Button
-            width={'140px'}
-            borderRadius="8px"
-            fontSize="14px"
-            lineHeight="20px"
-            variant="solid"
-            colorScheme="primary"
-            onClick={onOpen}
-            ml={5}
-            display={'flex'}
-            flexDirection={'row'}
-            justifyContent={'center'}
-            alignItems={'center'}
-          >
-            <LightningBoltIcon
-              className={'h-[20px] w-[20px] mx-2'}
-              onClick={onOpen}
-            />
-            Study
-          </Button>
-        </HStack>
+          <HStack justifyContent={'flex-end'} alignItems={'center'}>
+            {!isEmpty(questions) && (
+              <Button
+                width={'140px'}
+                borderRadius="8px"
+                fontSize="14px"
+                lineHeight="20px"
+                variant="solid"
+                colorScheme="primary"
+                onClick={onOpen}
+                ml={5}
+                display={'flex'}
+                flexDirection={'row'}
+                justifyContent={'center'}
+              >
+                <LightningBoltIcon
+                  className={'h-[20px] w-[20px] mx-2'}
+                  onClick={onOpen}
+                />
+                Study
+              </Button>
+            )}
 
-        <VStack w={'100%'}>
-          {/* Render questions preview */}
-          {questions.length &&
-            questions.map((question, index) => (
-              <Box borderRadius={'8px'} key={index} mt={10} bg="white" w="100%">
-                <VStack
-                  alignItems={'flex-start'}
-                  justifyContent={'flex-start'}
-                  p={'18px 16px'}
-                >
-                  <HStack mb={'17px'} alignItems={'center'}>
-                    <Text fontSize="md" fontWeight="semibold">
-                      {index + 1}.
-                    </Text>
-                    <Text fontSize="md" fontWeight="semibold">
-                      {question.question}
-                    </Text>
-                  </HStack>
-                  {question.questionType === 'multipleChoice' && (
-                    <RadioGroup onChange={() => ''} value={''} mb="24px">
-                      <Stack direction="column">
-                        {question?.options?.map((option, optionIndex) => (
-                          <Box
-                            key={optionIndex}
-                            display={'flex'}
-                            flexDirection={'row'}
-                            alignItems={'center'}
-                          >
-                            <Radio
-                              value={option}
-                              type="radio"
-                              id={`option${optionIndex}`}
-                              name={`question${index}`}
-                              mr={1}
-                            />
-                            <label
-                              className="font-[Inter] text-dark font-[400] text-[14px] leading-[20px]"
-                              htmlFor={`option${optionIndex}`}
-                            >
-                              {option}
-                            </label>
-                          </Box>
-                        ))}
-                      </Stack>
-                    </RadioGroup>
-                  )}
-                  {question.questionType === 'trueFalse' && (
-                    <RadioGroup onChange={() => ''} value={''} mb="24px">
-                      <Stack direction="column">
-                        <Box
-                          display={'flex'}
-                          flexDirection={'row'}
-                          alignItems={'center'}
-                        >
-                          <Radio
-                            value={'1'}
-                            type="radio"
-                            id={`true-${index}`}
-                            name={`question-${index}`}
-                            mr={1}
-                          />
-                          <label
-                            className="font-[Inter] text-dark font-[400] text-[14px] leading-[20px]"
-                            htmlFor={`true-${index}`}
-                          >
-                            True
-                          </label>
-                        </Box>
+            {!isEmpty(questions) && (
+              <Button
+                width={'140px'}
+                borderRadius="8px"
+                fontSize="14px"
+                lineHeight="20px"
+                variant="solid"
+                colorScheme="primary"
+                onClick={createQuiz}
+                ml={5}
+                display={'flex'}
+                flexDirection={'row'}
+                justifyContent={'center'}
+                alignItems={'center'}
+                isLoading={isLoadingButton}
+              >
+                <CheckIcon mx={2} />
+                Create
+              </Button>
+            )}
+          </HStack>
+        </Box>
 
-                        <Box
-                          display={'flex'}
-                          flexDirection={'row'}
-                          alignItems={'center'}
-                        >
-                          <Radio
-                            value={'1'}
-                            type="radio"
-                            id={`false-${index}`}
-                            name={`question-${index}`}
-                            mr={1}
-                          />
-                          <label
-                            className="font-[Inter] text-dark font-[400] text-[14px] leading-[20px]"
-                            htmlFor={`false-${index}`}
-                          >
-                            False
-                          </label>
-                        </Box>
-                      </Stack>
-                    </RadioGroup>
-                  )}
-                  {question.questionType === 'openEnded' && (
-                    <Box mt={2} w={'100%'} mb="24px">
-                      <Textarea w={'100%'} h={'69px'} p={'12px 14px'} />
-                    </Box>
-                  )}
-                </VStack>
-                <hr className="w-full border border-gray-400" />
-                <Box minH={'24px'} p="16px">
-                  <HStack justifyContent={'space-between'}>
-                    <HStack
-                      borderRadius={'50%'}
-                      bg={'#F4F5F6'}
-                      alignItems={'center'}
-                      justifyContent={'center'}
-                      w={'30px'}
-                      h={'30px'}
-                    >
-                      <KeepQuizIcon
-                        className={
-                          'h-[24px] w-[24px] text-gray-500 hover:opacity-50 cursor-pointer'
-                        }
-                        onClick={() => ''}
-                      />
-                    </HStack>
-                    <HStack>
-                      <EditQuizIcon
-                        className={
-                          'h-[24px] w-[24px] text-gray-500 mx-3 hover:opacity-50 cursor-pointer'
-                        }
-                        onClick={() => ''}
-                      />
-                      <DeleteQuizIcon
-                        className={
-                          'h-[24px] w-[24px] text-gray-500 hover:opacity-50 cursor-pointer'
-                        }
-                        onClick={() => ''}
-                      />
-                    </HStack>
-                  </HStack>
-                </Box>
-              </Box>
-            ))}
-        </VStack>
-      </VStack>
+        <Box maxH={'85vh'} h={'100%'} overflowY={'auto'}>
+          <Box w={'100%'} px="16px">
+            {/* Render questions preview */}
+            {questions.length > 0 &&
+              questions.map((question, index) => (
+                <PreviewQuizCard question={question} index={index} />
+              ))}
+            <Box p="32px" />
+          </Box>
+        </Box>
+      </Box>
     </Box>
   );
 };

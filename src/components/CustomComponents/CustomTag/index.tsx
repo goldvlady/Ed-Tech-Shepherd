@@ -1,4 +1,5 @@
 import { StyledTag, StyledTagLabel } from './styles';
+import { CloseIcon } from '@chakra-ui/icons';
 import { TagLabel, TagLeftIcon } from '@chakra-ui/react';
 import { FC, ReactNode } from 'react';
 
@@ -6,9 +7,10 @@ interface TagProps {
   label: string;
   icon?: boolean;
   onClick?: (event: React.SyntheticEvent<HTMLButtonElement>) => void;
+  showClose?: boolean;
 }
 const TableTag: FC<TagProps> = (props) => {
-  const { label, onClick, icon = true } = props;
+  const { label, onClick, icon = true, showClose = false } = props;
 
   const Icon = () => {
     return (
@@ -40,6 +42,7 @@ const TableTag: FC<TagProps> = (props) => {
       {/* {icon && <TagLeftIcon>{icon}</TagLeftIcon>} */}
       <TagLeftIcon>{icon && <Icon />}</TagLeftIcon>
       <StyledTagLabel>{label}</StyledTagLabel>
+      {showClose && <CloseIcon mx={2} w={'8px'} h={'8px'} />}
     </StyledTag>
   );
 };

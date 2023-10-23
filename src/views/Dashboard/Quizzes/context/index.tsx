@@ -1,3 +1,4 @@
+import { QuizQuestion } from '../../../../types';
 import React, { createContext, useContext, useMemo, useReducer } from 'react';
 
 interface QuizData {
@@ -16,14 +17,14 @@ interface QuizData {
   selectPagesInclude?: number;
 }
 
-export interface QuizQuestion {
-  questionType: string;
-  question: string;
-  options?: string[];
-  answer: string;
-  explanation?: string;
-  helperText?: string;
-}
+// export interface QuizQuestion {
+//   questionType: string;
+//   question: string;
+//   options?: string[];
+//   answer: string;
+//   explanation?: string;
+//   helperText?: string;
+// }
 
 type QuestionTransformer = (questions: QuizQuestion[]) => QuizQuestion[];
 

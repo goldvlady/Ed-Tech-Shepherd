@@ -1,14 +1,13 @@
 import { UploadIcon, WardIcon } from '../../../../components/icons';
-import { useQuizState, QuizQuestion } from '../context';
+import { QuizQuestion } from '../../../../types';
+import { useQuizState } from '../context';
 import { QuestionIcon } from '@chakra-ui/icons';
 import {
   Box,
-  Text,
   FormControl,
   FormLabel,
   FormHelperText,
   Select,
-  Textarea,
   Input,
   HStack,
   Button,
@@ -16,9 +15,7 @@ import {
   InputLeftElement,
   Tooltip
 } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { FiChevronRight } from 'react-icons/fi';
 
 // DownloadIcon
 
@@ -33,7 +30,7 @@ const UploadQuizForm = ({ addQuestion }) => {
   } = useQuizState();
 
   const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion>({
-    questionType: 'multipleChoice', //default question type option
+    type: 'multipleChoiceSingle', //default question type option
     question: '',
     options: [],
     answer: ''
@@ -45,28 +42,17 @@ const UploadQuizForm = ({ addQuestion }) => {
     }
   }, [currentQuestionIndex, questions]);
 
-  const handleChange = (
+  const handleChangeQuestionType = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
     const { name, value } = e.target;
-    if (name.startsWith('option')) {
-      const optionIndex = Number(name.replace('option', ''));
-      setCurrentQuestion((prevQuestion) => {
-        const newOptions = [...(prevQuestion.options || [])];
-        newOptions[optionIndex] = value;
-        return {
-          ...prevQuestion,
-          options: newOptions
-        };
-      });
-    } else {
-      setCurrentQuestion((prevQuestion) => ({
-        ...prevQuestion,
-        [name]: value
-      }));
-    }
+
+    setCurrentQuestion((prevQuestion) => ({
+      ...prevQuestion,
+      [name]: value
+    }));
   };
 
   const handleQuestionAdd = () => {
@@ -82,7 +68,7 @@ const UploadQuizForm = ({ addQuestion }) => {
     addQuestion(currentQuestion);
 
     setCurrentQuestion({
-      questionType: 'multipleChoice',
+      type: 'multipleChoiceSingle',
       question: '',
       options: [],
       answer: ''
@@ -145,12 +131,12 @@ const UploadQuizForm = ({ addQuestion }) => {
           sx={{
             padding: '8px'
           }}
-          name="questionType"
-          value={currentQuestion.questionType}
-          onChange={handleChange}
+          name="type"
+          value={currentQuestion.type}
+          onChange={handleChangeQuestionType}
           textColor={'text.700'}
         >
-          <option value="multipleChoice">Multiple Choice</option>
+          <option value="multipleChoiceSingle">Multiple Choice</option>
           <option value="openEnded">Open Ended</option>
           <option value="trueFalse">True/False</option>
         </Select>
@@ -174,7 +160,7 @@ const UploadQuizForm = ({ addQuestion }) => {
       {currentQuestion.questionType && (
         <FormControl mb={4}>
           <FormLabel>Answer:</FormLabel>
-          {currentQuestion.questionType === 'multipleChoice' && (
+          {currentQuestion.questionType === 'multipleChoiceSingle' && (
             <Select
               name="answer"
               placeholder="Select answer"

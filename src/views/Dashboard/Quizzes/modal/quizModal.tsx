@@ -2,11 +2,11 @@ import {
   Button,
   HStack,
   Modal,
-  ModalBody, //   ModalCloseButton,
+  ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
-  ModalOverlay, //   useDisclosure
+  ModalOverlay,
   Text,
   Progress,
   Box,
@@ -40,8 +40,6 @@ export const QuizModal = ({
   let inputs = (
     <Box mt={2} w={'100%'} mb="24px">
       <Textarea
-        // w={'40%'}
-        // cols={50}
         h={'32px'}
         maxHeight={'64px'}
         p={'12px 14px'}

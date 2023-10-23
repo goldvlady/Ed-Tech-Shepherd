@@ -1,11 +1,11 @@
-import { UploadIcon, WardIcon } from '../../../../components/icons';
-import { useQuizState, QuizQuestion } from '../context';
+import { WardIcon } from '../../../../components/icons';
+import { QuizQuestion } from '../../../../types';
+import { useQuizState } from '../context';
 import { QuestionIcon } from '@chakra-ui/icons';
 import {
   Box,
   FormControl,
   FormLabel,
-  FormHelperText,
   Select,
   Input,
   HStack,
@@ -18,17 +18,11 @@ import { useEffect, useState } from 'react';
 // DownloadIcon
 
 const TextQuizForm = ({ addQuestion }) => {
-  const {
-    quizData,
-    goToNextStep,
-    setQuestions,
-    goToQuestion,
-    currentQuestionIndex,
-    questions
-  } = useQuizState();
+  const { setQuestions, goToQuestion, currentQuestionIndex, questions } =
+    useQuizState();
 
   const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion>({
-    questionType: 'multipleChoice', //default question type option
+    type: 'multipleChoiceSingle', //default question type option
     question: '',
     options: [],
     answer: ''
@@ -40,28 +34,17 @@ const TextQuizForm = ({ addQuestion }) => {
     }
   }, [currentQuestionIndex, questions]);
 
-  const handleChange = (
+  const handleChangeQuestionType = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
     const { name, value } = e.target;
-    if (name.startsWith('option')) {
-      const optionIndex = Number(name.replace('option', ''));
-      setCurrentQuestion((prevQuestion) => {
-        const newOptions = [...(prevQuestion.options || [])];
-        newOptions[optionIndex] = value;
-        return {
-          ...prevQuestion,
-          options: newOptions
-        };
-      });
-    } else {
-      setCurrentQuestion((prevQuestion) => ({
-        ...prevQuestion,
-        [name]: value
-      }));
-    }
+
+    setCurrentQuestion((prevQuestion) => ({
+      ...prevQuestion,
+      [name]: value
+    }));
   };
 
   const handleQuestionAdd = () => {
@@ -77,7 +60,7 @@ const TextQuizForm = ({ addQuestion }) => {
     addQuestion(currentQuestion);
 
     setCurrentQuestion({
-      questionType: 'multipleChoice',
+      type: 'multipleChoiceSingle',
       question: '',
       options: [],
       answer: ''
@@ -113,12 +96,12 @@ const TextQuizForm = ({ addQuestion }) => {
           sx={{
             padding: '8px'
           }}
-          name="questionType"
-          value={currentQuestion.questionType}
-          onChange={handleChange}
+          name="type"
+          value={currentQuestion.type}
+          onChange={handleChangeQuestionType}
           textColor={'text.700'}
         >
-          <option value="multipleChoice">Multiple Choice</option>
+          <option value="multipleChoiceSingle">Multiple Choice</option>
           <option value="openEnded">Open Ended</option>
           <option value="trueFalse">True/False</option>
         </Select>

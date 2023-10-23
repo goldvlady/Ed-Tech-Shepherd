@@ -56,6 +56,8 @@ export default create<Store>((set) => ({
       set({ isLoading: true });
       const response = await ApiService.getQuizzes(params || {}); //CHANGE TO QUIZ APISERVICE
       const { data } = await response.json();
+
+      console.log('data =====>> ', data);
       set({ quizzes: data, pagination: data?.meta?.pagination });
     } catch (error) {
       // console.log(error)

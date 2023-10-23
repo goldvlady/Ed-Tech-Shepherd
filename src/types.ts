@@ -457,16 +457,22 @@ export interface StudentDocument {
   student: any; // Assuming this is the ObjectId of the student
 }
 
+export interface QuizQuestionOption {
+  content: string;
+  isCorrect: boolean;
+}
+
 export interface QuizQuestion {
-  questionType: string;
+  type: string;
   question: string;
-  options?: string[];
+  options?: QuizQuestionOption[];
   helperText?: string;
   explanation?: string;
-  answer: string;
-  numberOfAttempts: number;
-  currentStep: number;
-  totalSteps: number;
+  answer?: string;
+  numberOfAttempts?: number;
+  currentStep?: number;
+  totalSteps?: number;
+  id?: string | number;
 }
 
 export interface QuizData {
