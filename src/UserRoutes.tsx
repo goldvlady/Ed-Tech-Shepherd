@@ -90,7 +90,7 @@ const RequireAuth = ({
 
 // Student specific routes configuration
 const studentRoutes = [
-  { path: 'new-note', element: <NewNote /> },
+  { path: '/notes/new-note', element: <NewNote /> },
   { path: 'tutor/:tutorId/offer', element: <SendTutorOffer /> },
   { path: 'offer/:offerId', element: <Offer /> },
   { path: '/notes', element: <Notes /> },

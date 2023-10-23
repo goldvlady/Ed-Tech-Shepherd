@@ -90,7 +90,7 @@ function StudentCard(props) {
     }
   }
   const handleItemClick = () => {
-    navigate(`/dashboard/tutordashboard/offer/${offer.id}`);
+    navigate(`/dashboard/tutordashboard/offers/offer/${offer.id}`);
   };
 
   const styles = {

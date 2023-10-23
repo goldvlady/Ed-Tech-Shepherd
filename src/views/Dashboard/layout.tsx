@@ -78,17 +78,6 @@ import {
   Link
 } from 'react-router-dom';
 
-const getComparisonPath = (pathname?: string) => {
-  if (!pathname) return '';
-  const pathParts = pathname.split('/').filter((f) => f);
-  if (pathParts.length === 1) {
-    return pathParts[0];
-  } else if (pathParts.length > 1) {
-    return pathParts[1];
-  }
-  return '';
-};
-
 interface LinkItemProps {
   name: string;
   icon: IconType;
@@ -125,8 +114,9 @@ interface NavItemProps extends FlexProps {
 const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
   const { pathname } = useLocation();
 
-  // const isActive = path.includes(getComparisonPath(pathname));
-  const isActive = pathname === path;
+  const isActive =
+    pathname === path ||
+    (pathname.startsWith(path) && path.split('/').length > 2);
 
   return (
     <Link

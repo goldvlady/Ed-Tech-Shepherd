@@ -108,9 +108,9 @@ const RequireAuth = ({
 const TestNewNote = () => <div>this is the new note </div>;
 
 const studentRoutes = [
-  { path: 'new-note', element: <NewNote /> },
+  { path: 'notes/new-note', element: <NewNote /> },
   // { path: 'new-note', element: <TestNewNote /> },
-  { path: 'new-note/:id', element: <NewNote /> },
+  { path: 'notes/new-note/:id', element: <NewNote /> },
   { path: 'notes', element: <Notes /> },
   { path: 'pinned', element: <PinnedNotes /> },
   { path: 'tutor/:tutorId/offer', element: <SendTutorOffer /> },
@@ -138,7 +138,7 @@ const tutorRoutes = [
   { path: 'tutordashboard/clients', element: <Clients /> },
   { path: 'tutordashboard/clients/:clientId', element: <Client /> },
   { path: 'tutordashboard/offers', element: <TutorOffers /> },
-  { path: 'tutordashboard/offer/:offerId', element: <Offer /> },
+  { path: 'tutordashboard/offers/offer/:offerId', element: <Offer /> },
   { path: 'tutordashboard/bounties', element: <TutorBounties /> },
   { path: 'tutordashboard/bounties/:bidId', element: <TutorBounties /> },
   { path: 'tutordashboard/account-settings', element: <TutorSettings /> },
@@ -331,7 +331,7 @@ const AppRoutes: React.FC = () => {
         }
       />
       <Route
-        path="/dashboard"
+        path="/dashboard/*"
         element={
           <RequireAuth
             authenticated={<RenderLayout />}

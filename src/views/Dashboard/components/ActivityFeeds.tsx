@@ -297,7 +297,7 @@ function ActivityFeeds(props) {
                             navigateToChat();
                           }
                         } else if (feed.activityType === 'documents') {
-                          navigate(`/dashboard/new-note`, {
+                          navigate(`/dashboard/notes/new-note`, {
                             state: {
                               documentUrl: feed.link,
                               docTitle: getFileName(feed.link)
