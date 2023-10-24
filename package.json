@@ -5,11 +5,14 @@
   "dependencies": {
     "@blocknote/core": "^0.8.2",
     "@blocknote/react": "^0.8.2",
+    "@chakra-ui/anatomy": "^2.2.1",
+    "@chakra-ui/hooks": "^2.2.1",
     "@chakra-ui/icons": "^2.0.19",
     "@chakra-ui/react": "2.6.1",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@excalidraw/excalidraw": "^0.14.2",
+    "@firebase/storage": "^0.11.2",
     "@formkit/auto-animate": "^0.7.0",
     "@headlessui/react": "^1.7.15",
     "@heroicons/react": "^2.0.18",
@@ -83,6 +86,7 @@
     "katex": "^0.16.8",
     "lexical": "^0.12.2",
     "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "lottie-react": "^2.4.0",
     "luxon": "^3.4.3",
     "marked": "^7.0.0",
@@ -147,7 +151,7 @@
     "zustand": "^4.3.6"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "react-scripts --max_old_space_size=4096 start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

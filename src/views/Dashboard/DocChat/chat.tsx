@@ -544,9 +544,8 @@ const Chat = ({
                 disabled={!isReadyToChat}
                 onChange={handleInputChange}
                 style={{
-                  minHeight: '2.5rem',
-                  maxHeight: '10rem',
-                  overflowY: 'auto'
+                  maxHeight: HomeWorkHelp ? '70px' : '2rem',
+                  overflowY: 'scroll'
                 }}
               />
               <SendButton type="button" onClick={handleSendMessage}>
