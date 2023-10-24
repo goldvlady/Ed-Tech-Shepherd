@@ -401,10 +401,9 @@ export class CommentStore {
                 offset += retain;
               } else if (typeof del === 'number') {
                 for (let d = 0; d < del; d++) {
-                  const commentOrThread =
-                    parentThread === undefined || parentThread === false
-                      ? this._comments[offset]
-                      : parentThread.comments[offset];
+                  const commentOrThread = !parentThread
+                    ? this._comments[offset]
+                    : parentThread.comments[offset];
                   this._withLocalTransaction(() => {
                     this.deleteCommentOrThread(
                       commentOrThread,
