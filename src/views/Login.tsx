@@ -53,6 +53,7 @@ const Login: React.FC = () => {
 
   const handleNavigation = useCallback(() => {
     let path = '/dashboard';
+    sessionStorage.setItem('Just Signed in', 'true');
 
     if (appUser?.type.includes('tutor')) {
       path = '/dashboard/tutordashboard';

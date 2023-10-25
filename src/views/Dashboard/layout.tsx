@@ -189,9 +189,13 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
     });
   };
 
-  // useEffect(() => {
-  //   doFetchUserData();
-  // }, [doFetchUserData]);
+  useEffect(() => {
+    const justSignedIn = sessionStorage.getItem('Just Signed in');
+    if (justSignedIn && justSignedIn === 'true') {
+      activateHelpModal();
+      sessionStorage.removeItem('Just Signed in');
+    }
+  }, []);
 
   // function handleMenuButtonClick(callback) {
   //   setTimeout(callback, 15000);

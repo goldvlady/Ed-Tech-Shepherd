@@ -12,6 +12,7 @@ import {
 } from '../../../services/AI';
 import socketWithAuth from '../../../socket';
 import userStore from '../../../state/userStore';
+import DocViewer from './DocViewer';
 import TempPDFViewer from './TempPDFViewer';
 import Chat from './chat';
 import { BlockNoteEditor } from '@blocknote/core';
@@ -369,12 +370,16 @@ export default function DocChat() {
     <section className="fixed max-w-screen-xl mx-auto divide-y">
       <div className="h-screen bg-white divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
         {location.state?.documentUrl ? (
-          <TempPDFViewer
+          // <TempPDFViewer
+          //   pdfLink={location.state.documentUrl}
+          //   name={location.state.docTitle}
+          //   documentId={documentId}
+          //   setLoading={setLoading}
+          //   setHightlightedText={setHightlightedText}
+          // />
+          <DocViewer
             pdfLink={location.state.documentUrl}
-            name={location.state.docTitle}
-            documentId={documentId}
-            setLoading={setLoading}
-            setHightlightedText={setHightlightedText}
+            pdfName={location.state.docTitle}
           />
         ) : (
           <div

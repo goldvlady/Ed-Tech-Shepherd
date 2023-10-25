@@ -1497,3 +1497,31 @@ canvas {
     }
   }
 }
+//PDF VIEWER STYLES
+svg.rpv-core__icon {
+  color: #606264;
+
+  height: 10px;
+  width: 10px;
+}
+
+.rpv-default-layout__toolbar {
+  background-color: transparent;
+  border: none;
+  font-size: 12px;
+}
+input.rpv-core__textbox {
+  font-size: 12px;
+}
+.rpv-default-layout__sidebar {
+  border: none;
+}
+.rpv-default-layout__sidebar-headers {
+  background-color: transparent;
+}
+.rpv-default-layout__container {
+  border: none;
+}
+.rpv-core__page-layer--single {
+  width: 100%;
+}
