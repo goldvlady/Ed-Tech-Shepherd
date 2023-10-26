@@ -279,7 +279,7 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
   };
 
   const gotoEditNote = (noteId: string | number) => {
-    const noteURL = `/dashboard/new-note/${noteId}`;
+    const noteURL = `/dashboard/notes/new-note/${noteId}`;
     if (noteId && noteId !== '') {
       navigate(noteURL);
     }
@@ -627,7 +627,7 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     docTitle
   ) => {
     try {
-      navigate(`/dashboard/new-note`, {
+      navigate(`/dashboard/notes/new-note`, {
         state: {
           documentUrl,
           docTitle

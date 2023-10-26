@@ -66,7 +66,7 @@ const CompleteProfile = () => {
       qualifications.length > 0
         ? onboardingData?.qualifications?.every((obj) => {
             const newData = { ...obj };
-            delete newData.transcript;
+            // delete newData.transcript;
             return (
               Object.values(newData).every((value) => Boolean(value)) &&
               isBefore(new Date(newData.startDate), new Date(newData.endDate))

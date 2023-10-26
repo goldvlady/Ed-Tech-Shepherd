@@ -238,14 +238,14 @@ const NotesDirectory: React.FC = () => {
   }, [notes, selectedContent, studentDocuments, activeTab]);
 
   const gotoEditNote = (note: NoteDetails) => {
-    const noteURL = `/dashboard/new-note/${note._id}`;
+    const noteURL = `/dashboard/notes/new-note/${note._id}`;
     navigate(noteURL);
   };
 
   const gotoEditPdf = async (document: StudentDocument) => {
     const { title, documentUrl } = document;
     try {
-      navigate(`/dashboard/new-note`, {
+      navigate(`/dashboard/notes/new-note`, {
         state: {
           documentUrl,
           docTitle: title
@@ -483,7 +483,7 @@ const NotesDirectory: React.FC = () => {
               if (option === 'upload-document') {
                 setOpenUploadModal(true);
               } else {
-                navigate('/dashboard/new-note');
+                navigate('/dashboard/notes/new-note');
               }
             }}
           />
@@ -656,7 +656,7 @@ const NotesDirectory: React.FC = () => {
               if (option === 'upload-document') {
                 setOpenUploadModal(true);
               } else {
-                navigate('/dashboard/new-note');
+                navigate('/dashboard/notes/new-note');
               }
             }}
           />

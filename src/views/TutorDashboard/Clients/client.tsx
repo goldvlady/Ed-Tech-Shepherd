@@ -84,7 +84,7 @@ export default function Client() {
           <li>
             <button className="flex items-center">
               <Link
-                to="/clients"
+                to="/dashboard/tutordashboard/clients"
                 className="text-sm font-medium text-gray-400 hover:text-gray-700"
               >
                 Clients
@@ -103,7 +103,7 @@ export default function Client() {
               </Text>
             </div>
           </li>
-          <li>
+          {/* <li>
             <div className="flex items-center">
               <ChevronRightIcon
                 className="flex-shrink-0 w-5 h-5 text-gray-400"
@@ -113,7 +113,7 @@ export default function Client() {
                 Contract
               </Text>
             </div>
-          </li>
+          </li> */}
         </ol>
       </nav>
       <section className="my-4">

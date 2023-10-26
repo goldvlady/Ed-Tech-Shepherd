@@ -52,7 +52,14 @@ import {
   MdOutlineKeyboardArrowUp
 } from 'react-icons/md';
 import { TbCards } from 'react-icons/tb';
-import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
+
+import {
+  Navigate,
+  Outlet,
+  useNavigate,
+  useLocation,
+  Link
+} from 'react-router-dom';
 
 interface LinkItemProps {
   name: string;
@@ -97,6 +104,11 @@ const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
         ? includes(pathname, last(pathArray))
         : includes(pathname, pathArray[pathArray.length - 1]);
   }
+
+<!--   const isActive =
+    pathname === path ||
+    (pathname.startsWith(path) && path.split('/').length > 2); -->
+
 
   return (
     <Link to={path} style={{ textDecoration: 'none' }}>
@@ -163,6 +175,19 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
       navigate('/login');
     });
   };
+
+
+  useEffect(() => {
+    const justSignedIn = sessionStorage.getItem('Just Signed in');
+    if (justSignedIn && justSignedIn === 'true') {
+      activateHelpModal();
+      sessionStorage.removeItem('Just Signed in');
+    }
+  }, []);
+
+  // function handleMenuButtonClick(callback) {
+  //   setTimeout(callback, 15000);
+  // }
 
   return (
     <>

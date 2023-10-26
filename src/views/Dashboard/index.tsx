@@ -297,7 +297,7 @@ export default function Index() {
                     <Link to="/dashboard/flashcards">
                       <CustomButton
                         buttonText="Create Flashcard"
-                        width="165px"
+                        width="100%"
                       />
                     </Link>
                   </VStack>

@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import CustomToast from '../../../components/CustomComponents/CustomToast/index';
 import { AI_API } from '../../../config';
+import useIsMobile from '../../../helpers/useIsMobile';
 import {
   chatHistory,
   chatWithDoc,
@@ -12,8 +13,10 @@ import {
 } from '../../../services/AI';
 import socketWithAuth from '../../../socket';
 import userStore from '../../../state/userStore';
+import DocViewer from './DocViewer';
 import TempPDFViewer from './TempPDFViewer';
 import Chat from './chat';
+import { TempPDF } from './styles';
 import { BlockNoteEditor } from '@blocknote/core';
 import { BlockNoteView, useBlockNote } from '@blocknote/react';
 import { useToast } from '@chakra-ui/react';
@@ -54,7 +57,9 @@ export default function DocChat() {
   });
   const [summaryStart, setSummaryStart] = useState(false);
   const [summaryError, setSummaryError] = useState(false);
-
+  const mobile = useIsMobile();
+  const [switchDocument, setSwitchDocument] = useState(true);
+  console.log('switchDocument ==>', switchDocument);
   useEffect(() => {
     if (documentId && studentId) {
       const authSocket = socketWithAuth({
@@ -267,6 +272,10 @@ export default function DocChat() {
     }
   }, [documentId, studentId]);
 
+  const onSwitchOnMobileView = useCallback(() => {
+    setSwitchDocument((prevState) => !prevState);
+  }, [setSwitchDocument]);
+
   const handleUpdateSummary = useCallback(async () => {
     setLoading(true);
     try {
@@ -368,49 +377,108 @@ export default function DocChat() {
   return (
     <section className="fixed max-w-screen-xl mx-auto divide-y">
       <div className="h-screen bg-white divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
-        {location.state?.documentUrl ? (
-          <TempPDFViewer
-            pdfLink={location.state.documentUrl}
-            name={location.state.docTitle}
+        {!mobile && (
+          <>
+            {location.state?.documentUrl ? (
+              <DocViewer
+                pdfLink={location.state.documentUrl}
+                pdfName={location.state.docTitle}
+              />
+            ) : (
+              <div
+                style={{
+                  display: 'flex',
+                  position: 'fixed',
+                  paddingTop: '2em'
+                }}
+                className="flex-auto w-1/2 h-full lg:col-span-6"
+              >
+                <div style={{ width: '87%' }}>
+                  <BlockNoteView editor={editor} />
+                </div>
+              </div>
+            )}
+          </>
+        )}
+        {!mobile && (
+          <Chat
+            isShowPrompt={isShowPrompt}
+            isReadyToChat={readyToChat}
+            messages={messages}
+            llmResponse={llmResponse}
+            botStatus={botStatus}
+            handleSendMessage={handleSendMessage}
+            handleInputChange={handleInputChange}
+            inputValue={inputValue}
+            handleKeyDown={handleKeyDown}
+            handleSummary={handleSummary}
+            summaryLoading={summaryLoading}
+            summaryText={summaryText}
+            setSummaryText={setSummaryText}
             documentId={documentId}
-            setLoading={setLoading}
-            setHightlightedText={setHightlightedText}
+            title={title}
+            handleClickPrompt={handleClickPrompt}
+            handleDeleteSummary={handleDeleteSummary}
+            handleUpdateSummary={handleUpdateSummary}
+            hightlightedText={hightlightedText}
+            loading={loading}
+            isUpdatedSummary={isUpdatedSummary}
+            directStudentId={directStudentId}
+            onSwitchOnMobileView={onSwitchOnMobileView}
           />
-        ) : (
-          <div
-            style={{ display: 'flex', position: 'fixed', paddingTop: '2em' }}
-            className="flex-auto w-1/2 h-full lg:col-span-6"
-          >
-            <div style={{ width: '87%' }}>
-              <BlockNoteView editor={editor} />
-            </div>
-          </div>
         )}
 
-        <Chat
-          isShowPrompt={isShowPrompt}
-          isReadyToChat={readyToChat}
-          messages={messages}
-          llmResponse={llmResponse}
-          botStatus={botStatus}
-          handleSendMessage={handleSendMessage}
-          handleInputChange={handleInputChange}
-          inputValue={inputValue}
-          handleKeyDown={handleKeyDown}
-          handleSummary={handleSummary}
-          summaryLoading={summaryLoading}
-          summaryText={summaryText}
-          setSummaryText={setSummaryText}
-          documentId={documentId}
-          title={title}
-          handleClickPrompt={handleClickPrompt}
-          handleDeleteSummary={handleDeleteSummary}
-          handleUpdateSummary={handleUpdateSummary}
-          hightlightedText={hightlightedText}
-          loading={loading}
-          isUpdatedSummary={isUpdatedSummary}
-          directStudentId={directStudentId}
-        />
+        {mobile && switchDocument ? (
+          <>
+            {location.state?.documentUrl ? (
+              <DocViewer
+                pdfLink={location.state.documentUrl}
+                pdfName={location.state.docTitle}
+              />
+            ) : (
+              <div
+                style={{
+                  display: 'flex',
+                  position: 'fixed',
+                  paddingTop: '2em'
+                }}
+                className="flex-auto w-1/2 h-full lg:col-span-6"
+              >
+                <div style={{ width: '87%' }}>
+                  <BlockNoteView editor={editor} />
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <Chat
+              isShowPrompt={isShowPrompt}
+              isReadyToChat={readyToChat}
+              messages={messages}
+              llmResponse={llmResponse}
+              botStatus={botStatus}
+              handleSendMessage={handleSendMessage}
+              handleInputChange={handleInputChange}
+              inputValue={inputValue}
+              handleKeyDown={handleKeyDown}
+              handleSummary={handleSummary}
+              summaryLoading={summaryLoading}
+              summaryText={summaryText}
+              setSummaryText={setSummaryText}
+              documentId={documentId}
+              title={title}
+              handleClickPrompt={handleClickPrompt}
+              handleDeleteSummary={handleDeleteSummary}
+              handleUpdateSummary={handleUpdateSummary}
+              hightlightedText={hightlightedText}
+              loading={loading}
+              isUpdatedSummary={isUpdatedSummary}
+              directStudentId={directStudentId}
+              onSwitchOnMobileView={onSwitchOnMobileView}
+            />
+          </>
+        )}
       </div>
     </section>
     // )

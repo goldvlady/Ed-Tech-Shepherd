@@ -2,6 +2,7 @@ import { useStreamChat } from '../providers/StreamChatProvider';
 import ApiService from '../services/ApiService';
 import userStore from '../state/userStore';
 import { CustomButton } from '../views/Dashboard/layout';
+import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
 import { StarIcon } from './icons';
 import { SelectedNoteModal } from './index';
 import { SmallAddIcon } from '@chakra-ui/icons';
@@ -11,6 +12,12 @@ import {
   Button,
   Circle,
   Flex,
+  Modal,
+  ModalContent,
+  ModalFooter,
+  ModalBody,
+  useDisclosure,
+  ModalOverlay,
   Stack,
   Text,
   HStack,
@@ -100,9 +107,42 @@ const ProfileSwitchModal = ({
       return;
     }
   });
+
+  const {
+    isOpen: isSuccessModalOpen,
+    onOpen: onSuccessModalOpen,
+    onClose: onSuccessModalClose
+  } = useDisclosure();
+
   const navigate = useNavigate();
+  const toast = useCustomToast();
   const group = getRootProps();
+
+
+  const handleCreateStudentAccount = async () => {
+    const response = await ApiService.createStudentFromTutor();
+
+    if (response.status === 200 || response.status === 201) {
+      toast({
+        title: ' Student Account Created Successfully',
+        status: 'success',
+        position: 'top-right',
+        isClosable: true
+      });
+      fetchUser();
+      onSuccessModalOpen();
+    } else {
+      toast({
+        title: 'Something went wrong..',
+        status: 'error',
+        position: 'top-right',
+        isClosable: true
+      });
+    }
+  };
+
   const { disconnectAndReset } = useStreamChat();
+
   return (
     <>
       {toggleProfileSwitchModal && (
@@ -328,7 +368,9 @@ const ProfileSwitchModal = ({
                                     position="relative"
                                     cursor={'pointer'}
                                     onClick={() =>
-                                      navigate('/complete_profile')
+                                      isTutorDashboardPage
+                                        ? handleCreateStudentAccount()
+                                        : navigate('/complete_profile')
                                     }
                                   >
                                     <Center
@@ -412,6 +454,41 @@ const ProfileSwitchModal = ({
           </Dialog>
         </Transition.Root>
       )}
+      <Modal isOpen={isSuccessModalOpen} onClose={onSuccessModalClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalBody>
+            <Box w={'100%'} mt={5} textAlign="center">
+              <Box display={'flex'} justifyContent="center">
+                <svg
+                  width="40"
+                  height="40"
+                  viewBox="0 0 40 40"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle cx="20" cy="20" r="20" fill="#EDF7EE" />
+                  <path
+                    d="M18.0007 23.1709L27.1931 13.9785L28.6073 15.3927L18.0007 25.9993L11.6367 19.6354L13.0509 18.2212L18.0007 23.1709Z"
+                    fill="#4CAF50"
+                  />
+                </svg>
+              </Box>
+              <Box marginTop={3}>
+                <Text className="modal-title">
+                  Account Created Successfully
+                </Text>
+              </Box>
+            </Box>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button onClick={() => navigate('/dashboard')}>
+              Go to dashboard
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 };

@@ -61,7 +61,7 @@ const PinnedNotesTab: FC<Props> = ({ data }) => {
   };
 
   const gotoEditNote = (noteId: string | number) => {
-    const noteURL = `/dashboard/new-note/${noteId}`;
+    const noteURL = `/dashboard/notes/new-note/${noteId}`;
     if (noteId && noteId !== '') {
       navigate(noteURL);
     }

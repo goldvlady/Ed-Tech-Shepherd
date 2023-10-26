@@ -61,7 +61,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Edit Profile</ModalHeader>
-        <ModalBody pt={0}>
+        <ModalBody pt={0} overflowY="scroll">
           <motion.div
             variants={containerVariants}
             initial="hidden"

@@ -248,7 +248,10 @@ export default function Layout({ children, className }) {
                       <li>
                         <ul className="-mx-2 space-y-1">
                           {navigation.map((item) => {
-                            const activePath = pathname === item.href;
+                            const activePath =
+                              pathname === item.href ||
+                              (pathname.startsWith(item.href) &&
+                                item.href.split('/').length > 3);
                             return (
                               <li key={item.name}>
                                 <a
@@ -322,7 +325,10 @@ export default function Layout({ children, className }) {
         <nav className="flex flex-1 flex-col pt-3">
           <Box as="ul" className="flex flex-1 flex-col gap-y-2">
             {navigation.map((item) => {
-              const activePath = pathname === item.href;
+              const activePath =
+                pathname === item.href ||
+                (pathname.startsWith(item.href) &&
+                  item.href.split('/').length > 3);
               return (
                 <Box key={item.name} as="li">
                   <Link

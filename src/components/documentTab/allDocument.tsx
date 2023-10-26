@@ -212,7 +212,7 @@ const AllDocumentTab: FC<Props> = ({ data, handleTagSelection }) => {
     docTitle
   ) => {
     try {
-      navigate(`/dashboard/new-note`, {
+      navigate(`/dashboard/notes/new-note`, {
         state: {
           documentUrl,
           docTitle

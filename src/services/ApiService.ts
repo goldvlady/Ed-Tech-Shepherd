@@ -553,6 +553,13 @@ class ApiService {
       body: JSON.stringify(formData)
     });
   };
+
+  static createStudentFromTutor = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/createStudentFromTutor`, {
+      method: 'POST'
+    });
+  };
+
   static createBounty = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/createBounty`, {
       method: 'POST',

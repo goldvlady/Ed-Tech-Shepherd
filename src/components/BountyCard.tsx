@@ -111,7 +111,7 @@ function BountyCard(props) {
 
   // const handleItemClick = () => {
   //   // openApplyBounty();
-  //   // navigate(`/dashboard/tutordashboard/offer/${bounty.id}`);
+  //   // navigate(`/dashboard/tutordashboard/offers/offer/${bounty.id}`);
   //   setSelectedBid(bounty);
   // };
 
