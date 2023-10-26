@@ -1,6 +1,7 @@
 /* eslint-disable no-loop-func,@typescript-eslint/no-non-null-assertion,no-unsafe-optional-chaining,react-hooks/exhaustive-deps */
 import PultoJPG from '../../../assets/PlutoAi.jpg';
 import { ReactComponent as HightLightIcon } from '../../../assets/highlightIcn.svg';
+import PDFImg from '../../../assets/pdf_img.png';
 import { ReactComponent as PinLogo } from '../../../assets/pin.svg';
 import SocratesImg from '../../../assets/socrates-image.png';
 import { ReactComponent as SummaryIcon } from '../../../assets/summaryIcn.svg';
@@ -12,6 +13,7 @@ import CustomSideModal from '../../../components/CustomComponents/CustomSideModa
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../../components/hooks/useChatScroll';
 import { snip } from '../../../helpers/file.helpers';
+import useIsMobile from '../../../helpers/useIsMobile';
 import FlashcardDataProvider from '../FlashCards/context/flashcard';
 import SetupFlashcardPage from '../FlashCards/forms/flashcard_setup';
 import ChatHistory from './chatHistory';
@@ -86,6 +88,8 @@ interface IChat {
   visibleButton?: boolean;
   fetchDescription?: any;
   freshConversationId?: any;
+  onChatHistory?: any;
+  onSwitchOnMobileView?: any;
 }
 const Chat = ({
   HomeWorkHelp,
@@ -118,18 +122,20 @@ const Chat = ({
   directStudentId,
   visibleButton,
   fetchDescription,
-  freshConversationId
+  freshConversationId,
+  onChatHistory,
+  onSwitchOnMobileView
 }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [isFlashCard, setFlashCard] = useState<boolean>(false);
   const [isQuiz, setQuiz] = useState<boolean>(false);
-  const [isChatHistory, setChatHistory] = useState<boolean>(false);
   const textAreaRef = useRef<any>();
   const textAreaRef2 = useRef<any>();
   const ref = useChatScroll(messages);
   const [hoveredIndex, setHoveredIndex] = useState(0);
   const [hoveredUserIndex, setHoveredUserIndex] = useState(0);
+  const isMobile = useIsMobile();
 
   const prompts = [
     "Explain this document to me like I'm five",
@@ -147,10 +153,6 @@ const Chat = ({
 
   const onQuiz = useCallback(() => {
     setQuiz((prevState) => !prevState);
-  }, []);
-
-  const onChatHistory = useCallback(() => {
-    setChatHistory((prevState) => !prevState);
   }, []);
 
   const isShowPills = useMemo(
@@ -301,7 +303,7 @@ const Chat = ({
               <InnerWrapper>
                 <div
                   style={{
-                    position: 'fixed',
+                    // position: 'fixed',
                     width: 'auto'
                   }}
                 >
@@ -376,6 +378,7 @@ const Chat = ({
                         {homeHelp.map((need) => (
                           <StyledDiv key={need.id} onClick={need.onClick}>
                             {need.img}
+                            <p></p>
                             {need.title}
                           </StyledDiv>
                         ))}
@@ -481,7 +484,7 @@ const Chat = ({
               style={{
                 position: 'fixed',
                 width: '100%',
-                bottom: '60px',
+                bottom: isMobile ? '40px' : '60px',
                 background: 'white'
               }}
             >
@@ -552,11 +555,23 @@ const Chat = ({
                 <img alt="" src="/svgs/send.svg" className="w-8 h-8" />
               </SendButton>
             </InputContainer>
-            {/* {!HomeWorkHelp && (
-            <ClockButton type="button" onClick={onChatHistory}>
-              <img alt="" src="/svgs/anti-clock.svg" className="w-5 h-5" />
-            </ClockButton>
-          )} */}
+            {isMobile && (
+              <>
+                {HomeWorkHelp ? (
+                  <ClockButton type="button" onClick={onChatHistory}>
+                    <img
+                      alt="clock"
+                      src="/svgs/anti-clock.svg"
+                      className="w-5 h-5"
+                    />
+                  </ClockButton>
+                ) : (
+                  <ClockButton type="button" onClick={onChatHistory}>
+                    <img alt="pdf" src={PDFImg} className="w-5 h-5" />
+                  </ClockButton>
+                )}
+              </>
+            )}
           </ChatbotContainer>
         ) : null}
         {!HomeWorkHelp && (
@@ -583,11 +598,9 @@ const Chat = ({
                 <img alt="" src="/svgs/send.svg" className="w-8 h-8" />
               </SendButton>
             </InputContainer>
-            {/* {!HomeWorkHelp && (
-            <ClockButton type="button" onClick={onChatHistory}>
-              <img alt="" src="/svgs/anti-clock.svg" className="w-5 h-5" />
+            <ClockButton type="button" onClick={onSwitchOnMobileView}>
+              <img alt="pdf" src={PDFImg} className="w-5 h-5" />
             </ClockButton>
-          )} */}
           </ChatbotContainer>
         )}
       </Form>

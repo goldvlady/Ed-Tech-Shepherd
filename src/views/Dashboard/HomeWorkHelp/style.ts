@@ -18,10 +18,10 @@ export const HomeWorkHelpHistoryContainer = styled.section`
   height: 100vh;
   background: rgb(255, 255, 255);
   overflow-y: scroll;
-  mzrgin: 0 auto;
   margin: 0px 10px;
   // position: absolute;
   left: 15px;
+  display: block;
 
   /* Hide scrollbar for Chrome, Safari and Opera */
   ::-webkit-scrollbar {
@@ -31,6 +31,39 @@ export const HomeWorkHelpHistoryContainer = styled.section`
   /* Hide scrollbar for Firefox */
   scrollbar-width: none;
   -ms-overflow-style: none; /* IE and Edge */
+
+  @media only screen and (max-width: 768px) {
+    display: none;
+  }
+`;
+
+export const MobileHomeWorkHelpHistoryContainer = styled.section`
+  // width: 29%;
+  // height: 100vh;
+  // padding-right: 10px;
+  // background: #fff;
+  // overflow-y: scroll;
+  width: 100%;
+  height: 100vh;
+  background: rgb(255, 255, 255);
+  overflow-y: scroll;
+  margin: 0px 10px;
+  // position: absolute;
+  left: 15px;
+  display: block;
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for Firefox */
+  scrollbar-width: none;
+  -ms-overflow-style: none; /* IE and Edge */
+
+  @media only screen and (max-width: 768px) {
+    display: block;
+  }
 `;
 
 export const HomeWorkHelpChatContainer = styled.section`

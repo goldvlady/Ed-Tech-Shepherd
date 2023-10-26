@@ -12,6 +12,11 @@ export const SidebarContainer = styled.div<{
   background-color: #fff; /* Replace with your desired background color */
   transition: right 0.3s ease-in-out;
   box-shadow: 0px 8px 20px 0px #454b5433;
+
+  @media only screen and (max-width: 768px) {
+    position: fixed;
+    right: ${({ isOpen }) => (isOpen ? '0' : '-117%')};
+  }
 `;
 
 export const SidebarContent = styled.div`
