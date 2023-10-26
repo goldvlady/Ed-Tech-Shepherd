@@ -1,5 +1,5 @@
 import theme from '../theme';
-import { Box, SimpleGrid, Text } from '@chakra-ui/react';
+import { Box, SimpleGrid, Text, VStack } from '@chakra-ui/react';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -8,7 +8,6 @@ const Title = styled(Text)`
   font-size: 1.2rem;
   line-height: 21px;
   letter-spacing: -0.003em;
-  color: #212224;
   margin-bottom: 0;
   text-align: left;
 `;
@@ -38,15 +37,23 @@ const StyledOption = styled('button')`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 20px;
-  background: #fff;
-  box-shadow: #e4e5e7 0px 0px 0px 1px;
-  border-radius: 6px;
-  height: 230px;
-  width: 100%;
-  box-sizing: border-box;
+  align-items: center;
+  padding: 6px;
+  background: ${(props) => (props.title === 'Student' ? '#f2d5c9' : '#abcbfb')};
+  transition: transform 0.3s ease;
+  transform: translateY(0);
 
   &:hover {
+    background: ${(props) =>
+      props.title === 'Student' ? '#fca06d' : '#207df7'};
+  }
+
+  box-shadow: rgb(228, 229, 231) 3px 3px 2px 1px;
+  border-radius: 6px;
+  height: 50px;
+  width: 60%;
+  box-sizing: border-box;
+  color &:hover {
     box-shadow: ${theme.colors.primary[600]} 0px 0px 0px 1px;
     background: ${theme.colors.gray[50]};
   }
@@ -61,6 +68,22 @@ const StyledOption = styled('button')`
       }
     }
   }
+
+  &.slide-in {
+    transform: translateY(0);
+  }
+
+  // Add delay to each button
+  &:nth-child(1) {
+    transition-delay: 0.1s;
+  }
+  &:nth-child(2) {
+    transition-delay: 0.2s;
+  }
+  &:nth-child(3) {
+    transition-delay: 0.3s;
+  }
+  // Add more nth-child rules for additional buttons
 `;
 
 const Radio = styled.input`
@@ -94,7 +117,7 @@ export const LargeSelect: React.FC<Props> = ({
 }) => {
   return (
     <Root>
-      <SimpleGrid columns={{ sm: 2 }} spacing="15px">
+      <VStack>
         {options.map((o) => (
           <StyledOption
             {...optionProps}
@@ -103,8 +126,9 @@ export const LargeSelect: React.FC<Props> = ({
             type="button"
             role="button"
             className={value === o.value ? 'active' : ''}
+            title={o.title} // Pass the title as a prop
           >
-            {!!o.icon && (
+            {/* {!!o.icon && (
               <IconParent
                 marginBottom={'25.67px'}
                 display="flex"
@@ -112,15 +136,21 @@ export const LargeSelect: React.FC<Props> = ({
               >
                 {o.icon}
               </IconParent>
+            )} */}
+            {typeof o.title === 'string' ? (
+              <Title color={o.title === 'Student' ? '#207df7' : '#fff'}>
+                {`${o.title} sign-up`}
+              </Title>
+            ) : (
+              o.title
             )}
-            {typeof o.title === 'string' ? <Title>{o.title}</Title> : o.title}
-            <Box display="flex" alignItems={'flex-start'} flexShrink={0}>
+            {/* <Box display="flex" alignItems={'flex-start'} flexShrink={0}>
               {typeof o.subtitle === 'string' ? (
                 <Subtitle>{o.subtitle}</Subtitle>
               ) : (
                 o.subtitle
               )}
-            </Box>
+            </Box> */}
             {showRadio && (
               <Radio
                 readOnly
@@ -131,7 +161,7 @@ export const LargeSelect: React.FC<Props> = ({
             )}
           </StyledOption>
         ))}
-      </SimpleGrid>
+      </VStack>
     </Root>
   );
 };
