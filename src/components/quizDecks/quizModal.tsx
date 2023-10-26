@@ -451,13 +451,13 @@ const QuizCard = ({
 };
 
 const QuizEnd = ({
-  success = 40,
-  error = 20,
-  passed = 40
+  passed = 40,
+  failed = 20,
+  skipped = 40
 }: {
-  success?: string | number;
-  error?: string | number;
   passed?: string | number;
+  failed?: string | number;
+  skipped?: string | number;
 }) => {
   return (
     <Box
@@ -500,9 +500,9 @@ const QuizEnd = ({
         mx={'auto'}
       >
         {[
-          ['#4CAF50', 'Got it right', `${success}%`],
-          ['#FB8441', `Didn't remember`, `${passed}%`],
-          ['#F53535', 'Got it wrong', `${error}%`]
+          ['#4CAF50', 'Got it right', `${passed}%`],
+          ['#FB8441', `Didn't remember`, `${skipped}%`],
+          ['#F53535', 'Got it wrong', `${failed}%`]
         ].map((item, idx) => {
           return (
             <HStack
@@ -572,16 +572,32 @@ export const QuizModal = ({
   const [startQuiz, setStartQuiz] = useState(false);
   const [endQuiz, setEndQuiz] = useState(false);
   const [quizCount, setQuizCount] = useState<number>(0);
-  const [scores, setScores] = useState<boolean[] | null[] | unknown[]>([]);
+  const [scores, setScores] = useState<{
+    passed: number;
+    failed: number;
+    skipped: number;
+    total: number;
+  }>({
+    passed: 0,
+    failed: 0,
+    skipped: 0,
+    total: 0
+  });
 
   const handleSetScore = (score: boolean | null) =>
-    setScores((prevScores) => [...prevScores, score]);
+    setScores((prevScores) => ({
+      ...prevScores,
+      total: prevScores.total + 1,
+      failed: score === false ? prevScores.failed + 1 : prevScores.failed,
+      passed: score === true ? prevScores.passed + 1 : prevScores.passed,
+      skipped: score === null ? prevScores.skipped + 1 : prevScores.skipped
+    }));
 
   const handleStartQuiz = () => setStartQuiz(true);
   const handleNext = () => setQuizCount(quizCount + 1);
 
   useEffect(() => {
-    if (scores.length === quiz?.questions?.length) {
+    if (scores.total === quiz?.questions?.length) {
       setStartQuiz(false);
       setEndQuiz(true);
     }
@@ -667,21 +683,21 @@ export const QuizModal = ({
 
             {endQuiz && (
               <QuizEnd
-                success={
-                  (pull(scores, [false, null]).length /
-                    toNumber(quiz?.questions?.length)) *
-                  100
-                }
-                error={
-                  (pull(scores, [true, null]).length /
-                    toNumber(quiz?.questions?.length)) *
-                  100
-                }
-                passed={
-                  (pull(scores, [true, false]).length /
-                    toNumber(quiz?.questions?.length)) *
-                  100
-                }
+                passed={Math.floor(
+                  toNumber(
+                    (scores.passed / toNumber(quiz?.questions?.length)) * 100
+                  )
+                )}
+                failed={Math.floor(
+                  toNumber(
+                    (scores.failed / toNumber(quiz?.questions?.length)) * 100
+                  )
+                )}
+                skipped={Math.floor(
+                  toNumber(
+                    (scores.skipped / toNumber(quiz?.questions?.length)) * 100
+                  )
+                )}
               />
             )}
           </HStack>
