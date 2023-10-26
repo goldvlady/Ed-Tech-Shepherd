@@ -477,15 +477,16 @@ export interface QuizQuestion {
 
 export interface QuizData {
   _id: string;
-  student: Student;
-  quizname: string;
-  studyType: 'timedSession' | 'untimedSession';
+  student?: Student;
+  title: string;
+  studyType?: 'timedSession' | 'untimedSession';
   subject?: string;
   topic?: string;
   scores: Score[];
-  studyPeriod: 'daily' | 'weekly' | 'biweekly' | 'spacedRepetition';
+  studyPeriod?: 'daily' | 'weekly' | 'biweekly' | 'spacedRepetition';
   questions: QuizQuestion[];
   createdAt: string;
   updatedAt: string;
   currentStudy?: MinimizedStudy;
+  tags: string[];
 }

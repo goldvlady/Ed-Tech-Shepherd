@@ -11,7 +11,7 @@ import {
   UploadQuizForm,
   TopicQuizForm
 } from './forms';
-import { QuizModal } from './modal';
+// import { QuizModal } from './modal';
 import { manualPreview as QuizPreviewer } from './previews';
 import './styles.css';
 import {
@@ -23,13 +23,12 @@ import {
   Tab,
   TabPanel,
   Flex,
-  TabIndicator,
-  useDisclosure,
+  TabIndicator, // useDisclosure,
   AlertStatus,
   ToastPosition
 } from '@chakra-ui/react';
 import { last, pull, union } from 'lodash';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const CreateQuizPage = () => {
   const TAG_TITLE = 'Tags Alert';
@@ -37,7 +36,7 @@ const CreateQuizPage = () => {
   const toast = useCustomToast();
   const { isLoading } = quizStore();
   const [isLoadingButton, setIsLoadingButton] = useState(false);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  // const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [openTags, setOpenTags] = useState<boolean>(false);
@@ -79,29 +78,29 @@ const CreateQuizPage = () => {
     setInputValue('');
   };
 
-  useEffect(() => {
-    setQuestions([
-      {
-        question: 'question 1',
-        type: 'multipleChoiceSingle',
-        options: [
-          { content: 'option A', isCorrect: false },
-          { content: 'option B', isCorrect: false },
-          { content: 'option C', isCorrect: false },
-          { content: 'option D', isCorrect: true }
-        ]
-      },
-      {
-        question: 'question 2',
-        type: 'trueFalse',
-        options: [
-          { content: 'True', isCorrect: true },
-          { content: 'False', isCorrect: false }
-        ]
-      },
-      { question: 'question 3', type: 'openEnded', answer: '' }
-    ]);
-  }, []);
+  // useEffect(() => {
+  //   setQuestions([
+  //     {
+  //       question: 'question 1',
+  //       type: 'multipleChoiceSingle',
+  //       options: [
+  //         { content: 'option A', isCorrect: false },
+  //         { content: 'option B', isCorrect: false },
+  //         { content: 'option C', isCorrect: false },
+  //         { content: 'option D', isCorrect: true }
+  //       ]
+  //     },
+  //     {
+  //       question: 'question 2',
+  //       type: 'trueFalse',
+  //       options: [
+  //         { content: 'True', isCorrect: true },
+  //         { content: 'False', isCorrect: false }
+  //       ]
+  //     },
+  //     { question: 'question 3', type: 'openEnded', answer: '' }
+  //   ]);
+  // }, []);
 
   const addQuestion = (question: QuizQuestion) => {
     setQuestions([...questions, question]);
@@ -124,6 +123,8 @@ const CreateQuizPage = () => {
     });
 
     setIsLoadingButton(false);
+
+    console.log('create Quizz result =====>> ', result);
   };
 
   return (
@@ -137,7 +138,7 @@ const CreateQuizPage = () => {
         flexWrap="wrap"
       >
         {isLoading && <LoaderOverlay />}
-        <QuizModal isOpen={isOpen} onClose={onClose} />
+        {/* <QuizModal isOpen={isOpen} onClose={onClose} /> */}
 
         <Box
           className="create-quiz-wrapper"
@@ -159,13 +160,13 @@ const CreateQuizPage = () => {
           </Text>
           <Tabs defaultIndex={3} isLazy isFitted position={'relative'}>
             <TabList display="flex">
-              <Tab isDisabled _selected={{ color: '#207DF7' }} flex="1">
+              <Tab _selected={{ color: '#207DF7' }} flex="1">
                 Upload
               </Tab>
-              <Tab isDisabled _selected={{ color: '#207DF7' }} flex="1">
+              <Tab _selected={{ color: '#207DF7' }} flex="1">
                 Topic
               </Tab>
-              <Tab isDisabled _selected={{ color: '#207DF7' }} flex="1">
+              <Tab _selected={{ color: '#207DF7' }} flex="1">
                 Text
               </Tab>
               <Tab _selected={{ color: '#207DF7' }} flex="1">
@@ -221,7 +222,7 @@ const CreateQuizPage = () => {
           <QuizPreviewer
             createQuiz={handleCreateQuiz}
             questions={questions}
-            onOpen={onOpen}
+            // onOpen={onOpen}
             isLoadingButton={isLoadingButton}
           />
         </Box>

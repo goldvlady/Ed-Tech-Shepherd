@@ -1,11 +1,15 @@
 import ApiService from '../services/ApiService';
 import { QuizData, Score, Study, MinimizedStudy } from '../types';
+import { isEmpty, sortedUniq, toNumber } from 'lodash';
 import { create } from 'zustand';
 
 type SearchQueryParams = {
   search?: string;
   page?: number;
   limit?: number;
+  sort?: string;
+  tags?: string;
+  type?: string;
 };
 
 type Pagination = {
@@ -15,6 +19,7 @@ type Pagination = {
 };
 
 type Store = {
+  tags: string[];
   isLoading: boolean;
   pagination: Pagination;
   minimizedStudy?: MinimizedStudy | null | undefined;
@@ -23,6 +28,11 @@ type Store = {
   fetchQuizzes: (queryParams?: SearchQueryParams) => Promise<void>;
   loadQuiz: (id: string | null, currentStudy?: MinimizedStudy) => void;
   deleteQuiz: (id: string | number) => Promise<boolean>;
+
+  storeQuizTags: (
+    quizId: string[] | string,
+    tags: string[]
+  ) => Promise<boolean>;
   //   storeCurrentStudy: (
   //     flashcardId: string,
   //     data: MinimizedStudy
@@ -44,21 +54,73 @@ export default create<Store>((set) => ({
   pagination: { limit: 10, page: 1, count: 100 },
   minimizedStudy: null,
   quizzes: null,
+  tags: [],
+  storeQuizTags: async (quizIds: string[] | string, tags: string[]) => {
+    try {
+      set({ isLoading: true });
+      // if (Array.isArray(flashcardIds) && flashcardIds.length === 1) {
+      //   flashcardIds = flashcardIds[0];
+      // }
+      const response = await ApiService.storeQuizTags(quizIds, tags);
+
+      if (toNumber(response.status) === 200) {
+        const { data } = await response.json();
+        set((state) => {
+          const { quizzes } = state;
+
+          const updateQuiz = (flashcardId: string) => {
+            const index = quizzes?.findIndex(
+              (card) => card._id === flashcardId
+            );
+
+            // const record = data.find((d) => d._id === flashcardId);
+
+            if (typeof index !== 'undefined' && index >= 0 && quizzes) {
+              quizzes[index] = data;
+            }
+          };
+
+          if (Array.isArray(quizIds)) {
+            quizIds.forEach(updateQuiz);
+          } else {
+            updateQuiz(quizIds);
+          }
+
+          return { quizIds, tags: sortedUniq([...state.tags, ...tags]) };
+        });
+
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
   fetchQuizzes: async (queryParams?: {
     search?: string;
     page?: number;
     limit?: number;
   }) => {
     try {
-      const params = queryParams || {};
+      const params = queryParams || ({} as SearchQueryParams);
       if (!params.page) params.page = 1;
       if (!params.limit) params.limit = 10;
       set({ isLoading: true });
-      const response = await ApiService.getQuizzes(params || {}); //CHANGE TO QUIZ APISERVICE
-      const { data } = await response.json();
+      const response = await ApiService.getQuizzes(params || {});
+      const { data, meta } = await response.json();
 
-      console.log('data =====>> ', data);
-      set({ quizzes: data, pagination: data?.meta?.pagination });
+      set((prev) => {
+        const d: any = {
+          quizzes: data,
+          pagination: meta?.pagination
+        };
+        if (isEmpty(prev.tags)) {
+          d.tags = sortedUniq(meta?.tags);
+        }
+        return { ...d };
+      });
     } catch (error) {
       // console.log(error)
     } finally {
@@ -79,7 +141,7 @@ export default create<Store>((set) => ({
   deleteQuiz: async (id: string | number) => {
     try {
       set({ isLoading: true });
-      const response = await ApiService.deleteFlashcard(id);
+      const response = await ApiService.deleteQuiz(id);
       if (response.status === 200) {
         set((state) => {
           const { quizzes } = state;
@@ -198,4 +260,21 @@ export default create<Store>((set) => ({
   //       set({ isLoading: false });
   //     }
   //   }
+  // loadQuiz: async (id: string | null, currentStudy?: MinimizedStudy) => {
+  //   set((state) => {
+  //     if (!id) return { flashcard: undefined, minimizedStudy: null };
+  //     const flashcard = state.flashcards?.find((card) => card._id === id);
+  //     // if (!flashcard) {
+  //     //   const response = ApiService.getSingleFlashcard(id);
+  //     //   const respJson = await response.json();
+  //     //   set({ flashcard: respJson });
+  //     // }
+
+  //     const nextState: Partial<typeof state> = { flashcard };
+  //     if (currentStudy) {
+  //       nextState.minimizedStudy = currentStudy;
+  //     }
+  //     return nextState;
+  //   });
+  // },
 }));

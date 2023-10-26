@@ -1,4 +1,8 @@
 import EmptyIllustration from '../../../assets/empty_illustration.svg';
+import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
+import TagModal from '../../../components/TagModal';
+// import TagModal from '../../../components/TagModal';
+import { DeleteModal } from '../../../components/deleteModal';
 import LoaderOverlay from '../../../components/loaderOverlay';
 import SelectableTable, { TableColumn } from '../../../components/table';
 import { useSearch } from '../../../hooks';
@@ -17,32 +21,155 @@ import {
   Menu,
   MenuButton,
   MenuList,
-  MenuItem
+  MenuItem,
+  Tag,
+  TagLabel,
+  TagLeftIcon,
+  Stack
 } from '@chakra-ui/react';
-import { parseISO, format } from 'date-fns';
-import { startCase } from 'lodash';
+import { parseISO, format, isSameDay, isThisWeek, getISOWeek } from 'date-fns';
+import { isEmpty, startCase } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaCalendarAlt, FaEllipsisH } from 'react-icons/fa';
+import { MultiSelect } from 'react-multi-select-component';
 import { useNavigate } from 'react-router';
+import styled from 'styled-components';
+
+const StyledImage = styled(Box)`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  border-radius: 50%;
+  height: 26px;
+  width: 26px;
+  border: 0.6px solid #eaeaeb;
+  box-shadow: 0 2px 10px rgba(63, 81, 94, 0.1);
+`;
+
+interface Option {
+  label: string;
+  value: string;
+}
 
 type DataSourceItem = {
   key: string;
-  quizname: string;
-  studyType: string;
-  studyPeriod: string;
+  title: string;
+  studyType?: string;
+  studyPeriod?: string;
   createdAt: string;
   scores: Score[];
   questions: QuizQuestion[];
   currentStudy?: MinimizedStudy;
+  tags: string[];
 };
 
 const Quizzes = () => {
+  const toast = useCustomToast();
   const navigate = useNavigate();
   const [hasSearched, setHasSearched] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<Array<string | number>>([]);
+  const [selectedQuizzes, setSelectedQuizzes] = useState<Array<string>>([]);
+  const [multiSelected, setMultiSelected] = useState<any>([]);
+  const [tagEditItem, setTagEditItem] = useState<{
+    quiz?: QuizData;
+    quizIds?: string[];
+  } | null>(null);
 
-  const { fetchQuizzes, quizzes, quiz, loadQuiz, deleteQuiz, isLoading } =
-    quizStore();
+  const {
+    fetchQuizzes,
+    quizzes,
+    pagination,
+    quiz,
+    loadQuiz,
+    deleteQuiz,
+    tags,
+    isLoading,
+    storeQuizTags
+  } = quizStore();
+
+  const handleSelectionChange = (selectedOptions: Option[]) => {
+    setMultiSelected(selectedOptions);
+
+    const selectedTags = selectedOptions
+      .map((option) => option.value)
+      .join(',');
+
+    const query: { [key: string]: any } = {};
+    if (selectedTags) {
+      query.tags = selectedTags;
+    }
+
+    fetchQuizzes(query);
+  };
+
+  function findNextQuiz(quizzes: QuizData[]): QuizData | undefined {
+    // Order of preference for studyPeriods
+    const studyPeriodPreference = [
+      'daily',
+      'weekly',
+      'biweekly',
+      'spacedRepetition'
+    ];
+
+    // Sort flashcards based on studyPeriodPreference
+    const sortedFlashcards = quizzes.sort((a, b) => {
+      return (
+        studyPeriodPreference.indexOf(a?.studyPeriod as string) -
+        studyPeriodPreference.indexOf(b?.studyPeriod as string)
+      );
+    });
+
+    // Get today's date
+    const today = new Date();
+
+    // Go through sorted flashcards to find the one that should be loaded
+    for (const card of sortedFlashcards) {
+      // Get date of last attempt
+      const lastAttemptDate =
+        card.scores.length > 0
+          ? new Date(card.scores[card.scores.length - 1].date)
+          : undefined;
+
+      // Check if the flashcard should be attempted today based on its studyPeriod
+      switch (card.studyPeriod) {
+        case 'daily':
+          if (!lastAttemptDate || !isSameDay(lastAttemptDate, today)) {
+            return card;
+          }
+          break;
+        case 'weekly':
+          if (!lastAttemptDate || !isThisWeek(lastAttemptDate)) {
+            return card;
+          }
+          break;
+        case 'biweekly':
+          if (
+            !lastAttemptDate ||
+            !isThisWeek(lastAttemptDate) ||
+            getISOWeek(today) % 2 === 0
+          ) {
+            return card;
+          }
+          break;
+        case 'spacedRepetition':
+          // In case of spaced repetition, load the card only if it's due
+          // Here we need more information on how the spaced repetition should work
+          break;
+        default:
+          break;
+      }
+    }
+
+    // If no card is found, return undefined
+    return undefined;
+  }
+
+  const options: Option[] = tags.map((tag) => ({
+    label: tag,
+    value: tag
+  }));
 
   const searchQuizzes = useCallback(
     (query: string) => {
@@ -55,7 +182,9 @@ const Quizzes = () => {
   const handleSearch = useSearch(searchQuizzes);
 
   const [deleteItem, setDeleteItem] = useState<{
-    quiz: QuizData;
+    quiz?: QuizData;
+    quizIds?: string[];
+    currentDeleteType?: 'multiple' | 'single';
   } | null>(null);
 
   useEffect(() => {
@@ -66,49 +195,102 @@ const Quizzes = () => {
   const columns: TableColumn<DataSourceItem>[] = [
     {
       title: 'Quiz Name',
-      dataIndex: 'quizname',
-      key: 'quizname',
-      render: ({ quizname }) => <Text fontWeight="500">{quizname}</Text>
+      dataIndex: 'title',
+      key: 'title',
+      render: ({ title }) => <Text fontWeight="500">{title}</Text>
+    },
+
+    {
+      title: 'No of Questions',
+      dataIndex: 'questions',
+      key: 'questions',
+      render: ({ questions }) => {
+        return <Text fontWeight="500">{questions.length}</Text>;
+      }
     },
     {
-      title: 'Study Type',
-      dataIndex: 'studyType',
-      key: 'studyType',
-      render: ({ studyType }) => {
+      title: 'Tags',
+      dataIndex: 'tags',
+      key: 'tags',
+      width: '350px',
+      height: '50px',
+      scrollY: true,
+      render: ({ tags }) => {
+        if (!tags?.length) return <Text fontWeight="500">None</Text>;
         return (
-          <Text>
-            {startCase(studyType.replace(/([a-z])([A-Z])/g, '$1 $2'))}
-          </Text>
+          <Box display="flex" width="100%" minWidth={'fit-content'} gap="10px">
+            {tags.map((tag, index) => (
+              <Tag
+                width={'fit-content'}
+                maxWidth={'fit-content'}
+                key={tag}
+                marginRight={
+                  tags.length > 3 && index === tags.length ? '10px' : '0px'
+                }
+                onClick={() => {
+                  setSelectedTags([tag]);
+                  fetchQuizzes({ tags: tag });
+                }}
+                borderRadius="5"
+                background="#f7f8fa"
+                size="md"
+              >
+                <TagLeftIcon>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    width="25px"
+                    height="25px"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M6 6h.008v.008H6V6z"
+                    />
+                  </svg>
+                </TagLeftIcon>
+                <TagLabel
+                  whiteSpace={'nowrap'}
+                  overflow="visible" // Allows text to overflow
+                  textOverflow="clip"
+                >
+                  {tag?.toLowerCase()}
+                </TagLabel>
+              </Tag>
+            ))}
+          </Box>
         );
       }
     },
     {
-      title: 'Study Period',
-      dataIndex: 'studyPeriod',
-      key: 'studyPeriod',
-      render: ({ studyPeriod }) => {
-        return <Text>{startCase(studyPeriod)}</Text>;
+      title: 'Created At',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: ({ createdAt }) => {
+        const date = parseISO(createdAt); // parse the date string into a Date object
+        const formattedDate = format(date, 'dd-MMMM-yyyy'); // format the date
+        return <Text fontWeight="500">{formattedDate}</Text>;
       }
     },
-    // {
-    //   title: 'Created At',
-    //   dataIndex: 'createdAt',
-    //   key: 'createdAt',
-    //   render: ({ createdAt }) => {
-    //     const date = parseISO(createdAt); // parse the date string into a Date object
-    //     const formattedDate = format(date, 'dd-MMMM-yyyy'); // format the date
-    //     return <Text>{formattedDate}</Text>;
-    //   }
-    // },
     {
       title: 'Last Attempted',
       key: 'lastAttempted',
       render: ({ scores }) => {
-        if (!scores?.length) return <Text>N/A</Text>;
+        if (!scores?.length) return <Text>Not Attempted</Text>;
         const date = parseISO(scores[scores.length - 1].date);
         const formattedDate = format(date, 'dd-MMMM-yyyy');
         return (
-          <Text>{formattedDate.replace('pm', 'PM').replace('am', 'AM')}</Text>
+          <Text fontWeight="500">
+            {formattedDate.replace('pm', 'PM').replace('am', 'AM')}
+          </Text>
         );
       }
     },
@@ -116,12 +298,42 @@ const Quizzes = () => {
       title: 'Last Attempted Score',
       key: 'lastAttemptedScore',
       render: ({ scores, questions }) => {
-        if (!scores?.length) return <Text fontWeight="500">N/A</Text>;
-        const percentage = (
-          (scores[scores.length - 1]?.score / questions.length) *
-          100
-        ).toFixed(0);
-        return <Text fontWeight="500">{percentage}%</Text>;
+        if (!scores?.length) return <Text fontWeight="500">Not Attempted</Text>;
+        const percentage =
+          (scores[scores.length - 1]?.score / questions.length) * 100;
+        const percentageString = percentage.toFixed(0);
+        type ColorRange = {
+          max: number;
+          min: number;
+          color: string;
+          backgroundColor: string;
+        };
+        const colorRanges: ColorRange[] = [
+          { max: 100, min: 85.1, color: '#4CAF50', backgroundColor: '#EDF7EE' },
+          { max: 85, min: 60, color: '#FB8441', backgroundColor: '#FFEFE6' },
+          { max: 59.9, min: 0, color: '#F53535', backgroundColor: '#FEECEC' }
+        ];
+
+        const { color, backgroundColor } = colorRanges.find(
+          (range) => percentage <= range.max && percentage >= range.min
+        ) as ColorRange;
+        return (
+          <Box width={'fit-content'}>
+            <Box
+              padding="5px 10px"
+              color={color}
+              background={backgroundColor}
+              borderRadius={'5px'}
+              display={'flex'}
+              justifyContent={'center'}
+              alignItems={'center'}
+            >
+              <Text fontSize={'14px'} fontWeight="bold">
+                {percentageString}%
+              </Text>
+            </Box>
+          </Box>
+        );
       }
     },
     {
@@ -202,18 +414,28 @@ const Quizzes = () => {
                 Take
               </Text>
             </MenuItem>
-            {/* <MenuItem p="6px 8px 6px 8px" _hover={{ bgColor: "#F2F4F7" }}>
+            <MenuItem
+              p="6px 8px 6px 8px"
+              onClick={() =>
+                setTagEditItem({
+                  quiz: quiz as unknown as QuizData
+                })
+              }
+              _hover={{ bgColor: '#F2F4F7' }}
+            >
               <StyledImage marginRight="10px">
                 <svg
+                  xmlns="http://www.w3.org/2000/svg"
                   width="12"
                   height="12"
-                  viewBox="0 0 12 12"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
                 >
                   <path
-                    d="M0.243811 6.9511C0.137604 6.31182 0.14111 5.66963 0.244325 5.04867C0.886697 5.0643 1.46441 4.75612 1.68895 4.21404C1.91348 3.67197 1.72289 3.04554 1.25764 2.60235C1.62373 2.09028 2.07534 1.63371 2.60248 1.25678C3.0457 1.72231 3.67231 1.91306 4.21453 1.68846C4.75675 1.46387 5.06497 0.885899 5.04917 0.243322C5.68844 0.137115 6.33063 0.140621 6.95159 0.243842C6.93596 0.886208 7.24419 1.46392 7.78622 1.68846C8.32832 1.913 8.95476 1.7224 9.39792 1.25715C9.91002 1.62324 10.3666 2.07485 10.7435 2.602C10.278 3.04521 10.0872 3.67182 10.3118 4.21404C10.5364 4.75626 11.1144 5.06448 11.757 5.04867C11.8631 5.68795 11.8596 6.33014 11.7564 6.9511C11.1141 6.93552 10.5363 7.2437 10.3118 7.78573C10.0873 8.32782 10.2779 8.95426 10.7431 9.39742C10.377 9.90953 9.92542 10.3661 9.39826 10.743C8.95505 10.2775 8.32843 10.0867 7.78622 10.3113C7.24402 10.5359 6.93584 11.1139 6.95159 11.7565C6.31232 11.8627 5.67012 11.8592 5.04917 11.756C5.0648 11.1136 4.75661 10.5359 4.21453 10.3113C3.67246 10.0868 3.04603 10.2774 2.60284 10.7426C2.09077 10.3765 1.6342 9.92493 1.25727 9.39783C1.72279 8.95461 1.91354 8.328 1.68895 7.78573C1.46435 7.24352 0.886388 6.93535 0.243811 6.9511ZM6.00041 7.74991C6.96687 7.74991 7.75041 6.96638 7.75041 5.99991C7.75041 5.03339 6.96687 4.2499 6.00041 4.2499C5.03388 4.2499 4.25038 5.03339 4.25038 5.99991C4.25038 6.96638 5.03388 7.74991 6.00041 7.74991Z"
+                    fillRule="evenodd"
                     fill="#6E7682"
+                    d="M5.25 2.25a3 3 0 00-3 3v4.318a3 3 0 00.879 2.121l9.58 9.581c.92.92 2.39 1.186 3.548.428a18.849 18.849 0 005.441-5.44c.758-1.16.492-2.629-.428-3.548l-9.58-9.581a3 3 0 00-2.122-.879H5.25zM6.375 7.5a1.125 1.125 0 100-2.25 1.125 1.125 0 000 2.25z"
+                    clipRule="evenodd"
                   />
                 </svg>
               </StyledImage>
@@ -224,9 +446,9 @@ const Quizzes = () => {
                 lineHeight="20px"
                 fontWeight="400"
               >
-                Update Setting
+                Edit Tags
               </Text>
-            </MenuItem> */}
+            </MenuItem>
             <MenuItem
               p="6px 8px 6px 8px"
               color="#F53535"
@@ -266,7 +488,71 @@ const Quizzes = () => {
   return (
     <>
       {isLoading && <LoaderOverlay />}
-      {!quizzes?.length && !hasSearched && !isLoading ? (
+      {(tagEditItem?.quiz || tagEditItem?.quizIds) && (
+        <TagModal
+          tags={tagEditItem?.quiz?.tags || []}
+          onSubmit={async (d) => {
+            const ids =
+              tagEditItem?.quizIds || (tagEditItem?.quiz?._id as string);
+
+            const isSaved = await storeQuizTags(ids, d);
+
+            console.log('tagModal ----->> isSaved ======>> ', isSaved);
+            if (isSaved) {
+              toast({
+                position: 'top-right',
+                title: `Tags Added for ${
+                  tagEditItem?.quiz?.title || 'Quizzes'
+                }`,
+                status: 'success'
+              });
+              setTagEditItem(null);
+            } else {
+              toast({
+                position: 'top-right',
+                title: `Failed to add tags for ${
+                  tagEditItem?.quiz?.title || ''
+                } quiz`,
+                status: 'error'
+              });
+            }
+          }}
+          onClose={() => setTagEditItem(null)}
+          isOpen={Boolean(tagEditItem)}
+        />
+      )}
+
+      <DeleteModal
+        isLoading={isLoading}
+        entity={isEmpty(deleteItem?.quizIds) ? 'Quiz' : 'Quizzes'}
+        isOpen={Boolean(deleteItem)}
+        onCancel={() => setDeleteItem(null)}
+        onDelete={async () => {
+          const id = deleteItem?.quiz?._id || deleteItem?.quizIds?.join(',');
+
+          const isDeleted = await deleteQuiz(id as string);
+          if (isDeleted) {
+            toast({
+              position: 'top-right',
+              title: isEmpty(deleteItem?.quizIds)
+                ? `${deleteItem?.quiz?.title} deleted Succesfully`
+                : `Quizzes deleted Succesfully`,
+              status: 'success'
+            });
+            setDeleteItem(null);
+          } else {
+            toast({
+              position: 'top-right',
+              title: isEmpty(deleteItem?.quizIds)
+                ? `Failed to delete ${deleteItem?.quiz?.title} quiz`
+                : `Failed to delete Quizzes`,
+              status: 'error'
+            });
+          }
+        }}
+        onClose={() => null}
+      />
+      {isEmpty(quizzes) && !hasSearched && !isLoading ? (
         //  {/* {quizzes?.length ? ( */}
         <Box
           background={'#F8F9FB'}
@@ -355,7 +641,7 @@ const Quizzes = () => {
               color="#212224"
             >
               My Quizzes
-              <span className="count-badge">{77}</span>
+              <span className="count-badge">{quizzes?.length || 0}</span>
             </Text>
             <Button
               variant="solid"
@@ -407,41 +693,154 @@ const Quizzes = () => {
                 />
               </InputGroup>
             </Flex>
-            <Flex>
+            <Flex alignItems="center">
               <Flex
-                cursor="pointer"
-                border="1px solid #E5E6E6"
-                padding="5px 10px"
-                borderRadius="6px"
-                alignItems="center"
+                direction={{ base: 'column', md: 'row' }}
+                alignItems={{ base: 'flex-start', md: 'center' }}
+                width={{ base: '100%', md: 'auto' }}
               >
-                <Text
-                  fontWeight="400"
-                  fontSize="14px"
-                  marginRight="5px"
-                  color="#5E6164"
-                >
-                  All Time
-                </Text>
-                <FaCalendarAlt color="#96999C" size="12px" />
+                <MultiSelect
+                  options={options}
+                  value={multiSelected}
+                  onChange={handleSelectionChange}
+                  labelledBy="Select"
+                  valueRenderer={() => (
+                    <span
+                      style={{
+                        fontWeight: '500',
+                        color: 'rgb(110, 118, 130)',
+                        fontSize: '0.875rem',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      Filter By Tags
+                    </span>
+                  )}
+                />
+
+                <Menu>
+                  <MenuButton>
+                    <Flex
+                      cursor="pointer"
+                      border="1px solid #E5E6E6"
+                      padding="5px 10px"
+                      borderRadius="6px"
+                      alignItems="center"
+                      mb={{ base: '10px', md: '0' }}
+                      width={{ base: '-webkit-fill-available', md: 'auto' }}
+                    >
+                      <Text
+                        fontWeight="400"
+                        fontSize={{ base: '12px', md: '14px' }}
+                        marginRight="5px"
+                        color="#5E6164"
+                        width={{ base: '100%', md: 'auto' }}
+                      >
+                        Sort By
+                      </Text>
+                      <FaCalendarAlt color="#96999C" size="12px" />
+                    </Flex>
+                  </MenuButton>
+                  <MenuList
+                    fontSize="14px"
+                    minWidth={'185px'}
+                    borderRadius="8px"
+                    backgroundColor="#FFFFFF"
+                    boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
+                  >
+                    <MenuItem
+                      color="#212224"
+                      _hover={{ bgColor: '#F2F4F7' }}
+                      onClick={() => fetchQuizzes({ sort: 'createdAt' })}
+                      fontSize="14px"
+                      lineHeight="20px"
+                      fontWeight="400"
+                      p="6px 8px 6px 8px"
+                    >
+                      Created At
+                    </MenuItem>
+                    <MenuItem
+                      color="#212224"
+                      fontSize="14px"
+                      onClick={() => fetchQuizzes({ sort: 'lastAttempted' })}
+                      _hover={{ bgColor: '#F2F4F7' }}
+                      lineHeight="20px"
+                      fontWeight="400"
+                      p="6px 8px 6px 8px"
+                    >
+                      Last Attempted
+                    </MenuItem>
+                    <MenuItem
+                      _hover={{ bgColor: '#F2F4F7' }}
+                      color="#212224"
+                      fontSize="14px"
+                      onClick={() => fetchQuizzes({ sort: 'quizname' })}
+                      lineHeight="20px"
+                      fontWeight="400"
+                      p="6px 8px 6px 8px"
+                    >
+                      Quiz Name
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+
+                {false && (
+                  <Button
+                    variant="solid"
+                    ml={{ base: '0', md: '20px' }}
+                    borderRadius={'10px'}
+                    colorScheme={'primary'}
+                    width={{ base: '100%', md: 'auto' }}
+                    onClick={() => {
+                      if (!quizzes) return;
+                      const nextFlashCard = findNextQuiz(quizzes);
+                      if (!nextFlashCard) {
+                        toast({
+                          title: 'You have attempted all quizzes for this week',
+                          status: 'info'
+                        });
+                      } else {
+                        loadQuiz(nextFlashCard?._id);
+                      }
+                    }}
+                  >
+                    <svg
+                      width="16"
+                      height="18"
+                      viewBox="0 0 16 18"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M3.83317 4.00033V1.50033C3.83317 1.04009 4.20627 0.666992 4.6665 0.666992H14.6665C15.1267 0.666992 15.4998 1.04009 15.4998 1.50033V13.167C15.4998 13.6272 15.1267 14.0003 14.6665 14.0003H12.1665V16.4996C12.1665 16.9602 11.7916 17.3337 11.3275 17.3337H1.33888C0.875492 17.3337 0.5 16.9632 0.5 16.4996L0.502167 4.83438C0.50225 4.37375 0.8772 4.00033 1.34118 4.00033H3.83317ZM5.49983 4.00033H12.1665V12.3337H13.8332V2.33366H5.49983V4.00033ZM3.83317 8.16699V9.83366H8.83317V8.16699H3.83317ZM3.83317 11.5003V13.167H8.83317V11.5003H3.83317Z"
+                        fill="white"
+                      />
+                    </svg>
+
+                    <Text ml={'10px'}>Take today's quiz</Text>
+                  </Button>
+                )}
               </Flex>
+            </Flex>
+          </Flex>
+          {!isEmpty(selectedQuizzes) && (
+            <Box>
               <Button
                 variant="solid"
-                marginLeft={'20px'}
+                mb="10px"
                 borderRadius={'10px'}
-                colorScheme={'primary'}
-                // onClick={() => {
-                // if (!flashcards) return;
-                // const nextFlashCard = findNextFlashcard(flashcards);
-                // if (!nextFlashCard) {
-                //     toast({
-                //     title: 'You have attempted all flashcards for this week',
-                //     status: 'info'
-                //     });
-                // } else {
-                //     loadFlashcard(nextFlashCard?._id);
-                // }
-                // }}
+                colorScheme={'#F53535'}
+                _hover={{ bg: '#F53535' }}
+                bg="#F53535"
+                width={{ base: '100%', md: 'auto' }}
+                onClick={() => {
+                  if (isEmpty(quizzes)) return;
+                  setDeleteItem((prev) => ({
+                    ...prev,
+                    currentDeleteType: 'multiple',
+                    quizIds: selectedQuizzes
+                  }));
+                }}
               >
                 <svg
                   width="16"
@@ -455,15 +854,61 @@ const Quizzes = () => {
                     fill="white"
                   />
                 </svg>
-
-                <Text marginLeft={'10px'}>Take today's quiz</Text>
+                <Text ml="5px">
+                  Delete {selectedQuizzes?.length > 1 ? 'Quizzess' : 'Quiz'}
+                </Text>
               </Button>
-            </Flex>
-          </Flex>
+
+              <Button
+                variant="solid"
+                mb="10px"
+                borderRadius={'10px'}
+                marginLeft={'10px'}
+                colorScheme={'primary'}
+                width={{ base: '100%', md: 'auto' }}
+                onClick={() => {
+                  if (isEmpty(quizzes)) return;
+                  setTagEditItem((prev) => ({
+                    ...prev,
+                    quizIds: selectedQuizzes
+                  }));
+                }}
+              >
+                <svg
+                  width="16"
+                  height="18"
+                  viewBox="0 0 16 18"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    fill="white"
+                    d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 6h.008v.008H6V6z"
+                  />
+                </svg>
+
+                <Text ml="5px">Add Tag</Text>
+              </Button>
+            </Box>
+          )}
           {quizzes && (
             <SelectableTable
               isSelectable
               columns={columns}
+              pagination
+              currentPage={pagination.page}
+              handlePagination={(nextPage) =>
+                fetchQuizzes({ page: nextPage, limit: pagination.limit })
+              }
+              pageCount={Math.ceil(pagination.count / pagination.limit)}
+              onSelect={(selected) => setSelectedQuizzes(selected)}
               dataSource={quizzes.map((card) => ({
                 ...card,
                 key: card._id

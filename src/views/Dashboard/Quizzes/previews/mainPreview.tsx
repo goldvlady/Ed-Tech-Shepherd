@@ -254,7 +254,7 @@ const QuizPreviewer = ({
   isLoadingButton
 }: {
   questions: QuizQuestion[];
-  onOpen: () => void;
+  onOpen?: () => void;
   createQuiz: () => void;
   isLoadingButton: boolean;
 }) => {

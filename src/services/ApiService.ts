@@ -669,6 +669,19 @@ class ApiService {
       body: JSON.stringify(data)
     });
   };
+
+  static storeQuizTags = (quizId: string[] | string, tags: string[]) => {
+    return doFetch(`${ApiService.baseEndpoint}/editQuiz?id=${quizId}`, {
+      method: 'POST',
+      body: JSON.stringify({ tags })
+    });
+  };
+
+  static deleteQuiz = async (id: string | number) => {
+    return doFetch(`${ApiService.baseEndpoint}/deleteQuiz?id=${id}`, {
+      method: 'POST'
+    });
+  };
 }
 
 export default ApiService;
