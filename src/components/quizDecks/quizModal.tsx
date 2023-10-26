@@ -1,4 +1,5 @@
 import { LightningBoltIcon, TakeQuizIcon } from '../../components/icons';
+import ApiService from '../../services/ApiService';
 import quizStore from '../../state/quizStore';
 import { QuestionOutlineIcon } from '@chakra-ui/icons';
 import {
@@ -7,7 +8,6 @@ import {
   Modal,
   ModalBody,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   ModalOverlay,
   ModalCloseButton,
@@ -21,9 +21,10 @@ import {
   Textarea,
   Input
 } from '@chakra-ui/react';
-import { isEmpty, pull, split, toLower, toNumber } from 'lodash';
+import { isEmpty, split, toLower, toNumber } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { IoCheckmarkDone, IoCloseOutline } from 'react-icons/io5';
+import { useNavigate } from 'react-router';
 
 const QuizLanding = ({
   startQuiz = () => null,
@@ -451,10 +452,14 @@ const QuizCard = ({
 };
 
 const QuizEnd = ({
+  handleReviewQuiz,
+  handleRestartQuiz,
   passed = 40,
   failed = 20,
   skipped = 40
 }: {
+  handleReviewQuiz: () => void;
+  handleRestartQuiz: () => void;
   passed?: string | number;
   failed?: string | number;
   skipped?: string | number;
@@ -535,6 +540,7 @@ const QuizEnd = ({
           w={'304px'}
           boxShadow={'0px 1px 4px 0px rgba(136, 139, 143, 0.10)'}
           _hover={{ opacity: '0.75' }}
+          onClick={handleRestartQuiz}
         >
           Restart Quiz
         </Button>
@@ -546,6 +552,7 @@ const QuizEnd = ({
           w={'304px'}
           boxShadow={'0px 1px 4px 0px rgba(136, 139, 143, 0.10)'}
           _hover={{ opacity: '0.75' }}
+          onClick={handleReviewQuiz}
         >
           Review Questions
         </Button>
@@ -569,6 +576,7 @@ export const QuizModal = ({
   index?: number | string;
 }) => {
   const { quiz, loadQuiz } = quizStore();
+  const navigate = useNavigate();
   const [startQuiz, setStartQuiz] = useState(false);
   const [endQuiz, setEndQuiz] = useState(false);
   const [quizCount, setQuizCount] = useState<number>(0);
@@ -595,12 +603,32 @@ export const QuizModal = ({
 
   const handleStartQuiz = () => setStartQuiz(true);
   const handleNext = () => setQuizCount(quizCount + 1);
+  const handleRestartQuiz = () => {
+    setQuizCount(0);
+    setStartQuiz(true);
+    setEndQuiz(false);
+  };
+  const handleReviewQuiz = () => {
+    loadQuiz(null);
+    navigate(`/dashboard/quizzes/create?quiz_id=${quiz?._id}`);
+  };
 
   useEffect(() => {
     if (scores.total === quiz?.questions?.length) {
-      setStartQuiz(false);
-      setEndQuiz(true);
+      (async () => {
+        try {
+          await ApiService.storeQuizScore({
+            quizId: quiz._id,
+            score: scores.passed
+          });
+          setStartQuiz(false);
+          setEndQuiz(true);
+        } catch (error) {
+          console.log('error ========>> ', error);
+        }
+      })();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quiz?.questions?.length, scores]);
 
   return (
@@ -683,6 +711,8 @@ export const QuizModal = ({
 
             {endQuiz && (
               <QuizEnd
+                handleRestartQuiz={handleRestartQuiz}
+                handleReviewQuiz={handleReviewQuiz}
                 passed={Math.floor(
                   toNumber(
                     (scores.passed / toNumber(quiz?.questions?.length)) * 100

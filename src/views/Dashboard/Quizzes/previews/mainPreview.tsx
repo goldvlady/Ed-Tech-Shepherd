@@ -5,7 +5,7 @@ import {
   DeleteQuizIcon
 } from '../../../../components/icons';
 import { QuizQuestion } from '../../../../types';
-import { CheckIcon, CloseIcon } from '@chakra-ui/icons';
+import { CheckIcon, CloseIcon, AddIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -251,12 +251,16 @@ const QuizPreviewer = ({
   questions,
   onOpen,
   createQuiz,
-  isLoadingButton
+  updateQuiz,
+  isLoadingButton,
+  quizId
 }: {
   questions: QuizQuestion[];
   onOpen?: () => void;
   createQuiz: () => void;
+  updateQuiz: () => void;
   isLoadingButton: boolean;
+  quizId: string;
 }) => {
   return (
     <Box
@@ -308,26 +312,46 @@ const QuizPreviewer = ({
               </Button>
             )}
 
-            {!isEmpty(questions) && (
-              <Button
-                width={'140px'}
-                borderRadius="8px"
-                fontSize="14px"
-                lineHeight="20px"
-                variant="solid"
-                colorScheme="primary"
-                onClick={createQuiz}
-                ml={5}
-                display={'flex'}
-                flexDirection={'row'}
-                justifyContent={'center'}
-                alignItems={'center'}
-                isLoading={isLoadingButton}
-              >
-                <CheckIcon mx={2} />
-                Create
-              </Button>
-            )}
+            {!isEmpty(questions) &&
+              (isEmpty(quizId) ? (
+                <Button
+                  width={'140px'}
+                  borderRadius="8px"
+                  fontSize="14px"
+                  lineHeight="20px"
+                  variant="solid"
+                  colorScheme="primary"
+                  onClick={createQuiz}
+                  ml={5}
+                  display={'flex'}
+                  flexDirection={'row'}
+                  justifyContent={'center'}
+                  alignItems={'center'}
+                  isLoading={isLoadingButton}
+                >
+                  <AddIcon mx={2} />
+                  Create
+                </Button>
+              ) : (
+                <Button
+                  width={'140px'}
+                  borderRadius="8px"
+                  fontSize="14px"
+                  lineHeight="20px"
+                  variant="solid"
+                  colorScheme="primary"
+                  onClick={updateQuiz}
+                  ml={5}
+                  display={'flex'}
+                  flexDirection={'row'}
+                  justifyContent={'center'}
+                  alignItems={'center'}
+                  isLoading={isLoadingButton}
+                >
+                  <CheckIcon mx={2} />
+                  Update
+                </Button>
+              ))}
           </HStack>
         </Box>
 

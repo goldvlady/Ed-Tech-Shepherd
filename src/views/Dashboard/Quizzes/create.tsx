@@ -3,7 +3,7 @@ import TagModal from '../../../components/TagModal';
 import LoaderOverlay from '../../../components/loaderOverlay';
 import ApiService from '../../../services/ApiService';
 import quizStore from '../../../state/quizStore';
-import { QuizQuestion } from '../../../types';
+import { QuizData, QuizQuestion } from '../../../types';
 import QuizDataProvider from './context';
 import {
   ManualQuizForm,
@@ -27,15 +27,17 @@ import {
   AlertStatus,
   ToastPosition
 } from '@chakra-ui/react';
-import { last, pull, union } from 'lodash';
-import { useState } from 'react';
+import { isEmpty, isNil, last, pull, union } from 'lodash';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 const CreateQuizPage = () => {
   const TAG_TITLE = 'Tags Alert';
-
+  const [searchParams] = useSearchParams();
   const toast = useCustomToast();
   const { isLoading } = quizStore();
   const [isLoadingButton, setIsLoadingButton] = useState(false);
+  const [quizId, setQuizId] = useState<string | null | undefined>(null);
   // const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
@@ -44,6 +46,8 @@ const CreateQuizPage = () => {
   const [newTags, setNewTags] = useState<string[]>(tags);
   const [inputValue, setInputValue] = useState('');
   const [title, setTitle] = useState('');
+
+  const handleSetTitle = (str: string) => setTitle(str);
 
   const handleAddTag = () => {
     const value = inputValue.toLowerCase().trim();
@@ -102,6 +106,35 @@ const CreateQuizPage = () => {
   //   ]);
   // }, []);
 
+  useEffect(() => {
+    const queryQuizId = searchParams.get('quiz_id');
+
+    if (
+      !isEmpty(queryQuizId) ||
+      !isNil(queryQuizId) ||
+      queryQuizId !== undefined
+    ) {
+      (async () => {
+        try {
+          setQuizId(queryQuizId);
+          const result: any = await ApiService.getQuiz(queryQuizId as string);
+          const { data }: { data: QuizData } = await result.json();
+
+          if (data) {
+            // setQuestion(data.question);
+            setTitle(data.title);
+            setTags(data.tags);
+            setQuestions(data?.questions);
+          }
+
+          console.log('getQuiz ---->> data ========>> ', data);
+        } catch (error) {
+          console.log('getQuiz Error =========>> ', error);
+        }
+      })();
+    }
+  }, [searchParams]);
+
   const addQuestion = (question: QuizQuestion) => {
     setQuestions([...questions, question]);
   };
@@ -113,7 +146,6 @@ const CreateQuizPage = () => {
   };
 
   const handleOpenTagsModal = () => setOpenTags(true);
-  const addTitle = (value: string) => setTitle(value);
   const handleCreateQuiz = async () => {
     setIsLoadingButton(true);
     const result = await ApiService.createQuiz({
@@ -123,8 +155,18 @@ const CreateQuizPage = () => {
     });
 
     setIsLoadingButton(false);
+  };
 
-    console.log('create Quizz result =====>> ', result);
+  const handleUpdateQuiz = async () => {
+    setIsLoadingButton(true);
+    await ApiService.updateQuiz(quizId as string, {
+      title,
+      questions,
+      tags
+    });
+
+    setIsLoadingButton(false);
+    window.location.reload();
   };
 
   return (
@@ -206,7 +248,8 @@ const CreateQuizPage = () => {
                   addQuestion={addQuestion}
                   tags={tags}
                   removeTag={handleRemoveTag}
-                  addTitle={addTitle}
+                  title={title}
+                  handleSetTitle={handleSetTitle}
                   isLoadingButton={isLoadingButton}
                 />
               </TabPanel>
@@ -221,8 +264,9 @@ const CreateQuizPage = () => {
         >
           <QuizPreviewer
             createQuiz={handleCreateQuiz}
+            updateQuiz={handleUpdateQuiz}
             questions={questions}
-            // onOpen={onOpen}
+            quizId={quizId as string}
             isLoadingButton={isLoadingButton}
           />
         </Box>

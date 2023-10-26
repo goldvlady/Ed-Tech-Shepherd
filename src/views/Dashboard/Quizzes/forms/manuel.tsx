@@ -20,8 +20,9 @@ const ManualQuizForm = ({
   openTags,
   tags,
   removeTag,
-  addTitle,
-  isLoadingButton
+  isLoadingButton,
+  title,
+  handleSetTitle
 }) => {
   const { setQuestions, goToQuestion, currentQuestionIndex, questions } =
     useQuizState();
@@ -37,7 +38,7 @@ const ManualQuizForm = ({
     answer: ''
   });
 
-  const [title, setTitle] = useState('');
+  // const [title, setTitle] = useState('');
 
   useEffect(() => {
     if (questions[currentQuestionIndex]) {
@@ -95,7 +96,7 @@ const ManualQuizForm = ({
       data = omit(data, ['options']);
     }
 
-    addTitle(title);
+    // addTitle(title);
     addQuestion(data);
 
     setTimeout(() => {
@@ -205,7 +206,7 @@ const ManualQuizForm = ({
             fontSize: '14px'
           }}
           height={'48px'}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => handleSetTitle(e.target.value)}
           autoComplete="off"
         />
       </FormControl>

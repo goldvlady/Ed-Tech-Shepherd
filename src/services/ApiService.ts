@@ -684,9 +684,39 @@ class ApiService {
     });
   };
 
+  static updateQuiz = (
+    quizId: string,
+    data: {
+      questions: QuizQuestion[];
+      title: string;
+      tags: string[];
+    }
+  ) => {
+    return doFetch(`${ApiService.baseEndpoint}/editQuiz?id=${quizId}`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
   static deleteQuiz = async (id: string | number) => {
     return doFetch(`${ApiService.baseEndpoint}/deleteQuiz?id=${id}`, {
       method: 'POST'
+    });
+  };
+
+  static storeQuizScore = async (data: {
+    quizId: string;
+    score: number | string;
+  }) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeQuizScore`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static getQuiz = async (quizId: string | number) => {
+    return doFetch(`${ApiService.baseEndpoint}/getQuiz?id=${quizId}`, {
+      method: 'GET'
     });
   };
 }

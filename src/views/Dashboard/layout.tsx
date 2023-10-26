@@ -90,20 +90,6 @@ interface NavItemProps extends FlexProps {
 const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
   const { pathname } = useLocation();
 
-  const pathArray = split(path, '/');
-
-  // let isActive =
-  //   pathArray.length === 2 && path === pathname
-  //     ? includes(pathArray, 'dashboard')
-  //     : false;
-
-  // if (pathArray.length === 3 && path !== '/dashboard') {
-  //   isActive =
-  //     pathArray.length === 3
-  //       ? includes(pathname, last(pathArray))
-  //       : includes(pathname, pathArray[pathArray.length - 1]);
-  // }
-
   const isActive =
     pathname === path ||
     (pathname.startsWith(path) && path.split('/').length > 2);
