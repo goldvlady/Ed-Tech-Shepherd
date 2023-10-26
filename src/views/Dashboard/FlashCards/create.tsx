@@ -435,7 +435,7 @@ const CreateFlashPage = () => {
                 overflowY="scroll"
                 sx={{
                   '::-webkit-scrollbar': {
-                    width: '40px' // Set the width of the scrollbar
+                    width: '20px' // Set the width of the scrollbar
                   },
                   '::-webkit-scrollbar-thumb': {
                     background: '#E7E8E9', // Set the background color of the thumb
@@ -459,7 +459,7 @@ const CreateFlashPage = () => {
                 overflowY="scroll"
                 sx={{
                   '::-webkit-scrollbar': {
-                    width: '40px' // Set the width of the scrollbar
+                    width: '20px' // Set the width of the scrollbar
                   },
                   '::-webkit-scrollbar-thumb': {
                     background: '#E7E8E9', // Set the background color of the thumb
