@@ -108,9 +108,9 @@ const TextQuizForm = ({ addQuestion }) => {
       setIsLoading(true);
 
       const result = await ApiService.generateQuizQuestion(user._id, localData);
-      const { data } = await result.json();
+      const { quizzes } = await result.json();
 
-      addQuestion([...data.quizzes], 'multiple');
+      addQuestion([...quizzes], 'multiple');
 
       setLocalData(dummyData);
       toast({

@@ -731,10 +731,15 @@ class ApiService {
       topic: string;
     }
   ) => {
-    return doFetch(`${AI_API}/quizzes/students/${userId}`, {
-      method: 'POST',
-      body: JSON.stringify(data)
-    });
+    return doFetch(
+      `${AI_API}/quizzes/students/${userId}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      false,
+      { 'Content-Type': 'application/json' }
+    );
   };
 }
 
