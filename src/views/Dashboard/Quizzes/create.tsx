@@ -27,7 +27,7 @@ import {
   AlertStatus,
   ToastPosition
 } from '@chakra-ui/react';
-import { isEmpty, isNil, last, pull, union } from 'lodash';
+import { isEmpty, isNil, last, omit, pull, union } from 'lodash';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
@@ -38,7 +38,6 @@ const CreateQuizPage = () => {
   const { isLoading } = quizStore();
   const [isLoadingButton, setIsLoadingButton] = useState(false);
   const [quizId, setQuizId] = useState<string | null | undefined>(null);
-  // const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [openTags, setOpenTags] = useState<boolean>(false);
@@ -82,36 +81,20 @@ const CreateQuizPage = () => {
     setInputValue('');
   };
 
-  // useEffect(() => {
-  //   setQuestions([
-  //     {
-  //       question: 'question 1',
-  //       type: 'multipleChoiceSingle',
-  //       options: [
-  //         { content: 'option A', isCorrect: false },
-  //         { content: 'option B', isCorrect: false },
-  //         { content: 'option C', isCorrect: false },
-  //         { content: 'option D', isCorrect: true }
-  //       ]
-  //     },
-  //     {
-  //       question: 'question 2',
-  //       type: 'trueFalse',
-  //       options: [
-  //         { content: 'True', isCorrect: true },
-  //         { content: 'False', isCorrect: false }
-  //       ]
-  //     },
-  //     { question: 'question 3', type: 'openEnded', answer: '' }
-  //   ]);
-  // }, []);
+  const handleUpdateQuizQuestion = (index: number, question: QuizQuestion) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[index] = question;
+
+    setQuestions(updatedQuestions);
+  };
 
   useEffect(() => {
     const queryQuizId = searchParams.get('quiz_id');
 
     if (
-      !isEmpty(queryQuizId) ||
-      !isNil(queryQuizId) ||
+      !isEmpty(queryQuizId) &&
+      !isNil(queryQuizId) &&
+      queryQuizId !== null &&
       queryQuizId !== undefined
     ) {
       (async () => {
@@ -121,13 +104,10 @@ const CreateQuizPage = () => {
           const { data }: { data: QuizData } = await result.json();
 
           if (data) {
-            // setQuestion(data.question);
             setTitle(data.title);
             setTags(data.tags);
             setQuestions(data?.questions);
           }
-
-          console.log('getQuiz ---->> data ========>> ', data);
         } catch (error) {
           console.log('getQuiz Error =========>> ', error);
         }
@@ -147,26 +127,55 @@ const CreateQuizPage = () => {
 
   const handleOpenTagsModal = () => setOpenTags(true);
   const handleCreateQuiz = async () => {
-    setIsLoadingButton(true);
-    const result = await ApiService.createQuiz({
-      title,
-      questions,
-      tags
-    });
+    try {
+      setIsLoadingButton(true);
+      const result = await ApiService.createQuiz({
+        title,
+        questions,
+        tags
+      });
 
-    setIsLoadingButton(false);
+      const { data } = await result.json();
+      setQuizId(data?._id);
+      setTitle(data?.title);
+      setQuestions(data?.questions);
+      setTags(data?.tags);
+    } catch (error) {
+      console.log('handleUpdateQuiz -------->>> error ========>>> ', error);
+    } finally {
+      setIsLoadingButton(false);
+    }
   };
 
   const handleUpdateQuiz = async () => {
-    setIsLoadingButton(true);
-    await ApiService.updateQuiz(quizId as string, {
-      title,
-      questions,
-      tags
-    });
+    try {
+      setIsLoadingButton(true);
 
-    setIsLoadingButton(false);
-    window.location.reload();
+      const result = await ApiService.updateQuiz(quizId as string, {
+        title,
+        questions: questions.map((question) => {
+          return {
+            ...omit(question, ['_id']),
+            options: question?.options?.map((option) => {
+              return omit(option, ['_id']);
+            })
+          };
+        }) as any[],
+        tags
+      });
+      const { data } = await result.json();
+
+      setQuizId(data?._id);
+      setTitle(data?.title);
+      setQuestions(data?.questions);
+      setTags(data?.tags);
+
+      // window.location.reload();
+    } catch (error) {
+      console.log('handleUpdateQuiz -------->>> error ========>>> ', error);
+    } finally {
+      setIsLoadingButton(false);
+    }
   };
 
   return (
@@ -180,7 +189,6 @@ const CreateQuizPage = () => {
         flexWrap="wrap"
       >
         {isLoading && <LoaderOverlay />}
-        {/* <QuizModal isOpen={isOpen} onClose={onClose} /> */}
 
         <Box
           className="create-quiz-wrapper"
@@ -200,11 +208,13 @@ const CreateQuizPage = () => {
           >
             Create Quiz
           </Text>
-          <Tabs defaultIndex={3} isLazy isFitted position={'relative'}>
+          <Tabs defaultIndex={2} isLazy isFitted position={'relative'}>
             <TabList display="flex">
-              <Tab _selected={{ color: '#207DF7' }} flex="1">
-                Upload
-              </Tab>
+              {false && (
+                <Tab _selected={{ color: '#207DF7' }} flex="1">
+                  Upload
+                </Tab>
+              )}
               <Tab _selected={{ color: '#207DF7' }} flex="1">
                 Topic
               </Tab>
@@ -224,23 +234,16 @@ const CreateQuizPage = () => {
             />
 
             <TabPanels>
+              {false && (
+                <TabPanel>
+                  <UploadQuizForm addQuestion={addQuestion} />
+                </TabPanel>
+              )}
               <TabPanel>
-                <UploadQuizForm
-                  // openTags={handleOpenTagsModal}
-                  addQuestion={addQuestion}
-                />
+                <TopicQuizForm addQuestion={addQuestion} />
               </TabPanel>
               <TabPanel>
-                <TopicQuizForm
-                  // openTags={handleOpenTagsModal}
-                  addQuestion={addQuestion}
-                />
-              </TabPanel>
-              <TabPanel>
-                <TextQuizForm
-                  // openTags={handleOpenTagsModal}
-                  addQuestion={addQuestion}
-                />
+                <TextQuizForm addQuestion={addQuestion} />
               </TabPanel>
               <TabPanel>
                 <ManualQuizForm
@@ -268,6 +271,7 @@ const CreateQuizPage = () => {
             questions={questions}
             quizId={quizId as string}
             isLoadingButton={isLoadingButton}
+            handleUpdateQuizQuestion={handleUpdateQuizQuestion}
           />
         </Box>
       </Flex>

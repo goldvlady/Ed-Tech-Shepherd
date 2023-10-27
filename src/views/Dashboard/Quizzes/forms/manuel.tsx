@@ -1,4 +1,5 @@
 import TableTag from '../../../../components/CustomComponents/CustomTag';
+import SelectComponent, { Option } from '../../../../components/Select';
 import ApiService from '../../../../services/ApiService';
 import { QuizQuestion, QuizQuestionOption } from '../../../../types';
 import { useQuizState } from '../context';
@@ -13,7 +14,7 @@ import {
   Button
 } from '@chakra-ui/react';
 import { forEach, isEmpty, keys, omit, toLower, values } from 'lodash';
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 
 const ManualQuizForm = ({
   addQuestion,
@@ -67,7 +68,6 @@ const ManualQuizForm = ({
     >
   ) => {
     const { name, value } = e.target;
-
     setCurrentQuestion((prevQuestion) => ({
       ...prevQuestion,
       [name]: value
@@ -173,9 +173,23 @@ const ManualQuizForm = ({
     });
   };
 
-  // const handlePreviousQuestion = () => {
-  //   goToQuestion((prevIndex: number) => prevIndex - 1);
-  // };
+  const typeOptions = [
+    { label: 'Multiple Single Choice', value: 'multipleChoiceSingle' },
+    { label: 'True/False', value: 'trueFalse' },
+    { label: 'Open Ended', value: 'openEnded' }
+  ];
+
+  const trueFalseOptions = [
+    { label: 'True', value: true },
+    { label: 'False', value: false }
+  ];
+
+  const multipleChoiceSingleOptions = [
+    { label: 'Option A', value: 'optionA' },
+    { label: 'Option B', value: 'optionB' },
+    { label: 'Option C', value: 'optionC' },
+    { label: 'Option D', value: 'optionD' }
+  ];
 
   return (
     <Box width={'100%'} mt="20px" padding="0 10px">
@@ -212,20 +226,22 @@ const ManualQuizForm = ({
       </FormControl>
       <FormControl mb={4}>
         <FormLabel color={'text.500'}>Select question type:</FormLabel>
-        <Select
-          sx={{
-            padding: '8px'
-          }}
-          height={'48px'}
+
+        <SelectComponent
           name="type"
-          value={currentQuestion.type}
-          onChange={handleChangeQuestionType}
-          defaultValue="multipleChoiceSingle"
-        >
-          <option value="multipleChoiceSingle">Multiple Choice</option>
-          <option value="openEnded">Open Ended</option>
-          <option value="trueFalse">True/False</option>
-        </Select>
+          placeholder="Select Type"
+          options={typeOptions}
+          size={'md'}
+          onChange={(option) => {
+            const event = {
+              target: {
+                name: 'type',
+                value: (option as Option).value
+              }
+            } as ChangeEvent<HTMLSelectElement>;
+            handleChangeQuestionType(event);
+          }}
+        />
       </FormControl>
 
       <FormControl mb={4}>
@@ -266,37 +282,39 @@ const ManualQuizForm = ({
         <FormControl mb={4}>
           <FormLabel color={'text.500'}>Answer:</FormLabel>
           {currentQuestion.type === 'multipleChoiceSingle' && (
-            <Select
-              sx={{
-                padding: '8px'
-              }}
-              height={'48px'}
+            <SelectComponent
               name="answer"
               placeholder="Select answer"
-              value={currentQuestion.answer}
-              onChange={handleSetOptionAnswer}
-            >
-              <option value="optionA">Option A</option>
-              <option value="optionB">Option B</option>
-              <option value="optionC">Option C</option>
-              <option value="optionD">Option D</option>
-            </Select>
+              options={multipleChoiceSingleOptions}
+              size={'md'}
+              onChange={(option) => {
+                const event = {
+                  target: {
+                    name: 'answer',
+                    value: (option as Option).value
+                  }
+                } as ChangeEvent<HTMLSelectElement>;
+                handleSetOptionAnswer(event);
+              }}
+            />
           )}
 
           {currentQuestion.type === 'trueFalse' && (
-            <Select
-              sx={{
-                padding: '8px'
-              }}
-              height={'48px'}
+            <SelectComponent
               name="answer"
               placeholder="Select answer"
-              value={currentQuestion.answer}
-              onChange={handleSetOptionAnswer}
-            >
-              <option value="true">True</option>
-              <option value="false">False</option>
-            </Select>
+              options={trueFalseOptions}
+              size={'md'}
+              onChange={(option) => {
+                const event = {
+                  target: {
+                    name: 'answer',
+                    value: (option as Option).value
+                  }
+                } as ChangeEvent<HTMLSelectElement>;
+                handleSetOptionAnswer(event);
+              }}
+            />
           )}
           {currentQuestion.type === 'openEnded' && (
             <Textarea
