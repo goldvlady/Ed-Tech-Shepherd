@@ -14,6 +14,7 @@ import {
 
 class ApiService {
   static baseEndpoint = REACT_APP_API_ENDPOINT;
+  static baseAiEndpoint = AI_API;
 
   static processDocument = processDocument;
   static createDocchatFlashCards = createDocchatFlashCards;
@@ -717,6 +718,22 @@ class ApiService {
   static getQuiz = async (quizId: string | number) => {
     return doFetch(`${ApiService.baseEndpoint}/getQuiz?id=${quizId}`, {
       method: 'GET'
+    });
+  };
+
+  static generateQuizQuestion = async (
+    userId: string,
+    data: {
+      type: QuizQuestion['type'] | 'mixed';
+      count: number;
+      difficulty: QuizQuestion['difficulty'];
+      subject: string;
+      topic: string;
+    }
+  ) => {
+    return doFetch(`${AI_API}/quizzes/students/${userId}`, {
+      method: 'POST',
+      body: JSON.stringify(data)
     });
   };
 }

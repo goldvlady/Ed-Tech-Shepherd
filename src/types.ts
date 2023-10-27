@@ -463,7 +463,7 @@ export interface QuizQuestionOption {
 }
 
 export interface QuizQuestion {
-  type: string;
+  type: 'openEnded' | 'trueFalse' | 'multipleSingleChoice' | string;
   question: string;
   options?: QuizQuestionOption[];
   helperText?: string;
@@ -473,6 +473,13 @@ export interface QuizQuestion {
   currentStep?: number;
   totalSteps?: number;
   id?: string | number;
+  difficulty?:
+    | 'kindergarten'
+    | 'high school'
+    | 'college'
+    | 'PhD'
+    | 'genius'
+    | 'phd';
 }
 
 export interface QuizData {

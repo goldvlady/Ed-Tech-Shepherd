@@ -1,13 +1,11 @@
 import TableTag from '../../../../components/CustomComponents/CustomTag';
 import SelectComponent, { Option } from '../../../../components/Select';
-import ApiService from '../../../../services/ApiService';
 import { QuizQuestion, QuizQuestionOption } from '../../../../types';
 import { useQuizState } from '../context';
 import {
   Box,
   FormControl,
   FormLabel,
-  Select,
   Textarea,
   Input,
   HStack,

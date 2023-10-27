@@ -115,8 +115,18 @@ const CreateQuizPage = () => {
     }
   }, [searchParams]);
 
-  const addQuestion = (question: QuizQuestion) => {
-    setQuestions([...questions, question]);
+  const addQuestion = (
+    question: QuizQuestion | QuizQuestion[],
+    type: 'single' | 'multiple' = 'single'
+  ) => {
+    if (type === 'multiple')
+      return setQuestions((prevQuestions) => [
+        ...prevQuestions,
+        ...(question as QuizQuestion[])
+      ]);
+    setQuestions((prevQuestions) => {
+      return [...prevQuestions, question as QuizQuestion];
+    });
   };
 
   const handleRemoveTag = (idx: number, length = 1) => {

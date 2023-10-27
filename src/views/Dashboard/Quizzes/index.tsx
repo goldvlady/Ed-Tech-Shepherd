@@ -197,7 +197,11 @@ const Quizzes = () => {
       title: 'Quiz Name',
       dataIndex: 'title',
       key: 'title',
-      render: ({ title }) => <Text fontWeight="500">{title}</Text>
+      render: ({ title, key }) => (
+        <Text color="#207DF7" onClick={() => loadQuiz(key)} fontWeight="500">
+          {title}
+        </Text>
+      )
     },
 
     {

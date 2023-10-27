@@ -289,22 +289,18 @@ const PreviewQuizCard = ({
               <SelectComponent
                 name="answer"
                 placeholder="Select answer"
-                defaultValue={
-                  question.type === 'trueFalse'
-                    ? typeOptions.find((option) => {
-                        let selectedOption: any = false;
-                        forEach(question?.options, (item) => {
-                          if (
-                            toLower(option?.label) === toLower(item.content) &&
-                            item?.isCorrect === true
-                          ) {
-                            selectedOption = option;
-                          }
-                        });
-                        return selectedOption;
-                      })
-                    : false
-                }
+                defaultValue={typeOptions.find((option) => {
+                  let selectedOption: any = false;
+                  forEach(question?.options, (item) => {
+                    if (
+                      toLower(option?.label) === toLower(item.content) &&
+                      item?.isCorrect === true
+                    ) {
+                      selectedOption = option;
+                    }
+                  });
+                  return selectedOption;
+                })}
                 options={trueFalseOptions}
                 size={'md'}
                 onChange={(option) => {
