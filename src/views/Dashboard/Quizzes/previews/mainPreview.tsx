@@ -5,7 +5,14 @@ import {
   EditQuizIcon,
   DeleteQuizIcon
 } from '../../../../components/icons';
-import { QuizData, QuizQuestion, QuizQuestionOption } from '../../../../types';
+import {
+  MULTIPLE_CHOICE_SINGLE,
+  OPEN_ENDED,
+  QuizData,
+  QuizQuestion,
+  QuizQuestionOption,
+  TRUE_FALSE
+} from '../../../../types';
 import { CheckIcon, CloseIcon, AddIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -64,7 +71,7 @@ const PreviewQuizCard = ({
     const options = (() => {
       let options = [...question.options];
       const [_, index] = split(optionAnswer, ':');
-      if (type === 'trueFalse') {
+      if (type === TRUE_FALSE) {
         options = [
           { content: 'True', isCorrect: false },
           { content: 'False', isCorrect: false }
@@ -103,11 +110,11 @@ const PreviewQuizCard = ({
       type
     };
 
-    if (type === 'openEnded') {
+    if (type === OPEN_ENDED) {
       questionData.answer = answer;
     }
 
-    if (type !== 'openEnded') {
+    if (type !== OPEN_ENDED) {
       questionData.options = options;
     }
     handleUpdateQuizQuestion(index, questionData);
@@ -158,9 +165,9 @@ const PreviewQuizCard = ({
   }, [isEditable, question.type]);
 
   const typeOptions = [
-    { label: 'Multiple Single Choice', value: 'multipleChoiceSingle' },
-    { label: 'True/False', value: 'trueFalse' },
-    { label: 'Open Ended', value: 'openEnded' }
+    { label: 'Multiple Single Choice', value: MULTIPLE_CHOICE_SINGLE },
+    { label: 'True/False', value: TRUE_FALSE },
+    { label: 'Open Ended', value: OPEN_ENDED }
   ];
 
   const trueFalseOptions = [
@@ -221,7 +228,7 @@ const PreviewQuizCard = ({
         )}
         {!isEmpty(type) && !isNil(type) ? (
           <>
-            {type === 'multipleChoiceSingle' && (
+            {type === MULTIPLE_CHOICE_SINGLE && (
               <RadioGroup
                 onChange={(e) => {
                   setOptionAnswer(e);
@@ -285,7 +292,7 @@ const PreviewQuizCard = ({
               </RadioGroup>
             )}
 
-            {type === 'trueFalse' && (
+            {type === TRUE_FALSE && (
               <SelectComponent
                 name="answer"
                 placeholder="Select answer"
@@ -316,7 +323,7 @@ const PreviewQuizCard = ({
               />
             )}
 
-            {type === 'openEnded' && (
+            {type === OPEN_ENDED && (
               <Box mt={2} w={'100%'} mb="24px">
                 <Textarea
                   w={'100%'}
@@ -327,7 +334,7 @@ const PreviewQuizCard = ({
                   value={
                     !isEmpty(answer)
                       ? answer
-                      : question.type === 'openEnded'
+                      : question.type === OPEN_ENDED
                       ? question.answer
                       : ''
                   }
@@ -338,7 +345,7 @@ const PreviewQuizCard = ({
           </>
         ) : (
           <>
-            {question.type === 'multipleChoiceSingle' && (
+            {question.type === MULTIPLE_CHOICE_SINGLE && (
               <RadioGroup
                 onChange={(e) => {
                   setOptionAnswer(e);
@@ -382,7 +389,7 @@ const PreviewQuizCard = ({
                 </Stack>
               </RadioGroup>
             )}
-            {question.type === 'trueFalse' && (
+            {question.type === TRUE_FALSE && (
               <RadioGroup
                 onChange={(e) => {
                   setOptionAnswer(e);
@@ -426,7 +433,7 @@ const PreviewQuizCard = ({
                 </Stack>
               </RadioGroup>
             )}
-            {question.type === 'openEnded' && (
+            {question.type === OPEN_ENDED && (
               <Box mt={2} w={'100%'} mb="24px">
                 <Textarea
                   w={'100%'}
@@ -553,7 +560,7 @@ const QuizPreviewer = ({
             Review Your Quiz
           </Text>
           <HStack justifyContent={'flex-end'} alignItems={'center'}>
-            {!isEmpty(questions) && (
+            {!isNil(quizId) && !isEmpty(quizId) && (
               <Button
                 width={'140px'}
                 borderRadius="8px"
@@ -569,7 +576,7 @@ const QuizPreviewer = ({
               >
                 <LightningBoltIcon
                   className={'h-[20px] w-[20px] mx-2'}
-                  onClick={onOpen}
+                  onClick={() => ''}
                 />
                 Study
               </Button>

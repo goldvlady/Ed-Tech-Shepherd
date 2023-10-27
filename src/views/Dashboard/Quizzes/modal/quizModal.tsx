@@ -1,3 +1,4 @@
+import { MULTIPLE_CHOICE_SINGLE, TRUE_FALSE } from '../../../../types';
 import {
   Button,
   HStack,
@@ -50,7 +51,7 @@ export const QuizModal = ({
     </Box>
   );
 
-  if (questionType === 'multipleChoice') {
+  if (questionType === MULTIPLE_CHOICE_SINGLE) {
     inputs = (
       <RadioGroup onChange={() => ''} value={''} mb="24px">
         <Stack direction="column">
@@ -81,7 +82,7 @@ export const QuizModal = ({
     );
   }
 
-  if (questionType === 'trueFalse') {
+  if (questionType === TRUE_FALSE) {
     inputs = (
       <RadioGroup onChange={() => ''} value={''} mb="24px">
         <Stack direction="column">

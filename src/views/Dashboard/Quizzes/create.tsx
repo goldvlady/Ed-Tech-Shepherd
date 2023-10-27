@@ -35,7 +35,7 @@ const CreateQuizPage = () => {
   const TAG_TITLE = 'Tags Alert';
   const [searchParams] = useSearchParams();
   const toast = useCustomToast();
-  const { isLoading } = quizStore();
+  const { isLoading, loadQuiz, fetchQuizzes } = quizStore();
   const [isLoadingButton, setIsLoadingButton] = useState(false);
   const [quizId, setQuizId] = useState<string | null | undefined>(null);
 
@@ -138,6 +138,14 @@ const CreateQuizPage = () => {
   const handleOpenTagsModal = () => setOpenTags(true);
   const handleCreateQuiz = async () => {
     try {
+      if (isEmpty(title) || isNil(title)) {
+        toast({
+          position: 'top-right',
+          title: `quiz title missing`,
+          status: 'error'
+        });
+        return;
+      }
       setIsLoadingButton(true);
       const result = await ApiService.createQuiz({
         title,
@@ -152,8 +160,14 @@ const CreateQuizPage = () => {
       setTags(data?.tags);
     } catch (error) {
       console.log('handleUpdateQuiz -------->>> error ========>>> ', error);
+      toast({
+        position: 'top-right',
+        title: `failed to create quiz`,
+        status: 'error'
+      });
     } finally {
       setIsLoadingButton(false);
+      await fetchQuizzes();
     }
   };
 
@@ -185,8 +199,11 @@ const CreateQuizPage = () => {
       console.log('handleUpdateQuiz -------->>> error ========>>> ', error);
     } finally {
       setIsLoadingButton(false);
+      await fetchQuizzes();
     }
   };
+
+  const handleLoadQuiz = () => loadQuiz(quizId);
 
   return (
     <>
@@ -218,13 +235,12 @@ const CreateQuizPage = () => {
           >
             Create Quiz
           </Text>
-          <Tabs defaultIndex={2} isLazy isFitted position={'relative'}>
+          <Tabs defaultIndex={3} isLazy isFitted position={'relative'}>
             <TabList display="flex">
-              {false && (
-                <Tab _selected={{ color: '#207DF7' }} flex="1">
-                  Upload
-                </Tab>
-              )}
+              <Tab _selected={{ color: '#207DF7' }} flex="1">
+                Upload
+              </Tab>
+
               <Tab _selected={{ color: '#207DF7' }} flex="1">
                 Topic
               </Tab>
@@ -244,16 +260,24 @@ const CreateQuizPage = () => {
             />
 
             <TabPanels>
-              {false && (
-                <TabPanel>
-                  <UploadQuizForm addQuestion={addQuestion} />
-                </TabPanel>
-              )}
               <TabPanel>
-                <TopicQuizForm addQuestion={addQuestion} />
+                <UploadQuizForm
+                  addQuestion={addQuestion}
+                  handleSetTitle={handleSetTitle}
+                />
+              </TabPanel>
+
+              <TabPanel>
+                <TopicQuizForm
+                  addQuestion={addQuestion}
+                  handleSetTitle={handleSetTitle}
+                />
               </TabPanel>
               <TabPanel>
-                <TextQuizForm addQuestion={addQuestion} />
+                <TextQuizForm
+                  addQuestion={addQuestion}
+                  handleSetTitle={handleSetTitle}
+                />
               </TabPanel>
               <TabPanel>
                 <ManualQuizForm
@@ -276,6 +300,7 @@ const CreateQuizPage = () => {
           borderLeft="1px solid #E7E8E9"
         >
           <QuizPreviewer
+            onOpen={handleLoadQuiz}
             createQuiz={handleCreateQuiz}
             updateQuiz={handleUpdateQuiz}
             questions={questions}
@@ -297,18 +322,18 @@ const CreateQuizPage = () => {
           tags={[]}
           inputValue={inputValue}
           handleAddTag={() => {
-            if (newTags.length <= 10) {
+            if (newTags?.length <= 10) {
               handleAddTag();
             }
           }}
           newTags={newTags}
           setNewTags={(tag) => {
-            if (newTags.length <= 10) {
+            if (newTags?.length <= 10) {
               setNewTags(tag);
             }
           }}
           setInputValue={(value) => {
-            if (newTags.length <= 10) {
+            if (newTags?.length <= 10) {
               setInputValue(value);
             }
           }}

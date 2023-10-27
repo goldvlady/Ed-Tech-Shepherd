@@ -1,6 +1,7 @@
 import { LightningBoltIcon, TakeQuizIcon } from '../../components/icons';
 import ApiService from '../../services/ApiService';
 import quizStore from '../../state/quizStore';
+import { MULTIPLE_CHOICE_SINGLE, OPEN_ENDED, TRUE_FALSE } from '../../types';
 import { QuestionOutlineIcon } from '@chakra-ui/icons';
 import {
   Button,
@@ -19,12 +20,139 @@ import {
   Stack,
   Radio,
   Textarea,
-  Input
+  Input,
+  Tag,
+  TagLeftIcon,
+  TagLabel
 } from '@chakra-ui/react';
 import { isEmpty, split, toLower, toNumber } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { IoCheckmarkDone, IoCloseOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router';
+
+const QuizLandingFooter = ({
+  showMinimize = false,
+  onMinimize
+}: {
+  showMinimize?: boolean;
+  onMinimize?: () => void;
+}) => {
+  const { loadQuiz, quiz } = quizStore();
+
+  const renderTag = () => {
+    return [...(quiz?.tags || [])].splice(0, 3).map((tag) => (
+      <Tag
+        width={'fit-content'}
+        maxWidth={'fit-content'}
+        key={tag}
+        borderRadius="5"
+        marginRight="10px"
+        background="#f7f8fa"
+        size="md"
+      >
+        <TagLeftIcon>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            width="25px"
+            height="25px"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"
+            />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 6h.008v.008H6V6z"
+            />
+          </svg>
+        </TagLeftIcon>
+        <TagLabel
+          whiteSpace={'nowrap'}
+          overflow="visible" // Allows text to overflow
+          textOverflow="clip"
+        >
+          {tag?.toLowerCase()}
+        </TagLabel>
+      </Tag>
+    ));
+  };
+  return (
+    <Box
+      display="flex"
+      alignItems="center"
+      background="transparent"
+      width={'100%'}
+      borderTop="1px solid #eee"
+      p={4}
+      justifyContent={'space-between'}
+    >
+      <Box>{renderTag()}</Box>
+      <Box>
+        {showMinimize && (
+          <Button
+            variant="ghost"
+            rounded="100%"
+            padding="5px"
+            bg="#FFEFE6"
+            mr="10px"
+            _hover={{ bg: '#FFEFE6', transform: 'scale(1.05)' }}
+            color="black"
+            onClick={() => {
+              onMinimize && onMinimize();
+            }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              width={'15px'}
+              height={'15px'}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19.5 12h-15"
+              />
+            </svg>
+          </Button>
+        )}
+        <Button
+          variant="ghost"
+          rounded="100%"
+          padding="10px"
+          bg="#FEECEC"
+          onClick={() => loadQuiz(null)}
+          _hover={{ bg: '#FEECEC', transform: 'scale(1.05)' }}
+          color="black"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            width={'15px'}
+            height={'15px'}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </Button>
+      </Box>
+    </Box>
+  );
+};
 
 const QuizLanding = ({
   startQuiz = () => null,
@@ -105,6 +233,10 @@ const QuizLanding = ({
             />
             Study
           </Button>
+        </HStack>
+
+        <HStack alignItems={'flex-end'}>
+          <QuizLandingFooter />
         </HStack>
       </VStack>
     </Box>
@@ -189,7 +321,7 @@ const QuizCard = ({
     </>
   );
 
-  if (type === 'multipleChoiceSingle') {
+  if (type === MULTIPLE_CHOICE_SINGLE) {
     inputs = (
       <RadioGroup
         onChange={(e) => {
@@ -257,7 +389,7 @@ const QuizCard = ({
     );
   }
 
-  if (type === 'trueFalse') {
+  if (type === TRUE_FALSE) {
     inputs = (
       <RadioGroup
         onChange={(e) => {
@@ -362,7 +494,7 @@ const QuizCard = ({
         mt={'64px'}
         minH={'40px'}
       >
-        {type === 'openEnded' && showAnswer && (
+        {type === OPEN_ENDED && showAnswer && (
           <HStack>
             <Button
               w={'184px'}

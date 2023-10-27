@@ -1,5 +1,10 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
+export const MULTIPLE_CHOICE_SINGLE = 'multipleChoiceSingle';
+export const TRUE_FALSE = 'trueFalse';
+export const OPEN_ENDED = 'openEnded';
+export const MIXED = 'mixed';
+
 export type Entity = {
   _id: string;
 };

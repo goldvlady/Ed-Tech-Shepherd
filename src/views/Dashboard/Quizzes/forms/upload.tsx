@@ -1,5 +1,10 @@
 import { UploadIcon, WardIcon } from '../../../../components/icons';
-import { QuizQuestion } from '../../../../types';
+import {
+  MULTIPLE_CHOICE_SINGLE,
+  OPEN_ENDED,
+  QuizQuestion,
+  TRUE_FALSE
+} from '../../../../types';
 import { useQuizState } from '../context';
 import { QuestionIcon } from '@chakra-ui/icons';
 import {
@@ -19,7 +24,7 @@ import { useEffect, useState } from 'react';
 
 // DownloadIcon
 
-const UploadQuizForm = ({ addQuestion }) => {
+const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
   const {
     quizData,
     goToNextStep,
@@ -30,7 +35,7 @@ const UploadQuizForm = ({ addQuestion }) => {
   } = useQuizState();
 
   const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion>({
-    type: 'multipleChoiceSingle', //default question type option
+    type: MULTIPLE_CHOICE_SINGLE, //default question type option
     question: '',
     options: [],
     answer: ''
@@ -136,9 +141,9 @@ const UploadQuizForm = ({ addQuestion }) => {
           onChange={handleChangeQuestionType}
           textColor={'text.700'}
         >
-          <option value="multipleChoiceSingle">Multiple Choice</option>
-          <option value="openEnded">Open Ended</option>
-          <option value="trueFalse">True/False</option>
+          <option value={MULTIPLE_CHOICE_SINGLE}>Multiple Choice</option>
+          <option value={OPEN_ENDED}>Open Ended</option>
+          <option value={TRUE_FALSE}>True/False</option>
         </Select>
       </FormControl>
 

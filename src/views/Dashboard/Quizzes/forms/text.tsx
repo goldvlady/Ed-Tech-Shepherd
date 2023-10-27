@@ -3,26 +3,31 @@ import SelectComponent, { Option } from '../../../../components/Select';
 import { WardIcon } from '../../../../components/icons';
 import ApiService from '../../../../services/ApiService';
 import userStore from '../../../../state/userStore';
-import { QuizQuestion } from '../../../../types';
-import { useQuizState } from '../context';
+import {
+  MIXED,
+  MULTIPLE_CHOICE_SINGLE,
+  OPEN_ENDED,
+  TRUE_FALSE
+} from '../../../../types';
+// import { QuizQuestion } from '../../../../types';
+// import { useQuizState } from '../context';
 import { QuestionIcon } from '@chakra-ui/icons';
 import {
   Box,
   FormControl,
   FormLabel,
-  Select,
   Input,
   HStack,
   Button,
   Textarea,
   Tooltip
 } from '@chakra-ui/react';
-import { isEmpty } from 'lodash';
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { isEmpty, includes, isNil, map, toNumber } from 'lodash';
+import { ChangeEvent, useCallback, useState } from 'react';
 
 // DownloadIcon
 
-const TextQuizForm = ({ addQuestion }) => {
+const TextQuizForm = ({ addQuestion, handleSetTitle }) => {
   const toast = useCustomToast();
   const { user } = userStore();
   const [isLoading, setIsLoading] = useState(false);
@@ -42,10 +47,10 @@ const TextQuizForm = ({ addQuestion }) => {
   ];
 
   const typeOptions = [
-    { label: 'Multiple Single Choice', value: 'multipleChoiceSingle' },
-    { label: 'True/False', value: 'trueFalse' },
-    { label: 'Open Ended', value: 'openEnded' },
-    { label: 'Mixed', value: 'mixed' }
+    { label: 'Multiple Single Choice', value: MULTIPLE_CHOICE_SINGLE },
+    { label: 'True/False', value: TRUE_FALSE },
+    { label: 'Open Ended', value: OPEN_ENDED },
+    { label: 'Mixed', value: MIXED }
   ];
 
   // const { goToQuestion, currentQuestionIndex, questions } = useQuizState();
@@ -107,10 +112,50 @@ const TextQuizForm = ({ addQuestion }) => {
     try {
       setIsLoading(true);
 
-      const result = await ApiService.generateQuizQuestion(user._id, localData);
+      const result = await ApiService.generateQuizQuestion(user._id, {
+        ...localData,
+        count: toNumber(localData.count)
+      });
       const { quizzes } = await result.json();
 
-      addQuestion([...quizzes], 'multiple');
+      // addQuestion([...quizzes], 'multiple');
+      addQuestion(
+        map([...quizzes], (quiz) => {
+          let type = quiz?.type;
+
+          if (isNil(type) || isEmpty(type)) {
+            if (!isNil(quiz?.options) || !isEmpty(quiz?.options)) {
+              if (quiz?.options?.length < 3) {
+                type = TRUE_FALSE;
+              } else {
+                type = MULTIPLE_CHOICE_SINGLE;
+              }
+            } else {
+              if (!isEmpty(quiz?.answer) || !isNil(quiz?.answer)) {
+                type = OPEN_ENDED;
+              }
+            }
+          } else {
+            if (includes(MULTIPLE_CHOICE_SINGLE, type)) {
+              type = MULTIPLE_CHOICE_SINGLE;
+            }
+            if (includes(TRUE_FALSE, type)) {
+              type = TRUE_FALSE;
+            }
+            if (includes(OPEN_ENDED, type)) {
+              type = OPEN_ENDED;
+            }
+          }
+
+          handleSetTitle(localData?.topic);
+
+          return {
+            ...quiz,
+            type
+          };
+        }),
+        'multiple'
+      );
 
       setLocalData(dummyData);
       toast({
@@ -298,10 +343,7 @@ const TextQuizForm = ({ addQuestion }) => {
           }
           isLoading={isLoading}
         >
-          <WardIcon
-            className={'h-[20px] w-[20px] mx-2'}
-            onClick={handleGenerateQuestions}
-          />
+          <WardIcon className={'h-[20px] w-[20px] mx-2'} onClick={() => ''} />
           Generate
         </Button>
         )

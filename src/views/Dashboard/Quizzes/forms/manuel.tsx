@@ -1,6 +1,12 @@
 import TableTag from '../../../../components/CustomComponents/CustomTag';
 import SelectComponent, { Option } from '../../../../components/Select';
-import { QuizQuestion, QuizQuestionOption } from '../../../../types';
+import {
+  MULTIPLE_CHOICE_SINGLE,
+  OPEN_ENDED,
+  QuizQuestion,
+  QuizQuestionOption,
+  TRUE_FALSE
+} from '../../../../types';
 import { useQuizState } from '../context';
 import {
   Box,
@@ -31,7 +37,7 @@ const ManualQuizForm = ({
       options?: Record<string, QuizQuestionOption> | QuizQuestionOption[];
     }
   >({
-    type: 'multipleChoiceSingle', //default question type option
+    type: MULTIPLE_CHOICE_SINGLE, //default question type option
     question: '',
     options: {},
     answer: ''
@@ -42,13 +48,13 @@ const ManualQuizForm = ({
   useEffect(() => {
     if (questions[currentQuestionIndex]) {
       const options = {};
-      if (questions[currentQuestionIndex].type === 'trueFalse') {
+      if (questions[currentQuestionIndex].type === TRUE_FALSE) {
         forEach(questions[currentQuestionIndex].options, (option) => {
           const { content } = option;
           options[toLower(content)] = option;
         });
       }
-      if (questions[currentQuestionIndex].type === 'multipleChoiceSingle') {
+      if (questions[currentQuestionIndex].type === MULTIPLE_CHOICE_SINGLE) {
         forEach(questions[currentQuestionIndex].options, (option, index) => {
           options[`option${String.fromCharCode(65 + index)}`] = option;
         });
@@ -99,7 +105,7 @@ const ManualQuizForm = ({
 
     setTimeout(() => {
       setCurrentQuestion({
-        type: 'multipleChoiceSingle',
+        type: MULTIPLE_CHOICE_SINGLE,
         question: '',
         options: {},
         answer: ''
@@ -172,9 +178,9 @@ const ManualQuizForm = ({
   };
 
   const typeOptions = [
-    { label: 'Multiple Single Choice', value: 'multipleChoiceSingle' },
-    { label: 'True/False', value: 'trueFalse' },
-    { label: 'Open Ended', value: 'openEnded' }
+    { label: 'Multiple Single Choice', value: MULTIPLE_CHOICE_SINGLE },
+    { label: 'True/False', value: TRUE_FALSE },
+    { label: 'Open Ended', value: OPEN_ENDED }
   ];
 
   const trueFalseOptions = [
@@ -254,7 +260,7 @@ const ManualQuizForm = ({
       </FormControl>
       <>
         {!isEmpty(currentQuestion.question) &&
-          currentQuestion.type === 'multipleChoiceSingle' &&
+          currentQuestion.type === MULTIPLE_CHOICE_SINGLE &&
           Array.from({ length: 4 }).map((_, index) => (
             <FormControl key={index} mb={4}>
               <FormLabel>{`Option ${String.fromCharCode(
@@ -279,7 +285,7 @@ const ManualQuizForm = ({
       {!isEmpty(currentQuestion.question) && currentQuestion.type && (
         <FormControl mb={4}>
           <FormLabel color={'text.500'}>Answer:</FormLabel>
-          {currentQuestion.type === 'multipleChoiceSingle' && (
+          {currentQuestion.type === MULTIPLE_CHOICE_SINGLE && (
             <SelectComponent
               name="answer"
               placeholder="Select answer"
@@ -297,7 +303,7 @@ const ManualQuizForm = ({
             />
           )}
 
-          {currentQuestion.type === 'trueFalse' && (
+          {currentQuestion.type === TRUE_FALSE && (
             <SelectComponent
               name="answer"
               placeholder="Select answer"
@@ -314,7 +320,7 @@ const ManualQuizForm = ({
               }}
             />
           )}
-          {currentQuestion.type === 'openEnded' && (
+          {currentQuestion.type === OPEN_ENDED && (
             <Textarea
               _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
               name="answer"
@@ -361,7 +367,7 @@ const ManualQuizForm = ({
           colorScheme="primary"
           onClick={openTags}
           ml={5}
-          isDisabled={isEmpty(title) || tags.length >= 10}
+          isDisabled={isEmpty(title) || tags?.length >= 10}
           isLoading={isLoadingButton}
         >
           Add Tags
