@@ -10,6 +10,10 @@ export const Form = styled.form<{ isHomeWorkHelp?: boolean }>`
   right: 0;
   border-left: 1px solid #eeeff2;
   background: white;
+
+  @media only screen and (max-width: 768px) {
+    width: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? '100%' : '100%')};
+  }
 `;
 
 export const Wrapper = styled.div`
@@ -30,6 +34,10 @@ export const ContentWrapper = styled.div`
 export const InnerWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  overflow-y: scroll;
+  position: fixed;
+  // bottom: 148px;
+  height: 37em;
 `;
 
 export const ChatContainer = styled.div`
@@ -56,11 +64,16 @@ export const GridContainer = styled.div<{ isHomeWorkHelp?: boolean }>`
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: 0.5rem;
-  position: fixed;
+  // position: fixed;
   top: 300px;
   height: 100%;
-  width: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? '55%' : '40.7%')};
-  // width: -moz-available;
+  width: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? '100%' : '100%')};
+  width: -moz-available;
+  max-height: 45vh;
+
+  @media only screen and (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 export const GridItem = styled.div`
@@ -77,6 +90,10 @@ export const GridItem = styled.div`
   font-weight: lighter;
   place-content: center;
   z-index: 9999;
+
+  @media only screen and (max-width: 768px) {
+    margin: 0.5rem;
+  }
 `;
 
 export const FlexContainer = styled.div`
@@ -111,18 +128,28 @@ export const StyledText = styled(Text)`
   grid-column-end: 13;
   font-size: 0.875rem;
   font-weight: 600;
+
+  @media only screen and (max-width: 768px) {
+    font-size: 0.75rem;
+  }
 `;
 
 export const OptionsContainer = styled.div`
   display: flex;
   flex-direction: column;
   grid-column: span 12;
-  padding: 0.75rem 0.375rem;
+  padding: 0.875rem 0.375rem;
   height: 6rem;
   border-radius: 0.375rem;
   justify-content: space-between;
   margin-left: 1.75rem;
   font-size: 0.875rem;
+
+  @media only screen and (max-width: 768px) {
+    margin-left: 0;
+    padding: 10px 10px;
+    gap: 15px;
+  }
 `;
 
 export const PillsContainer = styled.div`
@@ -130,6 +157,11 @@ export const PillsContainer = styled.div`
   flex-direction: row;
   align-items: center;
   gap: 10px;
+
+  @media only screen and (max-width: 768px) {
+    display: flex;
+    flex-wrap: wrap;
+  }
 `;
 
 export const StyledDiv = styled.div<{
@@ -151,6 +183,10 @@ export const StyledDiv = styled.div<{
   }
   > p {
     margin-left: 10px;
+  }
+
+  @media only screen and (max-width: 768px) {
+    margin-bottom: 15px;
   }
 `;
 
@@ -178,6 +214,9 @@ export const InputContainer = styled.div`
   // width: 100%;
   position: fixed;
   width: -webkit-fill-available;
+  width: intrinsic; /* Safari/WebKit uses a non-standard name */
+  width: -moz-max-content; /* Firefox/Gecko */
+  width: -moz-available;
   bottom: 0;
   background: rgb(249, 249, 251);
   padding: 10px;
@@ -198,6 +237,10 @@ export const Input = styled.textarea`
   &::placeholder {
     font-size: 0.75rem;
   }
+
+  @media only screen and (max-width: 768px) {
+    width: 85%;
+  }
 `;
 
 export const SendButton = styled.button`
@@ -213,10 +256,16 @@ export const SendButton = styled.button`
   &:hover {
     color: #4a5568;
   }
+
+  @media only screen and (max-width: 768px) {
+    width: 9.45rem;
+    right: 15px;
+    top: -17px;
+  }
 `;
 
 export const ClockButton = styled.button`
-  display: flex;
+  // display: flex;
   align-items: center;
   justify-content: center;
   background-color: #cbd5e0;
@@ -227,6 +276,16 @@ export const ClockButton = styled.button`
   color: #ffffff;
   padding: 0.5rem 1rem;
   flex-shrink: 0;
+  position: absolute;
+  bottom: 94px;
+  right: 12px;
+  display:none
+  // bottom: -731px;
+  // right: 6px
+
+  @media only screen and (max-width: 768px) {
+    display: block;
+  }
 `;
 
 export const SummaryContainer = styled.div`
@@ -334,14 +393,15 @@ export const ChatContainerResponse = styled.div<{ messages: any }>`
   // height: -webkit-fill-available; /* For Safari */
   width: 100%; /* fallback for browsers not supporting -webkit-fill-available */
   width: -webkit-fill-available;
+  width: -moz-available;
   z-index: ${({ messages }) => (messages ? '10' : '-1')};
   width: -moz-available;
   /* Scrollable content */
-  overflow-y: scroll;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  // overflow-y: scroll;
+  // scrollbar-width: thin;
+  // scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
   z-index: 1;
-  padding-bottom: 440px;
+  // padding-bottom: 440px;
 
   /* Custom styling for the scrollbar - for Webkit browsers */
   ::-webkit-scrollbar {
@@ -355,6 +415,13 @@ export const ChatContainerResponse = styled.div<{ messages: any }>`
   ::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.2);
     border-radius: 3px;
+  }
+
+  @media only screen and (max-width: 768px) {
+    margin-top: 8px;
+    margin-bottom: 96px;
+    margin-left: 17px;
+    margin-right: 17px;
   }
 `;
 
@@ -370,6 +437,10 @@ export const UserMessage = styled.div`
   border-radius: 10px;
   min-width: auto;
   max-width: 439px;
+
+  @media only screen and (max-width: 768px) {
+    font-size: 0.75rem;
+  }
 `;
 
 export const AiMessage = styled.div`
@@ -382,6 +453,10 @@ export const AiMessage = styled.div`
   border-radius: 10px;
   max-width: 439px;
   min-width: auto;
+
+  @media only screen and (max-width: 768px) {
+    font-size: 0.75rem;
+  }
 `;
 
 export const StyledPromptContainer = styled.div`
@@ -406,7 +481,7 @@ export const StyledPrompt = styled.div`
   border-radius: 9999px;
   padding: 0.5rem 0.75rem;
   margin-bottom: 0.5rem;
-  margin-right: 0.25rem;
+  margin-right: 0.825rem;
   cursor: pointer;
 
   &:hover {
@@ -484,6 +559,10 @@ export const ChatHistoryHeader = styled.div`
     font-weight: 500;
     cursor: pointer;
   }
+
+  @media only screen and (max-width: 768px) {
+    width: 86%;
+  }
 `;
 
 export const AskSomethingContainer = styled.div`
@@ -496,6 +575,10 @@ export const AskSomethingContainer = styled.div`
   border-radius: 8px;
   margin-left: 1.75rem;
   font-size: 0.875rem;
+
+  @media only screen and (max-width: 768px) {
+    margin-left: 0.75rem;
+  }
 `;
 
 export const AskSomethingPill = styled.div`
@@ -550,6 +633,8 @@ export const EmptyStateContainer = styled.div`
   flex-direction: column;
   align-items: center;
   margin: 200px 0;
+  text-align: -moz-center;
+  text-align: center;
 
   p {
     margin-top: 20px;
@@ -580,11 +665,17 @@ export const DownPillContainer = styled.div`
   border-radius: 0.375rem;
   -webkit-box-pack: justify;
   justify-content: space-between;
-  padding-left: 1.75rem;
+  padding-left: 0.825rem;
   font-size: 0.875rem;
   bottom: 55px;
   width: 100%;
   background: white;
+
+  @media only screen and (max-width: 768px) {
+    height: auto;
+    padding-left: 0.75rem;
+    bottom: 56px;
+  }
 `;
 
 export const HomeWorkHelpChatContainer2 = styled.textarea`
@@ -598,4 +689,10 @@ export const HomeWorkHelpChatContainer2 = styled.textarea`
   width: -webkit-fill-available;
   height: 10vh;
   border: none;
+`;
+
+export const TempPDF = styled.div`
+  display: block @media only screen and (max-width: 768px) {
+    display: none;
+  }
 `;

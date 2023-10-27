@@ -435,10 +435,16 @@ const CreateFlashPage = () => {
                 overflowY="scroll"
                 sx={{
                   '::-webkit-scrollbar': {
-                    display: 'none'
+                    width: '10px',
+                    cursor: 'pointer' // Set the width of the scrollbar
                   },
-                  'scrollbar-width': 'none',
-                  '-ms-overflow-style': 'none'
+                  '::-webkit-scrollbar-thumb': {
+                    background: '#E7E8E9', // Set the background color of the thumb
+                    borderRadius: '16px' // Set the border radius of the thumb
+                  },
+                  '::-webkit-scrollbar-track': {
+                    background: 'transparent' // Set the background color of the track
+                  }
                 }}
               >
                 {form}
@@ -454,10 +460,16 @@ const CreateFlashPage = () => {
                 overflowY="scroll"
                 sx={{
                   '::-webkit-scrollbar': {
-                    display: 'none'
+                    width: '10px',
+                    cursor: 'pointer' // Set the width of the scrollbar
                   },
-                  'scrollbar-width': 'none',
-                  '-ms-overflow-style': 'none'
+                  '::-webkit-scrollbar-thumb': {
+                    background: '#E7E8E9', // Set the background color of the thumb
+                    borderRadius: '16px' // Set the border radius of the thumb
+                  },
+                  '::-webkit-scrollbar-track': {
+                    background: 'transparent' // Set the background color of the track
+                  }
                 }}
               >
                 {renderPreview()}
