@@ -422,7 +422,7 @@ const HomeWorkHelp = () => {
         `${window.location.href}`
       );
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 

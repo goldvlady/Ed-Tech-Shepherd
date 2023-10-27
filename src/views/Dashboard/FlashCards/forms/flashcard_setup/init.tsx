@@ -1,5 +1,4 @@
 import { useCustomToast } from '../../../../../components/CustomComponents/CustomToast/useCustomToast';
-import CustomSelect from '../../../../../components/CustomSelect';
 import SelectComponent, { Option } from '../../../../../components/Select';
 import { useFlashcardWizard } from '../../context/flashcard';
 import {
@@ -59,6 +58,13 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     }
     // eslint-disable-next-line
   }, []);
+
+  useEffect(() => {
+    if (!localData.deckname) {
+      setLocalData(flashcardData);
+    }
+    // eslint-disable-next-line
+  }, [flashcardData]);
 
   const studyPeriodOptions = [
     { label: 'Daily', value: 'daily' },
