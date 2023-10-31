@@ -435,15 +435,25 @@ const CreateFlashPage = () => {
                 overflowY="scroll"
                 sx={{
                   '::-webkit-scrollbar': {
-                    width: '10px',
-                    cursor: 'pointer' // Set the width of the scrollbar
+                    width: '4px',
+                    cursor: 'pointer',
+                    transition: 'opacity 0.3s ease-in-out',
+                    opacity: 0 // Initially set the opacity to 0
                   },
                   '::-webkit-scrollbar-thumb': {
-                    background: '#E7E8E9', // Set the background color of the thumb
-                    borderRadius: '16px' // Set the border radius of the thumb
+                    background: '#E7E8E9',
+                    borderRadius: '16px',
+                    cursor: 'pointer',
+                    transition: 'background 0.3s ease-in-out'
                   },
                   '::-webkit-scrollbar-track': {
-                    background: 'transparent' // Set the background color of the track
+                    background: 'transparent',
+                    cursor: 'pointer'
+                  },
+                  '&:hover': {
+                    '::-webkit-scrollbar': {
+                      opacity: 1 // Set the opacity to 1 on hover
+                    }
                   }
                 }}
               >
@@ -460,15 +470,25 @@ const CreateFlashPage = () => {
                 overflowY="scroll"
                 sx={{
                   '::-webkit-scrollbar': {
-                    width: '10px',
-                    cursor: 'pointer' // Set the width of the scrollbar
+                    width: '4px',
+                    cursor: 'pointer',
+                    transition: 'opacity 0.3s ease-in-out',
+                    opacity: 0 // Initially set the opacity to 0
                   },
                   '::-webkit-scrollbar-thumb': {
-                    background: '#E7E8E9', // Set the background color of the thumb
-                    borderRadius: '16px' // Set the border radius of the thumb
+                    background: '#E7E8E9',
+                    borderRadius: '16px',
+                    cursor: 'pointer',
+                    transition: 'background 0.3s ease-in-out'
                   },
                   '::-webkit-scrollbar-track': {
-                    background: 'transparent' // Set the background color of the track
+                    background: 'transparent',
+                    cursor: 'pointer'
+                  },
+                  '&:hover': {
+                    '::-webkit-scrollbar': {
+                      opacity: 1 // Set the opacity to 1 on hover
+                    }
                   }
                 }}
               >
