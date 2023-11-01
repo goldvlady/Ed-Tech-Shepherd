@@ -29,7 +29,7 @@ import {
   InputLeftElement,
   InputGroup
 } from '@chakra-ui/react';
-import { isEmpty, isNil, map, split, toLower, values } from 'lodash';
+import { isArray, isEmpty, isNil, map, split, toLower, values } from 'lodash';
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { IoTrashOutline, IoDuplicateOutline } from 'react-icons/io5';
@@ -390,38 +390,39 @@ const PreviewQuizCard = ({
                 mb="24px"
               >
                 <Stack direction="column">
-                  {question?.options?.map((option, optionIndex) => (
-                    <Box
-                      key={optionIndex}
-                      display={'flex'}
-                      flexDirection={'row'}
-                      alignItems={'center'}
-                    >
-                      <label
-                        className="font-[Inter] text-dark font-[400] text-[14px] leading-[20px]  flex justify-center items-center cursor-pointer"
-                        htmlFor={`option${optionIndex}`}
+                  {isArray(question?.options) &&
+                    question?.options?.map((option, optionIndex) => (
+                      <Box
+                        key={optionIndex}
+                        display={'flex'}
+                        flexDirection={'row'}
+                        alignItems={'center'}
                       >
-                        <Radio
-                          value={
-                            !isEmpty(optionAnswer)
-                              ? optionAnswer === `option:${optionIndex}`
+                        <label
+                          className="font-[Inter] text-dark font-[400] text-[14px] leading-[20px]  flex justify-center items-center cursor-pointer"
+                          htmlFor={`option${optionIndex}`}
+                        >
+                          <Radio
+                            value={
+                              !isEmpty(optionAnswer)
+                                ? optionAnswer === `option:${optionIndex}`
+                                  ? '1'
+                                  : `option:${optionIndex}`
+                                : option?.isCorrect
                                 ? '1'
                                 : `option:${optionIndex}`
-                              : option?.isCorrect
-                              ? '1'
-                              : `option:${optionIndex}`
-                          }
-                          type="radio"
-                          id={`option${optionIndex}`}
-                          name={`option:${optionIndex}`}
-                          mr={1}
-                          isDisabled={!isEditable}
-                        />
+                            }
+                            type="radio"
+                            id={`option${optionIndex}`}
+                            name={`option:${optionIndex}`}
+                            mr={1}
+                            isDisabled={!isEditable}
+                          />
 
-                        {option?.content}
-                      </label>
-                    </Box>
-                  ))}
+                          {option?.content}
+                        </label>
+                      </Box>
+                    ))}
                 </Stack>
               </RadioGroup>
             )}
@@ -434,38 +435,39 @@ const PreviewQuizCard = ({
                 mb="24px"
               >
                 <Stack direction="column">
-                  {question?.options?.map((option, optionIndex) => (
-                    <Box
-                      key={optionIndex}
-                      display={'flex'}
-                      flexDirection={'row'}
-                      alignItems={'center'}
-                    >
-                      <label
-                        className="font-[Inter] text-dark font-[400] text-[14px] leading-[20px] flex justify-center items-center cursor-pointer"
-                        htmlFor={`${toLower(option.content)}-${optionIndex}`}
+                  {isArray(question?.options) &&
+                    question?.options?.map((option, optionIndex) => (
+                      <Box
+                        key={optionIndex}
+                        display={'flex'}
+                        flexDirection={'row'}
+                        alignItems={'center'}
                       >
-                        <Radio
-                          value={
-                            !isEmpty(trueFalseAnswer)
-                              ? trueFalseAnswer === `option:${optionIndex}`
+                        <label
+                          className="font-[Inter] text-dark font-[400] text-[14px] leading-[20px] flex justify-center items-center cursor-pointer"
+                          htmlFor={`${toLower(option.content)}-${optionIndex}`}
+                        >
+                          <Radio
+                            value={
+                              !isEmpty(trueFalseAnswer)
+                                ? trueFalseAnswer === `option:${optionIndex}`
+                                  ? '1'
+                                  : `option:${optionIndex}`
+                                : option?.isCorrect
                                 ? '1'
                                 : `option:${optionIndex}`
-                              : option?.isCorrect
-                              ? '1'
-                              : `option:${optionIndex}`
-                          }
-                          type="radio"
-                          id={`${toLower(option.content)}-${optionIndex}`}
-                          name={`option:${optionIndex}`}
-                          mr={1}
-                          isDisabled={!isEditable}
-                        />
+                            }
+                            type="radio"
+                            id={`${toLower(option.content)}-${optionIndex}`}
+                            name={`option:${optionIndex}`}
+                            mr={1}
+                            isDisabled={!isEditable}
+                          />
 
-                        {option.content}
-                      </label>
-                    </Box>
-                  ))}
+                          {option.content}
+                        </label>
+                      </Box>
+                    ))}
                 </Stack>
               </RadioGroup>
             )}
@@ -730,6 +732,7 @@ const QuizPreviewer = ({
             {questions.length > 0 &&
               questions.map((question, index) => (
                 <PreviewQuizCard
+                  key={question?.id}
                   question={question}
                   index={index}
                   handleUpdateQuizQuestion={handleUpdateQuizQuestion}

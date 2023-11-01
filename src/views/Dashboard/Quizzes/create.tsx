@@ -321,7 +321,6 @@ const CreateQuizPage = () => {
                 <UploadQuizForm
                   addQuestion={addQuestion}
                   handleSetTitle={handleSetTitle}
-                  title={title}
                 />
               </TabPanel>
 
@@ -329,7 +328,6 @@ const CreateQuizPage = () => {
                 <TopicQuizForm
                   addQuestion={addQuestion}
                   handleSetTitle={handleSetTitle}
-                  title={title}
                 />
               </TabPanel>
               {false && (

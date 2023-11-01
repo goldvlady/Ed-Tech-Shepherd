@@ -1,11 +1,19 @@
+import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
+import SelectComponent, { Option } from '../../../../components/Select';
 import { UploadIcon, WardIcon } from '../../../../components/icons';
+import uploadFile from '../../../../helpers/file.helpers';
+import FileProcessingService from '../../../../helpers/files.helpers/fileProcessing';
+import ApiService from '../../../../services/ApiService';
+import documentStore from '../../../../state/documentStore';
+import quizStore from '../../../../state/quizStore';
+import userStore from '../../../../state/userStore';
 import {
+  MIXED,
   MULTIPLE_CHOICE_SINGLE,
   OPEN_ENDED,
   QuizQuestion,
   TRUE_FALSE
 } from '../../../../types';
-import { useQuizState } from '../context';
 import { QuestionIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -18,112 +26,271 @@ import {
   Button,
   InputGroup,
   InputLeftElement,
-  Tooltip
+  Tooltip,
+  Text
 } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import {
+  includes,
+  isEmpty,
+  isNil,
+  last,
+  map,
+  split,
+  toLower,
+  toNumber,
+  truncate
+} from 'lodash';
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
 
 // DownloadIcon
 
-const UploadQuizForm = ({ addQuestion, handleSetTitle, title }) => {
-  const {
-    quizData,
-    goToNextStep,
-    setQuestions,
-    goToQuestion,
-    currentQuestionIndex,
-    questions
-  } = useQuizState();
-
-  const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion>({
-    type: MULTIPLE_CHOICE_SINGLE, //default question type option
-    question: '',
-    options: [],
-    answer: ''
-  });
-
-  useEffect(() => {
-    if (questions[currentQuestionIndex]) {
-      setCurrentQuestion(questions[currentQuestionIndex]);
-    }
-  }, [currentQuestionIndex, questions]);
-
-  const handleChangeQuestionType = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
-  ) => {
-    const { name, value } = e.target;
-
-    setCurrentQuestion((prevQuestion) => ({
-      ...prevQuestion,
-      [name]: value
-    }));
+const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
+  const dummyData = {
+    subject: 'question',
+    topic: '',
+    difficulty: 'kindergarten',
+    count: 1,
+    type: MIXED,
+    documentId: ''
   };
 
-  const handleQuestionAdd = () => {
-    setQuestions((prevQuestions) => {
-      const updatedQuestions = [...prevQuestions];
-      updatedQuestions[currentQuestionIndex] = currentQuestion;
-      // console.log('updatedQuestions', updatedQuestions);
-      return updatedQuestions;
+  const levelOptions = [
+    { label: 'Very Easy', value: 'kindergarten' },
+    { label: 'Medium', value: 'high school' },
+    { label: 'Hard', value: 'college' },
+    { label: 'Very Hard', value: 'PhD' }
+  ];
+
+  const typeOptions = [
+    { label: 'Multiple Single Choice', value: MULTIPLE_CHOICE_SINGLE },
+    { label: 'True/False', value: TRUE_FALSE },
+    { label: 'Open Ended', value: OPEN_ENDED },
+    { label: 'Mixed', value: MIXED }
+  ];
+
+  const [localData, setLocalData] = useState<any>(dummyData);
+  const toast = useCustomToast();
+  const { handleIsLoadingQuizzes } = quizStore();
+
+  const { user } = userStore();
+
+  const { saveDocument } = documentStore();
+
+  // const fileRef = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState<any>();
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
+
+  const onDrop = useCallback((acceptedFiles) => {
+    setFile(acceptedFiles[0]);
+  }, []);
+
+  const handleGenerateQuestions = async (documentId: string) => {
+    try {
+      const result = await ApiService.generateQuizQuestion(user._id, {
+        ...localData,
+        count: toNumber(localData.count),
+        documentId
+      });
+      const { quizzes } = await result.json();
+
+      addQuestion(
+        map([...quizzes], (quiz) => {
+          let type = quiz?.type;
+
+          if (isNil(type) || isEmpty(type)) {
+            if (!isNil(quiz?.options) || !isEmpty(quiz?.options)) {
+              if (quiz?.options?.length < 3) {
+                type = TRUE_FALSE;
+              } else {
+                type = MULTIPLE_CHOICE_SINGLE;
+              }
+            } else {
+              if (!isEmpty(quiz?.answer) || !isNil(quiz?.answer)) {
+                type = OPEN_ENDED;
+              }
+            }
+          } else {
+            if (
+              includes(toLower(type), 'multiple') ||
+              includes(toLower(type), 'choice')
+            ) {
+              type = MULTIPLE_CHOICE_SINGLE;
+            }
+            if (includes(toLower(type), 'true')) {
+              type = TRUE_FALSE;
+            }
+            if (
+              includes(toLower(type), 'open') ||
+              includes(toLower(type), 'ended')
+            ) {
+              type = OPEN_ENDED;
+            }
+          }
+
+          return {
+            options: [],
+            ...quiz,
+            type
+          };
+        }),
+        'multiple'
+      );
+
+      handleSetTitle(localData?.topic);
+
+      setLocalData(dummyData);
+      toast({
+        position: 'top-right',
+        title: `quizzes generated`,
+        status: 'success'
+      });
+    } catch (error) {
+      console.log('error =======>> ', error);
+      toast({
+        position: 'top-right',
+        title: `failed to generate quizzes `,
+        status: 'error'
+      });
+    } finally {
+      // setIsLoading(false);
+      handleIsLoadingQuizzes(false);
+    }
+  };
+  const handleChange = useCallback(
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >
+    ) => {
+      const { name, value } = e.target;
+      setLocalData((prevState) => ({ ...prevState, [name]: value }));
+    },
+    []
+  );
+
+  const handleOnSubmit = async () => {
+    handleIsLoadingQuizzes(true);
+
+    const uploadEmitter = uploadFile(file);
+    uploadEmitter.on('progress', (progress: number) => {
+      if (!isUploadingFile) {
+        setIsUploadingFile(true);
+      }
     });
-    // if (questions.length > currentQuestionIndex + 1) {
-    goToQuestion((prevIndex) => prevIndex + 1);
+    uploadEmitter.on('complete', async (documentUrl: string) => {
+      try {
+        const title = decodeURIComponent(
+          (documentUrl.match(/\/([^/]+)(?=\.\w+\?)/) || [])[1] || ''
+        ).replace('uploads/', '');
 
-    addQuestion(currentQuestion);
+        const response = await saveDocument({ title, documentUrl }, true);
+        if (response) {
+          // console.log('response =========>> ', response);
 
-    setCurrentQuestion({
-      type: 'multipleChoiceSingle',
-      question: '',
-      options: [],
-      answer: ''
+          const fileProcessor = new FileProcessingService(
+            { ...(response as any), student: user?._id },
+            true
+          );
+          const processData = await fileProcessor.process();
+
+          const {
+            data: [{ documentId }]
+          } = processData;
+          // setOpenUploadModal(false);
+
+          console.log('processData =========>>> ', processData);
+
+          console.log('documentId =========>>> ', documentId);
+
+          await handleGenerateQuestions(documentId);
+
+          handleIsLoadingQuizzes(false);
+          // toast({
+          //   title: 'Document saved',
+          //   status: 'success',
+          //   position: 'top-right'
+          // });
+        } else {
+          handleIsLoadingQuizzes(false);
+          toast({
+            title: 'Failed to save document',
+            status: 'error',
+            position: 'top-right'
+          });
+        }
+        setIsUploadingFile(false);
+      } catch (error) {
+        handleIsLoadingQuizzes(false);
+        toast({
+          title: 'Failed to save document',
+          status: 'error',
+          position: 'top-right'
+        });
+      } finally {
+        setIsUploadingFile(false);
+        handleIsLoadingQuizzes(false);
+      }
+    });
+    uploadEmitter.on('error', (error) => {
+      toast({
+        title: 'Failed to save document',
+        status: 'error',
+        position: 'top-right'
+      });
+      setIsUploadingFile(false);
     });
     // }
   };
 
-  const handlePreviousQuestion = () => {
-    goToQuestion((prevIndex: number) => prevIndex - 1);
-  };
+  const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
+    onDrop,
+    accept: {
+      'text/plain': ['.txt'],
+      'application/pdf': ['.pdf'],
+      'image/jpeg': ['.jpeg', '.jpg'],
+      'application/vnd.ms-powerpoint': ['.ppt']
+    },
+    maxSize: 1000000 * 5
+  });
 
   return (
     <Box width={'100%'} mt="20px" padding="0 10px">
       <FormControl mb={7}>
         <FormLabel color={'text.500'}>Enter a topic</FormLabel>
-        <InputGroup
-          flexDirection={'row'}
+        <HStack
           alignItems={'center'}
-          height={'48px'}
-          sx={{
-            'input[type=text]': {
-              paddingLeft: '32px'
-            }
-          }}
+          p={'14px 16px'}
+          textColor={'text-200'}
+          fontSize={'14px'}
+          fontFamily={'Inter'}
+          fontWeight={'500'}
+          border={'1px solid #E4E5E7'}
+          borderRadius={'6px'}
+          boxShadow={'box-shadow: 0px 2px 6px 0px rgba(136, 139, 143, 0.10);'}
+          cursor={'pointer'}
+          {...getRootProps()}
         >
-          <InputLeftElement
-            pointerEvents="none"
-            flexDirection={'row'}
-            alignItems={'center'}
-            mt={'4px'}
-            mr={'4px'}
-            children={
-              <UploadIcon
-                className={'h-[20px]'}
-                onClick={() => {
-                  ('');
-                }}
-              />
-            }
-          />
-          <Input
-            type="text"
-            placeholder="Upload doc"
-            paddingLeft={'40px'}
-            _placeholder={{
-              color: 'text.200',
-              fontSize: '14px'
+          <UploadIcon
+            className={'h-[20px] text-gray-500'}
+            onClick={() => {
+              ('');
             }}
           />
-        </InputGroup>
+          <Box>
+            {isEmpty(acceptedFiles) ? (
+              <Text>Upload doc</Text>
+            ) : (
+              <Text>
+                {truncate(acceptedFiles[0]?.name, {
+                  length: 25
+                })}{' '}
+                - .{last(split(acceptedFiles[0]?.name, '.'))}
+              </Text>
+            )}
+          </Box>
+        </HStack>
+        <input id="upload" name="upload" type="file" {...getInputProps()} />
         <FormHelperText textColor={'text.300'}>
           Shepherd supports .pdf, .ppt, .jpg & .txt document formats
         </FormHelperText>
@@ -131,20 +298,47 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle, title }) => {
 
       <FormControl mb={7}>
         <FormLabel color={'text.500'}>Question type:</FormLabel>
-        <Select
-          height={'48px'}
-          sx={{
-            padding: '8px'
-          }}
+
+        <SelectComponent
           name="type"
-          value={currentQuestion.type}
-          onChange={handleChangeQuestionType}
-          textColor={'text.700'}
-        >
-          <option value={MULTIPLE_CHOICE_SINGLE}>Multiple Choice</option>
-          <option value={OPEN_ENDED}>Open Ended</option>
-          <option value={TRUE_FALSE}>True/False</option>
-        </Select>
+          defaultValue={typeOptions.find(
+            (option) => option.value === localData.type
+          )}
+          placeholder="Select Type"
+          options={typeOptions}
+          size={'md'}
+          onChange={(option) => {
+            const event = {
+              target: {
+                name: 'type',
+                value: (option as Option).value
+              }
+            } as ChangeEvent<HTMLSelectElement>;
+            handleChange(event);
+          }}
+        />
+      </FormControl>
+
+      <FormControl mb={8}>
+        <FormLabel color={'text.500'}>Level (optional): </FormLabel>
+        <SelectComponent
+          name="difficulty"
+          placeholder="Select Level"
+          defaultValue={levelOptions.find(
+            (option) => option.value === localData.difficulty
+          )}
+          options={levelOptions}
+          size={'md'}
+          onChange={(option) => {
+            const event = {
+              target: {
+                name: 'difficulty',
+                value: (option as Option).value
+              }
+            } as ChangeEvent<HTMLSelectElement>;
+            handleChange(event);
+          }}
+        />
       </FormControl>
 
       <FormControl mb={7}>
@@ -158,49 +352,15 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle, title }) => {
             <QuestionIcon mx={2} w={3} h={3} />
           </Tooltip>
         </FormLabel>
-        <Input textColor={'text.700'} height={'48px'} type="number" />
+        <Input
+          textColor={'text.700'}
+          height={'48px'}
+          name="count"
+          onChange={handleChange}
+          type="number"
+          value={localData.count}
+        />
       </FormControl>
-
-      {/* 
-      {currentQuestion.questionType && (
-        <FormControl mb={4}>
-          <FormLabel>Answer:</FormLabel>
-          {currentQuestion.questionType === 'multipleChoiceSingle' && (
-            <Select
-              name="answer"
-              placeholder="Select answer"
-              value={currentQuestion.answer}
-              onChange={handleChange}
-            >
-              <option value="optionA">Option A</option>
-              <option value="optionB">Option B</option>
-              <option value="optionC">Option C</option>
-              <option value="optionD">Option D</option>
-            </Select>
-          )}
-
-          {currentQuestion.questionType === 'trueFalse' && (
-            <Select
-              name="answer"
-              placeholder="Select answer"
-              value={currentQuestion.answer}
-              onChange={handleChange}
-            >
-              <option value="true">True</option>
-              <option value="false">False</option>
-            </Select>
-          )}
-          {currentQuestion.questionType === 'openEnded' && (
-            <Textarea
-              _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-              name="answer"
-              placeholder="Select answer"
-              value={currentQuestion.answer}
-              onChange={handleChange}
-            />
-          )}
-        </FormControl>
-      )} */}
 
       <HStack
         w="100%"
@@ -209,26 +369,6 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle, title }) => {
         marginTop="40px"
         align={'flex-end'}
       >
-        {currentQuestionIndex > 0 && (
-          <Button
-            aria-label="Edit"
-            height={'fit-content'}
-            width={'fit-content'}
-            variant="unstyled"
-            fontWeight={500}
-            p={0}
-            color={'#207DF7'}
-            _hover={{ bg: 'none', padding: '0px' }}
-            _active={{ bg: 'none', padding: '0px' }}
-            _focus={{ boxShadow: 'none' }}
-            colorScheme="primary"
-            onClick={handlePreviousQuestion}
-            mr={2}
-          >
-            Previous
-          </Button>
-        )}
-        (
         <Button
           width={'180px'}
           borderRadius="8px"
@@ -237,13 +377,13 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle, title }) => {
           lineHeight="20px"
           variant="solid"
           colorScheme="primary"
-          onClick={handleQuestionAdd}
+          onClick={handleOnSubmit}
           ml={5}
+          isDisabled={isNil(file) || localData.count < 1}
         >
           <WardIcon className={'h-[20px] w-[20px] mx-2'} onClick={() => ''} />
           Generate
         </Button>
-        )
       </HStack>
     </Box>
   );

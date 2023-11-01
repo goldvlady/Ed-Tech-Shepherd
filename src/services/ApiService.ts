@@ -729,6 +729,7 @@ class ApiService {
       difficulty: QuizQuestion['difficulty'];
       subject: string;
       topic: string;
+      documentId?: string;
     }
   ) => {
     return doFetch(

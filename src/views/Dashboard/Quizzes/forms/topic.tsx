@@ -2,6 +2,7 @@ import { useCustomToast } from '../../../../components/CustomComponents/CustomTo
 import SelectComponent, { Option } from '../../../../components/Select';
 import { WardIcon } from '../../../../components/icons';
 import ApiService from '../../../../services/ApiService';
+import quizStore from '../../../../state/quizStore';
 import userStore from '../../../../state/userStore';
 import {
   MIXED,
@@ -23,11 +24,19 @@ import {
   Button,
   Tooltip
 } from '@chakra-ui/react';
-import { includes, isEmpty, isNil, map, toNumber } from 'lodash';
+import {
+  includes,
+  isArray,
+  isEmpty,
+  isNil,
+  map,
+  toLower,
+  toNumber
+} from 'lodash';
 import { ChangeEvent, useCallback, useState } from 'react';
 
 // DownloadIcon
-const TopicQuizForm = ({ addQuestion, handleSetTitle, title }) => {
+const TopicQuizForm = ({ addQuestion, handleSetTitle }) => {
   const toast = useCustomToast();
   const { user } = userStore();
   const dummyData = {
@@ -38,17 +47,10 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle, title }) => {
     type: MIXED
   };
 
+  const { handleIsLoadingQuizzes } = quizStore();
+
   const [isLoading, setIsLoading] = useState(false);
   const [localData, setLocalData] = useState<any>(dummyData);
-  // const { setQuestions, goToQuestion, currentQuestionIndex, questions } =
-  //   useQuizState();
-
-  // const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion>({
-  //   type: 'multipleChoiceSingle', //default question type option
-  //   question: '',
-  //   options: [],
-  //   answer: ''
-  // });
 
   const levelOptions = [
     { label: 'Very Easy', value: 'kindergarten' },
@@ -64,13 +66,10 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle, title }) => {
     { label: 'Mixed', value: MIXED }
   ];
 
-  // const handlePreviousQuestion = () => {
-  //   goToQuestion((prevIndex: number) => prevIndex - 1);
-  // };
-
   const handleGenerateQuestions = async () => {
     try {
       setIsLoading(true);
+      handleIsLoadingQuizzes(true);
 
       const result = await ApiService.generateQuizQuestion(user._id, {
         ...localData,
@@ -81,10 +80,14 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle, title }) => {
       addQuestion(
         map([...quizzes], (quiz) => {
           let type = quiz?.type;
+          let options = [];
+          if (!isNil(quiz?.options) && isArray(quiz?.options)) {
+            options = quiz?.options;
+          }
 
           if (isNil(type) || isEmpty(type)) {
-            if (!isNil(quiz?.options) || !isEmpty(quiz?.options)) {
-              if (quiz?.options?.length < 3) {
+            if (!isNil(options) || !isEmpty(options)) {
+              if (options.length < 3) {
                 type = TRUE_FALSE;
               } else {
                 type = MULTIPLE_CHOICE_SINGLE;
@@ -95,26 +98,33 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle, title }) => {
               }
             }
           } else {
-            if (includes(MULTIPLE_CHOICE_SINGLE, type)) {
+            if (
+              includes(toLower(type), 'multiple') ||
+              includes(toLower(type), 'choice')
+            ) {
               type = MULTIPLE_CHOICE_SINGLE;
             }
-            if (includes(TRUE_FALSE, type)) {
+            if (includes(toLower(type), 'true')) {
               type = TRUE_FALSE;
             }
-            if (includes(OPEN_ENDED, type)) {
+            if (
+              includes(toLower(type), 'open') ||
+              includes(toLower(type), 'ended')
+            ) {
               type = OPEN_ENDED;
             }
           }
 
           return {
             ...quiz,
+            options,
             type
           };
         }),
         'multiple'
       );
 
-      // handleSetTitle(localData?.topic);
+      handleSetTitle(localData?.topic);
 
       setLocalData(dummyData);
       toast({
@@ -131,6 +141,7 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle, title }) => {
       });
     } finally {
       setIsLoading(false);
+      handleIsLoadingQuizzes(false);
     }
   };
 
@@ -146,66 +157,8 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle, title }) => {
     []
   );
 
-  // useEffect(() => {
-  //   if (questions[currentQuestionIndex]) {
-  //     setCurrentQuestion(questions[currentQuestionIndex]);
-  //   }
-  // }, [currentQuestionIndex, questions]);
-
-  // const handleChangeQuestionType = (
-  //   e: React.ChangeEvent<
-  //     HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-  //   >
-  // ) => {
-  //   const { name, value } = e.target;
-
-  //   setCurrentQuestion((prevQuestion) => ({
-  //     ...prevQuestion,
-  //     [name]: value
-  //   }));
-  // };
-
-  // const handleQuestionAdd = () => {
-  //   setQuestions((prevQuestions) => {
-  //     const updatedQuestions = [...prevQuestions];
-  //     updatedQuestions[currentQuestionIndex] = currentQuestion;
-  //     // console.log('updatedQuestions', updatedQuestions);
-  //     return updatedQuestions;
-  //   });
-  //   // if (questions.length > currentQuestionIndex + 1) {
-  //   goToQuestion((prevIndex) => prevIndex + 1);
-
-  //   addQuestion(currentQuestion);
-
-  //   setCurrentQuestion({
-  //     type: 'multipleChoiceSingle',
-  //     question: '',
-  //     options: [],
-  //     answer: ''
-  //   });
-  //   // }
-  // };
-
-  // const handlePreviousQuestion = () => {
-  //   goToQuestion((prevIndex: number) => prevIndex - 1);
-  // };
-
   return (
     <Box width={'100%'} mt="20px" padding="0 10px">
-      <FormControl mb={4}>
-        <FormLabel color={'text.500'}>Enter a title</FormLabel>
-        <Input
-          value={title}
-          type="text"
-          _placeholder={{
-            color: 'text.200',
-            fontSize: '14px'
-          }}
-          height={'48px'}
-          onChange={(e) => handleSetTitle(e.target.value)}
-          autoComplete="off"
-        />
-      </FormControl>
       <FormControl mb={8}>
         <FormLabel color={'text.500'}>Subject: </FormLabel>
         <Input
@@ -233,7 +186,7 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle, title }) => {
           Enter a topic to generate questions from. We'll search the web for
           reliable sources first. For very specific topics, we recommend adding
           your own content in
-          <Text display={'inline'} color={'#207DF7'}>
+          <Text display={'inline'} color={'#207DF7'} mx={2}>
             text input mode
           </Text>{' '}
           .
@@ -320,79 +273,6 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle, title }) => {
         />
       </FormControl>
 
-      {/* <FormControl mb={7}>
-        <FormLabel color={'text.500'}>Question type:</FormLabel>
-        <Select
-          height={'48px'}
-          sx={{
-            padding: '8px'
-          }}
-          name="type"
-          value={currentQuestion.type}
-          onChange={handleChangeQuestionType}
-          textColor={'text.700'}
-        >
-          <option value="multipleChoiceSingle">Multiple Choice</option>
-          <option value="openEnded">Open Ended</option>
-          <option value="trueFalse">True/False</option>
-        </Select>
-      </FormControl> */}
-
-      {/* <FormControl mb={7}>
-        <FormLabel color={'text.500'}>
-          Number of questions
-          <Tooltip
-            hasArrow
-            label="Number of questions to create"
-            placement="right-end"
-          >
-            <QuestionIcon mx={2} w={3} h={3} />
-          </Tooltip>
-        </FormLabel>
-        <Input textColor={'text.700'} height={'48px'} type="number" />
-      </FormControl> */}
-
-      {/* 
-      {currentQuestion.questionType && (
-        <FormControl mb={4}>
-          <FormLabel>Answer:</FormLabel>
-          {currentQuestion.questionType === 'multipleChoiceSingle' && (
-            <Select
-              name="answer"
-              placeholder="Select answer"
-              value={currentQuestion.answer}
-              onChange={handleChange}
-            >
-              <option value="optionA">Option A</option>
-              <option value="optionB">Option B</option>
-              <option value="optionC">Option C</option>
-              <option value="optionD">Option D</option>
-            </Select>
-          )}
-
-          {currentQuestion.questionType === 'trueFalse' && (
-            <Select
-              name="answer"
-              placeholder="Select answer"
-              value={currentQuestion.answer}
-              onChange={handleChange}
-            >
-              <option value="true">True</option>
-              <option value="false">False</option>
-            </Select>
-          )}
-          {currentQuestion.questionType === 'openEnded' && (
-            <Textarea
-              _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-              name="answer"
-              placeholder="Select answer"
-              value={currentQuestion.answer}
-              onChange={handleChange}
-            />
-          )}
-        </FormControl>
-      )} */}
-
       <HStack
         w="100%"
         alignItems={'center'}
@@ -400,26 +280,6 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle, title }) => {
         marginTop="40px"
         align={'flex-end'}
       >
-        {/* {currentQuestionIndex > 0 && (
-          <Button
-            aria-label="Edit"
-            height={'fit-content'}
-            width={'fit-content'}
-            variant="unstyled"
-            fontWeight={500}
-            p={0}
-            color={'#207DF7'}
-            _hover={{ bg: 'none', padding: '0px' }}
-            _active={{ bg: 'none', padding: '0px' }}
-            _focus={{ boxShadow: 'none' }}
-            colorScheme="primary"
-            onClick={handlePreviousQuestion}
-            mr={2}
-          >
-            Previous
-          </Button>
-        )} */}
-        (
         <Button
           width={'180px'}
           borderRadius="8px"
@@ -430,7 +290,6 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle, title }) => {
           colorScheme="primary"
           onClick={handleGenerateQuestions}
           isDisabled={
-            isEmpty(title) ||
             localData.count < 1 ||
             isEmpty(localData.topic) ||
             isEmpty(localData.subject)
@@ -441,7 +300,6 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle, title }) => {
           <WardIcon className={'h-[20px] w-[20px] mx-2'} onClick={() => ''} />
           Generate
         </Button>
-        )
       </HStack>
     </Box>
   );
