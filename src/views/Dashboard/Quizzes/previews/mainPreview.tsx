@@ -24,44 +24,50 @@ import {
   RadioGroup,
   Stack,
   Textarea,
-  Input
+  Input,
+  Flex,
+  InputLeftElement,
+  InputGroup
 } from '@chakra-ui/react';
-import {
-  defaultTo,
-  forEach,
-  isEmpty,
-  isNil,
-  last,
-  split,
-  toLower
-} from 'lodash';
+import { isEmpty, isNil, map, split, toLower, values } from 'lodash';
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { useOnClickOutside } from 'usehooks-ts';
+import { BsSearch } from 'react-icons/bs';
+import { IoTrashOutline, IoDuplicateOutline } from 'react-icons/io5';
+
+// import { useOnClickOutside } from 'usehooks-ts';
 
 const PreviewQuizCard = ({
   question,
   index,
-  handleUpdateQuizQuestion
+  handleUpdateQuizQuestion,
+  handleDeleteQuizQuestion
 }: {
   question: QuizQuestion;
   index: number;
   handleUpdateQuizQuestion: (id: number, question: QuizQuestion) => void;
+  handleDeleteQuizQuestion: (id: number | string) => void;
 }) => {
   const ref = useRef(null);
   const [isEditable, setIsEditable] = useState(false);
   const [answer, setAnswer] = useState('');
   const [optionAnswer, setOptionAnswer] = useState('');
+  const [trueFalseAnswer, setTrueFalseAnswer] = useState('');
   const [quizQuestion, setQuizQuestion] = useState('');
   const [type, setType] = useState(null);
   const [updateOptions, setUpdateOptions] = useState<
     Record<string, QuizQuestionOption>
   >({});
 
+  const [_, setUpdateTrueFalse] = useState<Record<string, QuizQuestionOption>>(
+    {}
+  );
+
   const handleSetIsEditiable = () => setIsEditable(true);
   const handleSetIsDisabled = () => setIsEditable(false);
   const handleSetClearState = () => {
     setUpdateOptions({});
     setOptionAnswer('');
+    setTrueFalseAnswer('');
     setAnswer('');
     setQuizQuestion('');
     setType(null);
@@ -69,16 +75,23 @@ const PreviewQuizCard = ({
   };
   const handleUpdateQuiz = () => {
     const options = (() => {
-      let options = [...question.options];
+      let options =
+        !isNil(question.options) &&
+        !isEmpty(question.options) &&
+        question.options?.length > 2
+          ? [...question.options]
+          : values(updateOptions);
       const [_, index] = split(optionAnswer, ':');
+
       if (type === TRUE_FALSE) {
+        const [_, trueFalseIndex] = split(trueFalseAnswer, ':');
         options = [
           { content: 'True', isCorrect: false },
           { content: 'False', isCorrect: false }
         ];
 
         options = options.map((option) => {
-          if (toLower(option.content) === toLower(index)) {
+          if (toLower(option.content) === toLower(trueFalseIndex)) {
             return {
               ...option,
               isCorrect: true
@@ -90,17 +103,19 @@ const PreviewQuizCard = ({
         return options;
       }
 
-      options = options.map((option) => {
-        return {
-          content: option.content,
-          isCorrect: false
-        };
-      });
-      options[index] = {
-        ...question?.options[index],
-        ...updateOptions[optionAnswer],
-        isCorrect: true
-      };
+      options = map(options, (option) => ({ ...option, isCorrect: false }));
+
+      options[index] =
+        !isNil(question?.options) && !isEmpty(question?.options)
+          ? {
+              ...question?.options[index],
+              ...updateOptions[optionAnswer],
+              isCorrect: true
+            }
+          : {
+              ...updateOptions[optionAnswer],
+              isCorrect: true
+            };
 
       return options;
     })();
@@ -118,7 +133,9 @@ const PreviewQuizCard = ({
       questionData.options = options;
     }
     handleUpdateQuizQuestion(index, questionData);
-    handleSetClearState();
+    setTimeout(() => {
+      handleSetClearState();
+    });
   };
 
   const handleUpdateOption = (
@@ -126,23 +143,28 @@ const PreviewQuizCard = ({
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
-    setUpdateOptions((prevQuestion: any) => {
+    const { name, value } = e.target;
+    setUpdateOptions((prevOptions: any) => {
+      prevOptions[name] = { content: value, isCorrect: false };
+      return {
+        ...prevOptions
+      };
+    });
+  };
+
+  const handleUpdateTrueFalse = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    setUpdateTrueFalse((prevOptions: any) => {
       const { name, value } = e.target;
       let newOptions = {};
 
-      if (type === 'trueFalse') {
-        newOptions = { ...prevQuestion };
-        newOptions[value] = { content: name, isCorrect: false };
-        return {
-          ...prevQuestion,
-          ...newOptions
-        };
-      }
-
-      newOptions = { ...prevQuestion };
-      newOptions[name] = { content: value, isCorrect: false };
+      newOptions = { ...prevOptions };
+      newOptions[value] = { content: name, isCorrect: false };
       return {
-        ...prevQuestion,
+        ...prevOptions,
         ...newOptions
       };
     });
@@ -175,7 +197,7 @@ const PreviewQuizCard = ({
     { label: 'False', value: 'false' }
   ];
 
-  useOnClickOutside(ref, handleSetClearState);
+  // useOnClickOutside(ref, handleSetClearState);
 
   return (
     <Box ref={ref} borderRadius={'8px'} mt={10} bg="white" w="100%">
@@ -197,6 +219,7 @@ const PreviewQuizCard = ({
             <Input
               onChange={(e) => setQuizQuestion(e.target.value)}
               value={!isEmpty(quizQuestion) ? quizQuestion : question?.question}
+              minW={'450px'}
             />
           ) : (
             <Text fontSize="md" fontWeight="semibold">
@@ -205,7 +228,7 @@ const PreviewQuizCard = ({
           )}
         </HStack>
         {isEditable && (
-          <VStack mb={'24px'}>
+          <Box mb={'24px'} w={'60%'}>
             <SelectComponent
               name="type"
               placeholder="Select Question Type"
@@ -224,7 +247,7 @@ const PreviewQuizCard = ({
                 handleChangeQuestionType(event);
               }}
             />
-          </VStack>
+          </Box>
         )}
         {!isEmpty(type) && !isNil(type) ? (
           <>
@@ -247,7 +270,7 @@ const PreviewQuizCard = ({
                       w={'100%'}
                     >
                       <label
-                        className="w-2/3 font-[Inter] text-dark font-[400] text-[14px] leading-[20px] flex justify-start items-center cursor-pointer"
+                        className="w-[20px] font-[Inter] text-dark font-[400] text-[14px] leading-[20px] flex justify-start items-center cursor-pointer"
                         htmlFor={`option${optionIndex}`}
                       >
                         <Radio
@@ -256,7 +279,10 @@ const PreviewQuizCard = ({
                               ? optionAnswer === `option:${optionIndex}`
                                 ? '1'
                                 : `option:${optionIndex}`
-                              : question?.options[optionIndex]?.isCorrect
+                              : !isNil(question?.options) &&
+                                !isEmpty(question?.options) &&
+                                question?.options?.length > 2 &&
+                                question?.options[optionIndex]?.isCorrect
                               ? '1'
                               : `option:${optionIndex}`
                           }
@@ -266,26 +292,36 @@ const PreviewQuizCard = ({
                           mr={1}
                           isDisabled={!isEditable}
                         />
-                        <Input
-                          isDisabled={!isEditable}
-                          type="text"
-                          name={`option:${optionIndex}`}
-                          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-                          placeholder={`Option ${String.fromCharCode(
-                            65 + optionIndex
-                          )}`}
-                          defaultValue={question.options[optionIndex]?.content}
-                          value={
-                            !isEmpty(
-                              updateOptions[`option:${optionIndex}`]?.content
-                            )
-                              ? updateOptions[`option:${optionIndex}`]?.content
-                              : question.options[optionIndex]?.content
-                          }
-                          onChange={handleUpdateOption}
-                          maxW={'250px'}
-                        />
                       </label>
+                      <Input
+                        isDisabled={!isEditable}
+                        type="text"
+                        name={`option:${optionIndex}`}
+                        _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+                        placeholder={`Option ${String.fromCharCode(
+                          65 + optionIndex
+                        )}`}
+                        defaultValue={
+                          !isNil(question?.options) &&
+                          !isEmpty(question?.options) &&
+                          question?.options?.length > 2
+                            ? question?.options[optionIndex]?.content
+                            : ''
+                        }
+                        value={
+                          !isEmpty(
+                            updateOptions[`option:${optionIndex}`]?.content
+                          ) || isEditable
+                            ? updateOptions[`option:${optionIndex}`]?.content
+                            : !isNil(question?.options) &&
+                              !isEmpty(question?.options) &&
+                              question?.options?.length > 2
+                            ? question?.options[optionIndex]?.content
+                            : ''
+                        }
+                        onChange={handleUpdateOption}
+                        maxW={'250px'}
+                      />
                     </Box>
                   ))}
                 </Stack>
@@ -293,34 +329,34 @@ const PreviewQuizCard = ({
             )}
 
             {type === TRUE_FALSE && (
-              <SelectComponent
-                name="answer"
-                placeholder="Select answer"
-                defaultValue={typeOptions.find((option) => {
-                  let selectedOption: any = false;
-                  forEach(question?.options, (item) => {
-                    if (
-                      toLower(option?.label) === toLower(item.content) &&
-                      item?.isCorrect === true
-                    ) {
-                      selectedOption = option;
+              <Box mt={2} w={'60%'} mb="24px">
+                <SelectComponent
+                  name="answer"
+                  placeholder="Select answer"
+                  defaultValue={trueFalseOptions.find((option, idx) => {
+                    if (isNil(question?.options)) {
+                      return undefined;
                     }
-                  });
-                  return selectedOption;
-                })}
-                options={trueFalseOptions}
-                size={'md'}
-                onChange={(option) => {
-                  const event = {
-                    target: {
-                      name: (option as Option).label,
-                      value: (option as Option).value
-                    }
-                  } as ChangeEvent<HTMLSelectElement>;
-                  handleUpdateOption(event);
-                  setOptionAnswer(`option:${(option as Option).value}`);
-                }}
-              />
+                    return (
+                      toLower(option?.label) ===
+                        toLower(question?.options[idx]?.content) &&
+                      question?.options[idx]?.isCorrect === true
+                    );
+                  })}
+                  options={trueFalseOptions}
+                  size={'md'}
+                  onChange={(option) => {
+                    const event = {
+                      target: {
+                        name: (option as Option).label,
+                        value: (option as Option).value
+                      }
+                    } as ChangeEvent<HTMLSelectElement>;
+                    handleUpdateTrueFalse(event);
+                    setTrueFalseAnswer(`option:${(option as Option).value}`);
+                  }}
+                />
+              </Box>
             )}
 
             {type === OPEN_ENDED && (
@@ -392,7 +428,7 @@ const PreviewQuizCard = ({
             {question.type === TRUE_FALSE && (
               <RadioGroup
                 onChange={(e) => {
-                  setOptionAnswer(e);
+                  setTrueFalseAnswer(e);
                 }}
                 value={'1'}
                 mb="24px"
@@ -411,8 +447,8 @@ const PreviewQuizCard = ({
                       >
                         <Radio
                           value={
-                            !isEmpty(optionAnswer)
-                              ? optionAnswer === `option:${optionIndex}`
+                            !isEmpty(trueFalseAnswer)
+                              ? trueFalseAnswer === `option:${optionIndex}`
                                 ? '1'
                                 : `option:${optionIndex}`
                               : option?.isCorrect
@@ -451,7 +487,9 @@ const PreviewQuizCard = ({
       <hr className="w-full border border-gray-400" />
       <Box minH={'24px'} p="16px">
         <HStack justifyContent={'space-between'}>
-          {!isEmpty(optionAnswer) || !isEmpty(answer)
+          {!isEmpty(optionAnswer) ||
+          !isEmpty(trueFalseAnswer) ||
+          !isEmpty(answer)
             ? isEditable && (
                 <Box
                   display={'flex'}
@@ -505,7 +543,7 @@ const PreviewQuizCard = ({
                 className={
                   'h-[24px] w-[24px] text-gray-500 hover:opacity-50 cursor-pointer'
                 }
-                onClick={() => ''}
+                onClick={() => handleDeleteQuizQuestion(index)}
               />
             )}
           </HStack>
@@ -522,8 +560,12 @@ const QuizPreviewer = ({
   updateQuiz,
   isLoadingButton,
   quizId,
-  handleUpdateQuizQuestion
+  handleUpdateQuizQuestion,
+  handleClearQuiz,
+  handleSearch,
+  handleDeleteQuizQuestion
 }: {
+  handleClearQuiz: () => void;
   questions: QuizQuestion[];
   onOpen?: () => void;
   createQuiz: () => void;
@@ -531,6 +573,8 @@ const QuizPreviewer = ({
   isLoadingButton: boolean;
   quizId: string;
   handleUpdateQuizQuestion: (id: number, question: QuizQuestion) => void;
+  handleSearch?: (serach: string) => void;
+  handleDeleteQuizQuestion?: (id: string) => void;
 }) => {
   return (
     <Box
@@ -544,88 +588,143 @@ const QuizPreviewer = ({
       overflowY={'auto'}
     >
       <Box w="70%" maxW="700px" mb={10}>
-        <Box
-          display={'flex'}
-          alignItems={'flex-start'}
-          justifyContent={'space-between'}
-          w={'100%'}
-        >
-          <Text
-            fontFamily="Inter"
-            fontWeight="500"
-            fontSize="18px"
-            lineHeight="23px"
-            color="text.200"
+        {!isEmpty(questions) && (
+          <Box
+            display={'flex'}
+            alignItems={'flex-start'}
+            justifyContent={'space-between'}
+            w={'100%'}
           >
-            Review Your Quiz
-          </Text>
-          <HStack justifyContent={'flex-end'} alignItems={'center'}>
-            {!isNil(quizId) && !isEmpty(quizId) && (
-              <Button
-                width={'140px'}
-                borderRadius="8px"
-                fontSize="14px"
-                lineHeight="20px"
-                variant="solid"
-                colorScheme="primary"
-                onClick={onOpen}
-                ml={5}
-                display={'flex'}
-                flexDirection={'row'}
-                justifyContent={'center'}
-              >
-                <LightningBoltIcon
-                  className={'h-[20px] w-[20px] mx-2'}
-                  onClick={() => ''}
+            <Text
+              fontFamily="Inter"
+              fontWeight="500"
+              fontSize="18px"
+              lineHeight="23px"
+              color="text.200"
+            >
+              Review Your Quiz
+            </Text>
+            <HStack justifyContent={'flex-end'} alignItems={'center'}>
+              {!isNil(quizId) && !isEmpty(quizId) && (
+                <Button
+                  width={'140px'}
+                  borderRadius="8px"
+                  fontSize="14px"
+                  lineHeight="20px"
+                  variant="solid"
+                  colorScheme="primary"
+                  onClick={onOpen}
+                  ml={5}
+                  display={'flex'}
+                  flexDirection={'row'}
+                  justifyContent={'center'}
+                >
+                  <LightningBoltIcon
+                    className={'h-[20px] w-[20px] mx-2'}
+                    onClick={() => ''}
+                  />
+                  Study
+                </Button>
+              )}
+
+              {!isEmpty(questions) &&
+                (isEmpty(quizId) ? (
+                  <>
+                    <Button
+                      width={'140px'}
+                      borderRadius="8px"
+                      fontSize="14px"
+                      lineHeight="20px"
+                      variant="solid"
+                      colorScheme="primary"
+                      onClick={createQuiz}
+                      ml={5}
+                      display={'flex'}
+                      flexDirection={'row'}
+                      justifyContent={'center'}
+                      alignItems={'center'}
+                      isLoading={isLoadingButton}
+                    >
+                      <AddIcon mx={2} />
+                      Create
+                    </Button>
+                    <Button
+                      width={'140px'}
+                      borderRadius="8px"
+                      fontSize="14px"
+                      lineHeight="20px"
+                      variant="solid"
+                      colorScheme="primary"
+                      onClick={handleClearQuiz}
+                      ml={5}
+                      display={'flex'}
+                      flexDirection={'row'}
+                      justifyContent={'center'}
+                      alignItems={'center'}
+                      isLoading={isLoadingButton}
+                    >
+                      <IoTrashOutline className={'h-4 w-4'} />
+                      Cancel
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    width={'140px'}
+                    borderRadius="8px"
+                    fontSize="14px"
+                    lineHeight="20px"
+                    variant="solid"
+                    colorScheme="primary"
+                    onClick={updateQuiz}
+                    ml={5}
+                    display={'flex'}
+                    flexDirection={'row'}
+                    justifyContent={'center'}
+                    alignItems={'center'}
+                    isLoading={isLoadingButton}
+                  >
+                    <CheckIcon mx={2} />
+                    Update
+                  </Button>
+                ))}
+            </HStack>
+            <Flex px={'4'} w={'100%'} justifyContent={'flex-end'} mt={4}>
+              <InputGroup width="282px">
+                <InputLeftElement
+                  pointerEvents="none"
+                  children={<BsSearch color="#969CA6" />}
+                  ml={2}
                 />
-                Study
-              </Button>
-            )}
+                <Input
+                  placeholder="Search"
+                  pl="48px"
+                  _focus={{
+                    boxShadow: '0 0 0 2px #3182ce'
+                  }}
+                  onChange={(e) => handleSearch(e.target.value)}
+                />
+              </InputGroup>
+            </Flex>
+          </Box>
+        )}
 
-            {!isEmpty(questions) &&
-              (isEmpty(quizId) ? (
-                <Button
-                  width={'140px'}
-                  borderRadius="8px"
-                  fontSize="14px"
-                  lineHeight="20px"
-                  variant="solid"
-                  colorScheme="primary"
-                  onClick={createQuiz}
-                  ml={5}
-                  display={'flex'}
-                  flexDirection={'row'}
-                  justifyContent={'center'}
-                  alignItems={'center'}
-                  isLoading={isLoadingButton}
-                >
-                  <AddIcon mx={2} />
-                  Create
-                </Button>
-              ) : (
-                <Button
-                  width={'140px'}
-                  borderRadius="8px"
-                  fontSize="14px"
-                  lineHeight="20px"
-                  variant="solid"
-                  colorScheme="primary"
-                  onClick={updateQuiz}
-                  ml={5}
-                  display={'flex'}
-                  flexDirection={'row'}
-                  justifyContent={'center'}
-                  alignItems={'center'}
-                  isLoading={isLoadingButton}
-                >
-                  <CheckIcon mx={2} />
-                  Update
-                </Button>
-              ))}
-          </HStack>
-        </Box>
-
-        <Box maxH={'85vh'} h={'100%'} overflowY={'auto'}>
+        <Box
+          maxH={'75vh'}
+          h={'100%'}
+          overflowY={'auto'}
+          sx={{
+            '&::-webkit-scrollbar': {
+              width: '4px'
+            },
+            '&::-webkit-scrollbar-track': {
+              width: '6px'
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: 'text.400',
+              borderRadius: '24px'
+            }
+          }}
+        >
           <Box w={'100%'} px="16px">
             {/* Render questions preview */}
             {questions.length > 0 &&
@@ -634,11 +733,34 @@ const QuizPreviewer = ({
                   question={question}
                   index={index}
                   handleUpdateQuizQuestion={handleUpdateQuizQuestion}
+                  handleDeleteQuizQuestion={handleDeleteQuizQuestion}
                 />
               ))}
             <Box p="32px" />
           </Box>
         </Box>
+        {false && (
+          <HStack justifyContent={'flex-end'} pt={'16px'}>
+            <Button
+              width={'140px'}
+              borderRadius="8px"
+              fontSize="14px"
+              lineHeight="20px"
+              variant="solid"
+              colorScheme="primary"
+              onClick={updateQuiz}
+              ml={5}
+              display={'flex'}
+              flexDirection={'row'}
+              justifyContent={'center'}
+              alignItems={'center'}
+              isLoading={isLoadingButton}
+            >
+              <IoDuplicateOutline className={'h-4 w-4 mx-1'} />
+              Create more
+            </Button>
+          </HStack>
+        )}
       </Box>
     </Box>
   );

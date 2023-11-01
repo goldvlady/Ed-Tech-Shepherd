@@ -27,7 +27,7 @@ import { includes, isEmpty, isNil, map, toNumber } from 'lodash';
 import { ChangeEvent, useCallback, useState } from 'react';
 
 // DownloadIcon
-const TopicQuizForm = ({ addQuestion, handleSetTitle }) => {
+const TopicQuizForm = ({ addQuestion, handleSetTitle, title }) => {
   const toast = useCustomToast();
   const { user } = userStore();
   const dummyData = {
@@ -114,7 +114,7 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle }) => {
         'multiple'
       );
 
-      handleSetTitle(localData?.topic);
+      // handleSetTitle(localData?.topic);
 
       setLocalData(dummyData);
       toast({
@@ -192,6 +192,31 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle }) => {
 
   return (
     <Box width={'100%'} mt="20px" padding="0 10px">
+      <FormControl mb={4}>
+        <FormLabel color={'text.500'}>Enter a title</FormLabel>
+        <Input
+          value={title}
+          type="text"
+          _placeholder={{
+            color: 'text.200',
+            fontSize: '14px'
+          }}
+          height={'48px'}
+          onChange={(e) => handleSetTitle(e.target.value)}
+          autoComplete="off"
+        />
+      </FormControl>
+      <FormControl mb={8}>
+        <FormLabel color={'text.500'}>Subject: </FormLabel>
+        <Input
+          type="text"
+          name="subject"
+          placeholder="e.g. Chemistry"
+          value={localData.subject}
+          onChange={handleChange}
+          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+        />
+      </FormControl>
       <FormControl mb={7}>
         <FormLabel color={'text.500'}>Enter a topic</FormLabel>
         <Input
@@ -207,11 +232,11 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle }) => {
         <FormHelperText textColor={'text.600'} fontSize={'14px'}>
           Enter a topic to generate questions from. We'll search the web for
           reliable sources first. For very specific topics, we recommend adding
-          your own content in the{' '}
+          your own content in
           <Text display={'inline'} color={'#207DF7'}>
             text input mode
           </Text>{' '}
-          instead.
+          .
         </FormHelperText>
       </FormControl>
 
@@ -249,18 +274,6 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle }) => {
             } as ChangeEvent<HTMLSelectElement>;
             handleChange(event);
           }}
-        />
-      </FormControl>
-
-      <FormControl mb={8}>
-        <FormLabel color={'text.500'}>Subject: </FormLabel>
-        <Input
-          type="text"
-          name="subject"
-          placeholder="e.g. Chemistry"
-          value={localData.subject}
-          onChange={handleChange}
-          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />
       </FormControl>
 
@@ -417,6 +430,7 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle }) => {
           colorScheme="primary"
           onClick={handleGenerateQuestions}
           isDisabled={
+            isEmpty(title) ||
             localData.count < 1 ||
             isEmpty(localData.topic) ||
             isEmpty(localData.subject)

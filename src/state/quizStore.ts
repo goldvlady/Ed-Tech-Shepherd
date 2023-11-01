@@ -28,6 +28,7 @@ type Store = {
   fetchQuizzes: (queryParams?: SearchQueryParams) => Promise<void>;
   loadQuiz: (id: string | null, currentStudy?: MinimizedStudy) => void;
   deleteQuiz: (id: string | number) => Promise<boolean>;
+  handleIsLoadingQuizzes: (value: boolean) => void;
 
   storeQuizTags: (
     quizId: string[] | string,
@@ -159,6 +160,9 @@ export default create<Store>((set) => ({
     } finally {
       set({ isLoading: false });
     }
+  },
+  handleIsLoadingQuizzes: (value: boolean) => {
+    set({ isLoading: value });
   }
   //   storeCurrentStudy: async (flashcardId, currentStudy: MinimizedStudy) => {
   //     try {

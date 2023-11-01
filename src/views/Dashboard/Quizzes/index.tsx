@@ -32,6 +32,7 @@ import { isEmpty, startCase } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaCalendarAlt, FaEllipsisH } from 'react-icons/fa';
+import { IoCreateOutline } from 'react-icons/io5';
 import { MultiSelect } from 'react-multi-select-component';
 import { useNavigate } from 'react-router';
 import styled from 'styled-components';
@@ -420,6 +421,25 @@ const Quizzes = () => {
             </MenuItem>
             <MenuItem
               p="6px 8px 6px 8px"
+              _hover={{ bgColor: '#F2F4F7' }}
+              onClick={() =>
+                navigate(`/dashboard/quizzes/create?quiz_id=${quiz?.key}`)
+              }
+            >
+              <Box className="item-menu-icon" marginRight="10px">
+                <IoCreateOutline />
+              </Box>
+              <Text
+                color="#212224"
+                fontSize="14px"
+                lineHeight="20px"
+                fontWeight="400"
+              >
+                Edit
+              </Text>
+            </MenuItem>{' '}
+            <MenuItem
+              p="6px 8px 6px 8px"
               onClick={() =>
                 setTagEditItem({
                   quiz: quiz as unknown as QuizData
@@ -501,7 +521,6 @@ const Quizzes = () => {
 
             const isSaved = await storeQuizTags(ids, d);
 
-            console.log('tagModal ----->> isSaved ======>> ', isSaved);
             if (isSaved) {
               toast({
                 position: 'top-right',

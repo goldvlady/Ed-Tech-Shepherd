@@ -17,7 +17,15 @@ import {
   HStack,
   Button
 } from '@chakra-ui/react';
-import { forEach, isEmpty, keys, omit, toLower, values } from 'lodash';
+import {
+  forEach,
+  isEmpty,
+  keys,
+  omit,
+  toLower,
+  toString,
+  values
+} from 'lodash';
 import { ChangeEvent, useEffect, useState } from 'react';
 
 const ManualQuizForm = ({
@@ -85,7 +93,6 @@ const ManualQuizForm = ({
         ...currentQuestion,
         options: values(currentQuestion.options)
       };
-      // console.log('updatedQuestions', updatedQuestions);
       return updatedQuestions;
     });
     // if (questions.length > currentQuestionIndex + 1) {
@@ -96,8 +103,11 @@ const ManualQuizForm = ({
       options: values(currentQuestion?.options)
     };
 
-    if (currentQuestion.type === 'openEnded') {
+    if (currentQuestion.type === OPEN_ENDED) {
       data = omit(data, ['options']);
+    }
+    if (currentQuestion.type !== OPEN_ENDED) {
+      data = omit(data, ['answer']);
     }
 
     // addTitle(title);
@@ -145,7 +155,7 @@ const ManualQuizForm = ({
       const optionKeys = keys(prevQuestion.options);
 
       newOptions = { ...prevQuestion.options };
-      if (prevQuestion.type === 'trueFalse') {
+      if (prevQuestion.type === TRUE_FALSE) {
         newOptions = {
           true: {
             content: 'True',
@@ -157,7 +167,7 @@ const ManualQuizForm = ({
           }
         };
       }
-      if (prevQuestion.type === 'multipleChoiceSingle') {
+      if (prevQuestion.type === MULTIPLE_CHOICE_SINGLE) {
         forEach(optionKeys, (key) => {
           newOptions[key] = {
             ...newOptions[key],
@@ -172,7 +182,7 @@ const ManualQuizForm = ({
       return {
         ...prevQuestion,
         options: newOptions,
-        [name]: value
+        [name]: toString(value)
       };
     });
   };

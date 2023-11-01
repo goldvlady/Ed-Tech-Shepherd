@@ -24,7 +24,7 @@ import { useEffect, useState } from 'react';
 
 // DownloadIcon
 
-const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
+const UploadQuizForm = ({ addQuestion, handleSetTitle, title }) => {
   const {
     quizData,
     goToNextStep,

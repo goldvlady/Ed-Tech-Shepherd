@@ -1,6 +1,7 @@
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import TagModal from '../../../components/TagModal';
 import LoaderOverlay from '../../../components/loaderOverlay';
+import { useSearch } from '../../../hooks';
 import ApiService from '../../../services/ApiService';
 import quizStore from '../../../state/quizStore';
 import { QuizData, QuizQuestion } from '../../../types';
@@ -27,26 +28,31 @@ import {
   AlertStatus,
   ToastPosition
 } from '@chakra-ui/react';
-import { isEmpty, isNil, last, omit, pull, union } from 'lodash';
-import { useEffect, useState } from 'react';
+import { filter, isEmpty, isNil, last, omit, pull, union } from 'lodash';
+import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 const CreateQuizPage = () => {
   const TAG_TITLE = 'Tags Alert';
   const [searchParams] = useSearchParams();
   const toast = useCustomToast();
-  const { isLoading, loadQuiz, fetchQuizzes } = quizStore();
+  const { isLoading, loadQuiz, fetchQuizzes, handleIsLoadingQuizzes } =
+    quizStore();
   const [isLoadingButton, setIsLoadingButton] = useState(false);
   const [quizId, setQuizId] = useState<string | null | undefined>(null);
 
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+  const [searchQuestions, setSearchQuestions] = useState<QuizQuestion[]>([]);
   const [openTags, setOpenTags] = useState<boolean>(false);
   const [tags, setTags] = useState<string[]>([]);
   const [newTags, setNewTags] = useState<string[]>(tags);
   const [inputValue, setInputValue] = useState('');
   const [title, setTitle] = useState('');
+  const [hasSearched, setHasSearched] = useState(false);
 
   const handleSetTitle = (str: string) => setTitle(str);
+
+  const handleClearQuiz = () => setQuestions([]);
 
   const handleAddTag = () => {
     const value = inputValue.toLowerCase().trim();
@@ -88,6 +94,15 @@ const CreateQuizPage = () => {
     setQuestions(updatedQuestions);
   };
 
+  const handleDeleteQuizQuestion = (index: number | string) => {
+    const updatedQuestions = [...questions];
+    const filterUpdatedQuestions = filter(updatedQuestions, (question, idx) => {
+      return index !== idx;
+    });
+
+    setQuestions(filterUpdatedQuestions);
+  };
+
   useEffect(() => {
     const queryQuizId = searchParams.get('quiz_id');
 
@@ -99,6 +114,8 @@ const CreateQuizPage = () => {
     ) {
       (async () => {
         try {
+          handleIsLoadingQuizzes(true);
+          fetchQuizzes();
           setQuizId(queryQuizId);
           const result: any = await ApiService.getQuiz(queryQuizId as string);
           const { data }: { data: QuizData } = await result.json();
@@ -110,10 +127,12 @@ const CreateQuizPage = () => {
           }
         } catch (error) {
           console.log('getQuiz Error =========>> ', error);
+        } finally {
+          handleIsLoadingQuizzes(false);
         }
       })();
     }
-  }, [searchParams]);
+  }, [fetchQuizzes, handleIsLoadingQuizzes, searchParams]);
 
   const addQuestion = (
     question: QuizQuestion | QuizQuestion[],
@@ -138,6 +157,7 @@ const CreateQuizPage = () => {
   const handleOpenTagsModal = () => setOpenTags(true);
   const handleCreateQuiz = async () => {
     try {
+      handleIsLoadingQuizzes(true);
       if (isEmpty(title) || isNil(title)) {
         toast({
           position: 'top-right',
@@ -166,6 +186,7 @@ const CreateQuizPage = () => {
         status: 'error'
       });
     } finally {
+      handleIsLoadingQuizzes(false);
       setIsLoadingButton(false);
       await fetchQuizzes();
     }
@@ -173,6 +194,7 @@ const CreateQuizPage = () => {
 
   const handleUpdateQuiz = async () => {
     try {
+      handleIsLoadingQuizzes(true);
       setIsLoadingButton(true);
 
       const result = await ApiService.updateQuiz(quizId as string, {
@@ -198,12 +220,34 @@ const CreateQuizPage = () => {
     } catch (error) {
       console.log('handleUpdateQuiz -------->>> error ========>>> ', error);
     } finally {
+      handleIsLoadingQuizzes(false);
       setIsLoadingButton(false);
       await fetchQuizzes();
     }
   };
 
-  const handleLoadQuiz = () => loadQuiz(quizId);
+  const handleLoadQuiz = () => {
+    console.log('quizId ========>>> ', quizId);
+    loadQuiz(quizId);
+  };
+  const searchQuizzes = useCallback(
+    (query: string) => {
+      if (isEmpty(query)) return setSearchQuestions([]);
+      if (!hasSearched) setHasSearched(true);
+      // fetchQuizzes({ search: query });
+      const re = new RegExp(query, 'i');
+      const filtered = questions.filter((entry) =>
+        Object.values(entry).some(
+          (val) => typeof val === 'string' && val.match(re)
+        )
+      );
+
+      setSearchQuestions(filtered);
+    },
+    [hasSearched, questions]
+  );
+
+  const handleSearch = useSearch(searchQuizzes);
 
   return (
     <>
@@ -222,7 +266,19 @@ const CreateQuizPage = () => {
           width={['100%', '100%', '100%', '50%', '30%']}
           bg="white"
           overflowY={'auto'}
+          overflowX={'hidden'}
           h={'100%'}
+          sx={{
+            '&::-webkit-scrollbar': {
+              width: '4px'
+            },
+            '&::-webkit-scrollbar-track': {
+              width: '6px'
+            },
+            '&::-webkit-scrollbar-thumb': {
+              borderRadius: '24px'
+            }
+          }}
         >
           <Text
             fontFamily="Inter"
@@ -235,18 +291,19 @@ const CreateQuizPage = () => {
           >
             Create Quiz
           </Text>
-          <Tabs defaultIndex={3} isLazy isFitted position={'relative'}>
+          <Tabs defaultIndex={2} isLazy isFitted position={'relative'}>
             <TabList display="flex">
               <Tab _selected={{ color: '#207DF7' }} flex="1">
                 Upload
               </Tab>
-
               <Tab _selected={{ color: '#207DF7' }} flex="1">
                 Topic
               </Tab>
-              <Tab _selected={{ color: '#207DF7' }} flex="1">
-                Text
-              </Tab>
+              {false && (
+                <Tab _selected={{ color: '#207DF7' }} flex="1">
+                  Text
+                </Tab>
+              )}
               <Tab _selected={{ color: '#207DF7' }} flex="1">
                 Manual
               </Tab>
@@ -264,6 +321,7 @@ const CreateQuizPage = () => {
                 <UploadQuizForm
                   addQuestion={addQuestion}
                   handleSetTitle={handleSetTitle}
+                  title={title}
                 />
               </TabPanel>
 
@@ -271,14 +329,17 @@ const CreateQuizPage = () => {
                 <TopicQuizForm
                   addQuestion={addQuestion}
                   handleSetTitle={handleSetTitle}
+                  title={title}
                 />
               </TabPanel>
-              <TabPanel>
-                <TextQuizForm
-                  addQuestion={addQuestion}
-                  handleSetTitle={handleSetTitle}
-                />
-              </TabPanel>
+              {false && (
+                <TabPanel>
+                  <TextQuizForm
+                    addQuestion={addQuestion}
+                    handleSetTitle={handleSetTitle}
+                  />
+                </TabPanel>
+              )}
               <TabPanel>
                 <ManualQuizForm
                   openTags={handleOpenTagsModal}
@@ -300,13 +361,16 @@ const CreateQuizPage = () => {
           borderLeft="1px solid #E7E8E9"
         >
           <QuizPreviewer
+            handleClearQuiz={handleClearQuiz}
             onOpen={handleLoadQuiz}
             createQuiz={handleCreateQuiz}
             updateQuiz={handleUpdateQuiz}
-            questions={questions}
+            questions={!isEmpty(searchQuestions) ? searchQuestions : questions}
             quizId={quizId as string}
             isLoadingButton={isLoadingButton}
             handleUpdateQuizQuestion={handleUpdateQuizQuestion}
+            handleSearch={handleSearch}
+            handleDeleteQuizQuestion={handleDeleteQuizQuestion}
           />
         </Box>
       </Flex>

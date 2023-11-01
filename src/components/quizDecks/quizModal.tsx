@@ -549,34 +549,54 @@ const QuizCard = ({
             </Button>
           </HStack>
         )}
-        {showNextButton && type !== 'openEnded' ? (
+        {showNextButton && type !== OPEN_ENDED ? (
           <Button
             bg={'blue.200'}
             w={'184px'}
             colorScheme="blue"
             mr={3}
             onClick={() => {
-              handleNext();
-              setOptionAnswer('');
+              if (isEmpty(optionAnswer)) {
+                handleSetScore(null);
+              }
+              setTimeout(() => {
+                handleNext();
+                setOptionAnswer('');
+              });
             }}
           >
             Next Question
           </Button>
+        ) : !showAnswer && !isEmpty(enteredAnswer) ? (
+          <Button
+            bg={'blue.200'}
+            w={'184px'}
+            colorScheme="blue"
+            mr={3}
+            onClick={() => {
+              setShowAnswer(true);
+            }}
+          >
+            Show Answer
+          </Button>
         ) : (
-          !showAnswer &&
-          !isEmpty(enteredAnswer) && (
-            <Button
-              bg={'blue.200'}
-              w={'184px'}
-              colorScheme="blue"
-              mr={3}
-              onClick={() => {
-                setShowAnswer(true);
-              }}
-            >
-              Show Answer
-            </Button>
-          )
+          <Button
+            bg={'blue.200'}
+            w={'184px'}
+            colorScheme="blue"
+            mr={3}
+            onClick={() => {
+              if (isEmpty(optionAnswer)) {
+                handleSetScore(null);
+              }
+              setTimeout(() => {
+                handleNext();
+                setOptionAnswer('');
+              });
+            }}
+          >
+            Skip Question
+          </Button>
         )}
       </HStack>
     </Box>
@@ -734,7 +754,9 @@ export const QuizModal = ({
     }));
 
   const handleStartQuiz = () => setStartQuiz(true);
-  const handleNext = () => setQuizCount(quizCount + 1);
+  const handleNext = () => {
+    setQuizCount(quizCount + 1);
+  };
   const handleRestartQuiz = () => {
     setQuizCount(0);
     setStartQuiz(true);
@@ -749,12 +771,12 @@ export const QuizModal = ({
     if (scores.total === quiz?.questions?.length) {
       (async () => {
         try {
+          setStartQuiz(false);
+          setEndQuiz(true);
           await ApiService.storeQuizScore({
             quizId: quiz._id,
             score: scores.passed
           });
-          setStartQuiz(false);
-          setEndQuiz(true);
         } catch (error) {
           console.log('error ========>> ', error);
         }
