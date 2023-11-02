@@ -114,8 +114,8 @@ const CreateQuizPage = () => {
     ) {
       (async () => {
         try {
+          await fetchQuizzes();
           handleIsLoadingQuizzes(true);
-          fetchQuizzes();
           setQuizId(queryQuizId);
           const result: any = await ApiService.getQuiz(queryQuizId as string);
           const { data }: { data: QuizData } = await result.json();
@@ -178,6 +178,7 @@ const CreateQuizPage = () => {
       setTitle(data?.title);
       setQuestions(data?.questions);
       setTags(data?.tags);
+      await fetchQuizzes();
     } catch (error) {
       console.log('handleUpdateQuiz -------->>> error ========>>> ', error);
       toast({
@@ -188,7 +189,6 @@ const CreateQuizPage = () => {
     } finally {
       handleIsLoadingQuizzes(false);
       setIsLoadingButton(false);
-      await fetchQuizzes();
     }
   };
 

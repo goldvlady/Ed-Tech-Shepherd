@@ -25,7 +25,7 @@ import {
   TagLeftIcon,
   TagLabel
 } from '@chakra-ui/react';
-import { isEmpty, split, toLower, toNumber } from 'lodash';
+import { isEmpty, split, toLower, toNumber, toString } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { IoCheckmarkDone, IoCloseOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router';
@@ -250,7 +250,9 @@ const QuizCard = ({
   showNextButton,
   handleNext,
   answer,
-  handleSetScore
+  handleSetScore,
+  handleStoreQuizHistory,
+  _id
 }: {
   question?: string;
   type?: string;
@@ -261,20 +263,30 @@ const QuizCard = ({
   handleNext: () => void;
   answer?: string;
   handleSetScore: (score: boolean | null) => void;
+  handleStoreQuizHistory: (
+    questionId: string,
+    answerProvided: string,
+    quizId?: string
+  ) => void;
+  _id: string;
 }) => {
   const [optionAnswer, setOptionAnswer] = useState('');
   const [enteredAnswer, setEnteredAnswer] = useState('');
   const [showAnswer, setShowAnswer] = useState(false);
 
   useEffect(() => {
-    if (!isEmpty(optionAnswer)) {
-      const [_, index] = split(optionAnswer, ':');
-      if (options) {
-        const { isCorrect } = options[index];
+    (async () => {
+      if (!isEmpty(optionAnswer)) {
+        const [_, index] = split(optionAnswer, ':');
+        if (options) {
+          const { isCorrect } = options[index];
 
-        handleSetScore(isCorrect);
+          handleSetScore(isCorrect);
+          handleStoreQuizHistory(_id, toString(isCorrect));
+        }
       }
-    }
+    })();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [optionAnswer]);
 
@@ -502,10 +514,13 @@ const QuizCard = ({
               bg={'#EDF7EE'}
               color={'#4CAF50'}
               mr={3}
-              onClick={() => {
+              onClick={async () => {
                 handleNext();
                 setOptionAnswer('');
                 handleSetScore(true);
+                handleStoreQuizHistory(_id, enteredAnswer);
+                setEnteredAnswer('');
+                setShowAnswer(false);
               }}
             >
               <HStack alignItems={'center'} justifyContent={'center'}>
@@ -523,6 +538,9 @@ const QuizCard = ({
                 handleNext();
                 setOptionAnswer('');
                 handleSetScore(null);
+                handleStoreQuizHistory(_id, enteredAnswer);
+                setEnteredAnswer('');
+                setShowAnswer(false);
               }}
             >
               <HStack alignItems={'center'} justifyContent={'center'}>
@@ -540,6 +558,9 @@ const QuizCard = ({
                 handleNext();
                 setOptionAnswer('');
                 handleSetScore(false);
+                handleStoreQuizHistory(_id, enteredAnswer);
+                setEnteredAnswer('');
+                setShowAnswer(false);
               }}
             >
               <HStack alignItems={'center'} justifyContent={'center'}>
@@ -558,6 +579,7 @@ const QuizCard = ({
             onClick={() => {
               if (isEmpty(optionAnswer)) {
                 handleSetScore(null);
+                handleStoreQuizHistory(_id, '_');
               }
               setTimeout(() => {
                 handleNext();
@@ -567,36 +589,62 @@ const QuizCard = ({
           >
             Next Question
           </Button>
-        ) : !showAnswer && !isEmpty(enteredAnswer) ? (
-          <Button
-            bg={'blue.200'}
-            w={'184px'}
-            colorScheme="blue"
-            mr={3}
-            onClick={() => {
-              setShowAnswer(true);
-            }}
-          >
-            Show Answer
-          </Button>
+        ) : !showAnswer ? (
+          <>
+            {!isEmpty(enteredAnswer) ? (
+              <Button
+                bg={'blue.200'}
+                w={'184px'}
+                colorScheme="blue"
+                mr={3}
+                onClick={() => {
+                  setShowAnswer(true);
+                }}
+              >
+                Show Answer
+              </Button>
+            ) : (
+              <Button
+                bg={'blue.200'}
+                w={'184px'}
+                colorScheme="blue"
+                mr={3}
+                onClick={() => {
+                  if (isEmpty(optionAnswer)) {
+                    handleSetScore(null);
+                    handleStoreQuizHistory(_id, '_');
+                  }
+                  setTimeout(() => {
+                    handleNext();
+                    setOptionAnswer('');
+                  });
+                }}
+              >
+                Skip Question
+              </Button>
+            )}
+          </>
         ) : (
-          <Button
-            bg={'blue.200'}
-            w={'184px'}
-            colorScheme="blue"
-            mr={3}
-            onClick={() => {
-              if (isEmpty(optionAnswer)) {
-                handleSetScore(null);
-              }
-              setTimeout(() => {
-                handleNext();
-                setOptionAnswer('');
-              });
-            }}
-          >
-            Skip Question
-          </Button>
+          !showAnswer && (
+            <Button
+              bg={'blue.200'}
+              w={'184px'}
+              colorScheme="blue"
+              mr={3}
+              onClick={() => {
+                if (isEmpty(optionAnswer)) {
+                  handleSetScore(null);
+                  handleStoreQuizHistory(_id, '');
+                }
+                setTimeout(() => {
+                  handleNext();
+                  setOptionAnswer('');
+                });
+              }}
+            >
+              Skip Question
+            </Button>
+          )
         )}
       </HStack>
     </Box>
@@ -754,6 +802,17 @@ export const QuizModal = ({
     }));
 
   const handleStartQuiz = () => setStartQuiz(true);
+  const handleStoreQuizHistory = async (
+    questionId = '',
+    answerProvided = '',
+    quizId = quiz?._id
+  ) => {
+    await ApiService.storeQuizHistory({
+      questionId,
+      answerProvided,
+      quizId
+    });
+  };
   const handleNext = () => {
     setQuizCount(quizCount + 1);
   };
@@ -850,6 +909,7 @@ export const QuizModal = ({
             )}
             {startQuiz && quiz && (
               <QuizCard
+                handleStoreQuizHistory={handleStoreQuizHistory}
                 handleNext={handleNext}
                 showNextButton={
                   quizCount < toNumber(quiz?.questions?.length) - 1

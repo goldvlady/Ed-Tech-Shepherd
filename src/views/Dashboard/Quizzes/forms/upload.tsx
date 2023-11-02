@@ -38,16 +38,18 @@ import {
   split,
   toLower,
   toNumber,
-  truncate
+  truncate,
+  omit,
+  isArray
 } from 'lodash';
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 // DownloadIcon
 
 const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
   const dummyData = {
-    subject: 'question',
+    subject: '',
     topic: '',
     difficulty: 'kindergarten',
     count: 1,
@@ -97,10 +99,14 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
       addQuestion(
         map([...quizzes], (quiz) => {
           let type = quiz?.type;
+          let options = [];
+          if (!isNil(quiz?.options) && isArray(quiz?.options)) {
+            options = quiz?.options;
+          }
 
           if (isNil(type) || isEmpty(type)) {
-            if (!isNil(quiz?.options) || !isEmpty(quiz?.options)) {
-              if (quiz?.options?.length < 3) {
+            if (!isNil(options) || !isEmpty(options)) {
+              if (options.length < 3) {
                 type = TRUE_FALSE;
               } else {
                 type = MULTIPLE_CHOICE_SINGLE;
@@ -129,13 +135,56 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
           }
 
           return {
-            options: [],
-            ...quiz,
+            ...omit(quiz, ['explanation']),
+            options,
             type
           };
         }),
         'multiple'
       );
+
+      // addQuestion(
+      //   map([...quizzes], (quiz) => {
+      //     let type = quiz?.type;
+
+      //     if (isNil(type) || isEmpty(type)) {
+      //       if (!isNil(quiz?.options) || !isEmpty(quiz?.options)) {
+      //         if (quiz?.options?.length < 3) {
+      //           type = TRUE_FALSE;
+      //         } else {
+      //           type = MULTIPLE_CHOICE_SINGLE;
+      //         }
+      //       } else {
+      //         if (!isEmpty(quiz?.answer) || !isNil(quiz?.answer)) {
+      //           type = OPEN_ENDED;
+      //         }
+      //       }
+      //     } else {
+      //       if (
+      //         includes(toLower(type), 'multiple') ||
+      //         includes(toLower(type), 'choice')
+      //       ) {
+      //         type = MULTIPLE_CHOICE_SINGLE;
+      //       }
+      //       if (includes(toLower(type), 'true')) {
+      //         type = TRUE_FALSE;
+      //       }
+      //       if (
+      //         includes(toLower(type), 'open') ||
+      //         includes(toLower(type), 'ended')
+      //       ) {
+      //         type = OPEN_ENDED;
+      //       }
+      //     }
+
+      //     return {
+      //       options: [],
+      //       ...quiz,
+      //       type
+      //     };
+      //   }),
+      //   'multiple'
+      // );
 
       handleSetTitle(localData?.topic);
 

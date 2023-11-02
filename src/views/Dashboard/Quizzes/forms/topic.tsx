@@ -10,8 +10,6 @@ import {
   OPEN_ENDED,
   TRUE_FALSE
 } from '../../../../types';
-// import { QuizQuestion } from '../../../../types';
-// import { useQuizState } from '../context';
 import { QuestionIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -31,7 +29,8 @@ import {
   isNil,
   map,
   toLower,
-  toNumber
+  toNumber,
+  omit
 } from 'lodash';
 import { ChangeEvent, useCallback, useState } from 'react';
 
@@ -116,7 +115,7 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle }) => {
           }
 
           return {
-            ...quiz,
+            ...omit(quiz, ['explanation']),
             options,
             type
           };

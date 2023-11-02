@@ -715,6 +715,17 @@ class ApiService {
     });
   };
 
+  static storeQuizHistory = async (data: {
+    quizId: string;
+    questionId: string;
+    answerProvided: string;
+  }) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeQuizHistory`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
   static getQuiz = async (quizId: string | number) => {
     return doFetch(`${ApiService.baseEndpoint}/getQuiz?id=${quizId}`, {
       method: 'GET'

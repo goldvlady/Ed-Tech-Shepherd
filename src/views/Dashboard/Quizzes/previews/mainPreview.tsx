@@ -729,8 +729,8 @@ const QuizPreviewer = ({
         >
           <Box w={'100%'} px="16px">
             {/* Render questions preview */}
-            {questions.length > 0 &&
-              questions.map((question, index) => (
+            {questions?.length > 0 &&
+              questions?.map((question, index) => (
                 <PreviewQuizCard
                   key={question?.id}
                   question={question}
