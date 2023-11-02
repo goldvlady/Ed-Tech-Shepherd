@@ -361,6 +361,7 @@ function App() {
     /* eslint-disable */
   }, []);
 
+  // Fetch resources on app load
   useEffect(() => {
     doFetchResources();
   }, [doFetchResources]);
