@@ -81,7 +81,7 @@ function AllBounties() {
 
       setSettingUpPaymentMethod(false);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 

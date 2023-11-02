@@ -37,7 +37,7 @@ export const InnerWrapper = styled.div`
   overflow-y: scroll;
   position: fixed;
   // bottom: 148px;
-  // height: 70vh;
+  height: 37em;
 `;
 
 export const ChatContainer = styled.div`
@@ -67,7 +67,7 @@ export const GridContainer = styled.div<{ isHomeWorkHelp?: boolean }>`
   // position: fixed;
   top: 300px;
   height: 100%;
-  width: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? '100%' : '40.7%')};
+  width: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? '100%' : '100%')};
   width: -moz-available;
   max-height: 45vh;
 
@@ -265,7 +265,7 @@ export const SendButton = styled.button`
 `;
 
 export const ClockButton = styled.button`
-  display: flex;
+  // display: flex;
   align-items: center;
   justify-content: center;
   background-color: #cbd5e0;
@@ -279,14 +279,13 @@ export const ClockButton = styled.button`
   position: absolute;
   bottom: 94px;
   right: 12px;
+  display:none
   // bottom: -731px;
   // right: 6px
 
-  // @media only screen and (max-width: 768px) {
-  //   position: absolute;
-  //   bottom: -731px;
-  //   right: 6px
-  // }
+  @media only screen and (max-width: 768px) {
+    display: block;
+  }
 `;
 
 export const SummaryContainer = styled.div`

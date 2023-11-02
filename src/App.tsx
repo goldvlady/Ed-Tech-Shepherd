@@ -17,7 +17,9 @@ import Bounties from './views/Dashboard/Bounties/index';
 import DocChat from './views/Dashboard/DocChat';
 import FlashCard from './views/Dashboard/FlashCards';
 import FlashcardWizardProvider from './views/Dashboard/FlashCards/context/flashcard';
+import MnemonicSetupProvider from './views/Dashboard/FlashCards/context/mneomics';
 import CreateFlashCard from './views/Dashboard/FlashCards/create';
+import EditFlashCard from './views/Dashboard/FlashCards/edit';
 import HomeWorkHelp from './views/Dashboard/HomeWorkHelp';
 import Library from './views/Dashboard/Library';
 import Marketplace from './views/Dashboard/Marketplace';
@@ -113,9 +115,9 @@ const RequireAuth = ({
 const TestNewNote = () => <div>this is the new note </div>;
 
 const studentRoutes = [
-  { path: 'notes/new-note', element: <NewNote /> },
+  { path: 'new-note', element: <NewNote /> },
   // { path: 'new-note', element: <TestNewNote /> },
-  { path: 'notes/new-note/:id', element: <NewNote /> },
+  { path: 'new-note/:id', element: <NewNote /> },
   { path: 'notes', element: <Notes /> },
   { path: 'pinned', element: <PinnedNotes /> },
   { path: 'tutor/:tutorId/offer', element: <SendTutorOffer /> },
@@ -134,8 +136,8 @@ const studentRoutes = [
   { path: 'flashcards/create', element: <CreateFlashCard /> },
   { path: 'flashcards', element: <FlashCard /> },
   { path: 'flashcards/:flashcardId', element: <FlashCard /> },
+  { path: 'flashcards/:id/edit', element: <EditFlashCard /> },
   { path: 'library', element: <Library /> },
-
   // quizzes
   { path: 'quizzes', element: <Quizzes /> },
   { path: 'quizzes/create', element: <CreateQuizzes /> }
@@ -147,7 +149,7 @@ const tutorRoutes = [
   { path: 'tutordashboard/clients', element: <Clients /> },
   { path: 'tutordashboard/clients/:clientId', element: <Client /> },
   { path: 'tutordashboard/offers', element: <TutorOffers /> },
-  { path: 'tutordashboard/offers/offer/:offerId', element: <Offer /> },
+  { path: 'tutordashboard/offer/:offerId', element: <Offer /> },
   { path: 'tutordashboard/bounties', element: <TutorBounties /> },
   { path: 'tutordashboard/bounties/:bidId', element: <TutorBounties /> },
   { path: 'tutordashboard/account-settings', element: <TutorSettings /> },
@@ -188,6 +190,7 @@ const RenderLayout = () => {
 const AppRoutes: React.FC = () => {
   const location = useLocation();
   const { fetchNotifications, fetchUserDocuments } = userStore();
+
   const {
     state: { user: userData, loading, isAuthenticated }
   } = useAuth();
@@ -340,7 +343,7 @@ const AppRoutes: React.FC = () => {
         }
       />
       <Route
-        path="/dashboard/*"
+        path="/dashboard"
         element={
           <RequireAuth
             authenticated={<RenderLayout />}
@@ -368,6 +371,7 @@ function App() {
     /* eslint-disable */
   }, []);
 
+  // Fetch resources on app load
   useEffect(() => {
     doFetchResources();
   }, [doFetchResources]);
@@ -378,13 +382,15 @@ function App() {
         <AuthProvider>
           <BrowserRouter>
             <FlashcardWizardProvider>
-              <QuizWizardProvider>
-                <FlashCardModal isOpen={Boolean(flashcard)} />
-                {Boolean(quiz) && <QuizModal isOpen={Boolean(quiz)} />}
-                <StreamChatProvider>
-                  <AppRoutes />
-                </StreamChatProvider>
-              </QuizWizardProvider>
+              <MnemonicSetupProvider>
+                <QuizWizardProvider>
+                  <FlashCardModal isOpen={Boolean(flashcard)} />
+                  {Boolean(quiz) && <QuizModal isOpen={Boolean(quiz)} />}
+                  <StreamChatProvider>
+                    <AppRoutes />
+                  </StreamChatProvider>
+                </QuizWizardProvider>
+              </MnemonicSetupProvider>
             </FlashcardWizardProvider>
           </BrowserRouter>
         </AuthProvider>

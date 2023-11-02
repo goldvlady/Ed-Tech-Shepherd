@@ -50,8 +50,12 @@ import {
   Wrapper
 } from './styles';
 import Summary from './summary';
-import { Text } from '@chakra-ui/react';
+import { Text, Icon } from '@chakra-ui/react';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { AiFillLike } from 'react-icons/ai';
+import { AiFillDislike } from 'react-icons/ai';
+import { FiThumbsUp } from 'react-icons/fi';
+import { FiThumbsDown } from 'react-icons/fi';
 
 interface IChat {
   HomeWorkHelp?: boolean;
@@ -353,7 +357,7 @@ const Chat = ({
                     <div
                       style={{
                         position: 'absolute',
-                        top: '210px',
+                        top: '25rem',
                         right: '36%',
                         zIndex: '111111111'
                       }}
@@ -426,21 +430,37 @@ const Chat = ({
                         const isHovered = index === hoveredIndex;
                         const isUserHovered = index === hoveredUserIndex;
                         return message.isUser ? (
-                          <UserMessage
-                            key={index}
-                            // style={{ position: 'relative' }}
-                            // onMouseEnter={() => setHoveredUserIndex(index)}
-                            // onMouseLeave={() => setHoveredUserIndex(0)}
-                          >
-                            {/* <PinLogo
+                          <>
+                            <UserMessage
+                              key={index}
+                              // style={{ position: 'relative' }}
+                              // onMouseEnter={() => setHoveredUserIndex(index)}
+                              // onMouseLeave={() => setHoveredUserIndex(0)}
+                            >
+                              {/* <PinLogo
                               style={{
                                 display: isUserHovered ? 'block' : 'none',
                                 cursor: 'pointer',
                                 marginLeft: 'auto'
                               }}
                             /> */}
-                            {message.text}
-                          </UserMessage>
+                              {message.text}
+                            </UserMessage>
+                            {!HomeWorkHelp && (
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'self-end',
+                                  gap: '20px',
+                                  marginLeft: 'auto'
+                                }}
+                              >
+                                {/* <Icon as={AiFillLike} />
+                                <Icon as={AiFillDislike} />
+                                <PinLogo /> */}
+                              </div>
+                            )}
+                          </>
                         ) : (
                           <div
                             key={index}
@@ -463,6 +483,19 @@ const Chat = ({
                                   /> */}
                                   <CustomMarkdownView source={message.text} />
                                 </AiMessage>
+                                {!HomeWorkHelp && (
+                                  <div
+                                    style={{
+                                      display: 'flex',
+                                      alignItems: 'self-end',
+                                      gap: '20px'
+                                    }}
+                                  >
+                                    {/* <Icon as={AiFillLike} />
+                                    <Icon as={AiFillDislike} />
+                                    <PinLogo /> */}
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>
@@ -484,7 +517,7 @@ const Chat = ({
               style={{
                 position: 'fixed',
                 width: '100%',
-                bottom: isMobile ? '40px' : '60px',
+                bottom: isMobile ? '40px' : '40px',
                 background: 'white'
               }}
             >
@@ -598,9 +631,11 @@ const Chat = ({
                 <img alt="" src="/svgs/send.svg" className="w-8 h-8" />
               </SendButton>
             </InputContainer>
-            <ClockButton type="button" onClick={onSwitchOnMobileView}>
-              <img alt="pdf" src={PDFImg} className="w-5 h-5" />
-            </ClockButton>
+            {isMobile && (
+              <ClockButton type="button" onClick={onSwitchOnMobileView}>
+                <img alt="pdf" src={PDFImg} className="w-5 h-5" />
+              </ClockButton>
+            )}
           </ChatbotContainer>
         )}
       </Form>

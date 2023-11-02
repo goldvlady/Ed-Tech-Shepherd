@@ -1,7 +1,7 @@
 import { REACT_APP_API_ENDPOINT } from '../config';
 import { AI_API, HEADER_KEY } from '../config';
 import { objectToQueryString } from '../helpers/http.helpers';
-import { User, StudentDocumentPayload, QuizData, QuizQuestion } from '../types';
+import { User, StudentDocumentPayload, QuizData, QuizQuestion, FlashcardData} from '../types';
 import { doFetch } from '../util';
 import {
   processDocument,
@@ -31,6 +31,13 @@ class ApiService {
 
   static getUser = async () => {
     return doFetch(`${ApiService.baseEndpoint}/me`);
+  };
+
+  static editFlashcard = async (id: string, data: Partial<FlashcardData>) => {
+    return doFetch(`${ApiService.baseEndpoint}/editFlashcard?id=${id}`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
   };
 
   static createUser = async (data: Partial<User>) => {
@@ -158,7 +165,7 @@ class ApiService {
   };
 
   static getSingleFlashcard = async (id: string) => {
-    return doFetch(`${ApiService.baseEndpoint}/getStudentFlashcard/${id}`);
+    return doFetch(`${ApiService.baseEndpoint}/getStudentFlashcard?id=${id}`);
   };
 
   static verifyToken = async (token: string) => {

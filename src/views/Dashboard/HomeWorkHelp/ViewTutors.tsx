@@ -102,7 +102,6 @@ const ViewTutors = ({
         setAllTutors(data?.tutors ?? []);
       } catch (error) {
         // eslint-disable-next-line no-console
-        console.error('Error fetching tutors:', error);
       } finally {
         setLoadingData(false);
       }
