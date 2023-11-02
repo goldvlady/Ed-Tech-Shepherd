@@ -118,7 +118,6 @@ const TextQuizForm = ({ addQuestion, handleSetTitle }) => {
       });
       const { quizzes } = await result.json();
 
-      // addQuestion([...quizzes], 'multiple');
       addQuestion(
         map([...quizzes], (quiz) => {
           let type = quiz?.type;
