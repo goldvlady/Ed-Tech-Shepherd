@@ -228,7 +228,7 @@ const PreviewQuizCard = ({
           )}
         </HStack>
         {isEditable && (
-          <Box mb={'24px'} w={'60%'}>
+          <Box mb={'24px'} w={'60%'} pl={5}>
             <SelectComponent
               name="type"
               placeholder="Select Question Type"
@@ -250,7 +250,7 @@ const PreviewQuizCard = ({
           </Box>
         )}
         {!isEmpty(type) && !isNil(type) ? (
-          <>
+          <Box pl={5} w={'60%'}>
             {type === MULTIPLE_CHOICE_SINGLE && (
               <RadioGroup
                 onChange={(e) => {
@@ -378,9 +378,9 @@ const PreviewQuizCard = ({
                 />
               </Box>
             )}
-          </>
+          </Box>
         ) : (
-          <>
+          <Box pl={5} w={'60%'}>
             {question.type === MULTIPLE_CHOICE_SINGLE && (
               <RadioGroup
                 onChange={(e) => {
@@ -401,6 +401,7 @@ const PreviewQuizCard = ({
                         <label
                           className="font-[Inter] text-dark font-[400] text-[14px] leading-[20px]  flex justify-center items-center cursor-pointer"
                           htmlFor={`option${optionIndex}`}
+                          style={{ cursor: 'not-allowed' }}
                         >
                           <Radio
                             value={
@@ -416,7 +417,9 @@ const PreviewQuizCard = ({
                             id={`option${optionIndex}`}
                             name={`option:${optionIndex}`}
                             mr={1}
-                            isDisabled={!isEditable}
+                            isReadOnly={!isEditable}
+                            style={{ cursor: 'not-allowed' }}
+                            _disabled={{ color: 'white' }}
                           />
 
                           {option?.content}
@@ -446,6 +449,7 @@ const PreviewQuizCard = ({
                         <label
                           className="font-[Inter] text-dark font-[400] text-[14px] leading-[20px] flex justify-center items-center cursor-pointer"
                           htmlFor={`${toLower(option.content)}-${optionIndex}`}
+                          style={{ cursor: 'not-allowed' }}
                         >
                           <Radio
                             value={
@@ -461,7 +465,11 @@ const PreviewQuizCard = ({
                             id={`${toLower(option.content)}-${optionIndex}`}
                             name={`option:${optionIndex}`}
                             mr={1}
-                            isDisabled={!isEditable}
+                            isReadOnly={!isEditable}
+                            style={{ cursor: 'not-allowed' }}
+                            // _disabled={{ color: '#fff' }}
+                            // sx={}
+                            // onClick={(e) => e.preventDefault()}
                           />
 
                           {option.content}
@@ -482,7 +490,7 @@ const PreviewQuizCard = ({
                 />
               </Box>
             )}
-          </>
+          </Box>
         )}
       </VStack>
 
@@ -690,8 +698,8 @@ const QuizPreviewer = ({
                   </Button>
                 ))}
             </HStack>
-            <Flex px={'4'} w={'100%'} justifyContent={'flex-end'} mt={4}>
-              <InputGroup width="282px">
+            <Flex w={'100%'} justifyContent={'flex-end'} my={5}>
+              <InputGroup width="290px">
                 <InputLeftElement
                   pointerEvents="none"
                   children={<BsSearch color="#969CA6" />}
@@ -722,12 +730,12 @@ const QuizPreviewer = ({
               width: '6px'
             },
             '&::-webkit-scrollbar-thumb': {
-              background: 'text.400',
+              // background: 'text.400',
               borderRadius: '24px'
             }
           }}
         >
-          <Box w={'100%'} px="16px">
+          <Box w={'100%'}>
             {/* Render questions preview */}
             {questions?.length > 0 &&
               questions?.map((question, index) => (

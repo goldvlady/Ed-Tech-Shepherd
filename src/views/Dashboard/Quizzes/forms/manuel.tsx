@@ -51,8 +51,6 @@ const ManualQuizForm = ({
     answer: ''
   });
 
-  // const [title, setTitle] = useState('');
-
   useEffect(() => {
     if (questions[currentQuestionIndex]) {
       const options = {};
@@ -95,7 +93,7 @@ const ManualQuizForm = ({
       };
       return updatedQuestions;
     });
-    // if (questions.length > currentQuestionIndex + 1) {
+
     goToQuestion((prevIndex) => prevIndex + 1);
 
     let data: any = {
@@ -110,7 +108,6 @@ const ManualQuizForm = ({
       data = omit(data, ['answer']);
     }
 
-    // addTitle(title);
     addQuestion(data);
 
     setTimeout(() => {
@@ -206,7 +203,7 @@ const ManualQuizForm = ({
   ];
 
   return (
-    <Box width={'100%'} mt="20px" padding="0 10px">
+    <Box width={'100%'} mt="20px">
       {!isEmpty(tags) && (
         <HStack
           flexWrap={'wrap'}
@@ -225,7 +222,7 @@ const ManualQuizForm = ({
         </HStack>
       )}
       <FormControl mb={4}>
-        <FormLabel color={'text.500'}>Enter a title</FormLabel>
+        <FormLabel textColor={'text.600'}>Enter a title</FormLabel>
         <Input
           value={title}
           type="text"
@@ -239,7 +236,7 @@ const ManualQuizForm = ({
         />
       </FormControl>
       <FormControl mb={4}>
-        <FormLabel color={'text.500'}>Select question type:</FormLabel>
+        <FormLabel textColor={'text.600'}>Select question type:</FormLabel>
 
         <SelectComponent
           name="type"
@@ -259,7 +256,7 @@ const ManualQuizForm = ({
       </FormControl>
 
       <FormControl mb={4}>
-        <FormLabel color={'text.500'}>Enter your question:</FormLabel>
+        <FormLabel textColor={'text.600'}>Enter your question:</FormLabel>
         <Textarea
           _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
           name="question"
@@ -294,7 +291,7 @@ const ManualQuizForm = ({
       </>
       {!isEmpty(currentQuestion.question) && currentQuestion.type && (
         <FormControl mb={4}>
-          <FormLabel color={'text.500'}>Answer:</FormLabel>
+          <FormLabel textColor={'text.600'}>Answer:</FormLabel>
           {currentQuestion.type === MULTIPLE_CHOICE_SINGLE && (
             <SelectComponent
               name="answer"
@@ -349,25 +346,6 @@ const ManualQuizForm = ({
         marginTop="40px"
         align={'flex-end'}
       >
-        {/* {currentQuestionIndex > 0 && (
-          <Button
-            aria-label="Edit"
-            height={'fit-content'}
-            width={'fit-content'}
-            variant="unstyled"
-            fontWeight={500}
-            p={0}
-            color={'#207DF7'}
-            _hover={{ bg: 'none', padding: '0px' }}
-            _active={{ bg: 'none', padding: '0px' }}
-            _focus={{ boxShadow: 'none' }}
-            colorScheme="primary"
-            onClick={handlePreviousQuestion}
-            mr={2}
-          >
-            Previous
-          </Button>
-        )} */}
         <Button
           borderRadius="8px"
           p="10px 20px"

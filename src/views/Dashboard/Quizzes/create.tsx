@@ -227,7 +227,6 @@ const CreateQuizPage = () => {
   };
 
   const handleLoadQuiz = () => {
-    console.log('quizId ========>>> ', quizId);
     loadQuiz(quizId);
   };
   const searchQuizzes = useCallback(
@@ -249,6 +248,98 @@ const CreateQuizPage = () => {
 
   const handleSearch = useSearch(searchQuizzes);
 
+  useEffect(() => {
+    setQuestions([
+      {
+        question: 'What is the main purpose of a knife?',
+        type: 'openEnded',
+        answer: 'Cutting',
+        explanation:
+          'Knife primarily serves as a cutting tool. It may be used in various contexts like kitchen for food preparation or in arts for creating crafts.'
+      },
+      {
+        question: 'A knife can be used for...',
+        type: 'multipleChoiceSingle',
+        options: [
+          {
+            content: 'Cutting food',
+            isCorrect: true
+          },
+          {
+            content: 'Sewing clothes',
+            isCorrect: false
+          },
+          {
+            content: 'Opening a package',
+            isCorrect: true
+          },
+          {
+            content: 'Writing a letter',
+            isCorrect: false
+          }
+        ]
+      },
+      {
+        question: 'The sharp side of the knife is called...?',
+        type: 'multipleChoiceSingle',
+        options: [
+          {
+            content: 'Handle',
+            isCorrect: false
+          },
+          {
+            content: 'Edge',
+            isCorrect: true
+          },
+          {
+            content: 'Point',
+            isCorrect: false
+          },
+          {
+            content: 'Blade',
+            isCorrect: false
+          }
+        ]
+      },
+      {
+        question: 'Is it safe to play with a knife?',
+        type: 'trueFalse',
+        options: [
+          {
+            content: 'true',
+            isCorrect: false
+          },
+          {
+            content: 'false',
+            isCorrect: true
+          }
+        ]
+      },
+      {
+        question: 'If you see a knife lying around, you should...',
+        type: 'multipleChoiceSingle',
+        options: [
+          {
+            content: 'Pick it up and play with it',
+            isCorrect: false
+          },
+          {
+            content: 'Leave it there',
+            isCorrect: false
+          },
+          {
+            content: 'Tell an adult',
+            isCorrect: true
+          },
+          {
+            content: 'Put it in your pocket',
+            isCorrect: false
+          }
+        ]
+      }
+    ]);
+  }, []);
+
   return (
     <>
       <Flex
@@ -263,6 +354,7 @@ const CreateQuizPage = () => {
 
         <Box
           className="create-quiz-wrapper"
+          px={'30px'}
           width={['100%', '100%', '100%', '50%', '30%']}
           bg="white"
           overflowY={'auto'}
@@ -286,8 +378,7 @@ const CreateQuizPage = () => {
             fontSize="18px"
             lineHeight="23px"
             color="#212224"
-            m={8}
-            mt={10}
+            py={8}
           >
             Create Quiz
           </Text>
@@ -317,28 +408,28 @@ const CreateQuizPage = () => {
             />
 
             <TabPanels>
-              <TabPanel>
+              <TabPanel p={0}>
                 <UploadQuizForm
                   addQuestion={addQuestion}
                   handleSetTitle={handleSetTitle}
                 />
               </TabPanel>
 
-              <TabPanel>
+              <TabPanel p={0}>
                 <TopicQuizForm
                   addQuestion={addQuestion}
                   handleSetTitle={handleSetTitle}
                 />
               </TabPanel>
               {false && (
-                <TabPanel>
+                <TabPanel p={0}>
                   <TextQuizForm
                     addQuestion={addQuestion}
                     handleSetTitle={handleSetTitle}
                   />
                 </TabPanel>
               )}
-              <TabPanel>
+              <TabPanel p={0}>
                 <ManualQuizForm
                   openTags={handleOpenTagsModal}
                   addQuestion={addQuestion}

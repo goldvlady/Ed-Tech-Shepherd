@@ -9,8 +9,6 @@ import {
   OPEN_ENDED,
   TRUE_FALSE
 } from '../../../../types';
-// import { QuizQuestion } from '../../../../types';
-// import { useQuizState } from '../context';
 import { QuestionIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -53,60 +51,7 @@ const TextQuizForm = ({ addQuestion, handleSetTitle }) => {
     { label: 'Mixed', value: MIXED }
   ];
 
-  // const { goToQuestion, currentQuestionIndex, questions } = useQuizState();
-
-  // const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion>({
-  //   type: 'multipleChoiceSingle', //default question type option
-  //   question: '',
-  //   options: [],
-  //   answer: ''
-  // });
-
-  // useEffect(() => {
-  //   if (questions[currentQuestionIndex]) {
-  //     setCurrentQuestion(questions[currentQuestionIndex]);
-  //   }
-  // }, [currentQuestionIndex, questions]);
-
-  // const handleChangeQuestionType = (
-  //   e: React.ChangeEvent<
-  //     HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-  //   >
-  // ) => {
-  //   const { name, value } = e.target;
-
-  //   setCurrentQuestion((prevQuestion) => ({
-  //     ...prevQuestion,
-  //     [name]: value
-  //   }));
-  // };
-
-  // const handleQuestionAdd = () => {
-  //   setQuestions((prevQuestions) => {
-  //     const updatedQuestions = [...prevQuestions];
-  //     updatedQuestions[currentQuestionIndex] = currentQuestion;
-  //     // console.log('updatedQuestions', updatedQuestions);
-  //     return updatedQuestions;
-  //   });
-  //   // if (questions.length > currentQuestionIndex + 1) {
-  //   goToQuestion((prevIndex) => prevIndex + 1);
-
-  //   addQuestion(currentQuestion);
-
-  //   setCurrentQuestion({
-  //     type: 'multipleChoiceSingle',
-  //     question: '',
-  //     options: [],
-  //     answer: ''
-  //   });
-  //   // }
-  // };
-
   const [localData, setLocalData] = useState<any>(dummyData);
-
-  // const handlePreviousQuestion = () => {
-  //   goToQuestion((prevIndex: number) => prevIndex - 1);
-  // };
 
   const handleGenerateQuestions = async () => {
     try {
@@ -187,7 +132,7 @@ const TextQuizForm = ({ addQuestion, handleSetTitle }) => {
   );
 
   return (
-    <Box width={'100%'} mt="20px" padding="0 10px">
+    <Box width={'100%'} mt="20px">
       <FormControl mb={7}>
         <FormLabel color={'text.500'}>Enter a text</FormLabel>
         <Textarea
@@ -208,20 +153,6 @@ const TextQuizForm = ({ addQuestion, handleSetTitle }) => {
 
       <FormControl mb={7}>
         <FormLabel color={'text.500'}>Question type:</FormLabel>
-        {/* <Select
-          height={'48px'}
-          sx={{
-            padding: '8px'
-          }}
-          name="type"
-          value={currentQuestion.type}
-          onChange={handleChangeQuestionType}
-          textColor={'text.700'}
-        >
-          <option value="multipleChoiceSingle">Multiple Choice</option>
-          <option value="openEnded">Open Ended</option>
-          <option value="trueFalse">True/False</option>
-        </Select> */}
 
         <SelectComponent
           name="type"
@@ -305,26 +236,6 @@ const TextQuizForm = ({ addQuestion, handleSetTitle }) => {
         marginTop="40px"
         align={'flex-end'}
       >
-        {/* {currentQuestionIndex > 0 && (
-          <Button
-            aria-label="Edit"
-            height={'fit-content'}
-            width={'fit-content'}
-            variant="unstyled"
-            fontWeight={500}
-            p={0}
-            color={'#207DF7'}
-            _hover={{ bg: 'none', padding: '0px' }}
-            _active={{ bg: 'none', padding: '0px' }}
-            _focus={{ boxShadow: 'none' }}
-            colorScheme="primary"
-            onClick={handlePreviousQuestion}
-            mr={2}
-          >
-            Previous
-          </Button>
-        )} */}
-        (
         <Button
           width={'180px'}
           borderRadius="8px"
@@ -345,7 +256,6 @@ const TextQuizForm = ({ addQuestion, handleSetTitle }) => {
           <WardIcon className={'h-[20px] w-[20px] mx-2'} onClick={() => ''} />
           Generate
         </Button>
-        )
       </HStack>
     </Box>
   );

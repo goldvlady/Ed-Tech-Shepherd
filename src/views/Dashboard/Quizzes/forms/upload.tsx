@@ -11,7 +11,6 @@ import {
   MIXED,
   MULTIPLE_CHOICE_SINGLE,
   OPEN_ENDED,
-  QuizQuestion,
   TRUE_FALSE
 } from '../../../../types';
 import { QuestionIcon } from '@chakra-ui/icons';
@@ -20,12 +19,9 @@ import {
   FormControl,
   FormLabel,
   FormHelperText,
-  Select,
   Input,
   HStack,
   Button,
-  InputGroup,
-  InputLeftElement,
   Tooltip,
   Text
 } from '@chakra-ui/react';
@@ -79,7 +75,6 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
 
   const { saveDocument } = documentStore();
 
-  // const fileRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<any>();
   const [isUploadingFile, setIsUploadingFile] = useState(false);
 
@@ -143,49 +138,6 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
         'multiple'
       );
 
-      // addQuestion(
-      //   map([...quizzes], (quiz) => {
-      //     let type = quiz?.type;
-
-      //     if (isNil(type) || isEmpty(type)) {
-      //       if (!isNil(quiz?.options) || !isEmpty(quiz?.options)) {
-      //         if (quiz?.options?.length < 3) {
-      //           type = TRUE_FALSE;
-      //         } else {
-      //           type = MULTIPLE_CHOICE_SINGLE;
-      //         }
-      //       } else {
-      //         if (!isEmpty(quiz?.answer) || !isNil(quiz?.answer)) {
-      //           type = OPEN_ENDED;
-      //         }
-      //       }
-      //     } else {
-      //       if (
-      //         includes(toLower(type), 'multiple') ||
-      //         includes(toLower(type), 'choice')
-      //       ) {
-      //         type = MULTIPLE_CHOICE_SINGLE;
-      //       }
-      //       if (includes(toLower(type), 'true')) {
-      //         type = TRUE_FALSE;
-      //       }
-      //       if (
-      //         includes(toLower(type), 'open') ||
-      //         includes(toLower(type), 'ended')
-      //       ) {
-      //         type = OPEN_ENDED;
-      //       }
-      //     }
-
-      //     return {
-      //       options: [],
-      //       ...quiz,
-      //       type
-      //     };
-      //   }),
-      //   'multiple'
-      // );
-
       handleSetTitle(localData?.topic);
 
       setLocalData(dummyData);
@@ -202,7 +154,6 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
         status: 'error'
       });
     } finally {
-      // setIsLoading(false);
       handleIsLoadingQuizzes(false);
     }
   };
@@ -235,8 +186,6 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
 
         const response = await saveDocument({ title, documentUrl }, true);
         if (response) {
-          // console.log('response =========>> ', response);
-
           const fileProcessor = new FileProcessingService(
             { ...(response as any), student: user?._id },
             true
@@ -246,20 +195,10 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
           const {
             data: [{ documentId }]
           } = processData;
-          // setOpenUploadModal(false);
-
-          console.log('processData =========>>> ', processData);
-
-          console.log('documentId =========>>> ', documentId);
 
           await handleGenerateQuestions(documentId);
 
           handleIsLoadingQuizzes(false);
-          // toast({
-          //   title: 'Document saved',
-          //   status: 'success',
-          //   position: 'top-right'
-          // });
         } else {
           handleIsLoadingQuizzes(false);
           toast({
@@ -289,7 +228,6 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
       });
       setIsUploadingFile(false);
     });
-    // }
   };
 
   const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
@@ -304,9 +242,9 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
   });
 
   return (
-    <Box width={'100%'} mt="20px" padding="0 10px">
+    <Box width={'100%'} mt="20px">
       <FormControl mb={7}>
-        <FormLabel color={'text.500'}>Enter a topic</FormLabel>
+        <FormLabel textColor={'text.600'}>Upload a document</FormLabel>
         <HStack
           alignItems={'center'}
           p={'14px 16px'}
@@ -346,7 +284,7 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
       </FormControl>
 
       <FormControl mb={7}>
-        <FormLabel color={'text.500'}>Question type:</FormLabel>
+        <FormLabel textColor={'text.600'}>Question type:</FormLabel>
 
         <SelectComponent
           name="type"
@@ -369,7 +307,7 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
       </FormControl>
 
       <FormControl mb={8}>
-        <FormLabel color={'text.500'}>Level (optional): </FormLabel>
+        <FormLabel textColor={'text.600'}>Level (optional): </FormLabel>
         <SelectComponent
           name="difficulty"
           placeholder="Select Level"
@@ -391,7 +329,7 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
       </FormControl>
 
       <FormControl mb={7}>
-        <FormLabel color={'text.500'}>
+        <FormLabel textColor={'text.600'}>
           Number of questions
           <Tooltip
             hasArrow
@@ -408,6 +346,7 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
           onChange={handleChange}
           type="number"
           value={localData.count}
+          color={'text.200'}
         />
       </FormControl>
 

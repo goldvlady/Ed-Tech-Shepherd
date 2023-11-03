@@ -157,9 +157,9 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle }) => {
   );
 
   return (
-    <Box width={'100%'} mt="20px" padding="0 10px">
+    <Box width={'100%'} mt="20px">
       <FormControl mb={8}>
-        <FormLabel color={'text.500'}>Subject: </FormLabel>
+        <FormLabel textColor={'text.600'}>Subject: </FormLabel>
         <Input
           type="text"
           name="subject"
@@ -170,7 +170,7 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle }) => {
         />
       </FormControl>
       <FormControl mb={7}>
-        <FormLabel color={'text.500'}>Enter a topic</FormLabel>
+        <FormLabel textColor={'text.600'}>Enter a topic</FormLabel>
         <Input
           type="text"
           _placeholder={{
@@ -193,7 +193,7 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle }) => {
       </FormControl>
 
       <FormControl mb={7}>
-        <FormLabel color={'text.500'}>Question type:</FormLabel>
+        <FormLabel textColor={'text.600'}>Question type:</FormLabel>
         {/* <Select
           height={'48px'}
           sx={{
@@ -230,7 +230,7 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle }) => {
       </FormControl>
 
       <FormControl mb={8}>
-        <FormLabel color={'text.500'}>Level (optional): </FormLabel>
+        <FormLabel textColor={'text.600'}>Level (optional): </FormLabel>
         <SelectComponent
           name="difficulty"
           placeholder="Select Level"
@@ -252,7 +252,7 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle }) => {
       </FormControl>
 
       <FormControl mb={7}>
-        <FormLabel color={'text.500'}>
+        <FormLabel textColor={'text.600'}>
           Number of questions
           <Tooltip
             hasArrow
@@ -268,6 +268,7 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle }) => {
           name="count"
           onChange={handleChange}
           type="number"
+          color={'text.200'}
           value={localData.count}
         />
       </FormControl>
