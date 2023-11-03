@@ -355,6 +355,20 @@ export const IconContainer = styled.div`
   }
 `;
 
+export const IconContainer2 = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: end;
+  position: absolute;
+  right: 17px;
+  top: -32px;
+
+  > svg {
+    cursor: pointer;
+  }
+`;
+
 export const NeedPills = styled.img`
   height: 18px;
   width: 18px;
@@ -437,6 +451,7 @@ export const UserMessage = styled.div`
   border-radius: 10px;
   min-width: auto;
   max-width: 439px;
+  margin: 15px 0;
 
   @media only screen and (max-width: 768px) {
     font-size: 0.75rem;

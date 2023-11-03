@@ -8,7 +8,9 @@ import {
   deleteGeneratedSummary,
   generateSummary,
   getPDFHighlight,
+  getToggleReaction,
   postGenerateSummary,
+  postPinnedPrompt,
   updateGeneratedSummary
 } from '../../../services/AI';
 import socketWithAuth from '../../../socket';
@@ -20,7 +22,7 @@ import { TempPDF } from './styles';
 import { BlockNoteEditor } from '@blocknote/core';
 import { BlockNoteView, useBlockNote } from '@blocknote/react';
 import { useToast } from '@chakra-ui/react';
-import { useEffect, useState, useCallback, useLayoutEffect } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function DocChat() {
@@ -35,7 +37,15 @@ export default function DocChat() {
     'Philosopher, thinker, study companion.'
   );
   const [messages, setMessages] = useState<
-    { text: string; isUser: boolean; isLoading: boolean }[]
+    {
+      text: string;
+      isUser: boolean;
+      isLoading: boolean;
+      dislike: boolean;
+      like: boolean;
+      chatId?: number;
+      isPinned?: boolean;
+    }[]
   >([]);
   const [inputValue, setInputValue] = useState('');
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
@@ -59,7 +69,47 @@ export default function DocChat() {
   const [summaryError, setSummaryError] = useState(false);
   const mobile = useIsMobile();
   const [switchDocument, setSwitchDocument] = useState(true);
-  console.log('switchDocument ==>', switchDocument);
+  const [likesDislikes, setLikesDislikes] = useState(
+    new Array(messages.length).fill({ like: false, dislike: false })
+  );
+  const [chatId, setChatId] = useState('');
+  const [pinnedResponse, setPinnedResponse] = useState<any>();
+
+  const isLike = useMemo(() => {
+    return likesDislikes[1]?.like
+      ? true
+      : false || likesDislikes[1]?.dislike
+      ? false
+      : true;
+  }, [likesDislikes]);
+
+  const reaction = useCallback(
+    async () =>
+      getToggleReaction({
+        chatId,
+        reactionType: isLike ? 'like' : 'dislike'
+      }).catch((err) => {
+        console.log(err);
+      }),
+    []
+  );
+
+  const handleDislike = (index) => {
+    setLikesDislikes((prev) => {
+      const newState = [...prev];
+      newState[index] = { dislike: !prev[index]?.dislike, like: false };
+      return newState;
+    });
+  };
+
+  const handleLike = (index) => {
+    setLikesDislikes((prev) => {
+      const newState = [...prev];
+      newState[index] = { like: !prev[index]?.like, dislike: false };
+      return newState;
+    });
+  };
+
   useEffect(() => {
     if (documentId && studentId) {
       const authSocket = socketWithAuth({
@@ -90,11 +140,16 @@ export default function DocChat() {
           () => setBotStatus('Philosopher, thinker, study companion.'),
           1000
         );
-
         // eslint-disable-next-line
         setMessages((prevMessages) => [
           ...prevMessages,
-          { text: completeText, isUser: false, isLoading: false }
+          {
+            text: completeText,
+            isUser: false,
+            isLoading: false,
+            dislike: false,
+            like: false
+          }
         ]);
       });
 
@@ -168,6 +223,17 @@ export default function DocChat() {
     }
   }, [summaryError]);
 
+  useEffect(() => {
+    const response = async () =>
+      await getToggleReaction({
+        chatId,
+        reactionType: isLike ? 'like' : 'dislike'
+      }).catch((err) => {
+        console.error(err);
+      });
+    response();
+  }, [getToggleReaction, chatId, likesDislikes]);
+
   function showToast(title: string, status: string) {
     <CustomToast title={title} status={status} />;
   }
@@ -195,7 +261,13 @@ export default function DocChat() {
 
       setMessages((prevMessages) => [
         ...prevMessages,
-        { text: prompt, isUser: true, isLoading: false }
+        {
+          text: prompt,
+          isUser: true,
+          isLoading: false,
+          dislike: false,
+          like: false
+        }
       ]);
 
       socket.emit('chat message', prompt);
@@ -215,7 +287,13 @@ export default function DocChat() {
 
       setMessages((prevMessages) => [
         ...prevMessages,
-        { text: inputValue, isUser: true, isLoading: false }
+        {
+          text: inputValue,
+          isUser: true,
+          isLoading: false,
+          dislike: false,
+          like: false
+        }
       ]);
       setInputValue('');
 
@@ -276,6 +354,50 @@ export default function DocChat() {
     setSwitchDocument((prevState) => !prevState);
   }, [setSwitchDocument]);
 
+  const handlePinPrompt = useCallback(
+    async ({ chatHistoryId = '', studentId = '' }) => {
+      try {
+        const response = await postPinnedPrompt({
+          chatId: chatHistoryId,
+          studentId
+        });
+        if (response) {
+          setPinnedResponse(response);
+          // You might want to toast a success message or handle the success response
+          toast({
+            render: () => (
+              <CustomToast
+                title="Chat prompt pinned successfully!"
+                status="success"
+              />
+            ),
+            position: 'top-right',
+            isClosable: true
+          });
+        } else {
+          // Handle the null response case
+          toast({
+            title: 'Failed to pin chat prompt',
+            description: 'No response received from the server.',
+            status: 'warning',
+            duration: 5000,
+            isClosable: true
+          });
+        }
+      } catch (error) {
+        // Handle errors here
+        toast({
+          title: 'An error occurred',
+          description: error.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true
+        });
+      }
+    },
+    []
+  );
+
   const handleUpdateSummary = useCallback(async () => {
     setLoading(true);
     try {
@@ -324,13 +446,25 @@ export default function DocChat() {
           documentId,
           studentId
         });
-        const mappedData = historyData?.map((item) => ({
-          text: item.content,
-          isUser: item.role === 'user',
-          isLoading: false
-        }));
 
+        const mappedData = historyData?.map((item) => ({
+          text: item?.log.content,
+          isUser: item?.log.role === 'user',
+          isLoading: false,
+          disliked: item?.disliked,
+          liked: item?.liked,
+          chatId: item?.id,
+          isPinned: item?.isPinned
+        }));
+        console.log('historyData ==>', historyData);
         setMessages(mappedData);
+        // Set likesDislikes based on the fetched chat history
+        setLikesDislikes(
+          mappedData.map((message) => ({
+            like: message.liked,
+            dislike: message.disliked
+          }))
+        );
         setChatHistoryLoaded(true);
       } catch (error) {
         toast({
@@ -346,7 +480,10 @@ export default function DocChat() {
       }
     };
     fetchChatHistory();
-  }, [documentId, studentId]);
+    if (pinnedResponse) {
+      fetchChatHistory();
+    }
+  }, [documentId, studentId, pinnedResponse]);
 
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
 
@@ -425,6 +562,12 @@ export default function DocChat() {
             isUpdatedSummary={isUpdatedSummary}
             directStudentId={directStudentId}
             onSwitchOnMobileView={onSwitchOnMobileView}
+            handleDislike={handleDislike}
+            handleLike={handleLike}
+            likesDislikes={likesDislikes}
+            setChatId={setChatId}
+            handlePinPrompt={handlePinPrompt}
+            studentId={studentId}
           />
         )}
 
@@ -476,6 +619,12 @@ export default function DocChat() {
               isUpdatedSummary={isUpdatedSummary}
               directStudentId={directStudentId}
               onSwitchOnMobileView={onSwitchOnMobileView}
+              handleDislike={handleDislike}
+              handleLike={handleLike}
+              likesDislikes={likesDislikes}
+              setChatId={setChatId}
+              handlePinPrompt={handlePinPrompt}
+              studentId={studentId}
             />
           </>
         )}

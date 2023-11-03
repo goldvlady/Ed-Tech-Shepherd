@@ -424,3 +424,33 @@ export const getDescriptionById = async ({
     return conversation;
   }
 };
+
+export const getToggleReaction = async ({ chatId, reactionType }) => {
+  const request = await fetch(`${AI_API}/notes/chat/toggle_reaction`, {
+    method: 'POST',
+    headers: {
+      'x-shepherd-header': HEADER_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      chatId,
+      reactionType
+    })
+  });
+  return request;
+};
+
+export const postPinnedPrompt = async ({ chatId, studentId }) => {
+  const request = await fetch(`${AI_API}/notes/toggle_pin`, {
+    method: 'POST',
+    headers: {
+      'x-shepherd-header': HEADER_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      chatId,
+      studentId
+    })
+  });
+  return request;
+};
