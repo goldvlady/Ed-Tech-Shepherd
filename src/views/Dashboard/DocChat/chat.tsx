@@ -77,6 +77,7 @@ interface IChat {
   handleDeleteSummary?: () => void;
   handleUpdateSummary?: () => void;
   hightlightedText?: any[];
+  setSelectedHighlightArea?: any;
   loading?: boolean;
   setHightlightedText?: any;
   setLoading?: any;
@@ -112,6 +113,7 @@ const Chat = ({
   handleDeleteSummary,
   handleUpdateSummary,
   hightlightedText,
+  setSelectedHighlightArea,
   loading,
   isUpdatedSummary,
   title,
@@ -196,7 +198,11 @@ const Chat = ({
     {
       id: 2,
       component: (
-        <HighLight hightlightedText={hightlightedText!} loading={loading!} />
+        <HighLight
+          hightlightedText={hightlightedText!}
+          setSelectedHighlightArea={setSelectedHighlightArea}
+          loading={loading!}
+        />
       )
     }
   ];
