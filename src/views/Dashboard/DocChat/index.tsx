@@ -58,6 +58,7 @@ export default function DocChat() {
   const [socket, setSocket] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [hightlightedText, setHightlightedText] = useState<any[]>([]);
+  const [selectedHighlightArea, setSelectedHighlightArea] = useState<any>({});
   const [isUpdatedSummary, setUpdatedSummary] = useState<boolean>(false);
   const content = location.state?.content;
   const [initialContent, setInitialContent] = useState<any>(content);
@@ -520,6 +521,12 @@ export default function DocChat() {
               <DocViewer
                 pdfLink={location.state.documentUrl}
                 pdfName={location.state.docTitle}
+                documentId={documentId}
+                hightlightedText={hightlightedText}
+                setHightlightedText={setHightlightedText}
+                selectedHighlightArea={selectedHighlightArea}
+                setSelectedHighlightArea={setSelectedHighlightArea}
+                setLoading={setLoading}
               />
             ) : (
               <div
@@ -558,6 +565,7 @@ export default function DocChat() {
             handleDeleteSummary={handleDeleteSummary}
             handleUpdateSummary={handleUpdateSummary}
             hightlightedText={hightlightedText}
+            setSelectedHighlightArea={setSelectedHighlightArea}
             loading={loading}
             isUpdatedSummary={isUpdatedSummary}
             directStudentId={directStudentId}
@@ -577,6 +585,12 @@ export default function DocChat() {
               <DocViewer
                 pdfLink={location.state.documentUrl}
                 pdfName={location.state.docTitle}
+                documentId={documentId}
+                hightlightedText={hightlightedText}
+                setHightlightedText={setHightlightedText}
+                selectedHighlightArea={selectedHighlightArea}
+                setSelectedHighlightArea={setSelectedHighlightArea}
+                setLoading={setLoading}
               />
             ) : (
               <div
@@ -615,6 +629,7 @@ export default function DocChat() {
               handleDeleteSummary={handleDeleteSummary}
               handleUpdateSummary={handleUpdateSummary}
               hightlightedText={hightlightedText}
+              setSelectedHighlightArea={setSelectedHighlightArea}
               loading={loading}
               isUpdatedSummary={isUpdatedSummary}
               directStudentId={directStudentId}

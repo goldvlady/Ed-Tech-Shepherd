@@ -64,6 +64,9 @@ import {
   FiHome,
   FiMenu
 } from 'react-icons/fi';
+import { GiReceiveMoney, GiBarn } from 'react-icons/gi';
+import { LuBot } from 'react-icons/lu';
+import { MdOutlineQuiz } from 'react-icons/md';
 import {
   MdOutlineKeyboardArrowDown,
   MdOutlineKeyboardArrowUp
@@ -86,24 +89,32 @@ interface LinkItemProps {
 interface SidebarProps extends BoxProps {
   onClose: () => void;
   toggleMenu: () => void;
+  toggleChatMenu: () => void;
+  toggleEarnMenu: () => void;
   tutorMenu: boolean;
   setTutorMenu: (value: boolean) => void;
+  aiChatMenu: boolean;
+  // setAiChatMenu: (value: boolean) => void;
+  earnMenu: boolean;
+  // setEarnMenu: (value: boolean) => void;
   unreadCount: number;
 }
-const LinkItems: Array<LinkItemProps> = [
-  { name: 'Shepherd Chats', icon: BsChatLeftDots, path: '/dashboard/messaging' }
-  // { name: 'Library', icon: BsPlayCircle, path: '/library' }
-];
+// const LinkItems: Array<LinkItemProps> = [
+//   { name: 'Shepherd Chats', icon: BsChatLeftDots, path: '/dashboard/messaging' }
+//   // { name: 'Library', icon: BsPlayCircle, path: '/library' }
+// ];
 
-const LinkBItems: Array<LinkItemProps> = [
+const LinkItems: Array<LinkItemProps> = [
   // { name: 'Performance', icon: FiBarChart2, path: '/dashboard/performance' },
   // {
   //   name: 'Study Plans',
   //   icon: TbClipboardText,
   //   path: '/dashboard/study-plans'
   // },
+  { name: 'Flashcards', icon: TbCards, path: '/dashboard/flashcards' },
+  { name: 'Quizzes', icon: MdOutlineQuiz, path: '/dashboard/flashcards' },
   { name: 'Notes', icon: CgNotes, path: '/dashboard/notes' },
-  { name: 'Flashcards', icon: TbCards, path: '/dashboard/flashcards' }
+  { name: 'Library', icon: BsBook, path: '/dashboard/library' }
 ];
 
 interface NavItemProps extends FlexProps {
@@ -258,7 +269,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
           >
             {/* <Logo  />{' '} */}
           </Text>
-          <Box display={{ base: 'flex', md: 'none' }}>
+          {/* <Box display={{ base: 'flex', md: 'none' }}>
             <Flex
               bgColor={'transparent'}
               color="text.400"
@@ -275,9 +286,9 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               }}
             >
               <Image src={AskIcon} />
-              <Text> Ask Shep?</Text>
+              <Text> Ask Sheps?</Text>
             </Flex>
-          </Box>
+          </Box> */}
           <HStack spacing={4}>
             <Box position="relative">
               {' '}
@@ -510,7 +521,13 @@ const SidebarContent = ({
   onClose,
   tutorMenu,
   setTutorMenu,
+  aiChatMenu,
+
+  earnMenu,
+
   toggleMenu,
+  toggleChatMenu,
+  toggleEarnMenu,
   unreadCount,
   ...rest
 }: SidebarProps) => {
@@ -536,6 +553,59 @@ const SidebarContent = ({
       <NavItem icon={FiHome} path={'/dashboard'}>
         Home
       </NavItem>
+      <Divider />
+      <Box ml={8} color="text.400">
+        {' '}
+        <Button
+          variant={'unstyled'}
+          display="flex"
+          gap={'10px'}
+          leftIcon={<LuBot />}
+          fontSize={14}
+          fontWeight={500}
+          onClick={() => toggleChatMenu()}
+          rightIcon={
+            aiChatMenu ? (
+              <MdOutlineKeyboardArrowUp />
+            ) : (
+              <MdOutlineKeyboardArrowDown />
+            )
+          }
+        >
+          AI Chat
+        </Button>
+        <Box display={aiChatMenu ? 'block' : 'none'}>
+          <MenuLinedList
+            items={[
+              {
+                title: 'Docchat',
+                path: '/dashboard/docchat'
+              },
+              {
+                title: 'AI tutor',
+                path: '/dashboard'
+              }
+            ]}
+          />
+        </Box>
+      </Box>
+      {LinkItems.map((link) => (
+        <>
+          <NavItem
+            key={link.name}
+            icon={link.icon}
+            path={link.path}
+            // className={`${
+            //   pathname === link.path
+            //     ? 'bg-slate-100 text-primaryBlue'
+            //     : 'text-gray-400 hover:text-primaryBlue hover:bg-slate-100'
+            // } group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold`}
+          >
+            {link.name}
+          </NavItem>
+        </>
+      ))}
+      <Divider />
       <Box ml={8} color="text.400">
         {' '}
         <Button
@@ -579,48 +649,63 @@ const SidebarContent = ({
           />
         </Box>
       </Box>
-      {LinkItems.map((link) => (
-        <>
-          <NavItem key={link.name} icon={link.icon} path={link.path}>
-            {link.name}
-            {unreadCount > 0 && ( // Display badge if there are unread messages
-              <Badge colorScheme="red" ml={2}>
-                {unreadCount}
-              </Badge>
-            )}
-          </NavItem>
-        </>
-      ))}{' '}
-      <Divider />
-      {LinkBItems.map((link) => (
-        <>
-          <NavItem
-            key={link.name}
-            icon={link.icon}
-            path={link.path}
-            // className={`${
-            //   pathname === link.path
-            //     ? 'bg-slate-100 text-primaryBlue'
-            //     : 'text-gray-400 hover:text-primaryBlue hover:bg-slate-100'
-            // } group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold`}
-          >
-            {link.name}
-          </NavItem>
-        </>
-      ))}{' '}
-      <Divider />
-      <NavItem icon={BsPin} path={'/dashboard/pinned'}>
-        Pinned Notes
+      <NavItem icon={BsChatLeftDots} path="/dashboard/messaging">
+        Shepherd Chat
+        {unreadCount > 0 && ( // Display badge if there are unread messages
+          <Badge colorScheme="red" ml={2}>
+            {unreadCount}
+          </Badge>
+        )}
       </NavItem>
-      <NavItem icon={BsBook} path={'/dashboard/library'}>
-        Library
+
+      <Divider />
+      <NavItem icon={GiBarn} path="/dashboard">
+        Barn
       </NavItem>
+      <Divider />
+      <Box ml={8} color="text.400">
+        {' '}
+        <Button
+          variant={'unstyled'}
+          display="flex"
+          gap={'10px'}
+          leftIcon={<GiReceiveMoney />}
+          fontSize={14}
+          fontWeight={500}
+          onClick={() => toggleEarnMenu()}
+          rightIcon={
+            earnMenu ? (
+              <MdOutlineKeyboardArrowUp />
+            ) : (
+              <MdOutlineKeyboardArrowDown />
+            )
+          }
+        >
+          Earn with Shepherd
+        </Button>
+        <Box display={earnMenu ? 'block' : 'none'}>
+          <MenuLinedList
+            items={[
+              {
+                title: 'Become a Shepherd',
+                path: '/complete-profile'
+              },
+              {
+                title: 'Referral Program',
+                path: '/dashboard'
+              }
+            ]}
+          />
+        </Box>
+      </Box>
     </Box>
   );
 };
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [tutorMenu, setTutorMenu] = useState(false);
+  const [aiChatMenu, setAiChatMenu] = useState(false);
+  const [earnMenu, setEarnMenu] = useState(false);
   const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
   const { user }: any = userStore();
   const { pathname } = useLocation();
@@ -636,6 +721,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const toggleMenu = () => {
     setTutorMenu(!tutorMenu);
+  };
+  const toggleChatMenu = () => {
+    setAiChatMenu(!aiChatMenu);
+  };
+  const toggleEarnMenu = () => {
+    setEarnMenu(!earnMenu);
+    console.log(earnMenu);
   };
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -667,8 +759,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <SidebarContent
               onClose={() => onClose}
               tutorMenu={tutorMenu}
+              aiChatMenu={aiChatMenu}
+              earnMenu={earnMenu}
               setTutorMenu={setTutorMenu}
-              toggleMenu={() => setTutorMenu(!tutorMenu)}
+              toggleMenu={toggleMenu}
+              toggleChatMenu={toggleChatMenu}
+              toggleEarnMenu={toggleEarnMenu}
               display={{ base: 'none', md: 'block' }}
               unreadCount={unreadCount}
             />
@@ -687,6 +783,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   tutorMenu={tutorMenu}
                   setTutorMenu={setTutorMenu}
                   toggleMenu={() => setTutorMenu(!tutorMenu)}
+                  aiChatMenu={aiChatMenu}
+                  // setAiChatMenu={setAiChatMenu}
+                  toggleChatMenu={toggleChatMenu}
+                  earnMenu={earnMenu}
+                  toggleEarnMenu={toggleEarnMenu}
                   unreadCount={unreadCount}
                 />
               </DrawerContent>
