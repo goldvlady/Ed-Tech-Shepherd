@@ -45,7 +45,6 @@ function useNotifications(userId: string) {
               id: key
             };
           } catch (error) {
-            console.error('Error parsing notification JSON:', error);
             return null; // Handle parsing errors gracefully, e.g., by skipping the notification
           }
         }
@@ -62,15 +61,13 @@ function useNotifications(userId: string) {
 
       setHasUnreadNotification(unreadNotifications.length > 0);
       setNotifications(validNotifications);
-      console.log(validNotifications, 'Parsed Notifications');
-      console.log(rawData, 'RawData');
     };
 
     const unsubscribe = onValue(
       userNotificationsRef,
       handleNewNotification,
       (error) => {
-        console.error('Firebase error:', error);
+        // console.error('Firebase error:', error);
       }
     );
 

@@ -7,6 +7,7 @@ import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast';
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import { arrangeDataByDate, getDateString } from '../../../helpers';
+import useIsMobile from '../../../helpers/useIsMobile';
 import {
   deleteConversationId,
   editConversationId,
@@ -75,7 +76,8 @@ const ChatHistory = ({
   setNewConversationId,
   isBountyModalOpen,
   setLocalData,
-  setFreshConversationId
+  setFreshConversationId,
+  onChatHistory
 }: {
   studentId: string;
   setConversationId: (conversationId: string) => void;
@@ -94,6 +96,7 @@ const ChatHistory = ({
   isBountyModalOpen: boolean;
   setLocalData: any;
   setFreshConversationId: any;
+  onChatHistory?: () => void;
 }) => {
   // const placeholder = [
   //   {ß
@@ -118,6 +121,7 @@ const ChatHistory = ({
   const [hostoryTopics, setHistoryTopics] = useState<any>([]);
   const [selectedTopic, setSelectedTopic] = useState('All');
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const isMobile = useIsMobile();
   const handleClickOutside = (event) => {
     if (
       showSearchRef.current &&
@@ -475,6 +479,7 @@ const ChatHistory = ({
                               setCountNeedTutor(1);
                               setLoading(false);
                               setLocalData({});
+                              isMobile && onChatHistory?.();
                               setFreshConversationId('');
                               localStorage.setItem(
                                 'bountyOpt',

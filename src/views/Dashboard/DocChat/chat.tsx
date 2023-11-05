@@ -1,7 +1,11 @@
 /* eslint-disable no-loop-func,@typescript-eslint/no-non-null-assertion,no-unsafe-optional-chaining,react-hooks/exhaustive-deps */
 import PultoJPG from '../../../assets/PlutoAi.jpg';
+import PinLogo from '../../../assets/SVGComponent/Pin';
+import { ThumbsDown } from '../../../assets/SVGComponent/ThumbsDown';
+import { ThumbsUp } from '../../../assets/SVGComponent/ThumbsUp';
 import { ReactComponent as HightLightIcon } from '../../../assets/highlightIcn.svg';
-import { ReactComponent as PinLogo } from '../../../assets/pin.svg';
+import PDFImg from '../../../assets/pdf_img.png';
+// import { ReactComponent as PinLogo } from '../../../assets/pin.svg';
 import SocratesImg from '../../../assets/socrates-image.png';
 import { ReactComponent as SummaryIcon } from '../../../assets/summaryIcn.svg';
 // import { ReactComponent as TellMeMoreIcn } from '../../../assets/tellMeMoreIcn.svg';
@@ -12,8 +16,10 @@ import CustomSideModal from '../../../components/CustomComponents/CustomSideModa
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../../components/hooks/useChatScroll';
 import { snip } from '../../../helpers/file.helpers';
+import useIsMobile from '../../../helpers/useIsMobile';
 import FlashcardDataProvider from '../FlashCards/context/flashcard';
 import SetupFlashcardPage from '../FlashCards/forms/flashcard_setup';
+import PinnedMessages from './PinnedMessages';
 import ChatHistory from './chatHistory';
 import HighLight from './highlist';
 import {
@@ -48,8 +54,12 @@ import {
   Wrapper
 } from './styles';
 import Summary from './summary';
-import { Text } from '@chakra-ui/react';
+import { Text, Icon } from '@chakra-ui/react';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { AiFillLike } from 'react-icons/ai';
+import { AiFillDislike } from 'react-icons/ai';
+import { FiThumbsUp } from 'react-icons/fi';
+import { FiThumbsDown } from 'react-icons/fi';
 
 interface IChat {
   HomeWorkHelp?: boolean;
@@ -57,7 +67,15 @@ interface IChat {
   documentId?: any;
   onOpenModal?: () => void;
   isShowPrompt?: boolean;
-  messages?: { text: string; isUser: boolean; isLoading: boolean }[];
+  messages?: {
+    text: string;
+    isUser: boolean;
+    isLoading: boolean;
+    chatId?: number;
+    liked?: boolean;
+    disliked?: boolean;
+    isPinned?: boolean;
+  }[];
   llmResponse?: string;
   botStatus?: string;
   handleSendMessage?: any;
@@ -87,6 +105,13 @@ interface IChat {
   visibleButton?: boolean;
   fetchDescription?: any;
   freshConversationId?: any;
+  onChatHistory?: any;
+  onSwitchOnMobileView?: any;
+  handleDislike?: any;
+  handleLike?: any;
+  likesDislikes?: any;
+  setChatId?: any;
+  handlePinPrompt?: any;
 }
 const Chat = ({
   HomeWorkHelp,
@@ -120,18 +145,44 @@ const Chat = ({
   directStudentId,
   visibleButton,
   fetchDescription,
-  freshConversationId
+  freshConversationId,
+  onChatHistory,
+  onSwitchOnMobileView,
+  handleDislike,
+  handleLike,
+  likesDislikes,
+  setChatId,
+  handlePinPrompt,
+  studentId
 }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [isFlashCard, setFlashCard] = useState<boolean>(false);
   const [isQuiz, setQuiz] = useState<boolean>(false);
-  const [isChatHistory, setChatHistory] = useState<boolean>(false);
   const textAreaRef = useRef<any>();
   const textAreaRef2 = useRef<any>();
   const ref = useChatScroll(messages);
   const [hoveredIndex, setHoveredIndex] = useState(0);
   const [hoveredUserIndex, setHoveredUserIndex] = useState(0);
+  const isMobile = useIsMobile();
+
+  const [isPinnedMessages, setPinnedMessages] = useState(false);
+
+  // const handleLike = (index) => {
+  //   setLikesDislikes((prev) => {
+  //     const newState = [...prev];
+  //     newState[index] = { like: !prev[index]?.like, dislike: false };
+  //     return newState;
+  //   });
+  // };
+
+  // const handleDislike = (index) => {
+  //   setLikesDislikes((prev) => {
+  //     const newState = [...prev];
+  //     newState[index] = { dislike: !prev[index]?.dislike, like: false };
+  //     return newState;
+  //   });
+  // };
 
   const prompts = [
     "Explain this document to me like I'm five",
@@ -147,12 +198,12 @@ const Chat = ({
     setFlashCard((prevState) => !prevState);
   }, []);
 
+  const onPinnedMessages = useCallback(() => {
+    setPinnedMessages((prevState) => !prevState);
+  }, [setPinnedMessages]);
+
   const onQuiz = useCallback(() => {
     setQuiz((prevState) => !prevState);
-  }, []);
-
-  const onChatHistory = useCallback(() => {
-    setChatHistory((prevState) => !prevState);
   }, []);
 
   const isShowPills = useMemo(
@@ -219,13 +270,13 @@ const Chat = ({
       img: <NeedPills src="/svgs/flashcards.svg" alt="flash cards" />,
       title: 'Flashcards',
       onClick: onFlashCard
+    },
+    {
+      id: 3,
+      img: <NeedPills src="/svgs/quiz.svg" alt="quiz" />,
+      title: 'Pinned Messages',
+      onClick: onPinnedMessages
     }
-    // {
-    //   id: 3,
-    //   img: <NeedPills src="/svgs/quiz.svg" alt="quiz" />,
-    //   title: 'Quiz',
-    //   onClick: onQuiz
-    // }
   ];
 
   const homeHelp = [
@@ -298,6 +349,14 @@ const Chat = ({
     }
   }, [inputValue, textAreaRef2.current, visibleButton]);
 
+  const scrollToMessage = (chatId) => {
+    const messageIndex = messages.findIndex((m) => m.chatId === chatId);
+    ref.current[messageIndex]?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
+  };
+
   return (
     <>
       <Form id="chatbot" isHomeWorkHelp={HomeWorkHelp}>
@@ -307,7 +366,7 @@ const Chat = ({
               <InnerWrapper>
                 <div
                   style={{
-                    position: 'fixed',
+                    // position: 'fixed',
                     width: 'auto'
                   }}
                 >
@@ -357,7 +416,7 @@ const Chat = ({
                     <div
                       style={{
                         position: 'absolute',
-                        top: '210px',
+                        top: '25rem',
                         right: '36%',
                         zIndex: '111111111'
                       }}
@@ -382,6 +441,7 @@ const Chat = ({
                         {homeHelp.map((need) => (
                           <StyledDiv key={need.id} onClick={need.onClick}>
                             {need.img}
+                            <p></p>
                             {need.title}
                           </StyledDiv>
                         ))}
@@ -426,24 +486,47 @@ const Chat = ({
                   >
                     <>
                       {messages?.map((message, index) => {
-                        const isHovered = index === hoveredIndex;
-                        const isUserHovered = index === hoveredUserIndex;
+                        // const isHovered = index === hoveredIndex;
+                        // const isUserHovered = index === hoveredUserIndex;
                         return message.isUser ? (
-                          <UserMessage
-                            key={index}
-                            // style={{ position: 'relative' }}
-                            // onMouseEnter={() => setHoveredUserIndex(index)}
-                            // onMouseLeave={() => setHoveredUserIndex(0)}
-                          >
-                            {/* <PinLogo
-                              style={{
-                                display: isUserHovered ? 'block' : 'none',
-                                cursor: 'pointer',
-                                marginLeft: 'auto'
-                              }}
-                            /> */}
-                            {message.text}
-                          </UserMessage>
+                          <>
+                            <UserMessage
+                              key={index}
+                              style={{ position: 'relative' }}
+                              // onMouseEnter={() => setHoveredUserIndex(index)}
+                              // onMouseLeave={() => setHoveredUserIndex(0)}
+                            >
+                              {message.text}
+                            </UserMessage>
+                            {!HomeWorkHelp && (
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'self-end',
+                                  gap: '20px',
+                                  marginLeft: 'auto'
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    width: 'auto',
+                                    padding: '10px',
+                                    borderRadius: '100px',
+                                    gap: '5px',
+                                    background: '#F7F7F8',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    fontSize: ' 0.875rem',
+                                    cursor: 'pointer'
+                                  }}
+                                  // onClick={handlePinPrompt()}
+                                >
+                                  <PinLogo />
+                                  <p>Pin</p>
+                                </div>
+                              </div>
+                            )}
+                          </>
                         ) : (
                           <div
                             key={index}
@@ -455,17 +538,93 @@ const Chat = ({
                             ) : (
                               <div style={{ maxWidth: '439px' }}>
                                 <AiMessage style={{ position: 'relative' }}>
-                                  {/* <PinLogo
-                                    style={{
-                                      display: isHovered ? 'block' : 'none',
-                                      cursor: 'pointer',
-                                      bottom: '-10px',
-                                      left: '15px',
-                                      position: 'relative'
-                                    }}
-                                  /> */}
                                   <CustomMarkdownView source={message.text} />
                                 </AiMessage>
+                                {!HomeWorkHelp && (
+                                  <div
+                                    style={{
+                                      display: 'flex',
+                                      alignItems: 'self-end',
+                                      gap: '20px'
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        width: '77px',
+                                        // height: '33px',
+                                        padding: '10px',
+                                        borderRadius: '100px',
+                                        gap: '10px',
+                                        background: '#F7F7F8',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        fontSize: ' 0.875rem',
+                                        cursor: 'pointer'
+                                      }}
+                                      onClick={() => {
+                                        handleLike(index);
+                                        setChatId(String(message?.chatId));
+                                      }}
+                                    >
+                                      <ThumbsUp
+                                        iconColor={
+                                          likesDislikes[index]?.like
+                                            ? 'green'
+                                            : '#6E7682'
+                                        }
+                                      />
+                                      <p>Like</p>
+                                    </div>
+                                    <div
+                                      style={{
+                                        width: 'auto',
+                                        padding: '10px',
+                                        borderRadius: '100px',
+                                        gap: '10px',
+                                        background: '#F7F7F8',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        fontSize: ' 0.875rem',
+                                        cursor: 'pointer'
+                                      }}
+                                      onClick={() => {
+                                        handleDislike(index);
+                                        setChatId(String(message?.chatId));
+                                      }}
+                                    >
+                                      <ThumbsDown
+                                        iconColor={
+                                          likesDislikes[index]?.dislike
+                                            ? 'red'
+                                            : '#6E7682'
+                                        }
+                                      />
+                                      <p>Dislike</p>
+                                    </div>
+                                    <div
+                                      style={{
+                                        width: 'auto',
+                                        padding: '10px',
+                                        borderRadius: '100px',
+                                        gap: '5px',
+                                        background: '#F7F7F8',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        fontSize: ' 0.875rem',
+                                        cursor: 'pointer'
+                                      }}
+                                      onClick={() =>
+                                        handlePinPrompt({
+                                          studentId,
+                                          chatHistoryId: String(message.chatId)
+                                        })
+                                      }
+                                    >
+                                      <PinLogo />
+                                      <p>Pin</p>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>
@@ -487,7 +646,7 @@ const Chat = ({
               style={{
                 position: 'fixed',
                 width: '100%',
-                bottom: '60px',
+                bottom: isMobile ? '40px' : '40px',
                 background: 'white'
               }}
             >
@@ -558,11 +717,23 @@ const Chat = ({
                 <img alt="" src="/svgs/send.svg" className="w-8 h-8" />
               </SendButton>
             </InputContainer>
-            {/* {!HomeWorkHelp && (
-            <ClockButton type="button" onClick={onChatHistory}>
-              <img alt="" src="/svgs/anti-clock.svg" className="w-5 h-5" />
-            </ClockButton>
-          )} */}
+            {isMobile && (
+              <>
+                {HomeWorkHelp ? (
+                  <ClockButton type="button" onClick={onChatHistory}>
+                    <img
+                      alt="clock"
+                      src="/svgs/anti-clock.svg"
+                      className="w-5 h-5"
+                    />
+                  </ClockButton>
+                ) : (
+                  <ClockButton type="button" onClick={onChatHistory}>
+                    <img alt="pdf" src={PDFImg} className="w-5 h-5" />
+                  </ClockButton>
+                )}
+              </>
+            )}
           </ChatbotContainer>
         ) : null}
         {!HomeWorkHelp && (
@@ -589,11 +760,11 @@ const Chat = ({
                 <img alt="" src="/svgs/send.svg" className="w-8 h-8" />
               </SendButton>
             </InputContainer>
-            {/* {!HomeWorkHelp && (
-            <ClockButton type="button" onClick={onChatHistory}>
-              <img alt="" src="/svgs/anti-clock.svg" className="w-5 h-5" />
-            </ClockButton>
-          )} */}
+            {isMobile && (
+              <ClockButton type="button" onClick={onSwitchOnMobileView}>
+                <img alt="pdf" src={PDFImg} className="w-5 h-5" />
+              </ClockButton>
+            )}
           </ChatbotContainer>
         )}
       </Form>
@@ -612,6 +783,14 @@ const Chat = ({
         <div style={{ margin: '3rem 0', overflowY: 'auto' }}>
           <SetupFlashcardPage showConfirm isAutomated />
         </div>
+      </CustomSideModal>
+
+      <CustomSideModal onClose={onPinnedMessages} isOpen={isPinnedMessages}>
+        <PinnedMessages
+          messages={messages}
+          scrollToMessage={scrollToMessage}
+          onPinnedMessages={onPinnedMessages}
+        />
       </CustomSideModal>
     </>
   );

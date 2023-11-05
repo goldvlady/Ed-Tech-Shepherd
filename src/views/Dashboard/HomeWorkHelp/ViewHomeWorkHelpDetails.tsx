@@ -206,7 +206,7 @@ const ViewHomeWorkHelpDetails = ({
             _placeholder={{ fontSize: '0.8756rem', color: '#9A9DA2' }}
           />
         </FormControl> */}
-        <FormControl mb={8}>
+        {/* <FormControl mb={8}>
           <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
             Level (optional)
           </FormLabel>
@@ -238,7 +238,7 @@ const ViewHomeWorkHelpDetails = ({
               ))}
             </MenuList>
           </Menu>
-        </FormControl>
+        </FormControl> */}
       </Box>
     </CustomModal>
   );

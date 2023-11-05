@@ -35,6 +35,11 @@ type SettingsType = {
   source: SourceEnum;
 };
 
+export enum ModeEnum {
+  CREATE = 'CREATE',
+  EDIT = 'EDIT'
+}
+
 interface FlashcardData {
   deckname: string;
   level?: string;
@@ -62,12 +67,17 @@ export interface FlashcardQuestion {
   helperText?: string;
 }
 
+export interface CurrentEditFlashcard extends FlashcardData {
+  questions: FlashcardQuestion[];
+}
+
 export type AIRequestBody = {
   topic?: string;
   count: number;
   subject?: string;
   difficulty?: string;
   note?: string;
+  existingQuestions?: string[];
 };
 
 export interface FlashcardDataContextProps {
@@ -99,6 +109,11 @@ export interface FlashcardDataContextProps {
   saveFlashcardData: (
     onDone?: ((success: boolean) => void) | undefined
   ) => Promise<void>;
+  setMode: React.Dispatch<React.SetStateAction<ModeEnum>>;
+  mode: ModeEnum;
+  cancelQuestionGeneration: () => void;
+  loadMoreQuestions: (count: number) => void;
+  stageFlashcardForEdit: (flashcard: CurrentEditFlashcard) => void;
 }
 
 const FlashcardDataContext = createContext<
@@ -115,6 +130,7 @@ export const useFlashcardWizard = () => {
   return context;
 };
 
+let cancelRequest = false;
 const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
   children
 }) => {
@@ -125,6 +141,9 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     type: TypeEnum.INIT,
     source: SourceEnum.SUBJECT
   });
+
+  const [mode, setMode] = useState<ModeEnum>(ModeEnum.CREATE);
+  const [generationCancelled, setGenerationCancelled] = useState(false);
 
   const [isResetted, setResetted] = useState(false);
   const defaultFlashcardData = useMemo(
@@ -138,6 +157,12 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     }),
     []
   );
+
+  const cancelQuestionGeneration = useCallback(() => {
+    cancelRequest = true;
+    setIsLoading(false);
+    setQuestionGenerationStatus(QuestionGenerationStatusEnum.INIT);
+  }, []);
 
   const [flashcardData, setFlashcardData] =
     useState<FlashcardData>(defaultFlashcardData);
@@ -188,7 +213,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       answer: ''
     };
 
-    if (flashcardData.numQuestions) {
+    if (flashcardData.numQuestions && !questions.length) {
       const numQuestions = flashcardData.numQuestions;
       const generatedQuestions: FlashcardQuestion[] = [];
 
@@ -198,10 +223,9 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
 
       setQuestions(generatedQuestions);
     }
-  }, [flashcardData.numQuestions]);
+  }, [flashcardData.numQuestions, questions]);
 
   const resetFlashcard = useCallback(() => {
-    console.log(defaultFlashcardData);
     setFlashcardData(defaultFlashcardData);
     setQuestions([]);
     setSaveSuccessful(false);
@@ -210,6 +234,22 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     setQuestionGenerationStatus(QuestionGenerationStatusEnum.INIT);
     setResetted(true);
   }, [defaultFlashcardData]);
+
+  const stageFlashcardForEdit = useCallback(
+    (cardData: CurrentEditFlashcard) => {
+      const { questions: quizQuestions, ...rest } = cardData;
+      setFlashcardData((prev) => ({ ...prev, ...rest }));
+      setQuestions((prev) => [...prev, ...quizQuestions]);
+      // setCurrentStep((prev) => prev + 1);
+
+      setSettings({
+        type: TypeEnum.FLASHCARD,
+        source: cardData.topic ? SourceEnum.SUBJECT : SourceEnum.MANUAL
+      });
+      setMode(ModeEnum.EDIT);
+    },
+    []
+  );
 
   // Process the document-related request
   const processDocumentRequest = useCallback(
@@ -264,7 +304,6 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
           helperText: d['helpful reading'],
           questionType: 'openEnded'
         }));
-
         setQuestions(questions);
         setCurrentStep((prev) => prev + 1);
         setQuestionGenerationStatus(QuestionGenerationStatusEnum.SUCCESSFUL);
@@ -274,6 +313,59 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     },
     [setQuestions, setCurrentStep, setQuestionGenerationStatus, handleError]
+  );
+
+  const loadMoreQuestions = useCallback(
+    async (count = 5) => {
+      try {
+        setIsLoading(true);
+
+        // Construct the AI request body
+        const aiData: AIRequestBody = {
+          topic: flashcardData.topic,
+          subject: flashcardData.subject,
+          count,
+          ...(flashcardData.level && { difficulty: flashcardData.level }),
+          ...(flashcardData.noteDoc && { note: flashcardData.noteDoc }),
+          existingQuestions: questions.map((q) => q.question)
+        };
+
+        // Call the API to fetch more questions
+
+        const requestFunc = !flashcardData.noteDoc
+          ? ApiService.generateFlashcardQuestions
+          : ApiService.generateFlashcardQuestionsForNotes;
+
+        const response = await requestFunc(aiData, user?._id as string);
+        if (cancelRequest) {
+          cancelRequest = false;
+          return;
+        }
+        if (response.status === 200) {
+          const data = await response.json();
+          const additionalQuestions = data.flashcards.map((d: any) => ({
+            question: d.front,
+            answer: d.back,
+            explanation: d.explainer,
+            helperText: d['helpful reading'],
+            questionType: 'openEnded'
+          }));
+
+          // Add the fetched questions to the current list
+          setQuestions((prevQuestions) => [
+            ...prevQuestions,
+            ...additionalQuestions
+          ]);
+        } else {
+          // console.error('Failed to load more questions');
+        }
+      } catch (error) {
+        // console.error('Error loading more questions:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [flashcardData, questions, user]
   );
 
   const generateFlashcardQuestions = useCallback(
@@ -308,8 +400,11 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
 
           response = await requestFunc(aiData, user?._id as string);
         }
-
-        await handleResponse(response, onDone);
+        if (cancelRequest) {
+          cancelRequest = false;
+        } else {
+          await handleResponse(response, onDone);
+        }
       } catch (error) {
         handleError(onDone);
       } finally {
@@ -371,7 +466,12 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       setSettings,
       questionGenerationStatus,
       saveFlashcardData,
-      isResetted
+      isResetted,
+      cancelQuestionGeneration,
+      setMode,
+      mode,
+      loadMoreQuestions,
+      stageFlashcardForEdit
     }),
     [
       flashcardData,
@@ -392,7 +492,12 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       isMinimized,
       questionGenerationStatus,
       saveFlashcardData,
-      isResetted
+      isResetted,
+      cancelQuestionGeneration,
+      setMode,
+      mode,
+      loadMoreQuestions,
+      stageFlashcardForEdit
     ]
   );
 

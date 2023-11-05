@@ -1,11 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
-import { FlashCardModal } from '../../../components/flashcardDecks';
 import LoaderOverlay from '../../../components/loaderOverlay';
 import ApiService from '../../../services/ApiService';
 import flashcardStore from '../../../state/flashcardStore';
 import userStore from '../../../state/userStore';
-import FlashcardDataProvider from './context/flashcard';
 import { useFlashcardWizard } from './context/flashcard';
 import MnemonicSetupProvider from './context/mneomics';
 import SetupFlashcardPage from './forms/flashcard_setup';
@@ -17,6 +15,17 @@ import InitSetupPreview from './previews/init.preview';
 import MnemonicPreview from './previews/mneomics.preview';
 import QuestionsPreview from './previews/questions.preview';
 import { Box, HStack, Text, Radio, RadioGroup, VStack } from '@chakra-ui/react';
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  Button,
+  useDisclosure
+} from '@chakra-ui/react';
 import {
   useState,
   useEffect,
@@ -107,7 +116,33 @@ const useBoxWidth = (ref: RefObject<HTMLDivElement>): number => {
   return boxWidth;
 };
 
-const CreateFlashPage = () => {
+function transformFlashcardQuestion(originalQuestion: any) {
+  return {
+    questionType: originalQuestion.questionType,
+    question: originalQuestion.question,
+    options: originalQuestion.options,
+    answer: originalQuestion.answer,
+    explanation: originalQuestion.explanation,
+    helperText: originalQuestion.helperText
+  };
+}
+
+function transformFlashcardData(originalData: any) {
+  return {
+    deckname: originalData.deckname,
+    level: originalData.level,
+    studyType: originalData.studyType,
+    subject: originalData.subject,
+    documentId: originalData.documentId,
+    hasSubmitted: false,
+    topic: originalData.topic,
+    studyPeriod: originalData.studyPeriod,
+    numQuestions: originalData.questions?.length || 0,
+    questions: originalData.questions?.map(transformFlashcardQuestion)
+  };
+}
+
+const EditFlashCard = () => {
   const toast = useCustomToast();
   const { user } = userStore();
   const location = useLocation();
@@ -127,16 +162,20 @@ const CreateFlashPage = () => {
     setFlashcardData,
     resetFlashcard,
     isLoading: loading,
+    setLoader,
     currentStep,
     settings,
     setSettings,
-    setMinimized
+    setMinimized,
+    stageFlashcardForEdit
   } = useFlashcardWizard();
 
-  const { createFlashCard, isLoading, fetchFlashcards } = flashcardStore();
+  const { createFlashCard, isLoading, fetchFlashcards, editFlashcard } =
+    flashcardStore();
   const [isCompleted, setIsCompleted] = useState(false);
   const [switchonMobile, setSwitchMobile] = useState(true);
   const { type: activeBadge } = settings;
+  const { id } = useParams();
 
   const queryParams = new URLSearchParams(location.search);
 
@@ -145,6 +184,31 @@ const CreateFlashPage = () => {
   const setActiveBadge = (badge: TypeEnum) => {
     setSettings((value) => ({ ...value, type: badge }));
   };
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const fetchFlashcard = useCallback(async () => {
+    try {
+      flashcardStore.setState((state) => ({ isLoading: true }));
+      const response = await ApiService.getSingleFlashcard(id);
+      if (response.status === 200) {
+        const data = await response.json();
+        const flashcard = transformFlashcardData(data.data);
+        stageFlashcardForEdit(flashcard);
+      }
+    } catch (error) {
+      // console.log(error);
+    } finally {
+      flashcardStore.setState((state) => ({ isLoading: false }));
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (id) {
+      resetFlashcard();
+      fetchFlashcard();
+    }
+  }, [id]);
 
   useEffect(() => {
     if (type) {
@@ -169,29 +233,27 @@ const CreateFlashPage = () => {
 
   const onSubmitFlashcard = useCallback(async () => {
     try {
-      const response = await createFlashCard(
-        { ...flashcardData, questions },
-        'manual'
-      );
+      const response = await editFlashcard(id, {
+        ...flashcardData,
+        questions: questions as any
+      } as any);
       if (response) {
-        if (response.status === 200) {
-          setIsCompleted(true);
-          toast({
-            title: 'Flash Card Created Successfully',
-            position: 'top-right',
-            status: 'success',
-            isClosable: true
-          });
-          fetchFlashcards();
-        } else {
-          setFlashcardData((value) => ({ ...value, hasSubmitted: false }));
-          toast({
-            title: 'Failed to create flashcard, try again',
-            position: 'top-right',
-            status: 'error',
-            isClosable: true
-          });
-        }
+        setIsCompleted(true);
+        toast({
+          title: 'Flash Card Updated Successfully',
+          position: 'top-right',
+          status: 'success',
+          isClosable: true
+        });
+        fetchFlashcards();
+      } else {
+        setFlashcardData((value) => ({ ...value, hasSubmitted: false }));
+        toast({
+          title: 'Failed to create flashcard, try again',
+          position: 'top-right',
+          status: 'error',
+          isClosable: true
+        });
       }
     } catch (error) {
       setFlashcardData((value) => ({ ...value, hasSubmitted: false }));
@@ -300,7 +362,7 @@ const CreateFlashPage = () => {
       return (
         <QuestionsPreview
           isLoading={isLoading}
-          onConfirm={() => onSubmitFlashcard()}
+          onConfirm={() => onOpen()}
           activeBadge={activeBadge}
           handleBadgeClick={handleBadgeClick}
         ></QuestionsPreview>
@@ -319,9 +381,36 @@ const CreateFlashPage = () => {
   const onSwitchMobile = useCallback(() => {
     setSwitchMobile((prevState) => !prevState);
   }, [setSwitchMobile]);
+
+  const onConfirm = async () => {
+    onClose(); // Close the modal
+    await onSubmitFlashcard(); // Call the submit function
+  };
+
+  const renderConfirmationModal = () => {
+    return (
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader paddingBottom={'0px'}>Confirm Action</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            Updating this flashcard would reset your score history
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="red" onClick={onConfirm}>
+              Continue
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    );
+  };
+
   return (
     <Box width={'100%'}>
       {isLoading && <LoaderOverlay />}
+      {renderConfirmationModal()}
       <Wrapper
         ref={wrapperRef}
         bg="white"
@@ -435,26 +524,10 @@ const CreateFlashPage = () => {
                 overflowY="scroll"
                 sx={{
                   '::-webkit-scrollbar': {
-                    width: '4px',
-                    cursor: 'pointer',
-                    transition: 'opacity 0.3s ease-in-out',
-                    opacity: 0 // Initially set the opacity to 0
+                    display: 'none'
                   },
-                  '::-webkit-scrollbar-thumb': {
-                    background: '#E7E8E9',
-                    borderRadius: '16px',
-                    cursor: 'pointer',
-                    transition: 'background 0.3s ease-in-out'
-                  },
-                  '::-webkit-scrollbar-track': {
-                    background: 'transparent',
-                    cursor: 'pointer'
-                  },
-                  '&:hover': {
-                    '::-webkit-scrollbar': {
-                      opacity: 1 // Set the opacity to 1 on hover
-                    }
-                  }
+                  'scrollbar-width': 'none',
+                  '-ms-overflow-style': 'none'
                 }}
               >
                 {form}
@@ -470,26 +543,10 @@ const CreateFlashPage = () => {
                 overflowY="scroll"
                 sx={{
                   '::-webkit-scrollbar': {
-                    width: '4px',
-                    cursor: 'pointer',
-                    transition: 'opacity 0.3s ease-in-out',
-                    opacity: 0 // Initially set the opacity to 0
+                    display: 'none'
                   },
-                  '::-webkit-scrollbar-thumb': {
-                    background: '#E7E8E9',
-                    borderRadius: '16px',
-                    cursor: 'pointer',
-                    transition: 'background 0.3s ease-in-out'
-                  },
-                  '::-webkit-scrollbar-track': {
-                    background: 'transparent',
-                    cursor: 'pointer'
-                  },
-                  '&:hover': {
-                    '::-webkit-scrollbar': {
-                      opacity: 1 // Set the opacity to 1 on hover
-                    }
-                  }
+                  'scrollbar-width': 'none',
+                  '-ms-overflow-style': 'none'
                 }}
               >
                 {renderPreview()}
@@ -515,12 +572,4 @@ const CreateFlashPage = () => {
   );
 };
 
-const MainWrapper = () => {
-  return (
-    <MnemonicSetupProvider>
-      <CreateFlashPage />
-    </MnemonicSetupProvider>
-  );
-};
-
-export default MainWrapper;
+export default EditFlashCard;

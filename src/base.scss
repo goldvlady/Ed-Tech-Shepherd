@@ -1217,7 +1217,7 @@ canvas {
 
 .rmsc {
   position: relative;
-  z-index: 1000; /* Adjust this value as needed */
+  z-index: 1; /* Adjust this value as needed */
 }
 
 .rmsc .dropdown-container {
@@ -1548,4 +1548,7 @@ input.rpv-core__textbox {
 }
 .rpv-core__page-layer textarea {
   width: 100%;
+}
+.rmsc .multi-select {
+  z-index: 111 !important;
 }

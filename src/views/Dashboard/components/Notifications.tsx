@@ -68,8 +68,6 @@ function Notifications(props) {
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 
-  console.log('filteredData', data, filteredData);
-
   const Divide = styled(Divider)`
     &:last-child {
       display: none;
@@ -169,7 +167,7 @@ function Notifications(props) {
     // const notificationRef = ref(database, `notifications/${notificationId}`);
     // update(notificationRef, { read: true })
     //   .then(() => {
-    console.log(`Notification ${notificationId} marked as read`);
+    // console.log(`Notification ${notificationId} marked as read`);
     //   })
     //   .catch((error) => {
     //     console.error('Error marking notification as read:', error);

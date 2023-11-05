@@ -39,6 +39,7 @@ type Store = {
     isPassed: boolean
   ) => Promise<boolean>;
   scheduleFlashcard: (d: SchedulePayload) => Promise<boolean>;
+  editFlashcard: (id: string, data: Partial<FlashcardData>) => Promise<boolean>;
 };
 
 export default create<Store>((set) => ({
@@ -85,6 +86,29 @@ export default create<Store>((set) => ({
           }
 
           return { flashcards, tags: [...state.tags, ...tags].sort() };
+        });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+  editFlashcard: async (id: string, data: Partial<FlashcardData>) => {
+    try {
+      set({ isLoading: true });
+      const response = await ApiService.editFlashcard(id, data);
+      if (response.status === 200) {
+        const updatedFlashcard = await response.json();
+        set((state) => {
+          const flashcards = state.flashcards?.map((flashcard) =>
+            flashcard._id === id
+              ? { ...flashcard, ...updatedFlashcard }
+              : flashcard
+          );
+          return { flashcards };
         });
         return true;
       }
