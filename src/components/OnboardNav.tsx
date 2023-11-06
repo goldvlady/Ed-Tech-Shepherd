@@ -29,6 +29,11 @@ const OnboardNav: React.FC<Props> = ({
         variant="solid"
         colorScheme={'primary'}
         type="submit"
+        display={
+          currentStep === 1 && window.location.pathname === '/signup'
+            ? 'none'
+            : 'block'
+        }
         isDisabled={!canGoNext}
         size={'lg'}
       >

@@ -115,9 +115,9 @@ const RequireAuth = ({
 const TestNewNote = () => <div>this is the new note </div>;
 
 const studentRoutes = [
-  { path: 'new-note', element: <NewNote /> },
+  { path: 'notes/new-note', element: <NewNote /> },
   // { path: 'new-note', element: <TestNewNote /> },
-  { path: 'new-note/:id', element: <NewNote /> },
+  { path: 'notes/new-note/:id', element: <NewNote /> },
   { path: 'notes', element: <Notes /> },
   { path: 'pinned', element: <PinnedNotes /> },
   { path: 'tutor/:tutorId/offer', element: <SendTutorOffer /> },

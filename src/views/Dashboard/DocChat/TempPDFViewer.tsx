@@ -93,39 +93,39 @@ const TempPDFViewer = ({
     setHighlights([{ ...highlight, id: getNextId() }, ...highlights]);
   };
 
-  const handleHighlight = useCallback(async () => {
-    try {
-      const response = await postPDFHighlight({
-        documentId,
-        highlight: {
-          name: highlights[0]?.content?.text
-        }
-      });
-      if ([200].includes(response.status)) {
-        toast({
-          title: 'Hightlighted words saved successfully',
-          position: 'top-right',
-          status: 'success',
-          isClosable: true
-        });
+  // const handleHighlight = useCallback(async () => {
+  //   try {
+  //     const response = await postPDFHighlight({
+  //       documentId,
+  //       highlight: {
+  //         name: highlights[0]?.content?.text
+  //       }
+  //     });
+  //     if ([200].includes(response.status)) {
+  //       toast({
+  //         title: 'Hightlighted words saved successfully',
+  //         position: 'top-right',
+  //         status: 'success',
+  //         isClosable: true
+  //       });
 
-        const getHighlight = async () => {
-          setLoading(true);
-          const response = await getPDFHighlight({ documentId });
-          setHightlightedText(response);
-          setLoading(false);
-        };
-        getHighlight();
-      }
-    } catch (error) {
-      toast({
-        title: 'Unable to process this request.Please try again later',
-        position: 'top-right',
-        status: 'error',
-        isClosable: true
-      });
-    }
-  }, [documentId, highlights[0]?.content?.text]);
+  //       const getHighlight = async () => {
+  //         setLoading(true);
+  //         const response = await getPDFHighlight({ documentId });
+  //         setHightlightedText(response);
+  //         setLoading(false);
+  //       };
+  //       getHighlight();
+  //     }
+  //   } catch (error) {
+  //     toast({
+  //       title: 'Unable to process this request.Please try again later',
+  //       position: 'top-right',
+  //       status: 'error',
+  //       isClosable: true
+  //     });
+  //   }
+  // }, [documentId, highlights[0]?.content?.text]);
 
   const updateHighlight = (
     highlightId: string,
@@ -153,9 +153,9 @@ const TempPDFViewer = ({
     setHighlights(updated);
   };
 
-  useEffect(() => {
-    !!highlights.length && handleHighlight();
-  }, [highlights]);
+  // useEffect(() => {
+  //   !!highlights.length && handleHighlight();
+  // }, [highlights]);
 
   return (
     <>

@@ -1510,6 +1510,9 @@ svg.rpv-core__icon {
   border: none;
   font-size: 12px;
 }
+.rpv-toolbar__center {
+  justify-content: right;
+}
 input.rpv-core__textbox {
   font-size: 12px;
 }
@@ -1526,6 +1529,26 @@ input.rpv-core__textbox {
   width: 100%;
 }
 
+.rpv-page-navigation__current-page-input .rpv-core__textbox {
+  border-radius: 4px;
+  height: 15px;
+  background-color: #f5f5f5;
+  text-align: center;
+}
+
+.rpv-core__popover-body-arrow {
+  display: none;
+}
+.rpv-zoom__popover-target-arrow {
+  display: none;
+}
+.rpv-thumbnail__list .rpv-thumbnail__list--vertical {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.rpv-core__page-layer textarea {
+  width: 100%;
+}
 .rmsc .multi-select {
   z-index: 111 !important;
 }

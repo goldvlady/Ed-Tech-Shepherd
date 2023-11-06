@@ -246,23 +246,19 @@ export const uploadBlockNoteDocument = async (data: {
   }).then(async (data) => data.json());
 };
 
-export const postPDFHighlight = async ({
-  documentId,
-  highlight
-}: {
-  documentId: any;
-  highlight: object;
+export const postPDFHighlight = async (data: {
+  studentId: string;
+  documentId: string;
+  highlight: { name: string; position: Array<any> };
+  content: string;
 }) => {
-  const request = await fetch(`${AI_API}/highlights`, {
+  const request = await fetch(`${AI_API}/highlights/comment/save`, {
     method: 'POST',
     headers: {
       'x-shepherd-header': HEADER_KEY,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      documentId,
-      highlight
-    })
+    body: JSON.stringify(data)
   });
 
   return request;
@@ -287,6 +283,27 @@ export const getPDFHighlight = async ({
   } else {
     const highlight = await response.json();
     return highlight;
+  }
+};
+
+export const generateComment = async (data: {
+  highlightText: string;
+  documentId: string;
+  studentId: string;
+}) => {
+  const response = await fetch(`${AI_API}/highlights/comment/generate`, {
+    method: 'POST',
+    headers: {
+      'x-shepherd-header': HEADER_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  } else {
+    const summaryResponse = await response.json();
+    return summaryResponse;
   }
 };
 
@@ -423,4 +440,34 @@ export const getDescriptionById = async ({
     const conversation = await response.json();
     return conversation;
   }
+};
+
+export const getToggleReaction = async ({ chatId, reactionType }) => {
+  const request = await fetch(`${AI_API}/notes/chat/toggle_reaction`, {
+    method: 'POST',
+    headers: {
+      'x-shepherd-header': HEADER_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      chatId,
+      reactionType
+    })
+  });
+  return request;
+};
+
+export const postPinnedPrompt = async ({ chatId, studentId }) => {
+  const request = await fetch(`${AI_API}/notes/toggle_pin`, {
+    method: 'POST',
+    headers: {
+      'x-shepherd-header': HEADER_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      chatId,
+      studentId
+    })
+  });
+  return request;
 };

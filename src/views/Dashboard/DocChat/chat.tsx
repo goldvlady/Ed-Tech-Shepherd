@@ -1,8 +1,11 @@
 /* eslint-disable no-loop-func,@typescript-eslint/no-non-null-assertion,no-unsafe-optional-chaining,react-hooks/exhaustive-deps */
 import PultoJPG from '../../../assets/PlutoAi.jpg';
+import PinLogo from '../../../assets/SVGComponent/Pin';
+import { ThumbsDown } from '../../../assets/SVGComponent/ThumbsDown';
+import { ThumbsUp } from '../../../assets/SVGComponent/ThumbsUp';
 import { ReactComponent as HightLightIcon } from '../../../assets/highlightIcn.svg';
 import PDFImg from '../../../assets/pdf_img.png';
-import { ReactComponent as PinLogo } from '../../../assets/pin.svg';
+// import { ReactComponent as PinLogo } from '../../../assets/pin.svg';
 import SocratesImg from '../../../assets/socrates-image.png';
 import { ReactComponent as SummaryIcon } from '../../../assets/summaryIcn.svg';
 // import { ReactComponent as TellMeMoreIcn } from '../../../assets/tellMeMoreIcn.svg';
@@ -16,6 +19,7 @@ import { snip } from '../../../helpers/file.helpers';
 import useIsMobile from '../../../helpers/useIsMobile';
 import FlashcardDataProvider from '../FlashCards/context/flashcard';
 import SetupFlashcardPage from '../FlashCards/forms/flashcard_setup';
+import PinnedMessages from './PinnedMessages';
 import ChatHistory from './chatHistory';
 import HighLight from './highlist';
 import {
@@ -63,7 +67,15 @@ interface IChat {
   documentId?: any;
   onOpenModal?: () => void;
   isShowPrompt?: boolean;
-  messages?: { text: string; isUser: boolean; isLoading: boolean }[];
+  messages?: {
+    text: string;
+    isUser: boolean;
+    isLoading: boolean;
+    chatId?: number;
+    liked?: boolean;
+    disliked?: boolean;
+    isPinned?: boolean;
+  }[];
   llmResponse?: string;
   botStatus?: string;
   handleSendMessage?: any;
@@ -83,6 +95,7 @@ interface IChat {
   handleDeleteSummary?: () => void;
   handleUpdateSummary?: () => void;
   hightlightedText?: any[];
+  setSelectedHighlightArea?: any;
   loading?: boolean;
   setHightlightedText?: any;
   setLoading?: any;
@@ -94,6 +107,11 @@ interface IChat {
   freshConversationId?: any;
   onChatHistory?: any;
   onSwitchOnMobileView?: any;
+  handleDislike?: any;
+  handleLike?: any;
+  likesDislikes?: any;
+  setChatId?: any;
+  handlePinPrompt?: any;
 }
 const Chat = ({
   HomeWorkHelp,
@@ -120,6 +138,7 @@ const Chat = ({
   handleDeleteSummary,
   handleUpdateSummary,
   hightlightedText,
+  setSelectedHighlightArea,
   loading,
   isUpdatedSummary,
   title,
@@ -128,7 +147,13 @@ const Chat = ({
   fetchDescription,
   freshConversationId,
   onChatHistory,
-  onSwitchOnMobileView
+  onSwitchOnMobileView,
+  handleDislike,
+  handleLike,
+  likesDislikes,
+  setChatId,
+  handlePinPrompt,
+  studentId
 }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
@@ -140,6 +165,24 @@ const Chat = ({
   const [hoveredIndex, setHoveredIndex] = useState(0);
   const [hoveredUserIndex, setHoveredUserIndex] = useState(0);
   const isMobile = useIsMobile();
+
+  const [isPinnedMessages, setPinnedMessages] = useState(false);
+
+  // const handleLike = (index) => {
+  //   setLikesDislikes((prev) => {
+  //     const newState = [...prev];
+  //     newState[index] = { like: !prev[index]?.like, dislike: false };
+  //     return newState;
+  //   });
+  // };
+
+  // const handleDislike = (index) => {
+  //   setLikesDislikes((prev) => {
+  //     const newState = [...prev];
+  //     newState[index] = { dislike: !prev[index]?.dislike, like: false };
+  //     return newState;
+  //   });
+  // };
 
   const prompts = [
     "Explain this document to me like I'm five",
@@ -154,6 +197,10 @@ const Chat = ({
   const onFlashCard = useCallback(() => {
     setFlashCard((prevState) => !prevState);
   }, []);
+
+  const onPinnedMessages = useCallback(() => {
+    setPinnedMessages((prevState) => !prevState);
+  }, [setPinnedMessages]);
 
   const onQuiz = useCallback(() => {
     setQuiz((prevState) => !prevState);
@@ -202,7 +249,11 @@ const Chat = ({
     {
       id: 2,
       component: (
-        <HighLight hightlightedText={hightlightedText!} loading={loading!} />
+        <HighLight
+          hightlightedText={hightlightedText!}
+          setSelectedHighlightArea={setSelectedHighlightArea}
+          loading={loading!}
+        />
       )
     }
   ];
@@ -219,13 +270,13 @@ const Chat = ({
       img: <NeedPills src="/svgs/flashcards.svg" alt="flash cards" />,
       title: 'Flashcards',
       onClick: onFlashCard
+    },
+    {
+      id: 3,
+      img: <NeedPills src="/svgs/quiz.svg" alt="quiz" />,
+      title: 'Pinned Messages',
+      onClick: onPinnedMessages
     }
-    // {
-    //   id: 3,
-    //   img: <NeedPills src="/svgs/quiz.svg" alt="quiz" />,
-    //   title: 'Quiz',
-    //   onClick: onQuiz
-    // }
   ];
 
   const homeHelp = [
@@ -297,6 +348,14 @@ const Chat = ({
       }
     }
   }, [inputValue, textAreaRef2.current, visibleButton]);
+
+  const scrollToMessage = (chatId) => {
+    const messageIndex = messages.findIndex((m) => m.chatId === chatId);
+    ref.current[messageIndex]?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
+  };
 
   return (
     <>
@@ -427,23 +486,16 @@ const Chat = ({
                   >
                     <>
                       {messages?.map((message, index) => {
-                        const isHovered = index === hoveredIndex;
-                        const isUserHovered = index === hoveredUserIndex;
+                        // const isHovered = index === hoveredIndex;
+                        // const isUserHovered = index === hoveredUserIndex;
                         return message.isUser ? (
                           <>
                             <UserMessage
                               key={index}
-                              // style={{ position: 'relative' }}
+                              style={{ position: 'relative' }}
                               // onMouseEnter={() => setHoveredUserIndex(index)}
                               // onMouseLeave={() => setHoveredUserIndex(0)}
                             >
-                              {/* <PinLogo
-                              style={{
-                                display: isUserHovered ? 'block' : 'none',
-                                cursor: 'pointer',
-                                marginLeft: 'auto'
-                              }}
-                            /> */}
                               {message.text}
                             </UserMessage>
                             {!HomeWorkHelp && (
@@ -452,12 +504,36 @@ const Chat = ({
                                   display: 'flex',
                                   alignItems: 'self-end',
                                   gap: '20px',
-                                  marginLeft: 'auto'
+                                  marginLeft: 'auto',
+                                  marginBottom: '15px'
                                 }}
                               >
-                                {/* <Icon as={AiFillLike} />
-                                <Icon as={AiFillDislike} />
-                                <PinLogo /> */}
+                                <div
+                                  style={{
+                                    width: 'auto',
+                                    padding: '10px',
+                                    borderRadius: '100px',
+                                    gap: '5px',
+                                    background: '#F7F7F8',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    fontSize: ' 0.875rem',
+                                    cursor: 'pointer'
+                                  }}
+                                  onClick={() =>
+                                    handlePinPrompt({
+                                      studentId,
+                                      chatHistoryId: String(message.chatId)
+                                    })
+                                  }
+                                >
+                                  <PinLogo
+                                    iconColor={
+                                      message?.isPinned ? 'blue' : '#6E7682'
+                                    }
+                                  />
+                                  {/* <p>Pin</p> */}
+                                </div>
                               </div>
                             )}
                           </>
@@ -472,15 +548,6 @@ const Chat = ({
                             ) : (
                               <div style={{ maxWidth: '439px' }}>
                                 <AiMessage style={{ position: 'relative' }}>
-                                  {/* <PinLogo
-                                    style={{
-                                      display: isHovered ? 'block' : 'none',
-                                      cursor: 'pointer',
-                                      bottom: '-10px',
-                                      left: '15px',
-                                      position: 'relative'
-                                    }}
-                                  /> */}
                                   <CustomMarkdownView source={message.text} />
                                 </AiMessage>
                                 {!HomeWorkHelp && (
@@ -488,12 +555,89 @@ const Chat = ({
                                     style={{
                                       display: 'flex',
                                       alignItems: 'self-end',
-                                      gap: '20px'
+                                      gap: '20px',
+                                      marginBottom: '15px'
                                     }}
                                   >
-                                    {/* <Icon as={AiFillLike} />
-                                    <Icon as={AiFillDislike} />
-                                    <PinLogo /> */}
+                                    <div
+                                      style={{
+                                        width: 'auto',
+                                        // height: '33px',
+                                        padding: '10px',
+                                        borderRadius: '100px',
+                                        gap: '10px',
+                                        background: '#F7F7F8',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        fontSize: ' 0.875rem',
+                                        cursor: 'pointer'
+                                      }}
+                                      onClick={() => {
+                                        handleLike(index);
+                                        setChatId(String(message?.chatId));
+                                      }}
+                                    >
+                                      <ThumbsUp
+                                        iconColor={
+                                          likesDislikes[index]?.like
+                                            ? 'green'
+                                            : '#6E7682'
+                                        }
+                                      />
+                                      {/* <p>Like</p> */}
+                                    </div>
+                                    <div
+                                      style={{
+                                        width: 'auto',
+                                        padding: '10px',
+                                        borderRadius: '100px',
+                                        gap: '10px',
+                                        background: '#F7F7F8',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        fontSize: ' 0.875rem',
+                                        cursor: 'pointer'
+                                      }}
+                                      onClick={() => {
+                                        handleDislike(index);
+                                        setChatId(String(message?.chatId));
+                                      }}
+                                    >
+                                      <ThumbsDown
+                                        iconColor={
+                                          likesDislikes[index]?.dislike
+                                            ? 'red'
+                                            : '#6E7682'
+                                        }
+                                      />
+                                      {/* <p>Dislike</p> */}
+                                    </div>
+                                    <div
+                                      style={{
+                                        width: 'auto',
+                                        padding: '10px',
+                                        borderRadius: '100px',
+                                        gap: '5px',
+                                        background: '#F7F7F8',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        fontSize: ' 0.875rem',
+                                        cursor: 'pointer'
+                                      }}
+                                      onClick={() =>
+                                        handlePinPrompt({
+                                          studentId,
+                                          chatHistoryId: String(message.chatId)
+                                        })
+                                      }
+                                    >
+                                      <PinLogo
+                                        iconColor={
+                                          message?.isPinned ? 'blue' : '#6E7682'
+                                        }
+                                      />
+                                      {/* <p>Pin</p> */}
+                                    </div>
                                   </div>
                                 )}
                               </div>
@@ -654,6 +798,14 @@ const Chat = ({
         <div style={{ margin: '3rem 0', overflowY: 'auto' }}>
           <SetupFlashcardPage showConfirm isAutomated />
         </div>
+      </CustomSideModal>
+
+      <CustomSideModal onClose={onPinnedMessages} isOpen={isPinnedMessages}>
+        <PinnedMessages
+          messages={messages}
+          scrollToMessage={scrollToMessage}
+          onPinnedMessages={onPinnedMessages}
+        />
       </CustomSideModal>
     </>
   );
