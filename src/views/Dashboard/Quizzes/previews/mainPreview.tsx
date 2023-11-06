@@ -486,6 +486,7 @@ const PreviewQuizCard = ({
                   h={'69px'}
                   p={'12px 14px'}
                   isDisabled={!isEditable}
+                  _disabled={{ color: 'text.200' }}
                   value={question.answer}
                 />
               </Box>

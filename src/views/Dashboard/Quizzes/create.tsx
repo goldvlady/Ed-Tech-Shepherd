@@ -249,95 +249,95 @@ const CreateQuizPage = () => {
   const handleSearch = useSearch(searchQuizzes);
 
   useEffect(() => {
-    setQuestions([
-      {
-        question: 'What is the main purpose of a knife?',
-        type: 'openEnded',
-        answer: 'Cutting',
-        explanation:
-          'Knife primarily serves as a cutting tool. It may be used in various contexts like kitchen for food preparation or in arts for creating crafts.'
-      },
-      {
-        question: 'A knife can be used for...',
-        type: 'multipleChoiceSingle',
-        options: [
-          {
-            content: 'Cutting food',
-            isCorrect: true
-          },
-          {
-            content: 'Sewing clothes',
-            isCorrect: false
-          },
-          {
-            content: 'Opening a package',
-            isCorrect: true
-          },
-          {
-            content: 'Writing a letter',
-            isCorrect: false
-          }
-        ]
-      },
-      {
-        question: 'The sharp side of the knife is called...?',
-        type: 'multipleChoiceSingle',
-        options: [
-          {
-            content: 'Handle',
-            isCorrect: false
-          },
-          {
-            content: 'Edge',
-            isCorrect: true
-          },
-          {
-            content: 'Point',
-            isCorrect: false
-          },
-          {
-            content: 'Blade',
-            isCorrect: false
-          }
-        ]
-      },
-      {
-        question: 'Is it safe to play with a knife?',
-        type: 'trueFalse',
-        options: [
-          {
-            content: 'true',
-            isCorrect: false
-          },
-          {
-            content: 'false',
-            isCorrect: true
-          }
-        ]
-      },
-      {
-        question: 'If you see a knife lying around, you should...',
-        type: 'multipleChoiceSingle',
-        options: [
-          {
-            content: 'Pick it up and play with it',
-            isCorrect: false
-          },
-          {
-            content: 'Leave it there',
-            isCorrect: false
-          },
-          {
-            content: 'Tell an adult',
-            isCorrect: true
-          },
-          {
-            content: 'Put it in your pocket',
-            isCorrect: false
-          }
-        ]
-      }
-    ]);
+    // setQuestions([
+    //   {
+    //     question: 'What is the main purpose of a knife?',
+    //     type: 'openEnded',
+    //     answer: 'Cutting',
+    //     explanation:
+    //       'Knife primarily serves as a cutting tool. It may be used in various contexts like kitchen for food preparation or in arts for creating crafts.'
+    //   },
+    //   {
+    //     question: 'A knife can be used for...',
+    //     type: 'multipleChoiceSingle',
+    //     options: [
+    //       {
+    //         content: 'Cutting food',
+    //         isCorrect: true
+    //       },
+    //       {
+    //         content: 'Sewing clothes',
+    //         isCorrect: false
+    //       },
+    //       {
+    //         content: 'Opening a package',
+    //         isCorrect: true
+    //       },
+    //       {
+    //         content: 'Writing a letter',
+    //         isCorrect: false
+    //       }
+    //     ]
+    //   },
+    //   {
+    //     question: 'The sharp side of the knife is called...?',
+    //     type: 'multipleChoiceSingle',
+    //     options: [
+    //       {
+    //         content: 'Handle',
+    //         isCorrect: false
+    //       },
+    //       {
+    //         content: 'Edge',
+    //         isCorrect: true
+    //       },
+    //       {
+    //         content: 'Point',
+    //         isCorrect: false
+    //       },
+    //       {
+    //         content: 'Blade',
+    //         isCorrect: false
+    //       }
+    //     ]
+    //   },
+    //   {
+    //     question: 'Is it safe to play with a knife?',
+    //     type: 'trueFalse',
+    //     options: [
+    //       {
+    //         content: 'true',
+    //         isCorrect: false
+    //       },
+    //       {
+    //         content: 'false',
+    //         isCorrect: true
+    //       }
+    //     ]
+    //   },
+    //   {
+    //     question: 'If you see a knife lying around, you should...',
+    //     type: 'multipleChoiceSingle',
+    //     options: [
+    //       {
+    //         content: 'Pick it up and play with it',
+    //         isCorrect: false
+    //       },
+    //       {
+    //         content: 'Leave it there',
+    //         isCorrect: false
+    //       },
+    //       {
+    //         content: 'Tell an adult',
+    //         isCorrect: true
+    //       },
+    //       {
+    //         content: 'Put it in your pocket',
+    //         isCorrect: false
+    //       }
+    //     ]
+    //   }
+    // ]);
   }, []);
 
   return (
@@ -384,7 +384,11 @@ const CreateQuizPage = () => {
           </Text>
           <Tabs defaultIndex={2} isLazy isFitted position={'relative'}>
             <TabList display="flex">
-              <Tab _selected={{ color: '#207DF7' }} flex="1">
+              <Tab
+                _selected={{ color: '#207DF7' }}
+                flex="1"
+                justifyContent={'flex-start'}
+              >
                 Upload
               </Tab>
               <Tab _selected={{ color: '#207DF7' }} flex="1">
@@ -395,7 +399,11 @@ const CreateQuizPage = () => {
                   Text
                 </Tab>
               )}
-              <Tab _selected={{ color: '#207DF7' }} flex="1">
+              <Tab
+                _selected={{ color: '#207DF7' }}
+                flex="1"
+                justifyContent={'flex-end'}
+              >
                 Manual
               </Tab>
             </TabList>
