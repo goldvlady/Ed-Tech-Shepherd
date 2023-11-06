@@ -1,7 +1,7 @@
 import { REACT_APP_API_ENDPOINT } from '../config';
 import { AI_API, HEADER_KEY } from '../config';
 import { objectToQueryString } from '../helpers/http.helpers';
-import { User, StudentDocumentPayload, FlashcardData } from '../types';
+import { User, StudentDocumentPayload, QuizData, QuizQuestion, FlashcardData} from '../types';
 import { doFetch } from '../util';
 import {
   processDocument,
@@ -14,6 +14,7 @@ import {
 
 class ApiService {
   static baseEndpoint = REACT_APP_API_ENDPOINT;
+  static baseAiEndpoint = AI_API;
 
   static processDocument = processDocument;
   static createDocchatFlashCards = createDocchatFlashCards;
@@ -659,6 +660,106 @@ class ApiService {
     }
     return await response.json();
   }
+
+  //Quizzes
+  static getQuizzes = async (queryParams: {
+    search?: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const queryString = objectToQueryString(queryParams);
+    return doFetch(
+      `${ApiService.baseEndpoint}/getStudentQuizzes?${queryString}`
+    );
+    // return {};
+  };
+
+  static createQuiz = async (data: {
+    questions: QuizQuestion[];
+    title: string;
+    tags: string[];
+  }) => {
+    return doFetch(`${ApiService.baseEndpoint}/createQuiz`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static storeQuizTags = (quizId: string[] | string, tags: string[]) => {
+    return doFetch(`${ApiService.baseEndpoint}/editQuiz?id=${quizId}`, {
+      method: 'POST',
+      body: JSON.stringify({ tags })
+    });
+  };
+
+  static updateQuiz = (
+    quizId: string,
+    data: {
+      questions: QuizQuestion[];
+      title: string;
+      tags: string[];
+    }
+  ) => {
+    return doFetch(`${ApiService.baseEndpoint}/editQuiz?id=${quizId}`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static deleteQuiz = async (id: string | number) => {
+    return doFetch(`${ApiService.baseEndpoint}/deleteQuiz?id=${id}`, {
+      method: 'POST'
+    });
+  };
+
+  static storeQuizScore = async (data: {
+    quizId: string;
+    score: number | string;
+  }) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeQuizScore`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static storeQuizHistory = async (data: {
+    quizId: string;
+    questionId: string;
+    answerProvided: string;
+  }) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeQuizHistory`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static getQuiz = async (quizId: string | number) => {
+    return doFetch(`${ApiService.baseEndpoint}/getQuiz?id=${quizId}`, {
+      method: 'GET'
+    });
+  };
+
+  static generateQuizQuestion = async (
+    userId: string,
+    data: {
+      type: QuizQuestion['type'] | 'mixed';
+      count: number;
+      difficulty: QuizQuestion['difficulty'];
+      subject: string;
+      topic: string;
+      documentId?: string;
+    }
+  ) => {
+    return doFetch(
+      `${AI_API}/quizzes/students/${userId}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      false,
+      { 'Content-Type': 'application/json' }
+    );
+  };
 }
 
 export default ApiService;

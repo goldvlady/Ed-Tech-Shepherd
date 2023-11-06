@@ -1,9 +1,11 @@
 import TutorDashboardLayout from './components/Layout';
 import { FlashCardModal } from './components/flashcardDecks';
+import { QuizModal } from './components/quizDecks';
 import { useActiveUserPresence } from './hooks/setUserPrensence';
 import { StreamChatProvider } from './providers/StreamChatProvider';
 import { AuthProvider, useAuth } from './providers/auth.provider';
 import flashcardStore from './state/flashcardStore';
+import quizStore from './state/quizStore';
 import resourceStore from './state/resourceStore';
 import userStore from './state/userStore';
 import theme from './theme';
@@ -28,6 +30,9 @@ import LexicalContext from './views/Dashboard/Notes/NewNotes/context';
 import PinnedNotes from './views/Dashboard/Notes/PinnedNotes/PinnedNotes';
 import Notes from './views/Dashboard/Notes/index';
 import Offer from './views/Dashboard/Offer';
+import Quizzes from './views/Dashboard/Quizzes';
+import QuizWizardProvider from './views/Dashboard/Quizzes/context';
+import CreateQuizzes from './views/Dashboard/Quizzes/create';
 import SendTutorOffer from './views/Dashboard/SendTutorOffer';
 import Tutor from './views/Dashboard/Tutor';
 import DashboardIndex from './views/Dashboard/index';
@@ -130,8 +135,12 @@ const studentRoutes = [
   { path: 'ace-homework', element: <HomeWorkHelp /> },
   { path: 'flashcards/create', element: <CreateFlashCard /> },
   { path: 'flashcards', element: <FlashCard /> },
+  { path: 'flashcards/:flashcardId', element: <FlashCard /> },
   { path: 'flashcards/:id/edit', element: <EditFlashCard /> },
-  { path: 'library', element: <Library /> }
+  { path: 'library', element: <Library /> },
+  // quizzes
+  { path: 'quizzes', element: <Quizzes /> },
+  { path: 'quizzes/create', element: <CreateQuizzes /> }
 ];
 
 // Tutor specific routes configuration
@@ -354,6 +363,7 @@ const AppRoutes: React.FC = () => {
 function App() {
   const { fetchResources } = resourceStore();
   const { flashcard } = flashcardStore();
+  const { quiz } = quizStore();
   useActiveUserPresence();
 
   const doFetchResources = useCallback(async () => {
@@ -373,10 +383,13 @@ function App() {
           <BrowserRouter>
             <FlashcardWizardProvider>
               <MnemonicSetupProvider>
-                <FlashCardModal isOpen={Boolean(flashcard)} />
-                <StreamChatProvider>
-                  <AppRoutes />
-                </StreamChatProvider>
+                <QuizWizardProvider>
+                  <FlashCardModal isOpen={Boolean(flashcard)} />
+                  {Boolean(quiz) && <QuizModal isOpen={Boolean(quiz)} />}
+                  <StreamChatProvider>
+                    <AppRoutes />
+                  </StreamChatProvider>
+                </QuizWizardProvider>
               </MnemonicSetupProvider>
             </FlashcardWizardProvider>
           </BrowserRouter>

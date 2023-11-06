@@ -13,7 +13,10 @@ type StudentDocumentStore = {
   isLoading: boolean;
   pagination: Pagination;
   fetchStudentDocuments: (queryParams?: SearchQueryParams) => Promise<void>;
-  saveDocument: (document: StudentDocumentPayload) => Promise<boolean>;
+  saveDocument: (
+    document: StudentDocumentPayload,
+    returnDocument?: boolean
+  ) => Promise<boolean | StudentDocument>;
   deleteStudentDocument: (id: string) => Promise<boolean>;
   storeDocumentTags: (
     docId: string[] | string,
@@ -60,7 +63,10 @@ export default create<StudentDocumentStore>((set) => ({
     }
   },
 
-  saveDocument: async (data: StudentDocumentPayload) => {
+  saveDocument: async (
+    data: StudentDocumentPayload,
+    returnDocument = false
+  ) => {
     try {
       set({ isLoading: true });
       const response = await ApiService.saveStudentDocument(data);
@@ -70,6 +76,10 @@ export default create<StudentDocumentStore>((set) => ({
           ...state,
           studentDocuments: [newNote, ...state.studentDocuments]
         }));
+
+        if (returnDocument) {
+          return newNote;
+        }
         return true;
       }
       return false;
