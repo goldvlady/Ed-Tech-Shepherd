@@ -715,7 +715,7 @@ function DocViewer(props) {
           {(props: RenderZoomInProps) => (
             <PiPlusThin
               color="#606264"
-              onClick={() => jumpToHighlightArea(notes[0].highlightAreas[0])}
+              onClick={props.onClick}
               size={15}
               cursor="pointer"
             />
