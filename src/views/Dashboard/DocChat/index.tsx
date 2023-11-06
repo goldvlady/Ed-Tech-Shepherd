@@ -457,7 +457,7 @@ export default function DocChat() {
           chatId: item?.id,
           isPinned: item?.isPinned
         }));
-        console.log('historyData ==>', historyData);
+
         setMessages(mappedData);
         // Set likesDislikes based on the fetched chat history
         setLikesDislikes(

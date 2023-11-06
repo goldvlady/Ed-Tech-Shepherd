@@ -3,9 +3,10 @@ import { ReactComponent as DeleteIcn } from '../../../assets/deleteIcn.svg';
 import { ReactComponent as EditIcn } from '../../../assets/editIcn.svg';
 import { ReactComponent as SummaryIcn } from '../../../assets/summaryIcn1.svg';
 import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkdownView';
+// import { copierHandler } from '../../../helpers';
 import { IconContainer, IconContainer2, SummaryContainer } from './styles';
 import { Flex, Input, InputGroup, InputLeftElement } from '@chakra-ui/react';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { BsSearch } from 'react-icons/bs';
 
 const PinnedMessages = ({
@@ -19,11 +20,11 @@ const PinnedMessages = ({
 }) => {
   const [pinnedSearches, setPinnedSearch] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [copiedView, setCopiedView] = useState<any>();
 
   const filteredMessages = useMemo(() => {
     return messages.filter((messages) => messages.isPinned);
   }, [messages]);
-  console.log('filteredMessages ==>', filteredMessages);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -41,6 +42,16 @@ const PinnedMessages = ({
     );
     setSearchResults(results);
   };
+
+  const copierHandler = useCallback((copiedText = '', chatId = 0) => {
+    navigator.clipboard.writeText(copiedText);
+
+    setCopiedView((prev) => ({ ...prev, [chatId]: true }));
+
+    setTimeout(() => {
+      setCopiedView((prev) => ({ ...prev, [chatId]: false }));
+    }, 2000);
+  }, []);
 
   // Set initial search results
   useEffect(() => {
@@ -100,7 +111,21 @@ const PinnedMessages = ({
                 }}
               >
                 <IconContainer2>
-                  <CopyIcn />
+                  {copiedView?.[text?.chatId] ? (
+                    <p
+                      style={{ fontSize: '.75rem', color: 'rgb(88, 95, 104)' }}
+                    >
+                      {'Copied!'}
+                    </p>
+                  ) : (
+                    <CopyIcn
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        copierHandler(text?.text, text?.chatId);
+                      }}
+                    />
+                  )}
+
                   <DeleteIcn />
                 </IconContainer2>
                 <CustomMarkdownView source={text.text} />
