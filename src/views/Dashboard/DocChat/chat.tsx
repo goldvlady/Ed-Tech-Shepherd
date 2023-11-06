@@ -504,7 +504,8 @@ const Chat = ({
                                   display: 'flex',
                                   alignItems: 'self-end',
                                   gap: '20px',
-                                  marginLeft: 'auto'
+                                  marginLeft: 'auto',
+                                  marginBottom: '15px'
                                 }}
                               >
                                 <div
@@ -554,7 +555,8 @@ const Chat = ({
                                     style={{
                                       display: 'flex',
                                       alignItems: 'self-end',
-                                      gap: '20px'
+                                      gap: '20px',
+                                      marginBottom: '15px'
                                     }}
                                   >
                                     <div

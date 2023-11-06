@@ -447,7 +447,7 @@ export const UserMessage = styled.div`
   border-radius: 5px;
   margin-bottom: 10px;
   color: #fff;
-  font-size: 0.875rem;
+  font-size: 1rem;
   border-radius: 10px;
   min-width: auto;
   max-width: 439px;
@@ -464,7 +464,7 @@ export const AiMessage = styled.div`
   color: #333;
   border-radius: 5px;
   margin-bottom: 10px;
-  font-size: 0.875rem;
+  font-size: 1em;
   border-radius: 10px;
   max-width: 439px;
   min-width: auto;
