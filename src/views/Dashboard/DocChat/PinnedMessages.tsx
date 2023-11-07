@@ -126,7 +126,7 @@ const PinnedMessages = ({
                     />
                   )}
 
-                  <DeleteIcn />
+                  {/* <DeleteIcn /> */}
                 </IconContainer2>
                 <CustomMarkdownView source={text.text} />
               </SummaryContainer>

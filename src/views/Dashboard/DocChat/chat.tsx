@@ -367,7 +367,7 @@ const Chat = ({
         <Wrapper>
           <ContentWrapper>
             <FlexColumnContainer>
-              <InnerWrapper>
+              <InnerWrapper ref={ref}>
                 <div
                   style={{
                     // position: 'fixed',
@@ -485,7 +485,6 @@ const Chat = ({
                     </AskSomethingContainer>
                   )}
                   <ChatContainerResponse
-                    ref={ref}
                     messages={messages && messages.length >= 1}
                   >
                     <>
