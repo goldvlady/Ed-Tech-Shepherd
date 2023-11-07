@@ -1536,6 +1536,12 @@ input.rpv-core__textbox {
   text-align: center;
 }
 
+.rpv-search__popover {
+  display: flex;
+  gap: 5px;
+  color: #606264;
+}
+
 .rpv-core__popover-body-arrow {
   display: none;
 }

@@ -10,6 +10,7 @@ import NoteIcon from '../../assets/notes.svg';
 import ReceiptIcon from '../../assets/receiptIcon.svg';
 import VideoIcon from '../../assets/video.svg';
 import { HelpModal } from '../../components';
+import { SelectedNoteModal } from '../../components';
 import Logo from '../../components/Logo';
 import ProfileSwitchModal from '../../components/ProfileSwitchModal';
 import { firebaseAuth } from '../../firebase';
@@ -532,6 +533,11 @@ const SidebarContent = ({
   ...rest
 }: SidebarProps) => {
   const { pathname } = useLocation();
+  const [showSelected, setShowSelected] = useState(false);
+
+  const handleShowSelected = () => {
+    setShowSelected(true);
+  };
   // const { unreadCount } = useStreamChat();
   return (
     <Box
@@ -579,11 +585,12 @@ const SidebarContent = ({
             items={[
               {
                 title: 'Docchat',
-                path: '/dashboard/docchat'
+                path: '',
+                onClick: handleShowSelected
               },
               {
                 title: 'AI tutor',
-                path: '/dashboard'
+                path: '/dashboard/ace-homework'
               }
             ]}
           />
@@ -698,6 +705,9 @@ const SidebarContent = ({
           />
         </Box>
       </Box>
+      {showSelected && (
+        <SelectedNoteModal show={showSelected} setShow={setShowSelected} />
+      )}
     </Box>
   );
 };
