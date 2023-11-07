@@ -50,6 +50,8 @@ export default function DocChat() {
   const [inputValue, setInputValue] = useState('');
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const documentId = location.state.documentId ?? '';
+  const docKeywords = location.state.docKeywords ?? [];
+  const [keyword, setKeyword] = useState('');
   const title = location.state.docTitle ?? '';
   const studentId = user?._id ?? '';
   const directStudentId = user?.student?._id;
@@ -303,6 +305,34 @@ export default function DocChat() {
     [inputValue, messages, socket]
   );
 
+  const handleSendKeyword = useCallback(
+    async (
+      event: React.SyntheticEvent<HTMLSpanElement>,
+      clickedKeyword: string
+    ) => {
+      event.preventDefault();
+
+      const keywordText = `Tell me more about this keyword: ${clickedKeyword} in the context of this document. What is it's significance?`;
+
+      try {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            text: `Tell me more about ${clickedKeyword} in the context of this document.`,
+            isUser: true,
+            isLoading: false,
+            dislike: false,
+            like: false
+          }
+        ]);
+        socket.emit('chat message', keywordText);
+      } catch (e) {
+        console.log('ERROR', e);
+      }
+    },
+    [socket]
+  );
+
   const handleKeyDown = useCallback(
     (event: any) => {
       // If the key pressed was 'Enter', and the Shift key was not also held down
@@ -552,6 +582,7 @@ export default function DocChat() {
             llmResponse={llmResponse}
             botStatus={botStatus}
             handleSendMessage={handleSendMessage}
+            handleSendKeyword={handleSendKeyword}
             handleInputChange={handleInputChange}
             inputValue={inputValue}
             handleKeyDown={handleKeyDown}
@@ -560,6 +591,7 @@ export default function DocChat() {
             summaryText={summaryText}
             setSummaryText={setSummaryText}
             documentId={documentId}
+            docKeywords={docKeywords}
             title={title}
             handleClickPrompt={handleClickPrompt}
             handleDeleteSummary={handleDeleteSummary}
@@ -616,6 +648,7 @@ export default function DocChat() {
               llmResponse={llmResponse}
               botStatus={botStatus}
               handleSendMessage={handleSendMessage}
+              handleSendKeyword={handleSendKeyword}
               handleInputChange={handleInputChange}
               inputValue={inputValue}
               handleKeyDown={handleKeyDown}
@@ -624,6 +657,7 @@ export default function DocChat() {
               summaryText={summaryText}
               setSummaryText={setSummaryText}
               documentId={documentId}
+              docKeywords={docKeywords}
               title={title}
               handleClickPrompt={handleClickPrompt}
               handleDeleteSummary={handleDeleteSummary}

@@ -32,6 +32,16 @@
 .custom_markdown code {
   color: rgb(32, 125, 247);
 }
+
+.custom_markdown .clickable-keyword {
+  color: blue;
+  cursor: pointer;
+}
+
+.custom_markdown .clickable-keyword:hover {
+  text-decoration: underline;
+}
+
 /* CSS for variables */
 .custom_markdown .token.keyword {
   color: #fc9b65;

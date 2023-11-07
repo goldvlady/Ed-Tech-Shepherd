@@ -65,6 +65,7 @@ interface IChat {
   HomeWorkHelp?: boolean;
   studentId?: any;
   documentId?: any;
+  docKeywords?: any;
   onOpenModal?: () => void;
   isShowPrompt?: boolean;
   messages?: {
@@ -79,6 +80,7 @@ interface IChat {
   llmResponse?: string;
   botStatus?: string;
   handleSendMessage?: any;
+  handleSendKeyword?: any;
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   inputValue: string;
   handleKeyDown?: any;
@@ -123,6 +125,7 @@ const Chat = ({
   botStatus,
   inputValue,
   handleSendMessage,
+  handleSendKeyword,
   handleInputChange,
   handleKeyDown,
   handleSummary,
@@ -130,6 +133,7 @@ const Chat = ({
   summaryText,
   setSummaryText,
   documentId,
+  docKeywords,
   handleClickPrompt,
   homeWorkHelpPlaceholder,
   countNeedTutor,
@@ -548,7 +552,21 @@ const Chat = ({
                             ) : (
                               <div style={{ maxWidth: '439px' }}>
                                 <AiMessage style={{ position: 'relative' }}>
-                                  <CustomMarkdownView source={message.text} />
+                                  {/* <PinLogo
+                                    style={{
+                                      display: isHovered ? 'block' : 'none',
+                                      cursor: 'pointer',
+                                      bottom: '-10px',
+                                      left: '15px',
+                                      position: 'relative'
+                                    }}
+                                  /> */}
+                                  <CustomMarkdownView
+                                    source={message.text}
+                                    keywords={docKeywords}
+                                    handleSendMessage={handleSendMessage}
+                                    handleSendKeyword={handleSendKeyword}
+                                  />
                                 </AiMessage>
                                 {!HomeWorkHelp && (
                                   <div
