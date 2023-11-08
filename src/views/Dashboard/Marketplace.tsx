@@ -11,6 +11,7 @@ import CustomSelect from '../../components/Select';
 import SelectComponent, { Option } from '../../components/Select';
 import TimePicker from '../../components/TimePicker';
 import TimezoneSelect from '../../components/TimezoneSelect';
+import { BountyIcon } from '../../components/icons';
 import ApiService from '../../services/ApiService';
 import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
 import resourceStore from '../../state/resourceStore';
@@ -22,6 +23,7 @@ import BountyOfferModal from './components/BountyOfferModal';
 import Pagination from './components/Pagination';
 import TutorCard from './components/TutorCard';
 import { CustomButton } from './layout';
+import { CloseIcon, EmailIcon, SmallCloseIcon } from '@chakra-ui/icons';
 import {
   Alert,
   AlertDescription,
@@ -53,7 +55,8 @@ import {
   ModalFooter,
   ModalOverlay,
   VStack,
-  RadioGroup
+  RadioGroup,
+  IconButton
 } from '@chakra-ui/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { loadStripe } from '@stripe/stripe-js';
@@ -70,6 +73,7 @@ import React, {
 } from 'react';
 import { BsStarFill } from 'react-icons/bs';
 import { FiChevronDown } from 'react-icons/fi';
+import { GiTakeMyMoney } from 'react-icons/gi';
 import { IoIosAlert } from 'react-icons/io';
 import { MdInfo } from 'react-icons/md';
 import { MdTune } from 'react-icons/md';
@@ -139,6 +143,7 @@ export default function Marketplace() {
   const [isShowInput, setShowInput] = useState('');
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [showOnHover, setShowOnHover] = useState(false);
 
   const handleNextPage = () => {
     setPage(page + 1);
@@ -323,6 +328,10 @@ export default function Marketplace() {
     };
     getNotes();
   }, []);
+
+  const handleBlur = () => {
+    setShowOnHover(false);
+  };
 
   return (
     <>
@@ -601,35 +610,51 @@ export default function Marketplace() {
           )}
         </Box>
       </Box>
-      <Box
-        position="fixed"
-        bottom={3}
-        right={3}
-        bg={'white'}
-        borderRadius={'10px'}
-        width="328px"
-        borderColor="grey"
-        textAlign="center"
-        boxShadow="0px 4px 20px 0px rgba(115, 126, 140, 0.25)"
-      >
-        <Image
-          src={Sally}
-          alt="instant tutoring"
-          borderTopLeftRadius={'10px'}
-          borderTopRightRadius={'10px'}
-        />
-        <VStack p={3} gap={2}>
-          <Text>Need Instant Tutoring ?</Text>
-          <Button
-            onClick={
-              user && user.paymentMethods?.length > 0
-                ? openBountyModal
-                : setupPaymentMethod
-            }
+      <Box position="fixed" bottom={3} right={3}>
+        {showOnHover ? (
+          <SmallCloseIcon onClick={() => setShowOnHover(false)} />
+        ) : (
+          <IconButton
+            variant="outline"
+            color="#207df7"
+            borderColor="#207df7"
+            aria-label="Send email"
+            icon={<GiTakeMyMoney size={'m'} />}
+            onMouseEnter={() => setShowOnHover(true)}
+            // onMouseLeave={() => setShowOnHover(false)}
+            // onFocus={() => setShowOnHover(true)}
+          />
+        )}
+
+        {showOnHover && (
+          <Box
+            bg={'white'}
+            borderRadius={'10px'}
+            width="328px"
+            borderColor="grey"
+            textAlign="center"
+            boxShadow="0px 4px 20px 0px rgba(115, 126, 140, 0.25)"
           >
-            Place Bounty
-          </Button>
-        </VStack>
+            <Image
+              src={Sally}
+              alt="instant tutoring"
+              borderTopLeftRadius={'10px'}
+              borderTopRightRadius={'10px'}
+            />
+            <VStack p={3} gap={2}>
+              <Text>Need Instant Tutoring?</Text>
+              <Button
+                onClick={
+                  user && user.paymentMethods?.length > 0
+                    ? openBountyModal
+                    : setupPaymentMethod
+                }
+              >
+                Place Bounty
+              </Button>
+            </VStack>
+          </Box>
+        )}
       </Box>
       <BountyOfferModal
         isBountyModalOpen={isBountyModalOpen}

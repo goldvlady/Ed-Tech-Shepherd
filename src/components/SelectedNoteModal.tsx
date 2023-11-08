@@ -407,7 +407,10 @@ const SelectedModal = ({
         docKeywords
       }
     });
-    setShowHelp(false);
+    if (setShowHelp) {
+      setShowHelp(false);
+    }
+
     setShow(false);
     user && fetchUserDocuments(user._id);
   };

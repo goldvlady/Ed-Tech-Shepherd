@@ -1,7 +1,13 @@
 import { REACT_APP_API_ENDPOINT } from '../config';
 import { AI_API, HEADER_KEY } from '../config';
 import { objectToQueryString } from '../helpers/http.helpers';
-import { User, StudentDocumentPayload, QuizData, QuizQuestion, FlashcardData} from '../types';
+import {
+  User,
+  StudentDocumentPayload,
+  QuizData,
+  QuizQuestion,
+  FlashcardData
+} from '../types';
 import { doFetch } from '../util';
 import {
   processDocument,

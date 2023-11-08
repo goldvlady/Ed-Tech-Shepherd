@@ -30,6 +30,9 @@ import {
 } from '@react-pdf-viewer/highlight';
 // Import styles
 import '@react-pdf-viewer/highlight/lib/styles/index.css';
+import { pageNavigationPlugin } from '@react-pdf-viewer/page-navigation';
+// Import styles
+import '@react-pdf-viewer/page-navigation/lib/styles/index.css';
 import {
   NextIcon,
   PreviousIcon,
@@ -707,7 +710,6 @@ function DocViewer(props) {
 
   const transform: TransformToolbarSlot = (slot: ToolbarSlot) => ({
     ...slot,
-    // ZoomInMenuItem: () => <></>,
     ZoomIn: () => (
       <>
         {' '}
@@ -824,24 +826,28 @@ function DocViewer(props) {
   );
 
   const renderHighlightContent = (props: RenderHighlightContentProps) => {
-    // const addNote = () => {
-    //   if (message !== '') {
-    //     const note: Note = {
-    //       id: ++noteId,
-    //       content: message,
-    //       highlightAreas: props.highlightAreas,
-    //       quote: props.selectedText
-    //     };
-    //     setNotes(notes.concat([note]));
-    //     props.cancel();
-    //   }
-    // };
+    // Calculate the height of the viewport or the container where the modal should be displayed
+    const viewportHeight = window.innerHeight;
 
-    const getNextId = () => String(Math.random()).slice(2);
+    // Calculate the available space below the selected text
+    const availableSpace =
+      viewportHeight - (props.selectionRegion.top / 100) * viewportHeight;
 
-    // const addHighlight = (highlight: NewHighlight) => {
-    //   setHighlights([{ ...highlight, id: getNextId() }, ...highlights]);
-    // };
+    // Set the top position of the modal to be just below the selected text
+    // const topPosition = `${
+    //   props.selectionRegion.top - props.selectionRegion.height
+    // }px`;
+    const topPosition = `${props.selectionRegion.top - availableSpace - 10}%`;
+    console.log(
+      props.selectionRegion.left,
+      availableSpace,
+      props.selectionRegion.height,
+      viewportHeight,
+      'top'
+    );
+
+    // Calculate the maximum height for the modal to fit within the available space
+    const maxHeight = Math.min(availableSpace - 20, 400); // Subtracting 20 for padding and margins
 
     return (
       <div
@@ -851,11 +857,19 @@ function DocViewer(props) {
           borderRadius: 8,
           padding: '8px',
           position: 'absolute',
-          left: `${props.selectionRegion.left}%`,
-          top: `${props.selectionRegion.top + props.selectionRegion.height}%`,
+          left: `${
+            props.selectionRegion.left <= 50
+              ? props.selectionRegion.left
+              : props.selectionRegion.left - 40
+          }%`,
+          top: `${
+            props.selectionRegion.top <= 80
+              ? props.selectionRegion.top + props.selectionRegion.height
+              : props.selectionRegion.top - props.selectionRegion.height - 30
+          }%`,
           zIndex: 1,
           width: '250px',
-          maxHeight: '400px',
+          maxHeight: '200px', // Set the maximum height
           overflowY: 'scroll'
         }}
       >
@@ -975,6 +989,8 @@ function DocViewer(props) {
   const { jumpToHighlightArea } = highlightPluginInstance;
 
   const zoomPluginInstance = zoomPlugin();
+  const pageNavigationPluginInstance = pageNavigationPlugin();
+
   const { CurrentScale, ZoomIn, ZoomOut } = zoomPluginInstance;
   const searchPluginInstance = searchPlugin();
   const { Search } = searchPluginInstance;
@@ -994,7 +1010,7 @@ function DocViewer(props) {
           style={{ display: 'flex', position: 'fixed' }}
           className="lg:col-span-6 flex-auto h-full w-1/2"
         >
-          <div style={{ height: '100vh', width: '87%', position: 'relative' }}>
+          <div style={{ height: '100vh', width: '90%', position: 'relative' }}>
             {/* <div
               className="absolute z-10 font-bold max-h-max max-w-max text-sm right-10 top-10 p-2 bg-green-100 rounded-xl m-1 hover:text-blue-600 hover:cursor-pointer hover:bg-yellow-100"
               onClick={() => setPopUpNotesModal(true)}
@@ -1008,7 +1024,8 @@ function DocViewer(props) {
                 defaultLayoutPluginInstance,
                 highlightPluginInstance,
                 searchPluginInstance,
-                zoomPluginInstance
+                zoomPluginInstance,
+                pageNavigationPluginInstance
               ]}
             />
           </div>

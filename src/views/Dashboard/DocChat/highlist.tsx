@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/icons';
 import { Box, Flex, Spacer, Spinner, Text } from '@chakra-ui/react';
 import { highlightPlugin } from '@react-pdf-viewer/highlight';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BiDownArrow } from 'react-icons/bi';
 import { CgChevronDown, CgChevronUp } from 'react-icons/cg';
 
@@ -34,6 +34,9 @@ const HighLight = ({
   const [highlightStates, setHighlightStates] = useState(
     hightlightedText.map(() => false)
   );
+  useEffect(() => {
+    setHighlightStates(hightlightedText.map(() => false));
+  }, [hightlightedText]);
 
   const toggleQuoteVisibility = (index) => {
     setHighlightStates((prevStates) => {
@@ -127,13 +130,16 @@ const HighLight = ({
                   }}
                 >
                   <Text lineHeight={5}>
-                    {hightlight?.highlight?.name.slice(0, 40) + '...'}
+                    {hightlight?.highlight?.name.length > 35
+                      ? hightlight?.highlight?.name.slice(0, 40) + '...'
+                      : hightlight?.highlight?.name}
                   </Text>
                   <Spacer />
                   <Box
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleQuoteVisibility(index);
+                      console.log(index, 'innd');
                     }}
                     p={2}
                   >
@@ -159,7 +165,7 @@ const HighLight = ({
                         </Text>
                       ))}
                     </Box>{' '}
-                    <Flex
+                    {/* <Flex
                       alignItems="center"
                       gap={3}
                       justifyContent="center"
@@ -169,7 +175,7 @@ const HighLight = ({
                       <CopyIcn />
                       <EditIcn />
                       <DeleteIcn />
-                    </Flex>
+                    </Flex> */}
                   </>
                 )}
               </Box>

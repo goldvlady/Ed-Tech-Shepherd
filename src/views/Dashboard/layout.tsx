@@ -1,6 +1,7 @@
 import AskIcon from '../../assets/avatar-male.svg';
 import BellDot from '../../assets/bell-dot.svg';
 import { HelpModal } from '../../components';
+import { SelectedNoteModal } from '../../components';
 import Logo from '../../components/Logo';
 import ProfileSwitchModal from '../../components/ProfileSwitchModal';
 import { useStreamChat } from '../../providers/StreamChatProvider';
@@ -86,7 +87,6 @@ interface SidebarProps extends BoxProps {
   // setEarnMenu: (value: boolean) => void;
   unreadCount: number;
 }
-
 
 // const LinkItems: Array<LinkItemProps> = [
 //   { name: 'Shepherd Chats', icon: BsChatLeftDots, path: '/dashboard/messaging' }
@@ -245,7 +245,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             aria-label="open menu"
             icon={<FiMenu />}
           />
-
           {/* <Box display={{ base: 'flex', md: 'none' }}>
             <Flex
               bgColor={'transparent'}
@@ -502,6 +501,14 @@ const SidebarContent = ({
   unreadCount,
   ...rest
 }: SidebarProps) => {
+  const { pathname } = useLocation();
+  const [showSelected, setShowSelected] = useState(false);
+
+  const handleShowSelected = () => {
+    setShowSelected(true);
+  };
+  // const { unreadCount } = useStreamChat();
+
   return (
     <Box
       transition="3s ease"
@@ -548,11 +555,12 @@ const SidebarContent = ({
             items={[
               {
                 title: 'Docchat',
-                path: '/dashboard/docchat'
+                path: '',
+                onClick: handleShowSelected
               },
               {
                 title: 'AI tutor',
-                path: '/dashboard'
+                path: '/dashboard/ace-homework'
               }
             ]}
           />
@@ -668,6 +676,9 @@ const SidebarContent = ({
           />
         </Box>
       </Box>
+      {showSelected && (
+        <SelectedNoteModal show={showSelected} setShow={setShowSelected} />
+      )}
     </Box>
   );
 };
