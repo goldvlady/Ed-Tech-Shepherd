@@ -1208,6 +1208,10 @@ canvas {
   box-shadow: none;
 }
 
+input[type='text']:focus {
+  box-shadow: none;
+}
+
 //STREAM CHAT STYLES
 .stream-chat-wrapper {
   height: calc(100vh - 80px);
