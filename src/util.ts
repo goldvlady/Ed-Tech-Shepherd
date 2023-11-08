@@ -33,9 +33,10 @@ export const getOptionValue = (
 export const doFetch = async (
   input: RequestInfo,
   init?: RequestInit,
-  showErrorMessage = false
+  showErrorMessage = false,
+  initHeaders = {}
 ) => {
-  const headers: HeadersInit = {};
+  const headers: HeadersInit = { ...initHeaders };
 
   const token = await firebaseAuth.currentUser?.getIdToken();
   headers['x-shepherd-header'] = 'vunderkind23';

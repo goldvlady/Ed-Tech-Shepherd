@@ -112,6 +112,7 @@ const SelectedModal = ({
   const [documentURL, setDocumentURL] = useState('');
   const [documentName, setDocumentName] = useState('');
   const [documentId, setDocumentId] = useState('');
+  const [docKeywords, setDocKeywords] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const Wrapper = styled.div`
@@ -316,7 +317,8 @@ const SelectedModal = ({
           title: readableFileName
         })
           .then((results) => {
-            const { documentURL, title, documentId } = results.data[0];
+            const { documentURL, title, documentId, keywords } =
+              results.data[0];
             setConfirmReady(true);
             setCountdown((prev) => ({
               ...prev,
@@ -326,6 +328,7 @@ const SelectedModal = ({
             setDocumentId(() => documentId);
             setDocumentName(() => title);
             setDocumentURL(() => documentURL);
+            setDocKeywords(() => keywords);
             setLoading(false);
 
             ApiService.saveStudentDocument({
@@ -383,18 +386,25 @@ const SelectedModal = ({
       setDocumentURL(() => e.value);
       setDocumentName(() => e.label);
       setDocumentId(() => e.id);
+      setDocKeywords(() => e.keywords);
       setSelectedOption(e.label);
       setCanUpload(false);
       setConfirmReady(true);
     }
   };
 
-  const goToDocChat = async (documentUrl, docTitle, documentId) => {
+  const goToDocChat = async (
+    documentUrl,
+    docTitle,
+    documentId,
+    docKeywords
+  ) => {
     navigate('/dashboard/docchat', {
       state: {
         documentUrl,
         docTitle,
-        documentId
+        documentId,
+        docKeywords
       }
     });
     if (setShowHelp) {
@@ -414,7 +424,7 @@ const SelectedModal = ({
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      await goToDocChat(documentURL, documentName, documentId);
+      await goToDocChat(documentURL, documentName, documentId, docKeywords);
     } catch (error) {
       // Handle error
     } finally {

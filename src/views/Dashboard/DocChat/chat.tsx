@@ -65,6 +65,7 @@ interface IChat {
   HomeWorkHelp?: boolean;
   studentId?: any;
   documentId?: any;
+  docKeywords?: any;
   onOpenModal?: () => void;
   isShowPrompt?: boolean;
   messages?: {
@@ -79,6 +80,7 @@ interface IChat {
   llmResponse?: string;
   botStatus?: string;
   handleSendMessage?: any;
+  handleSendKeyword?: any;
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   inputValue: string;
   handleKeyDown?: any;
@@ -123,6 +125,7 @@ const Chat = ({
   botStatus,
   inputValue,
   handleSendMessage,
+  handleSendKeyword,
   handleInputChange,
   handleKeyDown,
   handleSummary,
@@ -130,6 +133,7 @@ const Chat = ({
   summaryText,
   setSummaryText,
   documentId,
+  docKeywords,
   handleClickPrompt,
   homeWorkHelpPlaceholder,
   countNeedTutor,
@@ -363,7 +367,7 @@ const Chat = ({
         <Wrapper>
           <ContentWrapper>
             <FlexColumnContainer>
-              <InnerWrapper>
+              <InnerWrapper ref={ref}>
                 <div
                   style={{
                     // position: 'fixed',
@@ -481,7 +485,6 @@ const Chat = ({
                     </AskSomethingContainer>
                   )}
                   <ChatContainerResponse
-                    ref={ref}
                     messages={messages && messages.length >= 1}
                   >
                     <>
@@ -504,7 +507,8 @@ const Chat = ({
                                   display: 'flex',
                                   alignItems: 'self-end',
                                   gap: '20px',
-                                  marginLeft: 'auto'
+                                  marginLeft: 'auto',
+                                  marginBottom: '15px'
                                 }}
                               >
                                 <div
@@ -519,10 +523,19 @@ const Chat = ({
                                     fontSize: ' 0.875rem',
                                     cursor: 'pointer'
                                   }}
-                                  // onClick={handlePinPrompt()}
+                                  onClick={() =>
+                                    handlePinPrompt({
+                                      studentId,
+                                      chatHistoryId: String(message.chatId)
+                                    })
+                                  }
                                 >
-                                  <PinLogo />
-                                  <p>Pin</p>
+                                  <PinLogo
+                                    iconColor={
+                                      message?.isPinned ? 'blue' : '#6E7682'
+                                    }
+                                  />
+                                  {/* <p>Pin</p> */}
                                 </div>
                               </div>
                             )}
@@ -538,19 +551,34 @@ const Chat = ({
                             ) : (
                               <div style={{ maxWidth: '439px' }}>
                                 <AiMessage style={{ position: 'relative' }}>
-                                  <CustomMarkdownView source={message.text} />
+                                  {/* <PinLogo
+                                    style={{
+                                      display: isHovered ? 'block' : 'none',
+                                      cursor: 'pointer',
+                                      bottom: '-10px',
+                                      left: '15px',
+                                      position: 'relative'
+                                    }}
+                                  /> */}
+                                  <CustomMarkdownView
+                                    source={message.text}
+                                    keywords={docKeywords}
+                                    handleSendMessage={handleSendMessage}
+                                    handleSendKeyword={handleSendKeyword}
+                                  />
                                 </AiMessage>
                                 {!HomeWorkHelp && (
                                   <div
                                     style={{
                                       display: 'flex',
                                       alignItems: 'self-end',
-                                      gap: '20px'
+                                      gap: '20px',
+                                      marginBottom: '15px'
                                     }}
                                   >
                                     <div
                                       style={{
-                                        width: '77px',
+                                        width: 'auto',
                                         // height: '33px',
                                         padding: '10px',
                                         borderRadius: '100px',
@@ -573,7 +601,7 @@ const Chat = ({
                                             : '#6E7682'
                                         }
                                       />
-                                      <p>Like</p>
+                                      {/* <p>Like</p> */}
                                     </div>
                                     <div
                                       style={{
@@ -599,7 +627,7 @@ const Chat = ({
                                             : '#6E7682'
                                         }
                                       />
-                                      <p>Dislike</p>
+                                      {/* <p>Dislike</p> */}
                                     </div>
                                     <div
                                       style={{
@@ -620,8 +648,12 @@ const Chat = ({
                                         })
                                       }
                                     >
-                                      <PinLogo />
-                                      <p>Pin</p>
+                                      <PinLogo
+                                        iconColor={
+                                          message?.isPinned ? 'blue' : '#6E7682'
+                                        }
+                                      />
+                                      {/* <p>Pin</p> */}
                                     </div>
                                   </div>
                                 )}

@@ -1,28 +1,15 @@
 import AskIcon from '../../assets/avatar-male.svg';
 import BellDot from '../../assets/bell-dot.svg';
-import FeedIcon from '../../assets/blue-energy.svg';
-import DocIcon from '../../assets/doc-icon.svg';
-import Doc from '../../assets/doc.svg';
-import FlashcardIcon from '../../assets/flashcardIcon.svg';
-import MessageIcon from '../../assets/message.svg';
-import NewNote from '../../assets/newnote.svg';
-import NoteIcon from '../../assets/notes.svg';
-import ReceiptIcon from '../../assets/receiptIcon.svg';
-import VideoIcon from '../../assets/video.svg';
 import { HelpModal } from '../../components';
 import { SelectedNoteModal } from '../../components';
 import Logo from '../../components/Logo';
 import ProfileSwitchModal from '../../components/ProfileSwitchModal';
-import { firebaseAuth } from '../../firebase';
 import { useStreamChat } from '../../providers/StreamChatProvider';
 import userStore from '../../state/userStore';
 import FlashCardEventNotifier from './FlashCards/components/flashcard_event_notification';
-import TutorMarketplace from './Tutor';
-import AskShepherd from './components/AskShepherd';
 import MenuLinedList from './components/MenuLinedList';
 import Notifications from './components/Notifications';
 import useNotifications from './components/useNotification';
-import DashboardIndex from './index';
 import {
   Avatar,
   Badge,
@@ -53,9 +40,10 @@ import {
   useDisclosure
 } from '@chakra-ui/react';
 import { getAuth, signOut } from 'firebase/auth';
-import React, { ReactNode, useState, useEffect, useCallback } from 'react';
+import { includes, last, split } from 'lodash';
+import { ReactNode, useState, useEffect } from 'react';
 import { IconType } from 'react-icons';
-import { BsChatLeftDots, BsPin, BsPlayCircle, BsBook } from 'react-icons/bs';
+import { BsChatLeftDots, BsPin, BsBook } from 'react-icons/bs';
 import { CgNotes } from 'react-icons/cg';
 import { FaBell } from 'react-icons/fa';
 import {
@@ -66,13 +54,12 @@ import {
   FiMenu
 } from 'react-icons/fi';
 import { GiReceiveMoney, GiBarn } from 'react-icons/gi';
-import { LuBot } from 'react-icons/lu';
+import { LuBot, LuFileQuestion } from 'react-icons/lu';
 import { MdOutlineQuiz } from 'react-icons/md';
 import {
   MdOutlineKeyboardArrowDown,
   MdOutlineKeyboardArrowUp
 } from 'react-icons/md';
-import { TbClipboardText } from 'react-icons/tb';
 import { TbCards } from 'react-icons/tb';
 import {
   Navigate,
@@ -100,6 +87,7 @@ interface SidebarProps extends BoxProps {
   // setEarnMenu: (value: boolean) => void;
   unreadCount: number;
 }
+
 // const LinkItems: Array<LinkItemProps> = [
 //   { name: 'Shepherd Chats', icon: BsChatLeftDots, path: '/dashboard/messaging' }
 //   // { name: 'Library', icon: BsPlayCircle, path: '/library' }
@@ -112,10 +100,11 @@ const LinkItems: Array<LinkItemProps> = [
   //   icon: TbClipboardText,
   //   path: '/dashboard/study-plans'
   // },
-  { name: 'Flashcards', icon: TbCards, path: '/dashboard/flashcards' },
-  { name: 'Quizzes', icon: MdOutlineQuiz, path: '/dashboard/flashcards' },
+  //   { name: 'Quizzes', icon: MdOutlineQuiz, path: '/dashboard/flashcards' },
+  { name: 'Library', icon: BsBook, path: '/dashboard/library' },
   { name: 'Notes', icon: CgNotes, path: '/dashboard/notes' },
-  { name: 'Library', icon: BsBook, path: '/dashboard/library' }
+  { name: 'Flashcards', icon: TbCards, path: '/dashboard/flashcards' },
+  { name: 'Quizzes', icon: LuFileQuestion, path: '/dashboard/quizzes' }
 ];
 
 interface NavItemProps extends FlexProps {
@@ -131,11 +120,7 @@ const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
     (pathname.startsWith(path) && path.split('/').length > 2);
 
   return (
-    <Link
-      to={path}
-      style={{ textDecoration: 'none' }}
-      // _focus={{ boxShadow: "none" }}
-    >
+    <Link to={path} style={{ textDecoration: 'none' }}>
       <Flex
         align="center"
         px="4"
@@ -186,12 +171,11 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
     setToggleProfileSwitchModal(true);
   };
   const navigate = useNavigate();
-  const { user, fetchUser, logoutUser } = userStore();
+  const { user, logoutUser } = userStore();
   const userId = user?._id || '';
   const { notifications, hasUnreadNotification, markAllAsRead } =
     useNotifications(userId);
 
-  console.log(notifications, hasUnreadNotification, 'fb not');
   const handleSignOut = () => {
     signOut(auth).then(() => {
       sessionStorage.clear();
@@ -212,10 +196,10 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   // function handleMenuButtonClick(callback) {
   //   setTimeout(callback, 15000);
   // }
+
   return (
     <>
       <Flex
-        // ml={{ base: 0, md: 60 }}
         px={{ base: 4, md: 4 }}
         width={{ base: '100%', sm: '100%', md: 'calc(100vw - 250px)' }}
         height="20"
@@ -224,7 +208,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         bg={useColorModeValue('white', 'gray.900')}
         borderBottomWidth="1px"
         borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
-        // justifyContent={{ base: "space-between", md: "flex-end" }}
         position="fixed"
         top="0"
         {...rest}
@@ -262,14 +245,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             aria-label="open menu"
             icon={<FiMenu />}
           />
-          <Text
-            display={{ base: 'flex', md: 'none' }}
-            fontSize="2xl"
-            fontFamily="monospace"
-            fontWeight="bold"
-          >
-            {/* <Logo  />{' '} */}
-          </Text>
           {/* <Box display={{ base: 'flex', md: 'none' }}>
             <Flex
               bgColor={'transparent'}
@@ -309,7 +284,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                         <FaBell />
                       )
                     }
-                    // onClick={() => handleMenuButtonClick(markAllAsRead)}
                   />
                 </MenuButton>
                 <MenuList
@@ -320,7 +294,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                 >
                   <Notifications
                     data={notifications}
-                    // handleRead={markAsRead}
                     handleAllRead={markAllAsRead}
                   />
                 </MenuList>
@@ -338,7 +311,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                 bg="#F4F5F5"
                 borderRadius={'40px'}
                 px={3}
-                // minWidth={"80px"}
               >
                 <HStack>
                   <Avatar
@@ -503,9 +475,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             </Menu>
           </HStack>
         </Flex>
-        {/* <Flex alignItems={"center"}>
-    
-    </Flex> */}
       </Flex>
       <HelpModal
         toggleHelpModal={toggleHelpModal}
@@ -539,6 +508,7 @@ const SidebarContent = ({
     setShowSelected(true);
   };
   // const { unreadCount } = useStreamChat();
+
   return (
     <Box
       transition="3s ease"
@@ -656,6 +626,7 @@ const SidebarContent = ({
           />
         </Box>
       </Box>
+
       <NavItem icon={BsChatLeftDots} path="/dashboard/messaging">
         Shepherd Chat
         {unreadCount > 0 && ( // Display badge if there are unread messages
@@ -718,15 +689,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [earnMenu, setEarnMenu] = useState(false);
   const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
   const { user }: any = userStore();
-  const { pathname } = useLocation();
   const {
     unreadCount,
     connectUserToChat,
     userType,
     setUserRoleInfo,
     userRoleId,
-    userRoleToken,
-    disconnectAndReset
+    userRoleToken
   } = useStreamChat();
 
   const toggleMenu = () => {
@@ -748,17 +717,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       //@ts-ignore: petty ts check
       setUserRoleInfo(role?._id, token?.token);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   useEffect(() => {
     if (userRoleId && userRoleToken) {
       connectUserToChat();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userRoleId, userRoleToken]);
-
-  // useEffect(() => {
-  //   connectUserToChat();
-  // }, []);
 
   return (
     <>

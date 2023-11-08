@@ -1,5 +1,10 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
+export const MULTIPLE_CHOICE_SINGLE = 'multipleChoiceSingle';
+export const TRUE_FALSE = 'trueFalse';
+export const OPEN_ENDED = 'openEnded';
+export const MIXED = 'mixed';
+
 export type Entity = {
   _id: string;
 };
@@ -455,4 +460,45 @@ export interface StudentDocument {
   tags: string[];
   ingestId?: string;
   student: any; // Assuming this is the ObjectId of the student
+}
+
+export interface QuizQuestionOption {
+  content: string;
+  isCorrect: boolean;
+}
+
+export interface QuizQuestion {
+  type: 'openEnded' | 'trueFalse' | 'multipleSingleChoice' | string;
+  question: string;
+  options?: QuizQuestionOption[];
+  helperText?: string;
+  explanation?: string;
+  answer?: string;
+  numberOfAttempts?: number;
+  currentStep?: number;
+  totalSteps?: number;
+  id?: string | number;
+  difficulty?:
+    | 'kindergarten'
+    | 'high school'
+    | 'college'
+    | 'PhD'
+    | 'genius'
+    | 'phd';
+}
+
+export interface QuizData {
+  _id: string;
+  student?: Student;
+  title: string;
+  studyType?: 'timedSession' | 'untimedSession';
+  subject?: string;
+  topic?: string;
+  scores: Score[];
+  studyPeriod?: 'daily' | 'weekly' | 'biweekly' | 'spacedRepetition';
+  questions: QuizQuestion[];
+  createdAt: string;
+  updatedAt: string;
+  currentStudy?: MinimizedStudy;
+  tags: string[];
 }

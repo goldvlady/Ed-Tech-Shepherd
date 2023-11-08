@@ -5,8 +5,8 @@ export const Form = styled.form<{ isHomeWorkHelp?: boolean }>`
   grid-column: span 6;
   flex: auto;
   height: 100%;
-  position: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? 'none' : 'fixed')};
-  width: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? '100%' : '40.7%')};
+  position: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? 'fixed' : 'fixed')};
+  width: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? '55%' : '40.7%')};
   right: 0;
   border-left: 1px solid #eeeff2;
   background: white;
@@ -35,9 +35,12 @@ export const InnerWrapper = styled.div`
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
-  position: fixed;
-  // bottom: 148px;
-  height: 37em;
+  position: absolute;
+  width: 100%;
+  // height: 100vh;
+  z-index: 0;
+  bottom: 207px;
+  height: calc(100vh - 207px); /* Adjusts the height dynamically */
 `;
 
 export const ChatContainer = styled.div`
@@ -193,7 +196,7 @@ export const StyledDiv = styled.div<{
 export const ChatbotContainer = styled.div<{
   chatbotSpace: number;
 }>`
-  width: inherit;
+  width: 100%;
   // position: fixed;
   z-index: 50;
   // background: #f9f9fb;
@@ -209,15 +212,16 @@ export const ChatbotContainer = styled.div<{
 `;
 
 export const InputContainer = styled.div`
-  // flex-grow: 1;
+  flex-grow: 1;
   // position: relative;
   // width: 100%;
-  position: fixed;
-  width: -webkit-fill-available;
-  width: intrinsic; /* Safari/WebKit uses a non-standard name */
+  position: absolute;
+  bottom: 85px;
+  width: 100%;
+  // width: 100%; /* Safari/WebKit uses a non-standard name */
   width: -moz-max-content; /* Firefox/Gecko */
   width: -moz-available;
-  bottom: 0;
+  // bottom: 0;
   background: rgb(249, 249, 251);
   padding: 10px;
 `;
@@ -447,7 +451,7 @@ export const UserMessage = styled.div`
   border-radius: 5px;
   margin-bottom: 10px;
   color: #fff;
-  font-size: 0.875rem;
+  font-size: 1rem;
   border-radius: 10px;
   min-width: auto;
   max-width: 439px;
@@ -464,7 +468,7 @@ export const AiMessage = styled.div`
   color: #333;
   border-radius: 5px;
   margin-bottom: 10px;
-  font-size: 0.875rem;
+  font-size: 1em;
   border-radius: 10px;
   max-width: 439px;
   min-width: auto;
