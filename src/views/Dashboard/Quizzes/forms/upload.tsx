@@ -178,7 +178,7 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
         setIsUploadingFile(true);
       }
     });
-    uploadEmitter.on('complete', async (documentUrl: string) => {
+    uploadEmitter.on('complete', async (documentUrl: any) => {
       try {
         const title = decodeURIComponent(
           (documentUrl.match(/\/([^/]+)(?=\.\w+\?)/) || [])[1] || ''
