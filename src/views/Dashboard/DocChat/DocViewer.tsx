@@ -868,12 +868,13 @@ function DocViewer(props) {
               : props.selectionRegion.top - props.selectionRegion.height - 30
           }%`,
           zIndex: 1,
-          width: '250px',
-          maxHeight: '200px', // Set the maximum height
-          overflowY: 'scroll'
+          width: '250px'
         }}
       >
-        <div>
+        <div
+          style={{ overflowY: 'scroll', maxHeight: '200px' }}
+          className="custom-scroll"
+        >
           {displayTypewriter ? (
             <Typewriter
               options={{
@@ -901,7 +902,7 @@ function DocViewer(props) {
             ></textarea>
           )}
         </div>
-        <Flex>
+        <Flex height={45}>
           <Flex
             alignItems={'center'}
             bgColor={'transparent'}
@@ -914,6 +915,7 @@ function DocViewer(props) {
               bgColor: '#EDF2F7',
               transform: 'translateY(-2px)'
             }}
+            position="sticky"
             onClick={() => handleGenerateComment(props.selectedText)}
           >
             {' '}
@@ -1011,12 +1013,12 @@ function DocViewer(props) {
           className="lg:col-span-6 flex-auto h-full w-1/2"
         >
           <div style={{ height: '100vh', width: '90%', position: 'relative' }}>
-            {/* <div
+            <div
               className="absolute z-10 font-bold max-h-max max-w-max text-sm right-10 top-10 p-2 bg-green-100 rounded-xl m-1 hover:text-blue-600 hover:cursor-pointer hover:bg-yellow-100"
               onClick={() => setPopUpNotesModal(true)}
             >
               {snip(pdfName, 40)}
-            </div> */}
+            </div>
 
             <Viewer
               fileUrl={pdfLink}
