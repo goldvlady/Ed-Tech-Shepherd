@@ -77,6 +77,8 @@ export default function DocChat() {
   );
   const [chatId, setChatId] = useState('');
   const [pinnedResponse, setPinnedResponse] = useState<any>();
+  const [selectedChatId, setSelectedChatId] = useState('');
+  const [isChatLoading, setChatLoading] = useState({});
 
   const isLike = useMemo(() => {
     return likesDislikes[1]?.like
@@ -85,17 +87,6 @@ export default function DocChat() {
       ? false
       : true;
   }, [likesDislikes]);
-
-  const reaction = useCallback(
-    async () =>
-      getToggleReaction({
-        chatId,
-        reactionType: isLike ? 'like' : 'dislike'
-      }).catch((err) => {
-        console.log(err);
-      }),
-    []
-  );
 
   const handleDislike = (index) => {
     setLikesDislikes((prev) => {
@@ -227,13 +218,14 @@ export default function DocChat() {
   }, [summaryError]);
 
   useEffect(() => {
-    const response = async () =>
+    const response = async () => {
       await getToggleReaction({
         chatId,
         reactionType: isLike ? 'like' : 'dislike'
       }).catch((err) => {
         console.error(err);
       });
+    };
     response();
   }, [getToggleReaction, chatId, likesDislikes]);
 
@@ -387,12 +379,23 @@ export default function DocChat() {
 
   const handlePinPrompt = useCallback(
     async ({ chatHistoryId = '', studentId = '' }) => {
+      setChatLoading((prevChatLoadingState) => ({
+        ...prevChatLoadingState,
+        [chatHistoryId]: true // Set loading state for the specific chat icon
+      }));
+
       try {
         const response = await postPinnedPrompt({
           chatId: chatHistoryId,
           studentId
         });
+
         if (response) {
+          setChatLoading((prevChatLoadingState) => ({
+            ...prevChatLoadingState,
+            [chatHistoryId]: false // Set loading state for the specific chat icon
+          }));
+
           setPinnedResponse(response);
           // You might want to toast a success message or handle the success response
           toast({
@@ -406,7 +409,11 @@ export default function DocChat() {
             isClosable: true
           });
         } else {
-          // Handle the null response case
+          setChatLoading((prevChatLoadingState) => ({
+            ...prevChatLoadingState,
+            [chatHistoryId]: false // Set loading state for the specific chat icon
+          }));
+
           toast({
             title: 'Failed to pin chat prompt',
             description: 'No response received from the server.',
@@ -416,6 +423,11 @@ export default function DocChat() {
           });
         }
       } catch (error) {
+        setChatLoading((prevChatLoadingState) => ({
+          ...prevChatLoadingState,
+          [chatHistoryId]: false // Set loading state for the specific chat icon
+        }));
+
         // Handle errors here
         toast({
           title: 'An error occurred',
@@ -608,6 +620,9 @@ export default function DocChat() {
             setChatId={setChatId}
             handlePinPrompt={handlePinPrompt}
             studentId={studentId}
+            selectedChatId={selectedChatId}
+            setSelectedChatId={setSelectedChatId}
+            isChatLoading={isChatLoading}
           />
         )}
 
@@ -674,6 +689,9 @@ export default function DocChat() {
               setChatId={setChatId}
               handlePinPrompt={handlePinPrompt}
               studentId={studentId}
+              selectedChatId={selectedChatId}
+              setSelectedChatId={setSelectedChatId}
+              isChatLoading={isChatLoading}
             />
           </>
         )}

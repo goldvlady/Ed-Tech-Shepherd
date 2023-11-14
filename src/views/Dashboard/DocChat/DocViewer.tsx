@@ -950,10 +950,10 @@ function DocViewer(props) {
     <div>
       {hightlightedText.map((note) => (
         <React.Fragment key={note.id}>
-          {note.highlight.position
+          {note?.highlight?.position
             // Filter all highlights on the current page
-            .filter((area) => area.pageIndex === props.pageIndex)
-            .map((area, idx) => (
+            ?.filter((area) => area.pageIndex === props.pageIndex)
+            ?.map((area, idx) => (
               <div
                 key={idx}
                 style={Object.assign(
