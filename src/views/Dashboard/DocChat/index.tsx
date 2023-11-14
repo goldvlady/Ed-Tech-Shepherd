@@ -828,8 +828,7 @@ export default function DocChat() {
           [chatHistoryId]: false // Set loading state for the specific chat icon
         }));
 
-        // setPinnedResponse(response);
-        // You might want to toast a success message or handle the success response
+        // Handle errors here
         toast({
           render: () => (
             <CustomToast
@@ -1097,6 +1096,7 @@ export default function DocChat() {
             setSelectedChatId={setSelectedChatId}
             handlePinned={handlePinned}
             isPinned={isPinned}
+            isChatLoading={isChatLoading}
           />
         )}
 
@@ -1181,6 +1181,7 @@ export default function DocChat() {
               setSelectedChatId={setSelectedChatId}
               handlePinned={handlePinned}
               isPinned={isPinned}
+              isChatLoading={isChatLoading}
             />
           </>
         )}
