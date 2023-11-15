@@ -1033,6 +1033,13 @@ function DocViewer(props) {
           </div>
         </div>
       </Worker>
+      {popUpNotesModal && (
+        <SelectedNoteModal
+          show={popUpNotesModal}
+          setShow={setPopUpNotesModal}
+          setShowHelp={() => null}
+        />
+      )}
     </>
   );
 }
