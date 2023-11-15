@@ -60,6 +60,7 @@ import { AiFillLike } from 'react-icons/ai';
 import { AiFillDislike } from 'react-icons/ai';
 import { FiThumbsUp } from 'react-icons/fi';
 import { FiThumbsDown } from 'react-icons/fi';
+import Typewriter from 'typewriter-effect';
 
 interface IChat {
   HomeWorkHelp?: boolean;
@@ -665,7 +666,19 @@ const Chat = ({
                     </>
                     {llmResponse && (
                       <AiMessage key="hey">
-                        <CustomMarkdownView source={llmResponse} />
+                        {/* <CustomMarkdownView source={llmResponse} /> */}
+                        <Typewriter
+                          options={{
+                            delay: 10,
+                            autoStart: true, // Set to false to control it manually
+                            loop: false,
+                            skipAddStyles: true,
+                            wrapperClassName: 'text-sm font-light '
+                          }}
+                          onInit={(typewriter) => {
+                            typewriter.typeString(llmResponse).start();
+                          }}
+                        />
                       </AiMessage>
                     )}
                   </ChatContainerResponse>

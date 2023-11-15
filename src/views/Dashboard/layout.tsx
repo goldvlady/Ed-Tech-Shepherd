@@ -637,12 +637,23 @@ const SidebarContent = ({
       </NavItem>
 
       <Divider />
-      <NavItem icon={GiBarn} path="/dashboard">
-        Barn
+      <NavItem icon={GiBarn} path={undefined}>
+        <Flex gap={2}>
+          <Text>Barn</Text>
+          <Text
+            fontSize={10}
+            border="1px solid #fc9b65"
+            borderRadius={4}
+            color="#fc9b65"
+            alignSelf={'center'}
+            px={2}
+          >
+            Coming Soon
+          </Text>
+        </Flex>
       </NavItem>
       <Divider />
       <Box ml={8} color="text.400">
-        {' '}
         <Button
           variant={'unstyled'}
           display="flex"
