@@ -1,31 +1,131 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import CustomChatLoader from '../../../components/CustomComponents/CustomChatLoader';
 import CustomToast from '../../../components/CustomComponents/CustomToast/index';
-import { AI_API } from '../../../config';
+// import { BlockNoteView, useBlockNote } from '@blocknote/react';
+import Editor from '../../../components/Editor';
+// import { AI_API } from '../../../config';s
 import useIsMobile from '../../../helpers/useIsMobile';
+import useDebounce from '../../../hooks/useDebounce';
 import {
-  chatHistory,
-  chatWithDoc,
+  chatHistory, // chatWithDoc,
   deleteGeneratedSummary,
   generateSummary,
   getPDFHighlight,
-  getToggleReaction,
-  postGenerateSummary,
+  getToggleReaction, // postGenerateSummary,
   postPinnedPrompt,
   updateGeneratedSummary
 } from '../../../services/AI';
+import ApiService from '../../../services/ApiService';
 import socketWithAuth from '../../../socket';
 import userStore from '../../../state/userStore';
+import {
+  NoteData,
+  NoteDetails,
+  NoteServerResponse,
+  NoteStatus
+} from '../../../types';
 import DocViewer from './DocViewer';
 import TempPDFViewer from './TempPDFViewer';
 import Chat from './chat';
-import { TempPDF } from './styles';
-import { BlockNoteEditor } from '@blocknote/core';
-import { BlockNoteView, useBlockNote } from '@blocknote/react';
-import { useToast } from '@chakra-ui/react';
+// import { TempPDF } from './styles';
+// import { BlockNoteEditor } from '@blocknote/core';
+import { Box, VStack, useToast } from '@chakra-ui/react';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { LexicalEditor as EditorType } from 'lexical';
+import { defaultTo, isEmpty, isNil, isString } from 'lodash';
+import moment from 'moment';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import tw from 'twin.macro';
+
+export const Header = styled.section`
+  ${tw`h-[80px] mt-2 max-w-[calc(100%-700px-240px)]`}
+  background: #fafafa;
+  border: 1px solid #eeeff2;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px;
+`;
+
+export const FirstSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px;
+  .back-btn {
+    font-size: 0.875rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 1.25rem;
+    color: #585f68;
+    margin-left: -0.5em;
+    cursor: pointer;
+  }
+  .zoom__icn {
+    border-right: 1px solid #e0e1e1;
+    padding-right: 20px;
+    cursor: pointer;
+  }
+
+  .doc__name {
+    cursor: text;
+    color: #525456;
+    display: flex;
+    flex-direction: row;
+    font-size: 11pt;
+    min-width: 120px;
+    max-height: 30px;
+    width: '100%';
+    border-right: 1px solid #e0e1e1;
+    padding-right: 10px;
+    > input {
+      width: inherit;
+      height: 'inherit';
+      margin: 0;
+      padding: 0;
+      border-style: flat !important;
+      font-size: 11pt;
+      color: #525456;
+      background: #fafafa !important;
+    }
+  }
+
+  .doc__name:hover {
+    > div {
+      border: 1px solid #e0e1e1;
+    }
+  }
+
+  .timestamp {
+    color: #9a9c9e;
+    font-size: 0.875rem;
+    cursor: default;
+  }
+`;
+
+const StyledEditor = styled(Editor)`
+  && {
+    ${tw`mt-2`}
+
+    .toolbar {
+      &.out-view {
+        ${tw`max-w-[calc(100%-700px-240px)]  top-[75px]`}
+        div.divider {
+          ${tw``}
+        }
+        button {
+          ${tw``}
+        }
+      }
+    }
+  }
+`;
 
 export default function DocChat() {
+  const debounce = useDebounce(1000, 10);
+  const [editor] = useLexicalComposerContext();
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = userStore();
@@ -33,9 +133,15 @@ export default function DocChat() {
   const [llmResponse, setLLMResponse] = useState('');
   const [readyToChat, setReadyToChat] = useState(false);
   const [chatHistoryLoaded, setChatHistoryLoaded] = useState(false);
+  const [canStartSaving, setCanStartSaving] = useState(false);
   const [botStatus, setBotStatus] = useState(
     'Philosopher, thinker, study companion.'
   );
+
+  const formatDate = (date: Date, format = 'DD ddd, hh:mma'): string => {
+    return moment(date).format(format);
+  };
+
   const [messages, setMessages] = useState<
     {
       text: string;
@@ -50,6 +156,7 @@ export default function DocChat() {
   const [inputValue, setInputValue] = useState('');
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const documentId = location.state.documentId ?? '';
+  const noteId = location?.state?.noteId ?? '';
   const docKeywords = location.state.docKeywords ?? [];
   const [keyword, setKeyword] = useState('');
   const title = location.state.docTitle ?? '';
@@ -62,12 +169,10 @@ export default function DocChat() {
   const [hightlightedText, setHightlightedText] = useState<any[]>([]);
   const [selectedHighlightArea, setSelectedHighlightArea] = useState<any>({});
   const [isUpdatedSummary, setUpdatedSummary] = useState<boolean>(false);
-  const content = location.state?.content;
+  const content = location.state?.content ?? '';
   const [initialContent, setInitialContent] = useState<any>(content);
-  const editor: BlockNoteEditor | null = useBlockNote({
-    initialContent: initialContent ? JSON.parse(initialContent) : undefined,
-    editable: false
-  });
+  const [editedTitle, setEditedTitle] = useState('');
+
   const [summaryStart, setSummaryStart] = useState(false);
   const [summaryError, setSummaryError] = useState(false);
   const mobile = useIsMobile();
@@ -77,8 +182,13 @@ export default function DocChat() {
   );
   const [chatId, setChatId] = useState('');
   const [pinnedResponse, setPinnedResponse] = useState<any>();
+
+  const [currentTime, setCurrentTime] = useState<string>(
+    formatDate(new Date())
+  );
   const [selectedChatId, setSelectedChatId] = useState('');
   const [isChatLoading, setChatLoading] = useState({});
+  const [isLoadingNote, setIsLoadingNote] = useState(true);
 
   const isLike = useMemo(() => {
     return likesDislikes[1]?.like
@@ -87,6 +197,16 @@ export default function DocChat() {
       ? false
       : true;
   }, [likesDislikes]);
+
+  const reaction = useCallback(async () => {
+    if (isEmpty(chatId) || isNil(chatId)) return;
+    getToggleReaction({
+      chatId,
+      reactionType: isLike ? 'like' : 'dislike'
+    }).catch((err) => {
+      console.log(err);
+    });
+  }, []);
 
   const handleDislike = (index) => {
     setLikesDislikes((prev) => {
@@ -104,17 +224,128 @@ export default function DocChat() {
     });
   };
 
+  const updateNote = async (
+    id: string,
+    data: NoteData
+  ): Promise<NoteServerResponse | null> => {
+    const resp = await ApiService.updateNote(id, data);
+    const respText = await resp.text();
+    try {
+      const respDetails: NoteServerResponse = JSON.parse(respText);
+      return respDetails;
+    } catch (error: any) {
+      return { error: error.message, message: error.message };
+    }
+  };
+
+  const handleAutoSave = (editor: EditorType) => {
+    // use debounce filter
+    // TODO: we must move this to web worker
+    // additional condition for use to save note details
+
+    // const saveLocalCallback = (noteId: string, note: string) => {
+    //   saveNoteLocal(getLocalStorageNoteId(noteId), note);
+    // };
+    // evaluate other conditions to true or false
+    const saveCondition = () => !editor.getEditorState().isEmpty();
+    // note save callback wrapper
+    const saveCallback = () => {
+      autoSaveNote(editor, () => {
+        handleRefreshNote();
+        toast({
+          render: () => (
+            <CustomToast title="Note Refreshing....." status="success" />
+          ),
+          position: 'top-right',
+          isClosable: true
+        });
+      });
+    };
+    debounce(saveCallback, saveCondition);
+  };
+
+  /**
+   * Auto-save note contents
+   *
+   * @returns
+   */
+  const autoSaveNote = async (
+    editor: EditorType,
+    saveCallback?: (noteId?: string, note?: string) => any
+  ) => {
+    if (!editor) return;
+    if (editor.getEditorState().isEmpty()) return;
+
+    let noteJSON = '';
+    let noteStatus: NoteStatus;
+
+    try {
+      const editorJson = editor?.getEditorState().toJSON();
+      noteJSON = JSON.stringify(editorJson);
+    } catch (error: any) {
+      return;
+    }
+
+    if (!isEmpty(noteId)) {
+      noteStatus = NoteStatus.SAVED;
+
+      const data: {
+        note: string;
+        status: string;
+        topic: string;
+      } = {
+        note: noteJSON,
+        status: noteStatus,
+        topic: editedTitle
+      };
+
+      const result = await updateNote(noteId, data as NoteData);
+      setCurrentTime(formatDate(result.data.updatedAt));
+      saveCallback();
+    }
+  };
+
   useEffect(() => {
-    if (documentId && studentId) {
-      const authSocket = socketWithAuth({
-        studentId,
-        documentId,
-        namespace: 'doc-chat'
-      }).connect();
+    if (!isEmpty(studentId)) {
+      let authSocket = null;
+      if (documentId) {
+        authSocket = socketWithAuth({
+          studentId,
+          documentId,
+          namespace: 'doc-chat'
+        }).connect();
+
+        // setSocket(authSocket);
+      }
+
+      if (!isEmpty(noteId)) {
+        authSocket = socketWithAuth({
+          studentId,
+          noteId,
+          namespace: 'note-workspace',
+          isDevelopment:
+            process.env.REACT_APP_API_ENDPOINT ===
+            'https://develop--api-sheperdtutors.netlify.app'
+          // isDevelopment: false
+        }).connect();
+
+        // setSocket(authSocket);
+      }
 
       setSocket(authSocket);
     }
-  }, [studentId, documentId]);
+  }, [studentId, documentId, noteId]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('current_conversation', (conversationId) => {
+        setReadyToChat(true);
+        console.log('current_conversation ========>>> ', conversationId);
+      });
+
+      return () => socket.off('current_conversation');
+    }
+  }, [socket]);
 
   useEffect(() => {
     if (socket) {
@@ -125,6 +356,49 @@ export default function DocChat() {
       return () => socket.off('ready');
     }
   }, [socket]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('refresh_status', (refreshStatus) => {
+        if (refreshStatus.status === 'REFRESH_DONE') {
+          toast({
+            render: () => (
+              <CustomToast title="Note Refresh successful!" status="success" />
+            ),
+            position: 'top-right',
+            isClosable: true
+          });
+        }
+      });
+
+      return () => {
+        socket.off('refresh_status');
+        // socket.off('refresh_note');
+      };
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('error', () => {
+        toast({
+          render: () => <CustomToast title="Note Error" status="error" />,
+          position: 'top-right',
+          isClosable: true
+        });
+      });
+
+      return () => {
+        socket.off('error');
+        // socket.off('refresh_note');
+      };
+    }
+  }, [socket]);
+
+  const handleRefreshNote = () => {
+    console.log('should be emitting refresh_note');
+    socket.emit('refresh_note');
+  };
 
   useEffect(() => {
     if (socket) {
@@ -218,6 +492,7 @@ export default function DocChat() {
   }, [summaryError]);
 
   useEffect(() => {
+    if (isEmpty(chatId) || isNil(chatId)) return;
     const response = async () => {
       await getToggleReaction({
         chatId,
@@ -229,17 +504,188 @@ export default function DocChat() {
     response();
   }, [getToggleReaction, chatId, likesDislikes]);
 
-  function showToast(title: string, status: string) {
-    <CustomToast title={title} status={status} />;
-  }
-
   useEffect(() => {
+    if (isEmpty(documentId) || isNil(documentId)) {
+      return;
+    }
+    if (isEmpty(studentId) || isNil(studentId)) {
+      return;
+    }
     const fetchSummary = async () => {
       const { summary } = await generateSummary({ documentId, studentId });
       setSummaryText(summary);
     };
     fetchSummary();
   }, [documentId, studentId]);
+
+  useEffect(() => {
+    const data = {
+      studentId
+    };
+
+    if (!isEmpty(documentId) && !isNil(documentId)) {
+      data['documentId'] = documentId;
+    }
+    if (!isEmpty(noteId) && !isNil(noteId)) {
+      data['noteId'] = noteId;
+    }
+
+    const fetchChatHistory = async () => {
+      try {
+        const historyData = await chatHistory(data);
+
+        const mappedData = historyData?.map((item) => ({
+          text: item?.log.content,
+          isUser: item?.log.role === 'user',
+          isLoading: false,
+          disliked: item?.disliked,
+          liked: item?.liked,
+          chatId: item?.id,
+          isPinned: item?.isPinned
+        }));
+
+        setMessages(mappedData);
+        // Set likesDislikes based on the fetched chat history
+        setLikesDislikes(
+          mappedData.map((message) => ({
+            like: message.liked,
+            dislike: message.disliked
+          }))
+        );
+        setChatHistoryLoaded(true);
+      } catch (error) {
+        toast({
+          render: () => (
+            <CustomToast
+              title="Failed to fetch chat history..."
+              status="error"
+            />
+          ),
+          position: 'top-right',
+          isClosable: true
+        });
+      }
+    };
+    fetchChatHistory();
+    if (pinnedResponse) {
+      fetchChatHistory();
+    }
+  }, [documentId, studentId, pinnedResponse]);
+
+  useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
+
+  useEffect(() => {
+    if (isEmpty(documentId) || isNil(documentId)) {
+      return;
+    }
+    const getHighlight = async () => {
+      setLoading(true);
+      const response = await getPDFHighlight({ documentId });
+      setHightlightedText(response);
+      setLoading(false);
+    };
+    getHighlight();
+  }, [documentId]);
+
+  useEffect(() => {
+    if (!location.state?.documentUrl && !location.state?.docTitle) {
+      // navigate('/dashboard/notes')
+    }
+  }, [navigate, location.state?.documentUrl, location.state?.docTitle]);
+
+  useEffect(() => {
+    if (summaryStart) {
+      setSummaryLoading(true);
+    } else {
+      setSummaryLoading(false);
+    }
+  }, [summaryStart]);
+
+  const getNoteById = async (paramsIdForNote = noteId) => {
+    if (isEmpty(paramsIdForNote) || isNil(paramsIdForNote)) {
+      return;
+    }
+    const resp = await ApiService.getNote(paramsIdForNote as string);
+
+    const respText = await resp.text();
+    try {
+      const respDetails: NoteServerResponse<{ data: NoteDetails }> =
+        JSON.parse(respText);
+
+      const emptyRespDetails =
+        isEmpty(respDetails) ||
+        isNil(respDetails) ||
+        isEmpty(respDetails.data) ||
+        isNil(respDetails.data);
+      if (respDetails.error || emptyRespDetails) {
+        return;
+      }
+      if (!isEmpty(respDetails.data) && !isNil(respDetails.data)) {
+        setIsLoadingNote(false);
+        const { data: note } = respDetails.data;
+
+        if (!isEmpty(note.note) && !isNil(note.note)) {
+          // setEditedTitle(note.topic);
+          setInitialContent(note.note);
+        }
+        if (!isEmpty(note.topic) && !isNil(note.topic)) {
+          setEditedTitle(note.topic);
+          // setInitialContent(note.note);
+        }
+
+        if (!isEmpty(note?.updatedAt) && !isNil(note?.updatedAt)) {
+          setCurrentTime(formatDate(note?.updatedAt));
+          // setInitialContent(note.note);
+        }
+      }
+      // set note data
+    } catch (error: any) {
+      return;
+    }
+  };
+
+  useEffect(() => {
+    const initialValue =
+      '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
+    const editorState = editor.parseEditorState(initialValue);
+    editor.setEditorState(editorState);
+    if (
+      isString(initialContent) &&
+      !isEmpty(initialContent) &&
+      !isNil(initialContent)
+    ) {
+      const editorState = editor.parseEditorState(initialContent);
+      editor.setEditorState(editorState);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialContent]);
+
+  useEffect(() => {
+    (async () => {
+      if (!isEmpty(noteId) || !isNil(noteId)) {
+        // setInitialContent(getNoteLocal(noteParamId) as string);
+        await getNoteById(noteId);
+      }
+      setCanStartSaving(true);
+    })();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    return editor.registerUpdateListener(({ editorState }) => {
+      editorState.read(() => {
+        if (canStartSaving) {
+          handleAutoSave(editor);
+        }
+      });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor, canStartSaving]);
+
+  function showToast(title: string, status: string) {
+    <CustomToast title={title} status={status} />;
+  }
 
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -347,6 +793,12 @@ export default function DocChat() {
 
   const handleDeleteSummary = useCallback(async () => {
     try {
+      if (isEmpty(documentId) || isNil(documentId)) {
+        return;
+      }
+      if (isEmpty(studentId) || isNil(studentId)) {
+        return;
+      }
       const data = await deleteGeneratedSummary({
         documentId,
         studentId
@@ -444,6 +896,15 @@ export default function DocChat() {
   const handleUpdateSummary = useCallback(async () => {
     setLoading(true);
     try {
+      if (isEmpty(documentId) || isNil(documentId)) {
+        return;
+      }
+      if (isEmpty(studentId) || isNil(studentId)) {
+        return;
+      }
+      if (isEmpty(summaryText) || isNil(summaryText)) {
+        return;
+      }
       const request = await updateGeneratedSummary({
         documentId,
         studentId,
@@ -482,84 +943,12 @@ export default function DocChat() {
     }
   }, [documentId, studentId, summaryText]);
 
-  useEffect(() => {
-    const fetchChatHistory = async () => {
-      try {
-        const historyData = await chatHistory({
-          documentId,
-          studentId
-        });
-
-        const mappedData = historyData?.map((item) => ({
-          text: item?.log.content,
-          isUser: item?.log.role === 'user',
-          isLoading: false,
-          disliked: item?.disliked,
-          liked: item?.liked,
-          chatId: item?.id,
-          isPinned: item?.isPinned
-        }));
-
-        setMessages(mappedData);
-        // Set likesDislikes based on the fetched chat history
-        setLikesDislikes(
-          mappedData.map((message) => ({
-            like: message.liked,
-            dislike: message.disliked
-          }))
-        );
-        setChatHistoryLoaded(true);
-      } catch (error) {
-        toast({
-          render: () => (
-            <CustomToast
-              title="Failed to fetch chat history..."
-              status="error"
-            />
-          ),
-          position: 'top-right',
-          isClosable: true
-        });
-      }
-    };
-    fetchChatHistory();
-    if (pinnedResponse) {
-      fetchChatHistory();
-    }
-  }, [documentId, studentId, pinnedResponse]);
-
-  useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
-
-  useEffect(() => {
-    const getHighlight = async () => {
-      setLoading(true);
-      const response = await getPDFHighlight({ documentId });
-      setHightlightedText(response);
-      setLoading(false);
-    };
-    getHighlight();
-  }, [documentId]);
-
-  useEffect(() => {
-    if (!location.state?.documentUrl && !location.state?.docTitle) {
-      // navigate('/dashboard/notes')
-    }
-  }, [navigate, location.state?.documentUrl, location.state?.docTitle]);
-
-  useEffect(() => {
-    if (summaryStart) {
-      setSummaryLoading(true);
-    } else {
-      setSummaryLoading(false);
-    }
-  }, [summaryStart]);
-
   return (
     <section className="fixed max-w-screen-xl mx-auto divide-y">
       <div className="h-screen bg-white divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
         {!mobile && (
           <>
-            {location.state?.documentUrl ? (
+            {location.state?.documentUrl && (
               <DocViewer
                 pdfLink={location.state.documentUrl}
                 pdfName={location.state.docTitle}
@@ -570,18 +959,34 @@ export default function DocChat() {
                 setSelectedHighlightArea={setSelectedHighlightArea}
                 setLoading={setLoading}
               />
-            ) : (
-              <div
-                style={{
-                  display: 'flex',
-                  position: 'fixed',
-                  paddingTop: '2em'
-                }}
-                className="flex-auto w-1/2 h-full lg:col-span-6"
-              >
-                <div style={{ width: '87%' }}>
-                  <BlockNoteView editor={editor} />
-                </div>
+            )}
+            {location.state?.noteId && (
+              <div className="flex-auto w-full h-full lg:col-span-6 flex fixed pt-0 overflow-y-auto flex-col">
+                {isLoadingNote && (
+                  <div className="w-3/6 max-w-[calc(100%-700px-240px)] pb-5 flex flex-col justify-center items-center h-full">
+                    <CustomChatLoader className="items-center mx-auto" />
+                  </div>
+                )}
+                {!isLoadingNote && (
+                  <>
+                    <Header>
+                      <FirstSection>
+                        <div className="doc__name">
+                          <>{editedTitle}</>
+                        </div>
+                        <div className="timestamp">
+                          <p>Updated {currentTime}</p>
+                        </div>
+                      </FirstSection>
+                    </Header>
+                    <div
+                      className={'w-3/6 max-w-[calc(100%-700px-240px)] pb-5'}
+                    >
+                      {<StyledEditor />}
+                      <div className="p-8" />
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </>
@@ -628,7 +1033,7 @@ export default function DocChat() {
 
         {mobile && switchDocument ? (
           <>
-            {location.state?.documentUrl ? (
+            {location.state?.documentUrl && (
               <DocViewer
                 pdfLink={location.state.documentUrl}
                 pdfName={location.state.docTitle}
@@ -639,19 +1044,33 @@ export default function DocChat() {
                 setSelectedHighlightArea={setSelectedHighlightArea}
                 setLoading={setLoading}
               />
-            ) : (
-              <div
-                style={{
-                  display: 'flex',
-                  position: 'fixed',
-                  paddingTop: '2em'
-                }}
-                className="flex-auto w-1/2 h-full lg:col-span-6"
-              >
-                <div style={{ width: '87%' }}>
-                  <BlockNoteView editor={editor} />
+            )}
+            {location.state?.noteId && (
+              <>
+                (
+                <div className="flex-auto w-1/2 h-full lg:col-span-6 flex fixed pt-4 flex-col">
+                  {isLoadingNote && (
+                    <div className="w-3/6  pb-5 flex flex-col justify-center items-center h-full">
+                      <CustomChatLoader className="items-center mx-auto" />
+                    </div>
+                  )}
+                  {!isLoadingNote && (
+                    <>
+                      <Header>
+                        <FirstSection>
+                          <div className="doc__name">
+                            <>{editedTitle}</>
+                          </div>
+                        </FirstSection>
+                      </Header>
+                      <div className={'w-5/6'}>
+                        <StyledEditor />
+                      </div>
+                    </>
+                  )}
                 </div>
-              </div>
+                )
+              </>
             )}
           </>
         ) : (

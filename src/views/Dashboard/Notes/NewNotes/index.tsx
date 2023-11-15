@@ -11,6 +11,7 @@ import CustomButton from '../../../../components/CustomComponents/CustomButton';
 import CustomSideModal from '../../../../components/CustomComponents/CustomSideModal';
 import TableTag from '../../../../components/CustomComponents/CustomTag';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
+import Editor from '../../../../components/Editor';
 import TagModal from '../../../../components/TagModal';
 import useDebounce from '../../../../hooks/useDebounce';
 import { saveHTMLAsPDF } from '../../../../library/fs';
@@ -28,7 +29,6 @@ import {
   NoteServerResponse,
   NoteStatus
 } from '../types';
-import LexicalEditor from './LexicalEditor';
 import {
   DropDownFirstPart,
   DropDownLists,
@@ -613,16 +613,16 @@ const NewNote = () => {
   const goToNoteChat = async (
     noteUrl: string,
     noteTitle: string,
-    content: any
+    noteId: any
   ) => {
     try {
       navigate('/dashboard/docchat', {
         state: {
           // documentUrl: noteUrl,
           // docTitle: noteTitle,
-          noteUrl,
-          noteTitle,
-          content
+          documentUrl: noteUrl,
+          docTitle: noteTitle,
+          noteId: noteId
         }
       });
     } catch (error) {
@@ -638,9 +638,11 @@ const NewNote = () => {
     const note = saveDetails.data;
     const url = note.documentId ?? '';
     const topic = note.topic;
+    const noteId = note.id;
+    console.log('note', note);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      await goToNoteChat(url, topic, initialContent);
+      // await new Promise((resolve) => setTimeout(resolve, 1000));
+      await goToNoteChat(url, topic, noteId);
     } catch (error) {
       // Handle error
     } finally {
@@ -1152,7 +1154,7 @@ const NewNote = () => {
                     isFullScreen && 'full-screen'
                   }`}
                 >
-                  <LexicalEditor />
+                  <Editor />
                 </div>
               )}
             </NoteBody>
@@ -1309,7 +1311,7 @@ const NewNote = () => {
               />
             ) : (
               <div className={`note-editor-test`}>
-                <LexicalEditor />
+                <Editor />
               </div>
             )}
           </NoteBody>
