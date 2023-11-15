@@ -372,6 +372,11 @@ const NotesDirectory: React.FC = () => {
       icon: <YourFlashCardIcon />
     },
     {
+      label: 'Edit Tags',
+      onClick: () => setTagEditItem({ note }),
+      icon: <YourEditTagsIcon />
+    },
+    {
       label: 'Open in DocChat',
       onClick: () => {
         ingestNote(note);

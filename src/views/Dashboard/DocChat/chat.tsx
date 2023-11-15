@@ -178,7 +178,8 @@ const Chat = forwardRef(
       selectedChatId,
       setSelectedChatId,
       handlePinned,
-      isPinned
+      isPinned,
+      isChatLoading
     }: IChat,
     ref: any
   ) => {
@@ -534,14 +535,34 @@ const Chat = forwardRef(
                                     // setChatHistoryId(String(message.chatId));
                                   }}
                                 >
-                                  <PinLogo
-                                    iconColor={
-                                      isPinned[index]?.isPinned
-                                        ? 'blue'
-                                        : '#6E7682'
+                                  <div
+                                    style={{
+                                      width: 'auto',
+                                      padding: '10px',
+                                      borderRadius: '100px',
+                                      gap: '5px',
+                                      background: '#F7F7F8',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      fontSize: ' 0.875rem',
+                                      cursor: 'pointer'
+                                    }}
+                                    onClick={() =>
+                                      handlePinPrompt({
+                                        studentId,
+                                        chatHistoryId: String(message.chatId)
+                                      })
                                     }
-                                  />
-                                  {/* <p>Pin</p> */}
+                                  >
+                                    <PinLogo
+                                      iconColor={
+                                        isPinned[index]?.isPinned
+                                          ? 'blue'
+                                          : '#6E7682'
+                                      }
+                                    />
+                                    {/* <p>Pin</p> */}
+                                  </div>
                                 </div>
                               )}
                             </>
@@ -576,13 +597,30 @@ const Chat = forwardRef(
                                     />
                                   </AiMessage>
                                   {!HomeWorkHelp && (
-                                    <>
+                                    <div
+                                      style={{
+                                        display: 'flex',
+                                        alignItems: 'self-end',
+                                        gap: '20px',
+                                        marginBottom: '15px'
+                                      }}
+                                    >
                                       <div
                                         style={{
+                                          width: 'auto',
+                                          // height: '33px',
+                                          padding: '10px',
+                                          borderRadius: '100px',
+                                          gap: '10px',
+                                          background: '#F7F7F8',
                                           display: 'flex',
-                                          alignItems: 'self-end',
-                                          gap: '20px',
-                                          marginBottom: '15px'
+                                          alignItems: 'center',
+                                          fontSize: ' 0.875rem',
+                                          cursor: 'pointer'
+                                        }}
+                                        onClick={() => {
+                                          handleLike(index);
+                                          setChatId(String(message?.chatId));
                                         }}
                                       >
                                         <ThumbsUp
@@ -647,7 +685,7 @@ const Chat = forwardRef(
                                           }
                                         />
                                       </div>
-                                    </>
+                                    </div>
                                   )}
                                 </div>
                               )}

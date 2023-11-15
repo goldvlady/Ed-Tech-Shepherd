@@ -123,16 +123,13 @@ export default function DocChat() {
 
   const [chatId, setChatId] = useState('');
   const [pinnedResponse, setPinnedResponse] = useState<any>();
-  // const [selectedChatId, setSelectedChatId] = useState('');
+  const [selectedChatId, setSelectedChatId] = useState('');
+  const [chatHistoryId, setChatHistoryId] = useState('');
   // const [isChatLoading, setChatLoading] = useState({});
-  // const [chatHistoryId, setChatHistoryId] = useState('');
 
   const [currentTime, setCurrentTime] = useState<string>(
     formatDate(new Date())
   );
-  const [selectedChatId, setSelectedChatId] = useState('');
-
-  const [chatHistoryId, setChatHistoryId] = useState('');
 
   const [isChatLoading, setChatLoading] = useState({});
   const [isLoadingNote, setIsLoadingNote] = useState(true);
@@ -841,7 +838,8 @@ export default function DocChat() {
           [chatHistoryId]: false // Set loading state for the specific chat icon
         }));
 
-        // Handle errors here
+        // setPinnedResponse(response);
+        // You might want to toast a success message or handle the success response
         toast({
           render: () => (
             <CustomToast
@@ -1029,12 +1027,12 @@ export default function DocChat() {
     }
   }, [summaryStart]);
 
-  useEffect(() => {
-    // Assuming chatHistoryId and studentId are available in this component's scope
-    if (chatHistoryId && studentId) {
-      handlePinPrompt({ chatHistoryId, studentId });
-    }
-  }, [chatHistoryId, studentId, handlePinPrompt, isPinned]);
+  // useEffect(() => {
+  //   // Assuming chatHistoryId and studentId are available in this component's scope
+  //   if (chatHistoryId && studentId) {
+  //     handlePinPrompt({ chatHistoryId, studentId });
+  //   }
+  // }, [chatHistoryId, studentId, handlePinPrompt, isPinned]);
 
   return (
     <section className="max-w-screen-xl">
@@ -1078,7 +1076,7 @@ export default function DocChat() {
               >
                 {isLoadingNote && (
                   <div className="w-full pb-5 flex flex-col justify-center items-center h-full">
-                    <CustomChatLoader />
+                    <CustomChatLoader className="items-center mx-auto" />
                   </div>
                 )}
                 {!isLoadingNote && (
@@ -1165,7 +1163,7 @@ export default function DocChat() {
               <StyledEditorWrapper className="w-screen h-full  pt-4 ">
                 {isLoadingNote && (
                   <div className="w-full pb-5 flex flex-col justify-center items-center h-full">
-                    <CustomChatLoader />
+                    <CustomChatLoader className="items-center mx-auto" />
                   </div>
                 )}
                 {!isLoadingNote && (
