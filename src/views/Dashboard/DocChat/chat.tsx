@@ -118,6 +118,9 @@ interface IChat {
   selectedChatId?: any;
   setSelectedChatId?: any;
   isChatLoading?: any;
+  setChatHistoryId?: any;
+  handlePinned?: any;
+  isPinned?: any;
 }
 const Chat = ({
   HomeWorkHelp,
@@ -164,6 +167,10 @@ const Chat = ({
   studentId,
   selectedChatId,
   setSelectedChatId,
+  isChatLoading,
+  setChatHistoryId,
+  handlePinned,
+  isPinned
   isChatLoading
 }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
@@ -533,16 +540,16 @@ const Chat = ({
                                     fontSize: ' 0.875rem',
                                     cursor: 'pointer'
                                   }}
-                                  onClick={() =>
-                                    handlePinPrompt({
-                                      studentId,
-                                      chatHistoryId: String(message.chatId)
-                                    })
-                                  }
+                                  onClick={() => {
+                                    handlePinned(index);
+                                    setChatHistoryId(String(message.chatId));
+                                  }}
                                 >
                                   <PinLogo
                                     iconColor={
-                                      message?.isPinned ? 'blue' : '#6E7682'
+                                      isPinned[index]?.isPinned
+                                        ? 'blue'
+                                        : '#6E7682'
                                     }
                                   />
                                   {/* <p>Pin</p> */}
@@ -655,28 +662,18 @@ const Chat = ({
                                         cursor: 'pointer'
                                       }}
                                       onClick={() => {
-                                        handlePinPrompt({
-                                          studentId,
-                                          chatHistoryId: String(message.chatId)
-                                        });
-                                        setSelectedChatId(
-                                          String(message.chatId)
-                                        );
+                                        handlePinned(index);
+                                        setChatHistoryId( String(message.chatId))
                                       }}
                                     >
-                                      {isChatLoading[message.chatId] ? (
-                                        <p>...</p>
-                                      ) : (
-                                        <PinLogo
-                                          iconColor={
-                                            message?.isPinned
-                                              ? 'blue'
-                                              : '#6E7682'
-                                          }
-                                        />
-                                      )}
-
-                                      {/* <p>Pin</p> */}
+                                      <PinLogo
+                                        iconColor={
+                                          isPinned[index]?.isPinned
+                                            ? 'blue'
+                                            : '#6E7682'
+                                        }
+                                      />
+                                    
                                     </div>
                                   </div>
                                 )}

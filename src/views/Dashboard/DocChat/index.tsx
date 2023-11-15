@@ -178,10 +178,21 @@ export default function DocChat() {
   const mobile = useIsMobile();
   const [switchDocument, setSwitchDocument] = useState(true);
   const [likesDislikes, setLikesDislikes] = useState(
-    new Array(messages.length).fill({ like: false, dislike: false })
+    new Array(messages.length).fill({
+      like: false,
+      dislike: false
+    })
+  );
+  const [isPinned, setIsPinned] = useState(
+    new Array(messages.length).fill({
+      isPinned: false
+    })
   );
   const [chatId, setChatId] = useState('');
   const [pinnedResponse, setPinnedResponse] = useState<any>();
+  const [selectedChatId, setSelectedChatId] = useState('');
+  const [isChatLoading, setChatLoading] = useState({});
+  const [chatHistoryId, setChatHistoryId] = useState('');
 
   const [currentTime, setCurrentTime] = useState<string>(
     formatDate(new Date())
@@ -197,6 +208,7 @@ export default function DocChat() {
       ? false
       : true;
   }, [likesDislikes]);
+
 
   const reaction = useCallback(async () => {
     if (isEmpty(chatId) || isNil(chatId)) return;
@@ -224,6 +236,15 @@ export default function DocChat() {
     });
   };
 
+
+  const handlePinned = (index) => {
+    setIsPinned((prev) => {
+      const newState = [...prev];
+      newState[index] = { isPinned: !prev[index]?.isPinned };
+      return newState;
+    });
+   }
+ 
   const updateNote = async (
     id: string,
     data: NoteData
@@ -552,6 +573,13 @@ export default function DocChat() {
             dislike: message.disliked
           }))
         );
+       
+        setIsPinned(
+          mappedData.map((message) => ({
+            isPinned: message.isPinned
+          }))
+        );
+
         setChatHistoryLoaded(true);
       } catch (error) {
         toast({
@@ -567,9 +595,7 @@ export default function DocChat() {
       }
     };
     fetchChatHistory();
-    if (pinnedResponse) {
-      fetchChatHistory();
-    }
+
   }, [documentId, studentId, pinnedResponse]);
 
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
@@ -829,7 +855,7 @@ export default function DocChat() {
     setSwitchDocument((prevState) => !prevState);
   }, [setSwitchDocument]);
 
-  const handlePinPrompt = useCallback(
+  const handlePinPrompt =
     async ({ chatHistoryId = '', studentId = '' }) => {
       setChatLoading((prevChatLoadingState) => ({
         ...prevChatLoadingState,
@@ -848,7 +874,7 @@ export default function DocChat() {
             [chatHistoryId]: false // Set loading state for the specific chat icon
           }));
 
-          setPinnedResponse(response);
+          // setPinnedResponse(response);
           // You might want to toast a success message or handle the success response
           toast({
             render: () => (
@@ -890,8 +916,6 @@ export default function DocChat() {
         });
       }
     },
-    []
-  );
 
   const handleUpdateSummary = useCallback(async () => {
     setLoading(true);
@@ -942,6 +966,40 @@ export default function DocChat() {
       setLoading(false);
     }
   }, [documentId, studentId, summaryText]);
+
+
+  useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
+
+  useEffect(() => {
+    const getHighlight = async () => {
+      setLoading(true);
+      const response = await getPDFHighlight({ documentId });
+      setHightlightedText(response);
+      setLoading(false);
+    };
+    getHighlight();
+  }, [documentId]);
+
+  useEffect(() => {
+    if (!location.state?.documentUrl && !location.state?.docTitle) {
+      // navigate('/dashboard/notes')
+    }
+  }, [navigate, location.state?.documentUrl, location.state?.docTitle]);
+
+  useEffect(() => {
+    if (summaryStart) {
+      setSummaryLoading(true);
+    } else {
+      setSummaryLoading(false);
+    }
+  }, [summaryStart]);
+
+  useEffect(() => {
+    // Assuming chatHistoryId and studentId are available in this component's scope
+    if (chatHistoryId && studentId) {
+      handlePinPrompt({ chatHistoryId, studentId });
+    }
+  }, [chatHistoryId, studentId, handlePinPrompt, isPinned]);
 
   return (
     <section className="fixed max-w-screen-xl mx-auto divide-y">
@@ -1028,6 +1086,9 @@ export default function DocChat() {
             selectedChatId={selectedChatId}
             setSelectedChatId={setSelectedChatId}
             isChatLoading={isChatLoading}
+            setChatHistoryId={setChatHistoryId}
+            handlePinned={handlePinned}
+            isPinned={isPinned}
           />
         )}
 
@@ -1111,6 +1172,9 @@ export default function DocChat() {
               selectedChatId={selectedChatId}
               setSelectedChatId={setSelectedChatId}
               isChatLoading={isChatLoading}
+              setChatHistoryId={setChatHistoryId}
+              handlePinned={handlePinned}
+              isPinned={isPinned}
             />
           </>
         )}
