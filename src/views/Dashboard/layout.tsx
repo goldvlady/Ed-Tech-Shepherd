@@ -639,9 +639,7 @@ const SidebarContent = ({
       </NavItem>
 
       <Divider />
-
       <Box ml={8} color="text.400">
-        {' '}
         <Button
           variant={'unstyled'}
           display="flex"
