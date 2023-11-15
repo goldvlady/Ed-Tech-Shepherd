@@ -123,6 +123,9 @@ export default function DocChat() {
 
   const [chatId, setChatId] = useState('');
   const [pinnedResponse, setPinnedResponse] = useState<any>();
+  // const [selectedChatId, setSelectedChatId] = useState('');
+  // const [isChatLoading, setChatLoading] = useState({});
+  // const [chatHistoryId, setChatHistoryId] = useState('');
 
   const [currentTime, setCurrentTime] = useState<string>(
     formatDate(new Date())
@@ -184,6 +187,14 @@ export default function DocChat() {
       return newState;
     });
   };
+
+  // const handlePinned = (index) => {
+  //   setIsPinned((prev) => {
+  //     const newState = [...prev];
+  //     newState[index] = { isPinned: !prev[index]?.isPinned };
+  //     return newState;
+  //   });
+  //  }
 
   const updateNote = async (
     id: string,
@@ -525,7 +536,6 @@ export default function DocChat() {
             dislike: message.disliked
           }))
         );
-
         setIsPinned(
           mappedData.map((message) => ({
             isPinned: message.isPinned
@@ -993,6 +1003,39 @@ export default function DocChat() {
   //   }
   // }, [chatHistoryId, studentId, isPinned]);
 
+  useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
+
+  useEffect(() => {
+    const getHighlight = async () => {
+      setLoading(true);
+      const response = await getPDFHighlight({ documentId });
+      setHightlightedText(response);
+      setLoading(false);
+    };
+    getHighlight();
+  }, [documentId]);
+
+  useEffect(() => {
+    if (!location.state?.documentUrl && !location.state?.docTitle) {
+      // navigate('/dashboard/notes')
+    }
+  }, [navigate, location.state?.documentUrl, location.state?.docTitle]);
+
+  useEffect(() => {
+    if (summaryStart) {
+      setSummaryLoading(true);
+    } else {
+      setSummaryLoading(false);
+    }
+  }, [summaryStart]);
+
+  useEffect(() => {
+    // Assuming chatHistoryId and studentId are available in this component's scope
+    if (chatHistoryId && studentId) {
+      handlePinPrompt({ chatHistoryId, studentId });
+    }
+  }, [chatHistoryId, studentId, handlePinPrompt, isPinned]);
+
   return (
     <section className="max-w-screen-xl">
       <div
@@ -1100,6 +1143,7 @@ export default function DocChat() {
             handlePinned={handlePinned}
             isPinned={isPinned}
             isChatLoading={isChatLoading}
+            setChatHistoryId={setChatHistoryId}
           />
         )}
 
@@ -1185,6 +1229,7 @@ export default function DocChat() {
               handlePinned={handlePinned}
               isPinned={isPinned}
               isChatLoading={isChatLoading}
+              setChatHistoryId={setChatHistoryId}
             />
           </>
         )}
