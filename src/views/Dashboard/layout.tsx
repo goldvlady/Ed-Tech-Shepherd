@@ -646,7 +646,7 @@ const SidebarContent = ({
             borderRadius={4}
             color="#fc9b65"
             alignSelf={'center'}
-            px={2}
+            px={1}
           >
             Coming Soon
           </Text>
@@ -681,7 +681,7 @@ const SidebarContent = ({
               },
               {
                 title: 'Referral Program',
-                path: '/dashboard'
+                path: ''
               }
             ]}
           />
