@@ -583,15 +583,12 @@ const Quizzes = () => {
           flexDirection={'column'}
           justifyContent={'start'}
           height={'calc(100vh - 80px)'}
-          padding={'50px'}
         >
           <Flex
             width="100%"
             alignItems="center"
             justifyContent="space-between"
             color="#E5E6E6"
-            paddingTop={'20px'}
-            paddingLeft="20px"
           >
             <Text
               fontFamily="Inter"
@@ -601,7 +598,7 @@ const Quizzes = () => {
               letterSpacing="-2%"
               color="#212224"
             >
-              My Quizzes
+              Quizzes
               <span className="count-badge">{0}</span>
             </Text>
           </Flex>
@@ -653,7 +650,7 @@ const Quizzes = () => {
           </Box>
         </Box>
       ) : (
-        <Box padding={'50px'}>
+        <Box padding={'20px'}>
           <Flex className="quiz-header-container">
             <Text
               fontFamily="Inter"
@@ -663,7 +660,7 @@ const Quizzes = () => {
               letterSpacing="-2%"
               color="#212224"
             >
-              My Quizzes
+              Quizzes
               <span className="count-badge">{quizzes?.length || 0}</span>
             </Text>
             <Button

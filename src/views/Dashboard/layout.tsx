@@ -636,11 +636,11 @@ const SidebarContent = ({
         )}
       </NavItem>
 
-      <Divider />
+      {/* <Divider />
       <NavItem icon={GiBarn} path="/dashboard">
         Barn
       </NavItem>
-      <Divider />
+      <Divider /> */}
       <Box ml={8} color="text.400">
         {' '}
         <Button
