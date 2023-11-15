@@ -54,7 +54,7 @@ import {
   Wrapper
 } from './styles';
 import Summary from './summary';
-import { Text, Icon } from '@chakra-ui/react';
+import { Text, Icon, Box } from '@chakra-ui/react';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { AiFillLike } from 'react-icons/ai';
 import { AiFillDislike } from 'react-icons/ai';
@@ -115,6 +115,9 @@ interface IChat {
   likesDislikes?: any;
   setChatId?: any;
   handlePinPrompt?: any;
+  selectedChatId?: any;
+  setSelectedChatId?: any;
+  isChatLoading?: any;
 }
 const Chat = ({
   HomeWorkHelp,
@@ -158,7 +161,10 @@ const Chat = ({
   likesDislikes,
   setChatId,
   handlePinPrompt,
-  studentId
+  studentId,
+  selectedChatId,
+  setSelectedChatId,
+  isChatLoading
 }: IChat) => {
   const [chatbotSpace, setChatbotSpace] = useState(647);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
@@ -170,7 +176,7 @@ const Chat = ({
   const [hoveredIndex, setHoveredIndex] = useState(0);
   const [hoveredUserIndex, setHoveredUserIndex] = useState(0);
   const isMobile = useIsMobile();
-
+  const chatList = useRef([]);
   const [isPinnedMessages, setPinnedMessages] = useState(false);
 
   // const handleLike = (index) => {
@@ -356,7 +362,8 @@ const Chat = ({
 
   const scrollToMessage = (chatId) => {
     const messageIndex = messages.findIndex((m) => m.chatId === chatId);
-    ref.current[messageIndex]?.scrollIntoView({
+
+    chatList.current[messageIndex]?.scrollIntoView({
       behavior: 'smooth',
       block: 'center'
     });
@@ -497,8 +504,10 @@ const Chat = ({
                             <UserMessage
                               key={index}
                               style={{ position: 'relative' }}
+                              data-chatid={message.chatId}
                               // onMouseEnter={() => setHoveredUserIndex(index)}
                               // onMouseLeave={() => setHoveredUserIndex(0)}
+                              ref={(el) => (chatList.current[index] = el)}
                             >
                               {message.text}
                             </UserMessage>
@@ -551,7 +560,10 @@ const Chat = ({
                               <ChatLoader />
                             ) : (
                               <div style={{ maxWidth: '439px' }}>
-                                <AiMessage style={{ position: 'relative' }}>
+                                <AiMessage
+                                  style={{ position: 'relative' }}
+                                  ref={(el) => (chatList.current[index] = el)}
+                                >
                                   {/* <PinLogo
                                     style={{
                                       display: isHovered ? 'block' : 'none',
@@ -642,18 +654,28 @@ const Chat = ({
                                         fontSize: ' 0.875rem',
                                         cursor: 'pointer'
                                       }}
-                                      onClick={() =>
+                                      onClick={() => {
                                         handlePinPrompt({
                                           studentId,
                                           chatHistoryId: String(message.chatId)
-                                        })
-                                      }
+                                        });
+                                        setSelectedChatId(
+                                          String(message.chatId)
+                                        );
+                                      }}
                                     >
-                                      <PinLogo
-                                        iconColor={
-                                          message?.isPinned ? 'blue' : '#6E7682'
-                                        }
-                                      />
+                                      {isChatLoading[message.chatId] ? (
+                                        <p>...</p>
+                                      ) : (
+                                        <PinLogo
+                                          iconColor={
+                                            message?.isPinned
+                                              ? 'blue'
+                                              : '#6E7682'
+                                          }
+                                        />
+                                      )}
+
                                       {/* <p>Pin</p> */}
                                     </div>
                                   </div>

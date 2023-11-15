@@ -1,5 +1,6 @@
 import { AI_API, HEADER_KEY } from '../config';
 import { AIServiceResponse } from '../views/Dashboard/Notes/types';
+import { isNil } from 'lodash';
 
 type DocumentType = {
   topic?: string;
@@ -160,13 +161,23 @@ export const fetchStudentConversations = async (studentId: string) => {
 
 export const chatHistory = async ({
   documentId,
+  noteId,
   studentId
 }: {
   documentId?: string;
+  noteId?: string;
   studentId: string;
 }) => {
+  let query = ``;
+
+  if (!isNil(documentId)) {
+    query = `&documentId=${documentId}`;
+  }
+  if (!isNil(noteId)) {
+    query = `&noteId=${noteId}`;
+  }
   const response = await fetch(
-    `${AI_API}/notes/chat/history?studentId=${studentId}&documentId=${documentId}`,
+    `${AI_API}/notes/chat/history?studentId=${studentId}${query}`,
     {
       method: 'GET',
       headers: {

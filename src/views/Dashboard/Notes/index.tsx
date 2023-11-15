@@ -47,6 +47,7 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaCalendarAlt } from 'react-icons/fa';
+import { IoChatboxEllipsesOutline } from 'react-icons/io5';
 import { MultiSelect } from 'react-multi-select-component';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
@@ -92,6 +93,12 @@ const YourEditTagsIcon = () => (
         d="M5.25 2.25a3 3 0 00-3 3v4.318a3 3 0 00.879 2.121l9.58 9.581c.92.92 2.39 1.186 3.548.428a18.849 18.849 0 005.441-5.44c.758-1.16.492-2.629-.428-3.548l-9.58-9.581a3 3 0 00-2.122-.879H5.25zM6.375 7.5a1.125 1.125 0 100-2.25 1.125 1.125 0 000 2.25z"
       />
     </svg>
+  </StyledImage>
+);
+
+const YourOpenDocchatIcon = () => (
+  <StyledImage marginRight="10px">
+    <IoChatboxEllipsesOutline />
   </StyledImage>
 );
 
@@ -312,6 +319,51 @@ const NotesDirectory: React.FC = () => {
     }
   };
 
+  const ingestNote = async (note?: NoteDetails) => {
+    try {
+      setLoading(true);
+      navigate('/dashboard/docchat', {
+        state: {
+          noteId: note?._id
+          // documentUrl: document.documentUrl,
+          // docTitle: document.title,
+          // documentId
+        }
+      });
+      // if (document.ingestId) {
+      //   navigate('/dashboard/docchat', {
+      //     state: {
+      //       documentUrl: document.documentUrl,
+      //       docTitle: document.title,
+      //       documentId: document.ingestId
+      //     }
+      //   });
+      // } else {
+      //   const fileProcessor = new FileProcessingService(
+      //     { ...document, student: user?._id },
+      //     true
+      //   );
+      //   const processData = await fileProcessor.process();
+
+      //   const {
+      //     data: [{ documentId }]
+      //   } = processData;
+
+      //   navigate('/dashboard/docchat', {
+      //     state: {
+      //       documentUrl: document.documentUrl,
+      //       docTitle: document.title,
+      //       documentId
+      //     }
+      //   });
+      // }
+    } catch (error) {
+      toast({ title: 'Failed to load document', status: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const options = (note: NoteDetails) => [
     {
       label: 'Generate flashcard',
@@ -330,6 +382,13 @@ const NotesDirectory: React.FC = () => {
         setOpenSideModal(true);
       },
       icon: <YourFlashCardIcon />
+    },
+    {
+      label: 'Open in DocChat',
+      onClick: () => {
+        ingestNote(note);
+      },
+      icon: <YourOpenDocchatIcon />
     },
     {
       label: 'Edit Tags',
@@ -372,7 +431,7 @@ const NotesDirectory: React.FC = () => {
     {
       label: 'Open in DocChat',
       onClick: () => ingestDocument(studentDocument),
-      icon: <YourEditTagsIcon />
+      icon: <YourOpenDocchatIcon />
     },
     {
       label: 'Delete',

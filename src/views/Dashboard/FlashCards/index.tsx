@@ -732,7 +732,7 @@ const CustomTable: React.FC = () => {
               letterSpacing="-2%"
               color="#212224"
             >
-              Flashcard
+              Flashcards
             </Text>
           </Flex>
           <Box
@@ -803,7 +803,7 @@ const CustomTable: React.FC = () => {
                 letterSpacing="-2%"
                 color="#212224"
               >
-                Flashcard
+                Flashcards
               </Text>
               <Tag ml="10px" borderRadius="5" background="#f7f8fa" size="md">
                 <TagLabel fontWeight={'bold'}>

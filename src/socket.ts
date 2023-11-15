@@ -9,6 +9,8 @@ const socketWithAuth = (payload: {
   subject?: string;
   level?: string;
   conversationId?: string;
+  noteId?: string;
+  isDevelopment?: boolean;
 }) =>
   io(`${AI_SOCKET}/${payload.namespace}`, {
     extraHeaders: {

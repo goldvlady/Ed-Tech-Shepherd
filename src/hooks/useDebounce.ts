@@ -13,7 +13,6 @@ const useDebounce = (waitTime = 1000, maxKeyStrokes = 20) => {
     if (actionPredicate && actionPredicate() === true) {
       timerInterval = setTimeout(() => {
         // eslint-disable-next-line no-console
-        console.log('will make debounce call');
         callback();
       }, waitTime);
     }
