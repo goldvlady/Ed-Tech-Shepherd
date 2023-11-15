@@ -578,6 +578,7 @@ const Quizzes = () => {
       {isEmpty(quizzes) && !hasSearched && !isLoading ? (
         //  {/* {quizzes?.length ? ( */}
         <Box
+          padding={'20px'}
           background={'#F8F9FB'}
           display={'flex'}
           flexDirection={'column'}

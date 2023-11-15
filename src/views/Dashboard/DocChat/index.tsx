@@ -1,9 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import CustomChatLoader from '../../../components/CustomComponents/CustomChatLoader';
 import CustomToast from '../../../components/CustomComponents/CustomToast/index';
-// import { BlockNoteView, useBlockNote } from '@blocknote/react';
-import Editor from '../../../components/Editor';
-// import { AI_API } from '../../../config';s
 import useIsMobile from '../../../helpers/useIsMobile';
 import useDebounce from '../../../hooks/useDebounce';
 import {
@@ -25,111 +22,45 @@ import {
   NoteStatus
 } from '../../../types';
 import DocViewer from './DocViewer';
-import TempPDFViewer from './TempPDFViewer';
+// import TempPDFViewer from './TempPDFViewer';
 import Chat from './chat';
+import {
+  Header,
+  FirstSection,
+  StyledEditorWrapper,
+  StyledEditorContainer,
+  StyledEditor
+} from './styles';
 // import { TempPDF } from './styles';
 // import { BlockNoteEditor } from '@blocknote/core';
-import { Box, VStack, useToast } from '@chakra-ui/react';
+import { useToast } from '@chakra-ui/react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import clsx from 'clsx';
 import { LexicalEditor as EditorType } from 'lexical';
-import { defaultTo, isEmpty, isNil, isString } from 'lodash';
+import { isEmpty, isNil, isString } from 'lodash';
 import moment from 'moment';
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+  useLayoutEffect
+} from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import tw from 'twin.macro';
 
-export const Header = styled.section`
-  ${tw`h-[80px] mt-2 max-w-[calc(100%-700px-240px)]`}
-  background: #fafafa;
-  border: 1px solid #eeeff2;
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  padding: 8px;
-`;
-
-export const FirstSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px;
-  .back-btn {
-    font-size: 0.875rem;
-    font-style: normal;
-    font-weight: 500;
-    line-height: 1.25rem;
-    color: #585f68;
-    margin-left: -0.5em;
-    cursor: pointer;
-  }
-  .zoom__icn {
-    border-right: 1px solid #e0e1e1;
-    padding-right: 20px;
-    cursor: pointer;
-  }
-
-  .doc__name {
-    cursor: text;
-    color: #525456;
-    display: flex;
-    flex-direction: row;
-    font-size: 11pt;
-    min-width: 120px;
-    max-height: 30px;
-    width: '100%';
-    border-right: 1px solid #e0e1e1;
-    padding-right: 10px;
-    > input {
-      width: inherit;
-      height: 'inherit';
-      margin: 0;
-      padding: 0;
-      border-style: flat !important;
-      font-size: 11pt;
-      color: #525456;
-      background: #fafafa !important;
-    }
-  }
-
-  .doc__name:hover {
-    > div {
-      border: 1px solid #e0e1e1;
-    }
-  }
-
-  .timestamp {
-    color: #9a9c9e;
-    font-size: 0.875rem;
-    cursor: default;
-  }
-`;
-
-const StyledEditor = styled(Editor)`
-  && {
-    ${tw`mt-2`}
-
-    .toolbar {
-      &.out-view {
-        ${tw`max-w-[calc(100%-700px-240px)]  top-[75px]`}
-        div.divider {
-          ${tw``}
-        }
-        button {
-          ${tw``}
-        }
-      }
-    }
-  }
-`;
-
 export default function DocChat() {
+  const toastIdRef = useRef<any>();
+  const ref = useRef<HTMLDivElement>(null);
   const debounce = useDebounce(1000, 10);
   const [editor] = useLexicalComposerContext();
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = userStore();
   const toast = useToast();
+
   const [llmResponse, setLLMResponse] = useState('');
   const [readyToChat, setReadyToChat] = useState(false);
   const [chatHistoryLoaded, setChatHistoryLoaded] = useState(false);
@@ -141,6 +72,7 @@ export default function DocChat() {
   const formatDate = (date: Date, format = 'DD ddd, hh:mma'): string => {
     return moment(date).format(format);
   };
+  const [chatWidth, setChatWidth] = useState(0);
 
   const [messages, setMessages] = useState<
     {
@@ -191,13 +123,13 @@ export default function DocChat() {
   const [chatId, setChatId] = useState('');
   const [pinnedResponse, setPinnedResponse] = useState<any>();
   const [selectedChatId, setSelectedChatId] = useState('');
-  const [isChatLoading, setChatLoading] = useState({});
+
   const [chatHistoryId, setChatHistoryId] = useState('');
 
   const [currentTime, setCurrentTime] = useState<string>(
     formatDate(new Date())
   );
-  const [selectedChatId, setSelectedChatId] = useState('');
+
   const [isChatLoading, setChatLoading] = useState({});
   const [isLoadingNote, setIsLoadingNote] = useState(true);
 
@@ -209,6 +141,22 @@ export default function DocChat() {
       : true;
   }, [likesDislikes]);
 
+  function handleCloseToast() {
+    if (toastIdRef.current) {
+      toast.close(toastIdRef.current);
+    }
+  }
+
+  function handleCloseAllToast() {
+    // you may optionally pass an object of positions to exclusively close
+    // keeping other positions opened
+    // e.g. `{ positions: ['bottom'] }`
+    toast.closeAll();
+  }
+
+  function handleAddToast(currentToast = toast({ description: 'some text' })) {
+    toastIdRef.current = currentToast;
+  }
 
   const reaction = useCallback(async () => {
     if (isEmpty(chatId) || isNil(chatId)) return;
@@ -236,15 +184,14 @@ export default function DocChat() {
     });
   };
 
-
   const handlePinned = (index) => {
     setIsPinned((prev) => {
       const newState = [...prev];
       newState[index] = { isPinned: !prev[index]?.isPinned };
       return newState;
     });
-   }
- 
+  };
+
   const updateNote = async (
     id: string,
     data: NoteData
@@ -273,13 +220,19 @@ export default function DocChat() {
     const saveCallback = () => {
       autoSaveNote(editor, () => {
         handleRefreshNote();
-        toast({
-          render: () => (
-            <CustomToast title="Note Refreshing....." status="success" />
-          ),
-          position: 'top-right',
-          isClosable: true
-        });
+        handleCloseToast();
+
+        setTimeout(() => {
+          handleAddToast(
+            toast({
+              render: () => (
+                <CustomToast title="Note Refreshing....." status="success" />
+              ),
+              position: 'top-right',
+              isClosable: true
+            })
+          );
+        }, 1000);
       });
     };
     debounce(saveCallback, saveCondition);
@@ -382,13 +335,21 @@ export default function DocChat() {
     if (socket) {
       socket.on('refresh_status', (refreshStatus) => {
         if (refreshStatus.status === 'REFRESH_DONE') {
-          toast({
-            render: () => (
-              <CustomToast title="Note Refresh successful!" status="success" />
-            ),
-            position: 'top-right',
-            isClosable: true
-          });
+          setTimeout(() => {
+            handleCloseAllToast();
+            handleAddToast(
+              toast({
+                render: () => (
+                  <CustomToast
+                    title="Note Refresh successful!"
+                    status="success"
+                  />
+                ),
+                position: 'top-right',
+                isClosable: true
+              })
+            );
+          }, 1500);
         }
       });
 
@@ -573,7 +534,7 @@ export default function DocChat() {
             dislike: message.disliked
           }))
         );
-       
+
         setIsPinned(
           mappedData.map((message) => ({
             isPinned: message.isPinned
@@ -595,7 +556,6 @@ export default function DocChat() {
       }
     };
     fetchChatHistory();
-
   }, [documentId, studentId, pinnedResponse]);
 
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
@@ -855,67 +815,66 @@ export default function DocChat() {
     setSwitchDocument((prevState) => !prevState);
   }, [setSwitchDocument]);
 
-  const handlePinPrompt =
-    async ({ chatHistoryId = '', studentId = '' }) => {
-      setChatLoading((prevChatLoadingState) => ({
-        ...prevChatLoadingState,
-        [chatHistoryId]: true // Set loading state for the specific chat icon
-      }));
+  const handlePinPrompt = async ({ chatHistoryId = '', studentId = '' }) => {
+    setChatLoading((prevChatLoadingState) => ({
+      ...prevChatLoadingState,
+      [chatHistoryId]: true // Set loading state for the specific chat icon
+    }));
 
-      try {
-        const response = await postPinnedPrompt({
-          chatId: chatHistoryId,
-          studentId
-        });
+    try {
+      const response = await postPinnedPrompt({
+        chatId: chatHistoryId,
+        studentId
+      });
 
-        if (response) {
-          setChatLoading((prevChatLoadingState) => ({
-            ...prevChatLoadingState,
-            [chatHistoryId]: false // Set loading state for the specific chat icon
-          }));
-
-          // setPinnedResponse(response);
-          // You might want to toast a success message or handle the success response
-          toast({
-            render: () => (
-              <CustomToast
-                title="Chat prompt pinned successfully!"
-                status="success"
-              />
-            ),
-            position: 'top-right',
-            isClosable: true
-          });
-        } else {
-          setChatLoading((prevChatLoadingState) => ({
-            ...prevChatLoadingState,
-            [chatHistoryId]: false // Set loading state for the specific chat icon
-          }));
-
-          toast({
-            title: 'Failed to pin chat prompt',
-            description: 'No response received from the server.',
-            status: 'warning',
-            duration: 5000,
-            isClosable: true
-          });
-        }
-      } catch (error) {
+      if (response) {
         setChatLoading((prevChatLoadingState) => ({
           ...prevChatLoadingState,
           [chatHistoryId]: false // Set loading state for the specific chat icon
         }));
 
-        // Handle errors here
+        // setPinnedResponse(response);
+        // You might want to toast a success message or handle the success response
         toast({
-          title: 'An error occurred',
-          description: error.message,
-          status: 'error',
+          render: () => (
+            <CustomToast
+              title="Chat prompt pinned successfully!"
+              status="success"
+            />
+          ),
+          position: 'top-right',
+          isClosable: true
+        });
+      } else {
+        setChatLoading((prevChatLoadingState) => ({
+          ...prevChatLoadingState,
+          [chatHistoryId]: false // Set loading state for the specific chat icon
+        }));
+
+        toast({
+          title: 'Failed to pin chat prompt',
+          description: 'No response received from the server.',
+          status: 'warning',
           duration: 5000,
           isClosable: true
         });
       }
-    },
+    } catch (error) {
+      setChatLoading((prevChatLoadingState) => ({
+        ...prevChatLoadingState,
+        [chatHistoryId]: false // Set loading state for the specific chat icon
+      }));
+
+      // Handle errors here
+      toast({
+        title: 'An error occurred',
+        description: error.message,
+        status: 'error',
+        duration: 5000,
+        isClosable: true
+      });
+    }
+  };
 
   const handleUpdateSummary = useCallback(async () => {
     setLoading(true);
@@ -966,7 +925,24 @@ export default function DocChat() {
       setLoading(false);
     }
   }, [documentId, studentId, summaryText]);
+  function handleWindowResize() {
+    // console.log('chat width ', ref?.current?.offsetWidth);
+    // console.log('chat height ', ref?.current?.offsetHeight);
 
+    setChatWidth(ref?.current?.offsetWidth);
+  }
+
+  useLayoutEffect(() => {
+    handleWindowResize();
+  }, [ref]);
+
+  useEffect(() => {
+    window.addEventListener('resize', handleWindowResize);
+
+    return () => {
+      window.removeEventListener('resize', handleWindowResize);
+    };
+  }, []);
 
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
 
@@ -1002,8 +978,15 @@ export default function DocChat() {
   }, [chatHistoryId, studentId, handlePinPrompt, isPinned]);
 
   return (
-    <section className="fixed max-w-screen-xl mx-auto divide-y">
-      <div className="h-screen bg-white divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
+    <section className="max-w-screen-xl">
+      <div
+        className={clsx({
+          'divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x':
+            false,
+          'h-screen bg-white': true,
+          'flex justify-start': true
+        })}
+      >
         {!mobile && (
           <>
             {location.state?.documentUrl && (
@@ -1019,9 +1002,23 @@ export default function DocChat() {
               />
             )}
             {location.state?.noteId && (
-              <div className="flex-auto w-full h-full lg:col-span-6 flex fixed pt-0 overflow-y-auto flex-col">
+              <StyledEditorWrapper
+                sx={{
+                  '&::-webkit-scrollbar': {
+                    width: '4px'
+                  },
+                  '&::-webkit-scrollbar-track': {
+                    width: '6px'
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    // background: 'text.400',
+                    borderRadius: '24px'
+                  }
+                }}
+                className={clsx('', ``)}
+              >
                 {isLoadingNote && (
-                  <div className="w-3/6 max-w-[calc(100%-700px-240px)] pb-5 flex flex-col justify-center items-center h-full">
+                  <div className="w-full pb-5 flex flex-col justify-center items-center h-full">
                     <CustomChatLoader className="items-center mx-auto" />
                   </div>
                 )}
@@ -1037,20 +1034,19 @@ export default function DocChat() {
                         </div>
                       </FirstSection>
                     </Header>
-                    <div
-                      className={'w-3/6 max-w-[calc(100%-700px-240px)] pb-5'}
-                    >
+                    <StyledEditorContainer className={clsx(``, 'w-full  pb-5')}>
                       {<StyledEditor />}
                       <div className="p-8" />
-                    </div>
+                    </StyledEditorContainer>
                   </>
                 )}
-              </div>
+              </StyledEditorWrapper>
             )}
           </>
         )}
         {!mobile && (
           <Chat
+            ref={ref}
             isShowPrompt={isShowPrompt}
             isReadyToChat={readyToChat}
             messages={messages}
@@ -1107,36 +1103,36 @@ export default function DocChat() {
               />
             )}
             {location.state?.noteId && (
-              <>
-                (
-                <div className="flex-auto w-1/2 h-full lg:col-span-6 flex fixed pt-4 flex-col">
-                  {isLoadingNote && (
-                    <div className="w-3/6  pb-5 flex flex-col justify-center items-center h-full">
-                      <CustomChatLoader className="items-center mx-auto" />
+              <StyledEditorWrapper className="w-screen h-full  pt-4 ">
+                {isLoadingNote && (
+                  <div className="w-full pb-5 flex flex-col justify-center items-center h-full">
+                    <CustomChatLoader className="items-center mx-auto" />
+                  </div>
+                )}
+                {!isLoadingNote && (
+                  <StyledEditorContainer className="px-2">
+                    <Header>
+                      <FirstSection>
+                        <div className="doc__name">
+                          <>{editedTitle}</>
+                        </div>
+                        <div className="timestamp">
+                          <p>Updated {currentTime}</p>
+                        </div>
+                      </FirstSection>
+                    </Header>
+                    <div className={'w-full'}>
+                      <StyledEditor />
                     </div>
-                  )}
-                  {!isLoadingNote && (
-                    <>
-                      <Header>
-                        <FirstSection>
-                          <div className="doc__name">
-                            <>{editedTitle}</>
-                          </div>
-                        </FirstSection>
-                      </Header>
-                      <div className={'w-5/6'}>
-                        <StyledEditor />
-                      </div>
-                    </>
-                  )}
-                </div>
-                )
-              </>
+                  </StyledEditorContainer>
+                )}
+              </StyledEditorWrapper>
             )}
           </>
         ) : (
           <>
             <Chat
+              ref={ref}
               isShowPrompt={isShowPrompt}
               isReadyToChat={readyToChat}
               messages={messages}

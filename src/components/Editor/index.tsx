@@ -89,11 +89,18 @@ export default function Editor({
   className?: string;
   showComments?: boolean;
 }): JSX.Element {
+  const editorRef = useRef<HTMLDivElement>();
   const toolBarRef = useRef<HTMLDivElement>();
   const hiddenComponentRef = useRef<HTMLDivElement>();
-  const { ref: toolBarInViewRef, inView: toolBarInView } = useInView();
+  const { ref: toolBarInViewRef, inView: toolBarInView } = useInView({
+    // root: editorRef.current
+    rootMargin: '80px'
+  });
   const { ref: hiddenComponentInViewRef, inView: hiddenComponentInView } =
-    useInView();
+    useInView({
+      // root: editorRef.current
+      rootMargin: '80px'
+    });
 
   const setHiddenComponentRefs = useCallback(
     (node) => {
@@ -179,7 +186,11 @@ export default function Editor({
   }, [isSmallWidthViewport]);
 
   return (
-    <StyledEditor className={clsx(className, 'editor-shell')} {...props}>
+    <StyledEditor
+      ref={editorRef}
+      className={clsx(className, 'editor-shell')}
+      {...props}
+    >
       {isRichText && (
         <div ref={setHiddenComponentRefs}>
           <ToolbarPlugin

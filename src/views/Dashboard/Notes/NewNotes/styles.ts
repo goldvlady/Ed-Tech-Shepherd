@@ -1,5 +1,7 @@
+import Editor from '../../../../components/Editor';
 import theme from '../../../../theme/';
 import styled from 'styled-components';
+import tw from 'twin.macro';
 
 export const NewNoteWrapper = styled.section<{
   position?: string;
@@ -207,4 +209,12 @@ export const HeaderTagsWrapper = styled.div`
 export const HeaderButtonText = styled.p`
   margin-left: ${(props) => theme.layout.padding.paddingMedium + 'px'};
   font-size: 10pt;
+`;
+
+export const StyledEditor = styled(Editor)`
+  && {
+    .toolbar {
+      ${tw`z-1`}
+    }
+  }
 `;

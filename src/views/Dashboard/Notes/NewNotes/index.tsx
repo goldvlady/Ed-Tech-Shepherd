@@ -11,7 +11,7 @@ import CustomButton from '../../../../components/CustomComponents/CustomButton';
 import CustomSideModal from '../../../../components/CustomComponents/CustomSideModal';
 import TableTag from '../../../../components/CustomComponents/CustomTag';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
-import Editor from '../../../../components/Editor';
+// import Editor from '../../../../components/Editor';
 import TagModal from '../../../../components/TagModal';
 import useDebounce from '../../../../hooks/useDebounce';
 import { saveHTMLAsPDF } from '../../../../library/fs';
@@ -22,6 +22,7 @@ import FlashModal from '../../FlashCards/components/FlashModal';
 import { useFlashcardWizard } from '../../FlashCards/context/flashcard';
 import SetupFlashcardPage from '../../FlashCards/forms/flashcard_setup';
 import { NoteModal } from '../Modal';
+import { StyledImage } from '../styles';
 import {
   NoteData,
   NoteDetails,
@@ -41,7 +42,8 @@ import {
   NoteBody,
   HeaderTagsWrapper,
   FullScreenNoteWrapper,
-  SecondSection
+  SecondSection,
+  StyledEditor
 } from './styles';
 import '@blocknote/core/style.css';
 import {
@@ -69,6 +71,7 @@ import { useEffect, useRef, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { BsFillPinFill } from 'react-icons/bs';
 import { FaEllipsisH } from 'react-icons/fa';
+import { IoChatboxEllipsesOutline } from 'react-icons/io5';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 const DEFAULT_NOTE_TITLE = 'Enter Note Title';
@@ -674,7 +677,11 @@ const NewNote = () => {
     },
     {
       id: 4,
-      leftIcon: <DocIcon />,
+      leftIcon: (
+        <StyledImage className={'mx-2'}>
+          <IoChatboxEllipsesOutline />
+        </StyledImage>
+      ),
       title: loadingDoc ? 'Uploading...' : 'Doc Chat',
       rightIcon: <ArrowRight />,
       onClick: proceed
@@ -1154,7 +1161,7 @@ const NewNote = () => {
                     isFullScreen && 'full-screen'
                   }`}
                 >
-                  <Editor />
+                  <StyledEditor />
                 </div>
               )}
             </NoteBody>
@@ -1311,7 +1318,7 @@ const NewNote = () => {
               />
             ) : (
               <div className={`note-editor-test`}>
-                <Editor />
+                <StyledEditor />
               </div>
             )}
           </NoteBody>

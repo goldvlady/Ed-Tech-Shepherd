@@ -55,7 +55,15 @@ import {
 } from './styles';
 import Summary from './summary';
 import { Text, Icon, Box } from '@chakra-ui/react';
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+  forwardRef,
+  ForwardedRef
+} from 'react';
 import { AiFillLike } from 'react-icons/ai';
 import { AiFillDislike } from 'react-icons/ai';
 import { FiThumbsUp } from 'react-icons/fi';
@@ -122,456 +130,471 @@ interface IChat {
   handlePinned?: any;
   isPinned?: any;
 }
-const Chat = ({
-  HomeWorkHelp,
-  isReadyToChat,
-  onOpenModal,
-  isShowPrompt,
-  messages,
-  llmResponse,
-  botStatus,
-  inputValue,
-  handleSendMessage,
-  handleSendKeyword,
-  handleInputChange,
-  handleKeyDown,
-  handleSummary,
-  summaryLoading,
-  summaryText,
-  setSummaryText,
-  documentId,
-  docKeywords,
-  handleClickPrompt,
-  homeWorkHelpPlaceholder,
-  countNeedTutor,
-  onCountTutor,
-  handleAceHomeWorkHelp,
-  handleDeleteSummary,
-  handleUpdateSummary,
-  hightlightedText,
-  setSelectedHighlightArea,
-  loading,
-  isUpdatedSummary,
-  title,
-  directStudentId,
-  visibleButton,
-  fetchDescription,
-  freshConversationId,
-  onChatHistory,
-  onSwitchOnMobileView,
-  handleDislike,
-  handleLike,
-  likesDislikes,
-  setChatId,
-  handlePinPrompt,
-  studentId,
-  selectedChatId,
-  setSelectedChatId,
-  isChatLoading,
-  setChatHistoryId,
-  handlePinned,
-  isPinned
-  isChatLoading
-}: IChat) => {
-  const [chatbotSpace, setChatbotSpace] = useState(647);
-  const [isModalOpen, setModalOpen] = useState<boolean>(false);
-  const [isFlashCard, setFlashCard] = useState<boolean>(false);
-  const [isQuiz, setQuiz] = useState<boolean>(false);
-  const textAreaRef = useRef<any>();
-  const textAreaRef2 = useRef<any>();
-  const ref = useChatScroll(messages);
-  const [hoveredIndex, setHoveredIndex] = useState(0);
-  const [hoveredUserIndex, setHoveredUserIndex] = useState(0);
-  const isMobile = useIsMobile();
-  const chatList = useRef([]);
-  const [isPinnedMessages, setPinnedMessages] = useState(false);
-
-  // const handleLike = (index) => {
-  //   setLikesDislikes((prev) => {
-  //     const newState = [...prev];
-  //     newState[index] = { like: !prev[index]?.like, dislike: false };
-  //     return newState;
-  //   });
-  // };
-
-  // const handleDislike = (index) => {
-  //   setLikesDislikes((prev) => {
-  //     const newState = [...prev];
-  //     newState[index] = { dislike: !prev[index]?.dislike, like: false };
-  //     return newState;
-  //   });
-  // };
-
-  const prompts = [
-    "Explain this document to me like I'm five",
-    'What do I need to know to understand this document?',
-    'What other topics should I explore after this document?'
-  ];
-
-  const onClose = useCallback(() => {
-    setModalOpen((prevState) => !prevState);
-  }, []);
-
-  const onFlashCard = useCallback(() => {
-    setFlashCard((prevState) => !prevState);
-  }, []);
-
-  const onPinnedMessages = useCallback(() => {
-    setPinnedMessages((prevState) => !prevState);
-  }, [setPinnedMessages]);
-
-  const onQuiz = useCallback(() => {
-    setQuiz((prevState) => !prevState);
-  }, []);
-
-  const isShowPills = useMemo(
-    () => !!messages?.length && !HomeWorkHelp && !!isShowPrompt,
-    [messages, HomeWorkHelp, isShowPrompt]
-  );
-
-  const isFindTutor = useMemo(() => {
-    return (
-      countNeedTutor! >= 3 && HomeWorkHelp && !messages?.length && !isShowPrompt
+const Chat = forwardRef(
+  (
+    {
+      HomeWorkHelp,
+      isReadyToChat,
+      onOpenModal,
+      isShowPrompt,
+      messages,
+      llmResponse,
+      botStatus,
+      inputValue,
+      handleSendMessage,
+      handleSendKeyword,
+      handleInputChange,
+      handleKeyDown,
+      handleSummary,
+      summaryLoading,
+      summaryText,
+      setSummaryText,
+      documentId,
+      docKeywords,
+      handleClickPrompt,
+      homeWorkHelpPlaceholder,
+      countNeedTutor,
+      onCountTutor,
+      handleAceHomeWorkHelp,
+      handleDeleteSummary,
+      handleUpdateSummary,
+      hightlightedText,
+      setSelectedHighlightArea,
+      loading,
+      isUpdatedSummary,
+      title,
+      directStudentId,
+      visibleButton,
+      fetchDescription,
+      freshConversationId,
+      onChatHistory,
+      onSwitchOnMobileView,
+      handleDislike,
+      handleLike,
+      likesDislikes,
+      setChatId,
+      handlePinPrompt,
+      studentId,
+      selectedChatId,
+      setSelectedChatId,
+      isChatLoading
+    }: IChat,
+    ref: any
+  ) => {
+    const [chatbotSpace, setChatbotSpace] = useState(647);
+    const [isModalOpen, setModalOpen] = useState<boolean>(false);
+    const [isFlashCard, setFlashCard] = useState<boolean>(false);
+    const [isQuiz, setQuiz] = useState<boolean>(false);
+    const textAreaRef = useRef<any>();
+    const textAreaRef2 = useRef<any>();
+    const scrollRef = useChatScroll(messages);
+    const [hoveredIndex, setHoveredIndex] = useState(0);
+    const [hoveredUserIndex, setHoveredUserIndex] = useState(0);
+    const isMobile = useIsMobile();
+    const chatList = useRef([]);
+    const [isPinnedMessages, setPinnedMessages] = useState(false);
+    const [isPinned, setIsPinned] = useState(
+      new Array(messages.length).fill({
+        isPinned: false
+      })
     );
-  }, [countNeedTutor, messages, HomeWorkHelp, isShowPrompt]);
 
-  const tabLists = [
-    {
-      id: 1,
-      title: 'Summary',
-      icon: <SummaryIcon />
-    },
-    {
-      id: 2,
-      title: 'Highlight',
-      icon: <HightLightIcon />
-    }
-  ];
+    // const handleLike = (index) => {
+    //   setLikesDislikes((prev) => {
+    //     const newState = [...prev];
+    //     newState[index] = { like: !prev[index]?.like, dislike: false };
+    //     return newState;
+    //   });
+    // };
 
-  const tabPanelList = [
-    {
-      id: 1,
-      component: (
-        <Summary
-          handleSummary={handleSummary}
-          summaryLoading={summaryLoading}
-          summaryTexts={summaryText}
-          setSummaryText={setSummaryText}
-          handleDeleteSummary={handleDeleteSummary}
-          handleUpdateSummary={handleUpdateSummary}
-          loading={loading}
-          isUpdatedSummary={isUpdatedSummary}
-        />
-      )
-    },
-    {
-      id: 2,
-      component: (
-        <HighLight
-          hightlightedText={hightlightedText!}
-          setSelectedHighlightArea={setSelectedHighlightArea}
-          loading={loading!}
-        />
-      )
-    }
-  ];
+    // const handleDislike = (index) => {
+    //   setLikesDislikes((prev) => {
+    //     const newState = [...prev];
+    //     newState[index] = { dislike: !prev[index]?.dislike, like: false };
+    //     return newState;
+    //   });
+    // };
 
-  const yourNeeds = [
-    {
-      id: 1,
-      img: <NeedPills src="/svgs/summary.svg" alt="summary" />,
-      title: 'Summary',
-      onClick: onClose
-    },
-    {
-      id: 2,
-      img: <NeedPills src="/svgs/flashcards.svg" alt="flash cards" />,
-      title: 'Flashcards',
-      onClick: onFlashCard
-    },
-    {
-      id: 3,
-      img: <NeedPills src="/svgs/quiz.svg" alt="quiz" />,
-      title: 'Pinned Messages',
-      onClick: onPinnedMessages
-    }
-  ];
+    const prompts = [
+      "Explain this document to me like I'm five",
+      'What do I need to know to understand this document?',
+      'What other topics should I explore after this document?'
+    ];
 
-  const homeHelp = [
-    {
-      id: 1,
-      title: "I don't understand",
-      onClick: () => {
-        onCountTutor("I don't understand");
-        freshConversationId?.length && fetchDescription(freshConversationId);
+    const onClose = useCallback(() => {
+      setModalOpen((prevState) => !prevState);
+    }, []);
+
+    const onFlashCard = useCallback(() => {
+      setFlashCard((prevState) => !prevState);
+    }, []);
+
+    const onPinnedMessages = useCallback(() => {
+      setPinnedMessages((prevState) => !prevState);
+    }, [setPinnedMessages]);
+
+    const onQuiz = useCallback(() => {
+      setQuiz((prevState) => !prevState);
+    }, []);
+
+    const isShowPills = useMemo(
+      () => !!messages?.length && !HomeWorkHelp && !!isShowPrompt,
+      [messages, HomeWorkHelp, isShowPrompt]
+    );
+
+    const isFindTutor = useMemo(() => {
+      return (
+        countNeedTutor! >= 3 &&
+        HomeWorkHelp &&
+        !messages?.length &&
+        !isShowPrompt
+      );
+    }, [countNeedTutor, messages, HomeWorkHelp, isShowPrompt]);
+
+    const tabLists = [
+      {
+        id: 1,
+        title: 'Summary',
+        icon: <SummaryIcon />
       },
-      show: true
-    },
-    {
-      id: 2,
-      img: <TutorBagIcon iconColor="#FB8441" />,
-      title: 'Find a tutor',
-      onClick: onOpenModal,
-      show: countNeedTutor! > 3
-    },
-    {
-      id: 3,
-      title: 'Start New Conversation',
-      onClick: handleAceHomeWorkHelp,
-      show: true
-    }
-  ];
-
-  useEffect(() => {
-    window.addEventListener('resize', () => {
-      const chatbotWidth =
-        document.getElementById('chatbot')?.clientWidth || 647;
-      // ts-ignore
-      setChatbotSpace(chatbotWidth + 24);
-    });
-    return window.removeEventListener('resize', () => {
-      const chatbotWidth =
-        document.getElementById('chatbot')?.clientWidth || 647;
-      // ts-ignore
-      setChatbotSpace(chatbotWidth + 24);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (textAreaRef.current) {
-      textAreaRef.current.style.height = '2.5rem'; // Initially set height
-      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`; // Then adjust it
-
-      // Adjust border radius based on inputValue
-      if (inputValue.length > 0) {
-        textAreaRef.current.style.borderRadius = '16px';
-        textAreaRef.current.style.minHeight = '2.5rem';
-      } else {
-        textAreaRef.current.style.borderRadius = '100px'; // Set initial border radius
+      {
+        id: 2,
+        title: 'Highlight',
+        icon: <HightLightIcon />
       }
-    }
-  }, [inputValue, textAreaRef.current]);
+    ];
 
-  useEffect(() => {
-    if (textAreaRef2.current) {
-      textAreaRef2.current.style.height = '2.5rem'; // Initially set height
-      textAreaRef2.current.style.height = `${textAreaRef2.current.scrollHeight}px`; // Then adjust it
-
-      // Adjust border radius based on inputValue
-      if (inputValue.length > 0) {
-        textAreaRef2.current.style.borderRadius = '16px';
-        textAreaRef2.current.style.minHeight = '2.5rem';
-      } else {
-        textAreaRef2.current.style.borderRadius = '100px'; // Set initial border radius
+    const tabPanelList = [
+      {
+        id: 1,
+        component: (
+          <Summary
+            handleSummary={handleSummary}
+            summaryLoading={summaryLoading}
+            summaryTexts={summaryText}
+            setSummaryText={setSummaryText}
+            handleDeleteSummary={handleDeleteSummary}
+            handleUpdateSummary={handleUpdateSummary}
+            loading={loading}
+            isUpdatedSummary={isUpdatedSummary}
+          />
+        )
+      },
+      {
+        id: 2,
+        component: (
+          <HighLight
+            hightlightedText={hightlightedText!}
+            setSelectedHighlightArea={setSelectedHighlightArea}
+            loading={loading!}
+          />
+        )
       }
-    }
-  }, [inputValue, textAreaRef2.current, visibleButton]);
+    ];
 
-  const scrollToMessage = (chatId) => {
-    const messageIndex = messages.findIndex((m) => m.chatId === chatId);
+    const yourNeeds = [
+      {
+        id: 1,
+        img: <NeedPills src="/svgs/summary.svg" alt="summary" />,
+        title: 'Summary',
+        onClick: onClose
+      },
+      {
+        id: 2,
+        img: <NeedPills src="/svgs/flashcards.svg" alt="flash cards" />,
+        title: 'Flashcards',
+        onClick: onFlashCard
+      },
+      {
+        id: 3,
+        img: <NeedPills src="/svgs/quiz.svg" alt="quiz" />,
+        title: 'Pinned Messages',
+        onClick: onPinnedMessages
+      }
+    ];
 
-    chatList.current[messageIndex]?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center'
-    });
-  };
+    const homeHelp = [
+      {
+        id: 1,
+        title: "I don't understand",
+        onClick: () => {
+          onCountTutor("I don't understand");
+          freshConversationId?.length && fetchDescription(freshConversationId);
+        },
+        show: true
+      },
+      {
+        id: 2,
+        img: <TutorBagIcon iconColor="#FB8441" />,
+        title: 'Find a tutor',
+        onClick: onOpenModal,
+        show: countNeedTutor! > 3
+      },
+      {
+        id: 3,
+        title: 'Start New Conversation',
+        onClick: handleAceHomeWorkHelp,
+        show: true
+      }
+    ];
 
-  return (
-    <>
-      <Form id="chatbot" isHomeWorkHelp={HomeWorkHelp}>
-        <Wrapper>
-          <ContentWrapper>
-            <FlexColumnContainer>
-              <InnerWrapper ref={ref}>
-                <div
-                  style={{
-                    // position: 'fixed',
-                    width: 'auto'
+    useEffect(() => {
+      window.addEventListener('resize', () => {
+        const chatbotWidth =
+          document.getElementById('chatbot')?.clientWidth || 647;
+        // ts-ignore
+        setChatbotSpace(chatbotWidth + 24);
+      });
+      return window.removeEventListener('resize', () => {
+        const chatbotWidth =
+          document.getElementById('chatbot')?.clientWidth || 647;
+        // ts-ignore
+        setChatbotSpace(chatbotWidth + 24);
+      });
+    }, []);
+
+    useEffect(() => {
+      if (textAreaRef.current) {
+        textAreaRef.current.style.height = '2.5rem'; // Initially set height
+        textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`; // Then adjust it
+
+        // Adjust border radius based on inputValue
+        if (inputValue.length > 0) {
+          textAreaRef.current.style.borderRadius = '16px';
+          textAreaRef.current.style.minHeight = '2.5rem';
+        } else {
+          textAreaRef.current.style.borderRadius = '100px'; // Set initial border radius
+        }
+      }
+    }, [inputValue, textAreaRef.current]);
+
+    useEffect(() => {
+      if (textAreaRef2.current) {
+        textAreaRef2.current.style.height = '2.5rem'; // Initially set height
+        textAreaRef2.current.style.height = `${textAreaRef2.current.scrollHeight}px`; // Then adjust it
+
+        // Adjust border radius based on inputValue
+        if (inputValue.length > 0) {
+          textAreaRef2.current.style.borderRadius = '16px';
+          textAreaRef2.current.style.minHeight = '2.5rem';
+        } else {
+          textAreaRef2.current.style.borderRadius = '100px'; // Set initial border radius
+        }
+      }
+    }, [inputValue, textAreaRef2.current, visibleButton]);
+
+    const scrollToMessage = (chatId) => {
+      const messageIndex = messages.findIndex((m) => m.chatId === chatId);
+
+      chatList.current[messageIndex]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+    };
+
+    return (
+      <>
+        <Form id="chatbot" isHomeWorkHelp={HomeWorkHelp}>
+          <Wrapper>
+            <ContentWrapper>
+              <FlexColumnContainer>
+                <InnerWrapper
+                  ref={(node) => {
+                    ref.current = node;
+                    scrollRef.current = node;
                   }}
                 >
-                  <GridItem>
-                    <FlexContainer>
-                      <CircleContainer>
-                        <img
-                          src={HomeWorkHelp ? SocratesImg : PultoJPG}
-                          style={{
-                            objectFit: 'cover',
-                            height: 'auto',
-                            width: '100%',
-                            borderRadius: '50%'
-                          }}
-                          alt=""
-                        />
-                      </CircleContainer>
-                      <TextContainer>
-                        <Text className="font-semibold">
-                          {HomeWorkHelp ? 'Socrates' : 'Plato.'}
-                        </Text>
-                        <Text>{botStatus}</Text>
-                      </TextContainer>
-                    </FlexContainer>
-                    {HomeWorkHelp ? (
-                      <StyledText>
-                        Hello! I'm Socrates. I'm here to help you with your
-                        homework. Instead of just giving you answers, I prefer
-                        to ask questions that'll help you think and understand
-                        the topic better. Let's work together to explore the
-                        subjects you're studying. What would you like to start
-                        with?
-                      </StyledText>
-                    ) : (
-                      <StyledText>
-                        Welcome! I'm here to help you make the most of your time
-                        and your notes. Ask me questions, and I'll find the
-                        answers that match, given the information you've
-                        supplied. Let's get learning!
-                      </StyledText>
-                    )}
-                  </GridItem>
-                </div>
-
-                <GridContainer isHomeWorkHelp={HomeWorkHelp}>
-                  {HomeWorkHelp && visibleButton ? (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '25rem',
-                        right: '36%',
-                        zIndex: '111111111'
-                      }}
-                    >
-                      <StyledDiv
-                        onClick={handleAceHomeWorkHelp}
-                        style={{
-                          color: '#FB8441',
-                          background: 'white'
-                        }}
-                        needIndex
-                      >
-                        Start New Conversation
-                      </StyledDiv>
-                    </div>
-                  ) : null}
-                  {isFindTutor && (
-                    <OptionsContainer>
-                      <Text className="">What do you need?</Text>
-
-                      <PillsContainer>
-                        {homeHelp.map((need) => (
-                          <StyledDiv key={need.id} onClick={need.onClick}>
-                            {need.img}
-                            <p></p>
-                            {need.title}
-                          </StyledDiv>
-                        ))}
-                      </PillsContainer>
-                    </OptionsContainer>
-                  )}
-                  {!messages?.length && !HomeWorkHelp && !isShowPrompt && (
-                    <OptionsContainer>
-                      <Text className="">What do you need?</Text>
-                      <PillsContainer>
-                        {yourNeeds.map((need) => (
-                          <StyledDiv onClick={need.onClick} key={need.id}>
-                            {need.img}
-                            {need.title}
-                          </StyledDiv>
-                        ))}
-                      </PillsContainer>
-                    </OptionsContainer>
-                  )}
-                  {!HomeWorkHelp && !messages?.length && !isShowPrompt && (
-                    <AskSomethingContainer>
-                      <AskSomethingPillHeadingText>
-                        Try asking about:
-                      </AskSomethingPillHeadingText>
-                      <AskSomethingPillContainer>
-                        {prompts.map((prompt, key) => {
-                          return (
-                            <AskSomethingPill
-                              key={key}
-                              onClick={(e) => handleClickPrompt(e, prompt)}
-                            >
-                              <Text>{prompt}</Text>
-                            </AskSomethingPill>
-                          );
-                        })}
-                      </AskSomethingPillContainer>
-                    </AskSomethingContainer>
-                  )}
-                  <ChatContainerResponse
-                    messages={messages && messages.length >= 1}
+                  <div
+                    style={{
+                      // position: 'fixed',
+                      width: 'auto'
+                    }}
                   >
-                    <>
-                      {messages?.map((message, index) => {
-                        // const isHovered = index === hoveredIndex;
-                        // const isUserHovered = index === hoveredUserIndex;
-                        return message.isUser ? (
-                          <>
-                            <UserMessage
-                              key={index}
-                              style={{ position: 'relative' }}
-                              data-chatid={message.chatId}
-                              // onMouseEnter={() => setHoveredUserIndex(index)}
-                              // onMouseLeave={() => setHoveredUserIndex(0)}
-                              ref={(el) => (chatList.current[index] = el)}
-                            >
-                              {message.text}
-                            </UserMessage>
-                            {!HomeWorkHelp && (
-                              <div
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'self-end',
-                                  gap: '20px',
-                                  marginLeft: 'auto',
-                                  marginBottom: '15px'
-                                }}
+                    <GridItem>
+                      <FlexContainer>
+                        <CircleContainer>
+                          <img
+                            src={HomeWorkHelp ? SocratesImg : PultoJPG}
+                            style={{
+                              objectFit: 'cover',
+                              height: 'auto',
+                              width: '100%',
+                              borderRadius: '50%'
+                            }}
+                            alt=""
+                          />
+                        </CircleContainer>
+                        <TextContainer>
+                          <Text className="font-semibold">
+                            {HomeWorkHelp ? 'Socrates' : 'Plato.'}
+                          </Text>
+                          <Text>{botStatus}</Text>
+                        </TextContainer>
+                      </FlexContainer>
+                      {HomeWorkHelp ? (
+                        <StyledText>
+                          Hello! I'm Socrates. I'm here to help you with your
+                          homework. Instead of just giving you answers, I prefer
+                          to ask questions that'll help you think and understand
+                          the topic better. Let's work together to explore the
+                          subjects you're studying. What would you like to start
+                          with?
+                        </StyledText>
+                      ) : (
+                        <StyledText>
+                          Welcome! I'm here to help you make the most of your
+                          time and your notes. Ask me questions, and I'll find
+                          the answers that match, given the information you've
+                          supplied. Let's get learning!
+                        </StyledText>
+                      )}
+                    </GridItem>
+                  </div>
+
+                  <GridContainer isHomeWorkHelp={HomeWorkHelp}>
+                    {HomeWorkHelp && visibleButton ? (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '25rem',
+                          right: '36%',
+                          zIndex: '111111111'
+                        }}
+                      >
+                        <StyledDiv
+                          onClick={handleAceHomeWorkHelp}
+                          style={{
+                            color: '#FB8441',
+                            background: 'white'
+                          }}
+                          needIndex
+                        >
+                          Start New Conversation
+                        </StyledDiv>
+                      </div>
+                    ) : null}
+                    {isFindTutor && (
+                      <OptionsContainer>
+                        <Text className="">What do you need?</Text>
+
+                        <PillsContainer>
+                          {homeHelp.map((need) => (
+                            <StyledDiv key={need.id} onClick={need.onClick}>
+                              {need.img}
+                              <p></p>
+                              {need.title}
+                            </StyledDiv>
+                          ))}
+                        </PillsContainer>
+                      </OptionsContainer>
+                    )}
+                    {!messages?.length && !HomeWorkHelp && !isShowPrompt && (
+                      <OptionsContainer>
+                        <Text className="">What do you need?</Text>
+                        <PillsContainer>
+                          {yourNeeds.map((need) => (
+                            <StyledDiv onClick={need.onClick} key={need.id}>
+                              {need.img}
+                              {need.title}
+                            </StyledDiv>
+                          ))}
+                        </PillsContainer>
+                      </OptionsContainer>
+                    )}
+                    {!HomeWorkHelp && !messages?.length && !isShowPrompt && (
+                      <AskSomethingContainer>
+                        <AskSomethingPillHeadingText>
+                          Try asking about:
+                        </AskSomethingPillHeadingText>
+                        <AskSomethingPillContainer>
+                          {prompts.map((prompt, key) => {
+                            return (
+                              <AskSomethingPill
+                                key={key}
+                                onClick={(e) => handleClickPrompt(e, prompt)}
                               >
+                                <Text>{prompt}</Text>
+                              </AskSomethingPill>
+                            );
+                          })}
+                        </AskSomethingPillContainer>
+                      </AskSomethingContainer>
+                    )}
+                    <ChatContainerResponse
+                      messages={messages && messages.length >= 1}
+                    >
+                      <>
+                        {messages?.map((message, index) => {
+                          // const isHovered = index === hoveredIndex;
+                          // const isUserHovered = index === hoveredUserIndex;
+                          return message.isUser ? (
+                            <>
+                              <UserMessage
+                                key={index}
+                                style={{ position: 'relative' }}
+                                data-chatid={message.chatId}
+                                // onMouseEnter={() => setHoveredUserIndex(index)}
+                                // onMouseLeave={() => setHoveredUserIndex(0)}
+                                ref={(el) => (chatList.current[index] = el)}
+                              >
+                                {message.text}
+                              </UserMessage>
+                              {!HomeWorkHelp && (
                                 <div
                                   style={{
-                                    width: 'auto',
-                                    padding: '10px',
-                                    borderRadius: '100px',
-                                    gap: '5px',
-                                    background: '#F7F7F8',
                                     display: 'flex',
-                                    alignItems: 'center',
-                                    fontSize: ' 0.875rem',
-                                    cursor: 'pointer'
-                                  }}
-                                  onClick={() => {
-                                    handlePinned(index);
-                                    setChatHistoryId(String(message.chatId));
+                                    alignItems: 'self-end',
+                                    gap: '20px',
+                                    marginLeft: 'auto',
+                                    marginBottom: '15px'
                                   }}
                                 >
-                                  <PinLogo
-                                    iconColor={
-                                      isPinned[index]?.isPinned
-                                        ? 'blue'
-                                        : '#6E7682'
+                                  <div
+                                    style={{
+                                      width: 'auto',
+                                      padding: '10px',
+                                      borderRadius: '100px',
+                                      gap: '5px',
+                                      background: '#F7F7F8',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      fontSize: ' 0.875rem',
+                                      cursor: 'pointer'
+                                    }}
+                                    onClick={() =>
+                                      handlePinPrompt({
+                                        studentId,
+                                        chatHistoryId: String(message.chatId)
+                                      })
                                     }
-                                  />
-                                  {/* <p>Pin</p> */}
+                                  >
+                                    <PinLogo
+                                      iconColor={
+                                        isPinned[index]?.isPinned
+                                          ? 'blue'
+                                          : '#6E7682'
+                                      }
+                                    />
+                                    {/* <p>Pin</p> */}
+                                  </div>
                                 </div>
-                              </div>
-                            )}
-                          </>
-                        ) : (
-                          <div
-                            key={index}
-                            onMouseEnter={() => setHoveredIndex(index)}
-                            onMouseLeave={() => setHoveredIndex(0)}
-                          >
-                            {message.isLoading ? (
-                              <ChatLoader />
-                            ) : (
-                              <div style={{ maxWidth: '439px' }}>
-                                <AiMessage
-                                  style={{ position: 'relative' }}
-                                  ref={(el) => (chatList.current[index] = el)}
-                                >
-                                  {/* <PinLogo
+                              )}
+                            </>
+                          ) : (
+                            <div
+                              key={index}
+                              onMouseEnter={() => setHoveredIndex(index)}
+                              onMouseLeave={() => setHoveredIndex(0)}
+                            >
+                              {message.isLoading ? (
+                                <ChatLoader />
+                              ) : (
+                                <div style={{ maxWidth: '439px' }}>
+                                  <AiMessage
+                                    style={{ position: 'relative' }}
+                                    ref={(el) => (chatList.current[index] = el)}
+                                  >
+                                    {/* <PinLogo
                                     style={{
                                       display: isHovered ? 'block' : 'none',
                                       cursor: 'pointer',
@@ -580,284 +603,285 @@ const Chat = ({
                                       position: 'relative'
                                     }}
                                   /> */}
-                                  <CustomMarkdownView
-                                    source={message.text}
-                                    keywords={docKeywords}
-                                    handleSendMessage={handleSendMessage}
-                                    handleSendKeyword={handleSendKeyword}
-                                  />
-                                </AiMessage>
-                                {!HomeWorkHelp && (
-                                  <div
-                                    style={{
-                                      display: 'flex',
-                                      alignItems: 'self-end',
-                                      gap: '20px',
-                                      marginBottom: '15px'
-                                    }}
-                                  >
+                                    <CustomMarkdownView
+                                      source={message.text}
+                                      keywords={docKeywords}
+                                      handleSendMessage={handleSendMessage}
+                                      handleSendKeyword={handleSendKeyword}
+                                    />
+                                  </AiMessage>
+                                  {!HomeWorkHelp && (
                                     <div
                                       style={{
-                                        width: 'auto',
-                                        // height: '33px',
-                                        padding: '10px',
-                                        borderRadius: '100px',
-                                        gap: '10px',
-                                        background: '#F7F7F8',
                                         display: 'flex',
-                                        alignItems: 'center',
-                                        fontSize: ' 0.875rem',
-                                        cursor: 'pointer'
-                                      }}
-                                      onClick={() => {
-                                        handleLike(index);
-                                        setChatId(String(message?.chatId));
+                                        alignItems: 'self-end',
+                                        gap: '20px',
+                                        marginBottom: '15px'
                                       }}
                                     >
-                                      <ThumbsUp
-                                        iconColor={
-                                          likesDislikes[index]?.like
-                                            ? 'green'
-                                            : '#6E7682'
-                                        }
-                                      />
-                                      {/* <p>Like</p> */}
-                                    </div>
-                                    <div
-                                      style={{
-                                        width: 'auto',
-                                        padding: '10px',
-                                        borderRadius: '100px',
-                                        gap: '10px',
-                                        background: '#F7F7F8',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        fontSize: ' 0.875rem',
-                                        cursor: 'pointer'
-                                      }}
-                                      onClick={() => {
-                                        handleDislike(index);
-                                        setChatId(String(message?.chatId));
-                                      }}
-                                    >
-                                      <ThumbsDown
-                                        iconColor={
-                                          likesDislikes[index]?.dislike
-                                            ? 'red'
-                                            : '#6E7682'
-                                        }
-                                      />
-                                      {/* <p>Dislike</p> */}
-                                    </div>
-                                    <div
-                                      style={{
-                                        width: 'auto',
-                                        padding: '10px',
-                                        borderRadius: '100px',
-                                        gap: '5px',
-                                        background: '#F7F7F8',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        fontSize: ' 0.875rem',
-                                        cursor: 'pointer'
-                                      }}
-                                      onClick={() => {
-                                        handlePinned(index);
-                                        setChatHistoryId( String(message.chatId))
-                                      }}
-                                    >
-                                      <PinLogo
-                                        iconColor={
-                                          isPinned[index]?.isPinned
-                                            ? 'blue'
-                                            : '#6E7682'
-                                        }
-                                      />
-                                    
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </>
-                    {llmResponse && (
-                      <AiMessage key="hey">
-                        {/* <CustomMarkdownView source={llmResponse} /> */}
-                        <Typewriter
-                          options={{
-                            delay: 10,
-                            autoStart: true, // Set to false to control it manually
-                            loop: false,
-                            skipAddStyles: true,
-                            wrapperClassName: 'text-sm font-light '
-                          }}
-                          onInit={(typewriter) => {
-                            typewriter.typeString(llmResponse).start();
-                          }}
-                        />
-                      </AiMessage>
-                    )}
-                  </ChatContainerResponse>
-                </GridContainer>
-              </InnerWrapper>
-            </FlexColumnContainer>
-          </ContentWrapper>
-          {isShowPills && (
-            <div
-              style={{
-                position: 'fixed',
-                width: '100%',
-                bottom: isMobile ? '40px' : '40px',
-                background: 'white'
-              }}
-            >
-              <OptionsContainer>
-                <PillsContainer>
-                  {yourNeeds.map((need) => (
-                    <StyledDiv onClick={need.onClick} key={need.id}>
-                      {need.img}
-                      {need.title}
-                    </StyledDiv>
-                  ))}
-                </PillsContainer>
-              </OptionsContainer>
-            </div>
-          )}
-        </Wrapper>
+                                      <div
+                                        style={{
+                                          width: 'auto',
+                                          // height: '33px',
+                                          padding: '10px',
+                                          borderRadius: '100px',
+                                          gap: '10px',
+                                          background: '#F7F7F8',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          fontSize: ' 0.875rem',
+                                          cursor: 'pointer'
+                                        }}
+                                        onClick={() => {
+                                          handleLike(index);
+                                          setChatId(String(message?.chatId));
+                                        }}
+                                      >
+                                        <ThumbsUp
+                                          iconColor={
+                                            likesDislikes[index]?.like
+                                              ? 'green'
+                                              : '#6E7682'
+                                          }
+                                        />
+                                        {/* <p>Like</p> */}
+                                      </div>
+                                      <div
+                                        style={{
+                                          width: 'auto',
+                                          padding: '10px',
+                                          borderRadius: '100px',
+                                          gap: '10px',
+                                          background: '#F7F7F8',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          fontSize: ' 0.875rem',
+                                          cursor: 'pointer'
+                                        }}
+                                        onClick={() => {
+                                          handleDislike(index);
+                                          setChatId(String(message?.chatId));
+                                        }}
+                                      >
+                                        <ThumbsDown
+                                          iconColor={
+                                            likesDislikes[index]?.dislike
+                                              ? 'red'
+                                              : '#6E7682'
+                                          }
+                                        />
+                                        {/* <p>Dislike</p> */}
+                                      </div>
+                                      <div
+                                        style={{
+                                          width: 'auto',
+                                          padding: '10px',
+                                          borderRadius: '100px',
+                                          gap: '5px',
+                                          background: '#F7F7F8',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          fontSize: ' 0.875rem',
+                                          cursor: 'pointer'
+                                        }}
+                                        onClick={() => {
+                                          handlePinPrompt({
+                                            studentId,
+                                            chatHistoryId: String(
+                                              message.chatId
+                                            )
+                                          });
+                                          setSelectedChatId(
+                                            String(message.chatId)
+                                          );
+                                        }}
+                                      >
+                                        {isChatLoading[message.chatId] ? (
+                                          <p>...</p>
+                                        ) : (
+                                          <PinLogo
+                                            iconColor={
+                                              message?.isPinned
+                                                ? 'blue'
+                                                : '#6E7682'
+                                            }
+                                          />
+                                        )}
 
-        {/* {isShowPrompt && (
+                                        {/* <p>Pin</p> */}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </>
+                      {llmResponse && (
+                        <AiMessage key="hey">
+                          <CustomMarkdownView source={llmResponse} />
+                        </AiMessage>
+                      )}
+                    </ChatContainerResponse>
+                  </GridContainer>
+                </InnerWrapper>
+              </FlexColumnContainer>
+            </ContentWrapper>
+            {isShowPills && (
+              <div
+                style={{
+                  position: 'fixed',
+                  width: '100%',
+                  bottom: isMobile ? '40px' : '40px',
+                  background: 'white'
+                }}
+              >
+                <OptionsContainer>
+                  <PillsContainer>
+                    {yourNeeds.map((need) => (
+                      <StyledDiv onClick={need.onClick} key={need.id}>
+                        {need.img}
+                        {need.title}
+                      </StyledDiv>
+                    ))}
+                  </PillsContainer>
+                </OptionsContainer>
+              </div>
+            )}
+          </Wrapper>
+
+          {/* {isShowPrompt && (
           <TellMeMorePill isHomeWorkHelp={HomeWorkHelp}>
             <p>Tell me more</p>
             <TellMeMoreIcn />
           </TellMeMorePill>
         )} */}
-        {!visibleButton && HomeWorkHelp && isShowPrompt && (
-          <DownPillContainer>
-            <PillsContainer>
-              {homeHelp.map((need) => (
+          {!visibleButton && HomeWorkHelp && isShowPrompt && (
+            <DownPillContainer>
+              <PillsContainer>
+                {homeHelp.map((need) => (
+                  <>
+                    {!!need.show && (
+                      <StyledDiv
+                        onClick={need.onClick}
+                        needIndex={need.id === 2}
+                        style={{
+                          color: need.id === 2 ? '#FB8441' : '',
+                          background: need.id === 2 ? 'white' : ''
+                        }}
+                        key={need.id}
+                      >
+                        {need.img}
+                        {need.title}
+                      </StyledDiv>
+                    )}
+                  </>
+                ))}
+              </PillsContainer>
+            </DownPillContainer>
+          )}
+          {HomeWorkHelp && !visibleButton ? (
+            <ChatbotContainer chatbotSpace={chatbotSpace}>
+              <InputContainer>
+                <Input
+                  ref={textAreaRef2}
+                  placeholder={
+                    HomeWorkHelp
+                      ? homeWorkHelpPlaceholder
+                      : `Ask Shepherd about ${snip(title, 40)}`
+                  }
+                  value={inputValue}
+                  onKeyDown={handleKeyDown}
+                  disabled={!isReadyToChat}
+                  onChange={handleInputChange}
+                  style={{
+                    maxHeight: HomeWorkHelp ? '70px' : '2rem',
+                    overflowY: 'scroll'
+                  }}
+                />
+                <SendButton type="button" onClick={handleSendMessage}>
+                  <img alt="" src="/svgs/send.svg" className="w-8 h-8" />
+                </SendButton>
+              </InputContainer>
+              {isMobile && (
                 <>
-                  {!!need.show && (
-                    <StyledDiv
-                      onClick={need.onClick}
-                      needIndex={need.id === 2}
-                      style={{
-                        color: need.id === 2 ? '#FB8441' : '',
-                        background: need.id === 2 ? 'white' : ''
-                      }}
-                      key={need.id}
-                    >
-                      {need.img}
-                      {need.title}
-                    </StyledDiv>
+                  {HomeWorkHelp ? (
+                    <ClockButton type="button" onClick={onChatHistory}>
+                      <img
+                        alt="clock"
+                        src="/svgs/anti-clock.svg"
+                        className="w-5 h-5"
+                      />
+                    </ClockButton>
+                  ) : (
+                    <ClockButton type="button" onClick={onChatHistory}>
+                      <img alt="pdf" src={PDFImg} className="w-5 h-5" />
+                    </ClockButton>
                   )}
                 </>
-              ))}
-            </PillsContainer>
-          </DownPillContainer>
-        )}
-        {HomeWorkHelp && !visibleButton ? (
-          <ChatbotContainer chatbotSpace={chatbotSpace}>
-            <InputContainer>
-              <Input
-                ref={textAreaRef2}
-                placeholder={
-                  HomeWorkHelp
-                    ? homeWorkHelpPlaceholder
-                    : `Ask Shepherd about ${snip(title, 40)}`
-                }
-                value={inputValue}
-                onKeyDown={handleKeyDown}
-                disabled={!isReadyToChat}
-                onChange={handleInputChange}
-                style={{
-                  maxHeight: HomeWorkHelp ? '70px' : '2rem',
-                  overflowY: 'scroll'
-                }}
-              />
-              <SendButton type="button" onClick={handleSendMessage}>
-                <img alt="" src="/svgs/send.svg" className="w-8 h-8" />
-              </SendButton>
-            </InputContainer>
-            {isMobile && (
-              <>
-                {HomeWorkHelp ? (
-                  <ClockButton type="button" onClick={onChatHistory}>
-                    <img
-                      alt="clock"
-                      src="/svgs/anti-clock.svg"
-                      className="w-5 h-5"
-                    />
-                  </ClockButton>
-                ) : (
-                  <ClockButton type="button" onClick={onChatHistory}>
-                    <img alt="pdf" src={PDFImg} className="w-5 h-5" />
-                  </ClockButton>
-                )}
-              </>
-            )}
-          </ChatbotContainer>
-        ) : null}
-        {!HomeWorkHelp && (
-          <ChatbotContainer chatbotSpace={chatbotSpace}>
-            <InputContainer>
-              <Input
-                ref={textAreaRef}
-                placeholder={
-                  HomeWorkHelp
-                    ? homeWorkHelpPlaceholder
-                    : `Ask Shepherd about ${snip(title, 40)}`
-                }
-                value={inputValue}
-                onKeyDown={handleKeyDown}
-                disabled={!isReadyToChat}
-                onChange={handleInputChange}
-                style={{
-                  minHeight: '2.5rem',
-                  maxHeight: '10rem',
-                  overflowY: 'auto'
-                }}
-              />
-              <SendButton type="button" onClick={handleSendMessage}>
-                <img alt="" src="/svgs/send.svg" className="w-8 h-8" />
-              </SendButton>
-            </InputContainer>
-            {isMobile && (
-              <ClockButton type="button" onClick={onSwitchOnMobileView}>
-                <img alt="pdf" src={PDFImg} className="w-5 h-5" />
-              </ClockButton>
-            )}
-          </ChatbotContainer>
-        )}
-      </Form>
+              )}
+            </ChatbotContainer>
+          ) : null}
+          {!HomeWorkHelp && (
+            <ChatbotContainer chatbotSpace={chatbotSpace}>
+              <InputContainer>
+                <Input
+                  ref={textAreaRef}
+                  placeholder={
+                    HomeWorkHelp
+                      ? homeWorkHelpPlaceholder
+                      : `Ask Shepherd about ${snip(title, 40)}`
+                  }
+                  value={inputValue}
+                  onKeyDown={handleKeyDown}
+                  disabled={!isReadyToChat}
+                  onChange={handleInputChange}
+                  style={{
+                    minHeight: '2.5rem',
+                    maxHeight: '10rem',
+                    overflowY: 'auto'
+                  }}
+                />
+                <SendButton type="button" onClick={handleSendMessage}>
+                  <img alt="" src="/svgs/send.svg" className="w-8 h-8" />
+                </SendButton>
+              </InputContainer>
+              {isMobile && (
+                <ClockButton type="button" onClick={onSwitchOnMobileView}>
+                  <img alt="pdf" src={PDFImg} className="w-5 h-5" />
+                </ClockButton>
+              )}
+            </ChatbotContainer>
+          )}
+        </Form>
 
-      <CustomSideModal onClose={onClose} isOpen={isModalOpen}>
-        <div style={{ marginTop: '3rem' }}>
-          <CustomTabs
-            isSideComponent
-            tablists={tabLists}
-            tabPanel={tabPanelList}
+        <CustomSideModal onClose={onClose} isOpen={isModalOpen}>
+          <div style={{ marginTop: '3rem' }}>
+            <CustomTabs
+              isSideComponent
+              tablists={tabLists}
+              tabPanel={tabPanelList}
+            />
+          </div>
+        </CustomSideModal>
+
+        <CustomSideModal onClose={onFlashCard} isOpen={isFlashCard}>
+          <div style={{ margin: '3rem 0', overflowY: 'auto' }}>
+            <SetupFlashcardPage showConfirm isAutomated />
+          </div>
+        </CustomSideModal>
+
+        <CustomSideModal onClose={onPinnedMessages} isOpen={isPinnedMessages}>
+          <PinnedMessages
+            messages={messages}
+            scrollToMessage={scrollToMessage}
+            onPinnedMessages={onPinnedMessages}
           />
-        </div>
-      </CustomSideModal>
-
-      <CustomSideModal onClose={onFlashCard} isOpen={isFlashCard}>
-        <div style={{ margin: '3rem 0', overflowY: 'auto' }}>
-          <SetupFlashcardPage showConfirm isAutomated />
-        </div>
-      </CustomSideModal>
-
-      <CustomSideModal onClose={onPinnedMessages} isOpen={isPinnedMessages}>
-        <PinnedMessages
-          messages={messages}
-          scrollToMessage={scrollToMessage}
-          onPinnedMessages={onPinnedMessages}
-        />
-      </CustomSideModal>
-    </>
-  );
-};
+        </CustomSideModal>
+      </>
+    );
+  }
+);
 
 export default Chat;

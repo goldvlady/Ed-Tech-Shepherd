@@ -20,6 +20,7 @@ import { useFlashcardWizard } from '../FlashCards/context/flashcard';
 import SetupFlashcardPage from '../FlashCards/forms/flashcard_setup';
 import Pagination from '../components/Pagination';
 import ActionDropdown from './components/actionButton';
+import { StyledImage } from './styles';
 import {
   SimpleGrid,
   TabList,
@@ -50,19 +51,6 @@ import { FaCalendarAlt } from 'react-icons/fa';
 import { IoChatboxEllipsesOutline } from 'react-icons/io5';
 import { MultiSelect } from 'react-multi-select-component';
 import { useNavigate, useLocation } from 'react-router-dom';
-import styled from 'styled-components';
-
-const StyledImage = styled(Box)`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #ffffff;
-  border-radius: 50%;
-  height: 26px;
-  width: 26px;
-  border: 0.6px solid #eaeaeb;
-  box-shadow: 0 2px 10px rgba(63, 81, 94, 0.1);
-`;
 
 const YourFlashCardIcon = () => (
   <StyledImage marginRight="10px">
@@ -384,16 +372,16 @@ const NotesDirectory: React.FC = () => {
       icon: <YourFlashCardIcon />
     },
     {
+      label: 'Edit Tags',
+      onClick: () => setTagEditItem({ note }),
+      icon: <YourEditTagsIcon />
+    },
+    {
       label: 'Open in DocChat',
       onClick: () => {
         ingestNote(note);
       },
       icon: <YourOpenDocchatIcon />
-    },
-    {
-      label: 'Edit Tags',
-      onClick: () => setTagEditItem({ note }),
-      icon: <YourEditTagsIcon />
     },
     {
       label: 'Delete',

@@ -636,7 +636,6 @@ const SidebarContent = ({
         )}
       </NavItem>
 
-
       <Divider />
       <NavItem icon={GiBarn} path={undefined}>
         <Flex gap={2}>
@@ -652,9 +651,8 @@ const SidebarContent = ({
             Coming Soon
           </Text>
         </Flex>
-
       </NavItem>
-      <Divider /> */}
+      <Divider />
       <Box ml={8} color="text.400">
         <Button
           variant={'unstyled'}

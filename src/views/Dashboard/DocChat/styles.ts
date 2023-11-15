@@ -1,5 +1,7 @@
-import { Text } from '@chakra-ui/react';
+import Editor from '../../../components/Editor';
+import { Box, Text } from '@chakra-ui/react';
 import styled from 'styled-components';
+import tw from 'twin.macro';
 
 export const Form = styled.form<{ isHomeWorkHelp?: boolean }>`
   grid-column: span 6;
@@ -713,5 +715,97 @@ export const HomeWorkHelpChatContainer2 = styled.textarea`
 export const TempPDF = styled.div`
   display: block @media only screen and (max-width: 768px) {
     display: none;
+  }
+`;
+
+export const Header = styled.section`
+  ${tw`w-full max-w-[100vw] h-[80px] mt-2`}
+  background: #fafafa;
+  border: 1px solid #eeeff2;
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+`;
+
+export const FirstSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px;
+  min-width: 120px;
+  .back-btn {
+    font-size: 0.875rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 1.25rem;
+    color: #585f68;
+    margin-left: -0.5em;
+    cursor: pointer;
+  }
+  .zoom__icn {
+    border-right: 1px solid #e0e1e1;
+    padding-right: 20px;
+    cursor: pointer;
+  }
+
+  .doc__name {
+    cursor: text;
+    color: #525456;
+    display: flex;
+    flex-direction: row;
+    font-size: 11pt;
+    min-width: 120px;
+    max-height: 30px;
+    width: 100%;
+    border-right: 1px solid #e0e1e1;
+    padding-right: 10px;
+    > input {
+      width: inherit;
+      height: 'inherit';
+      margin: 0;
+      padding: 0;
+      border-style: flat !important;
+      font-size: 11pt;
+      color: #525456;
+      background: #fafafa !important;
+    }
+  }
+
+  .doc__name:hover {
+    > div {
+      border: 1px solid #e0e1e1;
+    }
+  }
+
+  .timestamp {
+    color: #9a9c9e;
+    font-size: 0.875rem;
+    cursor: default;
+    min-width: 200px;
+  }
+`;
+
+export const StyledEditorWrapper = styled(Box)`
+  ${tw`w-full h-full lg:max-w-[calc(100vw-55%-240px)] overflow-y-auto relative`}
+`;
+
+export const StyledEditorContainer = styled(Box)``;
+
+export const StyledEditor = styled(Editor)`
+  && {
+    ${tw`mt-2`}
+
+    .toolbar {
+      ${tw`z-1`}
+      &.out-view {
+        ${tw`w-full md:max-w-[calc(100vw-240px)] lg:max-w-[calc(100vw-55%)] top-[75px]`}
+        div.divider {
+          ${tw``}
+        }
+        button {
+          ${tw``}
+        }
+      }
+    }
   }
 `;
