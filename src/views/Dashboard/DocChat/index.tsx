@@ -123,13 +123,13 @@ export default function DocChat() {
 
   const [chatId, setChatId] = useState('');
   const [pinnedResponse, setPinnedResponse] = useState<any>();
-  const [selectedChatId, setSelectedChatId] = useState('');
-
-  const [chatHistoryId, setChatHistoryId] = useState('');
 
   const [currentTime, setCurrentTime] = useState<string>(
     formatDate(new Date())
   );
+  const [selectedChatId, setSelectedChatId] = useState('');
+
+  const [chatHistoryId, setChatHistoryId] = useState('');
 
   const [isChatLoading, setChatLoading] = useState({});
   const [isLoadingNote, setIsLoadingNote] = useState(true);
@@ -546,7 +546,10 @@ export default function DocChat() {
         });
       }
     };
-    fetchChatHistory();
+    // fetchChatHistory();
+    if (pinnedResponse) {
+      fetchChatHistory();
+    }
   }, [documentId, studentId, pinnedResponse]);
 
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
