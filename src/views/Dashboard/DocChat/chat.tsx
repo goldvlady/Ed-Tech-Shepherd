@@ -1,8 +1,7 @@
 /* eslint-disable no-loop-func,@typescript-eslint/no-non-null-assertion,no-unsafe-optional-chaining,react-hooks/exhaustive-deps */
 import PultoJPG from '../../../assets/PlutoAi.jpg';
-import PinLogo from '../../../assets/SVGComponent/Pin';
-import { ThumbsDown } from '../../../assets/SVGComponent/ThumbsDown';
-import { ThumbsUp } from '../../../assets/SVGComponent/ThumbsUp';
+// import { ThumbsDown } from '../../../assets/SVGComponent/ThumbsDown';
+// import { ThumbsUp } from '../../../assets/SVGComponent/ThumbsUp';
 import { ReactComponent as HightLightIcon } from '../../../assets/highlightIcn.svg';
 import PDFImg from '../../../assets/pdf_img.png';
 // import { ReactComponent as PinLogo } from '../../../assets/pin.svg';
@@ -15,6 +14,8 @@ import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkd
 import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../../components/hooks/useChatScroll';
+// import PinLogo from '../../../assets/SVGComponent/Pin';
+import { PinLogo, ThumbsUp, ThumbsDown } from '../../../components/icons';
 import { snip } from '../../../helpers/file.helpers';
 import useIsMobile from '../../../helpers/useIsMobile';
 import FlashcardDataProvider from '../FlashCards/context/flashcard';
@@ -55,7 +56,8 @@ import {
 } from './styles';
 import Summary from './summary';
 import { Text, Icon, Box } from '@chakra-ui/react';
-import {
+import clsx from 'clsx';
+import React, {
   useState,
   useEffect,
   useCallback,
@@ -128,7 +130,7 @@ interface IChat {
   isChatLoading?: any;
   setChatHistoryId?: any;
   handlePinned?: any;
-  isPinned?: any;
+  isPinned?: any[];
 }
 const Chat = forwardRef(
   (
@@ -507,16 +509,12 @@ const Chat = forwardRef(
                     >
                       <>
                         {messages?.map((message, index) => {
-                          // const isHovered = index === hoveredIndex;
-                          // const isUserHovered = index === hoveredUserIndex;
                           return message.isUser ? (
                             <>
                               <UserMessage
                                 key={index}
                                 style={{ position: 'relative' }}
                                 data-chatid={message.chatId}
-                                // onMouseEnter={() => setHoveredUserIndex(index)}
-                                // onMouseLeave={() => setHoveredUserIndex(0)}
                                 ref={(el) => (chatList.current[index] = el)}
                               >
                                 {message.text}
@@ -547,21 +545,21 @@ const Chat = forwardRef(
                                       fontSize: ' 0.875rem',
                                       cursor: 'pointer'
                                     }}
-                                    onClick={() =>
-                                      handlePinPrompt({
-                                        studentId,
-                                        chatHistoryId: String(message.chatId)
-                                      })
-                                    }
+                                    onClick={() => {
+                                      handlePinned(index);
+                                      // setChatHistoryId(String(message.chatId));
+                                    }}
                                   >
                                     <PinLogo
-                                      iconColor={
-                                        isPinned[index]?.isPinned
-                                          ? 'blue'
-                                          : '#6E7682'
-                                      }
+                                      className={clsx(
+                                        'w-[14px] h-[14px] text-[#6E7682]',
+                                        {
+                                          'text-[blue]':
+                                            isPinned &&
+                                            isPinned[index]?.isPinned
+                                        }
+                                      )}
                                     />
-                                    {/* <p>Pin</p> */}
                                   </div>
                                 </div>
                               )}
@@ -580,15 +578,6 @@ const Chat = forwardRef(
                                     style={{ position: 'relative' }}
                                     ref={(el) => (chatList.current[index] = el)}
                                   >
-                                    {/* <PinLogo
-                                    style={{
-                                      display: isHovered ? 'block' : 'none',
-                                      cursor: 'pointer',
-                                      bottom: '-10px',
-                                      left: '15px',
-                                      position: 'relative'
-                                    }}
-                                  /> */}
                                     <CustomMarkdownView
                                       source={message.text}
                                       keywords={docKeywords}
@@ -608,7 +597,7 @@ const Chat = forwardRef(
                                       <div
                                         style={{
                                           width: 'auto',
-                                          // height: '33px',
+
                                           padding: '10px',
                                           borderRadius: '100px',
                                           gap: '10px',
@@ -624,11 +613,14 @@ const Chat = forwardRef(
                                         }}
                                       >
                                         <ThumbsUp
-                                          iconColor={
-                                            likesDislikes[index]?.like
-                                              ? 'green'
-                                              : '#6E7682'
-                                          }
+                                          className={clsx(
+                                            'w-4 h-4 text-[#6E7682]',
+                                            {
+                                              'text-[green]':
+                                                likesDislikes[index] &&
+                                                likesDislikes[index]?.like
+                                            }
+                                          )}
                                         />
                                         {/* <p>Like</p> */}
                                       </div>
@@ -650,11 +642,14 @@ const Chat = forwardRef(
                                         }}
                                       >
                                         <ThumbsDown
-                                          iconColor={
-                                            likesDislikes[index]?.dislike
-                                              ? 'red'
-                                              : '#6E7682'
-                                          }
+                                          className={clsx(
+                                            'text-[#6E7682] w-4 h-4',
+                                            {
+                                              'text-[red]':
+                                                likesDislikes[index] &&
+                                                likesDislikes[index]?.dislike
+                                            }
+                                          )}
                                         />
                                         {/* <p>Dislike</p> */}
                                       </div>
@@ -677,13 +672,22 @@ const Chat = forwardRef(
                                           // );
                                         }}
                                       >
-                                        <PinLogo
-                                          iconColor={
-                                            isPinned[index]?.isPinned
-                                              ? 'blue'
-                                              : '#6E7682'
-                                          }
-                                        />
+                                        {isChatLoading[message?.chatId] ? (
+                                          <p>...</p>
+                                        ) : (
+                                          <PinLogo
+                                            className={clsx(
+                                              'w-[14px] h-[14px] text-[#6E7682]',
+                                              {
+                                                'text-[blue]':
+                                                  isPinned &&
+                                                  isPinned[index]?.isPinned
+                                              }
+                                            )}
+                                          />
+                                        )}
+
+                                        {/* <p>Pin</p> */}
                                       </div>
                                     </div>
                                   )}
@@ -849,7 +853,7 @@ const Chat = forwardRef(
 
         <CustomSideModal onClose={onPinnedMessages} isOpen={isPinnedMessages}>
           <PinnedMessages
-            messages={messages}
+            messages={messages as any[]}
             scrollToMessage={scrollToMessage}
             onPinnedMessages={onPinnedMessages}
           />

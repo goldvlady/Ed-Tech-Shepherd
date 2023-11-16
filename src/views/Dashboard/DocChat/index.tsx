@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import CustomChatLoader from '../../../components/CustomComponents/CustomChatLoader';
-import CustomToast from '../../../components/CustomComponents/CustomToast/index';
+import CustomToast from '../../../components/CustomComponents/CustomToast';
 import useIsMobile from '../../../helpers/useIsMobile';
 import useDebounce from '../../../hooks/useDebounce';
 import {
@@ -39,7 +39,7 @@ import clsx from 'clsx';
 import { LexicalEditor as EditorType } from 'lexical';
 import { isEmpty, isNil, isString } from 'lodash';
 import moment from 'moment';
-import {
+import React, {
   useEffect,
   useState,
   useCallback,
@@ -48,8 +48,10 @@ import {
   useLayoutEffect
 } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import tw from 'twin.macro';
+import { Socket } from 'socket.io-client';
+
+// import styled from 'styled-components';
+// import tw from 'twin.macro';
 
 export default function DocChat() {
   const toastIdRef = useRef<any>();
@@ -207,6 +209,100 @@ export default function DocChat() {
     }
   };
 
+  const handlePinPrompt = async ({
+    chatHistoryId = '',
+    studentId = '',
+    value = false
+  }) => {
+    setChatLoading((prevChatLoadingState) => ({
+      ...prevChatLoadingState,
+      [chatHistoryId]: true // Set loading state for the specific chat icon
+    }));
+
+    try {
+      const response = await postPinnedPrompt({
+        chatId: chatHistoryId,
+        studentId
+      });
+
+      if (response) {
+        setChatLoading((prevChatLoadingState) => ({
+          ...prevChatLoadingState,
+          [chatHistoryId]: false // Set loading state for the specific chat icon
+        }));
+
+        // setPinnedResponse(response);
+        // You might want to toast a success message or handle the success response
+        handleCloseToast();
+        setTimeout(() => {
+          handleAddToast(
+            toast({
+              render: () => (
+                <CustomToast
+                  title={
+                    value
+                      ? 'Chat prompt pinned successfully!'
+                      : 'Chat prompt unpinned successfully!'
+                  }
+                  status="success"
+                />
+              ),
+              position: 'top-right',
+              isClosable: true
+            })
+          );
+        }, 100);
+        // toast({
+        //   render: () => (
+        //     <CustomToast
+        //       title="Chat prompt pinned successfully!"
+        //       status="success"
+        //     />
+        //   ),
+        //   position: 'top-right',
+        //   isClosable: true
+        // });
+      } else {
+        setChatLoading((prevChatLoadingState) => ({
+          ...prevChatLoadingState,
+          [chatHistoryId]: false // Set loading state for the specific chat icon
+        }));
+
+        handleCloseToast();
+        setTimeout(() => {
+          handleAddToast(
+            toast({
+              title: 'Failed to pin chat prompt',
+              description: 'No response received from the server.',
+              status: 'warning',
+              duration: 5000,
+              isClosable: true
+            })
+          );
+        }, 100);
+      }
+    } catch (error) {
+      setChatLoading((prevChatLoadingState) => ({
+        ...prevChatLoadingState,
+        [chatHistoryId]: false // Set loading state for the specific chat icon
+      }));
+
+      // Handle errors here
+      handleCloseToast();
+      setTimeout(() => {
+        handleAddToast(
+          toast({
+            title: 'An error occurred',
+            description: error.message,
+            status: 'error',
+            duration: 5000,
+            isClosable: true
+          })
+        );
+      }, 100);
+    }
+  };
+
   const handleAutoSave = (editor: EditorType) => {
     // use debounce filter
     // TODO: we must move this to web worker
@@ -275,14 +371,14 @@ export default function DocChat() {
       };
 
       const result = await updateNote(noteId, data as NoteData);
-      setCurrentTime(formatDate(result.data.updatedAt));
-      saveCallback();
+      setCurrentTime(formatDate(result?.data.updatedAt));
+      saveCallback && saveCallback();
     }
   };
 
   useEffect(() => {
     if (!isEmpty(studentId)) {
-      let authSocket = null;
+      let authSocket: Socket<any, any> | null = null;
       if (documentId) {
         authSocket = socketWithAuth({
           studentId,
@@ -588,6 +684,13 @@ export default function DocChat() {
     }
   }, [summaryStart]);
 
+  useEffect(() => {
+    // Assuming chatHistoryId and studentId are available in this component's scope
+    if (chatHistoryId && studentId) {
+      handlePinPrompt({ chatHistoryId, studentId });
+    }
+  }, [chatHistoryId, studentId]);
+
   const getNoteById = async (paramsIdForNote = noteId) => {
     if (isEmpty(paramsIdForNote) || isNil(paramsIdForNote)) {
       return;
@@ -816,74 +919,74 @@ export default function DocChat() {
     setSwitchDocument((prevState) => !prevState);
   }, [setSwitchDocument]);
 
-  const handlePinPrompt = async ({
-    chatHistoryId = '',
-    studentId = '',
-    value = false
-  }) => {
-    setChatLoading((prevChatLoadingState) => ({
-      ...prevChatLoadingState,
-      [chatHistoryId]: true // Set loading state for the specific chat icon
-    }));
+  // const handlePinPrompt = async ({
+  //   chatHistoryId = '',
+  //   studentId = '',
+  //   value = false
+  // }) => {
+  //   setChatLoading((prevChatLoadingState) => ({
+  //     ...prevChatLoadingState,
+  //     [chatHistoryId]: true // Set loading state for the specific chat icon
+  //   }));
 
-    try {
-      const response = await postPinnedPrompt({
-        chatId: chatHistoryId,
-        studentId
-      });
+  //   try {
+  //     const response = await postPinnedPrompt({
+  //       chatId: chatHistoryId,
+  //       studentId
+  //     });
 
-      if (response) {
-        setChatLoading((prevChatLoadingState) => ({
-          ...prevChatLoadingState,
-          [chatHistoryId]: false // Set loading state for the specific chat icon
-        }));
+  //     if (response) {
+  //       setChatLoading((prevChatLoadingState) => ({
+  //         ...prevChatLoadingState,
+  //         [chatHistoryId]: false // Set loading state for the specific chat icon
+  //       }));
 
-        // setPinnedResponse(response);
-        // You might want to toast a success message or handle the success response
-        toast({
-          render: () => (
-            <CustomToast
-              title={
-                value
-                  ? 'Chat prompt pinned successfully!'
-                  : 'Chat prompt unpinned successfully!'
-              }
-              status="success"
-            />
-          ),
-          position: 'top-right',
-          isClosable: true
-        });
-      } else {
-        setChatLoading((prevChatLoadingState) => ({
-          ...prevChatLoadingState,
-          [chatHistoryId]: false // Set loading state for the specific chat icon
-        }));
+  //       // setPinnedResponse(response);
+  //       // You might want to toast a success message or handle the success response
+  //       toast({
+  //         render: () => (
+  //           <CustomToast
+  //             title={
+  //               value
+  //                 ? 'Chat prompt pinned successfully!'
+  //                 : 'Chat prompt unpinned successfully!'
+  //             }
+  //             status="success"
+  //           />
+  //         ),
+  //         position: 'top-right',
+  //         isClosable: true
+  //       });
+  //     } else {
+  //       setChatLoading((prevChatLoadingState) => ({
+  //         ...prevChatLoadingState,
+  //         [chatHistoryId]: false // Set loading state for the specific chat icon
+  //       }));
 
-        toast({
-          title: 'Failed to pin chat prompt',
-          description: 'No response received from the server.',
-          status: 'warning',
-          duration: 5000,
-          isClosable: true
-        });
-      }
-    } catch (error) {
-      setChatLoading((prevChatLoadingState) => ({
-        ...prevChatLoadingState,
-        [chatHistoryId]: false // Set loading state for the specific chat icon
-      }));
+  //       toast({
+  //         title: 'Failed to pin chat prompt',
+  //         description: 'No response received from the server.',
+  //         status: 'warning',
+  //         duration: 5000,
+  //         isClosable: true
+  //       });
+  //     }
+  //   } catch (error) {
+  //     setChatLoading((prevChatLoadingState) => ({
+  //       ...prevChatLoadingState,
+  //       [chatHistoryId]: false // Set loading state for the specific chat icon
+  //     }));
 
-      // Handle errors here
-      toast({
-        title: 'An error occurred',
-        description: error.message,
-        status: 'error',
-        duration: 5000,
-        isClosable: true
-      });
-    }
-  };
+  //     // Handle errors here
+  //     toast({
+  //       title: 'An error occurred',
+  //       description: error.message,
+  //       status: 'error',
+  //       duration: 5000,
+  //       isClosable: true
+  //     });
+  //   }
+  // };
 
   const handleUpdateSummary = useCallback(async () => {
     setLoading(true);
@@ -954,16 +1057,6 @@ export default function DocChat() {
   }, []);
 
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
-
-  useEffect(() => {
-    const getHighlight = async () => {
-      setLoading(true);
-      const response = await getPDFHighlight({ documentId });
-      setHightlightedText(response);
-      setLoading(false);
-    };
-    getHighlight();
-  }, [documentId]);
 
   useEffect(() => {
     if (!location.state?.documentUrl && !location.state?.docTitle) {
@@ -1068,7 +1161,6 @@ export default function DocChat() {
                     width: '6px'
                   },
                   '&::-webkit-scrollbar-thumb': {
-                    // background: 'text.400',
                     borderRadius: '24px'
                   }
                 }}
