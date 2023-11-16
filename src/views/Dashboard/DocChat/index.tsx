@@ -50,9 +50,6 @@ import React, {
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Socket } from 'socket.io-client';
 
-// import styled from 'styled-components';
-// import tw from 'twin.macro';
-
 export default function DocChat() {
   const toastIdRef = useRef<any>();
   const ref = useRef<HTMLDivElement>(null);
@@ -918,75 +915,6 @@ export default function DocChat() {
   const onSwitchOnMobileView = useCallback(() => {
     setSwitchDocument((prevState) => !prevState);
   }, [setSwitchDocument]);
-
-  // const handlePinPrompt = async ({
-  //   chatHistoryId = '',
-  //   studentId = '',
-  //   value = false
-  // }) => {
-  //   setChatLoading((prevChatLoadingState) => ({
-  //     ...prevChatLoadingState,
-  //     [chatHistoryId]: true // Set loading state for the specific chat icon
-  //   }));
-
-  //   try {
-  //     const response = await postPinnedPrompt({
-  //       chatId: chatHistoryId,
-  //       studentId
-  //     });
-
-  //     if (response) {
-  //       setChatLoading((prevChatLoadingState) => ({
-  //         ...prevChatLoadingState,
-  //         [chatHistoryId]: false // Set loading state for the specific chat icon
-  //       }));
-
-  //       // setPinnedResponse(response);
-  //       // You might want to toast a success message or handle the success response
-  //       toast({
-  //         render: () => (
-  //           <CustomToast
-  //             title={
-  //               value
-  //                 ? 'Chat prompt pinned successfully!'
-  //                 : 'Chat prompt unpinned successfully!'
-  //             }
-  //             status="success"
-  //           />
-  //         ),
-  //         position: 'top-right',
-  //         isClosable: true
-  //       });
-  //     } else {
-  //       setChatLoading((prevChatLoadingState) => ({
-  //         ...prevChatLoadingState,
-  //         [chatHistoryId]: false // Set loading state for the specific chat icon
-  //       }));
-
-  //       toast({
-  //         title: 'Failed to pin chat prompt',
-  //         description: 'No response received from the server.',
-  //         status: 'warning',
-  //         duration: 5000,
-  //         isClosable: true
-  //       });
-  //     }
-  //   } catch (error) {
-  //     setChatLoading((prevChatLoadingState) => ({
-  //       ...prevChatLoadingState,
-  //       [chatHistoryId]: false // Set loading state for the specific chat icon
-  //     }));
-
-  //     // Handle errors here
-  //     toast({
-  //       title: 'An error occurred',
-  //       description: error.message,
-  //       status: 'error',
-  //       duration: 5000,
-  //       isClosable: true
-  //     });
-  //   }
-  // };
 
   const handleUpdateSummary = useCallback(async () => {
     setLoading(true);
