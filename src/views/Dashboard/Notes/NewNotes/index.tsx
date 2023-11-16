@@ -1,6 +1,5 @@
 import { ReactComponent as AddTag } from '../../../../assets/addTag.svg';
 import { ReactComponent as BackArrow } from '../../../../assets/backArrowFill.svg';
-import { ReactComponent as DocIcon } from '../../../../assets/doc.svg';
 import { ReactComponent as DownloadIcon } from '../../../../assets/download.svg';
 import { ReactComponent as FlashCardIcn } from '../../../../assets/flashCardIcn.svg';
 import { ReactComponent as SideBarPinIcn } from '../../../../assets/sideBarPin.svg';
@@ -11,7 +10,6 @@ import CustomButton from '../../../../components/CustomComponents/CustomButton';
 import CustomSideModal from '../../../../components/CustomComponents/CustomSideModal';
 import TableTag from '../../../../components/CustomComponents/CustomTag';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
-// import Editor from '../../../../components/Editor';
 import TagModal from '../../../../components/TagModal';
 import useDebounce from '../../../../hooks/useDebounce';
 import { saveHTMLAsPDF } from '../../../../library/fs';
@@ -65,9 +63,9 @@ import {
   CLEAR_EDITOR_COMMAND,
   LexicalEditor as EditorType
 } from 'lexical';
-import { defaultTo, isEmpty, isNil, isString, union } from 'lodash';
+import { defaultTo, filter, isEmpty, isNil, isString, union } from 'lodash';
 import moment from 'moment';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { BsFillPinFill } from 'react-icons/bs';
 import { FaEllipsisH } from 'react-icons/fa';
@@ -433,7 +431,16 @@ const NewNote = () => {
     try {
       // Remove the deleted note from the dataSource
       const storageId = NoteEnums.PINNED_NOTE_STORE_ID;
+
+      // console.log('storageId  ===========>> ', NoteEnums.PINNED_NOTE_STORE_ID);
       localStorage.removeItem(storageId);
+
+      const filtedPinnedNote = filter(pinnedNotes as any[], (pinnedNote) => {
+        if (noteIdInUse === pinnedNote?.notedId) return pinnedNote;
+      });
+
+      setPinnedNotes(filtedPinnedNote as any[]);
+
       showToast(DELETE_NOTE_TITLE, 'Note unpinned', 'success');
       setPinned(false);
     } catch (error: any) {
@@ -478,6 +485,7 @@ const NewNote = () => {
   };
 
   const isNoteAlreadyPinned = (noteId: string): boolean => {
+    console.log('running =======>>> isNoteAlreadyPinned');
     for (const note of pinnedNotes) {
       if (note.noteId === noteId) {
         setPinned(true);
