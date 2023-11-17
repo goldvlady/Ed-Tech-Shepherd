@@ -177,7 +177,8 @@ const Chat = forwardRef(
       studentId,
       selectedChatId,
       setSelectedChatId,
-      isChatLoading
+      handlePinned,
+      isPinned
     }: IChat,
     ref: any
   ) => {
@@ -193,27 +194,7 @@ const Chat = forwardRef(
     const isMobile = useIsMobile();
     const chatList = useRef([]);
     const [isPinnedMessages, setPinnedMessages] = useState(false);
-    const [isPinned, setIsPinned] = useState(
-      new Array(messages.length).fill({
-        isPinned: false
-      })
-    );
-
-    // const handleLike = (index) => {
-    //   setLikesDislikes((prev) => {
-    //     const newState = [...prev];
-    //     newState[index] = { like: !prev[index]?.like, dislike: false };
-    //     return newState;
-    //   });
-    // };
-
-    // const handleDislike = (index) => {
-    //   setLikesDislikes((prev) => {
-    //     const newState = [...prev];
-    //     newState[index] = { dislike: !prev[index]?.dislike, like: false };
-    //     return newState;
-    //   });
-    // };
+    const [isNumber, setIsNumber] = useState(true);
 
     const prompts = [
       "Explain this document to me like I'm five",
@@ -561,12 +542,9 @@ const Chat = forwardRef(
                                       fontSize: ' 0.875rem',
                                       cursor: 'pointer'
                                     }}
-                                    onClick={() =>
-                                      handlePinPrompt({
-                                        studentId,
-                                        chatHistoryId: String(message.chatId)
-                                      })
-                                    }
+                                    onClick={() => {
+                                      handlePinned(index);
+                                    }}
                                   >
                                     <PinLogo
                                       iconColor={
@@ -685,28 +663,16 @@ const Chat = forwardRef(
                                           cursor: 'pointer'
                                         }}
                                         onClick={() => {
-                                          handlePinPrompt({
-                                            studentId,
-                                            chatHistoryId: String(
-                                              message.chatId
-                                            )
-                                          });
-                                          setSelectedChatId(
-                                            String(message.chatId)
-                                          );
+                                          handlePinned(index);
                                         }}
                                       >
-                                        {isChatLoading[message.chatId] ? (
-                                          <p>...</p>
-                                        ) : (
-                                          <PinLogo
-                                            iconColor={
-                                              message?.isPinned
-                                                ? 'blue'
-                                                : '#6E7682'
-                                            }
-                                          />
-                                        )}
+                                        <PinLogo
+                                          iconColor={
+                                            isPinned[index]?.isPinned
+                                              ? 'blue'
+                                              : '#6E7682'
+                                          }
+                                        />
 
                                         {/* <p>Pin</p> */}
                                       </div>

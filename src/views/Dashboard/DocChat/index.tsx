@@ -120,6 +120,7 @@ export default function DocChat() {
       isPinned: false
     })
   );
+
   const [chatId, setChatId] = useState('');
   const [pinnedResponse, setPinnedResponse] = useState<any>();
   const [selectedChatId, setSelectedChatId] = useState('');
@@ -180,14 +181,6 @@ export default function DocChat() {
     setLikesDislikes((prev) => {
       const newState = [...prev];
       newState[index] = { like: !prev[index]?.like, dislike: false };
-      return newState;
-    });
-  };
-
-  const handlePinned = (index) => {
-    setIsPinned((prev) => {
-      const newState = [...prev];
-      newState[index] = { isPinned: !prev[index]?.isPinned };
       return newState;
     });
   };
@@ -815,7 +808,11 @@ export default function DocChat() {
     setSwitchDocument((prevState) => !prevState);
   }, [setSwitchDocument]);
 
-  const handlePinPrompt = async ({ chatHistoryId = '', studentId = '' }) => {
+  const handlePinPrompt = async ({
+    chatHistoryId = '',
+    studentId = '',
+    value = false
+  }) => {
     setChatLoading((prevChatLoadingState) => ({
       ...prevChatLoadingState,
       [chatHistoryId]: true // Set loading state for the specific chat icon
@@ -838,7 +835,11 @@ export default function DocChat() {
         toast({
           render: () => (
             <CustomToast
-              title="Chat prompt pinned successfully!"
+              title={
+                value
+                  ? 'Chat prompt pinned successfully!'
+                  : 'Chat prompt unpinned successfully!'
+              }
               status="success"
             />
           ),
@@ -970,12 +971,27 @@ export default function DocChat() {
     }
   }, [summaryStart]);
 
-  useEffect(() => {
-    // Assuming chatHistoryId and studentId are available in this component's scope
-    if (chatHistoryId && studentId) {
-      handlePinPrompt({ chatHistoryId, studentId });
-    }
-  }, [chatHistoryId, studentId, handlePinPrompt, isPinned]);
+  const handlePinned = (index: number) => {
+    setIsPinned((prev) => {
+      const newState = [...prev];
+      newState[index] = {
+        isPinned: !prev[index]?.isPinned
+      };
+      return newState;
+    });
+    handlePinPrompt({
+      chatHistoryId: String(index),
+      studentId,
+      value: !isPinned[index]?.isPinned
+    });
+  };
+
+  // useEffect(() => {
+  //   // Assuming chatHistoryId and studentId are available in this component's scope
+  //   if (chatHistoryId && studentId) {
+  //     handlePinPrompt({ chatHistoryId, studentId });
+  //   }
+  // }, [chatHistoryId, studentId, isPinned]);
 
   return (
     <section className="max-w-screen-xl">
@@ -1019,7 +1035,7 @@ export default function DocChat() {
               >
                 {isLoadingNote && (
                   <div className="w-full pb-5 flex flex-col justify-center items-center h-full">
-                    <CustomChatLoader className="items-center mx-auto" />
+                    <CustomChatLoader />
                   </div>
                 )}
                 {!isLoadingNote && (
@@ -1081,8 +1097,6 @@ export default function DocChat() {
             studentId={studentId}
             selectedChatId={selectedChatId}
             setSelectedChatId={setSelectedChatId}
-            isChatLoading={isChatLoading}
-            setChatHistoryId={setChatHistoryId}
             handlePinned={handlePinned}
             isPinned={isPinned}
           />
@@ -1106,7 +1120,7 @@ export default function DocChat() {
               <StyledEditorWrapper className="w-screen h-full  pt-4 ">
                 {isLoadingNote && (
                   <div className="w-full pb-5 flex flex-col justify-center items-center h-full">
-                    <CustomChatLoader className="items-center mx-auto" />
+                    <CustomChatLoader />
                   </div>
                 )}
                 {!isLoadingNote && (
@@ -1167,8 +1181,6 @@ export default function DocChat() {
               studentId={studentId}
               selectedChatId={selectedChatId}
               setSelectedChatId={setSelectedChatId}
-              isChatLoading={isChatLoading}
-              setChatHistoryId={setChatHistoryId}
               handlePinned={handlePinned}
               isPinned={isPinned}
             />
