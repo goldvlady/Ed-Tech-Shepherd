@@ -307,7 +307,6 @@ export default function DocChat() {
     if (socket) {
       socket.on('current_conversation', (conversationId) => {
         setReadyToChat(true);
-        console.log('current_conversation ========>>> ', conversationId);
       });
 
       return () => socket.off('current_conversation');
@@ -371,7 +370,6 @@ export default function DocChat() {
   }, [socket]);
 
   const handleRefreshNote = () => {
-    console.log('should be emitting refresh_note');
     socket.emit('refresh_note');
   };
 
@@ -744,7 +742,7 @@ export default function DocChat() {
         ]);
         socket.emit('chat message', keywordText);
       } catch (e) {
-        console.log('ERROR', e);
+        // console.log('ERROR', e);
       }
     },
     [socket]

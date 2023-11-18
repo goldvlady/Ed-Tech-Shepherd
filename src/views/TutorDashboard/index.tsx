@@ -54,7 +54,6 @@ export default function Dashboard() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-  console.log(tutorReport, 'report');
 
   if (isLoading) {
     return (

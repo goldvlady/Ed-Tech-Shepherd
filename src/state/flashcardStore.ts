@@ -12,6 +12,9 @@ import { create } from 'zustand';
 type Store = {
   flashcards: FlashcardData[] | null;
   tags: string[];
+  showStudyList: boolean;
+  setShowStudyList: (value: boolean) => void;
+  dailyFlashcards: FlashcardData[] | null;
   storeFlashcardTags: (
     flashcardId: string[] | string,
     tags: string[]
@@ -21,7 +24,11 @@ type Store = {
   fetchFlashcards: (queryParams?: SearchQueryParams) => Promise<void>;
   fetchSingleFlashcard: (id: string) => void;
   flashcard?: FlashcardData | null;
-  loadFlashcard: (id: string | null, currentStudy?: MinimizedStudy) => void;
+  loadFlashcard: (
+    id: string | null,
+    isDailyStudy: boolean,
+    currentStudy?: MinimizedStudy
+  ) => void;
   minimizedStudy?: MinimizedStudy | null | undefined;
   storeCurrentStudy: (
     flashcardId: string,
@@ -33,10 +40,12 @@ type Store = {
   ) => Promise<Response | undefined>;
   deleteFlashCard: (id: string) => Promise<boolean>;
   storeScore: (flashcardId: string, score: Score) => Promise<boolean>;
+  loadTodaysFlashcards: () => Promise<void>;
   updateQuestionAttempt: (
     flashcardId: string,
     questionText: string,
-    isPassed: boolean
+    isPassed: boolean,
+    grade: string
   ) => Promise<boolean>;
   scheduleFlashcard: (d: SchedulePayload) => Promise<boolean>;
   editFlashcard: (id: string, data: Partial<FlashcardData>) => Promise<boolean>;
@@ -48,6 +57,11 @@ export default create<Store>((set) => ({
   tags: [],
   minimizedStudy: null,
   pagination: { limit: 10, page: 1, count: 100 },
+  showStudyList: false,
+  setShowStudyList: (value: boolean) => {
+    set({ showStudyList: value });
+  },
+  dailyFlashcards: null,
   storeFlashcardTags: async (
     flashcardIds: string[] | string,
     tags: string[]
@@ -95,6 +109,11 @@ export default create<Store>((set) => ({
     } finally {
       set({ isLoading: false });
     }
+  },
+  loadTodaysFlashcards: async () => {
+    const response = await ApiService.getTodaysFlashcards();
+    const { data } = await response.json();
+    set({ dailyFlashcards: data });
   },
   editFlashcard: async (id: string, data: Partial<FlashcardData>) => {
     try {
@@ -167,9 +186,20 @@ export default create<Store>((set) => ({
   storeMinimized: (data: MinimizedStudy) => {
     set({ minimizedStudy: data });
   },
-  loadFlashcard: async (id: string | null, currentStudy?: MinimizedStudy) => {
+  loadFlashcard: async (
+    id: string | null,
+    isDailyStudy = false,
+    currentStudy?: MinimizedStudy
+  ) => {
     set((state) => {
       if (!id) return { flashcard: undefined, minimizedStudy: null };
+
+      if (isDailyStudy) {
+        const flashcard = state.dailyFlashcards?.find(
+          (card) => card._id === id
+        );
+        return { flashcard, showStudyList: false };
+      }
       const flashcard = state.flashcards?.find((card) => card._id === id);
       // if (!flashcard) {
       //   const response = ApiService.getSingleFlashcard(id);
@@ -276,14 +306,16 @@ export default create<Store>((set) => ({
   updateQuestionAttempt: async (
     flashcardId: string,
     questionText: string,
-    isPassed: boolean
+    isPassed: boolean,
+    grade?: string
   ) => {
     try {
       set({ isLoading: true });
       const response = await ApiService.updateQuestionAttempt({
         flashcardId,
         questionText,
-        isPassed
+        isPassed,
+        grade
       });
       if (response.status === 200) {
         const { data } = await response.json();

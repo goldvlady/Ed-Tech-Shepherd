@@ -837,7 +837,7 @@ export const QuizModal = ({
             score: scores.passed
           });
         } catch (error) {
-          console.log('error ========>> ', error);
+          // console.log('error ========>> ', error);
         }
       })();
     }

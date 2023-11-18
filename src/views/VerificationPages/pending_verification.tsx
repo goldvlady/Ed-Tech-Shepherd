@@ -60,7 +60,6 @@ const PendingVerification = () => {
         });
       }
     } catch (e) {
-      console.log(e);
       toast({
         title: 'Something went wrong',
         position: 'top-right',

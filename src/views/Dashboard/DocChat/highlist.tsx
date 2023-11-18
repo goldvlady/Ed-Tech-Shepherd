@@ -139,7 +139,6 @@ const HighLight = ({
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleQuoteVisibility(index);
-                      console.log(index, 'innd');
                     }}
                     p={2}
                   >

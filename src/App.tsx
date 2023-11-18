@@ -362,7 +362,7 @@ const AppRoutes: React.FC = () => {
 
 function App() {
   const { fetchResources } = resourceStore();
-  const { flashcard } = flashcardStore();
+  const { flashcard, showStudyList } = flashcardStore();
   const { quiz } = quizStore();
   useActiveUserPresence();
 
@@ -384,7 +384,9 @@ function App() {
             <FlashcardWizardProvider>
               <MnemonicSetupProvider>
                 <QuizWizardProvider>
-                  <FlashCardModal isOpen={Boolean(flashcard)} />
+                  <FlashCardModal
+                    isOpen={Boolean(flashcard) || showStudyList}
+                  />
                   {Boolean(quiz) && <QuizModal isOpen={Boolean(quiz)} />}
                   <StreamChatProvider>
                     <AppRoutes />

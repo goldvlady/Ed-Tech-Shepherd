@@ -135,6 +135,10 @@ class ApiService {
     );
   };
 
+  static getTodaysFlashcards = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getDailyFlashcards`);
+  };
+
   static deleteFlashcard = async (id: string | number) => {
     return doFetch(`${ApiService.baseEndpoint}/deleteFlashcard?id=${id}`, {
       method: 'POST'

@@ -126,7 +126,7 @@ const CreateQuizPage = () => {
             setQuestions(data?.questions);
           }
         } catch (error) {
-          console.log('getQuiz Error =========>> ', error);
+          // console.log('getQuiz Error =========>> ', error);
         } finally {
           handleIsLoadingQuizzes(false);
         }
@@ -180,7 +180,6 @@ const CreateQuizPage = () => {
       setTags(data?.tags);
       await fetchQuizzes();
     } catch (error) {
-      console.log('handleUpdateQuiz -------->>> error ========>>> ', error);
       toast({
         position: 'top-right',
         title: `failed to create quiz`,

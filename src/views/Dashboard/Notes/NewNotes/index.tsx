@@ -642,7 +642,6 @@ const NewNote = () => {
     const url = note.documentId ?? '';
     const topic = note.topic;
     const noteId = note.id;
-    console.log('note', note);
     try {
       // await new Promise((resolve) => setTimeout(resolve, 1000));
       await goToNoteChat(url, topic, noteId);

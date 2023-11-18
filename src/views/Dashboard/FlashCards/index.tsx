@@ -147,7 +147,7 @@ const CustomTable: React.FC = () => {
 
   const {
     fetchFlashcards,
-    fetchSingleFlashcard,
+    setShowStudyList,
     flashcards,
     tags,
     loadFlashcard,
@@ -155,7 +155,9 @@ const CustomTable: React.FC = () => {
     storeFlashcardTags,
     isLoading,
     scheduleFlashcard,
-    pagination
+    pagination,
+    loadTodaysFlashcards,
+    dailyFlashcards
   } = flashcardStore();
 
   const options: Option[] = tags.map((tag) => ({
@@ -211,12 +213,13 @@ const CustomTable: React.FC = () => {
 
   useEffect(() => {
     fetchFlashcards();
+    loadTodaysFlashcards();
     // eslint-disable-next-line
   }, []);
 
   const loadFlashcardModal = async (id: string) => {
     await fetchFlashcards();
-    loadFlashcard(id);
+    loadFlashcard(id, false);
     // navigate('/dashboard/flashcards');
   };
 
@@ -235,7 +238,7 @@ const CustomTable: React.FC = () => {
       render: ({ deckname, key }) => (
         <Text
           color="#207DF7"
-          onClick={() => loadFlashcard(key)}
+          onClick={() => loadFlashcard(key, false)}
           fontWeight="500"
         >
           {deckname}
@@ -406,7 +409,7 @@ const CustomTable: React.FC = () => {
                 p="6px 8px 6px 8px"
                 _hover={{ bgColor: '#F2F4F7' }}
                 onClick={() =>
-                  loadFlashcard(flashcard.key, flashcard.currentStudy)
+                  loadFlashcard(flashcard.key, false, flashcard.currentStudy)
                 }
               >
                 <StyledImage marginRight="10px">
@@ -433,7 +436,7 @@ const CustomTable: React.FC = () => {
             <MenuItem
               p="6px 8px 6px 8px"
               _hover={{ bgColor: '#F2F4F7' }}
-              onClick={() => loadFlashcard(flashcard.key)}
+              onClick={() => loadFlashcard(flashcard.key, false)}
             >
               <StyledImage marginRight="10px">
                 <svg
@@ -976,40 +979,45 @@ const CustomTable: React.FC = () => {
                 </MenuList>
               </Menu>
 
-              <Button
-                variant="solid"
-                ml={{ base: '0', md: '20px' }}
-                borderRadius={'10px'}
-                colorScheme={'primary'}
-                width={{ base: '100%', md: 'auto' }}
-                onClick={() => {
-                  if (!flashcards) return;
-                  const nextFlashCard = findNextFlashcard(flashcards);
-                  if (!nextFlashCard) {
-                    toast({
-                      title: 'You have attempted all flashcards for this week',
-                      status: 'info'
-                    });
-                  } else {
-                    loadFlashcard(nextFlashCard?._id);
-                  }
-                }}
-              >
-                <svg
-                  width="16"
-                  height="18"
-                  viewBox="0 0 16 18"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+              {dailyFlashcards?.length ? (
+                <Button
+                  variant="solid"
+                  ml={{ base: '0', md: '20px' }}
+                  borderRadius={'10px'}
+                  colorScheme={'primary'}
+                  width={{ base: '100%', md: 'auto' }}
+                  onClick={() => {
+                    setShowStudyList(true);
+                    // if (!flashcards) return;
+                    // const nextFlashCard = findNextFlashcard(flashcards);
+                    // if (!nextFlashCard) {
+                    //   toast({
+                    //     title: 'You have attempted all flashcards for this week',
+                    //     status: 'info'
+                    //   });
+                    // } else {
+                    //   loadFlashcard(nextFlashCard?._id, false);
+                    // }
+                  }}
                 >
-                  <path
-                    d="M3.83317 4.00033V1.50033C3.83317 1.04009 4.20627 0.666992 4.6665 0.666992H14.6665C15.1267 0.666992 15.4998 1.04009 15.4998 1.50033V13.167C15.4998 13.6272 15.1267 14.0003 14.6665 14.0003H12.1665V16.4996C12.1665 16.9602 11.7916 17.3337 11.3275 17.3337H1.33888C0.875492 17.3337 0.5 16.9632 0.5 16.4996L0.502167 4.83438C0.50225 4.37375 0.8772 4.00033 1.34118 4.00033H3.83317ZM5.49983 4.00033H12.1665V12.3337H13.8332V2.33366H5.49983V4.00033ZM3.83317 8.16699V9.83366H8.83317V8.16699H3.83317ZM3.83317 11.5003V13.167H8.83317V11.5003H3.83317Z"
-                    fill="white"
-                  />
-                </svg>
+                  <svg
+                    width="16"
+                    height="18"
+                    viewBox="0 0 16 18"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M3.83317 4.00033V1.50033C3.83317 1.04009 4.20627 0.666992 4.6665 0.666992H14.6665C15.1267 0.666992 15.4998 1.04009 15.4998 1.50033V13.167C15.4998 13.6272 15.1267 14.0003 14.6665 14.0003H12.1665V16.4996C12.1665 16.9602 11.7916 17.3337 11.3275 17.3337H1.33888C0.875492 17.3337 0.5 16.9632 0.5 16.4996L0.502167 4.83438C0.50225 4.37375 0.8772 4.00033 1.34118 4.00033H3.83317ZM5.49983 4.00033H12.1665V12.3337H13.8332V2.33366H5.49983V4.00033ZM3.83317 8.16699V9.83366H8.83317V8.16699H3.83317ZM3.83317 11.5003V13.167H8.83317V11.5003H3.83317Z"
+                      fill="white"
+                    />
+                  </svg>
 
-                <Text ml={'10px'}>Practice today's cards</Text>
-              </Button>
+                  <Text ml={'10px'}>Practice today's cards</Text>
+                </Button>
+              ) : (
+                ''
+              )}
             </Flex>
           </Stack>
           <Box overflowX={{ base: 'scroll', md: 'hidden' }}>

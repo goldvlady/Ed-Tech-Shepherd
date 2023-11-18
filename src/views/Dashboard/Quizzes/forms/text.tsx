@@ -108,7 +108,6 @@ const TextQuizForm = ({ addQuestion, handleSetTitle }) => {
         status: 'success'
       });
     } catch (error) {
-      console.log('error =======>> ', error);
       toast({
         position: 'top-right',
         title: `failed to generate quizzes `,

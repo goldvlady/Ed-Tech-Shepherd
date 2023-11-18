@@ -29,7 +29,6 @@ function AddSubjectLevel(props) {
     addSubject
   } = props;
   const { courses: courseList, levels } = resourceStore();
-  console.log(subjectLevels, 'null');
 
   const variants = {
     hidden: { opacity: 0, y: -20 },

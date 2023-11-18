@@ -838,13 +838,6 @@ function DocViewer(props) {
     //   props.selectionRegion.top - props.selectionRegion.height
     // }px`;
     const topPosition = `${props.selectionRegion.top - availableSpace - 10}%`;
-    console.log(
-      props.selectionRegion.left,
-      availableSpace,
-      props.selectionRegion.height,
-      viewportHeight,
-      'top'
-    );
 
     // Calculate the maximum height for the modal to fit within the available space
     const maxHeight = Math.min(availableSpace - 20, 400); // Subtracting 20 for padding and margins
@@ -987,7 +980,6 @@ function DocViewer(props) {
     renderHighlightContent,
     renderHighlights
   });
-  console.log(message, notes, 'highlight');
   const { jumpToHighlightArea } = highlightPluginInstance;
 
   const zoomPluginInstance = zoomPlugin();

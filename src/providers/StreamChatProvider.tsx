@@ -66,7 +66,7 @@ export function StreamChatProvider({ children }: { children: ReactNode }) {
       );
       setIsConnected(true);
     } catch (e) {
-      console.log('CLIENT CONNECTED FAILED', e);
+      console.error('CLIENT CONNECTED FAILED', e);
     }
   };
 

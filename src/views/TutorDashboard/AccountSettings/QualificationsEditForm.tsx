@@ -36,8 +36,6 @@ const QualificationsForm = (props) => {
     transcript: ''
   });
   const [dateError, setDateError] = useState('');
-  console.log(formData, ' Form Data');
-  console.log(qualificationsData, ' Qual Data');
 
   const [isLoading, setIsLoading] = useState(false);
   const [addQualificationClicked, setAddQualificationClicked] = useState(false);

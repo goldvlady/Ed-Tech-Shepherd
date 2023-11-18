@@ -208,7 +208,6 @@ function MyProfile(props) {
         });
     }
   }, [tutorData.tutor.intro, introVideo]);
-  console.log(introVideo, 'iiii');
 
   const hasAnyEmptyArray = (obj) => {
     for (const key in obj) {
@@ -283,7 +282,6 @@ function MyProfile(props) {
     const data: any = f(subjectLevel);
     setSubjectLevel(data);
   };
-  console.log(subjectLevel, 's-l');
 
   useEffect(() => {
     if (!subjectLevel.length) {

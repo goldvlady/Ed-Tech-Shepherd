@@ -43,7 +43,6 @@ const CustomMarkdownView = ({
   const keywordPlaceholder = (keyword, index) => `keyword-placeholder-${index}`;
 
   const handleKeywordClick = (event: MouseEvent, keyword) => {
-    console.log('Keyword clicked:', keyword);
     handleSendKeyword(event, keyword);
   };
 

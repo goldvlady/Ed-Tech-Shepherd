@@ -8,6 +8,7 @@ import {
   MinimizedStudy,
   SessionType
 } from '../../types';
+import DailyDeckSelector from './dailyDeckSelector';
 import FlashCard from './deck_two';
 import DeckOverLap from './overlap';
 import ResultDisplay from './resultDisplay';
@@ -24,6 +25,7 @@ import {
   MenuItem,
   MenuList,
   MenuButton,
+  ModalHeader,
   ModalFooter,
   Menu,
   Spinner,
@@ -178,7 +180,7 @@ const StudyFooter = ({
           rounded="100%"
           padding="10px"
           bg="#FEECEC"
-          onClick={() => loadFlashcard(null)}
+          onClick={() => loadFlashcard(null, false)}
           _hover={{ bg: '#FEECEC', transform: 'scale(1.05)' }}
           color="black"
         >
@@ -322,6 +324,8 @@ const CompletedState = ({
   const { passPercentage, failPercentage, notRememberedPercentage } =
     calculatePercentages(score);
 
+  const { dailyFlashcards, setShowStudyList } = flashcardStore();
+
   return (
     <Box
       borderRadius="12px"
@@ -390,31 +394,64 @@ const CompletedState = ({
             badgeColor="#F53535"
           />
         </Box>
-        <Button
-          bg="#fff"
-          width={'80%'}
-          color="#000"
-          mt="50px"
-          onClick={() => onRefresh()}
-          borderRadius="8px"
-          _hover={{ background: 'none' }}
-          border="1px solid #E7E8E9"
-          padding="25px"
-          display="flex"
-          flexDirection="column"
-          justifyContent="center"
+
+        <HStack
+          width="100%"
+          padding="0px 5%"
+          direction="column"
           alignItems="center"
+          mt="50px"
         >
-          <Text
-            fontSize="14px"
-            color="#000"
-            fontWeight="500"
-            lineHeight="22px"
-            textAlign="center"
+          <Button
+            width={dailyFlashcards?.length ? '50%' : '100%'} // Conditionally set width
+            onClick={() => onRefresh()}
+            borderRadius="8px"
+            background={'rgb(32, 125, 247)'}
+            color={'#fff'}
+            _hover={{ background: 'none' }}
+            padding="25px"
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
           >
-            Restart Flashcard
-          </Text>
-        </Button>
+            <Text
+              fontSize="14px"
+              color="#000"
+              fontWeight="500"
+              lineHeight="22px"
+              textAlign="center"
+            >
+              Restart Flashcard
+            </Text>
+          </Button>
+          {dailyFlashcards?.length > 0 && ( // Check if dailyFlashcards has items
+            <Button
+              bg="#fff"
+              width={'50%'}
+              color="#000"
+              onClick={() => setShowStudyList(true)}
+              borderRadius="8px"
+              _hover={{ background: 'none' }}
+              border="1px solid #E7E8E9"
+              padding="25px"
+              display="flex"
+              flexDirection="column"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <Text
+                fontSize="14px"
+                color="#000"
+                fontWeight="500"
+                lineHeight="22px"
+                textAlign="center"
+              >
+                Select Another Card
+              </Text>
+            </Button>
+          )}
+        </HStack>
       </Box>
     </Box>
   );
@@ -433,7 +470,8 @@ const StudyBox = () => {
     minimizedStudy,
     isLoading,
     loadFlashcard,
-    storeCurrentStudy
+    storeCurrentStudy,
+    loadTodaysFlashcards
   } = flashcardStore();
   const [currentStudyIndex, setCurrentStudyIndex] = useState(0);
   const [studyType, setStudyType] = useState<'manual' | 'timed'>('manual');
@@ -497,7 +535,7 @@ const StudyBox = () => {
     };
     if (flashcard) {
       await storeCurrentStudy(flashcard?._id, data);
-      loadFlashcard(null);
+      loadFlashcard(null, false);
     }
   };
 
@@ -630,7 +668,12 @@ const StudyBox = () => {
 
   const acceptAnswer = async () => {
     if (flashcard)
-      await updateQuestionAttempt(flashcard._id, currentStudy.questions, true);
+      await updateQuestionAttempt(
+        flashcard._id,
+        currentStudy.questions,
+        true,
+        'got it right'
+      );
     setStudies((prev) => {
       const curr = prev[currentStudyIndex];
       curr.currentStep = curr.currentStep + 1;
@@ -644,12 +687,20 @@ const StudyBox = () => {
       return [...prev];
     });
     lazyTriggerNextStep();
+    loadTodaysFlashcards();
   };
 
   const rejectAnswer = async (notRemembered?: boolean) => {
     const scoreKey = notRemembered ? 'failed' : 'notRemembered';
-    if (flashcard)
-      await updateQuestionAttempt(flashcard._id, currentStudy.questions, false);
+    if (flashcard) {
+      const grade = notRemembered ? 'did not remember' : 'got it wrong';
+      await updateQuestionAttempt(
+        flashcard._id,
+        currentStudy.questions,
+        false,
+        grade
+      );
+    }
     setStudies((prev) => {
       const curr = prev[currentStudyIndex];
       curr.isFirstAttempt = false;
@@ -663,6 +714,7 @@ const StudyBox = () => {
       return [...prev];
     });
     lazyTriggerNextStep();
+    loadTodaysFlashcards();
   };
 
   const startStudy = () => {
@@ -715,7 +767,7 @@ const StudyBox = () => {
     return isFinished ? (
       <CompletedState
         onRefresh={() => restartStudy()}
-        onDone={() => loadFlashcard(null)}
+        onDone={() => loadFlashcard(null, false)}
         score={savedScore}
       />
     ) : (
@@ -881,13 +933,6 @@ const StudyBox = () => {
                 width={{ base: '100%', md: 'auto' }}
                 onClick={() => {
                   rejectAnswer(true);
-                  // setStudies(prev => {
-                  //     const curr = prev[currentStudyIndex]
-                  //     curr.isFirstAttempt = false
-                  //     prev[currentStudyIndex] = curr
-                  //     return [...prev]
-                  // })
-                  // lazyTriggerNextStep()
                 }}
                 height="54px"
                 transition="transform 0.3s"
@@ -915,13 +960,6 @@ const StudyBox = () => {
                 width={{ base: '100%', md: 'auto' }}
                 onClick={() => {
                   rejectAnswer();
-                  // setStudies(prev => {
-                  //     const curr = prev[currentStudyIndex]
-                  //     curr.isFirstAttempt = false
-                  //     prev[currentStudyIndex] = curr
-                  //     return [...prev]
-                  // })
-                  // lazyTriggerNextStep()
                 }}
                 transition="transform 0.3s"
                 _hover={{
@@ -937,15 +975,7 @@ const StudyBox = () => {
       </Box>
     );
   };
-  // if (!isStarted) {
-  //   return (
-  //     <EmptyState
-  //       onClose={() => loadFlashcard(null)}
-  //       flashcard={flashcard as FlashcardData}
-  //       onStart={() => setActivityState({ isStarted: true, isFinished: false })}
-  //     />
-  //   );
-  // }
+
   return (
     <Box
       padding={0}
@@ -1159,7 +1189,7 @@ const StudyBox = () => {
         {!isStarted && !isFinished ? (
           <EmptyState
             flashcard={flashcard as FlashcardData}
-            onClose={() => loadFlashcard(null)}
+            onClose={() => loadFlashcard(null, false)}
             onStart={() => startStudy()}
           />
         ) : (
@@ -1176,6 +1206,7 @@ const StudyBox = () => {
 
 const FlashCardModal = ({ isOpen }: { isOpen: boolean }) => {
   const modalRef = useRef<HTMLDivElement | null>(null);
+  const { showStudyList, setShowStudyList, loadFlashcard } = flashcardStore();
   const [cancelButtonTop, setCancelButtonTop] = useState(0);
 
   useEffect(() => {
@@ -1191,7 +1222,10 @@ const FlashCardModal = ({ isOpen }: { isOpen: boolean }) => {
   return (
     <Modal
       onClose={() => {
-        return;
+        if (showStudyList) {
+          loadFlashcard(null, false);
+          setShowStudyList(false);
+        }
       }}
       isOpen={isOpen}
       isCentered
@@ -1204,8 +1238,15 @@ const FlashCardModal = ({ isOpen }: { isOpen: boolean }) => {
           w="fit-content"
           position="relative"
         >
+          {showStudyList && (
+            <ModalHeader>
+              <Text fontSize="lg" fontWeight="bold" isTruncated>
+                Select a card deck to study
+              </Text>
+            </ModalHeader>
+          )}
           <div ref={modalRef}>
-            <StudyBox />
+            {showStudyList ? <DailyDeckSelector /> : <StudyBox />}
           </div>
         </ModalContent>
       </ModalOverlay>
