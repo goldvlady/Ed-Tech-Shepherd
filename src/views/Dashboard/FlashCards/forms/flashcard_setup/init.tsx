@@ -10,7 +10,9 @@ import {
   RadioGroup,
   Button,
   Text,
-  HStack
+  HStack,
+  Spacer,
+  Flex
 } from '@chakra-ui/react';
 import React, {
   ChangeEvent,
@@ -239,12 +241,16 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
             } as ChangeEvent<HTMLInputElement>);
           }}
         >
-          <Radio value="longTermRetention">
-            <Text fontSize="14px">Long term retention</Text>
-          </Radio>
-          <Radio ml={'10px'} value="quickPractice">
-            <Text fontSize="14px"> Quick Practice</Text>
-          </Radio>
+          <Flex direction={{ base: 'row', md: 'column', lg: 'row' }}>
+            {' '}
+            <Radio value="longTermRetention">
+              <Text fontSize="14px">Long term retention</Text>
+            </Radio>
+            <Spacer />
+            <Radio value="quickPractice">
+              <Text fontSize="14px"> Quick Practice</Text>
+            </Radio>
+          </Flex>
         </RadioGroup>
       </FormControl>
 

@@ -481,7 +481,7 @@ const SelectedModal = ({
         <div className="p-4" style={{ width: '100%' }}>
           {loadedStudentDocs && (
             <div style={{ width: '-webkit-fill-available' }}>
-              <Label htmlFor="note">Select note</Label>
+              <Label htmlFor="note">Upload or Select a Document</Label>
               <DocumentListWrapper>
                 <AutocompleteDropdown
                   studentDocuments={studentDocuments}
