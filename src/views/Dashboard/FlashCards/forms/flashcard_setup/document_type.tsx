@@ -192,7 +192,7 @@ const FlashcardFromDocumentSetup = ({
           <Radio value="longTermRetention">
             <Text fontSize="14px">Long term retention</Text>
           </Radio>
-          <Radio ml={'10px'} value="quickPractice">
+          <Radio ml={0} value="quickPractice">
             <Text fontSize="14px"> Quick Practice</Text>
           </Radio>
         </RadioGroup>

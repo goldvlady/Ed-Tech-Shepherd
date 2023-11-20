@@ -53,30 +53,32 @@ const SetupFlashcardPage = ({
   }
 
   return (
-    <Box width={'100%'}>
-      <Text fontSize={'24px'} fontWeight="500" marginBottom="5px">
-        Set up flashcard
-      </Text>
-      {!isAutomated && (
-        <Tag my="10px" borderRadius="5" background="#f7f8fa" size="md">
-          <TagLabel>
-            Step {currentStep + 1} of {steps.length}
-          </TagLabel>
-        </Tag>
-      )}
-      <AnimatePresence>
-        <motion.div
-          key={currentStep}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          variants={slideVariants}
-          transition={transition}
-        >
-          <CurrentForm showConfirm={showConfirm} isAutomated={isAutomated} />
-        </motion.div>
-      </AnimatePresence>
-    </Box>
+    <>
+      <Box width={'100%'}>
+        <Text fontSize={'24px'} fontWeight="500" marginBottom="5px">
+          Set up flashcard
+        </Text>
+        {!isAutomated && (
+          <Tag my="10px" borderRadius="5" background="#f7f8fa" size="md">
+            <TagLabel>
+              Step {currentStep + 1} of {steps.length}
+            </TagLabel>
+          </Tag>
+        )}
+        <AnimatePresence>
+          <motion.div
+            key={currentStep}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={slideVariants}
+            transition={transition}
+          >
+            <CurrentForm showConfirm={showConfirm} isAutomated={isAutomated} />
+          </motion.div>
+        </AnimatePresence>
+      </Box>
+    </>
   );
 };
 

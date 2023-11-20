@@ -341,12 +341,13 @@ const CreateFlashPage = () => {
           minH="calc(100vh - 60px)"
         >
           <VStack
-            display={'flex'}
+            // display={'flex'}
             justifyContent={'start'}
             alignItems={'center'}
             height="100%"
-            flex="1"
-            maxWidth={{ md: `${boxWidth / 2}px`, base: '100%' }}
+            // flex="1"
+            // maxWidth={{ md: `${boxWidth / 2}px`, base: '100%' }}
+            minWidth={{ md: '50%', sm: '100%' }}
             position={'relative'}
           >
             {activeBadge !== TypeEnum.MNEOMONIC && (
@@ -404,9 +405,9 @@ const CreateFlashPage = () => {
                         hasSubmitted: false
                       }));
                     }
-                    if (value === SourceEnum.DOCUMENT) {
-                      handleBadgeClick(TypeEnum.FLASHCARD);
-                    }
+                    // if (value === SourceEnum.DOCUMENT) {
+                    //   handleBadgeClick(TypeEnum.FLASHCARD);
+                    // }
                   }}
                   value={settings.source}
                 >

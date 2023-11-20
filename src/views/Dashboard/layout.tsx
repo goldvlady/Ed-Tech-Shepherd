@@ -1,5 +1,7 @@
+import BarnImg from '../../assets/Barn.svg';
 import AskIcon from '../../assets/avatar-male.svg';
 import BellDot from '../../assets/bell-dot.svg';
+import AIChatImg from '../../assets/brain.svg';
 import { HelpModal } from '../../components';
 import { SelectedNoteModal } from '../../components';
 import Logo from '../../components/Logo';
@@ -536,7 +538,7 @@ const SidebarContent = ({
           variant={'unstyled'}
           display="flex"
           gap={'10px'}
-          leftIcon={<LuBot />}
+          leftIcon={<img src={AIChatImg} alt="barn" width={18} />}
           fontSize={14}
           fontWeight={500}
           onClick={() => toggleChatMenu()}
@@ -637,8 +639,20 @@ const SidebarContent = ({
       </NavItem>
 
       <Divider />
-      <NavItem icon={GiBarn} path={undefined}>
-        <Flex gap={2}>
+
+      <Box ml={8} color="text.400">
+        {' '}
+        <Button
+          variant={'unstyled'}
+          display="flex"
+          gap={2}
+          leftIcon={
+            <img src={BarnImg} alt="barn" width={15} color="text.400" />
+          }
+          onClick={() => toggleChatMenu()}
+          fontSize={14}
+          fontWeight={400}
+        >
           <Text>Barn</Text>
           <Text
             fontSize={10}
@@ -650,8 +664,8 @@ const SidebarContent = ({
           >
             Coming Soon
           </Text>
-        </Flex>
-      </NavItem>
+        </Button>
+      </Box>
       <Divider />
       <Box ml={8} color="text.400">
         <Button
