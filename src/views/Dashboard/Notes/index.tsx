@@ -384,18 +384,6 @@ const NotesDirectory: React.FC = () => {
       icon: <YourOpenDocchatIcon />
     },
     {
-      label: 'Edit Tags',
-      onClick: () => setTagEditItem({ note }),
-      icon: <YourEditTagsIcon />
-    },
-    {
-      label: 'Open in DocChat',
-      onClick: () => {
-        ingestNote(note);
-      },
-      icon: <YourOpenDocchatIcon />
-    },
-    {
       label: 'Delete',
       onClick: () => setDeleteItem({ note, currentDeleteType: 'single' }),
       color: '#F53535',

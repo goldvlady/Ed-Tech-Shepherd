@@ -705,7 +705,7 @@ export const TempPDF = styled.div`
 `;
 
 export const Header = styled.section`
-  ${tw`w-full max-w-[100vw] h-[80px] mt-2`}
+  ${tw`w-full mx-auto max-w-[95%] md:max-w-[98%] h-[80px] mt-2`}
   background: #fafafa;
   border: 1px solid #eeeff2;
   display: flex;
