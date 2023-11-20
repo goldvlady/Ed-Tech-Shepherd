@@ -1,48 +1,49 @@
+// import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
 import Editor from '../../../components/Editor';
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Textarea, Text, Button } from '@chakra-ui/react';
 import styled from 'styled-components';
 import tw from 'twin.macro';
 
 export const Form = styled.form<{ isHomeWorkHelp?: boolean }>`
-  grid-column: span 6;
-  flex: auto;
-  height: 100%;
-  position: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? 'fixed' : 'fixed')};
-  width: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? '55%' : '40.7%')};
-  right: 0;
-  border-left: 1px solid #eeeff2;
-  background: white;
+  // grid-column: span 6;
+  // flex: auto;
+  // height: 100%;
+  // position: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? 'fixed' : 'fixed')};
+  // width: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? '55%' : '40.7%')};
+  // right: 0;
+  // border-left: 1px solid #eeeff2;
+  // background: white;
 
-  @media only screen and (max-width: 768px) {
-    width: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? '100%' : '100%')};
-  }
+  // @media only screen and (max-width: 768px) {
+  //   width: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? '100%' : '100%')};
+  // }
+
+  ${tw`flex flex-col h-full w-full border-none border-l border-[#eeeff2] bg-white`}
 `;
 
 export const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: auto;
-  // height: 100%;
+  ${tw`flex flex-col w-full grow`};
 `;
 
 export const ContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: auto;
-  flex-shrink: 0;
-  background-color: white;
+  ${tw`flex flex-col bg-white grow`};
+  // display: flex;
+  // flex-direction: column;
+  // flex: auto;
+  // flex-shrink: 0;
+  // background-color: white;
 `;
 
 export const InnerWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  overflow-y: scroll;
-  position: absolute;
-  width: 100%;
+  ${tw`flex flex-col overflow-y-scroll w-full h-full`}// display: flex;
+  // flex-direction: column;
+  // overflow-y: scroll;
+  // z-index: 0;
+  // position: absolute;
+  // width: 100%;
   // height: 100vh;
-  z-index: 0;
-  bottom: 207px;
-  height: calc(100vh - 207px); /* Adjusts the height dynamically */
+  // bottom: 207px;
+  // height: calc(100vh - 207px); /* Adjusts the height dynamically */
 `;
 
 export const ChatContainer = styled.div`
@@ -63,14 +64,17 @@ export const FlexColumnContainer = styled.div`
   height: 100%;
   overflow-x: auto;
   margin-bottom: 1rem;
+  max-w-[100%]
 `;
 
 export const GridContainer = styled.div<{ isHomeWorkHelp?: boolean }>`
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 0.5rem;
+  ${tw`px-5`}
+  // display: grid;
+  // grid-template-columns: repeat(12, 1fr);
+  // gap: 0.5rem;
   // position: fixed;
-  top: 300px;
+  // top: 300px;
+
   height: 100%;
   width: ${({ isHomeWorkHelp }) => (isHomeWorkHelp ? '100%' : '100%')};
   width: -moz-available;
@@ -140,45 +144,48 @@ export const StyledText = styled(Text)`
 `;
 
 export const OptionsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  grid-column: span 12;
-  padding: 0.875rem 0.375rem;
-  height: 6rem;
-  border-radius: 0.375rem;
-  justify-content: space-between;
-  margin-left: 1.75rem;
-  font-size: 0.875rem;
+  ${tw`flex flex-col flex-wrap py-[0.875rem] px-[0.375rem] min-h-[4rem] w-full max-w-[100%] px-4 min-h-[40px] overflow-auto`};
+  // display: flex;
+  // flex-direction: column;
+  // grid-column: span 12;
+  // padding: 0.875rem 0.375rem;
+  // height: 6rem;
+  // border-radius: 0.375rem;
+  // justify-content: space-between;
+  // margin-left: 1.75rem;
+  // font-size: 0.875rem;
 
-  @media only screen and (max-width: 768px) {
-    margin-left: 0;
-    padding: 10px 10px;
-    gap: 15px;
-  }
+  // @media only screen and (max-width: 768px) {
+  //   margin-left: 0;
+  //   padding: 10px 10px;
+  //   gap: 15px;
+  // }
 `;
 
 export const PillsContainer = styled.div`
+  ${tw`max-h-[90px] overflow-y-auto min-w-[200px] mr-4`}
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 10px;
 
   @media only screen and (max-width: 768px) {
-    display: flex;
-    flex-wrap: wrap;
+    // display: flex;
+    // flex-wrap: wrap;
   }
 `;
 
 export const StyledDiv = styled.div<{
   needIndex?: boolean;
 }>`
+  ${tw`min-w-[132px]`}
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   border: ${({ needIndex }) =>
     !needIndex ? '1px solid #cbd5e0' : '1px solid #FB8441'};
-  border-radius: 9999px;
+  border-radius: 100px;
   padding: 0.5rem 0.75rem;
   cursor: pointer;
   gap: 6px;
@@ -198,34 +205,35 @@ export const StyledDiv = styled.div<{
 export const ChatbotContainer = styled.div<{
   chatbotSpace: number;
 }>`
-  width: 100%;
+  ${tw`w-full min-h-[32px] z-[3]`};
+  // width: 100%;
+  // height:
   // position: fixed;
-  z-index: 50;
+  // z-index: 3;
   // background: #f9f9fb;
-  bottom: 0;
-  right: 0;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  height: auto;
+  // bottom: 0;
+  // right: 0;
+  // display: flex;
+  // flex-direction: row;
+  // align-items: center;
+  // height: auto;
   // padding: 1rem;
-  gap: 10px;
-  border-left: 1px solid #eeeff2;
+  // gap: 10px;
+  // border-left: 1px solid #eeeff2;
+`;
+
+export const InputWrapper = styled.div`
+  // flex-grow: 1;
+  // position: absolute;
+  width: 100%;
+  width: -moz-max-content; /* Firefox/Gecko */
+  width: -moz-available;
+  background: rgb(249, 249, 251);
+  padding: 10px;
 `;
 
 export const InputContainer = styled.div`
-  flex-grow: 1;
-  // position: relative;
-  // width: 100%;
-  position: absolute;
-  bottom: 85px;
-  width: 100%;
-  // width: 100%; /* Safari/WebKit uses a non-standard name */
-  width: -moz-max-content; /* Firefox/Gecko */
-  width: -moz-available;
-  // bottom: 0;
-  background: rgb(249, 249, 251);
-  padding: 10px;
+  ${tw`flex items-end grow min-h-[32px] rounded-full`}
 `;
 
 export const Input = styled.textarea`
@@ -249,49 +257,27 @@ export const Input = styled.textarea`
   }
 `;
 
-export const SendButton = styled.button`
-  position: absolute;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  height: 100%;
-  width: 2.75rem;
-  right: 10px;
-  top: -20px;
-  color: #cbd5e0;
-  &:hover {
-    color: #4a5568;
-  }
-
-  @media only screen and (max-width: 768px) {
-    width: 9.45rem;
-    right: 15px;
-    top: -17px;
+export const Txtarea = styled(Textarea)`
+  && {
+    ${tw`bg-white w-full min-h-[32px] px-3 py-3 shadow-none p-0 !outline-none focus:!outline-none active:!outline-none 
+    px-[14px] grow placeholder:text-sm bg-[transparent] !outline-transparent max-h-[100px] border-gray-300 mr-1`};
+    resize: none;
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+    }
   }
 `;
 
-export const ClockButton = styled.button`
-  // display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #cbd5e0;
-  &:hover {
-    background-color: #a0aec0;
-  }
-  border-radius: 0.375rem;
-  color: #ffffff;
-  padding: 0.5rem 1rem;
-  flex-shrink: 0;
-  position: absolute;
-  bottom: 94px;
-  right: 12px;
-  display:none
-  // bottom: -731px;
-  // right: 6px
+export const SendButton = styled.button`
+  ${tw`mx-auto flex items-end justify-center h-full w-[2.75rem] text-[#cbd5e0] hover:text-[#4a5568] mr-1 mb-[2px]`};
 
-  @media only screen and (max-width: 768px) {
-    display: block;
-  }
+  // @media only screen and (max-width: 768px) {
+  //   // width: 9.45rem;
+  // }
+`;
+
+export const ClockButton = styled.button`
+  ${tw`flex items-center justify-center bg-[#cbd5e0] hover:bg-[#a0aec0] py-2 px-4 rounded-md text-white mx-1`};
 `;
 
 export const SummaryContainer = styled.div`
@@ -617,7 +603,7 @@ export const AskSomethingPill = styled.div`
 export const AskSomethingPillContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  // gap: 10px;
 `;
 
 export const AskSomethingPillHeadingText = styled(Text)`
@@ -676,27 +662,27 @@ export const StudyFirstLayer = styled.div`
 `;
 
 export const DownPillContainer = styled.div`
-  position: fixed;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  grid-column: span 12 / auto;
-  padding: 0.75rem 0.375rem;
-  height: 6rem;
-  border-radius: 0.375rem;
-  -webkit-box-pack: justify;
-  justify-content: space-between;
-  padding-left: 0.825rem;
-  font-size: 0.875rem;
-  bottom: 55px;
-  width: 100%;
-  background: white;
+  ${tw`w-full flex py-[0.75rem] px-[0.375rem]`}// position: fixed;
+  // width: 100%;
+  // display: flex;
+  // flex-direction: column;
+  // grid-column: span 12 / auto;
+  // padding: 0.75rem 0.375rem;
+  // height: 6rem;
+  // border-radius: 0.375rem;
+  // -webkit-box-pack: justify;
+  // justify-content: space-between;
+  // padding-left: 0.825rem;
+  // font-size: 0.875rem;
+  // bottom: 55px;
+  // width: 100%;
+  // background: white;
 
-  @media only screen and (max-width: 768px) {
-    height: auto;
-    padding-left: 0.75rem;
-    bottom: 56px;
-  }
+  // @media only screen and (max-width: 768px) {
+  //   height: auto;
+  //   padding-left: 0.75rem;
+  //   bottom: 56px;
+  // }
 `;
 
 export const HomeWorkHelpChatContainer2 = styled.textarea`
@@ -786,17 +772,18 @@ export const FirstSection = styled.div`
 `;
 
 export const StyledEditorWrapper = styled(Box)`
-  ${tw`w-full h-full lg:max-w-[calc(100vw-55%-240px)] overflow-y-auto relative`}
+  ${tw`w-full h-full relative`};
+  // lg:max-w-[calc(100vw-55%-240px)] overflow-y-auto
 `;
 
 export const StyledEditorContainer = styled(Box)``;
 
 export const StyledEditor = styled(Editor)`
   && {
-    ${tw`mt-2`}
+    ${tw`mt-2 relative`}
 
     .toolbar {
-      ${tw`z-1`}
+      ${tw`z-1 rounded-tl-none rounded-tr-none`}
       &.out-view {
         ${tw`w-full md:max-w-[calc(100vw-240px)] lg:max-w-[calc(100vw-55%)] top-[75px]`}
         div.divider {
@@ -805,6 +792,32 @@ export const StyledEditor = styled(Editor)`
         button {
           ${tw``}
         }
+      }
+    }
+    .editor-container {
+      ${tw`rounded-none h-[100dvh] p-4 md:p-0`}
+      .editor {
+        ${tw`max-h-[68dvh] md:max-h-[80dvh]`}
+      }
+    }
+  }
+`;
+
+export const StyledButton = styled(Button)`
+  && {
+    ${tw`lg:hidden absolute bottom-[5%] right-5 bg-white text-gray-500 
+    -scale-x-100 scale-y-100 rounded-full w-[48px] h-[48px] p-0 z-[3] border-gray-200 border`};
+  }
+`;
+
+export const StyledChatWrapper = styled.section`
+  ${tw`lg:hidden min-[320px]:w-[320px] min-[360px]:w-[360px] min-[392px]:w-[392px]`}
+  .dynamic_custom__scroll__bar {
+    ${tw`max-h-[95dvh]`}
+    .custom-sidebar-content {
+      ${tw`h-full m-0 p-0`}
+      form#chatbot {
+        ${tw`min-[392px]:overflow-hidden`}
       }
     }
   }

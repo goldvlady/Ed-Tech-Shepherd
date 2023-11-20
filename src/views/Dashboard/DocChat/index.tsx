@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import CustomChatLoader from '../../../components/CustomComponents/CustomChatLoader';
+import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast';
 import useIsMobile from '../../../helpers/useIsMobile';
 import useDebounce from '../../../hooks/useDebounce';
@@ -29,7 +30,9 @@ import {
   FirstSection,
   StyledEditorWrapper,
   StyledEditorContainer,
-  StyledEditor
+  StyledEditor,
+  StyledChatWrapper,
+  StyledButton
 } from './styles';
 // import { TempPDF } from './styles';
 // import { BlockNoteEditor } from '@blocknote/core';
@@ -47,6 +50,7 @@ import React, {
   useRef,
   useLayoutEffect
 } from 'react';
+import { IoChatboxEllipsesOutline } from 'react-icons/io5';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Socket } from 'socket.io-client';
 
@@ -103,10 +107,13 @@ export default function DocChat() {
   const content = location.state?.content ?? '';
   const [initialContent, setInitialContent] = useState<any>(content);
   const [editedTitle, setEditedTitle] = useState('');
+  const [toggleMobileChat, setToggleMobileChat] = useState(false);
 
   const [summaryStart, setSummaryStart] = useState(false);
   const [summaryError, setSummaryError] = useState(false);
-  const mobile = useIsMobile();
+  const mobile = useIsMobile({
+    defaultWidth: 1024
+  });
   const [switchDocument, setSwitchDocument] = useState(true);
   const [likesDislikes, setLikesDislikes] = useState(
     new Array(messages.length).fill({
@@ -146,6 +153,8 @@ export default function DocChat() {
       toast.close(toastIdRef.current);
     }
   }
+
+  const handleToggleMobileChat = () => setToggleMobileChat(!toggleMobileChat);
 
   function handleCloseAllToast() {
     // you may optionally pass an object of positions to exclusively close
@@ -1056,16 +1065,211 @@ export default function DocChat() {
   // }, [chatHistoryId, studentId, handlePinPrompt, isPinned]);
 
   return (
-    <section className="max-w-screen-xl">
-      <div
-        className={clsx({
-          'divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x':
-            false,
-          'h-screen bg-white': true,
-          'flex justify-start': true
-        })}
-      >
-        {!mobile && (
+    // <section className="max-w-screen-xl">
+    //   <div
+    //     className={clsx({
+    //       'divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x':
+    //         false,
+    //       'h-screen bg-white': true,
+    //       'flex justify-start': true
+    //     })}
+    //   >
+    //     {!mobile && (
+    //       <>
+    //         {location.state?.documentUrl && (
+    //           <DocViewer
+    //             pdfLink={location.state.documentUrl}
+    //             pdfName={location.state.docTitle}
+    //             documentId={documentId}
+    //             hightlightedText={hightlightedText}
+    //             setHightlightedText={setHightlightedText}
+    //             selectedHighlightArea={selectedHighlightArea}
+    //             setSelectedHighlightArea={setSelectedHighlightArea}
+    //             setLoading={setLoading}
+    //           />
+    //         )}
+    //         {location.state?.noteId && (
+    //           <StyledEditorWrapper
+    //             sx={{
+    //               '&::-webkit-scrollbar': {
+    //                 width: '4px'
+    //               },
+    //               '&::-webkit-scrollbar-track': {
+    //                 width: '6px'
+    //               },
+    //               '&::-webkit-scrollbar-thumb': {
+    //                 borderRadius: '24px'
+    //               }
+    //             }}
+    //             className={clsx('', ``)}
+    //           >
+    //             {isLoadingNote && (
+    //               <div className="w-full pb-5 flex flex-col justify-center items-center h-full">
+    //                 <CustomChatLoader className="items-center mx-auto" />
+    //               </div>
+    //             )}
+    //             {!isLoadingNote && (
+    //               <>
+    //                 <Header>
+    //                   <FirstSection>
+    //                     <div className="doc__name">
+    //                       <>{editedTitle}</>
+    //                     </div>
+    //                     <div className="timestamp">
+    //                       <p>Updated {currentTime}</p>
+    //                     </div>
+    //                   </FirstSection>
+    //                 </Header>
+    //                 <StyledEditorContainer className={clsx(``, 'w-full  pb-5')}>
+    //                   {<StyledEditor />}
+    //                   <div className="p-8" />
+    //                 </StyledEditorContainer>
+    //               </>
+    //             )}
+    //           </StyledEditorWrapper>
+    //         )}
+    //       </>
+    //     )}
+    //     {!mobile && (
+    //       <Chat
+    //         ref={ref}
+    //         isShowPrompt={isShowPrompt}
+    //         isReadyToChat={readyToChat}
+    //         messages={messages}
+    //         llmResponse={llmResponse}
+    //         botStatus={botStatus}
+    //         handleSendMessage={handleSendMessage}
+    //         handleSendKeyword={handleSendKeyword}
+    //         handleInputChange={handleInputChange}
+    //         inputValue={inputValue}
+    //         handleKeyDown={handleKeyDown}
+    //         handleSummary={handleSummary}
+    //         summaryLoading={summaryLoading}
+    //         summaryText={summaryText}
+    //         setSummaryText={setSummaryText}
+    //         documentId={documentId}
+    //         docKeywords={docKeywords}
+    //         title={title}
+    //         handleClickPrompt={handleClickPrompt}
+    //         handleDeleteSummary={handleDeleteSummary}
+    //         handleUpdateSummary={handleUpdateSummary}
+    //         hightlightedText={hightlightedText}
+    //         setSelectedHighlightArea={setSelectedHighlightArea}
+    //         loading={loading}
+    //         isUpdatedSummary={isUpdatedSummary}
+    //         directStudentId={directStudentId}
+    //         onSwitchOnMobileView={onSwitchOnMobileView}
+    //         handleDislike={handleDislike}
+    //         handleLike={handleLike}
+    //         likesDislikes={likesDislikes}
+    //         setChatId={setChatId}
+    //         handlePinPrompt={handlePinPrompt}
+    //         studentId={studentId}
+    //         selectedChatId={selectedChatId}
+    //         setSelectedChatId={setSelectedChatId}
+    //         isChatLoading={isChatLoading}
+    //         setChatHistoryId={setChatHistoryId}
+    //         handlePinned={handlePinned}
+    //         isPinned={isPinned}
+    //       />
+    //     )}
+
+    //     {mobile && switchDocument ? (
+    //       <>
+    //         {location.state?.documentUrl && (
+    //           <DocViewer
+    //             pdfLink={location.state.documentUrl}
+    //             pdfName={location.state.docTitle}
+    //             documentId={documentId}
+    //             hightlightedText={hightlightedText}
+    //             setHightlightedText={setHightlightedText}
+    //             selectedHighlightArea={selectedHighlightArea}
+    //             setSelectedHighlightArea={setSelectedHighlightArea}
+    //             setLoading={setLoading}
+    //           />
+    //         )}
+    //         {location.state?.noteId && (
+    //           <StyledEditorWrapper className="w-screen h-full  pt-4 ">
+    //             {isLoadingNote && (
+    //               <div className="w-full pb-5 flex flex-col justify-center items-center h-full">
+    //                 <CustomChatLoader className="items-center mx-auto" />
+    //               </div>
+    //             )}
+    //             {!isLoadingNote && (
+    //               <StyledEditorContainer className="px-2">
+    //                 <Header>
+    //                   <FirstSection>
+    //                     <div className="doc__name">
+    //                       <>{editedTitle}</>
+    //                     </div>
+    //                     <div className="timestamp">
+    //                       <p>Updated {currentTime}</p>
+    //                     </div>
+    //                   </FirstSection>
+    //                 </Header>
+    //                 <div className={'w-full'}>
+    //                   <StyledEditor />
+    //                 </div>
+    //               </StyledEditorContainer>
+    //             )}
+    //           </StyledEditorWrapper>
+    //         )}
+    //       </>
+    //     ) : (
+    //       <>
+    //         <Chat
+    //           ref={ref}
+    //           isShowPrompt={isShowPrompt}
+    //           isReadyToChat={readyToChat}
+    //           messages={messages}
+    //           llmResponse={llmResponse}
+    //           botStatus={botStatus}
+    //           handleSendMessage={handleSendMessage}
+    //           handleSendKeyword={handleSendKeyword}
+    //           handleInputChange={handleInputChange}
+    //           inputValue={inputValue}
+    //           handleKeyDown={handleKeyDown}
+    //           handleSummary={handleSummary}
+    //           summaryLoading={summaryLoading}
+    //           summaryText={summaryText}
+    //           setSummaryText={setSummaryText}
+    //           documentId={documentId}
+    //           docKeywords={docKeywords}
+    //           title={title}
+    //           handleClickPrompt={handleClickPrompt}
+    //           handleDeleteSummary={handleDeleteSummary}
+    //           handleUpdateSummary={handleUpdateSummary}
+    //           hightlightedText={hightlightedText}
+    //           setSelectedHighlightArea={setSelectedHighlightArea}
+    //           loading={loading}
+    //           isUpdatedSummary={isUpdatedSummary}
+    //           directStudentId={directStudentId}
+    //           onSwitchOnMobileView={onSwitchOnMobileView}
+    //           handleDislike={handleDislike}
+    //           handleLike={handleLike}
+    //           likesDislikes={likesDislikes}
+    //           setChatId={setChatId}
+    //           handlePinPrompt={handlePinPrompt}
+    //           studentId={studentId}
+    //           selectedChatId={selectedChatId}
+    //           setSelectedChatId={setSelectedChatId}
+    //           isChatLoading={isChatLoading}
+    //           setChatHistoryId={setChatHistoryId}
+    //           handlePinned={handlePinned}
+    //           isPinned={isPinned}
+    //         />
+    //       </>
+    //     )}
+    //   </div>
+    // </section>
+    // )
+    <section
+      className={clsx(
+        'h-screen w-screen max-h-[calc(100dvh-80px)] md:max-w-[calc(100dvw-250px)] relative overflow-hidden'
+      )}
+    >
+      <div className={clsx('h-full z-3 w-full flex items-start ', {})}>
+        <div className={clsx('flex flex-col grow w-full md:max-w-1/2')}>
           <>
             {location.state?.documentUrl && (
               <DocViewer
@@ -1111,8 +1315,10 @@ export default function DocChat() {
                         </div>
                       </FirstSection>
                     </Header>
-                    <StyledEditorContainer className={clsx(``, 'w-full  pb-5')}>
-                      {<StyledEditor />}
+                    <StyledEditorContainer
+                      className={clsx('w-full max-h-[100%] pb-5')}
+                    >
+                      <StyledEditor />
                       <div className="p-8" />
                     </StyledEditorContainer>
                   </>
@@ -1120,139 +1326,115 @@ export default function DocChat() {
               </StyledEditorWrapper>
             )}
           </>
-        )}
-        {!mobile && (
-          <Chat
-            ref={ref}
-            isShowPrompt={isShowPrompt}
-            isReadyToChat={readyToChat}
-            messages={messages}
-            llmResponse={llmResponse}
-            botStatus={botStatus}
-            handleSendMessage={handleSendMessage}
-            handleSendKeyword={handleSendKeyword}
-            handleInputChange={handleInputChange}
-            inputValue={inputValue}
-            handleKeyDown={handleKeyDown}
-            handleSummary={handleSummary}
-            summaryLoading={summaryLoading}
-            summaryText={summaryText}
-            setSummaryText={setSummaryText}
-            documentId={documentId}
-            docKeywords={docKeywords}
-            title={title}
-            handleClickPrompt={handleClickPrompt}
-            handleDeleteSummary={handleDeleteSummary}
-            handleUpdateSummary={handleUpdateSummary}
-            hightlightedText={hightlightedText}
-            setSelectedHighlightArea={setSelectedHighlightArea}
-            loading={loading}
-            isUpdatedSummary={isUpdatedSummary}
-            directStudentId={directStudentId}
-            onSwitchOnMobileView={onSwitchOnMobileView}
-            handleDislike={handleDislike}
-            handleLike={handleLike}
-            likesDislikes={likesDislikes}
-            setChatId={setChatId}
-            handlePinPrompt={handlePinPrompt}
-            studentId={studentId}
-            selectedChatId={selectedChatId}
-            setSelectedChatId={setSelectedChatId}
-            handlePinned={handlePinned}
-            isPinned={isPinned}
-            isChatLoading={isChatLoading}
-            setChatHistoryId={setChatHistoryId}
-          />
-        )}
+        </div>
 
-        {mobile && switchDocument ? (
+        {true && (
           <>
-            {location.state?.documentUrl && (
-              <DocViewer
-                pdfLink={location.state.documentUrl}
-                pdfName={location.state.docTitle}
-                documentId={documentId}
-                hightlightedText={hightlightedText}
-                setHightlightedText={setHightlightedText}
-                selectedHighlightArea={selectedHighlightArea}
-                setSelectedHighlightArea={setSelectedHighlightArea}
-                setLoading={setLoading}
-              />
-            )}
-            {location.state?.noteId && (
-              <StyledEditorWrapper className="w-screen h-full  pt-4 ">
-                {isLoadingNote && (
-                  <div className="w-full pb-5 flex flex-col justify-center items-center h-full">
-                    <CustomChatLoader className="items-center mx-auto" />
-                  </div>
+            <StyledButton onClick={handleToggleMobileChat}>
+              <IoChatboxEllipsesOutline className={clsx('h-6 w-6')} />
+            </StyledButton>
+            <StyledChatWrapper
+              as={CustomSideModal}
+              isOpen={toggleMobileChat}
+              onClose={handleToggleMobileChat}
+            >
+              {toggleMobileChat && (
+                <Chat
+                  ref={ref}
+                  isShowPrompt={isShowPrompt}
+                  isReadyToChat={readyToChat}
+                  messages={messages}
+                  llmResponse={llmResponse}
+                  botStatus={botStatus}
+                  handleSendMessage={handleSendMessage}
+                  handleSendKeyword={handleSendKeyword}
+                  handleInputChange={handleInputChange}
+                  inputValue={inputValue}
+                  handleKeyDown={handleKeyDown}
+                  handleSummary={handleSummary}
+                  summaryLoading={summaryLoading}
+                  summaryText={summaryText}
+                  setSummaryText={setSummaryText}
+                  documentId={documentId}
+                  docKeywords={docKeywords}
+                  title={title}
+                  handleClickPrompt={handleClickPrompt}
+                  handleDeleteSummary={handleDeleteSummary}
+                  handleUpdateSummary={handleUpdateSummary}
+                  hightlightedText={hightlightedText}
+                  setSelectedHighlightArea={setSelectedHighlightArea}
+                  loading={loading}
+                  isUpdatedSummary={isUpdatedSummary}
+                  directStudentId={directStudentId}
+                  onSwitchOnMobileView={onSwitchOnMobileView}
+                  handleDislike={handleDislike}
+                  handleLike={handleLike}
+                  likesDislikes={likesDislikes}
+                  setChatId={setChatId}
+                  handlePinPrompt={handlePinPrompt}
+                  studentId={studentId}
+                  selectedChatId={selectedChatId}
+                  setSelectedChatId={setSelectedChatId}
+                  isChatLoading={isChatLoading}
+                  setChatHistoryId={setChatHistoryId}
+                  handlePinned={handlePinned}
+                  isPinned={isPinned}
+                />
+              )}
+            </StyledChatWrapper>
+
+            {!mobile && (
+              <div
+                className={clsx(
+                  'hidden md:flex md:max-w-1/2 grow w-full h-full overflow-y-auto border-l border-gray-200'
                 )}
-                {!isLoadingNote && (
-                  <StyledEditorContainer className="px-2">
-                    <Header>
-                      <FirstSection>
-                        <div className="doc__name">
-                          <>{editedTitle}</>
-                        </div>
-                        <div className="timestamp">
-                          <p>Updated {currentTime}</p>
-                        </div>
-                      </FirstSection>
-                    </Header>
-                    <div className={'w-full'}>
-                      <StyledEditor />
-                    </div>
-                  </StyledEditorContainer>
-                )}
-              </StyledEditorWrapper>
+              >
+                <Chat
+                  ref={ref}
+                  isShowPrompt={isShowPrompt}
+                  isReadyToChat={readyToChat}
+                  messages={messages}
+                  llmResponse={llmResponse}
+                  botStatus={botStatus}
+                  handleSendMessage={handleSendMessage}
+                  handleSendKeyword={handleSendKeyword}
+                  handleInputChange={handleInputChange}
+                  inputValue={inputValue}
+                  handleKeyDown={handleKeyDown}
+                  handleSummary={handleSummary}
+                  summaryLoading={summaryLoading}
+                  summaryText={summaryText}
+                  setSummaryText={setSummaryText}
+                  documentId={documentId}
+                  docKeywords={docKeywords}
+                  title={title}
+                  handleClickPrompt={handleClickPrompt}
+                  handleDeleteSummary={handleDeleteSummary}
+                  handleUpdateSummary={handleUpdateSummary}
+                  hightlightedText={hightlightedText}
+                  setSelectedHighlightArea={setSelectedHighlightArea}
+                  loading={loading}
+                  isUpdatedSummary={isUpdatedSummary}
+                  directStudentId={directStudentId}
+                  onSwitchOnMobileView={onSwitchOnMobileView}
+                  handleDislike={handleDislike}
+                  handleLike={handleLike}
+                  likesDislikes={likesDislikes}
+                  setChatId={setChatId}
+                  handlePinPrompt={handlePinPrompt}
+                  studentId={studentId}
+                  selectedChatId={selectedChatId}
+                  setSelectedChatId={setSelectedChatId}
+                  isChatLoading={isChatLoading}
+                  setChatHistoryId={setChatHistoryId}
+                  handlePinned={handlePinned}
+                  isPinned={isPinned}
+                />
+              </div>
             )}
-          </>
-        ) : (
-          <>
-            <Chat
-              ref={ref}
-              isShowPrompt={isShowPrompt}
-              isReadyToChat={readyToChat}
-              messages={messages}
-              llmResponse={llmResponse}
-              botStatus={botStatus}
-              handleSendMessage={handleSendMessage}
-              handleSendKeyword={handleSendKeyword}
-              handleInputChange={handleInputChange}
-              inputValue={inputValue}
-              handleKeyDown={handleKeyDown}
-              handleSummary={handleSummary}
-              summaryLoading={summaryLoading}
-              summaryText={summaryText}
-              setSummaryText={setSummaryText}
-              documentId={documentId}
-              docKeywords={docKeywords}
-              title={title}
-              handleClickPrompt={handleClickPrompt}
-              handleDeleteSummary={handleDeleteSummary}
-              handleUpdateSummary={handleUpdateSummary}
-              hightlightedText={hightlightedText}
-              setSelectedHighlightArea={setSelectedHighlightArea}
-              loading={loading}
-              isUpdatedSummary={isUpdatedSummary}
-              directStudentId={directStudentId}
-              onSwitchOnMobileView={onSwitchOnMobileView}
-              handleDislike={handleDislike}
-              handleLike={handleLike}
-              likesDislikes={likesDislikes}
-              setChatId={setChatId}
-              handlePinPrompt={handlePinPrompt}
-              studentId={studentId}
-              selectedChatId={selectedChatId}
-              setSelectedChatId={setSelectedChatId}
-              handlePinned={handlePinned}
-              isPinned={isPinned}
-              isChatLoading={isChatLoading}
-              setChatHistoryId={setChatHistoryId}
-            />
           </>
         )}
       </div>
     </section>
-    // )
   );
 }

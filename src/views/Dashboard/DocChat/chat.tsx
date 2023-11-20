@@ -1,4 +1,3 @@
-/* eslint-disable no-loop-func,@typescript-eslint/no-non-null-assertion,no-unsafe-optional-chaining,react-hooks/exhaustive-deps */
 import PultoJPG from '../../../assets/PlutoAi.jpg';
 // import { ThumbsDown } from '../../../assets/SVGComponent/ThumbsDown';
 // import { ThumbsUp } from '../../../assets/SVGComponent/ThumbsUp';
@@ -42,6 +41,8 @@ import {
   GridItem,
   InnerWrapper,
   Input,
+  Txtarea,
+  InputWrapper,
   InputContainer,
   NeedPills,
   OptionsContainer,
@@ -378,21 +379,31 @@ const Chat = forwardRef(
 
     return (
       <>
-        <Form id="chatbot" isHomeWorkHelp={HomeWorkHelp}>
+        <Form
+          id="chatbot"
+          isHomeWorkHelp={HomeWorkHelp}
+          className={clsx('w-full', {
+            // 'md:w-[55%] fixed': HomeWorkHelp,
+            // 'md:w-[40.7%] relative': !HomeWorkHelp
+          })}
+        >
           <Wrapper>
             <ContentWrapper>
               <FlexColumnContainer>
                 <InnerWrapper
+                  className={clsx('inner-wrapper')}
                   ref={(node) => {
                     ref.current = node;
                     scrollRef.current = node;
                   }}
                 >
                   <div
-                    style={{
-                      // position: 'fixed',
-                      width: 'auto'
-                    }}
+                    style={
+                      {
+                        // position: 'fixed',
+                        // width: 'auto'
+                      }
+                    }
                   >
                     <GridItem>
                       <FlexContainer>
@@ -459,7 +470,7 @@ const Chat = forwardRef(
                     ) : null}
                     {isFindTutor && (
                       <OptionsContainer>
-                        <Text className="">What do you need?</Text>
+                        <Text className="mb-2">What do you need?</Text>
 
                         <PillsContainer>
                           {homeHelp.map((need) => (
@@ -474,7 +485,7 @@ const Chat = forwardRef(
                     )}
                     {!messages?.length && !HomeWorkHelp && !isShowPrompt && (
                       <OptionsContainer>
-                        <Text className="">What do you need?</Text>
+                        <Text className="mb-2">What do you need?</Text>
                         <PillsContainer>
                           {yourNeeds.map((need) => (
                             <StyledDiv onClick={need.onClick} key={need.id}>
@@ -709,14 +720,12 @@ const Chat = forwardRef(
             </ContentWrapper>
             {isShowPills && (
               <div
-                style={{
-                  position: 'fixed',
-                  width: '100%',
-                  bottom: isMobile ? '40px' : '40px',
-                  background: 'white'
-                }}
+                className={clsx(
+                  'w-full bg-white options-wrapper mt-auto max-w-[100%] overflow-hidden',
+                  {}
+                )}
               >
-                <OptionsContainer>
+                <OptionsContainer className={clsx('options-container')}>
                   <PillsContainer>
                     {yourNeeds.map((need) => (
                       <StyledDiv onClick={need.onClick} key={need.id}>
@@ -760,7 +769,78 @@ const Chat = forwardRef(
               </PillsContainer>
             </DownPillContainer>
           )}
-          {HomeWorkHelp && !visibleButton ? (
+          {!HomeWorkHelp && (
+            <ChatbotContainer
+              className={clsx('chatbot-container')}
+              chatbotSpace={chatbotSpace}
+            >
+              <InputWrapper
+                className={clsx(isMobile ? 'bottom-[50px]' : 'bottom-[85px]')}
+              >
+                <div className={clsx('flex w-full grow')}>
+                  <InputContainer>
+                    <div className={clsx('flex grow')}>
+                      <Txtarea
+                        ref={textAreaRef2}
+                        placeholder={
+                          HomeWorkHelp
+                            ? homeWorkHelpPlaceholder
+                            : `Ask Shepherd about ${snip(title, 40)}`
+                        }
+                        value={inputValue}
+                        onKeyDown={handleKeyDown}
+                        disabled={!isReadyToChat}
+                        onChange={handleInputChange}
+                        // outline={'none'}
+                        // outlineColor={'transparent'}
+                        style={
+                          {
+                            // maxHeight: HomeWorkHelp ? '70px' : '2rem',
+                            // overflowY: 'scroll'
+                          }
+                        }
+                        sx={{
+                          '&::-webkit-scrollbar': {
+                            width: '4px'
+                          },
+                          '&::-webkit-scrollbar-track': {
+                            width: '6px'
+                          },
+                          '&::-webkit-scrollbar-thumb': {
+                            'border-radius': '24px'
+                          }
+                          // 'outline': 'none !important'
+                        }}
+                      />
+                    </div>
+
+                    <SendButton type="button" onClick={handleSendMessage}>
+                      <img
+                        alt=""
+                        src="/svgs/send.svg"
+                        className="w-full h-full max-h-[40px]"
+                      />
+                    </SendButton>
+                  </InputContainer>
+                  {false && (
+                    <ClockButton type="button" onClick={onChatHistory}>
+                      <img
+                        alt="clock"
+                        src="/svgs/anti-clock.svg"
+                        className="w-5 h-5"
+                      />
+                    </ClockButton>
+                  )}
+                  {isMobile && (
+                    <ClockButton type="button" onClick={onSwitchOnMobileView}>
+                      <img alt="pdf" src={PDFImg} className="w-5 h-5" />
+                    </ClockButton>
+                  )}
+                </div>
+              </InputWrapper>
+            </ChatbotContainer>
+          )}
+          {/* {HomeWorkHelp && !visibleButton ? (
             <ChatbotContainer chatbotSpace={chatbotSpace}>
               <InputContainer>
                 <Input
@@ -801,8 +881,8 @@ const Chat = forwardRef(
                 </>
               )}
             </ChatbotContainer>
-          ) : null}
-          {!HomeWorkHelp && (
+          ) : null} */}
+          {/* {!HomeWorkHelp && (
             <ChatbotContainer chatbotSpace={chatbotSpace}>
               <InputContainer>
                 <Input
@@ -832,7 +912,7 @@ const Chat = forwardRef(
                 </ClockButton>
               )}
             </ChatbotContainer>
-          )}
+          )} */}
         </Form>
 
         <CustomSideModal onClose={onClose} isOpen={isModalOpen}>
