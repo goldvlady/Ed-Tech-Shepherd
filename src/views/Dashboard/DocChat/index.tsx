@@ -1265,11 +1265,15 @@ export default function DocChat() {
     // )
     <section
       className={clsx(
-        'h-screen w-screen max-h-[calc(100dvh-80px)] md:max-w-[calc(100dvw-250px)] relative overflow-hidden'
+        'h-screen w-screen max-h-[calc(100vh-80px)] md:max-w-[calc(100vw-250px)] relative overflow-hidden'
       )}
     >
       <div className={clsx('h-full z-3 w-full flex items-start ', {})}>
-        <div className={clsx('flex flex-col grow w-full md:max-w-1/2')}>
+        <div
+          className={clsx(
+            'flex flex-col grow w-full md:max-w-1/2 max-h-[100%]'
+          )}
+        >
           <>
             {location.state?.documentUrl && (
               <DocViewer
@@ -1316,7 +1320,9 @@ export default function DocChat() {
                       </FirstSection>
                     </Header>
                     <StyledEditorContainer
-                      className={clsx('w-full max-h-[100%] pb-5')}
+                      className={clsx(
+                        'w-full max-h-[70vh] overflew-hidden pb-5'
+                      )}
                     >
                       <StyledEditor />
                       <div className="p-8" />
@@ -1386,7 +1392,7 @@ export default function DocChat() {
             {!mobile && (
               <div
                 className={clsx(
-                  'hidden md:flex md:max-w-1/2 grow w-full h-full overflow-y-auto border-l border-gray-200'
+                  'hidden md:flex md:max-w-1/2 grow w-full h-full  overflow-y-auto border-l border-gray-200'
                 )}
               >
                 <Chat

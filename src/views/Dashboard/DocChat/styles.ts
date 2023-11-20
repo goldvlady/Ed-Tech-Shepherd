@@ -783,9 +783,9 @@ export const StyledEditor = styled(Editor)`
     ${tw`mt-2 relative`}
 
     .toolbar {
-      ${tw`z-1 rounded-tl-none rounded-tr-none`}
+      ${tw`z-1 rounded-tl-none rounded-tr-none static border-b border-gray-200 shadow-xl`}
       &.out-view {
-        ${tw`w-full md:max-w-[calc(100vw-240px)] lg:max-w-[calc(100vw-55%)] top-[75px]`}
+        ${tw`w-full md:max-w-[calc(100vw-240px)] lg:max-w-[calc(100vw-55%)] top-[75px] static`}
         div.divider {
           ${tw``}
         }
@@ -795,9 +795,33 @@ export const StyledEditor = styled(Editor)`
       }
     }
     .editor-container {
-      ${tw`rounded-none h-[100dvh] p-4 md:p-0`}
+      ${tw`rounded-none max-h-[68vh] p-4 md:p-0 overflow-y-auto`}
+      ::-webkit-scrollbar {
+        width: 0px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+      }
       .editor {
-        ${tw`max-h-[68dvh] md:max-h-[80dvh]`}
+        ${tw`max-h-[68vh] md:max-h-[80vh] overflow-auto`}
+        ::-webkit-scrollbar {
+          width: 0px;
+        }
+
+        ::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 3px;
+        }
       }
     }
   }
