@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import CustomChatLoader from '../../../components/CustomComponents/CustomChatLoader';
-import CustomToast from '../../../components/CustomComponents/CustomToast/index';
+import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
+import CustomToast from '../../../components/CustomComponents/CustomToast';
 import useIsMobile from '../../../helpers/useIsMobile';
 import useDebounce from '../../../hooks/useDebounce';
 import {
@@ -22,24 +23,23 @@ import {
   NoteStatus
 } from '../../../types';
 import DocViewer from './DocViewer';
-// import TempPDFViewer from './TempPDFViewer';
 import Chat from './chat';
 import {
   Header,
   FirstSection,
   StyledEditorWrapper,
   StyledEditorContainer,
-  StyledEditor
+  StyledEditor,
+  StyledChatWrapper,
+  StyledButton
 } from './styles';
-// import { TempPDF } from './styles';
-// import { BlockNoteEditor } from '@blocknote/core';
 import { useToast } from '@chakra-ui/react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import clsx from 'clsx';
 import { LexicalEditor as EditorType } from 'lexical';
 import { isEmpty, isNil, isString } from 'lodash';
 import moment from 'moment';
-import {
+import React, {
   useEffect,
   useState,
   useCallback,
@@ -47,9 +47,9 @@ import {
   useRef,
   useLayoutEffect
 } from 'react';
+import { IoChatboxEllipsesOutline } from 'react-icons/io5';
 import { useLocation, useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import tw from 'twin.macro';
+import { Socket } from 'socket.io-client';
 
 export default function DocChat() {
   const toastIdRef = useRef<any>();
@@ -72,7 +72,7 @@ export default function DocChat() {
   const formatDate = (date: Date, format = 'DD ddd, hh:mma'): string => {
     return moment(date).format(format);
   };
-  const [chatWidth, setChatWidth] = useState(0);
+  // const [chatWidth, setChatWidth] = useState(0);
 
   const [messages, setMessages] = useState<
     {
@@ -90,7 +90,7 @@ export default function DocChat() {
   const documentId = location.state.documentId ?? '';
   const noteId = location?.state?.noteId ?? '';
   const docKeywords = location.state.docKeywords ?? [];
-  const [keyword, setKeyword] = useState('');
+  // const [keyword, setKeyword] = useState('');
   const title = location.state.docTitle ?? '';
   const studentId = user?._id ?? '';
   const directStudentId = user?.student?._id;
@@ -104,11 +104,14 @@ export default function DocChat() {
   const content = location.state?.content ?? '';
   const [initialContent, setInitialContent] = useState<any>(content);
   const [editedTitle, setEditedTitle] = useState('');
+  const [toggleMobileChat, setToggleMobileChat] = useState(false);
 
   const [summaryStart, setSummaryStart] = useState(false);
   const [summaryError, setSummaryError] = useState(false);
-  const mobile = useIsMobile();
-  const [switchDocument, setSwitchDocument] = useState(true);
+  const mobile = useIsMobile({
+    defaultWidth: 1024
+  });
+  const [_, setSwitchDocument] = useState(true);
   const [likesDislikes, setLikesDislikes] = useState(
     new Array(messages.length).fill({
       like: false,
@@ -122,10 +125,10 @@ export default function DocChat() {
   );
 
   const [chatId, setChatId] = useState('');
-  const [pinnedResponse, setPinnedResponse] = useState<any>();
   const [selectedChatId, setSelectedChatId] = useState('');
-
   const [chatHistoryId, setChatHistoryId] = useState('');
+  // const [isChatLoading, setChatLoading] = useState({});
+  // const [pinnedResponse, setPinnedResponse] = useState<any>();
 
   const [currentTime, setCurrentTime] = useState<string>(
     formatDate(new Date())
@@ -147,6 +150,8 @@ export default function DocChat() {
       toast.close(toastIdRef.current);
     }
   }
+
+  const handleToggleMobileChat = () => setToggleMobileChat(!toggleMobileChat);
 
   function handleCloseAllToast() {
     // you may optionally pass an object of positions to exclusively close
@@ -196,6 +201,100 @@ export default function DocChat() {
       return respDetails;
     } catch (error: any) {
       return { error: error.message, message: error.message };
+    }
+  };
+
+  const handlePinPrompt = async ({
+    chatHistoryId = '',
+    studentId = '',
+    value = false
+  }) => {
+    setChatLoading((prevChatLoadingState) => ({
+      ...prevChatLoadingState,
+      [chatHistoryId]: true // Set loading state for the specific chat icon
+    }));
+
+    try {
+      const response = await postPinnedPrompt({
+        chatId: chatHistoryId,
+        studentId
+      });
+
+      if (response) {
+        setChatLoading((prevChatLoadingState) => ({
+          ...prevChatLoadingState,
+          [chatHistoryId]: false // Set loading state for the specific chat icon
+        }));
+
+        // setPinnedResponse(response);
+        // You might want to toast a success message or handle the success response
+        handleCloseToast();
+        setTimeout(() => {
+          handleAddToast(
+            toast({
+              render: () => (
+                <CustomToast
+                  title={
+                    value
+                      ? 'Chat prompt pinned successfully!'
+                      : 'Chat prompt unpinned successfully!'
+                  }
+                  status="success"
+                />
+              ),
+              position: 'top-right',
+              isClosable: true
+            })
+          );
+        }, 100);
+        // toast({
+        //   render: () => (
+        //     <CustomToast
+        //       title="Chat prompt pinned successfully!"
+        //       status="success"
+        //     />
+        //   ),
+        //   position: 'top-right',
+        //   isClosable: true
+        // });
+      } else {
+        setChatLoading((prevChatLoadingState) => ({
+          ...prevChatLoadingState,
+          [chatHistoryId]: false // Set loading state for the specific chat icon
+        }));
+
+        handleCloseToast();
+        setTimeout(() => {
+          handleAddToast(
+            toast({
+              title: 'Failed to pin chat prompt',
+              description: 'No response received from the server.',
+              status: 'warning',
+              duration: 5000,
+              isClosable: true
+            })
+          );
+        }, 100);
+      }
+    } catch (error) {
+      setChatLoading((prevChatLoadingState) => ({
+        ...prevChatLoadingState,
+        [chatHistoryId]: false // Set loading state for the specific chat icon
+      }));
+
+      // Handle errors here
+      handleCloseToast();
+      setTimeout(() => {
+        handleAddToast(
+          toast({
+            title: 'An error occurred',
+            description: error.message,
+            status: 'error',
+            duration: 5000,
+            isClosable: true
+          })
+        );
+      }, 100);
     }
   };
 
@@ -267,14 +366,14 @@ export default function DocChat() {
       };
 
       const result = await updateNote(noteId, data as NoteData);
-      setCurrentTime(formatDate(result.data.updatedAt));
-      saveCallback();
+      setCurrentTime(formatDate(result?.data.updatedAt));
+      saveCallback && saveCallback();
     }
   };
 
   useEffect(() => {
     if (!isEmpty(studentId)) {
-      let authSocket = null;
+      let authSocket: Socket<any, any> | null = null;
       if (documentId) {
         authSocket = socketWithAuth({
           studentId,
@@ -478,10 +577,10 @@ export default function DocChat() {
   }, [getToggleReaction, chatId, likesDislikes]);
 
   useEffect(() => {
-    if (isEmpty(documentId) || isNil(documentId)) {
+    if (isEmpty(documentId)) {
       return;
     }
-    if (isEmpty(studentId) || isNil(studentId)) {
+    if (isEmpty(studentId)) {
       return;
     }
     const fetchSummary = async () => {
@@ -525,7 +624,6 @@ export default function DocChat() {
             dislike: message.disliked
           }))
         );
-
         setIsPinned(
           mappedData.map((message) => ({
             isPinned: message.isPinned
@@ -546,13 +644,14 @@ export default function DocChat() {
         });
       }
     };
+
     fetchChatHistory();
-  }, [documentId, studentId, pinnedResponse]);
+  }, [documentId, studentId]);
 
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
 
   useEffect(() => {
-    if (isEmpty(documentId) || isNil(documentId)) {
+    if (isEmpty(documentId)) {
       return;
     }
     const getHighlight = async () => {
@@ -577,6 +676,13 @@ export default function DocChat() {
       setSummaryLoading(false);
     }
   }, [summaryStart]);
+
+  useEffect(() => {
+    // Assuming chatHistoryId and studentId are available in this component's scope
+    if (chatHistoryId && studentId) {
+      handlePinPrompt({ chatHistoryId, studentId });
+    }
+  }, [chatHistoryId, studentId]);
 
   const getNoteById = async (paramsIdForNote = noteId) => {
     if (isEmpty(paramsIdForNote) || isNil(paramsIdForNote)) {
@@ -770,10 +876,10 @@ export default function DocChat() {
 
   const handleDeleteSummary = useCallback(async () => {
     try {
-      if (isEmpty(documentId) || isNil(documentId)) {
+      if (isEmpty(documentId)) {
         return;
       }
-      if (isEmpty(studentId) || isNil(studentId)) {
+      if (isEmpty(studentId)) {
         return;
       }
       const data = await deleteGeneratedSummary({
@@ -805,75 +911,6 @@ export default function DocChat() {
   const onSwitchOnMobileView = useCallback(() => {
     setSwitchDocument((prevState) => !prevState);
   }, [setSwitchDocument]);
-
-  const handlePinPrompt = async ({
-    chatHistoryId = '',
-    studentId = '',
-    value = false
-  }) => {
-    setChatLoading((prevChatLoadingState) => ({
-      ...prevChatLoadingState,
-      [chatHistoryId]: true // Set loading state for the specific chat icon
-    }));
-
-    try {
-      const response = await postPinnedPrompt({
-        chatId: chatHistoryId,
-        studentId
-      });
-
-      if (response) {
-        setChatLoading((prevChatLoadingState) => ({
-          ...prevChatLoadingState,
-          [chatHistoryId]: false // Set loading state for the specific chat icon
-        }));
-
-        // setPinnedResponse(response);
-        // You might want to toast a success message or handle the success response
-        toast({
-          render: () => (
-            <CustomToast
-              title={
-                value
-                  ? 'Chat prompt pinned successfully!'
-                  : 'Chat prompt unpinned successfully!'
-              }
-              status="success"
-            />
-          ),
-          position: 'top-right',
-          isClosable: true
-        });
-      } else {
-        setChatLoading((prevChatLoadingState) => ({
-          ...prevChatLoadingState,
-          [chatHistoryId]: false // Set loading state for the specific chat icon
-        }));
-
-        toast({
-          title: 'Failed to pin chat prompt',
-          description: 'No response received from the server.',
-          status: 'warning',
-          duration: 5000,
-          isClosable: true
-        });
-      }
-    } catch (error) {
-      setChatLoading((prevChatLoadingState) => ({
-        ...prevChatLoadingState,
-        [chatHistoryId]: false // Set loading state for the specific chat icon
-      }));
-
-      // Handle errors here
-      toast({
-        title: 'An error occurred',
-        description: error.message,
-        status: 'error',
-        duration: 5000,
-        isClosable: true
-      });
-    }
-  };
 
   const handleUpdateSummary = useCallback(async () => {
     setLoading(true);
@@ -927,8 +964,7 @@ export default function DocChat() {
   function handleWindowResize() {
     // console.log('chat width ', ref?.current?.offsetWidth);
     // console.log('chat height ', ref?.current?.offsetHeight);
-
-    setChatWidth(ref?.current?.offsetWidth);
+    // setChatWidth(ref?.current?.offsetWidth);
   }
 
   useLayoutEffect(() => {
@@ -946,14 +982,45 @@ export default function DocChat() {
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
 
   useEffect(() => {
-    const getHighlight = async () => {
-      setLoading(true);
-      const response = await getPDFHighlight({ documentId });
-      setHightlightedText(response);
-      setLoading(false);
-    };
-    getHighlight();
-  }, [documentId]);
+    if (!location.state?.documentUrl && !location.state?.docTitle) {
+      // navigate('/dashboard/notes')
+    }
+  }, [navigate, location.state?.documentUrl, location.state?.docTitle]);
+
+  useEffect(() => {
+    if (summaryStart) {
+      setSummaryLoading(true);
+    } else {
+      setSummaryLoading(false);
+    }
+  }, [summaryStart]);
+
+  const handlePinned = async (index: number) => {
+    setIsPinned((prev) => {
+      const newState = [...prev];
+      newState[index] = {
+        isPinned: !prev[index]?.isPinned
+      };
+      return newState;
+    });
+    await handlePinPrompt({
+      chatHistoryId: String(index),
+      studentId,
+      value: !isPinned[index]?.isPinned
+    });
+  };
+
+  useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
+
+  // useEffect(() => {
+  //   const getHighlight = async () => {
+  //     setLoading(true);
+  //     const response = await getPDFHighlight({ documentId });
+  //     setHightlightedText(response);
+  //     setLoading(false);
+  //   };
+  //   getHighlight();
+  // }, [documentId]);
 
   useEffect(() => {
     if (!location.state?.documentUrl && !location.state?.docTitle) {
@@ -969,39 +1036,18 @@ export default function DocChat() {
     }
   }, [summaryStart]);
 
-  const handlePinned = (index: number) => {
-    setIsPinned((prev) => {
-      const newState = [...prev];
-      newState[index] = {
-        isPinned: !prev[index]?.isPinned
-      };
-      return newState;
-    });
-    handlePinPrompt({
-      chatHistoryId: String(index),
-      studentId,
-      value: !isPinned[index]?.isPinned
-    });
-  };
-
-  // useEffect(() => {
-  //   // Assuming chatHistoryId and studentId are available in this component's scope
-  //   if (chatHistoryId && studentId) {
-  //     handlePinPrompt({ chatHistoryId, studentId });
-  //   }
-  // }, [chatHistoryId, studentId, isPinned]);
-
   return (
-    <section className="max-w-screen-xl">
-      <div
-        className={clsx({
-          'divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x':
-            false,
-          'h-screen bg-white': true,
-          'flex justify-start': true
-        })}
-      >
-        {!mobile && (
+    <section
+      className={clsx(
+        'h-screen w-screen max-h-[calc(100vh-80px)] md:max-w-[calc(100vw-250px)] relative overflow-hidden'
+      )}
+    >
+      <div className={clsx('h-full z-3 w-full flex items-start ', {})}>
+        <div
+          className={clsx(
+            'flex flex-col grow w-full md:max-w-1/2 max-h-[100%]'
+          )}
+        >
           <>
             {location.state?.documentUrl && (
               <DocViewer
@@ -1025,7 +1071,6 @@ export default function DocChat() {
                     width: '6px'
                   },
                   '&::-webkit-scrollbar-thumb': {
-                    // background: 'text.400',
                     borderRadius: '24px'
                   }
                 }}
@@ -1033,7 +1078,7 @@ export default function DocChat() {
               >
                 {isLoadingNote && (
                   <div className="w-full pb-5 flex flex-col justify-center items-center h-full">
-                    <CustomChatLoader />
+                    <CustomChatLoader className="items-center mx-auto" />
                   </div>
                 )}
                 {!isLoadingNote && (
@@ -1048,8 +1093,12 @@ export default function DocChat() {
                         </div>
                       </FirstSection>
                     </Header>
-                    <StyledEditorContainer className={clsx(``, 'w-full  pb-5')}>
-                      {<StyledEditor />}
+                    <StyledEditorContainer
+                      className={clsx(
+                        'w-full max-h-[70vh] overflew-hidden pb-5'
+                      )}
+                    >
+                      <StyledEditor />
                       <div className="p-8" />
                     </StyledEditorContainer>
                   </>
@@ -1057,135 +1106,115 @@ export default function DocChat() {
               </StyledEditorWrapper>
             )}
           </>
-        )}
-        {!mobile && (
-          <Chat
-            ref={ref}
-            isShowPrompt={isShowPrompt}
-            isReadyToChat={readyToChat}
-            messages={messages}
-            llmResponse={llmResponse}
-            botStatus={botStatus}
-            handleSendMessage={handleSendMessage}
-            handleSendKeyword={handleSendKeyword}
-            handleInputChange={handleInputChange}
-            inputValue={inputValue}
-            handleKeyDown={handleKeyDown}
-            handleSummary={handleSummary}
-            summaryLoading={summaryLoading}
-            summaryText={summaryText}
-            setSummaryText={setSummaryText}
-            documentId={documentId}
-            docKeywords={docKeywords}
-            title={title}
-            handleClickPrompt={handleClickPrompt}
-            handleDeleteSummary={handleDeleteSummary}
-            handleUpdateSummary={handleUpdateSummary}
-            hightlightedText={hightlightedText}
-            setSelectedHighlightArea={setSelectedHighlightArea}
-            loading={loading}
-            isUpdatedSummary={isUpdatedSummary}
-            directStudentId={directStudentId}
-            onSwitchOnMobileView={onSwitchOnMobileView}
-            handleDislike={handleDislike}
-            handleLike={handleLike}
-            likesDislikes={likesDislikes}
-            setChatId={setChatId}
-            handlePinPrompt={handlePinPrompt}
-            studentId={studentId}
-            selectedChatId={selectedChatId}
-            setSelectedChatId={setSelectedChatId}
-            handlePinned={handlePinned}
-            isPinned={isPinned}
-          />
-        )}
+        </div>
 
-        {mobile && switchDocument ? (
+        {true && (
           <>
-            {location.state?.documentUrl && (
-              <DocViewer
-                pdfLink={location.state.documentUrl}
-                pdfName={location.state.docTitle}
-                documentId={documentId}
-                hightlightedText={hightlightedText}
-                setHightlightedText={setHightlightedText}
-                selectedHighlightArea={selectedHighlightArea}
-                setSelectedHighlightArea={setSelectedHighlightArea}
-                setLoading={setLoading}
-              />
-            )}
-            {location.state?.noteId && (
-              <StyledEditorWrapper className="w-screen h-full  pt-4 ">
-                {isLoadingNote && (
-                  <div className="w-full pb-5 flex flex-col justify-center items-center h-full">
-                    <CustomChatLoader />
-                  </div>
+            <StyledButton onClick={handleToggleMobileChat}>
+              <IoChatboxEllipsesOutline className={clsx('h-6 w-6')} />
+            </StyledButton>
+            <StyledChatWrapper
+              as={CustomSideModal}
+              isOpen={toggleMobileChat}
+              onClose={handleToggleMobileChat}
+            >
+              {toggleMobileChat && (
+                <Chat
+                  ref={ref}
+                  isShowPrompt={isShowPrompt}
+                  isReadyToChat={readyToChat}
+                  messages={messages}
+                  llmResponse={llmResponse}
+                  botStatus={botStatus}
+                  handleSendMessage={handleSendMessage}
+                  handleSendKeyword={handleSendKeyword}
+                  handleInputChange={handleInputChange}
+                  inputValue={inputValue}
+                  handleKeyDown={handleKeyDown}
+                  handleSummary={handleSummary}
+                  summaryLoading={summaryLoading}
+                  summaryText={summaryText}
+                  setSummaryText={setSummaryText}
+                  documentId={documentId}
+                  docKeywords={docKeywords}
+                  title={title}
+                  handleClickPrompt={handleClickPrompt}
+                  handleDeleteSummary={handleDeleteSummary}
+                  handleUpdateSummary={handleUpdateSummary}
+                  hightlightedText={hightlightedText}
+                  setSelectedHighlightArea={setSelectedHighlightArea}
+                  loading={loading}
+                  isUpdatedSummary={isUpdatedSummary}
+                  directStudentId={directStudentId}
+                  onSwitchOnMobileView={onSwitchOnMobileView}
+                  handleDislike={handleDislike}
+                  handleLike={handleLike}
+                  likesDislikes={likesDislikes}
+                  setChatId={setChatId}
+                  handlePinPrompt={handlePinPrompt}
+                  studentId={studentId}
+                  selectedChatId={selectedChatId}
+                  setSelectedChatId={setSelectedChatId}
+                  isChatLoading={isChatLoading}
+                  setChatHistoryId={setChatHistoryId}
+                  handlePinned={handlePinned}
+                  isPinned={isPinned}
+                />
+              )}
+            </StyledChatWrapper>
+
+            {!mobile && (
+              <div
+                className={clsx(
+                  'hidden md:flex md:max-w-1/2 grow w-full h-full  overflow-y-auto border-l border-gray-200'
                 )}
-                {!isLoadingNote && (
-                  <StyledEditorContainer className="px-2">
-                    <Header>
-                      <FirstSection>
-                        <div className="doc__name">
-                          <>{editedTitle}</>
-                        </div>
-                        <div className="timestamp">
-                          <p>Updated {currentTime}</p>
-                        </div>
-                      </FirstSection>
-                    </Header>
-                    <div className={'w-full'}>
-                      <StyledEditor />
-                    </div>
-                  </StyledEditorContainer>
-                )}
-              </StyledEditorWrapper>
+              >
+                <Chat
+                  ref={ref}
+                  isShowPrompt={isShowPrompt}
+                  isReadyToChat={readyToChat}
+                  messages={messages}
+                  llmResponse={llmResponse}
+                  botStatus={botStatus}
+                  handleSendMessage={handleSendMessage}
+                  handleSendKeyword={handleSendKeyword}
+                  handleInputChange={handleInputChange}
+                  inputValue={inputValue}
+                  handleKeyDown={handleKeyDown}
+                  handleSummary={handleSummary}
+                  summaryLoading={summaryLoading}
+                  summaryText={summaryText}
+                  setSummaryText={setSummaryText}
+                  documentId={documentId}
+                  docKeywords={docKeywords}
+                  title={title}
+                  handleClickPrompt={handleClickPrompt}
+                  handleDeleteSummary={handleDeleteSummary}
+                  handleUpdateSummary={handleUpdateSummary}
+                  hightlightedText={hightlightedText}
+                  setSelectedHighlightArea={setSelectedHighlightArea}
+                  loading={loading}
+                  isUpdatedSummary={isUpdatedSummary}
+                  directStudentId={directStudentId}
+                  onSwitchOnMobileView={onSwitchOnMobileView}
+                  handleDislike={handleDislike}
+                  handleLike={handleLike}
+                  likesDislikes={likesDislikes}
+                  setChatId={setChatId}
+                  handlePinPrompt={handlePinPrompt}
+                  studentId={studentId}
+                  selectedChatId={selectedChatId}
+                  setSelectedChatId={setSelectedChatId}
+                  isChatLoading={isChatLoading}
+                  setChatHistoryId={setChatHistoryId}
+                  handlePinned={handlePinned}
+                  isPinned={isPinned}
+                />
+              </div>
             )}
-          </>
-        ) : (
-          <>
-            <Chat
-              ref={ref}
-              isShowPrompt={isShowPrompt}
-              isReadyToChat={readyToChat}
-              messages={messages}
-              llmResponse={llmResponse}
-              botStatus={botStatus}
-              handleSendMessage={handleSendMessage}
-              handleSendKeyword={handleSendKeyword}
-              handleInputChange={handleInputChange}
-              inputValue={inputValue}
-              handleKeyDown={handleKeyDown}
-              handleSummary={handleSummary}
-              summaryLoading={summaryLoading}
-              summaryText={summaryText}
-              setSummaryText={setSummaryText}
-              documentId={documentId}
-              docKeywords={docKeywords}
-              title={title}
-              handleClickPrompt={handleClickPrompt}
-              handleDeleteSummary={handleDeleteSummary}
-              handleUpdateSummary={handleUpdateSummary}
-              hightlightedText={hightlightedText}
-              setSelectedHighlightArea={setSelectedHighlightArea}
-              loading={loading}
-              isUpdatedSummary={isUpdatedSummary}
-              directStudentId={directStudentId}
-              onSwitchOnMobileView={onSwitchOnMobileView}
-              handleDislike={handleDislike}
-              handleLike={handleLike}
-              likesDislikes={likesDislikes}
-              setChatId={setChatId}
-              handlePinPrompt={handlePinPrompt}
-              studentId={studentId}
-              selectedChatId={selectedChatId}
-              setSelectedChatId={setSelectedChatId}
-              handlePinned={handlePinned}
-              isPinned={isPinned}
-            />
           </>
         )}
       </div>
     </section>
-    // )
   );
 }

@@ -29,8 +29,9 @@ const copy = (text: string | null) => {
   try {
     const result = document.execCommand('copy');
     // eslint-disable-next-line no-console
+    console.log(result);
   } catch (error) {
-    // console.error(error);
+    console.error(error);
   }
   document.body?.removeChild(textArea);
 };

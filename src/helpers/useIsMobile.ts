@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 992);
+function useIsMobile({ defaultWidth = 992 }: { defaultWidth?: number } = {}) {
+  const [isMobile, setIsMobile] = useState(
+    () => window.innerWidth <= defaultWidth
+  );
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= 992);
+      setIsMobile(window.innerWidth <= defaultWidth);
     };
 
     window.addEventListener('resize', handleResize);
@@ -13,7 +15,7 @@ function useIsMobile() {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [defaultWidth]);
 
   return isMobile;
 }

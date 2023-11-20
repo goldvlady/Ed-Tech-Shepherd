@@ -1,8 +1,6 @@
-/* eslint-disable no-loop-func,@typescript-eslint/no-non-null-assertion,no-unsafe-optional-chaining,react-hooks/exhaustive-deps */
 import PultoJPG from '../../../assets/PlutoAi.jpg';
-import PinLogo from '../../../assets/SVGComponent/Pin';
-import { ThumbsDown } from '../../../assets/SVGComponent/ThumbsDown';
-import { ThumbsUp } from '../../../assets/SVGComponent/ThumbsUp';
+// import { ThumbsDown } from '../../../assets/SVGComponent/ThumbsDown';
+// import { ThumbsUp } from '../../../assets/SVGComponent/ThumbsUp';
 import { ReactComponent as HightLightIcon } from '../../../assets/highlightIcn.svg';
 import PDFImg from '../../../assets/pdf_img.png';
 // import { ReactComponent as PinLogo } from '../../../assets/pin.svg';
@@ -15,6 +13,8 @@ import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkd
 import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
 import { useChatScroll } from '../../../components/hooks/useChatScroll';
+// import PinLogo from '../../../assets/SVGComponent/Pin';
+import { PinLogo, ThumbsUp, ThumbsDown } from '../../../components/icons';
 import { snip } from '../../../helpers/file.helpers';
 import useIsMobile from '../../../helpers/useIsMobile';
 import FlashcardDataProvider from '../FlashCards/context/flashcard';
@@ -41,6 +41,8 @@ import {
   GridItem,
   InnerWrapper,
   Input,
+  Txtarea,
+  InputWrapper,
   InputContainer,
   NeedPills,
   OptionsContainer,
@@ -55,7 +57,8 @@ import {
 } from './styles';
 import Summary from './summary';
 import { Text, Icon, Box } from '@chakra-ui/react';
-import {
+import clsx from 'clsx';
+import React, {
   useState,
   useEffect,
   useCallback,
@@ -128,7 +131,7 @@ interface IChat {
   isChatLoading?: any;
   setChatHistoryId?: any;
   handlePinned?: any;
-  isPinned?: any;
+  isPinned?: any[];
 }
 const Chat = forwardRef(
   (
@@ -178,7 +181,8 @@ const Chat = forwardRef(
       selectedChatId,
       setSelectedChatId,
       handlePinned,
-      isPinned
+      isPinned,
+      isChatLoading
     }: IChat,
     ref: any
   ) => {
@@ -375,21 +379,31 @@ const Chat = forwardRef(
 
     return (
       <>
-        <Form id="chatbot" isHomeWorkHelp={HomeWorkHelp}>
+        <Form
+          id="chatbot"
+          isHomeWorkHelp={HomeWorkHelp}
+          className={clsx('w-full', {
+            // 'md:w-[55%] fixed': HomeWorkHelp,
+            // 'md:w-[40.7%] relative': !HomeWorkHelp
+          })}
+        >
           <Wrapper>
             <ContentWrapper>
               <FlexColumnContainer>
                 <InnerWrapper
+                  className={clsx('inner-wrapper')}
                   ref={(node) => {
                     ref.current = node;
                     scrollRef.current = node;
                   }}
                 >
                   <div
-                    style={{
-                      // position: 'fixed',
-                      width: 'auto'
-                    }}
+                    style={
+                      {
+                        // position: 'fixed',
+                        // width: 'auto'
+                      }
+                    }
                   >
                     <GridItem>
                       <FlexContainer>
@@ -456,7 +470,7 @@ const Chat = forwardRef(
                     ) : null}
                     {isFindTutor && (
                       <OptionsContainer>
-                        <Text className="">What do you need?</Text>
+                        <Text className="mb-2">What do you need?</Text>
 
                         <PillsContainer>
                           {homeHelp.map((need) => (
@@ -471,7 +485,7 @@ const Chat = forwardRef(
                     )}
                     {!messages?.length && !HomeWorkHelp && !isShowPrompt && (
                       <OptionsContainer>
-                        <Text className="">What do you need?</Text>
+                        <Text className="mb-2">What do you need?</Text>
                         <PillsContainer>
                           {yourNeeds.map((need) => (
                             <StyledDiv onClick={need.onClick} key={need.id}>
@@ -506,16 +520,12 @@ const Chat = forwardRef(
                     >
                       <>
                         {messages?.map((message, index) => {
-                          // const isHovered = index === hoveredIndex;
-                          // const isUserHovered = index === hoveredUserIndex;
                           return message.isUser ? (
                             <>
                               <UserMessage
                                 key={index}
                                 style={{ position: 'relative' }}
                                 data-chatid={message.chatId}
-                                // onMouseEnter={() => setHoveredUserIndex(index)}
-                                // onMouseLeave={() => setHoveredUserIndex(0)}
                                 ref={(el) => (chatList.current[index] = el)}
                               >
                                 {message.text}
@@ -528,6 +538,10 @@ const Chat = forwardRef(
                                     gap: '20px',
                                     marginLeft: 'auto',
                                     marginBottom: '15px'
+                                  }}
+                                  onClick={() => {
+                                    handlePinned(index);
+                                    // setChatHistoryId(String(message.chatId));
                                   }}
                                 >
                                   <div
@@ -544,16 +558,19 @@ const Chat = forwardRef(
                                     }}
                                     onClick={() => {
                                       handlePinned(index);
+                                      // setChatHistoryId(String(message.chatId));
                                     }}
                                   >
                                     <PinLogo
-                                      iconColor={
-                                        isPinned[index]?.isPinned
-                                          ? 'blue'
-                                          : '#6E7682'
-                                      }
+                                      className={clsx(
+                                        'w-[14px] h-[14px] text-[#6E7682]',
+                                        {
+                                          'text-[blue]':
+                                            isPinned &&
+                                            isPinned[index]?.isPinned
+                                        }
+                                      )}
                                     />
-                                    {/* <p>Pin</p> */}
                                   </div>
                                 </div>
                               )}
@@ -572,15 +589,6 @@ const Chat = forwardRef(
                                     style={{ position: 'relative' }}
                                     ref={(el) => (chatList.current[index] = el)}
                                   >
-                                    {/* <PinLogo
-                                    style={{
-                                      display: isHovered ? 'block' : 'none',
-                                      cursor: 'pointer',
-                                      bottom: '-10px',
-                                      left: '15px',
-                                      position: 'relative'
-                                    }}
-                                  /> */}
                                     <CustomMarkdownView
                                       source={message.text}
                                       keywords={docKeywords}
@@ -600,7 +608,7 @@ const Chat = forwardRef(
                                       <div
                                         style={{
                                           width: 'auto',
-                                          // height: '33px',
+
                                           padding: '10px',
                                           borderRadius: '100px',
                                           gap: '10px',
@@ -616,11 +624,14 @@ const Chat = forwardRef(
                                         }}
                                       >
                                         <ThumbsUp
-                                          iconColor={
-                                            likesDislikes[index]?.like
-                                              ? 'green'
-                                              : '#6E7682'
-                                          }
+                                          className={clsx(
+                                            'w-4 h-4 text-[#6E7682]',
+                                            {
+                                              'text-[green]':
+                                                likesDislikes[index] &&
+                                                likesDislikes[index]?.like
+                                            }
+                                          )}
                                         />
                                         {/* <p>Like</p> */}
                                       </div>
@@ -642,11 +653,14 @@ const Chat = forwardRef(
                                         }}
                                       >
                                         <ThumbsDown
-                                          iconColor={
-                                            likesDislikes[index]?.dislike
-                                              ? 'red'
-                                              : '#6E7682'
-                                          }
+                                          className={clsx(
+                                            'text-[#6E7682] w-4 h-4',
+                                            {
+                                              'text-[red]':
+                                                likesDislikes[index] &&
+                                                likesDislikes[index]?.dislike
+                                            }
+                                          )}
                                         />
                                         {/* <p>Dislike</p> */}
                                       </div>
@@ -664,15 +678,25 @@ const Chat = forwardRef(
                                         }}
                                         onClick={() => {
                                           handlePinned(index);
+                                          // setChatHistoryId(
+                                          //   String(message.chatId)
+                                          // );
                                         }}
                                       >
-                                        <PinLogo
-                                          iconColor={
-                                            isPinned[index]?.isPinned
-                                              ? 'blue'
-                                              : '#6E7682'
-                                          }
-                                        />
+                                        {isChatLoading[message?.chatId] ? (
+                                          <p>...</p>
+                                        ) : (
+                                          <PinLogo
+                                            className={clsx(
+                                              'w-[14px] h-[14px] text-[#6E7682]',
+                                              {
+                                                'text-[blue]':
+                                                  isPinned &&
+                                                  isPinned[index]?.isPinned
+                                              }
+                                            )}
+                                          />
+                                        )}
 
                                         {/* <p>Pin</p> */}
                                       </div>
@@ -696,14 +720,12 @@ const Chat = forwardRef(
             </ContentWrapper>
             {isShowPills && (
               <div
-                style={{
-                  position: 'fixed',
-                  width: '100%',
-                  bottom: isMobile ? '40px' : '40px',
-                  background: 'white'
-                }}
+                className={clsx(
+                  'w-full bg-white options-wrapper mt-auto max-w-[100%] overflow-hidden',
+                  {}
+                )}
               >
-                <OptionsContainer>
+                <OptionsContainer className={clsx('options-container')}>
                   <PillsContainer>
                     {yourNeeds.map((need) => (
                       <StyledDiv onClick={need.onClick} key={need.id}>
@@ -747,7 +769,78 @@ const Chat = forwardRef(
               </PillsContainer>
             </DownPillContainer>
           )}
-          {HomeWorkHelp && !visibleButton ? (
+          {!HomeWorkHelp && (
+            <ChatbotContainer
+              className={clsx('chatbot-container')}
+              chatbotSpace={chatbotSpace}
+            >
+              <InputWrapper
+                className={clsx(isMobile ? 'bottom-[50px]' : 'bottom-[85px]')}
+              >
+                <div className={clsx('flex w-full grow')}>
+                  <InputContainer>
+                    <div className={clsx('flex grow')}>
+                      <Txtarea
+                        ref={textAreaRef2}
+                        placeholder={
+                          HomeWorkHelp
+                            ? homeWorkHelpPlaceholder
+                            : `Ask Shepherd about ${snip(title, 40)}`
+                        }
+                        value={inputValue}
+                        onKeyDown={handleKeyDown}
+                        disabled={!isReadyToChat}
+                        onChange={handleInputChange}
+                        // outline={'none'}
+                        // outlineColor={'transparent'}
+                        style={
+                          {
+                            // maxHeight: HomeWorkHelp ? '70px' : '2rem',
+                            // overflowY: 'scroll'
+                          }
+                        }
+                        sx={{
+                          '&::-webkit-scrollbar': {
+                            width: '4px'
+                          },
+                          '&::-webkit-scrollbar-track': {
+                            width: '6px'
+                          },
+                          '&::-webkit-scrollbar-thumb': {
+                            'border-radius': '24px'
+                          }
+                          // 'outline': 'none !important'
+                        }}
+                      />
+                    </div>
+
+                    <SendButton type="button" onClick={handleSendMessage}>
+                      <img
+                        alt=""
+                        src="/svgs/send.svg"
+                        className="w-full h-full max-h-[40px]"
+                      />
+                    </SendButton>
+                  </InputContainer>
+                  {false && (
+                    <ClockButton type="button" onClick={onChatHistory}>
+                      <img
+                        alt="clock"
+                        src="/svgs/anti-clock.svg"
+                        className="w-5 h-5"
+                      />
+                    </ClockButton>
+                  )}
+                  {isMobile && (
+                    <ClockButton type="button" onClick={onSwitchOnMobileView}>
+                      <img alt="pdf" src={PDFImg} className="w-5 h-5" />
+                    </ClockButton>
+                  )}
+                </div>
+              </InputWrapper>
+            </ChatbotContainer>
+          )}
+          {/* {HomeWorkHelp && !visibleButton ? (
             <ChatbotContainer chatbotSpace={chatbotSpace}>
               <InputContainer>
                 <Input
@@ -788,8 +881,8 @@ const Chat = forwardRef(
                 </>
               )}
             </ChatbotContainer>
-          ) : null}
-          {!HomeWorkHelp && (
+          ) : null} */}
+          {/* {!HomeWorkHelp && (
             <ChatbotContainer chatbotSpace={chatbotSpace}>
               <InputContainer>
                 <Input
@@ -819,7 +912,7 @@ const Chat = forwardRef(
                 </ClockButton>
               )}
             </ChatbotContainer>
-          )}
+          )} */}
         </Form>
 
         <CustomSideModal onClose={onClose} isOpen={isModalOpen}>
@@ -840,7 +933,7 @@ const Chat = forwardRef(
 
         <CustomSideModal onClose={onPinnedMessages} isOpen={isPinnedMessages}>
           <PinnedMessages
-            messages={messages}
+            messages={messages as any[]}
             scrollToMessage={scrollToMessage}
             onPinnedMessages={onPinnedMessages}
           />

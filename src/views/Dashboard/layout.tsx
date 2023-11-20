@@ -43,7 +43,7 @@ import {
 } from '@chakra-ui/react';
 import { getAuth, signOut } from 'firebase/auth';
 import { includes, last, split } from 'lodash';
-import { ReactNode, useState, useEffect } from 'react';
+import React, { ReactNode, useState, useEffect } from 'react';
 import { IconType } from 'react-icons';
 import { BsChatLeftDots, BsPin, BsBook } from 'react-icons/bs';
 import { CgNotes } from 'react-icons/cg';
@@ -639,9 +639,7 @@ const SidebarContent = ({
       </NavItem>
 
       <Divider />
-
       <Box ml={8} color="text.400">
-        {' '}
         <Button
           variant={'unstyled'}
           display="flex"
