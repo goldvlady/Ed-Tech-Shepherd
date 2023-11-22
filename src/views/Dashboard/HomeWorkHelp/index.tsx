@@ -113,6 +113,7 @@ const HomeWorkHelp = () => {
   const [freshConversationId, setFreshConversationId] = useState('');
   const [newConversationId, setNewConversationId] = useState('');
   const [isChatHistory, setChatHistory] = useState<boolean>(false);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (certainConversationId) {
@@ -571,6 +572,7 @@ const HomeWorkHelp = () => {
       </HomeWorkHelpHistoryContainer>
       <HomeWorkHelpChatContainer>
         <Chat
+          ref={ref}
           isReadyToChat={true}
           HomeWorkHelp
           isShowPrompt={isShowPrompt}

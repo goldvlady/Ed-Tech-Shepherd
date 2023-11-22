@@ -67,10 +67,6 @@ import React, {
   forwardRef,
   ForwardedRef
 } from 'react';
-import { AiFillLike } from 'react-icons/ai';
-import { AiFillDislike } from 'react-icons/ai';
-import { FiThumbsUp } from 'react-icons/fi';
-import { FiThumbsDown } from 'react-icons/fi';
 import Typewriter from 'typewriter-effect';
 
 interface IChat {
@@ -181,8 +177,7 @@ const Chat = forwardRef(
       selectedChatId,
       setSelectedChatId,
       handlePinned,
-      isPinned,
-      isChatLoading
+      isPinned
     }: IChat,
     ref: any
   ) => {
@@ -450,17 +445,18 @@ const Chat = forwardRef(
                     {HomeWorkHelp && visibleButton ? (
                       <div
                         style={{
-                          position: 'absolute',
-                          top: '25rem',
-                          right: '36%',
-                          zIndex: '111111111'
+                          textAlign: 'center',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          margin: '180px 0px'
                         }}
                       >
                         <StyledDiv
                           onClick={handleAceHomeWorkHelp}
                           style={{
                             color: '#FB8441',
-                            background: 'white'
+                            background: 'white',
+                            width: '25%'
                           }}
                           needIndex
                         >
@@ -539,10 +535,6 @@ const Chat = forwardRef(
                                     marginLeft: 'auto',
                                     marginBottom: '15px'
                                   }}
-                                  onClick={() => {
-                                    handlePinned(index);
-                                    // setChatHistoryId(String(message.chatId));
-                                  }}
                                 >
                                   <div
                                     style={{
@@ -557,16 +549,20 @@ const Chat = forwardRef(
                                       cursor: 'pointer'
                                     }}
                                     onClick={() => {
-                                      handlePinned(index);
-                                      // setChatHistoryId(String(message.chatId));
+                                      handlePinned(index, message.chatId);
                                     }}
                                   >
                                     <PinLogo
+                                      // iconColor={
+                                      //   isPinned[index]?.isPinned
+                                      //     ? 'blue'
+                                      //     : '#6E7682'
+                                      // }
                                       className={clsx(
-                                        'w-[14px] h-[14px] text-[#6E7682]',
+                                        'text-[#6E7682] w-4 h-4',
                                         {
-                                          'text-[blue]':
-                                            isPinned &&
+                                          'text-[#FB8441]':
+                                            isPinned[index] &&
                                             isPinned[index]?.isPinned
                                         }
                                       )}
@@ -677,26 +673,19 @@ const Chat = forwardRef(
                                           cursor: 'pointer'
                                         }}
                                         onClick={() => {
-                                          handlePinned(index);
-                                          // setChatHistoryId(
-                                          //   String(message.chatId)
-                                          // );
+                                          handlePinned(index, message.chatId);
                                         }}
                                       >
-                                        {isChatLoading[message?.chatId] ? (
-                                          <p>...</p>
-                                        ) : (
-                                          <PinLogo
-                                            className={clsx(
-                                              'w-[14px] h-[14px] text-[#6E7682]',
-                                              {
-                                                'text-[blue]':
-                                                  isPinned &&
-                                                  isPinned[index]?.isPinned
-                                              }
-                                            )}
-                                          />
-                                        )}
+                                        <PinLogo
+                                          className={clsx(
+                                            'text-[#6E7682] w-4 h-4',
+                                            {
+                                              'text-[#FB8441]':
+                                                isPinned[index] &&
+                                                isPinned[index]?.isPinned
+                                            }
+                                          )}
+                                        />
 
                                         {/* <p>Pin</p> */}
                                       </div>
@@ -769,77 +758,75 @@ const Chat = forwardRef(
               </PillsContainer>
             </DownPillContainer>
           )}
-          {!HomeWorkHelp && (
-            <ChatbotContainer
-              className={clsx('chatbot-container')}
-              chatbotSpace={chatbotSpace}
+          <ChatbotContainer
+            className={clsx('chatbot-container')}
+            chatbotSpace={chatbotSpace}
+          >
+            <InputWrapper
+              className={clsx(isMobile ? 'bottom-[50px]' : 'bottom-[85px]')}
             >
-              <InputWrapper
-                className={clsx(isMobile ? 'bottom-[50px]' : 'bottom-[85px]')}
-              >
-                <div className={clsx('flex w-full grow')}>
-                  <InputContainer>
-                    <div className={clsx('flex grow')}>
-                      <Txtarea
-                        ref={textAreaRef2}
-                        placeholder={
-                          HomeWorkHelp
-                            ? homeWorkHelpPlaceholder
-                            : `Ask Shepherd about ${snip(title, 40)}`
+              <div className={clsx('flex w-full grow')}>
+                <InputContainer>
+                  <div className={clsx('flex grow')}>
+                    <Txtarea
+                      ref={textAreaRef2}
+                      placeholder={
+                        HomeWorkHelp
+                          ? homeWorkHelpPlaceholder
+                          : `Ask Shepherd about ${snip(title, 40)}`
+                      }
+                      value={inputValue}
+                      onKeyDown={handleKeyDown}
+                      disabled={!isReadyToChat}
+                      onChange={handleInputChange}
+                      // outline={'none'}
+                      // outlineColor={'transparent'}
+                      style={
+                        {
+                          // maxHeight: HomeWorkHelp ? '70px' : '2rem',
+                          // overflowY: 'scroll'
                         }
-                        value={inputValue}
-                        onKeyDown={handleKeyDown}
-                        disabled={!isReadyToChat}
-                        onChange={handleInputChange}
-                        // outline={'none'}
-                        // outlineColor={'transparent'}
-                        style={
-                          {
-                            // maxHeight: HomeWorkHelp ? '70px' : '2rem',
-                            // overflowY: 'scroll'
-                          }
+                      }
+                      sx={{
+                        '&::-webkit-scrollbar': {
+                          width: '4px'
+                        },
+                        '&::-webkit-scrollbar-track': {
+                          width: '6px'
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                          'border-radius': '24px'
                         }
-                        sx={{
-                          '&::-webkit-scrollbar': {
-                            width: '4px'
-                          },
-                          '&::-webkit-scrollbar-track': {
-                            width: '6px'
-                          },
-                          '&::-webkit-scrollbar-thumb': {
-                            'border-radius': '24px'
-                          }
-                          // 'outline': 'none !important'
-                        }}
-                      />
-                    </div>
+                        // 'outline': 'none !important'
+                      }}
+                    />
+                  </div>
 
-                    <SendButton type="button" onClick={handleSendMessage}>
-                      <img
-                        alt=""
-                        src="/svgs/send.svg"
-                        className="w-full h-full max-h-[40px]"
-                      />
-                    </SendButton>
-                  </InputContainer>
-                  {false && (
-                    <ClockButton type="button" onClick={onChatHistory}>
-                      <img
-                        alt="clock"
-                        src="/svgs/anti-clock.svg"
-                        className="w-5 h-5"
-                      />
-                    </ClockButton>
-                  )}
-                  {isMobile && (
-                    <ClockButton type="button" onClick={onSwitchOnMobileView}>
-                      <img alt="pdf" src={PDFImg} className="w-5 h-5" />
-                    </ClockButton>
-                  )}
-                </div>
-              </InputWrapper>
-            </ChatbotContainer>
-          )}
+                  <SendButton type="button" onClick={handleSendMessage}>
+                    <img
+                      alt=""
+                      src="/svgs/send.svg"
+                      className="w-full h-full max-h-[40px]"
+                    />
+                  </SendButton>
+                </InputContainer>
+                {false && (
+                  <ClockButton type="button" onClick={onChatHistory}>
+                    <img
+                      alt="clock"
+                      src="/svgs/anti-clock.svg"
+                      className="w-5 h-5"
+                    />
+                  </ClockButton>
+                )}
+                {isMobile && (
+                  <ClockButton type="button" onClick={onSwitchOnMobileView}>
+                    <img alt="pdf" src={PDFImg} className="w-5 h-5" />
+                  </ClockButton>
+                )}
+              </div>
+            </InputWrapper>
+          </ChatbotContainer>
           {/* {HomeWorkHelp && !visibleButton ? (
             <ChatbotContainer chatbotSpace={chatbotSpace}>
               <InputContainer>

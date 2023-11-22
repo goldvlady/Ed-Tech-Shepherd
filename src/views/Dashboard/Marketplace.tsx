@@ -346,17 +346,28 @@ export default function Marketplace() {
         </Box>
         <Box textAlign="center">
           <Flex
+            // alignItems="center"
+            // gap="2"
+            // mt={2}
+            // textColor="text.400"
+            // display={{ base: 'flex', sm: 'inline-grid', lg: 'flex' }}
+            // justifyItems={{ sm: 'center' }}
+            direction={{ base: 'column', md: 'row' }} // Stack elements vertically on small screens, horizontally on medium and up
             alignItems="center"
             gap="2"
             mt={2}
             textColor="text.400"
-            display={{ base: 'flex', sm: 'inline-grid', lg: 'flex' }}
-            justifyItems={{ sm: 'center' }}
+            justifyContent={{ base: 'center', md: 'space-between' }} // Center on small screens, space-between on medium and up
+            px={{ base: 4, md: 8 }} // Adjust padding for responsiveness
           >
             <HStack
-              direction={{ base: 'row', sm: 'column', lg: 'row' }}
-              spacing={{ base: 1, sm: 3 }}
-              display={{ sm: 'grid', lg: 'flex' }}
+              // direction={{ base: 'row', sm: 'column', lg: 'row' }}
+              // spacing={{ base: 1, sm: 3 }}
+              // display={{ sm: 'grid', lg: 'flex' }}
+              direction={{ base: 'column', md: 'row' }} // Stack elements vertically on small screens, horizontally on medium and up
+              spacing={{ base: 3, md: 4 }} // Adjust spacing for responsiveness
+              alignItems="center"
+              width="100%" // Ensure it takes the full width
             >
               <Flex
                 alignItems={'center'}
@@ -367,17 +378,26 @@ export default function Marketplace() {
                 </Text>
                 <Text>Filter</Text>
               </Flex>
+              <div></div>
               <Menu>
                 <MenuButton
                   as={Button}
+                  // variant="outline"
+                  // rightIcon={<FiChevronDown />}
+                  // fontSize={14}
+                  // borderRadius="40px"
+                  // fontWeight={400}
+                  // width={{ sm: '400px', lg: 'auto' }}
+                  // height="36px"
+                  // color="text.400"
                   variant="outline"
                   rightIcon={<FiChevronDown />}
-                  fontSize={14}
+                  fontSize={{ base: 'sm', md: 'md' }} // Adjust font size for responsiveness
                   borderRadius="40px"
+                  height={{ base: '32px', md: '36px' }} // Adjust height for responsiveness
                   fontWeight={400}
-                  width={{ sm: '400px', lg: 'auto' }}
-                  height="36px"
                   color="text.400"
+                  width={{ base: 'full', sm: '400px', lg: 'auto' }}
                 >
                   {subject !== 'Subject'
                     ? courseList.map((course) => {

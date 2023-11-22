@@ -1,3 +1,4 @@
+import useIsMobile from '../../../../helpers/useIsMobile';
 import OptionBadge from '../components/optionBadge';
 import QuestionReviewCard from '../components/question_preview_card';
 import { useFlashcardWizard, FlashcardQuestion } from '../context/flashcard';
@@ -41,6 +42,7 @@ export default function QuestionsPreview({
   const [isFetchingMore, setIsFetchingMore] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState('');
+  const isMobile = useIsMobile();
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value.toLowerCase());
@@ -146,7 +148,7 @@ export default function QuestionsPreview({
           >
             <HStack spacing="20px">
               <OptionBadge
-                text="Flashcards"
+                text={isMobile ? '' : 'Flashcards'}
                 icon={(isActive) => {
                   return (
                     <svg
@@ -170,7 +172,7 @@ export default function QuestionsPreview({
                 onClick={() => handleBadgeClick(TypeEnum.FLASHCARD)}
               />
               <OptionBadge
-                text="Mnemonics"
+                text={isMobile ? '' : 'Mnemonics'}
                 icon={(isActive) => (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

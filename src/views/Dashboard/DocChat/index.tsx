@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import CustomChatLoader from '../../../components/CustomComponents/CustomChatLoader';
 import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast';
@@ -83,6 +82,7 @@ export default function DocChat() {
       like: boolean;
       chatId?: number;
       isPinned?: boolean;
+      createdAt?: string;
     }[]
   >([]);
   const [inputValue, setInputValue] = useState('');
@@ -613,10 +613,15 @@ export default function DocChat() {
           disliked: item?.disliked,
           liked: item?.liked,
           chatId: item?.id,
-          isPinned: item?.isPinned
+          isPinned: item?.isPinned,
+          createdAt: new Date(item?.createdAt) || new Date(0)
         }));
 
-        setMessages(mappedData);
+        const sortedMessages = mappedData?.sort(
+          (a, b) => a.createdAt - b.createdAt
+        );
+
+        setMessages(sortedMessages);
         // Set likesDislikes based on the fetched chat history
         setLikesDislikes(
           mappedData.map((message) => ({
@@ -676,13 +681,6 @@ export default function DocChat() {
       setSummaryLoading(false);
     }
   }, [summaryStart]);
-
-  useEffect(() => {
-    // Assuming chatHistoryId and studentId are available in this component's scope
-    if (chatHistoryId && studentId) {
-      handlePinPrompt({ chatHistoryId, studentId });
-    }
-  }, [chatHistoryId, studentId]);
 
   const getNoteById = async (paramsIdForNote = noteId) => {
     if (isEmpty(paramsIdForNote) || isNil(paramsIdForNote)) {
@@ -995,7 +993,7 @@ export default function DocChat() {
     }
   }, [summaryStart]);
 
-  const handlePinned = async (index: number) => {
+  const handlePinned = (index: number, chatId: number) => {
     setIsPinned((prev) => {
       const newState = [...prev];
       newState[index] = {
@@ -1003,8 +1001,8 @@ export default function DocChat() {
       };
       return newState;
     });
-    await handlePinPrompt({
-      chatHistoryId: String(index),
+    handlePinPrompt({
+      chatHistoryId: String(chatId),
       studentId,
       value: !isPinned[index]?.isPinned
     });

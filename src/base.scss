@@ -1238,6 +1238,17 @@ input[type='text']:focus {
   position: relative;
 }
 
+@media only screen and (max-width: 992px) {
+  .rmsc .dropdown-heading {
+    width: 250% !important;
+    border: 1px solid #e4e6e7 !important;
+    border-radius: 8px;
+    height: 35px;
+    font-size: 0.875rem;
+    position: relative;
+  }
+}
+
 /* Remove focus border */
 
 .rmsc .dropdown-content {
@@ -1561,4 +1572,64 @@ input.rpv-core__textbox {
 }
 .rmsc .multi-select {
   z-index: 111 !important;
+}
+
+@media only screen and (max-width: 992px) {
+  .css-70qvj9 {
+    width: 100%;
+  }
+
+  .css-dv2ok0 {
+    display: inline !important;
+  }
+
+  .chakra-stack .css-12c49km {
+    display: inline !important;
+  }
+
+  .chakra-stack .css-84zodg {
+    -webkit-margin-start: 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  .chakra-stack .css-1a38sz5 {
+    display: inline;
+  }
+
+  .css-1w1527n {
+    display: inline;
+    padding: 0 !important;
+    -webkit-padding-start: 0;
+    -webkit-padding-end: 0;
+  }
+
+  .css-1xj4y5d {
+    padding: 35px;
+    -webkit-padding-start: 10px;
+    -webkit-padding-end: 10px;
+  }
+
+  .css-1ykcx67 {
+    -webkit-margin-start: 0 !important;
+    margin-inline-start: 0 !important;
+    margin-top: 15px !important;
+  }
+
+  .css-o6vm6s {
+    display: block !important;
+
+    > input {
+      width: 100%;
+      margin-top: 20px;
+    }
+  }
+
+  .css-1fc4gts {
+    width: 100%;
+  }
+
+  .css-3kq2g9 {
+    padding: 10px !important;
+  }
 }

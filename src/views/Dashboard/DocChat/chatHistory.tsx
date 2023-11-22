@@ -375,91 +375,171 @@ const ChatHistory = ({
         <p>Chat history</p>
         <p>Clear history</p>
       </ChatHistoryHeader>
-      <Menu>
-        <p
-          style={{
-            fontSize: '0.875rem',
-            marginBottom: '10px'
-          }}
-        >
-          Filter history by selected subject
-        </p>
-        <MenuButton
-          as={Button}
-          variant="outline"
-          rightIcon={<FiChevronDown />}
-          fontSize={14}
-          borderRadius="40px"
-          fontWeight={400}
-          width={{ sm: '400px', lg: 'auto' }}
-          height="36px"
-          color="text.400"
-        >
-          {selectedTopic || 'Select a topic'}
-        </MenuButton>
-        <MenuList zIndex={3}>
-          {hostoryTopics
-            .filter(
-              (topic) => topic !== null && topic !== undefined && topic !== ''
-            )
-            .map((topic, index) => (
-              <MenuItem
-                key={index}
-                _hover={{ bgColor: '#F2F4F7' }}
-                onClick={() => setSelectedTopic(topic)}
-              >
-                {topic}
-              </MenuItem>
-            ))}
-        </MenuList>
-      </Menu>
-      {loading && (
-        <Box
-          p={5}
-          textAlign="center"
-          margin="0 auto"
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '40vh',
-            width: '24vw'
-          }}
-        >
-          <Spinner />
-        </Box>
-      )}
-      {!loading && !groupChatsByDateArr?.length && (
-        <div
-          style={{
-            fontStyle: 'italic',
-            width: '100%'
-          }}
-        >
+      <div
+        style={{
+          maxHeight: 'calc(100% - 60px)',
+          overflowY: 'scroll'
+        }}
+      >
+        <Menu>
           <p
             style={{
-              margin: '294px 128px'
+              fontSize: '0.875rem',
+              marginBottom: '10px'
             }}
           >
-            No Chat History
+            Filter history by selected subject
           </p>
-        </div>
-      )}
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            fontSize={14}
+            borderRadius="40px"
+            fontWeight={400}
+            width={{ sm: '400px', lg: 'auto' }}
+            height="36px"
+            color="text.400"
+          >
+            {selectedTopic || 'Select a topic'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            {hostoryTopics
+              .filter(
+                (topic) => topic !== null && topic !== undefined && topic !== ''
+              )
+              .map((topic, index) => (
+                <MenuItem
+                  key={index}
+                  _hover={{ bgColor: '#F2F4F7' }}
+                  onClick={() => setSelectedTopic(topic)}
+                >
+                  {topic}
+                </MenuItem>
+              ))}
+          </MenuList>
+        </Menu>
+        {loading && (
+          <Box
+            p={5}
+            textAlign="center"
+            margin="0 auto"
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '40vh',
+              width: '24vw'
+            }}
+          >
+            <Spinner />
+          </Box>
+        )}
+        {!loading && !groupChatsByDateArr?.length && (
+          <div
+            style={{
+              fontStyle: 'italic',
+              width: '100%'
+            }}
+          >
+            <p
+              style={{
+                margin: '294px 128px'
+              }}
+            >
+              No Chat History
+            </p>
+          </div>
+        )}
 
-      {!loading ? (
-        <>
-          {groupChatsByDateArr.length > 0 &&
-            groupChatsByDateArr?.map((history, index) => (
-              <ChatHistoryBlock key={index}>
-                <ChatHistoryDate>{history.date}</ChatHistoryDate>
-                {history.messages.map((message, index) => (
-                  <>
-                    {!toggleHistoryBox[message.id] ? (
-                      <ChatHistoryBody key={message.id}>
-                        <Clock>
-                          <HistoryIcn />
-                        </Clock>
-                        {toggleHistoryBox[message.id] ? (
+        {!loading ? (
+          <>
+            {groupChatsByDateArr.length > 0 &&
+              groupChatsByDateArr?.map((history, index) => (
+                <ChatHistoryBlock key={index}>
+                  <ChatHistoryDate>{history.date}</ChatHistoryDate>
+                  {history.messages.map((message, index) => (
+                    <>
+                      {!toggleHistoryBox[message.id] ? (
+                        <ChatHistoryBody key={message.id}>
+                          <Clock>
+                            <HistoryIcn />
+                          </Clock>
+                          {toggleHistoryBox[message.id] ? (
+                            <HomeWorkHelpChatContainer2
+                              value={updateChatHistory[message.id]}
+                              onChange={(event) => {
+                                setUpdatedChat(event.target.value);
+                                setUpdateChatHistory((prevChatHistory) => ({
+                                  ...prevChatHistory,
+                                  [message.id]: event.target.value
+                                }));
+                              }}
+                            ></HomeWorkHelpChatContainer2>
+                          ) : (
+                            <p
+                              onClick={() => {
+                                setSelectedIndex(index);
+                                setConversationId(message.id);
+                                retrieveChatHistory(studentId, false);
+                                setCountNeedTutor(1);
+                                setLoading(false);
+                                setLocalData({});
+                                isMobile && onChatHistory?.();
+                                setFreshConversationId('');
+                                localStorage.setItem(
+                                  'bountyOpt',
+                                  JSON.stringify({
+                                    subject: message.subject,
+                                    topic: message.topic,
+                                    level: message.level
+                                  })
+                                );
+                                setSomeBountyOpt({
+                                  subject: message.subject,
+                                  topic: message.topic,
+                                  level: message.level
+                                });
+                              }}
+                            >
+                              {message.title}
+                            </p>
+                          )}
+
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'inherit'
+                            }}
+                          >
+                            {toggleHistoryBox[message.id] ? (
+                              // <EditIcn onClick={handleUpdateConversation} />
+                              <p onClick={handleUpdateConversation}>Save</p>
+                            ) : (
+                              <EditIcn
+                                onClick={() => {
+                                  setEditConversationId(message.id);
+                                  toggleMessage(message.id);
+                                }}
+                              />
+                            )}
+                            {/* <EditIcn onClick={handleUpdateConversation} /> */}
+                            <DeleteIcn
+                              onClick={() => {
+                                setDeleteConservationModal(
+                                  (prevState) => !prevState
+                                );
+                                setConversationId(message.id);
+                                setRemoveIndex(index);
+                              }}
+                            />
+                          </div>
+                        </ChatHistoryBody>
+                      ) : (
+                        <ChatHistoryBody key={message.id} ref={showSearchRef}>
+                          <Clock>
+                            <HistoryIcn />
+                          </Clock>
                           <HomeWorkHelpChatContainer2
                             value={updateChatHistory[message.id]}
                             onChange={(event) => {
@@ -470,108 +550,36 @@ const ChatHistory = ({
                               }));
                             }}
                           ></HomeWorkHelpChatContainer2>
-                        ) : (
-                          <p
-                            onClick={() => {
-                              setSelectedIndex(index);
-                              setConversationId(message.id);
-                              retrieveChatHistory(studentId, false);
-                              setCountNeedTutor(1);
-                              setLoading(false);
-                              setLocalData({});
-                              isMobile && onChatHistory?.();
-                              setFreshConversationId('');
-                              localStorage.setItem(
-                                'bountyOpt',
-                                JSON.stringify({
-                                  subject: message.subject,
-                                  topic: message.topic,
-                                  level: message.level
-                                })
-                              );
-                              setSomeBountyOpt({
-                                subject: message.subject,
-                                topic: message.topic,
-                                level: message.level
-                              });
+
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'inherit'
                             }}
                           >
-                            {message.title}
-                          </p>
-                        )}
-
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'inherit'
-                          }}
-                        >
-                          {toggleHistoryBox[message.id] ? (
-                            // <EditIcn onClick={handleUpdateConversation} />
                             <p onClick={handleUpdateConversation}>Save</p>
-                          ) : (
-                            <EditIcn
+
+                            {/* <EditIcn onClick={handleUpdateConversation} /> */}
+                            <DeleteIcn
                               onClick={() => {
-                                setEditConversationId(message.id);
-                                toggleMessage(message.id);
+                                setDeleteConservationModal(
+                                  (prevState) => !prevState
+                                );
+                                setConversationId(message.id);
+                                setRemoveIndex(index);
                               }}
                             />
-                          )}
-                          {/* <EditIcn onClick={handleUpdateConversation} /> */}
-                          <DeleteIcn
-                            onClick={() => {
-                              setDeleteConservationModal(
-                                (prevState) => !prevState
-                              );
-                              setConversationId(message.id);
-                              setRemoveIndex(index);
-                            }}
-                          />
-                        </div>
-                      </ChatHistoryBody>
-                    ) : (
-                      <ChatHistoryBody key={message.id} ref={showSearchRef}>
-                        <Clock>
-                          <HistoryIcn />
-                        </Clock>
-                        <HomeWorkHelpChatContainer2
-                          value={updateChatHistory[message.id]}
-                          onChange={(event) => {
-                            setUpdatedChat(event.target.value);
-                            setUpdateChatHistory((prevChatHistory) => ({
-                              ...prevChatHistory,
-                              [message.id]: event.target.value
-                            }));
-                          }}
-                        ></HomeWorkHelpChatContainer2>
+                          </div>
+                        </ChatHistoryBody>
+                      )}
+                    </>
+                  ))}
+                </ChatHistoryBlock>
+              ))}
+          </>
+        ) : null}
+      </div>
 
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'inherit'
-                          }}
-                        >
-                          <p onClick={handleUpdateConversation}>Save</p>
-
-                          {/* <EditIcn onClick={handleUpdateConversation} /> */}
-                          <DeleteIcn
-                            onClick={() => {
-                              setDeleteConservationModal(
-                                (prevState) => !prevState
-                              );
-                              setConversationId(message.id);
-                              setRemoveIndex(index);
-                            }}
-                          />
-                        </div>
-                      </ChatHistoryBody>
-                    )}
-                  </>
-                ))}
-              </ChatHistoryBlock>
-            ))}
-        </>
-      ) : null}
       <CustomModal
         modalTitle=""
         isModalCloseButton

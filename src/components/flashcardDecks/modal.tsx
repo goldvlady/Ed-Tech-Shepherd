@@ -1232,10 +1232,15 @@ const FlashCardModal = ({ isOpen }: { isOpen: boolean }) => {
     >
       <ModalOverlay>
         <ModalContent
+          // borderRadius="12px"
+          // minWidth={{ base: '80%', md: '700px' }}
+          // mx="auto"
+          // w="fit-content"
+          // position="relative"
           borderRadius="12px"
-          minWidth={{ base: '80%', md: '700px' }}
+          w="full" // Use the full width of the screen
+          maxW={{ base: '95%', sm: '80%', md: '700px' }} // Responsive max width
           mx="auto"
-          w="fit-content"
           position="relative"
         >
           {showStudyList && (

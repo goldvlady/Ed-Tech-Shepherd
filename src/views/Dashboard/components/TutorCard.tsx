@@ -197,9 +197,10 @@ export default function TutorCard(props: any) {
             bg={'white'}
             w={{ sm: '100%', md: '100%', lg: '100%', base: '100%' }}
             height={{
-              sm: '285px',
-              md: '285px',
-              lg: '325px'
+              base: '40vh', // Sets height to 40% of the viewport height on the smallest screens
+              sm: '285px', // Sets a fixed height for sm screens and larger
+              md: '285px', // Continues the fixed height for md screens
+              lg: '325px' // Adjusts the height for lg screens and larger
             }}
             borderRadius="12px"
             border="1px solid #EBEDEF"

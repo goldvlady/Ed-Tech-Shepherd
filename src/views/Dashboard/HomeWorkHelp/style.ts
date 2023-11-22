@@ -4,8 +4,10 @@ import styled from 'styled-components';
 export const HomeWorkHelpContainer = styled.section`
   display: flex;
   height: 100%;
-  position: fixed;
+  // position: fixed;
+  overflow: hidden;
   width: 100%;
+  max-height: calc(100vh - 80px);
 `;
 
 export const HomeWorkHelpHistoryContainer = styled.section`
@@ -14,7 +16,7 @@ export const HomeWorkHelpHistoryContainer = styled.section`
   // padding-right: 10px;
   // background: #fff;
   // overflow-y: scroll;
-  width: 100%;
+  width: 70%;
   height: 100vh;
   background: rgb(255, 255, 255);
   overflow-y: scroll;
@@ -67,8 +69,8 @@ export const MobileHomeWorkHelpHistoryContainer = styled.section`
 `;
 
 export const HomeWorkHelpChatContainer = styled.section`
-  flex-grow: 1;
-  width: 280%;
+  // flex-grow: 1;
+  // width: 100%;
   // position: fixed;
 `;
 

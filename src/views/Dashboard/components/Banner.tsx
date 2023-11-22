@@ -9,7 +9,7 @@ export default function Banner() {
     <Flex
       direction="column"
       bgImage={banner}
-      bgSize={'contain'}
+      bgSize={'cover'} // Changed to 'cover' for better mobile display
       bgPosition={'center'}
       bgRepeat={'no-repeat'}
       height="100%"

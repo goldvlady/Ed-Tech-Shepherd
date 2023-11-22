@@ -532,7 +532,7 @@ export const ChatHistoryBody = styled.div`
 `;
 
 export const ChatHistoryContainer = styled.div`
-  margin: 78px 0;
+  margin: 20px 0;
   width: 100%;
 `;
 
@@ -547,10 +547,8 @@ export const ChatHistoryHeader = styled.div`
   justify-content: space-between;
   border-bottom: 1px solid #eeeff2;
   margin-bottom: 15px;
-  position: fixed;
   height: 7vh;
-  width: 26%;
-  top: 78px;
+  width: auto;
   background: white;
   // z-index: 999;
 
@@ -592,7 +590,7 @@ export const AskSomethingPill = styled.div`
   border: 1px solid #eaebeb;
   border-radius: 9999px;
   padding: 0.5rem 0.75rem;
-  margin-bottom: 0 0.25rem 0.5rem 0.25rem;
+  margin: 0 0.25rem 0.5rem 0.25rem;
 
   :hover {
     background: #eaebeb;
@@ -621,7 +619,7 @@ export const TellMeMorePill = styled.div<{ isHomeWorkHelp?: boolean }>`
   border-radius: 9999px;
   width: 97%;
   padding: 8px;
-  margin: 0 10px;
+  margin: 6px 10px;
 
   :hover {
     background: #eaebeb;
