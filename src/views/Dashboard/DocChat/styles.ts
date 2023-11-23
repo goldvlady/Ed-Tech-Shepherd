@@ -646,6 +646,10 @@ export const EmptyStateContainer = styled.div`
     margin-bottom: 30px;
     color: #585f68;
   }
+
+  > div > svg {
+    margin: 0 auto;
+  }
 `;
 
 export const StudyContainer = styled.section`
