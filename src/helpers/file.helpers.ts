@@ -71,7 +71,13 @@ export const uploadFile = (file: File, body?: any, useS3?: boolean) => {
             emitter.emit('error', Error('Failed to upload to S3'));
           }
           const body = await response.json();
-          emitter.emit('complete', body.data);
+          const metadata = {
+            fileUrl: body.data,
+            contentType: file.type,
+            size: file.size,
+            name: file.name
+          };
+          emitter.emit('complete', metadata);
         } catch (error) {
           emitter.emit('error', error);
         }
