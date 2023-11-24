@@ -63,9 +63,10 @@ const CustomMarkdownView = ({
 
   const renderMarkdown = () => {
     let markdown = source;
+    const keywordsArray = Array.isArray(keywords) ? keywords : [keywords];
 
     // Replace keywords with unique placeholders
-    keywords?.forEach((keyword, index) => {
+    keywordsArray?.forEach((keyword, index) => {
       if (source.includes(keyword)) {
         const placeholder = `<span id="${keywordPlaceholder(
           keyword,

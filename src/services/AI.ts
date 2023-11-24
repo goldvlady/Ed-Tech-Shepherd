@@ -481,3 +481,22 @@ export const postPinnedPrompt = async ({ chatId, studentId }) => {
   });
   return request;
 };
+
+export const getDocchatHistory = async (studentId) => {
+  const response = await fetch(
+    `${AI_API}/notes/chat/document_history?studentId=${studentId}`,
+    {
+      method: 'GET',
+      headers: {
+        'x-shepherd-header': HEADER_KEY
+      }
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  } else {
+    const conversation = await response.json();
+    return conversation;
+  }
+};

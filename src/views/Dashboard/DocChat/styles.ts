@@ -541,7 +541,7 @@ export const ChatHistoryBlock = styled.div`
   padding: 10px;
 `;
 
-export const ChatHistoryHeader = styled.div`
+export const ChatHistoryHeader = styled.div<{ docchat?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -549,6 +549,7 @@ export const ChatHistoryHeader = styled.div`
   margin-bottom: 15px;
   height: 7vh;
   width: auto;
+  margin-top:${({ docchat }) => (docchat ? '2.6rem' : '0')}
   background: white;
   // z-index: 999;
 

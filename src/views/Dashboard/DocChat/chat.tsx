@@ -2,6 +2,7 @@ import PultoJPG from '../../../assets/PlutoAi.jpg';
 // import { ThumbsDown } from '../../../assets/SVGComponent/ThumbsDown';
 // import { ThumbsUp } from '../../../assets/SVGComponent/ThumbsUp';
 import { ReactComponent as HightLightIcon } from '../../../assets/highlightIcn.svg';
+import { ReactComponent as HistoryIcn } from '../../../assets/large-clock-icn.svg';
 import PDFImg from '../../../assets/pdf_img.png';
 // import { ReactComponent as PinLogo } from '../../../assets/pin.svg';
 import SocratesImg from '../../../assets/socrates-image.png';
@@ -21,6 +22,7 @@ import FlashcardDataProvider from '../FlashCards/context/flashcard';
 import SetupFlashcardPage from '../FlashCards/forms/flashcard_setup';
 import PinnedMessages from './PinnedMessages';
 import ChatHistory from './chatHistory';
+import DocchatHistory from './docchatHistory';
 import HighLight from './highlist';
 import {
   AiMessage,
@@ -194,6 +196,7 @@ const Chat = forwardRef(
     const chatList = useRef([]);
     const [isPinnedMessages, setPinnedMessages] = useState(false);
     const [isNumber, setIsNumber] = useState(true);
+    const [chatHisotry, setIsChatHistory] = useState(false);
 
     const prompts = [
       "Explain this document to me like I'm five",
@@ -213,9 +216,9 @@ const Chat = forwardRef(
       setPinnedMessages((prevState) => !prevState);
     }, [setPinnedMessages]);
 
-    const onQuiz = useCallback(() => {
-      setQuiz((prevState) => !prevState);
-    }, []);
+    const onHistory = useCallback(() => {
+      setIsChatHistory((prevState) => !prevState);
+    }, [setIsChatHistory]);
 
     const isShowPills = useMemo(
       () => !!messages?.length && !HomeWorkHelp && !!isShowPrompt,
@@ -810,6 +813,12 @@ const Chat = forwardRef(
                     />
                   </SendButton>
                 </InputContainer>
+                {!HomeWorkHelp && (
+                  <HistoryIcn
+                    onClick={() => setIsChatHistory((prevState) => !prevState)}
+                  />
+                )}
+
                 {false && (
                   <ClockButton type="button" onClick={onChatHistory}>
                     <img
@@ -923,6 +932,13 @@ const Chat = forwardRef(
             messages={messages as any[]}
             scrollToMessage={scrollToMessage}
             onPinnedMessages={onPinnedMessages}
+          />
+        </CustomSideModal>
+
+        <CustomSideModal onClose={onHistory} isOpen={chatHisotry}>
+          <DocchatHistory
+            studentId={studentId}
+            setIsChatHistory={setIsChatHistory}
           />
         </CustomSideModal>
       </>

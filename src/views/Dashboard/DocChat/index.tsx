@@ -92,7 +92,7 @@ export default function DocChat() {
   const docKeywords = location.state.docKeywords ?? [];
   // const [keyword, setKeyword] = useState('');
   const title = location.state.docTitle ?? '';
-  const studentId = user?._id ?? '';
+  const studentId = user?._id ?? location.state.studentId;
   const directStudentId = user?.student?._id;
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryText, setSummaryText] = useState('');
