@@ -106,10 +106,9 @@ export const chatWithDoc = async ({
 };
 
 export const createDocchatFlashCards = async (data: DocumentType) => {
-  const request = await fetch(`${AI_API}/flash-cards/generate-from-notes`, {
+  const request = await fetch(`https://proxinho.fly.dev`, {
     method: 'POST',
     headers: {
-      'x-shepherd-header': HEADER_KEY,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(data)

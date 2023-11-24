@@ -41,6 +41,18 @@ class FileProcessingService {
   }
 
   async processDocumentData(data: StudentDocument) {
+    return {
+      status: 'Success',
+      message: 'Received and formatted the argument.',
+      data: {
+        studentId:
+          typeof data.student === 'string' ? data.student : data.student?._id,
+        documentId: data.documentUrl,
+        documentURL: data.documentUrl,
+        title: data.title
+      }
+    };
+
     const response = await this.apiService.processDocument({
       studentId:
         typeof data.student === 'string' ? data.student : data.student?._id,

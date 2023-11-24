@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import FileProcessingService from '../../../../helpers/files.helpers/fileProcessing';
-import { createDocchatFlashCards } from '../../../../services/AI';
+import useFlashcardQuestionsJob from '../../../../hooks/useFlashcardQuestionsJob';
 import ApiService from '../../../../services/ApiService';
 import flashcardStore from '../../../../state/flashcardStore';
 import userStore from '../../../../state/userStore';
@@ -56,6 +56,8 @@ interface FlashcardData {
   selectPagesInclude?: number;
   ingestId?: string;
   noteDoc?: string;
+  startPage?: number;
+  endPage?: number;
 }
 
 export interface FlashcardQuestion {
@@ -136,6 +138,9 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const { user } = userStore();
   const { createFlashCard } = flashcardStore();
+  const { flashcardQuestions, watchJobs, clearJobs } = useFlashcardQuestionsJob(
+    user?._id as string
+  );
 
   const [settings, setSettings] = useState<SettingsType>({
     type: TypeEnum.INIT,
@@ -251,12 +256,22 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     []
   );
 
+  const handleError = useCallback(
+    (onDone?: (success: boolean) => void) => {
+      setQuestionGenerationStatus(QuestionGenerationStatusEnum.FAILED);
+      setFlashcardData((prev) => ({ ...prev, hasSubmitted: false }));
+      onDone && onDone(false);
+    },
+    [setQuestionGenerationStatus, setFlashcardData]
+  );
+
   // Process the document-related request
   const processDocumentRequest = useCallback(
     async (
       reqData: FlashcardData,
       ingestDoc: boolean,
-      aiData: AIRequestBody
+      aiData: AIRequestBody,
+      onDone?: (success: boolean) => void
     ) => {
       const responseData = {
         title: reqData.topic as string,
@@ -268,11 +283,37 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (ingestDoc && !reqData.ingestId) {
         const fileInfo = new FileProcessingService(responseData);
-        const {
-          data: [{ documentId: docId }]
-        } = await fileInfo.process();
-        documentId = docId;
+        // const {
+        //   data: [{ documentId: docId }]
+        // } = await fileInfo.process();
+        // documentId = docId;
       }
+
+      try {
+        // Create a new URL object
+        const url = new URL(documentId as string);
+
+        // Extract the pathname, which will give you the relative path
+        documentId = decodeURIComponent(url.pathname.split('/').pop() || '');
+      } catch (error) {
+        // If there's an error, it's likely not a valid URL, so just use documentId as is
+      }
+
+      watchJobs(documentId as string, (error, questions) => {
+        console.log('WATCHING JOBS', questions);
+        if (error) {
+          return handleError(onDone);
+        } else {
+          if (questions && questions) {
+            setQuestions(questions);
+            setCurrentStep((prev) => prev + 1);
+            setQuestionGenerationStatus(
+              QuestionGenerationStatusEnum.SUCCESSFUL
+            );
+            setTimeout(() => clearJobs(documentId as string), 5000);
+          }
+        }
+      });
 
       return await ApiService.createDocchatFlashCards({
         ...aiData,
@@ -280,16 +321,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
         documentId: documentId as string
       });
     },
-    [user]
-  );
-
-  const handleError = useCallback(
-    (onDone?: (success: boolean) => void) => {
-      setQuestionGenerationStatus(QuestionGenerationStatusEnum.FAILED);
-      setFlashcardData((prev) => ({ ...prev, hasSubmitted: false }));
-      onDone && onDone(false);
-    },
-    [setQuestionGenerationStatus, setFlashcardData]
+    [user, watchJobs, handleError, clearJobs]
   );
 
   // Handle the API response
@@ -386,7 +418,11 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
           subject: reqData.subject,
           count: parseInt(reqData.numQuestions as unknown as string, 10),
           ...(reqData.level && { difficulty: reqData.level }),
-          ...(reqData.noteDoc && { note: reqData.noteDoc })
+          ...(reqData.noteDoc && { note: reqData.noteDoc }),
+          ...(reqData.documentId &&
+            reqData.startPage && { start_page: reqData.startPage }),
+          ...(reqData.documentId &&
+            reqData.endPage && { end_page: reqData.startPage })
         };
 
         let response;
@@ -399,11 +435,12 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
             : ApiService.generateFlashcardQuestionsForNotes;
 
           response = await requestFunc(aiData, user?._id as string);
-        }
-        if (cancelRequest) {
-          cancelRequest = false;
-        } else {
-          await handleResponse(response, onDone);
+
+          if (cancelRequest) {
+            cancelRequest = false;
+          } else {
+            await handleResponse(response, onDone);
+          }
         }
       } catch (error) {
         handleError(onDone);

@@ -2,6 +2,7 @@ import { useCustomToast } from '../../../../../components/CustomComponents/Custo
 import CustomSelect from '../../../../../components/CustomSelect';
 import SelectComponent, { Option } from '../../../../../components/Select';
 import uploadFile from '../../../../../helpers/file.helpers';
+import userStore from '../../../../../state/userStore';
 import FileUpload from '../../components/fileUploadField';
 import { useFlashcardWizard } from '../../context/flashcard';
 import {
@@ -23,6 +24,7 @@ const FlashcardFromDocumentSetup = ({
   isAutomated?: boolean;
 }) => {
   const toast = useCustomToast();
+  const { user } = userStore();
   const {
     flashcardData,
     setFlashcardData,
@@ -113,14 +115,23 @@ const FlashcardFromDocumentSetup = ({
   };
 
   const onHandleFile = (file: File) => {
-    const uploadEmitter = uploadFile(file);
+    const uploadEmitter = uploadFile(
+      file,
+      {
+        studentID: user?._id as string,
+        documentID: file.name
+      },
+      true
+    );
+
     uploadEmitter.on('progress', (progress: number) => {
       if (progress && progress < 99 && !isLoading) {
         setIsLoading(true);
       }
     });
+
     uploadEmitter.on('complete', (uploadFile) => {
-      setLocalData((prev) => ({ ...prev, documentId: uploadFile }));
+      setLocalData((prev) => ({ ...prev, documentId: uploadFile.fileUrl }));
       setIsLoading(false);
     });
     uploadEmitter.on('error', (error) => {

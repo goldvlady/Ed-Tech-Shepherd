@@ -164,6 +164,13 @@ class ApiService {
     });
   };
 
+  static uploadFileToS3 = async (fileUrl: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/uploadFileToS3`, {
+      method: 'POST',
+      body: JSON.stringify({ fileUrl })
+    });
+  };
+
   static createFlashcard = async (data: any, generatorType = 'manual') => {
     return doFetch(
       `${ApiService.baseEndpoint}/createFlashcard?generatorType=${generatorType}`,

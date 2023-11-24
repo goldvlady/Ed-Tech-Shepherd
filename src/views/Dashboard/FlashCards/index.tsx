@@ -988,16 +988,6 @@ const CustomTable: React.FC = () => {
                   width={{ base: '100%', md: 'auto' }}
                   onClick={() => {
                     setShowStudyList(true);
-                    // if (!flashcards) return;
-                    // const nextFlashCard = findNextFlashcard(flashcards);
-                    // if (!nextFlashCard) {
-                    //   toast({
-                    //     title: 'You have attempted all flashcards for this week',
-                    //     status: 'info'
-                    //   });
-                    // } else {
-                    //   loadFlashcard(nextFlashCard?._id, false);
-                    // }
                   }}
                 >
                   <svg

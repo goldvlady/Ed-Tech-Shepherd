@@ -55,6 +55,17 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
   }, [isResetted]);
 
   useEffect(() => {
+    if (flashcardData.documentId) {
+      setLocalData((prevState) => ({
+        ...prevState,
+        startPage: null,
+        endPage: null
+      }));
+    }
+    // eslint-disable-next-line
+  }, [flashcardData.documentId]);
+
+  useEffect(() => {
     if (flashcardData.deckname) {
       setLocalData(flashcardData);
     }
@@ -202,6 +213,40 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     );
   }, [localData]);
 
+  const renderPagesFields = useCallback(() => {
+    return (
+      <>
+        {' '}
+        <FormControl mb={8}>
+          <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+            Start Page (Optional)
+          </FormLabel>
+          <Input
+            type="number"
+            name="startPage"
+            placeholder="Start Page Number"
+            value={localData.startPage}
+            onChange={handleChange}
+            _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+          />
+        </FormControl>
+        <FormControl mb={8}>
+          <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+            End Page
+          </FormLabel>
+          <Input
+            type="number"
+            name="endPage"
+            placeholder="End Page Number"
+            value={localData.endPage}
+            onChange={handleChange}
+            _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+          />
+        </FormControl>
+      </>
+    );
+  }, [localData]);
+
   return (
     <Box bg="white" width="100%" mt="30px">
       {isAutomated && !flashcardData?.noteDoc && renderOptional()}
@@ -294,6 +339,8 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
           _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />
       </FormControl>
+
+      {isAutomated && flashcardData?.documentId && renderPagesFields()}
 
       <HStack w="full" align={'flex-end'}>
         <Button

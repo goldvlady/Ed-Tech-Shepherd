@@ -10,6 +10,7 @@ import LoaderOverlay from '../../../components/loaderOverlay';
 import CustomTabPanel from '../../../components/tabPanel';
 import uploadFile from '../../../helpers/file.helpers';
 import FileProcessingService from '../../../helpers/files.helpers/fileProcessing';
+import { UploadMetadata } from '../../../helpers/files.helpers/uploadFile';
 import { useSearch } from '../../../hooks';
 import documentStore from '../../../state/documentStore';
 import flashcardStore from '../../../state/flashcardStore';
@@ -404,7 +405,7 @@ const NotesDirectory: React.FC = () => {
           numQuestions: 0,
           timerDuration: '',
           hasSubmitted: false,
-          ingestId: studentDocument.ingestId,
+          ingestId: studentDocument.documentUrl,
           documentId: studentDocument.documentUrl
         }));
         setOpenSideModal(true);
@@ -601,17 +602,28 @@ const NotesDirectory: React.FC = () => {
         accept="application/pdf"
         isLoading={isUploadingFile}
         onUpload={(file) => {
-          const uploadEmitter = uploadFile(file);
+          const uploadEmitter = uploadFile(
+            file,
+            {
+              studentID: user?._id as string,
+              documentID: file.name
+            },
+            true
+          );
           uploadEmitter.on('progress', (progress: number) => {
             if (!isUploadingFile) {
               setIsUploadingFile(true);
             }
           });
-          uploadEmitter.on('complete', async (documentUrl: string) => {
+          uploadEmitter.on('complete', async (responseData: UploadMetadata) => {
+            const { fileUrl: documentUrl, documentID, name } = responseData;
             try {
-              const title = decodeURIComponent(
-                (documentUrl.match(/\/([^/]+)(?=\.\w+\?)/) || [])[1] || ''
-              ).replace('uploads/', '');
+              const title =
+                documentID ||
+                name ||
+                decodeURIComponent(
+                  (documentUrl.match(/\/([^/]+)(?=\.\w+\?)/) || [])[1] || ''
+                ).replace('uploads/', '');
 
               const response = await saveDocument({ title, documentUrl });
               if (response) {
