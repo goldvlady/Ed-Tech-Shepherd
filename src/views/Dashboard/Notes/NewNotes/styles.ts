@@ -55,7 +55,7 @@ export const Header = styled.section`
   border: 1px solid #eeeff2;
   display: flex;
   justify-content: space-between;
-  width: 100%;
+  width: 80%;
   padding: 8px;
 `;
 
@@ -141,7 +141,7 @@ export const SecondSection = styled.div`
 `;
 
 export const NoteBody = styled.section`
-  padding: 10px 0;
+  padding: 0px 0;
   height: 100vh;
   background: '#ffffff';
 `;
@@ -198,7 +198,7 @@ export const HeaderWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  column-gap: 2em;
+  column-gap: 1em;
   padding: ${(props) => theme.layout.padding.paddingMedium + 'px'};
 `;
 

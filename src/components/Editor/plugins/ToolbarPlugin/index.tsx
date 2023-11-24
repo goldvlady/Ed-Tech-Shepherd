@@ -838,7 +838,14 @@ export default forwardRef<any, any>(function ToolbarPlugin(
   }, [inView, parentInView]);
 
   return (
-    <div ref={ref} className={clsx('toolbar', positonToolbar && 'out-view')}>
+    <div
+      ref={ref}
+      className={clsx(
+        'toolbar',
+        //  positonToolbar && 'out-view',
+        positonToolbar && 'out-view-bottom'
+      )}
+    >
       <button
         disabled={!canUndo || !isEditable}
         onClick={() => {

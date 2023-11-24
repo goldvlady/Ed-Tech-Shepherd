@@ -1,7 +1,7 @@
 import BarnImg from '../../assets/Barn.svg';
 import AskIcon from '../../assets/avatar-male.svg';
 import BellDot from '../../assets/bell-dot.svg';
-import AIChatImg from '../../assets/brain.svg';
+import AIChatImg from '../../assets/brain.png';
 import { HelpModal } from '../../components';
 import { SelectedNoteModal } from '../../components';
 import Logo from '../../components/Logo';
@@ -62,6 +62,7 @@ import {
   MdOutlineKeyboardArrowDown,
   MdOutlineKeyboardArrowUp
 } from 'react-icons/md';
+import { RiChat3Line } from 'react-icons/ri';
 import { TbCards } from 'react-icons/tb';
 import {
   Navigate,
@@ -538,7 +539,7 @@ const SidebarContent = ({
           variant={'unstyled'}
           display="flex"
           gap={'10px'}
-          leftIcon={<img src={AIChatImg} alt="barn" width={18} />}
+          leftIcon={<RiChat3Line width={18} />}
           fontSize={14}
           fontWeight={500}
           onClick={() => toggleChatMenu()}
