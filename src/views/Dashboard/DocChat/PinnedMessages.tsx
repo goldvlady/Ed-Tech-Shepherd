@@ -138,12 +138,12 @@ const PinnedMessages = ({
           <div>
             <p
               style={{
-                fontWeight: '700',
+                fontWeight: '400',
                 fontSize: '1rem',
                 textAlign: 'center'
               }}
             >
-              Pin word not found
+              There are no pinned messages
             </p>
           </div>
         )}

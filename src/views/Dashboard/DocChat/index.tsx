@@ -128,7 +128,7 @@ export default function DocChat() {
   const [selectedChatId, setSelectedChatId] = useState('');
   const [chatHistoryId, setChatHistoryId] = useState('');
   // const [isChatLoading, setChatLoading] = useState({});
-  // const [pinnedResponse, setPinnedResponse] = useState<any>();
+  const [pinnedResponse, setPinnedResponse] = useState<any>();
 
   const [currentTime, setCurrentTime] = useState<string>(
     formatDate(new Date())
@@ -226,7 +226,7 @@ export default function DocChat() {
           [chatHistoryId]: false // Set loading state for the specific chat icon
         }));
 
-        // setPinnedResponse(response);
+        setPinnedResponse(response);
         // You might want to toast a success message or handle the success response
         handleCloseToast();
         setTimeout(() => {
@@ -651,7 +651,11 @@ export default function DocChat() {
     };
 
     fetchChatHistory();
-  }, [documentId, studentId]);
+
+    if (pinnedResponse) {
+      fetchChatHistory();
+    }
+  }, [documentId, studentId, pinnedResponse]);
 
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
 

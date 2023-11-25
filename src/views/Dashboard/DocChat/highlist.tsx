@@ -187,7 +187,7 @@ const HighLight = ({
         <EmptyStateContainer>
           <div>
             <SummaryIcn />
-            <p>you haven't highlighted a word.</p>
+            <p>You haven't highlighted a word.</p>
           </div>
         </EmptyStateContainer>
       )}
