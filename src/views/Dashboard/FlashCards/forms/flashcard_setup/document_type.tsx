@@ -246,6 +246,33 @@ const FlashcardFromDocumentSetup = ({
           _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />
       </FormControl>
+
+      <FormControl mb={8}>
+        <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+          Start Page (Optional)
+        </FormLabel>
+        <Input
+          type="number"
+          name="startPage"
+          placeholder="Start Page Number"
+          value={localData.startPage}
+          onChange={handleChange}
+          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+        />
+      </FormControl>
+      <FormControl mb={8}>
+        <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+          End Page (Optional)
+        </FormLabel>
+        <Input
+          type="number"
+          name="endPage"
+          placeholder="End Page Number"
+          value={localData.endPage}
+          onChange={handleChange}
+          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+        />
+      </FormControl>
       {/* <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Timer settings

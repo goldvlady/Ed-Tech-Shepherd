@@ -232,7 +232,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
         </FormControl>
         <FormControl mb={8}>
           <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-            End Page
+            End Page (Optional)
           </FormLabel>
           <Input
             type="number"
@@ -249,7 +249,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
 
   return (
     <Box bg="white" width="100%" mt="30px">
-      {isAutomated && !flashcardData?.noteDoc && renderOptional()}
+      {isAutomated && !flashcardData?.noteDoc ? renderOptional() : ''}
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Deckname

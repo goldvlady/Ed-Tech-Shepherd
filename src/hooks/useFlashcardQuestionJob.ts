@@ -45,7 +45,7 @@ function useFlashcardQuestionsJob(studentID: string) {
         documentIdQuery,
         (snapshot: DataSnapshot) => {
           const jobsData: { [key: string]: Job } = snapshot.val() || {};
-
+          console.log(jobsData);
           const allFlashcards: FlashcardQuestion[] = [];
 
           // Collect flashcards from each job that matches the documentId

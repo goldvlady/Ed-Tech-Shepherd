@@ -281,55 +281,55 @@ const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
               Confirm
             </Button>
           )}
+          <HStack
+            w="100%"
+            alignItems={'center'}
+            justifyContent={'end'}
+            marginTop="40px"
+            align={'flex-end'}
+          >
+            {currentQuestionIndex > 0 && (
+              <Button
+                aria-label="Edit"
+                height={'fit-content'}
+                width={'fit-content'}
+                variant="unstyled"
+                fontWeight={500}
+                p={0}
+                color={'#207DF7'}
+                _hover={{ bg: 'none', padding: '0px' }}
+                _active={{ bg: 'none', padding: '0px' }}
+                _focus={{ boxShadow: 'none' }}
+                colorScheme="primary"
+                onClick={handlePreviousQuestion}
+                mr={2}
+              >
+                Previous
+              </Button>
+            )}
+            (
+            <Button
+              borderRadius="8px"
+              p="10px 20px"
+              fontSize="14px"
+              lineHeight="20px"
+              variant="solid"
+              colorScheme="primary"
+              onClick={() => {
+                currentQuestionIndex !== questions.length - 1
+                  ? handleQuestionSubmit()
+                  : saveFlashcardData(handleDone);
+              }}
+              ml={5}
+            >
+              {currentQuestionIndex !== questions.length - 1
+                ? ' Next Question'
+                : 'Save'}
+            </Button>
+            )
+          </HStack>
         </HStack>
       </motion.div>
-      <HStack
-        w="100%"
-        alignItems={'center'}
-        justifyContent={'end'}
-        marginTop="40px"
-        align={'flex-end'}
-      >
-        {currentQuestionIndex > 0 && (
-          <Button
-            aria-label="Edit"
-            height={'fit-content'}
-            width={'fit-content'}
-            variant="unstyled"
-            fontWeight={500}
-            p={0}
-            color={'#207DF7'}
-            _hover={{ bg: 'none', padding: '0px' }}
-            _active={{ bg: 'none', padding: '0px' }}
-            _focus={{ boxShadow: 'none' }}
-            colorScheme="primary"
-            onClick={handlePreviousQuestion}
-            mr={2}
-          >
-            Previous
-          </Button>
-        )}
-        (
-        <Button
-          borderRadius="8px"
-          p="10px 20px"
-          fontSize="14px"
-          lineHeight="20px"
-          variant="solid"
-          colorScheme="primary"
-          onClick={() => {
-            currentQuestionIndex !== questions.length - 1
-              ? handleQuestionSubmit()
-              : saveFlashcardData(handleDone);
-          }}
-          ml={5}
-        >
-          {currentQuestionIndex !== questions.length - 1
-            ? ' Next Question'
-            : 'Save'}
-        </Button>
-        )
-      </HStack>
     </Box>
   );
 };

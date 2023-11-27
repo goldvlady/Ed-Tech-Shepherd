@@ -304,9 +304,10 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
         if (error) {
           return handleError(onDone);
         } else {
-          if (questions && questions) {
+          if (questions && questions.length) {
+            console.log(questions);
             setQuestions(questions);
-            setCurrentStep((prev) => prev + 1);
+            setCurrentStep(1);
             setQuestionGenerationStatus(
               QuestionGenerationStatusEnum.SUCCESSFUL
             );

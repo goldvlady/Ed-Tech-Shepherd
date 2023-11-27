@@ -223,18 +223,27 @@ class ApiService {
     data: any,
     studentId: string
   ) => {
-    return fetch(`${AI_API}/flash-cards/generate-from-plain-notes`, {
-      method: 'POST',
-      body: JSON.stringify({
-        noteId: data.note,
-        count: data.count,
-        studentId: studentId
-      }),
-      headers: {
-        'x-shepherd-header': HEADER_KEY,
-        'Content-Type': 'application/json'
+    const isDevelopment =
+      process.env.REACT_APP_API_ENDPOINT ===
+      'https://develop--api-sheperdtutors.netlify.app';
+
+    return fetch(
+      `${AI_API}/flash-cards/generate-from-plain-notes?env=${
+        isDevelopment ? 'development' : 'production'
+      }`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          noteId: data.note,
+          count: data.count,
+          studentId: studentId
+        }),
+        headers: {
+          'x-shepherd-header': HEADER_KEY,
+          'Content-Type': 'application/json'
+        }
       }
-    });
+    );
   };
 
   static generateMneomics = async (query: string) => {
