@@ -105,7 +105,6 @@ export default function DocChat() {
   const [initialContent, setInitialContent] = useState<any>(content);
   const [editedTitle, setEditedTitle] = useState('');
   const [toggleMobileChat, setToggleMobileChat] = useState(false);
-
   const [summaryStart, setSummaryStart] = useState(false);
   const [summaryError, setSummaryError] = useState(false);
   const mobile = useIsMobile({
@@ -136,6 +135,7 @@ export default function DocChat() {
 
   const [isChatLoading, setChatLoading] = useState({});
   const [isLoadingNote, setIsLoadingNote] = useState(true);
+  const [pinPromptArr, setPinPromptArr] = useState<any>();
 
   const isLike = useMemo(() => {
     return likesDislikes[1]?.like
@@ -583,12 +583,20 @@ export default function DocChat() {
     if (isEmpty(studentId)) {
       return;
     }
+
+    if (isEmpty(noteId)) {
+      return;
+    }
+
     const fetchSummary = async () => {
-      const { summary } = await generateSummary({ documentId, studentId });
+      const { summary } = await generateSummary({
+        documentId: documentId || noteId,
+        studentId
+      });
       setSummaryText(summary);
     };
     fetchSummary();
-  }, [documentId, studentId]);
+  }, [documentId, studentId, noteId]);
 
   useEffect(() => {
     const data = {
@@ -629,11 +637,14 @@ export default function DocChat() {
             dislike: message.disliked
           }))
         );
+
         setIsPinned(
           mappedData.map((message) => ({
             isPinned: message.isPinned
           }))
         );
+
+        setPinPromptArr(mappedData?.filter((message) => message.isPinned));
 
         setChatHistoryLoaded(true);
       } catch (error) {
@@ -884,13 +895,20 @@ export default function DocChat() {
       if (isEmpty(studentId)) {
         return;
       }
+      if (isEmpty(noteId)) {
+        return;
+      }
+      console.log('noteId ==>', noteId);
       const data = await deleteGeneratedSummary({
         documentId,
         studentId
       });
       if (data) {
         const fetchSummary = async () => {
-          const { summary } = await generateSummary({ documentId, studentId });
+          const { summary } = await generateSummary({
+            documentId: documentId || noteId,
+            studentId
+          });
           setSummaryText(summary);
           setSummaryStart(false);
         };
@@ -908,7 +926,7 @@ export default function DocChat() {
         isClosable: true
       });
     }
-  }, [documentId, studentId]);
+  }, [documentId, studentId, noteId]);
 
   const onSwitchOnMobileView = useCallback(() => {
     setSwitchDocument((prevState) => !prevState);
@@ -927,7 +945,7 @@ export default function DocChat() {
         return;
       }
       const request = await updateGeneratedSummary({
-        documentId,
+        documentId: documentId || noteId,
         studentId,
         summary: summaryText
       });
@@ -943,7 +961,10 @@ export default function DocChat() {
         });
 
         const fetchSummary = async () => {
-          const { summary } = await generateSummary({ documentId, studentId });
+          const { summary } = await generateSummary({
+            documentId: documentId ?? noteId,
+            studentId
+          });
           setSummaryText(summary);
         };
         fetchSummary();
@@ -962,7 +983,7 @@ export default function DocChat() {
       });
       setLoading(false);
     }
-  }, [documentId, studentId, summaryText]);
+  }, [documentId, studentId, summaryText, noteId]);
   function handleWindowResize() {
     // console.log('chat width ', ref?.current?.offsetWidth);
     // console.log('chat height ', ref?.current?.offsetHeight);
@@ -997,7 +1018,7 @@ export default function DocChat() {
     }
   }, [summaryStart]);
 
-  const handlePinned = (index: number, chatId: number) => {
+  const handlePinned = (index: number, message: any) => {
     setIsPinned((prev) => {
       const newState = [...prev];
       newState[index] = {
@@ -1006,9 +1027,29 @@ export default function DocChat() {
       return newState;
     });
     handlePinPrompt({
-      chatHistoryId: String(chatId),
+      chatHistoryId: String(message?.chatId),
       studentId,
       value: !isPinned[index]?.isPinned
+    });
+    setPinPromptArr((prevState) => {
+      const chatIdToUpdate = message.chatId;
+      const updatedState = [...prevState];
+      const existingIndex = updatedState.findIndex(
+        (item) => item.chatId === chatIdToUpdate
+      );
+
+      if (existingIndex !== -1) {
+        // Update the existing entry
+        updatedState[existingIndex] = {
+          ...message,
+          isPinned: !isPinned[index]?.isPinned
+        };
+      } else {
+        // Add a new entry
+        updatedState.push({ ...message, isPinned: !isPinned[index]?.isPinned });
+      }
+
+      return updatedState;
     });
   };
 
@@ -1161,6 +1202,8 @@ export default function DocChat() {
                   setChatHistoryId={setChatHistoryId}
                   handlePinned={handlePinned}
                   isPinned={isPinned}
+                  noteId={location.state?.noteId}
+                  pinPromptArr={pinPromptArr}
                 />
               )}
             </StyledChatWrapper>
@@ -1211,6 +1254,8 @@ export default function DocChat() {
                   setChatHistoryId={setChatHistoryId}
                   handlePinned={handlePinned}
                   isPinned={isPinned}
+                  noteId={location.state?.noteId}
+                  pinPromptArr={pinPromptArr}
                 />
               </div>
             )}

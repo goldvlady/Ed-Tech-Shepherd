@@ -130,6 +130,8 @@ interface IChat {
   setChatHistoryId?: any;
   handlePinned?: any;
   isPinned?: any[];
+  noteId?: string;
+  pinPromptArr?: any[];
 }
 const Chat = forwardRef(
   (
@@ -179,7 +181,9 @@ const Chat = forwardRef(
       selectedChatId,
       setSelectedChatId,
       handlePinned,
-      isPinned
+      isPinned,
+      noteId,
+      pinPromptArr
     }: IChat,
     ref: any
   ) => {
@@ -552,7 +556,7 @@ const Chat = forwardRef(
                                       cursor: 'pointer'
                                     }}
                                     onClick={() => {
-                                      handlePinned(index, message.chatId);
+                                      handlePinned(index, message);
                                     }}
                                   >
                                     <PinLogo
@@ -676,7 +680,7 @@ const Chat = forwardRef(
                                           cursor: 'pointer'
                                         }}
                                         onClick={() => {
-                                          handlePinned(index, message.chatId);
+                                          handlePinned(index, message);
                                         }}
                                       >
                                         <PinLogo
@@ -929,7 +933,7 @@ const Chat = forwardRef(
 
         <CustomSideModal onClose={onPinnedMessages} isOpen={isPinnedMessages}>
           <PinnedMessages
-            messages={messages as any[]}
+            messages={pinPromptArr as any[]}
             scrollToMessage={scrollToMessage}
             onPinnedMessages={onPinnedMessages}
           />

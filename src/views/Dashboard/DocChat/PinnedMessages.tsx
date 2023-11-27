@@ -23,7 +23,13 @@ const PinnedMessages = ({
   const [copiedView, setCopiedView] = useState<any>();
 
   const filteredMessages = useMemo(() => {
-    return messages.filter((messages) => messages.isPinned);
+    const uniqueMessages = new Map();
+    messages?.forEach((message) => {
+      if (message.isPinned === true) {
+        uniqueMessages.set(message.chatId, message);
+      }
+    });
+    return Array.from(uniqueMessages.values());
   }, [messages]);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,7 +43,7 @@ const PinnedMessages = ({
     }
 
     const lowercasedValue = value.toLowerCase();
-    const results = filteredMessages.filter((text) =>
+    const results = filteredMessages?.filter((text) =>
       text.text.toLowerCase().includes(lowercasedValue)
     );
     setSearchResults(results);
@@ -57,7 +63,7 @@ const PinnedMessages = ({
   useEffect(() => {
     setSearchResults(filteredMessages);
   }, [filteredMessages]);
-
+  console.log('messages ==>', messages);
   return (
     <div
       style={{
@@ -100,7 +106,7 @@ const PinnedMessages = ({
         </InputGroup>
       </Flex>
       <div style={{ marginTop: '60px' }}>
-        {!!searchResults.length && (
+        {!!searchResults?.length && (
           <>
             {searchResults.map((text) => (
               <SummaryContainer
@@ -134,7 +140,7 @@ const PinnedMessages = ({
           </>
         )}
 
-        {!searchResults.length && (
+        {!searchResults?.length && (
           <div>
             <p
               style={{
