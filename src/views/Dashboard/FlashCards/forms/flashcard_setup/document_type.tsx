@@ -273,21 +273,6 @@ const FlashcardFromDocumentSetup = ({
           _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />
       </FormControl>
-      {/* <FormControl mb={8}>
-        <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-          Timer settings
-        </FormLabel>
-        <Select
-          name="timerDuration"
-          placeholder="Select a duration"
-          value={localData.timerDuration}
-          onChange={handleChange}
-          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-        >
-          <option value="30">30 sec</option>
-          <option value="15">15 sec</option>
-        </Select>
-      </FormControl> */}
       <HStack w="full" align={'flex-end'}>
         <Button
           variant="solid"

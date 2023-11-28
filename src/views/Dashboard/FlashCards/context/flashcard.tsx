@@ -300,12 +300,10 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       watchJobs(documentId as string, (error, questions) => {
-        console.log('WATCHING JOBS', questions);
         if (error) {
           return handleError(onDone);
         } else {
           if (questions && questions.length) {
-            console.log(questions);
             setQuestions(questions);
             setCurrentStep(1);
             setQuestionGenerationStatus(

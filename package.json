@@ -123,7 +123,7 @@
   },
   "scripts": {
     "start": "react-scripts --max_old_space_size=4096 start",
-    "build": "react-scripts --max_old_space_size=8096 build",
+    "build": "react-scripts --max_old_space_size=15000 build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "prepare": "husky install",
