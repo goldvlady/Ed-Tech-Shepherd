@@ -138,7 +138,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const { user } = userStore();
   const { createFlashCard } = flashcardStore();
-  const { flashcardQuestions, watchJobs, clearJobs } = useFlashcardQuestionsJob(
+  const { watchJobs, clearJobs } = useFlashcardQuestionsJob(
     user?._id as string
   );
 
