@@ -1079,6 +1079,10 @@ i.page-break {
     transition-timing-function: ease-in;
     transition-delay: 0s;
     justify-content: center;
+
+    .dropdown {
+      top: 50% !important;
+    }
   }
 
   .code-language {

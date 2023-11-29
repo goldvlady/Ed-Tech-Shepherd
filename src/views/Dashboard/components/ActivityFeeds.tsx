@@ -81,20 +81,36 @@ function ActivityFeeds(props) {
     setToggleHelpModal(true);
   };
   const navigate = useNavigate();
-  const getFileName = (url: string) => {
-    const lastSlashIndex = url?.lastIndexOf('/');
-    const textAfterLastSlash = url?.substring(lastSlashIndex + 1);
+  const getFileName = (url) => {
+    const isFirebaseStorageUrl = url.includes('firebasestorage.googleapis.com');
+    const isAmazonS3Url = url.includes('s3.amazonaws.com');
 
-    const startIndex = textAfterLastSlash.indexOf('%2F') + '%2F'.length;
-    const endIndex = textAfterLastSlash.indexOf('?alt');
-    const extractedText = textAfterLastSlash.substring(startIndex, endIndex);
+    if (isFirebaseStorageUrl) {
+      const startIndex = url.lastIndexOf('%2F'); // Adjust the start index
+      const endIndex = url.indexOf('?alt');
+      const extractedText = url.substring(startIndex, endIndex);
 
-    const result = extractedText.replace(/%20/g, ' ');
+      const result = extractedText.replace(/%20/g, ' ').replace(/%2F/g, '');
+      if (result.length > 30) {
+        return result.substring(0, 20) + '...';
+      } else {
+        return result;
+      }
+    } else if (isAmazonS3Url) {
+      const lastSlashIndex = url.lastIndexOf('/');
+      const textAfterLastSlash = url.substring(lastSlashIndex + 1);
 
-    if (result.length > 30) {
-      return result.substring(0, 20) + '...';
-    } else {
-      return result;
+      const startIndex = textAfterLastSlash.indexOf('%2F'); // Adjust the start index
+      const endIndex = textAfterLastSlash.length;
+      const extractedText = textAfterLastSlash.substring(startIndex, endIndex);
+
+      const result = extractedText.replace(/%20/g, ' ').replace(/%2F/g, '');
+
+      if (result.length > 30) {
+        return result.substring(0, 20) + '...';
+      } else {
+        return result;
+      }
     }
   };
 
