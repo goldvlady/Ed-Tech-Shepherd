@@ -105,6 +105,9 @@ $border-color_1: blue;
 }
 
 .note-editor-test {
+  height: 100vh;
+  overflow-y: auto;
+  padding-bottom: 15px;
   .toolbar {
     // position: relative;
     // top: 80px;

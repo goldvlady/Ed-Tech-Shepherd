@@ -55,8 +55,9 @@ export const Header = styled.section`
   border: 1px solid #eeeff2;
   display: flex;
   justify-content: space-between;
-  width: 80%;
+  width: 100%;
   padding: 8px;
+  margin-right: 105px;
 `;
 
 export const FirstSection = styled.div`
@@ -198,6 +199,7 @@ export const HeaderWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: space-around;
   column-gap: 1em;
   padding: ${(props) => theme.layout.padding.paddingMedium + 'px'};
 `;
