@@ -1452,73 +1452,85 @@ const NewNote = () => {
   };
 
   return (
-    <Box h="80vh" overflow={'hidden'}>
-      <HeaderComponent />
-      <CustomSideModalWrapper
-        onClose={() => setOpenSideModal(false)}
-        isOpen={openSideModal}
-      />
-      {isFullScreen ? (
-        <NewNoteWrapper
-          {...{ ...editorStyle, height: '100%', overflowY: 'auto' }}
-        >
-          <NoteBody>
-            {location.state?.documentUrl ? (
-              <TempPDFViewer
-                pdfLink={location.state.documentUrl}
-                name={location.state.docTitle}
-              />
-            ) : (
-              <div
-                className={`note-editor-test ${isFullScreen && 'full-screen'}`}
-              >
-                <StyledEditor />
-              </div>
-            )}
-          </NoteBody>
-        </NewNoteWrapper>
-      ) : (
-        <Box height="100%" overflowY="auto">
-          <NoteBody>
-            {location.state?.documentUrl ? (
-              <TempPDFViewer
-                pdfLink={location.state.documentUrl}
-                name={location.state.docTitle}
-              />
-            ) : (
-              <div
-                className={`note-editor-test ${isFullScreen && 'full-screen'}`}
-              >
-                <StyledEditor />
-              </div>
-            )}
-          </NoteBody>
-        </Box>
-      )}
-
-      <NoteModal
-        title="Delete Note"
-        description="This will delete Note. Are you sure well?"
-        isLoading={isLoading}
-        isOpen={deleteNoteModal}
-        actionButtonText="Delete"
-        onCancel={() => onCancel()}
-        onDelete={() => onDeleteNote()}
-        onClose={() => setDeleteNoteModal(false)}
-      />
-      {openFlashCard && (
-        <FlashModal
-          isOpen={openFlashCard}
-          onClose={() => setOpenFlashCard(false)}
-          title="Flash Card Title"
-          loadingButtonText="Creating..."
-          buttonText="Create"
-          onSubmit={(noteId) => {
-            // submission here
-          }}
+    <>
+      {' '}
+      <HeaderComponent />{' '}
+      <Box height="85vh" overflowY="hidden" margin="0">
+        <CustomSideModalWrapper
+          onClose={() => setOpenSideModal(false)}
+          isOpen={openSideModal}
         />
-      )}
-    </Box>
+        {isFullScreen ? (
+          <NewNoteWrapper
+            {...{ ...editorStyle, height: '100%', overflowY: 'auto' }}
+          >
+            <NoteBody>
+              {location.state?.documentUrl ? (
+                <TempPDFViewer
+                  pdfLink={location.state.documentUrl}
+                  name={location.state.docTitle}
+                />
+              ) : (
+                <div
+                  className={`note-editor-test ${
+                    isFullScreen && 'full-screen'
+                  }`}
+                >
+                  <StyledEditor />
+                </div>
+              )}
+            </NoteBody>
+          </NewNoteWrapper>
+        ) : (
+          <NewNoteWrapper
+            {...{
+              ...editorStyle,
+              width: '280mm'
+            }}
+          >
+            <NoteBody>
+              {location.state?.documentUrl ? (
+                <TempPDFViewer
+                  pdfLink={location.state.documentUrl}
+                  name={location.state.docTitle}
+                />
+              ) : (
+                <div
+                  className={`note-editor-test ${
+                    isFullScreen && 'full-screen'
+                  } custom-scroll`}
+                >
+                  <StyledEditor />
+                </div>
+              )}
+            </NoteBody>
+          </NewNoteWrapper>
+        )}
+
+        <NoteModal
+          title="Delete Note"
+          description="This will delete Note. Are you sure well?"
+          isLoading={isLoading}
+          isOpen={deleteNoteModal}
+          actionButtonText="Delete"
+          onCancel={() => onCancel()}
+          onDelete={() => onDeleteNote()}
+          onClose={() => setDeleteNoteModal(false)}
+        />
+        {openFlashCard && (
+          <FlashModal
+            isOpen={openFlashCard}
+            onClose={() => setOpenFlashCard(false)}
+            title="Flash Card Title"
+            loadingButtonText="Creating..."
+            buttonText="Create"
+            onSubmit={(noteId) => {
+              // submission here
+            }}
+          />
+        )}
+      </Box>
+    </>
   );
 };
 
