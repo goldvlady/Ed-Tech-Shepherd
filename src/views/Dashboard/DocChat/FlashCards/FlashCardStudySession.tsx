@@ -1,4 +1,4 @@
-import { ReactComponent as StudyIcon } from '../../../../assets/studyIcon.svg';
+import StudyIcon from '../../../../assets/studyIcon.svg?react';
 import CustomButton from '../../../../components/CustomComponents/CustomButton';
 import { StudyContainer, StudyFirstLayer } from '../styles';
 import React from 'react';

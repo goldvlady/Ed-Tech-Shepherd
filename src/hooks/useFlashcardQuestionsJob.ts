@@ -66,7 +66,7 @@ function useFlashcardQuestionsJob(studentID: string) {
           }
         },
         (error) => {
-          callback(error);
+          callback && callback(error);
         }
       );
     },

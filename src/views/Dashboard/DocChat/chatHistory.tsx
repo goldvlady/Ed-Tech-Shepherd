@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { ReactComponent as DeleteIcn } from '../../../assets/deleteIcn.svg';
-import { ReactComponent as EditIcn } from '../../../assets/editIcn.svg';
-import { ReactComponent as HistoryIcn } from '../../../assets/historyIcon.svg';
+import DeleteIcn from '../../../assets/deleteIcn.svg?react';
+import EditIcn from '../../../assets/editIcn.svg?react';
+import HistoryIcn from '../../../assets/historyIcon.svg?react';
 import CustomButton from '../../../components/CustomComponents/CustomButton';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast';
