@@ -92,14 +92,12 @@ export default function Offer() {
 
       {/* Accept Offer Modal */}
       <AcceptOfferModal
-        setOfferModalState={onOpenOfferModal}
         offerModalState={isOpenOfferModal}
         onClose={onCloseOfferModal}
       />
 
       {/* Decline Offer Modal */}
       <DeclineOfferModal
-        isOpen={onOpenDeclineModal}
         declineOfferModalState={isOpenDeclineModal}
         onClose={onCloseDeclineModal}
       />

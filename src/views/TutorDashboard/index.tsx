@@ -12,7 +12,7 @@ import userStore from '../../state/userStore';
 import ActivityFeeds from '../Dashboard/components/ActivityFeeds';
 import Schedule from '../Dashboard/components/Schedule';
 import { Box, Grid, GridItem, Spinner } from '@chakra-ui/react';
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 export default function Dashboard() {
   const { feeds, fetchFeeds } = feedsStore();
