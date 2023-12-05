@@ -1,7 +1,7 @@
-import { ReactComponent as CopyIcn } from '../../../assets/copy.svg';
-import { ReactComponent as DeleteIcn } from '../../../assets/deleteIcn.svg';
-import { ReactComponent as EditIcn } from '../../../assets/editIcn.svg';
-import { ReactComponent as SummaryIcn } from '../../../assets/summaryIcn1.svg';
+import CopyIcn from '../../../assets/copy.svg?react';
+import DeleteIcn from '../../../assets/deleteIcn.svg?react';
+import EditIcn from '../../../assets/editIcn.svg?react';
+import SummaryIcn from '../../../assets/summaryIcn1.svg?react';
 import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkdownView';
 import {
   EmptyStateContainer,

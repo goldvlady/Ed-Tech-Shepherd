@@ -1,4 +1,4 @@
-import { ReactComponent as QuestionMark } from '../../../../assets/questionMark.svg';
+import QuestionMark from '../../../../assets/questionMark.svg?react';
 // import flashcardStore from '../../../state/flashcardStore';
 import { useFlashcardWizard } from '../../FlashCards/context/flashcard';
 import { RadioInput, StyledCheckbox } from '../styles';

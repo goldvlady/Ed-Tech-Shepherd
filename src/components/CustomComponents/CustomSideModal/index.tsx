@@ -1,4 +1,4 @@
-import { ReactComponent as CloseIcon } from '../../../assets/shadowCloseIcn.svg';
+import CloseIcon from '../../../assets/shadowCloseIcn.svg';
 import CustomScrollbar from '../CustomScrollBar';
 import { SidebarContainer, SidebarContent } from './styles';
 import clsx from 'clsx';
@@ -28,7 +28,8 @@ const CustomSideModal = ({
           'custom-sidebar-icon relative top-[120px] right-[17px] cursor-pointer'
         )}
       >
-        <CloseIcon className={clsx('')} onClick={onClose} />
+        {/* <CloseIcon className={clsx('')} onClick={onClose} /> */}
+        <CloseIcon />
       </div>
 
       <CustomScrollbar height={height}>

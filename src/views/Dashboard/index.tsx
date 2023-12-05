@@ -1,6 +1,6 @@
 import cloudDay from '../../assets/day.svg';
-import { ReactComponent as DocIcon } from '../../assets/doc.svg';
-import { ReactComponent as NewNoteIcon } from '../../assets/newnote.svg';
+import DocIcon from '../../assets/doc.svg?react';
+import NewNoteIcon from '../../assets/newnote.svg?react';
 import cloudNight from '../../assets/night.svg';
 import EmptyFeeds from '../../assets/no-activity.svg';
 import EmptyFlashcard from '../../assets/no-flashcard.svg';

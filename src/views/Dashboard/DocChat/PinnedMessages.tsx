@@ -1,7 +1,7 @@
-import { ReactComponent as CopyIcn } from '../../../assets/copy.svg';
-import { ReactComponent as DeleteIcn } from '../../../assets/deleteIcn.svg';
-import { ReactComponent as EditIcn } from '../../../assets/editIcn.svg';
-import { ReactComponent as SummaryIcn } from '../../../assets/summaryIcn1.svg';
+import CopyIcn from '../../../assets/copy.svg?react';
+import DeleteIcn from '../../../assets/deleteIcn.svg?react';
+import EditIcn from '../../../assets/editIcn.svg?react';
+import SummaryIcn from '../../../assets/summaryIcn1.svg?react';
 import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkdownView';
 // import { copierHandler } from '../../../helpers';
 import { IconContainer, IconContainer2, SummaryContainer } from './styles';
@@ -19,7 +19,7 @@ const PinnedMessages = ({
   onPinnedMessages?: any;
 }) => {
   const [pinnedSearches, setPinnedSearch] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState<Array<any>>([]);
   const [copiedView, setCopiedView] = useState<any>();
 
   const filteredMessages = useMemo(() => {
@@ -108,7 +108,7 @@ const PinnedMessages = ({
       <div style={{ marginTop: '60px' }}>
         {!!searchResults?.length && (
           <>
-            {searchResults.map((text) => (
+            {searchResults.map((text: any) => (
               <SummaryContainer
                 key={text}
                 onClick={() => {

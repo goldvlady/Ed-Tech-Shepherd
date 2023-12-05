@@ -97,6 +97,8 @@ const dummyNavigation: NavigationItem[] = [
 
 export default function Layout({ children, className }) {
   const [helpModal, setHelpModal] = useState(false);
+  const [toggleHelpModal, setToggleHelpModal] = useState(false);
+
   const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toggleProfileSwitchModal, setToggleProfileSwitchModal] =
@@ -672,11 +674,11 @@ export default function Layout({ children, className }) {
         setToggleProfileSwitchModal={setToggleProfileSwitchModal}
       />
       {/* Help Modal */}
-      <Transition.Root show={helpModal} as={Fragment}>
-        <Dialog as="div" className="relative z-50" onClose={setHelpModal}>
-          <HelpModal helpModal={helpModal} setHelpModal={setHelpModal} />
-        </Dialog>
-      </Transition.Root>
+
+      <HelpModal
+        toggleHelpModal={toggleHelpModal}
+        setToggleHelpModal={setToggleHelpModal}
+      />
     </>
   );
 }

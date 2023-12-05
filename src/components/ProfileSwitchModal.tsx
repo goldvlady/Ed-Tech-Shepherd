@@ -30,7 +30,7 @@ import {
 import { Transition, Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { getAuth } from 'firebase/auth';
-import { Fragment, useState, useEffect, useCallback } from 'react';
+import React, { Fragment, useState, useEffect, useCallback } from 'react';
 import { AiOutlinePlus } from 'react-icons/ai';
 import { HiPlusCircle } from 'react-icons/hi';
 import { MdEdit, MdPlusOne } from 'react-icons/md';
@@ -117,7 +117,6 @@ const ProfileSwitchModal = ({
   const navigate = useNavigate();
   const toast = useCustomToast();
   const group = getRootProps();
-
 
   const handleCreateStudentAccount = async () => {
     const response = await ApiService.createStudentFromTutor();

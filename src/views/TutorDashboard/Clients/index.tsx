@@ -1,5 +1,5 @@
-import { ReactComponent as DocIcon } from '../../../assets/doc.svg';
-import { ReactComponent as NewNoteIcon } from '../../../assets/newnote.svg';
+import DocIcon from '../../../assets/doc.svg?react';
+import NewNoteIcon from '../../../assets/newnote.svg?react';
 import {
   AllNotesTab,
   SelectedNoteModal,

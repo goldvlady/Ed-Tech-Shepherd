@@ -1,12 +1,12 @@
 import PultoJPG from '../../../assets/PlutoAi.jpg';
 // import { ThumbsDown } from '../../../assets/SVGComponent/ThumbsDown';
 // import { ThumbsUp } from '../../../assets/SVGComponent/ThumbsUp';
-import { ReactComponent as HightLightIcon } from '../../../assets/highlightIcn.svg';
-import { ReactComponent as HistoryIcn } from '../../../assets/large-clock-icn.svg';
+import HightLightIcon from '../../../assets/highlightIcn.svg?react';
+import HistoryIcn from '../../../assets/large-clock-icn.svg?react';
 import PDFImg from '../../../assets/pdf_img.png';
 // import { ReactComponent as PinLogo } from '../../../assets/pin.svg';
 import SocratesImg from '../../../assets/socrates-image.png';
-import { ReactComponent as SummaryIcon } from '../../../assets/summaryIcn.svg';
+import SummaryIcon from '../../../assets/summaryIcn.svg?react';
 // import { ReactComponent as TellMeMoreIcn } from '../../../assets/tellMeMoreIcn.svg';
 import ChatLoader from '../../../components/CustomComponents/CustomChatLoader';
 import { TutorBagIcon } from '../../../components/CustomComponents/CustomImage/tutor-bag';
@@ -197,7 +197,7 @@ const Chat = forwardRef(
     const [hoveredIndex, setHoveredIndex] = useState(0);
     const [hoveredUserIndex, setHoveredUserIndex] = useState(0);
     const isMobile = useIsMobile();
-    const chatList = useRef([]);
+    const chatList = useRef<Array<[]>>([]);
     const [isPinnedMessages, setPinnedMessages] = useState(false);
     const [isNumber, setIsNumber] = useState(true);
     const [chatHisotry, setIsChatHistory] = useState(false);

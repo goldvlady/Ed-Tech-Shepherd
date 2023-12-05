@@ -3,7 +3,7 @@ import React, { FC } from 'react';
 
 interface SectionProps {
   title: string;
-  subtitle?: string;
+  subtitle?: any;
   description: string;
 }
 

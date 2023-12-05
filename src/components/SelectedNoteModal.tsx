@@ -43,7 +43,7 @@ const DocumentListWrapper = styled.div`
 interface ShowProps {
   show: boolean;
   setShow: (show: boolean) => void;
-  setShowHelp: (showHelp: boolean) => void;
+  setShowHelp?: (showHelp: boolean) => void;
   chatButton?: boolean;
   okayButton?: boolean;
   cancelButton?: boolean;

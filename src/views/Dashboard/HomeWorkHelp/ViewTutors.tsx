@@ -1,5 +1,5 @@
-import { ReactComponent as BackIcn } from '../../../assets/backIcn.svg';
-import { ReactComponent as NoTutorsIcn } from '../../../assets/noTutorsIcn.svg';
+import BackIcn from '../../../assets/backIcn.svg?react';
+import NoTutorsIcn from '../../../assets/noTutorsIcn.svg?react';
 import CustomScrollbar from '../../../components/CustomComponents/CustomScrollBar';
 import ApiService from '../../../services/ApiService';
 import resourceStore from '../../../state/resourceStore';
