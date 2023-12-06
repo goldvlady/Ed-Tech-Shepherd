@@ -63,7 +63,7 @@ const PinnedMessages = ({
   useEffect(() => {
     setSearchResults(filteredMessages);
   }, [filteredMessages]);
-  console.log('messages ==>', messages);
+
   return (
     <div
       style={{

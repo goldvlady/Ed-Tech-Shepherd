@@ -29,7 +29,7 @@ import {
 } from '@chakra-ui/react';
 import { parseISO, format, isSameDay, isThisWeek, getISOWeek } from 'date-fns';
 import { isEmpty, startCase } from 'lodash';
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaCalendarAlt, FaEllipsisH } from 'react-icons/fa';
 import { IoCreateOutline } from 'react-icons/io5';

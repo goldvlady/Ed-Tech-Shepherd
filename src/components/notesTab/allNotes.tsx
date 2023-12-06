@@ -58,7 +58,7 @@ type DataSourceItem = {
 export interface Props {
   data: Array<NoteDetails>;
   getNotes: () => void;
-  handleTagSelection: any;
+  handleTagSelection?: any;
 }
 
 const formatDate = (date: Date, format = 'DD ddd, hh:mma'): string => {

@@ -62,7 +62,6 @@ import { Box, ChakraProvider, Spinner } from '@chakra-ui/react';
 import 'bootstrap/dist/css/bootstrap-grid.min.css';
 import 'bootstrap/dist/css/bootstrap-reboot.min.css';
 import 'bootstrap/dist/css/bootstrap-utilities.min.css';
-import mixpanel from 'mixpanel-browser';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Navigate, Route, Router, Routes, useRoutes } from 'react-router';
@@ -213,18 +212,6 @@ const AppRoutes: React.FC = () => {
     }
     /* eslint-disable */
   }, [isAuthenticated]);
-
-  useEffect(() => {
-    mixpanel.track('App Page Viewed', location);
-  }, [location]);
-
-  useEffect(() => {
-    mixpanel.track_links('a', 'Clicked Link', (el: Element) => {
-      return {
-        target: el.getAttribute('href')
-      };
-    });
-  }, []);
 
   if (loading) {
     return (

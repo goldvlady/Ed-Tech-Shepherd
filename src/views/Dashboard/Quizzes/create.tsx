@@ -29,7 +29,7 @@ import {
   ToastPosition
 } from '@chakra-ui/react';
 import { filter, isEmpty, isNil, last, omit, pull, union } from 'lodash';
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 const CreateQuizPage = () => {

@@ -164,16 +164,6 @@ export default function DocChat() {
     toastIdRef.current = currentToast;
   }
 
-  const reaction = useCallback(async () => {
-    if (isEmpty(chatId) || isNil(chatId)) return;
-    getToggleReaction({
-      chatId,
-      reactionType: isLike ? 'like' : 'dislike'
-    }).catch((err) => {
-      console.log(err);
-    });
-  }, []);
-
   const handleDislike = (index) => {
     setLikesDislikes((prev) => {
       const newState = [...prev];
@@ -574,7 +564,7 @@ export default function DocChat() {
       });
     };
     response();
-  }, [getToggleReaction, chatId, likesDislikes]);
+  }, [getToggleReaction, chatId, isLike, likesDislikes]);
 
   useEffect(() => {
     if (isEmpty(documentId)) {
@@ -662,11 +652,7 @@ export default function DocChat() {
     };
 
     fetchChatHistory();
-
-    if (pinnedResponse) {
-      fetchChatHistory();
-    }
-  }, [documentId, studentId, pinnedResponse]);
+  }, [documentId, studentId]);
 
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
 
@@ -898,7 +884,7 @@ export default function DocChat() {
       if (isEmpty(noteId)) {
         return;
       }
-      console.log('noteId ==>', noteId);
+
       const data = await deleteGeneratedSummary({
         documentId,
         studentId
@@ -984,23 +970,6 @@ export default function DocChat() {
       setLoading(false);
     }
   }, [documentId, studentId, summaryText, noteId]);
-  function handleWindowResize() {
-    // console.log('chat width ', ref?.current?.offsetWidth);
-    // console.log('chat height ', ref?.current?.offsetHeight);
-    // setChatWidth(ref?.current?.offsetWidth);
-  }
-
-  useLayoutEffect(() => {
-    handleWindowResize();
-  }, [ref]);
-
-  useEffect(() => {
-    window.addEventListener('resize', handleWindowResize);
-
-    return () => {
-      window.removeEventListener('resize', handleWindowResize);
-    };
-  }, []);
 
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
 

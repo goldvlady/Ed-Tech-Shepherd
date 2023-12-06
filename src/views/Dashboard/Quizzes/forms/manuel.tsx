@@ -26,7 +26,7 @@ import {
   toString,
   values
 } from 'lodash';
-import { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 
 const ManualQuizForm = ({
   addQuestion,

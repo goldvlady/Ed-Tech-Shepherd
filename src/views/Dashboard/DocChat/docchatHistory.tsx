@@ -18,6 +18,7 @@ import styled from 'styled-components';
 interface IDocchatHistory {
   studentId: string;
   setIsChatHistory?: (value: boolean) => void;
+  noteId?: string;
 }
 
 const Clock = styled.div`
@@ -39,6 +40,7 @@ type Chat = {
   title: string;
   updatedAt: string;
   createdDated: string;
+  noteId?: string;
 };
 
 type GroupedChat = {
@@ -46,7 +48,11 @@ type GroupedChat = {
   messages: Chat[];
 };
 
-const DocchatHistory = ({ studentId, setIsChatHistory }: IDocchatHistory) => {
+const DocchatHistory = ({
+  studentId,
+  setIsChatHistory,
+  noteId
+}: IDocchatHistory) => {
   const { user, userDocuments, fetchUserDocuments } = userStore();
   const [chatHistory, setChatHistory] = useState<any[]>([]);
   const [groupChatsByDateArr, setGroupChatsByDateArr] = useState<GroupedChat[]>(
@@ -57,10 +63,6 @@ const DocchatHistory = ({ studentId, setIsChatHistory }: IDocchatHistory) => {
   const [toggleHistoryBox, setToggleHistoryBox] = useState({});
   const showSearchRef = useRef(null) as any;
   const navigate = useNavigate();
-  const [documentUrl, setDocumentUrl] = useState('');
-  const [docTitle, setDoctitle] = useState('');
-  const [documentId, setDocumentId] = useState('');
-  const [docKeywords, setDocKeyword] = useState([]);
 
   const handleClickOutside = (event) => {
     if (
@@ -79,8 +81,11 @@ const DocchatHistory = ({ studentId, setIsChatHistory }: IDocchatHistory) => {
     };
   }, [showSearchRef]);
 
-  async function retrieveChatHistory(studentIdParam: string) {
-    const docHistories = await getDocchatHistory(studentIdParam);
+  async function retrieveChatHistory(
+    studentIdParam: string,
+    noteText?: string
+  ) {
+    const docHistories = await getDocchatHistory({ studentIdParam, noteText });
 
     const filteredHistories = docHistories
       ?.map((docHistory) => ({
@@ -137,8 +142,8 @@ const DocchatHistory = ({ studentId, setIsChatHistory }: IDocchatHistory) => {
   };
 
   useEffect(() => {
-    retrieveChatHistory(studentId);
-  }, [studentId]);
+    retrieveChatHistory(studentId, noteId);
+  }, [studentId, noteId]);
 
   useEffect(() => {
     const groupedChats = groupChatsByDate(chatHistory);

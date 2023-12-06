@@ -98,7 +98,7 @@ import {
   SELECTION_CHANGE_COMMAND,
   UNDO_COMMAND
 } from 'lexical';
-import { useCallback, useEffect, useState, forwardRef } from 'react';
+import React, { useCallback, useEffect, useState, forwardRef } from 'react';
 
 const blockTypeToBlockName = {
   bullet: 'Bulleted List',

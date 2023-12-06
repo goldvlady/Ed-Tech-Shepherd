@@ -43,7 +43,6 @@ import { updateProfile } from 'firebase/auth';
 import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import { capitalize } from 'lodash';
 import Lottie from 'lottie-react';
-import mixpanel from 'mixpanel-browser';
 import moment from 'moment';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FiBookOpen, FiCalendar, FiUser } from 'react-icons/fi';
@@ -248,7 +247,6 @@ const OnboardTutor = () => {
           throw error;
         });
     }
-    mixpanel.track('Sumbitting Onboarding Date');
     return ApiService.createUser({
       ...userFields,
       firebaseId: firebaseId as unknown as string,
@@ -485,29 +483,8 @@ const OnboardTutor = () => {
   useTitle(stepIndicatorActiveStep?.title || '');
 
   useEffect(() => {
-    mixpanel.identify();
-  }, []);
-
-  useEffect(() => {
     if (!activeStepObj) return;
-
-    mixpanel.track(`Onboarding Step Progress (${activeStepObj?.id})`);
   }, [activeStepObj]);
-
-  useEffect(() => {
-    if (name.first && name.last)
-      mixpanel.people.set({ $name: `${name.first} ${name.last}` });
-
-    if (email) mixpanel.people.set({ $email: email });
-
-    if (age) mixpanel.people.set({ Age: age });
-
-    mixpanel.people.set({ Type: 'Tutor' });
-  }, [email, name, age]);
-
-  useEffect(() => {
-    mixpanel.register({ ...data, type: 'tutor' });
-  }, [data]);
 
   const canSaveCurrentEditModalStep = steps.find(
     (s) => s.id === editModalStep

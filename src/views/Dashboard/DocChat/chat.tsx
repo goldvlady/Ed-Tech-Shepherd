@@ -197,7 +197,7 @@ const Chat = forwardRef(
     const [hoveredIndex, setHoveredIndex] = useState(0);
     const [hoveredUserIndex, setHoveredUserIndex] = useState(0);
     const isMobile = useIsMobile();
-    const chatList = useRef<Array<[]>>([]);
+    const chatList = useRef<any>([]);
     const [isPinnedMessages, setPinnedMessages] = useState(false);
     const [isNumber, setIsNumber] = useState(true);
     const [chatHisotry, setIsChatHistory] = useState(false);
@@ -231,7 +231,7 @@ const Chat = forwardRef(
 
     const isFindTutor = useMemo(() => {
       return (
-        countNeedTutor! >= 3 &&
+        countNeedTutor >= 3 &&
         HomeWorkHelp &&
         !messages?.length &&
         !isShowPrompt
@@ -271,9 +271,9 @@ const Chat = forwardRef(
         id: 2,
         component: (
           <HighLight
-            hightlightedText={hightlightedText!}
+            hightlightedText={hightlightedText}
             setSelectedHighlightArea={setSelectedHighlightArea}
-            loading={loading!}
+            loading={loading}
           />
         )
       }
@@ -315,7 +315,7 @@ const Chat = forwardRef(
         img: <TutorBagIcon iconColor="#FB8441" />,
         title: 'Find a tutor',
         onClick: onOpenModal,
-        show: countNeedTutor! > 3
+        show: countNeedTutor > 3
       },
       {
         id: 3,
@@ -943,6 +943,7 @@ const Chat = forwardRef(
           <DocchatHistory
             studentId={studentId}
             setIsChatHistory={setIsChatHistory}
+            noteId={noteId}
           />
         </CustomSideModal>
       </>

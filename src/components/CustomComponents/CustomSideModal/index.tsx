@@ -1,4 +1,4 @@
-import CloseIcon from '../../../assets/shadowCloseIcn.svg';
+import CloseIcon from '../../../assets/shadow-close-icon.svg?react';
 import CustomScrollbar from '../CustomScrollBar';
 import { SidebarContainer, SidebarContent } from './styles';
 import clsx from 'clsx';

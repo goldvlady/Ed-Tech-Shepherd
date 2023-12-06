@@ -192,7 +192,7 @@ export const HeaderButton = styled.div`
   flex-direction: row;
   align-items: center;
   cursor: pointer;
-  padding: ${(props) => theme.layout.padding.paddingMedium + 'px'};
+  padding: ${(props) => theme?.layout?.padding?.paddingMedium + 'px'};
 `;
 
 export const HeaderWrapper = styled.div`
@@ -201,7 +201,7 @@ export const HeaderWrapper = styled.div`
   align-items: center;
   justify-content: space-around;
   column-gap: 1em;
-  padding: ${(props) => theme.layout.padding.paddingMedium + 'px'};
+  padding: ${(props) => theme?.layout?.padding?.paddingMedium + 'px'};
 `;
 
 export const HeaderTagsWrapper = styled.div`
@@ -209,7 +209,7 @@ export const HeaderTagsWrapper = styled.div`
 `;
 
 export const HeaderButtonText = styled.p`
-  margin-left: ${(props) => theme.layout.padding.paddingMedium + 'px'};
+  margin-left: ${(props) => theme?.layout?.padding?.paddingMedium + 'px'};
   font-size: 10pt;
 `;
 

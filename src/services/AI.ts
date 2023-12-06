@@ -482,16 +482,30 @@ export const postPinnedPrompt = async ({ chatId, studentId }) => {
   return request;
 };
 
-export const getDocchatHistory = async (studentId) => {
-  const response = await fetch(
-    `${AI_API}/notes/chat/document_history?studentId=${studentId}`,
-    {
-      method: 'GET',
-      headers: {
-        'x-shepherd-header': HEADER_KEY
-      }
+export const getDocchatHistory = async ({
+  studentIdParam,
+  noteText
+}: {
+  studentIdParam?: string;
+  noteText?: string;
+}) => {
+  const AI_API_BASE_URL = `${AI_API}/notes/chat`;
+  const endpoint = 'document_history';
+
+  // Prepare query parameters
+  const queryParams = new URLSearchParams({
+    studentId: studentIdParam,
+    documentType: noteText ? 'text_note' : ''
+  });
+
+  const url = `${AI_API_BASE_URL}/${endpoint}?${queryParams.toString()}`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'x-shepherd-header': HEADER_KEY
     }
-  );
+  });
 
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
