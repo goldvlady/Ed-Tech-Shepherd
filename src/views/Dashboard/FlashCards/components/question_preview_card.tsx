@@ -98,7 +98,7 @@ const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({
             isCurrentQuestion ? `${spreadBorderColor} 2s forwards` : undefined
           }
         >
-          <Box p="24px">
+          <Box onClick={onEdit} cursor={'pointer'} p="24px">
             <Text
               fontWeight="500"
               fontSize="16px"
