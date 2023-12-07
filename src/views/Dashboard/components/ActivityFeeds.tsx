@@ -131,6 +131,8 @@ function ActivityFeeds(props) {
         return <FlashcardIcon />;
       case 'bounty':
         return <BountyChat />;
+      case 'quiz':
+        return <NoteIcon />;
       default:
         return undefined;
     }
@@ -147,6 +149,8 @@ function ActivityFeeds(props) {
       case 'flashcards':
         return <FlashcardSmIcon />;
       case 'bounty':
+        return <ReceiptSmIcon />;
+      case 'quiz':
         return <ReceiptSmIcon />;
       default:
         return undefined;
@@ -165,6 +169,8 @@ function ActivityFeeds(props) {
         return `You made a payment of $10.95 to Leslie Peters for Chemistry lessons`;
       case 'flashcards':
         return `You created a new flashcard deck "${link}" `;
+      case 'quiz':
+        return `You created a new quiz "${link}" `;
       case 'bounty':
         return isTutor
           ? `Click here to begin your session`
@@ -309,6 +315,13 @@ function ActivityFeeds(props) {
                           }
                         } else if (feed.activityType === 'documents') {
                           navigate(`/dashboard/notes/new-note`, {
+                            state: {
+                              documentUrl: feed.link,
+                              docTitle: getFileName(feed.link)
+                            }
+                          });
+                        } else if (feed.activityType === 'quiz') {
+                          navigate(`/dashboard/quizzes/new-note`, {
                             state: {
                               documentUrl: feed.link,
                               docTitle: getFileName(feed.link)

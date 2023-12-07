@@ -78,6 +78,19 @@ class ApiService {
     });
   };
 
+  static rescheduleStudyEvent = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/updateStudyEvent`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static reScheduleBooking = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/updateBooking`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
   static submitStudent = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/createStudent`, {
       method: 'POST',

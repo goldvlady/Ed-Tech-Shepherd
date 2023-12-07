@@ -48,6 +48,7 @@ type Store = {
     grade: string
   ) => Promise<boolean>;
   scheduleFlashcard: (d: SchedulePayload) => Promise<boolean>;
+  rescheduleFlashcard: (d: any) => Promise<boolean>;
   editFlashcard: (id: string, data: Partial<FlashcardData>) => Promise<boolean>;
 };
 
@@ -218,6 +219,17 @@ export default create<Store>((set) => ({
     try {
       set({ isLoading: true });
       const response = await ApiService.scheduleStudyEvent(data);
+      return response.status === 200;
+    } catch (error) {
+      return false;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+  rescheduleFlashcard: async (data: any) => {
+    try {
+      set({ isLoading: true });
+      const response = await ApiService.rescheduleStudyEvent(data);
       return response.status === 200;
     } catch (error) {
       return false;
