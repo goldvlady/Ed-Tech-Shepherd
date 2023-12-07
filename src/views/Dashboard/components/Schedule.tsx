@@ -1,4 +1,4 @@
-import calendarDrop from '../../../assets/calendar-drop.svg';
+import CalendarDrop from '../../../assets/calendar-drop.svg';
 import NoEvent from '../../../assets/no-event.svg';
 import ScheduleIcon from '../../../assets/timer.svg';
 import Events from '../../../components/Events';
@@ -86,7 +86,8 @@ export default function Schedule({ events }) {
         <Flex>
           {' '}
           <HStack>
-            <img src={ScheduleIcon} alt="feed-icon" width={18} />{' '}
+            {/* <img src={ScheduleIcon} alt="feed-icon" width={18} />{' '} */}
+            <ScheduleIcon />
             <Text fontSize={16} fontWeight={500} mx={2}>
               Schedule
             </Text>{' '}
@@ -103,7 +104,8 @@ export default function Schedule({ events }) {
               mb={2}
               // h={'32px'}
             >
-              <Image src={calendarDrop} alt="schedule-icon" width={45} />
+              {/* <Image src={calendarDrop} alt="schedule-icon" width={45} /> */}
+              <CalendarDrop />
             </MenuButton>
             <MenuList minWidth={'auto'}>
               {months.map((month) => (
@@ -140,7 +142,7 @@ export default function Schedule({ events }) {
               ) : (
                 <Center>
                   <VStack py={3}>
-                    <Image src={NoEvent} />
+                    <NoEvent />
                     <Text fontSize={12} fontWeight={500} color="text.400">
                       No Events Scheduled
                     </Text>

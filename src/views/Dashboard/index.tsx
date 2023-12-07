@@ -1,7 +1,7 @@
-import cloudDay from '../../assets/day.svg';
+import CloudDay from '../../assets/day.svg';
 import DocIcon from '../../assets/doc.svg?react';
 import NewNoteIcon from '../../assets/newnote.svg?react';
-import cloudNight from '../../assets/night.svg';
+import CloudNight from '../../assets/night.svg';
 import EmptyFeeds from '../../assets/no-activity.svg';
 import EmptyFlashcard from '../../assets/no-flashcard.svg';
 import ribbon2 from '../../assets/ribbon1.svg';
@@ -220,13 +220,7 @@ export default function Index() {
             alignItems="center"
             height="fit-content"
           >
-            <Box>
-              {isDayTime ? (
-                <Image src={cloudDay} />
-              ) : (
-                <Image src={cloudNight} />
-              )}
-            </Box>
+            <Box>{isDayTime ? <CloudDay /> : <CloudNight />}</Box>
             <Box mt={1}>
               <RxDotFilled />
             </Box>

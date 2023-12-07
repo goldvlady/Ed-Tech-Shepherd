@@ -122,15 +122,15 @@ function ActivityFeeds(props) {
   const getIconByActivityType = (activityType) => {
     switch (activityType) {
       case 'documents':
-        return DocIcon;
+        return <DocIcon />;
       case 'notes':
-        return NoteIcon;
+        return <NoteIcon />;
       case 'payments':
-        return ReceiptIcon;
+        return <ReceiptIcon />;
       case 'flashcards':
-        return FlashcardIcon;
+        return <FlashcardIcon />;
       case 'bounty':
-        return BountyChat;
+        return <BountyChat />;
       default:
         return undefined;
     }
@@ -139,15 +139,15 @@ function ActivityFeeds(props) {
   const getFileIconByActivityType = (activityType) => {
     switch (activityType) {
       case 'documents':
-        return AdobeIcon;
+        return <AdobeIcon />;
       case 'notes':
-        return NoteSmIcon;
+        return <NoteSmIcon />;
       case 'payments':
-        return ReceiptSmIcon;
+        return <ReceiptSmIcon />;
       case 'flashcards':
-        return FlashcardSmIcon;
+        return <FlashcardSmIcon />;
       case 'bounty':
-        return ReceiptSmIcon;
+        return <ReceiptSmIcon />;
       default:
         return undefined;
     }
@@ -220,11 +220,14 @@ function ActivityFeeds(props) {
       <Box>
         <Flex alignItems="center">
           <HStack mb={2}>
-            <Image
+            {/* <Image
               src={userType === 'Student' ? FeedIcon : WalletIcon}
               alt="feed-icon"
               width={5}
-            />
+            /> */}
+            <Box w={5}>
+              {userType === 'Student' ? <FeedIcon /> : <WalletIcon />}
+            </Box>
 
             <Text fontSize={16} fontWeight={500} mx={2}>
               {userType === 'Student' ? 'Activity Feed' : 'Recent Transactions'}
@@ -271,12 +274,9 @@ function ActivityFeeds(props) {
             .map((feed: any, index) => (
               <>
                 <Root px={3} my={4} key={index}>
-                  <Image
-                    src={getIconByActivityType(feed.activityType)}
-                    alt="doc"
-                    maxHeight={45}
-                    zIndex={1}
-                  />
+                  <Box maxHeight={45} zIndex={1}>
+                    {getIconByActivityType(feed.activityType)}
+                  </Box>
                   <Stack direction={'column'} px={4} spacing={1}>
                     <Text color="text.300" fontSize={12} mb={0}>
                       <TimeAgo timestamp={feed.updatedAt} />
@@ -332,9 +332,7 @@ function ActivityFeeds(props) {
                     >
                       <Flex mt={2.5} gap={1}>
                         <Text>
-                          <Image
-                            src={getFileIconByActivityType(feed.activityType)}
-                          />
+                          {getFileIconByActivityType(feed.activityType)}
                         </Text>
 
                         <Text fontWeight={500} fontSize={12} color="#73777D">

@@ -231,7 +231,8 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               transform: 'translateY(-2px)'
             }}
           >
-            <Image src={AskIcon} />
+            {/* <Image src={AskIcon} /> */}
+            {<AskIcon />}
             <Text> Ask Shep?</Text>
           </Flex>
         </Box>
@@ -645,9 +646,7 @@ const SidebarContent = ({
           variant={'unstyled'}
           display="flex"
           gap={2}
-          leftIcon={
-            <img src={BarnImg} alt="barn" width={15} color="text.400" />
-          }
+          leftIcon={<BarnImg />}
           onClick={() => toggleChatMenu()}
           fontSize={14}
           fontWeight={400}
