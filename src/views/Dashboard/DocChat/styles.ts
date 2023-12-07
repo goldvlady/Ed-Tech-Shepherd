@@ -579,7 +579,6 @@ export const AskSomethingContainer = styled.div`
   padding: 0.25rem 0.3rem;
   height: 9rem;
   border-radius: 8px;
-  margin-left: 1.75rem;
   font-size: 0.875rem;
 
   @media only screen and (max-width: 768px) {

@@ -1,9 +1,9 @@
-import { defineConfig, loadEnv } from 'vite';
-import path from 'path';
-import glob from 'glob';
 import react from '@vitejs/plugin-react';
-import viteTsconfigPaths from 'vite-tsconfig-paths';
+import glob from 'glob';
+import path from 'path';
+import { defineConfig, loadEnv } from 'vite';
 import svgrPlugin from 'vite-plugin-svgr';
+import viteTsconfigPaths from 'vite-tsconfig-paths';
 
 const loadVite = ({ mode }: any) => {
   const env = loadEnv(mode, process.cwd(), '');
