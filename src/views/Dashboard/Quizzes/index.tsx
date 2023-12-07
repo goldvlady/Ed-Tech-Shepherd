@@ -28,7 +28,7 @@ import {
   Stack
 } from '@chakra-ui/react';
 import { parseISO, format, isSameDay, isThisWeek, getISOWeek } from 'date-fns';
-import { isEmpty, startCase } from 'lodash';
+import { isEmpty, isNaN } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaCalendarAlt, FaEllipsisH } from 'react-icons/fa';
@@ -79,10 +79,10 @@ const Quizzes = () => {
   } | null>(null);
 
   const {
+    handleToggleStartQuizModal,
     fetchQuizzes,
     quizzes,
     pagination,
-    quiz,
     loadQuiz,
     deleteQuiz,
     tags,
@@ -199,7 +199,14 @@ const Quizzes = () => {
       dataIndex: 'title',
       key: 'title',
       render: ({ title, key }) => (
-        <Text color="#207DF7" onClick={() => loadQuiz(key)} fontWeight="500">
+        <Text
+          color="#207DF7"
+          onClick={() => {
+            handleToggleStartQuizModal(true);
+            loadQuiz(key);
+          }}
+          fontWeight="500"
+        >
           {title}
         </Text>
       )
@@ -304,8 +311,11 @@ const Quizzes = () => {
       key: 'lastAttemptedScore',
       render: ({ scores, questions }) => {
         if (!scores?.length) return <Text fontWeight="500">Not Attempted</Text>;
-        const percentage =
-          (scores[scores.length - 1]?.score / questions.length) * 100;
+        const percentage = !isNaN(
+          (scores[scores.length - 1]?.score / questions.length) * 100
+        )
+          ? (scores[scores.length - 1]?.score / questions.length) * 100
+          : 0;
         const percentageString = percentage.toFixed(0);
         type ColorRange = {
           max: number;
@@ -319,7 +329,7 @@ const Quizzes = () => {
           { max: 59.9, min: 0, color: '#F53535', backgroundColor: '#FEECEC' }
         ];
 
-        const { color, backgroundColor } = colorRanges.find(
+        const { color = '', backgroundColor = '' } = colorRanges.find(
           (range) => percentage <= range.max && percentage >= range.min
         ) as ColorRange;
         return (
@@ -367,7 +377,10 @@ const Quizzes = () => {
               <MenuItem
                 p="6px 8px 6px 8px"
                 _hover={{ bgColor: '#F2F4F7' }}
-                onClick={() => loadQuiz(quiz.key, quiz.currentStudy)}
+                onClick={() => {
+                  loadQuiz(quiz.key, quiz.currentStudy);
+                  handleToggleStartQuizModal(true);
+                }}
               >
                 <Box className="item-menu-icon" marginRight="10px">
                   <svg
@@ -393,7 +406,10 @@ const Quizzes = () => {
             <MenuItem
               p="6px 8px 6px 8px"
               _hover={{ bgColor: '#F2F4F7' }}
-              onClick={() => loadQuiz(quiz.key)}
+              onClick={() => {
+                handleToggleStartQuizModal(true);
+                loadQuiz(quiz.key);
+              }}
             >
               <Box className="item-menu-icon" marginRight="10px">
                 <svg
@@ -422,9 +438,10 @@ const Quizzes = () => {
             <MenuItem
               p="6px 8px 6px 8px"
               _hover={{ bgColor: '#F2F4F7' }}
-              onClick={() =>
-                navigate(`/dashboard/quizzes/create?quiz_id=${quiz?.key}`)
-              }
+              onClick={() => {
+                loadQuiz(quiz?.key);
+                navigate(`/dashboard/quizzes/create?quiz_id=${quiz?.key}`);
+              }}
             >
               <Box className="item-menu-icon" marginRight="10px">
                 <IoCreateOutline />
@@ -576,7 +593,6 @@ const Quizzes = () => {
         onClose={() => null}
       />
       {isEmpty(quizzes) && !hasSearched && !isLoading ? (
-        //  {/* {quizzes?.length ? ( */}
         <Box
           padding={'20px'}
           background={'#F8F9FB'}
@@ -629,7 +645,12 @@ const Quizzes = () => {
               width={{ sm: '80%', md: '300px' }}
               borderRadius={'8px'}
               colorScheme={'primary'}
-              onClick={() => navigate('/dashboard/quizzes/create')}
+              onClick={() => {
+                loadQuiz(null);
+                setTimeout(() => {
+                  navigate('/dashboard/quizzes/create');
+                }, 100);
+              }}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -669,7 +690,12 @@ const Quizzes = () => {
               marginLeft={'20px'}
               borderRadius={'10px'}
               colorScheme={'primary'}
-              onClick={() => navigate('/dashboard/quizzes/create')}
+              onClick={() => {
+                loadQuiz(null);
+                setTimeout(() => {
+                  navigate('/dashboard/quizzes/create');
+                }, 100);
+              }}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

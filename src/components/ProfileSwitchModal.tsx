@@ -1,4 +1,4 @@
-import { useStreamChat } from '../providers/StreamChatProvider';
+import { useStreamChat } from '../providers/streamchat.provider';
 import ApiService from '../services/ApiService';
 import userStore from '../state/userStore';
 import { CustomButton } from '../views/Dashboard/layout';

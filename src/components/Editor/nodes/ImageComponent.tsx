@@ -133,7 +133,7 @@ export default function ImageComponent({
   const { isCollabActive } = useCollaborationContext();
   const [editor] = useLexicalComposerContext();
   const [selection, setSelection] = useState<
-    RangeSelection | NodeSelection | GridSelection | null
+    RangeSelection | NodeSelection | GridSelection | null | any
   >(null);
   const activeEditorRef = useRef<LexicalEditor | null>(null);
 

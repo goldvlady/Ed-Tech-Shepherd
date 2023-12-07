@@ -1,6 +1,14 @@
 import ApiService from '../services/ApiService';
-import { QuizData, Score, Study, MinimizedStudy } from '../types';
-import { isEmpty, sortedUniq, toNumber } from 'lodash';
+import { QuizData, Score, Study, MinimizedStudy, QuizQuestion } from '../types';
+import {
+  differenceBy,
+  isEmpty,
+  isNil,
+  merge,
+  omit,
+  sortedUniq,
+  toNumber
+} from 'lodash';
 import { create } from 'zustand';
 
 type SearchQueryParams = {
@@ -19,6 +27,8 @@ type Pagination = {
 };
 
 type Store = {
+  handleToggleStartQuizModal: (value: boolean) => void;
+  startQuizModal: boolean;
   tags: string[];
   isLoading: boolean;
   pagination: Pagination;
@@ -29,11 +39,34 @@ type Store = {
   loadQuiz: (id: string | null, currentStudy?: MinimizedStudy) => void;
   deleteQuiz: (id: string | number) => Promise<boolean>;
   handleIsLoadingQuizzes: (value: boolean) => void;
-
   storeQuizTags: (
     quizId: string[] | string,
     tags: string[]
   ) => Promise<boolean>;
+  handleCreateQuiz: (
+    quiz: {
+      title: string;
+      questions: QuizQuestion[];
+      tags: string[];
+      canEdit?: boolean;
+    },
+    cb?: (err: any | boolean, res?: any) => void
+  ) => void;
+  handleUpdateQuiz: (
+    quizId: string,
+    quiz: {
+      title: string;
+      questions: QuizQuestion[];
+      tags: string[];
+      canEdit?: boolean;
+    },
+    cb?: (err: any | boolean, res?: any) => void
+  ) => void;
+  handleDeleteQuizQuestion: (
+    quizId: number | string,
+    questionId: number | string,
+    callback?: (err: any | boolean, res?: any) => void
+  ) => void;
   //   storeCurrentStudy: (
   //     flashcardId: string,
   //     data: MinimizedStudy
@@ -51,6 +84,7 @@ type Store = {
 };
 
 export default create<Store>((set) => ({
+  startQuizModal: false,
   isLoading: false,
   pagination: { limit: 10, page: 1, count: 100 },
   minimizedStudy: null,
@@ -59,9 +93,6 @@ export default create<Store>((set) => ({
   storeQuizTags: async (quizIds: string[] | string, tags: string[]) => {
     try {
       set({ isLoading: true });
-      // if (Array.isArray(flashcardIds) && flashcardIds.length === 1) {
-      //   flashcardIds = flashcardIds[0];
-      // }
       const response = await ApiService.storeQuizTags(quizIds, tags);
 
       if (toNumber(response.status) === 200) {
@@ -128,10 +159,19 @@ export default create<Store>((set) => ({
       set({ isLoading: false });
     }
   },
-  loadQuiz: (id: string | null, currentStudy?: MinimizedStudy) => {
+  loadQuiz: async (id: string | null, currentStudy?: MinimizedStudy) => {
     set((state) => {
-      if (!id) return { quiz: undefined, minimizedStudy: null };
-      const quiz = state.quizzes?.find((card) => card._id === id);
+      if (isNil(id)) return { quiz: undefined, minimizedStudy: null };
+
+      let quiz = state.quizzes?.find((card) => card._id === id);
+
+      if (isNil(quiz)) {
+        (async () => {
+          const result: any = await ApiService.getQuiz(id as string);
+          const { data }: { data: QuizData } = await result.json();
+          quiz = data;
+        })();
+      }
       const nextState: Partial<typeof state> = { quiz };
       if (currentStudy) {
         nextState.minimizedStudy = currentStudy;
@@ -161,8 +201,103 @@ export default create<Store>((set) => ({
       set({ isLoading: false });
     }
   },
+  handleToggleStartQuizModal: (value: boolean) => {
+    set({ startQuizModal: value });
+  },
   handleIsLoadingQuizzes: (value: boolean) => {
     set({ isLoading: value });
+  },
+  handleCreateQuiz: async (
+    { questions, title, tags },
+    callback = (err: any | boolean, res?: any) => null
+  ) => {
+    try {
+      const result = await ApiService.createQuiz({
+        questions,
+        title,
+        tags
+      });
+      if (result?.status > 399) {
+        throw new Error('failed to create quiz');
+      }
+      const { data } = await result.json();
+      set({ quiz: data });
+      callback && callback(false, data);
+    } catch (error) {
+      console.log('handleCreateQuiz -------->>> error =======>>>  ', error);
+      callback && callback(error);
+    }
+  },
+  handleUpdateQuiz: async (
+    quizId,
+    { questions, title, tags },
+    callback = (err: any | boolean, res?: any) => null
+  ) => {
+    try {
+      const result = await ApiService.updateQuiz(quizId, {
+        questions,
+        title,
+        tags
+      });
+
+      if (result?.status > 399) {
+        throw new Error('failed to update quiz');
+      }
+
+      const { data } = await result.json();
+
+      set((state) => {
+        // const {q} = data
+        const nonUpdatedQuestions = differenceBy(
+          state?.quiz?.questions,
+          data?.questions,
+          '_id'
+        );
+        const nextState: Partial<typeof state> = {
+          quiz: merge(omit({ _id: quizId, ...data }, ['questions']), {
+            questions: [...nonUpdatedQuestions, ...data.questions]
+          }) as QuizData
+        };
+        return nextState;
+      });
+      callback && callback(false, data);
+    } catch (error) {
+      console.log('handleUpdateQuiz -------->>> error =======>>>  ', error);
+      callback && callback(error);
+    }
+  },
+  handleDeleteQuizQuestion: async (
+    quizId,
+    questionId,
+    callback = (err: any | boolean, res?: any) => null
+  ) => {
+    try {
+      const result = await ApiService.deleteQuizQuestion(quizId, questionId);
+
+      if (result?.status > 399) {
+        throw new Error('failed to update quiz');
+      }
+
+      const { data } = await result.json();
+
+      set((state) => {
+        // const {q} = data
+
+        const nextState: Partial<typeof state> = {
+          quiz: merge(omit(data, ['questions']), {
+            questions: data.questions
+          }) as QuizData
+        };
+        return nextState;
+      });
+      callback && callback(false, data);
+    } catch (error) {
+      console.log(
+        'handleDeleteQuizQuestion -------->>> error =======>>>  ',
+        error
+      );
+      callback && callback(error);
+    }
   }
   //   storeCurrentStudy: async (flashcardId, currentStudy: MinimizedStudy) => {
   //     try {
@@ -266,8 +401,8 @@ export default create<Store>((set) => ({
   //   }
   // loadQuiz: async (id: string | null, currentStudy?: MinimizedStudy) => {
   //   set((state) => {
-  //     if (!id) return { flashcard: undefined, minimizedStudy: null };
-  //     const flashcard = state.flashcards?.find((card) => card._id === id);
+  //     if (!id) return { quiz: undefined, minimizedStudy: null };
+  //     const flashcard = state.quizzes?.find((card) => card._id === id);
   //     // if (!flashcard) {
   //     //   const response = ApiService.getSingleFlashcard(id);
   //     //   const respJson = await response.json();

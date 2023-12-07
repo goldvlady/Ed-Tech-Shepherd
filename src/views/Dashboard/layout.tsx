@@ -6,7 +6,7 @@ import { HelpModal } from '../../components';
 import { SelectedNoteModal } from '../../components';
 import Logo from '../../components/Logo';
 import ProfileSwitchModal from '../../components/ProfileSwitchModal';
-import { useStreamChat } from '../../providers/StreamChatProvider';
+import { useStreamChat } from '../../providers/streamchat.provider';
 import userStore from '../../state/userStore';
 import FlashCardEventNotifier from './FlashCards/components/flashcard_event_notification';
 import MenuLinedList from './components/MenuLinedList';

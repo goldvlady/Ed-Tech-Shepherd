@@ -7,7 +7,7 @@ import {
   QuizQuestionOption,
   TRUE_FALSE
 } from '../../../../types';
-import { useQuizState } from '../context';
+// import useQuizState from '../context';
 import {
   Box,
   FormControl,
@@ -20,7 +20,10 @@ import {
 import {
   forEach,
   isEmpty,
+  isNil,
   keys,
+  map,
+  merge,
   omit,
   toLower,
   toString,
@@ -29,48 +32,52 @@ import {
 import React, { ChangeEvent, useEffect, useState } from 'react';
 
 const ManualQuizForm = ({
-  addQuestion,
+  // addQuestion,
   openTags,
   tags,
   removeTag,
   isLoadingButton,
   title,
-  handleSetTitle
+  handleSetTitle,
+  handleCreateQuiz,
+  handleUpdateQuiz,
+  quizId = null
 }) => {
-  const { setQuestions, goToQuestion, currentQuestionIndex, questions } =
-    useQuizState();
+  // const { setQuestions, goToQuestion, currentQuestionIndex, questions } =
+  //   useQuizState();
 
   const [currentQuestion, setCurrentQuestion] = useState<
-    Omit<QuizQuestion, 'options'> & {
+    Omit<QuizQuestion & { canEdit?: boolean }, 'options'> & {
       options?: Record<string, QuizQuestionOption> | QuizQuestionOption[];
     }
   >({
     type: MULTIPLE_CHOICE_SINGLE, //default question type option
     question: '',
     options: {},
-    answer: ''
+    answer: '',
+    canEdit: true
   });
 
-  useEffect(() => {
-    if (questions[currentQuestionIndex]) {
-      const options = {};
-      if (questions[currentQuestionIndex].type === TRUE_FALSE) {
-        forEach(questions[currentQuestionIndex].options, (option) => {
-          const { content } = option;
-          options[toLower(content)] = option;
-        });
-      }
-      if (questions[currentQuestionIndex].type === MULTIPLE_CHOICE_SINGLE) {
-        forEach(questions[currentQuestionIndex].options, (option, index) => {
-          options[`option${String.fromCharCode(65 + index)}`] = option;
-        });
-      }
-      setCurrentQuestion({
-        ...questions[currentQuestionIndex],
-        options
-      });
-    }
-  }, [currentQuestionIndex, questions]);
+  // useEffect(() => {
+  //   if (questions[currentQuestionIndex]) {
+  //     const options = {};
+  //     if (questions[currentQuestionIndex].type === TRUE_FALSE) {
+  //       forEach(questions[currentQuestionIndex].options, (option) => {
+  //         const { content } = option;
+  //         options[toLower(content)] = option;
+  //       });
+  //     }
+  //     if (questions[currentQuestionIndex].type === MULTIPLE_CHOICE_SINGLE) {
+  //       forEach(questions[currentQuestionIndex].options, (option, index) => {
+  //         options[`option${String.fromCharCode(65 + index)}`] = option;
+  //       });
+  //     }
+  //     setCurrentQuestion({
+  //       ...questions[currentQuestionIndex],
+  //       options
+  //     });
+  //   }
+  // }, [currentQuestionIndex, questions]);
 
   const handleChangeQuestionType = (
     e: React.ChangeEvent<
@@ -85,30 +92,37 @@ const ManualQuizForm = ({
   };
 
   const handleQuestionAdd = async () => {
-    setQuestions((prevQuestions) => {
-      const updatedQuestions = [...prevQuestions] as any;
-      updatedQuestions[currentQuestionIndex] = {
-        ...currentQuestion,
-        options: values(currentQuestion.options)
-      };
-      return updatedQuestions;
-    });
+    // setQuestions((prevQuestions) => {
+    //   const updatedQuestions = [...prevQuestions] as any;
+    //   updatedQuestions[currentQuestionIndex] = {
+    //     ...currentQuestion,
+    //     options: values(currentQuestion.options)
+    //   };
+    //   return updatedQuestions;
+    // });
 
-    goToQuestion((prevIndex) => prevIndex + 1);
+    // goToQuestion((prevIndex) => prevIndex + 1);
 
-    let data: any = {
+    let questionPayload: any = {
       ...currentQuestion,
       options: values(currentQuestion?.options)
     };
 
     if (currentQuestion.type === OPEN_ENDED) {
-      data = omit(data, ['options']);
+      questionPayload = omit(questionPayload, ['options']);
     }
     if (currentQuestion.type !== OPEN_ENDED) {
-      data = omit(data, ['answer']);
+      questionPayload = omit(questionPayload, ['answer']);
     }
 
-    addQuestion(data);
+    if (isNil(quizId) && isEmpty(quizId)) {
+      await handleCreateQuiz([questionPayload], true);
+    } else {
+      await handleUpdateQuiz(quizId, {
+        quizQuestions: [questionPayload],
+        canEdit: true
+      });
+    }
 
     setTimeout(() => {
       setCurrentQuestion({
@@ -118,8 +132,6 @@ const ManualQuizForm = ({
         answer: ''
       });
     });
-
-    // }
   };
 
   const handleChangeOption = (

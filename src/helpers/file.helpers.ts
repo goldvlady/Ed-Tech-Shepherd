@@ -48,7 +48,8 @@ export interface UploadMetadata {
 export const uploadFile = (file: File, body?: any, useS3?: boolean) => {
   const emitter = new UploadEventEmitter();
 
-  const storageRef = ref(storage, `uploads/${file.name}`);
+  // const storageRef = ref(storage, `uploads/${file.name}`);
+  const storageRef = ref(storage, `${file.name}`);
   const uploadTask = uploadBytesResumable(storageRef, file);
 
   uploadTask.on(

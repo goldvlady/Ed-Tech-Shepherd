@@ -197,7 +197,7 @@ const Chat = forwardRef(
     const [hoveredIndex, setHoveredIndex] = useState(0);
     const [hoveredUserIndex, setHoveredUserIndex] = useState(0);
     const isMobile = useIsMobile();
-    const chatList = useRef<any>([]);
+    const chatList = useRef<Array<[]> | null | HTMLDivElement[] | any[]>([]);
     const [isPinnedMessages, setPinnedMessages] = useState(false);
     const [isNumber, setIsNumber] = useState(true);
     const [chatHisotry, setIsChatHistory] = useState(false);
@@ -373,10 +373,12 @@ const Chat = forwardRef(
     const scrollToMessage = (chatId) => {
       const messageIndex = messages.findIndex((m) => m.chatId === chatId);
 
-      chatList.current[messageIndex]?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-      });
+      if (chatList.current[messageIndex]?.scrollIntoView) {
+        chatList.current[messageIndex]?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+      }
     };
 
     return (
