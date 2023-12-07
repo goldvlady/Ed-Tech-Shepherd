@@ -99,7 +99,7 @@ const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
           color: '#207DF7'
         }}
         fontSize={14}
-        color={path ? 'text.400' : '#bcb8b8'}
+        color={'text.400'}
         fontWeight={500}
         {...rest}
       >

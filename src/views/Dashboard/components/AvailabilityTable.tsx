@@ -87,7 +87,7 @@ function AvailabilityTable(props) {
                         data.schedule[dayIndex.toString()].some(
                           (slot) =>
                             convertTimeToTimeZone(
-                              convertTimeToDateTime(slot.begin),
+                              convertTimeToDateTime(slot.start),
                               data.tz
                             ) === timeSlot.split(' ')[0] &&
                             convertTimeToTimeZone(
@@ -103,7 +103,7 @@ function AvailabilityTable(props) {
                       data.schedule[dayIndex.toString()].some(
                         (slot) =>
                           convertTimeToTimeZone(
-                            convertTimeToDateTime(slot.begin),
+                            convertTimeToDateTime(slot.start),
                             data.tz
                           ) === timeSlot.split(' ')[0] &&
                           convertTimeToTimeZone(

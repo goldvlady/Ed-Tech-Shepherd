@@ -682,12 +682,9 @@ export default function Marketplace() {
             textAlign="center"
             boxShadow="0px 4px 20px 0px rgba(115, 126, 140, 0.25)"
           >
-            <Image
-              src={Sally}
-              alt="instant tutoring"
-              borderTopLeftRadius={'10px'}
-              borderTopRightRadius={'10px'}
-            />
+            <Box borderTopLeftRadius={'10px'} borderTopRightRadius={'10px'}>
+              <Sally />
+            </Box>
             <VStack p={3} gap={2}>
               <Text>Need Instant Tutoring?</Text>
               <Button

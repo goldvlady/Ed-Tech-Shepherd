@@ -253,8 +253,9 @@ export default function TutorCard(props: any) {
 
                   <Spacer />
                   <Flex>
-                    {' '}
-                    <Image src={Star} boxSize={4} />
+                    <Box boxSize={4}>
+                      <Star />
+                    </Box>
                     <Text fontSize={12} fontWeight={400} color="#6E7682">
                       {`${rating}(${reviewCount})`}
                     </Text>
@@ -396,8 +397,7 @@ export default function TutorCard(props: any) {
                 </Box>
               </Flex>
               {use !== 'my tutors' && (
-                <Image
-                  src={saved || ribbonClicked ? Ribbon2 : Ribbon}
+                <Box
                   position="absolute"
                   top={4}
                   right={5}
@@ -407,7 +407,10 @@ export default function TutorCard(props: any) {
                     e.stopPropagation();
                     toggleBookmarkTutor(id);
                   }}
-                />
+                >
+                  {' '}
+                  {saved || ribbonClicked ? <Ribbon2 /> : <Ribbon />}
+                </Box>
               )}
             </Flex>
           </Box>
