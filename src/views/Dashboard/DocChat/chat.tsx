@@ -465,7 +465,7 @@ const Chat = forwardRef(
                           style={{
                             color: '#FB8441',
                             background: 'white',
-                            width: '25%'
+                            width: 'auto'
                           }}
                           needIndex
                         >
@@ -774,9 +774,9 @@ const Chat = forwardRef(
             <InputWrapper
               className={clsx(isMobile ? 'bottom-[50px]' : 'bottom-[85px]')}
             >
-              <div className={clsx('flex w-full grow')}>
+              <div className={clsx('flex w-full grow items-end')}>
                 <InputContainer>
-                  <div className={clsx('flex grow')}>
+                  <div className={clsx('flex grow ')}>
                     <Txtarea
                       ref={textAreaRef2}
                       placeholder={
@@ -825,7 +825,7 @@ const Chat = forwardRef(
                   />
                 )}
 
-                {false && (
+                {isMobile && HomeWorkHelp && (
                   <ClockButton type="button" onClick={onChatHistory}>
                     <img
                       alt="clock"
@@ -834,11 +834,11 @@ const Chat = forwardRef(
                     />
                   </ClockButton>
                 )}
-                {isMobile && (
+                {/* {isMobile && (
                   <ClockButton type="button" onClick={onSwitchOnMobileView}>
                     <img alt="pdf" src={PDFImg} className="w-5 h-5" />
                   </ClockButton>
-                )}
+                )} */}
               </div>
             </InputWrapper>
           </ChatbotContainer>

@@ -237,6 +237,16 @@ export default function DocChat() {
             })
           );
         }, 100);
+        // toast({
+        //   render: () => (
+        //     <CustomToast
+        //       title="Chat prompt pinned successfully!"
+        //       status="success"
+        //     />
+        //   ),
+        //   position: 'top-right',
+        //   isClosable: true
+        // });
       } else {
         setChatLoading((prevChatLoadingState) => ({
           ...prevChatLoadingState,
@@ -1013,6 +1023,16 @@ export default function DocChat() {
   };
 
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
+
+  // useEffect(() => {
+  //   const getHighlight = async () => {
+  //     setLoading(true);
+  //     const response = await getPDFHighlight({ documentId });
+  //     setHightlightedText(response);
+  //     setLoading(false);
+  //   };
+  //   getHighlight();
+  // }, [documentId]);
 
   useEffect(() => {
     if (!location.state?.documentUrl && !location.state?.docTitle) {

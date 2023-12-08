@@ -24,6 +24,7 @@ export const HomeWorkHelpHistoryContainer = styled.section`
   // position: absolute;
   left: 15px;
   display: block;
+  border: 1px solid 
 
   /* Hide scrollbar for Chrome, Safari and Opera */
   ::-webkit-scrollbar {
@@ -72,6 +73,11 @@ export const HomeWorkHelpChatContainer = styled.section`
   // flex-grow: 1;
   // width: 100%;
   // position: fixed;
+  border-left: 1px solid rgb(249, 249, 251);
+
+  @media only screen and (max-width: 768px) {
+    position: absolute;
+  }
 `;
 
 export const TutorsBackIcn = styled.div`

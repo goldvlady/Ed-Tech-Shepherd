@@ -82,6 +82,7 @@ export const GridContainer = styled.div<{ isHomeWorkHelp?: boolean }>`
 
   @media only screen and (max-width: 768px) {
     width: 100%;
+    ${tw`px-2`}
   }
 `;
 
@@ -139,7 +140,7 @@ export const StyledText = styled(Text)`
   font-weight: 600;
 
   @media only screen and (max-width: 768px) {
-    font-size: 0.75rem;
+    font-size: 1rem;
   }
 `;
 
@@ -154,6 +155,7 @@ export const OptionsContainer = styled.div`
   // justify-content: space-between;
   // margin-left: 1.75rem;
   // font-size: 0.875rem;
+  overflow-x: hidden;
 
   // @media only screen and (max-width: 768px) {
   //   margin-left: 0;
@@ -168,6 +170,8 @@ export const PillsContainer = styled.div`
   flex-direction: row;
   align-items: center;
   gap: 10px;
+  overflow-x: scroll;
+  width: 94%;
 
   @media only screen and (max-width: 768px) {
     // display: flex;
@@ -189,6 +193,7 @@ export const StyledDiv = styled.div<{
   padding: 0.5rem 0.75rem;
   cursor: pointer;
   gap: 6px;
+  text-wrap: nowrap;
 
   &:hover {
     background-color: #eaebeb;
@@ -426,8 +431,8 @@ export const ChatContainerResponse = styled.div<{ messages: any }>`
   @media only screen and (max-width: 768px) {
     margin-top: 8px;
     margin-bottom: 96px;
-    margin-left: 17px;
-    margin-right: 17px;
+    margin-left: 0;
+    margin-right: 0;
   }
 `;
 
@@ -446,7 +451,9 @@ export const UserMessage = styled.div`
   margin: 15px 0;
 
   @media only screen and (max-width: 768px) {
-    font-size: 0.75rem;
+    font-size: 1rem;
+    min-width: auto;
+    max-width: 272px;
   }
 `;
 
@@ -462,7 +469,9 @@ export const AiMessage = styled.div`
   min-width: auto;
 
   @media only screen and (max-width: 768px) {
-    font-size: 0.75rem;
+    font-size: 1rem;
+    min-width: auto;
+    max-width: 300px;
   }
 `;
 
@@ -582,7 +591,7 @@ export const AskSomethingContainer = styled.div`
   font-size: 0.875rem;
 
   @media only screen and (max-width: 768px) {
-    margin-left: 0.75rem;
+    // margin-left: 0.75rem;
   }
 `;
 
