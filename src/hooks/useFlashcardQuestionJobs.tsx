@@ -32,7 +32,7 @@ function useFlashcardQuestionsJob(studentID: string) {
       documentId: string,
       callback?: (error: any, flashcards?: FlashcardQuestion[]) => void
     ) => {
-      const jobsRef = ref(database, `/flashcards-job/${studentID}`);
+      const jobsRef = ref(database, `/flashcard-job/${studentID}`);
       const documentIdQuery = query(
         jobsRef,
         orderByChild('documentId'),
