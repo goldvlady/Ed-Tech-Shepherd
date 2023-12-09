@@ -19,7 +19,7 @@ import {
 import { Transition, Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { getAuth } from 'firebase/auth';
-import { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { PiCheckCircleFill } from 'react-icons/pi';
 import Typewriter from 'typewriter-effect';
 

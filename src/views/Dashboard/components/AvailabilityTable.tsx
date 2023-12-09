@@ -75,8 +75,8 @@ function AvailabilityTable(props) {
               {fixedTimeSlotswithTimezone.map((timeSlot, timeIndex) => (
                 <Tr key={timeIndex}>
                   <Td fontSize={12}>
-                    <Flex>
-                      <Image src={Day} ml={-15} /> {timeSlot}
+                    <Flex ml={-15}>
+                      <Day /> {timeSlot}
                     </Flex>
                   </Td>
                   {daysOfWeek.map((day, dayIndex) => (
@@ -87,7 +87,7 @@ function AvailabilityTable(props) {
                         data.schedule[dayIndex.toString()].some(
                           (slot) =>
                             convertTimeToTimeZone(
-                              convertTimeToDateTime(slot.start),
+                              convertTimeToDateTime(slot.begin),
                               data.tz
                             ) === timeSlot.split(' ')[0] &&
                             convertTimeToTimeZone(
@@ -103,7 +103,7 @@ function AvailabilityTable(props) {
                       data.schedule[dayIndex.toString()].some(
                         (slot) =>
                           convertTimeToTimeZone(
-                            convertTimeToDateTime(slot.start),
+                            convertTimeToDateTime(slot.begin),
                             data.tz
                           ) === timeSlot.split(' ')[0] &&
                           convertTimeToTimeZone(
@@ -111,7 +111,7 @@ function AvailabilityTable(props) {
                             data.tz
                           ) === timeSlot.split(' ')[2]
                       ) ? (
-                        <Image src={Check} mr={3} />
+                        <Check />
                       ) : null}
                     </Td>
                   ))}

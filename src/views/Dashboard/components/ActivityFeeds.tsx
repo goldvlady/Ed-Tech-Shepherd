@@ -220,11 +220,6 @@ function ActivityFeeds(props) {
       <Box>
         <Flex alignItems="center">
           <HStack mb={2}>
-            {/* <Image
-              src={userType === 'Student' ? FeedIcon : WalletIcon}
-              alt="feed-icon"
-              width={5}
-            /> */}
             <Box w={5}>
               {userType === 'Student' ? <FeedIcon /> : <WalletIcon />}
             </Box>
@@ -352,7 +347,7 @@ function ActivityFeeds(props) {
           <Center h="400px">
             <Box textAlign={'center'} px={20} mt={5}>
               <VStack spacing={5}>
-                <Image src={EmptyFeeds} />
+                <EmptyFeeds />
                 <Text fontSize={13} fontWeight={500} color="text.400">
                   {userType === 'Student'
                     ? 'Get started with our AI tools'

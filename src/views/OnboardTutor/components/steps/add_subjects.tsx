@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { RiCloseCircleLine } from 'react-icons/ri';
 
 interface SubjectLevel {

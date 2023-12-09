@@ -256,6 +256,54 @@ export const convertISOToCustomFormat = (isoString) => {
 // console.log(`Formatted time 2: ${formattedTime2}`);
 // console.log(`Formatted time 3: ${formattedTime3}`);
 
+export const convertToNewFormat = (scheduleData) => {
+  const daysMap = {
+    Sunday: 0,
+    Monday: 1,
+    Tuesday: 2,
+    Wednesday: 3,
+    Thursday: 4,
+    Friday: 5,
+    Saturday: 6
+  };
+  const convertedData = {};
+
+  scheduleData.forEach((day) => {
+    const dayIndex = daysMap[day.name];
+    convertedData[dayIndex] = day.times.map((time) => ({
+      begin: time.start,
+      end: time.end
+    }));
+  });
+
+  return convertedData;
+};
+export const convertToPreviousFormat = (convertedData) => {
+  const daysArray = [
+    { name: 'Sunday', times: [] },
+    { name: 'Monday', times: [] },
+    { name: 'Tuesday', times: [] },
+    { name: 'Wednesday', times: [] },
+    { name: 'Thursday', times: [] },
+    { name: 'Friday', times: [] },
+    { name: 'Saturday', times: [] }
+  ];
+
+  for (const dayIndex in convertedData) {
+    const numericIndex = parseInt(dayIndex, 10); // Convert dayIndex to a number
+    const dayTimes = convertedData[numericIndex];
+    // const dayName = Object.keys(daysArray[numericIndex - 1])[0];
+    const formattedTimes = dayTimes.map(
+      (time: { begin: string; end: string }) => ({
+        start: time.begin,
+        end: time.end
+      })
+    );
+    daysArray[numericIndex].times = formattedTimes;
+  }
+  return daysArray;
+};
+
 export const isSameDay = (date1, date2) => {
   return (
     date1.getDate() === date2.getDate() &&

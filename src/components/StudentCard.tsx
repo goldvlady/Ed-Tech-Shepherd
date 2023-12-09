@@ -19,6 +19,7 @@ import {
 } from '@chakra-ui/react';
 import moment from 'moment';
 import { useNavigate } from 'react-router';
+import React from 'react';
 
 function StudentCard(props) {
   const navigate = useNavigate();
@@ -90,7 +91,7 @@ function StudentCard(props) {
     }
   }
   const handleItemClick = () => {
-    navigate(`/dashboard/tutordashboard/offers/offer/${offer.id}`);
+    navigate(`/dashboard/tutordashboard/offer/${offer.id}`);
   };
 
   const styles = {
