@@ -453,13 +453,13 @@ const ChatHistory = ({
         )}
 
         {!loading ? (
-          <>
+          <div>
             {groupChatsByDateArr.length > 0 &&
               groupChatsByDateArr?.map((history, index) => (
                 <ChatHistoryBlock key={index}>
                   <ChatHistoryDate>{history.date}</ChatHistoryDate>
                   {history.messages.map((message, index) => (
-                    <>
+                    <div>
                       {!toggleHistoryBox[message.id] ? (
                         <ChatHistoryBody key={message.id}>
                           <Clock>
@@ -572,11 +572,11 @@ const ChatHistory = ({
                           </div>
                         </ChatHistoryBody>
                       )}
-                    </>
+                    </div>
                   ))}
                 </ChatHistoryBlock>
               ))}
-          </>
+          </div>
         ) : null}
       </div>
 

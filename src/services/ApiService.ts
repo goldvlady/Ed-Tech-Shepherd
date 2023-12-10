@@ -751,6 +751,18 @@ class ApiService {
     });
   };
 
+  static deleteQuizQuestion = async (
+    quizId: string | number,
+    questionId: string | number
+  ) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/deleteQuizQuestion?quizId=${quizId}&questionId=${questionId}`,
+      {
+        method: 'DELETE'
+      }
+    );
+  };
+
   static storeQuizScore = async (data: {
     quizId: string;
     score: number | string;
@@ -797,6 +809,54 @@ class ApiService {
       },
       false,
       { 'Content-Type': 'application/json' }
+    );
+  };
+
+  // static generateQuizQuestionFromDocs = async (data: {
+  //   type: QuizQuestion['type'] | 'mixed';
+  //   count: number;
+  //   difficulty: QuizQuestion['difficulty'];
+  //   subject: string;
+  //   topic: string;
+  //   documentId?: string;
+  // }) => {
+  //   return doFetch(
+  //     `${AI_API}/quizzes/students/generate-from-notes`,
+  //     {
+  //       method: 'POST',
+  //       body: JSON.stringify(data)
+  //     },
+  //     false,
+  //     { 'Content-Type': 'application/json' }
+  //   );
+  // };
+
+  static generateQuizQuestionFromDocs = async (data: {
+    type: QuizQuestion['type'] | 'mixed';
+    count: number;
+    difficulty: QuizQuestion['difficulty'];
+    subject: string;
+    topic: string;
+    documentId?: string;
+    studentId?: string;
+  }) => {
+    const isDevelopment =
+      process.env.REACT_APP_API_ENDPOINT ===
+      'https://develop--api-sheperdtutors.netlify.app';
+    return doFetch(
+      isDevelopment
+        ? 'https://shepherd-anywhere-cors.fly.dev/https://i2u58ng9l4.execute-api.us-east-2.amazonaws.com/prod/generate-from-notes'
+        : // 'https://shepherd-anywhere-cors.fly.dev/https://shepherd-simple-proxy.fly.dev/generate-quizzes'
+          `https://i2u58ng9l4.execute-api.us-east-2.amazonaws.com/prod/generate-from-notes`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      false,
+      {
+        'Content-Type': 'application/json'
+        // 'Access-Control-Allow-Origin': '*'
+      }
     );
   };
 }

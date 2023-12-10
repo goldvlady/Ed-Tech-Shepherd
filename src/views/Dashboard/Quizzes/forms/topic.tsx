@@ -6,8 +6,10 @@ import quizStore from '../../../../state/quizStore';
 import userStore from '../../../../state/userStore';
 import {
   MIXED,
+  MULTIPLE_CHOICE_MULTI,
   MULTIPLE_CHOICE_SINGLE,
   OPEN_ENDED,
+  QuizQuestion,
   TRUE_FALSE
 } from '../../../../types';
 import { QuestionIcon } from '@chakra-ui/icons';
@@ -30,12 +32,21 @@ import {
   map,
   toLower,
   toNumber,
-  omit
+  omit,
+  toString
 } from 'lodash';
 import { ChangeEvent, useCallback, useState } from 'react';
 
 // DownloadIcon
-const TopicQuizForm = ({ addQuestion, handleSetTitle }) => {
+const TopicQuizForm = ({
+  handleSetTitle,
+  title,
+  handleSetUploadingState,
+  handleCreateQuiz,
+  handleUpdateQuiz,
+  quizId = null,
+  isLoadingButton
+}) => {
   const toast = useCustomToast();
   const { user } = userStore();
   const dummyData = {
@@ -68,7 +79,8 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle }) => {
   const handleGenerateQuestions = async () => {
     try {
       setIsLoading(true);
-      handleIsLoadingQuizzes(true);
+      // handleIsLoadingQuizzes(true);
+      handleSetUploadingState(true);
 
       const result = await ApiService.generateQuizQuestion(user._id, {
         ...localData,
@@ -76,61 +88,146 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle }) => {
       });
       const { quizzes } = await result.json();
 
-      addQuestion(
-        map([...quizzes], (quiz) => {
-          let type = quiz?.type;
-          let options = [];
-          if (!isNil(quiz?.options) && isArray(quiz?.options)) {
-            options = quiz?.options;
-          }
+      // console.log('quizzes ===========>>> ', quizzes);
 
-          if (isNil(type) || isEmpty(type)) {
-            if (!isNil(options) || !isEmpty(options)) {
+      // const questions = map([...quizzes], (quiz) => {
+      //   let type = quiz?.type;
+      //   let options = [];
+      //   if (!isNil(quiz?.options) && isArray(quiz?.options)) {
+      //     options = quiz?.options;
+      //   }
+
+      //   if (isNil(type) || isEmpty(type)) {
+      //     if (!isNil(options) || !isEmpty(options)) {
+      //       if (options.length < 3) {
+      //         type = TRUE_FALSE;
+      //       } else {
+      //         type = MULTIPLE_CHOICE_SINGLE;
+      //       }
+      //     } else {
+      //       if (!isEmpty(quiz?.answer) || !isNil(quiz?.answer)) {
+      //         type = OPEN_ENDED;
+      //       }
+      //     }
+      //   } else {
+      //     if (
+      //       includes(toLower(type), 'multiple answers') ||
+      //       includes(toLower(type), 'multipleanswers') ||
+      //       includes(toLower(type), 'multipleanswer') ||
+      //       toLower(type) === 'multiplechoice'
+      //     ) {
+      //       type = MULTIPLE_CHOICE_MULTI;
+      //     }
+      //     if (
+      //       includes(toLower(type), 'single answer') ||
+      //       includes(toLower(type), 'singleanswer')
+      //     ) {
+      //       type = MULTIPLE_CHOICE_SINGLE;
+      //     }
+      //     if (
+      //       includes(toLower(type), 'true') ||
+      //       includes(toLower(type), 'false')
+      //     ) {
+      //       type = TRUE_FALSE;
+      //     }
+      //     if (
+      //       includes(toLower(type), 'open') ||
+      //       includes(toLower(type), 'ended')
+      //     ) {
+      //       type = OPEN_ENDED;
+      //     }
+      //   }
+
+      //   return {
+      //     ...omit(quiz, ['explanation']),
+      //     options,
+      //     type
+      //   };
+      // });
+
+      const questions = map([...quizzes], (quiz) => {
+        let type = quiz?.type;
+        let options = [];
+        if (
+          !isNil(quiz?.options) ||
+          (isArray(quiz?.options) && isEmpty(quiz?.options))
+        ) {
+          options = quiz?.options;
+        }
+
+        if (isNil(type) || isEmpty(type)) {
+          if (!isNil(options) || !isEmpty(options)) {
+            if (options.length < 3) {
+              type = TRUE_FALSE;
+            } else {
+              type = MULTIPLE_CHOICE_SINGLE;
+            }
+          } else {
+            if (!isEmpty(quiz?.answer) || !isNil(quiz?.answer)) {
+              type = OPEN_ENDED;
+            }
+          }
+        } else {
+          if (
+            includes(toLower(type), 'multiple answers') ||
+            includes(toLower(type), 'multipleanswers') ||
+            includes(toLower(type), 'multipleanswer') ||
+            toLower(type) === 'multiplechoice'
+          ) {
+            type = MULTIPLE_CHOICE_MULTI;
+          }
+          if (
+            includes(toLower(type), 'single answer') ||
+            includes(toLower(type), 'singleanswer')
+          ) {
+            type = MULTIPLE_CHOICE_SINGLE;
+          }
+          if (
+            includes(toLower(type), 'true') ||
+            includes(toLower(type), 'false')
+          ) {
+            type = TRUE_FALSE;
+          }
+          if (
+            includes(toLower(type), 'open') ||
+            includes(toLower(type), 'ended')
+          ) {
+            type = OPEN_ENDED;
+            if (!isEmpty(options)) {
               if (options.length < 3) {
                 type = TRUE_FALSE;
               } else {
                 type = MULTIPLE_CHOICE_SINGLE;
               }
-            } else {
-              if (!isEmpty(quiz?.answer) || !isNil(quiz?.answer)) {
-                type = OPEN_ENDED;
-              }
-            }
-          } else {
-            if (
-              includes(toLower(type), 'multiple') ||
-              includes(toLower(type), 'choice')
-            ) {
-              type = MULTIPLE_CHOICE_SINGLE;
-            }
-            if (includes(toLower(type), 'true')) {
-              type = TRUE_FALSE;
-            }
-            if (
-              includes(toLower(type), 'open') ||
-              includes(toLower(type), 'ended')
-            ) {
-              type = OPEN_ENDED;
+              const arrOptions = [...options];
+              options = map(arrOptions, (option, idx) => ({
+                content: option,
+                isCorrect: toNumber(quiz?.answer) === idx + 1
+              }));
             }
           }
+        }
 
-          return {
-            ...omit(quiz, ['explanation']),
-            options,
-            type
-          };
-        }),
-        'multiple'
-      );
+        const result: Omit<QuizQuestion, 'options' | 'question'> & {
+          options?: string[];
+          question?: string;
+        } = {
+          ...omit(quiz, ['explanation']),
+          options,
+          type
+        };
 
-      handleSetTitle(localData?.topic);
+        if (quiz?.answer) result.answer = toString(quiz?.answer);
+        return result;
+      });
+
+      if (isNil(quizId) && isEmpty(quizId)) {
+        await handleCreateQuiz(questions);
+      } else {
+        await handleUpdateQuiz(quizId, { quizQuestions: questions });
+      }
 
       setLocalData(dummyData);
-      toast({
-        position: 'top-right',
-        title: `quizzes generated`,
-        status: 'success'
-      });
     } catch (error) {
       console.log('error =======>> ', error);
       toast({
@@ -141,6 +238,7 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle }) => {
     } finally {
       setIsLoading(false);
       handleIsLoadingQuizzes(false);
+      handleSetUploadingState(false);
     }
   };
 
@@ -158,6 +256,21 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle }) => {
 
   return (
     <Box width={'100%'} mt="20px">
+      <FormControl mb={4}>
+        <FormLabel textColor={'text.600'}>Enter a title</FormLabel>
+        <Input
+          value={title}
+          type="text"
+          _placeholder={{
+            color: 'text.200',
+            fontSize: '14px'
+          }}
+          height={'48px'}
+          onChange={(e) => handleSetTitle(e.target.value)}
+          autoComplete="off"
+          defaultValue={title}
+        />
+      </FormControl>
       <FormControl mb={8}>
         <FormLabel textColor={'text.600'}>Subject: </FormLabel>
         <Input
@@ -194,20 +307,6 @@ const TopicQuizForm = ({ addQuestion, handleSetTitle }) => {
 
       <FormControl mb={7}>
         <FormLabel textColor={'text.600'}>Question type:</FormLabel>
-        {/* <Select
-          height={'48px'}
-          sx={{
-            padding: '8px'
-          }}
-          name="type"
-          value={currentQuestion.type}
-          onChange={handleChangeQuestionType}
-          textColor={'text.700'}
-        >
-          <option value="multipleChoiceSingle">Multiple Choice</option>
-          <option value="openEnded">Open Ended</option>
-          <option value="trueFalse">True/False</option>
-        </Select> */}
 
         <SelectComponent
           name="type"

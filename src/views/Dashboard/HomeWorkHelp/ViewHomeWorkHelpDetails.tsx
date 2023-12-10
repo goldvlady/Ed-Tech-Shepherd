@@ -159,12 +159,13 @@ const ViewHomeWorkHelpDetails = ({
             onCreateOption={handleOnCreateOption}
             options={courseList}
             value={selectedOption}
-            styles={{
-              control: (base) => ({
-                ...base,
-                fontSize: '0.875rem'
-              })
-            }}
+            // styles={{
+            //   control: (base) => ({
+            //     ...base,
+            //     fontSize: '0.875rem'
+            //   })
+            // }}
+            classNames={{ control: () => 'text-[0.875rem]' }}
             placeholder="Search or select an option..."
           />
         </FormControl>

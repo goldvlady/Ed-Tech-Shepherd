@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useStreamChat } from '../../providers/StreamChatProvider';
+import { useStreamChat } from '../../providers/streamchat.provider';
 import userStore from '../../state/userStore';
 import React, { SetStateAction } from 'react';
 import { useEffect, useState } from 'react';

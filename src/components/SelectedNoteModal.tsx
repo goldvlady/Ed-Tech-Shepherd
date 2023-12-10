@@ -24,7 +24,7 @@ import {
   Progress
 } from '@chakra-ui/react';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { useRef, useState, useEffect, RefObject } from 'react';
+import React, { useRef, useState, useEffect, RefObject } from 'react';
 import { RiUploadCloud2Fill } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -572,7 +572,7 @@ const SelectedModal = ({
                         <AttachmentIcon /> <FileName>{fileName}</FileName>
                       </Flex>
                     ) : (
-                      <>
+                      <div>
                         <RiUploadCloud2Fill
                           className="h-8 w-8"
                           color="gray.500"
@@ -593,7 +593,7 @@ const SelectedModal = ({
                             DOC, TXT, or PDF (MAX. 500mb)
                           </Text>
                         </PDFTextContainer>
-                      </>
+                      </div>
                     )}
                   </Center>
                 </label>

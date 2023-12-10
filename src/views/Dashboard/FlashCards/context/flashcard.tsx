@@ -263,6 +263,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       } catch (error) {
         // If there's an error, it's likely not a valid URL, so just use documentId as is
       }
+
       watchJobs(documentId as string, (error, questions) => {
         if (error) {
           return handleError(onDone);
@@ -276,6 +277,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
             setTimeout(() => clearJobs(documentId as string), 5000);
           }
         }
+        setIsLoading(false);
       });
       return await ApiService.createDocchatFlashCards({
         ...aiData,
@@ -360,9 +362,10 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       onDone?: (success: boolean) => void,
       ingestDoc = true
     ) => {
+      let reqData = data || flashcardData;
       try {
         data = data || ({} as FlashcardData);
-        const reqData = { ...flashcardData, ...data };
+        reqData = { ...flashcardData, ...data };
         setIsLoading(true);
         setQuestionGenerationStatus(QuestionGenerationStatusEnum.INIT);
         const aiData: AIRequestBody = {
@@ -393,7 +396,9 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       } catch (error) {
         handleError(onDone);
       } finally {
-        setIsLoading(false);
+        if (!reqData.documentId) {
+          setIsLoading(false);
+        }
       }
     },
     [flashcardData, user, handleError, processDocumentRequest, handleResponse]

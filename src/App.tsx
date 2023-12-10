@@ -3,8 +3,8 @@ import TutorDashboardLayout from './components/Layout';
 import { FlashCardModal } from './components/flashcardDecks';
 import { QuizModal } from './components/quizDecks';
 import { useActiveUserPresence } from './hooks/setUserPrensence';
-import { StreamChatProvider } from './providers/StreamChatProvider';
 import { AuthProvider, useAuth } from './providers/auth.provider';
+import { StreamChatProvider } from './providers/streamchat.provider';
 import flashcardStore from './state/flashcardStore';
 import quizStore from './state/quizStore';
 import resourceStore from './state/resourceStore';
@@ -31,8 +31,8 @@ import PinnedNotes from './views/Dashboard/Notes/PinnedNotes/PinnedNotes';
 import Notes from './views/Dashboard/Notes/index';
 import Offer from './views/Dashboard/Offer';
 import Quizzes from './views/Dashboard/Quizzes';
-import QuizWizardProvider from './views/Dashboard/Quizzes/context';
 import CreateQuizzes from './views/Dashboard/Quizzes/create';
+import TakeQuizzes from './views/Dashboard/Quizzes/take';
 import SendTutorOffer from './views/Dashboard/SendTutorOffer';
 import Tutor from './views/Dashboard/Tutor';
 import DashboardIndex from './views/Dashboard/index';
@@ -139,7 +139,8 @@ const studentRoutes = [
   { path: 'library', element: <Library /> },
   // quizzes
   { path: 'quizzes', element: <Quizzes /> },
-  { path: 'quizzes/create', element: <CreateQuizzes /> }
+  { path: 'quizzes/create', element: <CreateQuizzes /> },
+  { path: 'quizzes/take', element: <TakeQuizzes /> }
 ];
 
 // Tutor specific routes configuration
@@ -350,7 +351,7 @@ const AppRoutes: React.FC = () => {
 function App() {
   const { fetchResources } = resourceStore();
   const { flashcard, showStudyList } = flashcardStore();
-  const { quiz } = quizStore();
+  const { startQuizModal } = quizStore();
   useActiveUserPresence();
 
   const doFetchResources = useCallback(async () => {
@@ -364,27 +365,27 @@ function App() {
   }, [doFetchResources]);
 
   return (
-    <LexicalContext>
-      <ChakraProvider theme={theme}>
-        <AuthProvider>
-          <BrowserRouter>
-            <FlashcardWizardProvider>
-              <MnemonicSetupProvider>
-                <QuizWizardProvider>
+    <>
+      <BrowserRouter>
+        <LexicalContext>
+          <ChakraProvider theme={theme}>
+            <AuthProvider>
+              <FlashcardWizardProvider>
+                <MnemonicSetupProvider>
                   <FlashCardModal
                     isOpen={Boolean(flashcard) || showStudyList}
                   />
-                  {Boolean(quiz) && <QuizModal isOpen={Boolean(quiz)} />}
+                  <QuizModal isOpen={startQuizModal} />
                   <StreamChatProvider>
                     <AppRoutes />
                   </StreamChatProvider>
-                </QuizWizardProvider>
-              </MnemonicSetupProvider>
-            </FlashcardWizardProvider>
-          </BrowserRouter>
-        </AuthProvider>
-      </ChakraProvider>
-    </LexicalContext>
+                </MnemonicSetupProvider>
+              </FlashcardWizardProvider>
+            </AuthProvider>
+          </ChakraProvider>
+        </LexicalContext>
+      </BrowserRouter>
+    </>
   );
 }
 

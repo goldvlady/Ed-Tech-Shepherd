@@ -1,6 +1,6 @@
 import BellDot from '../assets/bell-dot.svg';
 import { classNames } from '../helpers';
-import { useStreamChat } from '../providers/StreamChatProvider';
+import { useStreamChat } from '../providers/streamchat.provider';
 import tutorStore from '../state/tutorStore';
 import userStore from '../state/userStore';
 import Notifications from '../views/Dashboard/components/Notifications';

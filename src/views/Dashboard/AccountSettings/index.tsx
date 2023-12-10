@@ -34,7 +34,7 @@ function AccSettings() {
   };
 
   return (
-    <>
+    <div>
       <Box bgColor={'#FBF9FB'} pt={3} px={3}>
         <Box>
           <Text
@@ -151,7 +151,7 @@ function AccSettings() {
           </GridItem>
         </Grid> */}
       </Box>
-    </>
+    </div>
   );
 }
 

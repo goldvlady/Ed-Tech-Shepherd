@@ -59,7 +59,7 @@ const PlansModal = ({ setTogglePlansModal, togglePlansModal }: ToggleProps) => {
   };
 
   return (
-    <>
+    <div>
       {togglePlansModal && (
         <Transition.Root show={togglePlansModal} as={Fragment}>
           <Dialog as="div" className="relative z-[800]" onClose={() => null}>
@@ -294,7 +294,7 @@ const PlansModal = ({ setTogglePlansModal, togglePlansModal }: ToggleProps) => {
           </ModalBody>
         </ModalContent>
       </Modal>
-    </>
+    </div>
   );
 };
 

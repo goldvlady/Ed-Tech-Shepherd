@@ -7,8 +7,10 @@ import ApiService from '../../../../services/ApiService';
 import documentStore from '../../../../state/documentStore';
 import quizStore from '../../../../state/quizStore';
 import userStore from '../../../../state/userStore';
+import useQuizzesQuestionsJob from '../../../../hooks/useQuizzesQuestionsJob';
 import {
   MIXED,
+  MULTIPLE_CHOICE_MULTI,
   MULTIPLE_CHOICE_SINGLE,
   OPEN_ENDED,
   TRUE_FALSE
@@ -36,14 +38,23 @@ import {
   toNumber,
   truncate,
   omit,
-  isArray
+  isArray,
+  toString
 } from 'lodash';
-import { ChangeEvent, useCallback, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 // DownloadIcon
 
-const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
+const UploadQuizForm = ({
+  quizId,
+  handleCreateQuiz,
+  handleUpdateQuiz,
+  handleSetTitle,
+  title,
+  handleSetUploadingState,
+  isLoadingButton
+}) => {
   const dummyData = {
     subject: '',
     topic: '',
@@ -69,9 +80,11 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
 
   const [localData, setLocalData] = useState<any>(dummyData);
   const toast = useCustomToast();
-  const { handleIsLoadingQuizzes } = quizStore();
+  const { handleIsLoadingQuizzes, fetchQuizzes, isLoading } = quizStore();
 
   const { user } = userStore();
+
+  const { watchJobs, clearJobs } = useQuizzesQuestionsJob(user?._id);
 
   const { saveDocument } = documentStore();
 
@@ -82,78 +95,34 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
     setFile(acceptedFiles[0]);
   }, []);
 
-  const handleGenerateQuestions = async (documentId: string) => {
+  const handleGenerateQuestions = async ({
+    name
+  }: {
+    name: string;
+    documentId?: string;
+  }) => {
     try {
-      const result = await ApiService.generateQuizQuestion(user._id, {
+      // handleSetUploadingState(true);
+      await ApiService.generateQuizQuestionFromDocs({
         ...localData,
         count: toNumber(localData.count),
-        documentId
+        documentId: name,
+        studentId: user?._id,
+        topic: title
       });
-      const { quizzes } = await result.json();
-
-      addQuestion(
-        map([...quizzes], (quiz) => {
-          let type = quiz?.type;
-          let options = [];
-          if (!isNil(quiz?.options) && isArray(quiz?.options)) {
-            options = quiz?.options;
-          }
-
-          if (isNil(type) || isEmpty(type)) {
-            if (!isNil(options) || !isEmpty(options)) {
-              if (options.length < 3) {
-                type = TRUE_FALSE;
-              } else {
-                type = MULTIPLE_CHOICE_SINGLE;
-              }
-            } else {
-              if (!isEmpty(quiz?.answer) || !isNil(quiz?.answer)) {
-                type = OPEN_ENDED;
-              }
-            }
-          } else {
-            if (
-              includes(toLower(type), 'multiple') ||
-              includes(toLower(type), 'choice')
-            ) {
-              type = MULTIPLE_CHOICE_SINGLE;
-            }
-            if (includes(toLower(type), 'true')) {
-              type = TRUE_FALSE;
-            }
-            if (
-              includes(toLower(type), 'open') ||
-              includes(toLower(type), 'ended')
-            ) {
-              type = OPEN_ENDED;
-            }
-          }
-
-          return {
-            ...omit(quiz, ['explanation']),
-            options,
-            type
-          };
-        }),
-        'multiple'
-      );
-
-      handleSetTitle(localData?.topic);
 
       setLocalData(dummyData);
-      toast({
-        position: 'top-right',
-        title: `quizzes generated`,
-        status: 'success'
-      });
+      // toast({
+      //   position: 'top-right',
+      //   title: `quizzes generated`,
+      //   status: 'success'
+      // });
     } catch (error) {
       toast({
         position: 'top-right',
-        title: `failed to generate quizzes `,
+        title: `failed to generate quizzes job `,
         status: 'error'
       });
-    } finally {
-      handleIsLoadingQuizzes(false);
     }
   };
   const handleChange = useCallback(
@@ -169,57 +138,165 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
   );
 
   const handleOnSubmit = async () => {
-    handleIsLoadingQuizzes(true);
+    handleSetUploadingState(true);
 
-    const uploadEmitter = uploadFile(file);
+    const uploadEmitter = uploadFile(file, null, true);
     uploadEmitter.on('progress', (progress: number) => {
       if (!isUploadingFile) {
         setIsUploadingFile(true);
       }
     });
-    uploadEmitter.on('complete', async (documentUrl: any) => {
+    uploadEmitter.on('complete', async (document: any) => {
       try {
         const title = decodeURIComponent(
-          (documentUrl.match(/\/([^/]+)(?=\.\w+\?)/) || [])[1] || ''
-        ).replace('uploads/', '');
+          (document?.fileUrl?.match(/\/([^/]+)(?=\.\w+\?)/) || [])[1] || ''
+        )?.replace('uploads/', '');
 
-        const response = await saveDocument({ title, documentUrl }, true);
+        const response = await saveDocument(
+          { title, documentUrl: document?.fileUrl },
+          true
+        );
+
         if (response) {
           const fileProcessor = new FileProcessingService(
             { ...(response as any), student: user?._id },
             true
           );
-          const processData = await fileProcessor.process();
+          await fileProcessor.process();
 
-          const {
-            data: [{ documentId }]
-          } = processData;
+          // const {
+          //   data: { documentId }
+          // } = processData;
 
-          await handleGenerateQuestions(documentId);
+          await handleGenerateQuestions({
+            name: document?.name
+          });
 
-          handleIsLoadingQuizzes(false);
+          watchJobs(document?.name as string, async (error, quizQuestions) => {
+            if (error) {
+              toast({
+                position: 'top-right',
+                title: `failed to generate quizzes `,
+                status: 'error'
+              });
+              return;
+            }
+            // toast({
+            //   position: 'top-right',
+            //   title: `generate quizzes successful`,
+            //   status: 'success'
+            // });
+
+            if (isArray(quizQuestions) && !isEmpty(quizQuestions)) {
+              (async () => {
+                const questions = map([...quizQuestions], (quiz) => {
+                  let type = quiz?.type;
+                  let options = [];
+                  if (
+                    !isNil(quiz?.options) ||
+                    (isArray(quiz?.options) && isEmpty(quiz?.options))
+                  ) {
+                    options = quiz?.options;
+                  }
+
+                  if (isNil(type) || isEmpty(type)) {
+                    if (!isNil(options) || !isEmpty(options)) {
+                      if (options.length < 3) {
+                        type = TRUE_FALSE;
+                      } else {
+                        type = MULTIPLE_CHOICE_SINGLE;
+                      }
+                    } else {
+                      if (!isEmpty(quiz?.answer) || !isNil(quiz?.answer)) {
+                        type = OPEN_ENDED;
+                      }
+                    }
+                  } else {
+                    if (
+                      includes(toLower(type), 'multiple answers') ||
+                      includes(toLower(type), 'multipleanswers') ||
+                      includes(toLower(type), 'multipleanswer') ||
+                      toLower(type) === 'multiplechoice'
+                    ) {
+                      type = MULTIPLE_CHOICE_MULTI;
+                    }
+                    if (
+                      includes(toLower(type), 'single answer') ||
+                      includes(toLower(type), 'singleanswer')
+                    ) {
+                      type = MULTIPLE_CHOICE_SINGLE;
+                    }
+                    if (
+                      includes(toLower(type), 'true') ||
+                      includes(toLower(type), 'false')
+                    ) {
+                      type = TRUE_FALSE;
+                    }
+                    if (
+                      includes(toLower(type), 'open') ||
+                      includes(toLower(type), 'ended')
+                    ) {
+                      type = OPEN_ENDED;
+                      if (!isEmpty(options)) {
+                        if (options.length < 3) {
+                          type = TRUE_FALSE;
+                        } else {
+                          type = MULTIPLE_CHOICE_SINGLE;
+                        }
+                        const arrOptions = [...options];
+                        options = map(arrOptions, (option, idx) => ({
+                          content: option,
+                          isCorrect: toNumber(quiz?.answer) === idx + 1
+                        }));
+                      }
+                    }
+                  }
+
+                  return {
+                    ...omit(quiz, ['explanation']),
+                    options,
+                    type,
+                    answer: toString(quiz?.answer)
+                  };
+                });
+
+                if (isNil(quizId) && isEmpty(quizId)) {
+                  await handleCreateQuiz(questions);
+                } else {
+                  await handleUpdateQuiz(quizId, { quizQuestions: questions });
+                }
+
+                setIsUploadingFile(false);
+                handleIsLoadingQuizzes(false);
+                handleSetUploadingState(false);
+                await fetchQuizzes();
+              })();
+            }
+
+            setTimeout(() => clearJobs(document?.name as string), 5000);
+          });
         } else {
-          handleIsLoadingQuizzes(false);
           toast({
             title: 'Failed to save document',
             status: 'error',
             position: 'top-right'
           });
         }
-        setIsUploadingFile(false);
       } catch (error) {
-        handleIsLoadingQuizzes(false);
+        console.log('uploadEmitter catch =======>> error ', error);
         toast({
           title: 'Failed to save document',
           status: 'error',
           position: 'top-right'
         });
       } finally {
-        setIsUploadingFile(false);
-        handleIsLoadingQuizzes(false);
+        // setIsUploadingFile(false);
+        // handleIsLoadingQuizzes(false);
+        // handleSetUploadingState(false);
       }
     });
     uploadEmitter.on('error', (error) => {
+      console.log('uploadEmitter =======>> error ', error);
       toast({
         title: 'Failed to save document',
         status: 'error',
@@ -228,6 +305,12 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
       setIsUploadingFile(false);
     });
   };
+
+  // useEffect(() => {
+  //   console.log('this ran !!! =======>>> ');
+
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [quizQuestions]);
 
   const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
     onDrop,
@@ -242,6 +325,21 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
 
   return (
     <Box width={'100%'} mt="20px">
+      <FormControl mb={4}>
+        <FormLabel textColor={'text.600'}>Enter a title</FormLabel>
+        <Input
+          value={title}
+          type="text"
+          _placeholder={{
+            color: 'text.200',
+            fontSize: '14px'
+          }}
+          height={'48px'}
+          onChange={(e) => handleSetTitle(e.target.value)}
+          autoComplete="off"
+          defaultValue={title}
+        />
+      </FormControl>
       <FormControl mb={7}>
         <FormLabel textColor={'text.600'}>Upload a document</FormLabel>
         <HStack
@@ -366,7 +464,10 @@ const UploadQuizForm = ({ addQuestion, handleSetTitle }) => {
           colorScheme="primary"
           onClick={handleOnSubmit}
           ml={5}
-          isDisabled={isNil(file) || localData.count < 1}
+          isDisabled={
+            isEmpty(title) || isNil(title) || isNil(file) || localData.count < 1
+          }
+          isLoading={isUploadingFile}
         >
           <WardIcon className={'h-[20px] w-[20px] mx-2'} onClick={() => ''} />
           Generate

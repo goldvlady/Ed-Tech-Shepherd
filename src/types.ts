@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
 export const MULTIPLE_CHOICE_SINGLE = 'multipleChoiceSingle';
+export const MULTIPLE_CHOICE_MULTI = 'multipleChoiceMulti';
 export const TRUE_FALSE = 'trueFalse';
 export const OPEN_ENDED = 'openEnded';
 export const MIXED = 'mixed';
@@ -478,6 +479,7 @@ export interface QuizQuestion {
   currentStep?: number;
   totalSteps?: number;
   id?: string | number;
+  _id?: string | number;
   difficulty?:
     | 'kindergarten'
     | 'high school'

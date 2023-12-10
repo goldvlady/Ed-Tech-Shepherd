@@ -158,7 +158,7 @@ function useTestRecorder(
   const [, setCurrentInnerHTML] = useState('');
   const [templatedTest, setTemplatedTest] = useState('');
   const previousSelectionRef = useRef<
-    RangeSelection | GridSelection | NodeSelection | null
+    RangeSelection | GridSelection | NodeSelection | null | any
   >(null);
   const skipNextSelectionChangeRef = useRef(false);
   const preRef = useRef<HTMLPreElement>(null);

@@ -7,7 +7,8 @@ import {
   remove,
   query,
   orderByChild,
-  equalTo
+  equalTo,
+  limitToLast
 } from 'firebase/database';
 import { useEffect, useState, useCallback } from 'react';
 
@@ -31,7 +32,7 @@ function useFlashcardQuestionsJob(studentID: string) {
       documentId: string,
       callback?: (error: any, flashcards?: FlashcardQuestion[]) => void
     ) => {
-      const jobsRef = ref(database, `/flashcards-job/${studentID}`);
+      const jobsRef = ref(database, `/flashcard-job/${studentID}`);
       const documentIdQuery = query(
         jobsRef,
         orderByChild('documentId'),
@@ -40,25 +41,50 @@ function useFlashcardQuestionsJob(studentID: string) {
       onValue(
         documentIdQuery,
         (snapshot: DataSnapshot) => {
-          const jobsData: { [key: string]: Job } = snapshot.val() || {};
-          console.log(jobsData);
-          const allFlashcards: FlashcardQuestion[] = [];
+          const jobsData = snapshot.val() || {};
+          const filteredJobs = Object.values(jobsData).filter(
+            (job: any) => job.documentId === documentId
+          );
 
-          // Collect flashcards from each job that matches the documentId
-          Object.values(jobsData).forEach((job) => {
-            if (job.documentId === documentId && job.flashcards) {
-              allFlashcards.push(
-                ...job.flashcards.map((question) => ({
-                  ...question,
-                  questionType: 'openEnded'
-                }))
-              );
+          if (filteredJobs.length) {
+            // Sort by datetime on the client side
+            const sortedJobs = filteredJobs.sort((a: any, b: any) => {
+              const datetimeA = new Date(a.datetime).getTime();
+              const datetimeB = new Date(b.datetime).getTime();
+              return datetimeB - datetimeA; // For descending order
+            });
+
+            // Get the most recent job, which is the first item in the sorted array
+            const mostRecentJob: any = sortedJobs[0];
+
+            const allFlashcards: FlashcardQuestion[] = [];
+
+            mostRecentJob.flashcards.forEach((question: any) => {
+              allFlashcards.push({
+                ...question,
+                questionType: 'openEnded'
+              });
+            });
+
+            if (allFlashcards.length) {
+              setFlashcardQuestions(allFlashcards);
             }
-          });
-          setFlashcardQuestions(allFlashcards);
-          if (callback) {
-            callback(null, allFlashcards);
+            if (callback) {
+              callback(null, allFlashcards);
+            }
           }
+
+          // // Collect flashcards from each job that matches the documentId
+          // Object.values(jobsData).forEach((job) => {
+          //   if (job.documentId === documentId && job.flashcards) {
+          //     allFlashcards.push(
+          //       ...job.flashcards.map((question) => ({
+          //         ...question,
+          //         questionType: 'openEnded'
+          //       }))
+          //     );
+          //   }
+          // });
         },
         (error) => {
           callback(error);

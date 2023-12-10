@@ -89,7 +89,7 @@ function FloatingLinkEditor({
         domRect.y += 40;
         setFloatingElemPositionForLinkEditor(domRect, editorElem, anchorElem);
       }
-      setLastSelection(selection);
+      setLastSelection(selection as any);
     } else if (!activeElement || activeElement.className !== 'link-input') {
       if (rootElement !== null) {
         setFloatingElemPositionForLinkEditor(null, editorElem, anchorElem);

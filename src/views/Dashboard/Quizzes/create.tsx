@@ -5,15 +5,13 @@ import { useSearch } from '../../../hooks';
 import ApiService from '../../../services/ApiService';
 import quizStore from '../../../state/quizStore';
 import { QuizData, QuizQuestion } from '../../../types';
-import QuizDataProvider from './context';
 import {
-  ManualQuizForm,
-  TextQuizForm,
+  ManualQuizForm, // TextQuizForm,
   UploadQuizForm,
   TopicQuizForm
 } from './forms';
-// import { QuizModal } from './modal';
-import { manualPreview as QuizPreviewer } from './previews';
+import LoaderScreen from './forms/quizz_setup/loader_page';
+import { ManualPreview as QuizPreviewer } from './previews';
 import './styles.css';
 import {
   Box,
@@ -24,32 +22,58 @@ import {
   Tab,
   TabPanel,
   Flex,
-  TabIndicator, // useDisclosure,
+  TabIndicator,
   AlertStatus,
   ToastPosition
 } from '@chakra-ui/react';
-import { filter, isEmpty, isNil, last, omit, pull, union } from 'lodash';
+import {
+  filter,
+  isEmpty,
+  isNil,
+  last,
+  omit,
+  pull,
+  union,
+  map,
+  merge,
+  unionBy // uniqBy
+} from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+
+type NewQuizQuestion = QuizQuestion & {
+  canEdit?: boolean;
+};
 
 const CreateQuizPage = () => {
   const TAG_TITLE = 'Tags Alert';
   const [searchParams] = useSearchParams();
   const toast = useCustomToast();
-  const { isLoading, loadQuiz, fetchQuizzes, handleIsLoadingQuizzes } =
-    quizStore();
+  const {
+    loadQuiz,
+    fetchQuizzes,
+    handleIsLoadingQuizzes,
+    quiz,
+    isLoading,
+    handleCreateQuiz: handleCreateQuizService,
+    handleUpdateQuiz: handleUpdateQuizService,
+    handleToggleStartQuizModal,
+    handleDeleteQuizQuestion: handleDeleteQuizQuestionService
+  } = quizStore();
   const [isLoadingButton, setIsLoadingButton] = useState(false);
   const [quizId, setQuizId] = useState<string | null | undefined>(null);
 
-  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
-  const [searchQuestions, setSearchQuestions] = useState<QuizQuestion[]>([]);
+  const [questions, setQuestions] = useState<NewQuizQuestion[]>([]);
+  const [searchQuestions, setSearchQuestions] = useState<NewQuizQuestion[]>([]);
   const [openTags, setOpenTags] = useState<boolean>(false);
   const [tags, setTags] = useState<string[]>([]);
   const [newTags, setNewTags] = useState<string[]>(tags);
   const [inputValue, setInputValue] = useState('');
   const [title, setTitle] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
+  const [uploadingState, setUploadingState] = useState(false);
 
+  const handleSetUploadingState = (value: boolean) => setUploadingState(value);
   const handleSetTitle = (str: string) => setTitle(str);
 
   const handleClearQuiz = () => setQuestions([]);
@@ -87,66 +111,71 @@ const CreateQuizPage = () => {
     setInputValue('');
   };
 
-  const handleUpdateQuizQuestion = (index: number, question: QuizQuestion) => {
+  const handleUpdateQuizQuestion = (
+    index: number,
+    question: NewQuizQuestion
+  ) => {
     const updatedQuestions = [...questions];
-    updatedQuestions[index] = question;
+    updatedQuestions[index] = merge({}, question, { canEdit: true });
 
     setQuestions(updatedQuestions);
   };
 
-  const handleDeleteQuizQuestion = (index: number | string) => {
-    const updatedQuestions = [...questions];
-    const filterUpdatedQuestions = filter(updatedQuestions, (question, idx) => {
-      return index !== idx;
-    });
+  const handleDeleteQuizQuestion = async (
+    quizId: number | string,
+    questionId: number | string
+  ) => {
+    handleIsLoadingQuizzes(true);
+    setIsLoadingButton(true);
+    // setUploadingState(true);
 
-    setQuestions(filterUpdatedQuestions);
+    handleDeleteQuizQuestionService(quizId, questionId, async (error) => {
+      handleIsLoadingQuizzes(false);
+      setIsLoadingButton(false);
+      setUploadingState(false);
+      if (error) {
+        toast({
+          position: 'top-right',
+          title: `failed to delete question`,
+          status: 'error'
+        });
+
+        return;
+      }
+      toast({
+        position: 'top-right',
+        title: `question deleted`,
+        status: 'success'
+      });
+
+      await fetchQuizzes();
+    });
   };
 
   useEffect(() => {
     const queryQuizId = searchParams.get('quiz_id');
 
-    if (
-      !isEmpty(queryQuizId) &&
-      !isNil(queryQuizId) &&
-      queryQuizId !== null &&
-      queryQuizId !== undefined
-    ) {
+    if (isNil(quiz) && !isEmpty(queryQuizId) && !isNil(queryQuizId)) {
       (async () => {
-        try {
-          await fetchQuizzes();
-          handleIsLoadingQuizzes(true);
-          setQuizId(queryQuizId);
-          const result: any = await ApiService.getQuiz(queryQuizId as string);
-          const { data }: { data: QuizData } = await result.json();
-
-          if (data) {
-            setTitle(data.title);
-            setTags(data.tags);
-            setQuestions(data?.questions);
-          }
-        } catch (error) {
-          // console.log('getQuiz Error =========>> ', error);
-        } finally {
-          handleIsLoadingQuizzes(false);
-        }
+        setIsLoadingButton(true);
+        await fetchQuizzes();
+        await loadQuiz(queryQuizId);
+        setIsLoadingButton(false);
       })();
     }
-  }, [fetchQuizzes, handleIsLoadingQuizzes, searchParams]);
 
-  const addQuestion = (
-    question: QuizQuestion | QuizQuestion[],
-    type: 'single' | 'multiple' = 'single'
-  ) => {
-    if (type === 'multiple')
-      return setQuestions((prevQuestions) => [
-        ...prevQuestions,
-        ...(question as QuizQuestion[])
-      ]);
-    setQuestions((prevQuestions) => {
-      return [...prevQuestions, question as QuizQuestion];
-    });
-  };
+    if (!isNil(quiz)) {
+      setQuizId(quiz?._id);
+      setTitle(quiz.title);
+      setTags(quiz.tags);
+      setQuestions(
+        map(quiz?.questions, (question) =>
+          merge({}, question, { canEdit: !isNil(queryQuizId) })
+        )
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, quiz]);
 
   const handleRemoveTag = (idx: number, length = 1) => {
     const tag = tags.splice(idx, length);
@@ -155,84 +184,115 @@ const CreateQuizPage = () => {
   };
 
   const handleOpenTagsModal = () => setOpenTags(true);
-  const handleCreateQuiz = async () => {
-    try {
-      handleIsLoadingQuizzes(true);
-      if (isEmpty(title) || isNil(title)) {
-        toast({
-          position: 'top-right',
-          title: `quiz title missing`,
-          status: 'error'
-        });
-        return;
-      }
-      setIsLoadingButton(true);
-      const result = await ApiService.createQuiz({
-        title,
-        questions,
-        tags
-      });
 
-      const { data } = await result.json();
-      setQuizId(data?._id);
-      setTitle(data?.title);
-      setQuestions(data?.questions);
-      setTags(data?.tags);
-      await fetchQuizzes();
-    } catch (error) {
-      toast({
-        position: 'top-right',
-        title: `failed to create quiz`,
-        status: 'error'
-      });
-    } finally {
-      handleIsLoadingQuizzes(false);
-      setIsLoadingButton(false);
-    }
-  };
+  const handleCreateQuiz = async (
+    quizQuestions = questions,
+    canEdit = false,
+    quizTitle = title,
+    quizTags = tags
+  ) => {
+    setIsLoadingButton(true);
+    setUploadingState(true);
 
-  const handleUpdateQuiz = async () => {
-    try {
-      handleIsLoadingQuizzes(true);
-      setIsLoadingButton(true);
-
-      const result = await ApiService.updateQuiz(quizId as string, {
-        title,
-        questions: questions.map((question) => {
+    await handleCreateQuizService(
+      {
+        questions: map(quizQuestions, (question) => {
           return {
-            ...omit(question, ['_id']),
+            ...omit(question, ['id', 'updatedAt', 'createdAt', 'canEdit']),
             options: question?.options?.map((option) => {
-              return omit(option, ['_id']);
+              return omit(option, ['_id', 'updatedAt', 'createdAt']);
             })
           };
         }) as any[],
-        tags
-      });
-      const { data } = await result.json();
+        title: quizTitle,
+        tags: quizTags,
+        canEdit
+      },
+      async (error, res) => {
+        handleIsLoadingQuizzes(false);
+        setIsLoadingButton(false);
+        setUploadingState(false);
+        if (error) {
+          toast({
+            position: 'top-right',
+            title: `failed to create quiz`,
+            status: 'error'
+          });
 
-      setQuizId(data?._id);
-      setTitle(data?.title);
-      setQuestions(data?.questions);
-      setTags(data?.tags);
+          return;
+        }
+        toast({
+          position: 'top-right',
+          title: `quiz created`,
+          status: 'success'
+        });
+        setQuizId(res?._id);
+        setTitle(res?.title);
+      }
+    );
+  };
 
-      // window.location.reload();
-    } catch (error) {
-      console.log('handleUpdateQuiz -------->>> error ========>>> ', error);
-    } finally {
-      handleIsLoadingQuizzes(false);
-      setIsLoadingButton(false);
-      await fetchQuizzes();
+  const handleUpdateQuiz = async (
+    quizId,
+    payload = {
+      quizQuestions: questions,
+      quizTitle: title,
+      quizTags: tags,
+      canEdit: false
     }
+  ) => {
+    const { quizQuestions, quizTitle, quizTags, canEdit } = payload;
+    setIsLoadingButton(true);
+    setUploadingState(true);
+
+    await handleUpdateQuizService(
+      quizId,
+      {
+        questions: map(quizQuestions, (question) => {
+          return {
+            ...omit(question, ['id', 'updatedAt', 'createdAt', 'canEdit']),
+            options: question?.options?.map((option) => {
+              return omit(option, ['_id', 'updatedAt', 'createdAt']);
+            })
+          };
+        }) as any[],
+        title: quizTitle,
+        tags: quizTags,
+        canEdit
+      },
+      async (error, res) => {
+        handleIsLoadingQuizzes(false);
+        setIsLoadingButton(false);
+        setUploadingState(false);
+        if (error) {
+          toast({
+            position: 'top-right',
+            title: `failed to update quiz`,
+            status: 'error'
+          });
+
+          return;
+        }
+        toast({
+          position: 'top-right',
+          title: `quiz updated!`,
+          status: 'success'
+        });
+        setQuizId(res?._id);
+        setTitle(res?.title);
+        await fetchQuizzes();
+      }
+    );
   };
 
   const handleLoadQuiz = () => {
+    handleToggleStartQuizModal(true);
     loadQuiz(quizId);
   };
   const searchQuizzes = useCallback(
     (query: string) => {
       if (isEmpty(query)) return setSearchQuestions([]);
       if (!hasSearched) setHasSearched(true);
-      // fetchQuizzes({ search: query });
       const re = new RegExp(query, 'i');
       const filtered = questions.filter((entry) =>
         Object.values(entry).some(
@@ -257,8 +317,63 @@ const CreateQuizPage = () => {
     //       'Knife primarily serves as a cutting tool. It may be used in various contexts like kitchen for food preparation or in arts for creating crafts.'
     //   },
     //   {
-    //     question: 'A knife can be used for...',
+    //     canEdit: true,
+    //     question:
+    //       'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+    //     type: 'multipleChoiceMulti',
+    //     options: [
+    //       {
+    //         content:
+    //           'Cutting food Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+    //         isCorrect: true
+    //       },
+    //       {
+    //         content:
+    //           'Sewing clothes Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+    //         isCorrect: false
+    //       },
+    //       {
+    //         content:
+    //           'Opening a package Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+    //         isCorrect: false
+    //       },
+    //       {
+    //         content:
+    //           'Writing a letter Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+    //         isCorrect: false
+    //       }
+    //     ]
+    //   },
+    //   {
+    //     question:
+    //       'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
     //     type: 'multipleChoiceSingle',
+    //     options: [
+    //       {
+    //         content:
+    //           'Cutting food Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+    //         isCorrect: true
+    //       },
+    //       {
+    //         content:
+    //           'Sewing clothes Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+    //         isCorrect: false
+    //       },
+    //       {
+    //         content:
+    //           'Opening a package Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+    //         isCorrect: false
+    //       },
+    //       {
+    //         content:
+    //           'Writing a letter Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+    //         isCorrect: false
+    //       }
+    //     ]
+    //   },
+    //   {
+    //     question: 'A knife can be used for...',
+    //     type: 'multipleChoiceMulti',
     //     options: [
     //       {
     //         content: 'Cutting food',
@@ -349,8 +464,6 @@ const CreateQuizPage = () => {
         overflowY={'hidden'}
         flexWrap="wrap"
       >
-        {isLoading && <LoaderOverlay />}
-
         <Box
           className="create-quiz-wrapper"
           px={'30px'}
@@ -371,84 +484,94 @@ const CreateQuizPage = () => {
             }
           }}
         >
-          <Text
-            fontFamily="Inter"
-            fontWeight="500"
-            fontSize="18px"
-            lineHeight="23px"
-            color="#212224"
-            py={8}
-          >
-            Create Quiz
-          </Text>
-          <Tabs defaultIndex={2} isLazy isFitted position={'relative'}>
-            <TabList display="flex">
-              <Tab
-                _selected={{ color: '#207DF7' }}
-                flex="1"
-                justifyContent={'flex-start'}
-              >
-                Upload
-              </Tab>
-              <Tab _selected={{ color: '#207DF7' }} flex="1">
-                Topic
-              </Tab>
-              {false && (
-                <Tab _selected={{ color: '#207DF7' }} flex="1">
-                  Text
+          {isLoading && <LoaderOverlay />}
+
+          <>
+            <Text
+              fontFamily="Inter"
+              fontWeight="500"
+              fontSize="18px"
+              lineHeight="23px"
+              color="#212224"
+              py={8}
+            >
+              Create Quiz
+            </Text>
+            <Tabs defaultIndex={2} isLazy isFitted position={'relative'}>
+              <TabList display="flex">
+                <Tab
+                  _selected={{ color: '#207DF7' }}
+                  flex="1"
+                  justifyContent={'flex-start'}
+                  pl={0}
+                >
+                  Upload
                 </Tab>
-              )}
-              <Tab
-                _selected={{ color: '#207DF7' }}
-                flex="1"
-                justifyContent={'flex-end'}
-              >
-                Manual
-              </Tab>
-            </TabList>
+                <Tab _selected={{ color: '#207DF7' }} flex="1">
+                  Topic
+                </Tab>
+                {false && (
+                  <Tab _selected={{ color: '#207DF7' }} flex="1">
+                    Text
+                  </Tab>
+                )}
+                <Tab
+                  _selected={{ color: '#207DF7' }}
+                  flex="1"
+                  justifyContent={'flex-end'}
+                  pr={0}
+                >
+                  Manual
+                </Tab>
+              </TabList>
 
-            <TabIndicator
-              mt="-1.5px"
-              height="2px"
-              bg="#207DF7"
-              borderRadius="1px"
-            />
+              <TabIndicator
+                mt="-1.5px"
+                height="2px"
+                bg="#207DF7"
+                borderRadius="1px"
+              />
 
-            <TabPanels>
-              <TabPanel p={0}>
-                <UploadQuizForm
-                  addQuestion={addQuestion}
-                  handleSetTitle={handleSetTitle}
-                />
-              </TabPanel>
-
-              <TabPanel p={0}>
-                <TopicQuizForm
-                  addQuestion={addQuestion}
-                  handleSetTitle={handleSetTitle}
-                />
-              </TabPanel>
-              {false && (
+              <TabPanels>
                 <TabPanel p={0}>
-                  <TextQuizForm
-                    addQuestion={addQuestion}
+                  <UploadQuizForm
+                    quizId={quiz?._id ?? quizId}
+                    handleSetUploadingState={handleSetUploadingState}
+                    handleCreateQuiz={handleCreateQuiz}
+                    handleUpdateQuiz={handleUpdateQuiz}
                     handleSetTitle={handleSetTitle}
+                    isLoadingButton={uploadingState}
+                    title={title}
                   />
                 </TabPanel>
-              )}
-              <TabPanel p={0}>
-                <ManualQuizForm
-                  openTags={handleOpenTagsModal}
-                  addQuestion={addQuestion}
-                  tags={tags}
-                  removeTag={handleRemoveTag}
-                  title={title}
-                  handleSetTitle={handleSetTitle}
-                  isLoadingButton={isLoadingButton}
-                />
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
+
+                <TabPanel p={0}>
+                  <TopicQuizForm
+                    quizId={quiz?._id ?? quizId}
+                    handleSetUploadingState={handleSetUploadingState}
+                    handleCreateQuiz={handleCreateQuiz}
+                    handleUpdateQuiz={handleUpdateQuiz}
+                    handleSetTitle={handleSetTitle}
+                    isLoadingButton={uploadingState}
+                    title={title}
+                  />
+                </TabPanel>
+                <TabPanel p={0}>
+                  <ManualQuizForm
+                    quizId={quiz?._id ?? quizId}
+                    openTags={handleOpenTagsModal}
+                    tags={tags}
+                    removeTag={handleRemoveTag}
+                    title={title}
+                    handleSetTitle={handleSetTitle}
+                    isLoadingButton={isLoadingButton}
+                    handleCreateQuiz={handleCreateQuiz}
+                    handleUpdateQuiz={handleUpdateQuiz}
+                  />
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+          </>
         </Box>
         <Box
           className="review-quiz-wrapper"
@@ -456,18 +579,23 @@ const CreateQuizPage = () => {
           bg="#F9F9FB"
           borderLeft="1px solid #E7E8E9"
         >
-          <QuizPreviewer
-            handleClearQuiz={handleClearQuiz}
-            onOpen={handleLoadQuiz}
-            createQuiz={handleCreateQuiz}
-            updateQuiz={handleUpdateQuiz}
-            questions={!isEmpty(searchQuestions) ? searchQuestions : questions}
-            quizId={quizId as string}
-            isLoadingButton={isLoadingButton}
-            handleUpdateQuizQuestion={handleUpdateQuizQuestion}
-            handleSearch={handleSearch}
-            handleDeleteQuizQuestion={handleDeleteQuizQuestion}
-          />
+          {uploadingState && <LoaderScreen />}
+          {!uploadingState && (
+            <QuizPreviewer
+              handleClearQuiz={handleClearQuiz}
+              onOpen={handleLoadQuiz}
+              updateQuiz={handleUpdateQuiz}
+              questions={
+                !isEmpty(searchQuestions) ? searchQuestions : questions
+              }
+              quizId={quiz?._id ?? (quizId as string)}
+              isLoadingButton={isLoadingButton}
+              handleUpdateQuizQuestion={handleUpdateQuizQuestion}
+              handleSearch={handleSearch}
+              handleDeleteQuizQuestion={handleDeleteQuizQuestion}
+              handleSetUploadingState={handleSetUploadingState}
+            />
+          )}
         </Box>
       </Flex>
 
@@ -504,11 +632,7 @@ const CreateQuizPage = () => {
 };
 
 const CreateQuiz = () => {
-  return (
-    <QuizDataProvider>
-      <CreateQuizPage />
-    </QuizDataProvider>
-  );
+  return <CreateQuizPage />;
 };
 
 export default CreateQuiz;

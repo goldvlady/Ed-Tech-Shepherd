@@ -119,7 +119,7 @@ export default function AutocompletePlugin(): JSX.Element | null {
       }
       editor.update(
         () => {
-          const selection = $getSelection();
+          const selection = $getSelection() as any;
           const [hasMatch, match] = $search(selection);
           if (
             !hasMatch ||
@@ -151,7 +151,7 @@ export default function AutocompletePlugin(): JSX.Element | null {
     function handleUpdate() {
       editor.update(() => {
         const selection = $getSelection();
-        const [hasMatch, match] = $search(selection);
+        const [hasMatch, match] = $search(selection as any);
         if (!hasMatch) {
           $clearSuggestion();
           return;

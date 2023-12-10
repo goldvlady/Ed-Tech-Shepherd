@@ -10,31 +10,30 @@ import {
   equalTo
 } from 'firebase/database';
 import React, { useEffect, useState, useCallback } from 'react';
+import { QuizQuestion } from '../types';
 
-type FlashcardQuestion = {
-  question: string;
-  questionType: string;
-  answer: string;
-  explanation: string;
-};
+// type QuizQuestion = {
+//   question: string;
+//   questionType: string;
+//   answer: string;
+//   explanation: string;
+// };
 
 type Job = {
   documentId: string;
-  flashcards: FlashcardQuestion[];
+  quiz: QuizQuestion[];
 };
 
-function useFlashcardQuestionsJob(studentID: string) {
-  const [flashcardQuestions, setFlashcardQuestions] = useState<
-    FlashcardQuestion[]
-  >([]);
+function useQuizQuestionsJob(studentID: string) {
+  const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
 
   // Function to watch new jobs for a documentId
   const watchJobs = useCallback(
     (
       documentId: string,
-      callback?: (error: any, flashcards?: FlashcardQuestion[]) => void
+      callback?: (error: any, quiz?: QuizQuestion[]) => void
     ) => {
-      const jobsRef = ref(database, `/flashcards-job/${studentID}`);
+      const jobsRef = ref(database, `/quiz-job/${studentID}`);
       const documentIdQuery = query(
         jobsRef,
         orderByChild('documentId'),
@@ -46,23 +45,23 @@ function useFlashcardQuestionsJob(studentID: string) {
         (snapshot: DataSnapshot) => {
           const jobsData: { [key: string]: Job } = snapshot.val() || {};
 
-          const allFlashcards: FlashcardQuestion[] = [];
+          const allQuizs: QuizQuestion[] = [];
 
-          // Collect flashcards from each job that matches the documentId
+          // Collect quiz from each job that matches the documentId
           Object.values(jobsData).forEach((job) => {
-            if (job.documentId === documentId && job.flashcards) {
-              allFlashcards.push(
-                ...job.flashcards.map((question) => ({
-                  ...question,
-                  questionType: 'openEnded'
+            if (job.documentId === documentId && job.quiz) {
+              allQuizs.push(
+                ...job.quiz.map((question) => ({
+                  type: 'openEnded',
+                  ...question
                 }))
               );
             }
           });
 
-          setFlashcardQuestions(allFlashcards);
+          setQuizQuestions(allQuizs);
           if (callback) {
-            callback(null, allFlashcards);
+            callback(null, allQuizs);
           }
         },
         (error) => {
@@ -76,7 +75,7 @@ function useFlashcardQuestionsJob(studentID: string) {
   // Function to delete all jobs for a documentId
   const clearJobs = useCallback(
     (documentId: string) => {
-      const jobsRef = ref(database, `/flashcards-job/${studentID}`);
+      const jobsRef = ref(database, `/quiz-job/${studentID}`);
       const documentIdQuery = query(
         jobsRef,
         orderByChild('documentId'),
@@ -91,7 +90,7 @@ function useFlashcardQuestionsJob(studentID: string) {
           // Iterate over each job and delete it if it matches the documentId
           Object.keys(jobsData).forEach((jobKey) => {
             if (jobsData[jobKey].documentId === documentId) {
-              remove(ref(database, `/flashcards-job/${studentID}/${jobKey}`));
+              remove(ref(database, `/quiz-job/${studentID}/${jobKey}`));
             }
           });
         },
@@ -104,10 +103,10 @@ function useFlashcardQuestionsJob(studentID: string) {
   );
 
   return {
-    flashcardQuestions,
+    quizQuestions,
     watchJobs,
     clearJobs
   };
 }
 
-export default useFlashcardQuestionsJob;
+export default useQuizQuestionsJob;

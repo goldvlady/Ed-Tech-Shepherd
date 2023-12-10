@@ -141,7 +141,7 @@ export default function PollComponent({
   const [isSelected, setSelected, clearSelection] =
     useLexicalNodeSelection(nodeKey);
   const [selection, setSelection] = useState<
-    RangeSelection | NodeSelection | GridSelection | null
+    RangeSelection | NodeSelection | GridSelection | null | any
   >(null);
   const ref = useRef(null);
 
