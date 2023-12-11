@@ -1,17 +1,53 @@
+import ApiService from '../services/ApiService';
+import flashcardStore from '../state/flashcardStore';
+import { FlashcardData, FlashcardQuestion, SchedulePayload } from '../types';
 import {
   convertTimeToDateTime,
   convertTimeToTimeZone,
   convertISOToCustomFormat,
   convertUtcToUserTime
 } from '../util';
-import { Text } from '@chakra-ui/react';
+import ScheduleStudyModal, {
+  ScheduleFormState
+} from '../views/Dashboard/FlashCards/components/scheduleModal';
+import CalendarDateInput from './CalendarDateInput';
+import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
+import { CloseIcon } from '@chakra-ui/icons';
+import {
+  Button,
+  Box,
+  Text,
+  Flex,
+  FormControl,
+  FormLabel,
+  Spacer,
+  HStack,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton
+} from '@chakra-ui/react';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
+import { isSameDay, isThisWeek, getISOWeek } from 'date-fns';
+import { parseISO, format, parse } from 'date-fns';
 import moment from 'moment';
-import React from 'react';
-import { MdOutlineSentimentNeutral } from 'react-icons/md';
+import React, { useMemo, useState } from 'react';
+import { MdOutlineSentimentNeutral, MdOutlineReplay } from 'react-icons/md';
+import { useNavigate } from 'react-router';
 
 export default function Events({ event }: any) {
-  // console.log("EVENT", event);
+  const {
+    isOpen: isOpenReBook,
+    onOpen: onOpenReBook,
+    onClose: onCloseReBook
+  } = useDisclosure();
+
+  const today = useMemo(() => new Date(), []);
+
   const getTextByEventType = (eventType, name) => {
     switch (eventType) {
       case 'study':
@@ -44,6 +80,16 @@ export default function Events({ event }: any) {
         return undefined;
     }
   };
+  const getHoverColorByEventType = (eventType) => {
+    switch (eventType) {
+      case 'study':
+        return `hover:bg-emerald-50`;
+      case 'booking':
+        return `hover:bg-amber-50`;
+      default:
+        return undefined;
+    }
+  };
 
   function extractAndConvertTimeFromUTC(
     utcDateString: string,
@@ -57,19 +103,131 @@ export default function Events({ event }: any) {
     const localTime = localDate.format('hh:mm A');
     return localTime;
   }
+  const navigate = useNavigate();
 
   const currentPath = window.location.pathname;
 
   const isTutor = currentPath.includes('/dashboard/tutordashboard/');
 
+  const {
+    fetchFlashcards,
+    setShowStudyList,
+    flashcards,
+    tags,
+    loadFlashcard,
+    deleteFlashCard,
+    storeFlashcardTags,
+    isLoading,
+    scheduleFlashcard,
+    rescheduleFlashcard,
+    pagination,
+    loadTodaysFlashcards,
+    dailyFlashcards
+  } = flashcardStore();
+
+  const toast = useCustomToast();
+
+  const [scheduleItem, setScheduleItem] = useState<{
+    flashcard: FlashcardData;
+  } | null>(null);
+  const [reScheduleItem, setReScheduleItem] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [newDate, setNewDate] = useState<Date>();
+
+  const handleEventSchedule = async (data: ScheduleFormState) => {
+    const parsedTime = parse(data.time.toLowerCase(), 'hh:mm aa', new Date());
+    const time = format(parsedTime, 'HH:mm');
+
+    const payload: SchedulePayload = {
+      entityId: scheduleItem?.flashcard._id as string,
+      entityType: 'flashcard',
+      startDates: [data.day?.toISOString() as string],
+      startTime: time
+    };
+
+    if (data.frequency && data.frequency !== 'none') {
+      payload.recurrence = { frequency: data.frequency };
+      if (data.endDate) {
+        payload.recurrence.endDate = data.endDate.toISOString();
+      }
+    }
+    console.log(selectedEvent, 'selectedevent');
+
+    const rePayload = {
+      eventId: selectedEvent,
+      updates: {
+        startDate: [data.day?.toISOString() as string],
+        startTime: time,
+        recurrence: {
+          frequency: data.frequency ? data.frequency : 'none',
+          endDate: data.endDate ? data.endDate.toISOString() : ''
+        },
+        isActive: true
+      }
+    };
+
+    const isSuccess = await rescheduleFlashcard(rePayload);
+    if (isSuccess) {
+      toast({
+        position: 'top-right',
+        title: `${scheduleItem?.flashcard.deckname} Rescheduled Succesfully`,
+        status: 'success'
+      });
+      setScheduleItem(null);
+    } else {
+      toast({
+        position: 'top-right',
+        title: `Failed to reschedule ${scheduleItem?.flashcard.deckname} flashcards`,
+        status: 'error'
+      });
+    }
+  };
+
+  const rebook = async () => {
+    const payload = {
+      bookingId: selectedEvent,
+      updates: {
+        endDate: newDate
+      }
+    };
+    const response = await ApiService.reScheduleBooking(payload);
+    if (response.status === 200) {
+      toast({
+        position: 'top-right',
+        title: `Booking Rescheduled Succesfully`,
+        status: 'success'
+      });
+      setScheduleItem(null);
+    } else {
+      toast({
+        position: 'top-right',
+        title: `Failed to reschedule booking`,
+        status: 'error'
+      });
+    }
+  };
+
   return (
-    <li className={`flex gap-x-3 ${getColorByEventType(event.type)}`}>
+    <li
+      className={`flex gap-x-3 cursor-pointer hover:drop-shadow-sm ${getColorByEventType(
+        event.type
+      )} ${getHoverColorByEventType(event.type)}`}
+      onClick={() => {
+        navigate(
+          `${
+            event.type === 'study'
+              ? `/dashboard/flashcards/${event.data.entity.id}`
+              : `/dashboard`
+          }`
+        );
+      }}
+    >
       <div
         className={`min-h-fit w-1 rounded-tr-full rounded-br-full ${getBgColorByEventType(
           event.type
         )}`}
       />
-      <div className="py-2">
+      <div className="py-2 w-full">
         <div className="flex gap-x-1">
           <div className="min-w-0 flex-auto">
             <Text className="text-xs font-normal leading-6 text-gray-500">
@@ -83,22 +241,98 @@ export default function Events({ event }: any) {
                     }
               )}
             </Text>
-            <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
-              <span>
-                {convertUtcToUserTime(event.data.startDate)}
-                {/* Format the time as "11:00 AM" */}
-              </span>
-              {event.type !== 'study' && (
-                <>
-                  {' '}
-                  <ChevronRightIcon className="w-4 h-4" />
-                  <span>{convertUtcToUserTime(event.data.endDate)}</span>
-                </>
-              )}
-            </Text>
+            <Flex alignItems={'center'}>
+              {' '}
+              <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
+                <span>
+                  {convertUtcToUserTime(event.data.startDate)}
+                  {/* Format the time as "11:00 AM" */}
+                </span>
+                {event.type !== 'study' && (
+                  <>
+                    {' '}
+                    <ChevronRightIcon className="w-4 h-4" />
+                    <span>{convertUtcToUserTime(event.data.endDate)}</span>
+                  </>
+                )}
+              </Text>
+              <Spacer />
+              <HStack color="#6b7280" mx={2}>
+                {' '}
+                <MdOutlineReplay
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedEvent(event.data._id);
+                    event.type === 'study'
+                      ? setReScheduleItem(true)
+                      : onOpenReBook();
+                  }}
+                />{' '}
+                <CloseIcon boxSize={2} />
+              </HStack>
+            </Flex>
           </div>
         </div>
       </div>
+      <ScheduleStudyModal
+        isLoading={isLoading}
+        onSumbit={(d) => handleEventSchedule(d)}
+        onClose={() => setReScheduleItem(false)}
+        isOpen={reScheduleItem}
+      />
+      <Modal isOpen={isOpenReBook} onClose={onCloseReBook}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Reschedule Booking</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Box width="100%" paddingBottom={'50px'}>
+              <FormControl id="day" marginBottom="20px">
+                <FormLabel>Day</FormLabel>
+                <CalendarDateInput
+                  disabledDate={{ before: today }}
+                  inputProps={{
+                    placeholder: 'Select Day'
+                  }}
+                  value={newDate as Date}
+                  onChange={(value) => {
+                    setNewDate(value);
+                  }}
+                />
+              </FormControl>
+            </Box>
+          </ModalBody>
+
+          <ModalFooter
+            bg="#F7F7F8"
+            borderRadius="0px 0px 10px 10px"
+            p="16px"
+            justifyContent="flex-end"
+          >
+            <Button
+              isDisabled={!newDate}
+              _hover={{
+                backgroundColor: '#207DF7',
+                boxShadow: '0px 2px 6px 0px rgba(136, 139, 143, 0.10)'
+              }}
+              bg="#207DF7"
+              color="#FFF"
+              fontSize="14px"
+              fontFamily="Inter"
+              fontWeight="500"
+              lineHeight="20px"
+              onClick={() => rebook()}
+              isLoading={isLoading}
+              borderRadius="8px"
+              boxShadow="0px 2px 6px 0px rgba(136, 139, 143, 0.10)"
+              mr={3}
+              variant="primary"
+            >
+              Submit
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </li>
   );
 }

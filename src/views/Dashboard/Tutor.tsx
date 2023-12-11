@@ -1,6 +1,3 @@
-import Star4 from '../../assets/4star.svg';
-import Check from '../../assets/check.svg';
-import Day from '../../assets/day.svg';
 import FileAvi2 from '../../assets/file-avi2.svg';
 import FileAvi from '../../assets/file-avi.svg';
 import Star from '../../assets/littleStar.svg';
@@ -67,6 +64,7 @@ import { FiChevronRight } from 'react-icons/fi';
 import { RiQuestionFill } from 'react-icons/ri';
 import { RxDotFilled } from 'react-icons/rx';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import Availability from '../../components/Availability';
 
 export default function Tutor() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -146,8 +144,6 @@ export default function Tutor() {
     );
   }
 
-  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
-
   return (
     <>
       <Box>
@@ -214,8 +210,11 @@ export default function Tutor() {
                       {tutorData.highestLevelOfEducation}
                     </Text>
                     <Flex>
-                      {' '}
-                      <Image src={Star} boxSize={4} />
+                      <Box boxSize={4}>
+                        {' '}
+                        <Star />
+                      </Box>
+
                       <Text fontSize={12} fontWeight={400} color="#6E7682">
                         {` ${tutorData.rating}(${tutorData.reviewCount})`}
                       </Text>
@@ -236,12 +235,7 @@ export default function Tutor() {
                         border="1px solid #E7E8E9"
                         borderRadius="6px"
                         fontSize="12px"
-                        leftIcon={
-                          <img
-                            src={checkBookmarks() ? Ribbon2 : Ribbon}
-                            alt="save"
-                          />
-                        }
+                        leftIcon={checkBookmarks() ? <Ribbon2 /> : <Ribbon />}
                         p={'7px 14px'}
                         display="flex"
                         _hover={{
@@ -327,11 +321,10 @@ export default function Tutor() {
                             {tutorData.qualifications.map((q) => (
                               <>
                                 <Flex px={3} gap={0} direction={'row'} my={2}>
-                                  <Image
-                                    src={FileAvi2}
-                                    alt="qualification"
-                                    mb={4}
-                                  />
+                                  <Box mb={4}>
+                                    {' '}
+                                    <FileAvi2 />
+                                  </Box>
                                   <Stack
                                     direction={'column'}
                                     px={4}
@@ -369,7 +362,12 @@ export default function Tutor() {
                             ))}
                           </TabPanel>
                           <TabPanel>
-                            <AvailabilityTable data={tutorData} />
+                            {/* <AvailabilityTable data={tutorData} /> */}
+                            <Availability
+                              schedule={tutorData.schedule}
+                              timezone={tutorData.tz}
+                              editMode={false}
+                            />
                           </TabPanel>
                           <TabPanel>
                             <TableContainer my={4}>

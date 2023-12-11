@@ -3,7 +3,7 @@ import Pagination from './components/Pagination';
 import TutorCard from './components/TutorCard';
 import { Box, Flex, Image, SimpleGrid, Text } from '@chakra-ui/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 function BookmarkedTutors() {
   const {

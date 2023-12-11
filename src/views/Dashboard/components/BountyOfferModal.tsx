@@ -178,8 +178,6 @@ export default function BountyOfferModal(props) {
                 color=" #212224"
                 fontWeight="400"
                 textAlign="left"
-                placeholder="e.g Biology"
-                _placeholder={{ fontSize: '0.875rem', color: '#9A9DA2' }}
               >
                 {bountyOffer.subject !== 'Subject'
                   ? courseList.map((course) => {

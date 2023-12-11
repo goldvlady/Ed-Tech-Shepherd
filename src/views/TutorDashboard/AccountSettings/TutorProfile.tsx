@@ -73,6 +73,7 @@ import { BiPlayCircle } from 'react-icons/bi';
 import { IoIosAlert } from 'react-icons/io';
 import { MdEdit } from 'react-icons/md';
 import { RiArrowRightSLine } from 'react-icons/ri';
+import Availability from '../../../components/Availability';
 
 interface SubjectLevel {
   subject: string;
@@ -217,6 +218,37 @@ function MyProfile(props) {
     }
     return false;
   };
+  const isScheduleValid = useMemo(() => {
+    if (!schedule || !Object.keys(schedule).length) {
+      return false;
+    }
+    const sch: any = schedule;
+
+    let hasNonEmptyBlock = false; // Flag to check for at least one non-empty block
+
+    for (const key in sch) {
+      if (!Array.isArray(sch[key])) {
+        return false;
+      }
+
+      if (sch[key].length > 0) {
+        hasNonEmptyBlock = true; // Update flag if the array has non-empty blocks
+
+        for (let i = 0; i < sch[key].length; i++) {
+          if (
+            !sch[key][i].begin ||
+            !sch[key][i].end ||
+            sch[key][i].begin.trim() === '' ||
+            sch[key][i].end.trim() === ''
+          ) {
+            return false;
+          }
+        }
+      }
+    }
+
+    return hasNonEmptyBlock; // Return whether at least one non-empty block exists
+  }, [schedule]);
 
   const handleHourlyRateChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -238,6 +270,10 @@ function MyProfile(props) {
 
   const updateSchedule = (value) => {
     setSchedule(value);
+  };
+  const updateTimezone = (value) => {
+    handleUpdateTutor('tz', value);
+    // setSchedule(value);
   };
   const updateQualifications = (value) => {
     const qualifications: any = [...tutorData.tutor.qualifications, value];
@@ -624,7 +660,9 @@ function MyProfile(props) {
             {tutorData.tutor.qualifications.map((q) => (
               <>
                 <Flex px={3} gap={0} direction={'row'} my={2}>
-                  <Image src={FileAvi2} alt="qualification" mb={4} />
+                  <Box mb={4}>
+                    <FileAvi2 />
+                  </Box>
                   <Stack direction={'column'} px={4} spacing={1}>
                     <Text fontSize={'16px'} fontWeight={'500'} mb={0}>
                       {q.institution}
@@ -685,7 +723,14 @@ function MyProfile(props) {
                 </Center>
               </Box>
             </Flex>
-            <AvailabilityTable data={tutorData.tutor} />
+            {/* <AvailabilityTable data={tutorData.tutor} /> */}
+            <Availability
+              schedule={tutorData.tutor.schedule}
+              timezone={tutorData.tutor.tz}
+              // handleUpdateSchedule={handleUpdateTutor}
+              // handleUpdateTimezone={handleUpdateTutor}
+              editMode={false}
+            />
           </Box>
         </>
       )}
@@ -695,13 +740,13 @@ function MyProfile(props) {
         modalTitle="Update Availability"
         isModalCloseButton
         style={{
-          maxWidth: '400px',
+          maxWidth: '700px',
           height: 'fit-content'
         }}
         footerContent={
           <div style={{ display: 'flex', gap: '8px' }}>
             <Button
-              isDisabled={hasAnyEmptyArray(schedule) || !schedule || isUpdating}
+              isDisabled={!isScheduleValid || !schedule || isUpdating}
               onClick={() => handleUpdateTutor('schedule', schedule)}
             >
               {isUpdating ? 'Updating...' : 'Update'}
@@ -710,9 +755,16 @@ function MyProfile(props) {
         }
         onClose={closeUpdateAvailabilityModal}
       >
-        <Box overflowY={'scroll'}>
-          {' '}
-          <AvailabilityEditForm updateSchedule={updateSchedule} />
+        <Box overflowY={'scroll'} px={6} w={'100%'}>
+          {/* {' '}
+          <AvailabilityEditForm updateSchedule={updateSchedule} /> */}
+          <Availability
+            schedule={tutorData.tutor.schedule}
+            timezone={tutorData.tutor.tz}
+            handleUpdateSchedule={updateSchedule}
+            handleUpdateTimezone={updateTimezone}
+            editMode={true}
+          />
         </Box>
       </CustomModal>
       <CustomModal

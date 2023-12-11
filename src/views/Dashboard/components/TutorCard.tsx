@@ -408,7 +408,6 @@ export default function TutorCard(props: any) {
                     toggleBookmarkTutor(id);
                   }}
                 >
-                  {' '}
                   {saved || ribbonClicked ? <Ribbon2 /> : <Ribbon />}
                 </Box>
               )}

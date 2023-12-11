@@ -499,11 +499,13 @@ const Offer = () => {
                 separator={<FiChevronRight size={10} color="gray.500" />}
               >
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="#">Offers</BreadcrumbLink>
+                  <BreadcrumbLink href="/dashboard/tutordashboard/offers">
+                    Offers
+                  </BreadcrumbLink>
                 </BreadcrumbItem>
 
                 <BreadcrumbItem isCurrentPage>
-                  <BreadcrumbLink href="#">Review offer</BreadcrumbLink>
+                  <BreadcrumbLink href="#">Review Offer</BreadcrumbLink>
                 </BreadcrumbItem>
               </Breadcrumb>
               {isTutor && (

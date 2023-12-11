@@ -166,7 +166,7 @@ export default function Schedule({ events }) {
               ) : (
                 <Center>
                   <VStack>
-                    <Image src={NoEvent} />
+                    <NoEvent />
                     <Text fontSize={12} fontWeight={500} color="text.400">
                       No Events Scheduled for tomorrow
                     </Text>

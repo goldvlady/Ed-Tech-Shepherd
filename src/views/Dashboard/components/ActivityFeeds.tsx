@@ -131,6 +131,8 @@ function ActivityFeeds(props) {
         return <FlashcardIcon />;
       case 'bounty':
         return <BountyChat />;
+      case 'quiz':
+        return <NoteIcon />;
       default:
         return undefined;
     }
@@ -147,6 +149,8 @@ function ActivityFeeds(props) {
       case 'flashcards':
         return <FlashcardSmIcon />;
       case 'bounty':
+        return <ReceiptSmIcon />;
+      case 'quiz':
         return <ReceiptSmIcon />;
       default:
         return undefined;
@@ -165,6 +169,8 @@ function ActivityFeeds(props) {
         return `You made a payment of $10.95 to Leslie Peters for Chemistry lessons`;
       case 'flashcards':
         return `You created a new flashcard deck "${link}" `;
+      case 'quiz':
+        return `You created a new quiz "${link}" `;
       case 'bounty':
         return isTutor
           ? `Click here to begin your session`
@@ -220,11 +226,6 @@ function ActivityFeeds(props) {
       <Box>
         <Flex alignItems="center">
           <HStack mb={2}>
-            {/* <Image
-              src={userType === 'Student' ? FeedIcon : WalletIcon}
-              alt="feed-icon"
-              width={5}
-            /> */}
             <Box w={5}>
               {userType === 'Student' ? <FeedIcon /> : <WalletIcon />}
             </Box>
@@ -319,6 +320,13 @@ function ActivityFeeds(props) {
                               docTitle: getFileName(feed.link)
                             }
                           });
+                        } else if (feed.activityType === 'quiz') {
+                          navigate(`/dashboard/quizzes/new-note`, {
+                            state: {
+                              documentUrl: feed.link,
+                              docTitle: getFileName(feed.link)
+                            }
+                          });
                         } else {
                           navigate(
                             `${
@@ -352,7 +360,7 @@ function ActivityFeeds(props) {
           <Center h="400px">
             <Box textAlign={'center'} px={20} mt={5}>
               <VStack spacing={5}>
-                <Image src={EmptyFeeds} />
+                <EmptyFeeds />
                 <Text fontSize={13} fontWeight={500} color="text.400">
                   {userType === 'Student'
                     ? 'Get started with our AI tools'
