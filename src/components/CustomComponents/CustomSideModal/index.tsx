@@ -29,7 +29,7 @@ const CustomSideModal = ({
         )}
       >
         {/* <CloseIcon className={clsx('')} onClick={onClose} /> */}
-        <CloseIcon />
+        <CloseIcon onClick={onClose} />
       </div>
 
       <CustomScrollbar height={height}>
