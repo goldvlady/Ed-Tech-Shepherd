@@ -46,6 +46,12 @@ export default function Events({ event }: any) {
     onClose: onCloseReBook
   } = useDisclosure();
 
+  const {
+    isOpen: isOpenCancelStudy,
+    onOpen: onOpenCancelStudy,
+    onClose: onCloseCancelStudy
+  } = useDisclosure();
+
   const today = useMemo(() => new Date(), []);
 
   const getTextByEventType = (eventType, name) => {
@@ -127,9 +133,7 @@ export default function Events({ event }: any) {
 
   const toast = useCustomToast();
 
-  const [scheduleItem, setScheduleItem] = useState<{
-    flashcard: FlashcardData;
-  } | null>(null);
+  const [scheduleItem, setScheduleItem] = useState(null);
   const [reScheduleItem, setReScheduleItem] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [newDate, setNewDate] = useState<Date>();
@@ -138,30 +142,11 @@ export default function Events({ event }: any) {
     const parsedTime = parse(data.time.toLowerCase(), 'hh:mm aa', new Date());
     const time = format(parsedTime, 'HH:mm');
 
-    const payload: SchedulePayload = {
-      entityId: scheduleItem?.flashcard._id as string,
-      entityType: 'flashcard',
-      startDates: [data.day?.toISOString() as string],
-      startTime: time
-    };
-
-    if (data.frequency && data.frequency !== 'none') {
-      payload.recurrence = { frequency: data.frequency };
-      if (data.endDate) {
-        payload.recurrence.endDate = data.endDate.toISOString();
-      }
-    }
-    console.log(selectedEvent, 'selectedevent');
-
     const rePayload = {
-      eventId: selectedEvent,
+      eventId: scheduleItem._id,
       updates: {
-        startDate: [data.day?.toISOString() as string],
+        startDate: data.day?.toISOString() as string,
         startTime: time,
-        recurrence: {
-          frequency: data.frequency ? data.frequency : 'none',
-          endDate: data.endDate ? data.endDate.toISOString() : ''
-        },
         isActive: true
       }
     };
@@ -170,14 +155,14 @@ export default function Events({ event }: any) {
     if (isSuccess) {
       toast({
         position: 'top-right',
-        title: `${scheduleItem?.flashcard.deckname} Rescheduled Succesfully`,
+        title: `${scheduleItem?.entity.deckname} Rescheduled Succesfully`,
         status: 'success'
       });
       setScheduleItem(null);
     } else {
       toast({
         position: 'top-right',
-        title: `Failed to reschedule ${scheduleItem?.flashcard.deckname} flashcards`,
+        title: `Failed to reschedule ${scheduleItem?.entity.deckname} flashcards`,
         status: 'error'
       });
     }
@@ -185,7 +170,7 @@ export default function Events({ event }: any) {
 
   const rebook = async () => {
     const payload = {
-      bookingId: selectedEvent,
+      bookingId: scheduleItem._id,
       updates: {
         endDate: newDate
       }
@@ -207,6 +192,31 @@ export default function Events({ event }: any) {
     }
   };
 
+  const handleCancelEvent = async () => {
+    const rePayload = {
+      eventId: scheduleItem._id,
+      updates: {
+        isActive: false
+      }
+    };
+
+    const isSuccess = await rescheduleFlashcard(rePayload);
+    if (isSuccess) {
+      toast({
+        position: 'top-right',
+        title: `${scheduleItem?.entity.deckname} Study Canceled Succesfully`,
+        status: 'success'
+      });
+      setScheduleItem(null);
+      onCloseCancelStudy();
+    } else {
+      toast({
+        position: 'top-right',
+        title: `Failed to cancel ${scheduleItem?.entity.deckname} flashcard study`,
+        status: 'error'
+      });
+    }
+  };
   return (
     <li
       className={`flex gap-x-3 cursor-pointer hover:drop-shadow-sm ${getColorByEventType(
@@ -262,13 +272,22 @@ export default function Events({ event }: any) {
                 <MdOutlineReplay
                   onClick={(e) => {
                     e.stopPropagation();
-                    setSelectedEvent(event.data._id);
+                    setScheduleItem(event.data);
                     event.type === 'study'
                       ? setReScheduleItem(true)
                       : onOpenReBook();
                   }}
-                />{' '}
-                <CloseIcon boxSize={2} />
+                />
+                {event.type !== 'booking' && (
+                  <CloseIcon
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setScheduleItem(event.data);
+                      onOpenCancelStudy();
+                    }}
+                    boxSize={2}
+                  />
+                )}
               </HStack>
             </Flex>
           </div>
@@ -285,9 +304,9 @@ export default function Events({ event }: any) {
         <ModalContent>
           <ModalHeader>Reschedule Booking</ModalHeader>
           <ModalCloseButton />
-          <ModalBody>
+          <ModalBody overflow="auto">
             <Box width="100%" paddingBottom={'50px'}>
-              <FormControl id="day" marginBottom="20px">
+              <FormControl id="newDate" marginBottom="20px">
                 <FormLabel>Day</FormLabel>
                 <CalendarDateInput
                   disabledDate={{ before: today }}
@@ -329,6 +348,49 @@ export default function Events({ event }: any) {
               variant="primary"
             >
               Submit
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      <Modal isOpen={isOpenCancelStudy} onClose={onCloseCancelStudy}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Confirm Study Cancellation</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody overflowY="auto">
+            <Box width="100%" paddingBottom={'50px'}>
+              <Text>
+                Are you sure you want to Cancel {scheduleItem?.entity?.deckname}{' '}
+                study event
+              </Text>
+            </Box>
+          </ModalBody>
+
+          <ModalFooter
+            bg="#F7F7F8"
+            borderRadius="0px 0px 10px 10px"
+            p="16px"
+            justifyContent="flex-end"
+          >
+            <Button
+              _hover={{
+                backgroundColor: 'red',
+                boxShadow: '0px 2px 6px 0px rgba(136, 139, 143, 0.10)'
+              }}
+              bg="red"
+              color="#FFF"
+              fontSize="14px"
+              fontFamily="Inter"
+              fontWeight="500"
+              lineHeight="20px"
+              onClick={() => handleCancelEvent()}
+              isLoading={isLoading}
+              borderRadius="8px"
+              boxShadow="0px 2px 6px 0px rgba(136, 139, 143, 0.10)"
+              mr={3}
+              variant="primary"
+            >
+              Cancel
             </Button>
           </ModalFooter>
         </ModalContent>

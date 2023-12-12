@@ -120,7 +120,7 @@ export default function Index() {
       const nextEvent = await upcomingEventResponse.json();
 
       setStudentReport(studentReportData);
-      setChartData(studentReportData.chartData);
+      setChartData(studentReportData.topQuizzes);
       setCalendarEventData(calendarData.data);
       setUpcomingEvent(nextEvent);
       // setFeeds(feedsResponse);

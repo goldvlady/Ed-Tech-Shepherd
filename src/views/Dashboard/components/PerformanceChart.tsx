@@ -26,10 +26,8 @@ export function PerformanceChart(chartData) {
   const arrData: Array<any> = [...chartData.chartData];
 
   useEffect(() => {
-    const flashcardNames: any = arrData.map((item) => item.flashcardName);
-    const flashcardPercentages: any = arrData.map(
-      (item) => item.scorePercentage
-    );
+    const flashcardNames: any = arrData.map((item) => item.title);
+    const flashcardPercentages: any = arrData.map((item) => item.totalScore);
     setLabels(flashcardNames);
     setValues(flashcardPercentages);
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,6 +1,9 @@
 import CustomToast from '../components/CustomComponents/CustomToast';
 import { storage } from '../firebase';
-import { MAX_FILE_UPLOAD_LIMIT } from '../helpers/constants';
+import {
+  MAX_FILE_UPLOAD_LIMIT,
+  MAX_FILE_NAME_LENGTH
+} from '../helpers/constants';
 import { snip } from '../helpers/file.helpers';
 import { processDocument } from '../services/AI';
 import ApiService from '../services/ApiService';
@@ -268,11 +271,24 @@ const SelectedModal = ({
 
   const handleInputFreshUpload = async (file, user, fileName) => {
     setProgress(0);
-    const readableFileName = fileName
+    setCountdown(() => ({
+      active: false,
+      message: ''
+    }));
+    let readableFileName = fileName
       .toLowerCase()
       .replace(/\.pdf$/, '')
       .replace(/_/g, ' ');
+    console.log(readableFileName.length);
 
+    if (readableFileName.length > MAX_FILE_NAME_LENGTH) {
+      readableFileName = readableFileName.substring(0, MAX_FILE_NAME_LENGTH);
+      setCountdown((prev) => ({
+        active: true,
+        message: `The file name has been truncated to ${MAX_FILE_NAME_LENGTH} characters`
+      }));
+      setProgress(5);
+    }
     if (!user?._id || !readableFileName) {
       return toast({
         render: () => (
@@ -299,7 +315,7 @@ const SelectedModal = ({
       active: true,
       message: 'Uploading...your document is being uploaded'
     }));
-    setProgress(5);
+    setProgress(25);
     const customFirestorePath = `${user._id}/${readableFileName}`;
     const storageRef = ref(storage, customFirestorePath);
 
@@ -309,7 +325,7 @@ const SelectedModal = ({
       'state_changed',
       (snapshot) => {
         const progress = Math.round(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 50
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 10
         );
         switch (snapshot.state) {
           case 'running':
@@ -563,40 +579,42 @@ const SelectedModal = ({
                 onDragEnter={(e) => handleDragEnter(e)}
                 onDragLeave={(e) => handleDragLeave(e)}
                 onDrop={(e) => handleDrop(e)}
-                // onClick={clickInput}
+                onClick={clickInput}
               >
-                <label htmlFor="file-upload">
-                  <Center flexDirection="column">
-                    {fileName ? (
-                      <Flex>
-                        <AttachmentIcon /> <FileName>{fileName}</FileName>
-                      </Flex>
-                    ) : (
-                      <div>
+                <Box>
+                  {fileName ? (
+                    <Flex>
+                      <AttachmentIcon /> <FileName>{fileName}</FileName>
+                    </Flex>
+                  ) : (
+                    <Box>
+                      <Center>
                         <RiUploadCloud2Fill
                           className="h-8 w-8"
                           color="gray.500"
                         />
+                      </Center>
+
+                      <Text
+                        mb="2"
+                        fontSize="sm"
+                        color={isDragOver ? 'white' : 'gray.500'}
+                        fontWeight="semibold"
+                      >
+                        Click to upload or drag and drop
+                      </Text>
+                      <PDFTextContainer>
                         <Text
-                          mb="2"
-                          fontSize="sm"
+                          fontSize="xs"
                           color={isDragOver ? 'white' : 'gray.500'}
-                          fontWeight="semibold"
                         >
-                          Click to upload or drag and drop
+                          DOC, TXT, or PDF (MAX. 500mb)
                         </Text>
-                        <PDFTextContainer>
-                          <Text
-                            fontSize="xs"
-                            color={isDragOver ? 'white' : 'gray.500'}
-                          >
-                            DOC, TXT, or PDF (MAX. 500mb)
-                          </Text>
-                        </PDFTextContainer>
-                      </div>
-                    )}
-                  </Center>
-                </label>
+                      </PDFTextContainer>
+                    </Box>
+                  )}
+                </Box>
+
                 <input
                   type="file"
                   accept=".doc, .txt, .pdf"

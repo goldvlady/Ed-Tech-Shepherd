@@ -22,7 +22,7 @@ export interface ScheduleFormState {
   day: Date | null;
   time: string;
   endDate?: Date | null;
-  frequency: string;
+  frequency?: string;
 }
 
 interface ScheduleStudyModalProps {
@@ -41,9 +41,9 @@ export const ScheduleStudyModal: React.FC<ScheduleStudyModalProps> = ({
   const today = useMemo(() => new Date(), []);
   const [formState, setScheduleFormState] = useState<ScheduleFormState>({
     day: null,
-    time: '',
-    frequency: '',
-    endDate: null
+    time: ''
+    // frequency: '',
+    // endDate: null
   });
 
   const isValid = useMemo(() => {
@@ -80,7 +80,7 @@ export const ScheduleStudyModal: React.FC<ScheduleStudyModalProps> = ({
       <ModalContent>
         <ModalHeader>Schedule Study</ModalHeader>
         <ModalCloseButton />
-        <ModalBody>
+        <ModalBody overflowY={'auto'}>
           <Box width="100%" paddingBottom={'50px'}>
             <FormControl id="day" marginBottom="20px">
               <FormLabel>Day</FormLabel>
@@ -109,39 +109,6 @@ export const ScheduleStudyModal: React.FC<ScheduleStudyModalProps> = ({
                 }
               />
             </FormControl>
-
-            <FormControl id="frequency" marginBottom="20px">
-              <FormLabel>Frequency</FormLabel>
-              <Select
-                defaultValue={frequencyOptions.find(
-                  (option) => option.value === formState.frequency
-                )}
-                tagVariant="solid"
-                placeholder="Select Frequency"
-                options={frequencyOptions}
-                size={'md'}
-                onChange={(option) =>
-                  handleInputChange('frequency')((option as Option).value)
-                }
-              />
-            </FormControl>
-            {formState.frequency && formState.frequency !== 'none' ? (
-              <FormControl id="frequency" marginBottom="20px">
-                <FormLabel>Repetition End Date(optional)</FormLabel>
-                <CalendarDateInput
-                  disabledDate={{
-                    before: formState.day ? (formState.day as Date) : today
-                  }}
-                  inputProps={{
-                    placeholder: 'Select Day'
-                  }}
-                  value={formState.endDate as Date}
-                  onChange={handleInputChange('endDate')}
-                />
-              </FormControl>
-            ) : (
-              ''
-            )}
           </Box>
         </ModalBody>
 
