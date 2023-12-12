@@ -1,3 +1,4 @@
+import { Box } from '@chakra-ui/react';
 import Editor from '../../../../components/Editor';
 import theme from '../../../../theme/';
 import styled from 'styled-components';
@@ -50,14 +51,9 @@ export const PDFWrapper = styled.div`
   justify-content: center;
 `;
 
-export const Header = styled.section`
-  background: #fafafa;
-  border: 1px solid #eeeff2;
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  padding: 8px;
-  margin-right: 105px;
+export const Header = styled(Box)`
+  && {
+  }
 `;
 
 export const FirstSection = styled.div`
@@ -141,10 +137,9 @@ export const SecondSection = styled.div`
   }
 `;
 
-export const NoteBody = styled.section`
-  padding: 0px 0;
-  height: 100vh;
-  background: '#ffffff';
+export const NoteBody = styled(Box)`
+  && {
+  }
 `;
 
 export const DropDownLists = styled.div`
@@ -192,16 +187,11 @@ export const HeaderButton = styled.div`
   flex-direction: row;
   align-items: center;
   cursor: pointer;
-  padding: ${(props) => theme?.layout?.padding?.paddingMedium + 'px'};
 `;
 
-export const HeaderWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-around;
-  column-gap: 1em;
-  padding: ${(props) => theme?.layout?.padding?.paddingMedium + 'px'};
+export const HeaderWrapper = styled(Box)`
+  && {
+  }
 `;
 
 export const HeaderTagsWrapper = styled.div`
@@ -209,14 +199,82 @@ export const HeaderTagsWrapper = styled.div`
 `;
 
 export const HeaderButtonText = styled.p`
-  margin-left: ${(props) => theme?.layout?.padding?.paddingMedium + 'px'};
+  // margin-left: ${(props) => theme?.layout?.padding?.paddingMedium + 'px'};
   font-size: 10pt;
 `;
 
+// export const StyledEditor = styled(Editor)`
+//   && {
+//     .toolbar {
+//       ${tw`z-1`}
+//     }
+//   }
+// `;
+
 export const StyledEditor = styled(Editor)`
   && {
+    ${tw`mt-2 relative`};
+
     .toolbar {
-      ${tw`z-1`}
+      ${tw`z-1 rounded-tl-none rounded-tr-none static border-b border-gray-200 shadow-xl`};
+      // &.out-view {
+      //   ${tw`w-full md:max-w-[calc(100vw-240px)] lg:max-w-[calc(100vw-55%)] top-[75px] static`}
+      //   div.divider {
+      //     ${tw``}
+      //   }
+      //   button {
+      //     ${tw``}
+      //   }
+      // }
     }
+
+    .editor-container {
+      ${tw`rounded-none max-h-[calc(100dvh-80px)] p-4 md:p-0 overflow-y-auto`}
+      ::-webkit-scrollbar {
+        width: 0px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+      }
+      .editor {
+        ${tw`max-h-[68vh] md:max-h-[80vh] overflow-auto`}
+        ::-webkit-scrollbar {
+          width: 0px;
+        }
+
+        ::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 3px;
+        }
+      }
+    }
+  }
+`;
+
+export const StyledNoteWrapper = styled(Box)`
+  && {
+    ${tw``}
+  }
+`;
+
+export const StyledNoteContainer = styled(Box)`
+  && {
+    ${tw``}
+  }
+`;
+
+export const StyledNoteContent = styled(Box)`
+  && {
+    ${tw``}
   }
 `;

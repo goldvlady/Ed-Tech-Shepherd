@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import AddTag from '../../../../assets/addTag.svg?react';
 import BackArrow from '../../../../assets/backArrowFill.svg?react';
 import DownloadIcon from '../../../../assets/download.svg?react';
@@ -41,7 +42,10 @@ import {
   HeaderTagsWrapper,
   FullScreenNoteWrapper,
   SecondSection,
-  StyledEditor
+  StyledEditor,
+  StyledNoteWrapper,
+  StyledNoteContainer,
+  StyledNoteContent
 } from './styles';
 import '@blocknote/core/style.css';
 import {
@@ -999,19 +1003,32 @@ const NewNote = () => {
   // Header Component
   const HeaderComponent = () => {
     return (
-      <HeaderWrapper>
+      <HeaderWrapper className={clsx('flex items-center flex-start')}>
         <div style={{ display: 'none' }}>
           <input type="text" ref={editedTitleRef} />
           <input type="text" ref={draftNoteId} />
         </div>
-        <HeaderButton onClick={handleBackClick}>
-          <BackArrow />
+        <HeaderButton
+          onClick={handleBackClick}
+          className={clsx('w-full max-w-[150px] hover:opacity-75', {
+            '!max-w-[240px] px-4': isFullScreen
+          })}
+        >
+          <BackArrow className="mx-2" />
           <HeaderButtonText> Back</HeaderButtonText>
         </HeaderButton>
-        <Header>
+        <Header
+          className={clsx(
+            'max-w-[1100px] bg-[#fafafa] border-[#eeeff2] border flex w-full p-2 ml-4 justify-between',
+            { 'ml-12': isFullScreen }
+          )}
+        >
           <FirstSection>
-            {isFullScreen ? (
-              <div className="zoom__icn" onClick={toggleEditorView}>
+            <Box
+              className="zoom__icn hover:opacity-75"
+              onClick={toggleEditorView}
+            >
+              {isFullScreen ? (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="20"
@@ -1024,12 +1041,10 @@ const NewNote = () => {
                     fill="#7E8591"
                   />
                 </svg>
-              </div>
-            ) : (
-              <div className="zoom__icn" onClick={toggleEditorView}>
+              ) : (
                 <ZoomIcon />
-              </div>
-            )}
+              )}
+            </Box>
             <div onClick={handleHeaderClick} ref={inputContainerRef}>
               <div className="doc__name">
                 {isEditingTitle ? (
@@ -1162,375 +1177,399 @@ const NewNote = () => {
   };
 
   // FullScreenNoteWrapper Component
-  const FullScreenNoteWrapperComponent = () => {
-    return (
-      <>
-        <FullScreenNoteWrapper>
-          {location.state?.documentUrl ? (
-            ''
-          ) : (
-            <Header>
-              <FirstSection>
-                {isFullScreen ? (
-                  <div className="zoom__icn" onClick={toggleEditorView}>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="18"
-                      viewBox="0 0 20 18"
-                      fill="none"
-                    >
-                      <path
-                        d="M15.4997 4.41667H19.1663V6.25H13.6663V0.75H15.4997V4.41667ZM6.33301 6.25H0.833008V4.41667H4.49967V0.75H6.33301V6.25ZM15.4997 13.5833V17.25H13.6663V11.75H19.1663V13.5833H15.4997ZM6.33301 11.75V17.25H4.49967V13.5833H0.833008V11.75H6.33301Z"
-                        fill="#7E8591"
-                      />
-                    </svg>
-                  </div>
-                ) : (
-                  <div className="zoom__icn" onClick={toggleEditorView}>
-                    <ZoomIcon />
-                  </div>
-                )}
-                <div onClick={handleHeaderClick} ref={inputContainerRef}>
-                  <div className="doc__name">
-                    {isEditingTitle ? (
-                      <input
-                        type="text"
-                        value={editedTitle}
-                        onChange={handleTitleChange}
-                        onBlur={handleFocusOut}
-                        onKeyDown={handleKeyDown}
-                        autoFocus
-                      />
-                    ) : (
-                      <>{editedTitle}</>
-                    )}
-                  </div>
-                </div>
-                <div className="timestamp">
-                  <p>Updated {currentTime}</p>
-                </div>
-              </FirstSection>
-              <SecondSection>
-                <CustomButton
-                  disabled={!saveButtonState}
-                  isPrimary
-                  title={!saveButtonState ? 'Saving...' : 'Save'}
-                  type="button"
-                  onClick={onSaveNote}
-                  active={saveButtonState}
-                />
-                <div onClick={handlePinClick}>
-                  <BsFillPinFill
-                    className={`pin-icon ${
-                      pinnedNotes.some((note) => note.noteId === noteId)
-                        ? 'pinned'
-                        : 'not-pinned'
-                    }`}
-                  />
-                </div>
-                <div>
-                  <Menu>
-                    <MenuButton
-                      as={IconButton}
-                      aria-label="More options"
-                      icon={<FaEllipsisH fontSize={'12px'} />}
-                      size="sm"
-                      variant="ghost"
-                    />
-                    <MenuList
-                      fontSize="14px"
-                      minWidth={'185px'}
-                      borderRadius="8px"
-                    >
-                      {dropDownOptions?.map((dropDownOption, index) => (
-                        <MenuItem
-                          key={index}
-                          p="6px 8px 6px 8px"
-                          color={
-                            dropDownOption.title === 'Delete'
-                              ? '#F53535'
-                              : '#212224'
-                          }
-                          _hover={{ bgColor: '#F2F4F7' }}
-                          onClick={() =>
-                            dropDownOption.onClick && dropDownOption.onClick()
-                          }
-                        >
-                          {dropDownOption.leftIcon && (
-                            <Box mr={2}>{dropDownOption.leftIcon}</Box>
-                          )}
-                          <Text
-                            fontSize="14px"
-                            lineHeight="20px"
-                            fontWeight="400"
-                          >
-                            {dropDownOption.title}
-                          </Text>
-                        </MenuItem>
-                      ))}
-                    </MenuList>
-                  </Menu>
+  // const FullScreenNoteWrapperComponent = () => {
+  //   return (
+  //     <>
+  //       <FullScreenNoteWrapper>
+  //         {location.state?.documentUrl ? (
+  //           ''
+  //         ) : (
+  //           <Header>
+  //             <FirstSection>
+  //               {isFullScreen ? (
+  //                 <div className="zoom__icn" onClick={toggleEditorView}>
+  //                   <svg
+  //                     xmlns="http://www.w3.org/2000/svg"
+  //                     width="20"
+  //                     height="18"
+  //                     viewBox="0 0 20 18"
+  //                     fill="none"
+  //                   >
+  //                     <path
+  //                       d="M15.4997 4.41667H19.1663V6.25H13.6663V0.75H15.4997V4.41667ZM6.33301 6.25H0.833008V4.41667H4.49967V0.75H6.33301V6.25ZM15.4997 13.5833V17.25H13.6663V11.75H19.1663V13.5833H15.4997ZM6.33301 11.75V17.25H4.49967V13.5833H0.833008V11.75H6.33301Z"
+  //                       fill="#7E8591"
+  //                     />
+  //                   </svg>
+  //                 </div>
+  //               ) : (
+  //                 <div className="zoom__icn" onClick={toggleEditorView}>
+  //                   <ZoomIcon />
+  //                 </div>
+  //               )}
+  //               <div onClick={handleHeaderClick} ref={inputContainerRef}>
+  //                 <div className="doc__name">
+  //                   {isEditingTitle ? (
+  //                     <input
+  //                       type="text"
+  //                       value={editedTitle}
+  //                       onChange={handleTitleChange}
+  //                       onBlur={handleFocusOut}
+  //                       onKeyDown={handleKeyDown}
+  //                       autoFocus
+  //                     />
+  //                   ) : (
+  //                     <>{editedTitle}</>
+  //                   )}
+  //                 </div>
+  //               </div>
+  //               <div className="timestamp">
+  //                 <p>Updated {currentTime}</p>
+  //               </div>
+  //             </FirstSection>
+  //             <SecondSection>
+  //               <CustomButton
+  //                 disabled={!saveButtonState}
+  //                 isPrimary
+  //                 title={!saveButtonState ? 'Saving...' : 'Save'}
+  //                 type="button"
+  //                 onClick={onSaveNote}
+  //                 active={saveButtonState}
+  //               />
+  //               <div onClick={handlePinClick}>
+  //                 <BsFillPinFill
+  //                   className={`pin-icon ${
+  //                     pinnedNotes.some((note) => note.noteId === noteId)
+  //                       ? 'pinned'
+  //                       : 'not-pinned'
+  //                   }`}
+  //                 />
+  //               </div>
+  //               <div>
+  //                 <Menu>
+  //                   <MenuButton
+  //                     as={IconButton}
+  //                     aria-label="More options"
+  //                     icon={<FaEllipsisH fontSize={'12px'} />}
+  //                     size="sm"
+  //                     variant="ghost"
+  //                   />
+  //                   <MenuList
+  //                     fontSize="14px"
+  //                     minWidth={'185px'}
+  //                     borderRadius="8px"
+  //                   >
+  //                     {dropDownOptions?.map((dropDownOption, index) => (
+  //                       <MenuItem
+  //                         key={index}
+  //                         p="6px 8px 6px 8px"
+  //                         color={
+  //                           dropDownOption.title === 'Delete'
+  //                             ? '#F53535'
+  //                             : '#212224'
+  //                         }
+  //                         _hover={{ bgColor: '#F2F4F7' }}
+  //                         onClick={() =>
+  //                           dropDownOption.onClick && dropDownOption.onClick()
+  //                         }
+  //                       >
+  //                         {dropDownOption.leftIcon && (
+  //                           <Box mr={2}>{dropDownOption.leftIcon}</Box>
+  //                         )}
+  //                         <Text
+  //                           fontSize="14px"
+  //                           lineHeight="20px"
+  //                           fontWeight="400"
+  //                         >
+  //                           {dropDownOption.title}
+  //                         </Text>
+  //                       </MenuItem>
+  //                     ))}
+  //                   </MenuList>
+  //                 </Menu>
 
-                  {openTags && (
-                    <TagModal
-                      onSubmit={AddTags}
-                      isOpen={openTags}
-                      onClose={() => setOpenTags(false)}
-                      tags={tags}
-                      inputValue={inputValue}
-                      handleAddTag={handleAddTag}
-                      newTags={newTags}
-                      setNewTags={setNewTags}
-                      setInputValue={setInputValue}
-                    />
-                  )}
-                </div>
-              </SecondSection>
-            </Header>
-          )}
+  //                 {openTags && (
+  //                   <TagModal
+  //                     onSubmit={AddTags}
+  //                     isOpen={openTags}
+  //                     onClose={() => setOpenTags(false)}
+  //                     tags={tags}
+  //                     inputValue={inputValue}
+  //                     handleAddTag={handleAddTag}
+  //                     newTags={newTags}
+  //                     setNewTags={setNewTags}
+  //                     setInputValue={setInputValue}
+  //                   />
+  //                 )}
+  //               </div>
+  //             </SecondSection>
+  //           </Header>
+  //         )}
 
-          {/* <NoteModal
-              title="Delete Note"
-              description="This will delete Note. Are you sure well?"
-              isLoading={isLoading}
-              isOpen={deleteNoteModal}
-              actionButtonText="Delete"
-              onCancel={() => onCancel()}
-              onDelete={() => onDeleteNote()}
-              onClose={() => setDeleteNoteModal(false)}
-            /> */}
-        </FullScreenNoteWrapper>
-      </>
-    );
-  };
+  //         {/* <NoteModal
+  //             title="Delete Note"
+  //             description="This will delete Note. Are you sure well?"
+  //             isLoading={isLoading}
+  //             isOpen={deleteNoteModal}
+  //             actionButtonText="Delete"
+  //             onCancel={() => onCancel()}
+  //             onDelete={() => onDeleteNote()}
+  //             onClose={() => setDeleteNoteModal(false)}
+  //           /> */}
+  //       </FullScreenNoteWrapper>
+  //     </>
+  //   );
+  // };
 
   // Note Editor Component
-  const NoteEditor = () => {
-    return (
-      <div className={`note-editor-test ${isFullScreen && 'full-screen'}`}>
-        <StyledEditor />
-      </div>
-    );
-  };
+  // const NoteEditor = () => {
+  //   return (
+  //     <div className={`note-editor-test ${isFullScreen && 'full-screen'}`}>
+  //       <StyledEditor />
+  //     </div>
+  //   );
+  // };
 
   // NormalNoteWrapper Component
-  const NormalNoteWrapper = () => {
-    return (
-      <>
-        {location.state?.documentUrl ? (
-          ''
-        ) : (
-          <Header>
-            <FirstSection>
-              {isFullScreen ? (
-                <div className="zoom__icn" onClick={toggleEditorView}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="18"
-                    viewBox="0 0 20 18"
-                    fill="none"
-                  >
-                    <path
-                      d="M15.4997 4.41667H19.1663V6.25H13.6663V0.75H15.4997V4.41667ZM6.33301 6.25H0.833008V4.41667H4.49967V0.75H6.33301V6.25ZM15.4997 13.5833V17.25H13.6663V11.75H19.1663V13.5833H15.4997ZM6.33301 11.75V17.25H4.49967V13.5833H0.833008V11.75H6.33301Z"
-                      fill="#7E8591"
-                    />
-                  </svg>
-                </div>
-              ) : (
-                <div className="zoom__icn" onClick={toggleEditorView}>
-                  <ZoomIcon />
-                </div>
-              )}
-              <div onClick={handleHeaderClick} ref={inputContainerRef}>
-                <div className="doc__name">
-                  {isEditingTitle ? (
-                    <input
-                      type="text"
-                      value={editedTitle}
-                      onChange={handleTitleChange}
-                      onBlur={handleFocusOut}
-                      onKeyDown={handleKeyDown}
-                      autoFocus
-                    />
-                  ) : (
-                    <>{editedTitle}</>
-                  )}
-                </div>
-              </div>
-              <div className="timestamp">
-                <p>Updated {currentTime}</p>
-              </div>
-            </FirstSection>
-            <SecondSection>
-              <CustomButton
-                disabled={!saveButtonState}
-                isPrimary
-                title={!saveButtonState ? 'Saving...' : 'Save'}
-                type="button"
-                onClick={onSaveNote}
-                active={saveButtonState}
-              />
-              <div onClick={handlePinClick}>
-                <BsFillPinFill
-                  className={`pin-icon ${
-                    pinnedNotes.some((note) => note.noteId === noteId)
-                      ? 'pinned'
-                      : 'not-pinned'
-                  }`}
-                />
-              </div>
-              <div>
-                <Menu>
-                  <MenuButton
-                    as={Button}
-                    variant="unstyled"
-                    borderRadius="full"
-                    p={0}
-                    minW="auto"
-                    height="auto"
-                  >
-                    <FaEllipsisH fontSize={'12px'} />
-                  </MenuButton>
-                  <MenuList
-                    zIndex={3}
-                    fontSize="0.875rem"
-                    minWidth={'185px'}
-                    borderRadius="8px"
-                    backgroundColor="#FFFFFF"
-                    boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
-                  >
-                    <section>
-                      {dropDownOptions?.map((dropDownOption) => (
-                        <DropDownLists key={dropDownOption.id}>
-                          <DropDownFirstPart
-                            onClick={() =>
-                              handleOptionClick(dropDownOption.onClick)
-                            }
-                          >
-                            <div>
-                              {dropDownOption.leftIcon}
-                              <p
-                                style={{
-                                  color:
-                                    dropDownOption.title === 'Delete'
-                                      ? '#F53535'
-                                      : ''
-                                }}
-                              >
-                                {dropDownOption.title}
-                              </p>
-                            </div>
-                            <div>{dropDownOption.rightIcon}</div>
-                          </DropDownFirstPart>
-                        </DropDownLists>
-                      ))}
-                    </section>
-                  </MenuList>
-                </Menu>
+  // const NormalNoteWrapper = () => {
+  //   return (
+  //     <>
+  //       {location.state?.documentUrl ? (
+  //         ''
+  //       ) : (
+  //         <Header>
+  //           <FirstSection>
+  //             {isFullScreen ? (
+  //               <div className="zoom__icn" onClick={toggleEditorView}>
+  //                 <svg
+  //                   xmlns="http://www.w3.org/2000/svg"
+  //                   width="20"
+  //                   height="18"
+  //                   viewBox="0 0 20 18"
+  //                   fill="none"
+  //                 >
+  //                   <path
+  //                     d="M15.4997 4.41667H19.1663V6.25H13.6663V0.75H15.4997V4.41667ZM6.33301 6.25H0.833008V4.41667H4.49967V0.75H6.33301V6.25ZM15.4997 13.5833V17.25H13.6663V11.75H19.1663V13.5833H15.4997ZM6.33301 11.75V17.25H4.49967V13.5833H0.833008V11.75H6.33301Z"
+  //                     fill="#7E8591"
+  //                   />
+  //                 </svg>
+  //               </div>
+  //             ) : (
+  //               <div className="zoom__icn" onClick={toggleEditorView}>
+  //                 <ZoomIcon />
+  //               </div>
+  //             )}
+  //             <div onClick={handleHeaderClick} ref={inputContainerRef}>
+  //               <div className="doc__name">
+  //                 {isEditingTitle ? (
+  //                   <input
+  //                     type="text"
+  //                     value={editedTitle}
+  //                     onChange={handleTitleChange}
+  //                     onBlur={handleFocusOut}
+  //                     onKeyDown={handleKeyDown}
+  //                     autoFocus
+  //                   />
+  //                 ) : (
+  //                   <>{editedTitle}</>
+  //                 )}
+  //               </div>
+  //             </div>
+  //             <div className="timestamp">
+  //               <p>Updated {currentTime}</p>
+  //             </div>
+  //           </FirstSection>
+  //           <SecondSection>
+  //             <CustomButton
+  //               disabled={!saveButtonState}
+  //               isPrimary
+  //               title={!saveButtonState ? 'Saving...' : 'Save'}
+  //               type="button"
+  //               onClick={onSaveNote}
+  //               active={saveButtonState}
+  //             />
+  //             <div onClick={handlePinClick}>
+  //               <BsFillPinFill
+  //                 className={`pin-icon ${
+  //                   pinnedNotes.some((note) => note.noteId === noteId)
+  //                     ? 'pinned'
+  //                     : 'not-pinned'
+  //                 }`}
+  //               />
+  //             </div>
+  //             <div>
+  //               <Menu>
+  //                 <MenuButton
+  //                   as={Button}
+  //                   variant="unstyled"
+  //                   borderRadius="full"
+  //                   p={0}
+  //                   minW="auto"
+  //                   height="auto"
+  //                 >
+  //                   <FaEllipsisH fontSize={'12px'} />
+  //                 </MenuButton>
+  //                 <MenuList
+  //                   zIndex={3}
+  //                   fontSize="0.875rem"
+  //                   minWidth={'185px'}
+  //                   borderRadius="8px"
+  //                   backgroundColor="#FFFFFF"
+  //                   boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
+  //                 >
+  //                   <section>
+  //                     {dropDownOptions?.map((dropDownOption) => (
+  //                       <DropDownLists key={dropDownOption.id}>
+  //                         <DropDownFirstPart
+  //                           onClick={() =>
+  //                             handleOptionClick(dropDownOption.onClick)
+  //                           }
+  //                         >
+  //                           <div>
+  //                             {dropDownOption.leftIcon}
+  //                             <p
+  //                               style={{
+  //                                 color:
+  //                                   dropDownOption.title === 'Delete'
+  //                                     ? '#F53535'
+  //                                     : ''
+  //                               }}
+  //                             >
+  //                               {dropDownOption.title}
+  //                             </p>
+  //                           </div>
+  //                           <div>{dropDownOption.rightIcon}</div>
+  //                         </DropDownFirstPart>
+  //                       </DropDownLists>
+  //                     ))}
+  //                   </section>
+  //                 </MenuList>
+  //               </Menu>
 
-                {openTags && (
-                  <TagModal
-                    onSubmit={AddTags}
-                    isOpen={openTags}
-                    onClose={() => setOpenTags(false)}
-                    tags={tags}
-                    inputValue={inputValue}
-                    handleAddTag={handleAddTag}
-                    newTags={newTags}
-                    setNewTags={setNewTags}
-                    setInputValue={setInputValue}
-                  />
-                )}
-              </div>
-            </SecondSection>
-          </Header>
-        )}
-      </>
-    );
-  };
+  //               {openTags && (
+  //                 <TagModal
+  //                   onSubmit={AddTags}
+  //                   isOpen={openTags}
+  //                   onClose={() => setOpenTags(false)}
+  //                   tags={tags}
+  //                   inputValue={inputValue}
+  //                   handleAddTag={handleAddTag}
+  //                   newTags={newTags}
+  //                   setNewTags={setNewTags}
+  //                   setInputValue={setInputValue}
+  //                 />
+  //               )}
+  //             </div>
+  //           </SecondSection>
+  //         </Header>
+  //       )}
+  //     </>
+  //   );
+  // };
 
   return (
-    <>
-      {' '}
-      <HeaderComponent />{' '}
-      <Box height="85vh" overflowY="hidden" margin="0">
-        <CustomSideModalWrapper
-          onClose={() => setOpenSideModal(false)}
-          isOpen={openSideModal}
-        />
-        {isFullScreen ? (
-          <NewNoteWrapper
-            {...{ ...editorStyle, height: '100%', overflowY: 'auto' }}
-          >
-            <NoteBody>
-              {location.state?.documentUrl ? (
-                <TempPDFViewer
-                  pdfLink={location.state.documentUrl}
-                  name={location.state.docTitle}
-                />
-              ) : (
-                <div
-                  className={`note-editor-test ${
-                    isFullScreen && 'full-screen'
-                  }`}
-                >
-                  <StyledEditor />
-                </div>
-              )}
-            </NoteBody>
-          </NewNoteWrapper>
-        ) : (
-          <NewNoteWrapper
-            {...{
-              ...editorStyle,
-              width: '280mm'
-            }}
-          >
-            <NoteBody>
-              {location.state?.documentUrl ? (
-                <TempPDFViewer
-                  pdfLink={location.state.documentUrl}
-                  name={location.state.docTitle}
-                />
-              ) : (
-                <div
-                  className={`note-editor-test ${
-                    isFullScreen && 'full-screen'
-                  } custom-scroll`}
-                >
-                  <StyledEditor />
-                </div>
-              )}
-            </NoteBody>
-          </NewNoteWrapper>
-        )}
-
-        <NoteModal
-          title="Delete Note"
-          description="This will delete Note. Are you sure well?"
-          isLoading={isLoading}
-          isOpen={deleteNoteModal}
-          actionButtonText="Delete"
-          onCancel={() => onCancel()}
-          onDelete={() => onDeleteNote()}
-          onClose={() => setDeleteNoteModal(false)}
-        />
-        {openFlashCard && (
-          <FlashModal
-            isOpen={openFlashCard}
-            onClose={() => setOpenFlashCard(false)}
-            title="Flash Card Title"
-            loadingButtonText="Creating..."
-            buttonText="Create"
-            onSubmit={(noteId) => {
-              // submission here
-            }}
+    <StyledNoteWrapper
+      h={'100dvh'}
+      maxH={'calc(100dvh - 80px)'}
+      overflowY="hidden"
+    >
+      <StyledNoteContainer
+        className={clsx('', {
+          'absolute inset-0 top-[80px] bg-white z-10 transition-all max-h-[calc(100dvh-80px)] overflow-y-hidden':
+            isFullScreen
+        })}
+      >
+        <HeaderComponent />
+        <StyledNoteContent>
+          <CustomSideModalWrapper
+            onClose={() => setOpenSideModal(false)}
+            isOpen={openSideModal}
           />
-        )}
-      </Box>
-    </>
+          <NoteBody className={clsx('mx-auto')}>
+            {location.state?.documentUrl ? (
+              <TempPDFViewer
+                pdfLink={location.state.documentUrl}
+                name={location.state.docTitle}
+              />
+            ) : (
+              <div
+                className={clsx('custom-scroll', { 'note-editor-test': false })}
+              >
+                <StyledEditor />
+              </div>
+            )}
+          </NoteBody>
+          {/* {isFullScreen ? (
+            <NewNoteWrapper
+              {...{ ...editorStyle, height: '100%', overflowY: 'auto' }}
+            >
+              <NoteBody>
+                {location.state?.documentUrl ? (
+                  <TempPDFViewer
+                    pdfLink={location.state.documentUrl}
+                    name={location.state.docTitle}
+                  />
+                ) : (
+                  <div
+                    className={`note-editor-test ${
+                      isFullScreen && 'full-screen'
+                    }`}
+                  >
+                    <StyledEditor />
+                  </div>
+                )}
+              </NoteBody>
+            </NewNoteWrapper>
+          ) : (
+            <NewNoteWrapper
+              {...{
+                ...editorStyle,
+                width: '280mm'
+              }}
+            >
+              <NoteBody>
+                {location.state?.documentUrl ? (
+                  <TempPDFViewer
+                    pdfLink={location.state.documentUrl}
+                    name={location.state.docTitle}
+                  />
+                ) : (
+                  <div
+                    className={`note-editor-test ${
+                      isFullScreen && 'full-screen'
+                    } custom-scroll`}
+                  >
+                    <StyledEditor />
+                  </div>
+                )}
+              </NoteBody>
+            </NewNoteWrapper>
+          )} */}
+
+          <NoteModal
+            title="Delete Note"
+            description="This will delete Note. Are you sure well?"
+            isLoading={isLoading}
+            isOpen={deleteNoteModal}
+            actionButtonText="Delete"
+            onCancel={() => onCancel()}
+            onDelete={() => onDeleteNote()}
+            onClose={() => setDeleteNoteModal(false)}
+          />
+          {openFlashCard && (
+            <FlashModal
+              isOpen={openFlashCard}
+              onClose={() => setOpenFlashCard(false)}
+              title="Flash Card Title"
+              loadingButtonText="Creating..."
+              buttonText="Create"
+              onSubmit={(noteId) => {
+                // submission here
+              }}
+            />
+          )}
+        </StyledNoteContent>
+      </StyledNoteContainer>
+    </StyledNoteWrapper>
   );
 };
 
