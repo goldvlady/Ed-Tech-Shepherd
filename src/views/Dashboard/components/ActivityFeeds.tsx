@@ -321,12 +321,9 @@ function ActivityFeeds(props) {
                             }
                           });
                         } else if (feed.activityType === 'quiz') {
-                          navigate(`/dashboard/quizzes/new-note`, {
-                            state: {
-                              documentUrl: feed.link,
-                              docTitle: getFileName(feed.link)
-                            }
-                          });
+                          navigate(
+                            `/dashboard/quizzes/take?quiz_id=${feed.quiz}`
+                          );
                         } else {
                           navigate(
                             `${

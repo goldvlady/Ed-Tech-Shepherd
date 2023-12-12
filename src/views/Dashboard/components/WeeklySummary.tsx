@@ -317,7 +317,7 @@ export default function WeeklySummary(props) {
         ) : (
           <Box textAlign={'center'} px={20} mt={5}>
             <VStack spacing={5}>
-              <Image src={EmptyFlashcard} />
+              <EmptyFlashcard />
               <Text fontSize={13} fontWeight={500} color="text.400">
                 Monitor your flashcard performance. You currently have no
                 flashcards.
