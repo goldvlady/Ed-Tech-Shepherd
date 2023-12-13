@@ -30,6 +30,7 @@ import {
   filter,
   first,
   forEach,
+  includes,
   isArray,
   isEmpty,
   isNil,
@@ -45,7 +46,7 @@ import {
 } from 'lodash';
 import React, { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { IoCheckmarkDone, IoCloseOutline } from 'react-icons/io5';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useBlocker, useBeforeUnload } from 'react-router-dom';
 
 type QuizScoreType = {
   questionIdx: string | number;
@@ -234,7 +235,14 @@ const QuizCard = forwardRef(
                             '!border !border-[#66BD6A] bg-[#F1F9F1]':
                               showQuizAnswers &&
                               option.isCorrect &&
-                              quizScores[index]?.score !== ''
+                              quizScores[index]?.score !== '',
+                            '!border !border-[#F53535] bg-[#FEF0F0]':
+                              showQuizAnswers &&
+                              option.isCorrect === false &&
+                              includes(
+                                quizScores[index]?.selectedOptions,
+                                `question:${optionIndex}:${index}`
+                              )
                           }
                         )}
                       >
@@ -275,7 +283,14 @@ const QuizCard = forwardRef(
                             '!border !border-[#66BD6A] bg-[#F1F9F1]':
                               showQuizAnswers &&
                               option.isCorrect &&
-                              quizScores[index]?.score !== ''
+                              quizScores[index]?.score !== '',
+                            '!border !border-[#F53535] bg-[#FEF0F0]':
+                              showQuizAnswers &&
+                              option.isCorrect === false &&
+                              includes(
+                                quizScores[index]?.selectedOptions,
+                                `question:${optionIndex}:${index}`
+                              )
                           }
                         )}
                       >
@@ -321,7 +336,14 @@ const QuizCard = forwardRef(
                             '!border !border-[#66BD6A] bg-[#F1F9F1]':
                               showQuizAnswers &&
                               option.isCorrect &&
-                              quizScores[index]?.score !== ''
+                              quizScores[index]?.score !== '',
+                            '!border !border-[#F53535] bg-[#FEF0F0]':
+                              showQuizAnswers &&
+                              option.isCorrect === false &&
+                              includes(
+                                quizScores[index]?.selectedOptions,
+                                `question:${optionIndex}:${index}`
+                              )
                           }
                         )}
                       >
@@ -571,15 +593,22 @@ const QuizPreviewer = ({
   title: string;
   questions: QuizQuestion[];
   quizId: string;
-  handleSetUploadingState?: (value: boolean) => void;
 }) => {
   const navigate = useNavigate();
+  // useBeforeUnload()
 
   const [minHeight, setMinHeight] = useState(0);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [showUnansweredQuestions, setShowUnansweredQuestions] = useState(false);
   const [showQuizAnswers, setShowQuizAnswers] = useState(false);
+
+  // const blocker = useBlocker(
+  //   ({ currentLocation, nextLocation }) =>
+  //     !showQuizAnswers &&
+  //     handleUnansweredQuestionsCount > 0 &&
+  //     currentLocation.pathname !== nextLocation.pathname
+  // );
 
   const [scores, setScores] = useState<QuizScoreType[]>([]);
 
@@ -697,6 +726,12 @@ const QuizPreviewer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questions]);
 
+  // useEffect(() => {
+  //   if (blocker.state === 'blocked') {
+  //     setShowConfirmation(true);
+  //   }
+  // }, [blocker.state]);
+
   return (
     <>
       <Box
@@ -709,7 +744,6 @@ const QuizPreviewer = ({
         maxH={'100%'}
         overflowY={'auto'}
         mr={'auto'}
-        // _last={{ display: 'hidden' }}
       >
         <Box w="100%" maxW="95%" mb={10} position={'relative'}>
           <HStack mx={'auto'} justifyContent={'center'}>
@@ -851,7 +885,6 @@ const QuizPreviewer = ({
           onClose={() => {
             setShowConfirmation(false);
             setShowQuizAnswers(true);
-            // setShowResults(true);
             handleSubmit();
           }}
           count={handleUnansweredQuestionsCount}
