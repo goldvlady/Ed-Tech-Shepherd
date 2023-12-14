@@ -1202,7 +1202,7 @@ const NewNote = () => {
             <HeaderButtonText> Back</HeaderButtonText>
           </HeaderButton>
           <div className="max-w-[1100px] mx-auto">
-            <HeaderComponent />
+            {isNil(location.state?.documentUrl) && <HeaderComponent />}
             <CustomSideModalWrapper
               onClose={() => setOpenSideModal(false)}
               isOpen={openSideModal}
