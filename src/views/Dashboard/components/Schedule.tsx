@@ -132,7 +132,7 @@ export default function Schedule({ events }) {
           <Text fontSize={12} fontWeight={400} color="text.400" mb={2} px={4}>
             Upcoming Events
           </Text>
-          <Box h="165px" overflowY="auto" className="custom-scroll">
+          <Box h="280px" overflowY="auto" className="custom-scroll">
             {' '}
             <ul className="space-y-3">
               {selectedDate && filteredEvents && filteredEvents.length > 0 ? (
@@ -152,7 +152,7 @@ export default function Schedule({ events }) {
             </ul>
           </Box>
         </Box>
-        <Box>
+        {/* <Box>
           <Text fontSize={12} fontWeight={400} color="text.400" my={1} px={4}>
             Tomorrow
           </Text>
@@ -175,7 +175,7 @@ export default function Schedule({ events }) {
               )}
             </ul>
           </Box>
-        </Box>
+        </Box> */}
       </section>
     </>
   );

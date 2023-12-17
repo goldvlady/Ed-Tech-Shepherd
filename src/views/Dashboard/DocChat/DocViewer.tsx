@@ -913,7 +913,7 @@ function DocViewer(props) {
             onClick={() => handleGenerateComment(props.selectedText)}
           >
             {' '}
-            <Image src={AskIcon} />
+            <AskIcon />
             <Text fontSize={12} color="text.400">
               {' '}
               Ask Shep?

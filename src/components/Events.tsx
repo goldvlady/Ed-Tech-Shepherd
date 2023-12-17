@@ -29,7 +29,9 @@ import {
   ModalHeader,
   ModalFooter,
   ModalBody,
-  ModalCloseButton
+  ModalCloseButton,
+  Center,
+  VStack
 } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import { isSameDay, isThisWeek, getISOWeek } from 'date-fns';
@@ -357,13 +359,84 @@ export default function Events({ event }: any) {
         <ModalContent>
           <ModalHeader>Confirm Study Cancellation</ModalHeader>
           <ModalCloseButton />
-          <ModalBody overflowY="auto">
-            <Box width="100%" paddingBottom={'50px'}>
-              <Text>
-                Are you sure you want to Cancel {scheduleItem?.entity?.deckname}{' '}
-                study event
+          <ModalBody overflowY="auto" py={3} px={8}>
+            <VStack
+              justifyContent={'center'}
+              // padding={'40px'}
+              alignItems="center"
+              spacing={1}
+            >
+              <svg
+                width="73"
+                height="52"
+                viewBox="0 0 73 42"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <g filter="url(#filter0_d_2506_16927)">
+                  <circle cx="36.5" cy="28" r="20" fill="white" />
+                  <circle
+                    cx="36.5"
+                    cy="28"
+                    r="19.65"
+                    stroke="#EAEAEB"
+                    stroke-width="0.7"
+                  />
+                </g>
+                <path
+                  d="M36.5002 37.1663C31.4376 37.1663 27.3335 33.0622 27.3335 27.9997C27.3335 22.9371 31.4376 18.833 36.5002 18.833C41.5627 18.833 45.6668 22.9371 45.6668 27.9997C45.6668 33.0622 41.5627 37.1663 36.5002 37.1663ZM35.5835 30.7497V32.583H37.4168V30.7497H35.5835ZM35.5835 23.4163V28.9163H37.4168V23.4163H35.5835Z"
+                  fill="#F53535"
+                />
+                <defs>
+                  <filter
+                    id="filter0_d_2506_16927"
+                    x="0.5"
+                    y="0"
+                    width="72"
+                    height="72"
+                    filterUnits="userSpaceOnUse"
+                    color-interpolation-filters="sRGB"
+                  >
+                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                    <feColorMatrix
+                      in="SourceAlpha"
+                      type="matrix"
+                      values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                      result="hardAlpha"
+                    />
+                    <feOffset dy="8" />
+                    <feGaussianBlur stdDeviation="8" />
+                    <feComposite in2="hardAlpha" operator="out" />
+                    <feColorMatrix
+                      type="matrix"
+                      values="0 0 0 0 0.32 0 0 0 0 0.389333 0 0 0 0 0.48 0 0 0 0.11 0"
+                    />
+                    <feBlend
+                      mode="normal"
+                      in2="BackgroundImageFix"
+                      result="effect1_dropShadow_2506_16927"
+                    />
+                    <feBlend
+                      mode="normal"
+                      in="SourceGraphic"
+                      in2="effect1_dropShadow_2506_16927"
+                      result="shape"
+                    />
+                  </filter>
+                </defs>
+              </svg>
+
+              <Text fontWeight={600} fontSize={16}>
+                Cancel Study Event ?{' '}
               </Text>
-            </Box>
+              <Text textAlign={'center'}>
+                {' '}
+                This will permanently remove {
+                  scheduleItem?.entity?.deckname
+                }{' '}
+                from your schedule
+              </Text>
+            </VStack>
           </ModalBody>
 
           <ModalFooter
