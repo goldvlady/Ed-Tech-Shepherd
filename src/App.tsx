@@ -74,7 +74,9 @@ import {
 } from 'react-router-dom';
 import 'stream-chat-react/dist/scss/v2/index.scss';
 import { ThemeProvider } from 'styled-components';
+import CreateStudyPlans from './views/Dashboard/StudyPlans/create';
 import StudyPlans from './views/Dashboard/StudyPlans';
+import CoursePlan from './views/Dashboard/StudyPlans/coursePlan';
 
 const AuthAction = (props: any) => {
   const [params] = useSearchParams();
@@ -139,7 +141,9 @@ const studentRoutes = [
   { path: 'flashcards/:flashcardId', element: <FlashCard /> },
   { path: 'flashcards/:id/edit', element: <EditFlashCard /> },
   { path: 'library', element: <Library /> },
+  { path: 'create-study-plans', element: <CreateStudyPlans /> },
   { path: 'study-plans', element: <StudyPlans /> },
+  { path: 'study-plans/:courseId', element: <CoursePlan /> },
   // quizzes
   { path: 'quizzes', element: <Quizzes /> },
   { path: 'quizzes/create', element: <CreateQuizzes /> },
