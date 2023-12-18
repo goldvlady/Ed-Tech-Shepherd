@@ -178,7 +178,7 @@ export const QuizModal = ({
                 textColor={'#5C5F64'}
                 _hover={{ opacity: 0.7 }}
               >
-                Leave Quiz
+                Submit Anyway
               </Button>
 
               <Button

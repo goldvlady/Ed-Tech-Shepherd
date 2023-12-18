@@ -535,7 +535,7 @@ const SelectedModal = ({
         height: 'auto'
       }}
       modalTitleStyle={{
-        textAlign: 'center',
+        textAlign: 'left',
         borderBottom: '1px solid #EEEFF2'
       }}
       footerContent={
