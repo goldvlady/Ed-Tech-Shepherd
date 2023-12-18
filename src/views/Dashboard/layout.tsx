@@ -71,6 +71,7 @@ import {
   useLocation,
   Link
 } from 'react-router-dom';
+import { PiClipboardTextLight } from 'react-icons/pi';
 
 interface LinkItemProps {
   name: string;
@@ -664,6 +665,10 @@ const SidebarContent = ({
           </Text>
         </Button>
       </Box>
+      <Divider />
+      <NavItem icon={PiClipboardTextLight} path="/dashboard/study-plans">
+        Study Plans
+      </NavItem>
       <Divider />
       <Box ml={8} color="text.400">
         <Button
