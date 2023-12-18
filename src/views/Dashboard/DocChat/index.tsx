@@ -394,6 +394,15 @@ export default function DocChat() {
 
   useEffect(() => {
     if (socket) {
+      socket.on('new_note_summary', (data) => {
+        const summary = data.summary;
+        setSummaryText(summary);
+      });
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket) {
       socket.on('current_conversation', (conversationId) => {
         setReadyToChat(true);
       });
