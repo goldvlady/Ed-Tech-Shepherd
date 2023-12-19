@@ -77,7 +77,11 @@ const PendingVerification = () => {
   }, []);
 
   return (
-    <>
+    <div
+      style={{
+        background: 'white'
+      }}
+    >
       <Header />
       <Root>
         <Box
@@ -92,6 +96,7 @@ const PendingVerification = () => {
           paddingX="50px"
           border="2px solid #EBECF0"
           borderRadius="12px"
+          background="#e7e7e7"
         >
           <Box width="96px" height="96px" margin="30px auto">
             <svg
@@ -125,7 +130,7 @@ const PendingVerification = () => {
             </svg>
           </Box>
           <Text fontSize="2xl" fontWeight="600" textAlign="center">
-            Your account is being Verified
+            Please verify your email
           </Text>
           <Text
             fontSize="md"
@@ -136,12 +141,25 @@ const PendingVerification = () => {
             mt={1}
             lineHeight="1.5"
           >
-            We have sent a verification link to your email address.
+            You're almost there! We sent an email to{' '}
             <Text as="span" color="blue.500">
-              {firebaseUser?.email}
+              {firebaseUser?.email}.
             </Text>{' '}
-            To verify your account. Don't forget to check spam if you haven't
-            received it.
+            <br />
+            <p style={{ marginTop: '15px' }}>
+              Just click on the link in the email to complete your signup. If
+              you don't see it you may need to{' '}
+              <span
+                style={{
+                  fontWeight: '600'
+                }}
+              >
+                Check your spam{' '}
+              </span>
+              folder.
+            </p>
+            <br />
+            <p>Still can't find email? No problem.</p>
           </Text>
 
           <Link
@@ -199,7 +217,7 @@ const PendingVerification = () => {
           />
         </FormControl>
       </CustomModal>
-    </>
+    </div>
   );
 };
 export default PendingVerification;
