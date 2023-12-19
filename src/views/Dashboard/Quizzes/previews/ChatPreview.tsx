@@ -229,18 +229,17 @@ const QuizCard = forwardRef(
                           }
                         )}
                       >
-                        <div className="h-full w-full flex justify-start items-start">
+                        <div className="h-full w-full flex gap-1.5 justify-start items-start">
                           <Checkbox
                             value={`question:${optionIndex}:${index}`}
                             id={`option${optionIndex}`}
                             name={`question:${optionIndex}:${index}`}
                             isReadOnly={showQuizAnswers}
                           />
-                          <Box display={'flex'} w={'100%'} maxW={'95%'}>
-                            <Text w={'95%'} ml={'4px'}>
-                              {option?.content}
-                            </Text>
-                          </Box>
+                          <p className="whitespace-pre-wrap w-[92%]">
+                            {' '}
+                            {option?.content}
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -264,7 +263,7 @@ const QuizCard = forwardRef(
                           'min-h-[20px] flex justify-start items-center rounded-md !mt-0 mb-2',
                           {
                             'p-2': showQuizAnswers,
-                            'bg-red-400':
+                            'bg-[#FEF1F1] border border-[#f99597]':
                               showQuizAnswers &&
                               first(quizScores[index]?.selectedOptions) ===
                                 `question:${optionIndex}:${index}` &&
@@ -276,7 +275,7 @@ const QuizCard = forwardRef(
                           }
                         )}
                       >
-                        <div className="h-full w-full flex justify-start items-start">
+                        <div className="w-full h-auto flex gap-1.5 justify-start items-start ">
                           <Radio
                             value={
                               first(quizScores[index]?.selectedOptions) ===
@@ -288,11 +287,10 @@ const QuizCard = forwardRef(
                             name={`question:${optionIndex}:${index}`}
                             isReadOnly={showQuizAnswers}
                           />
-                          <Box display={'flex'} w={'100%'} maxW={'95%'}>
-                            <Text w={'95%'} ml={'4px'}>
-                              {option?.content}
-                            </Text>
-                          </Box>
+                          <p className="whitespace-pre-wrap w-[92%]">
+                            {' '}
+                            {option?.content}
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -323,7 +321,7 @@ const QuizCard = forwardRef(
                           }
                         )}
                       >
-                        <div className="h-full w-full flex justify-start items-start">
+                        <div className="h-full w-full gap-1.5 flex justify-start items-start">
                           <Radio
                             value={
                               first(quizScores[index]?.selectedOptions) ===
@@ -335,12 +333,10 @@ const QuizCard = forwardRef(
                             name={`question:${optionIndex}:${index}`}
                             isReadOnly={showQuizAnswers}
                           />
-                          <Box display={'flex'} w={'100%'} maxW={'95%'}>
-                            <Text w={'95%'} ml={'4px'}>
-                              {' '}
-                              {capitalize(option.content)}
-                            </Text>
-                          </Box>
+                          <p className="whitespace-normal">
+                            {' '}
+                            {capitalize(option?.content)}
+                          </p>
                         </div>
                       </div>
                     ))}
