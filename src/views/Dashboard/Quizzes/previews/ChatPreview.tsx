@@ -89,7 +89,7 @@ const QuizCard = forwardRef(
     const quizCardRef = useRef(null);
     const [optionAnswer, setOptionAnswer] = useState('');
     const [trueFalseAnswer, setTrueFalseAnswer] = useState('');
-    const [optionCheckboxAnswers, setOptionCheckboxAnswers] = useState([]);
+    const [_, setOptionCheckboxAnswers] = useState([]);
     const [showOpenEndedAnswer, setShowOpenEndedAnswer] = useState(false);
     const [isMultipleOptionsMulti, setIsMultipleOptionsMulti] = useState(false);
 
@@ -108,65 +108,55 @@ const QuizCard = forwardRef(
       }
     }, [options]);
 
-    useEffect(() => {
-      (async () => {
-        if (!isEmpty(optionAnswer)) {
-          const [_, index, questionIdx] = split(optionAnswer, ':');
-          if (options) {
-            const { isCorrect } = options[toNumber(index)];
+    const handleOptionAnswerHandler = (optionAnswer: string) => {
+      if (!isEmpty(optionAnswer)) {
+        const [_, index, questionIdx] = split(optionAnswer, ':');
+        if (options) {
+          const { isCorrect } = options[toNumber(index)];
 
-            const score = toString(isCorrect) === 'true' ? 'true' : 'false';
+          const score = toString(isCorrect) === 'true' ? 'true' : 'false';
 
-            handleSetScore(score, toNumber(questionIdx), [optionAnswer]);
-            handleStoreQuizHistory(id as string, toString(isCorrect));
-          }
+          handleSetScore(score, toNumber(questionIdx), [optionAnswer]);
+          handleStoreQuizHistory(id as string, toString(isCorrect));
         }
-      })();
+      }
+    };
+    const handleTFAnswerHandler = (trueFalseAnswer: string) => {
+      if (!isEmpty(trueFalseAnswer)) {
+        const [_, index, questionIdx] = split(trueFalseAnswer, ':');
+        if (options) {
+          const { isCorrect } = options[toNumber(index)];
 
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [optionAnswer]);
+          const score = toString(isCorrect) === 'true' ? 'true' : 'false';
 
-    useEffect(() => {
-      (async () => {
-        if (!isEmpty(trueFalseAnswer)) {
-          const [_, index, questionIdx] = split(trueFalseAnswer, ':');
-          if (options) {
-            const { isCorrect } = options[toNumber(index)];
-
-            const score = toString(isCorrect) === 'true' ? 'true' : 'false';
-
-            handleSetScore(score, toNumber(questionIdx), [trueFalseAnswer]);
-            handleStoreQuizHistory(id as string, toString(isCorrect));
-          }
+          handleSetScore(score, toNumber(questionIdx), [trueFalseAnswer]);
+          handleStoreQuizHistory(id as string, toString(isCorrect));
         }
-      })();
+      }
+    };
+    const handleOptionCheckBox = (e: Array<string>) => {
+      if (isEmpty(e)) {
+        handleSetScore('', toNumber(index), []);
+      }
 
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [trueFalseAnswer]);
-
-    useEffect(() => {
-      (async () => {
-        if (!isEmpty(optionCheckboxAnswers)) {
-          let questionIdx = '';
-          const answers = [];
-          forEach(optionCheckboxAnswers, (answer) => {
-            const [, index, qIdx] = split(answer, ':');
-            questionIdx = qIdx;
-            const { isCorrect } = options[toNumber(index)];
-            if (!isNil(options) && !isEmpty(options)) {
-              if (toString(isCorrect) === 'true') {
-                answers.push(true);
-              }
+      if (!isEmpty(e)) {
+        let questionIdx = '';
+        const answers = [];
+        forEach(e, (answer) => {
+          const [, index, qIdx] = split(answer, ':');
+          questionIdx = qIdx;
+          const { isCorrect } = options[toNumber(index)];
+          if (!isNil(options) && !isEmpty(options)) {
+            if (toString(isCorrect) === 'true') {
+              answers.push(true);
             }
-          });
-          const answer = isEmpty(answers) ? 'false' : 'true';
-          handleSetScore(answer, toNumber(questionIdx), optionCheckboxAnswers);
-          handleStoreQuizHistory(id as string, answer);
-        }
-      })();
-
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [optionCheckboxAnswers]);
+          }
+        });
+        const answer = isEmpty(answers) ? 'false' : 'true';
+        handleSetScore(answer, toNumber(questionIdx), e);
+        handleStoreQuizHistory(id as string, answer);
+      }
+    };
 
     return (
       <Box
@@ -236,7 +226,7 @@ const QuizCard = forwardRef(
               <CheckboxGroup
                 onChange={(e) => {
                   setOptionCheckboxAnswers(e);
-                  if (isEmpty(e)) handleSetScore('', toNumber(index), []);
+                  handleOptionCheckBox(e as Array<string>);
                 }}
                 value={quizScores[index]?.selectedOptions}
               >
@@ -284,6 +274,7 @@ const QuizCard = forwardRef(
             {questionType === MULTIPLE_CHOICE_SINGLE && (
               <RadioGroup
                 onChange={(e) => {
+                  handleOptionAnswerHandler(e);
                   setOptionAnswer(e);
                 }}
                 value={'1'}
@@ -297,6 +288,11 @@ const QuizCard = forwardRef(
                           'min-h-[20px] flex justify-start items-start rounded-md !mt-0 !mb-4',
                           {
                             'p-2': showQuizAnswers,
+                            'bg-red-400':
+                              showQuizAnswers &&
+                              first(quizScores[index]?.selectedOptions) ===
+                                `question:${optionIndex}:${index}` &&
+                              !option.isCorrect,
                             '!border !border-[#66BD6A] bg-[#F1F9F1]':
                               showQuizAnswers && option.isCorrect,
                             //  &&
@@ -337,6 +333,7 @@ const QuizCard = forwardRef(
             {questionType === TRUE_FALSE && (
               <RadioGroup
                 onChange={(e) => {
+                  handleTFAnswerHandler(e);
                   setTrueFalseAnswer(e);
                 }}
                 value={'1'}

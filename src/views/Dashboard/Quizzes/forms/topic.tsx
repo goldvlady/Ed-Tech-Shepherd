@@ -315,15 +315,6 @@ const TopicQuizForm = ({
           value={localData?.topic}
           onChange={handleChange}
         />
-        <FormHelperText textColor={'text.600'} fontSize={'14px'}>
-          Enter a topic to generate questions from. We'll search the web for
-          reliable sources first. For very specific topics, we recommend adding
-          your own content in
-          <Text display={'inline'} color={'#207DF7'} mx={2}>
-            text input mode
-          </Text>{' '}
-          .
-        </FormHelperText>
       </FormControl>
 
       <FormControl mb={7}>
