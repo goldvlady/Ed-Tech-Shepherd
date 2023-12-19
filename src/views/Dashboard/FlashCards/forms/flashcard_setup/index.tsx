@@ -65,23 +65,10 @@ const SetupFlashcardPage = ({
             </TagLabel>
           </Tag>
         )}
-        <AnimatePresence>
-          <motion.div
-            key={currentStep}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            variants={slideVariants}
-            transition={transition}
-          >
-            {CurrentForm && (
-              <CurrentForm
-                showConfirm={showConfirm}
-                isAutomated={isAutomated}
-              />
-            )}
-          </motion.div>
-        </AnimatePresence>
+
+        {CurrentForm && (
+          <CurrentForm showConfirm={showConfirm} isAutomated={isAutomated} />
+        )}
       </Box>
     </>
   );
