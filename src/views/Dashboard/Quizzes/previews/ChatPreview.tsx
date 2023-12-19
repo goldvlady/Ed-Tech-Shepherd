@@ -253,7 +253,7 @@ const QuizCard = forwardRef(
                           }
                         )}
                       >
-                        <div className="h-full w-full flex justify-start items-start">
+                        <div className="h-full w-full flex gap-1.5 justify-start items-start">
                           <Checkbox
                             value={`question:${optionIndex}:${index}`}
                             id={`option${optionIndex}`}
@@ -288,7 +288,7 @@ const QuizCard = forwardRef(
                           'min-h-[20px] flex justify-start items-start rounded-md !mt-0 !mb-4',
                           {
                             'p-2': showQuizAnswers,
-                            'bg-red-400':
+                            'bg-[#FEF1F1] border border-[#f99597]':
                               showQuizAnswers &&
                               first(quizScores[index]?.selectedOptions) ===
                                 `question:${optionIndex}:${index}` &&
@@ -307,7 +307,7 @@ const QuizCard = forwardRef(
                           }
                         )}
                       >
-                        <div className="h-full w-full flex justify-start items-start">
+                        <div className="w-full h-auto flex gap-1.5 justify-start items-start ">
                           <Radio
                             value={
                               first(quizScores[index]?.selectedOptions) ===
@@ -361,7 +361,7 @@ const QuizCard = forwardRef(
                           }
                         )}
                       >
-                        <div className="h-full w-full flex justify-start items-start">
+                        <div className="h-full w-full gap-1.5 flex justify-start items-start">
                           <Radio
                             value={
                               first(quizScores[index]?.selectedOptions) ===
