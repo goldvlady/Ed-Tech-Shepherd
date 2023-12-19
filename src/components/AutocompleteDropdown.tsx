@@ -13,11 +13,11 @@ const AutocompleteDropdown = (props) => {
     }),
     menu: (provided) => ({
       ...provided,
-      maxHeight: '180px'
+      maxHeight: '120px'
     }),
     menuList: (provided) => ({
       ...provided,
-      maxHeight: '180px'
+      maxHeight: '120px'
     })
   };
 
