@@ -154,6 +154,7 @@ export const DropDownLists = styled.div`
 export const DropDownFirstPart = styled.div`
   display: flex;
   align-items: center;
+  height: 30px;
   gap: 6px;
   justify-content: space-between;
   width: 100%;
