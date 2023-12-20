@@ -77,6 +77,7 @@ import { ThemeProvider } from 'styled-components';
 import CreateStudyPlans from './views/Dashboard/StudyPlans/create';
 import StudyPlans from './views/Dashboard/StudyPlans';
 import CoursePlan from './views/Dashboard/StudyPlans/coursePlan';
+import Hotjar from '@hotjar/browser';
 
 const AuthAction = (props: any) => {
   const [params] = useSearchParams();
@@ -354,8 +355,11 @@ const AppRoutes: React.FC = () => {
     </Routes>
   );
 };
-
+const hotjarVersion = 6;
+const siteId = process.env.REACT_APP_HOTJAR_SITE_ID;
 function App() {
+  const i = Hotjar.init(Number(siteId), hotjarVersion);
+  console.log(i);
   const { fetchResources } = resourceStore();
   const { flashcard, showStudyList } = flashcardStore();
   const { startQuizModal, quiz } = quizStore();
