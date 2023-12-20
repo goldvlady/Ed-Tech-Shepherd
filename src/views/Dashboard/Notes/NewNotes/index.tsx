@@ -1199,7 +1199,10 @@ const NewNote = () => {
             )}
           >
             <BackArrow className="mx-2" />
-            <HeaderButtonText> Back</HeaderButtonText>
+            <HeaderButtonText className={clsx('text-[10pt]')}>
+              {' '}
+              Back
+            </HeaderButtonText>
           </HeaderButton>
           <div className="max-w-[1100px] mx-auto">
             {isNil(location.state?.documentUrl) && <HeaderComponent />}

@@ -44,7 +44,9 @@ const CreateQuizPage = () => {
             );
           }
         } catch (error) {
-          console.log('getQuiz Error =========>> ', error);
+          if (process.env.NODE_ENV !== 'production') {
+            console.log('getQuiz Error =========>> ', error);
+          }
 
           toast({
             position: 'top-right',

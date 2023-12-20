@@ -1,3 +1,4 @@
+import { isNil } from 'lodash';
 import LexicalContext from './components/Editor/context';
 import TutorDashboardLayout from './components/Layout';
 import { FlashCardModal } from './components/flashcardDecks';
@@ -351,7 +352,7 @@ const AppRoutes: React.FC = () => {
 function App() {
   const { fetchResources } = resourceStore();
   const { flashcard, showStudyList } = flashcardStore();
-  const { startQuizModal } = quizStore();
+  const { startQuizModal, quiz } = quizStore();
   useActiveUserPresence();
 
   const doFetchResources = useCallback(async () => {
@@ -375,7 +376,7 @@ function App() {
                   <FlashCardModal
                     isOpen={Boolean(flashcard) || showStudyList}
                   />
-                  <QuizModal isOpen={startQuizModal} />
+                  {startQuizModal && <QuizModal isOpen={startQuizModal} />}
                   <StreamChatProvider>
                     <AppRoutes />
                   </StreamChatProvider>

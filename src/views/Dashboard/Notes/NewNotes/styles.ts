@@ -189,8 +189,8 @@ export const HeaderTagsWrapper = styled.div`
 `;
 
 export const HeaderButtonText = styled.p`
-  // margin-left: ${(props) => theme?.layout?.padding?.paddingMedium + 'px'};
-  font-size: 10pt;
+  && {
+  }
 `;
 
 // export const StyledEditor = styled(Editor)`
@@ -203,23 +203,14 @@ export const HeaderButtonText = styled.p`
 
 export const StyledEditor = styled(Editor)`
   && {
-    ${tw`mt-2 relative`};
+    ${tw`mt-2 relative w-[1100px]`};
 
     .toolbar {
       ${tw`z-1 rounded-tl-none rounded-tr-none static border-b border-gray-200 shadow-xl`};
-      // &.out-view {
-      //   ${tw`w-full md:max-w-[calc(100vw-240px)] lg:max-w-[calc(100vw-55%)] top-[75px] static`}
-      //   div.divider {
-      //     ${tw``}
-      //   }
-      //   button {
-      //     ${tw``}
-      //   }
-      // }
     }
 
     .editor-container {
-      ${tw`rounded-none max-h-[calc(100dvh-80px)] p-4 md:p-0 overflow-y-auto`}
+      ${tw`rounded-none max-h-[calc(100dvh-80px)] p-4 md:p-0 overflow-y-auto`};
       ::-webkit-scrollbar {
         width: 0px;
       }
@@ -233,7 +224,7 @@ export const StyledEditor = styled(Editor)`
         border-radius: 3px;
       }
       .editor {
-        ${tw`max-h-[68vh] md:max-h-[80vh] overflow-auto`}
+        ${tw`max-h-[68vh] md:max-h-[80vh] overflow-auto`};
         ::-webkit-scrollbar {
           width: 0px;
         }

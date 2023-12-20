@@ -91,6 +91,22 @@ const QuizCard = forwardRef(
     const [trueFalseAnswer, setTrueFalseAnswer] = useState('');
     const [optionCheckboxAnswers, setOptionCheckboxAnswers] = useState([]);
     const [showOpenEndedAnswer, setShowOpenEndedAnswer] = useState(false);
+    const [isMultipleOptionsMulti, setIsMultipleOptionsMulti] = useState(false);
+
+    let questionType = question?.type;
+
+    if (isMultipleOptionsMulti) {
+      questionType = MULTIPLE_CHOICE_MULTI;
+    }
+
+    useEffect(() => {
+      if (!isEmpty(options) && !isNil(options)) {
+        const isMulti =
+          size(filter(options, (option) => option.isCorrect === true)) > 1;
+
+        setIsMultipleOptionsMulti(isMulti);
+      }
+    }, [options]);
 
     useEffect(() => {
       (async () => {
@@ -155,7 +171,7 @@ const QuizCard = forwardRef(
     return (
       <Box
         as="div"
-        className="quiz-tile"
+        className="quiz-tile "
         ref={(node) => {
           quizCardRef.current = node;
         }}
@@ -215,7 +231,7 @@ const QuizCard = forwardRef(
             w={'100%'}
             className="font-[Inter] font-[400] text-[14px] leading-[16px]"
           >
-            {question.type === MULTIPLE_CHOICE_MULTI && (
+            {questionType === MULTIPLE_CHOICE_MULTI && (
               <CheckboxGroup
                 onChange={(e) => {
                   setOptionCheckboxAnswers(e);
@@ -229,13 +245,13 @@ const QuizCard = forwardRef(
                       <div
                         key={optionIndex}
                         className={clsx(
-                          'min-h-[20px] flex justify-start items-center rounded-md !mt-0 mb-2',
+                          'min-h-[20px] flex justify-start items-start rounded-md !mt-0 !mb-4',
                           {
                             'p-2': showQuizAnswers,
                             '!border !border-[#66BD6A] bg-[#F1F9F1]':
-                              showQuizAnswers &&
-                              option.isCorrect &&
-                              quizScores[index]?.score !== '',
+                              showQuizAnswers && option.isCorrect,
+                            //  &&
+                            // quizScores[index]?.score !== ''
                             '!border !border-[#F53535] bg-[#FEF0F0]':
                               showQuizAnswers &&
                               option.isCorrect === false &&
@@ -253,18 +269,18 @@ const QuizCard = forwardRef(
                             name={`question:${optionIndex}:${index}`}
                             isReadOnly={showQuizAnswers}
                           />
-                          <Box display={'flex'} w={'100%'} maxW={'95%'}>
+                          <div className={'flex w-full max-w-[95%]'}>
                             <Text w={'95%'} ml={'4px'}>
                               {option?.content}
                             </Text>
-                          </Box>
+                          </div>
                         </div>
                       </div>
                     ))}
                 </Stack>
               </CheckboxGroup>
             )}
-            {question.type === MULTIPLE_CHOICE_SINGLE && (
+            {questionType === MULTIPLE_CHOICE_SINGLE && (
               <RadioGroup
                 onChange={(e) => {
                   setOptionAnswer(e);
@@ -277,13 +293,13 @@ const QuizCard = forwardRef(
                       <div
                         key={optionIndex}
                         className={clsx(
-                          'min-h-[20px] flex justify-start items-center rounded-md !mt-0 mb-2',
+                          'min-h-[20px] flex justify-start items-start rounded-md !mt-0 !mb-4',
                           {
                             'p-2': showQuizAnswers,
                             '!border !border-[#66BD6A] bg-[#F1F9F1]':
-                              showQuizAnswers &&
-                              option.isCorrect &&
-                              quizScores[index]?.score !== '',
+                              showQuizAnswers && option.isCorrect,
+                            //  &&
+                            // quizScores[index]?.score !== '',
                             '!border !border-[#F53535] bg-[#FEF0F0]':
                               showQuizAnswers &&
                               option.isCorrect === false &&
@@ -306,18 +322,18 @@ const QuizCard = forwardRef(
                             name={`question:${optionIndex}:${index}`}
                             isReadOnly={showQuizAnswers}
                           />
-                          <Box display={'flex'} w={'100%'} maxW={'95%'}>
+                          <div className={'flex w-full max-w-[95%]'}>
                             <Text w={'95%'} ml={'4px'}>
                               {option?.content}
                             </Text>
-                          </Box>
+                          </div>
                         </div>
                       </div>
                     ))}
                 </Stack>
               </RadioGroup>
             )}
-            {question.type === TRUE_FALSE && (
+            {questionType === TRUE_FALSE && (
               <RadioGroup
                 onChange={(e) => {
                   setTrueFalseAnswer(e);
@@ -330,13 +346,13 @@ const QuizCard = forwardRef(
                       <div
                         key={optionIndex}
                         className={clsx(
-                          'cursor-pointer min-h-[20px] flex justify-start items-center rounded-md !mt-0 mb-2',
+                          'cursor-pointer min-h-[20px] flex justify-start items-start rounded-md !mt-0 !mb-4',
                           {
                             'p-2': showQuizAnswers,
                             '!border !border-[#66BD6A] bg-[#F1F9F1]':
-                              showQuizAnswers &&
-                              option.isCorrect &&
-                              quizScores[index]?.score !== '',
+                              showQuizAnswers && option.isCorrect,
+                            // &&
+                            // quizScores[index]?.score !== '',
                             '!border !border-[#F53535] bg-[#FEF0F0]':
                               showQuizAnswers &&
                               option.isCorrect === false &&
@@ -359,19 +375,19 @@ const QuizCard = forwardRef(
                             name={`question:${optionIndex}:${index}`}
                             isReadOnly={showQuizAnswers}
                           />
-                          <Box display={'flex'} w={'100%'} maxW={'95%'}>
+                          <div className={'flex w-full max-w-[95%]'}>
                             <Text w={'95%'} ml={'4px'}>
                               {' '}
                               {capitalize(option.content)}
                             </Text>
-                          </Box>
+                          </div>
                         </div>
                       </div>
                     ))}
                 </Stack>
               </RadioGroup>
             )}
-            {question.type === OPEN_ENDED && (
+            {questionType === OPEN_ENDED && (
               <>
                 <Box mt={2} w={'100%'} mb="24px">
                   <Textarea
@@ -595,20 +611,12 @@ const QuizPreviewer = ({
   quizId: string;
 }) => {
   const navigate = useNavigate();
-  // useBeforeUnload()
 
   const [minHeight, setMinHeight] = useState(0);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [showUnansweredQuestions, setShowUnansweredQuestions] = useState(false);
   const [showQuizAnswers, setShowQuizAnswers] = useState(false);
-
-  // const blocker = useBlocker(
-  //   ({ currentLocation, nextLocation }) =>
-  //     !showQuizAnswers &&
-  //     handleUnansweredQuestionsCount > 0 &&
-  //     currentLocation.pathname !== nextLocation.pathname
-  // );
 
   const [scores, setScores] = useState<QuizScoreType[]>([]);
 
@@ -726,11 +734,9 @@ const QuizPreviewer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questions]);
 
-  // useEffect(() => {
-  //   if (blocker.state === 'blocked') {
-  //     setShowConfirmation(true);
-  //   }
-  // }, [blocker.state]);
+  useEffect(() => {
+    console.log('scores ========>> ', scores);
+  }, [scores]);
 
   return (
     <>
