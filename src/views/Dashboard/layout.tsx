@@ -72,6 +72,7 @@ import {
   Link
 } from 'react-router-dom';
 import { PiClipboardTextLight } from 'react-icons/pi';
+import { RiFeedbackLine } from '@remixicon/react';
 
 interface LinkItemProps {
   name: string;
@@ -666,6 +667,12 @@ const SidebarContent = ({
         </Button>
       </Box>
       <Divider />
+      <NavItem
+        icon={RiFeedbackLine as unknown as IconType}
+        path="https://shepherdtutors.canny.io/shepherd/p/feature-requests"
+      >
+        Feedback
+      </NavItem>
       <NavItem icon={PiClipboardTextLight} path="/dashboard/study-plans">
         Study Plans
       </NavItem>

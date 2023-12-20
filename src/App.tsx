@@ -77,7 +77,7 @@ import CreateStudyPlans from './views/Dashboard/StudyPlans/create';
 import StudyPlans from './views/Dashboard/StudyPlans';
 import CoursePlan from './views/Dashboard/StudyPlans/coursePlan';
 import Hotjar from '@hotjar/browser';
-import Feedback from './views/Canny';
+import Feedback from './views/Feedback';
 
 const AuthAction = (props: any) => {
   const [params] = useSearchParams();
