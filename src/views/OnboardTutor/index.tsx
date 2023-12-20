@@ -609,7 +609,7 @@ const OnboardTutor = () => {
           {
             steps.map((s) => {
               return (
-                <OnboardStep key={s.id} canGoNext={s.canSave}>
+                <OnboardStep {...s} key={s.id} canGoNext={s.canSave}>
                   {s.template}
                 </OnboardStep>
               );

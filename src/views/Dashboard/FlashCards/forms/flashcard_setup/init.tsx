@@ -22,7 +22,13 @@ import React, {
   useCallback
 } from 'react';
 
-const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
+const FlashCardSetupInit = ({
+  isAutomated,
+  isFlashCardPage
+}: {
+  isAutomated?: boolean;
+  isFlashCardPage?: boolean;
+}) => {
   const {
     flashcardData,
     generateFlashcardQuestions,
@@ -158,32 +164,46 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     return (
       <>
         {' '}
-        {/* <FormControl mb={8}>
-          <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-            Subject
-          </FormLabel>
-          <Input
-            type="text"
-            name="subject"
-            placeholder="e.g. Chemistry"
-            value={localData.subject}
-            onChange={handleChange}
-            _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-          />
-        </FormControl> */}
-        {/* <FormControl mb={8}>
-          <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-            Topic
-          </FormLabel>
-          <Input
-            type="text"
-            name="topic"
-            placeholder="e.g. Bonds"
-            value={localData.topic}
-            onChange={handleChange}
-            _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-          />
-        </FormControl> */}
+        {isFlashCardPage && (
+          <div>
+            <FormControl mb={8}>
+              <FormLabel
+                fontSize="12px"
+                lineHeight="17px"
+                color="#5C5F64"
+                mb={3}
+              >
+                Subject
+              </FormLabel>
+              <Input
+                type="text"
+                name="subject"
+                placeholder="e.g. Chemistry"
+                value={localData.subject}
+                onChange={handleChange}
+                _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+              />
+            </FormControl>
+            <FormControl mb={8}>
+              <FormLabel
+                fontSize="12px"
+                lineHeight="17px"
+                color="#5C5F64"
+                mb={3}
+              >
+                Topic
+              </FormLabel>
+              <Input
+                type="text"
+                name="topic"
+                placeholder="e.g. Bonds"
+                value={localData.topic}
+                onChange={handleChange}
+                _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+              />
+            </FormControl>
+          </div>
+        )}
         <FormControl mb={8}>
           <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
             Level (optional)
