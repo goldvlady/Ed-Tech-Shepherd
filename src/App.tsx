@@ -357,7 +357,6 @@ const AppRoutes: React.FC = () => {
 };
 const hotjarVersion = 6;
 const siteId = process.env.REACT_APP_HOTJAR_SITE_ID;
-console.log(siteId, 'site ID');
 function App() {
   const { fetchResources } = resourceStore();
   const { flashcard, showStudyList } = flashcardStore();
