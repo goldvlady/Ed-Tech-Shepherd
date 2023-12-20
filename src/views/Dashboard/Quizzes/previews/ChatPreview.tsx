@@ -108,6 +108,7 @@ const QuizCard = forwardRef(
       }
     }, [options]);
 
+
     const handleOptionAnswerHandler = (optionAnswer: string) => {
       if (!isEmpty(optionAnswer)) {
         const [_, index, questionIdx] = split(optionAnswer, ':');
