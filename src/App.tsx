@@ -77,6 +77,7 @@ import CreateStudyPlans from './views/Dashboard/StudyPlans/create';
 import StudyPlans from './views/Dashboard/StudyPlans';
 import CoursePlan from './views/Dashboard/StudyPlans/coursePlan';
 import Hotjar from '@hotjar/browser';
+import Feedback from './views/Feedback';
 
 const AuthAction = (props: any) => {
   const [params] = useSearchParams();
@@ -327,7 +328,7 @@ const AppRoutes: React.FC = () => {
       <Route path="auth-action" element={<AuthAction />} />
 
       <Route path="home" element={<Home />} />
-
+      <Route path="feedback" element={<Feedback />} />
       <Route
         path="session/:bookingId"
         element={
@@ -356,7 +357,6 @@ const AppRoutes: React.FC = () => {
 };
 const hotjarVersion = 6;
 const siteId = process.env.REACT_APP_HOTJAR_SITE_ID;
-console.log(siteId, 'site ID');
 function App() {
   const { fetchResources } = resourceStore();
   const { flashcard, showStudyList } = flashcardStore();
