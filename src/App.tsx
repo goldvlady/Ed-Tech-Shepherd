@@ -357,9 +357,8 @@ const AppRoutes: React.FC = () => {
 };
 const hotjarVersion = 6;
 const siteId = process.env.REACT_APP_HOTJAR_SITE_ID;
+console.log(siteId, 'site ID');
 function App() {
-  const i = Hotjar.init(Number(siteId), hotjarVersion);
-  console.log(i);
   const { fetchResources } = resourceStore();
   const { flashcard, showStudyList } = flashcardStore();
   const { startQuizModal, quiz } = quizStore();
@@ -374,6 +373,11 @@ function App() {
   useEffect(() => {
     doFetchResources();
   }, [doFetchResources]);
+
+  useEffect(() => {
+    const i = Hotjar.init(Number(siteId), hotjarVersion);
+    console.log(i, 'i will alwaydss');
+  }, []);
 
   return (
     <>
