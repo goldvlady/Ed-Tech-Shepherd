@@ -374,8 +374,7 @@ function App() {
   }, [doFetchResources]);
 
   useEffect(() => {
-    const i = Hotjar.init(Number(siteId), hotjarVersion);
-    console.log(i, 'i will alwaydss');
+    Hotjar.init(Number(siteId), hotjarVersion);
   }, []);
 
   return (
