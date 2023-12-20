@@ -19,7 +19,7 @@ export default function Banner() {
       // borderRadius="30px"
       direction={{ base: 'column', md: 'row' }} // Adjust direction based on screen size
       bgImage={banner}
-      bgSize={{ base: 'cover:', md: 'contain' }} // Ensures the background covers the box
+      bgSize={{ base: 'cover', md: 'contain' }} // Ensures the background covers the box
       bgPosition="center" // Keeps the image centered
       bgRepeat="no-repeat" // Prevents the image from repeating
       height={{ base: '100%', md: '100%' }} // Adjusts height for different screen sizes

@@ -8,6 +8,7 @@ import { Box, Text } from '@chakra-ui/react';
 import { Tag, TagLabel } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import React, { useState, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const transition = {
   duration: 0.3,
@@ -30,6 +31,8 @@ const SetupFlashcardPage = ({
   const { currentStep, isLoading, isSaveSuccessful, resetFlashcard } =
     useFlashcardWizard();
   const steps: Step[] = [{ title: '' }, { title: '' }, { title: '' }];
+  const location = useLocation();
+
   const formComponents = useMemo(
     () => [FlashCardSetupInit, FlashCardQuestionsPage],
     []
@@ -67,7 +70,13 @@ const SetupFlashcardPage = ({
         )}
 
         {CurrentForm && (
-          <CurrentForm showConfirm={showConfirm} isAutomated={isAutomated} />
+          <CurrentForm
+            showConfirm={showConfirm}
+            isAutomated={isAutomated}
+            isFlashCardPage={
+              location.pathname === '/dashboard/flashcards/create'
+            }
+          />
         )}
       </Box>
     </>
