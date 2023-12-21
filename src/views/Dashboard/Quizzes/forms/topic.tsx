@@ -149,7 +149,7 @@ const TopicQuizForm = ({
       // });
 
       const sliceQuestions = slice(quizzes, 0, localData.count);
-      const questions = map([...sliceQuestions], (quiz) => {
+      const questions = map([...sliceQuestions], (quiz: QuizQuestion) => {
         let type = quiz?.type;
         let options = [];
         if (

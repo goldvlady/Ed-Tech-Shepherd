@@ -1187,7 +1187,7 @@ export default forwardRef<any, any>(function ToolbarPlugin(
                 buttonLabel="Table"
                 buttonAriaLabel="Open table toolkit"
                 buttonIconClassName="icon table secondary"
-                buttonIcon={<TableIcon className="icon table secondary" />}
+                buttonIcon={<TableIcon className="icon mr-2 secondary" />}
               >
                 <DropDownItem
                   onClick={() => {
@@ -1319,7 +1319,7 @@ export default forwardRef<any, any>(function ToolbarPlugin(
               className="item"
             >
               {/* <i className="table icon" /> */}
-              <TableIcon className="table icon" />
+              <TableIcon className="icon mr-2" />
               <span className="text">Table (Experimental)</span>
             </DropDownItem>
             <DropDownItem
