@@ -804,7 +804,8 @@ const QuizEnd = ({
   handleRestartQuiz,
   passed = 40,
   failed = 20,
-  skipped = 40
+  skipped = 40,
+  scores
 }: {
   handleReviewQuiz: () => void;
   handleRestartQuiz: () => void;
@@ -813,6 +814,8 @@ const QuizEnd = ({
   skipped?: string | number;
   scores?: any[];
 }) => {
+  const title =
+    Number(passed) >= 85 ? 'Congratulations!' : "Let's keep studying!";
   return (
     <Box
       fontFamily={'Inter'}
@@ -830,7 +833,7 @@ const QuizEnd = ({
             fontWeight={'600'}
             lineHeight={'30px'}
           >
-            Congratulations!
+            {title}
           </Text>
         </Box>
         <Box>

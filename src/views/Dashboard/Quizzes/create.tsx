@@ -2,17 +2,12 @@ import { useCustomToast } from '../../../components/CustomComponents/CustomToast
 import TagModal from '../../../components/TagModal';
 import LoaderOverlay from '../../../components/loaderOverlay';
 import { useSearch } from '../../../hooks';
-import ApiService from '../../../services/ApiService';
 import quizStore from '../../../state/quizStore';
-import { QuizData, QuizQuestion } from '../../../types';
-import {
-  ManualQuizForm, // TextQuizForm,
-  UploadQuizForm,
-  TopicQuizForm
-} from './forms';
+import { QuizQuestion } from '../../../types';
+import { ManualQuizForm, UploadQuizForm, TopicQuizForm } from './forms';
 import LoaderScreen from './forms/quizz_setup/loader_page';
 import { ManualPreview as QuizPreviewer } from './previews';
-import './styles.css';
+import BackArrow from '../../../assets/backArrowFill.svg?react';
 import {
   Box,
   Text,
@@ -26,26 +21,19 @@ import {
   AlertStatus,
   ToastPosition
 } from '@chakra-ui/react';
-import {
-  filter,
-  isEmpty,
-  isNil,
-  last,
-  omit,
-  pull,
-  union,
-  map,
-  merge,
-  unionBy // uniqBy
-} from 'lodash';
+import { isEmpty, isNil, last, omit, pull, union, map, merge } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import './styles.css';
+import { HeaderButton, HeaderButtonText } from './styles';
+import clsx from 'clsx';
 
 type NewQuizQuestion = QuizQuestion & {
   canEdit?: boolean;
 };
 
 const CreateQuizPage = () => {
+  const navigate = useNavigate();
   const TAG_TITLE = 'Tags Alert';
   const [searchParams] = useSearchParams();
   const toast = useCustomToast();
@@ -285,9 +273,21 @@ const CreateQuizPage = () => {
     );
   };
 
-  const handleLoadQuiz = () => {
-    handleToggleStartQuizModal(true);
-    loadQuiz(quizId);
+  const handleLoadQuiz = async () => {
+    console.log('quiz?._id ?? quizId ========>> ', quiz?._id ?? quizId);
+    await loadQuiz(quiz?._id ?? quizId, undefined, () => {
+      setTimeout(() => {
+        handleToggleStartQuizModal(true);
+      });
+    });
+  };
+
+  const handleBackClick = () => {
+    // setCanStartSaving(false);
+    // clearEditor();
+    setTimeout(() => {
+      navigate(-1);
+    }, 100);
   };
   const searchQuizzes = useCallback(
     (query: string) => {
@@ -306,153 +306,6 @@ const CreateQuizPage = () => {
   );
 
   const handleSearch = useSearch(searchQuizzes);
-
-  useEffect(() => {
-    // setQuestions([
-    //   {
-    //     question: 'What is the main purpose of a knife?',
-    //     type: 'openEnded',
-    //     answer: 'Cutting',
-    //     explanation:
-    //       'Knife primarily serves as a cutting tool. It may be used in various contexts like kitchen for food preparation or in arts for creating crafts.'
-    //   },
-    //   {
-    //     canEdit: true,
-    //     question:
-    //       'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    //     type: 'multipleChoiceMulti',
-    //     options: [
-    //       {
-    //         content:
-    //           'Cutting food Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    //         isCorrect: true
-    //       },
-    //       {
-    //         content:
-    //           'Sewing clothes Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    //         isCorrect: false
-    //       },
-    //       {
-    //         content:
-    //           'Opening a package Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    //         isCorrect: false
-    //       },
-    //       {
-    //         content:
-    //           'Writing a letter Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    //         isCorrect: false
-    //       }
-    //     ]
-    //   },
-    //   {
-    //     question:
-    //       'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    //     type: 'multipleChoiceSingle',
-    //     options: [
-    //       {
-    //         content:
-    //           'Cutting food Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    //         isCorrect: true
-    //       },
-    //       {
-    //         content:
-    //           'Sewing clothes Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    //         isCorrect: false
-    //       },
-    //       {
-    //         content:
-    //           'Opening a package Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    //         isCorrect: false
-    //       },
-    //       {
-    //         content:
-    //           'Writing a letter Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    //         isCorrect: false
-    //       }
-    //     ]
-    //   },
-    //   {
-    //     question: 'A knife can be used for...',
-    //     type: 'multipleChoiceMulti',
-    //     options: [
-    //       {
-    //         content: 'Cutting food',
-    //         isCorrect: true
-    //       },
-    //       {
-    //         content: 'Sewing clothes',
-    //         isCorrect: false
-    //       },
-    //       {
-    //         content: 'Opening a package',
-    //         isCorrect: true
-    //       },
-    //       {
-    //         content: 'Writing a letter',
-    //         isCorrect: false
-    //       }
-    //     ]
-    //   },
-    //   {
-    //     question: 'The sharp side of the knife is called...?',
-    //     type: 'multipleChoiceSingle',
-    //     options: [
-    //       {
-    //         content: 'Handle',
-    //         isCorrect: false
-    //       },
-    //       {
-    //         content: 'Edge',
-    //         isCorrect: true
-    //       },
-    //       {
-    //         content: 'Point',
-    //         isCorrect: false
-    //       },
-    //       {
-    //         content: 'Blade',
-    //         isCorrect: false
-    //       }
-    //     ]
-    //   },
-    //   {
-    //     question: 'Is it safe to play with a knife?',
-    //     type: 'trueFalse',
-    //     options: [
-    //       {
-    //         content: 'true',
-    //         isCorrect: false
-    //       },
-    //       {
-    //         content: 'false',
-    //         isCorrect: true
-    //       }
-    //     ]
-    //   },
-    //   {
-    //     question: 'If you see a knife lying around, you should...',
-    //     type: 'multipleChoiceSingle',
-    //     options: [
-    //       {
-    //         content: 'Pick it up and play with it',
-    //         isCorrect: false
-    //       },
-    //       {
-    //         content: 'Leave it there',
-    //         isCorrect: false
-    //       },
-    //       {
-    //         content: 'Tell an adult',
-    //         isCorrect: true
-    //       },
-    //       {
-    //         content: 'Put it in your pocket',
-    //         isCorrect: false
-    //       }
-    //     ]
-    //   }
-    // ]);
-  }, []);
 
   return (
     <>
@@ -574,12 +427,29 @@ const CreateQuizPage = () => {
           </>
         </Box>
         <Box
-          className="review-quiz-wrapper"
+          className="review-quiz-wrapper relative"
           width={['100%', '100%', '100%', '50%', '70%']}
           bg="#F9F9FB"
           borderLeft="1px solid #E7E8E9"
         >
-          {uploadingState && <LoaderScreen />}
+          {uploadingState && (
+            <>
+              <Box>
+                <HeaderButton
+                  onClick={handleBackClick}
+                  className={clsx(
+                    'w-full max-w-[150px] hover:opacity-75 absolute left-5 top-5 z-10 hidden 2xl:flex cursor-pointer items-center'
+                  )}
+                >
+                  <BackArrow className="mx-2" />
+                  <HeaderButtonText className={clsx('ml-3')}>
+                    Back
+                  </HeaderButtonText>
+                </HeaderButton>
+              </Box>
+              <LoaderScreen />
+            </>
+          )}
           {!uploadingState && (
             <QuizPreviewer
               handleClearQuiz={handleClearQuiz}

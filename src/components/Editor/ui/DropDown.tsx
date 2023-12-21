@@ -15,6 +15,8 @@ import {
   useState
 } from 'react';
 import { createPortal } from 'react-dom';
+import ChevronDown from '../images/icons/chevron-down.svg?react';
+import clsx from 'clsx';
 
 type DropDownContextType = {
   registerItem: (ref: React.RefObject<HTMLButtonElement>) => void;
@@ -142,7 +144,8 @@ export default function DropDown({
   buttonClassName,
   buttonIconClassName,
   children,
-  stopCloseOnClickSelf
+  stopCloseOnClickSelf,
+  buttonIcon
 }: {
   disabled?: boolean;
   buttonAriaLabel?: string;
@@ -151,6 +154,7 @@ export default function DropDown({
   buttonLabel?: string;
   children: ReactNode;
   stopCloseOnClickSelf?: boolean;
+  buttonIcon?: React.ReactNode | JSX.Element;
 }): JSX.Element {
   const dropDownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -234,11 +238,21 @@ export default function DropDown({
         onClick={() => setShowDropDown(!showDropDown)}
         ref={buttonRef}
       >
-        {buttonIconClassName && <span className={buttonIconClassName} />}
+        {!buttonIcon && buttonIconClassName ? (
+          <span className={buttonIconClassName} />
+        ) : (
+          buttonIcon
+        )}
+
         {buttonLabel && (
           <span className="text dropdown-button-text">{buttonLabel}</span>
         )}
-        <i className="chevron-down" />
+        {/* <i className="chevron-down" /> */}
+        <ChevronDown
+          className={clsx('chevron-down transition-all', {
+            'rotate-180': showDropDown
+          })}
+        />
       </button>
 
       {showDropDown &&

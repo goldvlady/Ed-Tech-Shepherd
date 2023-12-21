@@ -1,4 +1,5 @@
 import theme from '../../../theme';
+
 import { IconWrapper, ButtonWrapper, Title } from './styles';
 import React from 'react';
 import { ThemeProvider } from 'styled-components';
@@ -10,6 +11,7 @@ interface ButtonProps {
   icon?: React.ReactNode;
   active?: boolean;
 }
+
 const HeaderButton = ({ title, onClick, icon }: ButtonProps) => {
   return (
     <ThemeProvider theme={theme}>

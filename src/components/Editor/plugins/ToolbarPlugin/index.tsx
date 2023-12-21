@@ -100,6 +100,49 @@ import {
 } from 'lexical';
 import React, { useCallback, useEffect, useState, forwardRef } from 'react';
 
+// icon asssts
+import Paragraph from '../../images/icons/text-paragraph.svg?react';
+import H1 from '../../images/icons/type-h1.svg?react';
+import H2 from '../../images/icons/type-h2.svg?react';
+import H3 from '../../images/icons/type-h3.svg?react';
+import H4 from '../../images/icons/type-h4.svg?react';
+import H5 from '../../images/icons/type-h5.svg?react';
+import H6 from '../../images/icons/type-h6.svg?react';
+import ListOl from '../../images/icons/list-ol.svg?react';
+import ListUl from '../../images/icons/list-ul.svg?react';
+import SquareCheck from '../../images/icons/square-check.svg?react';
+import ChatSquareQuote from '../../images/icons/chat-square-quote.svg?react';
+import Code from '../../images/icons/code.svg?react';
+import Undo from '../../images/icons/arrow-counterclockwise.svg?react';
+import Redo from '../../images/icons/arrow-clockwise.svg?react';
+import FontFamily from '../../images/icons/font-family.svg?react';
+import Bold from '../../images/icons/type-bold.svg?react';
+import Italic from '../../images/icons/type-italic.svg?react';
+import Underline from '../../images/icons/type-underline.svg?react';
+import HyLink from '../../images/icons/link.svg?react';
+import FontColor from '../../images/icons/font-color.svg?react';
+import BgColor from '../../images/icons/bg-color.svg?react';
+import DropdownMore from '../../images/icons/dropdown-more.svg?react';
+import StrikeThrough from '../../images/icons/type-strikethrough.svg?react';
+import Subscript from '../../images/icons/type-subscript.svg?react';
+import Superscript from '../../images/icons/type-superscript.svg?react';
+import Clear from '../../images/icons/trash.svg?react';
+import TableIcon from '../../images/icons/table.svg?react';
+import PlusIcon from '../../images/icons/plus.svg?react';
+import HorizontalRule from '../../images/icons/horizontal-rule.svg?react';
+import Scissors from '../../images/icons/scissors.svg?react';
+import FileImage from '../../images/icons/file-image.svg?react';
+import Diagram2 from '../../images/icons/diagram-2.svg?react';
+import PollIcon from '../../images/icons/card-checklist.svg?react';
+import ColumnsIcon from '../../images/icons/3-columns.svg?react';
+import PlusSlashMinus from '../../images/icons/plus-slash-minus.svg?react';
+import LeftAlign from '../../images/icons/text-left.svg?react';
+import RightAlign from '../../images/icons/text-left.svg?react';
+import CenterAlign from '../../images/icons/text-center.svg?react';
+import JusitfyAlign from '../../images/icons/justify.svg?react';
+import IndentIcon from '../../images/icons/indent.svg?react';
+import OutdentIcon from '../../images/icons/outdent.svg?react';
+
 const blockTypeToBlockName = {
   bullet: 'Bulleted List',
   check: 'Check List',
@@ -114,6 +157,21 @@ const blockTypeToBlockName = {
   paragraph: 'Normal',
   quote: 'Quote'
 };
+
+const blockTypeToBlockNameIcon = (className?: string) => ({
+  bullet: <ListUl className={className} />,
+  check: <SquareCheck className={className} />,
+  code: <Code className={className} />,
+  h1: <H1 className={className} />,
+  h2: <H2 className={className} />,
+  h3: <H3 className={className} />,
+  h4: <H4 className={className} />,
+  h5: <H5 className={className} />,
+  h6: <H6 className={className} />,
+  number: <ListOl className={className} />,
+  paragraph: <Paragraph className={className} />,
+  quote: <ChatSquareQuote className={className} />
+});
 
 const rootTypeToRootName = {
   root: 'Root',
@@ -162,27 +220,36 @@ const FONT_SIZE_OPTIONS: [string, string][] = [
 ];
 
 const ELEMENT_FORMAT_OPTIONS: {
-  [key: string]: { icon: string; name: string };
+  [key: string]: {
+    icon?: React.ReactNode | JSX.Element;
+    name: string;
+    iconName: string;
+  };
 } = {
   start: {
-    icon: 'left-align',
-    name: 'Left Align'
+    iconName: 'left-align',
+    name: 'Left Align',
+    icon: <LeftAlign className="icon left-align" />
   },
   center: {
-    icon: 'center-align',
-    name: 'Center Align'
+    iconName: 'center-align',
+    name: 'Center Align',
+    icon: <CenterAlign className="icon center-align" />
   },
   justify: {
-    icon: 'justify-align',
-    name: 'Justify Align'
+    iconName: 'justify-align',
+    name: 'Justify Align',
+    icon: <JusitfyAlign className="icon jusity-align" />
   },
   left: {
-    icon: 'left-align',
-    name: 'Left Align'
+    iconName: 'left-align',
+    name: 'Left Align',
+    icon: <LeftAlign className="icon left-align" />
   },
   right: {
-    icon: 'right-align',
-    name: 'Right Align'
+    iconName: 'right-align',
+    name: 'Right Align',
+    icon: <RightAlign className="icon right-align" />
   }
 };
 
@@ -297,68 +364,82 @@ function BlockFormatDropDown({
       buttonIconClassName={'icon block-type ' + blockType}
       buttonLabel={blockTypeToBlockName[blockType]}
       buttonAriaLabel="Formatting options for text style"
+      buttonIcon={
+        blockTypeToBlockNameIcon('icon block-type ' + blockType)[
+          blockType
+        ] as JSX.Element
+      }
     >
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'paragraph')}
         onClick={formatParagraph}
       >
-        <i className="icon paragraph" />
+        {/* <i className="icon paragraph" /> */}
+        <Paragraph className="icon" />
         <span className="text">Normal</span>
       </DropDownItem>
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'h1')}
         onClick={() => formatHeading('h1')}
       >
-        <i className="icon h1" />
+        {/* <i className="icon h1" /> */}
+        <H1 className="icon" />
         <span className="text">Heading 1</span>
       </DropDownItem>
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'h2')}
         onClick={() => formatHeading('h2')}
       >
-        <i className="icon h2" />
+        {/* <i className="icon h2" /> */}
+        <H2 className="icon" />
         <span className="text">Heading 2</span>
       </DropDownItem>
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'h3')}
         onClick={() => formatHeading('h3')}
       >
-        <i className="icon h3" />
+        {/* <i className="icon h3" /> */}
+        <H3 className="icon" />
         <span className="text">Heading 3</span>
       </DropDownItem>
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'bullet')}
         onClick={formatBulletList}
       >
-        <i className="icon bullet-list" />
+        {/* <i className="icon bullet-list" /> */}
+        <ListUl className="icon" />
         <span className="text">Bullet List</span>
       </DropDownItem>
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'number')}
         onClick={formatNumberedList}
       >
-        <i className="icon numbered-list" />
+        {/* <i className="icon numbered-list" /> */}
+        <ListOl className="icon" />
         <span className="text">Numbered List</span>
       </DropDownItem>
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'check')}
         onClick={formatCheckList}
       >
-        <i className="icon check-list" />
+        {/* <i className="icon check-list" /> */}
+        <SquareCheck className="icon" />
         <span className="text">Check List</span>
       </DropDownItem>
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'quote')}
         onClick={formatQuote}
       >
-        <i className="icon quote" />
+        {/* <i className="icon quote" /> */}
+        <ChatSquareQuote className="icon" />
         <span className="text">Quote</span>
       </DropDownItem>
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'code')}
         onClick={formatCode}
       >
-        <i className="icon code" />
+        {/* <i className="icon code" /> */}
+        <Code className="icon" />
         <span className="text">Code Block</span>
       </DropDownItem>
     </DropDown>
@@ -408,6 +489,13 @@ function FontDropDown({
         style === 'font-family' ? 'icon block-type font-family' : ''
       }
       buttonAriaLabel={buttonAriaLabel}
+      buttonIcon={
+        style === 'font-family' ? (
+          <FontFamily className={'icon block-type font-family'} />
+        ) : (
+          ''
+        )
+      }
     >
       {(style === 'font-family' ? FONT_FAMILY_OPTIONS : FONT_SIZE_OPTIONS).map(
         ([option, text]) => (
@@ -441,7 +529,8 @@ function ElementFormatDropdown({
     <DropDown
       disabled={disabled}
       buttonLabel={ELEMENT_FORMAT_OPTIONS[value].name}
-      buttonIconClassName={`icon ${ELEMENT_FORMAT_OPTIONS[value].icon}`}
+      buttonIconClassName={`icon ${ELEMENT_FORMAT_OPTIONS[value].iconName}`}
+      buttonIcon={ELEMENT_FORMAT_OPTIONS[value].icon}
       buttonClassName="toolbar-item spaced alignment"
       buttonAriaLabel="Formatting options for text alignment"
     >
@@ -451,7 +540,9 @@ function ElementFormatDropdown({
         }}
         className="item"
       >
-        <i className="icon left-align" />
+        {/* <i className="icon left-align" /> */}
+
+        <LeftAlign className="icon left-align" />
         <span className="text">Left Align</span>
       </DropDownItem>
       <DropDownItem
@@ -460,7 +551,9 @@ function ElementFormatDropdown({
         }}
         className="item"
       >
-        <i className="icon center-align" />
+        {/* <i className="icon center-align" /> */}
+
+        <CenterAlign className="icon center-align" />
         <span className="text">Center Align</span>
       </DropDownItem>
       <DropDownItem
@@ -469,7 +562,8 @@ function ElementFormatDropdown({
         }}
         className="item"
       >
-        <i className="icon right-align" />
+        {/* <i className="icon right-align" /> */}
+        <RightAlign className="icon right-align" />
         <span className="text">Right Align</span>
       </DropDownItem>
       <DropDownItem
@@ -478,7 +572,8 @@ function ElementFormatDropdown({
         }}
         className="item"
       >
-        <i className="icon justify-align" />
+        {/* <i className="icon justify-align" /> */}
+        <JusitfyAlign className="icon justify-align" />
         <span className="text">Justify Align</span>
       </DropDownItem>
       <Divider />
@@ -488,7 +583,12 @@ function ElementFormatDropdown({
         }}
         className="item"
       >
-        <i className={'icon ' + (isRTL ? 'indent' : 'outdent')} />
+        {/* <i className={'icon ' + (isRTL ? 'indent' : 'outdent')} /> */}
+        {!isRTL ? (
+          <OutdentIcon className="icon" />
+        ) : (
+          <IndentIcon className="icon" />
+        )}
         <span className="text">Outdent</span>
       </DropDownItem>
       <DropDownItem
@@ -497,7 +597,12 @@ function ElementFormatDropdown({
         }}
         className="item"
       >
-        <i className={'icon ' + (isRTL ? 'outdent' : 'indent')} />
+        {/* <i className={'icon ' + (isRTL ? 'outdent' : 'indent')} /> */}
+        {isRTL ? (
+          <OutdentIcon className="icon" />
+        ) : (
+          <IndentIcon className="icon" />
+        )}
         <span className="text">Indent</span>
       </DropDownItem>
     </DropDown>
@@ -856,7 +961,8 @@ export default forwardRef<any, any>(function ToolbarPlugin(
         className="toolbar-item spaced"
         aria-label="Undo"
       >
-        <i className="format undo" />
+        {/* <i className="format undo" /> */}
+        <Undo className="format" />
       </button>
       <button
         disabled={!canRedo || !isEditable}
@@ -868,7 +974,8 @@ export default forwardRef<any, any>(function ToolbarPlugin(
         className="toolbar-item"
         aria-label="Redo"
       >
-        <i className="format redo" />
+        {/* <i className="format redo" /> */}
+        <Redo className="format" />
       </button>
       <Divider />
       {blockType in blockTypeToBlockName && activeEditor === editor && (
@@ -930,7 +1037,8 @@ export default forwardRef<any, any>(function ToolbarPlugin(
               IS_APPLE ? '⌘B' : 'Ctrl+B'
             }`}
           >
-            <i className="format bold" />
+            {/* <i className="format bold" /> */}
+            <Bold className="format bold" />
           </button>
           <button
             disabled={!isEditable}
@@ -944,7 +1052,8 @@ export default forwardRef<any, any>(function ToolbarPlugin(
               IS_APPLE ? '⌘I' : 'Ctrl+I'
             }`}
           >
-            <i className="italic format" />
+            {/* <i className="italic format" /> */}
+            <Italic className="format italic" />
           </button>
           <button
             disabled={!isEditable}
@@ -958,7 +1067,8 @@ export default forwardRef<any, any>(function ToolbarPlugin(
               IS_APPLE ? '⌘U' : 'Ctrl+U'
             }`}
           >
-            <i className="underline format" />
+            {/* <i className="underline format" /> */}
+            <Underline className="underline format" />
           </button>
           <button
             disabled={!isEditable}
@@ -970,7 +1080,8 @@ export default forwardRef<any, any>(function ToolbarPlugin(
             type="button"
             aria-label="Insert code block"
           >
-            <i className="format code" />
+            {/* <i className="format code" /> */}
+            <Code className="format code" />
           </button>
           <button
             disabled={!isEditable}
@@ -980,13 +1091,15 @@ export default forwardRef<any, any>(function ToolbarPlugin(
             title="Insert link"
             type="button"
           >
-            <i className="format link" />
+            {/* <i className="format link" /> */}
+            <HyLink className="format link" />
           </button>
           <DropdownColorPicker
             disabled={!isEditable}
             buttonClassName="toolbar-item color-picker"
             buttonAriaLabel="Formatting text color"
             buttonIconClassName="icon font-color"
+            buttonIcon={<FontColor className="icon font-color" />}
             color={fontColor}
             onChange={onFontColorSelect}
             title="text color"
@@ -996,6 +1109,7 @@ export default forwardRef<any, any>(function ToolbarPlugin(
             buttonClassName="toolbar-item color-picker"
             buttonAriaLabel="Formatting background color"
             buttonIconClassName="icon bg-color"
+            buttonIcon={<BgColor className="icon bg-color" />}
             color={bgColor}
             onChange={onBgColorSelect}
             title="bg color"
@@ -1006,6 +1120,7 @@ export default forwardRef<any, any>(function ToolbarPlugin(
             buttonLabel=""
             buttonAriaLabel="Formatting options for additional text styles"
             buttonIconClassName="icon dropdown-more"
+            buttonIcon={<DropdownMore className="icon dropdown-more" />}
           >
             <DropDownItem
               onClick={() => {
@@ -1018,7 +1133,10 @@ export default forwardRef<any, any>(function ToolbarPlugin(
               title="Strikethrough"
               aria-label="Format text with a strikethrough"
             >
-              <i className="icon strikethrough" />
+              {/* <i className="icon strikethrough" /> */}
+
+              <StrikeThrough className="icon strikethrough" />
+
               <span className="text">Strikethrough</span>
             </DropDownItem>
             <DropDownItem
@@ -1029,7 +1147,9 @@ export default forwardRef<any, any>(function ToolbarPlugin(
               title="Subscript"
               aria-label="Format text with a subscript"
             >
-              <i className="icon subscript" />
+              {/* <i className="icon subscript" /> */}
+
+              <Subscript className="icon subscript" />
               <span className="text">Subscript</span>
             </DropDownItem>
             <DropDownItem
@@ -1043,7 +1163,8 @@ export default forwardRef<any, any>(function ToolbarPlugin(
               title="Superscript"
               aria-label="Format text with a superscript"
             >
-              <i className="icon superscript" />
+              {/* <i className="icon superscript" /> */}
+              <Superscript className="icon superscript" />
               <span className="text">Superscript</span>
             </DropDownItem>
             <DropDownItem
@@ -1052,7 +1173,8 @@ export default forwardRef<any, any>(function ToolbarPlugin(
               title="Clear text formatting"
               aria-label="Clear all text formatting"
             >
-              <i className="icon clear" />
+              {/* <i className="icon clear" /> */}
+              <Clear className="icon clear" />
               <span className="text">Clear Formatting</span>
             </DropDownItem>
           </DropDown>
@@ -1065,6 +1187,7 @@ export default forwardRef<any, any>(function ToolbarPlugin(
                 buttonLabel="Table"
                 buttonAriaLabel="Open table toolkit"
                 buttonIconClassName="icon table secondary"
+                buttonIcon={<TableIcon className="icon mr-2 secondary" />}
               >
                 <DropDownItem
                   onClick={() => {
@@ -1084,6 +1207,7 @@ export default forwardRef<any, any>(function ToolbarPlugin(
             buttonLabel="Insert"
             buttonAriaLabel="Insert specialized editor node"
             buttonIconClassName="icon plus"
+            buttonIcon={<PlusIcon className="icon plus" />}
           >
             <DropDownItem
               onClick={() => {
@@ -1094,7 +1218,8 @@ export default forwardRef<any, any>(function ToolbarPlugin(
               }}
               className="item"
             >
-              <i className="icon horizontal-rule" />
+              {/* <i className="icon horizontal-rule" /> */}
+              <HorizontalRule className="icon horizontal-rule" />
               <span className="text">Horizontal Rule</span>
             </DropDownItem>
             <DropDownItem
@@ -1103,7 +1228,9 @@ export default forwardRef<any, any>(function ToolbarPlugin(
               }}
               className="item"
             >
-              <i className="icon page-break" />
+              {/* <i className="icon page-break" /> */}
+
+              <Scissors className="icon page-break" />
               <span className="text">Page Break</span>
             </DropDownItem>
             <DropDownItem
@@ -1117,7 +1244,9 @@ export default forwardRef<any, any>(function ToolbarPlugin(
               }}
               className="item"
             >
-              <i className="icon image" />
+              {/* <i className="icon image" /> */}
+
+              <FileImage className="icon image" />
               <span className="text">Image</span>
             </DropDownItem>
             <DropDownItem
@@ -1131,7 +1260,8 @@ export default forwardRef<any, any>(function ToolbarPlugin(
               }}
               className="item"
             >
-              <i className="icon image" />
+              {/* <i className="icon image" /> */}
+              <FileImage className="icon image" />
               <span className="text">Inline Image</span>
             </DropDownItem>
             {false && (
@@ -1157,7 +1287,8 @@ export default forwardRef<any, any>(function ToolbarPlugin(
               }}
               className="item"
             >
-              <i className="icon diagram-2" />
+              {/* <i className="icon diagram-2" /> */}
+              <Diagram2 className="icon diagram-2" />
               <span className="text">Excalidraw</span>
             </DropDownItem>
             {false && (
@@ -1187,7 +1318,8 @@ export default forwardRef<any, any>(function ToolbarPlugin(
               }}
               className="item"
             >
-              <i className="table icon" />
+              {/* <i className="table icon" /> */}
+              <TableIcon className="icon mr-2" />
               <span className="text">Table (Experimental)</span>
             </DropDownItem>
             <DropDownItem
@@ -1201,7 +1333,8 @@ export default forwardRef<any, any>(function ToolbarPlugin(
               }}
               className="item"
             >
-              <i className="icon poll" />
+              {/* <i className="icon poll" /> */}
+              <PollIcon className="icon poll" />
               <span className="text">Poll</span>
             </DropDownItem>
             <DropDownItem
@@ -1215,7 +1348,8 @@ export default forwardRef<any, any>(function ToolbarPlugin(
               }}
               className="item"
             >
-              <i className="icon columns" />
+              {/* <i className="icon columns" /> */}
+              <ColumnsIcon className="icon columns" />
               <span className="text">Columns Layout</span>
             </DropDownItem>
 
@@ -1230,7 +1364,8 @@ export default forwardRef<any, any>(function ToolbarPlugin(
               }}
               className="item"
             >
-              <i className="icon equation" />
+              {/* <i className="icon equation" /> */}
+              <PlusSlashMinus className="icon equation" />
               <span className="text">Equation</span>
             </DropDownItem>
             {false && (

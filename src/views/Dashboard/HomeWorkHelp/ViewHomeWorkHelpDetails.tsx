@@ -115,6 +115,19 @@ const ViewHomeWorkHelpDetails = ({
     return !Object.values(localData).some((value) => value === '');
   }, [localData]);
 
+  const customStyles = {
+    menu: (provided) => ({
+      ...provided,
+      // Adjust the height as needed
+      maxHeight: '150px' // Example height
+    }),
+    menuList: (provided) => ({
+      ...provided,
+      maxHeight: '150px'
+    })
+    // Add other style customizations if needed
+  };
+
   return (
     <CustomModal
       isOpen={openAceHomework}
@@ -153,7 +166,7 @@ const ViewHomeWorkHelpDetails = ({
           >
             Subject
           </FormLabel>
-          <CreatableSelect
+          {/* <CreatableSelect
             isClearable
             onChange={handleOnChange}
             onCreateOption={handleOnCreateOption}
@@ -167,6 +180,15 @@ const ViewHomeWorkHelpDetails = ({
             // }}
             classNames={{ control: () => 'text-[0.875rem]' }}
             placeholder="Search or select an option..."
+          /> */}
+          <CreatableSelect
+            isClearable
+            onChange={handleOnChange}
+            onCreateOption={handleOnCreateOption}
+            options={courseList}
+            value={selectedOption}
+            placeholder="Search or select an option..."
+            styles={customStyles}
           />
         </FormControl>
 

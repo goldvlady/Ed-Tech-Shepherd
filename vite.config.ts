@@ -6,14 +6,16 @@ import svgrPlugin from 'vite-plugin-svgr';
 import viteTsconfigPaths from 'vite-tsconfig-paths';
 
 const loadVite = ({ mode }: any) => {
-  const env = loadEnv(mode, process.cwd(), '');
+  const { PORT, ...env } = loadEnv(mode, process.cwd(), '');
+
+  // console.log('env ========>>> ', env);
 
   return defineConfig({
     define: {
       'process.env': env
     },
     server: {
-      port: 3000
+      port: PORT && isNaN(parseInt(PORT)) === false ? parseInt(PORT) : 3000
     },
     optimizeDeps: {
       esbuildOptions: {

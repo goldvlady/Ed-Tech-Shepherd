@@ -33,7 +33,10 @@ import {
   toLower,
   toNumber,
   omit,
-  toString
+  toString,
+  size,
+  filter,
+  slice
 } from 'lodash';
 import { ChangeEvent, useCallback, useState } from 'react';
 
@@ -57,7 +60,7 @@ const TopicQuizForm = ({
     type: MIXED
   };
 
-  const { handleIsLoadingQuizzes } = quizStore();
+  const { handleIsLoadingQuizzes, fetchQuizzes } = quizStore();
 
   const [isLoading, setIsLoading] = useState(false);
   const [localData, setLocalData] = useState<any>(dummyData);
@@ -145,7 +148,8 @@ const TopicQuizForm = ({
       //   };
       // });
 
-      const questions = map([...quizzes], (quiz) => {
+      const sliceQuestions = slice(quizzes, 0, localData.count);
+      const questions = map([...sliceQuestions], (quiz: QuizQuestion) => {
         let type = quiz?.type;
         let options = [];
         if (
@@ -160,6 +164,13 @@ const TopicQuizForm = ({
             if (options.length < 3) {
               type = TRUE_FALSE;
             } else {
+              const isMulti =
+                size(filter(options, (option) => option.isCorrect === true)) >
+                1;
+              if (isMulti) {
+                type = MULTIPLE_CHOICE_MULTI;
+              }
+
               type = MULTIPLE_CHOICE_SINGLE;
             }
           } else {
@@ -172,13 +183,15 @@ const TopicQuizForm = ({
             includes(toLower(type), 'multiple answers') ||
             includes(toLower(type), 'multipleanswers') ||
             includes(toLower(type), 'multipleanswer') ||
-            toLower(type) === 'multiplechoice'
+            toLower(type) === 'multiplechoice' ||
+            toLower(type) === 'multiplechoicemultiple'
           ) {
             type = MULTIPLE_CHOICE_MULTI;
           }
           if (
             includes(toLower(type), 'single answer') ||
-            includes(toLower(type), 'singleanswer')
+            includes(toLower(type), 'singleanswer') ||
+            toLower(type) === 'multiplechoicesingle'
           ) {
             type = MULTIPLE_CHOICE_SINGLE;
           }
@@ -197,6 +210,13 @@ const TopicQuizForm = ({
               if (options.length < 3) {
                 type = TRUE_FALSE;
               } else {
+                const isMulti =
+                  size(filter(options, (option) => option.isCorrect === true)) >
+                  1;
+                if (isMulti) {
+                  type = MULTIPLE_CHOICE_MULTI;
+                }
+
                 type = MULTIPLE_CHOICE_SINGLE;
               }
               const arrOptions = [...options];
@@ -212,7 +232,7 @@ const TopicQuizForm = ({
           options?: string[];
           question?: string;
         } = {
-          ...omit(quiz, ['explanation']),
+          ...omit(quiz, ['explanation', 'answerKey']),
           options,
           type
         };
@@ -227,7 +247,7 @@ const TopicQuizForm = ({
         await handleUpdateQuiz(quizId, { quizQuestions: questions });
       }
 
-      setLocalData(dummyData);
+      // setLocalData(dummyData);
     } catch (error) {
       console.log('error =======>> ', error);
       toast({
@@ -239,6 +259,7 @@ const TopicQuizForm = ({
       setIsLoading(false);
       handleIsLoadingQuizzes(false);
       handleSetUploadingState(false);
+      await fetchQuizzes();
     }
   };
 
@@ -294,15 +315,6 @@ const TopicQuizForm = ({
           value={localData?.topic}
           onChange={handleChange}
         />
-        <FormHelperText textColor={'text.600'} fontSize={'14px'}>
-          Enter a topic to generate questions from. We'll search the web for
-          reliable sources first. For very specific topics, we recommend adding
-          your own content in
-          <Text display={'inline'} color={'#207DF7'} mx={2}>
-            text input mode
-          </Text>{' '}
-          .
-        </FormHelperText>
       </FormControl>
 
       <FormControl mb={7}>
@@ -366,7 +378,7 @@ const TopicQuizForm = ({
           height={'48px'}
           name="count"
           onChange={handleChange}
-          type="number"
+          type="text"
           color={'text.200'}
           value={localData.count}
         />
