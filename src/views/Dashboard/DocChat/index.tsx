@@ -1098,7 +1098,7 @@ export default function DocChat() {
                 className={clsx('', ``)}
               >
                 {isLoadingNote && (
-                  <div className="w-full pb-5 flex flex-col justify-center items-center h-full">
+                  <div className="w-full pb-5 flex flex-col justify-center items-center h-[calc(100dvh-80px)]">
                     <CustomChatLoader className="items-center mx-auto" />
                   </div>
                 )}

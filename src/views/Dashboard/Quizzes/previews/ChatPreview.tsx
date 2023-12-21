@@ -30,6 +30,7 @@ import {
   filter,
   first,
   forEach,
+  includes,
   isArray,
   isEmpty,
   isNil,
@@ -45,7 +46,7 @@ import {
 } from 'lodash';
 import React, { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { IoCheckmarkDone, IoCloseOutline } from 'react-icons/io5';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useBlocker, useBeforeUnload } from 'react-router-dom';
 
 type QuizScoreType = {
   questionIdx: string | number;
@@ -90,6 +91,23 @@ const QuizCard = forwardRef(
     const [trueFalseAnswer, setTrueFalseAnswer] = useState('');
     const [_, setOptionCheckboxAnswers] = useState([]);
     const [showOpenEndedAnswer, setShowOpenEndedAnswer] = useState(false);
+    const [isMultipleOptionsMulti, setIsMultipleOptionsMulti] = useState(false);
+
+    let questionType = question?.type;
+
+    if (isMultipleOptionsMulti) {
+      questionType = MULTIPLE_CHOICE_MULTI;
+    }
+
+    useEffect(() => {
+      if (!isEmpty(options) && !isNil(options)) {
+        const isMulti =
+          size(filter(options, (option) => option.isCorrect === true)) > 1;
+
+        setIsMultipleOptionsMulti(isMulti);
+      }
+    }, [options]);
+
 
     const handleOptionAnswerHandler = (optionAnswer: string) => {
       if (!isEmpty(optionAnswer)) {
@@ -144,7 +162,7 @@ const QuizCard = forwardRef(
     return (
       <Box
         as="div"
-        className="quiz-tile"
+        className="quiz-tile "
         ref={(node) => {
           quizCardRef.current = node;
         }}
@@ -205,7 +223,7 @@ const QuizCard = forwardRef(
             w={'100%'}
             className="font-[Inter] font-[400] text-[14px] leading-[16px]"
           >
-            {question.type === MULTIPLE_CHOICE_MULTI && (
+            {questionType === MULTIPLE_CHOICE_MULTI && (
               <CheckboxGroup
                 onChange={(e) => {
                   setOptionCheckboxAnswers(e);
@@ -219,13 +237,20 @@ const QuizCard = forwardRef(
                       <div
                         key={optionIndex}
                         className={clsx(
-                          'min-h-[20px] flex justify-start items-center rounded-md !mt-0 mb-2',
+                          'min-h-[20px] flex justify-start items-start rounded-md !mt-0 !mb-4',
                           {
                             'p-2': showQuizAnswers,
                             '!border !border-[#66BD6A] bg-[#F1F9F1]':
+                              showQuizAnswers && option.isCorrect,
+                            //  &&
+                            // quizScores[index]?.score !== ''
+                            '!border !border-[#F53535] bg-[#FEF0F0]':
                               showQuizAnswers &&
-                              option.isCorrect &&
-                              quizScores[index]?.score !== ''
+                              option.isCorrect === false &&
+                              includes(
+                                quizScores[index]?.selectedOptions,
+                                `question:${optionIndex}:${index}`
+                              )
                           }
                         )}
                       >
@@ -236,17 +261,18 @@ const QuizCard = forwardRef(
                             name={`question:${optionIndex}:${index}`}
                             isReadOnly={showQuizAnswers}
                           />
-                          <p className="whitespace-pre-wrap w-[92%]">
-                            {' '}
-                            {option?.content}
-                          </p>
+                          <div className={'flex w-full max-w-[95%]'}>
+                            <Text w={'95%'} ml={'4px'}>
+                              {option?.content}
+                            </Text>
+                          </div>
                         </div>
                       </div>
                     ))}
                 </Stack>
               </CheckboxGroup>
             )}
-            {question.type === MULTIPLE_CHOICE_SINGLE && (
+            {questionType === MULTIPLE_CHOICE_SINGLE && (
               <RadioGroup
                 onChange={(e) => {
                   handleOptionAnswerHandler(e);
@@ -260,7 +286,7 @@ const QuizCard = forwardRef(
                       <div
                         key={optionIndex}
                         className={clsx(
-                          'min-h-[20px] flex justify-start items-center rounded-md !mt-0 mb-2',
+                          'min-h-[20px] flex justify-start items-start rounded-md !mt-0 !mb-4',
                           {
                             'p-2': showQuizAnswers,
                             'bg-[#FEF1F1] border border-[#f99597]':
@@ -269,9 +295,16 @@ const QuizCard = forwardRef(
                                 `question:${optionIndex}:${index}` &&
                               !option.isCorrect,
                             '!border !border-[#66BD6A] bg-[#F1F9F1]':
+                              showQuizAnswers && option.isCorrect,
+                            //  &&
+                            // quizScores[index]?.score !== '',
+                            '!border !border-[#F53535] bg-[#FEF0F0]':
                               showQuizAnswers &&
-                              option.isCorrect &&
-                              quizScores[index]?.score !== ''
+                              option.isCorrect === false &&
+                              includes(
+                                quizScores[index]?.selectedOptions,
+                                `question:${optionIndex}:${index}`
+                              )
                           }
                         )}
                       >
@@ -287,17 +320,18 @@ const QuizCard = forwardRef(
                             name={`question:${optionIndex}:${index}`}
                             isReadOnly={showQuizAnswers}
                           />
-                          <p className="whitespace-pre-wrap w-[92%]">
-                            {' '}
-                            {option?.content}
-                          </p>
+                          <div className={'flex w-full max-w-[95%]'}>
+                            <Text w={'95%'} ml={'4px'}>
+                              {option?.content}
+                            </Text>
+                          </div>
                         </div>
                       </div>
                     ))}
                 </Stack>
               </RadioGroup>
             )}
-            {question.type === TRUE_FALSE && (
+            {questionType === TRUE_FALSE && (
               <RadioGroup
                 onChange={(e) => {
                   handleTFAnswerHandler(e);
@@ -311,13 +345,20 @@ const QuizCard = forwardRef(
                       <div
                         key={optionIndex}
                         className={clsx(
-                          'cursor-pointer min-h-[20px] flex justify-start items-center rounded-md !mt-0 mb-2',
+                          'cursor-pointer min-h-[20px] flex justify-start items-start rounded-md !mt-0 !mb-4',
                           {
                             'p-2': showQuizAnswers,
                             '!border !border-[#66BD6A] bg-[#F1F9F1]':
+                              showQuizAnswers && option.isCorrect,
+                            // &&
+                            // quizScores[index]?.score !== '',
+                            '!border !border-[#F53535] bg-[#FEF0F0]':
                               showQuizAnswers &&
-                              option.isCorrect &&
-                              quizScores[index]?.score !== ''
+                              option.isCorrect === false &&
+                              includes(
+                                quizScores[index]?.selectedOptions,
+                                `question:${optionIndex}:${index}`
+                              )
                           }
                         )}
                       >
@@ -333,17 +374,19 @@ const QuizCard = forwardRef(
                             name={`question:${optionIndex}:${index}`}
                             isReadOnly={showQuizAnswers}
                           />
-                          <p className="whitespace-normal">
-                            {' '}
-                            {capitalize(option?.content)}
-                          </p>
+                          <div className={'flex w-full max-w-[95%]'}>
+                            <Text w={'95%'} ml={'4px'}>
+                              {' '}
+                              {capitalize(option.content)}
+                            </Text>
+                          </div>
                         </div>
                       </div>
                     ))}
                 </Stack>
               </RadioGroup>
             )}
-            {question.type === OPEN_ENDED && (
+            {questionType === OPEN_ENDED && (
               <>
                 <Box mt={2} w={'100%'} mb="24px">
                   <Textarea
@@ -565,7 +608,6 @@ const QuizPreviewer = ({
   title: string;
   questions: QuizQuestion[];
   quizId: string;
-  handleSetUploadingState?: (value: boolean) => void;
 }) => {
   const navigate = useNavigate();
 
@@ -691,6 +733,10 @@ const QuizPreviewer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questions]);
 
+  useEffect(() => {
+    console.log('scores ========>> ', scores);
+  }, [scores]);
+
   return (
     <>
       <Box
@@ -703,7 +749,6 @@ const QuizPreviewer = ({
         maxH={'100%'}
         overflowY={'auto'}
         mr={'auto'}
-        // _last={{ display: 'hidden' }}
       >
         <Box w="100%" maxW="95%" mb={10} position={'relative'}>
           <HStack mx={'auto'} justifyContent={'center'}>
@@ -845,7 +890,6 @@ const QuizPreviewer = ({
           onClose={() => {
             setShowConfirmation(false);
             setShowQuizAnswers(true);
-            // setShowResults(true);
             handleSubmit();
           }}
           count={handleUnansweredQuestionsCount}
