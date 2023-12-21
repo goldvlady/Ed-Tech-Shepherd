@@ -40,26 +40,24 @@ const StyledOption = styled('button')`
   align-items: center;
   padding: 6px;
   background: ${(props) => (props.title === 'Student' ? '#f2d5c9' : '#abcbfb')};
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
   transform: translateY(0);
-
-  &:hover {
-    background: ${(props) =>
-      props.title === 'Student' ? '#fca06d' : '#207df7'};
-  }
-
-  box-shadow: rgb(228, 229, 231) 3px 3px 2px 1px;
+  box-shadow: rgba(0, 0, 0, 0.3);
   border-radius: 6px;
   height: 50px;
   width: 60%;
   box-sizing: border-box;
-  color &:hover {
-    box-shadow: ${theme.colors.primary[600]} 0px 0px 0px 1px;
-    background: ${theme.colors.gray[50]};
+  color: black;
+
+  &:hover {
+    background: ${(props) =>
+      props.title === 'Student' ? '#fca06d' : '#207df7'};
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.4);
+    transform: translateY(-2px) scale(1.05);
   }
 
   &.active {
-    box-shadow: ${theme.colors.primary[400]} 0px 0px 0px 1.8px,
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.4),
       0px 6px 18px rgba(136, 139, 143, 0.18);
 
     ${IconParent} {

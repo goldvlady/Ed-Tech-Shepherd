@@ -627,7 +627,7 @@ const Quizzes = () => {
             flexDirection={'column'}
             alignItems={'center'}
           >
-            <Image src={EmptyIllustration} />
+            <EmptyIllustration />
             <Text
               color="text.300"
               fontFamily="Inter"
