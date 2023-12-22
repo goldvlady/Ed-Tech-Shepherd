@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useNavigate } from 'react-router';
 import DeleteIcn from '../../../assets/deleteIcn.svg?react';
 import EditIcn from '../../../assets/editIcn.svg?react';
 import HistoryIcn from '../../../assets/historyIcon.svg?react';
@@ -12,8 +11,7 @@ import useIsMobile from '../../../helpers/useIsMobile';
 import {
   deleteConversationId,
   editConversationId,
-  fetchStudentConversations,
-  getDocchatHistory
+  fetchStudentConversations
 } from '../../../services/AI';
 import {
   ChatHistoryBlock,
@@ -37,7 +35,6 @@ import { AnyMxRecord } from 'dns';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 import styled from 'styled-components';
-import userStore from '../../../state/userStore';
 
 const Clock = styled.div`
   width: 20px;
@@ -56,17 +53,10 @@ type Chat = {
   topic: string;
   level: string;
 };
-type ChatHistoryType = Array<
-  { [key: string]: any } & {
-    createdAt: string;
-    createdDate: string;
-    type: 'doc' | 'chat';
-    title: string;
-  } & Chat
->;
+
 type GroupedChat = {
   date: string;
-  messages: Chat[] | ChatHistoryType;
+  messages: Chat[];
 };
 
 const ChatHistory = ({
@@ -115,8 +105,7 @@ const ChatHistory = ({
   //   }
   // ];
 
-  const [chatHistory, setChatHistory] = useState<ChatHistoryType>([]);
-  const navigate = useNavigate();
+  const [chatHistory, setChatHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [updateChatHistory, setUpdateChatHistory] = useState({});
   const [updatedChat, setUpdatedChat] = useState('');
@@ -132,7 +121,6 @@ const ChatHistory = ({
   const [hostoryTopics, setHistoryTopics] = useState<any>([]);
   const [selectedTopic, setSelectedTopic] = useState('All');
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const { user, userDocuments, fetchUserDocuments } = userStore();
   const isMobile = useIsMobile();
   const handleClickOutside = (event) => {
     if (
@@ -150,34 +138,13 @@ const ChatHistory = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showSearchRef]);
-  const goToDocChat = async (
-    documentUrl: string,
-    docTitle: string,
-    documentId: string,
-    docKeywords: Array<string>,
-    studentId: string
-  ) => {
-    navigate('/dashboard/docchat', {
-      state: {
-        documentUrl,
-        docTitle,
-        documentId,
-        docKeywords,
-        studentId
-      }
-    });
 
-    user && fetchUserDocuments(user._id);
-  };
   async function retrieveChatHistory(
     studentId: string,
     isLoader: boolean
   ): Promise<void> {
     setLoading(isLoader);
-    const [chatHistory, docHistories] = await Promise.all([
-      fetchStudentConversations(studentId),
-      getDocchatHistory({ studentIdParam: studentId, noteText: '' })
-    ]);
+    const chatHistory = await fetchStudentConversations(studentId);
 
     const historyWithContent: any = chatHistory
       .filter((chat) => chat.ConversationLogs.length > 0)
@@ -190,7 +157,6 @@ const ChatHistory = ({
           topic: convo?.topic,
           subject: convo?.subject,
           level: convo?.level,
-          type: 'chat',
           message:
             message.length < 140 ? message : message.substring(0, 139) + '...',
           createdDated: getDateString(new Date(convo.createdAt)),
@@ -203,28 +169,8 @@ const ChatHistory = ({
       new Set(historyWithContent.map((convo) => convo.subject))
     );
 
-    const filteredHistories = docHistories
-      ?.map((docHistory) => ({
-        ...docHistory,
-        createdAt: new Date(docHistory.createdAt),
-        type: 'doc',
-        title: docHistory.title,
-        createdDated: getDateString(new Date(docHistory.createdAt))
-      }))
-      ?.sort((a, b) => b.createdAt - a.createdAt)
-      .reduce((unique, item) => {
-        if (!unique.some((obj) => obj.title === item.title)) {
-          unique.push(item);
-        }
-        return unique;
-      }, []);
-
     setHistoryTopics(['All', ...uniqueTopicsArray]);
-    setChatHistory(
-      [...historyWithContent, ...filteredHistories].sort(
-        (a, b) => b.createdAt - a.createdAt
-      )
-    );
+    setChatHistory(historyWithContent);
     setLoading(false);
   }
 
@@ -234,7 +180,7 @@ const ChatHistory = ({
       : chatHistory;
   }, [selectedTopic, chatHistory]);
 
-  function groupChatsByDate(chatHistory: ChatHistoryType): GroupedChat[] {
+  function groupChatsByDate(chatHistory: Chat[]): GroupedChat[] {
     return chatHistory?.reduce((groupedChats, chat) => {
       const currentGroup = groupedChats?.find(
         (group) => group.date === chat.createdDated
@@ -533,37 +479,27 @@ const ChatHistory = ({
                           ) : (
                             <p
                               onClick={() => {
-                                if (message.type === 'doc') {
-                                  goToDocChat(
-                                    message.documentURL,
-                                    message.title,
-                                    message.documentId,
-                                    message.keywords,
-                                    user?._id
-                                  );
-                                } else {
-                                  setSelectedIndex(index);
-                                  setConversationId(message.id);
-                                  retrieveChatHistory(studentId, false);
-                                  setCountNeedTutor(1);
-                                  setLoading(false);
-                                  setLocalData({});
-                                  isMobile && onChatHistory?.();
-                                  setFreshConversationId('');
-                                  localStorage.setItem(
-                                    'bountyOpt',
-                                    JSON.stringify({
-                                      subject: message.subject,
-                                      topic: message.topic,
-                                      level: message.level
-                                    })
-                                  );
-                                  setSomeBountyOpt({
+                                setSelectedIndex(index);
+                                setConversationId(message.id);
+                                retrieveChatHistory(studentId, false);
+                                setCountNeedTutor(1);
+                                setLoading(false);
+                                setLocalData({});
+                                isMobile && onChatHistory?.();
+                                setFreshConversationId('');
+                                localStorage.setItem(
+                                  'bountyOpt',
+                                  JSON.stringify({
                                     subject: message.subject,
                                     topic: message.topic,
                                     level: message.level
-                                  });
-                                }
+                                  })
+                                );
+                                setSomeBountyOpt({
+                                  subject: message.subject,
+                                  topic: message.topic,
+                                  level: message.level
+                                });
                               }}
                             >
                               {message.title}
@@ -580,18 +516,15 @@ const ChatHistory = ({
                               // <EditIcn onClick={handleUpdateConversation} />
                               <p onClick={handleUpdateConversation}>Save</p>
                             ) : (
-                              message.type !== 'doc' && (
-                                <EditIcn
-                                  onClick={() => {
-                                    setEditConversationId(message.id);
-                                    toggleMessage(message.id);
-                                  }}
-                                />
-                              )
+                              <EditIcn
+                                onClick={() => {
+                                  setEditConversationId(message.id);
+                                  toggleMessage(message.id);
+                                }}
+                              />
                             )}
                             {/* <EditIcn onClick={handleUpdateConversation} /> */}
                             <DeleteIcn
-                              className="ml-auto"
                               onClick={() => {
                                 setDeleteConservationModal(
                                   (prevState) => !prevState

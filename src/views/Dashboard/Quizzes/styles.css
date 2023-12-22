@@ -28,3 +28,7 @@
   border: 0.6px solid #eaeaeb;
   box-shadow: 0 2px 10px rgba(63, 81, 94, 0.1);
 }
+
+.quiz-page-wrapper * {
+  flex-wrap: wrap;
+}

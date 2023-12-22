@@ -55,14 +55,12 @@ function AllBounties() {
   const [count, setCount] = useState<number>(5);
   const [days, setDays] = useState<Array<any>>([]);
   const { isLoading, pagination, bounties, fetchBountyOffers } = offerStore();
-  const { user, fetchUser } = userStore();
+  const { user } = userStore();
   const toast = useCustomToast();
   const [settingUpPaymentMethod, setSettingUpPaymentMethod] = useState(false);
 
   //Payment Method Handlers
   const paymentDialogRef = useRef<PaymentDialogRef>(null);
-
-  console.log(paymentDialogRef);
   const url: URL = new URL(window.location.href);
   const params: URLSearchParams = url.searchParams;
   const clientSecret = params.get('setup_intent_client_secret');
@@ -75,7 +73,7 @@ function AllBounties() {
       const paymentIntent = await ApiService.createStripeSetupPaymentIntent();
 
       const { data } = await paymentIntent.json();
-      console.log(data, 'data from stripe');
+
       paymentDialogRef.current?.startPayment(
         data.clientSecret,
         `${window.location.href}`
@@ -97,10 +95,9 @@ function AllBounties() {
         await ApiService.addPaymentMethod(
           setupIntent?.setupIntent?.payment_method as string
         );
-
+        // await fetchUser();
         switch (setupIntent?.setupIntent?.status) {
           case 'succeeded':
-            await fetchUser();
             toast({
               title: 'Your payment method has been saved.',
               status: 'success',

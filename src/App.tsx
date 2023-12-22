@@ -1,4 +1,3 @@
-import { isNil } from 'lodash';
 import LexicalContext from './components/Editor/context';
 import TutorDashboardLayout from './components/Layout';
 import { FlashCardModal } from './components/flashcardDecks';
@@ -77,8 +76,6 @@ import { ThemeProvider } from 'styled-components';
 import CreateStudyPlans from './views/Dashboard/StudyPlans/create';
 import StudyPlans from './views/Dashboard/StudyPlans';
 import CoursePlan from './views/Dashboard/StudyPlans/coursePlan';
-import Hotjar from '@hotjar/browser';
-import Feedback from './views/Feedback';
 
 const AuthAction = (props: any) => {
   const [params] = useSearchParams();
@@ -329,7 +326,7 @@ const AppRoutes: React.FC = () => {
       <Route path="auth-action" element={<AuthAction />} />
 
       <Route path="home" element={<Home />} />
-      <Route path="feedback" element={<Feedback />} />
+
       <Route
         path="session/:bookingId"
         element={
@@ -356,12 +353,11 @@ const AppRoutes: React.FC = () => {
     </Routes>
   );
 };
-const hotjarVersion = 6;
-const siteId = process.env.REACT_APP_HOTJAR_SITE_ID;
+
 function App() {
   const { fetchResources } = resourceStore();
   const { flashcard, showStudyList } = flashcardStore();
-  const { startQuizModal, quiz } = quizStore();
+  const { startQuizModal } = quizStore();
   useActiveUserPresence();
 
   const doFetchResources = useCallback(async () => {
@@ -374,10 +370,6 @@ function App() {
     doFetchResources();
   }, [doFetchResources]);
 
-  useEffect(() => {
-    Hotjar.init(Number(siteId), hotjarVersion);
-  }, []);
-
   return (
     <>
       <BrowserRouter>
@@ -389,7 +381,7 @@ function App() {
                   <FlashCardModal
                     isOpen={Boolean(flashcard) || showStudyList}
                   />
-                  {startQuizModal && <QuizModal isOpen={startQuizModal} />}
+                  <QuizModal isOpen={startQuizModal} />
                   <StreamChatProvider>
                     <AppRoutes />
                   </StreamChatProvider>

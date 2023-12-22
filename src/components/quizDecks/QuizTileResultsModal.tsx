@@ -28,8 +28,6 @@ const QuizEnd = ({
   skipped?: string | number;
   scores?: any[];
 }) => {
-  const title =
-    Number(passed) >= 85 ? 'Congratulations!' : "Let's keep studying!";
   return (
     <Box
       fontFamily={'Inter'}
@@ -47,7 +45,7 @@ const QuizEnd = ({
             fontWeight={'600'}
             lineHeight={'30px'}
           >
-            {title}
+            Congratulations!
           </Text>
         </Box>
         <Box>

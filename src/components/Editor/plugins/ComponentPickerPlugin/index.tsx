@@ -43,50 +43,6 @@ import { useCallback, useMemo, useState } from 'react';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-// icon asssts
-import Paragraph from '../../images/icons/text-paragraph.svg?react';
-import H1 from '../../images/icons/type-h1.svg?react';
-import H2 from '../../images/icons/type-h2.svg?react';
-import H3 from '../../images/icons/type-h3.svg?react';
-import H4 from '../../images/icons/type-h4.svg?react';
-import H5 from '../../images/icons/type-h5.svg?react';
-import H6 from '../../images/icons/type-h6.svg?react';
-import ListOl from '../../images/icons/list-ol.svg?react';
-import ListUl from '../../images/icons/list-ul.svg?react';
-import SquareCheck from '../../images/icons/square-check.svg?react';
-import ChatSquareQuote from '../../images/icons/chat-square-quote.svg?react';
-import Code from '../../images/icons/code.svg?react';
-import Undo from '../../images/icons/arrow-counterclockwise.svg?react';
-import Redo from '../../images/icons/arrow-clockwise.svg?react';
-import FontFamily from '../../images/icons/font-family.svg?react';
-import Bold from '../../images/icons/type-bold.svg?react';
-import Italic from '../../images/icons/type-italic.svg?react';
-import Underline from '../../images/icons/type-underline.svg?react';
-import HyLink from '../../images/icons/link.svg?react';
-import FontColor from '../../images/icons/font-color.svg?react';
-import BgColor from '../../images/icons/bg-color.svg?react';
-import DropdownMore from '../../images/icons/dropdown-more.svg?react';
-import StrikeThrough from '../../images/icons/type-strikethrough.svg?react';
-import Subscript from '../../images/icons/type-subscript.svg?react';
-import Superscript from '../../images/icons/type-superscript.svg?react';
-import Clear from '../../images/icons/trash.svg?react';
-import TableIcon from '../../images/icons/table.svg?react';
-import PlusIcon from '../../images/icons/plus.svg?react';
-import HorizontalRule from '../../images/icons/horizontal-rule.svg?react';
-import Scissors from '../../images/icons/scissors.svg?react';
-import FileImage from '../../images/icons/file-image.svg?react';
-import Diagram2 from '../../images/icons/diagram-2.svg?react';
-import PollIcon from '../../images/icons/card-checklist.svg?react';
-import ColumnsIcon from '../../images/icons/3-columns.svg?react';
-import PlusSlashMinus from '../../images/icons/plus-slash-minus.svg?react';
-import LeftAlign from '../../images/icons/text-left.svg?react';
-import RightAlign from '../../images/icons/text-left.svg?react';
-import CenterAlign from '../../images/icons/text-center.svg?react';
-import JusitfyAlign from '../../images/icons/justify.svg?react';
-import IndentIcon from '../../images/icons/indent.svg?react';
-import OutdentIcon from '../../images/icons/outdent.svg?react';
-// import second from '../../images/icons/plus-slash-minus.svg?react'
-
 class ComponentPickerOption extends MenuOption {
   // What shows up in the editor
   title: string;
@@ -181,7 +137,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
 
       options.push(
         new ComponentPickerOption(`${rows}x${columns} Table`, {
-          icon: <TableIcon className="text-black" />,
+          icon: <i className="table icon" />,
           keywords: ['table'],
           onSelect: () =>
             // @ts-ignore Correct types, but since they're dynamic TS doesn't like it.
@@ -195,7 +151,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
         ...Array.from({ length: 5 }, (_, i) => i + 1).map(
           (columns) =>
             new ComponentPickerOption(`${rows}x${columns} Table`, {
-              icon: <TableIcon className="" />,
+              icon: <i className="table icon" />,
               keywords: ['table'],
               onSelect: () =>
                 // @ts-ignore Correct types, but since they're dynamic TS doesn't like it.
@@ -211,7 +167,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
   const options = useMemo(() => {
     const baseOptions = [
       new ComponentPickerOption('Paragraph', {
-        icon: <Paragraph className="icon paragraph" />,
+        icon: <i className="icon paragraph" />,
         keywords: ['normal', 'paragraph', 'p', 'text'],
         onSelect: () =>
           editor.update(() => {
@@ -221,27 +177,23 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
             }
           })
       }),
-      ...Array.from({ length: 3 }, (_, i) => i + 1).map((n, idx) => {
-        const iconArr = [
-          <H1 className={`icon h${n}`} />,
-          <H2 className={`icon h${n}`} />,
-          <H3 className={`icon h${n}`} />
-        ];
-        return new ComponentPickerOption(`Heading ${n}`, {
-          icon: iconArr[idx],
-          keywords: ['heading', 'header', `h${n}`],
-          onSelect: () =>
-            editor.update(() => {
-              const selection = $getSelection();
-              if ($isRangeSelection(selection)) {
-                $setBlocksType(selection, () =>
-                  // @ts-ignore Correct types, but since they're dynamic TS doesn't like it.
-                  $createHeadingNode(`h${n}`)
-                );
-              }
-            })
-        });
-      }),
+      ...Array.from({ length: 3 }, (_, i) => i + 1).map(
+        (n) =>
+          new ComponentPickerOption(`Heading ${n}`, {
+            icon: <i className={`icon h${n}`} />,
+            keywords: ['heading', 'header', `h${n}`],
+            onSelect: () =>
+              editor.update(() => {
+                const selection = $getSelection();
+                if ($isRangeSelection(selection)) {
+                  $setBlocksType(selection, () =>
+                    // @ts-ignore Correct types, but since they're dynamic TS doesn't like it.
+                    $createHeadingNode(`h${n}`)
+                  );
+                }
+              })
+          })
+      ),
       // new ComponentPickerOption('Table', {
       //   icon: <i className="table icon" />,
       //   keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
@@ -251,7 +203,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
       //     ))
       // }),
       new ComponentPickerOption('Table (Experimental)', {
-        icon: <TableIcon className="mr-2" />,
+        icon: <i className="table icon" />,
         keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
         onSelect: () =>
           showModal('Insert Table', (onClose) => (
@@ -259,25 +211,25 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
           ))
       }),
       new ComponentPickerOption('Numbered List', {
-        icon: <ListOl className="icon number" />,
+        icon: <i className="icon number" />,
         keywords: ['numbered list', 'ordered list', 'ol'],
         onSelect: () =>
           editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined)
       }),
       new ComponentPickerOption('Bulleted List', {
-        icon: <ListUl className="icon bullet" />,
+        icon: <i className="icon bullet" />,
         keywords: ['bulleted list', 'unordered list', 'ul'],
         onSelect: () =>
           editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined)
       }),
       new ComponentPickerOption('Check List', {
-        icon: <SquareCheck className="icon check" />,
+        icon: <i className="icon check" />,
         keywords: ['check list', 'todo list'],
         onSelect: () =>
           editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined)
       }),
       new ComponentPickerOption('Quote', {
-        icon: <ChatSquareQuote className="icon quote" />,
+        icon: <i className="icon quote" />,
         keywords: ['block quote'],
         onSelect: () =>
           editor.update(() => {
@@ -288,7 +240,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
           })
       }),
       new ComponentPickerOption('Code', {
-        icon: <Code className="icon code" />,
+        icon: <i className="icon code" />,
         keywords: ['javascript', 'python', 'js', 'codeblock'],
         onSelect: () =>
           editor.update(() => {
@@ -308,41 +260,41 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
           })
       }),
       new ComponentPickerOption('Divider', {
-        icon: <HorizontalRule className="icon horizontal-rule" />,
+        icon: <i className="icon horizontal-rule" />,
         keywords: ['horizontal rule', 'divider', 'hr'],
         onSelect: () =>
           editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined)
       }),
       new ComponentPickerOption('Page Break', {
-        icon: <Scissors className="icon page-break" />,
+        icon: <i className="icon page-break" />,
         keywords: ['page break', 'divider'],
         onSelect: () => editor.dispatchCommand(INSERT_PAGE_BREAK, undefined)
       }),
       new ComponentPickerOption('Excalidraw', {
-        icon: <Diagram2 className="icon diagram-2" />,
+        icon: <i className="icon diagram-2" />,
         keywords: ['excalidraw', 'diagram', 'drawing'],
         onSelect: () =>
           editor.dispatchCommand(INSERT_EXCALIDRAW_COMMAND, undefined)
       }),
       new ComponentPickerOption('Poll', {
-        icon: <PollIcon className="icon poll" />,
+        icon: <i className="icon poll" />,
         keywords: ['poll', 'vote'],
         onSelect: () =>
           showModal('Insert Poll', (onClose) => (
             <InsertPollDialog activeEditor={editor} onClose={onClose} />
           ))
       }),
-      // ...EmbedConfigs.map(
-      //   (embedConfig) =>
-      //     new ComponentPickerOption(`Embed ${embedConfig.contentName}`, {
-      //       icon: embedConfig.icon,
-      //       keywords: [...embedConfig.keywords, 'embed'],
-      //       onSelect: () =>
-      //         editor.dispatchCommand(INSERT_EMBED_COMMAND, embedConfig.type)
-      //     })
-      // ),
+      ...EmbedConfigs.map(
+        (embedConfig) =>
+          new ComponentPickerOption(`Embed ${embedConfig.contentName}`, {
+            icon: embedConfig.icon,
+            keywords: [...embedConfig.keywords, 'embed'],
+            onSelect: () =>
+              editor.dispatchCommand(INSERT_EMBED_COMMAND, embedConfig.type)
+          })
+      ),
       new ComponentPickerOption('Equation', {
-        icon: <PlusSlashMinus className="icon equation" />,
+        icon: <i className="icon equation" />,
         keywords: ['equation', 'latex', 'math'],
         onSelect: () =>
           showModal('Insert Equation', (onClose) => (
@@ -359,7 +311,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
       //     })
       // }),
       new ComponentPickerOption('Image', {
-        icon: <FileImage className="icon image" />,
+        icon: <i className="icon image" />,
         keywords: ['image', 'photo', 'picture', 'file'],
         onSelect: () =>
           showModal('Insert Image', (onClose) => (
@@ -372,19 +324,14 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
       //   onSelect: () =>
       //     editor.dispatchCommand(INSERT_COLLAPSIBLE_COMMAND, undefined)
       // }),
-      ...[
-        ['left', <LeftAlign className="mr-2" />],
-        ['center', <CenterAlign className="mr-2" />],
-        ['right', <RightAlign className="mr-2" />],
-        ['justify', <JusitfyAlign className="mr-2" />]
-      ].map(
+      ...['left', 'center', 'right', 'justify'].map(
         (alignment) =>
-          new ComponentPickerOption(`Align ${alignment[0]}`, {
-            icon: alignment[1] as any,
-            keywords: ['align', 'justify', alignment[0] as string],
+          new ComponentPickerOption(`Align ${alignment}`, {
+            icon: <i className={`icon ${alignment}-align`} />,
+            keywords: ['align', 'justify', alignment],
             onSelect: () =>
               // @ts-ignore Correct types, but since they're dynamic TS doesn't like it.
-              editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, alignment[0])
+              editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, alignment)
           })
       )
     ];

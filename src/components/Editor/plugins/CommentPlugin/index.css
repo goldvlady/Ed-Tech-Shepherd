@@ -151,7 +151,6 @@ i.add-comment {
   right: 24px;
   background-color: #ddd;
   border-radius: 10px;
-  z-index: 11;
 }
 .CommentPlugin_ShowCommentsButton.active {
   right: 305px;

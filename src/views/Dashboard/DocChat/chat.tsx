@@ -210,7 +210,7 @@ const Chat = forwardRef(
 
     const onClose = useCallback(() => {
       setModalOpen((prevState) => !prevState);
-    }, [setModalOpen]);
+    }, []);
 
     const onFlashCard = useCallback(() => {
       setFlashCard((prevState) => !prevState);

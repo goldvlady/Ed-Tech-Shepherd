@@ -325,8 +325,7 @@ const CompletedState = ({
     calculatePercentages(score);
 
   const { dailyFlashcards, setShowStudyList } = flashcardStore();
-  const title =
-    Number(passPercentage) >= 85 ? 'Congratulations!' : "Let's keep studying!";
+
   return (
     <Box
       borderRadius="12px"
@@ -357,7 +356,7 @@ const CompletedState = ({
           lineHeight="30px"
           letterSpacing="-0.48px"
         >
-          {title}
+          Congratulations
         </Text>
         <Text
           color="#6E7682"

@@ -36,8 +36,7 @@ export default function QuestionsPreview({
     goToStep,
     mode,
     loadMoreQuestions,
-    resetFlashcard,
-    addQuestionsToFlashcard
+    resetFlashcard
   } = useFlashcardWizard();
 
   const [isFetchingMore, setIsFetchingMore] = useState(false);
@@ -297,25 +296,16 @@ export default function QuestionsPreview({
             width="100%"
             justifyContent={'center'}
             alignItems={'center'}
-            mt={4}
-            mb={6}
           >
             <Button
               disabled={isFetchingMore}
               onClick={handleLoadMore}
+              mt={4}
+              mb={6}
               isLoading={isFetchingMore}
               loadingText="Loading"
             >
               Load More
-            </Button>
-            <Button
-              disabled={isFetchingMore}
-              ml={2}
-              onClick={addQuestionsToFlashcard}
-              isLoading={isFetchingMore}
-              loadingText="Loading"
-            >
-              Add Question
             </Button>
           </Box>
         ) : (

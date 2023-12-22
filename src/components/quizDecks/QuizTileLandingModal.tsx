@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import quizStore from '../../state/quizStore';
 import { LightningBoltIcon, TakeQuizIcon } from '../icons';
 import {
@@ -161,17 +160,11 @@ export const QuizModal = ({
   question?: string;
   index?: number | string;
 }) => {
-  const navigate = useNavigate();
   const { quiz, handleToggleStartQuizModal } = quizStore();
-  const [modalQuiz, setModalQuiz] = useState(null);
-
-  useEffect(() => {
-    console.log('modal ----->> quiz =======>> ', quiz);
-    setModalQuiz(quiz);
-  }, [quiz]);
+  const navigate = useNavigate();
 
   const handleStartQuiz = () => {
-    navigate(`/dashboard/quizzes/take?quiz_id=${modalQuiz?._id}`);
+    navigate(`/dashboard/quizzes/take?quiz_id=${quiz?._id}`);
     setTimeout(() => {
       handleToggleStartQuizModal(false);
     }, 100);
@@ -240,7 +233,7 @@ export const QuizModal = ({
                       fontFamily={'Inter'}
                       color={'text.200'}
                     >
-                      {modalQuiz?.title || 'Sample'} quiz
+                      {quiz?.title || 'Sample'} quiz
                     </Text>
                   </Box>
                   <Box>
@@ -250,10 +243,10 @@ export const QuizModal = ({
                       color={'text.400'}
                       textAlign={'center'}
                     >
-                      You have {modalQuiz?.questions?.length || 0} question
-                      {modalQuiz?.questions?.length > 0 ? 's' : ''}
+                      You have {quiz?.questions?.length || 0} question
+                      {quiz?.questions?.length > 0 ? 's' : ''}
                       , test your knowledge on your <br />
-                      {modalQuiz?.title} quiz
+                      {quiz?.title} quiz
                     </Text>
                   </Box>
                 </VStack>

@@ -85,7 +85,6 @@ export interface FlashcardDataContextProps {
   isSaveSuccessful: boolean;
   goToQuestion: (index: number | ((previousIndex: number) => number)) => void;
   deleteQuestion: (index: number) => void;
-  addQuestionsToFlashcard: () => void;
   setQuestions: React.Dispatch<React.SetStateAction<FlashcardQuestion[]>>;
   setFlashcardData: React.Dispatch<React.SetStateAction<FlashcardData>>;
   setSettings: React.Dispatch<React.SetStateAction<SettingsType>>;
@@ -94,11 +93,6 @@ export interface FlashcardDataContextProps {
   isLoading: boolean;
   isMinimized: boolean;
   setMinimized: React.Dispatch<React.SetStateAction<boolean>>;
-  setCurrentQuestionData: (
-    data:
-      | Partial<FlashcardQuestion>
-      | ((data: FlashcardQuestion) => FlashcardQuestion)
-  ) => void;
   generateFlashcardQuestions: (
     d?: FlashcardData,
     onDone?: (success: boolean) => void,
@@ -193,26 +187,6 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       return newQuestions;
     });
   }, []);
-
-  const setCurrentQuestionData = useCallback(
-    (
-      arg:
-        | FlashcardQuestion
-        | ((previousIndex: FlashcardQuestion) => FlashcardQuestion)
-    ) => {
-      setQuestions((prev) => {
-        const index = currentQuestionIndex;
-        const newQuestions = [...prev];
-        const question =
-          typeof arg === 'function'
-            ? arg(prev[index])
-            : (arg as FlashcardQuestion);
-        newQuestions[index] = question;
-        return newQuestions;
-      });
-    },
-    [currentQuestionIndex]
-  );
   useEffect(() => {
     const questionsEmptyState = {
       questionType: '',
@@ -382,20 +356,6 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     },
     [flashcardData, questions, user]
   );
-
-  const addQuestionsToFlashcard = useCallback(() => {
-    const additionalQuestion = {
-      question: '',
-      answer: '',
-      explanation: '',
-      helperText: '',
-      questionType: 'openEnded'
-    };
-    const questionIndex = questions.length;
-    setQuestions((prev) => [...prev, additionalQuestion]);
-    goToQuestion(questionIndex);
-  }, [questions, goToQuestion]);
-
   const generateFlashcardQuestions = useCallback(
     async (
       data?: FlashcardData,
@@ -480,13 +440,11 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       questions,
       currentStep,
       currentQuestionIndex,
-      setCurrentQuestionData,
       goToQuestion,
       deleteQuestion,
       resetFlashcard,
       setQuestions,
       generateFlashcardQuestions,
-      addQuestionsToFlashcard,
       goToNextStep: () => setCurrentStep((prev) => prev + 1),
       goToStep: (stepIndex: number) => setCurrentStep(stepIndex),
       settings,
@@ -516,7 +474,6 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       setQuestions,
       generateFlashcardQuestions,
       settings,
-      addQuestionsToFlashcard,
       setSettings,
       setMinimized,
       isMinimized,
@@ -526,7 +483,6 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       cancelQuestionGeneration,
       setMode,
       mode,
-      setCurrentQuestionData,
       loadMoreQuestions,
       stageFlashcardForEdit
     ]

@@ -32,10 +32,6 @@ import {
 import { Dispatch, useCallback, useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 import { createPortal } from 'react-dom';
-import Edit from '../../images/icons/pencil-fill.svg?react';
-import Trash from '../../images/icons/trash.svg?react';
-import Close from '../../images/icons/close.svg?react';
-import Confirm from '../../images/icons/success-alt.svg?react';
 
 function FloatingLinkEditor({
   editor,
@@ -208,36 +204,28 @@ function FloatingLinkEditor({
               monitorInputInteraction(event);
             }}
           />
-          <div className="flex items-center">
+          <div>
             <div
-              className="link-cancel flex items-center justify-center"
+              className="link-cancel"
               role="button"
-            >
-              <Close
-                className="h-5 w-5"
-                tabIndex={0}
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={() => {
-                  setEditMode(false);
-                }}
-              />
-            </div>
+              tabIndex={0}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => {
+                setEditMode(false);
+              }}
+            />
 
             <div
-              className="link-confirm flex items-center justify-center"
+              className="link-confirm"
               role="button"
-            >
-              <Confirm
-                className="h-5 w-5"
-                tabIndex={0}
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={handleLinkSubmission}
-              />
-            </div>
+              tabIndex={0}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={handleLinkSubmission}
+            />
           </div>
         </>
       ) : (
-        <div className="link-view !flex items-center">
+        <div className="link-view">
           <a
             href={sanitizeUrl(linkUrl)}
             target="_blank"
@@ -245,26 +233,7 @@ function FloatingLinkEditor({
           >
             {linkUrl}
           </a>
-          <Edit
-            className="link-edit mx-2"
-            role="button"
-            tabIndex={0}
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => {
-              setEditedLinkUrl(linkUrl);
-              setEditMode(true);
-            }}
-          />
-          <Trash
-            className="link-trash"
-            role="button"
-            tabIndex={0}
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => {
-              editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
-            }}
-          />
-          {/* <div
+          <div
             className="link-edit"
             role="button"
             tabIndex={0}
@@ -273,8 +242,8 @@ function FloatingLinkEditor({
               setEditedLinkUrl(linkUrl);
               setEditMode(true);
             }}
-          /> */}
-          {/* <div
+          />
+          <div
             className="link-trash"
             role="button"
             tabIndex={0}
@@ -282,7 +251,7 @@ function FloatingLinkEditor({
             onClick={() => {
               editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
             }}
-          /> */}
+          />
         </div>
       )}
     </div>
