@@ -22,7 +22,9 @@ import {
   Checkbox,
   CheckboxGroup,
   Stack,
-  Textarea
+  Textarea,
+  Flex,
+  SimpleGrid
 } from '@chakra-ui/react';
 import clsx from 'clsx';
 import {
@@ -46,7 +48,7 @@ import {
 } from 'lodash';
 import React, { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { IoCheckmarkDone, IoCloseOutline } from 'react-icons/io5';
-import { useNavigate, useBeforeUnload } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 type QuizScoreType = {
   questionIdx: string | number;
@@ -159,284 +161,269 @@ const QuizCard = forwardRef(
     };
 
     return (
-      <Box
-        as="div"
-        className="quiz-tile"
-        ref={(node) => {
-          quizCardRef.current = node;
-        }}
-        borderRadius={'8px'}
-        bg="white"
-        _hover={{ boxShadow: 'md' }}
-        w={['100%', '50%', '32%']}
-        minH={minHeight}
-        borderWidth={
-          showAnsweredQuestion &&
-          quizScores[index]?.score === '' &&
-          question.type !== OPEN_ENDED
-            ? '1px'
-            : question.type === OPEN_ENDED &&
-              showAnsweredQuestion &&
-              isEmpty(first(quizScores[index]?.selectedOptions))
-            ? '1px'
-            : ''
-        }
-        borderColor={
-          showAnsweredQuestion &&
-          quizScores[index]?.score === '' &&
-          question.type !== OPEN_ENDED
-            ? 'red.200'
-            : question.type === OPEN_ENDED &&
-              showAnsweredQuestion &&
-              isEmpty(first(quizScores[index]?.selectedOptions))
-            ? 'red.200'
-            : ''
-        }
-        sx={{
-          margin: '0px !important',
-          marginBottom: '16px !important',
-          marginRight: '8px !important'
-        }}
-      >
-        <VStack
-          alignItems={'flex-start'}
-          justifyContent={'flex-start'}
-          p={'18px 16px'}
+      <HStack alignItems={'flex-start'} flexWrap={'nowrap'} width="100%">
+        <Text fontSize="sm" fontWeight="semibold">
+          {index + 1}.
+        </Text>
+        <Box
+          as="div"
+          className="quiz-tile"
+          ref={(node) => {
+            quizCardRef.current = node;
+          }}
+          borderRadius={'8px'}
+          bg="white"
+          _hover={{ boxShadow: 'md' }}
+          w="full"
+          // w={['100%', '50%', '31%']}
+          minH={minHeight}
+          borderWidth={
+            showAnsweredQuestion &&
+            quizScores[index]?.score === '' &&
+            question.type !== OPEN_ENDED
+              ? '1px'
+              : question.type === OPEN_ENDED &&
+                showAnsweredQuestion &&
+                isEmpty(first(quizScores[index]?.selectedOptions))
+              ? '1px'
+              : ''
+          }
+          borderColor={
+            showAnsweredQuestion &&
+            quizScores[index]?.score === '' &&
+            question.type !== OPEN_ENDED
+              ? 'red.200'
+              : question.type === OPEN_ENDED &&
+                showAnsweredQuestion &&
+                isEmpty(first(quizScores[index]?.selectedOptions))
+              ? 'red.200'
+              : ''
+          }
+          // sx={{
+          //   margin: '0px !important',
+          //   marginBottom: '16px !important',
+          //   marginRight: '8px !important'
+          // }}
         >
-          <HStack
-            mb={'17px'}
+          <VStack
             alignItems={'flex-start'}
-            minW={'30%'}
-            flexWrap={'nowrap'}
-            minH={'48px'}
+            justifyContent={'flex-start'}
+            // p={'18px 16px'}
           >
-            <Text fontSize="md" fontWeight="semibold">
-              {index + 1}.
-            </Text>
-            <Text fontSize="md" fontWeight="semibold">
-              {question.question}
-            </Text>
-          </HStack>
+            <HStack
+              mb={'17px'}
+              alignItems={'flex-start'}
+              // minW={'30%'}
+              w="100%"
+              flexWrap={'nowrap'}
+              minH={'48px'}
+              h={'130px'}
+              bg="#F0F2F4"
+              borderTopLeftRadius={'8px'}
+              borderTopRightRadius={'8px'}
+              px={' 16px'}
+              pt={2}
+            >
+              {/* <Text fontSize="md" fontWeight="semibold">
+                  {index + 1}.
+                </Text> */}
+              <Text fontSize="md" fontWeight="semibold">
+                {question.question}
+              </Text>
+            </HStack>
 
-          <Box
-            w={'100%'}
-            className="font-[Inter] font-[400] text-[14px] leading-[16px]"
-          >
-            {questionType === MULTIPLE_CHOICE_MULTI && (
-              <CheckboxGroup
-                onChange={(e) => {
-                  setOptionCheckboxAnswers(e);
-                  handleOptionCheckBox(e as Array<string>);
-                }}
-                value={quizScores[index]?.selectedOptions}
-              >
-                <Stack direction="column">
-                  {isArray(options) &&
-                    options?.map((option, optionIndex) => (
-                      <div
-                        key={optionIndex}
-                        className={clsx(
-                          'min-h-[20px] flex justify-start items-start rounded-md !mt-0 !mb-4',
-                          {
-                            'p-2': showQuizAnswers,
-                            '!border !border-[#66BD6A] bg-[#F1F9F1]':
-                              showQuizAnswers && option.isCorrect,
-                            //  &&
-                            // quizScores[index]?.score !== ''
-                            '!border !border-[#F53535] bg-[#FEF0F0]':
-                              showQuizAnswers &&
-                              option.isCorrect === false &&
-                              includes(
-                                quizScores[index]?.selectedOptions,
-                                `question:${optionIndex}:${index}`
-                              )
-                          }
-                        )}
-                      >
-                        <div className="h-full w-full flex gap-1.5 justify-start items-start">
-                          <Checkbox
-                            value={`question:${optionIndex}:${index}`}
-                            id={`option${optionIndex}`}
-                            name={`question:${optionIndex}:${index}`}
-                            isReadOnly={showQuizAnswers}
-                          />
-
-                          <Box display={'flex'} w={'100%'} maxW={'95%'}>
-                            <Text w={'95%'} ml={'4px'}>
-                              {option?.content}
-                            </Text>
-                          </Box>
-                        </div>
-                      </div>
-                    ))}
-                </Stack>
-              </CheckboxGroup>
-            )}
-
-            {questionType === MULTIPLE_CHOICE_SINGLE && (
-              <RadioGroup
-                onChange={(e) => {
-                  handleOptionAnswerHandler(e);
-                }}
-                value={'1'}
-              >
-                <Stack direction="column">
-                  {isArray(options) &&
-                    options?.map((option, optionIndex) => (
-                      <div
-                        key={optionIndex}
-                        className={clsx(
-                          'min-h-[20px] flex justify-start items-start rounded-md !mt-0 !mb-4',
-                          {
-                            'p-2': showQuizAnswers,
-                            'bg-[#FEF1F1] border border-[#f99597]':
-                              showQuizAnswers &&
-                              first(quizScores[index]?.selectedOptions) ===
-                                `question:${optionIndex}:${index}` &&
-                              !option.isCorrect,
-                            '!border !border-[#66BD6A] bg-[#F1F9F1]':
-                              showQuizAnswers && option.isCorrect,
-                            //  &&
-                            // quizScores[index]?.score !== '',
-                            '!border !border-[#F53535] bg-[#FEF0F0]':
-                              showQuizAnswers &&
-                              option.isCorrect === false &&
-                              includes(
-                                quizScores[index]?.selectedOptions,
-                                `question:${optionIndex}:${index}`
-                              )
-                          }
-                        )}
-                      >
-                        <div className="w-full h-auto flex gap-1.5 justify-start items-start ">
-                          <Radio
-                            value={
-                              first(quizScores[index]?.selectedOptions) ===
-                              `question:${optionIndex}:${index}`
-                                ? '1'
-                                : `question:${optionIndex}:${index}`
+            <Box
+              w={'100%'}
+              className="font-[Inter] font-[400] text-[14px] leading-[16px]"
+            >
+              {question.type === MULTIPLE_CHOICE_MULTI && (
+                <CheckboxGroup
+                  onChange={(e) => {
+                    setOptionCheckboxAnswers(e);
+                    handleOptionCheckBox(e as Array<string>);
+                  }}
+                  value={quizScores[index]?.selectedOptions}
+                >
+                  <Flex direction="column" gap={'8px'} mx={3}>
+                    {isArray(options) &&
+                      options?.map((option, optionIndex) => (
+                        <div
+                          key={optionIndex}
+                          className={clsx(
+                            'min-h-[20px] flex justify-start items-start rounded-md !mt-0 !mb-4',
+                            {
+                              'p-2': showQuizAnswers,
+                              '!border !border-[#66BD6A] bg-[#F1F9F1]':
+                                showQuizAnswers && option.isCorrect,
+                              //  &&
+                              // quizScores[index]?.score !== ''
+                              '!border !border-[#F53535] bg-[#FEF0F0]':
+                                showQuizAnswers &&
+                                option.isCorrect === false &&
+                                includes(
+                                  quizScores[index]?.selectedOptions,
+                                  `question:${optionIndex}:${index}`
+                                )
                             }
-                            id={`option${optionIndex}`}
-                            name={`question:${optionIndex}:${index}`}
-                            isReadOnly={showQuizAnswers}
-                          />
-
-                          <Box display={'flex'} w={'100%'} maxW={'95%'}>
-                            <Text w={'95%'} ml={'4px'}>
-                              {option?.content}
-                            </Text>
-                          </Box>
-                        </div>
-                      </div>
-                    ))}
-                </Stack>
-              </RadioGroup>
-            )}
-
-            {questionType === TRUE_FALSE && (
-              <RadioGroup
-                onChange={(e) => {
-                  handleTFAnswerHandler(e);
-
-                  setTrueFalseAnswer(e);
-                }}
-                value={'1'}
-              >
-                <Stack direction="column">
-                  {isArray(options) &&
-                    options?.map((option, optionIndex) => (
-                      <div
-                        key={optionIndex}
-                        className={clsx(
-                          'cursor-pointer min-h-[20px] flex justify-start items-start rounded-md !mt-0 !mb-4',
-                          {
-                            'p-2': showQuizAnswers,
-                            '!border !border-[#66BD6A] bg-[#F1F9F1]':
-                              showQuizAnswers && option.isCorrect,
-                            // &&
-                            // quizScores[index]?.score !== '',
-                            '!border !border-[#F53535] bg-[#FEF0F0]':
-                              showQuizAnswers &&
-                              option.isCorrect === false &&
-                              includes(
-                                quizScores[index]?.selectedOptions,
-                                `question:${optionIndex}:${index}`
-                              )
-                          }
-                        )}
-                      >
-                        <div className="h-full w-full gap-1.5 flex justify-start items-start">
-                          <Radio
-                            value={
-                              first(quizScores[index]?.selectedOptions) ===
-                              `question:${optionIndex}:${index}`
-                                ? '1'
-                                : `question:${optionIndex}:${index}`
-                            }
-                            id={`${toLower(option.content)}-${optionIndex}`}
-                            name={`question:${optionIndex}:${index}`}
-                            isReadOnly={showQuizAnswers}
-                          />
-
-                          <Box display={'flex'} w={'100%'} maxW={'95%'}>
-                            <Text w={'95%'} ml={'4px'}>
-                              {' '}
-                              {capitalize(option.content)}
-                            </Text>
-                          </Box>
-                        </div>
-                      </div>
-                    ))}
-                </Stack>
-              </RadioGroup>
-            )}
-
-            {questionType === OPEN_ENDED && (
-              <>
-                <Box mt={2} w={'100%'} mb="24px">
-                  <Textarea
-                    h={'32px'}
-                    p={'12px 14px'}
-                    border={'none'}
-                    borderBottom={'1px'}
-                    borderRadius={'0px'}
-                    isReadOnly={
-                      showQuizAnswers &&
-                      !isEmpty(first(quizScores[index]?.selectedOptions))
-                    }
-                    onChange={(e) => {
-                      handleSetScore('pending', toNumber(index), [
-                        e.target.value
-                      ]);
-                    }}
-                    value={first(quizScores[index]?.selectedOptions)}
-                    placeholder="Please enter your answer"
-                    boxShadow={'none'}
-                    maxH={'200px'}
-                  />
-                </Box>
-                {showQuizAnswers &&
-                  !isEmpty(first(quizScores[index]?.selectedOptions)) && (
-                    <Box
-                      mt={'24px'}
-                      w={'100%'}
-                      display={'flex'}
-                      justifyContent={'flex-start'}
-                      alignItems={'flex-start'}
-                    >
-                      <Box mr={2}>
-                        <Text
-                          fontSize={'14px'}
-                          fontFamily={'Inter'}
-                          fontWeight={'700'}
-                          lineHeight={'17px'}
-                          textColor={'text.200'}
+                          )}
                         >
-                          Answer:
-                        </Text>
-                      </Box>
+                          <div className="h-full w-full flex gap-1.5 justify-start items-start">
+                            <Checkbox
+                              value={`question:${optionIndex}:${index}`}
+                              id={`option${optionIndex}`}
+                              name={`question:${optionIndex}:${index}`}
+                              isReadOnly={showQuizAnswers}
+                            />
 
-                      <Box display={'flex'} flexGrow={1}>
+                            <Box display={'flex'} w={'100%'} maxW={'95%'}>
+                              <Text w={'95%'} ml={'4px'}>
+                                {option?.content}
+                              </Text>
+                            </Box>
+                          </div>
+                        </div>
+                      ))}
+                  </Flex>
+                </CheckboxGroup>
+              )}
+
+              {question.type === MULTIPLE_CHOICE_SINGLE && (
+                <RadioGroup
+                  onChange={(e) => {
+                    handleOptionAnswerHandler(e);
+                  }}
+                  value={'1'}
+                >
+                  <Flex direction="column" gap={'8px'}>
+                    {isArray(options) &&
+                      options?.map((option, optionIndex) => (
+                        <div
+                          key={optionIndex}
+                          className={clsx(
+                            'min-h-[20px] flex justify-start items-center rounded-md !mt-0 mb-2',
+                            {
+                              'p-2': showQuizAnswers,
+                              '!border !border-[#F99597] bg-[#FEF1F1] ':
+                                showQuizAnswers &&
+                                first(quizScores[index]?.selectedOptions) ===
+                                  `question:${optionIndex}:${index}` &&
+                                !option.isCorrect,
+                              '!border !border-[#66BD6A] bg-[#F1F9F1]':
+                                showQuizAnswers &&
+                                option.isCorrect &&
+                                quizScores[index]?.score !== ''
+                            }
+                          )}
+                        >
+                          <Flex mx={3}>
+                            <Radio
+                              value={
+                                first(quizScores[index]?.selectedOptions) ===
+                                `question:${optionIndex}:${index}`
+                                  ? '1'
+                                  : `question:${optionIndex}:${index}`
+                              }
+                              id={`option${optionIndex}`}
+                              name={`question:${optionIndex}:${index}`}
+                              isReadOnly={showQuizAnswers}
+                            />
+                            <Box display={'flex'} flex={1} ml={'4px'}>
+                              <Text>{option?.content}</Text>
+                            </Box>
+                          </Flex>
+                        </div>
+                      ))}
+                  </Flex>
+                </RadioGroup>
+              )}
+
+              {question.type === TRUE_FALSE && (
+                <RadioGroup
+                  onChange={(e) => {
+                    handleTFAnswerHandler(e);
+
+                    setTrueFalseAnswer(e);
+                  }}
+                  value={'1'}
+                >
+                  <Stack direction="column">
+                    {isArray(options) &&
+                      options?.map((option, optionIndex) => (
+                        <div
+                          key={optionIndex}
+                          className={clsx(
+                            'cursor-pointer min-h-[20px] flex justify-start items-center rounded-md !mt-0 mb-2',
+                            {
+                              'p-2': showQuizAnswers,
+                              '!border !border-[#66BD6A] bg-[#F1F9F1]':
+                                showQuizAnswers &&
+                                option.isCorrect &&
+                                quizScores[index]?.score !== ''
+                            }
+                          )}
+                        >
+                          <Flex mx={3}>
+                            <Radio
+                              value={
+                                first(quizScores[index]?.selectedOptions) ===
+                                `question:${optionIndex}:${index}`
+                                  ? '1'
+                                  : `question:${optionIndex}:${index}`
+                              }
+                              id={`${toLower(option.content)}-${optionIndex}`}
+                              name={`question:${optionIndex}:${index}`}
+                              isReadOnly={showQuizAnswers}
+                            />
+                            <Box>
+                              <Text ml={'4px'}>
+                                {capitalize(option.content)}
+                              </Text>
+                            </Box>
+                          </Flex>
+                        </div>
+                      ))}
+                  </Stack>
+                </RadioGroup>
+              )}
+              {question.type === OPEN_ENDED && (
+                <>
+                  <Box mt={2} mb="24px" mx={5}>
+                    <Textarea
+                      h={'32px'}
+                      p={'12px 14px'}
+                      border={'none'}
+                      borderBottom={'1px'}
+                      borderRadius={'0px'}
+                      isReadOnly={
+                        showQuizAnswers &&
+                        !isEmpty(first(quizScores[index]?.selectedOptions))
+                      }
+                      onChange={(e) => {
+                        handleSetScore('pending', toNumber(index), [
+                          e.target.value
+                        ]);
+                      }}
+                      value={first(quizScores[index]?.selectedOptions)}
+                      placeholder="Please enter your answer"
+                      boxShadow={'none'}
+                      maxH={'200px'}
+                    />
+                  </Box>
+                  {showQuizAnswers &&
+                    !isEmpty(first(quizScores[index]?.selectedOptions)) && (
+                      <VStack mt={'24px'} w={'100%'} p={4}>
+                        <Box mr={2}>
+                          <Text
+                            fontSize={'14px'}
+                            fontFamily={'Inter'}
+                            fontWeight={'700'}
+                            lineHeight={'17px'}
+                            textColor={'text.200'}
+                          >
+                            Answer:
+                          </Text>
+                        </Box>
+
                         <Textarea
                           maxH={'40px'}
                           h={'32px'}
@@ -445,163 +432,164 @@ const QuizCard = forwardRef(
                           isReadOnly
                           value={question?.answer}
                         />
-                      </Box>
-                    </Box>
-                  )}
+                      </VStack>
+                    )}
 
-                {false &&
-                  !showOpenEndedAnswer &&
-                  !isEmpty(first(quizScores[index]?.selectedOptions)) && (
-                    <Box>
-                      <Button
-                        bg={'blue.200'}
-                        w={'100%'}
-                        colorScheme="blue"
-                        onClick={() => setShowOpenEndedAnswer(true)}
-                      >
-                        View Answer
-                      </Button>
-                    </Box>
-                  )}
-
-                {showQuizAnswers &&
-                  !isEmpty(first(quizScores[index]?.selectedOptions)) && (
-                    <Box
-                      position={'relative'}
-                      display={'flex'}
-                      flexDirection={'column'}
-                      alignItems={'center'}
-                      flexGrow={1}
-                      justifyContent={'flex-end'}
-                      bg={'#F9F9FB'}
-                      minH={'40px'}
-                      w={'100%'}
-                    >
-                      {/* open ended buttons */}
-
-                      {question.type === OPEN_ENDED && (
-                        <HStack
-                          bg={'whiteAlpha.900'}
-                          py={4}
+                  {false &&
+                    !showOpenEndedAnswer &&
+                    !isEmpty(first(quizScores[index]?.selectedOptions)) && (
+                      <Box>
+                        <Button
+                          bg={'blue.200'}
                           w={'100%'}
-                          justifyContent={'center'}
+                          colorScheme="blue"
+                          onClick={() => setShowOpenEndedAnswer(true)}
                         >
-                          <Button
-                            w={{ base: '100%', md: 1 / 3, lg: '100%' }}
-                            variant={'unstyled'}
-                            bg={'#EDF7EE'}
-                            color={'#4CAF50'}
-                            onClick={async () => {
-                              if (quizScores[index]?.score === 'pending') {
-                                handleSetScore(
-                                  'true',
-                                  toNumber(index),
-                                  quizScores[index].selectedOptions
-                                );
-                                handleStoreQuizHistory(
-                                  id as string,
-                                  first(quizScores[index].selectedOptions)
-                                );
+                          View Answer
+                        </Button>
+                      </Box>
+                    )}
 
-                                // handleSumbit
-                              }
-                            }}
-                            sx={{
-                              marginLeft: '0 !important',
-                              marginBottom: '4px'
-                            }}
-                            isDisabled={
-                              quizScores[index]?.score !== 'pending' &&
-                              quizScores[index]?.score !== 'true'
-                            }
+                  {showQuizAnswers &&
+                    !isEmpty(first(quizScores[index]?.selectedOptions)) && (
+                      <Box
+                        position={'relative'}
+                        display={'flex'}
+                        flexDirection={'column'}
+                        alignItems={'center'}
+                        flexGrow={1}
+                        justifyContent={'flex-end'}
+                        bg={'#F9F9FB'}
+                        minH={'40px'}
+                        w={'100%'}
+                      >
+                        {/* open ended buttons */}
+
+                        {question.type === OPEN_ENDED && (
+                          <HStack
+                            bg={'whiteAlpha.900'}
+                            p={4}
+                            w={'100%'}
+                            justifyContent={'center'}
+                            spacing={'15px'}
                           >
-                            <HStack
-                              alignItems={'center'}
-                              justifyContent={'center'}
-                            >
-                              <IoCheckmarkDone color="#4CAF50" />
-                              <Text mx={'8px'}>Got it right</Text>
-                            </HStack>
-                          </Button>
-                          <Button
-                            bg={'#FFEFE6'}
-                            color={'#FB8441'}
-                            w={{ base: '100%', md: 1 / 3, lg: '100%' }}
-                            variant={'unstyled'}
-                            onClick={() => {
-                              if (quizScores[index]?.score === 'pending') {
-                                handleSetScore(
-                                  'null',
-                                  toNumber(index),
-                                  quizScores[index].selectedOptions
-                                );
-                                handleStoreQuizHistory(
-                                  id as string,
-                                  first(quizScores[index].selectedOptions)
-                                );
+                            <Button
+                              fontSize={'14px'}
+                              variant={'unstyled'}
+                              bg={'#EDF7EE'}
+                              color={'#4CAF50'}
+                              onClick={async () => {
+                                if (quizScores[index]?.score === 'pending') {
+                                  handleSetScore(
+                                    'true',
+                                    toNumber(index),
+                                    quizScores[index].selectedOptions
+                                  );
+                                  handleStoreQuizHistory(
+                                    id as string,
+                                    first(quizScores[index].selectedOptions)
+                                  );
+
+                                  // handleSumbit
+                                }
+                              }}
+                              sx={{
+                                marginLeft: '0 !important',
+                                marginBottom: '4px'
+                              }}
+                              isDisabled={
+                                quizScores[index]?.score !== 'pending' &&
+                                quizScores[index]?.score !== 'true'
                               }
-                            }}
-                            sx={{
-                              marginLeft: '0 !important',
-                              marginBottom: '4px !important'
-                            }}
-                            isDisabled={
-                              quizScores[index]?.score !== 'pending' &&
-                              quizScores[index]?.score !== 'null'
-                            }
-                          >
-                            <HStack
-                              alignItems={'center'}
-                              justifyContent={'center'}
                             >
-                              <QuestionOutlineIcon color={'#FB8441'} />
-                              <Text mx={'8px'}>Didn’t remember</Text>
-                            </HStack>
-                          </Button>
-                          <Button
-                            bg={'#FEECEC'}
-                            color={'#F53535'}
-                            w={{ base: '100%', md: 1 / 3, lg: '100%' }}
-                            variant={'unstyled'}
-                            onClick={() => {
-                              if (quizScores[index]?.score === 'pending') {
-                                handleSetScore(
-                                  'false',
-                                  toNumber(index),
-                                  quizScores[index].selectedOptions
-                                );
-                                handleStoreQuizHistory(
-                                  id as string,
-                                  first(quizScores[index].selectedOptions)
-                                );
+                              <HStack
+                                alignItems={'center'}
+                                justifyContent={'center'}
+                              >
+                                <IoCheckmarkDone color="#4CAF50" />
+                                <Text mx={'8px'}>Got it right</Text>
+                              </HStack>
+                            </Button>
+                            <Button
+                              bg={'#FFEFE6'}
+                              color={'#FB8441'}
+                              fontSize={'14px'}
+                              variant={'unstyled'}
+                              onClick={() => {
+                                if (quizScores[index]?.score === 'pending') {
+                                  handleSetScore(
+                                    'null',
+                                    toNumber(index),
+                                    quizScores[index].selectedOptions
+                                  );
+                                  handleStoreQuizHistory(
+                                    id as string,
+                                    first(quizScores[index].selectedOptions)
+                                  );
+                                }
+                              }}
+                              sx={{
+                                marginLeft: '0 !important',
+                                marginBottom: '4px !important'
+                              }}
+                              isDisabled={
+                                quizScores[index]?.score !== 'pending' &&
+                                quizScores[index]?.score !== 'null'
                               }
-                            }}
-                            sx={{
-                              marginLeft: '0 !important',
-                              marginBottom: '4px !important'
-                            }}
-                            isDisabled={
-                              quizScores[index]?.score !== 'pending' &&
-                              quizScores[index]?.score !== 'false'
-                            }
-                          >
-                            <HStack
-                              alignItems={'center'}
-                              justifyContent={'center'}
                             >
-                              <IoCloseOutline color="#F53535" />
-                              <Text mx={'8px'}>Got it wrong</Text>
-                            </HStack>
-                          </Button>
-                        </HStack>
-                      )}
-                    </Box>
-                  )}
-              </>
-            )}
-          </Box>
-        </VStack>
-      </Box>
+                              <HStack
+                                alignItems={'center'}
+                                justifyContent={'center'}
+                              >
+                                <QuestionOutlineIcon color={'#FB8441'} />
+                                <Text mx={'8px'}>Didn’t remember</Text>
+                              </HStack>
+                            </Button>
+                            <Button
+                              bg={'#FEECEC'}
+                              color={'#F53535'}
+                              fontSize={'14px'}
+                              variant={'unstyled'}
+                              onClick={() => {
+                                if (quizScores[index]?.score === 'pending') {
+                                  handleSetScore(
+                                    'false',
+                                    toNumber(index),
+                                    quizScores[index].selectedOptions
+                                  );
+                                  handleStoreQuizHistory(
+                                    id as string,
+                                    first(quizScores[index].selectedOptions)
+                                  );
+                                }
+                              }}
+                              sx={{
+                                marginLeft: '0 !important',
+                                marginBottom: '4px !important'
+                              }}
+                              isDisabled={
+                                quizScores[index]?.score !== 'pending' &&
+                                quizScores[index]?.score !== 'false'
+                              }
+                            >
+                              <HStack
+                                alignItems={'center'}
+                                justifyContent={'center'}
+                              >
+                                <IoCloseOutline color="#F53535" />
+                                <Text>Got it wrong</Text>
+                              </HStack>
+                            </Button>
+                          </HStack>
+                        )}
+                      </Box>
+                    )}
+                </>
+              )}
+            </Box>
+          </VStack>
+        </Box>
+      </HStack>
     );
   }
 );
@@ -613,6 +601,7 @@ const QuizPreviewer = ({
   title: string;
   questions: QuizQuestion[];
   quizId: string;
+  handleSetUploadingState?: (value: boolean) => void;
 }) => {
   const navigate = useNavigate();
 
@@ -717,6 +706,7 @@ const QuizPreviewer = ({
     () => filter(scores, (score) => score?.score === '')?.length,
     [scores]
   );
+  console.log(questions);
 
   useEffect(() => {
     const elems = document.querySelectorAll('div.quiz-tile');
@@ -738,10 +728,6 @@ const QuizPreviewer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questions]);
 
-  useEffect(() => {
-    console.log('scores ========>> ', scores);
-  }, [scores]);
-
   return (
     <>
       <Box
@@ -754,6 +740,7 @@ const QuizPreviewer = ({
         maxH={'100%'}
         overflowY={'auto'}
         mr={'auto'}
+        // _last={{ display: 'hidden' }}
       >
         <Box w="100%" maxW="95%" mb={10} position={'relative'}>
           <HStack mx={'auto'} justifyContent={'center'}>
@@ -856,32 +843,33 @@ const QuizPreviewer = ({
               }
             }}
           >
-            <HStack
-              w={'100%'}
-              alignItems={'flex-start'}
-              justifyContent={'flex-start'}
+            <SimpleGrid
+              columns={{ base: 1, md: 2, lg: 3 }}
+              spacingY="25px"
+              spacingX={'5px'}
             >
-              {/* Render questions preview */}
               {!isEmpty(questions) &&
                 map(questions, (question, index) => {
                   return (
-                    <QuizCard
-                      showAnsweredQuestion={showUnansweredQuestions}
-                      handleShowUnansweredQuestion={
-                        handleShowUnansweredQuestion
-                      }
-                      quizScores={scores}
-                      key={question?.id}
-                      question={question}
-                      index={index}
-                      handleStoreQuizHistory={handleStoreQuizHistory}
-                      handleSetScore={handleSetScore}
-                      showQuizAnswers={showQuizAnswers}
-                      minHeight={minHeight}
-                    />
+                    <Flex>
+                      <QuizCard
+                        showAnsweredQuestion={showUnansweredQuestions}
+                        handleShowUnansweredQuestion={
+                          handleShowUnansweredQuestion
+                        }
+                        quizScores={scores}
+                        key={question?.id}
+                        question={question}
+                        index={index}
+                        handleStoreQuizHistory={handleStoreQuizHistory}
+                        handleSetScore={handleSetScore}
+                        showQuizAnswers={showQuizAnswers}
+                        minHeight={minHeight}
+                      />
+                    </Flex>
                   );
                 })}
-            </HStack>
+            </SimpleGrid>
             <Box p="32px" />
           </Box>
         </Box>
@@ -895,6 +883,7 @@ const QuizPreviewer = ({
           onClose={() => {
             setShowConfirmation(false);
             setShowQuizAnswers(true);
+            // setShowResults(true);
             handleSubmit();
           }}
           count={handleUnansweredQuestionsCount}

@@ -117,21 +117,8 @@ export default function Events({ event }: any) {
 
   const isTutor = currentPath.includes('/dashboard/tutordashboard/');
 
-  const {
-    fetchFlashcards,
-    setShowStudyList,
-    flashcards,
-    tags,
-    loadFlashcard,
-    deleteFlashCard,
-    storeFlashcardTags,
-    isLoading,
-    scheduleFlashcard,
-    rescheduleFlashcard,
-    pagination,
-    loadTodaysFlashcards,
-    dailyFlashcards
-  } = flashcardStore();
+  const { isLoading, rescheduleFlashcard, fetchSingleFlashcard } =
+    flashcardStore();
 
   const toast = useCustomToast();
 
@@ -219,19 +206,16 @@ export default function Events({ event }: any) {
       });
     }
   };
+
   return (
     <li
       className={`flex gap-x-3 cursor-pointer hover:drop-shadow-sm ${getColorByEventType(
         event.type
       )} ${getHoverColorByEventType(event.type)}`}
       onClick={() => {
-        navigate(
-          `${
-            event.type === 'study'
-              ? `/dashboard/flashcards/${event.data.entity.id}`
-              : `/dashboard`
-          }`
-        );
+        event.type === 'study'
+          ? fetchSingleFlashcard(event.data.entity.id)
+          : navigate(`${`/dashboard`}`);
       }}
     >
       <div

@@ -19,6 +19,7 @@ type Props = {
   stopCloseOnClickSelf?: boolean;
   color: string;
   onChange?: (color: string) => void;
+  buttonIcon?: React.ReactNode | JSX.Element;
 };
 
 export default function DropdownColorPicker({
@@ -26,6 +27,7 @@ export default function DropdownColorPicker({
   stopCloseOnClickSelf = true,
   color,
   onChange,
+  buttonIcon,
   ...rest
 }: Props) {
   return (
@@ -33,6 +35,7 @@ export default function DropdownColorPicker({
       {...rest}
       disabled={disabled}
       stopCloseOnClickSelf={stopCloseOnClickSelf}
+      buttonIcon={buttonIcon}
     >
       <ColorPicker color={color} onChange={onChange} />
     </DropDown>

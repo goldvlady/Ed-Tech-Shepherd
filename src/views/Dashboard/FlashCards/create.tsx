@@ -433,6 +433,8 @@ const CreateFlashPage = () => {
                 width="95%"
                 borderRadius="10px"
                 height="70vh"
+                position={'absolute'}
+                top="135px"
                 overflowY="scroll"
                 sx={{
                   '::-webkit-scrollbar': {

@@ -39,7 +39,10 @@ import {
   truncate,
   omit,
   isArray,
-  toString
+  toString,
+  filter,
+  size,
+  slice
 } from 'lodash';
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -111,7 +114,7 @@ const UploadQuizForm = ({
         topic: title
       });
 
-      setLocalData(dummyData);
+      // setLocalData(dummyData);
       // toast({
       //   position: 'top-right',
       //   title: `quizzes generated`,
@@ -189,7 +192,8 @@ const UploadQuizForm = ({
 
             if (isArray(quizQuestions) && !isEmpty(quizQuestions)) {
               (async () => {
-                const questions = map([...quizQuestions], (quiz) => {
+                const sliceQuestions = slice(quizQuestions, 0, localData.count);
+                const questions = map([...sliceQuestions], (quiz) => {
                   let type = quiz?.type;
                   let options = [];
                   if (
@@ -204,6 +208,17 @@ const UploadQuizForm = ({
                       if (options.length < 3) {
                         type = TRUE_FALSE;
                       } else {
+                        const isMulti =
+                          size(
+                            filter(
+                              options,
+                              (option) => option.isCorrect === true
+                            )
+                          ) > 1;
+                        if (isMulti) {
+                          type = MULTIPLE_CHOICE_MULTI;
+                        }
+
                         type = MULTIPLE_CHOICE_SINGLE;
                       }
                     } else {
@@ -216,13 +231,15 @@ const UploadQuizForm = ({
                       includes(toLower(type), 'multiple answers') ||
                       includes(toLower(type), 'multipleanswers') ||
                       includes(toLower(type), 'multipleanswer') ||
-                      toLower(type) === 'multiplechoice'
+                      toLower(type) === 'multiplechoice' ||
+                      toLower(type) === 'multiplechoicemultiple'
                     ) {
                       type = MULTIPLE_CHOICE_MULTI;
                     }
                     if (
                       includes(toLower(type), 'single answer') ||
-                      includes(toLower(type), 'singleanswer')
+                      includes(toLower(type), 'singleanswer') ||
+                      toLower(type) === 'multiplechoicesingle'
                     ) {
                       type = MULTIPLE_CHOICE_SINGLE;
                     }
@@ -241,6 +258,17 @@ const UploadQuizForm = ({
                         if (options.length < 3) {
                           type = TRUE_FALSE;
                         } else {
+                          const isMulti =
+                            size(
+                              filter(
+                                options,
+                                (option) => option.isCorrect === true
+                              )
+                            ) > 1;
+                          if (isMulti) {
+                            type = MULTIPLE_CHOICE_MULTI;
+                          }
+
                           type = MULTIPLE_CHOICE_SINGLE;
                         }
                         const arrOptions = [...options];
@@ -253,7 +281,7 @@ const UploadQuizForm = ({
                   }
 
                   return {
-                    ...omit(quiz, ['explanation']),
+                    ...omit(quiz, ['explanation', 'answerKey']),
                     options,
                     type,
                     answer: toString(quiz?.answer)
@@ -263,7 +291,9 @@ const UploadQuizForm = ({
                 if (isNil(quizId) && isEmpty(quizId)) {
                   await handleCreateQuiz(questions);
                 } else {
-                  await handleUpdateQuiz(quizId, { quizQuestions: questions });
+                  await handleUpdateQuiz(quizId, {
+                    quizQuestions: questions
+                  });
                 }
 
                 setIsUploadingFile(false);
@@ -441,7 +471,7 @@ const UploadQuizForm = ({
           height={'48px'}
           name="count"
           onChange={handleChange}
-          type="number"
+          type="text"
           value={localData.count}
           color={'text.200'}
         />

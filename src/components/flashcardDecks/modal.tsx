@@ -325,7 +325,8 @@ const CompletedState = ({
     calculatePercentages(score);
 
   const { dailyFlashcards, setShowStudyList } = flashcardStore();
-
+  const title =
+    Number(passPercentage) >= 85 ? 'Congratulations!' : "Let's keep studying!";
   return (
     <Box
       borderRadius="12px"
@@ -356,7 +357,7 @@ const CompletedState = ({
           lineHeight="30px"
           letterSpacing="-0.48px"
         >
-          Congratulations
+          {title}
         </Text>
         <Text
           color="#6E7682"
@@ -558,8 +559,8 @@ const StudyBox = () => {
   };
 
   const formatFlashcard = useCallback(
-    (flashcard: FlashcardData) => {
-      const formatedQuestions: Study[] = flashcard.questions.map(
+    (flashcard: any) => {
+      const formatedQuestions: Study[] = flashcard.data.questions.map(
         (question, index) => {
           const data: Study = {
             id: index + 1,

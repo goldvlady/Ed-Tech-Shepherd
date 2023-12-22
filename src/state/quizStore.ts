@@ -36,7 +36,11 @@ type Store = {
   quiz?: QuizData | null;
   quizzes: QuizData[] | null;
   fetchQuizzes: (queryParams?: SearchQueryParams) => Promise<void>;
-  loadQuiz: (id: string | null, currentStudy?: MinimizedStudy) => void;
+  loadQuiz: (
+    id: string | null,
+    currentStudy?: MinimizedStudy,
+    cb?: () => void
+  ) => void;
   deleteQuiz: (id: string | number) => Promise<boolean>;
   handleIsLoadingQuizzes: (value: boolean) => void;
   storeQuizTags: (
@@ -159,22 +163,34 @@ export default create<Store>((set) => ({
       set({ isLoading: false });
     }
   },
-  loadQuiz: async (id: string | null, currentStudy?: MinimizedStudy) => {
+  loadQuiz: async (
+    id: string | null,
+    currentStudy?: MinimizedStudy,
+    cb = () => null
+  ) => {
     set((state) => {
       if (isNil(id)) return { quiz: undefined, minimizedStudy: null };
 
       let quiz = state.quizzes?.find((card) => card._id === id);
 
-      if (isNil(quiz)) {
+      console.log('loadQuiz one =========>>> quiz ------>>  ', quiz);
+
+      if (isNil(quiz) || quiz !== undefined) {
         (async () => {
           const result: any = await ApiService.getQuiz(id as string);
           const { data }: { data: QuizData } = await result.json();
           quiz = data;
         })();
       }
+
+      console.log('loadQuiz two =========>>> quiz ------>>  ', quiz);
+
       const nextState: Partial<typeof state> = { quiz };
       if (currentStudy) {
         nextState.minimizedStudy = currentStudy;
+      }
+      if (typeof cb === 'function') {
+        cb();
       }
       return nextState;
     });

@@ -774,24 +774,27 @@ const QuizPreviewer = ({
                 </Button>
               )}
             </HStack>
-            <Flex w={'100%'} justifyContent={'flex-end'} my={5}>
-              <InputGroup width="290px">
-                <InputLeftElement
-                  pointerEvents="none"
-                  children={<BsSearch color="#969CA6" />}
-                  ml={2}
-                />
-                <Input
-                  placeholder="Search"
-                  pl="48px"
-                  _focus={{
-                    boxShadow: '0 0 0 2px #3182ce'
-                  }}
-                  onChange={(e) => handleSearch(e.target.value)}
-                />
-              </InputGroup>
-            </Flex>
           </Box>
+        )}
+
+        {!isEmpty(questions) && (
+          <Flex w={'100%'} justifyContent={'flex-end'} my={5}>
+            <InputGroup width="290px">
+              <InputLeftElement
+                pointerEvents="none"
+                children={<BsSearch color="#969CA6" />}
+                ml={2}
+              />
+              <Input
+                placeholder="Search"
+                pl="48px"
+                _focus={{
+                  boxShadow: '0 0 0 2px #3182ce'
+                }}
+                onChange={(e) => handleSearch(e.target.value)}
+              />
+            </InputGroup>
+          </Flex>
         )}
 
         <Box

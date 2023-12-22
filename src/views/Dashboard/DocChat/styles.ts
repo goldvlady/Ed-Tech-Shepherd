@@ -145,7 +145,7 @@ export const StyledText = styled(Text)`
 `;
 
 export const OptionsContainer = styled.div`
-  ${tw`flex flex-col flex-wrap py-[0.875rem] px-[0.375rem] min-h-[4rem] w-full max-w-[100%] px-4 min-h-[40px] overflow-auto`};
+  ${tw`flex flex-col flex-wrap py-[0.875rem] px-[0.35rem] min-h-[4rem] w-full max-w-[100%] px-4 min-h-[40px] overflow-auto`};
   // display: flex;
   // flex-direction: column;
   // grid-column: span 12;
@@ -391,10 +391,9 @@ export const ChatContainerResponse = styled.div<{ messages: any }>`
   display: flex;
   flex-direction: column;
   grid-column: span 12;
-  margin-top: 8px;
-  margin-right: 24px;
+  margin-top: 10px;
   margin-bottom: 20px;
-  margin-left: 24px;
+  margin-left: 8px;
   height: auto;
   width: 80%;
   // position: absolute;
@@ -546,8 +545,12 @@ export const ChatHistoryContainer = styled.div`
 `;
 
 export const ChatHistoryBlock = styled.div`
-  margin-top: 25px;
+  margin-top: 15px;
   padding: 10px;
+
+  &::webkit-scrollbar {
+    display: none;
+  }
 `;
 
 export const ChatHistoryHeader = styled.div<{ docchat?: boolean }>`
@@ -673,7 +676,7 @@ export const StudyFirstLayer = styled.div`
 `;
 
 export const DownPillContainer = styled.div`
-  ${tw`w-full flex py-[0.75rem] px-[0.375rem]`}// position: fixed;
+  ${tw`w-full flex py-[0.75rem] px-[1.95rem]`}// position: fixed;
   // width: 100%;
   // display: flex;
   // flex-direction: column;
