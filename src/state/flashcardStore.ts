@@ -181,8 +181,8 @@ export default create<Store>((set) => ({
   },
   fetchSingleFlashcard: async (id: string) => {
     const response = await ApiService.getSingleFlashcard(id);
-    const respJson = await response.json();
-    set({ flashcard: respJson });
+    const { data } = await response.json();
+    set({ flashcard: data });
   },
   storeMinimized: (data: MinimizedStudy) => {
     set({ minimizedStudy: data });

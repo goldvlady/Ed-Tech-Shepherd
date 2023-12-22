@@ -560,7 +560,7 @@ const StudyBox = () => {
 
   const formatFlashcard = useCallback(
     (flashcard: any) => {
-      const formatedQuestions: Study[] = flashcard.data.questions.map(
+      const formatedQuestions: Study[] = flashcard.questions.map(
         (question, index) => {
           const data: Study = {
             id: index + 1,
