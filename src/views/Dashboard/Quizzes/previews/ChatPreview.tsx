@@ -46,7 +46,7 @@ import {
 } from 'lodash';
 import React, { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { IoCheckmarkDone, IoCloseOutline } from 'react-icons/io5';
-import { useNavigate, useBlocker, useBeforeUnload } from 'react-router-dom';
+import { useNavigate, useBeforeUnload } from 'react-router-dom';
 
 type QuizScoreType = {
   questionIdx: string | number;
@@ -108,7 +108,6 @@ const QuizCard = forwardRef(
       }
     }, [options]);
 
-
     const handleOptionAnswerHandler = (optionAnswer: string) => {
       if (!isEmpty(optionAnswer)) {
         const [_, index, questionIdx] = split(optionAnswer, ':');
@@ -162,7 +161,7 @@ const QuizCard = forwardRef(
     return (
       <Box
         as="div"
-        className="quiz-tile "
+        className="quiz-tile"
         ref={(node) => {
           quizCardRef.current = node;
         }}
@@ -261,22 +260,23 @@ const QuizCard = forwardRef(
                             name={`question:${optionIndex}:${index}`}
                             isReadOnly={showQuizAnswers}
                           />
-                          <div className={'flex w-full max-w-[95%]'}>
+
+                          <Box display={'flex'} w={'100%'} maxW={'95%'}>
                             <Text w={'95%'} ml={'4px'}>
                               {option?.content}
                             </Text>
-                          </div>
+                          </Box>
                         </div>
                       </div>
                     ))}
                 </Stack>
               </CheckboxGroup>
             )}
+
             {questionType === MULTIPLE_CHOICE_SINGLE && (
               <RadioGroup
                 onChange={(e) => {
                   handleOptionAnswerHandler(e);
-                  setOptionAnswer(e);
                 }}
                 value={'1'}
               >
@@ -320,21 +320,24 @@ const QuizCard = forwardRef(
                             name={`question:${optionIndex}:${index}`}
                             isReadOnly={showQuizAnswers}
                           />
-                          <div className={'flex w-full max-w-[95%]'}>
+
+                          <Box display={'flex'} w={'100%'} maxW={'95%'}>
                             <Text w={'95%'} ml={'4px'}>
                               {option?.content}
                             </Text>
-                          </div>
+                          </Box>
                         </div>
                       </div>
                     ))}
                 </Stack>
               </RadioGroup>
             )}
+
             {questionType === TRUE_FALSE && (
               <RadioGroup
                 onChange={(e) => {
                   handleTFAnswerHandler(e);
+
                   setTrueFalseAnswer(e);
                 }}
                 value={'1'}
@@ -374,18 +377,20 @@ const QuizCard = forwardRef(
                             name={`question:${optionIndex}:${index}`}
                             isReadOnly={showQuizAnswers}
                           />
-                          <div className={'flex w-full max-w-[95%]'}>
+
+                          <Box display={'flex'} w={'100%'} maxW={'95%'}>
                             <Text w={'95%'} ml={'4px'}>
                               {' '}
                               {capitalize(option.content)}
                             </Text>
-                          </div>
+                          </Box>
                         </div>
                       </div>
                     ))}
                 </Stack>
               </RadioGroup>
             )}
+
             {questionType === OPEN_ENDED && (
               <>
                 <Box mt={2} w={'100%'} mb="24px">
