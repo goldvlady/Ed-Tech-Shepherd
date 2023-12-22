@@ -8,7 +8,7 @@ import { Spinner } from './Spinner';
 import { testHighlights as _testHighlights } from './test-highlights';
 import { useToast } from '@chakra-ui/react';
 import { HandRaisedIcon } from '@heroicons/react/20/solid';
-import { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import type { IHighlight, NewHighlight } from 'react-pdf-highlighter';
 import {
   PdfLoader,

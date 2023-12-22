@@ -22,7 +22,13 @@ import React, {
   useCallback
 } from 'react';
 
-const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
+const FlashCardSetupInit = ({
+  isAutomated,
+  isFlashCardPage
+}: {
+  isAutomated?: boolean;
+  isFlashCardPage?: boolean;
+}) => {
   const {
     flashcardData,
     generateFlashcardQuestions,
@@ -37,8 +43,6 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     deckname: '',
     studyType: '',
     studyPeriod: '',
-    subject: '',
-    topic: '',
     level: '',
     numQuestions: 0,
     timerDuration: '',
@@ -115,7 +119,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
   );
 
   const isValid = useMemo(() => {
-    const { timerDuration, hasSubmitted, subject, topic, ...data } = localData;
+    const { timerDuration, hasSubmitted, ...data } = localData;
     let payload: { [key: string]: any } = { ...data };
     if (flashcardData.noteDoc) {
       return [
@@ -125,7 +129,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
       ].every(Boolean);
     }
     if (isAutomated) {
-      payload = { ...payload, subject };
+      payload = { ...payload };
     }
 
     return Object.values(payload).every(Boolean);
@@ -160,32 +164,46 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     return (
       <>
         {' '}
-        <FormControl mb={8}>
-          <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-            Subject
-          </FormLabel>
-          <Input
-            type="text"
-            name="subject"
-            placeholder="e.g. Chemistry"
-            value={localData.subject}
-            onChange={handleChange}
-            _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-          />
-        </FormControl>
-        <FormControl mb={8}>
-          <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-            Topic
-          </FormLabel>
-          <Input
-            type="text"
-            name="topic"
-            placeholder="e.g. Bonds"
-            value={localData.topic}
-            onChange={handleChange}
-            _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-          />
-        </FormControl>
+        {isFlashCardPage && (
+          <div>
+            <FormControl mb={8}>
+              <FormLabel
+                fontSize="12px"
+                lineHeight="17px"
+                color="#5C5F64"
+                mb={3}
+              >
+                Subject
+              </FormLabel>
+              <Input
+                type="text"
+                name="subject"
+                placeholder="e.g. Chemistry"
+                value={localData.subject}
+                onChange={handleChange}
+                _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+              />
+            </FormControl>
+            <FormControl mb={8}>
+              <FormLabel
+                fontSize="12px"
+                lineHeight="17px"
+                color="#5C5F64"
+                mb={3}
+              >
+                Topic
+              </FormLabel>
+              <Input
+                type="text"
+                name="topic"
+                placeholder="e.g. Bonds"
+                value={localData.topic}
+                onChange={handleChange}
+                _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+              />
+            </FormControl>
+          </div>
+        )}
         <FormControl mb={8}>
           <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
             Level (optional)
@@ -249,7 +267,6 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
 
   return (
     <Box bg="white" width="100%" mt="30px">
-      {isAutomated && !flashcardData?.noteDoc ? renderOptional() : ''}
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Deckname
@@ -263,6 +280,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
           _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />
       </FormControl>
+      {isAutomated && !flashcardData?.noteDoc ? renderOptional() : ''}
 
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
@@ -288,10 +306,9 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
         >
           <Flex direction={{ base: 'row', md: 'column', lg: 'row' }}>
             {' '}
-            <Radio value="longTermRetention">
+            <Radio value="longTermRetention" marginRight="4">
               <Text fontSize="14px">Long term retention</Text>
             </Radio>
-            <Spacer />
             <Radio value="quickPractice">
               <Text fontSize="14px"> Quick Practice</Text>
             </Radio>
