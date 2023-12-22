@@ -221,6 +221,8 @@ function ActivityFeeds(props) {
     }
   }, [isTutor, feedPeriod, feeds?.data]);
 
+  const { fetchSingleFlashcard } = flashcardStore();
+
   return (
     <>
       <Box>
@@ -324,14 +326,10 @@ function ActivityFeeds(props) {
                           navigate(
                             `/dashboard/quizzes/take?quiz_id=${feed.quiz}`
                           );
+                        } else if (feed.activityType === 'flashcards') {
+                          fetchSingleFlashcard(feed.flashcard);
                         } else {
-                          navigate(
-                            `${
-                              feed.activityType === 'bounty'
-                                ? `${feed.link}`
-                                : `/dashboard/flashcards/${feed.flashcard}`
-                            }`
-                          );
+                          navigate(`${feed.link}`);
                         }
                       }}
                     >
