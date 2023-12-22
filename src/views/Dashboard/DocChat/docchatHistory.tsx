@@ -2,10 +2,7 @@ import DeleteIcn from '../../../assets/deleteIcn.svg?react';
 import EditIcn from '../../../assets/editIcn.svg?react';
 import HistoryIcn from '../../../assets/historyIcon.svg?react';
 import { getDateString } from '../../../helpers';
-import {
-  fetchStudentConversations,
-  getDocchatHistory
-} from '../../../services/AI';
+import { getDocchatHistory } from '../../../services/AI';
 import userStore from '../../../state/userStore';
 import {
   ChatHistoryBlock,
@@ -45,17 +42,10 @@ type Chat = {
   createdDated: string;
   noteId?: string;
 };
-type ChatHistoryType = Array<
-  { [key: string]: any } & {
-    createdAt: string;
-    createdDate: string;
-    type: 'doc' | 'chat';
-    title: string;
-  } & Chat
->;
+
 type GroupedChat = {
   date: string;
-  messages: Chat[] | ChatHistoryType;
+  messages: Chat[];
 };
 
 const DocchatHistory = ({
@@ -64,7 +54,7 @@ const DocchatHistory = ({
   noteId
 }: IDocchatHistory) => {
   const { user, userDocuments, fetchUserDocuments } = userStore();
-  const [chatHistory, setChatHistory] = useState<ChatHistoryType>([]);
+  const [chatHistory, setChatHistory] = useState<any[]>([]);
   const [groupChatsByDateArr, setGroupChatsByDateArr] = useState<GroupedChat[]>(
     []
   );
@@ -95,29 +85,7 @@ const DocchatHistory = ({
     studentIdParam: string,
     noteText?: string
   ) {
-    const [chatHistory, docHistories] = await Promise.all([
-      fetchStudentConversations(studentIdParam),
-      getDocchatHistory({ studentIdParam: studentId, noteText: '' })
-    ]);
-    const historyWithContent: any = chatHistory
-      .filter((chat) => chat.ConversationLogs.length > 0)
-      .map((convo) => {
-        const message = convo.ConversationLogs.at(-1)?.log?.content || '';
-
-        return {
-          id: convo.id,
-          title: convo?.title,
-          topic: convo?.topic,
-          subject: convo?.subject,
-          level: convo?.level,
-          type: 'chat',
-          message:
-            message.length < 140 ? message : message.substring(0, 139) + '...',
-          createdDated: getDateString(new Date(convo.createdAt)),
-          createdAt: new Date(convo.createdAt) // Add the raw timestamp for sorting
-        };
-      })
-      .sort((a, b) => b.createdAt - a.createdAt);
+    const docHistories = await getDocchatHistory({ studentIdParam, noteText });
 
     const filteredHistories = docHistories
       ?.map((docHistory) => ({
@@ -133,15 +101,10 @@ const DocchatHistory = ({
         }
         return unique;
       }, []);
-
-    setChatHistory(
-      [...historyWithContent, ...filteredHistories].sort(
-        (a, b) => b.createdAt - a.createdAt
-      )
-    );
+    setChatHistory(filteredHistories);
   }
 
-  function groupChatsByDate(chatHistory: ChatHistoryType): GroupedChat[] {
+  function groupChatsByDate(chatHistory: Chat[]): GroupedChat[] {
     return chatHistory?.reduce((groupedChats, chat) => {
       const currentGroup = groupedChats?.find(
         (group) => group.date === chat.createdDated
@@ -232,21 +195,13 @@ const DocchatHistory = ({
                       ) : (
                         <p
                           onClick={() => {
-                            if (message.type === 'doc') {
-                              goToDocChat(
-                                message.documentURL,
-                                message.title,
-                                message.documentId,
-                                message.keywords,
-                                user?._id
-                              );
-                            } else {
-                              localStorage.setItem(
-                                'conversationId',
-                                message.id
-                              );
-                              navigate('/dashboard/ace-homework');
-                            }
+                            goToDocChat(
+                              message.documentURL,
+                              message.title,
+                              message.documentId,
+                              message.keywords,
+                              user?._id
+                            );
                           }}
                         >
                           {message.title}
@@ -263,7 +218,7 @@ const DocchatHistory = ({
                           // <EditIcn onClick={handleUpdateConversation} />
                           <p
                             onClick={() => {
-                              //
+                              console.log('save');
                             }}
                           >
                             Save
@@ -273,7 +228,7 @@ const DocchatHistory = ({
                           //     onClick={() => {
                           //       //   setEditConversationId(message.id);
                           //       //   toggleMessage(message.id);
-                          //
+                          //       console.log('edit');
                           //     }}
                           //   />
                           <></>
@@ -314,7 +269,7 @@ const DocchatHistory = ({
                       >
                         <p
                           onClick={() => {
-                            //
+                            console.log('save');
                           }}
                         >
                           Save
