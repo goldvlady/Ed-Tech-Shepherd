@@ -86,13 +86,9 @@ const QuizCard = forwardRef(
         quizId?: string
       ) => void;
     },
-    ref?: any
+    ref?: HTMLTextAreaElement | any
   ) => {
-    const quizCardRef = useRef(null);
-    const [optionAnswer, setOptionAnswer] = useState('');
-    const [trueFalseAnswer, setTrueFalseAnswer] = useState('');
-    const [_, setOptionCheckboxAnswers] = useState([]);
-    const [showOpenEndedAnswer, setShowOpenEndedAnswer] = useState(false);
+    const quizCardRef = useRef<HTMLTextAreaElement | null>(null);
     const [isMultipleOptionsMulti, setIsMultipleOptionsMulti] = useState(false);
 
     let questionType = question?.type;
@@ -160,6 +156,8 @@ const QuizCard = forwardRef(
       }
     };
 
+    console.log('CardquizCardRef.current.value', quizCardRef?.current?.value);
+
     return (
       <HStack alignItems={'flex-start'} flexWrap={'nowrap'} width="100%">
         <Text fontSize="sm" fontWeight="semibold">
@@ -168,14 +166,13 @@ const QuizCard = forwardRef(
         <Box
           as="div"
           className="quiz-tile"
-          ref={(node) => {
-            quizCardRef.current = node;
-          }}
+          // ref={(node) => {
+          //   // quizCardRef.current = node;
+          // }}
           borderRadius={'8px'}
           bg="white"
           _hover={{ boxShadow: 'md' }}
           w="full"
-          // w={['100%', '50%', '31%']}
           minH={minHeight}
           borderWidth={
             showAnsweredQuestion &&
@@ -199,21 +196,11 @@ const QuizCard = forwardRef(
               ? 'red.200'
               : ''
           }
-          // sx={{
-          //   margin: '0px !important',
-          //   marginBottom: '16px !important',
-          //   marginRight: '8px !important'
-          // }}
         >
-          <VStack
-            alignItems={'flex-start'}
-            justifyContent={'flex-start'}
-            // p={'18px 16px'}
-          >
+          <VStack alignItems={'flex-start'} justifyContent={'flex-start'}>
             <HStack
               mb={'17px'}
               alignItems={'flex-start'}
-              // minW={'30%'}
               w="100%"
               flexWrap={'nowrap'}
               minH={'48px'}
@@ -224,9 +211,6 @@ const QuizCard = forwardRef(
               px={' 16px'}
               pt={2}
             >
-              {/* <Text fontSize="md" fontWeight="semibold">
-                  {index + 1}.
-                </Text> */}
               <Text fontSize="md" fontWeight="semibold">
                 {question.question}
               </Text>
@@ -236,10 +220,9 @@ const QuizCard = forwardRef(
               w={'100%'}
               className="font-[Inter] font-[400] text-[14px] leading-[16px]"
             >
-              {question.type === MULTIPLE_CHOICE_MULTI && (
+              {questionType === MULTIPLE_CHOICE_MULTI && (
                 <CheckboxGroup
                   onChange={(e) => {
-                    setOptionCheckboxAnswers(e);
                     handleOptionCheckBox(e as Array<string>);
                   }}
                   value={quizScores[index]?.selectedOptions}
@@ -255,8 +238,6 @@ const QuizCard = forwardRef(
                               'p-2': showQuizAnswers,
                               '!border !border-[#66BD6A] bg-[#F1F9F1]':
                                 showQuizAnswers && option.isCorrect,
-                              //  &&
-                              // quizScores[index]?.score !== ''
                               '!border !border-[#F53535] bg-[#FEF0F0]':
                                 showQuizAnswers &&
                                 option.isCorrect === false &&
@@ -287,14 +268,14 @@ const QuizCard = forwardRef(
                 </CheckboxGroup>
               )}
 
-              {question.type === MULTIPLE_CHOICE_SINGLE && (
+              {questionType === MULTIPLE_CHOICE_SINGLE && (
                 <RadioGroup
                   onChange={(e) => {
                     handleOptionAnswerHandler(e);
                   }}
                   value={'1'}
                 >
-                  <Flex direction="column" gap={'8px'}>
+                  <Flex direction="column" gap={'8px'} mx={3}>
                     {isArray(options) &&
                       options?.map((option, optionIndex) => (
                         <div
@@ -309,9 +290,7 @@ const QuizCard = forwardRef(
                                   `question:${optionIndex}:${index}` &&
                                 !option.isCorrect,
                               '!border !border-[#66BD6A] bg-[#F1F9F1]':
-                                showQuizAnswers &&
-                                option.isCorrect &&
-                                quizScores[index]?.score !== ''
+                                showQuizAnswers && option.isCorrect
                             }
                           )}
                         >
@@ -337,16 +316,14 @@ const QuizCard = forwardRef(
                 </RadioGroup>
               )}
 
-              {question.type === TRUE_FALSE && (
+              {questionType === TRUE_FALSE && (
                 <RadioGroup
                   onChange={(e) => {
                     handleTFAnswerHandler(e);
-
-                    setTrueFalseAnswer(e);
                   }}
                   value={'1'}
                 >
-                  <Stack direction="column">
+                  <Flex direction="column" gap={'8px'} mx={3}>
                     {isArray(options) &&
                       options?.map((option, optionIndex) => (
                         <div
@@ -356,9 +333,12 @@ const QuizCard = forwardRef(
                             {
                               'p-2': showQuizAnswers,
                               '!border !border-[#66BD6A] bg-[#F1F9F1]':
+                                showQuizAnswers && option.isCorrect,
+                              '!border !border-[#F99597] bg-[#FEF1F1] ':
                                 showQuizAnswers &&
-                                option.isCorrect &&
-                                quizScores[index]?.score !== ''
+                                first(quizScores[index]?.selectedOptions) ===
+                                  `question:${optionIndex}:${index}` &&
+                                !option.isCorrect
                             }
                           )}
                         >
@@ -382,13 +362,17 @@ const QuizCard = forwardRef(
                           </Flex>
                         </div>
                       ))}
-                  </Stack>
+                  </Flex>
                 </RadioGroup>
               )}
-              {question.type === OPEN_ENDED && (
+              {questionType === OPEN_ENDED && (
                 <>
                   <Box mt={2} mb="24px" mx={5}>
                     <Textarea
+                      ref={(node) => {
+                        ref.current = node;
+                        quizCardRef.current = node;
+                      }}
                       h={'32px'}
                       p={'12px 14px'}
                       border={'none'}
@@ -409,46 +393,30 @@ const QuizCard = forwardRef(
                       maxH={'200px'}
                     />
                   </Box>
-                  {showQuizAnswers &&
-                    !isEmpty(first(quizScores[index]?.selectedOptions)) && (
-                      <VStack mt={'24px'} w={'100%'} p={4}>
-                        <Box mr={2}>
-                          <Text
-                            fontSize={'14px'}
-                            fontFamily={'Inter'}
-                            fontWeight={'700'}
-                            lineHeight={'17px'}
-                            textColor={'text.200'}
-                          >
-                            Answer:
-                          </Text>
-                        </Box>
-
-                        <Textarea
-                          maxH={'40px'}
-                          h={'32px'}
-                          w={'100%'}
-                          p={'8px 10px'}
-                          isReadOnly
-                          value={question?.answer}
-                        />
-                      </VStack>
-                    )}
-
-                  {false &&
-                    !showOpenEndedAnswer &&
-                    !isEmpty(first(quizScores[index]?.selectedOptions)) && (
-                      <Box>
-                        <Button
-                          bg={'blue.200'}
-                          w={'100%'}
-                          colorScheme="blue"
-                          onClick={() => setShowOpenEndedAnswer(true)}
+                  {showQuizAnswers && (
+                    <VStack mt={'24px'} w={'100%'} p={4}>
+                      <Box mr={2}>
+                        <Text
+                          fontSize={'14px'}
+                          fontFamily={'Inter'}
+                          fontWeight={'700'}
+                          lineHeight={'17px'}
+                          textColor={'text.200'}
                         >
-                          View Answer
-                        </Button>
+                          Answer:
+                        </Text>
                       </Box>
-                    )}
+
+                      <Textarea
+                        maxH={'40px'}
+                        h={'32px'}
+                        w={'100%'}
+                        p={'8px 10px'}
+                        isReadOnly
+                        value={question?.answer}
+                      />
+                    </VStack>
+                  )}
 
                   {showQuizAnswers &&
                     !isEmpty(first(quizScores[index]?.selectedOptions)) && (
@@ -470,7 +438,7 @@ const QuizCard = forwardRef(
                             bg={'whiteAlpha.900'}
                             p={4}
                             w={'100%'}
-                            justifyContent={'center'}
+                            justifyContent={'space-around'}
                             spacing={'15px'}
                           >
                             <Button
@@ -478,6 +446,7 @@ const QuizCard = forwardRef(
                               variant={'unstyled'}
                               bg={'#EDF7EE'}
                               color={'#4CAF50'}
+                              px={'2'}
                               onClick={async () => {
                                 if (quizScores[index]?.score === 'pending') {
                                   handleSetScore(
@@ -515,6 +484,7 @@ const QuizCard = forwardRef(
                               color={'#FB8441'}
                               fontSize={'14px'}
                               variant={'unstyled'}
+                              px={'2'}
                               onClick={() => {
                                 if (quizScores[index]?.score === 'pending') {
                                   handleSetScore(
@@ -550,6 +520,7 @@ const QuizCard = forwardRef(
                               color={'#F53535'}
                               fontSize={'14px'}
                               variant={'unstyled'}
+                              px={'2'}
                               onClick={() => {
                                 if (quizScores[index]?.score === 'pending') {
                                   handleSetScore(
@@ -605,6 +576,8 @@ const QuizPreviewer = ({
 }) => {
   const navigate = useNavigate();
 
+  const quizCardRef = useRef<HTMLTextAreaElement | any>(null);
+
   const [minHeight, setMinHeight] = useState(0);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showResults, setShowResults] = useState(false);
@@ -640,14 +613,21 @@ const QuizPreviewer = ({
   };
 
   const handleRestartQuiz = () => {
-    const arr = new Array(questions?.length);
-    const newArray = Array.from(arr, (_, idx) => ({
-      questionIdx: idx,
-      score: '',
-      selectedOptions: []
-    }));
-    setScores(newArray);
+    setScores([]);
+    setTimeout(() => {
+      const arr = new Array(questions?.length);
+      const newArray = Array.from(arr, (_, idx) => ({
+        questionIdx: idx,
+        score: '',
+        selectedOptions: []
+      }));
+      setScores(newArray);
+    }, 1000);
     setShowUnansweredQuestions(false);
+
+    if (quizCardRef.current && quizCardRef.current.value) {
+      quizCardRef.current.value = '';
+    }
   };
 
   const handleSetScore = (
@@ -706,7 +686,6 @@ const QuizPreviewer = ({
     () => filter(scores, (score) => score?.score === '')?.length,
     [scores]
   );
-  console.log(questions);
 
   useEffect(() => {
     const elems = document.querySelectorAll('div.quiz-tile');
@@ -849,10 +828,12 @@ const QuizPreviewer = ({
               spacingX={'5px'}
             >
               {!isEmpty(questions) &&
+                !isEmpty(scores) &&
                 map(questions, (question, index) => {
                   return (
                     <Flex>
                       <QuizCard
+                        ref={quizCardRef}
                         showAnsweredQuestion={showUnansweredQuestions}
                         handleShowUnansweredQuestion={
                           handleShowUnansweredQuestion
