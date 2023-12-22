@@ -260,7 +260,7 @@ const Login: React.FC = () => {
                   colorScheme={'primary'}
                   size={'lg'}
                   color="#000"
-                  leftIcon={<GoogleIcon />}
+                  leftIcon={<img src={GoogleIcon} alt="" />}
                 >
                   Continue With Google
                 </Button>

@@ -737,7 +737,7 @@ const CustomTable: React.FC = () => {
             flexDirection={'column'}
             alignItems={'center'}
           >
-            <EmptyIllustration />
+            <Image src={EmptyIllustration} />
             <Text
               color="text.300"
               fontFamily="Inter"
