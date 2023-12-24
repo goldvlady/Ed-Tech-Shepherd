@@ -379,9 +379,7 @@ export default function DocChat() {
           studentId,
           noteId,
           namespace: 'note-workspace',
-          isDevelopment:
-            process.env.REACT_APP_API_ENDPOINT ===
-            'https://develop--api-sheperdtutors.netlify.app'
+          isDevelopment: process.env.REACT_APP_API_ENDPOINT.includes('develop')
           // isDevelopment: false
         }).connect();
 

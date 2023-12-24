@@ -237,8 +237,7 @@ class ApiService {
     studentId: string
   ) => {
     const isDevelopment =
-      process.env.REACT_APP_API_ENDPOINT ===
-      'https://develop--api-sheperdtutors.netlify.app';
+      process.env.REACT_APP_API_ENDPOINT.includes('develop');
 
     return fetch(
       `${AI_API}/flash-cards/generate-from-plain-notes?env=${
@@ -841,8 +840,7 @@ class ApiService {
     studentId?: string;
   }) => {
     const isDevelopment =
-      process.env.REACT_APP_API_ENDPOINT ===
-      'https://develop--api-sheperdtutors.netlify.app';
+      process.env.REACT_APP_API_ENDPOINT.includes('develop');
     return doFetch(
       isDevelopment
         ? 'https://shepherd-anywhere-cors.fly.dev/https://i2u58ng9l4.execute-api.us-east-2.amazonaws.com/prod/generate-from-notes'
