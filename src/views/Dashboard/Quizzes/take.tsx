@@ -3,7 +3,7 @@ import LoaderOverlay from '../../../components/loaderOverlay';
 import ApiService from '../../../services/ApiService';
 import quizStore from '../../../state/quizStore';
 import { QuizData, QuizQuestion } from '../../../types';
-import { ChatPreview as QuizPreviewer } from './previews';
+import { QuizPreview as QuizPreviewer } from './previews';
 import { Box, Flex } from '@chakra-ui/react';
 import { isEmpty, isNil, map, merge } from 'lodash';
 import React, { useEffect, useState } from 'react';

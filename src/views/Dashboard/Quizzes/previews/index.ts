@@ -1,2 +1,2 @@
 export { default as ManualPreview } from './ManuelPreview';
-export { default as ChatPreview } from './ChatPreview';
+export { default as QuizPreview } from './QuizPreview';
