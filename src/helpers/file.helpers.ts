@@ -1,5 +1,5 @@
 import { storage } from '../firebase';
-import ApiService from '../services/ApiService';
+import S3Handler, { UploadBody } from './s3Handler';
 import {
   ref,
   uploadBytesResumable,
@@ -13,6 +13,10 @@ interface UploadEvents {
   progress: Listener<[number]>;
   error: Listener<[Error]>;
   complete: Listener<[UploadMetadata]>;
+}
+
+interface UploadValidationOptions {
+  maxSize?: number; // Max file size in bytes
 }
 
 class UploadEventEmitter {
@@ -37,62 +41,73 @@ class UploadEventEmitter {
 }
 
 export interface UploadMetadata {
-  fileUrl: string;
-  contentType: string;
-  size: number;
+  fileUrl?: string;
+  contentType?: string;
+  size?: number;
   name?: string;
   studentID?: string;
   documentID?: string;
 }
 
-export const uploadFile = (file: File, body?: any, useS3?: boolean) => {
+export const uploadFile = (
+  file: File,
+  body?: UploadBody,
+  validationOptions?: UploadValidationOptions
+) => {
   const emitter = new UploadEventEmitter();
 
-  // const storageRef = ref(storage, `uploads/${file.name}`);
-  const storageRef = ref(storage, `${file.name}`);
-  const uploadTask = uploadBytesResumable(storageRef, file);
+  const s3Handler = new S3Handler();
 
-  uploadTask.on(
-    'state_changed',
-    (snapshot: UploadTaskSnapshot) => {
-      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      emitter.emit('progress', progress);
-    },
-    (error) => {
-      emitter.emit('error', error);
-    },
-    async () => {
-      const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-
-      // After uploading to Firebase, use the URL for S3 upload
-      if (useS3) {
-        try {
-          const response = await ApiService.uploadFileToS3(downloadURL);
-          if (!response.ok) {
-            emitter.emit('error', Error('Failed to upload to S3'));
-          }
-          const body = await response.json();
-          const metadata = {
-            fileUrl: body.data,
-            contentType: file.type,
-            size: file.size,
-            name: file.name
-          };
+  if (validationOptions?.maxSize && file.size > validationOptions.maxSize) {
+    const error = new Error(
+      `File size exceeds the maximum limit of ${validationOptions.maxSize} bytes.`
+    );
+    emitter.emit('error', error);
+  } else {
+    s3Handler
+      .uploadToS3(file, body)
+      .then(
+        (metadata) => {
           emitter.emit('complete', metadata);
-        } catch (error) {
+        },
+        (error) => {
           emitter.emit('error', error);
         }
-      } else {
-        const metadata = {
-          fileUrl: downloadURL,
-          contentType: file.type,
-          size: file.size,
-          name: file.name
-        };
-        emitter.emit('complete', metadata);
-      }
-    }
-  );
+      )
+      .catch((error) => {
+        emitter.emit('error', error);
+      });
+  }
+
+  // if (useS3 && body) {
+
+  // } else {
+  //   const storageRef = ref(storage, `uploads/${file.name}`);
+  //   const uploadTask = uploadBytesResumable(storageRef, file);
+
+  //   uploadTask.on(
+  //     'state_changed',
+  //     (snapshot: UploadTaskSnapshot) => {
+  //       const progress =
+  //         (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+  //       emitter.emit('progress', progress);
+  //     },
+  //     (error) => {
+  //       emitter.emit('error', error);
+  //     },
+  //     async () => {
+  //       const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+
+  //       const metadata = {
+  //         fileUrl: downloadURL,
+  //         contentType: file.type,
+  //         size: file.size,
+  //         name: file.name
+  //       };
+  //       emitter.emit('complete', metadata);
+  //     }
+  //   );
+  // }
 
   return emitter;
 };

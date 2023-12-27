@@ -10,7 +10,7 @@ import LoaderOverlay from '../../../components/loaderOverlay';
 import CustomTabPanel from '../../../components/tabPanel';
 import uploadFile from '../../../helpers/file.helpers';
 import FileProcessingService from '../../../helpers/files.helpers/fileProcessing';
-import { UploadMetadata } from '../../../helpers/files.helpers/uploadFile';
+import { UploadMetadata } from '../../../helpers/s3Handler';
 import { useSearch } from '../../../hooks';
 import documentStore from '../../../state/documentStore';
 import flashcardStore from '../../../state/flashcardStore';
@@ -289,6 +289,8 @@ const NotesDirectory: React.FC = () => {
         );
         const processData = await fileProcessor.process();
 
+        console.log(processData);
+
         const {
           data: [{ documentId }]
         } = processData;
@@ -302,6 +304,7 @@ const NotesDirectory: React.FC = () => {
         });
       }
     } catch (error) {
+      console.log(error);
       toast({ title: 'Failed to load document', status: 'error' });
     } finally {
       setLoading(false);
@@ -602,14 +605,10 @@ const NotesDirectory: React.FC = () => {
         accept="application/pdf"
         isLoading={isUploadingFile}
         onUpload={(file) => {
-          const uploadEmitter = uploadFile(
-            file,
-            {
-              studentID: user?._id as string,
-              documentID: file.name
-            },
-            true
-          );
+          const uploadEmitter = uploadFile(file, {
+            studentID: user?._id as string,
+            documentID: file.name
+          });
           uploadEmitter.on('progress', (progress: number) => {
             if (!isUploadingFile) {
               setIsUploadingFile(true);

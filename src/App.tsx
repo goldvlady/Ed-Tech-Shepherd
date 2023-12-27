@@ -1,4 +1,4 @@
-import { isNil } from 'lodash';
+import './init';
 import LexicalContext from './components/Editor/context';
 import TutorDashboardLayout from './components/Layout';
 import { FlashCardModal } from './components/flashcardDecks';

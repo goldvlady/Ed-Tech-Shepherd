@@ -1140,6 +1140,7 @@ export default function DocChat() {
               {toggleMobileChat && (
                 <Chat
                   ref={ref}
+                  documentUrl={location.state.documentUrl}
                   isShowPrompt={isShowPrompt}
                   isReadyToChat={readyToChat}
                   messages={messages}

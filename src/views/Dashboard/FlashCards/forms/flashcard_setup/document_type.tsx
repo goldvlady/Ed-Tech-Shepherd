@@ -115,14 +115,10 @@ const FlashcardFromDocumentSetup = ({
   };
 
   const onHandleFile = (file: File) => {
-    const uploadEmitter = uploadFile(
-      file,
-      {
-        studentID: user?._id as string,
-        documentID: file.name
-      },
-      true
-    );
+    const uploadEmitter = uploadFile(file, {
+      studentID: user?._id as string,
+      documentID: file.name
+    });
 
     uploadEmitter.on('progress', (progress: number) => {
       if (progress && progress < 99 && !isLoading) {
