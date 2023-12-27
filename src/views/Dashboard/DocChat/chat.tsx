@@ -2,8 +2,10 @@ import PultoJPG from '../../../assets/PlutoAi.jpg';
 // import { ThumbsDown } from '../../../assets/SVGComponent/ThumbsDown';
 // import { ThumbsUp } from '../../../assets/SVGComponent/ThumbsUp';
 import HightLightIcon from '../../../assets/highlightIcn.svg?react';
+import { useLocation } from 'react-router';
 import HistoryIcn from '../../../assets/large-clock-icn.svg?react';
 import PDFImg from '../../../assets/pdf_img.png';
+import { useFlashcardWizard } from '../FlashCards/context/flashcard';
 // import { ReactComponent as PinLogo } from '../../../assets/pin.svg';
 import SocratesImg from '../../../assets/socrates-image.png';
 import SummaryIcon from '../../../assets/summaryIcn.svg?react';
@@ -70,6 +72,7 @@ import React, {
   ForwardedRef
 } from 'react';
 import Typewriter from 'typewriter-effect';
+import { set } from 'lodash';
 
 interface IChat {
   HomeWorkHelp?: boolean;
@@ -78,6 +81,7 @@ interface IChat {
   docKeywords?: any;
   onOpenModal?: () => void;
   isShowPrompt?: boolean;
+  documentUrl?: string;
   messages?: {
     text: string;
     isUser: boolean;
@@ -201,7 +205,10 @@ const Chat = forwardRef(
     const [isPinnedMessages, setPinnedMessages] = useState(false);
     const [isNumber, setIsNumber] = useState(true);
     const [chatHisotry, setIsChatHistory] = useState(false);
+    const { setFlashcardData, resetFlashcard } = useFlashcardWizard();
 
+    const location = useLocation();
+    console.log(location);
     const prompts = [
       "Explain this document to me like I'm five",
       'What do I need to know to understand this document?',
@@ -213,8 +220,30 @@ const Chat = forwardRef(
     }, [setModalOpen]);
 
     const onFlashCard = useCallback(() => {
+      if (!isFlashCard) {
+        resetFlashcard();
+        const { documentUrl } = location.state;
+
+        setFlashcardData((prev) => ({
+          ...prev,
+          deckname: '',
+          studyType: '',
+          studyPeriod: '',
+          numQuestions: 0,
+          timerDuration: '',
+          hasSubmitted: false,
+          ingestId: documentUrl,
+          documentId: documentUrl
+        }));
+      }
       setFlashCard((prevState) => !prevState);
-    }, []);
+    }, [
+      isFlashCard,
+      setFlashCard,
+      setFlashcardData,
+      resetFlashcard,
+      location.state
+    ]);
 
     const onPinnedMessages = useCallback(() => {
       setPinnedMessages((prevState) => !prevState);

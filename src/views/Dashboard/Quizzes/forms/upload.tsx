@@ -143,7 +143,10 @@ const UploadQuizForm = ({
   const handleOnSubmit = async () => {
     handleSetUploadingState(true);
 
-    const uploadEmitter = uploadFile(file, null, true);
+    const uploadEmitter = uploadFile(file, {
+      documentID: file.name,
+      studentID: user?._id
+    });
     uploadEmitter.on('progress', (progress: number) => {
       if (!isUploadingFile) {
         setIsUploadingFile(true);

@@ -4,9 +4,11 @@ import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import svgrPlugin from 'vite-plugin-svgr';
 import viteTsconfigPaths from 'vite-tsconfig-paths';
+import rollupNodePolyFill from 'rollup-plugin-node-polyfills';
 
 const loadVite = ({ mode }: any) => {
   const { PORT, ...env } = loadEnv(mode, process.cwd(), '');
+  const polyfills = rollupNodePolyFill();
 
   // console.log('env ========>>> ', env);
 
@@ -14,6 +16,7 @@ const loadVite = ({ mode }: any) => {
     define: {
       'process.env': env
     },
+
     server: {
       port: PORT && isNaN(parseInt(PORT)) === false ? parseInt(PORT) : 3000
     },
@@ -22,6 +25,13 @@ const loadVite = ({ mode }: any) => {
         target: 'es2020'
       }
     },
+
+    resolve: {
+      alias: {
+        './runtimeConfig': './runtimeConfig.browser' // <-- Fix from above
+      }
+    },
+
     esbuild: {
       // https://github.com/vitejs/vite/issues/8644#issuecomment-1159308803
       logOverride: { 'this-is-undefined-in-esm': 'silent' }
