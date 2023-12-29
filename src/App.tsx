@@ -79,7 +79,7 @@ import StudyPlans from './views/Dashboard/StudyPlans';
 import CoursePlan from './views/Dashboard/StudyPlans/coursePlan';
 import Hotjar from '@hotjar/browser';
 import Feedback from './views/Feedback';
-
+import chameleon from '@chamaeleonidae/chmln';
 const AuthAction = (props: any) => {
   const [params] = useSearchParams();
   const mode = params.get('mode')?.toLowerCase();
@@ -199,6 +199,12 @@ const RenderLayout = () => {
 const AppRoutes: React.FC = () => {
   const location = useLocation();
   const { fetchNotifications, fetchUserDocuments } = userStore();
+  /* chameleon.io NPM script */
+
+  chameleon.init(
+    'S9mtu3rwhjnyCB5YCEJ8wL946DrhUsVByQcsQKo6tTAWqP-1QmYSE-ExIRqucDjaOrhGTJ',
+    { fastUrl: 'https://fast.chameleon.io/' }
+  );
 
   const {
     state: { user: userData, loading, isAuthenticated }
@@ -218,6 +224,13 @@ const AppRoutes: React.FC = () => {
   useEffect(() => {
     if (isAuthenticated) {
       // fetchNotifications();
+      if (userData) {
+        chameleon.identify(userData?._id, {
+          // REQUIRED, the unique ID of each user in your database (e.g. 23443 or "690b80e5f433ea81b96c9bf6")
+          email: userData?.email, // RECOMMENDED, email is used as the key to map user data for integrations
+          name: `${userData?.name.first} ${userData?.name.last}` // RECOMMENDED, name can be used to greet and/or personalize content: ;
+        });
+      }
       userData && fetchUserDocuments(userData._id);
     }
     /* eslint-disable */
