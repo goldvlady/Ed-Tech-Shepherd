@@ -131,6 +131,7 @@ const SelectableTable = <T extends Record<string, unknown>>({
                 key={col.key}
                 textAlign={col.align || 'left'}
                 width={col.width}
+                flex={true}
               >
                 {' '}
                 {/* Set width here */}

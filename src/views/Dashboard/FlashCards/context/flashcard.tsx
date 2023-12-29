@@ -13,6 +13,7 @@ import React, {
   useMemo
 } from 'react';
 import CustomToast from '../../../../components/CustomComponents/CustomToast';
+import { useNavigate } from 'react-router';
 
 export enum TypeEnum {
   FLASHCARD = 'flashcard',
@@ -165,6 +166,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(false);
     setQuestionGenerationStatus(QuestionGenerationStatusEnum.INIT);
   }, []);
+  const navigate = useNavigate();
   const [flashcardData, setFlashcardData] =
     useState<FlashcardData>(defaultFlashcardData);
   const [questions, setQuestions] = useState<FlashcardQuestion[]>([]);
@@ -415,6 +417,20 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
         setFlashcardData(r.data);
         setQuestions(r.data.questions);
         setIsLoading(false);
+        toast({
+          render: () => (
+            <CustomToast
+              title={'Successfully created Flashdeck from Anki'}
+              status="success"
+            />
+          ),
+          position: 'top-right',
+          isClosable: true
+        });
+        setTimeout(() => {
+          //
+          navigate('/dashboard/flashcards');
+        }, 500);
       } catch (error) {
         toast({
           render: () => <CustomToast title={error.message} status="fail" />,
