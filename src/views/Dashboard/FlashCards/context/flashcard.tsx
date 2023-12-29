@@ -413,7 +413,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
           base64String: base64string
         });
         const r: { data: FlashcardData } = await resp.json();
-        console.log(r, 'API gave');
+
         setFlashcardData(r.data);
         setQuestions(r.data.questions);
         setIsLoading(false);
