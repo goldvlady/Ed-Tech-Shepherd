@@ -46,10 +46,19 @@ const AnkiType = () => {
       <Text
         fontSize={'14px'}
         fontWeight="300"
-        marginBottom="20px"
+        marginBottom="5px"
         textColor={'text.300'}
       >
         Shepherd supports importing your .apkg file from Anki.
+      </Text>
+      <Text
+        fontSize={'12px'}
+        fontWeight="300"
+        marginBottom="20px"
+        textColor={'text.300'}
+      >
+        Shepherd does not support Anki flashcards with media or scientific
+        equations at this time.
       </Text>
       <Center
         w="full"
