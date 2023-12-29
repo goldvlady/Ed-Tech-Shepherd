@@ -1,5 +1,6 @@
 import { REACT_APP_API_ENDPOINT } from '../config';
 import { AI_API, HEADER_KEY } from '../config';
+import { firebaseAuth } from '../firebase';
 import { objectToQueryString } from '../helpers/http.helpers';
 import {
   User,
@@ -220,7 +221,24 @@ class ApiService {
       body: JSON.stringify({ flashcardId, data })
     });
   };
+  static convertAnkiToShep = async (d: { base64String: string }) => {
+    const body = JSON.stringify(d);
 
+    const headers: HeadersInit = {};
+
+    const token = await firebaseAuth.currentUser?.getIdToken();
+    headers['x-shepherd-header'] = 'vunderkind23';
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+      //headers['Content-Type'] = 'multipart/form-data';
+    }
+    return fetch(`${REACT_APP_API_ENDPOINT}/convertAnkiToShep`, {
+      method: 'POST',
+      body,
+      headers
+    });
+  };
   static generateFlashcardQuestions = async (data: any, studentId: string) => {
     return fetch(`${AI_API}/flash-cards/students/${studentId}`, {
       method: 'POST',

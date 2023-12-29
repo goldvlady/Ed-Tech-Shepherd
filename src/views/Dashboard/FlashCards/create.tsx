@@ -9,6 +9,7 @@ import FlashcardDataProvider from './context/flashcard';
 import { useFlashcardWizard } from './context/flashcard';
 import MnemonicSetupProvider from './context/mneomics';
 import SetupFlashcardPage from './forms/flashcard_setup';
+import AnkiType from './forms/flashcard_setup/anki_type';
 import FlashcardFromDocumentSetup from './forms/flashcard_setup/document_type';
 import LoaderScreen from './forms/flashcard_setup/loader_page';
 import SuccessState from './forms/flashcard_setup/success_page';
@@ -73,7 +74,8 @@ export enum TypeEnum {
 export enum SourceEnum {
   DOCUMENT = 'document',
   SUBJECT = 'subject',
-  MANUAL = 'manual'
+  MANUAL = 'manual',
+  ANKI = 'anki'
 }
 
 type SettingsType = {
@@ -284,6 +286,9 @@ const CreateFlashPage = () => {
     if (settings.source === SourceEnum.DOCUMENT) {
       return <FlashcardFromDocumentSetup isAutomated />;
     }
+    if (settings.source === SourceEnum.ANKI) {
+      return <AnkiType />;
+    }
     return <></>;
   }, [settings, isCompleted, resetFlashcard, loading, currentStep]); // The callback depends on 'settings'
 
@@ -420,6 +425,9 @@ const CreateFlashPage = () => {
                     </Radio>
                     <Radio value={SourceEnum.MANUAL}>
                       <Text color="#585F68">Manual</Text>
+                    </Radio>
+                    <Radio value={SourceEnum.ANKI}>
+                      <Text color="#585F68">Anki</Text>
                     </Radio>
                   </HStack>
                 </RadioGroup>
