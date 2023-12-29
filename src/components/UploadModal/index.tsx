@@ -10,6 +10,8 @@ import {
   Button
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
+import userStore from '../../state/userStore';
+import PlansModal from '../PlansModal';
 
 // ... Your DragAndDrop component code here ...
 
@@ -29,37 +31,71 @@ const UploadModal: React.FC<UploadModalProps> = ({
   isLoading,
   accept
 }) => {
+  const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
+    userStore.getState();
+
   const [file, setFile] = useState<File | null>(null);
 
   const hasFile = Boolean(file);
-  return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Upload Document</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <DragAndDrop
-            accept={accept}
-            onFileUpload={(file: File) => {
-              setFile(file);
-            }}
-          />
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            isLoading={isLoading}
-            isDisabled={!hasFile}
-            colorScheme="blue"
-            mr={3}
-            onClick={() => onUpload(file as File)}
-          >
-            Upload
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  );
+  const [togglePlansModal, setTogglePlansModal] = useState(false);
+  const [plansModalMessage, setPlansModalMessage] = useState('');
+  const [PlansModalSubMessage, setPlansModalSubMessage] = useState('');
+
+  if (togglePlansModal) {
+    return (
+      <PlansModal
+        togglePlansModal={togglePlansModal}
+        setTogglePlansModal={setTogglePlansModal}
+        message={plansModalMessage} // Pass the message to the modal
+        subMessage={PlansModalSubMessage}
+      />
+    );
+  } else {
+    return (
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Upload Document</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <DragAndDrop
+              accept={accept}
+              onFileUpload={(file: File) => {
+                // Check if the file size exceeds the limit
+                if (!file || file.size > fileSizeLimitBytes) {
+                  // Set the modal state and messages
+                  setPlansModalMessage(
+                    !hasActiveSubscription
+                      ? `Let's get you on a plan so you can upload larger files!`
+                      : `Oops! Your file is too big. Your current plan allows for files up to ${fileSizeLimitMB} MB.`
+                  );
+                  setPlansModalSubMessage(
+                    !hasActiveSubscription
+                      ? `You're currently limited to files under ${fileSizeLimitMB} MB.`
+                      : 'Consider upgrading to upload larger files.'
+                  );
+                  setTogglePlansModal(true);
+                } else {
+                  setFile(file);
+                }
+              }}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              isLoading={isLoading}
+              isDisabled={!hasFile}
+              colorScheme="blue"
+              mr={3}
+              onClick={() => onUpload(file as File)}
+            >
+              Upload
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    );
+  }
 };
 
 export default UploadModal;

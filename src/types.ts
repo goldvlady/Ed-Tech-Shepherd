@@ -116,6 +116,43 @@ export type MinimizedStudy = {
   };
 };
 
+export enum SubscriptionStatus {
+  ACTIVE = 'active',
+  CANCELLED = 'cancelled',
+  PAST_DUE = 'past_due',
+  TRIALING = 'trialing'
+}
+
+export enum SubscriptionTier {
+  BASIC = 'Basic',
+  PREMIUM = 'Premium',
+  FOUNDING_MEMBER = 'Founding Member'
+}
+
+export type SubscriptionMetadata = {
+  flashcard_limit?: number;
+  daily_question_limit?: number;
+  docchat_word_limit?: number;
+  file_mb_limit?: number;
+};
+
+export type Subscription = {
+  user?: User;
+  stripeSubscriptionId: string;
+  tier?: SubscriptionTier;
+  status?: SubscriptionStatus;
+  startDate?: Date;
+  endDate?: Date;
+  lastPaymentDate?: Date;
+  nextBillingDate?: Date;
+  trialEnd?: Date;
+  trialStart?: Date;
+  daysUntilDue?: Number;
+  currentPeriodStart?: Date;
+  currentPeriodEnd?: Date;
+  subscriptionMetadata?: SubscriptionMetadata;
+};
+
 export enum UserNotificationTypes {
   LESSON_SESSION_STARTED = 'lesson_session_started',
   NEW_OFFER_RECEIVED = 'new_offer_received',
@@ -140,6 +177,7 @@ export interface User extends TimestampedEntity {
   signedUpAsTutor?: string;
   paymentMethods: PaymentMethod[];
   streamTokens?: StreamToken[];
+  subscription?: Subscription;
 }
 
 export interface Student extends TimestampedEntity {

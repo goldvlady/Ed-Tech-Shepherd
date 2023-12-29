@@ -46,6 +46,7 @@ import {
 } from 'lodash';
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import PlansModal from '../../../../components/PlansModal';
 
 // DownloadIcon
 
@@ -86,6 +87,8 @@ const UploadQuizForm = ({
   const { handleIsLoadingQuizzes, fetchQuizzes, isLoading } = quizStore();
 
   const { user } = userStore();
+  const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
+    userStore.getState();
 
   const { watchJobs, clearJobs } = useQuizzesQuestionsJob(user?._id);
 
@@ -93,9 +96,29 @@ const UploadQuizForm = ({
 
   const [file, setFile] = useState<any>();
   const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const [togglePlansModal, setTogglePlansModal] = useState(false);
+  const [plansModalMessage, setPlansModalMessage] = useState('');
+  const [PlansModalSubMessage, setPlansModalSubMessage] = useState('');
 
   const onDrop = useCallback((acceptedFiles) => {
-    setFile(acceptedFiles[0]);
+    const file = acceptedFiles[0];
+    // Check if the file size exceeds the limit
+    if (!file || file.size > fileSizeLimitBytes) {
+      // Set the modal state and messages
+      setPlansModalMessage(
+        !hasActiveSubscription
+          ? `Let's get you on a plan so you can upload larger files!`
+          : `Oops! Your file is too big. Your current plan allows for files up to ${fileSizeLimitMB} MB.`
+      );
+      setPlansModalSubMessage(
+        !hasActiveSubscription
+          ? `You're currently limited to files under ${fileSizeLimitMB} MB.`
+          : 'Consider upgrading to upload larger files.'
+      );
+      setTogglePlansModal(true);
+    } else {
+      setFile(file);
+    }
   }, []);
 
   const handleGenerateQuestions = async ({
@@ -147,6 +170,7 @@ const UploadQuizForm = ({
       documentID: file.name,
       studentID: user?._id
     });
+
     uploadEmitter.on('progress', (progress: number) => {
       if (!isUploadingFile) {
         setIsUploadingFile(true);
@@ -353,7 +377,7 @@ const UploadQuizForm = ({
       'image/jpeg': ['.jpeg', '.jpg'],
       'application/vnd.ms-powerpoint': ['.ppt']
     },
-    maxSize: 1000000 * 5
+    maxSize: fileSizeLimitBytes
   });
 
   return (
@@ -506,6 +530,14 @@ const UploadQuizForm = ({
           Generate
         </Button>
       </HStack>
+      {togglePlansModal && (
+        <PlansModal
+          togglePlansModal={togglePlansModal}
+          setTogglePlansModal={setTogglePlansModal}
+          message={plansModalMessage} // Pass the message to the modal
+          subMessage={PlansModalSubMessage}
+        />
+      )}
     </Box>
   );
 };

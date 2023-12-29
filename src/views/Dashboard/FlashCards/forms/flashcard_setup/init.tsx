@@ -1,5 +1,6 @@
 import { useCustomToast } from '../../../../../components/CustomComponents/CustomToast/useCustomToast';
 import SelectComponent, { Option } from '../../../../../components/Select';
+import ApiService from '../../../../../services/ApiService';
 import { useFlashcardWizard } from '../../context/flashcard';
 import {
   Box,
@@ -21,6 +22,8 @@ import React, {
   useState,
   useCallback
 } from 'react';
+import userStore from '../../../../../state/userStore';
+import PlansModal from '../../../../../components/PlansModal';
 
 const FlashCardSetupInit = ({
   isAutomated,
@@ -38,6 +41,7 @@ const FlashCardSetupInit = ({
   } = useFlashcardWizard();
 
   const toast = useCustomToast();
+  const { user } = userStore();
 
   const dummyData = {
     deckname: '',
@@ -50,6 +54,9 @@ const FlashCardSetupInit = ({
   };
 
   const [localData, setLocalData] = useState<typeof flashcardData>(dummyData); // A local state for storing user inputs
+  const [togglePlansModal, setTogglePlansModal] = useState(false);
+  const [plansModalMessage, setPlansModalMessage] = useState('');
+  const [PlansModalSubMessage, setPlansModalSubMessage] = useState('');
 
   useEffect(() => {
     if (isResetted) {
@@ -146,7 +153,7 @@ const FlashCardSetupInit = ({
     });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const data = { ...flashcardData, ...localData, hasSubmitted: true };
     setFlashcardData((prevState) => ({
       ...prevState,
@@ -154,7 +161,39 @@ const FlashCardSetupInit = ({
       hasSubmitted: true
     }));
     if (isAutomated) {
-      generateFlashcardQuestions(data, handleDone);
+      try {
+        // Assuming you have an API endpoint that checks the question count
+        // Subscription and flashcard limit check
+        const { hasActiveSubscription } = userStore.getState();
+        const flashcardCountResponse = await ApiService.checkFlashcardCount(
+          user.student._id
+        );
+        const userFlashcardCount = await flashcardCountResponse.json();
+
+        if (
+          !hasActiveSubscription ||
+          (user.subscription?.subscriptionMetadata?.flashcard_limit &&
+            userFlashcardCount.count >=
+              user.subscription.subscriptionMetadata.flashcard_limit)
+        ) {
+          setPlansModalMessage(
+            !hasActiveSubscription
+              ? "Let's get you on a plan so you can generate flashcards! "
+              : "Looks like you've filled up your flashcard deck! 🚀"
+          );
+          setPlansModalSubMessage(
+            !hasActiveSubscription
+              ? 'Get started today for free!'
+              : "Let's upgrade your plan so you can keep generating more."
+          );
+          setTogglePlansModal(true); // Show the PlansModal
+          return;
+        }
+        generateFlashcardQuestions(data, handleDone);
+      } catch (error) {
+        console.log(error);
+        // Handle error (e.g., show toast notification)
+      }
     } else {
       goToNextStep();
     }
@@ -387,6 +426,14 @@ const FlashCardSetupInit = ({
           Generate Flashcard
         </Button>
       </HStack>
+      {togglePlansModal && (
+        <PlansModal
+          togglePlansModal={togglePlansModal}
+          setTogglePlansModal={setTogglePlansModal}
+          message={plansModalMessage} // Pass the message to the modal
+          subMessage={PlansModalSubMessage}
+        />
+      )}
     </Box>
   );
 };

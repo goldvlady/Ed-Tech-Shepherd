@@ -1,4 +1,7 @@
+
 import { useToast } from '@chakra-ui/react';
+import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
+import PlansModal from '../../../../components/PlansModal';
 import FileProcessingService from '../../../../helpers/files.helpers/fileProcessing';
 import useFlashcardQuestionsJob from '../../../../hooks/useFlashcardQuestionJobs';
 import ApiService from '../../../../services/ApiService';
@@ -139,6 +142,10 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
   const toast = useToast();
 
   const { user } = userStore();
+  const toast = useCustomToast();
+  const [togglePlansModal, setTogglePlansModal] = useState(false);
+  const [plansModalMessage, setPlansModalMessage] = useState('');
+  const [PlansModalSubMessage, setPlansModalSubMessage] = useState('');
   const { createFlashCard } = flashcardStore();
   const { watchJobs, clearJobs } = useFlashcardQuestionsJob(
     user?._id as string
@@ -346,6 +353,33 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
   );
   const loadMoreQuestions = useCallback(
     async (count = 5) => {
+      // Subscription and flashcard limit check
+      const { hasActiveSubscription } = userStore.getState();
+      const flashcardCountResponse = await ApiService.checkFlashcardCount(
+        user.student._id
+      );
+      const userFlashcardCount = await flashcardCountResponse.json();
+
+      if (
+        !hasActiveSubscription ||
+        (user.subscription?.subscriptionMetadata?.flashcard_limit &&
+          userFlashcardCount.count >=
+            user.subscription.subscriptionMetadata.flashcard_limit)
+      ) {
+        setPlansModalMessage(
+          !hasActiveSubscription
+            ? "Let's get you on a plan so you can generate flashcards! "
+            : "You've hit the limit for flashcard generation on your current plan! 🚀"
+        );
+        setPlansModalSubMessage(
+          !hasActiveSubscription
+            ? 'Get started today for free!'
+            : "Let's upgrade your plan so you can keep generating more."
+        );
+        setTogglePlansModal(true); // Show the PlansModal
+        setIsLoading(false);
+        return;
+      }
       try {
         setIsLoading(true);
         // Construct the AI request body
@@ -581,6 +615,14 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
   return (
     <FlashcardDataContext.Provider value={value}>
       {children}
+      {togglePlansModal && (
+        <PlansModal
+          togglePlansModal={togglePlansModal}
+          setTogglePlansModal={setTogglePlansModal}
+          message={plansModalMessage} // Pass the message to the modal
+          subMessage={PlansModalSubMessage}
+        />
+      )}
     </FlashcardDataContext.Provider>
   );
 };
