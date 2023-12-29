@@ -1,5 +1,5 @@
-import Check from '../assets/checkIcon.svg';
 import priceData from '../mocks/pricing.json';
+import ApiService from '../services/ApiService';
 import userStore from '../state/userStore';
 import { CustomButton } from '../views/Dashboard/layout';
 import { StarIcon } from './icons';
@@ -23,12 +23,27 @@ import React, { Fragment, useState, useEffect } from 'react';
 import { PiCheckCircleFill } from 'react-icons/pi';
 import Typewriter from 'typewriter-effect';
 
+interface StripePricingTableProps {
+  'pricing-table-id': string;
+  'publishable-key': string;
+}
+
+// Create a functional component for the custom element
+const StripePricingTable: React.FC<StripePricingTableProps> = (props) => {
+  return React.createElement('stripe-pricing-table', props);
+};
+
 interface ToggleProps {
   setTogglePlansModal: (state: boolean) => void;
   togglePlansModal: boolean;
 }
 
-const PlansModal = ({ setTogglePlansModal, togglePlansModal }: ToggleProps) => {
+const PlansModal = ({
+  setTogglePlansModal,
+  togglePlansModal,
+  message,
+  subMessage
+}: ToggleProps & { message?: string; subMessage?: string }) => {
   const [showSelected, setShowSelected] = useState(false);
   const [currentPlan, setCurrentPlan] = useState('Basic');
   const { user }: any = userStore();
@@ -45,11 +60,85 @@ const PlansModal = ({ setTogglePlansModal, togglePlansModal }: ToggleProps) => {
     setIsModalOpen(false);
     setModalContent('');
   };
-  //   useEffect(() => {
-  //     const { currentUser } = getAuth();
-  //     currentUser?.displayName &&
-  //       setUser({ displayName: currentUser?.displayName });
-  //   }, []);
+
+  const { hasActiveSubscription } = userStore((state) => ({
+    hasActiveSubscription: state.hasActiveSubscription
+  }));
+
+  const planPriorities = {
+    Basic: 1,
+    Premium: 2,
+    'Founding Member': 3
+  };
+
+  // Function to determine the button text
+  const getButtonText = (userPlan, cardPlan) => {
+    const userPlanPriority = planPriorities[userPlan.tier] || 0;
+    const cardPlanPriority = planPriorities[cardPlan.tier];
+
+    if (userPlanPriority === cardPlanPriority) {
+      return 'Manage your plan';
+    } else if (userPlanPriority < cardPlanPriority) {
+      return 'Upgrade plan';
+    } else {
+      return 'Downgrade plan';
+    }
+  };
+
+  // Function to determine if the button should be disabled
+  const isButtonDisabled = (userPlan) => {
+    return userPlan.tier === 'Founding Member';
+  };
+
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://js.stripe.com/v3/pricing-table.js';
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  const handleSubscriptionClick = async (priceId) => {
+    if (!user || !user.id) {
+      console.error('User is not authenticated');
+      // Handle unauthenticated user scenario
+      openModal('Please log in to start your subscription.');
+      return;
+    }
+
+    const session = await ApiService.initiateUserSubscription(
+      user.stripeCustomerId,
+      user.id,
+      priceId
+    );
+    const portal = await session.json();
+    window.location.href = portal.url;
+  };
+
+  // Function to redirect to Stripe's customer portal
+  const redirectToCustomerPortal = async (tier) => {
+    console.log('tier', tier);
+    let portal;
+
+    if (tier === 'Founding Member') {
+      const session = await ApiService.getStripeCustomerPortalUrl(
+        user.stripeCustomerId
+      );
+      portal = await session.json();
+    } else {
+      const session = await ApiService.getStripeCustomerPortalUrl(
+        user.stripeCustomerId,
+        user.subscription.stripeSubscriptionId,
+        user.subscription.tier
+      );
+      portal = await session.json();
+    }
+    window.location.href = portal.url;
+  };
+
   const handleClose = () => {
     setTogglePlansModal(false);
   };
@@ -90,13 +179,51 @@ const PlansModal = ({ setTogglePlansModal, togglePlansModal }: ToggleProps) => {
                     <div>
                       <div className="flex justify-between align-middle border-b pb-2 px-2">
                         <Box p={2}>
-                          <Text fontSize={24} fontWeight={600} color="text.200">
-                            Select your Plan
-                          </Text>
-                          <Text fontSize={14} fontWeight={500} color="text.400">
-                            Upgrade your plan to unlock the full power of your
-                            AI study tools
-                          </Text>
+                          {message && (
+                            <>
+                              <Text
+                                fontSize={24}
+                                fontWeight={600}
+                                color={
+                                  !hasActiveSubscription
+                                    ? 'text.200'
+                                    : '#fb8441'
+                                }
+                                textAlign={'center'}
+                              >
+                                {message}
+                              </Text>
+                              {subMessage && (
+                                <Text
+                                  fontSize={17}
+                                  fontWeight={500}
+                                  color="text.300"
+                                  mt={2}
+                                >
+                                  {subMessage}
+                                </Text>
+                              )}
+                            </>
+                          )}
+                          {!message && (
+                            <>
+                              <Text
+                                fontSize={24}
+                                fontWeight={600}
+                                color="text.200"
+                              >
+                                Select your Plan
+                              </Text>
+                              <Text
+                                fontSize={14}
+                                fontWeight={500}
+                                color="text.400"
+                              >
+                                Get started for free today and unlock the full
+                                power of your AI study tools!
+                              </Text>
+                            </>
+                          )}
                         </Box>
                         <button
                           onClick={handleClose}
@@ -106,138 +233,165 @@ const PlansModal = ({ setTogglePlansModal, togglePlansModal }: ToggleProps) => {
                           <XMarkIcon className="w-4 h-4" />
                         </button>
                       </div>
-                      <Box>
-                        {/* <div className="overflow-hidden py-6  bg-white sm:grid sm:grid-cols-3 sm:gap-x-6 sm:space-y-0 space-y-2">
-                          {actions1.map((action) => (
-                            <div
-                              key={action.title}
-                              //   onClick={() => {
-                              //     if (action.showModal) handleShowSelected();
-                              //   }}
-                              className="group cursor-pointer relative transform  bg-white border-1 rounded-lg  border-gray-300 p-4 hover:border-blue-500  focus:border-blue-500 hover:drop-shadow-lg "
-                            >
-                              <Flex gap={2} mb={4}>
-                                <Text fontSize={14} fontWeight={500}>
-                                  {action.title}
-                                </Text>
-                                {currentPlan === action.title && (
-                                  <Text
-                                    padding={'2px 8px'}
-                                    bgColor="#F4F5F6"
-                                    color="text.400"
-                                    fontSize={12}
-                                    fontWeight={500}
-                                    borderRadius="4px"
-                                  >
-                                    Current Plan
-                                  </Text>
-                                )}
-                              </Flex>
-                              <Flex gap={1} alignItems="center" mb={4}>
-                                <Text fontSize={24} fontWeight={600}>
-                                  ${`${action.price}`}
-                                </Text>
-
-                                <Text fontSize={12} color="text.400">
-                                  /Month
-                                </Text>
-                              </Flex>
-
-                              <Stack spacing={3} mt={2} mb={4}>
-                                {action.features?.map((ft) => (
-                                  <Flex gap={2} alignItems="center" key={ft.id}>
-                                    <PiCheckCircleFill
-                                      color="#66BD6A"
-                                      size="18px"
-                                    />
-                                    <Text fontSize={14} color="text.300">
-                                      {ft.text}
+                      <Box padding={'10px'}>
+                        {hasActiveSubscription ? (
+                          <div className="landing-price-wrapper">
+                            {priceData.map((priceCard) => (
+                              <div
+                                className={`landing-price-card ${
+                                  user.subscription &&
+                                  user.subscription.tier === priceCard.tier
+                                    ? 'landing-price-card-active'
+                                    : ''
+                                }`}
+                                style={{
+                                  position: priceCard.popular
+                                    ? 'relative'
+                                    : 'static'
+                                }}
+                              >
+                                {priceCard.popular &&
+                                  !(
+                                    user.subscription.tier === priceCard.tier
+                                  ) && (
+                                    <Text className="landing-price-sub-bubble">
+                                      Popular
                                     </Text>
-                                  </Flex>
-                                ))}
-                              </Stack>
-                              {action.price > 0 && (
-                                <CustomButton
-                                  width="full"
-                                  padding="10px 60px"
-                                  my={3}
-                                  buttonText="Subscribe Now"
-                                />
-                              )}
-                            </div>
-                          ))}
-                        </div> */}
-                        <div className="landing-price-wrapper">
-                          {priceData.map((priceCard) => (
-                            <div
-                              className="landing-price-card"
-                              style={{
-                                position: priceCard.popular
-                                  ? 'relative'
-                                  : 'static'
-                              }}
-                            >
-                              {priceCard.popular && (
-                                <Text className="landing-price-sub-bubble">
-                                  Popular
-                                </Text>
-                              )}
-                              <div className="landing-metric-wrapper">
-                                <Text className="landing-price-level">
-                                  {priceCard.tier}
-                                </Text>
-                              </div>
-                              <div className="landing-metric-wrapper">
-                                <Text className="landing-price-point">
-                                  {priceCard.price}
-                                </Text>
-                                {priceCard.cycle && (
-                                  <Text
-                                    className="landing-metric-tag"
-                                    style={{ fontWeight: '400' }}
-                                  >
-                                    {priceCard.cycle}
-                                  </Text>
-                                )}
-                              </div>
-                              {/* <div className="landing-metric-wrapper">
-                  {priceCard.subscription &&
-                  <Text
-                  className="landing-metric-tag"
-                  style={{ fontWeight: '400' }}
-                >
-                {priceCard.subscription}
-                </Text>
-                }
-                </div> */}
-                              <div className="landing-section-item-modal">
-                                {priceCard['value'].map((value) => (
-                                  <div className="landing-price-value">
-                                    <img
-                                      className="landing-check-icon"
-                                      src={Check}
-                                      alt="price"
-                                    />
-                                    <Text
-                                      className="landing-desc-mini"
-                                      fontSize={14}
-                                    >
-                                      {value}
-                                    </Text>
-                                  </div>
-                                ))}
-                                <Button
-                                  className="landing-price-btn"
-                                  onClick={() =>
-                                    openModal('Trials Coming Soon')
-                                  }
+                                  )}
+                                <div
+                                  className={`${
+                                    user.subscription &&
+                                    user.subscription.tier === priceCard.tier
+                                      ? 'landing-plan-wrapper'
+                                      : 'landing-metric-wrapper'
+                                  }`}
                                 >
-                                  Try for Free
-                                </Button>
+                                  <Text className="landing-price-level">
+                                    {priceCard.tier}
+                                  </Text>
+                                  {user.subscription.tier ===
+                                    priceCard.tier && (
+                                    <Box className="landing-price-level-plan">
+                                      Current Plan
+                                    </Box>
+                                  )}
+                                </div>
+                                <div className="landing-metric-wrapper">
+                                  <Text className="landing-price-point">
+                                    {priceCard.price}
+                                  </Text>
+                                  {priceCard.cycle && (
+                                    <Text
+                                      className="landing-metric-tag"
+                                      style={{ fontWeight: '400' }}
+                                    >
+                                      {priceCard.cycle}
+                                    </Text>
+                                  )}
+                                </div>
+                                <div className="landing-section-item-modal">
+                                  {priceCard['value'].map((value) => (
+                                    <div className="landing-price-value">
+                                      <img
+                                        className="landing-check-icon"
+                                        src="/images/check.svg"
+                                        alt="price"
+                                      />
+                                      <Text
+                                        className="landing-desc-mini"
+                                        fontSize={14}
+                                      >
+                                        {value}
+                                      </Text>
+                                    </div>
+                                  ))}
+                                  <Button
+                                    className="landing-price-btn"
+                                    onClick={() =>
+                                      redirectToCustomerPortal(priceCard.tier)
+                                    }
+                                    disabled={isButtonDisabled(
+                                      user.subscription
+                                    )}
+                                  >
+                                    {getButtonText(
+                                      user.subscription,
+                                      priceCard
+                                    )}
+                                  </Button>
+                                </div>
                               </div>
-                            </div>
-                          ))}
-                        </div>
+                            ))}
+                          </div>
+                        ) : (
+                          // <StripePricingTable
+                          //   pricing-table-id="prctbl_1OHKrkF6YXFSjxP0RajWKnNk"
+                          //   publishable-key="pk_test_51NXtg6F6YXFSjxP0H8Vr0LHzkrYPJx0YbS8vSIPAs7P87pa7poSU6zlt3edhW2wmMOVd6uh2cFTjDhoIYlT1Z3Z400G6uGgWu2"
+                          //   client-reference-id={user.id}
+                          // />
+
+                          <div className="landing-price-wrapper">
+                            {priceData.map((priceCard) => (
+                              <div
+                                className="landing-price-card"
+                                style={{
+                                  position: priceCard.popular
+                                    ? 'relative'
+                                    : 'static'
+                                }}
+                              >
+                                {priceCard.popular && (
+                                  <Text className="landing-price-sub-bubble">
+                                    Popular
+                                  </Text>
+                                )}
+                                <div className="landing-metric-wrapper">
+                                  <Text className="landing-price-level">
+                                    {priceCard.tier}
+                                  </Text>
+                                </div>
+                                <div className="landing-metric-wrapper">
+                                  <Text className="landing-price-point">
+                                    {priceCard.price}
+                                  </Text>
+                                  {priceCard.cycle && (
+                                    <Text
+                                      className="landing-metric-tag"
+                                      style={{ fontWeight: '400' }}
+                                    >
+                                      {priceCard.cycle}
+                                    </Text>
+                                  )}
+                                </div>
+                                <div className="landing-section-item-modal">
+                                  {priceCard['value'].map((value) => (
+                                    <div className="landing-price-value">
+                                      <img
+                                        className="landing-check-icon"
+                                        src="/images/checkIcon.svg"
+                                        alt="price"
+                                      />
+                                      <Text
+                                        className="landing-desc-mini"
+                                        fontSize={14}
+                                      >
+                                        {value}
+                                      </Text>
+                                    </div>
+                                  ))}
+                                  <Button
+                                    className="landing-price-btn"
+                                    onClick={() =>
+                                      handleSubscriptionClick(priceCard.priceId)
+                                    }
+                                  >
+                                    Try for Free
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                         <Text
                           textAlign="center"
                           my={2}

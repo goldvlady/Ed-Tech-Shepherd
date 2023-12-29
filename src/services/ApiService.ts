@@ -221,6 +221,13 @@ class ApiService {
     });
   };
 
+  static checkFlashcardCount = async (studentId: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/getFlashcardCount`, {
+      method: 'POST',
+      body: JSON.stringify({ studentId })
+    });
+  };
+
   static generateFlashcardQuestions = async (data: any, studentId: string) => {
     return fetch(`${AI_API}/flash-cards/students/${studentId}`, {
       method: 'POST',
@@ -856,6 +863,39 @@ class ApiService {
         // 'Access-Control-Allow-Origin': '*'
       }
     );
+  };
+
+  // User Subscriptions
+  static initiateUserSubscription = async (
+    stripeCustomerId: string,
+    userId: string,
+    priceId: string
+  ) => {
+    return doFetch(`${ApiService.baseEndpoint}/initiateUserSubscription`, {
+      method: 'POST',
+      body: JSON.stringify({ stripeCustomerId, userId, priceId }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+  };
+
+  static getStripeCustomerPortalUrl = async (
+    stripeCustomerId: string,
+    currentSubscriptionId?: string,
+    currentTier?: string
+  ): Promise<any> => {
+    return doFetch(`${ApiService.baseEndpoint}/createCustomerPortalSession`, {
+      method: 'POST',
+      body: JSON.stringify({
+        stripeCustomerId,
+        currentSubscriptionId,
+        currentTier
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
   };
 }
 

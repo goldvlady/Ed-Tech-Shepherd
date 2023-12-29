@@ -1,6 +1,8 @@
 import { Box, Button, Icon, Text, Spinner } from '@chakra-ui/react';
 import React, { useRef, useState } from 'react';
 import { FaUpload } from 'react-icons/fa';
+import userStore from '../../../../state/userStore';
+import PlansModal from '../../../../components/PlansModal';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -8,9 +10,14 @@ interface FileUploadProps {
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading }) => {
+  const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
+    userStore.getState();
+
   const inputFile = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string | null>(null);
-
+  const [togglePlansModal, setTogglePlansModal] = useState(false);
+  const [plansModalMessage, setPlansModalMessage] = useState('');
+  const [PlansModalSubMessage, setPlansModalSubMessage] = useState('');
   const onUploadClick = () => {
     inputFile.current?.click();
   };
@@ -18,8 +25,26 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading }) => {
   const onFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target?.files?.[0];
     if (file) {
-      onFileSelect(file);
-      setFileName(file.name);
+      // Check if the file size exceeds the limit
+      if (file.size > fileSizeLimitBytes) {
+        // Set the modal state and messages
+        setPlansModalMessage(
+          !hasActiveSubscription
+            ? `Let's get you on a plan so you can upload larger files!`
+            : `Oops! Your file is too big. Your current plan allows for files up to ${fileSizeLimitMB} MB.`
+        );
+        setPlansModalSubMessage(
+          !hasActiveSubscription
+            ? `You're currently limited to files under ${fileSizeLimitMB} MB.`
+            : 'Consider upgrading to upload larger files.'
+        );
+        setTogglePlansModal(true);
+        // Reset input file value to retrigger plans modal (handles failed re-upload edgecase)
+        event.target.value = '';
+      } else {
+        onFileSelect(file);
+        setFileName(file.name);
+      }
     }
   };
 
@@ -74,6 +99,14 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading }) => {
           inset={0}
         />
       </Box>
+      {togglePlansModal && (
+        <PlansModal
+          togglePlansModal={togglePlansModal}
+          setTogglePlansModal={setTogglePlansModal}
+          message={plansModalMessage} // Pass the message to the modal
+          subMessage={PlansModalSubMessage}
+        />
+      )}
     </Box>
   );
 };

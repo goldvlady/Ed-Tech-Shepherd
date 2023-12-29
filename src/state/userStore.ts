@@ -14,6 +14,9 @@ type List = {
 type Store = {
   user: User | null;
   userNotifications: Array<UserNotifications>;
+  hasActiveSubscription: boolean;
+  fileSizeLimitMB: number;
+  fileSizeLimitBytes: number;
   fetchUser: () => Promise<boolean>;
   fetchNotifications: () => Promise<void>;
   fetchUserDocuments: (userId: string) => Promise<void>;
@@ -26,10 +29,33 @@ export default create<Store>((set) => ({
   user: null,
   userNotifications: [],
   userDocuments: [],
+  hasActiveSubscription: false,
+  fileSizeLimitMB: 0,
+  fileSizeLimitBytes: 0,
   fetchUser: async () => {
     const response = await ApiService.getUser();
     if (response.status !== 200) return false;
-    set({ user: await response.json() });
+    const userData = await response.json();
+
+    // Calculate the hasActiveSubscription value
+    const hasActiveSubscription = !!(
+      userData.subscription &&
+      (userData.subscription.status === 'active' ||
+        userData.subscription.status === 'trialing' ||
+        userData.subscription.tier === 'Founding Member')
+    );
+    // Convert the limit from MB to bytes (1 MB = 1,000,000 bytes)
+    const fileSizeLimitMB =
+      userData.subscription?.subscriptionMetadata?.file_mb_limit || 5; // Default to 5MB if not specified
+    const fileSizeLimitBytes = fileSizeLimitMB * 1000000;
+
+    set({
+      user: userData,
+      hasActiveSubscription: hasActiveSubscription,
+      fileSizeLimitMB: fileSizeLimitMB,
+      fileSizeLimitBytes: fileSizeLimitBytes
+    });
+
     return true;
   },
   logoutUser: () => {
@@ -38,7 +64,22 @@ export default create<Store>((set) => ({
   setUserData: (data: Partial<User>) => {
     set((state) => {
       if (state.user) {
-        return { user: { ...state.user, ...data } };
+        const newUser = { ...state.user, ...data };
+        const hasActiveSubscription = !!(
+          newUser.subscription &&
+          (newUser.subscription.status === 'active' ||
+            newUser.subscription.status === 'trialing' ||
+            newUser.subscription.tier === 'Founding Member')
+        );
+        const fileSizeLimitMB =
+          newUser.subscription?.subscriptionMetadata?.file_mb_limit || 5; // Default to 5MB if not specified
+        const fileSizeLimitBytes = fileSizeLimitMB * 1000000;
+        return {
+          user: newUser,
+          hasActiveSubscription: hasActiveSubscription,
+          fileSizeLimitMB: fileSizeLimitMB,
+          fileSizeLimitBytes: fileSizeLimitBytes
+        };
       } else {
         return state;
       }

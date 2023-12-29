@@ -31,6 +31,7 @@ import React, { useRef, useState, useEffect, RefObject } from 'react';
 import { RiUploadCloud2Fill } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import PlansModal from './PlansModal';
 
 const DocumentListWrapper = styled.div`
   max-height: 200px;
@@ -67,6 +68,8 @@ const SelectedModal = ({
   okayButton
 }: ShowProps) => {
   const { user, userDocuments, fetchUserDocuments } = userStore();
+  const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
+    userStore.getState();
   const navigate = useNavigate();
   const [fileName, setFileName] = useState('');
   const [countdown, setCountdown] = useState({
@@ -88,7 +91,9 @@ const SelectedModal = ({
   const [documentId, setDocumentId] = useState('');
   const [docKeywords, setDocKeywords] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const [togglePlansModal, setTogglePlansModal] = useState(false);
+  const [plansModalMessage, setPlansModalMessage] = useState('');
+  const [PlansModalSubMessage, setPlansModalSubMessage] = useState('');
   const Wrapper = styled.div`
     display: block;
     width: 100%;
@@ -279,7 +284,6 @@ const SelectedModal = ({
       .toLowerCase()
       .replace(/\.pdf$/, '')
       .replace(/_/g, ' ');
-    console.log(readableFileName.length);
 
     if (readableFileName.length > MAX_FILE_NAME_LENGTH) {
       readableFileName = readableFileName.substring(0, MAX_FILE_NAME_LENGTH);
@@ -300,15 +304,6 @@ const SelectedModal = ({
         position: 'top-right',
         isClosable: true
       });
-    }
-    const SIZE_IN_MB = parseInt((file?.size / 1_000_000).toFixed(2), 10);
-    if (SIZE_IN_MB > MAX_FILE_UPLOAD_LIMIT) {
-      setUiMessage({
-        status: 'error',
-        heading: 'Your file is too large',
-        description: `Your file is ${SIZE_IN_MB}MB, above our ${MAX_FILE_UPLOAD_LIMIT}MB limit. Please upload a smaller document.`
-      });
-      return;
     }
 
     setCountdown(() => ({
@@ -410,13 +405,30 @@ const SelectedModal = ({
     if (fileChecked) {
       setAlreadyExist(true);
     } else {
-      setAlreadyExist(false);
-      setLoading(true);
-      try {
-        setFileName(snip(inputFile.name));
-        await handleInputFreshUpload(inputFile, user, inputFile.name);
-      } catch (error) {
-        // Handle errors
+      // Check if the file size exceeds the limit
+      if (inputFile.size > fileSizeLimitBytes) {
+        // Set the modal state and messages
+        setPlansModalMessage(
+          !hasActiveSubscription
+            ? `Let's get you on a plan so you can upload larger files!`
+            : `Oops! Your file is too big. Your current plan allows for files up to ${fileSizeLimitMB} MB.`
+        );
+        setPlansModalSubMessage(
+          !hasActiveSubscription
+            ? `You're currently limited to files under ${fileSizeLimitMB} MB.`
+            : 'Consider upgrading to upload larger files.'
+        );
+        setTogglePlansModal(true);
+        // setShow(false);
+      } else {
+        setAlreadyExist(false);
+        setLoading(true);
+        try {
+          setFileName(snip(inputFile.name));
+          await handleInputFreshUpload(inputFile, user, inputFile.name);
+        } catch (error) {
+          // Handle errors
+        }
       }
     }
   };
@@ -521,151 +533,158 @@ const SelectedModal = ({
         // Handle errors
       }
     }
-
-    console.log(files, 'THIS NA FILE');
   };
 
-  return (
-    <CustomModal
-      isOpen={show}
-      onClose={handleClose}
-      modalTitle="Upload or Select a Document"
-      style={{
-        maxWidth: '400px',
-        height: 'auto'
-      }}
-      modalTitleStyle={{
-        textAlign: 'left',
-        borderBottom: '1px solid #EEEFF2'
-      }}
-      footerContent={
-        <div style={{ display: 'flex', gap: '8px' }}>
-          {cancelButton && (
-            <CustomButton
-              type="button"
-              isCancel
-              onClick={handleClose}
-              title="Cancel"
-            />
-          )}
-          <ChatButton />
-          {okayButton && (
-            <CustomButton type="button" onClick={handleClose} title="Ok" />
-          )}
-        </div>
-      }
-    >
-      <Wrapper>
-        <div className="p-4" style={{ width: '100%' }}>
-          {loadedStudentDocs && (
-            <div style={{ width: '-webkit-fill-available' }}>
-              <Text>
-                To proceed, please upload a document or select from the existing
-                list
-              </Text>
-              <Center
-                w="full"
-                minH="65px"
-                mt={3}
-                p={2}
-                border="2px"
-                borderColor={isDragOver ? 'gray.600' : 'gray.300'}
-                borderStyle="dashed"
-                rounded="lg"
-                cursor="pointer"
-                bg={isDragOver ? 'gray.600' : 'gray.50'}
-                color={isDragOver ? 'white' : 'inherit'}
-                onDragOver={(e) => handleDragEnter(e)}
-                onDragEnter={(e) => handleDragEnter(e)}
-                onDragLeave={(e) => handleDragLeave(e)}
-                onDrop={(e) => handleDrop(e)}
-                onClick={clickInput}
-              >
-                <Box>
-                  {fileName ? (
-                    <Flex>
-                      <AttachmentIcon /> <FileName>{fileName}</FileName>
-                    </Flex>
-                  ) : (
-                    <Box>
-                      <Center>
-                        <RiUploadCloud2Fill
-                          className="h-8 w-8"
-                          color="gray.500"
-                        />
-                      </Center>
-
-                      <Text
-                        mb="2"
-                        fontSize="sm"
-                        color={isDragOver ? 'white' : 'gray.500'}
-                        fontWeight="semibold"
-                      >
-                        Click to upload or drag and drop
-                      </Text>
-                      <PDFTextContainer>
-                        <Text
-                          fontSize="xs"
-                          color={isDragOver ? 'white' : 'gray.500'}
-                        >
-                          DOC, TXT, or PDF (MAX. 500mb)
-                        </Text>
-                      </PDFTextContainer>
-                    </Box>
-                  )}
-                </Box>
-
-                <input
-                  type="file"
-                  accept=".doc, .txt, .pdf"
-                  // accept="application/pdf"
-                  className="hidden"
-                  id="file-upload"
-                  ref={inputRef}
-                  onChange={collectFileInput}
-                />
-              </Center>
-              <Center my={3}>Or</Center>
-              {/* <Label htmlFor="note">Select note</Label> */}
-              <DocumentListWrapper>
-                <AutocompleteDropdown
-                  studentDocuments={studentDocuments}
-                  placeholder="Select a Document"
-                  selectedOption={selectedOption}
-                  handleSelected={handleSelected}
-                ></AutocompleteDropdown>
-              </DocumentListWrapper>
-              {/* <OrText>Or</OrText> */}
-            </div>
-          )}
-          <Box my={2}>
-            {countdown.active && (
-              <CountdownProgressBar
-                confirmReady={confirmReady}
-                countdown={countdown}
+  if (togglePlansModal) {
+    return (
+      <PlansModal
+        togglePlansModal={togglePlansModal}
+        setTogglePlansModal={setTogglePlansModal}
+        message={plansModalMessage} // Pass the message to the modal
+        subMessage={PlansModalSubMessage}
+      />
+    );
+  } else {
+    return (
+      <CustomModal
+        isOpen={show}
+        onClose={handleClose}
+        modalTitle="Upload or Select a Document"
+        style={{
+          maxWidth: '400px',
+          height: 'auto'
+        }}
+        modalTitleStyle={{
+          textAlign: 'center',
+          borderBottom: '1px solid #EEEFF2'
+        }}
+        footerContent={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            {cancelButton && (
+              <CustomButton
+                type="button"
+                isCancel
+                onClick={handleClose}
+                title="Cancel"
               />
             )}
-          </Box>
-          {alreadyExist && (
-            <ErrorDiv className="py-1">
-              <p>File Already Exists!</p>
-              <p>
-                The document you're trying to upload already exists. Please
-                choose a different document or consider renaming it to avoid
-                duplicates.
-              </p>
-            </ErrorDiv>
-          )}
-          {uploadFailed && (
-            <ErrorDiv className="py-1">
-              <p>Upload Failed!</p>
-              <p>Something went wrong. Please attempt the upload again.</p>
-            </ErrorDiv>
-          )}
-        </div>
-      </Wrapper>
-    </CustomModal>
-  );
+            <ChatButton />
+            {okayButton && (
+              <CustomButton type="button" onClick={handleClose} title="Ok" />
+            )}
+          </div>
+        }
+      >
+        <Wrapper>
+          <div className="p-4" style={{ width: '100%' }}>
+            {loadedStudentDocs && (
+              <div style={{ width: '-webkit-fill-available' }}>
+                <Text>
+                  To proceed, please upload a document or select from the
+                  existing list
+                </Text>
+                <Center
+                  w="full"
+                  minH="65px"
+                  mt={3}
+                  p={2}
+                  border="2px"
+                  borderColor={isDragOver ? 'gray.600' : 'gray.300'}
+                  borderStyle="dashed"
+                  rounded="lg"
+                  cursor="pointer"
+                  bg={isDragOver ? 'gray.600' : 'gray.50'}
+                  color={isDragOver ? 'white' : 'inherit'}
+                  onDragOver={(e) => handleDragEnter(e)}
+                  onDragEnter={(e) => handleDragEnter(e)}
+                  onDragLeave={(e) => handleDragLeave(e)}
+                  onDrop={(e) => handleDrop(e)}
+                  // onClick={clickInput}
+                >
+                  <label htmlFor="file-upload">
+                    <Center flexDirection="column">
+                      {fileName ? (
+                        <Flex>
+                          <AttachmentIcon /> <FileName>{fileName}</FileName>
+                        </Flex>
+                      ) : (
+                        <Flex direction={'column'} alignItems={'center'}>
+                          <RiUploadCloud2Fill
+                            className="h-8 w-8"
+                            color="gray.500"
+                          />
+                          <Text
+                            mb="2"
+                            fontSize="sm"
+                            color={isDragOver ? 'white' : 'gray.500'}
+                            fontWeight="semibold"
+                          >
+                            Click to upload or drag and drop
+                          </Text>
+                          <PDFTextContainer>
+                            <Text
+                              fontSize="xs"
+                              color={isDragOver ? 'white' : 'gray.500'}
+                            >
+                              DOC, TXT, or PDF (MAX: {fileSizeLimitMB}MB)
+                            </Text>
+                          </PDFTextContainer>
+                        </Flex>
+                      )}
+                    </Center>
+                  </label>
+                  <input
+                    type="file"
+                    accept=".doc, .txt, .pdf"
+                    // accept="application/pdf"
+                    className="hidden"
+                    id="file-upload"
+                    ref={inputRef}
+                    onChange={collectFileInput}
+                  />
+                </Center>
+                <Center my={3}>Or</Center>
+                {/* <Label htmlFor="note">Select note</Label> */}
+                <DocumentListWrapper>
+                  <AutocompleteDropdown
+                    studentDocuments={studentDocuments}
+                    placeholder="Select a Document"
+                    selectedOption={selectedOption}
+                    handleSelected={handleSelected}
+                  ></AutocompleteDropdown>
+                </DocumentListWrapper>
+                {/* <OrText>Or</OrText> */}
+              </div>
+            )}
+            <Box my={2}>
+              {countdown.active && (
+                <CountdownProgressBar
+                  confirmReady={confirmReady}
+                  countdown={countdown}
+                />
+              )}
+            </Box>
+            {alreadyExist && (
+              <ErrorDiv className="py-1">
+                <p>File Already Exists!</p>
+                <p>
+                  The document you're trying to upload already exists. Please
+                  choose a different document or consider renaming it to avoid
+                  duplicates.
+                </p>
+              </ErrorDiv>
+            )}
+            {uploadFailed && (
+              <ErrorDiv className="py-1">
+                <p>Upload Failed!</p>
+                <p>Something went wrong. Please attempt the upload again.</p>
+              </ErrorDiv>
+            )}
+          </div>
+        </Wrapper>
+      </CustomModal>
+    );
+  }
 };
 
 export default SelectedModal;

@@ -508,6 +508,12 @@ canvas {
   gap: 5px;
 }
 
+.landing-plan-wrapper {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
 .landing-metric {
   font-size: 48px;
   font-weight: 600;
@@ -574,11 +580,15 @@ canvas {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  width: 283px;
+  width: 383px;
   padding: 20px;
   border-radius: 8px;
   background-color: #ffffff;
-  border: 0.8px solid #eeeff2;
+  border: 1px solid #eeeff2;
+}
+
+.landing-price-card-active {
+  border: 1px solid #66bd6a;
 }
 
 .landing-price-card:hover {
@@ -588,8 +598,8 @@ canvas {
 .landing-price-wrapper {
   display: flex;
   flex-wrap: wrap;
-  gap: 30px;
-  margin-top: 50px;
+  gap: 40px;
+  margin: 40px 0 40px 0;
   justify-content: center;
 }
 
@@ -598,6 +608,17 @@ canvas {
   font-weight: 500;
   line-height: 20px;
   letter-spacing: 0em;
+}
+
+.landing-price-level-plan {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0em;
+  color: white;
+  padding: 3px 5px;
+  border-radius: 3px;
+  background-color: #66bd6a;
 }
 
 .landing-price-point {
@@ -639,7 +660,7 @@ canvas {
 
 .landing-price-sub-bubble {
   position: absolute;
-  align-self: center;
+  align-self: end;
   top: -10px;
   color: #ffffff;
   background-color: #fb8441;
