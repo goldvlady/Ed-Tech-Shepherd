@@ -1,4 +1,3 @@
-
 import { useToast } from '@chakra-ui/react';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import PlansModal from '../../../../components/PlansModal';
@@ -142,7 +141,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
   const toast = useToast();
 
   const { user } = userStore();
-  const toast = useCustomToast();
+
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
   const [PlansModalSubMessage, setPlansModalSubMessage] = useState('');

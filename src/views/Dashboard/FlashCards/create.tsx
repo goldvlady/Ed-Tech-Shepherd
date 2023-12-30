@@ -426,9 +426,12 @@ const CreateFlashPage = () => {
                     <Radio value={SourceEnum.MANUAL}>
                       <Text color="#585F68">Manual</Text>
                     </Radio>
-                    <Radio value={SourceEnum.ANKI}>
-                      <Text color="#585F68">Anki</Text>
-                    </Radio>
+                    {user.subscription &&
+                      user.subscription.tier === 'Premium' && (
+                        <Radio value={SourceEnum.ANKI}>
+                          <Text color="#585F68">Anki</Text>
+                        </Radio>
+                      )}
                   </HStack>
                 </RadioGroup>
               </Box>
