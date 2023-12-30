@@ -323,6 +323,7 @@ export interface FlashcardData {
   studyPeriod: 'daily' | 'weekly' | 'biweekly' | 'spacedRepetition';
   questions: FlashcardQuestion[];
   createdAt: string;
+  source: 'anki' | 'shepherd';
   updatedAt: string;
   currentStudy?: MinimizedStudy;
 }

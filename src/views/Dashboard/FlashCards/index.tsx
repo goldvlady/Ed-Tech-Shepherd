@@ -63,6 +63,7 @@ type DataSourceItem = {
   deckname: string;
   studyPeriod: string;
   createdAt: string;
+  source: 'anki' | 'shepherd';
   scores: Score[];
   questions: FlashcardQuestion[];
   currentStudy?: MinimizedStudy;
@@ -236,14 +237,24 @@ const CustomTable: React.FC = () => {
       title: 'Deckname',
       dataIndex: 'deckname',
       key: 'deckname',
-      render: ({ deckname, key }) => (
-        <Text
-          color="#207DF7"
+      render: ({ deckname, key, source }) => (
+        <Flex
+          alignItems={'center'}
+          justifyItems={'left'}
           onClick={() => loadFlashcard(key, false)}
-          fontWeight="500"
+          gap={deckname.split(/\s+/).length >= 2 ? '4px' : '4px'}
         >
-          {deckname}
-        </Text>
+          <Text
+            color="#207DF7"
+            fontWeight="500"
+            width={deckname.split(/\s+/).length >= 2 && '65%'}
+          >
+            {deckname}
+          </Text>
+          <p className="emerald-400 w-auto p-1 bg-slate-50 text-black rounded-md ">
+            {source === 'shepherd' ? '' : source}
+          </p>
+        </Flex>
       )
     },
     {

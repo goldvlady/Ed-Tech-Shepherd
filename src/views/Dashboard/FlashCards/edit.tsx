@@ -308,6 +308,7 @@ const EditFlashCard = () => {
   };
 
   const form = useMemo(() => {
+    console.log('seting', settings);
     if (settings.type === TypeEnum.MNEOMONIC) {
       return <MnemonicSetup />;
     }
@@ -346,7 +347,8 @@ const EditFlashCard = () => {
     if (settings.source === SourceEnum.DOCUMENT) {
       return <FlashcardFromDocumentSetup isAutomated />;
     }
-    return <></>;
+
+    return <SetupFlashcardPage isAutomated />;
   }, [settings, isCompleted, resetFlashcard, loading, currentStep]); // The callback depends on 'settings'
 
   const renderPreview = () => {

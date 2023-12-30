@@ -1,3 +1,4 @@
+import { useToast } from '@chakra-ui/react';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import PlansModal from '../../../../components/PlansModal';
 import FileProcessingService from '../../../../helpers/files.helpers/fileProcessing';
@@ -13,6 +14,8 @@ import React, {
   useContext,
   useMemo
 } from 'react';
+import CustomToast from '../../../../components/CustomComponents/CustomToast';
+import { useNavigate } from 'react-router';
 
 export enum TypeEnum {
   FLASHCARD = 'flashcard',
@@ -22,7 +25,8 @@ export enum TypeEnum {
 export enum SourceEnum {
   DOCUMENT = 'document',
   SUBJECT = 'subject',
-  MANUAL = 'manual'
+  MANUAL = 'manual',
+  ANKI = 'anki'
 }
 export enum QuestionGenerationStatusEnum {
   INIT = 'INIT',
@@ -55,6 +59,7 @@ interface FlashcardData {
   noteDoc?: string;
   startPage?: number;
   endPage?: number;
+  questions?: Array<FlashcardQuestion>;
 }
 export interface FlashcardQuestion {
   questionType: string;
@@ -101,6 +106,7 @@ export interface FlashcardDataContextProps {
       | Partial<FlashcardQuestion>
       | ((data: FlashcardQuestion) => FlashcardQuestion)
   ) => void;
+  convertAnkiToShepherd: (base64string: string) => Promise<void>;
   generateFlashcardQuestions: (
     d?: FlashcardData,
     onDone?: (success: boolean) => void,
@@ -132,8 +138,10 @@ let cancelRequest = false;
 const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
   children
 }) => {
+  const toast = useToast();
+
   const { user } = userStore();
-  const toast = useCustomToast();
+
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
   const [PlansModalSubMessage, setPlansModalSubMessage] = useState('');
@@ -164,6 +172,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(false);
     setQuestionGenerationStatus(QuestionGenerationStatusEnum.INIT);
   }, []);
+  const navigate = useNavigate();
   const [flashcardData, setFlashcardData] =
     useState<FlashcardData>(defaultFlashcardData);
   const [questions, setQuestions] = useState<FlashcardQuestion[]>([]);
@@ -428,7 +437,44 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     setQuestions((prev) => [...prev, additionalQuestion]);
     goToQuestion(questionIndex);
   }, [questions, goToQuestion]);
+  const convertAnkiToShepherd = useCallback(
+    async (base64string: string) => {
+      try {
+        setIsLoading(true);
 
+        const resp = await ApiService.convertAnkiToShep({
+          base64String: base64string
+        });
+        const r: { data: FlashcardData } = await resp.json();
+
+        setFlashcardData(r.data);
+        setQuestions(r.data.questions);
+        setIsLoading(false);
+        toast({
+          render: () => (
+            <CustomToast
+              title={'Successfully created Flashdeck from Anki'}
+              status="success"
+            />
+          ),
+          position: 'top-right',
+          isClosable: true
+        });
+        setTimeout(() => {
+          //
+          navigate('/dashboard/flashcards');
+        }, 500);
+      } catch (error) {
+        toast({
+          render: () => <CustomToast title={error.message} status="fail" />,
+          position: 'top-right',
+          isClosable: true
+        });
+        handleError();
+      }
+    },
+    [handleError]
+  );
   const generateFlashcardQuestions = useCallback(
     async (
       data?: FlashcardData,
@@ -519,6 +565,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       resetFlashcard,
       setQuestions,
       generateFlashcardQuestions,
+      convertAnkiToShepherd,
       addQuestionsToFlashcard,
       goToNextStep: () => setCurrentStep((prev) => prev + 1),
       goToStep: (stepIndex: number) => setCurrentStep(stepIndex),
