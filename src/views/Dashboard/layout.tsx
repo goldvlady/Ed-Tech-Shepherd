@@ -283,13 +283,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     variant="ghost"
                     aria-label="open menu"
                     color={'text.300'}
-                    icon={
-                      hasUnreadNotification ? (
-                        <Image src={BellDot} />
-                      ) : (
-                        <FaBell />
-                      )
-                    }
+                    icon={hasUnreadNotification ? <BellDot /> : <FaBell />}
                   />
                 </MenuButton>
                 <MenuList

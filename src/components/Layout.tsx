@@ -455,13 +455,7 @@ export default function Layout({ children, className }) {
                       variant="ghost"
                       aria-label="open menu"
                       color={'text.300'}
-                      icon={
-                        hasUnreadNotification ? (
-                          <Image src={BellDot} />
-                        ) : (
-                          <FaBell />
-                        )
-                      }
+                      icon={hasUnreadNotification ? <BellDot /> : <FaBell />}
                     />
                   </MenuButton>
                   <MenuList p={3} width={'358px'} zIndex={2}>
