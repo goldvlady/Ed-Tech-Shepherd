@@ -186,7 +186,7 @@ export default function Carousel() {
                           top: '20%'
                         }}
                       >
-                        <Image src={Less50} />
+                        <Less50 />
                       </div>
                     </div>
                   </div>
