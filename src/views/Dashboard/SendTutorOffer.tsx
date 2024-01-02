@@ -216,8 +216,7 @@ const SendTutorOffer = () => {
                           Offer successfully sent
                         </Text>
                         <div style={{ color: theme.colors.text[400] }}>
-                          You’ll be notified within 24 hours once{' '}
-                          {tutor.user.name.first} responds
+                          We'll notify you when {tutor.user.name.first} responds
                         </div>
                       </Box>
                     </Box>

@@ -37,7 +37,7 @@ import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import { isSameDay, isThisWeek, getISOWeek } from 'date-fns';
 import { parseISO, format, parse } from 'date-fns';
 import moment from 'moment';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { MdOutlineSentimentNeutral, MdOutlineReplay } from 'react-icons/md';
 import { useNavigate } from 'react-router';
 

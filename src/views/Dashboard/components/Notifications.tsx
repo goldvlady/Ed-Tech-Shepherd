@@ -30,6 +30,7 @@ function Notifications(props) {
   const navigate = useNavigate();
   const currentPath = window.location.pathname;
   // const parsedNotifications = data.map((item) => item.notification);
+  console.log(data);
 
   const isTutor = currentPath.includes('/dashboard/tutordashboard');
 
@@ -56,7 +57,8 @@ function Notifications(props) {
           'offer_rejected',
           'upcoming_class',
           'BOUNTY_BID_RECIEVED',
-          'BOUNTY_CREATED'
+          'BOUNTY_CREATED',
+          'STUDY_PLAN_FOR_FLASHCARD_CREATED'
         ];
         return (
           allowedTypes.includes(item.type) && isWithinAWeek(item.createdAt)
@@ -97,6 +99,8 @@ function Notifications(props) {
         return <OfferIcon />;
       case 'BOUNTY_BID_REJECTED':
         return <OfferIcon />;
+      case 'STUDY_PLAN_FOR_FLASHCARD_CREATED':
+        return <OfferIcon />;
       default:
         return <OfferIcon />;
     }
@@ -125,9 +129,10 @@ function Notifications(props) {
         return 'Bounty bid received';
       case 'BOUNTY_BID_REJECTED':
         return 'Bounty bid rejected';
-
+      case 'STUDY_PLAN_FOR_FLASHCARD_CREATED':
+        return 'You have created study plan for Flashcard';
       default:
-        return undefined;
+        return 'You have received a notification';
     }
   };
 

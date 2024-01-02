@@ -1,6 +1,6 @@
 import BarnImg from '../../assets/Barn.svg';
 import AskIcon from '../../assets/avatar-male.svg';
-import BellDot from '../../assets/bell-dot.svg';
+import BellDot from '../../assets/belldot.svg';
 import AIChatImg from '../../assets/brain.png';
 import { HelpModal } from '../../components';
 import { SelectedNoteModal } from '../../components';

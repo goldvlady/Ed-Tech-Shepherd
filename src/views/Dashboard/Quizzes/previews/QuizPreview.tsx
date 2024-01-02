@@ -757,7 +757,7 @@ const QuizPreviewer = ({
                       <Box>
                         <Button
                           onClick={() => setShowConfirmation(true)}
-                          bg={'red.400'}
+                          bg={'#207DF7'}
                           w={'180px'}
                           h={'40px'}
                           _hover={{ bg: 'red.200' }}
