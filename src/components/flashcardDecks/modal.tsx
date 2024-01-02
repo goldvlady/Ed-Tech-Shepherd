@@ -371,7 +371,7 @@ const CompletedState = ({
           textAlign={'center'}
           letterSpacing="-0.048px"
         >
-          You reviewed all cards, what will you like to do next?
+          You reviewed all cards, what would you like to do next?
         </Text>
         <Box
           mt="15px"

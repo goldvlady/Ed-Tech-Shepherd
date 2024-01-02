@@ -45,14 +45,24 @@ function StudyPlans() {
   const navigate = useNavigate();
   return (
     <>
-      <Box>
-        <Text fontSize={24} fontWeight={600} color="text.200">
-          Study Plans
-        </Text>
-        <Text fontSize={14} fontWeight={400} color="text.300">
-          Chart success: Monitor your personalized study plans.
-        </Text>
-      </Box>
+      <Flex p={3}>
+        {' '}
+        <Box>
+          <Text fontSize={24} fontWeight={600} color="text.200">
+            Study Plans
+          </Text>
+          <Text fontSize={14} fontWeight={400} color="text.300">
+            Chart success: Monitor your personalized study plans.
+          </Text>
+        </Box>{' '}
+        <Spacer />
+        {studyPlans.length > 0 && (
+          <Button onClick={() => navigate('/dashboard/create-study-plans')}>
+            Create New
+          </Button>
+        )}
+      </Flex>
+
       {studyPlans.length > 0 ? (
         <SimpleGrid
           columns={{ base: 1, md: 2, lg: 3 }}

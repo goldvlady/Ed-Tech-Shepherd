@@ -514,3 +514,26 @@ export const getDocchatHistory = async ({
     return conversation;
   }
 };
+
+export const generateStudyPlan = async (data: {
+  syllabusData: {
+    course: string;
+    gradeLevel: string;
+    weekCount: number;
+  };
+}) => {
+  const response = await fetch(`${AI_API}/study-plans/generate`, {
+    method: 'POST',
+    headers: {
+      'x-shepherd-header': HEADER_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  } else {
+    const studyPlanResponse = await response.json();
+    return studyPlanResponse;
+  }
+};
