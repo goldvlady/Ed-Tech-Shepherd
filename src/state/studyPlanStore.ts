@@ -3,13 +3,14 @@ import { NoteDetails, SearchQueryParams, Pagination } from '../types';
 import { create } from 'zustand';
 
 type StudyPlanStore = {
-  syllabus: any[];
+  studyPlans: any[];
   tags: string[];
   isLoading: boolean;
   pagination: Pagination;
   //   fetchNotes: (queryParams?: SearchQueryParams) => Promise<void>;
   //   fetchSingleNote: (id: string) => void;
   //   createNote: (data: any) => Promise<boolean>;
+  createStudyPlan: (data: any) => Promise<boolean>;
   //   updateNote: (id: string, data: any) => Promise<boolean>;
   //   deleteNote: (id: string) => Promise<boolean>;
   //   storeNoteTags: (
@@ -19,10 +20,10 @@ type StudyPlanStore = {
 };
 
 export default create<StudyPlanStore>((set) => ({
-  syllabus: [],
+  studyPlans: [],
   tags: [],
   isLoading: false,
-  pagination: { limit: 10, page: 1, count: 100 }
+  pagination: { limit: 10, page: 1, count: 100 },
 
   // Fetching all notes
   //   fetchPlan: async () => {
@@ -97,23 +98,26 @@ export default create<StudyPlanStore>((set) => ({
   //     }
   //   },
 
-  //   // Creating a new note
-  //   createNote: async (data: any) => {
-  //     try {
-  //       set({ isLoading: true });
-  //       const response = await ApiService.createNote(data);
-  //       if (response.status === 200) {
-  //         const newNote = await response.json();
-  //         set((state) => ({ ...state, notes: [...state.notes, newNote] }));
-  //         return true;
-  //       }
-  //       return false;
-  //     } catch (error) {
-  //       return false;
-  //     } finally {
-  //       set({ isLoading: false });
-  //     }
-  //   },
+  // Creating a new note
+  createStudyPlan: async (data: any) => {
+    try {
+      set({ isLoading: true });
+      const response = await ApiService.createStudyPlan(data);
+      if (response.status === 200) {
+        const newPlan = await response.json();
+        set((state) => ({
+          ...state,
+          studyPlans: [...state.studyPlans, newPlan]
+        }));
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    } finally {
+      set({ isLoading: false });
+    }
+  }
 
   //   // Updating a note
   //   updateNote: async (id: string, data: any) => {

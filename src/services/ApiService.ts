@@ -224,7 +224,6 @@ class ApiService {
   static convertAnkiToShep = async (d: { base64String: string }) => {
     const body = JSON.stringify(d);
 
-
     const headers: HeadersInit = {};
 
     const token = await firebaseAuth.currentUser?.getIdToken();
@@ -247,7 +246,6 @@ class ApiService {
       body: JSON.stringify({ studentId })
     });
   };
-
 
   static generateFlashcardQuestions = async (data: any, studentId: string) => {
     return fetch(`${AI_API}/flash-cards/students/${studentId}`, {
@@ -916,6 +914,13 @@ class ApiService {
       headers: {
         'Content-Type': 'application/json'
       }
+    });
+  };
+
+  static createStudyPlan = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/createStudyPlan`, {
+      method: 'POST',
+      body: JSON.stringify(data)
     });
   };
 }
