@@ -30,6 +30,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
     topic: ''
   });
   const [level, setLevel] = useState<any>('');
+
   const handleClose = useCallback(() => {
     setToggleHelpModal(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps

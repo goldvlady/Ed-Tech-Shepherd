@@ -74,6 +74,7 @@ const HomeWorkHelp = () => {
   );
   const studentId = user?._id ?? '';
   const topic = location?.state?.topic;
+  const docId = location?.state?.documentId;
   const [countNeedTutor, setCountNeedTutor] = useState<number>(1);
   const [socket, setSocket] = useState<any>(null);
   const [subjectId, setSubject] = useState<string>('');
@@ -114,6 +115,7 @@ const HomeWorkHelp = () => {
   const [newConversationId, setNewConversationId] = useState('');
   const [isChatHistory, setChatHistory] = useState<boolean>(false);
   const ref = useRef<HTMLDivElement>(null);
+  const [documentId, setDocumentId] = useState<string>('');
 
   useEffect(() => {
     if (certainConversationId) {
@@ -136,6 +138,7 @@ const HomeWorkHelp = () => {
         studentId,
         topic: localData.topic,
         subject: localData.subject,
+        documentId: documentId,
         // level: level.label,
         // conversationId,
         namespace: 'homework-help'
@@ -206,6 +209,24 @@ const HomeWorkHelp = () => {
       socket && socket.off('current_conversation', handleNewConversation);
     };
   }, [socket]);
+
+  useEffect(() => {
+    // Attach the listener since isSubmitted is true.
+    if (socket && docId) {
+      socket.on('append_document', {
+        documentId: docId
+      });
+    }
+
+    // Cleanup: remove the listener when isSubmitted becomes false,
+    // when the socket changes, or when the component unmounts.
+    return () => {
+      socket &&
+        socket.off('append_document', {
+          documentId: docId
+        });
+    };
+  }, [socket, docId]);
 
   useLayoutEffect(() => {
     const fetchChatHistory = async () => {
@@ -626,6 +647,8 @@ const HomeWorkHelp = () => {
           localData={localData}
           level={level}
           onRouteHomeWorkHelp={onRouteHomeWorkHelp}
+          setDocumentId={setDocumentId}
+          documentId={documentId}
         />
       )}
 

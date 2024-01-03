@@ -145,7 +145,7 @@ export const StyledText = styled(Text)`
 `;
 
 export const OptionsContainer = styled.div`
-  ${tw`flex flex-col flex-wrap py-[0.875rem] px-[0.35rem] min-h-[4rem] w-full max-w-[100%] px-4 min-h-[40px] overflow-auto`};
+  ${tw`flex flex-col flex-wrap py-[0.875rem] px-[1.95rem] min-h-[4rem] w-full max-w-[100%] px-4 min-h-[40px] overflow-auto`};
   // display: flex;
   // flex-direction: column;
   // grid-column: span 12;
@@ -517,8 +517,8 @@ export const ChatHistoryDate = styled.div`
   text-align: center;
 `;
 
-export const ChatHistoryBody = styled.div`
-  background: #f4f5f6;
+export const ChatHistoryBody = styled.div<{ activeChat?: boolean }>`
+  background: ${({ activeChat }) => (activeChat ? '#dadbdc' : '#f4f5f6')};
   display: grid;
   gap: 6px;
   font-size: 0.875rem;

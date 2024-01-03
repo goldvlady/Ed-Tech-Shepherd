@@ -122,6 +122,7 @@ const ChatHistory = ({
   const [selectedTopic, setSelectedTopic] = useState('All');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const isMobile = useIsMobile();
+
   const handleClickOutside = (event) => {
     if (
       showSearchRef.current &&
@@ -461,7 +462,10 @@ const ChatHistory = ({
                   {history.messages.map((message, index) => (
                     <div>
                       {!toggleHistoryBox[message.id] ? (
-                        <ChatHistoryBody key={message.id}>
+                        <ChatHistoryBody
+                          activeChat={conversationId === message.id}
+                          key={message.id}
+                        >
                           <Clock>
                             <HistoryIcn />
                           </Clock>

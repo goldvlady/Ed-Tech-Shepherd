@@ -72,6 +72,8 @@ import React, {
   ForwardedRef
 } from 'react';
 import Typewriter from 'typewriter-effect';
+import CustomModal from '../../../components/CustomComponents/CustomModal';
+import ViewUploadDoc from '../HomeWorkHelp/ViewUploadDoc';
 import { set } from 'lodash';
 
 interface IChat {
@@ -205,6 +207,7 @@ const Chat = forwardRef(
     const [isPinnedMessages, setPinnedMessages] = useState(false);
     const [isNumber, setIsNumber] = useState(true);
     const [chatHisotry, setIsChatHistory] = useState(false);
+    const [docModal, setDocModal] = useState(false);
     const { setFlashcardData, resetFlashcard } = useFlashcardWizard();
 
     const location = useLocation();
@@ -351,6 +354,12 @@ const Chat = forwardRef(
         title: 'Start New Conversation',
         onClick: handleAceHomeWorkHelp,
         show: true
+      },
+      {
+        id: 4,
+        title: 'Upload a file',
+        show: true,
+        onClick: () => setDocModal(true)
       }
     ];
 
@@ -977,6 +986,26 @@ const Chat = forwardRef(
             noteId={noteId}
           />
         </CustomSideModal>
+
+        <CustomModal
+          isOpen={docModal}
+          modalTitle="Upload a File"
+          modalTitleStyle={{
+            textAlign: 'center',
+            borderBottom: '1px solid #EEEFF2'
+          }}
+          style={{
+            maxWidth: '400px',
+            height: 'auto'
+          }}
+          onClose={() => setDocModal(false)}
+        >
+          <ViewUploadDoc
+            show={docModal}
+            handleClose={() => setDocModal(false)}
+            setShow={() => setDocModal(false)}
+          />
+        </CustomModal>
       </>
     );
   }

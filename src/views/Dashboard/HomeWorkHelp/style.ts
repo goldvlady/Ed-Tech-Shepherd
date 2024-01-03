@@ -11,29 +11,24 @@ export const HomeWorkHelpContainer = styled.section`
 `;
 
 export const HomeWorkHelpHistoryContainer = styled.section`
-  // width: 29%;
-  // height: 100vh;
-  // padding-right: 10px;
-  // background: #fff;
-  // overflow-y: scroll;
   width: 70%;
   height: 100vh;
   background: rgb(255, 255, 255);
   overflow-y: scroll;
   margin: 0px 10px;
-  // position: absolute;
   left: 15px;
   display: block;
-  border: 1px solid 
 
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  ::-webkit-scrollbar {
+  /* Hide scrollbar for Chrome, Safari, and Opera */
+  &::-webkit-scrollbar {
     display: none;
   }
 
   /* Hide scrollbar for Firefox */
   scrollbar-width: none;
-  -ms-overflow-style: none; /* IE and Edge */
+
+  /* Hide scrollbar for IE, Edge, and other browsers */
+  -ms-overflow-style: none;
 
   @media only screen and (max-width: 768px) {
     display: none;
