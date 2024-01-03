@@ -3,6 +3,10 @@ import {
   Grid,
   Box,
   Divider,
+  Editable,
+  EditableInput,
+  EditableTextarea,
+  EditablePreview,
   Flex,
   FormControl,
   Image,
@@ -29,11 +33,18 @@ import {
   Tab,
   TabPanel,
   Center,
-  Link
+  Link,
+  HStack
 } from '@chakra-ui/react';
 import { format, isBefore } from 'date-fns';
 
-import { FaPlus, FaCheckCircle, FaPencilAlt, FaRocket } from 'react-icons/fa';
+import {
+  FaPlus,
+  FaCheckCircle,
+  FaPencilAlt,
+  FaRocket,
+  FaTrashAlt
+} from 'react-icons/fa';
 import SelectComponent, { Option } from '../../../components/Select';
 import { MdCancel, MdOutlineKeyboardArrowDown } from 'react-icons/md';
 import { FiChevronDown } from 'react-icons/fi';
@@ -47,6 +58,7 @@ import StudyPlans from '.';
 import moment from 'moment';
 import { GiCancel } from 'react-icons/gi';
 import { SmallCloseIcon } from '@chakra-ui/icons';
+import ApiService from '../../../services/ApiService';
 
 function CreateStudyPlans() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -71,56 +83,8 @@ function CreateStudyPlans() {
   const [gradeLevel, setGradeLevel] = useState('');
   const [showSubjects, setShowSubjects] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [syllabusData, setSyllabusData] = useState([
-    // {
-    //   id: 1,
-    //   topic: 'Course Introduction',
-    //   subtopics: [
-    //     { id: 1, label: 'Introduction to technical communication' },
-    //     { id: 1, label: 'Features of effective technical communication' }
-    //   ]
-    // }
-  ]);
-  const [studyPlanData, setStudyPlanData] = useState([
-    // {
-    //   weekRange: '01/01/2024 - 19/01/2024',
-    //   topics: [
-    //     {
-    //       mainTopic: 'Introduction to Music Fundamentals',
-    //       subTopics: ['Notation', 'Rhythms', 'Scales', 'Intervals']
-    //     },
-    //     {
-    //       mainTopic: 'Music Theory: Basics',
-    //       subTopics: ['Major and Minor Scales', 'Circle of Fifths']
-    //     },
-    //     {
-    //       mainTopic: 'Ear Training',
-    //       subTopics: ['Interval Recognition', 'Solfège']
-    //     }
-    //   ]
-    // },
-    // {
-    //   weekRange: '03/01/2024 - 14/03/2024',
-    //   topics: [
-    //     {
-    //       mainTopic: 'Music Technology',
-    //       subTopics: ['Recording', 'Editing', 'Mixing']
-    //     },
-    //     {
-    //       mainTopic: 'Music in Film and Media',
-    //       subTopics: []
-    //     },
-    //     {
-    //       mainTopic: 'Music Business',
-    //       subTopics: ['Copyright', 'Publishing', 'Marketing']
-    //     },
-    //     {
-    //       mainTopic: 'Final Project and Review',
-    //       subTopics: []
-    //     }
-    //   ]
-    // }
-  ]);
+  const [syllabusData, setSyllabusData] = useState([]);
+  const [studyPlanData, setStudyPlanData] = useState([]);
   const { courses: courseList, levels: levelOptions } = resourceStore();
 
   const btnRef = useRef();
@@ -134,8 +98,13 @@ function CreateStudyPlans() {
 
   // Function to add a new test date to the list
   const addTestDate = () => {
-    const newTestDates = [...testDate, new Date()]; // Adding a new date (here using current date)
+    const newTestDates = [...testDate, new Date()];
     setTestDate(newTestDates);
+  };
+  const removeTestDate = (indexToRemove) => {
+    const updatedTestDates = [...testDate];
+    updatedTestDates.splice(indexToRemove, 1);
+    setTestDate(updatedTestDates);
   };
 
   const handleToggleSubjects = () => {
@@ -232,68 +201,9 @@ function CreateStudyPlans() {
       ]
     }
   ];
-  const getStudyPlan = async (startDateStr, upcomingTestDatesStr, syllabus) => {
-    const startDate = moment(startDateStr, 'DD/MM/YYYY');
-    const upcomingTestDates = upcomingTestDatesStr.map((date) =>
-      moment(date, 'DD/MM/YYYY')
-    );
+  console.log(syllabusData);
 
-    const weeks = [];
-    let topicsIndex = 0;
-
-    // Calculate the total number of weeks between start date and last test date
-    const lastTestDate = upcomingTestDates[upcomingTestDates.length - 1];
-    const totalWeeks = lastTestDate.diff(startDate, 'weeks') + 1;
-    let remainingTopics = syllabus.length;
-
-    for (let i = 0; i < totalWeeks; i++) {
-      let currentWeekEnd = moment(startDate)
-        .add(i + 1, 'weeks')
-        .subtract(1, 'days'); // End of the week
-
-      if (currentWeekEnd.isAfter(lastTestDate)) {
-        currentWeekEnd = moment(lastTestDate); // Adjust end date to the last test date
-      }
-
-      const topicsForWeek = [];
-      let topicsPerWeek = Math.ceil(remainingTopics / (totalWeeks - i)); // Adjust topics per week based on remaining weeks
-
-      if (topicsPerWeek <= 0) {
-        topicsPerWeek = 1; // If remaining weeks <= topics per week, allocate 1 topic per week
-      }
-
-      for (let j = 0; j < topicsPerWeek; j++) {
-        if (topicsIndex < syllabus.length) {
-          const currentTopics = syllabus[topicsIndex].topics;
-
-          if (currentTopics.length > 0) {
-            currentTopics.forEach((topic) => {
-              topicsForWeek.push({
-                mainTopic: topic.mainTopic,
-                subTopics: topic.subTopics
-              });
-            });
-          }
-
-          topicsIndex++;
-          remainingTopics--;
-        }
-      }
-
-      weeks.push({
-        weekRange: `${startDate
-          .add(i, 'weeks')
-          .format('DD/MM/YYYY')} - ${currentWeekEnd.format('DD/MM/YYYY')}`,
-        topics: topicsForWeek
-      });
-    }
-
-    console.log(weeks);
-    setStudyPlanData(weeks);
-    return weeks;
-  };
-
-  const handleGenerateStudyPlan = async () => {
+  const handleGenerateSyllabus = async () => {
     setIsLoading(true);
 
     try {
@@ -308,6 +218,7 @@ function CreateStudyPlans() {
       if (response) {
         const result = response.studyPlan.map(({ topics }) => ({ topics }));
         setSyllabusData(result);
+
         setSelectedSubject(course);
       } else {
         toast({
@@ -328,7 +239,120 @@ function CreateStudyPlans() {
       });
     }
   };
+  const updateMainTopic = (index, newMainTopic) => {
+    const updatedSyllabusData = [...syllabusData];
 
+    if (index >= 0 && index < updatedSyllabusData.length) {
+      updatedSyllabusData[index] = {
+        topics: [
+          {
+            mainTopic: newMainTopic,
+            subTopics: updatedSyllabusData[index].topics[0].subTopics
+          }
+        ]
+      };
+
+      setSyllabusData(updatedSyllabusData);
+    }
+  };
+  const deleteMainTopic = (index) => {
+    const updatedSyllabusData = syllabusData.filter((_, i) => i !== index);
+    setSyllabusData(updatedSyllabusData);
+  };
+
+  const getStudyPlan = async (startDate, testDates, syllabusData) => {
+    const studyPlan = [];
+    let currentStartDate = moment(startDate, 'DD/MM/YYYY');
+    let topicsRemaining = syllabusData.slice();
+    let i = 0;
+
+    const getLastMoment = (date) =>
+      moment.max(moment(date, 'DD/MM/YYYY'), moment());
+
+    while (i < testDates.length) {
+      const currentEndDate =
+        i === testDates.length - 1
+          ? getLastMoment(testDates[i])
+          : moment(testDates[i], 'DD/MM/YYYY');
+
+      const daysAvailable = currentEndDate.diff(currentStartDate, 'days') + 1;
+      const daysUntilNextTest =
+        i < testDates.length - 1
+          ? moment(testDates[i + 1], 'DD/MM/YYYY').diff(currentEndDate, 'days')
+          : 0;
+
+      let topicsThisPeriod = Math.floor(
+        (daysAvailable / (daysAvailable + daysUntilNextTest)) *
+          topicsRemaining.length
+      );
+      topicsThisPeriod = Math.max(topicsThisPeriod, 1); // Ensure at least 1 topic per period
+
+      if (topicsRemaining.length === 0 && i < testDates.length - 1) {
+        // If no more topics and still have test dates, create an empty study week
+        const studyWeek = {
+          weekRange: `${currentStartDate.format(
+            'DD/MM/YYYY'
+          )} - ${currentEndDate.format('DD/MM/YYYY')}`,
+          topics: []
+        };
+
+        studyPlan.push(studyWeek);
+      } else if (topicsRemaining.length > 0) {
+        const topics = topicsRemaining.slice(0, topicsThisPeriod);
+        topicsRemaining = topicsRemaining.slice(topicsThisPeriod);
+
+        const studyWeek = {
+          weekRange: `${currentStartDate.format(
+            'DD/MM/YYYY'
+          )} - ${currentEndDate.format('DD/MM/YYYY')}`,
+          topics: topics.map((topic) => ({
+            mainTopic: topic.topics[0].mainTopic,
+            subTopics: topic.topics[0].subTopics
+          }))
+        };
+
+        studyPlan.push(studyWeek);
+      }
+
+      currentStartDate = currentEndDate.clone().add(1, 'day');
+      i++;
+    }
+
+    console.log(studyPlan);
+    setStudyPlanData(studyPlan);
+    return studyPlan;
+  };
+  const saveStudyPlan = async () => {
+    const payload = {
+      course: selectedSubject,
+      scheduleItems: convertArrays(studyPlanData)
+    };
+    try {
+      const resp = await ApiService.createStudyPlan(payload);
+      if (resp) {
+        const response = await resp.json();
+        console.log(response);
+        if (resp.status === 201) {
+          // setIsCompleted(true);
+          toast({
+            title: 'Study Plan Created Successfully',
+            position: 'top-right',
+            status: 'success',
+            isClosable: true
+          });
+        } else {
+          toast({
+            title: 'Failed to create study plan, try again',
+            position: 'top-right',
+            status: 'error',
+            isClosable: true
+          });
+        }
+      }
+    } catch (error: any) {
+      return { error: error.message, message: error.message };
+    }
+  };
   const addTopicToWeek = (weekIndex, newTopic) => {
     const updatedStudyPlan = [...studyPlanData];
     if (weekIndex >= 0 && weekIndex < updatedStudyPlan.length) {
@@ -378,6 +402,37 @@ function CreateStudyPlans() {
   //     console.log(resp);
   //   }
   // }, [syllabusData]);
+
+  function convertArrays(A) {
+    function formatDate(dateString) {
+      const [day, month, year] = dateString.split('/');
+      return `${year}-${month}-${day}`;
+    }
+
+    return A.map((week, index) => {
+      const dates = week.weekRange.split(' - ');
+      const startDate = formatDate(dates[0]);
+      const endDate = formatDate(dates[1]);
+      const topics = week.topics.map((topic) => {
+        const { mainTopic, subTopics } = topic;
+        const subTopicDetails = subTopics.map((subTopic) => ({
+          label: subTopic,
+          description: `Description for ${subTopic}`
+        }));
+        return {
+          topic: {
+            label: mainTopic,
+            subTopics: subTopicDetails
+          },
+          startDate,
+          endDate,
+          weekIndex: index + 1,
+          status: 'notStarted'
+        };
+      });
+      return topics;
+    }).flat();
+  }
 
   return (
     <Grid
@@ -466,7 +521,7 @@ function CreateStudyPlans() {
             </Box>
             <Box mb={6}>
               <Text as="label" htmlFor="subjects" mb={2} display="block">
-                What subject are you taking
+                What subject would you like to generate a plan for
               </Text>
               <Input
                 type="text"
@@ -498,7 +553,7 @@ function CreateStudyPlans() {
               rounded="md"
               display="inline-flex"
               alignItems="center"
-              onClick={handleGenerateStudyPlan}
+              onClick={handleGenerateSyllabus}
             >
               <Icon as={FaRocket} mr={2} />
               Generate Syllabi
@@ -507,7 +562,7 @@ function CreateStudyPlans() {
         ) : (
           <Box>
             <Text as="label" htmlFor="subjects" mb={2} display="block">
-              Provide test dates
+              Please enter your test dates
             </Text>
             {/* <DatePicker
               name="endDate"
@@ -515,20 +570,32 @@ function CreateStudyPlans() {
               value={testDate ? format(testDate, 'dd-MM-yyyy') : ''}
               onChange={(date) => setTestDate(date)}
             /> */}
-            {testDate &&
-              testDate.map((date, index) => (
-                <DatePicker
-                  key={index}
-                  name={`testDate-${index}`}
-                  placeholder="Select Test Date"
-                  value={format(date, 'dd-MM-yyyy')}
-                  onChange={(newDate) => {
-                    const updatedTestDates = [...testDate];
-                    updatedTestDates[index] = newDate;
-                    setTestDate(updatedTestDates);
-                  }}
-                />
-              ))}
+            <Flex direction={'column'} gap={2}>
+              {testDate &&
+                testDate.map((date, index) => (
+                  <>
+                    <Flex key={index} align={'center'} gap={2}>
+                      <Box width="100%">
+                        <DatePicker
+                          name={`testDate-${index}`}
+                          placeholder="Select Test Date"
+                          value={format(date, 'dd-MM-yyyy')}
+                          onChange={(newDate) => {
+                            const updatedTestDates = [...testDate];
+                            updatedTestDates[index] = newDate;
+                            setTestDate(updatedTestDates);
+                          }}
+                        />
+                      </Box>
+
+                      <MdCancel
+                        onClick={() => removeTestDate(index)}
+                        color={'gray'}
+                      />
+                    </Flex>
+                  </>
+                ))}
+            </Flex>
             <Button
               colorScheme="blue"
               variant="link"
@@ -594,36 +661,30 @@ function CreateStudyPlans() {
                       Review {selectedSubject} syllabus
                     </Text>
 
-                    {/* <Drawer
-            isOpen={isOpen}
-            placement="right"
-            onClose={onClose}
-            finalFocusRef={btnRef}
-          >
-            <DrawerOverlay />
-            <DrawerContent>
-              <DrawerCloseButton />
-              <DrawerHeader>Select Subject</DrawerHeader>
-
-              <DrawerBody>
-               
-              </DrawerBody>
-
-           
-            </DrawerContent>
-          </Drawer> */}
                     <Flex direction="column" gap={2}>
                       {syllabusData.map((topic, index) => (
                         <>
-                          <Box bg="white" p={4} rounded="md" shadow="md">
-                            <Text
+                          <Box
+                            bg="white"
+                            p={4}
+                            rounded="md"
+                            shadow="md"
+                            key={index}
+                          >
+                            <Editable
+                              value={topic.topics[0].mainTopic}
                               fontSize="16px"
                               fontWeight="500"
                               mb={2}
                               color="text.300"
+                              onChange={(newMainTopic) =>
+                                updateMainTopic(index, newMainTopic)
+                              }
                             >
-                              {topic.topics[0].mainTopic}
-                            </Text>
+                              <EditablePreview />
+                              <EditableInput />
+                            </Editable>
+
                             <UnorderedList
                               listStyleType="disc"
                               listStylePosition="inside"
@@ -639,11 +700,32 @@ function CreateStudyPlans() {
                               <Box color="green.500">
                                 <Icon as={FaCheckCircle} />
                               </Box>
-                              <Box color="gray.500">
-                                <Icon as={FaPencilAlt} />
-                              </Box>
+                              <HStack color="gray.500" spacing={3}>
+                                {/* <Icon as={FaPencilAlt} boxSize={3} /> */}
+                                <Icon
+                                  as={FaTrashAlt}
+                                  boxSize={3}
+                                  onClick={() => deleteMainTopic(index)}
+                                />
+                              </HStack>
                             </Flex>
                           </Box>
+                          <Button
+                            colorScheme="blue"
+                            variant="solid"
+                            py={2}
+                            px={14}
+                            rounded="md"
+                            alignItems="center"
+                            textAlign={'center'}
+                            position={'fixed'}
+                            bottom={2}
+                            my="auto"
+                            ml={120}
+                            onClick={() => setActiveTab(1)}
+                          >
+                            Proceed
+                          </Button>
                         </>
                       ))}
                     </Flex>
@@ -672,7 +754,7 @@ function CreateStudyPlans() {
                             listStylePosition="inside"
                             color="gray.700"
                             fontSize={14}
-                            h={'100px'}
+                            // h={'100px'}
                           >
                             {topic.topics.map((item, index) => (
                               <Flex>
@@ -721,22 +803,25 @@ function CreateStudyPlans() {
                             </Box>
                           </Flex>
                         </Box>{' '}
-                        <Button
-                          colorScheme="blue"
-                          variant="solid"
-                          py={2}
-                          px={14}
-                          rounded="md"
-                          alignItems="center"
-                          position={'fixed'}
-                          bottom={2}
-                          my="auto"
-                          mx={12}
-                        >
-                          Save & Proceed
-                        </Button>
                       </>
                     ))}
+                  {studyPlanData.length > 0 && (
+                    <Button
+                      colorScheme="blue"
+                      variant="solid"
+                      py={2}
+                      px={14}
+                      rounded="md"
+                      alignItems="center"
+                      position={'fixed'}
+                      bottom={2}
+                      my="auto"
+                      ml={100}
+                      onClick={() => saveStudyPlan()}
+                    >
+                      Save & Proceed
+                    </Button>
+                  )}
                 </Flex>
               </Box>
             </TabPanel>

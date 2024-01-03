@@ -916,6 +916,13 @@ class ApiService {
       }
     });
   };
+
+  static createStudyPlan = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/createStudyPlan`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
 }
 
 export default ApiService;
