@@ -262,13 +262,10 @@ export default function Index() {
                     />
                     <Text fontSize={13} fontWeight={500} color="text.400">
                       {/* You have no quizzes at this moment. */}
-                      You have no flashcards
+                      You have no quizzes yet
                     </Text>
                     <Link to="/dashboard/flashcards">
-                      <CustomButton
-                        buttonText="Create Flashcard"
-                        width="100%"
-                      />
+                      <CustomButton buttonText="Create a Quiz" width="100%" />
                     </Link>
                   </VStack>
                 </Box>
