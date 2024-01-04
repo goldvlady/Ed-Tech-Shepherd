@@ -36,6 +36,11 @@ import {
   MenuDivider,
   MenuItem,
   MenuList,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalOverlay,
   Spacer,
   Stack,
   Text,
@@ -111,6 +116,8 @@ interface SidebarProps extends BoxProps {
   earnMenu: boolean;
   // setEarnMenu: (value: boolean) => void;
   unreadCount: number;
+  openModal: (content: any) => void;
+  closeModal: () => void;
 }
 interface NavItemProps extends FlexProps {
   icon?: IconType;
@@ -572,6 +579,8 @@ const SidebarContent = ({
   unreadCount,
   hasActiveSubscription,
   handleLockedClick,
+  openModal,
+  closeModal,
   ...rest
 }: SidebarProps & {
   hasActiveSubscription: boolean;
@@ -783,6 +792,7 @@ const SidebarContent = ({
           display="flex"
           gap={2}
           leftIcon={<BarnImg />}
+          onClick={() => openModal('Coming Soon!')}
           fontSize={14}
           fontWeight={400}
         >
@@ -860,6 +870,18 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
   const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState('');
+
+  const openModal = (content) => {
+    setModalContent(content);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalContent('');
+  };
 
   const handleLockedClick = (message, subMessage) => {
     setPlansModalMessage(message);
@@ -924,6 +946,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               unreadCount={unreadCount}
               hasActiveSubscription={hasActiveSubscription}
               handleLockedClick={handleLockedClick}
+              openModal={openModal}
+              closeModal={closeModal}
             />
             <Drawer
               autoFocus={false}
@@ -948,6 +972,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   unreadCount={unreadCount}
                   hasActiveSubscription={hasActiveSubscription}
                   handleLockedClick={handleLockedClick}
+                  openModal={openModal}
+                  closeModal={closeModal}
                 />
               </DrawerContent>
             </Drawer>
@@ -971,6 +997,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           subMessage={plansModalSubMessage}
         />
       )}
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalCloseButton />
+          <ModalBody>
+            <p>{modalContent}</p>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 }

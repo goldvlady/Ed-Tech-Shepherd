@@ -110,9 +110,9 @@ const PlansModal = ({
     }
 
     const session = await ApiService.initiateUserSubscription(
-      user.stripeCustomerId,
       user.id,
-      priceId
+      priceId,
+      user.stripeCustomerId ? user.stripeCustomerId : null
     );
     const portal = await session.json();
     window.location.href = portal.url;
