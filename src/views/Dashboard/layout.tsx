@@ -712,13 +712,13 @@ const SidebarContent = ({
       </NavItem>
 
       <Divider />
+
       <Box ml={8} color="text.400">
         <Button
           variant={'unstyled'}
           display="flex"
           gap={2}
           leftIcon={<BarnImg />}
-          onClick={() => toggleChatMenu()}
           fontSize={14}
           fontWeight={400}
         >
@@ -742,7 +742,7 @@ const SidebarContent = ({
       >
         Feedback
       </NavItem>
-      <NavItem
+      {/* <NavItem
         icon={PiClipboardTextLight}
         path="/dashboard/study-plans"
         isLocked={!hasActiveSubscription}
@@ -754,7 +754,30 @@ const SidebarContent = ({
         }
       >
         Study Plans
-      </NavItem>
+      </NavItem> */}
+      <Box ml={8} color="text.400">
+        <Button
+          variant={'unstyled'}
+          display="flex"
+          gap={2}
+          leftIcon={<PiClipboardTextLight />}
+          // onClick={() => toggleChatMenu()}
+          fontSize={14}
+          fontWeight={400}
+        >
+          <Text>Study Plans</Text>
+          <Text
+            fontSize={10}
+            border="1px solid #fc9b65"
+            borderRadius={4}
+            color="#fc9b65"
+            alignSelf={'center'}
+            px={1}
+          >
+            Coming Soon
+          </Text>
+        </Button>
+      </Box>
       <Divider />
       <Box ml={8} color="text.400">
         <Button
