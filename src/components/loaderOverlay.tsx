@@ -7,7 +7,8 @@ const LoaderOverlay = () => {
   const bg =
     pathname === '/dashboard/flashcards' ||
     pathname === '/dashboard/quizzes' ||
-    pathname === '/dashboard/notes'
+    pathname === '/dashboard/notes' ||
+    pathname === '/dashboard/library'
       ? '#fff'
       : 'rgba(0, 0, 0, 0.5)';
   return (
