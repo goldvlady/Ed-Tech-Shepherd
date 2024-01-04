@@ -8,6 +8,7 @@ import {
   MinimizedStudy,
   SessionType
 } from '../../types';
+import ShepherdSpinner from '../../views/Dashboard/components/shepherd-spinner';
 import DailyDeckSelector from './dailyDeckSelector';
 import FlashCard from './deck_two';
 import DeckOverLap from './overlap';
@@ -26,9 +27,7 @@ import {
   MenuList,
   MenuButton,
   ModalHeader,
-  ModalFooter,
   Menu,
-  Spinner,
   MenuGroup,
   Tag,
   TagLabel,
@@ -45,7 +44,6 @@ import React, {
 import { AiFillThunderbolt } from 'react-icons/ai';
 import { BsThreeDots } from 'react-icons/bs';
 import { FiCheck, FiHelpCircle, FiXCircle } from 'react-icons/fi';
-import { RiLineFill, RiCloseLine } from 'react-icons/ri';
 import styled from 'styled-components';
 
 const MenuListWrapper = styled(MenuList)`
@@ -71,13 +69,7 @@ const LoaderOverlay = () => (
       backgroundColor: 'rgba(0, 0, 0, 0.5)' // Semi-transparent background
     }}
   >
-    <Spinner
-      thickness="4px"
-      speed="0.65s"
-      emptyColor="gray.200"
-      color="blue.500"
-      size="xl"
-    />
+    <ShepherdSpinner />
   </div>
 );
 

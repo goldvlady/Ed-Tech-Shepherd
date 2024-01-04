@@ -1,15 +1,9 @@
 import theme from '../theme';
-import {
-  Box,
-  HStack,
-  IconButton,
-  Spinner,
-  Text,
-  VStack
-} from '@chakra-ui/react';
+import { Box, HStack, IconButton, Text, VStack } from '@chakra-ui/react';
 import React from 'react';
 import { FiFile, FiTrash } from 'react-icons/fi';
 import styled from 'styled-components';
+import ShepherdSpinner from '../views/Dashboard/components/shepherd-spinner';
 
 type Props = {
   file: File;
@@ -44,7 +38,7 @@ const FileDisplay: React.FC<Props> = ({
       <HStack>
         <HStack flexGrow={1} gap={1}>
           {uploading ? (
-            <Spinner size="sm" />
+            <ShepherdSpinner />
           ) : prefix ? (
             prefix
           ) : (

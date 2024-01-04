@@ -1,8 +1,9 @@
 import { Section } from '../../../components';
 import BountyGridList from '../../../components/BountyGridList';
 import offerStore from '../../../state/offerStore';
-import { Box, Image, Spinner, Text } from '@chakra-ui/react';
+import { Box, Image, Text } from '@chakra-ui/react';
 import React, { useState, useCallback, useEffect } from 'react';
+import ShepherdSpinner from '../../Dashboard/components/shepherd-spinner';
 
 function TutorBounties() {
   const { pagination, fetchBountyOffers, bounties } = offerStore();
@@ -34,7 +35,7 @@ function TutorBounties() {
           height: '100vh'
         }}
       >
-        <Spinner />
+        <ShepherdSpinner />
       </Box>
     );
   }
