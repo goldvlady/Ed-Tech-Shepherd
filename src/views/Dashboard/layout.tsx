@@ -2,6 +2,7 @@ import BarnImg from '../../assets/Barn.svg';
 import AskIcon from '../../assets/avatar-male.svg';
 import BellDot from '../../assets/belldot.svg';
 import AIChatImg from '../../assets/brain.png';
+import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
 import { HelpModal } from '../../components';
 import { SelectedNoteModal } from '../../components';
 import Logo from '../../components/Logo';
@@ -73,12 +74,31 @@ import {
 } from 'react-router-dom';
 import { PiClipboardTextLight } from 'react-icons/pi';
 import { RiFeedbackLine } from '@remixicon/react';
+import PlansModal from '../../components/PlansModal';
 
 interface LinkItemProps {
   name: string;
   icon: IconType;
   path: string;
+  requiresSubscription?: boolean;
 }
+
+const LinkItems: Array<LinkItemProps> = [
+  { name: 'Library', icon: BsBook, path: '/dashboard/library' },
+  { name: 'Notes', icon: CgNotes, path: '/dashboard/notes' },
+  {
+    name: 'Flashcards',
+    icon: TbCards,
+    path: '/dashboard/flashcards',
+    requiresSubscription: true
+  },
+  {
+    name: 'Quizzes',
+    icon: LuFileQuestion,
+    path: '/dashboard/quizzes',
+    requiresSubscription: true
+  }
+];
 interface SidebarProps extends BoxProps {
   onClose: () => void;
   toggleMenu: () => void;
@@ -92,40 +112,42 @@ interface SidebarProps extends BoxProps {
   // setEarnMenu: (value: boolean) => void;
   unreadCount: number;
 }
-
-// const LinkItems: Array<LinkItemProps> = [
-//   { name: 'Shepherd Chats', icon: BsChatLeftDots, path: '/dashboard/messaging' }
-//   // { name: 'Library', icon: BsPlayCircle, path: '/library' }
-// ];
-
-const LinkItems: Array<LinkItemProps> = [
-  // { name: 'Performance', icon: FiBarChart2, path: '/dashboard/performance' },
-  // {
-  //   name: 'Study Plans',
-  //   icon: TbClipboardText,
-  //   path: '/dashboard/study-plans'
-  // },
-  //   { name: 'Quizzes', icon: MdOutlineQuiz, path: '/dashboard/flashcards' },
-  { name: 'Library', icon: BsBook, path: '/dashboard/library' },
-  { name: 'Notes', icon: CgNotes, path: '/dashboard/notes' },
-  { name: 'Flashcards', icon: TbCards, path: '/dashboard/flashcards' },
-  { name: 'Quizzes', icon: LuFileQuestion, path: '/dashboard/quizzes' }
-];
-
 interface NavItemProps extends FlexProps {
   icon?: IconType;
   children: any;
   path: string;
+  isLocked?: boolean;
+  onLockedClick?: any;
+  message?: string;
+  subMessage?: string;
 }
-const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
+
+const NavItem = ({
+  icon,
+  path,
+  children,
+  isLocked,
+  onLockedClick,
+  message,
+  subMessage,
+  ...rest
+}: NavItemProps) => {
   const { pathname } = useLocation();
+  const [isHovering, setIsHovering] = useState(false);
 
   const isActive =
     pathname === path ||
     (pathname.startsWith(path) && path.split('/').length > 2);
 
+  const onClick = (e) => {
+    if (isLocked) {
+      e.preventDefault();
+      onLockedClick(message, subMessage);
+    }
+  };
+
   return (
-    <Link to={path} style={{ textDecoration: 'none' }}>
+    <Link onClick={onClick} to={path} style={{ textDecoration: 'none' }}>
       <Flex
         align="center"
         px="4"
@@ -143,6 +165,8 @@ const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
         color={isActive ? '#207DF7' : 'text.400'}
         fontSize={14}
         fontWeight={isActive ? '500' : '400'}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
         {...rest}
       >
         {icon && (
@@ -156,6 +180,14 @@ const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
           />
         )}
         {children}
+        {isLocked && (
+          <Icon
+            as={isHovering ? RiLockUnlockFill : RiLockFill}
+            ml="auto"
+            fontSize="18"
+            color="#fc9b65"
+          />
+        )}
       </Flex>
     </Link>
   );
@@ -492,21 +524,27 @@ const SidebarContent = ({
   tutorMenu,
   setTutorMenu,
   aiChatMenu,
-
   earnMenu,
-
   toggleMenu,
   toggleChatMenu,
   toggleEarnMenu,
   unreadCount,
+  hasActiveSubscription,
+  handleLockedClick,
   ...rest
-}: SidebarProps) => {
+}: SidebarProps & {
+  hasActiveSubscription: boolean;
+  handleLockedClick: (message: string, subMessage: string) => void;
+}) => {
   const { pathname } = useLocation();
   const [showSelected, setShowSelected] = useState(false);
 
   const handleShowSelected = () => {
     setShowSelected(true);
   };
+
+  const [isHovering, setIsHovering] = useState(false);
+
   // const { unreadCount } = useStreamChat();
 
   return (
@@ -530,16 +568,43 @@ const SidebarContent = ({
         Home
       </NavItem>
       <Divider />
-      <Box ml={8} color="text.400">
-        {' '}
+      <Box
+        paddingLeft={8}
+        paddingRight={8}
+        color="text.400"
+        display={aiChatMenu ? 'block' : 'flex'}
+        alignItems="center"
+        justifyContent="space-between"
+        cursor="pointer"
+        onClick={
+          hasActiveSubscription
+            ? () => toggleChatMenu()
+            : () =>
+                handleLockedClick(
+                  'Pick a plan to access your AI Study Tools! 🚀',
+                  'Get started today for free!'
+                )
+        }
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      >
         <Button
           variant={'unstyled'}
           display="flex"
+          alignSelf="start"
           gap={'10px'}
           leftIcon={<RiChat3Line width={18} />}
           fontSize={14}
           fontWeight={500}
-          onClick={() => toggleChatMenu()}
+          onClick={
+            hasActiveSubscription
+              ? () => toggleChatMenu()
+              : () =>
+                  handleLockedClick(
+                    'Pick a plan to access your AI Study Tools! 🚀',
+                    'Get started today for free!'
+                  )
+          }
           rightIcon={
             aiChatMenu ? (
               <MdOutlineKeyboardArrowUp />
@@ -550,7 +615,7 @@ const SidebarContent = ({
         >
           AI Chat
         </Button>
-        <Box display={aiChatMenu ? 'block' : 'none'}>
+        <Box display={aiChatMenu ? 'block' : 'none'} alignSelf="start">
           <MenuLinedList
             items={[
               {
@@ -565,23 +630,33 @@ const SidebarContent = ({
             ]}
           />
         </Box>
+        {!hasActiveSubscription &&
+          (isHovering ? (
+            <Icon as={RiLockUnlockFill} fontSize="18" color="#fc9b65" />
+          ) : (
+            <Icon as={RiLockFill} fontSize="18" color="#fc9b65" />
+          ))}
       </Box>
       {LinkItems.map((link) => (
-        <>
-          <NavItem
-            key={link.name}
-            icon={link.icon}
-            path={link.path}
-            // className={`${
-            //   pathname === link.path
-            //     ? 'bg-slate-100 text-primaryBlue'
-            //     : 'text-gray-400 hover:text-primaryBlue hover:bg-slate-100'
-            // } group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold`}
-          >
-            {link.name}
-          </NavItem>
-        </>
+        <NavItem
+          key={link.name}
+          icon={link.icon}
+          path={link.path}
+          isLocked={link.requiresSubscription && !hasActiveSubscription}
+          onLockedClick={
+            link.requiresSubscription
+              ? () =>
+                  handleLockedClick(
+                    'Pick a plan to access your AI Study Tools! 🚀',
+                    'Get started today for free!'
+                  )
+              : undefined
+          }
+        >
+          {link.name}
+        </NavItem>
       ))}
+
       <Divider />
       <Box ml={8} color="text.400">
         {' '}
@@ -667,7 +742,17 @@ const SidebarContent = ({
       >
         Feedback
       </NavItem>
-      <NavItem icon={PiClipboardTextLight} path="/dashboard/study-plans">
+      <NavItem
+        icon={PiClipboardTextLight}
+        path="/dashboard/study-plans"
+        isLocked={!hasActiveSubscription}
+        onLockedClick={() =>
+          handleLockedClick(
+            'Pick a plan to access your AI Study Tools! 🚀',
+            'Get started today for free!'
+          )
+        }
+      >
         Study Plans
       </NavItem>
       <Divider />
@@ -718,6 +803,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [earnMenu, setEarnMenu] = useState(false);
   const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
   const { user }: any = userStore();
+  const hasActiveSubscription = user?.subscription?.status === 'active';
+  const [togglePlansModal, setTogglePlansModal] = useState(false);
+  const [plansModalMessage, setPlansModalMessage] = useState('');
+  const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
+
+  const handleLockedClick = (message, subMessage) => {
+    setPlansModalMessage(message);
+    setPlansModalSubMessage(subMessage);
+    setTogglePlansModal(true);
+  };
+
   const {
     unreadCount,
     connectUserToChat,
@@ -773,6 +869,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               toggleEarnMenu={toggleEarnMenu}
               display={{ base: 'none', md: 'block' }}
               unreadCount={unreadCount}
+              hasActiveSubscription={hasActiveSubscription}
+              handleLockedClick={handleLockedClick}
             />
             <Drawer
               autoFocus={false}
@@ -795,6 +893,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   earnMenu={earnMenu}
                   toggleEarnMenu={toggleEarnMenu}
                   unreadCount={unreadCount}
+                  hasActiveSubscription={hasActiveSubscription}
+                  handleLockedClick={handleLockedClick}
                 />
               </DrawerContent>
             </Drawer>
@@ -810,6 +910,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </Box>
         </Grid>
       </Flex>
+      {togglePlansModal && (
+        <PlansModal
+          togglePlansModal={togglePlansModal}
+          setTogglePlansModal={setTogglePlansModal}
+          message={plansModalMessage}
+          subMessage={plansModalSubMessage}
+        />
+      )}
     </>
   );
 }

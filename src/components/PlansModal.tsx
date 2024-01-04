@@ -294,7 +294,7 @@ const PlansModal = ({
                                     <div className="landing-price-value">
                                       <img
                                         className="landing-check-icon"
-                                        src="/images/check.svg"
+                                        src="/images/checkIcon.svg"
                                         alt="price"
                                       />
                                       <Text
@@ -324,12 +324,6 @@ const PlansModal = ({
                             ))}
                           </div>
                         ) : (
-                          // <StripePricingTable
-                          //   pricing-table-id="prctbl_1OHKrkF6YXFSjxP0RajWKnNk"
-                          //   publishable-key="pk_test_51NXtg6F6YXFSjxP0H8Vr0LHzkrYPJx0YbS8vSIPAs7P87pa7poSU6zlt3edhW2wmMOVd6uh2cFTjDhoIYlT1Z3Z400G6uGgWu2"
-                          //   client-reference-id={user.id}
-                          // />
-
                           <div className="landing-price-wrapper">
                             {priceData.map((priceCard) => (
                               <div
