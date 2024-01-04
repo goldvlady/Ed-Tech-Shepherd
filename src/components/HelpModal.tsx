@@ -64,7 +64,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
   const actions1 = [
     {
       id: 1,
-      title: 'Ace Homework',
+      title: 'AI Tutor',
       description:
         'Stuck with your homework, Shepherd can guide you through it step by step for quick & easy completion',
       imageURL: '/images/ace-homework.svg',
@@ -87,7 +87,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
     },
     {
       id: 3,
-      title: 'Notes Navigator',
+      title: 'Doc-chat',
       showModal: true,
       description:
         'Want to make the most of your notes? Chat with them via Shepherd and uncover insights to boost your grasp ',
