@@ -1,5 +1,6 @@
-import { Spinner, Modal, ModalOverlay } from '@chakra-ui/react';
-
+import { Modal, ModalOverlay } from '@chakra-ui/react';
+import ShepherdSpinner from '../views/Dashboard/components/shepherd-spinner';
+import React from 'react';
 const LoaderOverlay = () => (
   <Modal
     onClose={() => {
@@ -15,13 +16,7 @@ const LoaderOverlay = () => (
         backgroundColor: 'rgba(0, 0, 0, 0.5)' // Semi-transparent background
       }}
     >
-      <Spinner
-        thickness="4px"
-        speed="0.65s"
-        emptyColor="gray.200"
-        color="blue.500"
-        size="xl"
-      />
+      <ShepherdSpinner />
     </ModalOverlay>
   </Modal>
 );

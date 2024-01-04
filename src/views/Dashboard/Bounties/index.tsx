@@ -2,49 +2,29 @@ import { useCustomToast } from '../../../components/CustomComponents/CustomToast
 import PaymentDialog, {
   PaymentDialogRef
 } from '../../../components/PaymentDialog';
-import {
-  PencilIcon,
-  SparklesIcon,
-  ArrowRightIcon,
-  EllipsistIcon
-} from '../../../components/icons';
 import { useTitle } from '../../../hooks';
 import ApiService from '../../../services/ApiService';
 import offerStore from '../../../state/offerStore';
 import userStore from '../../../state/userStore';
 import theme from '../../../theme';
-import TutorAvi from '../../assets/tutoravi.svg';
 import BountyOfferModal from '../components/BountyOfferModal';
 import Pagination from '../components/Pagination';
-import TutorCard from '../components/TutorCard';
 import StudentBountyCard from './StudentBountyCard';
 import {
   Alert,
   AlertDescription,
   AlertIcon,
-  Avatar,
   Box,
   Button,
-  Divider,
   Flex,
-  Image,
-  SimpleGrid,
-  Spinner,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
   Text,
-  VStack,
-  useToast,
   useDisclosure
 } from '@chakra-ui/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
-import { PlusIcon } from '@heroicons/react/24/outline';
 import { loadStripe } from '@stripe/stripe-js';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { MdInfo } from 'react-icons/md';
+import ShepherdSpinner from '../components/shepherd-spinner';
 
 function AllBounties() {
   useTitle('Bounties');
@@ -185,7 +165,7 @@ function AllBounties() {
           height: '100vh'
         }}
       >
-        <Spinner />
+        <ShepherdSpinner />
       </Box>
     );
   }

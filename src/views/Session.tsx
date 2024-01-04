@@ -3,12 +3,13 @@ import ApiService from '../services/ApiService';
 import userStore from '../state/userStore';
 import theme from '../theme';
 import { Booking } from '../types';
-import { Box, Spinner, Text } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import moment from 'moment-timezone';
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FiArrowRight } from 'react-icons/fi';
 import { useParams } from 'react-router';
 import styled from 'styled-components';
+import ShepherdSpinner from './Dashboard/components/shepherd-spinner';
 
 const SchedulePill = styled(Box)`
   background: #f1f2f3;
@@ -94,7 +95,7 @@ const Session = () => {
       />
       {loadingBooking && (
         <Box display="flex" justifyContent="center" py="20px">
-          <Spinner />
+          <ShepherdSpinner />
         </Box>
       )}
       {booking && (

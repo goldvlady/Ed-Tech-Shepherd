@@ -38,7 +38,6 @@ import {
   ModalFooter,
   ModalOverlay,
   SimpleGrid,
-  Spinner,
   Text,
   Textarea,
   VStack,
@@ -47,13 +46,20 @@ import {
 import { Field, FieldProps, Form, Formik, FormikProps } from 'formik';
 import { capitalize, isEmpty } from 'lodash';
 import moment from 'moment';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { BsQuestionCircleFill } from 'react-icons/bs';
 import { FiChevronRight } from 'react-icons/fi';
 import { MdInfo } from 'react-icons/md';
 import { useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 import * as Yup from 'yup';
+import ShepherdSpinner from './components/shepherd-spinner';
 
 const LeftCol = styled(Box)`
   min-height: 100vh;
@@ -186,7 +192,7 @@ const SendTutorOffer = () => {
         <LeftCol mb="32px" className="col-lg-8">
           {loading && (
             <Box textAlign={'center'}>
-              <Spinner />
+              <ShepherdSpinner />
             </Box>
           )}
           {!!tutor && (

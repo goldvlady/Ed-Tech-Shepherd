@@ -1,13 +1,6 @@
-import ApiService from '../../services/ApiService';
 import CustomModal from '../CustomComponents/CustomModal';
-import {
-  DownloadIcon,
-  FlashCardsIcon,
-  FlashCardsSolidIcon,
-  TrashIcon
-} from '../icons';
+import { DownloadIcon, FlashCardsIcon } from '../icons';
 import { DeleteNoteModal } from '../index';
-import { StyledMenuButton, StyledMenuSection } from '../notesTab/styles';
 import SelectableTable, { TableColumn } from '../table';
 import { useDisclosure } from '@chakra-ui/hooks';
 import {
@@ -22,24 +15,14 @@ import {
   MenuButton,
   Button,
   Box,
-  Spinner,
   Text,
   Flex,
   Divider,
   VStack
 } from '@chakra-ui/react';
-import {
-  ChevronRightIcon,
-  MagnifyingGlassIcon
-} from '@heroicons/react/24/solid';
+import { ChevronRightIcon } from '@heroicons/react/24/solid';
 import moment from 'moment';
-import React, {
-  useLayoutEffect,
-  useRef,
-  useState,
-  useCallback,
-  useEffect
-} from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { IconContext } from 'react-icons';
 import { AiFillStar } from 'react-icons/ai';
 import { FaEllipsisH } from 'react-icons/fa';

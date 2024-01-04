@@ -1,10 +1,11 @@
-import { Alert, AlertIcon, Box, Button, Spinner } from '@chakra-ui/react';
+import { Alert, AlertIcon, Box, Button } from '@chakra-ui/react';
 import {
   PaymentElement,
   useElements,
   useStripe
 } from '@stripe/react-stripe-js';
 import React, { FormEvent, useState } from 'react';
+import ShepherdSpinner from '../views/Dashboard/components/shepherd-spinner';
 
 type Props = {
   clientSecret: string;
@@ -44,7 +45,7 @@ const StripeCheckoutForm: React.FC<Props> = ({ clientSecret, returnUrl }) => {
   return (
     <form id="payment-form" onSubmit={handleSubmit}>
       {!stripe || !elements ? (
-        <Spinner />
+        <ShepherdSpinner />
       ) : (
         <>
           {!!message && (

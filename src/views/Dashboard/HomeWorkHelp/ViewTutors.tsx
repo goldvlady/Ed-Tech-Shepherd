@@ -11,10 +11,11 @@ import {
   TutorsBackIcn,
   ViewTutorSection
 } from './style';
-import { Spinner, Box } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import moment from 'moment';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ShepherdSpinner from '../components/shepherd-spinner';
 
 const ViewTutors = ({
   onOpenModal,
@@ -137,7 +138,7 @@ const ViewTutors = ({
                 width: '100%'
               }}
             >
-              <Spinner />
+              <ShepherdSpinner />
             </Box>
           ) : (
             <>
@@ -196,7 +197,7 @@ const ViewTutors = ({
                 width: '100%'
               }}
             >
-              <Spinner />
+              <ShepherdSpinner />
             </Box>
           ) : (
             <>
