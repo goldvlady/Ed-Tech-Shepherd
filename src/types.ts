@@ -405,6 +405,7 @@ export interface NoteDetails {
   user: NoteUser;
   topic: string;
   note: string;
+  summary: string;
   tags: Array<string>;
   _id: string;
   createdAt: Date;
