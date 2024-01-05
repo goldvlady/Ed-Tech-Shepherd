@@ -101,7 +101,13 @@ const PlansModal = ({
     };
   }, []);
 
-  const handleSubscriptionClick = async (priceId) => {
+  const handleSubscriptionClick = async (priceIdKey) => {
+    const priceId = process.env[priceIdKey];
+    if (!priceId) {
+      console.error('Price ID not found for', priceIdKey);
+      // Handle error scenario
+      return;
+    }
     if (!user || !user.id) {
       console.error('User is not authenticated');
       // Handle unauthenticated user scenario
