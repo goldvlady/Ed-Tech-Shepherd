@@ -466,7 +466,7 @@ const SelectedModal = ({
     }
 
     setShow(false);
-    user && fetchUserDocuments(user._id);
+    user && fetchUserDocuments();
   };
 
   const doNothing = () => {
