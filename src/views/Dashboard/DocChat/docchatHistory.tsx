@@ -15,6 +15,7 @@ import {
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import documentStore from '../../../state/documentStore';
 
 interface IDocchatHistory {
   studentId: string;
@@ -56,7 +57,9 @@ const DocchatHistory = ({
   setIsChatHistory,
   noteId
 }: IDocchatHistory) => {
-  const { user, userDocuments, fetchUserDocuments } = userStore();
+  const { user, fetchUserDocuments } = userStore();
+  const { fetchStudentDocuments, studentDocuments: userDocuments } =
+    documentStore();
   const { fetchNotes } = noteStore();
   const [chatHistory, setChatHistory] = useState<any[]>([]);
   const [groupChatsByDateArr, setGroupChatsByDateArr] = useState<GroupedChat[]>(
@@ -84,7 +87,9 @@ const DocchatHistory = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showSearchRef]);
-
+  useEffect(() => {
+    fetchStudentDocuments();
+  }, []);
   async function retrieveChatHistory(
     studentIdParam: string,
     noteText?: string
@@ -142,7 +147,7 @@ const DocchatHistory = ({
       setIsChatHistory(false);
     }
 
-    user && fetchUserDocuments();
+    user && fetchStudentDocuments();
   };
 
   const goToNoteChat = async (noteId) => {
