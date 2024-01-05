@@ -470,7 +470,9 @@ const SelectedModal = ({
     }
 
     setShow(false);
+
     user && fetchStudentDocuments();
+
   };
 
   const doNothing = () => {
@@ -581,74 +583,73 @@ const SelectedModal = ({
       >
         <Wrapper>
           <div className="p-4" style={{ width: '100%' }}>
-            {loadedStudentDocs && (
-              <div style={{ width: '-webkit-fill-available' }}>
-                <Text>
-                  To proceed, please upload a document or select from the
-                  existing list
-                </Text>
-                <Center
-                  w="full"
-                  minH="65px"
-                  mt={3}
-                  p={2}
-                  border="2px"
-                  borderColor={isDragOver ? 'gray.600' : 'gray.300'}
-                  borderStyle="dashed"
-                  rounded="lg"
-                  cursor="pointer"
-                  bg={isDragOver ? 'gray.600' : 'gray.50'}
-                  color={isDragOver ? 'white' : 'inherit'}
-                  onDragOver={(e) => handleDragEnter(e)}
-                  onDragEnter={(e) => handleDragEnter(e)}
-                  onDragLeave={(e) => handleDragLeave(e)}
-                  onDrop={(e) => handleDrop(e)}
-                  // onClick={clickInput}
-                >
-                  <label htmlFor="file-upload">
-                    <Center flexDirection="column">
-                      {fileName ? (
-                        <Flex>
-                          <AttachmentIcon /> <FileName>{fileName}</FileName>
-                        </Flex>
-                      ) : (
-                        <Flex direction={'column'} alignItems={'center'}>
-                          <RiUploadCloud2Fill
-                            className="h-8 w-8"
-                            color="gray.500"
-                          />
+            <div style={{ width: '-webkit-fill-available' }}>
+              <Text>
+                To proceed, please upload a document or select from the existing
+                list
+              </Text>
+              <Center
+                w="full"
+                minH="65px"
+                mt={3}
+                p={2}
+                border="2px"
+                borderColor={isDragOver ? 'gray.600' : 'gray.300'}
+                borderStyle="dashed"
+                rounded="lg"
+                cursor="pointer"
+                bg={isDragOver ? 'gray.600' : 'gray.50'}
+                color={isDragOver ? 'white' : 'inherit'}
+                onDragOver={(e) => handleDragEnter(e)}
+                onDragEnter={(e) => handleDragEnter(e)}
+                onDragLeave={(e) => handleDragLeave(e)}
+                onDrop={(e) => handleDrop(e)}
+                // onClick={clickInput}
+              >
+                <label htmlFor="file-upload">
+                  <Center flexDirection="column">
+                    {fileName ? (
+                      <Flex>
+                        <AttachmentIcon /> <FileName>{fileName}</FileName>
+                      </Flex>
+                    ) : (
+                      <Flex direction={'column'} alignItems={'center'}>
+                        <RiUploadCloud2Fill
+                          className="h-8 w-8"
+                          color="gray.500"
+                        />
+                        <Text
+                          mb="2"
+                          fontSize="sm"
+                          color={isDragOver ? 'white' : 'gray.500'}
+                          fontWeight="semibold"
+                        >
+                          Click to upload or drag and drop
+                        </Text>
+                        <PDFTextContainer>
                           <Text
-                            mb="2"
-                            fontSize="sm"
+                            fontSize="xs"
                             color={isDragOver ? 'white' : 'gray.500'}
-                            fontWeight="semibold"
                           >
-                            Click to upload or drag and drop
+                            DOC, TXT, or PDF (MAX: {fileSizeLimitMB}MB)
                           </Text>
-                          <PDFTextContainer>
-                            <Text
-                              fontSize="xs"
-                              color={isDragOver ? 'white' : 'gray.500'}
-                            >
-                              DOC, TXT, or PDF (MAX: {fileSizeLimitMB}MB)
-                            </Text>
-                          </PDFTextContainer>
-                        </Flex>
-                      )}
-                    </Center>
-                  </label>
-                  <input
-                    type="file"
-                    accept=".doc, .txt, .pdf"
-                    // accept="application/pdf"
-                    className="hidden"
-                    id="file-upload"
-                    ref={inputRef}
-                    onChange={collectFileInput}
-                  />
-                </Center>
-                <Center my={3}>Or</Center>
-                {/* <Label htmlFor="note">Select note</Label> */}
+                        </PDFTextContainer>
+                      </Flex>
+                    )}
+                  </Center>
+                </label>
+                <input
+                  type="file"
+                  accept=".doc, .txt, .pdf"
+                  // accept="application/pdf"
+                  className="hidden"
+                  id="file-upload"
+                  ref={inputRef}
+                  onChange={collectFileInput}
+                />
+              </Center>
+              {studentDocuments && <Center my={3}>Or</Center>}
+              {studentDocuments && (
                 <DocumentListWrapper>
                   <AutocompleteDropdown
                     studentDocuments={studentDocuments}
@@ -657,9 +658,9 @@ const SelectedModal = ({
                     handleSelected={handleSelected}
                   ></AutocompleteDropdown>
                 </DocumentListWrapper>
-                {/* <OrText>Or</OrText> */}
-              </div>
-            )}
+              )}
+            </div>
+
             <Box my={2}>
               {countdown.active && (
                 <CountdownProgressBar

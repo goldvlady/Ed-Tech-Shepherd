@@ -662,6 +662,72 @@ export default function DocChat() {
     }
   }, [noteLoading, fetchSingleNote]);
 
+  // useEffect(() => {
+  //   const data = {
+  //     studentId
+  //   };
+
+  //   if (!isEmpty(documentId) && !isNil(documentId)) {
+  //     data['documentId'] = documentId;
+  //   }
+  //   if (!isEmpty(noteId) && !isNil(noteId)) {
+  //     data['noteId'] = noteId;
+  //   }
+
+  //   const fetchChatHistory = async () => {
+  //     try {
+  //       const historyData = await chatHistory(data);
+
+  //       const mappedData = historyData?.map((item) => ({
+  //         text: item?.log.content,
+  //         isUser: item?.log.role === 'user',
+  //         isLoading: false,
+  //         disliked: item?.disliked,
+  //         liked: item?.liked,
+  //         chatId: item?.id,
+  //         isPinned: item?.isPinned,
+  //         createdAt: new Date(item?.createdAt) || new Date(0)
+  //       }));
+
+  //       const sortedMessages = mappedData?.sort(
+  //         (a, b) => a.createdAt - b.createdAt
+  //       );
+
+  //       setMessages(sortedMessages);
+  //       // Set likesDislikes based on the fetched chat history
+  //       setLikesDislikes(
+  //         mappedData.map((message) => ({
+  //           like: message.liked,
+  //           dislike: message.disliked
+  //         }))
+  //       );
+
+  //       setIsPinned(
+  //         mappedData.map((message) => ({
+  //           isPinned: message.isPinned
+  //         }))
+  //       );
+
+  //       setPinPromptArr(mappedData?.filter((message) => message.isPinned));
+
+  //       setChatHistoryLoaded(true);
+  //     } catch (error) {
+  //       toast({
+  //         render: () => (
+  //           <CustomToast
+  //             title="Failed to fetch chat history..."
+  //             status="error"
+  //           />
+  //         ),
+  //         position: 'top-right',
+  //         isClosable: true
+  //       });
+  //     }
+  //   };
+
+  //   fetchChatHistory();
+  // }, [documentId, studentId]);
+
   useEffect(() => {
     const data = {
       studentId
@@ -689,9 +755,14 @@ export default function DocChat() {
           createdAt: new Date(item?.createdAt) || new Date(0)
         }));
 
-        const sortedMessages = mappedData?.sort(
-          (a, b) => a.createdAt - b.createdAt
-        );
+        // Updated sorting logic
+        const sortedMessages = mappedData?.sort((a, b) => {
+          const dateDiff = a.createdAt - b.createdAt;
+          if (dateDiff === 0) {
+            return a.chatId - b.chatId;
+          }
+          return dateDiff;
+        });
 
         setMessages(sortedMessages);
         // Set likesDislikes based on the fetched chat history
