@@ -22,10 +22,10 @@ const AutocompleteDropdown = (props) => {
   };
 
   const options = studentDocuments.map((item) => ({
-    value: item.documentURL,
+    value: item.documentUrl,
     label: item.title,
-    id: item.documentId,
-    keywords: item.keywords
+    id: item.ingestId,
+    keywords: item.title
   }));
 
   return (

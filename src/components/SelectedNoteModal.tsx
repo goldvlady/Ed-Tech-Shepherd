@@ -440,6 +440,7 @@ const SelectedModal = ({
   const handleSelected = async (e) => {
     setAlreadyExist(false);
     setUploadFailed(false);
+
     if (e.value && e.label && e.id) {
       setDocumentURL(() => e.value);
       setDocumentName(() => e.label);
