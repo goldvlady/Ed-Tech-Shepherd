@@ -145,14 +145,13 @@ export default function DocChat() {
       : true;
   }, [likesDislikes]);
 
+  const handleToggleMobileChat = () => setToggleMobileChat(!toggleMobileChat);
+
   function handleCloseToast() {
     if (toastIdRef.current) {
       toast.close(toastIdRef.current);
     }
   }
-
-  const handleToggleMobileChat = () => setToggleMobileChat(!toggleMobileChat);
-
   function handleCloseAllToast() {
     // you may optionally pass an object of positions to exclusively close
     // keeping other positions opened
