@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { BlockMath, InlineMath } from 'react-katex';
-import rehypePrism from 'rehype-prism';
+import rehypePrism from '@mapbox/rehype-prism'; // Ensure correct import
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -11,6 +11,7 @@ import 'katex/dist/katex.min.css';
 interface CustomComponents {
   math: ({ node, inline }: { node: any; inline: boolean }) => JSX.Element;
   inlineMath: ({ node, inline }: { node: any; inline: boolean }) => JSX.Element;
+  button: any;
   // Add more custom components if needed
 }
 
@@ -23,15 +24,13 @@ interface ICustomMarkdownView {
 
 const CustomMarkdownView = ({
   source,
-  keywords = [], // Default to an empty array if not provided
+  keywords = [],
   handleSendKeyword
 }: ICustomMarkdownView) => {
   const [renderedSource, setRenderedSource] = useState<string>('');
 
   useEffect(() => {
     let modifiedSource = source;
-
-    // Check if keywords is an array before attempting to use forEach
     if (Array.isArray(keywords)) {
       keywords.forEach((keyword, index) => {
         modifiedSource = modifiedSource.replace(
@@ -40,25 +39,28 @@ const CustomMarkdownView = ({
         );
       });
     }
-
     setRenderedSource(modifiedSource);
   }, [source, keywords]);
 
+  // Custom components
   const components: CustomComponents = {
-    math: ({ node, inline }) => {
-      if (inline) {
-        return <InlineMath math={node.value} />;
-      }
-      return <BlockMath math={node.value} />;
-    },
-    inlineMath: ({ node, inline }) => {
-      return <InlineMath math={node.value} />;
-    }
+    math: ({ node, inline }) =>
+      inline ? (
+        <InlineMath math={node.value} />
+      ) : (
+        <BlockMath math={node.value} />
+      ),
+    inlineMath: ({ node }) => <InlineMath math={node.value} />,
+    button: (props: any) => (
+      <button {...props} onClick={(e) => onKeywordClick(e, props.children)} />
+    )
   };
 
-  const onKeywordClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const keyword = event.currentTarget.dataset.keyword;
-    if (handleSendKeyword && keyword) {
+  const onKeywordClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    keyword: string
+  ) => {
+    if (handleSendKeyword) {
       handleSendKeyword(event, keyword);
     }
   };
@@ -68,14 +70,7 @@ const CustomMarkdownView = ({
       className="custom_markdown"
       remarkPlugins={[remarkGfm, remarkMath]}
       rehypePlugins={[rehypeRaw, rehypePrism]}
-      components={{
-        ...components,
-        button: (props: any) => (
-          <button {...props} onClick={onKeywordClick}>
-            {props.children}
-          </button>
-        )
-      }}
+      components={components}
       children={renderedSource}
     />
   );

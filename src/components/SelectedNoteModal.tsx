@@ -472,7 +472,6 @@ const SelectedModal = ({
     setShow(false);
 
     user && fetchStudentDocuments();
-
   };
 
   const doNothing = () => {
