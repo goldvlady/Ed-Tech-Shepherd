@@ -68,8 +68,9 @@ const SelectedModal = ({
   cancelButton = true,
   okayButton
 }: ShowProps) => {
-  const { user, userDocuments, fetchUserDocuments } = userStore();
-  const { fetchStudentDocuments } = documentStore();
+  const { user, fetchUserDocuments } = userStore();
+  const { fetchStudentDocuments, studentDocuments: userDocuments } =
+    documentStore();
   const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
     userStore.getState();
   const navigate = useNavigate();
@@ -217,11 +218,12 @@ const SelectedModal = ({
   const toast = useToast();
 
   useEffect(() => {
-    if (userDocuments.length) {
-      setLoadedStudentDocs(true);
-      setStudentDocuments(userDocuments);
-    }
+    setLoadedStudentDocs(true);
+    setStudentDocuments(userDocuments);
   }, [userDocuments]);
+  useEffect(() => {
+    fetchStudentDocuments();
+  }, []);
 
   const clickInput = () => {
     if (canUpload) inputRef?.current && inputRef.current.click();
