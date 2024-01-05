@@ -858,6 +858,7 @@ export default function DocChat() {
       if (!isEmpty(respDetails.data) && !isNil(respDetails.data)) {
         setIsLoadingNote(false);
         const { data: note } = respDetails.data;
+        console.log('NOTESSSSSS => ', note);
 
         if (!isEmpty(note.note) && !isNil(note.note)) {
           // setEditedTitle(note.topic);
@@ -906,6 +907,17 @@ export default function DocChat() {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      if (!isEmpty(noteId) || !isNil(noteId)) {
+        // setInitialContent(getNoteLocal(noteParamId) as string);
+        await getNoteById(noteId);
+      }
+      setCanStartSaving(true);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [noteId]);
 
   useEffect(() => {
     return editor.registerUpdateListener(({ editorState }) => {

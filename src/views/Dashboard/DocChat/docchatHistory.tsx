@@ -146,6 +146,7 @@ const DocchatHistory = ({
   };
 
   const goToNoteChat = async (noteId: string) => {
+    user && fetchNotes();
     navigate('/dashboard/docchat', {
       state: {
         noteId
@@ -154,8 +155,6 @@ const DocchatHistory = ({
     if (setIsChatHistory) {
       setIsChatHistory(false);
     }
-
-    user && fetchNotes();
   };
 
   useEffect(() => {
