@@ -48,6 +48,7 @@ import React, {
 import { IoChatboxEllipsesOutline } from 'react-icons/io5';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Socket } from 'socket.io-client';
+import noteStore from '../../../state/noteStore';
 import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
 import PlansModal from '../../../components/PlansModal';
 import { Box, Text, Center, Icon, useToast } from '@chakra-ui/react';
@@ -110,7 +111,7 @@ export default function DocChat() {
   const [inputValue, setInputValue] = useState('');
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const documentId = location.state.documentId ?? '';
-  const noteId = location?.state?.noteId ?? '';
+  const noteId: string = location?.state?.noteId ?? '';
   const docKeywords = location.state.docKeywords ?? [];
   // const [keyword, setKeyword] = useState('');
   const title = location.state.docTitle ?? '';
@@ -158,6 +159,8 @@ export default function DocChat() {
   const [isChatLoading, setChatLoading] = useState({});
   const [isLoadingNote, setIsLoadingNote] = useState(true);
   const [pinPromptArr, setPinPromptArr] = useState<any>();
+  const { fetchSingleNote, note, updateNote: updateNoteSummary } = noteStore();
+  const [noteLoading, setNoteLoading] = useState(false);
 
   const isLike = useMemo(() => {
     return likesDislikes[1]?.like
@@ -415,8 +418,13 @@ export default function DocChat() {
     if (socket) {
       socket.on('new_note_summary', (data) => {
         const summary = data.summary;
+        updateNoteSummary(noteId, { topic: editedTitle, summary });
         setSummaryText(summary);
       });
+    } else {
+      setNoteLoading(true);
+
+      // return () => socket.off('new_note_summary', () => setNoteLoading(true));
     }
   }, [socket]);
 
@@ -594,27 +602,63 @@ export default function DocChat() {
     response();
   }, [getToggleReaction, chatId, isLike, likesDislikes]);
 
+  // useEffect(() => {
+  //   if (isEmpty(documentId)) {
+  //     return;
+  //   }
+  //   if (isEmpty(studentId)) {
+  //     return;
+  //   }
+
+  //   if (isEmpty(noteId)) {
+  //     return;
+  //   }
+
+  //   const fetchSummary = async () => {
+  //     console.log('notedId =>', noteId);
+  //     const { summary } = await generateSummary({
+  //       documentId: documentId || noteId,
+  //       studentId
+  //     });
+  //     setSummaryText(summary);
+  //   };
+  //   fetchSummary();
+  // }, [documentId, studentId, noteId]);
+
   useEffect(() => {
-    if (isEmpty(documentId)) {
-      return;
-    }
-    if (isEmpty(studentId)) {
-      return;
-    }
-
-    if (isEmpty(noteId)) {
-      return;
-    }
-
     const fetchSummary = async () => {
-      const { summary } = await generateSummary({
-        documentId: documentId || noteId,
-        studentId
-      });
-      setSummaryText(summary);
+      try {
+        if (!documentId) {
+          console.log('Document ID or Note ID is missing');
+          return; // Exit if no valid ID is available
+        }
+
+        // API call to generate summary
+        const response = await generateSummary({
+          documentId: documentId,
+          studentId
+        });
+
+        if (response && response.summary) {
+          setSummaryText(response.summary);
+        } else {
+          console.log('No summary data received');
+        }
+      } catch (error) {
+        console.error('Error fetching summary:', error);
+        // Handle or log error appropriately
+      }
     };
+
+    // Invoke the fetch function
     fetchSummary();
-  }, [documentId, studentId, noteId]);
+  }, [documentId, studentId]);
+
+  useEffect(() => {
+    if (noteLoading) {
+      fetchSingleNote(noteId);
+    }
+  }, [noteLoading, fetchSingleNote]);
 
   useEffect(() => {
     const data = {
@@ -683,6 +727,14 @@ export default function DocChat() {
   }, [documentId, studentId]);
 
   useEffect(() => setShowPrompt(!!messages?.length), [messages?.length]);
+
+  useEffect(() => {
+    setSummaryText('');
+
+    if (note?.data?.summary) {
+      setSummaryText(note?.data?.summary);
+    }
+  }, [noteId, note?.data?.summary]);
 
   useEffect(() => {
     if (isEmpty(documentId)) {

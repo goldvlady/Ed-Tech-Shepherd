@@ -484,11 +484,12 @@ export enum NoteStatus {
 }
 
 export interface NoteData {
-  note: any;
-  topic: string;
+  note?: any;
+  topic?: string;
   documentId?: string;
   tags?: Array<string>;
   status?: NoteStatus;
+  summary?: string;
 }
 
 export interface StudentDocument {
