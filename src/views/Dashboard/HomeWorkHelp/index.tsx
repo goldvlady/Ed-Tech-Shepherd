@@ -36,13 +36,12 @@ import {
   useToast,
   useDisclosure,
   Box,
-  Image,
-  VStack,
   Text,
-  Button,
   Alert,
   AlertIcon,
-  AlertDescription
+  AlertDescription,
+  Center,
+  Icon
 } from '@chakra-ui/react';
 import { loadStripe } from '@stripe/stripe-js';
 import React, {
@@ -53,8 +52,9 @@ import React, {
   useRef
 } from 'react';
 import { MdInfo } from 'react-icons/md';
-import { MdTune } from 'react-icons/md';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
+import PlansModal from '../../../components/PlansModal';
 
 const HomeWorkHelp = () => {
   const [isOpenModal, setOpenModal] = useState(false);
@@ -116,6 +116,26 @@ const HomeWorkHelp = () => {
   const [isChatHistory, setChatHistory] = useState<boolean>(false);
   const ref = useRef<HTMLDivElement>(null);
   const [documentId, setDocumentId] = useState<string>('');
+
+  const [isHovering, setIsHovering] = useState(false);
+  const [togglePlansModal, setTogglePlansModal] = useState(false);
+  const [plansModalMessage, setPlansModalMessage] = useState('');
+  const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
+
+  const { hasActiveSubscription } = userStore.getState();
+
+  const handleLockClick = () => {
+    setTogglePlansModal(true);
+  };
+
+  useEffect(() => {
+    if (!hasActiveSubscription) {
+      // Set messages and show the modal if the user has no active subscription
+      setPlansModalMessage('Pick a plan to access your AI Study Tools! 🚀');
+      setPlansModalSubMessage('Get started today for free!');
+      setTogglePlansModal(true);
+    }
+  }, [user.subscription]);
 
   useEffect(() => {
     if (certainConversationId) {
@@ -567,141 +587,177 @@ const HomeWorkHelp = () => {
   //     setRecentConverstionId(firstId);
   //   }
   // }, [storedConvoId]);
+  if (!hasActiveSubscription) {
+    return (
+      <Center height="100vh" width="100%">
+        <Box display={'flex'} flexDirection={'column'} alignItems={'center'}>
+          <Icon
+            as={isHovering ? RiLockUnlockFill : RiLockFill}
+            fontSize="100px"
+            color="#fc9b65"
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
+            onClick={handleLockClick}
+            cursor="pointer"
+          />
+          <Text
+            mt="20px"
+            fontSize="20px"
+            fontWeight="bold"
+            color={'lightgrey'}
+            textAlign="center"
+          >
+            Unlock your full potential today!
+          </Text>
+        </Box>
+        {togglePlansModal && (
+          <PlansModal
+            togglePlansModal={togglePlansModal}
+            setTogglePlansModal={setTogglePlansModal}
+            message={plansModalMessage}
+            subMessage={plansModalSubMessage}
+          />
+        )}
+      </Center>
+    );
+  } else {
+    return (
+      <HomeWorkHelpContainer>
+        <HomeWorkHelpHistoryContainer>
+          <ChatHistory
+            studentId={studentId}
+            setConversationId={setConversationId}
+            conversationId={conversationId}
+            isSubmitted={isSubmitted}
+            setCountNeedTutor={setCountNeedTutor}
+            setMessages={setMessages}
+            setDeleteConservationModal={setDeleteConservationModal}
+            deleteConservationModal={deleteConservationModal}
+            setVisibleButton={setVisibleButton}
+            setSocket={setSocket}
+            setCertainConversationId={setCertainConversationId}
+            messages={messages}
+            setSomeBountyOpt={setSomeBountyOpt}
+            setNewConversationId={setNewConversationId}
+            isBountyModalOpen={isBountyModalOpen}
+            setLocalData={setLocalData}
+            setFreshConversationId={setFreshConversationId}
+          />
+        </HomeWorkHelpHistoryContainer>
+        <HomeWorkHelpChatContainer>
+          <Chat
+            ref={ref}
+            isReadyToChat={true}
+            HomeWorkHelp
+            isShowPrompt={isShowPrompt}
+            messages={messages}
+            llmResponse={llmResponse}
+            botStatus={botStatus}
+            onOpenModal={onOpenModal}
+            inputValue={inputValue}
+            handleInputChange={handleInputChange}
+            handleSendMessage={handleSendMessage}
+            handleKeyDown={handleKeyDown}
+            homeWorkHelpPlaceholder={
+              'How can Shepherd help with your homework?'
+            }
+            handleClickPrompt={handleClickPrompt}
+            countNeedTutor={countNeedTutor}
+            onCountTutor={onCountTutor}
+            handleAceHomeWorkHelp={handleAceHomeWorkHelp}
+            visibleButton={visibleButton}
+            fetchDescription={fetchDescription}
+            freshConversationId={freshConversationId}
+            onChatHistory={onChatHistory}
+          />
+        </HomeWorkHelpChatContainer>
 
-  return (
-    <HomeWorkHelpContainer>
-      <HomeWorkHelpHistoryContainer>
-        <ChatHistory
-          studentId={studentId}
-          setConversationId={setConversationId}
-          conversationId={conversationId}
-          isSubmitted={isSubmitted}
-          setCountNeedTutor={setCountNeedTutor}
-          setMessages={setMessages}
-          setDeleteConservationModal={setDeleteConservationModal}
-          deleteConservationModal={deleteConservationModal}
-          setVisibleButton={setVisibleButton}
-          setSocket={setSocket}
-          setCertainConversationId={setCertainConversationId}
-          messages={messages}
-          setSomeBountyOpt={setSomeBountyOpt}
-          setNewConversationId={setNewConversationId}
+        <CustomModal
+          isOpen={isOpenModal}
+          onClose={onOpenModal}
+          modalSize="lg"
+          style={{
+            height: '100Vh',
+            maxWidth: '100%'
+          }}
+        >
+          <ViewTutors
+            onOpenModal={onOpenModal}
+            subjectID={localData.subjectId}
+            onlineTutorsId={onlineTutorsId}
+          />
+        </CustomModal>
+
+        {openAceHomework && (
+          <ViewHomeWorkHelpDetails
+            isHomeWorkHelp
+            openAceHomework={openAceHomework}
+            handleClose={handleClose}
+            setMessages={setMessages}
+            handleAceHomeWorkHelp={handleAceHomeWorkHelp}
+            setSubject={setSubject}
+            subjectId={subjectId}
+            setLocalData={setLocalData}
+            setLevel={setLevel}
+            localData={localData}
+            level={level}
+            onRouteHomeWorkHelp={onRouteHomeWorkHelp}
+            setDocumentId={setDocumentId}
+            documentId={documentId}
+          />
+        )}
+
+        <BountyOfferModal
           isBountyModalOpen={isBountyModalOpen}
-          setLocalData={setLocalData}
-          setFreshConversationId={setFreshConversationId}
+          closeBountyModal={closeBountyModal}
+          topic={localData?.topic || someBountyOpt?.topic}
+          subject={localData?.subject || someBountyOpt?.subject}
+          level={level.label || someBountyOpt?.level}
+          description={description}
         />
-      </HomeWorkHelpHistoryContainer>
-      <HomeWorkHelpChatContainer>
-        <Chat
-          ref={ref}
-          isReadyToChat={true}
-          HomeWorkHelp
-          isShowPrompt={isShowPrompt}
-          messages={messages}
-          llmResponse={llmResponse}
-          botStatus={botStatus}
-          onOpenModal={onOpenModal}
-          inputValue={inputValue}
-          handleInputChange={handleInputChange}
-          handleSendMessage={handleSendMessage}
-          handleKeyDown={handleKeyDown}
-          homeWorkHelpPlaceholder={'How can Shepherd help with your homework?'}
-          handleClickPrompt={handleClickPrompt}
-          countNeedTutor={countNeedTutor}
-          onCountTutor={onCountTutor}
-          handleAceHomeWorkHelp={handleAceHomeWorkHelp}
-          visibleButton={visibleButton}
-          fetchDescription={fetchDescription}
-          freshConversationId={freshConversationId}
-          onChatHistory={onChatHistory}
+        <PaymentDialog
+          ref={paymentDialogRef}
+          prefix={
+            <Alert status="info" mb="22px">
+              <AlertIcon>
+                <MdInfo color={theme.colors.primary[500]} />
+              </AlertIcon>
+              <AlertDescription>
+                Payment will not be deducted until after your first lesson, You
+                may decide to cancel after your initial lesson.
+              </AlertDescription>
+            </Alert>
+          }
         />
-      </HomeWorkHelpChatContainer>
-
-      <CustomModal
-        isOpen={isOpenModal}
-        onClose={onOpenModal}
-        modalSize="lg"
-        style={{
-          height: '100Vh',
-          maxWidth: '100%'
-        }}
-      >
-        <ViewTutors
-          onOpenModal={onOpenModal}
-          subjectID={localData.subjectId}
-          onlineTutorsId={onlineTutorsId}
-        />
-      </CustomModal>
-
-      {openAceHomework && (
-        <ViewHomeWorkHelpDetails
-          isHomeWorkHelp
-          openAceHomework={openAceHomework}
-          handleClose={handleClose}
-          setMessages={setMessages}
-          handleAceHomeWorkHelp={handleAceHomeWorkHelp}
-          setSubject={setSubject}
-          subjectId={subjectId}
-          setLocalData={setLocalData}
-          setLevel={setLevel}
-          localData={localData}
-          level={level}
-          onRouteHomeWorkHelp={onRouteHomeWorkHelp}
-          setDocumentId={setDocumentId}
-          documentId={documentId}
-        />
-      )}
-
-      <BountyOfferModal
-        isBountyModalOpen={isBountyModalOpen}
-        closeBountyModal={closeBountyModal}
-        topic={localData?.topic || someBountyOpt?.topic}
-        subject={localData?.subject || someBountyOpt?.subject}
-        level={level.label || someBountyOpt?.level}
-        description={description}
-      />
-      <PaymentDialog
-        ref={paymentDialogRef}
-        prefix={
-          <Alert status="info" mb="22px">
-            <AlertIcon>
-              <MdInfo color={theme.colors.primary[500]} />
-            </AlertIcon>
-            <AlertDescription>
-              Payment will not be deducted until after your first lesson, You
-              may decide to cancel after your initial lesson.
-            </AlertDescription>
-          </Alert>
-        }
-      />
-      <CustomSideModal onClose={onChatHistory} isOpen={isChatHistory}>
-        <div style={{ marginTop: '3rem' }}>
-          <MobileHomeWorkHelpHistoryContainer>
-            <ChatHistory
-              studentId={studentId}
-              setConversationId={setConversationId}
-              conversationId={conversationId}
-              isSubmitted={isSubmitted}
-              setCountNeedTutor={setCountNeedTutor}
-              setMessages={setMessages}
-              setDeleteConservationModal={setDeleteConservationModal}
-              deleteConservationModal={deleteConservationModal}
-              setVisibleButton={setVisibleButton}
-              setSocket={setSocket}
-              setCertainConversationId={setCertainConversationId}
-              messages={messages}
-              setSomeBountyOpt={setSomeBountyOpt}
-              setNewConversationId={setNewConversationId}
-              isBountyModalOpen={isBountyModalOpen}
-              setLocalData={setLocalData}
-              setFreshConversationId={setFreshConversationId}
-              onChatHistory={onChatHistory}
-            />
-          </MobileHomeWorkHelpHistoryContainer>
-        </div>
-      </CustomSideModal>
-    </HomeWorkHelpContainer>
-  );
+        <CustomSideModal onClose={onChatHistory} isOpen={isChatHistory}>
+          <div style={{ marginTop: '3rem' }}>
+            <MobileHomeWorkHelpHistoryContainer>
+              <ChatHistory
+                studentId={studentId}
+                setConversationId={setConversationId}
+                conversationId={conversationId}
+                isSubmitted={isSubmitted}
+                setCountNeedTutor={setCountNeedTutor}
+                setMessages={setMessages}
+                setDeleteConservationModal={setDeleteConservationModal}
+                deleteConservationModal={deleteConservationModal}
+                setVisibleButton={setVisibleButton}
+                setSocket={setSocket}
+                setCertainConversationId={setCertainConversationId}
+                messages={messages}
+                setSomeBountyOpt={setSomeBountyOpt}
+                setNewConversationId={setNewConversationId}
+                isBountyModalOpen={isBountyModalOpen}
+                setLocalData={setLocalData}
+                setFreshConversationId={setFreshConversationId}
+                onChatHistory={onChatHistory}
+              />
+            </MobileHomeWorkHelpHistoryContainer>
+          </div>
+        </CustomSideModal>
+      </HomeWorkHelpContainer>
+    );
+  }
 };
 
 export default HomeWorkHelp;

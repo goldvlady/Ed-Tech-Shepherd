@@ -36,6 +36,11 @@ import {
   MenuDivider,
   MenuItem,
   MenuList,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalOverlay,
   Spacer,
   Stack,
   Text,
@@ -111,11 +116,15 @@ interface SidebarProps extends BoxProps {
   earnMenu: boolean;
   // setEarnMenu: (value: boolean) => void;
   unreadCount: number;
+  openModal: (content: any) => void;
+  closeModal: () => void;
 }
 interface NavItemProps extends FlexProps {
   icon?: IconType;
+  type?: 'external' | 'internal';
   children: any;
   path: string;
+  isDisabled?;
   isLocked?: boolean;
   onLockedClick?: any;
   message?: string;
@@ -126,10 +135,12 @@ const NavItem = ({
   icon,
   path,
   children,
+  type = 'internal', // default type to 'internal'
   isLocked,
   onLockedClick,
   message,
   subMessage,
+  isDisabled = false, // default isDisabled to 'false'
   ...rest
 }: NavItemProps) => {
   const { pathname } = useLocation();
@@ -140,59 +151,96 @@ const NavItem = ({
     (pathname.startsWith(path) && path.split('/').length > 2);
 
   const onClick = (e) => {
-    if (isLocked) {
+    // Prevent action if the item is disabled or locked
+    if (isDisabled || (isLocked && onLockedClick)) {
       e.preventDefault();
-      onLockedClick(message, subMessage);
+      if (isLocked) {
+        onLockedClick(message, subMessage);
+      }
+      return; // Stop the function if the item is disabled
     }
   };
 
-  return (
-    <Link onClick={onClick} to={path} style={{ textDecoration: 'none' }}>
-      <Flex
-        align="center"
-        px="4"
-        py="2"
-        mx="4"
-        my="2"
-        borderRadius="lg"
-        role="group"
-        cursor="pointer"
-        _hover={{
-          bg: '#F0F6FE',
-          color: '#207DF7'
-        }}
-        bg={isActive ? '#F0F6FE' : 'transparent'}
-        color={isActive ? '#207DF7' : 'text.400'}
-        fontSize={14}
-        fontWeight={isActive ? '500' : '400'}
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
-        {...rest}
+  // Update the styling to reflect a disabled state
+  const disabledStyle: any = isDisabled
+    ? {
+        cursor: 'not-allowed',
+        pointerEvents: 'none' // Prevents click events
+      }
+    : {};
+
+  const renderLinkContent = () => (
+    <Flex
+      align="center"
+      px="4"
+      py="2"
+      mx="4"
+      my="2"
+      borderRadius="lg"
+      role="group"
+      cursor={isDisabled ? 'not-allowed' : 'pointer'} // Change cursor based on disabled state
+      _hover={{
+        bg: isDisabled ? undefined : '#F0F6FE', // No background change when disabled
+        color: isDisabled ? undefined : '#207DF7' // No color change when disabled
+      }}
+      bg={isActive && !isDisabled ? '#F0F6FE' : 'transparent'} // No active state if disabled
+      color={isActive && !isDisabled ? '#207DF7' : 'text.400'}
+      fontSize={14}
+      fontWeight={isActive ? '500' : '400'}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+      {...rest}
+      {...disabledStyle} // Apply the disabled styling
+    >
+      {icon && (
+        <Icon
+          mr="4"
+          fontSize="16"
+          _groupHover={{
+            color: isDisabled ? undefined : '#207DF7' // No icon color change when disabled
+          }}
+          as={icon}
+        />
+      )}
+      {children}
+      {isLocked && (
+        <Icon
+          as={isHovering ? RiLockUnlockFill : RiLockFill}
+          ml="auto"
+          fontSize="18"
+          color="#fc9b65"
+        />
+      )}
+    </Flex>
+  );
+
+  // Render an anchor tag for external links to open them in a new tab
+  if (type === 'external' && !isDisabled) {
+    // Prevent external links if disabled
+    return (
+      <a
+        href={path}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ textDecoration: 'none', ...disabledStyle }} // Apply the disabled styling
+        onClick={onClick}
       >
-        {icon && (
-          <Icon
-            mr="4"
-            fontSize="16"
-            _groupHover={{
-              color: '#207DF7'
-            }}
-            as={icon}
-          />
-        )}
-        {children}
-        {isLocked && (
-          <Icon
-            as={isHovering ? RiLockUnlockFill : RiLockFill}
-            ml="auto"
-            fontSize="18"
-            color="#fc9b65"
-          />
-        )}
-      </Flex>
+        {renderLinkContent()}
+      </a>
+    );
+  }
+
+  // Render a react-router-dom Link for internal navigation
+  return (
+    <Link
+      to={path}
+      style={{ textDecoration: 'none', ...disabledStyle }}
+      onClick={onClick}
+    >
+      {renderLinkContent()}
     </Link>
   );
 };
-
 interface MobileProps extends FlexProps {
   onOpen: () => void;
 }
@@ -531,6 +579,8 @@ const SidebarContent = ({
   unreadCount,
   hasActiveSubscription,
   handleLockedClick,
+  openModal,
+  closeModal,
   ...rest
 }: SidebarProps & {
   hasActiveSubscription: boolean;
@@ -656,6 +706,42 @@ const SidebarContent = ({
           {link.name}
         </NavItem>
       ))}
+      {/* <NavItem
+        icon={PiClipboardTextLight}
+        path="/dashboard/study-plans"
+        isLocked={!hasActiveSubscription}
+        onLockedClick={() =>
+          handleLockedClick(
+            'Pick a plan to access your AI Study Tools! 🚀',
+            'Get started today for free!'
+          )
+        }
+      >
+        Study Plans
+      </NavItem> */}
+      <Box ml={8} color="text.400">
+        <Button
+          variant={'unstyled'}
+          display="flex"
+          gap={2}
+          leftIcon={<PiClipboardTextLight />}
+          // onClick={() => toggleChatMenu()}
+          fontSize={14}
+          fontWeight={400}
+        >
+          <Text>Study Plans</Text>
+          <Text
+            fontSize={10}
+            border="1px solid #fc9b65"
+            borderRadius={4}
+            color="#fc9b65"
+            alignSelf={'center'}
+            px={1}
+          >
+            Coming Soon
+          </Text>
+        </Button>
+      </Box>
 
       <Divider />
       <Box ml={8} color="text.400">
@@ -715,10 +801,14 @@ const SidebarContent = ({
 
       <Box ml={8} color="text.400">
         <Button
+          cursor={'not-allowed'}
+          pointerEvents={'none'}
+          opacity={1}
           variant={'unstyled'}
           display="flex"
           gap={2}
           leftIcon={<BarnImg />}
+          onClick={() => openModal('Coming Soon!')}
           fontSize={14}
           fontWeight={400}
         >
@@ -738,46 +828,12 @@ const SidebarContent = ({
       <Divider />
       <NavItem
         icon={RiFeedbackLine as unknown as IconType}
+        type="external"
         path="https://shepherdtutors.canny.io/shepherd/p/feature-requests"
       >
         Feedback
       </NavItem>
-      {/* <NavItem
-        icon={PiClipboardTextLight}
-        path="/dashboard/study-plans"
-        isLocked={!hasActiveSubscription}
-        onLockedClick={() =>
-          handleLockedClick(
-            'Pick a plan to access your AI Study Tools! 🚀',
-            'Get started today for free!'
-          )
-        }
-      >
-        Study Plans
-      </NavItem> */}
-      <Box ml={8} color="text.400">
-        <Button
-          variant={'unstyled'}
-          display="flex"
-          gap={2}
-          leftIcon={<PiClipboardTextLight />}
-          // onClick={() => toggleChatMenu()}
-          fontSize={14}
-          fontWeight={400}
-        >
-          <Text>Study Plans</Text>
-          <Text
-            fontSize={10}
-            border="1px solid #fc9b65"
-            borderRadius={4}
-            color="#fc9b65"
-            alignSelf={'center'}
-            px={1}
-          >
-            Coming Soon
-          </Text>
-        </Button>
-      </Box>
+
       <Divider />
       <Box ml={8} color="text.400">
         <Button
@@ -830,6 +886,18 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
   const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState('');
+
+  const openModal = (content) => {
+    setModalContent(content);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalContent('');
+  };
 
   const handleLockedClick = (message, subMessage) => {
     setPlansModalMessage(message);
@@ -894,6 +962,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               unreadCount={unreadCount}
               hasActiveSubscription={hasActiveSubscription}
               handleLockedClick={handleLockedClick}
+              openModal={openModal}
+              closeModal={closeModal}
             />
             <Drawer
               autoFocus={false}
@@ -918,6 +988,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   unreadCount={unreadCount}
                   hasActiveSubscription={hasActiveSubscription}
                   handleLockedClick={handleLockedClick}
+                  openModal={openModal}
+                  closeModal={closeModal}
                 />
               </DrawerContent>
             </Drawer>
@@ -941,6 +1013,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           subMessage={plansModalSubMessage}
         />
       )}
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalCloseButton />
+          <ModalBody>
+            <p>{modalContent}</p>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 }
