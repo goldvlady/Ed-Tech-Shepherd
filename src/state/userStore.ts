@@ -1,6 +1,6 @@
 import { fetchStudentDocuments } from '../services/AI';
 import ApiService from '../services/ApiService';
-import { SearchQueryParams, User, UserNotifications } from '../types';
+import { User, UserNotifications } from '../types';
 import { create } from 'zustand';
 
 type List = {
@@ -19,7 +19,7 @@ type Store = {
   fileSizeLimitBytes: number;
   fetchUser: () => Promise<boolean>;
   fetchNotifications: () => Promise<void>;
-  fetchUserDocuments: (queryParams?: SearchQueryParams) => Promise<void>;
+  fetchUserDocuments: (userId: string) => Promise<void>;
   userDocuments: Array<List> | [];
   setUserData: (data: Partial<User>) => void;
   logoutUser: () => void;
@@ -91,21 +91,8 @@ export default create<Store>((set) => ({
     set({ userNotifications: await response.json() });
     // return true;
   },
-  // fetchUserDocuments: async (userId: string) => {
-  //   const userDocuments = await fetchStudentDocuments(userId);
-  //   set({ userDocuments });
-  // },
-  fetchUserDocuments: async (queryParams: SearchQueryParams = {}) => {
-    try {
-      const response = await ApiService.getStudentDocuments(queryParams);
-      const {
-        data,
-        meta: { pagination, tags }
-      } = await response.json();
-
-      set({ userDocuments: data });
-    } catch (error) {
-      // Handle error
-    }
+  fetchUserDocuments: async (userId: string) => {
+    const userDocuments = await fetchStudentDocuments(userId);
+    set({ userDocuments });
   }
 }));

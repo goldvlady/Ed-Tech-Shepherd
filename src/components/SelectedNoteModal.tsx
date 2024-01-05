@@ -32,6 +32,7 @@ import { RiUploadCloud2Fill } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import PlansModal from './PlansModal';
+import documentStore from '../state/documentStore';
 
 const DocumentListWrapper = styled.div`
   max-height: 200px;
@@ -68,6 +69,7 @@ const SelectedModal = ({
   okayButton
 }: ShowProps) => {
   const { user, userDocuments, fetchUserDocuments } = userStore();
+  const { fetchStudentDocuments } = documentStore();
   const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
     userStore.getState();
   const navigate = useNavigate();
@@ -466,7 +468,7 @@ const SelectedModal = ({
     }
 
     setShow(false);
-    user && fetchUserDocuments(user._id);
+    user && fetchStudentDocuments();
   };
 
   const doNothing = () => {
