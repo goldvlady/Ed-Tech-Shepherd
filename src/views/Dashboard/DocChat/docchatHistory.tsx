@@ -39,8 +39,10 @@ type Chat = {
   referenceId: string;
   title: string;
   updatedAt: string;
+  type: 'note' | 'file';
   createdDated: string;
   noteId?: string;
+  note?: string;
 };
 
 type GroupedChat = {
@@ -141,6 +143,19 @@ const DocchatHistory = ({
     user && fetchUserDocuments(user._id);
   };
 
+  const goToNoteChat = async (noteId) => {
+    navigate('/dashboard/docchat', {
+      state: {
+        noteId
+      }
+    });
+    if (setIsChatHistory) {
+      setIsChatHistory(false);
+    }
+
+    user && fetchUserDocuments(user._id);
+  };
+
   useEffect(() => {
     retrieveChatHistory(studentId, noteId);
   }, [studentId, noteId]);
@@ -195,13 +210,17 @@ const DocchatHistory = ({
                       ) : (
                         <p
                           onClick={() => {
-                            goToDocChat(
-                              message.documentURL,
-                              message.title,
-                              message.documentId,
-                              message.keywords,
-                              user?._id
-                            );
+                            if (message.type === 'file') {
+                              goToDocChat(
+                                message.documentURL,
+                                message.title,
+                                message.documentId,
+                                message.keywords,
+                                user?._id
+                              );
+                            } else {
+                              goToNoteChat(message.note);
+                            }
                           }}
                         >
                           {message.title}
