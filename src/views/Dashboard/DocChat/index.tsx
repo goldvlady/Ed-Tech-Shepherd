@@ -627,10 +627,12 @@ export default function DocChat() {
 
   useEffect(() => {
     const fetchSummary = async () => {
+      setSummaryText('');
+
       try {
         if (!documentId) {
-          console.log('Document ID or Note ID is missing');
-          return; // Exit if no valid ID is available
+          console.log('Document ID is missing');
+          return;
         }
 
         // API call to generate summary
