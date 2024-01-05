@@ -4,6 +4,7 @@ import HistoryIcn from '../../../assets/historyIcon.svg?react';
 import { getDateString } from '../../../helpers';
 import { getDocchatHistory } from '../../../services/AI';
 import userStore from '../../../state/userStore';
+import noteStore from '../../../state/noteStore';
 import {
   ChatHistoryBlock,
   ChatHistoryBody,
@@ -39,8 +40,10 @@ type Chat = {
   referenceId: string;
   title: string;
   updatedAt: string;
+  type: 'note' | 'file';
   createdDated: string;
   noteId?: string;
+  note?: string;
 };
 
 type GroupedChat = {
@@ -54,6 +57,7 @@ const DocchatHistory = ({
   noteId
 }: IDocchatHistory) => {
   const { user, userDocuments, fetchUserDocuments } = userStore();
+  const { fetchNotes } = noteStore();
   const [chatHistory, setChatHistory] = useState<any[]>([]);
   const [groupChatsByDateArr, setGroupChatsByDateArr] = useState<GroupedChat[]>(
     []
@@ -138,7 +142,20 @@ const DocchatHistory = ({
       setIsChatHistory(false);
     }
 
-    user && fetchUserDocuments(user._id);
+    user && fetchUserDocuments();
+  };
+
+  const goToNoteChat = async (noteId) => {
+    navigate('/dashboard/docchat', {
+      state: {
+        noteId
+      }
+    });
+    if (setIsChatHistory) {
+      setIsChatHistory(false);
+    }
+
+    user && fetchNotes();
   };
 
   useEffect(() => {
@@ -195,13 +212,17 @@ const DocchatHistory = ({
                       ) : (
                         <p
                           onClick={() => {
-                            goToDocChat(
-                              message.documentURL,
-                              message.title,
-                              message.documentId,
-                              message.keywords,
-                              user?._id
-                            );
+                            if (message.type === 'file') {
+                              goToDocChat(
+                                message.documentURL,
+                                message.title,
+                                message.documentId,
+                                message.keywords,
+                                user?._id
+                              );
+                            } else {
+                              goToNoteChat(message.note);
+                            }
                           }}
                         >
                           {message.title}
