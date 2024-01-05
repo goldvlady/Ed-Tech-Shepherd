@@ -83,7 +83,7 @@ function ActivityFeeds(props) {
   const navigate = useNavigate();
   const getFileName = (url) => {
     const isFirebaseStorageUrl = url.includes('firebasestorage.googleapis.com');
-    const isAmazonS3Url = url.includes('s3.amazonaws.com');
+    const isAmazonS3Url = url.includes('amazonaws.com');
 
     if (isFirebaseStorageUrl) {
       const startIndex = url.lastIndexOf('%2F'); // Adjust the start index
