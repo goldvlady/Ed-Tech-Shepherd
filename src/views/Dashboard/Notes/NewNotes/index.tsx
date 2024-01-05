@@ -12,7 +12,7 @@ import CustomSideModal from '../../../../components/CustomComponents/CustomSideM
 import TableTag from '../../../../components/CustomComponents/CustomTag';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import TagModal from '../../../../components/TagModal';
-import useDebounce from '../../../../hooks/useDebounce';
+// import useDebounce from '../../../../hooks/useDebounce';
 import { saveHTMLAsPDF } from '../../../../library/fs';
 import ApiService from '../../../../services/ApiService';
 import userStore from '../../../../state/userStore';
@@ -58,7 +58,8 @@ import {
   IconButton,
   MenuItem,
   Text,
-  Box
+  Box,
+  useToast
 } from '@chakra-ui/react';
 import { $generateHtmlFromNodes } from '@lexical/html';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -67,14 +68,28 @@ import {
   CLEAR_EDITOR_COMMAND,
   LexicalEditor as EditorType
 } from 'lexical';
-import { defaultTo, filter, isEmpty, isNil, isString, union } from 'lodash';
+import {
+  defaultTo,
+  filter,
+  isEmpty,
+  isNil,
+  isString,
+  truncate,
+  union,
+  debounce,
+  isEqual
+} from 'lodash';
 import moment from 'moment';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { BsFillPinFill } from 'react-icons/bs';
 import { FaEllipsisH } from 'react-icons/fa';
 import { IoChatboxEllipsesOutline } from 'react-icons/io5';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useDebounce } from 'usehooks-ts';
+import useTimer from '../../../../hooks/useTimer';
+import CustomToast from '../../../../components/CustomComponents/CustomToast';
+import { MdSavings } from 'react-icons/md';
 
 const DEFAULT_NOTE_TITLE = 'Enter Note Title';
 const DELETE_NOTE_TITLE = 'Delete Note';
@@ -172,6 +187,8 @@ const handleOptionClick = (
 };
 
 const NewNote = () => {
+  const toastIdRef = useRef<any>();
+  const chakraToast = useToast();
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
   const defaultNoteTitle = DEFAULT_NOTE_TITLE;
 
@@ -200,6 +217,8 @@ const NewNote = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [canStartSaving, setCanStartSaving] = useState(false);
   const [openSideModal, setOpenSideModal] = useState(false);
+  const [isEditorLoaded, setIsEditorLoaded] = useState(true);
+  const [callTimerCallback, setCallTimerCallback] = useState(false);
 
   const [editor] = useLexicalComposerContext();
 
@@ -216,7 +235,13 @@ const NewNote = () => {
   const { userDocuments } = userStore();
   const [studentDocuments, setStudentDocuments] = useState<Array<any>>([]);
   const [pinned, setPinned] = useState<boolean>(false);
-  const debounce = useDebounce(1000, 10);
+  const debounceEditedTitle = useDebounce(editedTitle, 1000);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsEditorLoaded(true);
+    }, 10000);
+  }, []);
 
   const onCancel = () => {
     setDeleteNoteModal(!deleteNoteModal);
@@ -243,6 +268,17 @@ const NewNote = () => {
 
   const onSaveNote = async () => {
     if (!editor) return;
+
+    handleCloseToast();
+    setTimeout(() => {
+      handleAddToast(
+        toast({
+          render: () => <CustomToast title={'saving....'} status="success" />,
+          position: 'top-right',
+          isClosable: true
+        })
+      );
+    }, 100);
 
     // get editor's content
     let noteJSON = '';
@@ -319,6 +355,8 @@ const NewNote = () => {
       setSaveButtonState(true);
       // ingest Note content
       ingestNote(saveDetails.data);
+
+      handleCloseAllToast();
     }
   };
 
@@ -413,9 +451,9 @@ const NewNote = () => {
     setEditedTitle(value);
   };
 
-  const updateTitle = () => {
+  const updateTitle = async () => {
     setIsEditingTitle(false);
-    if (editedTitle) {
+    if (!isEmpty(editedTitle.trim())) {
       setEditedTitle(editedTitle.trim());
     } else {
       setEditedTitle(defaultNoteTitle);
@@ -436,7 +474,6 @@ const NewNote = () => {
       // Remove the deleted note from the dataSource
       const storageId = NoteEnums.PINNED_NOTE_STORE_ID;
 
-      // console.log('storageId  ===========>> ', NoteEnums.PINNED_NOTE_STORE_ID);
       localStorage.removeItem(storageId);
 
       const filtedPinnedNote = filter(pinnedNotes as any[], (pinnedNote) => {
@@ -460,12 +497,11 @@ const NewNote = () => {
         'error'
       );
     }
-    // setIsPinned((prevIsPinned) => !prevIsPinned);
+
     // Save the note to local storage when pinned
     if (saveDetails?.data) {
       if (isNoteAlreadyPinned(saveDetails.data._id)) {
         unPinNote();
-        // return showToast(UPDATE_NOTE_TITLE, 'Note already pinned', 'warning');
         return;
       }
 
@@ -489,7 +525,6 @@ const NewNote = () => {
   };
 
   const isNoteAlreadyPinned = (noteId: string): boolean => {
-    console.log('running =======>>> isNoteAlreadyPinned');
     for (const note of pinnedNotes) {
       if (note.noteId === noteId) {
         setPinned(true);
@@ -580,7 +615,6 @@ const NewNote = () => {
     if (!editorStyle) {
       setEditorStyle({
         position: 'absolute',
-        // width: '100vw',
         width: '100%',
         height: '100vh',
         top: 0,
@@ -633,8 +667,6 @@ const NewNote = () => {
     try {
       navigate('/dashboard/docchat', {
         state: {
-          // documentUrl: noteUrl,
-          // docTitle: noteTitle,
           documentUrl: noteUrl,
           docTitle: noteTitle,
           noteId: noteId
@@ -759,9 +791,6 @@ const NewNote = () => {
       setOpenTags(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
       setTags(union(details.data.tags, [...tags, ...newTags]));
-      // setNoteId('');
-      // setNewTags([]);
-      // clearEditor();
     }
   };
 
@@ -786,68 +815,6 @@ const NewNote = () => {
    */
   const ingestNote = async (noteDetails: NoteDetails) => {
     const noteArrayContent = [noteDetails.note];
-
-    // uploadBlockNoteDocument({
-    //   studentId: noteDetails.user._id,
-    //   documentId: noteDetails.id,
-    //   document: noteArrayContent,
-    //   title: noteDetails.topic,
-    //   tags: noteDetails.tags
-    // }).then((response: AIServiceResponse) => {
-    //   if (!response) {
-    //     showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
-    //     return false;
-    //   }
-    //   if (!Array.isArray(response.data) || response.data.length <= 0) {
-    //     showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
-    //   }
-    //   // get data documentID is not already updated. Pick the first value in
-    //   const documentDetails: NoteDocumentDetails = response.data[0];
-    //   if (
-    //     !documentDetails?.documentURL ||
-    //     documentDetails?.documentURL === ''
-    //   ) {
-    //     showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
-    //   }
-    //   // TODO: update with full note details
-    //   const resp = ApiService.updateNoteDocumentId(
-    //     noteDetails.id,
-    //     documentDetails.documentURL
-    //   )
-    //     .then((response) => {
-    //       console.log('update note details: ', response);
-    //       showToast(
-    //         UPDATE_NOTE_TITLE,
-    //         'Note document details saved',
-    //         'success'
-    //       );
-    //     })
-    //     .catch((error: any) => {
-    //       showToast(
-    //         UPDATE_NOTE_TITLE,
-    //         'Could not save note document URL',
-    //         'error'
-    //       );
-    //     });
-    // });
-    // return true;
-  };
-
-  const handleAutoSave = (editor: EditorType) => {
-    // use debounce filter
-    // TODO: we must move this to web worker
-    // additional condition for use to save note details
-
-    const saveLocalCallback = (noteId: string, note: string) => {
-      saveNoteLocal(getLocalStorageNoteId(noteId), note);
-    };
-    // evaluate other conditions to true or false
-    const saveCondition = () => !editor.getEditorState().isEmpty();
-    // note save callback wrapper
-    const saveCallback = () => {
-      autoSaveNote(editor, saveLocalCallback);
-    };
-    debounce(saveCallback, saveCondition);
   };
 
   /**
@@ -862,7 +829,11 @@ const NewNote = () => {
     if (!editor) return;
     if (editor.getEditorState().isEmpty()) return;
 
-    const noteTitle = editedTitleRef?.current?.value ?? editedTitle;
+    const noteTitle =
+      !isEmpty(editedTitleRef?.current?.value) &&
+      !isNil(editedTitleRef?.current?.value)
+        ? editedTitleRef?.current?.value
+        : editedTitle;
 
     let noteIdToUse = '';
     let draftNoteIdToUse = '';
@@ -895,18 +866,20 @@ const NewNote = () => {
         : false;
 
     const data: {
-      topic: string;
+      topic?: string;
       note: string;
       status: string;
       tags?: string[];
     } = {
-      topic: noteTitle,
       note: noteJSON,
       status: noteStatus
     };
+
     const unionTags = union(newTags, tags);
 
     if (!isEmpty(unionTags)) data.tags = unionTags;
+
+    if (!isEmpty(noteTitle)) data.topic = noteTitle;
 
     if (idToUse) {
       updateNote(noteIdToUse, data as NoteData).then((updatedDetails) => {
@@ -917,12 +890,32 @@ const NewNote = () => {
       createNote(data as NoteData).then((saveDetails) => {
         // save new draft note details for update
         if (saveDetails?.data) {
-          draftNoteId.current.value = saveDetails.data['_id'];
           setNoteId(saveDetails.data['_id']);
           saveCallback(draftNoteIdToUse, noteJSON);
+          draftNoteId.current.value = saveDetails.data['_id'];
         }
       });
     }
+    handleCloseAllToast();
+  };
+  const handleAutoSave = (editor: EditorType) => {
+    // TODO: we must move this to web worker
+    // additional condition for use to save note details
+    const saveLocalCallback = (noteId: string, note: string) => {
+      saveNoteLocal(getLocalStorageNoteId(noteId), note);
+    };
+
+    autoSaveNote(editor, saveLocalCallback);
+    handleCloseToast();
+    setTimeout(() => {
+      handleAddToast(
+        toast({
+          render: () => <CustomToast title={'saving....'} status="success" />,
+          position: 'top-right',
+          isClosable: true
+        })
+      );
+    }, 100);
   };
 
   // Load notes if noteID is provided via param
@@ -957,21 +950,38 @@ const NewNote = () => {
   }, [userDocuments]);
 
   useEffect(() => {
-    if (editedTitleRef.current && editedTitle !== editedTitleRef.current) {
-      editedTitleRef.current.value = editedTitle;
+    if (
+      editedTitleRef.current &&
+      editedTitle !== editedTitleRef.current.value
+    ) {
+      if (isEmpty(editedTitle)) return;
       if (canStartSaving) {
+        editedTitleRef.current.value = editedTitle;
         handleAutoSave(editor);
+        return;
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editedTitle]);
+  }, [debounceEditedTitle]);
+
+  const { resetTimer } = useTimer({
+    sendOnce: false,
+    timestamp: 3,
+    timerCallback: (value) => setCallTimerCallback(value)
+  });
 
   useEffect(() => {
-    return editor.registerUpdateListener(({ editorState }) => {
+    if (callTimerCallback) {
+      handleAutoSave(editor);
+    }
+    setCallTimerCallback(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [callTimerCallback, editedTitleRef]);
+
+  useEffect(() => {
+    editor.registerUpdateListener(({ editorState }) => {
       editorState.read(() => {
-        if (canStartSaving) {
-          handleAutoSave(editor);
-        }
+        resetTimer();
       });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -979,11 +989,15 @@ const NewNote = () => {
 
   useEffect(() => {
     (async () => {
+      setIsEditorLoaded(false);
       if (!isEmpty(noteParamId) || !isNil(noteParamId)) {
         setInitialContent(getNoteLocal(noteParamId) as string);
         await getNoteById(noteParamId);
       }
-      setCanStartSaving(true);
+      setTimeout(() => {
+        setCanStartSaving(true);
+        setIsEditorLoaded(true);
+      });
     })();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1004,12 +1018,34 @@ const NewNote = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialContent]);
+
+  function handleCloseToast() {
+    if (toastIdRef.current) {
+      chakraToast.close(toastIdRef.current);
+    }
+  }
+  function handleCloseAllToast() {
+    // you may optionally pass an object of positions to exclusively close
+    // keeping other positions opened
+    // e.g. `{ positions: ['bottom'] }`
+    chakraToast.closeAll();
+  }
+
+  function handleAddToast(
+    currentToast = chakraToast({ description: 'some text' })
+  ) {
+    toastIdRef.current = currentToast;
+  }
+
   // Header Component
   const HeaderComponent = () => {
     return (
       <HeaderWrapper
         className={clsx(
-          'flex items-center flex-start relative w-[95%] lg:w-[98%] 2xl:w-full mx-auto'
+          'flex items-center flex-start relative w-[95%] lg:w-[98%] 2xl:w-full mx-auto',
+          {
+            'opacity-40 pointer-events-none': !isEditorLoaded
+          }
         )}
       >
         <div style={{ display: 'none' }}>
@@ -1056,7 +1092,7 @@ const NewNote = () => {
                     autoFocus
                   />
                 ) : (
-                  <span>{editedTitle}</span>
+                  <span>{truncate(editedTitle, { length: 40 })}</span>
                 )}
               </div>
             </div>
@@ -1147,7 +1183,6 @@ const NewNote = () => {
             </div>
           </SecondSection>
         </Header>
-        {/* <HeaderTagsWrapper>{formatTags(tags)}</HeaderTagsWrapper> */}
       </HeaderWrapper>
     );
   };
@@ -1194,7 +1229,8 @@ const NewNote = () => {
             className={clsx(
               'w-full max-w-[150px] hover:opacity-75 absolute left-0 top-5 z-10 hidden 2xl:flex cursor-pointer items-center',
               {
-                '!max-w-[240px] px-4': isFullScreen
+                '!max-w-[240px] px-4': isFullScreen,
+                'opacity-40 pointer-events-none': !isEditorLoaded
               }
             )}
           >
@@ -1223,7 +1259,8 @@ const NewNote = () => {
               ) : (
                 <div
                   className={clsx('custom-scroll', {
-                    'note-editor-test': false
+                    'note-editor-test': false,
+                    'opacity-40 pointer-events-none': !isEditorLoaded
                   })}
                 >
                   <StyledEditor />
@@ -1249,7 +1286,7 @@ const NewNote = () => {
                 loadingButtonText="Creating..."
                 buttonText="Create"
                 onSubmit={(noteId) => {
-                  // submission here
+                  // unused
                 }}
               />
             )}

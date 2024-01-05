@@ -77,7 +77,7 @@ export const FirstSection = styled.div`
   }
 
   .doc__name {
-    ${tw`w-full min-w-[120px] max-w-[150px] md:max-w-[170px] cursor-text text-[#525456] flex text-[11pt] max-h-[30px] border-r border-[#e0e1e1] pr-[10px]`};
+    ${tw`w-full min-w-[120px] max-w-[150px] md:max-w-[300px] cursor-text text-[#525456] flex text-[11pt] max-h-[30px] border-r border-[#e0e1e1] pr-[10px]`};
     > input {
       width: inherit;
       height: 'inherit';
@@ -87,7 +87,7 @@ export const FirstSection = styled.div`
       font-size: 11pt;
       color: #525456;
       background: #fafafa !important;
-      width: 100%;
+      ${tw`min-w-[200px] md:max-w-[300px]`}
     }
   }
 
