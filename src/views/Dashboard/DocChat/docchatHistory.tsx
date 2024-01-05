@@ -142,10 +142,10 @@ const DocchatHistory = ({
       setIsChatHistory(false);
     }
 
-    user && fetchUserDocuments();
+    user && fetchUserDocuments(user._id);
   };
 
-  const goToNoteChat = async (noteId) => {
+  const goToNoteChat = async (noteId: string) => {
     navigate('/dashboard/docchat', {
       state: {
         noteId
