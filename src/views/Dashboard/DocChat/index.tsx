@@ -341,7 +341,7 @@ export default function DocChat() {
               isClosable: true
             })
           );
-        }, 1000);
+        });
       });
     };
     debounce(saveCallback, saveCondition);
@@ -383,10 +383,13 @@ export default function DocChat() {
         topic: editedTitle
       };
 
-      const result = await updateNote(noteId, data as NoteData);
-      setCurrentTime(formatDate(result?.data.updatedAt));
+      if (isNil(data.topic) && isEmpty(data.topic)) {
+        const result = await updateNote(noteId, data as NoteData);
+        setCurrentTime(formatDate(result?.data.updatedAt));
+        saveCallback && saveCallback();
+      }
+
       setIsSavingNote(false);
-      saveCallback && saveCallback();
     }
   };
 
@@ -863,15 +866,9 @@ export default function DocChat() {
       if (!isEmpty(respDetails.data) && !isNil(respDetails.data)) {
         setIsLoadingNote(false);
         const { data: note } = respDetails.data;
-        console.log('NOTESSSSSS => ', note);
-
-        if (!isEmpty(note.note) && !isNil(note.note)) {
-          // setEditedTitle(note.topic);
-          setInitialContent(note.note);
-        }
-        if (!isEmpty(note.topic) && !isNil(note.topic)) {
-          setEditedTitle(note.topic);
-        }
+        
+        setEditedTitle(note.topic);
+        
         if (!isEmpty(note?.updatedAt) && !isNil(note?.updatedAt)) {
           setCurrentTime(formatDate(note?.updatedAt));
         }
@@ -912,12 +909,11 @@ export default function DocChat() {
             setCanStartSaving(true);
           });
         });
+        setTimeout(() => {
+          setCanStartSaving(true);
+        });
       }
-      setTimeout(() => {
-        setCanStartSaving(true);
-      });
     })();
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [noteId]);
 
