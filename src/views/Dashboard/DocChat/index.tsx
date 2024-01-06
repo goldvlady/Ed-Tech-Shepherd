@@ -136,6 +136,7 @@ export default function DocChat() {
   const [isChatLoading, setChatLoading] = useState({});
   const [isLoadingNote, setIsLoadingNote] = useState(true);
   const [pinPromptArr, setPinPromptArr] = useState<any>();
+  const [isSavingNote, setIsSavingNote] = useState(false);
 
   const isLike = useMemo(() => {
     return likesDislikes[1]?.like
@@ -342,6 +343,7 @@ export default function DocChat() {
     }
 
     if (!isEmpty(noteId)) {
+      setIsSavingNote(true);
       noteStatus = NoteStatus.SAVED;
 
       const data: {
@@ -356,6 +358,7 @@ export default function DocChat() {
 
       const result = await updateNote(noteId, data as NoteData);
       setCurrentTime(formatDate(result?.data.updatedAt));
+      setIsSavingNote(false);
       saveCallback && saveCallback();
     }
   };
@@ -1107,7 +1110,11 @@ export default function DocChat() {
                           <>{editedTitle}</>
                         </div>
                         <div className="timestamp">
-                          <p>Updated {currentTime}</p>
+                          {isSavingNote ? (
+                            <p>Saving....</p>
+                          ) : (
+                            <p>Updated {currentTime}</p>
+                          )}
                         </div>
                       </FirstSection>
                     </Header>
