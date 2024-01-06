@@ -3,6 +3,7 @@ import CustomSideModal from '../../../components/CustomComponents/CustomSideModa
 import CustomToast from '../../../components/CustomComponents/CustomToast';
 import useIsMobile from '../../../helpers/useIsMobile';
 import useDebounce from '../../../hooks/useDebounce';
+import useTimer from '../../../hooks/useTimer';
 import {
   chatHistory, // chatWithDoc,
   deleteGeneratedSummary,
@@ -34,7 +35,7 @@ import {
 } from './styles';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import clsx from 'clsx';
-import { LexicalEditor as EditorType } from 'lexical';
+import { CLEAR_EDITOR_COMMAND, LexicalEditor as EditorType } from 'lexical';
 import { isEmpty, isNil, isString } from 'lodash';
 import moment from 'moment';
 import React, {
@@ -42,8 +43,7 @@ import React, {
   useState,
   useCallback,
   useMemo,
-  useRef,
-  useLayoutEffect
+  useRef
 } from 'react';
 import { IoChatboxEllipsesOutline } from 'react-icons/io5';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -56,7 +56,7 @@ import { Box, Text, Center, Icon, useToast } from '@chakra-ui/react';
 export default function DocChat() {
   const toastIdRef = useRef<any>();
   const ref = useRef<HTMLDivElement>(null);
-  const debounce = useDebounce(1000, 10);
+  const debounce = useDebounce(500, 10);
   const [editor] = useLexicalComposerContext();
   const location = useLocation();
   const navigate = useNavigate();
@@ -160,6 +160,7 @@ export default function DocChat() {
   const [isLoadingNote, setIsLoadingNote] = useState(true);
   const [pinPromptArr, setPinPromptArr] = useState<any>();
   const [isSavingNote, setIsSavingNote] = useState(false);
+  const [callTimerCallback, setCallTimerCallback] = useState(false);
 
   const { fetchSingleNote, note, updateNote: updateNoteSummary } = noteStore();
   const [noteLoading, setNoteLoading] = useState(false);
@@ -840,7 +841,7 @@ export default function DocChat() {
     }
   }, [summaryStart]);
 
-  const getNoteById = async (paramsIdForNote = noteId) => {
+  const getNoteById = async (paramsIdForNote = noteId, callback = null) => {
     if (isEmpty(paramsIdForNote) || isNil(paramsIdForNote)) {
       return;
     }
@@ -870,12 +871,15 @@ export default function DocChat() {
         }
         if (!isEmpty(note.topic) && !isNil(note.topic)) {
           setEditedTitle(note.topic);
-          // setInitialContent(note.note);
         }
-
         if (!isEmpty(note?.updatedAt) && !isNil(note?.updatedAt)) {
           setCurrentTime(formatDate(note?.updatedAt));
-          // setInitialContent(note.note);
+        }
+        if (!isEmpty(note.note) && !isNil(note.note)) {
+          setInitialContent(note.note);
+        }
+        if (typeof callback === 'function') {
+          callback();
         }
       }
       // set note data
@@ -885,10 +889,10 @@ export default function DocChat() {
   };
 
   useEffect(() => {
-    const initialValue =
-      '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
-    const editorState = editor.parseEditorState(initialValue);
-    editor.setEditorState(editorState);
+    // const initialValue =
+    //   '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
+    // const editorState = editor.parseEditorState(initialValue);
+    // editor.setEditorState(editorState);
     if (
       isString(initialContent) &&
       !isEmpty(initialContent) &&
@@ -903,32 +907,42 @@ export default function DocChat() {
   useEffect(() => {
     (async () => {
       if (!isEmpty(noteId) || !isNil(noteId)) {
-        // setInitialContent(getNoteLocal(noteParamId) as string);
-        await getNoteById(noteId);
+        await getNoteById(noteId, () => {
+          setTimeout(() => {
+            setCanStartSaving(true);
+          });
+        });
       }
-      setCanStartSaving(true);
+      setTimeout(() => {
+        setCanStartSaving(true);
+      });
     })();
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      if (!isEmpty(noteId) || !isNil(noteId)) {
-        // setInitialContent(getNoteLocal(noteParamId) as string);
-        await getNoteById(noteId);
-      }
-      setCanStartSaving(true);
-    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [noteId]);
 
   useEffect(() => {
-    return editor.registerUpdateListener(({ editorState }) => {
+    if (callTimerCallback) {
+      handleAutoSave(editor);
+    }
+    setCallTimerCallback(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [callTimerCallback]);
+
+  const { resetTimer } = useTimer({
+    sendOnce: false,
+    timestamp: 2,
+    timerCallback: (value) => setCallTimerCallback(value)
+  });
+
+  useEffect(() => {
+    editor.registerUpdateListener(({ editorState }) => {
+
       editorState.read(() => {
-        if (canStartSaving) {
-          handleAutoSave(editor);
-        }
+        resetTimer();
+        // if (canStartSaving) {
+        //   handleAutoSave(editor);
+        // }
       });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
