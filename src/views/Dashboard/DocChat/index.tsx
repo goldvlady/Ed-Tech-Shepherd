@@ -357,7 +357,7 @@ export default function DocChat() {
         topic: editedTitle
       };
 
-      if (isNil(data.topic) && isEmpty(data.topic)) {
+      if (!isNil(data.topic) || !isEmpty(data.topic)) {
         const result = await updateNote(noteId, data as NoteData);
         setCurrentTime(formatDate(result?.data.updatedAt));
         saveCallback && saveCallback();
