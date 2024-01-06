@@ -211,7 +211,7 @@ const Chat = forwardRef(
     const { setFlashcardData, resetFlashcard } = useFlashcardWizard();
 
     const location = useLocation();
-    console.log(location);
+
     const prompts = [
       "Explain this document to me like I'm five",
       'What do I need to know to understand this document?',
@@ -354,13 +354,13 @@ const Chat = forwardRef(
         title: 'Start New Conversation',
         onClick: handleAceHomeWorkHelp,
         show: true
-      },
-      {
-        id: 4,
-        title: 'Upload a file',
-        show: true,
-        onClick: () => setDocModal(true)
       }
+      // {
+      //   id: 4,
+      //   title: 'Upload a file',
+      //   show: true,
+      //   onClick: () => setDocModal(true)
+      // }
     ];
 
     useEffect(() => {

@@ -58,14 +58,13 @@ import PendingVerification from './views/VerificationPages/pending_verification'
 import VerificationSuccess from './views/VerificationPages/successful_verification';
 import VerifyEmail from './views/VerificationPages/verify_email';
 import WelcomeLayout from './views/WelcomeLayout';
-import Messages from './views/messages';
-import { Box, ChakraProvider, Spinner } from '@chakra-ui/react';
+import { Box, ChakraProvider } from '@chakra-ui/react';
 import 'bootstrap/dist/css/bootstrap-grid.min.css';
 import 'bootstrap/dist/css/bootstrap-reboot.min.css';
 import 'bootstrap/dist/css/bootstrap-utilities.min.css';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
-import { Navigate, Route, Router, Routes, useRoutes } from 'react-router';
+import { Navigate, Route, Routes, useRoutes } from 'react-router';
 import {
   BrowserRouter,
   useLocation,
@@ -73,13 +72,13 @@ import {
   useNavigate
 } from 'react-router-dom';
 import 'stream-chat-react/dist/scss/v2/index.scss';
-import { ThemeProvider } from 'styled-components';
 import CreateStudyPlans from './views/Dashboard/StudyPlans/create';
 import StudyPlans from './views/Dashboard/StudyPlans';
 import CoursePlan from './views/Dashboard/StudyPlans/coursePlan';
 import Hotjar from '@hotjar/browser';
 import Feedback from './views/Feedback';
 import chameleon from '@chamaeleonidae/chmln';
+import ShepherdSpinner from './views/Dashboard/components/shepherd-spinner';
 const AuthAction = (props: any) => {
   const [params] = useSearchParams();
   const mode = params.get('mode')?.toLowerCase();
@@ -106,7 +105,7 @@ const RequireAuth = ({
   if (loading) {
     return (
       <Box p={5} textAlign="center">
-        <Spinner />
+        <ShepherdSpinner />
       </Box>
     );
   }
@@ -249,7 +248,7 @@ const AppRoutes: React.FC = () => {
             height: '100vh'
           }}
         >
-          <Spinner />
+          <ShepherdSpinner />
         </Box>
       </ChakraProvider>
     );

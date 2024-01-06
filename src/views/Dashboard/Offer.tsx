@@ -8,15 +8,13 @@ import Panel from '../../components/Panel';
 import PaymentDialog, {
   PaymentDialogRef
 } from '../../components/PaymentDialog';
-import StripeCheckoutForm from '../../components/StripeCheckoutForm';
 import TutorCard from '../../components/TutorCard';
 import { useTitle } from '../../hooks';
 import ApiService from '../../services/ApiService';
 import userStore from '../../state/userStore';
 import theme from '../../theme';
-import { Course, Offer as OfferType, PaymentMethod } from '../../types';
+import { PaymentMethod } from '../../types';
 import {
-  ServiceFeePercentage,
   numberToDayOfWeekName,
   convertTimeToTimeZone,
   convertTimeToDateTime
@@ -42,14 +40,11 @@ import {
   ModalFooter,
   ModalOverlay,
   SimpleGrid,
-  Spinner,
   Text,
   Textarea,
   VStack,
-  useDisclosure,
-  useToast
+  useDisclosure
 } from '@chakra-ui/react';
-import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { capitalize, isEmpty } from 'lodash';
 import moment from 'moment';
@@ -59,6 +54,7 @@ import { FiArrowRight, FiChevronRight } from 'react-icons/fi';
 import { MdInfo } from 'react-icons/md';
 import { useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
+import ShepherdSpinner from './components/shepherd-spinner';
 
 const LeftCol = styled(Box)`
   min-height: 100vh;
@@ -362,7 +358,7 @@ const Offer = () => {
         <LeftCol mb="32px" className="col-lg-8">
           {loading && (
             <Box textAlign={'center'}>
-              <Spinner />
+              <ShepherdSpinner />
             </Box>
           )}
           {!!offer && (

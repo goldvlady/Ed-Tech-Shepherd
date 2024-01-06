@@ -145,7 +145,7 @@ export const StyledText = styled(Text)`
 `;
 
 export const OptionsContainer = styled.div`
-  ${tw`flex flex-col flex-wrap py-[0.875rem] px-[1.95rem] min-h-[4rem] w-full max-w-[100%] px-4 min-h-[40px] overflow-auto`};
+  ${tw`flex flex-col flex-wrap py-[0.875rem] px-[1rem] min-h-[4rem] w-full max-w-[100%] px-4 min-h-[40px] overflow-auto`};
   // display: flex;
   // flex-direction: column;
   // grid-column: span 12;
@@ -617,7 +617,7 @@ export const AskSomethingPillContainer = styled.div`
 `;
 
 export const AskSomethingPillHeadingText = styled(Text)`
-  margin: 1rem 0;
+  margin: 1rem 10px;
 `;
 
 export const TellMeMorePill = styled.div<{ isHomeWorkHelp?: boolean }>`

@@ -17,7 +17,7 @@
       "Smart reminders",
       "Study analytics"
     ],
-    "priceId": "price_1NaSdTF6YXFSjxP0yYnh28nS"
+    "priceId": "REACT_APP_STRIPE_PRICE_BASIC_MONTHLY"
   },
   {
     "tier": "Premium",
@@ -36,7 +36,7 @@
       "Study plan (coming soon)",
       "Research assistant (coming soon)"
     ],
-    "priceId": "price_1NaSeaF6YXFSjxP0ZBylClKp",
+    "priceId": "REACT_APP_STRIPE_PRICE_PREMIUM_MONTHLY",
     "popular": true
   }
 ]

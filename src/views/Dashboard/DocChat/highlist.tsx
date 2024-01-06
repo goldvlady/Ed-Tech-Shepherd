@@ -1,23 +1,8 @@
-import CopyIcn from '../../../assets/copy.svg?react';
-import DeleteIcn from '../../../assets/deleteIcn.svg?react';
-import EditIcn from '../../../assets/editIcn.svg?react';
 import SummaryIcn from '../../../assets/summaryIcn1.svg?react';
-import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkdownView';
-import {
-  EmptyStateContainer,
-  IconContainer,
-  PageCount,
-  SummaryContainer
-} from './styles';
-import {
-  ChevronRightIcon,
-  ChevronLeftIcon,
-  ArrowDownIcon
-} from '@chakra-ui/icons';
-import { Box, Flex, Spacer, Spinner, Text } from '@chakra-ui/react';
-import { highlightPlugin } from '@react-pdf-viewer/highlight';
+import ShepherdSpinner from '../components/shepherd-spinner';
+import { EmptyStateContainer } from './styles';
+import { Box, Flex, Spacer, Text } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { BiDownArrow } from 'react-icons/bi';
 import { CgChevronDown, CgChevronUp } from 'react-icons/cg';
 
 const HighLight = ({
@@ -66,7 +51,7 @@ const HighLight = ({
           height: '100vh'
         }}
       >
-        <Spinner />
+        <ShepherdSpinner />
       </Box>
     );
   }
@@ -89,7 +74,7 @@ const HighLight = ({
             height: '100vh'
           }}
         >
-          <Spinner />
+          <ShepherdSpinner />
         </Box>
       )}
 

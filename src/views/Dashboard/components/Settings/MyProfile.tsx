@@ -527,7 +527,7 @@ function MyProfile(props) {
                 </Stack>
                 <Spacer />
                 <Text fontSize={12} color="text.300">
-                  help@shepherd.study{' '}
+                  hello@shepherd.study
                 </Text>
               </Flex>
               <Flex width={'100%'} alignItems="center">

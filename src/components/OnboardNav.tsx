@@ -59,14 +59,19 @@ const OnboardNav: React.FC<Props> = ({
           Continue With Google
         </Button>
       )}
-      {currentStep !== undefined && currentStep > 1 && (
-        <Button
-          onClick={currentStep === 1 ? () => navigate('/signup') : previousStep}
-          variant="link"
-        >
-          Previous
-        </Button>
-      )}
+      {currentStep !== undefined &&
+        currentStep > 1 &&
+        stepIndicatorId !== 'parent-or-student' &&
+        stepIndicatorId !== 'about-you' && (
+          <Button
+            onClick={
+              currentStep === 1 ? () => navigate('/signup') : previousStep
+            }
+            variant="link"
+          >
+            Previous
+          </Button>
+        )}
       {stepIndicatorId === 'about-you' && (
         <Button
           onClick={currentStep === 1 ? () => navigate('/signup') : previousStep}
