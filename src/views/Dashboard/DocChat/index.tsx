@@ -434,7 +434,7 @@ export default function DocChat() {
 
       // return () => socket.off('new_note_summary', () => setNoteLoading(true));
     }
-  }, [socket]);
+  }, [socket, editedTitle]);
 
   useEffect(() => {
     if (socket) {
@@ -866,9 +866,9 @@ export default function DocChat() {
       if (!isEmpty(respDetails.data) && !isNil(respDetails.data)) {
         setIsLoadingNote(false);
         const { data: note } = respDetails.data;
-        
+
         setEditedTitle(note.topic);
-        
+
         if (!isEmpty(note?.updatedAt) && !isNil(note?.updatedAt)) {
           setCurrentTime(formatDate(note?.updatedAt));
         }
@@ -933,7 +933,6 @@ export default function DocChat() {
 
   useEffect(() => {
     editor.registerUpdateListener(({ editorState }) => {
-
       editorState.read(() => {
         resetTimer();
         // if (canStartSaving) {
@@ -1226,7 +1225,7 @@ export default function DocChat() {
       setSummaryLoading(false);
     }
   }, [summaryStart]);
-      
+
   if (!hasActiveSubscription) {
     return (
       <Center height="100vh" width="100%">
