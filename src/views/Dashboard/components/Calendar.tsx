@@ -1,5 +1,6 @@
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
+import moment from 'moment';
 import React, { useEffect, useState, useRef } from 'react';
 import Slider from 'react-slick';
 
@@ -108,12 +109,14 @@ const Calendar: React.FC<CalendarProps> = ({ year, month, onDayClick }) => {
   const isMounted = useRef(false);
 
   useEffect(() => {
-    if (!isMounted.current) {
-      isMounted.current = true;
-      return;
+    // if (!isMounted.current) {
+    //   isMounted.current = true;
+    //   return;
+    // }
+    const currentMonth = moment().month();
+    if (month !== currentMonth) {
+      setSelectedDay(null);
     }
-
-    setSelectedDay(null);
   }, [month]);
 
   return (
