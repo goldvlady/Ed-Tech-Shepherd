@@ -8,6 +8,7 @@ import {
   MinimizedStudy,
   SessionType
 } from '../../types';
+import ShepherdSpinner from '../../views/Dashboard/components/shepherd-spinner';
 import DailyDeckSelector from './dailyDeckSelector';
 import FlashCard from './deck_two';
 import DeckOverLap from './overlap';
@@ -26,9 +27,7 @@ import {
   MenuList,
   MenuButton,
   ModalHeader,
-  ModalFooter,
   Menu,
-  Spinner,
   MenuGroup,
   Tag,
   TagLabel,
@@ -45,7 +44,6 @@ import React, {
 import { AiFillThunderbolt } from 'react-icons/ai';
 import { BsThreeDots } from 'react-icons/bs';
 import { FiCheck, FiHelpCircle, FiXCircle } from 'react-icons/fi';
-import { RiLineFill, RiCloseLine } from 'react-icons/ri';
 import styled from 'styled-components';
 
 const MenuListWrapper = styled(MenuList)`
@@ -71,13 +69,7 @@ const LoaderOverlay = () => (
       backgroundColor: 'rgba(0, 0, 0, 0.5)' // Semi-transparent background
     }}
   >
-    <Spinner
-      thickness="4px"
-      speed="0.65s"
-      emptyColor="gray.200"
-      color="blue.500"
-      size="xl"
-    />
+    <ShepherdSpinner />
   </div>
 );
 
@@ -418,7 +410,7 @@ const CompletedState = ({
           >
             <Text
               fontSize="14px"
-              color="#000"
+              color="#fff"
               fontWeight="500"
               lineHeight="22px"
               textAlign="center"
@@ -468,6 +460,7 @@ const StudyBox = () => {
     flashcard,
     storeScore,
     updateQuestionAttempt,
+    minorLoader,
     minimizedStudy,
     isLoading,
     loadFlashcard,
@@ -669,7 +662,7 @@ const StudyBox = () => {
 
   const acceptAnswer = async () => {
     if (flashcard)
-      await updateQuestionAttempt(
+      updateQuestionAttempt(
         flashcard._id,
         currentStudy.questions,
         true,
@@ -695,7 +688,7 @@ const StudyBox = () => {
     const scoreKey = notRemembered ? 'failed' : 'notRemembered';
     if (flashcard) {
       const grade = notRemembered ? 'did not remember' : 'got it wrong';
-      await updateQuestionAttempt(
+      updateQuestionAttempt(
         flashcard._id,
         currentStudy.questions,
         false,
@@ -857,9 +850,14 @@ const StudyBox = () => {
                 //     lazyTriggerNextStep()
                 // }
               }}
+              isLoading={minorLoader}
               bg="#207DF7"
               width={'80%'}
               color="white"
+              _loading={{
+                background: '#207DF7',
+                color: 'white'
+              }}
               borderRadius="8px"
               border="1px solid #207DF7"
               height="48px"
@@ -891,6 +889,11 @@ const StudyBox = () => {
               <Button
                 leftIcon={<Icon as={FiCheck} fontSize={'16px'} />}
                 borderRadius="8px"
+                isLoading={minorLoader}
+                _loading={{
+                  background: '#EDF7EE',
+                  color: '#4CAF50'
+                }}
                 onClick={() => {
                   acceptAnswer();
                   // setStudies(prev => {
@@ -910,6 +913,7 @@ const StudyBox = () => {
                 color="#4CAF50"
                 marginRight={{ md: '10px' }}
                 marginBottom={{ base: '15px' }}
+                loadingText="Got it right"
                 height="54px"
                 width={{ base: '100%', md: 'auto' }}
                 transition="transform 0.3s"
@@ -926,6 +930,7 @@ const StudyBox = () => {
                 borderRadius="8px"
                 padding="16.5px 45.5px 16.5px 47.5px"
                 backgroundColor="#FFEFE6"
+                isLoading={minorLoader}
                 color="#FB8441"
                 flex="1"
                 fontSize="16px"
@@ -936,6 +941,11 @@ const StudyBox = () => {
                   rejectAnswer(true);
                 }}
                 height="54px"
+                _loading={{
+                  background: '#FFEFE6',
+                  color: '#FB8441'
+                }}
+                loadingText="Didn’t remember"
                 transition="transform 0.3s"
                 _hover={{
                   background: '#FFEFE6',
@@ -950,6 +960,7 @@ const StudyBox = () => {
                 display="flex"
                 padding="16.5px 45.5px 16.5px 47.5px"
                 justifyContent="center"
+                isLoading={minorLoader}
                 alignItems="center"
                 borderRadius="8px"
                 fontSize="16px"
@@ -961,6 +972,11 @@ const StudyBox = () => {
                 width={{ base: '100%', md: 'auto' }}
                 onClick={() => {
                   rejectAnswer();
+                }}
+                loadingText="Got it wrong"
+                _loading={{
+                  background: '#FEECEC',
+                  color: '#F53535'
                 }}
                 transition="transform 0.3s"
                 _hover={{
@@ -1186,7 +1202,7 @@ const StudyBox = () => {
             transition="width 0.5s linear" // Add this line
           />
         </Box>
-        {isLoading && <LoaderOverlay />}
+        {/* {isLoading && <LoaderOverlay />} */}
         {!isStarted && !isFinished ? (
           <EmptyState
             flashcard={flashcard as FlashcardData}

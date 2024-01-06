@@ -1,13 +1,8 @@
+import React from 'react';
 import CloudDay from '../../assets/day.svg';
 import DocIcon from '../../assets/doc.svg?react';
 import NewNoteIcon from '../../assets/newnote.svg?react';
 import CloudNight from '../../assets/night.svg';
-import EmptyFeeds from '../../assets/no-activity.svg';
-import EmptyFlashcard from '../../assets/no-flashcard.svg';
-import ribbon2 from '../../assets/ribbon1.svg';
-import ribbon1 from '../../assets/ribbon2.svg';
-import summary from '../../assets/summary.svg';
-import DropdownMenu from '../../components/CustomComponents/CustomDropdownMenu';
 import SessionPrefaceDialog, {
   SessionPrefaceDialogRef
 } from '../../components/SessionPrefaceDialog';
@@ -15,50 +10,31 @@ import ApiService from '../../services/ApiService';
 import feedsStore from '../../state/feedsStore';
 import userStore from '../../state/userStore';
 import { numberToDayOfWeekName, twoDigitFormat } from '../../util';
-import { Section, SectionNewList, NewList } from './Notes/styles';
 import ActivityFeeds from './components/ActivityFeeds';
-import Carousel from './components/Carousel';
 import HourReminder from './components/HourReminder';
 import { PerformanceChart } from './components/PerformanceChart';
 import Schedule from './components/Schedule';
 import WeeklySummary from './components/WeeklySummary';
 import { CustomButton } from './layout';
-import { AddIcon } from '@chakra-ui/icons';
 import {
-  Alert,
-  AlertIcon,
   Box,
-  Button,
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  Container,
   Flex,
   Grid,
   GridItem,
-  HStack,
-  Heading,
-  IconButton,
   Image,
-  Spacer,
-  Stack,
   Text,
   useBreakpointValue,
   useDisclosure,
   Center,
-  VStack,
-  Spinner
+  VStack
 } from '@chakra-ui/react';
-import { signInWithPopup, signOut, getAuth } from 'firebase/auth';
+import { signOut, getAuth } from 'firebase/auth';
 import { capitalize } from 'lodash';
 import moment from 'moment';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { BiLeftArrowAlt, BiRightArrowAlt } from 'react-icons/bi';
-import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { RxDotFilled } from 'react-icons/rx';
 import { Link } from 'react-router-dom';
-import Slider from 'react-slick';
+import ShepherdSpinner from './components/shepherd-spinner';
 
 export default function Index() {
   const top = useBreakpointValue({ base: '90%', md: '50%' });
@@ -185,7 +161,7 @@ export default function Index() {
           height: '100vh'
         }}
       >
-        <Spinner />
+        <ShepherdSpinner />
       </Box>
     );
   }
@@ -286,13 +262,10 @@ export default function Index() {
                     />
                     <Text fontSize={13} fontWeight={500} color="text.400">
                       {/* You have no quizzes at this moment. */}
-                      You have no flashcards
+                      You have no quizzes yet
                     </Text>
                     <Link to="/dashboard/flashcards">
-                      <CustomButton
-                        buttonText="Create Flashcard"
-                        width="100%"
-                      />
+                      <CustomButton buttonText="Create a Quiz" width="100%" />
                     </Link>
                   </VStack>
                 </Box>

@@ -1,8 +1,9 @@
-import { Box, Button, Icon, Text, Spinner } from '@chakra-ui/react';
+import { Box, Icon, Text } from '@chakra-ui/react';
 import React, { useRef, useState } from 'react';
 import { FaUpload } from 'react-icons/fa';
 import userStore from '../../../../state/userStore';
 import PlansModal from '../../../../components/PlansModal';
+import ShepherdSpinner from '../../components/shepherd-spinner';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -76,7 +77,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading }) => {
         display={'flex'}
       >
         {isLoading ? (
-          <Spinner color="black" />
+          <ShepherdSpinner />
         ) : (
           <Icon color="#9A9DA2" as={FaUpload} />
         )}

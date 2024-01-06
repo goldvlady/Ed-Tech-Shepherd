@@ -1,21 +1,13 @@
 import FileAvi2 from '../../assets/file-avi2.svg';
-import FileAvi from '../../assets/file-avi.svg';
 import Star from '../../assets/littleStar.svg';
 import Ribbon2 from '../../assets/ribbon-blue.svg';
 import Ribbon from '../../assets/ribbon-grey.svg';
-import TutorAvi from '../../assets/tutoravi.svg';
-import vidHolder from '../../assets/vid-holder.png';
 import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import LinedList from '../../components/LinedList';
 import ApiService from '../../services/ApiService';
 import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
-import AvailabilityTable from './components/AvailabilityTable';
-import HowItWorks from './components/HowItWorks';
 import { CustomButton } from './layout';
 import {
-  AspectRatio,
-  Avatar,
-  Badge,
   Box,
   Breadcrumb,
   BreadcrumbItem,
@@ -23,48 +15,37 @@ import {
   Button,
   Card,
   CardBody,
-  CardHeader,
   Center,
-  Container,
   Divider,
   Flex,
   Grid,
   GridItem,
-  Heading,
   Image,
-  Link,
-  LinkOverlay,
   Spacer,
-  Spinner,
   Stack,
   Tab,
   TabList,
   TabPanel,
   TabPanels,
   Table,
-  TableCaption,
   TableContainer,
   Tabs,
   Tbody,
   Td,
   Text,
-  Tfoot,
   Th,
   Thead,
   Tr,
-  VStack,
-  useColorModeValue,
-  useToast
+  VStack
 } from '@chakra-ui/react';
-import moment from 'moment';
-import { toNamespacedPath } from 'path';
 import React, { useCallback, useEffect, useState } from 'react';
 import { BiPlayCircle } from 'react-icons/bi';
 import { FiChevronRight } from 'react-icons/fi';
 import { RiQuestionFill } from 'react-icons/ri';
 import { RxDotFilled } from 'react-icons/rx';
-import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Availability from '../../components/Availability';
+import ShepherdSpinner from './components/shepherd-spinner';
 
 export default function Tutor() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -139,7 +120,7 @@ export default function Tutor() {
   if (Object.keys(tutorData).length === 0) {
     return (
       <Box p={5} textAlign="center">
-        <Spinner />
+        <ShepherdSpinner />
       </Box>
     );
   }

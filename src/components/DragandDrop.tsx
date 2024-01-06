@@ -1,6 +1,7 @@
-import { Box, Text, Icon, BoxProps, Spinner } from '@chakra-ui/react';
+import { Box, Text, Icon, BoxProps } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { FiUpload, FiTrash2 } from 'react-icons/fi';
+import ShepherdSpinner from '../views/Dashboard/components/shepherd-spinner';
 
 interface DragAndDropProps extends BoxProps {
   accept?: string; // Specify the file types to allow
@@ -109,7 +110,7 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
     >
       <>
         {isLoading ? (
-          <Spinner size="lg" color="blue.500" />
+          <ShepherdSpinner />
         ) : (
           <>
             {!fileSelected && (

@@ -15,7 +15,7 @@ import { RiUploadCloud2Fill } from 'react-icons/ri';
 import styled from 'styled-components';
 import CustomButton from '../../../components/CustomComponents/CustomButton';
 import { useNavigate } from 'react-router-dom';
-import { snip } from '../../../helpers/file.helpers';
+import uploadFile, { snip } from '../../../helpers/file.helpers';
 
 interface UiMessage {
   status: 'error' | 'success' | 'info' | 'warning' | 'loading' | undefined;
@@ -144,76 +144,75 @@ const ViewUploadDoc = ({
       message: 'Uploading...your document is being uploaded'
     }));
     setProgress(25);
-    const customFirestorePath = `${user._id}/${readableFileName}`;
-    const storageRef = ref(storage, customFirestorePath);
+    const uploadEmitter = uploadFile(file, {
+      studentID: user._id, // Assuming user._id is always defined
+      documentID: readableFileName // Assuming readableFileName is the file's name
+    });
 
-    const task = uploadBytesResumable(storageRef, file);
+    uploadEmitter.on('progress', (progress: number) => {
+      // Update the progress. Assuming progress is a percentage (0 to 100)
+      setProgress(progress);
+      setLoading(true);
+    });
 
-    task.on(
-      'state_changed',
-      (snapshot) => {
-        const progress = Math.round(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 10
-        );
-        switch (snapshot.state) {
-          case 'running':
-            setProgress(progress);
-            break;
-        }
-      },
-      (error) => {
-        setCountdown((prev) => ({
-          active: false,
-          message: 'Something went wrong. Please attempt the upload again.'
-        }));
-        setUploadFailed(true);
-      },
-      async () => {
-        const documentURL = await getDownloadURL(task.snapshot.ref);
-        setCountdown((prev) => ({
-          ...prev,
-          message:
-            'Processing...this may take a minute (larger documents may take longer)'
-        }));
+    uploadEmitter.on('complete', async (uploadFile) => {
+      // Assuming uploadFile contains the fileUrl and other necessary details.
+      const documentURL = uploadFile.fileUrl;
 
-        await processDocument({
+      setCountdown((prev) => ({
+        ...prev,
+        message:
+          'Processing...this may take a minute (larger documents may take longer)'
+      }));
+
+      try {
+        const results = await processDocument({
           studentId: user._id,
           documentId: readableFileName,
           documentURL,
           title: readableFileName
-        })
-          .then((results) => {
-            const { documentURL, title, documentId, keywords } =
-              results.data[0];
-            setConfirmReady(true);
-            setCountdown((prev) => ({
-              ...prev,
-              active: false,
-              message:
-                "Your uploaded document is now ready! Click the 'confirm' button to start."
-            }));
-            setDocumentId(() => documentId);
-            setDocumentName(() => title);
-            setDocumentURL(() => documentURL);
-            // setDocKeywords(() => keywords);
-            setLoading(false);
+        });
 
-            ApiService.saveStudentDocument({
-              documentUrl: documentURL,
-              title,
-              ingestId: documentId
-            });
-          })
-          .catch(async (e: any) => {
-            setCountdown((prev) => ({
-              ...prev,
-              message: 'Something went wrong. Reload this page and try again.'
-            }));
-          });
-
+        const {
+          documentURL: newDocumentURL,
+          title,
+          documentId,
+          keywords
+        } = results.data[0];
         setConfirmReady(true);
+        setCountdown((prev) => ({
+          ...prev,
+          message:
+            "Your uploaded document is now ready! Click the 'chat' button to start."
+        }));
+        setDocumentId(documentId);
+        setDocumentName(title);
+        setDocumentURL(newDocumentURL);
+        setDocKeywords(keywords);
+        setLoading(false);
+
+        ApiService.saveStudentDocument({
+          documentUrl: newDocumentURL,
+          title,
+          ingestId: documentId
+        });
+      } catch (e) {
+        setCountdown((prev) => ({
+          ...prev,
+          message: 'Something went wrong. Reload this page and try again.'
+        }));
+        setLoading(false);
       }
-    );
+    });
+
+    uploadEmitter.on('error', (error) => {
+      setCountdown((prev) => ({
+        ...prev,
+        active: false,
+        message: 'Something went wrong. Please attempt the upload again.'
+      }));
+      setUploadFailed(true);
+    });
   };
 
   const collectFileInput = async (e) => {

@@ -1,26 +1,12 @@
 import { useTitle } from '../../../hooks';
 import ApiService from '../../../services/ApiService';
 import offerStore from '../../../state/offerStore';
-import TutorAvi from '../../assets/tutoravi.svg';
-import Pagination from '../components/Pagination';
 import TutorCard from '../components/TutorCard';
-import {
-  Badge,
-  Box,
-  Center,
-  Flex,
-  SimpleGrid,
-  Spinner,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-  Text
-} from '@chakra-ui/react';
+import { Badge, Box, Center, Flex, SimpleGrid, Text } from '@chakra-ui/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
+import ShepherdSpinner from '../components/shepherd-spinner';
 
 function Bounties() {
   useTitle('Bounties');
@@ -67,7 +53,7 @@ function Bounties() {
           height: '100vh'
         }}
       >
-        <Spinner />
+        <ShepherdSpinner />
       </Box>
     );
   }

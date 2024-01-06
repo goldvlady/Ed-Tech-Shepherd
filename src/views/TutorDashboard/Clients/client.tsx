@@ -1,8 +1,6 @@
-import { Layout } from '../../../components';
-import { ArrowRightIcon } from '../../../components/icons';
 import ApiService from '../../../services/ApiService';
 import { convertTimeToDateTime, convertUtcToUserTime } from '../../../util';
-import { Avatar, Text, Box, Spinner } from '@chakra-ui/react';
+import { Avatar, Text, Box } from '@chakra-ui/react';
 import {
   ChevronRightIcon,
   QuestionMarkCircleIcon
@@ -11,6 +9,7 @@ import moment from 'moment';
 import React, { useState, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
+import ShepherdSpinner from '../../Dashboard/components/shepherd-spinner';
 
 export default function Client() {
   const { clientId }: any = useParams();
@@ -72,7 +71,7 @@ export default function Client() {
           height: '100vh'
         }}
       >
-        <Spinner />
+        <ShepherdSpinner />
       </Box>
     );
   }
