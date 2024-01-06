@@ -311,12 +311,12 @@ const NewNote = () => {
 
     if (!isEmpty(unionTags)) data.tags = unionTags;
 
-    if (!isEmpty(noteId)) {
-      saveDetails = await updateNote(noteId, data);
+    if (!isNil(noteId) || !isEmpty(noteId)) {
+      saveDetails = await updateNote(noteId, data as NoteData);
     } else {
       saveDetails = await createNote(data as NoteData);
     }
-    if (!saveDetails) {
+    if (isNil(saveDetails)) {
       setSaveButtonState(true);
       return showToast(
         UPDATE_NOTE_TITLE,
@@ -324,9 +324,9 @@ const NewNote = () => {
         'error'
       );
     }
-    if (saveDetails.error) {
+    if (saveDetails?.error) {
       setSaveButtonState(true);
-      return showToast(UPDATE_NOTE_TITLE, saveDetails.error, 'error');
+      return showToast(UPDATE_NOTE_TITLE, saveDetails?.error, 'error');
     } else {
       if (isEmpty(saveDetails?.data) || isNil(saveDetails?.data)) {
         setSaveButtonState(true);
@@ -338,20 +338,20 @@ const NewNote = () => {
       }
       // Save noteID to state if this is a new note and save locally
       if (isEmpty(noteId)) {
-        const newNoteId = saveDetails.data['_id'];
+        const newNoteId = saveDetails?.data['_id'];
         setNoteId(newNoteId);
-        saveNoteLocal(getLocalStorageNoteId(newNoteId), saveDetails.data.note);
+        saveNoteLocal(getLocalStorageNoteId(newNoteId), saveDetails?.data.note);
       } else {
         saveNoteLocal(getLocalStorageNoteId(noteId), saveDetails.data.note);
       }
       // save note details and other essential params
       setSaveDetails(saveDetails);
-      setCurrentTime(formatDate(saveDetails.data.updatedAt));
+      setCurrentTime(formatDate(saveDetails?.data.updatedAt));
       setIsSavingNote(false);
-      showToast(UPDATE_NOTE_TITLE, saveDetails.message, 'success');
+      showToast(UPDATE_NOTE_TITLE, saveDetails?.message, 'success');
       setSaveButtonState(true);
       // ingest Note content
-      ingestNote(saveDetails.data);
+      ingestNote(saveDetails?.data);
 
       // handleCloseAllToast();
     }
