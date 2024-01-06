@@ -236,6 +236,7 @@ const NewNote = () => {
   const [studentDocuments, setStudentDocuments] = useState<Array<any>>([]);
   const [pinned, setPinned] = useState<boolean>(false);
   const debounceEditedTitle = useDebounce(editedTitle, 1000);
+  const [isSavingNote, setIsSavingNote] = useState(false);
 
   useEffect(() => {
     setTimeout(() => {
@@ -269,16 +270,18 @@ const NewNote = () => {
   const onSaveNote = async () => {
     if (!editor) return;
 
-    handleCloseToast();
-    setTimeout(() => {
-      handleAddToast(
-        toast({
-          render: () => <CustomToast title={'saving....'} status="success" />,
-          position: 'top-right',
-          isClosable: true
-        })
-      );
-    }, 100);
+    // handleCloseToast();
+    // setTimeout(() => {
+    //   handleAddToast(
+    //     toast({
+    //       render: () => <CustomToast title={'saving....'} status="success" />,
+    //       position: 'top-right',
+    //       isClosable: true
+    //     })
+    //   );
+    // }, 100);
+
+    setIsSavingNote(true);
 
     // get editor's content
     let noteJSON = '';
@@ -351,12 +354,13 @@ const NewNote = () => {
       // save note details and other essential params
       setSaveDetails(saveDetails);
       setCurrentTime(formatDate(saveDetails.data.updatedAt));
+      setIsSavingNote(false);
       showToast(UPDATE_NOTE_TITLE, saveDetails.message, 'success');
       setSaveButtonState(true);
       // ingest Note content
       ingestNote(saveDetails.data);
 
-      handleCloseAllToast();
+      // handleCloseAllToast();
     }
   };
 
@@ -846,7 +850,7 @@ const NewNote = () => {
     } catch (error: any) {
       return;
     }
-
+    setIsSavingNote(true);
     if (!isEmpty(noteId) || !isEmpty(noteParamId)) {
       noteIdToUse = defaultTo(noteId, noteParamId);
       noteStatus = NoteStatus.SAVED;
@@ -884,6 +888,8 @@ const NewNote = () => {
     if (idToUse) {
       updateNote(noteIdToUse, data as NoteData).then((updatedDetails) => {
         saveCallback(noteIdToUse, noteJSON);
+        setIsSavingNote(false);
+        setCurrentTime(formatDate(updatedDetails.data.updatedAt));
       });
     } else {
       // create a new draft note
@@ -892,11 +898,13 @@ const NewNote = () => {
         if (saveDetails?.data) {
           setNoteId(saveDetails.data['_id']);
           saveCallback(draftNoteIdToUse, noteJSON);
+          setCurrentTime(formatDate(saveDetails.data.updatedAt));
+          setIsSavingNote(false);
           draftNoteId.current.value = saveDetails.data['_id'];
         }
       });
     }
-    handleCloseAllToast();
+    // handleCloseAllToast();
   };
   const handleAutoSave = (editor: EditorType) => {
     // TODO: we must move this to web worker
@@ -906,16 +914,16 @@ const NewNote = () => {
     };
 
     autoSaveNote(editor, saveLocalCallback);
-    handleCloseToast();
-    setTimeout(() => {
-      handleAddToast(
-        toast({
-          render: () => <CustomToast title={'saving....'} status="success" />,
-          position: 'top-right',
-          isClosable: true
-        })
-      );
-    }, 100);
+    // handleCloseToast();
+    // setTimeout(() => {
+    //   handleAddToast(
+    //     toast({
+    //       render: () => <CustomToast title={'saving....'} status="success" />,
+    //       position: 'top-right',
+    //       isClosable: true
+    //     })
+    //   );
+    // }, 100);
   };
 
   // Load notes if noteID is provided via param
@@ -1097,7 +1105,7 @@ const NewNote = () => {
               </div>
             </div>
             <div className="timestamp">
-              <p>Updated {currentTime}</p>
+              {isSavingNote ? <p>Saving....</p> : <p>Updated {currentTime}</p>}
             </div>
           </FirstSection>
           <SecondSection>

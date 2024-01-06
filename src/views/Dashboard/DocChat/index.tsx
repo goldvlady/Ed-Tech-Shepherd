@@ -159,6 +159,8 @@ export default function DocChat() {
   const [isChatLoading, setChatLoading] = useState({});
   const [isLoadingNote, setIsLoadingNote] = useState(true);
   const [pinPromptArr, setPinPromptArr] = useState<any>();
+  const [isSavingNote, setIsSavingNote] = useState(false);
+
   const { fetchSingleNote, note, updateNote: updateNoteSummary } = noteStore();
   const [noteLoading, setNoteLoading] = useState(false);
 
@@ -367,6 +369,7 @@ export default function DocChat() {
     }
 
     if (!isEmpty(noteId)) {
+      setIsSavingNote(true);
       noteStatus = NoteStatus.SAVED;
 
       const data: {
@@ -381,6 +384,7 @@ export default function DocChat() {
 
       const result = await updateNote(noteId, data as NoteData);
       setCurrentTime(formatDate(result?.data.updatedAt));
+      setIsSavingNote(false);
       saveCallback && saveCallback();
     }
   };
@@ -1212,6 +1216,7 @@ export default function DocChat() {
       setSummaryLoading(false);
     }
   }, [summaryStart]);
+      
   if (!hasActiveSubscription) {
     return (
       <Center height="100vh" width="100%">
