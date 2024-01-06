@@ -21,6 +21,7 @@ type Store = {
   ) => Promise<boolean>;
   isLoading: boolean;
   pagination: Pagination;
+  minorLoader: boolean;
   fetchFlashcards: (queryParams?: SearchQueryParams) => Promise<void>;
   fetchSingleFlashcard: (id: string) => void;
   flashcard?: FlashcardData | null;
@@ -55,6 +56,7 @@ type Store = {
 export default create<Store>((set) => ({
   flashcards: null,
   isLoading: false,
+  minorLoader: false,
   tags: [],
   minimizedStudy: null,
   pagination: { limit: 10, page: 1, count: 100 },
@@ -141,7 +143,7 @@ export default create<Store>((set) => ({
   },
   storeCurrentStudy: async (flashcardId, currentStudy: MinimizedStudy) => {
     try {
-      set({ isLoading: true });
+      // set({ isLoading: true });
       const response = await ApiService.storeCurrentStudy(
         flashcardId,
         currentStudy.data
@@ -289,7 +291,7 @@ export default create<Store>((set) => ({
   },
   storeScore: async (flashcardId: string, score: Score) => {
     try {
-      set({ isLoading: true });
+      // set({ isLoading: true });
       const response = await ApiService.storeFlashcardScore({
         flashcardId,
         score
@@ -322,7 +324,7 @@ export default create<Store>((set) => ({
     grade?: string
   ) => {
     try {
-      set({ isLoading: true });
+      set({ minorLoader: true });
       const response = await ApiService.updateQuestionAttempt({
         flashcardId,
         questionText,
@@ -347,7 +349,7 @@ export default create<Store>((set) => ({
     } catch (error) {
       return false;
     } finally {
-      set({ isLoading: false });
+      set({ minorLoader: false });
     }
   }
 }));

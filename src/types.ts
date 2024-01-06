@@ -405,6 +405,7 @@ export interface NoteDetails {
   user: NoteUser;
   topic: string;
   note: string;
+  summary: string;
   tags: Array<string>;
   _id: string;
   createdAt: Date;
@@ -483,11 +484,12 @@ export enum NoteStatus {
 }
 
 export interface NoteData {
-  note: any;
-  topic: string;
+  note?: any;
+  topic?: string;
   documentId?: string;
   tags?: Array<string>;
   status?: NoteStatus;
+  summary?: string;
 }
 
 export interface StudentDocument {

@@ -4,9 +4,8 @@ import EditIcn from '../../../assets/editIcn.svg?react';
 import HistoryIcn from '../../../assets/historyIcon.svg?react';
 import CustomButton from '../../../components/CustomComponents/CustomButton';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
-import CustomToast from '../../../components/CustomComponents/CustomToast';
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
-import { arrangeDataByDate, getDateString } from '../../../helpers';
+import { getDateString } from '../../../helpers';
 import useIsMobile from '../../../helpers/useIsMobile';
 import {
   deleteConversationId,
@@ -27,14 +26,18 @@ import {
   Menu,
   MenuButton,
   MenuItem,
-  MenuList,
-  Spinner,
-  useToast
+  MenuList
 } from '@chakra-ui/react';
-import { AnyMxRecord } from 'dns';
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo
+} from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 import styled from 'styled-components';
+import ShepherdSpinner from '../components/shepherd-spinner';
 
 const Clock = styled.div`
   width: 20px;
@@ -433,7 +436,7 @@ const ChatHistory = ({
               width: '24vw'
             }}
           >
-            <Spinner />
+            <ShepherdSpinner />
           </Box>
         )}
         {!loading && !groupChatsByDateArr?.length && (

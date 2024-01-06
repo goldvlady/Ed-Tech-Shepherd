@@ -495,7 +495,10 @@ export const getDocchatHistory = async ({
   // Prepare query parameters
   const queryParams = new URLSearchParams({
     studentId: studentIdParam,
-    documentType: noteText ? 'text_note' : ''
+    documentType: noteText ? 'text_note' : '',
+    env: process.env.REACT_APP_API_ENDPOINT.includes('develop')
+      ? 'develop'
+      : 'prod'
   });
 
   const url = `${AI_API_BASE_URL}/${endpoint}?${queryParams.toString()}`;

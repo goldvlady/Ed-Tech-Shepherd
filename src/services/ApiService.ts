@@ -886,9 +886,9 @@ class ApiService {
 
   // User Subscriptions
   static initiateUserSubscription = async (
-    stripeCustomerId: string,
     userId: string,
-    priceId: string
+    priceId: string,
+    stripeCustomerId?: string
   ) => {
     return doFetch(`${ApiService.baseEndpoint}/initiateUserSubscription`, {
       method: 'POST',

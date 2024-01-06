@@ -1,14 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+
 import { SelectedNoteModal } from '../../../components';
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import { snip } from '../../../helpers/file.helpers';
 import useIsMobile from '../../../helpers/useIsMobile';
-import { getPDFHighlight, postPDFHighlight } from '../../../services/AI';
-import { Spinner } from './Spinner';
-import { testHighlights as _testHighlights } from './test-highlights';
-import { useToast } from '@chakra-ui/react';
-import { HandRaisedIcon } from '@heroicons/react/20/solid';
-import React, { useEffect, useState, useCallback } from 'react';
+import ShepherdSpinner from '../components/shepherd-spinner';
+import React, { useEffect, useState } from 'react';
 import type { IHighlight, NewHighlight } from 'react-pdf-highlighter';
 import {
   PdfLoader,
@@ -186,7 +183,7 @@ const TempPDFViewer = ({
           )}
 
           {/* @ts-ignore: this is a documented error regarding TS2786. I don't know how to fix yet (ref: https://stackoverflow.com/questions/72002300/ts2786-typescript-not-reconizing-ui-kitten-components)  */}
-          <PdfLoader url={url} beforeLoad={<Spinner />}>
+          <PdfLoader url={url} beforeLoad={<ShepherdSpinner />}>
             {(pdfDocument) => (
               // @ts-ignore: same issue as linked above
               <PdfHighlighter

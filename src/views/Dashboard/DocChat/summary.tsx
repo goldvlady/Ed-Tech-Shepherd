@@ -6,15 +6,15 @@ import SummaryIcn from '../../../assets/summaryIcn1.svg?react';
 import CustomButton from '../../../components/CustomComponents/CustomButton';
 import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkdownView';
 import { copierHandler } from '../../../helpers';
+import ShepherdSpinner from '../components/shepherd-spinner';
 import {
   DefaultSummaryContainer,
   EmptyStateContainer,
   IconContainer,
   PageCount,
-  SummaryContainer,
   SummaryContainer2
 } from './styles';
-import { Box, Spinner } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 // import { ChevronRightIcon, ChevronLeftIcon } from '@chakra-ui/icons';
 import React, { useState, useCallback } from 'react';
 
@@ -98,7 +98,7 @@ const Summary = ({
                 height: '100vh'
               }}
             >
-              <Spinner />
+              <ShepherdSpinner />
             </Box>
           )}
           {!loading && (

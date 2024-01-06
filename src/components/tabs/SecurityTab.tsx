@@ -68,7 +68,7 @@ export default function SecurityTab() {
               Need help? Please reach out to our support team.
             </span>
           </Text>
-          <Text>help@shepherd.study</Text>
+          <Text>hello@shepherd.study</Text>
         </div>
 
         <div
