@@ -1,15 +1,61 @@
+import ApiService from '../services/ApiService';
+import flashcardStore from '../state/flashcardStore';
+import { FlashcardData, FlashcardQuestion, SchedulePayload } from '../types';
 import {
   convertTimeToDateTime,
   convertTimeToTimeZone,
-  convertISOToCustomFormat
+  convertISOToCustomFormat,
+  convertUtcToUserTime
 } from '../util';
-import { Text } from '@chakra-ui/react';
+import ScheduleStudyModal, {
+  ScheduleFormState
+} from '../views/Dashboard/FlashCards/components/scheduleModal';
+import CalendarDateInput from './CalendarDateInput';
+import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
+import { CloseIcon } from '@chakra-ui/icons';
+import {
+  Button,
+  Box,
+  Text,
+  Flex,
+  FormControl,
+  FormLabel,
+  Spacer,
+  HStack,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  Center,
+  VStack
+} from '@chakra-ui/react';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
+import { isSameDay, isThisWeek, getISOWeek } from 'date-fns';
+import { parseISO, format, parse } from 'date-fns';
 import moment from 'moment';
-import React from 'react';
-import { MdOutlineSentimentNeutral } from 'react-icons/md';
+import React, { useCallback, useMemo, useState } from 'react';
+import { MdOutlineSentimentNeutral, MdOutlineReplay } from 'react-icons/md';
+import { useNavigate } from 'react-router';
 
 export default function Events({ event }: any) {
+  const {
+    isOpen: isOpenReBook,
+    onOpen: onOpenReBook,
+    onClose: onCloseReBook
+  } = useDisclosure();
+
+  const {
+    isOpen: isOpenCancelStudy,
+    onOpen: onOpenCancelStudy,
+    onClose: onCloseCancelStudy
+  } = useDisclosure();
+
+  const today = useMemo(() => new Date(), []);
+
   const getTextByEventType = (eventType, name) => {
     switch (eventType) {
       case 'study':
@@ -42,36 +88,142 @@ export default function Events({ event }: any) {
         return undefined;
     }
   };
-  const extractTime = (dateStr: string) => {
-    const date = moment.utc(dateStr).local();
-    return date.format('hh:mm A');
+  const getHoverColorByEventType = (eventType) => {
+    switch (eventType) {
+      case 'study':
+        return `hover:bg-emerald-50`;
+      case 'booking':
+        return `hover:bg-amber-50`;
+      default:
+        return undefined;
+    }
   };
 
-  const convertTo12HourFormat = (timeString) => {
-    const [hours, minutes] = timeString.split(':').map(Number);
+  function extractAndConvertTimeFromUTC(
+    utcDateString: string,
+    userTimeZone: string
+  ): string {
+    // Parse the UTC date string
+    const utcDate = moment.utc(utcDateString);
+    // Convert the UTC date to the user's local timezone
+    const localDate = utcDate.clone().tz(userTimeZone);
+    // Extract the time part in the user's local timezone
+    const localTime = localDate.format('hh:mm A');
+    return localTime;
+  }
+  const navigate = useNavigate();
 
-    const period = hours >= 12 ? 'PM' : 'AM';
-
-    const hours12 = hours % 12 || 12;
-
-    const time12Hour = `${hours12.toString().padStart(2, '0')}:${minutes
-      .toString()
-      .padStart(2, '0')} ${period}`;
-
-    return time12Hour;
-  };
   const currentPath = window.location.pathname;
 
   const isTutor = currentPath.includes('/dashboard/tutordashboard/');
 
+  const { isLoading, rescheduleFlashcard, fetchSingleFlashcard } =
+    flashcardStore();
+
+  const toast = useCustomToast();
+
+  const [scheduleItem, setScheduleItem] = useState(null);
+  const [reScheduleItem, setReScheduleItem] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [newDate, setNewDate] = useState<Date>();
+
+  const handleEventSchedule = async (data: ScheduleFormState) => {
+    const parsedTime = parse(data.time.toLowerCase(), 'hh:mm aa', new Date());
+    const time = format(parsedTime, 'HH:mm');
+
+    const rePayload = {
+      eventId: scheduleItem._id,
+      updates: {
+        startDate: data.day?.toISOString() as string,
+        startTime: time,
+        isActive: true
+      }
+    };
+
+    const isSuccess = await rescheduleFlashcard(rePayload);
+    if (isSuccess) {
+      toast({
+        position: 'top-right',
+        title: `${scheduleItem?.entity.deckname} Rescheduled Succesfully`,
+        status: 'success'
+      });
+      setScheduleItem(null);
+    } else {
+      toast({
+        position: 'top-right',
+        title: `Failed to reschedule ${scheduleItem?.entity.deckname} flashcards`,
+        status: 'error'
+      });
+    }
+  };
+
+  const rebook = async () => {
+    const payload = {
+      bookingId: scheduleItem._id,
+      updates: {
+        endDate: newDate
+      }
+    };
+    const response = await ApiService.reScheduleBooking(payload);
+    if (response.status === 200) {
+      toast({
+        position: 'top-right',
+        title: `Booking Rescheduled Succesfully`,
+        status: 'success'
+      });
+      setScheduleItem(null);
+    } else {
+      toast({
+        position: 'top-right',
+        title: `Failed to reschedule booking`,
+        status: 'error'
+      });
+    }
+  };
+
+  const handleCancelEvent = async () => {
+    const rePayload = {
+      eventId: scheduleItem._id,
+      updates: {
+        isActive: false
+      }
+    };
+
+    const isSuccess = await rescheduleFlashcard(rePayload);
+    if (isSuccess) {
+      toast({
+        position: 'top-right',
+        title: `${scheduleItem?.entity.deckname} Study Canceled Succesfully`,
+        status: 'success'
+      });
+      setScheduleItem(null);
+      onCloseCancelStudy();
+    } else {
+      toast({
+        position: 'top-right',
+        title: `Failed to cancel ${scheduleItem?.entity.deckname} flashcard study`,
+        status: 'error'
+      });
+    }
+  };
+
   return (
-    <li className={`flex gap-x-3 ${getColorByEventType(event.type)}`}>
+    <li
+      className={`flex gap-x-3 cursor-pointer hover:drop-shadow-sm ${getColorByEventType(
+        event.type
+      )} ${getHoverColorByEventType(event.type)}`}
+      onClick={() => {
+        event.type === 'study'
+          ? fetchSingleFlashcard(event.data.entity.id)
+          : navigate(`${`/dashboard`}`);
+      }}
+    >
       <div
         className={`min-h-fit w-1 rounded-tr-full rounded-br-full ${getBgColorByEventType(
           event.type
         )}`}
       />
-      <div className="py-2">
+      <div className="py-2 w-full">
         <div className="flex gap-x-1">
           <div className="min-w-0 flex-auto">
             <Text className="text-xs font-normal leading-6 text-gray-500">
@@ -85,46 +237,221 @@ export default function Events({ event }: any) {
                     }
               )}
             </Text>
-            {event.type !== 'study' && (
+            <Flex alignItems={'center'}>
+              {' '}
               <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
                 <span>
-                  {isTutor
-                    ? convertTimeToTimeZone(
-                        convertISOToCustomFormat(event.data.startDate),
-                        'Africa/Lagos'
-                      )
-                    : moment(event.data.startDate).format('h:mmA')}
+                  {convertUtcToUserTime(event.data.startDate)}
+                  {/* Format the time as "11:00 AM" */}
                 </span>
-                <ChevronRightIcon className="w-4 h-4" />
-                <span>
-                  {isTutor
-                    ? convertTimeToTimeZone(
-                        convertISOToCustomFormat(event.data.endDate),
-                        'Africa/Lagos'
-                      )
-                    : moment(event.data.endDate).format('h:mmA')}
-                </span>
+                {event.type !== 'study' && (
+                  <>
+                    {' '}
+                    <ChevronRightIcon className="w-4 h-4" />
+                    <span>{convertUtcToUserTime(event.data.endDate)}</span>
+                  </>
+                )}
               </Text>
-            )}
+              <Spacer />
+              <HStack color="#6b7280" mx={2}>
+                {' '}
+                <MdOutlineReplay
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setScheduleItem(event.data);
+                    event.type === 'study'
+                      ? setReScheduleItem(true)
+                      : onOpenReBook();
+                  }}
+                />
+                {event.type !== 'booking' && (
+                  <CloseIcon
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setScheduleItem(event.data);
+                      onOpenCancelStudy();
+                    }}
+                    boxSize={2}
+                  />
+                )}
+              </HStack>
+            </Flex>
           </div>
         </div>
-        {/* <div className="flex -space-x-0.5">
-          <dt className="sr-only">Commenters</dt>
-          {event.commenters.map((commenter: any) => (
-            <dd key={commenter.id}>
-              <img
-                className={`h-5 w-5 rounded-full ${
-                  commenter.backgroundColor
-                    ? commenter.backgroundColor
-                    : 'bg-gray-50'
-                } ring-2 ring-white`}
-                src={commenter.imageUrl}
-                alt={commenter.name}
-              />
-            </dd>
-          ))}
-        </div> */}
       </div>
+      <ScheduleStudyModal
+        isLoading={isLoading}
+        onSumbit={(d) => handleEventSchedule(d)}
+        onClose={() => setReScheduleItem(false)}
+        isOpen={reScheduleItem}
+      />
+      <Modal isOpen={isOpenReBook} onClose={onCloseReBook}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Reschedule Booking</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody overflow="auto">
+            <Box width="100%" paddingBottom={'50px'}>
+              <FormControl id="newDate" marginBottom="20px">
+                <FormLabel>Day</FormLabel>
+                <CalendarDateInput
+                  disabledDate={{ before: today }}
+                  inputProps={{
+                    placeholder: 'Select Day'
+                  }}
+                  value={newDate as Date}
+                  onChange={(value) => {
+                    setNewDate(value);
+                  }}
+                />
+              </FormControl>
+            </Box>
+          </ModalBody>
+
+          <ModalFooter
+            bg="#F7F7F8"
+            borderRadius="0px 0px 10px 10px"
+            p="16px"
+            justifyContent="flex-end"
+          >
+            <Button
+              isDisabled={!newDate}
+              _hover={{
+                backgroundColor: '#207DF7',
+                boxShadow: '0px 2px 6px 0px rgba(136, 139, 143, 0.10)'
+              }}
+              bg="#207DF7"
+              color="#FFF"
+              fontSize="14px"
+              fontFamily="Inter"
+              fontWeight="500"
+              lineHeight="20px"
+              onClick={() => rebook()}
+              isLoading={isLoading}
+              borderRadius="8px"
+              boxShadow="0px 2px 6px 0px rgba(136, 139, 143, 0.10)"
+              mr={3}
+              variant="primary"
+            >
+              Submit
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      <Modal isOpen={isOpenCancelStudy} onClose={onCloseCancelStudy}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Confirm Study Cancellation</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody overflowY="auto" py={3} px={8}>
+            <VStack
+              justifyContent={'center'}
+              // padding={'40px'}
+              alignItems="center"
+              spacing={1}
+            >
+              <svg
+                width="73"
+                height="52"
+                viewBox="0 0 73 42"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <g filter="url(#filter0_d_2506_16927)">
+                  <circle cx="36.5" cy="28" r="20" fill="white" />
+                  <circle
+                    cx="36.5"
+                    cy="28"
+                    r="19.65"
+                    stroke="#EAEAEB"
+                    stroke-width="0.7"
+                  />
+                </g>
+                <path
+                  d="M36.5002 37.1663C31.4376 37.1663 27.3335 33.0622 27.3335 27.9997C27.3335 22.9371 31.4376 18.833 36.5002 18.833C41.5627 18.833 45.6668 22.9371 45.6668 27.9997C45.6668 33.0622 41.5627 37.1663 36.5002 37.1663ZM35.5835 30.7497V32.583H37.4168V30.7497H35.5835ZM35.5835 23.4163V28.9163H37.4168V23.4163H35.5835Z"
+                  fill="#F53535"
+                />
+                <defs>
+                  <filter
+                    id="filter0_d_2506_16927"
+                    x="0.5"
+                    y="0"
+                    width="72"
+                    height="72"
+                    filterUnits="userSpaceOnUse"
+                    color-interpolation-filters="sRGB"
+                  >
+                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                    <feColorMatrix
+                      in="SourceAlpha"
+                      type="matrix"
+                      values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                      result="hardAlpha"
+                    />
+                    <feOffset dy="8" />
+                    <feGaussianBlur stdDeviation="8" />
+                    <feComposite in2="hardAlpha" operator="out" />
+                    <feColorMatrix
+                      type="matrix"
+                      values="0 0 0 0 0.32 0 0 0 0 0.389333 0 0 0 0 0.48 0 0 0 0.11 0"
+                    />
+                    <feBlend
+                      mode="normal"
+                      in2="BackgroundImageFix"
+                      result="effect1_dropShadow_2506_16927"
+                    />
+                    <feBlend
+                      mode="normal"
+                      in="SourceGraphic"
+                      in2="effect1_dropShadow_2506_16927"
+                      result="shape"
+                    />
+                  </filter>
+                </defs>
+              </svg>
+
+              <Text fontWeight={600} fontSize={16}>
+                Cancel Study Event ?{' '}
+              </Text>
+              <Text textAlign={'center'}>
+                {' '}
+                This will permanently remove {
+                  scheduleItem?.entity?.deckname
+                }{' '}
+                from your schedule
+              </Text>
+            </VStack>
+          </ModalBody>
+
+          <ModalFooter
+            bg="#F7F7F8"
+            borderRadius="0px 0px 10px 10px"
+            p="16px"
+            justifyContent="flex-end"
+          >
+            <Button
+              _hover={{
+                backgroundColor: 'red',
+                boxShadow: '0px 2px 6px 0px rgba(136, 139, 143, 0.10)'
+              }}
+              bg="red"
+              color="#FFF"
+              fontSize="14px"
+              fontFamily="Inter"
+              fontWeight="500"
+              lineHeight="20px"
+              onClick={() => handleCancelEvent()}
+              isLoading={isLoading}
+              borderRadius="8px"
+              boxShadow="0px 2px 6px 0px rgba(136, 139, 143, 0.10)"
+              mr={3}
+              variant="primary"
+            >
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </li>
   );
 }

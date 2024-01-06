@@ -1,7 +1,10 @@
 import { useCustomToast } from '../../../../../components/CustomComponents/CustomToast/useCustomToast';
 import CustomSelect from '../../../../../components/CustomSelect';
+import PlansModal from '../../../../../components/PlansModal';
 import SelectComponent, { Option } from '../../../../../components/Select';
 import uploadFile from '../../../../../helpers/file.helpers';
+import ApiService from '../../../../../services/ApiService';
+import userStore from '../../../../../state/userStore';
 import FileUpload from '../../components/fileUploadField';
 import { useFlashcardWizard } from '../../context/flashcard';
 import {
@@ -23,6 +26,7 @@ const FlashcardFromDocumentSetup = ({
   isAutomated?: boolean;
 }) => {
   const toast = useCustomToast();
+  const { user } = userStore();
   const {
     flashcardData,
     setFlashcardData,
@@ -39,6 +43,9 @@ const FlashcardFromDocumentSetup = ({
     hasSubmitted: false,
     documentId: ''
   }); // A local state for storing user inputs
+  const [togglePlansModal, setTogglePlansModal] = useState(false);
+  const [plansModalMessage, setPlansModalMessage] = useState('');
+  const [PlansModalSubMessage, setPlansModalSubMessage] = useState('');
 
   useEffect(() => {
     if (flashcardData.deckname) {
@@ -99,28 +106,65 @@ const FlashcardFromDocumentSetup = ({
     });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setFlashcardData((prevState) => ({
       ...prevState,
       ...localData,
       hasSubmitted: true
     }));
     if (isAutomated) {
-      generateFlashcardQuestions(localData, handleDone);
+      try {
+        // Assuming you have an API endpoint that checks the question count
+        // Subscription and flashcard limit check
+        const { hasActiveSubscription } = userStore.getState();
+        const flashcardCountResponse = await ApiService.checkFlashcardCount(
+          user.student._id
+        );
+        const userFlashcardCount = await flashcardCountResponse.json();
+
+        if (
+          !hasActiveSubscription ||
+          (user.subscription?.subscriptionMetadata?.flashcard_limit &&
+            userFlashcardCount.count >=
+              user.subscription.subscriptionMetadata.flashcard_limit)
+        ) {
+          setPlansModalMessage(
+            !hasActiveSubscription
+              ? "Let's get you on a plan so you can generate flashcards! "
+              : "Looks like you've filled up your flashcard deck! 🚀"
+          );
+          setPlansModalSubMessage(
+            !hasActiveSubscription
+              ? 'Get started today for free!'
+              : "Let's upgrade your plan so you can keep generating more."
+          );
+          setTogglePlansModal(true); // Show the PlansModal
+          return;
+        }
+        generateFlashcardQuestions(localData, handleDone);
+      } catch (error) {
+        console.log(error);
+        // Handle error (e.g., show toast notification)
+      }
     } else {
       goToNextStep();
     }
   };
 
   const onHandleFile = (file: File) => {
-    const uploadEmitter = uploadFile(file);
+    const uploadEmitter = uploadFile(file, {
+      studentID: user?._id as string,
+      documentID: file.name
+    });
+
     uploadEmitter.on('progress', (progress: number) => {
       if (progress && progress < 99 && !isLoading) {
         setIsLoading(true);
       }
     });
+
     uploadEmitter.on('complete', (uploadFile) => {
-      setLocalData((prev) => ({ ...prev, documentId: uploadFile }));
+      setLocalData((prev) => ({ ...prev, documentId: uploadFile.fileUrl }));
       setIsLoading(false);
     });
     uploadEmitter.on('error', (error) => {
@@ -192,7 +236,7 @@ const FlashcardFromDocumentSetup = ({
           <Radio value="longTermRetention">
             <Text fontSize="14px">Long term retention</Text>
           </Radio>
-          <Radio ml={'10px'} value="quickPractice">
+          <Radio ml={0} value="quickPractice">
             <Text fontSize="14px"> Quick Practice</Text>
           </Radio>
         </RadioGroup>
@@ -235,21 +279,33 @@ const FlashcardFromDocumentSetup = ({
           _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />
       </FormControl>
-      {/* <FormControl mb={8}>
+
+      <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-          Timer settings
+          Start Page (Optional)
         </FormLabel>
-        <Select
-          name="timerDuration"
-          placeholder="Select a duration"
-          value={localData.timerDuration}
+        <Input
+          type="number"
+          name="startPage"
+          placeholder="Start Page Number"
+          value={localData.startPage}
           onChange={handleChange}
           _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-        >
-          <option value="30">30 sec</option>
-          <option value="15">15 sec</option>
-        </Select>
-      </FormControl> */}
+        />
+      </FormControl>
+      <FormControl mb={8}>
+        <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+          End Page (Optional)
+        </FormLabel>
+        <Input
+          type="number"
+          name="endPage"
+          placeholder="End Page Number"
+          value={localData.endPage}
+          onChange={handleChange}
+          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+        />
+      </FormControl>
       <HStack w="full" align={'flex-end'}>
         <Button
           variant="solid"
@@ -278,6 +334,14 @@ const FlashcardFromDocumentSetup = ({
           Generate Flashcard
         </Button>
       </HStack>
+      {togglePlansModal && (
+        <PlansModal
+          togglePlansModal={togglePlansModal}
+          setTogglePlansModal={setTogglePlansModal}
+          message={plansModalMessage} // Pass the message to the modal
+          subMessage={PlansModalSubMessage}
+        />
+      )}
     </Box>
   );
 };

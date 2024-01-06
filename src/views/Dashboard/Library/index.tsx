@@ -1,4 +1,3 @@
-import EmptyIllustration from '../../../assets/empty_illustration.svg';
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import DropDownFilter from '../../../components/CustomComponents/DropDownFilter';
 import LoaderOverlay from '../../../components/loaderOverlay';
@@ -107,7 +106,10 @@ const Library: React.FC = () => {
             flexDirection={'column'}
             alignItems={'center'}
           >
-            <Image src={EmptyIllustration} />
+            <img
+              src="/images/empty_illustration.svg"
+              alt="empty directory icon"
+            />
             <Text
               color="text.300"
               fontFamily="Inter"
@@ -229,7 +231,7 @@ const Library: React.FC = () => {
                   variant="outline"
                   onChange={(e) => handleSearch(e.target.value)}
                   size="sm"
-                  placeholder="     Search"
+                  placeholder="Search"
                   borderRadius="6px"
                 />
               </InputGroup>

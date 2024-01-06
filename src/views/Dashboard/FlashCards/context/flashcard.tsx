@@ -1,6 +1,8 @@
-/* eslint-disable no-console */
+import { useToast } from '@chakra-ui/react';
+import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
+import PlansModal from '../../../../components/PlansModal';
 import FileProcessingService from '../../../../helpers/files.helpers/fileProcessing';
-import { createDocchatFlashCards } from '../../../../services/AI';
+import useFlashcardQuestionsJob from '../../../../hooks/useFlashcardQuestionJobs';
 import ApiService from '../../../../services/ApiService';
 import flashcardStore from '../../../../state/flashcardStore';
 import userStore from '../../../../state/userStore';
@@ -12,19 +14,20 @@ import React, {
   useContext,
   useMemo
 } from 'react';
+import CustomToast from '../../../../components/CustomComponents/CustomToast';
+import { useNavigate } from 'react-router';
 
 export enum TypeEnum {
   FLASHCARD = 'flashcard',
   MNEOMONIC = 'mneomonic',
   INIT = 'init'
 }
-
 export enum SourceEnum {
   DOCUMENT = 'document',
   SUBJECT = 'subject',
-  MANUAL = 'manual'
+  MANUAL = 'manual',
+  ANKI = 'anki'
 }
-
 export enum QuestionGenerationStatusEnum {
   INIT = 'INIT',
   SUCCESSFUL = 'SUCCESSFUL',
@@ -34,7 +37,10 @@ type SettingsType = {
   type: TypeEnum;
   source: SourceEnum;
 };
-
+export enum ModeEnum {
+  CREATE = 'CREATE',
+  EDIT = 'EDIT'
+}
 interface FlashcardData {
   deckname: string;
   level?: string;
@@ -51,8 +57,10 @@ interface FlashcardData {
   selectPagesInclude?: number;
   ingestId?: string;
   noteDoc?: string;
+  startPage?: number;
+  endPage?: number;
+  questions?: Array<FlashcardQuestion>;
 }
-
 export interface FlashcardQuestion {
   questionType: string;
   question: string;
@@ -61,15 +69,17 @@ export interface FlashcardQuestion {
   explanation?: string;
   helperText?: string;
 }
-
+export interface CurrentEditFlashcard extends FlashcardData {
+  questions: FlashcardQuestion[];
+}
 export type AIRequestBody = {
   topic?: string;
   count: number;
   subject?: string;
   difficulty?: string;
   note?: string;
+  existingQuestions?: string[];
 };
-
 export interface FlashcardDataContextProps {
   flashcardData: FlashcardData;
   currentStep: number;
@@ -82,6 +92,7 @@ export interface FlashcardDataContextProps {
   isSaveSuccessful: boolean;
   goToQuestion: (index: number | ((previousIndex: number) => number)) => void;
   deleteQuestion: (index: number) => void;
+  addQuestionsToFlashcard: () => void;
   setQuestions: React.Dispatch<React.SetStateAction<FlashcardQuestion[]>>;
   setFlashcardData: React.Dispatch<React.SetStateAction<FlashcardData>>;
   setSettings: React.Dispatch<React.SetStateAction<SettingsType>>;
@@ -90,6 +101,12 @@ export interface FlashcardDataContextProps {
   isLoading: boolean;
   isMinimized: boolean;
   setMinimized: React.Dispatch<React.SetStateAction<boolean>>;
+  setCurrentQuestionData: (
+    data:
+      | Partial<FlashcardQuestion>
+      | ((data: FlashcardQuestion) => FlashcardQuestion)
+  ) => void;
+  convertAnkiToShepherd: (base64string: string) => Promise<void>;
   generateFlashcardQuestions: (
     d?: FlashcardData,
     onDone?: (success: boolean) => void,
@@ -99,12 +116,15 @@ export interface FlashcardDataContextProps {
   saveFlashcardData: (
     onDone?: ((success: boolean) => void) | undefined
   ) => Promise<void>;
+  setMode: React.Dispatch<React.SetStateAction<ModeEnum>>;
+  mode: ModeEnum;
+  cancelQuestionGeneration: () => void;
+  loadMoreQuestions: (count: number) => void;
+  stageFlashcardForEdit: (flashcard: CurrentEditFlashcard) => void;
 }
-
 const FlashcardDataContext = createContext<
   FlashcardDataContextProps | undefined
 >(undefined);
-
 export const useFlashcardWizard = () => {
   const context = useContext(FlashcardDataContext);
   if (!context) {
@@ -114,18 +134,27 @@ export const useFlashcardWizard = () => {
   }
   return context;
 };
-
+let cancelRequest = false;
 const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
   children
 }) => {
-  const { user } = userStore();
-  const { createFlashCard } = flashcardStore();
+  const toast = useToast();
 
+  const { user } = userStore();
+
+  const [togglePlansModal, setTogglePlansModal] = useState(false);
+  const [plansModalMessage, setPlansModalMessage] = useState('');
+  const [PlansModalSubMessage, setPlansModalSubMessage] = useState('');
+  const { createFlashCard } = flashcardStore();
+  const { watchJobs, clearJobs } = useFlashcardQuestionsJob(
+    user?._id as string
+  );
   const [settings, setSettings] = useState<SettingsType>({
     type: TypeEnum.INIT,
     source: SourceEnum.SUBJECT
   });
-
+  const [mode, setMode] = useState<ModeEnum>(ModeEnum.CREATE);
+  const [generationCancelled, setGenerationCancelled] = useState(false);
   const [isResetted, setResetted] = useState(false);
   const defaultFlashcardData = useMemo(
     () => ({
@@ -138,7 +167,12 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     }),
     []
   );
-
+  const cancelQuestionGeneration = useCallback(() => {
+    cancelRequest = true;
+    setIsLoading(false);
+    setQuestionGenerationStatus(QuestionGenerationStatusEnum.INIT);
+  }, []);
+  const navigate = useNavigate();
   const [flashcardData, setFlashcardData] =
     useState<FlashcardData>(defaultFlashcardData);
   const [questions, setQuestions] = useState<FlashcardQuestion[]>([]);
@@ -149,7 +183,6 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
   const [questionGenerationStatus, setQuestionGenerationStatus] =
     useState<QuestionGenerationStatusEnum>(QuestionGenerationStatusEnum.INIT);
   const [isMinimized, setMinimized] = useState(false);
-
   const goToQuestion = useCallback(
     (arg: number | ((previousIndex: number) => number)) => {
       const index = typeof arg === 'function' ? arg(currentQuestionIndex) : arg;
@@ -157,29 +190,44 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     },
     [currentQuestionIndex]
   );
-
   useEffect(() => {
     if (isResetted) {
       setResetted(false);
     }
     // eslint-disable-next-line
   }, [flashcardData]);
-
   const deleteQuestion = useCallback((index: number) => {
     setQuestions((prev) => {
       const newQuestions = prev.filter(
         (_, questionIndex) => questionIndex !== index
       );
-
       // Subtract one from currentQuestionIndex since one question is deleted
       setCurrentQuestionIndex((prevIndex) =>
         prevIndex > 0 ? prevIndex - 1 : 0
       );
-
       return newQuestions;
     });
   }, []);
 
+  const setCurrentQuestionData = useCallback(
+    (
+      arg:
+        | FlashcardQuestion
+        | ((previousIndex: FlashcardQuestion) => FlashcardQuestion)
+    ) => {
+      setQuestions((prev) => {
+        const index = currentQuestionIndex;
+        const newQuestions = [...prev];
+        const question =
+          typeof arg === 'function'
+            ? arg(prev[index])
+            : (arg as FlashcardQuestion);
+        newQuestions[index] = question;
+        return newQuestions;
+      });
+    },
+    [currentQuestionIndex]
+  );
   useEffect(() => {
     const questionsEmptyState = {
       questionType: '',
@@ -187,21 +235,16 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       options: [], // Initialized options as empty array
       answer: ''
     };
-
-    if (flashcardData.numQuestions) {
+    if (flashcardData.numQuestions && !questions.length) {
       const numQuestions = flashcardData.numQuestions;
       const generatedQuestions: FlashcardQuestion[] = [];
-
       for (let i = 0; i < numQuestions; i++) {
         generatedQuestions.push(questionsEmptyState);
       }
-
       setQuestions(generatedQuestions);
     }
-  }, [flashcardData.numQuestions]);
-
+  }, [flashcardData.numQuestions, questions]);
   const resetFlashcard = useCallback(() => {
-    console.log(defaultFlashcardData);
     setFlashcardData(defaultFlashcardData);
     setQuestions([]);
     setSaveSuccessful(false);
@@ -210,39 +253,20 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     setQuestionGenerationStatus(QuestionGenerationStatusEnum.INIT);
     setResetted(true);
   }, [defaultFlashcardData]);
-
-  // Process the document-related request
-  const processDocumentRequest = useCallback(
-    async (
-      reqData: FlashcardData,
-      ingestDoc: boolean,
-      aiData: AIRequestBody
-    ) => {
-      const responseData = {
-        title: reqData.topic as string,
-        student: user?._id as string,
-        documentUrl: reqData.documentId as string
-      };
-
-      let documentId = reqData.ingestId || reqData.documentId;
-
-      if (ingestDoc && !reqData.ingestId) {
-        const fileInfo = new FileProcessingService(responseData);
-        const {
-          data: [{ documentId: docId }]
-        } = await fileInfo.process();
-        documentId = docId;
-      }
-
-      return await ApiService.createDocchatFlashCards({
-        ...aiData,
-        studentId: user?._id as string,
-        documentId: documentId as string
+  const stageFlashcardForEdit = useCallback(
+    (cardData: CurrentEditFlashcard) => {
+      const { questions: quizQuestions, ...rest } = cardData;
+      setFlashcardData((prev) => ({ ...prev, ...rest }));
+      setQuestions((prev) => [...prev, ...quizQuestions]);
+      // setCurrentStep((prev) => prev + 1);
+      setSettings({
+        type: TypeEnum.FLASHCARD,
+        source: cardData.topic ? SourceEnum.SUBJECT : SourceEnum.MANUAL
       });
+      setMode(ModeEnum.EDIT);
     },
-    [user]
+    []
   );
-
   const handleError = useCallback(
     (onDone?: (success: boolean) => void) => {
       setQuestionGenerationStatus(QuestionGenerationStatusEnum.FAILED);
@@ -251,7 +275,59 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     },
     [setQuestionGenerationStatus, setFlashcardData]
   );
+  // Process the document-related request
+  const processDocumentRequest = useCallback(
+    async (
+      reqData: FlashcardData,
+      ingestDoc: boolean,
+      aiData: AIRequestBody,
+      onDone?: (success: boolean) => void
+    ) => {
+      const responseData = {
+        title: reqData.topic as string,
+        student: user?._id as string,
+        documentUrl: reqData.documentId as string
+      };
+      let documentId = reqData.ingestId || reqData.documentId;
+      if (ingestDoc && !reqData.ingestId) {
+        const fileInfo = new FileProcessingService(responseData);
+        // const {
+        //   data: [{ documentId: docId }]
+        // } = await fileInfo.process();
+        // documentId = docId;
+      }
+      try {
+        // Create a new URL object
+        const url = new URL(documentId as string);
+        // Extract the pathname, which will give you the relative path
+        documentId = decodeURIComponent(url.pathname.split('/').pop() || '');
+      } catch (error) {
+        // If there's an error, it's likely not a valid URL, so just use documentId as is
+      }
 
+      watchJobs(documentId as string, (error, questions) => {
+        if (error) {
+          return handleError(onDone);
+        } else {
+          if (questions && questions.length) {
+            setQuestions(questions);
+            setCurrentStep(1);
+            setQuestionGenerationStatus(
+              QuestionGenerationStatusEnum.SUCCESSFUL
+            );
+            setTimeout(() => clearJobs(documentId as string), 5000);
+          }
+        }
+        setIsLoading(false);
+      });
+      return await ApiService.createDocchatFlashCards({
+        ...aiData,
+        studentId: user?._id as string,
+        documentId: documentId as string
+      });
+    },
+    [user, watchJobs, handleError, clearJobs]
+  );
   // Handle the API response
   const handleResponse = useCallback(
     async (response: Response, onDone?: (success: boolean) => void) => {
@@ -264,7 +340,6 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
           helperText: d['helpful reading'],
           questionType: 'openEnded'
         }));
-
         setQuestions(questions);
         setCurrentStep((prev) => prev + 1);
         setQuestionGenerationStatus(QuestionGenerationStatusEnum.SUCCESSFUL);
@@ -275,52 +350,179 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     },
     [setQuestions, setCurrentStep, setQuestionGenerationStatus, handleError]
   );
+  const loadMoreQuestions = useCallback(
+    async (count = 5) => {
+      // Subscription and flashcard limit check
+      const { hasActiveSubscription } = userStore.getState();
+      const flashcardCountResponse = await ApiService.checkFlashcardCount(
+        user.student._id
+      );
+      const userFlashcardCount = await flashcardCountResponse.json();
 
+      if (
+        !hasActiveSubscription ||
+        (user.subscription?.subscriptionMetadata?.flashcard_limit &&
+          userFlashcardCount.count >=
+            user.subscription.subscriptionMetadata.flashcard_limit)
+      ) {
+        setPlansModalMessage(
+          !hasActiveSubscription
+            ? "Let's get you on a plan so you can generate flashcards! "
+            : "You've hit the limit for flashcard generation on your current plan! 🚀"
+        );
+        setPlansModalSubMessage(
+          !hasActiveSubscription
+            ? 'Get started today for free!'
+            : "Let's upgrade your plan so you can keep generating more."
+        );
+        setTogglePlansModal(true); // Show the PlansModal
+        setIsLoading(false);
+        return;
+      }
+      try {
+        setIsLoading(true);
+        // Construct the AI request body
+        const aiData: AIRequestBody = {
+          topic: flashcardData.topic,
+          subject: flashcardData.subject,
+          count,
+          ...(flashcardData.level && { difficulty: flashcardData.level }),
+          ...(flashcardData.noteDoc && { note: flashcardData.noteDoc }),
+          existingQuestions: questions.map((q) => q.question)
+        };
+        // Call the API to fetch more questions
+        const requestFunc = !flashcardData.noteDoc
+          ? ApiService.generateFlashcardQuestions
+          : ApiService.generateFlashcardQuestionsForNotes;
+        const response = await requestFunc(aiData, user?._id as string);
+        if (cancelRequest) {
+          cancelRequest = false;
+          return;
+        }
+        if (response.status === 200) {
+          const data = await response.json();
+          const additionalQuestions = data.flashcards.map((d: any) => ({
+            question: d.front,
+            answer: d.back,
+            explanation: d.explainer,
+            helperText: d['helpful reading'],
+            questionType: 'openEnded'
+          }));
+          // Add the fetched questions to the current list
+          setQuestions((prevQuestions) => [
+            ...prevQuestions,
+            ...additionalQuestions
+          ]);
+        } else {
+          // console.error('Failed to load more questions');
+        }
+      } catch (error) {
+        // console.error('Error loading more questions:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [flashcardData, questions, user]
+  );
+
+  const addQuestionsToFlashcard = useCallback(() => {
+    const additionalQuestion = {
+      question: '',
+      answer: '',
+      explanation: '',
+      helperText: '',
+      questionType: 'openEnded'
+    };
+    const questionIndex = questions.length;
+    setQuestions((prev) => [...prev, additionalQuestion]);
+    goToQuestion(questionIndex);
+  }, [questions, goToQuestion]);
+  const convertAnkiToShepherd = useCallback(
+    async (base64string: string) => {
+      try {
+        setIsLoading(true);
+
+        const resp = await ApiService.convertAnkiToShep({
+          base64String: base64string
+        });
+        const r: { data: FlashcardData } = await resp.json();
+
+        setFlashcardData(r.data);
+        setQuestions(r.data.questions);
+        setIsLoading(false);
+        toast({
+          render: () => (
+            <CustomToast
+              title={'Successfully created Flashdeck from Anki'}
+              status="success"
+            />
+          ),
+          position: 'top-right',
+          isClosable: true
+        });
+        setTimeout(() => {
+          //
+          navigate('/dashboard/flashcards');
+        }, 500);
+      } catch (error) {
+        toast({
+          render: () => <CustomToast title={error.message} status="fail" />,
+          position: 'top-right',
+          isClosable: true
+        });
+        handleError();
+      }
+    },
+    [handleError]
+  );
   const generateFlashcardQuestions = useCallback(
     async (
       data?: FlashcardData,
       onDone?: (success: boolean) => void,
       ingestDoc = true
     ) => {
+      let reqData = data || flashcardData;
       try {
         data = data || ({} as FlashcardData);
-        const reqData = { ...flashcardData, ...data };
-
+        reqData = { ...flashcardData, ...data };
         setIsLoading(true);
         setQuestionGenerationStatus(QuestionGenerationStatusEnum.INIT);
-
         const aiData: AIRequestBody = {
           topic: reqData.topic,
           subject: reqData.subject,
           count: parseInt(reqData.numQuestions as unknown as string, 10),
           ...(reqData.level && { difficulty: reqData.level }),
-          ...(reqData.noteDoc && { note: reqData.noteDoc })
+          ...(reqData.noteDoc && { note: reqData.noteDoc }),
+          ...(reqData.documentId &&
+            reqData.startPage && { start_page: reqData.startPage }),
+          ...(reqData.documentId &&
+            reqData.endPage && { end_page: reqData.startPage })
         };
-
         let response;
-
         if (reqData.documentId) {
           response = await processDocumentRequest(reqData, ingestDoc, aiData);
         } else {
           const requestFunc = !reqData.noteDoc
             ? ApiService.generateFlashcardQuestions
             : ApiService.generateFlashcardQuestionsForNotes;
-
           response = await requestFunc(aiData, user?._id as string);
+          if (cancelRequest) {
+            cancelRequest = false;
+          } else {
+            await handleResponse(response, onDone);
+          }
         }
-
-        await handleResponse(response, onDone);
       } catch (error) {
         handleError(onDone);
       } finally {
-        setIsLoading(false);
+        if (!reqData.documentId) {
+          setIsLoading(false);
+        }
       }
     },
     [flashcardData, user, handleError, processDocumentRequest, handleResponse]
   );
-
   // Handle errors
-
   const saveFlashcardData = useCallback(
     async (onDone?: (success: boolean) => void) => {
       try {
@@ -347,7 +549,6 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     },
     [flashcardData, createFlashCard, questions]
   );
-
   const value = useMemo(
     () => ({
       flashcardData,
@@ -358,11 +559,14 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       questions,
       currentStep,
       currentQuestionIndex,
+      setCurrentQuestionData,
       goToQuestion,
       deleteQuestion,
       resetFlashcard,
       setQuestions,
       generateFlashcardQuestions,
+      convertAnkiToShepherd,
+      addQuestionsToFlashcard,
       goToNextStep: () => setCurrentStep((prev) => prev + 1),
       goToStep: (stepIndex: number) => setCurrentStep(stepIndex),
       settings,
@@ -371,7 +575,12 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       setSettings,
       questionGenerationStatus,
       saveFlashcardData,
-      isResetted
+      isResetted,
+      cancelQuestionGeneration,
+      setMode,
+      mode,
+      loadMoreQuestions,
+      stageFlashcardForEdit
     }),
     [
       flashcardData,
@@ -387,20 +596,33 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       setQuestions,
       generateFlashcardQuestions,
       settings,
+      addQuestionsToFlashcard,
       setSettings,
       setMinimized,
       isMinimized,
       questionGenerationStatus,
       saveFlashcardData,
-      isResetted
+      isResetted,
+      cancelQuestionGeneration,
+      setMode,
+      mode,
+      setCurrentQuestionData,
+      loadMoreQuestions,
+      stageFlashcardForEdit
     ]
   );
-
   return (
     <FlashcardDataContext.Provider value={value}>
       {children}
+      {togglePlansModal && (
+        <PlansModal
+          togglePlansModal={togglePlansModal}
+          setTogglePlansModal={setTogglePlansModal}
+          message={plansModalMessage} // Pass the message to the modal
+          subMessage={PlansModalSubMessage}
+        />
+      )}
     </FlashcardDataContext.Provider>
   );
 };
-
 export default FlashcardWizardProvider;

@@ -1,4 +1,5 @@
 import CriteriaCheck from '../components/CriteriaCheck';
+import { useCustomToast } from '../components/CustomComponents/CustomToast/useCustomToast';
 import SecureInput from '../components/SecureInput';
 import { confirmPasswordReset, firebaseAuth } from '../firebase';
 import { useTitle } from '../hooks';
@@ -44,7 +45,7 @@ const ForgotPasswordSchema = Yup.object().shape({
 
 const CreatePassword: React.FC = () => {
   useTitle('Create new password');
-  const toast = useToast();
+  const toast = useCustomToast();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const oobCode = params.get('oobCode') ?? '';

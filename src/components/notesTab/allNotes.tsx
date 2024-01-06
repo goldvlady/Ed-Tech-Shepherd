@@ -58,7 +58,7 @@ type DataSourceItem = {
 export interface Props {
   data: Array<NoteDetails>;
   getNotes: () => void;
-  handleTagSelection: any;
+  handleTagSelection?: any;
 }
 
 const formatDate = (date: Date, format = 'DD ddd, hh:mma'): string => {
@@ -278,7 +278,7 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
   };
 
   const gotoEditNote = (noteId: string | number) => {
-    const noteURL = `/dashboard/new-note/${noteId}`;
+    const noteURL = `/dashboard/notes/new-note/${noteId}`;
     if (noteId && noteId !== '') {
       navigate(noteURL);
     }

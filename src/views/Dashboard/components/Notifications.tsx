@@ -19,6 +19,7 @@ import {
 } from '@chakra-ui/react';
 import { ref, onValue, DataSnapshot, off } from 'firebase/database';
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 
 // import OfferIcon from 'svgs/text-document.svg';
@@ -26,8 +27,10 @@ import styled from 'styled-components';
 function Notifications(props) {
   const { data, handleRead, handleAllRead } = props;
   const { user } = userStore();
+  const navigate = useNavigate();
   const currentPath = window.location.pathname;
   // const parsedNotifications = data.map((item) => item.notification);
+  console.log(data);
 
   const isTutor = currentPath.includes('/dashboard/tutordashboard');
 
@@ -54,7 +57,8 @@ function Notifications(props) {
           'offer_rejected',
           'upcoming_class',
           'BOUNTY_BID_RECIEVED',
-          'BOUNTY_CREATED'
+          'BOUNTY_CREATED',
+          'STUDY_PLAN_FOR_FLASHCARD_CREATED'
         ];
         return (
           allowedTypes.includes(item.type) && isWithinAWeek(item.createdAt)
@@ -66,8 +70,6 @@ function Notifications(props) {
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 
-  console.log('filteredData', data, filteredData);
-
   const Divide = styled(Divider)`
     &:last-child {
       display: none;
@@ -76,29 +78,31 @@ function Notifications(props) {
   const getIconByANotificationType = (NotificationType) => {
     switch (NotificationType) {
       case 'note_created':
-        return MessageIcon;
+        return <MessageIcon />;
       case 'new_offer_created':
-        return OfferIcon;
+        return <OfferIcon />;
       case 'new_offer_received':
-        return OfferIcon;
+        return <OfferIcon />;
       case 'offer_accepted':
-        return OfferIcon;
+        return <OfferIcon />;
       case 'offer_rejected':
-        return OfferIcon;
+        return <OfferIcon />;
       case 'upcoming_class':
-        return VideoIcon;
+        return <VideoIcon />;
       case 'BOUNTY_CREATED':
-        return OfferIcon;
+        return <OfferIcon />;
       case 'BOUNTY_ACCEPTED':
-        return OfferIcon;
+        return <OfferIcon />;
       case 'BOUNTY_BID_ACCEPTED':
-        return OfferIcon;
+        return <OfferIcon />;
       case 'BOUNTY_BID_RECIEVED':
-        return OfferIcon;
+        return <OfferIcon />;
       case 'BOUNTY_BID_REJECTED':
-        return OfferIcon;
+        return <OfferIcon />;
+      case 'STUDY_PLAN_FOR_FLASHCARD_CREATED':
+        return <OfferIcon />;
       default:
-        return undefined;
+        return <OfferIcon />;
     }
   };
   const getTextByNotificationType = (NotificationType) => {
@@ -125,54 +129,15 @@ function Notifications(props) {
         return 'Bounty bid received';
       case 'BOUNTY_BID_REJECTED':
         return 'Bounty bid rejected';
-
+      case 'STUDY_PLAN_FOR_FLASHCARD_CREATED':
+        return 'You have created study plan for Flashcard';
       default:
-        return undefined;
+        return 'You have received a notification';
     }
   };
-  // const [notifications, setNotifications] = useState<string[]>([]);
-  // const [hasUnreadNotification, setHasUnreadNotification] =
-  //   useState<boolean>(false);
-  // console.log(notifications, 'nino');
 
-  // useEffect(() => {
-  //   const notificationsRef = ref(database, `notifications`);
-
-  //   const fetchNotifications = () => {
-  //     onValue(notificationsRef, (snapshot: DataSnapshot) => {
-  //       const data = snapshot.val();
-
-  //       if (data) {
-  //         const notificationsArray: string[] = Object.values(data);
-  //         setNotifications(notificationsArray);
-  //       } else {
-  //         setNotifications([]);
-  //       }
-  //     });
-  //   };
-
-  //   // Call the fetchNotifications function when the component mounts
-  //   fetchNotifications();
-
-  //   // Clean up the Firebase listener when the component unmounts
-  //   return () => {
-  //     off(notificationsRef); // This removes the listener
-  //   };
-  // }, []);
   const userId = user?._id || '';
   const { notifications, hasUnreadNotification } = useNotifications(userId);
-
-  const handleNotificationClick = (notificationId) => {
-    // Mark the notification as read in the database
-    // const notificationRef = ref(database, `notifications/${notificationId}`);
-    // update(notificationRef, { read: true })
-    //   .then(() => {
-    console.log(`Notification ${notificationId} marked as read`);
-    //   })
-    //   .catch((error) => {
-    //     console.error('Error marking notification as read:', error);
-    //   });
-  };
 
   return (
     <>
@@ -204,9 +169,18 @@ function Notifications(props) {
         {data &&
           filteredData.map((i) => (
             <>
-              <div
+              <Box
                 className={`notification-item ${i.read ? 'read' : ''}`}
                 key={i._id}
+                _hover={{ cursor: 'pointer', bg: '#EDF2F7', borderRadius: 8 }}
+                onClick={() => {
+                  if (i.attributes.offerId) {
+                    const url = isTutor
+                      ? `/dashboard/tutordashboard/offers/offer/${i.attributes.offerId}`
+                      : `/dashboard/offer/${i.attributes.offerId}`;
+                    navigate(url);
+                  }
+                }}
               >
                 <Flex
                   alignItems="flex-start"
@@ -216,14 +190,10 @@ function Notifications(props) {
                   py={2}
                   key={i._id}
                   position="relative"
-                  // onClick={() => markAsRead(i._id)}
                 >
-                  <Image
-                    src={getIconByANotificationType(i.type)}
-                    alt="doc"
-                    maxHeight={45}
-                    zIndex={1}
-                  />
+                  <Box maxHeight={45} zIndex={1}>
+                    {getIconByANotificationType(i.type)}
+                  </Box>
                   <Stack direction={'column'} px={4} spacing={1}>
                     <Text color="text.300" fontSize={12} mb={0}>
                       {<TimeAgo timestamp={i.createdAt} />}
@@ -239,17 +209,17 @@ function Notifications(props) {
 
                     <Spacer />
                   </Stack>
-                  <Image
-                    src={i.status === 'unviewed' ? ReadIcon : UnreadIcon}
-                    alt="read"
+                  <Box
                     maxHeight={45}
                     zIndex={1}
                     position="absolute"
-                    right={0}
+                    right={3}
                     top={5}
-                  />
+                  >
+                    {i.status === 'unviewed' ? <ReadIcon /> : <UnreadIcon />}
+                  </Box>
                 </Flex>
-              </div>
+              </Box>
 
               <Divide />
             </>

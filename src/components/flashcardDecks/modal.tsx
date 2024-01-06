@@ -8,6 +8,8 @@ import {
   MinimizedStudy,
   SessionType
 } from '../../types';
+import ShepherdSpinner from '../../views/Dashboard/components/shepherd-spinner';
+import DailyDeckSelector from './dailyDeckSelector';
 import FlashCard from './deck_two';
 import DeckOverLap from './overlap';
 import ResultDisplay from './resultDisplay';
@@ -24,9 +26,8 @@ import {
   MenuItem,
   MenuList,
   MenuButton,
-  ModalFooter,
+  ModalHeader,
   Menu,
-  Spinner,
   MenuGroup,
   Tag,
   TagLabel,
@@ -43,7 +44,6 @@ import React, {
 import { AiFillThunderbolt } from 'react-icons/ai';
 import { BsThreeDots } from 'react-icons/bs';
 import { FiCheck, FiHelpCircle, FiXCircle } from 'react-icons/fi';
-import { RiLineFill, RiCloseLine } from 'react-icons/ri';
 import styled from 'styled-components';
 
 const MenuListWrapper = styled(MenuList)`
@@ -69,13 +69,7 @@ const LoaderOverlay = () => (
       backgroundColor: 'rgba(0, 0, 0, 0.5)' // Semi-transparent background
     }}
   >
-    <Spinner
-      thickness="4px"
-      speed="0.65s"
-      emptyColor="gray.200"
-      color="blue.500"
-      size="xl"
-    />
+    <ShepherdSpinner />
   </div>
 );
 
@@ -178,7 +172,7 @@ const StudyFooter = ({
           rounded="100%"
           padding="10px"
           bg="#FEECEC"
-          onClick={() => loadFlashcard(null)}
+          onClick={() => loadFlashcard(null, false)}
           _hover={{ bg: '#FEECEC', transform: 'scale(1.05)' }}
           color="black"
         >
@@ -322,6 +316,9 @@ const CompletedState = ({
   const { passPercentage, failPercentage, notRememberedPercentage } =
     calculatePercentages(score);
 
+  const { dailyFlashcards, setShowStudyList } = flashcardStore();
+  const title =
+    Number(passPercentage) >= 85 ? 'Congratulations!' : "Let's keep studying!";
   return (
     <Box
       borderRadius="12px"
@@ -352,7 +349,7 @@ const CompletedState = ({
           lineHeight="30px"
           letterSpacing="-0.48px"
         >
-          Congratulations
+          {title}
         </Text>
         <Text
           color="#6E7682"
@@ -366,7 +363,7 @@ const CompletedState = ({
           textAlign={'center'}
           letterSpacing="-0.048px"
         >
-          You reviewed all cards, what will you like to do next?
+          You reviewed all cards, what would you like to do next?
         </Text>
         <Box
           mt="15px"
@@ -390,31 +387,64 @@ const CompletedState = ({
             badgeColor="#F53535"
           />
         </Box>
-        <Button
-          bg="#fff"
-          width={'80%'}
-          color="#000"
-          mt="50px"
-          onClick={() => onRefresh()}
-          borderRadius="8px"
-          _hover={{ background: 'none' }}
-          border="1px solid #E7E8E9"
-          padding="25px"
-          display="flex"
-          flexDirection="column"
-          justifyContent="center"
+
+        <HStack
+          width="100%"
+          padding="0px 5%"
+          direction="column"
           alignItems="center"
+          mt="50px"
         >
-          <Text
-            fontSize="14px"
-            color="#000"
-            fontWeight="500"
-            lineHeight="22px"
-            textAlign="center"
+          <Button
+            width={dailyFlashcards?.length ? '50%' : '100%'} // Conditionally set width
+            onClick={() => onRefresh()}
+            borderRadius="8px"
+            background={'rgb(32, 125, 247)'}
+            color={'#fff'}
+            _hover={{ background: 'none' }}
+            padding="25px"
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
           >
-            Restart Flashcard
-          </Text>
-        </Button>
+            <Text
+              fontSize="14px"
+              color="#fff"
+              fontWeight="500"
+              lineHeight="22px"
+              textAlign="center"
+            >
+              Restart Flashcard
+            </Text>
+          </Button>
+          {dailyFlashcards?.length > 0 && ( // Check if dailyFlashcards has items
+            <Button
+              bg="#fff"
+              width={'50%'}
+              color="#000"
+              onClick={() => setShowStudyList(true)}
+              borderRadius="8px"
+              _hover={{ background: 'none' }}
+              border="1px solid #E7E8E9"
+              padding="25px"
+              display="flex"
+              flexDirection="column"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <Text
+                fontSize="14px"
+                color="#000"
+                fontWeight="500"
+                lineHeight="22px"
+                textAlign="center"
+              >
+                Select Another Card
+              </Text>
+            </Button>
+          )}
+        </HStack>
       </Box>
     </Box>
   );
@@ -430,10 +460,12 @@ const StudyBox = () => {
     flashcard,
     storeScore,
     updateQuestionAttempt,
+    minorLoader,
     minimizedStudy,
     isLoading,
     loadFlashcard,
-    storeCurrentStudy
+    storeCurrentStudy,
+    loadTodaysFlashcards
   } = flashcardStore();
   const [currentStudyIndex, setCurrentStudyIndex] = useState(0);
   const [studyType, setStudyType] = useState<'manual' | 'timed'>('manual');
@@ -497,7 +529,7 @@ const StudyBox = () => {
     };
     if (flashcard) {
       await storeCurrentStudy(flashcard?._id, data);
-      loadFlashcard(null);
+      loadFlashcard(null, false);
     }
   };
 
@@ -520,7 +552,7 @@ const StudyBox = () => {
   };
 
   const formatFlashcard = useCallback(
-    (flashcard: FlashcardData) => {
+    (flashcard: any) => {
       const formatedQuestions: Study[] = flashcard.questions.map(
         (question, index) => {
           const data: Study = {
@@ -630,7 +662,12 @@ const StudyBox = () => {
 
   const acceptAnswer = async () => {
     if (flashcard)
-      await updateQuestionAttempt(flashcard._id, currentStudy.questions, true);
+      updateQuestionAttempt(
+        flashcard._id,
+        currentStudy.questions,
+        true,
+        'got it right'
+      );
     setStudies((prev) => {
       const curr = prev[currentStudyIndex];
       curr.currentStep = curr.currentStep + 1;
@@ -644,12 +681,20 @@ const StudyBox = () => {
       return [...prev];
     });
     lazyTriggerNextStep();
+    loadTodaysFlashcards();
   };
 
   const rejectAnswer = async (notRemembered?: boolean) => {
     const scoreKey = notRemembered ? 'failed' : 'notRemembered';
-    if (flashcard)
-      await updateQuestionAttempt(flashcard._id, currentStudy.questions, false);
+    if (flashcard) {
+      const grade = notRemembered ? 'did not remember' : 'got it wrong';
+      updateQuestionAttempt(
+        flashcard._id,
+        currentStudy.questions,
+        false,
+        grade
+      );
+    }
     setStudies((prev) => {
       const curr = prev[currentStudyIndex];
       curr.isFirstAttempt = false;
@@ -663,6 +708,7 @@ const StudyBox = () => {
       return [...prev];
     });
     lazyTriggerNextStep();
+    loadTodaysFlashcards();
   };
 
   const startStudy = () => {
@@ -715,7 +761,7 @@ const StudyBox = () => {
     return isFinished ? (
       <CompletedState
         onRefresh={() => restartStudy()}
-        onDone={() => loadFlashcard(null)}
+        onDone={() => loadFlashcard(null, false)}
         score={savedScore}
       />
     ) : (
@@ -804,9 +850,14 @@ const StudyBox = () => {
                 //     lazyTriggerNextStep()
                 // }
               }}
+              isLoading={minorLoader}
               bg="#207DF7"
               width={'80%'}
               color="white"
+              _loading={{
+                background: '#207DF7',
+                color: 'white'
+              }}
               borderRadius="8px"
               border="1px solid #207DF7"
               height="48px"
@@ -838,6 +889,11 @@ const StudyBox = () => {
               <Button
                 leftIcon={<Icon as={FiCheck} fontSize={'16px'} />}
                 borderRadius="8px"
+                isLoading={minorLoader}
+                _loading={{
+                  background: '#EDF7EE',
+                  color: '#4CAF50'
+                }}
                 onClick={() => {
                   acceptAnswer();
                   // setStudies(prev => {
@@ -857,6 +913,7 @@ const StudyBox = () => {
                 color="#4CAF50"
                 marginRight={{ md: '10px' }}
                 marginBottom={{ base: '15px' }}
+                loadingText="Got it right"
                 height="54px"
                 width={{ base: '100%', md: 'auto' }}
                 transition="transform 0.3s"
@@ -873,6 +930,7 @@ const StudyBox = () => {
                 borderRadius="8px"
                 padding="16.5px 45.5px 16.5px 47.5px"
                 backgroundColor="#FFEFE6"
+                isLoading={minorLoader}
                 color="#FB8441"
                 flex="1"
                 fontSize="16px"
@@ -881,15 +939,13 @@ const StudyBox = () => {
                 width={{ base: '100%', md: 'auto' }}
                 onClick={() => {
                   rejectAnswer(true);
-                  // setStudies(prev => {
-                  //     const curr = prev[currentStudyIndex]
-                  //     curr.isFirstAttempt = false
-                  //     prev[currentStudyIndex] = curr
-                  //     return [...prev]
-                  // })
-                  // lazyTriggerNextStep()
                 }}
                 height="54px"
+                _loading={{
+                  background: '#FFEFE6',
+                  color: '#FB8441'
+                }}
+                loadingText="Didn’t remember"
                 transition="transform 0.3s"
                 _hover={{
                   background: '#FFEFE6',
@@ -904,6 +960,7 @@ const StudyBox = () => {
                 display="flex"
                 padding="16.5px 45.5px 16.5px 47.5px"
                 justifyContent="center"
+                isLoading={minorLoader}
                 alignItems="center"
                 borderRadius="8px"
                 fontSize="16px"
@@ -915,13 +972,11 @@ const StudyBox = () => {
                 width={{ base: '100%', md: 'auto' }}
                 onClick={() => {
                   rejectAnswer();
-                  // setStudies(prev => {
-                  //     const curr = prev[currentStudyIndex]
-                  //     curr.isFirstAttempt = false
-                  //     prev[currentStudyIndex] = curr
-                  //     return [...prev]
-                  // })
-                  // lazyTriggerNextStep()
+                }}
+                loadingText="Got it wrong"
+                _loading={{
+                  background: '#FEECEC',
+                  color: '#F53535'
                 }}
                 transition="transform 0.3s"
                 _hover={{
@@ -937,15 +992,7 @@ const StudyBox = () => {
       </Box>
     );
   };
-  // if (!isStarted) {
-  //   return (
-  //     <EmptyState
-  //       onClose={() => loadFlashcard(null)}
-  //       flashcard={flashcard as FlashcardData}
-  //       onStart={() => setActivityState({ isStarted: true, isFinished: false })}
-  //     />
-  //   );
-  // }
+
   return (
     <Box
       padding={0}
@@ -1155,11 +1202,11 @@ const StudyBox = () => {
             transition="width 0.5s linear" // Add this line
           />
         </Box>
-        {isLoading && <LoaderOverlay />}
+        {/* {isLoading && <LoaderOverlay />} */}
         {!isStarted && !isFinished ? (
           <EmptyState
             flashcard={flashcard as FlashcardData}
-            onClose={() => loadFlashcard(null)}
+            onClose={() => loadFlashcard(null, false)}
             onStart={() => startStudy()}
           />
         ) : (
@@ -1176,6 +1223,7 @@ const StudyBox = () => {
 
 const FlashCardModal = ({ isOpen }: { isOpen: boolean }) => {
   const modalRef = useRef<HTMLDivElement | null>(null);
+  const { showStudyList, setShowStudyList, loadFlashcard } = flashcardStore();
   const [cancelButtonTop, setCancelButtonTop] = useState(0);
 
   useEffect(() => {
@@ -1191,21 +1239,36 @@ const FlashCardModal = ({ isOpen }: { isOpen: boolean }) => {
   return (
     <Modal
       onClose={() => {
-        return;
+        if (showStudyList) {
+          loadFlashcard(null, false);
+          setShowStudyList(false);
+        }
       }}
       isOpen={isOpen}
       isCentered
     >
       <ModalOverlay>
         <ModalContent
+          // borderRadius="12px"
+          // minWidth={{ base: '80%', md: '700px' }}
+          // mx="auto"
+          // w="fit-content"
+          // position="relative"
           borderRadius="12px"
-          minWidth={{ base: '80%', md: '700px' }}
+          w="full" // Use the full width of the screen
+          maxW={{ base: '95%', sm: '80%', md: '700px' }} // Responsive max width
           mx="auto"
-          w="fit-content"
           position="relative"
         >
+          {showStudyList && (
+            <ModalHeader>
+              <Text fontSize="lg" fontWeight="bold" isTruncated>
+                Select a card deck to study
+              </Text>
+            </ModalHeader>
+          )}
           <div ref={modalRef}>
-            <StudyBox />
+            {showStudyList ? <DailyDeckSelector /> : <StudyBox />}
           </div>
         </ModalContent>
       </ModalOverlay>

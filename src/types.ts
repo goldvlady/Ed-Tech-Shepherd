@@ -1,5 +1,11 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
+export const MULTIPLE_CHOICE_SINGLE = 'multipleChoiceSingle';
+export const MULTIPLE_CHOICE_MULTI = 'multipleChoiceMulti';
+export const TRUE_FALSE = 'trueFalse';
+export const OPEN_ENDED = 'openEnded';
+export const MIXED = 'mixed';
+
 export type Entity = {
   _id: string;
 };
@@ -110,6 +116,43 @@ export type MinimizedStudy = {
   };
 };
 
+export enum SubscriptionStatus {
+  ACTIVE = 'active',
+  CANCELLED = 'cancelled',
+  PAST_DUE = 'past_due',
+  TRIALING = 'trialing'
+}
+
+export enum SubscriptionTier {
+  BASIC = 'Basic',
+  PREMIUM = 'Premium',
+  FOUNDING_MEMBER = 'Founding Member'
+}
+
+export type SubscriptionMetadata = {
+  flashcard_limit?: number;
+  daily_question_limit?: number;
+  docchat_word_limit?: number;
+  file_mb_limit?: number;
+};
+
+export type Subscription = {
+  user?: User;
+  stripeSubscriptionId: string;
+  tier?: SubscriptionTier;
+  status?: SubscriptionStatus;
+  startDate?: Date;
+  endDate?: Date;
+  lastPaymentDate?: Date;
+  nextBillingDate?: Date;
+  trialEnd?: Date;
+  trialStart?: Date;
+  daysUntilDue?: Number;
+  currentPeriodStart?: Date;
+  currentPeriodEnd?: Date;
+  subscriptionMetadata?: SubscriptionMetadata;
+};
+
 export enum UserNotificationTypes {
   LESSON_SESSION_STARTED = 'lesson_session_started',
   NEW_OFFER_RECEIVED = 'new_offer_received',
@@ -134,6 +177,7 @@ export interface User extends TimestampedEntity {
   signedUpAsTutor?: string;
   paymentMethods: PaymentMethod[];
   streamTokens?: StreamToken[];
+  subscription?: Subscription;
 }
 
 export interface Student extends TimestampedEntity {
@@ -192,6 +236,7 @@ export interface Offer extends TimestampedEntity {
   course: Course;
   level: Level;
   schedule: SingleSchedule;
+  scheduleTz: string;
   _id: string;
   rate: number;
   note: string;
@@ -278,6 +323,7 @@ export interface FlashcardData {
   studyPeriod: 'daily' | 'weekly' | 'biweekly' | 'spacedRepetition';
   questions: FlashcardQuestion[];
   createdAt: string;
+  source: 'anki' | 'shepherd';
   updatedAt: string;
   currentStudy?: MinimizedStudy;
 }
@@ -359,6 +405,7 @@ export interface NoteDetails {
   user: NoteUser;
   topic: string;
   note: string;
+  summary: string;
   tags: Array<string>;
   _id: string;
   createdAt: Date;
@@ -437,11 +484,12 @@ export enum NoteStatus {
 }
 
 export interface NoteData {
-  note: any;
-  topic: string;
+  note?: any;
+  topic?: string;
   documentId?: string;
   tags?: Array<string>;
   status?: NoteStatus;
+  summary?: string;
 }
 
 export interface StudentDocument {
@@ -454,4 +502,46 @@ export interface StudentDocument {
   tags: string[];
   ingestId?: string;
   student: any; // Assuming this is the ObjectId of the student
+}
+
+export interface QuizQuestionOption {
+  content: string;
+  isCorrect: boolean;
+}
+
+export interface QuizQuestion {
+  type: 'openEnded' | 'trueFalse' | 'multipleSingleChoice' | string;
+  question: string;
+  options?: QuizQuestionOption[];
+  helperText?: string;
+  explanation?: string;
+  answer?: string;
+  numberOfAttempts?: number;
+  currentStep?: number;
+  totalSteps?: number;
+  id?: string | number;
+  _id?: string | number;
+  difficulty?:
+    | 'kindergarten'
+    | 'high school'
+    | 'college'
+    | 'PhD'
+    | 'genius'
+    | 'phd';
+}
+
+export interface QuizData {
+  _id: string;
+  student?: Student;
+  title: string;
+  studyType?: 'timedSession' | 'untimedSession';
+  subject?: string;
+  topic?: string;
+  scores: Score[];
+  studyPeriod?: 'daily' | 'weekly' | 'biweekly' | 'spacedRepetition';
+  questions: QuizQuestion[];
+  createdAt: string;
+  updatedAt: string;
+  currentStudy?: MinimizedStudy;
+  tags: string[];
 }

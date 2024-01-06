@@ -1,11 +1,8 @@
 import { OffersGridList, Section } from '../../../components';
-import BountyGridList from '../../../components/BountyGridList';
-import ApiService from '../../../services/ApiService';
 import offerStore from '../../../state/offerStore';
 import {
   Box,
   Image,
-  Spinner,
   Tab,
   Tabs,
   TabList,
@@ -14,6 +11,7 @@ import {
   Text
 } from '@chakra-ui/react';
 import React, { useEffect, useState, useCallback } from 'react';
+import ShepherdSpinner from '../../Dashboard/components/shepherd-spinner';
 
 export default function Offers() {
   const { offers, fetchOffers, pagination } = offerStore();
@@ -45,7 +43,7 @@ export default function Offers() {
           height: '100vh'
         }}
       >
-        <Spinner />
+        <ShepherdSpinner />
       </Box>
     );
   }

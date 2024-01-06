@@ -1,9 +1,9 @@
 import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
 import Pagination from './components/Pagination';
 import TutorCard from './components/TutorCard';
-import { Box, Flex, SimpleGrid, Text } from '@chakra-ui/react';
+import { Box, Flex, Image, SimpleGrid, Text } from '@chakra-ui/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 function BookmarkedTutors() {
   const {
@@ -48,31 +48,44 @@ function BookmarkedTutors() {
               Saved Tutors
             </Text>
             <Text fontSize={16} fontWeight={400} color="text.300">
-              Keep up with tutors you’ve saved their profile
+              Keep up with tutors whose profile you’ve saved
             </Text>
           </Box>
         </Flex>
-        <SimpleGrid
-          columns={{ base: 1, md: 2, lg: 3 }}
-          spacing="20px"
-          ref={tutorGrid}
-          mt={4}
-        >
-          {allTutors?.map((tutor: any) => (
-            <TutorCard
-              key={tutor.tutor?._id}
-              id={tutor.tutor?._id}
-              name={`${tutor.tutor.user.name.first} ${tutor.tutor.user.name.last}`}
-              levelOfEducation={'BSC'}
-              avatar={tutor.tutor.user.avatar}
-              saved={true}
-              description={tutor.tutor?.description}
-              rate={tutor.tutor?.rate}
-              rating={tutor.tutor?.rating}
-              reviewCount={tutor.tutor?.reviewCount}
-            />
-          ))}
-        </SimpleGrid>
+        {allTutors.length > 0 ? (
+          <SimpleGrid
+            columns={{ base: 1, md: 2, lg: 3 }}
+            spacing="20px"
+            ref={tutorGrid}
+            mt={4}
+          >
+            {allTutors?.map((tutor: any) => (
+              <TutorCard
+                key={tutor.tutor?._id}
+                id={tutor.tutor?._id}
+                name={`${tutor.tutor.user.name.first} ${tutor.tutor.user.name.last}`}
+                levelOfEducation={'BSC'}
+                avatar={tutor.tutor.user.avatar}
+                saved={true}
+                description={tutor.tutor?.description}
+                rate={tutor.tutor?.rate}
+                rating={tutor.tutor?.rating}
+                reviewCount={tutor.tutor?.reviewCount}
+              />
+            ))}
+          </SimpleGrid>
+        ) : (
+          <>
+            <section className="flex justify-center items-center mt-28 w-full">
+              <div className="text-center">
+                <Image src="/images/notes.png" alt="empty" m="auto" />
+                <Text textAlign={'center'}>
+                  You currently have no saved shepherds!
+                </Text>
+              </div>
+            </section>
+          </>
+        )}
         {/* <Pagination
           page={pagination.page}
           count={pagination.total}

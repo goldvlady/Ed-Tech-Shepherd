@@ -22,5 +22,5 @@ export const NotePDFWrapper = styled.section<{
   bottom: ${(props) => props.bottom ?? undefined};
   left: ${(props) => props.left ?? undefined};
   z-index: ${(props) => props.zIndex ?? undefined};
-  background-color: ${(props) => props.background ?? theme.color.background};
+  background-color: ${(props) => props.background ?? theme?.color?.background};
 `;

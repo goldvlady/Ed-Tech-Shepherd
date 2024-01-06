@@ -1,5 +1,6 @@
-import BellDot from '../assets/bell-dot.svg';
+import BellDot from '../assets/belldot.svg';
 import { classNames } from '../helpers';
+import { useStreamChat } from '../providers/streamchat.provider';
 import tutorStore from '../state/tutorStore';
 import userStore from '../state/userStore';
 import Notifications from '../views/Dashboard/components/Notifications';
@@ -18,6 +19,7 @@ import {
 import { HelpModal, UploadDocumentModal } from './index';
 import {
   Avatar,
+  Badge,
   Box,
   Flex,
   HStack,
@@ -95,6 +97,8 @@ const dummyNavigation: NavigationItem[] = [
 
 export default function Layout({ children, className }) {
   const [helpModal, setHelpModal] = useState(false);
+  const [toggleHelpModal, setToggleHelpModal] = useState(false);
+
   const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toggleProfileSwitchModal, setToggleProfileSwitchModal] =
@@ -114,6 +118,15 @@ export default function Layout({ children, className }) {
     setToggleProfileSwitchModal(true);
   };
   const pathname = location.pathname;
+  const {
+    unreadCount,
+    connectUserToChat,
+    userType,
+    setUserRoleInfo,
+    userRoleId,
+    userRoleToken,
+    disconnectAndReset
+  } = useStreamChat();
 
   useEffect(() => {
     const temp: NavigationItem[] = navigation.map((nav) => {
@@ -134,7 +147,35 @@ export default function Layout({ children, className }) {
     }
   }, [user]);
 
+  useEffect(() => {
+    // disconnectAndReset();
+    if (user) {
+      const role = user[userType];
+      const token = user.streamTokens?.find((token) => token.type === userType);
+      //@ts-ignore: petty ts check
+      setUserRoleInfo(role?._id, token?.token);
+      // return () => {
+      //   connectUserToChat();
+      // };
+    }
+
+    // return () => {
+    //   disconnectAndReset();
+    // };
+  }, [user]);
+
+  useEffect(() => {
+    if (userRoleId && userRoleToken) {
+      connectUserToChat();
+    }
+  }, [userRoleId, userRoleToken]);
+
+  //  useEffect(() => {
+  //    connectUserToChat();
+  //  }, []);
+
   const handleSignOut = () => {
+    disconnectAndReset();
     sessionStorage.clear();
     signOut(auth).then(() => {
       navigate('/login');
@@ -209,7 +250,10 @@ export default function Layout({ children, className }) {
                       <li>
                         <ul className="-mx-2 space-y-1">
                           {navigation.map((item) => {
-                            const activePath = pathname === item.href;
+                            const activePath =
+                              pathname === item.href ||
+                              (pathname.startsWith(item.href) &&
+                                item.href.split('/').length > 3);
                             return (
                               <li key={item.name}>
                                 <a
@@ -239,9 +283,10 @@ export default function Layout({ children, className }) {
                       </li>
                       <li className="border-t pt-4">
                         <a
-                          href="tutordashboard/tutorsettings"
+                          href="/dashboard/tutordashboard/account-settings"
                           className={classNames(
-                            pathname === 'tutordashboard/tutorsettings'
+                            pathname ===
+                              '/dashboard/tutordashboard/account-settings'
                               ? 'bg-slate-100 text-blue-400'
                               : 'text-gray-400 hover:text-blue-400 hover:bg-slate-100',
                             'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
@@ -249,7 +294,8 @@ export default function Layout({ children, className }) {
                         >
                           <Cog6ToothIcon
                             className={classNames(
-                              pathname === 'tutordashboard/tutorsettings'
+                              pathname ===
+                                '/dashboard/tutordashboard/account-settings'
                                 ? 'text-blue-500'
                                 : 'text-gray-400 group-hover:text-blue-400',
                               'h-6 w-6 shrink-0'
@@ -281,7 +327,10 @@ export default function Layout({ children, className }) {
         <nav className="flex flex-1 flex-col pt-3">
           <Box as="ul" className="flex flex-1 flex-col gap-y-2">
             {navigation.map((item) => {
-              const activePath = pathname === item.href;
+              const activePath =
+                pathname === item.href ||
+                (pathname.startsWith(item.href) &&
+                  item.href.split('/').length > 3);
               return (
                 <Box key={item.name} as="li">
                   <Link
@@ -307,6 +356,12 @@ export default function Layout({ children, className }) {
                     <Text fontSize={14} fontWeight={activePath ? '500' : '400'}>
                       {item.name}
                     </Text>
+                    {item.name === 'Messages' &&
+                      unreadCount > 0 && ( // Display badge if there are unread messages
+                        <Badge colorScheme="red" ml={2}>
+                          {unreadCount}
+                        </Badge>
+                      )}
                   </Link>
                 </Box>
               );
@@ -314,9 +369,9 @@ export default function Layout({ children, className }) {
           </Box>
           <Box className="border-t pt-4">
             <Link
-              to="tutordashboard/tutorsettings"
+              to="tutordashboard/account-settings"
               className={`${
-                pathname === 'tutordashboard/tutorsettings'
+                pathname === '/dashboard/tutordashboard/account-settings'
                   ? 'bg-slate-100 text-primaryBlue'
                   : 'text-gray-400 hover:text-primaryBlue hover:bg-slate-100'
               } group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold`}
@@ -325,7 +380,7 @@ export default function Layout({ children, className }) {
             >
               <Cog6ToothIcon
                 className={classNames(
-                  pathname === 'tutordashboard/tutorsettings'
+                  pathname === '/dashboard/tutordashboard/account-settings'
                     ? 'text-blue-500'
                     : 'text-gray-400 group-hover:text-primaryBlue',
                   'h-6 w-6 shrink-0'
@@ -335,7 +390,9 @@ export default function Layout({ children, className }) {
               <Text
                 fontSize={14}
                 fontWeight={
-                  pathname === 'tutordashboard/tutorsettings' ? '500' : '400'
+                  pathname === '/dashboard/tutordashboard/account-settings'
+                    ? '500'
+                    : '400'
                 }
               >
                 Settings
@@ -398,13 +455,7 @@ export default function Layout({ children, className }) {
                       variant="ghost"
                       aria-label="open menu"
                       color={'text.300'}
-                      icon={
-                        hasUnreadNotification ? (
-                          <Image src={BellDot} />
-                        ) : (
-                          <FaBell />
-                        )
-                      }
+                      icon={hasUnreadNotification ? <BellDot /> : <FaBell />}
                     />
                   </MenuButton>
                   <MenuList p={3} width={'358px'} zIndex={2}>
@@ -617,11 +668,11 @@ export default function Layout({ children, className }) {
         setToggleProfileSwitchModal={setToggleProfileSwitchModal}
       />
       {/* Help Modal */}
-      <Transition.Root show={helpModal} as={Fragment}>
-        <Dialog as="div" className="relative z-50" onClose={setHelpModal}>
-          <HelpModal helpModal={helpModal} setHelpModal={setHelpModal} />
-        </Dialog>
-      </Transition.Root>
+
+      <HelpModal
+        toggleHelpModal={toggleHelpModal}
+        setToggleHelpModal={setToggleHelpModal}
+      />
     </>
   );
 }

@@ -1,10 +1,14 @@
+import { Box } from '@chakra-ui/react';
+import Editor from '../../../../components/Editor';
 import theme from '../../../../theme/';
 import styled from 'styled-components';
+import tw from 'twin.macro';
 
 export const NewNoteWrapper = styled.section<{
   position?: string;
   width?: string;
   height?: string;
+  minHeight?: string;
   background?: string;
   top?: number;
   left?: number;
@@ -21,12 +25,13 @@ export const NewNoteWrapper = styled.section<{
   width: ${(props) => props.width ?? '250mm'};
   margin: 0 auto;
   height: ${(props) => props.height ?? '297mm'};
+  min-height: ${(props) => props.minHeight ?? '100vh'};
   top: ${(props) => props.top ?? undefined};
   right: ${(props) => props.right ?? undefined};
   bottom: ${(props) => props.bottom ?? undefined};
   left: ${(props) => props.left ?? undefined};
   z-index: ${(props) => props.zIndex ?? undefined};
-  background-color: ${(props) => props.background ?? theme.color.background};
+  background-color: ${(props) => props.background ?? theme?.color?.background};
   overflow: ${(props) => props.overflow ?? undefined};
   overflow-y: ${(props) => props.overflowY ?? undefined};
   overflow-x: ${(props) => props.overflowZ ?? undefined};
@@ -34,6 +39,7 @@ export const NewNoteWrapper = styled.section<{
 export const FullScreenNoteWrapper = styled.div`
   width: 70% !important;
   margin: 0 auto;
+  position: relative;
 `;
 
 export const PDFWrapper = styled.div`
@@ -45,13 +51,9 @@ export const PDFWrapper = styled.div`
   justify-content: center;
 `;
 
-export const Header = styled.section`
-  background: #fafafa;
-  border: 1px solid #eeeff2;
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  padding: 8px;
+export const Header = styled(Box)`
+  && {
+  }
 `;
 
 export const FirstSection = styled.div`
@@ -75,16 +77,7 @@ export const FirstSection = styled.div`
   }
 
   .doc__name {
-    cursor: text;
-    color: #525456;
-    display: flex;
-    flex-direction: row;
-    font-size: 11pt;
-    min-width: 120px;
-    max-height: 30px;
-    width: '100%';
-    border-right: 1px solid #e0e1e1;
-    padding-right: 10px;
+    ${tw`w-full min-w-[120px] max-w-[150px] md:max-w-[300px] cursor-text text-[#525456] flex text-[11pt] max-h-[30px] border-r border-[#e0e1e1] pr-[10px]`};
     > input {
       width: inherit;
       height: 'inherit';
@@ -94,6 +87,7 @@ export const FirstSection = styled.div`
       font-size: 11pt;
       color: #525456;
       background: #fafafa !important;
+      ${tw`min-w-[200px] md:max-w-[300px]`}
     }
   }
 
@@ -135,10 +129,9 @@ export const SecondSection = styled.div`
   }
 `;
 
-export const NoteBody = styled.section`
-  padding: 10px 0;
-  height: 100vh;
-  background: '#ffffff';
+export const NoteBody = styled(Box)`
+  && {
+  }
 `;
 
 export const DropDownLists = styled.div`
@@ -161,6 +154,7 @@ export const DropDownLists = styled.div`
 export const DropDownFirstPart = styled.div`
   display: flex;
   align-items: center;
+  height: 30px;
   gap: 6px;
   justify-content: space-between;
   width: 100%;
@@ -182,19 +176,13 @@ export const DropDownDelete = styled.div`
 `;
 
 export const HeaderButton = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  cursor: pointer;
-  padding: ${(props) => theme.layout.padding.paddingMedium + 'px'};
+  && {
+  }
 `;
 
-export const HeaderWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  column-gap: 2em;
-  padding: ${(props) => theme.layout.padding.paddingMedium + 'px'};
+export const HeaderWrapper = styled(Box)`
+  && {
+  }
 `;
 
 export const HeaderTagsWrapper = styled.div`
@@ -202,6 +190,73 @@ export const HeaderTagsWrapper = styled.div`
 `;
 
 export const HeaderButtonText = styled.p`
-  margin-left: ${(props) => theme.layout.padding.paddingMedium + 'px'};
-  font-size: 10pt;
+  && {
+  }
+`;
+
+// export const StyledEditor = styled(Editor)`
+//   && {
+//     .toolbar {
+//       ${tw`z-1`}
+//     }
+//   }
+// `;
+
+export const StyledEditor = styled(Editor)`
+  && {
+    ${tw`mt-2 relative w-[1100px]`};
+
+    .toolbar {
+      ${tw`z-1 rounded-tl-none rounded-tr-none static border-b border-gray-200 shadow-xl`};
+    }
+
+    .editor-container {
+      ${tw`rounded-none max-h-[calc(100dvh-80px)] p-4 md:p-0 overflow-y-auto`};
+      ::-webkit-scrollbar {
+        width: 0px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+      }
+      .editor {
+        ${tw`max-h-[68vh] md:max-h-[80vh] overflow-auto`};
+        ::-webkit-scrollbar {
+          width: 0px;
+        }
+
+        ::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 3px;
+        }
+      }
+    }
+  }
+`;
+
+export const StyledNoteWrapper = styled(Box)`
+  && {
+    ${tw``}
+  }
+`;
+
+export const StyledNoteContainer = styled(Box)`
+  && {
+    ${tw``}
+  }
+`;
+
+export const StyledNoteContent = styled(Box)`
+  && {
+    ${tw``}
+  }
 `;

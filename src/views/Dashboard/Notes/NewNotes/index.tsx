@@ -1,22 +1,19 @@
-import { ReactComponent as AddTag } from '../../../../assets/addTag.svg';
-import { ReactComponent as BackArrow } from '../../../../assets/backArrowFill.svg';
-import { ReactComponent as DocIcon } from '../../../../assets/doc.svg';
-import { ReactComponent as DownloadIcon } from '../../../../assets/download.svg';
-import { ReactComponent as FlashCardIcn } from '../../../../assets/flashCardIcn.svg';
-import { ReactComponent as SideBarPinIcn } from '../../../../assets/sideBarPin.svg';
-import { ReactComponent as ArrowRight } from '../../../../assets/small-arrow-right.svg';
-import { ReactComponent as ZoomIcon } from '../../../../assets/square.svg';
-import { ReactComponent as TrashIcon } from '../../../../assets/trash-icn.svg';
+import clsx from 'clsx';
+import AddTag from '../../../../assets/addTag.svg?react';
+import BackArrow from '../../../../assets/backArrowFill.svg?react';
+import DownloadIcon from '../../../../assets/download.svg?react';
+import FlashCardIcn from '../../../../assets/flashCardIcn.svg?react';
+import SideBarPinIcn from '../../../../assets/sideBarPin.svg?react';
+import ArrowRight from '../../../../assets/small-arrow-right.svg?react';
+import ZoomIcon from '../../../../assets/square.svg?react';
+import TrashIcon from '../../../../assets/trash-icn.svg?react';
 import CustomButton from '../../../../components/CustomComponents/CustomButton';
 import CustomSideModal from '../../../../components/CustomComponents/CustomSideModal';
 import TableTag from '../../../../components/CustomComponents/CustomTag';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import TagModal from '../../../../components/TagModal';
-import useDebounce from '../../../../hooks/useDebounce';
-import {
-  // saveMarkdownAsPDF,
-  saveHTMLAsPDF
-} from '../../../../library/fs';
+// import useDebounce from '../../../../hooks/useDebounce';
+import { saveHTMLAsPDF } from '../../../../library/fs';
 import ApiService from '../../../../services/ApiService';
 import userStore from '../../../../state/userStore';
 import TempPDFViewer from '../../DocChat/TempPDFViewer';
@@ -24,6 +21,7 @@ import FlashModal from '../../FlashCards/components/FlashModal';
 import { useFlashcardWizard } from '../../FlashCards/context/flashcard';
 import SetupFlashcardPage from '../../FlashCards/forms/flashcard_setup';
 import { NoteModal } from '../Modal';
+import { StyledImage } from '../styles';
 import {
   NoteData,
   NoteDetails,
@@ -31,7 +29,6 @@ import {
   NoteServerResponse,
   NoteStatus
 } from '../types';
-import LexicalEditor from './LexicalEditor';
 import {
   DropDownFirstPart,
   DropDownLists,
@@ -44,7 +41,11 @@ import {
   NoteBody,
   HeaderTagsWrapper,
   FullScreenNoteWrapper,
-  SecondSection
+  SecondSection,
+  StyledEditor,
+  StyledNoteWrapper,
+  StyledNoteContainer,
+  StyledNoteContent
 } from './styles';
 import '@blocknote/core/style.css';
 import {
@@ -57,36 +58,38 @@ import {
   IconButton,
   MenuItem,
   Text,
-  Box
+  Box,
+  useToast
 } from '@chakra-ui/react';
 import { $generateHtmlFromNodes } from '@lexical/html';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $getRoot,
-  CLEAR_EDITOR_COMMAND, // $createParagraphNode,
-  LexicalEditor as EditorType // $getSelection,
-  // $createTextNode
+  CLEAR_EDITOR_COMMAND,
+  LexicalEditor as EditorType
 } from 'lexical';
-import { defaultTo, isEmpty, isNil, union } from 'lodash';
+import {
+  defaultTo,
+  filter,
+  isEmpty,
+  isNil,
+  isString,
+  truncate,
+  union,
+  debounce,
+  isEqual
+} from 'lodash';
 import moment from 'moment';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { BsFillPinFill } from 'react-icons/bs';
 import { FaEllipsisH } from 'react-icons/fa';
+import { IoChatboxEllipsesOutline } from 'react-icons/io5';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-
-// import { uploadBlockNoteDocument } from '../../../../services/AI';
-// import { Block, BlockNoteEditor } from '@blocknote/core';
-// import { BlockNoteView, useBlockNote } from '@blocknote/react';
-// import { init } from '@sentry/browser';
-
-// import LexicalEditor from './LexicalEditor';
-// import html2pdf from 'html2pdf.js';
-// import { uploadBlockNoteDocument } from '../../../../services/AI';
-// import { useToast } from '@chakra-ui/react';
-// import { Block, BlockNoteEditor } from '@blocknote/core';
-// import { BlockNoteView, useBlockNote } from '@blocknote/react';
-// import { init } from '@sentry/browser';
+import { useDebounce } from 'usehooks-ts';
+import useTimer from '../../../../hooks/useTimer';
+import CustomToast from '../../../../components/CustomComponents/CustomToast';
+import { MdSavings } from 'react-icons/md';
 
 const DEFAULT_NOTE_TITLE = 'Enter Note Title';
 const DELETE_NOTE_TITLE = 'Delete Note';
@@ -184,6 +187,8 @@ const handleOptionClick = (
 };
 
 const NewNote = () => {
+  const toastIdRef = useRef<any>();
+  const chakraToast = useToast();
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
   const defaultNoteTitle = DEFAULT_NOTE_TITLE;
 
@@ -212,11 +217,8 @@ const NewNote = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [canStartSaving, setCanStartSaving] = useState(false);
   const [openSideModal, setOpenSideModal] = useState(false);
-
-  // const editor: BlockNoteEditor | null = useBlockNote({
-  //   initialContent: initialContent ? JSON.parse(initialContent) : undefined,
-  //   onEditorContentChange: (editor) => handleAutoSave(editor)
-  // });
+  const [isEditorLoaded, setIsEditorLoaded] = useState(true);
+  const [callTimerCallback, setCallTimerCallback] = useState(false);
 
   const [editor] = useLexicalComposerContext();
 
@@ -233,7 +235,13 @@ const NewNote = () => {
   const { userDocuments } = userStore();
   const [studentDocuments, setStudentDocuments] = useState<Array<any>>([]);
   const [pinned, setPinned] = useState<boolean>(false);
-  const debounce = useDebounce(1000, 10);
+  const debounceEditedTitle = useDebounce(editedTitle, 1000);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsEditorLoaded(true);
+    }, 10000);
+  }, []);
 
   const onCancel = () => {
     setDeleteNoteModal(!deleteNoteModal);
@@ -261,6 +269,17 @@ const NewNote = () => {
   const onSaveNote = async () => {
     if (!editor) return;
 
+    handleCloseToast();
+    setTimeout(() => {
+      handleAddToast(
+        toast({
+          render: () => <CustomToast title={'saving....'} status="success" />,
+          position: 'top-right',
+          isClosable: true
+        })
+      );
+    }, 100);
+
     // get editor's content
     let noteJSON = '';
 
@@ -286,20 +305,20 @@ const NewNote = () => {
 
     let saveDetails: NoteServerResponse<NoteDetails> | null;
 
+    const data: NoteData = {
+      topic: editedTitle,
+      note: noteJSON,
+      status: NoteStatus.SAVED
+    };
+
+    const unionTags = union(newTags, tags);
+
+    if (!isEmpty(unionTags)) data.tags = unionTags;
+
     if (!isEmpty(noteId)) {
-      saveDetails = await updateNote(noteId, {
-        topic: editedTitle,
-        note: noteJSON,
-        tags: union(newTags, tags),
-        status: NoteStatus.SAVED
-      });
+      saveDetails = await updateNote(noteId, data);
     } else {
-      saveDetails = await createNote({
-        topic: editedTitle,
-        note: noteJSON,
-        tags: union(newTags, tags),
-        status: NoteStatus.SAVED
-      });
+      saveDetails = await createNote(data as NoteData);
     }
     if (!saveDetails) {
       setSaveButtonState(true);
@@ -336,6 +355,8 @@ const NewNote = () => {
       setSaveButtonState(true);
       // ingest Note content
       ingestNote(saveDetails.data);
+
+      handleCloseAllToast();
     }
   };
 
@@ -381,7 +402,7 @@ const NewNote = () => {
   };
 
   const getNoteById = async (paramsIdForNote = noteParamId) => {
-    if (isEmpty(paramsIdForNote)) {
+    if (isEmpty(paramsIdForNote) || isNil(paramsIdForNote)) {
       return;
     }
     const resp = await ApiService.getNote(paramsIdForNote as string);
@@ -430,9 +451,9 @@ const NewNote = () => {
     setEditedTitle(value);
   };
 
-  const updateTitle = () => {
+  const updateTitle = async () => {
     setIsEditingTitle(false);
-    if (editedTitle) {
+    if (!isEmpty(editedTitle.trim())) {
       setEditedTitle(editedTitle.trim());
     } else {
       setEditedTitle(defaultNoteTitle);
@@ -452,7 +473,15 @@ const NewNote = () => {
     try {
       // Remove the deleted note from the dataSource
       const storageId = NoteEnums.PINNED_NOTE_STORE_ID;
+
       localStorage.removeItem(storageId);
+
+      const filtedPinnedNote = filter(pinnedNotes as any[], (pinnedNote) => {
+        if (noteIdInUse === pinnedNote?.notedId) return pinnedNote;
+      });
+
+      setPinnedNotes(filtedPinnedNote as any[]);
+
       showToast(DELETE_NOTE_TITLE, 'Note unpinned', 'success');
       setPinned(false);
     } catch (error: any) {
@@ -468,12 +497,11 @@ const NewNote = () => {
         'error'
       );
     }
-    // setIsPinned((prevIsPinned) => !prevIsPinned);
+
     // Save the note to local storage when pinned
     if (saveDetails?.data) {
       if (isNoteAlreadyPinned(saveDetails.data._id)) {
         unPinNote();
-        // return showToast(UPDATE_NOTE_TITLE, 'Note already pinned', 'warning');
         return;
       }
 
@@ -587,7 +615,6 @@ const NewNote = () => {
     if (!editorStyle) {
       setEditorStyle({
         position: 'absolute',
-        // width: '100vw',
         width: '100%',
         height: '100vh',
         top: 0,
@@ -618,7 +645,6 @@ const NewNote = () => {
   };
 
   const showFlashCardDropdown = () => {
-    console.log(noteParamId);
     resetFlashcard();
     setFlashcardData((prev) => ({
       ...prev,
@@ -636,16 +662,14 @@ const NewNote = () => {
   const goToNoteChat = async (
     noteUrl: string,
     noteTitle: string,
-    content: any
+    noteId: any
   ) => {
     try {
       navigate('/dashboard/docchat', {
         state: {
-          // documentUrl: noteUrl,
-          // docTitle: noteTitle,
-          noteUrl,
-          noteTitle,
-          content
+          documentUrl: noteUrl,
+          docTitle: noteTitle,
+          noteId: noteId
         }
       });
     } catch (error) {
@@ -661,9 +685,10 @@ const NewNote = () => {
     const note = saveDetails.data;
     const url = note.documentId ?? '';
     const topic = note.topic;
+    const noteId = note.id;
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      await goToNoteChat(url, topic, initialContent);
+      // await new Promise((resolve) => setTimeout(resolve, 1000));
+      await goToNoteChat(url, topic, noteId);
     } catch (error) {
       // Handle error
     } finally {
@@ -695,7 +720,11 @@ const NewNote = () => {
     },
     {
       id: 4,
-      leftIcon: <DocIcon />,
+      leftIcon: (
+        <StyledImage className={'mx-2'}>
+          <IoChatboxEllipsesOutline />
+        </StyledImage>
+      ),
       title: loadingDoc ? 'Uploading...' : 'Doc Chat',
       rightIcon: <ArrowRight />,
       onClick: proceed
@@ -720,7 +749,8 @@ const NewNote = () => {
     tags: string[]
   ): Promise<NoteServerResponse | null> => {
     const data = { tags: tags };
-    const resp = await ApiService.updateNoteTags(id, data);
+    // const resp = await ApiService.updateNoteTags(id, data);
+    const resp = await ApiService.storeNotesTags(id, tags);
     const respText = await resp.text();
     try {
       const respDetails: NoteServerResponse = JSON.parse(respText);
@@ -761,9 +791,6 @@ const NewNote = () => {
       setOpenTags(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
       setTags(union(details.data.tags, [...tags, ...newTags]));
-      // setNoteId('');
-      // setNewTags([]);
-      // clearEditor();
     }
   };
 
@@ -788,68 +815,6 @@ const NewNote = () => {
    */
   const ingestNote = async (noteDetails: NoteDetails) => {
     const noteArrayContent = [noteDetails.note];
-
-    // uploadBlockNoteDocument({
-    //   studentId: noteDetails.user._id,
-    //   documentId: noteDetails.id,
-    //   document: noteArrayContent,
-    //   title: noteDetails.topic,
-    //   tags: noteDetails.tags
-    // }).then((response: AIServiceResponse) => {
-    //   if (!response) {
-    //     showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
-    //     return false;
-    //   }
-    //   if (!Array.isArray(response.data) || response.data.length <= 0) {
-    //     showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
-    //   }
-    //   // get data documentID is not already updated. Pick the first value in
-    //   const documentDetails: NoteDocumentDetails = response.data[0];
-    //   if (
-    //     !documentDetails?.documentURL ||
-    //     documentDetails?.documentURL === ''
-    //   ) {
-    //     showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
-    //   }
-    //   // TODO: update with full note details
-    //   const resp = ApiService.updateNoteDocumentId(
-    //     noteDetails.id,
-    //     documentDetails.documentURL
-    //   )
-    //     .then((response) => {
-    //       console.log('update note details: ', response);
-    //       showToast(
-    //         UPDATE_NOTE_TITLE,
-    //         'Note document details saved',
-    //         'success'
-    //       );
-    //     })
-    //     .catch((error: any) => {
-    //       showToast(
-    //         UPDATE_NOTE_TITLE,
-    //         'Could not save note document URL',
-    //         'error'
-    //       );
-    //     });
-    // });
-    // return true;
-  };
-
-  const handleAutoSave = (editor: EditorType) => {
-    // use debounce filter
-    // TODO: we must move this to web worker
-    // additional condition for use to save note details
-
-    const saveLocalCallback = (noteId: string, note: string) => {
-      saveNoteLocal(getLocalStorageNoteId(noteId), note);
-    };
-    // evaluate other conditions to true or false
-    const saveCondition = () => !editor.getEditorState().isEmpty();
-    // note save callback wrapper
-    const saveCallback = () => {
-      autoSaveNote(editor, saveLocalCallback);
-    };
-    debounce(saveCallback, saveCondition);
   };
 
   /**
@@ -864,7 +829,11 @@ const NewNote = () => {
     if (!editor) return;
     if (editor.getEditorState().isEmpty()) return;
 
-    const noteTitle = editedTitleRef?.current?.value ?? editedTitle;
+    const noteTitle =
+      !isEmpty(editedTitleRef?.current?.value) &&
+      !isNil(editedTitleRef?.current?.value)
+        ? editedTitleRef?.current?.value
+        : editedTitle;
 
     let noteIdToUse = '';
     let draftNoteIdToUse = '';
@@ -889,43 +858,64 @@ const NewNote = () => {
       noteStatus = NoteStatus.DRAFT;
     }
 
-    if (!isEmpty(noteIdToUse)) {
-      updateNote(noteIdToUse, {
-        topic: noteTitle,
-        note: noteJSON,
-        tags: union(newTags, tags),
-        status: noteStatus
-      }).then(() => {
+    const idToUse =
+      !isEmpty(noteIdToUse) && !isNil(noteIdToUse)
+        ? noteIdToUse
+        : !isEmpty(draftNoteIdToUse) && !isNil(draftNoteIdToUse)
+        ? draftNoteIdToUse
+        : false;
+
+    const data: {
+      topic?: string;
+      note: string;
+      status: string;
+      tags?: string[];
+    } = {
+      note: noteJSON,
+      status: noteStatus
+    };
+
+    const unionTags = union(newTags, tags);
+
+    if (!isEmpty(unionTags)) data.tags = unionTags;
+
+    if (!isEmpty(noteTitle)) data.topic = noteTitle;
+
+    if (idToUse) {
+      updateNote(noteIdToUse, data as NoteData).then((updatedDetails) => {
         saveCallback(noteIdToUse, noteJSON);
       });
     } else {
-      if (draftNoteIdToUse && draftNoteIdToUse !== '') {
-        // update existing draft note
-        updateNote(draftNoteIdToUse, {
-          topic: noteTitle,
-          note: noteJSON,
-          tags: union(newTags, tags),
-          status: noteStatus
-        }).then(() => {
+      // create a new draft note
+      createNote(data as NoteData).then((saveDetails) => {
+        // save new draft note details for update
+        if (saveDetails?.data) {
+          setNoteId(saveDetails.data['_id']);
           saveCallback(draftNoteIdToUse, noteJSON);
-        });
-      } else {
-        // create a new draft note
-        createNote({
-          topic: noteTitle,
-          note: noteJSON,
-          tags: union(newTags, tags),
-          status: noteStatus
-        }).then((saveDetails) => {
-          // save new draft note details for update
-          if (saveDetails?.data) {
-            draftNoteId.current.value = saveDetails.data['_id'];
-            setNoteId(saveDetails.data['_id']);
-            saveCallback(draftNoteIdToUse, noteJSON);
-          }
-        });
-      }
+          draftNoteId.current.value = saveDetails.data['_id'];
+        }
+      });
     }
+    handleCloseAllToast();
+  };
+  const handleAutoSave = (editor: EditorType) => {
+    // TODO: we must move this to web worker
+    // additional condition for use to save note details
+    const saveLocalCallback = (noteId: string, note: string) => {
+      saveNoteLocal(getLocalStorageNoteId(noteId), note);
+    };
+
+    autoSaveNote(editor, saveLocalCallback);
+    handleCloseToast();
+    setTimeout(() => {
+      handleAddToast(
+        toast({
+          render: () => <CustomToast title={'saving....'} status="success" />,
+          position: 'top-right',
+          isClosable: true
+        })
+      );
+    }, 100);
   };
 
   // Load notes if noteID is provided via param
@@ -960,18 +950,38 @@ const NewNote = () => {
   }, [userDocuments]);
 
   useEffect(() => {
-    if (editedTitleRef.current && editedTitle !== editedTitleRef.current) {
-      editedTitleRef.current.value = editedTitle;
+    if (
+      editedTitleRef.current &&
+      editedTitle !== editedTitleRef.current.value
+    ) {
+      if (isEmpty(editedTitle)) return;
+      if (canStartSaving) {
+        editedTitleRef.current.value = editedTitle;
+        handleAutoSave(editor);
+        return;
+      }
     }
-  }, [editedTitle]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debounceEditedTitle]);
+
+  const { resetTimer } = useTimer({
+    sendOnce: false,
+    timestamp: 3,
+    timerCallback: (value) => setCallTimerCallback(value)
+  });
 
   useEffect(() => {
-    return editor.registerUpdateListener(({ editorState }) => {
+    if (callTimerCallback) {
+      handleAutoSave(editor);
+    }
+    setCallTimerCallback(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [callTimerCallback, editedTitleRef]);
+
+  useEffect(() => {
+    editor.registerUpdateListener(({ editorState }) => {
       editorState.read(() => {
-        // if (process.env.NODE_ENV === 'production')
-        if (canStartSaving) {
-          handleAutoSave(editor);
-        }
+        resetTimer();
       });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -979,11 +989,15 @@ const NewNote = () => {
 
   useEffect(() => {
     (async () => {
+      setIsEditorLoaded(false);
       if (!isEmpty(noteParamId) || !isNil(noteParamId)) {
         setInitialContent(getNoteLocal(noteParamId) as string);
         await getNoteById(noteParamId);
       }
-      setCanStartSaving(true);
+      setTimeout(() => {
+        setCanStartSaving(true);
+        setIsEditorLoaded(true);
+      });
     })();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -992,194 +1006,271 @@ const NewNote = () => {
   useEffect(() => {
     const initialValue =
       '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
-    if (!isEmpty(initialContent)) {
-      const editorState = editor.parseEditorState(
-        defaultTo(initialContent, initialValue)
-      );
+    const editorState = editor.parseEditorState(initialValue);
+    editor.setEditorState(editorState);
+    if (
+      isString(initialContent) &&
+      !isEmpty(initialContent) &&
+      !isNil(initialContent)
+    ) {
+      const editorState = editor.parseEditorState(initialContent);
       editor.setEditorState(editorState);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialContent]);
 
-  return (
-    <Box
-      overflowY={'auto'}
-      minHeight={'920px'}
-      maxHeight={isFullScreen ? '100%' : '920px'}
-    >
-      <HeaderWrapper>
+  function handleCloseToast() {
+    if (toastIdRef.current) {
+      chakraToast.close(toastIdRef.current);
+    }
+  }
+  function handleCloseAllToast() {
+    // you may optionally pass an object of positions to exclusively close
+    // keeping other positions opened
+    // e.g. `{ positions: ['bottom'] }`
+    chakraToast.closeAll();
+  }
+
+  function handleAddToast(
+    currentToast = chakraToast({ description: 'some text' })
+  ) {
+    toastIdRef.current = currentToast;
+  }
+
+  // Header Component
+  const HeaderComponent = () => {
+    return (
+      <HeaderWrapper
+        className={clsx(
+          'flex items-center flex-start relative w-[95%] lg:w-[98%] 2xl:w-full mx-auto',
+          {
+            'opacity-40 pointer-events-none': !isEditorLoaded
+          }
+        )}
+      >
         <div style={{ display: 'none' }}>
           <input type="text" ref={editedTitleRef} />
           <input type="text" ref={draftNoteId} />
         </div>
-        <HeaderButton onClick={handleBackClick}>
-          <BackArrow />
-          <HeaderButtonText> Back</HeaderButtonText>
-        </HeaderButton>
-        <HeaderTagsWrapper>{formatTags(tags)}</HeaderTagsWrapper>
-      </HeaderWrapper>
 
-      <CustomSideModal
-        onClose={() => {
-          setOpenSideModal(false);
-          resetFlashcard();
-        }}
-        isOpen={openSideModal}
-      >
-        <div style={{ margin: '3rem 0', overflowY: 'auto' }}>
-          <SetupFlashcardPage showConfirm isAutomated />
-        </div>
-      </CustomSideModal>
-
-      {isFullScreen ? (
-        <NewNoteWrapper
-          {...{
-            ...editorStyle,
-            overflowY: 'auto'
-          }}
+        <Header
+          className={clsx(
+            'bg-[#fafafa] border-[#eeeff2] border flex w-full p-2 justify-between'
+          )}
         >
-          <FullScreenNoteWrapper>
-            {location.state?.documentUrl ? (
-              ''
-            ) : (
-              <Header>
-                <FirstSection>
-                  {isFullScreen ? (
-                    <div className="zoom__icn" onClick={toggleEditorView}>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="18"
-                        viewBox="0 0 20 18"
-                        fill="none"
-                      >
-                        <path
-                          d="M15.4997 4.41667H19.1663V6.25H13.6663V0.75H15.4997V4.41667ZM6.33301 6.25H0.833008V4.41667H4.49967V0.75H6.33301V6.25ZM15.4997 13.5833V17.25H13.6663V11.75H19.1663V13.5833H15.4997ZM6.33301 11.75V17.25H4.49967V13.5833H0.833008V11.75H6.33301Z"
-                          fill="#7E8591"
-                        />
-                      </svg>
-                    </div>
-                  ) : (
-                    <div className="zoom__icn" onClick={toggleEditorView}>
-                      <ZoomIcon />
-                    </div>
-                  )}
-                  <div onClick={handleHeaderClick} ref={inputContainerRef}>
-                    <div className="doc__name">
-                      {isEditingTitle ? (
-                        <input
-                          type="text"
-                          value={editedTitle}
-                          onChange={handleTitleChange}
-                          onBlur={handleFocusOut}
-                          onKeyDown={handleKeyDown}
-                          autoFocus
-                        />
-                      ) : (
-                        <>{editedTitle}</>
-                      )}
-                    </div>
-                  </div>
-                  <div className="timestamp">
-                    <p>Updated {currentTime}</p>
-                  </div>
-                </FirstSection>
-                <SecondSection>
-                  <CustomButton
-                    disabled={!saveButtonState}
-                    isPrimary
-                    title={!saveButtonState ? 'Saving...' : 'Save'}
-                    type="button"
-                    onClick={onSaveNote}
-                    active={saveButtonState}
+          <FirstSection>
+            <Box
+              className="zoom__icn hover:opacity-75 hidden md:block"
+              onClick={toggleEditorView}
+            >
+              {isFullScreen ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="18"
+                  viewBox="0 0 20 18"
+                  fill="none"
+                >
+                  <path
+                    d="M15.4997 4.41667H19.1663V6.25H13.6663V0.75H15.4997V4.41667ZM6.33301 6.25H0.833008V4.41667H4.49967V0.75H6.33301V6.25ZM15.4997 13.5833V17.25H13.6663V11.75H19.1663V13.5833H15.4997ZM6.33301 11.75V17.25H4.49967V13.5833H0.833008V11.75H6.33301Z"
+                    fill="#7E8591"
                   />
-                  <div onClick={handlePinClick}>
-                    <BsFillPinFill
-                      className={`pin-icon ${
-                        pinnedNotes.some((note) => note.noteId === noteId)
-                          ? 'pinned'
-                          : 'not-pinned'
-                      }`}
-                    />
-                  </div>
-                  <div>
-                    <Menu>
-                      <MenuButton
-                        as={IconButton}
-                        aria-label="More options"
-                        icon={<FaEllipsisH fontSize={'12px'} />}
-                        size="sm"
-                        variant="ghost"
-                      />
-                      <MenuList
-                        fontSize="14px"
-                        minWidth={'185px'}
-                        borderRadius="8px"
-                      >
-                        {dropDownOptions?.map((dropDownOption, index) => (
-                          <MenuItem
-                            key={index}
-                            p="6px 8px 6px 8px"
-                            color={
-                              dropDownOption.title === 'Delete'
-                                ? '#F53535'
-                                : '#212224'
-                            }
-                            _hover={{ bgColor: '#F2F4F7' }}
-                            onClick={() =>
-                              dropDownOption.onClick && dropDownOption.onClick()
-                            }
-                          >
-                            {dropDownOption.leftIcon && (
-                              <Box mr={2}>{dropDownOption.leftIcon}</Box>
-                            )}
-                            <Text
-                              fontSize="14px"
-                              lineHeight="20px"
-                              fontWeight="400"
+                </svg>
+              ) : (
+                <ZoomIcon />
+              )}
+            </Box>
+            <div onClick={handleHeaderClick} ref={inputContainerRef}>
+              <div className="doc__name">
+                {isEditingTitle ? (
+                  <input
+                    type="text"
+                    value={editedTitle}
+                    onChange={handleTitleChange}
+                    onBlur={handleFocusOut}
+                    onKeyDown={handleKeyDown}
+                    autoFocus
+                  />
+                ) : (
+                  <span>{truncate(editedTitle, { length: 40 })}</span>
+                )}
+              </div>
+            </div>
+            <div className="timestamp">
+              <p>Updated {currentTime}</p>
+            </div>
+          </FirstSection>
+          <SecondSection>
+            <CustomButton
+              disabled={!saveButtonState}
+              isPrimary
+              title={!saveButtonState ? 'Saving...' : 'Save'}
+              type="button"
+              onClick={onSaveNote}
+              active={saveButtonState}
+            />
+            <div onClick={handlePinClick}>
+              <BsFillPinFill
+                className={`pin-icon ${
+                  pinnedNotes.some((note) => note.noteId === noteId)
+                    ? 'pinned'
+                    : 'not-pinned'
+                }`}
+              />
+            </div>
+            <div>
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  variant="unstyled"
+                  borderRadius="full"
+                  p={0}
+                  minW="auto"
+                  height="auto"
+                >
+                  <FaEllipsisH fontSize={'12px'} />
+                </MenuButton>
+                <MenuList
+                  zIndex={3}
+                  fontSize="0.875rem"
+                  minWidth={'185px'}
+                  borderRadius="8px"
+                  backgroundColor="#FFFFFF"
+                  boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
+                >
+                  <section>
+                    {dropDownOptions?.map((dropDownOption) => (
+                      <DropDownLists key={dropDownOption.id}>
+                        <DropDownFirstPart
+                          onClick={() =>
+                            handleOptionClick(dropDownOption.onClick)
+                          }
+                        >
+                          <div>
+                            {dropDownOption.leftIcon}
+                            <p
+                              style={{
+                                color:
+                                  dropDownOption.title === 'Delete'
+                                    ? '#F53535'
+                                    : ''
+                              }}
                             >
                               {dropDownOption.title}
-                            </Text>
-                          </MenuItem>
-                        ))}
-                      </MenuList>
-                    </Menu>
+                            </p>
+                          </div>
+                          <div>{dropDownOption.rightIcon}</div>
+                        </DropDownFirstPart>
+                      </DropDownLists>
+                    ))}
+                  </section>
+                </MenuList>
+              </Menu>
 
-                    {openTags && (
-                      <TagModal
-                        onSubmit={AddTags}
-                        isOpen={openTags}
-                        onClose={() => setOpenTags(false)}
-                        tags={tags}
-                        inputValue={inputValue}
-                        handleAddTag={handleAddTag}
-                        newTags={newTags}
-                        setNewTags={setNewTags}
-                        setInputValue={setInputValue}
-                      />
-                    )}
-                  </div>
-                </SecondSection>
-              </Header>
+              {openTags && (
+                <TagModal
+                  onSubmit={AddTags}
+                  isOpen={openTags}
+                  onClose={() => setOpenTags(false)}
+                  tags={tags}
+                  inputValue={inputValue}
+                  handleAddTag={handleAddTag}
+                  newTags={newTags}
+                  setNewTags={setNewTags}
+                  setInputValue={setInputValue}
+                />
+              )}
+            </div>
+          </SecondSection>
+        </Header>
+      </HeaderWrapper>
+    );
+  };
+
+  // CustomSideModal Component
+  const CustomSideModalContent = () => {
+    return (
+      <div style={{ margin: '3rem 0', overflowY: 'auto' }}>
+        <SetupFlashcardPage showConfirm isAutomated />
+      </div>
+    );
+  };
+
+  const CustomSideModalWrapper = ({ onClose, isOpen }) => {
+    return (
+      <CustomSideModal
+        onClose={() => {
+          onClose();
+          resetFlashcard();
+        }}
+        isOpen={isOpen}
+      >
+        <CustomSideModalContent />
+      </CustomSideModal>
+    );
+  };
+
+  return (
+    <StyledNoteWrapper
+      h={'100dvh'}
+      maxH={'calc(100dvh - 80px)'}
+      overflowY="hidden"
+      className={'_note-wrapper'}
+    >
+      <StyledNoteContainer
+        className={clsx('_note-container', {
+          'absolute inset-0 top-[80px] bg-white z-10 transition-all max-h-[calc(100dvh-80px)] overflow-y-hidden':
+            isFullScreen
+        })}
+      >
+        <StyledNoteContent className={'_note-content w-full h-full relative'}>
+          <HeaderButton
+            onClick={handleBackClick}
+            className={clsx(
+              'w-full max-w-[150px] hover:opacity-75 absolute left-0 top-5 z-10 hidden 2xl:flex cursor-pointer items-center',
+              {
+                '!max-w-[240px] px-4': isFullScreen,
+                'opacity-40 pointer-events-none': !isEditorLoaded
+              }
             )}
-
-            <NoteBody>
+          >
+            <BackArrow className="mx-2" />
+            <HeaderButtonText className={clsx('text-[10pt]')}>
+              {' '}
+              Back
+            </HeaderButtonText>
+          </HeaderButton>
+          <div className="max-w-[1100px] mx-auto">
+            {isNil(location.state?.documentUrl) && <HeaderComponent />}
+            <CustomSideModalWrapper
+              onClose={() => setOpenSideModal(false)}
+              isOpen={openSideModal}
+            />
+            <NoteBody
+              className={clsx(
+                'mx-auto w-full flex justify-start items-center flex-col'
+              )}
+            >
               {location.state?.documentUrl ? (
                 <TempPDFViewer
                   pdfLink={location.state.documentUrl}
                   name={location.state.docTitle}
                 />
               ) : (
-                <div className="note-editor-test">
-                  {/* <BlockNoteView editor={editor} /> */}
-                  <LexicalEditor />
-                  {/* <LexicalEditor editorHistory={initialContent} /> */}
+                <div
+                  className={clsx('custom-scroll', {
+                    'note-editor-test': false,
+                    'opacity-40 pointer-events-none': !isEditorLoaded
+                  })}
+                >
+                  <StyledEditor />
                 </div>
               )}
             </NoteBody>
+
             <NoteModal
               title="Delete Note"
-              description="This will delete Note. Are you sure?"
+              description="This will delete Note. Are you sure well?"
               isLoading={isLoading}
               isOpen={deleteNoteModal}
               actionButtonText="Delete"
@@ -1187,182 +1278,22 @@ const NewNote = () => {
               onDelete={() => onDeleteNote()}
               onClose={() => setDeleteNoteModal(false)}
             />
-          </FullScreenNoteWrapper>
-        </NewNoteWrapper>
-      ) : (
-        <NewNoteWrapper {...{ ...editorStyle, width: '290mm' }}>
-          {location.state?.documentUrl ? (
-            ''
-          ) : (
-            <Header>
-              <FirstSection>
-                {isFullScreen ? (
-                  <div className="zoom__icn" onClick={toggleEditorView}>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="18"
-                      viewBox="0 0 20 18"
-                      fill="none"
-                    >
-                      <path
-                        d="M15.4997 4.41667H19.1663V6.25H13.6663V0.75H15.4997V4.41667ZM6.33301 6.25H0.833008V4.41667H4.49967V0.75H6.33301V6.25ZM15.4997 13.5833V17.25H13.6663V11.75H19.1663V13.5833H15.4997ZM6.33301 11.75V17.25H4.49967V13.5833H0.833008V11.75H6.33301Z"
-                        fill="#7E8591"
-                      />
-                    </svg>
-                  </div>
-                ) : (
-                  <div className="zoom__icn" onClick={toggleEditorView}>
-                    <ZoomIcon />
-                  </div>
-                )}
-                <div onClick={handleHeaderClick} ref={inputContainerRef}>
-                  <div className="doc__name">
-                    {isEditingTitle ? (
-                      <input
-                        type="text"
-                        value={editedTitle}
-                        onChange={handleTitleChange}
-                        onBlur={handleFocusOut}
-                        onKeyDown={handleKeyDown}
-                        autoFocus
-                      />
-                    ) : (
-                      <>{editedTitle}</>
-                    )}
-                  </div>
-                </div>
-                <div className="timestamp">
-                  <p>Updated {currentTime}</p>
-                </div>
-              </FirstSection>
-              <SecondSection>
-                <CustomButton
-                  disabled={!saveButtonState}
-                  isPrimary
-                  title={!saveButtonState ? 'Saving...' : 'Save'}
-                  type="button"
-                  onClick={onSaveNote}
-                  active={saveButtonState}
-                />
-                <div onClick={handlePinClick}>
-                  <BsFillPinFill
-                    className={`pin-icon ${
-                      pinnedNotes.some((note) => note.noteId === noteId)
-                        ? 'pinned'
-                        : 'not-pinned'
-                    }`}
-                  />
-                </div>
-                <div>
-                  <Menu>
-                    <MenuButton
-                      as={Button}
-                      variant="unstyled"
-                      borderRadius="full"
-                      p={0}
-                      minW="auto"
-                      height="auto"
-                    >
-                      <FaEllipsisH fontSize={'12px'} />
-                    </MenuButton>
-                    <MenuList
-                      zIndex={3}
-                      fontSize="0.875rem"
-                      minWidth={'185px'}
-                      borderRadius="8px"
-                      backgroundColor="#FFFFFF"
-                      boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
-                    >
-                      <section>
-                        {dropDownOptions?.map((dropDownOption) => (
-                          <DropDownLists key={dropDownOption.id}>
-                            <DropDownFirstPart
-                              onClick={() =>
-                                handleOptionClick(dropDownOption.onClick)
-                              }
-                            >
-                              <div>
-                                {dropDownOption.leftIcon}
-                                <p
-                                  style={{
-                                    color:
-                                      dropDownOption.title === 'Delete'
-                                        ? '#F53535'
-                                        : ''
-                                  }}
-                                >
-                                  {dropDownOption.title}
-                                </p>
-                              </div>
-                              <div>{dropDownOption.rightIcon}</div>
-                            </DropDownFirstPart>
-                          </DropDownLists>
-                        ))}
-                      </section>
-                    </MenuList>
-                  </Menu>
-
-                  {openTags && (
-                    <TagModal
-                      onSubmit={AddTags}
-                      isOpen={openTags}
-                      onClose={() => setOpenTags(false)}
-                      tags={tags}
-                      inputValue={inputValue}
-                      handleAddTag={handleAddTag}
-                      newTags={newTags}
-                      setNewTags={setNewTags}
-                      setInputValue={setInputValue}
-                    />
-                  )}
-                </div>
-              </SecondSection>
-            </Header>
-          )}
-
-          <NoteBody>
-            {/* We will show PDF once endpoint is implemented */}
-            {location.state?.documentUrl ? (
-              <TempPDFViewer
-                pdfLink={location.state.documentUrl}
-                name={location.state.docTitle}
+            {openFlashCard && (
+              <FlashModal
+                isOpen={openFlashCard}
+                onClose={() => setOpenFlashCard(false)}
+                title="Flash Card Title"
+                loadingButtonText="Creating..."
+                buttonText="Create"
+                onSubmit={(noteId) => {
+                  // unused
+                }}
               />
-            ) : (
-              <div className="note-editor-test">
-                {/* <BlockNoteView editor={editor} /> */}
-                <LexicalEditor />
-                {/* <LexicalEditor editorHistory={initialContent} /> */}
-              </div>
             )}
-          </NoteBody>
-
-          <NoteModal
-            title="Delete Note"
-            description="This will delete Note. Are you sure?"
-            isLoading={isLoading}
-            isOpen={deleteNoteModal}
-            actionButtonText="Delete"
-            onCancel={() => onCancel()}
-            onDelete={() => onDeleteNote()}
-            onClose={() => setDeleteNoteModal(false)}
-          />
-        </NewNoteWrapper>
-      )}
-
-      {openFlashCard && (
-        <FlashModal
-          isOpen={openFlashCard}
-          onClose={() => setOpenFlashCard(false)}
-          title="Flash Card Title"
-          loadingButtonText="Creating..."
-          buttonText="Create"
-          onSubmit={(noteId) => {
-            // submission here
-          }}
-        />
-      )}
-    </Box>
+          </div>
+        </StyledNoteContent>
+      </StyledNoteContainer>
+    </StyledNoteWrapper>
   );
 };
 

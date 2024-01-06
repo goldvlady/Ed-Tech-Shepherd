@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import { useStreamChat } from '../../providers/streamchat.provider';
 import userStore from '../../state/userStore';
 import React, { SetStateAction } from 'react';
 import { useEffect, useState } from 'react';
@@ -20,64 +21,73 @@ import {
   ChannelSearchFunctionParams
 } from 'stream-chat-react';
 
-const client = new StreamChat(
-  process.env.REACT_APP_STREAM_CHAT_API_KEY as string
-);
+// const client = new StreamChat(
+//   process.env.REACT_APP_STREAM_CHAT_API_KEY as string
+// );
 
 export default function Messages() {
+  const {
+    client,
+    userRoleToken,
+    userRoleId,
+    activeChannel,
+    setActiveChannel,
+    isConnected,
+    setIsConnected
+  } = useStreamChat();
   const currentRoute = useLocation().pathname;
-  const { user } = userStore();
+  // const { user } = userStore();
 
-  const userName = user?.name?.first ?? '';
-  const avatar = user?.avatar ?? '';
-  const [userRoleId, setUserRoleId] = useState('');
-  const [userRoleToken, setUserRoleToken] = useState('');
-  const [isConnected, setIsConnected] = useState(false);
+  // const userName = user?.name?.first ?? '';
+  // const avatar = user?.avatar ?? '';
+  // const [userRoleId, setUserRoleId] = useState('');
+  // const [userRoleToken, setUserRoleToken] = useState('');
+  // const [isConnected, setIsConnected] = useState(false);
 
-  const setUserRoleInfo = (id, token) => {
-    setUserRoleId(id);
-    setUserRoleToken(token);
-  };
+  // const setUserRoleInfo = (id, token) => {
+  //   setUserRoleId(id);
+  //   setUserRoleToken(token);
+  // };
 
-  const disconnectAndReset = async () => {
-    if (client.user) {
-      await client.disconnectUser();
-      setIsConnected(false);
-      setUserRoleId('');
-      setUserRoleToken('');
-    }
-  };
+  // const disconnectAndReset = async () => {
+  //   if (client.user) {
+  //     await client.disconnectUser();
+  //     setIsConnected(false);
+  //     setUserRoleId('');
+  //     setUserRoleToken('');
+  //   }
+  // };
 
-  useEffect(() => {
-    if (user) {
-      const userType = currentRoute.includes('tutordashboard')
-        ? 'tutor'
-        : 'student';
-      const role = user[userType];
-      const token = user.streamTokens?.find((token) => token.type === userType);
-      setUserRoleInfo(role?._id, token?.token);
-    }
-    return () => {
-      disconnectAndReset();
-    };
-  }, [user]);
+  // useEffect(() => {
+  //   if (user) {
+  //     const userType = currentRoute.includes('tutordashboard')
+  //       ? 'tutor'
+  //       : 'student';
+  //     const role = user[userType];
+  //     const token = user.streamTokens?.find((token) => token.type === userType);
+  //     setUserRoleInfo(role?._id, token?.token);
+  //   }
+  //   return () => {
+  //     disconnectAndReset();
+  //   };
+  // }, [user]);
 
-  useEffect(() => {
-    if (userRoleId && userRoleToken) {
-      const connectUserToChat = async () => {
-        await client.connectUser(
-          {
-            id: userRoleId,
-            name: userName,
-            image: avatar
-          },
-          userRoleToken
-        );
-        setIsConnected(true);
-      };
-      connectUserToChat();
-    }
-  }, [userRoleId, userRoleToken]);
+  // useEffect(() => {
+  //   if (userRoleId && userRoleToken) {
+  //     const connectUserToChat = async () => {
+  //       await client.connectUser(
+  //         {
+  //           id: userRoleId,
+  //           name: userName,
+  //           image: avatar
+  //         },
+  //         userRoleToken
+  //       );
+  //       setIsConnected(true);
+  //     };
+  //     connectUserToChat();
+  //   }
+  // }, [userRoleId, userRoleToken]);
 
   const CustomChannelPreviewMessenger = (props) => {
     const { channel, setActiveChannel } = props;

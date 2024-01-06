@@ -23,7 +23,6 @@ import {
   Text
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { RiArrowRightSLine } from 'react-icons/ri';
 
 function AccSettings() {
   useTitle('Account Settings');
@@ -35,24 +34,40 @@ function AccSettings() {
   };
 
   return (
-    <>
+    <div>
       <Box bgColor={'#FBF9FB'} pt={3} px={3}>
         <Box>
-          <Text fontSize={24} fontWeight={600} color="text.200">
+          <Text
+            fontSize={{ md: 24, sm: 14 }}
+            mb={{ base: 4 }}
+            ml={{ base: 3 }}
+            mt={{ base: 4 }}
+            fontWeight={600}
+            color="text.200"
+          >
             Account Settings
           </Text>
         </Box>
-        <Box m={4} bgColor="#ffffff" borderRadius="16px">
-          <Tabs variant="unstyled" orientation="vertical">
+        <Box m={{ md: 4, sm: 0 }} bgColor="#ffffff" borderRadius="16px">
+          <Tabs
+            sx={{
+              display: { md: 'flex', sm: 'block' }
+            }}
+            variant="unstyled"
+            orientation="vertical"
+          >
             <Box
               sx={{
                 borderRight: '1px solid #EEEFF2',
                 width: { md: '200px', lg: '256px' },
-
                 py: 5
               }}
             >
-              <TabList>
+              <TabList
+                sx={{
+                  display: 'flex'
+                }}
+              >
                 <Tab
                   _selected={{ color: '#207df7', bg: '#F0F6FE' }}
                   color="text.400"
@@ -96,7 +111,7 @@ function AccSettings() {
                 </Button>
               </TabList>
             </Box>
-            <Box width="900px" px={6}>
+            <Box width={{ md: '900px', width: 'auto' }} px={{ md: 0, lg: 6 }}>
               <TabPanels>
                 <TabPanel>
                   <MyProfile
@@ -136,7 +151,7 @@ function AccSettings() {
           </GridItem>
         </Grid> */}
       </Box>
-    </>
+    </div>
   );
 }
 

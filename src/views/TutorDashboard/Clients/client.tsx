@@ -1,7 +1,6 @@
-import { Layout } from '../../../components';
-import { ArrowRightIcon } from '../../../components/icons';
 import ApiService from '../../../services/ApiService';
-import { Avatar, Text, Box, Spinner } from '@chakra-ui/react';
+import { convertTimeToDateTime, convertUtcToUserTime } from '../../../util';
+import { Avatar, Text, Box } from '@chakra-ui/react';
 import {
   ChevronRightIcon,
   QuestionMarkCircleIcon
@@ -10,6 +9,7 @@ import moment from 'moment';
 import React, { useState, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
+import ShepherdSpinner from '../../Dashboard/components/shepherd-spinner';
 
 export default function Client() {
   const { clientId }: any = useParams();
@@ -50,7 +50,10 @@ export default function Client() {
   ): string {
     const formattedTimeRanges = Object.values(schedule).map(
       ({ begin, end }) => {
-        return formatTimeRange(begin, end);
+        return formatTimeRange(
+          convertUtcToUserTime(convertTimeToDateTime(begin)),
+          convertUtcToUserTime(convertTimeToDateTime(end))
+        );
       }
     );
     return formattedTimeRanges.join(', ');
@@ -68,7 +71,7 @@ export default function Client() {
           height: '100vh'
         }}
       >
-        <Spinner />
+        <ShepherdSpinner />
       </Box>
     );
   }
@@ -80,7 +83,7 @@ export default function Client() {
           <li>
             <button className="flex items-center">
               <Link
-                to="/clients"
+                to="/dashboard/tutordashboard/clients"
                 className="text-sm font-medium text-gray-400 hover:text-gray-700"
               >
                 Clients
@@ -99,7 +102,7 @@ export default function Client() {
               </Text>
             </div>
           </li>
-          <li>
+          {/* <li>
             <div className="flex items-center">
               <ChevronRightIcon
                 className="flex-shrink-0 w-5 h-5 text-gray-400"
@@ -109,7 +112,7 @@ export default function Client() {
                 Contract
               </Text>
             </div>
-          </li>
+          </li> */}
         </ol>
       </nav>
       <section className="my-4">
@@ -172,7 +175,7 @@ export default function Client() {
               </section>
               <div className="flex items-center flex-none gap-x-4">
                 <Text className="rounded-md bg-gray-50 px-2.5 py-1.5 text-sm font-semibold text-gray-500 shadow-sm hover:bg-gray-50 sm:block">
-                  {moment(client?.offer?.contractEndDate).format('DD.MM.YYYY')}
+                  {moment(client?.offer?.contractEndDate).format('MM.DD.YYYY')}
                 </Text>
               </div>
             </div>

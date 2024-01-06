@@ -3,6 +3,7 @@ import Sally from '../../assets/saly.svg';
 import CustomButton2 from '../../components/CustomComponents/CustomButton/index';
 import CustomModal from '../../components/CustomComponents/CustomModal';
 import CustomToast from '../../components/CustomComponents/CustomToast';
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import PaymentDialog, {
   PaymentDialogRef
 } from '../../components/PaymentDialog';
@@ -10,6 +11,7 @@ import CustomSelect from '../../components/Select';
 import SelectComponent, { Option } from '../../components/Select';
 import TimePicker from '../../components/TimePicker';
 import TimezoneSelect from '../../components/TimezoneSelect';
+import { BountyIcon } from '../../components/icons';
 import ApiService from '../../services/ApiService';
 import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
 import resourceStore from '../../state/resourceStore';
@@ -21,6 +23,7 @@ import BountyOfferModal from './components/BountyOfferModal';
 import Pagination from './components/Pagination';
 import TutorCard from './components/TutorCard';
 import { CustomButton } from './layout';
+import { CloseIcon, EmailIcon, SmallCloseIcon } from '@chakra-ui/icons';
 import {
   Alert,
   AlertDescription,
@@ -52,7 +55,8 @@ import {
   ModalFooter,
   ModalOverlay,
   VStack,
-  RadioGroup
+  RadioGroup,
+  IconButton
 } from '@chakra-ui/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { loadStripe } from '@stripe/stripe-js';
@@ -69,6 +73,7 @@ import React, {
 } from 'react';
 import { BsStarFill } from 'react-icons/bs';
 import { FiChevronDown } from 'react-icons/fi';
+import { GiTakeMyMoney } from 'react-icons/gi';
 import { IoIosAlert } from 'react-icons/io';
 import { MdInfo } from 'react-icons/md';
 import { MdTune } from 'react-icons/md';
@@ -138,6 +143,7 @@ export default function Marketplace() {
   const [isShowInput, setShowInput] = useState('');
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [showOnHover, setShowOnHover] = useState(false);
 
   const handleNextPage = () => {
     setPage(page + 1);
@@ -148,7 +154,7 @@ export default function Marketplace() {
   };
 
   const [tutorGrid] = useAutoAnimate();
-  const toast = useToast();
+  const toast = useCustomToast();
   const navigate = useNavigate();
   const getData = async () => {
     setLoadingData(true);
@@ -159,7 +165,7 @@ export default function Marketplace() {
       tz: moment.tz.guess(),
       days: days,
       price: price === '' ? '' : price.value,
-      floorRating: rating === '' ? '' : rating.value,
+      rating: rating === '' ? '' : rating.value,
       startTime: toTime,
       endTime: fromTime,
       page: page,
@@ -323,6 +329,10 @@ export default function Marketplace() {
     getNotes();
   }, []);
 
+  const handleBlur = () => {
+    setShowOnHover(false);
+  };
+
   return (
     <>
       <Box p={5}>
@@ -336,17 +346,28 @@ export default function Marketplace() {
         </Box>
         <Box textAlign="center">
           <Flex
+            // alignItems="center"
+            // gap="2"
+            // mt={2}
+            // textColor="text.400"
+            // display={{ base: 'flex', sm: 'inline-grid', lg: 'flex' }}
+            // justifyItems={{ sm: 'center' }}
+            direction={{ base: 'column', md: 'row' }} // Stack elements vertically on small screens, horizontally on medium and up
             alignItems="center"
             gap="2"
             mt={2}
             textColor="text.400"
-            display={{ base: 'flex', sm: 'inline-grid', lg: 'flex' }}
-            justifyItems={{ sm: 'center' }}
+            justifyContent={{ base: 'center', md: 'space-between' }} // Center on small screens, space-between on medium and up
+            px={{ base: 4, md: 8 }} // Adjust padding for responsiveness
           >
             <HStack
-              direction={{ base: 'row', sm: 'column', lg: 'row' }}
-              spacing={{ base: 1, sm: 3 }}
-              display={{ sm: 'grid', lg: 'flex' }}
+              // direction={{ base: 'row', sm: 'column', lg: 'row' }}
+              // spacing={{ base: 1, sm: 3 }}
+              // display={{ sm: 'grid', lg: 'flex' }}
+              direction={{ base: 'column', md: 'row' }} // Stack elements vertically on small screens, horizontally on medium and up
+              spacing={{ base: 3, md: 4 }} // Adjust spacing for responsiveness
+              alignItems="center"
+              width="100%" // Ensure it takes the full width
             >
               <Flex
                 alignItems={'center'}
@@ -357,17 +378,26 @@ export default function Marketplace() {
                 </Text>
                 <Text>Filter</Text>
               </Flex>
+              <div></div>
               <Menu>
                 <MenuButton
                   as={Button}
+                  // variant="outline"
+                  // rightIcon={<FiChevronDown />}
+                  // fontSize={14}
+                  // borderRadius="40px"
+                  // fontWeight={400}
+                  // width={{ sm: '400px', lg: 'auto' }}
+                  // height="36px"
+                  // color="text.400"
                   variant="outline"
                   rightIcon={<FiChevronDown />}
-                  fontSize={14}
+                  fontSize={{ base: 'sm', md: 'md' }} // Adjust font size for responsiveness
                   borderRadius="40px"
+                  height={{ base: '32px', md: '36px' }} // Adjust height for responsiveness
                   fontWeight={400}
-                  width={{ sm: '400px', lg: 'auto' }}
-                  height="36px"
                   color="text.400"
+                  width={{ base: 'full', sm: '400px', lg: 'auto' }}
                 >
                   {subject !== 'Subject'
                     ? courseList.map((course) => {
@@ -587,39 +617,88 @@ export default function Marketplace() {
               />
             </>
           ) : (
-            !loadingData && 'no tutors found'
+            !loadingData && (
+              <>
+                <section className="flex justify-center items-center mt-28 w-full">
+                  <div className="text-center">
+                    <Image src="/images/notes.png" alt="empty" m="auto" />
+                    <Text textAlign={'center'}>No Tutors Found!</Text>
+                  </div>
+                </section>
+              </>
+            )
           )}
         </Box>
       </Box>
-      <Box
-        position="fixed"
-        bottom={3}
-        right={3}
-        bg={'white'}
-        borderRadius={'10px'}
-        width="328px"
-        borderColor="grey"
-        textAlign="center"
-        boxShadow="0px 4px 20px 0px rgba(115, 126, 140, 0.25)"
-      >
-        <Image
-          src={Sally}
-          alt="instant tutoring"
-          borderTopLeftRadius={'10px'}
-          borderTopRightRadius={'10px'}
-        />
-        <VStack p={3} gap={2}>
-          <Text>Need Instant Tutoring ?</Text>
-          <Button
-            onClick={
-              user && user.paymentMethods?.length > 0
-                ? openBountyModal
-                : setupPaymentMethod
+      <Box position="fixed" bottom={3} right={3}>
+        {showOnHover ? (
+          <SmallCloseIcon onClick={() => setShowOnHover(false)} />
+        ) : (
+          <IconButton
+            variant="outline"
+            color="#207df7"
+            borderColor="#207df7"
+            p={1}
+            aria-label="Send email"
+            icon={
+              <svg
+                fill="#207df7"
+                version="1.1"
+                id="Capa_1"
+                xmlns="http://www.w3.org/2000/svg"
+                xmlnsXlink="http://www.w3.org/1999/xlink"
+                viewBox="0 0 37.273 37.273"
+                xmlSpace="preserve"
+                stroke="#207df7"
+                stroke-width="0.00037273000000000004"
+              >
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g
+                  id="SVGRepo_tracerCarrier"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></g>
+                <g id="SVGRepo_iconCarrier">
+                  {' '}
+                  <g>
+                    {' '}
+                    <path d="M29.643,7.973L27.444,9.41l-6.371-5.219l-1.177,1.436l-6.391-3.526L0,26.358l12.182,6.782l1.327,2.032l0.872-0.569 l0.062,0.052l0.16-0.195l22.67-14.791L29.643,7.973z M1.36,25.97L13.894,3.456l5.36,2.955L3.479,25.675l5.625,4.605L1.36,25.97z M4.887,25.534l1.298-1.586l3.712,5.688L4.887,25.534z M24.189,25.577c-2.213,1.44-5.176,0.819-6.618-1.392 c-1.442-2.214-0.82-5.174,1.394-6.617c2.21-1.444,5.173-0.82,6.616,1.39C27.024,21.171,26.401,24.134,24.189,25.577z M7.362,22.514 L21.215,5.599l5.354,4.383L7.362,22.514z M20.75,19.633l0.896,1.374l0.211-0.124c0.715-0.415,1.262-0.599,1.635-0.554 s0.736,0.334,1.088,0.877c0.379,0.58,0.516,1.072,0.402,1.479c-0.109,0.403-0.492,0.823-1.15,1.25l-0.189,0.129l0.402,0.615 l-0.627,0.408l-0.4-0.615l-0.18,0.111c-0.652,0.426-1.186,0.612-1.6,0.563c-0.41-0.05-0.797-0.354-1.16-0.908l-0.119-0.188 l0.928-0.604l0.062,0.097c0.223,0.337,0.418,0.521,0.59,0.548c0.172,0.029,0.445-0.081,0.82-0.324l0.139-0.085l-0.971-1.489 c-0.73,0.477-1.299,0.695-1.703,0.659c-0.406-0.034-0.799-0.347-1.179-0.927c-0.366-0.561-0.481-1.037-0.35-1.419 c0.133-0.382,0.563-0.812,1.291-1.286l-0.349-0.535l0.625-0.408l0.351,0.533c0.694-0.451,1.235-0.665,1.623-0.632 c0.385,0.031,0.752,0.317,1.104,0.858l0.081,0.123l-0.896,0.586l-0.067-0.094c-0.267-0.408-0.652-0.447-1.162-0.115L20.75,19.633z M20.121,20.036l-0.131,0.092c-0.553,0.359-0.686,0.756-0.398,1.191c0.297,0.455,0.721,0.504,1.269,0.146 c0.004-0.002,0.053-0.029,0.141-0.081L20.121,20.036z M23.123,23.271l0.137-0.086c0.597-0.391,0.728-0.839,0.394-1.354 c-0.183-0.278-0.369-0.418-0.562-0.422c-0.19-0.002-0.496,0.133-0.914,0.405L23.123,23.271z"></path>{' '}
+                  </g>{' '}
+                </g>
+              </svg>
             }
+            onMouseEnter={() => setShowOnHover(true)}
+            // onMouseLeave={() => setShowOnHover(false)}
+            // onFocus={() => setShowOnHover(true)}
+          />
+        )}
+
+        {showOnHover && (
+          <Box
+            bg={'white'}
+            borderRadius={'10px'}
+            width="328px"
+            borderColor="grey"
+            textAlign="center"
+            boxShadow="0px 4px 20px 0px rgba(115, 126, 140, 0.25)"
           >
-            Place Bounty
-          </Button>
-        </VStack>
+            <Box borderTopLeftRadius={'10px'} borderTopRightRadius={'10px'}>
+              <Sally />
+            </Box>
+            <VStack p={3} gap={2}>
+              <Text>Need Instant Tutoring?</Text>
+              <Button
+                onClick={
+                  user && user.paymentMethods?.length > 0
+                    ? openBountyModal
+                    : setupPaymentMethod
+                }
+              >
+                Place Bounty
+              </Button>
+            </VStack>
+          </Box>
+        )}
       </Box>
       <BountyOfferModal
         isBountyModalOpen={isBountyModalOpen}

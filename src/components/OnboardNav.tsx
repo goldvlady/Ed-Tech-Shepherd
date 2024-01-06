@@ -2,11 +2,13 @@ import GoogleIcon from '../assets/google.svg';
 import { Box, Button } from '@chakra-ui/react';
 import * as React from 'react';
 import { StepWizardChildProps } from 'react-step-wizard';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   canGoNext: boolean;
   showOAuthButton?: boolean;
   handleAuth?: () => void;
+  stepIndicatorId?: string;
 } & Partial<StepWizardChildProps>;
 
 const OnboardNav: React.FC<Props> = ({
@@ -15,8 +17,11 @@ const OnboardNav: React.FC<Props> = ({
   nextStep,
   currentStep,
   canGoNext,
-  handleAuth
+  handleAuth,
+  stepIndicatorId
 }) => {
+  const navigate = useNavigate();
+
   return (
     <Box
       display={'flex'}
@@ -29,6 +34,11 @@ const OnboardNav: React.FC<Props> = ({
         variant="solid"
         colorScheme={'primary'}
         type="submit"
+        display={
+          currentStep === 1 && window.location.pathname === '/signup'
+            ? 'none'
+            : 'block'
+        }
         isDisabled={!canGoNext}
         size={'lg'}
       >
@@ -49,8 +59,24 @@ const OnboardNav: React.FC<Props> = ({
           Continue With Google
         </Button>
       )}
-      {currentStep !== undefined && currentStep > 1 && (
-        <Button onClick={previousStep} variant="link">
+      {currentStep !== undefined &&
+        currentStep > 1 &&
+        stepIndicatorId !== 'parent-or-student' &&
+        stepIndicatorId !== 'about-you' && (
+          <Button
+            onClick={
+              currentStep === 1 ? () => navigate('/signup') : previousStep
+            }
+            variant="link"
+          >
+            Previous
+          </Button>
+        )}
+      {stepIndicatorId === 'about-you' && (
+        <Button
+          onClick={currentStep === 1 ? () => navigate('/signup') : previousStep}
+          variant="link"
+        >
           Previous
         </Button>
       )}

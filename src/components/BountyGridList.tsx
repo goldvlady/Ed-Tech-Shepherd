@@ -111,7 +111,7 @@ export default function BountyGridList(props) {
   } = useDisclosure();
   const handleItemClick = (bounty) => {
     // openApplyBounty();
-    // navigate(`/dashboard/tutordashboard/offer/${bounty.id}`);
+    // navigate(`/dashboard/tutordashboard/offers/offer/${bounty.id}`);
     setSelectedBid(bounty);
     openApplyBounty();
   };

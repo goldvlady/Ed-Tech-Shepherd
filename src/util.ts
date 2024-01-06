@@ -33,9 +33,10 @@ export const getOptionValue = (
 export const doFetch = async (
   input: RequestInfo,
   init?: RequestInit,
-  showErrorMessage = false
+  showErrorMessage = false,
+  initHeaders = {}
 ) => {
-  const headers: HeadersInit = {};
+  const headers: HeadersInit = { ...initHeaders };
 
   const token = await firebaseAuth.currentUser?.getIdToken();
   headers['x-shepherd-header'] = 'vunderkind23';
@@ -99,17 +100,72 @@ export const educationLevelOptions = [
     value: 'vocation-technical-cert'
   }
 ];
+interface Schedule {
+  [day: string]: {
+    begin: string;
+    end: string;
+  };
+}
 
-export const numberToDayOfWeekName = (num: number, format = 'dddd') =>
-  moment().day(num).format(format);
+export const convertTimeToUTC = (time: string, tzIdentifier: string) => {
+  // Parse the input time string
+  const parsedTime = moment.tz(time, 'hh:mm A', tzIdentifier);
+
+  // Convert the parsed time to UTC+0 with the same format
+  const utcTime = parsedTime.utc().format('hh:mm A');
+
+  return utcTime;
+};
+
+export const convertScheduleToUTC = (schedule: Schedule) => {
+  const tzIdentifier = moment.tz.guess();
+  const utcSchedule = {};
+
+  for (const day in schedule) {
+    if (schedule[day]) {
+      const beginTime = schedule[day].begin;
+      const endTime = schedule[day].end;
+
+      const beginUTC = convertTimeToUTC(beginTime, tzIdentifier);
+      const endUTC = convertTimeToUTC(endTime, tzIdentifier);
+
+      utcSchedule[day] = {
+        begin: beginUTC,
+        end: endUTC
+      };
+    }
+  }
+
+  return utcSchedule;
+};
+
+export const numberToDayOfWeekName = (num: number, format = 'dddd') => {
+  // Use the adjusted number to get the day of the week's name
+  // 0 for Sunday, 1 for Monday and so on...
+  return moment().day(num).format(format);
+};
 export const DayOfWeekNameToNumber = (num: number, format = 'dddd') =>
   moment().day(num).format(format);
+
+export const convertUtcToUserTime = (utcTime) => {
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  // Parse the UTC time string using Moment.js
+  const utcMoment = moment.utc(utcTime);
+
+  // Convert the UTC time to the user's timezone
+  const userMoment = utcMoment.tz(userTimezone);
+
+  // Format the user's time in a desired format
+  return userMoment.format('h:mm A');
+};
 
 export const convertTimeToDateTime = (time) => {
   const currentDate = new Date();
 
   // Regular expression to match different time formats
-  const timeRegex = /^(\d{1,2})(?::(\d{2}))?(AM|PM)?$/i;
+  const timeRegex =
+    /^(\d{1,2}|0\d{1,2})(?::(\d{2}))?(?:\s)?(AM|PM)$|^(\d{1,2}|0\d{1,2})(AM|PM)$/i;
   const matches = time.match(timeRegex);
 
   if (!matches) {
@@ -137,7 +193,6 @@ export const convertTimeToDateTime = (time) => {
   const hours24 = String(currentDate.getHours()).padStart(2, '0');
   const minutesStr = String(currentDate.getMinutes()).padStart(2, '0');
   const seconds = '00';
-
   return `${year}-${month}-${day} ${hours24}:${minutesStr}:${seconds}`;
 };
 
@@ -200,6 +255,54 @@ export const convertISOToCustomFormat = (isoString) => {
 // console.log(`Formatted time 1: ${formattedTime1}`);
 // console.log(`Formatted time 2: ${formattedTime2}`);
 // console.log(`Formatted time 3: ${formattedTime3}`);
+
+export const convertToNewFormat = (scheduleData) => {
+  const daysMap = {
+    Sunday: 0,
+    Monday: 1,
+    Tuesday: 2,
+    Wednesday: 3,
+    Thursday: 4,
+    Friday: 5,
+    Saturday: 6
+  };
+  const convertedData = {};
+
+  scheduleData.forEach((day) => {
+    const dayIndex = daysMap[day.name];
+    convertedData[dayIndex] = day.times.map((time) => ({
+      begin: time.start,
+      end: time.end
+    }));
+  });
+
+  return convertedData;
+};
+export const convertToPreviousFormat = (convertedData) => {
+  const daysArray = [
+    { name: 'Sunday', times: [] },
+    { name: 'Monday', times: [] },
+    { name: 'Tuesday', times: [] },
+    { name: 'Wednesday', times: [] },
+    { name: 'Thursday', times: [] },
+    { name: 'Friday', times: [] },
+    { name: 'Saturday', times: [] }
+  ];
+
+  for (const dayIndex in convertedData) {
+    const numericIndex = parseInt(dayIndex, 10); // Convert dayIndex to a number
+    const dayTimes = convertedData[numericIndex];
+    // const dayName = Object.keys(daysArray[numericIndex - 1])[0];
+    const formattedTimes = dayTimes.map(
+      (time: { begin: string; end: string }) => ({
+        start: time.begin,
+        end: time.end
+      })
+    );
+    daysArray[numericIndex].times = formattedTimes;
+  }
+  return daysArray;
+};
 
 export const isSameDay = (date1, date2) => {
   return (

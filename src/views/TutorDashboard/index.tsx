@@ -1,18 +1,12 @@
-import {
-  Layout,
-  Proceed,
-  GridList,
-  RecentTransactions,
-  WelcomePage
-} from '../../components';
+import { GridList, WelcomePage } from '../../components';
 import ApiService from '../../services/ApiService';
 import feedsStore from '../../state/feedsStore';
-import tutorStore from '../../state/tutorStore';
 import userStore from '../../state/userStore';
 import ActivityFeeds from '../Dashboard/components/ActivityFeeds';
 import Schedule from '../Dashboard/components/Schedule';
-import { Box, Grid, GridItem, Spinner } from '@chakra-ui/react';
-import { useState, useEffect, useCallback } from 'react';
+import { Box, Grid, GridItem } from '@chakra-ui/react';
+import React, { useState, useEffect, useCallback } from 'react';
+import ShepherdSpinner from '../Dashboard/components/shepherd-spinner';
 
 export default function Dashboard() {
   const { feeds, fetchFeeds } = feedsStore();
@@ -54,7 +48,6 @@ export default function Dashboard() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-  console.log(tutorReport, 'report');
 
   if (isLoading) {
     return (
@@ -68,7 +61,7 @@ export default function Dashboard() {
           height: '100vh'
         }}
       >
-        <Spinner />
+        <ShepherdSpinner />
       </Box>
     );
   }

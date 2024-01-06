@@ -1,12 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+
 import { SelectedNoteModal } from '../../../components';
+import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import { snip } from '../../../helpers/file.helpers';
-import { getPDFHighlight, postPDFHighlight } from '../../../services/AI';
-import { Spinner } from './Spinner';
-import { testHighlights as _testHighlights } from './test-highlights';
-import { useToast } from '@chakra-ui/react';
-import { HandRaisedIcon } from '@heroicons/react/20/solid';
-import { useEffect, useState, useCallback } from 'react';
+import useIsMobile from '../../../helpers/useIsMobile';
+import ShepherdSpinner from '../components/shepherd-spinner';
+import React, { useEffect, useState } from 'react';
 import type { IHighlight, NewHighlight } from 'react-pdf-highlighter';
 import {
   PdfLoader,
@@ -42,18 +41,21 @@ const TempPDFViewer = ({
   name,
   documentId,
   setLoading,
-  setHightlightedText
+  setHightlightedText,
+  setSwitchDocument
 }: {
   pdfLink: URL;
   name: string;
   documentId?: string;
   setLoading?: any;
   setHightlightedText?: any;
+  setSwitchDocument?: any;
 }) => {
   const [highlights, setHighlights] = useState<Array<IHighlight>>([]);
   const [url, setUrl] = useState(pdfLink);
   const [popUpNotesModal, setPopUpNotesModal] = useState(false);
-  const toast = useToast();
+  const toast = useCustomToast();
+  const mobile = useIsMobile();
 
   useEffect(() => {
     setUrl(pdfLink);
@@ -88,39 +90,39 @@ const TempPDFViewer = ({
     setHighlights([{ ...highlight, id: getNextId() }, ...highlights]);
   };
 
-  const handleHighlight = useCallback(async () => {
-    try {
-      const response = await postPDFHighlight({
-        documentId,
-        highlight: {
-          name: highlights[0]?.content?.text
-        }
-      });
-      if ([200].includes(response.status)) {
-        toast({
-          title: 'Hightlighted words saved successfully',
-          position: 'top-right',
-          status: 'success',
-          isClosable: true
-        });
+  // const handleHighlight = useCallback(async () => {
+  //   try {
+  //     const response = await postPDFHighlight({
+  //       documentId,
+  //       highlight: {
+  //         name: highlights[0]?.content?.text
+  //       }
+  //     });
+  //     if ([200].includes(response.status)) {
+  //       toast({
+  //         title: 'Hightlighted words saved successfully',
+  //         position: 'top-right',
+  //         status: 'success',
+  //         isClosable: true
+  //       });
 
-        const getHighlight = async () => {
-          setLoading(true);
-          const response = await getPDFHighlight({ documentId });
-          setHightlightedText(response);
-          setLoading(false);
-        };
-        getHighlight();
-      }
-    } catch (error) {
-      toast({
-        title: 'Unable to process this request.Please try again later',
-        position: 'top-right',
-        status: 'error',
-        isClosable: true
-      });
-    }
-  }, [documentId, highlights[0]?.content?.text]);
+  //       const getHighlight = async () => {
+  //         setLoading(true);
+  //         const response = await getPDFHighlight({ documentId });
+  //         setHightlightedText(response);
+  //         setLoading(false);
+  //       };
+  //       getHighlight();
+  //     }
+  //   } catch (error) {
+  //     toast({
+  //       title: 'Unable to process this request.Please try again later',
+  //       position: 'top-right',
+  //       status: 'error',
+  //       isClosable: true
+  //     });
+  //   }
+  // }, [documentId, highlights[0]?.content?.text]);
 
   const updateHighlight = (
     highlightId: string,
@@ -148,20 +150,20 @@ const TempPDFViewer = ({
     setHighlights(updated);
   };
 
-  useEffect(() => {
-    !!highlights.length && handleHighlight();
-  }, [highlights]);
+  // useEffect(() => {
+  //   !!highlights.length && handleHighlight();
+  // }, [highlights]);
 
   return (
     <>
       <div
         style={{ display: 'flex', position: 'fixed' }}
-        className="flex-auto w-1/2 h-full lg:col-span-6"
+        className="flex-auto w-full sm:w-1/2 h-full lg:w-1/2 lg:col-span-6"
       >
         <div
           style={{
             height: '100vh',
-            width: '87%',
+            width: mobile ? '100%' : '87%',
             position: 'relative'
           }}
         >
@@ -171,8 +173,17 @@ const TempPDFViewer = ({
           >
             {snip(name, 40)}
           </div>
+          {mobile && (
+            <div
+              className="absolute z-10 p-2 m-1 text-sm cursor-pointer right-0 font-bold bg-green-100 max-h-max max-w-max rounded-xl hover:text-blue-600 hover:cursor-pointer hover:bg-yellow-100"
+              onClick={() => setSwitchDocument(false)}
+            >
+              <p>Chat</p>
+            </div>
+          )}
+
           {/* @ts-ignore: this is a documented error regarding TS2786. I don't know how to fix yet (ref: https://stackoverflow.com/questions/72002300/ts2786-typescript-not-reconizing-ui-kitten-components)  */}
-          <PdfLoader url={url} beforeLoad={<Spinner />}>
+          <PdfLoader url={url} beforeLoad={<ShepherdSpinner />}>
             {(pdfDocument) => (
               // @ts-ignore: same issue as linked above
               <PdfHighlighter

@@ -1,4 +1,4 @@
-import CustomToast from '../../../../components/CustomComponents/CustomToast';
+import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import { firebaseAuth, updatePassword } from '../../../../firebase';
 import ApiService from '../../../../services/ApiService';
 import userStore from '../../../../state/userStore';
@@ -44,7 +44,7 @@ function MyProfile(props) {
   const { id, username, email } = props;
   const { user } = userStore();
 
-  const toast = useToast();
+  const toast = useCustomToast();
   const [newEmail, setNewEmail] = useState<string>(email);
 
   const [isOpenTandC, setIsOpenTandC] = useState(false);
@@ -113,17 +113,15 @@ function MyProfile(props) {
     closeUpdateEmailModal();
     if (response.status === 200) {
       toast({
-        render: () => (
-          <CustomToast title="Email Updated successfully" status="success" />
-        ),
+        title: 'Email Updated successfully',
+        status: 'success',
         position: 'top-right',
         isClosable: true
       });
     } else {
       toast({
-        render: () => (
-          <CustomToast title="Something went wrong.." status="error" />
-        ),
+        title: 'Something went wrong..',
+        status: 'error',
         position: 'top-right',
         isClosable: true
       });
@@ -136,17 +134,15 @@ function MyProfile(props) {
     closeUpdatePasswordModal();
     if (response.status === 200) {
       toast({
-        render: () => (
-          <CustomToast title="Password Updated successfully" status="success" />
-        ),
+        title: 'Password Updated successfully',
+        status: 'success',
         position: 'top-right',
         isClosable: true
       });
     } else {
       toast({
-        render: () => (
-          <CustomToast title="Something went wrong.." status="error" />
-        ),
+        title: 'Something went wrong..',
+        status: 'error',
         position: 'top-right',
         isClosable: true
       });
@@ -531,7 +527,7 @@ function MyProfile(props) {
                 </Stack>
                 <Spacer />
                 <Text fontSize={12} color="text.300">
-                  help@shepherd.learn{' '}
+                  hello@shepherd.study
                 </Text>
               </Flex>
               <Flex width={'100%'} alignItems="center">

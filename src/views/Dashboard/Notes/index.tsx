@@ -1,4 +1,3 @@
-import EmptyIllustration from '../../../assets/empty_illustration.svg';
 import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import DropDownFilter from '../../../components/CustomComponents/DropDownFilter';
@@ -10,6 +9,7 @@ import LoaderOverlay from '../../../components/loaderOverlay';
 import CustomTabPanel from '../../../components/tabPanel';
 import uploadFile from '../../../helpers/file.helpers';
 import FileProcessingService from '../../../helpers/files.helpers/fileProcessing';
+import { UploadMetadata } from '../../../helpers/s3Handler';
 import { useSearch } from '../../../hooks';
 import documentStore from '../../../state/documentStore';
 import flashcardStore from '../../../state/flashcardStore';
@@ -20,6 +20,7 @@ import { useFlashcardWizard } from '../FlashCards/context/flashcard';
 import SetupFlashcardPage from '../FlashCards/forms/flashcard_setup';
 import Pagination from '../components/Pagination';
 import ActionDropdown from './components/actionButton';
+import { StyledImage } from './styles';
 import {
   SimpleGrid,
   TabList,
@@ -47,21 +48,9 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaCalendarAlt } from 'react-icons/fa';
+import { IoChatboxEllipsesOutline } from 'react-icons/io5';
 import { MultiSelect } from 'react-multi-select-component';
 import { useNavigate, useLocation } from 'react-router-dom';
-import styled from 'styled-components';
-
-const StyledImage = styled(Box)`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #ffffff;
-  border-radius: 50%;
-  height: 26px;
-  width: 26px;
-  border: 0.6px solid #eaeaeb;
-  box-shadow: 0 2px 10px rgba(63, 81, 94, 0.1);
-`;
 
 const YourFlashCardIcon = () => (
   <StyledImage marginRight="10px">
@@ -92,6 +81,12 @@ const YourEditTagsIcon = () => (
         d="M5.25 2.25a3 3 0 00-3 3v4.318a3 3 0 00.879 2.121l9.58 9.581c.92.92 2.39 1.186 3.548.428a18.849 18.849 0 005.441-5.44c.758-1.16.492-2.629-.428-3.548l-9.58-9.581a3 3 0 00-2.122-.879H5.25zM6.375 7.5a1.125 1.125 0 100-2.25 1.125 1.125 0 000 2.25z"
       />
     </svg>
+  </StyledImage>
+);
+
+const YourOpenDocchatIcon = () => (
+  <StyledImage marginRight="10px">
+    <IoChatboxEllipsesOutline />
   </StyledImage>
 );
 
@@ -238,14 +233,14 @@ const NotesDirectory: React.FC = () => {
   }, [notes, selectedContent, studentDocuments, activeTab]);
 
   const gotoEditNote = (note: NoteDetails) => {
-    const noteURL = `/dashboard/new-note/${note._id}`;
+    const noteURL = `/dashboard/notes/new-note/${note._id}`;
     navigate(noteURL);
   };
 
   const gotoEditPdf = async (document: StudentDocument) => {
     const { title, documentUrl } = document;
     try {
-      navigate(`/dashboard/new-note`, {
+      navigate(`/dashboard/notes/new-note`, {
         state: {
           documentUrl,
           docTitle: title
@@ -293,6 +288,8 @@ const NotesDirectory: React.FC = () => {
         );
         const processData = await fileProcessor.process();
 
+        console.log(processData);
+
         const {
           data: [{ documentId }]
         } = processData;
@@ -305,6 +302,52 @@ const NotesDirectory: React.FC = () => {
           }
         });
       }
+    } catch (error) {
+      console.log(error);
+      toast({ title: 'Failed to load document', status: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const ingestNote = async (note?: NoteDetails) => {
+    try {
+      setLoading(true);
+      navigate('/dashboard/docchat', {
+        state: {
+          noteId: note?._id
+          // documentUrl: document.documentUrl,
+          // docTitle: document.title,
+          // documentId
+        }
+      });
+      // if (document.ingestId) {
+      //   navigate('/dashboard/docchat', {
+      //     state: {
+      //       documentUrl: document.documentUrl,
+      //       docTitle: document.title,
+      //       documentId: document.ingestId
+      //     }
+      //   });
+      // } else {
+      //   const fileProcessor = new FileProcessingService(
+      //     { ...document, student: user?._id },
+      //     true
+      //   );
+      //   const processData = await fileProcessor.process();
+
+      //   const {
+      //     data: [{ documentId }]
+      //   } = processData;
+
+      //   navigate('/dashboard/docchat', {
+      //     state: {
+      //       documentUrl: document.documentUrl,
+      //       docTitle: document.title,
+      //       documentId
+      //     }
+      //   });
+      // }
     } catch (error) {
       toast({ title: 'Failed to load document', status: 'error' });
     } finally {
@@ -337,6 +380,13 @@ const NotesDirectory: React.FC = () => {
       icon: <YourEditTagsIcon />
     },
     {
+      label: 'Open in DocChat',
+      onClick: () => {
+        ingestNote(note);
+      },
+      icon: <YourOpenDocchatIcon />
+    },
+    {
       label: 'Delete',
       onClick: () => setDeleteItem({ note, currentDeleteType: 'single' }),
       color: '#F53535',
@@ -357,7 +407,7 @@ const NotesDirectory: React.FC = () => {
           numQuestions: 0,
           timerDuration: '',
           hasSubmitted: false,
-          ingestId: studentDocument.ingestId,
+          ingestId: studentDocument.documentUrl,
           documentId: studentDocument.documentUrl
         }));
         setOpenSideModal(true);
@@ -372,7 +422,7 @@ const NotesDirectory: React.FC = () => {
     {
       label: 'Open in DocChat',
       onClick: () => ingestDocument(studentDocument),
-      icon: <YourEditTagsIcon />
+      icon: <YourOpenDocchatIcon />
     },
     {
       label: 'Delete',
@@ -464,7 +514,10 @@ const NotesDirectory: React.FC = () => {
           flexDirection={'column'}
           alignItems={'center'}
         >
-          <Image src={EmptyIllustration} />
+          <img
+            src="/images/empty_illustration.svg"
+            alt="empty directory icon"
+          />
           <Text
             color="text.300"
             fontFamily="Inter"
@@ -483,7 +536,7 @@ const NotesDirectory: React.FC = () => {
               if (option === 'upload-document') {
                 setOpenUploadModal(true);
               } else {
-                navigate('/dashboard/new-note');
+                navigate('/dashboard/notes/new-note');
               }
             }}
           />
@@ -554,17 +607,24 @@ const NotesDirectory: React.FC = () => {
         accept="application/pdf"
         isLoading={isUploadingFile}
         onUpload={(file) => {
-          const uploadEmitter = uploadFile(file);
+          const uploadEmitter = uploadFile(file, {
+            studentID: user?._id as string,
+            documentID: file.name
+          });
           uploadEmitter.on('progress', (progress: number) => {
             if (!isUploadingFile) {
               setIsUploadingFile(true);
             }
           });
-          uploadEmitter.on('complete', async (documentUrl: string) => {
+          uploadEmitter.on('complete', async (responseData: UploadMetadata) => {
+            const { fileUrl: documentUrl, documentID, name } = responseData;
             try {
-              const title = decodeURIComponent(
-                (documentUrl.match(/\/([^/]+)(?=\.\w+\?)/) || [])[1] || ''
-              ).replace('uploads/', '');
+              const title =
+                documentID ||
+                name ||
+                decodeURIComponent(
+                  (documentUrl.match(/\/([^/]+)(?=\.\w+\?)/) || [])[1] || ''
+                ).replace('uploads/', '');
 
               const response = await saveDocument({ title, documentUrl });
               if (response) {
@@ -656,7 +716,7 @@ const NotesDirectory: React.FC = () => {
               if (option === 'upload-document') {
                 setOpenUploadModal(true);
               } else {
-                navigate('/dashboard/new-note');
+                navigate('/dashboard/notes/new-note');
               }
             }}
           />

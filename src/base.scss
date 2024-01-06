@@ -508,6 +508,12 @@ canvas {
   gap: 5px;
 }
 
+.landing-plan-wrapper {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
 .landing-metric {
   font-size: 48px;
   font-weight: 600;
@@ -560,7 +566,12 @@ canvas {
   text-align: left;
   width: 297px;
 }
-
+.landing-section-item-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  text-align: left;
+}
 .landing-coming-soon-icon {
   width: 30px;
 }
@@ -569,11 +580,15 @@ canvas {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  width: 283px;
+  width: 383px;
   padding: 20px;
   border-radius: 8px;
   background-color: #ffffff;
-  border: 0.8px solid #eeeff2;
+  border: 1px solid #eeeff2;
+}
+
+.landing-price-card-active {
+  border: 1px solid #66bd6a;
 }
 
 .landing-price-card:hover {
@@ -583,8 +598,9 @@ canvas {
 .landing-price-wrapper {
   display: flex;
   flex-wrap: wrap;
-  gap: 30px;
-  margin-top: 70px;
+  gap: 40px;
+  margin: 20px 0 20px 0;
+  justify-content: center;
 }
 
 .landing-price-level {
@@ -592,6 +608,17 @@ canvas {
   font-weight: 500;
   line-height: 20px;
   letter-spacing: 0em;
+}
+
+.landing-price-level-plan {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0em;
+  color: white;
+  padding: 3px 5px;
+  border-radius: 3px;
+  background-color: #66bd6a;
 }
 
 .landing-price-point {
@@ -633,7 +660,7 @@ canvas {
 
 .landing-price-sub-bubble {
   position: absolute;
-  align-self: center;
+  align-self: end;
   top: -10px;
   color: #ffffff;
   background-color: #fb8441;
@@ -1194,16 +1221,79 @@ canvas {
   scrollbar-width: none; /* Firefox */
 }
 
+.chakra-input__group input[type='text'] {
+  padding-left: 30px;
+}
+
+.chakra-input__group input[type='text']:focus {
+  box-shadow: none;
+}
+
 input[type='text']:focus {
   box-shadow: none;
 }
 
 //STREAM CHAT STYLES
-
 .stream-chat-wrapper {
   height: calc(100vh - 80px);
   display: flex;
   font: 14px 'Inter';
+}
+
+.rmsc {
+  position: relative;
+  z-index: 1; /* Adjust this value as needed */
+}
+
+.rmsc .dropdown-container {
+  border: 0;
+  margin-right: 15px;
+}
+
+.rmsc .dropdown-heading {
+  width: 160px;
+  border: 1px solid #e4e6e7 !important;
+  border-radius: 8px;
+  height: 35px;
+  font-size: 0.875rem;
+  position: relative;
+}
+
+@media only screen and (max-width: 992px) {
+  .rmsc .dropdown-heading {
+    width: 250% !important;
+    border: 1px solid #e4e6e7 !important;
+    border-radius: 8px;
+    height: 35px;
+    font-size: 0.875rem;
+    position: relative;
+  }
+}
+
+/* Remove focus border */
+
+.rmsc .dropdown-content {
+  z-index: 1000; /* Adjust this value as needed */
+}
+
+.rmsc .dropdown-content {
+  color: black;
+  font-size: 0.875rem;
+  font-family: 'Inter';
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+  position: absolute;
+  z-index: -11111;
+
+  input {
+    border-radius: 4px;
+  }
+}
+
+.rmsc .dropdown-heading:focus {
+  outline: none !important;
+  box-shadow: none !important; /* In case the component uses a box-shadow for focus indication */
 }
 
 #root {
@@ -1216,6 +1306,53 @@ input[type='text']:focus {
     position: initial;
     // border: none;
     width: 30%;
+  }
+
+  .stream-chat-frozen-wrapper {
+    // pointer-events: none;
+    flex: 1;
+
+    .str-chat__message
+      .str-chat__message-inner
+      .str-chat__message-options
+      .str-chat__message-actions-box-button,
+    .str-chat__message
+      .str-chat__message-inner
+      .str-chat__message-options
+      .str-chat__message-actions-container,
+    .str-chat__quoted-message-preview
+      .str-chat__message-inner
+      .str-chat__message-options
+      .str-chat__message-actions-box-button,
+    .str-chat__quoted-message-preview
+      .str-chat__message-inner
+      .str-chat__message-options
+      .str-chat__message-actions-container {
+      pointer-events: none;
+    }
+
+    .str-chat__list-notifications,
+    .str-chat__message-input {
+      display: none;
+    }
+
+    .str-chat__message-simple__actions .str-chat__message-options {
+      display: none;
+    }
+
+    //hide message option menu (on hover)
+    .str-chat__message-inner .str-chat__message-options {
+      visibility: hidden;
+    }
+  }
+
+  .stream-disabled-message {
+    height: 14%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #207df7;
+    text-align: center;
   }
 
   .channel-preview {
@@ -1394,5 +1531,126 @@ input[type='text']:focus {
     .str-chat__thread {
       border: none;
     }
+  }
+}
+//PDF VIEWER STYLES
+svg.rpv-core__icon {
+  color: #606264;
+
+  height: 10px;
+  width: 10px;
+}
+
+.rpv-default-layout__toolbar {
+  background-color: transparent;
+  border: none;
+  font-size: 12px;
+}
+.rpv-toolbar__center {
+  justify-content: right;
+}
+input.rpv-core__textbox {
+  font-size: 12px;
+}
+.rpv-default-layout__sidebar {
+  border: none;
+}
+.rpv-default-layout__sidebar-headers {
+  background-color: transparent;
+}
+.rpv-default-layout__container {
+  border: none;
+}
+.rpv-core__page-layer--single {
+  width: 100%;
+}
+
+.rpv-page-navigation__current-page-input .rpv-core__textbox {
+  border-radius: 4px;
+  height: 15px;
+  background-color: #f5f5f5;
+  text-align: center;
+}
+
+.rpv-search__popover {
+  display: flex;
+  gap: 5px;
+  color: #606264;
+}
+
+.rpv-core__popover-body-arrow {
+  display: none;
+}
+.rpv-zoom__popover-target-arrow {
+  display: none;
+}
+.rpv-thumbnail__list .rpv-thumbnail__list--vertical {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.rpv-core__page-layer textarea {
+  width: 100%;
+}
+.rmsc .multi-select {
+  z-index: 111 !important;
+}
+
+@media only screen and (max-width: 992px) {
+  .css-70qvj9 {
+    width: 100%;
+  }
+
+  .css-dv2ok0 {
+    display: inline !important;
+  }
+
+  .chakra-stack .css-12c49km {
+    display: inline !important;
+  }
+
+  .chakra-stack .css-84zodg {
+    -webkit-margin-start: 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  .chakra-stack .css-1a38sz5 {
+    display: inline;
+  }
+
+  .css-1w1527n {
+    display: inline;
+    padding: 0 !important;
+    -webkit-padding-start: 0;
+    -webkit-padding-end: 0;
+  }
+
+  .css-1xj4y5d {
+    padding: 35px;
+    -webkit-padding-start: 10px;
+    -webkit-padding-end: 10px;
+  }
+
+  .css-1ykcx67 {
+    -webkit-margin-start: 0 !important;
+    margin-inline-start: 0 !important;
+    margin-top: 15px !important;
+  }
+
+  .css-o6vm6s {
+    display: block !important;
+
+    > input {
+      width: 100%;
+      margin-top: 20px;
+    }
+  }
+
+  .css-1fc4gts {
+    width: 100%;
+  }
+
+  .css-3kq2g9 {
+    padding: 10px !important;
   }
 }

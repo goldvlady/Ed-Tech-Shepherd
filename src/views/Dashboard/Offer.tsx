@@ -1,20 +1,24 @@
 import ChoosePaymentMethodDialog, {
   ChoosePaymentMethodDialogRef
 } from '../../components/ChoosePaymentMethodDialog';
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import LinedList from '../../components/LinedList';
 import PageTitle from '../../components/PageTitle';
 import Panel from '../../components/Panel';
 import PaymentDialog, {
   PaymentDialogRef
 } from '../../components/PaymentDialog';
-import StripeCheckoutForm from '../../components/StripeCheckoutForm';
 import TutorCard from '../../components/TutorCard';
 import { useTitle } from '../../hooks';
 import ApiService from '../../services/ApiService';
 import userStore from '../../state/userStore';
 import theme from '../../theme';
-import { Course, Offer as OfferType, PaymentMethod } from '../../types';
-import { ServiceFeePercentage, numberToDayOfWeekName } from '../../util';
+import { PaymentMethod } from '../../types';
+import {
+  numberToDayOfWeekName,
+  convertTimeToTimeZone,
+  convertTimeToDateTime
+} from '../../util';
 import {
   Alert,
   AlertDescription,
@@ -36,14 +40,11 @@ import {
   ModalFooter,
   ModalOverlay,
   SimpleGrid,
-  Spinner,
   Text,
   Textarea,
   VStack,
-  useDisclosure,
-  useToast
+  useDisclosure
 } from '@chakra-ui/react';
-import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { capitalize, isEmpty } from 'lodash';
 import moment from 'moment';
@@ -53,6 +54,7 @@ import { FiArrowRight, FiChevronRight } from 'react-icons/fi';
 import { MdInfo } from 'react-icons/md';
 import { useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
+import ShepherdSpinner from './components/shepherd-spinner';
 
 const LeftCol = styled(Box)`
   min-height: 100vh;
@@ -100,7 +102,7 @@ const Offer = () => {
 
   const isTutor = currentPath.includes('/dashboard/tutordashboard/');
 
-  const toast = useToast();
+  const toast = useCustomToast();
 
   const { offerId } = useParams() as { offerId: string };
 
@@ -257,7 +259,7 @@ const Offer = () => {
 
       setSettingUpPaymentMethod(false);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 
@@ -356,7 +358,7 @@ const Offer = () => {
         <LeftCol mb="32px" className="col-lg-8">
           {loading && (
             <Box textAlign={'center'}>
-              <Spinner />
+              <ShepherdSpinner />
             </Box>
           )}
           {!!offer && (
@@ -493,11 +495,13 @@ const Offer = () => {
                 separator={<FiChevronRight size={10} color="gray.500" />}
               >
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="#">Offers</BreadcrumbLink>
+                  <BreadcrumbLink href="/dashboard/tutordashboard/offers">
+                    Offers
+                  </BreadcrumbLink>
                 </BreadcrumbItem>
 
                 <BreadcrumbItem isCurrentPage>
-                  <BreadcrumbLink href="#">Review offer</BreadcrumbLink>
+                  <BreadcrumbLink href="#">Review Offer</BreadcrumbLink>
                 </BreadcrumbItem>
               </Breadcrumb>
               {isTutor && (
@@ -671,11 +675,19 @@ const Offer = () => {
                             </FormLabel>
                             <Flex gap="1px" alignItems="center">
                               <OfferValueText>
-                                {offer.schedule[n].begin}
+                                {convertTimeToTimeZone(
+                                  convertTimeToDateTime(
+                                    offer.schedule[n].begin
+                                  ),
+                                  offer.scheduleTz
+                                )}
                               </OfferValueText>
                               <FiArrowRight color="#6E7682" size={'15px'} />
                               <OfferValueText>
-                                {offer.schedule[n].end}
+                                {convertTimeToTimeZone(
+                                  convertTimeToDateTime(offer.schedule[n].end),
+                                  offer.scheduleTz
+                                )}
                               </OfferValueText>
                             </Flex>
                           </Box>

@@ -42,7 +42,7 @@ type Step = {
 };
 
 const CompleteProfile = () => {
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeStep, setActiveStep] = useState(3);
   const [showPreview, setShowPreview] = useState(false);
   const onboardingData = onboardTutorStore.useStore();
 
@@ -66,7 +66,7 @@ const CompleteProfile = () => {
       qualifications.length > 0
         ? onboardingData?.qualifications?.every((obj) => {
             const newData = { ...obj };
-            delete newData.transcript;
+            // delete newData.transcript;
             return (
               Object.values(newData).every((value) => Boolean(value)) &&
               isBefore(new Date(newData.startDate), new Date(newData.endDate))
@@ -78,35 +78,34 @@ const CompleteProfile = () => {
   }, [onboardingData]);
 
   const isScheduleValid = useMemo(() => {
-    // Check if the schedule object is defined
-    if (!schedule) {
-      return false;
-    }
-    if (!timezone) {
+    if (!schedule || !timezone || !Object.keys(schedule).length) {
       return false;
     }
 
-    if (!Object.keys(schedule).length) return false;
-    // Iterate over the keys of the schedule
+    let hasNonEmptyBlock = false; // Flag to check for at least one non-empty block
+
     for (const key in schedule) {
-      // For each key, check if it is an array
       if (!Array.isArray(schedule[key])) {
         return false;
       }
 
-      if (!schedule[key].length) return false;
+      if (schedule[key].length > 0) {
+        hasNonEmptyBlock = true; // Update flag if the array has non-empty blocks
 
-      // For each schedule block in the array
-      for (let i = 0; i < schedule[key].length; i++) {
-        // Check if both 'begin' and 'end' exist
-        if (!schedule[key][i].begin) {
-          return false;
+        for (let i = 0; i < schedule[key].length; i++) {
+          if (
+            !schedule[key][i].begin ||
+            !schedule[key][i].end ||
+            schedule[key][i].begin.trim() === '' ||
+            schedule[key][i].end.trim() === ''
+          ) {
+            return false;
+          }
         }
       }
     }
 
-    // If all schedule blocks have 'begin' and 'end', return true
-    return true;
+    return hasNonEmptyBlock; // Return whether at least one non-empty block exists
   }, [schedule, timezone]);
 
   const isValidPaymentInformation = useMemo(() => {
@@ -126,7 +125,7 @@ const CompleteProfile = () => {
         element: SubjectLevelForm,
         title: 'Please inform us of the subjects you would like to teach ',
         supportingText:
-          'Kindly select your area of expertise and proficiency level, you may add multiple subjects',
+          'Please choose your areas of expertise and indicate your proficiency level. You can select multiple subjects.',
         isValid: isSubjectsValid
       },
       {
@@ -153,7 +152,7 @@ const CompleteProfile = () => {
         position: 3,
         isValid: isScheduleValid,
         element: AvailabilityForm,
-        title: 'Let’s Know when you’ll be available',
+        title: 'Let us Know when you’ll be available',
         supportingText:
           'Provide the days and time frame when will you be available'
       },

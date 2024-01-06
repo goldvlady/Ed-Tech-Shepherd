@@ -1,34 +1,15 @@
-import { ReactComponent as DocIcon } from '../../../assets/doc.svg';
-import { ReactComponent as NewNoteIcon } from '../../../assets/newnote.svg';
-import {
-  AllNotesTab,
-  SelectedNoteModal,
-  AllClientTab
-} from '../../../components';
-import DropdownMenu from '../../../components/CustomComponents/CustomDropdownMenu';
+import { AllClientTab } from '../../../components';
 import CustomTabs from '../../../components/CustomComponents/CustomTabs';
-import Layout from '../../../components/Layout';
-import { SortIcon, FilterByTagsIcon } from '../../../components/icons';
 import ApiService from '../../../services/ApiService';
 import {
-  Checkbox,
-  CheckboxContainer,
   FlexContainer,
-  Header,
-  NewList,
   NotesWrapper,
-  SearchInput,
-  Section,
-  SectionNewList,
-  StyledHeader,
-  StyledSection
+  StyledHeader
 } from '../../Dashboard/Notes/styles';
-import { AddIcon } from '@chakra-ui/icons';
 import {
   Text,
   Box,
   Flex,
-  Spinner,
   Menu,
   MenuButton,
   MenuItem,
@@ -37,6 +18,7 @@ import {
 import React, { useState, useCallback, useEffect } from 'react';
 import { FaCalendarAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router';
+import ShepherdSpinner from '../../Dashboard/components/shepherd-spinner';
 
 const getNotes = JSON.parse(localStorage.getItem('notes') as string) || [];
 
@@ -241,7 +223,7 @@ const Clients = () => {
           height: '100vh'
         }}
       >
-        <Spinner />
+        <ShepherdSpinner />
       </Box>
     );
   }

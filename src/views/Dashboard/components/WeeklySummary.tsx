@@ -7,7 +7,7 @@ import EmptyFeeds from '../../../assets/no-activity.svg';
 import EmptyFlashcard from '../../../assets/no-flashcard.svg';
 import ribbon2 from '../../../assets/ribbon1.svg';
 import ribbon1 from '../../../assets/ribbon2.svg';
-import summary from '../../../assets/summary.svg';
+import Summary from '../../../assets/summary.svg';
 import { CustomButton } from '../layout';
 import {
   Box,
@@ -69,11 +69,11 @@ export default function WeeklySummary(props) {
   const getBadgeIconByBadgeType = (badgeType) => {
     switch (badgeType) {
       case 'Created First Flashcard':
-        return EnergyUp;
+        return <EnergyUp />;
       case 'Bronze Flashcard Achievement':
-        return Badge50;
+        return <Badge50 />;
       case '...':
-        return OnFire;
+        return <OnFire />;
 
       default:
         return undefined;
@@ -109,7 +109,7 @@ export default function WeeklySummary(props) {
         marginBottom={{ base: '26px', md: 'none' }}
       >
         <Flex gap={1} p={3} h="60px">
-          <Image src={summary} />
+          <Summary />
           <Text fontSize={'20px'} fontWeight={600}>
             Weekly Summary
           </Text>
@@ -273,7 +273,7 @@ export default function WeeklySummary(props) {
                         {' '}
                         <Center py={4}>
                           <VStack>
-                            <Image src={getBadgeIconByBadgeType(slide.name)} />
+                            {getBadgeIconByBadgeType(slide.name)}
                             <Text
                               fontSize="12px"
                               fontWeight={400}
@@ -302,7 +302,7 @@ export default function WeeklySummary(props) {
               borderBottomRadius={'10px'}
             >
               <Flex h="16px" alignItems={'center'} gap={1} direction="row">
-                <img src={Flash} alt="feed-icon" />
+                <Flash />
                 <Text fontSize={14} fontWeight={400} color="text.300">
                   Current streak:
                 </Text>
@@ -317,7 +317,7 @@ export default function WeeklySummary(props) {
         ) : (
           <Box textAlign={'center'} px={20} mt={5}>
             <VStack spacing={5}>
-              <Image src={EmptyFlashcard} />
+              <EmptyFlashcard />
               <Text fontSize={13} fontWeight={500} color="text.400">
                 Monitor your flashcard performance. You currently have no
                 flashcards.

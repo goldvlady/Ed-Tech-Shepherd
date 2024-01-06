@@ -1,6 +1,4 @@
-import TutorAvi from '../../assets/tutoravi.svg';
 import { useTitle } from '../../hooks';
-import ApiService from '../../services/ApiService';
 import offerStore from '../../state/offerStore';
 import Pagination from './components/Pagination';
 import TutorCard from './components/TutorCard';
@@ -9,7 +7,6 @@ import {
   Flex,
   Image,
   SimpleGrid,
-  Spinner,
   Tab,
   TabList,
   TabPanel,
@@ -19,13 +16,14 @@ import {
 } from '@chakra-ui/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import React, { useEffect, useState, useCallback } from 'react';
+import ShepherdSpinner from './components/shepherd-spinner';
 
 function MyTutors() {
   useTitle('My Shepherds');
   const [allTutors, setAllTutors] = useState<any>([]);
   const [loadingData, setLoadingData] = useState(false);
   const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(5);
+  const [limit, setLimit] = useState<number>(30);
   const [count, setCount] = useState<number>(5);
   const [days, setDays] = useState<Array<any>>([]);
   const { fetchOffers, offers, isLoading, pagination } = offerStore();
@@ -60,7 +58,7 @@ function MyTutors() {
           height: '100vh'
         }}
       >
-        <Spinner />
+        <ShepherdSpinner />
       </Box>
     );
   }

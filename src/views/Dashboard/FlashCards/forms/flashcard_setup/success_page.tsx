@@ -12,7 +12,7 @@ const SuccessState = ({ reset }: { reset: () => void }) => {
       (flashcard) => flashcard.deckname === flashcardData.deckname
     );
     if (flashcard) {
-      loadFlashcard(flashcard._id);
+      loadFlashcard(flashcard._id, false);
     }
   };
 

@@ -74,7 +74,7 @@ const Root = styled(VStack)`
 interface NavItemProps extends FlexProps {
   icon?: IconType;
   children: any;
-  path: string;
+  path?: string;
 }
 const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
   return (
@@ -99,7 +99,7 @@ const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
           color: '#207DF7'
         }}
         fontSize={14}
-        color="text.400"
+        color={'text.400'}
         fontWeight={500}
         {...rest}
       >
@@ -120,7 +120,7 @@ const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
 };
 
 type Props = React.ComponentProps<typeof Root> & {
-  items: Array<{ title: string; path: string }>;
+  items: Array<{ title: string; path: string; onClick?: () => void }>;
 };
 
 const MenuLinedList: React.FC<Props> = ({ items, ...rest }) => {
@@ -128,11 +128,17 @@ const MenuLinedList: React.FC<Props> = ({ items, ...rest }) => {
     <Root spacing="0px" {...rest} alignItems="flex-start">
       {items.map((i, idx) => (
         <>
-          <Title>
-            <NavItem path={i.path} key={idx}>
-              {i.title}
-            </NavItem>
-          </Title>
+          {i.onClick ? (
+            <Title onClick={() => i.onClick()}>
+              <NavItem key={idx}>{i.title}</NavItem>
+            </Title>
+          ) : (
+            <Title>
+              <NavItem path={i.path} key={idx}>
+                {i.title}
+              </NavItem>
+            </Title>
+          )}
         </>
       ))}
     </Root>

@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
+import PlansModal from '../../../components/PlansModal';
 import { FlashCardModal } from '../../../components/flashcardDecks';
 import LoaderOverlay from '../../../components/loaderOverlay';
 import ApiService from '../../../services/ApiService';
@@ -9,6 +10,7 @@ import FlashcardDataProvider from './context/flashcard';
 import { useFlashcardWizard } from './context/flashcard';
 import MnemonicSetupProvider from './context/mneomics';
 import SetupFlashcardPage from './forms/flashcard_setup';
+import AnkiType from './forms/flashcard_setup/anki_type';
 import FlashcardFromDocumentSetup from './forms/flashcard_setup/document_type';
 import LoaderScreen from './forms/flashcard_setup/loader_page';
 import SuccessState from './forms/flashcard_setup/success_page';
@@ -16,7 +18,16 @@ import MnemonicSetup from './forms/mneomics_setup';
 import InitSetupPreview from './previews/init.preview';
 import MnemonicPreview from './previews/mneomics.preview';
 import QuestionsPreview from './previews/questions.preview';
-import { Box, HStack, Text, Radio, RadioGroup, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  HStack,
+  Text,
+  Radio,
+  RadioGroup,
+  VStack,
+  Center,
+  Icon
+} from '@chakra-ui/react';
 import {
   useState,
   useEffect,
@@ -27,6 +38,7 @@ import {
 } from 'react';
 import { useParams, useLocation } from 'react-router';
 import styled from 'styled-components';
+import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
 
 const Wrapper = styled(Box)`
   select {
@@ -73,7 +85,8 @@ export enum TypeEnum {
 export enum SourceEnum {
   DOCUMENT = 'document',
   SUBJECT = 'subject',
-  MANUAL = 'manual'
+  MANUAL = 'manual',
+  ANKI = 'anki'
 }
 
 type SettingsType = {
@@ -110,8 +123,26 @@ const useBoxWidth = (ref: RefObject<HTMLDivElement>): number => {
 const CreateFlashPage = () => {
   const toast = useCustomToast();
   const { user } = userStore();
+  const { hasActiveSubscription } = userStore.getState();
   const location = useLocation();
 
+  const [isHovering, setIsHovering] = useState(false);
+  const [togglePlansModal, setTogglePlansModal] = useState(false);
+  const [plansModalMessage, setPlansModalMessage] = useState('');
+  const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
+
+  const handleLockClick = () => {
+    setTogglePlansModal(true);
+  };
+
+  useEffect(() => {
+    if (!hasActiveSubscription) {
+      // Set messages and show the modal if the user has no active subscription
+      setPlansModalMessage('Pick a plan to access your AI Study Tools! 🚀');
+      setPlansModalSubMessage('Get started today for free!');
+      setTogglePlansModal(true);
+    }
+  }, [user.subscription]);
   // const [settings, setSettings] = useState<SettingsType>({
   //   type: TypeEnum.INIT,
   //   source: SourceEnum.SUBJECT
@@ -284,6 +315,9 @@ const CreateFlashPage = () => {
     if (settings.source === SourceEnum.DOCUMENT) {
       return <FlashcardFromDocumentSetup isAutomated />;
     }
+    if (settings.source === SourceEnum.ANKI) {
+      return <AnkiType />;
+    }
     return <></>;
   }, [settings, isCompleted, resetFlashcard, loading, currentStep]); // The callback depends on 'settings'
 
@@ -319,168 +353,245 @@ const CreateFlashPage = () => {
   const onSwitchMobile = useCallback(() => {
     setSwitchMobile((prevState) => !prevState);
   }, [setSwitchMobile]);
-  return (
-    <Box width={'100%'}>
-      {isLoading && <LoaderOverlay />}
-      <Wrapper
-        ref={wrapperRef}
-        bg="white"
-        width="100%"
-        display="flex"
-        position={'relative'}
-        justifyContent="space-between"
-        flexDirection={{ base: 'column', md: 'row' }} // Add this line
-        alignItems="center"
-        minH="calc(100vh - 60px)"
-      >
-        <HStack
-          justifyContent={'start'}
-          alignItems={'start'}
-          width={switchonMobile ? '100%' : 'auto'}
-          display={'flex'}
+
+  if (!hasActiveSubscription) {
+    return (
+      <Center height="100vh" width="100%">
+        <Box display={'flex'} flexDirection={'column'} alignItems={'center'}>
+          <Icon
+            as={isHovering ? RiLockUnlockFill : RiLockFill}
+            fontSize="100px"
+            color="#fc9b65"
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
+            onClick={handleLockClick}
+            cursor="pointer"
+          />
+          <Text
+            mt="20px"
+            fontSize="20px"
+            fontWeight="bold"
+            color={'lightgrey'}
+            textAlign="center"
+          >
+            Unlock your full potential today!
+          </Text>
+        </Box>
+        {togglePlansModal && (
+          <PlansModal
+            togglePlansModal={togglePlansModal}
+            setTogglePlansModal={setTogglePlansModal}
+            message={plansModalMessage}
+            subMessage={plansModalSubMessage}
+          />
+        )}
+      </Center>
+    );
+  } else {
+    return (
+      <Box width={'100%'}>
+        {isLoading && <LoaderOverlay />}
+        <Wrapper
+          ref={wrapperRef}
+          bg="white"
+          width="100%"
+          display="flex"
+          position={'relative'}
+          justifyContent="space-between"
+          flexDirection={{ base: 'column', md: 'row' }} // Add this line
+          alignItems="center"
           minH="calc(100vh - 60px)"
         >
-          <VStack
-            display={'flex'}
+          <HStack
             justifyContent={'start'}
-            alignItems={'center'}
-            height="100%"
-            flex="1"
-            maxWidth={{ md: `${boxWidth / 2}px`, base: '100%' }}
-            position={'relative'}
+            alignItems={'start'}
+            width={switchonMobile ? '100%' : 'auto'}
+            display={'flex'}
+            minH="calc(100vh - 60px)"
           >
-            {activeBadge !== TypeEnum.MNEOMONIC && (
-              <Box
-                display={'flex'}
-                borderBottom={'1px solid #E7E8E9'}
-                flexDirection={'column'}
-                width={'100%'}
-                padding="30px"
-              >
+            <VStack
+              // display={'flex'}
+              justifyContent={'start'}
+              alignItems={'center'}
+              height="100%"
+              // flex="1"
+              // maxWidth={{ md: `${boxWidth / 2}px`, base: '100%' }}
+              minWidth={{ md: '50%', sm: '100%' }}
+              position={'relative'}
+            >
+              {activeBadge !== TypeEnum.MNEOMONIC && (
                 <Box
                   display={'flex'}
+                  borderBottom={'1px solid #E7E8E9'}
+                  flexDirection={'column'}
                   width={'100%'}
-                  justifyContent="space-between"
-                  alignItems="center"
+                  padding="30px"
                 >
-                  <Text
-                    fontFamily="Inter"
-                    fontWeight="500"
-                    fontSize="18px"
-                    lineHeight="23px"
-                    color="#212224"
-                    mb={4}
+                  <Box
+                    display={'flex'}
+                    width={'100%'}
+                    justifyContent="space-between"
+                    alignItems="center"
                   >
-                    Select a Source
-                  </Text>
-                  <Text
-                    fontFamily="Inter"
-                    fontWeight="500"
-                    fontSize="12px"
-                    lineHeight="23px"
-                    color="#212224"
-                    mb={4}
-                    display={{ base: 'flex', md: 'none' }}
-                    alignItems={{ base: 'center' }}
-                    border={'1px solid #E7E8E9'}
-                    padding="8px"
-                    borderRadius={'10%'}
-                    onClick={onSwitchMobile}
-                  >
-                    View FlashCards & Mnemonics
-                  </Text>
-                </Box>
+                    <Text
+                      fontFamily="Inter"
+                      fontWeight="500"
+                      fontSize="18px"
+                      lineHeight="23px"
+                      color="#212224"
+                      mb={4}
+                    >
+                      Select a Source
+                    </Text>
+                    <Text
+                      fontFamily="Inter"
+                      fontWeight="500"
+                      fontSize="12px"
+                      lineHeight="23px"
+                      color="#212224"
+                      mb={4}
+                      display={{ base: 'flex', md: 'none' }}
+                      alignItems={{ base: 'center' }}
+                      border={'1px solid #E7E8E9'}
+                      padding="8px"
+                      borderRadius={'10%'}
+                      onClick={onSwitchMobile}
+                    >
+                      View FlashCards & Mnemonics
+                    </Text>
+                  </Box>
 
-                <RadioGroup
-                  onChange={(value: SourceEnum) => {
-                    setSource(value as SourceEnum);
-                    if (
-                      value === SourceEnum.SUBJECT &&
-                      settings.source !== SourceEnum.SUBJECT
-                    ) {
-                      goToStep(0);
-                      setFlashcardData((value) => ({
-                        ...value,
-                        hasSubmitted: false
-                      }));
-                    }
-                    if (value === SourceEnum.DOCUMENT) {
-                      handleBadgeClick(TypeEnum.FLASHCARD);
+                  <RadioGroup
+                    onChange={(value: SourceEnum) => {
+                      setSource(value as SourceEnum);
+                      if (
+                        value === SourceEnum.SUBJECT &&
+                        settings.source !== SourceEnum.SUBJECT
+                      ) {
+                        goToStep(0);
+                        setFlashcardData((value) => ({
+                          ...value,
+                          hasSubmitted: false
+                        }));
+                      }
+                      // if (value === SourceEnum.DOCUMENT) {
+                      //   handleBadgeClick(TypeEnum.FLASHCARD);
+                      // }
+                    }}
+                    value={settings.source}
+                  >
+                    <HStack align="start" spacing={7}>
+                      <Radio value={SourceEnum.DOCUMENT}>
+                        <Text color="#585F68">Document</Text>
+                      </Radio>
+                      <Radio value={SourceEnum.SUBJECT}>
+                        <Text color="#585F68">Auto</Text>
+                      </Radio>
+                      <Radio value={SourceEnum.MANUAL}>
+                        <Text color="#585F68">Manual</Text>
+                      </Radio>
+                      {user.subscription &&
+                        user.subscription.tier === 'Premium' && (
+                          <Radio value={SourceEnum.ANKI}>
+                            <Text color="#585F68">Anki</Text>
+                          </Radio>
+                        )}
+                    </HStack>
+                  </RadioGroup>
+                </Box>
+              )}
+              {switchonMobile ? (
+                <Box
+                  py="45px"
+                  paddingX={'30px'}
+                  boxShadow="0px 0px 10px rgba(0, 0, 0, 0.2)"
+                  width="95%"
+                  borderRadius="10px"
+                  height="70vh"
+                  position={'absolute'}
+                  top="135px"
+                  overflowY="scroll"
+                  sx={{
+                    '::-webkit-scrollbar': {
+                      width: '4px',
+                      cursor: 'pointer',
+                      transition: 'opacity 0.3s ease-in-out',
+                      opacity: 0 // Initially set the opacity to 0
+                    },
+                    '::-webkit-scrollbar-thumb': {
+                      background: '#E7E8E9',
+                      borderRadius: '16px',
+                      cursor: 'pointer',
+                      transition: 'background 0.3s ease-in-out'
+                    },
+                    '::-webkit-scrollbar-track': {
+                      background: 'transparent',
+                      cursor: 'pointer'
+                    },
+                    '&:hover': {
+                      '::-webkit-scrollbar': {
+                        opacity: 1 // Set the opacity to 1 on hover
+                      }
                     }
                   }}
-                  value={settings.source}
                 >
-                  <HStack align="start" spacing={7}>
-                    <Radio value={SourceEnum.DOCUMENT}>
-                      <Text color="#585F68">Document</Text>
-                    </Radio>
-                    <Radio value={SourceEnum.SUBJECT}>
-                      <Text color="#585F68">Auto</Text>
-                    </Radio>
-                    <Radio value={SourceEnum.MANUAL}>
-                      <Text color="#585F68">Manual</Text>
-                    </Radio>
-                  </HStack>
-                </RadioGroup>
-              </Box>
-            )}
-            {switchonMobile ? (
-              <Box
-                py="45px"
-                paddingX={'30px'}
-                boxShadow="0px 0px 10px rgba(0, 0, 0, 0.2)"
-                width="95%"
-                borderRadius="10px"
-                height="70vh"
-                overflowY="scroll"
-                sx={{
-                  '::-webkit-scrollbar': {
-                    display: 'none'
-                  },
-                  'scrollbar-width': 'none',
-                  '-ms-overflow-style': 'none'
-                }}
-              >
-                {form}
-              </Box>
-            ) : (
-              <Box
-                py="45px"
-                paddingX={'30px'}
-                boxShadow="0px 0px 10px rgba(0, 0, 0, 0.2)"
-                width="95%"
-                borderRadius="10px"
-                height="80vh"
-                overflowY="scroll"
-                sx={{
-                  '::-webkit-scrollbar': {
-                    display: 'none'
-                  },
-                  'scrollbar-width': 'none',
-                  '-ms-overflow-style': 'none'
-                }}
-              >
-                {renderPreview()}
-              </Box>
-            )}
-          </VStack>
-          {/* Render the right item here */}
-          <VStack
-            borderLeft="1px solid #E7E8E9"
-            top="60px"
-            width={`${boxWidth / 2}px`}
-            maxWidth={`${boxWidth / 2}px`}
-            right="0"
-            bottom={'0'}
-            position={'fixed'}
-            display={{ base: 'none', md: 'flex' }}
-          >
-            {renderPreview()}
-          </VStack>
-        </HStack>
-      </Wrapper>
-    </Box>
-  );
+                  {form}
+                </Box>
+              ) : (
+                <Box
+                  py="45px"
+                  paddingX={'30px'}
+                  boxShadow="0px 0px 10px rgba(0, 0, 0, 0.2)"
+                  width="95%"
+                  borderRadius="10px"
+                  height="80vh"
+                  overflowY="scroll"
+                  sx={{
+                    '::-webkit-scrollbar': {
+                      width: '4px',
+                      cursor: 'pointer',
+                      transition: 'opacity 0.3s ease-in-out',
+                      opacity: 0 // Initially set the opacity to 0
+                    },
+                    '::-webkit-scrollbar-thumb': {
+                      background: '#E7E8E9',
+                      borderRadius: '16px',
+                      cursor: 'pointer',
+                      transition: 'background 0.3s ease-in-out'
+                    },
+                    '::-webkit-scrollbar-track': {
+                      background: 'transparent',
+                      cursor: 'pointer'
+                    },
+                    '&:hover': {
+                      '::-webkit-scrollbar': {
+                        opacity: 1 // Set the opacity to 1 on hover
+                      }
+                    }
+                  }}
+                >
+                  {renderPreview()}
+                </Box>
+              )}
+            </VStack>
+            {/* Render the right item here */}
+            <VStack
+              borderLeft="1px solid #E7E8E9"
+              top="60px"
+              width={`${boxWidth / 2}px`}
+              maxWidth={`${boxWidth / 2}px`}
+              right="0"
+              bottom={'0'}
+              position={'fixed'}
+              display={{ base: 'none', md: 'flex' }}
+            >
+              {renderPreview()}
+            </VStack>
+          </HStack>
+        </Wrapper>
+      </Box>
+    );
+  }
 };
 
 const MainWrapper = () => {

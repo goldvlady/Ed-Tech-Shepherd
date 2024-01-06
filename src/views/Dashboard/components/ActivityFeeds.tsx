@@ -81,20 +81,36 @@ function ActivityFeeds(props) {
     setToggleHelpModal(true);
   };
   const navigate = useNavigate();
-  const getFileName = (url: string) => {
-    const lastSlashIndex = url?.lastIndexOf('/');
-    const textAfterLastSlash = url?.substring(lastSlashIndex + 1);
+  const getFileName = (url) => {
+    const isFirebaseStorageUrl = url.includes('firebasestorage.googleapis.com');
+    const isAmazonS3Url = url.includes('amazonaws.com');
 
-    const startIndex = textAfterLastSlash.indexOf('%2F') + '%2F'.length;
-    const endIndex = textAfterLastSlash.indexOf('?alt');
-    const extractedText = textAfterLastSlash.substring(startIndex, endIndex);
+    if (isFirebaseStorageUrl) {
+      const startIndex = url.lastIndexOf('%2F'); // Adjust the start index
+      const endIndex = url.indexOf('?alt');
+      const extractedText = url.substring(startIndex, endIndex);
 
-    const result = extractedText.replace(/%20/g, ' ');
+      const result = extractedText.replace(/%20/g, ' ').replace(/%2F/g, '');
+      if (result.length > 30) {
+        return result.substring(0, 20) + '...';
+      } else {
+        return result;
+      }
+    } else if (isAmazonS3Url) {
+      const lastSlashIndex = url.lastIndexOf('/');
+      const textAfterLastSlash = url.substring(lastSlashIndex + 1);
 
-    if (result.length > 30) {
-      return result.substring(0, 20) + '...';
-    } else {
-      return result;
+      const startIndex = textAfterLastSlash.indexOf('%2F'); // Adjust the start index
+      const endIndex = textAfterLastSlash.length;
+      const extractedText = textAfterLastSlash.substring(startIndex, endIndex);
+
+      const result = extractedText.replace(/%20/g, ' ').replace(/%2F/g, '');
+
+      if (result.length > 30) {
+        return result.substring(0, 20) + '...';
+      } else {
+        return result;
+      }
     }
   };
 
@@ -106,15 +122,17 @@ function ActivityFeeds(props) {
   const getIconByActivityType = (activityType) => {
     switch (activityType) {
       case 'documents':
-        return DocIcon;
+        return <DocIcon />;
       case 'notes':
-        return NoteIcon;
+        return <NoteIcon />;
       case 'payments':
-        return ReceiptIcon;
+        return <ReceiptIcon />;
       case 'flashcards':
-        return FlashcardIcon;
+        return <FlashcardIcon />;
       case 'bounty':
-        return BountyChat;
+        return <BountyChat />;
+      case 'quiz':
+        return <NoteIcon />;
       default:
         return undefined;
     }
@@ -123,15 +141,17 @@ function ActivityFeeds(props) {
   const getFileIconByActivityType = (activityType) => {
     switch (activityType) {
       case 'documents':
-        return AdobeIcon;
+        return <AdobeIcon />;
       case 'notes':
-        return NoteSmIcon;
+        return <NoteSmIcon />;
       case 'payments':
-        return ReceiptSmIcon;
+        return <ReceiptSmIcon />;
       case 'flashcards':
-        return FlashcardSmIcon;
+        return <FlashcardSmIcon />;
       case 'bounty':
-        return ReceiptSmIcon;
+        return <ReceiptSmIcon />;
+      case 'quiz':
+        return <ReceiptSmIcon />;
       default:
         return undefined;
     }
@@ -149,6 +169,8 @@ function ActivityFeeds(props) {
         return `You made a payment of $10.95 to Leslie Peters for Chemistry lessons`;
       case 'flashcards':
         return `You created a new flashcard deck "${link}" `;
+      case 'quiz':
+        return `You created a new quiz "${link}" `;
       case 'bounty':
         return isTutor
           ? `Click here to begin your session`
@@ -199,16 +221,16 @@ function ActivityFeeds(props) {
     }
   }, [isTutor, feedPeriod, feeds?.data]);
 
+  const { fetchSingleFlashcard } = flashcardStore();
+
   return (
     <>
       <Box>
         <Flex alignItems="center">
           <HStack mb={2}>
-            <Image
-              src={userType === 'Student' ? FeedIcon : WalletIcon}
-              alt="feed-icon"
-              width={5}
-            />
+            <Box w={5}>
+              {userType === 'Student' ? <FeedIcon /> : <WalletIcon />}
+            </Box>
 
             <Text fontSize={16} fontWeight={500} mx={2}>
               {userType === 'Student' ? 'Activity Feed' : 'Recent Transactions'}
@@ -255,12 +277,9 @@ function ActivityFeeds(props) {
             .map((feed: any, index) => (
               <>
                 <Root px={3} my={4} key={index}>
-                  <Image
-                    src={getIconByActivityType(feed.activityType)}
-                    alt="doc"
-                    maxHeight={45}
-                    zIndex={1}
-                  />
+                  <Box maxHeight={45} zIndex={1}>
+                    {getIconByActivityType(feed.activityType)}
+                  </Box>
                   <Stack direction={'column'} px={4} spacing={1}>
                     <Text color="text.300" fontSize={12} mb={0}>
                       <TimeAgo timestamp={feed.updatedAt} />
@@ -297,28 +316,26 @@ function ActivityFeeds(props) {
                             navigateToChat();
                           }
                         } else if (feed.activityType === 'documents') {
-                          navigate(`/dashboard/new-note`, {
+                          navigate(`/dashboard/notes/new-note`, {
                             state: {
                               documentUrl: feed.link,
                               docTitle: getFileName(feed.link)
                             }
                           });
-                        } else {
+                        } else if (feed.activityType === 'quiz') {
                           navigate(
-                            `${
-                              feed.activityType === 'bounty'
-                                ? `${feed.link}`
-                                : `/dashboard/flashcards/${feed.flashcard}`
-                            }`
+                            `/dashboard/quizzes/take?quiz_id=${feed.quiz}`
                           );
+                        } else if (feed.activityType === 'flashcards') {
+                          fetchSingleFlashcard(feed.flashcard);
+                        } else {
+                          navigate(`${feed.link}`);
                         }
                       }}
                     >
                       <Flex mt={2.5} gap={1}>
                         <Text>
-                          <Image
-                            src={getFileIconByActivityType(feed.activityType)}
-                          />
+                          {getFileIconByActivityType(feed.activityType)}
                         </Text>
 
                         <Text fontWeight={500} fontSize={12} color="#73777D">
@@ -338,7 +355,7 @@ function ActivityFeeds(props) {
           <Center h="400px">
             <Box textAlign={'center'} px={20} mt={5}>
               <VStack spacing={5}>
-                <Image src={EmptyFeeds} />
+                <EmptyFeeds />
                 <Text fontSize={13} fontWeight={500} color="text.400">
                   {userType === 'Student'
                     ? 'Get started with our AI tools'

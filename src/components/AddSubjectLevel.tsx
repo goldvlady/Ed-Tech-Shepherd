@@ -7,12 +7,17 @@ import {
   FormLabel,
   HStack,
   Input,
-  Select
+  Select,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import React from 'react';
 import { useEffect } from 'react';
 import { useState, useCallback } from 'react';
+import { FiChevronDown } from 'react-icons/fi';
 import { RiCloseCircleLine } from 'react-icons/ri';
 
 function AddSubjectLevel(props) {
@@ -24,7 +29,6 @@ function AddSubjectLevel(props) {
     addSubject
   } = props;
   const { courses: courseList, levels } = resourceStore();
-  console.log(subjectLevels, 'null');
 
   const variants = {
     hidden: { opacity: 0, y: -20 },
@@ -56,16 +60,36 @@ function AddSubjectLevel(props) {
                   >
                     Subject
                   </FormLabel>
-                  <CustomSelect
-                    value={subjectLevel.course.label}
-                    onChange={(e) => handleSubjectChange(index, e.target.value)}
-                    placeholder="Select subject "
-                  >
-                    {' '}
-                    {courseList.map((course) => (
-                      <option value={course.label}>{course.label}</option>
-                    ))}
-                  </CustomSelect>
+
+                  <Menu>
+                    <MenuButton
+                      as={Button}
+                      variant="outline"
+                      rightIcon={<FiChevronDown />}
+                      borderRadius="8px"
+                      fontSize="0.875rem"
+                      fontFamily="Inter"
+                      color="#212224"
+                      fontWeight="400"
+                      width="100%"
+                      height="42px"
+                      textAlign="left"
+                    >
+                      {subjectLevel.course.label || 'Select subject'}
+                    </MenuButton>
+                    <MenuList>
+                      {courseList.map((course) => (
+                        <MenuItem
+                          key={course.label}
+                          onClick={() =>
+                            handleSubjectChange(index, course.label)
+                          }
+                        >
+                          {course.label}
+                        </MenuItem>
+                      ))}
+                    </MenuList>
+                  </Menu>
                 </FormControl>
                 <FormControl>
                   <FormLabel
@@ -78,15 +102,33 @@ function AddSubjectLevel(props) {
                   >
                     Level
                   </FormLabel>
-                  <CustomSelect
-                    value={subjectLevel.level?.label}
-                    onChange={(e) => handleLevelChange(index, e.target.value)}
-                    placeholder="Select Level "
-                  >
-                    {levels.map((level) => (
-                      <option value={level.label}>{level.label}</option>
-                    ))}
-                  </CustomSelect>
+                  <Menu>
+                    <MenuButton
+                      as={Button}
+                      variant="outline"
+                      rightIcon={<FiChevronDown />}
+                      borderRadius="8px"
+                      fontSize="0.875rem"
+                      fontFamily="Inter"
+                      color="#212224"
+                      fontWeight="400"
+                      width="100%"
+                      height="42px"
+                      textAlign="left"
+                    >
+                      {subjectLevel.level?.label || 'Select Level'}
+                    </MenuButton>
+                    <MenuList>
+                      {levels.map((level) => (
+                        <MenuItem
+                          key={level.label}
+                          onClick={() => handleLevelChange(index, level.label)}
+                        >
+                          {level.label}
+                        </MenuItem>
+                      ))}
+                    </MenuList>
+                  </Menu>
                 </FormControl>
                 {subjectLevels.length > 1 && (
                   <RiCloseCircleLine

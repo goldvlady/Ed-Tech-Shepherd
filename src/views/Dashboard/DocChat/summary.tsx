@@ -1,20 +1,20 @@
-import { ReactComponent as CopyIcn } from '../../../assets/copy.svg';
-import { ReactComponent as DeleteIcn } from '../../../assets/deleteIcn.svg';
-import { ReactComponent as EditIcn } from '../../../assets/editIcn.svg';
-import { ReactComponent as GenerateIcn } from '../../../assets/generateIcn.svg';
-import { ReactComponent as SummaryIcn } from '../../../assets/summaryIcn1.svg';
+import CopyIcn from '../../../assets/copy.svg?react';
+import DeleteIcn from '../../../assets/deleteIcn.svg?react';
+import EditIcn from '../../../assets/editIcn.svg?react';
+import GenerateIcn from '../../../assets/generateIcn.svg?react';
+import SummaryIcn from '../../../assets/summaryIcn1.svg?react';
 import CustomButton from '../../../components/CustomComponents/CustomButton';
 import CustomMarkdownView from '../../../components/CustomComponents/CustomMarkdownView';
 import { copierHandler } from '../../../helpers';
+import ShepherdSpinner from '../components/shepherd-spinner';
 import {
   DefaultSummaryContainer,
   EmptyStateContainer,
   IconContainer,
   PageCount,
-  SummaryContainer,
   SummaryContainer2
 } from './styles';
-import { Box, Spinner } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 // import { ChevronRightIcon, ChevronLeftIcon } from '@chakra-ui/icons';
 import React, { useState, useCallback } from 'react';
 
@@ -98,14 +98,14 @@ const Summary = ({
                 height: '100vh'
               }}
             >
-              <Spinner />
+              <ShepherdSpinner />
             </Box>
           )}
           {!loading && (
             <>
               {!isEdit ? (
                 <SummaryContainer2
-                  value={summaryTexts}
+                  value={summaryTexts?.replace(/null/g, '')}
                   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                   onChange={(event) => setSummaryText(event.target.value!)}
                 ></SummaryContainer2>
@@ -123,7 +123,7 @@ const Summary = ({
         <EmptyStateContainer>
           <div>
             <SummaryIcn />
-            <p>You’re yet to request for a summary</p>
+            {/* <p>You’re yet to request for a summary</p> */}
           </div>
           <div>
             <CustomButton

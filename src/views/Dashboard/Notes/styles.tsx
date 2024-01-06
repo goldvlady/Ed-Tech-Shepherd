@@ -1,5 +1,18 @@
 import theme from '../../../theme/';
+import { Box } from '@chakra-ui/react';
 import styled from 'styled-components';
+
+export const StyledImage = styled(Box)`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  border-radius: 50%;
+  height: 26px;
+  width: 26px;
+  border: 0.6px solid #eaeaeb;
+  box-shadow: 0 2px 10px rgba(63, 81, 94, 0.1);
+`;
 
 export const Header = styled.header`
   display: flex;

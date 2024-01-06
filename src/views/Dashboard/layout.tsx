@@ -1,28 +1,21 @@
+import BarnImg from '../../assets/Barn.svg';
 import AskIcon from '../../assets/avatar-male.svg';
-import BellDot from '../../assets/bell-dot.svg';
-import FeedIcon from '../../assets/blue-energy.svg';
-import DocIcon from '../../assets/doc-icon.svg';
-import Doc from '../../assets/doc.svg';
-import FlashcardIcon from '../../assets/flashcardIcon.svg';
-import MessageIcon from '../../assets/message.svg';
-import NewNote from '../../assets/newnote.svg';
-import NoteIcon from '../../assets/notes.svg';
-import ReceiptIcon from '../../assets/receiptIcon.svg';
-import VideoIcon from '../../assets/video.svg';
+import BellDot from '../../assets/belldot.svg';
+import AIChatImg from '../../assets/brain.png';
+import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
 import { HelpModal } from '../../components';
+import { SelectedNoteModal } from '../../components';
 import Logo from '../../components/Logo';
 import ProfileSwitchModal from '../../components/ProfileSwitchModal';
-import { firebaseAuth } from '../../firebase';
+import { useStreamChat } from '../../providers/streamchat.provider';
 import userStore from '../../state/userStore';
 import FlashCardEventNotifier from './FlashCards/components/flashcard_event_notification';
-import TutorMarketplace from './Tutor';
-import AskShepherd from './components/AskShepherd';
 import MenuLinedList from './components/MenuLinedList';
 import Notifications from './components/Notifications';
 import useNotifications from './components/useNotification';
-import DashboardIndex from './index';
 import {
   Avatar,
+  Badge,
   Box,
   BoxProps,
   Button,
@@ -43,6 +36,11 @@ import {
   MenuDivider,
   MenuItem,
   MenuList,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalOverlay,
   Spacer,
   Stack,
   Text,
@@ -50,9 +48,10 @@ import {
   useDisclosure
 } from '@chakra-ui/react';
 import { getAuth, signOut } from 'firebase/auth';
-import React, { ReactNode, useState, useEffect, useCallback } from 'react';
+import { includes, last, split } from 'lodash';
+import React, { ReactNode, useState, useEffect } from 'react';
 import { IconType } from 'react-icons';
-import { BsChatLeftDots, BsPin, BsPlayCircle, BsBook } from 'react-icons/bs';
+import { BsChatLeftDots, BsPin, BsBook } from 'react-icons/bs';
 import { CgNotes } from 'react-icons/cg';
 import { FaBell } from 'react-icons/fa';
 import {
@@ -62,11 +61,14 @@ import {
   FiHome,
   FiMenu
 } from 'react-icons/fi';
+import { GiReceiveMoney, GiBarn } from 'react-icons/gi';
+import { LuBot, LuFileQuestion } from 'react-icons/lu';
+import { MdOutlineQuiz } from 'react-icons/md';
 import {
   MdOutlineKeyboardArrowDown,
   MdOutlineKeyboardArrowUp
 } from 'react-icons/md';
-import { TbClipboardText } from 'react-icons/tb';
+import { RiChat3Line } from 'react-icons/ri';
 import { TbCards } from 'react-icons/tb';
 import {
   Navigate,
@@ -75,97 +77,170 @@ import {
   useLocation,
   Link
 } from 'react-router-dom';
-
-const getComparisonPath = (pathname?: string) => {
-  if (!pathname) return '';
-  const pathParts = pathname.split('/').filter((f) => f);
-  if (pathParts.length === 1) {
-    return pathParts[0];
-  } else if (pathParts.length > 1) {
-    return pathParts[1];
-  }
-  return '';
-};
+import { PiClipboardTextLight } from 'react-icons/pi';
+import { RiFeedbackLine } from '@remixicon/react';
+import PlansModal from '../../components/PlansModal';
 
 interface LinkItemProps {
   name: string;
   icon: IconType;
   path: string;
+  requiresSubscription?: boolean;
 }
+
+const LinkItems: Array<LinkItemProps> = [
+  { name: 'Library', icon: BsBook, path: '/dashboard/library' },
+  { name: 'Notes', icon: CgNotes, path: '/dashboard/notes' },
+  {
+    name: 'Flashcards',
+    icon: TbCards,
+    path: '/dashboard/flashcards',
+    requiresSubscription: true
+  },
+  {
+    name: 'Quizzes',
+    icon: LuFileQuestion,
+    path: '/dashboard/quizzes',
+    requiresSubscription: true
+  }
+];
 interface SidebarProps extends BoxProps {
   onClose: () => void;
   toggleMenu: () => void;
+  toggleChatMenu: () => void;
+  toggleEarnMenu: () => void;
   tutorMenu: boolean;
   setTutorMenu: (value: boolean) => void;
+  aiChatMenu: boolean;
+  // setAiChatMenu: (value: boolean) => void;
+  earnMenu: boolean;
+  // setEarnMenu: (value: boolean) => void;
+  unreadCount: number;
+  openModal: (content: any) => void;
+  closeModal: () => void;
 }
-const LinkItems: Array<LinkItemProps> = [
-  { name: 'Shepherd Chats', icon: BsChatLeftDots, path: '/dashboard/messaging' }
-  // { name: 'Library', icon: BsPlayCircle, path: '/library' }
-];
-
-const LinkBItems: Array<LinkItemProps> = [
-  // { name: 'Performance', icon: FiBarChart2, path: '/dashboard/performance' },
-  // {
-  //   name: 'Study Plans',
-  //   icon: TbClipboardText,
-  //   path: '/dashboard/study-plans'
-  // },
-  { name: 'Notes', icon: CgNotes, path: '/dashboard/notes' },
-  { name: 'Flashcards', icon: TbCards, path: '/dashboard/flashcards' }
-];
-
 interface NavItemProps extends FlexProps {
   icon?: IconType;
+  type?: 'external' | 'internal';
   children: any;
   path: string;
+  isDisabled?;
+  isLocked?: boolean;
+  onLockedClick?: any;
+  message?: string;
+  subMessage?: string;
 }
-const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
+
+const NavItem = ({
+  icon,
+  path,
+  children,
+  type = 'internal', // default type to 'internal'
+  isLocked,
+  onLockedClick,
+  message,
+  subMessage,
+  isDisabled = false, // default isDisabled to 'false'
+  ...rest
+}: NavItemProps) => {
   const { pathname } = useLocation();
+  const [isHovering, setIsHovering] = useState(false);
 
-  // const isActive = path.includes(getComparisonPath(pathname));
-  const isActive = pathname === path;
+  const isActive =
+    pathname === path ||
+    (pathname.startsWith(path) && path.split('/').length > 2);
 
+  const onClick = (e) => {
+    // Prevent action if the item is disabled or locked
+    if (isDisabled || (isLocked && onLockedClick)) {
+      e.preventDefault();
+      if (isLocked) {
+        onLockedClick(message, subMessage);
+      }
+      return; // Stop the function if the item is disabled
+    }
+  };
+
+  // Update the styling to reflect a disabled state
+  const disabledStyle: any = isDisabled
+    ? {
+        cursor: 'not-allowed',
+        pointerEvents: 'none' // Prevents click events
+      }
+    : {};
+
+  const renderLinkContent = () => (
+    <Flex
+      align="center"
+      px="4"
+      py="2"
+      mx="4"
+      my="2"
+      borderRadius="lg"
+      role="group"
+      cursor={isDisabled ? 'not-allowed' : 'pointer'} // Change cursor based on disabled state
+      _hover={{
+        bg: isDisabled ? undefined : '#F0F6FE', // No background change when disabled
+        color: isDisabled ? undefined : '#207DF7' // No color change when disabled
+      }}
+      bg={isActive && !isDisabled ? '#F0F6FE' : 'transparent'} // No active state if disabled
+      color={isActive && !isDisabled ? '#207DF7' : 'text.400'}
+      fontSize={14}
+      fontWeight={isActive ? '500' : '400'}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+      {...rest}
+      {...disabledStyle} // Apply the disabled styling
+    >
+      {icon && (
+        <Icon
+          mr="4"
+          fontSize="16"
+          _groupHover={{
+            color: isDisabled ? undefined : '#207DF7' // No icon color change when disabled
+          }}
+          as={icon}
+        />
+      )}
+      {children}
+      {isLocked && (
+        <Icon
+          as={isHovering ? RiLockUnlockFill : RiLockFill}
+          ml="auto"
+          fontSize="18"
+          color="#fc9b65"
+        />
+      )}
+    </Flex>
+  );
+
+  // Render an anchor tag for external links to open them in a new tab
+  if (type === 'external' && !isDisabled) {
+    // Prevent external links if disabled
+    return (
+      <a
+        href={path}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ textDecoration: 'none', ...disabledStyle }} // Apply the disabled styling
+        onClick={onClick}
+      >
+        {renderLinkContent()}
+      </a>
+    );
+  }
+
+  // Render a react-router-dom Link for internal navigation
   return (
     <Link
       to={path}
-      style={{ textDecoration: 'none' }}
-      // _focus={{ boxShadow: "none" }}
+      style={{ textDecoration: 'none', ...disabledStyle }}
+      onClick={onClick}
     >
-      <Flex
-        align="center"
-        px="4"
-        py="2"
-        mx="4"
-        my="2"
-        borderRadius="lg"
-        role="group"
-        cursor="pointer"
-        _hover={{
-          bg: '#F0F6FE',
-          color: '#207DF7'
-        }}
-        bg={isActive ? '#F0F6FE' : 'transparent'}
-        color={isActive ? '#207DF7' : 'text.400'}
-        fontSize={14}
-        fontWeight={isActive ? '500' : '400'}
-        {...rest}
-      >
-        {icon && (
-          <Icon
-            mr="4"
-            fontSize="16"
-            _groupHover={{
-              color: '#207DF7'
-            }}
-            as={icon}
-          />
-        )}
-        {children}
-      </Flex>
+      {renderLinkContent()}
     </Link>
   );
 };
-
 interface MobileProps extends FlexProps {
   onOpen: () => void;
 }
@@ -181,40 +256,43 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
     setToggleProfileSwitchModal(true);
   };
   const navigate = useNavigate();
-  const { user, fetchUser } = userStore();
+  const { user, logoutUser } = userStore();
   const userId = user?._id || '';
   const { notifications, hasUnreadNotification, markAllAsRead } =
     useNotifications(userId);
 
-  console.log(notifications, hasUnreadNotification, 'fb not');
   const handleSignOut = () => {
     signOut(auth).then(() => {
       sessionStorage.clear();
       localStorage.clear();
+      logoutUser();
       navigate('/login');
     });
   };
 
-  // useEffect(() => {
-  //   doFetchUserData();
-  // }, [doFetchUserData]);
+  useEffect(() => {
+    const justSignedIn = sessionStorage.getItem('Just Signed in');
+    if (justSignedIn && justSignedIn === 'true') {
+      activateHelpModal();
+      sessionStorage.removeItem('Just Signed in');
+    }
+  }, []);
 
   // function handleMenuButtonClick(callback) {
   //   setTimeout(callback, 15000);
   // }
+
   return (
     <>
       <Flex
-        // ml={{ base: 0, md: 60 }}
         px={{ base: 4, md: 4 }}
         width={{ base: '100%', sm: '100%', md: 'calc(100vw - 250px)' }}
         height="20"
         alignItems="center"
-        zIndex={2}
+        zIndex={4}
         bg={useColorModeValue('white', 'gray.900')}
         borderBottomWidth="1px"
         borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
-        // justifyContent={{ base: "space-between", md: "flex-end" }}
         position="fixed"
         top="0"
         {...rest}
@@ -235,7 +313,8 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               transform: 'translateY(-2px)'
             }}
           >
-            <Image src={AskIcon} />
+            {/* <Image src={AskIcon} /> */}
+            {<AskIcon />}
             <Text> Ask Shep?</Text>
           </Flex>
         </Box>
@@ -252,15 +331,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             aria-label="open menu"
             icon={<FiMenu />}
           />
-          <Text
-            display={{ base: 'flex', md: 'none' }}
-            fontSize="2xl"
-            fontFamily="monospace"
-            fontWeight="bold"
-          >
-            {/* <Logo  />{' '} */}
-          </Text>
-          <Box display={{ base: 'flex', md: 'none' }}>
+          {/* <Box display={{ base: 'flex', md: 'none' }}>
             <Flex
               bgColor={'transparent'}
               color="text.400"
@@ -277,9 +348,9 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               }}
             >
               <Image src={AskIcon} />
-              <Text> Ask Shep?</Text>
+              <Text> Ask Sheps?</Text>
             </Flex>
-          </Box>
+          </Box> */}
           <HStack spacing={4}>
             <Box position="relative">
               {' '}
@@ -292,14 +363,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     variant="ghost"
                     aria-label="open menu"
                     color={'text.300'}
-                    icon={
-                      hasUnreadNotification ? (
-                        <Image src={BellDot} />
-                      ) : (
-                        <FaBell />
-                      )
-                    }
-                    // onClick={() => handleMenuButtonClick(markAllAsRead)}
+                    icon={hasUnreadNotification ? <BellDot /> : <FaBell />}
                   />
                 </MenuButton>
                 <MenuList
@@ -310,7 +374,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                 >
                   <Notifications
                     data={notifications}
-                    // handleRead={markAsRead}
                     handleAllRead={markAllAsRead}
                   />
                 </MenuList>
@@ -328,7 +391,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                 bg="#F4F5F5"
                 borderRadius={'40px'}
                 px={3}
-                // minWidth={"80px"}
               >
                 <HStack>
                   <Avatar
@@ -493,9 +555,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             </Menu>
           </HStack>
         </Flex>
-        {/* <Flex alignItems={"center"}>
-    
-    </Flex> */}
       </Flex>
       <HelpModal
         toggleHelpModal={toggleHelpModal}
@@ -512,10 +571,31 @@ const SidebarContent = ({
   onClose,
   tutorMenu,
   setTutorMenu,
+  aiChatMenu,
+  earnMenu,
   toggleMenu,
+  toggleChatMenu,
+  toggleEarnMenu,
+  unreadCount,
+  hasActiveSubscription,
+  handleLockedClick,
+  openModal,
+  closeModal,
   ...rest
-}: SidebarProps) => {
+}: SidebarProps & {
+  hasActiveSubscription: boolean;
+  handleLockedClick: (message: string, subMessage: string) => void;
+}) => {
   const { pathname } = useLocation();
+  const [showSelected, setShowSelected] = useState(false);
+
+  const handleShowSelected = () => {
+    setShowSelected(true);
+  };
+
+  const [isHovering, setIsHovering] = useState(false);
+
+  // const { unreadCount } = useStreamChat();
 
   return (
     <Box
@@ -537,6 +617,133 @@ const SidebarContent = ({
       <NavItem icon={FiHome} path={'/dashboard'}>
         Home
       </NavItem>
+      <Divider />
+      <Box
+        paddingLeft={8}
+        paddingRight={8}
+        color="text.400"
+        display={aiChatMenu ? 'block' : 'flex'}
+        alignItems="center"
+        justifyContent="space-between"
+        cursor="pointer"
+        onClick={
+          hasActiveSubscription
+            ? () => toggleChatMenu()
+            : () =>
+                handleLockedClick(
+                  'Pick a plan to access your AI Study Tools! 🚀',
+                  'Get started today for free!'
+                )
+        }
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      >
+        <Button
+          variant={'unstyled'}
+          display="flex"
+          alignSelf="start"
+          gap={'10px'}
+          leftIcon={<RiChat3Line width={18} />}
+          fontSize={14}
+          fontWeight={500}
+          onClick={
+            hasActiveSubscription
+              ? () => toggleChatMenu()
+              : () =>
+                  handleLockedClick(
+                    'Pick a plan to access your AI Study Tools! 🚀',
+                    'Get started today for free!'
+                  )
+          }
+          rightIcon={
+            aiChatMenu ? (
+              <MdOutlineKeyboardArrowUp />
+            ) : (
+              <MdOutlineKeyboardArrowDown />
+            )
+          }
+        >
+          AI Chat
+        </Button>
+        <Box display={aiChatMenu ? 'block' : 'none'} alignSelf="start">
+          <MenuLinedList
+            items={[
+              {
+                title: 'Docchat',
+                path: '',
+                onClick: handleShowSelected
+              },
+              {
+                title: 'AI tutor',
+                path: '/dashboard/ace-homework'
+              }
+            ]}
+          />
+        </Box>
+        {!hasActiveSubscription &&
+          (isHovering ? (
+            <Icon as={RiLockUnlockFill} fontSize="18" color="#fc9b65" />
+          ) : (
+            <Icon as={RiLockFill} fontSize="18" color="#fc9b65" />
+          ))}
+      </Box>
+      {LinkItems.map((link) => (
+        <NavItem
+          key={link.name}
+          icon={link.icon}
+          path={link.path}
+          isLocked={link.requiresSubscription && !hasActiveSubscription}
+          onLockedClick={
+            link.requiresSubscription
+              ? () =>
+                  handleLockedClick(
+                    'Pick a plan to access your AI Study Tools! 🚀',
+                    'Get started today for free!'
+                  )
+              : undefined
+          }
+        >
+          {link.name}
+        </NavItem>
+      ))}
+      {/* <NavItem
+        icon={PiClipboardTextLight}
+        path="/dashboard/study-plans"
+        isLocked={!hasActiveSubscription}
+        onLockedClick={() =>
+          handleLockedClick(
+            'Pick a plan to access your AI Study Tools! 🚀',
+            'Get started today for free!'
+          )
+        }
+      >
+        Study Plans
+      </NavItem> */}
+      <Box ml={8} color="text.400">
+        <Button
+          variant={'unstyled'}
+          display="flex"
+          gap={2}
+          leftIcon={<PiClipboardTextLight />}
+          // onClick={() => toggleChatMenu()}
+          fontSize={14}
+          fontWeight={400}
+        >
+          <Text>Study Plans</Text>
+          <Text
+            fontSize={10}
+            border="1px solid #fc9b65"
+            borderRadius={4}
+            color="#fc9b65"
+            alignSelf={'center'}
+            px={1}
+          >
+            Coming Soon
+          </Text>
+        </Button>
+      </Box>
+
+      <Divider />
       <Box ml={8} color="text.400">
         {' '}
         <Button
@@ -580,51 +787,161 @@ const SidebarContent = ({
           />
         </Box>
       </Box>
-      {LinkItems.map((link) => (
-        <>
-          <NavItem key={link.name} icon={link.icon} path={link.path}>
-            {link.name}
-          </NavItem>
-        </>
-      ))}{' '}
+
+      <NavItem icon={BsChatLeftDots} path="/dashboard/messaging">
+        Shepherd Chat
+        {unreadCount > 0 && ( // Display badge if there are unread messages
+          <Badge colorScheme="red" ml={2}>
+            {unreadCount}
+          </Badge>
+        )}
+      </NavItem>
+
       <Divider />
-      {LinkBItems.map((link) => (
-        <>
-          <NavItem
-            key={link.name}
-            icon={link.icon}
-            path={link.path}
-            // className={`${
-            //   pathname === link.path
-            //     ? 'bg-slate-100 text-primaryBlue'
-            //     : 'text-gray-400 hover:text-primaryBlue hover:bg-slate-100'
-            // } group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold`}
+
+      <Box ml={8} color="text.400">
+        <Button
+          cursor={'not-allowed'}
+          pointerEvents={'none'}
+          opacity={1}
+          variant={'unstyled'}
+          display="flex"
+          gap={2}
+          leftIcon={<BarnImg />}
+          onClick={() => openModal('Coming Soon!')}
+          fontSize={14}
+          fontWeight={400}
+        >
+          <Text>Barn</Text>
+          <Text
+            fontSize={10}
+            border="1px solid #fc9b65"
+            borderRadius={4}
+            color="#fc9b65"
+            alignSelf={'center'}
+            px={1}
           >
-            {link.name}
-          </NavItem>
-        </>
-      ))}{' '}
+            Coming Soon
+          </Text>
+        </Button>
+      </Box>
       <Divider />
-      <NavItem icon={BsPin} path={'/dashboard/pinned'}>
-        Pinned Notes
+      <NavItem
+        icon={RiFeedbackLine as unknown as IconType}
+        type="external"
+        path="https://shepherdtutors.canny.io/shepherd/p/feature-requests"
+      >
+        Feedback
       </NavItem>
-      <NavItem icon={BsBook} path={'/dashboard/library'}>
-        Library
-      </NavItem>
+
+      <Divider />
+      <Box ml={8} color="text.400">
+        <Button
+          variant={'unstyled'}
+          display="flex"
+          gap={'10px'}
+          leftIcon={<GiReceiveMoney />}
+          fontSize={14}
+          fontWeight={500}
+          onClick={() => toggleEarnMenu()}
+          rightIcon={
+            earnMenu ? (
+              <MdOutlineKeyboardArrowUp />
+            ) : (
+              <MdOutlineKeyboardArrowDown />
+            )
+          }
+        >
+          Earn with Shepherd
+        </Button>
+        <Box display={earnMenu ? 'block' : 'none'}>
+          <MenuLinedList
+            items={[
+              {
+                title: 'Become a Shepherd',
+                path: '/complete-profile'
+              },
+              {
+                title: 'Referral Program',
+                path: ''
+              }
+            ]}
+          />
+        </Box>
+      </Box>
+      {showSelected && (
+        <SelectedNoteModal show={showSelected} setShow={setShowSelected} />
+      )}
     </Box>
   );
 };
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [tutorMenu, setTutorMenu] = useState(false);
+  const [aiChatMenu, setAiChatMenu] = useState(false);
+  const [earnMenu, setEarnMenu] = useState(false);
   const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
   const { user }: any = userStore();
-  const { pathname } = useLocation();
+  const hasActiveSubscription = user?.subscription?.status === 'active';
+  const [togglePlansModal, setTogglePlansModal] = useState(false);
+  const [plansModalMessage, setPlansModalMessage] = useState('');
+  const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState('');
+
+  const openModal = (content) => {
+    setModalContent(content);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalContent('');
+  };
+
+  const handleLockedClick = (message, subMessage) => {
+    setPlansModalMessage(message);
+    setPlansModalSubMessage(subMessage);
+    setTogglePlansModal(true);
+  };
+
+  const {
+    unreadCount,
+    connectUserToChat,
+    userType,
+    setUserRoleInfo,
+    userRoleId,
+    userRoleToken
+  } = useStreamChat();
 
   const toggleMenu = () => {
     setTutorMenu(!tutorMenu);
   };
+  const toggleChatMenu = () => {
+    setAiChatMenu(!aiChatMenu);
+  };
+  const toggleEarnMenu = () => {
+    setEarnMenu(!earnMenu);
+    console.log(earnMenu);
+  };
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  useEffect(() => {
+    if (user) {
+      const role = user[userType];
+      const token = user.streamTokens?.find((token) => token.type === userType);
+      //@ts-ignore: petty ts check
+      setUserRoleInfo(role?._id, token?.token);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  useEffect(() => {
+    if (userRoleId && userRoleToken) {
+      connectUserToChat();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userRoleId, userRoleToken]);
 
   return (
     <>
@@ -635,9 +952,18 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <SidebarContent
               onClose={() => onClose}
               tutorMenu={tutorMenu}
+              aiChatMenu={aiChatMenu}
+              earnMenu={earnMenu}
               setTutorMenu={setTutorMenu}
-              toggleMenu={() => setTutorMenu(!tutorMenu)}
+              toggleMenu={toggleMenu}
+              toggleChatMenu={toggleChatMenu}
+              toggleEarnMenu={toggleEarnMenu}
               display={{ base: 'none', md: 'block' }}
+              unreadCount={unreadCount}
+              hasActiveSubscription={hasActiveSubscription}
+              handleLockedClick={handleLockedClick}
+              openModal={openModal}
+              closeModal={closeModal}
             />
             <Drawer
               autoFocus={false}
@@ -654,6 +980,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   tutorMenu={tutorMenu}
                   setTutorMenu={setTutorMenu}
                   toggleMenu={() => setTutorMenu(!tutorMenu)}
+                  aiChatMenu={aiChatMenu}
+                  // setAiChatMenu={setAiChatMenu}
+                  toggleChatMenu={toggleChatMenu}
+                  earnMenu={earnMenu}
+                  toggleEarnMenu={toggleEarnMenu}
+                  unreadCount={unreadCount}
+                  hasActiveSubscription={hasActiveSubscription}
+                  handleLockedClick={handleLockedClick}
+                  openModal={openModal}
+                  closeModal={closeModal}
                 />
               </DrawerContent>
             </Drawer>
@@ -669,6 +1005,23 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </Box>
         </Grid>
       </Flex>
+      {togglePlansModal && (
+        <PlansModal
+          togglePlansModal={togglePlansModal}
+          setTogglePlansModal={setTogglePlansModal}
+          message={plansModalMessage}
+          subMessage={plansModalSubMessage}
+        />
+      )}
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalCloseButton />
+          <ModalBody>
+            <p>{modalContent}</p>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 }

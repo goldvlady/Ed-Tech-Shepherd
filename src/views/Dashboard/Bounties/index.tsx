@@ -1,49 +1,30 @@
+import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import PaymentDialog, {
   PaymentDialogRef
 } from '../../../components/PaymentDialog';
-import {
-  PencilIcon,
-  SparklesIcon,
-  ArrowRightIcon,
-  EllipsistIcon
-} from '../../../components/icons';
 import { useTitle } from '../../../hooks';
 import ApiService from '../../../services/ApiService';
 import offerStore from '../../../state/offerStore';
 import userStore from '../../../state/userStore';
 import theme from '../../../theme';
-import TutorAvi from '../../assets/tutoravi.svg';
 import BountyOfferModal from '../components/BountyOfferModal';
 import Pagination from '../components/Pagination';
-import TutorCard from '../components/TutorCard';
 import StudentBountyCard from './StudentBountyCard';
 import {
   Alert,
   AlertDescription,
   AlertIcon,
-  Avatar,
   Box,
   Button,
-  Divider,
   Flex,
-  Image,
-  SimpleGrid,
-  Spinner,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
   Text,
-  VStack,
-  useToast,
   useDisclosure
 } from '@chakra-ui/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
-import { PlusIcon } from '@heroicons/react/24/outline';
 import { loadStripe } from '@stripe/stripe-js';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { MdInfo } from 'react-icons/md';
+import ShepherdSpinner from '../components/shepherd-spinner';
 
 function AllBounties() {
   useTitle('Bounties');
@@ -54,12 +35,14 @@ function AllBounties() {
   const [count, setCount] = useState<number>(5);
   const [days, setDays] = useState<Array<any>>([]);
   const { isLoading, pagination, bounties, fetchBountyOffers } = offerStore();
-  const { user } = userStore();
-  const toast = useToast();
+  const { user, fetchUser } = userStore();
+  const toast = useCustomToast();
   const [settingUpPaymentMethod, setSettingUpPaymentMethod] = useState(false);
 
   //Payment Method Handlers
   const paymentDialogRef = useRef<PaymentDialogRef>(null);
+
+  console.log(paymentDialogRef);
   const url: URL = new URL(window.location.href);
   const params: URLSearchParams = url.searchParams;
   const clientSecret = params.get('setup_intent_client_secret');
@@ -72,7 +55,7 @@ function AllBounties() {
       const paymentIntent = await ApiService.createStripeSetupPaymentIntent();
 
       const { data } = await paymentIntent.json();
-
+      console.log(data, 'data from stripe');
       paymentDialogRef.current?.startPayment(
         data.clientSecret,
         `${window.location.href}`
@@ -80,7 +63,7 @@ function AllBounties() {
 
       setSettingUpPaymentMethod(false);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 
@@ -94,9 +77,10 @@ function AllBounties() {
         await ApiService.addPaymentMethod(
           setupIntent?.setupIntent?.payment_method as string
         );
-        // await fetchUser();
+
         switch (setupIntent?.setupIntent?.status) {
           case 'succeeded':
+            await fetchUser();
             toast({
               title: 'Your payment method has been saved.',
               status: 'success',
@@ -181,7 +165,7 @@ function AllBounties() {
           height: '100vh'
         }}
       >
-        <Spinner />
+        <ShepherdSpinner />
       </Box>
     );
   }

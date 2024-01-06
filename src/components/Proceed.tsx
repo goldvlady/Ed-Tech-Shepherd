@@ -145,7 +145,7 @@ const Proceed: FC = (props: any) => {
               >
                 <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md">
                   <Text className="border-b px-2 py-4 text-center">
-                    Hey Leslie, kindly drop a lesson summary
+                    {`Hey ${user?.name.first} ${user?.name.last}, could you please provide a summary of the lesson?`}
                   </Text>
                   <form className="space-y-6 p-6" action="#" method="POST">
                     <div className="flex items-start space-x-2 font-semibold bg-blue-50 text-gray-400 p-2 rounded-md">

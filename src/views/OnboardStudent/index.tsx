@@ -42,7 +42,6 @@ import {
 import { signInWithPopup } from 'firebase/auth';
 import { capitalize, isEmpty } from 'lodash';
 import Lottie from 'lottie-react';
-import mixpanel from 'mixpanel-browser';
 import moment from 'moment';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FiBookOpen, FiCalendar, FiEdit, FiUser } from 'react-icons/fi';
@@ -342,8 +341,6 @@ const OnboardStudent = () => {
   ];
 
   const doSubmit = async () => {
-    mixpanel.track('Completed onboarding');
-
     const user = await firebaseAuth.currentUser;
     let firebaseId: string | null | undefined = user?.uid;
 
@@ -608,34 +605,6 @@ const OnboardStudent = () => {
   );
 
   useTitle(stepIndicatorActiveStep?.title || '');
-
-  useEffect(() => {
-    mixpanel.identify();
-  }, []);
-
-  useEffect(() => {
-    if (!activeStepObj) return;
-
-    mixpanel.track(`Onboarding Step Progress (${activeStepObj?.id})`);
-  }, [activeStepObj]);
-
-  useEffect(() => {
-    if (name.first && name.last)
-      mixpanel.people.set({ $name: `${name.first} ${name.last}` });
-
-    if (email) mixpanel.people.set({ $email: email });
-
-    if (age) mixpanel.people.set({ Age: age });
-
-    if (parentOrStudent)
-      mixpanel.people.set({ 'Parent Or Student': parentOrStudent });
-
-    mixpanel.people.set({ Type: 'Student' });
-  }, [email, name, age, parentOrStudent]);
-
-  useEffect(() => {
-    mixpanel.register({ ...data, type: 'student' });
-  }, [data]);
 
   const canSaveCurrentEditModalStep = steps.find(
     (s) => s.id === editModalStep

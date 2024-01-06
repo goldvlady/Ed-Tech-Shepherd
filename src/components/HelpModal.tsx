@@ -8,7 +8,7 @@ import { Text } from '@chakra-ui/react';
 import { Transition, Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { getAuth } from 'firebase/auth';
-import { Fragment, useState, useCallback, useEffect } from 'react';
+import React, { Fragment, useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Typewriter from 'typewriter-effect';
 
@@ -30,6 +30,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
     topic: ''
   });
   const [level, setLevel] = useState<any>('');
+
   const handleClose = useCallback(() => {
     setToggleHelpModal(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -64,7 +65,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
   const actions1 = [
     {
       id: 1,
-      title: 'Ace Homework',
+      title: 'AI Tutor',
       description:
         'Stuck with your homework, Shepherd can guide you through it step by step for quick & easy completion',
       imageURL: '/images/ace-homework.svg',
@@ -87,7 +88,7 @@ const HelpModal = ({ setToggleHelpModal, toggleHelpModal }: ToggleProps) => {
     },
     {
       id: 3,
-      title: 'Notes Navigator',
+      title: 'Doc-chat',
       showModal: true,
       description:
         'Want to make the most of your notes? Chat with them via Shepherd and uncover insights to boost your grasp ',

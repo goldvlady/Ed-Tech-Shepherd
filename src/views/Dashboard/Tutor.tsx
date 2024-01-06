@@ -1,23 +1,13 @@
-import Star4 from '../../assets/4star.svg';
-import Check from '../../assets/check.svg';
-import Day from '../../assets/day.svg';
 import FileAvi2 from '../../assets/file-avi2.svg';
-import FileAvi from '../../assets/file-avi.svg';
 import Star from '../../assets/littleStar.svg';
 import Ribbon2 from '../../assets/ribbon-blue.svg';
 import Ribbon from '../../assets/ribbon-grey.svg';
-import TutorAvi from '../../assets/tutoravi.svg';
-import vidHolder from '../../assets/vid-holder.png';
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import LinedList from '../../components/LinedList';
 import ApiService from '../../services/ApiService';
 import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
-import AvailabilityTable from './components/AvailabilityTable';
-import HowItWorks from './components/HowItWorks';
 import { CustomButton } from './layout';
 import {
-  AspectRatio,
-  Avatar,
-  Badge,
   Box,
   Breadcrumb,
   BreadcrumbItem,
@@ -25,47 +15,37 @@ import {
   Button,
   Card,
   CardBody,
-  CardHeader,
   Center,
-  Container,
   Divider,
   Flex,
   Grid,
   GridItem,
-  Heading,
   Image,
-  Link,
-  LinkOverlay,
   Spacer,
-  Spinner,
   Stack,
   Tab,
   TabList,
   TabPanel,
   TabPanels,
   Table,
-  TableCaption,
   TableContainer,
   Tabs,
   Tbody,
   Td,
   Text,
-  Tfoot,
   Th,
   Thead,
   Tr,
-  VStack,
-  useColorModeValue,
-  useToast
+  VStack
 } from '@chakra-ui/react';
-import moment from 'moment';
-import { toNamespacedPath } from 'path';
 import React, { useCallback, useEffect, useState } from 'react';
 import { BiPlayCircle } from 'react-icons/bi';
 import { FiChevronRight } from 'react-icons/fi';
 import { RiQuestionFill } from 'react-icons/ri';
 import { RxDotFilled } from 'react-icons/rx';
-import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import Availability from '../../components/Availability';
+import ShepherdSpinner from './components/shepherd-spinner';
 
 export default function Tutor() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -76,7 +56,7 @@ export default function Tutor() {
   const tutorId: any = searchParams.get('id');
 
   const navigate = useNavigate();
-  const toast = useToast();
+  const toast = useCustomToast();
 
   const getData = useCallback(async () => {
     setLoadingData(true);
@@ -115,7 +95,7 @@ export default function Tutor() {
         toast({
           title: 'Tutor removed from Bookmarks successfully',
           position: 'top-right',
-          status: 'success',
+          status: 'error',
           isClosable: true
         });
       } else {
@@ -140,12 +120,10 @@ export default function Tutor() {
   if (Object.keys(tutorData).length === 0) {
     return (
       <Box p={5} textAlign="center">
-        <Spinner />
+        <ShepherdSpinner />
       </Box>
     );
   }
-
-  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
 
   return (
     <>
@@ -213,8 +191,11 @@ export default function Tutor() {
                       {tutorData.highestLevelOfEducation}
                     </Text>
                     <Flex>
-                      {' '}
-                      <Image src={Star} boxSize={4} />
+                      <Box boxSize={4}>
+                        {' '}
+                        <Star />
+                      </Box>
+
                       <Text fontSize={12} fontWeight={400} color="#6E7682">
                         {` ${tutorData.rating}(${tutorData.reviewCount})`}
                       </Text>
@@ -235,12 +216,7 @@ export default function Tutor() {
                         border="1px solid #E7E8E9"
                         borderRadius="6px"
                         fontSize="12px"
-                        leftIcon={
-                          <img
-                            src={checkBookmarks() ? Ribbon2 : Ribbon}
-                            alt="save"
-                          />
-                        }
+                        leftIcon={checkBookmarks() ? <Ribbon2 /> : <Ribbon />}
                         p={'7px 14px'}
                         display="flex"
                         _hover={{
@@ -319,18 +295,17 @@ export default function Tutor() {
                               fontSize="14px"
                               mb={'2px'}
                             >
-                              You have no reviews yet
+                              This tutor has no reviews yet
                             </Text>
                           </TabPanel>
                           <TabPanel>
                             {tutorData.qualifications.map((q) => (
                               <>
                                 <Flex px={3} gap={0} direction={'row'} my={2}>
-                                  <Image
-                                    src={FileAvi2}
-                                    alt="qualification"
-                                    mb={4}
-                                  />
+                                  <Box mb={4}>
+                                    {' '}
+                                    <FileAvi2 />
+                                  </Box>
                                   <Stack
                                     direction={'column'}
                                     px={4}
@@ -368,7 +343,12 @@ export default function Tutor() {
                             ))}
                           </TabPanel>
                           <TabPanel>
-                            <AvailabilityTable data={tutorData} />
+                            {/* <AvailabilityTable data={tutorData} /> */}
+                            <Availability
+                              schedule={tutorData.schedule}
+                              timezone={tutorData.tz}
+                              editMode={false}
+                            />
                           </TabPanel>
                           <TabPanel>
                             <TableContainer my={4}>
@@ -382,7 +362,7 @@ export default function Tutor() {
                                   <Thead>
                                     <Tr>
                                       <Th></Th>
-                                      <Th>Qualification</Th>
+                                      <Th>Level</Th>
                                       <Th>Price</Th>
                                     </Tr>
                                   </Thead>
@@ -421,21 +401,34 @@ export default function Tutor() {
             </Center>
           </GridItem>
           <GridItem h={{ base: 'auto', md: 305 }} position="relative">
-            <Center position="relative" borderRadius={10}>
-              <AspectRatio
-                h={{ base: '50vh', md: '305px' }}
+            <Center position="relative" borderRadius={10} my={2}>
+              {/* <AspectRatio
+                h={{ base: '170px', md: '170px' }}
                 w={{ base: 'full', md: 'full' }}
                 ratio={1}
                 objectFit={'cover'}
-              >
-                <iframe
+              > */}
+              {/* <iframe
                   title="naruto"
                   // src={'https://samplelib.com/lib/preview/mp4/sample-5s.mp4'}
-                  src={tutorData.introVideo}
+                  src={tutorData.tutor.introVideo}
                   allowFullScreen
                   style={{ borderRadius: 10 }}
-                />
-              </AspectRatio>
+                /> */}
+              <Box
+                h={{ base: '170px', md: '170px' }}
+                w={{ base: 'full', md: 'full' }}
+              >
+                <video
+                  title="tutor-video"
+                  controls
+                  style={{ borderRadius: 10, width: '100%', height: '100%' }}
+                >
+                  <source src={tutorData.introVideo} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </Box>{' '}
+              {/* </AspectRatio> */}
               <Center
                 color="white"
                 display={vidOverlay ? 'flex' : 'none'}
@@ -449,7 +442,7 @@ export default function Tutor() {
                     onClick={() => setVidOverlay(false)}
                     size={'50px'}
                   />
-                  <Text display={'inline'}> watch intro video</Text>
+                  <Text display={'inline'}> Play intro video</Text>
                 </VStack>
               </Center>
             </Center>
@@ -478,7 +471,7 @@ export default function Tutor() {
                   />
                 </Stack> */}
 
-            <Text fontSize={14} mt={8}>
+            {/* <Text fontSize={14} mt={8}>
               <Link
                 color="#207DF7"
                 href="/dashboard/find-tutor"
@@ -486,7 +479,7 @@ export default function Tutor() {
               >
                 More Economics tutors
               </Link>
-            </Text>
+            </Text> */}
           </GridItem>
 
           <GridItem>

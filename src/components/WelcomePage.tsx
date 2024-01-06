@@ -1,5 +1,5 @@
-import cloudDay from '../assets/day.svg';
-import cloudNight from '../assets/night.svg';
+import CloudDay from '../assets/day.svg';
+import CloudNight from '../assets/night.svg';
 import userStore from '../state/userStore';
 import { numberToDayOfWeekName, twoDigitFormat } from '../util';
 import { Box, Flex, Text, Image } from '@chakra-ui/react';
@@ -49,9 +49,7 @@ const WelcomePage: FC<WelcomePageProps> = ({ user }) => {
         alignItems="center"
         height="fit-content"
       >
-        <Box>
-          {isDayTime ? <Image src={cloudDay} /> : <Image src={cloudNight} />}
-        </Box>
+        <Box>{isDayTime ? <CloudDay /> : <CloudNight />}</Box>
         <Box mt={1}>
           <RxDotFilled />
         </Box>

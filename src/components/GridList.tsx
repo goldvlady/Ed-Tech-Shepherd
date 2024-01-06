@@ -59,9 +59,9 @@ export default function GridList(props) {
           >
             {` $${data.totalAmountEarned}`}
           </Text>
-          <Text as="p" fontSize="sm" color="whiteAlpha.900" isTruncated>
+          {/* <Text as="p" fontSize="sm" color="whiteAlpha.900" isTruncated>
             24hrs of tutoring completed!
-          </Text>
+          </Text> */}
         </Flex>
       </Box>
       <Box
@@ -103,9 +103,9 @@ export default function GridList(props) {
           <Text fontSize="2xl" my={0.5} fontWeight="semibold">
             {data.completedClientsCount}
           </Text>
-          <Text fontSize="sm" color="green.400" isTruncated>
+          {/* <Text fontSize="sm" color="green.400" isTruncated>
             + Increased 10% this month
-          </Text>
+          </Text> */}
         </Flex>
       </Box>
 
@@ -149,9 +149,9 @@ export default function GridList(props) {
           <Text fontSize="2xl" my={0.5} fontWeight="semibold">
             0
           </Text>
-          <Text fontSize="sm" color="red.400" isTruncated>
+          {/* <Text fontSize="sm" color="red.400" isTruncated>
             - Decreased 10% this month
-          </Text>
+          </Text> */}
         </Flex>
       </Box>
     </Grid>

@@ -1,4 +1,5 @@
 import cloud from '../../assets/cloud.svg';
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import Header from '../../components/Header';
 import ApiService from '../../services/ApiService';
 import onboardTutorStore from '../../state/onboardTutorStore';
@@ -306,7 +307,7 @@ const AvailabilityTable = () => {
     setTutorAvailability(availability);
   }, [schedule]);
 
-  const timeSlots = ['8AM → 12PM', '12AM → 5PM', '5PM → 9PM', '9PM → 12AM'];
+  const timeSlots = ['8AM → 12PM', '12PM → 5PM', '5PM → 9PM', '9PM → 12AM'];
 
   const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -701,7 +702,7 @@ const PreviewSegment = ({
 
 const PreviewProfile = () => {
   const [showModal, setShowModal] = useState(false);
-  const toast = useToast();
+  const toast = useCustomToast();
   const navigator = useNavigate();
   const [isLoading, setLoading] = useState(false);
   const { fetchUser, user } = userStore();
@@ -731,7 +732,7 @@ const PreviewProfile = () => {
       value: onboardingData.coursesAndLevels,
       mainText: 'Please inform us of the subjects you would like to teach ',
       supportingText:
-        'Kindly select your area of expertise and proficiency level, you may add multiple subjects'
+        'Please choose your areas of expertise and indicate your proficiency level. You can select multiple subjects.'
     },
     {
       id: 'qualifications',
@@ -833,9 +834,8 @@ const PreviewProfile = () => {
           course: courseList.find(
             (course) => course.label === courseLevel.course.label
           )?._id,
-          level: courseList.find(
-            (course) => course.label === courseLevel.course.label
-          )?._id
+          level: levels.find((level) => level.label === courseLevel.level.label)
+            ?._id
         })
       );
 

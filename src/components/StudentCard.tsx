@@ -1,3 +1,4 @@
+import { convertTimeToTimeZone, convertTimeToDateTime } from '../util';
 import {
   PencilIcon,
   SparklesIcon,
@@ -18,6 +19,7 @@ import {
 } from '@chakra-ui/react';
 import moment from 'moment';
 import { useNavigate } from 'react-router';
+import React from 'react';
 
 function StudentCard(props) {
   const navigate = useNavigate();
@@ -173,9 +175,19 @@ function StudentCard(props) {
                 {Object.keys(offer.schedule).length} lesson weekly
               </Text>
               <EllipsistIcon className="w-1 mx-0.5" onClick={undefined} />
-              <Text as="span">{getBeginTime(offer.schedule)} </Text>
+              <Text as="span">
+                {convertTimeToTimeZone(
+                  convertTimeToDateTime(getBeginTime(offer.schedule)),
+                  offer.scheduleTz
+                )}
+              </Text>
               <ArrowRightIcon className="w-3 mx-0.5" onClick={undefined} />
-              <Text as="span">{getEndTime(offer.schedule)} </Text>
+              <Text as="span">
+                {convertTimeToTimeZone(
+                  convertTimeToDateTime(getEndTime(offer.schedule)),
+                  offer.scheduleTz
+                )}
+              </Text>
             </Flex>
           </VStack>
           <Divider my={2} color="gray.400" />

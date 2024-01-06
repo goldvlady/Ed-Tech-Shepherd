@@ -37,12 +37,14 @@ type Props = {
 };
 
 const Header: React.FC<Props> = ({ left, right, showUserPill = true }) => {
-  const { user } = userStore();
+  const { user, logoutUser } = userStore();
   const navigate = useNavigate();
   const auth = getAuth();
 
   const handleSignOut = async () => {
-    await signOut(auth);
+    await signOut(auth).then(() => {
+      logoutUser();
+    });
   };
 
   const menuListBg = useColorModeValue('white', 'gray.900');

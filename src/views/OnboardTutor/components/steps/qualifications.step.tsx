@@ -1,3 +1,4 @@
+import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import DatePicker from '../../../../components/DatePicker';
 import DragAndDrop from '../../../../components/DragandDrop';
 import { storage } from '../../../../firebase';
@@ -21,7 +22,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { RiPencilLine } from 'react-icons/ri';
 
 const QualificationsForm: React.FC = () => {
-  const toast = useToast();
+  const toast = useCustomToast();
   const { qualifications: storeQualifications } = onboardTutorStore.useStore();
   const [formData, setFormData] = useState<TutorQualification>({
     institution: '',
@@ -296,8 +297,8 @@ const QualificationsForm: React.FC = () => {
         <DragAndDrop
           isLoading={isLoading}
           file={formData.transcript}
-          supportingText="Click to upload a video"
-          accept="image/*"
+          supportingText="Click to upload your transcript"
+          accept="image/*, application/pdf"
           onFileUpload={(file) => handleUploadInput(file, 'transcript')}
           boxStyles={{ minWidth: '250px', marginTop: '10px', height: '50px' }}
         />

@@ -44,9 +44,9 @@ const Dot = styled.div`
   }
 `;
 
-const ChatLoader = () => {
+const ChatLoader = ({ className }: { className?: string }) => {
   return (
-    <ChatLoaderWrapper>
+    <ChatLoaderWrapper className={className}>
       <DotContainer>
         <Dot />
         <Dot />

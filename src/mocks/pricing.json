@@ -8,16 +8,16 @@
       "Ad supported",
       "AI powered by GPT-3.5",
       "Access to tutor marketplace",
-      "Unlimited manual flashcards generation with spaced repetiton",
-      "500 AI-generated Flashcards/month  Flashcards with spaced repetition",
+      "Unlimited manual flashcard creation with spaced repetition",
+      "500 AI-generated Flashcards with spaced repetition",
       "Adaptive quizzes",
-      "Document AI chat - 8,000 word limit",
-      "Upload files up to 100 mb limit per file",
+      "Upload files up to 10 mb limit per file",
       "Take notes in Notion-style editor",
       "30 questions per day to chatbot",
       "Smart reminders",
       "Study analytics"
-    ]
+    ],
+    "priceId": "REACT_APP_STRIPE_PRICE_BASIC_MONTHLY"
   },
   {
     "tier": "Premium",
@@ -30,23 +30,13 @@
       "AI powered by GPT-4",
       "Access to stored videos and transcripts of tutor sessions",
       "Unlimited AI-generated Flashcards/month",
-      "Document AI chat - 13,000 word limit",
-      "Upload files up to 250mb limit per file",
+      "Upload files up to 100mb limit per file",
       "Import/Export flashcards from CSV (e.g., Anki)",
       "200 questions per day to chatbots",
       "Study plan (coming soon)",
       "Research assistant (coming soon)"
     ],
+    "priceId": "REACT_APP_STRIPE_PRICE_PREMIUM_MONTHLY",
     "popular": true
-  },
-  {
-    "tier": "Founding member",
-    "price": "$300",
-    "cycle": "Lifetime membership",
-    "value": [
-      "Everything in Premium",
-      "Unlimited questions per day to chatbots",
-      "Early access to new features"
-    ]
   }
 ]

@@ -4,24 +4,51 @@ import styled from 'styled-components';
 export const HomeWorkHelpContainer = styled.section`
   display: flex;
   height: 100%;
-  position: fixed;
+  // position: fixed;
+  overflow: hidden;
   width: 100%;
+  max-height: calc(100vh - 80px);
 `;
 
 export const HomeWorkHelpHistoryContainer = styled.section`
+  width: 70%;
+  height: 100vh;
+  background: rgb(255, 255, 255);
+  overflow-y: scroll;
+  margin: 0px 10px;
+  left: 15px;
+  display: block;
+
+  /* Hide scrollbar for Chrome, Safari, and Opera */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for Firefox */
+  scrollbar-width: none;
+
+  /* Hide scrollbar for IE, Edge, and other browsers */
+  -ms-overflow-style: none;
+
+  @media only screen and (max-width: 768px) {
+    display: none;
+  }
+`;
+
+export const MobileHomeWorkHelpHistoryContainer = styled.section`
   // width: 29%;
   // height: 100vh;
   // padding-right: 10px;
   // background: #fff;
   // overflow-y: scroll;
-  max-width: 25%;
+  width: 100%;
   height: 100vh;
   background: rgb(255, 255, 255);
   overflow-y: scroll;
-  mzrgin: 0 auto;
   margin: 0px 10px;
-  position: absolute;
+  // position: absolute;
   left: 15px;
+  display: block;
 
   /* Hide scrollbar for Chrome, Safari and Opera */
   ::-webkit-scrollbar {
@@ -31,12 +58,21 @@ export const HomeWorkHelpHistoryContainer = styled.section`
   /* Hide scrollbar for Firefox */
   scrollbar-width: none;
   -ms-overflow-style: none; /* IE and Edge */
+
+  @media only screen and (max-width: 768px) {
+    display: block;
+  }
 `;
 
 export const HomeWorkHelpChatContainer = styled.section`
-  flex-grow: 1;
-  width: 65%;
-  position: fixed;
+  // flex-grow: 1;
+  // width: 100%;
+  // position: fixed;
+  border-left: 1px solid rgb(249, 249, 251);
+
+  @media only screen and (max-width: 768px) {
+    position: absolute;
+  }
 `;
 
 export const TutorsBackIcn = styled.div`

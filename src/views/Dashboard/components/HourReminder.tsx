@@ -1,3 +1,4 @@
+import { convertUtcToUserTime } from '../../../util';
 import { Box, Button, Spacer, Flex, Text } from '@chakra-ui/react';
 import moment from 'moment';
 import React from 'react';
@@ -85,7 +86,7 @@ export default function HourReminder(props) {
               {getTextByEventType(data.data.type)}
             </Text>
             <Text fontSize={14} fontWeight={500} color="#F53535" ml={10}>
-              {moment(data.data.data.startDate).format('hh:mm a')}
+              {convertUtcToUserTime(data.data.data.startDate)}
             </Text>
           </Box>
 

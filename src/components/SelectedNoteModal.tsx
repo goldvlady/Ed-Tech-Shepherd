@@ -1,7 +1,10 @@
 import CustomToast from '../components/CustomComponents/CustomToast';
 import { storage } from '../firebase';
-import { MAX_FILE_UPLOAD_LIMIT } from '../helpers/constants';
-import { snip } from '../helpers/file.helpers';
+import {
+  MAX_FILE_UPLOAD_LIMIT,
+  MAX_FILE_NAME_LENGTH
+} from '../helpers/constants';
+import { snip, uploadFile } from '../helpers/file.helpers';
 import { processDocument } from '../services/AI';
 import ApiService from '../services/ApiService';
 import userStore from '../state/userStore';
@@ -10,32 +13,42 @@ import CustomButton from './CustomComponents/CustomButton';
 import CustomModal from './CustomComponents/CustomModal/index';
 import { UploadIcon } from './icons';
 import { AttachmentIcon } from '@chakra-ui/icons';
-import { useToast } from '@chakra-ui/react';
+import {
+  useToast,
+  Center,
+  Box,
+  Text,
+  CircularProgress,
+  Flex
+} from '@chakra-ui/react';
 import {
   CircularProgress as CircularProgressBar,
   CircularProgressLabel,
   Progress
 } from '@chakra-ui/react';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { useRef, useState, useEffect, RefObject } from 'react';
+import React, { useRef, useState, useEffect, RefObject } from 'react';
+import { RiUploadCloud2Fill } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import PlansModal from './PlansModal';
+import documentStore from '../state/documentStore';
 
 const DocumentListWrapper = styled.div`
   max-height: 200px;
   background-color: 'green';
 `;
 
-const Text = styled.p`
-  font-size: 0.8rem;
-  text-align: left;
-  line-height: 1.5;
-  color: var(--gray-600);
-`;
+// const Text = styled.p`
+//   font-size: 0.8rem;
+//   text-align: left;
+//   line-height: 1.5;
+//   color: var(--gray-600);
+// `;
 interface ShowProps {
   show: boolean;
   setShow: (show: boolean) => void;
-  setShowHelp: (showHelp: boolean) => void;
+  setShowHelp?: (showHelp: boolean) => void;
   chatButton?: boolean;
   okayButton?: boolean;
   cancelButton?: boolean;
@@ -47,44 +60,6 @@ interface UiMessage {
   description: string;
 }
 
-const CountdownProgressBar = ({
-  confirmReady,
-  countdown
-}: {
-  confirmReady: boolean;
-  countdown: { active: boolean; message: string };
-}) => {
-  const [progress, setProgress] = useState(0);
-
-  const randomSeed = (min = 1, max = 5) =>
-    Math.floor(Math.random() * (max - min + 1) + min);
-
-  useEffect(() => {
-    if (confirmReady) {
-      setProgress(() => 500);
-    } else {
-      const interval = setInterval(() => {
-        setProgress((prevProgress) => prevProgress + randomSeed());
-      }, 1000);
-
-      return () => clearInterval(interval);
-    }
-  }, [confirmReady]);
-
-  return (
-    <div>
-      <Progress
-        size="lg"
-        hasStripe
-        value={progress}
-        max={500}
-        colorScheme="green"
-      />
-      <Text>{countdown.message}</Text>
-    </div>
-  );
-};
-
 const SelectedModal = ({
   show,
   setShow,
@@ -93,7 +68,11 @@ const SelectedModal = ({
   cancelButton = true,
   okayButton
 }: ShowProps) => {
-  const { user, userDocuments, fetchUserDocuments } = userStore();
+  const { user, fetchUserDocuments } = userStore();
+  const { fetchStudentDocuments, studentDocuments: userDocuments } =
+    documentStore();
+  const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
+    userStore.getState();
   const navigate = useNavigate();
   const [fileName, setFileName] = useState('');
   const [countdown, setCountdown] = useState({
@@ -103,6 +82,7 @@ const SelectedModal = ({
   const [progress, setProgress] = useState(0);
   const [uiMessage, setUiMessage] = useState<UiMessage | null>(null);
   const [alreadyExist, setAlreadyExist] = useState(false);
+  const [uploadFailed, setUploadFailed] = useState(false);
   const [canUpload, setCanUpload] = useState(true);
   const [selectedOption, setSelectedOption] = useState<any>();
   const [confirmReady, setConfirmReady] = useState(false);
@@ -112,8 +92,11 @@ const SelectedModal = ({
   const [documentURL, setDocumentURL] = useState('');
   const [documentName, setDocumentName] = useState('');
   const [documentId, setDocumentId] = useState('');
+  const [docKeywords, setDocKeywords] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const [togglePlansModal, setTogglePlansModal] = useState(false);
+  const [plansModalMessage, setPlansModalMessage] = useState('');
+  const [PlansModalSubMessage, setPlansModalSubMessage] = useState('');
   const Wrapper = styled.div`
     display: block;
     width: 100%;
@@ -235,11 +218,12 @@ const SelectedModal = ({
   const toast = useToast();
 
   useEffect(() => {
-    if (userDocuments.length) {
-      setLoadedStudentDocs(true);
-      setStudentDocuments(userDocuments);
-    }
+    setLoadedStudentDocs(true);
+    setStudentDocuments(userDocuments);
   }, [userDocuments]);
+  useEffect(() => {
+    fetchStudentDocuments();
+  }, []);
 
   const clickInput = () => {
     if (canUpload) inputRef?.current && inputRef.current.click();
@@ -249,12 +233,70 @@ const SelectedModal = ({
     setShow(false);
   };
 
+  const CountdownProgressBar = ({
+    confirmReady,
+    countdown
+  }: {
+    confirmReady: boolean;
+    countdown: { active: boolean; message: string };
+  }) => {
+    // const [progress, setProgress] = useState(0);
+
+    const randomSeed = (min = 1, max = 10) =>
+      Math.floor(Math.random() * (max - min + 5) + min);
+
+    useEffect(() => {
+      if (confirmReady) {
+        setProgress(() => 500);
+      } else {
+        const interval = setInterval(() => {
+          setProgress((prevProgress) => prevProgress + randomSeed());
+        }, 1000);
+
+        return () => clearInterval(interval);
+      }
+    }, [confirmReady]);
+
+    return (
+      <div>
+        <Progress
+          size="lg"
+          hasStripe
+          value={progress}
+          max={500}
+          colorScheme="green"
+        />
+        {/* <CircularProgress
+          value={progress}
+          size="50px"
+          thickness="4px"
+          color="#207df7"
+          max={500}
+        /> */}
+        <Text>{countdown.message}</Text>
+      </div>
+    );
+  };
+
   const handleInputFreshUpload = async (file, user, fileName) => {
-    const readableFileName = fileName
+    setProgress(0);
+    setCountdown(() => ({
+      active: false,
+      message: ''
+    }));
+    let readableFileName = fileName
       .toLowerCase()
       .replace(/\.pdf$/, '')
       .replace(/_/g, ' ');
 
+    if (readableFileName.length > MAX_FILE_NAME_LENGTH) {
+      readableFileName = readableFileName.substring(0, MAX_FILE_NAME_LENGTH);
+      setCountdown((prev) => ({
+        active: true,
+        message: `The file name has been truncated to ${MAX_FILE_NAME_LENGTH} characters`
+      }));
+      setProgress(5);
+    }
     if (!user?._id || !readableFileName) {
       return toast({
         render: () => (
@@ -267,83 +309,81 @@ const SelectedModal = ({
         isClosable: true
       });
     }
-    const SIZE_IN_MB = parseInt((file?.size / 1_000_000).toFixed(2), 10);
-    if (SIZE_IN_MB > MAX_FILE_UPLOAD_LIMIT) {
-      setUiMessage({
-        status: 'error',
-        heading: 'Your file is too large',
-        description: `Your file is ${SIZE_IN_MB}MB, above our ${MAX_FILE_UPLOAD_LIMIT}MB limit. Please upload a smaller document.`
-      });
-      return;
-    }
 
-    setProgress(5);
-    const customFirestorePath = `${user._id}/${readableFileName}`;
-    const storageRef = ref(storage, customFirestorePath);
+    setCountdown(() => ({
+      active: true,
+      message: 'Uploading...your document is being uploaded'
+    }));
+    setProgress(25);
+    const uploadEmitter = uploadFile(file, {
+      studentID: user._id, // Assuming user._id is always defined
+      documentID: readableFileName // Assuming readableFileName is the file's name
+    });
 
-    const task = uploadBytesResumable(storageRef, file);
+    uploadEmitter.on('progress', (progress: number) => {
+      // Update the progress. Assuming progress is a percentage (0 to 100)
+      setProgress(progress);
+      setLoading(true);
+    });
 
-    task.on(
-      'state_changed',
-      (snapshot) => {
-        const progress = Math.round(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        );
-        switch (snapshot.state) {
-          case 'running':
-            setProgress(progress);
-            break;
-        }
-      },
-      (error) => {
-        setCountdown((prev) => ({
-          ...prev,
-          message: 'Something went wrong. Please attempt the upload again.'
-        }));
-      },
-      async () => {
-        const documentURL = await getDownloadURL(task.snapshot.ref);
-        setCountdown(() => ({
-          active: true,
-          message:
-            'Processing...this may take a minute (larger documents may take longer)'
-        }));
+    uploadEmitter.on('complete', async (uploadFile) => {
+      // Assuming uploadFile contains the fileUrl and other necessary details.
+      const documentURL = uploadFile.fileUrl;
 
-        await processDocument({
+      setCountdown((prev) => ({
+        ...prev,
+        message:
+          'Processing...this may take a minute (larger documents may take longer)'
+      }));
+
+      try {
+        const results = await processDocument({
           studentId: user._id,
           documentId: readableFileName,
           documentURL,
           title: readableFileName
-        })
-          .then((results) => {
-            const { documentURL, title, documentId } = results.data[0];
-            setConfirmReady(true);
-            setCountdown((prev) => ({
-              ...prev,
-              message:
-                "Your uploaded document is now ready! Click the 'chat' button to start."
-            }));
-            setDocumentId(() => documentId);
-            setDocumentName(() => title);
-            setDocumentURL(() => documentURL);
-            setLoading(false);
+        });
 
-            ApiService.saveStudentDocument({
-              documentUrl: documentURL,
-              title,
-              ingestId: documentId
-            });
-          })
-          .catch(async (e: any) => {
-            setCountdown((prev) => ({
-              ...prev,
-              message: 'Something went wrong. Reload this page and try again.'
-            }));
-          });
-
+        const {
+          documentURL: newDocumentURL,
+          title,
+          documentId,
+          keywords
+        } = results.data[0];
         setConfirmReady(true);
+        setCountdown((prev) => ({
+          ...prev,
+          message:
+            "Your uploaded document is now ready! Click the 'chat' button to start."
+        }));
+        setDocumentId(documentId);
+        setDocumentName(title);
+        setDocumentURL(newDocumentURL);
+        setDocKeywords(keywords);
+        setLoading(false);
+
+        ApiService.saveStudentDocument({
+          documentUrl: newDocumentURL,
+          title,
+          ingestId: documentId
+        });
+      } catch (e) {
+        setCountdown((prev) => ({
+          ...prev,
+          message: 'Something went wrong. Reload this page and try again.'
+        }));
+        setLoading(false);
       }
-    );
+    });
+
+    uploadEmitter.on('error', (error) => {
+      setCountdown((prev) => ({
+        ...prev,
+        active: false,
+        message: 'Something went wrong. Please attempt the upload again.'
+      }));
+      setUploadFailed(true);
+    });
   };
 
   function doesTitleExist(title: string) {
@@ -363,43 +403,76 @@ const SelectedModal = ({
   const collectFileInput = async (e) => {
     const inputFile = e.target.files[0];
     const fileChecked = doesTitleExist(inputFile?.name);
+    setProgress(0);
+    setConfirmReady(false);
 
     if (fileChecked) {
       setAlreadyExist(true);
     } else {
-      setAlreadyExist(false);
-      setLoading(true);
-      try {
-        setFileName(snip(inputFile.name));
-        await handleInputFreshUpload(inputFile, user, inputFile.name);
-      } catch (error) {
-        // Handle errors
+      // Check if the file size exceeds the limit
+      if (inputFile.size > fileSizeLimitBytes) {
+        // Set the modal state and messages
+        setPlansModalMessage(
+          !hasActiveSubscription
+            ? `Let's get you on a plan so you can upload larger files!`
+            : `Oops! Your file is too big. Your current plan allows for files up to ${fileSizeLimitMB} MB.`
+        );
+        setPlansModalSubMessage(
+          !hasActiveSubscription
+            ? `You're currently limited to files under ${fileSizeLimitMB} MB.`
+            : 'Consider upgrading to upload larger files.'
+        );
+        setTogglePlansModal(true);
+        // setShow(false);
+      } else {
+        setAlreadyExist(false);
+        setLoading(true);
+        try {
+          setFileName(snip(inputFile.name));
+          await handleInputFreshUpload(inputFile, user, inputFile.name);
+        } catch (error) {
+          // Handle errors
+        }
       }
     }
   };
 
   const handleSelected = async (e) => {
+    setAlreadyExist(false);
+    setUploadFailed(false);
+
     if (e.value && e.label && e.id) {
       setDocumentURL(() => e.value);
       setDocumentName(() => e.label);
       setDocumentId(() => e.id);
+      setDocKeywords(() => e.keywords);
       setSelectedOption(e.label);
       setCanUpload(false);
       setConfirmReady(true);
     }
   };
 
-  const goToDocChat = async (documentUrl, docTitle, documentId) => {
+  const goToDocChat = async (
+    documentUrl,
+    docTitle,
+    documentId,
+    docKeywords
+  ) => {
     navigate('/dashboard/docchat', {
       state: {
         documentUrl,
         docTitle,
-        documentId
+        documentId,
+        docKeywords
       }
     });
-    setShowHelp(false);
+    if (setShowHelp) {
+      setShowHelp(false);
+    }
+
     setShow(false);
-    user && fetchUserDocuments(user._id);
+
+    user && fetchStudentDocuments();
   };
 
   const doNothing = () => {
@@ -411,7 +484,7 @@ const SelectedModal = ({
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      await goToDocChat(documentURL, documentName, documentId);
+      await goToDocChat(documentURL, documentName, documentId, docKeywords);
     } catch (error) {
       // Handle error
     } finally {
@@ -434,112 +507,189 @@ const SelectedModal = ({
     );
   };
 
-  return (
-    <CustomModal
-      isOpen={show}
-      onClose={handleClose}
-      modalTitle="Select note"
-      style={{
-        maxWidth: '400px',
-        height: 'auto'
-      }}
-      modalTitleStyle={{
-        textAlign: 'center',
-        borderBottom: '1px solid #EEEFF2'
-      }}
-      footerContent={
-        <div style={{ display: 'flex', gap: '8px' }}>
-          {cancelButton && (
-            <CustomButton
-              type="button"
-              isCancel
-              onClick={handleClose}
-              title="Cancel"
-            />
-          )}
-          <ChatButton />
-          {okayButton && (
-            <CustomButton type="button" onClick={handleClose} title="Ok" />
-          )}
-        </div>
-      }
-    >
-      <Wrapper>
-        <div className="p-4" style={{ width: '100%' }}>
-          {loadedStudentDocs && (
-            <div style={{ width: '-webkit-fill-available' }}>
-              <Label htmlFor="note">Select note</Label>
-              <DocumentListWrapper>
-                <AutocompleteDropdown
-                  studentDocuments={studentDocuments}
-                  placeholder="Select an Option"
-                  selectedOption={selectedOption}
-                  handleSelected={handleSelected}
-                ></AutocompleteDropdown>
-              </DocumentListWrapper>
-              <OrText>Or</OrText>
-            </div>
-          )}
+  const [isDragOver, setIsDragOver] = useState(false);
 
-          <FileUploadButton onClick={clickInput}>
-            <span className="flex items-center space-x-2">
-              {fileName ? (
-                <AttachmentIcon />
-              ) : (
-                <FileUploadIcon
-                  className="text-primaryGray w-5 h-5"
-                  onClick={undefined}
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const files = e.dataTransfer.files[0];
+    // Handle dropped files here
+
+    const fileChecked = doesTitleExist(files?.name);
+
+    if (fileChecked) {
+      setAlreadyExist(true);
+    } else {
+      setAlreadyExist(false);
+      setLoading(true);
+      try {
+        setFileName(snip(files.name));
+        await handleInputFreshUpload(files, user, files.name);
+      } catch (error) {
+        // Handle errors
+      }
+    }
+  };
+
+  if (togglePlansModal) {
+    return (
+      <PlansModal
+        togglePlansModal={togglePlansModal}
+        setTogglePlansModal={setTogglePlansModal}
+        message={plansModalMessage} // Pass the message to the modal
+        subMessage={PlansModalSubMessage}
+      />
+    );
+  } else {
+    return (
+      <CustomModal
+        isOpen={show}
+        onClose={handleClose}
+        modalTitle="Upload or Select a Document"
+        style={{
+          maxWidth: '400px',
+          height: 'auto'
+        }}
+        modalTitleStyle={{
+          textAlign: 'center',
+          borderBottom: '1px solid #EEEFF2'
+        }}
+        footerContent={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            {cancelButton && (
+              <CustomButton
+                type="button"
+                isCancel
+                onClick={handleClose}
+                title="Cancel"
+              />
+            )}
+            <ChatButton />
+            {okayButton && (
+              <CustomButton type="button" onClick={handleClose} title="Ok" />
+            )}
+          </div>
+        }
+      >
+        <Wrapper>
+          <div className="p-4" style={{ width: '100%' }}>
+            <div style={{ width: '-webkit-fill-available' }}>
+              <Text>
+                To proceed, please upload a document or select from the existing
+                list
+              </Text>
+              <Center
+                w="full"
+                minH="65px"
+                mt={3}
+                p={2}
+                border="2px"
+                borderColor={isDragOver ? 'gray.600' : 'gray.300'}
+                borderStyle="dashed"
+                rounded="lg"
+                cursor="pointer"
+                bg={isDragOver ? 'gray.600' : 'gray.50'}
+                color={isDragOver ? 'white' : 'inherit'}
+                onDragOver={(e) => handleDragEnter(e)}
+                onDragEnter={(e) => handleDragEnter(e)}
+                onDragLeave={(e) => handleDragLeave(e)}
+                onDrop={(e) => handleDrop(e)}
+                // onClick={clickInput}
+              >
+                <label htmlFor="file-upload">
+                  <Center flexDirection="column">
+                    {fileName ? (
+                      <Flex>
+                        <AttachmentIcon /> <FileName>{fileName}</FileName>
+                      </Flex>
+                    ) : (
+                      <Flex direction={'column'} alignItems={'center'}>
+                        <RiUploadCloud2Fill
+                          className="h-8 w-8"
+                          color="gray.500"
+                        />
+                        <Text
+                          mb="2"
+                          fontSize="sm"
+                          color={isDragOver ? 'white' : 'gray.500'}
+                          fontWeight="semibold"
+                        >
+                          Click to upload or drag and drop
+                        </Text>
+                        <PDFTextContainer>
+                          <Text
+                            fontSize="xs"
+                            color={isDragOver ? 'white' : 'gray.500'}
+                          >
+                            DOC, TXT, or PDF (MAX: {fileSizeLimitMB}MB)
+                          </Text>
+                        </PDFTextContainer>
+                      </Flex>
+                    )}
+                  </Center>
+                </label>
+                <input
+                  type="file"
+                  accept=".doc, .txt, .pdf"
+                  // accept="application/pdf"
+                  className="hidden"
+                  id="file-upload"
+                  ref={inputRef}
+                  onChange={collectFileInput}
+                />
+              </Center>
+              {studentDocuments && <Center my={3}>Or</Center>}
+              {studentDocuments && (
+                <DocumentListWrapper>
+                  <AutocompleteDropdown
+                    studentDocuments={studentDocuments}
+                    placeholder="Select a Document"
+                    selectedOption={selectedOption}
+                    handleSelected={handleSelected}
+                  ></AutocompleteDropdown>
+                </DocumentListWrapper>
+              )}
+            </div>
+
+            <Box my={2}>
+              {countdown.active && (
+                <CountdownProgressBar
+                  confirmReady={confirmReady}
+                  countdown={countdown}
                 />
               )}
-              {fileName ? (
-                <FileName>{fileName}</FileName>
-              ) : (
-                <span className="text-dark">Upload doc</span>
-              )}
-            </span>
-            {/* Uploading Progress */}
-            {!!progress && (
-              <CircularProgressBar value={progress} color="#207DF7" size="40px">
-                <CircularProgressLabel>{progress}%</CircularProgressLabel>
-              </CircularProgressBar>
+            </Box>
+            {alreadyExist && (
+              <ErrorDiv className="py-1">
+                <p>File Already Exists!</p>
+                <p>
+                  The document you're trying to upload already exists. Please
+                  choose a different document or consider renaming it to avoid
+                  duplicates.
+                </p>
+              </ErrorDiv>
             )}
-          </FileUploadButton>
-          <input
-            type="file"
-            accept=".doc, .txt, .pdf"
-            // accept="application/pdf"
-            className="hidden"
-            id="file-upload"
-            ref={inputRef}
-            onChange={collectFileInput}
-          />
-          <PDFTextContainer>
-            <Text>
-              Shepherd supports <Format>.doc, .txt, .pdf</Format> document
-              formats.
-            </Text>
-          </PDFTextContainer>
-          {countdown.active && (
-            <CountdownProgressBar
-              confirmReady={confirmReady}
-              countdown={countdown}
-            />
-          )}
-
-          {alreadyExist && (
-            <ErrorDiv>
-              <p>File Already Exists!</p>
-              <p>
-                The document you're trying to upload already exists. Please
-                choose a different document or consider renaming it to avoid
-                duplicates.
-              </p>
-            </ErrorDiv>
-          )}
-        </div>
-      </Wrapper>
-    </CustomModal>
-  );
+            {uploadFailed && (
+              <ErrorDiv className="py-1">
+                <p>Upload Failed!</p>
+                <p>Something went wrong. Please attempt the upload again.</p>
+              </ErrorDiv>
+            )}
+          </div>
+        </Wrapper>
+      </CustomModal>
+    );
+  }
 };
 
 export default SelectedModal;

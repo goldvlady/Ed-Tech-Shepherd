@@ -1,6 +1,10 @@
 import Check from '../../../assets/check.svg';
 import Day from '../../../assets/day.svg';
-import { convertTimeToTimeZone, convertTimeToDateTime } from '../../../util';
+import {
+  convertTimeToTimeZone,
+  convertTimeToDateTime,
+  numberToDayOfWeekName
+} from '../../../util';
 import {
   Box,
   Flex,
@@ -43,7 +47,6 @@ function AvailabilityTable(props) {
     );
 
     let timeSlotInUserTimezone = `${startTimeInUserTimezone} -> ${endTimeInUserTimezone}`;
-    console.log('tz', timeSlotInUserTimezone, data.tz);
 
     timeSlotInUserTimezone = timeSlotInUserTimezone.replace(/:\d+\s/g, '');
 
@@ -72,16 +75,16 @@ function AvailabilityTable(props) {
               {fixedTimeSlotswithTimezone.map((timeSlot, timeIndex) => (
                 <Tr key={timeIndex}>
                   <Td fontSize={12}>
-                    <Flex>
-                      <Image src={Day} ml={-15} /> {timeSlot}
+                    <Flex ml={-15}>
+                      <Day /> {timeSlot}
                     </Flex>
                   </Td>
                   {daysOfWeek.map((day, dayIndex) => (
                     <Td
                       key={dayIndex}
                       className={
-                        data.schedule[(dayIndex + 1).toString()] &&
-                        data.schedule[(dayIndex + 1).toString()].some(
+                        data.schedule[dayIndex.toString()] &&
+                        data.schedule[dayIndex.toString()].some(
                           (slot) =>
                             convertTimeToTimeZone(
                               convertTimeToDateTime(slot.begin),
@@ -96,8 +99,8 @@ function AvailabilityTable(props) {
                           : 'stripeBox'
                       }
                     >
-                      {data.schedule[(dayIndex + 1).toString()] &&
-                      data.schedule[(dayIndex + 1).toString()].some(
+                      {data.schedule[dayIndex.toString()] &&
+                      data.schedule[dayIndex.toString()].some(
                         (slot) =>
                           convertTimeToTimeZone(
                             convertTimeToDateTime(slot.begin),
@@ -108,7 +111,7 @@ function AvailabilityTable(props) {
                             data.tz
                           ) === timeSlot.split(' ')[2]
                       ) ? (
-                        <Image src={Check} mr={3} />
+                        <Check />
                       ) : null}
                     </Td>
                   ))}

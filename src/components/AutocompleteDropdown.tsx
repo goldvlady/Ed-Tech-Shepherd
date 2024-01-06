@@ -13,18 +13,19 @@ const AutocompleteDropdown = (props) => {
     }),
     menu: (provided) => ({
       ...provided,
-      maxHeight: '180px'
+      maxHeight: '120px'
     }),
     menuList: (provided) => ({
       ...provided,
-      maxHeight: '180px'
+      maxHeight: '120px'
     })
   };
 
   const options = studentDocuments.map((item) => ({
-    value: item.documentURL,
+    value: item.documentUrl,
     label: item.title,
-    id: item.documentId
+    id: item.ingestId,
+    keywords: item.title
   }));
 
   return (

@@ -86,9 +86,9 @@ const StepsLayout: React.FC<StepsLayoutProps> = ({
         border="1px solid #EBECF0"
         borderRadius="12px"
         marginTop={'100px'}
-        minWidth={'600px'}
+        minWidth={'700px'}
         maxWidth={'800px'}
-        padding="30px"
+        padding="20px"
         width="fit-content"
         position="relative"
       >

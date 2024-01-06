@@ -1,5 +1,6 @@
 import { SCHEDULE_FORMAT } from '../config';
 import {
+  Box,
   Button,
   Flex,
   Input,
@@ -15,6 +16,8 @@ import { FiClock } from 'react-icons/fi';
 
 interface TimePickerProps {
   value: string;
+  smTime?: boolean;
+  isDisabled?: boolean;
   onChange: (value: string) => void;
   inputProps?: React.ComponentProps<typeof Input>;
   inputGroupProps?: React.ComponentProps<typeof InputGroup>;
@@ -25,6 +28,8 @@ export const FORMAT = SCHEDULE_FORMAT;
 const TimePicker: React.FC<TimePickerProps> = ({
   value,
   onChange,
+  smTime,
+  isDisabled,
   inputProps = {},
   inputGroupProps = {}
 }) => {
@@ -68,42 +73,61 @@ const TimePicker: React.FC<TimePickerProps> = ({
   };
 
   return (
-    <Popover>
-      <PopoverTrigger>
-        <InputGroup {...inputGroupProps}>
-          <InputRightElement children={<FiClock />} />
-          <Input value={value} {...inputProps} readOnly />
-        </InputGroup>
-      </PopoverTrigger>
-      <PopoverContent width={'auto'} p={2}>
-        <PopoverArrow />
-        <Flex alignItems="center" justifyContent="space-between">
-          <Flex alignItems="center">
-            <Input
-              value={hours}
-              onChange={handleHoursChange}
-              type="number"
-              min="0"
-              max="12"
-              placeholder="HH"
-              mr={2}
-            />
-            <Input
-              value={minutes}
-              onChange={handleMinutesChange}
-              type="number"
-              min="0"
-              max="59"
-              placeholder="MM"
-              mr={2}
-            />
-            <Button size="sm" onClick={handleToggleAmPm}>
-              {isPm ? 'PM' : 'AM'}
-            </Button>
-          </Flex>
-        </Flex>
-      </PopoverContent>
-    </Popover>
+    <Box>
+      <Popover>
+        <PopoverTrigger>
+          {smTime ? (
+            <Box w={'85px'} p={0}>
+              <InputGroup {...inputGroupProps}>
+                {/* <InputRightElement children={<FiClock />} /> */}
+                <Input
+                  fontSize={'11px'}
+                  value={value}
+                  h={'15px'}
+                  {...inputProps}
+                  readOnly
+                />
+              </InputGroup>
+            </Box>
+          ) : (
+            <InputGroup {...inputGroupProps}>
+              <InputRightElement children={<FiClock />} />
+              <Input value={value} {...inputProps} readOnly />
+            </InputGroup>
+          )}
+        </PopoverTrigger>
+        {!isDisabled && (
+          <PopoverContent width={'auto'} p={2}>
+            <PopoverArrow />
+            <Flex alignItems="center" justifyContent="space-between">
+              <Flex alignItems="center">
+                <Input
+                  value={hours}
+                  onChange={handleHoursChange}
+                  type="number"
+                  min="0"
+                  max="12"
+                  placeholder="HH"
+                  mr={2}
+                />
+                <Input
+                  value={minutes}
+                  onChange={handleMinutesChange}
+                  type="number"
+                  min="0"
+                  max="59"
+                  placeholder="MM"
+                  mr={2}
+                />
+                <Button size="sm" onClick={handleToggleAmPm}>
+                  {isPm ? 'PM' : 'AM'}
+                </Button>
+              </Flex>
+            </Flex>
+          </PopoverContent>
+        )}
+      </Popover>
+    </Box>
   );
 };
 

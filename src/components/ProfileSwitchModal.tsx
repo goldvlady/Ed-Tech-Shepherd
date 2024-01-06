@@ -1,13 +1,23 @@
+import { useStreamChat } from '../providers/streamchat.provider';
 import ApiService from '../services/ApiService';
 import userStore from '../state/userStore';
 import { CustomButton } from '../views/Dashboard/layout';
+import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
 import { StarIcon } from './icons';
 import { SelectedNoteModal } from './index';
+import { SmallAddIcon } from '@chakra-ui/icons';
 import {
   Avatar,
   Box,
   Button,
+  Circle,
   Flex,
+  Modal,
+  ModalContent,
+  ModalFooter,
+  ModalBody,
+  useDisclosure,
+  ModalOverlay,
   Stack,
   Text,
   HStack,
@@ -20,7 +30,10 @@ import {
 import { Transition, Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { getAuth } from 'firebase/auth';
-import { Fragment, useState, useEffect, useCallback } from 'react';
+import React, { Fragment, useState, useEffect, useCallback } from 'react';
+import { AiOutlinePlus } from 'react-icons/ai';
+import { HiPlusCircle } from 'react-icons/hi';
+import { MdEdit, MdPlusOne } from 'react-icons/md';
 import { PiCheckCircleFill } from 'react-icons/pi';
 import { useNavigate } from 'react-router';
 import Typewriter from 'typewriter-effect';
@@ -94,8 +107,40 @@ const ProfileSwitchModal = ({
       return;
     }
   });
+
+  const {
+    isOpen: isSuccessModalOpen,
+    onOpen: onSuccessModalOpen,
+    onClose: onSuccessModalClose
+  } = useDisclosure();
+
   const navigate = useNavigate();
+  const toast = useCustomToast();
   const group = getRootProps();
+
+  const handleCreateStudentAccount = async () => {
+    const response = await ApiService.createStudentFromTutor();
+
+    if (response.status === 200 || response.status === 201) {
+      toast({
+        title: ' Student Account Created Successfully',
+        status: 'success',
+        position: 'top-right',
+        isClosable: true
+      });
+      fetchUser();
+      onSuccessModalOpen();
+    } else {
+      toast({
+        title: 'Something went wrong..',
+        status: 'error',
+        position: 'top-right',
+        isClosable: true
+      });
+    }
+  };
+
+  const { disconnectAndReset } = useStreamChat();
 
   return (
     <>
@@ -262,32 +307,115 @@ const ProfileSwitchModal = ({
                                   </RadioCard>
                                 );
                               })}
+                            {user?.type.length === 1 && (
+                              <Box>
+                                <Flex
+                                  className=" h-20 pl-4 pr-[199px] py-[26px] bg-white rounded-[10px]  border border-gray-100 justify-start items-center inline-flex"
+                                  direction="row"
+                                  alignItems="center"
+                                  justifyContent="flex-start"
+                                  gap={2}
+                                >
+                                  {/* <Flex
+                                    align="center"
+                                    justify="center"
+                                    gap={2.5}
+                                  >
+                                    <Circle
+                                      size="40px"
+                                      bg="zinc.100"
+                                      rounded="full"
+                                    >
+                                      <Box
+                                        width="18px"
+                                        height="18px"
+                                        left="5px"
+                                        top="5px"
+                                        position="absolute"
+                                      />
+                                    </Circle>
+                                    <Flex
+                                      direction="column"
+                                      justify="start"
+                                      alignItems="start"
+                                      gap={0.5}
+                                    >
+                                      <Flex
+                                        align="start"
+                                        justify="center"
+                                        gap={1.5}
+                                      >
+                                        <SmallAddIcon />
+                                        <Text
+                                          color="zinc.400"
+                                          fontSize="sm"
+                                          fontWeight="medium"
+                                          fontFamily="Inter"
+                                          lineHeight="tight"
+                                        >
+                                          Add account
+                                        </Text>
+                                      </Flex>
+                                    </Flex>
+                                  </Flex> */}
+                                  <Box
+                                    w="30px"
+                                    h="30px"
+                                    borderRadius="full"
+                                    borderWidth="1px"
+                                    borderColor="gray.200"
+                                    position="relative"
+                                    cursor={'pointer'}
+                                    onClick={() =>
+                                      isTutorDashboardPage
+                                        ? handleCreateStudentAccount()
+                                        : navigate('/complete_profile')
+                                    }
+                                  >
+                                    <Center
+                                      w="100%"
+                                      h="100%"
+                                      position="absolute"
+                                    >
+                                      <AiOutlinePlus />
+                                    </Center>
+                                  </Box>
+                                  <Text fontSize={14} color="#969ca6">
+                                    {' '}
+                                    Add Account
+                                  </Text>
+                                </Flex>
+                              </Box>
+                            )}
                           </HStack>
                         </Center>{' '}
-                        <Box ml={6} textAlign="center">
-                          <Button
-                            onClick={() =>
-                              navigate(
-                                selectedProfile === 'student'
-                                  ? '/dashboard'
-                                  : '/dashboard/tutordashboard'
-                              )
-                            }
-                            isDisabled={
-                              selectedProfile === '' ||
-                              (window.location.pathname.includes(
-                                '/dashboard/tutordashboard'
-                              ) &&
-                                selectedProfile === 'tutor') ||
-                              (!window.location.pathname.includes(
-                                '/dashboard/tutordashboard'
-                              ) &&
-                                selectedProfile === 'student')
-                            }
-                          >
-                            Switch
-                          </Button>
-                        </Box>
+                        {user?.type.length > 1 && (
+                          <Box ml={6} textAlign="center">
+                            <Button
+                              onClick={async () => {
+                                await disconnectAndReset();
+                                navigate(
+                                  selectedProfile === 'student'
+                                    ? '/dashboard'
+                                    : '/dashboard/tutordashboard'
+                                );
+                              }}
+                              isDisabled={
+                                selectedProfile === '' ||
+                                (window.location.pathname.includes(
+                                  '/dashboard/tutordashboard'
+                                ) &&
+                                  selectedProfile === 'tutor') ||
+                                (!window.location.pathname.includes(
+                                  '/dashboard/tutordashboard'
+                                ) &&
+                                  selectedProfile === 'student')
+                              }
+                            >
+                              Switch
+                            </Button>
+                          </Box>
+                        )}
                       </Box>
 
                       {/* <div className="overflow-hidden sm:w-[80%] w-full mx-auto p-6 pt-3  bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">
@@ -325,6 +453,41 @@ const ProfileSwitchModal = ({
           </Dialog>
         </Transition.Root>
       )}
+      <Modal isOpen={isSuccessModalOpen} onClose={onSuccessModalClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalBody>
+            <Box w={'100%'} mt={5} textAlign="center">
+              <Box display={'flex'} justifyContent="center">
+                <svg
+                  width="40"
+                  height="40"
+                  viewBox="0 0 40 40"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle cx="20" cy="20" r="20" fill="#EDF7EE" />
+                  <path
+                    d="M18.0007 23.1709L27.1931 13.9785L28.6073 15.3927L18.0007 25.9993L11.6367 19.6354L13.0509 18.2212L18.0007 23.1709Z"
+                    fill="#4CAF50"
+                  />
+                </svg>
+              </Box>
+              <Box marginTop={3}>
+                <Text className="modal-title">
+                  Account Created Successfully
+                </Text>
+              </Box>
+            </Box>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button onClick={() => navigate('/dashboard')}>
+              Go to dashboard
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 };

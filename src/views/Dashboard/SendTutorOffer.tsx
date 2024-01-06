@@ -13,7 +13,8 @@ import { Tutor } from '../../types';
 import {
   numberToDayOfWeekName,
   convertTimeToTimeZone,
-  convertTimeToDateTime
+  convertTimeToDateTime,
+  convertScheduleToUTC
 } from '../../util';
 import {
   Alert,
@@ -37,7 +38,6 @@ import {
   ModalFooter,
   ModalOverlay,
   SimpleGrid,
-  Spinner,
   Text,
   Textarea,
   VStack,
@@ -46,13 +46,20 @@ import {
 import { Field, FieldProps, Form, Formik, FormikProps } from 'formik';
 import { capitalize, isEmpty } from 'lodash';
 import moment from 'moment';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { BsQuestionCircleFill } from 'react-icons/bs';
 import { FiChevronRight } from 'react-icons/fi';
 import { MdInfo } from 'react-icons/md';
 import { useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 import * as Yup from 'yup';
+import ShepherdSpinner from './components/shepherd-spinner';
 
 const LeftCol = styled(Box)`
   min-height: 100vh;
@@ -185,7 +192,7 @@ const SendTutorOffer = () => {
         <LeftCol mb="32px" className="col-lg-8">
           {loading && (
             <Box textAlign={'center'}>
-              <Spinner />
+              <ShepherdSpinner />
             </Box>
           )}
           {!!tutor && (
@@ -215,8 +222,7 @@ const SendTutorOffer = () => {
                           Offer successfully sent
                         </Text>
                         <div style={{ color: theme.colors.text[400] }}>
-                          You’ll be notified within 24 hours once{' '}
-                          {tutor.user.name.first} responds
+                          We'll notify you when {tutor.user.name.first} responds
                         </div>
                       </Box>
                     </Box>
@@ -235,11 +241,15 @@ const SendTutorOffer = () => {
                 separator={<FiChevronRight size={10} color="gray.500" />}
               >
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="#">Shepherds</BreadcrumbLink>
+                  <BreadcrumbLink href="/dashboard/find-tutor">
+                    Shepherds
+                  </BreadcrumbLink>
                 </BreadcrumbItem>
 
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="#">
+                  <BreadcrumbLink
+                    href={`/dashboard/find-tutor/tutor/?id=${tutorId}`}
+                  >
                     {tutor.user.name.first} {tutor.user.name.last}
                   </BreadcrumbLink>
                 </BreadcrumbItem>
@@ -276,7 +286,8 @@ const SendTutorOffer = () => {
                   } else {
                     await ApiService.createOffer({
                       ...values,
-                      tutor: tutorId
+                      tutor: tutorId,
+                      schedule: convertScheduleToUTC(values.schedule)
                     });
                     onSuccessModalOpen();
                     setSubmitting(false);

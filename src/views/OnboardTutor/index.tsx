@@ -1,3 +1,4 @@
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import CustomSelect from '../../components/CustomSelect';
 import { FORMAT } from '../../components/DateInput';
 import DragAndDrop from '../../components/DragandDrop';
@@ -42,7 +43,6 @@ import { updateProfile } from 'firebase/auth';
 import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import { capitalize } from 'lodash';
 import Lottie from 'lottie-react';
-import mixpanel from 'mixpanel-browser';
 import moment from 'moment';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FiBookOpen, FiCalendar, FiUser } from 'react-icons/fi';
@@ -68,7 +68,7 @@ const stepIndicatorSteps = [
 ];
 
 const OnboardTutor = () => {
-  const toast = useToast();
+  const toast = useCustomToast();
   const { countries } = resourceStore();
   const [confirmDocument, setConfirmDocument] = useState(false);
   const [password, setPassword] = useState('');
@@ -247,7 +247,6 @@ const OnboardTutor = () => {
           throw error;
         });
     }
-    mixpanel.track('Sumbitting Onboarding Date');
     return ApiService.createUser({
       ...userFields,
       firebaseId: firebaseId as unknown as string,
@@ -293,48 +292,64 @@ const OnboardTutor = () => {
     {
       id: 'name',
       stepIndicatorId: 'about-you',
-      text: 'Hi there, before you proceed, let us know who is signing up',
+      text: '',
       template: (
-        <Box>
-          <Box marginTop={30}>
-            <FormControl>
-              <FormLabel>First Name</FormLabel>
-              <Input
-                size={'lg'}
-                value={name.first}
-                onChange={(e) =>
-                  setUserFields((prev) => ({
-                    ...prev,
-                    name: { ...prev.name, first: e.target.value ?? '' }
-                  }))
-                }
-              />
-            </FormControl>
-            <FormControl mt={4}>
-              <FormLabel>Last Name</FormLabel>
-              <Input
-                size={'lg'}
-                value={name.last}
-                onChange={(e) =>
-                  setUserFields((prev) => ({
-                    ...prev,
-                    name: { ...prev?.name, last: e.target.value ?? '' }
-                  }))
-                }
-              />
-            </FormControl>
-            <FormControl mt={4}>
-              <FormLabel>Email</FormLabel>
-              <Input
-                size={'lg'}
-                value={email}
-                onChange={(e) =>
-                  setUserFields((prev) => ({ ...prev, email: e.target.value }))
-                }
-              />
-            </FormControl>
+        <div>
+          <p
+            style={{
+              textAlign: 'center',
+              fontSize: '1.02rem',
+              fontWeight: '500',
+              marginTop: '25px',
+              color: '#207DF7'
+            }}
+          >
+            Step 1 of 3
+          </p>
+          <Box>
+            <Box marginTop={30}>
+              <FormControl>
+                <FormLabel>First Name</FormLabel>
+                <Input
+                  size={'lg'}
+                  value={name.first}
+                  onChange={(e) =>
+                    setUserFields((prev) => ({
+                      ...prev,
+                      name: { ...prev.name, first: e.target.value ?? '' }
+                    }))
+                  }
+                />
+              </FormControl>
+              <FormControl mt={4}>
+                <FormLabel>Last Name</FormLabel>
+                <Input
+                  size={'lg'}
+                  value={name.last}
+                  onChange={(e) =>
+                    setUserFields((prev) => ({
+                      ...prev,
+                      name: { ...prev?.name, last: e.target.value ?? '' }
+                    }))
+                  }
+                />
+              </FormControl>
+              <FormControl mt={4}>
+                <FormLabel>Email</FormLabel>
+                <Input
+                  size={'lg'}
+                  value={email}
+                  onChange={(e) =>
+                    setUserFields((prev) => ({
+                      ...prev,
+                      email: e.target.value
+                    }))
+                  }
+                />
+              </FormControl>
+            </Box>
           </Box>
-        </Box>
+        </div>
       ),
       canSave: validateNameStep
     },
@@ -343,23 +358,35 @@ const OnboardTutor = () => {
       text: 'Upload a proof of your identity (drivers license, passport, national ID)',
       stepIndicatorId: 'id_verification',
       template: (
-        <Box>
-          <Box marginTop={30}>
-            <CustomSelect
-              value={country}
-              onChange={(e: any) => {
-                onboardTutorStore.set.country?.(e.target.value);
-              }}
-              placeholder="Select a country"
-            >
-              <option value="Select a country" disabled>
-                Select a country
-              </option>
-              {countries.map((country) => (
-                <option value={country.name}>{country.name}</option>
-              ))}
-            </CustomSelect>
-            {/* <SelectComponent
+        <div>
+          <p
+            style={{
+              textAlign: 'center',
+              fontSize: '1.02rem',
+              fontWeight: '500',
+              marginTop: '25px',
+              color: '#207DF7'
+            }}
+          >
+            Step 2 of 3
+          </p>
+          <Box>
+            <Box marginTop={30}>
+              <CustomSelect
+                value={country}
+                onChange={(e: any) => {
+                  onboardTutorStore.set.country?.(e.target.value);
+                }}
+                placeholder="Select a country"
+              >
+                <option value="Select a country" disabled>
+                  Select a country
+                </option>
+                {countries.map((country) => (
+                  <option value={country.name}>{country.name}</option>
+                ))}
+              </CustomSelect>
+              {/* <SelectComponent
               value={{ value: country, label: country }}
               options={countries.map((country) => ({
                 label: country.name,
@@ -372,102 +399,115 @@ const OnboardTutor = () => {
               isSearchable
               // Add any additional props you want to pass
             /> */}
-            <DragAndDrop
-              file={identityDocument}
-              marginTop={30}
-              isLoading={isUploadLoading}
-              onDelete={() => onboardTutorStore.set.identityDocument?.('')}
-              onFileUpload={(file) => setSelectedIdDoc(file)}
-            />
-            <HStack marginTop={30} spacing={2}>
-              <Checkbox
-                borderRadius={'4px'}
-                colorScheme={'blue'}
-                isChecked={confirmDocument}
-                onChange={(e) => setConfirmDocument(e.target.checked)}
-                size="lg"
+              <DragAndDrop
+                file={identityDocument}
+                marginTop={30}
+                isLoading={isUploadLoading}
+                onDelete={() => onboardTutorStore.set.identityDocument?.('')}
+                onFileUpload={(file) => setSelectedIdDoc(file)}
               />
-              <Text fontSize="sm">
-                I confirm that I uploaded a valid government issued photo ID, be
-                rest assured, your ID upload is secure and your information will
-                not be saved.
-              </Text>
-            </HStack>
+              <HStack marginTop={30} spacing={2}>
+                <Checkbox
+                  borderRadius={'4px'}
+                  colorScheme={'blue'}
+                  isChecked={confirmDocument}
+                  onChange={(e) => setConfirmDocument(e.target.checked)}
+                  size="lg"
+                />
+                <Text fontSize="sm">
+                  I confirm that I uploaded a valid government issued photo ID.
+                </Text>
+              </HStack>
+            </Box>
           </Box>
-        </Box>
+        </div>
       ),
       canSave: validateCredentialsStep
     },
     {
       id: 'security',
       stepIndicatorId: 'security',
-      text: ' Hi there, before you proceed, let us know who is signing up',
+      text: '',
       template: (
-        <Box>
-          <Box marginTop={30}>
-            <FormControl>
-              <FormLabel>Password</FormLabel>
-              <InputGroup size="lg">
-                <Input
-                  placeholder="Create password"
-                  type={showPassword ? 'text' : 'password'}
-                  _placeholder={{ fontSize: '14px' }}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <InputRightElement>
-                  {!showPassword ? (
-                    <HiEye
-                      cursor={'pointer'}
-                      onClick={() => setShowPassword((prev) => !prev)}
-                    />
-                  ) : (
-                    <HiEyeOff
-                      cursor="pointer"
-                      onClick={() => setShowPassword((prev) => !prev)}
-                    />
-                  )}
-                </InputRightElement>
-              </InputGroup>
-            </FormControl>
-            <FormControl mt={5}>
-              <FormLabel>Confirm Password</FormLabel>
-              <InputGroup size="lg">
-                <Input
-                  placeholder="Confirm password"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  _placeholder={{ fontSize: '14px' }}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
-                <InputRightElement>
-                  {!showConfirmPassword ? (
-                    <HiEye
-                      cursor="pointer"
-                      onClick={() => setShowConfirmPassword((prev) => !prev)}
-                    />
-                  ) : (
-                    <HiEyeOff
-                      cursor="pointer"
-                      onClick={() => setShowConfirmPassword((prev) => !prev)}
-                    />
-                  )}
-                </InputRightElement>
-              </InputGroup>
-              {passwordChecks.map((passwordCheck) => (
-                <HStack marginTop={30} spacing={2}>
-                  <Checkbox
-                    colorScheme={passwordCheck.checked ? 'green' : 'gray'}
-                    variant={'looney'}
-                    isChecked={passwordCheck.checked}
-                    size="lg"
+        <div>
+          <p
+            style={{
+              textAlign: 'center',
+              fontSize: '1.02rem',
+              fontWeight: '500',
+              marginTop: '25px',
+              color: '#207DF7'
+            }}
+          >
+            Step 3 of 3
+          </p>
+
+          <Box>
+            <Box marginTop={30}>
+              <FormControl>
+                <FormLabel>Password</FormLabel>
+                <InputGroup size="lg">
+                  <Input
+                    placeholder="Create password"
+                    type={showPassword ? 'text' : 'password'}
+                    _placeholder={{ fontSize: '14px' }}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
-                  <Text fontSize="sm">{passwordCheck.text}</Text>
-                </HStack>
-              ))}
-            </FormControl>
+                  <InputRightElement>
+                    {!showPassword ? (
+                      <HiEye
+                        cursor={'pointer'}
+                        onClick={() => setShowPassword((prev) => !prev)}
+                      />
+                    ) : (
+                      <HiEyeOff
+                        cursor="pointer"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                      />
+                    )}
+                  </InputRightElement>
+                </InputGroup>
+              </FormControl>
+              <FormControl mt={5}>
+                <FormLabel>Confirm Password</FormLabel>
+                <InputGroup size="lg">
+                  <Input
+                    placeholder="Confirm password"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    _placeholder={{ fontSize: '14px' }}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                  <InputRightElement>
+                    {!showConfirmPassword ? (
+                      <HiEye
+                        cursor="pointer"
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                      />
+                    ) : (
+                      <HiEyeOff
+                        cursor="pointer"
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                      />
+                    )}
+                  </InputRightElement>
+                </InputGroup>
+                {passwordChecks.map((passwordCheck) => (
+                  <HStack marginTop={30} spacing={2}>
+                    <Checkbox
+                      colorScheme={passwordCheck.checked ? 'green' : 'gray'}
+                      variant={'looney'}
+                      isChecked={passwordCheck.checked}
+                      size="lg"
+                    />
+                    <Text fontSize="sm">{passwordCheck.text}</Text>
+                  </HStack>
+                ))}
+              </FormControl>
+            </Box>
           </Box>
-        </Box>
+        </div>
       ),
       canSave: validatePasswordStep
     }
@@ -484,29 +524,8 @@ const OnboardTutor = () => {
   useTitle(stepIndicatorActiveStep?.title || '');
 
   useEffect(() => {
-    mixpanel.identify();
-  }, []);
-
-  useEffect(() => {
     if (!activeStepObj) return;
-
-    mixpanel.track(`Onboarding Step Progress (${activeStepObj?.id})`);
   }, [activeStepObj]);
-
-  useEffect(() => {
-    if (name.first && name.last)
-      mixpanel.people.set({ $name: `${name.first} ${name.last}` });
-
-    if (email) mixpanel.people.set({ $email: email });
-
-    if (age) mixpanel.people.set({ Age: age });
-
-    mixpanel.people.set({ Type: 'Tutor' });
-  }, [email, name, age]);
-
-  useEffect(() => {
-    mixpanel.register({ ...data, type: 'tutor' });
-  }, [data]);
 
   const canSaveCurrentEditModalStep = steps.find(
     (s) => s.id === editModalStep
@@ -575,12 +594,12 @@ const OnboardTutor = () => {
           {steps[activeStep - 1]?.text}
         </Text>
       </VStack>
-      <StepIndicator
+      {/* <StepIndicator
         activeStep={stepIndicatorSteps.findIndex(
           (s) => s === stepIndicatorActiveStep
         )}
         steps={stepIndicatorSteps}
-      />
+      /> */}
       <Box>
         <StepWizard
           isLazyMount
@@ -590,7 +609,7 @@ const OnboardTutor = () => {
           {
             steps.map((s) => {
               return (
-                <OnboardStep key={s.id} canGoNext={s.canSave}>
+                <OnboardStep {...s} key={s.id} canGoNext={s.canSave}>
                   {s.template}
                 </OnboardStep>
               );

@@ -38,7 +38,7 @@ function AccSettings() {
   };
 
   return (
-    <>
+    <div>
       <Box bgColor={'#FBF9FB'} pt={3} px={3}>
         <Box>
           <Text fontSize={24} fontWeight={600} color="text.200">
@@ -69,7 +69,7 @@ function AccSettings() {
                     My Profile
                   </Text>
                 </Tab>
-                <Tab
+                {/* <Tab
                   _selected={{ color: '#207df7', bg: '#F0F6FE' }}
                   color="text.400"
                   my={1}
@@ -81,7 +81,7 @@ function AccSettings() {
                   <Text fontSize="14px" fontWeight="500">
                     Security
                   </Text>
-                </Tab>
+                </Tab> */}
 
                 <Tab
                   _selected={{ color: '#207df7', bg: '#F0F6FE' }}
@@ -103,13 +103,13 @@ function AccSettings() {
                 <TabPanel>
                   <TutorProfile tutorData={user} />
                 </TabPanel>
-                <TabPanel>
-                  {/* <MyProfile
+                {/*  <TabPanel>
+                 <MyProfile
                     id={user?._id}
                     username={`${user?.name?.first} ${user?.name?.last}`}
                     email={user?.email}
-                  /> */}
-                </TabPanel>
+                  /> 
+                </TabPanel>*/}
                 <TabPanel>
                   <Billing
                     username={`${user?.name?.first} ${user?.name?.last}`}
@@ -141,7 +141,7 @@ function AccSettings() {
           </GridItem>
         </Grid> */}
       </Box>
-    </>
+    </div>
   );
 }
 

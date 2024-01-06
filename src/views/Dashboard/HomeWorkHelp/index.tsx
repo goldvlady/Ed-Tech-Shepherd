@@ -1,7 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import Sally from '../../../assets/saly.svg';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
+import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast/index';
+import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import PaymentDialog, {
   PaymentDialogRef
 } from '../../../components/PaymentDialog';
@@ -27,19 +29,19 @@ import ViewTutors from './ViewTutors';
 import {
   HomeWorkHelpChatContainer,
   HomeWorkHelpContainer,
-  HomeWorkHelpHistoryContainer
+  HomeWorkHelpHistoryContainer,
+  MobileHomeWorkHelpHistoryContainer
 } from './style';
 import {
   useToast,
   useDisclosure,
   Box,
-  Image,
-  VStack,
   Text,
-  Button,
   Alert,
   AlertIcon,
-  AlertDescription
+  AlertDescription,
+  Center,
+  Icon
 } from '@chakra-ui/react';
 import { loadStripe } from '@stripe/stripe-js';
 import React, {
@@ -50,13 +52,14 @@ import React, {
   useRef
 } from 'react';
 import { MdInfo } from 'react-icons/md';
-import { MdTune } from 'react-icons/md';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
+import PlansModal from '../../../components/PlansModal';
 
 const HomeWorkHelp = () => {
   const [isOpenModal, setOpenModal] = useState(false);
   const [inputValue, setInputValue] = useState('');
-  const toast = useToast();
+  const toast = useCustomToast();
   const location = useLocation();
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const [openAceHomework, setAceHomeWork] = useState(false);
@@ -71,6 +74,7 @@ const HomeWorkHelp = () => {
   );
   const studentId = user?._id ?? '';
   const topic = location?.state?.topic;
+  const docId = location?.state?.documentId;
   const [countNeedTutor, setCountNeedTutor] = useState<number>(1);
   const [socket, setSocket] = useState<any>(null);
   const [subjectId, setSubject] = useState<string>('');
@@ -109,19 +113,44 @@ const HomeWorkHelp = () => {
   );
   const [freshConversationId, setFreshConversationId] = useState('');
   const [newConversationId, setNewConversationId] = useState('');
+  const [isChatHistory, setChatHistory] = useState<boolean>(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const [documentId, setDocumentId] = useState<string>('');
+
+  const [isHovering, setIsHovering] = useState(false);
+  const [togglePlansModal, setTogglePlansModal] = useState(false);
+  const [plansModalMessage, setPlansModalMessage] = useState('');
+  const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
+
+  const { hasActiveSubscription } = userStore.getState();
+
+  const handleLockClick = () => {
+    setTogglePlansModal(true);
+  };
+
+  useEffect(() => {
+    if (!hasActiveSubscription) {
+      // Set messages and show the modal if the user has no active subscription
+      setPlansModalMessage('Pick a plan to access your AI Study Tools! 🚀');
+      setPlansModalSubMessage('Get started today for free!');
+      setTogglePlansModal(true);
+    }
+  }, [user.subscription]);
+
   useEffect(() => {
     if (certainConversationId) {
       const authSocket = socketWithAuth({
         studentId,
         topic: localData.topic,
         subject: localData.subject,
-        level: level.label,
+        // level: level.label,
         namespace: 'homework-help',
-        conversationId: certainConversationId ?? storedConvoId
+        conversationId:
+          certainConversationId ?? storedConvoId ?? freshConversationId
       }).connect();
       setSocket(authSocket);
     }
-  }, [certainConversationId]);
+  }, [certainConversationId, freshConversationId]);
 
   useEffect(() => {
     if (isSubmitted) {
@@ -129,7 +158,8 @@ const HomeWorkHelp = () => {
         studentId,
         topic: localData.topic,
         subject: localData.subject,
-        level: level.label,
+        documentId: documentId,
+        // level: level.label,
         // conversationId,
         namespace: 'homework-help'
       }).connect();
@@ -185,7 +215,7 @@ const HomeWorkHelp = () => {
   useEffect(() => {
     // Return early if there's no socket or if isSubmitted is false.
     const handleNewConversation = (conversationId: string) => {
-      // setConversationId(conversationId);
+      setFreshConversationId(conversationId);
     };
 
     // Attach the listener since isSubmitted is true.
@@ -199,6 +229,24 @@ const HomeWorkHelp = () => {
       socket && socket.off('current_conversation', handleNewConversation);
     };
   }, [socket]);
+
+  useEffect(() => {
+    // Attach the listener since isSubmitted is true.
+    if (socket && docId) {
+      socket.on('append_document', {
+        documentId: docId
+      });
+    }
+
+    // Cleanup: remove the listener when isSubmitted becomes false,
+    // when the socket changes, or when the component unmounts.
+    return () => {
+      socket &&
+        socket.off('append_document', {
+          documentId: docId
+        });
+    };
+  }, [socket, docId]);
 
   useLayoutEffect(() => {
     const fetchChatHistory = async () => {
@@ -215,12 +263,8 @@ const HomeWorkHelp = () => {
         setMessages((prevMessages) => [...prevMessages, ...mappedData]);
       } catch (error) {
         toast({
-          render: () => (
-            <CustomToast
-              title="Failed to fetch chat history..."
-              status="error"
-            />
-          ),
+          title: 'Failed to fetch chat history...',
+          status: 'error',
           position: 'top-right',
           isClosable: true
         });
@@ -315,31 +359,37 @@ const HomeWorkHelp = () => {
     [handleSendMessage]
   );
 
+  const onChatHistory = useCallback(() => {
+    setChatHistory((prevState) => !prevState);
+  }, [setChatHistory]);
+
   useEffect(() => {
     const fetchConversationId = async () => {
       setLoading(true);
       const response = await getConversionById({
-        conversationId: recentConversationId ?? conversationId
+        conversationId:
+          recentConversationId ?? conversationId ?? freshConversationId
       });
 
       if (response) {
         setVisibleButton(false);
       }
       const previousConvoData = response
-        ?.map((conversation) => ({
-          text: conversation?.log?.content,
-          isUser: conversation?.log?.role === 'user',
-          isLoading: false
-        }))
-        ?.filter((convo) => convo.text !== SHALL_WE_BEGIN)
-        ?.sort((a, b) => {
-          const dateA = new Date(a.createdAt);
-          const dateB = new Date(b.createdAt);
-          // If dates are the same
-          if (dateA.getTime() === dateB.getTime()) {
-            return a.id - b.id;
-          }
-          return dateA.getTime() - dateB.getTime();
+        ?.map((conversation) => {
+          // Make sure there's a createdAt attribute
+          const createdAt = conversation?.createdAt || new Date(0); // Default date in case createdAt is not present
+
+          return {
+            text: conversation?.log?.content,
+            isUser: conversation?.log?.role === 'user',
+            isLoading: false,
+            createdAt: new Date(createdAt), // Convert createdAt to a Date object
+            id: conversation?.id // Assuming each conversation has a unique id
+          };
+        })
+        .filter((convo) => convo.text !== SHALL_WE_BEGIN)
+        .sort((a, b) => {
+          return a.createdAt.getTime() - b.createdAt.getTime();
         });
 
       const countOfIDontUnderstand = previousConvoData.filter(
@@ -361,6 +411,13 @@ const HomeWorkHelp = () => {
     }
   }, [conversationId, socket, recentConversationId]);
 
+  const fetchDescription = async (id: string) => {
+    const response = await getDescriptionById({ conversationId: id });
+    if (response?.data) {
+      setDescription(response.data);
+    }
+  };
+
   useEffect(() => {
     const fetchDescription = async (id: string) => {
       const response = await getDescriptionById({ conversationId: id });
@@ -369,12 +426,12 @@ const HomeWorkHelp = () => {
       }
     };
 
-    const effectiveConversationId = conversationId;
+    const effectiveConversationId = conversationId ?? freshConversationId;
 
     if (effectiveConversationId) {
       fetchDescription(effectiveConversationId);
     }
-  }, [conversationId]);
+  }, [conversationId, freshConversationId]);
 
   const onRouteHomeWorkHelp = useCallback(() => {
     handleClose();
@@ -415,7 +472,7 @@ const HomeWorkHelp = () => {
         `${window.location.href}`
       );
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 
@@ -477,6 +534,7 @@ const HomeWorkHelp = () => {
       setConversationId('');
       setVisibleButton(false);
       setCountNeedTutor(1);
+      localStorage.removeItem('conversationId');
     }
   }, [isSubmitted]);
 
@@ -507,12 +565,8 @@ const HomeWorkHelp = () => {
         setOnlineTutorsId(response?.data);
       } catch (error: any) {
         toast({
-          render: () => (
-            <CustomToast
-              title="Failed to fetch chat history..."
-              status="error"
-            />
-          ),
+          title: 'Failed to fetch chat history...',
+          status: 'error',
           position: 'top-right',
           isClosable: true
         });
@@ -533,108 +587,177 @@ const HomeWorkHelp = () => {
   //     setRecentConverstionId(firstId);
   //   }
   // }, [storedConvoId]);
+  if (!hasActiveSubscription) {
+    return (
+      <Center height="100vh" width="100%">
+        <Box display={'flex'} flexDirection={'column'} alignItems={'center'}>
+          <Icon
+            as={isHovering ? RiLockUnlockFill : RiLockFill}
+            fontSize="100px"
+            color="#fc9b65"
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
+            onClick={handleLockClick}
+            cursor="pointer"
+          />
+          <Text
+            mt="20px"
+            fontSize="20px"
+            fontWeight="bold"
+            color={'lightgrey'}
+            textAlign="center"
+          >
+            Unlock your full potential today!
+          </Text>
+        </Box>
+        {togglePlansModal && (
+          <PlansModal
+            togglePlansModal={togglePlansModal}
+            setTogglePlansModal={setTogglePlansModal}
+            message={plansModalMessage}
+            subMessage={plansModalSubMessage}
+          />
+        )}
+      </Center>
+    );
+  } else {
+    return (
+      <HomeWorkHelpContainer>
+        <HomeWorkHelpHistoryContainer>
+          <ChatHistory
+            studentId={studentId}
+            setConversationId={setConversationId}
+            conversationId={conversationId}
+            isSubmitted={isSubmitted}
+            setCountNeedTutor={setCountNeedTutor}
+            setMessages={setMessages}
+            setDeleteConservationModal={setDeleteConservationModal}
+            deleteConservationModal={deleteConservationModal}
+            setVisibleButton={setVisibleButton}
+            setSocket={setSocket}
+            setCertainConversationId={setCertainConversationId}
+            messages={messages}
+            setSomeBountyOpt={setSomeBountyOpt}
+            setNewConversationId={setNewConversationId}
+            isBountyModalOpen={isBountyModalOpen}
+            setLocalData={setLocalData}
+            setFreshConversationId={setFreshConversationId}
+          />
+        </HomeWorkHelpHistoryContainer>
+        <HomeWorkHelpChatContainer>
+          <Chat
+            ref={ref}
+            isReadyToChat={true}
+            HomeWorkHelp
+            isShowPrompt={isShowPrompt}
+            messages={messages}
+            llmResponse={llmResponse}
+            botStatus={botStatus}
+            onOpenModal={onOpenModal}
+            inputValue={inputValue}
+            handleInputChange={handleInputChange}
+            handleSendMessage={handleSendMessage}
+            handleKeyDown={handleKeyDown}
+            homeWorkHelpPlaceholder={
+              'How can Shepherd help with your homework?'
+            }
+            handleClickPrompt={handleClickPrompt}
+            countNeedTutor={countNeedTutor}
+            onCountTutor={onCountTutor}
+            handleAceHomeWorkHelp={handleAceHomeWorkHelp}
+            visibleButton={visibleButton}
+            fetchDescription={fetchDescription}
+            freshConversationId={freshConversationId}
+            onChatHistory={onChatHistory}
+          />
+        </HomeWorkHelpChatContainer>
 
-  return (
-    <HomeWorkHelpContainer>
-      <HomeWorkHelpHistoryContainer>
-        <ChatHistory
-          studentId={studentId}
-          setConversationId={setConversationId}
-          conversationId={conversationId}
-          isSubmitted={isSubmitted}
-          setCountNeedTutor={setCountNeedTutor}
-          setMessages={setMessages}
-          setDeleteConservationModal={setDeleteConservationModal}
-          deleteConservationModal={deleteConservationModal}
-          setVisibleButton={setVisibleButton}
-          setSocket={setSocket}
-          setCertainConversationId={setCertainConversationId}
-          messages={messages}
-          setSomeBountyOpt={setSomeBountyOpt}
-          setNewConversationId={setNewConversationId}
+        <CustomModal
+          isOpen={isOpenModal}
+          onClose={onOpenModal}
+          modalSize="lg"
+          style={{
+            height: '100Vh',
+            maxWidth: '100%'
+          }}
+        >
+          <ViewTutors
+            onOpenModal={onOpenModal}
+            subjectID={localData.subjectId}
+            onlineTutorsId={onlineTutorsId}
+          />
+        </CustomModal>
+
+        {openAceHomework && (
+          <ViewHomeWorkHelpDetails
+            isHomeWorkHelp
+            openAceHomework={openAceHomework}
+            handleClose={handleClose}
+            setMessages={setMessages}
+            handleAceHomeWorkHelp={handleAceHomeWorkHelp}
+            setSubject={setSubject}
+            subjectId={subjectId}
+            setLocalData={setLocalData}
+            setLevel={setLevel}
+            localData={localData}
+            level={level}
+            onRouteHomeWorkHelp={onRouteHomeWorkHelp}
+            setDocumentId={setDocumentId}
+            documentId={documentId}
+          />
+        )}
+
+        <BountyOfferModal
           isBountyModalOpen={isBountyModalOpen}
-          setLocalData={setLocalData}
+          closeBountyModal={closeBountyModal}
+          topic={localData?.topic || someBountyOpt?.topic}
+          subject={localData?.subject || someBountyOpt?.subject}
+          level={level.label || someBountyOpt?.level}
+          description={description}
         />
-      </HomeWorkHelpHistoryContainer>
-      <HomeWorkHelpChatContainer>
-        <Chat
-          isReadyToChat={true}
-          HomeWorkHelp
-          isShowPrompt={isShowPrompt}
-          messages={messages}
-          llmResponse={llmResponse}
-          botStatus={botStatus}
-          onOpenModal={onOpenModal}
-          inputValue={inputValue}
-          handleInputChange={handleInputChange}
-          handleSendMessage={handleSendMessage}
-          handleKeyDown={handleKeyDown}
-          homeWorkHelpPlaceholder={'How can Shepherd help with your homework?'}
-          handleClickPrompt={handleClickPrompt}
-          countNeedTutor={countNeedTutor}
-          onCountTutor={onCountTutor}
-          handleAceHomeWorkHelp={handleAceHomeWorkHelp}
-          visibleButton={visibleButton}
+        <PaymentDialog
+          ref={paymentDialogRef}
+          prefix={
+            <Alert status="info" mb="22px">
+              <AlertIcon>
+                <MdInfo color={theme.colors.primary[500]} />
+              </AlertIcon>
+              <AlertDescription>
+                Payment will not be deducted until after your first lesson, You
+                may decide to cancel after your initial lesson.
+              </AlertDescription>
+            </Alert>
+          }
         />
-      </HomeWorkHelpChatContainer>
-
-      <CustomModal
-        isOpen={isOpenModal}
-        onClose={onOpenModal}
-        modalSize="lg"
-        style={{
-          height: '100Vh',
-          maxWidth: '100%'
-        }}
-      >
-        <ViewTutors
-          onOpenModal={onOpenModal}
-          subjectID={localData.subjectId}
-          onlineTutorsId={onlineTutorsId}
-        />
-      </CustomModal>
-
-      {openAceHomework && (
-        <ViewHomeWorkHelpDetails
-          isHomeWorkHelp
-          openAceHomework={openAceHomework}
-          handleClose={handleClose}
-          setMessages={setMessages}
-          handleAceHomeWorkHelp={handleAceHomeWorkHelp}
-          setSubject={setSubject}
-          subjectId={subjectId}
-          setLocalData={setLocalData}
-          setLevel={setLevel}
-          localData={localData}
-          level={level}
-          onRouteHomeWorkHelp={onRouteHomeWorkHelp}
-        />
-      )}
-
-      <BountyOfferModal
-        isBountyModalOpen={isBountyModalOpen}
-        closeBountyModal={closeBountyModal}
-        topic={localData?.topic || someBountyOpt?.topic}
-        subject={localData?.subject || someBountyOpt?.subject}
-        level={level.label || someBountyOpt?.level}
-        description={description}
-      />
-      <PaymentDialog
-        ref={paymentDialogRef}
-        prefix={
-          <Alert status="info" mb="22px">
-            <AlertIcon>
-              <MdInfo color={theme.colors.primary[500]} />
-            </AlertIcon>
-            <AlertDescription>
-              Payment will not be deducted until after your first lesson, You
-              may decide to cancel after your initial lesson.
-            </AlertDescription>
-          </Alert>
-        }
-      />
-    </HomeWorkHelpContainer>
-  );
+        <CustomSideModal onClose={onChatHistory} isOpen={isChatHistory}>
+          <div style={{ marginTop: '3rem' }}>
+            <MobileHomeWorkHelpHistoryContainer>
+              <ChatHistory
+                studentId={studentId}
+                setConversationId={setConversationId}
+                conversationId={conversationId}
+                isSubmitted={isSubmitted}
+                setCountNeedTutor={setCountNeedTutor}
+                setMessages={setMessages}
+                setDeleteConservationModal={setDeleteConservationModal}
+                deleteConservationModal={deleteConservationModal}
+                setVisibleButton={setVisibleButton}
+                setSocket={setSocket}
+                setCertainConversationId={setCertainConversationId}
+                messages={messages}
+                setSomeBountyOpt={setSomeBountyOpt}
+                setNewConversationId={setNewConversationId}
+                isBountyModalOpen={isBountyModalOpen}
+                setLocalData={setLocalData}
+                setFreshConversationId={setFreshConversationId}
+                onChatHistory={onChatHistory}
+              />
+            </MobileHomeWorkHelpHistoryContainer>
+          </div>
+        </CustomSideModal>
+      </HomeWorkHelpContainer>
+    );
+  }
 };
 
 export default HomeWorkHelp;

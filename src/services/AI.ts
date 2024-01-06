@@ -1,5 +1,6 @@
 import { AI_API, HEADER_KEY } from '../config';
 import { AIServiceResponse } from '../views/Dashboard/Notes/types';
+import { isNil } from 'lodash';
 
 type DocumentType = {
   topic?: string;
@@ -105,10 +106,9 @@ export const chatWithDoc = async ({
 };
 
 export const createDocchatFlashCards = async (data: DocumentType) => {
-  const request = await fetch(`${AI_API}/flash-cards/generate-from-notes`, {
+  const request = await fetch(`https://proxinho.fly.dev`, {
     method: 'POST',
     headers: {
-      'x-shepherd-header': HEADER_KEY,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(data)
@@ -160,13 +160,23 @@ export const fetchStudentConversations = async (studentId: string) => {
 
 export const chatHistory = async ({
   documentId,
+  noteId,
   studentId
 }: {
   documentId?: string;
+  noteId?: string;
   studentId: string;
 }) => {
+  let query = ``;
+
+  if (!isNil(documentId)) {
+    query = `&documentId=${documentId}`;
+  }
+  if (!isNil(noteId)) {
+    query = `&noteId=${noteId}`;
+  }
   const response = await fetch(
-    `${AI_API}/notes/chat/history?studentId=${studentId}&documentId=${documentId}`,
+    `${AI_API}/notes/chat/history?studentId=${studentId}${query}`,
     {
       method: 'GET',
       headers: {
@@ -246,23 +256,19 @@ export const uploadBlockNoteDocument = async (data: {
   }).then(async (data) => data.json());
 };
 
-export const postPDFHighlight = async ({
-  documentId,
-  highlight
-}: {
-  documentId: any;
-  highlight: object;
+export const postPDFHighlight = async (data: {
+  studentId: string;
+  documentId: string;
+  highlight: { name: string; position: Array<any> };
+  content: string;
 }) => {
-  const request = await fetch(`${AI_API}/highlights`, {
+  const request = await fetch(`${AI_API}/highlights/comment/save`, {
     method: 'POST',
     headers: {
       'x-shepherd-header': HEADER_KEY,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      documentId,
-      highlight
-    })
+    body: JSON.stringify(data)
   });
 
   return request;
@@ -287,6 +293,27 @@ export const getPDFHighlight = async ({
   } else {
     const highlight = await response.json();
     return highlight;
+  }
+};
+
+export const generateComment = async (data: {
+  highlightText: string;
+  documentId: string;
+  studentId: string;
+}) => {
+  const response = await fetch(`${AI_API}/highlights/comment/generate`, {
+    method: 'POST',
+    headers: {
+      'x-shepherd-header': HEADER_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  } else {
+    const summaryResponse = await response.json();
+    return summaryResponse;
   }
 };
 
@@ -422,5 +449,94 @@ export const getDescriptionById = async ({
   } else {
     const conversation = await response.json();
     return conversation;
+  }
+};
+
+export const getToggleReaction = async ({ chatId, reactionType }) => {
+  const request = await fetch(`${AI_API}/notes/chat/toggle_reaction`, {
+    method: 'POST',
+    headers: {
+      'x-shepherd-header': HEADER_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      chatId,
+      reactionType
+    })
+  });
+  return request;
+};
+
+export const postPinnedPrompt = async ({ chatId, studentId }) => {
+  const request = await fetch(`${AI_API}/notes/toggle_pin`, {
+    method: 'POST',
+    headers: {
+      'x-shepherd-header': HEADER_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      chatId,
+      studentId
+    })
+  });
+  return request;
+};
+
+export const getDocchatHistory = async ({
+  studentIdParam,
+  noteText
+}: {
+  studentIdParam?: string;
+  noteText?: string;
+}) => {
+  const AI_API_BASE_URL = `${AI_API}/notes/chat`;
+  const endpoint = 'document_history';
+
+  // Prepare query parameters
+  const queryParams = new URLSearchParams({
+    studentId: studentIdParam,
+    documentType: noteText ? 'text_note' : '',
+    env: process.env.REACT_APP_API_ENDPOINT.includes('develop')
+      ? 'develop'
+      : 'prod'
+  });
+
+  const url = `${AI_API_BASE_URL}/${endpoint}?${queryParams.toString()}`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'x-shepherd-header': HEADER_KEY
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  } else {
+    const conversation = await response.json();
+    return conversation;
+  }
+};
+
+export const generateStudyPlan = async (data: {
+  syllabusData: {
+    course: string;
+    gradeLevel: string;
+    weekCount: number;
+  };
+}) => {
+  const response = await fetch(`${AI_API}/study-plans/generate`, {
+    method: 'POST',
+    headers: {
+      'x-shepherd-header': HEADER_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  } else {
+    const studyPlanResponse = await response.json();
+    return studyPlanResponse;
   }
 };

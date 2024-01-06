@@ -1,5 +1,5 @@
-import { ReactComponent as BackIcn } from '../../../assets/backIcn.svg';
-import { ReactComponent as NoTutorsIcn } from '../../../assets/noTutorsIcn.svg';
+import BackIcn from '../../../assets/backIcn.svg?react';
+import NoTutorsIcn from '../../../assets/noTutorsIcn.svg?react';
 import CustomScrollbar from '../../../components/CustomComponents/CustomScrollBar';
 import ApiService from '../../../services/ApiService';
 import resourceStore from '../../../state/resourceStore';
@@ -11,10 +11,11 @@ import {
   TutorsBackIcn,
   ViewTutorSection
 } from './style';
-import { Spinner, Box } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import moment from 'moment';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ShepherdSpinner from '../components/shepherd-spinner';
 
 const ViewTutors = ({
   onOpenModal,
@@ -102,7 +103,6 @@ const ViewTutors = ({
         setAllTutors(data?.tutors ?? []);
       } catch (error) {
         // eslint-disable-next-line no-console
-        console.error('Error fetching tutors:', error);
       } finally {
         setLoadingData(false);
       }
@@ -138,7 +138,7 @@ const ViewTutors = ({
                 width: '100%'
               }}
             >
-              <Spinner />
+              <ShepherdSpinner />
             </Box>
           ) : (
             <>
@@ -197,7 +197,7 @@ const ViewTutors = ({
                 width: '100%'
               }}
             >
-              <Spinner />
+              <ShepherdSpinner />
             </Box>
           ) : (
             <>

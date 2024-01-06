@@ -17,7 +17,6 @@ import React, { useState, useMemo } from 'react';
 const HourlyRateForm: React.FC = () => {
   const { rate: hourlyRate } = onboardTutorStore.useStore();
   const { rate } = resourceStore();
-  console.log(rate, hourlyRate);
 
   const tutorEarnings = useMemo(() => {
     const baseEarning = 0;

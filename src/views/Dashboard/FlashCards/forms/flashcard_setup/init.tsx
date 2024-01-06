@@ -1,6 +1,6 @@
 import { useCustomToast } from '../../../../../components/CustomComponents/CustomToast/useCustomToast';
-import CustomSelect from '../../../../../components/CustomSelect';
 import SelectComponent, { Option } from '../../../../../components/Select';
+import ApiService from '../../../../../services/ApiService';
 import { useFlashcardWizard } from '../../context/flashcard';
 import {
   Box,
@@ -11,7 +11,9 @@ import {
   RadioGroup,
   Button,
   Text,
-  HStack
+  HStack,
+  Spacer,
+  Flex
 } from '@chakra-ui/react';
 import React, {
   ChangeEvent,
@@ -20,8 +22,16 @@ import React, {
   useState,
   useCallback
 } from 'react';
+import userStore from '../../../../../state/userStore';
+import PlansModal from '../../../../../components/PlansModal';
 
-const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
+const FlashCardSetupInit = ({
+  isAutomated,
+  isFlashCardPage
+}: {
+  isAutomated?: boolean;
+  isFlashCardPage?: boolean;
+}) => {
   const {
     flashcardData,
     generateFlashcardQuestions,
@@ -31,13 +41,12 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
   } = useFlashcardWizard();
 
   const toast = useCustomToast();
+  const { user } = userStore();
 
   const dummyData = {
     deckname: '',
     studyType: '',
     studyPeriod: '',
-    subject: '',
-    topic: '',
     level: '',
     numQuestions: 0,
     timerDuration: '',
@@ -45,6 +54,9 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
   };
 
   const [localData, setLocalData] = useState<typeof flashcardData>(dummyData); // A local state for storing user inputs
+  const [togglePlansModal, setTogglePlansModal] = useState(false);
+  const [plansModalMessage, setPlansModalMessage] = useState('');
+  const [PlansModalSubMessage, setPlansModalSubMessage] = useState('');
 
   useEffect(() => {
     if (isResetted) {
@@ -54,11 +66,29 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
   }, [isResetted]);
 
   useEffect(() => {
+    if (flashcardData.documentId) {
+      setLocalData((prevState) => ({
+        ...prevState,
+        startPage: null,
+        endPage: null
+      }));
+    }
+    // eslint-disable-next-line
+  }, [flashcardData.documentId]);
+
+  useEffect(() => {
     if (flashcardData.deckname) {
       setLocalData(flashcardData);
     }
     // eslint-disable-next-line
   }, []);
+
+  useEffect(() => {
+    if (!localData.deckname) {
+      setLocalData(flashcardData);
+    }
+    // eslint-disable-next-line
+  }, [flashcardData]);
 
   const studyPeriodOptions = [
     { label: 'Daily', value: 'daily' },
@@ -96,7 +126,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
   );
 
   const isValid = useMemo(() => {
-    const { timerDuration, hasSubmitted, subject, topic, ...data } = localData;
+    const { timerDuration, hasSubmitted, ...data } = localData;
     let payload: { [key: string]: any } = { ...data };
     if (flashcardData.noteDoc) {
       return [
@@ -106,7 +136,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
       ].every(Boolean);
     }
     if (isAutomated) {
-      payload = { ...payload, subject };
+      payload = { ...payload };
     }
 
     return Object.values(payload).every(Boolean);
@@ -123,7 +153,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const data = { ...flashcardData, ...localData, hasSubmitted: true };
     setFlashcardData((prevState) => ({
       ...prevState,
@@ -131,7 +161,39 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
       hasSubmitted: true
     }));
     if (isAutomated) {
-      generateFlashcardQuestions(data, handleDone);
+      try {
+        // Assuming you have an API endpoint that checks the question count
+        // Subscription and flashcard limit check
+        const { hasActiveSubscription } = userStore.getState();
+        const flashcardCountResponse = await ApiService.checkFlashcardCount(
+          user.student._id
+        );
+        const userFlashcardCount = await flashcardCountResponse.json();
+
+        if (
+          !hasActiveSubscription ||
+          (user.subscription?.subscriptionMetadata?.flashcard_limit &&
+            userFlashcardCount.count >=
+              user.subscription.subscriptionMetadata.flashcard_limit)
+        ) {
+          setPlansModalMessage(
+            !hasActiveSubscription
+              ? "Let's get you on a plan so you can generate flashcards! "
+              : "Looks like you've filled up your flashcard deck! 🚀"
+          );
+          setPlansModalSubMessage(
+            !hasActiveSubscription
+              ? 'Get started today for free!'
+              : "Let's upgrade your plan so you can keep generating more."
+          );
+          setTogglePlansModal(true); // Show the PlansModal
+          return;
+        }
+        generateFlashcardQuestions(data, handleDone);
+      } catch (error) {
+        console.log(error);
+        // Handle error (e.g., show toast notification)
+      }
     } else {
       goToNextStep();
     }
@@ -141,32 +203,46 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     return (
       <>
         {' '}
-        <FormControl mb={8}>
-          <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-            Subject
-          </FormLabel>
-          <Input
-            type="text"
-            name="subject"
-            placeholder="e.g. Chemistry"
-            value={localData.subject}
-            onChange={handleChange}
-            _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-          />
-        </FormControl>
-        <FormControl mb={8}>
-          <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-            Topic
-          </FormLabel>
-          <Input
-            type="text"
-            name="topic"
-            placeholder="e.g. Bonds"
-            value={localData.topic}
-            onChange={handleChange}
-            _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-          />
-        </FormControl>
+        {isFlashCardPage && (
+          <div>
+            <FormControl mb={8}>
+              <FormLabel
+                fontSize="12px"
+                lineHeight="17px"
+                color="#5C5F64"
+                mb={3}
+              >
+                Subject
+              </FormLabel>
+              <Input
+                type="text"
+                name="subject"
+                placeholder="e.g. Chemistry"
+                value={localData.subject}
+                onChange={handleChange}
+                _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+              />
+            </FormControl>
+            <FormControl mb={8}>
+              <FormLabel
+                fontSize="12px"
+                lineHeight="17px"
+                color="#5C5F64"
+                mb={3}
+              >
+                Topic
+              </FormLabel>
+              <Input
+                type="text"
+                name="topic"
+                placeholder="e.g. Bonds"
+                value={localData.topic}
+                onChange={handleChange}
+                _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+              />
+            </FormControl>
+          </div>
+        )}
         <FormControl mb={8}>
           <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
             Level (optional)
@@ -194,9 +270,42 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
     );
   }, [localData]);
 
+  const renderPagesFields = useCallback(() => {
+    return (
+      <>
+        {' '}
+        <FormControl mb={8}>
+          <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+            Start Page (Optional)
+          </FormLabel>
+          <Input
+            type="number"
+            name="startPage"
+            placeholder="Start Page Number"
+            value={localData.startPage}
+            onChange={handleChange}
+            _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+          />
+        </FormControl>
+        <FormControl mb={8}>
+          <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+            End Page (Optional)
+          </FormLabel>
+          <Input
+            type="number"
+            name="endPage"
+            placeholder="End Page Number"
+            value={localData.endPage}
+            onChange={handleChange}
+            _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+          />
+        </FormControl>
+      </>
+    );
+  }, [localData]);
+
   return (
     <Box bg="white" width="100%" mt="30px">
-      {isAutomated && !flashcardData?.noteDoc && renderOptional()}
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Deckname
@@ -210,6 +319,7 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
           _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />
       </FormControl>
+      {isAutomated && !flashcardData?.noteDoc ? renderOptional() : ''}
 
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
@@ -233,12 +343,15 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
             } as ChangeEvent<HTMLInputElement>);
           }}
         >
-          <Radio value="longTermRetention">
-            <Text fontSize="14px">Long term retention</Text>
-          </Radio>
-          <Radio ml={'10px'} value="quickPractice">
-            <Text fontSize="14px"> Quick Practice</Text>
-          </Radio>
+          <Flex direction={{ base: 'row', md: 'column', lg: 'row' }}>
+            {' '}
+            <Radio value="longTermRetention" marginRight="4">
+              <Text fontSize="14px">Long term retention</Text>
+            </Radio>
+            <Radio value="quickPractice">
+              <Text fontSize="14px"> Quick Practice</Text>
+            </Radio>
+          </Flex>
         </RadioGroup>
       </FormControl>
 
@@ -283,6 +396,8 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
         />
       </FormControl>
 
+      {isAutomated && flashcardData?.documentId && renderPagesFields()}
+
       <HStack w="full" align={'flex-end'}>
         <Button
           variant="solid"
@@ -311,6 +426,14 @@ const FlashCardSetupInit = ({ isAutomated }: { isAutomated?: boolean }) => {
           Generate Flashcard
         </Button>
       </HStack>
+      {togglePlansModal && (
+        <PlansModal
+          togglePlansModal={togglePlansModal}
+          setTogglePlansModal={setTogglePlansModal}
+          message={plansModalMessage} // Pass the message to the modal
+          subMessage={PlansModalSubMessage}
+        />
+      )}
     </Box>
   );
 };

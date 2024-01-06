@@ -1,5 +1,6 @@
 import { CustomButton } from '../../../layout';
 import { Icon, Box } from '@chakra-ui/react';
+import React from 'react';
 
 interface ActionDropdownProps {
   onOptionClick?: (option: 'create-note' | 'upload-document') => void;

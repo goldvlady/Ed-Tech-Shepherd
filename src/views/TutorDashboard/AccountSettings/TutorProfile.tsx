@@ -12,6 +12,7 @@ import { Course, LevelType } from '../../../types';
 import AvailabilityTable from '../../Dashboard/components/AvailabilityTable';
 import AddSubjectForm from '../../OnboardTutor/components/steps/add_subjects';
 import AvailabilityEditForm from './AvailabilityEditForm.tsx';
+import QualificationsEditForm from './QualificationsEditForm';
 import {
   Avatar,
   AspectRatio,
@@ -72,6 +73,7 @@ import { BiPlayCircle } from 'react-icons/bi';
 import { IoIosAlert } from 'react-icons/io';
 import { MdEdit } from 'react-icons/md';
 import { RiArrowRightSLine } from 'react-icons/ri';
+import Availability from '../../../components/Availability';
 
 interface SubjectLevel {
   subject: string;
@@ -81,7 +83,7 @@ interface SubjectLevel {
 function MyProfile(props) {
   const { tutorData } = props;
   const { user, fetchUser } = userStore();
-  const { rate } = resourceStore();
+  const { courses: courseList, levels, rate } = resourceStore();
 
   const toast = useToast();
   const [newEmail, setNewEmail] = useState<string>(tutorData.email);
@@ -96,14 +98,20 @@ function MyProfile(props) {
   const [vidOverlay, setVidOverlay] = useState<boolean>(true);
   const [description, setDescription] = useState(tutorData.tutor.description);
   const [schedule, setSchedule] = useState('');
+  const [qualifications, setQualifications] = useState('');
   const [subjectLevel, setSubjectLevel] = useState<any>(
-    tutorData.tutor.coursesAndLevels
+    tutorData.tutor.coursesAndLevels.map((item) => ({
+      course: {
+        label: item.course && item.course.label ? item.course.label : ''
+      },
+      level: { label: item.level && item.level.label ? item.level.label : '' }
+    }))
   );
+
   const [hourlyRate, setHourlyRate] = useState(tutorData.tutor.rate);
   const [isLoading, setIsLoading] = useState(false);
   const [introVideo, setIntroVideo] = useState<any>(null);
   const [introVideoLink, setIntroVideoLink] = useState<any>(null);
-  console.log(subjectLevel, 'sub-lev');
 
   // const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
@@ -119,6 +127,11 @@ function MyProfile(props) {
     isOpen: isUpdateAvailabilityModalOpen,
     onOpen: openUpdateAvailabilityModal,
     onClose: closeUpdateAvailabilityModal
+  } = useDisclosure();
+  const {
+    isOpen: isUpdateQualificationsModalOpen,
+    onOpen: openUpdateQualificationsModal,
+    onClose: closeUpdateQualificationsModal
   } = useDisclosure();
   const {
     isOpen: isUpdateSubjectModalOpen,
@@ -186,6 +199,17 @@ function MyProfile(props) {
     /* eslint-disable */
   }, [introVideo]);
 
+  useEffect(() => {
+    if (tutorData.tutor.intro && !introVideo) {
+      fetch(tutorData.tutor.intro)
+        .then((response) => response.blob())
+        .then((blob) => {
+          const file = new File([blob], 'intro_video', { type: blob.type }); // replace 'filename' with your desired filename
+          setIntroVideo(file);
+        });
+    }
+  }, [tutorData.tutor.intro, introVideo]);
+
   const hasAnyEmptyArray = (obj) => {
     for (const key in obj) {
       if (obj[key] && Array.isArray(obj[key]) && obj[key].length === 0) {
@@ -194,6 +218,37 @@ function MyProfile(props) {
     }
     return false;
   };
+  const isScheduleValid = useMemo(() => {
+    if (!schedule || !Object.keys(schedule).length) {
+      return false;
+    }
+    const sch: any = schedule;
+
+    let hasNonEmptyBlock = false; // Flag to check for at least one non-empty block
+
+    for (const key in sch) {
+      if (!Array.isArray(sch[key])) {
+        return false;
+      }
+
+      if (sch[key].length > 0) {
+        hasNonEmptyBlock = true; // Update flag if the array has non-empty blocks
+
+        for (let i = 0; i < sch[key].length; i++) {
+          if (
+            !sch[key][i].begin ||
+            !sch[key][i].end ||
+            sch[key][i].begin.trim() === '' ||
+            sch[key][i].end.trim() === ''
+          ) {
+            return false;
+          }
+        }
+      }
+    }
+
+    return hasNonEmptyBlock; // Return whether at least one non-empty block exists
+  }, [schedule]);
 
   const handleHourlyRateChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -216,26 +271,17 @@ function MyProfile(props) {
   const updateSchedule = (value) => {
     setSchedule(value);
   };
+  const updateTimezone = (value) => {
+    handleUpdateTutor('tz', value);
+    // setSchedule(value);
+  };
+  const updateQualifications = (value) => {
+    const qualifications: any = [...tutorData.tutor.qualifications, value];
+    setQualifications(qualifications);
+  };
 
   const handleUpdateTutor = async (updateField, value) => {
-    const formData = {
-      //   email: newEmail,
-      //   ottp: otp,
-      //   coursesAndLevels: [],
-      //   schedule: {},
-      //   tz: moment.tz.guess(),
-      //   qualifications: [],
-      //   rate: 0,
-      //   cv: '',
-      //   bankInfo: {},
-      //   avatar: '',
-      //   reviewCount: 0,
-      //   rating: 0,
-      //   description: '',
-      //   country: '',
-      //   identityDocument: '',
-      //   introVideo: ''
-    };
+    const formData = {};
     setIsUpdating(true);
     formData[updateField] = value;
 
@@ -265,10 +311,8 @@ function MyProfile(props) {
     closeUpdateHourlyRateModal();
     closeUpdateSubjectModal();
     closeUpdateVideoModal();
+    closeUpdateQualificationsModal();
   };
-
-  // const subjectLevels: SubjectLevel = tutorData.tutor.coursesAndLevels;
-  // const [subject, setsubject] = useState(second);
 
   const handleSubjectLevelChange = (f: (d: typeof subjectLevel) => any) => {
     const data: any = f(subjectLevel);
@@ -424,20 +468,33 @@ function MyProfile(props) {
               </Box>
             </Flex>
             <Center position="relative" borderRadius={10} my={2}>
-              <AspectRatio
+              {/* <AspectRatio
                 h={{ base: '170px', md: '170px' }}
                 w={{ base: 'full', md: 'full' }}
                 ratio={1}
                 objectFit={'cover'}
-              >
-                <iframe
+              > */}
+              {/* <iframe
                   title="naruto"
                   // src={'https://samplelib.com/lib/preview/mp4/sample-5s.mp4'}
                   src={tutorData.tutor.introVideo}
                   allowFullScreen
                   style={{ borderRadius: 10 }}
-                />
-              </AspectRatio>
+                /> */}
+              <Box
+                h={{ base: '170px', md: '170px' }}
+                w={{ base: 'full', md: 'full' }}
+              >
+                <video
+                  title="tutor-video"
+                  controls
+                  style={{ borderRadius: 10, width: '100%', height: '100%' }}
+                >
+                  <source src={tutorData.tutor.introVideo} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </Box>{' '}
+              {/* </AspectRatio> */}
               <Center
                 color="white"
                 display={vidOverlay ? 'flex' : 'none'}
@@ -451,7 +508,7 @@ function MyProfile(props) {
                     onClick={() => setVidOverlay(false)}
                     size={'50px'}
                   />
-                  <Text display={'inline'}> update intro video</Text>
+                  <Text display={'inline'}> play intro video</Text>
                 </VStack>
               </Center>
             </Center>
@@ -593,7 +650,7 @@ function MyProfile(props) {
                 borderColor="gray.200"
                 position="relative"
                 cursor={'pointer'}
-                onClick={openUpdateAvailabilityModal}
+                onClick={openUpdateQualificationsModal}
               >
                 <Center w="100%" h="100%" position="absolute">
                   <MdEdit />
@@ -603,7 +660,9 @@ function MyProfile(props) {
             {tutorData.tutor.qualifications.map((q) => (
               <>
                 <Flex px={3} gap={0} direction={'row'} my={2}>
-                  <Image src={FileAvi2} alt="qualification" mb={4} />
+                  <Box mb={4}>
+                    <FileAvi2 />
+                  </Box>
                   <Stack direction={'column'} px={4} spacing={1}>
                     <Text fontSize={'16px'} fontWeight={'500'} mb={0}>
                       {q.institution}
@@ -664,7 +723,14 @@ function MyProfile(props) {
                 </Center>
               </Box>
             </Flex>
-            <AvailabilityTable data={tutorData.tutor} />
+            {/* <AvailabilityTable data={tutorData.tutor} /> */}
+            <Availability
+              schedule={tutorData.tutor.schedule}
+              timezone={tutorData.tutor.tz}
+              // handleUpdateSchedule={handleUpdateTutor}
+              // handleUpdateTimezone={handleUpdateTutor}
+              editMode={false}
+            />
           </Box>
         </>
       )}
@@ -674,13 +740,13 @@ function MyProfile(props) {
         modalTitle="Update Availability"
         isModalCloseButton
         style={{
-          maxWidth: '400px',
-          height: '100%'
+          maxWidth: '700px',
+          height: 'fit-content'
         }}
         footerContent={
           <div style={{ display: 'flex', gap: '8px' }}>
             <Button
-              isDisabled={hasAnyEmptyArray(schedule) || !schedule || isUpdating}
+              isDisabled={!isScheduleValid || !schedule || isUpdating}
               onClick={() => handleUpdateTutor('schedule', schedule)}
             >
               {isUpdating ? 'Updating...' : 'Update'}
@@ -689,7 +755,17 @@ function MyProfile(props) {
         }
         onClose={closeUpdateAvailabilityModal}
       >
-        <AvailabilityEditForm updateSchedule={updateSchedule} />
+        <Box overflowY={'scroll'} px={6} w={'100%'}>
+          {/* {' '}
+          <AvailabilityEditForm updateSchedule={updateSchedule} /> */}
+          <Availability
+            schedule={tutorData.tutor.schedule}
+            timezone={tutorData.tutor.tz}
+            handleUpdateSchedule={updateSchedule}
+            handleUpdateTimezone={updateTimezone}
+            editMode={true}
+          />
+        </Box>
       </CustomModal>
       <CustomModal
         isOpen={isUpdateVideoModalOpen}
@@ -937,14 +1013,28 @@ function MyProfile(props) {
           maxWidth: '400px',
           height: 'fit-content'
         }}
-        // footerContent={
-        //   <div style={{ display: 'flex', gap: '8px' }}>
-        //     <Button>Update</Button>
-        //   </div>
-        // }
+        footerContent={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button
+              onClick={() => {
+                const coursesAndLevels = subjectLevel.map((courseLevel) => ({
+                  course: courseList.find(
+                    (course) => course.label === courseLevel.course.label
+                  )?._id,
+                  level: levels.find(
+                    (level) => level.label === courseLevel.level.label
+                  )?._id
+                }));
+                handleUpdateTutor('coursesAndLevels', coursesAndLevels);
+              }}
+            >
+              Update
+            </Button>
+          </div>
+        }
         onClose={closeUpdateSubjectModal}
       >
-        <Box overflowY={'scroll'}>
+        <Box overflowY={'scroll'} p={3}>
           <AddSubjectLevel
             subjectLevels={subjectLevel}
             addSubject={addSubject}
@@ -952,6 +1042,32 @@ function MyProfile(props) {
             handleLevelChange={handleLevelChange}
             handleSubjectChange={handleSubjectChange}
           />
+        </Box>
+      </CustomModal>
+      <CustomModal
+        isOpen={isUpdateQualificationsModalOpen}
+        modalTitle="Update Qualifications"
+        isModalCloseButton
+        style={{
+          maxWidth: '600px',
+          height: 'fit-content'
+        }}
+        footerContent={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button
+              onClick={() =>
+                handleUpdateTutor('qualifications', qualifications)
+              }
+            >
+              {isUpdating ? 'Updating...' : 'Update'}
+            </Button>
+          </div>
+        }
+        onClose={closeUpdateQualificationsModal}
+      >
+        <Box overflowY={'scroll'} p={3} w="full">
+          {' '}
+          <QualificationsEditForm updateQualifications={updateQualifications} />
         </Box>
       </CustomModal>
     </Box>
