@@ -946,6 +946,8 @@ const NewNote = () => {
   useEffect(() => {
     if (!isEmpty(params?.id)) {
       setNoteParamId(params?.id as string);
+    } else {
+      clearEditor();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
