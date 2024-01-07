@@ -962,11 +962,12 @@ const NewNote = () => {
       editedTitle !== editedTitleRef.current.value
     ) {
       if (isEmpty(editedTitle)) return;
-      if (canStartSaving) {
-        editedTitleRef.current.value = editedTitle;
-        handleAutoSave(editor);
-        return;
-      }
+      // if (canStartSaving) {
+      editedTitleRef.current.value = editedTitle;
+      resetTimer();
+      // handleAutoSave(editor);
+      return;
+      // }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debounceEditedTitle]);

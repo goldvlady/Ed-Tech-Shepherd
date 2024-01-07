@@ -425,15 +425,18 @@ export default function DocChat() {
   useEffect(() => {
     if (socket) {
       socket.on('new_note_summary', (data) => {
-        const summary = data.summary;
-        updateNoteSummary(noteId, { topic: editedTitle, summary });
-        setSummaryText(summary);
+        if (!isEmpty(editedTitle)) {
+          const summary = data.summary;
+          updateNoteSummary(noteId, { topic: editedTitle, summary });
+          setSummaryText(summary);
+        }
       });
     } else {
       setNoteLoading(true);
 
       // return () => socket.off('new_note_summary', () => setNoteLoading(true));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket, editedTitle]);
 
   useEffect(() => {
