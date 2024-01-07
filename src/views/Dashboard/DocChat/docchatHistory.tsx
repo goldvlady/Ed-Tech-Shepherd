@@ -238,7 +238,7 @@ const DocchatHistory = ({
                           // <EditIcn onClick={handleUpdateConversation} />
                           <p
                             onClick={() => {
-                              console.log('save');
+                              // console.log('save');
                             }}
                           >
                             Save
