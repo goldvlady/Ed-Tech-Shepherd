@@ -113,7 +113,10 @@ const Calendar: React.FC<CalendarProps> = ({ year, month, onDayClick }) => {
     //   isMounted.current = true;
     //   return;
     // }
-    if (month !== moment().month()) setSelectedDay(null);
+    const currentMonth = moment().month();
+    if (month !== currentMonth) {
+      setSelectedDay(null);
+    }
   }, [month]);
 
   return (
