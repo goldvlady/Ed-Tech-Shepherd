@@ -122,18 +122,19 @@ const UploadQuizForm = ({
   }, []);
 
   const handleGenerateQuestions = async ({
-    name
+    documentID,
+    studentID
   }: {
-    name: string;
-    documentId?: string;
+    documentID: string;
+    studentID: string;
   }) => {
     try {
       // handleSetUploadingState(true);
-      await ApiService.generateQuizQuestionFromDocs({
+      const result = await ApiService.generateQuizQuestionFromDocs({
         ...localData,
         count: toNumber(localData.count),
-        documentId: name,
-        studentId: user?._id,
+        documentId: documentID,
+        studentId: studentID ?? user?._id,
         topic: title
       });
 
@@ -149,6 +150,10 @@ const UploadQuizForm = ({
         title: `failed to generate quizzes job `,
         status: 'error'
       });
+
+      setIsUploadingFile(false);
+      handleIsLoadingQuizzes(false);
+      handleSetUploadingState(false);
     }
   };
   const handleChange = useCallback(
@@ -199,89 +204,49 @@ const UploadQuizForm = ({
           // } = processData;
 
           await handleGenerateQuestions({
-            name: document?.name
+            ...document
           });
 
-          watchJobs(document?.name as string, async (error, quizQuestions) => {
-            if (error) {
-              toast({
-                position: 'top-right',
-                title: `failed to generate quizzes `,
-                status: 'error'
-              });
-              return;
-            }
-            // toast({
-            //   position: 'top-right',
-            //   title: `generate quizzes successful`,
-            //   status: 'success'
-            // });
+          watchJobs(
+            document?.documentID as string,
+            async (error, quizQuestions) => {
+              if (error) {
+                toast({
+                  position: 'top-right',
+                  title: `failed to generate quizzes `,
+                  status: 'error'
+                });
 
-            if (isArray(quizQuestions) && !isEmpty(quizQuestions)) {
-              (async () => {
-                const sliceQuestions = slice(quizQuestions, 0, localData.count);
-                const questions = map([...sliceQuestions], (quiz) => {
-                  let type = quiz?.type;
-                  let options = [];
-                  if (
-                    !isNil(quiz?.options) ||
-                    (isArray(quiz?.options) && isEmpty(quiz?.options))
-                  ) {
-                    options = quiz?.options;
-                  }
+                setIsUploadingFile(false);
+                handleIsLoadingQuizzes(false);
+                handleSetUploadingState(false);
+                return;
+              }
+              // toast({
+              //   position: 'top-right',
+              //   title: `generate quizzes successful`,
+              //   status: 'success'
+              // });
 
-                  if (isNil(type) || isEmpty(type)) {
-                    if (!isNil(options) || !isEmpty(options)) {
-                      if (options.length < 3) {
-                        type = TRUE_FALSE;
-                      } else {
-                        const isMulti =
-                          size(
-                            filter(
-                              options,
-                              (option) => option.isCorrect === true
-                            )
-                          ) > 1;
-                        if (isMulti) {
-                          type = MULTIPLE_CHOICE_MULTI;
-                        }
+              if (isArray(quizQuestions) && !isEmpty(quizQuestions)) {
+                (async () => {
+                  const sliceQuestions = slice(
+                    quizQuestions,
+                    0,
+                    localData.count
+                  );
+                  const questions = map([...sliceQuestions], (quiz) => {
+                    let type = quiz?.type;
+                    let options = [];
+                    if (
+                      !isNil(quiz?.options) ||
+                      (isArray(quiz?.options) && isEmpty(quiz?.options))
+                    ) {
+                      options = quiz?.options;
+                    }
 
-                        type = MULTIPLE_CHOICE_SINGLE;
-                      }
-                    } else {
-                      if (!isEmpty(quiz?.answer) || !isNil(quiz?.answer)) {
-                        type = OPEN_ENDED;
-                      }
-                    }
-                  } else {
-                    if (
-                      includes(toLower(type), 'multiple answers') ||
-                      includes(toLower(type), 'multipleanswers') ||
-                      includes(toLower(type), 'multipleanswer') ||
-                      toLower(type) === 'multiplechoice' ||
-                      toLower(type) === 'multiplechoicemultiple'
-                    ) {
-                      type = MULTIPLE_CHOICE_MULTI;
-                    }
-                    if (
-                      includes(toLower(type), 'single answer') ||
-                      includes(toLower(type), 'singleanswer') ||
-                      toLower(type) === 'multiplechoicesingle'
-                    ) {
-                      type = MULTIPLE_CHOICE_SINGLE;
-                    }
-                    if (
-                      includes(toLower(type), 'true') ||
-                      includes(toLower(type), 'false')
-                    ) {
-                      type = TRUE_FALSE;
-                    }
-                    if (
-                      includes(toLower(type), 'open') ||
-                      includes(toLower(type), 'ended')
-                    ) {
-                      type = OPEN_ENDED;
-                      if (!isEmpty(options)) {
+                    if (isNil(type) || isEmpty(type)) {
+                      if (!isNil(options) || !isEmpty(options)) {
                         if (options.length < 3) {
                           type = TRUE_FALSE;
                         } else {
@@ -298,40 +263,91 @@ const UploadQuizForm = ({
 
                           type = MULTIPLE_CHOICE_SINGLE;
                         }
-                        const arrOptions = [...options];
-                        options = map(arrOptions, (option, idx) => ({
-                          content: option,
-                          isCorrect: toNumber(quiz?.answer) === idx + 1
-                        }));
+                      } else {
+                        if (!isEmpty(quiz?.answer) || !isNil(quiz?.answer)) {
+                          type = OPEN_ENDED;
+                        }
+                      }
+                    } else {
+                      if (
+                        includes(toLower(type), 'multiple answers') ||
+                        includes(toLower(type), 'multipleanswers') ||
+                        includes(toLower(type), 'multipleanswer') ||
+                        toLower(type) === 'multiplechoice' ||
+                        toLower(type) === 'multiplechoicemultiple'
+                      ) {
+                        type = MULTIPLE_CHOICE_MULTI;
+                      }
+                      if (
+                        includes(toLower(type), 'single answer') ||
+                        includes(toLower(type), 'singleanswer') ||
+                        toLower(type) === 'multiplechoicesingle'
+                      ) {
+                        type = MULTIPLE_CHOICE_SINGLE;
+                      }
+                      if (
+                        includes(toLower(type), 'true') ||
+                        includes(toLower(type), 'false')
+                      ) {
+                        type = TRUE_FALSE;
+                      }
+                      if (
+                        includes(toLower(type), 'open') ||
+                        includes(toLower(type), 'ended')
+                      ) {
+                        type = OPEN_ENDED;
+                        if (!isEmpty(options)) {
+                          if (options.length < 3) {
+                            type = TRUE_FALSE;
+                          } else {
+                            const isMulti =
+                              size(
+                                filter(
+                                  options,
+                                  (option) => option.isCorrect === true
+                                )
+                              ) > 1;
+                            if (isMulti) {
+                              type = MULTIPLE_CHOICE_MULTI;
+                            }
+
+                            type = MULTIPLE_CHOICE_SINGLE;
+                          }
+                          const arrOptions = [...options];
+                          options = map(arrOptions, (option, idx) => ({
+                            content: option,
+                            isCorrect: toNumber(quiz?.answer) === idx + 1
+                          }));
+                        }
                       }
                     }
+
+                    return {
+                      ...omit(quiz, ['explanation', 'answerKey']),
+                      options,
+                      type,
+                      answer: toString(quiz?.answer)
+                    };
+                  });
+
+                  if (isNil(quizId) && isEmpty(quizId)) {
+                    await handleCreateQuiz(questions);
+                  } else {
+                    await handleUpdateQuiz(quizId, {
+                      quizQuestions: questions
+                    });
                   }
 
-                  return {
-                    ...omit(quiz, ['explanation', 'answerKey']),
-                    options,
-                    type,
-                    answer: toString(quiz?.answer)
-                  };
-                });
+                  setIsUploadingFile(false);
+                  handleIsLoadingQuizzes(false);
+                  handleSetUploadingState(false);
+                  await fetchQuizzes();
+                })();
+              }
 
-                if (isNil(quizId) && isEmpty(quizId)) {
-                  await handleCreateQuiz(questions);
-                } else {
-                  await handleUpdateQuiz(quizId, {
-                    quizQuestions: questions
-                  });
-                }
-
-                setIsUploadingFile(false);
-                handleIsLoadingQuizzes(false);
-                handleSetUploadingState(false);
-                await fetchQuizzes();
-              })();
+              setTimeout(() => clearJobs(document?.documentID as string), 5000);
             }
-
-            setTimeout(() => clearJobs(document?.name as string), 5000);
-          });
+          );
         } else {
           toast({
             title: 'Failed to save document',
@@ -353,13 +369,14 @@ const UploadQuizForm = ({
       }
     });
     uploadEmitter.on('error', (error) => {
-      console.log('uploadEmitter =======>> error ', error);
       toast({
         title: 'Failed to save document',
         status: 'error',
         position: 'top-right'
       });
       setIsUploadingFile(false);
+      handleIsLoadingQuizzes(false);
+      handleSetUploadingState(false);
     });
   };
 
