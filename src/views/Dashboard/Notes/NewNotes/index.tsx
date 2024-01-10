@@ -86,6 +86,10 @@ import { IoChatboxEllipsesOutline } from 'react-icons/io5';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useDebounce } from 'usehooks-ts';
 import useTimer from '../../../../hooks/useTimer';
+import { useSearchQuery } from '../../../../hooks';
+import { ClipboardIcon } from '@heroicons/react/24/outline';
+import { newId } from '../../../../helpers/id';
+import { copyTextToClipboard } from '../../../../helpers/copyTextToClipboard';
 // import CustomToast from '../../../../components/CustomComponents/CustomToast';
 // import { MdSavings } from 'react-icons/md';
 // import { callback } from 'chart.js/dist/helpers/helpers.core';
@@ -203,7 +207,12 @@ const NewNote = () => {
 
   const toast = useCustomToast();
   const params = useParams();
+
   const location = useLocation();
+  const search = useSearchQuery();
+  const shareable = search.get('shareable');
+  const apiKey = search.get('apiKey');
+
   const [noteParamId, setNoteParamId] = useState<string | null>(null);
   const [openTags, setOpenTags] = useState<boolean>(false);
   const [openFlashCard, setOpenFlashCard] = useState<boolean>(false);
@@ -1000,6 +1009,12 @@ const NewNote = () => {
   useEffect(() => {
     (async () => {
       if (!isEmpty(noteParamId) || !isNil(noteParamId)) {
+        if (shareable && shareable.length > 0 && apiKey && apiKey.length > 0) {
+          console.log('should not');
+        } else {
+          // in here call the stuff with regualr api call
+          console.log('shoud');
+        }
         setIsEditorLoaded(false);
         // setInitialContent(getNoteLocal(noteParamId) as string);
         await getNoteById(noteParamId, () => {
@@ -1036,6 +1051,28 @@ const NewNote = () => {
 
   // Header Component
   const HeaderComponent = () => {
+    const toast = useCustomToast();
+    const generateShareLink = async () => {
+      const apiKey = newId('shep');
+      console.log(apiKey);
+      const shareLink = `${window.location.href}?shareable=true&apiKey=${apiKey}`;
+      console.log(shareLink);
+      try {
+        await copyTextToClipboard(shareLink);
+        toast({
+          title: 'Share Link Generated 🎊',
+          description: 'Successfully copied custom share link',
+          status: 'success',
+          position: 'bottom-right'
+        });
+      } catch (error) {
+        toast({
+          title: 'Something went wrong creating your share link',
+          status: 'error',
+          position: 'bottom-right'
+        });
+      }
+    };
     return (
       <HeaderWrapper
         className={clsx(
@@ -1098,6 +1135,24 @@ const NewNote = () => {
             </div>
           </FirstSection>
           <SecondSection>
+            <Button
+              onClick={generateShareLink}
+              bg="#f4f4f5"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              gap="4px"
+              padding="12px 24px"
+              borderRadius="md"
+              border="none"
+              cursor="pointer"
+              color="#000"
+              _hover={{ bg: '#e4e4e5' }}
+              _active={{ bg: '#d4d4d5' }}
+            >
+              <span> Generate share link</span>
+              <ClipboardIcon width={16} height={16} />
+            </Button>
             <CustomButton
               disabled={!saveButtonState}
               isPrimary

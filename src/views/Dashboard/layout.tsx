@@ -1001,6 +1001,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </Box>
             <Box pt={20}>
               <Outlet />
+              {children}
             </Box>
           </Box>
         </Grid>

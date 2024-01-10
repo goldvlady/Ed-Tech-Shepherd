@@ -121,7 +121,7 @@ const TestNewNote = () => <div>this is the new note </div>;
 const studentRoutes = [
   { path: 'notes/new-note', element: <NewNote /> },
   // { path: 'new-note', element: <TestNewNote /> },
-  { path: 'notes/new-note/:id', element: <NewNote /> },
+  // { path: 'notes/new-note/:id', element: <NewNote /> },
   { path: 'notes', element: <Notes /> },
   { path: 'pinned', element: <PinnedNotes /> },
   { path: 'tutor/:tutorId/offer', element: <SendTutorOffer /> },
@@ -351,6 +351,15 @@ const AppRoutes: React.FC = () => {
           />
         }
       />
+      <Route
+        path="/dashboard/notes/new-note/:id"
+        element={
+          <DashboardLayout>
+            <NewNote />
+          </DashboardLayout>
+        }
+      />
+
       <Route
         path="/dashboard"
         element={
