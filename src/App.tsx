@@ -147,8 +147,8 @@ const studentRoutes = [
   { path: 'study-plans/:courseId', element: <CoursePlan /> },
   // quizzes
   { path: 'quizzes', element: <Quizzes /> },
-  { path: 'quizzes/create', element: <CreateQuizzes /> },
-  { path: 'quizzes/take', element: <TakeQuizzes /> }
+  { path: 'quizzes/create', element: <CreateQuizzes /> }
+  // { path: 'quizzes/take', element: <TakeQuizzes /> }
 ];
 
 // Tutor specific routes configuration
@@ -356,6 +356,14 @@ const AppRoutes: React.FC = () => {
         element={
           <DashboardLayout>
             <NewNote />
+          </DashboardLayout>
+        }
+      />
+      <Route
+        path="/dashboard/quizzes/take"
+        element={
+          <DashboardLayout>
+            <TakeQuizzes />
           </DashboardLayout>
         }
       />
