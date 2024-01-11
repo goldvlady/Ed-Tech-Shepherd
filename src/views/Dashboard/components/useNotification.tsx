@@ -62,7 +62,7 @@ function useNotifications(userId: string) {
       setHasUnreadNotification(unreadNotifications.length > 0);
       setNotifications(validNotifications);
     };
-
+    console.log(hasUnreadNotification);
     const unsubscribe = onValue(
       userNotificationsRef,
       handleNewNotification,

@@ -956,6 +956,11 @@ class ApiService {
       body: JSON.stringify(data)
     });
   };
+  static getStudyPlans = async (page: number, limit: number) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/getStudyPlans?page=${page}&limit=${limit}`
+    );
+  };
 }
 
 export default ApiService;

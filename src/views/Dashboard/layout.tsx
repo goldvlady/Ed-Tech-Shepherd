@@ -258,7 +258,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const navigate = useNavigate();
   const { user, logoutUser } = userStore();
   const userId = user?._id || '';
-  const { notifications, hasUnreadNotification, markAllAsRead } =
+  const { notifications, hasUnreadNotification, markAllAsRead, markAsRead } =
     useNotifications(userId);
 
   const handleSignOut = () => {
@@ -375,6 +375,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                   <Notifications
                     data={notifications}
                     handleAllRead={markAllAsRead}
+                    handleRead={markAsRead}
                   />
                 </MenuList>
               </Menu>
