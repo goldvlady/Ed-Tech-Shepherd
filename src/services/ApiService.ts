@@ -837,25 +837,6 @@ class ApiService {
     );
   };
 
-  // static generateQuizQuestionFromDocs = async (data: {
-  //   type: QuizQuestion['type'] | 'mixed';
-  //   count: number;
-  //   difficulty: QuizQuestion['difficulty'];
-  //   subject: string;
-  //   topic: string;
-  //   documentId?: string;
-  // }) => {
-  //   return doFetch(
-  //     `${AI_API}/quizzes/students/generate-from-notes`,
-  //     {
-  //       method: 'POST',
-  //       body: JSON.stringify(data)
-  //     },
-  //     false,
-  //     { 'Content-Type': 'application/json' }
-  //   );
-  // };
-
   static generateQuizQuestionFromDocs = async (data: {
     type: QuizQuestion['type'] | 'mixed';
     count: number;
@@ -864,6 +845,8 @@ class ApiService {
     topic: string;
     documentId?: string;
     studentId?: string;
+    start_page?: number;
+    end_page?: number;
   }) => {
     // const isDevelopment =
     //   process.env.REACT_APP_API_ENDPOINT.includes('develop');
@@ -881,7 +864,6 @@ class ApiService {
       false,
       {
         'Content-Type': 'application/json'
-        // 'Access-Control-Allow-Origin': '*'
       }
     );
   };

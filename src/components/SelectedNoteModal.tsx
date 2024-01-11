@@ -312,7 +312,7 @@ const SelectedModal = ({
 
     setCountdown(() => ({
       active: true,
-      message: 'Uploading...your document is being uploaded'
+      message: 'Uploading... your document is being uploaded'
     }));
     setProgress(25);
     const uploadEmitter = uploadFile(file, {
