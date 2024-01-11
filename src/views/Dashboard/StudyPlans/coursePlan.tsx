@@ -98,11 +98,10 @@ function CoursePlan() {
 
   useEffect(() => {
     const { pathname } = location;
-    const planIdFromURL = pathname.split('planId=')[1]; // Extracting planId from URL
+    const planIdFromURL = pathname.split('planId=')[1];
 
     if (planIdFromURL) {
-      setSelectedPlan(planIdFromURL); // Set the selected plan from URL
-      // clearIdFromURL(); // Clear the 'planId' from the URL
+      setSelectedPlan(planIdFromURL);
     }
   }, [location.pathname]);
 
@@ -110,12 +109,10 @@ function CoursePlan() {
     if (selectedPlan && selectedPlanRef.current) {
       const selectedPlanElement = selectedPlanRef.current;
 
-      // Get the position of the selected plan relative to the viewport
       const { top, bottom } = selectedPlanElement.getBoundingClientRect();
 
       // Check if the selected plan is already in view
       if (top >= 0 && bottom <= window.innerHeight) {
-        // Plan is already in view, no need to scroll
         return;
       }
 
@@ -151,22 +148,18 @@ function CoursePlan() {
     setSelectedPlan(planId);
   };
   const getTopicStatus = (topicId) => {
-    // Find the topic with the matching topicId
     const selectedTopic = topics.progressLog[0].topicProgress.find(
       (topic) => topic.topic === topicId
     );
 
     if (!selectedTopic) {
-      // Handle the case where the topicId is not found
       return 'Topic Not Found';
     }
 
-    // Check if any subtopic is marked as completed
     const isInProgress = selectedTopic.subTopicProgress.some(
       (subTopic) => subTopic.completed
     );
 
-    // Check if all subtopics are marked as completed
     const isDone = selectedTopic.subTopicProgress.every(
       (subTopic) => subTopic.completed
     );
