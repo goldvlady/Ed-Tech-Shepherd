@@ -1,4 +1,10 @@
-import React, { useRef, useState, ChangeEvent } from 'react';
+import React, {
+  useRef,
+  useState,
+  useCallback,
+  useEffect,
+  ChangeEvent
+} from 'react';
 import {
   Grid,
   Box,
@@ -38,11 +44,51 @@ import { FiChevronDown } from 'react-icons/fi';
 import { useNavigate } from 'react-router';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import SubjectCard from '../../../components/SubjectCard';
+import studyPlanStore from '../../../state/studyPlanStore';
+import resourceStore from '../../../state/resourceStore';
+import moment from 'moment';
+import Pagination from '../components/Pagination';
 
 function StudyPlans() {
-  const [studyPlans, setStudyPlans] = useState(['1', '2']);
+  // const [studyPlans, setStudyPlans] = useState(['1', '2']);
+  const { fetchPlans, studyPlans, pagination } = studyPlanStore();
+  const { courses: courseList, levels: levelOptions } = resourceStore();
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(30);
+  const doFetchStudyPlans = useCallback(async () => {
+    await fetchPlans(page, limit);
+    /* eslint-disable */
+  }, []);
+  useEffect(() => {
+    doFetchStudyPlans();
+  }, [doFetchStudyPlans]);
   const [tutorGrid] = useAutoAnimate();
   const navigate = useNavigate();
+  console.log(studyPlans);
+
+  function getSubject(id) {
+    return courseList.map((course) => {
+      if (course._id === id) {
+        return course.label;
+      }
+      return null;
+    });
+  }
+
+  const allPlans = studyPlans.sort((a, b) => {
+    const dateA = moment(a.createdAt);
+    const dateB = moment(b.createdAt);
+    if (dateA.isAfter(dateB)) {
+      return -1;
+    } else if (dateB.isAfter(dateA)) {
+      return 1;
+    }
+    return 0;
+  });
+  const handlePagination = (nextPage: number) => {
+    fetchPlans(nextPage, limit);
+  };
+
   return (
     <>
       <Flex p={3}>
@@ -56,29 +102,40 @@ function StudyPlans() {
           </Text>
         </Box>{' '}
         <Spacer />
-        {studyPlans.length > 0 && (
+        {allPlans.length > 0 && (
           <Button onClick={() => navigate('/dashboard/create-study-plans')}>
             Create New
           </Button>
         )}
       </Flex>
 
-      {studyPlans.length > 0 ? (
-        <SimpleGrid
-          columns={{ base: 1, md: 2, lg: 3 }}
-          spacing="20px"
-          ref={tutorGrid}
-          mt={4}
-        >
-          {studyPlans?.map((plan: any) => (
-            <SubjectCard
-              title="Chemistry CS23"
-              score={75}
-              scoreColor="green"
-              date="24 Apr, 2023"
-            />
-          ))}
-        </SimpleGrid>
+      {allPlans.length > 0 ? (
+        <>
+          {' '}
+          <SimpleGrid
+            columns={{ base: 1, md: 2, lg: 3 }}
+            spacing="20px"
+            ref={tutorGrid}
+            mt={4}
+            p={2}
+          >
+            {studyPlans?.map((plan: any) => (
+              <SubjectCard
+                title={getSubject(plan.course)}
+                score={plan.readinessScore}
+                scoreColor="green"
+                date={moment(plan.createdAt).format('DD MMM, YYYY')}
+                handleClick={() => navigate(`planId=${plan._id}`)}
+              />
+            ))}
+          </SimpleGrid>{' '}
+          <Pagination
+            page={pagination.page}
+            count={pagination.total}
+            limit={pagination.limit}
+            handlePagination={handlePagination}
+          />
+        </>
       ) : (
         <section className="flex justify-center items-center mt-28 w-full">
           <div className="text-center">
@@ -87,14 +144,6 @@ function StudyPlans() {
             <Button onClick={() => navigate('/dashboard/create-study-plans')}>
               Create New
             </Button>
-
-            {/* <button
-      type="button"
-      className="inline-flex items-center justify-center mt-4 gap-x-2 w-[286px] rounded-md bg-secondaryBlue px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-    >
-      <PlusIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
-      Place Bounty
-    </button> */}
           </div>
         </section>
       )}

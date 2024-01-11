@@ -1,8 +1,9 @@
 import React from 'react';
 import { Box, Divider, Flex, Spacer, Text } from '@chakra-ui/react';
 import { IoIosArrowDroprightCircle } from 'react-icons/io';
-
-function SubjectCard({ title, score, scoreColor, date }) {
+import { useNavigate } from 'react-router';
+function SubjectCard({ title, score, scoreColor, date, handleClick }) {
+  const navigate = useNavigate();
   return (
     <Box
       maxW="sm"
@@ -11,6 +12,7 @@ function SubjectCard({ title, score, scoreColor, date }) {
       overflow="hidden"
       boxShadow="md"
       bg="white"
+      onClick={handleClick}
     >
       <Box>
         <Text fontSize="16px" fontWeight="500" p={4}>

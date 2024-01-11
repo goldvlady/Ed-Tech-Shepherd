@@ -3,10 +3,13 @@ import { Box, Button, Spacer, Flex, Text } from '@chakra-ui/react';
 import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router';
+import flashcardStore from '../../../state/flashcardStore';
 
 export default function HourReminder(props) {
   const { data, sessionPrefaceDialogRef } = props;
   const navigate = useNavigate();
+  const { fetchSingleFlashcard } = flashcardStore();
+
   const getTextByEventType = (eventType) => {
     switch (eventType) {
       case 'study':
@@ -100,7 +103,7 @@ export default function HourReminder(props) {
                 fontSize={12}
                 px={2}
                 py={0}
-                onClick={() => navigate('/dashboard/flashcards')}
+                onClick={() => fetchSingleFlashcard(data.data.entityId)}
               >
                 Practice
               </Button>

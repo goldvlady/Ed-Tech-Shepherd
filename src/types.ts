@@ -147,7 +147,7 @@ export type Subscription = {
   nextBillingDate?: Date;
   trialEnd?: Date;
   trialStart?: Date;
-  daysUntilDue?: Number;
+  daysUntilDue?: number;
   currentPeriodStart?: Date;
   currentPeriodEnd?: Date;
   subscriptionMetadata?: SubscriptionMetadata;
@@ -543,3 +543,25 @@ export interface QuizData {
   currentStudy?: MinimizedStudy;
   tags: string[];
 }
+export type StudyPlanTopic = {
+  mainTopic: string;
+  subTopics: string[];
+};
+
+export type StudyPlanWeek = {
+  weekNumber: number;
+  dateRange: string;
+  topics: StudyPlanTopic[];
+};
+
+export type SyllabusData = {
+  course: string;
+  gradeLevel: string;
+  weekCount: number;
+};
+
+export type StudyPlanJob = {
+  status: string;
+  studyPlan?: StudyPlanWeek[];
+  syllabusData?: SyllabusData;
+};
