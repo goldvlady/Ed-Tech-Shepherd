@@ -865,13 +865,15 @@ class ApiService {
     documentId?: string;
     studentId?: string;
   }) => {
-    const isDevelopment =
-      process.env.REACT_APP_API_ENDPOINT.includes('develop');
+    // const isDevelopment =
+    //   process.env.REACT_APP_API_ENDPOINT.includes('develop');
+
     return doFetch(
-      isDevelopment
-        ? 'https://shepherd-anywhere-cors.fly.dev/https://i2u58ng9l4.execute-api.us-east-2.amazonaws.com/prod/generate-from-notes'
-        : // 'https://shepherd-anywhere-cors.fly.dev/https://shepherd-simple-proxy.fly.dev/generate-quizzes'
-          `https://i2u58ng9l4.execute-api.us-east-2.amazonaws.com/prod/generate-from-notes`,
+      // isDevelopment
+      //   ? 'https://shepherd-anywhere-cors.fly.dev/https://i2u58ng9l4.execute-api.us-east-2.amazonaws.com/prod/generate-from-notes'
+      //   : // 'https://shepherd-anywhere-cors.fly.dev/https://shepherd-simple-proxy.fly.dev/generate-quizzes'
+      //     `https://i2u58ng9l4.execute-api.us-east-2.amazonaws.com/prod/generate-from-notes`,
+      'https://shepherd-anywhere-cors.fly.dev/https://i2u58ng9l4.execute-api.us-east-2.amazonaws.com/prod/generate-from-notes',
       {
         method: 'POST',
         body: JSON.stringify(data)
@@ -886,9 +888,9 @@ class ApiService {
 
   // User Subscriptions
   static initiateUserSubscription = async (
-    stripeCustomerId: string,
     userId: string,
-    priceId: string
+    priceId: string,
+    stripeCustomerId?: string
   ) => {
     return doFetch(`${ApiService.baseEndpoint}/initiateUserSubscription`, {
       method: 'POST',

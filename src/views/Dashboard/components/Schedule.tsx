@@ -25,6 +25,7 @@ import {
 } from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
+import moment from 'moment';
 
 export default function Schedule({ events }) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
@@ -124,7 +125,7 @@ export default function Schedule({ events }) {
       </Box>{' '}
       <section className="space-y-2">
         <Calendar
-          year={2023}
+          year={moment().year()}
           month={selectedMonth}
           onDayClick={handleDateClick}
         />

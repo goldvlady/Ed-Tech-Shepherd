@@ -6,6 +6,7 @@ type NoteStore = {
   pinnedNotes: NoteDetails[] | null;
   pinnedNotesCount: number;
   notes: NoteDetails[];
+  note: NoteDetails | null;
   tags: string[];
   isLoading: boolean;
   pagination: Pagination;
@@ -22,6 +23,7 @@ type NoteStore = {
 
 export default create<NoteStore>((set) => ({
   pinnedNotes: null,
+  note: null,
   pinnedNotesCount: 0,
   notes: [],
   tags: [],
@@ -58,7 +60,11 @@ export default create<NoteStore>((set) => ({
       set({ isLoading: true });
       const response = await ApiService.getNote(id);
       const data = await response.json();
-      set((state) => ({ ...state, notes: [...state.notes, data] }));
+      set((state) => ({
+        ...state,
+        note: data.data,
+        notes: [...state.notes, data]
+      }));
     } catch (error) {
       // Handle error
     } finally {

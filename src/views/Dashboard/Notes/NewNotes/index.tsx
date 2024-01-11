@@ -12,7 +12,7 @@ import CustomSideModal from '../../../../components/CustomComponents/CustomSideM
 import TableTag from '../../../../components/CustomComponents/CustomTag';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import TagModal from '../../../../components/TagModal';
-import useDebounce from '../../../../hooks/useDebounce';
+// import useDebounce from '../../../../hooks/useDebounce';
 import { saveHTMLAsPDF } from '../../../../library/fs';
 import ApiService from '../../../../services/ApiService';
 import userStore from '../../../../state/userStore';
@@ -58,7 +58,8 @@ import {
   IconButton,
   MenuItem,
   Text,
-  Box
+  Box,
+  useToast
 } from '@chakra-ui/react';
 import { $generateHtmlFromNodes } from '@lexical/html';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -67,7 +68,15 @@ import {
   CLEAR_EDITOR_COMMAND,
   LexicalEditor as EditorType
 } from 'lexical';
-import { defaultTo, filter, isEmpty, isNil, isString, union } from 'lodash';
+import {
+  defaultTo,
+  filter,
+  isEmpty,
+  isNil,
+  isString,
+  truncate,
+  union
+} from 'lodash';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
@@ -75,6 +84,11 @@ import { BsFillPinFill } from 'react-icons/bs';
 import { FaEllipsisH } from 'react-icons/fa';
 import { IoChatboxEllipsesOutline } from 'react-icons/io5';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useDebounce } from 'usehooks-ts';
+import useTimer from '../../../../hooks/useTimer';
+// import CustomToast from '../../../../components/CustomComponents/CustomToast';
+// import { MdSavings } from 'react-icons/md';
+// import { callback } from 'chart.js/dist/helpers/helpers.core';
 
 const DEFAULT_NOTE_TITLE = 'Enter Note Title';
 const DELETE_NOTE_TITLE = 'Delete Note';
@@ -146,20 +160,25 @@ const formatDate = (date: Date, format = 'DD ddd, hh:mma'): string => {
   return moment(date).format(format);
 };
 
+const getLocalStorageNoteId = (noteId: string | null): string => {
+  const genId = noteId ? noteId : '';
+  return genId;
+};
+
 const saveNoteLocal = (noteId: string, noteContent: string) => {
   const storeId = getLocalStorageNoteId(noteId);
   return localStorage.setItem(storeId, noteContent);
+};
+
+const deleteNoteLocal = (noteId: string) => {
+  const storeId = getLocalStorageNoteId(noteId);
+  return localStorage.removeItem(storeId);
 };
 
 const getNoteLocal = (noteId: string | null): string | null => {
   const storageId = getLocalStorageNoteId(noteId);
   const content = localStorage.getItem(storageId);
   return content;
-};
-
-const getLocalStorageNoteId = (noteId: string | null): string => {
-  const genId = noteId ? noteId : '';
-  return genId;
 };
 
 const handleOptionClick = (
@@ -172,6 +191,8 @@ const handleOptionClick = (
 };
 
 const NewNote = () => {
+  // const toastIdRef = useRef<any>();
+  // const chakraToast = useToast();
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
   const defaultNoteTitle = DEFAULT_NOTE_TITLE;
 
@@ -200,6 +221,8 @@ const NewNote = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [canStartSaving, setCanStartSaving] = useState(false);
   const [openSideModal, setOpenSideModal] = useState(false);
+  const [isEditorLoaded, setIsEditorLoaded] = useState(true);
+  const [callTimerCallback, setCallTimerCallback] = useState(false);
 
   const [editor] = useLexicalComposerContext();
 
@@ -216,7 +239,14 @@ const NewNote = () => {
   const { userDocuments } = userStore();
   const [studentDocuments, setStudentDocuments] = useState<Array<any>>([]);
   const [pinned, setPinned] = useState<boolean>(false);
-  const debounce = useDebounce(1000, 10);
+  const debounceEditedTitle = useDebounce(editedTitle, 1000);
+  const [isSavingNote, setIsSavingNote] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsEditorLoaded(true);
+    }, 10000);
+  }, []);
 
   const onCancel = () => {
     setDeleteNoteModal(!deleteNoteModal);
@@ -243,6 +273,8 @@ const NewNote = () => {
 
   const onSaveNote = async () => {
     if (!editor) return;
+
+    setIsSavingNote(true);
 
     // get editor's content
     let noteJSON = '';
@@ -279,12 +311,12 @@ const NewNote = () => {
 
     if (!isEmpty(unionTags)) data.tags = unionTags;
 
-    if (!isEmpty(noteId)) {
-      saveDetails = await updateNote(noteId, data);
+    if (!isNil(noteId) || !isEmpty(noteId)) {
+      saveDetails = await updateNote(noteId, data as NoteData);
     } else {
       saveDetails = await createNote(data as NoteData);
     }
-    if (!saveDetails) {
+    if (isNil(saveDetails)) {
       setSaveButtonState(true);
       return showToast(
         UPDATE_NOTE_TITLE,
@@ -292,9 +324,9 @@ const NewNote = () => {
         'error'
       );
     }
-    if (saveDetails.error) {
+    if (saveDetails?.error) {
       setSaveButtonState(true);
-      return showToast(UPDATE_NOTE_TITLE, saveDetails.error, 'error');
+      return showToast(UPDATE_NOTE_TITLE, saveDetails?.error, 'error');
     } else {
       if (isEmpty(saveDetails?.data) || isNil(saveDetails?.data)) {
         setSaveButtonState(true);
@@ -306,19 +338,22 @@ const NewNote = () => {
       }
       // Save noteID to state if this is a new note and save locally
       if (isEmpty(noteId)) {
-        const newNoteId = saveDetails.data['_id'];
+        const newNoteId = saveDetails?.data['_id'];
         setNoteId(newNoteId);
-        saveNoteLocal(getLocalStorageNoteId(newNoteId), saveDetails.data.note);
+        saveNoteLocal(getLocalStorageNoteId(newNoteId), saveDetails?.data.note);
       } else {
         saveNoteLocal(getLocalStorageNoteId(noteId), saveDetails.data.note);
       }
       // save note details and other essential params
       setSaveDetails(saveDetails);
-      setCurrentTime(formatDate(saveDetails.data.updatedAt));
-      showToast(UPDATE_NOTE_TITLE, saveDetails.message, 'success');
+      setCurrentTime(formatDate(saveDetails?.data.updatedAt));
+      setIsSavingNote(false);
+      showToast(UPDATE_NOTE_TITLE, saveDetails?.message, 'success');
       setSaveButtonState(true);
       // ingest Note content
-      ingestNote(saveDetails.data);
+      ingestNote(saveDetails?.data);
+
+      // handleCloseAllToast();
     }
   };
 
@@ -354,16 +389,21 @@ const NewNote = () => {
         );
         savePinnedNoteLocal(updatedPinnedNotes);
       }
-      handleBackClick();
       setDeleteNoteModal(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
       setEditedTitle(defaultNoteTitle);
+      // deleteNoteLocal(noteId);
+      // deleteNoteLocal('');
       setNoteId('');
       clearEditor();
+      handleBackClick();
     }
   };
 
-  const getNoteById = async (paramsIdForNote = noteParamId) => {
+  const getNoteById = async (
+    paramsIdForNote = noteParamId,
+    callback = null
+  ) => {
     if (isEmpty(paramsIdForNote) || isNil(paramsIdForNote)) {
       return;
     }
@@ -398,6 +438,9 @@ const NewNote = () => {
           setSaveDetails({ ...respDetails, data: respDetails.data.data });
           setNoteId(note._id);
           setTags(note.tags);
+          if (typeof callback === 'function') {
+            callback();
+          }
         }
       }
       // set note data
@@ -413,9 +456,9 @@ const NewNote = () => {
     setEditedTitle(value);
   };
 
-  const updateTitle = () => {
+  const updateTitle = async () => {
     setIsEditingTitle(false);
-    if (editedTitle) {
+    if (!isEmpty(editedTitle.trim())) {
       setEditedTitle(editedTitle.trim());
     } else {
       setEditedTitle(defaultNoteTitle);
@@ -436,7 +479,6 @@ const NewNote = () => {
       // Remove the deleted note from the dataSource
       const storageId = NoteEnums.PINNED_NOTE_STORE_ID;
 
-      // console.log('storageId  ===========>> ', NoteEnums.PINNED_NOTE_STORE_ID);
       localStorage.removeItem(storageId);
 
       const filtedPinnedNote = filter(pinnedNotes as any[], (pinnedNote) => {
@@ -460,12 +502,11 @@ const NewNote = () => {
         'error'
       );
     }
-    // setIsPinned((prevIsPinned) => !prevIsPinned);
+
     // Save the note to local storage when pinned
     if (saveDetails?.data) {
       if (isNoteAlreadyPinned(saveDetails.data._id)) {
         unPinNote();
-        // return showToast(UPDATE_NOTE_TITLE, 'Note already pinned', 'warning');
         return;
       }
 
@@ -489,7 +530,6 @@ const NewNote = () => {
   };
 
   const isNoteAlreadyPinned = (noteId: string): boolean => {
-    console.log('running =======>>> isNoteAlreadyPinned');
     for (const note of pinnedNotes) {
       if (note.noteId === noteId) {
         setPinned(true);
@@ -580,7 +620,6 @@ const NewNote = () => {
     if (!editorStyle) {
       setEditorStyle({
         position: 'absolute',
-        // width: '100vw',
         width: '100%',
         height: '100vh',
         top: 0,
@@ -633,8 +672,6 @@ const NewNote = () => {
     try {
       navigate('/dashboard/docchat', {
         state: {
-          // documentUrl: noteUrl,
-          // docTitle: noteTitle,
           documentUrl: noteUrl,
           docTitle: noteTitle,
           noteId: noteId
@@ -759,9 +796,6 @@ const NewNote = () => {
       setOpenTags(false);
       showToast(DELETE_NOTE_TITLE, details.message, 'success');
       setTags(union(details.data.tags, [...tags, ...newTags]));
-      // setNoteId('');
-      // setNewTags([]);
-      // clearEditor();
     }
   };
 
@@ -774,11 +808,19 @@ const NewNote = () => {
   };
 
   const handleBackClick = () => {
-    setCanStartSaving(false);
-    clearEditor();
-    setTimeout(() => {
-      navigate(-1);
-    }, 100);
+    try {
+      setCanStartSaving(false);
+      deleteNoteLocal(noteId);
+      deleteNoteLocal('');
+      setNoteId('');
+      clearEditor();
+    } catch (error) {
+      console.log('handleBackClick ------->>> error ============>>> ', error);
+    } finally {
+      setTimeout(() => {
+        navigate(-1);
+      }, 100);
+    }
   };
 
   /**
@@ -786,68 +828,6 @@ const NewNote = () => {
    */
   const ingestNote = async (noteDetails: NoteDetails) => {
     const noteArrayContent = [noteDetails.note];
-
-    // uploadBlockNoteDocument({
-    //   studentId: noteDetails.user._id,
-    //   documentId: noteDetails.id,
-    //   document: noteArrayContent,
-    //   title: noteDetails.topic,
-    //   tags: noteDetails.tags
-    // }).then((response: AIServiceResponse) => {
-    //   if (!response) {
-    //     showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
-    //     return false;
-    //   }
-    //   if (!Array.isArray(response.data) || response.data.length <= 0) {
-    //     showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
-    //   }
-    //   // get data documentID is not already updated. Pick the first value in
-    //   const documentDetails: NoteDocumentDetails = response.data[0];
-    //   if (
-    //     !documentDetails?.documentURL ||
-    //     documentDetails?.documentURL === ''
-    //   ) {
-    //     showToast(UPDATE_NOTE_TITLE, 'Could not ingest note', 'warning');
-    //   }
-    //   // TODO: update with full note details
-    //   const resp = ApiService.updateNoteDocumentId(
-    //     noteDetails.id,
-    //     documentDetails.documentURL
-    //   )
-    //     .then((response) => {
-    //       console.log('update note details: ', response);
-    //       showToast(
-    //         UPDATE_NOTE_TITLE,
-    //         'Note document details saved',
-    //         'success'
-    //       );
-    //     })
-    //     .catch((error: any) => {
-    //       showToast(
-    //         UPDATE_NOTE_TITLE,
-    //         'Could not save note document URL',
-    //         'error'
-    //       );
-    //     });
-    // });
-    // return true;
-  };
-
-  const handleAutoSave = (editor: EditorType) => {
-    // use debounce filter
-    // TODO: we must move this to web worker
-    // additional condition for use to save note details
-
-    const saveLocalCallback = (noteId: string, note: string) => {
-      saveNoteLocal(getLocalStorageNoteId(noteId), note);
-    };
-    // evaluate other conditions to true or false
-    const saveCondition = () => !editor.getEditorState().isEmpty();
-    // note save callback wrapper
-    const saveCallback = () => {
-      autoSaveNote(editor, saveLocalCallback);
-    };
-    debounce(saveCallback, saveCondition);
   };
 
   /**
@@ -862,7 +842,11 @@ const NewNote = () => {
     if (!editor) return;
     if (editor.getEditorState().isEmpty()) return;
 
-    const noteTitle = editedTitleRef?.current?.value ?? editedTitle;
+    const noteTitle =
+      !isEmpty(editedTitleRef?.current?.value) &&
+      !isNil(editedTitleRef?.current?.value)
+        ? editedTitleRef?.current?.value
+        : editedTitle;
 
     let noteIdToUse = '';
     let draftNoteIdToUse = '';
@@ -875,7 +859,7 @@ const NewNote = () => {
     } catch (error: any) {
       return;
     }
-
+    setIsSavingNote(true);
     if (!isEmpty(noteId) || !isEmpty(noteParamId)) {
       noteIdToUse = defaultTo(noteId, noteParamId);
       noteStatus = NoteStatus.SAVED;
@@ -895,34 +879,50 @@ const NewNote = () => {
         : false;
 
     const data: {
-      topic: string;
+      topic?: string;
       note: string;
       status: string;
       tags?: string[];
     } = {
-      topic: noteTitle,
       note: noteJSON,
       status: noteStatus
     };
+
     const unionTags = union(newTags, tags);
 
     if (!isEmpty(unionTags)) data.tags = unionTags;
 
+    if (!isEmpty(noteTitle)) data.topic = noteTitle;
+
     if (idToUse) {
       updateNote(noteIdToUse, data as NoteData).then((updatedDetails) => {
         saveCallback(noteIdToUse, noteJSON);
+        setIsSavingNote(false);
+        setCurrentTime(formatDate(updatedDetails.data.updatedAt));
       });
     } else {
       // create a new draft note
       createNote(data as NoteData).then((saveDetails) => {
         // save new draft note details for update
         if (saveDetails?.data) {
-          draftNoteId.current.value = saveDetails.data['_id'];
           setNoteId(saveDetails.data['_id']);
           saveCallback(draftNoteIdToUse, noteJSON);
+          setCurrentTime(formatDate(saveDetails.data.updatedAt));
+          setIsSavingNote(false);
+          draftNoteId.current.value = saveDetails.data['_id'];
         }
       });
     }
+    // handleCloseAllToast();
+  };
+  const handleAutoSave = (editor: EditorType) => {
+    // TODO: we must move this to web worker
+    // additional condition for use to save note details
+    const saveLocalCallback = (noteId: string, note: string) => {
+      saveNoteLocal(getLocalStorageNoteId(noteId), note);
+    };
+
+    autoSaveNote(editor, saveLocalCallback);
   };
 
   // Load notes if noteID is provided via param
@@ -946,6 +946,8 @@ const NewNote = () => {
   useEffect(() => {
     if (!isEmpty(params?.id)) {
       setNoteParamId(params?.id as string);
+    } else {
+      clearEditor();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -957,21 +959,39 @@ const NewNote = () => {
   }, [userDocuments]);
 
   useEffect(() => {
-    if (editedTitleRef.current && editedTitle !== editedTitleRef.current) {
+    if (
+      editedTitleRef.current &&
+      editedTitle !== editedTitleRef.current.value
+    ) {
+      if (isEmpty(editedTitle)) return;
+      // if (canStartSaving) {
       editedTitleRef.current.value = editedTitle;
-      if (canStartSaving) {
-        handleAutoSave(editor);
-      }
+      resetTimer();
+      // handleAutoSave(editor);
+      return;
+      // }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editedTitle]);
+  }, [debounceEditedTitle]);
+
+  const { resetTimer } = useTimer({
+    sendOnce: false,
+    timestamp: 2,
+    timerCallback: (value) => setCallTimerCallback(value)
+  });
 
   useEffect(() => {
-    return editor.registerUpdateListener(({ editorState }) => {
+    if (callTimerCallback) {
+      handleAutoSave(editor);
+    }
+    setCallTimerCallback(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [callTimerCallback, editedTitleRef]);
+
+  useEffect(() => {
+    editor.registerUpdateListener(({ editorState }) => {
       editorState.read(() => {
-        if (canStartSaving) {
-          handleAutoSave(editor);
-        }
+        resetTimer();
       });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -980,20 +1000,29 @@ const NewNote = () => {
   useEffect(() => {
     (async () => {
       if (!isEmpty(noteParamId) || !isNil(noteParamId)) {
-        setInitialContent(getNoteLocal(noteParamId) as string);
-        await getNoteById(noteParamId);
+        setIsEditorLoaded(false);
+        // setInitialContent(getNoteLocal(noteParamId) as string);
+        await getNoteById(noteParamId, () => {
+          setTimeout(() => {
+            setCanStartSaving(true);
+            setIsEditorLoaded(true);
+          });
+        });
+        setTimeout(() => {
+          setCanStartSaving(true);
+          setIsEditorLoaded(true);
+        });
       }
-      setCanStartSaving(true);
     })();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [noteParamId]);
 
   useEffect(() => {
-    const initialValue =
-      '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
-    const editorState = editor.parseEditorState(initialValue);
-    editor.setEditorState(editorState);
+    // const initialValue =
+    //   '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
+    // const editorState = editor.parseEditorState(initialValue);
+    // editor.setEditorState(editorState);
     if (
       isString(initialContent) &&
       !isEmpty(initialContent) &&
@@ -1004,12 +1033,16 @@ const NewNote = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialContent]);
+
   // Header Component
   const HeaderComponent = () => {
     return (
       <HeaderWrapper
         className={clsx(
-          'flex items-center flex-start relative w-[95%] lg:w-[98%] 2xl:w-full mx-auto'
+          'flex items-center flex-start relative w-[95%] lg:w-[98%] 2xl:w-full mx-auto',
+          {
+            'opacity-40 pointer-events-none': !isEditorLoaded
+          }
         )}
       >
         <div style={{ display: 'none' }}>
@@ -1056,12 +1089,12 @@ const NewNote = () => {
                     autoFocus
                   />
                 ) : (
-                  <span>{editedTitle}</span>
+                  <span>{truncate(editedTitle, { length: 40 })}</span>
                 )}
               </div>
             </div>
             <div className="timestamp">
-              <p>Updated {currentTime}</p>
+              {isSavingNote ? <p>Saving....</p> : <p>Updated {currentTime}</p>}
             </div>
           </FirstSection>
           <SecondSection>
@@ -1147,7 +1180,6 @@ const NewNote = () => {
             </div>
           </SecondSection>
         </Header>
-        {/* <HeaderTagsWrapper>{formatTags(tags)}</HeaderTagsWrapper> */}
       </HeaderWrapper>
     );
   };
@@ -1194,7 +1226,8 @@ const NewNote = () => {
             className={clsx(
               'w-full max-w-[150px] hover:opacity-75 absolute left-0 top-5 z-10 hidden 2xl:flex cursor-pointer items-center',
               {
-                '!max-w-[240px] px-4': isFullScreen
+                '!max-w-[240px] px-4': isFullScreen,
+                'opacity-40 pointer-events-none': !isEditorLoaded
               }
             )}
           >
@@ -1223,7 +1256,8 @@ const NewNote = () => {
               ) : (
                 <div
                   className={clsx('custom-scroll', {
-                    'note-editor-test': false
+                    'note-editor-test': false,
+                    'opacity-40 pointer-events-none': !isEditorLoaded
                   })}
                 >
                   <StyledEditor />
@@ -1249,7 +1283,7 @@ const NewNote = () => {
                 loadingButtonText="Creating..."
                 buttonText="Create"
                 onSubmit={(noteId) => {
-                  // submission here
+                  // unused
                 }}
               />
             )}
