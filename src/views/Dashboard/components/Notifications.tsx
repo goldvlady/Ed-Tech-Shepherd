@@ -21,6 +21,8 @@ import { ref, onValue, DataSnapshot, off } from 'firebase/database';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import styled from 'styled-components';
+import flashcardStore from '../../../state/flashcardStore';
+import { MdMarkAsUnread } from 'react-icons/md';
 
 // import OfferIcon from 'svgs/text-document.svg';
 
@@ -32,6 +34,7 @@ function Notifications(props) {
   // const parsedNotifications = data.map((item) => item.notification);
   console.log(data);
 
+  const { fetchSingleFlashcard } = flashcardStore();
   const isTutor = currentPath.includes('/dashboard/tutordashboard');
 
   const isWithinAWeek = (createdAt) => {
@@ -58,7 +61,8 @@ function Notifications(props) {
           'upcoming_class',
           'BOUNTY_BID_RECIEVED',
           'BOUNTY_CREATED',
-          'STUDY_PLAN_FOR_FLASHCARD_CREATED'
+          'STUDY_PLAN_FOR_FLASHCARD_CREATED',
+          'UPCOMING_FLASHCARD_STUDY'
         ];
         return (
           allowedTypes.includes(item.type) && isWithinAWeek(item.createdAt)
@@ -101,6 +105,8 @@ function Notifications(props) {
         return <OfferIcon />;
       case 'STUDY_PLAN_FOR_FLASHCARD_CREATED':
         return <OfferIcon />;
+      case 'UPCOMING_FLASHCARD_STUDY':
+        return <OfferIcon />;
       default:
         return <OfferIcon />;
     }
@@ -131,6 +137,8 @@ function Notifications(props) {
         return 'Bounty bid rejected';
       case 'STUDY_PLAN_FOR_FLASHCARD_CREATED':
         return 'You have created study plan for Flashcard';
+      case 'UPCOMING_FLASHCARD_STUDY':
+        return 'You have an upcoming Flashcard study ';
       default:
         return 'You have received a notification';
     }
@@ -179,6 +187,8 @@ function Notifications(props) {
                       ? `/dashboard/tutordashboard/offers/offer/${i.attributes.offerId}`
                       : `/dashboard/offer/${i.attributes.offerId}`;
                     navigate(url);
+                  } else if (i.attributes.flashcardId) {
+                    fetchSingleFlashcard(i.attributes.flashcardId);
                   }
                 }}
               >
@@ -215,6 +225,10 @@ function Notifications(props) {
                     position="absolute"
                     right={3}
                     top={5}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleRead(i._id);
+                    }}
                   >
                     {i.status === 'unviewed' ? <ReadIcon /> : <UnreadIcon />}
                   </Box>

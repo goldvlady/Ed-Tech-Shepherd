@@ -6,8 +6,10 @@ type StudyPlanStore = {
   studyPlans: any[];
   tags: string[];
   isLoading: boolean;
-  pagination: Pagination;
-  //   fetchNotes: (queryParams?: SearchQueryParams) => Promise<void>;
+  pagination: { page: number; limit: number; total: number };
+
+  fetchPlans: (page: number, limit: number) => Promise<void>;
+
   //   fetchSingleNote: (id: string) => void;
   //   createNote: (data: any) => Promise<boolean>;
   createStudyPlan: (data: any) => Promise<boolean>;
@@ -25,30 +27,23 @@ export default create<StudyPlanStore>((set) => ({
   isLoading: false,
   pagination: { limit: 10, page: 1, count: 100 },
 
-  // Fetching all notes
-  //   fetchPlan: async () => {
-  //     try {
-  //       set({ isLoading: true });
-  //       const response = await ApiService.getAllNotes(queryParams);
-  //       const {
-  //         data: {
-  //           data,
-  //           meta: { pagination, tags }
-  //         }
-  //       } = await response.json();
+  fetchPlans: async (page: number, limit: number) => {
+    set({ isLoading: true });
+    try {
+      // const params = queryParams || ({} as SearchQueryParams);
+      // if (!params.page) params.page = 1;
+      // if (!params.limit) params.limit = 10;
+      set({ isLoading: true });
+      const response = await ApiService.getStudyPlans(page, limit);
+      const { data, meta } = await response.json();
 
-  //       set({
-  //         notes: data,
-  //         pagination: { ...pagination, count: pagination?.total },
-  //         tags: tags.sort()
-  //       });
-  //     } catch (error) {
-  //       // Handle error (e.g., log to console)
-  //     } finally {
-  //       set({ isLoading: false });
-  //     }
-  //   }
-
+      set({ studyPlans: data, pagination: meta.pagination });
+    } catch (error) {
+      // console.log(error)
+    } finally {
+      set({ isLoading: false });
+    }
+  },
   //   // Fetching a single note
   //   fetchSingleNote: async (id: string) => {
   //     try {
