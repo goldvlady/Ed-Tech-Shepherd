@@ -69,9 +69,12 @@ const CreateQuizPage = () => {
             handleIsLoadingQuizzes(false);
           }
           const inputElements = document.querySelectorAll('input');
-
+          const textAreas = document.querySelectorAll('textarea');
           // Disable each input element on the page
           inputElements.forEach((input) => {
+            input.disabled = true;
+          });
+          textAreas.forEach((input) => {
             input.disabled = true;
           });
           window.addEventListener('click', () => {
