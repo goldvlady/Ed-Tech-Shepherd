@@ -546,6 +546,16 @@ class ApiService {
   static getNote = async (id: string | number) => {
     return doFetch(`${ApiService.baseEndpoint}/notes/${id}`);
   };
+  static getNoteForAPIKey = async (id: string | number, apiKey: string) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/notes/${id}?shareable=true`,
+      {},
+      true,
+      {
+        'x-api-key': apiKey
+      }
+    );
+  };
 
   static createNote = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/createNote`, {
