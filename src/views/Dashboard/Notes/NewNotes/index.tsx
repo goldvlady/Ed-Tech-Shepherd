@@ -91,6 +91,8 @@ import { ClipboardIcon } from '@heroicons/react/24/outline';
 import { newId } from '../../../../helpers/id';
 import { copyTextToClipboard } from '../../../../helpers/copyTextToClipboard';
 import { firebaseAuth } from '../../../../firebase';
+import PlansModal from '../../../../components/PlansModal';
+import ShareModal from '../../../../components/ShareModal';
 // import CustomToast from '../../../../components/CustomComponents/CustomToast';
 // import { MdSavings } from 'react-icons/md';
 // import { callback } from 'chart.js/dist/helpers/helpers.core';
@@ -251,7 +253,7 @@ const NewNote = () => {
   const [pinned, setPinned] = useState<boolean>(false);
   const debounceEditedTitle = useDebounce(editedTitle, 1000);
   const [isSavingNote, setIsSavingNote] = useState(false);
-
+  const [togglePlansModal, setTogglePlansModal] = useState(false);
   useEffect(() => {
     setTimeout(() => {
       setIsEditorLoaded(true);
@@ -1061,6 +1063,7 @@ const NewNote = () => {
         if (shareable && shareable.length > 0 && apiKey && apiKey.length > 0) {
           console.log('should not');
           setIsEditorLoaded(false);
+
           // setInitialContent(getNoteLocal(noteParamId) as string);
           await getNoteById(noteParamId, apiKey, () => {
             setTimeout(() => {
@@ -1071,6 +1074,17 @@ const NewNote = () => {
           setTimeout(() => {
             setCanStartSaving(true);
             setIsEditorLoaded(true);
+          });
+          editor.setEditable(false);
+          // ideally clean all this up
+          const inputElements = document.querySelectorAll('input');
+
+          // Disable each input element on the page
+          inputElements.forEach((input) => {
+            input.disabled = true;
+          });
+          window.addEventListener('click', () => {
+            setTogglePlansModal(true);
           });
         } else {
           const token = await firebaseAuth.currentUser?.getIdToken();
@@ -1115,28 +1129,6 @@ const NewNote = () => {
 
   // Header Component
   const HeaderComponent = () => {
-    const toast = useCustomToast();
-    const generateShareLink = async () => {
-      const apiKey = newId('shep');
-      console.log(apiKey);
-      const shareLink = `${window.location.href}?shareable=true&apiKey=${apiKey}`;
-      console.log(shareLink);
-      try {
-        await copyTextToClipboard(shareLink);
-        toast({
-          title: 'Share Link Generated 🎊',
-          description: 'Successfully copied custom share link',
-          status: 'success',
-          position: 'bottom-right'
-        });
-      } catch (error) {
-        toast({
-          title: 'Something went wrong creating your share link',
-          status: 'error',
-          position: 'bottom-right'
-        });
-      }
-    };
     return (
       <HeaderWrapper
         className={clsx(
@@ -1199,24 +1191,7 @@ const NewNote = () => {
             </div>
           </FirstSection>
           <SecondSection>
-            <Button
-              onClick={generateShareLink}
-              bg="#f4f4f5"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              gap="4px"
-              padding="12px 24px"
-              borderRadius="md"
-              border="none"
-              cursor="pointer"
-              color="#000"
-              _hover={{ bg: '#e4e4e5' }}
-              _active={{ bg: '#d4d4d5' }}
-            >
-              <span> Generate share link</span>
-              <ClipboardIcon width={16} height={16} />
-            </Button>
+            <ShareModal type="note" />
             <CustomButton
               disabled={!saveButtonState}
               isPrimary
@@ -1362,6 +1337,14 @@ const NewNote = () => {
               onClose={() => setOpenSideModal(false)}
               isOpen={openSideModal}
             />
+            {togglePlansModal && (
+              <PlansModal
+                message="Pick a plan to access your AI Study Tools! 🚀"
+                subMessage="Get started today for free!"
+                togglePlansModal={togglePlansModal}
+                setTogglePlansModal={setTogglePlansModal}
+              />
+            )}
             <NoteBody
               className={clsx(
                 'mx-auto w-full flex justify-start items-center flex-col'

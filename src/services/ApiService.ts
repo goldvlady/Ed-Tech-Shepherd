@@ -40,6 +40,13 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/me`);
   };
 
+  static generateShareLink = async (body: { apiKey: string }) => {
+    return doFetch(`${ApiService.baseEndpoint}/generateShareLink`, {
+      method: 'POST',
+      body: JSON.stringify(body)
+    });
+  };
+
   static editFlashcard = async (id: string, data: Partial<FlashcardData>) => {
     return doFetch(`${ApiService.baseEndpoint}/editFlashcard?id=${id}`, {
       method: 'POST',
@@ -549,7 +556,9 @@ class ApiService {
   static getNoteForAPIKey = async (id: string | number, apiKey: string) => {
     return doFetch(
       `${ApiService.baseEndpoint}/notes/${id}?shareable=true`,
-      {},
+      {
+        method: 'GET'
+      },
       true,
       {
         'x-api-key': apiKey
@@ -825,6 +834,18 @@ class ApiService {
     });
   };
 
+  static getQuizForAPIKey = async (quizId: string | number, apiKey: string) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/getQuiz?id=${quizId}`,
+      {
+        method: 'GET'
+      },
+      true,
+      {
+        'x-api-key': apiKey
+      }
+    );
+  };
   static generateQuizQuestion = async (
     userId: string,
     data: {
