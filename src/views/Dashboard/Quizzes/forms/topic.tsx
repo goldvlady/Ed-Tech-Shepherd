@@ -2,53 +2,32 @@ import { useCustomToast } from '../../../../components/CustomComponents/CustomTo
 import SelectComponent, { Option } from '../../../../components/Select';
 import { WardIcon } from '../../../../components/icons';
 import ApiService from '../../../../services/ApiService';
-import quizStore from '../../../../state/quizStore';
 import userStore from '../../../../state/userStore';
 import {
   MIXED,
-  MULTIPLE_CHOICE_MULTI,
   MULTIPLE_CHOICE_SINGLE,
   OPEN_ENDED,
-  QuizQuestion,
   TRUE_FALSE
 } from '../../../../types';
 import { QuestionIcon } from '@chakra-ui/icons';
 import {
   Box,
-  Text,
   FormControl,
-  FormLabel,
-  FormHelperText,
   Input,
   HStack,
   Button,
+  FormLabel,
   Tooltip
 } from '@chakra-ui/react';
-import {
-  includes,
-  isArray,
-  isEmpty,
-  isNil,
-  map,
-  toLower,
-  toNumber,
-  omit,
-  toString,
-  size,
-  filter,
-  slice
-} from 'lodash';
+import { isEmpty, toNumber } from 'lodash';
 import { ChangeEvent, useCallback, useState } from 'react';
 
-// DownloadIcon
 const TopicQuizForm = ({
   handleSetTitle,
   title,
+  handleFormatQuizQuestionCallback,
   handleSetUploadingState,
-  handleCreateQuiz,
-  handleUpdateQuiz,
-  quizId = null,
-  isLoadingButton
+  uploadingState
 }) => {
   const toast = useCustomToast();
   const { user } = userStore();
@@ -60,7 +39,7 @@ const TopicQuizForm = ({
     type: MIXED
   };
 
-  const { handleIsLoadingQuizzes, fetchQuizzes } = quizStore();
+  // const { handleIsLoadingQuizzes, fetchQuizzes } = quizStore();
 
   const [isLoading, setIsLoading] = useState(false);
   const [localData, setLocalData] = useState<any>(dummyData);
@@ -81,185 +60,27 @@ const TopicQuizForm = ({
 
   const handleGenerateQuestions = async () => {
     try {
-      setIsLoading(true);
-      // handleIsLoadingQuizzes(true);
       handleSetUploadingState(true);
-
+      setIsLoading(true);
       const result = await ApiService.generateQuizQuestion(user._id, {
         ...localData,
         count: toNumber(localData.count)
       });
       const { quizzes } = await result.json();
 
-      // console.log('quizzes ===========>>> ', quizzes);
-
-      // const questions = map([...quizzes], (quiz) => {
-      //   let type = quiz?.type;
-      //   let options = [];
-      //   if (!isNil(quiz?.options) && isArray(quiz?.options)) {
-      //     options = quiz?.options;
-      //   }
-
-      //   if (isNil(type) || isEmpty(type)) {
-      //     if (!isNil(options) || !isEmpty(options)) {
-      //       if (options.length < 3) {
-      //         type = TRUE_FALSE;
-      //       } else {
-      //         type = MULTIPLE_CHOICE_SINGLE;
-      //       }
-      //     } else {
-      //       if (!isEmpty(quiz?.answer) || !isNil(quiz?.answer)) {
-      //         type = OPEN_ENDED;
-      //       }
-      //     }
-      //   } else {
-      //     if (
-      //       includes(toLower(type), 'multiple answers') ||
-      //       includes(toLower(type), 'multipleanswers') ||
-      //       includes(toLower(type), 'multipleanswer') ||
-      //       toLower(type) === 'multiplechoice'
-      //     ) {
-      //       type = MULTIPLE_CHOICE_MULTI;
-      //     }
-      //     if (
-      //       includes(toLower(type), 'single answer') ||
-      //       includes(toLower(type), 'singleanswer')
-      //     ) {
-      //       type = MULTIPLE_CHOICE_SINGLE;
-      //     }
-      //     if (
-      //       includes(toLower(type), 'true') ||
-      //       includes(toLower(type), 'false')
-      //     ) {
-      //       type = TRUE_FALSE;
-      //     }
-      //     if (
-      //       includes(toLower(type), 'open') ||
-      //       includes(toLower(type), 'ended')
-      //     ) {
-      //       type = OPEN_ENDED;
-      //     }
-      //   }
-
-      //   return {
-      //     ...omit(quiz, ['explanation']),
-      //     options,
-      //     type
-      //   };
-      // });
-
-      const sliceQuestions = slice(quizzes, 0, localData.count);
-      const questions = map([...sliceQuestions], (quiz: QuizQuestion) => {
-        let type = quiz?.type;
-        let options = [];
-        if (
-          !isNil(quiz?.options) ||
-          (isArray(quiz?.options) && isEmpty(quiz?.options))
-        ) {
-          options = quiz?.options;
-        }
-
-        if (isNil(type) || isEmpty(type)) {
-          if (!isNil(options) || !isEmpty(options)) {
-            if (options.length < 3) {
-              type = TRUE_FALSE;
-            } else {
-              const isMulti =
-                size(filter(options, (option) => option.isCorrect === true)) >
-                1;
-              if (isMulti) {
-                type = MULTIPLE_CHOICE_MULTI;
-              }
-
-              type = MULTIPLE_CHOICE_SINGLE;
-            }
-          } else {
-            if (!isEmpty(quiz?.answer) || !isNil(quiz?.answer)) {
-              type = OPEN_ENDED;
-            }
-          }
-        } else {
-          if (
-            includes(toLower(type), 'multiple answers') ||
-            includes(toLower(type), 'multipleanswers') ||
-            includes(toLower(type), 'multipleanswer') ||
-            toLower(type) === 'multiplechoice' ||
-            toLower(type) === 'multiplechoicemultiple'
-          ) {
-            type = MULTIPLE_CHOICE_MULTI;
-          }
-          if (
-            includes(toLower(type), 'single answer') ||
-            includes(toLower(type), 'singleanswer') ||
-            toLower(type) === 'multiplechoicesingle'
-          ) {
-            type = MULTIPLE_CHOICE_SINGLE;
-          }
-          if (
-            includes(toLower(type), 'true') ||
-            includes(toLower(type), 'false')
-          ) {
-            type = TRUE_FALSE;
-          }
-          if (
-            includes(toLower(type), 'open') ||
-            includes(toLower(type), 'ended')
-          ) {
-            type = OPEN_ENDED;
-            if (!isEmpty(options)) {
-              if (options.length < 3) {
-                type = TRUE_FALSE;
-              } else {
-                const isMulti =
-                  size(filter(options, (option) => option.isCorrect === true)) >
-                  1;
-                if (isMulti) {
-                  type = MULTIPLE_CHOICE_MULTI;
-                }
-
-                type = MULTIPLE_CHOICE_SINGLE;
-              }
-              const arrOptions = [...options];
-              options = map(arrOptions, (option, idx) => ({
-                content: option,
-                isCorrect: toNumber(quiz?.answer) === idx + 1
-              }));
-            }
-          }
-        }
-
-        const result: Omit<QuizQuestion, 'options' | 'question'> & {
-          options?: string[];
-          question?: string;
-        } = {
-          ...omit(quiz, ['explanation', 'answerKey']),
-          options,
-          type
-        };
-
-        if (quiz?.answer) result.answer = toString(quiz?.answer);
-        return result;
+      await handleFormatQuizQuestionCallback(quizzes, localData.count, () => {
+        setIsLoading(false);
+        handleSetUploadingState(false);
       });
-
-      if (isNil(quizId) && isEmpty(quizId)) {
-        await handleCreateQuiz(questions);
-      } else {
-        await handleUpdateQuiz(quizId, { quizQuestions: questions });
-      }
-
-      // setLocalData(dummyData);
     } catch (error) {
-      console.log('error =======>> ', error);
       toast({
         position: 'top-right',
-        title: `failed to generate quizzes `,
+        title: `failed to generate quizzes job `,
         status: 'error'
       });
+      console.log('handleGenerateQuestions ========>>> ', error);
     } finally {
-      setIsLoading(false);
-      handleIsLoadingQuizzes(false);
       handleSetUploadingState(false);
-      await fetchQuizzes();
     }
   };
 
@@ -390,6 +211,7 @@ const TopicQuizForm = ({
         justifyContent={'end'}
         marginTop="40px"
         align={'flex-end'}
+        marginBottom={4}
       >
         <Button
           width={'180px'}
@@ -401,6 +223,7 @@ const TopicQuizForm = ({
           colorScheme="primary"
           onClick={handleGenerateQuestions}
           isDisabled={
+            uploadingState ||
             localData.count < 1 ||
             isEmpty(localData.topic) ||
             isEmpty(localData.subject)
