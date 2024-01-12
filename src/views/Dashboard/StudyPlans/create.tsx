@@ -1,4 +1,10 @@
-import React, { useRef, useState, ChangeEvent, useEffect } from 'react';
+import React, {
+  useRef,
+  useState,
+  ChangeEvent,
+  useEffect,
+  RefObject
+} from 'react';
 import { useNavigate } from 'react-router';
 import { database } from '../../../firebase';
 import { ref, onValue, off, DataSnapshot } from 'firebase/database';
@@ -60,8 +66,22 @@ import resourceStore from '../../../state/resourceStore';
 import StudyPlans from '.';
 import moment from 'moment';
 import { GiCancel } from 'react-icons/gi';
-import { SmallCloseIcon } from '@chakra-ui/icons';
+import { AttachmentIcon, SmallCloseIcon } from '@chakra-ui/icons';
 import ApiService from '../../../services/ApiService';
+import { RiUploadCloud2Fill } from 'react-icons/ri';
+import userStore from '../../../state/userStore';
+import styled from 'styled-components';
+
+const FileName = styled.span`
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #585f68;
+`;
+
+const PDFTextContainer = styled.div`
+  text-align: center;
+  margin-bottom: 1.5rem;
+`;
 
 function CreateStudyPlans() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -90,7 +110,8 @@ function CreateStudyPlans() {
   const [syllabusData, setSyllabusData] = useState([]);
   const [studyPlanData, setStudyPlanData] = useState([]);
   const { courses: courseList, levels: levelOptions } = resourceStore();
-
+  const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
+    userStore.getState();
   const btnRef = useRef();
   const toast = useCustomToast();
   const navigate = useNavigate();
@@ -104,6 +125,78 @@ function CreateStudyPlans() {
     { label: 'Highschool', value: 'Highschool' },
     { label: 'College', value: 'College' }
   ];
+
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [fileName, setFileName] = useState('');
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+  const inputRef = useRef(null) as RefObject<HTMLInputElement>;
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const files = e.dataTransfer.files[0];
+    // Handle dropped files here
+
+    // const fileChecked = doesTitleExist(files?.name);
+
+    // if (fileChecked) {
+    //   setAlreadyExist(true);
+    // } else {
+    //   setAlreadyExist(false);
+    //   setLoading(true);
+    //   try {
+    //     setFileName(snip(files.name));
+    //     await handleInputFreshUpload(files, user, files.name);
+    //   } catch (error) {
+    //     // Handle errors
+    //   }
+    // }
+  };
+
+  // const collectFileInput = async (e) => {
+  //   const inputFile = e.target.files[0];
+  //   const fileChecked = doesTitleExist(inputFile?.name);
+  //   setProgress(0);
+  //   setConfirmReady(false);
+
+  //   if (fileChecked) {
+  //     setAlreadyExist(true);
+  //   } else {
+  //     // Check if the file size exceeds the limit
+  //     if (inputFile.size > fileSizeLimitBytes) {
+  //       // Set the modal state and messages
+  //       setPlansModalMessage(
+  //         !hasActiveSubscription
+  //           ? `Let's get you on a plan so you can upload larger files!`
+  //           : `Oops! Your file is too big. Your current plan allows for files up to ${fileSizeLimitMB} MB.`
+  //       );
+  //       setPlansModalSubMessage(
+  //         !hasActiveSubscription
+  //           ? `You're currently limited to files under ${fileSizeLimitMB} MB.`
+  //           : 'Consider upgrading to upload larger files.'
+  //       );
+  //       setTogglePlansModal(true);
+  //       // setShow(false);
+  //     } else {
+  //       setAlreadyExist(false);
+  //       setLoading(true);
+  //       try {
+  //         setFileName(snip(inputFile.name));
+  //         await handleInputFreshUpload(inputFile, user, inputFile.name);
+  //       } catch (error) {
+  //         // Handle errors
+  //       }
+  //     }
+  //   }
+  // };
 
   // Function to add a new test date to the list
   const addTestDate = () => {
@@ -454,7 +547,7 @@ function CreateStudyPlans() {
         {activeTab === 0 ? (
           <Box>
             {' '}
-            <Box mb={6}>
+            <Box mb={4}>
               <Text as="label" htmlFor="grade" mb={2} display="block">
                 Select your grade
               </Text>
@@ -491,7 +584,7 @@ function CreateStudyPlans() {
                 </Menu>
               </FormControl>
             </Box>
-            <Box mb={6}>
+            <Box mb={4}>
               <Text as="label" htmlFor="gradeLevel" mb={2} display="block">
                 Enter your grade level
               </Text>
@@ -528,7 +621,7 @@ function CreateStudyPlans() {
                 </Menu>
               </FormControl>
             </Box>
-            <Box mb={6}>
+            <Box mb={4}>
               <Text as="label" htmlFor="subjects" mb={2} display="block">
                 What subject would you like to generate a plan for
               </Text>
@@ -554,6 +647,66 @@ function CreateStudyPlans() {
             Additional subject
           </Button> */}
             </Box>
+            <Center
+              w="full"
+              minH="65px"
+              mb={3}
+              p={2}
+              border="2px"
+              borderColor={isDragOver ? 'gray.600' : 'gray.300'}
+              borderStyle="dashed"
+              rounded="lg"
+              cursor="pointer"
+              bg={isDragOver ? 'gray.600' : 'gray.50'}
+              color={isDragOver ? 'white' : 'inherit'}
+              onDragOver={(e) => handleDragEnter(e)}
+              onDragEnter={(e) => handleDragEnter(e)}
+              onDragLeave={(e) => handleDragLeave(e)}
+              onDrop={(e) => handleDrop(e)}
+              // onClick={clickInput}
+            >
+              <label htmlFor="file-upload">
+                <Center flexDirection="column">
+                  {fileName ? (
+                    <Flex>
+                      <AttachmentIcon /> <FileName>{fileName}</FileName>
+                    </Flex>
+                  ) : (
+                    <Flex direction={'column'} alignItems={'center'}>
+                      <RiUploadCloud2Fill
+                        className="h-8 w-8"
+                        color="gray.500"
+                      />
+                      <Text
+                        mb="2"
+                        fontSize="sm"
+                        color={isDragOver ? 'white' : 'gray.500'}
+                        fontWeight="semibold"
+                      >
+                        Click to upload or drag and drop
+                      </Text>
+                      <PDFTextContainer>
+                        <Text
+                          fontSize="xs"
+                          color={isDragOver ? 'white' : 'gray.500'}
+                        >
+                          DOC, TXT, or PDF (MAX: {fileSizeLimitMB}MB)
+                        </Text>
+                      </PDFTextContainer>
+                    </Flex>
+                  )}
+                </Center>
+              </label>
+              <input
+                type="file"
+                accept=".doc, .txt, .pdf"
+                // accept="application/pdf"
+                className="hidden"
+                id="file-upload"
+                ref={inputRef}
+                // onChange={collectFileInput}
+              />
+            </Center>
             <Button
               colorScheme="blue"
               variant="solid"
