@@ -43,7 +43,16 @@ import styled from 'styled-components';
 import PlansModal from '../../../../components/PlansModal';
 import documentStore from '../../../../state/documentStore';
 import ShepherdSpinner from '../../components/shepherd-spinner';
-import { isEmpty, isNil, last, split, truncate } from 'lodash';
+import {
+  isEmpty,
+  isNil,
+  last,
+  replace,
+  split,
+  toLower,
+  trim,
+  truncate
+} from 'lodash';
 import { FaUpload } from 'react-icons/fa';
 import { useToggle } from 'usehooks-ts';
 import { StudentDocument } from '../../../../types';
@@ -422,7 +431,16 @@ const FileUploadModal = ({
 
     setConfirmReady(true);
 
-    setIngestedDocument(e);
+    // console.log('handleSelected ========>>> ', e);
+
+    const pattern = '%20',
+      re = new RegExp(pattern, 'g');
+
+    console.log(
+      'handleSelected ============>>> ',
+      replace(e.keywords, re, ' ')
+    );
+    setIngestedDocument({ ...e, value: toLower(replace(e.keywords, re, ' ')) });
 
     setSelectedFile(null);
     setUploadDocumentFile(null);
@@ -521,10 +539,9 @@ const FileUploadModal = ({
                   <Text>Upload doc</Text>
                 ) : (
                   <Text>
-                    {truncate(ingestedDocument?.keywords, {
-                      length: 25
-                    })}{' '}
-                    - .{last(split(ingestedDocument?.keywords, '.'))}
+                    {truncate(ingestedDocument?.value, {
+                      length: 45
+                    })}
                   </Text>
                 )}
               </Box>
@@ -568,10 +585,9 @@ const FileUploadModal = ({
                   <Text>Upload doc</Text>
                 ) : (
                   <Text>
-                    {truncate(ingestedDocument?.keywords, {
+                    {truncate(ingestedDocument?.value, {
                       length: 25
                     })}{' '}
-                    - .{last(split(ingestedDocument?.keywords, '.'))}
                   </Text>
                 )}
               </Box>

@@ -90,15 +90,22 @@ const QuizCard = forwardRef(
   ) => {
     const quizCardRef = useRef<HTMLTextAreaElement | null>(null);
     const [isMultipleOptionsMulti, setIsMultipleOptionsMulti] = useState(false);
+    const [isOpenEnded, setIsOpenEnded] = useState(false);
 
-    let questionType = question?.type;
+    let questionType = question?.type ?? OPEN_ENDED;
 
     if (isMultipleOptionsMulti) {
       questionType = MULTIPLE_CHOICE_MULTI;
     }
+    if (isOpenEnded) {
+      questionType = OPEN_ENDED;
+    }
 
     useEffect(() => {
-      if (!isEmpty(options) && !isNil(options)) {
+      if (isNil(options) || isEmpty(options)) {
+        setIsOpenEnded(true);
+      }
+      if (!isNil(options) && !isEmpty(options)) {
         const isMulti =
           size(filter(options, (option) => option.isCorrect === true)) > 1;
 
@@ -156,8 +163,6 @@ const QuizCard = forwardRef(
       }
     };
 
-    console.log('CardquizCardRef.current.value', quizCardRef?.current?.value);
-
     return (
       <HStack alignItems={'flex-start'} flexWrap={'nowrap'} width="100%">
         <Text fontSize="sm" fontWeight="semibold">
@@ -177,9 +182,9 @@ const QuizCard = forwardRef(
           borderWidth={
             showAnsweredQuestion &&
             quizScores[index]?.score === '' &&
-            question.type !== OPEN_ENDED
+            questionType !== OPEN_ENDED
               ? '1px'
-              : question.type === OPEN_ENDED &&
+              : questionType === OPEN_ENDED &&
                 showAnsweredQuestion &&
                 isEmpty(first(quizScores[index]?.selectedOptions))
               ? '1px'
@@ -188,9 +193,9 @@ const QuizCard = forwardRef(
           borderColor={
             showAnsweredQuestion &&
             quizScores[index]?.score === '' &&
-            question.type !== OPEN_ENDED
+            questionType !== OPEN_ENDED
               ? 'red.200'
-              : question.type === OPEN_ENDED &&
+              : questionType === OPEN_ENDED &&
                 showAnsweredQuestion &&
                 isEmpty(first(quizScores[index]?.selectedOptions))
               ? 'red.200'
@@ -258,7 +263,9 @@ const QuizCard = forwardRef(
 
                             <Box display={'flex'} w={'100%'} maxW={'95%'}>
                               <Text w={'95%'} ml={'4px'}>
-                                {option?.content}
+                                {size(options) < 3
+                                  ? capitalize(option?.content)
+                                  : option?.content}
                               </Text>
                             </Box>
                           </div>
@@ -307,7 +314,11 @@ const QuizCard = forwardRef(
                               isReadOnly={showQuizAnswers}
                             />
                             <Box display={'flex'} flex={1} ml={'4px'}>
-                              <Text>{option?.content}</Text>
+                              <Text>
+                                {size(options) < 3
+                                  ? capitalize(option?.content)
+                                  : option?.content}
+                              </Text>
                             </Box>
                           </Flex>
                         </div>
@@ -433,7 +444,7 @@ const QuizCard = forwardRef(
                       >
                         {/* open ended buttons */}
 
-                        {question.type === OPEN_ENDED && (
+                        {questionType === OPEN_ENDED && (
                           <HStack
                             bg={'whiteAlpha.900'}
                             p={4}
