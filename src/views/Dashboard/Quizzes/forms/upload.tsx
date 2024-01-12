@@ -181,7 +181,7 @@ const UploadQuizForm = ({
           'ingestDoc'
         ]) as any),
         studentId: user._id,
-        documentId: ingestedDocument?.keywords
+        documentId: ingestedDocument?.value
       });
 
       watchJobs(
@@ -232,14 +232,6 @@ const UploadQuizForm = ({
     isNil(file) && isNil(ingestedDocument) ? true : false;
 
   const disabledByTitle = isEmpty(title) ? true : isNil(title) ? true : false;
-
-  useEffect(() => {
-    console.log(
-      'disabledByFileOrDocument ==========>>>> ',
-      disabledByFileOrDocument
-    );
-    console.log('disabledByTitle ==========>>>> ', disabledByTitle);
-  }, [disabledByFileOrDocument, disabledByTitle]);
 
   return (
     <Box width={'100%'} mt="20px">
