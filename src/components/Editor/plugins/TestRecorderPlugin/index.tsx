@@ -5,18 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import { IS_APPLE } from '../shared/src/environment';
-import useLayoutEffect from '../shared/src/useLayoutEffect';
+
+import type { BaseSelection, LexicalEditor } from 'lexical';
+
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import type {
-  GridSelection,
-  LexicalEditor,
-  NodeSelection,
-  RangeSelection
-} from 'lexical';
 import { $createParagraphNode, $createTextNode, $getRoot } from 'lexical';
 import * as React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { IS_APPLE } from '../shared/src/environment';
+import useLayoutEffect from '../shared/src/useLayoutEffect';
 
 const copy = (text: string | null) => {
   const textArea = document.createElement('textarea');
@@ -116,14 +113,14 @@ function sanitizeSelection(selection: Selection) {
 
 function getPathFromNodeToEditor(node: Node, rootElement: HTMLElement | null) {
   let currentNode: Node | null | undefined = node;
-  const path: any[] = [];
+  const path = [];
   while (currentNode !== rootElement) {
-    // const currentNode: any = [];
     if (currentNode !== null && currentNode !== undefined) {
-      const arrIndex: number = Array.from<any>(
-        currentNode?.parentNode?.childNodes ?? []
-      ).indexOf(currentNode as ChildNode);
-      path.unshift(arrIndex);
+      path.unshift(
+        Array.from(currentNode?.parentNode?.childNodes ?? []).indexOf(
+          currentNode as ChildNode
+        )
+      );
     }
     currentNode = currentNode?.parentNode;
   }
@@ -157,9 +154,7 @@ function useTestRecorder(
   const [isRecording, setIsRecording] = useState(false);
   const [, setCurrentInnerHTML] = useState('');
   const [templatedTest, setTemplatedTest] = useState('');
-  const previousSelectionRef = useRef<
-    RangeSelection | GridSelection | NodeSelection | null | any
-  >(null);
+  const previousSelectionRef = useRef<BaseSelection | null>(null);
   const skipNextSelectionChangeRef = useRef(false);
   const preRef = useRef<HTMLPreElement>(null);
 
