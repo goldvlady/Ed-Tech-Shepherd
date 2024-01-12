@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import Button from '../ui/Button';
-import joinClasses from '../utils/joinClasses';
+
 import type { Option, Options, PollNode } from './PollNode';
-import { $isPollNode, createPollOption } from './PollNode';
+
 import './PollNode.css';
+
 import { useCollaborationContext } from '@lexical/react/LexicalCollaborationContext';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
@@ -18,17 +18,19 @@ import {
   $getNodeByKey,
   $getSelection,
   $isNodeSelection,
+  BaseSelection,
   CLICK_COMMAND,
   COMMAND_PRIORITY_LOW,
-  GridSelection,
   KEY_BACKSPACE_COMMAND,
   KEY_DELETE_COMMAND,
-  NodeKey,
-  NodeSelection,
-  RangeSelection
+  NodeKey
 } from 'lexical';
 import * as React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+import Button from '../ui/Button';
+import joinClasses from '../utils/joinClasses';
+import { $isPollNode, createPollOption } from './PollNode';
 
 function getTotalVotes(options: Options): number {
   return options.reduce((totalVotes, next) => {
@@ -140,9 +142,7 @@ export default function PollComponent({
   const totalVotes = useMemo(() => getTotalVotes(options), [options]);
   const [isSelected, setSelected, clearSelection] =
     useLexicalNodeSelection(nodeKey);
-  const [selection, setSelection] = useState<
-    RangeSelection | NodeSelection | GridSelection | null | any
-  >(null);
+  const [selection, setSelection] = useState<BaseSelection | null>(null);
   const ref = useRef(null);
 
   const onDelete = useCallback(

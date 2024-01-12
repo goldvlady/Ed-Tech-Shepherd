@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -7,21 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import { useSharedAutocompleteContext } from '../../context/SharedAutocompleteContext';
-import {
-  $createAutocompleteNode,
-  AutocompleteNode
-} from '../../nodes/AutocompleteNode';
-import { addSwipeRightListener } from '../../utils/swipe';
+
+import type { BaseSelection, NodeKey } from 'lexical';
+
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isAtNodeEnd } from '@lexical/selection';
 import { mergeRegister } from '@lexical/utils';
-import type {
-  GridSelection,
-  NodeKey,
-  NodeSelection,
-  RangeSelection
-} from 'lexical';
 import {
   $createTextNode,
   $getNodeByKey,
@@ -35,6 +24,13 @@ import {
 } from 'lexical';
 import { useCallback, useEffect } from 'react';
 
+import { useSharedAutocompleteContext } from '../../context/SharedAutocompleteContext';
+import {
+  $createAutocompleteNode,
+  AutocompleteNode
+} from '../../nodes/AutocompleteNode';
+import { addSwipeRightListener } from '../../utils/swipe';
+
 type SearchPromise = {
   dismiss: () => void;
   promise: Promise<null | string>;
@@ -46,9 +42,7 @@ export const uuid = Math.random()
   .substr(0, 5);
 
 // TODO lookup should be custom
-function $search(
-  selection: null | RangeSelection | NodeSelection | GridSelection
-): [boolean, string] {
+function $search(selection: null | BaseSelection): [boolean, string] {
   if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
     return [false, ''];
   }
@@ -58,7 +52,7 @@ function $search(
   if (!$isTextNode(node) || !node.isSimpleText() || !$isAtNodeEnd(anchor)) {
     return [false, ''];
   }
-  const word: any[] = [];
+  const word = [];
   const text = node.getTextContent();
   let i = node.getTextContentSize();
   let c;
@@ -119,7 +113,7 @@ export default function AutocompletePlugin(): JSX.Element | null {
       }
       editor.update(
         () => {
-          const selection = $getSelection() as any;
+          const selection = $getSelection();
           const [hasMatch, match] = $search(selection);
           if (
             !hasMatch ||
@@ -151,7 +145,7 @@ export default function AutocompletePlugin(): JSX.Element | null {
     function handleUpdate() {
       editor.update(() => {
         const selection = $getSelection();
-        const [hasMatch, match] = $search(selection as any);
+        const [hasMatch, match] = $search(selection);
         if (!hasMatch) {
           $clearSuggestion();
           return;
