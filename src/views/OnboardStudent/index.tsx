@@ -145,11 +145,11 @@ const OnboardStudent = () => {
 
   const stepWizardInstance = useRef<StepWizardChildProps | null>(null);
 
-  const {
-    isOpen: isSomethingElseModalOpen,
-    onOpen: onSomethingElseModalOpen,
-    onClose: onSomethingElseModalClose
-  } = useDisclosure();
+  // const {
+  //   isOpen: isSomethingElseModalOpen,
+  //   onOpen: onSomethingElseModalOpen,
+  //   onClose: onSomethingElseModalClose
+  // } = useDisclosure();
   const [activeStep, setActiveStep] = useState<number>(1);
 
   const [editModalStep, setEditModalStep] = useState<string | null>(null);
@@ -159,10 +159,7 @@ const OnboardStudent = () => {
     onClose: onEditModalClose
   } = useDisclosure();
 
-  const onStepChange: StepWizardProps['onStepChange'] = ({
-    activeStep,
-    ...rest
-  }) => {
+  const onStepChange: StepWizardProps['onStepChange'] = ({ activeStep }) => {
     setActiveStep(activeStep);
   };
 
@@ -171,14 +168,12 @@ const OnboardStudent = () => {
     parentOrStudent,
     name,
     dob,
+    referralCode,
     email,
     courses,
     somethingElse,
     schedule,
-    tz,
-    gradeLevel,
-    topic,
-    skillLevels
+    tz
   } = data;
 
   useEffect(() => {
@@ -223,29 +218,26 @@ const OnboardStudent = () => {
     passwordChecks.filter((check) => !check.checked).length === 0;
 
   const validateParentStudentStep = !!parentOrStudent;
-  const validateAboutYouStep =
-    !!name.first && !!name.last && !!email && dobValid && !!dob;
-  const validateCoursesStep = !isEmpty(courses);
-  const validateScheduleStep = !isEmpty(schedule) && !!tz;
+  const validateAboutYouStep = !!name.first && !!name.last && !!email;
 
-  const validateCourseSupplementaryStep = useMemo(
-    () =>
-      !courses
-        .map((c) => {
-          if (c === 'maths') {
-            return !!gradeLevel && !!topic;
-          } else {
-            return !courses
-              .filter((c) => c !== 'maths')
-              .map((c) => {
-                return !!skillLevels.find((sl) => sl.course === c);
-              })
-              .includes(false);
-          }
-        })
-        .includes(false),
-    [courses, skillLevels, gradeLevel, topic]
-  );
+  // const validateCourseSupplementaryStep = useMemo(
+  //   () =>
+  //     !courses
+  //       .map((c) => {
+  //         if (c === 'maths') {
+  //           return !!gradeLevel && !!topic;
+  //         } else {
+  //           return !courses
+  //             .filter((c) => c !== 'maths')
+  //             .map((c) => {
+  //               return !!skillLevels.find((sl) => sl.course === c);
+  //             })
+  //             .includes(false);
+  //         }
+  //       })
+  //       .includes(false),
+  //   [courses, skillLevels, gradeLevel, topic]
+  // );
 
   useEffect(() => {
     if (somethingElse) {
@@ -393,7 +385,8 @@ const OnboardStudent = () => {
           first: userResp?.firstName,
           last: userResp?.lastName
         },
-        dob: ''
+        dob: '',
+        referralCode
       };
       await ApiService.createUser({
         ...userPayload,
@@ -503,12 +496,12 @@ const OnboardStudent = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel marginTop={4}>Date of Birth</FormLabel>
-              <DateInput
+              <FormLabel marginTop={4}>Referral Code</FormLabel>
+              <Input
                 size={'lg'}
-                value={dob}
-                onChange={(v) => {
-                  onboardStudentStore.set.dob(v);
+                value={referralCode}
+                onChange={(e) => {
+                  onboardStudentStore.set.referralCode(e.target.value);
                 }}
               />
             </FormControl>
