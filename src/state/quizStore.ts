@@ -1,5 +1,12 @@
 import ApiService from '../services/ApiService';
-import { QuizData, Score, Study, MinimizedStudy, QuizQuestion } from '../types';
+import {
+  QuizData,
+  Score,
+  Study,
+  MinimizedStudy,
+  QuizQuestion,
+  SchedulePayload
+} from '../types';
 import {
   differenceBy,
   isEmpty,
@@ -71,6 +78,7 @@ type Store = {
     questionId: number | string,
     callback?: (err: any | boolean, res?: any) => void
   ) => void;
+  scheduleQuiz: (payload: SchedulePayload) => Promise<boolean>;
   //   storeCurrentStudy: (
   //     flashcardId: string,
   //     data: MinimizedStudy
@@ -313,6 +321,17 @@ export default create<Store>((set) => ({
         error
       );
       callback && callback(error);
+    }
+  },
+  scheduleQuiz: async (data: SchedulePayload) => {
+    try {
+      set({ isLoading: true });
+      const response = await ApiService.scheduleStudyEvent(data);
+      return response.status === 200;
+    } catch (error) {
+      return false;
+    } finally {
+      set({ isLoading: false });
     }
   }
   //   storeCurrentStudy: async (flashcardId, currentStudy: MinimizedStudy) => {

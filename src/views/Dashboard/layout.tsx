@@ -318,6 +318,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             <Text> Ask Shep?</Text>
           </Flex>
         </Box>
+
         <Spacer display={{ base: 'none', md: 'flex' }} />
         <Flex
           justifyContent={'space-between'}

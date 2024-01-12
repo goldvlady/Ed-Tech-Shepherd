@@ -39,13 +39,9 @@ const ManualQuizForm = ({
   isLoadingButton,
   title,
   handleSetTitle,
-  handleCreateQuiz,
-  handleUpdateQuiz,
-  quizId = null
+  uploadingState,
+  handleCreateUpdateQuiz
 }) => {
-  // const { setQuestions, goToQuestion, currentQuestionIndex, questions } =
-  //   useQuizState();
-
   const [currentQuestion, setCurrentQuestion] = useState<
     Omit<QuizQuestion & { canEdit?: boolean }, 'options'> & {
       options?: Record<string, QuizQuestionOption> | QuizQuestionOption[];
@@ -57,27 +53,6 @@ const ManualQuizForm = ({
     answer: '',
     canEdit: true
   });
-
-  // useEffect(() => {
-  //   if (questions[currentQuestionIndex]) {
-  //     const options = {};
-  //     if (questions[currentQuestionIndex].type === TRUE_FALSE) {
-  //       forEach(questions[currentQuestionIndex].options, (option) => {
-  //         const { content } = option;
-  //         options[toLower(content)] = option;
-  //       });
-  //     }
-  //     if (questions[currentQuestionIndex].type === MULTIPLE_CHOICE_SINGLE) {
-  //       forEach(questions[currentQuestionIndex].options, (option, index) => {
-  //         options[`option${String.fromCharCode(65 + index)}`] = option;
-  //       });
-  //     }
-  //     setCurrentQuestion({
-  //       ...questions[currentQuestionIndex],
-  //       options
-  //     });
-  //   }
-  // }, [currentQuestionIndex, questions]);
 
   const handleChangeQuestionType = (
     e: React.ChangeEvent<
@@ -92,17 +67,6 @@ const ManualQuizForm = ({
   };
 
   const handleQuestionAdd = async () => {
-    // setQuestions((prevQuestions) => {
-    //   const updatedQuestions = [...prevQuestions] as any;
-    //   updatedQuestions[currentQuestionIndex] = {
-    //     ...currentQuestion,
-    //     options: values(currentQuestion.options)
-    //   };
-    //   return updatedQuestions;
-    // });
-
-    // goToQuestion((prevIndex) => prevIndex + 1);
-
     let questionPayload: any = {
       ...currentQuestion,
       options: values(currentQuestion?.options)
@@ -115,14 +79,7 @@ const ManualQuizForm = ({
       questionPayload = omit(questionPayload, ['answer']);
     }
 
-    if (isNil(quizId) && isEmpty(quizId)) {
-      await handleCreateQuiz([questionPayload], true);
-    } else {
-      await handleUpdateQuiz(quizId, {
-        quizQuestions: [questionPayload],
-        canEdit: true
-      });
-    }
+    await handleCreateUpdateQuiz([questionPayload], { canEdit: true });
 
     setTimeout(() => {
       setCurrentQuestion({
@@ -357,6 +314,7 @@ const ManualQuizForm = ({
         justifyContent={'end'}
         marginTop="40px"
         align={'flex-end'}
+        marginBottom={4}
       >
         <Button
           borderRadius="8px"
@@ -382,7 +340,9 @@ const ManualQuizForm = ({
           colorScheme="primary"
           onClick={handleQuestionAdd}
           ml={5}
-          isDisabled={isEmpty(currentQuestion.answer) || isEmpty(title)}
+          isDisabled={
+            uploadingState || isEmpty(currentQuestion.answer) || isEmpty(title)
+          }
           isLoading={isLoadingButton}
         >
           Add Question
