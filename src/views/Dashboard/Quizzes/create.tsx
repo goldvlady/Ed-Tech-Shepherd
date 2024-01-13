@@ -43,7 +43,10 @@ import {
   includes,
   filter,
   toNumber,
-  toString
+  toString,
+  isBoolean,
+  isObject,
+  isNaN
 } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -358,14 +361,15 @@ const CreateQuizPage = () => {
     cb = null
   ) => {
     if (isArray(quizQuestions) && !isEmpty(quizQuestions)) {
+      console.log('quizQuestions =============>>>> ', quizQuestions);
       (async () => {
         const sliceQuestions = slice(quizQuestions, 0, localData.count);
         const questions = map([...sliceQuestions], (quiz) => {
           let type = quiz?.type;
-          let options = [];
+          let options = quiz?.options ?? [];
           if (
             !isNil(quiz?.options) ||
-            (isArray(quiz?.options) && isEmpty(quiz?.options))
+            (isArray(quiz?.options) && !isEmpty(quiz?.options))
           ) {
             options = quiz?.options;
           }
@@ -380,9 +384,9 @@ const CreateQuizPage = () => {
                   1;
                 if (isMulti) {
                   type = MULTIPLE_CHOICE_MULTI;
+                } else {
+                  type = MULTIPLE_CHOICE_SINGLE;
                 }
-
-                type = MULTIPLE_CHOICE_SINGLE;
               }
             } else {
               if (!isEmpty(quiz?.answer) || !isNil(quiz?.answer)) {
@@ -427,15 +431,44 @@ const CreateQuizPage = () => {
                     ) > 1;
                   if (isMulti) {
                     type = MULTIPLE_CHOICE_MULTI;
+                  } else {
+                    type = MULTIPLE_CHOICE_SINGLE;
                   }
-
-                  type = MULTIPLE_CHOICE_SINGLE;
                 }
                 const arrOptions = [...options];
-                options = map(arrOptions, (option, idx) => ({
-                  content: option,
-                  isCorrect: toNumber(quiz?.answer) === idx + 1
-                }));
+                options = map(
+                  arrOptions,
+                  (
+                    option:
+                      | string
+                      | { content: string; isCorrect: string | boolean },
+                    idx: number
+                  ) => {
+                    let isCorrect = !isNaN(toNumber(quiz?.answer))
+                      ? toNumber(quiz?.answer) === idx + 1
+                      : false;
+                    let content = typeof option === 'string' && option;
+
+                    if (isObject(option) && !isArray(option)) {
+                      if (
+                        !isNil(option?.isCorrect) &&
+                        typeof option?.isCorrect === 'string'
+                      ) {
+                        isCorrect =
+                          option?.isCorrect === 'true' || option?.isCorrect
+                            ? true
+                            : false;
+
+                        content = option?.content;
+                      }
+                    }
+
+                    return {
+                      content,
+                      isCorrect
+                    };
+                  }
+                );
               }
             }
           }
@@ -447,6 +480,8 @@ const CreateQuizPage = () => {
             answer: toString(quiz?.answer)
           };
         }) as NewQuizQuestion[];
+
+        console.log('questions =============>>>> ', questions);
 
         await handleCreateUpdateQuiz(questions);
 
