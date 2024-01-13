@@ -248,7 +248,7 @@ const NewNote = () => {
   const navigate = useNavigate();
 
   const [loadingDoc, setLoadingDoc] = useState(false);
-  const { userDocuments } = userStore();
+  const { userDocuments, user } = userStore();
   const [studentDocuments, setStudentDocuments] = useState<Array<any>>([]);
   const [pinned, setPinned] = useState<boolean>(false);
   const debounceEditedTitle = useDebounce(editedTitle, 1000);
@@ -1191,7 +1191,7 @@ const NewNote = () => {
             </div>
           </FirstSection>
           <SecondSection>
-            <ShareModal type="note" />
+            {user && <ShareModal type="note" />}
             <CustomButton
               disabled={!saveButtonState}
               isPrimary

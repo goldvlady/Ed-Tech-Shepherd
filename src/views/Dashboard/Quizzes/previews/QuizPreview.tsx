@@ -51,6 +51,7 @@ import { IoCheckmarkDone, IoCloseOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 import ShareModal from '../../../../components/ShareModal';
 import PlansModal from '../../../../components/PlansModal';
+import userStore from '../../../../state/userStore';
 
 type QuizScoreType = {
   questionIdx: string | number;
@@ -600,7 +601,7 @@ const QuizPreviewer = ({
   const [showResults, setShowResults] = useState(false);
   const [showUnansweredQuestions, setShowUnansweredQuestions] = useState(false);
   const [showQuizAnswers, setShowQuizAnswers] = useState(false);
-
+  const { user } = userStore();
   const [scores, setScores] = useState<QuizScoreType[]>([]);
 
   const handleCloseResultsModal = () => setShowResults(false);
@@ -770,7 +771,8 @@ const QuizPreviewer = ({
                     alignItems={'center'}
                     justifyContent={'space-between'}
                   >
-                    <ShareModal type="quiz" />
+                    {user && <ShareModal type="quiz" />}
+
                     {togglePlansModal && (
                       <PlansModal
                         message="Pick a plan to access your AI Study Tools! 🚀"
