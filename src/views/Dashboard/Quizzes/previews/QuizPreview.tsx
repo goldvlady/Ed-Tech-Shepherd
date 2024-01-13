@@ -806,6 +806,7 @@ const QuizPreviewer = ({
                             }}
                             w={'180px'}
                             h={'40px'}
+                            disabled={!user}
                           >
                             Submit Quiz
                           </Button>

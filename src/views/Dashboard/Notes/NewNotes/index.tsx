@@ -1193,7 +1193,7 @@ const NewNote = () => {
           <SecondSection>
             {user && <ShareModal type="note" />}
             <CustomButton
-              disabled={!saveButtonState}
+              disabled={!saveButtonState || !user}
               isPrimary
               title={!saveButtonState ? 'Saving...' : 'Save'}
               type="button"
