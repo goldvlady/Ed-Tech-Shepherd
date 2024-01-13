@@ -43,6 +43,9 @@ export interface TutorBankInfo {
   accountNumber: string;
   bankName: string;
   swiftCode?: string;
+  routingNumber?: string;
+  address?: string;
+  stripeAccountId?: string;
 }
 
 export interface TutorQualification {

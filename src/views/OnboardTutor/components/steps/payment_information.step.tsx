@@ -7,7 +7,8 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Select
+  Select,
+  Textarea
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
 
@@ -83,6 +84,43 @@ const PaymentInformationForm: React.FC = () => {
             onChange={handleInputChange}
             placeholder="e.g 00000"
           />
+        </FormControl>
+        <FormControl>
+          <FormLabel>Routing Number</FormLabel>
+          <Input
+            type="text"
+            name="routingNumber"
+            value={bankInfo?.routingNumber}
+            onChange={handleInputChange}
+            placeholder=""
+          />
+        </FormControl>
+        <FormControl>
+          <FormLabel>Stripe Account Id</FormLabel>
+          <Input
+            type="text"
+            name="stripeAccountId"
+            value={bankInfo?.stripeAccountId}
+            onChange={handleInputChange}
+            placeholder=""
+          />
+        </FormControl>
+        <FormControl>
+          <FormLabel>Address</FormLabel>
+          <Textarea
+            name="address"
+            value={bankInfo?.address}
+            onChange={(e: any) => handleInputChange(e)}
+            placeholder=""
+          />
+          {/* <Input
+            type="text"
+            name="address"
+            value={bankInfo?.address}
+            onChange={handleInputChange}
+            placeholder=""
+            multiple
+          /> */}
         </FormControl>
       </Stack>
     </Box>
