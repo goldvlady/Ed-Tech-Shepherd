@@ -170,19 +170,19 @@ const UploadQuizForm = ({
             'ingestDoc'
           ]) as any)
         });
+      } else {
+        await handleGenerateQuestions({
+          ...(omit(localData, [
+            'studentID',
+            'fileUrl',
+            'contentType',
+            'documentID',
+            'ingestDoc'
+          ]) as any),
+          studentId: user._id,
+          documentId: ingestedDocument?.value
+        });
       }
-
-      await handleGenerateQuestions({
-        ...(omit(localData, [
-          'studentID',
-          'fileUrl',
-          'contentType',
-          'documentID',
-          'ingestDoc'
-        ]) as any),
-        studentId: user._id,
-        documentId: ingestedDocument?.keywords
-      });
 
       watchJobs(
         isNil(ingestedDocument)
@@ -232,14 +232,6 @@ const UploadQuizForm = ({
     isNil(file) && isNil(ingestedDocument) ? true : false;
 
   const disabledByTitle = isEmpty(title) ? true : isNil(title) ? true : false;
-
-  useEffect(() => {
-    console.log(
-      'disabledByFileOrDocument ==========>>>> ',
-      disabledByFileOrDocument
-    );
-    console.log('disabledByTitle ==========>>>> ', disabledByTitle);
-  }, [disabledByFileOrDocument, disabledByTitle]);
 
   return (
     <Box width={'100%'} mt="20px">
