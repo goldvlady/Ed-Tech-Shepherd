@@ -40,7 +40,7 @@ import {
   getISOWeek,
   parse
 } from 'date-fns';
-import { isEmpty, isNaN } from 'lodash';
+import { isEmpty, isNaN, truncate } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaCalendarAlt, FaEllipsisH } from 'react-icons/fa';
@@ -256,12 +256,13 @@ const Quizzes = () => {
         <Text
           color="#207DF7"
           onClick={() => {
-            handleToggleStartQuizModal(true);
             loadQuiz(key);
+            handleToggleStartQuizModal(true);
           }}
           fontWeight="500"
+          title={title}
         >
-          {title}
+          {truncate(title, { length: 50 })}
         </Text>
       )
     },
@@ -461,8 +462,8 @@ const Quizzes = () => {
               p="6px 8px 6px 8px"
               _hover={{ bgColor: '#F2F4F7' }}
               onClick={() => {
-                handleToggleStartQuizModal(true);
                 loadQuiz(quiz.key);
+                handleToggleStartQuizModal(true);
               }}
             >
               <Box className="item-menu-icon" marginRight="10px">

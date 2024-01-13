@@ -170,19 +170,19 @@ const UploadQuizForm = ({
             'ingestDoc'
           ]) as any)
         });
+      } else {
+        await handleGenerateQuestions({
+          ...(omit(localData, [
+            'studentID',
+            'fileUrl',
+            'contentType',
+            'documentID',
+            'ingestDoc'
+          ]) as any),
+          studentId: user._id,
+          documentId: ingestedDocument?.value
+        });
       }
-
-      await handleGenerateQuestions({
-        ...(omit(localData, [
-          'studentID',
-          'fileUrl',
-          'contentType',
-          'documentID',
-          'ingestDoc'
-        ]) as any),
-        studentId: user._id,
-        documentId: ingestedDocument?.value
-      });
 
       watchJobs(
         isNil(ingestedDocument)

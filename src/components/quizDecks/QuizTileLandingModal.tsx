@@ -166,7 +166,6 @@ export const QuizModal = ({
   const [modalQuiz, setModalQuiz] = useState(null);
 
   useEffect(() => {
-    console.log('modal ----->> quiz =======>> ', quiz);
     setModalQuiz(quiz);
   }, [quiz]);
 
@@ -209,92 +208,97 @@ export const QuizModal = ({
         )}
 
         <ModalBody bg={'#F9F9FB'}>
-          <Box
-            h={'100%'}
-            w={'100%'}
-            display={'flex'}
-            alignItems={'flex-start'}
-            justifyContent={'center'}
-          >
-            <Box w={'100%'} h={'100%'} pt={'60px'}>
-              <VStack
-                alignItems={'center'}
-                justifyContent={'center'}
-                w={'100%'}
-                h={'100%'}
-              >
-                <Box mb={'24px'}>
-                  <TakeQuizIcon
-                    className={'h-[100px] w-[100px]'}
-                    onClick={() => {
-                      return;
-                    }}
-                  />
-                </Box>
-
-                <VStack mb={16}>
-                  <Box mb={'16px'}>
-                    <Text
-                      fontSize={'24px'}
-                      fontWeight={'600'}
-                      fontFamily={'Inter'}
-                      color={'text.200'}
-                    >
-                      {modalQuiz?.title || 'Sample'} quiz
-                    </Text>
-                  </Box>
-                  <Box>
-                    <Text
-                      fontSize={'16px'}
-                      fontFamily={'Inter'}
-                      color={'text.400'}
-                      textAlign={'center'}
-                    >
-                      You have {modalQuiz?.questions?.length || 0} question
-                      {modalQuiz?.questions?.length > 0 ? 's' : ''}
-                      , test your knowledge on your <br />
-                      {modalQuiz?.title} quiz
-                    </Text>
-                  </Box>
-                </VStack>
-                <HStack
-                  w={'100%'}
-                  sx={{
-                    marginTop: 'auto !important'
-                  }}
+          {modalQuiz && (
+            <Box
+              h={'100%'}
+              w={'100%'}
+              display={'flex'}
+              alignItems={'flex-start'}
+              justifyContent={'center'}
+            >
+              <Box w={'100%'} h={'100%'} pt={'20px'}>
+                <VStack
+                  alignItems={'center'}
                   justifyContent={'center'}
-                  pt={8}
-                  pb={'40px'}
+                  w={'100%'}
+                  h={'100%'}
                 >
-                  <Button
-                    w={'500px'}
-                    h={'54px'}
-                    borderRadius="8px"
-                    fontSize="14px"
-                    lineHeight="20px"
-                    variant="solid"
-                    colorScheme="primary"
-                    onClick={handleStartQuiz}
-                    display={'flex'}
-                    flexDirection={'row'}
-                    justifyContent={'center'}
-                  >
-                    <LightningBoltIcon
-                      className={'h-[20px] w-[20px] mx-2'}
+                  <Box mb={'24px'}>
+                    <TakeQuizIcon
+                      className={'h-[100px] w-[100px]'}
                       onClick={() => {
                         return;
                       }}
                     />
-                    Study
-                  </Button>
-                </HStack>
+                  </Box>
 
-                <HStack alignItems={'flex-end'}>
-                  <QuizLandingFooter />
-                </HStack>
-              </VStack>
+                  <VStack mb={16}>
+                    <Box mb={'16px'}>
+                      <Text
+                        fontSize={'24px'}
+                        fontWeight={'600'}
+                        fontFamily={'Inter'}
+                        color={'text.200'}
+                        textAlign={'center'}
+                        lineHeight={'29px'}
+                        textTransform={'capitalize'}
+                      >
+                        {modalQuiz?.title} quiz
+                      </Text>
+                    </Box>
+                    <Box>
+                      <Text
+                        fontSize={'16px'}
+                        fontFamily={'Inter'}
+                        color={'text.400'}
+                        textAlign={'center'}
+                      >
+                        You have {modalQuiz?.questions?.length || 0} question
+                        {modalQuiz?.questions?.length > 0 ? 's' : ''}
+                        , test your knowledge on your <br />
+                        {modalQuiz?.title} quiz
+                      </Text>
+                    </Box>
+                  </VStack>
+                  <HStack
+                    w={'100%'}
+                    sx={{
+                      marginTop: 'auto !important'
+                    }}
+                    justifyContent={'center'}
+                    pt={8}
+                    pb={'40px'}
+                  >
+                    <Button
+                      w={'500px'}
+                      h={'54px'}
+                      borderRadius="8px"
+                      fontSize="14px"
+                      lineHeight="20px"
+                      variant="solid"
+                      colorScheme="primary"
+                      onClick={handleStartQuiz}
+                      display={'flex'}
+                      flexDirection={'row'}
+                      justifyContent={'center'}
+                    >
+                      <LightningBoltIcon
+                        className={'h-[20px] w-[20px] mx-2'}
+                        onClick={() => {
+                          return;
+                        }}
+                      />
+                      Study
+                    </Button>
+                  </HStack>
+
+                  <HStack alignItems={'flex-end'}>
+                    <QuizLandingFooter />
+                  </HStack>
+                </VStack>
+              </Box>
             </Box>
-          </Box>
+          )}
         </ModalBody>
       </ModalContent>
     </Modal>

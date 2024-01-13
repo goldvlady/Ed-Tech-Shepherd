@@ -15,7 +15,7 @@ import {
   TagLabel,
   VStack
 } from '@chakra-ui/react';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface TagModalProps {
   tags: string[];
