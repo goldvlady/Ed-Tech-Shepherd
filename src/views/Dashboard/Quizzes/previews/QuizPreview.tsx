@@ -49,6 +49,9 @@ import {
 import React, { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { IoCheckmarkDone, IoCloseOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
+import ShareModal from '../../../../components/ShareModal';
+import PlansModal from '../../../../components/PlansModal';
+import userStore from '../../../../state/userStore';
 
 type QuizScoreType = {
   questionIdx: string | number;
@@ -578,11 +581,15 @@ const QuizCard = forwardRef(
 const QuizPreviewer = ({
   title,
   questions,
-  quizId
+  quizId,
+  togglePlansModal,
+  setTogglePlansModal
 }: {
   title: string;
   questions: QuizQuestion[];
   quizId: string;
+  togglePlansModal: boolean;
+  setTogglePlansModal: React.Dispatch<React.SetStateAction<boolean>>;
   handleSetUploadingState?: (value: boolean) => void;
 }) => {
   const navigate = useNavigate();
@@ -594,7 +601,7 @@ const QuizPreviewer = ({
   const [showResults, setShowResults] = useState(false);
   const [showUnansweredQuestions, setShowUnansweredQuestions] = useState(false);
   const [showQuizAnswers, setShowQuizAnswers] = useState(false);
-
+  const { user } = userStore();
   const [scores, setScores] = useState<QuizScoreType[]>([]);
 
   const handleCloseResultsModal = () => setShowResults(false);
@@ -764,6 +771,16 @@ const QuizPreviewer = ({
                     alignItems={'center'}
                     justifyContent={'space-between'}
                   >
+                    {user && <ShareModal type="quiz" />}
+
+                    {togglePlansModal && (
+                      <PlansModal
+                        message="Pick a plan to access your AI Study Tools! 🚀"
+                        subMessage="Get started today for free!"
+                        togglePlansModal={togglePlansModal}
+                        setTogglePlansModal={setTogglePlansModal}
+                      />
+                    )}
                     {!showQuizAnswers && handleUnansweredQuestionsCount > 0 && (
                       <Box>
                         <Button
@@ -789,6 +806,7 @@ const QuizPreviewer = ({
                             }}
                             w={'180px'}
                             h={'40px'}
+                            disabled={!user}
                           >
                             Submit Quiz
                           </Button>

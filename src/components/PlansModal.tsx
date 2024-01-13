@@ -21,6 +21,7 @@ import { XMarkIcon } from '@heroicons/react/20/solid';
 import { getAuth } from 'firebase/auth';
 import React, { Fragment, useState, useEffect } from 'react';
 import { PiCheckCircleFill } from 'react-icons/pi';
+import { useNavigate } from 'react-router';
 import Typewriter from 'typewriter-effect';
 
 interface StripePricingTableProps {
@@ -50,7 +51,7 @@ const PlansModal = ({
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState('');
-
+  const navigate = useNavigate();
   const openModal = (content) => {
     setModalContent(content);
     setIsModalOpen(true);
@@ -111,7 +112,11 @@ const PlansModal = ({
     if (!user || !user.id) {
       console.error('User is not authenticated');
       // Handle unauthenticated user scenario
-      openModal('Please log in to start your subscription.');
+
+      openModal('You will be redirected to create an account');
+      setTimeout(() => {
+        navigate('/signup');
+      }, 150);
       return;
     }
 
@@ -128,7 +133,16 @@ const PlansModal = ({
   const redirectToCustomerPortal = async (tier) => {
     console.log('tier', tier);
     let portal;
+    if (!user || !user.id) {
+      console.error('User is not authenticated');
+      // Handle unauthenticated user scenario
 
+      openModal('You will be redirected to create an account');
+      setTimeout(() => {
+        navigate('/signup');
+      }, 150);
+      return;
+    }
     if (tier === 'Founding Member') {
       const session = await ApiService.getStripeCustomerPortalUrl(
         user.stripeCustomerId
