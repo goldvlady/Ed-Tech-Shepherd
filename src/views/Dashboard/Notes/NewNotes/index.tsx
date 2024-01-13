@@ -254,6 +254,7 @@ const NewNote = () => {
   const debounceEditedTitle = useDebounce(editedTitle, 1000);
   const [isSavingNote, setIsSavingNote] = useState(false);
   const [togglePlansModal, setTogglePlansModal] = useState(false);
+
   useEffect(() => {
     setTimeout(() => {
       setIsEditorLoaded(true);
@@ -487,6 +488,7 @@ const NewNote = () => {
             'error'
           );
           return;
+
         }
         if (!isEmpty(respDetails.data)) {
           const { data: note } = respDetails.data;
@@ -1096,6 +1098,7 @@ const NewNote = () => {
         setIsEditorLoaded(false);
         // setInitialContent(getNoteLocal(noteParamId) as string);
         await getNoteById(noteParamId, null, () => {
+
           setTimeout(() => {
             setCanStartSaving(true);
             setIsEditorLoaded(true);
