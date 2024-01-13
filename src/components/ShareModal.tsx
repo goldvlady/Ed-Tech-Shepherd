@@ -106,7 +106,7 @@ const ShareModal = ({ type }: ShareModalProps) => {
         <ModalContent>
           <ModalHeader>Share this Note</ModalHeader>
           <ModalCloseButton />
-          <ModalBody className="flex flex-col  gap-3">
+          <ModalBody className="flex !items-start !justify-start flex-col  gap-3">
             <p>Anyone with this link can view your note.</p>
             <Input
               bg="transparent"
@@ -121,7 +121,7 @@ const ShareModal = ({ type }: ShareModalProps) => {
               boxShadow="inset 0 0 0 1px #f4f4f5"
               borderRadius="md"
             />
-            <div className="flex gap-4">
+            <div className="flex gap-2">
               <Button
                 onClick={copyShareLink}
                 bg="#f4f4f5"
@@ -167,7 +167,7 @@ const ShareModal = ({ type }: ShareModalProps) => {
         <ModalContent>
           <ModalHeader>Share this Quiz</ModalHeader>
           <ModalCloseButton />
-          <ModalBody className="flex flex-col gap-3">
+          <ModalBody className="flex !items-start !justify-start flex-col gap-3">
             <p>Anyone with this link can view your quiz.</p>
             <Input
               bg="transparent"
@@ -182,7 +182,7 @@ const ShareModal = ({ type }: ShareModalProps) => {
               boxShadow="inset 0 0 0 1px #f4f4f5"
               borderRadius="md"
             />
-            <div className="flex gap-4">
+            <div className="flex gap-2">
               <Button
                 onClick={copyShareLink}
                 bg="#f4f4f5"
@@ -245,7 +245,7 @@ const ShareModal = ({ type }: ShareModalProps) => {
         <span> Share</span>
         <RiShareForwardLine />
       </Button>
-      <Modal size={'2xl'} onClose={onClose} isOpen={isOpen} isCentered>
+      <Modal onClose={onClose} isOpen={isOpen}>
         <ModalOverlay />
         {modalContent}
       </Modal>
