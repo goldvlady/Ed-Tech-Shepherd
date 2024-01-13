@@ -111,7 +111,7 @@ function Notifications(props) {
         return <OfferIcon />;
     }
   };
-  const getTextByNotificationType = (NotificationType) => {
+  const getTextByNotificationType = (NotificationType, attributes) => {
     switch (NotificationType) {
       case 'note_created':
         return 'New note created';
@@ -124,7 +124,7 @@ function Notifications(props) {
       case 'offer_rejected':
         return 'Your Offer has been rejected';
       case 'upcoming_class':
-        return 'Your chemistry lesson session with Leslie Peters started';
+        return 'Your [course] lesson session with [tutor] started';
       case 'BOUNTY_CREATED':
         return 'Your Bounty has been placed';
       case 'BOUNTY_ACCEPTED':
@@ -136,7 +136,7 @@ function Notifications(props) {
       case 'BOUNTY_BID_REJECTED':
         return 'Bounty bid rejected';
       case 'STUDY_PLAN_FOR_FLASHCARD_CREATED':
-        return 'You have created study plan for Flashcard';
+        return `Your ${attributes.deckname} flashcards for [study plan] were created successfully`;
       case 'UPCOMING_FLASHCARD_STUDY':
         return 'You have an upcoming Flashcard study ';
       default:
@@ -214,7 +214,7 @@ function Notifications(props) {
                       fontSize="14px"
                       mb={0}
                     >
-                      {getTextByNotificationType(i.type)}
+                      {getTextByNotificationType(i.type, i.attributes)}
                     </Text>
 
                     <Spacer />
