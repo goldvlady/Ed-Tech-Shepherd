@@ -57,7 +57,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen && Boolean(children)} onClose={onClose} size="xl">
+    <Modal isOpen={isOpen && Boolean(children)} onClose={onClose} size="2xl">
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Edit Profile</ModalHeader>

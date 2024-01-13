@@ -42,7 +42,7 @@ type Step = {
 };
 
 const CompleteProfile = () => {
-  const [activeStep, setActiveStep] = useState(3);
+  const [activeStep, setActiveStep] = useState(0);
   const [showPreview, setShowPreview] = useState(false);
   const onboardingData = onboardTutorStore.useStore();
 
