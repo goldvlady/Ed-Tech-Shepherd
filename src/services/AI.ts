@@ -310,9 +310,12 @@ export const generateComment = async (data: {
     body: JSON.stringify(data)
   });
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    const errorResponse = await response.json();
+
+    throw new Error(`Failed to generate Comment`);
   } else {
     const summaryResponse = await response.json();
+
     return summaryResponse;
   }
 };

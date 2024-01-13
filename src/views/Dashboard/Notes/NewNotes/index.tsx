@@ -86,6 +86,13 @@ import { IoChatboxEllipsesOutline } from 'react-icons/io5';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useDebounce } from 'usehooks-ts';
 import useTimer from '../../../../hooks/useTimer';
+import { useSearchQuery } from '../../../../hooks';
+import { ClipboardIcon } from '@heroicons/react/24/outline';
+import { newId } from '../../../../helpers/id';
+import { copyTextToClipboard } from '../../../../helpers/copyTextToClipboard';
+import { firebaseAuth } from '../../../../firebase';
+import PlansModal from '../../../../components/PlansModal';
+import ShareModal from '../../../../components/ShareModal';
 // import CustomToast from '../../../../components/CustomComponents/CustomToast';
 // import { MdSavings } from 'react-icons/md';
 // import { callback } from 'chart.js/dist/helpers/helpers.core';
@@ -203,7 +210,12 @@ const NewNote = () => {
 
   const toast = useCustomToast();
   const params = useParams();
+
   const location = useLocation();
+  const search = useSearchQuery();
+  const shareable = search.get('shareable');
+  const apiKey = search.get('apiKey');
+
   const [noteParamId, setNoteParamId] = useState<string | null>(null);
   const [openTags, setOpenTags] = useState<boolean>(false);
   const [openFlashCard, setOpenFlashCard] = useState<boolean>(false);
@@ -236,11 +248,12 @@ const NewNote = () => {
   const navigate = useNavigate();
 
   const [loadingDoc, setLoadingDoc] = useState(false);
-  const { userDocuments } = userStore();
+  const { userDocuments, user } = userStore();
   const [studentDocuments, setStudentDocuments] = useState<Array<any>>([]);
   const [pinned, setPinned] = useState<boolean>(false);
   const debounceEditedTitle = useDebounce(editedTitle, 1000);
   const [isSavingNote, setIsSavingNote] = useState(false);
+  const [togglePlansModal, setTogglePlansModal] = useState(false);
 
   useEffect(() => {
     setTimeout(() => {
@@ -402,51 +415,100 @@ const NewNote = () => {
 
   const getNoteById = async (
     paramsIdForNote = noteParamId,
+    apiKey: string | null = null,
     callback = null
   ) => {
     if (isEmpty(paramsIdForNote) || isNil(paramsIdForNote)) {
       return;
     }
-    const resp = await ApiService.getNote(paramsIdForNote as string);
+    if (apiKey) {
+      const resp = await ApiService.getNoteForAPIKey(
+        paramsIdForNote as string,
+        apiKey
+      );
 
-    const respText = await resp.text();
-    try {
-      const respDetails: NoteServerResponse<{ data: NoteDetails }> =
-        JSON.parse(respText);
+      const respText = await resp.text();
+      try {
+        const respDetails: NoteServerResponse<{ data: NoteDetails }> =
+          JSON.parse(respText);
 
-      const emptyRespDetails =
-        isEmpty(respDetails) ||
-        isNil(respDetails) ||
-        isEmpty(respDetails.data) ||
-        isNil(respDetails.data);
-      if (respDetails.error || emptyRespDetails) {
-        showToast(
-          UPDATE_NOTE_TITLE,
-          respDetails.error ?? respDetails.message
-            ? respDetails.message
-            : 'Cannot load note details',
-          'error'
-        );
-        return;
-      }
-      if (!isEmpty(respDetails.data)) {
-        const { data: note } = respDetails.data;
-        if (note._id && note.topic && note.note) {
-          setEditedTitle(note.topic);
-          setCurrentTime(formatDate(note.updatedAt));
-          setInitialContent(note.note);
-          setSaveDetails({ ...respDetails, data: respDetails.data.data });
-          setNoteId(note._id);
-          setTags(note.tags);
-          if (typeof callback === 'function') {
-            callback();
+        const emptyRespDetails =
+          isEmpty(respDetails) ||
+          isNil(respDetails) ||
+          isEmpty(respDetails.data) ||
+          isNil(respDetails.data);
+        if (respDetails.error || emptyRespDetails) {
+          showToast(
+            UPDATE_NOTE_TITLE,
+            respDetails.error ?? respDetails.message
+              ? respDetails.message
+              : 'Cannot load note details',
+            'error'
+          );
+          return;
+        }
+        if (!isEmpty(respDetails.data)) {
+          const { data: note } = respDetails.data;
+          if (note._id && note.topic && note.note) {
+            setEditedTitle(note.topic);
+            setCurrentTime(formatDate(note.updatedAt));
+            setInitialContent(note.note);
+            setSaveDetails({ ...respDetails, data: respDetails.data.data });
+            setNoteId(note._id);
+            setTags(note.tags);
+            if (typeof callback === 'function') {
+              callback();
+            }
           }
         }
+        // set note data
+      } catch (error: any) {
+        showToast(UPDATE_NOTE_TITLE, error.message, 'error');
+        return;
       }
-      // set note data
-    } catch (error: any) {
-      showToast(UPDATE_NOTE_TITLE, error.message, 'error');
-      return;
+    } else {
+      const resp = await ApiService.getNote(paramsIdForNote as string);
+
+      const respText = await resp.text();
+      try {
+        const respDetails: NoteServerResponse<{ data: NoteDetails }> =
+          JSON.parse(respText);
+
+        const emptyRespDetails =
+          isEmpty(respDetails) ||
+          isNil(respDetails) ||
+          isEmpty(respDetails.data) ||
+          isNil(respDetails.data);
+        if (respDetails.error || emptyRespDetails) {
+          showToast(
+            UPDATE_NOTE_TITLE,
+            respDetails.error ?? respDetails.message
+              ? respDetails.message
+              : 'Cannot load note details',
+            'error'
+          );
+          return;
+
+        }
+        if (!isEmpty(respDetails.data)) {
+          const { data: note } = respDetails.data;
+          if (note._id && note.topic && note.note) {
+            setEditedTitle(note.topic);
+            setCurrentTime(formatDate(note.updatedAt));
+            setInitialContent(note.note);
+            setSaveDetails({ ...respDetails, data: respDetails.data.data });
+            setNoteId(note._id);
+            setTags(note.tags);
+            if (typeof callback === 'function') {
+              callback();
+            }
+          }
+        }
+        // set note data
+      } catch (error: any) {
+        showToast(UPDATE_NOTE_TITLE, error.message, 'error');
+        return;
+      }
     }
   };
 
@@ -1000,9 +1062,43 @@ const NewNote = () => {
   useEffect(() => {
     (async () => {
       if (!isEmpty(noteParamId) || !isNil(noteParamId)) {
+        if (shareable && shareable.length > 0 && apiKey && apiKey.length > 0) {
+          console.log('should not');
+          setIsEditorLoaded(false);
+
+          // setInitialContent(getNoteLocal(noteParamId) as string);
+          await getNoteById(noteParamId, apiKey, () => {
+            setTimeout(() => {
+              setCanStartSaving(true);
+              setIsEditorLoaded(true);
+            });
+          });
+          setTimeout(() => {
+            setCanStartSaving(true);
+            setIsEditorLoaded(true);
+          });
+          editor.setEditable(false);
+          // ideally clean all this up
+          const inputElements = document.querySelectorAll('input');
+
+          // Disable each input element on the page
+          inputElements.forEach((input) => {
+            input.disabled = true;
+          });
+          window.addEventListener('click', () => {
+            setTogglePlansModal(true);
+          });
+        } else {
+          const token = await firebaseAuth.currentUser?.getIdToken();
+
+          if (!token) {
+            navigate('/signup');
+          }
+        }
         setIsEditorLoaded(false);
         // setInitialContent(getNoteLocal(noteParamId) as string);
-        await getNoteById(noteParamId, () => {
+        await getNoteById(noteParamId, null, () => {
+
           setTimeout(() => {
             setCanStartSaving(true);
             setIsEditorLoaded(true);
@@ -1098,8 +1194,9 @@ const NewNote = () => {
             </div>
           </FirstSection>
           <SecondSection>
+            {user && <ShareModal type="note" />}
             <CustomButton
-              disabled={!saveButtonState}
+              disabled={!saveButtonState || !user}
               isPrimary
               title={!saveButtonState ? 'Saving...' : 'Save'}
               type="button"
@@ -1243,6 +1340,14 @@ const NewNote = () => {
               onClose={() => setOpenSideModal(false)}
               isOpen={openSideModal}
             />
+            {togglePlansModal && (
+              <PlansModal
+                message="Pick a plan to access your AI Study Tools! 🚀"
+                subMessage="Get started today for free!"
+                togglePlansModal={togglePlansModal}
+                setTogglePlansModal={setTogglePlansModal}
+              />
+            )}
             <NoteBody
               className={clsx(
                 'mx-auto w-full flex justify-start items-center flex-col'

@@ -89,6 +89,7 @@ export default function Editor({
   className?: string;
   showComments?: boolean;
 }): JSX.Element {
+  const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
   const editorRef = useRef<HTMLDivElement>();
   const toolBarRef = useRef<HTMLDivElement>();
   const hiddenComponentRef = useRef<HTMLDivElement>();
@@ -197,9 +198,12 @@ export default function Editor({
             inView={toolBarInView}
             ref={setRefs}
             parentInView={hiddenComponentInView}
+            setIsLinkEditMode={setIsLinkEditMode}
           />
         </div>
       )}
+
+      {/* {isRichText && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />} */}
 
       <div
         className={`editor-container ${showTreeView ? 'tree-view' : ''} ${
@@ -293,7 +297,11 @@ export default function Editor({
               <>
                 <DraggableBlockPlugin anchorElem={floatingAnchorElem} />
                 <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
-                <FloatingLinkEditorPlugin anchorElem={floatingAnchorElem} />
+                <FloatingLinkEditorPlugin
+                  anchorElem={floatingAnchorElem}
+                  isLinkEditMode={isLinkEditMode}
+                  setIsLinkEditMode={setIsLinkEditMode}
+                />
                 <TableCellActionMenuPlugin
                   anchorElem={floatingAnchorElem}
                   cellMerge={true}

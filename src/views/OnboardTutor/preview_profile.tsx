@@ -43,6 +43,7 @@ import React, { useState, ReactNode, useRef, useMemo, useEffect } from 'react';
 import { FaFileAlt, FaPen, FaPlay, FaEdit, FaPause } from 'react-icons/fa';
 import { useNavigate } from 'react-router';
 import styled from 'styled-components';
+import Availability from '../../components/Availability';
 
 const Root = styled(Box)`
   display: flex;
@@ -68,7 +69,6 @@ type Step = {
   isValid?: boolean;
 };
 
-export type Availability = { [key: string]: SlotData };
 export interface SlotData {
   timezone: string;
   slots: string[];
@@ -266,191 +266,6 @@ const ProfileDiv = ({
         </Button>
       </Flex>
     </Box>
-  );
-};
-
-const AvailabilityTable = () => {
-  const { schedule } = onboardTutorStore.useStore();
-  const [availability, setTutorAvailability] = useState<{
-    [key: string]: SlotData;
-  }>({});
-
-  function formatScheduleToAvailability(schedule: Schedule): Availability {
-    const storedAvailability: Availability = {};
-
-    const dayMap: { [key: number]: string } = {
-      1: 'sunday',
-      2: 'monday',
-      3: 'tuesday',
-      4: 'wednesday',
-      5: 'thursday',
-      6: 'friday',
-      7: 'saturday'
-    };
-
-    Object.keys(schedule).forEach((dayNumber: string) => {
-      const day: string = dayMap[parseInt(dayNumber)];
-      const timeSlots: TimeSchedule[] = schedule[parseInt(dayNumber)];
-
-      const formattedSlots: string[] = timeSlots.map((timeSlot) => {
-        return `${timeSlot.begin} - ${timeSlot.end}`;
-      });
-
-      storedAvailability[day] = { timezone: '', slots: formattedSlots };
-    });
-
-    return storedAvailability;
-  }
-
-  useEffect(() => {
-    const availability = formatScheduleToAvailability(schedule);
-    setTutorAvailability(availability);
-  }, [schedule]);
-
-  const timeSlots = ['8AM → 12PM', '12PM → 5PM', '5PM → 9PM', '9PM → 12AM'];
-
-  const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-  const renderAvailabilityCell = (slot: string, day: string) => {
-    const fullDayName = Object.keys(availability).find((d) =>
-      d.includes(day.toLowerCase())
-    );
-    if (!fullDayName) return checkedOut;
-    const slotData = availability[fullDayName];
-
-    // Convert slot to 24-hour format for comparison
-
-    const slot24h = slot
-      .split(/\s*→\s*/)
-      .map((time12h) => {
-        const hour = time12h.slice(0, -2);
-        const modifier = time12h.slice(-2).toLowerCase();
-        return `${hour}${modifier}`;
-      })
-      .join('');
-
-    if (
-      slotData &&
-      slotData.slots.some(
-        (slot) =>
-          slot
-            .replace(/[^a-zA-Z0-9]/g, '')
-            .replace('undefined', '')
-            .toLowerCase() === slot24h
-      )
-    ) {
-      return (
-        <VStack
-          width="100%" // add this
-          display={'flex'}
-          justifyContent={'center'}
-          alignItems={'center'}
-        >
-          <CheckIcon color="green" />
-        </VStack>
-      );
-    }
-    return checkedOut;
-  };
-
-  const checkedOut = (
-    <svg width="100%" height="100px" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <pattern
-          id="pattern"
-          patternUnits="userSpaceOnUse"
-          width="25"
-          height="20"
-          patternTransform="rotate(45)"
-        >
-          <rect width="30" height="20" fill="#F7F7F8"></rect>
-          <rect x="10" width="30" height="20" fill="#fff"></rect>
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#pattern)"></rect>
-    </svg>
-  );
-  return (
-    <TableContainer my={4}>
-      <Box border={'1px solid #EEEFF2'} borderRadius={8}>
-        <Table variant="simple">
-          <Thead>
-            <Tr>
-              <Th
-                p={5}
-                borderRight="1px solid #EEEFF2"
-                bg="#FAFAFA"
-                borderRadius="8px"
-              />
-              {daysOfWeek.map((day, index) => {
-                const props: BorderProps = {};
-                if (daysOfWeek.length - 1 !== index) {
-                  props.borderRight = '1px solid #EEEFF2';
-                }
-                return (
-                  <Th
-                    textAlign="center" // Add this line
-                    verticalAlign="middle" // Add this line
-                    key={day}
-                    p={5}
-                    {...props}
-                    bg="#FFFFFF"
-                  >
-                    {day}
-                  </Th>
-                );
-              })}
-            </Tr>
-          </Thead>
-          <Tbody>
-            {timeSlots.map((slot, index) => {
-              const props: BorderProps = {};
-              if (daysOfWeek.length - 1 !== index) {
-                props.borderRight = '1px solid #EEEFF2';
-              }
-              return (
-                <Tr key={slot}>
-                  <Td
-                    paddingY={5}
-                    borderRight="1px solid #EEEFF2"
-                    bgColor={'#FAFAFA'}
-                  >
-                    <HStack
-                      display={'flex'}
-                      marginRight="13px"
-                      justifyItems="center"
-                      alignItems={'center'}
-                    >
-                      <img
-                        alt=""
-                        style={{ marginRight: '2px' }}
-                        src={cloud}
-                        width={'40px'}
-                      />
-                      <Text
-                        m={0}
-                        p={0}
-                        fontSize={'14px'}
-                        fontWeight={500}
-                        color={'#585F68'}
-                        whiteSpace={'nowrap'}
-                      >
-                        {slot}
-                      </Text>
-                    </HStack>
-                  </Td>
-                  {daysOfWeek.map((day) => (
-                    <Td m={0} p={0} {...props} key={`${slot}-${day}`}>
-                      {renderAvailabilityCell(slot, day)}
-                    </Td>
-                  ))}
-                </Tr>
-              );
-            })}
-          </Tbody>
-        </Table>
-      </Box>
-    </TableContainer>
   );
 };
 
@@ -722,7 +537,11 @@ const PreviewProfile = () => {
     });
     /* eslint-disable */
   }, []);
-
+  useEffect(() => {
+    if (!user) {
+      fetchUser();
+    }
+  }, []);
   const steps = [
     {
       id: 'subjects',
@@ -936,7 +755,11 @@ const PreviewProfile = () => {
               onEdit={() => setCurrentlyEditing('availability')}
               title="AVAILABILITY"
             >
-              <AvailabilityTable />
+              <Availability
+                schedule={onboardingData.schedule}
+                timezone={onboardingData.tz}
+                editMode={false}
+              />
             </PreviewSegment>
           </VStack>
           <VStack

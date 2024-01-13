@@ -258,7 +258,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const navigate = useNavigate();
   const { user, logoutUser } = userStore();
   const userId = user?._id || '';
-  const { notifications, hasUnreadNotification, markAllAsRead } =
+  const { notifications, hasUnreadNotification, markAllAsRead, markAsRead } =
     useNotifications(userId);
 
   const handleSignOut = () => {
@@ -281,7 +281,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   // function handleMenuButtonClick(callback) {
   //   setTimeout(callback, 15000);
   // }
-
+  const name = user ? `${user.name?.first} ${user.name?.last}` : 'John Doe';
   return (
     <>
       <Flex
@@ -318,6 +318,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             <Text> Ask Shep?</Text>
           </Flex>
         </Box>
+
         <Spacer display={{ base: 'none', md: 'flex' }} />
         <Flex
           justifyContent={'space-between'}
@@ -375,6 +376,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                   <Notifications
                     data={notifications}
                     handleAllRead={markAllAsRead}
+                    handleRead={markAsRead}
                   />
                 </MenuList>
               </Menu>
@@ -393,21 +395,14 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                 px={3}
               >
                 <HStack>
-                  <Avatar
-                    size="sm"
-                    color="white"
-                    name={`${user?.name?.first ?? ''} ${
-                      user?.name?.last ?? ''
-                    }`}
-                    bg="#4CAF50;"
-                  />
+                  <Avatar size="sm" color="white" name={name} bg="#4CAF50;" />
                   <Text
                     fontSize="14px"
                     fontWeight={500}
                     color="text.200"
                     display={{ base: 'none', sm: 'none', md: 'block' }}
                   >
-                    {`${user?.name?.first ?? ''} ${user?.name?.last ?? ''}`}
+                    {name}
                   </Text>
 
                   <Box display={{ base: 'none', md: 'flex' }}>
@@ -1001,6 +996,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </Box>
             <Box pt={20}>
               <Outlet />
+              {children}
             </Box>
           </Box>
         </Grid>

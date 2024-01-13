@@ -73,12 +73,38 @@ import {
   mergeRegister
 } from '@lexical/utils';
 import clsx from 'clsx';
-import type { ElementFormatType, LexicalEditor, NodeKey } from 'lexical';
+
+// import {
+//   $createParagraphNode,
+//   $getNodeByKey,
+//   $getRoot,
+//   $getSelection,
+//   $isElementNode,
+//   $isRangeSelection,
+//   $isRootOrShadowRoot,
+//   $isTextNode,
+//   CAN_REDO_COMMAND,
+//   CAN_UNDO_COMMAND,
+//   COMMAND_PRIORITY_CRITICAL,
+//   COMMAND_PRIORITY_NORMAL,
+//   COMMAND_PRIORITY_LOW,
+//   DEPRECATED_$isGridSelection,
+//   FORMAT_ELEMENT_COMMAND,
+//   FORMAT_TEXT_COMMAND,
+//   INDENT_CONTENT_COMMAND,
+//   KEY_MODIFIER_COMMAND,
+//   OUTDENT_CONTENT_COMMAND,
+//   REDO_COMMAND,
+//   SELECTION_CHANGE_COMMAND,
+//   UNDO_COMMAND
+// } from 'lexical';
+
 import {
   $createParagraphNode,
   $getNodeByKey,
   $getRoot,
   $getSelection,
+  $INTERNAL_isPointSelection,
   $isElementNode,
   $isRangeSelection,
   $isRootOrShadowRoot,
@@ -86,18 +112,21 @@ import {
   CAN_REDO_COMMAND,
   CAN_UNDO_COMMAND,
   COMMAND_PRIORITY_CRITICAL,
-  COMMAND_PRIORITY_NORMAL,
   COMMAND_PRIORITY_LOW,
-  DEPRECATED_$isGridSelection,
+  COMMAND_PRIORITY_NORMAL,
+  ElementFormatType,
   FORMAT_ELEMENT_COMMAND,
   FORMAT_TEXT_COMMAND,
   INDENT_CONTENT_COMMAND,
   KEY_MODIFIER_COMMAND,
+  LexicalEditor,
+  NodeKey,
   OUTDENT_CONTENT_COMMAND,
   REDO_COMMAND,
   SELECTION_CHANGE_COMMAND,
   UNDO_COMMAND
 } from 'lexical';
+
 import React, { useCallback, useEffect, useState, forwardRef } from 'react';
 
 // icon asssts
@@ -272,10 +301,7 @@ function BlockFormatDropDown({
   const formatParagraph = () => {
     editor.update(() => {
       const selection = $getSelection();
-      if (
-        $isRangeSelection(selection) ||
-        DEPRECATED_$isGridSelection(selection)
-      ) {
+      if ($INTERNAL_isPointSelection(selection)) {
         $setBlocksType(selection, () => $createParagraphNode());
       }
     });
@@ -285,10 +311,7 @@ function BlockFormatDropDown({
     if (blockType !== headingSize) {
       editor.update(() => {
         const selection = $getSelection();
-        if (
-          $isRangeSelection(selection) ||
-          DEPRECATED_$isGridSelection(selection)
-        ) {
+        if ($INTERNAL_isPointSelection(selection)) {
           $setBlocksType(selection, () => $createHeadingNode(headingSize));
         }
       });
@@ -323,10 +346,7 @@ function BlockFormatDropDown({
     if (blockType !== 'quote') {
       editor.update(() => {
         const selection = $getSelection();
-        if (
-          $isRangeSelection(selection) ||
-          DEPRECATED_$isGridSelection(selection)
-        ) {
+        if ($INTERNAL_isPointSelection(selection)) {
           $setBlocksType(selection, () => $createQuoteNode());
         }
       });
@@ -338,10 +358,7 @@ function BlockFormatDropDown({
       editor.update(() => {
         let selection = $getSelection();
 
-        if (
-          $isRangeSelection(selection) ||
-          DEPRECATED_$isGridSelection(selection)
-        ) {
+        if ($INTERNAL_isPointSelection(selection)) {
           if (selection.isCollapsed()) {
             $setBlocksType(selection, () => $createCodeNode());
           } else {
@@ -610,7 +627,7 @@ function ElementFormatDropdown({
 }
 
 export default forwardRef<any, any>(function ToolbarPlugin(
-  { inView, parentInView },
+  { inView, parentInView, setIsLinkEditMode },
   ref
 ): JSX.Element {
   // const ref = useRef<HTMLDivElement>();
@@ -822,18 +839,31 @@ export default forwardRef<any, any>(function ToolbarPlugin(
         const event: KeyboardEvent = payload;
         const { code, ctrlKey, metaKey } = event;
 
+        // if (code === 'KeyK' && (ctrlKey || metaKey)) {
+        //   event.preventDefault();
+        //   return activeEditor.dispatchCommand(
+        //     TOGGLE_LINK_COMMAND,
+        //     sanitizeUrl('https://')
+        //   );
+        // }
+
         if (code === 'KeyK' && (ctrlKey || metaKey)) {
           event.preventDefault();
-          return activeEditor.dispatchCommand(
-            TOGGLE_LINK_COMMAND,
-            sanitizeUrl('https://')
-          );
+          let url: string | null;
+          if (!isLink) {
+            setIsLinkEditMode(true);
+            url = sanitizeUrl('https://');
+          } else {
+            setIsLinkEditMode(false);
+            url = null;
+          }
+          return activeEditor.dispatchCommand(TOGGLE_LINK_COMMAND, url);
         }
         return false;
       },
       COMMAND_PRIORITY_NORMAL
     );
-  }, [activeEditor, isLink]);
+  }, [activeEditor, isLink, setIsLinkEditMode]);
 
   const applyStyleText = useCallback(
     (styles: Record<string, string>) => {
@@ -863,20 +893,23 @@ export default forwardRef<any, any>(function ToolbarPlugin(
           // We split the first and last node by the selection
           // So that we don't format unselected text inside those nodes
           if ($isTextNode(node)) {
+            // Use a separate variable to ensure TS does not lose the refinement
+            let textNode = node;
             if (idx === 0 && anchor.offset !== 0) {
-              node = node.splitText(anchor.offset)[1] || node;
+              textNode = textNode.splitText(anchor.offset)[1] || textNode;
             }
             if (idx === nodes.length - 1) {
-              node = node.splitText(focus.offset)[0] || node;
+              textNode = textNode.splitText(focus.offset)[0] || textNode;
             }
 
-            if (node.__style !== '') {
-              node.setStyle('');
+            if (textNode.__style !== '') {
+              textNode.setStyle('');
             }
-            if (node.__format !== 0) {
-              node.setFormat(0);
-              $getNearestBlockElementAncestorOrThrow(node).setFormat('');
+            if (textNode.__format !== 0) {
+              textNode.setFormat(0);
+              $getNearestBlockElementAncestorOrThrow(textNode).setFormat('');
             }
+            node = textNode;
           } else if ($isHeadingNode(node) || $isQuoteNode(node)) {
             node.replace($createParagraphNode(), true);
           } else if ($isDecoratorBlockNode(node)) {
@@ -886,6 +919,46 @@ export default forwardRef<any, any>(function ToolbarPlugin(
       }
     });
   }, [activeEditor]);
+
+  // const clearFormatting = useCallback(() => {
+  //   activeEditor.update(() => {
+  //     const selection = $getSelection();
+  //     if ($isRangeSelection(selection)) {
+  //       const anchor = selection.anchor;
+  //       const focus = selection.focus;
+  //       const nodes = selection.getNodes();
+
+  //       if (anchor.key === focus.key && anchor.offset === focus.offset) {
+  //         return;
+  //       }
+
+  //       nodes.forEach((node, idx) => {
+  //         // We split the first and last node by the selection
+  //         // So that we don't format unselected text inside those nodes
+  //         if ($isTextNode(node)) {
+  //           if (idx === 0 && anchor.offset !== 0) {
+  //             node = node.splitText(anchor.offset)[1] || node;
+  //           }
+  //           if (idx === nodes.length - 1) {
+  //             node = node.splitText(focus.offset)[0] || node;
+  //           }
+
+  //           if (node.__style !== '') {
+  //             node.setStyle('');
+  //           }
+  //           if (node.__format !== 0) {
+  //             node.setFormat(0);
+  //             $getNearestBlockElementAncestorOrThrow(node).setFormat('');
+  //           }
+  //         } else if ($isHeadingNode(node) || $isQuoteNode(node)) {
+  //           node.replace($createParagraphNode(), true);
+  //         } else if ($isDecoratorBlockNode(node)) {
+  //           node.setFormat('');
+  //         }
+  //       });
+  //     }
+  //   });
+  // }, [activeEditor]);
 
   const onFontColorSelect = useCallback(
     (value: string) => {

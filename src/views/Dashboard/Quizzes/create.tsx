@@ -3,7 +3,13 @@ import TagModal from '../../../components/TagModal';
 import LoaderOverlay from '../../../components/loaderOverlay';
 import { useSearch } from '../../../hooks';
 import quizStore from '../../../state/quizStore';
-import { QuizQuestion } from '../../../types';
+import {
+  MULTIPLE_CHOICE_MULTI,
+  MULTIPLE_CHOICE_SINGLE,
+  OPEN_ENDED,
+  QuizQuestion,
+  TRUE_FALSE
+} from '../../../types';
 import { ManualQuizForm, UploadQuizForm, TopicQuizForm } from './forms';
 import LoaderScreen from './forms/quizz_setup/loader_page';
 import { ManualPreview as QuizPreviewer } from './previews';
@@ -21,7 +27,27 @@ import {
   AlertStatus,
   ToastPosition
 } from '@chakra-ui/react';
-import { isEmpty, isNil, last, omit, pull, union, map, merge } from 'lodash';
+import {
+  isEmpty,
+  isNil,
+  last,
+  omit,
+  pull,
+  union,
+  map,
+  merge,
+  isArray,
+  slice,
+  size,
+  toLower,
+  includes,
+  filter,
+  toNumber,
+  toString,
+  isBoolean,
+  isObject,
+  isNaN
+} from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import './styles.css';
@@ -30,6 +56,7 @@ import clsx from 'clsx';
 
 type NewQuizQuestion = QuizQuestion & {
   canEdit?: boolean;
+  question?: string;
 };
 
 const CreateQuizPage = () => {
@@ -222,7 +249,12 @@ const CreateQuizPage = () => {
 
   const handleUpdateQuiz = async (
     quizId,
-    payload = {
+    payload: {
+      quizQuestions: NewQuizQuestion[];
+      quizTitle?: string;
+      quizTags?: string[];
+      canEdit?: boolean;
+    } = {
       quizQuestions: questions,
       quizTitle: title,
       quizTags: tags,
@@ -274,7 +306,6 @@ const CreateQuizPage = () => {
   };
 
   const handleLoadQuiz = async () => {
-    console.log('quiz?._id ?? quizId ========>> ', quiz?._id ?? quizId);
     await loadQuiz(quiz?._id ?? quizId, undefined, () => {
       setTimeout(() => {
         handleToggleStartQuizModal(true);
@@ -283,12 +314,11 @@ const CreateQuizPage = () => {
   };
 
   const handleBackClick = () => {
-    // setCanStartSaving(false);
-    // clearEditor();
     setTimeout(() => {
       navigate(-1);
     }, 100);
   };
+
   const searchQuizzes = useCallback(
     (query: string) => {
       if (isEmpty(query)) return setSearchQuestions([]);
@@ -306,6 +336,161 @@ const CreateQuizPage = () => {
   );
 
   const handleSearch = useSearch(searchQuizzes);
+
+  const handleCreateUpdateQuiz = async (
+    questions = [],
+    opts: { canEdit?: boolean; quizID: string } = {
+      canEdit: false,
+      quizID: quizId
+    }
+  ) => {
+    if (isNil(opts.quizID) && isEmpty(opts.quizID)) {
+      await handleCreateQuiz(questions, opts.canEdit);
+    } else {
+      await handleUpdateQuiz(opts.quizID, {
+        quizQuestions: questions,
+        ...opts
+      });
+    }
+    await fetchQuizzes();
+  };
+
+  const handleFormatQuizQuestionCallback = (
+    quizQuestions,
+    localData,
+    cb = null
+  ) => {
+    if (isArray(quizQuestions) && !isEmpty(quizQuestions)) {
+      console.log('quizQuestions =============>>>> ', quizQuestions);
+      (async () => {
+        const sliceQuestions = slice(quizQuestions, 0, localData.count);
+        const questions = map([...sliceQuestions], (quiz) => {
+          let type = quiz?.type;
+          let options = quiz?.options ?? [];
+          if (
+            !isNil(quiz?.options) ||
+            (isArray(quiz?.options) && !isEmpty(quiz?.options))
+          ) {
+            options = quiz?.options;
+          }
+
+          if (isNil(type) || isEmpty(type)) {
+            if (!isNil(options) || !isEmpty(options)) {
+              if (options.length < 3) {
+                type = TRUE_FALSE;
+              } else {
+                const isMulti =
+                  size(filter(options, (option) => option.isCorrect === true)) >
+                  1;
+                if (isMulti) {
+                  type = MULTIPLE_CHOICE_MULTI;
+                } else {
+                  type = MULTIPLE_CHOICE_SINGLE;
+                }
+              }
+            } else {
+              if (!isEmpty(quiz?.answer) || !isNil(quiz?.answer)) {
+                type = OPEN_ENDED;
+              }
+            }
+          } else {
+            if (
+              includes(toLower(type), 'multiple answers') ||
+              includes(toLower(type), 'multipleanswers') ||
+              includes(toLower(type), 'multipleanswer') ||
+              toLower(type) === 'multiplechoice' ||
+              toLower(type) === 'multiplechoicemultiple'
+            ) {
+              type = MULTIPLE_CHOICE_MULTI;
+            }
+            if (
+              includes(toLower(type), 'single answer') ||
+              includes(toLower(type), 'singleanswer') ||
+              toLower(type) === 'multiplechoicesingle'
+            ) {
+              type = MULTIPLE_CHOICE_SINGLE;
+            }
+            if (
+              includes(toLower(type), 'true') ||
+              includes(toLower(type), 'false')
+            ) {
+              type = TRUE_FALSE;
+            }
+            if (
+              includes(toLower(type), 'open') ||
+              includes(toLower(type), 'ended')
+            ) {
+              type = OPEN_ENDED;
+              if (!isEmpty(options)) {
+                if (options.length < 3) {
+                  type = TRUE_FALSE;
+                } else {
+                  const isMulti =
+                    size(
+                      filter(options, (option) => option.isCorrect === true)
+                    ) > 1;
+                  if (isMulti) {
+                    type = MULTIPLE_CHOICE_MULTI;
+                  } else {
+                    type = MULTIPLE_CHOICE_SINGLE;
+                  }
+                }
+                const arrOptions = [...options];
+                options = map(
+                  arrOptions,
+                  (
+                    option:
+                      | string
+                      | { content: string; isCorrect: string | boolean },
+                    idx: number
+                  ) => {
+                    let isCorrect = !isNaN(toNumber(quiz?.answer))
+                      ? toNumber(quiz?.answer) === idx + 1
+                      : false;
+                    let content = typeof option === 'string' && option;
+
+                    if (isObject(option) && !isArray(option)) {
+                      if (
+                        !isNil(option?.isCorrect) &&
+                        typeof option?.isCorrect === 'string'
+                      ) {
+                        isCorrect =
+                          option?.isCorrect === 'true' || option?.isCorrect
+                            ? true
+                            : false;
+
+                        content = option?.content;
+                      }
+                    }
+
+                    return {
+                      content,
+                      isCorrect
+                    };
+                  }
+                );
+              }
+            }
+          }
+
+          return {
+            ...omit(quiz, ['explanation', 'answerKey']),
+            options,
+            type,
+            answer: toString(quiz?.answer)
+          };
+        }) as NewQuizQuestion[];
+
+        console.log('questions =============>>>> ', questions);
+
+        await handleCreateUpdateQuiz(questions);
+
+        if (typeof cb === 'function') {
+          cb();
+        }
+      })();
+    }
+  };
 
   return (
     <>
@@ -388,38 +573,37 @@ const CreateQuizPage = () => {
               <TabPanels>
                 <TabPanel p={0}>
                   <UploadQuizForm
-                    quizId={quiz?._id ?? quizId}
-                    handleSetUploadingState={handleSetUploadingState}
-                    handleCreateQuiz={handleCreateQuiz}
-                    handleUpdateQuiz={handleUpdateQuiz}
                     handleSetTitle={handleSetTitle}
-                    isLoadingButton={uploadingState}
                     title={title}
+                    handleFormatQuizQuestionCallback={
+                      handleFormatQuizQuestionCallback
+                    }
+                    handleSetUploadingState={handleSetUploadingState}
+                    uploadingState={uploadingState}
                   />
                 </TabPanel>
 
                 <TabPanel p={0}>
                   <TopicQuizForm
-                    quizId={quiz?._id ?? quizId}
-                    handleSetUploadingState={handleSetUploadingState}
-                    handleCreateQuiz={handleCreateQuiz}
-                    handleUpdateQuiz={handleUpdateQuiz}
                     handleSetTitle={handleSetTitle}
-                    isLoadingButton={uploadingState}
                     title={title}
+                    handleFormatQuizQuestionCallback={
+                      handleFormatQuizQuestionCallback
+                    }
+                    handleSetUploadingState={handleSetUploadingState}
+                    uploadingState={uploadingState}
                   />
                 </TabPanel>
                 <TabPanel p={0}>
                   <ManualQuizForm
-                    quizId={quiz?._id ?? quizId}
                     openTags={handleOpenTagsModal}
                     tags={tags}
                     removeTag={handleRemoveTag}
                     title={title}
                     handleSetTitle={handleSetTitle}
                     isLoadingButton={isLoadingButton}
-                    handleCreateQuiz={handleCreateQuiz}
-                    handleUpdateQuiz={handleUpdateQuiz}
+                    handleCreateUpdateQuiz={handleCreateUpdateQuiz}
+                    uploadingState={uploadingState}
                   />
                 </TabPanel>
               </TabPanels>
@@ -432,24 +616,20 @@ const CreateQuizPage = () => {
           bg="#F9F9FB"
           borderLeft="1px solid #E7E8E9"
         >
-          {uploadingState && (
-            <>
-              <Box>
-                <HeaderButton
-                  onClick={handleBackClick}
-                  className={clsx(
-                    'w-full max-w-[150px] hover:opacity-75 absolute left-5 top-5 z-10 hidden 2xl:flex cursor-pointer items-center'
-                  )}
-                >
-                  <BackArrow className="mx-2" />
-                  <HeaderButtonText className={clsx('ml-3')}>
-                    Back
-                  </HeaderButtonText>
-                </HeaderButton>
-              </Box>
-              <LoaderScreen />
-            </>
-          )}
+          <Box>
+            <HeaderButton
+              onClick={handleBackClick}
+              className={clsx(
+                'w-full max-w-[150px] hover:opacity-75 absolute left-5 top-9 z-10 hidden 2xl:flex cursor-pointer items-center'
+              )}
+            >
+              <BackArrow className="mx-2" />
+              <HeaderButtonText className={clsx('ml-3')}>Back</HeaderButtonText>
+            </HeaderButton>
+          </Box>
+
+          {uploadingState && <LoaderScreen />}
+
           {!uploadingState && (
             <QuizPreviewer
               handleClearQuiz={handleClearQuiz}

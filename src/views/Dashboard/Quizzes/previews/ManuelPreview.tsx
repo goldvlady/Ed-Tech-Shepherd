@@ -689,7 +689,7 @@ const QuizPreviewer = ({
             w={'100%'}
           >
             <HStack justifyContent={'flex-start'} alignItems={'center'}>
-              <Box position={'absolute'} left={'-140px'}>
+              {/* <Box position={'absolute'} left={'-140px'}>
                 <Button
                   width={'140px'}
                   borderRadius="8px"
@@ -713,7 +713,7 @@ const QuizPreviewer = ({
                     </Box>
                   </HStack>
                 </Button>
-              </Box>
+              </Box> */}
               <Box>
                 <Text
                   fontFamily="Inter"

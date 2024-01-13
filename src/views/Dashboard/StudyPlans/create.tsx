@@ -1,4 +1,13 @@
-import React, { useRef, useState, ChangeEvent, useEffect } from 'react';
+import React, {
+  useRef,
+  useState,
+  ChangeEvent,
+  useEffect,
+  RefObject
+} from 'react';
+import { useNavigate } from 'react-router';
+import { database } from '../../../firebase';
+import { ref, onValue, off, DataSnapshot } from 'firebase/database';
 import {
   Grid,
   Box,
@@ -37,7 +46,7 @@ import {
   HStack
 } from '@chakra-ui/react';
 import { format, isBefore } from 'date-fns';
-
+import { StudyPlanJob, StudyPlanWeek } from '../../../types';
 import {
   FaPlus,
   FaCheckCircle,
@@ -57,8 +66,22 @@ import resourceStore from '../../../state/resourceStore';
 import StudyPlans from '.';
 import moment from 'moment';
 import { GiCancel } from 'react-icons/gi';
-import { SmallCloseIcon } from '@chakra-ui/icons';
+import { AttachmentIcon, SmallCloseIcon } from '@chakra-ui/icons';
 import ApiService from '../../../services/ApiService';
+import { RiUploadCloud2Fill } from 'react-icons/ri';
+import userStore from '../../../state/userStore';
+import styled from 'styled-components';
+
+const FileName = styled.span`
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #585f68;
+`;
+
+const PDFTextContainer = styled.div`
+  text-align: center;
+  margin-bottom: 1.5rem;
+`;
 
 function CreateStudyPlans() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -81,20 +104,99 @@ function CreateStudyPlans() {
     // }
   ]);
   const [gradeLevel, setGradeLevel] = useState('');
+  const [grade, setGrade] = useState('');
   const [showSubjects, setShowSubjects] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [syllabusData, setSyllabusData] = useState([]);
   const [studyPlanData, setStudyPlanData] = useState([]);
   const { courses: courseList, levels: levelOptions } = resourceStore();
-
+  const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
+    userStore.getState();
   const btnRef = useRef();
   const toast = useCustomToast();
+  const navigate = useNavigate();
 
   const subjectOptions = [
     { label: 'Eng', value: 'English' },
     { label: 'Maths', value: 'Maths' },
     { label: 'Bio', value: 'Biology' }
   ];
+  const gradeOptions = [
+    { label: 'Highschool', value: 'Highschool' },
+    { label: 'College', value: 'College' }
+  ];
+
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [fileName, setFileName] = useState('');
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+  const inputRef = useRef(null) as RefObject<HTMLInputElement>;
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const files = e.dataTransfer.files[0];
+    // Handle dropped files here
+
+    // const fileChecked = doesTitleExist(files?.name);
+
+    // if (fileChecked) {
+    //   setAlreadyExist(true);
+    // } else {
+    //   setAlreadyExist(false);
+    //   setLoading(true);
+    //   try {
+    //     setFileName(snip(files.name));
+    //     await handleInputFreshUpload(files, user, files.name);
+    //   } catch (error) {
+    //     // Handle errors
+    //   }
+    // }
+  };
+
+  // const collectFileInput = async (e) => {
+  //   const inputFile = e.target.files[0];
+  //   const fileChecked = doesTitleExist(inputFile?.name);
+  //   setProgress(0);
+  //   setConfirmReady(false);
+
+  //   if (fileChecked) {
+  //     setAlreadyExist(true);
+  //   } else {
+  //     // Check if the file size exceeds the limit
+  //     if (inputFile.size > fileSizeLimitBytes) {
+  //       // Set the modal state and messages
+  //       setPlansModalMessage(
+  //         !hasActiveSubscription
+  //           ? `Let's get you on a plan so you can upload larger files!`
+  //           : `Oops! Your file is too big. Your current plan allows for files up to ${fileSizeLimitMB} MB.`
+  //       );
+  //       setPlansModalSubMessage(
+  //         !hasActiveSubscription
+  //           ? `You're currently limited to files under ${fileSizeLimitMB} MB.`
+  //           : 'Consider upgrading to upload larger files.'
+  //       );
+  //       setTogglePlansModal(true);
+  //       // setShow(false);
+  //     } else {
+  //       setAlreadyExist(false);
+  //       setLoading(true);
+  //       try {
+  //         setFileName(snip(inputFile.name));
+  //         await handleInputFreshUpload(inputFile, user, inputFile.name);
+  //       } catch (error) {
+  //         // Handle errors
+  //       }
+  //     }
+  //   }
+  // };
 
   // Function to add a new test date to the list
   const addTestDate = () => {
@@ -110,97 +212,7 @@ function CreateStudyPlans() {
   const handleToggleSubjects = () => {
     setShowSubjects(!showSubjects);
   };
-  const test = ['05/01/2024', '24/02/2024', '15/03/2024'];
-  const dataa = [
-    {
-      topics: [
-        {
-          mainTopic: 'Introduction to Music Fundamentals',
-          subTopics: ['Notation', 'Rhythms', 'Scales', 'Intervals']
-        }
-      ]
-    },
-    {
-      topics: [
-        {
-          mainTopic: 'Music Theory: Basics',
-          subTopics: ['Major and Minor Scales', 'Circle of Fifths']
-        }
-      ]
-    },
-    {
-      topics: [
-        {
-          mainTopic: 'Ear Training',
-          subTopics: ['Interval Recognition', 'Solfège']
-        }
-      ]
-    },
-    {
-      topics: [
-        {
-          mainTopic: 'Rhythm and Meter',
-          subTopics: ['Time Signatures', 'Note Values', 'Syncopation']
-        }
-      ]
-    },
-    {
-      topics: [
-        {
-          mainTopic: 'Harmony and Chords',
-          subTopics: ['Triads', 'Seventh Chords', 'Chord Progressions']
-        }
-      ]
-    },
-    {
-      topics: [
-        {
-          mainTopic: 'Melody',
-          subTopics: ['Motifs', 'Phrases', 'Cadences']
-        }
-      ]
-    },
-    {
-      topics: [
-        {
-          mainTopic: 'Musical Forms',
-          subTopics: ['Binary', 'Ternary', 'Rondo']
-        }
-      ]
-    },
-    {
-      topics: [
-        {
-          mainTopic: 'Music History Overview',
-          subTopics: ['Medieval', 'Renaissance']
-        }
-      ]
-    },
-    {
-      topics: [
-        {
-          mainTopic: 'Baroque and Classical Periods',
-          subTopics: []
-        }
-      ]
-    },
-    {
-      topics: [
-        {
-          mainTopic: 'Romantic Period and 20th Century',
-          subTopics: []
-        }
-      ]
-    },
-    {
-      topics: [
-        {
-          mainTopic: 'Introduction to World Music',
-          subTopics: ['African', 'Asian', 'Latin American']
-        }
-      ]
-    }
-  ];
+
   console.log(syllabusData);
 
   const handleGenerateSyllabus = async () => {
@@ -210,25 +222,44 @@ function CreateStudyPlans() {
       const response = await generateStudyPlan({
         syllabusData: {
           course: course,
-          gradeLevel: gradeLevel,
+          gradeLevel: `${grade}-${gradeLevel}`,
           weekCount: 15
         }
       });
 
       if (response) {
-        const result = response.studyPlan.map(({ topics }) => ({ topics }));
-        setSyllabusData(result);
+        const jobId = response.jobId;
 
-        setSelectedSubject(course);
+        getStudyPlanJob(jobId, (error, studyPlan) => {
+          if (error) {
+            toast({
+              title: `Error fetching study plan: ${error.message}`,
+              position: 'top-right',
+              status: 'error',
+              isClosable: true
+            });
+          } else if (studyPlan) {
+            setSyllabusData(studyPlan);
+            setSelectedSubject(course);
+          } else {
+            toast({
+              title: 'No study plan available yet. Please try again later.',
+              position: 'top-right',
+              status: 'warning',
+              isClosable: true
+            });
+          }
+          setIsLoading(false);
+        });
       } else {
         toast({
-          title: 'Unable to process this request.Please try again later',
+          title: 'Unable to process this request. Please try again later.',
           position: 'top-right',
           status: 'error',
           isClosable: true
         });
+        setIsLoading(false);
       }
-      setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
       toast({
@@ -239,6 +270,35 @@ function CreateStudyPlans() {
       });
     }
   };
+
+  const getStudyPlanJob = (
+    jobId: string,
+    callback: (error: Error | null, studyPlan?: StudyPlanWeek[]) => void
+  ) => {
+    const jobRef = ref(database, `/syllabus-process-job/${jobId}`);
+
+    const unsubscribe = onValue(
+      jobRef,
+      (snapshot: DataSnapshot) => {
+        const job: StudyPlanJob | null = snapshot.val();
+
+        // If the job exists and its status is 'success', pass the study plan to the callback.
+        if (job && job.status === 'success' && job.studyPlan) {
+          callback(null, job.studyPlan);
+          off(jobRef); // Stop listening for changes once the job is successfully retrieved.
+        } else if (job && job.status === 'failed') {
+          callback(new Error('Job failed'));
+          off(jobRef);
+        }
+      },
+      (error) => {
+        callback(error);
+      }
+    );
+
+    return unsubscribe;
+  };
+
   const updateMainTopic = (index, newMainTopic) => {
     const updatedSyllabusData = [...syllabusData];
 
@@ -323,9 +383,10 @@ function CreateStudyPlans() {
     return studyPlan;
   };
   const saveStudyPlan = async () => {
+    const convertedArr = convertArrays(studyPlanData);
     const payload = {
       course: selectedSubject,
-      scheduleItems: convertArrays(studyPlanData)
+      scheduleItems: convertedArr
     };
     try {
       const resp = await ApiService.createStudyPlan(payload);
@@ -340,6 +401,7 @@ function CreateStudyPlans() {
             status: 'success',
             isClosable: true
           });
+          navigate('/dashboard/study-plans');
         } else {
           toast({
             title: 'Failed to create study plan, try again',
@@ -395,13 +457,6 @@ function CreateStudyPlans() {
       ]); // Add deleted topic to unassignedTopics state
     }
   };
-  // useEffect(() => {
-  //   const resp = getStudyPlan(new Date(), test, syllabusData);
-
-  //   if (syllabusData.length > 0) {
-  //     console.log(resp);
-  //   }
-  // }, [syllabusData]);
 
   function convertArrays(A) {
     function formatDate(dateString) {
@@ -415,10 +470,20 @@ function CreateStudyPlans() {
       const endDate = formatDate(dates[1]);
       const topics = week.topics.map((topic) => {
         const { mainTopic, subTopics } = topic;
-        const subTopicDetails = subTopics.map((subTopic) => ({
-          label: subTopic,
-          description: `Description for ${subTopic}`
-        }));
+
+        let subTopicDetails = [];
+        if (subTopics) {
+          subTopicDetails = subTopics.map((subTopic) => ({
+            label: subTopic,
+            description: `Description for ${subTopic}`
+          }));
+        } else {
+          subTopicDetails.push({
+            label: mainTopic,
+            description: `Description for ${mainTopic}`
+          });
+        }
+
         return {
           topic: {
             label: mainTopic,
@@ -482,7 +547,44 @@ function CreateStudyPlans() {
         {activeTab === 0 ? (
           <Box>
             {' '}
-            <Box mb={6}>
+            <Box mb={4}>
+              <Text as="label" htmlFor="grade" mb={2} display="block">
+                Select your grade
+              </Text>
+
+              <FormControl mb={4}>
+                <Menu>
+                  <MenuButton
+                    as={Button}
+                    variant="outline"
+                    rightIcon={<FiChevronDown />}
+                    borderRadius="8px"
+                    fontSize="0.875rem"
+                    fontFamily="Inter"
+                    color="#212224"
+                    fontWeight="400"
+                    width="100%"
+                    height="42px"
+                    textAlign="left"
+                  >
+                    {grade}
+                  </MenuButton>
+                  <MenuList minWidth={'auto'}>
+                    {gradeOptions.map((grade) => (
+                      <MenuItem
+                        fontSize="0.875rem"
+                        key={grade.value}
+                        _hover={{ bgColor: '#F2F4F7' }}
+                        onClick={() => setGrade(grade.label)}
+                      >
+                        {grade.label}
+                      </MenuItem>
+                    ))}
+                  </MenuList>
+                </Menu>
+              </FormControl>
+            </Box>
+            <Box mb={4}>
               <Text as="label" htmlFor="gradeLevel" mb={2} display="block">
                 Enter your grade level
               </Text>
@@ -519,7 +621,7 @@ function CreateStudyPlans() {
                 </Menu>
               </FormControl>
             </Box>
-            <Box mb={6}>
+            <Box mb={4}>
               <Text as="label" htmlFor="subjects" mb={2} display="block">
                 What subject would you like to generate a plan for
               </Text>
@@ -545,6 +647,66 @@ function CreateStudyPlans() {
             Additional subject
           </Button> */}
             </Box>
+            <Center
+              w="full"
+              minH="65px"
+              mb={3}
+              p={2}
+              border="2px"
+              borderColor={isDragOver ? 'gray.600' : 'gray.300'}
+              borderStyle="dashed"
+              rounded="lg"
+              cursor="pointer"
+              bg={isDragOver ? 'gray.600' : 'gray.50'}
+              color={isDragOver ? 'white' : 'inherit'}
+              onDragOver={(e) => handleDragEnter(e)}
+              onDragEnter={(e) => handleDragEnter(e)}
+              onDragLeave={(e) => handleDragLeave(e)}
+              onDrop={(e) => handleDrop(e)}
+              // onClick={clickInput}
+            >
+              <label htmlFor="file-upload">
+                <Center flexDirection="column">
+                  {fileName ? (
+                    <Flex>
+                      <AttachmentIcon /> <FileName>{fileName}</FileName>
+                    </Flex>
+                  ) : (
+                    <Flex direction={'column'} alignItems={'center'}>
+                      <RiUploadCloud2Fill
+                        className="h-8 w-8"
+                        color="gray.500"
+                      />
+                      <Text
+                        mb="2"
+                        fontSize="sm"
+                        color={isDragOver ? 'white' : 'gray.500'}
+                        fontWeight="semibold"
+                      >
+                        Click to upload or drag and drop
+                      </Text>
+                      <PDFTextContainer>
+                        <Text
+                          fontSize="xs"
+                          color={isDragOver ? 'white' : 'gray.500'}
+                        >
+                          DOC, TXT, or PDF (MAX: {fileSizeLimitMB}MB)
+                        </Text>
+                      </PDFTextContainer>
+                    </Flex>
+                  )}
+                </Center>
+              </label>
+              <input
+                type="file"
+                accept=".doc, .txt, .pdf"
+                // accept="application/pdf"
+                className="hidden"
+                id="file-upload"
+                ref={inputRef}
+                // onChange={collectFileInput}
+              />
+            </Center>
             <Button
               colorScheme="blue"
               variant="solid"
@@ -554,9 +716,10 @@ function CreateStudyPlans() {
               display="inline-flex"
               alignItems="center"
               onClick={handleGenerateSyllabus}
+              isDisabled={isLoading}
             >
               <Icon as={FaRocket} mr={2} />
-              Generate Syllabi
+              Generate Syllabus
             </Button>
           </Box>
         ) : (
@@ -617,12 +780,13 @@ function CreateStudyPlans() {
               alignItems="center"
               onClick={() =>
                 getStudyPlan(
-                  '01/01/2024',
+                  moment().format('DD/MM/YYYY'),
                   testDate.map((date) => moment(date).format('DD/MM/YYYY')),
                   syllabusData
                 )
               }
               my={4}
+              isDisabled={testDate.length < 1}
             >
               <Icon as={FaRocket} mr={2} />
               Generate Study Plan
@@ -650,7 +814,7 @@ function CreateStudyPlans() {
                     module={'Syllabus'}
                     handleCancel={() => setIsLoading(false)}
                   />
-                ) : (
+                ) : syllabusData.length > 0 ? (
                   <Box mb={6}>
                     <Text
                       fontSize="16px"
@@ -691,9 +855,11 @@ function CreateStudyPlans() {
                               color="gray.700"
                               fontSize={14}
                             >
-                              {topic.topics[0].subTopics.map((item, index) => (
-                                <ListItem key={index}>{item}</ListItem>
-                              ))}
+                              {topic.topics[0]?.subTopics?.map(
+                                (item, index) => (
+                                  <ListItem key={index}>{item}</ListItem>
+                                )
+                              )}
                             </UnorderedList>
                             <Divider my={2} />
                             <Flex justify="space-between" alignItems="center">
@@ -730,97 +896,115 @@ function CreateStudyPlans() {
                       ))}
                     </Flex>
                   </Box>
+                ) : (
+                  <section className="flex justify-center items-center mt-28 w-full">
+                    <div className="text-center">
+                      <img src="/images/notes.png" alt="" />
+                      <Text color="#000000" fontSize={12}>
+                        You are yet to generate a syllabus!
+                      </Text>
+                    </div>
+                  </section>
                 )}
               </Box>
             </TabPanel>
             <TabPanel>
               <Box>
                 <Flex direction="column" gap={2}>
-                  {' '}
-                  {studyPlanData.length > 0 &&
-                    studyPlanData.map((topic, weekindex) => (
-                      <>
-                        <Box bg="white" p={4} rounded="md" shadow="md">
-                          <Text
-                            fontSize="14px"
-                            fontWeight="500"
-                            mb={2}
-                            color="text.300"
-                          >
-                            {topic.weekRange}
-                          </Text>
-                          <UnorderedList
-                            listStyleType="circle"
-                            listStylePosition="inside"
-                            color="gray.700"
-                            fontSize={14}
-                            // h={'100px'}
-                          >
-                            {topic.topics.map((item, index) => (
-                              <Flex>
-                                {' '}
-                                <ListItem key={index}>
-                                  {item.mainTopic}
-                                </ListItem>
-                                <Spacer />
-                                <SmallCloseIcon
-                                  color={'gray.500'}
-                                  onClick={() =>
-                                    deleteTopicFromWeek(weekindex, index)
-                                  }
-                                />
-                              </Flex>
-                            ))}
-                          </UnorderedList>
-                          <Divider my={2} />
-                          <Flex>
-                            <Menu>
-                              <MenuButton
-                                as={Link}
-                                color="gray.500"
-                                _hover={{ textDecoration: 'none' }}
-                                fontSize={14}
-                              >
-                                <Icon as={FaPlus} mr={2} />
-                                Add Topic
-                              </MenuButton>
-                              <MenuList color={'gray.500'}>
-                                {unassignedTopics.map((item, index) => (
-                                  <MenuItem
-                                    onClick={() =>
-                                      addTopicToWeek(weekindex, item)
-                                    }
-                                  >
+                  {studyPlanData.length > 0 ? (
+                    <>
+                      {studyPlanData.map((topic, weekindex) => (
+                        <>
+                          <Box bg="white" p={4} rounded="md" shadow="md">
+                            <Text
+                              fontSize="14px"
+                              fontWeight="500"
+                              mb={2}
+                              color="text.300"
+                            >
+                              {topic.weekRange}
+                            </Text>
+                            <UnorderedList
+                              listStyleType="circle"
+                              listStylePosition="inside"
+                              color="gray.700"
+                              fontSize={14}
+                              // h={'100px'}
+                            >
+                              {topic.topics.map((item, index) => (
+                                <Flex>
+                                  {' '}
+                                  <ListItem key={index}>
                                     {item.mainTopic}
-                                  </MenuItem>
-                                ))}
-                              </MenuList>
-                            </Menu>
+                                  </ListItem>
+                                  <Spacer />
+                                  <SmallCloseIcon
+                                    color={'gray.500'}
+                                    onClick={() =>
+                                      deleteTopicFromWeek(weekindex, index)
+                                    }
+                                  />
+                                </Flex>
+                              ))}
+                            </UnorderedList>
+                            <Divider my={2} />
+                            <Flex>
+                              <Menu>
+                                <MenuButton
+                                  as={Link}
+                                  color="gray.500"
+                                  _hover={{ textDecoration: 'none' }}
+                                  fontSize={14}
+                                >
+                                  <Icon as={FaPlus} mr={2} />
+                                  Add Topic
+                                </MenuButton>
+                                <MenuList color={'gray.500'}>
+                                  {unassignedTopics.map((item, index) => (
+                                    <MenuItem
+                                      onClick={() =>
+                                        addTopicToWeek(weekindex, item)
+                                      }
+                                    >
+                                      {item.mainTopic}
+                                    </MenuItem>
+                                  ))}
+                                </MenuList>
+                              </Menu>
 
-                            <Spacer />
-                            <Box color="gray.500">
-                              <Icon as={FaPencilAlt} />
-                            </Box>
-                          </Flex>
-                        </Box>{' '}
-                      </>
-                    ))}
-                  {studyPlanData.length > 0 && (
-                    <Button
-                      colorScheme="blue"
-                      variant="solid"
-                      py={2}
-                      px={14}
-                      rounded="md"
-                      alignItems="center"
-                      position={'fixed'}
-                      bottom={2}
-                      my="auto"
-                      ml={100}
-                      onClick={() => saveStudyPlan()}
-                    >
-                      Save & Proceed
-                    </Button>
+                              <Spacer />
+                              <Box color="gray.500">
+                                <Icon as={FaPencilAlt} />
+                              </Box>
+                            </Flex>
+                          </Box>{' '}
+                        </>
+                      ))}
+                      <Button
+                        colorScheme="blue"
+                        variant="solid"
+                        py={2}
+                        px={14}
+                        rounded="md"
+                        alignItems="center"
+                        position={'fixed'}
+                        bottom={2}
+                        my="auto"
+                        ml={100}
+                        onClick={() => saveStudyPlan()}
+                      >
+                        Save & Proceed
+                      </Button>
+                    </>
+                  ) : (
+                    <section className="flex justify-center items-center mt-28 w-full">
+                      <div className="text-center">
+                        <img src="/images/notes.png" alt="" />
+                        <Text color="#000000" fontSize={12}>
+                          You are yet to generate a study plan!
+                        </Text>
+                      </div>
+                    </section>
                   )}
                 </Flex>
               </Box>

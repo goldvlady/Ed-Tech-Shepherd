@@ -1,7 +1,6 @@
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import SelectComponent, { Option } from '../../../../components/Select';
-import { UploadIcon, WardIcon } from '../../../../components/icons';
-import uploadFile from '../../../../helpers/file.helpers';
+import { WardIcon } from '../../../../components/icons';
 import FileProcessingService from '../../../../helpers/files.helpers/fileProcessing';
 import ApiService from '../../../../services/ApiService';
 import documentStore from '../../../../state/documentStore';
@@ -10,9 +9,9 @@ import userStore from '../../../../state/userStore';
 import useQuizzesQuestionsJob from '../../../../hooks/useQuizzesQuestionsJob';
 import {
   MIXED,
-  MULTIPLE_CHOICE_MULTI,
   MULTIPLE_CHOICE_SINGLE,
   OPEN_ENDED,
+  QuizQuestion,
   TRUE_FALSE
 } from '../../../../types';
 import { QuestionIcon } from '@chakra-ui/icons';
@@ -24,48 +23,43 @@ import {
   Input,
   HStack,
   Button,
-  Tooltip,
-  Text
+  Tooltip
 } from '@chakra-ui/react';
-import {
-  includes,
-  isEmpty,
-  isNil,
-  last,
-  map,
-  split,
-  toLower,
-  toNumber,
-  truncate,
-  omit,
-  isArray,
-  toString,
-  filter,
-  size,
-  slice
-} from 'lodash';
+import _, { isEmpty, isNil, toNumber, merge, omit } from 'lodash';
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
 import PlansModal from '../../../../components/PlansModal';
+import FileUpload from '../components/fileUpload';
+import { useToggle } from 'usehooks-ts';
 
-// DownloadIcon
+type LocalDummyData = {
+  subject: string;
+  topic: string;
+  difficulty: QuizQuestion['difficulty'];
+  count: number;
+  type: QuizQuestion['type'];
+  documentId: string;
+  studentId: string;
+  start_page?: number;
+  end_page?: number;
+  ingestDoc?: boolean;
+};
 
 const UploadQuizForm = ({
-  quizId,
-  handleCreateQuiz,
-  handleUpdateQuiz,
   handleSetTitle,
   title,
   handleSetUploadingState,
-  isLoadingButton
+  handleFormatQuizQuestionCallback,
+  uploadingState
 }) => {
-  const dummyData = {
+  const dummyData: LocalDummyData = {
     subject: '',
     topic: '',
     difficulty: 'kindergarten',
     count: 1,
     type: MIXED,
-    documentId: ''
+    documentId: '',
+    studentId: '',
+    ingestDoc: false
   };
 
   const levelOptions = [
@@ -84,12 +78,9 @@ const UploadQuizForm = ({
 
   const [localData, setLocalData] = useState<any>(dummyData);
   const toast = useCustomToast();
-  const { handleIsLoadingQuizzes, fetchQuizzes, isLoading } = quizStore();
+  const { handleIsLoadingQuizzes } = quizStore();
 
   const { user } = userStore();
-  const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
-    userStore.getState();
-
   const { watchJobs, clearJobs } = useQuizzesQuestionsJob(user?._id);
 
   const { saveDocument } = documentStore();
@@ -97,60 +88,39 @@ const UploadQuizForm = ({
   const [file, setFile] = useState<any>();
   const [isUploadingFile, setIsUploadingFile] = useState(false);
   const [togglePlansModal, setTogglePlansModal] = useState(false);
-  const [plansModalMessage, setPlansModalMessage] = useState('');
-  const [PlansModalSubMessage, setPlansModalSubMessage] = useState('');
+  const [plansModalMessage] = useState('');
+  const [PlansModalSubMessage] = useState('');
+  const [openModal, _, setOpenModal] = useToggle(false);
+  const [ingestedDocument, setIngestedDocument] = useState(null);
 
-  const onDrop = useCallback((acceptedFiles) => {
-    const file = acceptedFiles[0];
-    // Check if the file size exceeds the limit
-    if (!file || file.size > fileSizeLimitBytes) {
-      // Set the modal state and messages
-      setPlansModalMessage(
-        !hasActiveSubscription
-          ? `Let's get you on a plan so you can upload larger files!`
-          : `Oops! Your file is too big. Your current plan allows for files up to ${fileSizeLimitMB} MB.`
-      );
-      setPlansModalSubMessage(
-        !hasActiveSubscription
-          ? `You're currently limited to files under ${fileSizeLimitMB} MB.`
-          : 'Consider upgrading to upload larger files.'
-      );
-      setTogglePlansModal(true);
-    } else {
-      setFile(file);
-    }
-  }, []);
-
-  const handleGenerateQuestions = async ({
-    name
-  }: {
-    name: string;
-    documentId?: string;
-  }) => {
+  const handleGenerateQuestions = async (data: LocalDummyData) => {
     try {
-      // handleSetUploadingState(true);
-      await ApiService.generateQuizQuestionFromDocs({
-        ...localData,
-        count: toNumber(localData.count),
-        documentId: name,
-        studentId: user?._id,
-        topic: title
+      const result = await ApiService.generateQuizQuestionFromDocs({
+        ...data,
+        count: toNumber(data?.count)
       });
 
-      // setLocalData(dummyData);
-      // toast({
-      //   position: 'top-right',
-      //   title: `quizzes generated`,
-      //   status: 'success'
-      // });
+      const resultJson = await result.json();
+
+      if (resultJson.statusCode > 399) {
+        throw new Error(resultJson.body);
+      }
     } catch (error) {
+      console.log(
+        'handleGenerateQuestions ---------->>> error =============>>> ',
+        error
+      );
       toast({
         position: 'top-right',
         title: `failed to generate quizzes job `,
         status: 'error'
       });
+      setIsUploadingFile(false);
+      handleIsLoadingQuizzes(false);
+      handleSetUploadingState(false);
     }
   };
+
   const handleChange = useCallback(
     (
       e: React.ChangeEvent<
@@ -164,221 +134,104 @@ const UploadQuizForm = ({
   );
 
   const handleOnSubmit = async () => {
-    handleSetUploadingState(true);
+    try {
+      setIsUploadingFile(true);
+      handleSetUploadingState(true);
 
-    const uploadEmitter = uploadFile(file, {
-      documentID: file.name,
-      studentID: user?._id
-    });
-
-    uploadEmitter.on('progress', (progress: number) => {
-      if (!isUploadingFile) {
-        setIsUploadingFile(true);
-      }
-    });
-    uploadEmitter.on('complete', async (document: any) => {
-      try {
+      if (isNil(ingestedDocument)) {
         const title = decodeURIComponent(
-          (document?.fileUrl?.match(/\/([^/]+)(?=\.\w+\?)/) || [])[1] || ''
+          (localData?.fileUrl?.match(/\/([^/]+)(?=\.\w+\?)/) || [])[1] || ''
         )?.replace('uploads/', '');
-
         const response = await saveDocument(
-          { title, documentUrl: document?.fileUrl },
+          {
+            title: isNil(title) || isEmpty(title) ? localData?.fileUrl : title,
+            documentUrl: localData?.fileUrl
+          },
           true
         );
 
-        if (response) {
-          const fileProcessor = new FileProcessingService(
-            { ...(response as any), student: user?._id },
-            true
-          );
-          await fileProcessor.process();
+        setIngestedDocument(response);
 
-          // const {
-          //   data: { documentId }
-          // } = processData;
+        const fileProcessor = new FileProcessingService(
+          merge({}, response, {
+            student: localData?.studentID || user?._id,
+            studentId: localData?.studentID || user?._id
+          }),
+          true
+        );
+        await fileProcessor.process();
 
-          await handleGenerateQuestions({
-            name: document?.name
-          });
-
-          watchJobs(document?.name as string, async (error, quizQuestions) => {
-            if (error) {
-              toast({
-                position: 'top-right',
-                title: `failed to generate quizzes `,
-                status: 'error'
-              });
-              return;
-            }
-            // toast({
-            //   position: 'top-right',
-            //   title: `generate quizzes successful`,
-            //   status: 'success'
-            // });
-
-            if (isArray(quizQuestions) && !isEmpty(quizQuestions)) {
-              (async () => {
-                const sliceQuestions = slice(quizQuestions, 0, localData.count);
-                const questions = map([...sliceQuestions], (quiz) => {
-                  let type = quiz?.type;
-                  let options = [];
-                  if (
-                    !isNil(quiz?.options) ||
-                    (isArray(quiz?.options) && isEmpty(quiz?.options))
-                  ) {
-                    options = quiz?.options;
-                  }
-
-                  if (isNil(type) || isEmpty(type)) {
-                    if (!isNil(options) || !isEmpty(options)) {
-                      if (options.length < 3) {
-                        type = TRUE_FALSE;
-                      } else {
-                        const isMulti =
-                          size(
-                            filter(
-                              options,
-                              (option) => option.isCorrect === true
-                            )
-                          ) > 1;
-                        if (isMulti) {
-                          type = MULTIPLE_CHOICE_MULTI;
-                        }
-
-                        type = MULTIPLE_CHOICE_SINGLE;
-                      }
-                    } else {
-                      if (!isEmpty(quiz?.answer) || !isNil(quiz?.answer)) {
-                        type = OPEN_ENDED;
-                      }
-                    }
-                  } else {
-                    if (
-                      includes(toLower(type), 'multiple answers') ||
-                      includes(toLower(type), 'multipleanswers') ||
-                      includes(toLower(type), 'multipleanswer') ||
-                      toLower(type) === 'multiplechoice' ||
-                      toLower(type) === 'multiplechoicemultiple'
-                    ) {
-                      type = MULTIPLE_CHOICE_MULTI;
-                    }
-                    if (
-                      includes(toLower(type), 'single answer') ||
-                      includes(toLower(type), 'singleanswer') ||
-                      toLower(type) === 'multiplechoicesingle'
-                    ) {
-                      type = MULTIPLE_CHOICE_SINGLE;
-                    }
-                    if (
-                      includes(toLower(type), 'true') ||
-                      includes(toLower(type), 'false')
-                    ) {
-                      type = TRUE_FALSE;
-                    }
-                    if (
-                      includes(toLower(type), 'open') ||
-                      includes(toLower(type), 'ended')
-                    ) {
-                      type = OPEN_ENDED;
-                      if (!isEmpty(options)) {
-                        if (options.length < 3) {
-                          type = TRUE_FALSE;
-                        } else {
-                          const isMulti =
-                            size(
-                              filter(
-                                options,
-                                (option) => option.isCorrect === true
-                              )
-                            ) > 1;
-                          if (isMulti) {
-                            type = MULTIPLE_CHOICE_MULTI;
-                          }
-
-                          type = MULTIPLE_CHOICE_SINGLE;
-                        }
-                        const arrOptions = [...options];
-                        options = map(arrOptions, (option, idx) => ({
-                          content: option,
-                          isCorrect: toNumber(quiz?.answer) === idx + 1
-                        }));
-                      }
-                    }
-                  }
-
-                  return {
-                    ...omit(quiz, ['explanation', 'answerKey']),
-                    options,
-                    type,
-                    answer: toString(quiz?.answer)
-                  };
-                });
-
-                if (isNil(quizId) && isEmpty(quizId)) {
-                  await handleCreateQuiz(questions);
-                } else {
-                  await handleUpdateQuiz(quizId, {
-                    quizQuestions: questions
-                  });
-                }
-
-                setIsUploadingFile(false);
-                handleIsLoadingQuizzes(false);
-                handleSetUploadingState(false);
-                await fetchQuizzes();
-              })();
-            }
-
-            setTimeout(() => clearJobs(document?.name as string), 5000);
-          });
-        } else {
-          toast({
-            title: 'Failed to save document',
-            status: 'error',
-            position: 'top-right'
-          });
-        }
-      } catch (error) {
-        console.log('uploadEmitter catch =======>> error ', error);
-        toast({
-          title: 'Failed to save document',
-          status: 'error',
-          position: 'top-right'
+        await handleGenerateQuestions({
+          ...(omit(localData, [
+            'studentID',
+            'fileUrl',
+            'contentType',
+            'documentID',
+            'ingestDoc'
+          ]) as any)
         });
-      } finally {
-        // setIsUploadingFile(false);
-        // handleIsLoadingQuizzes(false);
-        // handleSetUploadingState(false);
+      } else {
+        await handleGenerateQuestions({
+          ...(omit(localData, [
+            'studentID',
+            'fileUrl',
+            'contentType',
+            'documentID',
+            'ingestDoc'
+          ]) as any),
+          studentId: user._id,
+          documentId: ingestedDocument?.value
+        });
       }
-    });
-    uploadEmitter.on('error', (error) => {
-      console.log('uploadEmitter =======>> error ', error);
+
+      watchJobs(
+        isNil(ingestedDocument)
+          ? localData?.documentId
+          : ingestedDocument?.keywords,
+        async (error, quizQuestions) => {
+          if (error) {
+            toast({
+              position: 'top-right',
+              title: `failed to generate quizzes `,
+              status: 'error'
+            });
+
+            return;
+          }
+
+          await handleFormatQuizQuestionCallback(
+            quizQuestions,
+            localData,
+            () => {
+              setIsUploadingFile(false);
+              handleIsLoadingQuizzes(false);
+              handleSetUploadingState(false);
+              setTimeout(
+                () =>
+                  clearJobs(
+                    isNil(ingestedDocument)
+                      ? localData?.documentId
+                      : (ingestedDocument?.keywords as string)
+                  ),
+                5000
+              );
+            }
+          );
+        }
+      );
+    } catch (error) {
       toast({
-        title: 'Failed to save document',
-        status: 'error',
-        position: 'top-right'
+        position: 'top-right',
+        title: `failed to generate quizzes `,
+        status: 'error'
       });
-      setIsUploadingFile(false);
-    });
+    }
   };
 
-  // useEffect(() => {
-  //   console.log('this ran !!! =======>>> ');
+  const disabledByFileOrDocument =
+    isNil(file) && isNil(ingestedDocument) ? true : false;
 
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [quizQuestions]);
-
-  const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
-    onDrop,
-    accept: {
-      'text/plain': ['.txt'],
-      'application/pdf': ['.pdf'],
-      'image/jpeg': ['.jpeg', '.jpg'],
-      'application/vnd.ms-powerpoint': ['.ppt']
-    },
-    maxSize: fileSizeLimitBytes
-  });
+  const disabledByTitle = isEmpty(title) ? true : isNil(title) ? true : false;
 
   return (
     <Box width={'100%'} mt="20px">
@@ -399,39 +252,26 @@ const UploadQuizForm = ({
       </FormControl>
       <FormControl mb={7}>
         <FormLabel textColor={'text.600'}>Upload a document</FormLabel>
-        <HStack
-          alignItems={'center'}
-          p={'14px 16px'}
-          textColor={'text-200'}
-          fontSize={'14px'}
-          fontFamily={'Inter'}
-          fontWeight={'500'}
-          border={'1px solid #E4E5E7'}
-          borderRadius={'6px'}
-          boxShadow={'box-shadow: 0px 2px 6px 0px rgba(136, 139, 143, 0.10);'}
-          cursor={'pointer'}
-          {...getRootProps()}
-        >
-          <UploadIcon
-            className={'h-[20px] text-gray-500'}
-            onClick={() => {
-              ('');
-            }}
-          />
-          <Box>
-            {isEmpty(acceptedFiles) ? (
-              <Text>Upload doc</Text>
-            ) : (
-              <Text>
-                {truncate(acceptedFiles[0]?.name, {
-                  length: 25
-                })}{' '}
-                - .{last(split(acceptedFiles[0]?.name, '.'))}
-              </Text>
-            )}
-          </Box>
-        </HStack>
-        <input id="upload" name="upload" type="file" {...getInputProps()} />
+
+        <FileUpload
+          show={openModal}
+          setShow={setOpenModal}
+          onIngestedDocument={(ingestedDocument) =>
+            setIngestedDocument(ingestedDocument)
+          }
+          onDocumentSelect={(documnet) => {
+            setLocalData((prev) => ({
+              ...prev,
+              ...documnet,
+              documentId: documnet?.documentID || documnet?.fileUrl,
+              studentId: documnet?.studentID || user?._id
+            }));
+          }}
+          onFileSelect={(file) => setFile(file)}
+          showUploadTrigger={true}
+          useUploadModal={true}
+        />
+
         <FormHelperText textColor={'text.300'}>
           Shepherd supports .pdf, .ppt, .jpg & .txt document formats
         </FormHelperText>
@@ -452,28 +292,6 @@ const UploadQuizForm = ({
             const event = {
               target: {
                 name: 'type',
-                value: (option as Option).value
-              }
-            } as ChangeEvent<HTMLSelectElement>;
-            handleChange(event);
-          }}
-        />
-      </FormControl>
-
-      <FormControl mb={8}>
-        <FormLabel textColor={'text.600'}>Level (optional): </FormLabel>
-        <SelectComponent
-          name="difficulty"
-          placeholder="Select Level"
-          defaultValue={levelOptions.find(
-            (option) => option.value === localData.difficulty
-          )}
-          options={levelOptions}
-          size={'md'}
-          onChange={(option) => {
-            const event = {
-              target: {
-                name: 'difficulty',
                 value: (option as Option).value
               }
             } as ChangeEvent<HTMLSelectElement>;
@@ -504,8 +322,52 @@ const UploadQuizForm = ({
         />
       </FormControl>
 
+      <FormControl mb={8}>
+        <FormLabel textColor={'text.600'}>Level (optional): </FormLabel>
+        <SelectComponent
+          name="difficulty"
+          placeholder="Select Level"
+          defaultValue={levelOptions.find(
+            (option) => option.value === localData.difficulty
+          )}
+          options={levelOptions}
+          size={'md'}
+          onChange={(option) => {
+            const event = {
+              target: {
+                name: 'difficulty',
+                value: (option as Option).value
+              }
+            } as ChangeEvent<HTMLSelectElement>;
+            handleChange(event);
+          }}
+        />
+      </FormControl>
+
+      <FormControl mb={7}>
+        <FormLabel textColor={'text.600'}>Start Page (Optional)</FormLabel>
+        <Input
+          type="number"
+          name="start_page"
+          placeholder="Start Page Number"
+          value={localData.startPage}
+          onChange={handleChange}
+        />
+      </FormControl>
+      <FormControl mb={7}>
+        <FormLabel textColor={'text.600'}>End Page (Optional)</FormLabel>
+        <Input
+          type="number"
+          name="end_page"
+          placeholder="End Page Number"
+          value={localData.endPage}
+          onChange={handleChange}
+        />
+      </FormControl>
+
       <HStack
         w="100%"
+        marginBottom={4}
         alignItems={'center'}
         justifyContent={'end'}
         marginTop="40px"
@@ -522,7 +384,11 @@ const UploadQuizForm = ({
           onClick={handleOnSubmit}
           ml={5}
           isDisabled={
-            isEmpty(title) || isNil(title) || isNil(file) || localData.count < 1
+            // uploadingState ||
+            // disabledByFileOrDocument ||
+            // localData.count < 1 ||
+            // disabledByTitle
+            disabledByFileOrDocument || disabledByTitle
           }
           isLoading={isUploadingFile}
         >

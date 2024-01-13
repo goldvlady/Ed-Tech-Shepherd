@@ -121,7 +121,7 @@ const TestNewNote = () => <div>this is the new note </div>;
 const studentRoutes = [
   { path: 'notes/new-note', element: <NewNote /> },
   // { path: 'new-note', element: <TestNewNote /> },
-  { path: 'notes/new-note/:id', element: <NewNote /> },
+  // { path: 'notes/new-note/:id', element: <NewNote /> },
   { path: 'notes', element: <Notes /> },
   { path: 'pinned', element: <PinnedNotes /> },
   { path: 'tutor/:tutorId/offer', element: <SendTutorOffer /> },
@@ -144,11 +144,11 @@ const studentRoutes = [
   { path: 'library', element: <Library /> },
   { path: 'create-study-plans', element: <CreateStudyPlans /> },
   { path: 'study-plans', element: <StudyPlans /> },
-  { path: 'study-plans/:courseId', element: <CoursePlan /> },
+  { path: 'study-plans/:planId', element: <CoursePlan /> },
   // quizzes
   { path: 'quizzes', element: <Quizzes /> },
-  { path: 'quizzes/create', element: <CreateQuizzes /> },
-  { path: 'quizzes/take', element: <TakeQuizzes /> }
+  { path: 'quizzes/create', element: <CreateQuizzes /> }
+  // { path: 'quizzes/take', element: <TakeQuizzes /> }
 ];
 
 // Tutor specific routes configuration
@@ -351,6 +351,23 @@ const AppRoutes: React.FC = () => {
           />
         }
       />
+      <Route
+        path="/dashboard/notes/new-note/:id"
+        element={
+          <DashboardLayout>
+            <NewNote />
+          </DashboardLayout>
+        }
+      />
+      <Route
+        path="/dashboard/quizzes/take"
+        element={
+          <DashboardLayout>
+            <TakeQuizzes />
+          </DashboardLayout>
+        }
+      />
+
       <Route
         path="/dashboard"
         element={

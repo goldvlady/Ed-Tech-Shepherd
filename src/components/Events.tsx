@@ -58,10 +58,12 @@ export default function Events({ event }: any) {
 
   const getTextByEventType = (eventType, name) => {
     switch (eventType) {
-      case 'study':
+      case 'flashcard':
         return `Flashcard deck "${name}" practice`;
       case 'booking':
         return `${name.subject} lesson with ${name.tutor} `;
+      case 'quiz':
+        return `"${name}" quiz practice`;
 
       default:
         return undefined;
@@ -70,30 +72,36 @@ export default function Events({ event }: any) {
 
   const getBgColorByEventType = (eventType) => {
     switch (eventType) {
-      case 'study':
+      case 'flashcard':
         return `bg-green-500`;
       case 'booking':
         return `bg-orange-500`;
+      case 'quiz':
+        return `bg-blue-500`;
       default:
         return undefined;
     }
   };
   const getColorByEventType = (eventType) => {
     switch (eventType) {
-      case 'study':
+      case 'flashcard':
         return `bg-green-50`;
       case 'booking':
         return `bg-orange-50`;
+      case 'quiz':
+        return `bg-blue-50`;
       default:
         return undefined;
     }
   };
   const getHoverColorByEventType = (eventType) => {
     switch (eventType) {
-      case 'study':
+      case 'flashcard':
         return `hover:bg-emerald-50`;
       case 'booking':
         return `hover:bg-amber-50`;
+      case 'quiz':
+        return `hover:bg-indigo-50`;
       default:
         return undefined;
     }
@@ -210,8 +218,10 @@ export default function Events({ event }: any) {
   return (
     <li
       className={`flex gap-x-3 cursor-pointer hover:drop-shadow-sm ${getColorByEventType(
-        event.type
-      )} ${getHoverColorByEventType(event.type)}`}
+        event.type === 'study' ? event.data.entityType : event.type
+      )} ${getHoverColorByEventType(
+        event.type === 'study' ? event.data.entityType : event.type
+      )}`}
       onClick={() => {
         event.type === 'study'
           ? fetchSingleFlashcard(event.data.entity.id)
@@ -220,7 +230,7 @@ export default function Events({ event }: any) {
     >
       <div
         className={`min-h-fit w-1 rounded-tr-full rounded-br-full ${getBgColorByEventType(
-          event.type
+          event.type === 'study' ? event.data.entityType : event.type
         )}`}
       />
       <div className="py-2 w-full">
@@ -228,9 +238,11 @@ export default function Events({ event }: any) {
           <div className="min-w-0 flex-auto">
             <Text className="text-xs font-normal leading-6 text-gray-500">
               {getTextByEventType(
-                event.type,
+                event.type === 'study' ? event.data.entityType : event.type,
                 event.data.entity?.deckname
                   ? event.data.entity.deckname
+                  : event.data.entity?.title
+                  ? event.data.entity?.title
                   : {
                       subject: event.data?.offer?.course?.label,
                       tutor: `${event.data?.offer?.tutor?.user?.name?.first} ${event.data?.offer?.tutor?.user?.name?.last}`
@@ -241,7 +253,9 @@ export default function Events({ event }: any) {
               {' '}
               <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
                 <span>
-                  {convertUtcToUserTime(event.data.startDate)}
+                  {event.type !== 'booking'
+                    ? moment(event.data.startDate).format('hh:mm A')
+                    : convertUtcToUserTime(event.data.startDate)}
                   {/* Format the time as "11:00 AM" */}
                 </span>
                 {event.type !== 'study' && (

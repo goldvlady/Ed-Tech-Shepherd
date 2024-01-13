@@ -43,6 +43,9 @@ export interface TutorBankInfo {
   accountNumber: string;
   bankName: string;
   swiftCode?: string;
+  routingNumber?: string;
+  address?: string;
+  stripeAccountId?: string;
 }
 
 export interface TutorQualification {
@@ -147,7 +150,7 @@ export type Subscription = {
   nextBillingDate?: Date;
   trialEnd?: Date;
   trialStart?: Date;
-  daysUntilDue?: Number;
+  daysUntilDue?: number;
   currentPeriodStart?: Date;
   currentPeriodEnd?: Date;
   subscriptionMetadata?: SubscriptionMetadata;
@@ -168,6 +171,7 @@ export interface User extends TimestampedEntity {
   firebaseId: string;
   avatar?: string;
   dob: string;
+  referralCode?: string;
   tutor?: Tutor;
   student?: Student;
   isVerified: boolean;
@@ -545,3 +549,25 @@ export interface QuizData {
   currentStudy?: MinimizedStudy;
   tags: string[];
 }
+export type StudyPlanTopic = {
+  mainTopic: string;
+  subTopics: string[];
+};
+
+export type StudyPlanWeek = {
+  weekNumber: number;
+  dateRange: string;
+  topics: StudyPlanTopic[];
+};
+
+export type SyllabusData = {
+  course: string;
+  gradeLevel: string;
+  weekCount: number;
+};
+
+export type StudyPlanJob = {
+  status: string;
+  studyPlan?: StudyPlanWeek[];
+  syllabusData?: SyllabusData;
+};

@@ -6,7 +6,13 @@ import LoaderOverlay from '../../../components/loaderOverlay';
 import SelectableTable, { TableColumn } from '../../../components/table';
 import { useSearch } from '../../../hooks';
 import quizStore from '../../../state/quizStore';
-import { QuizData, QuizQuestion, Score, MinimizedStudy } from '../../../types';
+import {
+  QuizData,
+  QuizQuestion,
+  Score,
+  MinimizedStudy,
+  SchedulePayload
+} from '../../../types';
 import './styles.css';
 import {
   Text,
@@ -26,8 +32,15 @@ import {
   TagLeftIcon,
   Stack
 } from '@chakra-ui/react';
-import { parseISO, format, isSameDay, isThisWeek, getISOWeek } from 'date-fns';
-import { isEmpty, isNaN } from 'lodash';
+import {
+  parseISO,
+  format,
+  isSameDay,
+  isThisWeek,
+  getISOWeek,
+  parse
+} from 'date-fns';
+import { isEmpty, isNaN, truncate } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaCalendarAlt, FaEllipsisH } from 'react-icons/fa';
@@ -35,6 +48,9 @@ import { IoCreateOutline } from 'react-icons/io5';
 import { MultiSelect } from 'react-multi-select-component';
 import { useNavigate } from 'react-router';
 import styled from 'styled-components';
+import ScheduleStudyModal, {
+  ScheduleFormState
+} from './components/scheduleModal';
 
 const StyledImage = styled(Box)`
   display: inline-flex;
@@ -86,8 +102,13 @@ const Quizzes = () => {
     deleteQuiz,
     tags,
     isLoading,
-    storeQuizTags
+    storeQuizTags,
+    scheduleQuiz
   } = quizStore();
+
+  const [scheduleItem, setScheduleItem] = useState<{
+    quiz: QuizData;
+  } | null>(null);
 
   const handleSelectionChange = (selectedOptions: Option[]) => {
     setMultiSelected(selectedOptions);
@@ -192,6 +213,40 @@ const Quizzes = () => {
     // eslint-disable-next-line
   }, []);
 
+  const handleEventSchedule = async (data: ScheduleFormState) => {
+    const parsedTime = parse(data.time.toLowerCase(), 'hh:mm aa', new Date());
+    const time = format(parsedTime, 'HH:mm');
+
+    const payload: SchedulePayload = {
+      entityId: scheduleItem?.quiz._id as string,
+      entityType: 'quiz',
+      startDates: [data.day?.toISOString() as string],
+      startTime: time
+    };
+
+    if (data.frequency && data.frequency !== 'none') {
+      payload.recurrence = { frequency: data.frequency };
+      if (data.endDate) {
+        payload.recurrence.endDate = data.endDate.toISOString();
+      }
+    }
+    const isSuccess = await scheduleQuiz(payload);
+    if (isSuccess) {
+      toast({
+        position: 'top-right',
+        title: `${scheduleItem?.quiz.title} Scheduled Succesfully`,
+        status: 'success'
+      });
+      setScheduleItem(null);
+    } else {
+      toast({
+        position: 'top-right',
+        title: `Failed to schedule ${scheduleItem?.quiz.title} flashcards`,
+        status: 'error'
+      });
+    }
+  };
+
   const columns: TableColumn<DataSourceItem>[] = [
     {
       title: 'Quiz Name',
@@ -201,12 +256,13 @@ const Quizzes = () => {
         <Text
           color="#207DF7"
           onClick={() => {
-            handleToggleStartQuizModal(true);
             loadQuiz(key);
+            handleToggleStartQuizModal(true);
           }}
           fontWeight="500"
+          title={title}
         >
-          {title}
+          {truncate(title, { length: 50 })}
         </Text>
       )
     },
@@ -406,8 +462,8 @@ const Quizzes = () => {
               p="6px 8px 6px 8px"
               _hover={{ bgColor: '#F2F4F7' }}
               onClick={() => {
-                handleToggleStartQuizModal(true);
                 loadQuiz(quiz.key);
+                handleToggleStartQuizModal(true);
               }}
             >
               <Box className="item-menu-icon" marginRight="10px">
@@ -432,6 +488,41 @@ const Quizzes = () => {
                 fontWeight="400"
               >
                 Take
+              </Text>
+            </MenuItem>
+            <MenuItem
+              p="6px 8px 6px 8px"
+              onClick={() =>
+                setScheduleItem({
+                  quiz: quiz as unknown as QuizData
+                })
+              }
+              _hover={{ bgColor: '#F2F4F7' }}
+            >
+              <StyledImage marginRight="10px">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  width="12"
+                  height="12"
+                >
+                  <path
+                    fillRule="evenodd"
+                    fill="#6E7682"
+                    d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zm13.5 9a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-7.5z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </StyledImage>
+
+              <Text
+                color="#212224"
+                fontSize="14px"
+                lineHeight="20px"
+                fontWeight="400"
+              >
+                Schedule
               </Text>
             </MenuItem>
             <MenuItem
@@ -560,6 +651,13 @@ const Quizzes = () => {
           isOpen={Boolean(tagEditItem)}
         />
       )}
+
+      <ScheduleStudyModal
+        isLoading={isLoading}
+        onSumbit={(d) => handleEventSchedule(d)}
+        onClose={() => setScheduleItem(null)}
+        isOpen={Boolean(scheduleItem)}
+      />
 
       <DeleteModal
         isLoading={isLoading}

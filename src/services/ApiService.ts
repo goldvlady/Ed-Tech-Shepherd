@@ -40,6 +40,13 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/me`);
   };
 
+  static generateShareLink = async (body: { apiKey: string }) => {
+    return doFetch(`${ApiService.baseEndpoint}/generateShareLink`, {
+      method: 'POST',
+      body: JSON.stringify(body)
+    });
+  };
+
   static editFlashcard = async (id: string, data: Partial<FlashcardData>) => {
     return doFetch(`${ApiService.baseEndpoint}/editFlashcard?id=${id}`, {
       method: 'POST',
@@ -546,6 +553,18 @@ class ApiService {
   static getNote = async (id: string | number) => {
     return doFetch(`${ApiService.baseEndpoint}/notes/${id}`);
   };
+  static getNoteForAPIKey = async (id: string | number, apiKey: string) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/notes/${id}?shareable=true`,
+      {
+        method: 'GET'
+      },
+      true,
+      {
+        'x-api-key': apiKey
+      }
+    );
+  };
 
   static createNote = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/createNote`, {
@@ -815,6 +834,18 @@ class ApiService {
     });
   };
 
+  static getQuizForAPIKey = async (quizId: string | number, apiKey: string) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/getQuiz?id=${quizId}`,
+      {
+        method: 'GET'
+      },
+      true,
+      {
+        'x-api-key': apiKey
+      }
+    );
+  };
   static generateQuizQuestion = async (
     userId: string,
     data: {
@@ -837,25 +868,6 @@ class ApiService {
     );
   };
 
-  // static generateQuizQuestionFromDocs = async (data: {
-  //   type: QuizQuestion['type'] | 'mixed';
-  //   count: number;
-  //   difficulty: QuizQuestion['difficulty'];
-  //   subject: string;
-  //   topic: string;
-  //   documentId?: string;
-  // }) => {
-  //   return doFetch(
-  //     `${AI_API}/quizzes/students/generate-from-notes`,
-  //     {
-  //       method: 'POST',
-  //       body: JSON.stringify(data)
-  //     },
-  //     false,
-  //     { 'Content-Type': 'application/json' }
-  //   );
-  // };
-
   static generateQuizQuestionFromDocs = async (data: {
     type: QuizQuestion['type'] | 'mixed';
     count: number;
@@ -864,14 +876,18 @@ class ApiService {
     topic: string;
     documentId?: string;
     studentId?: string;
+    start_page?: number;
+    end_page?: number;
   }) => {
-    const isDevelopment =
-      process.env.REACT_APP_API_ENDPOINT.includes('develop');
+    // const isDevelopment =
+    //   process.env.REACT_APP_API_ENDPOINT.includes('develop');
+
     return doFetch(
-      isDevelopment
-        ? 'https://shepherd-anywhere-cors.fly.dev/https://i2u58ng9l4.execute-api.us-east-2.amazonaws.com/prod/generate-from-notes'
-        : // 'https://shepherd-anywhere-cors.fly.dev/https://shepherd-simple-proxy.fly.dev/generate-quizzes'
-          `https://i2u58ng9l4.execute-api.us-east-2.amazonaws.com/prod/generate-from-notes`,
+      // isDevelopment
+      //   ? 'https://shepherd-anywhere-cors.fly.dev/https://i2u58ng9l4.execute-api.us-east-2.amazonaws.com/prod/generate-from-notes'
+      //   : // 'https://shepherd-anywhere-cors.fly.dev/https://shepherd-simple-proxy.fly.dev/generate-quizzes'
+      //     `https://i2u58ng9l4.execute-api.us-east-2.amazonaws.com/prod/generate-from-notes`,
+      'https://shepherd-anywhere-cors.fly.dev/https://i2u58ng9l4.execute-api.us-east-2.amazonaws.com/prod/generate-from-notes',
       {
         method: 'POST',
         body: JSON.stringify(data)
@@ -879,7 +895,6 @@ class ApiService {
       false,
       {
         'Content-Type': 'application/json'
-        // 'Access-Control-Allow-Origin': '*'
       }
     );
   };
@@ -922,6 +937,11 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify(data)
     });
+  };
+  static getStudyPlans = async (page: number, limit: number) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/getStudyPlans?page=${page}&limit=${limit}`
+    );
   };
 }
 

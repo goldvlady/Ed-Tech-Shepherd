@@ -54,16 +54,15 @@ const Login: React.FC = () => {
   const handleNavigation = useCallback(() => {
     let path = '/dashboard';
     sessionStorage.setItem('Just Signed in', 'true');
-
     if (appUser?.type.includes('tutor')) {
       path = '/dashboard/tutordashboard';
     }
-
-    if (appUser?.signedUpAsTutor && !appUser?.tutor) {
-      path = '/complete_profile';
-    }
     if (appUser?.signedUpAsTutor) {
-      path = '/dashboard/tutordashboard';
+      if (appUser?.tutor) {
+        path = '/dashboard/tutordashboard';
+      } else {
+        path = '/complete_profile';
+      }
     }
     if (
       appUser?.tutor &&
@@ -72,10 +71,8 @@ const Login: React.FC = () => {
     ) {
       path = '/dashboard';
     }
-
     navigate(path);
   }, [appUser, navigate]);
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
       if (user && !user.emailVerified) {
