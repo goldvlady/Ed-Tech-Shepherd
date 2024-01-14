@@ -1,12 +1,24 @@
-import { Box, Button, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Text,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  IconButton,
+  Flex
+} from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
+import { FaEllipsisV } from 'react-icons/fa';
 
 interface LibraryCardProps {
   question: string;
   answer: string;
   difficulty: string;
   explanation?: string;
+  options?: any[];
 }
 
 const MotionBox = motion(Box);
@@ -15,7 +27,8 @@ const LibraryCard: React.FC<LibraryCardProps> = ({
   question,
   answer,
   explanation,
-  difficulty
+  difficulty,
+  options
 }) => {
   const [showExplanation, setShowExplanation] = useState(false);
   const [showMoreAnswer, setShowMoreAnswer] = useState(false);
@@ -49,6 +62,44 @@ const LibraryCard: React.FC<LibraryCardProps> = ({
         }
         width="100%"
       >
+        <Flex
+          borderBottomEndRadius={'8px'}
+          borderBottomLeftRadius={'8px'}
+          w="full"
+          h="fit-content"
+          p="10px 18px"
+          justifyContent="space-between"
+        >
+          <Text>
+            <Text>{difficulty}</Text>
+          </Text>
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              aria-label="More options"
+              icon={<FaEllipsisV fontSize={'12px'} />}
+              size="sm"
+              variant="ghost"
+            />
+            <MenuList fontSize="14px" minWidth={'185px'} borderRadius="8px">
+              {options.map((option, index) => (
+                <MenuItem
+                  key={index}
+                  p="6px 8px 6px 8px"
+                  color={option.color || '#212224'}
+                  _hover={{ bgColor: '#F2F4F7' }}
+                  onClick={() => option.onClick && option.onClick()}
+                >
+                  {option.icon && <Box mr={2}>{option.icon}</Box>}
+                  <Text fontSize="14px" lineHeight="20px" fontWeight="400">
+                    {option.label}
+                  </Text>
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Menu>
+        </Flex>
+
         <Box
           width="100%"
           padding="25px"
@@ -62,8 +113,6 @@ const LibraryCard: React.FC<LibraryCardProps> = ({
           overflow="hidden"
           ref={checkIfAnswerIsTooLong}
         >
-          <Text>{difficulty}</Text>
-          <hr />
           <Text whiteSpace={'pre-line'}>{question}</Text>
         </Box>
 
@@ -126,7 +175,7 @@ const LibraryCard: React.FC<LibraryCardProps> = ({
           _active={{ bg: 'none', color: '#207DF7' }}
           _focus={{ boxShadow: 'none' }}
         >
-          {showExplanation ? 'Hide Explanation' : 'See Explanation'}
+          {showExplanation ? 'Hide Answer' : 'See Answer'}
         </Button>
       </Box>
     </Box>
