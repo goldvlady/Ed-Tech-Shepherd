@@ -113,6 +113,35 @@ class ApiService {
     });
   };
 
+  static getLibrarySubjects = async (data: any) => {
+    return doFetch(
+      `http://localhost:8888/.netlify/functions/getLibrarySubjects`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }
+    );
+  };
+  static getLibraryTopics = async (data: any) => {
+    return doFetch(
+      `http://localhost:8888/.netlify/functions/getLibraryTopicsBySubject`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }
+    );
+  };
+
+  static getLibraryCards = async (data: any) => {
+    return doFetch(
+      `http://localhost:8888/.netlify/functions/getLibraryCardsByTopic`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }
+    );
+  };
+
   static createMnemonic = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/createMneomics`, {
       method: 'POST',

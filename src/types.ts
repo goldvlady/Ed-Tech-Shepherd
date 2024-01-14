@@ -332,6 +332,26 @@ export interface FlashcardData {
   currentStudy?: MinimizedStudy;
 }
 
+export interface LibraryCardData {
+  _id: string;
+  subject: string;
+  topic: string;
+  difficulty: string;
+  front: string;
+  back: string;
+  explainer?: string;
+}
+
+export interface LibrarySubjectData {
+  name: string;
+  _id: string;
+}
+
+export interface LibraryTopicData {
+  name: string;
+  _id: string;
+}
+
 export interface FlashcardQuestion {
   questionType: string;
   question: string;
