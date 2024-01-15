@@ -171,6 +171,7 @@ export interface User extends TimestampedEntity {
   firebaseId: string;
   avatar?: string;
   dob: string;
+  referralCode?: string;
   tutor?: Tutor;
   student?: Student;
   isVerified: boolean;

@@ -1,5 +1,6 @@
 import { debounce } from 'lodash';
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router';
 
 type SearchAction = (query: string) => void;
 
@@ -42,3 +43,9 @@ export const useSearch = (
 
   return handleSearch;
 };
+
+export function useSearchQuery() {
+  const { search } = useLocation();
+
+  return React.useMemo(() => new URLSearchParams(search), [search]);
+}
