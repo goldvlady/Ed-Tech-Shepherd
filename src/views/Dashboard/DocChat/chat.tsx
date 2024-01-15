@@ -75,6 +75,7 @@ import Typewriter from 'typewriter-effect';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import ViewUploadDoc from '../HomeWorkHelp/ViewUploadDoc';
 import { set } from 'lodash';
+import ShareModal from '../../../components/ShareModal';
 
 interface IChat {
   HomeWorkHelp?: boolean;
@@ -802,6 +803,7 @@ const Chat = forwardRef(
                     )}
                   </>
                 ))}
+                <ShareModal type="aichat" />
               </PillsContainer>
             </DownPillContainer>
           )}

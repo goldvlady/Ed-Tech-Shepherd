@@ -12,6 +12,7 @@ import {
   chatHomeworkHelp,
   editConversationId,
   getConversionById,
+  getConversionByIdAndAPIKey,
   getDescriptionById,
   updateGeneratedSummary
 } from '../../../services/AI';
@@ -52,14 +53,20 @@ import React, {
   useRef
 } from 'react';
 import { MdInfo } from 'react-icons/md';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
 import PlansModal from '../../../components/PlansModal';
+import { useSearchQuery } from '../../../hooks';
+import { firebaseAuth } from '../../../firebase';
 
 const HomeWorkHelp = () => {
   const [isOpenModal, setOpenModal] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const toast = useCustomToast();
+  const search = useSearchQuery();
+  const shareable = search.get('shareable');
+  const apiKey = search.get('apiKey');
+
   const location = useLocation();
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const [openAceHomework, setAceHomeWork] = useState(false);
@@ -75,6 +82,7 @@ const HomeWorkHelp = () => {
   const studentId = user?._id ?? '';
   const topic = location?.state?.topic;
   const docId = location?.state?.documentId;
+  const { id: convoId } = useParams();
   const [countNeedTutor, setCountNeedTutor] = useState<number>(1);
   const [socket, setSocket] = useState<any>(null);
   const [subjectId, setSubject] = useState<string>('');
@@ -85,6 +93,7 @@ const HomeWorkHelp = () => {
   const [level, setLevel] = useState<any>('');
   const navigate = useNavigate();
   const [conversationId, setConversationId] = useState('');
+
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [onlineTutorsId, setOnlineTutorsId] = useState([]);
   const [visibleButton, setVisibleButton] = useState(true);
@@ -366,9 +375,92 @@ const HomeWorkHelp = () => {
   useEffect(() => {
     const fetchConversationId = async () => {
       setLoading(true);
+      if (shareable && shareable.length > 0 && apiKey && apiKey.length > 0) {
+        const response = await getConversionByIdAndAPIKey({
+          conversationId:
+            convoId ??
+            recentConversationId ??
+            conversationId ??
+            freshConversationId,
+          apiKey
+        });
+
+        if (response) {
+          setVisibleButton(false);
+        }
+        const previousConvoData = response
+          ?.map((conversation) => {
+            // Make sure there's a createdAt attribute
+            const createdAt = conversation?.createdAt || new Date(0); // Default date in case createdAt is not present
+
+            return {
+              text: conversation?.log?.content,
+              isUser: conversation?.log?.role === 'user',
+              isLoading: false,
+              createdAt: new Date(createdAt), // Convert createdAt to a Date object
+              id: conversation?.id // Assuming each conversation has a unique id
+            };
+          })
+          .filter((convo) => convo.text !== SHALL_WE_BEGIN)
+          .sort((a, b) => {
+            return a.createdAt.getTime() - b.createdAt.getTime();
+          });
+
+        const countOfIDontUnderstand = previousConvoData.filter(
+          (convo) => convo.text === "I don't understand"
+        ).length;
+
+        const hasContentThreeTimes = countOfIDontUnderstand >= 3;
+
+        if (hasContentThreeTimes) {
+          setCountNeedTutor((prevState) => prevState + 2);
+        }
+
+        setMessages((prevState) => [...previousConvoData]);
+        setLoading(false);
+        if (convoId) {
+          setConversationId(convoId);
+        }
+
+        const inputElements = document.querySelectorAll('input');
+
+        // Disable each input element on the page
+        inputElements.forEach((input) => {
+          input.disabled = true;
+        });
+        window.addEventListener('click', () => {
+          setTogglePlansModal(true);
+        });
+        document.body.style.userSelect = 'none';
+        document.body.style.pointerEvents = 'none';
+
+        const excludeSection: HTMLDivElement | null =
+          document.querySelector('.pm');
+        if (excludeSection) {
+          excludeSection.style.userSelect = 'auto';
+          excludeSection.style.pointerEvents = 'auto';
+
+          const descendants: Array<HTMLElement> = Array.from(
+            excludeSection.querySelectorAll('*')
+          );
+          descendants.forEach((descendant) => {
+            descendant.style.userSelect = 'auto';
+            descendant.style.pointerEvents = 'auto';
+          });
+        }
+      } else {
+        const token = await firebaseAuth.currentUser?.getIdToken();
+
+        if (!token) {
+          navigate('/signup');
+        }
+      }
       const response = await getConversionById({
         conversationId:
-          recentConversationId ?? conversationId ?? freshConversationId
+          convoId ??
+          recentConversationId ??
+          conversationId ??
+          freshConversationId
       });
 
       if (response) {
@@ -404,12 +496,15 @@ const HomeWorkHelp = () => {
 
       setMessages((prevState) => [...previousConvoData]);
       setLoading(false);
+      if (convoId) {
+        setConversationId(convoId);
+      }
     };
     fetchConversationId();
     if (conversationId) {
       setShowPrompt(true);
     }
-  }, [conversationId, socket, recentConversationId]);
+  }, [conversationId, socket, recentConversationId, convoId]);
 
   const fetchDescription = async (id: string) => {
     const response = await getDescriptionById({ conversationId: id });
@@ -531,30 +626,30 @@ const HomeWorkHelp = () => {
   useEffect(() => {
     if (isSubmitted) {
       setMessages([]);
-      setConversationId('');
+      // setConversationId('');
       setVisibleButton(false);
       setCountNeedTutor(1);
       localStorage.removeItem('conversationId');
     }
   }, [isSubmitted]);
 
-  useEffect(() => {
-    const storedConvoId = localStorage.getItem('conversationId');
+  // useEffect(() => {
+  //   const storedConvoId = localStorage.getItem('conversationId');
 
-    if (conversationId && (!storedConvoId || conversationId !== storedConvoId))
-      localStorage.setItem('conversationId', conversationId);
-    setCertainConversationId(conversationId);
-  }, [conversationId]);
+  //   if (conversationId && (!storedConvoId || conversationId !== storedConvoId))
+  //     localStorage.setItem('conversationId', conversationId);
+  //   setCertainConversationId(conversationId);
+  // }, [conversationId]);
 
-  useEffect(() => {
-    const storedConvoId = localStorage.getItem('conversationId');
+  // useEffect(() => {
+  //   const storedConvoId = localStorage.getItem('conversationId');
 
-    if (storedConvoId) {
-      setConversationId(storedConvoId);
-      setCountNeedTutor(1);
-      setRecentConverstionId(null);
-    }
-  }, []);
+  //   if (storedConvoId) {
+  //     setConversationId(storedConvoId);
+  //     setCountNeedTutor(1);
+  //     setRecentConverstionId(null);
+  //   }
+  // }, []);
 
   useEffect(() => {
     const getOnlineTutors = async () => {

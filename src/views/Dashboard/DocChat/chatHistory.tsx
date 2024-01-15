@@ -38,6 +38,7 @@ import React, {
 import { FiChevronDown } from 'react-icons/fi';
 import styled from 'styled-components';
 import ShepherdSpinner from '../components/shepherd-spinner';
+import { useLocation, useNavigate } from 'react-router';
 
 const Clock = styled.div`
   width: 20px;
@@ -116,6 +117,8 @@ const ChatHistory = ({
   const [groupChatsByDateArr, setGroupChatsByDateArr] = useState<GroupedChat[]>(
     []
   );
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const toast = useCustomToast();
   const showSearchRef = useRef(null) as any;
   const [editConversation, setEditConversationId] = useState('');
@@ -146,36 +149,44 @@ const ChatHistory = ({
   async function retrieveChatHistory(
     studentId: string,
     isLoader: boolean
-  ): Promise<void> {
-    setLoading(isLoader);
-    const chatHistory = await fetchStudentConversations(studentId);
+  ): Promise<any> {
+    try {
+      setLoading(isLoader);
+      const chatHistory = await fetchStudentConversations(studentId);
 
-    const historyWithContent: any = chatHistory
-      .filter((chat) => chat.ConversationLogs.length > 0)
-      .map((convo) => {
-        const message = convo.ConversationLogs.at(-1)?.log?.content || '';
+      const historyWithContent: any = chatHistory
+        .filter((chat) => chat.ConversationLogs.length > 0)
+        .map((convo) => {
+          const message = convo.ConversationLogs.at(-1)?.log?.content || '';
 
-        return {
-          id: convo.id,
-          title: convo?.title,
-          topic: convo?.topic,
-          subject: convo?.subject,
-          level: convo?.level,
-          message:
-            message.length < 140 ? message : message.substring(0, 139) + '...',
-          createdDated: getDateString(new Date(convo.createdAt)),
-          createdAt: new Date(convo.createdAt) // Add the raw timestamp for sorting
-        };
-      })
-      .sort((a, b) => b.createdAt - a.createdAt); // Sort using the raw timestamp
+          return {
+            id: convo.id,
+            title: convo?.title,
+            topic: convo?.topic,
+            subject: convo?.subject,
+            level: convo?.level,
+            message:
+              message.length < 140
+                ? message
+                : message.substring(0, 139) + '...',
+            createdDated: getDateString(new Date(convo.createdAt)),
+            createdAt: new Date(convo.createdAt) // Add the raw timestamp for sorting
+          };
+        })
+        .sort((a, b) => b.createdAt - a.createdAt); // Sort using the raw timestamp
 
-    const uniqueTopicsArray = Array.from(
-      new Set(historyWithContent.map((convo) => convo.subject))
-    );
+      const uniqueTopicsArray = Array.from(
+        new Set(historyWithContent.map((convo) => convo.subject))
+      );
 
-    setHistoryTopics(['All', ...uniqueTopicsArray]);
-    setChatHistory(historyWithContent);
-    setLoading(false);
+      setHistoryTopics(['All', ...uniqueTopicsArray]);
+      setChatHistory(historyWithContent);
+      setLoading(false);
+
+      return historyWithContent.at(0);
+    } catch (e) {
+      setLoading(false);
+    }
   }
 
   const filteredHistory = useMemo(() => {
@@ -330,7 +341,16 @@ const ChatHistory = ({
   useEffect(() => {
     if (isSubmitted) {
       setLoading(false);
-      retrieveChatHistory(studentId, false);
+      const retrieve = async () => {
+        const latestChat = await retrieveChatHistory(studentId, false);
+        const p = pathname.includes('homework') ? '/ace-homework' : '/doc-chat';
+        const pname = `${p}/${latestChat.id}`;
+        setTimeout(() => {
+          navigate(pname, { replace: true });
+        }, 1000);
+      };
+
+      retrieve();
     }
   }, [studentId, isSubmitted, messages]);
 
@@ -343,12 +363,25 @@ const ChatHistory = ({
   useEffect(() => {
     if (isSubmitted && studentId && messages.length === 1) {
       setLoading(false);
-      retrieveChatHistory(studentId, false);
     }
   }, [isSubmitted, studentId, messages]);
 
   useEffect(() => {
     if (messages?.length) {
+      if (messages.length === 1) {
+        const retrieve = async () => {
+          const latestChat = await retrieveChatHistory(studentId, false);
+          const p = pathname.includes('homework')
+            ? '/dashboard/ace-homework'
+            : '/dashboard/docchat';
+          const pname = `${p}/${latestChat.id}`;
+          setTimeout(() => {
+            navigate(pname, { replace: true });
+          }, 1000);
+        };
+        retrieve();
+        return;
+      }
       retrieveChatHistory(studentId, false);
     }
   }, [messages, studentId]);
@@ -486,6 +519,50 @@ const ChatHistory = ({
                           ) : (
                             <p
                               onClick={() => {
+                                if (
+                                  pathname.includes('homework') &&
+                                  message.id === conversationId
+                                ) {
+                                  setCountNeedTutor(1);
+                                  isMobile && onChatHistory?.();
+                                  localStorage.setItem(
+                                    'bountyOpt',
+                                    JSON.stringify({
+                                      subject: message.subject,
+                                      topic: message.topic,
+                                      level: message.level
+                                    })
+                                  );
+                                  setSomeBountyOpt({
+                                    subject: message.subject,
+                                    topic: message.topic,
+                                    level: message.level
+                                  });
+                                  navigate(
+                                    `/dashboard/ace-homework/${conversationId}`
+                                  );
+                                }
+                                if (pathname.includes('homework')) {
+                                  setCountNeedTutor(1);
+                                  isMobile && onChatHistory?.();
+                                  localStorage.setItem(
+                                    'bountyOpt',
+                                    JSON.stringify({
+                                      subject: message.subject,
+                                      topic: message.topic,
+                                      level: message.level
+                                    })
+                                  );
+                                  setSomeBountyOpt({
+                                    subject: message.subject,
+                                    topic: message.topic,
+                                    level: message.level
+                                  });
+                                  navigate(
+                                    `/dashboard/ace-homework/${message.id}`
+                                  );
+                                }
+
                                 setSelectedIndex(index);
                                 setConversationId(message.id);
                                 retrieveChatHistory(studentId, false);

@@ -488,7 +488,6 @@ const NewNote = () => {
             'error'
           );
           return;
-
         }
         if (!isEmpty(respDetails.data)) {
           const { data: note } = respDetails.data;
@@ -1088,6 +1087,24 @@ const NewNote = () => {
           window.addEventListener('click', () => {
             setTogglePlansModal(true);
           });
+
+          document.body.style.userSelect = 'none';
+          document.body.style.pointerEvents = 'none';
+
+          const excludeSection: HTMLDivElement | null =
+            document.querySelector('.pm');
+          if (excludeSection) {
+            excludeSection.style.userSelect = 'auto';
+            excludeSection.style.pointerEvents = 'auto';
+
+            const descendants: Array<HTMLElement> = Array.from(
+              excludeSection.querySelectorAll('*')
+            );
+            descendants.forEach((descendant) => {
+              descendant.style.userSelect = 'auto';
+              descendant.style.pointerEvents = 'auto';
+            });
+          }
         } else {
           const token = await firebaseAuth.currentUser?.getIdToken();
 
@@ -1098,7 +1115,6 @@ const NewNote = () => {
         setIsEditorLoaded(false);
         // setInitialContent(getNoteLocal(noteParamId) as string);
         await getNoteById(noteParamId, null, () => {
-
           setTimeout(() => {
             setCanStartSaving(true);
             setIsEditorLoaded(true);

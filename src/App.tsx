@@ -136,6 +136,7 @@ const studentRoutes = [
   { path: 'saved-tutors', element: <BookmarkedTutors /> },
   { path: 'messaging', element: <Messaging /> },
   { path: 'account-settings', element: <StudentSettings /> },
+  { path: 'ace-homework/:id', element: <HomeWorkHelp /> },
   { path: 'ace-homework', element: <HomeWorkHelp /> },
   { path: 'flashcards/create', element: <CreateFlashCard /> },
   { path: 'flashcards', element: <FlashCard /> },

@@ -168,7 +168,7 @@ const PlansModal = ({
   };
 
   return (
-    <div>
+    <div className="pm">
       {togglePlansModal && (
         <Transition.Root show={togglePlansModal} as={Fragment}>
           <Dialog as="div" className="relative z-[800]" onClose={() => null}>
