@@ -152,7 +152,7 @@ const HomeWorkHelp = () => {
   }, [user.subscription]);
 
   useEffect(() => {
-    if (certainConversationId) {
+    if (certainConversationId || conversationId) {
       const authSocket = socketWithAuth({
         studentId,
         topic: localData.topic,
@@ -160,11 +160,14 @@ const HomeWorkHelp = () => {
         // level: level.label,
         namespace: 'homework-help',
         conversationId:
-          certainConversationId ?? storedConvoId ?? freshConversationId
+          conversationId ??
+          certainConversationId ??
+          storedConvoId ??
+          freshConversationId
       }).connect();
       setSocket(authSocket);
     }
-  }, [certainConversationId, freshConversationId]);
+  }, [certainConversationId, freshConversationId, conversationId]);
 
   useEffect(() => {
     if (isSubmitted) {
@@ -510,7 +513,7 @@ const HomeWorkHelp = () => {
       setShowPrompt(true);
     }
   }, [conversationId, socket, recentConversationId, convoId]);
-
+  console.log(socket, 'sock chuls');
   const fetchDescription = async (id: string) => {
     const response = await getDescriptionById({ conversationId: id });
     if (response?.data) {
