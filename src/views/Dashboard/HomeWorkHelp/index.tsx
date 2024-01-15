@@ -79,7 +79,8 @@ const HomeWorkHelp = () => {
   const [botStatus, setBotStatus] = useState(
     'Philosopher, thinker, study companion.'
   );
-  const studentId = user?._id ?? '';
+
+  const [studentId, setStudentId] = useState(user?._id ?? '');
   const topic = location?.state?.topic;
   const docId = location?.state?.documentId;
   const { id: convoId } = useParams();
@@ -136,7 +137,11 @@ const HomeWorkHelp = () => {
   const handleLockClick = () => {
     setTogglePlansModal(true);
   };
-
+  useEffect(() => {
+    if (user) {
+      setStudentId(user._id);
+    }
+  }, [user]);
   useEffect(() => {
     if (!hasActiveSubscription) {
       // Set messages and show the modal if the user has no active subscription

@@ -343,7 +343,9 @@ const ChatHistory = ({
       setLoading(false);
       const retrieve = async () => {
         const latestChat = await retrieveChatHistory(studentId, false);
-        const p = pathname.includes('homework') ? '/ace-homework' : '/doc-chat';
+        const p = pathname.includes('homework')
+          ? '/dashboard/ace-homework'
+          : '/dashboard/doc-chat';
         const pname = `${p}/${latestChat.id}`;
         setTimeout(() => {
           navigate(pname, { replace: true });
