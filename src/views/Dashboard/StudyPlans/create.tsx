@@ -6,8 +6,9 @@ import React, {
   RefObject
 } from 'react';
 import { useNavigate } from 'react-router';
-import { database } from '../../../firebase';
-import { ref, onValue, off, DataSnapshot } from 'firebase/database';
+import { database, storage } from '../../../firebase';
+import { ref as dbRef, onValue, off, DataSnapshot } from 'firebase/database';
+import { ref, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import {
   Grid,
   Box,
@@ -52,7 +53,8 @@ import {
   FaCheckCircle,
   FaPencilAlt,
   FaRocket,
-  FaTrashAlt
+  FaTrashAlt,
+  FaFileAlt
 } from 'react-icons/fa';
 import SelectComponent, { Option } from '../../../components/Select';
 import { MdCancel, MdOutlineKeyboardArrowDown } from 'react-icons/md';
@@ -66,7 +68,7 @@ import resourceStore from '../../../state/resourceStore';
 import StudyPlans from '.';
 import moment from 'moment';
 import { GiCancel } from 'react-icons/gi';
-import { AttachmentIcon, SmallCloseIcon } from '@chakra-ui/icons';
+import { AttachmentIcon, CloseIcon, SmallCloseIcon } from '@chakra-ui/icons';
 import ApiService from '../../../services/ApiService';
 import { RiUploadCloud2Fill } from 'react-icons/ri';
 import userStore from '../../../state/userStore';
@@ -87,6 +89,8 @@ function CreateStudyPlans() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedSubject, setSelectedSubject] = useState('');
   const [course, setCourse] = useState('');
+  const [syllabusUrl, setSyllabusUrl] = useState('');
+  const [topicUrls, setTopicUrls] = useState([]);
   const [activeTab, setActiveTab] = useState(0);
   const [testDate, setTestDate] = useState<any[]>([]);
   const [unassignedTopics, setUnassignedTopics] = useState<any[]>([
@@ -107,6 +111,7 @@ function CreateStudyPlans() {
   const [grade, setGrade] = useState('');
   const [showSubjects, setShowSubjects] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [syllabusData, setSyllabusData] = useState([]);
   const [studyPlanData, setStudyPlanData] = useState([]);
   const { courses: courseList, levels: levelOptions } = resourceStore();
@@ -143,6 +148,7 @@ function CreateStudyPlans() {
     e.preventDefault();
     setIsDragOver(false);
     const files = e.dataTransfer.files[0];
+
     // Handle dropped files here
 
     // const fileChecked = doesTitleExist(files?.name);
@@ -199,6 +205,51 @@ function CreateStudyPlans() {
   // };
 
   // Function to add a new test date to the list
+
+  const handleUploadInput = (file: File | null) => {
+    if (!file) return;
+    if (file?.size > 10000000) {
+      setIsLoading(true);
+      toast({
+        title: 'Please upload a file under 10MB',
+        status: 'error',
+        position: 'top',
+        isClosable: true
+      });
+      return;
+    } else {
+      const storageRef = ref(storage, `files/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      setIsLoading(true);
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress = Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          );
+          // setCvUploadPercent(progress);
+        },
+        (error) => {
+          setIsLoading(false);
+          // setCvUploadPercent(0);
+          toast({ title: error.message + error.cause, status: 'error' });
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            setIsLoading(false);
+            setSyllabusUrl(downloadURL);
+
+            // handleInputChange({
+            //   target: { name, value: downloadURL }
+            // } as React.ChangeEvent<HTMLInputElement>);
+            // onboardTutorStore.set?.transcript?.(downloadURL);
+          });
+        }
+      );
+    }
+  };
+
   const addTestDate = () => {
     const newTestDates = [...testDate, new Date()];
     setTestDate(newTestDates);
@@ -213,19 +264,23 @@ function CreateStudyPlans() {
     setShowSubjects(!showSubjects);
   };
 
-  console.log(syllabusData);
-
   const handleGenerateSyllabus = async () => {
     setIsLoading(true);
 
     try {
-      const response = await generateStudyPlan({
-        syllabusData: {
+      const payload = {};
+
+      if (syllabusUrl && syllabusUrl.trim() !== '') {
+        payload['syllabusUrl'] = syllabusUrl;
+      } else {
+        payload['syllabusData'] = {
           course: course,
-          gradeLevel: `${grade}-${gradeLevel}`,
+          gradeLevel: gradeLevel,
           weekCount: 15
-        }
-      });
+        };
+      }
+
+      const response = await generateStudyPlan(payload);
 
       if (response) {
         const jobId = response.jobId;
@@ -275,7 +330,7 @@ function CreateStudyPlans() {
     jobId: string,
     callback: (error: Error | null, studyPlan?: StudyPlanWeek[]) => void
   ) => {
-    const jobRef = ref(database, `/syllabus-process-job/${jobId}`);
+    const jobRef = dbRef(database, `/syllabus-process-job/${jobId}`);
 
     const unsubscribe = onValue(
       jobRef,
@@ -304,10 +359,11 @@ function CreateStudyPlans() {
 
     if (index >= 0 && index < updatedSyllabusData.length) {
       updatedSyllabusData[index] = {
+        ...updatedSyllabusData[index],
         topics: [
           {
-            mainTopic: newMainTopic,
-            subTopics: updatedSyllabusData[index].topics[0].subTopics
+            ...updatedSyllabusData[index].topics[0],
+            mainTopic: newMainTopic
           }
         ]
       };
@@ -367,7 +423,10 @@ function CreateStudyPlans() {
           )} - ${currentEndDate.format('DD/MM/YYYY')}`,
           topics: topics.map((topic) => ({
             mainTopic: topic.topics[0].mainTopic,
-            subTopics: topic.topics[0].subTopics
+            subTopics: topic.topics[0].subTopics,
+            topicUrls: topic.topics[0].topicUrls
+              ? topic.topics[0].topicUrls
+              : []
           }))
         };
 
@@ -383,11 +442,15 @@ function CreateStudyPlans() {
     return studyPlan;
   };
   const saveStudyPlan = async () => {
-    const convertedArr = convertArrays(studyPlanData);
+    setLoading(true);
+    const convertedArr = await convertArrays(studyPlanData);
+
     const payload = {
       course: selectedSubject,
       scheduleItems: convertedArr
     };
+    console.log(convertedArr);
+
     try {
       const resp = await ApiService.createStudyPlan(payload);
       if (resp) {
@@ -395,6 +458,7 @@ function CreateStudyPlans() {
         console.log(response);
         if (resp.status === 201) {
           // setIsCompleted(true);
+          setLoading(false);
           toast({
             title: 'Study Plan Created Successfully',
             position: 'top-right',
@@ -403,6 +467,7 @@ function CreateStudyPlans() {
           });
           navigate('/dashboard/study-plans');
         } else {
+          setLoading(false);
           toast({
             title: 'Failed to create study plan, try again',
             position: 'top-right',
@@ -412,6 +477,7 @@ function CreateStudyPlans() {
         }
       }
     } catch (error: any) {
+      setLoading(false);
       return { error: error.message, message: error.message };
     }
   };
@@ -458,47 +524,133 @@ function CreateStudyPlans() {
     }
   };
 
-  function convertArrays(A) {
+  const uploadFilesAndGetUrls = async (files) => {
+    const downloadUrls = [];
+
+    // Iterate through the array of files
+    for (const file of files) {
+      const storageRef = ref(storage, `files/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      // Start the upload task
+      await new Promise((resolve, reject) => {
+        uploadTask.on(
+          'state_changed',
+          undefined, // Use `undefined` instead of an empty arrow function
+          (error) => {
+            reject(error);
+          },
+          async () => {
+            // Upload completed, get the download URL
+            try {
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+              downloadUrls.push(downloadURL);
+              resolve(undefined); // Resolve with undefined
+            } catch (error) {
+              reject(error);
+            }
+          }
+        );
+      });
+    }
+
+    return downloadUrls;
+  };
+
+  const convertArrays = async (A) => {
     function formatDate(dateString) {
       const [day, month, year] = dateString.split('/');
       return `${year}-${month}-${day}`;
     }
 
-    return A.map((week, index) => {
-      const dates = week.weekRange.split(' - ');
-      const startDate = formatDate(dates[0]);
-      const endDate = formatDate(dates[1]);
-      const topics = week.topics.map((topic) => {
-        const { mainTopic, subTopics } = topic;
+    const convertedTopics = await Promise.all(
+      A.map(async (week, index) => {
+        const dates = week.weekRange.split(' - ');
+        const startDate = formatDate(dates[0]);
+        const endDate = formatDate(dates[1]);
 
-        let subTopicDetails = [];
-        if (subTopics) {
-          subTopicDetails = subTopics.map((subTopic) => ({
-            label: subTopic,
-            description: `Description for ${subTopic}`
-          }));
-        } else {
-          subTopicDetails.push({
-            label: mainTopic,
-            description: `Description for ${mainTopic}`
-          });
-        }
+        const topics = await Promise.all(
+          week.topics.map(async (topic) => {
+            const { mainTopic, subTopics, topicUrls } = topic;
 
-        return {
-          topic: {
-            label: mainTopic,
-            subTopics: subTopicDetails
-          },
-          startDate,
-          endDate,
-          weekIndex: index + 1,
-          status: 'notStarted'
-        };
-      });
-      return topics;
-    }).flat();
-  }
+            let subTopicDetails = [];
+            if (subTopics) {
+              subTopicDetails = subTopics.map((subTopic) => ({
+                label: subTopic,
+                description: `Description for ${subTopic}`
+              }));
+            } else {
+              subTopicDetails.push({
+                label: mainTopic,
+                description: `Description for ${mainTopic}`
+              });
+            }
 
+            const documentUrls = await uploadFilesAndGetUrls(topicUrls);
+
+            return {
+              topic: {
+                label: mainTopic,
+                subTopics: subTopicDetails,
+                documentUrls
+              },
+              startDate,
+              endDate,
+              weekIndex: index + 1,
+              status: 'notStarted'
+            };
+          })
+        );
+
+        return topics;
+      })
+    );
+
+    return convertedTopics.flat();
+  };
+
+  const handleUploadTopicFile = (topicIndex, files) => {
+    const updatedSyllabusData = [...syllabusData];
+
+    // Check if the topic at the specified indices exists
+    if (topicIndex >= 0 && topicIndex < updatedSyllabusData.length) {
+      updatedSyllabusData[topicIndex] = {
+        ...updatedSyllabusData[topicIndex],
+        topics: [
+          {
+            ...updatedSyllabusData[topicIndex].topics[0],
+            topicUrls: updatedSyllabusData[topicIndex].topics[0].topicUrls
+              ? [...updatedSyllabusData[topicIndex].topics[0].topicUrls, files]
+              : [files]
+          }
+        ]
+      };
+
+      // Update the state with the modified data
+      setSyllabusData(updatedSyllabusData);
+    }
+  };
+  console.log(syllabusData);
+
+  const handleRemoveFile = (topicIndex, fileIndex) => {
+    const updatedSyllabusData = [...syllabusData];
+
+    // Check if the topic at the specified indices exists
+    if (
+      topicIndex >= 0 &&
+      topicIndex < updatedSyllabusData.length &&
+      updatedSyllabusData[topicIndex].topics[0].topicUrls &&
+      fileIndex >= 0 &&
+      fileIndex < updatedSyllabusData[topicIndex].topics[0].topicUrls.length
+    ) {
+      // Remove the file at the specified index from the 'topicUrls' array
+      updatedSyllabusData[topicIndex].topics[0].topicUrls.splice(fileIndex, 1);
+
+      // Update the state with the modified data
+      setSyllabusData(updatedSyllabusData);
+    }
+  };
+  console.log(topicUrls);
   return (
     <Grid
       templateColumns={[
@@ -548,43 +700,6 @@ function CreateStudyPlans() {
           <Box>
             {' '}
             <Box mb={4}>
-              <Text as="label" htmlFor="grade" mb={2} display="block">
-                Select your grade
-              </Text>
-
-              <FormControl mb={4}>
-                <Menu>
-                  <MenuButton
-                    as={Button}
-                    variant="outline"
-                    rightIcon={<FiChevronDown />}
-                    borderRadius="8px"
-                    fontSize="0.875rem"
-                    fontFamily="Inter"
-                    color="#212224"
-                    fontWeight="400"
-                    width="100%"
-                    height="42px"
-                    textAlign="left"
-                  >
-                    {grade}
-                  </MenuButton>
-                  <MenuList minWidth={'auto'}>
-                    {gradeOptions.map((grade) => (
-                      <MenuItem
-                        fontSize="0.875rem"
-                        key={grade.value}
-                        _hover={{ bgColor: '#F2F4F7' }}
-                        onClick={() => setGrade(grade.label)}
-                      >
-                        {grade.label}
-                      </MenuItem>
-                    ))}
-                  </MenuList>
-                </Menu>
-              </FormControl>
-            </Box>
-            <Box mb={4}>
               <Text as="label" htmlFor="gradeLevel" mb={2} display="block">
                 Enter your grade level
               </Text>
@@ -621,7 +736,7 @@ function CreateStudyPlans() {
                 </Menu>
               </FormControl>
             </Box>
-            <Box mb={4}>
+            <Box>
               <Text as="label" htmlFor="subjects" mb={2} display="block">
                 What subject would you like to generate a plan for
               </Text>
@@ -647,6 +762,7 @@ function CreateStudyPlans() {
             Additional subject
           </Button> */}
             </Box>
+            <Center my={2}>or</Center>
             <Center
               w="full"
               minH="65px"
@@ -704,7 +820,7 @@ function CreateStudyPlans() {
                 className="hidden"
                 id="file-upload"
                 ref={inputRef}
-                // onChange={collectFileInput}
+                onChange={(e) => handleUploadInput(e.target.files[0])}
               />
             </Center>
             <Button
@@ -717,6 +833,7 @@ function CreateStudyPlans() {
               alignItems="center"
               onClick={handleGenerateSyllabus}
               isDisabled={isLoading}
+              float="right"
             >
               <Icon as={FaRocket} mr={2} />
               Generate Syllabus
@@ -765,6 +882,7 @@ function CreateStudyPlans() {
               display="flex"
               alignItems="center"
               onClick={addTestDate}
+              my={2}
             >
               <Icon as={FaPlus} mr={2} />
               Additional Dates
@@ -826,14 +944,14 @@ function CreateStudyPlans() {
                     </Text>
 
                     <Flex direction="column" gap={2}>
-                      {syllabusData.map((topic, index) => (
+                      {syllabusData.map((topic, topicIndex) => (
                         <>
                           <Box
                             bg="white"
                             p={4}
                             rounded="md"
                             shadow="md"
-                            key={index}
+                            key={topicIndex}
                           >
                             <Editable
                               value={topic.topics[0].mainTopic}
@@ -842,7 +960,7 @@ function CreateStudyPlans() {
                               mb={2}
                               color="text.300"
                               onChange={(newMainTopic) =>
-                                updateMainTopic(index, newMainTopic)
+                                updateMainTopic(topicIndex, newMainTopic)
                               }
                             >
                               <EditablePreview />
@@ -862,16 +980,68 @@ function CreateStudyPlans() {
                               )}
                             </UnorderedList>
                             <Divider my={2} />
-                            <Flex justify="space-between" alignItems="center">
+                            <Flex justify="space-between" gap={1}>
                               <Box color="green.500">
                                 <Icon as={FaCheckCircle} />
                               </Box>
+                              <Flex
+                                direction="row"
+                                overflowX={'scroll'}
+                                className="custom-scroll"
+                                mr={'auto'}
+                              >
+                                {topic.topics[0].topicUrls &&
+                                  topic.topics[0].topicUrls.map(
+                                    (file, index) => (
+                                      <>
+                                        <Flex
+                                          fontSize={10}
+                                          color="gray.700"
+                                          alignItems={'center'}
+                                          gap={1}
+                                          whiteSpace="nowrap"
+                                        >
+                                          <Text>{`${
+                                            file.name?.length > 10
+                                              ? `${file.name.slice(0, 10)}...`
+                                              : file.name
+                                          } `}</Text>
+                                          <CloseIcon
+                                            boxSize={1.5}
+                                            onClick={(e) =>
+                                              handleRemoveFile(
+                                                topicIndex,
+                                                index
+                                              )
+                                            }
+                                          />
+                                          {index !== topicUrls.length - 1 &&
+                                            `,`}
+                                        </Flex>
+                                      </>
+                                    )
+                                  )}
+                              </Flex>
                               <HStack color="gray.500" spacing={3}>
-                                {/* <Icon as={FaPencilAlt} boxSize={3} /> */}
+                                <label htmlFor={`fileInput-${topicIndex}`}>
+                                  <Icon as={FaFileAlt} boxSize={3} />
+                                </label>
+                                <input
+                                  type="file"
+                                  id={`fileInput-${topicIndex}`}
+                                  style={{ display: 'none' }}
+                                  onChange={(e) =>
+                                    handleUploadTopicFile(
+                                      topicIndex,
+                                      e.target.files[0]
+                                    )
+                                  }
+                                />
+
                                 <Icon
                                   as={FaTrashAlt}
                                   boxSize={3}
-                                  onClick={() => deleteMainTopic(index)}
+                                  onClick={() => deleteMainTopic(topicIndex)}
                                 />
                               </HStack>
                             </Flex>
@@ -992,6 +1162,7 @@ function CreateStudyPlans() {
                         my="auto"
                         ml={100}
                         onClick={() => saveStudyPlan()}
+                        isLoading={loading}
                       >
                         Save & Proceed
                       </Button>

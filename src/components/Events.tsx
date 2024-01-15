@@ -223,8 +223,10 @@ export default function Events({ event }: any) {
         event.type === 'study' ? event.data.entityType : event.type
       )}`}
       onClick={() => {
-        event.type === 'study'
+        event.data.entityType === 'flashcard'
           ? fetchSingleFlashcard(event.data.entity.id)
+          : event.data.entityType === 'quiz'
+          ? navigate(`/dashboard/quizzes/take?quiz_id=${event.data.entity.id}`)
           : navigate(`${`/dashboard`}`);
       }}
     >
