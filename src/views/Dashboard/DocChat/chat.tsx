@@ -76,6 +76,7 @@ import CustomModal from '../../../components/CustomComponents/CustomModal';
 import ViewUploadDoc from '../HomeWorkHelp/ViewUploadDoc';
 import { set } from 'lodash';
 import ShareModal from '../../../components/ShareModal';
+import userStore from '../../../state/userStore';
 
 interface IChat {
   HomeWorkHelp?: boolean;
@@ -197,6 +198,7 @@ const Chat = forwardRef(
     const [chatbotSpace, setChatbotSpace] = useState(647);
     const [isModalOpen, setModalOpen] = useState<boolean>(false);
     const [isFlashCard, setFlashCard] = useState<boolean>(false);
+    const { user } = userStore();
     const [isQuiz, setQuiz] = useState<boolean>(false);
     const textAreaRef = useRef<any>();
     const textAreaRef2 = useRef<any>();
@@ -803,7 +805,7 @@ const Chat = forwardRef(
                     )}
                   </>
                 ))}
-                <ShareModal type="aichat" />
+                {user && <ShareModal type="aichat" />}
               </PillsContainer>
             </DownPillContainer>
           )}

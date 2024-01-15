@@ -39,6 +39,7 @@ import { FiChevronDown } from 'react-icons/fi';
 import styled from 'styled-components';
 import ShepherdSpinner from '../components/shepherd-spinner';
 import { useLocation, useNavigate } from 'react-router';
+import { useSearchQuery } from '../../../hooks';
 
 const Clock = styled.div`
   width: 20px;
@@ -119,6 +120,10 @@ const ChatHistory = ({
   );
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const search = useSearchQuery();
+
+  const apiKey = search.get('apiKey');
+
   const toast = useCustomToast();
   const showSearchRef = useRef(null) as any;
   const [editConversation, setEditConversationId] = useState('');
@@ -335,7 +340,9 @@ const ChatHistory = ({
     // if (groupedChats) {
     //   setChatHistory(groupedChats);
     // }
-    retrieveChatHistory(studentId, true);
+    if (!apiKey) {
+      retrieveChatHistory(studentId, true);
+    }
   }, [studentId]);
 
   useEffect(() => {
@@ -384,7 +391,9 @@ const ChatHistory = ({
         retrieve();
         return;
       }
-      retrieveChatHistory(studentId, false);
+      if (!apiKey) {
+        retrieveChatHistory(studentId, false);
+      }
     }
   }, [messages, studentId]);
 

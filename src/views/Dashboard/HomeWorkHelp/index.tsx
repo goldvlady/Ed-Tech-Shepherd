@@ -143,13 +143,13 @@ const HomeWorkHelp = () => {
     }
   }, [user]);
   useEffect(() => {
-    if (!hasActiveSubscription) {
+    if (user && !hasActiveSubscription) {
       // Set messages and show the modal if the user has no active subscription
       setPlansModalMessage('Pick a plan to access your AI Study Tools! 🚀');
       setPlansModalSubMessage('Get started today for free!');
       setTogglePlansModal(true);
     }
-  }, [user.subscription]);
+  }, [user]);
 
   useEffect(() => {
     if (certainConversationId || conversationId) {
@@ -690,7 +690,7 @@ const HomeWorkHelp = () => {
   //     setRecentConverstionId(firstId);
   //   }
   // }, [storedConvoId]);
-  if (!hasActiveSubscription) {
+  if (!hasActiveSubscription && !apiKey) {
     return (
       <Center height="100vh" width="100%">
         <Box display={'flex'} flexDirection={'column'} alignItems={'center'}>
