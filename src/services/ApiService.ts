@@ -943,6 +943,11 @@ class ApiService {
       `${ApiService.baseEndpoint}/getStudyPlans?page=${page}&limit=${limit}`
     );
   };
+  static getStudyPlanResources = async (planId: string) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/getStudyPlanResources?studyPlanId=${planId}`
+    );
+  };
 }
 
 export default ApiService;

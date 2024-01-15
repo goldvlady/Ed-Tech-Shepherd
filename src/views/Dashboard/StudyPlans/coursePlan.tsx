@@ -43,11 +43,14 @@ import {
   TabPanels,
   Tab,
   TabPanel,
-  HStack
+  HStack,
+  Alert,
+  AlertIcon,
+  AlertDescription
 } from '@chakra-ui/react';
 import { FaPlus, FaCheckCircle, FaPencilAlt, FaRocket } from 'react-icons/fa';
 import SelectComponent, { Option } from '../../../components/Select';
-import { MdOutlineKeyboardArrowDown } from 'react-icons/md';
+import { MdInfo, MdOutlineKeyboardArrowDown } from 'react-icons/md';
 import { FiChevronDown } from 'react-icons/fi';
 import { ArrowLeftIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import { IoIosArrowRoundBack } from 'react-icons/io';
@@ -60,13 +63,23 @@ import DocChatIcon from '../../../assets/dochat-plan.svg';
 import AiTutorIcon from '../../../assets/aitutor-plan.svg';
 import studyPlanStore from '../../../state/studyPlanStore';
 import resourceStore from '../../../state/resourceStore';
+import flashcardStore from '../../../state/flashcardStore';
 import { useNavigate, useLocation } from 'react-router';
+import { loadStripe } from '@stripe/stripe-js';
+import ApiService from '../../../services/ApiService';
+import PaymentDialog, {
+  PaymentDialogRef
+} from '../../../components/PaymentDialog';
+import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
+import BountyOfferModal from '../components/BountyOfferModal';
+import { async } from '@firebase/util';
 
 function CoursePlan() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedSubject, setSelectedSubject] = useState('');
   const [topics, setTopics] = useState(null);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [planResource, setPlanResource] = useState(null);
   const [showSubjects, setShowSubjects] = useState(false);
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(100);
@@ -74,8 +87,93 @@ function CoursePlan() {
   const location = useLocation();
   const navigate = useNavigate();
   const { courses: courseList, levels: levelOptions } = resourceStore();
-  const { studyPlans, fetchPlans } = studyPlanStore();
+  const { fetchSingleFlashcard } = flashcardStore();
+  const { studyPlans, fetchPlans, fetchPlanResources, studyPlanResources } =
+    studyPlanStore();
+
   const [selectedStatus, setSelectedStatus] = useState('To Do');
+  const toast = useCustomToast();
+
+  const {
+    isOpen: isBountyModalOpen,
+    onOpen: openBountyModal,
+    onClose: closeBountyModal
+  } = useDisclosure();
+  const paymentDialogRef = useRef<PaymentDialogRef>(null);
+  //Payment Method Handlers
+  const url: URL = new URL(window.location.href);
+  const params: URLSearchParams = url.searchParams;
+  const clientSecret = params.get('setup_intent_client_secret');
+  const stripePromise = loadStripe(
+    process.env.REACT_APP_STRIPE_PUBLIC_KEY as string
+  );
+
+  const setupPaymentMethod = async () => {
+    try {
+      const paymentIntent = await ApiService.createStripeSetupPaymentIntent();
+
+      const { data } = await paymentIntent.json();
+
+      paymentDialogRef.current?.startPayment(
+        data.clientSecret,
+        `${window.location.href}`
+      );
+    } catch (error) {
+      // console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (clientSecret) {
+      (async () => {
+        const stripe = await stripePromise;
+        const setupIntent = await stripe?.retrieveSetupIntent(clientSecret);
+        await ApiService.addPaymentMethod(
+          setupIntent?.setupIntent?.payment_method as string
+        );
+        // await fetchUser();
+        switch (setupIntent?.setupIntent?.status) {
+          case 'succeeded':
+            toast({
+              title: 'Your payment method has been saved.',
+              status: 'success',
+              position: 'top',
+              isClosable: true
+            });
+            openBountyModal();
+            break;
+          case 'processing':
+            toast({
+              title:
+                "Processing payment details. We'll update you when processing is complete.",
+              status: 'loading',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          case 'requires_payment_method':
+            toast({
+              title:
+                'Failed to process payment details. Please try another payment method.',
+              status: 'error',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          default:
+            toast({
+              title: 'Something went wrong.',
+              status: 'error',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+        }
+        // setSettingUpPaymentMethod(false);
+      })();
+    }
+    /* eslint-disable */
+  }, [clientSecret]);
 
   const handleUpdateTopicStatus = (status, topicId) => {
     // Update the status for the specific topic by topicId
@@ -87,6 +185,20 @@ function CoursePlan() {
   };
 
   const selectedPlanRef = useRef(null);
+  const fetchResources = async (id) => {
+    try {
+      const response = await fetchPlanResources(id);
+
+      setPlanResource(response);
+    } catch (error) {}
+  };
+  useEffect(() => {
+    if (selectedPlan) {
+      fetchResources(selectedPlan);
+    }
+  }, [selectedPlan]);
+  console.log(planResource);
+
   function getSubject(id) {
     return courseList.map((course) => {
       if (course._id === id) {
@@ -171,6 +283,24 @@ function CoursePlan() {
     } else {
       return 'To Do';
     }
+  };
+
+  const findQuizzesByTopic = (topic) => {
+    // const topicKey = topic.toLowerCase();
+
+    if (studyPlanResources[topic] && studyPlanResources[topic].quizzes) {
+      return studyPlanResources[topic].quizzes;
+    }
+
+    return [];
+  };
+  const findFlashcardsByTopic = (topic) => {
+    // const topicKey = topic.toLowerCase();
+
+    if (studyPlanResources[topic] && studyPlanResources[topic].flashcards) {
+      return studyPlanResources[topic].flashcards;
+    }
+    return [];
   };
 
   // const doFetchStudyPlans = useCallback(async () => {
@@ -269,7 +399,7 @@ function CoursePlan() {
           </Box>
         </Box>
 
-        <Box p={10} className="topics" bg="#F9F9FB" overflowY="scroll">
+        <Box p={6} className="topics" bg="#F9F9FB" overflowY="scroll">
           <Tabs colorScheme={'blue.400'}>
             <TabList mb="1em">
               <Tab>Topics</Tab>
@@ -346,41 +476,97 @@ function CoursePlan() {
                               </Menu>
                             </Flex>
                             <Divider />
-                            <HStack spacing={6} p={4} justifyContent="center">
-                              <VStack>
-                                <QuizIcon />
-                                <Text fontSize={12} fontWeight={500}>
-                                  Quizzes
-                                </Text>
-                              </VStack>
-                              <VStack>
-                                <FlashcardIcon />
-                                <Text fontSize={12} fontWeight={500}>
-                                  Flashcards
-                                </Text>
-                              </VStack>
-                              <VStack>
-                                <AiTutorIcon />
-                                <Text fontSize={12} fontWeight={500}>
-                                  AI Tutor
-                                </Text>
-                              </VStack>
-                              <VStack>
-                                <DocChatIcon />
-                                <Text fontSize={12} fontWeight={500}>
-                                  Doc Chat
-                                </Text>
-                              </VStack>
-                              <VStack>
-                                <ResourceIcon />
-                                <Text fontSize={12} fontWeight={500}>
-                                  Resources
-                                </Text>
-                              </VStack>
-                            </HStack>
-                            <Button float="right" size={'sm'} m={4}>
-                              Find a tutor
-                            </Button>
+                            <Box width={'100%'}>
+                              <HStack
+                                spacing={9}
+                                p={4}
+                                justifyContent="space-between"
+                              >
+                                <Menu isLazy>
+                                  <MenuButton>
+                                    {' '}
+                                    <VStack>
+                                      <QuizIcon />
+                                      <Text fontSize={12} fontWeight={500}>
+                                        Quizzes
+                                      </Text>
+                                    </VStack>
+                                  </MenuButton>
+                                  <MenuList h={60} overflowY="scroll">
+                                    {findQuizzesByTopic(
+                                      topic.topicDetails.label
+                                    ).map((quiz) => (
+                                      <>
+                                        <MenuItem
+                                          key={quiz.id}
+                                          onClick={() =>
+                                            navigate(
+                                              `/dashboard/quizzes/take?quiz_id=${quiz.id}`
+                                            )
+                                          }
+                                        >
+                                          {quiz.title}
+                                        </MenuItem>
+                                      </>
+                                    ))}
+                                  </MenuList>
+                                </Menu>
+                                <Menu isLazy>
+                                  <MenuButton>
+                                    {' '}
+                                    <VStack>
+                                      <FlashcardIcon />
+                                      <Text fontSize={12} fontWeight={500}>
+                                        Flashcards
+                                      </Text>
+                                    </VStack>
+                                  </MenuButton>
+                                  <MenuList h={60} overflowY="scroll">
+                                    {findFlashcardsByTopic(
+                                      topic.topicDetails.label
+                                    ).map((flashcard) => (
+                                      <>
+                                        <MenuItem
+                                          key={flashcard.id}
+                                          onClick={() =>
+                                            fetchSingleFlashcard(flashcard.id)
+                                          }
+                                        >
+                                          {flashcard.deckname}
+                                        </MenuItem>
+                                      </>
+                                    ))}
+                                  </MenuList>
+                                </Menu>
+
+                                <VStack>
+                                  <AiTutorIcon />
+                                  <Text fontSize={12} fontWeight={500}>
+                                    AI Tutor
+                                  </Text>
+                                </VStack>
+                                <VStack>
+                                  <DocChatIcon />
+                                  <Text fontSize={12} fontWeight={500}>
+                                    Doc Chat
+                                  </Text>
+                                </VStack>
+                                <VStack>
+                                  <ResourceIcon />
+                                  <Text fontSize={12} fontWeight={500}>
+                                    Resources
+                                  </Text>
+                                </VStack>
+                              </HStack>
+                              <Button
+                                float="right"
+                                size={'sm'}
+                                m={4}
+                                onClick={openBountyModal}
+                              >
+                                Find a tutor
+                              </Button>
+                            </Box>
                           </Box>
                         ))}
                     </Flex>
@@ -398,6 +584,24 @@ function CoursePlan() {
           {/* <Events key={2} event={} /> */}
         </Box>
       </Grid>
+      <BountyOfferModal
+        isBountyModalOpen={isBountyModalOpen}
+        closeBountyModal={closeBountyModal}
+      />
+      <PaymentDialog
+        ref={paymentDialogRef}
+        prefix={
+          <Alert status="info" mb="22px">
+            <AlertIcon>
+              <MdInfo color={'blue.500'} />
+            </AlertIcon>
+            <AlertDescription>
+              Payment will not be deducted until after your first lesson, You
+              may decide to cancel after your initial lesson.
+            </AlertDescription>
+          </Alert>
+        }
+      />
     </>
   );
 }

@@ -522,7 +522,8 @@ export const getDocchatHistory = async ({
 };
 
 export const generateStudyPlan = async (data: {
-  syllabusData: {
+  syllabusUrl?: string;
+  syllabusData?: {
     course: string;
     gradeLevel: string;
     weekCount: number;
