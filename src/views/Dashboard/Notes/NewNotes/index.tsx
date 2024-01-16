@@ -1062,7 +1062,6 @@ const NewNote = () => {
     (async () => {
       if (!isEmpty(noteParamId) || !isNil(noteParamId)) {
         if (shareable && shareable.length > 0 && apiKey && apiKey.length > 0) {
-          console.log('should not');
           setIsEditorLoaded(false);
 
           // setInitialContent(getNoteLocal(noteParamId) as string);
@@ -1077,6 +1076,7 @@ const NewNote = () => {
             setIsEditorLoaded(true);
           });
           editor.setEditable(false);
+
           // ideally clean all this up
           const inputElements = document.querySelectorAll('input');
 
@@ -1087,24 +1087,6 @@ const NewNote = () => {
           window.addEventListener('click', () => {
             setTogglePlansModal(true);
           });
-
-          document.body.style.userSelect = 'none';
-          document.body.style.pointerEvents = 'none';
-
-          const excludeSection: HTMLDivElement | null =
-            document.querySelector('.pm');
-          if (excludeSection) {
-            excludeSection.style.userSelect = 'auto';
-            excludeSection.style.pointerEvents = 'auto';
-
-            const descendants: Array<HTMLElement> = Array.from(
-              excludeSection.querySelectorAll('*')
-            );
-            descendants.forEach((descendant) => {
-              descendant.style.userSelect = 'auto';
-              descendant.style.pointerEvents = 'auto';
-            });
-          }
         } else {
           const token = await firebaseAuth.currentUser?.getIdToken();
 
@@ -1145,7 +1127,17 @@ const NewNote = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialContent]);
-
+  if (apiKey) {
+    const ed: HTMLDivElement = document.querySelector('.ContentEditable__root');
+    if (ed) {
+      const children: HTMLCollectionOf<Element> = ed.children;
+      console.log('hey kiddy', children);
+      // Apply user-select: none to each child element
+      for (const child of children) {
+        (child as HTMLElement).style.userSelect = 'none';
+      }
+    }
+  }
   // Header Component
   const HeaderComponent = () => {
     return (

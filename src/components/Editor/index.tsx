@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+import userStore from '../../state/userStore';
 import { createWebsocketProvider } from './collaboration';
 import { useSettings } from './context/SettingsContext';
 import { useSharedHistoryContext } from './context/SharedHistoryContext';
@@ -142,6 +143,7 @@ export default function Editor({
       showActionsPlugin
     }
   } = useSettings();
+  const { user } = userStore();
   const isEditable = useLexicalEditable();
   const text = isCollab
     ? 'Enter some collaborative rich text...'
@@ -190,6 +192,9 @@ export default function Editor({
     <StyledEditor
       ref={editorRef}
       className={clsx(className, 'editor-shell')}
+      onCopy={(event) => {
+        !user && event.preventDefault();
+      }}
       {...props}
     >
       {isRichText && (

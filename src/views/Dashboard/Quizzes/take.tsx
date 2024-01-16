@@ -26,10 +26,11 @@ const CreateQuizPage = () => {
   const [title, setTitle] = useState('');
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const navigate = useNavigate();
+  const apiKey = searchParams.get('apiKey');
+  const shareable = searchParams.get('shareable');
   useEffect(() => {
     const queryQuizId = searchParams.get('quiz_id');
-    const apiKey = searchParams.get('apiKey');
-    const shareable = searchParams.get('shareable');
+
     if (!isEmpty(queryQuizId) && !isNil(queryQuizId)) {
       (async () => {
         if (
@@ -129,18 +130,22 @@ const CreateQuizPage = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchQuizzes, handleIsLoadingQuizzes, searchParams]);
-  const inputElements = document.querySelectorAll('input');
+  if (apiKey) {
+    const inputElements = document.querySelectorAll('input');
 
-  const textAreas = document.querySelectorAll('textarea');
-  // Disable each input element on the page
-  inputElements.forEach((input) => {
-    input.disabled = true;
-    input.style.userSelect = 'none';
-  });
-  textAreas.forEach((input) => {
-    input.disabled = true;
-    input.style.userSelect = 'none';
-  });
+    const textAreas = document.querySelectorAll('textarea');
+    if (inputElements && textAreas) {
+      // Disable each input element on the page
+      inputElements.forEach((input) => {
+        input.disabled = true;
+        input.style.userSelect = 'none';
+      });
+      textAreas.forEach((input) => {
+        input.disabled = true;
+        input.style.userSelect = 'none';
+      });
+    }
+  }
   return (
     <>
       <Flex
