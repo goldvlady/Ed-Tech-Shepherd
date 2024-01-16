@@ -44,6 +44,7 @@ import { FaFileAlt, FaPen, FaPlay, FaEdit, FaPause } from 'react-icons/fa';
 import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import Availability from '../../components/Availability';
+import { convertToNewFormat } from '../../util';
 
 const Root = styled(Box)`
   display: flex;
@@ -641,13 +642,13 @@ const PreviewProfile = () => {
   const completeProfile = async () => {
     try {
       setLoading(true);
-      const newSchedule: Schedule = {};
-      for (const key in onboardingData.schedule) {
-        newSchedule[key] = onboardingData.schedule[key].map((timeSchedule) => {
-          const [begin, end] = timeSchedule.begin.split(/\W+/);
-          return { begin, end };
-        });
-      }
+      // const newSchedule: Schedule = {};
+      // for (const key in onboardingData.schedule) {
+      //   newSchedule[key] = onboardingData.schedule[key].map((timeSchedule) => {
+      //     const [begin, end] = timeSchedule.begin.split(/\W+/);
+      //     return { begin, end };
+      //   });
+      // }
       const coursesAndLevels = onboardingData.coursesAndLevels.map(
         (courseLevel) => ({
           course: courseList.find(
@@ -663,7 +664,7 @@ const PreviewProfile = () => {
         user: user?._id,
         identityDocument:
           'https://www.google.com/imgres?imgurl=https%3A%2F%2Fmiro.medium.com%2Fv2%2Fresize%3Afit%3A1400%2F1*ddyz8qnOhFeFKY-_c3tleQ.jpeg&tbnid=4XC1nP-83PN2oM&vet=12ahUKEwjNvq_4yM__AhUomCcCHTaJCuoQMygDegUIARDuAQ..i&imgrefurl=https%3A%2F%2Fuxdesign.cc%2F5-shortcomings-of-lorem-ipsum-9f7713836a6b&docid=5TkIS3QiYOv4uM&w=1400&h=1423&q=lorem%20ipsum&ved=2ahUKEwjNvq_4yM__AhUomCcCHTaJCuoQMygDegUIARDuAQ',
-        schedule: newSchedule,
+        // schedule: onboardingData.schedule,
         coursesAndLevels
       };
 
