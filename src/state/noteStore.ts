@@ -21,6 +21,31 @@ type NoteStore = {
   ) => Promise<boolean>;
 };
 
+const saveState = (state: Partial<NoteStore>) => {
+  const stateToSave = {
+    pinnedNotes: state.pinnedNotes,
+    pinnedNotesCount: state.pinnedNotesCount,
+    notes: state.notes,
+    tags: state.tags,
+    pagination: state.pagination
+  };
+  localStorage.setItem('noteStore', JSON.stringify(stateToSave));
+};
+
+// Function to load state from local storage
+const loadState = (): Partial<NoteStore> => {
+  const savedState = localStorage.getItem('noteStore');
+  return savedState
+    ? JSON.parse(savedState)
+    : {
+        pinnedNotes: null,
+        pinnedNotesCount: 0,
+        notes: [],
+        tags: [],
+        pagination: { limit: 10, page: 1, count: 100 }
+      };
+};
+
 export default create<NoteStore>((set) => ({
   pinnedNotes: null,
   note: null,
@@ -29,11 +54,17 @@ export default create<NoteStore>((set) => ({
   tags: [],
   isLoading: false,
   pagination: { limit: 10, page: 1, count: 100 },
+  ...loadState(),
 
   // Fetching all notes
   fetchNotes: async (queryParams: SearchQueryParams = {}) => {
     try {
-      set({ isLoading: true });
+      set((prev) => {
+        if (prev.notes?.length) {
+          return prev;
+        }
+        return { isLoading: true };
+      });
       const response = await ApiService.getAllNotes(queryParams);
       const {
         data: {
@@ -42,10 +73,18 @@ export default create<NoteStore>((set) => ({
         }
       } = await response.json();
 
-      set({
-        notes: data,
-        pagination: { ...pagination, count: pagination?.total },
-        tags: tags.sort()
+      set((prev) => {
+        const nextState = {
+          ...prev,
+          notes: data,
+          pagination: { ...pagination, count: pagination?.total },
+          tags: tags.sort()
+        };
+        if (!queryParams?.page || queryParams.page === 1) {
+          saveState(nextState);
+        }
+
+        return nextState;
       });
     } catch (error) {
       // Handle error (e.g., log to console)
@@ -95,6 +134,7 @@ export default create<NoteStore>((set) => ({
               notes[index] = record;
             }
           }
+          saveState({ ...state, notes, tags: [...state.tags, ...tags] });
           return { notes, tags: [...state.tags, ...tags].sort() };
         });
         return true;
@@ -114,7 +154,10 @@ export default create<NoteStore>((set) => ({
       const response = await ApiService.createNote(data);
       if (response.status === 200) {
         const newNote = await response.json();
-        set((state) => ({ ...state, notes: [...state.notes, newNote] }));
+        set((state) => {
+          saveState({ ...state, notes: [...state.notes, newNote] });
+          return { ...state, notes: [...state.notes, newNote] };
+        });
         return true;
       }
       return false;
@@ -132,12 +175,16 @@ export default create<NoteStore>((set) => ({
       const response = await ApiService.updateNote(id, data);
       if (response.status === 200) {
         const updatedNote = await response.json();
-        set((state) => ({
-          ...state,
-          notes: state.notes.map((note) =>
-            note._id === id ? updatedNote : note
-          )
-        }));
+        set((state) => {
+          const nextState = {
+            ...state,
+            notes: state.notes.map((note) =>
+              note._id === id ? updatedNote : note
+            )
+          };
+          saveState(nextState);
+          return nextState;
+        });
         return true;
       }
       return false;
@@ -154,10 +201,14 @@ export default create<NoteStore>((set) => ({
       set({ isLoading: true });
       const response = await ApiService.deleteNote(id);
       if (response.status === 200) {
-        set((state) => ({
-          ...state,
-          notes: state.notes.filter((note) => !id.split(',').includes(note._id))
-        }));
+        set((state) => {
+          const nextState = {
+            ...state,
+            notes: state.notes.filter((note) => note._id !== id)
+          };
+          saveState(nextState);
+          return nextState;
+        });
         return true;
       }
       return false;

@@ -25,41 +25,74 @@ type Store = {
   logoutUser: () => void;
 };
 
-export default create<Store>((set) => ({
+// Function to save state to local storage
+const saveState = (newState: Partial<Store>) => {
+  // Retrieve the existing state from local storage
+  const existingStateJSON = localStorage.getItem('userStore');
+  const existingState = existingStateJSON ? JSON.parse(existingStateJSON) : {};
+
+  // Merge the new state with the existing state
+  const updatedState = {
+    ...existingState,
+    ...newState
+  };
+
+  // Save the updated state to local storage
+  localStorage.setItem('userStore', JSON.stringify(updatedState));
+};
+
+// Function to load state from local storage
+const loadState = (): Partial<Store> => {
+  const savedState = localStorage.getItem('userStore');
+  return savedState
+    ? JSON.parse(savedState)
+    : {
+        user: null,
+        userNotifications: [],
+        userDocuments: [],
+        hasActiveSubscription: false,
+        fileSizeLimitMB: 0,
+        fileSizeLimitBytes: 0
+      };
+};
+
+const useUserStore = create<Store>((set) => ({
   user: null,
   userNotifications: [],
   userDocuments: [],
   hasActiveSubscription: false,
   fileSizeLimitMB: 0,
   fileSizeLimitBytes: 0,
+  ...loadState(),
   fetchUser: async () => {
     const response = await ApiService.getUser();
     if (response.status !== 200) return false;
     const userData = await response.json();
 
-    // Calculate the hasActiveSubscription value
     const hasActiveSubscription = !!(
       userData.subscription &&
       (userData.subscription.status === 'active' ||
         userData.subscription.status === 'trialing' ||
         userData.subscription.tier === 'Founding Member')
     );
-    // Convert the limit from MB to bytes (1 MB = 1,000,000 bytes)
     const fileSizeLimitMB =
-      userData.subscription?.subscriptionMetadata?.file_mb_limit || 5; // Default to 5MB if not specified
+      userData.subscription?.subscriptionMetadata?.file_mb_limit || 5;
     const fileSizeLimitBytes = fileSizeLimitMB * 1000000;
 
-    set({
+    const newState = {
       user: userData,
-      hasActiveSubscription: hasActiveSubscription,
-      fileSizeLimitMB: fileSizeLimitMB,
-      fileSizeLimitBytes: fileSizeLimitBytes
-    });
+      hasActiveSubscription,
+      fileSizeLimitMB,
+      fileSizeLimitBytes
+    };
 
+    set(newState);
+    saveState(newState);
     return true;
   },
   logoutUser: () => {
     set({ user: null });
+    saveState({ user: null });
   },
   setUserData: (data: Partial<User>) => {
     set((state) => {
@@ -72,27 +105,35 @@ export default create<Store>((set) => ({
             newUser.subscription.tier === 'Founding Member')
         );
         const fileSizeLimitMB =
-          newUser.subscription?.subscriptionMetadata?.file_mb_limit || 5; // Default to 5MB if not specified
+          newUser.subscription?.subscriptionMetadata?.file_mb_limit || 5;
         const fileSizeLimitBytes = fileSizeLimitMB * 1000000;
-        return {
+
+        const updatedState = {
           user: newUser,
-          hasActiveSubscription: hasActiveSubscription,
-          fileSizeLimitMB: fileSizeLimitMB,
-          fileSizeLimitBytes: fileSizeLimitBytes
+          hasActiveSubscription,
+          fileSizeLimitMB,
+          fileSizeLimitBytes
         };
-      } else {
-        return state;
+
+        saveState(updatedState);
+        return updatedState;
       }
+      return state;
     });
   },
   fetchNotifications: async () => {
     const response = await ApiService.getUserNotifications();
-    // if (response.status !== 200) return false;
-    set({ userNotifications: await response.json() });
-    // return true;
+    if (response.status === 200) {
+      const notifications = await response.json();
+      set({ userNotifications: notifications });
+      saveState({ userNotifications: notifications });
+    }
   },
   fetchUserDocuments: async (userId: string) => {
     const userDocuments = await fetchStudentDocuments(userId);
     set({ userDocuments });
+    saveState({ userDocuments });
   }
 }));
+
+export default useUserStore;
