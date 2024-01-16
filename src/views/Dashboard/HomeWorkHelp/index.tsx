@@ -63,7 +63,7 @@ const HomeWorkHelp = () => {
   const location = useLocation();
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const [openAceHomework, setAceHomeWork] = useState(false);
-  const { user } = userStore();
+  const { user }: any = userStore();
   const [messages, setMessages] = useState<
     { text: string; isUser: boolean; isLoading: boolean }[]
   >([]);
@@ -131,8 +131,12 @@ const HomeWorkHelp = () => {
   useEffect(() => {
     if (!hasActiveSubscription) {
       // Set messages and show the modal if the user has no active subscription
-      setPlansModalMessage('Pick a plan to access your AI Study Tools! 🚀');
-      setPlansModalSubMessage('Get started today for free!');
+      setPlansModalMessage(
+        !user.hadSubscription
+          ? 'Start Your 2 Week Free Trial!'
+          : 'Pick a plan to access your AI Study Tools! 🚀'
+      );
+      setPlansModalSubMessage('One-click Cancel at anytime.');
       setTogglePlansModal(true);
     }
   }, [user.subscription]);
