@@ -784,11 +784,14 @@ const QuizPreviewer = ({
                     {!showQuizAnswers && handleUnansweredQuestionsCount > 0 && (
                       <Box>
                         <Button
-                          onClick={() => setShowConfirmation(true)}
+                          onClick={() => {
+                            user && setShowConfirmation(true);
+                          }}
                           bg={'#207DF7'}
                           w={'180px'}
                           h={'40px'}
                           _hover={{ bg: 'red.200' }}
+                          disabled={user === null}
                         >
                           Submit Quiz
                         </Button>
@@ -806,7 +809,7 @@ const QuizPreviewer = ({
                             }}
                             w={'180px'}
                             h={'40px'}
-                            disabled={!user}
+                            disabled={user === null}
                           >
                             Submit Quiz
                           </Button>
