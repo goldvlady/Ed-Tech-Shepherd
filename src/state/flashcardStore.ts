@@ -53,6 +53,29 @@ type Store = {
   editFlashcard: (id: string, data: Partial<FlashcardData>) => Promise<boolean>;
 };
 
+const saveState = (state: Partial<Store>) => {
+  const stateToSave = {
+    flashcards: state.flashcards,
+    tags: state.tags,
+    pagination: state.pagination
+    // Add other states you want to save
+  };
+  localStorage.setItem('flashcardStore', JSON.stringify(stateToSave));
+};
+
+// Function to load state from local storage
+const loadState = (): Partial<Store> => {
+  const savedState = localStorage.getItem('flashcardStore');
+  return savedState
+    ? JSON.parse(savedState)
+    : {
+        flashcards: null,
+        tags: [],
+        pagination: { limit: 10, page: 1, count: 100 }
+        // Set default values for other states
+      };
+};
+
 export default create<Store>((set) => ({
   flashcards: null,
   isLoading: false,
@@ -61,6 +84,7 @@ export default create<Store>((set) => ({
   minimizedStudy: null,
   pagination: { limit: 10, page: 1, count: 100 },
   showStudyList: false,
+  ...loadState(),
   setShowStudyList: (value: boolean) => {
     set({ showStudyList: value });
   },
@@ -102,7 +126,12 @@ export default create<Store>((set) => ({
             updateFlashcard(flashcardIds);
           }
 
-          return { flashcards, tags: [...state.tags, ...tags].sort() };
+          const newState = {
+            flashcards,
+            tags: [...state.tags, ...tags].sort()
+          };
+          saveState(newState);
+          return newState;
         });
         return true;
       }
@@ -130,6 +159,7 @@ export default create<Store>((set) => ({
               ? { ...flashcard, ...updatedFlashcard }
               : flashcard
           );
+          saveState({ ...state, flashcards });
           return { flashcards };
         });
         return true;
@@ -149,7 +179,10 @@ export default create<Store>((set) => ({
         currentStudy.data
       );
       const { data } = await response.json();
-      set({ flashcards: data.flashcards });
+      set((state) => {
+        saveState({ ...state, flashcards: data.flashcards });
+        return { flashcards: data.flashcards };
+      });
     } catch (error) {
       // console.log(error)
     } finally {
@@ -161,7 +194,12 @@ export default create<Store>((set) => ({
       const params = queryParams || ({} as SearchQueryParams);
       if (!params.page) params.page = 1;
       if (!params.limit) params.limit = 10;
-      set({ isLoading: true });
+      set((prev) => {
+        if (prev.flashcards?.length) {
+          return prev;
+        }
+        return { isLoading: true };
+      });
       const response = await ApiService.getFlashcards(params || {});
       const { data, meta } = await response.json();
 
@@ -172,6 +210,9 @@ export default create<Store>((set) => ({
         };
         if (!prev.tags.length) {
           d.tags = meta?.tags.sort();
+        }
+        if (!queryParams?.page || queryParams?.page === 1) {
+          saveState({ ...prev, ...d });
         }
         return { ...d };
       });
@@ -255,6 +296,7 @@ export default create<Store>((set) => ({
               flashcards.splice(index, 1);
             }
           });
+          saveState({ ...state, flashcards });
           return { flashcards };
         });
         return true;
@@ -279,7 +321,9 @@ export default create<Store>((set) => ({
             flashcardData = flashcards;
           }
           flashcardData.push(data);
-          return { flashcards: flashcardData };
+          const newState = { ...store, flashcards: flashcardData };
+          saveState(newState);
+          return newState;
         });
       }
       return response;
@@ -306,7 +350,9 @@ export default create<Store>((set) => ({
           if (index !== undefined && index >= 0 && flashcards) {
             flashcards[index] = data;
           }
-          return { flashcards };
+          const newState = { ...state, flashcards };
+          saveState(newState);
+          return newState;
         });
         return true;
       }

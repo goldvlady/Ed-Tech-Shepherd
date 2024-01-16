@@ -14,6 +14,11 @@ import {
   ModalCloseButton,
   ModalBody,
   Stack,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
   Text
 } from '@chakra-ui/react';
 import { Transition, Dialog } from '@headlessui/react';
@@ -29,15 +34,170 @@ interface StripePricingTableProps {
   'publishable-key': string;
 }
 
-// Create a functional component for the custom element
-const StripePricingTable: React.FC<StripePricingTableProps> = (props) => {
-  return React.createElement('stripe-pricing-table', props);
-};
-
 interface ToggleProps {
   setTogglePlansModal: (state: boolean) => void;
   togglePlansModal: boolean;
 }
+
+interface PriceTier {
+  tier: string;
+  price: string;
+  cycle: string;
+  subscription?: string;
+  value: string[];
+  popular?: boolean;
+  priceId: string;
+  lookup_key: string;
+}
+interface PriceCardListProps {
+  priceData: PriceTier[];
+  hasActiveSubscription: boolean;
+  user: any;
+  redirectToCustomerPortal: () => void;
+  getButtonText: (userSubscription, priceCard) => string;
+  handleSubscriptionClick: (priceId) => void;
+}
+
+const PriceCardList: React.FC<PriceCardListProps> = ({
+  priceData,
+  hasActiveSubscription,
+  user,
+  redirectToCustomerPortal,
+  getButtonText,
+  handleSubscriptionClick
+}) => {
+  return (
+    <Box padding={'10px'}>
+      {hasActiveSubscription ? (
+        <div className="landing-price-wrapper">
+          {priceData.map((priceCard) => (
+            <div
+              className={`landing-price-card ${
+                user.subscription &&
+                user.subscription.lookup_key === priceCard.lookup_key
+                  ? 'landing-price-card-active'
+                  : ''
+              }`}
+              style={{
+                position: priceCard.popular ? 'relative' : 'static'
+              }}
+            >
+              {priceCard.popular &&
+                !(user.subscription.lookup_key === priceCard.lookup_key) && (
+                  <Text className="landing-price-sub-bubble">Popular</Text>
+                )}
+              <div
+                className={`${
+                  user.subscription &&
+                  user.subscription.lookup_key === priceCard.lookup_key
+                    ? 'landing-plan-wrapper'
+                    : 'landing-metric-wrapper'
+                }`}
+              >
+                <Text className="landing-price-level">{priceCard.tier}</Text>
+                {user.subscription.lookup_key === priceCard.lookup_key && (
+                  <Box className="landing-price-level-plan">Current Plan</Box>
+                )}
+              </div>
+              <div className="landing-metric-wrapper">
+                <Text className="landing-price-point">{priceCard.price}</Text>
+                {priceCard.cycle && (
+                  <Text
+                    className="landing-metric-tag"
+                    style={{ fontWeight: '400' }}
+                  >
+                    {priceCard.cycle}
+                  </Text>
+                )}
+              </div>
+              <div className="landing-section-item-modal">
+                {priceCard['value'].map((value) => (
+                  <div className="landing-price-value">
+                    <img
+                      className="landing-check-icon"
+                      src="/images/checkIcon.svg"
+                      alt="price"
+                    />
+                    <Text className="landing-desc-mini" fontSize={14}>
+                      {value}
+                    </Text>
+                  </div>
+                ))}
+                <Button
+                  className="landing-price-btn"
+                  onClick={() => redirectToCustomerPortal()}
+                >
+                  {getButtonText(user.subscription, priceCard)}
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="landing-price-wrapper">
+          {priceData.map((priceCard) => (
+            <div
+              className="landing-price-card"
+              style={{
+                position: priceCard.popular ? 'relative' : 'static'
+              }}
+            >
+              {priceCard.popular && (
+                <Text className="landing-price-sub-bubble">Popular</Text>
+              )}
+              <div className="landing-metric-wrapper">
+                <Text className="landing-price-level">{priceCard.tier}</Text>
+              </div>
+              <div className="landing-metric-wrapper">
+                <Text className="landing-price-point">{priceCard.price}</Text>
+                {priceCard.cycle && (
+                  <Text
+                    className="landing-metric-tag"
+                    style={{ fontWeight: '400' }}
+                  >
+                    {priceCard.cycle}
+                  </Text>
+                )}
+              </div>
+              <div className="landing-section-item-modal">
+                {priceCard['value'].map((value) => (
+                  <div className="landing-price-value">
+                    <img
+                      className="landing-check-icon"
+                      src="/images/checkIcon.svg"
+                      alt="price"
+                    />
+                    <Text className="landing-desc-mini" fontSize={14}>
+                      {value}
+                    </Text>
+                  </div>
+                ))}
+                <Button
+                  className="landing-price-btn"
+                  onClick={() => handleSubscriptionClick(priceCard.priceId)}
+                >
+                  {!user.hadSubscription
+                    ? `Start My 2-Week Free Trial`
+                    : `Get Started`}
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      <Text
+        textAlign="center"
+        my={2}
+        fontSize={14}
+        fontWeight={500}
+        color="text.300"
+      >
+        For more details & enquiries?{' '}
+        <span className="text-blue-600">Contact Support</span>
+      </Text>
+    </Box>
+  );
+};
 
 const PlansModal = ({
   setTogglePlansModal,
@@ -52,6 +212,26 @@ const PlansModal = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState('');
   const navigate = useNavigate();
+
+  // State for pricing mode
+  const [isYearlyPricing, setIsYearlyPricing] = useState(false);
+
+  // Toggle function for pricing mode
+  const togglePricingMode = () => {
+    setIsYearlyPricing(!isYearlyPricing);
+  };
+
+  // Filter price data based on the selected pricing mode
+  const filteredPriceData = priceData.filter((price) =>
+    isYearlyPricing
+      ? price.cycle.includes('/year')
+      : price.cycle.includes('/month')
+  );
+
+  const filterPriceData = (cycle: string) => {
+    return priceData.filter((price) => price.cycle.includes(cycle));
+  };
+
   const openModal = (content) => {
     setModalContent(content);
     setIsModalOpen(true);
@@ -67,15 +247,16 @@ const PlansModal = ({
   }));
 
   const planPriorities = {
-    Basic: 1,
-    Premium: 2,
-    'Founding Member': 3
+    basic_monthly: 1,
+    premium_monthly: 2,
+    basic_yearly: 3,
+    premium_yearly: 4
   };
 
   // Function to determine the button text
   const getButtonText = (userPlan, cardPlan) => {
-    const userPlanPriority = planPriorities[userPlan.tier] || 0;
-    const cardPlanPriority = planPriorities[cardPlan.tier];
+    const userPlanPriority = planPriorities[userPlan.lookup_key] || 0;
+    const cardPlanPriority = planPriorities[cardPlan.lookup_key];
 
     if (userPlanPriority === cardPlanPriority) {
       return 'Manage your plan';
@@ -85,22 +266,6 @@ const PlansModal = ({
       return 'Downgrade plan';
     }
   };
-
-  // Function to determine if the button should be disabled
-  const isButtonDisabled = (userPlan) => {
-    return userPlan.tier === 'Founding Member';
-  };
-
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://js.stripe.com/v3/pricing-table.js';
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
 
   const handleSubscriptionClick = async (priceIdKey) => {
     const priceId = process.env[priceIdKey];
@@ -130,32 +295,14 @@ const PlansModal = ({
   };
 
   // Function to redirect to Stripe's customer portal
-  const redirectToCustomerPortal = async (tier) => {
-    console.log('tier', tier);
-    let portal;
-    if (!user || !user.id) {
-      console.error('User is not authenticated');
-      // Handle unauthenticated user scenario
+  const redirectToCustomerPortal = async () => {
+    const session = await ApiService.getStripeCustomerPortalUrl(
+      user.stripeCustomerId,
+      user.subscription.stripeSubscriptionId,
+      user.subscription.tier
+    );
+    const portal = await session.json();
 
-      openModal('You will be redirected to create an account');
-      setTimeout(() => {
-        navigate('/signup');
-      }, 150);
-      return;
-    }
-    if (tier === 'Founding Member') {
-      const session = await ApiService.getStripeCustomerPortalUrl(
-        user.stripeCustomerId
-      );
-      portal = await session.json();
-    } else {
-      const session = await ApiService.getStripeCustomerPortalUrl(
-        user.stripeCustomerId,
-        user.subscription.stripeSubscriptionId,
-        user.subscription.tier
-      );
-      portal = await session.json();
-    }
     window.location.href = portal.url;
   };
 
@@ -168,7 +315,7 @@ const PlansModal = ({
   };
 
   return (
-    <div>
+    <div className="pm">
       {togglePlansModal && (
         <Transition.Root show={togglePlansModal} as={Fragment}>
           <Dialog as="div" className="relative z-[800]" onClose={() => null}>
@@ -253,170 +400,43 @@ const PlansModal = ({
                           <XMarkIcon className="w-4 h-4" />
                         </button>
                       </div>
-                      <Box padding={'10px'}>
-                        {hasActiveSubscription ? (
-                          <div className="landing-price-wrapper">
-                            {priceData.map((priceCard) => (
-                              <div
-                                className={`landing-price-card ${
-                                  user.subscription &&
-                                  user.subscription.tier === priceCard.tier
-                                    ? 'landing-price-card-active'
-                                    : ''
-                                }`}
-                                style={{
-                                  position: priceCard.popular
-                                    ? 'relative'
-                                    : 'static'
-                                }}
-                              >
-                                {priceCard.popular &&
-                                  !(
-                                    user.subscription.tier === priceCard.tier
-                                  ) && (
-                                    <Text className="landing-price-sub-bubble">
-                                      Popular
-                                    </Text>
-                                  )}
-                                <div
-                                  className={`${
-                                    user.subscription &&
-                                    user.subscription.tier === priceCard.tier
-                                      ? 'landing-plan-wrapper'
-                                      : 'landing-metric-wrapper'
-                                  }`}
-                                >
-                                  <Text className="landing-price-level">
-                                    {priceCard.tier}
-                                  </Text>
-                                  {user.subscription.tier ===
-                                    priceCard.tier && (
-                                    <Box className="landing-price-level-plan">
-                                      Current Plan
-                                    </Box>
-                                  )}
-                                </div>
-                                <div className="landing-metric-wrapper">
-                                  <Text className="landing-price-point">
-                                    {priceCard.price}
-                                  </Text>
-                                  {priceCard.cycle && (
-                                    <Text
-                                      className="landing-metric-tag"
-                                      style={{ fontWeight: '400' }}
-                                    >
-                                      {priceCard.cycle}
-                                    </Text>
-                                  )}
-                                </div>
-                                <div className="landing-section-item-modal">
-                                  {priceCard['value'].map((value) => (
-                                    <div className="landing-price-value">
-                                      <img
-                                        className="landing-check-icon"
-                                        src="/images/checkIcon.svg"
-                                        alt="price"
-                                      />
-                                      <Text
-                                        className="landing-desc-mini"
-                                        fontSize={14}
-                                      >
-                                        {value}
-                                      </Text>
-                                    </div>
-                                  ))}
-                                  <Button
-                                    className="landing-price-btn"
-                                    onClick={() =>
-                                      redirectToCustomerPortal(priceCard.tier)
-                                    }
-                                    disabled={isButtonDisabled(
-                                      user.subscription
-                                    )}
-                                  >
-                                    {getButtonText(
-                                      user.subscription,
-                                      priceCard
-                                    )}
-                                  </Button>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="landing-price-wrapper">
-                            {priceData.map((priceCard) => (
-                              <div
-                                className="landing-price-card"
-                                style={{
-                                  position: priceCard.popular
-                                    ? 'relative'
-                                    : 'static'
-                                }}
-                              >
-                                {priceCard.popular && (
-                                  <Text className="landing-price-sub-bubble">
-                                    Popular
-                                  </Text>
-                                )}
-                                <div className="landing-metric-wrapper">
-                                  <Text className="landing-price-level">
-                                    {priceCard.tier}
-                                  </Text>
-                                </div>
-                                <div className="landing-metric-wrapper">
-                                  <Text className="landing-price-point">
-                                    {priceCard.price}
-                                  </Text>
-                                  {priceCard.cycle && (
-                                    <Text
-                                      className="landing-metric-tag"
-                                      style={{ fontWeight: '400' }}
-                                    >
-                                      {priceCard.cycle}
-                                    </Text>
-                                  )}
-                                </div>
-                                <div className="landing-section-item-modal">
-                                  {priceCard['value'].map((value) => (
-                                    <div className="landing-price-value">
-                                      <img
-                                        className="landing-check-icon"
-                                        src="/images/checkIcon.svg"
-                                        alt="price"
-                                      />
-                                      <Text
-                                        className="landing-desc-mini"
-                                        fontSize={14}
-                                      >
-                                        {value}
-                                      </Text>
-                                    </div>
-                                  ))}
-                                  <Button
-                                    className="landing-price-btn"
-                                    onClick={() =>
-                                      handleSubscriptionClick(priceCard.priceId)
-                                    }
-                                  >
-                                    Try for Free
-                                  </Button>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        <Text
-                          textAlign="center"
-                          my={2}
-                          fontSize={14}
-                          fontWeight={500}
-                          color="text.300"
+                      <Tabs isFitted>
+                        <TabList
+                          marginTop="25px"
+                          width={'80%'}
+                          marginLeft={'auto'}
+                          marginRight={'auto'}
                         >
-                          For more details & enquiries?{' '}
-                          <span className="text-blue-600">Contact Support</span>
-                        </Text>
-                      </Box>
+                          <Tab>Monthly</Tab>
+                          <Tab>Yearly</Tab>
+                        </TabList>
+                        <TabPanels>
+                          <TabPanel>
+                            <PriceCardList
+                              priceData={filterPriceData('/month')}
+                              hasActiveSubscription={hasActiveSubscription}
+                              user={user}
+                              redirectToCustomerPortal={
+                                redirectToCustomerPortal
+                              }
+                              getButtonText={getButtonText}
+                              handleSubscriptionClick={handleSubscriptionClick}
+                            />
+                          </TabPanel>
+                          <TabPanel>
+                            <PriceCardList
+                              priceData={filterPriceData('/year')}
+                              hasActiveSubscription={hasActiveSubscription}
+                              user={user}
+                              redirectToCustomerPortal={
+                                redirectToCustomerPortal
+                              }
+                              getButtonText={getButtonText}
+                              handleSubscriptionClick={handleSubscriptionClick}
+                            />
+                          </TabPanel>
+                        </TabPanels>
+                      </Tabs>
 
                       {/* <div className="overflow-hidden sm:w-[80%] w-full mx-auto p-6 pt-3  bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">
                         {actions2.map((action) => (

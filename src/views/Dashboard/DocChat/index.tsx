@@ -60,7 +60,7 @@ export default function DocChat() {
   const [editor] = useLexicalComposerContext();
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = userStore();
+  const { user }: any = userStore();
   const toast = useToast();
 
   const { hasActiveSubscription } = userStore.getState();
@@ -77,8 +77,12 @@ export default function DocChat() {
   useEffect(() => {
     if (!hasActiveSubscription) {
       // Set messages and show the modal if the user has no active subscription
-      setPlansModalMessage('Pick a plan to access your AI Study Tools! 🚀');
-      setPlansModalSubMessage('Get started today for free!');
+      setPlansModalMessage(
+        !user.hadSubscription
+          ? 'Start Your 2 Week Free Trial!'
+          : 'Pick a plan to access your AI Study Tools! 🚀'
+      );
+      setPlansModalSubMessage('One-click Cancel at anytime.');
       setTogglePlansModal(true);
     }
   }, [user.subscription]);

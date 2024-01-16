@@ -75,6 +75,8 @@ import Typewriter from 'typewriter-effect';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import ViewUploadDoc from '../HomeWorkHelp/ViewUploadDoc';
 import { set } from 'lodash';
+import ShareModal from '../../../components/ShareModal';
+import userStore from '../../../state/userStore';
 
 interface IChat {
   HomeWorkHelp?: boolean;
@@ -196,6 +198,7 @@ const Chat = forwardRef(
     const [chatbotSpace, setChatbotSpace] = useState(647);
     const [isModalOpen, setModalOpen] = useState<boolean>(false);
     const [isFlashCard, setFlashCard] = useState<boolean>(false);
+    const { user } = userStore();
     const [isQuiz, setQuiz] = useState<boolean>(false);
     const textAreaRef = useRef<any>();
     const textAreaRef2 = useRef<any>();
@@ -792,7 +795,8 @@ const Chat = forwardRef(
                         needIndex={need.id === 2}
                         style={{
                           color: need.id === 2 ? '#FB8441' : '',
-                          background: need.id === 2 ? 'white' : ''
+                          background: need.id === 2 ? 'white' : '',
+                          pointerEvents: user ? 'auto' : 'none'
                         }}
                         key={need.id}
                       >
@@ -802,6 +806,7 @@ const Chat = forwardRef(
                     )}
                   </>
                 ))}
+                {user && <ShareModal type="aichat" />}
               </PillsContainer>
             </DownPillContainer>
           )}
@@ -849,7 +854,11 @@ const Chat = forwardRef(
                     />
                   </div>
 
-                  <SendButton type="button" onClick={handleSendMessage}>
+                  <SendButton
+                    disabled={!user}
+                    type="button"
+                    onClick={handleSendMessage}
+                  >
                     <img
                       alt=""
                       src="/svgs/send.svg"

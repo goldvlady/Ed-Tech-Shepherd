@@ -15,11 +15,13 @@ import {
 import { motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 import { FaEllipsisV } from 'react-icons/fa';
+import ShareModalMenu from '../ShareModalMenu';
 
 interface DocumentData {
   updatedAt: string;
   tags: string[];
   topic?: string;
+  id?: string;
 }
 
 interface DocumentCardProps {
@@ -165,6 +167,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
                 </Text>
               </MenuItem>
             ))}
+            {data.id && <ShareModalMenu type="note" id={data.id} />}
           </MenuList>
         </Menu>
       </Flex>
