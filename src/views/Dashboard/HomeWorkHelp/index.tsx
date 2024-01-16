@@ -430,7 +430,7 @@ const HomeWorkHelp = () => {
           setConversationId(convoId);
         }
 
-        const inputElements = document.querySelectorAll('input');
+        const inputElements = document.querySelectorAll('textarea');
 
         // Disable each input element on the page
         inputElements.forEach((input) => {
@@ -439,23 +439,6 @@ const HomeWorkHelp = () => {
         window.addEventListener('click', () => {
           setTogglePlansModal(true);
         });
-        document.body.style.userSelect = 'none';
-        document.body.style.pointerEvents = 'none';
-
-        const excludeSection: HTMLDivElement | null =
-          document.querySelector('.pm');
-        if (excludeSection) {
-          excludeSection.style.userSelect = 'auto';
-          excludeSection.style.pointerEvents = 'auto';
-
-          const descendants: Array<HTMLElement> = Array.from(
-            excludeSection.querySelectorAll('*')
-          );
-          descendants.forEach((descendant) => {
-            descendant.style.userSelect = 'auto';
-            descendant.style.pointerEvents = 'auto';
-          });
-        }
       } else {
         const token = await firebaseAuth.currentUser?.getIdToken();
 
@@ -774,7 +757,14 @@ const HomeWorkHelp = () => {
             onChatHistory={onChatHistory}
           />
         </HomeWorkHelpChatContainer>
-
+        {togglePlansModal && (
+          <PlansModal
+            togglePlansModal={togglePlansModal}
+            setTogglePlansModal={setTogglePlansModal}
+            message={plansModalMessage}
+            subMessage={plansModalSubMessage}
+          />
+        )}
         <CustomModal
           isOpen={isOpenModal}
           onClose={onOpenModal}

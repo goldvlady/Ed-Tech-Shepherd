@@ -795,7 +795,8 @@ const Chat = forwardRef(
                         needIndex={need.id === 2}
                         style={{
                           color: need.id === 2 ? '#FB8441' : '',
-                          background: need.id === 2 ? 'white' : ''
+                          background: need.id === 2 ? 'white' : '',
+                          pointerEvents: user ? 'auto' : 'none'
                         }}
                         key={need.id}
                       >
@@ -853,7 +854,11 @@ const Chat = forwardRef(
                     />
                   </div>
 
-                  <SendButton type="button" onClick={handleSendMessage}>
+                  <SendButton
+                    disabled={!user}
+                    type="button"
+                    onClick={handleSendMessage}
+                  >
                     <img
                       alt=""
                       src="/svgs/send.svg"
