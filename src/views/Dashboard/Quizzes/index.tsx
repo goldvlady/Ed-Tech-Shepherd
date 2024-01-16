@@ -51,6 +51,8 @@ import styled from 'styled-components';
 import ScheduleStudyModal, {
   ScheduleFormState
 } from './components/scheduleModal';
+import { RiShareForwardLine } from '@remixicon/react';
+import ShareModalMenu from '../../../components/ShareModalMenu';
 
 const StyledImage = styled(Box)`
   display: inline-flex;
@@ -609,6 +611,7 @@ const Quizzes = () => {
                 Delete
               </Text>
             </MenuItem>
+            <ShareModalMenu type="quiz" id={quiz.key} />
           </MenuList>
         </Menu>
       )

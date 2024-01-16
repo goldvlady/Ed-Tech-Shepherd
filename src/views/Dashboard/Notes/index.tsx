@@ -979,7 +979,8 @@ const NotesDirectory: React.FC = () => {
                         data={{
                           topic: note.topic,
                           tags: note.tags,
-                          updatedAt: note.updatedAt as unknown as string
+                          updatedAt: note.updatedAt as unknown as string,
+                          id: note._id
                         }}
                       />
                     ))}
