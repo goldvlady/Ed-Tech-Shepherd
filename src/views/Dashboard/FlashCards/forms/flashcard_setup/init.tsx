@@ -162,8 +162,6 @@ const FlashCardSetupInit = ({
     }));
     if (isAutomated) {
       try {
-        // Assuming you have an API endpoint that checks the question count
-        // Subscription and flashcard limit check
         const { hasActiveSubscription } = userStore.getState();
         const flashcardCountResponse = await ApiService.checkFlashcardCount(
           user.student._id
@@ -191,7 +189,7 @@ const FlashCardSetupInit = ({
         }
         generateFlashcardQuestions(data, handleDone);
       } catch (error) {
-        console.log(error);
+        // console.log(error);
         // Handle error (e.g., show toast notification)
       }
     } else {
