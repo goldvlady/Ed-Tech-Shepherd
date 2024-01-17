@@ -47,7 +47,23 @@ const getDateStringTest = (date: any) => {
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(date).toLocaleDateString(undefined, options as any);
 };
+export function encodeQueryParams(
+  params: Record<string, string | string[]>
+): string {
+  const encodedParams = Object.entries(params).map(([key, value]) => {
+    if (Array.isArray(value)) {
+      const encodedValue = value
+        .map((item) => encodeURIComponent(item))
+        .join(',');
+      return `${encodeURIComponent(key)}=${encodedValue}`;
+    } else {
+      const encodedValue = encodeURIComponent(value);
+      return `${encodeURIComponent(key)}=${encodedValue}`;
+    }
+  });
 
+  return `?${encodedParams.join('&')}`;
+}
 export const arrangeDataByDate = (data: any) => {
   return data.reduce((acc, item) => {
     const date = item.createdAt.split('T')[0];

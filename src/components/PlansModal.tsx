@@ -68,7 +68,7 @@ const PriceCardList: React.FC<PriceCardListProps> = ({
 }) => {
   return (
     <Box padding={'10px'}>
-      {hasActiveSubscription ? (
+      {user && hasActiveSubscription ? (
         <div className="landing-price-wrapper">
           {priceData.map((priceCard) => (
             <div
@@ -176,7 +176,7 @@ const PriceCardList: React.FC<PriceCardListProps> = ({
                   className="landing-price-btn"
                   onClick={() => handleSubscriptionClick(priceCard.priceId)}
                 >
-                  {!user.hadSubscription
+                  {!user || (user && !user.hadSubscription)
                     ? `Start My 2-Week Free Trial`
                     : `Get Started`}
                 </Button>
