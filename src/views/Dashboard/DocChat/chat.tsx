@@ -542,7 +542,11 @@ const Chat = forwardRef(
                         <Text className="mb-2">What do you need?</Text>
                         <PillsContainer>
                           {yourNeeds.map((need) => (
-                            <StyledDiv onClick={need.onClick} key={need.id}>
+                            <StyledDiv
+                              style={{ pointerEvents: user ? 'auto' : 'none' }}
+                              onClick={need.onClick}
+                              key={need.id}
+                            >
                               {need.img}
                               {need.title}
                             </StyledDiv>
@@ -560,6 +564,9 @@ const Chat = forwardRef(
                             return (
                               <AskSomethingPill
                                 key={key}
+                                style={{
+                                  pointerEvents: user ? 'auto' : 'none'
+                                }}
                                 onClick={(e) => handleClickPrompt(e, prompt)}
                               >
                                 <Text>{prompt}</Text>

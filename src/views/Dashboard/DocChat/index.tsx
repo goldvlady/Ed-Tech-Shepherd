@@ -124,6 +124,7 @@ export default function DocChat() {
   const documentUrl = searchParams.get('documentUrl')
     ? decodeURIComponent(searchParams.get('documentUrl'))
     : '';
+
   const noteId: string = searchParams.get('noteId')
     ? decodeURIComponent(searchParams.get('noteId'))
     : '';
