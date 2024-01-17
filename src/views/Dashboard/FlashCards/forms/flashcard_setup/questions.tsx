@@ -52,7 +52,7 @@ const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
   }, [currentQuestionIndex]); // Adjust height when the question changes
 
   const [currentQuestion, setCurrentQuestion] = useState<FlashcardQuestion>({
-    questionType: '',
+    questionType: 'openEnded',
     question: '',
     options: [],
     answer: ''
