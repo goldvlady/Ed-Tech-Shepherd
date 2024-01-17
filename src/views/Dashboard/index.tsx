@@ -35,6 +35,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { RxDotFilled } from 'react-icons/rx';
 import { Link } from 'react-router-dom';
 import ShepherdSpinner from './components/shepherd-spinner';
+import eventsStore from '../../state/eventsStore';
 
 export default function Index() {
   const top = useBreakpointValue({ base: '90%', md: '50%' });
@@ -62,7 +63,7 @@ export default function Index() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-
+  const { fetchEvents, events } = eventsStore();
   const fetchData = useCallback(async () => {
     try {
       const loadDataFromLocalStorage = (key) => {
@@ -100,7 +101,8 @@ export default function Index() {
         // feedsResponse
       ] = await Promise.all([
         ApiService.getStudentReport(),
-        ApiService.getCalendarEvents(),
+
+        fetchEvents(),
         ApiService.getUpcomingEvent()
         // fetchFeeds()
       ]);
@@ -108,7 +110,7 @@ export default function Index() {
       // Check for 401 status code in each response and log the user out if found
       if (
         studentReportResponse.status === 401 ||
-        calendarResponse.status === 401 ||
+        // calendarResponse.status === 401 ||
         upcomingEventResponse.status === 401
       ) {
         signOut(auth).then(() => {
@@ -120,17 +122,17 @@ export default function Index() {
       }
 
       const studentReportData = await studentReportResponse.json();
-      const calendarData = await calendarResponse.json();
+      // const calendarData = await calendarResponse.json();
       const nextEvent = await upcomingEventResponse.json();
 
       setStudentReport(studentReportData);
       setChartData(studentReportData.topQuizzes);
-      setCalendarEventData(calendarData.data);
+      // setCalendarEventData(calendarData.data);
       setUpcomingEvent(nextEvent);
 
       // Save data to local storage
       localStorage.setItem('studentReport', JSON.stringify(studentReportData));
-      localStorage.setItem('calendarData', JSON.stringify(calendarData.data));
+      localStorage.setItem('calendarData', JSON.stringify(events));
       localStorage.setItem(
         'chartData',
         JSON.stringify(studentReportData.topQuizzes)
@@ -341,7 +343,7 @@ export default function Index() {
               py={2}
               height="450px"
             >
-              <Schedule events={calendarEventData} />
+              <Schedule events={events} />
             </Box>
           </GridItem>
         </Grid>

@@ -65,6 +65,7 @@ export const ScheduleStudyModal: React.FC<ScheduleStudyModalProps> = ({
   const handleInputChange =
     (name: keyof ScheduleFormState) => (value: string | Date | null) => {
       setScheduleFormState((prevState) => ({ ...prevState, [name]: value }));
+      console.log(formState);
     };
 
   const frequencyOptions = [
