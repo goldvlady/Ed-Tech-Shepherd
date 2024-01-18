@@ -6,12 +6,12 @@ import React, { useEffect } from 'react';
 
 interface LibraryTopicProps {
   subjectId: string;
-  onSelectSubject: (subjectId: string) => void;
+  onSelectTopic: (topicId: string) => void;
 }
 
 const LibraryTopics: React.FC<LibraryTopicProps> = ({
   subjectId,
-  onSelectSubject
+  onSelectTopic
 }) => {
   const { fetchlibraryTopics, isLoading, libraryTopics } = libraryTopicStore();
 
@@ -32,7 +32,7 @@ const LibraryTopics: React.FC<LibraryTopicProps> = ({
         <TitleCard
           key={topic._id}
           data={{ name: topic.name }}
-          onClick={() => onSelectSubject(topic._id)}
+          onClick={() => onSelectTopic(topic._id)}
         />
       ))}
     </SimpleGrid>
