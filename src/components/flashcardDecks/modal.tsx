@@ -456,6 +456,8 @@ const StudyBox = () => {
   const [studyState, setStudyState] = useState<'question' | 'answer'>(
     'question'
   );
+  // here gotta go fetch with the ID imo or ideally /flashcards/:id should fetch there
+  // or create a brand new empty component
   const {
     flashcard,
     storeScore,

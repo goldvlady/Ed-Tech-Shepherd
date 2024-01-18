@@ -44,6 +44,7 @@ import { MultiSelect } from 'react-multi-select-component';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { IoCreateOutline } from 'react-icons/io5';
+import ShareModalMenu from '../../../components/ShareModalMenu';
 
 const StyledImage = styled(Box)`
   display: inline-flex;
@@ -596,6 +597,7 @@ const CustomTable: React.FC = () => {
                 Delete
               </Text>
             </MenuItem>
+            <ShareModalMenu type="flashcard" id={flashcard.key} />
           </MenuList>
         </Menu>
       )
