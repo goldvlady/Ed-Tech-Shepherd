@@ -9,7 +9,7 @@ type Store = {
   isLoading: boolean;
   pagination: Pagination;
   fetchLibraryCards: (
-    topicId: string,
+    deckId: string,
     queryParams?: SearchQueryParams
   ) => Promise<void>;
   libraryCard?: LibraryCardData | null;
@@ -22,7 +22,7 @@ export default create<Store>((set) => ({
   pagination: { limit: 10, page: 1, count: 100 },
 
   fetchLibraryCards: async (
-    topicId: string,
+    deckId: string,
     queryParams?: SearchQueryParams
   ) => {
     try {
@@ -30,7 +30,7 @@ export default create<Store>((set) => ({
       if (!params.page) params.page = 1;
       if (!params.limit) params.limit = 10;
       set({ isLoading: true });
-      const response = await ApiService.getLibraryCards({ topicId, ...params });
+      const response = await ApiService.getLibraryCards({ deckId, ...params });
       const { data, meta } = await response.json();
 
       set((prev) => {

@@ -7,7 +7,8 @@ import {
   MenuList,
   MenuItem,
   IconButton,
-  Flex
+  Flex,
+  Checkbox
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
@@ -19,6 +20,8 @@ interface LibraryCardProps {
   difficulty: string;
   explanation?: string;
   options?: any[];
+  isSelected?: boolean; // New property to track if the card is selected
+  onSelect?: (isSelected: boolean) => void; // New callback for checkbox changes
 }
 
 const MotionBox = motion(Box);
@@ -28,7 +31,9 @@ const LibraryCard: React.FC<LibraryCardProps> = ({
   answer,
   explanation,
   difficulty,
-  options
+  options,
+  isSelected,
+  onSelect
 }) => {
   const [showExplanation, setShowExplanation] = useState(false);
   const [showMoreAnswer, setShowMoreAnswer] = useState(false);
@@ -65,11 +70,16 @@ const LibraryCard: React.FC<LibraryCardProps> = ({
         <Flex
           borderBottomEndRadius={'8px'}
           borderBottomLeftRadius={'8px'}
+          bg="#F5F9FF"
           w="full"
-          h="fit-content"
           p="10px 18px"
           justifyContent="space-between"
+          alignItems="center"
         >
+          <Checkbox
+            isChecked={isSelected}
+            onChange={(e) => onSelect?.(e.target.checked)}
+          />
           <Text>
             <Text>{difficulty}</Text>
           </Text>
