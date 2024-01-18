@@ -119,8 +119,16 @@ class ApiService {
       body: JSON.stringify(data)
     });
   };
+
   static getLibraryTopics = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/getLibraryTopicsBySubject`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static getLibraryDecks = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/getLibraryDecks`, {
       method: 'POST',
       body: JSON.stringify(data)
     });

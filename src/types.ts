@@ -352,6 +352,12 @@ export interface LibraryTopicData {
   _id: string;
 }
 
+export interface LibraryDeckData {
+  name: string;
+  type: string;
+  _id: string;
+}
+
 export interface FlashcardQuestion {
   questionType: string;
   question: string;

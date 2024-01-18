@@ -147,6 +147,7 @@ const studentRoutes = [
   { path: 'study-plans/:planId', element: <CoursePlan /> },
   { path: 'library/subjects/:subjectId', element: <Library /> },
   { path: 'library/topics/:topicId', element: <Library /> },
+  { path: 'library/decks/:deckId', element: <Library /> },
   // quizzes
   { path: 'quizzes', element: <Quizzes /> },
   { path: 'quizzes/create', element: <CreateQuizzes /> }
