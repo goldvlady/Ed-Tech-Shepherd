@@ -127,7 +127,7 @@ const studentRoutes = [
   { path: 'tutor/:tutorId/offer', element: <SendTutorOffer /> },
   { path: 'offer/:offerId', element: <Offer /> },
   { path: '', element: <DashboardIndex /> },
-  { path: 'docchat', element: <DocChat /> },
+  // { path: 'docchat', element: <DocChat /> },
   { path: 'find-tutor', element: <Marketplace /> },
   { path: 'find-tutor/:subjectId', element: <Marketplace /> },
   { path: 'find-tutor/tutor/', element: <Tutor /> },
@@ -358,6 +358,14 @@ const AppRoutes: React.FC = () => {
         element={
           <DashboardLayout>
             <NewNote />
+          </DashboardLayout>
+        }
+      />
+      <Route
+        path="/dashboard/docchat"
+        element={
+          <DashboardLayout>
+            <DocChat />
           </DashboardLayout>
         }
       />

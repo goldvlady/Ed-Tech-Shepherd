@@ -465,9 +465,17 @@ const Chat = forwardRef(
                           />
                         </CircleContainer>
                         <TextContainer>
-                          <Text className="font-semibold">
-                            {HomeWorkHelp ? 'Socrates' : 'Plato.'}
-                          </Text>
+                          <div className="flex items-center w-full">
+                            {' '}
+                            <Text className="font-semibold">
+                              {HomeWorkHelp ? 'Socrates' : 'Plato.'}
+                            </Text>
+                            {!HomeWorkHelp && user && (
+                              <div className="ml-[70%]">
+                                <ShareModal type="docchat" />
+                              </div>
+                            )}
+                          </div>
                           <Text>{botStatus}</Text>
                         </TextContainer>
                       </FlexContainer>
@@ -534,7 +542,11 @@ const Chat = forwardRef(
                         <Text className="mb-2">What do you need?</Text>
                         <PillsContainer>
                           {yourNeeds.map((need) => (
-                            <StyledDiv onClick={need.onClick} key={need.id}>
+                            <StyledDiv
+                              style={{ pointerEvents: user ? 'auto' : 'none' }}
+                              onClick={need.onClick}
+                              key={need.id}
+                            >
                               {need.img}
                               {need.title}
                             </StyledDiv>
@@ -552,6 +564,9 @@ const Chat = forwardRef(
                             return (
                               <AskSomethingPill
                                 key={key}
+                                style={{
+                                  pointerEvents: user ? 'auto' : 'none'
+                                }}
                                 onClick={(e) => handleClickPrompt(e, prompt)}
                               >
                                 <Text>{prompt}</Text>
@@ -596,7 +611,8 @@ const Chat = forwardRef(
                                       display: 'flex',
                                       alignItems: 'center',
                                       fontSize: ' 0.875rem',
-                                      cursor: 'pointer'
+                                      cursor: 'pointer',
+                                      pointerEvents: user ? 'auto' : 'none'
                                     }}
                                     onClick={() => {
                                       handlePinned(index, message);
@@ -662,7 +678,8 @@ const Chat = forwardRef(
                                           display: 'flex',
                                           alignItems: 'center',
                                           fontSize: ' 0.875rem',
-                                          cursor: 'pointer'
+                                          cursor: 'pointer',
+                                          pointerEvents: user ? 'auto' : 'none'
                                         }}
                                         onClick={() => {
                                           handleLike(index);
@@ -691,7 +708,8 @@ const Chat = forwardRef(
                                           display: 'flex',
                                           alignItems: 'center',
                                           fontSize: ' 0.875rem',
-                                          cursor: 'pointer'
+                                          cursor: 'pointer',
+                                          pointerEvents: user ? 'auto' : 'none'
                                         }}
                                         onClick={() => {
                                           handleDislike(index);
@@ -720,7 +738,8 @@ const Chat = forwardRef(
                                           display: 'flex',
                                           alignItems: 'center',
                                           fontSize: ' 0.875rem',
-                                          cursor: 'pointer'
+                                          cursor: 'pointer',
+                                          pointerEvents: user ? 'auto' : 'none'
                                         }}
                                         onClick={() => {
                                           handlePinned(index, message);
@@ -767,7 +786,11 @@ const Chat = forwardRef(
                 <OptionsContainer className={clsx('options-container')}>
                   <PillsContainer>
                     {yourNeeds.map((need) => (
-                      <StyledDiv onClick={need.onClick} key={need.id}>
+                      <StyledDiv
+                        style={{ pointerEvents: user ? 'auto' : 'none' }}
+                        onClick={need.onClick}
+                        key={need.id}
+                      >
                         {need.img}
                         {need.title}
                       </StyledDiv>
@@ -868,6 +891,7 @@ const Chat = forwardRef(
                 </InputContainer>
                 {!HomeWorkHelp && (
                   <HistoryIcn
+                    style={{ pointerEvents: user ? 'auto' : 'none' }}
                     onClick={() => setIsChatHistory((prevState) => !prevState)}
                   />
                 )}

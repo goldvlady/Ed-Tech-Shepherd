@@ -33,6 +33,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import PlansModal from './PlansModal';
 import documentStore from '../state/documentStore';
+import { encodeQueryParams } from '../helpers';
 
 const DocumentListWrapper = styled.div`
   max-height: 200px;
@@ -458,14 +459,14 @@ const SelectedModal = ({
     documentId,
     docKeywords
   ) => {
-    navigate('/dashboard/docchat', {
-      state: {
-        documentUrl,
-        docTitle,
-        documentId,
-        docKeywords
-      }
+    const query = encodeQueryParams({
+      documentUrl,
+      docTitle,
+      documentId,
+      docKeywords,
+      sid: user._id
     });
+    navigate(`/dashboard/docchat${query}`);
     if (setShowHelp) {
       setShowHelp(false);
     }
