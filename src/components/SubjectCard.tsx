@@ -2,7 +2,14 @@ import React from 'react';
 import { Box, Button, Divider, Flex, Spacer, Text } from '@chakra-ui/react';
 import { IoIosArrowDroprightCircle } from 'react-icons/io';
 import { useNavigate } from 'react-router';
-function SubjectCard({ title, score, scoreColor, date, handleClick }) {
+function SubjectCard({
+  title,
+  subjectId,
+  score,
+  scoreColor,
+  date,
+  handleClick
+}) {
   const navigate = useNavigate();
   return (
     <Box
@@ -30,7 +37,7 @@ function SubjectCard({ title, score, scoreColor, date, handleClick }) {
             _hover={{ bgColor: '#FEE1D0' }}
             onClick={(e) => {
               e.stopPropagation();
-              navigate('/dashboard/find-tutor');
+              navigate(`/dashboard/find-tutor?subjectId=${subjectId}`);
             }}
           >
             Find a Shepherd

@@ -116,6 +116,7 @@ function StudyPlans() {
             {studyPlans?.map((plan: any) => (
               <SubjectCard
                 title={getSubject(plan.course)}
+                subjectId={plan.course}
                 score={plan.readinessScore}
                 scoreColor="green"
                 date={moment(plan.createdAt).format('DD MMM, YYYY')}
