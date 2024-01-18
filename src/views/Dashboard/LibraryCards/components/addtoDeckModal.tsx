@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Modal,
   ModalContent,
@@ -12,23 +12,34 @@ import {
   Input,
   Select,
   Box,
-  Flex
+  Flex,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel
 } from '@chakra-ui/react';
 
 const AddToDeckModal = ({ isOpen, onClose, onSubmit }) => {
+  const [userDecks, fetchUserDecks] = useState([]);
   const [formData, setFormData] = useState({
     deckName: '',
     studyType: '',
-    level: ''
+    level: '',
+    selectedDeckId: ''
   });
+
+  useEffect(() => {
+    fetchUserDecks([]);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = () => {
-    onSubmit(formData);
+  const handleSubmit = (isNewDeck) => {
+    onSubmit({ ...formData, isNewDeck });
     onClose();
   };
 
@@ -74,49 +85,113 @@ const AddToDeckModal = ({ isOpen, onClose, onSubmit }) => {
           mx="auto"
           position="relative"
         >
-          <ModalHeader>Create New Deck</ModalHeader>
+          <ModalHeader>
+            {formData.selectedDeckId ? 'Update Deck' : 'Create New Deck'}
+          </ModalHeader>
           <ModalBody>
-            <Flex direction="column" width={'full'}>
-              <FormControl mb={4}>
-                <FormLabel>Deck Name</FormLabel>
-                <Input
-                  name="deckName"
-                  value={formData.deckName}
-                  onChange={handleChange}
-                />
-              </FormControl>
+            <Tabs variant="enclosed" width={'full'}>
+              <TabList>
+                <Tab>Create New</Tab>
+                <Tab>Update Existing</Tab>
+              </TabList>
 
-              <FormControl mb={4}>
-                <FormLabel>Study Type</FormLabel>
-                <Select
-                  name="studyType"
-                  value={formData.studyType}
-                  onChange={handleChange}
-                >
-                  <option value="">Select Study Type</option>
-                  <option value="longTermRetention">Long Term Retention</option>
-                  <option value="quickPractice">Quick Practice</option>
-                </Select>
-              </FormControl>
-
-              <FormControl mb={4}>
-                <FormLabel>Level</FormLabel>
-                <Select
-                  name="level"
-                  value={formData.level}
-                  onChange={handleChange}
-                >
-                  <option value="">Select Level</option>
-                  <option value="beginner">Beginner</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
-                </Select>
-              </FormControl>
-            </Flex>
+              <TabPanels>
+                <TabPanel>
+                  <Flex direction="column" width={'full'}>
+                    <FormControl mb={4}>
+                      <FormLabel>Deck Name</FormLabel>
+                      <Input
+                        name="deckName"
+                        value={formData.deckName}
+                        onChange={handleChange}
+                      />
+                    </FormControl>
+                    <FormControl mb={4}>
+                      <FormLabel>Study Type</FormLabel>
+                      <Select
+                        name="studyType"
+                        value={formData.studyType}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select Study Type</option>
+                        <option value="longTermRetention">
+                          Long Term Retention
+                        </option>
+                        <option value="quickPractice">Quick Practice</option>
+                      </Select>
+                    </FormControl>
+                    <FormControl mb={4}>
+                      <FormLabel>Level</FormLabel>
+                      <Select
+                        name="level"
+                        value={formData.level}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select Level</option>
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                      </Select>
+                    </FormControl>
+                    <Button onClick={() => handleSubmit(true)}>
+                      Create Deck
+                    </Button>
+                  </Flex>
+                </TabPanel>
+                <TabPanel>
+                  <Flex direction="column" width={'full'}>
+                    <FormControl mb={4}>
+                      <FormLabel>Deck Name</FormLabel>
+                      <Select
+                        name="selectedDeckId"
+                        value={formData.selectedDeckId}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select Deck</option>
+                        {userDecks.map((deck) => (
+                          <option key={deck.id} value={deck.id}>
+                            {deck.name}
+                          </option>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <FormControl mb={4}>
+                      <FormLabel>Study Type</FormLabel>
+                      <Select
+                        name="studyType"
+                        value={formData.studyType}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select Study Type</option>
+                        <option value="longTermRetention">
+                          Long Term Retention
+                        </option>
+                        <option value="quickPractice">Quick Practice</option>
+                      </Select>
+                    </FormControl>
+                    <FormControl mb={4}>
+                      <FormLabel>Level</FormLabel>
+                      <Select
+                        name="level"
+                        value={formData.level}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select Level</option>
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                      </Select>
+                    </FormControl>
+                    <Button onClick={() => handleSubmit(false)}>
+                      Update Deck
+                    </Button>
+                  </Flex>
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
           </ModalBody>
           <ModalFooter>
-            <Flex justify={'space-between'} width={'full'}>
-              <Button onClick={handleSubmit}>Create Deck</Button>
+            <Flex justify={'right'} width={'full'}>
               <StudyFooter onClose={onClose} />
             </Flex>
           </ModalFooter>
