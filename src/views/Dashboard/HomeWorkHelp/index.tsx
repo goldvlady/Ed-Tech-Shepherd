@@ -143,7 +143,7 @@ const HomeWorkHelp = () => {
     }
   }, [user]);
   useEffect(() => {
-    if (user && !hasActiveSubscription) {
+    if (!hasActiveSubscription && user) {
       // Set messages and show the modal if the user has no active subscription
       setPlansModalMessage(
         !user.hadSubscription
@@ -151,9 +151,11 @@ const HomeWorkHelp = () => {
           : 'Pick a plan to access your AI Study Tools! 🚀'
       );
       setPlansModalSubMessage('One-click Cancel at anytime.');
-      setTogglePlansModal(true);
+    } else if (!user) {
+      setPlansModalMessage('Start Your 2 Week Free Trial!');
+      setPlansModalSubMessage('One-click Cancel at anytime.');
     }
-  }, [user]);
+  }, [user, hasActiveSubscription]);
 
   useEffect(() => {
     if (certainConversationId || conversationId) {
