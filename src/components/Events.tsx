@@ -36,7 +36,7 @@ import {
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import { isSameDay, isThisWeek, getISOWeek } from 'date-fns';
 import { parseISO, format, parse } from 'date-fns';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import React, { useCallback, useMemo, useState } from 'react';
 import { MdOutlineSentimentNeutral, MdOutlineReplay } from 'react-icons/md';
 import { useNavigate } from 'react-router';
@@ -140,12 +140,13 @@ export default function Events({ event }: any) {
   const handleEventSchedule = async (data: ScheduleFormState) => {
     const parsedTime = parse(data.time.toLowerCase(), 'hh:mm aa', new Date());
     const time = format(parsedTime, 'HH:mm');
-    console.log(data);
+    const day = moment(data.day).format('YYYY-MM-DD');
+    console.log(day);
 
     const rePayload = {
       eventId: scheduleItem._id,
       updates: {
-        startDate: data.day?.toISOString() as string,
+        startDate: moment(day).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]') as string,
         startTime: time,
         isActive: true
       }

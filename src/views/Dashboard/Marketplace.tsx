@@ -329,6 +329,16 @@ export default function Marketplace() {
     getNotes();
   }, []);
 
+  const subjectId: any = searchParams.get('subjectId');
+
+  console.log(subjectId);
+
+  useEffect(() => {
+    if (subjectId !== null) {
+      setSubject(subjectId);
+    }
+  }, []);
+
   const handleBlur = () => {
     setShowOnHover(false);
   };

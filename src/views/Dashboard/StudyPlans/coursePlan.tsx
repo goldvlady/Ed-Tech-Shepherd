@@ -46,7 +46,8 @@ import {
   HStack,
   Alert,
   AlertIcon,
-  AlertDescription
+  AlertDescription,
+  Badge
 } from '@chakra-ui/react';
 import { FaPlus, FaCheckCircle, FaPencilAlt, FaRocket } from 'react-icons/fa';
 import SelectComponent, { Option } from '../../../components/Select';
@@ -73,6 +74,7 @@ import PaymentDialog, {
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import BountyOfferModal from '../components/BountyOfferModal';
 import { async } from '@firebase/util';
+import moment from 'moment';
 
 function CoursePlan() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -558,14 +560,32 @@ function CoursePlan() {
                                   </Text>
                                 </VStack>
                               </HStack>
-                              <Button
-                                float="right"
-                                size={'sm'}
-                                m={4}
-                                onClick={openBountyModal}
-                              >
-                                Find a tutor
-                              </Button>
+                              <Flex alignItems={'center'} px={3}>
+                                <Badge
+                                  variant="subtle"
+                                  colorScheme="blue"
+                                  p={1}
+                                  textTransform="none"
+                                  borderRadius={8}
+                                >
+                                  Daily from{' '}
+                                  {`
+                                  ${moment(topic.startDate).format(
+                                    'MM.DD.YYYY'
+                                  )} - ${moment(topic.endDate).format(
+                                    'MM.DD.YYYY'
+                                  )}`}
+                                </Badge>
+
+                                <Spacer />
+                                <Button
+                                  size={'sm'}
+                                  m={4}
+                                  onClick={openBountyModal}
+                                >
+                                  Find a tutor
+                                </Button>
+                              </Flex>
                             </Box>
                           </Box>
                         ))}

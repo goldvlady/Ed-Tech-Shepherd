@@ -129,6 +129,7 @@ const studentRoutes = [
   { path: '', element: <DashboardIndex /> },
   { path: 'docchat', element: <DocChat /> },
   { path: 'find-tutor', element: <Marketplace /> },
+  { path: 'find-tutor/:subjectId', element: <Marketplace /> },
   { path: 'find-tutor/tutor/', element: <Tutor /> },
   { path: 'my-tutors', element: <MyTutors /> },
   { path: 'bounties', element: <Bounties /> },

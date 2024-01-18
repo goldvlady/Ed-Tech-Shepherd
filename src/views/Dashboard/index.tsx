@@ -101,7 +101,6 @@ export default function Index() {
         // feedsResponse
       ] = await Promise.all([
         ApiService.getStudentReport(),
-
         fetchEvents(),
         ApiService.getUpcomingEvent()
         // fetchFeeds()
