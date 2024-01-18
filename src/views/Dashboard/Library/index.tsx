@@ -5,6 +5,7 @@ import { FlashcardData } from '../../../types';
 import CardsComponent from '../LibraryCards/components/LibraryCards';
 import SubjectsComponent from '../LibraryCards/components/Subjects';
 import TopicsComponent from '../LibraryCards/components/Topics';
+import DecksComponent from '../LibraryCards/components/Decks';
 import { Stack } from '@chakra-ui/react';
 import {
   Flex,
@@ -34,6 +35,7 @@ const Library: React.FC = () => {
   const [displayMode, setDisplayMode] = useState('subjects');
   const [selectedSubjectId, setSelectedSubjectId] = useState(null);
   const [selectedTopicId, setSelectedTopicId] = useState(null);
+  const [selectedDeckId, setSelectedDeckId] = useState(null);
 
   const handleSubjectClick = (subjectId) => {
     setSelectedSubjectId(subjectId);
@@ -43,8 +45,14 @@ const Library: React.FC = () => {
 
   const handleTopicClick = (topicId) => {
     setSelectedTopicId(topicId);
-    setDisplayMode('cards');
+    setDisplayMode('decks');
     navigate(`/dashboard/library/topics/${topicId}`);
+  };
+
+  const handleDeckClick = (deckId) => {
+    setSelectedDeckId(deckId);
+    setDisplayMode('cards');
+    navigate(`/dashboard/library/decks/${deckId}`);
   };
 
   const { fetchLibrarySubjects, isLoading, librarySubjects } =
@@ -66,12 +74,16 @@ const Library: React.FC = () => {
       setDisplayMode('topics');
       setSelectedSubjectId(path.split('/subjects/')[1]);
     } else if (path.includes('/topics/')) {
-      setDisplayMode('cards');
+      setDisplayMode('decks');
       setSelectedTopicId(path.split('/topics/')[1]);
+    } else if (path.includes('/decks/')) {
+      setDisplayMode('cards');
+      setSelectedDeckId(path.split('/decks/')[1]);
     } else {
       setDisplayMode('subjects');
       setSelectedSubjectId(null);
       setSelectedTopicId(null);
+      setSelectedDeckId(null);
     }
   }, [location]);
 
@@ -217,11 +229,17 @@ const Library: React.FC = () => {
                 {displayMode === 'topics' && (
                   <TopicsComponent
                     subjectId={selectedSubjectId}
-                    onSelectSubject={handleTopicClick}
+                    onSelectTopic={handleTopicClick}
+                  />
+                )}
+                {displayMode === 'decks' && (
+                  <DecksComponent
+                    topicId={selectedTopicId}
+                    onSelectDeck={handleDeckClick}
                   />
                 )}
                 {displayMode === 'cards' && (
-                  <CardsComponent topicId={selectedTopicId} />
+                  <CardsComponent deckId={selectedDeckId} />
                 )}
               </TabPanel>
             </TabPanels>
