@@ -6,7 +6,7 @@ import userStore from '../../../../state/userStore';
 import { LibraryCardData } from '../../../../types';
 import LibraryCard from '../../FlashCards/components/libraryCardPreview';
 import AddToDeckModal from './addtoDeckModal';
-import { SimpleGrid, Box, Button } from '@chakra-ui/react';
+import { SimpleGrid, Box, Button, Flex, Select } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
@@ -46,13 +46,14 @@ const LibraryCards: React.FC<LibraryCardProps> = ({ deckId }) => {
   // State for tracking selected cards and modal visibility
   const [selectedCards, setSelectedCards] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDifficulty, setSelectedDifficulty] = useState('');
   const toast = useCustomToast();
 
   useEffect(() => {
     if (deckId) {
-      fetchLibraryCards(deckId);
+      fetchLibraryCards(deckId, selectedDifficulty);
     }
-  }, [deckId, fetchLibraryCards]);
+  }, [deckId, fetchLibraryCards, selectedDifficulty, setSelectedDifficulty]);
 
   const onSubmitFlashcard = async (card) => {
     const data = {
@@ -146,6 +147,10 @@ const LibraryCards: React.FC<LibraryCardProps> = ({ deckId }) => {
   //   });
   // };
 
+  const handleDifficultyChange = (e) => {
+    setSelectedDifficulty(e.target.value);
+  };
+
   if (!libraryCards?.length) {
     return <LoaderOverlay />;
   }
@@ -163,6 +168,18 @@ const LibraryCards: React.FC<LibraryCardProps> = ({ deckId }) => {
       {selectedCards.length > 0 && (
         <Button onClick={toggleModal}>Add to Deck</Button>
       )}
+      {
+        <Flex mb="4">
+          <Select
+            placeholder="Filter by difficulty"
+            onChange={handleDifficultyChange}
+          >
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+          </Select>
+        </Flex>
+      }
       <SimpleGrid columns={{ base: 1, md: 2, lg: 2, xl: 3 }} spacing={10}>
         {libraryCards.map((card) => (
           <LibraryCard
