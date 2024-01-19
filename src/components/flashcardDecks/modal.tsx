@@ -1,5 +1,6 @@
 import FlashcardEmpty from '../../assets/flashcard_empty_state.png';
 import StudySessionLogger from '../../helpers/sessionLogger';
+import { useSearchQuery } from '../../hooks';
 import flashcardStore from '../../state/flashcardStore';
 import {
   FlashcardData,
@@ -9,6 +10,7 @@ import {
   SessionType
 } from '../../types';
 import ShepherdSpinner from '../../views/Dashboard/components/shepherd-spinner';
+import PlansModal from '../PlansModal';
 import DailyDeckSelector from './dailyDeckSelector';
 import FlashCard from './deck_two';
 import DeckOverLap from './overlap';
@@ -469,6 +471,8 @@ const StudyBox = () => {
     storeCurrentStudy,
     loadTodaysFlashcards
   } = flashcardStore();
+
+  const apiKey = window.location.href.includes('apiKey');
   const [currentStudyIndex, setCurrentStudyIndex] = useState(0);
   const [studyType, setStudyType] = useState<'manual' | 'timed'>('manual');
   const [{ isStarted, isFinished }, setActivityState] = useState({
@@ -480,6 +484,7 @@ const StudyBox = () => {
   const [cardStyle, setCardStyle] = useState<'flippable' | 'default'>(
     'default'
   );
+  const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [timer, setTimer] = useState(0);
   const [savedScore, setSavedScore] = useState<Score>({
     score: 0,
@@ -663,13 +668,16 @@ const StudyBox = () => {
   }, [isStarted, timer, studyType, studyState]);
 
   const acceptAnswer = async () => {
-    if (flashcard)
+    if (flashcard && !apiKey) {
       updateQuestionAttempt(
         flashcard._id,
         currentStudy.questions,
         true,
         'got it right'
       );
+      loadTodaysFlashcards();
+    }
+
     setStudies((prev) => {
       const curr = prev[currentStudyIndex];
       curr.currentStep = curr.currentStep + 1;
@@ -682,13 +690,16 @@ const StudyBox = () => {
       setCorrectAnswerCount((prev) => prev + 1);
       return [...prev];
     });
+    if (currentStudyIndex === 2 && apiKey) {
+      setTogglePlansModal(true);
+      return;
+    }
     lazyTriggerNextStep();
-    loadTodaysFlashcards();
   };
 
   const rejectAnswer = async (notRemembered?: boolean) => {
     const scoreKey = notRemembered ? 'failed' : 'notRemembered';
-    if (flashcard) {
+    if (flashcard && !apiKey) {
       const grade = notRemembered ? 'did not remember' : 'got it wrong';
       updateQuestionAttempt(
         flashcard._id,
@@ -696,6 +707,7 @@ const StudyBox = () => {
         false,
         grade
       );
+      loadTodaysFlashcards();
     }
     setStudies((prev) => {
       const curr = prev[currentStudyIndex];
@@ -709,8 +721,11 @@ const StudyBox = () => {
 
       return [...prev];
     });
+    if (currentStudyIndex === 2 && apiKey) {
+      setTogglePlansModal(true);
+      return;
+    }
     lazyTriggerNextStep();
-    loadTodaysFlashcards();
   };
 
   const startStudy = () => {
@@ -837,6 +852,7 @@ const StudyBox = () => {
             />
           </Box>
         </Box>
+
         {studyState === 'question' ? (
           <Box
             width={'100%'}
@@ -1215,6 +1231,14 @@ const StudyBox = () => {
           renderMainBox()
         )}
       </Box>
+      {togglePlansModal && (
+        <PlansModal
+          message="Start Your 2 Week Free Trial"
+          subMessage="One-click Cancel at anytime."
+          togglePlansModal={togglePlansModal}
+          setTogglePlansModal={setTogglePlansModal}
+        />
+      )}
       <StudyFooter
         onMinimize={() => minimizeStudy()}
         showMinimize={isStarted && !isFinished}

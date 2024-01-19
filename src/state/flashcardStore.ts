@@ -24,6 +24,7 @@ type Store = {
   minorLoader: boolean;
   fetchFlashcards: (queryParams?: SearchQueryParams) => Promise<void>;
   fetchSingleFlashcard: (id: string) => void;
+  fetchSingleFlashcardForAPIKey: (id: string, apiKey: string) => void;
   flashcard?: FlashcardData | null;
   loadFlashcard: (
     id: string | null,
@@ -223,9 +224,26 @@ export default create<Store>((set) => ({
     }
   },
   fetchSingleFlashcard: async (id: string) => {
-    const response = await ApiService.getSingleFlashcard(id);
-    const { data } = await response.json();
-    set({ flashcard: data });
+    try {
+      const response = await ApiService.getSingleFlashcard(id);
+      const { data } = await response.json();
+      set({ flashcard: data });
+    } catch (error) {
+      //
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+  fetchSingleFlashcardForAPIKey: async (id: string, apiKey: string) => {
+    try {
+      const response = await ApiService.getSingleFlashcardForAPIKey(id, apiKey);
+      const { data } = await response.json();
+      set({ flashcard: data });
+    } catch (error) {
+      //
+    } finally {
+      set({ isLoading: false });
+    }
   },
   storeMinimized: (data: MinimizedStudy) => {
     set({ minimizedStudy: data });
