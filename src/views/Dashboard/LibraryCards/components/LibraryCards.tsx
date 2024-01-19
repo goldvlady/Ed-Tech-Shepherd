@@ -55,32 +55,34 @@ const LibraryCards: React.FC<LibraryCardProps> = ({ deckId }) => {
     }
   }, [deckId, fetchLibraryCards, selectedDifficulty, setSelectedDifficulty]);
 
-  const onSubmitFlashcard = async (card) => {
+  const onSubmitFlashcard = async (formData, selectedCards) => {
+    const questions = selectedCards.map((card) => {
+      return {
+        questionType: 'openEnded',
+        question: card.front,
+        answer: card.back,
+        explanation: card.explanation || '',
+        numberOfAttempts: 0,
+        currentStep: 0,
+        totalSteps: 0,
+        currentStudy: null
+      };
+    });
     const data = {
-      deckname: 'library',
-      studyType: 'longTermRetention',
-      subject: card.subject.name,
-      level: card.difficulty,
-      topic: card.topic.name,
+      deckname: formData.deckname,
+      studyType: formData.studyType,
+      subject: selectedCards[0].subject.name,
+      level: formData.level,
+      topic: selectedCards[0].topic.name,
       studyPeriod: 'noRepeat',
-      questions: [
-        {
-          questionType: 'openEnded',
-          question: card.front,
-          answer: card.back,
-          numberOfAttempts: 0,
-          currentStep: 0,
-          totalSteps: 0,
-          currentStudy: null
-        }
-      ],
+      questions: questions,
       scores: [],
       source: 'shepherd',
       currentStudy: null
     };
     try {
       console.log('\nData: ', data);
-      const response = await createFlashCard({ data }, 'manual');
+      const response = await createFlashCard(data, 'manual');
       if (response) {
         if (response.status === 200) {
           toast({
@@ -111,15 +113,17 @@ const LibraryCards: React.FC<LibraryCardProps> = ({ deckId }) => {
   const options = (card: LibraryCardData) => [
     {
       label: 'Save',
-      onClick: () => onSubmitFlashcard(card),
+      onClick: () => {
+        console.log('Save');
+      },
       icon: <YourFlashCardIcon />
     }
   ];
 
   // Function to handle card selection
-  const handleCardSelect = (cardId, isSelected) => {
+  const handleCardSelect = (card, isSelected) => {
     setSelectedCards((prev) =>
-      isSelected ? [...prev, cardId] : prev.filter((id) => id !== cardId)
+      isSelected ? [...prev, card] : prev.filter((car) => car.id !== card.id)
     );
   };
 
@@ -128,8 +132,9 @@ const LibraryCards: React.FC<LibraryCardProps> = ({ deckId }) => {
 
   // Function to log form data and selected cards
   const handleFormSubmit = (formData) => {
-    console.log('Form Data:', formData);
-    console.log('Selected Cards:', selectedCards);
+    // console.log('Form Data:', formData);
+    // console.log('Selected Cards:', selectedCards);
+    onSubmitFlashcard(formData, selectedCards);
     toggleModal();
   };
 
@@ -176,7 +181,8 @@ const LibraryCards: React.FC<LibraryCardProps> = ({ deckId }) => {
           >
             <option value="Easy">Easy</option>
             <option value="Medium">Medium</option>
-            <option value="Hard">Hard</option>
+            <option value="Difficult">Difficult</option>
+            {/* Add More options similar to Data */}
           </Select>
         </Flex>
       }
@@ -189,7 +195,7 @@ const LibraryCards: React.FC<LibraryCardProps> = ({ deckId }) => {
             answer={card.back}
             explanation={card.explainer}
             options={options(card)}
-            onSelect={(isSelected) => handleCardSelect(card._id, isSelected)}
+            onSelect={(isSelected) => handleCardSelect(card, isSelected)}
           />
         ))}
       </SimpleGrid>

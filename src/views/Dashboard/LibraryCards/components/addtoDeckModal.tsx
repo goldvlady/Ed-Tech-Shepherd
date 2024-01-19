@@ -23,7 +23,7 @@ import {
 const AddToDeckModal = ({ isOpen, onClose, onSubmit }) => {
   const [userDecks, fetchUserDecks] = useState([]);
   const [formData, setFormData] = useState({
-    deckName: '',
+    deckname: '',
     studyType: '',
     level: '',
     selectedDeckId: ''
@@ -101,8 +101,8 @@ const AddToDeckModal = ({ isOpen, onClose, onSubmit }) => {
                     <FormControl mb={4}>
                       <FormLabel>Deck Name</FormLabel>
                       <Input
-                        name="deckName"
-                        value={formData.deckName}
+                        name="deckname"
+                        value={formData.deckname}
                         onChange={handleChange}
                       />
                     </FormControl>
