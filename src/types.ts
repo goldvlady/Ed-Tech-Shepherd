@@ -324,7 +324,12 @@ export interface FlashcardData {
   tags: string[];
   topic?: string;
   scores: Score[];
-  studyPeriod: 'daily' | 'weekly' | 'biweekly' | 'spacedRepetition';
+  studyPeriod:
+    | 'daily'
+    | 'weekly'
+    | 'biweekly'
+    | 'spacedRepetition'
+    | 'noRepeat';
   questions: FlashcardQuestion[];
   createdAt: string;
   source: 'anki' | 'shepherd';

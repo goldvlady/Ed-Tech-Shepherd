@@ -42,12 +42,22 @@ interface LibraryCardProps {
 const LibraryCards: React.FC<LibraryCardProps> = ({ deckId }) => {
   const { fetchLibraryCards, libraryCards } = libraryCardStore();
   const { user } = userStore();
-  const { createFlashCard, isLoading, fetchFlashcards } = flashcardStore();
+  const {
+    createFlashCard,
+    isLoading,
+    fetchFlashcards,
+    flashcards,
+    editFlashcard
+  } = flashcardStore();
   // State for tracking selected cards and modal visibility
   const [selectedCards, setSelectedCards] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDifficulty, setSelectedDifficulty] = useState('');
   const toast = useCustomToast();
+
+  // useEffect(() => {
+  //   fetchFlashcards()
+  // },[fetchFlashcards])
 
   useEffect(() => {
     if (deckId) {
@@ -55,7 +65,7 @@ const LibraryCards: React.FC<LibraryCardProps> = ({ deckId }) => {
     }
   }, [deckId, fetchLibraryCards, selectedDifficulty, setSelectedDifficulty]);
 
-  const onSubmitFlashcard = async (formData, selectedCards) => {
+  const onSubmitFlashcard = async (formData, selectedCards, isNewDeck) => {
     const questions = selectedCards.map((card) => {
       return {
         questionType: 'openEnded',
@@ -74,26 +84,44 @@ const LibraryCards: React.FC<LibraryCardProps> = ({ deckId }) => {
       subject: selectedCards[0].subject.name,
       level: formData.level,
       topic: selectedCards[0].topic.name,
-      studyPeriod: 'noRepeat',
+      studyPeriod: 'noRepeat' as 'noRepeat',
       questions: questions,
       scores: [],
-      source: 'shepherd',
+      source: 'shepherd' as 'shepherd',
       currentStudy: null
     };
     try {
-      console.log('\nData: ', data);
-      const response = await createFlashCard(data, 'manual');
-      if (response) {
-        if (response.status === 200) {
+      if (isNewDeck) {
+        const response = await createFlashCard(data, 'manual');
+        if (response) {
+          if (response.status === 200) {
+            toast({
+              title: 'Card saved to your flashcards',
+              position: 'top-right',
+              status: 'success',
+              isClosable: true
+            });
+          } else {
+            toast({
+              title: 'Failed to save card, try again',
+              position: 'top-right',
+              status: 'error',
+              isClosable: true
+            });
+          }
+        }
+      } else {
+        const response = await editFlashcard(formData.selectedDeckId, data);
+        if (response) {
           toast({
-            title: 'Card saved to your flashcards',
+            title: `${data.deckname} updated`,
             position: 'top-right',
             status: 'success',
             isClosable: true
           });
         } else {
           toast({
-            title: 'Failed to save card, try again',
+            title: `Failed to update ${data.deckname}, try again`,
             position: 'top-right',
             status: 'error',
             isClosable: true
@@ -102,7 +130,9 @@ const LibraryCards: React.FC<LibraryCardProps> = ({ deckId }) => {
       }
     } catch (error) {
       toast({
-        title: 'Failed to create flashcard, try again',
+        title: isNewDeck
+          ? 'Failed to create flashcard, try again'
+          : `Failed to updage ${data.deckname}, try again`,
         position: 'top-right',
         status: 'error',
         isClosable: true
@@ -131,10 +161,10 @@ const LibraryCards: React.FC<LibraryCardProps> = ({ deckId }) => {
   const toggleModal = () => setIsModalOpen(!isModalOpen);
 
   // Function to log form data and selected cards
-  const handleFormSubmit = (formData) => {
+  const handleFormSubmit = (formData, isNewDeck) => {
     // console.log('Form Data:', formData);
     // console.log('Selected Cards:', selectedCards);
-    onSubmitFlashcard(formData, selectedCards);
+    onSubmitFlashcard(formData, selectedCards, isNewDeck);
     toggleModal();
   };
 

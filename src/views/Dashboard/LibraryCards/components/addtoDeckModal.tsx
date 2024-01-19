@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import flashcardStore from '../../../../state/flashcardStore';
 import {
   Modal,
   ModalContent,
@@ -21,7 +22,7 @@ import {
 } from '@chakra-ui/react';
 
 const AddToDeckModal = ({ isOpen, onClose, onSubmit }) => {
-  const [userDecks, fetchUserDecks] = useState([]);
+  const { createFlashCard, fetchFlashcards, flashcards } = flashcardStore();
   const [formData, setFormData] = useState({
     deckname: '',
     studyType: '',
@@ -30,12 +31,23 @@ const AddToDeckModal = ({ isOpen, onClose, onSubmit }) => {
   });
 
   useEffect(() => {
-    fetchUserDecks([]);
-  }, []);
+    fetchFlashcards();
+  }, [fetchFlashcards]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === 'selectedDeckId') {
+      const selectedDeck = flashcards.find(
+        (flashcard) => flashcard._id === value
+      );
+      setFormData((prev) => ({
+        ...prev,
+        deckname: selectedDeck ? selectedDeck.deckname : '',
+        selectedDeckId: value
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = (isNewDeck) => {
@@ -148,9 +160,9 @@ const AddToDeckModal = ({ isOpen, onClose, onSubmit }) => {
                         onChange={handleChange}
                       >
                         <option value="">Select Deck</option>
-                        {userDecks.map((deck) => (
-                          <option key={deck.id} value={deck.id}>
-                            {deck.name}
+                        {flashcards?.map((flashcard) => (
+                          <option key={flashcard._id} value={flashcard._id}>
+                            {flashcard.deckname}
                           </option>
                         ))}
                       </Select>
