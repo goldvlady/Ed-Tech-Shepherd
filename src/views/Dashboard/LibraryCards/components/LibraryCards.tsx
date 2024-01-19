@@ -84,10 +84,10 @@ const LibraryCards: React.FC<LibraryCardProps> = ({ deckId }) => {
       subject: selectedCards[0].subject.name,
       level: formData.level,
       topic: selectedCards[0].topic.name,
-      studyPeriod: 'noRepeat' as 'noRepeat',
+      studyPeriod: 'noRepeat' as const,
       questions: questions,
       scores: [],
-      source: 'shepherd' as 'shepherd',
+      source: 'shepherd' as const,
       currentStudy: null
     };
     try {
