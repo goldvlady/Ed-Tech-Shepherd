@@ -122,7 +122,7 @@ const useBoxWidth = (ref: RefObject<HTMLDivElement>): number => {
 
 const CreateFlashPage = () => {
   const toast = useCustomToast();
-  const { user } = userStore();
+  const { user }: any = userStore();
   const { hasActiveSubscription } = userStore.getState();
   const location = useLocation();
 
@@ -138,8 +138,12 @@ const CreateFlashPage = () => {
   useEffect(() => {
     if (!hasActiveSubscription) {
       // Set messages and show the modal if the user has no active subscription
-      setPlansModalMessage('Pick a plan to access your AI Study Tools! 🚀');
-      setPlansModalSubMessage('Get started today for free!');
+      setPlansModalMessage(
+        !user.hadSubscription
+          ? 'Start Your 2 Week Free Trial!'
+          : 'Pick a plan to access your AI Study Tools! 🚀'
+      );
+      setPlansModalSubMessage('One-click Cancel at anytime.');
       setTogglePlansModal(true);
     }
   }, [user.subscription]);

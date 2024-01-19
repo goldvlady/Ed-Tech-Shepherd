@@ -46,7 +46,7 @@ import React, {
   useRef
 } from 'react';
 import { IoChatboxEllipsesOutline } from 'react-icons/io5';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Socket } from 'socket.io-client';
 import noteStore from '../../../state/noteStore';
 import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
@@ -60,7 +60,7 @@ export default function DocChat() {
   const [editor] = useLexicalComposerContext();
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = userStore();
+  const { user }: any = userStore();
   const toast = useToast();
 
   const { hasActiveSubscription } = userStore.getState();
@@ -75,13 +75,19 @@ export default function DocChat() {
   };
 
   useEffect(() => {
-    if (!hasActiveSubscription) {
+    if (!hasActiveSubscription && user) {
       // Set messages and show the modal if the user has no active subscription
-      setPlansModalMessage('Pick a plan to access your AI Study Tools! 🚀');
-      setPlansModalSubMessage('Get started today for free!');
-      setTogglePlansModal(true);
+      setPlansModalMessage(
+        !user.hadSubscription
+          ? 'Start Your 2 Week Free Trial!'
+          : 'Pick a plan to access your AI Study Tools! 🚀'
+      );
+      setPlansModalSubMessage('One-click Cancel at anytime.');
+    } else if (!user) {
+      setPlansModalMessage('Start Your 2 Week Free Trial!');
+      setPlansModalSubMessage('One-click Cancel at anytime.');
     }
-  }, [user.subscription]);
+  }, [user, hasActiveSubscription]);
 
   const [llmResponse, setLLMResponse] = useState('');
   const [readyToChat, setReadyToChat] = useState(false);
@@ -110,12 +116,27 @@ export default function DocChat() {
   >([]);
   const [inputValue, setInputValue] = useState('');
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
-  const documentId = location.state.documentId ?? '';
-  const noteId: string = location?.state?.noteId ?? '';
-  const docKeywords = location.state.docKeywords ?? [];
+  const [searchParams] = useSearchParams();
+  const apiKey = searchParams.get('apiKey');
+  const documentId = searchParams.get('documentId')
+    ? decodeURIComponent(searchParams.get('documentId'))
+    : '';
+  const documentUrl = searchParams.get('documentUrl')
+    ? decodeURIComponent(searchParams.get('documentUrl'))
+    : '';
+
+  const noteId: string = searchParams.get('noteId')
+    ? decodeURIComponent(searchParams.get('noteId'))
+    : '';
+  const docKeywordsEncoded = searchParams.get('docKeywords');
+  const docKeywords = docKeywordsEncoded
+    ? docKeywordsEncoded.split(',').map((item) => decodeURIComponent(item))
+    : [];
   // const [keyword, setKeyword] = useState('');
-  const title = location.state.docTitle ?? '';
-  const studentId = user?._id ?? location.state.studentId;
+  const title = searchParams.get('docTitle')
+    ? decodeURIComponent(searchParams.get('docTitle'))
+    : '';
+  const studentId = user?._id ?? decodeURIComponent(searchParams.get('sid'));
   const directStudentId = user?.student?._id;
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryText, setSummaryText] = useState('');
@@ -392,7 +413,23 @@ export default function DocChat() {
       setIsSavingNote(false);
     }
   };
+  useEffect(() => {
+    if (!user && !apiKey) {
+      navigate('/signup');
+    }
+    if (apiKey) {
+      editor.setEditable(false);
+      const inputElements = document.querySelectorAll('textarea');
 
+      // Disable each input element on the page
+      inputElements.forEach((input) => {
+        input.disabled = true;
+      });
+      window.addEventListener('click', () => {
+        setTogglePlansModal(true);
+      });
+    }
+  }, [user, apiKey, navigate, editor]);
   useEffect(() => {
     if (!isEmpty(studentId)) {
       let authSocket: Socket<any, any> | null = null;
@@ -851,40 +888,81 @@ export default function DocChat() {
     if (isEmpty(paramsIdForNote) || isNil(paramsIdForNote)) {
       return;
     }
-    const resp = await ApiService.getNote(paramsIdForNote as string);
+    if (apiKey) {
+      const resp = await ApiService.getNoteForAPIKey(
+        paramsIdForNote as string,
+        apiKey
+      );
 
-    const respText = await resp.text();
-    try {
-      const respDetails: NoteServerResponse<{ data: NoteDetails }> =
-        JSON.parse(respText);
+      const respText = await resp.text();
+      try {
+        const respDetails: NoteServerResponse<{ data: NoteDetails }> =
+          JSON.parse(respText);
 
-      const emptyRespDetails =
-        isEmpty(respDetails) ||
-        isNil(respDetails) ||
-        isEmpty(respDetails.data) ||
-        isNil(respDetails.data);
-      if (respDetails.error || emptyRespDetails) {
+        const emptyRespDetails =
+          isEmpty(respDetails) ||
+          isNil(respDetails) ||
+          isEmpty(respDetails.data) ||
+          isNil(respDetails.data);
+        if (respDetails.error || emptyRespDetails) {
+          return;
+        }
+        if (!isEmpty(respDetails.data) && !isNil(respDetails.data)) {
+          setIsLoadingNote(false);
+          const { data: note } = respDetails.data;
+
+          setEditedTitle(note.topic);
+
+          if (!isEmpty(note?.updatedAt) && !isNil(note?.updatedAt)) {
+            setCurrentTime(formatDate(note?.updatedAt));
+          }
+          if (!isEmpty(note.note) && !isNil(note.note)) {
+            setInitialContent(note.note);
+          }
+          if (typeof callback === 'function') {
+            callback();
+          }
+        }
+        // set note data
+      } catch (error: any) {
         return;
       }
-      if (!isEmpty(respDetails.data) && !isNil(respDetails.data)) {
-        setIsLoadingNote(false);
-        const { data: note } = respDetails.data;
+    } else {
+      const resp = await ApiService.getNote(paramsIdForNote as string);
 
-        setEditedTitle(note.topic);
+      const respText = await resp.text();
+      try {
+        const respDetails: NoteServerResponse<{ data: NoteDetails }> =
+          JSON.parse(respText);
 
-        if (!isEmpty(note?.updatedAt) && !isNil(note?.updatedAt)) {
-          setCurrentTime(formatDate(note?.updatedAt));
+        const emptyRespDetails =
+          isEmpty(respDetails) ||
+          isNil(respDetails) ||
+          isEmpty(respDetails.data) ||
+          isNil(respDetails.data);
+        if (respDetails.error || emptyRespDetails) {
+          return;
         }
-        if (!isEmpty(note.note) && !isNil(note.note)) {
-          setInitialContent(note.note);
+        if (!isEmpty(respDetails.data) && !isNil(respDetails.data)) {
+          setIsLoadingNote(false);
+          const { data: note } = respDetails.data;
+
+          setEditedTitle(note.topic);
+
+          if (!isEmpty(note?.updatedAt) && !isNil(note?.updatedAt)) {
+            setCurrentTime(formatDate(note?.updatedAt));
+          }
+          if (!isEmpty(note.note) && !isNil(note.note)) {
+            setInitialContent(note.note);
+          }
+          if (typeof callback === 'function') {
+            callback();
+          }
         }
-        if (typeof callback === 'function') {
-          callback();
-        }
+        // set note data
+      } catch (error: any) {
+        return;
       }
-      // set note data
-    } catch (error: any) {
-      return;
     }
   };
 
@@ -1228,8 +1306,7 @@ export default function DocChat() {
       setSummaryLoading(false);
     }
   }, [summaryStart]);
-
-  if (!hasActiveSubscription) {
+  if (!hasActiveSubscription && !apiKey) {
     return (
       <Center height="100vh" width="100%">
         <Box display={'flex'} flexDirection={'column'} alignItems={'center'}>
@@ -1276,10 +1353,10 @@ export default function DocChat() {
             )}
           >
             <>
-              {location.state?.documentUrl && (
+              {documentUrl && documentUrl.length > 0 && (
                 <DocViewer
-                  pdfLink={location.state.documentUrl}
-                  pdfName={location.state.docTitle}
+                  pdfLink={documentUrl}
+                  pdfName={title}
                   documentId={documentId}
                   hightlightedText={hightlightedText}
                   setHightlightedText={setHightlightedText}
@@ -1288,7 +1365,7 @@ export default function DocChat() {
                   setLoading={setLoading}
                 />
               )}
-              {location.state?.noteId && (
+              {noteId && noteId.length > 0 && (
                 <StyledEditorWrapper
                   sx={{
                     '&::-webkit-scrollbar': {
@@ -1334,7 +1411,14 @@ export default function DocChat() {
               )}
             </>
           </div>
-
+          {togglePlansModal && (
+            <PlansModal
+              togglePlansModal={togglePlansModal}
+              setTogglePlansModal={setTogglePlansModal}
+              message={plansModalMessage}
+              subMessage={plansModalSubMessage}
+            />
+          )}
           {true && (
             <>
               <StyledButton onClick={handleToggleMobileChat}>
@@ -1348,7 +1432,7 @@ export default function DocChat() {
                 {toggleMobileChat && (
                   <Chat
                     ref={ref}
-                    documentUrl={location.state.documentUrl}
+                    documentUrl={documentUrl}
                     isShowPrompt={isShowPrompt}
                     isReadyToChat={readyToChat}
                     messages={messages}
@@ -1387,7 +1471,7 @@ export default function DocChat() {
                     setChatHistoryId={setChatHistoryId}
                     handlePinned={handlePinned}
                     isPinned={isPinned}
-                    noteId={location.state?.noteId}
+                    noteId={noteId}
                     pinPromptArr={pinPromptArr}
                   />
                 )}
@@ -1439,7 +1523,7 @@ export default function DocChat() {
                     setChatHistoryId={setChatHistoryId}
                     handlePinned={handlePinned}
                     isPinned={isPinned}
-                    noteId={location.state?.noteId}
+                    noteId={noteId}
                     pinPromptArr={pinPromptArr}
                   />
                 </div>

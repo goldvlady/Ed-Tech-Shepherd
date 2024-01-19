@@ -488,7 +488,6 @@ const NewNote = () => {
             'error'
           );
           return;
-
         }
         if (!isEmpty(respDetails.data)) {
           const { data: note } = respDetails.data;
@@ -1063,7 +1062,6 @@ const NewNote = () => {
     (async () => {
       if (!isEmpty(noteParamId) || !isNil(noteParamId)) {
         if (shareable && shareable.length > 0 && apiKey && apiKey.length > 0) {
-          console.log('should not');
           setIsEditorLoaded(false);
 
           // setInitialContent(getNoteLocal(noteParamId) as string);
@@ -1098,7 +1096,6 @@ const NewNote = () => {
         setIsEditorLoaded(false);
         // setInitialContent(getNoteLocal(noteParamId) as string);
         await getNoteById(noteParamId, null, () => {
-
           setTimeout(() => {
             setCanStartSaving(true);
             setIsEditorLoaded(true);
@@ -1129,7 +1126,17 @@ const NewNote = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialContent]);
-
+  if (apiKey) {
+    const ed: HTMLDivElement = document.querySelector('.ContentEditable__root');
+    if (ed) {
+      const children: HTMLCollectionOf<Element> = ed.children;
+      console.log('hey kiddy', children);
+      // Apply user-select: none to each child element
+      for (const child of children) {
+        (child as HTMLElement).style.userSelect = 'none';
+      }
+    }
+  }
   // Header Component
   const HeaderComponent = () => {
     return (
@@ -1342,8 +1349,8 @@ const NewNote = () => {
             />
             {togglePlansModal && (
               <PlansModal
-                message="Pick a plan to access your AI Study Tools! 🚀"
-                subMessage="Get started today for free!"
+                message="Start Your 2 Week Free Trial!"
+                subMessage="One-click Cancel at anytime."
                 togglePlansModal={togglePlansModal}
                 setTogglePlansModal={setTogglePlansModal}
               />

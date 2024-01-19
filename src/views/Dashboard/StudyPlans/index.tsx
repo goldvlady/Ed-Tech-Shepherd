@@ -14,33 +14,10 @@ import {
   Text,
   Input,
   Button,
-  Heading,
-  UnorderedList,
-  ListItem,
-  Icon,
-  Drawer,
-  DrawerBody,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerCloseButton,
-  useDisclosure,
   Spacer,
-  List,
-  VStack,
-  IconButton,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
   SimpleGrid
 } from '@chakra-ui/react';
-import { FaPlus, FaCheckCircle, FaPencilAlt, FaRocket } from 'react-icons/fa';
-import SelectComponent, { Option } from '../../../components/Select';
-import { MdOutlineKeyboardArrowDown } from 'react-icons/md';
-import { FiChevronDown } from 'react-icons/fi';
+
 import { useNavigate } from 'react-router';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import SubjectCard from '../../../components/SubjectCard';
@@ -48,10 +25,11 @@ import studyPlanStore from '../../../state/studyPlanStore';
 import resourceStore from '../../../state/resourceStore';
 import moment from 'moment';
 import Pagination from '../components/Pagination';
+import ShepherdSpinner from '../components/shepherd-spinner';
 
 function StudyPlans() {
   // const [studyPlans, setStudyPlans] = useState(['1', '2']);
-  const { fetchPlans, studyPlans, pagination } = studyPlanStore();
+  const { fetchPlans, studyPlans, pagination, isLoading } = studyPlanStore();
   const { courses: courseList, levels: levelOptions } = resourceStore();
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(30);
@@ -89,6 +67,22 @@ function StudyPlans() {
     fetchPlans(nextPage, limit);
   };
 
+  if (isLoading) {
+    return (
+      <Box
+        p={5}
+        textAlign="center"
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh'
+        }}
+      >
+        <ShepherdSpinner />
+      </Box>
+    );
+  }
   return (
     <>
       <Flex p={3}>
@@ -122,6 +116,7 @@ function StudyPlans() {
             {studyPlans?.map((plan: any) => (
               <SubjectCard
                 title={getSubject(plan.course)}
+                subjectId={plan.course}
                 score={plan.readinessScore}
                 scoreColor="green"
                 date={moment(plan.createdAt).format('DD MMM, YYYY')}

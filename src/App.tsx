@@ -127,8 +127,9 @@ const studentRoutes = [
   { path: 'tutor/:tutorId/offer', element: <SendTutorOffer /> },
   { path: 'offer/:offerId', element: <Offer /> },
   { path: '', element: <DashboardIndex /> },
-  { path: 'docchat', element: <DocChat /> },
+  // { path: 'docchat', element: <DocChat /> },
   { path: 'find-tutor', element: <Marketplace /> },
+  { path: 'find-tutor/:subjectId', element: <Marketplace /> },
   { path: 'find-tutor/tutor/', element: <Tutor /> },
   { path: 'my-tutors', element: <MyTutors /> },
   { path: 'bounties', element: <Bounties /> },
@@ -136,6 +137,7 @@ const studentRoutes = [
   { path: 'saved-tutors', element: <BookmarkedTutors /> },
   { path: 'messaging', element: <Messaging /> },
   { path: 'account-settings', element: <StudentSettings /> },
+  // { path: 'ace-homework/:id', element: <HomeWorkHelp /> },
   { path: 'ace-homework', element: <HomeWorkHelp /> },
   { path: 'flashcards/create', element: <CreateFlashCard /> },
   { path: 'flashcards', element: <FlashCard /> },
@@ -359,6 +361,22 @@ const AppRoutes: React.FC = () => {
         element={
           <DashboardLayout>
             <NewNote />
+          </DashboardLayout>
+        }
+      />
+      <Route
+        path="/dashboard/docchat"
+        element={
+          <DashboardLayout>
+            <DocChat />
+          </DashboardLayout>
+        }
+      />
+      <Route
+        path="/dashboard/ace-homework/:id"
+        element={
+          <DashboardLayout>
+            <HomeWorkHelp />
           </DashboardLayout>
         }
       />

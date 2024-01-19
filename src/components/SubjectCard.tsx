@@ -1,8 +1,15 @@
 import React from 'react';
-import { Box, Divider, Flex, Spacer, Text } from '@chakra-ui/react';
+import { Box, Button, Divider, Flex, Spacer, Text } from '@chakra-ui/react';
 import { IoIosArrowDroprightCircle } from 'react-icons/io';
 import { useNavigate } from 'react-router';
-function SubjectCard({ title, score, scoreColor, date, handleClick }) {
+function SubjectCard({
+  title,
+  subjectId,
+  score,
+  scoreColor,
+  date,
+  handleClick
+}) {
   const navigate = useNavigate();
   return (
     <Box
@@ -15,9 +22,28 @@ function SubjectCard({ title, score, scoreColor, date, handleClick }) {
       onClick={handleClick}
     >
       <Box>
-        <Text fontSize="16px" fontWeight="500" p={4}>
-          {title}
-        </Text>
+        <Flex>
+          <Text fontSize="16px" fontWeight="500" p={4}>
+            {title}
+          </Text>
+          <Spacer />{' '}
+          <Button
+            float="right"
+            size={'xs'}
+            m={4}
+            variant="outline"
+            color={'#FC9B65'}
+            borderColor={'#FC9B65'}
+            _hover={{ bgColor: '#FEE1D0' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/dashboard/find-tutor?subjectId=${subjectId}`);
+            }}
+          >
+            Find a Shepherd
+          </Button>
+        </Flex>
+
         <Divider mb={2} color="#EAEBEB" />
         <Box mb={2} border="1px solid #EAEBEB" borderRadius={6} p={2} m={4}>
           <Flex alignItems="center" fontSize="12px" fontWeight={500}>

@@ -7,18 +7,22 @@ import {
   ModalCloseButton,
   useDisclosure,
   Button,
-  Input
+  Input,
+  Text,
+  MenuItem
 } from '@chakra-ui/react';
+import React from 'react';
 import { DocumentDuplicateIcon } from '@heroicons/react/24/outline';
-import React, { useCallback, useMemo, useState } from 'react';
+import { PropsWithChildren, useCallback, useMemo, useState } from 'react';
 import { copyTextToClipboard } from '../helpers/copyTextToClipboard';
 import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
 import { RiShareForwardLine, RiTwitterXLine } from '@remixicon/react';
 import { newId } from '../helpers/id';
 import ApiService from '../services/ApiService';
 
-type ShareModalProps = {
-  type: 'quiz' | 'note' | 'flashcard' | 'docchat' | 'aichat';
+type ShareModalMenuProps = {
+  type: 'quiz' | 'note' | 'flashcard';
+  id: string;
 };
 const appendParamsToUrl = (baseUrl, paramsToAppend) => {
   const url = new URL(baseUrl);
@@ -39,15 +43,18 @@ const appendParamsToUrl = (baseUrl, paramsToAppend) => {
 
   return url.toString();
 };
-const ShareModal = ({ type }: ShareModalProps) => {
+const ShareModalMenu = ({ type, id }: ShareModalMenuProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [shareLink, setShareLink] = useState('');
   const [presentableLink, setPresentableLink] = useState('');
   const toast = useCustomToast();
   const generateShareLink = () => {
     const apiKey = newId('shep');
+    const baseURL = window.location.href.includes('quizzes')
+      ? window.location.href + `/take?quiz_id=${id}`
+      : window.location.href + `/new-note/${id}`;
     const shareLink = appendParamsToUrl(
-      window.location.href,
+      baseURL,
       new URLSearchParams([
         ['shareable', 'true'],
         ['apiKey', apiKey]
@@ -92,15 +99,6 @@ const ShareModal = ({ type }: ShareModalProps) => {
     } else if (type === 'quiz') {
       const encodedTweetText = encodeURIComponent(
         'Check out my quiz on shepherd.study! ' + shareLink
-      );
-      const tweetIntentURL = `https://twitter.com/intent/tweet?text=${encodedTweetText}`;
-
-      window.open(tweetIntentURL, '_blank');
-      const apiKey = shareLink.split('apiKey=').at(-1);
-      await ApiService.generateShareLink({ apiKey });
-    } else if (type === 'aichat' || type === 'docchat') {
-      const encodedTweetText = encodeURIComponent(
-        'Check out my conversation on shepherd.study! ' + shareLink
       );
       const tweetIntentURL = `https://twitter.com/intent/tweet?text=${encodedTweetText}`;
 
@@ -232,153 +230,28 @@ const ShareModal = ({ type }: ShareModalProps) => {
           </ModalBody>
         </ModalContent>
       );
-    } else if (type === 'aichat') {
-      return (
-        <ModalContent>
-          <ModalHeader>Share this Conversation</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody className="flex !items-start !justify-start flex-col gap-3">
-            <p>Anyone with this link can view your conversation.</p>
-            <Input
-              bg="transparent"
-              outline="none"
-              _focus={{ boxShadow: 'none' }}
-              cursor="not-allowed"
-              isDisabled
-              className="text-balance overflow-scroll"
-              value={presentableLink}
-              padding="12px 24px"
-              width={'100%'}
-              boxShadow="inset 0 0 0 1px #f4f4f5"
-              borderRadius="md"
-            />
-            <div className="flex gap-2">
-              <Button
-                onClick={copyShareLink}
-                bg="#f4f4f5"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                gap="4px"
-                padding="12px 24px"
-                borderRadius="md"
-                border="none"
-                cursor="pointer"
-                color="#000"
-                _hover={{ bg: '#e4e4e5' }}
-                _active={{ bg: '#d4d4d5' }}
-              >
-                <DocumentDuplicateIcon width={16} height={16} />
-                <span> Copy link</span>
-              </Button>
-              <Button
-                onClick={shareOnX}
-                bg="#f4f4f5"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                gap="4px"
-                padding="12px 24px"
-                borderRadius="md"
-                border="none"
-                cursor="pointer"
-                color="#000"
-                _hover={{ bg: '#e4e4e5' }}
-                _active={{ bg: '#d4d4d5' }}
-              >
-                <span> Share on </span>
-                <RiTwitterXLine />
-              </Button>
-            </div>
-          </ModalBody>
-        </ModalContent>
-      );
-    } else if (type === 'docchat') {
-      return (
-        <ModalContent>
-          <ModalHeader>Share this Conversation</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody className="flex !items-start !justify-start flex-col gap-3">
-            <p>
-              Anyone with this link can view your conversation with your
-              document.
-            </p>
-            <Input
-              bg="transparent"
-              outline="none"
-              _focus={{ boxShadow: 'none' }}
-              cursor="not-allowed"
-              isDisabled
-              className="text-balance overflow-scroll"
-              value={presentableLink}
-              padding="12px 24px"
-              width={'100%'}
-              boxShadow="inset 0 0 0 1px #f4f4f5"
-              borderRadius="md"
-            />
-            <div className="flex gap-2">
-              <Button
-                onClick={copyShareLink}
-                bg="#f4f4f5"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                gap="4px"
-                padding="12px 24px"
-                borderRadius="md"
-                border="none"
-                cursor="pointer"
-                color="#000"
-                _hover={{ bg: '#e4e4e5' }}
-                _active={{ bg: '#d4d4d5' }}
-              >
-                <DocumentDuplicateIcon width={16} height={16} />
-                <span> Copy link</span>
-              </Button>
-              <Button
-                onClick={shareOnX}
-                bg="#f4f4f5"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                gap="4px"
-                padding="12px 24px"
-                borderRadius="md"
-                border="none"
-                cursor="pointer"
-                color="#000"
-                _hover={{ bg: '#e4e4e5' }}
-                _active={{ bg: '#d4d4d5' }}
-              >
-                <span> Share on </span>
-                <RiTwitterXLine />
-              </Button>
-            </div>
-          </ModalBody>
-        </ModalContent>
-      );
     }
   }, [type, shareLink, copyShareLink, shareOnX]);
   return (
     <>
-      <Button
+      <MenuItem
+        p="6px 8px 6px 8px"
+        display={'flex'}
+        gap={3}
         onClick={generateShareLink}
-        bg="#f4f4f5"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        gap="4px"
-        padding="12px 24px"
-        borderRadius="md"
-        border="none"
-        cursor="pointer"
-        color="#000"
-        _hover={{ bg: '#e4e4e5' }}
-        _active={{ bg: '#d4d4d5' }}
+        _hover={{ bgColor: '#F2F4F7' }}
       >
-        <span> Share</span>
         <RiShareForwardLine />
-      </Button>
+
+        <Text
+          color="#212224"
+          fontSize="14px"
+          lineHeight="20px"
+          fontWeight="400"
+        >
+          Share
+        </Text>
+      </MenuItem>
       <Modal onClose={onClose} isOpen={isOpen}>
         <ModalOverlay />
         {modalContent}
@@ -387,4 +260,4 @@ const ShareModal = ({ type }: ShareModalProps) => {
   );
 };
 
-export default ShareModal;
+export default ShareModalMenu;

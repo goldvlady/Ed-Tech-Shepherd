@@ -392,7 +392,30 @@ export const getConversionById = async ({
     return conversation;
   }
 };
-
+export const getConversionByIdAndAPIKey = async ({
+  conversationId,
+  apiKey
+}: {
+  conversationId: string;
+  apiKey: string;
+}) => {
+  const response = await fetch(
+    `${AI_API}/notes/conversations/${conversationId}?shareable=true`,
+    {
+      method: 'GET',
+      headers: {
+        'x-shepherd-header': HEADER_KEY,
+        'x-api-key': apiKey
+      }
+    }
+  );
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  } else {
+    const conversation = await response.json();
+    return conversation;
+  }
+};
 export const deleteConversationId = async ({
   conversationId
 }: {
@@ -522,7 +545,8 @@ export const getDocchatHistory = async ({
 };
 
 export const generateStudyPlan = async (data: {
-  syllabusData: {
+  syllabusUrl?: string;
+  syllabusData?: {
     course: string;
     gradeLevel: string;
     weekCount: number;

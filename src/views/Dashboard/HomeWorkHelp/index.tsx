@@ -12,6 +12,7 @@ import {
   chatHomeworkHelp,
   editConversationId,
   getConversionById,
+  getConversionByIdAndAPIKey,
   getDescriptionById,
   updateGeneratedSummary
 } from '../../../services/AI';
@@ -52,18 +53,24 @@ import React, {
   useRef
 } from 'react';
 import { MdInfo } from 'react-icons/md';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
 import PlansModal from '../../../components/PlansModal';
+import { useSearchQuery } from '../../../hooks';
+import { firebaseAuth } from '../../../firebase';
 
 const HomeWorkHelp = () => {
   const [isOpenModal, setOpenModal] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const toast = useCustomToast();
+  const search = useSearchQuery();
+  const shareable = search.get('shareable');
+  const apiKey = search.get('apiKey');
+
   const location = useLocation();
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const [openAceHomework, setAceHomeWork] = useState(false);
-  const { user } = userStore();
+  const { user }: any = userStore();
   const [messages, setMessages] = useState<
     { text: string; isUser: boolean; isLoading: boolean }[]
   >([]);
@@ -72,9 +79,11 @@ const HomeWorkHelp = () => {
   const [botStatus, setBotStatus] = useState(
     'Philosopher, thinker, study companion.'
   );
-  const studentId = user?._id ?? '';
+
+  const [studentId, setStudentId] = useState(user?._id ?? '');
   const topic = location?.state?.topic;
   const docId = location?.state?.documentId;
+  const { id: convoId } = useParams();
   const [countNeedTutor, setCountNeedTutor] = useState<number>(1);
   const [socket, setSocket] = useState<any>(null);
   const [subjectId, setSubject] = useState<string>('');
@@ -85,6 +94,7 @@ const HomeWorkHelp = () => {
   const [level, setLevel] = useState<any>('');
   const navigate = useNavigate();
   const [conversationId, setConversationId] = useState('');
+
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [onlineTutorsId, setOnlineTutorsId] = useState([]);
   const [visibleButton, setVisibleButton] = useState(true);
@@ -127,18 +137,28 @@ const HomeWorkHelp = () => {
   const handleLockClick = () => {
     setTogglePlansModal(true);
   };
-
   useEffect(() => {
-    if (!hasActiveSubscription) {
-      // Set messages and show the modal if the user has no active subscription
-      setPlansModalMessage('Pick a plan to access your AI Study Tools! 🚀');
-      setPlansModalSubMessage('Get started today for free!');
-      setTogglePlansModal(true);
+    if (user) {
+      setStudentId(user._id);
     }
-  }, [user.subscription]);
+  }, [user]);
+  useEffect(() => {
+    if (!hasActiveSubscription && user) {
+      // Set messages and show the modal if the user has no active subscription
+      setPlansModalMessage(
+        !user.hadSubscription
+          ? 'Start Your 2 Week Free Trial!'
+          : 'Pick a plan to access your AI Study Tools! 🚀'
+      );
+      setPlansModalSubMessage('One-click Cancel at anytime.');
+    } else if (!user) {
+      setPlansModalMessage('Start Your 2 Week Free Trial!');
+      setPlansModalSubMessage('One-click Cancel at anytime.');
+    }
+  }, [user, hasActiveSubscription]);
 
   useEffect(() => {
-    if (certainConversationId) {
+    if (certainConversationId || conversationId) {
       const authSocket = socketWithAuth({
         studentId,
         topic: localData.topic,
@@ -146,11 +166,14 @@ const HomeWorkHelp = () => {
         // level: level.label,
         namespace: 'homework-help',
         conversationId:
-          certainConversationId ?? storedConvoId ?? freshConversationId
+          conversationId ??
+          certainConversationId ??
+          storedConvoId ??
+          freshConversationId
       }).connect();
       setSocket(authSocket);
     }
-  }, [certainConversationId, freshConversationId]);
+  }, [certainConversationId, freshConversationId, conversationId]);
 
   useEffect(() => {
     if (isSubmitted) {
@@ -366,9 +389,75 @@ const HomeWorkHelp = () => {
   useEffect(() => {
     const fetchConversationId = async () => {
       setLoading(true);
+      if (shareable && shareable.length > 0 && apiKey && apiKey.length > 0) {
+        const response = await getConversionByIdAndAPIKey({
+          conversationId:
+            convoId ??
+            recentConversationId ??
+            conversationId ??
+            freshConversationId,
+          apiKey
+        });
+
+        if (response) {
+          setVisibleButton(false);
+        }
+        const previousConvoData = response
+          ?.map((conversation) => {
+            // Make sure there's a createdAt attribute
+            const createdAt = conversation?.createdAt || new Date(0); // Default date in case createdAt is not present
+
+            return {
+              text: conversation?.log?.content,
+              isUser: conversation?.log?.role === 'user',
+              isLoading: false,
+              createdAt: new Date(createdAt), // Convert createdAt to a Date object
+              id: conversation?.id // Assuming each conversation has a unique id
+            };
+          })
+          .filter((convo) => convo.text !== SHALL_WE_BEGIN)
+          .sort((a, b) => {
+            return a.createdAt.getTime() - b.createdAt.getTime();
+          });
+
+        const countOfIDontUnderstand = previousConvoData.filter(
+          (convo) => convo.text === "I don't understand"
+        ).length;
+
+        const hasContentThreeTimes = countOfIDontUnderstand >= 3;
+
+        if (hasContentThreeTimes) {
+          setCountNeedTutor((prevState) => prevState + 2);
+        }
+
+        setMessages((prevState) => [...previousConvoData]);
+        setLoading(false);
+        if (convoId) {
+          setConversationId(convoId);
+        }
+
+        const inputElements = document.querySelectorAll('textarea');
+
+        // Disable each input element on the page
+        inputElements.forEach((input) => {
+          input.disabled = true;
+        });
+        window.addEventListener('click', () => {
+          setTogglePlansModal(true);
+        });
+      } else {
+        const token = await firebaseAuth.currentUser?.getIdToken();
+
+        if (!token) {
+          navigate('/signup');
+        }
+      }
       const response = await getConversionById({
         conversationId:
-          recentConversationId ?? conversationId ?? freshConversationId
+          convoId ??
+          recentConversationId ??
+          conversationId ??
+          freshConversationId
       });
 
       if (response) {
@@ -404,13 +493,16 @@ const HomeWorkHelp = () => {
 
       setMessages((prevState) => [...previousConvoData]);
       setLoading(false);
+      if (convoId) {
+        setConversationId(convoId);
+      }
     };
     fetchConversationId();
     if (conversationId) {
       setShowPrompt(true);
     }
-  }, [conversationId, socket, recentConversationId]);
-
+  }, [conversationId, socket, recentConversationId, convoId]);
+  console.log(socket, 'sock chuls');
   const fetchDescription = async (id: string) => {
     const response = await getDescriptionById({ conversationId: id });
     if (response?.data) {
@@ -531,30 +623,30 @@ const HomeWorkHelp = () => {
   useEffect(() => {
     if (isSubmitted) {
       setMessages([]);
-      setConversationId('');
+      // setConversationId('');
       setVisibleButton(false);
       setCountNeedTutor(1);
       localStorage.removeItem('conversationId');
     }
   }, [isSubmitted]);
 
-  useEffect(() => {
-    const storedConvoId = localStorage.getItem('conversationId');
+  // useEffect(() => {
+  //   const storedConvoId = localStorage.getItem('conversationId');
 
-    if (conversationId && (!storedConvoId || conversationId !== storedConvoId))
-      localStorage.setItem('conversationId', conversationId);
-    setCertainConversationId(conversationId);
-  }, [conversationId]);
+  //   if (conversationId && (!storedConvoId || conversationId !== storedConvoId))
+  //     localStorage.setItem('conversationId', conversationId);
+  //   setCertainConversationId(conversationId);
+  // }, [conversationId]);
 
-  useEffect(() => {
-    const storedConvoId = localStorage.getItem('conversationId');
+  // useEffect(() => {
+  //   const storedConvoId = localStorage.getItem('conversationId');
 
-    if (storedConvoId) {
-      setConversationId(storedConvoId);
-      setCountNeedTutor(1);
-      setRecentConverstionId(null);
-    }
-  }, []);
+  //   if (storedConvoId) {
+  //     setConversationId(storedConvoId);
+  //     setCountNeedTutor(1);
+  //     setRecentConverstionId(null);
+  //   }
+  // }, []);
 
   useEffect(() => {
     const getOnlineTutors = async () => {
@@ -587,7 +679,7 @@ const HomeWorkHelp = () => {
   //     setRecentConverstionId(firstId);
   //   }
   // }, [storedConvoId]);
-  if (!hasActiveSubscription) {
+  if (!hasActiveSubscription && !apiKey) {
     return (
       <Center height="100vh" width="100%">
         <Box display={'flex'} flexDirection={'column'} alignItems={'center'}>
@@ -671,7 +763,14 @@ const HomeWorkHelp = () => {
             onChatHistory={onChatHistory}
           />
         </HomeWorkHelpChatContainer>
-
+        {togglePlansModal && (
+          <PlansModal
+            togglePlansModal={togglePlansModal}
+            setTogglePlansModal={setTogglePlansModal}
+            message={plansModalMessage}
+            subMessage={plansModalSubMessage}
+          />
+        )}
         <CustomModal
           isOpen={isOpenModal}
           onClose={onOpenModal}

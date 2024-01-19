@@ -7,6 +7,7 @@ import UploadModal from '../../../components/UploadModal';
 import { DeleteModal } from '../../../components/deleteModal';
 import LoaderOverlay from '../../../components/loaderOverlay';
 import CustomTabPanel from '../../../components/tabPanel';
+import { encodeQueryParams } from '../../../helpers';
 import uploadFile from '../../../helpers/file.helpers';
 import FileProcessingService from '../../../helpers/files.helpers/fileProcessing';
 import { UploadMetadata } from '../../../helpers/s3Handler';
@@ -274,13 +275,13 @@ const NotesDirectory: React.FC = () => {
     try {
       setLoading(true);
       if (document.ingestId) {
-        navigate('/dashboard/docchat', {
-          state: {
-            documentUrl: document.documentUrl,
-            docTitle: document.title,
-            documentId: document.ingestId
-          }
+        const query = encodeQueryParams({
+          documentUrl: document.documentUrl,
+          docTitle: document.title,
+          documentId: document.ingestId,
+          sid: user._id
         });
+        navigate(`/dashboard/docchat${query}`);
       } else {
         const fileProcessor = new FileProcessingService(
           { ...document, student: user?._id },
@@ -293,14 +294,13 @@ const NotesDirectory: React.FC = () => {
         const {
           data: [{ documentId }]
         } = processData;
-
-        navigate('/dashboard/docchat', {
-          state: {
-            documentUrl: document.documentUrl,
-            docTitle: document.title,
-            documentId
-          }
+        const query = encodeQueryParams({
+          documentUrl: document.documentUrl,
+          docTitle: document.title,
+          documentId: documentId,
+          sid: user._id
         });
+        navigate(`/dashboard/docchat${query}`);
       }
     } catch (error) {
       console.log(error);
@@ -313,14 +313,12 @@ const NotesDirectory: React.FC = () => {
   const ingestNote = async (note?: NoteDetails) => {
     try {
       setLoading(true);
-      navigate('/dashboard/docchat', {
-        state: {
-          noteId: note?._id
-          // documentUrl: document.documentUrl,
-          // docTitle: document.title,
-          // documentId
-        }
+      const query = encodeQueryParams({
+        noteId: note?._id,
+        sid: user._id
       });
+      navigate(`/dashboard/docchat${query}`);
+
       // if (document.ingestId) {
       //   navigate('/dashboard/docchat', {
       //     state: {
@@ -979,7 +977,8 @@ const NotesDirectory: React.FC = () => {
                         data={{
                           topic: note.topic,
                           tags: note.tags,
-                          updatedAt: note.updatedAt as unknown as string
+                          updatedAt: note.updatedAt as unknown as string,
+                          id: note._id
                         }}
                       />
                     ))}

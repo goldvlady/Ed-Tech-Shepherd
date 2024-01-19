@@ -93,31 +93,32 @@ export default function Availability(props: any) {
       {availability.length > 0 && (
         <Box>
           {' '}
-          <Box w={'50%'} my={2}>
-            {' '}
-            <FormControl>
-              <FormLabel
-                fontStyle="normal"
-                fontWeight={500}
-                fontSize={14}
-                lineHeight="20px"
-                letterSpacing="-0.001em"
-                color="#5C5F64"
-              >
-                Time Zone
-              </FormLabel>
-              <CustomSelect
-                disabled={!editMode}
-                placeholder="Select a time zone"
-                value={timezone}
-                onChange={(e) => handleUpdateTimezone(e.target.value)}
-              >
-                {timezones.map((timezone, index) => (
-                  <option value={timezone}>{timezone}</option>
-                ))}
-              </CustomSelect>
-            </FormControl>
-          </Box>
+          {editMode && (
+            <Box w={'50%'} my={2}>
+              <FormControl>
+                <FormLabel
+                  fontStyle="normal"
+                  fontWeight={500}
+                  fontSize={14}
+                  lineHeight="20px"
+                  letterSpacing="-0.001em"
+                  color="#5C5F64"
+                >
+                  Time Zone
+                </FormLabel>
+                <CustomSelect
+                  // disabled={!editMode}
+                  placeholder="Select a time zone"
+                  value={timezone}
+                  onChange={(e) => handleUpdateTimezone(e.target.value)}
+                >
+                  {timezones.map((timezone, index) => (
+                    <option value={timezone}>{timezone}</option>
+                  ))}
+                </CustomSelect>
+              </FormControl>
+            </Box>
+          )}
           <Flex direction="column" gap={2} fontSize={'12px'}>
             {availability.map((day, index) => (
               <Flex

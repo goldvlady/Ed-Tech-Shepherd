@@ -589,7 +589,7 @@ const SidebarContent = ({
   };
 
   const [isHovering, setIsHovering] = useState(false);
-
+  const { user }: any = userStore();
   // const { unreadCount } = useStreamChat();
 
   return (
@@ -626,8 +626,10 @@ const SidebarContent = ({
             ? () => toggleChatMenu()
             : () =>
                 handleLockedClick(
-                  'Pick a plan to access your AI Study Tools! 🚀',
-                  'Get started today for free!'
+                  !user.hadSubscription
+                    ? 'Start Your 2 Week Free Trial!'
+                    : 'Pick a plan to access your AI Study Tools! 🚀',
+                  'One-click Cancel at anytime.'
                 )
         }
         onMouseEnter={() => setIsHovering(true)}
@@ -646,8 +648,10 @@ const SidebarContent = ({
               ? () => toggleChatMenu()
               : () =>
                   handleLockedClick(
-                    'Pick a plan to access your AI Study Tools! 🚀',
-                    'Get started today for free!'
+                    !user.hadSubscription
+                      ? 'Start Your 2 Week Free Trial!'
+                      : 'Pick a plan to access your AI Study Tools! 🚀',
+                    'One-click Cancel at anytime.'
                   )
           }
           rightIcon={
@@ -692,8 +696,10 @@ const SidebarContent = ({
             link.requiresSubscription
               ? () =>
                   handleLockedClick(
-                    'Pick a plan to access your AI Study Tools! 🚀',
-                    'Get started today for free!'
+                    !user.hadSubscription
+                      ? 'Start Your 2 Week Free Trial!'
+                      : 'Pick a plan to access your AI Study Tools! 🚀',
+                    'One-click Cancel at anytime.'
                   )
               : undefined
           }
@@ -707,8 +713,10 @@ const SidebarContent = ({
         isLocked={!hasActiveSubscription}
         onLockedClick={() =>
           handleLockedClick(
-            'Pick a plan to access your AI Study Tools! 🚀',
-            'Get started today for free!'
+            !user.hadSubscription
+                      ? 'Start Your 2 Week Free Trial!'
+                      : 'Pick a plan to access your AI Study Tools! 🚀',
+            'One-click Cancel at anytime.'
           )
         }
       >

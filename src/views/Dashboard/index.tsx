@@ -35,6 +35,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { RxDotFilled } from 'react-icons/rx';
 import { Link } from 'react-router-dom';
 import ShepherdSpinner from './components/shepherd-spinner';
+import eventsStore from '../../state/eventsStore';
 
 export default function Index() {
   const top = useBreakpointValue({ base: '90%', md: '50%' });
@@ -59,28 +60,56 @@ export default function Index() {
   const [upcomingEvent, setUpcomingEvent] = useState<any>(null);
   const [isWithinOneHour, setIsWithinOneHour] = useState<boolean>(false);
 
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-
+  const { fetchEvents, events } = eventsStore();
   const fetchData = useCallback(async () => {
     try {
+      const loadDataFromLocalStorage = (key) => {
+        const data = localStorage.getItem(key);
+        return data ? JSON.parse(data) : null;
+      };
+
+      // Load data from local storage
+      const storedStudentReport = loadDataFromLocalStorage('studentReport');
+      const storedCalendarData = loadDataFromLocalStorage('calendarData');
+      const storedNextEvent = loadDataFromLocalStorage('nextEvent');
+      const storedChartData = loadDataFromLocalStorage('chartData');
+      // const storedFeeds = loadDataFromLocalStorage('feeds');
+
+      const hasCachedValues =
+        storedStudentReport && storedCalendarData && storedNextEvent;
+      // storedFeeds;
+
+      if (hasCachedValues) {
+        setStudentReport(storedStudentReport);
+        setChartData(storedStudentReport);
+        setCalendarEventData(storedCalendarData);
+        setUpcomingEvent(storedNextEvent);
+        setChartData(storedChartData);
+        // setFeeds(storedFeeds);
+        setIsLoading(false);
+      }
+
+      if (!hasCachedValues) setIsLoading(true);
+
       const [
         studentReportResponse,
         calendarResponse,
-        upcomingEventResponse,
-        feedsResponse
+        upcomingEventResponse
+        // feedsResponse
       ] = await Promise.all([
         ApiService.getStudentReport(),
-        ApiService.getCalendarEvents(),
-        ApiService.getUpcomingEvent(),
-        fetchFeeds()
+        fetchEvents(),
+        ApiService.getUpcomingEvent()
+        // fetchFeeds()
       ]);
 
       // Check for 401 status code in each response and log the user out if found
       if (
         studentReportResponse.status === 401 ||
-        calendarResponse.status === 401 ||
+        // calendarResponse.status === 401 ||
         upcomingEventResponse.status === 401
       ) {
         signOut(auth).then(() => {
@@ -92,16 +121,26 @@ export default function Index() {
       }
 
       const studentReportData = await studentReportResponse.json();
-      const calendarData = await calendarResponse.json();
+      // const calendarData = await calendarResponse.json();
       const nextEvent = await upcomingEventResponse.json();
 
       setStudentReport(studentReportData);
       setChartData(studentReportData.topQuizzes);
-      setCalendarEventData(calendarData.data);
+      // setCalendarEventData(calendarData.data);
       setUpcomingEvent(nextEvent);
+
+      // Save data to local storage
+      localStorage.setItem('studentReport', JSON.stringify(studentReportData));
+      localStorage.setItem('calendarData', JSON.stringify(events));
+      localStorage.setItem(
+        'chartData',
+        JSON.stringify(studentReportData.topQuizzes)
+      );
+      localStorage.setItem('nextEvent', JSON.stringify(nextEvent));
+
       // setFeeds(feedsResponse);
     } catch (error) {
-      /* empty */
+      // console.log(error);
     } finally {
       setIsLoading(false);
     }
@@ -303,7 +342,7 @@ export default function Index() {
               py={2}
               height="450px"
             >
-              <Schedule events={calendarEventData} />
+              <Schedule events={events} />
             </Box>
           </GridItem>
         </Grid>

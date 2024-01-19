@@ -140,7 +140,7 @@ function StudentCard(props) {
             <Flex w="full" alignItems="center" justifyContent="space-between">
               <Flex gap={1} alignItems="center">
                 <Text fontSize={16} fontWeight="500">
-                  {offer.course.label}
+                  {offer?.course?.label}
                 </Text>
                 <Text
                   as="p"
@@ -154,7 +154,7 @@ function StudentCard(props) {
                   fontWeight="medium"
                   color="#FB8441"
                 >
-                  <Text as="span">{offer.level.label}-Level</Text>
+                  <Text as="span">{offer?.level?.label}-Level</Text>
                 </Text>
               </Flex>
 
@@ -172,7 +172,8 @@ function StudentCard(props) {
               gap={1}
             >
               <Text as="span">
-                {Object.keys(offer.schedule).length} lesson weekly
+                {offer.schedule && Object.keys(offer.schedule).length} lesson
+                weekly
               </Text>
               <EllipsistIcon className="w-1 mx-0.5" onClick={undefined} />
               <Text as="span">

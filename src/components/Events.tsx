@@ -36,10 +36,11 @@ import {
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import { isSameDay, isThisWeek, getISOWeek } from 'date-fns';
 import { parseISO, format, parse } from 'date-fns';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import React, { useCallback, useMemo, useState } from 'react';
 import { MdOutlineSentimentNeutral, MdOutlineReplay } from 'react-icons/md';
 import { useNavigate } from 'react-router';
+import eventsStore from '../state/eventsStore';
 
 export default function Events({ event }: any) {
   const {
@@ -127,6 +128,7 @@ export default function Events({ event }: any) {
 
   const { isLoading, rescheduleFlashcard, fetchSingleFlashcard } =
     flashcardStore();
+  const { fetchEvents } = eventsStore();
 
   const toast = useCustomToast();
 
@@ -138,11 +140,13 @@ export default function Events({ event }: any) {
   const handleEventSchedule = async (data: ScheduleFormState) => {
     const parsedTime = parse(data.time.toLowerCase(), 'hh:mm aa', new Date());
     const time = format(parsedTime, 'HH:mm');
+    const day = moment(data.day).format('YYYY-MM-DD');
+    console.log(day);
 
     const rePayload = {
       eventId: scheduleItem._id,
       updates: {
-        startDate: data.day?.toISOString() as string,
+        startDate: moment(day).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]') as string,
         startTime: time,
         isActive: true
       }
@@ -156,6 +160,7 @@ export default function Events({ event }: any) {
         status: 'success'
       });
       setScheduleItem(null);
+      fetchEvents();
     } else {
       toast({
         position: 'top-right',
@@ -223,8 +228,10 @@ export default function Events({ event }: any) {
         event.type === 'study' ? event.data.entityType : event.type
       )}`}
       onClick={() => {
-        event.type === 'study'
+        event.data.entityType === 'flashcard'
           ? fetchSingleFlashcard(event.data.entity.id)
+          : event.data.entityType === 'quiz'
+          ? navigate(`/dashboard/quizzes/take?quiz_id=${event.data.entity.id}`)
           : navigate(`${`/dashboard`}`);
       }}
     >
@@ -254,7 +261,7 @@ export default function Events({ event }: any) {
               <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
                 <span>
                   {event.type !== 'booking'
-                    ? moment(event.data.startDate).format('hh:mm A')
+                    ? moment.utc(event.data.startDate).format('hh:mm A')
                     : convertUtcToUserTime(event.data.startDate)}
                   {/* Format the time as "11:00 AM" */}
                 </span>

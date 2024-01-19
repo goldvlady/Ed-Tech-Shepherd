@@ -230,7 +230,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
   );
   useEffect(() => {
     const questionsEmptyState = {
-      questionType: '',
+      questionType: 'openEnded',
       question: '',
       options: [], // Initialized options as empty array
       answer: ''

@@ -775,8 +775,8 @@ const QuizPreviewer = ({
 
                     {togglePlansModal && (
                       <PlansModal
-                        message="Pick a plan to access your AI Study Tools! 🚀"
-                        subMessage="Get started today for free!"
+                        message="Start Your 2 Week Free Trial"
+                        subMessage="One-click Cancel at anytime."
                         togglePlansModal={togglePlansModal}
                         setTogglePlansModal={setTogglePlansModal}
                       />
@@ -784,11 +784,14 @@ const QuizPreviewer = ({
                     {!showQuizAnswers && handleUnansweredQuestionsCount > 0 && (
                       <Box>
                         <Button
-                          onClick={() => setShowConfirmation(true)}
+                          onClick={() => {
+                            user && setShowConfirmation(true);
+                          }}
                           bg={'#207DF7'}
                           w={'180px'}
                           h={'40px'}
                           _hover={{ bg: 'red.200' }}
+                          disabled={user === null}
                         >
                           Submit Quiz
                         </Button>
@@ -806,7 +809,7 @@ const QuizPreviewer = ({
                             }}
                             w={'180px'}
                             h={'40px'}
-                            disabled={!user}
+                            disabled={user === null}
                           >
                             Submit Quiz
                           </Button>

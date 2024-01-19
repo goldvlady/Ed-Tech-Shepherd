@@ -95,6 +95,29 @@ type Store = {
   //   ) => Promise<boolean>;
 };
 
+const saveState = (state: Partial<Store>) => {
+  const stateToSave = {
+    quizzes: state.quizzes,
+    tags: state.tags,
+    pagination: state.pagination
+    // Add other states you want to save
+  };
+  localStorage.setItem('quizStore', JSON.stringify(stateToSave));
+};
+
+// Function to load state from local storage
+const loadState = (): Partial<Store> => {
+  const savedState = localStorage.getItem('quizStore');
+  return savedState
+    ? JSON.parse(savedState)
+    : {
+        quizzes: null,
+        tags: [],
+        pagination: { limit: 10, page: 1, count: 100 }
+        // Set default values for other states
+      };
+};
+
 export default create<Store>((set) => ({
   startQuizModal: false,
   isLoading: false,
@@ -102,6 +125,7 @@ export default create<Store>((set) => ({
   minimizedStudy: null,
   quizzes: null,
   tags: [],
+  ...loadState(),
   storeQuizTags: async (quizIds: string[] | string, tags: string[]) => {
     try {
       set({ isLoading: true });
@@ -130,7 +154,13 @@ export default create<Store>((set) => ({
             updateQuiz(quizIds);
           }
 
-          return { quizIds, tags: sortedUniq([...state.tags, ...tags]) };
+          const newState = {
+            ...state,
+            quizIds,
+            tags: sortedUniq([...state.tags, ...tags])
+          };
+          saveState(newState);
+          return newState;
         });
 
         return true;
@@ -151,7 +181,12 @@ export default create<Store>((set) => ({
       const params = queryParams || ({} as SearchQueryParams);
       if (!params.page) params.page = 1;
       if (!params.limit) params.limit = 10;
-      set({ isLoading: true });
+      set((prev) => {
+        if (prev.quizzes?.length) {
+          return prev;
+        }
+        return { isLoading: true };
+      });
       const response = await ApiService.getQuizzes(params || {});
       const { data, meta } = await response.json();
 
@@ -163,7 +198,11 @@ export default create<Store>((set) => ({
         if (isEmpty(prev.tags)) {
           d.tags = sortedUniq(meta?.tags);
         }
-        return { ...d };
+        const newState = { ...prev, ...d };
+        if (!params.page || params.page === 1) {
+          saveState(newState);
+        }
+        return newState;
       });
     } catch (error) {
       // console.log(error)
@@ -214,6 +253,7 @@ export default create<Store>((set) => ({
           if (index !== undefined && index >= 0 && quizzes) {
             quizzes.splice(index, 1);
           }
+          saveState({ ...state, quizzes });
           return { quizzes };
         });
         return true;
@@ -282,6 +322,7 @@ export default create<Store>((set) => ({
             questions: [...nonUpdatedQuestions, ...data.questions]
           }) as QuizData
         };
+        saveState({ ...state, ...nextState });
         return nextState;
       });
       callback && callback(false, data);
@@ -312,6 +353,7 @@ export default create<Store>((set) => ({
             questions: data.questions
           }) as QuizData
         };
+        saveState({ ...state, ...nextState });
         return nextState;
       });
       callback && callback(false, data);

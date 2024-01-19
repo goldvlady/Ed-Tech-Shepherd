@@ -6,7 +6,7 @@ import { QuizData, QuizQuestion } from '../../../types';
 import { QuizPreview as QuizPreviewer } from './previews';
 import { Box, Flex } from '@chakra-ui/react';
 import { isEmpty, isNil, map, merge } from 'lodash';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import './styles.css';
 import { firebaseAuth } from '../../../firebase';
@@ -26,6 +26,8 @@ const CreateQuizPage = () => {
   const [title, setTitle] = useState('');
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const navigate = useNavigate();
+  const apiKey = searchParams.get('apiKey');
+  const shareable = searchParams.get('shareable');
   useEffect(() => {
     const queryQuizId = searchParams.get('quiz_id');
     const apiKey = searchParams.get('apiKey');
@@ -36,7 +38,7 @@ const CreateQuizPage = () => {
           !isEmpty(apiKey) &&
           !isNil(apiKey) &&
           !isEmpty(shareable) &&
-          !isEmpty(shareable)
+          !isNil(shareable)
         ) {
           try {
             handleIsLoadingQuizzes(true);
@@ -68,18 +70,29 @@ const CreateQuizPage = () => {
           } finally {
             handleIsLoadingQuizzes(false);
           }
-          const inputElements = document.querySelectorAll('input');
-          const textAreas = document.querySelectorAll('textarea');
-          // Disable each input element on the page
-          inputElements.forEach((input) => {
-            input.disabled = true;
-          });
-          textAreas.forEach((input) => {
-            input.disabled = true;
-          });
+
           window.addEventListener('click', () => {
             setTogglePlansModal(true);
           });
+
+          // document.body.style.userSelect = 'none';
+          // document.body.style.pointerEvents = 'none';
+
+          // const excludeSection: HTMLDivElement | null =
+          //   document.querySelector('.pm');
+          // if (excludeSection) {
+          //   excludeSection.style.userSelect = 'auto';
+          //   excludeSection.style.pointerEvents = 'auto';
+
+          //   const descendants: Array<HTMLElement> = Array.from(
+          //     excludeSection.querySelectorAll('*')
+          //   );
+          //   descendants.forEach((descendant) => {
+          //     descendant.style.userSelect = 'auto';
+          //     descendant.style.pointerEvents = 'auto';
+          //   });
+          // }
+          return;
         } else {
           const token = await firebaseAuth.currentUser?.getIdToken();
 
@@ -118,7 +131,22 @@ const CreateQuizPage = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchQuizzes, handleIsLoadingQuizzes, searchParams]);
+  if (apiKey) {
+    const inputElements = document.querySelectorAll('input');
 
+    const textAreas = document.querySelectorAll('textarea');
+    if (inputElements && textAreas) {
+      // Disable each input element on the page
+      inputElements.forEach((input) => {
+        input.disabled = true;
+        input.style.userSelect = 'none';
+      });
+      textAreas.forEach((input) => {
+        input.disabled = true;
+        input.style.userSelect = 'none';
+      });
+    }
+  }
   return (
     <>
       <Flex
