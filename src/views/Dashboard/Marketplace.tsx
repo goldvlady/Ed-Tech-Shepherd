@@ -77,7 +77,7 @@ import { GiTakeMyMoney } from 'react-icons/gi';
 import { IoIosAlert } from 'react-icons/io';
 import { MdInfo } from 'react-icons/md';
 import { MdTune } from 'react-icons/md';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 
 type PaginationType = {
@@ -158,6 +158,7 @@ export default function Marketplace() {
   const navigate = useNavigate();
   const getData = async () => {
     setLoadingData(true);
+
     const formData = {
       courses: subject === 'Subject' ? '' : subject.toLowerCase(),
       levels: level === '' ? '' : level._id,
@@ -180,11 +181,30 @@ export default function Marketplace() {
     setAllTutors(data.tutors);
     setLoadingData(false);
   };
+  const subjectId: any = searchParams.get('subjectId');
+
+  // useEffect(() => {
+  //   getData();
+
+  //   /* eslint-disable */
+  // }, [subject, level, price, rating, days, page]);
 
   useEffect(() => {
-    getData();
-    /* eslint-disable */
+    const fetchSubjectFromParams = async () => {
+      if (subjectId) {
+        setSubject(subjectId);
+
+        // await getData(); // Assuming you want to fetch data after setting the subject
+        navigate('.', { replace: true });
+      } else {
+        getData();
+      }
+    };
+
+    fetchSubjectFromParams();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subject, level, price, rating, days, page]);
+  console.log(subjectId);
 
   const handleSelectedCourse = (selectedcourse) => {
     let selectedID = '';
@@ -327,16 +347,6 @@ export default function Marketplace() {
       }
     };
     getNotes();
-  }, []);
-
-  const subjectId: any = searchParams.get('subjectId');
-
-  console.log(subjectId);
-
-  useEffect(() => {
-    if (subjectId !== null) {
-      setSubject(subjectId);
-    }
   }, []);
 
   const handleBlur = () => {

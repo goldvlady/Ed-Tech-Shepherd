@@ -677,7 +677,7 @@ function DocViewer(props) {
       const response = await generateComment({
         documentId: documentId,
         highlightText: selectedText,
-        studentId: user.student._id
+        studentId: user._id
       });
 
       if (response) {
