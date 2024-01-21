@@ -1,7 +1,7 @@
 import DeleteIcn from '../../../assets/deleteIcn.svg?react';
 import EditIcn from '../../../assets/editIcn.svg?react';
 import HistoryIcn from '../../../assets/historyIcon.svg?react';
-import { getDateString } from '../../../helpers';
+import { encodeQueryParams, getDateString } from '../../../helpers';
 import { getDocchatHistory } from '../../../services/AI';
 import userStore from '../../../state/userStore';
 import noteStore from '../../../state/noteStore';
@@ -129,15 +129,14 @@ const DocchatHistory = ({
     docKeywords,
     studentId
   ) => {
-    navigate('/dashboard/docchat', {
-      state: {
-        documentUrl,
-        docTitle,
-        documentId,
-        docKeywords,
-        studentId
-      }
+    const query = encodeQueryParams({
+      documentUrl,
+      docTitle,
+      documentId,
+      docKeywords,
+      sid: user._id
     });
+    navigate(`/dashboard/docchat${query}`);
     if (setIsChatHistory) {
       setIsChatHistory(false);
     }
