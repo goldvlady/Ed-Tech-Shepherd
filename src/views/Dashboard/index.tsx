@@ -76,13 +76,10 @@ export default function Index() {
       const storedCalendarData = loadDataFromLocalStorage('calendarData');
       const storedNextEvent = loadDataFromLocalStorage('nextEvent');
       const storedChartData = loadDataFromLocalStorage('chartData');
-      const storedFeeds = loadDataFromLocalStorage('feeds');
+      // const storedFeeds = loadDataFromLocalStorage('feeds');
 
       const hasCachedValues =
-        storedStudentReport &&
-        storedCalendarData &&
-        storedNextEvent &&
-        storedFeeds;
+        storedStudentReport && storedCalendarData && storedNextEvent;
 
       if (hasCachedValues) {
         setStudentReport(storedStudentReport);
