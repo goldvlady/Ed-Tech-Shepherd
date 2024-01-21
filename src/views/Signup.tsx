@@ -185,6 +185,7 @@ const Signup: React.FC = () => {
                     >
                       <FormLabel>Password</FormLabel>
                       <SecureInput
+                        paddingLeft={'16px'}
                         fontSize="0.875rem"
                         fontFamily="Inter"
                         fontWeight="400"

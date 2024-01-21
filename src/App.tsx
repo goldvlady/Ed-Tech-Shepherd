@@ -40,7 +40,6 @@ import DashboardIndex from './views/Dashboard/index';
 import DashboardLayout from './views/Dashboard/layout';
 import ForgotPassword from './views/ForgotPassword';
 import Home from './views/Home';
-import Landing from './views/Landing';
 import Login from './views/Login';
 import OnboardStudent from './views/OnboardStudent/index';
 import OnboardTutor from './views/OnboardTutor';
@@ -222,6 +221,14 @@ const AppRoutes: React.FC = () => {
 
   const userRoute = userRoutes[userType];
 
+  const RedirectToExternal = ({ url }) => {
+    useEffect(() => {
+      window.location.href = url;
+    }, [url]);
+
+    return null; // render nothing
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       // fetchNotifications();
@@ -263,7 +270,9 @@ const AppRoutes: React.FC = () => {
         element={
           <RequireAuth
             authenticated={<Navigate to={'/dashboard'} />}
-            unAuthenticated={<Landing />}
+            unAuthenticated={
+              <RedirectToExternal url="https://shepherd.study/" />
+            }
           />
         }
       />

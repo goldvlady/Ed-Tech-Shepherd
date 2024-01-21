@@ -13,7 +13,7 @@ const SecureInput: React.FC<Props> = ({ ...rest }) => {
 
   return (
     <InputGroup>
-      <Input {...rest} type={hidden ? 'password' : 'text'} pr="2rem" />
+      <Input {...rest} type={hidden ? 'password' : 'password-text'} pr="2rem" />
       <InputRightElement
         top={'50%'}
         transform={'translateY(-50%)'}

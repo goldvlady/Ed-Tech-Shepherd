@@ -1225,6 +1225,10 @@ canvas {
   padding-left: 30px;
 }
 
+.chakra-input__group input[type='password-text'] {
+  padding-left: 16px;
+}
+
 .chakra-input__group input[type='text']:focus {
   box-shadow: none;
 }

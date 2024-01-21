@@ -903,11 +903,12 @@ class ApiService {
   static initiateUserSubscription = async (
     userId: string,
     priceId: string,
+    priceTier: string,
     stripeCustomerId?: string
   ) => {
     return doFetch(`${ApiService.baseEndpoint}/initiateUserSubscription`, {
       method: 'POST',
-      body: JSON.stringify({ stripeCustomerId, userId, priceId }),
+      body: JSON.stringify({ stripeCustomerId, userId, priceId, priceTier }),
       headers: {
         'Content-Type': 'application/json'
       }
