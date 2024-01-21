@@ -33,6 +33,10 @@ function AccSettings() {
     setTogglePlansModal(true);
   };
 
+  useEffect(() => {
+    userStore.getState().fetchUser();
+  }, []);
+
   return (
     <div>
       <Box bgColor={'#FBF9FB'} pt={3} px={3}>

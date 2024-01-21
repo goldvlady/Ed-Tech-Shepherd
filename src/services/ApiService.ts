@@ -904,26 +904,15 @@ class ApiService {
     userId: string,
     priceId: string,
     priceTier: string,
-    fetchUserCallback: () => void,
     stripeCustomerId?: string
   ) => {
-    const response = await doFetch(
-      `${ApiService.baseEndpoint}/initiateUserSubscription`,
-      {
-        method: 'POST',
-        body: JSON.stringify({ stripeCustomerId, userId, priceId, priceTier }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
+    return doFetch(`${ApiService.baseEndpoint}/initiateUserSubscription`, {
+      method: 'POST',
+      body: JSON.stringify({ stripeCustomerId, userId, priceId, priceTier }),
+      headers: {
+        'Content-Type': 'application/json'
       }
-    );
-
-    if (response.ok) {
-      // If the subscription initiation was successful, call the fetchUser function.
-      fetchUserCallback();
-    }
-
-    return response;
+    });
   };
 
   static getStripeCustomerPortalUrl = async (
