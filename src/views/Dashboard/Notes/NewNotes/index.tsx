@@ -1380,7 +1380,7 @@ const NewNote = () => {
 
             <NoteModal
               title="Delete Note"
-              description="This will delete Note. Are you sure well?"
+              description="This will permanently remove this note from your list."
               isLoading={isLoading}
               isOpen={deleteNoteModal}
               actionButtonText="Delete"

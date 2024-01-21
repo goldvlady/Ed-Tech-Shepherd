@@ -304,6 +304,7 @@ const PlansModal = ({
       user.id,
       priceId,
       priceTier,
+      userStore.getState().fetchUser,
       user.stripeCustomerId ? user.stripeCustomerId : null
     );
     const portal = await session.json();
