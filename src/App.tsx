@@ -140,7 +140,7 @@ const studentRoutes = [
   { path: 'ace-homework', element: <HomeWorkHelp /> },
   { path: 'flashcards/create', element: <CreateFlashCard /> },
   { path: 'flashcards', element: <FlashCard /> },
-  { path: 'flashcards/:flashcardId', element: <FlashCard /> },
+  // { path: 'flashcards/:flashcardId', element: <FlashCard /> },
   { path: 'flashcards/:id/edit', element: <EditFlashCard /> },
   { path: 'library', element: <Library /> },
   { path: 'create-study-plans', element: <CreateStudyPlans /> },
@@ -371,6 +371,14 @@ const AppRoutes: React.FC = () => {
         }
       />
       <Route
+        path="/dashboard/flashcards/:flashcardId"
+        element={
+          <DashboardLayout>
+            <FlashCard />
+          </DashboardLayout>
+        }
+      />
+      <Route
         path="/dashboard/docchat"
         element={
           <DashboardLayout>
@@ -455,6 +463,7 @@ function App() {
           </ChakraProvider>
         </LexicalContext>
       </BrowserRouter>
+      <FlashCardModal isOpen={Boolean(flashcard) || showStudyList} />
     </>
   );
 }
