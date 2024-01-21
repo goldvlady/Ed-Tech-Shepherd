@@ -83,6 +83,7 @@ export const AuthProvider = ({ children }: { children: any }) => {
       if (firebaseUser) {
         if (firebaseUser.uid === currentUser?.firebaseId) {
           dispatch({ type: ActionTypes.AUTH_SUCCESS, payload: currentUser });
+          fetchUser();
         } else {
           try {
             const fetchedUser = await fetchUser();
