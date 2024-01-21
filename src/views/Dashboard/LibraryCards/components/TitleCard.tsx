@@ -50,7 +50,6 @@ const TitleCard: React.FC<TitleCardProps> = ({ data, onClick }) => {
           <Text
             height="30px"
             mt={2}
-            w="80%"
             mb="0px"
             fontSize="md"
             fontWeight="bold"

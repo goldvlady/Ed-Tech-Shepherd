@@ -51,7 +51,7 @@ const AddToDeckModal = ({ isOpen, onClose, onSubmit }) => {
   };
 
   const handleSubmit = (isNewDeck) => {
-    onSubmit({ ...formData, isNewDeck });
+    onSubmit(formData, isNewDeck);
     onClose();
   };
 
