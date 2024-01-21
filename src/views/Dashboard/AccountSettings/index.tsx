@@ -33,9 +33,9 @@ function AccSettings() {
     setTogglePlansModal(true);
   };
 
-  useEffect(() => {
-    userStore.getState().fetchUser();
-  }, []);
+  // useEffect(() => {
+  //   userStore.getState().fetchUser();
+  // }, []);
 
   return (
     <div>
