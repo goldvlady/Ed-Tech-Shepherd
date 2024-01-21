@@ -200,22 +200,23 @@ const LibraryCards: React.FC<LibraryCardProps> = ({ deckId }) => {
           onSubmit={handleFormSubmit}
         />
       )}
-      {selectedCards.length > 0 && (
-        <Button onClick={toggleModal}>Add to Deck</Button>
-      )}
-      {
-        <Flex mb="4">
+      <Flex justify="row" justifyContent="space-between" mb="4">
+        {
           <Select
             placeholder="Filter by difficulty"
             onChange={handleDifficultyChange}
+            width={'20%'}
           >
             <option value="Easy">Easy</option>
             <option value="Medium">Medium</option>
             <option value="Difficult">Difficult</option>
             {/* Add More options similar to Data */}
           </Select>
-        </Flex>
-      }
+        }
+        {selectedCards.length > 0 && (
+          <Button onClick={toggleModal}>Add to Deck</Button>
+        )}
+      </Flex>
       <SimpleGrid columns={{ base: 1, md: 2, lg: 2, xl: 3 }} spacing={10}>
         {libraryCards.map((card) => (
           <LibraryCard

@@ -181,37 +181,41 @@ const Library: React.FC = () => {
             </Box>
           </Flex>
 
-          <Stack
-            direction={{ base: 'column', md: 'row' }}
-            width="100%"
-            mb={{ base: '20px', md: '40px' }}
-            alignItems="center"
-            justifyContent="space-between"
-            pr={{ md: '20px', base: '0' }}
-            color="#E5E6E6"
-            spacing={4}
-          >
-            <Flex alignItems="center">
-              <InputGroup
-                size="sm"
-                borderRadius="6px"
-                width={{ base: '100%', md: '200px' }}
-                height="32px"
-              >
-                <InputLeftElement marginRight={'10px'} pointerEvents="none">
-                  <BsSearch color="#5E6164" size="14px" />
-                </InputLeftElement>
-                <Input
-                  type="text"
-                  variant="outline"
-                  onChange={(e) => handleSearch(e.target.value)}
+          {displayMode === 'subjects' ? (
+            <Stack
+              direction={{ base: 'column', md: 'row' }}
+              width="100%"
+              mb={{ base: '20px', md: '40px' }}
+              alignItems="center"
+              justifyContent="space-between"
+              pr={{ md: '20px', base: '0' }}
+              color="#E5E6E6"
+              spacing={4}
+            >
+              <Flex alignItems="center">
+                <InputGroup
                   size="sm"
-                  placeholder="Search"
                   borderRadius="6px"
-                />
-              </InputGroup>
-            </Flex>
-          </Stack>
+                  width={{ base: '100%', md: '200px' }}
+                  height="32px"
+                >
+                  <InputLeftElement marginRight={'10px'} pointerEvents="none">
+                    <BsSearch color="#5E6164" size="14px" />
+                  </InputLeftElement>
+                  <Input
+                    type="text"
+                    variant="outline"
+                    onChange={(e) => handleSearch(e.target.value)}
+                    size="sm"
+                    placeholder="Search"
+                    borderRadius="6px"
+                  />
+                </InputGroup>
+              </Flex>
+            </Stack>
+          ) : (
+            ''
+          )}
 
           <Tabs>
             <TabList mb="1em">
