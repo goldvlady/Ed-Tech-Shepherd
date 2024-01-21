@@ -136,7 +136,7 @@ export default function DocChat() {
   const title = searchParams.get('docTitle')
     ? decodeURIComponent(searchParams.get('docTitle'))
     : '';
-  const studentId = user?._id ?? decodeURIComponent(searchParams.get('sid'));
+  const studentId = decodeURIComponent(searchParams.get('sid')) ?? user?._id;
   const directStudentId = user?.student?._id;
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryText, setSummaryText] = useState('');
