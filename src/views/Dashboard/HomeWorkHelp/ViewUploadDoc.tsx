@@ -16,6 +16,7 @@ import styled from 'styled-components';
 import CustomButton from '../../../components/CustomComponents/CustomButton';
 import { useNavigate } from 'react-router-dom';
 import uploadFile, { snip } from '../../../helpers/file.helpers';
+import { encodeQueryParams } from '../../../helpers';
 
 interface UiMessage {
   status: 'error' | 'success' | 'info' | 'warning' | 'loading' | undefined;
@@ -262,14 +263,14 @@ const ViewUploadDoc = ({
     documentId,
     docKeywords
   ) => {
-    navigate('/dashboard/ace-homework', {
-      state: {
-        documentUrl,
-        docTitle,
-        documentId,
-        docKeywords
-      }
+    const query = encodeQueryParams({
+      documentUrl,
+      docTitle,
+      documentId,
+      docKeywords,
+      sid: user._id
     });
+    navigate(`/dashboard/docchat${query}`);
 
     handleClose();
   };
