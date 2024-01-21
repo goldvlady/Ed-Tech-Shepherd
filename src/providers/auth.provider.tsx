@@ -78,12 +78,16 @@ export const AuthProvider = ({ children }: { children: any }) => {
   }, [dispatch]);
 
   useEffect(() => {
+    fetchUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         if (firebaseUser.uid === currentUser?.firebaseId) {
           dispatch({ type: ActionTypes.AUTH_SUCCESS, payload: currentUser });
-          fetchUser();
         } else {
           try {
             const fetchedUser = await fetchUser();

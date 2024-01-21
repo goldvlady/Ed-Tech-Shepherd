@@ -350,7 +350,6 @@ const OnboardStudent = () => {
               position: 'top-right'
             });
           } else {
-            console.log(error);
             toast({
               title: 'Failed to sign up',
               status: 'error',

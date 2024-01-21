@@ -626,7 +626,7 @@ const QuizPreviewer = ({
         score: size(filter(scores, ['score', 'true']))
       });
     } catch (error) {
-      console.log('error ========>> ', error);
+      // console.log('error ========>> ', error);
     }
   };
 

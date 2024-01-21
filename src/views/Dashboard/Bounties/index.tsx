@@ -42,7 +42,6 @@ function AllBounties() {
   //Payment Method Handlers
   const paymentDialogRef = useRef<PaymentDialogRef>(null);
 
-  console.log(paymentDialogRef);
   const url: URL = new URL(window.location.href);
   const params: URLSearchParams = url.searchParams;
   const clientSecret = params.get('setup_intent_client_secret');
@@ -55,7 +54,6 @@ function AllBounties() {
       const paymentIntent = await ApiService.createStripeSetupPaymentIntent();
 
       const { data } = await paymentIntent.json();
-      console.log(data, 'data from stripe');
       paymentDialogRef.current?.startPayment(
         data.clientSecret,
         `${window.location.href}`

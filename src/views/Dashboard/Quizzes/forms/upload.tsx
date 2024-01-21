@@ -106,10 +106,6 @@ const UploadQuizForm = ({
         throw new Error(resultJson.body);
       }
     } catch (error) {
-      console.log(
-        'handleGenerateQuestions ---------->>> error =============>>> ',
-        error
-      );
       toast({
         position: 'top-right',
         title: `failed to generate quizzes job `,

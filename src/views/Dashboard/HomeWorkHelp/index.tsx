@@ -502,7 +502,6 @@ const HomeWorkHelp = () => {
       setShowPrompt(true);
     }
   }, [conversationId, socket, recentConversationId, convoId]);
-  console.log(socket, 'sock chuls');
   const fetchDescription = async (id: string) => {
     const response = await getDescriptionById({ conversationId: id });
     if (response?.data) {

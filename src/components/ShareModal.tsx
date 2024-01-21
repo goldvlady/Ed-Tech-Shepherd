@@ -55,7 +55,6 @@ const ShareModal = ({ type }: ShareModalProps) => {
     );
     setPresentableLink(shareLink.split('dashboard').at(-1));
     setShareLink(shareLink);
-    console.log(shareLink);
     setTimeout(() => {
       onOpen();
     }, 500);

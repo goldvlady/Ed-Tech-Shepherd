@@ -58,9 +58,7 @@ import VerificationSuccess from './views/VerificationPages/successful_verificati
 import VerifyEmail from './views/VerificationPages/verify_email';
 import WelcomeLayout from './views/WelcomeLayout';
 import { Box, ChakraProvider } from '@chakra-ui/react';
-import 'bootstrap/dist/css/bootstrap-grid.min.css';
-import 'bootstrap/dist/css/bootstrap-reboot.min.css';
-import 'bootstrap/dist/css/bootstrap-utilities.min.css';
+
 import React, { useCallback, useEffect, useMemo } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Navigate, Route, Routes, useRoutes } from 'react-router';

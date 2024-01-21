@@ -876,7 +876,7 @@ const NewNote = () => {
       setNoteId('');
       clearEditor();
     } catch (error) {
-      console.log('handleBackClick ------->>> error ============>>> ', error);
+      // console.log('handleBackClick ------->>> error ============>>> ', error);
     } finally {
       setTimeout(() => {
         navigate(-1);
@@ -1131,7 +1131,6 @@ const NewNote = () => {
     const ed: HTMLDivElement = document.querySelector('.ContentEditable__root');
     if (ed) {
       const children: HTMLCollectionOf<Element> = ed.children;
-      console.log('hey kiddy', children);
       // Apply user-select: none to each child element
       for (const child of children) {
         (child as HTMLElement).style.userSelect = 'none';

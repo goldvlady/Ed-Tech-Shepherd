@@ -204,7 +204,6 @@ export default function Marketplace() {
     fetchSubjectFromParams();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subject, level, price, rating, days, page]);
-  console.log(subjectId);
 
   const handleSelectedCourse = (selectedcourse) => {
     let selectedID = '';
@@ -263,7 +262,7 @@ export default function Marketplace() {
 
       setSettingUpPaymentMethod(false);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
   const {
