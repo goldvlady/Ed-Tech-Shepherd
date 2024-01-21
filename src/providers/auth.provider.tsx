@@ -6,7 +6,8 @@ import React, {
   useReducer,
   useContext,
   useEffect,
-  useCallback
+  useCallback,
+  useState
 } from 'react';
 
 interface State {
@@ -71,16 +72,20 @@ const authReducer = (state: State, action: Action) => {
 
 export const AuthProvider = ({ children }: { children: any }) => {
   const { fetchUser, user: currentUser, logoutUser } = userStore();
+  const [hasRefetched, setHasRefetched] = useState<boolean>(false);
   const [state, dispatch] = useReducer(authReducer, initialState);
+  const { isAuthenticated } = state;
 
   const reloadAuth = useCallback(() => {
     dispatch({ type: ActionTypes.SET_LOADING, payload: true });
   }, [dispatch]);
 
   useEffect(() => {
-    fetchUser();
+    if (!hasRefetched && isAuthenticated) {
+      fetchUser().then((status) => setHasRefetched(status));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isAuthenticated, hasRefetched]);
 
   useEffect(() => {
     const auth = getAuth();
