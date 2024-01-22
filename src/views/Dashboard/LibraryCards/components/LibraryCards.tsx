@@ -205,7 +205,7 @@ const LibraryCards: React.FC<LibraryCardProps> = ({ deckId }) => {
           <Select
             placeholder="Filter by difficulty"
             onChange={handleDifficultyChange}
-            width={'20%'}
+            width={{ base: '60%', sm: '50%', md: '40%', lg: '20%' }}
           >
             <option value="Easy">Easy</option>
             <option value="Medium">Medium</option>
