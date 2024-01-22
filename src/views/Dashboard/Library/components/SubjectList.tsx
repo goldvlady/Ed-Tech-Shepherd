@@ -8,7 +8,7 @@ interface LibrarySubjectProps {
   onSelectSubject: (subjectId: string) => void;
 }
 
-const LibrarySubjects: React.FC<LibrarySubjectProps> = ({
+const SubjectList: React.FC<LibrarySubjectProps> = ({
   subjects,
   onSelectSubject
 }) => {
@@ -29,4 +29,4 @@ const LibrarySubjects: React.FC<LibrarySubjectProps> = ({
   );
 };
 
-export default LibrarySubjects;
+export default SubjectList;

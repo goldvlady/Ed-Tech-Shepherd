@@ -9,7 +9,7 @@ interface LibraryTopicProps {
   onSelectTopic: (topicId: string) => void;
 }
 
-const LibraryTopics: React.FC<LibraryTopicProps> = ({
+const TopicList: React.FC<LibraryTopicProps> = ({
   subjectId,
   onSelectTopic
 }) => {
@@ -39,4 +39,4 @@ const LibraryTopics: React.FC<LibraryTopicProps> = ({
   );
 };
 
-export default LibraryTopics;
+export default TopicList;

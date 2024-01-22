@@ -4,8 +4,8 @@ import flashcardStore from '../../../../state/flashcardStore';
 import libraryCardStore from '../../../../state/libraryCardStore';
 import userStore from '../../../../state/userStore';
 import { LibraryCardData } from '../../../../types';
-import LibraryCard from '../../FlashCards/components/libraryCardPreview';
-import AddToDeckModal from './addtoDeckModal';
+import LibraryCard from './TempLibraryCard';
+import AddToDeckModal from './TempAddToDeckModal';
 import { SimpleGrid, Box, Button, Flex, Select } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -39,7 +39,7 @@ interface LibraryCardProps {
   deckId: string;
 }
 
-const LibraryCards: React.FC<LibraryCardProps> = ({ deckId }) => {
+const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
   const { fetchLibraryCards, libraryCards } = libraryCardStore();
   const { user } = userStore();
   const {
@@ -150,37 +150,18 @@ const LibraryCards: React.FC<LibraryCardProps> = ({ deckId }) => {
     }
   ];
 
-  // Function to handle card selection
   const handleCardSelect = (card, isSelected) => {
     setSelectedCards((prev) =>
       isSelected ? [...prev, card] : prev.filter((car) => car.id !== card.id)
     );
   };
 
-  // Function to toggle modal
   const toggleModal = () => setIsModalOpen(!isModalOpen);
 
-  // Function to log form data and selected cards
   const handleFormSubmit = (formData, isNewDeck) => {
-    // console.log('Form Data:', formData);
-    // console.log('Selected Cards:', selectedCards);
     onSubmitFlashcard(formData, selectedCards, isNewDeck);
     toggleModal();
   };
-
-  // const [selectedCards, setSelectedCards] = useState(new Set());
-
-  // const handleSelectCard = (cardId, isSelected) => {
-  //   setSelectedCards((prevSelectedCards) => {
-  //     const newSelectedCards = new Set(prevSelectedCards);
-  //     if (isSelected) {
-  //       newSelectedCards.add(cardId);
-  //     } else {
-  //       newSelectedCards.delete(cardId);
-  //     }
-  //     return newSelectedCards;
-  //   });
-  // };
 
   const handleDifficultyChange = (e) => {
     setSelectedDifficulty(e.target.value);
@@ -234,4 +215,4 @@ const LibraryCards: React.FC<LibraryCardProps> = ({ deckId }) => {
   );
 };
 
-export default LibraryCards;
+export default LibraryCardList;

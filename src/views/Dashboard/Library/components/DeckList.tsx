@@ -9,10 +9,7 @@ interface LibraryDeckProps {
   onSelectDeck: (deckId: string) => void;
 }
 
-const LibraryDecks: React.FC<LibraryDeckProps> = ({
-  topicId,
-  onSelectDeck
-}) => {
+const DeckList: React.FC<LibraryDeckProps> = ({ topicId, onSelectDeck }) => {
   const { fetchlibraryDecks, isLoading, libraryDecks } = libraryDeckStore();
 
   useEffect(() => {
@@ -39,4 +36,4 @@ const LibraryDecks: React.FC<LibraryDeckProps> = ({
   );
 };
 
-export default LibraryDecks;
+export default DeckList;

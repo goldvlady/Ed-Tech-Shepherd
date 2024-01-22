@@ -1,11 +1,10 @@
 import LoaderOverlay from '../../../components/loaderOverlay';
 import { useSearch } from '../../../hooks';
 import librarySubjectStore from '../../../state/librarySubjectStore';
-import { FlashcardData } from '../../../types';
-import CardsComponent from '../LibraryCards/components/LibraryCards';
-import SubjectsComponent from '../LibraryCards/components/Subjects';
-import TopicsComponent from '../LibraryCards/components/Topics';
-import DecksComponent from '../LibraryCards/components/Decks';
+import LibraryCardList from './components/LibraryCardList';
+import SubjectList from './components/SubjectList';
+import TopicList from './components/TopicList';
+import DeckList from './components/DeckList';
 import { Stack } from '@chakra-ui/react';
 import {
   Flex,
@@ -225,25 +224,25 @@ const Library: React.FC = () => {
             <TabPanels>
               <TabPanel>
                 {displayMode === 'subjects' && (
-                  <SubjectsComponent
+                  <SubjectList
                     subjects={librarySubjects}
                     onSelectSubject={handleSubjectClick}
                   />
                 )}
                 {displayMode === 'topics' && (
-                  <TopicsComponent
+                  <TopicList
                     subjectId={selectedSubjectId}
                     onSelectTopic={handleTopicClick}
                   />
                 )}
                 {displayMode === 'decks' && (
-                  <DecksComponent
+                  <DeckList
                     topicId={selectedTopicId}
                     onSelectDeck={handleDeckClick}
                   />
                 )}
                 {displayMode === 'cards' && (
-                  <CardsComponent deckId={selectedDeckId} />
+                  <LibraryCardList deckId={selectedDeckId} />
                 )}
               </TabPanel>
             </TabPanels>
