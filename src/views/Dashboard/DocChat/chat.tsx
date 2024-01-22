@@ -470,11 +470,11 @@ const Chat = forwardRef(
                             <Text className="font-semibold">
                               {HomeWorkHelp ? 'Socrates' : 'Plato.'}
                             </Text>
-                            {!HomeWorkHelp && user && (
+                            {/* {!HomeWorkHelp && user && (
                               <div className="ml-[70%]">
                                 <ShareModal type="docchat" />
                               </div>
-                            )}
+                            )} */}
                           </div>
                           <Text>{botStatus}</Text>
                         </TextContainer>
@@ -787,6 +787,7 @@ const Chat = forwardRef(
                   <PillsContainer>
                     {yourNeeds.map((need) => (
                       <StyledDiv
+                        className="text-sm !min-w-0"
                         style={{ pointerEvents: user ? 'auto' : 'none' }}
                         onClick={need.onClick}
                         key={need.id}
@@ -795,6 +796,7 @@ const Chat = forwardRef(
                         {need.title}
                       </StyledDiv>
                     ))}
+                    {user && <ShareModal type="docchat" />}
                   </PillsContainer>
                 </OptionsContainer>
               </div>
