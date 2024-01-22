@@ -39,6 +39,7 @@ import { FiChevronDown } from 'react-icons/fi';
 import styled from 'styled-components';
 import ShepherdSpinner from '../components/shepherd-spinner';
 import { useLocation, useNavigate } from 'react-router';
+
 import { useSearchQuery } from '../../../hooks';
 
 const Clock = styled.div`
@@ -70,6 +71,7 @@ const ChatHistory = ({
   conversationId,
   isSubmitted,
   setCountNeedTutor,
+  localData,
   setMessages,
   setDeleteConservationModal,
   deleteConservationModal,
@@ -87,6 +89,10 @@ const ChatHistory = ({
   studentId: string;
   setConversationId: (conversationId: string) => void;
   conversationId: string;
+  localData: {
+    subject: string;
+    topic: string;
+  };
   isSubmitted?: boolean;
   setCountNeedTutor: any;
   setMessages: any;
@@ -119,6 +125,7 @@ const ChatHistory = ({
     []
   );
   const navigate = useNavigate();
+
   const { pathname } = useLocation();
   const search = useSearchQuery();
 
@@ -188,7 +195,7 @@ const ChatHistory = ({
       setChatHistory(historyWithContent);
       setLoading(false);
 
-      return historyWithContent.at(0);
+      return historyWithContent.find((h) => h.topic === localData.topic);
     } catch (e) {
       setLoading(false);
     }
@@ -350,16 +357,19 @@ const ChatHistory = ({
       setLoading(false);
       const retrieve = async () => {
         const latestChat = await retrieveChatHistory(studentId, false);
-        const p = pathname.includes('homework')
-          ? '/dashboard/ace-homework'
-          : '/dashboard/doc-chat';
-        const pname = `${p}/${latestChat.id}`;
-        setTimeout(() => {
-          navigate(pname, { replace: true });
-        }, 1000);
-      };
+        if (latestChat) {
+          setLocalData({});
+          const p = pathname.includes('homework')
+            ? '/dashboard/ace-homework'
+            : '/dashboard/doc-chat';
+          const pname = `${p}/${latestChat.id}`;
+          setTimeout(() => {
+            navigate(pname);
+          }, 300);
+        }
 
-      retrieve();
+        retrieve();
+      };
     }
   }, [studentId, isSubmitted, messages]);
 
@@ -376,17 +386,22 @@ const ChatHistory = ({
   }, [isSubmitted, studentId, messages]);
 
   useEffect(() => {
+    console.log(messages);
     if (messages?.length) {
       if (messages.length === 1) {
         const retrieve = async () => {
           const latestChat = await retrieveChatHistory(studentId, false);
-          const p = pathname.includes('homework')
-            ? '/dashboard/ace-homework'
-            : '/dashboard/docchat';
-          const pname = `${p}/${latestChat.id}`;
-          setTimeout(() => {
-            navigate(pname, { replace: true });
-          }, 1000);
+          if (latestChat) {
+            setLocalData({});
+            console.log(latestChat.id, conversationId, 'lets see');
+            const p = pathname.includes('homework')
+              ? '/dashboard/ace-homework'
+              : '/dashboard/docchat';
+            const pname = `${p}/${latestChat.id}`;
+            setTimeout(() => {
+              navigate(pname);
+            }, 500);
+          }
         };
         retrieve();
         return;
@@ -549,7 +564,8 @@ const ChatHistory = ({
                                     topic: message.topic,
                                     level: message.level
                                   });
-                                  navigate(
+                                  setConversationId(conversationId);
+                                  return navigate(
                                     `/dashboard/ace-homework/${conversationId}`
                                   );
                                 }
@@ -569,13 +585,14 @@ const ChatHistory = ({
                                     topic: message.topic,
                                     level: message.level
                                   });
-                                  navigate(
+                                  setConversationId(message.id);
+                                  return navigate(
                                     `/dashboard/ace-homework/${message.id}`
                                   );
                                 }
-
+                                console.log('dyu run');
                                 setSelectedIndex(index);
-                                setConversationId(message.id);
+                                // setConversationId(message.id);
                                 retrieveChatHistory(studentId, false);
                                 setCountNeedTutor(1);
                                 setLoading(false);
