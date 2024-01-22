@@ -360,24 +360,44 @@ const ShareModal = ({ type }: ShareModalProps) => {
   }, [type, shareLink, copyShareLink, shareOnX]);
   return (
     <>
-      <Button
-        onClick={generateShareLink}
-        bg="#f4f4f5"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        gap="4px"
-        padding="12px 24px"
-        borderRadius="md"
-        border="none"
-        cursor="pointer"
-        color="#000"
-        _hover={{ bg: '#e4e4e5' }}
-        _active={{ bg: '#d4d4d5' }}
-      >
-        <span> Share</span>
-        <RiShareForwardLine />
-      </Button>
+      {type === 'docchat' ? (
+        <Button
+          onClick={generateShareLink}
+          bg="#f4f4f5"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          gap="4px"
+          padding="10px"
+          borderRadius="md"
+          border="none"
+          cursor="pointer"
+          color="#000"
+          _hover={{ bg: '#e4e4e5' }}
+          _active={{ bg: '#d4d4d5' }}
+        >
+          <RiShareForwardLine />
+        </Button>
+      ) : (
+        <Button
+          onClick={generateShareLink}
+          bg="#f4f4f5"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          gap="4px"
+          padding="12px 24px"
+          borderRadius="md"
+          border="none"
+          cursor="pointer"
+          color="#000"
+          _hover={{ bg: '#e4e4e5' }}
+          _active={{ bg: '#d4d4d5' }}
+        >
+          <span> Share</span>
+          <RiShareForwardLine />
+        </Button>
+      )}
       <Modal onClose={onClose} isOpen={isOpen}>
         <ModalOverlay />
         {modalContent}
