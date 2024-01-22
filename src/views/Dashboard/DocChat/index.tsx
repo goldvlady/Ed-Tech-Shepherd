@@ -1485,6 +1485,7 @@ export default function DocChat() {
                     ref={ref}
                     isShowPrompt={isShowPrompt}
                     isReadyToChat={readyToChat}
+                    documentUrl={documentUrl}
                     messages={messages}
                     llmResponse={llmResponse}
                     botStatus={botStatus}

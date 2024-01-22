@@ -185,6 +185,7 @@ const Chat = forwardRef(
       likesDislikes,
       setChatId,
       handlePinPrompt,
+      documentUrl,
       studentId,
       selectedChatId,
       setSelectedChatId,
@@ -228,7 +229,6 @@ const Chat = forwardRef(
     const onFlashCard = useCallback(() => {
       if (!isFlashCard) {
         resetFlashcard();
-        const { documentUrl } = location.state;
 
         setFlashcardData((prev) => ({
           ...prev,
@@ -248,7 +248,7 @@ const Chat = forwardRef(
       setFlashCard,
       setFlashcardData,
       resetFlashcard,
-      location.state
+      documentUrl
     ]);
 
     const onPinnedMessages = useCallback(() => {
