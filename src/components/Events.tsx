@@ -198,6 +198,10 @@ export default function Events({ event }: any) {
     const rePayload = {
       eventId: scheduleItem._id,
       updates: {
+        startDate: moment()
+          .startOf('day')
+          .format('YYYY-MM-DDTHH:mm:ss.SSS[Z]') as string,
+        startTime: '00:00',
         isActive: false
       }
     };
