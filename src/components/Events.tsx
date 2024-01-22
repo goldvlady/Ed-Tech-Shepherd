@@ -263,13 +263,9 @@ export default function Events({ event }: any) {
               {' '}
               <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
                 <span>
-                  {
-                    // event.type !== 'booking'
-                    //   ?
-                    //     moment.utc(event.data.startDate).format('hh:mm A')
-                    //   :
-                    convertUtcToUserTime(event.data.startDate)
-                  }
+                  {event.type !== 'booking'
+                    ? moment.utc(event.data.startDate).format('hh:mm A')
+                    : convertUtcToUserTime(event.data.startDate)}
                 </span>
                 {event.type !== 'study' && (
                   <>
