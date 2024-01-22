@@ -146,11 +146,11 @@ const DocchatHistory = ({
 
   const goToNoteChat = async (noteId: string) => {
     user && fetchNotes();
-    navigate('/dashboard/docchat', {
-      state: {
-        noteId
-      }
+    const query = encodeQueryParams({
+      noteId,
+      sid: user._id
     });
+    navigate(`/dashboard/docchat${query}`);
     if (setIsChatHistory) {
       setIsChatHistory(false);
     }
