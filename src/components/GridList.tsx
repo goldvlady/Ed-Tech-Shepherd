@@ -3,7 +3,6 @@ import React from 'react';
 
 export default function GridList(props) {
   const { data } = props;
-  console.log(data, 'dase');
 
   return (
     <Grid

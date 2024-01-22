@@ -957,7 +957,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   };
   const toggleEarnMenu = () => {
     setEarnMenu(!earnMenu);
-    console.log(earnMenu);
   };
   const { isOpen, onOpen, onClose } = useDisclosure();
 

@@ -42,7 +42,6 @@ function StudyPlans() {
   }, [doFetchStudyPlans]);
   const [tutorGrid] = useAutoAnimate();
   const navigate = useNavigate();
-  console.log(studyPlans);
 
   function getSubject(id) {
     return courseList.map((course) => {

@@ -66,8 +66,6 @@ function useTimer(props: PropType): Returntype {
     } else if (sendOnce) {
       if (typeof props.timerCallback === 'function') {
         props.timerCallback(true);
-      } else {
-        console.log('Please pass a callback function...');
       }
       if (props.isInfinite) {
         setSendOnce(true);

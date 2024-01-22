@@ -57,10 +57,6 @@ const CreateQuizPage = () => {
               );
             }
           } catch (error) {
-            if (process.env.NODE_ENV !== 'production') {
-              console.log('getQuiz Error =========>> ', error);
-            }
-
             toast({
               position: 'top-right',
               title: `failed to fetch quiz`,

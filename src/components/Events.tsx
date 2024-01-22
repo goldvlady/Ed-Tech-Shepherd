@@ -141,7 +141,6 @@ export default function Events({ event }: any) {
     const parsedTime = parse(data.time.toLowerCase(), 'hh:mm aa', new Date());
     const time = format(parsedTime, 'HH:mm');
     const day = moment(data.day).format('YYYY-MM-DD');
-    console.log(day);
 
     const rePayload = {
       eventId: scheduleItem._id,

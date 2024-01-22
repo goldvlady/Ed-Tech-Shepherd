@@ -220,8 +220,6 @@ export default create<Store>((set) => ({
 
       let quiz = state.quizzes?.find((card) => card._id === id);
 
-      console.log('loadQuiz one =========>>> quiz ------>>  ', quiz);
-
       if (isNil(quiz) || quiz !== undefined) {
         (async () => {
           const result: any = await ApiService.getQuiz(id as string);
@@ -229,8 +227,6 @@ export default create<Store>((set) => ({
           quiz = data;
         })();
       }
-
-      console.log('loadQuiz two =========>>> quiz ------>>  ', quiz);
 
       const nextState: Partial<typeof state> = { quiz };
       if (currentStudy) {
@@ -288,7 +284,6 @@ export default create<Store>((set) => ({
       set({ quiz: data });
       callback && callback(false, data);
     } catch (error) {
-      console.log('handleCreateQuiz -------->>> error =======>>>  ', error);
       callback && callback(error);
     }
   },
@@ -327,7 +322,6 @@ export default create<Store>((set) => ({
       });
       callback && callback(false, data);
     } catch (error) {
-      console.log('handleUpdateQuiz -------->>> error =======>>>  ', error);
       callback && callback(error);
     }
   },
@@ -358,10 +352,6 @@ export default create<Store>((set) => ({
       });
       callback && callback(false, data);
     } catch (error) {
-      console.log(
-        'handleDeleteQuizQuestion -------->>> error =======>>>  ',
-        error
-      );
       callback && callback(error);
     }
   },

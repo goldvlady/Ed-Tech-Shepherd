@@ -199,7 +199,6 @@ function CoursePlan() {
       fetchResources(selectedPlan);
     }
   }, [selectedPlan]);
-  console.log(planResource);
 
   function getSubject(id) {
     return courseList.map((course) => {

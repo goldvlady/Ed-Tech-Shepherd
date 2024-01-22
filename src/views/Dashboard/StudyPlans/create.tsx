@@ -437,7 +437,6 @@ function CreateStudyPlans() {
       i++;
     }
 
-    console.log(studyPlan);
     setStudyPlanData(studyPlan);
     return studyPlan;
   };
@@ -449,13 +448,11 @@ function CreateStudyPlans() {
       course: selectedSubject,
       scheduleItems: convertedArr
     };
-    console.log(convertedArr);
 
     try {
       const resp = await ApiService.createStudyPlan(payload);
       if (resp) {
         const response = await resp.json();
-        console.log(response);
         if (resp.status === 201) {
           // setIsCompleted(true);
           setLoading(false);
@@ -630,7 +627,6 @@ function CreateStudyPlans() {
       setSyllabusData(updatedSyllabusData);
     }
   };
-  console.log(syllabusData);
 
   const handleRemoveFile = (topicIndex, fileIndex) => {
     const updatedSyllabusData = [...syllabusData];
@@ -650,7 +646,6 @@ function CreateStudyPlans() {
       setSyllabusData(updatedSyllabusData);
     }
   };
-  console.log(topicUrls);
   return (
     <Grid
       templateColumns={[

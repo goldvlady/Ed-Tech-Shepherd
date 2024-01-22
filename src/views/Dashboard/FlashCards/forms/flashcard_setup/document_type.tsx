@@ -143,7 +143,7 @@ const FlashcardFromDocumentSetup = ({
         }
         generateFlashcardQuestions(localData, handleDone);
       } catch (error) {
-        console.log(error);
+        // console.log(error);
         // Handle error (e.g., show toast notification)
       }
     } else {

@@ -136,7 +136,7 @@ export default function DocChat() {
   const title = searchParams.get('docTitle')
     ? decodeURIComponent(searchParams.get('docTitle'))
     : '';
-  const studentId = user?._id ?? decodeURIComponent(searchParams.get('sid'));
+  const studentId = decodeURIComponent(searchParams.get('sid')) ?? user?._id;
   const directStudentId = user?.student?._id;
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryText, setSummaryText] = useState('');
@@ -644,7 +644,7 @@ export default function DocChat() {
         chatId,
         reactionType: isLike ? 'like' : 'dislike'
       }).catch((err) => {
-        console.error(err);
+        // console.error(err);
       });
     };
     response();
@@ -679,7 +679,7 @@ export default function DocChat() {
 
       try {
         if (!documentId) {
-          console.log('Document ID is missing');
+          // console.log('Document ID is missing');
           return;
         }
 
@@ -691,11 +691,9 @@ export default function DocChat() {
 
         if (response && response.summary) {
           setSummaryText(response.summary);
-        } else {
-          console.log('No summary data received');
         }
       } catch (error) {
-        console.error('Error fetching summary:', error);
+        // console.error('Error fetching summary:', error);
         // Handle or log error appropriately
       }
     };

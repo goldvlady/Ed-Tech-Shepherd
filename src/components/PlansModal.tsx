@@ -285,12 +285,10 @@ const PlansModal = ({
   const handleSubscriptionClick = async (priceIdKey, priceTier) => {
     const priceId = process.env[priceIdKey];
     if (!priceId) {
-      console.error('Price ID not found for', priceIdKey);
       // Handle error scenario
       return;
     }
     if (!user || !user.id) {
-      console.error('User is not authenticated');
       // Handle unauthenticated user scenario
 
       openModal('You will be redirected to create an account');
@@ -334,7 +332,7 @@ const PlansModal = ({
     <div className="pm">
       {togglePlansModal && (
         <Transition.Root show={togglePlansModal} as={Fragment}>
-          <Dialog as="div" className="relative z-[800]" onClose={() => null}>
+          <Dialog as="div" className="relative z-[2000]" onClose={() => null}>
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"

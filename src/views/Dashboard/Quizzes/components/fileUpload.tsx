@@ -322,7 +322,7 @@ const FileUploadModal = ({
         await handleInputFreshUpload(file, user, file.name);
       }
     } catch (error) {
-      console.log('onDrop ===========>>> error ----------->>>', error);
+      // console.log('onDrop ===========>>> error ----------->>>', error);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -436,10 +436,6 @@ const FileUploadModal = ({
     const pattern = '%20',
       re = new RegExp(pattern, 'g');
 
-    console.log(
-      'handleSelected ============>>> ',
-      replace(e.keywords, re, ' ')
-    );
     setIngestedDocument({ ...e, value: toLower(replace(e.keywords, re, ' ')) });
 
     setSelectedFile(null);

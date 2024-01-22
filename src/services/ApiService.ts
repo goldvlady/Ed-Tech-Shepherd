@@ -206,6 +206,19 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/getStudentFlashcard?id=${id}`);
   };
 
+  static getSingleFlashcardForAPIKey = async (id: string, apiKey: string) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/getStudentFlashcard?id=${id}&shareable=true`,
+      {
+        method: 'GET'
+      },
+      true,
+      {
+        'x-api-key': apiKey
+      }
+    );
+  };
+
   static verifyToken = async (token: string) => {
     return doFetch(
       `${ApiService.baseEndpoint}/verifyUserEmail?token=${token}`,

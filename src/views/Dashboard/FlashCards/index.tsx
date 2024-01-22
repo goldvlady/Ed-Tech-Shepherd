@@ -5,7 +5,7 @@ import { DeleteModal } from '../../../components/deleteModal';
 import LoaderOverlay from '../../../components/loaderOverlay';
 import CustomTabPanel from '../../../components/tabPanel';
 import SelectableTable, { TableColumn } from '../../../components/table';
-import { useSearch } from '../../../hooks';
+import { useSearch, useSearchQuery } from '../../../hooks';
 import flashcardStore from '../../../state/flashcardStore';
 import {
   FlashcardData,
@@ -151,6 +151,7 @@ const CustomTable: React.FC = () => {
 
   const {
     fetchFlashcards,
+    fetchSingleFlashcardForAPIKey,
     setShowStudyList,
     flashcards,
     tags,
@@ -163,7 +164,7 @@ const CustomTable: React.FC = () => {
     loadTodaysFlashcards,
     dailyFlashcards
   } = flashcardStore();
-
+  const { user } = useUserStore();
   const options: Option[] = tags.map((tag) => ({
     label: tag,
     value: tag
@@ -178,6 +179,10 @@ const CustomTable: React.FC = () => {
   );
 
   const handleSearch = useSearch(actionFunc);
+  const search = useSearchQuery();
+
+  const apiKey = search.get('apiKey');
+  const shareable = search.get('shareable');
 
   const [selectedFlashcards, setSelectedFlashcard] = useState<Array<string>>(
     []
@@ -227,12 +232,20 @@ const CustomTable: React.FC = () => {
     // navigate('/dashboard/flashcards');
   };
 
+  const loadFlashCardModalAPIKey = async (id: string) => {
+    await fetchSingleFlashcardForAPIKey(id, apiKey);
+  };
+
   useEffect(() => {
     if (flashcardId && !isLoading) {
-      loadFlashcardModal(flashcardId);
+      if (shareable && shareable.length > 0 && apiKey && apiKey.length > 0) {
+        loadFlashCardModalAPIKey(flashcardId);
+      } else if (!user) {
+        navigate('/signup');
+      }
     }
     // eslint-disable-next-line
-  }, [flashcardId]);
+  }, [flashcardId, user]);
 
   const columns: TableColumn<DataSourceItem>[] = [
     {
@@ -599,6 +612,7 @@ const CustomTable: React.FC = () => {
                 Delete
               </Text>
             </MenuItem>
+            <ShareModalMenu type="flashcard" id={flashcard.key} />
           </MenuList>
         </Menu>
       )
