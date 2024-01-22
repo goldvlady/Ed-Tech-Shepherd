@@ -319,8 +319,8 @@ export default function WeeklySummary(props) {
             <VStack spacing={5}>
               <EmptyFlashcard />
               <Text fontSize={13} fontWeight={500} color="text.400">
-                Monitor your flashcard performance. You currently have no
-                flashcards.
+                Monitor your flashcard performance for the week. Start
+                Practicing Today.
               </Text>
               <Link to="/dashboard/flashcards">
                 <CustomButton buttonText="Create Flashcard" />

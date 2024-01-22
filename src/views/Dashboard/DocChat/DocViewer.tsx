@@ -1010,8 +1010,9 @@ function DocViewer(props) {
         >
           <div style={{ height: '100vh', width: '90%', position: 'relative' }}>
             <div
-              className="absolute z-2 font-bold max-h-max max-w-max text-sm right-10 top-10 p-2 bg-green-100 rounded-xl m-1 hover:text-blue-600 hover:cursor-pointer hover:bg-yellow-100"
+              className="absolute z-2 font-bold max-h-max max-w-max text-sm right-20 top-0 p-2 bg-green-100 rounded-xl m-1 hover:text-blue-600 hover:cursor-pointer hover:bg-yellow-100"
               onClick={() => setPopUpNotesModal(true)}
+              style={{ zIndex: '1000' }}
             >
               {snip(pdfName, 40)}
             </div>
