@@ -65,7 +65,9 @@ import {
   Td,
   TableCaption,
   TableContainer,
-  Tooltip
+  Tooltip,
+  FormControl,
+  FormLabel
 } from '@chakra-ui/react';
 import {
   FaPlus,
@@ -100,12 +102,19 @@ import BountyOfferModal from '../components/BountyOfferModal';
 import { async } from '@firebase/util';
 import moment from 'moment';
 import SelectedNoteModal from '../../../components/SelectedNoteModal';
+import CalendarDateInput from '../../../components/CalendarDateInput';
+import Select from '../../../components/Select';
 
 function CoursePlan() {
   const {
     isOpen: isOpenResource,
     onOpen: onOpenResource,
     onClose: onCloseResource
+  } = useDisclosure();
+  const {
+    isOpen: isOpenCadence,
+    onOpen: onOpenCadence,
+    onClose: onCloseCadence
   } = useDisclosure();
   const [selectedTopic, setSelectedTopic] = useState('');
   const [topics, setTopics] = useState(null);
@@ -124,7 +133,14 @@ function CoursePlan() {
 
   const [selectedStatus, setSelectedStatus] = useState('To Do');
   const [showNoteModal, setShowNoteModal] = useState(false);
-
+  const [selectedRecurrence, setSelectedRecurrence] = useState('daily');
+  const [selectedRecurrenceTime, setSelectedRecurrenceTime] = useState(null);
+  const frequencyOptions = [
+    { label: 'Daily', value: 'daily' },
+    { label: 'Weekly', value: 'weekly' },
+    { label: 'Monthly', value: 'monthly' },
+    { label: "Doesn't Repeat", value: 'none' }
+  ];
   const resourceData = [
     {
       title: 'Articles',
@@ -392,6 +408,17 @@ function CoursePlan() {
     return [];
   };
 
+  const timeOptions = Array.from({ length: 96 }, (_, index) => {
+    const hour = Math.floor(index / 4);
+    const minute = 15 * (index % 4);
+    const displayHour = hour === 0 || hour === 12 ? 12 : hour % 12;
+    const displayMinute = minute === 0 ? '00' : String(minute);
+    const period = hour < 12 ? ' AM' : ' PM';
+
+    const time = `${displayHour}:${displayMinute}${period}`;
+
+    return { label: time, value: time };
+  });
   // const doFetchStudyPlans = useCallback(async () => {
   //   await fetchPlans(page, limit);
   //   /* eslint-disable */
@@ -586,7 +613,7 @@ function CoursePlan() {
                                         </Text>
                                       </VStack>
                                     </MenuButton>
-                                    <MenuList h={60} overflowY="scroll">
+                                    <MenuList maxH={60} overflowY="scroll">
                                       {findQuizzesByTopic(
                                         topic.topicDetails.label
                                       ).map((quiz) => (
@@ -615,7 +642,7 @@ function CoursePlan() {
                                         </Text>
                                       </VStack>
                                     </MenuButton>
-                                    <MenuList h={60} overflowY="scroll">
+                                    <MenuList maxH={60} overflowY="scroll">
                                       {findFlashcardsByTopic(
                                         topic.topicDetails.label
                                       ).map((flashcard) => (
@@ -666,6 +693,7 @@ function CoursePlan() {
                                     letterSpacing="wide"
                                     textTransform="none"
                                     borderRadius={8}
+                                    onClick={onOpenCadence}
                                   >
                                     Daily from
                                     {`
@@ -802,6 +830,72 @@ function CoursePlan() {
                 </TableContainer>
               ))}
             </Flex>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+      <Modal isOpen={isOpenCadence} onClose={onCloseCadence} size="lg">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>
+            <HStack>
+              <ResourceIcon />
+              <Text fontSize="16px" fontWeight="500">
+                Set Cadence For your Reminders
+              </Text>
+            </HStack>
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody overflowY={'auto'} maxH="500px" flexDirection="column">
+            <Box width="100%" paddingBottom={'50px'}>
+              <FormControl id="day" marginBottom="20px">
+                <FormLabel>Start Date</FormLabel>
+                <CalendarDateInput
+                  // disabledDate={{ before: today }}
+                  inputProps={{
+                    placeholder: 'Select Day'
+                  }}
+                  value={new Date()}
+                  onChange={() => console.log('date')}
+                />
+              </FormControl>
+              <FormControl id="day" marginBottom="20px">
+                <FormLabel>End Date</FormLabel>
+                <CalendarDateInput
+                  // disabledDate={{ before: today }}
+                  inputProps={{
+                    placeholder: 'Select Day'
+                  }}
+                  value={new Date()}
+                  onChange={() => console.log('date')}
+                />
+              </FormControl>
+              <FormControl id="time" marginBottom="20px">
+                <FormLabel>Frequency</FormLabel>
+                <Select
+                  defaultValue={frequencyOptions.find(
+                    (option) => option.value === selectedRecurrence
+                  )}
+                  tagVariant="solid"
+                  placeholder="Select Time"
+                  options={frequencyOptions}
+                  size={'md'}
+                  onChange={(option) => console.log((option as Option).value)}
+                />
+              </FormControl>
+              <FormControl id="time" marginBottom="20px">
+                <FormLabel>Time</FormLabel>
+                <Select
+                  defaultValue={timeOptions.find(
+                    (option) => option.value === selectedRecurrence
+                  )}
+                  tagVariant="solid"
+                  placeholder="Select Time"
+                  options={timeOptions}
+                  size={'md'}
+                  onChange={(option) => console.log((option as Option).value)}
+                />
+              </FormControl>
+            </Box>
           </ModalBody>
         </ModalContent>
       </Modal>
