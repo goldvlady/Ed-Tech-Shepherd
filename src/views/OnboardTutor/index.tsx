@@ -113,16 +113,6 @@ const OnboardTutor = () => {
 
     if (!selectedCV) return;
 
-    if (selectedCV?.size > 2000000) {
-      toast({
-        title: 'Please upload a file under 2MB',
-        status: 'error',
-        position: 'top',
-        isClosable: true
-      });
-      return;
-    }
-
     const storageRef = ref(storage, `files/${selectedCV.name}`);
     const uploadTask = uploadBytesResumable(storageRef, selectedCV);
 
@@ -151,16 +141,6 @@ const OnboardTutor = () => {
     onboardTutorStore.set.identityDocument?.('');
 
     if (!selectedIdDoc) return;
-
-    if (selectedIdDoc?.size > 1000000) {
-      toast({
-        title: 'Please upload a file under 1MB',
-        status: 'error',
-        position: 'top',
-        isClosable: true
-      });
-      return;
-    }
 
     const storageRef = ref(storage, `files/${selectedIdDoc.name}`);
     const uploadTask = uploadBytesResumable(storageRef, selectedIdDoc);
@@ -402,6 +382,7 @@ const OnboardTutor = () => {
               <DragAndDrop
                 file={identityDocument}
                 marginTop={30}
+                maxSize="100mb"
                 isLoading={isUploadLoading}
                 onDelete={() => onboardTutorStore.set.identityDocument?.('')}
                 onFileUpload={(file) => setSelectedIdDoc(file)}
