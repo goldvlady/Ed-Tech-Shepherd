@@ -184,6 +184,7 @@ export default function Events({ event }: any) {
         status: 'success'
       });
       setScheduleItem(null);
+      fetchEvents();
     } else {
       toast({
         position: 'top-right',
@@ -214,6 +215,7 @@ export default function Events({ event }: any) {
       });
       setScheduleItem(null);
       onCloseCancelStudy();
+      fetchEvents();
     } else {
       toast({
         position: 'top-right',
