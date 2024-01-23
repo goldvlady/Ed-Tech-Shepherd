@@ -5,7 +5,7 @@ import { DeleteModal } from '../../../components/deleteModal';
 import LoaderOverlay from '../../../components/loaderOverlay';
 import CustomTabPanel from '../../../components/tabPanel';
 import SelectableTable, { TableColumn } from '../../../components/table';
-import { useSearch } from '../../../hooks';
+import { useSearch, useSearchQuery } from '../../../hooks';
 import flashcardStore from '../../../state/flashcardStore';
 import {
   FlashcardData,
@@ -44,6 +44,9 @@ import { MultiSelect } from 'react-multi-select-component';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { IoCreateOutline } from 'react-icons/io5';
+import ShareModalMenu from '../../../components/ShareModalMenu';
+import useUserStore from '../../../state/userStore';
+import moment from 'moment';
 
 const StyledImage = styled(Box)`
   display: inline-flex;
@@ -148,6 +151,7 @@ const CustomTable: React.FC = () => {
 
   const {
     fetchFlashcards,
+    fetchSingleFlashcardForAPIKey,
     setShowStudyList,
     flashcards,
     tags,
@@ -160,7 +164,7 @@ const CustomTable: React.FC = () => {
     loadTodaysFlashcards,
     dailyFlashcards
   } = flashcardStore();
-
+  const { user } = useUserStore();
   const options: Option[] = tags.map((tag) => ({
     label: tag,
     value: tag
@@ -175,6 +179,10 @@ const CustomTable: React.FC = () => {
   );
 
   const handleSearch = useSearch(actionFunc);
+  const search = useSearchQuery();
+
+  const apiKey = search.get('apiKey');
+  const shareable = search.get('shareable');
 
   const [selectedFlashcards, setSelectedFlashcard] = useState<Array<string>>(
     []
@@ -224,12 +232,20 @@ const CustomTable: React.FC = () => {
     // navigate('/dashboard/flashcards');
   };
 
+  const loadFlashCardModalAPIKey = async (id: string) => {
+    await fetchSingleFlashcardForAPIKey(id, apiKey);
+  };
+
   useEffect(() => {
     if (flashcardId && !isLoading) {
-      loadFlashcardModal(flashcardId);
+      if (shareable && shareable.length > 0 && apiKey && apiKey.length > 0) {
+        loadFlashCardModalAPIKey(flashcardId);
+      } else if (!user) {
+        navigate('/signup');
+      }
     }
     // eslint-disable-next-line
-  }, [flashcardId]);
+  }, [flashcardId, user]);
 
   const columns: TableColumn<DataSourceItem>[] = [
     {
@@ -596,6 +612,7 @@ const CustomTable: React.FC = () => {
                 Delete
               </Text>
             </MenuItem>
+            <ShareModalMenu type="flashcard" id={flashcard.key} />
           </MenuList>
         </Menu>
       )
@@ -605,11 +622,12 @@ const CustomTable: React.FC = () => {
   const handleEventSchedule = async (data: ScheduleFormState) => {
     const parsedTime = parse(data.time.toLowerCase(), 'hh:mm aa', new Date());
     const time = format(parsedTime, 'HH:mm');
+    const day = moment(data.day).format('YYYY-MM-DD');
 
     const payload: SchedulePayload = {
       entityId: scheduleItem?.flashcard._id as string,
       entityType: 'flashcard',
-      startDates: [data.day?.toISOString() as string],
+      startDates: [moment(day).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')],
       startTime: time
     };
 

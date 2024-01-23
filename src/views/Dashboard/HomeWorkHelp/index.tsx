@@ -66,7 +66,7 @@ const HomeWorkHelp = () => {
   const search = useSearchQuery();
   const shareable = search.get('shareable');
   const apiKey = search.get('apiKey');
-
+  const newQ = search.get('new');
   const location = useLocation();
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const [openAceHomework, setAceHomeWork] = useState(false);
@@ -109,6 +109,7 @@ const HomeWorkHelp = () => {
     level: bountyOption?.level
   });
   const [description, setDescription] = useState('');
+  const [oldUrl, setOldUrl] = useState('');
   const paymentDialogRef = useRef<PaymentDialogRef>(null);
   const [loading, setLoading] = useState(false);
   const isFirstRender = useRef(true);
@@ -147,12 +148,12 @@ const HomeWorkHelp = () => {
       // Set messages and show the modal if the user has no active subscription
       setPlansModalMessage(
         !user.hadSubscription
-          ? 'Start Your 2 Week Free Trial!'
+          ? 'Start Your Free Trial!'
           : 'Pick a plan to access your AI Study Tools! 🚀'
       );
       setPlansModalSubMessage('One-click Cancel at anytime.');
     } else if (!user) {
-      setPlansModalMessage('Start Your 2 Week Free Trial!');
+      setPlansModalMessage('Start Your Free Trial!');
       setPlansModalSubMessage('One-click Cancel at anytime.');
     }
   }, [user, hasActiveSubscription]);
@@ -223,7 +224,11 @@ const HomeWorkHelp = () => {
       return () => socket.off('chat response end');
     }
   }, [socket]);
-
+  useEffect(() => {
+    if (newQ) {
+      setAceHomeWork(true);
+    }
+  }, [newQ]);
   useEffect(() => {
     if (socket) {
       socket.on('chat response start', async (token: string) => {
@@ -309,6 +314,14 @@ const HomeWorkHelp = () => {
 
   const handleAceHomeWorkHelp = useCallback(() => {
     setAceHomeWork((prevState) => !prevState);
+    if (!convoId) {
+      navigate(-1);
+    }
+  }, [setAceHomeWork]);
+
+  const handleAce = useCallback(() => {
+    setAceHomeWork(true);
+    navigate('/dashboard/ace-homework?new=true');
   }, [setAceHomeWork]);
 
   const onCountTutor = useCallback(
@@ -393,8 +406,8 @@ const HomeWorkHelp = () => {
         const response = await getConversionByIdAndAPIKey({
           conversationId:
             convoId ??
-            recentConversationId ??
             conversationId ??
+            recentConversationId ??
             freshConversationId,
           apiKey
         });
@@ -455,8 +468,8 @@ const HomeWorkHelp = () => {
       const response = await getConversionById({
         conversationId:
           convoId ??
-          recentConversationId ??
           conversationId ??
+          recentConversationId ??
           freshConversationId
       });
 
@@ -502,7 +515,6 @@ const HomeWorkHelp = () => {
       setShowPrompt(true);
     }
   }, [conversationId, socket, recentConversationId, convoId]);
-  console.log(socket, 'sock chuls');
   const fetchDescription = async (id: string) => {
     const response = await getDescriptionById({ conversationId: id });
     if (response?.data) {
@@ -526,11 +538,11 @@ const HomeWorkHelp = () => {
   }, [conversationId, freshConversationId]);
 
   const onRouteHomeWorkHelp = useCallback(() => {
-    handleClose();
     setIsSubmitted(true);
     setMessages([]);
     setCountNeedTutor(1);
     setInputValue('');
+    handleClose();
   }, [
     subjectId,
     localData,
@@ -722,6 +734,7 @@ const HomeWorkHelp = () => {
             conversationId={conversationId}
             isSubmitted={isSubmitted}
             setCountNeedTutor={setCountNeedTutor}
+            localData={localData}
             setMessages={setMessages}
             setDeleteConservationModal={setDeleteConservationModal}
             deleteConservationModal={deleteConservationModal}
@@ -756,7 +769,7 @@ const HomeWorkHelp = () => {
             handleClickPrompt={handleClickPrompt}
             countNeedTutor={countNeedTutor}
             onCountTutor={onCountTutor}
-            handleAceHomeWorkHelp={handleAceHomeWorkHelp}
+            handleAceHomeWorkHelp={handleAce}
             visibleButton={visibleButton}
             fetchDescription={fetchDescription}
             freshConversationId={freshConversationId}
@@ -834,6 +847,7 @@ const HomeWorkHelp = () => {
               <ChatHistory
                 studentId={studentId}
                 setConversationId={setConversationId}
+                localData={localData}
                 conversationId={conversationId}
                 isSubmitted={isSubmitted}
                 setCountNeedTutor={setCountNeedTutor}

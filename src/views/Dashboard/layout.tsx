@@ -172,7 +172,7 @@ const NavItem = ({
   const renderLinkContent = () => (
     <Flex
       align="center"
-      px="4"
+      pl="4"
       py="2"
       mx="4"
       my="2"
@@ -204,12 +204,22 @@ const NavItem = ({
       )}
       {children}
       {isLocked && (
-        <Icon
-          as={isHovering ? RiLockUnlockFill : RiLockFill}
+        // <Icon
+        //   as={isHovering ? RiLockUnlockFill : RiLockFill}
+        //   ml="auto"
+        //   fontSize="18"
+        //   color="#fc9b65"
+        // />
+        <Text
+          fontSize={10}
+          border="1px solid #66BD6A"
+          borderRadius={4}
+          color="#66BD6A"
           ml="auto"
-          fontSize="18"
-          color="#fc9b65"
-        />
+          px={1}
+        >
+          Free Trial
+        </Text>
       )}
     </Flex>
   );
@@ -615,7 +625,7 @@ const SidebarContent = ({
       <Divider />
       <Box
         paddingLeft={8}
-        paddingRight={8}
+        paddingRight={4}
         color="text.400"
         display={aiChatMenu ? 'block' : 'flex'}
         alignItems="center"
@@ -627,7 +637,7 @@ const SidebarContent = ({
             : () =>
                 handleLockedClick(
                   !user.hadSubscription
-                    ? 'Start Your 2 Week Free Trial!'
+                    ? 'Start Your Free Trial!'
                     : 'Pick a plan to access your AI Study Tools! 🚀',
                   'One-click Cancel at anytime.'
                 )
@@ -649,7 +659,7 @@ const SidebarContent = ({
               : () =>
                   handleLockedClick(
                     !user.hadSubscription
-                      ? 'Start Your 2 Week Free Trial!'
+                      ? 'Start Your Free Trial!'
                       : 'Pick a plan to access your AI Study Tools! 🚀',
                     'One-click Cancel at anytime.'
                   )
@@ -679,12 +689,23 @@ const SidebarContent = ({
             ]}
           />
         </Box>
-        {!hasActiveSubscription &&
-          (isHovering ? (
-            <Icon as={RiLockUnlockFill} fontSize="18" color="#fc9b65" />
-          ) : (
-            <Icon as={RiLockFill} fontSize="18" color="#fc9b65" />
-          ))}
+        {!hasActiveSubscription && (
+          // (isHovering ? (
+          //   <Icon as={RiLockUnlockFill} fontSize="18" color="#fc9b65" />
+          // ) : (
+          //   <Icon as={RiLockFill} fontSize="18" color="#fc9b65" />
+          // ))
+          <Text
+            fontSize={10}
+            border="1px solid #66BD6A"
+            borderRadius={4}
+            color="#66BD6A"
+            ml="auto"
+            px={1}
+          >
+            Free Trial
+          </Text>
+        )}
       </Box>
       {LinkItems.map((link) => (
         <NavItem
@@ -697,7 +718,7 @@ const SidebarContent = ({
               ? () =>
                   handleLockedClick(
                     !user.hadSubscription
-                      ? 'Start Your 2 Week Free Trial!'
+                      ? 'Start Your Free Trial!'
                       : 'Pick a plan to access your AI Study Tools! 🚀',
                     'One-click Cancel at anytime.'
                   )
@@ -714,7 +735,7 @@ const SidebarContent = ({
         onLockedClick={() =>
           handleLockedClick(
             !user.hadSubscription
-                      ? 'Start Your 2 Week Free Trial!'
+                      ? 'Start Your Free Trial!'
                       : 'Pick a plan to access your AI Study Tools! 🚀',
             'One-click Cancel at anytime.'
           )
@@ -722,8 +743,9 @@ const SidebarContent = ({
       >
         Study Plans
       </NavItem> */}
-      <Box ml={8} color="text.400">
+      <Box ml={8} mb={2} color="text.400">
         <Button
+          pointerEvents={'none'}
           variant={'unstyled'}
           display="flex"
           gap={2}
@@ -731,18 +753,22 @@ const SidebarContent = ({
           // onClick={() => toggleChatMenu()}
           fontSize={14}
           fontWeight={400}
+          width="100%"
+          pr={2}
         >
-          <Text>Study Plans</Text>
-          <Text
-            fontSize={10}
-            border="1px solid #fc9b65"
-            borderRadius={4}
-            color="#fc9b65"
-            alignSelf={'center'}
-            px={1}
-          >
-            Coming Soon
-          </Text>
+          <Flex align="center" justify="space-between" pr={2} width="100%">
+            <Text>Study Plans</Text>
+            <Text
+              fontSize={10}
+              border="1px solid #fc9b65"
+              borderRadius={4}
+              color="#fc9b65"
+              alignSelf={'center'}
+              px={1}
+            >
+              Coming Soon
+            </Text>
+          </Flex>
         </Button>
       </Box>
 
@@ -814,18 +840,24 @@ const SidebarContent = ({
           onClick={() => openModal('Coming Soon!')}
           fontSize={14}
           fontWeight={400}
+          width="100%"
+          pr="2"
+          my="2"
         >
-          <Text>Barn</Text>
-          <Text
-            fontSize={10}
-            border="1px solid #fc9b65"
-            borderRadius={4}
-            color="#fc9b65"
-            alignSelf={'center'}
-            px={1}
-          >
-            Coming Soon
-          </Text>
+          <Flex align="center" justify="space-between" pr={2} width="100%">
+            <Text>Barn</Text>
+            <Text
+              fontSize={10}
+              border="1px solid #fc9b65"
+              borderRadius={4}
+              color="#fc9b65"
+              alignSelf={'center'}
+              px={1}
+              ml="auto"
+            >
+              Coming Soon
+            </Text>
+          </Flex>
         </Button>
       </Box>
       <Divider />
@@ -925,7 +957,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   };
   const toggleEarnMenu = () => {
     setEarnMenu(!earnMenu);
-    console.log(earnMenu);
   };
   const { isOpen, onOpen, onClose } = useDisclosure();
 

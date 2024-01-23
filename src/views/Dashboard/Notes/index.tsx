@@ -289,8 +289,6 @@ const NotesDirectory: React.FC = () => {
         );
         const processData = await fileProcessor.process();
 
-        console.log(processData);
-
         const {
           data: [{ documentId }]
         } = processData;
@@ -303,7 +301,6 @@ const NotesDirectory: React.FC = () => {
         navigate(`/dashboard/docchat${query}`);
       }
     } catch (error) {
-      console.log(error);
       toast({ title: 'Failed to load document', status: 'error' });
     } finally {
       setLoading(false);

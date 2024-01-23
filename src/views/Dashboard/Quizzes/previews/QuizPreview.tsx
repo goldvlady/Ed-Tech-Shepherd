@@ -626,7 +626,7 @@ const QuizPreviewer = ({
         score: size(filter(scores, ['score', 'true']))
       });
     } catch (error) {
-      console.log('error ========>> ', error);
+      // console.log('error ========>> ', error);
     }
   };
 
@@ -775,7 +775,7 @@ const QuizPreviewer = ({
 
                     {togglePlansModal && (
                       <PlansModal
-                        message="Start Your 2 Week Free Trial"
+                        message="Up to 4 weeks free!"
                         subMessage="One-click Cancel at anytime."
                         togglePlansModal={togglePlansModal}
                         setTogglePlansModal={setTogglePlansModal}

@@ -140,7 +140,7 @@ const CreateFlashPage = () => {
       // Set messages and show the modal if the user has no active subscription
       setPlansModalMessage(
         !user.hadSubscription
-          ? 'Start Your 2 Week Free Trial!'
+          ? 'Start Your Free Trial!'
           : 'Pick a plan to access your AI Study Tools! 🚀'
       );
       setPlansModalSubMessage('One-click Cancel at anytime.');

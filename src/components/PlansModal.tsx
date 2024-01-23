@@ -55,7 +55,8 @@ interface PriceCardListProps {
   user: any;
   redirectToCustomerPortal: () => void;
   getButtonText: (userSubscription, priceCard) => string;
-  handleSubscriptionClick: (priceId) => void;
+  getTrialButtonText: (priceCard) => string;
+  handleSubscriptionClick: (priceId, priceTier) => void;
 }
 
 const PriceCardList: React.FC<PriceCardListProps> = ({
@@ -64,6 +65,7 @@ const PriceCardList: React.FC<PriceCardListProps> = ({
   user,
   redirectToCustomerPortal,
   getButtonText,
+  getTrialButtonText,
   handleSubscriptionClick
 }) => {
   return (
@@ -174,10 +176,12 @@ const PriceCardList: React.FC<PriceCardListProps> = ({
                 ))}
                 <Button
                   className="landing-price-btn"
-                  onClick={() => handleSubscriptionClick(priceCard.priceId)}
+                  onClick={() =>
+                    handleSubscriptionClick(priceCard.priceId, priceCard.tier)
+                  }
                 >
                   {!user || (user && !user.hadSubscription)
-                    ? `Start My 2-Week Free Trial`
+                    ? getTrialButtonText(priceCard)
                     : `Get Started`}
                 </Button>
               </div>
@@ -267,15 +271,24 @@ const PlansModal = ({
     }
   };
 
-  const handleSubscriptionClick = async (priceIdKey) => {
+  const getTrialButtonText = (priceCard) => {
+    if (priceCard.tier === 'Basic') {
+      return 'Start My 1-Week Free Trial';
+    } else if (priceCard.tier === 'Premium') {
+      return 'Start My 4-Week Free Trial';
+    } else {
+      // Default case if neither Basic nor Premium
+      return 'Start My Free Trial';
+    }
+  };
+
+  const handleSubscriptionClick = async (priceIdKey, priceTier) => {
     const priceId = process.env[priceIdKey];
     if (!priceId) {
-      console.error('Price ID not found for', priceIdKey);
       // Handle error scenario
       return;
     }
     if (!user || !user.id) {
-      console.error('User is not authenticated');
       // Handle unauthenticated user scenario
 
       openModal('You will be redirected to create an account');
@@ -288,6 +301,7 @@ const PlansModal = ({
     const session = await ApiService.initiateUserSubscription(
       user.id,
       priceId,
+      priceTier,
       user.stripeCustomerId ? user.stripeCustomerId : null
     );
     const portal = await session.json();
@@ -318,7 +332,7 @@ const PlansModal = ({
     <div className="pm">
       {togglePlansModal && (
         <Transition.Root show={togglePlansModal} as={Fragment}>
-          <Dialog as="div" className="relative z-[800]" onClose={() => null}>
+          <Dialog as="div" className="relative z-[2000]" onClose={() => null}>
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -386,8 +400,7 @@ const PlansModal = ({
                                 fontWeight={500}
                                 color="text.400"
                               >
-                                Get started for free today and unlock the full
-                                power of your AI study tools!
+                                One-click Cancel at anytime.
                               </Text>
                             </>
                           )}
@@ -420,6 +433,7 @@ const PlansModal = ({
                                 redirectToCustomerPortal
                               }
                               getButtonText={getButtonText}
+                              getTrialButtonText={getTrialButtonText}
                               handleSubscriptionClick={handleSubscriptionClick}
                             />
                           </TabPanel>
@@ -432,6 +446,7 @@ const PlansModal = ({
                                 redirectToCustomerPortal
                               }
                               getButtonText={getButtonText}
+                              getTrialButtonText={getTrialButtonText}
                               handleSubscriptionClick={handleSubscriptionClick}
                             />
                           </TabPanel>

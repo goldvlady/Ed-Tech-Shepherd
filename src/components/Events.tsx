@@ -141,7 +141,6 @@ export default function Events({ event }: any) {
     const parsedTime = parse(data.time.toLowerCase(), 'hh:mm aa', new Date());
     const time = format(parsedTime, 'HH:mm');
     const day = moment(data.day).format('YYYY-MM-DD');
-    console.log(day);
 
     const rePayload = {
       eventId: scheduleItem._id,
@@ -198,6 +197,10 @@ export default function Events({ event }: any) {
     const rePayload = {
       eventId: scheduleItem._id,
       updates: {
+        startDate: moment()
+          .startOf('day')
+          .format('YYYY-MM-DDTHH:mm:ss.SSS[Z]') as string,
+        startTime: '00:00',
         isActive: false
       }
     };
@@ -263,7 +266,6 @@ export default function Events({ event }: any) {
                   {event.type !== 'booking'
                     ? moment.utc(event.data.startDate).format('hh:mm A')
                     : convertUtcToUserTime(event.data.startDate)}
-                  {/* Format the time as "11:00 AM" */}
                 </span>
                 {event.type !== 'study' && (
                   <>

@@ -436,7 +436,6 @@ function CreateStudyPlans() {
       i++;
     }
 
-    console.log(studyPlan);
     setStudyPlanData(studyPlan);
     return studyPlan;
   };
@@ -448,13 +447,11 @@ function CreateStudyPlans() {
       course: selectedSubject,
       scheduleItems: convertedArr
     };
-    console.log(convertedArr);
 
     try {
       const resp = await ApiService.createStudyPlan(payload);
       if (resp) {
         const response = await resp.json();
-        console.log(response);
         if (resp.status === 201) {
           // setIsCompleted(true);
           setLoading(false);
@@ -629,7 +626,6 @@ function CreateStudyPlans() {
       setSyllabusData(updatedSyllabusData);
     }
   };
-  console.log(syllabusData);
 
   const handleRemoveFile = (topicIndex, fileIndex) => {
     const updatedSyllabusData = [...syllabusData];
@@ -649,7 +645,6 @@ function CreateStudyPlans() {
       setSyllabusData(updatedSyllabusData);
     }
   };
-  console.log(topicUrls);
   return (
     <Grid
       templateColumns={[
@@ -840,8 +835,15 @@ function CreateStudyPlans() {
           </Box>
         ) : (
           <Box>
-            <Text as="label" htmlFor="subjects" mb={2} display="block">
-              Please enter your test dates
+            <Text
+              as="label"
+              htmlFor="subjects"
+              mb={2}
+              display="block"
+              fontWeight={'semibold'}
+              color="#207df7"
+            >
+              Enter your test dates
             </Text>
             {/* <DatePicker
               name="endDate"
@@ -855,6 +857,9 @@ function CreateStudyPlans() {
                   <>
                     <Flex key={index} align={'center'} gap={2}>
                       <Box width="100%">
+                        <Text fontSize={11} fontWeight="semibold">
+                          Test {index + 1}
+                        </Text>
                         <DatePicker
                           name={`testDate-${index}`}
                           placeholder="Select Test Date"

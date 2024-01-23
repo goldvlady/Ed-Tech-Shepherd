@@ -308,7 +308,6 @@ const EditFlashCard = () => {
   };
 
   const form = useMemo(() => {
-    console.log('seting', settings);
     if (settings.type === TypeEnum.MNEOMONIC) {
       return <MnemonicSetup />;
     }

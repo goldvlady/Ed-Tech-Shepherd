@@ -32,7 +32,6 @@ function Notifications(props) {
   const navigate = useNavigate();
   const currentPath = window.location.pathname;
   // const parsedNotifications = data.map((item) => item.notification);
-  console.log(data);
 
   const { fetchSingleFlashcard } = flashcardStore();
   const isTutor = currentPath.includes('/dashboard/tutordashboard');

@@ -40,7 +40,6 @@ import DashboardIndex from './views/Dashboard/index';
 import DashboardLayout from './views/Dashboard/layout';
 import ForgotPassword from './views/ForgotPassword';
 import Home from './views/Home';
-import Landing from './views/Landing';
 import Login from './views/Login';
 import OnboardStudent from './views/OnboardStudent/index';
 import OnboardTutor from './views/OnboardTutor';
@@ -59,9 +58,7 @@ import VerificationSuccess from './views/VerificationPages/successful_verificati
 import VerifyEmail from './views/VerificationPages/verify_email';
 import WelcomeLayout from './views/WelcomeLayout';
 import { Box, ChakraProvider } from '@chakra-ui/react';
-import 'bootstrap/dist/css/bootstrap-grid.min.css';
-import 'bootstrap/dist/css/bootstrap-reboot.min.css';
-import 'bootstrap/dist/css/bootstrap-utilities.min.css';
+
 import React, { useCallback, useEffect, useMemo } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Navigate, Route, Routes, useRoutes } from 'react-router';
@@ -141,7 +138,7 @@ const studentRoutes = [
   { path: 'ace-homework', element: <HomeWorkHelp /> },
   { path: 'flashcards/create', element: <CreateFlashCard /> },
   { path: 'flashcards', element: <FlashCard /> },
-  { path: 'flashcards/:flashcardId', element: <FlashCard /> },
+  // { path: 'flashcards/:flashcardId', element: <FlashCard /> },
   { path: 'flashcards/:id/edit', element: <EditFlashCard /> },
   { path: 'library', element: <Library /> },
   { path: 'create-study-plans', element: <CreateStudyPlans /> },
@@ -225,6 +222,14 @@ const AppRoutes: React.FC = () => {
 
   const userRoute = userRoutes[userType];
 
+  const RedirectToExternal = ({ url }) => {
+    useEffect(() => {
+      window.location.href = url;
+    }, [url]);
+
+    return null; // render nothing
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       // fetchNotifications();
@@ -266,7 +271,9 @@ const AppRoutes: React.FC = () => {
         element={
           <RequireAuth
             authenticated={<Navigate to={'/dashboard'} />}
-            unAuthenticated={<Landing />}
+            unAuthenticated={
+              <RedirectToExternal url="https://shepherd.study/" />
+            }
           />
         }
       />
@@ -365,6 +372,14 @@ const AppRoutes: React.FC = () => {
         }
       />
       <Route
+        path="/dashboard/flashcards/:flashcardId"
+        element={
+          <DashboardLayout>
+            <FlashCard />
+          </DashboardLayout>
+        }
+      />
+      <Route
         path="/dashboard/docchat"
         element={
           <DashboardLayout>
@@ -449,6 +464,7 @@ function App() {
           </ChakraProvider>
         </LexicalContext>
       </BrowserRouter>
+      <FlashCardModal isOpen={Boolean(flashcard) || showStudyList} />
     </>
   );
 }

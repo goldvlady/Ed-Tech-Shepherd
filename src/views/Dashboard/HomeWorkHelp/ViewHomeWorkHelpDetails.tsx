@@ -211,7 +211,6 @@ const ViewHomeWorkHelpDetails = ({
       .toLowerCase()
       .replace(/\.pdf$/, '')
       .replace(/_/g, ' ');
-    console.log(readableFileName.length);
 
     if (readableFileName.length > MAX_FILE_NAME_LENGTH) {
       readableFileName = readableFileName.substring(0, MAX_FILE_NAME_LENGTH);

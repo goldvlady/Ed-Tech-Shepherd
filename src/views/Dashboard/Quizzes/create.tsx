@@ -361,7 +361,6 @@ const CreateQuizPage = () => {
     cb = null
   ) => {
     if (isArray(quizQuestions) && !isEmpty(quizQuestions)) {
-      console.log('quizQuestions =============>>>> ', quizQuestions);
       (async () => {
         const sliceQuestions = slice(quizQuestions, 0, localData.count);
         const questions = map([...sliceQuestions], (quiz) => {
@@ -480,8 +479,6 @@ const CreateQuizPage = () => {
             answer: toString(quiz?.answer)
           };
         }) as NewQuizQuestion[];
-
-        console.log('questions =============>>>> ', questions);
 
         await handleCreateUpdateQuiz(questions);
 

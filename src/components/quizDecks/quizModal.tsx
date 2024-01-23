@@ -374,15 +374,6 @@ const QuizCard = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enteredAnswer]);
 
-  useEffect(() => {
-    if (!actionable) {
-      console.log('actionable ------->>> quizScores ========>>> ', quizScores);
-    }
-    console.log('quizScores ========>>> ', quizScores);
-    // handleSetScore('null', toNumber(index), [enteredAnswer]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quizScores]);
-
   let inputs = null;
 
   if (type === OPEN_ENDED) {
@@ -1029,7 +1020,7 @@ export const QuizModal = ({
         score: itemSize(filter(scores, ['score', 'true']))
       });
     } catch (error) {
-      console.log('error ========>> ', error);
+      // console.log('error ========>> ', error);
     }
   };
   // useEffect(() => {

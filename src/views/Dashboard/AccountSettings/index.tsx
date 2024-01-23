@@ -4,17 +4,8 @@ import userStore from '../../../state/userStore';
 import Billing from '../components/Settings/Billing';
 import MyProfile from '../components/Settings/MyProfile';
 import {
-  Avatar,
   Box,
   Button,
-  Divider,
-  Flex,
-  Grid,
-  GridItem,
-  SimpleGrid,
-  Spacer,
-  Stack,
-  Switch,
   Tab,
   TabList,
   TabPanel,
@@ -22,7 +13,7 @@ import {
   Tabs,
   Text
 } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 function AccSettings() {
   useTitle('Account Settings');

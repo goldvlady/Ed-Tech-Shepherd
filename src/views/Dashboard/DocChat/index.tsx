@@ -79,12 +79,12 @@ export default function DocChat() {
       // Set messages and show the modal if the user has no active subscription
       setPlansModalMessage(
         !user.hadSubscription
-          ? 'Start Your 2 Week Free Trial!'
+          ? 'Start Your Free Trial!'
           : 'Pick a plan to access your AI Study Tools! 🚀'
       );
       setPlansModalSubMessage('One-click Cancel at anytime.');
     } else if (!user) {
-      setPlansModalMessage('Start Your 2 Week Free Trial!');
+      setPlansModalMessage('Start Your Free Trial!');
       setPlansModalSubMessage('One-click Cancel at anytime.');
     }
   }, [user, hasActiveSubscription]);
@@ -136,7 +136,7 @@ export default function DocChat() {
   const title = searchParams.get('docTitle')
     ? decodeURIComponent(searchParams.get('docTitle'))
     : '';
-  const studentId = user?._id ?? decodeURIComponent(searchParams.get('sid'));
+  const studentId = decodeURIComponent(searchParams.get('sid')) ?? user?._id;
   const directStudentId = user?.student?._id;
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryText, setSummaryText] = useState('');
@@ -644,7 +644,7 @@ export default function DocChat() {
         chatId,
         reactionType: isLike ? 'like' : 'dislike'
       }).catch((err) => {
-        console.error(err);
+        // console.error(err);
       });
     };
     response();
@@ -679,7 +679,7 @@ export default function DocChat() {
 
       try {
         if (!documentId) {
-          console.log('Document ID is missing');
+          // console.log('Document ID is missing');
           return;
         }
 
@@ -691,11 +691,9 @@ export default function DocChat() {
 
         if (response && response.summary) {
           setSummaryText(response.summary);
-        } else {
-          console.log('No summary data received');
         }
       } catch (error) {
-        console.error('Error fetching summary:', error);
+        // console.error('Error fetching summary:', error);
         // Handle or log error appropriately
       }
     };
@@ -1487,6 +1485,7 @@ export default function DocChat() {
                     ref={ref}
                     isShowPrompt={isShowPrompt}
                     isReadyToChat={readyToChat}
+                    documentUrl={documentUrl}
                     messages={messages}
                     llmResponse={llmResponse}
                     botStatus={botStatus}

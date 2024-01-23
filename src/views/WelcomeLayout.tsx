@@ -22,6 +22,11 @@ const ContentColumn = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+
+  @media only screen and (max-width: 992px) {
+    width: 100%;
+    padding: 20px;
+  }
 `;
 
 const WelcomeHeading = styled(Heading)`
@@ -136,49 +141,39 @@ const welcomeItems = [
 
 const WelcomeLayout = () => (
   <Root className="container-fluid">
-    <Box minHeight={'100vh'} className="row">
-      <WelcomeColumn className="d-none d-sm-block col-sm-5 p-0">
-        <WelcomeHeading as={'h1'}>
-          Hi there,{' '}
-          <span style={{ color: theme.colors.primary[400] }}>Welcome!</span>
+    <Box className="min-h-screen flex flex-row">
+      <WelcomeColumn className="hidden sm:block sm:w-2/5 p-0">
+        <WelcomeHeading as="h1" className="text-3xl font-bold">
+          Hi there, <span className="text-primary-400">Welcome!</span>
         </WelcomeHeading>
         <WelcomeItems>
-          {[1, 2, 3, 4].map((v) => {
-            return (
-              <MarqueeWrapper key={v}>
-                <Marquee>
-                  <WelcomeItemRow>
-                    {welcomeItems.map((wi) => {
-                      return (
-                        <WelcomeItemWrapper key={wi.title}>
-                          <WelcomeItem {...wi} />
-                        </WelcomeItemWrapper>
-                      );
-                    })}
-                  </WelcomeItemRow>
+          {[1, 2, 3, 4].map((v) => (
+            <MarqueeWrapper key={v}>
+              <Marquee>
+                <WelcomeItemRow>
+                  {welcomeItems.map((wi) => (
+                    <WelcomeItemWrapper key={wi.title}>
+                      <WelcomeItem {...wi} />
+                    </WelcomeItemWrapper>
+                  ))}
+                </WelcomeItemRow>
 
-                  <WelcomeItemRow aria-hidden={true}>
-                    {welcomeItems.map((wi) => {
-                      return (
-                        <WelcomeItemWrapper key={wi.title}>
-                          <WelcomeItem {...wi} />
-                        </WelcomeItemWrapper>
-                      );
-                    })}
-                  </WelcomeItemRow>
-                </Marquee>
-              </MarqueeWrapper>
-            );
-          })}
+                <WelcomeItemRow aria-hidden={true}>
+                  {welcomeItems.map((wi) => (
+                    <WelcomeItemWrapper key={wi.title}>
+                      <WelcomeItem {...wi} />
+                    </WelcomeItemWrapper>
+                  ))}
+                </WelcomeItemRow>
+              </Marquee>
+            </MarqueeWrapper>
+          ))}
         </WelcomeItems>
       </WelcomeColumn>
-      <ContentColumn className="col-sm-7 offset-sm-5 py-5">
-        <Box maxWidth={'500px'} width="100%">
-          <Box display={'flex'} marginBottom="50px" justifyContent="center">
-            <Logo
-              style={{ height: '93px', width: '200px', margin: 'auto' }}
-              noFixedWidth
-            />
+      <ContentColumn className="sm:w-3/5 sm:ml-auto py-5">
+        <Box className="max-w-md w-full">
+          <Box className="flex mb-12 justify-center">
+            <Logo className="h-24 w-50 mx-auto" noFixedWidth />
           </Box>
           <Outlet />
         </Box>

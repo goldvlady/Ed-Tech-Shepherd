@@ -80,7 +80,6 @@ export default function Index() {
 
       const hasCachedValues =
         storedStudentReport && storedCalendarData && storedNextEvent;
-      // storedFeeds;
 
       if (hasCachedValues) {
         setStudentReport(storedStudentReport);
@@ -97,13 +96,13 @@ export default function Index() {
       const [
         studentReportResponse,
         calendarResponse,
-        upcomingEventResponse
-        // feedsResponse
+        upcomingEventResponse,
+        feedsResponse
       ] = await Promise.all([
         ApiService.getStudentReport(),
         fetchEvents(),
-        ApiService.getUpcomingEvent()
-        // fetchFeeds()
+        ApiService.getUpcomingEvent(),
+        fetchFeeds()
       ]);
 
       // Check for 401 status code in each response and log the user out if found
@@ -144,7 +143,7 @@ export default function Index() {
     } finally {
       setIsLoading(false);
     }
-  }, [fetchFeeds]);
+  }, []);
 
   useEffect(() => {
     fetchData();

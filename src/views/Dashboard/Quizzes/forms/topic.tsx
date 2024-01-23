@@ -78,7 +78,6 @@ const TopicQuizForm = ({
         title: `failed to generate quizzes job `,
         status: 'error'
       });
-      console.log('handleGenerateQuestions ========>>> ', error);
     } finally {
       handleSetUploadingState(false);
     }

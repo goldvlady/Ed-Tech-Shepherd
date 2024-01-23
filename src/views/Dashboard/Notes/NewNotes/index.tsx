@@ -876,7 +876,7 @@ const NewNote = () => {
       setNoteId('');
       clearEditor();
     } catch (error) {
-      console.log('handleBackClick ------->>> error ============>>> ', error);
+      // console.log('handleBackClick ------->>> error ============>>> ', error);
     } finally {
       setTimeout(() => {
         navigate(-1);
@@ -1130,7 +1130,6 @@ const NewNote = () => {
     const ed: HTMLDivElement = document.querySelector('.ContentEditable__root');
     if (ed) {
       const children: HTMLCollectionOf<Element> = ed.children;
-      console.log('hey kiddy', children);
       // Apply user-select: none to each child element
       for (const child of children) {
         (child as HTMLElement).style.userSelect = 'none';
@@ -1349,7 +1348,7 @@ const NewNote = () => {
             />
             {togglePlansModal && (
               <PlansModal
-                message="Start Your 2 Week Free Trial!"
+                message="Start Your Free Trial!"
                 subMessage="One-click Cancel at anytime."
                 togglePlansModal={togglePlansModal}
                 setTogglePlansModal={setTogglePlansModal}
@@ -1379,7 +1378,7 @@ const NewNote = () => {
 
             <NoteModal
               title="Delete Note"
-              description="This will delete Note. Are you sure well?"
+              description="This will permanently remove this note from your list."
               isLoading={isLoading}
               isOpen={deleteNoteModal}
               actionButtonText="Delete"

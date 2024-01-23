@@ -1,14 +1,10 @@
 import react from '@vitejs/plugin-react';
-import glob from 'glob';
-import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import svgrPlugin from 'vite-plugin-svgr';
 import viteTsconfigPaths from 'vite-tsconfig-paths';
-import rollupNodePolyFill from 'rollup-plugin-node-polyfills';
 
 const loadVite = ({ mode }: any) => {
   const { PORT, ...env } = loadEnv(mode, process.cwd(), '');
-  const polyfills = rollupNodePolyFill();
 
   // console.log('env ========>>> ', env);
 
@@ -35,6 +31,17 @@ const loadVite = ({ mode }: any) => {
     esbuild: {
       // https://github.com/vitejs/vite/issues/8644#issuecomment-1159308803
       logOverride: { 'this-is-undefined-in-esm': 'silent' }
+    },
+    build: {
+      target: 'modules',
+      modulePreload: { polyfill: true },
+      outDir: 'dist',
+      assetsDir: 'assets',
+      assetsInlineLimit: 4096,
+      cssCodeSplit: true,
+      cssTarget: 'es2020',
+      sourcemap: false,
+      minify: 'esbuild'
     },
     plugins: [
       react({
