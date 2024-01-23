@@ -148,6 +148,7 @@ function CreateStudyPlans() {
     e.preventDefault();
     setIsDragOver(false);
     const files = e.dataTransfer.files[0];
+
     // Handle dropped files here
 
     // const fileChecked = doesTitleExist(files?.name);
@@ -274,7 +275,7 @@ function CreateStudyPlans() {
       } else {
         payload['syllabusData'] = {
           course: course,
-          gradeLevel: `${grade}-${gradeLevel}`,
+          gradeLevel: gradeLevel,
           weekCount: 15
         };
       }

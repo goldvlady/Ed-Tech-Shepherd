@@ -30,8 +30,7 @@ const CreateQuizPage = () => {
   const shareable = searchParams.get('shareable');
   useEffect(() => {
     const queryQuizId = searchParams.get('quiz_id');
-    const apiKey = searchParams.get('apiKey');
-    const shareable = searchParams.get('shareable');
+
     if (!isEmpty(queryQuizId) && !isNil(queryQuizId)) {
       (async () => {
         if (

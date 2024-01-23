@@ -1076,6 +1076,7 @@ const NewNote = () => {
             setIsEditorLoaded(true);
           });
           editor.setEditable(false);
+
           // ideally clean all this up
           const inputElements = document.querySelectorAll('input');
 
