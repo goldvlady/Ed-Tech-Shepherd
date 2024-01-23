@@ -54,6 +54,7 @@ export default function HourReminder(props) {
         return undefined;
     }
   };
+
   return (
     <>
       {' '}
@@ -103,7 +104,7 @@ export default function HourReminder(props) {
                 fontSize={12}
                 px={2}
                 py={0}
-                onClick={() => fetchSingleFlashcard(data.data.entityId)}
+                onClick={() => fetchSingleFlashcard(data.data.data.entityId)}
               >
                 Practice
               </Button>
