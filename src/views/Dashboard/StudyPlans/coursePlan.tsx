@@ -11,6 +11,7 @@ import {
   Divider,
   Flex,
   Image,
+  Link as ChakraLink,
   Menu,
   MenuButton,
   MenuList,
@@ -47,9 +48,32 @@ import {
   Alert,
   AlertIcon,
   AlertDescription,
-  Badge
+  Badge,
+  Modal,
+  ModalHeader,
+  ModalCloseButton,
+  ModalOverlay,
+  ModalContent,
+  ModalBody,
+  ModalFooter,
+  Table,
+  Thead,
+  Tbody,
+  Tfoot,
+  Tr,
+  Th,
+  Td,
+  TableCaption,
+  TableContainer,
+  Tooltip
 } from '@chakra-ui/react';
-import { FaPlus, FaCheckCircle, FaPencilAlt, FaRocket } from 'react-icons/fa';
+import {
+  FaPlus,
+  FaCheckCircle,
+  FaPencilAlt,
+  FaRocket,
+  FaSuitcase
+} from 'react-icons/fa';
 import SelectComponent, { Option } from '../../../components/Select';
 import { MdInfo, MdOutlineKeyboardArrowDown } from 'react-icons/md';
 import { FiChevronDown } from 'react-icons/fi';
@@ -75,10 +99,15 @@ import { useCustomToast } from '../../../components/CustomComponents/CustomToast
 import BountyOfferModal from '../components/BountyOfferModal';
 import { async } from '@firebase/util';
 import moment from 'moment';
+import SelectedNoteModal from '../../../components/SelectedNoteModal';
 
 function CoursePlan() {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedSubject, setSelectedSubject] = useState('');
+  const {
+    isOpen: isOpenResource,
+    onOpen: onOpenResource,
+    onClose: onCloseResource
+  } = useDisclosure();
+  const [selectedTopic, setSelectedTopic] = useState('');
   const [topics, setTopics] = useState(null);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [planResource, setPlanResource] = useState(null);
@@ -94,6 +123,66 @@ function CoursePlan() {
     studyPlanStore();
 
   const [selectedStatus, setSelectedStatus] = useState('To Do');
+  const [showNoteModal, setShowNoteModal] = useState(false);
+
+  const resourceData = [
+    {
+      title: 'Articles',
+      items: [
+        {
+          title: 'Covalent Bonds',
+          link: 'https://www.sciencedirect.com/topics/chemistry/covalent-bond',
+          duration: 25
+        },
+        {
+          title: 'Chemical Bonds',
+          link: 'https://www.sciencedirect.com/topics/chemistry/covalent-bond',
+          duration: 30
+        }
+      ]
+    },
+    {
+      title: 'Videos',
+      items: [
+        {
+          title: 'Covalent Bonds',
+          link: 'https://www.youtube.com/watch?v=h24UmH38_LI&ab_channel=FuseSchool-GlobalEducation',
+          duration: 2
+        },
+        {
+          title: 'Chemical Bonds',
+          link: 'https://www.sciencedirect.com/topics/chemistry',
+          duration: 8
+        },
+        {
+          title: 'What are Covalent Bonds',
+          link: 'https://www.sciencedirect.com/topics/chemistry/covalent-bond',
+          duration: 9
+        }
+      ]
+    },
+    {
+      title: 'Podcasts',
+      items: [
+        {
+          title: 'Covalent Bonds',
+          link: 'https://www.youtube.com/watch?v=h24UmH38_LI&ab_channel=FuseSchool-GlobalEducation',
+          duration: 25
+        },
+        {
+          title: 'Chemical Bonds',
+          link: 'https://www.sciencedirect.com/topics/chemistry',
+          duration: 48
+        },
+        {
+          title: 'What is Covalence',
+          link: 'https://www.sciencedirect.com/topics/chemistry/covalent-bond',
+          duration: 4
+        }
+      ]
+    }
+  ];
+
   const toast = useCustomToast();
 
   const {
@@ -201,12 +290,11 @@ function CoursePlan() {
   }, [selectedPlan]);
 
   function getSubject(id) {
-    return courseList.map((course) => {
-      if (course._id === id) {
-        return course.label;
-      }
-      return null;
-    });
+    const filteredSubjects = courseList
+      .map((course) => (course._id === id ? course.label : null))
+      .filter((label) => label !== null);
+
+    return filteredSubjects.length > 0 ? filteredSubjects[0] : null;
   }
 
   useEffect(() => {
@@ -413,180 +501,198 @@ function CoursePlan() {
                     <Flex direction="column" gap={2}>
                       {topics &&
                         topics.schedules.map((topic) => (
-                          <Box
-                            bg="white"
-                            rounded="md"
-                            shadow="md"
-                            key={topic._id}
-                          >
-                            <Flex alignItems={'center'} py={2} px={4}>
-                              {' '}
-                              <Text
-                                fontSize="16px"
-                                fontWeight="500"
-                                mb={2}
-                                color="text.200"
-                              >
-                                {topic.topicDetails.label}
-                              </Text>
-                              <Spacer />
-                              <Menu>
-                                <MenuButton
-                                  as={Button}
-                                  rightIcon={<FiChevronDown />}
-                                  bg="#f1f9f1"
-                                  color={'#4CAF50'}
-                                  _hover={{ bg: '#f1f9f1' }}
-                                  px={2}
-                                  size="xs"
+                          <>
+                            {' '}
+                            <Box
+                              bg="white"
+                              rounded="md"
+                              shadow="md"
+                              key={topic._id}
+                            >
+                              <Flex alignItems={'center'} py={2} px={4}>
+                                {' '}
+                                <Text
+                                  fontSize="16px"
+                                  fontWeight="500"
+                                  mb={2}
+                                  color="text.200"
                                 >
-                                  {/* {topic.status == 'notStarted'
+                                  {topic.topicDetails.label}
+                                </Text>
+                                <Spacer />
+                                <Menu>
+                                  <MenuButton
+                                    as={Button}
+                                    rightIcon={<FiChevronDown />}
+                                    bg="#f1f9f1"
+                                    color={'#4CAF50'}
+                                    _hover={{ bg: '#f1f9f1' }}
+                                    px={2}
+                                    size="xs"
+                                  >
+                                    {/* {topic.status == 'notStarted'
                                     ? 'To Do'
                                     : topic.status} */}
-                                  {getTopicStatus(topic.topicDetails._id)}
-                                </MenuButton>
-                                <MenuList>
-                                  <MenuItem
-                                    onClick={() =>
-                                      handleUpdateTopicStatus('Done', topic._id)
-                                    }
-                                  >
-                                    Done
-                                  </MenuItem>
-                                  <MenuItem
-                                    onClick={() =>
-                                      handleUpdateTopicStatus(
-                                        'In progress',
-                                        topic._id
-                                      )
-                                    }
-                                  >
-                                    In progress
-                                  </MenuItem>
-                                  <MenuItem
-                                    onClick={() =>
-                                      handleUpdateTopicStatus(
-                                        'notStarted',
-                                        topic._id
-                                      )
-                                    }
-                                  >
-                                    To Do
-                                  </MenuItem>
-                                </MenuList>
-                              </Menu>
-                            </Flex>
-                            <Divider />
-                            <Box width={'100%'}>
-                              <HStack
-                                spacing={9}
-                                p={4}
-                                justifyContent="space-between"
-                              >
-                                <Menu isLazy>
-                                  <MenuButton>
-                                    {' '}
-                                    <VStack>
-                                      <QuizIcon />
-                                      <Text fontSize={12} fontWeight={500}>
-                                        Quizzes
-                                      </Text>
-                                    </VStack>
+                                    {getTopicStatus(topic.topicDetails._id)}
                                   </MenuButton>
-                                  <MenuList h={60} overflowY="scroll">
-                                    {findQuizzesByTopic(
-                                      topic.topicDetails.label
-                                    ).map((quiz) => (
-                                      <>
-                                        <MenuItem
-                                          key={quiz.id}
-                                          onClick={() =>
-                                            navigate(
-                                              `/dashboard/quizzes/take?quiz_id=${quiz.id}`
-                                            )
-                                          }
-                                        >
-                                          {quiz.title}
-                                        </MenuItem>
-                                      </>
-                                    ))}
+                                  <MenuList>
+                                    <MenuItem
+                                      onClick={() =>
+                                        handleUpdateTopicStatus(
+                                          'Done',
+                                          topic._id
+                                        )
+                                      }
+                                    >
+                                      Done
+                                    </MenuItem>
+                                    <MenuItem
+                                      onClick={() =>
+                                        handleUpdateTopicStatus(
+                                          'In progress',
+                                          topic._id
+                                        )
+                                      }
+                                    >
+                                      In progress
+                                    </MenuItem>
+                                    <MenuItem
+                                      onClick={() =>
+                                        handleUpdateTopicStatus(
+                                          'notStarted',
+                                          topic._id
+                                        )
+                                      }
+                                    >
+                                      To Do
+                                    </MenuItem>
                                   </MenuList>
                                 </Menu>
-                                <Menu isLazy>
-                                  <MenuButton>
-                                    {' '}
-                                    <VStack>
-                                      <FlashcardIcon />
-                                      <Text fontSize={12} fontWeight={500}>
-                                        Flashcards
-                                      </Text>
-                                    </VStack>
-                                  </MenuButton>
-                                  <MenuList h={60} overflowY="scroll">
-                                    {findFlashcardsByTopic(
-                                      topic.topicDetails.label
-                                    ).map((flashcard) => (
-                                      <>
-                                        <MenuItem
-                                          key={flashcard.id}
-                                          onClick={() =>
-                                            fetchSingleFlashcard(flashcard.id)
-                                          }
-                                        >
-                                          {flashcard.deckname}
-                                        </MenuItem>
-                                      </>
-                                    ))}
-                                  </MenuList>
-                                </Menu>
-
-                                <VStack>
-                                  <AiTutorIcon />
-                                  <Text fontSize={12} fontWeight={500}>
-                                    AI Tutor
-                                  </Text>
-                                </VStack>
-                                <VStack>
-                                  <DocChatIcon />
-                                  <Text fontSize={12} fontWeight={500}>
-                                    Doc Chat
-                                  </Text>
-                                </VStack>
-                                <VStack>
-                                  <ResourceIcon />
-                                  <Text fontSize={12} fontWeight={500}>
-                                    Resources
-                                  </Text>
-                                </VStack>
-                              </HStack>
-                              <Flex alignItems={'center'} px={3}>
-                                <Badge
-                                  variant="subtle"
-                                  colorScheme="blue"
-                                  p={1}
-                                  textTransform="none"
-                                  borderRadius={8}
+                              </Flex>
+                              <Divider />
+                              <Box width={'100%'}>
+                                <HStack
+                                  spacing={9}
+                                  p={4}
+                                  justifyContent="space-between"
                                 >
-                                  Daily from{' '}
-                                  {`
+                                  <Menu isLazy>
+                                    <MenuButton>
+                                      {' '}
+                                      <VStack>
+                                        <QuizIcon />
+                                        <Text fontSize={12} fontWeight={500}>
+                                          Quizzes
+                                        </Text>
+                                      </VStack>
+                                    </MenuButton>
+                                    <MenuList h={60} overflowY="scroll">
+                                      {findQuizzesByTopic(
+                                        topic.topicDetails.label
+                                      ).map((quiz) => (
+                                        <>
+                                          <MenuItem
+                                            key={quiz.id}
+                                            onClick={() =>
+                                              navigate(
+                                                `/dashboard/quizzes/take?quiz_id=${quiz.id}`
+                                              )
+                                            }
+                                          >
+                                            {quiz.title}
+                                          </MenuItem>
+                                        </>
+                                      ))}
+                                    </MenuList>
+                                  </Menu>
+                                  <Menu isLazy>
+                                    <MenuButton>
+                                      {' '}
+                                      <VStack>
+                                        <FlashcardIcon />
+                                        <Text fontSize={12} fontWeight={500}>
+                                          Flashcards
+                                        </Text>
+                                      </VStack>
+                                    </MenuButton>
+                                    <MenuList h={60} overflowY="scroll">
+                                      {findFlashcardsByTopic(
+                                        topic.topicDetails.label
+                                      ).map((flashcard) => (
+                                        <>
+                                          <MenuItem
+                                            key={flashcard.id}
+                                            onClick={() =>
+                                              fetchSingleFlashcard(flashcard.id)
+                                            }
+                                          >
+                                            {flashcard.deckname}
+                                          </MenuItem>
+                                        </>
+                                      ))}
+                                    </MenuList>
+                                  </Menu>
+
+                                  <VStack
+                                    onClick={() =>
+                                      navigate(`/dashboard/ace-homework`)
+                                    }
+                                  >
+                                    <AiTutorIcon />
+                                    <Text fontSize={12} fontWeight={500}>
+                                      AI Tutor
+                                    </Text>
+                                  </VStack>
+                                  <VStack
+                                    onClick={() => setShowNoteModal(true)}
+                                  >
+                                    <DocChatIcon />
+                                    <Text fontSize={12} fontWeight={500}>
+                                      Doc Chat
+                                    </Text>
+                                  </VStack>
+                                  <VStack onClick={onOpenResource}>
+                                    <ResourceIcon />
+                                    <Text fontSize={12} fontWeight={500}>
+                                      Resources
+                                    </Text>
+                                  </VStack>
+                                </HStack>
+                                <Flex alignItems={'center'} px={3}>
+                                  <Badge
+                                    variant="subtle"
+                                    colorScheme="blue"
+                                    p={1}
+                                    letterSpacing="wide"
+                                    textTransform="none"
+                                    borderRadius={8}
+                                  >
+                                    Daily from
+                                    {`
                                   ${moment(topic.startDate).format(
                                     'MM.DD.YYYY'
                                   )} - ${moment(topic.endDate).format(
-                                    'MM.DD.YYYY'
-                                  )}`}
-                                </Badge>
+                                      'MM.DD.YYYY'
+                                    )}`}
+                                  </Badge>
 
-                                <Spacer />
-                                <Button
-                                  size={'sm'}
-                                  m={4}
-                                  onClick={openBountyModal}
-                                >
-                                  Find a tutor
-                                </Button>
-                              </Flex>
+                                  <Spacer />
+                                  <Button
+                                    size={'sm'}
+                                    m={4}
+                                    onClick={() => {
+                                      setSelectedTopic(
+                                        topic.topicDetails.label
+                                      );
+                                      openBountyModal();
+                                    }}
+                                  >
+                                    Find a tutor
+                                  </Button>
+                                </Flex>
+                              </Box>
                             </Box>
-                          </Box>
+                          </>
                         ))}
                     </Flex>
                   </Box>
@@ -603,10 +709,6 @@ function CoursePlan() {
           {/* <Events key={2} event={} /> */}
         </Box>
       </Grid>
-      <BountyOfferModal
-        isBountyModalOpen={isBountyModalOpen}
-        closeBountyModal={closeBountyModal}
-      />
       <PaymentDialog
         ref={paymentDialogRef}
         prefix={
@@ -621,6 +723,88 @@ function CoursePlan() {
           </Alert>
         }
       />
+      <BountyOfferModal
+        isBountyModalOpen={isBountyModalOpen}
+        closeBountyModal={closeBountyModal}
+        topic={selectedTopic}
+        subject={topics ? `${getSubject(topics.course)}` : ''}
+        // level={level.label || someBountyOpt?.level}
+        // description={description}
+      />
+      {showNoteModal && (
+        <SelectedNoteModal show={showNoteModal} setShow={setShowNoteModal} />
+      )}
+      <Modal isOpen={isOpenResource} onClose={onCloseResource} size="3xl">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>
+            <HStack>
+              <ResourceIcon />
+              <Text fontSize="16px" fontWeight="500">
+                Extra Resources
+              </Text>
+            </HStack>
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody overflowY={'auto'} maxH="500px" flexDirection="column">
+            <Flex w="full" direction={'column'} gap={6}>
+              {resourceData.map((table, index) => (
+                <TableContainer key={index}>
+                  <Text
+                    fontSize={'17px'}
+                    fontWeight="500"
+                    px={4}
+                    py={2}
+                    color="#000"
+                  >
+                    {table.title}
+                  </Text>
+                  <Box
+                    border={'2px solid #f9fbf9'}
+                    borderRadius={8}
+                    dropShadow="md"
+                  >
+                    <Table variant="striped" colorScheme="gray">
+                      <Thead>
+                        <Tr>
+                          <Th>Title</Th>
+                          <Th>Link</Th>
+                          <Th isNumeric>Duration</Th>
+                        </Tr>
+                      </Thead>
+                      <Tbody>
+                        {table.items.map((item, itemIndex) => (
+                          <Tr key={itemIndex}>
+                            <Td>{item.title}</Td>
+                            <Td>
+                              <Tooltip
+                                label={item.link}
+                                hasArrow
+                                placement="top"
+                              >
+                                <ChakraLink
+                                  href={item.link}
+                                  isExternal
+                                  color={'#4d8df9'}
+                                >
+                                  {item.link.length > 40
+                                    ? `${item.link.slice(0, 40)}...`
+                                    : item.link}
+                                </ChakraLink>
+                              </Tooltip>
+                            </Td>
+                            <Td isNumeric>{item.duration} mins</Td>
+                          </Tr>
+                        ))}
+                      </Tbody>
+                    </Table>
+                  </Box>
+                </TableContainer>
+              ))}
+            </Flex>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 }

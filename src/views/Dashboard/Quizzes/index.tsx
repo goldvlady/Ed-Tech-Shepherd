@@ -53,6 +53,7 @@ import ScheduleStudyModal, {
 } from './components/scheduleModal';
 import { RiShareForwardLine } from '@remixicon/react';
 import ShareModalMenu from '../../../components/ShareModalMenu';
+import moment from 'moment';
 
 const StyledImage = styled(Box)`
   display: inline-flex;
@@ -218,11 +219,11 @@ const Quizzes = () => {
   const handleEventSchedule = async (data: ScheduleFormState) => {
     const parsedTime = parse(data.time.toLowerCase(), 'hh:mm aa', new Date());
     const time = format(parsedTime, 'HH:mm');
-
+    const day = moment(data.day).format('YYYY-MM-DD');
     const payload: SchedulePayload = {
       entityId: scheduleItem?.quiz._id as string,
       entityType: 'quiz',
-      startDates: [data.day?.toISOString() as string],
+      startDates: [moment(day).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')],
       startTime: time
     };
 

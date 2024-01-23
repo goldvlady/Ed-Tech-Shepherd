@@ -22,6 +22,11 @@ const ContentColumn = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+
+  @media only screen and (max-width: 992px) {
+    width: 100%;
+    padding: 20px;
+  }
 `;
 
 const WelcomeHeading = styled(Heading)`

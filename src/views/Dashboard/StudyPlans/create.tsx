@@ -836,8 +836,15 @@ function CreateStudyPlans() {
           </Box>
         ) : (
           <Box>
-            <Text as="label" htmlFor="subjects" mb={2} display="block">
-              Please enter your test dates
+            <Text
+              as="label"
+              htmlFor="subjects"
+              mb={2}
+              display="block"
+              fontWeight={'semibold'}
+              color="#207df7"
+            >
+              Enter your test dates
             </Text>
             {/* <DatePicker
               name="endDate"
@@ -851,6 +858,9 @@ function CreateStudyPlans() {
                   <>
                     <Flex key={index} align={'center'} gap={2}>
                       <Box width="100%">
+                        <Text fontSize={11} fontWeight="semibold">
+                          Test {index + 1}
+                        </Text>
                         <DatePicker
                           name={`testDate-${index}`}
                           placeholder="Select Test Date"
