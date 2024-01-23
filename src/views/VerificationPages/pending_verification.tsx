@@ -25,6 +25,7 @@ const Root = styled(Box)`
   align-items: center;
   max-width: 100vw;
   width: 100%;
+  height: 100vh;
 `;
 
 const PendingVerification = () => {
@@ -86,17 +87,19 @@ const PendingVerification = () => {
       <Root>
         <Box
           display={'flex'}
-          maxWidth={'55%'}
+          maxWidth={{ md: '55%', base: '100%' }}
           flexDirection={'column'}
           justifyContent={'center'}
           alignItems={'center'}
           width="100%"
-          margin="150px"
-          paddingY="100px"
-          paddingX="50px"
+          padding={{ md: '30px', base: '15px' }}
+          // margin="150px"
+          // paddingY="100px"
+          // paddingX="50px"
           border="2px solid #EBECF0"
           borderRadius="12px"
           background="#e7e7e7"
+          margin={{ base: '20px' }}
         >
           <Box width="96px" height="96px" margin="30px auto">
             <svg
@@ -135,7 +138,7 @@ const PendingVerification = () => {
           <Text
             fontSize="md"
             fontWeight={'400'}
-            width={'60%'}
+            width={{ md: '60%' }}
             color="#585F68"
             textAlign="center"
             mt={1}
@@ -171,11 +174,12 @@ const PendingVerification = () => {
             color="white"
             justifyContent="center"
             alignItems="center"
-            padding="14px 100px"
+            padding={{ md: '14px 100px', base: '0px' }}
             marginTop="30px"
             height="48px"
             background="#207DF7"
             borderRadius="8px"
+            width={{ md: '50%', base: '100%' }}
             onClick={openEmailModal}
           >
             Resend Verification Link
