@@ -265,7 +265,6 @@ export default function Tutor() {
                     </Flex>
                     <Flex alignItems={'center'} gap={2} mt={-20}>
                       <CustomButton
-                        style={{ pointerEvents: user ? 'auto' : 'none' }}
                         buttonText="Send Offer"
                         padding="10px 21px"
                         ml={-2}
@@ -286,14 +285,15 @@ export default function Tutor() {
                           transform: 'translateY(-2px)'
                         }}
                         my={3}
-                        disabled={!user}
+                        disabled={user === null}
+                        style={{ pointerEvents: user ? 'auto' : 'none' }}
                         onClick={() => toggleBookmarkTutor(tutorId)}
                       >
                         {user && checkBookmarks()
                           ? 'Unsave Profile'
                           : 'Save Profile'}
                       </Button>
-                      <ShareModal type="tutor" />
+                      {user && <ShareModal type="tutor" />}
                     </Flex>
 
                     <Spacer />
