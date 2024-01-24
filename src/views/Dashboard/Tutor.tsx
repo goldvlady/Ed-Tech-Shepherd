@@ -96,13 +96,13 @@ export default function Tutor() {
   useEffect(() => {
     getData(apiKey);
   }, [getData, apiKey]);
-  useEffect(() => {
-    if (Object.keys(tutorData).length > 1) {
-      document.getElementsByTagName('meta')[
-        'description'
-      ].content = `Book a session with ${tutorData.user.name?.first} ${tutorData.user.name?.last}`;
-    }
-  }, [tutorData]);
+  // useEffect(() => {
+  //   if (Object.keys(tutorData).length > 1) {
+  //     document.getElementsByTagName('meta')[
+  //       'description'
+  //     ].content = `Book a session with ${tutorData.user.name?.first} ${tutorData.user.name?.last}`;
+  //   }
+  // }, [tutorData]);
 
   const { fetchBookmarkedTutors, tutors: bookmarkedTutors } =
     bookmarkedTutorsStore();
@@ -174,7 +174,7 @@ export default function Tutor() {
     <div>
       <Helmet>
         <meta
-          property="og:description"
+          name="og:description"
           content={
             tutorData
               ? `Book a session with ${tutorData.user.name?.first} ${tutorData.user.name?.last}`
@@ -182,7 +182,7 @@ export default function Tutor() {
           }
         />
         <meta
-          property="twitter:description"
+          name="twitter:description"
           content={
             tutorData
               ? `Book a session with ${tutorData.user.name?.first} ${tutorData.user.name?.last}`
