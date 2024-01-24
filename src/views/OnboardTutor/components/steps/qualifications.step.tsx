@@ -12,6 +12,8 @@ import {
   FormLabel,
   HStack,
   Input,
+  Progress,
+  Text,
   useToast
 } from '@chakra-ui/react';
 import { ref } from '@firebase/storage';
@@ -20,6 +22,14 @@ import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useMemo } from 'react';
 import { RiPencilLine } from 'react-icons/ri';
+import uploadFile from '../../../../helpers/file.helpers';
+import {
+  MAX_FILE_NAME_LENGTH,
+  MAX_FILE_UPLOAD_LIMIT
+} from '../../../../helpers/constants';
+import userStore from '../../../../state/userStore';
+import { processDocument } from '../../../../services/AI';
+import ApiService from '../../../../services/ApiService';
 
 const QualificationsForm: React.FC = () => {
   const toast = useCustomToast();
@@ -32,10 +42,18 @@ const QualificationsForm: React.FC = () => {
     transcript: ''
   });
   const [dateError, setDateError] = useState('');
-
+  const [confirmReady, setConfirmReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [addQualificationClicked, setAddQualificationClicked] = useState(false);
-
+  const [countdown, setCountdown] = useState({
+    active: false,
+    message: ''
+  });
+  const [progress, setProgress] = useState(0);
+  const { user } = userStore();
+  const [loading, setLoading] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  console.log('selectedDate== >', selectedDate);
   useEffect(() => {
     if (
       storeQualifications &&
@@ -48,44 +66,134 @@ const QualificationsForm: React.FC = () => {
 
   const handleUploadInput = (file: File | null, name: string) => {
     if (!file) return;
-    if (file?.size > 10000000) {
-      setIsLoading(true);
+
+    let readableFileName = file?.name
+      .toLowerCase()
+      .replace(/\.pdf$/, '')
+
+      .replace(/_/g, ' ');
+    if (readableFileName.length > MAX_FILE_NAME_LENGTH) {
+      readableFileName = readableFileName.substring(0, MAX_FILE_NAME_LENGTH);
+      setCountdown((prev) => ({
+        active: true,
+        message: `The file name has been truncated to ${MAX_FILE_NAME_LENGTH} characters`
+      }));
+      setProgress(5);
+    }
+
+    const SIZE_IN_MB = parseInt((file?.size / 1_000_000).toFixed(2), 10);
+
+    if (SIZE_IN_MB > MAX_FILE_UPLOAD_LIMIT) {
       toast({
-        title: 'Please upload a file under 10MB',
+        title: 'Your file is too large',
         status: 'error',
         position: 'top',
-        isClosable: true
+        isClosable: true,
+        description: `Your file is ${SIZE_IN_MB}MB, above our ${MAX_FILE_UPLOAD_LIMIT}MB limit. Please upload a smaller document.`
       });
       return;
-    } else {
-      const storageRef = ref(storage, `files/${file.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-
-      setIsLoading(true);
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          const progress = Math.round(
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          );
-          // setCvUploadPercent(progress);
-        },
-        (error) => {
-          setIsLoading(false);
-          // setCvUploadPercent(0);
-          toast({ title: error.message + error.cause, status: 'error' });
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            setIsLoading(false);
-            handleInputChange({
-              target: { name, value: downloadURL }
-            } as React.ChangeEvent<HTMLInputElement>);
-            // onboardTutorStore.set?.transcript?.(downloadURL);
-          });
-        }
-      );
     }
+
+    setCountdown(() => ({
+      active: true,
+      message: 'Uploading...your document is being uploaded'
+    }));
+    setProgress(25);
+
+    const uploadEmitter = uploadFile(file, {
+      studentID: user._id, // Assuming user._id is always defined
+      documentID: readableFileName // Assuming readableFileName is the file's name
+    });
+
+    uploadEmitter.on('progress', (progress: number) => {
+      // Update the progress. Assuming progress is a percentage (0 to 100)
+      setProgress(progress);
+      setLoading(true);
+    });
+
+    // const storageRef = ref(storage, `files/${file.name}`);
+    // const uploadTask = uploadBytesResumable(storageRef, file);
+
+    setIsLoading(true);
+    // uploadTask.on(
+    //   'state_changed',
+    //   (snapshot) => {
+    //     const progress = Math.round(
+    //       (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+    //     );
+    //     // setCvUploadPercent(progress);
+    //   },
+    //   (error) => {
+    //     setIsLoading(false);
+    //     // setCvUploadPercent(0);
+    //     toast({ title: error.message + error.cause, status: 'error' });
+    //   },
+    //   () => {
+    //     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+    //       setIsLoading(false);
+    //       handleInputChange({
+    //         target: { name, value: downloadURL }
+    //       } as React.ChangeEvent<HTMLInputElement>);
+    //       // onboardTutorStore.set?.transcript?.(downloadURL);
+    //     });
+    //   }
+    // );
+    uploadEmitter.on('complete', async (uploadFile) => {
+      // Assuming uploadFile contains the fileUrl and other necessary details.
+      const documentURL = uploadFile.fileUrl;
+
+      setCountdown((prev) => ({
+        ...prev,
+        message:
+          'Processing...this may take a minute (larger documents may take longer)'
+      }));
+
+      try {
+        const results = await processDocument({
+          studentId: user._id,
+          documentId: readableFileName,
+          documentURL,
+          title: readableFileName
+        });
+
+        const {
+          documentURL: newDocumentURL,
+          title,
+          documentId
+        } = results.data[0];
+        setConfirmReady(true);
+        setCountdown((prev) => ({
+          ...prev,
+          message:
+            "Your uploaded document is now ready! Click the 'chat' button to start."
+        }));
+        // setDocumentId(documentId);
+        // setDocumentName(title);
+        // setDocumentURL(newDocumentURL);
+        // setDocKeywords(keywords);
+        setLoading(false);
+
+        ApiService.saveStudentDocument({
+          documentUrl: newDocumentURL,
+          title,
+          ingestId: documentId
+        });
+      } catch (e) {
+        setCountdown((prev) => ({
+          ...prev,
+          message: 'Something went wrong. Reload this page and try again.'
+        }));
+        setLoading(false);
+      }
+    });
+
+    uploadEmitter.on('error', (error) => {
+      setCountdown((prev) => ({
+        ...prev,
+        active: false,
+        message: 'Something went wrong. Please attempt the upload again.'
+      }));
+    });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,27 +208,49 @@ const QualificationsForm: React.FC = () => {
     }
   };
 
-  const handleDateChange = (date: Date | null, name: string) => {
-    if (!date) return; // or handle `null` value if necessary
+  // const handleDateChange = (date: Date | null, name: string) => {
+  //   if (!date) return; // or handle `null` value if necessary
 
-    if (
-      name === 'endDate' &&
-      formData.startDate &&
-      isBefore(date, formData.startDate)
-    ) {
-      setDateError('End date must be after start date');
-      return;
-    } else {
-      setDateError('');
+  //   if (
+  //     name === 'endDate' &&
+  //     formData.startDate &&
+  //     isBefore(date, formData.startDate)
+  //   ) {
+  //     setDateError('End date must be after start date');
+  //     return;
+  //   } else {
+  //     setDateError('');
+  //   }
+
+  //   const updatedFormData = {
+  //     ...formData,
+  //     [name]: date
+  //   };
+  //   setFormData(updatedFormData);
+  //   if (!addQualificationClicked) {
+  //     onboardTutorStore.set.qualifications?.([updatedFormData]);
+  //   }
+  // };
+
+  const handleDateChange = (selectedDate: Date | null, fieldName: string) => {
+    if (!selectedDate) return;
+
+    if (fieldName === 'endDate') {
+      if (formData.startDate && isBefore(selectedDate, formData.startDate)) {
+        setDateError('End date must be after start date');
+        return;
+      } else {
+        setDateError('');
+      }
     }
 
-    const updatedFormData = {
-      ...formData,
-      [name]: date
-    };
-    setFormData(updatedFormData);
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [fieldName]: selectedDate
+    }));
+
     if (!addQualificationClicked) {
-      onboardTutorStore.set.qualifications?.([updatedFormData]);
+      onboardTutorStore.set.qualifications?.([formData]);
     }
   };
 
@@ -227,6 +357,44 @@ const QualificationsForm: React.FC = () => {
     });
   };
 
+  const CountdownProgressBar = ({
+    confirmReady,
+    countdown
+  }: {
+    confirmReady: boolean;
+    countdown: { active: boolean; message: string };
+  }) => {
+    // const [progress, setProgress] = useState(0);
+
+    const randomSeed = (min = 1, max = 10) =>
+      Math.floor(Math.random() * (max - min + 5) + min);
+
+    useEffect(() => {
+      if (confirmReady) {
+        setProgress(() => 500);
+      } else {
+        const interval = setInterval(() => {
+          setProgress((prevProgress) => prevProgress + randomSeed());
+        }, 1000);
+
+        return () => clearInterval(interval);
+      }
+    }, [confirmReady]);
+
+    return (
+      <div>
+        <Progress
+          size="lg"
+          hasStripe
+          value={progress}
+          max={500}
+          colorScheme="green"
+        />
+        <Text>{countdown.message}</Text>
+      </div>
+    );
+  };
+
   return (
     <Box>
       <AnimatePresence>
@@ -267,24 +435,22 @@ const QualificationsForm: React.FC = () => {
         <FormControl id="startDate">
           <FormLabel>Start date</FormLabel>
           <DatePicker
+            selected={formData.startDate}
             name="startDate"
-            placeholder="Select Start Date"
-            value={
-              formData.startDate ? format(formData.startDate, 'yyyy-MM-dd') : ''
-            }
+            placeholderText="YYYY-MM-DD"
             onChange={(date) => handleDateChange(date, 'startDate')}
+            dateFormat="yyyy-MM-dd"
           />
         </FormControl>
 
         <FormControl isInvalid={Boolean(dateError)} id="endDate">
           <FormLabel>End date</FormLabel>
           <DatePicker
+            selected={formData.endDate}
             name="endDate"
-            placeholder="Select End Date"
-            value={
-              formData.endDate ? format(formData.endDate, 'yyyy-MM-dd') : ''
-            }
+            placeholderText="YYYY-MM-DD"
             onChange={(date) => handleDateChange(date, 'endDate')}
+            dateFormat="yyyy-MM-dd"
           />
           <FormErrorMessage>
             {'End Date Must Be before The Start Date'}
@@ -302,6 +468,14 @@ const QualificationsForm: React.FC = () => {
           onFileUpload={(file) => handleUploadInput(file, 'transcript')}
           boxStyles={{ minWidth: '250px', marginTop: '10px', height: '50px' }}
         />
+        <Box my={2}>
+          {countdown.active && (
+            <CountdownProgressBar
+              confirmReady={confirmReady}
+              countdown={countdown}
+            />
+          )}
+        </Box>
       </FormControl>
 
       <Button
