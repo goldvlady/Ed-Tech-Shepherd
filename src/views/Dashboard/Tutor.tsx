@@ -174,6 +174,14 @@ export default function Tutor() {
               : 'Book a session with a tutor!'
           }
         />
+        <meta
+          property="twitter:description"
+          content={
+            tutorData
+              ? `Book a session with ${tutorData.user.name?.first} ${tutorData.user.name?.last}`
+              : 'Book a session with a tutor!'
+          }
+        />
       </Helmet>
       <Box>
         <Breadcrumb
