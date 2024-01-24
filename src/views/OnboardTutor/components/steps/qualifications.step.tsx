@@ -52,8 +52,6 @@ const QualificationsForm: React.FC = () => {
   const [progress, setProgress] = useState(0);
   const { user } = userStore();
   const [loading, setLoading] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  console.log('selectedDate== >', selectedDate);
   useEffect(() => {
     if (
       storeQualifications &&
