@@ -31,6 +31,11 @@ interface LibraryCardProps {
 
 const MotionBox = motion(Box);
 
+function capitalizeFirstLetter(str) {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
 const LibraryCard: React.FC<LibraryCardProps> = ({
   question,
   answer,
@@ -78,8 +83,8 @@ const LibraryCard: React.FC<LibraryCardProps> = ({
           isChecked={isSelected}
           onChange={(e) => onSelect?.(e.target.checked)}
         />
-        <Text>{difficulty}</Text>
-        <Menu>
+        <Text>{capitalizeFirstLetter(difficulty)}</Text>
+        {/* <Menu>
           <MenuButton
             as={IconButton}
             aria-label="More options"
@@ -99,7 +104,7 @@ const LibraryCard: React.FC<LibraryCardProps> = ({
               </MenuItem>
             ))}
           </MenuList>
-        </Menu>
+        </Menu> */}
       </Flex>
 
       <Box

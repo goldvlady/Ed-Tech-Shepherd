@@ -135,7 +135,7 @@ class ApiService {
   };
 
   static getLibraryCards = async (data: any) => {
-    return doFetch(`${ApiService.baseEndpoint}/getLibraryCardsByTopic`, {
+    return doFetch(`${ApiService.baseEndpoint}/getLibraryCardsByDeck`, {
       method: 'POST',
       body: JSON.stringify(data)
     });

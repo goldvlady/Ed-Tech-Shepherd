@@ -6,7 +6,7 @@ import userStore from '../../../../state/userStore';
 import { LibraryCardData } from '../../../../types';
 import LibraryCard from './LibraryCard';
 import AddToDeckModal from './AddToDeckModal';
-import { SimpleGrid, Box, Button, Flex, Select } from '@chakra-ui/react';
+import { SimpleGrid, Box, Button, Flex, Select, Text } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
@@ -40,15 +40,10 @@ interface LibraryCardProps {
 }
 
 const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
-  const { fetchLibraryCards, libraryCards } = libraryCardStore();
+  const { fetchLibraryCards, isLoading, libraryCards } = libraryCardStore();
   const { user } = userStore();
-  const {
-    createFlashCard,
-    isLoading,
-    fetchFlashcards,
-    flashcards,
-    editFlashcard
-  } = flashcardStore();
+  const { createFlashCard, fetchFlashcards, flashcards, editFlashcard } =
+    flashcardStore();
   // State for tracking selected cards and modal visibility
   const [selectedCards, setSelectedCards] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -167,12 +162,10 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
     setSelectedDifficulty(e.target.value);
   };
 
-  if (!libraryCards?.length) {
+  if (isLoading && !libraryCards?.length) {
     return <LoaderOverlay />;
   }
-  return !libraryCards?.length ? (
-    <LoaderOverlay />
-  ) : (
+  return (
     <>
       {isModalOpen && (
         <AddToDeckModal
@@ -188,9 +181,9 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
             onChange={handleDifficultyChange}
             width={{ base: '60%', sm: '50%', md: '40%', lg: '20%' }}
           >
-            <option value="Easy">Easy</option>
-            <option value="Medium">Medium</option>
-            <option value="Difficult">Difficult</option>
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="difficult">Difficult</option>
             {/* Add More options similar to Data */}
           </Select>
         }
@@ -198,19 +191,53 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
           <Button onClick={toggleModal}>Add to Deck</Button>
         )}
       </Flex>
-      <SimpleGrid columns={{ base: 1, md: 2, lg: 2, xl: 3 }} spacing={10}>
-        {libraryCards.map((card) => (
-          <LibraryCard
-            key={card._id}
-            question={card.front}
-            difficulty={card.difficulty}
-            answer={card.back}
-            explanation={card.explainer}
-            options={options(card)}
-            onSelect={(isSelected) => handleCardSelect(card, isSelected)}
-          />
-        ))}
-      </SimpleGrid>
+      {libraryCards?.length ? (
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 2, xl: 3 }} spacing={10}>
+          {libraryCards.map((card) => (
+            <LibraryCard
+              key={card._id}
+              question={card.front}
+              difficulty={card.difficulty}
+              answer={card.back}
+              explanation={card.explainer}
+              options={options(card)}
+              onSelect={(isSelected) => handleCardSelect(card, isSelected)}
+            />
+          ))}
+        </SimpleGrid>
+      ) : (
+        <Box
+          display={'flex'}
+          flexDirection={'column'}
+          justifyContent={'start'}
+          height={'calc(100vh - 350px)'}
+        >
+          <Box
+            width={'100%'}
+            display={'flex'}
+            height="100%"
+            justifyContent={'center'}
+            flexDirection={'column'}
+            alignItems={'center'}
+          >
+            <img
+              src="/images/empty_illustration.svg"
+              alt="empty directory icon"
+            />
+            <Text
+              color="text.300"
+              fontFamily="Inter"
+              fontSize="16px"
+              fontStyle="normal"
+              fontWeight="500"
+              lineHeight="21px"
+              letterSpacing="0.112px"
+            >
+              No cards to display
+            </Text>
+          </Box>
+        </Box>
+      )}
     </>
   );
 };
