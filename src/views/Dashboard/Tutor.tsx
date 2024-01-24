@@ -167,7 +167,7 @@ export default function Tutor() {
     <>
       <Helmet prioritizeSeoTags defer={false}>
         <meta
-          property="og:title"
+          property="description"
           content={
             tutorData
               ? `Book a session with ${tutorData.user.name?.first} ${tutorData.user.name?.last}`
