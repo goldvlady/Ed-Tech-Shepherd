@@ -169,16 +169,6 @@ const NotesDirectory: React.FC = () => {
     saveDocument
   } = documentStore();
 
-  const actionFunc = useCallback(
-    (query: string) => {
-      if (!hasSearched) setHasSearched(true);
-      fetchNotes({ search: query });
-    },
-    [fetchNotes, hasSearched]
-  );
-
-  const handleSearch = useSearch(actionFunc);
-
   const [selectedContent, setSelectedContent] = useState<Array<string>>([]);
 
   const handleSelectChange = (id: string, checked: boolean) => {
@@ -217,6 +207,16 @@ const NotesDirectory: React.FC = () => {
   const itemsCount = items.length;
   const itemName = activeTab === 'notes' ? 'Notes' : 'Files';
   const tags = activeTab === 'notes' ? noteTags : docTags;
+
+  const actionFunc = useCallback(
+    (query: string) => {
+      if (!hasSearched) setHasSearched(true);
+      fetchItems({ search: query });
+    },
+    [fetchItems, hasSearched]
+  );
+
+  const handleSearch = useSearch(actionFunc);
 
   const filterOptions: Option[] = tags.map((tag) => ({
     label: tag,
