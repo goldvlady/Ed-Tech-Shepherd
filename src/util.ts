@@ -161,6 +161,9 @@ export const convertUtcToUserTime = (utcTime) => {
 };
 
 export const convertTimeToDateTime = (time) => {
+  if (!time) {
+    return null;
+  }
   const currentDate = new Date();
 
   // Regular expression to match different time formats

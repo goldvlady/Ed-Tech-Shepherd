@@ -378,7 +378,18 @@ class ApiService {
   static getTutor = async (id: string) => {
     return doFetch(`${ApiService.baseEndpoint}/tutor/${id}`);
   };
-
+  static getTutorForAPIKey = async (id: string, apiKey: string) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/tutor/${id}?shareable=true`,
+      {
+        method: 'GET'
+      },
+      true,
+      {
+        'x-api-key': apiKey
+      }
+    );
+  };
   // Offer
 
   static getOffer = async (id: string) => {
