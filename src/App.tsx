@@ -1,6 +1,5 @@
 import './init';
 import LexicalContext from './components/Editor/context';
-import { HelmetProvider } from 'react-helmet-async';
 import TutorDashboardLayout from './components/Layout';
 import { FlashCardModal } from './components/flashcardDecks';
 import { QuizModal } from './components/quizDecks';
@@ -450,7 +449,7 @@ function App() {
   }, []);
 
   return (
-    <HelmetProvider>
+    <>
       <BrowserRouter>
         <LexicalContext>
           <ChakraProvider theme={theme}>
@@ -471,7 +470,7 @@ function App() {
         </LexicalContext>
       </BrowserRouter>
       <FlashCardModal isOpen={Boolean(flashcard) || showStudyList} />
-    </HelmetProvider>
+    </>
   );
 }
 

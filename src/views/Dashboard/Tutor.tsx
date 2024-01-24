@@ -48,7 +48,7 @@ import Availability from '../../components/Availability';
 import ShepherdSpinner from './components/shepherd-spinner';
 import useUserStore from '../../state/userStore';
 import ShareModal from '../../components/ShareModal';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from 'react-helmet';
 function removeShareFromURL(baseUrl: string) {
   const url = new URL(baseUrl);
   const existingParams = new URLSearchParams(url.search);
@@ -165,9 +165,9 @@ export default function Tutor() {
 
   return (
     <>
-      <Helmet prioritizeSeoTags defer={false}>
+      <Helmet>
         <meta
-          property="description"
+          property="og:description"
           content={
             tutorData
               ? `Book a session with ${tutorData.user.name?.first} ${tutorData.user.name?.last}`
