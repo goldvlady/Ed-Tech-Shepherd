@@ -96,6 +96,13 @@ export default function Tutor() {
   useEffect(() => {
     getData(apiKey);
   }, [getData, apiKey]);
+  useEffect(() => {
+    if (Object.keys(tutorData).length > 1) {
+      document.getElementsByTagName('meta')[
+        'description'
+      ].content = `Book a session with ${tutorData.user.name?.first} ${tutorData.user.name?.last}`;
+    }
+  }, [tutorData]);
 
   const { fetchBookmarkedTutors, tutors: bookmarkedTutors } =
     bookmarkedTutorsStore();
@@ -164,7 +171,7 @@ export default function Tutor() {
   }
 
   return (
-    <>
+    <div>
       <Helmet>
         <meta
           property="og:description"
@@ -579,6 +586,6 @@ export default function Tutor() {
           </GridItem>
         </Grid>
       </Box>
-    </>
+    </div>
   );
 }
