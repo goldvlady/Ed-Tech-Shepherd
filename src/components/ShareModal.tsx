@@ -18,7 +18,7 @@ import { newId } from '../helpers/id';
 import ApiService from '../services/ApiService';
 
 type ShareModalProps = {
-  type: 'quiz' | 'note' | 'flashcard' | 'docchat' | 'aichat';
+  type: 'quiz' | 'note' | 'flashcard' | 'docchat' | 'aichat' | 'tutor';
 };
 const appendParamsToUrl = (baseUrl, paramsToAppend) => {
   const url = new URL(baseUrl);
@@ -100,6 +100,15 @@ const ShareModal = ({ type }: ShareModalProps) => {
     } else if (type === 'aichat' || type === 'docchat') {
       const encodedTweetText = encodeURIComponent(
         'Check out my conversation on shepherd.study! ' + shareLink
+      );
+      const tweetIntentURL = `https://twitter.com/intent/tweet?text=${encodedTweetText}`;
+
+      window.open(tweetIntentURL, '_blank');
+      const apiKey = shareLink.split('apiKey=').at(-1);
+      await ApiService.generateShareLink({ apiKey });
+    } else {
+      const encodedTweetText = encodeURIComponent(
+        'Book a session! ' + shareLink
       );
       const tweetIntentURL = `https://twitter.com/intent/tweet?text=${encodedTweetText}`;
 
@@ -309,6 +318,67 @@ const ShareModal = ({ type }: ShareModalProps) => {
               cursor="not-allowed"
               isDisabled
               className="text-balance overflow-scroll"
+              value={presentableLink}
+              padding="12px 24px"
+              width={'100%'}
+              boxShadow="inset 0 0 0 1px #f4f4f5"
+              borderRadius="md"
+            />
+            <div className="flex gap-2">
+              <Button
+                onClick={copyShareLink}
+                bg="#f4f4f5"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                gap="4px"
+                padding="12px 24px"
+                borderRadius="md"
+                border="none"
+                cursor="pointer"
+                color="#000"
+                _hover={{ bg: '#e4e4e5' }}
+                _active={{ bg: '#d4d4d5' }}
+              >
+                <DocumentDuplicateIcon width={16} height={16} />
+                <span> Copy link</span>
+              </Button>
+              <Button
+                onClick={shareOnX}
+                bg="#f4f4f5"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                gap="4px"
+                padding="12px 24px"
+                borderRadius="md"
+                border="none"
+                cursor="pointer"
+                color="#000"
+                _hover={{ bg: '#e4e4e5' }}
+                _active={{ bg: '#d4d4d5' }}
+              >
+                <span> Share on </span>
+                <RiTwitterXLine />
+              </Button>
+            </div>
+          </ModalBody>
+        </ModalContent>
+      );
+    } else if (type === 'tutor') {
+      return (
+        <ModalContent>
+          <ModalHeader>Share this Tutor</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody className="flex !items-start !justify-start flex-col  gap-3">
+            <p>Anyone with this link can view this tutor.</p>
+            <Input
+              bg="transparent"
+              outline="none"
+              _focus={{ boxShadow: 'none' }}
+              cursor="not-allowed"
+              className="text-balance overflow-scroll"
+              isDisabled
               value={presentableLink}
               padding="12px 24px"
               width={'100%'}

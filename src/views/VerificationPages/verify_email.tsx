@@ -63,7 +63,14 @@ const VerificationSuccess = () => {
             position: 'top-right'
           });
           if (user.isVerified) {
-            navigateToDashboard();
+            const redirLink = localStorage.getItem('redirLink');
+            if (redirLink) {
+              const strippedLink = redirLink.split('/').splice(3).join('/');
+              localStorage.removeItem('redirLink');
+              navigate(`/${strippedLink}`);
+            } else {
+              navigateToDashboard();
+            }
           }
         }
       } else {

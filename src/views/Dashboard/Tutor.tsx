@@ -46,11 +46,29 @@ import { RxDotFilled } from 'react-icons/rx';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Availability from '../../components/Availability';
 import ShepherdSpinner from './components/shepherd-spinner';
+import useUserStore from '../../state/userStore';
+import ShareModal from '../../components/ShareModal';
+import { Helmet } from 'react-helmet';
+function removeShareFromURL(baseUrl: string) {
+  const url = new URL(baseUrl);
+  const existingParams = new URLSearchParams(url.search);
 
+  const paramsToExclude = ['shareable', 'apiKey'];
+
+  paramsToExclude.forEach((param) => {
+    existingParams.delete(param);
+  });
+  url.search = existingParams.toString();
+
+  return url.toString();
+}
 export default function Tutor() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const apiKey = searchParams.get('apiKey');
+  const shareable = searchParams.get('shareable');
   const [loadingData, setLoadingData] = useState(false);
   const [tutorData, setTutorData] = useState<any>({});
+  const { user } = useUserStore();
   const [vidOverlay, setVidOverlay] = useState<boolean>(true);
   const [switchStyle, setSwitchStyle] = useState<boolean>(false);
   const tutorId: any = searchParams.get('id');
@@ -58,17 +76,33 @@ export default function Tutor() {
   const navigate = useNavigate();
   const toast = useCustomToast();
 
-  const getData = useCallback(async () => {
-    setLoadingData(true);
-    const resp = await ApiService.getTutor(tutorId);
-    const data = await resp.json();
-    setTutorData(data);
-    setLoadingData(false);
-  }, [tutorId]);
+  const getData = useCallback(
+    async (apiKey: string) => {
+      setLoadingData(true);
+      if (apiKey) {
+        const resp = await ApiService.getTutorForAPIKey(tutorId, apiKey);
+        const data = await resp.json();
+        setTutorData(data);
+      } else {
+        const resp = await ApiService.getTutor(tutorId);
+        const data = await resp.json();
+        setTutorData(data);
+      }
+      setLoadingData(false);
+    },
+    [tutorId]
+  );
 
   useEffect(() => {
-    getData();
-  }, [getData]);
+    getData(apiKey);
+  }, [getData, apiKey]);
+  // useEffect(() => {
+  //   if (Object.keys(tutorData).length > 1) {
+  //     document.getElementsByTagName('meta')[
+  //       'description'
+  //     ].content = `Book a session with ${tutorData.user.name?.first} ${tutorData.user.name?.last}`;
+  //   }
+  // }, [tutorData]);
 
   const { fetchBookmarkedTutors, tutors: bookmarkedTutors } =
     bookmarkedTutorsStore();
@@ -85,8 +119,10 @@ export default function Tutor() {
   };
 
   useEffect(() => {
-    doFetchBookmarkedTutors();
-  }, [doFetchBookmarkedTutors]);
+    if (!apiKey && !shareable) {
+      doFetchBookmarkedTutors();
+    }
+  }, [doFetchBookmarkedTutors, apiKey, shareable]);
 
   const toggleBookmarkTutor = async (id: string) => {
     try {
@@ -116,7 +152,16 @@ export default function Tutor() {
       });
     }
   };
+  const sendOfferHandler = () => {
+    if (user) {
+      navigate(`/dashboard/tutor/${tutorId}/offer`);
+    } else {
+      const url = removeShareFromURL(window.location.href);
 
+      localStorage.setItem('redirLink', url);
+      navigate('/signup');
+    }
+  };
   if (Object.keys(tutorData).length === 0) {
     return (
       <Box p={5} textAlign="center">
@@ -126,7 +171,25 @@ export default function Tutor() {
   }
 
   return (
-    <>
+    <div>
+      <Helmet>
+        <meta
+          name="og:description"
+          content={
+            tutorData
+              ? `Book a session with ${tutorData.user.name?.first} ${tutorData.user.name?.last}`
+              : 'Book a session with a tutor!'
+          }
+        />
+        <meta
+          name="twitter:description"
+          content={
+            tutorData
+              ? `Book a session with ${tutorData.user.name?.first} ${tutorData.user.name?.last}`
+              : 'Book a session with a tutor!'
+          }
+        />
+      </Helmet>
       <Box>
         <Breadcrumb
           spacing="8px"
@@ -205,9 +268,7 @@ export default function Tutor() {
                         buttonText="Send Offer"
                         padding="10px 21px"
                         ml={-2}
-                        onClick={() =>
-                          navigate(`/dashboard/tutor/${tutorId}/offer`)
-                        }
+                        onClick={sendOfferHandler}
                       />
                       <Button
                         variant="unstyled"
@@ -224,10 +285,15 @@ export default function Tutor() {
                           transform: 'translateY(-2px)'
                         }}
                         my={3}
+                        disabled={user === null}
+                        style={{ pointerEvents: user ? 'auto' : 'none' }}
                         onClick={() => toggleBookmarkTutor(tutorId)}
                       >
-                        {checkBookmarks() ? 'Unsave Profile' : 'Save Profile'}
+                        {user && checkBookmarks()
+                          ? 'Unsave Profile'
+                          : 'Save Profile'}
                       </Button>
+                      {user && <ShareModal type="tutor" />}
                     </Flex>
 
                     <Spacer />
@@ -520,6 +586,6 @@ export default function Tutor() {
           </GridItem>
         </Grid>
       </Box>
-    </>
+    </div>
   );
 }
