@@ -11,6 +11,7 @@ type Store = {
     limit: number,
     userType: string
   ) => Promise<void>;
+  createBounty: (bountyOffer: any) => Promise<boolean>;
 
   pagination: { page: number; limit: number; total: number };
 
@@ -52,6 +53,42 @@ export default create<Store>((set) => ({
       // console.log(error)
     } finally {
       set({ isLoading: false });
+    }
+  },
+  saveBounty: async (data: any) => {
+    try {
+      set((prev) => {
+        if (prev.bounties) {
+          prev.bounties.push(data);
+        } else {
+          prev.bounties = [data];
+        }
+        return prev;
+      });
+    } catch (error) {
+      // console.log(error)
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+  createBounty: async (bountyOffer: any): Promise<boolean> => {
+    try {
+      const response = await ApiService.createBounty(bountyOffer);
+      if (response.status !== 200) return false;
+      const { data } = await response.json();
+      set((prev) => {
+        if (prev.bounties) {
+          prev.bounties.push(data);
+        } else {
+          prev.bounties = [data];
+        }
+        return prev;
+      });
+      return true;
+    } catch (error) {
+      return false;
+    } finally {
+      // set({ isLoading: false });
     }
   }
 

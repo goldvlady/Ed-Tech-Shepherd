@@ -4,6 +4,7 @@ import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast';
 import ApiService from '../../../services/ApiService';
 import resourceStore from '../../../state/resourceStore';
+import offerStore from '../../../state/offerStore';
 import {
   Box,
   Button,
@@ -38,6 +39,7 @@ export default function BountyOfferModal(props) {
   } = props;
 
   const { courses: courseList, levels: levelOptions } = resourceStore();
+  const { createBounty } = offerStore();
   const [isLoading, setIsLoading] = useState(false);
   const [bountyOffer, setBountyOffer] = useState({
     subject: subject || '',
@@ -72,7 +74,6 @@ export default function BountyOfferModal(props) {
   }, [bountyOffer]);
 
   const handleSubmitBounty = async () => {
-    setIsLoading(true);
     const newObject = {
       topic: bountyOffer.topic,
       description: bountyOffer.description,
@@ -83,10 +84,11 @@ export default function BountyOfferModal(props) {
       levelId: bountyOffer.level,
       expiryDate: bountyOffer.expirationDate.toDateString()
     };
-    const response = await ApiService.createBounty(newObject);
+    setIsLoading(true);
+    const response = await createBounty(newObject);
     setIsLoading(false);
-    closeBountyModal();
-    if (response.status === 200) {
+    if (response) {
+      closeBountyModal();
       toast({
         render: () => (
           <CustomToast
