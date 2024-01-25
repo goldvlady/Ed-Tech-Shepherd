@@ -47,8 +47,8 @@ export default function Schedule({ events }) {
     selectedDate && events
       ? events.filter(
           (event) =>
-            new Date(event.date).toDateString() ===
-            new Date(selectedDate).toDateString()
+            moment(event.date).format('YYYY-MM-DD') ===
+            moment(selectedDate).format('YYYY-MM-DD')
         )
       : events;
 

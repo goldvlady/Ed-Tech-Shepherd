@@ -356,6 +356,7 @@ const SendTutorOffer = () => {
                                         null
                                       ); // Reset contractEndDate
                                       form.setFieldError('contractEndDate', ''); // Clear any previous error
+                                      console.log(d);
                                     }}
                                   />
                                   <FormErrorMessage>

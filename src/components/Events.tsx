@@ -230,6 +230,7 @@ export default function Events({ event }: any) {
       });
     }
   };
+  console.log(event.date);
 
   const handleJoinSession = (url) => {
     navigate(url);
