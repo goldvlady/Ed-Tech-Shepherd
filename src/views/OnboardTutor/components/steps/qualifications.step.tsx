@@ -233,6 +233,8 @@ const QualificationsForm: React.FC = () => {
   const handleDateChange = (selectedDate: Date | null, fieldName: string) => {
     if (!selectedDate) return;
 
+    const updatedFormData = { ...formData, [fieldName]: selectedDate };
+
     if (fieldName === 'endDate') {
       if (formData.startDate && isBefore(selectedDate, formData.startDate)) {
         setDateError('End date must be after start date');
@@ -242,13 +244,10 @@ const QualificationsForm: React.FC = () => {
       }
     }
 
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [fieldName]: selectedDate
-    }));
+    setFormData(updatedFormData);
 
     if (!addQualificationClicked) {
-      onboardTutorStore.set.qualifications?.([formData]);
+      onboardTutorStore.set.qualifications?.([updatedFormData]);
     }
   };
 
