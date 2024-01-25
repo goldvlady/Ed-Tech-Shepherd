@@ -177,17 +177,17 @@ function StudentCard(props) {
               </Text>
               <EllipsistIcon className="w-1 mx-0.5" onClick={undefined} />
               <Text as="span">
-                {convertTimeToTimeZone(
+                {/* {convertTimeToTimeZone(
                   convertTimeToDateTime(getBeginTime(offer.schedule)),
                   offer.scheduleTz
-                )}
+                )} */}
               </Text>
               <ArrowRightIcon className="w-3 mx-0.5" onClick={undefined} />
               <Text as="span">
-                {convertTimeToTimeZone(
+                {/* {convertTimeToTimeZone(
                   convertTimeToDateTime(getEndTime(offer.schedule)),
                   offer.scheduleTz
-                )}
+                )} */}
               </Text>
             </Flex>
           </VStack>

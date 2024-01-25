@@ -67,6 +67,8 @@ const HomeWorkHelp = () => {
   const shareable = search.get('shareable');
   const apiKey = search.get('apiKey');
   const newQ = search.get('new');
+  const planSubject = search.get('subject');
+  const planTopic = search.get('topic');
   const location = useLocation();
   const [isShowPrompt, setShowPrompt] = useState<boolean>(false);
   const [openAceHomework, setAceHomeWork] = useState(false);
@@ -158,6 +160,12 @@ const HomeWorkHelp = () => {
     }
   }, [user, hasActiveSubscription]);
 
+  useEffect(() => {
+    if (planSubject && planTopic) {
+      setLocalData({ subject: planSubject, topic: planTopic });
+      setIsSubmitted(true);
+    }
+  }, [planSubject, planTopic]);
   useEffect(() => {
     if (certainConversationId || conversationId) {
       const authSocket = socketWithAuth({

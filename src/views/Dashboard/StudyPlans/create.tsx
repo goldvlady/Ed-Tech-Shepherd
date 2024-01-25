@@ -89,6 +89,7 @@ function CreateStudyPlans() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedSubject, setSelectedSubject] = useState('');
   const [course, setCourse] = useState('');
+  const [planName, setPlanName] = useState('');
   const [syllabusUrl, setSyllabusUrl] = useState('');
   const [topicUrls, setTopicUrls] = useState([]);
   const [activeTab, setActiveTab] = useState(0);
@@ -446,6 +447,7 @@ function CreateStudyPlans() {
 
     const payload = {
       course: selectedSubject,
+      title: planName,
       scheduleItems: convertedArr
     };
 
@@ -565,6 +567,7 @@ function CreateStudyPlans() {
         const dates = week.weekRange.split(' - ');
         const startDate = formatDate(dates[0]);
         const endDate = formatDate(dates[1]);
+        const testDate = endDate;
 
         const topics = await Promise.all(
           week.topics.map(async (topic) => {
@@ -592,6 +595,7 @@ function CreateStudyPlans() {
                 documentUrls
               },
               startDate,
+              testDate,
               endDate,
               weekIndex: index + 1,
               status: 'notStarted'
@@ -693,8 +697,23 @@ function CreateStudyPlans() {
         </Box>
         {activeTab === 0 ? (
           <Box>
-            {' '}
-            <Box mb={4}>
+            <Box>
+              <Text as="label" htmlFor="planName" mb={2} display="block">
+                Name your Study Plan
+              </Text>
+              <Input
+                type="text"
+                id="planName"
+                value={planName}
+                onChange={(e) => setPlanName(e.target.value)}
+                borderWidth="1px"
+                rounded="md"
+                py={2}
+                px={3}
+                mb={2}
+              />
+            </Box>
+            <Box my={2}>
               <Text as="label" htmlFor="gradeLevel" mb={2} display="block">
                 Enter your grade level
               </Text>
@@ -746,16 +765,6 @@ function CreateStudyPlans() {
                 px={3}
                 mb={2}
               />
-
-              {/* <Button
-            colorScheme="blue"
-            variant="link"
-            display="flex"
-            alignItems="center"
-          >
-            <Icon as={FaPlus} mr={2} />
-            Additional subject
-          </Button> */}
             </Box>
             <Center my={2}>or</Center>
             <Center
@@ -864,7 +873,7 @@ function CreateStudyPlans() {
                         <DatePicker
                           name={`testDate-${index}`}
                           placeholder="Select Test Date"
-                          value={format(date, 'dd-MM-yyyy')}
+                          value={format(date, 'mm-dd-yyyy')}
                           onChange={(newDate) => {
                             const updatedTestDates = [...testDate];
                             updatedTestDates[index] = newDate;
@@ -903,8 +912,8 @@ function CreateStudyPlans() {
               alignItems="center"
               onClick={() =>
                 getStudyPlan(
-                  moment().format('DD/MM/YYYY'),
-                  testDate.map((date) => moment(date).format('DD/MM/YYYY')),
+                  moment().format('MM/DD/YYYY'),
+                  testDate.map((date) => moment(date).format('MM/DD/YYYY')),
                   syllabusData
                 )
               }
