@@ -224,6 +224,7 @@ export default function Events({ event }: any) {
       });
     }
   };
+  console.log(event.date);
 
   return (
     <li
