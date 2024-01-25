@@ -379,23 +379,24 @@ function CreateStudyPlans() {
 
   const getStudyPlan = async (startDate, testDates, syllabusData) => {
     const studyPlan = [];
-    let currentStartDate = moment(startDate, 'DD/MM/YYYY');
+    let currentStartDate = moment(startDate, 'MM/DD/YYYY');
     let topicsRemaining = syllabusData.slice();
     let i = 0;
+    console.log(currentStartDate);
 
     const getLastMoment = (date) =>
-      moment.max(moment(date, 'DD/MM/YYYY'), moment());
+      moment.max(moment(date, 'MM/DD/YYYY'), moment());
 
     while (i < testDates.length) {
       const currentEndDate =
         i === testDates.length - 1
           ? getLastMoment(testDates[i])
-          : moment(testDates[i], 'DD/MM/YYYY');
+          : moment(testDates[i], 'MM/DD/YYYY');
 
       const daysAvailable = currentEndDate.diff(currentStartDate, 'days') + 1;
       const daysUntilNextTest =
         i < testDates.length - 1
-          ? moment(testDates[i + 1], 'DD/MM/YYYY').diff(currentEndDate, 'days')
+          ? moment(testDates[i + 1], 'MM/DD/YYYY').diff(currentEndDate, 'days')
           : 0;
 
       let topicsThisPeriod = Math.floor(
@@ -408,8 +409,8 @@ function CreateStudyPlans() {
         // If no more topics and still have test dates, create an empty study week
         const studyWeek = {
           weekRange: `${currentStartDate.format(
-            'DD/MM/YYYY'
-          )} - ${currentEndDate.format('DD/MM/YYYY')}`,
+            'MM/DD/YYYY'
+          )} - ${currentEndDate.format('MM/DD/YYYY')}`,
           topics: []
         };
 
@@ -420,8 +421,8 @@ function CreateStudyPlans() {
 
         const studyWeek = {
           weekRange: `${currentStartDate.format(
-            'DD/MM/YYYY'
-          )} - ${currentEndDate.format('DD/MM/YYYY')}`,
+            'MM/DD/YYYY'
+          )} - ${currentEndDate.format('MM/DD/YYYY')}`,
           topics: topics.map((topic) => ({
             mainTopic: topic.topics[0].mainTopic,
             subTopics: topic.topics[0].subTopics,
@@ -595,7 +596,6 @@ function CreateStudyPlans() {
                 documentUrls
               },
               startDate,
-              testDate,
               endDate,
               weekIndex: index + 1,
               status: 'notStarted'
@@ -873,7 +873,7 @@ function CreateStudyPlans() {
                         <DatePicker
                           name={`testDate-${index}`}
                           placeholder="Select Test Date"
-                          value={format(date, 'mm-dd-yyyy')}
+                          value={format(date, 'MM-dd-yyyy')}
                           onChange={(newDate) => {
                             const updatedTestDates = [...testDate];
                             updatedTestDates[index] = newDate;
