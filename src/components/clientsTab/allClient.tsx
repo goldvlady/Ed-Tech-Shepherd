@@ -83,7 +83,7 @@ const AllClientsTab = (props) => {
       end_date: moment(allTutorClients[i]?.offer?.contractEndDate).format(
         'MMMM DD  , YYYY'
       ),
-      status: allTutorClients[i]?.isActive === true ? 'Active' : 'Ended',
+      status: allTutorClients[i]?.offer?.expired === true ? 'Ended' : 'Active',
       amount_earned: `$${
         allTutorClients[i].offer?.amount ? allTutorClients[i].offer.amount : 0
       }`,
