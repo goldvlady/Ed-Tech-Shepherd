@@ -230,7 +230,11 @@ export default function Events({ event }: any) {
       });
     }
   };
-  console.log(event.date);
+  console.log(
+    event.date,
+    moment.utc(event.date).format('YYYY-MM-DD'),
+    'event- date '
+  );
 
   const handleJoinSession = (url) => {
     navigate(url);

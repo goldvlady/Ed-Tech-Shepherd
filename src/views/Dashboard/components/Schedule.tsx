@@ -47,7 +47,7 @@ export default function Schedule({ events }) {
     selectedDate && events
       ? events.filter(
           (event) =>
-            moment(event.date).format('YYYY-MM-DD') ===
+            moment.utc(event.date).format('YYYY-MM-DD') ===
             moment(selectedDate).format('YYYY-MM-DD')
         )
       : events;
