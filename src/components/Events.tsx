@@ -55,6 +55,12 @@ export default function Events({ event }: any) {
     onClose: onCloseCancelStudy
   } = useDisclosure();
 
+  const {
+    isOpen: isJoinSessionOpen,
+    onOpen: onOpenJoinSession,
+    onClose: onCloseJoinSession
+  } = useDisclosure();
+
   const today = useMemo(() => new Date(), []);
 
   const getTextByEventType = (eventType, name) => {
@@ -225,6 +231,14 @@ export default function Events({ event }: any) {
     }
   };
 
+  const handleJoinSession = (url) => {
+    navigate(url);
+  };
+
+  const handleMessageStudent = () => {
+    navigate('/dashboard/tutordashboard/messages');
+  };
+
   return (
     <li
       className={`flex gap-x-3 cursor-pointer hover:drop-shadow-sm ${getColorByEventType(
@@ -233,11 +247,17 @@ export default function Events({ event }: any) {
         event.type === 'study' ? event.data.entityType : event.type
       )}`}
       onClick={() => {
-        event.data.entityType === 'flashcard'
-          ? fetchSingleFlashcard(event.data.entity.id)
-          : event.data.entityType === 'quiz'
-          ? navigate(`/dashboard/quizzes/take?quiz_id=${event.data.entity.id}`)
-          : navigate(`${`/dashboard`}`);
+        if (event.type === 'study') {
+          if (event.data.entityType === 'flashcard') {
+            fetchSingleFlashcard(event.data.entity.id);
+          } else if (event.data.entityType === 'quiz') {
+            navigate(`/dashboard/quizzes/take?quiz_id=${event.data.entity.id}`);
+          }
+        } else if (event.type === 'booking') {
+          onOpenJoinSession();
+        } else {
+          navigate(`${`/dashboard`}`);
+        }
       }}
     >
       <div
@@ -304,6 +324,38 @@ export default function Events({ event }: any) {
           </div>
         </div>
       </div>
+
+      <Modal isOpen={isJoinSessionOpen} onClose={onCloseJoinSession}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Session Options</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VStack spacing={4}>
+              <Button
+                colorScheme="blue"
+                width="full"
+                onClick={() =>
+                  handleJoinSession(
+                    event.data.conferenceHostRoomUrl ||
+                      event.data.conferenceRoomUrl
+                  )
+                }
+              >
+                Join the session
+              </Button>
+              <Button
+                colorScheme="green"
+                width="full"
+                onClick={handleMessageStudent}
+              >
+                Message Student
+              </Button>
+            </VStack>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
       <ScheduleStudyModal
         isLoading={isLoading}
         onSumbit={(d) => handleEventSchedule(d)}
