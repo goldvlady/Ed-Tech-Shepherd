@@ -67,7 +67,10 @@ import {
   TableContainer,
   Tooltip,
   FormControl,
-  FormLabel
+  FormLabel,
+  GridItem,
+  Card,
+  CardFooter
 } from '@chakra-ui/react';
 import {
   FaPlus,
@@ -79,12 +82,20 @@ import {
 import SelectComponent, { Option } from '../../../components/Select';
 import { MdInfo, MdOutlineKeyboardArrowDown } from 'react-icons/md';
 import { FiChevronDown } from 'react-icons/fi';
-import { ArrowLeftIcon, ChevronDownIcon } from '@chakra-ui/icons';
+import {
+  ArrowLeftIcon,
+  ChevronDownIcon,
+  ChevronRightIcon
+} from '@chakra-ui/icons';
 import { IoIosArrowRoundBack } from 'react-icons/io';
 import SubjectCard from '../../../components/SubjectCard';
 import Events from '../../../components/Events';
 import ResourceIcon from '../../../assets/resources-plan.svg';
 import QuizIcon from '../../../assets/quiz-plan.svg';
+import CloudDay from '../../../assets/day.svg';
+import CloudNight from '../../../assets/night.svg';
+import Summary from '../../../assets/summary.svg';
+import Flash from '../../../assets/flash.svg';
 import FlashcardIcon from '../../../assets/flashcard-plan.svg';
 import DocChatIcon from '../../../assets/dochat-plan.svg';
 import AiTutorIcon from '../../../assets/aitutor-plan.svg';
@@ -104,6 +115,8 @@ import moment from 'moment';
 import SelectedNoteModal from '../../../components/SelectedNoteModal';
 import CalendarDateInput from '../../../components/CalendarDateInput';
 import Select from '../../../components/Select';
+import { RxDotFilled } from 'react-icons/rx';
+import { numberToDayOfWeekName } from '../../../util';
 
 function CoursePlan() {
   const {
@@ -135,6 +148,13 @@ function CoursePlan() {
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [selectedRecurrence, setSelectedRecurrence] = useState('daily');
   const [selectedRecurrenceTime, setSelectedRecurrenceTime] = useState(null);
+  const date = new Date();
+  const weekday = numberToDayOfWeekName(date.getDay(), 'dddd');
+  const month = moment().format('MMMM');
+  const monthday = date.getDate();
+
+  const hours = date.getHours();
+  const isDayTime = hours > 6 && hours < 20;
   const frequencyOptions = [
     { label: 'Daily', value: 'daily' },
     { label: 'Weekly', value: 'weekly' },
@@ -439,10 +459,10 @@ function CoursePlan() {
       </Flex>
       <Grid
         templateColumns={[
-          '35% 45% 20%',
-          '35% 45% 20%',
-          '35% 45% 20%',
-          '35% 45% 20%'
+          '30% 45% 25%',
+          '30% 45% 25%',
+          '30% 45% 25%',
+          '30% 45% 25%'
         ]}
         h="90vh"
         w="100%"
@@ -451,7 +471,7 @@ function CoursePlan() {
       >
         <Box
           py={10}
-          px={4}
+          px={2}
           className="create-syllabus"
           bg="white"
           overflowY="auto"
@@ -462,7 +482,7 @@ function CoursePlan() {
                 Schedule study session
               </Text>
               <Text fontSize="sm" color="gray.600">
-                Set your preferred study plan to meet your goal
+                Select your preferred study plan
               </Text>
             </Box>
           </Box>
@@ -489,7 +509,9 @@ function CoursePlan() {
                 ref={plan._id === selectedPlan ? selectedPlanRef : null}
               >
                 <Flex alignItems="center" fontSize="12px" fontWeight={500}>
-                  <Text mb={1}>{getSubject(plan.course)}</Text>
+                  <Text mb={1}>
+                    {plan.title ? plan.title : getSubject(plan.course)}
+                  </Text>
                   <Spacer />
                   <Text color="gray.700" fontSize="base" ml={2}>
                     {`${plan.readinessScore}%`}
@@ -662,7 +684,11 @@ function CoursePlan() {
 
                                   <VStack
                                     onClick={() =>
-                                      navigate(`/dashboard/ace-homework`)
+                                      navigate(
+                                        `/dashboard/ace-homework?subject=${getSubject(
+                                          topics.course
+                                        )}&topic=${topic.topicDetails.label}`
+                                      )
                                     }
                                   >
                                     <AiTutorIcon />
@@ -685,7 +711,7 @@ function CoursePlan() {
                                     </Text>
                                   </VStack>
                                 </HStack>
-                                <Flex alignItems={'center'} px={3}>
+                                <Flex alignItems={'center'} px={4}>
                                   <Badge
                                     variant="subtle"
                                     colorScheme="blue"
@@ -707,7 +733,7 @@ function CoursePlan() {
                                   <Spacer />
                                   <Button
                                     size={'sm'}
-                                    m={4}
+                                    my={4}
                                     onClick={() => {
                                       setSelectedTopic(
                                         topic.topicDetails.label
@@ -727,14 +753,317 @@ function CoursePlan() {
                 </Box>
               </TabPanel>
               <TabPanel>
-                <p>Study Plan!</p>
+                <Box>
+                  {' '}
+                  <Card
+                    // height={{ base: 'auto', md: '275px' }}
+                    borderRadius={{ base: '5px', md: '10px' }}
+                    border="1px solid #eeeff2"
+                    position={'relative'}
+                    marginBottom={{ base: '26px', md: 'none' }}
+                  >
+                    {/* {studentReport.studiedFlashcards > 0 ? ( */}
+                    <>
+                      <Grid
+                        h={{ base: 'auto', md: 'auto' }}
+                        px={3}
+                        templateRows="repeat(1, 1fr)"
+                        templateColumns={{
+                          base: 'repeat(1, 1fr)',
+                          md: 'repeat(2, 1fr)'
+                        }}
+                        gap={1}
+                      >
+                        <GridItem
+                          borderBottom={'1px solid #eeeff2'}
+                          position="relative"
+                          p={2}
+                        >
+                          <Box>
+                            <Text
+                              fontSize={{ base: 'md' }}
+                              fontWeight={500}
+                              color="text.400"
+                            >
+                              Cards studied
+                            </Text>
+                            <Text
+                              fontSize={{ base: 'xl', md: '2xl' }}
+                              fontWeight={600}
+                            >
+                              0
+                              <span
+                                style={{
+                                  fontSize: 14,
+                                  fontWeight: '400',
+                                  color: '#6e7682'
+                                }}
+                              >
+                                {' '}
+                                cards
+                              </span>
+                            </Text>
+                          </Box>
+                        </GridItem>
+
+                        <GridItem
+                          borderBottom={'1px solid #eeeff2'}
+                          position="relative"
+                          p={2}
+                        >
+                          <Box>
+                            <Text
+                              fontSize={{ base: 'md' }}
+                              fontWeight={500}
+                              color="text.400"
+                            >
+                              Time studied
+                            </Text>
+                            <Flex gap={1}>
+                              <Text
+                                fontSize={{ base: 'xl', md: '2xl' }}
+                                fontWeight={600}
+                              >
+                                6
+                                <span
+                                  style={{
+                                    fontSize: 12,
+                                    fontWeight: '400',
+                                    color: '#6e7682'
+                                  }}
+                                >
+                                  {' '}
+                                  hrs
+                                </span>
+                              </Text>{' '}
+                              <Text
+                                fontSize={{ base: 'xl', md: '2xl' }}
+                                fontWeight={600}
+                              >
+                                {/* {
+                                  timeStudied(
+                                    studentReport.totalWeeklyStudyTime
+                                  ).minute
+                                } */}
+                                5
+                                <span
+                                  style={{
+                                    fontSize: 14,
+                                    fontWeight: '400',
+                                    color: '#6e7682'
+                                  }}
+                                >
+                                  {' '}
+                                  mins
+                                </span>
+                              </Text>
+                            </Flex>
+                          </Box>
+                        </GridItem>
+                      </Grid>
+                      <Grid
+                        // h={{ base: 'auto', md: '140px' }}
+                        templateRows={{
+                          base: 'repeat(2, 1fr)',
+                          md: 'repeat(1, 1fr)'
+                        }}
+                        templateColumns={{
+                          base: 'repeat(1, 1fr)',
+                          md: 'repeat(2, 1fr)'
+                        }}
+                        gap={0}
+                      >
+                        <GridItem rowSpan={1} colSpan={1} p={3}>
+                          <Text
+                            fontSize={14}
+                            fontWeight={500}
+                            color="text.400"
+                            my={'auto'}
+                          >
+                            Flashcard performance
+                          </Text>
+                          <Flex alignItems={'center'} fontSize={12} my={2}>
+                            <Box
+                              boxSize="12px"
+                              bg="#4caf50"
+                              borderRadius={'3px'}
+                              mr={2}
+                            />
+                            <Text color="text.300">Got it right</Text>
+                            <Spacer />
+                            <Text fontWeight={600}>0%</Text>
+                          </Flex>
+                          <Flex alignItems={'center'} fontSize={12} my={2}>
+                            <Box
+                              boxSize="12px"
+                              bg="#fb8441"
+                              borderRadius={'3px'}
+                              mr={2}
+                            />
+                            <Text color="text.300">Didn't remember</Text>
+                            <Spacer />
+                            <Text fontWeight={600}>0%</Text>
+                          </Flex>
+                          <Flex alignItems={'center'} fontSize={12} my={2}>
+                            <Box
+                              boxSize="12px"
+                              bg="red"
+                              borderRadius={'3px'}
+                              mr={2}
+                            />
+                            <Text color="text.300">Got it wrong</Text>
+                            <Spacer />
+                            <Text fontWeight={600}>0%</Text>
+                          </Flex>
+                        </GridItem>
+                        <GridItem
+                          rowSpan={1}
+                          colSpan={1}
+                          position="relative"
+                          borderLeft="1px solid #eeeff2"
+                          p={3}
+                        >
+                          <Text
+                            fontSize={14}
+                            fontWeight={500}
+                            color="text.400"
+                            my={'auto'}
+                          >
+                            Quiz performance
+                          </Text>
+                          <Flex alignItems={'center'} fontSize={12} my={2}>
+                            <Box
+                              boxSize="12px"
+                              bg="#4caf50"
+                              borderRadius={'3px'}
+                              mr={2}
+                            />
+                            <Text color="text.300">Got it right</Text>
+                            <Spacer />
+                            <Text fontWeight={600}>0%</Text>
+                          </Flex>
+                          <Flex alignItems={'center'} fontSize={12} my={2}>
+                            <Box
+                              boxSize="12px"
+                              bg="#fb8441"
+                              borderRadius={'3px'}
+                              mr={2}
+                            />
+                            <Text color="text.300">Didn't remember</Text>
+                            <Spacer />
+                            <Text fontWeight={600}>0%</Text>
+                          </Flex>
+                          <Flex alignItems={'center'} fontSize={12} my={2}>
+                            <Box
+                              boxSize="12px"
+                              bg="red"
+                              borderRadius={'3px'}
+                              mr={2}
+                            />
+                            <Text color="text.300">Got it wrong</Text>
+                            <Spacer />
+                            <Text fontWeight={600}>0%</Text>
+                          </Flex>
+                        </GridItem>
+                      </Grid>
+                      <CardFooter
+                        bg="#f0f2f4"
+                        // h={"45px"}
+                        borderBottom="1px solid #eeeff2"
+                        borderBottomRadius={'10px'}
+                      >
+                        <Flex
+                          h="16px"
+                          alignItems={'center'}
+                          gap={1}
+                          direction="row"
+                        >
+                          <Flash />
+                          <Text fontSize={14} fontWeight={400} color="text.300">
+                            Current study streak:
+                          </Text>
+                          <Text fontSize="14px" fontWeight="500" color="#000">
+                            0 day
+                          </Text>
+                        </Flex>
+                      </CardFooter>
+                    </>
+                    {/* ) : (
+                      <Box textAlign={'center'} px={20} mt={5}>
+                        <VStack spacing={5}>
+                          <EmptyFlashcard />
+                          <Text fontSize={13} fontWeight={500} color="text.400">
+                            Monitor your flashcard performance for the week.
+                            Start Practicing Today.
+                          </Text>
+                          <Link to="/dashboard/flashcards">
+                            <CustomButton buttonText="Create Flashcard" />
+                          </Link>
+                        </VStack>
+                      </Box>
+                    )} */}
+                  </Card>
+                </Box>
               </TabPanel>
             </TabPanels>
           </Tabs>
         </Box>
 
-        <Box py={8} className="schedule" bg="white" overflowY="auto">
-          {/* <Events key={2} event={} /> */}
+        <Box py={8} px={4} className="schedule" bg="white" overflowY="auto">
+          <Flex
+            color="text.300"
+            fontSize={12}
+            fontWeight={400}
+            alignItems="center"
+            height="fit-content"
+            justifyContent="right"
+          >
+            <Box>{isDayTime ? <CloudDay /> : <CloudNight />}</Box>
+            <Box mt={1}>
+              <RxDotFilled />
+            </Box>
+            <Text mb={0}>{`${weekday}, ${month} ${monthday}`}</Text>{' '}
+          </Flex>
+          <Box my={4} fontSize={12}>
+            <Text>Hey Liam!</Text>
+            <Text color={'text.300'}>
+              You have 4 topics to study before your big-day.
+            </Text>
+          </Box>
+          <Box mt={4}>
+            <Text fontSize={12} p={3}>
+              Summary
+            </Text>
+            <ul className="space-y-3">
+              <li
+                className={`flex gap-x-3 cursor-pointer hover:drop-shadow-sm bg-gray-50`}
+              >
+                <div
+                  className={`min-h-fit w-1 rounded-tr-full rounded-br-full bg-red-500`}
+                />
+                <div className="py-2 w-full">
+                  <div className="flex gap-x-1">
+                    <div className="min-w-0 flex-auto">
+                      <Text className="text-xs font-normal leading-6 text-gray-500">
+                        Chemical Bonding
+                      </Text>
+                      <Flex alignItems={'center'}>
+                        <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
+                          <span>11:00 AM</span>
+
+                          <>
+                            {' '}
+                            <ChevronRightIcon className="w-4 h-4" />
+                            <span>12:00 PM</span>
+                          </>
+                        </Text>
+                      </Flex>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </Box>
         </Box>
       </Grid>
       <PaymentDialog

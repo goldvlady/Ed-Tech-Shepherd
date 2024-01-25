@@ -22,7 +22,7 @@ import {
 } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@heroicons/react/24/solid';
 import moment from 'moment';
-import { useLayoutEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import { IconContext } from 'react-icons';
 import { AiFillStar } from 'react-icons/ai';
 import { FaEllipsisH } from 'react-icons/fa';
