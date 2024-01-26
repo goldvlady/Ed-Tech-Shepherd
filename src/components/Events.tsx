@@ -224,11 +224,6 @@ export default function Events({ event }: any) {
       });
     }
   };
-  console.log(
-    event.date,
-    moment.utc(event.date).format('YYYY-MM-DD'),
-    'event- date '
-  );
 
   return (
     <li
