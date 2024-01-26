@@ -157,20 +157,22 @@ function ActivityFeeds(props) {
     }
   };
 
-  const getTextByActivityType = (activityType, link) => {
-    switch (activityType) {
+  const getTextByActivityType = (feed) => {
+    switch (feed.activityType) {
       case 'documents':
-        return `You uploaded "${getFileName(link)}" to your workspace`;
+        return `You uploaded "${getFileName(feed.link)}" to your workspace`;
       case 'notes':
         return `You created a new note "${getFileName(
-          link
+          feed.link
         )}" to your workspace`;
       case 'payments':
-        return `You made a payment of $10.95 to Leslie Peters for Chemistry lessons`;
+        return isTutor
+          ? `You received a payment of ${feed.payment.amount}`
+          : `You made a payment of ${feed.payment.amount}`;
       case 'flashcards':
-        return `You created a new flashcard deck "${link}" `;
+        return `You created a new flashcard deck "${feed.title}" `;
       case 'quiz':
-        return `You created a new quiz "${link}" `;
+        return `You created a new quiz "${feed.title}" `;
       case 'bounty':
         return isTutor
           ? `Click here to begin your session`
@@ -291,10 +293,7 @@ function ActivityFeeds(props) {
                       fontSize="14px"
                       mb={0}
                     >
-                      {getTextByActivityType(
-                        feed.activityType,
-                        feed.link ? feed.link : feed.title
-                      )}
+                      {getTextByActivityType(feed)}
                     </Text>
 
                     <Spacer />
