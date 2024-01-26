@@ -82,6 +82,7 @@ function ActivityFeeds(props) {
   };
   const navigate = useNavigate();
   const getFileName = (url) => {
+    if (!url) return '';
     const isFirebaseStorageUrl = url.includes('firebasestorage.googleapis.com');
     const isAmazonS3Url = url.includes('amazonaws.com');
 

@@ -80,13 +80,20 @@ class ApiService {
   };
 
   static scheduleStudyEvent = async (data: any) => {
+    const requestPayload = {
+      ...data,
+      tz: Intl.DateTimeFormat().resolvedOptions().timeZone
+    };
     return doFetch(`${ApiService.baseEndpoint}/scheduleStudyEvent`, {
       method: 'POST',
-      body: JSON.stringify(data)
+      body: JSON.stringify(requestPayload)
     });
   };
 
   static rescheduleStudyEvent = async (data: any) => {
+    if (data.updates) {
+      data.updates.tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    }
     return doFetch(`${ApiService.baseEndpoint}/updateStudyEvent`, {
       method: 'POST',
       body: JSON.stringify(data)
