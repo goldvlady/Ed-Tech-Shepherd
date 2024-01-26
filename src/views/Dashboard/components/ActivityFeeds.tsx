@@ -71,6 +71,7 @@ const Root = styled(Flex)`
 
 function ActivityFeeds(props) {
   const { feeds, userType } = props;
+  console.log('feeds are', feeds);
   const { loadFlashcard } = flashcardStore();
   const [feedPeriod, setFeedPeriod] = useState<
     'all' | 'today' | 'week' | 'month'
@@ -82,6 +83,7 @@ function ActivityFeeds(props) {
   };
   const navigate = useNavigate();
   const getFileName = (url) => {
+    console.log(url, 'url');
     const isFirebaseStorageUrl = url.includes('firebasestorage.googleapis.com');
     const isAmazonS3Url = url.includes('amazonaws.com');
 
@@ -275,7 +277,8 @@ function ActivityFeeds(props) {
       >
         {filteredFeeds?.length > 0 ? (
           filteredFeeds
-            .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt)) //
+            .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
+            .filter((f) => f.link) //
             .map((feed: any, index) => (
               <>
                 <Root px={3} my={4} key={index}>

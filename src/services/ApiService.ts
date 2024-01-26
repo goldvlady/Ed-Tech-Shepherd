@@ -220,14 +220,28 @@ class ApiService {
     });
   };
 
-  static createFlashcard = async (data: any, generatorType = 'manual') => {
-    return doFetch(
-      `${ApiService.baseEndpoint}/createFlashcard?generatorType=${generatorType}`,
-      {
-        method: 'POST',
-        body: JSON.stringify(data)
-      }
-    );
+  static createFlashcard = async (
+    data: any,
+    generatorType = 'manual',
+    id: string = null
+  ) => {
+    if (!id) {
+      return doFetch(
+        `${ApiService.baseEndpoint}/createFlashcard?generatorType=${generatorType}`,
+        {
+          method: 'POST',
+          body: JSON.stringify(data)
+        }
+      );
+    } else {
+      return doFetch(
+        `${ApiService.baseEndpoint}/createFlashcard?generatorType=${generatorType}&fid=${id}`,
+        {
+          method: 'POST',
+          body: JSON.stringify(data)
+        }
+      );
+    }
   };
 
   static getSingleFlashcard = async (id: string) => {
