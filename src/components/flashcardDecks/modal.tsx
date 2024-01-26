@@ -1035,35 +1035,40 @@ const StudyBox = () => {
               >
                 Got it wrong
               </Button>
-              {user && apiKey && (
-                <Button
-                  leftIcon={<Icon as={RiRemoteControlLine} fontSize={'16px'} />}
-                  display="flex"
-                  padding="16.5px 45.5px 16.5px 47.5px"
-                  justifyContent="center"
-                  isLoading={minorLoader}
-                  alignItems="center"
-                  borderRadius="8px"
-                  fontSize="16px"
-                  marginBottom={{ base: '15px' }}
-                  backgroundColor="#FEECEC"
-                  color="#000"
-                  flex="1"
-                  className="ml-3"
-                  height="54px"
-                  width={{ base: '100%', md: 'auto' }}
-                  onClick={cloneFlashcardHandler}
-                  loadingText="Clone Flashcard"
-                  transition="transform 0.3s"
-                  _hover={{
-                    background: '#FEECEC',
-                    transform: 'scale(1.05)'
-                  }}
-                  disabled={isLoading}
-                >
-                  Clone Flashcard
-                </Button>
-              )}
+              {user &&
+                user.subscription &&
+                user.subscription.status === 'active' &&
+                apiKey && (
+                  <Button
+                    leftIcon={
+                      <Icon as={RiRemoteControlLine} fontSize={'16px'} />
+                    }
+                    display="flex"
+                    padding="16.5px 45.5px 16.5px 47.5px"
+                    justifyContent="center"
+                    isLoading={minorLoader}
+                    alignItems="center"
+                    borderRadius="8px"
+                    fontSize="16px"
+                    marginBottom={{ base: '15px' }}
+                    backgroundColor="#FEECEC"
+                    color="#000"
+                    flex="1"
+                    className="ml-3"
+                    height="54px"
+                    width={{ base: '100%', md: 'auto' }}
+                    onClick={cloneFlashcardHandler}
+                    loadingText="Clone Flashcard"
+                    transition="transform 0.3s"
+                    _hover={{
+                      background: '#FEECEC',
+                      transform: 'scale(1.05)'
+                    }}
+                    disabled={isLoading}
+                  >
+                    Clone Flashcard
+                  </Button>
+                )}
             </Box>
           )
         )}
