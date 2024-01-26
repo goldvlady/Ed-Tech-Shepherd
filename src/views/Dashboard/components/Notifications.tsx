@@ -183,7 +183,7 @@ function Notifications(props) {
                 onClick={() => {
                   if (i.attributes.offerId) {
                     const url = isTutor
-                      ? `/dashboard/tutordashboard/offers/offer/${i.attributes.offerId}`
+                      ? `/dashboard/tutordashboard/offer/${i.attributes.offerId}`
                       : `/dashboard/offer/${i.attributes.offerId}`;
                     navigate(url);
                   } else if (i.attributes.flashcardId) {

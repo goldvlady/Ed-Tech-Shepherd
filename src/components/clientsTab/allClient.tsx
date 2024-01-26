@@ -22,7 +22,7 @@ import {
 } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@heroicons/react/24/solid';
 import moment from 'moment';
-import { useLayoutEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import { IconContext } from 'react-icons';
 import { AiFillStar } from 'react-icons/ai';
 import { FaEllipsisH } from 'react-icons/fa';
@@ -83,7 +83,7 @@ const AllClientsTab = (props) => {
       end_date: moment(allTutorClients[i]?.offer?.contractEndDate).format(
         'MMMM DD  , YYYY'
       ),
-      status: allTutorClients[i]?.isActive === true ? 'Active' : 'Ended',
+      status: allTutorClients[i]?.offer?.expired === true ? 'Ended' : 'Active',
       amount_earned: `$${
         allTutorClients[i].offer?.amount ? allTutorClients[i].offer.amount : 0
       }`,
@@ -140,19 +140,19 @@ const AllClientsTab = (props) => {
       key: 'name',
       title: 'ClientName',
       dataIndex: 'name',
-      align: 'left',
-      render: ({ name }) => (
-        <>
-          <Flex alignItems="center" gap={1}>
-            <img
-              src="/svgs/text-document.svg"
-              className="text-gray-400 "
-              alt=""
-            />
-            <Text fontWeight="500">{name}</Text>
-          </Flex>
-        </>
-      )
+      align: 'left'
+      // render: ({ name }) => (
+      //   <>
+      //     <Flex alignItems="center" gap={1}>
+      //       <img
+      //         src="/svgs/text-document.svg"
+      //         className="text-gray-400 "
+      //         alt=""
+      //       />
+      //       <Text fontWeight="500">{name}</Text>
+      //     </Flex>
+      //   </>
+      // )
     },
     {
       key: 'subject',
@@ -194,22 +194,22 @@ const AllClientsTab = (props) => {
       title: 'Classes',
       dataIndex: 'classes',
       align: 'left',
-      id: 5,
-      render: ({ classes }) => (
-        <>
-          <Box
-            bg="#F4F5F6"
-            py={'4px'}
-            pr={'1px'}
-            textAlign={'center'}
-            borderRadius="6px"
-          >
-            <Text fontWeight="500" fontSize={12} color="text.400">
-              {classes}
-            </Text>
-          </Box>
-        </>
-      )
+      id: 5
+      // render: ({ classes }) => (
+      //   <>
+      //     <Box
+      //       bg="#F4F5F6"
+      //       py={'4px'}
+      //       pr={'1px'}
+      //       textAlign={'center'}
+      //       borderRadius="6px"
+      //     >
+      //       <Text fontWeight="500" fontSize={12} color="text.400">
+      //         {classes}
+      //       </Text>
+      //     </Box>
+      //   </>
+      // )
     },
     {
       key: 'rating',
@@ -332,7 +332,7 @@ const AllClientsTab = (props) => {
   //   onOpen();
   // };
   return (
-    <>
+    <div>
       <div className="mt-8 flow-root">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle h-screen sm:px-6 lg:px-8 z-10">
@@ -531,7 +531,7 @@ const AllClientsTab = (props) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </>
+    </div>
   );
 };
 

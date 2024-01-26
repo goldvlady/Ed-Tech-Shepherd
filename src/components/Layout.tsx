@@ -524,8 +524,8 @@ export default function Layout({ children, className }) {
                           {`${user?.name?.first} ${user?.name?.last}`}
                         </Text>{' '}
                         <Box
-                          bgColor="#EBF4FE"
-                          color="#207DF7"
+                          bgColor="#FFF2EB"
+                          color="#FB8441"
                           p="2px 8px"
                           maxWidth="fit-content"
                           borderRadius="4px"

@@ -110,7 +110,7 @@ const Clients = () => {
       component: (
         <AllClientTab
           allTutorClients={allTutorClients.filter(
-            (tutor) => tutor.isActive === true
+            (client) => client.offer.expired === false
           )}
         />
       )
@@ -120,7 +120,7 @@ const Clients = () => {
       component: (
         <AllClientTab
           allTutorClients={allTutorClients.filter(
-            (tutor) => tutor.isActive !== true
+            (client) => client.offer.expired === true
           )}
         />
       )

@@ -127,7 +127,7 @@ const studentRoutes = [
   // { path: 'docchat', element: <DocChat /> },
   { path: 'find-tutor', element: <Marketplace /> },
   { path: 'find-tutor/:subjectId', element: <Marketplace /> },
-  { path: 'find-tutor/tutor/', element: <Tutor /> },
+  // { path: 'find-tutor/tutor/', element: <Tutor /> },
   { path: 'my-tutors', element: <MyTutors /> },
   { path: 'bounties', element: <Bounties /> },
   { path: 'bounties/:bountyId', element: <StudentBounty /> },
@@ -144,6 +144,9 @@ const studentRoutes = [
   { path: 'create-study-plans', element: <CreateStudyPlans /> },
   { path: 'study-plans', element: <StudyPlans /> },
   { path: 'study-plans/:planId', element: <CoursePlan /> },
+  { path: 'library/subjects/:subjectId', element: <Library /> },
+  { path: 'library/topics/:topicId', element: <Library /> },
+  { path: 'library/decks/:deckId', element: <Library /> },
   // quizzes
   { path: 'quizzes', element: <Quizzes /> },
   { path: 'quizzes/create', element: <CreateQuizzes /> }
@@ -397,6 +400,14 @@ const AppRoutes: React.FC = () => {
         element={
           <DashboardLayout>
             <TakeQuizzes />
+          </DashboardLayout>
+        }
+      />
+      <Route
+        path="/dashboard/find-tutor/tutor/"
+        element={
+          <DashboardLayout>
+            <Tutor />
           </DashboardLayout>
         }
       />

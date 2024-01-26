@@ -56,6 +56,17 @@ const VerificationSuccess = () => {
       if (response.status === 200) {
         setUserData({ isVerified: true });
         setVerified(true);
+        const redirLink = localStorage.getItem('redirLink');
+        if (redirLink) {
+          toast({
+            title: 'Email verification was successful',
+            status: 'success',
+            position: 'top-right'
+          });
+          const strippedLink = redirLink.split('/').splice(3).join('/');
+          localStorage.removeItem('redirLink');
+          navigate(`/${strippedLink}`);
+        }
         if (user) {
           toast({
             title: 'Email verification was successful',
@@ -63,7 +74,14 @@ const VerificationSuccess = () => {
             position: 'top-right'
           });
           if (user.isVerified) {
-            navigateToDashboard();
+            const redirLink = localStorage.getItem('redirLink');
+            if (redirLink) {
+              const strippedLink = redirLink.split('/').splice(3).join('/');
+              localStorage.removeItem('redirLink');
+              navigate(`/${strippedLink}`);
+            } else {
+              navigateToDashboard();
+            }
           }
         }
       } else {

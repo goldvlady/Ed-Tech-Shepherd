@@ -124,7 +124,6 @@ export default function Marketplace() {
   const [toTime, setToTime] = useState('');
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(20);
-  const [count, setCount] = useState<number>(5);
   const [days, setDays] = useState<Array<any>>([]);
 
   const [settingUpPaymentMethod, setSettingUpPaymentMethod] = useState(false);

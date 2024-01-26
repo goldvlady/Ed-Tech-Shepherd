@@ -17,6 +17,7 @@ import {
   Box,
   Button,
   Flex,
+  HStack,
   Text,
   useDisclosure
 } from '@chakra-ui/react';
@@ -125,6 +126,8 @@ function AllBounties() {
     onClose: closeBountyModal
   } = useDisclosure();
 
+  console.log('is bounty modal  open', isBountyModalOpen);
+
   const doFetchBountyOffers = useCallback(async () => {
     await fetchBountyOffers(page, limit, 'student');
     setAllTutors(bounties);
@@ -170,24 +173,38 @@ function AllBounties() {
 
   return (
     <>
+      <BountyOfferModal
+        isBountyModalOpen={isBountyModalOpen}
+        closeBountyModal={closeBountyModal}
+      />
       <Box p={3}>
-        {' '}
-        <Flex alignItems={'center'} gap={1}>
-          <Box>
-            <Text fontSize={24} fontWeight={600} color="text.200">
-              Bounties
-            </Text>
-          </Box>
+        <HStack display={'flex'} width={'full'} justify={'space-between'}>
+          <Flex alignItems={'center'} gap={1}>
+            <Box>
+              <Text fontSize={24} fontWeight={600} color="text.200">
+                Bounties
+              </Text>
+            </Box>
 
-          <Text
-            boxSize="fit-content"
-            bgColor={'#F4F5F6'}
-            p={2}
-            borderRadius={'6px'}
+            <Text
+              boxSize="fit-content"
+              bgColor={'#F4F5F6'}
+              p={2}
+              borderRadius={'6px'}
+            >
+              {bounties ? pagination.total : ''}
+            </Text>
+          </Flex>
+          <Button
+            onClick={
+              user && user.paymentMethods?.length > 0
+                ? openBountyModal
+                : setupPaymentMethod
+            }
           >
-            {bounties ? pagination.total : ''}
-          </Text>
-        </Flex>
+            Place Bounty
+          </Button>
+        </HStack>
       </Box>
       {bounties && bounties.length > 0 ? (
         <>
@@ -228,10 +245,7 @@ function AllBounties() {
             </button> */}
             </div>
           </section>
-          <BountyOfferModal
-            isBountyModalOpen={isBountyModalOpen}
-            closeBountyModal={closeBountyModal}
-          />
+
           <PaymentDialog
             ref={paymentDialogRef}
             prefix={

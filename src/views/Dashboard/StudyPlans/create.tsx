@@ -89,6 +89,7 @@ function CreateStudyPlans() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedSubject, setSelectedSubject] = useState('');
   const [course, setCourse] = useState('');
+  const [planName, setPlanName] = useState('');
   const [syllabusUrl, setSyllabusUrl] = useState('');
   const [topicUrls, setTopicUrls] = useState([]);
   const [activeTab, setActiveTab] = useState(0);
@@ -378,23 +379,24 @@ function CreateStudyPlans() {
 
   const getStudyPlan = async (startDate, testDates, syllabusData) => {
     const studyPlan = [];
-    let currentStartDate = moment(startDate, 'DD/MM/YYYY');
+    let currentStartDate = moment(startDate, 'MM/DD/YYYY');
     let topicsRemaining = syllabusData.slice();
     let i = 0;
+    console.log(currentStartDate);
 
     const getLastMoment = (date) =>
-      moment.max(moment(date, 'DD/MM/YYYY'), moment());
+      moment.max(moment(date, 'MM/DD/YYYY'), moment());
 
     while (i < testDates.length) {
       const currentEndDate =
         i === testDates.length - 1
           ? getLastMoment(testDates[i])
-          : moment(testDates[i], 'DD/MM/YYYY');
+          : moment(testDates[i], 'MM/DD/YYYY');
 
       const daysAvailable = currentEndDate.diff(currentStartDate, 'days') + 1;
       const daysUntilNextTest =
         i < testDates.length - 1
-          ? moment(testDates[i + 1], 'DD/MM/YYYY').diff(currentEndDate, 'days')
+          ? moment(testDates[i + 1], 'MM/DD/YYYY').diff(currentEndDate, 'days')
           : 0;
 
       let topicsThisPeriod = Math.floor(
@@ -407,8 +409,8 @@ function CreateStudyPlans() {
         // If no more topics and still have test dates, create an empty study week
         const studyWeek = {
           weekRange: `${currentStartDate.format(
-            'DD/MM/YYYY'
-          )} - ${currentEndDate.format('DD/MM/YYYY')}`,
+            'MM/DD/YYYY'
+          )} - ${currentEndDate.format('MM/DD/YYYY')}`,
           topics: []
         };
 
@@ -419,8 +421,8 @@ function CreateStudyPlans() {
 
         const studyWeek = {
           weekRange: `${currentStartDate.format(
-            'DD/MM/YYYY'
-          )} - ${currentEndDate.format('DD/MM/YYYY')}`,
+            'MM/DD/YYYY'
+          )} - ${currentEndDate.format('MM/DD/YYYY')}`,
           topics: topics.map((topic) => ({
             mainTopic: topic.topics[0].mainTopic,
             subTopics: topic.topics[0].subTopics,
@@ -446,6 +448,7 @@ function CreateStudyPlans() {
 
     const payload = {
       course: selectedSubject,
+      title: planName,
       scheduleItems: convertedArr
     };
 
@@ -556,7 +559,7 @@ function CreateStudyPlans() {
 
   const convertArrays = async (A) => {
     function formatDate(dateString) {
-      const [day, month, year] = dateString.split('/');
+      const [month, day, year] = dateString.split('/');
       return `${year}-${month}-${day}`;
     }
 
@@ -565,6 +568,7 @@ function CreateStudyPlans() {
         const dates = week.weekRange.split(' - ');
         const startDate = formatDate(dates[0]);
         const endDate = formatDate(dates[1]);
+        const testDate = endDate;
 
         const topics = await Promise.all(
           week.topics.map(async (topic) => {
@@ -693,8 +697,23 @@ function CreateStudyPlans() {
         </Box>
         {activeTab === 0 ? (
           <Box>
-            {' '}
-            <Box mb={4}>
+            <Box>
+              <Text as="label" htmlFor="planName" mb={2} display="block">
+                Name your Study Plan
+              </Text>
+              <Input
+                type="text"
+                id="planName"
+                value={planName}
+                onChange={(e) => setPlanName(e.target.value)}
+                borderWidth="1px"
+                rounded="md"
+                py={2}
+                px={3}
+                mb={2}
+              />
+            </Box>
+            <Box my={2}>
               <Text as="label" htmlFor="gradeLevel" mb={2} display="block">
                 Enter your grade level
               </Text>
@@ -746,16 +765,6 @@ function CreateStudyPlans() {
                 px={3}
                 mb={2}
               />
-
-              {/* <Button
-            colorScheme="blue"
-            variant="link"
-            display="flex"
-            alignItems="center"
-          >
-            <Icon as={FaPlus} mr={2} />
-            Additional subject
-          </Button> */}
             </Box>
             <Center my={2}>or</Center>
             <Center
@@ -864,7 +873,7 @@ function CreateStudyPlans() {
                         <DatePicker
                           name={`testDate-${index}`}
                           placeholder="Select Test Date"
-                          value={format(date, 'dd-MM-yyyy')}
+                          value={format(date, 'MM-dd-yyyy')}
                           onChange={(newDate) => {
                             const updatedTestDates = [...testDate];
                             updatedTestDates[index] = newDate;
@@ -903,8 +912,8 @@ function CreateStudyPlans() {
               alignItems="center"
               onClick={() =>
                 getStudyPlan(
-                  moment().format('DD/MM/YYYY'),
-                  testDate.map((date) => moment(date).format('DD/MM/YYYY')),
+                  moment().format('MM/DD/YYYY'),
+                  testDate.map((date) => moment(date).format('MM/DD/YYYY')),
                   syllabusData
                 )
               }

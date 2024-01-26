@@ -324,12 +324,43 @@ export interface FlashcardData {
   tags: string[];
   topic?: string;
   scores: Score[];
-  studyPeriod: 'daily' | 'weekly' | 'biweekly' | 'spacedRepetition';
+  studyPeriod:
+    | 'daily'
+    | 'weekly'
+    | 'biweekly'
+    | 'spacedRepetition'
+    | 'noRepeat';
   questions: FlashcardQuestion[];
   createdAt: string;
   source: 'anki' | 'shepherd';
   updatedAt: string;
   currentStudy?: MinimizedStudy;
+}
+
+export interface LibraryCardData {
+  _id: string;
+  subject: string;
+  topic: string;
+  difficulty: string;
+  front: string;
+  back: string;
+  explainer?: string;
+}
+
+export interface LibrarySubjectData {
+  name: string;
+  _id: string;
+}
+
+export interface LibraryTopicData {
+  name: string;
+  _id: string;
+}
+
+export interface LibraryDeckData {
+  name: string;
+  type: string;
+  _id: string;
 }
 
 export interface FlashcardQuestion {

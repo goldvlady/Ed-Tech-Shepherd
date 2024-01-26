@@ -113,6 +113,34 @@ class ApiService {
     });
   };
 
+  static getLibrarySubjects = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/getLibrarySubjects`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static getLibraryTopics = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/getLibraryTopicsBySubject`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static getLibraryDecks = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/getLibraryDecks`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static getLibraryCards = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/getLibraryCardsByDeck`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
   static createMnemonic = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/createMneomics`, {
       method: 'POST',
@@ -378,7 +406,18 @@ class ApiService {
   static getTutor = async (id: string) => {
     return doFetch(`${ApiService.baseEndpoint}/tutor/${id}`);
   };
-
+  static getTutorForAPIKey = async (id: string, apiKey: string) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/tutor/${id}?shareable=true`,
+      {
+        method: 'GET'
+      },
+      true,
+      {
+        'x-api-key': apiKey
+      }
+    );
+  };
   // Offer
 
   static getOffer = async (id: string) => {

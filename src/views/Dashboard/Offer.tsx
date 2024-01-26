@@ -394,7 +394,11 @@ const Offer = () => {
                   </ModalBody>
 
                   <ModalFooter>
-                    <Button onClick={() => navigate('/dashboard/messaging')}>
+                    <Button
+                      onClick={() =>
+                        navigate('/dashboard/tutordashboard/messages')
+                      }
+                    >
                       Send a message
                     </Button>
                   </ModalFooter>
