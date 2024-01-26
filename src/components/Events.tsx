@@ -232,7 +232,7 @@ export default function Events({ event }: any) {
   };
 
   const handleJoinSession = (url) => {
-    navigate(url);
+    window.open(url, '_blank');
   };
 
   const handleMessageStudent = () => {
