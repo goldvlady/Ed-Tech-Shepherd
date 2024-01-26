@@ -28,9 +28,10 @@ export default create<Store>((set) => ({
   isLoading: false,
   pagination: { page: 0, limit: 0, total: 0 },
   fetchOffers: async (page: number, limit: number, userType: string) => {
-    set({ isLoading: true });
+    set((prev) => {
+      return { isLoading: prev.offers === null };
+    });
     try {
-      set({ isLoading: true });
       const response = await ApiService.getOffers(page, limit, userType);
       const { data } = await response.json();
 

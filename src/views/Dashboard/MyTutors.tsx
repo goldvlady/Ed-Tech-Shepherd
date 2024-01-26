@@ -117,6 +117,7 @@ function MyTutors() {
                         rating={tutor.tutor?.rating}
                         reviewCount={tutor.tutor?.reviewCount}
                         use="my tutors"
+                        offerId={tutor._id}
                         offerStatus={tutor.status}
                       />
                     ))}

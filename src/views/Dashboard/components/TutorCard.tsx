@@ -7,6 +7,7 @@ import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast';
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import ApiService from '../../../services/ApiService';
+import offerStore from '../../../state/offerStore';
 import bookmarkedTutorsStore from '../../../state/bookmarkedTutorsStore';
 import userStore from '../../../state/userStore';
 import { textTruncate } from '../../../util';
@@ -56,15 +57,18 @@ export default function TutorCard(props: any) {
     reviewCount,
     saved,
     offerStatus,
+    offerId,
     handleSelectedCourse
   } = props;
   const toast = useCustomToast();
   const { fetchBookmarkedTutors } = bookmarkedTutorsStore();
   const { user } = userStore();
+  const { fetchOffers } = offerStore();
 
   const [ribbonClicked, setRibbonClicked] = useState(false);
   const [reviewRate, setReviewRate] = useState<any>(1);
   const [review, setReview] = useState('');
+  const [isLoading, setLoading] = useState(false);
 
   const toggleBookmarkTutor = async (id: string) => {
     setRibbonClicked(!ribbonClicked);
@@ -131,17 +135,21 @@ export default function TutorCard(props: any) {
   };
 
   const handleSubmitReview = async () => {
+    setLoading(true);
     const formData = {
       reviewerId: user?._id,
       entityType: 'student',
       rating: reviewRate,
-      review: review
+      review: review,
+      offerId
     };
 
     try {
       const resp = await ApiService.submitReview(id, formData);
 
-      if (resp.status === 200) {
+      if (resp.status === 201) {
+        fetchOffers(1, 20, 'tutor');
+        closeReviewModal();
         toast({
           render: () => (
             <CustomToast
@@ -168,6 +176,8 @@ export default function TutorCard(props: any) {
         status: 'error',
         isClosable: true
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -432,6 +442,7 @@ export default function TutorCard(props: any) {
           <div style={{ display: 'flex', gap: '8px' }}>
             <Button
               isDisabled={!reviewRate || !review}
+              isLoading={isLoading}
               onClick={() => handleSubmitReview()}
             >
               Update
