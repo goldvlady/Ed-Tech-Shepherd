@@ -559,7 +559,7 @@ function CreateStudyPlans() {
 
   const convertArrays = async (A) => {
     function formatDate(dateString) {
-      const [day, month, year] = dateString.split('/');
+      const [month, day, year] = dateString.split('/');
       return `${year}-${month}-${day}`;
     }
 
