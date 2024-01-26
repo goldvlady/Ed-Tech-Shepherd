@@ -8,16 +8,13 @@ import PaymentDialog, {
   PaymentDialogRef
 } from '../../components/PaymentDialog';
 import CustomSelect from '../../components/Select';
-import SelectComponent, { Option } from '../../components/Select';
 import TimePicker from '../../components/TimePicker';
-import TimezoneSelect from '../../components/TimezoneSelect';
-import { BountyIcon } from '../../components/icons';
 import ApiService from '../../services/ApiService';
 import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
 import resourceStore from '../../state/resourceStore';
 import userStore from '../../state/userStore';
 import theme from '../../theme';
-import { educationLevelOptions, numberToDayOfWeekName } from '../../util';
+import { numberToDayOfWeekName } from '../../util';
 import Banner from './components/Banner';
 import BountyOfferModal from './components/BountyOfferModal';
 import Pagination from './components/Pagination';
