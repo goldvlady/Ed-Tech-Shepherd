@@ -71,6 +71,7 @@ const Root = styled(Flex)`
 
 function ActivityFeeds(props) {
   const { feeds, userType } = props;
+
   const { loadFlashcard } = flashcardStore();
   const [feedPeriod, setFeedPeriod] = useState<
     'all' | 'today' | 'week' | 'month'
@@ -276,7 +277,8 @@ function ActivityFeeds(props) {
       >
         {filteredFeeds?.length > 0 ? (
           filteredFeeds
-            .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt)) //
+            .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
+            .filter((f) => f.link) //
             .map((feed: any, index) => (
               <>
                 <Root px={3} my={4} key={index}>

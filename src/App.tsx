@@ -472,7 +472,9 @@ function App() {
           </ChakraProvider>
         </LexicalContext>
       </BrowserRouter>
-      <FlashCardModal isOpen={Boolean(flashcard) || showStudyList} />
+      <BrowserRouter>
+        <FlashCardModal isOpen={Boolean(flashcard) || showStudyList} />
+      </BrowserRouter>
     </>
   );
 }

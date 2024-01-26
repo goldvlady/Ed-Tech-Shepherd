@@ -1,7 +1,9 @@
+import { RiRemoteControlLine } from '@remixicon/react';
 import FlashcardEmpty from '../../assets/flashcard_empty_state.png';
 import StudySessionLogger from '../../helpers/sessionLogger';
 import { useSearchQuery } from '../../hooks';
 import flashcardStore from '../../state/flashcardStore';
+import useUserStore from '../../state/userStore';
 import {
   FlashcardData,
   Score,
@@ -47,6 +49,8 @@ import { AiFillThunderbolt } from 'react-icons/ai';
 import { BsThreeDots } from 'react-icons/bs';
 import { FiCheck, FiHelpCircle, FiXCircle } from 'react-icons/fi';
 import styled from 'styled-components';
+import { useCustomToast } from '../CustomComponents/CustomToast/useCustomToast';
+import { useNavigate } from 'react-router';
 
 const MenuListWrapper = styled(MenuList)`
   .chakra-menu__group__title {
@@ -467,11 +471,14 @@ const StudyBox = () => {
     minorLoader,
     minimizedStudy,
     isLoading,
+    cloneFlashcard,
     loadFlashcard,
     storeCurrentStudy,
     loadTodaysFlashcards
   } = flashcardStore();
-
+  const { user } = useUserStore();
+  const toast = useCustomToast();
+  const navigate = useNavigate();
   const apiKey = window.location.href.includes('apiKey');
   const [currentStudyIndex, setCurrentStudyIndex] = useState(0);
   const [studyType, setStudyType] = useState<'manual' | 'timed'>('manual');
@@ -728,6 +735,28 @@ const StudyBox = () => {
     lazyTriggerNextStep();
   };
 
+  const cloneFlashcardHandler = async () => {
+    const flashcardId = flashcard._id;
+
+    const cloned = await cloneFlashcard(flashcardId);
+    if (cloned) {
+      toast({
+        position: 'top-right',
+        title: `Flashcard Cloned Succesfully`,
+        status: 'success'
+      });
+      setTimeout(() => {
+        navigate(`/dashboard/flashcards/${cloned._id}/edit`);
+      }, 200);
+    } else {
+      toast({
+        position: 'top-right',
+        title: `Problem cloning flashcard, please try again later!`,
+        status: 'error'
+      });
+    }
+  };
+
   const startStudy = () => {
     setActivityState((prev) => ({
       ...prev,
@@ -969,6 +998,7 @@ const StudyBox = () => {
                   background: '#FFEFE6',
                   transform: 'scale(1.05)'
                 }}
+                disabled={isLoading}
               >
                 Didn’t remember
               </Button>
@@ -1001,9 +1031,44 @@ const StudyBox = () => {
                   background: '#FEECEC',
                   transform: 'scale(1.05)'
                 }}
+                disabled={isLoading}
               >
                 Got it wrong
               </Button>
+              {user &&
+                user.subscription &&
+                user.subscription.status === 'active' &&
+                apiKey && (
+                  <Button
+                    leftIcon={
+                      <Icon as={RiRemoteControlLine} fontSize={'16px'} />
+                    }
+                    display="flex"
+                    padding="16.5px 45.5px 16.5px 47.5px"
+                    justifyContent="center"
+                    isLoading={minorLoader}
+                    alignItems="center"
+                    borderRadius="8px"
+                    fontSize="16px"
+                    marginBottom={{ base: '15px' }}
+                    backgroundColor="#FEECEC"
+                    color="#000"
+                    flex="1"
+                    className="ml-3"
+                    height="54px"
+                    width={{ base: '100%', md: 'auto' }}
+                    onClick={cloneFlashcardHandler}
+                    loadingText="Clone Flashcard"
+                    transition="transform 0.3s"
+                    _hover={{
+                      background: '#FEECEC',
+                      transform: 'scale(1.05)'
+                    }}
+                    disabled={isLoading}
+                  >
+                    Clone Flashcard
+                  </Button>
+                )}
             </Box>
           )
         )}
