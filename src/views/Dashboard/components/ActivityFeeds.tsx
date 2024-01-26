@@ -71,7 +71,7 @@ const Root = styled(Flex)`
 
 function ActivityFeeds(props) {
   const { feeds, userType } = props;
-  console.log('feeds are', feeds);
+
   const { loadFlashcard } = flashcardStore();
   const [feedPeriod, setFeedPeriod] = useState<
     'all' | 'today' | 'week' | 'month'
