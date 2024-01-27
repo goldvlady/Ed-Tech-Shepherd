@@ -169,8 +169,8 @@ function ActivityFeeds(props) {
         )}" to your workspace`;
       case 'payments':
         return isTutor
-          ? `You received a payment of ${feed.payment.amount}`
-          : `You made a payment of ${feed.payment.amount}`;
+          ? `You received a $${feed.payment.amount} payment`
+          : `Your $${feed.payment.amount} payment was processed successfully`;
       case 'flashcards':
         return `You created a new flashcard deck "${feed.title}" `;
       case 'quiz':
