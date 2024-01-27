@@ -40,13 +40,13 @@ const QualificationsForm = (props) => {
   const [dateError, setDateError] = useState('');
 
   const [isLoading, setIsLoading] = useState(false);
-  const [addQualificationClicked, setAddQualificationClicked] = useState(false);
+  // const [addQualificationClicked, setAddQualificationClicked] = useState(false);
 
-  useEffect(() => {
-    if (qualificationsData.length === 1 && !addQualificationClicked) {
-      setFormData(qualificationsData[0]);
-    }
-  }, [qualificationsData, addQualificationClicked]);
+  // useEffect(() => {
+  //   if (qualificationsData.length === 1 && !addQualificationClicked) {
+  //     setFormData(qualificationsData[0]);
+  //   }
+  // }, [qualificationsData, addQualificationClicked]);
 
   const handleUploadInput = (file: File | null, name: string) => {
     if (!file) return;
@@ -124,9 +124,9 @@ const QualificationsForm = (props) => {
     setFormData(updatedFormData);
     updateQualifications([...qualificationsData, updatedFormData]);
   };
-  const isFormValid = useMemo(() => {
-    return Object.values(formData).every(Boolean);
-  }, [formData]);
+  // const isFormValid = useMemo(() => {
+  //   return Object.values(formData).every(Boolean);
+  // }, [formData]);
 
   //   const handleAddQualification = () => {
   //     const isFormValid = Object.values(formData).every(Boolean);
