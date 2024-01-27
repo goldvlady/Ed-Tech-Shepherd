@@ -275,8 +275,7 @@ function MyProfile(props) {
     handleUpdateTutor('tz', value);
     // setSchedule(value);
   };
-  const updateQualifications = (value) => {
-    const qualifications: any = [...tutorData.tutor.qualifications, value];
+  const updateQualifications = (qualifications) => {
     setQualifications(qualifications);
   };
 
