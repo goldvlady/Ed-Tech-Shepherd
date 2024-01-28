@@ -142,10 +142,17 @@ class ApiService {
   };
 
   static getLibraryCards = async (data: any) => {
-    return doFetch(`${ApiService.baseEndpoint}/getLibraryCardsByDeck`, {
-      method: 'POST',
-      body: JSON.stringify(data)
+    const queryString = objectToQueryString({
+      page: data.page,
+      limit: data.limit
     });
+    return doFetch(
+      `${ApiService.baseEndpoint}/getLibraryCardsByDeck?${queryString}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }
+    );
   };
 
   static createMnemonic = async (data: any) => {
