@@ -55,7 +55,6 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { FaBell } from 'react-icons/fa';
 import { FiChevronDown } from 'react-icons/fi';
 import { useLocation, Link, useNavigate, Outlet } from 'react-router-dom';
-import { RiQuestionMark } from '@remixicon/react';
 
 interface NavigationItem {
   name: string;
@@ -448,9 +447,7 @@ export default function Layout({ children, className }) {
               )}
 
               <HStack spacing={4}>
-                <QuestionIcon />
                 <Menu>
-                  <RiQuestionMark />
                   <MenuButton>
                     <IconButton
                       size="md"

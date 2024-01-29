@@ -1,8 +1,8 @@
 import { XCircleIcon } from '@heroicons/react/20/solid';
 import * as Dialog from '@radix-ui/react-dialog';
 import React from 'react';
-import { motion } from 'framer-motion';
 import LinedListWelcome from './LinedListWelcome';
+import useCompletedStore from '../state/useCompletedStore';
 const SignUpButton = ({ last }: { last?: boolean }) => (
   <button
     className={`px-8 pointer-events-none py-3 border ${
@@ -23,10 +23,8 @@ const DialogClose = () => (
   </Dialog.Close>
 );
 export default function WelcomeWalkthrough() {
-  const [open, setOpen] = React.useState(() => {
-    const completedString = localStorage.getItem('completed');
-    return completedString === null ? true : completedString === 'false';
-  });
+  const open = useCompletedStore((state) => state.open);
+  const setOpen = useCompletedStore((state) => state.setOpen);
   const [currentIdx, setCurrentIdx] = React.useState(1);
   const [items, setItems] = React.useState<
     Array<{ title: string; read: boolean; id: number }>
@@ -338,6 +336,7 @@ export default function WelcomeWalkthrough() {
       );
     }
   }, [currentIdx]);
+
   return (
     <Dialog.Root defaultOpen={true} open={open} onOpenChange={setOpen}>
       <Dialog.Trigger />
