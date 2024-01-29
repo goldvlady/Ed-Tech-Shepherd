@@ -61,6 +61,10 @@ class ApiService {
     });
   };
 
+  static getStudyPlanCourses = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getStudyPlanCourses`);
+  };
+
   static resendUserEmail = async (data: any) => {
     const payload = { email: data };
     return doFetch(`${ApiService.baseEndpoint}/resendUserEmail`, {

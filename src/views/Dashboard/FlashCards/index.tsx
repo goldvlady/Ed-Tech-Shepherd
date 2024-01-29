@@ -203,7 +203,7 @@ const CustomTable: React.FC = () => {
     flashcardIds?: string[];
   } | null>(null);
 
-  const { flashcardId } = useParams();
+  const { flashcardId, studyDeckId } = useParams();
 
   const handleSelectionChange = (selectedOptions: Option[]) => {
     setMultiSelected(selectedOptions);
@@ -235,6 +235,11 @@ const CustomTable: React.FC = () => {
   const loadFlashCardModalAPIKey = async (id: string) => {
     await fetchSingleFlashcardForAPIKey(id, apiKey);
   };
+
+  useEffect(() => {
+    loadFlashCardModalAPIKey(studyDeckId);
+    // eslint-disable-next-line
+  }, [studyDeckId]);
 
   useEffect(() => {
     if (flashcardId && !isLoading) {

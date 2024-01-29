@@ -31,6 +31,7 @@ const loadState = () => {
   }
   return {
     courses: [],
+    studyPlanCourses: [],
     countries: [],
     rate: 0,
     resourcesLoaded: false,
@@ -56,6 +57,7 @@ const useResourceStore = create<Store>((set) => {
         rate: data.rate,
         courses: data.courses,
         levels: data.levels,
+        studyPlanCourses: data.studyPlanCourses,
         countries,
         resourcesLoaded: true
       };
