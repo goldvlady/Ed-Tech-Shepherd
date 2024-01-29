@@ -4,6 +4,7 @@ import { create } from 'zustand';
 
 type Store = {
   courses: Array<Course>;
+  studyPlanCourses: Array<Course>;
   countries: Array<Country>;
   rate: number;
   resourcesLoaded: boolean;
