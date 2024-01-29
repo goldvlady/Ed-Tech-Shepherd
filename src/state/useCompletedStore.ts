@@ -13,7 +13,6 @@ const useCompletedStore = create<CompletedState>((set, get) => ({
       : localStorage.getItem('completed') === 'false',
   setOpen: (open: boolean) => {
     set({ open });
-    localStorage.setItem('completed', 'true');
   }
 }));
 

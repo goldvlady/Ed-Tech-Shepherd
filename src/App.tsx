@@ -460,6 +460,7 @@ function App() {
             <AuthProvider>
               <FlashcardWizardProvider>
                 <MnemonicSetupProvider>
+                  <WelcomeWalkthrough />
                   <FlashCardModal
                     isOpen={Boolean(flashcard) || showStudyList}
                   />
@@ -474,7 +475,6 @@ function App() {
         </LexicalContext>
       </BrowserRouter>
       <BrowserRouter>
-        <WelcomeWalkthrough />
         <FlashCardModal isOpen={Boolean(flashcard) || showStudyList} />
       </BrowserRouter>
     </>

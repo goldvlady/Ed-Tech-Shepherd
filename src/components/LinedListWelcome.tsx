@@ -81,7 +81,7 @@ const LinedListWelcome: React.FC<Props> = ({
               onClick={() => clickHandler(i.id)}
               className={` ${
                 i.read ? 'bg-[#f2ffff]' : 'bg-blue-500'
-              } pointer-events-auto !cursor-pointer whitespace-nowrap px-4 py-1 rounded-md ${
+              } !pointer-events-auto !cursor-pointer whitespace-nowrap px-4 py-1 rounded-md ${
                 i.read ? 'text-[#287ce6]' : 'text-gray-800'
               }`}
             >

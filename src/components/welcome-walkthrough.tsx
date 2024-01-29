@@ -12,39 +12,45 @@ const SignUpButton = ({ last }: { last?: boolean }) => (
     Sign Up
   </button>
 );
-const DialogClose = () => (
-  <Dialog.Close
-    onClick={() => {
-      localStorage.setItem('completed', 'true');
-    }}
-    className="!ml-auto -mt-4"
-  >
-    <XCircleIcon width={20} height={20} />
-  </Dialog.Close>
-);
+const defaultItems = [
+  {
+    id: 1,
+    title: 'Welcome to Shepherd',
+    read: true
+  },
+  {
+    id: 2,
+    title: 'Taking Notes on Shepherd',
+    read: false
+  },
+  { id: 3, title: 'Doc-Chat', read: false },
+  { id: 4, title: 'Creating flashcards & Creating quizzes', read: false },
+  { id: 5, title: 'AI Tutor', read: false },
+  { id: 6, title: 'Connecting with a human tutor', read: false },
+  { id: 7, title: 'Final note!', read: false }
+];
+
 export default function WelcomeWalkthrough() {
   const open = useCompletedStore((state) => state.open);
   const setOpen = useCompletedStore((state) => state.setOpen);
   const [currentIdx, setCurrentIdx] = React.useState(1);
-  const [items, setItems] = React.useState<
-    Array<{ title: string; read: boolean; id: number }>
-  >([
-    {
-      id: 1,
-      title: 'Welcome to Shepherd',
-      read: true
-    },
-    {
-      id: 2,
-      title: 'Taking Notes on Shepherd',
-      read: false
-    },
-    { id: 3, title: 'Doc-Chat', read: false },
-    { id: 4, title: 'Creating flashcards & Creating quizzes', read: false },
-    { id: 5, title: 'AI Tutor', read: false },
-    { id: 6, title: 'Connecting with a human tutor', read: false },
-    { id: 7, title: 'Final note!', read: false }
-  ]);
+  const [items, setItems] =
+    React.useState<Array<{ title: string; read: boolean; id: number }>>(
+      defaultItems
+    );
+  const DialogClose = () => (
+    <Dialog.Close
+      onClick={() => {
+        setOpen(false);
+        setItems(defaultItems);
+        setCurrentIdx(1);
+        localStorage.setItem('completed', 'true');
+      }}
+      className="!ml-auto -mt-4"
+    >
+      <XCircleIcon width={20} height={20} />
+    </Dialog.Close>
+  );
   const render = React.useMemo(() => {
     if (currentIdx === 1) {
       return (
@@ -336,9 +342,9 @@ export default function WelcomeWalkthrough() {
       );
     }
   }, [currentIdx]);
-
+  console.log(open, 'OPEN???');
   return (
-    <Dialog.Root defaultOpen={true} open={open} onOpenChange={setOpen}>
+    <Dialog.Root open={open}>
       <Dialog.Trigger />
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
@@ -352,6 +358,7 @@ export default function WelcomeWalkthrough() {
               <LinedListWelcome
                 items={items}
                 clickHandler={(id) => {
+                  console.log('Wtf');
                   const it = [...items];
 
                   it.find((i) => i.id === id).read = true;
