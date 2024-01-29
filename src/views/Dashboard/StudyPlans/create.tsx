@@ -48,6 +48,7 @@ import {
 } from '@chakra-ui/react';
 import { format, isBefore } from 'date-fns';
 import { StudyPlanJob, StudyPlanWeek } from '../../../types';
+import Logo from '../../../components/Logo';
 import {
   FaPlus,
   FaCheckCircle,
@@ -593,7 +594,8 @@ function CreateStudyPlans() {
               topic: {
                 label: mainTopic,
                 subTopics: subTopicDetails,
-                documentUrls
+                documentUrls,
+                testDate
               },
               startDate,
               endDate,
@@ -674,15 +676,12 @@ function CreateStudyPlans() {
         <Box borderRadius={8} bg="#F7F7F7" p={18} mb={3}>
           {' '}
           <Flex alignItems="center">
-            <Image
-              src="https://placehold.co/50x50"
-              alt="Avatar of Bot Name"
-              rounded="full"
-              mr={4}
-            />
+            <Box boxSize={12} rounded="full" overflow="hidden">
+              <Logo />
+            </Box>
             <Box>
               <Text fontWeight="500" fontSize={'16px'}>
-                Bot Name
+                Shepherd
               </Text>
               <Text fontSize="sm" color="gray.600">
                 Just starting school
@@ -690,13 +689,13 @@ function CreateStudyPlans() {
             </Box>
           </Flex>
           <Text fontSize="13px" my={2}>
-            Nibh augue arcu congue gravida risus diam. Turpis nulla ac urna
-            elementum est dolales volutpat ullamcorper, limora tun dun kabash
-            yato.
+            Let's get you ready for test day. Just provide your topic or
+            syllabus, and we'll create a tailored study schedule with resources
+            and reminders to make your learning efficient and effective.
           </Text>
         </Box>
         {activeTab === 0 ? (
-          <Box>
+          <Box py={2}>
             <Box>
               <Text as="label" htmlFor="planName" mb={2} display="block">
                 Name your Study Plan
@@ -704,6 +703,7 @@ function CreateStudyPlans() {
               <Input
                 type="text"
                 id="planName"
+                placeholder={'e.g. Chemistry, Spring 2023'}
                 value={planName}
                 onChange={(e) => setPlanName(e.target.value)}
                 borderWidth="1px"
@@ -832,6 +832,7 @@ function CreateStudyPlans() {
               variant="solid"
               py={2}
               px={4}
+              mb={2}
               rounded="md"
               display="inline-flex"
               alignItems="center"
@@ -867,7 +868,13 @@ function CreateStudyPlans() {
                   <>
                     <Flex key={index} align={'center'} gap={2}>
                       <Box width="100%">
-                        <Text fontSize={11} fontWeight="semibold">
+                        <Text
+                          as="label"
+                          htmlFor="subjects"
+                          mb={2}
+                          display="block"
+                          fontWeight={'semibold'}
+                        >
                           Test {index + 1}
                         </Text>
                         <DatePicker
@@ -899,7 +906,7 @@ function CreateStudyPlans() {
               my={2}
             >
               <Icon as={FaPlus} mr={2} />
-              Additional Dates
+              Add Date
             </Button>{' '}
             <Button
               colorScheme="blue"
@@ -947,7 +954,7 @@ function CreateStudyPlans() {
                     handleCancel={() => setIsLoading(false)}
                   />
                 ) : syllabusData.length > 0 ? (
-                  <Box mb={6}>
+                  <Box mb={6} position="relative">
                     <Text
                       fontSize="16px"
                       fontWeight="semibold"
@@ -1060,25 +1067,25 @@ function CreateStudyPlans() {
                               </HStack>
                             </Flex>
                           </Box>
-                          <Button
-                            colorScheme="blue"
-                            variant="solid"
-                            py={2}
-                            px={14}
-                            rounded="md"
-                            alignItems="center"
-                            textAlign={'center'}
-                            position={'fixed'}
-                            bottom={2}
-                            my="auto"
-                            ml={120}
-                            onClick={() => setActiveTab(1)}
-                          >
-                            Proceed
-                          </Button>
                         </>
-                      ))}
+                      ))}{' '}
                     </Flex>
+                    <Button
+                      colorScheme="blue"
+                      variant="solid"
+                      display="flex"
+                      justifyContent={'space-between'}
+                      py={2}
+                      px={14}
+                      rounded="md"
+                      alignItems="center"
+                      textAlign={'center'}
+                      mt={7}
+                      ml={'auto'}
+                      onClick={() => setActiveTab(1)}
+                    >
+                      Proceed
+                    </Button>
                   </Box>
                 ) : (
                   <section className="flex justify-center items-center mt-28 w-full">
@@ -1167,14 +1174,15 @@ function CreateStudyPlans() {
                       <Button
                         colorScheme="blue"
                         variant="solid"
+                        display="flex"
+                        justifyContent={'space-between'}
                         py={2}
                         px={14}
                         rounded="md"
                         alignItems="center"
-                        position={'fixed'}
-                        bottom={2}
-                        my="auto"
-                        ml={100}
+                        textAlign={'center'}
+                        mt={3}
+                        ml={'auto'}
                         onClick={() => saveStudyPlan()}
                         isLoading={loading}
                       >
@@ -1186,7 +1194,7 @@ function CreateStudyPlans() {
                       <div className="text-center">
                         <img src="/images/notes.png" alt="" />
                         <Text color="#000000" fontSize={12}>
-                          You are yet to generate a study plan!
+                          Enter your test dates to generate a study plan!
                         </Text>
                       </div>
                     </section>
@@ -1225,12 +1233,12 @@ function CreateStudyPlans() {
           _hover={{ bg: 'gray.100' }}
         >
           <Text fontSize={'16px'} fontWeight="500">
-            Syllabi
+            {planName}
           </Text>
-          <Spacer />
-          <FiChevronDown />
+          {/* <Spacer />
+          <FiChevronDown /> */}
         </Flex>
-        <List spacing={3}>
+        {/* <List spacing={3}>
           {showSubjects &&
             subjectOptions.map((subject, index) => (
               <ListItem
@@ -1249,7 +1257,7 @@ function CreateStudyPlans() {
                 <Text px={5}>{subject.value}</Text>
               </ListItem>
             ))}
-        </List>
+        </List> */}
       </Box>
     </Grid>
   );

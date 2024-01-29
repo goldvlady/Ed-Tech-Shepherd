@@ -30,9 +30,13 @@ import ShepherdSpinner from '../components/shepherd-spinner';
 function StudyPlans() {
   // const [studyPlans, setStudyPlans] = useState(['1', '2']);
   const { fetchPlans, studyPlans, pagination, isLoading } = studyPlanStore();
-  const { courses: courseList, levels: levelOptions } = resourceStore();
-  const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(30);
+  const {
+    courses: courseList,
+    levels: levelOptions,
+    studyPlanCourses
+  } = resourceStore();
+  const [page, setPage] = useState<number>(5);
+  const [limit, setLimit] = useState<number>(10);
   const doFetchStudyPlans = useCallback(async () => {
     await fetchPlans(page, limit);
     /* eslint-disable */
@@ -42,14 +46,18 @@ function StudyPlans() {
   }, [doFetchStudyPlans]);
   const [tutorGrid] = useAutoAnimate();
   const navigate = useNavigate();
-
   function getSubject(id) {
-    return courseList.map((course) => {
-      if (course._id === id) {
-        return course.label;
-      }
-      return null;
-    });
+    const labelFromCourseList = courseList
+      .map((course) => (course._id === id ? course.label : null))
+      .filter((label) => label !== null);
+
+    const labelFromStudyPlanCourses = studyPlanCourses
+      .map((course) => (course._id === id ? course.label : null))
+      .filter((label) => label !== null);
+
+    const allLabels = [...labelFromCourseList, ...labelFromStudyPlanCourses];
+
+    return allLabels.length > 0 ? allLabels[0] : null;
   }
 
   const allPlans = studyPlans.sort((a, b) => {
