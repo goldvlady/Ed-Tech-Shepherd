@@ -183,7 +183,8 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
           >
             <option value="easy">Easy</option>
             <option value="medium">Medium</option>
-            <option value="difficult">Difficult</option>
+            <option value="hard">Hard</option>
+            <option value="very hard">Very Hard</option>
             {/* Add More options similar to Data */}
           </Select>
         }
