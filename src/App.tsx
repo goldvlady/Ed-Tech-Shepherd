@@ -76,6 +76,7 @@ import Hotjar from '@hotjar/browser';
 import Feedback from './views/Feedback';
 import chameleon from '@chamaeleonidae/chmln';
 import ShepherdSpinner from './views/Dashboard/components/shepherd-spinner';
+import WelcomeWalkthrough from './components/welcome-walkthrough';
 const AuthAction = (props: any) => {
   const [params] = useSearchParams();
   const mode = params.get('mode')?.toLowerCase();
@@ -473,6 +474,7 @@ function App() {
         </LexicalContext>
       </BrowserRouter>
       <BrowserRouter>
+        <WelcomeWalkthrough />
         <FlashCardModal isOpen={Boolean(flashcard) || showStudyList} />
       </BrowserRouter>
     </>
