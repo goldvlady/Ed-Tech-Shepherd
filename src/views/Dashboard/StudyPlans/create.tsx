@@ -74,6 +74,7 @@ import ApiService from '../../../services/ApiService';
 import { RiUploadCloud2Fill } from 'react-icons/ri';
 import userStore from '../../../state/userStore';
 import styled from 'styled-components';
+import { IoIosArrowRoundBack } from 'react-icons/io';
 
 const FileName = styled.span`
   font-size: 0.875rem;
@@ -673,6 +674,14 @@ function CreateStudyPlans() {
         bg="white"
         overflowY="auto"
       >
+        <Flex
+          alignItems={'center'}
+          onClick={() => navigate(-1)}
+          _hover={{ cursor: 'pointer' }}
+        >
+          <IoIosArrowRoundBack />
+          <Text fontSize={12}>Back</Text>
+        </Flex>
         <Box borderRadius={8} bg="#F7F7F7" p={18} mb={3}>
           {' '}
           <Flex alignItems="center">
