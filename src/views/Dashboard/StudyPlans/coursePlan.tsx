@@ -320,6 +320,32 @@ function CoursePlan() {
     /* eslint-disable */
   }, [clientSecret]);
 
+  function getColorForStatus(status) {
+    switch (status) {
+      case 'Done':
+        return '#4CAF50';
+      case 'In progress':
+        return '#FB8441';
+      case 'To Do':
+        return '#f53535';
+      default:
+        return 'black';
+    }
+  }
+
+  function getBackgroundColorForStatus(status) {
+    switch (status) {
+      case 'Done':
+        return '#f1f9f1';
+      case 'In progress':
+        return '#fff2eb';
+      case 'To Do':
+        return '#fef0f0';
+      default:
+        return 'lightgrey';
+    }
+  }
+
   const handleUpdateTopicStatus = (status, topicId) => {
     // Update the status for the specific topic by topicId
     const updatedTopics = topics.map((topic) =>
@@ -567,7 +593,7 @@ function CoursePlan() {
       {' '}
       <Flex
         alignItems={'center'}
-        onClick={() => navigate('/dashboard/study-plans')}
+        onClick={() => navigate(-1)}
         _hover={{ cursor: 'pointer' }}
       >
         <IoIosArrowRoundBack />
@@ -692,54 +718,21 @@ function CoursePlan() {
                                       {topic.topicDetails.label}
                                     </Text>
                                     <Spacer />
-                                    <Menu>
-                                      <MenuButton
-                                        as={Button}
-                                        rightIcon={<FiChevronDown />}
-                                        bg="#f1f9f1"
-                                        color={'#4CAF50'}
-                                        _hover={{ bg: '#f1f9f1' }}
-                                        px={2}
-                                        size="xs"
-                                      >
-                                        {/* {topic.status == 'notStarted'
-                                    ? 'To Do'
-                                    : topic.status} */}
-                                        {getTopicStatus(topic.topicDetails._id)}
-                                      </MenuButton>
-                                      <MenuList>
-                                        <MenuItem
-                                          onClick={() =>
-                                            handleUpdateTopicStatus(
-                                              'Done',
-                                              topic._id
-                                            )
-                                          }
-                                        >
-                                          Done
-                                        </MenuItem>
-                                        <MenuItem
-                                          onClick={() =>
-                                            handleUpdateTopicStatus(
-                                              'In progress',
-                                              topic._id
-                                            )
-                                          }
-                                        >
-                                          In progress
-                                        </MenuItem>
-                                        <MenuItem
-                                          onClick={() =>
-                                            handleUpdateTopicStatus(
-                                              'notStarted',
-                                              topic._id
-                                            )
-                                          }
-                                        >
-                                          To Do
-                                        </MenuItem>
-                                      </MenuList>
-                                    </Menu>
+                                    <Badge
+                                      variant="subtle"
+                                      bgColor={`${getBackgroundColorForStatus(
+                                        getTopicStatus(topic.topicDetails._id)
+                                      )}`}
+                                      color={getColorForStatus(
+                                        getTopicStatus(topic.topicDetails._id)
+                                      )}
+                                      p={1}
+                                      letterSpacing="wide"
+                                      textTransform="none"
+                                      borderRadius={8}
+                                    >
+                                      {getTopicStatus(topic.topicDetails._id)}
+                                    </Badge>
                                   </Flex>
                                   <Divider />
                                   <Box width={'100%'}>
@@ -852,15 +845,15 @@ function CoursePlan() {
                                         letterSpacing="wide"
                                         textTransform="none"
                                         borderRadius={8}
-                                        onClick={() => {
-                                          setRecurrenceStartDate(
-                                            new Date(topic.startDate)
-                                          );
-                                          setRecurrenceEndDate(
-                                            new Date(topic.endDate)
-                                          );
-                                          onOpenCadence();
-                                        }}
+                                        // onClick={() => {
+                                        //   setRecurrenceStartDate(
+                                        //     new Date(topic.startDate)
+                                        //   );
+                                        //   setRecurrenceEndDate(
+                                        //     new Date(topic.endDate)
+                                        //   );
+                                        //   onOpenCadence();
+                                        // }}
                                       >
                                         Daily from
                                         {`
@@ -1218,9 +1211,10 @@ function CoursePlan() {
             <Text fontSize={12} p={3}>
               Summary
             </Text>
-            <ul className="space-y-3">
-              {studyPlanUpcomingEvent?.length > 0 &&
-                studyPlanUpcomingEvent.map((event) => (
+
+            {studyPlanUpcomingEvent?.length > 0 ? (
+              studyPlanUpcomingEvent.map((event) => (
+                <ul className="space-y-3">
                   <li
                     className={`flex gap-x-3 cursor-pointer hover:drop-shadow-sm bg-gray-50`}
                   >
@@ -1248,8 +1242,13 @@ function CoursePlan() {
                       </div>
                     </div>
                   </li>
-                ))}
-            </ul>
+                </ul>
+              ))
+            ) : (
+              <Text fontSize={12} textAlign="center" color={'text.300'}>
+                no upcoming events
+              </Text>
+            )}
           </Box>
         </Box>
       </Grid>
