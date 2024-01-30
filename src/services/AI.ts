@@ -5,6 +5,7 @@ import { isNil } from 'lodash';
 type DocumentType = {
   topic?: string;
   count: number;
+  firebaseId?: string;
   studentId: string;
   documentId: string;
 };
@@ -37,6 +38,7 @@ export const fetchStudentDocuments = async (studentId: string) => {
 // };
 
 export const processDocument = async (data: {
+  firebaseId?: string;
   studentId: string;
   documentId: string;
   documentURL: string;
