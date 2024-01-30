@@ -649,7 +649,12 @@ class ApiService {
       body: JSON.stringify(data)
     });
   };
-
+  static cloneNote = async (noteId: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/createNote?nid=${noteId}`, {
+      method: 'POST',
+      body: JSON.stringify({})
+    });
+  };
   static updateNote = async (id: string | number, data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/updateNote/${id}`, {
       method: 'PUT',
@@ -842,6 +847,13 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/createQuiz`, {
       method: 'POST',
       body: JSON.stringify(data)
+    });
+  };
+
+  static cloneQuiz = async (qid: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/createQuiz?qid=${qid}`, {
+      method: 'POST',
+      body: JSON.stringify({})
     });
   };
 

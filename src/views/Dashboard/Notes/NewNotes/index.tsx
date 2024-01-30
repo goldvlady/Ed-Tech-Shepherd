@@ -59,7 +59,8 @@ import {
   MenuItem,
   Text,
   Box,
-  useToast
+  useToast,
+  Icon
 } from '@chakra-ui/react';
 import { $generateHtmlFromNodes } from '@lexical/html';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -93,6 +94,7 @@ import { copyTextToClipboard } from '../../../../helpers/copyTextToClipboard';
 import { firebaseAuth } from '../../../../firebase';
 import PlansModal from '../../../../components/PlansModal';
 import ShareModal from '../../../../components/ShareModal';
+import { RiRemoteControlLine } from '@remixicon/react';
 // import CustomToast from '../../../../components/CustomComponents/CustomToast';
 // import { MdSavings } from 'react-icons/md';
 // import { callback } from 'chart.js/dist/helpers/helpers.core';
@@ -251,6 +253,7 @@ const NewNote = () => {
   const { userDocuments, user } = userStore();
   const [studentDocuments, setStudentDocuments] = useState<Array<any>>([]);
   const [pinned, setPinned] = useState<boolean>(false);
+  const [cloneInProgress, setCloneInProgress] = useState(false);
   const debounceEditedTitle = useDebounce(editedTitle, 1000);
   const [isSavingNote, setIsSavingNote] = useState(false);
   const [togglePlansModal, setTogglePlansModal] = useState(false);
@@ -1041,6 +1044,30 @@ const NewNote = () => {
     timerCallback: (value) => setCallTimerCallback(value)
   });
 
+  const cloneNoteHandler = async () => {
+    setCloneInProgress(true);
+    try {
+      const d = await ApiService.cloneNote(noteId);
+      const data = await d.json();
+      toast({
+        position: 'top-right',
+        title: `Note Cloned Succesfully`,
+        status: 'success'
+      });
+      setCloneInProgress(false);
+      setTimeout(() => {
+        navigate(`/dashboard/notes/new-note/${data.data._id}`);
+      }, 200);
+    } catch (error) {
+      setCloneInProgress(false);
+      toast({
+        position: 'top-right',
+        title: `Problem cloning quiz, please try again later!`,
+        status: 'error'
+      });
+    }
+  };
+
   useEffect(() => {
     if (callTimerCallback) {
       handleAutoSave(editor);
@@ -1201,7 +1228,30 @@ const NewNote = () => {
             </div>
           </FirstSection>
           <SecondSection>
+            {user &&
+              user.subscription &&
+              user.subscription.status === 'active' &&
+              apiKey && (
+                <Button
+                  leftIcon={<Icon as={RiRemoteControlLine} fontSize={'16px'} />}
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  borderRadius="8px"
+                  fontSize="16px"
+                  bg="#f4f4f5"
+                  color="#000"
+                  w={'180px'}
+                  h={'40px'}
+                  onClick={cloneNoteHandler}
+                  _hover={{ bg: '#e4e4e5' }}
+                  _active={{ bg: '#d4d4d5' }}
+                >
+                  Clone Quiz
+                </Button>
+              )}
             {user && <ShareModal type="note" />}
+
             <CustomButton
               disabled={!saveButtonState || !user}
               isPrimary
