@@ -119,6 +119,8 @@ import Select from '../../../components/Select';
 import { RxDotFilled } from 'react-icons/rx';
 import { numberToDayOfWeekName } from '../../../util';
 import DatePicker from '../../../components/DatePicker';
+import { parseISO, format, parse } from 'date-fns';
+
 import userStore from '../../../state/userStore';
 
 function CoursePlan() {
@@ -161,6 +163,8 @@ function CoursePlan() {
   const { user } = userStore();
   const [selectedStatus, setSelectedStatus] = useState('To Do');
   const [showNoteModal, setShowNoteModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedStudyEvent, setSelectedStudyEvent] = useState(null);
   const [selectedRecurrence, setSelectedRecurrence] = useState('daily');
   const [selectedRecurrenceTime, setSelectedRecurrenceTime] = useState(null);
   const [recurrenceStartDate, setRecurrenceStartDate] = useState(new Date());
@@ -507,6 +511,13 @@ function CoursePlan() {
     }
     return [];
   };
+  const findStudyEventsByTopic = (topic) => {
+    if (studyPlanResources[topic] && studyPlanResources[topic].studyEvent) {
+      return studyPlanResources[topic].studyEvent;
+    }
+
+    return {};
+  };
 
   const timeOptions = Array.from({ length: 96 }, (_, index) => {
     const hour = Math.floor(index / 4);
@@ -528,17 +539,29 @@ function CoursePlan() {
   // }, [doFetchStudyPlans]);
 
   const handleUpdatePlanCadence = async () => {
+    setIsLoading(true);
+    const parsedTime = parse(
+      selectedRecurrenceTime.toLowerCase(),
+      'hh:mm aa',
+      new Date()
+    );
+    const time = format(parsedTime, 'HH:mm');
     const payload = {
-      entityId: selectedPlan,
-      entityType: 'studyPlan',
-      startTime: selectedRecurrenceTime,
-      metadata: {
-        additionalInfo: 'Some extra information about the study plan'
-      },
-      startDates: [moment(recurrenceStartDate).format('YYYY-MM-DD')],
-      recurrence: {
-        frequency: selectedRecurrence,
-        endDate: moment(recurrenceEndDate).format('YYYY-MM-DD')
+      // entityId: selectedPlan,
+      eventId: selectedStudyEvent,
+
+      // metadata: {
+      //   topicId: selectedTopic
+      // },
+
+      updates: {
+        startDate: moment(recurrenceStartDate).format('YYYY-MM-DD'),
+        startTime: time,
+        isActive: true,
+        recurrence: {
+          frequency: selectedRecurrence,
+          endDate: moment(recurrenceEndDate).format('YYYY-MM-DD')
+        }
       }
     };
     console.log(payload);
@@ -546,7 +569,7 @@ function CoursePlan() {
       const resp = await ApiService.rescheduleStudyEvent(payload);
       if (resp) {
         const response = await resp.json();
-        if (resp.status === 201) {
+        if (resp.status === 200) {
           // setIsCompleted(true);
           // setLoading(false);
           toast({
@@ -555,6 +578,9 @@ function CoursePlan() {
             status: 'success',
             isClosable: true
           });
+          setIsLoading(false);
+
+          fetchResources(selectedPlan);
           onCloseCadence();
         } else {
           // setLoading(false);
@@ -564,6 +590,7 @@ function CoursePlan() {
             status: 'error',
             isClosable: true
           });
+          setIsLoading(false);
         }
       }
     } catch (error: any) {
@@ -845,23 +872,44 @@ function CoursePlan() {
                                         letterSpacing="wide"
                                         textTransform="none"
                                         borderRadius={8}
-                                        // onClick={() => {
-                                        //   setRecurrenceStartDate(
-                                        //     new Date(topic.startDate)
-                                        //   );
-                                        //   setRecurrenceEndDate(
-                                        //     new Date(topic.endDate)
-                                        //   );
-                                        //   onOpenCadence();
-                                        // }}
+                                        cursor={'grab'}
+                                        onClick={() => {
+                                          setRecurrenceStartDate(
+                                            new Date(
+                                              findStudyEventsByTopic(
+                                                topic.topicDetails.label
+                                              )?.startDate
+                                            )
+                                          );
+                                          setRecurrenceEndDate(
+                                            new Date(
+                                              findStudyEventsByTopic(
+                                                topic.topicDetails.label
+                                              )?.recurrence?.endDate
+                                            )
+                                          );
+                                          setSelectedTopic(topic._id);
+                                          setSelectedStudyEvent(
+                                            findStudyEventsByTopic(
+                                              topic.topicDetails.label
+                                            )?._id
+                                          );
+                                          onOpenCadence();
+                                        }}
                                       >
-                                        Daily from
-                                        {`
-                                  ${moment(topic.startDate).format(
-                                    'MM.DD.YYYY'
-                                  )} - ${moment(topic.endDate).format(
-                                          'MM.DD.YYYY'
-                                        )}`}
+                                        {`${
+                                          findStudyEventsByTopic(
+                                            topic.topicDetails.label
+                                          )?.recurrence?.frequency
+                                        } from  ${moment(
+                                          findStudyEventsByTopic(
+                                            topic.topicDetails.label
+                                          )?.startDate
+                                        ).format('MM.DD.YYYY')} - ${moment(
+                                          findStudyEventsByTopic(
+                                            topic.topicDetails.label
+                                          )?.recurrence?.endDate
+                                        ).format('MM.DD.YYYY')}`}
                                       </Badge>
 
                                       <Spacer />
@@ -1211,10 +1259,9 @@ function CoursePlan() {
             <Text fontSize={12} p={3}>
               Summary
             </Text>
-
-            {studyPlanUpcomingEvent?.length > 0 ? (
-              studyPlanUpcomingEvent.map((event) => (
-                <ul className="space-y-3">
+            <ul className="space-y-3">
+              {studyPlanUpcomingEvent?.length > 0 ? (
+                studyPlanUpcomingEvent.map((event) => (
                   <li
                     className={`flex gap-x-3 cursor-pointer hover:drop-shadow-sm bg-gray-50`}
                   >
@@ -1242,13 +1289,13 @@ function CoursePlan() {
                       </div>
                     </div>
                   </li>
-                </ul>
-              ))
-            ) : (
-              <Text fontSize={12} textAlign="center" color={'text.300'}>
-                no upcoming events
-              </Text>
-            )}
+                ))
+              ) : (
+                <Text fontSize={12} textAlign="center" color={'text.300'}>
+                  no upcoming events
+                </Text>
+              )}
+            </ul>
           </Box>
         </Box>
       </Grid>
@@ -1421,7 +1468,12 @@ function CoursePlan() {
             </Box>
           </ModalBody>
           <ModalFooter>
-            <Button onClick={() => handleUpdatePlanCadence()}>Update</Button>
+            <Button
+              isLoading={isLoading}
+              onClick={() => handleUpdatePlanCadence()}
+            >
+              Update
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
