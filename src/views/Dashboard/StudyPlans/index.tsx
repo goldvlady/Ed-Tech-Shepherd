@@ -36,7 +36,7 @@ function StudyPlans() {
     studyPlanCourses
   } = resourceStore();
   const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(15);
+  const [limit, setLimit] = useState<number>(10);
   const doFetchStudyPlans = useCallback(async () => {
     await fetchPlans(page, limit);
     /* eslint-disable */
