@@ -2,13 +2,14 @@ import { useCustomToast } from '../../../../components/CustomComponents/CustomTo
 import LoaderOverlay from '../../../../components/loaderOverlay';
 import flashcardStore from '../../../../state/flashcardStore';
 import libraryCardStore from '../../../../state/libraryCardStore';
-import userStore from '../../../../state/userStore';
+// import userStore from '../../../../state/userStore';
 import { LibraryCardData } from '../../../../types';
 import LibraryCard from './LibraryCard';
 import AddToDeckModal from './AddToDeckModal';
 import { SimpleGrid, Box, Button, Flex, Select, Text } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 const StyledImage = styled(Box)`
   display: inline-flex;
@@ -40,8 +41,9 @@ interface LibraryCardProps {
 }
 
 const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
-  const { fetchLibraryCards, isLoading, libraryCards } = libraryCardStore();
-  const { user } = userStore();
+  const { fetchLibraryCards, isLoading, pagination, libraryCards } =
+    libraryCardStore();
+  // const { user } = userStore();
   const { createFlashCard, fetchFlashcards, flashcards, editFlashcard } =
     flashcardStore();
   // State for tracking selected cards and modal visibility
@@ -50,15 +52,21 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
   const [selectedDifficulty, setSelectedDifficulty] = useState('');
   const toast = useCustomToast();
 
+  const hasMore = pagination.page * pagination.limit < pagination.count;
+  const loadMore = () => {
+    const nextPage = pagination.page + 1;
+    fetchLibraryCards(deckId, selectedDifficulty, nextPage);
+  };
+
   // useEffect(() => {
   //   fetchFlashcards()
   // },[fetchFlashcards])
 
   useEffect(() => {
     if (deckId) {
-      fetchLibraryCards(deckId, selectedDifficulty);
+      fetchLibraryCards(deckId, selectedDifficulty, 1);
     }
-  }, [deckId, fetchLibraryCards, selectedDifficulty, setSelectedDifficulty]);
+  }, [deckId, selectedDifficulty]);
 
   const onSubmitFlashcard = async (formData, selectedCards, isNewDeck) => {
     const questions = selectedCards.map((card) => {
@@ -193,19 +201,28 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
         )}
       </Flex>
       {libraryCards?.length ? (
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 2, xl: 3 }} spacing={10}>
-          {libraryCards.map((card) => (
-            <LibraryCard
-              key={card._id}
-              question={card.front}
-              difficulty={card.difficulty}
-              answer={card.back}
-              explanation={card.explainer}
-              options={options(card)}
-              onSelect={(isSelected) => handleCardSelect(card, isSelected)}
-            />
-          ))}
-        </SimpleGrid>
+        <InfiniteScroll
+          dataLength={libraryCards.length}
+          next={loadMore}
+          hasMore={hasMore}
+          loader={<p></p>}
+          endMessage={<p></p>}
+          // style={{ overflow: 'hidden' }}
+        >
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 2, xl: 3 }} spacing={10}>
+            {libraryCards.map((card) => (
+              <LibraryCard
+                key={card._id}
+                question={card.front}
+                difficulty={card.difficulty}
+                answer={card.back}
+                explanation={card.explainer}
+                options={options(card)}
+                onSelect={(isSelected) => handleCardSelect(card, isSelected)}
+              />
+            ))}
+          </SimpleGrid>
+        </InfiniteScroll>
       ) : (
         <Box
           display={'flex'}
