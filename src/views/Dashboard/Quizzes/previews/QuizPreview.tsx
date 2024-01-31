@@ -801,31 +801,28 @@ const QuizPreviewer = ({
                     justifyContent={'space-between'}
                   >
                     {user && <ShareModal type="quiz" />}
-                    {user &&
-                      user.subscription &&
-                      user.subscription.status === 'active' &&
-                      apiKey && (
-                        <Button
-                          leftIcon={
-                            <Icon as={RiRemoteControlLine} fontSize={'16px'} />
-                          }
-                          disabled={cloneInProgress}
-                          display="flex"
-                          justifyContent="center"
-                          alignItems="center"
-                          borderRadius="8px"
-                          fontSize="16px"
-                          bg="#f4f4f5"
-                          color="#000"
-                          w={'180px'}
-                          h={'40px'}
-                          onClick={cloneQuizHandler}
-                          _hover={{ bg: '#e4e4e5' }}
-                          _active={{ bg: '#d4d4d5' }}
-                        >
-                          Clone Quiz
-                        </Button>
-                      )}
+                    {user && (
+                      <Button
+                        leftIcon={
+                          <Icon as={RiRemoteControlLine} fontSize={'16px'} />
+                        }
+                        disabled={cloneInProgress}
+                        display="flex"
+                        justifyContent="center"
+                        alignItems="center"
+                        borderRadius="8px"
+                        fontSize="16px"
+                        bg="#f4f4f5"
+                        color="#000"
+                        w={'180px'}
+                        h={'40px'}
+                        onClick={cloneQuizHandler}
+                        _hover={{ bg: '#e4e4e5' }}
+                        _active={{ bg: '#d4d4d5' }}
+                      >
+                        Clone Quiz
+                      </Button>
+                    )}
                     {togglePlansModal && (
                       <PlansModal
                         message="Up to 4 weeks free!"
