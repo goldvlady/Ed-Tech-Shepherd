@@ -1247,7 +1247,7 @@ const NewNote = () => {
                   _hover={{ bg: '#e4e4e5' }}
                   _active={{ bg: '#d4d4d5' }}
                 >
-                  Clone Quiz
+                  Clone Notes
                 </Button>
               )}
             {user && <ShareModal type="note" />}
