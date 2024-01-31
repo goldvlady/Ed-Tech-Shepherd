@@ -161,6 +161,7 @@ const CreateQuizPage = () => {
           {isLoading && <LoaderOverlay />}
 
           <QuizPreviewer
+            apiKey={apiKey}
             title={title}
             questions={questions}
             quizId={quizId as string}
