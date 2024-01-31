@@ -1062,7 +1062,7 @@ const NewNote = () => {
       setCloneInProgress(false);
       toast({
         position: 'top-right',
-        title: `Problem cloning quiz, please try again later!`,
+        title: `Problem cloning note, please try again later!`,
         status: 'error'
       });
     }
