@@ -12,6 +12,8 @@ declare global {
   }
 }
 
+export const isProduction = process.env.NODE_ENV === 'production';
+
 export const classNames = (...classes: any[]) => {
   return classes.filter(Boolean).join(' ');
 };
