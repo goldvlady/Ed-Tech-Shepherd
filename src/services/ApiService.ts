@@ -340,7 +340,8 @@ class ApiService {
 
   static generateFlashcardQuestionsForNotes = async (
     data: any,
-    studentId: string
+    studentId: string,
+    firebaseId: string
   ) => {
     const isDevelopment =
       process.env.REACT_APP_API_ENDPOINT.includes('develop');
@@ -354,7 +355,8 @@ class ApiService {
         body: JSON.stringify({
           noteId: data.note,
           count: data.count,
-          studentId: studentId
+          studentId: studentId,
+          firebaseId: firebaseId
         }),
         headers: {
           'x-shepherd-header': HEADER_KEY,
@@ -945,6 +947,7 @@ class ApiService {
   static generateQuizQuestion = async (
     userId: string,
     data: {
+      firebaseId: string;
       type: QuizQuestion['type'] | 'mixed';
       count: number;
       difficulty: QuizQuestion['difficulty'];
