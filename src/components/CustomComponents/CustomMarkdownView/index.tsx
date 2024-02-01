@@ -69,7 +69,7 @@ const CustomMarkdownView = ({
     <ReactMarkdown
       className="custom_markdown"
       remarkPlugins={[remarkGfm, remarkMath]}
-      rehypePlugins={[rehypeRaw, rehypePrism]}
+      rehypePlugins={[rehypeRaw, [rehypePrism, { ignoreMissing: true }]]}
       components={components}
       children={renderedSource}
     />
