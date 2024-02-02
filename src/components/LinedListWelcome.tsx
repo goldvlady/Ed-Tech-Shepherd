@@ -1,5 +1,6 @@
 import { Box, Text, VStack, Button } from '@chakra-ui/react';
 import React from 'react';
+import { IoMdCheckmarkCircleOutline } from 'react-icons/io';
 import styled from 'styled-components';
 
 const Title = styled(Text).attrs(() => ({
@@ -73,18 +74,26 @@ const LinedListWelcome: React.FC<Props> = ({
   ...rest
 }) => {
   return (
-    <Root spacing="15px" {...rest} alignItems="flex-start">
+    <Root spacing="10px" {...rest} alignItems="flex-start" width={80}>
       {items.map((i) => (
         <Item key={i.id}>
           <Title read={i.read}>
             <button
               onClick={() => clickHandler(i.id)}
               className={` ${
-                i.read ? 'bg-[#f2ffff]' : 'bg-blue-500'
-              } !pointer-events-auto !cursor-pointer whitespace-nowrap px-4 py-1 rounded-md ${
-                i.read ? 'text-[#287ce6]' : 'text-gray-800'
+                i.read ? 'bg-[#f2ffff]' : 'bg-transparent	'
+              } !pointer-events-auto !cursor-pointer whitespace-nowrap px-3 py-1 rounded-2xl border-solid border-2 ${
+                i.read ? 'text-[#287ce6] border-blue-500' : 'text-gray-400'
               }`}
+              style={{
+                width: '310px',
+                textAlign: 'left',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '3px'
+              }}
             >
+              {i.read && <IoMdCheckmarkCircleOutline />}
               {i.title}
             </button>
           </Title>
