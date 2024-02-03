@@ -8,13 +8,13 @@ import { isProduction } from '../util';
 import { Box, ChakraProvider } from '@chakra-ui/react';
 import theme from '../theme';
 import { Navigate, Route, Routes, useRoutes } from 'react-router';
+// TODO:// Add Create Password to Suspense
+import CreatePassword from '../views/CreatePassword';
 const WelcomeLayout = lazy(() => import('../views/WelcomeLayout'));
 const OnboardStudent = lazy(() => import('../views/OnboardStudent'));
 const OnboardTutor = lazy(() => import('../views/OnboardTutor'));
 const ForgotPassword = lazy(() => import('../views/ForgotPassword'));
 const Login = lazy(() => import('../views/Login'));
-// TODO://
-import CreatePassword from '../views/CreatePassword';
 const PendingVerification = lazy(
   () => import('../views/VerificationPages/pending_verification')
 );
