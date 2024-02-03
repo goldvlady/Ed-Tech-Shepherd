@@ -197,6 +197,21 @@
   transition: all 0.3s;
 }
 
+.memoized-react-markdown table thead tr th,
+.memoized-react-markdown table tbody tr td {
+  text-align: center;
+}
+
+.memoized-react-markdown table thead tr th:first-child,
+.memoized-react-markdown table tbody tr td:first-child {
+  text-align: left;
+}
+
+.memoized-react-markdown table thead tr th:last-child,
+.memoized-react-markdown table tbody tr td:last-child {
+  text-align: right;
+}
+
 .memoized-react-markdown table thead tr:hover,
 .memoized-react-markdown table tbody tr:hover {
   background-color: rgba(0, 0, 0, 0.05);
