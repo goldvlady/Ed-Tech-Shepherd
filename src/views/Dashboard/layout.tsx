@@ -78,8 +78,11 @@ import {
   Link
 } from 'react-router-dom';
 import { PiClipboardTextLight } from 'react-icons/pi';
-import { RiFeedbackLine } from '@remixicon/react';
+import { RiFeedbackLine, RiQuestionMark } from '@remixicon/react';
 import PlansModal from '../../components/PlansModal';
+
+import useCompletedStore from '../../state/useCompletedStore';
+
 import { IoIosArrowRoundBack } from 'react-icons/io';
 
 interface LinkItemProps {
@@ -266,6 +269,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const activateProfileSwitchModal = () => {
     setToggleProfileSwitchModal(true);
   };
+  const setOpenWelcome = useCompletedStore((state) => state.setOpen);
   const navigate = useNavigate();
   const { user, logoutUser } = userStore();
   const userId = user?._id || '';
@@ -372,6 +376,12 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             </Flex>
           </Box> */}
           <HStack spacing={4}>
+            <RiQuestionMark
+              className="cursor-pointer"
+              onClick={() => {
+                setOpenWelcome(true);
+              }}
+            />
             <Box position="relative">
               {' '}
               <Menu placement="right">
