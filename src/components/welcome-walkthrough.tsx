@@ -133,9 +133,8 @@ const defaultItems = [
                 50% less commission than competing tutor platforms.
               </strong>
               <br />
-              We are always onboarding tutors. So fi you want to share your
-              knowledge? Sign up to become a tutor too!" One secret: If you’re
-              accepted as a tutor, you get access to all our premium tools too`
+              We are always onboarding tutors. So if you want to share your
+              knowledge? Sign up to become a tutor too!" `
     ],
     image: ['/images/welcome/Tutoring.gif'],
     read: false
@@ -305,7 +304,7 @@ export default function WelcomeWalkthrough() {
           </Button>
         )}
 
-        <Button>Subscribe</Button>
+        <Button onClick={onSignUp}>Subscribe</Button>
       </div>
     </Dialog.Content>
   );
