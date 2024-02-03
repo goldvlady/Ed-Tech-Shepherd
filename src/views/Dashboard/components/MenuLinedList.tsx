@@ -1,16 +1,9 @@
-import {
-  Box,
-  Flex,
-  FlexProps,
-  Icon,
-  Link,
-  Text,
-  VStack
-} from '@chakra-ui/react';
+import { Box, Flex, FlexProps, Icon, Text, VStack } from '@chakra-ui/react';
 import React from 'react';
 import { IconType } from 'react-icons';
 import { BsChatLeftDots, BsPin, BsPlayCircle } from 'react-icons/bs';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
 const Title = styled(Text).attrs(() => ({ className: 'sub3' }))`
   margin-bottom: 1px;
@@ -79,9 +72,9 @@ interface NavItemProps extends FlexProps {
 const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
   return (
     <Link
-      href={path}
-      style={{ textDecoration: 'none' }}
-      _focus={{ boxShadow: 'none' }}
+      to={path}
+      // style={{ textDecoration: 'none' }}
+      // _focus={{ boxShadow: 'none' }}
     >
       <Flex
         align="center"
