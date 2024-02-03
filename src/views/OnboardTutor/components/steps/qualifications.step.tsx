@@ -137,13 +137,15 @@ const QualificationsForm: React.FC = () => {
     //   }
     // );
     uploadEmitter.on('complete', async (uploadFile) => {
-      setFormData((prev) => {
-        prev[name] = uploadFile.fileUrl;
-        if (!addQualificationClicked) {
-          onboardTutorStore.set.qualifications?.([prev]);
-        }
-        return prev;
-      });
+      const updatedFormData = {
+        ...formData,
+        [name]: uploadFile.fileUrl
+      };
+      setFormData(updatedFormData);
+
+      if (!addQualificationClicked) {
+        onboardTutorStore.set.qualifications?.([updatedFormData]);
+      }
       setIsLoading(false);
     });
 
@@ -190,6 +192,7 @@ const QualificationsForm: React.FC = () => {
   };
 
   const isFormValid = useMemo(() => {
+    console.log(Object.values(formData));
     return Object.values(formData).every(Boolean);
   }, [formData]);
 
