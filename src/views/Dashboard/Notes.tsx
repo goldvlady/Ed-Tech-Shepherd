@@ -1,3 +1,4 @@
+import React from 'react';
 import { AllNotesTab } from '../../components';
 import {
   ArrowRightIcon,
