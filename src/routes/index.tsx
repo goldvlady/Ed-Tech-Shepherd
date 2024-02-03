@@ -1,8 +1,4 @@
-import {
-  useLocation,
-  useSearchParams,
-  useNavigate
-} from 'react-router-dom';
+import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, Suspense, lazy } from 'react';
 import userStore from '../state/userStore';
 import chameleon from '@chamaeleonidae/chmln';
@@ -32,7 +28,6 @@ import DashboardLayout from '../views/Dashboard/layout';
 import NewNote from '../views/Dashboard/Notes/NewNotes';
 import FlashCard from '../views/Dashboard/FlashCards';
 import DocChat from '../views/Dashboard/DocChat';
-const HomeWorkHelp = lazy(() => import('../views/Dashboard/HomeWorkHelp'));
 import TakeQuizzes from '../views/Dashboard/Quizzes/take';
 import Tutor from '../views/Dashboard/Tutor';
 import TutorDashboardLayout from '../components/Layout';
@@ -64,7 +59,7 @@ import Client from '../views/TutorDashboard/Clients/client';
 import TutorOffers from '../views/TutorDashboard/Offers/index';
 import TutorBounties from '../views/TutorDashboard/Bounties/index';
 import TutorSettings from '../views/TutorDashboard/AccountSettings';
-
+const HomeWorkHelp = lazy(() => import('../views/Dashboard/HomeWorkHelp'));
 
 const studentRoutes = [
   { path: 'notes/new-note', element: <NewNote /> },
