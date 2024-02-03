@@ -25,33 +25,10 @@ import Home from '../views/Home';
 import Feedback from '../views/Feedback';
 import Session from '../views/Session';
 import DashboardLayout from '../views/Dashboard/layout';
-import NewNote from '../views/Dashboard/Notes/NewNotes';
-import FlashCard from '../views/Dashboard/FlashCards';
 import DocChat from '../views/Dashboard/DocChat';
 import TakeQuizzes from '../views/Dashboard/Quizzes/take';
 import Tutor from '../views/Dashboard/Tutor';
 import TutorDashboardLayout from '../components/Layout';
-
-import Notes from '../views/Dashboard/Notes/index';
-import PinnedNotes from '../views/Dashboard/Notes/PinnedNotes/PinnedNotes';
-import SendTutorOffer from '../views/Dashboard/SendTutorOffer';
-import Offer from '../views/Dashboard/Offer';
-import DashboardIndex from '../views/Dashboard';
-import Marketplace from '../views/Dashboard/Marketplace';
-import MyTutors from '../views/Dashboard/MyTutors';
-import Bounties from '../views/Dashboard/Bounties';
-import StudentBounty from '../views/Dashboard/Bounties/Bounty';
-import BookmarkedTutors from '../views/Dashboard/BookmarkedTutors';
-import Messaging from '../views/Dashboard/Messaging';
-import StudentSettings from '../views/Dashboard/AccountSettings';
-import CreateFlashCard from '../views/Dashboard/FlashCards/create';
-import EditFlashCard from '../views/Dashboard/FlashCards/edit';
-import Library from '../views/Dashboard/Library';
-import CreateStudyPlans from '../views/Dashboard/StudyPlans/create';
-import StudyPlans from '../views/Dashboard/StudyPlans';
-import CoursePlan from '../views/Dashboard/StudyPlans/coursePlan';
-import Quizzes from '../views/Dashboard/Quizzes';
-import CreateQuizzes from '../views/Dashboard/Quizzes/create';
 
 import TutorDashboard from '../views/TutorDashboard/index';
 import Clients from '../views/TutorDashboard/Clients';
@@ -59,6 +36,41 @@ import Client from '../views/TutorDashboard/Clients/client';
 import TutorOffers from '../views/TutorDashboard/Offers/index';
 import TutorBounties from '../views/TutorDashboard/Bounties/index';
 import TutorSettings from '../views/TutorDashboard/AccountSettings';
+const NewNote = lazy(() => import('../views/Dashboard/Notes/NewNotes'));
+const FlashCard = lazy(() => import('../views/Dashboard/FlashCards'));
+
+const Notes = lazy(() => import('../views/Dashboard/Notes'));
+const PinnedNotes = lazy(
+  () => import('../views/Dashboard/Notes/PinnedNotes/PinnedNotes')
+);
+const SendTutorOffer = lazy(() => import('../views/Dashboard/SendTutorOffer'));
+const Offer = lazy(() => import('../views/Dashboard/Offer'));
+const DashboardIndex = lazy(() => import('../views/Dashboard'));
+const Marketplace = lazy(() => import('../views/Dashboard/Marketplace'));
+const MyTutors = lazy(() => import('../views/Dashboard/MyTutors'));
+const Bounties = lazy(() => import('../views/Dashboard/Bounties'));
+const StudentBounty = lazy(() => import('../views/Dashboard/Bounties/Bounty'));
+const BookmarkedTutors = lazy(
+  () => import('../views/Dashboard/BookmarkedTutors')
+);
+const Messaging = lazy(() => import('../views/Dashboard/Messaging'));
+const StudentSettings = lazy(
+  () => import('../views/Dashboard/AccountSettings')
+);
+const CreateFlashCard = lazy(
+  () => import('../views/Dashboard/FlashCards/create')
+);
+const EditFlashCard = lazy(() => import('../views/Dashboard/FlashCards/edit'));
+const Library = lazy(() => import('../views/Dashboard/Library'));
+const CreateStudyPlans = lazy(
+  () => import('../views/Dashboard/StudyPlans/create')
+);
+const StudyPlans = lazy(() => import('../views/Dashboard/StudyPlans'));
+const CoursePlan = lazy(
+  () => import('../views/Dashboard/StudyPlans/coursePlan')
+);
+const Quizzes = lazy(() => import('../views/Dashboard/Quizzes'));
+const CreateQuizzes = lazy(() => import('../views/Dashboard/Quizzes/create'));
 const HomeWorkHelp = lazy(() => import('../views/Dashboard/HomeWorkHelp'));
 
 const studentRoutes = [
@@ -417,7 +429,15 @@ const AppRoutes: React.FC = () => {
       >
         {userRoute &&
           userRoute.map((route) => (
-            <Route key={route.path} path={route.path} element={route.element} />
+            <Route
+              key={route.path}
+              path={route.path}
+              element={
+                <Suspense fallback={<h1>Loading...</h1>}>
+                  {route.element}
+                </Suspense>
+              }
+            />
           ))}
       </Route>
     </Routes>
