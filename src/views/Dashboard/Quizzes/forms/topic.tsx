@@ -64,7 +64,8 @@ const TopicQuizForm = ({
       setIsLoading(true);
       const result = await ApiService.generateQuizQuestion(user._id, {
         ...localData,
-        count: toNumber(localData.count)
+        count: toNumber(localData.count),
+        firebaseId: user.firebaseId
       });
       const { quizzes } = await result.json();
 

@@ -5,51 +5,46 @@ import { create } from 'zustand';
 
 type Store = {
   libraryCards: LibraryCardData[] | null;
-  subjects: string[];
   isLoading: boolean;
   pagination: Pagination;
   fetchLibraryCards: (
     deckId: string,
     difficulty: string,
-    queryParams?: SearchQueryParams
+    page: number,
+    limit?: number
   ) => Promise<void>;
   libraryCard?: LibraryCardData | null;
 };
 
-export default create<Store>((set) => ({
+export default create<Store>((set, get) => ({
   libraryCards: null,
   isLoading: false,
-  subjects: [],
-  pagination: { limit: 10, page: 1, count: 100 },
+  pagination: { limit: 20, page: 1, count: 0 },
 
   fetchLibraryCards: async (
     deckId: string,
     difficulty: string,
-    queryParams?: SearchQueryParams
+    page: number,
+    limit = 20
   ) => {
     try {
-      const params = queryParams || ({} as SearchQueryParams);
-      if (!params.page) params.page = 1;
-      if (!params.limit) params.limit = 10;
       set({ isLoading: true });
       const response = await ApiService.getLibraryCards({
         deckId,
         difficulty,
-        ...params
+        page,
+        limit
       });
       const { data, meta } = await response.json();
-      set({ libraryCards: data, pagination: meta?.pagination });
 
-      // set((prev) => {
-      //   const d: any = {
-      //     libraryCards: data,
-      //     pagination: meta?.pagination
-      //   };
-      //   if (!prev.subjects.length) {
-      //     d.subjects = meta?.subjects;
-      //   }
-      //   return { ...d };
-      // });
+      set((state) => ({
+        libraryCards: page === 1 ? data : [...state.libraryCards, ...data],
+        pagination: {
+          ...state.pagination,
+          page,
+          count: meta?.pagination?.count
+        }
+      }));
     } catch (error) {
       // Handle or log error
     } finally {

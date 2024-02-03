@@ -76,7 +76,12 @@ import Hotjar from '@hotjar/browser';
 import Feedback from './views/Feedback';
 import chameleon from '@chamaeleonidae/chmln';
 import ShepherdSpinner from './views/Dashboard/components/shepherd-spinner';
+
 import WelcomeWalkthrough from './components/welcome-walkthrough';
+
+import { usePostHog } from 'posthog-js/react';
+import { isProduction } from './util';
+
 const AuthAction = (props: any) => {
   const [params] = useSearchParams();
   const mode = params.get('mode')?.toLowerCase();
@@ -222,6 +227,7 @@ const AppRoutes: React.FC = () => {
   }, [userData]);
 
   const userRoute = userRoutes[userType];
+  const posthog = usePostHog();
 
   const RedirectToExternal = ({ url }) => {
     useEffect(() => {
@@ -240,11 +246,18 @@ const AppRoutes: React.FC = () => {
           email: userData?.email, // RECOMMENDED, email is used as the key to map user data for integrations
           name: `${userData?.name.first} ${userData?.name.last}` // RECOMMENDED, name can be used to greet and/or personalize content: ;
         });
+
+        if (isProduction) {
+          posthog.identify(userData?._id, {
+            email: userData?.email,
+            name: `${userData?.name.first} ${userData?.name.last}`
+          });
+        }
       }
       userData && fetchUserDocuments(userData._id);
     }
     /* eslint-disable */
-  }, [isAuthenticated]);
+  }, [isAuthenticated, posthog]);
 
   if (loading) {
     return (

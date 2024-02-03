@@ -80,7 +80,10 @@ import {
 import { PiClipboardTextLight } from 'react-icons/pi';
 import { RiFeedbackLine, RiQuestionMark } from '@remixicon/react';
 import PlansModal from '../../components/PlansModal';
+
 import useCompletedStore from '../../state/useCompletedStore';
+
+import { IoIosArrowRoundBack } from 'react-icons/io';
 
 interface LinkItemProps {
   name: string;
@@ -309,7 +312,15 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         top="0"
         {...rest}
       >
-        <Box display={{ base: 'none', md: 'flex' }}>
+        <Box display={{ base: 'none', md: 'flex' }} gap={2}>
+          <Flex
+            alignItems={'center'}
+            onClick={() => navigate(-3)}
+            _hover={{ cursor: 'pointer' }}
+          >
+            <IoIosArrowRoundBack />
+            {/* <Text fontSize={12}>Back</Text> */}
+          </Flex>
           <Flex
             bgColor={'transparent'}
             color="text.400"

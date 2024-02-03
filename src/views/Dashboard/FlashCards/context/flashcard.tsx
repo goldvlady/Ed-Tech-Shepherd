@@ -79,6 +79,7 @@ export type AIRequestBody = {
   difficulty?: string;
   note?: string;
   existingQuestions?: string[];
+  firebaseId: string;
 };
 export interface FlashcardDataContextProps {
   flashcardData: FlashcardData;
@@ -322,6 +323,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       });
       return await ApiService.createDocchatFlashCards({
         ...aiData,
+        userSubscription: user?.subscription?.tier, //passing to use in AWS lambda to control gpt version
         studentId: user?._id as string,
         documentId: documentId as string
       });
@@ -386,6 +388,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
           topic: flashcardData.topic,
           subject: flashcardData.subject,
           count,
+          firebaseId: user?.firebaseId,
           ...(flashcardData.level && { difficulty: flashcardData.level }),
           ...(flashcardData.noteDoc && { note: flashcardData.noteDoc }),
           existingQuestions: questions.map((q) => q.question)
@@ -394,7 +397,11 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
         const requestFunc = !flashcardData.noteDoc
           ? ApiService.generateFlashcardQuestions
           : ApiService.generateFlashcardQuestionsForNotes;
-        const response = await requestFunc(aiData, user?._id as string);
+        const response = await requestFunc(
+          aiData,
+          user?._id as string,
+          user?.firebaseId as string
+        );
         if (cancelRequest) {
           cancelRequest = false;
           return;
@@ -491,6 +498,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
           topic: reqData.topic,
           subject: reqData.subject,
           count: parseInt(reqData.numQuestions as unknown as string, 10),
+          firebaseId: user?.firebaseId,
           ...(reqData.level && { difficulty: reqData.level }),
           ...(reqData.noteDoc && { note: reqData.noteDoc }),
           ...(reqData.documentId &&
@@ -505,7 +513,11 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
           const requestFunc = !reqData.noteDoc
             ? ApiService.generateFlashcardQuestions
             : ApiService.generateFlashcardQuestionsForNotes;
-          response = await requestFunc(aiData, user?._id as string);
+          response = await requestFunc(
+            aiData,
+            user?._id as string,
+            user?.firebaseId as string
+          );
           if (cancelRequest) {
             cancelRequest = false;
           } else {
