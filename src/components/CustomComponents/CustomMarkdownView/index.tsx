@@ -100,7 +100,7 @@ const CustomMarkdownView = ({
 
   return (
     <MemoizedReactMarkdown
-      className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 p-3"
+      className="memoized-react-markdown prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 p-3"
       remarkPlugins={[remarkGfm, remarkMath]}
       components={components}
     >
