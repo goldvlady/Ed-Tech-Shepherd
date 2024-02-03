@@ -7,35 +7,47 @@ import { usePostHog } from 'posthog-js/react';
 import { isProduction } from '../util';
 import { Box, ChakraProvider } from '@chakra-ui/react';
 import theme from '../theme';
-import ShepherdSpinner from '../views/Dashboard/components/shepherd-spinner';
 import { Navigate, Route, Routes, useRoutes } from 'react-router';
-import WelcomeLayout from '../views/WelcomeLayout';
-import OnboardStudent from '../views/OnboardStudent/index';
-import OnboardTutor from '../views/OnboardTutor';
-import ForgotPassword from '../views/ForgotPassword';
-import Login from '../views/Login';
+const WelcomeLayout = lazy(() => import('../views/WelcomeLayout'));
+const OnboardStudent = lazy(() => import('../views/OnboardStudent'));
+const OnboardTutor = lazy(() => import('../views/OnboardTutor'));
+const ForgotPassword = lazy(() => import('../views/ForgotPassword'));
+const Login = lazy(() => import('../views/Login'));
+// TODO://
 import CreatePassword from '../views/CreatePassword';
-import PendingVerification from '../views/VerificationPages/pending_verification';
-import VerificationSuccess from '../views/VerificationPages/successful_verification';
-import VerifyEmail from '../views/VerificationPages/verify_email';
-import CompleteProfile from '../views/OnboardTutor/complete_profile';
-import PendingActivation from '../views/VerificationPages/pending_activation';
-import Signup from '../views/Signup';
-import Home from '../views/Home';
-import Feedback from '../views/Feedback';
-import Session from '../views/Session';
-import DashboardLayout from '../views/Dashboard/layout';
-import DocChat from '../views/Dashboard/DocChat';
-import TakeQuizzes from '../views/Dashboard/Quizzes/take';
-import Tutor from '../views/Dashboard/Tutor';
-import TutorDashboardLayout from '../components/Layout';
+const PendingVerification = lazy(
+  () => import('../views/VerificationPages/pending_verification')
+);
+const VerificationSuccess = lazy(
+  () => import('../views/VerificationPages/successful_verification')
+);
+const VerifyEmail = lazy(
+  () => import('../views/VerificationPages/verify_email')
+);
+const CompleteProfile = lazy(
+  () => import('../views/OnboardTutor/complete_profile')
+);
+const PendingActivation = lazy(
+  () => import('../views/VerificationPages/pending_activation')
+);
+const Signup = lazy(() => import('../views/Signup'));
+const Home = lazy(() => import('../views/Home'));
+const Feedback = lazy(() => import('../views/Feedback'));
+const Session = lazy(() => import('../views/Session'));
+const DashboardLayout = lazy(() => import('../views/Dashboard/layout'));
+const DocChat = lazy(() => import('../views/Dashboard/DocChat'));
+const TakeQuizzes = lazy(() => import('../views/Dashboard/Quizzes/take'));
+const Tutor = lazy(() => import('../views/Dashboard/Tutor'));
+const TutorDashboardLayout = lazy(() => import('../components/Layout'));
 
-import TutorDashboard from '../views/TutorDashboard/index';
-import Clients from '../views/TutorDashboard/Clients';
-import Client from '../views/TutorDashboard/Clients/client';
-import TutorOffers from '../views/TutorDashboard/Offers/index';
-import TutorBounties from '../views/TutorDashboard/Bounties/index';
-import TutorSettings from '../views/TutorDashboard/AccountSettings';
+const TutorDashboard = lazy(() => import('../views/TutorDashboard'));
+const Clients = lazy(() => import('../views/TutorDashboard/Clients'));
+const Client = lazy(() => import('../views/TutorDashboard/Clients/client'));
+const TutorOffers = lazy(() => import('../views/TutorDashboard/Offers'));
+const TutorBounties = lazy(() => import('../views/TutorDashboard/Bounties'));
+const TutorSettings = lazy(
+  () => import('../views/TutorDashboard/AccountSettings')
+);
 const NewNote = lazy(() => import('../views/Dashboard/Notes/NewNotes'));
 const FlashCard = lazy(() => import('../views/Dashboard/FlashCards'));
 
@@ -179,7 +191,7 @@ const RequireAuth = ({
   if (loading) {
     return (
       <Box p={5} textAlign="center">
-        <ShepherdSpinner />
+        <h1>Loading...</h1>
       </Box>
     );
   }
@@ -259,7 +271,7 @@ const AppRoutes: React.FC = () => {
             height: '100vh'
           }}
         >
-          <ShepherdSpinner />
+          <h1>Loading...</h1>
         </Box>
       </ChakraProvider>
     );
@@ -280,7 +292,9 @@ const AppRoutes: React.FC = () => {
       />
       <Route
         element={
-          <WelcomeLayout />
+          <Suspense fallback={<h1>Loading...</h1>}>
+            <WelcomeLayout />
+          </Suspense>
           // <RequireAuth
           //   authenticated={<Navigate to={'/dashboard'} />}
           //   unAuthenticated={<WelcomeLayout />}
@@ -288,8 +302,22 @@ const AppRoutes: React.FC = () => {
         }
       >
         <Route path="onboard">
-          <Route path="student" element={<OnboardStudent />} />
-          <Route path="tutor" element={<OnboardTutor />} />
+          <Route
+            path="student"
+            element={
+              <Suspense fallback={<h1>Loading...</h1>}>
+                <OnboardStudent />
+              </Suspense>
+            }
+          />
+          <Route
+            path="tutor"
+            element={
+              <Suspense fallback={<h1>Loading...</h1>}>
+                <OnboardTutor />
+              </Suspense>
+            }
+          />
           <Route path="*" element={<Navigate to="student" />} />
           <Route path="" element={<Navigate to="student" />} />
         </Route>
@@ -297,7 +325,9 @@ const AppRoutes: React.FC = () => {
         <Route
           path="login"
           element={
-            <Login />
+            <Suspense fallback={<h1>Loading...</h1>}>
+              <Login />
+            </Suspense>
             // <RequireAuth
             //   authenticated={<Navigate to={'/dashboard'} />}
             //   unAuthenticated={<Login />}
@@ -308,118 +338,195 @@ const AppRoutes: React.FC = () => {
         <Route
           path="signup"
           element={
-            <RequireAuth
-              authenticated={<Navigate to={'/dashboard'} />}
-              unAuthenticated={<OnboardStudent />}
-            />
+            <Suspense fallback={<h1>Loading...</h1>}>
+              <RequireAuth
+                authenticated={<Navigate to={'/dashboard'} />}
+                unAuthenticated={<OnboardStudent />}
+              />
+            </Suspense>
           }
         />
         <Route
           path="forgot-password"
           element={
-            <RequireAuth
-              authenticated={<Navigate to={'/dashboard'} />}
-              unAuthenticated={<ForgotPassword />}
-            />
+            <Suspense fallback={<h1>Loading...</h1>}>
+              <RequireAuth
+                authenticated={<Navigate to={'/dashboard'} />}
+                unAuthenticated={<ForgotPassword />}
+              />
+            </Suspense>
           }
         />
         <Route path="auth-action" element={<AuthAction />} />
       </Route>
 
-      <Route path="verification_pending" element={<PendingVerification />} />
-      <Route path="verification_success" element={<VerificationSuccess />} />
+      <Route
+        path="verification_pending"
+        element={
+          <Suspense fallback={<h1>Loading...</h1>}>
+            <PendingVerification />
+          </Suspense>
+        }
+      />
+      <Route
+        path="verification_success"
+        element={
+          <Suspense fallback={<h1>Loading...</h1>}>
+            <VerificationSuccess />
+          </Suspense>
+        }
+      />
 
-      <Route path="complete_profile" element={<CompleteProfile />} />
-      <Route path="verify_email" element={<VerifyEmail />} />
-      <Route path="activation_pending" element={<PendingActivation />} />
+      <Route
+        path="complete_profile"
+        element={
+          <Suspense fallback={<h1>Loading...</h1>}>
+            <CompleteProfile />
+          </Suspense>
+        }
+      />
+      <Route
+        path="verify_email"
+        element={
+          <Suspense fallback={<h1>Loading...</h1>}>
+            <VerifyEmail />
+          </Suspense>
+        }
+      />
+      <Route
+        path="activation_pending"
+        element={
+          <Suspense fallback={<h1>Loading...</h1>}>
+            <PendingActivation />
+          </Suspense>
+        }
+      />
 
       <Route
         path="signup"
         element={
-          <RequireAuth
-            authenticated={<Navigate to={'/dashboard'} />}
-            unAuthenticated={<Signup />}
-          />
+          <Suspense fallback={<h1>Loading...</h1>}>
+            <RequireAuth
+              authenticated={<Navigate to={'/dashboard'} />}
+              unAuthenticated={<Signup />}
+            />
+          </Suspense>
         }
       />
       <Route
         path="forgot-password"
         element={
-          <RequireAuth
-            authenticated={<Navigate to={'/dashboard'} />}
-            unAuthenticated={<ForgotPassword />}
-          />
+          <Suspense fallback={<h1>Loading...</h1>}>
+            <RequireAuth
+              authenticated={<Navigate to={'/dashboard'} />}
+              unAuthenticated={<ForgotPassword />}
+            />
+          </Suspense>
         }
       />
       <Route path="auth-action" element={<AuthAction />} />
 
-      <Route path="home" element={<Home />} />
-      <Route path="feedback" element={<Feedback />} />
+      <Route
+        path="home"
+        element={
+          <Suspense fallback={<h1>Loading...</h1>}>
+            <Home />
+          </Suspense>
+        }
+      />
+      <Route
+        path="feedback"
+        element={
+          <Suspense fallback={<h1>Loading...</h1>}>
+            <Feedback />
+          </Suspense>
+        }
+      />
       <Route
         path="session/:bookingId"
         element={
-          <RequireAuth
-            authenticated={<Session />}
-            unAuthenticated={<Navigate to={'/login'} />}
-          />
+          <Suspense fallback={<h1>Loading...</h1>}>
+            <RequireAuth
+              authenticated={<Session />}
+              unAuthenticated={<Navigate to={'/login'} />}
+            />
+          </Suspense>
         }
       />
       <Route
         path="/dashboard/notes/new-note/:id"
         element={
-          <DashboardLayout>
-            <NewNote />
-          </DashboardLayout>
+          <Suspense fallback={<h1>Loading...</h1>}>
+            <DashboardLayout>
+              <Suspense fallback={<h1>Loading...</h1>}>
+                <NewNote />
+              </Suspense>
+            </DashboardLayout>
+          </Suspense>
         }
       />
       <Route
         path="/dashboard/flashcards/:flashcardId"
         element={
           <DashboardLayout>
-            <FlashCard />
+            <Suspense fallback={<h1>Loading...</h1>}>
+              <FlashCard />
+            </Suspense>
           </DashboardLayout>
         }
       />
       <Route
         path="/dashboard/docchat"
         element={
-          <DashboardLayout>
-            <DocChat />
-          </DashboardLayout>
+          <Suspense fallback={<h1>Loading...</h1>}>
+            <DashboardLayout>
+              <Suspense fallback={<h1>Loading...</h1>}>
+                <DocChat />
+              </Suspense>
+            </DashboardLayout>
+          </Suspense>
         }
       />
 
       <Route
         path="/dashboard/ace-homework/:id"
         element={
-          <Suspense fallback={<ShepherdSpinner />}>
-            <DashboardLayout>
+          <DashboardLayout>
+            <Suspense fallback={<h1>Loading...</h1>}>
               <HomeWorkHelp />
-            </DashboardLayout>
-          </Suspense>
+            </Suspense>
+          </DashboardLayout>
         }
       />
       <Route
         path="/dashboard/quizzes/take"
         element={
-          <DashboardLayout>
-            <TakeQuizzes />
-          </DashboardLayout>
+          <Suspense fallback={<h1>Loading...</h1>}>
+            <DashboardLayout>
+              <Suspense fallback={<h1>Loading...</h1>}>
+                <TakeQuizzes />
+              </Suspense>
+            </DashboardLayout>
+          </Suspense>
         }
       />
       <Route
         path="/dashboard/find-tutor/tutor/"
         element={
-          <DashboardLayout>
-            <Tutor />
-          </DashboardLayout>
+          <Suspense fallback={<h1>Loading...</h1>}>
+            <DashboardLayout>
+              <Suspense fallback={<h1>Loading...</h1>}>
+                <Tutor />
+              </Suspense>
+            </DashboardLayout>
+          </Suspense>
         }
       />
 
       <Route
         path="/dashboard"
         element={
-          <Suspense fallback={<ShepherdSpinner />}>
+          <Suspense fallback={<h1>Loading...</h1>}>
             <RequireAuth
               authenticated={<RenderLayout />}
               unAuthenticated={<Navigate to={'/login'} />}
