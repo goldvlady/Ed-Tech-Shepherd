@@ -7,12 +7,16 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import './index.css';
 import 'katex/dist/katex.min.css';
+import { MemoizedReactMarkdown } from './memoized-react-markdown';
+import { CodeBlock } from './code-block';
 
 interface CustomComponents {
   math: ({ node, inline }: { node: any; inline: boolean }) => JSX.Element;
   inlineMath: ({ node, inline }: { node: any; inline: boolean }) => JSX.Element;
   button: any;
   // Add more custom components if needed
+  p?: any;
+  code?: any;
 }
 
 interface ICustomMarkdownView {
@@ -53,7 +57,36 @@ const CustomMarkdownView = ({
     inlineMath: ({ node }) => <InlineMath math={node.value} />,
     button: (props: any) => (
       <button {...props} onClick={(e) => onKeywordClick(e, props.children)} />
-    )
+    ),
+    p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+    code: ({ node, inline, className, children, ...props }) => {
+      if (children.length) {
+        if (children[0] == '▍') {
+          return <span className="mt-1 cursor-default animate-pulse">▍</span>;
+        }
+
+        children[0] = (children[0] as string).replace('`▍`', '▍');
+      }
+
+      const match = /language-(\w+)/.exec(className || '');
+
+      if (inline) {
+        return (
+          <code className={className} {...props}>
+            {children}
+          </code>
+        );
+      }
+
+      return (
+        <CodeBlock
+          key={Math.random()}
+          language={(match && match[1]) || ''}
+          value={String(children).replace(/\n$/, '')}
+          {...props}
+        />
+      );
+    }
   };
 
   const onKeywordClick = (
@@ -66,14 +99,24 @@ const CustomMarkdownView = ({
   };
 
   return (
-    <ReactMarkdown
-      className="custom_markdown"
+    <MemoizedReactMarkdown
+      className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 p-3"
       remarkPlugins={[remarkGfm, remarkMath]}
-      rehypePlugins={[rehypeRaw, [rehypePrism, { ignoreMissing: true }]]}
       components={components}
-      children={renderedSource}
-    />
+    >
+      {source}
+    </MemoizedReactMarkdown>
   );
+
+  // return (
+  //   <ReactMarkdown
+  //     className="custom_markdown"
+  //     remarkPlugins={[remarkGfm, remarkMath]}
+  //     rehypePlugins={[rehypeRaw, [rehypePrism, { ignoreMissing: true }]]}
+  //     components={components}
+  //     children={renderedSource}
+  //   />
+  // );
 };
 
 export default CustomMarkdownView;
