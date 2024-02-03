@@ -1,6 +1,7 @@
 import { debounce } from 'lodash';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router';
+import { useNotification } from './hooks/useNotification';
 
 type SearchAction = (query: string) => void;
 
@@ -52,6 +53,7 @@ export function useSearchQuery() {
 
 export function useCopyToClipboard({ timeout = 2000 }: { timeout?: number }) {
   const [isCopied, setIsCopied] = React.useState<Boolean>(false);
+  const notify = useNotification();
 
   const copyToClipboard = (value: string) => {
     if (typeof window === 'undefined' || !navigator.clipboard?.writeText) {
@@ -64,6 +66,10 @@ export function useCopyToClipboard({ timeout = 2000 }: { timeout?: number }) {
 
     navigator.clipboard.writeText(value).then(() => {
       setIsCopied(true);
+      notify({
+        title: 'Copied to clipboard',
+        type: 'success'
+      });
 
       setTimeout(() => {
         setIsCopied(false);
