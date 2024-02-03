@@ -1,3 +1,5 @@
+// Student layout
+
 import BarnImg from '../../assets/Barn.svg';
 import AskIcon from '../../assets/avatar-male.svg';
 import BellDot from '../../assets/belldot.svg';
@@ -1037,14 +1039,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               </DrawerContent>
             </Drawer>
           </Box>
-
           <Box flex="1" overflowY="auto">
             <Box width={'100%'} zIndex="2">
               <MobileNav onOpen={onOpen} />
             </Box>
             <Box pt={20}>
               <Outlet />
-              {children}
+              {/* {children} */}
             </Box>
           </Box>
         </Grid>
