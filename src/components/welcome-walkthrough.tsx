@@ -7,13 +7,29 @@ import {
   Flex,
   Grid,
   GridItem,
+  Modal,
   Text,
   useDisclosure,
-  VStack
+  VStack,
+  ModalOverlay,
+  ModalContent,
+  ModalBody,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverHeader,
+  PopoverBody,
+  PopoverFooter,
+  PopoverArrow,
+  PopoverCloseButton,
+  PopoverAnchor,
+  Spacer,
+  HStack
 } from '@chakra-ui/react';
 import LinedListWelcome from './LinedListWelcome';
 import useCompletedStore from '../state/useCompletedStore';
 import { MdCancel } from 'react-icons/md';
+import PlansModal from './PlansModal';
 const SignUpButton = ({ last }: { last?: boolean }) => (
   <button
     className={`px-8 pointer-events-none py-3 border ${
@@ -29,11 +45,12 @@ const defaultItems = [
     title: 'Welcome to Shepherd',
     content: [
       ` Hey Friend! <br /> <br />Welcome to Shepherd. We're really excited to have you with us. We built Shepherd because we want to make your studying
-              more efficient and effective.  <br /> As former students we wanted to build
+              more efficient and effective.  <br /><br /> As former students we wanted to build
               the tool we wish we had. Let's take a quick walk through some cool
-              features that can make studying a breeze for you.`
+              features that can make studying a breeze for you. <br /><br /> 
+              <strong>Already convinced? Subscribe for up to 4 weeks free trial.</strong>`
     ],
-    image: ['/images/welcome/Hello.gif'],
+    image: ['/images/welcome/welcome-minions.gif'],
     read: true
   },
   {
@@ -120,7 +137,7 @@ const defaultItems = [
               knowledge? Sign up to become a tutor too!" One secret: If you’re
               accepted as a tutor, you get access to all our premium tools too`
     ],
-    image: '',
+    image: ['/images/welcome/Tutoring.gif'],
     read: false
   },
   {
@@ -148,13 +165,13 @@ const defaultItems = [
             <br /> 
    
           <p className="text-lg my-3">
-            We have more features coming out soon! And we’d love to hear your
+            We have more features coming out soon! We'd love to hear your
             thoughts and shape the way we all learn.
             <br />
-            Ready to dive inn?
+            Ready to dive in?
           </p>`
     ],
-    image: ['/images/welcome/Subscribe.gif'],
+    image: ['/images/welcome/Subscribe-min.gif'],
     read: false
   }
 ];
@@ -164,7 +181,13 @@ export default function WelcomeWalkthrough() {
   const setOpen = useCompletedStore((state) => state.setOpen);
   const [currentIdx, setCurrentIdx] = React.useState(1);
   const { isOpen, onToggle } = useDisclosure();
+  const [togglePlansModal, setTogglePlansModal] = React.useState(false);
 
+  const {
+    isOpen: isOpenConfirm,
+    onOpen: onOpenConfirm,
+    onClose: onCloseConfirm
+  } = useDisclosure();
   const [items, setItems] = React.useState<
     Array<{
       title: string;
@@ -174,70 +197,114 @@ export default function WelcomeWalkthrough() {
       id: number;
     }>
   >(defaultItems);
-  const DialogClose = () => (
-    <Dialog.Close
-      onClick={() => {
-        setOpen(false);
-        setItems(defaultItems);
-        setCurrentIdx(1);
-        localStorage.setItem('completed', 'true');
-      }}
-      className="!ml-auto -mt-4"
-    >
-      {/* <XCircleIcon width={20} height={20} /> */}
-      <MdCancel color="lightgrey" />
-    </Dialog.Close>
-  );
 
-  const WelcomeDialogContent = ({ title, content, image, onClickContinue }) => (
-    <Dialog.Content className="bg-white px-4 py-8 min-h-[50vh]  max-h-[80vh] overflow-scroll rounded-b-3xl rounded-r-3xl custom-scroll relative">
-      <div className="flex items-center justify-center gap-4">
+  const WelcomeDialogContent = ({
+    title,
+    content,
+    image,
+    onClickContinue,
+    onSignUp
+  }) => (
+    <Dialog.Content
+      onOpenAutoFocus={(event) => {
+        event.preventDefault();
+      }}
+      className="bg-white px-4 py-5 min-h-[50vh]  max-h-[80vh] overflow-scroll rounded-b-3xl rounded-r-3xl relative"
+    >
+      <Flex justifyContent={'center'} alignItems="center">
         <Dialog.Title className="whitespace-nowrap -mt-4 !text-xl">
           {title}
         </Dialog.Title>
-        <DialogClose />
-      </div>
-      {content.length > 0 && (
-        <div
-          className="text-lg my-3"
-          dangerouslySetInnerHTML={{ __html: content[0] }}
-        />
-      )}
-      {image.length > 0 && (
-        <>
-          {currentIdx !== 1 && currentIdx !== 7 && (
-            <p className="font-semibold">See how it works</p>
-          )}
+        <Spacer />
+        <Popover placement="bottom-start">
+          <PopoverTrigger>
+            <Button variant="ghost" color="lightgrey">
+              <MdCancel />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent w="480px" bg={'#f0f0f0'} border="1px solid grey">
+            <PopoverArrow />
+            <PopoverBody p={4}>
+              <Flex direction="column" gap={3}>
+                <Text fontWeight="bold" fontSize="xl">
+                  Are you sure?
+                </Text>
+                <Text fontSize="xl">
+                  We’d really love to show you what we’ve built
+                </Text>
+                <HStack spacing={3} fontSize="md">
+                  <Button
+                    variant={'outline'}
+                    borderColor="red"
+                    color="red"
+                    onClick={() => {
+                      setOpen(false);
+                      setItems(defaultItems);
+                      setCurrentIdx(1);
+                      localStorage.setItem('completed', 'true');
+                      setOpen(false);
+                    }}
+                  >
+                    Let me explore myself
+                  </Button>
+                  <Button onClick={onSignUp}>
+                    Already convinced, sign me up
+                  </Button>
+                </HStack>
+              </Flex>
+            </PopoverBody>
+          </PopoverContent>
+        </Popover>
+      </Flex>
+      <div className="overflow-y-auto max-h-[60vh] custom-scroll">
+        {' '}
+        {content.length > 0 && (
+          <div
+            className="text-lg my-3"
+            dangerouslySetInnerHTML={{ __html: content[0] }}
+          />
+        )}
+        {image.length > 0 && (
+          <>
+            {currentIdx !== 1 && currentIdx !== 7 && (
+              <p className="font-semibold">See how it works</p>
+            )}
+            <img
+              src={image[0]}
+              alt={'onboard'}
+              loading="eager"
+              className="h-80 my-3 w-full border-solid border-2 border-blue-100 p-1 rounded-lg "
+            />
+          </>
+        )}
+        {content.length > 1 && (
+          <div
+            className="text-lg my-3"
+            dangerouslySetInnerHTML={{ __html: content[1] }}
+          />
+        )}
+        {image.length > 1 && (
           <img
-            src={image[0]}
+            src={image[1]}
             alt={'onboard'}
             loading="eager"
-            className="h-80 my-3 w-full border-solid border-2 border-blue-100 p-1 rounded-lg "
+            className="h-80 my-3 w-full"
           />
-        </>
-      )}
-      {content.length > 1 && (
-        <div
-          className="text-lg my-3"
-          dangerouslySetInnerHTML={{ __html: content[1] }}
-        />
-      )}
-      {image.length > 1 && (
-        <img
-          src={image[1]}
-          alt={'onboard'}
-          loading="eager"
-          className="h-80 my-3 w-full"
-        />
-      )}
+        )}
+      </div>
+
       <div className="flex gap-3 items-center justify-end mt-4">
-        <Button
-          onClick={onClickContinue}
-          variant="outline"
-          className="px-8 py-3 border border-input bg-transparent shadow-sm text-black h-9 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-        >
-          Continue
-        </Button>
+        {currentIdx !== 7 && (
+          <Button
+            onClick={onClickContinue}
+            variant="outline"
+            autoFocus={false}
+            className="px-8 py-3 border border-input bg-transparent shadow-sm text-black h-9 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+          >
+            Continue
+          </Button>
+        )}
+
         <Button>Subscribe</Button>
       </div>
     </Dialog.Content>
@@ -251,6 +318,12 @@ export default function WelcomeWalkthrough() {
     setCurrentIdx(nextIdx);
   };
 
+  const handleSignUp = () => {
+    // Close the Dialog.Root
+    setOpen(false);
+    // Open the plans modal (if it's within the Dialog.Root, it will be displayed)
+    setTogglePlansModal(true);
+  };
   const render = React.useMemo(() => {
     const item = items.find((i) => i.id === currentIdx);
 
@@ -262,68 +335,76 @@ export default function WelcomeWalkthrough() {
         content={item.content}
         image={item.image}
         onClickContinue={() => handleContinue(currentIdx + 1)}
+        onSignUp={handleSignUp}
       />
     );
   }, [currentIdx, items]);
 
   console.log(open, 'OPEN???');
   return (
-    <Dialog.Root open={open}>
-      <Dialog.Trigger />
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+    <>
+      {' '}
+      <Dialog.Root open={open}>
+        <Dialog.Trigger />
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
 
-        <Flex
-          className=" border-none max-w-5xl overflow-scroll max-h-[90vh] no-scrollbar"
-          position="fixed"
-          left="50%"
-          top="50%"
-          transform="translate(-50%, -50%)"
-          zIndex="50"
-          w="full"
-          bg="transparent"
-          justifyContent="center"
-          overflowY="scroll"
-          animation={isOpen ? 'fadeIn' : 'fadeOut'} // Replace with your animation names
-          // Add other animations and styles as needed
-        >
-          <div className="model flex w-full max-w-6xl mx-auto">
-            {' '}
-            <Box
-              className={
-                'left bg-white rounded-tl-2xl rounded-bl-2xl hidden md:flex  items-center gap-3 self-start'
-              }
-            >
+          <Flex
+            className=" border-none max-w-5xl overflow-scroll max-h-[90vh] no-scrollbar"
+            position="fixed"
+            left="50%"
+            top="50%"
+            transform="translate(-50%, -50%)"
+            zIndex="50"
+            w="full"
+            bg="transparent"
+            justifyContent="center"
+            overflowY="scroll"
+            animation={isOpen ? 'fadeIn' : 'fadeOut'} // Replace with your animation names
+            // Add other animations and styles as needed
+          >
+            <div className="model flex w-full max-w-6xl mx-auto">
+              {' '}
               <Box
-                px="4"
-                py="6"
-                position={'relative'}
-                // rounded="lg"
-                borderRadius={'25px 0px 0px 25px'}
-                h="80"
-                border="none"
-                // zIndex="50"
-                bgGradient="linear(to-br, #eee3ff, #ebf2fe, #fbfcff, white,white)"
-                // className="inverted-border-radius"
+                className={
+                  'left bg-white rounded-tl-2xl rounded-bl-2xl hidden md:flex  items-center gap-3 self-start'
+                }
               >
-                <LinedListWelcome
-                  items={items}
-                  clickHandler={(id) => {
-                    console.log('Wtf');
-                    const updatedItems = items.map((item) =>
-                      item.id === id ? { ...item, read: true } : item
-                    );
+                <Box
+                  px="4"
+                  py="6"
+                  position={'relative'}
+                  // rounded="lg"
+                  borderRadius={'25px 0px 0px 25px'}
+                  h="80"
+                  border="none"
+                  // zIndex="50"
+                  bgGradient="linear(to-br, #eee3ff, #ebf2fe, #fbfcff, white,white)"
+                  // className="inverted-border-radius"
+                >
+                  <LinedListWelcome
+                    items={items}
+                    clickHandler={(id) => {
+                      console.log('Wtf');
+                      const updatedItems = items.map((item) =>
+                        item.id === id ? { ...item, read: true } : item
+                      );
 
-                    setItems(updatedItems);
-                    setCurrentIdx(id);
-                  }}
-                />
+                      setItems(updatedItems);
+                      setCurrentIdx(id);
+                    }}
+                  />
+                </Box>
               </Box>
-            </Box>
-            <Box width={'750px'}> {render}</Box>
-          </div>
-        </Flex>
-      </Dialog.Portal>
-    </Dialog.Root>
+              <Box width={'750px'}> {render}</Box>
+            </div>
+          </Flex>
+        </Dialog.Portal>
+      </Dialog.Root>
+      <PlansModal
+        togglePlansModal={togglePlansModal}
+        setTogglePlansModal={setTogglePlansModal}
+      />
+    </>
   );
 }
