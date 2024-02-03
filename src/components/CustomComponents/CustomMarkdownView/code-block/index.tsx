@@ -90,20 +90,39 @@ const CodeBlock: FC<Props> = memo(({ language, value }) => {
     <div className="relative w-full font-sans codeblock bg-zinc-950 rounded-md">
       <div className="flex items-center justify-between w-full px-6 py-2 pr-4 bg-zinc-800 text-zinc-100 rounded-md">
         <span className="text-xs lowercase">{language}</span>
-        <div className="flex items-center space-x-1">
+        <div className="flex items-center space-x-1 gap-2 justify-center">
           <button
             className="hover:bg-zinc-800 focus-visible:ring-1 focus-visible:ring-slate-700 focus-visible:ring-offset-0 flex justify-center items-center"
             onClick={downloadAsFile}
             type="button"
           >
-            <DownloadIcon />
+            <DownloadIcon
+              style={{
+                width: '1rem',
+                height: '1rem'
+              }}
+            />
           </button>
           <button
             className="text-xs hover:bg-zinc-800 focus-visible:ring-1 focus-visible:ring-slate-700 focus-visible:ring-offset-0"
             onClick={onCopy}
             type="button"
           >
-            {isCopied ? <CheckIcon /> : <CopyIcon />}
+            {isCopied ? (
+              <CheckIcon
+                style={{
+                  width: '1rem',
+                  height: '1rem'
+                }}
+              />
+            ) : (
+              <CopyIcon
+                style={{
+                  width: '1rem',
+                  height: '1rem'
+                }}
+              />
+            )}
           </button>
         </div>
       </div>
