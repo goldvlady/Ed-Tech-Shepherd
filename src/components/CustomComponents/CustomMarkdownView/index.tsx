@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import { BlockMath, InlineMath } from 'react-katex';
-import rehypePrism from '@mapbox/rehype-prism'; // Ensure correct import
-import rehypeRaw from 'rehype-raw';
+// import { BlockMath, InlineMath } from 'react-katex';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import './index.css';
@@ -11,12 +8,12 @@ import { MemoizedReactMarkdown } from './memoized-react-markdown';
 import { CodeBlock } from './code-block';
 
 interface CustomComponents {
-  math: ({ node, inline }: { node: any; inline: boolean }) => JSX.Element;
-  inlineMath: ({ node, inline }: { node: any; inline: boolean }) => JSX.Element;
   button: any;
   // Add more custom components if needed
   p?: any;
   code?: any;
+  ul?: any;
+  ol?: any;
 }
 
 interface ICustomMarkdownView {
@@ -33,6 +30,8 @@ const CustomMarkdownView = ({
 }: ICustomMarkdownView) => {
   const [renderedSource, setRenderedSource] = useState<string>('');
 
+  console.log('[source veerbal]', { source });
+
   useEffect(() => {
     let modifiedSource = source;
     if (Array.isArray(keywords)) {
@@ -48,17 +47,9 @@ const CustomMarkdownView = ({
 
   // Custom components
   const components: CustomComponents = {
-    math: ({ node, inline }) =>
-      inline ? (
-        <InlineMath math={node.value} />
-      ) : (
-        <BlockMath math={node.value} />
-      ),
-    inlineMath: ({ node }) => <InlineMath math={node.value} />,
     button: (props: any) => (
       <button {...props} onClick={(e) => onKeywordClick(e, props.children)} />
     ),
-    p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
     code: ({ node, inline, className, children, ...props }) => {
       if (children.length) {
         if (children[0] == '▍') {
@@ -86,7 +77,20 @@ const CustomMarkdownView = ({
           {...props}
         />
       );
-    }
+    },
+    ul: ({ children }) => (
+      <ul className="list-disc list-inside my-6 ml-6 [&>li]:mt-2">
+        {children}
+      </ul>
+    ),
+    ol: ({ children }) => (
+      <ol className="list-decimal list-inside my-6 ml-6 [&>li]:mt-2">
+        {children}
+      </ol>
+    ),
+    p: ({ children }) => (
+      <p className="leading-7 [&:not(:first-child)]:mt-6">{children}</p>
+    )
   };
 
   const onKeywordClick = (
@@ -100,23 +104,13 @@ const CustomMarkdownView = ({
 
   return (
     <MemoizedReactMarkdown
-      className="memoized-react-markdown prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 p-3"
+      className="memoized-react-markdown prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 rounded-xl px-3 py-2 transition-all max-w-[75ch] place-self-start shadow-sm"
       remarkPlugins={[remarkGfm, remarkMath]}
       components={components}
     >
       {source}
     </MemoizedReactMarkdown>
   );
-
-  // return (
-  //   <ReactMarkdown
-  //     className="custom_markdown"
-  //     remarkPlugins={[remarkGfm, remarkMath]}
-  //     rehypePlugins={[rehypeRaw, [rehypePrism, { ignoreMissing: true }]]}
-  //     components={components}
-  //     children={renderedSource}
-  //   />
-  // );
 };
 
 export default CustomMarkdownView;
