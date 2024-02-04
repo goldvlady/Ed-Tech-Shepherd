@@ -1,5 +1,5 @@
-import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, Suspense, lazy } from 'react';
+import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import userStore from '../state/userStore';
 import chameleon from '@chamaeleonidae/chmln';
 import { useAuth } from '../providers/auth.provider';
@@ -10,6 +10,8 @@ import theme from '../theme';
 import { Navigate, Route, Routes, useRoutes } from 'react-router';
 // TODO:// Add Create Password to Suspense
 import CreatePassword from '../views/CreatePassword';
+import ShepherdSpinner from '../views/Dashboard/components/shepherd-spinner';
+import DashboardLayoutSkeleton from '../components/skeletons/dashboard-layout-skeleton';
 const WelcomeLayout = lazy(() => import('../views/WelcomeLayout'));
 const OnboardStudent = lazy(() => import('../views/OnboardStudent'));
 const OnboardTutor = lazy(() => import('../views/OnboardTutor'));
@@ -83,7 +85,9 @@ const CoursePlan = lazy(
 );
 const Quizzes = lazy(() => import('../views/Dashboard/Quizzes'));
 const CreateQuizzes = lazy(() => import('../views/Dashboard/Quizzes/create'));
-const HomeWorkHelp = lazy(() => import('../views/Dashboard/HomeWorkHelp'));
+// const HomeWorkHelp = lazy(() => import('../views/Dashboard/HomeWorkHelp'));
+import HomeWorkHelp from '../views/Dashboard/HomeWorkHelp';
+import SharedLoading from '../components/skeletons/shared-loading';
 
 const studentRoutes = [
   { path: 'notes/new-note', element: <NewNote /> },
@@ -191,7 +195,7 @@ const RequireAuth = ({
   if (loading) {
     return (
       <Box p={5} textAlign="center">
-        <h1>Loading...</h1>
+        <h1>Checking authentication...</h1>
       </Box>
     );
   }
@@ -258,22 +262,23 @@ const AppRoutes: React.FC = () => {
     /* eslint-disable */
   }, [isAuthenticated, posthog]);
 
+  // if (true) {
+  //   return <DashboardLayoutSkeleton />;
+  // }
+
   if (loading) {
     return (
-      <ChakraProvider theme={theme}>
-        <Box
-          p={5}
-          textAlign="center"
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100vh'
-          }}
-        >
-          <h1>Loading...</h1>
-        </Box>
-      </ChakraProvider>
+      <div className="w-full h-screen flex items-center justify-center flex-col">
+        <div className="spinner">
+          <ShepherdSpinner />
+        </div>
+        <div className="text-center">
+          <p className="text-xl text-muted-foreground">
+            Welcome to Shepherd. <br />
+            Please wait while we load your dashboard
+          </p>
+        </div>
+      </div>
     );
   }
 
@@ -292,7 +297,7 @@ const AppRoutes: React.FC = () => {
       />
       <Route
         element={
-          <Suspense fallback={<h1>Loading...</h1>}>
+          <Suspense fallback={<h1>Welcome Loading...</h1>}>
             <WelcomeLayout />
           </Suspense>
           // <RequireAuth
@@ -305,7 +310,7 @@ const AppRoutes: React.FC = () => {
           <Route
             path="student"
             element={
-              <Suspense fallback={<h1>Loading...</h1>}>
+              <Suspense fallback={<h1>Onboard Loading...</h1>}>
                 <OnboardStudent />
               </Suspense>
             }
@@ -325,7 +330,7 @@ const AppRoutes: React.FC = () => {
         <Route
           path="login"
           element={
-            <Suspense fallback={<h1>Loading...</h1>}>
+            <Suspense fallback={<h1>Login Loading...</h1>}>
               <Login />
             </Suspense>
             // <RequireAuth
@@ -338,7 +343,7 @@ const AppRoutes: React.FC = () => {
         <Route
           path="signup"
           element={
-            <Suspense fallback={<h1>Loading...</h1>}>
+            <Suspense fallback={<h1>Signup Loading...</h1>}>
               <RequireAuth
                 authenticated={<Navigate to={'/dashboard'} />}
                 unAuthenticated={<OnboardStudent />}
@@ -349,7 +354,7 @@ const AppRoutes: React.FC = () => {
         <Route
           path="forgot-password"
           element={
-            <Suspense fallback={<h1>Loading...</h1>}>
+            <Suspense fallback={<h1>Forget Loading...</h1>}>
               <RequireAuth
                 authenticated={<Navigate to={'/dashboard'} />}
                 unAuthenticated={<ForgotPassword />}
@@ -363,7 +368,7 @@ const AppRoutes: React.FC = () => {
       <Route
         path="verification_pending"
         element={
-          <Suspense fallback={<h1>Loading...</h1>}>
+          <Suspense fallback={<h1>Verification pending Loading...</h1>}>
             <PendingVerification />
           </Suspense>
         }
@@ -429,7 +434,7 @@ const AppRoutes: React.FC = () => {
       <Route
         path="home"
         element={
-          <Suspense fallback={<h1>Loading...</h1>}>
+          <Suspense fallback={<h1>Home Loading...</h1>}>
             <Home />
           </Suspense>
         }
@@ -456,7 +461,7 @@ const AppRoutes: React.FC = () => {
       <Route
         path="/dashboard/notes/new-note/:id"
         element={
-          <Suspense fallback={<h1>Loading...</h1>}>
+          <Suspense fallback={<DashboardLayoutSkeleton />}>
             <DashboardLayout>
               <Suspense fallback={<h1>Loading...</h1>}>
                 <NewNote />
@@ -468,17 +473,19 @@ const AppRoutes: React.FC = () => {
       <Route
         path="/dashboard/flashcards/:flashcardId"
         element={
-          <DashboardLayout>
-            <Suspense fallback={<h1>Loading...</h1>}>
-              <FlashCard />
-            </Suspense>
-          </DashboardLayout>
+          <Suspense fallback={<DashboardLayoutSkeleton />}>
+            <DashboardLayout>
+              <Suspense fallback={<h1>Loading...</h1>}>
+                <FlashCard />
+              </Suspense>
+            </DashboardLayout>
+          </Suspense>
         }
       />
       <Route
         path="/dashboard/docchat"
         element={
-          <Suspense fallback={<h1>Loading...</h1>}>
+          <Suspense fallback={<DashboardLayoutSkeleton />}>
             <DashboardLayout>
               <Suspense fallback={<h1>Loading...</h1>}>
                 <DocChat />
@@ -491,17 +498,19 @@ const AppRoutes: React.FC = () => {
       <Route
         path="/dashboard/ace-homework/:id"
         element={
-          <DashboardLayout>
-            <Suspense fallback={<h1>Loading...</h1>}>
-              <HomeWorkHelp />
-            </Suspense>
-          </DashboardLayout>
+          <Suspense fallback={<DashboardLayoutSkeleton />}>
+            <DashboardLayout>
+              <Suspense fallback={<h1>Loading...</h1>}>
+                <HomeWorkHelp />
+              </Suspense>
+            </DashboardLayout>
+          </Suspense>
         }
       />
       <Route
         path="/dashboard/quizzes/take"
         element={
-          <Suspense fallback={<h1>Loading...</h1>}>
+          <Suspense fallback={<DashboardLayoutSkeleton />}>
             <DashboardLayout>
               <Suspense fallback={<h1>Loading...</h1>}>
                 <TakeQuizzes />
@@ -513,7 +522,7 @@ const AppRoutes: React.FC = () => {
       <Route
         path="/dashboard/find-tutor/tutor/"
         element={
-          <Suspense fallback={<h1>Loading...</h1>}>
+          <Suspense fallback={<DashboardLayoutSkeleton />}>
             <DashboardLayout>
               <Suspense fallback={<h1>Loading...</h1>}>
                 <Tutor />
@@ -526,7 +535,7 @@ const AppRoutes: React.FC = () => {
       <Route
         path="/dashboard"
         element={
-          <Suspense fallback={<h1>Loading...</h1>}>
+          <Suspense fallback={<DashboardLayoutSkeleton />}>
             <RequireAuth
               authenticated={<RenderLayout />}
               unAuthenticated={<Navigate to={'/login'} />}
@@ -540,7 +549,7 @@ const AppRoutes: React.FC = () => {
               key={route.path}
               path={route.path}
               element={
-                <Suspense fallback={<h1>Loading...</h1>}>
+                <Suspense fallback={<SharedLoading />}>
                   {route.element}
                 </Suspense>
               }

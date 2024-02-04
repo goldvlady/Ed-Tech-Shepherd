@@ -647,7 +647,7 @@ export default function Layout({ children, className }) {
         </div>
 
         {/* <main className={className}>{children}</main>  */}
-        <Box pt={2}>
+        <Box pt={2} position={'relative'}>
           <Outlet />
         </Box>
       </div>
