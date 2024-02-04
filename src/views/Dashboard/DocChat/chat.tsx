@@ -589,7 +589,9 @@ const Chat = forwardRef(
                                 data-chatid={message.chatId}
                                 ref={(el) => (chatList.current[index] = el)}
                               >
-                                {message.text}
+                                <p className="leading-7 [&:not(:first-child)]:mt-6">
+                                  {message.text}
+                                </p>
                               </UserMessage>
                               {!HomeWorkHelp && (
                                 <div
