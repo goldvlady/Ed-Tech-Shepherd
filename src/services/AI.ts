@@ -7,7 +7,7 @@ type DocumentType = {
   count: number;
   studentId: string;
   documentId: string;
-  userSubscription: any;
+  subscriptionTier: any;
 };
 
 export const fetchStudentDocuments = async (studentId: string) => {
