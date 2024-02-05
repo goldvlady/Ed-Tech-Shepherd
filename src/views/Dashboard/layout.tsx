@@ -3,6 +3,7 @@ import AskIcon from '../../assets/avatar-male.svg';
 import BellDot from '../../assets/belldot.svg';
 import AIChatImg from '../../assets/brain.png';
 import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
+import { MdOutlineQuestionMark } from 'react-icons/md';
 import { HelpModal } from '../../components';
 import { SelectedNoteModal } from '../../components';
 import Logo from '../../components/Logo';
@@ -78,8 +79,11 @@ import {
   Link
 } from 'react-router-dom';
 import { PiClipboardTextLight } from 'react-icons/pi';
-import { RiFeedbackLine } from '@remixicon/react';
+import { RiFeedbackLine, RiQuestionMark } from '@remixicon/react';
 import PlansModal from '../../components/PlansModal';
+import WelcomeWalkthrough from '../../components/welcome-walkthrough';
+
+import useCompletedStore from '../../state/useCompletedStore';
 
 interface LinkItemProps {
   name: string;
@@ -265,6 +269,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const activateProfileSwitchModal = () => {
     setToggleProfileSwitchModal(true);
   };
+  const setOpenWelcome = useCompletedStore((state) => state.setOpen);
   const navigate = useNavigate();
   const { user, logoutUser } = userStore();
   const userId = user?._id || '';
@@ -363,6 +368,26 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             </Flex>
           </Box> */}
           <HStack spacing={4}>
+            {/* <RiQuestionMark
+              className="cursor-pointer"
+              onClick={() => {
+                setOpenWelcome(true);
+              }}
+            /> */}
+            <IconButton
+              size="md"
+              borderRadius={'100%'}
+              _hover={{ background: 'none' }}
+              marginLeft={'15px'}
+              border="1px solid #ECEDEE"
+              variant="ghost"
+              aria-label="open onboard menu"
+              color={'text.300'}
+              icon={<MdOutlineQuestionMark />}
+              onClick={() => {
+                setOpenWelcome(true);
+              }}
+            />
             <Box position="relative">
               {' '}
               <Menu placement="right">
@@ -979,6 +1004,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <>
+      <WelcomeWalkthrough />
       <FlashCardEventNotifier />
       <Flex direction="column" bg="white">
         <Grid templateColumns={{ base: '1fr', md: '250px 1fr' }}>

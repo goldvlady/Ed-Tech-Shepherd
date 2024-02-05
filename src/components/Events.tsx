@@ -71,6 +71,8 @@ export default function Events({ event }: any) {
         return `${name.subject} lesson with ${name.tutor} `;
       case 'quiz':
         return `"${name}" quiz practice`;
+      // case 'study':
+      //   return `"${name}" review`;
 
       default:
         return undefined;
@@ -85,8 +87,9 @@ export default function Events({ event }: any) {
         return `bg-orange-500`;
       case 'quiz':
         return `bg-blue-500`;
+
       default:
-        return undefined;
+        return `bg-pink-500`;
     }
   };
   const getColorByEventType = (eventType) => {
@@ -97,8 +100,9 @@ export default function Events({ event }: any) {
         return `bg-orange-50`;
       case 'quiz':
         return `bg-blue-50`;
+
       default:
-        return undefined;
+        return `bg-pink-50`;
     }
   };
   const getHoverColorByEventType = (eventType) => {
@@ -109,6 +113,7 @@ export default function Events({ event }: any) {
         return `hover:bg-amber-50`;
       case 'quiz':
         return `hover:bg-indigo-50`;
+
       default:
         return undefined;
     }
