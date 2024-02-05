@@ -30,15 +30,7 @@ import LinedListWelcome from './LinedListWelcome';
 import useCompletedStore from '../state/useCompletedStore';
 import { MdCancel } from 'react-icons/md';
 import PlansModal from './PlansModal';
-const SignUpButton = ({ last }: { last?: boolean }) => (
-  <button
-    className={`px-8 pointer-events-none py-3 border ${
-      last && ' w-5/6'
-    } border-input bg-green-500 shadow-sm text-black h-9 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50`}
-  >
-    Sign Up
-  </button>
-);
+
 const defaultItems = [
   {
     id: 1,
@@ -339,12 +331,10 @@ export default function WelcomeWalkthrough() {
     );
   }, [currentIdx, items]);
 
-  console.log(open, 'OPEN???');
   return (
     <>
-      {' '}
       <Dialog.Root open={open}>
-        <Dialog.Trigger />
+        <Dialog.Trigger className="hidden" />
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
 
@@ -403,6 +393,7 @@ export default function WelcomeWalkthrough() {
       <PlansModal
         togglePlansModal={togglePlansModal}
         setTogglePlansModal={setTogglePlansModal}
+        message="Get started for free!"
       />
     </>
   );

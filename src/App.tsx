@@ -76,9 +76,6 @@ import Hotjar from '@hotjar/browser';
 import Feedback from './views/Feedback';
 import chameleon from '@chamaeleonidae/chmln';
 import ShepherdSpinner from './views/Dashboard/components/shepherd-spinner';
-
-import WelcomeWalkthrough from './components/welcome-walkthrough';
-
 import { usePostHog } from 'posthog-js/react';
 import { isProduction } from './util';
 
@@ -473,7 +470,6 @@ function App() {
             <AuthProvider>
               <FlashcardWizardProvider>
                 <MnemonicSetupProvider>
-                  <WelcomeWalkthrough />
                   <FlashCardModal
                     isOpen={Boolean(flashcard) || showStudyList}
                   />
