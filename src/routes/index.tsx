@@ -12,6 +12,9 @@ import { Navigate, Route, Routes, useRoutes } from 'react-router';
 import CreatePassword from '../views/CreatePassword';
 import ShepherdSpinner from '../views/Dashboard/components/shepherd-spinner';
 import DashboardLayoutSkeleton from '../components/skeletons/dashboard-layout-skeleton';
+const HomeWorkHelp = lazy(() => import('../views/Dashboard/HomeWorkHelp'));
+// import HomeWorkHelp from '../views/Dashboard/HomeWorkHelp';
+import SharedLoading from '../components/skeletons/shared-loading';
 const WelcomeLayout = lazy(() => import('../views/WelcomeLayout'));
 const OnboardStudent = lazy(() => import('../views/OnboardStudent'));
 const OnboardTutor = lazy(() => import('../views/OnboardTutor'));
@@ -85,9 +88,6 @@ const CoursePlan = lazy(
 );
 const Quizzes = lazy(() => import('../views/Dashboard/Quizzes'));
 const CreateQuizzes = lazy(() => import('../views/Dashboard/Quizzes/create'));
-// const HomeWorkHelp = lazy(() => import('../views/Dashboard/HomeWorkHelp'));
-import HomeWorkHelp from '../views/Dashboard/HomeWorkHelp';
-import SharedLoading from '../components/skeletons/shared-loading';
 
 const studentRoutes = [
   { path: 'notes/new-note', element: <NewNote /> },
