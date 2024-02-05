@@ -323,7 +323,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       });
       return await ApiService.createDocchatFlashCards({
         ...aiData,
-        userSubscription: user?.subscription?.tier, //passing to use in AWS lambda to control gpt version
+        subscriptionTier: user?.subscription?.tier, //passing to use in AWS lambda to control gpt version
         studentId: user?._id as string,
         documentId: documentId as string
       });

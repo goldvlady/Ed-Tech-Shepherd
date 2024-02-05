@@ -111,6 +111,16 @@ const CustomMarkdownView = ({
       {source}
     </MemoizedReactMarkdown>
   );
+
+  // return (
+  //   <ReactMarkdown
+  //     className="custom_markdown"
+  //     remarkPlugins={[remarkGfm, remarkMath]}
+  //     rehypePlugins={[rehypeRaw, [rehypePrism, { ignoreMissing: true }]]}
+  //     components={components}
+  //     children={renderedSource}
+  //   />
+  // );
 };
 
 export default CustomMarkdownView;
