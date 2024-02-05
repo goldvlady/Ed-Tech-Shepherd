@@ -299,6 +299,19 @@ const VideoViewingSection = ({ onEdit }: { onEdit: () => void }) => {
     setHovered(false);
   };
 
+  if (!introVideo || !introVideo.length) {
+    console.log('Intro video >>>>', introVideo);
+
+    return (
+      <div
+        style={{
+          width: '100%',
+          minWidth: '300px'
+        }}
+      />
+    );
+  }
+
   return (
     <div
       style={{ width: '100%', borderRadius: '20px', position: 'relative' }}
@@ -306,12 +319,14 @@ const VideoViewingSection = ({ onEdit }: { onEdit: () => void }) => {
       onMouseLeave={handleMouseLeave}
     >
       {/* Video */}
-      <video
-        ref={videoRef}
-        src={introVideo} // Replace with your video link
-        controls={isVideoPlaying}
-        style={{ width: '100%', borderRadius: '20px' }}
-      />
+      {introVideo && (
+        <video
+          ref={videoRef}
+          src={introVideo} // Replace with your video link
+          controls={isVideoPlaying}
+          style={{ width: '100%', borderRadius: '20px' }}
+        />
+      )}
 
       {/* Dark Overlay */}
       {(isVideoPlaying && isHovered) ||
