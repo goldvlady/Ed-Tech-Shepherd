@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-// import { BlockMath, InlineMath } from 'react-katex';
+import { BlockMath, InlineMath } from 'react-katex';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import './index.css';
 import 'katex/dist/katex.min.css';
 import { MemoizedReactMarkdown } from './memoized-react-markdown';
@@ -14,6 +15,9 @@ interface CustomComponents {
   code?: any;
   ul?: any;
   ol?: any;
+  math?: any;
+  inlineMath?: any;
+  blockMath?: any;
 }
 
 interface ICustomMarkdownView {
@@ -30,7 +34,11 @@ const CustomMarkdownView = ({
 }: ICustomMarkdownView) => {
   const [renderedSource, setRenderedSource] = useState<string>('');
 
-  console.log('[source veerbal]', { source });
+  const updatedSourceForLatexSupport = source
+    .replaceAll('\\[', '$')
+    .replaceAll('\\]', '$')
+    .replaceAll('\\(', '$')
+    .replaceAll('\\)', '$');
 
   useEffect(() => {
     let modifiedSource = source;
@@ -90,7 +98,16 @@ const CustomMarkdownView = ({
     ),
     p: ({ children }) => (
       <p className="leading-7 [&:not(:first-child)]:mt-6">{children}</p>
-    )
+    ),
+    math: ({ value }: any) => {
+      return <InlineMath math={value} />;
+    },
+    inlineMath: ({ value }: any) => {
+      return <InlineMath math={value} />;
+    },
+    blockMath: ({ value }: any) => {
+      return <BlockMath math={value} />;
+    }
   };
 
   const onKeywordClick = (
@@ -106,9 +123,10 @@ const CustomMarkdownView = ({
     <MemoizedReactMarkdown
       className="memoized-react-markdown prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 rounded-xl px-3 py-2 transition-all max-w-[75ch] place-self-start shadow-sm"
       remarkPlugins={[remarkGfm, remarkMath]}
+      rehypePlugins={[rehypeKatex]}
       components={components}
     >
-      {source}
+      {updatedSourceForLatexSupport}
     </MemoizedReactMarkdown>
   );
 
