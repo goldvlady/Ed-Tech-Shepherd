@@ -40,7 +40,6 @@
     "@lexical/utils": "^0.12.6",
     "@lexical/yjs": "^0.12.0",
     "@mapbox/rehype-prism": "^0.9.0",
-    "@radix-ui/react-dialog": "^1.0.5",
     "@react-pdf-viewer/core": "^3.12.0",
     "@react-pdf-viewer/default-layout": "^3.12.0",
     "@react-pdf-viewer/highlight": "^3.12.0",
