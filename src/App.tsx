@@ -21,12 +21,16 @@ import 'stream-chat-react/dist/scss/v2/index.scss';
 import Hotjar from '@hotjar/browser';
 import AppRoutes from './routes';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 // Tutor specific routes configuration
 
 // Routes based on userType
 
 const hotjarVersion = 6;
 const siteId = process.env.REACT_APP_HOTJAR_SITE_ID;
+
+const queryClient = new QueryClient();
 
 function App() {
   const { fetchResources } = resourceStore();
@@ -52,25 +56,27 @@ function App() {
 
   return (
     <>
-      <BrowserRouter>
-        <LexicalContext>
-          <ChakraProvider theme={theme}>
-            <AuthProvider>
-              <FlashcardWizardProvider>
-                <MnemonicSetupProvider>
-                  <FlashCardModal
-                    isOpen={Boolean(flashcard) || showStudyList}
-                  />
-                  {startQuizModal && <QuizModal isOpen={startQuizModal} />}
-                  <StreamChatProvider>
-                    <AppRoutes />
-                  </StreamChatProvider>
-                </MnemonicSetupProvider>
-              </FlashcardWizardProvider>
-            </AuthProvider>
-          </ChakraProvider>
-        </LexicalContext>
-      </BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <LexicalContext>
+            <ChakraProvider theme={theme}>
+              <AuthProvider>
+                <FlashcardWizardProvider>
+                  <MnemonicSetupProvider>
+                    <FlashCardModal
+                      isOpen={Boolean(flashcard) || showStudyList}
+                    />
+                    {startQuizModal && <QuizModal isOpen={startQuizModal} />}
+                    <StreamChatProvider>
+                      <AppRoutes />
+                    </StreamChatProvider>
+                  </MnemonicSetupProvider>
+                </FlashcardWizardProvider>
+              </AuthProvider>
+            </ChakraProvider>
+          </LexicalContext>
+        </BrowserRouter>
+      </QueryClientProvider>
     </>
   );
 }
