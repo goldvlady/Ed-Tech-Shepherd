@@ -264,10 +264,15 @@ interface MobileProps extends FlexProps {
 }
 const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const auth = getAuth();
-  const [toggleHelpModal, setToggleHelpModal] = useState(false);
+  const { user, logoutUser } = userStore();
+  const userId = user?._id || '';
+  const [toggleHelpModal, setToggleHelpModal] = useState(
+    typeof user.onboardCompleted === 'undefined' || user.onboardCompleted
+  );
   const activateHelpModal = () => {
     setToggleHelpModal(true);
   };
+  const [toggleOnboardModal, setToggleOnboardModal] = useState(false);
   const [toggleProfileSwitchModal, setToggleProfileSwitchModal] =
     useState(false);
   const activateProfileSwitchModal = () => {
@@ -275,8 +280,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   };
   const setOpenWelcome = useCompletedStore((state) => state.setOpen);
   const navigate = useNavigate();
-  const { user, logoutUser } = userStore();
-  const userId = user?._id || '';
+
   const { notifications, hasUnreadNotification, markAllAsRead, markAsRead } =
     useNotifications(userId);
 
@@ -291,7 +295,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
 
   useEffect(() => {
     const justSignedIn = sessionStorage.getItem('Just Signed in');
-    if (justSignedIn && justSignedIn === 'true') {
+    if (user.onboardCompleted && justSignedIn && justSignedIn === 'true') {
       activateHelpModal();
       sessionStorage.removeItem('Just Signed in');
     }
@@ -319,7 +323,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         <Box display={{ base: 'none', md: 'flex' }} gap={2}>
           <Flex
             alignItems={'center'}
-            onClick={() => navigate(-3)}
+            onClick={() => navigate(-1)}
             _hover={{ cursor: 'pointer' }}
           >
             <IoIosArrowRoundBack />
@@ -397,7 +401,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               color={'text.300'}
               icon={<MdOutlineQuestionMark />}
               onClick={() => {
-                setOpenWelcome(true);
+                setToggleOnboardModal(true);
               }}
             />
             <Box position="relative">
@@ -601,6 +605,10 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
       <HelpModal
         toggleHelpModal={toggleHelpModal}
         setToggleHelpModal={setToggleHelpModal}
+      />
+      <WelcomeWalkthrough
+        toggleOnboardModal={toggleOnboardModal}
+        setToggleOnboardModal={setToggleOnboardModal}
       />
       <ProfileSwitchModal
         toggleProfileSwitchModal={toggleProfileSwitchModal}
@@ -906,7 +914,7 @@ const SidebarContent = ({
         Feedback
       </NavItem>
 
-      <Divider />
+      {/* <Divider />
       <Box ml={8} color="text.400">
         <Button
           variant={'unstyled'}
@@ -940,7 +948,7 @@ const SidebarContent = ({
             ]}
           />
         </Box>
-      </Box>
+      </Box> */}
       {showSelected && (
         <SelectedNoteModal show={showSelected} setShow={setShowSelected} />
       )}
@@ -960,6 +968,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState('');
+  const [toggleOnboardModal, setToggleOnboardModal] = useState(false);
 
   const openModal = (content) => {
     setModalContent(content);
@@ -1003,6 +1012,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       const token = user.streamTokens?.find((token) => token.type === userType);
       //@ts-ignore: petty ts check
       setUserRoleInfo(role?._id, token?.token);
+      setToggleOnboardModal(
+        typeof user.onboardCompleted !== 'undefined' && !user.onboardCompleted
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
@@ -1016,7 +1028,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <WelcomeWalkthrough />
+      <WelcomeWalkthrough
+        toggleOnboardModal={toggleOnboardModal}
+        setToggleOnboardModal={setToggleOnboardModal}
+      />
       <FlashCardEventNotifier />
       <Flex
         direction="column"

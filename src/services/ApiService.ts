@@ -1041,7 +1041,7 @@ class ApiService {
   };
   static getStudyPlans = async (page: number, limit: number) => {
     return doFetch(
-      `${ApiService.baseEndpoint}/getStudyPlans?page=${page}&limit=${limit}`
+      `${ApiService.baseEndpoint}/getStudyPlans?page=${page}&limit=${limit}&subject=65b88d428c23be80c63a5ff3`
     );
   };
   static getStudyPlanResources = async (planId: string) => {
@@ -1056,6 +1056,13 @@ class ApiService {
   };
   static getUpcomingStudyPlanEvent = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getUpcomingStudyPlanEvent`);
+  };
+
+  static setStudentOnboardStatus = async (status: boolean, userId: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/setStudentOnboardStatus`, {
+      method: 'POST',
+      body: JSON.stringify({ status: status, userId: userId })
+    });
   };
 }
 

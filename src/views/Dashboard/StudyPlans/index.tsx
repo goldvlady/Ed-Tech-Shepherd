@@ -28,24 +28,36 @@ import Pagination from '../components/Pagination';
 import ShepherdSpinner from '../components/shepherd-spinner';
 
 function StudyPlans() {
-  // const [studyPlans, setStudyPlans] = useState(['1', '2']);
   const { fetchPlans, studyPlans, pagination, isLoading } = studyPlanStore();
-  const {
-    courses: courseList,
-    levels: levelOptions,
-    studyPlanCourses
-  } = resourceStore();
+  const { courses: courseList, studyPlanCourses } = resourceStore();
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(10);
+  const [tutorGrid] = useAutoAnimate();
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState<string>('');
+
   const doFetchStudyPlans = useCallback(async () => {
     await fetchPlans(page, limit);
-    /* eslint-disable */
-  }, []);
+  }, [fetchPlans, page, limit]);
+
   useEffect(() => {
     doFetchStudyPlans();
   }, [doFetchStudyPlans]);
-  const [tutorGrid] = useAutoAnimate();
-  const navigate = useNavigate();
+
+  const handlePagination = (nextPage: number) => {
+    fetchPlans(nextPage, limit);
+  };
+
+  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const filteredPlans = studyPlans.filter((plan) =>
+    plan.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const displayPlans = filteredPlans.length > 0 ? filteredPlans : studyPlans;
+
   function getSubject(id) {
     const labelFromCourseList = courseList
       .map((course) => (course._id === id ? course.label : null))
@@ -59,20 +71,6 @@ function StudyPlans() {
 
     return allLabels.length > 0 ? allLabels[0] : null;
   }
-
-  const allPlans = studyPlans.sort((a, b) => {
-    const dateA = moment(a.createdAt);
-    const dateB = moment(b.createdAt);
-    if (dateA.isAfter(dateB)) {
-      return -1;
-    } else if (dateB.isAfter(dateA)) {
-      return 1;
-    }
-    return 0;
-  });
-  const handlePagination = (nextPage: number) => {
-    fetchPlans(nextPage, limit);
-  };
 
   if (isLoading) {
     return (
@@ -90,10 +88,10 @@ function StudyPlans() {
       </Box>
     );
   }
+
   return (
     <>
       <Flex p={3}>
-        {' '}
         <Box>
           <Text fontSize={24} fontWeight={600} color="text.200">
             Study Plans
@@ -101,18 +99,25 @@ function StudyPlans() {
           <Text fontSize={14} fontWeight={400} color="text.300">
             Chart success: Monitor your personalized study plans.
           </Text>
-        </Box>{' '}
+        </Box>
         <Spacer />
-        {allPlans.length > 0 && (
-          <Button onClick={() => navigate('/dashboard/create-study-plans')}>
-            Create New
-          </Button>
-        )}
+        <Flex gap={2}>
+          <Input
+            type="text"
+            placeholder="Search by title..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+          {displayPlans.length > 0 && (
+            <Button onClick={() => navigate('/dashboard/create-study-plans')}>
+              Create New
+            </Button>
+          )}
+        </Flex>
       </Flex>
 
-      {allPlans.length > 0 ? (
+      {displayPlans.length > 0 ? (
         <>
-          {' '}
           <SimpleGrid
             columns={{ base: 1, md: 2, lg: 3 }}
             spacing="20px"
@@ -120,9 +125,10 @@ function StudyPlans() {
             mt={4}
             p={2}
           >
-            {studyPlans?.map((plan: any) => (
+            {displayPlans.map((plan: any) => (
               <SubjectCard
-                title={plan.title ? plan.title : getSubject(plan.course)}
+                key={plan._id}
+                title={plan.title || getSubject(plan.course)}
                 subjectId={plan.course}
                 score={plan.readinessScore}
                 scoreColor="green"
@@ -130,7 +136,7 @@ function StudyPlans() {
                 handleClick={() => navigate(`planId=${plan._id}`)}
               />
             ))}
-          </SimpleGrid>{' '}
+          </SimpleGrid>
           <Pagination
             page={pagination.page}
             count={pagination.total}
@@ -142,6 +148,7 @@ function StudyPlans() {
         <section className="flex justify-center items-center mt-28 w-full">
           <div className="text-center">
             <img src="/images/notes.png" alt="" />
+
             <Text>You don't have any study plans yet!</Text>
             <Button onClick={() => navigate('/dashboard/create-study-plans')}>
               Create New

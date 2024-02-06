@@ -15,6 +15,7 @@ type Store = {
   user: User | null;
   userNotifications: Array<UserNotifications>;
   hasActiveSubscription: boolean;
+  onboardCompleted: boolean;
   fileSizeLimitMB: number;
   fileSizeLimitBytes: number;
   fetchUser: () => Promise<boolean>;
@@ -51,6 +52,7 @@ const loadState = (): Partial<Store> => {
         userNotifications: [],
         userDocuments: [],
         hasActiveSubscription: false,
+        onboardCompleted: false,
         fileSizeLimitMB: 0,
         fileSizeLimitBytes: 0
       };
@@ -61,6 +63,7 @@ const useUserStore = create<Store>((set) => ({
   userNotifications: [],
   userDocuments: [],
   hasActiveSubscription: false,
+  onboardCompleted: false,
   fileSizeLimitMB: 0,
   fileSizeLimitBytes: 0,
   ...loadState(),
@@ -75,6 +78,9 @@ const useUserStore = create<Store>((set) => ({
         userData.subscription.status === 'trialing' ||
         userData.subscription.tier === 'Founding Member')
     );
+
+    const onboardCompleted = userData.onboardCompleted;
+
     const fileSizeLimitMB =
       userData.subscription?.subscriptionMetadata?.file_mb_limit || 5;
     const fileSizeLimitBytes = fileSizeLimitMB * 1000000;
@@ -82,6 +88,7 @@ const useUserStore = create<Store>((set) => ({
     const newState = {
       user: userData,
       hasActiveSubscription,
+      onboardCompleted,
       fileSizeLimitMB,
       fileSizeLimitBytes
     };
@@ -104,6 +111,9 @@ const useUserStore = create<Store>((set) => ({
             newUser.subscription.status === 'trialing' ||
             newUser.subscription.tier === 'Founding Member')
         );
+
+        const onboardCompleted = newUser.onboardCompleted;
+
         const fileSizeLimitMB =
           newUser.subscription?.subscriptionMetadata?.file_mb_limit || 5;
         const fileSizeLimitBytes = fileSizeLimitMB * 1000000;
@@ -111,6 +121,7 @@ const useUserStore = create<Store>((set) => ({
         const updatedState = {
           user: newUser,
           hasActiveSubscription,
+          onboardCompleted,
           fileSizeLimitMB,
           fileSizeLimitBytes
         };

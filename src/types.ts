@@ -182,6 +182,8 @@ export interface User extends TimestampedEntity {
   paymentMethods: PaymentMethod[];
   streamTokens?: StreamToken[];
   subscription?: Subscription;
+  hasActiveSubscription: boolean;
+  onboardCompleted: boolean;
 }
 
 export interface Student extends TimestampedEntity {

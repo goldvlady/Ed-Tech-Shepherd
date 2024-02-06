@@ -30,6 +30,8 @@ import LinedListWelcome from './LinedListWelcome';
 import useCompletedStore from '../state/useCompletedStore';
 import { MdCancel } from 'react-icons/md';
 import PlansModal from './PlansModal';
+import ApiService from '../services/ApiService';
+import userStore from '../state/userStore';
 
 const defaultItems = [
   {
@@ -167,12 +169,40 @@ const defaultItems = [
   }
 ];
 
-export default function WelcomeWalkthrough() {
+interface ToggleProps {
+  setToggleOnboardModal: (state: boolean) => void;
+  toggleOnboardModal: boolean;
+}
+
+export default function WelcomeWalkthrough({
+  setToggleOnboardModal,
+  toggleOnboardModal
+}: ToggleProps) {
   const open = useCompletedStore((state) => state.open);
   const setOpen = useCompletedStore((state) => state.setOpen);
   const [currentIdx, setCurrentIdx] = React.useState(1);
   const { isOpen, onToggle } = useDisclosure();
   const [togglePlansModal, setTogglePlansModal] = React.useState(false);
+  const { user, fetchUser } = userStore();
+
+  const setStudentOnboardStatus = async (status: boolean, userId: string) => {
+    await fetchUser();
+    if (
+      typeof user.onboardCompleted !== 'undefined' &&
+      !user.onboardCompleted
+    ) {
+      try {
+        const response = await ApiService.setStudentOnboardStatus(
+          status,
+          userId
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      return;
+    }
+  };
 
   const {
     isOpen: isOpenConfirm,
@@ -189,13 +219,7 @@ export default function WelcomeWalkthrough() {
     }>
   >(defaultItems);
 
-  const WelcomeDialogContent = ({
-    title,
-    content,
-    image,
-    onClickContinue,
-    onSignUp
-  }) => (
+  const WelcomeDialogContent = ({ title, content, image, onClickContinue }) => (
     <Dialog.Content
       onOpenAutoFocus={(event) => {
         event.preventDefault();
@@ -209,7 +233,11 @@ export default function WelcomeWalkthrough() {
         <Spacer />
         <Popover placement="bottom-start">
           <PopoverTrigger>
-            <Button variant="ghost" color="lightgrey">
+            <Button
+              variant="ghost"
+              color="lightgrey"
+              onClick={() => setStudentOnboardStatus(true, user._id)}
+            >
               <MdCancel />
             </Button>
           </PopoverTrigger>
@@ -229,16 +257,22 @@ export default function WelcomeWalkthrough() {
                     borderColor="red"
                     color="red"
                     onClick={() => {
-                      setOpen(false);
+                      setToggleOnboardModal(false);
                       setItems(defaultItems);
                       setCurrentIdx(1);
                       localStorage.setItem('completed', 'true');
                       setOpen(false);
+                      setStudentOnboardStatus(true, user._id);
                     }}
                   >
                     Let me explore myself
                   </Button>
-                  <Button onClick={onSignUp}>
+                  <Button
+                    onClick={() => {
+                      handleSignUp();
+                      setStudentOnboardStatus(true, user._id);
+                    }}
+                  >
                     Already convinced, sign me up
                   </Button>
                 </HStack>
@@ -296,7 +330,14 @@ export default function WelcomeWalkthrough() {
           </Button>
         )}
 
-        <Button onClick={onSignUp}>Subscribe</Button>
+        <Button
+          onClick={() => {
+            handleSignUp();
+            setStudentOnboardStatus(true, user._id);
+          }}
+        >
+          Subscribe
+        </Button>
       </div>
     </Dialog.Content>
   );
@@ -312,6 +353,7 @@ export default function WelcomeWalkthrough() {
   const handleSignUp = () => {
     // Close the Dialog.Root
     setOpen(false);
+    setToggleOnboardModal(false);
     // Open the plans modal (if it's within the Dialog.Root, it will be displayed)
     setTogglePlansModal(true);
   };
@@ -326,14 +368,13 @@ export default function WelcomeWalkthrough() {
         content={item.content}
         image={item.image}
         onClickContinue={() => handleContinue(currentIdx + 1)}
-        onSignUp={handleSignUp}
       />
     );
   }, [currentIdx, items]);
 
   return (
     <>
-      <Dialog.Root open={open}>
+      <Dialog.Root open={toggleOnboardModal}>
         <Dialog.Trigger className="hidden" />
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
