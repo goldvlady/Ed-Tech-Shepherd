@@ -133,6 +133,7 @@ const FlashCard: React.FC<FlashCardProps> = ({
   ...rest
 }) => {
   const controls = useAnimation();
+  const [s3image, setS3Image] = useState('');
   const [isFlipped, setIsFlipped] = useState(false);
   const [extraReading, setExtraReading] = useState<
     'explanation' | 'answer' | null
@@ -168,7 +169,25 @@ const FlashCard: React.FC<FlashCardProps> = ({
           wrapperClassName: 'text-base'
         }}
         onInit={(typewriter) => {
-          typewriter.typeString(study.questions).start();
+          if (study.questions.includes('shepherd-document-upload')) {
+            const regex =
+              /https:\/\/shepherd-document-upload\.s3\.us-east-2\.amazonaws\.com\/temp_[^/]+/;
+
+            const extractedLink = study.questions.match(regex)[0];
+
+            setS3Image(extractedLink);
+
+            const resultString = study.questions.replace(regex, '');
+
+            typewriter
+              .typeString(resultString)
+              .start()
+              .callFunction(() => {
+                setTypingFinished(true);
+              });
+          } else {
+            typewriter.typeString(study.questions).start();
+          }
         }}
       />
     );
@@ -176,24 +195,35 @@ const FlashCard: React.FC<FlashCardProps> = ({
 
   const answerText = useMemo(() => {
     return (
-      <Typewriter
-        key={truncatedAnswer as string}
-        options={{
-          delay: 10,
-          autoStart: true,
-          loop: false,
-          skipAddStyles: true,
-          wrapperClassName: 'text-sm'
-        }}
-        onInit={(typewriter) => {
-          typewriter
-            .typeString(truncatedAnswer)
-            .start()
-            .callFunction(() => {
-              setTypingFinished(true);
-            });
-        }}
-      />
+      <>
+        {typeof study.answers === 'string' &&
+        study.answers.includes('shepherd-document-upload') ? (
+          <img
+            src={study.answers}
+            alt="the uploaded file"
+            className="w-12 h-12 mb-6"
+          />
+        ) : (
+          <Typewriter
+            key={truncatedAnswer as string}
+            options={{
+              delay: 10,
+              autoStart: true,
+              loop: false,
+              skipAddStyles: true,
+              wrapperClassName: 'text-sm'
+            }}
+            onInit={(typewriter) => {
+              typewriter
+                .typeString(truncatedAnswer)
+                .start()
+                .callFunction(() => {
+                  setTypingFinished(true);
+                });
+            }}
+          />
+        )}
+      </>
     );
   }, [truncatedAnswer]);
 
@@ -440,9 +470,17 @@ const FlashCard: React.FC<FlashCardProps> = ({
             padding="10px"
             fontWeight="500"
             lineHeight="22px"
+            marginBottom={5}
           >
             {questionText}
           </Text>
+          {s3image.length > 0 && typingFinished && (
+            <img
+              src={s3image}
+              alt="the uploaded file"
+              className="w-12 h-12 mb-6"
+            />
+          )}
           {study.options && (
             <VStack align="start" pb="10px" spacing={2} width="100%">
               {study.options?.content.map((option, index) => {
