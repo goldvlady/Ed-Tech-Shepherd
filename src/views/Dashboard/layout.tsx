@@ -264,9 +264,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const auth = getAuth();
   const { user, logoutUser } = userStore();
   const userId = user?._id || '';
-  const [toggleHelpModal, setToggleHelpModal] = useState(
-    typeof user.onboardCompleted === 'undefined' || user.onboardCompleted
-  );
+  const [toggleHelpModal, setToggleHelpModal] = useState(false);
   const activateHelpModal = () => {
     setToggleHelpModal(true);
   };
