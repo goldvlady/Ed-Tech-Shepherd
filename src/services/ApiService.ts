@@ -1061,7 +1061,7 @@ class ApiService {
   static setStudentOnboardStatus = async (status: boolean, userId: string) => {
     return doFetch(`${ApiService.baseEndpoint}/setStudentOnboardStatus`, {
       method: 'POST',
-      body: JSON.stringify({ status, userId })
+      body: JSON.stringify({ status: status, userId: userId })
     });
   };
 }
