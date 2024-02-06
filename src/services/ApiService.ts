@@ -1057,6 +1057,13 @@ class ApiService {
   static getUpcomingStudyPlanEvent = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getUpcomingStudyPlanEvent`);
   };
+
+  static setStudentOnboardStatus = async (status: boolean, userId: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/setStudentOnboardStatus`, {
+      method: 'POST',
+      body: JSON.stringify({ status, userId })
+    });
+  };
 }
 
 export default ApiService;
