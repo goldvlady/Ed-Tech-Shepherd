@@ -1,4 +1,3 @@
-import GoogleIcon from '../assets/google.svg';
 import { useCustomToast } from '../components/CustomComponents/CustomToast/useCustomToast';
 import SecureInput from '../components/SecureInput';
 import {
@@ -257,7 +256,7 @@ const Login: React.FC = () => {
                   colorScheme={'primary'}
                   size={'lg'}
                   color="#000"
-                  leftIcon={<img src={GoogleIcon} alt="" />}
+                  leftIcon={<img src="/images/google.svg" alt="Google icon" />}
                 >
                   Continue With Google
                 </Button>
