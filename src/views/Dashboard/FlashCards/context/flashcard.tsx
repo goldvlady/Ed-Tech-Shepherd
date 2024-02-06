@@ -16,6 +16,8 @@ import React, {
 } from 'react';
 import CustomToast from '../../../../components/CustomComponents/CustomToast';
 import { useNavigate } from 'react-router';
+import { extractDataURIAndBase64 } from '../create';
+import S3Handler from '../../../../helpers/s3Handler';
 
 export enum TypeEnum {
   FLASHCARD = 'flashcard',
@@ -539,8 +541,38 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     async (onDone?: (success: boolean) => void) => {
       try {
         setIsLoading(true);
+        const s3 = new S3Handler();
+        // here pretty painfully , for each question save to s3 and replace with the string
+        const updatedQuestionsPromises = questions.map(async (question) => {
+          let q: string;
+          let a: string;
+          if (question.question.includes('data:image/,')) {
+            const base64 = extractDataURIAndBase64(question.question);
+            const file = await s3.uploadBase64ToS3(base64);
+            q = question.question.replace(
+              /data:image\/(jpeg|jpg|png|svg);base64,.*/,
+              file
+            );
+          } else {
+            q = question.question;
+          }
+          if (question.answer.includes('data:image/')) {
+            const base64 = extractDataURIAndBase64(question.answer);
+            const file = await s3.uploadBase64ToS3(base64);
+            a = file;
+          } else {
+            a = question.answer;
+          }
+          return {
+            ...question,
+            answer: a,
+            question: q
+          };
+        });
+        const updatedQuestions = Promise.all(updatedQuestionsPromises);
+        console.log(updatedQuestions, 'update??');
         const response = await createFlashCard(
-          { ...flashcardData, questions },
+          { ...flashcardData, updatedQuestions },
           'manual'
         );
         if (response) {

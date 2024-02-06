@@ -120,7 +120,7 @@ const useBoxWidth = (ref: RefObject<HTMLDivElement>): number => {
 
   return boxWidth;
 };
-const extractDataURIAndBase64 = (input: string) => {
+export const extractDataURIAndBase64 = (input: string) => {
   const regex = /(data:image\/(jpeg|jpg|png|svg);base64,.*)/;
 
   const match = input.match(regex);
@@ -128,14 +128,11 @@ const extractDataURIAndBase64 = (input: string) => {
   if (match) {
     const dataUri = match[1];
 
-    console.log('Data URI:', dataUri);
-
     const base64Data = dataUri.split(',')[1];
 
     const binaryData = atob(base64Data);
     return binaryData;
   } else {
-    console.log('No match found.');
     return null;
   }
 };
