@@ -1,27 +1,44 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import Sally from '../../../assets/saly.svg';
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef
+} from 'react';
+import { loadStripe } from '@stripe/stripe-js';
+import {
+  useDisclosure,
+  Box,
+  Text,
+  Alert,
+  AlertIcon,
+  AlertDescription,
+  Center,
+  Icon
+} from '@chakra-ui/react';
+import { MdInfo } from 'react-icons/md';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
+
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
-import CustomToast from '../../../components/CustomComponents/CustomToast/index';
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import PaymentDialog, {
   PaymentDialogRef
 } from '../../../components/PaymentDialog';
+import PlansModal from '../../../components/PlansModal';
 import { SHALL_WE_BEGIN } from '../../../helpers/constants';
 import {
-  chatHomeworkHelp,
-  editConversationId,
   getConversionById,
   getConversionByIdAndAPIKey,
-  getDescriptionById,
-  updateGeneratedSummary
+  getDescriptionById
 } from '../../../services/AI';
 import { chatHistory } from '../../../services/AI';
 import ApiService from '../../../services/ApiService';
 import socketWithAuth from '../../../socket';
 import userStore from '../../../state/userStore';
 import theme from '../../../theme';
-import { FlashcardData } from '../../../types';
 import Chat from '../DocChat/chat';
 import ChatHistory from '../DocChat/chatHistory';
 import BountyOfferModal from '../components/BountyOfferModal';
@@ -33,29 +50,6 @@ import {
   HomeWorkHelpHistoryContainer,
   MobileHomeWorkHelpHistoryContainer
 } from './style';
-import {
-  useToast,
-  useDisclosure,
-  Box,
-  Text,
-  Alert,
-  AlertIcon,
-  AlertDescription,
-  Center,
-  Icon
-} from '@chakra-ui/react';
-import { loadStripe } from '@stripe/stripe-js';
-import React, {
-  useState,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef
-} from 'react';
-import { MdInfo } from 'react-icons/md';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
-import PlansModal from '../../../components/PlansModal';
 import { useSearchQuery } from '../../../hooks';
 import { firebaseAuth } from '../../../firebase';
 
