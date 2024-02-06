@@ -663,18 +663,6 @@ const HomeWorkHelp = () => {
     getOnlineTutors();
   }, []);
 
-  // useEffect(() => {
-  //   if (messages.length || conversationId) {
-  //     localStorage.setItem('recentMessages', JSON.stringify(messages));
-  //   }
-  // }, [messages, conversationId]);
-
-  // useEffect(() => {
-  //   const firstId = storedGroupChatsArr?.[0]?.messages[0]?.id;
-  //   if (!storedConvoId) {
-  //     setRecentConverstionId(firstId);
-  //   }
-  // }, [storedConvoId]);
   if (!hasActiveSubscription && !apiKey) {
     return (
       <Center height="100vh" width="100%">
