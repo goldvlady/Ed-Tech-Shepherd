@@ -644,24 +644,6 @@ const HomeWorkHelp = () => {
     }
   }, [isSubmitted]);
 
-  // useEffect(() => {
-  //   const storedConvoId = localStorage.getItem('conversationId');
-
-  //   if (conversationId && (!storedConvoId || conversationId !== storedConvoId))
-  //     localStorage.setItem('conversationId', conversationId);
-  //   setCertainConversationId(conversationId);
-  // }, [conversationId]);
-
-  // useEffect(() => {
-  //   const storedConvoId = localStorage.getItem('conversationId');
-
-  //   if (storedConvoId) {
-  //     setConversationId(storedConvoId);
-  //     setCountNeedTutor(1);
-  //     setRecentConverstionId(null);
-  //   }
-  // }, []);
-
   useEffect(() => {
     const getOnlineTutors = async () => {
       try {
