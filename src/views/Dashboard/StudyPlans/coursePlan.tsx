@@ -528,8 +528,6 @@ function CoursePlan() {
     return [];
   };
   const findStudyEventsByTopic = (topic) => {
-    console.log(studyPlanResources[topic]);
-
     if (studyPlanResources[topic] && studyPlanResources[topic].studyEvent) {
       return studyPlanResources[topic].studyEvent;
     }
