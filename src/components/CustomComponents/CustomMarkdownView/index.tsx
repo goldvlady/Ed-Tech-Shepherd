@@ -23,6 +23,7 @@ interface ICustomMarkdownView {
   source: string;
   keywords?: string[];
   handleSendKeyword?: any;
+  handleSendMessage?: any;
 }
 
 const CustomMarkdownView = ({
