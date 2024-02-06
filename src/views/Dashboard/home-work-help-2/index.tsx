@@ -1,3 +1,4 @@
+import AiChatBotWindow from './_components/ai-bot-window';
 import ChatHistory from './_components/chat-history';
 
 function HomeWorkHelp2() {
@@ -7,8 +8,7 @@ function HomeWorkHelp2() {
         <ChatHistory />
       </div>
       <div className="h-full flex-[6.5]">
-        <div>Chat Input</div>
-        <div>Chat History</div>
+        <AiChatBotWindow />
       </div>
     </div>
   );
