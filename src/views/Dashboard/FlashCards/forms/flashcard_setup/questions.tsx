@@ -1,6 +1,6 @@
 import { useCustomToast } from '../../../../../components/CustomComponents/CustomToast/useCustomToast';
 import { useFlashcardWizard, FlashcardQuestion } from '../../context/flashcard';
-import { HStack, Textarea } from '@chakra-ui/react';
+import { Flex, HStack, Textarea, Tooltip } from '@chakra-ui/react';
 import {
   Box,
   FormControl,
@@ -10,9 +10,12 @@ import {
   Button,
   Text
 } from '@chakra-ui/react';
+import { PlusIcon } from '@heroicons/react/24/outline';
+import { PlusSmallIcon } from '@heroicons/react/24/solid';
 import { motion } from 'framer-motion';
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { FiChevronRight } from 'react-icons/fi';
+import DragAndDrop from '../../../../../components/DragandDrop';
 
 const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
   const {
@@ -27,7 +30,10 @@ const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
   } = useFlashcardWizard();
 
   const toast = useCustomToast();
-
+  const [questionFileUpload, setQuestionFileUpload] = useState(false);
+  const [questionImage, setQuestionImage] = useState<File>();
+  const [answerImage, setAnswerImage] = useState<File>();
+  const [answerFileUpload, setAnswerFileUpload] = useState(false);
   const questionTextareaRef = React.useRef<HTMLTextAreaElement | null>(null);
   const answerTextRef = React.useRef<HTMLTextAreaElement | null>(null);
   const [hasTriggeredSave, setHasTriggeredSave] = useState(false);
@@ -129,6 +135,10 @@ const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
     // });
     if (questions.length > currentQuestionIndex + 1) {
       goToQuestion((prevIndex) => prevIndex + 1);
+      setAnswerFileUpload(false);
+      setAnswerImage(undefined);
+      setQuestionFileUpload(false);
+      setQuestionImage(undefined);
       setCurrentQuestion({
         questionType: 'openEnded',
         question: '',
@@ -169,6 +179,22 @@ const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
         };
       });
     } else {
+      if (questionImage && name !== 'answer' && value.length > 0) {
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+          const base64String = event.target.result;
+
+          setCurrentQuestionData((prevQuestion) => ({
+            ...prevQuestion,
+            question: `${value} ${base64String}`,
+            answer: ''
+          }));
+        };
+
+        reader.readAsDataURL(questionImage);
+        return;
+      }
       setCurrentQuestionData((prevQuestion) => ({
         ...prevQuestion,
         [name]: value
@@ -201,17 +227,96 @@ const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
       </Box>
 
       <FormControl mb={4}>
-        <FormLabel>Enter your question:</FormLabel>
-        <Textarea
-          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-          name="question"
-          ref={questionTextareaRef}
-          height={textareaHeight}
-          maxHeight={'100px'}
-          placeholder="Enter your question here"
-          value={currentQuestion.question}
-          onChange={handleChange}
-        />
+        <Flex gap={2} marginBottom={4} alignItems={'center'}>
+          <FormLabel>Enter your question:</FormLabel>
+          {!questionFileUpload && (
+            <Tooltip label="Upload Image">
+              <Button
+                display={'flex'}
+                justifyContent={'center'}
+                alignItems={'center'}
+                onClick={() => setQuestionFileUpload((prevState) => !prevState)}
+              >
+                +
+              </Button>
+            </Tooltip>
+          )}
+        </Flex>
+
+        <Flex direction={'column'} gap={4}>
+          <Textarea
+            _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+            name="question"
+            ref={questionTextareaRef}
+            height={textareaHeight}
+            maxHeight={'100px'}
+            placeholder="Enter your question here"
+            onChange={handleChange}
+          />
+          {questionFileUpload && (
+            <>
+              <DragAndDrop
+                supportingText="supports all image formats"
+                accept=".png,.jpg,.jpeg,image/png,image/jpeg"
+                onFileUpload={(file: File) => {
+                  setQuestionImage(file);
+                  if (currentQuestion.question.length === 0) {
+                    const reader = new FileReader();
+
+                    reader.onload = (event) => {
+                      const base64String = event.target.result;
+
+                      setCurrentQuestionData((prevQuestion) => ({
+                        ...prevQuestion,
+                        question: `${base64String}`
+                      }));
+                    };
+
+                    reader.readAsDataURL(file);
+                    return;
+                  } else {
+                    const reader = new FileReader();
+
+                    reader.onload = (event) => {
+                      const base64String = event.target.result;
+
+                      setCurrentQuestionData((prevQuestion) => ({
+                        ...prevQuestion,
+                        question: `${currentQuestion.question} ${base64String}`
+                      }));
+                    };
+
+                    reader.readAsDataURL(file);
+                    return;
+                  }
+                }}
+              />
+              <Button
+                display={'flex'}
+                justifyContent={'center'}
+                alignItems={'center'}
+                width={'100%'}
+                px={10}
+                py={4}
+                onClick={() => {
+                  setCurrentQuestionData((prevQuestion) => ({
+                    ...prevQuestion,
+                    question: prevQuestion.question.includes('data:image/')
+                      ? prevQuestion.question.replace(
+                          /data:image\/(jpeg|jpg|png|svg);base64,.*/,
+                          ''
+                        )
+                      : prevQuestion.question
+                  }));
+                  setQuestionImage(undefined);
+                  setQuestionFileUpload(false);
+                }}
+              >
+                Discard
+              </Button>
+            </>
+          )}
+        </Flex>
       </FormControl>
       <>
         {currentQuestion.questionType === 'multipleChoice' &&
@@ -234,43 +339,103 @@ const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
       <motion.div initial="hidden" animate="visible" exit="exit">
         {currentQuestion.questionType && (
           <FormControl mb={4}>
-            <FormLabel>Answer:</FormLabel>
-            {currentQuestion.questionType === 'multipleChoice' && (
-              <Select
-                name="answer"
-                placeholder="Select answer"
-                value={currentQuestion.answer}
-                onChange={handleChange}
-              >
-                <option value="optionA">Option A</option>
-                <option value="optionB">Option B</option>
-                <option value="optionC">Option C</option>
-                <option value="optionD">Option D</option>
-              </Select>
-            )}
+            <Flex gap={2} marginBottom={4} alignItems={'center'}>
+              <FormLabel>Answer:</FormLabel>
+              {!answerFileUpload && (
+                <Tooltip label="Upload Image">
+                  <Button
+                    display={'flex'}
+                    justifyContent={'center'}
+                    alignItems={'center'}
+                    onClick={() =>
+                      setAnswerFileUpload((prevState) => !prevState)
+                    }
+                  >
+                    +
+                  </Button>
+                </Tooltip>
+              )}
+            </Flex>
+            {answerFileUpload && (
+              <Flex direction={'column'} gap={4}>
+                <DragAndDrop
+                  supportingText="supports all image formats"
+                  accept=".png,.jpg,.jpeg,image/png,image/jpeg"
+                  onFileUpload={(file: File) => {
+                    setAnswerImage(file);
+                    const reader = new FileReader();
 
-            {currentQuestion.questionType === 'trueFalse' && (
-              <Select
-                name="answer"
-                placeholder="Select answer"
-                value={currentQuestion.answer}
-                onChange={handleChange}
-              >
-                <option value="true">True</option>
-                <option value="false">False</option>
-              </Select>
+                    reader.onload = (event) => {
+                      const base64String = event.target.result;
+                      setCurrentQuestionData((prevQuestion) => ({
+                        ...prevQuestion,
+                        answer: `${base64String}`
+                      }));
+                    };
+
+                    reader.readAsDataURL(file);
+                    return;
+                  }}
+                />
+                <Button
+                  display={'flex'}
+                  justifyContent={'center'}
+                  alignItems={'center'}
+                  width={'100%'}
+                  px={10}
+                  py={4}
+                  onClick={() => {
+                    setCurrentQuestionData((prevQuestion) => ({
+                      ...prevQuestion,
+                      answer: ``
+                    }));
+                    setAnswerImage(undefined);
+                    setAnswerFileUpload(false);
+                  }}
+                >
+                  Discard
+                </Button>
+              </Flex>
             )}
-            {currentQuestion.questionType === 'openEnded' && (
-              <Textarea
-                _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-                name="answer"
-                ref={answerTextRef}
-                height={textareaAnswerHeight}
-                placeholder="Select answer"
-                value={currentQuestion.answer}
-                onChange={handleChange}
-              />
-            )}
+            {!answerFileUpload &&
+              currentQuestion.questionType === 'multipleChoice' && (
+                <Select
+                  name="answer"
+                  placeholder="Select answer"
+                  value={currentQuestion.answer}
+                  onChange={handleChange}
+                >
+                  <option value="optionA">Option A</option>
+                  <option value="optionB">Option B</option>
+                  <option value="optionC">Option C</option>
+                  <option value="optionD">Option D</option>
+                </Select>
+              )}
+
+            {!answerFileUpload &&
+              currentQuestion.questionType === 'trueFalse' && (
+                <Select
+                  name="answer"
+                  placeholder="Select answer"
+                  value={currentQuestion.answer}
+                  onChange={handleChange}
+                >
+                  <option value="true">True</option>
+                  <option value="false">False</option>
+                </Select>
+              )}
+            {!answerFileUpload &&
+              currentQuestion.questionType === 'openEnded' && (
+                <Textarea
+                  _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+                  name="answer"
+                  ref={answerTextRef}
+                  height={textareaAnswerHeight}
+                  placeholder="Select answer"
+                  value={currentQuestion.answer}
+                  onChange={handleChange}
+                />
+              )}
           </FormControl>
         )}
       </motion.div>

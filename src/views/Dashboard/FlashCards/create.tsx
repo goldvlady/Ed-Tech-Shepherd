@@ -39,6 +39,7 @@ import {
 import { useParams, useLocation } from 'react-router';
 import styled from 'styled-components';
 import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
+import S3Handler from '../../../helpers/s3Handler';
 
 const Wrapper = styled(Box)`
   select {
@@ -119,7 +120,25 @@ const useBoxWidth = (ref: RefObject<HTMLDivElement>): number => {
 
   return boxWidth;
 };
+const extractDataURIAndBase64 = (input: string) => {
+  const regex = /(data:image\/(jpeg|jpg|png|svg);base64,.*)/;
 
+  const match = input.match(regex);
+
+  if (match) {
+    const dataUri = match[1];
+
+    console.log('Data URI:', dataUri);
+
+    const base64Data = dataUri.split(',')[1];
+
+    const binaryData = atob(base64Data);
+    return binaryData;
+  } else {
+    console.log('No match found.');
+    return null;
+  }
+};
 const CreateFlashPage = () => {
   const toast = useCustomToast();
   const { user }: any = userStore();
@@ -203,40 +222,70 @@ const CreateFlashPage = () => {
   }, [loading]);
 
   const onSubmitFlashcard = useCallback(async () => {
-    try {
-      const response = await createFlashCard(
-        { ...flashcardData, questions },
-        'manual'
-      );
-      if (response) {
-        if (response.status === 200) {
-          setIsCompleted(true);
-          toast({
-            title: 'Flash Card Created Successfully',
-            position: 'top-right',
-            status: 'success',
-            isClosable: true
-          });
-          fetchFlashcards();
-        } else {
-          setFlashcardData((value) => ({ ...value, hasSubmitted: false }));
-          toast({
-            title: 'Failed to create flashcard, try again',
-            position: 'top-right',
-            status: 'error',
-            isClosable: true
-          });
-        }
+    const s3 = new S3Handler();
+    // here pretty painfully , for each question save to s3 and replace with the string
+    const updatedQuestionsPromises = questions.map(async (question) => {
+      let q: string;
+      let a: string;
+      if (question.question.includes('data:image/,')) {
+        const base64 = extractDataURIAndBase64(question.question);
+        const file = await s3.uploadBase64ToS3(base64);
+        q = question.question.replace(
+          /data:image\/(jpeg|jpg|png|svg);base64,.*/,
+          file
+        );
+      } else {
+        q = question.question;
       }
-    } catch (error) {
-      setFlashcardData((value) => ({ ...value, hasSubmitted: false }));
-      toast({
-        title: 'Failed to create flashcard, try again',
-        position: 'top-right',
-        status: 'error',
-        isClosable: true
-      });
-    }
+      if (question.answer.includes('data:image/')) {
+        const base64 = extractDataURIAndBase64(question.answer);
+        const file = await s3.uploadBase64ToS3(base64);
+        a = file;
+      } else {
+        a = question.answer;
+      }
+      return {
+        ...question,
+        answer: a,
+        question: q
+      };
+    });
+    const updatedQuestions = Promise.all(updatedQuestionsPromises);
+    console.log(updatedQuestions, 'update??');
+    // try {
+    //   const response = await createFlashCard(
+    //     { ...flashcardData, updatedQuestions },
+    //     'manual'
+    //   );
+    //   if (response) {
+    //     if (response.status === 200) {
+    //       setIsCompleted(true);
+    //       toast({
+    //         title: 'Flash Card Created Successfully',
+    //         position: 'top-right',
+    //         status: 'success',
+    //         isClosable: true
+    //       });
+    //       fetchFlashcards();
+    //     } else {
+    //       setFlashcardData((value) => ({ ...value, hasSubmitted: false }));
+    //       toast({
+    //         title: 'Failed to create flashcard, try again',
+    //         position: 'top-right',
+    //         status: 'error',
+    //         isClosable: true
+    //       });
+    //     }
+    //   }
+    // } catch (error) {
+    //   setFlashcardData((value) => ({ ...value, hasSubmitted: false }));
+    //   toast({
+    //     title: 'Failed to create flashcard, try again',
+    //     position: 'top-right',
+    //     status: 'error',
+    //     isClosable: true
+    //   });
+    // }
   }, [
     flashcardData,
     questions,

@@ -44,6 +44,7 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
       setFileSelected(true);
       setFileName(fileName as string);
     } else if (!file && (fileSelected || fileName)) {
+      console.log('here?');
       setFileSelected(false);
       setFileName('');
     }
@@ -91,15 +92,16 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
           setError(`File size exceeds ${maxSize}`);
           return;
         }
-        onFileUpload(files[0]);
-        setFileSelected(true);
-        setFileName(files[0].name);
-        setError('');
       }
+      setFileSelected(true);
+      setFileName(files[0].name);
+      setError('');
+      onFileUpload(files[0]);
     };
     fileInput.click();
   };
-
+  console.log(fileName, 'fn');
+  console.log(fileSelected, 'FS');
   return (
     <Box
       width="100%"
@@ -136,9 +138,9 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
           : 'Drag file here to upload or choose file'}
       </Text>
       <Text fontSize="sm" color={error ? 'red.500' : 'gray.500'} mt={2}>
-        {error
+        {error.length > 0
           ? error
-          : supportingText
+          : supportingText.length > 0
           ? supportingText
           : 'Supports PDF formats'}
       </Text>
