@@ -375,10 +375,7 @@ export default function WelcomeWalkthrough({
         togglePlansModal={togglePlansModal}
         setTogglePlansModal={setTogglePlansModal}
       />
-      <Dialog.Root
-        open={toggleOnboardModal}
-        onOpenChange={setToggleOnboardModal}
-      >
+      <Dialog.Root open={toggleOnboardModal}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
 
@@ -416,11 +413,9 @@ export default function WelcomeWalkthrough({
                   <LinedListWelcome
                     items={items}
                     clickHandler={(id) => {
-                      console.log('Wtf');
                       const updatedItems = items.map((item) =>
                         item.id === id ? { ...item, read: true } : item
                       );
-
                       setItems(updatedItems);
                       setCurrentIdx(id);
                     }}
