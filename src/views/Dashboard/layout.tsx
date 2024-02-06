@@ -649,12 +649,12 @@ const SidebarContent = ({
 
   return (
     <Box
+      className="overflow-hidden"
       transition="3s ease"
       bg={useColorModeValue('white', 'gray.900')}
-      borderRight="1px"
       borderRightColor={useColorModeValue('gray.200', 'gray.700')}
       w={{ base: 'full', md: 60 }}
-      pos="fixed"
+      // pos="fixed"
       h="full"
       {...rest}
     >
@@ -1033,21 +1033,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         setToggleOnboardModal={setToggleOnboardModal}
       />
       <FlashCardEventNotifier />
-      <Flex
-        direction="column"
-        bg="white"
-        style={{
-          height: '100%',
-          position: 'relative'
-        }}
-      >
-        <Grid
-          templateColumns={{ base: '1fr', md: '250px 1fr' }}
-          style={{
-            height: '100%'
-          }}
-        >
-          <Box w="full" flexShrink={0} overflowY="auto">
+      <div className="flex flex-col w-full h-full relative bg-white">
+        <div className="h-full flex w-full">
+          <div className="hidden md:block md:w-[250px] shrink-0 overflow-auto border-r">
             <SidebarContent
               onClose={() => onClose}
               tutorMenu={tutorMenu}
@@ -1092,31 +1080,18 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 />
               </DrawerContent>
             </Drawer>
-          </Box>
-          <Box
-            flex="1"
-            overflowY="auto"
-            style={{
-              height: '100%'
-            }}
-          >
-            <Box width={'100%'} zIndex="2">
+          </div>
+          <div className="flex-1 overflow-y-auto h-full">
+            <div className="w-full z-10">
               <MobileNav onOpen={onOpen} />
-            </Box>
-            <Box
-              className="veerbal-box"
-              pt={20}
-              style={{
-                position: 'relative',
-                height: '100%'
-              }}
-            >
+            </div>
+            <div className="veerbal-box pt-20 relative h-full">
               <Outlet />
               {children}
-            </Box>
-          </Box>
-        </Grid>
-      </Flex>
+            </div>
+          </div>
+        </div>
+      </div>
       {togglePlansModal && (
         <PlansModal
           togglePlansModal={togglePlansModal}
