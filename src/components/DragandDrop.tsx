@@ -44,7 +44,6 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
       setFileSelected(true);
       setFileName(fileName as string);
     } else if (!file && (fileSelected || fileName)) {
-      console.log('here?');
       // setFileSelected(false);
       // setFileName('');
     }
@@ -93,7 +92,7 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
           return;
         }
       }
-      console.log('Call back?');
+
       setFileSelected(true);
       setFileName(files[0].name);
       setError('');
