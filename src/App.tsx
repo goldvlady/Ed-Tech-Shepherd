@@ -78,6 +78,7 @@ import chameleon from '@chamaeleonidae/chmln';
 import ShepherdSpinner from './views/Dashboard/components/shepherd-spinner';
 import { usePostHog } from 'posthog-js/react';
 import { isProduction } from './util';
+import WelcomeWalkthrough from './components/welcome-walkthrough';
 
 const AuthAction = (props: any) => {
   const [params] = useSearchParams();
@@ -483,7 +484,9 @@ function App() {
           </ChakraProvider>
         </LexicalContext>
       </BrowserRouter>
-      <FlashCardModal isOpen={Boolean(flashcard) || showStudyList} />
+      <BrowserRouter>
+        <FlashCardModal isOpen={Boolean(flashcard) || showStudyList} />
+      </BrowserRouter>
     </>
   );
 }
