@@ -182,7 +182,7 @@ export default function WelcomeWalkthrough({
   const setOpen = useCompletedStore((state) => state.setOpen);
   const [currentIdx, setCurrentIdx] = React.useState(1);
   const [togglePlansModal, setTogglePlansModal] = React.useState(false);
-  const { user, fetchUser } = userStore();
+  const { user, fetchUser }: any = userStore();
 
   const setStudentOnboardStatus = async (status: boolean, userId: string) => {
     await fetchUser();
@@ -419,9 +419,14 @@ export default function WelcomeWalkthrough({
         </Dialog.Portal>
       </Dialog.Root>
       <PlansModal
+        message={
+          !user.hadSubscription
+            ? 'Start Your Free Trial!'
+            : 'Pick a plan to access your AI Study Tools! 🚀'
+        }
+        subMessage="One-click Cancel at anytime."
         togglePlansModal={togglePlansModal}
         setTogglePlansModal={setTogglePlansModal}
-        message="Get started for free!"
       />
     </>
   );
