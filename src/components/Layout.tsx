@@ -1,5 +1,4 @@
-// Tutor layout
-
+import { QuestionIcon } from '@chakra-ui/icons';
 import BellDot from '../assets/belldot.svg';
 import { classNames } from '../helpers';
 import { useStreamChat } from '../providers/streamchat.provider';

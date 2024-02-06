@@ -1222,6 +1222,31 @@ canvas {
   box-shadow: 0 0 11px rgba(33, 33, 33, 0.2);
   transform: scale(1.04);
 }
+.model .left {
+  position: relative;
+  --tw-shadow: -28px 12px 61px -33px rgb(0 0 0 / 0.25);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.model .left::after {
+  --border-radius: 1rem;
+  border: 10px solid white;
+  border-left: none;
+  border-bottom: none;
+  content: '';
+  position: absolute;
+  width: var(--border-radius);
+  height: var(--border-radius);
+  right: 0rem;
+  background: transparent;
+  width: 2em;
+  height: 2em;
+  z-index: 10;
+  border-radius: 0 100vw 0 0;
+  bottom: -22px;
+  right: -10px;
+}
 
 .custom-scroll::-webkit-scrollbar {
   display: none;

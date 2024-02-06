@@ -975,6 +975,7 @@ class ApiService {
     topic: string;
     documentId?: string;
     studentId?: string;
+    subscriptionTier?: string;
     start_page?: number;
     end_page?: number;
   }) => {
