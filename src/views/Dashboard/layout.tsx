@@ -293,7 +293,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
 
   useEffect(() => {
     const justSignedIn = sessionStorage.getItem('Just Signed in');
-    if (justSignedIn && justSignedIn === 'true') {
+    if (user.onboardCompleted && justSignedIn && justSignedIn === 'true') {
       activateHelpModal();
       sessionStorage.removeItem('Just Signed in');
     }

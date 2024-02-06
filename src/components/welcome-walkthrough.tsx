@@ -186,6 +186,7 @@ export default function WelcomeWalkthrough({
   const { user, fetchUser } = userStore();
 
   const setStudentOnboardStatus = async (status: boolean, userId: string) => {
+    await fetchUser();
     if (
       typeof user.onboardCompleted !== 'undefined' &&
       !user.onboardCompleted
@@ -195,7 +196,6 @@ export default function WelcomeWalkthrough({
           status,
           userId
         );
-        fetchUser();
       } catch (error) {
         console.log(error);
       }
