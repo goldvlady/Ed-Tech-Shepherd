@@ -98,7 +98,7 @@ const CodeBlockComponent = ({
   children,
   ...props
 }) => {
-  if (children.length && children[0] == '▍') {
+  if (children?.length && children[0] == '▍') {
     return <span className="mt-1 cursor-default animate-pulse">▍</span>;
   }
 
