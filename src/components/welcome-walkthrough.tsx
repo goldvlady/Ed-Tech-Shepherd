@@ -181,7 +181,6 @@ export default function WelcomeWalkthrough({
   const open = useCompletedStore((state) => state.open);
   const setOpen = useCompletedStore((state) => state.setOpen);
   const [currentIdx, setCurrentIdx] = React.useState(1);
-  const { isOpen, onToggle } = useDisclosure();
   const [togglePlansModal, setTogglePlansModal] = React.useState(false);
   const { user, fetchUser } = userStore();
 
@@ -204,11 +203,6 @@ export default function WelcomeWalkthrough({
     }
   };
 
-  const {
-    isOpen: isOpenConfirm,
-    onOpen: onOpenConfirm,
-    onClose: onCloseConfirm
-  } = useDisclosure();
   const [items, setItems] = React.useState<
     Array<{
       title: string;
@@ -269,7 +263,8 @@ export default function WelcomeWalkthrough({
                   </Button>
                   <Button
                     onClick={() => {
-                      handleSignUp();
+                      setToggleOnboardModal(false);
+                      setTogglePlansModal(true);
                       setStudentOnboardStatus(true, user._id);
                     }}
                   >
@@ -332,7 +327,8 @@ export default function WelcomeWalkthrough({
 
         <Button
           onClick={() => {
-            handleSignUp();
+            setToggleOnboardModal(false);
+            setTogglePlansModal(true);
             setStudentOnboardStatus(true, user._id);
           }}
         >
@@ -350,13 +346,6 @@ export default function WelcomeWalkthrough({
     setCurrentIdx(nextIdx);
   };
 
-  const handleSignUp = () => {
-    // Close the Dialog.Root
-    setOpen(false);
-    setToggleOnboardModal(false);
-    // Open the plans modal (if it's within the Dialog.Root, it will be displayed)
-    setTogglePlansModal(true);
-  };
   const render = React.useMemo(() => {
     const item = items.find((i) => i.id === currentIdx);
 
@@ -390,8 +379,6 @@ export default function WelcomeWalkthrough({
             bg="transparent"
             justifyContent="center"
             overflowY="scroll"
-            animation={isOpen ? 'fadeIn' : 'fadeOut'} // Replace with your animation names
-            // Add other animations and styles as needed
           >
             <div className="model flex w-full max-w-6xl mx-auto">
               {' '}
