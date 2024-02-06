@@ -360,6 +360,7 @@ function CoursePlan() {
   };
 
   const selectedPlanRef = useRef(null);
+  const selectedTopicRef = useRef(null);
   const fetchReportData = async (id) => {
     console.log(id);
 
@@ -434,6 +435,21 @@ function CoursePlan() {
       selectedPlanElement.scrollIntoView({ behavior: 'smooth' });
     }
   }, [selectedPlan]);
+  useEffect(() => {
+    if (selectedTopic && selectedTopicRef.current) {
+      const selectedTopicElement = selectedTopicRef.current;
+
+      const { top, bottom } = selectedTopicElement.getBoundingClientRect();
+
+      // Check if the selected Topic is already in view
+      if (top >= 0 && bottom <= window.innerHeight) {
+        return;
+      }
+
+      // Scroll to the selected Topic
+      selectedTopicElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [selectedTopic]);
 
   const doFetchTopics = useCallback(() => {
     if (selectedPlan) {
@@ -712,7 +728,7 @@ function CoursePlan() {
           bg="#F9F9FB"
           overflowY="scroll"
         >
-          <Tabs colorScheme={'blue.400'}>
+          <Tabs variant="soft-rounded" color="#F9F9FB">
             <TabList mb="1em">
               <Tab>Topics</Tab>
               <Tab>Analytics</Tab>
@@ -733,6 +749,11 @@ function CoursePlan() {
                                   rounded="md"
                                   shadow="md"
                                   key={topic._id}
+                                  ref={
+                                    topic._id === selectedTopic
+                                      ? selectedTopicRef
+                                      : null
+                                  }
                                 >
                                   <Flex alignItems={'center'} py={2} px={4}>
                                     {' '}
@@ -767,6 +788,7 @@ function CoursePlan() {
                                       spacing={9}
                                       p={4}
                                       justifyContent="space-between"
+                                      textColor={'black'}
                                     >
                                       <Menu isLazy>
                                         <MenuButton>
@@ -1247,9 +1269,9 @@ function CoursePlan() {
             </Box>
             <Text mb={0}>{`${weekday}, ${month} ${monthday}`}</Text>
           </Flex>
-          <Box my={4} fontSize={12}>
+          <Box my={4} fontSize={13}>
             <Text>Hey {user.name?.first}</Text>
-            <Text color={'text.300'}>
+            <Text color={'text.300'} fontSize={13}>
               {` You have
               ${studyPlanUpcomingEvent ? studyPlanUpcomingEvent.length : 0}
               topics to study before your big-day.`}
@@ -1264,6 +1286,10 @@ function CoursePlan() {
                 studyPlanUpcomingEvent.map((event) => (
                   <li
                     className={`flex gap-x-3 cursor-pointer hover:drop-shadow-sm bg-gray-50`}
+                    onClick={() => {
+                      setSelectedTopic(event.metadata.topicId);
+                      setSelectedPlan(event.entityId);
+                    }}
                   >
                     <div
                       className={`min-h-fit w-1 rounded-tr-full rounded-br-full bg-red-500`}
@@ -1272,17 +1298,17 @@ function CoursePlan() {
                       <div className="flex gap-x-1">
                         <div className="min-w-0 flex-auto">
                           <Text className="text-xs font-normal leading-6 text-gray-500">
-                            Chemical Bonding
+                            {event.topic.label}
                           </Text>
                           <Flex alignItems={'center'}>
                             <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
-                              <span>11:00 AM</span>
+                              <span>{event.startTime}</span>
 
-                              <>
+                              {/* <>
                                 {' '}
                                 <ChevronRightIcon className="w-4 h-4" />
                                 <span>12:00 PM</span>
-                              </>
+                              </> */}
                             </Text>
                           </Flex>
                         </div>
