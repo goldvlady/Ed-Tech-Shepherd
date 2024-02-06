@@ -528,11 +528,11 @@ function CoursePlan() {
     return [];
   };
   const findStudyEventsByTopic = (topic) => {
+    console.log(studyPlanResources[topic]);
+
     if (studyPlanResources[topic] && studyPlanResources[topic].studyEvent) {
       return studyPlanResources[topic].studyEvent;
     }
-
-    return {};
   };
 
   const timeOptions = Array.from({ length: 96 }, (_, index) => {
@@ -687,6 +687,7 @@ function CoursePlan() {
                 key={plan._id}
                 onClick={() => {
                   setTopics(plan);
+                  fetchPlanResources(plan._id);
                   handlePlanSelection(plan._id);
                 }}
                 bg={selectedPlan === plan.id ? 'orange' : 'white'}
@@ -919,19 +920,25 @@ function CoursePlan() {
                                           onOpenCadence();
                                         }}
                                       >
-                                        {`${
+                                        {studyPlanResources[
+                                          topic.topicDetails.label
+                                        ]
+                                          ? `
+                                        ${
                                           findStudyEventsByTopic(
                                             topic.topicDetails.label
                                           )?.recurrence?.frequency
-                                        } from  ${moment(
+                                        } 
+                                        from  ${moment(
                                           findStudyEventsByTopic(
                                             topic.topicDetails.label
                                           )?.startDate
                                         ).format('MM.DD.YYYY')} - ${moment(
-                                          findStudyEventsByTopic(
-                                            topic.topicDetails.label
-                                          )?.recurrence?.endDate
-                                        ).format('MM.DD.YYYY')}`}
+                                              findStudyEventsByTopic(
+                                                topic.topicDetails.label
+                                              )?.recurrence?.endDate
+                                            ).format('MM.DD.YYYY')}`
+                                          : '...'}
                                       </Badge>
 
                                       <Spacer />

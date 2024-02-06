@@ -179,7 +179,7 @@ const QuizCard = forwardRef(
           // }}
           borderRadius={'8px'}
           bg="white"
-          _hover={{ boxShadow: 'md' }}
+          boxShadow={'md'}
           w="full"
           minH={minHeight}
           borderWidth={
