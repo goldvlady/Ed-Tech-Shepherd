@@ -363,6 +363,16 @@ export default function WelcomeWalkthrough({
 
   return (
     <>
+      <PlansModal
+        message={
+          !user.hadSubscription
+            ? 'Start Your Free Trial!'
+            : 'Pick a plan to access your AI Study Tools! 🚀'
+        }
+        subMessage="One-click Cancel at anytime."
+        togglePlansModal={togglePlansModal}
+        setTogglePlansModal={setTogglePlansModal}
+      />
       <Dialog.Root open={toggleOnboardModal}>
         <Dialog.Trigger className="hidden" />
         <Dialog.Portal>
@@ -418,16 +428,6 @@ export default function WelcomeWalkthrough({
           </Flex>
         </Dialog.Portal>
       </Dialog.Root>
-      <PlansModal
-        message={
-          !user.hadSubscription
-            ? 'Start Your Free Trial!'
-            : 'Pick a plan to access your AI Study Tools! 🚀'
-        }
-        subMessage="One-click Cancel at anytime."
-        togglePlansModal={togglePlansModal}
-        setTogglePlansModal={setTogglePlansModal}
-      />
     </>
   );
 }
