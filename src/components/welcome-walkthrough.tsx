@@ -181,9 +181,8 @@ export default function WelcomeWalkthrough({
   const open = useCompletedStore((state) => state.open);
   const setOpen = useCompletedStore((state) => state.setOpen);
   const [currentIdx, setCurrentIdx] = React.useState(1);
-  const { isOpen, onToggle } = useDisclosure();
   const [togglePlansModal, setTogglePlansModal] = React.useState(false);
-  const { user, fetchUser } = userStore();
+  const { user, fetchUser }: any = userStore();
 
   const setStudentOnboardStatus = async (status: boolean, userId: string) => {
     await fetchUser();
@@ -204,11 +203,6 @@ export default function WelcomeWalkthrough({
     }
   };
 
-  const {
-    isOpen: isOpenConfirm,
-    onOpen: onOpenConfirm,
-    onClose: onCloseConfirm
-  } = useDisclosure();
   const [items, setItems] = React.useState<
     Array<{
       title: string;
@@ -221,9 +215,9 @@ export default function WelcomeWalkthrough({
 
   const WelcomeDialogContent = ({ title, content, image, onClickContinue }) => (
     <Dialog.Content
-      onOpenAutoFocus={(event) => {
-        event.preventDefault();
-      }}
+      // onOpenAutoFocus={(event) => {
+      //   event.preventDefault();
+      // }}
       className="bg-white px-4 py-5 min-h-[50vh]  max-h-[80vh] overflow-scroll rounded-b-3xl rounded-r-3xl relative"
     >
       <Flex justifyContent={'center'} alignItems="center">
@@ -236,7 +230,9 @@ export default function WelcomeWalkthrough({
             <Button
               variant="ghost"
               color="lightgrey"
-              onClick={() => setStudentOnboardStatus(true, user._id)}
+              onClick={async () => {
+                await setStudentOnboardStatus(true, user._id);
+              }}
             >
               <MdCancel />
             </Button>
@@ -256,21 +252,22 @@ export default function WelcomeWalkthrough({
                     variant={'outline'}
                     borderColor="red"
                     color="red"
-                    onClick={() => {
+                    onClick={async () => {
+                      await setStudentOnboardStatus(true, user._id);
                       setToggleOnboardModal(false);
                       setItems(defaultItems);
                       setCurrentIdx(1);
                       localStorage.setItem('completed', 'true');
                       setOpen(false);
-                      setStudentOnboardStatus(true, user._id);
                     }}
                   >
                     Let me explore myself
                   </Button>
                   <Button
-                    onClick={() => {
-                      handleSignUp();
-                      setStudentOnboardStatus(true, user._id);
+                    onClick={async () => {
+                      await setStudentOnboardStatus(true, user._id);
+                      setToggleOnboardModal(false);
+                      setTogglePlansModal(true);
                     }}
                   >
                     Already convinced, sign me up
@@ -331,9 +328,10 @@ export default function WelcomeWalkthrough({
         )}
 
         <Button
-          onClick={() => {
-            handleSignUp();
-            setStudentOnboardStatus(true, user._id);
+          onClick={async () => {
+            await setStudentOnboardStatus(true, user._id);
+            setToggleOnboardModal(false);
+            setTogglePlansModal(true);
           }}
         >
           Subscribe
@@ -350,13 +348,6 @@ export default function WelcomeWalkthrough({
     setCurrentIdx(nextIdx);
   };
 
-  const handleSignUp = () => {
-    // Close the Dialog.Root
-    setOpen(false);
-    setToggleOnboardModal(false);
-    // Open the plans modal (if it's within the Dialog.Root, it will be displayed)
-    setTogglePlansModal(true);
-  };
   const render = React.useMemo(() => {
     const item = items.find((i) => i.id === currentIdx);
 
@@ -374,8 +365,17 @@ export default function WelcomeWalkthrough({
 
   return (
     <>
+      <PlansModal
+        message={
+          !user.hadSubscription
+            ? 'Start Your Free Trial!'
+            : 'Pick a plan to access your AI Study Tools! 🚀'
+        }
+        subMessage="One-click Cancel at anytime."
+        togglePlansModal={togglePlansModal}
+        setTogglePlansModal={setTogglePlansModal}
+      />
       <Dialog.Root open={toggleOnboardModal}>
-        <Dialog.Trigger className="hidden" />
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
 
@@ -390,8 +390,6 @@ export default function WelcomeWalkthrough({
             bg="transparent"
             justifyContent="center"
             overflowY="scroll"
-            animation={isOpen ? 'fadeIn' : 'fadeOut'} // Replace with your animation names
-            // Add other animations and styles as needed
           >
             <div className="model flex w-full max-w-6xl mx-auto">
               {' '}
@@ -415,11 +413,9 @@ export default function WelcomeWalkthrough({
                   <LinedListWelcome
                     items={items}
                     clickHandler={(id) => {
-                      console.log('Wtf');
                       const updatedItems = items.map((item) =>
                         item.id === id ? { ...item, read: true } : item
                       );
-
                       setItems(updatedItems);
                       setCurrentIdx(id);
                     }}
@@ -431,11 +427,6 @@ export default function WelcomeWalkthrough({
           </Flex>
         </Dialog.Portal>
       </Dialog.Root>
-      <PlansModal
-        togglePlansModal={togglePlansModal}
-        setTogglePlansModal={setTogglePlansModal}
-        message="Get started for free!"
-      />
     </>
   );
 }
