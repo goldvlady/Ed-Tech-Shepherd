@@ -8,6 +8,7 @@ import PaymentDialog, {
   PaymentDialogRef
 } from '../../components/PaymentDialog';
 import CustomSelect from '../../components/Select';
+import Select, { components } from 'react-select';
 import TimePicker from '../../components/TimePicker';
 import ApiService from '../../services/ApiService';
 import bookmarkedTutorsStore from '../../state/bookmarkedTutorsStore';
@@ -40,7 +41,7 @@ import {
   MenuItem,
   MenuList,
   Radio,
-  Select,
+  Select as SingleSelect,
   SimpleGrid,
   Spacer,
   Stack,
@@ -109,10 +110,17 @@ export default function Marketplace() {
   const { user, fetchUser } = userStore();
   const [allTutors, setAllTutors] = useState<any>([]);
   const [pagination, setPagination] = useState<PaginationType>();
+  const subjectOptions: any = courseList.map((item, index) => ({
+    value: item._id,
+    label: item.label,
+    id: item._id
+  }));
 
   const [loadingData, setLoadingData] = useState(false);
   //   const [tz, setTz] = useState<any>(() => moment.tz.guess());
   const [subject, setSubject] = useState<string>('Subject');
+  console.log(subject);
+
   const [level, setLevel] = useState<any>('');
   const [price, setPrice] = useState<any>('');
   const [rating, setRating] = useState<any>('');
@@ -178,7 +186,13 @@ export default function Marketplace() {
     setLoadingData(false);
   };
   const subjectId: any = searchParams.get('subjectId');
-
+  const DropdownIndicator = (props) => {
+    return (
+      <components.DropdownIndicator {...props}>
+        <Box as={FiChevronDown} color={'text.400'} />
+      </components.DropdownIndicator>
+    );
+  };
   // useEffect(() => {
   //   getData();
 
@@ -394,7 +408,7 @@ export default function Marketplace() {
                 <Text>Filter</Text>
               </Flex>
               <div></div>
-              <Menu>
+              {/* <Menu>
                 <MenuButton
                   as={Button}
                   // variant="outline"
@@ -433,7 +447,53 @@ export default function Marketplace() {
                     </MenuItem>
                   ))}
                 </MenuList>
-              </Menu>
+              </Menu> */}
+              <Box fontSize={{ base: 'sm', md: 'md' }}>
+                <Select
+                  value={subject}
+                  onChange={(option: any) => setSubject(option.id)}
+                  options={subjectOptions}
+                  placeholder={
+                    subject !== 'Subject'
+                      ? courseList.map((course) => {
+                          if (course._id === subject) {
+                            return course.label;
+                          }
+                        })
+                      : subject
+                  }
+                  components={{ DropdownIndicator }}
+                  isSearchable
+                  styles={{
+                    container: (provided) => ({
+                      ...provided,
+                      width: '150px'
+                    }),
+                    control: (provided) => ({
+                      ...provided,
+                      borderRadius: '40px',
+                      fontSize: '14px',
+                      fontWeight: '400',
+                      textAlign: 'left',
+                      borderColor: '#E2E8F0'
+                    }),
+                    menu: (provided) => ({
+                      ...provided,
+                      marginTop: '2px'
+                    }),
+                    option: (provided, state) => ({
+                      ...provided,
+                      backgroundColor: state.isFocused
+                        ? '#F2F4F7'
+                        : 'transparent',
+                      ':active': {
+                        backgroundColor: '#F2F4F7'
+                      }
+                    })
+                  }}
+                />
+              </Box>
+
               <Menu>
                 <MenuButton
                   as={Button}

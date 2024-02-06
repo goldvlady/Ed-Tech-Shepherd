@@ -321,7 +321,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         <Box display={{ base: 'none', md: 'flex' }} gap={2}>
           <Flex
             alignItems={'center'}
-            onClick={() => navigate(-3)}
+            onClick={() => navigate(-1)}
             _hover={{ cursor: 'pointer' }}
           >
             <IoIosArrowRoundBack />
@@ -912,7 +912,7 @@ const SidebarContent = ({
         Feedback
       </NavItem>
 
-      <Divider />
+      {/* <Divider />
       <Box ml={8} color="text.400">
         <Button
           variant={'unstyled'}
@@ -946,7 +946,7 @@ const SidebarContent = ({
             ]}
           />
         </Box>
-      </Box>
+      </Box> */}
       {showSelected && (
         <SelectedNoteModal show={showSelected} setShow={setShowSelected} />
       )}
