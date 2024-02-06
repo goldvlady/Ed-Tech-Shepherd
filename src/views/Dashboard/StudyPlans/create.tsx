@@ -229,7 +229,7 @@ function CreateStudyPlans() {
       return;
     } else {
       setDocLoading(true);
-      let readableFileName = file.name
+      const readableFileName = file.name
         .toLowerCase()
         .replace(/\.pdf$/, '')
         .replace(/_/g, ' ');
