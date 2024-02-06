@@ -135,7 +135,11 @@ function Notifications(props) {
       case 'BOUNTY_BID_REJECTED':
         return 'Bounty bid rejected';
       case 'STUDY_PLAN_FOR_FLASHCARD_CREATED':
-        return `Your ${attributes.deckname} flashcards for [study plan] were created successfully`;
+        return `Your "${
+          attributes.topic ? attributes.topic : attributes.deckname
+        }" ${
+          attributes.quizId ? 'quiz was' : 'flashcards were'
+        }  created successfully`;
       case 'UPCOMING_FLASHCARD_STUDY':
         return 'You have an upcoming Flashcard study ';
       default:

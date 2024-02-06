@@ -86,7 +86,7 @@ export default function Events({ event }: any) {
       case 'quiz':
         return `bg-blue-500`;
       default:
-        return undefined;
+        return `bg-pink-500`;
     }
   };
   const getColorByEventType = (eventType) => {
@@ -98,7 +98,7 @@ export default function Events({ event }: any) {
       case 'quiz':
         return `bg-blue-50`;
       default:
-        return undefined;
+        return `bg-pink-50`;
     }
   };
   const getHoverColorByEventType = (eventType) => {
@@ -110,7 +110,7 @@ export default function Events({ event }: any) {
       case 'quiz':
         return `hover:bg-indigo-50`;
       default:
-        return undefined;
+        return `hover:bg-rose-50`;
     }
   };
 
