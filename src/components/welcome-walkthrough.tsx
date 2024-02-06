@@ -215,9 +215,9 @@ export default function WelcomeWalkthrough({
 
   const WelcomeDialogContent = ({ title, content, image, onClickContinue }) => (
     <Dialog.Content
-      onOpenAutoFocus={(event) => {
-        event.preventDefault();
-      }}
+      // onOpenAutoFocus={(event) => {
+      //   event.preventDefault();
+      // }}
       className="bg-white px-4 py-5 min-h-[50vh]  max-h-[80vh] overflow-scroll rounded-b-3xl rounded-r-3xl relative"
     >
       <Flex justifyContent={'center'} alignItems="center">
@@ -230,7 +230,9 @@ export default function WelcomeWalkthrough({
             <Button
               variant="ghost"
               color="lightgrey"
-              onClick={() => setStudentOnboardStatus(true, user._id)}
+              onClick={async () => {
+                await setStudentOnboardStatus(true, user._id);
+              }}
             >
               <MdCancel />
             </Button>
@@ -250,22 +252,22 @@ export default function WelcomeWalkthrough({
                     variant={'outline'}
                     borderColor="red"
                     color="red"
-                    onClick={() => {
+                    onClick={async () => {
+                      await setStudentOnboardStatus(true, user._id);
                       setToggleOnboardModal(false);
                       setItems(defaultItems);
                       setCurrentIdx(1);
                       localStorage.setItem('completed', 'true');
                       setOpen(false);
-                      setStudentOnboardStatus(true, user._id);
                     }}
                   >
                     Let me explore myself
                   </Button>
                   <Button
-                    onClick={() => {
+                    onClick={async () => {
+                      await setStudentOnboardStatus(true, user._id);
                       setToggleOnboardModal(false);
                       setTogglePlansModal(true);
-                      setStudentOnboardStatus(true, user._id);
                     }}
                   >
                     Already convinced, sign me up
@@ -326,10 +328,10 @@ export default function WelcomeWalkthrough({
         )}
 
         <Button
-          onClick={() => {
+          onClick={async () => {
+            await setStudentOnboardStatus(true, user._id);
             setToggleOnboardModal(false);
             setTogglePlansModal(true);
-            setStudentOnboardStatus(true, user._id);
           }}
         >
           Subscribe
@@ -373,8 +375,10 @@ export default function WelcomeWalkthrough({
         togglePlansModal={togglePlansModal}
         setTogglePlansModal={setTogglePlansModal}
       />
-      <Dialog.Root open={toggleOnboardModal}>
-        <Dialog.Trigger className="hidden" />
+      <Dialog.Root
+        open={toggleOnboardModal}
+        onOpenChange={setToggleOnboardModal}
+      >
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
 
