@@ -115,7 +115,7 @@ export default function Events({ event }: any) {
         return `hover:bg-indigo-50`;
 
       default:
-        return undefined;
+        return `hover:bg-rose-50`;
     }
   };
 
