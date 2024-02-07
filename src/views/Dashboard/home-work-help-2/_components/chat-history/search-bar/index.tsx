@@ -1,8 +1,20 @@
 import { SearchIcon } from '@chakra-ui/icons';
 import { Input, InputGroup, InputLeftElement } from '@chakra-ui/input';
 import { Select } from '@chakra-ui/react';
+import { ConversationHistory } from '../../../../../../types';
 
-function SearchBar() {
+function SearchBar({
+  conversations
+}: {
+  conversations: ConversationHistory[];
+}) {
+  const uniqueSubjects = [
+    ...new Set(
+      conversations
+        .filter((item) => Boolean(item.subject))
+        .map((item) => item.subject || null)
+    )
+  ];
   return (
     <div className="w-full h-[30px] flex gap-2 my-4 items-center">
       <div>
@@ -15,15 +27,17 @@ function SearchBar() {
       </div>
       <div>
         <Select
-          placeholder=""
           className="p-0 max-w-20 max-h-[30px]"
           size={'sm'}
           rounded={'full'}
+          defaultValue={''}
         >
-          <option value="option1">All</option>
-          <option value="option2">Option 2</option>
-          <option value="option3">Option 3</option>
-          <option value="option4">Chemical Engineering</option>
+          <option value="">All</option>
+          {uniqueSubjects.map((subject) => (
+            <option key={subject} value={subject}>
+              {subject}
+            </option>
+          ))}
         </Select>
       </div>
     </div>

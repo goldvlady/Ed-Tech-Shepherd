@@ -8,8 +8,6 @@ function useStudentConversations({ studentId }) {
     queryFn: () => fetchStudentConversations(studentId)
   });
 
-  console.log('chatHistory', data, isLoading);
-
   return { data: data ?? [], isLoading, isError };
 }
 

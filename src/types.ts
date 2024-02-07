@@ -582,6 +582,20 @@ export interface QuizData {
   currentStudy?: MinimizedStudy;
   tags: string[];
 }
+
+export interface ConversationHistory {
+  createdAt: string;
+  deletedAt: string;
+  id: string;
+  level: string;
+  reference: string;
+  referenceId: string;
+  subject: string;
+  title: string;
+  topic: string;
+  updatedAt: string;
+}
+
 export type StudyPlanTopic = {
   mainTopic: string;
   subTopics: string[];

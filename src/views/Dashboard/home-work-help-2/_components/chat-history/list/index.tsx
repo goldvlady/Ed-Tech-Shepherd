@@ -6,7 +6,7 @@ function ChatList({ conversations }: { conversations: any[] }) {
   return (
     <React.Fragment>
       <div className="search-bar w-full">
-        <SearchBar />
+        <SearchBar conversations={conversations} />
       </div>
       <div
         className={
