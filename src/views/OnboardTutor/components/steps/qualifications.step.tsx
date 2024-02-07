@@ -252,6 +252,7 @@ const QualificationsForm: React.FC = () => {
   };
 
   const isFormValid = useMemo(() => {
+    console.log(Object.values(formData));
     return Object.values(formData).every(Boolean);
   }, [formData]);
 
