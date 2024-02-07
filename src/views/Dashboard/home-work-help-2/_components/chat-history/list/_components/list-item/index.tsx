@@ -1,22 +1,35 @@
 import { Link, useParams } from 'react-router-dom';
 import Options from './_components/options';
 import { useRef, useState } from 'react';
+import useListItem from './hook/useListItem';
 
 const ListItem = ({ id, title }: { id: string; title: string }) => {
   const inputRef = useRef<HTMLInputElement | null>();
   const { id: conversationId } = useParams();
-  const [renameMode, setRenameMode] = useState(false);
+  const [renameMode, setRenameMode] = useState({
+    enabled: false,
+    title: title
+  });
+  const { renameConversation, renaming } = useListItem({
+    onRenameSuccess: (newTitle: any) => {
+      console.log('newTitle', newTitle);
+      alert('Renamed');
+      setRenameMode(() => ({ title: '', enabled: false }));
+    }
+  });
   if (!title) return null;
 
   const handleRename = () => {
-    setRenameMode(true);
+    setRenameMode((prev) => ({ ...prev, enabled: true }));
     setTimeout(() => {
       inputRef.current?.focus();
     }, 100);
   };
 
   const handleRenameOnBlur = () => {
-    setRenameMode(false);
+    renameConversation(id, inputRef.current?.value || '', (values) => {
+      setRenameMode(() => ({ title: '', enabled: false }));
+    });
   };
 
   const handleDelete = (id: string) => {
@@ -27,16 +40,20 @@ const ListItem = ({ id, title }: { id: string; title: string }) => {
     <div
       className={`flex w-full h-[36px] text-[#000000] leading-5 text-[12px] rounded-[8px] border truncate text-ellipsis gap-2 font-normal bg-[#F9F9FB] border-none pr-2 ${
         id === conversationId ? 'bg-[#E5E5E5]' : ''
-      } hover:bg-[#E5E5E5] hover:cursor-pointer hover:shadow-md hover:z-10 hover:transition-all hover:duration-300 hover:ease-in-out`}
+      } hover:bg-[#E5E5E5] hover:cursor-pointer hover:shadow-md hover:z-10 hover:transition-all hover:duration-300 hover:ease-in-out ${
+        renaming ? 'opacity-50' : ''
+      }`}
     >
-      {renameMode ? (
+      {renameMode.enabled ? (
         <input
           ref={inputRef}
           onBlur={handleRenameOnBlur}
           type="text"
           className="w-full py-2 pl-2 text-[12px] border-none bg-blue-100 italic"
-          value={title}
-          // onChange={() => {}}
+          value={renameMode.title}
+          onChange={(e) =>
+            setRenameMode((prev) => ({ ...prev, title: e.target.value }))
+          }
         />
       ) : (
         <Link to={`/dashboard/ace-homework/${id}`} className="w-full py-2 pl-2">
