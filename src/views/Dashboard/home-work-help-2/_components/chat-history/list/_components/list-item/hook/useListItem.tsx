@@ -12,14 +12,14 @@ function useListItem({
   const queryClient = useQueryClient();
   const { mutate, isPending: renaming } = useMutation({
     mutationFn: editConversationId,
-    onMutate: async (data) => {
-      console.log('data', data);
-    },
-    onSuccess(data, variables, context) {
-      onRenameSuccess(variables);
+    // Always refetch after error or success:
+    onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: ['chatHistory', { studentId }]
       });
+    },
+    onSuccess(data, variables, context) {
+      onRenameSuccess(variables);
     }
   });
 
