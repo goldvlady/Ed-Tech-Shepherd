@@ -39,7 +39,7 @@ function ChatList({ conversations = [] }: { conversations: Conversation[] }) {
           handleKeywordFilter={handleFilterChange('keyword')}
         />
       </div>
-      <div className="w-full h-full overflow-y-scroll flex-col gap-2 over no-scrollbar relative pb-20">
+      <div className="w-full h-full overflow-y-scroll flex flex-col gap-2 over no-scrollbar relative pb-20">
         {Object.keys(groupedConversations).map((date) => (
           <ListGroup
             key={date}
