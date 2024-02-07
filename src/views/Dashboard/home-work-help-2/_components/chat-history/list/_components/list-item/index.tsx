@@ -19,6 +19,10 @@ const ListItem = ({ id, title }: { id: string; title: string }) => {
     setRenameMode(false);
   };
 
+  const handleDelete = (id: string) => {
+    console.log('delete', id);
+  };
+
   return (
     <div
       className={`flex w-full h-[36px] text-[#000000] leading-5 text-[12px] rounded-[8px] border truncate text-ellipsis gap-2 font-normal bg-[#F9F9FB] border-none pr-2 ${
@@ -40,8 +44,10 @@ const ListItem = ({ id, title }: { id: string; title: string }) => {
         </Link>
       )}
       <Options
+        id={id}
         actions={{
-          handleRename
+          handleRename,
+          handleDelete
         }}
       />
     </div>

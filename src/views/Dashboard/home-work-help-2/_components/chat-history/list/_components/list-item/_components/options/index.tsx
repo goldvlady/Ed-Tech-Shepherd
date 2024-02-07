@@ -8,10 +8,13 @@ import {
 } from '@radix-ui/react-dropdown-menu';
 
 function Options({
-  actions: { handleRename }
+  id,
+  actions: { handleRename, handleDelete }
 }: {
+  id: string;
   actions: {
     handleRename: () => void; // For renaming the conversation
+    handleDelete: (id: string) => void; // For deleting the conversation
   };
 }) {
   return (
@@ -37,7 +40,7 @@ function Options({
             </OptionItem>
             <OptionItem>
               <button
-                onClick={() => alert('ads')}
+                // onClick={}
                 className="font-medium w-full h-full text-start"
               >
                 Share
@@ -45,7 +48,7 @@ function Options({
             </OptionItem>
             <OptionItem>
               <button
-                onClick={() => alert('ads')}
+                onClick={() => handleDelete(id)}
                 className="font-medium text-red-500 w-full h-full text-start"
               >
                 Delete
