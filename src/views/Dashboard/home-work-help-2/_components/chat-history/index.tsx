@@ -1,11 +1,12 @@
 import ChatList from './list';
 import useUserStore from '../../../../../state/userStore';
 import useStudentConversations from './hooks/useStudentConversations';
+import ConversationHistorySkeleton from '../../../../../components/skeletons/conversation-history';
 
 function ChatHistory() {
   const user = useUserStore((state) => state.user);
   const userId = user?._id;
-  const { data: conversations } = useStudentConversations({
+  const { data: conversations, isLoading } = useStudentConversations({
     studentId: userId
   });
   return (
@@ -14,7 +15,11 @@ function ChatHistory() {
         <h4 className="font-medium text-sm">Chat History</h4>
       </div>
       <div className="w-full flex-1 overflow-y-hidden">
-        <ChatList conversations={conversations} />
+        {isLoading ? (
+          <ConversationHistorySkeleton />
+        ) : (
+          <ChatList conversations={conversations} />
+        )}
       </div>
       <div className="clear-conversations-button-section w-full flex justify-end mt-10">
         <button className="text-red-600 leading-4 text-xs font-normal">
