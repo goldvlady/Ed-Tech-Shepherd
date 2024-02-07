@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { DotsHorizontal } from '../../../../../../../../components/icons';
+import Options from './_components/options';
 
 const ListItem = ({ id, title }: { id: string; title: string }) => {
   if (!title) return null;
@@ -8,12 +8,7 @@ const ListItem = ({ id, title }: { id: string; title: string }) => {
       <Link to={`/dashboard/ace-homework/${id}`} className="w-full py-2 pl-2">
         <span className="flex-1 text-ellipsis truncate">{title}</span>
       </Link>
-      <button
-        role="button"
-        className=" w-[5%] h-full flex items-center justify-center"
-      >
-        <DotsHorizontal className="font-bold" />
-      </button>
+      <Options />
     </div>
   );
 };

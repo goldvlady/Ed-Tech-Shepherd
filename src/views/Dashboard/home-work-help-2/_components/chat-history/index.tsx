@@ -3,6 +3,7 @@ import useUserStore from '../../../../../state/userStore';
 import useStudentConversations from './hooks/useStudentConversations';
 import ConversationHistorySkeleton from '../../../../../components/skeletons/conversation-history';
 
+// TODO: This component is rerendering on url id change, To fix it first we need to work in routes and then memoize this component
 function ChatHistory() {
   const user = useUserStore((state) => state.user);
   const userId = user?._id;
