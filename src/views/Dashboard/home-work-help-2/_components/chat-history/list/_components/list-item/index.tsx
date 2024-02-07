@@ -1,6 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import Options from './_components/options';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 const ListItem = ({ id, title }: { id: string; title: string }) => {
   const inputRef = useRef<HTMLInputElement | null>();
@@ -10,6 +10,9 @@ const ListItem = ({ id, title }: { id: string; title: string }) => {
 
   const handleRename = () => {
     setRenameMode(true);
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
   };
 
   const handleRenameOnBlur = () => {
@@ -29,7 +32,7 @@ const ListItem = ({ id, title }: { id: string; title: string }) => {
           type="text"
           className="w-full py-2 pl-2 text-[12px] border-none bg-blue-100 italic"
           value={title}
-          onChange={() => {}}
+          // onChange={() => {}}
         />
       ) : (
         <Link to={`/dashboard/ace-homework/${id}`} className="w-full py-2 pl-2">
