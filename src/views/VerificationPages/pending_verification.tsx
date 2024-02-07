@@ -32,6 +32,7 @@ const PendingVerification = () => {
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
   const [obtainedUserAuthState, setObtainedUserAuthState] = useState(false);
   const [email, setEmail] = useState('');
+  const [buttonLoading, setButtonLoading] = useState(false);
 
   const toast = useCustomToast();
 
@@ -43,6 +44,7 @@ const PendingVerification = () => {
 
   const handleResendLink = async (email) => {
     try {
+      setButtonLoading(true);
       const response = await ApiService.resendUserEmail(email);
       if (response.status === 200) {
         toast({
@@ -67,6 +69,8 @@ const PendingVerification = () => {
         status: 'error',
         isClosable: true
       });
+    } finally {
+      setButtonLoading(false);
     }
   };
 
@@ -196,7 +200,11 @@ const PendingVerification = () => {
         }}
         footerContent={
           <div style={{ display: 'flex', gap: '8px' }}>
-            <Button isDisabled={!email} onClick={() => handleResendLink(email)}>
+            <Button
+              isLoading={buttonLoading}
+              isDisabled={!email}
+              onClick={() => handleResendLink(email)}
+            >
               Send
             </Button>
           </div>
