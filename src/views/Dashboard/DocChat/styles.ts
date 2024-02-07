@@ -439,15 +439,23 @@ export const UserMessage = styled.div`
   align-self: flex-end;
   background: #207df7;
   color: #333;
-  padding: 10px;
-  border-radius: 5px;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  border-radius: 0.75rem;
+  overflow-wrap: break-word;
+  place-self: end;
   margin-bottom: 10px;
   color: #fff;
-  font-size: 1rem;
-  border-radius: 10px;
   min-width: auto;
   max-width: 439px;
   margin: 15px 0;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 0.5px,
+    rgba(0, 0, 0, 0.024) 0px 0px 5px, rgba(0, 0, 0, 0.05) 0px 1px 2px;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 0.15s;
 
   @media only screen and (max-width: 768px) {
     font-size: 1rem;
@@ -466,6 +474,8 @@ export const AiMessage = styled.div`
   border-radius: 10px;
   max-width: 439px;
   min-width: auto;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 0.5px,
+    rgba(0, 0, 0, 0.024) 0px 0px 5px, rgba(0, 0, 0, 0.05) 0px 1px 2px;
 
   @media only screen and (max-width: 768px) {
     font-size: 1rem;
