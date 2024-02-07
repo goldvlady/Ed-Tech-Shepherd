@@ -21,7 +21,7 @@ function ChatHistory() {
           <ChatList conversations={conversations} />
         )}
       </div>
-      <div className="clear-conversations-button-section w-full flex justify-end mt-10">
+      <div className="clear-conversations-button-section w-full flex justify-end mt-6">
         <button className="text-red-600 leading-4 text-xs font-normal">
           Clear History
         </button>
