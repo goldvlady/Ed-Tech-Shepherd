@@ -2,51 +2,41 @@ import React, { useState } from 'react';
 import SearchBar from '../search-bar';
 import ListGroup from './_components/list-group';
 import { format, isToday, isYesterday } from 'date-fns';
+import { ConversationHistory } from '../../../../../../types';
 
-type Conversation = any;
+type Conversation = ConversationHistory;
 
 interface GroupedConversations {
   [date: string]: Conversation[];
 }
 
+interface Filter {
+  keyword: string;
+  subject: string;
+}
+
 function ChatList({ conversations = [] }: { conversations: Conversation[] }) {
-  const [conversationHistoryFilter, setConversationHistoryFilter] = useState({
-    keyword: '',
-    subject: ''
-  });
+  const [filter, setFilter] = useState<Filter>({ keyword: '', subject: '' });
 
-  // Filtering conversations based on subject and keyword
-  const filteredConversations = conversations?.filter((conversation) => {
-    const { keyword, subject } = conversationHistoryFilter;
-    return (
-      conversation?.subject?.toLowerCase().includes(subject.toLowerCase()) &&
-      conversation?.title?.toLowerCase().includes(keyword.toLowerCase())
-    );
-  });
+  const handleFilterChange =
+    (key: keyof Filter) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      setFilter({
+        ...filter,
+        [key]: e.target.value
+      });
+    };
 
+  const filteredConversations = filterConversations(conversations, filter);
   const groupedConversations = groupConversationsByDate(filteredConversations);
-
-  const handleSubjectFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setConversationHistoryFilter({
-      ...conversationHistoryFilter,
-      subject: e.target.value
-    });
-  };
-
-  const handleKeywordFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setConversationHistoryFilter({
-      ...conversationHistoryFilter,
-      keyword: e.target.value
-    });
-  };
 
   return (
     <React.Fragment>
       <div className="search-bar w-full">
         <SearchBar
           conversations={conversations}
-          handleSubjectFilter={handleSubjectFilter}
-          handleKeywordFilter={handleKeywordFilter}
+          handleSubjectFilter={handleFilterChange('subject')}
+          handleKeywordFilter={handleFilterChange('keyword')}
         />
       </div>
       <div className="w-full h-full overflow-y-scroll flex-col gap-2 over no-scrollbar relative pb-20">
@@ -60,6 +50,18 @@ function ChatList({ conversations = [] }: { conversations: Conversation[] }) {
       </div>
     </React.Fragment>
   );
+}
+
+function filterConversations(
+  conversations: Conversation[],
+  { keyword, subject }: Filter
+) {
+  return conversations.filter((conversation) => {
+    return (
+      conversation?.subject?.toLowerCase().includes(subject.toLowerCase()) &&
+      conversation?.title?.toLowerCase().includes(keyword.toLowerCase())
+    );
+  });
 }
 
 function groupConversationsByDate(
