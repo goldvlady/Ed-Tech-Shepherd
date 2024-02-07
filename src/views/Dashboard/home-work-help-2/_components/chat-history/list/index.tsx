@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import SearchBar from '../search-bar';
 import ListGroup from './_components/list-group';
 import { format, isToday, isYesterday } from 'date-fns';
@@ -8,13 +8,46 @@ type Conversation = any;
 interface GroupedConversations {
   [date: string]: Conversation[];
 }
-function ChatList({ conversations }: { conversations: Conversation[] }) {
-  const groupedConversations = groupConversationsByDate(conversations);
+
+function ChatList({ conversations = [] }: { conversations: Conversation[] }) {
+  const [conversationHistoryFilter, setConversationHistoryFilter] = useState({
+    keyword: '',
+    subject: ''
+  });
+
+  // Filtering conversations based on subject and keyword
+  const filteredConversations = conversations?.filter((conversation) => {
+    const { keyword, subject } = conversationHistoryFilter;
+    return (
+      conversation?.subject?.toLowerCase().includes(subject.toLowerCase()) &&
+      conversation?.title?.toLowerCase().includes(keyword.toLowerCase())
+    );
+  });
+
+  const groupedConversations = groupConversationsByDate(filteredConversations);
+
+  const handleSubjectFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setConversationHistoryFilter({
+      ...conversationHistoryFilter,
+      subject: e.target.value
+    });
+  };
+
+  const handleKeywordFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConversationHistoryFilter({
+      ...conversationHistoryFilter,
+      keyword: e.target.value
+    });
+  };
 
   return (
     <React.Fragment>
       <div className="search-bar w-full">
-        <SearchBar conversations={conversations} />
+        <SearchBar
+          conversations={conversations}
+          handleSubjectFilter={handleSubjectFilter}
+          handleKeywordFilter={handleKeywordFilter}
+        />
       </div>
       <div className="w-full h-full overflow-y-scroll flex-col gap-2 over no-scrollbar relative pb-20">
         {Object.keys(groupedConversations).map((date) => (

@@ -4,9 +4,13 @@ import { Select } from '@chakra-ui/react';
 import { ConversationHistory } from '../../../../../../types';
 
 function SearchBar({
-  conversations
+  conversations,
+  handleSubjectFilter,
+  handleKeywordFilter
 }: {
   conversations: ConversationHistory[];
+  handleSubjectFilter: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  handleKeywordFilter: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   const uniqueSubjects = [
     ...new Set(
@@ -22,7 +26,12 @@ function SearchBar({
           <InputLeftElement pointerEvents="none" className="max-h-[30px] ">
             <SearchIcon color="gray.300" />
           </InputLeftElement>
-          <Input type="text" rounded="full" className="max-h-[30px] " />
+          <Input
+            type="text"
+            rounded="full"
+            className="max-h-[30px]"
+            onChange={handleKeywordFilter}
+          />
         </InputGroup>
       </div>
       <div>
@@ -31,6 +40,7 @@ function SearchBar({
           size={'sm'}
           rounded={'full'}
           defaultValue={''}
+          onChange={handleSubjectFilter}
         >
           <option value="">All</option>
           {uniqueSubjects.map((subject) => (
