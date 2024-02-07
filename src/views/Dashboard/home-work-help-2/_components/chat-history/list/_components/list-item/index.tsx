@@ -2,19 +2,23 @@ import { Link, useParams } from 'react-router-dom';
 import Options from './_components/options';
 import { useRef, useState } from 'react';
 import useListItem from './hook/useListItem';
+import { useCustomToast } from '../../../../../../../../components/CustomComponents/CustomToast/useCustomToast';
 
 const ListItem = ({ id, title }: { id: string; title: string }) => {
   const inputRef = useRef<HTMLInputElement | null>();
+  const toast = useCustomToast();
   const { id: conversationId } = useParams();
   const [renameMode, setRenameMode] = useState({
     enabled: false,
     title: title
   });
   const { renameConversation, renaming } = useListItem({
-    onRenameSuccess: (newTitle: any) => {
-      console.log('newTitle', newTitle);
-      alert('Renamed');
-      setRenameMode(() => ({ title: '', enabled: false }));
+    onRenameSuccess: (values: any) => {
+      setRenameMode((prev) => ({ title: values.newTitle, enabled: false }));
+      toast({
+        status: 'success',
+        title: 'Conversation renamed successfully'
+      });
     }
   });
   if (!title) return null;
@@ -27,9 +31,7 @@ const ListItem = ({ id, title }: { id: string; title: string }) => {
   };
 
   const handleRenameOnBlur = () => {
-    renameConversation(id, inputRef.current?.value || '', (values) => {
-      setRenameMode(() => ({ title: '', enabled: false }));
-    });
+    renameConversation(id, inputRef.current?.value || '');
   };
 
   const handleDelete = (id: string) => {
@@ -38,17 +40,17 @@ const ListItem = ({ id, title }: { id: string; title: string }) => {
 
   return (
     <div
-      className={`flex w-full h-[36px] text-[#000000] leading-5 text-[12px] rounded-[8px] border truncate text-ellipsis gap-2 font-normal bg-[#F9F9FB] border-none pr-2 ${
-        id === conversationId ? 'bg-[#E5E5E5]' : ''
-      } hover:bg-[#E5E5E5] hover:cursor-pointer hover:shadow-md hover:z-10 hover:transition-all hover:duration-300 hover:ease-in-out ${
-        renaming ? 'opacity-50' : ''
-      }`}
+      className={`flex w-full h-[36px] text-[#000000] leading-5 text-[12px] rounded-[8px] border truncate text-ellipsis gap-2 font-normal bg-[#F9F9FB] border-none pr-2
+                ${id === conversationId ? 'bg-[#E5E5E5]' : ''} 
+                hover:bg-[#E5E5E5] hover:cursor-pointer hover:shadow-md hover:z-10 hover:transition-all hover:duration-300 hover:ease-in-out 
+                ${renaming ? 'opacity-50' : ''}`}
     >
       {renameMode.enabled ? (
         <input
           ref={inputRef}
           onBlur={handleRenameOnBlur}
           type="text"
+          defaultValue={title}
           className="w-full py-2 pl-2 text-[12px] border-none bg-blue-100 italic"
           value={renameMode.title}
           onChange={(e) =>

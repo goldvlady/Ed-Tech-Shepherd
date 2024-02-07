@@ -12,6 +12,9 @@ function useListItem({
   const queryClient = useQueryClient();
   const { mutate, isPending: renaming } = useMutation({
     mutationFn: editConversationId,
+    onMutate: async (data) => {
+      console.log('data', data);
+    },
     onSuccess(data, variables, context) {
       onRenameSuccess(variables);
       queryClient.invalidateQueries({
