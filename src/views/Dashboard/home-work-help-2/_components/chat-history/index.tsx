@@ -9,7 +9,7 @@ function ChatHistory() {
     studentId: userId
   });
   return (
-    <div className="w-full p-4">
+    <div className="w-full p-4 no-scrollbar">
       <ChatList conversations={conversations} />
     </div>
   );
