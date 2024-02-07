@@ -48,10 +48,9 @@ const ListItem = ({ id, title }: { id: string; title: string }) => {
 
   return (
     <div
-      className={`flex w-full h-[36px] text-[#000000] leading-5 text-[12px] rounded-[8px] border truncate text-ellipsis gap-2 font-normal bg-[#F9F9FB] border-none pr-2
-                ${id === conversationId ? 'bg-[#E5E5E5]' : ''} 
-                hover:bg-[#E5E5E5] hover:cursor-pointer 
-                ${renaming || deleting ? 'opacity-50' : ''}`}
+      className={`flex w-full h-[36px] text-[#000000] leading-5 text-[12px] rounded-[8px] border gap-2 font-normal bg-[#F9F9FB] border-none px-2 hover:bg-[#E5E5E5] hover:cursor-pointer ${
+        id === conversationId ? 'bg-[#E5E5E5]' : ''
+      } ${renaming || deleting ? 'opacity-50' : ''}`}
     >
       {renameMode.enabled ? (
         <input
@@ -66,8 +65,11 @@ const ListItem = ({ id, title }: { id: string; title: string }) => {
           }
         />
       ) : (
-        <Link to={`/dashboard/ace-homework/${id}`} className="w-full py-2 pl-2">
-          <span className="flex-1 text-ellipsis truncate">{title}</span>
+        <Link
+          to={`/dashboard/ace-homework/${id}`}
+          className="flex-1 py-2 text-ellipsis truncate"
+        >
+          <span className="w-full text-ellipsis truncate">{title}</span>
         </Link>
       )}
       <Options
