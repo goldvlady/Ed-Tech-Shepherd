@@ -91,26 +91,10 @@ const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
     exit: { y: '-100vh', transition: { duration: 0.5, ease: 'easeInOut' } }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    await saveFlashcardData(handleDone);
     handleQuestionSubmit();
-    setHasTriggeredSave(true);
   };
-
-  useEffect(() => {
-    if (hasTriggeredSave) {
-      const lastQuestion = questions[questions.length - 1];
-      if (lastQuestion.question === currentQuestion.question) {
-        saveFlashcardData(handleDone);
-      }
-    }
-    setHasTriggeredSave(false);
-  }, [
-    hasTriggeredSave,
-    questions,
-    saveFlashcardData,
-    handleDone,
-    currentQuestion
-  ]);
 
   useEffect(() => {
     if (questions[currentQuestionIndex]) {
@@ -494,10 +478,10 @@ const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
             lineHeight="20px"
             variant="solid"
             colorScheme="primary"
-            onClick={() => {
+            onClick={async () => {
               currentQuestionIndex !== questions.length - 1
                 ? handleQuestionSubmit()
-                : handleSave();
+                : await handleSave();
             }}
             ml={5}
           >

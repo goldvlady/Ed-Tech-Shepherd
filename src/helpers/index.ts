@@ -42,7 +42,35 @@ export const copierHandler = (copiedText = '', setSwitchView: any) => {
     setSwitchView(false);
   }, 700);
 };
+export const extractDataURIAndBase64 = (input: string) => {
+  const regex = /(data:image\/(jpeg|jpg|png|svg);base64,.*)/;
 
+  const match = input.match(regex);
+  console.log(match);
+  if (match) {
+    const dataUri = match[1];
+    console.log('duri', dataUri);
+    const base64Data = dataUri.split(',')[1];
+
+    const binaryData = atob(base64Data);
+    console.log(base64Data, 'based');
+    return { base64Data, dataURI: `${dataUri.split(',')[0]}` };
+  } else {
+    return null;
+  }
+};
+export const extractDataURI = (input: string) => {
+  const regex = /(data:image\/(jpeg|jpg|png|svg);base64,.*)/;
+
+  const match = input.match(regex);
+
+  if (match) {
+    const dataUri = match[1];
+    return dataUri;
+  } else {
+    return null;
+  }
+};
 const getDateStringTest = (date: any) => {
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(date).toLocaleDateString(undefined, options as any);

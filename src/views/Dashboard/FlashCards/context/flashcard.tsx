@@ -16,8 +16,9 @@ import React, {
 } from 'react';
 import CustomToast from '../../../../components/CustomComponents/CustomToast';
 import { useNavigate } from 'react-router';
-import { extractDataURIAndBase64 } from '../create';
+
 import S3Handler from '../../../../helpers/s3Handler';
+import { extractDataURIAndBase64 } from '../../../../helpers';
 
 export enum TypeEnum {
   FLASHCARD = 'flashcard',
@@ -539,40 +540,45 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
   // Handle errors
   const saveFlashcardData = useCallback(
     async (onDone?: (success: boolean) => void) => {
+      const s3 = new S3Handler();
       try {
         setIsLoading(true);
-        const s3 = new S3Handler();
         // here pretty painfully , for each question save to s3 and replace with the string
-        const updatedQuestionsPromises = questions.map(async (question) => {
-          let q: string;
-          let a: string;
-          if (question.question.includes('data:image/,')) {
-            const base64 = extractDataURIAndBase64(question.question);
-            const file = await s3.uploadBase64ToS3(base64);
-            q = question.question.replace(
-              /data:image\/(jpeg|jpg|png|svg);base64,.*/,
-              file
-            );
-          } else {
-            q = question.question;
-          }
-          if (question.answer.includes('data:image/')) {
-            const base64 = extractDataURIAndBase64(question.answer);
-            const file = await s3.uploadBase64ToS3(base64);
-            a = file;
-          } else {
-            a = question.answer;
-          }
-          return {
-            ...question,
-            answer: a,
-            question: q
-          };
-        });
-        const updatedQuestions = Promise.all(updatedQuestionsPromises);
-        console.log(updatedQuestions, 'update??');
+        // const updatedQuestionsPromises = questions.map(async (question) => {
+        //   let q: string;
+        //   let a: string;
+
+        //   if (question.question.includes('data:image/')) {
+        //     const { base64Data, dataURI } = extractDataURIAndBase64(
+        //       question.question
+        //     );
+        //     const file = await s3.uploadBase64ToS3(base64Data, dataURI);
+        //     q = question.question.replace(
+        //       /data:image\/(jpeg|jpg|png|svg);base64,.*/,
+        //       file
+        //     );
+        //   } else {
+        //     q = question.question;
+        //   }
+        //   if (question.answer.includes('data:image/')) {
+        //     const { base64Data, dataURI } = extractDataURIAndBase64(
+        //       question.answer
+        //     );
+        //     const file = await s3.uploadBase64ToS3(base64Data, dataURI);
+        //     a = file;
+        //   } else {
+        //     a = question.answer;
+        //   }
+        //   return {
+        //     ...question,
+        //     answer: a,
+        //     question: q
+        //   };
+        // });
+        // const updatedQuestions = await Promise.all(updatedQuestionsPromises);
+        // console.log(updatedQuestions, 'update??');
         const response = await createFlashCard(
-          { ...flashcardData, updatedQuestions },
+          { ...flashcardData, questions },
           'manual'
         );
         if (response) {
@@ -584,6 +590,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
           }
         }
       } catch (error) {
+        console.log(JSON.stringify(error), 'error');
         setQuestionGenerationStatus(QuestionGenerationStatusEnum.FAILED);
         setFlashcardData((prev) => ({ ...prev, hasSubmitted: false }));
         onDone && onDone(false);

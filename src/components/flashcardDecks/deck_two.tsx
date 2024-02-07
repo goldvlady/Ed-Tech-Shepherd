@@ -13,6 +13,7 @@ import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import styled from 'styled-components';
 import Typewriter from 'typewriter-effect';
+import { extractDataURI } from '../../helpers';
 
 const CheckboxContainer = styled.div`
   display: inline-block;
@@ -169,11 +170,10 @@ const FlashCard: React.FC<FlashCardProps> = ({
           wrapperClassName: 'text-base'
         }}
         onInit={(typewriter) => {
-          if (study.questions.includes('shepherd-document-upload')) {
-            const regex =
-              /https:\/\/shepherd-document-upload\.s3\.us-east-2\.amazonaws\.com\/temp_[^/]+/;
+          if (study.questions.includes('data:image/')) {
+            const regex = /(data:image\/(jpeg|jpg|png|svg);base64,.*)/;
 
-            const extractedLink = study.questions.match(regex)[0];
+            const extractedLink = extractDataURI(study.questions);
 
             setS3Image(extractedLink);
 
@@ -197,7 +197,7 @@ const FlashCard: React.FC<FlashCardProps> = ({
     return (
       <>
         {typeof study.answers === 'string' &&
-        study.answers.includes('shepherd-document-upload') ? (
+        study.answers.includes('data:image/') ? (
           <img
             src={study.answers}
             alt="the uploaded file"
@@ -470,7 +470,6 @@ const FlashCard: React.FC<FlashCardProps> = ({
             padding="10px"
             fontWeight="500"
             lineHeight="22px"
-            marginBottom={5}
           >
             {questionText}
           </Text>
