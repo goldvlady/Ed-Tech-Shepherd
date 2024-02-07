@@ -7,7 +7,13 @@ import {
   Item
 } from '@radix-ui/react-dropdown-menu';
 
-function Options() {
+function Options({
+  actions: { handleRename }
+}: {
+  actions: {
+    handleRename: () => void; // For renaming the conversation
+  };
+}) {
   return (
     <Root>
       <Trigger asChild>
@@ -23,7 +29,7 @@ function Options() {
           <div className="min-w-[150px] bg-white rounded-md p-[10px] shadow-[0px_10px_38px_-10px_rgba(22,_23,_24,_0.35),_0px_10px_20px_-15px_rgba(22,_23,_24,_0.2)] will-change-[opacity,transform] data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade">
             <OptionItem>
               <button
-                onClick={() => alert('ads')}
+                onClick={() => handleRename()}
                 className="font-medium w-full h-full text-start"
               >
                 Rename
