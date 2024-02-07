@@ -192,7 +192,9 @@ const VerificationSuccess = () => {
               </svg>
             </Box>
             <Text fontSize="2xl" fontWeight="600" textAlign="center">
-              {verified || user?.isVerified
+              {user?.isVerified
+                ? 'Your account has already been Verified'
+                : verified
                 ? 'Your account has been Verified'
                 : `Your account verification failed`}
             </Text>
@@ -205,7 +207,9 @@ const VerificationSuccess = () => {
               mt={1}
               lineHeight="1.5"
             >
-              {verified || user?.isVerified
+              {user?.isVerified
+                ? 'This token has already been used or has expired'
+                : verified
                 ? 'You can now finish setting up your profile and use the full functionality of Shepherd'
                 : 'Invalid or expired token'}
             </Text>
