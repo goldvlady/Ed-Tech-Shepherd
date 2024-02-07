@@ -1,16 +1,22 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { editConversationId } from '../../../../../../../../../services/AI';
+import {
+  deleteConversationId,
+  editConversationId
+} from '../../../../../../../../../services/AI';
 import useUserStore from '../../../../../../../../../state/userStore';
 
 function useListItem({
-  onRenameSuccess
+  onRenameSuccess,
+  onDeletedSuccess
 }: {
-  onRenameSuccess: (newTitle: any) => void;
+  onRenameSuccess?: (newTitle: any) => void;
+  onDeletedSuccess?: (id: string) => void;
 }) {
   const user = useUserStore((state) => state.user);
   const studentId = user?._id;
   const queryClient = useQueryClient();
-  const { mutate, isPending: renaming } = useMutation({
+  //   API call to renaming the conversation
+  const { mutate: rename, isPending: renaming } = useMutation({
     mutationFn: editConversationId,
     // Always refetch after error or success:
     onSettled: () => {
@@ -23,13 +29,27 @@ function useListItem({
     }
   });
 
+  //   API call to delete the conversation
+  const { mutate: deleteConversation, isPending: deleting } = useMutation({
+    mutationFn: deleteConversationId,
+    onSuccess(data, variables, context) {
+      onDeletedSuccess(variables.conversationId);
+    },
+    // Always refetch after error or success:
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['chatHistory', { studentId }]
+      });
+    }
+  });
+
   const renameConversation = (
     id: string,
     newTitle: string,
     callback?: (values: any) => void
   ) => {
     console.log('delete', id);
-    mutate(
+    rename(
       {
         editConversation: id,
         newTitle
@@ -41,8 +61,14 @@ function useListItem({
       }
     );
   };
+
+  const deleteConversationById = (id: string) => {
+    deleteConversation({
+      conversationId: id
+    });
+  };
   //   editConversationId();
-  return { renameConversation, renaming };
+  return { renameConversation, renaming, deleteConversationById, deleting };
 }
 
 export default useListItem;
