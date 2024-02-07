@@ -3,6 +3,17 @@ import SearchBar from '../search-bar';
 import ListGroup from './_components/list-group';
 
 function ChatList({ conversations }: { conversations: any[] }) {
+  const groupedConversations = conversations.reduce((acc, conversation) => {
+    const date = new Date(conversation.createdAt);
+    const dateStr = date.toDateString();
+    if (acc[dateStr]) {
+      acc[dateStr].push(conversation);
+    } else {
+      acc[dateStr] = [conversation];
+    }
+    return acc;
+  }, {});
+  console.log('groupedConversations', groupedConversations);
   return (
     <React.Fragment>
       <div className="search-bar w-full">
@@ -13,12 +24,13 @@ function ChatList({ conversations }: { conversations: any[] }) {
           'w-full h-full overflow-y-scroll flex-col gap-2 over no-scrollbar relative'
         }
       >
-        <ListGroup date="Today" groupItems={conversations.slice(0, 5)} />
-        <ListGroup date="Yesterday" groupItems={conversations.slice(0, 5)} />
-        <ListGroup
-          date="1 February 2024"
-          groupItems={conversations.slice(0, 5)}
-        />
+        {Object.keys(groupedConversations).map((date) => (
+          <ListGroup
+            key={date}
+            date={date}
+            groupItems={groupedConversations[date]}
+          />
+        ))}
       </div>
     </React.Fragment>
   );

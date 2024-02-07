@@ -27,7 +27,10 @@ const Group = () => {
         </p>
         <div className="group-items flex flex-col gap-2">
           {[1, 2, 3, 4].map((conversation) => (
-            <div className="flex p-2 w-full h-[36px] text-[#000000] leading-5 text-[12px] rounded-[8px] border truncate text-ellipsis gap-2 font-normal bg-[#F9F9FB] border-none">
+            <div
+              key={conversation}
+              className="flex p-2 w-full h-[36px] text-[#000000] leading-5 text-[12px] rounded-[8px] border truncate text-ellipsis gap-2 font-normal bg-[#F9F9FB] border-none"
+            >
               <div className="flex-1 h-full bg-gray-200 rounded-full animate-pulse"></div>
               <div className="w-[5%] h-full flex items-center justify-center">
                 <div className="w-4 h-4 bg-gray-200 rounded-sm animate-pulse"></div>
