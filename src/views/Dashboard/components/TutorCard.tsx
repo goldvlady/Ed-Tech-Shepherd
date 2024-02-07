@@ -141,7 +141,8 @@ export default function TutorCard(props: any) {
       reviewerId: user?._id,
       entityType: 'student',
       rating: reviewRate,
-      review: review
+      review: review,
+      offerId
     };
 
     try {
