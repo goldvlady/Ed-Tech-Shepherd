@@ -70,7 +70,9 @@ import {
   FormLabel,
   GridItem,
   Card,
-  CardFooter
+  CardFooter,
+  SimpleGrid,
+  Spinner
 } from '@chakra-ui/react';
 import {
   FaPlus,
@@ -82,6 +84,9 @@ import {
 import SelectComponent, { Option } from '../../../components/Select';
 import { MdInfo, MdOutlineKeyboardArrowDown } from 'react-icons/md';
 import { FiChevronDown } from 'react-icons/fi';
+import { SiMicrosoftbing, SiWikipedia } from 'react-icons/si';
+import { GrResources } from 'react-icons/gr';
+
 import {
   ArrowLeftIcon,
   ChevronDownIcon,
@@ -120,6 +125,7 @@ import { RxDotFilled } from 'react-icons/rx';
 import { numberToDayOfWeekName } from '../../../util';
 import DatePicker from '../../../components/DatePicker';
 import { parseISO, format, parse } from 'date-fns';
+import SciPhiService from '../../../services/SciPhiService'; // SearchRagResponse // SearchRagOptions,
 
 import userStore from '../../../state/userStore';
 
@@ -134,11 +140,11 @@ function CoursePlan() {
     onOpen: onOpenCadence,
     onClose: onCloseCadence
   } = useDisclosure();
-  const [selectedTopic, setSelectedTopic] = useState('');
-  const [topics, setTopics] = useState(null);
-  const [selectedPlan, setSelectedPlan] = useState(null);
-  const [planResource, setPlanResource] = useState(null);
-  const [showSubjects, setShowSubjects] = useState(false);
+  // const [selectedTopic, setSelectedTopic] = useState('');
+  // const [topics, setTopics] = useState(null);
+  // const [selectedPlan, setSelectedPlan] = useState(null);
+  // const [planResource, setPlanResource] = useState(null);
+  const [showNoteModal, setShowNoteModal] = useState(false);
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(100);
   const btnRef = useRef();
@@ -161,14 +167,28 @@ function CoursePlan() {
     studyPlanUpcomingEvent
   } = studyPlanStore();
   const { user } = userStore();
-  const [selectedStatus, setSelectedStatus] = useState('To Do');
-  const [showNoteModal, setShowNoteModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedStudyEvent, setSelectedStudyEvent] = useState(null);
-  const [selectedRecurrence, setSelectedRecurrence] = useState('daily');
-  const [selectedRecurrenceTime, setSelectedRecurrenceTime] = useState(null);
-  const [recurrenceStartDate, setRecurrenceStartDate] = useState(new Date());
-  const [recurrenceEndDate, setRecurrenceEndDate] = useState(new Date());
+  // Combine related state variables into a single state object
+  const [state, setState] = useState({
+    selectedTopic: '',
+    topics: null,
+    topicResource: null,
+    selectedPlan: null,
+    planResource: null,
+    showSubjects: false,
+    page: 1,
+    limit: 100,
+    isLoading: false,
+    selectedStudyEvent: null,
+    selectedRecurrence: 'daily',
+    selectedRecurrenceTime: null,
+    recurrenceStartDate: new Date(),
+    recurrenceEndDate: new Date()
+  });
+
+  // Batch state updates
+  const updateState = (newState) =>
+    setState((prevState) => ({ ...prevState, ...newState }));
+
   const date = new Date();
   const weekday = numberToDayOfWeekName(date.getDay(), 'dddd');
   const month = moment().format('MMMM');
@@ -185,7 +205,7 @@ function CoursePlan() {
   ];
   const resourceData = [
     {
-      title: 'Articles',
+      title: 'Summary',
       items: [
         {
           title: 'Covalent Bonds',
@@ -257,21 +277,6 @@ function CoursePlan() {
     process.env.REACT_APP_STRIPE_PUBLIC_KEY as string
   );
 
-  const setupPaymentMethod = async () => {
-    try {
-      const paymentIntent = await ApiService.createStripeSetupPaymentIntent();
-
-      const { data } = await paymentIntent.json();
-
-      paymentDialogRef.current?.startPayment(
-        data.clientSecret,
-        `${window.location.href}`
-      );
-    } catch (error) {
-      // console.log(error);
-    }
-  };
-
   useEffect(() => {
     if (clientSecret) {
       (async () => {
@@ -336,7 +341,17 @@ function CoursePlan() {
         return 'black';
     }
   }
+  function getIconByDataset(dataset) {
+    switch (dataset) {
+      case 'Bing Search':
+        return <SiMicrosoftbing size={'10px'} />;
+      case 'wikipedia':
+        return <SiWikipedia />;
 
+      default:
+        return <GrResources />;
+    }
+  }
   function getBackgroundColorForStatus(status) {
     switch (status) {
       case 'Done':
@@ -352,11 +367,11 @@ function CoursePlan() {
 
   const handleUpdateTopicStatus = (status, topicId) => {
     // Update the status for the specific topic by topicId
-    const updatedTopics = topics.map((topic) =>
+    const updatedTopics = state.topics.map((topic) =>
       topic._id === topicId ? { ...topic, status } : topic
     );
 
-    setTopics(updatedTopics);
+    updateState({ topics: updatedTopics });
   };
 
   const selectedPlanRef = useRef(null);
@@ -365,38 +380,38 @@ function CoursePlan() {
     console.log(id);
 
     try {
-      await fetchPlanReport(selectedPlan);
+      await fetchPlanReport(state.selectedPlan);
     } catch (error) {
       console.error('Error fetching study plan report:', error);
     }
   };
   const fetchResources = async (id) => {
     try {
-      const response = await fetchPlanResources(id);
+      await fetchPlanResources(id);
 
-      setPlanResource(response);
+      updateState({ planResource: studyPlanResources });
     } catch (error) {}
   };
-  useEffect(() => {
-    if (selectedPlan) {
-      fetchResources(selectedPlan);
-      fetchReportData(selectedPlan);
-    }
-  }, [selectedPlan]);
-  // useEffect(() => {
-  //   const fetchReportData = async (id) => {
-  //     console.log(id);
 
-  //     try {
-  //       await fetchPlanReport(selectedPlan);
-  //     } catch (error) {
-  //       console.error('Error fetching study plan report:', error);
-  //     }
-  //   };
-  //   fetchReportData(selectedPlan);
-  // }, [fetchPlanReport, selectedPlan]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (state.selectedPlan) {
+          const [resourcesResponse, reportResponse] = await Promise.all([
+            fetchPlanResources(state.selectedPlan),
+            fetchPlanReport(state.selectedPlan)
+          ]);
+          updateState({ planResource: resourcesResponse });
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, [state.selectedPlan]);
   console.log(studyPlanReport);
-  console.log(selectedPlan);
+  console.log(state.selectedPlan);
 
   function getSubject(id) {
     const labelFromCourseList = courseList
@@ -416,12 +431,12 @@ function CoursePlan() {
     const planIdFromURL = pathname.split('planId=')[1];
 
     if (planIdFromURL) {
-      setSelectedPlan(planIdFromURL);
+      updateState({ selectedPlan: planIdFromURL });
     }
   }, [location.pathname]);
 
   useEffect(() => {
-    if (selectedPlan && selectedPlanRef.current) {
+    if (state.selectedPlan && selectedPlanRef.current) {
       const selectedPlanElement = selectedPlanRef.current;
 
       const { top, bottom } = selectedPlanElement.getBoundingClientRect();
@@ -434,9 +449,9 @@ function CoursePlan() {
       // Scroll to the selected plan
       selectedPlanElement.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [selectedPlan]);
+  }, [state.selectedPlan]);
   useEffect(() => {
-    if (selectedTopic && selectedTopicRef.current) {
+    if (state.selectedTopic && selectedTopicRef.current) {
       const selectedTopicElement = selectedTopicRef.current;
 
       const { top, bottom } = selectedTopicElement.getBoundingClientRect();
@@ -449,20 +464,22 @@ function CoursePlan() {
       // Scroll to the selected Topic
       selectedTopicElement.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [selectedTopic]);
+  }, [state.selectedTopic]);
+  console.log(state.topicResource);
 
   const doFetchTopics = useCallback(() => {
-    if (selectedPlan) {
+    if (state.selectedPlan) {
       const selectedPlanData = studyPlans.find(
-        (plan) => plan._id === selectedPlan
+        (plan) => plan._id === state.selectedPlan
       );
 
       if (selectedPlanData) {
         const topics = selectedPlanData;
-        setTopics(topics);
+        updateState({ topics: topics });
+        // setTopics(topics);
       }
     }
-  }, [selectedPlan, studyPlans]);
+  }, [state.selectedPlan, studyPlans]);
 
   useEffect(() => {
     doFetchTopics();
@@ -482,10 +499,10 @@ function CoursePlan() {
     navigate(updatedPathname, { replace: true });
   };
   const handlePlanSelection = (planId) => {
-    setSelectedPlan(planId);
+    updateState({ selectedPlan: planId });
   };
   const getTopicStatus = (topicId) => {
-    const selectedTopic = topics.progressLog[0].topicProgress.find(
+    const selectedTopic = state.topics.progressLog[0].topicProgress.find(
       (topic) => topic.topic === topicId
     );
 
@@ -507,6 +524,27 @@ function CoursePlan() {
       return 'In Progress';
     } else {
       return 'To Do';
+    }
+  };
+  const getTopicResource = async (topic: string) => {
+    updateState({ isLoading: true });
+    try {
+      // Instantiate SciPhiService
+      const sciPhiService = new SciPhiService();
+
+      // Define search options
+      const searchOptions = {
+        query: topic
+      };
+
+      // Call searchRag method
+      const response = await sciPhiService.searchRag(searchOptions);
+      if (response) {
+        updateState({ isLoading: false, topicResource: response });
+      }
+    } catch (error) {
+      updateState({ isLoading: false });
+      console.error('Error searching topic:', error);
     }
   };
 
@@ -553,28 +591,28 @@ function CoursePlan() {
   // }, [doFetchStudyPlans]);
 
   const handleUpdatePlanCadence = async () => {
-    setIsLoading(true);
+    updateState({ isLoading: true });
     const parsedTime = parse(
-      selectedRecurrenceTime.toLowerCase(),
+      state.selectedRecurrenceTime.toLowerCase(),
       'hh:mm aa',
       new Date()
     );
     const time = format(parsedTime, 'HH:mm');
     const payload = {
       // entityId: selectedPlan,
-      eventId: selectedStudyEvent,
+      eventId: state.selectedStudyEvent,
 
       // metadata: {
       //   topicId: selectedTopic
       // },
 
       updates: {
-        startDate: moment(recurrenceStartDate).format('YYYY-MM-DD'),
+        startDate: moment(state.recurrenceStartDate).format('YYYY-MM-DD'),
         startTime: time,
         isActive: true,
         recurrence: {
-          frequency: selectedRecurrence,
-          endDate: moment(recurrenceEndDate).format('YYYY-MM-DD')
+          frequency: state.selectedRecurrence,
+          endDate: moment(state.recurrenceEndDate).format('YYYY-MM-DD')
         }
       }
     };
@@ -592,9 +630,9 @@ function CoursePlan() {
             status: 'success',
             isClosable: true
           });
-          setIsLoading(false);
+          updateState({ isLoading: false });
 
-          fetchResources(selectedPlan);
+          fetchResources(state.selectedPlan);
           onCloseCadence();
         } else {
           // setLoading(false);
@@ -604,7 +642,7 @@ function CoursePlan() {
             status: 'error',
             isClosable: true
           });
-          setIsLoading(false);
+          updateState({ isLoading: false });
         }
       }
     } catch (error: any) {
@@ -612,9 +650,9 @@ function CoursePlan() {
       return { error: error.message, message: error.message };
     }
   };
-  console.log(topics?.schedules);
+  console.log(state.topics?.schedules);
 
-  const groupedTopics = topics?.schedules.reduce((grouped, topic) => {
+  const groupedTopics = state.topics?.schedules.reduce((grouped, topic) => {
     let testDate;
     if (topic.topicMetaData && topic.topicMetaData.length > 0) {
       testDate = new Date(topic.topicMetaData[0].testDate).toDateString();
@@ -675,7 +713,7 @@ function CoursePlan() {
               <Box
                 mb={2}
                 border={
-                  selectedPlan === plan._id
+                  state.selectedPlan === plan._id
                     ? '1px solid #FC9B65'
                     : '1px solid #EAEBEB'
                 }
@@ -684,13 +722,14 @@ function CoursePlan() {
                 m={4}
                 key={plan._id}
                 onClick={() => {
-                  setTopics(plan);
+                  updateState({ topics: plan });
+
                   fetchPlanResources(plan._id);
                   handlePlanSelection(plan._id);
                 }}
-                bg={selectedPlan === plan.id ? 'orange' : 'white'}
+                bg={state.selectedPlan === plan.id ? 'orange' : 'white'}
                 cursor="pointer"
-                ref={plan._id === selectedPlan ? selectedPlanRef : null}
+                ref={plan._id === state.selectedPlan ? selectedPlanRef : null}
               >
                 <Flex alignItems="center" fontSize="12px" fontWeight={500}>
                   <Text mb={1}>
@@ -749,7 +788,7 @@ function CoursePlan() {
                                   shadow="md"
                                   key={topic._id}
                                   ref={
-                                    topic._id === selectedTopic
+                                    topic._id === state.selectedTopic
                                       ? selectedTopicRef
                                       : null
                                   }
@@ -858,7 +897,7 @@ function CoursePlan() {
                                         onClick={() =>
                                           navigate(
                                             `/dashboard/ace-homework?subject=${getSubject(
-                                              topics.course
+                                              state.topics.course
                                             )}&topic=${
                                               topic.topicDetails.label
                                             }`
@@ -878,7 +917,14 @@ function CoursePlan() {
                                           Doc Chat
                                         </Text>
                                       </VStack>
-                                      <VStack onClick={onOpenResource}>
+                                      <VStack
+                                        onClick={() => {
+                                          getTopicResource(
+                                            topic.topicDetails.label
+                                          );
+                                          onOpenResource();
+                                        }}
+                                      >
                                         <ResourceIcon />
                                         <Text fontSize={12} fontWeight={500}>
                                           Resources
@@ -895,26 +941,31 @@ function CoursePlan() {
                                         borderRadius={8}
                                         cursor={'grab'}
                                         onClick={() => {
-                                          setRecurrenceStartDate(
-                                            new Date(
+                                          updateState({
+                                            recurrenceStartDate: new Date(
                                               findStudyEventsByTopic(
                                                 topic.topicDetails.label
                                               )?.startDate
                                             )
-                                          );
-                                          setRecurrenceEndDate(
-                                            new Date(
+                                          });
+                                          updateState({
+                                            recurrenceStartDate: new Date(
+                                              findStudyEventsByTopic(
+                                                topic.topicDetails.label
+                                              )?.startDate
+                                            ),
+                                            recurrenceEndDate: new Date(
                                               findStudyEventsByTopic(
                                                 topic.topicDetails.label
                                               )?.recurrence?.endDate
-                                            )
-                                          );
-                                          setSelectedTopic(topic._id);
-                                          setSelectedStudyEvent(
-                                            findStudyEventsByTopic(
-                                              topic.topicDetails.label
-                                            )?._id
-                                          );
+                                            ),
+                                            selectedTopic: topic._id,
+                                            selectedStudyEvent:
+                                              findStudyEventsByTopic(
+                                                topic.topicDetails.label
+                                              )?._id
+                                          });
+
                                           onOpenCadence();
                                         }}
                                       >
@@ -944,9 +995,11 @@ function CoursePlan() {
                                         size={'sm'}
                                         my={4}
                                         onClick={() => {
-                                          setSelectedTopic(
-                                            topic.topicDetails.label
-                                          );
+                                          updateState({
+                                            selectedTopic:
+                                              topic.topicDetails.label
+                                          });
+
                                           openBountyModal();
                                         }}
                                       >
@@ -1292,8 +1345,10 @@ function CoursePlan() {
                   <li
                     className={`flex gap-x-3 cursor-pointer hover:drop-shadow-sm bg-gray-50`}
                     onClick={() => {
-                      setSelectedTopic(event.metadata.topicId);
-                      setSelectedPlan(event.entityId);
+                      updateState({
+                        selectedTopic: event.metadata.topicId,
+                        selectedPlan: event.entityId
+                      });
                     }}
                   >
                     <div
@@ -1347,15 +1402,22 @@ function CoursePlan() {
       <BountyOfferModal
         isBountyModalOpen={isBountyModalOpen}
         closeBountyModal={closeBountyModal}
-        topic={selectedTopic}
-        subject={topics ? `${getSubject(topics.course)}` : ''}
+        topic={state.selectedTopic}
+        subject={state.topics ? `${getSubject(state.topics.course)}` : ''}
         // level={level.label || someBountyOpt?.level}
         // description={description}
       />
       {showNoteModal && (
         <SelectedNoteModal show={showNoteModal} setShow={setShowNoteModal} />
       )}
-      <Modal isOpen={isOpenResource} onClose={onCloseResource} size="3xl">
+      <Modal
+        isOpen={isOpenResource}
+        onClose={() => {
+          updateState({ topicResource: null });
+          onCloseResource();
+        }}
+        size="3xl"
+      >
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
@@ -1368,61 +1430,81 @@ function CoursePlan() {
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody overflowY={'auto'} maxH="500px" flexDirection="column">
-            <Flex w="full" direction={'column'} gap={6}>
-              {resourceData.map((table, index) => (
-                <TableContainer key={index}>
+            {!state.isLoading ? (
+              state.topicResource ? (
+                <Box w="full">
+                  <Text fontSize={'17px'} fontWeight="500" px={1} color="#000">
+                    Summary
+                  </Text>
+                  <Box
+                    p={4}
+                    maxH="350px"
+                    overflowY="auto"
+                    // borderWidth="1px"
+                    borderRadius="md"
+                    borderColor="gray.200"
+                    boxShadow="md"
+                    className="custom-scroll"
+                  >
+                    <Text lineHeight="6">{state.topicResource?.response}</Text>
+                  </Box>
                   <Text
                     fontSize={'17px'}
                     fontWeight="500"
-                    px={4}
-                    py={2}
+                    px={1}
                     color="#000"
+                    my={4}
                   >
-                    {table.title}
+                    Sources
                   </Text>
-                  <Box
-                    border={'2px solid #f9fbf9'}
-                    borderRadius={8}
-                    dropShadow="md"
-                  >
-                    <Table variant="striped" colorScheme="gray">
-                      <Thead>
-                        <Tr>
-                          <Th>Title</Th>
-                          <Th>Link</Th>
-                          <Th isNumeric>Duration</Th>
-                        </Tr>
-                      </Thead>
-                      <Tbody>
-                        {table.items.map((item, itemIndex) => (
-                          <Tr key={itemIndex}>
-                            <Td>{item.title}</Td>
-                            <Td>
-                              <Tooltip
-                                label={item.link}
-                                hasArrow
-                                placement="top"
-                              >
-                                <ChakraLink
-                                  href={item.link}
-                                  isExternal
-                                  color={'#4d8df9'}
-                                >
-                                  {item.link.length > 40
-                                    ? `${item.link.slice(0, 40)}...`
-                                    : item.link}
-                                </ChakraLink>
-                              </Tooltip>
-                            </Td>
-                            <Td isNumeric>{item.duration} mins</Td>
-                          </Tr>
-                        ))}
-                      </Tbody>
-                    </Table>
-                  </Box>
-                </TableContainer>
-              ))}
-            </Flex>
+                  <SimpleGrid minChildWidth="150px" spacing="10px">
+                    {state.topicResource?.search_results.map(
+                      (source, index) => (
+                        <a
+                          key={index}
+                          href={`${source.url}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Box
+                            bg="#F3F5F6"
+                            p={4}
+                            borderRadius="md"
+                            boxShadow="md"
+                            borderWidth="1px"
+                            borderColor="gray.200"
+                            cursor="pointer"
+                            transition="transform 0.3s"
+                            _hover={{ transform: 'scale(1.05)' }}
+                          >
+                            <Flex direction="column" textAlign="left" gap={2}>
+                              <Text fontWeight={600} fontSize="sm">
+                                {source.title.length > 15
+                                  ? source.title.substring(0, 15) + '...'
+                                  : source.title}
+                              </Text>
+                              <Flex alignItems="center">
+                                <Text color="gray.500" fontSize="xs">
+                                  {source.url.length > 19
+                                    ? source.url.substring(0, 19) + '...'
+                                    : source.url}
+                                </Text>
+                                <Spacer />
+                                {getIconByDataset(source.dataset)}
+                              </Flex>
+                            </Flex>
+                          </Box>
+                        </a>
+                      )
+                    )}
+                  </SimpleGrid>
+                </Box>
+              ) : (
+                'No resource'
+              )
+            ) : (
+              <Spinner />
+            )}
           </ModalBody>
         </ModalContent>
       </Modal>
@@ -1445,10 +1527,10 @@ function CoursePlan() {
                 <DatePicker
                   name={'recurrenceStartDate'}
                   placeholder="Select Start Date"
-                  selected={recurrenceStartDate}
+                  selected={state.recurrenceStartDate}
                   dateFormat="MM/dd/yyyy"
                   onChange={(newDate) => {
-                    setRecurrenceStartDate(newDate);
+                    updateState({ recurrenceStartDate: newDate });
                   }}
                   minDate={new Date()}
                 />
@@ -1458,49 +1540,53 @@ function CoursePlan() {
                 <DatePicker
                   name={'recurrenceEndDate'}
                   placeholder="Select End Date"
-                  selected={recurrenceEndDate}
+                  selected={state.recurrenceEndDate}
                   dateFormat="MM/dd/yyyy"
                   onChange={(newDate) => {
-                    setRecurrenceEndDate(newDate);
+                    updateState({ recurrenceEndDate: newDate });
                   }}
-                  minDate={recurrenceStartDate}
+                  minDate={state.recurrenceStartDate}
                 />
               </FormControl>
               <FormControl id="frequency" marginBottom="20px">
                 <FormLabel>Frequency</FormLabel>
                 <Select
                   defaultValue={frequencyOptions.find(
-                    (option) => option.value === selectedRecurrence
+                    (option) => option.value === state.selectedRecurrence
                   )}
                   tagVariant="solid"
                   placeholder="Select Time"
                   options={frequencyOptions}
                   size={'md'}
-                  onChange={(option) =>
-                    setSelectedRecurrence((option as Option).value)
-                  }
+                  onChange={(option) => {
+                    updateState({
+                      selectedRecurrence: (option as Option).value
+                    });
+                  }}
                 />
               </FormControl>
               <FormControl id="time" marginBottom="20px">
                 <FormLabel>Time</FormLabel>
                 <Select
                   defaultValue={timeOptions.find(
-                    (option) => option.value === selectedRecurrenceTime
+                    (option) => option.value === state.selectedRecurrenceTime
                   )}
                   tagVariant="solid"
                   placeholder="Select Time"
                   options={timeOptions}
                   size={'md'}
-                  onChange={(option) =>
-                    setSelectedRecurrenceTime((option as Option).value)
-                  }
+                  onChange={(option) => {
+                    updateState({
+                      selectedRecurrenceTime: (option as Option).value
+                    });
+                  }}
                 />
               </FormControl>
             </Box>
           </ModalBody>
           <ModalFooter>
             <Button
-              isLoading={isLoading}
+              isLoading={state.isLoading}
               onClick={() => handleUpdatePlanCadence()}
             >
               Update

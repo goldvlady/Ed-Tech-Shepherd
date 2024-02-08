@@ -148,7 +148,6 @@ function StudyPlans() {
         <section className="flex justify-center items-center mt-28 w-full">
           <div className="text-center">
             <img src="/images/notes.png" alt="" />
-
             <Text>You don't have any study plans yet!</Text>
             <Button onClick={() => navigate('/dashboard/create-study-plans')}>
               Create New
