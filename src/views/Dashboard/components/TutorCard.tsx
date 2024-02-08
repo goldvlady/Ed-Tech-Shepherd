@@ -137,7 +137,6 @@ export default function TutorCard(props: any) {
   const handleSubmitReview = async () => {
     setLoading(true);
     const formData = {
-      offerId: id,
       reviewerId: user?._id,
       entityType: 'student',
       rating: reviewRate,
