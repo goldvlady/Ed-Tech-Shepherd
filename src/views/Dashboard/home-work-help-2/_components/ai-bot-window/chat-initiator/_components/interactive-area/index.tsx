@@ -2,13 +2,12 @@ import { Tag } from '@chakra-ui/tag';
 import Input from './_components/input';
 import Chip from './_components/chip';
 import RecentItemChip from './_components/recent-chip';
+import useUserStore from '../../../../../../../../state/userStore';
 
 function InteractiveArea() {
   return (
     <div className="w-[80%] mx-auto max-w-[600px] mb-24 relative">
-      <h3 className="text-black text-2xl w-full absolute top-[-4rem] text-center font-semibold">
-        Welcome Back, Veerbal
-      </h3>
+      <WelcomeBackText />
       <Input />
       <div className="flex gap-4 mt-4">
         {['Math', 'Science', 'English', 'History'].map((subject) => (
@@ -27,5 +26,14 @@ function InteractiveArea() {
     </div>
   );
 }
+
+const WelcomeBackText = () => {
+  const { name } = useUserStore((state) => state.user);
+  return (
+    <h3 className="text-black text-2xl w-full absolute top-[-4rem] text-center font-semibold">
+      Welcome Back, {name.first}
+    </h3>
+  );
+};
 
 export default InteractiveArea;
