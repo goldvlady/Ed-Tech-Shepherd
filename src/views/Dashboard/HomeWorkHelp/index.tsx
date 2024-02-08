@@ -800,7 +800,7 @@ const HomeWorkHelp = () => {
         <HomeWorkHelpChatContainer>
           <Chat
             ref={ref}
-            isReadyToChat={aitutorchatLimitReached}
+            isReadyToChat={true} //change to aitutorchatLimitReached when ai service is deployed
             HomeWorkHelp
             isShowPrompt={isShowPrompt}
             messages={messages}
