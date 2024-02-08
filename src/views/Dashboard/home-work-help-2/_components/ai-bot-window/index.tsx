@@ -12,7 +12,7 @@ function AiChatBotWindow() {
   };
 
   return (
-    <div className="h-full flex flex-col gap-4 w-full justify-between bg-[#F9F9FB]">
+    <div className="h-full flex flex-col gap-4 w-full justify-between bg-[#F9F9FB] overflow-hidden">
       {isChatRoom ? (
         <ChatRoom />
       ) : (
