@@ -55,8 +55,14 @@ const PromptInput = () => {
         <Button
           variant="outline"
           borderRadius="full"
-          size="md"
-          colorScheme="blue"
+          size="sm"
+          style={{
+            border: '1px solid #207DF7',
+            fontSize: '14px',
+            fontWeight: 400,
+            lineHeight: '20px',
+            color: '#207DF7'
+          }}
         >
           Find a tutor
         </Button>
