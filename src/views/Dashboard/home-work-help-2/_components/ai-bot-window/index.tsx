@@ -1,14 +1,26 @@
 import { useParams } from 'react-router';
 import ChatRoom from './chat-room';
 import ChatInitiator from './chat-initiator';
+import useSocket from './hooks/useSocket';
+import useUserStore from '../../../../../state/userStore';
 
 function AiChatBotWindow() {
   const { id } = useParams();
+  const user = useUserStore((state) => state.user);
+  const studentId = user?._id;
+  const { botStatus, initiateSocket, llmResponse, messages, readyToChat } =
+    useSocket();
   // If id is null, It mean user is not in the chat room
   const isChatRoom = id !== undefined;
 
-  const initiateConversation = () => {
-    alert('Initiate conversation');
+  const initiateConversation = ({
+    subject,
+    topic
+  }: {
+    subject: string;
+    topic: string;
+  }) => {
+    alert(JSON.stringify({ subject, topic }));
   };
 
   return (
