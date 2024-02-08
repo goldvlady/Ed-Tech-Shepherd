@@ -3,7 +3,17 @@ import { useState } from 'react';
 import WelcomeBackText from './_components/welcome-text';
 import RecentConversations from './_components/recent-conversations';
 
-function InteractiveArea() {
+function InteractiveArea({
+  initiateConversation
+}: {
+  initiateConversation: ({
+    subject,
+    topic
+  }: {
+    subject: string;
+    topic: string;
+  }) => void;
+}) {
   const [chatContext, setChatContext] = useState({
     subject: '',
     topic: ''
@@ -18,7 +28,7 @@ function InteractiveArea() {
   };
 
   const handleSubmit = () => {
-    console.log('Submitted', chatContext);
+    initiateConversation(chatContext);
   };
 
   return (

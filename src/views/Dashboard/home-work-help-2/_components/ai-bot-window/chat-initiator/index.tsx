@@ -1,9 +1,19 @@
 import InteractiveArea from './_components/interactive-area';
 
-function ChatInitiator() {
+function ChatInitiator({
+  initiateConversation
+}: {
+  initiateConversation: ({
+    subject,
+    topic
+  }: {
+    subject: string;
+    topic: string;
+  }) => void;
+}) {
   return (
     <div className="w-full h-full flex items-center justify-center">
-      <InteractiveArea />
+      <InteractiveArea initiateConversation={initiateConversation} />
     </div>
   );
 }
