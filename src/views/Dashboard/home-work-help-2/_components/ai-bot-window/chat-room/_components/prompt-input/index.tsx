@@ -1,27 +1,14 @@
-import { Button } from '@chakra-ui/button';
 import {
   RightArrowIcon,
   ShareIcon
 } from '../../../../../../../../components/icons';
+import FindATutorButton from '../find-a-tutor';
 
 const PromptInput = () => {
   return (
     <div className="w-full h-full flex gap-5 flex-col items-center justify-center max-w-[600px]">
       <div className="find-tutor-button flex justify-end w-full">
-        <Button
-          variant="outline"
-          borderRadius="full"
-          size="sm"
-          style={{
-            border: '1px solid #207DF7',
-            fontSize: '14px',
-            fontWeight: 400,
-            lineHeight: '20px',
-            color: '#207DF7'
-          }}
-        >
-          Find a tutor
-        </Button>
+        <FindATutorButton />
       </div>
       <div className="input-box h-[85px] flex gap-2 flex-col bg-white rounded-md shadow-md w-full px-2 pb-2">
         <div className="input-element w-full flex-1 mt-1.5">
