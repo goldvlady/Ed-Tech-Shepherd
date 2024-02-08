@@ -3,7 +3,7 @@ import ChatHistory from './_components/chat-history';
 
 function HomeWorkHelp2() {
   return (
-    <div className="w-full h-full flex gap-2">
+    <div className="w-full h-full flex">
       <div className="h-full max-h-screen hidden md:block w-[348px] border-r">
         <ChatHistory />
       </div>
