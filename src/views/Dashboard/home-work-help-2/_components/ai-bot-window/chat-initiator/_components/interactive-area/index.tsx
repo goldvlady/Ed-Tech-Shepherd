@@ -1,4 +1,3 @@
-import { Tag } from '@chakra-ui/tag';
 import Input from './_components/input';
 import Chip from './_components/chip';
 import RecentItemChip from './_components/recent-chip';
