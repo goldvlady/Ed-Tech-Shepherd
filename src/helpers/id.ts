@@ -5,8 +5,7 @@ export const nanoid = customAlphabet(
 
 const prefixes = {
   temp: 'temp',
-  shep: 'shep',
-  file: 'file'
+  shep: 'shep'
 } as const;
 
 export function newId(prefix: keyof typeof prefixes): string {

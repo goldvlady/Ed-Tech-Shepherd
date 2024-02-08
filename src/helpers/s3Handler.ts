@@ -1,6 +1,5 @@
 import { S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
-import { newId } from './id';
 
 export interface UploadBody {
   studentID: string;
@@ -54,25 +53,6 @@ class S3Handler {
       contentType: file.type,
       size: file.size
     };
-  }
-
-  async uploadBase64ToS3(base64: string, contentType: string): Promise<string> {
-    const key = newId('temp');
-
-    const uploadParams = {
-      Bucket: 'shepherd-document-upload',
-      Key: key,
-      Body: base64,
-      ContentType: contentType
-    };
-
-    await new Upload({
-      client: this.s3,
-      params: uploadParams
-    }).done();
-    const fileUrl = `https://shepherd-document-upload.s3.us-east-2.amazonaws.com/${key}`;
-
-    return fileUrl;
   }
 }
 

@@ -112,12 +112,7 @@ export default function QuestionsPreview({
         zIndex="1"
         paddingBottom="20px"
       >
-        <VStack
-          overflowX={'scroll'}
-          width="100%"
-          alignItems="center"
-          justifyContent="space-between"
-        >
+        <VStack width="100%" alignItems="center" justifyContent="space-between">
           <Flex
             alignItems="center"
             width="100%"
