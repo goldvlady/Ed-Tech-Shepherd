@@ -1,18 +1,37 @@
 import Input from './_components/input';
-import Chip from './_components/chip';
 import RecentItemChip from './_components/recent-chip';
 import useUserStore from '../../../../../../../../state/userStore';
+import { useState } from 'react';
 
 function InteractiveArea() {
+  const [chatContext, setChatContext] = useState({
+    subject: '',
+    topic: ''
+  });
+
+  const handleSubjectChange = (subject: string) => {
+    setChatContext((prev) => ({ ...prev, subject }));
+  };
+
+  const handleTopicChange = (topic: string) => {
+    setChatContext((prev) => ({ ...prev, topic }));
+  };
+
+  const handleSubmit = () => {
+    console.log('Submitted', chatContext);
+  };
+
   return (
     <div className="w-[80%] mx-auto max-w-[600px] mb-24 relative">
       <WelcomeBackText />
-      <Input />
-      <div className="flex gap-4 mt-4">
-        {['Math', 'Science', 'English', 'History'].map((subject) => (
-          <Chip key={subject} title={subject} />
-        ))}
-      </div>
+      <Input
+        actions={{
+          handleSubjectChange,
+          handleTopicChange,
+          onSubmit: handleSubmit
+        }}
+        state={{ chatContext }}
+      />
       <div className="w-full absolute max-h-[200px] top-[150%]">
         <p className="text-[#585F68] font-normal text-xs mb-4">RECENTS</p>
         <div className="grid grid-cols-2 gap-5">
