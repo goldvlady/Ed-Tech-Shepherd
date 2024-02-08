@@ -58,8 +58,7 @@ class S3Handler {
 
   async uploadBase64ToS3(base64: string, contentType: string): Promise<string> {
     const key = newId('temp');
-    console.log('key', key);
-    console.log('content type', contentType);
+
     const uploadParams = {
       Bucket: 'shepherd-document-upload',
       Key: key,
@@ -72,7 +71,7 @@ class S3Handler {
       params: uploadParams
     }).done();
     const fileUrl = `https://shepherd-document-upload.s3.us-east-2.amazonaws.com/${key}`;
-    console.log(fileUrl, 'url');
+
     return fileUrl;
   }
 }

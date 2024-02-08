@@ -46,8 +46,7 @@ const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
     const fileIdAnswer = newId('file');
     return { fileIdAnswer, fileIdQuestion };
   }, [currentQuestionIndex]);
-  console.log(questions, 'que?');
-  console.log(pathname, 'path');
+
   const [questionFileUpload, setQuestionFileUpload] = useState(false);
   const [questionImage, setQuestionImage] = useState<File>();
   const [answerImage, setAnswerImage] = useState<File>();
