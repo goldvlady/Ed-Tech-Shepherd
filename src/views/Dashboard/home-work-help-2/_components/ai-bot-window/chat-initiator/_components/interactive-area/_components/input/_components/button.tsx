@@ -10,7 +10,7 @@ const Button = ({
 }) => {
   return (
     <button
-      className={`h-[28px] rounded-full bg-[#207DF7] flex gap-2 justify-center items-center transition-all px-2 ${
+      className={`h-[28px] rounded-full bg-[#207DF7] flex gap-2 justify-center items-center transition-all px-2 whitespace-nowrap ${
         disabled ? 'cursor-not-allowed grayscale' : 'cursor-pointer'
       }`}
       disabled={disabled}
