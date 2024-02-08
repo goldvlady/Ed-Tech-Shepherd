@@ -13,7 +13,6 @@ import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import styled from 'styled-components';
 import Typewriter from 'typewriter-effect';
-import { extractDataURI } from '../../helpers';
 
 const CheckboxContainer = styled.div`
   display: inline-block;
@@ -103,7 +102,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
     </CheckboxContainer>
   );
 };
-const regex = /(data:image\/(jpeg|jpg|png|svg);base64,.*)/;
+
 interface FlashCardProps extends ChakraBoxProps {
   height: string;
   width: string;
@@ -134,13 +133,6 @@ const FlashCard: React.FC<FlashCardProps> = ({
   ...rest
 }) => {
   const controls = useAnimation();
-  const [s3image, setS3Image] = useState(() => {
-    if (study.questions.includes('data:image/')) {
-      return extractDataURI(study.questions);
-    } else {
-      return '';
-    }
-  });
   const [isFlipped, setIsFlipped] = useState(false);
   const [extraReading, setExtraReading] = useState<
     'explanation' | 'answer' | null
@@ -176,18 +168,7 @@ const FlashCard: React.FC<FlashCardProps> = ({
           wrapperClassName: 'text-base'
         }}
         onInit={(typewriter) => {
-          if (study.questions.includes('data:image/')) {
-            const resultString = study.questions.replace(regex, '');
-
-            typewriter
-              .typeString(resultString)
-              .start()
-              .callFunction(() => {
-                setTypingFinished(true);
-              });
-          } else {
-            typewriter.typeString(study.questions).start();
-          }
+          typewriter.typeString(study.questions).start();
         }}
       />
     );
@@ -195,35 +176,24 @@ const FlashCard: React.FC<FlashCardProps> = ({
 
   const answerText = useMemo(() => {
     return (
-      <>
-        {typeof study.answers === 'string' &&
-        study.answers.includes('data:image/') ? (
-          <img
-            src={study.answers}
-            alt="the uploaded file"
-            className="w-12 h-12 mb-6"
-          />
-        ) : (
-          <Typewriter
-            key={truncatedAnswer as string}
-            options={{
-              delay: 10,
-              autoStart: true,
-              loop: false,
-              skipAddStyles: true,
-              wrapperClassName: 'text-sm'
-            }}
-            onInit={(typewriter) => {
-              typewriter
-                .typeString(truncatedAnswer)
-                .start()
-                .callFunction(() => {
-                  setTypingFinished(true);
-                });
-            }}
-          />
-        )}
-      </>
+      <Typewriter
+        key={truncatedAnswer as string}
+        options={{
+          delay: 10,
+          autoStart: true,
+          loop: false,
+          skipAddStyles: true,
+          wrapperClassName: 'text-sm'
+        }}
+        onInit={(typewriter) => {
+          typewriter
+            .typeString(truncatedAnswer)
+            .start()
+            .callFunction(() => {
+              setTypingFinished(true);
+            });
+        }}
+      />
     );
   }, [truncatedAnswer]);
 
@@ -330,15 +300,8 @@ const FlashCard: React.FC<FlashCardProps> = ({
               fontWeight="500"
               lineHeight="22px"
             >
-              {study.questions.replace(regex, '')}
+              {study.questions}
             </Text>
-            {s3image.length > 0 && (
-              <img
-                src={s3image}
-                alt="the uploaded file"
-                className="w-5/6 h-[70%] mb-3"
-              />
-            )}
             {study.options && (
               <VStack align="start" pb="10px" spacing={1} width="100%">
                 {study.options?.content.map((option, index) => {
@@ -480,13 +443,6 @@ const FlashCard: React.FC<FlashCardProps> = ({
           >
             {questionText}
           </Text>
-          {s3image.length > 0 && typingFinished && (
-            <img
-              src={s3image}
-              alt="the uploaded file"
-              className="w-12 h-12 mb-6"
-            />
-          )}
           {study.options && (
             <VStack align="start" pb="10px" spacing={2} width="100%">
               {study.options?.content.map((option, index) => {
@@ -571,10 +527,7 @@ const FlashCard: React.FC<FlashCardProps> = ({
         {!study.options && (
           <ChakraBox height={'55%'} padding="16px">
             {studyState === 'answer' && answerText}
-            {typingFinished &&
-              typeof study.answers !== 'string' &&
-              !study.answers.includes('data:image/') &&
-              showFullAnswerText}
+            {typingFinished && showFullAnswerText}
           </ChakraBox>
         )}
       </ChakraBox>
@@ -611,7 +564,7 @@ const FlashCard: React.FC<FlashCardProps> = ({
         width={width}
         {...rest}
       >
-        {cardStyle === 'flippable' || study.questions.includes('data:image/')
+        {cardStyle === 'flippable'
           ? renderFlippableCard()
           : renderDefaultCard()}
         {studyState === 'answer' && !Array.isArray(study.answers) && (

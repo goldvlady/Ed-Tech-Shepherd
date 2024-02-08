@@ -39,8 +39,6 @@ import {
 import { useParams, useLocation } from 'react-router';
 import styled from 'styled-components';
 import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
-import S3Handler from '../../../helpers/s3Handler';
-import { extractDataURIAndBase64 } from '../../../helpers';
 
 const Wrapper = styled(Box)`
   select {
@@ -205,40 +203,6 @@ const CreateFlashPage = () => {
   }, [loading]);
 
   const onSubmitFlashcard = useCallback(async () => {
-    const s3 = new S3Handler();
-    // here pretty painfully , for each question save to s3 and replace with the string
-    // const updatedQuestionsPromises = questions.map(async (question) => {
-    //   let q: string;
-    //   let a: string;
-    //   if (question.question.includes('data:image/')) {
-    //     const { base64Data, dataURI } = extractDataURIAndBase64(
-    //       question.question
-    //     );
-    //     const file = await s3.uploadBase64ToS3(base64Data, dataURI);
-    //     q = question.question.replace(
-    //       /data:image\/(jpeg|jpg|png|svg);base64,.*/,
-    //       file
-    //     );
-    //   } else {
-    //     q = question.question;
-    //   }
-    //   if (question.answer.includes('data:image/')) {
-    //     const { base64Data, dataURI } = extractDataURIAndBase64(
-    //       question.answer
-    //     );
-    //     const file = await s3.uploadBase64ToS3(base64Data, dataURI);
-    //     a = file;
-    //   } else {
-    //     a = question.answer;
-    //   }
-    //   return {
-    //     ...question,
-    //     answer: a,
-    //     question: q
-    //   };
-    // });
-    // const updatedQuestions = await Promise.all(updatedQuestionsPromises);
-    // console.log(updatedQuestions, 'update??');
     try {
       const response = await createFlashCard(
         { ...flashcardData, questions },
