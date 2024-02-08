@@ -1,5 +1,5 @@
 import { Button } from '@chakra-ui/button';
-import { ShareIcon } from '../../../../../../components/icons';
+import { RightArrowIcon, ShareIcon } from '../../../../../../components/icons';
 import ChatMessage from './_components/chat-message';
 
 function ChatRoom() {
@@ -68,15 +68,15 @@ const PromptInput = () => {
         </Button>
       </div>
       <div className="input-box h-[85px] flex gap-2 flex-col bg-white rounded-md shadow-md w-full px-2 pb-2">
-        <div className="input-element w-full flex-1">
+        <div className="input-element w-full flex-1 mt-1.5">
           <input
             type="text"
-            className="w-full input flex-1 py-2 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal"
+            className="w-full input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal pb-0"
             placeholder="How can Shepherd help with your homework?"
           />
         </div>
-        <div className="file-uploader-submit-section flex-1 flex justify-between px-2.5">
-          <div className="file-uploader flex gap-[1px]">
+        <div className="file-uploader-submit-section flex-1 flex justify-between px-2">
+          <div className="file-uploader flex gap-[1px] mb-1">
             <button className="flex items-center justify-center w-[28px] h-[28px] rounded-tl-md rounded-bl-md bg-[#F9F9FB]">
               <ShareIcon />
             </button>
@@ -85,7 +85,9 @@ const PromptInput = () => {
             </span> */}
           </div>
           <div className="submit-button">
-            <button>Send</button>
+            <button className="w-[28px] h-[28px] rounded-full bg-[#207DF7] flex items-center justify-center">
+              <RightArrowIcon />
+            </button>
           </div>
         </div>
       </div>
