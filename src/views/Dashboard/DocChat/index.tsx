@@ -51,7 +51,22 @@ import { Socket } from 'socket.io-client';
 import noteStore from '../../../state/noteStore';
 import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
 import PlansModal from '../../../components/PlansModal';
-import { Box, Text, Center, Icon, useToast } from '@chakra-ui/react';
+import {
+  Box,
+  Text,
+  Center,
+  Icon,
+  useToast,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+  Link
+} from '@chakra-ui/react';
 
 export default function DocChat() {
   const toastIdRef = useRef<any>();
@@ -151,6 +166,8 @@ export default function DocChat() {
   const [toggleMobileChat, setToggleMobileChat] = useState(false);
   const [summaryStart, setSummaryStart] = useState(false);
   const [summaryError, setSummaryError] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   const mobile = useIsMobile({
     defaultWidth: 1024
   });
@@ -185,6 +202,7 @@ export default function DocChat() {
 
   const { fetchSingleNote, note, updateNote: updateNoteSummary } = noteStore();
   const [noteLoading, setNoteLoading] = useState(false);
+  const [docchatLimitReached, setDocchatLimit] = useState(false);
 
   const isLike = useMemo(() => {
     return likesDislikes[1]?.like
@@ -437,6 +455,7 @@ export default function DocChat() {
         authSocket = socketWithAuth({
           studentId,
           documentId,
+          firebaseId: user.firebaseId,
           namespace: 'doc-chat'
         }).connect();
 
@@ -495,6 +514,22 @@ export default function DocChat() {
       return () => socket.off('ready');
     }
   }, [socket]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('docchat_limit_reached', (limitReached) => {
+        setDocchatLimit(limitReached);
+        // onOpen();
+      });
+      return () => socket.off('docchat_limit_reached');
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    if (docchatLimitReached) {
+      onOpen();
+    }
+  }, [docchatLimitReached, onOpen]);
 
   useEffect(() => {
     if (socket) {
@@ -1344,6 +1379,34 @@ export default function DocChat() {
           'h-screen w-screen max-h-[calc(100vh-80px)] md:max-w-[calc(100vw-250px)] relative overflow-hidden'
         )}
       >
+        {docchatLimitReached && (
+          <Modal isOpen={isOpen} onClose={onClose}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Daily Chat Limit Reached</ModalHeader>
+              <ModalBody padding={'8px'}>
+                <Text textAlign={'center'} fontSize={'16px'}>
+                  Your daily chat limit has been reached. Upgrade your plan to
+                  continue using the chat feature now.
+                </Text>
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  colorScheme="green"
+                  mr={3}
+                  onClick={() => {
+                    navigate('/dashboard/account-settings');
+                  }}
+                >
+                  Upgrade Plan
+                </Button>
+                <Button variant="ghost" onClick={onClose}>
+                  Close
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+        )}
         <div className={clsx('h-full z-3 w-full flex items-start ', {})}>
           <div
             className={clsx(
@@ -1455,6 +1518,7 @@ export default function DocChat() {
                     setSelectedHighlightArea={setSelectedHighlightArea}
                     loading={loading}
                     isUpdatedSummary={isUpdatedSummary}
+                    isDcLimitReached={docchatLimitReached}
                     directStudentId={directStudentId}
                     onSwitchOnMobileView={onSwitchOnMobileView}
                     handleDislike={handleDislike}
@@ -1508,6 +1572,7 @@ export default function DocChat() {
                     setSelectedHighlightArea={setSelectedHighlightArea}
                     loading={loading}
                     isUpdatedSummary={isUpdatedSummary}
+                    isDcLimitReached={docchatLimitReached}
                     directStudentId={directStudentId}
                     onSwitchOnMobileView={onSwitchOnMobileView}
                     handleDislike={handleDislike}

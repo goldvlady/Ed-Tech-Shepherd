@@ -1,44 +1,27 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, {
-  useState,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef
-} from 'react';
-import { loadStripe } from '@stripe/stripe-js';
-import {
-  useDisclosure,
-  Box,
-  Text,
-  Alert,
-  AlertIcon,
-  AlertDescription,
-  Center,
-  Icon
-} from '@chakra-ui/react';
-import { MdInfo } from 'react-icons/md';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
-
+import Sally from '../../../assets/saly.svg';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomSideModal from '../../../components/CustomComponents/CustomSideModal';
+import CustomToast from '../../../components/CustomComponents/CustomToast/index';
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import PaymentDialog, {
   PaymentDialogRef
 } from '../../../components/PaymentDialog';
-import PlansModal from '../../../components/PlansModal';
 import { SHALL_WE_BEGIN } from '../../../helpers/constants';
 import {
+  chatHomeworkHelp,
+  editConversationId,
   getConversionById,
   getConversionByIdAndAPIKey,
-  getDescriptionById
+  getDescriptionById,
+  updateGeneratedSummary
 } from '../../../services/AI';
 import { chatHistory } from '../../../services/AI';
 import ApiService from '../../../services/ApiService';
 import socketWithAuth from '../../../socket';
 import userStore from '../../../state/userStore';
 import theme from '../../../theme';
+import { FlashcardData } from '../../../types';
 import Chat from '../DocChat/chat';
 import ChatHistory from '../DocChat/chatHistory';
 import BountyOfferModal from '../components/BountyOfferModal';
@@ -50,6 +33,36 @@ import {
   HomeWorkHelpHistoryContainer,
   MobileHomeWorkHelpHistoryContainer
 } from './style';
+import {
+  useToast,
+  Alert,
+  AlertIcon,
+  AlertDescription,
+  Center,
+  Text,
+  Box,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+  Icon
+} from '@chakra-ui/react';
+import { loadStripe } from '@stripe/stripe-js';
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef
+} from 'react';
+import { MdInfo } from 'react-icons/md';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
+import PlansModal from '../../../components/PlansModal';
 import { useSearchQuery } from '../../../hooks';
 import { firebaseAuth } from '../../../firebase';
 
@@ -128,6 +141,9 @@ const HomeWorkHelp = () => {
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
   const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
+  const [aitutorchatLimitReached, setAitutorchatLimit] = useState(false);
+
+  const [isLimitModalOpen, setisLimitModalOpen] = useState(false);
 
   const { hasActiveSubscription } = userStore.getState();
 
@@ -164,6 +180,7 @@ const HomeWorkHelp = () => {
     if (certainConversationId || conversationId) {
       const authSocket = socketWithAuth({
         studentId,
+        firebaseId: user?.firebaseId,
         topic: localData.topic,
         subject: localData.subject,
         // level: level.label,
@@ -182,6 +199,7 @@ const HomeWorkHelp = () => {
     if (isSubmitted) {
       const authSocket = socketWithAuth({
         studentId,
+        firebaseId: user?.firebaseId,
         topic: localData.topic,
         subject: localData.subject,
         documentId: documentId,
@@ -239,6 +257,30 @@ const HomeWorkHelp = () => {
       });
 
       return () => socket.off('chat response end');
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('aitutorchat_limit_reached', (limitReached) => {
+        setAitutorchatLimit(limitReached);
+        // onOpen();
+      });
+      return () => socket.off('aitutorchat_limit_reached');
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket) {
+      const handleAitutorChatLimitReached = (limitReached) => {
+        setisLimitModalOpen(limitReached);
+      };
+
+      socket.on('aitutorchat_limit_reached', handleAitutorChatLimitReached);
+
+      return () => {
+        socket.off('aitutorchat_limit_reached', handleAitutorChatLimitReached);
+      };
     }
   }, [socket]);
 
@@ -699,6 +741,40 @@ const HomeWorkHelp = () => {
   } else {
     return (
       <HomeWorkHelpContainer>
+        {aitutorchatLimitReached && (
+          <Modal
+            isOpen={isLimitModalOpen}
+            onClose={() => setisLimitModalOpen(false)}
+          >
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Daily Chat Limit Reached</ModalHeader>
+              <ModalBody padding={'8px'}>
+                <Text textAlign={'center'} fontSize={'16px'}>
+                  Your daily chat limit has been reached. Upgrade your plan to
+                  continue using the chat feature now.
+                </Text>
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  colorScheme="green"
+                  mr={3}
+                  onClick={() => {
+                    navigate('/dashboard/account-settings');
+                  }}
+                >
+                  Upgrade Plan
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => setisLimitModalOpen(false)}
+                >
+                  Close
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+        )}
         <HomeWorkHelpHistoryContainer>
           <ChatHistory
             studentId={studentId}
@@ -724,7 +800,7 @@ const HomeWorkHelp = () => {
         <HomeWorkHelpChatContainer>
           <Chat
             ref={ref}
-            isReadyToChat={true}
+            isReadyToChat={aitutorchatLimitReached}
             HomeWorkHelp
             isShowPrompt={isShowPrompt}
             messages={messages}
@@ -746,6 +822,7 @@ const HomeWorkHelp = () => {
             fetchDescription={fetchDescription}
             freshConversationId={freshConversationId}
             onChatHistory={onChatHistory}
+            isHwchatLimitReached={aitutorchatLimitReached}
           />
         </HomeWorkHelpChatContainer>
         {togglePlansModal && (
