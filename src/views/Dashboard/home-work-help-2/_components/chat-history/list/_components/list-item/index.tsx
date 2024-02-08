@@ -48,8 +48,8 @@ const ListItem = ({ id, title }: { id: string; title: string }) => {
 
   return (
     <div
-      className={`flex w-full h-[36px] text-[#000000] leading-5 text-[12px] rounded-[8px] border gap-2 font-normal bg-[#F9F9FB] border-none px-2 hover:bg-[#E5E5E5] hover:cursor-pointer ${
-        id === conversationId ? 'bg-[#E5E5E5]' : ''
+      className={`flex w-full h-[36px] text-[#000000] leading-5 text-[12px] rounded-[8px] border gap-2 font-normal bg-[#F9F9FB] border-none px-2 hover:bg-[#e5e5e5ba] hover:cursor-pointer ${
+        id === conversationId ? 'bg-[#e5e5e5ba]' : ''
       } ${renaming || deleting ? 'opacity-50' : ''}`}
     >
       {renameMode.enabled ? (
