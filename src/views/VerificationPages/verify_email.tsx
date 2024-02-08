@@ -36,6 +36,7 @@ const VerificationSuccess = () => {
   const location = useLocation();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [buttonLoading, setButtonLoading] = useState(false);
   const [verified, setVerified] = useState(false);
   const [email, setEmail] = useState('');
   const navigateToDashboard = () =>
@@ -98,6 +99,7 @@ const VerificationSuccess = () => {
 
   const handleResendLink = async (email) => {
     try {
+      setButtonLoading(true);
       const response = await ApiService.resendUserEmail(email);
       if (response.status === 200) {
         toast({
@@ -122,6 +124,8 @@ const VerificationSuccess = () => {
         status: 'error',
         isClosable: true
       });
+    } finally {
+      setButtonLoading(false);
     }
   };
 
@@ -188,7 +192,9 @@ const VerificationSuccess = () => {
               </svg>
             </Box>
             <Text fontSize="2xl" fontWeight="600" textAlign="center">
-              {verified
+              {user?.isVerified
+                ? 'Your account has already been Verified'
+                : verified
                 ? 'Your account has been Verified'
                 : `Your account verification failed`}
             </Text>
@@ -201,12 +207,14 @@ const VerificationSuccess = () => {
               mt={1}
               lineHeight="1.5"
             >
-              {verified
+              {user?.isVerified
+                ? 'This token has already been used or has expired'
+                : verified
                 ? 'You can now finish setting up your profile and use the full functionality of Shepherd'
                 : 'Invalid or expired token'}
             </Text>
 
-            {verified ? (
+            {verified || user?.isVerified ? (
               <Button
                 onClick={() =>
                   navigate(
@@ -263,7 +271,11 @@ const VerificationSuccess = () => {
         }}
         footerContent={
           <div style={{ display: 'flex', gap: '8px' }}>
-            <Button isDisabled={!email} onClick={() => handleResendLink(email)}>
+            <Button
+              isLoading={buttonLoading}
+              isDisabled={!email}
+              onClick={() => handleResendLink(email)}
+            >
               Send
             </Button>
           </div>

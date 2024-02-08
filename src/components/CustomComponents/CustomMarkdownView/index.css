@@ -50,7 +50,7 @@
 .custom_markdown pre {
   white-space: pre-wrap;
   padding: 12px;
-  background-color: rgba(0, 0, 0, 0.1);
+  /* background-color: rgba(0, 0, 0, 0.1); */
   border-radius: 8px;
 }
 
@@ -168,4 +168,67 @@
 /* Styling for token tags */
 .custom_markdown pre .token + .token.punctuation {
   margin-left: -1.5em;
+}
+
+.memoized-react-markdown pre {
+  border-radius: 1rem;
+}
+
+.memoized-react-markdown ol li code {
+  font-weight: bolder;
+}
+
+.memoized-react-markdown table {
+  table-layout: auto;
+  width: 100%;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.memoized-react-markdown table {
+  margin: 1em 0;
+}
+.memoized-react-markdown table thead {
+  border-bottom-width: 1px;
+}
+
+.memoized-react-markdown table thead tr {
+  border-bottom-width: 1px;
+  transition: all 0.3s;
+}
+
+.memoized-react-markdown table thead tr th,
+.memoized-react-markdown table tbody tr td {
+  text-align: center;
+}
+
+.memoized-react-markdown table thead tr th:first-child,
+.memoized-react-markdown table tbody tr td:first-child {
+  text-align: left;
+}
+
+.memoized-react-markdown table thead tr th:last-child,
+.memoized-react-markdown table tbody tr td:last-child {
+  text-align: right;
+}
+
+.memoized-react-markdown table thead tr:hover,
+.memoized-react-markdown table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.memoized-react-markdown table thead tr th {
+  height: 2.5rem;
+  white-space: nowrap;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  text-align: center;
+  vertical-align: middle;
+  font-weight: 500;
+  color: hsv(240, 3.8%, 46.1%);
+}
+
+.memoized-react-markdown table tbody tr td {
+  padding: 0.5rem;
+  vertical-align: middle;
 }

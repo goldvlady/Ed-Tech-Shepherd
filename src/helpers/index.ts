@@ -42,7 +42,47 @@ export const copierHandler = (copiedText = '', setSwitchView: any) => {
     setSwitchView(false);
   }, 700);
 };
+export const extractDataURIAndBase64 = (input: string) => {
+  const regex = /(data:image\/(jpeg|jpg|png|svg);base64,.*)/;
 
+  const match = input.match(regex);
+
+  if (match) {
+    const dataUri = match[1];
+
+    const base64Data = dataUri.split(',')[1];
+
+    const binaryData = atob(base64Data);
+
+    return { base64Data, dataURI: `${dataUri.split(',')[0]}` };
+  } else {
+    return null;
+  }
+};
+export const dataURItoFile = (dataURI, fileName) => {
+  const type = dataURI.match(/^data:([A-Za-z-+/]+);base64/)[1];
+  const byteString = atob(dataURI.split(',')[1]);
+  const arrayBuffer = new ArrayBuffer(byteString.length);
+  const uint8Array = new Uint8Array(arrayBuffer);
+  for (let i = 0; i < byteString.length; i++) {
+    uint8Array[i] = byteString.charCodeAt(i);
+  }
+  const blob = new Blob([arrayBuffer], { type });
+  const file = new File([blob], fileName, { type });
+  return file;
+};
+export const extractDataURI = (input: string) => {
+  const regex = /(data:image\/(jpeg|jpg|png|svg);base64,.*)/;
+
+  const match = input.match(regex);
+
+  if (match) {
+    const dataUri = match[1];
+    return dataUri;
+  } else {
+    return null;
+  }
+};
 const getDateStringTest = (date: any) => {
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(date).toLocaleDateString(undefined, options as any);

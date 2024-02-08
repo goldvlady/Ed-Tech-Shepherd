@@ -161,10 +161,9 @@ const CompleteProfile = () => {
         position: 4,
         element: IntroVideoForm,
         title:
-          'Upload an intro video to show your proficiency in your chosen subjects',
+          'Upload an intro video to show your proficiency in your chosen subjects (optional)',
         supportingText:
-          'Be as detailed as possible, this lets your potential student know you are capable ',
-        isValid: Boolean(onboardingData.introVideo)
+          'Be as detailed as possible, this lets your potential student know you are capable '
       },
       {
         id: 'hourly_rate',

@@ -17,6 +17,9 @@ import React, {
 import CustomToast from '../../../../components/CustomComponents/CustomToast';
 import { useNavigate } from 'react-router';
 
+import S3Handler from '../../../../helpers/s3Handler';
+import { extractDataURIAndBase64 } from '../../../../helpers';
+
 export enum TypeEnum {
   FLASHCARD = 'flashcard',
   MNEOMONIC = 'mneomonic',
@@ -79,6 +82,7 @@ export type AIRequestBody = {
   difficulty?: string;
   note?: string;
   existingQuestions?: string[];
+  firebaseId: string;
 };
 export interface FlashcardDataContextProps {
   flashcardData: FlashcardData;
@@ -322,6 +326,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       });
       return await ApiService.createDocchatFlashCards({
         ...aiData,
+        subscriptionTier: user?.subscription?.tier, //passing to use in AWS lambda to control gpt version
         studentId: user?._id as string,
         documentId: documentId as string
       });
@@ -386,6 +391,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
           topic: flashcardData.topic,
           subject: flashcardData.subject,
           count,
+          firebaseId: user?.firebaseId,
           ...(flashcardData.level && { difficulty: flashcardData.level }),
           ...(flashcardData.noteDoc && { note: flashcardData.noteDoc }),
           existingQuestions: questions.map((q) => q.question)
@@ -394,7 +400,11 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
         const requestFunc = !flashcardData.noteDoc
           ? ApiService.generateFlashcardQuestions
           : ApiService.generateFlashcardQuestionsForNotes;
-        const response = await requestFunc(aiData, user?._id as string);
+        const response = await requestFunc(
+          aiData,
+          user?._id as string,
+          user?.firebaseId as string
+        );
         if (cancelRequest) {
           cancelRequest = false;
           return;
@@ -491,6 +501,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
           topic: reqData.topic,
           subject: reqData.subject,
           count: parseInt(reqData.numQuestions as unknown as string, 10),
+          firebaseId: user?.firebaseId,
           ...(reqData.level && { difficulty: reqData.level }),
           ...(reqData.noteDoc && { note: reqData.noteDoc }),
           ...(reqData.documentId &&
@@ -505,7 +516,11 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
           const requestFunc = !reqData.noteDoc
             ? ApiService.generateFlashcardQuestions
             : ApiService.generateFlashcardQuestionsForNotes;
-          response = await requestFunc(aiData, user?._id as string);
+          response = await requestFunc(
+            aiData,
+            user?._id as string,
+            user?.firebaseId as string
+          );
           if (cancelRequest) {
             cancelRequest = false;
           } else {
@@ -525,8 +540,43 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
   // Handle errors
   const saveFlashcardData = useCallback(
     async (onDone?: (success: boolean) => void) => {
+      const s3 = new S3Handler();
       try {
         setIsLoading(true);
+        // here pretty painfully , for each question save to s3 and replace with the string
+        // const updatedQuestionsPromises = questions.map(async (question) => {
+        //   let q: string;
+        //   let a: string;
+
+        //   if (question.question.includes('data:image/')) {
+        //     const { base64Data, dataURI } = extractDataURIAndBase64(
+        //       question.question
+        //     );
+        //     const file = await s3.uploadBase64ToS3(base64Data, dataURI);
+        //     q = question.question.replace(
+        //       /data:image\/(jpeg|jpg|png|svg);base64,.*/,
+        //       file
+        //     );
+        //   } else {
+        //     q = question.question;
+        //   }
+        //   if (question.answer.includes('data:image/')) {
+        //     const { base64Data, dataURI } = extractDataURIAndBase64(
+        //       question.answer
+        //     );
+        //     const file = await s3.uploadBase64ToS3(base64Data, dataURI);
+        //     a = file;
+        //   } else {
+        //     a = question.answer;
+        //   }
+        //   return {
+        //     ...question,
+        //     answer: a,
+        //     question: q
+        //   };
+        // });
+        // const updatedQuestions = await Promise.all(updatedQuestionsPromises);
+        // console.log(updatedQuestions, 'update??');
         const response = await createFlashCard(
           { ...flashcardData, questions },
           'manual'
@@ -540,6 +590,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
           }
         }
       } catch (error) {
+        console.log(JSON.stringify(error), 'error');
         setQuestionGenerationStatus(QuestionGenerationStatusEnum.FAILED);
         setFlashcardData((prev) => ({ ...prev, hasSubmitted: false }));
         onDone && onDone(false);
