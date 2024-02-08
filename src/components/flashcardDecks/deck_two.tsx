@@ -103,7 +103,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
     </CheckboxContainer>
   );
 };
-
+const regex = /(data:image\/(jpeg|jpg|png|svg);base64,.*)/;
 interface FlashCardProps extends ChakraBoxProps {
   height: string;
   width: string;
@@ -134,7 +134,13 @@ const FlashCard: React.FC<FlashCardProps> = ({
   ...rest
 }) => {
   const controls = useAnimation();
-  const [s3image, setS3Image] = useState('');
+  const [s3image, setS3Image] = useState(() => {
+    if (study.questions.includes('data:image/')) {
+      return extractDataURI(study.questions);
+    } else {
+      return '';
+    }
+  });
   const [isFlipped, setIsFlipped] = useState(false);
   const [extraReading, setExtraReading] = useState<
     'explanation' | 'answer' | null
@@ -171,12 +177,6 @@ const FlashCard: React.FC<FlashCardProps> = ({
         }}
         onInit={(typewriter) => {
           if (study.questions.includes('data:image/')) {
-            const regex = /(data:image\/(jpeg|jpg|png|svg);base64,.*)/;
-
-            const extractedLink = extractDataURI(study.questions);
-
-            setS3Image(extractedLink);
-
             const resultString = study.questions.replace(regex, '');
 
             typewriter
@@ -330,8 +330,15 @@ const FlashCard: React.FC<FlashCardProps> = ({
               fontWeight="500"
               lineHeight="22px"
             >
-              {study.questions}
+              {study.questions.replace(regex, '')}
             </Text>
+            {s3image.length > 0 && (
+              <img
+                src={s3image}
+                alt="the uploaded file"
+                className="w-5/6 h-[70%] mb-3"
+              />
+            )}
             {study.options && (
               <VStack align="start" pb="10px" spacing={1} width="100%">
                 {study.options?.content.map((option, index) => {
@@ -564,7 +571,10 @@ const FlashCard: React.FC<FlashCardProps> = ({
         {!study.options && (
           <ChakraBox height={'55%'} padding="16px">
             {studyState === 'answer' && answerText}
-            {typingFinished && showFullAnswerText}
+            {typingFinished &&
+              typeof study.answers !== 'string' &&
+              !study.answers.includes('data:image/') &&
+              showFullAnswerText}
           </ChakraBox>
         )}
       </ChakraBox>
@@ -601,7 +611,7 @@ const FlashCard: React.FC<FlashCardProps> = ({
         width={width}
         {...rest}
       >
-        {cardStyle === 'flippable'
+        {cardStyle === 'flippable' || study.questions.includes('data:image/')
           ? renderFlippableCard()
           : renderDefaultCard()}
         {studyState === 'answer' && !Array.isArray(study.answers) && (
