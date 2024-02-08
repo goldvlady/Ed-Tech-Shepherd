@@ -13,9 +13,19 @@ import {
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { PlusSmallIcon } from '@heroicons/react/24/solid';
 import { motion } from 'framer-motion';
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  useMemo
+} from 'react';
 import { FiChevronRight } from 'react-icons/fi';
 import DragAndDrop from '../../../../../components/DragandDrop';
+import { useLocation } from 'react-router';
+import { dataURItoFile, extractDataURI } from '../../../../../helpers';
+import { newId } from '../../../../../helpers/id';
+const regex = /(data:image\/(jpeg|jpg|png|svg);base64,.*)/;
 
 const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
   const {
@@ -30,6 +40,14 @@ const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
   } = useFlashcardWizard();
 
   const toast = useCustomToast();
+  const { pathname } = useLocation();
+  const f = useMemo(() => {
+    const fileIdQuestion = newId('file');
+    const fileIdAnswer = newId('file');
+    return { fileIdAnswer, fileIdQuestion };
+  }, [currentQuestionIndex]);
+  console.log(questions, 'que?');
+  console.log(pathname, 'path');
   const [questionFileUpload, setQuestionFileUpload] = useState(false);
   const [questionImage, setQuestionImage] = useState<File>();
   const [answerImage, setAnswerImage] = useState<File>();
@@ -98,9 +116,27 @@ const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
 
   useEffect(() => {
     if (questions[currentQuestionIndex]) {
-      setCurrentQuestion(questions[currentQuestionIndex]);
+      const question = questions[currentQuestionIndex];
+      const updatedQ = { ...question };
+      const duri = updatedQ.question.includes('data:image/')
+        ? extractDataURI(updatedQ.question)
+        : null;
+      const file = duri ? dataURItoFile(duri, f.fileIdQuestion) : null;
+      updatedQ.question = updatedQ.question.includes('data:image/')
+        ? updatedQ.question.replace(regex, '')
+        : updatedQ.question;
+      if (updatedQ.answer.includes('data:image/')) {
+        const file = dataURItoFile(updatedQ.answer, f.fileIdAnswer);
+        setAnswerFileUpload(true);
+        setAnswerImage(file);
+      }
+      setCurrentQuestion(updatedQ);
+      if (file) {
+        setQuestionFileUpload(true);
+        setQuestionImage(file);
+      }
     }
-  }, [currentQuestionIndex, questions]);
+  }, [currentQuestionIndex, questions, f]);
 
   useEffect(() => {
     if (answerTextRef.current) {
@@ -228,18 +264,32 @@ const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
         </Flex>
 
         <Flex direction={'column'} gap={4}>
-          <Textarea
-            _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
-            name="question"
-            ref={questionTextareaRef}
-            height={textareaHeight}
-            maxHeight={'100px'}
-            placeholder="Enter your question here"
-            onChange={handleChange}
-          />
+          {pathname.includes('edit') ? (
+            <Textarea
+              _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+              name="question"
+              ref={questionTextareaRef}
+              height={textareaHeight}
+              defaultValue={currentQuestion.question}
+              maxHeight={'100px'}
+              placeholder="Enter your question here"
+              onChange={handleChange}
+            />
+          ) : (
+            <Textarea
+              _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+              name="question"
+              ref={questionTextareaRef}
+              height={textareaHeight}
+              maxHeight={'100px'}
+              placeholder="Enter your question here"
+              onChange={handleChange}
+            />
+          )}
           {questionFileUpload && (
             <>
               <DragAndDrop
+                file={questionImage}
                 supportingText="supports all image formats"
                 accept=".png,.jpg,.jpeg,image/png,image/jpeg"
                 onFileUpload={(file: File) => {
@@ -343,6 +393,7 @@ const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
             {answerFileUpload && (
               <Flex direction={'column'} gap={4}>
                 <DragAndDrop
+                  file={answerImage}
                   supportingText="supports all image formats"
                   accept=".png,.jpg,.jpeg,image/png,image/jpeg"
                   onFileUpload={(file: File) => {

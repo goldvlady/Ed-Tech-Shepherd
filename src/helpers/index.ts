@@ -59,6 +59,18 @@ export const extractDataURIAndBase64 = (input: string) => {
     return null;
   }
 };
+export const dataURItoFile = (dataURI, fileName) => {
+  const type = dataURI.match(/^data:([A-Za-z-+/]+);base64/)[1];
+  const byteString = atob(dataURI.split(',')[1]);
+  const arrayBuffer = new ArrayBuffer(byteString.length);
+  const uint8Array = new Uint8Array(arrayBuffer);
+  for (let i = 0; i < byteString.length; i++) {
+    uint8Array[i] = byteString.charCodeAt(i);
+  }
+  const blob = new Blob([arrayBuffer], { type });
+  const file = new File([blob], fileName, { type });
+  return file;
+};
 export const extractDataURI = (input: string) => {
   const regex = /(data:image\/(jpeg|jpg|png|svg);base64,.*)/;
 
