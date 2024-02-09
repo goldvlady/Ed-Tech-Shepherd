@@ -104,6 +104,7 @@ const useChatManager = () => {
         return;
       }
       socketRef.current.on(event, handler);
+      console.log('Event listener attached:', handler, event);
     },
     []
   );
@@ -159,6 +160,7 @@ const useChatManager = () => {
       // Handler for setting the current conversation ID
       socketRef.current.on('current_conversation', (id: string) => {
         setConversationId(id);
+        socketRef.current.emit('new_conversation_ready');
       });
     },
     [sendMessage, fetchHistory, formatMessage]
@@ -171,15 +173,16 @@ const useChatManager = () => {
       if (socketRef.current) {
         socketRef.current.disconnect(); // Disconnect existing socket
       }
-
+      if (!queryParams.namespace) {
+        console.error('NO NAMESPACE IN YOUR QUERY PARAMS');
+      }
       // Initialize new socket connection with server
-      socketRef.current = io(SERVER_URL, {
+      socketRef.current = io(SERVER_URL + '/' + queryParams.namespace, {
         extraHeaders: {
           'x-shepherd-header': HEADER_KEY // Example custom header
         },
         auth: (cb) => cb(queryParams) // Authentication with query parameters
       }).connect();
-
       // Setup socket listeners with optional conversation starter
       setupSocketListeners(
         conversationStarterText,
