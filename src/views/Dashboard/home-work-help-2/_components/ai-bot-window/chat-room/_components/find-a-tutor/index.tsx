@@ -8,11 +8,14 @@ import {
   Close
 } from '@radix-ui/react-dialog';
 import BountyForm from './form';
+import { useState } from 'react';
 
 function FindATutorButton() {
+  const [open, setOpen] = useState(false);
+  const handleClose = () => setOpen(false);
   return (
     <div>
-      <Root>
+      <Root open={open} onOpenChange={setOpen}>
         <Trigger asChild>
           <Button
             variant="outline"
@@ -42,8 +45,8 @@ function FindATutorButton() {
                 </button>
               </Close>
             </header>
-            <div className="body w-full p-5 flex-1 bg-white">
-              <BountyForm />
+            <div className="body w-full flex-1 bg-white">
+              <BountyForm handleClose={handleClose} />
             </div>
           </Content>
         </Portal>

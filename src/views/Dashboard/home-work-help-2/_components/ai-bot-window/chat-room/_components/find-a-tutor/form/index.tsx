@@ -36,7 +36,7 @@ import { cn } from '../../../../../../../../../library/utils';
 import { CalendarIcon } from '@radix-ui/react-icons';
 import { Calendar } from '../../../../../../../../../components/ui/calender';
 
-function BountyForm() {
+function BountyForm({ handleClose }: { handleClose: () => void }) {
   const form = useForm<FindTutorSchemaType>({
     resolver: zodResolver(FindTutorSchema),
     defaultValues: {}
@@ -51,7 +51,7 @@ function BountyForm() {
     <div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <div className="w-full flex flex-col gap-3">
+          <div className="w-full flex flex-col gap-3 p-5 ">
             <div className="w-full grid grid-cols-2 gap-2">
               <FormField
                 control={form.control}
@@ -251,6 +251,7 @@ function BountyForm() {
               size="sm"
               className="shadow-md bg-white text-[#5C5F64] hover:shadow-lg text-sm font-normal"
               type="button"
+              onClick={handleClose}
             >
               Cancel
             </Button>
