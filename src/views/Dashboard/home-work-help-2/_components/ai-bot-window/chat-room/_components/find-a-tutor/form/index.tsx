@@ -35,6 +35,14 @@ import { Button } from '../../../../../../../../../components/ui/button';
 import { cn } from '../../../../../../../../../library/utils';
 import { CalendarIcon } from '@radix-ui/react-icons';
 import { Calendar } from '../../../../../../../../../components/ui/calender';
+import SelectSubject from './_components/select-subject';
+import Level from './_components/level';
+import Topic from './_components/topic';
+import Description from './_components/description';
+import Price from './_components/price';
+import Duration from './_components/duration';
+import InstructionMode from './_components/instruction-mode';
+import ExpirationDate from './_components/expiration-date';
 
 function BountyForm({ handleClose }: { handleClose: () => void }) {
   const form = useForm<FindTutorSchemaType>({
@@ -53,195 +61,19 @@ function BountyForm({ handleClose }: { handleClose: () => void }) {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="w-full flex flex-col gap-3 p-5 ">
             <div className="w-full grid grid-cols-2 gap-2">
-              <FormField
-                control={form.control}
-                name="subject"
-                render={({ field }) => (
-                  <FormItem>
-                    {/* <FormLabel>Email</FormLabel> */}
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Subject" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-white">
-                        <SelectItem value="Math">Math</SelectItem>
-                        <SelectItem value="Chemistry">Chemistry</SelectItem>
-                        <SelectItem value="Physics">Physics</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="level"
-                render={({ field }) => (
-                  <FormItem>
-                    {/* <FormLabel>Email</FormLabel> */}
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Level" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-white">
-                        {[1, 2, 3, 4, 5].map((level) => (
-                          <SelectItem value={level.toString()}>
-                            {level}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <SelectSubject form={form} />
+              <Level form={form} />
             </div>
-            <FormField
-              control={form.control}
-              name="topic"
-              render={({ field }) => (
-                <FormItem>
-                  <Input placeholder="Topic" {...field} />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <Textarea
-                    className="max-h-36"
-                    placeholder="Description"
-                    {...field}
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <Topic form={form} />
+            <Description form={form} />
             <div className="w-full grid grid-cols-2 gap-2 items-center">
-              {/* price */}
-              <FormField
-                control={form.control}
-                name="price"
-                render={({ field }) => (
-                  <FormItem>
-                    <Input placeholder="Price ($)" type="number" {...field} />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="time"
-                render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex flex-row gap-3 space-y-1"
-                      >
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="half-hour" />
-                          </FormControl>
-                          <FormLabel className="font-normal">
-                            Half Hour
-                          </FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="full-hour" />
-                          </FormControl>
-                          <FormLabel className="font-normal">
-                            Full Hour
-                          </FormLabel>
-                        </FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <Price form={form} />
+              <Duration form={form} />
             </div>
             <div className="w-full grid grid-cols-2 gap-2">
-              <FormField
-                control={form.control}
-                name="instructionMode"
-                render={({ field }) => (
-                  <FormItem>
-                    {/* <FormLabel>Email</FormLabel> */}
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Mode of Instruction" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-white">
-                        <SelectItem value="video">Video</SelectItem>
-                        <SelectItem value="chat">Chat</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <InstructionMode form={form} />
               <div className="w-full bg-white flex items-stretch">
-                <FormField
-                  control={form.control}
-                  name="expirationDate"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col w-full">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={'outline'}
-                              className={cn(
-                                'w-full pl-3 text-left font-normal',
-                                !field.value && 'text-muted-foreground'
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, 'PPP')
-                              ) : (
-                                <span>Expiration date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent
-                          className="w-auto p-0 bg-white"
-                          align="start"
-                        >
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <ExpirationDate form={form} />
               </div>
             </div>
           </div>
