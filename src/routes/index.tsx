@@ -13,6 +13,7 @@ import CreatePassword from '../views/CreatePassword';
 import ShepherdSpinner from '../views/Dashboard/components/shepherd-spinner';
 import DashboardLayoutSkeleton from '../components/skeletons/dashboard-layout-skeleton';
 import SharedLoading from '../components/skeletons/shared-loading';
+import ChatRoom from '../views/Dashboard/home-work-help-2/_components/ai-bot-window/chat-room';
 // const HomeWorkHelp = lazy(() => import('../views/Dashboard/HomeWorkHelp'));
 const HomeWorkHelp = lazy(() => import('../views/Dashboard/home-work-help-2'));
 const WelcomeLayout = lazy(() => import('../views/WelcomeLayout'));
@@ -109,7 +110,7 @@ const studentRoutes = [
   { path: 'messaging', element: <Messaging /> },
   { path: 'account-settings', element: <StudentSettings /> },
   // { path: 'ace-homework/:id', element: <HomeWorkHelp /> },
-  { path: 'ace-homework', element: <HomeWorkHelp /> },
+  // { path: 'ace-homework', element: <HomeWorkHelp /> },
   { path: 'flashcards/create', element: <CreateFlashCard /> },
   { path: 'flashcards', element: <FlashCard /> },
   // { path: 'flashcards/:flashcardId', element: <FlashCard /> },
@@ -147,9 +148,11 @@ const userLayouts = {
 const RenderLayout = () => {
   const matchedRoute = useRoutes(userRoutes.both);
 
-  const isStudentRoute = studentRoutes.some(
-    (route) => route.path === matchedRoute?.props?.match?.route?.path
-  );
+  const isStudentRoute = [
+    { path: 'ace-homework/:id', element: <HomeWorkHelp /> },
+    { path: 'ace-homework', element: <HomeWorkHelp /> },
+    ...studentRoutes
+  ].some((route) => route.path === matchedRoute?.props?.match?.route?.path);
   const isTutorRoute = tutorRoutes.some(
     (route) => route.path === matchedRoute?.props?.match?.route?.path
   );
@@ -177,7 +180,14 @@ const AuthAction = (props: any) => {
 const userRoutes = {
   student: studentRoutes,
   tutor: tutorRoutes,
-  both: [...studentRoutes, ...tutorRoutes]
+  both: [
+    ...[
+      { path: 'ace-homework/:id', element: <HomeWorkHelp /> },
+      { path: 'ace-homework', element: <HomeWorkHelp /> },
+      ...studentRoutes
+    ],
+    ...tutorRoutes
+  ]
 };
 
 const RequireAuth = ({
@@ -495,7 +505,7 @@ const AppRoutes: React.FC = () => {
         }
       />
 
-      <Route
+      {/* <Route
         path="/dashboard/ace-homework/:id"
         element={
           <Suspense fallback={<DashboardLayoutSkeleton />}>
@@ -506,7 +516,7 @@ const AppRoutes: React.FC = () => {
             </DashboardLayout>
           </Suspense>
         }
-      />
+      /> */}
       <Route
         path="/dashboard/quizzes/take"
         element={
@@ -555,6 +565,16 @@ const AppRoutes: React.FC = () => {
               }
             />
           ))}
+        <Route
+          path="ace-homework"
+          element={
+            <Suspense fallback={<h1>Loading...</h1>}>
+              <HomeWorkHelp />
+            </Suspense>
+          }
+        >
+          <Route path=":id" element={<ChatRoom />} />
+        </Route>
       </Route>
     </Routes>
   );

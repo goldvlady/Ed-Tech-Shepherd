@@ -1,7 +1,9 @@
+import { memo, useMemo } from 'react';
 import AiChatBotWindow from './_components/ai-bot-window';
 import ChatHistory from './_components/chat-history';
 
-function HomeWorkHelp2() {
+const Component = () => {
+  console.log('I AM PARENT');
   return (
     <div className="w-full h-full flex">
       <div className="h-full max-h-screen hidden md:block w-[348px] border-r">
@@ -12,6 +14,11 @@ function HomeWorkHelp2() {
       </div>
     </div>
   );
+};
+
+function HomeWorkHelp2() {
+  const component = useMemo(() => <Component />, []);
+  return component;
 }
 
-export default HomeWorkHelp2;
+export default memo(HomeWorkHelp2, () => true);
