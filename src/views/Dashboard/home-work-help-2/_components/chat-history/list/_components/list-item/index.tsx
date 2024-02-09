@@ -65,10 +65,7 @@ const ListItem = ({ id, title }: { id: string; title: string }) => {
           }
         />
       ) : (
-        <Link
-          to={`/dashboard/ace-homework/${id}`}
-          className="flex-1 py-2 text-ellipsis truncate"
-        >
+        <Link to={`${id}`} className="flex-1 py-2 text-ellipsis truncate">
           <span className="w-full text-ellipsis truncate">{title}</span>
         </Link>
       )}
