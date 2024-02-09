@@ -211,7 +211,7 @@ const PlansModal = ({
 }: ToggleProps & { message?: string; subMessage?: string }) => {
   const [showSelected, setShowSelected] = useState(false);
   const [currentPlan, setCurrentPlan] = useState('Basic');
-  const { user }: any = userStore();
+  const { user, fetchUser }: any = userStore();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState('');
@@ -327,6 +327,10 @@ const PlansModal = ({
   const handleShowSelected = () => {
     setShowSelected(true);
   };
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
 
   return (
     <div className="pm">
