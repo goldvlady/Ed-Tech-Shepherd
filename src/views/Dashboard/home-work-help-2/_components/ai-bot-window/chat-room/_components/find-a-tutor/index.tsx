@@ -7,6 +7,7 @@ import {
   Content,
   Close
 } from '@radix-ui/react-dialog';
+import BountyForm from './form';
 
 function FindATutorButton() {
   return (
@@ -41,35 +42,9 @@ function FindATutorButton() {
                 </button>
               </Close>
             </header>
-            <div className="body w-full p-5 flex-1 bg-white"></div>
-            <footer className="h-[72px] border-t p-5 pt-5 overflow-hidden w-full flex justify-end gap-4 items-center bg-[#F7F7F8]">
-              <Close>
-                <Button
-                  size="sm"
-                  style={{
-                    backgroundColor: '#fff',
-                    color: '#5C5F64',
-                    fontSize: '14px',
-                    lineHeight: '20px'
-                  }}
-                  className="shadow-md"
-                >
-                  Cancel
-                </Button>
-              </Close>
-              <Button
-                size="sm"
-                style={{
-                  backgroundColor: '#207DF7',
-                  color: '#fff',
-                  fontSize: '14px',
-                  lineHeight: '20px'
-                }}
-                className="shadow-md hover:shadow-lg"
-              >
-                Confirm
-              </Button>
-            </footer>
+            <div className="body w-full p-5 flex-1 bg-white">
+              <BountyForm />
+            </div>
           </Content>
         </Portal>
       </Root>
