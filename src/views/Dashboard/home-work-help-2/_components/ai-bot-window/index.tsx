@@ -1,10 +1,8 @@
-import { useParams } from 'react-router';
-import { useEffect, useState } from 'react';
-import ChatRoom from './chat-room';
+import { memo, useEffect, useState } from 'react';
 import ChatInitiator from './chat-initiator';
 import useUserStore from '../../../../../state/userStore';
 import useChatManager from './hooks/useChatManager';
-import { useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useParams } from 'react-router-dom';
 
 function AiChatBotWindow() {
   const { id } = useParams();
@@ -28,7 +26,9 @@ function AiChatBotWindow() {
 
   useEffect(() => {
     if (conversationId) {
-      navigate(`/dashboard/ace-homework/${conversationId}`);
+      navigate(`/dashboard/ace-homework/${conversationId}`, {
+        replace: true
+      });
     }
   }, [conversationId]);
 
@@ -57,7 +57,8 @@ function AiChatBotWindow() {
   return (
     <div className="h-full flex flex-col gap-4 w-full justify-between bg-[#F9F9FB] overflow-hidden">
       {isChatRoom ? (
-        <ChatRoom />
+        // This outlet is for the chat room, it will be replaced by the chat room component using the react-router-dom
+        <Outlet />
       ) : (
         <ChatInitiator initiateConversation={initiateConversation} /> // Subject and topic
       )}
@@ -65,4 +66,4 @@ function AiChatBotWindow() {
   );
 }
 
-export default AiChatBotWindow;
+export default memo(AiChatBotWindow);
