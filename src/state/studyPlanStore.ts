@@ -5,18 +5,23 @@ import { create } from 'zustand';
 type StudyPlanStore = {
   studyPlans: any[];
   studyPlanResources: any[];
-  tags: string[];
+  studyPlanReport: any;
+  studyPlanUpcomingEvent: any[];
+
   isLoading: boolean;
   pagination: { page: number; limit: number; total: number };
   fetchPlans: (page: number, limit: number) => Promise<void>;
   fetchPlanResources: (planId: string) => Promise<void>;
+  fetchPlanReport: (planId: string) => Promise<void>;
+  fetchUpcomingPlanEvent: () => Promise<void>;
   createStudyPlan: (data: any) => Promise<boolean>;
 };
 
 export default create<StudyPlanStore>((set) => ({
   studyPlans: [],
   studyPlanResources: [],
-  tags: [],
+  studyPlanReport: null,
+  studyPlanUpcomingEvent: [],
   isLoading: false,
   pagination: { limit: 10, page: 1, total: 100 },
 
@@ -28,6 +33,20 @@ export default create<StudyPlanStore>((set) => ({
       const { data, meta } = await response.json();
 
       set({ studyPlans: data, pagination: meta.pagination });
+    } catch (error) {
+      // console.log(error)
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+  fetchUpcomingPlanEvent: async () => {
+    set({ isLoading: true });
+    try {
+      set({ isLoading: true });
+      const response = await ApiService.getUpcomingStudyPlanEvent();
+      const { data } = await response.json();
+
+      set({ studyPlanUpcomingEvent: data });
     } catch (error) {
       // console.log(error)
     } finally {
@@ -50,7 +69,22 @@ export default create<StudyPlanStore>((set) => ({
       set({ isLoading: false });
     }
   },
+  fetchPlanReport: async (planId: string) => {
+    set({ isLoading: true });
 
+    try {
+      set({ isLoading: true });
+      const response = await ApiService.getStudyPlanReport(planId);
+      const data = await response.json();
+
+      set({ studyPlanReport: data });
+      return data;
+    } catch (error) {
+      // console.log(error)
+    } finally {
+      set({ isLoading: false });
+    }
+  },
   createStudyPlan: async (data: any) => {
     try {
       set({ isLoading: true });

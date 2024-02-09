@@ -61,6 +61,10 @@ class ApiService {
     });
   };
 
+  static getStudyPlanCourses = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/getStudyPlanCourses`);
+  };
+
   static resendUserEmail = async (data: any) => {
     const payload = { email: data };
     return doFetch(`${ApiService.baseEndpoint}/resendUserEmail`, {
@@ -80,13 +84,20 @@ class ApiService {
   };
 
   static scheduleStudyEvent = async (data: any) => {
+    const requestPayload = {
+      ...data,
+      tz: Intl.DateTimeFormat().resolvedOptions().timeZone
+    };
     return doFetch(`${ApiService.baseEndpoint}/scheduleStudyEvent`, {
       method: 'POST',
-      body: JSON.stringify(data)
+      body: JSON.stringify(requestPayload)
     });
   };
 
   static rescheduleStudyEvent = async (data: any) => {
+    if (data.updates) {
+      data.updates.tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    }
     return doFetch(`${ApiService.baseEndpoint}/updateStudyEvent`, {
       method: 'POST',
       body: JSON.stringify(data)
@@ -135,10 +146,17 @@ class ApiService {
   };
 
   static getLibraryCards = async (data: any) => {
-    return doFetch(`${ApiService.baseEndpoint}/getLibraryCardsByDeck`, {
-      method: 'POST',
-      body: JSON.stringify(data)
+    const queryString = objectToQueryString({
+      page: data.page,
+      limit: data.limit
     });
+    return doFetch(
+      `${ApiService.baseEndpoint}/getLibraryCardsByDeck?${queryString}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }
+    );
   };
 
   static createMnemonic = async (data: any) => {
@@ -220,14 +238,28 @@ class ApiService {
     });
   };
 
-  static createFlashcard = async (data: any, generatorType = 'manual') => {
-    return doFetch(
-      `${ApiService.baseEndpoint}/createFlashcard?generatorType=${generatorType}`,
-      {
-        method: 'POST',
-        body: JSON.stringify(data)
-      }
-    );
+  static createFlashcard = async (
+    data: any,
+    generatorType = 'manual',
+    id: string = null
+  ) => {
+    if (!id) {
+      return doFetch(
+        `${ApiService.baseEndpoint}/createFlashcard?generatorType=${generatorType}`,
+        {
+          method: 'POST',
+          body: JSON.stringify(data)
+        }
+      );
+    } else {
+      return doFetch(
+        `${ApiService.baseEndpoint}/createFlashcard?generatorType=${generatorType}&fid=${id}`,
+        {
+          method: 'POST',
+          body: JSON.stringify(data)
+        }
+      );
+    }
   };
 
   static getSingleFlashcard = async (id: string) => {
@@ -308,7 +340,8 @@ class ApiService {
 
   static generateFlashcardQuestionsForNotes = async (
     data: any,
-    studentId: string
+    studentId: string,
+    firebaseId: string
   ) => {
     const isDevelopment =
       process.env.REACT_APP_API_ENDPOINT.includes('develop');
@@ -322,7 +355,8 @@ class ApiService {
         body: JSON.stringify({
           noteId: data.note,
           count: data.count,
-          studentId: studentId
+          studentId: studentId,
+          firebaseId: firebaseId
         }),
         headers: {
           'x-shepherd-header': HEADER_KEY,
@@ -624,7 +658,12 @@ class ApiService {
       body: JSON.stringify(data)
     });
   };
-
+  static cloneNote = async (noteId: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/createNote?nid=${noteId}`, {
+      method: 'POST',
+      body: JSON.stringify({})
+    });
+  };
   static updateNote = async (id: string | number, data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/updateNote/${id}`, {
       method: 'PUT',
@@ -820,6 +859,13 @@ class ApiService {
     });
   };
 
+  static cloneQuiz = async (qid: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/createQuiz?qid=${qid}`, {
+      method: 'POST',
+      body: JSON.stringify({})
+    });
+  };
+
   static storeQuizTags = (quizId: string[] | string, tags: string[]) => {
     return doFetch(`${ApiService.baseEndpoint}/editQuiz?id=${quizId}`, {
       method: 'POST',
@@ -901,6 +947,7 @@ class ApiService {
   static generateQuizQuestion = async (
     userId: string,
     data: {
+      firebaseId: string;
       type: QuizQuestion['type'] | 'mixed';
       count: number;
       difficulty: QuizQuestion['difficulty'];
@@ -928,6 +975,7 @@ class ApiService {
     topic: string;
     documentId?: string;
     studentId?: string;
+    subscriptionTier?: string;
     start_page?: number;
     end_page?: number;
   }) => {
@@ -993,7 +1041,7 @@ class ApiService {
   };
   static getStudyPlans = async (page: number, limit: number) => {
     return doFetch(
-      `${ApiService.baseEndpoint}/getStudyPlans?page=${page}&limit=${limit}`
+      `${ApiService.baseEndpoint}/getStudyPlans?page=${page}&limit=${limit}&subject=65b88d428c23be80c63a5ff3`
     );
   };
   static getStudyPlanResources = async (planId: string) => {

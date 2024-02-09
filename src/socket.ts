@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 
 const socketWithAuth = (payload: {
   studentId: string;
+  firebaseId?: string;
   documentId?: string;
   namespace: string;
   topic?: string;

@@ -4,6 +4,7 @@ import { create } from 'zustand';
 
 type Store = {
   courses: Array<Course>;
+  studyPlanCourses: Array<Course>;
   countries: Array<Country>;
   rate: number;
   resourcesLoaded: boolean;
@@ -31,6 +32,7 @@ const loadState = () => {
   }
   return {
     courses: [],
+    studyPlanCourses: [],
     countries: [],
     rate: 0,
     resourcesLoaded: false,
@@ -56,6 +58,7 @@ const useResourceStore = create<Store>((set) => {
         rate: data.rate,
         courses: data.courses,
         levels: data.levels,
+        studyPlanCourses: data.studyPlanCourses,
         countries,
         resourcesLoaded: true
       };

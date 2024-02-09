@@ -12,6 +12,7 @@ import { create } from 'zustand';
 type Store = {
   flashcards: FlashcardData[] | null;
   tags: string[];
+  cloneFlashcard: (flashcardId: string) => Promise<FlashcardData | null>;
   showStudyList: boolean;
   setShowStudyList: (value: boolean) => void;
   dailyFlashcards: FlashcardData[] | null;
@@ -141,6 +142,18 @@ export default create<Store>((set) => ({
       return false;
     } finally {
       set({ isLoading: false });
+    }
+  },
+  async cloneFlashcard(flashcardId) {
+    set({ isLoading: true });
+    const f = await ApiService.createFlashcard({}, 'manual', flashcardId);
+    if (f.status === 200) {
+      const d: { data: FlashcardData } = await f.json();
+      set({ isLoading: false, flashcard: null });
+      return d.data;
+    } else {
+      set({ isLoading: false });
+      return null;
     }
   },
   loadTodaysFlashcards: async () => {

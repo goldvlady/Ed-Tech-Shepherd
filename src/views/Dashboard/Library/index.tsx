@@ -5,7 +5,7 @@ import LibraryCardList from './components/LibraryCardList';
 import SubjectList from './components/SubjectList';
 import TopicList from './components/TopicList';
 import DeckList from './components/DeckList';
-import { Stack } from '@chakra-ui/react';
+import { capitalize } from 'lodash';
 import {
   Flex,
   Text,
@@ -17,6 +17,7 @@ import {
   TagLabel,
   Image,
   Tab,
+  Stack,
   TabList,
   TabPanel,
   TabPanels,
@@ -218,7 +219,7 @@ const Library: React.FC = () => {
 
           <Tabs>
             <TabList mb="1em">
-              <Tab>{displayMode}</Tab>
+              <Tab>{capitalize(displayMode)}</Tab>
               {/* Add other tabs as needed */}
             </TabList>
             <TabPanels>

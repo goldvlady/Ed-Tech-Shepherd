@@ -97,7 +97,8 @@ const UploadQuizForm = ({
     try {
       const result = await ApiService.generateQuizQuestionFromDocs({
         ...data,
-        count: toNumber(data?.count)
+        count: toNumber(data?.count),
+        subscriptionTier: user.subscription?.tier
       });
 
       const resultJson = await result.json();

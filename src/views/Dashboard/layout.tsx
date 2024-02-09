@@ -85,6 +85,8 @@ import WelcomeWalkthrough from '../../components/welcome-walkthrough';
 
 import useCompletedStore from '../../state/useCompletedStore';
 
+import { IoIosArrowRoundBack } from 'react-icons/io';
+
 interface LinkItemProps {
   name: string;
   icon: IconType;
@@ -314,7 +316,15 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         top="0"
         {...rest}
       >
-        <Box display={{ base: 'none', md: 'flex' }}>
+        <Box display={{ base: 'none', md: 'flex' }} gap={2}>
+          <Flex
+            alignItems={'center'}
+            onClick={() => navigate(-1)}
+            _hover={{ cursor: 'pointer' }}
+          >
+            <IoIosArrowRoundBack />
+            {/* <Text fontSize={12}>Back</Text> */}
+          </Flex>
           <Flex
             bgColor={'transparent'}
             color="text.400"
@@ -663,48 +673,69 @@ const SidebarContent = ({
         justifyContent="space-between"
         cursor="pointer"
         onClick={
-          hasActiveSubscription
-            ? () => toggleChatMenu()
-            : () =>
-                handleLockedClick(
-                  !user.hadSubscription
-                    ? 'Start Your Free Trial!'
-                    : 'Pick a plan to access your AI Study Tools! 🚀',
-                  'One-click Cancel at anytime.'
-                )
+          () => toggleChatMenu()
+          // hasActiveSubscription
+          //   ? () => toggleChatMenu()
+          //   : () =>
+          //       handleLockedClick(
+          //         !user.hadSubscription
+          //           ? 'Start Your Free Trial!'
+          //           : 'Pick a plan to access your AI Study Tools! 🚀',
+          //         'One-click Cancel at anytime.'
+          //       )
         }
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
       >
-        <Button
-          variant={'unstyled'}
-          display="flex"
-          alignSelf="start"
-          gap={'10px'}
-          leftIcon={<RiChat3Line width={18} />}
-          fontSize={14}
-          fontWeight={500}
-          onClick={
-            hasActiveSubscription
-              ? () => toggleChatMenu()
-              : () =>
-                  handleLockedClick(
-                    !user.hadSubscription
-                      ? 'Start Your Free Trial!'
-                      : 'Pick a plan to access your AI Study Tools! 🚀',
-                    'One-click Cancel at anytime.'
-                  )
-          }
-          rightIcon={
-            aiChatMenu ? (
-              <MdOutlineKeyboardArrowUp />
-            ) : (
-              <MdOutlineKeyboardArrowDown />
-            )
-          }
-        >
-          AI Chat
-        </Button>
+        <HStack width={'100%'} justifyContent="space-between">
+          <Button
+            variant={'unstyled'}
+            display="flex"
+            alignSelf="start"
+            gap={'10px'}
+            leftIcon={<RiChat3Line width={18} />}
+            fontSize={14}
+            fontWeight={500}
+            onClick={
+              () => toggleChatMenu()
+              // hasActiveSubscription
+              //   ? () => toggleChatMenu()
+              //   : () =>
+              //       handleLockedClick(
+              //         !user.hadSubscription
+              //           ? 'Start Your Free Trial!'
+              //           : 'Pick a plan to access your AI Study Tools! 🚀',
+              //         'One-click Cancel at anytime.'
+              //       )
+            }
+            rightIcon={
+              aiChatMenu ? (
+                <MdOutlineKeyboardArrowUp />
+              ) : (
+                <MdOutlineKeyboardArrowDown />
+              )
+            }
+          >
+            AI Chat
+          </Button>
+          {/* {!hasActiveSubscription && (
+            // (isHovering ? (
+            //   <Icon as={RiLockUnlockFill} fontSize="18" color="#fc9b65" />
+            // ) : (
+            //   <Icon as={RiLockFill} fontSize="18" color="#fc9b65" />
+            // ))
+            <Text
+              fontSize={10}
+              border="1px solid #66BD6A"
+              borderRadius={4}
+              color="#66BD6A"
+              ml="auto"
+              px={1}
+            >
+              Free Trial
+            </Text>
+          )} */}
+        </HStack>
         <Box display={aiChatMenu ? 'block' : 'none'} alignSelf="start">
           <MenuLinedList
             items={[
@@ -720,30 +751,13 @@ const SidebarContent = ({
             ]}
           />
         </Box>
-        {!hasActiveSubscription && (
-          // (isHovering ? (
-          //   <Icon as={RiLockUnlockFill} fontSize="18" color="#fc9b65" />
-          // ) : (
-          //   <Icon as={RiLockFill} fontSize="18" color="#fc9b65" />
-          // ))
-          <Text
-            fontSize={10}
-            border="1px solid #66BD6A"
-            borderRadius={4}
-            color="#66BD6A"
-            ml="auto"
-            px={1}
-          >
-            Free Trial
-          </Text>
-        )}
       </Box>
       {LinkItems.map((link) => (
         <NavItem
           key={link.name}
           icon={link.icon}
           path={link.path}
-          isLocked={link.requiresSubscription && !hasActiveSubscription}
+          isLocked={false} //link.requiresSubscription && !hasActiveSubscription
           onLockedClick={
             link.requiresSubscription
               ? () =>
@@ -900,7 +914,7 @@ const SidebarContent = ({
         Feedback
       </NavItem>
 
-      <Divider />
+      {/* <Divider />
       <Box ml={8} color="text.400">
         <Button
           variant={'unstyled'}
@@ -934,7 +948,7 @@ const SidebarContent = ({
             ]}
           />
         </Box>
-      </Box>
+      </Box> */}
       {showSelected && (
         <SelectedNoteModal show={showSelected} setShow={setShowSelected} />
       )}

@@ -10,6 +10,7 @@ import {
   Flex,
   Checkbox
 } from '@chakra-ui/react';
+import { capitalize } from 'lodash';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
 import { FaEllipsisV } from 'react-icons/fa';
@@ -30,11 +31,6 @@ interface LibraryCardProps {
 }
 
 const MotionBox = motion(Box);
-
-function capitalizeFirstLetter(str) {
-  if (!str) return str;
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-}
 
 const LibraryCard: React.FC<LibraryCardProps> = ({
   question,
@@ -83,7 +79,7 @@ const LibraryCard: React.FC<LibraryCardProps> = ({
           isChecked={isSelected}
           onChange={(e) => onSelect?.(e.target.checked)}
         />
-        <Text>{capitalizeFirstLetter(difficulty)}</Text>
+        <Text>{capitalize(difficulty)}</Text>
         {/* <Menu>
           <MenuButton
             as={IconButton}

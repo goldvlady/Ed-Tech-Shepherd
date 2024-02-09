@@ -211,7 +211,7 @@ const PlansModal = ({
 }: ToggleProps & { message?: string; subMessage?: string }) => {
   const [showSelected, setShowSelected] = useState(false);
   const [currentPlan, setCurrentPlan] = useState('Basic');
-  const { user }: any = userStore();
+  const { user, fetchUser }: any = userStore();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState('');
@@ -328,6 +328,10 @@ const PlansModal = ({
     setShowSelected(true);
   };
 
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
   return (
     <div className="pm">
       {togglePlansModal && (
@@ -413,7 +417,7 @@ const PlansModal = ({
                           <XMarkIcon className="w-4 h-4" />
                         </button>
                       </div>
-                      <Tabs isFitted>
+                      {/* <Tabs isFitted>
                         <TabList
                           marginTop="25px"
                           width={'80%'}
@@ -424,19 +428,17 @@ const PlansModal = ({
                           <Tab>Yearly</Tab>
                         </TabList>
                         <TabPanels>
-                          <TabPanel>
-                            <PriceCardList
-                              priceData={filterPriceData('/month')}
-                              hasActiveSubscription={hasActiveSubscription}
-                              user={user}
-                              redirectToCustomerPortal={
-                                redirectToCustomerPortal
-                              }
-                              getButtonText={getButtonText}
-                              getTrialButtonText={getTrialButtonText}
-                              handleSubscriptionClick={handleSubscriptionClick}
-                            />
-                          </TabPanel>
+                          <TabPanel> */}
+                      <PriceCardList
+                        priceData={filterPriceData('/month')}
+                        hasActiveSubscription={hasActiveSubscription}
+                        user={user}
+                        redirectToCustomerPortal={redirectToCustomerPortal}
+                        getButtonText={getButtonText}
+                        getTrialButtonText={getTrialButtonText}
+                        handleSubscriptionClick={handleSubscriptionClick}
+                      />
+                      {/* </TabPanel>
                           <TabPanel>
                             <PriceCardList
                               priceData={filterPriceData('/year')}
@@ -451,7 +453,7 @@ const PlansModal = ({
                             />
                           </TabPanel>
                         </TabPanels>
-                      </Tabs>
+                      </Tabs> */}
 
                       {/* <div className="overflow-hidden sm:w-[80%] w-full mx-auto p-6 pt-3  bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">
                         {actions2.map((action) => (

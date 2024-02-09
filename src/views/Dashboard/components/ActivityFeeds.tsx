@@ -71,6 +71,7 @@ const Root = styled(Flex)`
 
 function ActivityFeeds(props) {
   const { feeds, userType } = props;
+
   const { loadFlashcard } = flashcardStore();
   const [feedPeriod, setFeedPeriod] = useState<
     'all' | 'today' | 'week' | 'month'
@@ -82,6 +83,7 @@ function ActivityFeeds(props) {
   };
   const navigate = useNavigate();
   const getFileName = (url) => {
+    if (!url) return '';
     const isFirebaseStorageUrl = url.includes('firebasestorage.googleapis.com');
     const isAmazonS3Url = url.includes('amazonaws.com');
 
@@ -167,8 +169,8 @@ function ActivityFeeds(props) {
         )}" to your workspace`;
       case 'payments':
         return isTutor
-          ? `You received a payment of ${feed.payment.amount}`
-          : `You made a payment of ${feed.payment.amount}`;
+          ? `You received a $${feed.payment.amount} payment`
+          : `Your $${feed.payment.amount} payment was processed successfully`;
       case 'flashcards':
         return `You created a new flashcard deck "${feed.title}" `;
       case 'quiz':
@@ -275,7 +277,8 @@ function ActivityFeeds(props) {
       >
         {filteredFeeds?.length > 0 ? (
           filteredFeeds
-            .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt)) //
+            .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
+            .filter((f) => f.link) //
             .map((feed: any, index) => (
               <>
                 <Root px={3} my={4} key={index}>

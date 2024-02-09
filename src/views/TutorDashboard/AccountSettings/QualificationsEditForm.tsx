@@ -12,7 +12,8 @@ import {
   FormLabel,
   HStack,
   Input,
-  useToast
+  useToast,
+  Text
 } from '@chakra-ui/react';
 import { ref } from '@firebase/storage';
 import { format, isBefore } from 'date-fns';
@@ -20,6 +21,7 @@ import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useMemo } from 'react';
 import { RiPencilLine } from 'react-icons/ri';
+import { RiCloseCircleLine } from 'react-icons/ri';
 
 const QualificationsForm = (props) => {
   const { updateQualifications } = props;
@@ -38,13 +40,13 @@ const QualificationsForm = (props) => {
   const [dateError, setDateError] = useState('');
 
   const [isLoading, setIsLoading] = useState(false);
-  const [addQualificationClicked, setAddQualificationClicked] = useState(false);
+  // const [addQualificationClicked, setAddQualificationClicked] = useState(false);
 
-  useEffect(() => {
-    if (qualificationsData.length === 1 && !addQualificationClicked) {
-      setFormData(qualificationsData[0]);
-    }
-  }, [qualificationsData, addQualificationClicked]);
+  // useEffect(() => {
+  //   if (qualificationsData.length === 1 && !addQualificationClicked) {
+  //     setFormData(qualificationsData[0]);
+  //   }
+  // }, [qualificationsData, addQualificationClicked]);
 
   const handleUploadInput = (file: File | null, name: string) => {
     if (!file) return;
@@ -94,7 +96,7 @@ const QualificationsForm = (props) => {
       [e.target.name]: e.target.value
     };
     setFormData(updatedFormData);
-    updateQualifications(updatedFormData);
+    updateQualifications([...qualificationsData, updatedFormData]);
 
     // if (!addQualificationClicked) {
     //   setQualificationsData([updatedFormData]);
@@ -120,13 +122,11 @@ const QualificationsForm = (props) => {
       [name]: date
     };
     setFormData(updatedFormData);
-    if (!addQualificationClicked) {
-      onboardTutorStore.set.qualifications?.([updatedFormData]);
-    }
+    updateQualifications([...qualificationsData, updatedFormData]);
   };
-  const isFormValid = useMemo(() => {
-    return Object.values(formData).every(Boolean);
-  }, [formData]);
+  // const isFormValid = useMemo(() => {
+  //   return Object.values(formData).every(Boolean);
+  // }, [formData]);
 
   //   const handleAddQualification = () => {
   //     const isFormValid = Object.values(formData).every(Boolean);
@@ -226,6 +226,60 @@ const QualificationsForm = (props) => {
   //     });
   //   };
 
+  const QualificationsList = ({ qualifications, onRemove }) => {
+    return (
+      <Box width="full">
+        {qualifications.map((qualification, index) => {
+          const startDate = new Date(qualification.startDate).getFullYear();
+          const endDate = new Date(qualification.endDate).getFullYear();
+
+          return (
+            <Box
+              key={index}
+              borderWidth="1px"
+              borderRadius="lg"
+              p={4}
+              mb={4}
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              width="full"
+            >
+              <Text
+                flex="2"
+                fontWeight="bold"
+                isTruncated
+                overflow="hidden"
+                textOverflow="ellipsis"
+                paddingRight={5}
+              >
+                {qualification.institution}
+              </Text>
+              <Text
+                flex="2"
+                isTruncated
+                overflow="hidden"
+                textOverflow="ellipsis"
+                paddingRight={5}
+              >
+                {qualification.degree}
+              </Text>
+              <Text flex="1" isTruncated>
+                {startDate}
+              </Text>
+              <Text flex="1" isTruncated>
+                {endDate}
+              </Text>
+              <Button size="sm" onClick={() => onRemove(index)}>
+                <RiCloseCircleLine size="16px" />
+              </Button>
+            </Box>
+          );
+        })}
+      </Box>
+    );
+  };
+
   return (
     <Box>
       {/* <AnimatePresence>
@@ -240,6 +294,19 @@ const QualificationsForm = (props) => {
           </motion.div>
         )}
       </AnimatePresence> */}
+      <QualificationsList
+        qualifications={qualificationsData}
+        onRemove={(index) => {
+          const updatedQualifications = qualificationsData.filter(
+            (_, i) => i !== index
+          );
+          setQualificationsData(updatedQualifications);
+          updateQualifications(updatedQualifications);
+        }}
+      />
+      <Text fontSize="xl" fontWeight="bold" pt={6} pb={4}>
+        Add New Qualification
+      </Text>
       <FormControl id="institution" marginBottom="20px">
         <FormLabel>Institution</FormLabel>
         <Input

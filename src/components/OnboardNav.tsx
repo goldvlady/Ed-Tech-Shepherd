@@ -1,4 +1,3 @@
-import GoogleIcon from '../assets/google.svg';
 import { Box, Button } from '@chakra-ui/react';
 import * as React from 'react';
 import { StepWizardChildProps } from 'react-step-wizard';
@@ -54,7 +53,7 @@ const OnboardNav: React.FC<Props> = ({
           type="submit"
           size={'lg'}
           color="#000"
-          leftIcon={<img src={GoogleIcon} alt="" />}
+          leftIcon={<img src="/images/google.svg" alt="" />}
         >
           Continue With Google
         </Button>

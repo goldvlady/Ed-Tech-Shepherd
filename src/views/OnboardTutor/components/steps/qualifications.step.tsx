@@ -106,7 +106,7 @@ const QualificationsForm: React.FC = () => {
     uploadEmitter.on('progress', (progress: number) => {
       // Update the progress. Assuming progress is a percentage (0 to 100)
       setProgress(progress);
-      setIsLoading(true);
+      setLoading(true);
     });
 
     // const storageRef = ref(storage, `files/${file.name}`);
@@ -137,16 +137,52 @@ const QualificationsForm: React.FC = () => {
     //   }
     // );
     uploadEmitter.on('complete', async (uploadFile) => {
-      const updatedFormData = {
-        ...formData,
-        [name]: uploadFile.fileUrl
-      };
-      setFormData(updatedFormData);
+      // Assuming uploadFile contains the fileUrl and other necessary details.
+      const documentURL = uploadFile.fileUrl;
 
-      if (!addQualificationClicked) {
-        onboardTutorStore.set.qualifications?.([updatedFormData]);
+      setCountdown((prev) => ({
+        ...prev,
+        message:
+          'Processing...this may take a minute (larger documents may take longer)'
+      }));
+
+      try {
+        const results = await processDocument({
+          studentId: user._id,
+          documentId: readableFileName,
+          documentURL,
+          title: readableFileName
+        });
+
+        const {
+          documentURL: newDocumentURL,
+          title,
+          documentId
+        } = results.data[0];
+        setConfirmReady(true);
+        setCountdown((prev) => ({
+          ...prev,
+          message:
+            "Your uploaded document is now ready! Click the 'chat' button to start."
+        }));
+        // setDocumentId(documentId);
+        // setDocumentName(title);
+        // setDocumentURL(newDocumentURL);
+        // setDocKeywords(keywords);
+        setLoading(false);
+
+        ApiService.saveStudentDocument({
+          documentUrl: newDocumentURL,
+          title,
+          ingestId: documentId
+        });
+      } catch (e) {
+        setCountdown((prev) => ({
+          ...prev,
+          message: 'Something went wrong. Reload this page and try again.'
+        }));
+        setLoading(false);
       }
-      setIsLoading(false);
     });
 
     uploadEmitter.on('error', (error) => {
@@ -169,6 +205,30 @@ const QualificationsForm: React.FC = () => {
       onboardTutorStore.set.qualifications?.([updatedFormData]);
     }
   };
+
+  // const handleDateChange = (date: Date | null, name: string) => {
+  //   if (!date) return; // or handle `null` value if necessary
+
+  //   if (
+  //     name === 'endDate' &&
+  //     formData.startDate &&
+  //     isBefore(date, formData.startDate)
+  //   ) {
+  //     setDateError('End date must be after start date');
+  //     return;
+  //   } else {
+  //     setDateError('');
+  //   }
+
+  //   const updatedFormData = {
+  //     ...formData,
+  //     [name]: date
+  //   };
+  //   setFormData(updatedFormData);
+  //   if (!addQualificationClicked) {
+  //     onboardTutorStore.set.qualifications?.([updatedFormData]);
+  //   }
+  // };
 
   const handleDateChange = (selectedDate: Date | null, fieldName: string) => {
     if (!selectedDate) return;
@@ -406,6 +466,14 @@ const QualificationsForm: React.FC = () => {
           onFileUpload={(file) => handleUploadInput(file, 'transcript')}
           boxStyles={{ minWidth: '250px', marginTop: '10px', height: '50px' }}
         />
+        <Box my={2}>
+          {countdown.active && (
+            <CountdownProgressBar
+              confirmReady={confirmReady}
+              countdown={countdown}
+            />
+          )}
+        </Box>
       </FormControl>
 
       <Button

@@ -1,6 +1,7 @@
 import { debounce } from 'lodash';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router';
+import { useCustomToast } from './components/CustomComponents/CustomToast/useCustomToast';
 
 type SearchAction = (query: string) => void;
 
@@ -48,4 +49,33 @@ export function useSearchQuery() {
   const { search } = useLocation();
 
   return React.useMemo(() => new URLSearchParams(search), [search]);
+}
+
+export function useCopyToClipboard({ timeout = 2000 }: { timeout?: number }) {
+  const [isCopied, setIsCopied] = React.useState<Boolean>(false);
+  const toast = useCustomToast();
+
+  const copyToClipboard = (value: string) => {
+    if (typeof window === 'undefined' || !navigator.clipboard?.writeText) {
+      return;
+    }
+
+    if (!value) {
+      return;
+    }
+
+    navigator.clipboard.writeText(value).then(() => {
+      setIsCopied(true);
+      toast({
+        title: 'Copied to clipboard',
+        status: 'success'
+      });
+
+      setTimeout(() => {
+        setIsCopied(false);
+      }, timeout);
+    });
+  };
+
+  return { isCopied, copyToClipboard };
 }

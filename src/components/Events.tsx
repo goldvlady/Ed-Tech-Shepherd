@@ -115,7 +115,7 @@ export default function Events({ event }: any) {
         return `hover:bg-indigo-50`;
 
       default:
-        return undefined;
+        return `hover:bg-rose-50`;
     }
   };
 
@@ -332,20 +332,15 @@ export default function Events({ event }: any) {
 
       <Modal isOpen={isJoinSessionOpen} onClose={onCloseJoinSession}>
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent maxW="xs">
           <ModalHeader>Session Options</ModalHeader>
           <ModalCloseButton />
-          <ModalBody>
-            <VStack spacing={4}>
+          <ModalBody p={4}>
+            <VStack spacing={4} width="full">
               <Button
                 colorScheme="blue"
                 width="full"
-                onClick={() =>
-                  handleJoinSession(
-                    event.data.conferenceHostRoomUrl ||
-                      event.data.conferenceRoomUrl
-                  )
-                }
+                onClick={() => handleJoinSession(event.data.url)}
               >
                 Join the session
               </Button>

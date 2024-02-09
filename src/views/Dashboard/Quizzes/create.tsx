@@ -2,6 +2,7 @@ import { useCustomToast } from '../../../components/CustomComponents/CustomToast
 import TagModal from '../../../components/TagModal';
 import LoaderOverlay from '../../../components/loaderOverlay';
 import { useSearch } from '../../../hooks';
+import userStore from '../../../state/userStore';
 import quizStore from '../../../state/quizStore';
 import {
   MULTIPLE_CHOICE_MULTI,
@@ -25,7 +26,9 @@ import {
   Flex,
   TabIndicator,
   AlertStatus,
-  ToastPosition
+  ToastPosition,
+  Center,
+  Icon
 } from '@chakra-ui/react';
 import {
   isEmpty,
@@ -53,6 +56,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import './styles.css';
 import { HeaderButton, HeaderButtonText } from './styles';
 import clsx from 'clsx';
+import PlansModal from '../../../components/PlansModal';
+import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
 
 type NewQuizQuestion = QuizQuestion & {
   canEdit?: boolean;
@@ -61,6 +66,8 @@ type NewQuizQuestion = QuizQuestion & {
 
 const CreateQuizPage = () => {
   const navigate = useNavigate();
+  const { user }: any = userStore();
+  const { hasActiveSubscription } = userStore.getState();
   const TAG_TITLE = 'Tags Alert';
   const [searchParams] = useSearchParams();
   const toast = useCustomToast();
@@ -87,6 +94,14 @@ const CreateQuizPage = () => {
   const [title, setTitle] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
   const [uploadingState, setUploadingState] = useState(false);
+  const [togglePlansModal, setTogglePlansModal] = useState(false);
+  const [plansModalMessage, setPlansModalMessage] = useState('');
+  const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
+  const [isHovering, setIsHovering] = useState(false);
+
+  const handleLockClick = () => {
+    setTogglePlansModal(true);
+  };
 
   const handleSetUploadingState = (value: boolean) => setUploadingState(value);
   const handleSetTitle = (str: string) => setTitle(str);
@@ -166,6 +181,19 @@ const CreateQuizPage = () => {
       await fetchQuizzes();
     });
   };
+
+  useEffect(() => {
+    if (!hasActiveSubscription) {
+      // Set messages and show the modal if the user has no active subscription
+      setPlansModalMessage(
+        !user.hadSubscription
+          ? 'Start Your Free Trial!'
+          : 'Pick a plan to access your AI Study Tools! 🚀'
+      );
+      setPlansModalSubMessage('One-click Cancel at anytime.');
+      setTogglePlansModal(true);
+    }
+  }, [user.subscription, hasActiveSubscription]);
 
   useEffect(() => {
     const queryQuizId = searchParams.get('quiz_id');
@@ -488,7 +516,40 @@ const CreateQuizPage = () => {
       })();
     }
   };
-
+  // if (!hasActiveSubscription) {
+  //   return (
+  //     <Center height="100vh" width="100%">
+  //       <Box display={'flex'} flexDirection={'column'} alignItems={'center'}>
+  //         <Icon
+  //           as={isHovering ? RiLockUnlockFill : RiLockFill}
+  //           fontSize="100px"
+  //           color="#fc9b65"
+  //           onMouseEnter={() => setIsHovering(true)}
+  //           onMouseLeave={() => setIsHovering(false)}
+  //           onClick={handleLockClick}
+  //           cursor="pointer"
+  //         />
+  //         <Text
+  //           mt="20px"
+  //           fontSize="20px"
+  //           fontWeight="bold"
+  //           color={'lightgrey'}
+  //           textAlign="center"
+  //         >
+  //           Unlock your full potential today!
+  //         </Text>
+  //       </Box>
+  //       {togglePlansModal && (
+  //         <PlansModal
+  //           togglePlansModal={togglePlansModal}
+  //           setTogglePlansModal={setTogglePlansModal}
+  //           message={plansModalMessage}
+  //           subMessage={plansModalSubMessage}
+  //         />
+  //       )}
+  //     </Center>
+  //   );
+  // } else {
   return (
     <>
       <Flex
@@ -543,7 +604,7 @@ const CreateQuizPage = () => {
                   Upload
                 </Tab>
                 <Tab _selected={{ color: '#207DF7' }} flex="1">
-                  Topic
+                  Text
                 </Tab>
                 {false && (
                   <Tab _selected={{ color: '#207DF7' }} flex="1">
@@ -676,6 +737,7 @@ const CreateQuizPage = () => {
       )}
     </>
   );
+  // }
 };
 
 const CreateQuiz = () => {

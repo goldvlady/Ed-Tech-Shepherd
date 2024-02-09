@@ -24,7 +24,8 @@ import {
   Stack,
   Textarea,
   Flex,
-  SimpleGrid
+  SimpleGrid,
+  Icon
 } from '@chakra-ui/react';
 import clsx from 'clsx';
 import {
@@ -52,6 +53,8 @@ import { useNavigate } from 'react-router-dom';
 import ShareModal from '../../../../components/ShareModal';
 import PlansModal from '../../../../components/PlansModal';
 import userStore from '../../../../state/userStore';
+import { RiRemoteControlLine } from '@remixicon/react';
+import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 
 type QuizScoreType = {
   questionIdx: string | number;
@@ -179,7 +182,7 @@ const QuizCard = forwardRef(
           // }}
           borderRadius={'8px'}
           bg="white"
-          _hover={{ boxShadow: 'md' }}
+          boxShadow={'md'}
           w="full"
           minH={minHeight}
           borderWidth={
@@ -583,12 +586,14 @@ const QuizPreviewer = ({
   questions,
   quizId,
   togglePlansModal,
-  setTogglePlansModal
+  setTogglePlansModal,
+  apiKey
 }: {
   title: string;
   questions: QuizQuestion[];
   quizId: string;
   togglePlansModal: boolean;
+  apiKey?: string;
   setTogglePlansModal: React.Dispatch<React.SetStateAction<boolean>>;
   handleSetUploadingState?: (value: boolean) => void;
 }) => {
@@ -601,7 +606,9 @@ const QuizPreviewer = ({
   const [showResults, setShowResults] = useState(false);
   const [showUnansweredQuestions, setShowUnansweredQuestions] = useState(false);
   const [showQuizAnswers, setShowQuizAnswers] = useState(false);
+  const [cloneInProgress, setCloneInProgress] = useState(false);
   const { user } = userStore();
+  const toast = useCustomToast();
   const [scores, setScores] = useState<QuizScoreType[]>([]);
 
   const handleCloseResultsModal = () => setShowResults(false);
@@ -704,7 +711,29 @@ const QuizPreviewer = ({
     () => filter(scores, (score) => score?.score === '')?.length,
     [scores]
   );
-
+  const cloneQuizHandler = async () => {
+    setCloneInProgress(true);
+    try {
+      const d = await ApiService.cloneQuiz(quizId);
+      const data = await d.json();
+      toast({
+        position: 'top-right',
+        title: `Quiz Cloned Succesfully`,
+        status: 'success'
+      });
+      setCloneInProgress(false);
+      setTimeout(() => {
+        navigate(`/dashboard/quizzes/create?quiz_id=${data.data._id}`);
+      }, 200);
+    } catch (error) {
+      setCloneInProgress(false);
+      toast({
+        position: 'top-right',
+        title: `Problem cloning quiz, please try again later!`,
+        status: 'error'
+      });
+    }
+  };
   useEffect(() => {
     const elems = document.querySelectorAll('div.quiz-tile');
 
@@ -772,7 +801,31 @@ const QuizPreviewer = ({
                     justifyContent={'space-between'}
                   >
                     {user && <ShareModal type="quiz" />}
-
+                    {user &&
+                      user.subscription &&
+                      user.subscription.status === 'active' &&
+                      apiKey && (
+                        <Button
+                          leftIcon={
+                            <Icon as={RiRemoteControlLine} fontSize={'16px'} />
+                          }
+                          disabled={cloneInProgress}
+                          display="flex"
+                          justifyContent="center"
+                          alignItems="center"
+                          borderRadius="8px"
+                          fontSize="16px"
+                          bg="#f4f4f5"
+                          color="#000"
+                          w={'180px'}
+                          h={'40px'}
+                          onClick={cloneQuizHandler}
+                          _hover={{ bg: '#e4e4e5' }}
+                          _active={{ bg: '#d4d4d5' }}
+                        >
+                          Clone Quiz
+                        </Button>
+                      )}
                     {togglePlansModal && (
                       <PlansModal
                         message="Up to 4 weeks free!"
@@ -791,7 +844,7 @@ const QuizPreviewer = ({
                           w={'180px'}
                           h={'40px'}
                           _hover={{ bg: 'red.200' }}
-                          disabled={user === null}
+                          disabled={user === null || cloneInProgress}
                         >
                           Submit Quiz
                         </Button>

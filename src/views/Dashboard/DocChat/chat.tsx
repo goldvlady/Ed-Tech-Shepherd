@@ -120,6 +120,8 @@ interface IChat {
   setHightlightedText?: any;
   setLoading?: any;
   isUpdatedSummary?: boolean;
+  isDcLimitReached?: boolean;
+  isHwchatLimitReached?: boolean;
   directStudentId?: string;
   title?: string;
   visibleButton?: boolean;
@@ -173,6 +175,8 @@ const Chat = forwardRef(
       setSelectedHighlightArea,
       loading,
       isUpdatedSummary,
+      isDcLimitReached,
+      isHwchatLimitReached,
       title,
       directStudentId,
       visibleButton,
@@ -589,7 +593,9 @@ const Chat = forwardRef(
                                 data-chatid={message.chatId}
                                 ref={(el) => (chatList.current[index] = el)}
                               >
-                                {message.text}
+                                <p className="leading-7 [&:not(:first-child)]:mt-6">
+                                  {message.text}
+                                </p>
                               </UserMessage>
                               {!HomeWorkHelp && (
                                 <div
@@ -848,13 +854,19 @@ const Chat = forwardRef(
                     <Txtarea
                       ref={textAreaRef2}
                       placeholder={
-                        HomeWorkHelp
+                        isDcLimitReached || isHwchatLimitReached
+                          ? `Daily chat limit reached!`
+                          : HomeWorkHelp
                           ? homeWorkHelpPlaceholder
                           : `Ask Shepherd about ${snip(title, 40)}`
                       }
                       value={inputValue}
                       onKeyDown={handleKeyDown}
-                      disabled={!isReadyToChat}
+                      disabled={
+                        isDcLimitReached ||
+                        isHwchatLimitReached ||
+                        !isReadyToChat
+                      }
                       onChange={handleInputChange}
                       // outline={'none'}
                       // outlineColor={'transparent'}
