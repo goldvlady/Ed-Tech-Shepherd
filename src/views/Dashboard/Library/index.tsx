@@ -336,6 +336,7 @@ const Library: React.FC = () => {
           <Breadcrumb
             spacing="8px"
             separator={<ChevronLeftIcon color="gray.500" />}
+            marginBottom="20px"
           >
             {breadcrumbNav.map((item, index) => (
               <BreadcrumbItem
@@ -343,7 +344,7 @@ const Library: React.FC = () => {
                 isCurrentPage={index === breadcrumbNav.length - 1}
               >
                 {index === breadcrumbNav.length - 1 ? (
-                  <Text fontSize="18px" fontFamily="Inter" color="#0D66DC">
+                  <Text fontSize="20px" fontFamily="Inter" color="#0D66DC">
                     {' '}
                     {item.label}{' '}
                   </Text>
@@ -361,13 +362,15 @@ const Library: React.FC = () => {
                       }
                     }}
                   >
-                    {item.label}
+                    <Text fontSize="16px" fontFamily="Inter">
+                      {item.label}
+                    </Text>
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
             ))}
           </Breadcrumb>
-          <Box marginTop={35}>
+          <Box>
             {displayMode === 'subjects' && (
               <SubjectList
                 subjects={librarySubjects}
