@@ -5,25 +5,23 @@ import LibraryCardList from './components/LibraryCardList';
 import SubjectList from './components/SubjectList';
 import TopicList from './components/TopicList';
 import DeckList from './components/DeckList';
-import { capitalize } from 'lodash';
+import { IoIosArrowRoundBack } from 'react-icons/io';
 import {
-  Flex,
-  Text,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
   Box,
+  Flex,
   Input,
   InputGroup,
   InputLeftElement,
+  Stack,
   Tag,
   TagLabel,
-  Image,
-  Tab,
-  Stack,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs
+  Text
 } from '@chakra-ui/react';
-import React, { useCallback, useEffect, useState } from 'react';
+import { ChevronLeftIcon } from '@chakra-ui/icons';
+import React, { useRef, useCallback, useEffect, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -36,6 +34,100 @@ const Library: React.FC = () => {
   const [selectedSubjectId, setSelectedSubjectId] = useState(null);
   const [selectedTopicId, setSelectedTopicId] = useState(null);
   const [selectedDeckId, setSelectedDeckId] = useState(null);
+
+  const [breadcrumbNav, setBreadcrumbNav] = useState<
+    Array<{ label: string; mode: string }>
+  >([{ label: 'Subjects', mode: 'subjects' }]);
+
+  const navigationHistory = useRef<
+    { label: string; mode: string; path: string }[]
+  >([{ label: 'Subjects', mode: 'subjects', path: '/dashboard/library' }]);
+
+  const updateNavigationHistory = (mode, label, path) => {
+    const currentIndex = navigationHistory.current.findIndex(
+      (item) => item.mode === mode
+    );
+    if (currentIndex > -1) {
+      navigationHistory.current = navigationHistory.current.slice(
+        0,
+        currentIndex + 1
+      );
+    } else {
+      navigationHistory.current.push({ label, mode, path });
+    }
+  };
+
+  const updateBreadcrumbNav = () => {
+    const newBreadcrumbNav = [{ label: 'Subjects', mode: 'subjects' }];
+    switch (displayMode) {
+      case 'topics':
+        newBreadcrumbNav.push({ label: 'Topics', mode: 'topics' });
+        break;
+      case 'decks':
+        newBreadcrumbNav.push(
+          { label: 'Topics', mode: 'topics' },
+          { label: 'Decks', mode: 'decks' }
+        );
+        break;
+      case 'cards':
+        newBreadcrumbNav.push(
+          { label: 'Topics', mode: 'topics' },
+          { label: 'Decks', mode: 'decks' },
+          { label: 'Cards', mode: 'cards' }
+        );
+        break;
+      default:
+        break;
+    }
+    setBreadcrumbNav(newBreadcrumbNav);
+  };
+
+  const handleBackButtonClick = () => {
+    if (navigationHistory.current.length > 1) {
+      navigationHistory.current.pop(); // Remove the current state
+      const previousState =
+        navigationHistory.current[navigationHistory.current.length - 1];
+      setDisplayMode(previousState.mode);
+      navigate(previousState.path);
+    }
+  };
+
+  useEffect(() => {
+    updateBreadcrumbNav();
+  }, [displayMode, selectedSubjectId, selectedTopicId, selectedDeckId]);
+
+  useEffect(() => {
+    const displayModes = {
+      subjects: {
+        label: 'Subjects',
+        mode: 'subjects',
+        path: '/dashboard/library'
+      },
+      topics: {
+        label: 'Topics',
+        mode: 'topics',
+        path: `/dashboard/library/subjects/${selectedSubjectId}`
+      },
+      decks: {
+        label: 'Decks',
+        mode: 'decks',
+        path: `/dashboard/library/topics/${selectedTopicId}`
+      },
+      cards: {
+        label: 'Cards',
+        mode: 'cards',
+        path: `/dashboard/library/decks/${selectedDeckId}`
+      }
+    };
+
+    if (displayModes[displayMode]) {
+      updateNavigationHistory(
+        displayMode,
+        displayModes[displayMode].label,
+        displayModes[displayMode].path
+      );
+    }
+  }, [selectedSubjectId, selectedTopicId, selectedDeckId, displayMode]);
 
   const handleSubjectClick = (subjectId) => {
     setSelectedSubjectId(subjectId);
@@ -69,16 +161,29 @@ const Library: React.FC = () => {
   const handleSearch = useSearch(actionFunc);
 
   useEffect(() => {
-    const path = location.pathname;
-    if (path.includes('/subjects/')) {
-      setDisplayMode('topics');
-      setSelectedSubjectId(path.split('/subjects/')[1]);
-    } else if (path.includes('/topics/')) {
-      setDisplayMode('decks');
-      setSelectedTopicId(path.split('/topics/')[1]);
-    } else if (path.includes('/decks/')) {
-      setDisplayMode('cards');
-      setSelectedDeckId(path.split('/decks/')[1]);
+    const pathSegments = location.pathname.split('/').filter(Boolean);
+    if (pathSegments.length >= 3) {
+      const [, , type, id] = pathSegments;
+      switch (type) {
+        case 'subjects':
+          setDisplayMode('topics');
+          setSelectedSubjectId(id);
+          break;
+        case 'topics':
+          setDisplayMode('decks');
+          setSelectedTopicId(id);
+          break;
+        case 'decks':
+          setDisplayMode('cards');
+          setSelectedDeckId(id);
+          break;
+        default:
+          setDisplayMode('subjects');
+          setSelectedSubjectId(null);
+          setSelectedTopicId(null);
+          setSelectedDeckId(null);
+          break;
+      }
     } else {
       setDisplayMode('subjects');
       setSelectedSubjectId(null);
@@ -155,7 +260,7 @@ const Library: React.FC = () => {
         >
           <Flex
             width="100%"
-            marginBottom={'40px'}
+            marginBottom={'20px'}
             alignItems="center"
             justifyContent="space-between"
             paddingRight={{ md: '20px' }}
@@ -185,7 +290,7 @@ const Library: React.FC = () => {
             <Stack
               direction={{ base: 'column', md: 'row' }}
               width="100%"
-              mb={{ base: '20px', md: '40px' }}
+              mb={{ base: '20px' /* md: '40px' */ }}
               alignItems="center"
               justifyContent="space-between"
               pr={{ md: '20px', base: '0' }}
@@ -217,37 +322,74 @@ const Library: React.FC = () => {
             ''
           )}
 
-          <Tabs>
-            <TabList mb="1em">
-              <Tab>{capitalize(displayMode)}</Tab>
-              {/* Add other tabs as needed */}
-            </TabList>
-            <TabPanels>
-              <TabPanel>
-                {displayMode === 'subjects' && (
-                  <SubjectList
-                    subjects={librarySubjects}
-                    onSelectSubject={handleSubjectClick}
-                  />
+          {displayMode !== 'subjects' && (
+            <Flex
+              alignItems={'center'}
+              onClick={handleBackButtonClick}
+              _hover={{ cursor: 'pointer' }}
+              marginBottom={'20px'}
+            >
+              <IoIosArrowRoundBack size="50px" />
+            </Flex>
+          )}
+
+          <Breadcrumb
+            spacing="8px"
+            separator={<ChevronLeftIcon color="gray.500" />}
+          >
+            {breadcrumbNav.map((item, index) => (
+              <BreadcrumbItem
+                key={index}
+                isCurrentPage={index === breadcrumbNav.length - 1}
+              >
+                {index === breadcrumbNav.length - 1 ? (
+                  <Text fontSize="18px" fontFamily="Inter" color="#0D66DC">
+                    {' '}
+                    {item.label}{' '}
+                  </Text>
+                ) : (
+                  <BreadcrumbLink
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const historyItem = navigationHistory.current.find(
+                        (h) => h.mode === item.mode
+                      );
+                      if (historyItem) {
+                        setDisplayMode(historyItem.mode);
+                        navigate(historyItem.path);
+                      }
+                    }}
+                  >
+                    {item.label}
+                  </BreadcrumbLink>
                 )}
-                {displayMode === 'topics' && (
-                  <TopicList
-                    subjectId={selectedSubjectId}
-                    onSelectTopic={handleTopicClick}
-                  />
-                )}
-                {displayMode === 'decks' && (
-                  <DeckList
-                    topicId={selectedTopicId}
-                    onSelectDeck={handleDeckClick}
-                  />
-                )}
-                {displayMode === 'cards' && (
-                  <LibraryCardList deckId={selectedDeckId} />
-                )}
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
+              </BreadcrumbItem>
+            ))}
+          </Breadcrumb>
+          <Box marginTop={35}>
+            {displayMode === 'subjects' && (
+              <SubjectList
+                subjects={librarySubjects}
+                onSelectSubject={handleSubjectClick}
+              />
+            )}
+            {displayMode === 'topics' && (
+              <TopicList
+                subjectId={selectedSubjectId}
+                onSelectTopic={handleTopicClick}
+              />
+            )}
+            {displayMode === 'decks' && (
+              <DeckList
+                topicId={selectedTopicId}
+                onSelectDeck={handleDeckClick}
+              />
+            )}
+            {displayMode === 'cards' && (
+              <LibraryCardList deckId={selectedDeckId} />
+            )}
+          </Box>
         </Box>
       )}
     </>
