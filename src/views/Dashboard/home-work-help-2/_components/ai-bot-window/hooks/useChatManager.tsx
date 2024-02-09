@@ -82,13 +82,15 @@ const useChatManager = () => {
 
   // useCallback for fetching chat history from the server
   const fetchHistory = useCallback(
-    (limit: number, offset: number) => {
-      if (!socketRef.current || !conversationId) {
+    (limit: number, offset: number, convoId?: string) => {
+      const hasConvoId = [convoId, conversationId].some(Boolean);
+      if (!socketRef.current || !hasConvoId) {
         console.error(
           'Socket is not initialized or conversationId is not set.'
         );
         return;
       }
+      console.log('Emitted');
       socketRef.current.emit('fetch_history', { limit, offset });
     },
     [conversationId]
@@ -104,7 +106,6 @@ const useChatManager = () => {
         return;
       }
       socketRef.current.on(event, handler);
-      console.log('Event listener attached:', handler, event);
     },
     []
   );
@@ -120,7 +121,7 @@ const useChatManager = () => {
 
   // Setup initial socket listeners and handlers for chat events
   const setupSocketListeners = useCallback(
-    (conversationStarterText?: string, hasConversationId = false) => {
+    (conversationInitializer?: string) => {
       if (!socketRef.current) return;
 
       // Event listener for socket connection
@@ -131,7 +132,7 @@ const useChatManager = () => {
       // Handlers for chat response start and end, updating chat state accordingly
       socketRef.current.on('chat response start', (token: string) => {
         setCurrentChat((prevChat) => prevChat + token);
-        forceUpdate(); // Force update to render changes
+        // forceUpdate(); // Force update to render changes
       });
 
       socketRef.current.on('chat response end', (newMessage: string) => {
@@ -142,40 +143,48 @@ const useChatManager = () => {
         setCurrentChat('');
       });
 
+      socketRef.current.on('fetch_history_error', (error) => {
+        console.log(error);
+      });
+
       // Handler for when the AI model is ready, fetching history or starting new conversation
       socketRef.current.on('ready', () => {
         console.log('AI model is ready to interact.');
-        fetchHistory(30, 0); // Fetch initial chat history
-        if (!hasConversationId && conversationStarterText) {
-          sendMessage(conversationStarterText); // Start conversation if needed
-        }
       });
 
       // Handler for receiving chat history from the server
       socketRef.current.on('chat_history', (chatHistoryJson: string) => {
         const chatHistory = JSON.parse(chatHistoryJson) as ChatMessage[];
+        console.log('chat history', chatHistory);
+        if (!chatHistory.length && conversationInitializer) {
+          sendMessage(conversationInitializer);
+        }
         setMessages((prev) => [...chatHistory, ...prev]);
       });
 
       // Handler for setting the current conversation ID
       socketRef.current.on('current_conversation', (id: string) => {
+        console.log('current_conversation_id', id);
         setConversationId(id);
-        socketRef.current.emit('new_conversation_ready');
+        if (conversationInitializer) {
+          console.log('refetching history', conversationInitializer);
+          fetchHistory(30, 0, id); // Fetch initial chat history
+        }
       });
     },
-    [sendMessage, fetchHistory, formatMessage]
+    [fetchHistory, formatMessage, forceUpdate, sendMessage]
   );
 
   // Initialize and configure the socket connection
   const initiateSocket = useCallback(
-    (queryParams: Record<string, any>, conversationStarterText?: string) => {
-      console.log('Query params', queryParams);
+    (queryParams: Record<string, any>, conversationInitializer?: string) => {
       if (socketRef.current) {
         socketRef.current.disconnect(); // Disconnect existing socket
       }
       if (!queryParams.namespace) {
         console.error('NO NAMESPACE IN YOUR QUERY PARAMS');
       }
+
       // Initialize new socket connection with server
       socketRef.current = io(SERVER_URL + '/' + queryParams.namespace, {
         extraHeaders: {
@@ -183,22 +192,17 @@ const useChatManager = () => {
         },
         auth: (cb) => cb(queryParams) // Authentication with query parameters
       }).connect();
+
       // Setup socket listeners with optional conversation starter
-      setupSocketListeners(
-        conversationStarterText,
-        Boolean(queryParams.conversationId)
-      );
+      setupSocketListeners(conversationInitializer);
     },
     [setupSocketListeners]
   );
 
   // Function to start a new conversation
   const startConversation = useCallback(
-    (
-      queryParams: Record<string, any>,
-      conversationStarterText = 'Shall we begin, Socrates?'
-    ) => {
-      initiateSocket(queryParams, conversationStarterText); // Initiate socket with queryParams
+    (queryParams: Record<string, any>, conversationInitializer?: string) => {
+      initiateSocket(queryParams, conversationInitializer); // Initiate socket with queryParams
     },
     [initiateSocket]
   );
@@ -212,7 +216,8 @@ const useChatManager = () => {
     sendMessage,
     fetchHistory,
     onEvent,
-    emitEvent
+    emitEvent,
+    currentSocket: socketRef?.current
   };
 };
 
