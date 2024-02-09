@@ -1,17 +1,18 @@
 import { useParams } from 'react-router';
 import ChatRoom from './chat-room';
 import ChatInitiator from './chat-initiator';
-import useSocket from './hooks/useSocket';
 import useUserStore from '../../../../../state/userStore';
+import useChatManager from './hooks/useChatManager';
 
 function AiChatBotWindow() {
   const { id } = useParams();
   const user = useUserStore((state) => state.user);
   const studentId = user?._id;
-  const { botStatus, initiateSocket, llmResponse, messages, readyToChat } =
-    useSocket();
   // If id is null, It mean user is not in the chat room
   const isChatRoom = id !== undefined;
+
+  const { startConversation, conversationId, sendMessage, ...rest } =
+    useChatManager();
 
   const initiateConversation = ({
     subject,
@@ -21,14 +22,22 @@ function AiChatBotWindow() {
     topic: string;
   }) => {
     alert(JSON.stringify({ subject, topic }));
+    startConversation({
+      subject,
+      topic,
+      studentId: '1234',
+      namespace: 'homework-help'
+    });
   };
+
+  console.log('conversation id', conversationId);
 
   return (
     <div className="h-full flex flex-col gap-4 w-full justify-between bg-[#F9F9FB] overflow-hidden">
       {isChatRoom ? (
         <ChatRoom />
       ) : (
-        <ChatInitiator initiateConversation={initiateConversation} />
+        <ChatInitiator initiateConversation={initiateConversation} /> // Subject and topic
       )}
     </div>
   );
