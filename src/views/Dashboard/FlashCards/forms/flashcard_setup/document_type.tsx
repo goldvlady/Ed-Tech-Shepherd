@@ -123,7 +123,7 @@ const FlashcardFromDocumentSetup = ({
         const userFlashcardCount = await flashcardCountResponse.json();
 
         if (
-          !hasActiveSubscription ||
+          (!hasActiveSubscription && userFlashcardCount.count >= 100) ||
           (user.subscription?.subscriptionMetadata?.flashcard_limit &&
             userFlashcardCount.count >=
               user.subscription.subscriptionMetadata.flashcard_limit)
