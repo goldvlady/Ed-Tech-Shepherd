@@ -214,7 +214,7 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
           endMessage={<p></p>}
           // style={{ overflow: 'hidden' }}
         >
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 2, xl: 3 }} spacing={10}>
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3, xl: 4 }} spacing={10}>
             {libraryCards.map((card) => (
               <LibraryCard
                 key={card._id}
