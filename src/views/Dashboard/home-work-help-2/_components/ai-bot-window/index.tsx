@@ -66,4 +66,4 @@ function AiChatBotWindow() {
   );
 }
 
-export default memo(AiChatBotWindow);
+export default AiChatBotWindow;

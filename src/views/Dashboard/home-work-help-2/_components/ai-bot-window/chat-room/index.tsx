@@ -1,4 +1,5 @@
 import { ShareIcon } from '../../../../../../components/icons';
+import useUserStore from '../../../../../../state/userStore';
 import { useEffect } from 'react';
 import { useParams } from 'react-router';
 import useChatManager from '../hooks/useChatManager';
@@ -7,6 +8,7 @@ import PromptInput from './_components/prompt-input';
 
 function ChatRoom() {
   const { id } = useParams();
+  const { user } = useUserStore();
   const {
     startConversation,
     conversationId,
@@ -18,10 +20,13 @@ function ChatRoom() {
     ...rest
   } = useChatManager();
 
+  console.log('socket id', currentSocket?.id, messages);
+
   useEffect(() => {
+    console.log(conversationId === id);
     startConversation(
       {
-        studentId: '1234',
+        studentId: user._id,
         namespace: 'homework-help',
         conversationId: id,
         subject: 'Maths',

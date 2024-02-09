@@ -110,6 +110,12 @@ const useChatManager = () => {
     []
   );
 
+  const refreshManager = () => {
+    setMessages([]);
+    setCurrentChat('');
+    setConversationId(null);
+  };
+
   // useCallback for emitting custom events through the socket
   const emitEvent = useCallback((event: string, data?: any) => {
     if (!socketRef.current) {
@@ -127,6 +133,7 @@ const useChatManager = () => {
       // Event listener for socket connection
       socketRef.current.on('connect', () => {
         console.log('Socket connected:', socketRef.current?.id);
+        refreshManager();
       });
 
       // Handlers for chat response start and end, updating chat state accordingly
