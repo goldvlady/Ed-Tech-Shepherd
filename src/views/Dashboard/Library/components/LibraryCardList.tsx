@@ -10,7 +10,8 @@ import { SimpleGrid, Box, Button, Flex, Select, Text } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import InfiniteScroll from 'react-infinite-scroll-component';
-
+import CustomSelect from '../../../../components/CustomSelect';
+import { capitalize } from 'lodash';
 
 const StyledImage = styled(Box)`
   display: inline-flex;
@@ -59,6 +60,8 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
     const nextPage = pagination.page + 1;
     fetchLibraryCards(deckId, selectedDifficulty, nextPage);
   };
+
+  const difficulties = ['all', 'easy', 'medium', 'hard', 'very hard'];
 
   // useEffect(() => {
   //   fetchFlashcards()
@@ -169,7 +172,8 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
   };
 
   const handleDifficultyChange = (e) => {
-    setSelectedDifficulty(e.target.value);
+    const value = e.target.value === 'all' ? '' : e.target.value;
+    setSelectedDifficulty(value);
   };
 
   if (isLoading && !libraryCards?.length) {
@@ -186,17 +190,16 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
       )}
       <Flex justify="row" justifyContent="space-between" mb="4">
         {
-          <Select
-            placeholder="Filter by difficulty"
-            onChange={handleDifficultyChange}
-            width={{ base: '60%', sm: '50%', md: '40%', lg: '20%' }}
-          >
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
-            <option value="very hard">Very Hard</option>
-            {/* Add More options similar to Data */}
-          </Select>
+          <Box width={{ base: '60%', sm: '50%', md: '40%', lg: '30%' }}>
+            <CustomSelect
+              placeholder="Filter by difficulty"
+              onChange={handleDifficultyChange}
+            >
+              {difficulties.map((difficulty) => (
+                <option value={difficulty}>{capitalize(difficulty)}</option>
+              ))}
+            </CustomSelect>
+          </Box>
         }
         {selectedCards.length > 0 && (
           <Button onClick={toggleModal}>Add to Deck</Button>
