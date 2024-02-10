@@ -44,15 +44,14 @@ const LibraryCard: React.FC<LibraryCardProps> = ({
   const [showExplanation, setShowExplanation] = useState(false);
   const [showMoreAnswer, setShowMoreAnswer] = useState(false);
   const answerRef = useRef<HTMLDivElement>(null);
+  const maxHeight = 320; // Fixed value for question box
+  const initialCardHeight = '400px'; // Set initial fixed height for each card
 
   useEffect(() => {
     if (answerRef.current && answerRef.current.scrollHeight > maxHeight) {
       setShowMoreAnswer(true);
     }
   }, [answer]);
-
-  const maxHeight = 320; // Fixed value for question box
-  const initialCardHeight = '400px'; // Set initial fixed height for each card
 
   return (
     <Box
