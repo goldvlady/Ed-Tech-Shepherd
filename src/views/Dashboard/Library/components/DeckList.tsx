@@ -1,6 +1,6 @@
 import LoaderOverlay from '../../../../components/loaderOverlay';
 import libraryDeckStore from '../../../../state/libraryDeckStore';
-import TitleCard from './TitleCard';
+import Deck from './Deck';
 import { SimpleGrid } from '@chakra-ui/react';
 import React, { useEffect } from 'react';
 
@@ -26,7 +26,7 @@ const DeckList: React.FC<LibraryDeckProps> = ({ topicId, onSelectDeck }) => {
   ) : (
     <SimpleGrid columns={{ base: 1, md: 2, lg: 2, xl: 3 }} spacing={10}>
       {libraryDecks.map((deck) => (
-        <TitleCard
+        <Deck
           key={deck._id}
           data={{ name: deck.name }}
           onClick={() => onSelectDeck(deck._id)}
