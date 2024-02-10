@@ -1,4 +1,5 @@
 import { Avatar } from '@chakra-ui/avatar';
+import CustomMarkdownView from '../../../../../../../../components/CustomComponents/CustomMarkdownView';
 
 const ChatMessage = ({
   message,
@@ -32,7 +33,10 @@ const ChatMessage = ({
           type === 'user' ? '' : 'bg-white'
         }`}
       >
-        <p className="text-sm w-full py-2 px-4 font-normal">{message}</p>
+        <CustomMarkdownView
+          source={message}
+          className="text-sm w-full py-2 px-4 font-normal"
+        />
       </div>
       <div className="w-9 h-9 opacity-0 pointer-events-none shrink-0"></div>
     </div>
