@@ -1083,7 +1083,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               </DrawerContent>
             </Drawer>
           </div>
-          <div className="flex-1 overflow-y-auto h-full">
+          <div className="flex-1 overflow-y-hidden h-full">
             <div className="w-full z-10">
               <MobileNav onOpen={onOpen} />
             </div>
