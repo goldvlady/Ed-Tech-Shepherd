@@ -29,11 +29,11 @@ function Duration({ form }: { form: UseFormReturn<FindTutorSchemaType> }) {
                 <FormControl>
                   <RadioGroupItem value="half-hour" />
                 </FormControl>
-                <FormLabel className="font-normal">Half Hour</FormLabel>
+                <FormLabel className="30min">Half Hour</FormLabel>
               </FormItem>
               <FormItem className="flex items-center space-x-3 space-y-0">
                 <FormControl>
-                  <RadioGroupItem value="full-hour" />
+                  <RadioGroupItem value="30min" />
                 </FormControl>
                 <FormLabel className="font-normal">Full Hour</FormLabel>
               </FormItem>

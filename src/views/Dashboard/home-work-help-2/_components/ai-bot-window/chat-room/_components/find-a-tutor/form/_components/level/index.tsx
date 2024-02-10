@@ -13,12 +13,14 @@ import {
   SelectValue
 } from '../../../../../../../../../../../components/ui/select';
 import { FindTutorSchemaType } from '../../../validation';
+import useResourceStore from '../../../../../../../../../../../state/resourceStore';
 
 function Level({ form }: { form: UseFormReturn<FindTutorSchemaType> }) {
+  const { levels } = useResourceStore();
   return (
     <FormField
       control={form.control}
-      name="level"
+      name="levelId"
       render={({ field }) => (
         <FormItem>
           <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -28,8 +30,8 @@ function Level({ form }: { form: UseFormReturn<FindTutorSchemaType> }) {
               </SelectTrigger>
             </FormControl>
             <SelectContent className="bg-white">
-              {[1, 2, 3, 4, 5].map((level) => (
-                <SelectItem value={level.toString()}>{level}</SelectItem>
+              {levels?.map((item) => (
+                <SelectItem value={item._id}>{item.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>

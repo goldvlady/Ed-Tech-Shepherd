@@ -13,12 +13,14 @@ import {
   SelectValue
 } from '../../../../../../../../../../../components/ui/select';
 import { FindTutorSchemaType } from '../../../validation';
+import useResourceStore from '../../../../../../../../../../../state/resourceStore';
 
 function SelectSubject({ form }: { form: UseFormReturn<FindTutorSchemaType> }) {
+  const { courses: courseList, levels } = useResourceStore();
   return (
     <FormField
       control={form.control}
-      name="subject"
+      name="courseId"
       render={({ field }) => (
         <FormItem>
           <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -28,9 +30,13 @@ function SelectSubject({ form }: { form: UseFormReturn<FindTutorSchemaType> }) {
               </SelectTrigger>
             </FormControl>
             <SelectContent className="bg-white">
-              <SelectItem value="Math">Math</SelectItem>
-              <SelectItem value="Chemistry">Chemistry</SelectItem>
-              <SelectItem value="Physics">Physics</SelectItem>
+              {courseList.map((course) => {
+                return (
+                  <SelectItem key={course._id} value={course._id}>
+                    {course.label}
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
           <FormMessage />

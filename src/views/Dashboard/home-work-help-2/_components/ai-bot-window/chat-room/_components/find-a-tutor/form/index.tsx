@@ -11,16 +11,40 @@ import Price from './_components/price';
 import Duration from './_components/duration';
 import InstructionMode from './_components/instruction-mode';
 import ExpirationDate from './_components/expiration-date';
+import { useCustomToast } from '../../../../../../../../../components/CustomComponents/CustomToast/useCustomToast';
+import useCreateBounty from '../hook/useCreateBounty';
+import { CounterClockwiseClockIcon } from '@radix-ui/react-icons';
 
 function BountyForm({ handleClose }: { handleClose: () => void }) {
+  const toast = useCustomToast();
+  const { createBounty, isPending } = useCreateBounty();
   const form = useForm<FindTutorSchemaType>({
     resolver: zodResolver(FindTutorSchema),
-    defaultValues: {}
+    defaultValues: {
+      subject: ''
+    }
   });
 
-  function onSubmit(values: FindTutorSchemaType) {
+  console.log(form.formState.errors);
+
+  async function onSubmit(values: FindTutorSchemaType) {
     // Do something with the form values.
-    console.log(values);
+    let newValues = {
+      ...values,
+      reward: Number(values.reward)
+    };
+    createBounty(values, {
+      onSuccess: (data, variables) => {
+        console.log(data, variables);
+        toast({
+          title: 'Bounty created',
+          description: 'Your bounty has been created successfully',
+          status: 'success',
+          position: 'bottom-right'
+        });
+        handleClose();
+      }
+    });
   }
 
   return (
@@ -51,6 +75,7 @@ function BountyForm({ handleClose }: { handleClose: () => void }) {
             className="shadow-md bg-white text-[#5C5F64] hover:shadow-lg text-sm font-normal"
             type="button"
             onClick={handleClose}
+            disabled={isPending}
           >
             Cancel
           </Button>
@@ -58,7 +83,11 @@ function BountyForm({ handleClose }: { handleClose: () => void }) {
             size="sm"
             type="submit"
             className="shadow-md hover:shadow-lg text-sm font-normal text-white bg-[#207DF7] hover:bg-[#0E6EFA]"
+            disabled={isPending}
           >
+            {isPending ? (
+              <CounterClockwiseClockIcon className="w-4 h-4 mr-2 animate-spin" />
+            ) : null}
             Confirm
           </Button>
         </footer>

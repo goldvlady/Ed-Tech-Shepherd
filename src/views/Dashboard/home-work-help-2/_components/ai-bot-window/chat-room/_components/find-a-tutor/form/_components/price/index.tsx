@@ -11,10 +11,18 @@ function Price({ form }: { form: UseFormReturn<FindTutorSchemaType> }) {
   return (
     <FormField
       control={form.control}
-      name="price"
+      name="reward"
       render={({ field }) => (
         <FormItem>
-          <Input placeholder="Price ($)" type="number" {...field} />
+          <Input
+            placeholder="Price ($)"
+            type="number"
+            value={field.value}
+            onChange={(e) => {
+              field.onChange(e.target.valueAsNumber);
+            }}
+            {...field}
+          />
           <FormMessage />
         </FormItem>
       )}

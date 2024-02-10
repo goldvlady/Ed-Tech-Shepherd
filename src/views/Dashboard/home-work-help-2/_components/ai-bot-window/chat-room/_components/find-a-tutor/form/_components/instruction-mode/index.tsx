@@ -27,7 +27,7 @@ function InstructionMode({
   return (
     <FormField
       control={form.control}
-      name="instructionMode"
+      name="type"
       render={({ field }) => (
         <FormItem>
           <Select onValueChange={field.onChange} defaultValue={field.value}>

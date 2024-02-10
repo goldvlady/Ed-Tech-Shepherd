@@ -26,7 +26,7 @@ function ExpirationDate({
   return (
     <FormField
       control={form.control}
-      name="expirationDate"
+      name="expiryDate"
       render={({ field }) => (
         <FormItem className="flex flex-col w-full">
           <Popover>
@@ -54,6 +54,7 @@ function ExpirationDate({
                 selected={field.value}
                 onSelect={field.onChange}
                 initialFocus
+                disabled={(date) => date < new Date()}
               />
             </PopoverContent>
           </Popover>
