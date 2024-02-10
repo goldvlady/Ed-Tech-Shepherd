@@ -29,11 +29,11 @@ function BountyForm({ handleClose }: { handleClose: () => void }) {
 
   async function onSubmit(values: FindTutorSchemaType) {
     // Do something with the form values.
-    let newValues = {
+    const newValues = {
       ...values,
       reward: Number(values.reward)
     };
-    createBounty(values, {
+    createBounty(newValues, {
       onSuccess: (data, variables) => {
         console.log(data, variables);
         toast({
