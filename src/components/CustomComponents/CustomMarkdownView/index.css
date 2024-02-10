@@ -232,3 +232,9 @@
   padding: 0.5rem;
   vertical-align: middle;
 }
+
+/* Code block styling */
+.memoized-react-markdown pre {
+  background-color: #fff;
+  display: table;
+}
