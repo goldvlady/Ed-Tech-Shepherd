@@ -82,7 +82,7 @@ function ChatRoom() {
           /> */}
         </div>
         <footer className=" w-full flex justify-center mb-6">
-          <PromptInput />
+          <PromptInput onSubmit={sendMessage} />
         </footer>
       </div>
     </div>
