@@ -79,6 +79,8 @@ const QualificationsForm: React.FC = () => {
       setProgress(5);
     }
 
+    setIsLoading(true);
+
     const SIZE_IN_MB = parseInt((file?.size / 1_000_000).toFixed(2), 10);
 
     if (SIZE_IN_MB > MAX_FILE_UPLOAD_LIMIT) {
@@ -106,13 +108,12 @@ const QualificationsForm: React.FC = () => {
     uploadEmitter.on('progress', (progress: number) => {
       // Update the progress. Assuming progress is a percentage (0 to 100)
       setProgress(progress);
-      setLoading(true);
+      setIsLoading(true);
     });
 
     // const storageRef = ref(storage, `files/${file.name}`);
     // const uploadTask = uploadBytesResumable(storageRef, file);
 
-    setIsLoading(true);
     // uploadTask.on(
     //   'state_changed',
     //   (snapshot) => {
@@ -158,6 +159,7 @@ const QualificationsForm: React.FC = () => {
     });
   };
 
+  console.log('is loading', isLoading);
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const updatedFormData = {
       ...formData,
@@ -216,7 +218,6 @@ const QualificationsForm: React.FC = () => {
   };
 
   const isFormValid = useMemo(() => {
-    console.log(Object.values(formData));
     return Object.values(formData).every(Boolean);
   }, [formData]);
 
