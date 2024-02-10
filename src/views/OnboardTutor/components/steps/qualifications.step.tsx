@@ -430,14 +430,6 @@ const QualificationsForm: React.FC = () => {
           onFileUpload={(file) => handleUploadInput(file, 'transcript')}
           boxStyles={{ minWidth: '250px', marginTop: '10px', height: '50px' }}
         />
-        <Box my={2}>
-          {countdown.active && (
-            <CountdownProgressBar
-              confirmReady={confirmReady}
-              countdown={countdown}
-            />
-          )}
-        </Box>
       </FormControl>
 
       <Button
