@@ -41,7 +41,7 @@ function Input({
               ? handleSubjectChange(e.target.value)
               : handleTopicChange(e.target.value)
           }
-          className="input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:text-sm placeholder:font-normal text-[#6E7682] font-normal text-sm"
+          className="input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:text-sm placeholder:font-normal text-[#6E7682] font-normal text-sm min-w-0"
           placeholder={
             currentInputType === 'subject'
               ? 'What subject would you like to start with?'
@@ -63,7 +63,7 @@ function Input({
         />
       </div>
       <div
-        className={`flex gap-4 mt-4 ${
+        className={`flex gap-1 md:gap-4 mt-4 ${
           currentInputType !== 'subject'
             ? ' transition-opacity opacity-0 pointer-events-none'
             : ''

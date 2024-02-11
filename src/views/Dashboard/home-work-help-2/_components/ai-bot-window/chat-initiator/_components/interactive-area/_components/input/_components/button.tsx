@@ -19,7 +19,9 @@ const Button = ({
       onClick={onClick}
       {...props}
     >
-      <span className="font-medium text-white text-sm">{title}</span>
+      <span className="font-medium text-white text-[0.6rem] leading-[0px] md:leading-none sm:text-sm">
+        {title}
+      </span>
       <RightArrowIcon />
     </button>
   );

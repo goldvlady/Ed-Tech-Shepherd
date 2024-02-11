@@ -3,8 +3,8 @@ import useUserStore from '../../../../../state/userStore';
 import useStudentConversations from './hooks/useStudentConversations';
 import ConversationHistorySkeleton from '../../../../../components/skeletons/conversation-history';
 import { Button } from '../../../../../components/ui/button';
-import { CaretRightIcon } from '@radix-ui/react-icons';
-import { useState } from 'react';
+import { CaretLeftIcon } from '@radix-ui/react-icons';
+import { useEffect, useState } from 'react';
 import { cn } from '../../../../../library/utils';
 
 // TODO: This component is rerendering on url id change, To fix it first we need to work in routes and then memoize this component
@@ -36,11 +36,31 @@ function ChatHistoryContent() {
 }
 
 const ChatHistory = () => {
-  const [sidebarClosed, setSidebarClosed] = useState(false);
+  const [sidebarClosed, setSidebarClosed] = useState(
+    () => window.screen.width < 1175
+  );
+
+  // For sidebar close on small screen
+  useEffect(() => {
+    const resizeListener = () => {
+      console.log('resizeListener', window.innerWidth);
+      if (window.innerWidth < 1175) {
+        setSidebarClosed(true);
+      } else {
+        setSidebarClosed(false);
+      }
+    };
+    window.addEventListener('resize', resizeListener);
+
+    return () => {
+      window.removeEventListener('resize', resizeListener);
+    };
+  }, []);
+
   return (
     <div
       className={cn(
-        'h-full max-h-screen hidden md:flex w-[348px] border-r transition-all transform-gpu justify-end mr-[-1px] relative duration-1000',
+        'h-full max-h-screen flex w-[348px] border-r transition-all transform-gpu justify-end mr-[-1px] relative duration-1000',
         {
           'w-[0%]': sidebarClosed
         }
@@ -51,7 +71,7 @@ const ChatHistory = () => {
         onClick={() => setSidebarClosed((prev) => !prev)}
         variant="ghost"
       >
-        <CaretRightIcon
+        <CaretLeftIcon
           className={cn({
             'transition-all': true,
             'transform rotate-180': sidebarClosed

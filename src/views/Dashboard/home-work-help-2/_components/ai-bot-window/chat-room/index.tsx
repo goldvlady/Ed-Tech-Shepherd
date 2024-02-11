@@ -37,7 +37,7 @@ function ChatRoom() {
   }, [id, startConversation]);
 
   return (
-    <div className="w-full h-full overflow-hidden bg-transparent flex justify-center pt-8">
+    <div className="h-full overflow-hidden bg-transparent flex justify-center pt-8 min-w-[375px] mx-auto w-full px-2">
       <div className="interaction-area w-full max-w-[832px] mx-auto flex flex-col">
         <header className="flex justify-center relative items-center w-full">
           <span>Chat name</span>

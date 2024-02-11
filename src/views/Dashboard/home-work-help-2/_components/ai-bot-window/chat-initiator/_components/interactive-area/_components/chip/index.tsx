@@ -2,22 +2,13 @@ import { Tag } from '@chakra-ui/tag';
 
 function Chip({ title, onClick }: { title: string; onClick?: () => void }) {
   return (
-    <Tag
-      size="lg"
-      variant="outline"
-      borderRadius="full"
-      _hover={{ bg: '#EBECF0' }}
+    <span
+      role="button"
       onClick={onClick}
-      style={{
-        boxShadow: 'inset 0 0 0px 1px #EBECF0',
-        color: '#6E7682',
-        padding: '10px',
-        cursor: 'pointer'
-      }}
-      className="hover:shadow-lg transition duration-300 ease-in-out"
+      className="py-1 px-2 text-[#6E7682] rounded-full border shadow cursor-pointer hover:shadow-sm transition-all hover:bg-[#EBECF0] max-h-[36px] text-sm"
     >
       {title}
-    </Tag>
+    </span>
   );
 }
 
