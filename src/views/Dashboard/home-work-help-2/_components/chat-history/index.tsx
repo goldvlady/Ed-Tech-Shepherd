@@ -43,7 +43,6 @@ const ChatHistory = () => {
   // For sidebar close on small screen
   useEffect(() => {
     const resizeListener = () => {
-      console.log('resizeListener', window.innerWidth);
       if (window.innerWidth < 1175) {
         setSidebarClosed(true);
       } else {
