@@ -3,6 +3,7 @@ import Options from './_components/options';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useListItem from './hook/useListItem';
+import useChatManager from '../../../../ai-bot-window/hooks/useChatManager';
 import { useCustomToast } from '../../../../../../../../components/CustomComponents/CustomToast/useCustomToast';
 
 const CHAT_WINDOW_CONFIG_PARAMS_LOCAL_STORAGE_KEY = 'CHAT_WINDOW_CONFIG_PARAMS';
@@ -22,6 +23,8 @@ const ListItem = ({
   const toast = useCustomToast();
   const navigate = useNavigate();
   const { id: conversationId } = useParams();
+
+  const { setChatWindowParams } = useChatManager('homework-help');
 
   const [renameMode, setRenameMode] = useState({
     enabled: false,
@@ -43,7 +46,9 @@ const ListItem = ({
         });
       }
     });
-  if (!title) return null;
+  if (!title) {
+    title = 'New Chat';
+  }
 
   const handleRename = () => {
     setRenameMode((prev) => ({ ...prev, enabled: true }));
@@ -62,13 +67,11 @@ const ListItem = ({
   };
 
   const handleConversationClick = () => {
-    localStorage.setItem(
-      CHAT_WINDOW_CONFIG_PARAMS_LOCAL_STORAGE_KEY,
-      JSON.stringify({
-        connectionQuery: { topic, subject },
-        isNewWindow: false
-      })
-    );
+    setChatWindowParams({
+      connectionQuery: { topic, subject },
+      isNewWindow: false
+    });
+
     navigate(id);
   };
 

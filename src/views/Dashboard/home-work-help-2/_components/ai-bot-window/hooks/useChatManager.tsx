@@ -31,6 +31,11 @@ type InitConversationOptions = {
   isNewConversation: boolean;
 };
 
+interface ChatWindowConfigParams {
+  isNewWindow: boolean;
+  connectionQuery: Record<string, any>;
+}
+
 const debugLog = (code: string, message?: any) => {
   message = message ? `: ${message}` : '';
   if (process.env.NODE_ENV === 'development') {
@@ -42,6 +47,8 @@ const useChatManager = (namespace: string) => {
   const user = useUserStore((state) => state.user);
   const studentId = user?._id;
   const queryClient = useQueryClient();
+  const CHAT_WINDOW_CONFIG_PARAMS_LOCAL_STORAGE_KEY =
+    `CHAT_WINDOW_CONFIG_PARAMS_FOR_${namespace}`.toUpperCase();
 
   // State hooks for managing chat messages, current chat content, and conversation ID
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -111,7 +118,7 @@ const useChatManager = (namespace: string) => {
       debugLog('FETCH HISTORY', { limit, offset });
       const data = await ApiService.getConversionById({ conversationId: id });
       console.log(data);
-      setMessages((prev) => ({ ...prev }));
+      setMessages((prev) => [...data, ...prev]);
 
       // socketRef.current.emit('fetch_history', { limit, offset });
     },
@@ -189,6 +196,7 @@ const useChatManager = (namespace: string) => {
         if (isNewConversation) {
           debugLog('INITIALIZING NEW CONVERSATION BEFORE HISTORY FETCH');
           sendMessage(conversationInitializer);
+          setChatWindowToStale();
         }
       });
 
@@ -245,6 +253,30 @@ const useChatManager = (namespace: string) => {
     [setupSocketListeners]
   );
 
+  // Method to set chat window params in localStorage
+  const setChatWindowParams = (params: ChatWindowConfigParams) => {
+    localStorage.setItem(
+      CHAT_WINDOW_CONFIG_PARAMS_LOCAL_STORAGE_KEY,
+      JSON.stringify(params)
+    );
+  };
+
+  // Method to get chat window params from localStorage
+  const getChatWindowParams = (): ChatWindowConfigParams | null => {
+    const paramsString = localStorage.getItem(
+      CHAT_WINDOW_CONFIG_PARAMS_LOCAL_STORAGE_KEY
+    );
+    if (!paramsString) return null;
+    return JSON.parse(paramsString);
+  };
+
+  const setChatWindowToStale = () => {
+    const chatWindowParams = getChatWindowParams();
+    if (chatWindowParams) {
+      setChatWindowParams({ ...chatWindowParams, isNewWindow: false });
+    }
+  };
+
   // Function to start a new conversation
   const startConversation = useCallback(
     (
@@ -272,6 +304,9 @@ const useChatManager = (namespace: string) => {
     fetchHistory,
     onEvent,
     emitEvent,
+    setChatWindowParams,
+    getChatWindowParams,
+    setChatWindowToStale,
     currentSocket: socketRef?.current
   };
 };

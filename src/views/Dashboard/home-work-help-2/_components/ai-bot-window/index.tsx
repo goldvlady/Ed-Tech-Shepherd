@@ -26,6 +26,7 @@ function AiChatBotWindow() {
     sendMessage,
     onEvent,
     currentSocket,
+    setChatWindowParams,
     ...rest
   } = useChatManager('homework-help');
 
@@ -33,10 +34,8 @@ function AiChatBotWindow() {
 
   useEffect(() => {
     if (conversationId) {
-      localStorage.setItem(
-        CHAT_WINDOW_CONFIG_PARAMS_LOCAL_STORAGE_KEY,
-        JSON.stringify({ connectionQuery, isNewWindow: true })
-      );
+      console.log('connection query', connectionQuery);
+      setChatWindowParams({ connectionQuery, isNewWindow: true });
       navigate(`/dashboard/ace-homework/${conversationId}`, {
         replace: true
       });
