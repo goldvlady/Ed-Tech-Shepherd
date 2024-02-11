@@ -2,9 +2,13 @@ import ChatList from './list';
 import useUserStore from '../../../../../state/userStore';
 import useStudentConversations from './hooks/useStudentConversations';
 import ConversationHistorySkeleton from '../../../../../components/skeletons/conversation-history';
+import { Button } from '../../../../../components/ui/button';
+import { CaretRightIcon } from '@radix-ui/react-icons';
+import { useState } from 'react';
+import { cn } from '../../../../../library/utils';
 
 // TODO: This component is rerendering on url id change, To fix it first we need to work in routes and then memoize this component
-function ChatHistory() {
+function ChatHistoryContent() {
   const user = useUserStore((state) => state.user);
   const userId = user?._id;
   const { data: conversations, isLoading } = useStudentConversations({
@@ -30,5 +34,33 @@ function ChatHistory() {
     </div>
   );
 }
+
+const ChatHistory = () => {
+  const [sidebarClosed, setSidebarClosed] = useState(false);
+  return (
+    <div
+      className={cn(
+        'h-full max-h-screen hidden md:flex w-[348px] border-r transition-all transform-gpu justify-end mr-[-1px] relative duration-1000',
+        {
+          'w-[0%]': sidebarClosed
+        }
+      )}
+    >
+      <Button
+        className="absolute top-0 p-2 bg-white rounded-l-md right-[-32px] rounded-tl-none rounded-bl-none border-r border-b rounded-tr-none"
+        onClick={() => setSidebarClosed((prev) => !prev)}
+        variant="ghost"
+      >
+        <CaretRightIcon
+          className={cn({
+            'transition-all': true,
+            'transform rotate-180': sidebarClosed
+          })}
+        />
+      </Button>
+      <ChatHistoryContent />
+    </div>
+  );
+};
 
 export default ChatHistory;
