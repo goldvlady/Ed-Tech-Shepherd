@@ -29,7 +29,7 @@ function Input({
 
   return (
     <React.Fragment>
-      <div className="w-full h-[50px] bg-white text-black rounded-lg shadow-md flex gap-2 items-center pr-3">
+      <div className="w-full h-[50px] bg-white text-black rounded-lg shadow-md flex gap-2 items-center pr-3 relative">
         <input
           value={
             currentInputType === 'subject'
@@ -45,7 +45,7 @@ function Input({
           placeholder={
             currentInputType === 'subject'
               ? 'What subject would you like to start with?'
-              : 'What topic you want to learn about?'
+              : 'What topic would you like to learn about?'
           }
         />
         <Button
