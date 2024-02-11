@@ -63,7 +63,7 @@ function Input({
         />
       </div>
       <div
-        className={`flex gap-1 md:gap-4 mt-4 ${
+        className={`flex gap-1 md:gap-4 mt-4 flex-wrap ${
           currentInputType !== 'subject'
             ? ' transition-opacity opacity-0 pointer-events-none'
             : ''
