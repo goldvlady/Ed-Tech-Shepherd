@@ -1,14 +1,85 @@
 import { ShareIcon } from '../../../../../../components/icons';
 import useUserStore from '../../../../../../state/userStore';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
+import { useQueryParams } from '../../../../../../hooks';
 import { useParams } from 'react-router';
 import useChatManager from '../hooks/useChatManager';
 import ChatMessage from './_components/chat-message';
 import PromptInput from './_components/prompt-input';
 
+const CHAT_WINDOW_CONFIG_PARAMS_LOCAL_STORAGE_KEY = 'CHAT_WINDOW_CONFIG_PARAMS';
+
+interface ChatWindowConfigParams {
+  connectionQuery: {
+    subject: string;
+    topic: string;
+  };
+  isNewWindow: boolean;
+}
+
+// Custom hook useCurrentChat
+function useCurrentChat(currentChat: string) {
+  // This useCallback will return the ChatMessage component or null based on currentChat's value
+  // It ensures that the component is only re-rendered when currentChat changes
+  const renderCurrentChat = useCallback(() => {
+    if (!currentChat) {
+      return null; // Don't render anything if there's no current chat content
+    }
+
+    // Assuming that your currentChat object has the same shape as the messages array items
+    // Adjust the props as necessary based on the actual structure of currentChat
+    return (
+      <ChatMessage key={Math.random()} message={currentChat} type={'user'} />
+    );
+  }, [currentChat]);
+
+  return renderCurrentChat;
+}
+
 function ChatRoom() {
   const { id } = useParams();
   const { user } = useUserStore();
+  const query = useQueryParams();
+
+  useEffect(() => {
+    const chatWindowParamsString = localStorage.getItem(
+      CHAT_WINDOW_CONFIG_PARAMS_LOCAL_STORAGE_KEY
+    );
+    if (!chatWindowParamsString) {
+      alert('Invalid chat window params');
+    } else {
+      const chatWindowParams: ChatWindowConfigParams = JSON.parse(
+        chatWindowParamsString
+      );
+
+      const { isNewWindow, connectionQuery } = chatWindowParams;
+
+      console.log('chat window', chatWindowParams);
+
+      if (!isNewWindow) {
+        startConversation({
+          studentId: user._id,
+          conversationId: id,
+          firebaseId: user?.firebaseId,
+          ...connectionQuery
+        });
+      } else {
+        startConversation(
+          {
+            studentId: user._id,
+            conversationId: id,
+            firebaseId: user?.firebaseId,
+            ...connectionQuery
+          },
+          {
+            conversationInitializer: 'Shall we begin, Socrates?',
+            isNewConversation: isNewWindow
+          }
+        );
+      }
+    }
+  }, []);
+
   const {
     startConversation,
     conversationId,
@@ -18,23 +89,9 @@ function ChatRoom() {
     onEvent,
     currentSocket,
     ...rest
-  } = useChatManager();
+  } = useChatManager('homework-help');
 
-  console.log('socket id', currentSocket?.id, messages);
-
-  useEffect(() => {
-    console.log(conversationId === id);
-    startConversation(
-      {
-        studentId: user._id,
-        namespace: 'homework-help',
-        conversationId: id,
-        subject: 'Maths',
-        topic: 'Algebra'
-      },
-      'Shall we begin, Socrates?'
-    );
-  }, [id, startConversation]);
+  const renderCurrentChat = useCurrentChat(currentChat);
 
   return (
     <div className="h-full overflow-hidden bg-transparent flex justify-center pt-8 min-w-[375px] mx-auto w-full px-2">
@@ -53,6 +110,7 @@ function ChatRoom() {
               type={message.log.role === 'user' ? 'user' : 'bot'}
             />
           ))}
+          {renderCurrentChat()}
         </div>
         <footer className=" w-full flex justify-center mb-6">
           <PromptInput onSubmit={sendMessage} />

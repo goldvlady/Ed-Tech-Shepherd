@@ -29,6 +29,7 @@ const PromptInput = ({ onSubmit }: { onSubmit: (message) => void }) => {
       <div className="input-box h-[85px] flex gap-2 flex-col bg-white rounded-md shadow-md w-full px-2 pb-2">
         <div className="input-element w-full flex-1 mt-1.5">
           <input
+            onKeyDown={onKeyPress}
             type="text"
             className="w-full input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal pb-0"
             placeholder="How can Shepherd help with your homework?"

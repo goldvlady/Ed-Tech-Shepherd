@@ -14,7 +14,8 @@ import {
   processDocument,
   createDocchatFlashCards,
   chatHomeworkHelp,
-  chatHistory
+  chatHistory,
+  getConversionById
 } from './AI';
 
 // Suppose these functions are in 'apiFunctions.ts' file
@@ -27,6 +28,7 @@ class ApiService {
   static createDocchatFlashCards = createDocchatFlashCards;
   static chatHomeworkHelp = chatHomeworkHelp;
   static chatHistory = chatHistory;
+  static getConversionById = getConversionById;
 
   static getResources = async () => {
     return doFetch(`${ApiService.baseEndpoint}/resources`);

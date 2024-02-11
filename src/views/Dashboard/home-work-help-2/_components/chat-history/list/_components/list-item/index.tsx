@@ -1,13 +1,28 @@
 import { Link, useParams } from 'react-router-dom';
 import Options from './_components/options';
 import { useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useListItem from './hook/useListItem';
 import { useCustomToast } from '../../../../../../../../components/CustomComponents/CustomToast/useCustomToast';
 
-const ListItem = ({ id, title }: { id: string; title: string }) => {
+const CHAT_WINDOW_CONFIG_PARAMS_LOCAL_STORAGE_KEY = 'CHAT_WINDOW_CONFIG_PARAMS';
+
+const ListItem = ({
+  id,
+  title,
+  topic,
+  subject
+}: {
+  id: string;
+  title: string;
+  topic: string;
+  subject: string;
+}) => {
   const inputRef = useRef<HTMLInputElement | null>();
   const toast = useCustomToast();
+  const navigate = useNavigate();
   const { id: conversationId } = useParams();
+
   const [renameMode, setRenameMode] = useState({
     enabled: false,
     title: title
@@ -46,9 +61,20 @@ const ListItem = ({ id, title }: { id: string; title: string }) => {
     deleteConversationById(id);
   };
 
+  const handleConversationClick = () => {
+    localStorage.setItem(
+      CHAT_WINDOW_CONFIG_PARAMS_LOCAL_STORAGE_KEY,
+      JSON.stringify({
+        connectionQuery: { topic, subject },
+        isNewWindow: false
+      })
+    );
+    navigate(id);
+  };
+
   return (
     <div
-      className={`flex w-full h-[36px] text-[#000000] leading-5 text-[12px] rounded-[8px] border gap-2 font-normal bg-[#F9F9FB] border-none px-2 hover:bg-[#e5e5e5ba] hover:cursor-pointer ${
+      className={`flex w-full h-[36px] text-[#000000] justify-between leading-5 text-[12px] rounded-[8px] border gap-2 font-normal bg-[#F9F9FB] border-none px-2 hover:bg-[#e5e5e5ba] hover:cursor-pointer ${
         id === conversationId ? 'bg-[#e5e5e5ba]' : ''
       } ${renaming || deleting ? 'opacity-50' : ''}`}
     >
@@ -65,9 +91,12 @@ const ListItem = ({ id, title }: { id: string; title: string }) => {
           }
         />
       ) : (
-        <Link to={`${id}`} className="flex-1 py-2 text-ellipsis truncate">
+        <button
+          onClick={() => handleConversationClick()}
+          className="flex-1 py-2 text-ellipsis truncate"
+        >
           <span className="w-full text-ellipsis truncate">{title}</span>
-        </Link>
+        </button>
       )}
       <Options
         id={id}

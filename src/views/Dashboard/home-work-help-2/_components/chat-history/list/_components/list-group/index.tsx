@@ -14,6 +14,8 @@ function ListGroup({
       <div className="group-items flex flex-col gap-2">
         {groupItems.map((conversation) => (
           <ListItem
+            subject={conversation.subject}
+            topic={conversation.topic}
             id={conversation.id}
             title={conversation.title}
             key={conversation.id}
