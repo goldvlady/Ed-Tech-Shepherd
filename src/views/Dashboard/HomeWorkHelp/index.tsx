@@ -761,6 +761,7 @@ const HomeWorkHelp = () => {
                 colorScheme="green"
                 mr={3}
                 onClick={() => {
+                  setTogglePlansModal(true);
                   navigate('/dashboard/account-settings');
                 }}
               >
