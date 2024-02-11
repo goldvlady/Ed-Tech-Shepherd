@@ -94,21 +94,9 @@ const QualificationsForm: React.FC = () => {
       return;
     }
 
-    setCountdown(() => ({
-      active: true,
-      message: 'Uploading...your document is being uploaded'
-    }));
-    setProgress(25);
-
     const uploadEmitter = uploadFile(file, {
       studentID: user._id, // Assuming user._id is always defined
       documentID: readableFileName // Assuming readableFileName is the file's name
-    });
-
-    uploadEmitter.on('progress', (progress: number) => {
-      // Update the progress. Assuming progress is a percentage (0 to 100)
-      setProgress(progress);
-      setLoading(true);
     });
 
     // const storageRef = ref(storage, `files/${file.name}`);
@@ -139,54 +127,20 @@ const QualificationsForm: React.FC = () => {
     // );
     uploadEmitter.on('complete', async (uploadFile) => {
       // Assuming uploadFile contains the fileUrl and other necessary details.
-      const documentURL = uploadFile.fileUrl;
+      const updatedFormData = {
+        ...formData,
+        [name]: uploadFile.fileUrl
+      };
+      setFormData(updatedFormData);
 
-      setCountdown((prev) => ({
-        ...prev,
-        message:
-          'Processing...this may take a minute (larger documents may take longer)'
-      }));
-
-      try {
-        const results = await processDocument({
-          studentId: user._id,
-          documentId: readableFileName,
-          documentURL,
-          title: readableFileName
-        });
-
-        const {
-          documentURL: newDocumentURL,
-          title,
-          documentId
-        } = results.data[0];
-        setConfirmReady(true);
-        setCountdown((prev) => ({
-          ...prev,
-          message:
-            "Your uploaded document is now ready! Click the 'chat' button to start."
-        }));
-        // setDocumentId(documentId);
-        // setDocumentName(title);
-        // setDocumentURL(newDocumentURL);
-        // setDocKeywords(keywords);
-        setLoading(false);
-
-        ApiService.saveStudentDocument({
-          documentUrl: newDocumentURL,
-          title,
-          ingestId: documentId
-        });
-      } catch (e) {
-        setCountdown((prev) => ({
-          ...prev,
-          message: 'Something went wrong. Reload this page and try again.'
-        }));
-        setLoading(false);
+      if (!addQualificationClicked) {
+        onboardTutorStore.set.qualifications?.([updatedFormData]);
       }
+      setIsLoading(false);
     });
 
     uploadEmitter.on('error', (error) => {
+      setIsLoading(false);
       setCountdown((prev) => ({
         ...prev,
         active: false,
@@ -467,14 +421,6 @@ const QualificationsForm: React.FC = () => {
           onFileUpload={(file) => handleUploadInput(file, 'transcript')}
           boxStyles={{ minWidth: '250px', marginTop: '10px', height: '50px' }}
         />
-        <Box my={2}>
-          {countdown.active && (
-            <CountdownProgressBar
-              confirmReady={confirmReady}
-              countdown={countdown}
-            />
-          )}
-        </Box>
       </FormControl>
 
       <Button
