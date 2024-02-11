@@ -53,33 +53,6 @@ function ChatRoom() {
               type={message.log.role === 'user' ? 'user' : 'bot'}
             />
           ))}
-
-          {/* <ChatMessage message="Hello" type="user" />
-          <ChatMessage
-            message="Hi, 
-          How can I help you today?"
-            type="bot"
-          />
-          <ChatMessage message="What is AI?" type="user" />
-          <ChatMessage
-            message="AI is the simulation of human intelligence processes by machines, especially computer systems. These processes include learning, reasoning, and self-correction."
-            type="bot"
-          />
-          <ChatMessage message="What is AI?" type="user" />
-          <ChatMessage
-            message="AI is the simulation of human intelligence processes by machines, especially computer systems. These processes include learning, reasoning, and self-correction."
-            type="bot"
-          />
-          <ChatMessage message="What is AI?" type="user" />
-          <ChatMessage
-            message="AI is the simulation of human intelligence processes by machines, especially computer systems. These processes include learning, reasoning, and self-correction."
-            type="bot"
-          />
-          <ChatMessage message="What is AI?" type="user" />
-          <ChatMessage
-            message="AI is the simulation of human intelligence processes by machines, especially computer systems. These processes include learning, reasoning, and self-correction."
-            type="bot"
-          /> */}
         </div>
         <footer className=" w-full flex justify-center mb-6">
           <PromptInput onSubmit={sendMessage} />
