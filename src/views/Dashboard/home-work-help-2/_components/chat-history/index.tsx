@@ -11,7 +11,7 @@ function ChatHistory() {
     studentId: userId
   });
   return (
-    <div className="w-full h-full p-4 no-scrollbar flex flex-col">
+    <div className="h-full p-4 no-scrollbar flex flex-col w-[348px]">
       <div className="title">
         <h4 className="font-medium text-sm">Chat History</h4>
       </div>
