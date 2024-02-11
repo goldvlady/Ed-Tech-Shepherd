@@ -48,7 +48,7 @@ function ChatRoom() {
         <div className="chat-area flex-1 overflow-y-scroll py-10 px-3 w-full mx-auto max-w-[728px] mt-6 flex flex-col gap-3 no-scrollbar">
           {messages.map((message) => (
             <ChatMessage
-              key={Math.random()}
+              key={message.id}
               message={message.log.content}
               type={message.log.role === 'user' ? 'user' : 'bot'}
             />
