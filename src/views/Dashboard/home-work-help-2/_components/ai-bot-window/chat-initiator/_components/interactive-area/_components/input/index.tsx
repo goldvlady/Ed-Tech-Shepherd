@@ -2,6 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 import Chip from '../chip';
 import Button from './_components/button';
+import { PencilIcon } from '../../../../../../../../../../components/icons';
 
 function Input({
   actions: { handleSubjectChange, handleTopicChange, onSubmit },
@@ -30,6 +31,20 @@ function Input({
   return (
     <React.Fragment>
       <div className="w-full h-[50px] bg-white text-black rounded-lg shadow-md flex gap-2 items-center pr-3 relative">
+        {chatContext.subject.trim() !== '' && currentInputType === 'topic' ? (
+          <span className="text-xs absolute top-[-48%] left-[4%] flex ">
+            Subject -
+            <span
+              className="ml-1 inline-flex text-[#207DF7] gap-1 items-center cursor-pointer"
+              onClick={() => setCurrentInputType('subject')}
+            >
+              {' '}
+              {chatContext.subject}{' '}
+              {<PencilIcon className="w-4 h-4" onClick={''} />}
+            </span>
+          </span>
+        ) : null}
+
         <input
           value={
             currentInputType === 'subject'
