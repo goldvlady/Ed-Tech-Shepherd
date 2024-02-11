@@ -7,38 +7,11 @@ import useChatManager from '../hooks/useChatManager';
 import ChatMessage from './_components/chat-message';
 import PromptInput from './_components/prompt-input';
 
-const CHAT_WINDOW_CONFIG_PARAMS_LOCAL_STORAGE_KEY = 'CHAT_WINDOW_CONFIG_PARAMS';
-
-interface ChatWindowConfigParams {
-  connectionQuery: {
-    subject: string;
-    topic: string;
-  };
-  isNewWindow: boolean;
-}
-
-// Custom hook useCurrentChat
-function useCurrentChat(currentChat: string) {
-  // This useCallback will return the ChatMessage component or null based on currentChat's value
-  // It ensures that the component is only re-rendered when currentChat changes
-  const renderCurrentChat = useCallback(() => {
-    if (!currentChat) {
-      return null; // Don't render anything if there's no current chat content
-    }
-
-    return (
-      <ChatMessage key={Math.random()} message={currentChat} type={'bot'} />
-    );
-  }, [currentChat]);
-
-  return renderCurrentChat;
-}
+const CONVERSATION_INITIALIZER = 'Shall we begin, Socrates?';
 
 function ChatRoom() {
   const { id } = useParams();
   const { user } = useUserStore();
-
-  const query = useQueryParams();
 
   const {
     startConversation,
@@ -68,7 +41,7 @@ function ChatRoom() {
           ...connectionQuery
         },
         {
-          conversationInitializer: 'Shall we begin, Socrates?',
+          conversationInitializer: CONVERSATION_INITIALIZER,
           isNewConversation: isNewWindow
         }
       );
@@ -97,13 +70,17 @@ function ChatRoom() {
           </button>
         </header>
         <div className="chat-area flex-1 overflow-y-scroll py-10 px-3 w-full mx-auto max-w-[728px] mt-6 flex flex-col gap-3 no-scrollbar">
-          {messages.map((message) => (
-            <ChatMessage
-              key={message.id}
-              message={message.log.content}
-              type={message.log.role === 'user' ? 'user' : 'bot'}
-            />
-          ))}
+          {messages
+            .filter(
+              (message) => message.log.content !== CONVERSATION_INITIALIZER
+            )
+            .map((message) => (
+              <ChatMessage
+                key={message.id}
+                message={message.log.content}
+                type={message.log.role === 'user' ? 'user' : 'bot'}
+              />
+            ))}
           {currentChatRender}
         </div>
         <footer className=" w-full flex justify-center mb-6">
