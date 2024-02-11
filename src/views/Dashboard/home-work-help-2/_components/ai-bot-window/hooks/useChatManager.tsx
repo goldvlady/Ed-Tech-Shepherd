@@ -43,10 +43,14 @@ const debugLog = (code: string, message?: any) => {
   }
 };
 
-const useChatManager = (namespace: string) => {
+const useChatManager = (
+  namespace: string,
+  options?: { autoPersistChat: boolean; autoHydrateChat: boolean }
+) => {
   const user = useUserStore((state) => state.user);
   const studentId = user?._id;
-  const queryClient = useQueryClient();
+  const [isLoading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const CHAT_WINDOW_CONFIG_PARAMS_LOCAL_STORAGE_KEY =
     `CHAT_WINDOW_CONFIG_PARAMS_FOR_${namespace}`.toUpperCase();
 
@@ -55,12 +59,18 @@ const useChatManager = (namespace: string) => {
   const [currentChat, setCurrentChat] = useState<string>('');
   const [conversationId, setConversationId] = useState<string | null>(null);
 
+  const getPersistStorageKey = useCallback(
+    (id?: string) => {
+      id = id || conversationId;
+      const persistKey = `CHAT_HISTORY_KEY_${namespace}_${id}`;
+      return persistKey;
+    },
+    [conversationId]
+  );
   // useRef to hold a persistent reference to the socket connection
   const socketRef = useRef<Socket | null>(null);
 
   // Helper function to force component update by updating a state that is not used elsewhere
-  const [, updateState] = useState({});
-  const forceUpdate = useCallback(() => updateState({}), []);
 
   // useEffect hook for cleanup on component unmount to disconnect the socket
   useEffect(() => {
@@ -70,6 +80,29 @@ const useChatManager = (namespace: string) => {
       }
     };
   }, []);
+
+  const autoPersistChat = useCallback(() => {
+    const PERSIST_CHAT_KEY = getPersistStorageKey();
+    localStorage.setItem(PERSIST_CHAT_KEY, JSON.stringify(messages));
+  }, [messages, getPersistStorageKey]);
+
+  const hydrateChat = useCallback(
+    (id: string) => {
+      const PERSIST_CHAT_KEY = getPersistStorageKey(id);
+      const storedMessagesString = localStorage.getItem(PERSIST_CHAT_KEY);
+      if (storedMessagesString) {
+        const storedMessages = JSON.parse(storedMessagesString);
+        setMessages(storedMessages);
+      }
+    },
+    [getPersistStorageKey]
+  );
+
+  useEffect(() => {
+    if (messages.length && conversationId && options?.autoPersistChat) {
+      autoPersistChat();
+    }
+  }, [messages, conversationId, autoPersistChat]);
 
   // useCallback for formatting messages before they are sent or stored
   const formatMessage = useCallback(
@@ -105,20 +138,51 @@ const useChatManager = (namespace: string) => {
   );
 
   // useCallback for fetching chat history from the server
+
   const fetchHistory = useCallback(
     async (limit: number, offset: number, convoId?: string) => {
-      const id = convoId || conversationId;
+      try {
+        setLoading(true);
+        const id = convoId || conversationId;
 
-      if (!socketRef.current || !id) {
-        console.error(
-          'Socket is not initialized or conversationId is not set.'
-        );
-        return;
+        if (!socketRef.current || !id) {
+          console.error(
+            'Socket is not initialized or conversationId is not set.'
+          );
+          return;
+        }
+        debugLog('FETCH HISTORY', { limit, offset });
+        const data = await ApiService.getConversionById({ conversationId: id });
+
+        setMessages((prevMessages) => {
+          if (offset === 0) {
+            // When offset is 0, replace the first X messages with new data,
+            // where X is the length of the data received.
+            return [...data, ...prevMessages.slice(data.length)];
+          } else {
+            // When offset isn't 0, replace messages starting from the offset position
+            // with the new data, ensuring no duplicates and preserving the sequence.
+            // This might require adjusting depending on your specific use case or data structure.
+            const updatedMessages = [...prevMessages];
+
+            data.forEach((newMessage, index) => {
+              const replaceIndex = offset + index;
+              if (replaceIndex < updatedMessages.length) {
+                // Replace existing message at specific index
+                updatedMessages[replaceIndex] = newMessage;
+              } else {
+                // If beyond the current list, append
+                updatedMessages.push(newMessage);
+              }
+            });
+            return updatedMessages;
+          }
+        });
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
       }
-      debugLog('FETCH HISTORY', { limit, offset });
-      const data = await ApiService.getConversionById({ conversationId: id });
-      console.log(data);
-      setMessages((prev) => [...data, ...prev]);
 
       // socketRef.current.emit('fetch_history', { limit, offset });
     },
@@ -185,11 +249,6 @@ const useChatManager = (namespace: string) => {
         debugLog('CHAT RESPONSE END', newMessage);
       });
 
-      socketRef.current.on('fetch_history_error', (error) => {
-        console.log(error);
-        debugLog('FETCH HISTORY ERROR', error);
-      });
-
       // Handler for when the AI model is ready, fetching history or starting new conversation
       socketRef.current.on('ready', () => {
         debugLog('AI MODEL READY');
@@ -200,31 +259,13 @@ const useChatManager = (namespace: string) => {
         }
       });
 
-      // Handler for receiving chat history from the server
-      socketRef.current.on('chat_history', (chatHistoryJson: string) => {
-        const chatHistory = JSON.parse(chatHistoryJson) as ChatMessage[];
-        const startConversation = [
-          !chatHistory.length,
-          conversationInitializer,
-          !isNewConversation
-        ].every(Boolean);
-
-        if (startConversation) {
-          sendMessage(conversationInitializer);
-        }
-        setMessages((prev) => [...chatHistory, ...prev]);
-        debugLog('CHAT HISTORY', chatHistory);
-      });
-
       // Handler for setting the current conversation ID
       socketRef.current.on('current_conversation', (id: string) => {
-        console.log('current_conversation_id', id);
-
         setConversationId(id);
         debugLog('CURRENT CONVERSATION', id);
       });
     },
-    [fetchHistory, formatMessage, forceUpdate, sendMessage]
+    [fetchHistory, formatMessage, sendMessage]
   );
 
   // Initialize and configure the socket connection
@@ -287,6 +328,9 @@ const useChatManager = (namespace: string) => {
       refreshManager();
       initiateSocket(queryParams, conversationOptions); // Initiate socket with queryParams
       if (conversationId) {
+        if (options?.autoHydrateChat) {
+          hydrateChat(conversationId);
+        }
         fetchHistory(30, 0, conversationId);
       }
       debugLog('CONVERSATION STARTED');
@@ -307,6 +351,8 @@ const useChatManager = (namespace: string) => {
     setChatWindowParams,
     getChatWindowParams,
     setChatWindowToStale,
+    isLoading,
+    error,
     currentSocket: socketRef?.current
   };
 };

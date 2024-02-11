@@ -62,7 +62,6 @@ const ListItem = ({
   };
 
   const handleDelete = (id: string) => {
-    console.log('delete', id);
     deleteConversationById(id);
   };
 
@@ -96,7 +95,7 @@ const ListItem = ({
       ) : (
         <button
           onClick={() => handleConversationClick()}
-          className="flex-1 py-2 text-ellipsis truncate"
+          className="flex-1 py-2 text-ellipsis text-start truncate"
         >
           <span className="w-full text-ellipsis truncate">{title}</span>
         </button>

@@ -50,7 +50,10 @@ function ChatRoom() {
     currentSocket,
     getChatWindowParams,
     ...rest
-  } = useChatManager('homework-help');
+  } = useChatManager('homework-help', {
+    autoHydrateChat: true,
+    autoPersistChat: true
+  });
 
   useEffect(() => {
     const chatWindowParams = getChatWindowParams();
