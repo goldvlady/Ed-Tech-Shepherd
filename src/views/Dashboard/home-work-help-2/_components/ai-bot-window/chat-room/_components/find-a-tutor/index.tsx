@@ -36,7 +36,7 @@ function FindATutorButton() {
         </Trigger>
         <Portal>
           <Overlay className="bg-white/10 backdrop-blur-sm data-[state=open]:animate-overlayShow fixed inset-0" />
-          <Content className="flex flex-col data-[state=open]:animate-contentShow fixed top-[50%] left-[50%] max-h-[85vh] w-[90vw] max-w-[636px] translate-x-[-50%] translate-y-[-50%] rounded-[6px] bg-white shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none">
+          <Content className="flex flex-col data-[state=open]:animate-contentShow fixed top-[50%] left-[50%] max-h-[85vh] w-[90vw] max-w-[636px] translate-x-[-50%] translate-y-[-50%] rounded-[6px] bg-white shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none z-20">
             <header className="h-[72px] border-b-2 p-5 pb-5 overflow-hidden w-full flex justify-between items-center">
               <p className="text-[#212224] font-semibold text-xl">
                 Place Bounty
