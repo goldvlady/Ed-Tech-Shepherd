@@ -20,6 +20,7 @@ function FindATutorButton() {
           <Button
             variant="outline"
             borderRadius="full"
+            className="shadow-element"
             size="sm"
             style={{
               border: '1px solid #207DF7',

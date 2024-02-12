@@ -29,7 +29,7 @@ const ChatMessage = ({
         // icon={type === 'user' ? '' : '🤖'}
       />
       <div
-        className={`message shadow-md rounded-md flex justify-center items-center ${
+        className={`message shadow-element rounded-md flex justify-center items-center ${
           type === 'user' ? '' : 'bg-white'
         }`}
       >
