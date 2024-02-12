@@ -24,14 +24,14 @@ function ChatInfoDropdown({ id }: { id: string }) {
     enabled: false,
     title: 'Untitled'
   });
-  const { data } = useStudentConversations({
+  useStudentConversations({
     studentId: studentId,
     select: (data) => {
       const conversation = data.find((item) => item.id === id);
       if (conversation) {
         if (renameMode.title !== conversation.title) {
           setRenameMode((prev) => ({
-            title: conversation.title,
+            title: conversation.title ?? 'Untitled',
             enabled: false
           }));
         }

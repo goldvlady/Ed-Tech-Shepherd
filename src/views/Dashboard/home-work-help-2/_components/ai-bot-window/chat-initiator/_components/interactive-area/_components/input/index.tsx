@@ -64,7 +64,7 @@ function Input({
             Level -
             <span
               className="ml-1 inline-flex text-[#207DF7] gap-1 items-center cursor-pointer"
-              onClick={() => setCurrentInputType('subject')}
+              onClick={() => setCurrentInputType('level')}
             >
               {' '}
               {chatContext.level}{' '}
