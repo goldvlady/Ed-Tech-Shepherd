@@ -26,7 +26,8 @@ function FindATutorButton() {
               fontSize: '14px',
               fontWeight: 400,
               lineHeight: '20px',
-              color: '#207DF7'
+              color: '#207DF7',
+              backdropFilter: 'blur(10px)'
             }}
           >
             Find a tutor

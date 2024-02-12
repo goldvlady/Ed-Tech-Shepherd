@@ -59,7 +59,7 @@ const ChatHistory = () => {
   return (
     <div
       className={cn(
-        'h-full max-h-screen flex w-[348px] border-r transition-all transform-gpu justify-end mr-[-1px] relative duration-1000',
+        'h-full max-h-screen flex w-[348px] border-r transition-all transform-gpu justify-end mr-[-1px] relative duration-1000 z-20',
         {
           'w-[0%]': sidebarClosed
         }

@@ -13,15 +13,15 @@ const PromptInput = ({ onSubmit }: { onSubmit: (message) => void }) => {
     setMessage('');
   };
   return (
-    <div className="w-full h-full flex gap-5 flex-col items-center justify-center max-w-[600px]">
+    <div className="w-full h-full flex gap-5 flex-col items-center justify-center max-w-[600px] z-10">
       <div className="find-tutor-button flex justify-end w-full">
         <FindATutorButton />
       </div>
-      <div className="input-box flex gap-2 flex-row items-center bg-white rounded-md shadow-md w-full px-4 py-2.5">
+      <div className="input-box flex gap-2 flex-row items-center bg-white rounded-md shadow-element w-full px-4 py-2.5">
         <div className="input-element w-full flex-1 flex">
           <textarea
             ref={inputRef}
-            className="w-full input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal p-0"
+            className="w-full input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal p-0 resize-none"
             placeholder="How can Shepherd help with your homework?"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
