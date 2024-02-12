@@ -62,7 +62,7 @@ const Deck: React.FC<DeckProps> = ({ data, onClick }) => {
             textAlign="center"
           >
             <Text fontSize="sm" fontFamily={'inter'} noOfLines={6}>
-              {randomQuestion}
+              {`Our curated questions about ${data.name}`}
             </Text>
           </Box>
         </Box>
