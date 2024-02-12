@@ -397,10 +397,12 @@ function CoursePlan() {
     const fetchData = async () => {
       try {
         if (state.selectedPlan) {
-          const [resourcesResponse, reportResponse] = await Promise.all([
-            fetchPlanResources(state.selectedPlan),
-            fetchPlanReport(state.selectedPlan)
-          ]);
+          const [planresponse, resourcesResponse, reportResponse] =
+            await Promise.all([
+              fetchPlans(state.page, state.limit),
+              fetchPlanResources(state.selectedPlan),
+              fetchPlanReport(state.selectedPlan)
+            ]);
           updateState({ planResource: resourcesResponse });
         }
       } catch (error) {
@@ -412,7 +414,11 @@ function CoursePlan() {
   }, [state.selectedPlan]);
   console.log(studyPlanReport);
   console.log(state.selectedPlan);
-
+  useEffect(() => {
+    if (state.selectedPlan) {
+    }
+  }, []);
+  console.log(studyPlans);
   function getSubject(id) {
     const labelFromCourseList = courseList
       .map((course) => (course._id === id ? course.label : null))
@@ -1490,7 +1496,13 @@ function CoursePlan() {
                                     : source.url}
                                 </Text>
                                 <Spacer />
-                                {getIconByDataset(source.dataset)}
+                                <img
+                                  className="h-3 w-3"
+                                  alt={source.url}
+                                  src={`https://www.google.com/s2/favicons?domain=${
+                                    source.url
+                                  }&sz=${16}`}
+                                />
                               </Flex>
                             </Flex>
                           </Box>
