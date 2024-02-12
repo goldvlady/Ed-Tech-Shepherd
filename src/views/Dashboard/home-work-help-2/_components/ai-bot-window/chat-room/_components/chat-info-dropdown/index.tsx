@@ -9,23 +9,29 @@ import {
 } from '../../../../../../../../components/ui/dropdown-menu';
 import useListItem from '../../../../hooks/useListItem';
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import ApiService from '../../../../../../../../services/ApiService';
 import useStudentConversations from '../../../../hooks/useStudentConversations';
 import useUserStore from '../../../../../../../../state/userStore';
 
 function ChatInfoDropdown({ id }: { id: string }) {
   const studentId = useUserStore((state) => state.user?._id);
+  const [renameMode, setRenameMode] = useState({
+    enabled: false,
+    title: 'Untitled'
+  });
   const { data } = useStudentConversations({
     studentId: studentId,
     select: (data) => {
-      return data.find((item) => item.id === id);
+      const conversation = data.find((item) => item.id === id);
+      if (conversation) {
+        if (renameMode.title !== conversation.title) {
+          setRenameMode((prev) => ({
+            title: conversation.title,
+            enabled: false
+          }));
+        }
+      }
+      return conversation;
     }
-  });
-
-  const [renameMode, setRenameMode] = useState({
-    enabled: false,
-    title: 'Java: Beginner Level'
   });
 
   const { renameConversation, renaming, deleteConversationById, deleting } =
@@ -50,9 +56,9 @@ function ChatInfoDropdown({ id }: { id: string }) {
         <Button
           variant="ghost"
           size="sm"
-          className="p-0 text-black text-sm font-medium focus-visible:ring-0"
+          className="p-0 text-black text-sm font-medium focus-visible:ring-0 w-[60%] sm:w-full"
         >
-          {data.title || 'Untitled'}{' '}
+          <p className="truncate text-ellipsis"> {renameMode.title} </p>
           <ChevronDownIcon
             className="
             w-4 h-4
