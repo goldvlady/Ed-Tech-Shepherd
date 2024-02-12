@@ -8,11 +8,15 @@ import {
   DropdownMenuTrigger
 } from '../../../../../../../../components/ui/dropdown-menu';
 import useListItem from '../../../../hooks/useListItem';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import useStudentConversations from '../../../../hooks/useStudentConversations';
 import useUserStore from '../../../../../../../../state/userStore';
+import { useCustomToast } from '../../../../../../../../components/CustomComponents/CustomToast/useCustomToast';
+import { cn } from '../../../../../../../../library/utils';
 
 function ChatInfoDropdown({ id }: { id: string }) {
+  const toast = useCustomToast();
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const studentId = useUserStore((state) => state.user?._id);
   const [renameMode, setRenameMode] = useState({
     enabled: false,
@@ -37,11 +41,11 @@ function ChatInfoDropdown({ id }: { id: string }) {
   const { renameConversation, renaming, deleteConversationById, deleting } =
     useListItem({
       onRenameSuccess: (values: any) => {
-        setRenameMode((prev) => ({ title: values.newTitle, enabled: false }));
-        // toast({
-        //   status: 'success',
-        //   title: 'Conversation renamed successfully'
-        // });
+        setRenameMode(() => ({ title: values.newTitle, enabled: false }));
+        toast({
+          status: 'success',
+          title: 'Conversation renamed successfully'
+        });
       },
       onDeletedSuccess: (id: string) => {
         // toast({
@@ -50,24 +54,41 @@ function ChatInfoDropdown({ id }: { id: string }) {
         // });
       }
     });
+
+  const handleRename = () => {
+    setRenameMode((prev) => ({ ...prev, enabled: true }));
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
+  };
+
+  const handleRenameOnBlur = () => {
+    renameConversation(id, inputRef.current?.value || '');
+    setRenameMode((prev) => ({ ...prev, enabled: false }));
+  };
+
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="p-0 text-black text-sm font-medium focus-visible:ring-0 w-[60%] sm:w-full"
-        >
-          <p className="truncate text-ellipsis"> {renameMode.title} </p>
-          <ChevronDownIcon
-            className="
-            w-4 h-4
-            ml-1
-            text-[#212224]
-          "
-          />
-        </Button>
-      </DropdownMenuTrigger>
+      {renameMode.enabled ? (
+        <input
+          ref={inputRef}
+          onBlur={handleRenameOnBlur}
+          defaultValue={renameMode.title}
+          className="px-2 py-1 rounded-md text-black text-sm font-medium focus-visible:ring-0 max-w-[60%] w-[30ch] mt-[2px] mb-[2px] border-none"
+        />
+      ) : (
+        <DropdownMenuTrigger asChild disabled={renaming || deleting}>
+          <div
+            className={cn('w-full flex justify-center', {
+              'opacity-50': renaming || deleting,
+              'cursor-not-allowed': renaming && deleting
+            })}
+          >
+            <ConversationTitle title={renameMode.title} />
+          </div>
+        </DropdownMenuTrigger>
+      )}
+
       <DropdownMenuContent className="w-[180px] bg-white rounded-md shadow-md">
         <DropdownMenuGroup className="p-2">
           <DropdownMenuItem
@@ -78,6 +99,7 @@ function ChatInfoDropdown({ id }: { id: string }) {
             rounded-md
             hover:bg-[#F2F4F7]
           "
+            onClick={handleRename}
           >
             Rename
           </DropdownMenuItem>
@@ -94,5 +116,18 @@ function ChatInfoDropdown({ id }: { id: string }) {
     </DropdownMenu>
   );
 }
+
+const ConversationTitle = ({ title }: { title: string }) => {
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      className="p-0 text-black text-sm font-medium focus-visible:ring-0 w-[60%] sm:w-full"
+    >
+      <p className="truncate text-ellipsis"> {title} </p>
+      <ChevronDownIcon className="w-4 h-4 ml-1 text-[#212224]" />
+    </Button>
+  );
+};
 
 export default ChatInfoDropdown;
