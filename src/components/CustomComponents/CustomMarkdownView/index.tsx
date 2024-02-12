@@ -129,7 +129,9 @@ const OrderedListComponent = ({ children }) => (
 );
 
 const ParagraphComponent = ({ children }) => (
-  <p className="leading-7 [&:not(:first-child)]:mt-6">{children}</p>
+  <p className="leading-7 [&:not(:first-child)]:mt-6 whitespace-pre-wrap">
+    {children}
+  </p>
 );
 
 const MathComponent = ({ value }: any) => <InlineMath math={value} />;
