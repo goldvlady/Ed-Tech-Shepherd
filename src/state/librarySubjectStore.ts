@@ -14,7 +14,7 @@ type Store = {
 export default create<Store>((set) => ({
   librarySubjects: null,
   isLoading: false,
-  pagination: { limit: 10, page: 1, count: 100 },
+  pagination: { limit: 30, page: 1, count: 100 },
 
   fetchLibrarySubjects: async (queryParams?: SearchQueryParams) => {
     try {

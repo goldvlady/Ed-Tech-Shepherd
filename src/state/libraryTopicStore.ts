@@ -17,7 +17,7 @@ type Store = {
 export default create<Store>((set) => ({
   libraryTopics: null,
   isLoading: false,
-  pagination: { limit: 10, page: 1, count: 100 },
+  pagination: { limit: 30, page: 1, count: 100 },
 
   fetchlibraryTopics: async (
     subjectId: string,
