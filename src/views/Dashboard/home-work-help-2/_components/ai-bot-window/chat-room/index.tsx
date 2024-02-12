@@ -1,18 +1,20 @@
 import { ShareIcon } from '../../../../../../components/icons';
 import useUserStore from '../../../../../../state/userStore';
-import { useCallback, useEffect, useMemo } from 'react';
-import { useQueryParams } from '../../../../../../hooks';
+import { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router';
 import useChatManager from '../hooks/useChatManager';
 import ChatMessage from './_components/chat-message';
 import PromptInput from './_components/prompt-input';
 import ChatInfoDropdown from './_components/chat-info-dropdown';
+import { useQueryClient } from '@tanstack/react-query';
 
 const CONVERSATION_INITIALIZER = 'Shall we begin, Socrates?';
 
 function ChatRoom() {
   const { id } = useParams();
   const { user } = useUserStore();
+  const query = useQueryClient();
+  const studentId = user?._id;
 
   const {
     startConversation,
@@ -46,6 +48,9 @@ function ChatRoom() {
           isNewConversation: isNewWindow
         }
       );
+      query.invalidateQueries({
+        queryKey: ['chatHistory', { studentId }]
+      });
     }
   }, [id]);
 
@@ -66,7 +71,7 @@ function ChatRoom() {
       <div className="interaction-area w-full max-w-[832px] mx-auto flex flex-col">
         <header className="flex justify-center relative items-center w-full">
           <ChatInfoDropdown id={id} />
-          <button className="absolute right-0 top-0 flex items-center justify-center mr-8 p-2 rounded-lg bg-white shadow-md">
+          <button className="absolute right-0 top-0 flex items-center justify-center mr-4 sm:mr-8 p-2 rounded-lg bg-white shadow-md">
             <ShareIcon />
           </button>
         </header>
