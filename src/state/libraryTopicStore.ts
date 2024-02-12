@@ -26,7 +26,7 @@ export default create<Store>((set) => ({
     try {
       const params = queryParams || ({} as SearchQueryParams);
       if (!params.page) params.page = 1;
-      if (!params.limit) params.limit = 10;
+      if (!params.limit) params.limit = 30;
       set({ isLoading: true });
 
       const response = await ApiService.getLibraryTopics({
