@@ -414,10 +414,7 @@ function CoursePlan() {
 
     fetchData();
   }, [state.selectedPlan]);
-  console.log(studyPlanReport);
-  console.log(state.selectedPlan);
 
-  console.log(studyPlans);
   function getSubject(id) {
     const labelFromCourseList = courseList
       .map((course) => (course._id === id ? course.label : null))
