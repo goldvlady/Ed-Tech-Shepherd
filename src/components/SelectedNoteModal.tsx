@@ -97,7 +97,7 @@ const SelectedModal = ({
   const [loading, setLoading] = useState(false);
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
-  const [PlansModalSubMessage, setPlansModalSubMessage] = useState('');
+  const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
   const Wrapper = styled.div`
     display: block;
     width: 100%;
@@ -548,7 +548,7 @@ const SelectedModal = ({
         togglePlansModal={togglePlansModal}
         setTogglePlansModal={setTogglePlansModal}
         message={plansModalMessage} // Pass the message to the modal
-        subMessage={PlansModalSubMessage}
+        subMessage={plansModalSubMessage}
       />
     );
   } else {
