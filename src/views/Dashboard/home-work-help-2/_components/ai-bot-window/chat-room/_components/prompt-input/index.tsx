@@ -26,6 +26,7 @@ const PromptInput = ({ onSubmit }: { onSubmit: (message) => void }) => {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             style={{ whiteSpace: 'pre-line' }}
+            rows={1}
           />
         </div>
         <div className="submit-button">
