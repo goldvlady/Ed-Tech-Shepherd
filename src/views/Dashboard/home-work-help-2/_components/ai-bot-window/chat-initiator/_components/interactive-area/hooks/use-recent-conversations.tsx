@@ -1,5 +1,5 @@
 import useUserStore from '../../../../../../../../../state/userStore';
-import useStudentConversations from '../../../../../chat-history/hooks/useStudentConversations';
+import useStudentConversations from '../../../../../hooks/useStudentConversations';
 
 function useRecentConversations() {
   const user = useUserStore((state) => state.user);

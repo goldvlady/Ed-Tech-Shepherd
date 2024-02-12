@@ -2,8 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   deleteConversationId,
   editConversationId
-} from '../../../../../../../../../services/AI';
-import useUserStore from '../../../../../../../../../state/userStore';
+} from '../../../../../services/AI';
+import useUserStore from '../../../../../state/userStore';
 
 function useListItem({
   onRenameSuccess,

@@ -6,6 +6,7 @@ import { useParams } from 'react-router';
 import useChatManager from '../hooks/useChatManager';
 import ChatMessage from './_components/chat-message';
 import PromptInput from './_components/prompt-input';
+import ChatInfoDropdown from './_components/chat-info-dropdown';
 
 const CONVERSATION_INITIALIZER = 'Shall we begin, Socrates?';
 
@@ -64,7 +65,7 @@ function ChatRoom() {
     <div className="h-full overflow-hidden bg-transparent flex justify-center pt-8 min-w-[375px] mx-auto w-full px-2">
       <div className="interaction-area w-full max-w-[832px] mx-auto flex flex-col">
         <header className="flex justify-center relative items-center w-full">
-          <span>Chat name</span>
+          <ChatInfoDropdown id={id} />
           <button className="absolute right-0 top-0 flex items-center justify-center mr-8 p-2 rounded-lg bg-white shadow-md">
             <ShareIcon />
           </button>
