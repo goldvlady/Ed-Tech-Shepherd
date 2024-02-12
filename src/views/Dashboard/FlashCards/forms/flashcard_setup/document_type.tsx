@@ -45,7 +45,7 @@ const FlashcardFromDocumentSetup = ({
   }); // A local state for storing user inputs
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
-  const [PlansModalSubMessage, setPlansModalSubMessage] = useState('');
+  const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
 
   useEffect(() => {
     if (flashcardData.deckname) {
@@ -123,7 +123,7 @@ const FlashcardFromDocumentSetup = ({
         const userFlashcardCount = await flashcardCountResponse.json();
 
         if (
-          !hasActiveSubscription ||
+          (!hasActiveSubscription && userFlashcardCount.count >= 40) ||
           (user.subscription?.subscriptionMetadata?.flashcard_limit &&
             userFlashcardCount.count >=
               user.subscription.subscriptionMetadata.flashcard_limit)
@@ -339,7 +339,7 @@ const FlashcardFromDocumentSetup = ({
           togglePlansModal={togglePlansModal}
           setTogglePlansModal={setTogglePlansModal}
           message={plansModalMessage} // Pass the message to the modal
-          subMessage={PlansModalSubMessage}
+          subMessage={plansModalSubMessage}
         />
       )}
     </Box>

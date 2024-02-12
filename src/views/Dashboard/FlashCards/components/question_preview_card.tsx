@@ -60,26 +60,6 @@ const spreadBorderColor = keyframes`
     border-left-color: #207DF7;
   }
 `;
-const extractDataURI = (input: string) => {
-  const regex = /(data:image\/(jpeg|jpg|png|svg);base64,.*)/;
-
-  const match = input.match(regex);
-
-  if (match) {
-    const dataUri = match[1];
-
-    return dataUri;
-  } else {
-    return null;
-  }
-};
-const dataUriToBase64 = (dataUri: string) => {
-  const base64Data = dataUri.split(',')[1];
-
-  const binaryData = atob(base64Data);
-
-  return binaryData;
-};
 
 const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({
   question,
@@ -99,12 +79,6 @@ const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({
   };
 
   const isCorrect = selectedValue === correctAnswer;
-  const quest = question.includes('data:image/')
-    ? question.replace(/data:image\/(jpeg|jpg|png|svg);base64,.*/, '')
-    : question;
-  const dataURI = question.includes('data:image/')
-    ? extractDataURI(question)
-    : null;
 
   return (
     <AnimatePresence>
@@ -131,18 +105,10 @@ const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({
               lineHeight="21px"
               letterSpacing="0.7%"
               color="#212224"
-              marginBottom={4}
             >
               {index + 1}. {'  '}
-              {quest}
+              {question}
             </Text>
-            {dataURI && (
-              <img
-                src={dataURI}
-                className="w-10 mb-4 h-10"
-                alt="uploaded file"
-              />
-            )}
             <RadioGroup onChange={setSelectedValue} value={selectedValue}>
               <Stack mt="20px" spacing="15px" direction="column">
                 {options?.map((option, index) => (

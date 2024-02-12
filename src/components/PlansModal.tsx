@@ -1,9 +1,6 @@
 import priceData from '../mocks/pricing.json';
 import ApiService from '../services/ApiService';
 import userStore from '../state/userStore';
-import { CustomButton } from '../views/Dashboard/layout';
-import { StarIcon } from './icons';
-import { SelectedNoteModal } from './index';
 import {
   Box,
   Button,
@@ -23,16 +20,8 @@ import {
 } from '@chakra-ui/react';
 import { Transition, Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
-import { getAuth } from 'firebase/auth';
 import React, { Fragment, useState, useEffect } from 'react';
-import { PiCheckCircleFill } from 'react-icons/pi';
 import { useNavigate } from 'react-router';
-import Typewriter from 'typewriter-effect';
-
-interface StripePricingTableProps {
-  'pricing-table-id': string;
-  'publishable-key': string;
-}
 
 interface ToggleProps {
   setTogglePlansModal: (state: boolean) => void;
@@ -139,7 +128,11 @@ const PriceCardList: React.FC<PriceCardListProps> = ({
         <div className="landing-price-wrapper">
           {priceData.map((priceCard) => (
             <div
-              className="landing-price-card"
+              className={`landing-price-card ${
+                priceCard.lookup_key === 'free'
+                  ? 'landing-price-card-active'
+                  : ''
+              }`}
               style={{
                 position: priceCard.popular ? 'relative' : 'static'
               }}
@@ -147,8 +140,17 @@ const PriceCardList: React.FC<PriceCardListProps> = ({
               {priceCard.popular && (
                 <Text className="landing-price-sub-bubble">Popular</Text>
               )}
-              <div className="landing-metric-wrapper">
+              <div
+                className={`${
+                  priceCard.lookup_key === 'free'
+                    ? 'landing-plan-wrapper'
+                    : 'landing-metric-wrapper'
+                }`}
+              >
                 <Text className="landing-price-level">{priceCard.tier}</Text>
+                {priceCard.lookup_key === 'free' && (
+                  <Box className="landing-price-level-plan">Current Plan</Box>
+                )}
               </div>
               <div className="landing-metric-wrapper">
                 <Text className="landing-price-point">{priceCard.price}</Text>
@@ -182,6 +184,8 @@ const PriceCardList: React.FC<PriceCardListProps> = ({
                 >
                   {!user || (user && !user.hadSubscription)
                     ? getTrialButtonText(priceCard)
+                    : priceCard.tier === 'Free'
+                    ? 'Manage Your Account'
                     : `Get Started`}
                 </Button>
               </div>
@@ -211,7 +215,7 @@ const PlansModal = ({
 }: ToggleProps & { message?: string; subMessage?: string }) => {
   const [showSelected, setShowSelected] = useState(false);
   const [currentPlan, setCurrentPlan] = useState('Basic');
-  const { user }: any = userStore();
+  const { user, fetchUser }: any = userStore();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState('');
@@ -278,16 +282,11 @@ const PlansModal = ({
       return 'Start My 4-Week Free Trial';
     } else {
       // Default case if neither Basic nor Premium
-      return 'Start My Free Trial';
+      return 'Manage Your Account';
     }
   };
 
   const handleSubscriptionClick = async (priceIdKey, priceTier) => {
-    const priceId = process.env[priceIdKey];
-    if (!priceId) {
-      // Handle error scenario
-      return;
-    }
     if (!user || !user.id) {
       // Handle unauthenticated user scenario
 
@@ -298,12 +297,21 @@ const PlansModal = ({
       return;
     }
 
-    const session = await ApiService.initiateUserSubscription(
-      user.id,
-      priceId,
-      priceTier,
-      user.stripeCustomerId ? user.stripeCustomerId : null
-    );
+    let session;
+    const priceId = process.env[priceIdKey];
+
+    if (!priceId) {
+      session = await ApiService.getStripeCustomerPortalUrl(
+        user.stripeCustomerId
+      );
+    } else {
+      session = await ApiService.initiateUserSubscription(
+        user.id,
+        priceId,
+        priceTier,
+        user.stripeCustomerId ? user.stripeCustomerId : null
+      );
+    }
     const portal = await session.json();
     window.location.href = portal.url;
   };
@@ -327,6 +335,10 @@ const PlansModal = ({
   const handleShowSelected = () => {
     setShowSelected(true);
   };
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
 
   return (
     <div className="pm">
@@ -356,7 +368,7 @@ const PlansModal = ({
                   leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                   leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 >
-                  <Dialog.Panel className="relative transform overflow-hidden rounded-2xl bg-white mt-10 text-left shadow-xl transition-all sm:w-full sm:max-w-5xl">
+                  <Dialog.Panel className="relative transform overflow-hidden rounded-2xl bg-white mt-10 text-left shadow-xl transition-all sm:w-fit sm:max-w-fit">
                     <div>
                       <div className="flex justify-between align-middle border-b pb-2 px-2">
                         <Box p={2}>
@@ -413,7 +425,7 @@ const PlansModal = ({
                           <XMarkIcon className="w-4 h-4" />
                         </button>
                       </div>
-                      <Tabs isFitted>
+                      {/* <Tabs isFitted>
                         <TabList
                           marginTop="25px"
                           width={'80%'}
@@ -424,19 +436,17 @@ const PlansModal = ({
                           <Tab>Yearly</Tab>
                         </TabList>
                         <TabPanels>
-                          <TabPanel>
-                            <PriceCardList
-                              priceData={filterPriceData('/month')}
-                              hasActiveSubscription={hasActiveSubscription}
-                              user={user}
-                              redirectToCustomerPortal={
-                                redirectToCustomerPortal
-                              }
-                              getButtonText={getButtonText}
-                              getTrialButtonText={getTrialButtonText}
-                              handleSubscriptionClick={handleSubscriptionClick}
-                            />
-                          </TabPanel>
+                          <TabPanel> */}
+                      <PriceCardList
+                        priceData={filterPriceData('/month')}
+                        hasActiveSubscription={hasActiveSubscription}
+                        user={user}
+                        redirectToCustomerPortal={redirectToCustomerPortal}
+                        getButtonText={getButtonText}
+                        getTrialButtonText={getTrialButtonText}
+                        handleSubscriptionClick={handleSubscriptionClick}
+                      />
+                      {/* </TabPanel>
                           <TabPanel>
                             <PriceCardList
                               priceData={filterPriceData('/year')}
@@ -451,7 +461,7 @@ const PlansModal = ({
                             />
                           </TabPanel>
                         </TabPanels>
-                      </Tabs>
+                      </Tabs> */}
 
                       {/* <div className="overflow-hidden sm:w-[80%] w-full mx-auto p-6 pt-3  bg-white sm:grid sm:grid-cols-3 justify-items-center sm:gap-x-4 sm:space-y-0 space-y-2">
                         {actions2.map((action) => (

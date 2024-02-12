@@ -56,7 +56,7 @@ const FlashCardSetupInit = ({
   const [localData, setLocalData] = useState<typeof flashcardData>(dummyData); // A local state for storing user inputs
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
-  const [PlansModalSubMessage, setPlansModalSubMessage] = useState('');
+  const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
 
   useEffect(() => {
     if (isResetted) {
@@ -169,7 +169,7 @@ const FlashCardSetupInit = ({
         const userFlashcardCount = await flashcardCountResponse.json();
 
         if (
-          !hasActiveSubscription ||
+          (!hasActiveSubscription && userFlashcardCount.count >= 40) ||
           (user.subscription?.subscriptionMetadata?.flashcard_limit &&
             userFlashcardCount.count >=
               user.subscription.subscriptionMetadata.flashcard_limit)
@@ -429,7 +429,7 @@ const FlashCardSetupInit = ({
           togglePlansModal={togglePlansModal}
           setTogglePlansModal={setTogglePlansModal}
           message={plansModalMessage} // Pass the message to the modal
-          subMessage={PlansModalSubMessage}
+          subMessage={plansModalSubMessage}
         />
       )}
     </Box>

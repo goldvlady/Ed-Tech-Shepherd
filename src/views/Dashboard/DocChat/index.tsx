@@ -51,7 +51,22 @@ import { Socket } from 'socket.io-client';
 import noteStore from '../../../state/noteStore';
 import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
 import PlansModal from '../../../components/PlansModal';
-import { Box, Text, Center, Icon, useToast } from '@chakra-ui/react';
+import {
+  Box,
+  Text,
+  Center,
+  Icon,
+  useToast,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+  Link
+} from '@chakra-ui/react';
 
 export default function DocChat() {
   const toastIdRef = useRef<any>();
@@ -151,6 +166,8 @@ export default function DocChat() {
   const [toggleMobileChat, setToggleMobileChat] = useState(false);
   const [summaryStart, setSummaryStart] = useState(false);
   const [summaryError, setSummaryError] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   const mobile = useIsMobile({
     defaultWidth: 1024
   });
@@ -185,6 +202,7 @@ export default function DocChat() {
 
   const { fetchSingleNote, note, updateNote: updateNoteSummary } = noteStore();
   const [noteLoading, setNoteLoading] = useState(false);
+  const [docchatLimitReached, setDocchatLimit] = useState(false);
 
   const isLike = useMemo(() => {
     return likesDislikes[1]?.like
@@ -437,6 +455,7 @@ export default function DocChat() {
         authSocket = socketWithAuth({
           studentId,
           documentId,
+          firebaseId: user.firebaseId,
           namespace: 'doc-chat'
         }).connect();
 
@@ -495,6 +514,22 @@ export default function DocChat() {
       return () => socket.off('ready');
     }
   }, [socket]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('docchat_limit_reached', (limitReached) => {
+        setDocchatLimit(limitReached);
+        // onOpen();
+      });
+      return () => socket.off('docchat_limit_reached');
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    if (docchatLimitReached) {
+      onOpen();
+    }
+  }, [docchatLimitReached, onOpen]);
 
   useEffect(() => {
     if (socket) {
@@ -1304,29 +1339,140 @@ export default function DocChat() {
       setSummaryLoading(false);
     }
   }, [summaryStart]);
-  if (!hasActiveSubscription && !apiKey) {
-    return (
-      <Center height="100vh" width="100%">
-        <Box display={'flex'} flexDirection={'column'} alignItems={'center'}>
-          <Icon
-            as={isHovering ? RiLockUnlockFill : RiLockFill}
-            fontSize="100px"
-            color="#fc9b65"
-            onMouseEnter={() => setIsHovering(true)}
-            onMouseLeave={() => setIsHovering(false)}
-            onClick={handleLockClick}
-            cursor="pointer"
-          />
-          <Text
-            mt="20px"
-            fontSize="20px"
-            fontWeight="bold"
-            color={'lightgrey'}
-            textAlign="center"
-          >
-            Unlock your full potential today!
-          </Text>
-        </Box>
+  // if (!hasActiveSubscription && !apiKey) {
+  //   return (
+  //     <Center height="100vh" width="100%">
+  //       <Box display={'flex'} flexDirection={'column'} alignItems={'center'}>
+  //         <Icon
+  //           as={isHovering ? RiLockUnlockFill : RiLockFill}
+  //           fontSize="100px"
+  //           color="#fc9b65"
+  //           onMouseEnter={() => setIsHovering(true)}
+  //           onMouseLeave={() => setIsHovering(false)}
+  //           onClick={handleLockClick}
+  //           cursor="pointer"
+  //         />
+  //         <Text
+  //           mt="20px"
+  //           fontSize="20px"
+  //           fontWeight="bold"
+  //           color={'lightgrey'}
+  //           textAlign="center"
+  //         >
+  //           Unlock your full potential today!
+  //         </Text>
+  //       </Box>
+  //       {togglePlansModal && (
+  //         <PlansModal
+  //           togglePlansModal={togglePlansModal}
+  //           setTogglePlansModal={setTogglePlansModal}
+  //           message={plansModalMessage}
+  //           subMessage={plansModalSubMessage}
+  //         />
+  //       )}
+  //     </Center>
+  //   );
+  // } else {
+  return (
+    <section
+      className={clsx(
+        'h-screen w-screen max-h-[calc(100vh-80px)] md:max-w-[calc(100vw-250px)] relative overflow-hidden'
+      )}
+    >
+      {docchatLimitReached && (
+        <Modal isOpen={isOpen} onClose={onClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Daily Chat Limit Reached</ModalHeader>
+            <ModalBody padding={'8px'}>
+              <Text textAlign={'center'} fontSize={'16px'}>
+                Your daily chat limit has been reached. Upgrade your plan to
+                continue using the chat feature now.
+              </Text>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                colorScheme="green"
+                mr={3}
+                onClick={() => {
+                  setTogglePlansModal(true);
+                  // navigate('/dashboard/account-settings');
+                }}
+              >
+                Upgrade Plan
+              </Button>
+              <Button variant="ghost" onClick={onClose}>
+                Close
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      )}
+      <div className={clsx('h-full z-3 w-full flex items-start ', {})}>
+        <div
+          className={clsx(
+            'flex flex-col grow w-full md:max-w-1/2 max-h-[100%]'
+          )}
+        >
+          <>
+            {documentUrl && documentUrl.length > 0 && (
+              <DocViewer
+                pdfLink={documentUrl}
+                pdfName={title}
+                documentId={documentId}
+                hightlightedText={hightlightedText}
+                setHightlightedText={setHightlightedText}
+                selectedHighlightArea={selectedHighlightArea}
+                setSelectedHighlightArea={setSelectedHighlightArea}
+                setLoading={setLoading}
+              />
+            )}
+            {noteId && noteId.length > 0 && (
+              <StyledEditorWrapper
+                sx={{
+                  '&::-webkit-scrollbar': {
+                    width: '4px'
+                  },
+                  '&::-webkit-scrollbar-track': {
+                    width: '6px'
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    borderRadius: '24px'
+                  }
+                }}
+                className={clsx('', ``)}
+              >
+                {isLoadingNote && (
+                  <div className="w-full pb-5 flex flex-col justify-center items-center h-[calc(100dvh-80px)]">
+                    <CustomChatLoader className="items-center mx-auto" />
+                  </div>
+                )}
+                {!isLoadingNote && (
+                  <>
+                    <Header>
+                      <FirstSection>
+                        <div className="doc__name">
+                          <>{editedTitle}</>
+                        </div>
+                        <div className="timestamp">
+                          <p>Updated {currentTime}</p>
+                        </div>
+                      </FirstSection>
+                    </Header>
+                    <StyledEditorContainer
+                      className={clsx(
+                        'w-full max-h-[70vh] overflew-hidden pb-5'
+                      )}
+                    >
+                      <StyledEditor />
+                      <div className="p-8" />
+                    </StyledEditorContainer>
+                  </>
+                )}
+              </StyledEditorWrapper>
+            )}
+          </>
+        </div>
         {togglePlansModal && (
           <PlansModal
             togglePlansModal={togglePlansModal}
@@ -1335,202 +1481,122 @@ export default function DocChat() {
             subMessage={plansModalSubMessage}
           />
         )}
-      </Center>
-    );
-  } else {
-    return (
-      <section
-        className={clsx(
-          'h-screen w-screen max-h-[calc(100vh-80px)] md:max-w-[calc(100vw-250px)] relative overflow-hidden'
-        )}
-      >
-        <div className={clsx('h-full z-3 w-full flex items-start ', {})}>
-          <div
-            className={clsx(
-              'flex flex-col grow w-full md:max-w-1/2 max-h-[100%]'
-            )}
-          >
-            <>
-              {documentUrl && documentUrl.length > 0 && (
-                <DocViewer
-                  pdfLink={documentUrl}
-                  pdfName={title}
+        {true && (
+          <>
+            <StyledButton onClick={handleToggleMobileChat}>
+              <IoChatboxEllipsesOutline className={clsx('h-6 w-6')} />
+            </StyledButton>
+            <StyledChatWrapper
+              as={CustomSideModal}
+              isOpen={toggleMobileChat}
+              onClose={handleToggleMobileChat}
+            >
+              {toggleMobileChat && (
+                <Chat
+                  ref={ref}
+                  documentUrl={documentUrl}
+                  isShowPrompt={isShowPrompt}
+                  isReadyToChat={readyToChat}
+                  messages={messages}
+                  llmResponse={llmResponse}
+                  botStatus={botStatus}
+                  handleSendMessage={handleSendMessage}
+                  handleSendKeyword={handleSendKeyword}
+                  handleInputChange={handleInputChange}
+                  inputValue={inputValue}
+                  handleKeyDown={handleKeyDown}
+                  handleSummary={handleSummary}
+                  summaryLoading={summaryLoading}
+                  summaryText={summaryText}
+                  setSummaryText={setSummaryText}
                   documentId={documentId}
+                  docKeywords={docKeywords}
+                  title={title}
+                  handleClickPrompt={handleClickPrompt}
+                  handleDeleteSummary={handleDeleteSummary}
+                  handleUpdateSummary={handleUpdateSummary}
                   hightlightedText={hightlightedText}
-                  setHightlightedText={setHightlightedText}
-                  selectedHighlightArea={selectedHighlightArea}
                   setSelectedHighlightArea={setSelectedHighlightArea}
-                  setLoading={setLoading}
+                  loading={loading}
+                  isUpdatedSummary={isUpdatedSummary}
+                  isDcLimitReached={docchatLimitReached}
+                  directStudentId={directStudentId}
+                  onSwitchOnMobileView={onSwitchOnMobileView}
+                  handleDislike={handleDislike}
+                  handleLike={handleLike}
+                  likesDislikes={likesDislikes}
+                  setChatId={setChatId}
+                  handlePinPrompt={handlePinPrompt}
+                  studentId={studentId}
+                  selectedChatId={selectedChatId}
+                  setSelectedChatId={setSelectedChatId}
+                  isChatLoading={isChatLoading}
+                  setChatHistoryId={setChatHistoryId}
+                  handlePinned={handlePinned}
+                  isPinned={isPinned}
+                  noteId={noteId}
+                  pinPromptArr={pinPromptArr}
                 />
               )}
-              {noteId && noteId.length > 0 && (
-                <StyledEditorWrapper
-                  sx={{
-                    '&::-webkit-scrollbar': {
-                      width: '4px'
-                    },
-                    '&::-webkit-scrollbar-track': {
-                      width: '6px'
-                    },
-                    '&::-webkit-scrollbar-thumb': {
-                      borderRadius: '24px'
-                    }
-                  }}
-                  className={clsx('', ``)}
-                >
-                  {isLoadingNote && (
-                    <div className="w-full pb-5 flex flex-col justify-center items-center h-[calc(100dvh-80px)]">
-                      <CustomChatLoader className="items-center mx-auto" />
-                    </div>
-                  )}
-                  {!isLoadingNote && (
-                    <>
-                      <Header>
-                        <FirstSection>
-                          <div className="doc__name">
-                            <>{editedTitle}</>
-                          </div>
-                          <div className="timestamp">
-                            <p>Updated {currentTime}</p>
-                          </div>
-                        </FirstSection>
-                      </Header>
-                      <StyledEditorContainer
-                        className={clsx(
-                          'w-full max-h-[70vh] overflew-hidden pb-5'
-                        )}
-                      >
-                        <StyledEditor />
-                        <div className="p-8" />
-                      </StyledEditorContainer>
-                    </>
-                  )}
-                </StyledEditorWrapper>
-              )}
-            </>
-          </div>
-          {togglePlansModal && (
-            <PlansModal
-              togglePlansModal={togglePlansModal}
-              setTogglePlansModal={setTogglePlansModal}
-              message={plansModalMessage}
-              subMessage={plansModalSubMessage}
-            />
-          )}
-          {true && (
-            <>
-              <StyledButton onClick={handleToggleMobileChat}>
-                <IoChatboxEllipsesOutline className={clsx('h-6 w-6')} />
-              </StyledButton>
-              <StyledChatWrapper
-                as={CustomSideModal}
-                isOpen={toggleMobileChat}
-                onClose={handleToggleMobileChat}
-              >
-                {toggleMobileChat && (
-                  <Chat
-                    ref={ref}
-                    documentUrl={documentUrl}
-                    isShowPrompt={isShowPrompt}
-                    isReadyToChat={readyToChat}
-                    messages={messages}
-                    llmResponse={llmResponse}
-                    botStatus={botStatus}
-                    handleSendMessage={handleSendMessage}
-                    handleSendKeyword={handleSendKeyword}
-                    handleInputChange={handleInputChange}
-                    inputValue={inputValue}
-                    handleKeyDown={handleKeyDown}
-                    handleSummary={handleSummary}
-                    summaryLoading={summaryLoading}
-                    summaryText={summaryText}
-                    setSummaryText={setSummaryText}
-                    documentId={documentId}
-                    docKeywords={docKeywords}
-                    title={title}
-                    handleClickPrompt={handleClickPrompt}
-                    handleDeleteSummary={handleDeleteSummary}
-                    handleUpdateSummary={handleUpdateSummary}
-                    hightlightedText={hightlightedText}
-                    setSelectedHighlightArea={setSelectedHighlightArea}
-                    loading={loading}
-                    isUpdatedSummary={isUpdatedSummary}
-                    directStudentId={directStudentId}
-                    onSwitchOnMobileView={onSwitchOnMobileView}
-                    handleDislike={handleDislike}
-                    handleLike={handleLike}
-                    likesDislikes={likesDislikes}
-                    setChatId={setChatId}
-                    handlePinPrompt={handlePinPrompt}
-                    studentId={studentId}
-                    selectedChatId={selectedChatId}
-                    setSelectedChatId={setSelectedChatId}
-                    isChatLoading={isChatLoading}
-                    setChatHistoryId={setChatHistoryId}
-                    handlePinned={handlePinned}
-                    isPinned={isPinned}
-                    noteId={noteId}
-                    pinPromptArr={pinPromptArr}
-                  />
-                )}
-              </StyledChatWrapper>
+            </StyledChatWrapper>
 
-              {!mobile && (
-                <div
-                  className={clsx(
-                    'hidden md:flex md:max-w-1/2 grow w-full h-full  overflow-y-auto border-l border-gray-200'
-                  )}
-                >
-                  <Chat
-                    ref={ref}
-                    isShowPrompt={isShowPrompt}
-                    isReadyToChat={readyToChat}
-                    documentUrl={documentUrl}
-                    messages={messages}
-                    llmResponse={llmResponse}
-                    botStatus={botStatus}
-                    handleSendMessage={handleSendMessage}
-                    handleSendKeyword={handleSendKeyword}
-                    handleInputChange={handleInputChange}
-                    inputValue={inputValue}
-                    handleKeyDown={handleKeyDown}
-                    handleSummary={handleSummary}
-                    summaryLoading={summaryLoading}
-                    summaryText={summaryText}
-                    setSummaryText={setSummaryText}
-                    documentId={documentId}
-                    docKeywords={docKeywords}
-                    title={title}
-                    handleClickPrompt={handleClickPrompt}
-                    handleDeleteSummary={handleDeleteSummary}
-                    handleUpdateSummary={handleUpdateSummary}
-                    hightlightedText={hightlightedText}
-                    setSelectedHighlightArea={setSelectedHighlightArea}
-                    loading={loading}
-                    isUpdatedSummary={isUpdatedSummary}
-                    directStudentId={directStudentId}
-                    onSwitchOnMobileView={onSwitchOnMobileView}
-                    handleDislike={handleDislike}
-                    handleLike={handleLike}
-                    likesDislikes={likesDislikes}
-                    setChatId={setChatId}
-                    handlePinPrompt={handlePinPrompt}
-                    studentId={studentId}
-                    selectedChatId={selectedChatId}
-                    setSelectedChatId={setSelectedChatId}
-                    isChatLoading={isChatLoading}
-                    setChatHistoryId={setChatHistoryId}
-                    handlePinned={handlePinned}
-                    isPinned={isPinned}
-                    noteId={noteId}
-                    pinPromptArr={pinPromptArr}
-                  />
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </section>
-    );
-  }
+            {!mobile && (
+              <div
+                className={clsx(
+                  'hidden md:flex md:max-w-1/2 grow w-full h-full  overflow-y-auto border-l border-gray-200'
+                )}
+              >
+                <Chat
+                  ref={ref}
+                  isShowPrompt={isShowPrompt}
+                  isReadyToChat={readyToChat}
+                  documentUrl={documentUrl}
+                  messages={messages}
+                  llmResponse={llmResponse}
+                  botStatus={botStatus}
+                  handleSendMessage={handleSendMessage}
+                  handleSendKeyword={handleSendKeyword}
+                  handleInputChange={handleInputChange}
+                  inputValue={inputValue}
+                  handleKeyDown={handleKeyDown}
+                  handleSummary={handleSummary}
+                  summaryLoading={summaryLoading}
+                  summaryText={summaryText}
+                  setSummaryText={setSummaryText}
+                  documentId={documentId}
+                  docKeywords={docKeywords}
+                  title={title}
+                  handleClickPrompt={handleClickPrompt}
+                  handleDeleteSummary={handleDeleteSummary}
+                  handleUpdateSummary={handleUpdateSummary}
+                  hightlightedText={hightlightedText}
+                  setSelectedHighlightArea={setSelectedHighlightArea}
+                  loading={loading}
+                  isUpdatedSummary={isUpdatedSummary}
+                  isDcLimitReached={docchatLimitReached}
+                  directStudentId={directStudentId}
+                  onSwitchOnMobileView={onSwitchOnMobileView}
+                  handleDislike={handleDislike}
+                  handleLike={handleLike}
+                  likesDislikes={likesDislikes}
+                  setChatId={setChatId}
+                  handlePinPrompt={handlePinPrompt}
+                  studentId={studentId}
+                  selectedChatId={selectedChatId}
+                  setSelectedChatId={setSelectedChatId}
+                  isChatLoading={isChatLoading}
+                  setChatHistoryId={setChatHistoryId}
+                  handlePinned={handlePinned}
+                  isPinned={isPinned}
+                  noteId={noteId}
+                  pinPromptArr={pinPromptArr}
+                />
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </section>
+  );
 }
+// }

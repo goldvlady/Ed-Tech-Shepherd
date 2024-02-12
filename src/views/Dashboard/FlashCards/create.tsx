@@ -39,8 +39,6 @@ import {
 import { useParams, useLocation } from 'react-router';
 import styled from 'styled-components';
 import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
-import S3Handler from '../../../helpers/s3Handler';
-import { extractDataURIAndBase64 } from '../../../helpers';
 
 const Wrapper = styled(Box)`
   select {
@@ -205,40 +203,6 @@ const CreateFlashPage = () => {
   }, [loading]);
 
   const onSubmitFlashcard = useCallback(async () => {
-    const s3 = new S3Handler();
-    // here pretty painfully , for each question save to s3 and replace with the string
-    // const updatedQuestionsPromises = questions.map(async (question) => {
-    //   let q: string;
-    //   let a: string;
-    //   if (question.question.includes('data:image/')) {
-    //     const { base64Data, dataURI } = extractDataURIAndBase64(
-    //       question.question
-    //     );
-    //     const file = await s3.uploadBase64ToS3(base64Data, dataURI);
-    //     q = question.question.replace(
-    //       /data:image\/(jpeg|jpg|png|svg);base64,.*/,
-    //       file
-    //     );
-    //   } else {
-    //     q = question.question;
-    //   }
-    //   if (question.answer.includes('data:image/')) {
-    //     const { base64Data, dataURI } = extractDataURIAndBase64(
-    //       question.answer
-    //     );
-    //     const file = await s3.uploadBase64ToS3(base64Data, dataURI);
-    //     a = file;
-    //   } else {
-    //     a = question.answer;
-    //   }
-    //   return {
-    //     ...question,
-    //     answer: a,
-    //     question: q
-    //   };
-    // });
-    // const updatedQuestions = await Promise.all(updatedQuestionsPromises);
-    // console.log(updatedQuestions, 'update??');
     try {
       const response = await createFlashCard(
         { ...flashcardData, questions },
@@ -394,245 +358,245 @@ const CreateFlashPage = () => {
     setSwitchMobile((prevState) => !prevState);
   }, [setSwitchMobile]);
 
-  if (!hasActiveSubscription) {
-    return (
-      <Center height="100vh" width="100%">
-        <Box display={'flex'} flexDirection={'column'} alignItems={'center'}>
-          <Icon
-            as={isHovering ? RiLockUnlockFill : RiLockFill}
-            fontSize="100px"
-            color="#fc9b65"
-            onMouseEnter={() => setIsHovering(true)}
-            onMouseLeave={() => setIsHovering(false)}
-            onClick={handleLockClick}
-            cursor="pointer"
-          />
-          <Text
-            mt="20px"
-            fontSize="20px"
-            fontWeight="bold"
-            color={'lightgrey'}
-            textAlign="center"
-          >
-            Unlock your full potential today!
-          </Text>
-        </Box>
-        {togglePlansModal && (
-          <PlansModal
-            togglePlansModal={togglePlansModal}
-            setTogglePlansModal={setTogglePlansModal}
-            message={plansModalMessage}
-            subMessage={plansModalSubMessage}
-          />
-        )}
-      </Center>
-    );
-  } else {
-    return (
-      <Box width={'100%'}>
-        {isLoading && <LoaderOverlay />}
-        <Wrapper
-          ref={wrapperRef}
-          bg="white"
-          width="100%"
-          display="flex"
-          position={'relative'}
-          justifyContent="space-between"
-          flexDirection={{ base: 'column', md: 'row' }} // Add this line
-          alignItems="center"
+  // if (!hasActiveSubscription) {
+  //   return (
+  //     <Center height="100vh" width="100%">
+  //       <Box display={'flex'} flexDirection={'column'} alignItems={'center'}>
+  //         <Icon
+  //           as={isHovering ? RiLockUnlockFill : RiLockFill}
+  //           fontSize="100px"
+  //           color="#fc9b65"
+  //           onMouseEnter={() => setIsHovering(true)}
+  //           onMouseLeave={() => setIsHovering(false)}
+  //           onClick={handleLockClick}
+  //           cursor="pointer"
+  //         />
+  //         <Text
+  //           mt="20px"
+  //           fontSize="20px"
+  //           fontWeight="bold"
+  //           color={'lightgrey'}
+  //           textAlign="center"
+  //         >
+  //           Unlock your full potential today!
+  //         </Text>
+  //       </Box>
+  //       {togglePlansModal && (
+  //         <PlansModal
+  //           togglePlansModal={togglePlansModal}
+  //           setTogglePlansModal={setTogglePlansModal}
+  //           message={plansModalMessage}
+  //           subMessage={plansModalSubMessage}
+  //         />
+  //       )}
+  //     </Center>
+  //   );
+  // } else {
+  return (
+    <Box width={'100%'}>
+      {isLoading && <LoaderOverlay />}
+      <Wrapper
+        ref={wrapperRef}
+        bg="white"
+        width="100%"
+        display="flex"
+        position={'relative'}
+        justifyContent="space-between"
+        flexDirection={{ base: 'column', md: 'row' }} // Add this line
+        alignItems="center"
+        minH="calc(100vh - 60px)"
+      >
+        <HStack
+          justifyContent={'start'}
+          alignItems={'start'}
+          width={switchonMobile ? '100%' : 'auto'}
+          display={'flex'}
           minH="calc(100vh - 60px)"
         >
-          <HStack
+          <VStack
+            // display={'flex'}
             justifyContent={'start'}
-            alignItems={'start'}
-            width={switchonMobile ? '100%' : 'auto'}
-            display={'flex'}
-            minH="calc(100vh - 60px)"
+            alignItems={'center'}
+            height="100%"
+            // flex="1"
+            // maxWidth={{ md: `${boxWidth / 2}px`, base: '100%' }}
+            minWidth={{ md: '50%', sm: '100%' }}
+            position={'relative'}
           >
-            <VStack
-              // display={'flex'}
-              justifyContent={'start'}
-              alignItems={'center'}
-              height="100%"
-              // flex="1"
-              // maxWidth={{ md: `${boxWidth / 2}px`, base: '100%' }}
-              minWidth={{ md: '50%', sm: '100%' }}
-              position={'relative'}
-            >
-              {activeBadge !== TypeEnum.MNEOMONIC && (
+            {activeBadge !== TypeEnum.MNEOMONIC && (
+              <Box
+                display={'flex'}
+                borderBottom={'1px solid #E7E8E9'}
+                flexDirection={'column'}
+                width={'100%'}
+                padding="30px"
+              >
                 <Box
                   display={'flex'}
-                  borderBottom={'1px solid #E7E8E9'}
-                  flexDirection={'column'}
                   width={'100%'}
-                  padding="30px"
+                  justifyContent="space-between"
+                  alignItems="center"
                 >
-                  <Box
-                    display={'flex'}
-                    width={'100%'}
-                    justifyContent="space-between"
-                    alignItems="center"
+                  <Text
+                    fontFamily="Inter"
+                    fontWeight="500"
+                    fontSize="18px"
+                    lineHeight="23px"
+                    color="#212224"
+                    mb={4}
                   >
-                    <Text
-                      fontFamily="Inter"
-                      fontWeight="500"
-                      fontSize="18px"
-                      lineHeight="23px"
-                      color="#212224"
-                      mb={4}
-                    >
-                      Select a Source
-                    </Text>
-                    <Text
-                      fontFamily="Inter"
-                      fontWeight="500"
-                      fontSize="12px"
-                      lineHeight="23px"
-                      color="#212224"
-                      mb={4}
-                      display={{ base: 'flex', md: 'none' }}
-                      alignItems={{ base: 'center' }}
-                      border={'1px solid #E7E8E9'}
-                      padding="8px"
-                      borderRadius={'10%'}
-                      onClick={onSwitchMobile}
-                    >
-                      View FlashCards & Mnemonics
-                    </Text>
-                  </Box>
+                    Select a Source
+                  </Text>
+                  <Text
+                    fontFamily="Inter"
+                    fontWeight="500"
+                    fontSize="12px"
+                    lineHeight="23px"
+                    color="#212224"
+                    mb={4}
+                    display={{ base: 'flex', md: 'none' }}
+                    alignItems={{ base: 'center' }}
+                    border={'1px solid #E7E8E9'}
+                    padding="8px"
+                    borderRadius={'10%'}
+                    onClick={onSwitchMobile}
+                  >
+                    View FlashCards & Mnemonics
+                  </Text>
+                </Box>
 
-                  <RadioGroup
-                    onChange={(value: SourceEnum) => {
-                      setSource(value as SourceEnum);
-                      if (
-                        value === SourceEnum.SUBJECT &&
-                        settings.source !== SourceEnum.SUBJECT
-                      ) {
-                        goToStep(0);
-                        setFlashcardData((value) => ({
-                          ...value,
-                          hasSubmitted: false
-                        }));
-                      }
-                      // if (value === SourceEnum.DOCUMENT) {
-                      //   handleBadgeClick(TypeEnum.FLASHCARD);
-                      // }
-                    }}
-                    value={settings.source}
-                  >
-                    <HStack align="start" spacing={7}>
-                      <Radio value={SourceEnum.DOCUMENT}>
-                        <Text color="#585F68">Document</Text>
-                      </Radio>
-                      <Radio value={SourceEnum.SUBJECT}>
-                        <Text color="#585F68">Auto</Text>
-                      </Radio>
-                      <Radio value={SourceEnum.MANUAL}>
-                        <Text color="#585F68">Manual</Text>
-                      </Radio>
-                      {user.subscription &&
-                        user.subscription.tier === 'Premium' && (
-                          <Radio value={SourceEnum.ANKI}>
-                            <Text color="#585F68">Anki</Text>
-                          </Radio>
-                        )}
-                    </HStack>
-                  </RadioGroup>
-                </Box>
-              )}
-              {switchonMobile ? (
-                <Box
-                  py="45px"
-                  paddingX={'30px'}
-                  boxShadow="0px 0px 10px rgba(0, 0, 0, 0.2)"
-                  width="95%"
-                  borderRadius="10px"
-                  height="70vh"
-                  position={'absolute'}
-                  top="135px"
-                  overflowY="scroll"
-                  sx={{
-                    '::-webkit-scrollbar': {
-                      width: '4px',
-                      cursor: 'pointer',
-                      transition: 'opacity 0.3s ease-in-out',
-                      opacity: 0 // Initially set the opacity to 0
-                    },
-                    '::-webkit-scrollbar-thumb': {
-                      background: '#E7E8E9',
-                      borderRadius: '16px',
-                      cursor: 'pointer',
-                      transition: 'background 0.3s ease-in-out'
-                    },
-                    '::-webkit-scrollbar-track': {
-                      background: 'transparent',
-                      cursor: 'pointer'
-                    },
-                    '&:hover': {
-                      '::-webkit-scrollbar': {
-                        opacity: 1 // Set the opacity to 1 on hover
-                      }
+                <RadioGroup
+                  onChange={(value: SourceEnum) => {
+                    setSource(value as SourceEnum);
+                    if (
+                      value === SourceEnum.SUBJECT &&
+                      settings.source !== SourceEnum.SUBJECT
+                    ) {
+                      goToStep(0);
+                      setFlashcardData((value) => ({
+                        ...value,
+                        hasSubmitted: false
+                      }));
                     }
+                    // if (value === SourceEnum.DOCUMENT) {
+                    //   handleBadgeClick(TypeEnum.FLASHCARD);
+                    // }
                   }}
+                  value={settings.source}
                 >
-                  {form}
-                </Box>
-              ) : (
-                <Box
-                  py="45px"
-                  paddingX={'30px'}
-                  boxShadow="0px 0px 10px rgba(0, 0, 0, 0.2)"
-                  width="95%"
-                  borderRadius="10px"
-                  height="80vh"
-                  overflowY="scroll"
-                  sx={{
+                  <HStack align="start" spacing={7}>
+                    <Radio value={SourceEnum.DOCUMENT}>
+                      <Text color="#585F68">Document</Text>
+                    </Radio>
+                    <Radio value={SourceEnum.SUBJECT}>
+                      <Text color="#585F68">Auto</Text>
+                    </Radio>
+                    <Radio value={SourceEnum.MANUAL}>
+                      <Text color="#585F68">Manual</Text>
+                    </Radio>
+                    {user.subscription &&
+                      user.subscription.tier === 'Premium' && (
+                        <Radio value={SourceEnum.ANKI}>
+                          <Text color="#585F68">Anki</Text>
+                        </Radio>
+                      )}
+                  </HStack>
+                </RadioGroup>
+              </Box>
+            )}
+            {switchonMobile ? (
+              <Box
+                py="45px"
+                paddingX={'30px'}
+                boxShadow="0px 0px 10px rgba(0, 0, 0, 0.2)"
+                width="95%"
+                borderRadius="10px"
+                height="70vh"
+                position={'absolute'}
+                top="135px"
+                overflowY="scroll"
+                sx={{
+                  '::-webkit-scrollbar': {
+                    width: '4px',
+                    cursor: 'pointer',
+                    transition: 'opacity 0.3s ease-in-out',
+                    opacity: 0 // Initially set the opacity to 0
+                  },
+                  '::-webkit-scrollbar-thumb': {
+                    background: '#E7E8E9',
+                    borderRadius: '16px',
+                    cursor: 'pointer',
+                    transition: 'background 0.3s ease-in-out'
+                  },
+                  '::-webkit-scrollbar-track': {
+                    background: 'transparent',
+                    cursor: 'pointer'
+                  },
+                  '&:hover': {
                     '::-webkit-scrollbar': {
-                      width: '4px',
-                      cursor: 'pointer',
-                      transition: 'opacity 0.3s ease-in-out',
-                      opacity: 0 // Initially set the opacity to 0
-                    },
-                    '::-webkit-scrollbar-thumb': {
-                      background: '#E7E8E9',
-                      borderRadius: '16px',
-                      cursor: 'pointer',
-                      transition: 'background 0.3s ease-in-out'
-                    },
-                    '::-webkit-scrollbar-track': {
-                      background: 'transparent',
-                      cursor: 'pointer'
-                    },
-                    '&:hover': {
-                      '::-webkit-scrollbar': {
-                        opacity: 1 // Set the opacity to 1 on hover
-                      }
+                      opacity: 1 // Set the opacity to 1 on hover
                     }
-                  }}
-                >
-                  {renderPreview()}
-                </Box>
-              )}
-            </VStack>
-            {/* Render the right item here */}
-            <VStack
-              borderLeft="1px solid #E7E8E9"
-              top="60px"
-              width={`${boxWidth / 2}px`}
-              maxWidth={`${boxWidth / 2}px`}
-              right="0"
-              bottom={'0'}
-              position={'fixed'}
-              display={{ base: 'none', md: 'flex' }}
-            >
-              {renderPreview()}
-            </VStack>
-          </HStack>
-        </Wrapper>
-      </Box>
-    );
-  }
+                  }
+                }}
+              >
+                {form}
+              </Box>
+            ) : (
+              <Box
+                py="45px"
+                paddingX={'30px'}
+                boxShadow="0px 0px 10px rgba(0, 0, 0, 0.2)"
+                width="95%"
+                borderRadius="10px"
+                height="80vh"
+                overflowY="scroll"
+                sx={{
+                  '::-webkit-scrollbar': {
+                    width: '4px',
+                    cursor: 'pointer',
+                    transition: 'opacity 0.3s ease-in-out',
+                    opacity: 0 // Initially set the opacity to 0
+                  },
+                  '::-webkit-scrollbar-thumb': {
+                    background: '#E7E8E9',
+                    borderRadius: '16px',
+                    cursor: 'pointer',
+                    transition: 'background 0.3s ease-in-out'
+                  },
+                  '::-webkit-scrollbar-track': {
+                    background: 'transparent',
+                    cursor: 'pointer'
+                  },
+                  '&:hover': {
+                    '::-webkit-scrollbar': {
+                      opacity: 1 // Set the opacity to 1 on hover
+                    }
+                  }
+                }}
+              >
+                {renderPreview()}
+              </Box>
+            )}
+          </VStack>
+          {/* Render the right item here */}
+          <VStack
+            borderLeft="1px solid #E7E8E9"
+            top="60px"
+            width={`${boxWidth / 2}px`}
+            maxWidth={`${boxWidth / 2}px`}
+            right="0"
+            bottom={'0'}
+            position={'fixed'}
+            display={{ base: 'none', md: 'flex' }}
+          >
+            {renderPreview()}
+          </VStack>
+        </HStack>
+      </Wrapper>
+    </Box>
+  );
 };
+// };
 
 const MainWrapper = () => {
   return (

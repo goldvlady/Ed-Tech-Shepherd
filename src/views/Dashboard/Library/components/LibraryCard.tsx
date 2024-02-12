@@ -44,15 +44,14 @@ const LibraryCard: React.FC<LibraryCardProps> = ({
   const [showExplanation, setShowExplanation] = useState(false);
   const [showMoreAnswer, setShowMoreAnswer] = useState(false);
   const answerRef = useRef<HTMLDivElement>(null);
+  const maxHeight = 320; // Fixed value for question box
+  const initialCardHeight = '400px'; // Set initial fixed height for each card
 
   useEffect(() => {
     if (answerRef.current && answerRef.current.scrollHeight > maxHeight) {
       setShowMoreAnswer(true);
     }
   }, [answer]);
-
-  const maxHeight = 320; // Fixed value for question box
-  const initialCardHeight = '500px'; // Set initial fixed height for each card
 
   return (
     <Box
@@ -66,7 +65,6 @@ const LibraryCard: React.FC<LibraryCardProps> = ({
       borderColor="#EEEFF2"
       display="flex"
       flexDirection="column"
-      justifyContent="space-between"
     >
       <Flex
         bg="#F5F9FF"
@@ -104,22 +102,28 @@ const LibraryCard: React.FC<LibraryCardProps> = ({
       </Flex>
 
       <Box
-        p="25px"
+        flex="1"
         fontSize="14px"
         lineHeight="22px"
         color="#212224"
-        overflow="hidden"
+        overflow="auto"
+        background={'#F9FAFB'}
       >
         <Box
           p="20px"
           borderBottom="1px solid #EEEFF2"
-          maxHeight={`${maxHeight}px`}
+          background="white"
+          height="40%"
           overflow="auto"
         >
-          <Text whiteSpace="pre-line">{question}</Text>
+          <Text whiteSpace="pre-line" color="#212224">
+            {question}
+          </Text>
         </Box>
         <Box ref={answerRef} p="20px">
-          <Text whiteSpace="pre-line">{answer}</Text>
+          <Text whiteSpace="pre-line" color="#6D7682">
+            {answer}
+          </Text>
           {showMoreAnswer && (
             <Button
               variant="link"
@@ -158,7 +162,12 @@ const LibraryCard: React.FC<LibraryCardProps> = ({
             p="25px"
             borderTop="1px solid #EEEFF2"
           >
-            <Text fontSize="12px" lineHeight="20px" color="#585F68">
+            <Text
+              fontSize="14px"
+              fontFamily="inter"
+              lineHeight="20px"
+              color="#585F68"
+            >
               {explanation}
             </Text>
           </MotionBox>

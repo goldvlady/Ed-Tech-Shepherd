@@ -313,6 +313,7 @@ const CreateQuizPage = () => {
         setIsLoadingButton(false);
         setUploadingState(false);
         if (error) {
+          console.log('QUIZ ERROR: ', error);
           toast({
             position: 'top-right',
             title: `failed to update quiz`,
@@ -516,230 +517,228 @@ const CreateQuizPage = () => {
       })();
     }
   };
-  if (!hasActiveSubscription) {
-    return (
-      <Center height="100vh" width="100%">
-        <Box display={'flex'} flexDirection={'column'} alignItems={'center'}>
-          <Icon
-            as={isHovering ? RiLockUnlockFill : RiLockFill}
-            fontSize="100px"
-            color="#fc9b65"
-            onMouseEnter={() => setIsHovering(true)}
-            onMouseLeave={() => setIsHovering(false)}
-            onClick={handleLockClick}
-            cursor="pointer"
-          />
-          <Text
-            mt="20px"
-            fontSize="20px"
-            fontWeight="bold"
-            color={'lightgrey'}
-            textAlign="center"
-          >
-            Unlock your full potential today!
-          </Text>
-        </Box>
-        {togglePlansModal && (
-          <PlansModal
-            togglePlansModal={togglePlansModal}
-            setTogglePlansModal={setTogglePlansModal}
-            message={plansModalMessage}
-            subMessage={plansModalSubMessage}
-          />
-        )}
-      </Center>
-    );
-  } else {
-    return (
-      <>
-        <Flex
-          className="quiz-page-wrapper"
-          width={'100%'}
-          height={'100vh'}
-          maxH={'calc(100vh - 80px)'}
-          overflowY={'hidden'}
-          flexWrap="wrap"
+  // if (!hasActiveSubscription) {
+  //   return (
+  //     <Center height="100vh" width="100%">
+  //       <Box display={'flex'} flexDirection={'column'} alignItems={'center'}>
+  //         <Icon
+  //           as={isHovering ? RiLockUnlockFill : RiLockFill}
+  //           fontSize="100px"
+  //           color="#fc9b65"
+  //           onMouseEnter={() => setIsHovering(true)}
+  //           onMouseLeave={() => setIsHovering(false)}
+  //           onClick={handleLockClick}
+  //           cursor="pointer"
+  //         />
+  //         <Text
+  //           mt="20px"
+  //           fontSize="20px"
+  //           fontWeight="bold"
+  //           color={'lightgrey'}
+  //           textAlign="center"
+  //         >
+  //           Unlock your full potential today!
+  //         </Text>
+  //       </Box>
+  //       {togglePlansModal && (
+  //         <PlansModal
+  //           togglePlansModal={togglePlansModal}
+  //           setTogglePlansModal={setTogglePlansModal}
+  //           message={plansModalMessage}
+  //           subMessage={plansModalSubMessage}
+  //         />
+  //       )}
+  //     </Center>
+  //   );
+  // } else {
+  return (
+    <>
+      <Flex
+        className="quiz-page-wrapper"
+        width={'100%'}
+        height={'100vh'}
+        maxH={'calc(100vh - 80px)'}
+        overflowY={'hidden'}
+        flexWrap="wrap"
+      >
+        <Box
+          className="create-quiz-wrapper"
+          px={'30px'}
+          width={['100%', '100%', '100%', '50%', '30%']}
+          bg="white"
+          overflowY={'auto'}
+          overflowX={'hidden'}
+          h={'100%'}
+          sx={{
+            '&::-webkit-scrollbar': {
+              width: '4px'
+            },
+            '&::-webkit-scrollbar-track': {
+              width: '6px'
+            },
+            '&::-webkit-scrollbar-thumb': {
+              borderRadius: '24px'
+            }
+          }}
         >
-          <Box
-            className="create-quiz-wrapper"
-            px={'30px'}
-            width={['100%', '100%', '100%', '50%', '30%']}
-            bg="white"
-            overflowY={'auto'}
-            overflowX={'hidden'}
-            h={'100%'}
-            sx={{
-              '&::-webkit-scrollbar': {
-                width: '4px'
-              },
-              '&::-webkit-scrollbar-track': {
-                width: '6px'
-              },
-              '&::-webkit-scrollbar-thumb': {
-                borderRadius: '24px'
-              }
-            }}
-          >
-            {isLoading && <LoaderOverlay />}
+          {isLoading && <LoaderOverlay />}
 
-            <>
-              <Text
-                fontFamily="Inter"
-                fontWeight="500"
-                fontSize="18px"
-                lineHeight="23px"
-                color="#212224"
-                py={8}
-              >
-                Create Quiz
-              </Text>
-              <Tabs defaultIndex={2} isLazy isFitted position={'relative'}>
-                <TabList display="flex">
-                  <Tab
-                    _selected={{ color: '#207DF7' }}
-                    flex="1"
-                    justifyContent={'flex-start'}
-                    pl={0}
-                  >
-                    Upload
-                  </Tab>
+          <>
+            <Text
+              fontFamily="Inter"
+              fontWeight="500"
+              fontSize="18px"
+              lineHeight="23px"
+              color="#212224"
+              py={8}
+            >
+              Create Quiz
+            </Text>
+            <Tabs defaultIndex={2} isLazy isFitted position={'relative'}>
+              <TabList display="flex">
+                <Tab
+                  _selected={{ color: '#207DF7' }}
+                  flex="1"
+                  justifyContent={'flex-start'}
+                  pl={0}
+                >
+                  Upload
+                </Tab>
+                <Tab _selected={{ color: '#207DF7' }} flex="1">
+                  Text
+                </Tab>
+                {false && (
                   <Tab _selected={{ color: '#207DF7' }} flex="1">
                     Text
                   </Tab>
-                  {false && (
-                    <Tab _selected={{ color: '#207DF7' }} flex="1">
-                      Text
-                    </Tab>
-                  )}
-                  <Tab
-                    _selected={{ color: '#207DF7' }}
-                    flex="1"
-                    justifyContent={'flex-end'}
-                    pr={0}
-                  >
-                    Manual
-                  </Tab>
-                </TabList>
-
-                <TabIndicator
-                  mt="-1.5px"
-                  height="2px"
-                  bg="#207DF7"
-                  borderRadius="1px"
-                />
-
-                <TabPanels>
-                  <TabPanel p={0}>
-                    <UploadQuizForm
-                      handleSetTitle={handleSetTitle}
-                      title={title}
-                      handleFormatQuizQuestionCallback={
-                        handleFormatQuizQuestionCallback
-                      }
-                      handleSetUploadingState={handleSetUploadingState}
-                      uploadingState={uploadingState}
-                    />
-                  </TabPanel>
-
-                  <TabPanel p={0}>
-                    <TopicQuizForm
-                      handleSetTitle={handleSetTitle}
-                      title={title}
-                      handleFormatQuizQuestionCallback={
-                        handleFormatQuizQuestionCallback
-                      }
-                      handleSetUploadingState={handleSetUploadingState}
-                      uploadingState={uploadingState}
-                    />
-                  </TabPanel>
-                  <TabPanel p={0}>
-                    <ManualQuizForm
-                      openTags={handleOpenTagsModal}
-                      tags={tags}
-                      removeTag={handleRemoveTag}
-                      title={title}
-                      handleSetTitle={handleSetTitle}
-                      isLoadingButton={isLoadingButton}
-                      handleCreateUpdateQuiz={handleCreateUpdateQuiz}
-                      uploadingState={uploadingState}
-                    />
-                  </TabPanel>
-                </TabPanels>
-              </Tabs>
-            </>
-          </Box>
-          <Box
-            className="review-quiz-wrapper relative"
-            width={['100%', '100%', '100%', '50%', '70%']}
-            bg="#F9F9FB"
-            borderLeft="1px solid #E7E8E9"
-          >
-            <Box>
-              <HeaderButton
-                onClick={handleBackClick}
-                className={clsx(
-                  'w-full max-w-[150px] hover:opacity-75 absolute left-5 top-9 z-10 hidden 2xl:flex cursor-pointer items-center'
                 )}
-              >
-                <BackArrow className="mx-2" />
-                <HeaderButtonText className={clsx('ml-3')}>
-                  Back
-                </HeaderButtonText>
-              </HeaderButton>
-            </Box>
+                <Tab
+                  _selected={{ color: '#207DF7' }}
+                  flex="1"
+                  justifyContent={'flex-end'}
+                  pr={0}
+                >
+                  Manual
+                </Tab>
+              </TabList>
 
-            {uploadingState && <LoaderScreen />}
-
-            {!uploadingState && (
-              <QuizPreviewer
-                handleClearQuiz={handleClearQuiz}
-                onOpen={handleLoadQuiz}
-                updateQuiz={handleUpdateQuiz}
-                questions={
-                  !isEmpty(searchQuestions) ? searchQuestions : questions
-                }
-                quizId={quiz?._id ?? (quizId as string)}
-                isLoadingButton={isLoadingButton}
-                handleUpdateQuizQuestion={handleUpdateQuizQuestion}
-                handleSearch={handleSearch}
-                handleDeleteQuizQuestion={handleDeleteQuizQuestion}
-                handleSetUploadingState={handleSetUploadingState}
+              <TabIndicator
+                mt="-1.5px"
+                height="2px"
+                bg="#207DF7"
+                borderRadius="1px"
               />
-            )}
-          </Box>
-        </Flex>
 
-        {openTags && (
-          <TagModal
-            onSubmit={AddTags}
-            isOpen={openTags}
-            onClose={() => {
-              setNewTags([]);
-              setOpenTags(false);
-            }}
-            tags={[]}
-            inputValue={inputValue}
-            handleAddTag={() => {
-              if (newTags?.length <= 10) {
-                handleAddTag();
+              <TabPanels>
+                <TabPanel p={0}>
+                  <UploadQuizForm
+                    handleSetTitle={handleSetTitle}
+                    title={title}
+                    handleFormatQuizQuestionCallback={
+                      handleFormatQuizQuestionCallback
+                    }
+                    handleSetUploadingState={handleSetUploadingState}
+                    uploadingState={uploadingState}
+                  />
+                </TabPanel>
+
+                <TabPanel p={0}>
+                  <TopicQuizForm
+                    handleSetTitle={handleSetTitle}
+                    title={title}
+                    handleFormatQuizQuestionCallback={
+                      handleFormatQuizQuestionCallback
+                    }
+                    handleSetUploadingState={handleSetUploadingState}
+                    uploadingState={uploadingState}
+                  />
+                </TabPanel>
+                <TabPanel p={0}>
+                  <ManualQuizForm
+                    openTags={handleOpenTagsModal}
+                    tags={tags}
+                    removeTag={handleRemoveTag}
+                    title={title}
+                    handleSetTitle={handleSetTitle}
+                    isLoadingButton={isLoadingButton}
+                    handleCreateUpdateQuiz={handleCreateUpdateQuiz}
+                    uploadingState={uploadingState}
+                  />
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+          </>
+        </Box>
+        <Box
+          className="review-quiz-wrapper relative"
+          width={['100%', '100%', '100%', '50%', '70%']}
+          bg="#F9F9FB"
+          borderLeft="1px solid #E7E8E9"
+        >
+          <Box>
+            <HeaderButton
+              onClick={handleBackClick}
+              className={clsx(
+                'w-full max-w-[150px] hover:opacity-75 absolute left-5 top-9 z-10 hidden 2xl:flex cursor-pointer items-center'
+              )}
+            >
+              <BackArrow className="mx-2" />
+              <HeaderButtonText className={clsx('ml-3')}>Back</HeaderButtonText>
+            </HeaderButton>
+          </Box>
+
+          {uploadingState && <LoaderScreen />}
+
+          {!uploadingState && (
+            <QuizPreviewer
+              handleClearQuiz={handleClearQuiz}
+              onOpen={handleLoadQuiz}
+              updateQuiz={handleUpdateQuiz}
+              questions={
+                !isEmpty(searchQuestions) ? searchQuestions : questions
               }
-            }}
-            newTags={newTags}
-            setNewTags={(tag) => {
-              if (newTags?.length <= 10) {
-                setNewTags(tag);
-              }
-            }}
-            setInputValue={(value) => {
-              if (newTags?.length <= 10) {
-                setInputValue(value);
-              }
-            }}
-          />
-        )}
-      </>
-    );
-  }
+              quizId={quiz?._id ?? (quizId as string)}
+              isLoadingButton={isLoadingButton}
+              handleUpdateQuizQuestion={handleUpdateQuizQuestion}
+              handleSearch={handleSearch}
+              handleDeleteQuizQuestion={handleDeleteQuizQuestion}
+              handleSetUploadingState={handleSetUploadingState}
+            />
+          )}
+        </Box>
+      </Flex>
+
+      {openTags && (
+        <TagModal
+          onSubmit={AddTags}
+          isOpen={openTags}
+          onClose={() => {
+            setNewTags([]);
+            setOpenTags(false);
+          }}
+          tags={[]}
+          inputValue={inputValue}
+          handleAddTag={() => {
+            if (newTags?.length <= 10) {
+              handleAddTag();
+            }
+          }}
+          newTags={newTags}
+          setNewTags={(tag) => {
+            if (newTags?.length <= 10) {
+              setNewTags(tag);
+            }
+          }}
+          setInputValue={(value) => {
+            if (newTags?.length <= 10) {
+              setInputValue(value);
+            }
+          }}
+        />
+      )}
+    </>
+  );
+  // }
 };
 
 const CreateQuiz = () => {
