@@ -10,6 +10,7 @@ function AiChatBotWindow() {
   const { id } = useParams();
   const navigate = useNavigate();
   const user = useUserStore((state) => state.user);
+
   const [connectionQuery, setConnectionQuery] = useState({
     subject: '',
     topic: ''
@@ -54,6 +55,7 @@ function AiChatBotWindow() {
     startConversation({
       subject,
       topic,
+      name: user?.name?.first,
       studentId: studentId,
       firebaseId: user?.firebaseId,
       namespace: 'homework-help'
