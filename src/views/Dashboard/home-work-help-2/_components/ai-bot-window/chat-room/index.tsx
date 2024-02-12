@@ -91,6 +91,8 @@ function ChatRoom() {
                 key={message.id}
                 message={message.log.content}
                 type={message.log.role === 'user' ? 'user' : 'bot'}
+                userImage={user.avatar}
+                userName={user.name.first + ' ' + user.name.last}
               />
             ))}
           {currentChatRender}
