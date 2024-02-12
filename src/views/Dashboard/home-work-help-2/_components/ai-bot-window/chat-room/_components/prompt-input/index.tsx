@@ -22,7 +22,7 @@ const PromptInput = ({ onSubmit }: { onSubmit: (message) => void }) => {
           <textarea
             ref={inputRef}
             className="w-full input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal p-0 resize-none"
-            placeholder="How can Shepherd help with your homework?"
+            placeholder="Ask a question?"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             style={{ whiteSpace: 'pre-line' }}
