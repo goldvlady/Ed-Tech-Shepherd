@@ -13,9 +13,11 @@ import useStudentConversations from '../../../../hooks/useStudentConversations';
 import useUserStore from '../../../../../../../../state/userStore';
 import { useCustomToast } from '../../../../../../../../components/CustomComponents/CustomToast/useCustomToast';
 import { cn } from '../../../../../../../../library/utils';
+import { useNavigate } from 'react-router';
 
 function ChatInfoDropdown({ id }: { id: string }) {
   const toast = useCustomToast();
+  const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const studentId = useUserStore((state) => state.user?._id);
   const [renameMode, setRenameMode] = useState({
@@ -47,11 +49,12 @@ function ChatInfoDropdown({ id }: { id: string }) {
           title: 'Conversation renamed successfully'
         });
       },
-      onDeletedSuccess: (id: string) => {
-        // toast({
-        //   status: 'success',
-        //   title: 'Conversation deleted successfully'
-        // });
+      onDeletedSuccess: () => {
+        navigate('/dashboard/ace-homework');
+        toast({
+          status: 'success',
+          title: 'Conversation deleted successfully'
+        });
       }
     });
 
@@ -60,6 +63,10 @@ function ChatInfoDropdown({ id }: { id: string }) {
     setTimeout(() => {
       inputRef.current?.focus();
     }, 100);
+  };
+
+  const handleDelete = (id: string) => {
+    deleteConversationById(id);
   };
 
   const handleRenameOnBlur = () => {
@@ -108,6 +115,7 @@ function ChatInfoDropdown({ id }: { id: string }) {
             text-sm
             rounded-md
             hover:bg-[#F2F4F7] text-[#DB0B0B]"
+            onClick={() => handleDelete(id)}
           >
             Delete
           </DropdownMenuItem>
