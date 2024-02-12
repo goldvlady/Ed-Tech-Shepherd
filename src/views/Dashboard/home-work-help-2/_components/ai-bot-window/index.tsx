@@ -4,8 +4,6 @@ import useUserStore from '../../../../../state/userStore';
 import useChatManager from './hooks/useChatManager';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 
-const CHAT_WINDOW_CONFIG_PARAMS_LOCAL_STORAGE_KEY = 'CHAT_WINDOW_CONFIG_PARAMS';
-
 function AiChatBotWindow() {
   const { id } = useParams();
   const navigate = useNavigate();
