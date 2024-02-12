@@ -80,6 +80,7 @@ import styled from 'styled-components';
 import { IoIosArrowRoundBack } from 'react-icons/io';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import CalendarDateInput from '../../../components/CalendarDateInput';
 
 const FileName = styled.span`
   font-size: 0.875rem;
@@ -1036,13 +1037,25 @@ function CreateStudyPlans() {
                         >
                           Test {index + 1}
                         </Text>
-                        <DatePicker
+                        {/* <DatePicker
                           name={`testDate-${index}`}
                           placeholder="Select Test Date"
                           value={format(date, 'MM-dd-yyyy')}
                           onChange={(newDate) => {
                             const updatedTestDates = [...testDate];
                             updatedTestDates[index] = newDate;
+                            setTestDate(updatedTestDates);
+                          }}
+                        /> */}
+                        <CalendarDateInput
+                          // disabledDate={{ before: today }}
+                          inputProps={{
+                            placeholder: 'Select Testt Date'
+                          }}
+                          value={date}
+                          onChange={(value) => {
+                            const updatedTestDates = [...testDate];
+                            updatedTestDates[index] = value;
                             setTestDate(updatedTestDates);
                           }}
                         />

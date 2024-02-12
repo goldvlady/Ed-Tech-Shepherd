@@ -1071,6 +1071,12 @@ class ApiService {
       body: JSON.stringify({ status: status, userId: userId })
     });
   };
+  static saveTopicSummary = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/updateIndividualStudyTopic`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
 }
 
 export default ApiService;
