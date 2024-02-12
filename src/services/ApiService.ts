@@ -327,6 +327,13 @@ class ApiService {
     });
   };
 
+  static checkQuizCount = async (userId: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/getQuizCount`, {
+      method: 'POST',
+      body: JSON.stringify({ userId })
+    });
+  };
+
   static generateFlashcardQuestions = async (data: any, studentId: string) => {
     return fetch(`${AI_API}/flash-cards/students/${studentId}`, {
       method: 'POST',

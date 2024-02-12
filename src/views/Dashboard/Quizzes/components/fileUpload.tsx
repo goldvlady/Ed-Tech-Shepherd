@@ -177,7 +177,7 @@ const FileUploadModal = ({
   const [loading, setLoading] = useState(false);
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
-  const [PlansModalSubMessage, setPlansModalSubMessage] = useState('');
+  const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadDocumentFile, setUploadDocumentFile] = useState(null);
@@ -740,7 +740,7 @@ const FileUploadModal = ({
           togglePlansModal={togglePlansModal}
           setTogglePlansModal={setTogglePlansModal}
           message={plansModalMessage} // Pass the message to the modal
-          subMessage={PlansModalSubMessage}
+          subMessage={plansModalSubMessage}
         />
       )}
     </>
