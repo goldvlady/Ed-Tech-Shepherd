@@ -742,7 +742,7 @@ const HomeWorkHelp = () => {
   // } else {
   return (
     <HomeWorkHelpContainer>
-      {aitutorchatLimitReached && (
+      {user && aitutorchatLimitReached && (
         <Modal
           isOpen={isLimitModalOpen}
           onClose={() => setisLimitModalOpen(false)}
