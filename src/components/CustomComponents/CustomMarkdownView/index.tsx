@@ -121,15 +121,19 @@ const CodeBlockComponent = ({
 };
 
 const ListComponent = ({ children }) => (
-  <ul className="list-disc list-inside my-6 ml-6 [&>li]:mt-2">{children}</ul>
+  <ul className="list-disc my-6 ml-6 [&>li]:mt-2 list-outside">{children}</ul>
 );
 
 const OrderedListComponent = ({ children }) => (
-  <ol className="list-decimal list-inside my-6 ml-6 [&>li]:mt-2">{children}</ol>
+  <ol className="list-decimal my-6 ml-6 [&>li]:mt-2 list-outside">
+    {children}
+  </ol>
 );
 
 const ParagraphComponent = ({ children }) => (
-  <p className="leading-7 [&:not(:first-child)]:mt-6">{children}</p>
+  <p className="leading-7 [&:not(:first-child)]:mt-6 whitespace-pre-wrap">
+    {children}
+  </p>
 );
 
 const MathComponent = ({ value }: any) => <InlineMath math={value} />;

@@ -1,60 +1,52 @@
-import {
-  RightArrowIcon,
-  ShareIcon
-} from '../../../../../../../../components/icons';
+import { RightArrowIcon } from '../../../../../../../../components/icons';
 import FindATutorButton from '../find-a-tutor';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import useDynamicTextareaSize from './hook/useDynamicTextArea';
 
 const PromptInput = ({ onSubmit }: { onSubmit: (message) => void }) => {
+  const inputRef = useRef();
   const [message, setMessage] = useState('');
+  useDynamicTextareaSize(inputRef, message);
   const handleSendMessage = () => {
     if (message.trim() === '') return;
     onSubmit(message);
     setMessage('');
   };
-
-  const onKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      if (message.trim() === '') return;
-      handleSendMessage();
-      setMessage('');
-    }
-  };
-
   return (
-    <div className="w-full h-full flex gap-5 flex-col items-center justify-center max-w-[600px]">
+    <div className="w-full h-full flex gap-5 flex-col items-center justify-center max-w-[600px] z-10">
       <div className="find-tutor-button flex justify-end w-full">
         <FindATutorButton />
       </div>
-      <div className="input-box h-[85px] flex gap-2 flex-col bg-white rounded-md shadow-md w-full px-2 pb-2">
-        <div className="input-element w-full flex-1 mt-1.5">
-          <input
-            onKeyDown={onKeyPress}
-            type="text"
-            className="w-full input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal pb-0"
-            placeholder="How can Shepherd help with your homework?"
+      <div className="input-box flex gap-2 flex-row items-center bg-white rounded-md shadow-element w-full px-4 py-2.5">
+        <div className="input-element w-full flex-1 flex">
+          <textarea
+            ref={inputRef}
+            className="w-full input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal p-0 resize-none"
+            placeholder="Ask a question?"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            style={{ whiteSpace: 'pre-line' }}
+            rows={1}
           />
         </div>
-        <div className="file-uploader-submit-section flex-1 flex justify-between px-2">
-          <div className="file-uploader flex gap-[1px] mb-1">
-            {/* <button className="flex items-center justify-center w-[28px] h-[28px] rounded-tl-md rounded-bl-md bg-[#F9F9FB]">
-              <ShareIcon />
-            </button> */}
-            {/* <span className="text-[#969CA6] bg-[#F9F9FB] font-normal h-[28px] text-[10px] flex items-center px-2">
-                <span>File.txt</span>
-              </span> */}
-          </div>
-          <div className="submit-button">
-            <button
-              className="w-[28px] h-[28px] rounded-full bg-[#207DF7] flex items-center justify-center"
-              onClick={handleSendMessage}
-            >
-              <RightArrowIcon />
-            </button>
-          </div>
+        <div className="submit-button">
+          <button
+            className="w-[28px] h-[28px] rounded-full bg-[#207DF7] flex items-center justify-center"
+            onClick={handleSendMessage}
+          >
+            <RightArrowIcon />
+          </button>
         </div>
+        {/* <div className="file-uploader-submit-section flex-1 flex justify-between px-2">
+          <div className="file-uploader flex gap-[1px] mb-1">
+            <button className="flex items-center justify-center w-[28px] h-[28px] rounded-tl-md rounded-bl-md bg-[#F9F9FB]">
+              <ShareIcon />
+            </button>
+            <span className="text-[#969CA6] bg-[#F9F9FB] font-normal h-[28px] text-[10px] flex items-center px-2">
+              <span>File.txt</span>
+            </span>
+          </div>
+        </div> */}
       </div>
     </div>
   );

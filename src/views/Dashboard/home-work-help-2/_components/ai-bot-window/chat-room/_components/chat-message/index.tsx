@@ -23,13 +23,14 @@ const ChatMessage = ({
           width: '36px',
           height: '36px'
         }}
-        name={userName}
+        name={type === 'user' ? userName : 'Socrates'}
         src={type === 'user' ? userImage : ''}
-        bgColor={type === 'user' ? 'blue.500' : 'gray.200'}
-        // icon={type === 'user' ? '' : '🤖'}
+        bgColor={type === 'user' ? '#4CAF50;' : '#fff'}
+        color={type === 'user' ? '#fff' : 'blue.500'}
+        shadow={'md'}
       />
       <div
-        className={`message shadow-md rounded-md flex justify-center items-center ${
+        className={`message shadow-element rounded-md flex justify-center items-center ${
           type === 'user' ? '' : 'bg-white'
         }`}
       >

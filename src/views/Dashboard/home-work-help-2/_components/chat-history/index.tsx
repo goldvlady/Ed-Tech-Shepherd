@@ -1,11 +1,12 @@
 import ChatList from './list';
 import useUserStore from '../../../../../state/userStore';
-import useStudentConversations from './hooks/useStudentConversations';
 import ConversationHistorySkeleton from '../../../../../components/skeletons/conversation-history';
 import { Button } from '../../../../../components/ui/button';
-import { CaretLeftIcon } from '@radix-ui/react-icons';
+import { CaretLeftIcon, Pencil2Icon } from '@radix-ui/react-icons';
 import { useEffect, useState } from 'react';
 import { cn } from '../../../../../library/utils';
+import useStudentConversations from '../hooks/useStudentConversations';
+import { useNavigate, useParams } from 'react-router-dom';
 
 // TODO: This component is rerendering on url id change, To fix it first we need to work in routes and then memoize this component
 function ChatHistoryContent() {
@@ -40,6 +41,9 @@ const ChatHistory = () => {
     () => window.screen.width < 1175
   );
 
+  const { id } = useParams();
+  const navigate = useNavigate();
+
   // For sidebar close on small screen
   useEffect(() => {
     const resizeListener = () => {
@@ -59,7 +63,7 @@ const ChatHistory = () => {
   return (
     <div
       className={cn(
-        'h-full max-h-screen flex w-[348px] border-r transition-all transform-gpu justify-end mr-[-1px] relative duration-1000',
+        'h-full max-h-screen flex w-[348px] border-r transition-all transform-gpu justify-end mr-[-1px] relative duration-1000 z-20',
         {
           'w-[0%]': sidebarClosed
         }
@@ -77,6 +81,19 @@ const ChatHistory = () => {
           })}
         />
       </Button>
+
+      {id ? (
+        <Button
+          className="absolute mt-3 top-7 p-2 bg-white rounded-l-md right-[-32px] rounded-tl-none rounded-bl-none border-r border-b"
+          variant="ghost"
+          onClick={() => {
+            navigate('/dashboard/ace-homework');
+          }}
+        >
+          <Pencil2Icon />
+        </Button>
+      ) : null}
+
       <ChatHistoryContent />
     </div>
   );

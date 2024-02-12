@@ -2,15 +2,15 @@ import { Link, useParams } from 'react-router-dom';
 import Options from './_components/options';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useListItem from './hook/useListItem';
 import useChatManager from '../../../../ai-bot-window/hooks/useChatManager';
 import { useCustomToast } from '../../../../../../../../components/CustomComponents/CustomToast/useCustomToast';
+import useListItem from '../../../../hooks/useListItem';
 
 const CHAT_WINDOW_CONFIG_PARAMS_LOCAL_STORAGE_KEY = 'CHAT_WINDOW_CONFIG_PARAMS';
 
 const ListItem = ({
   id,
-  title,
+  title = 'Untitled',
   topic,
   subject
 }: {
@@ -46,9 +46,6 @@ const ListItem = ({
         });
       }
     });
-  if (!title) {
-    title = 'New Chat';
-  }
 
   const handleRename = () => {
     setRenameMode((prev) => ({ ...prev, enabled: true }));
