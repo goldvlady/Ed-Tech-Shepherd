@@ -8,17 +8,11 @@ interface DeckProps {
   onClick: () => void;
 }
 
-const flashcardQuestions = [
-  'What psychological theory posits that people operate based on complex systems of beliefs, desires, and intentions when interacting socially?',
-  'In the context of environmental science, explain the significance of the Keystone XL pipeline controversy.',
-  "Discuss the principles behind the architectural design movement known as 'Brutalism' and its impact on 20th-century architecture.",
-  'What are the implications of the Heisenberg Uncertainty Principle in quantum mechanics for our understanding of particle behavior?',
-  'How did the Peace of Westphalia, signed in 1648, redefine the concept of state sovereignty in international relations?'
-];
-
-function getRandomQuestion() {
-  const randomIndex = Math.floor(Math.random() * flashcardQuestions.length);
-  return flashcardQuestions[randomIndex];
+function extractTopicFromDeckName(deckName) {
+  const prefix = "Shepherd's ";
+  const suffix = ' deck';
+  const topicName = deckName.replace(prefix, '').replace(suffix, '');
+  return topicName;
 }
 
 const Deck: React.FC<DeckProps> = ({ data, onClick }) => {
@@ -26,8 +20,6 @@ const Deck: React.FC<DeckProps> = ({ data, onClick }) => {
     e.stopPropagation();
     if (onClick) onClick();
   };
-
-  const randomQuestion = getRandomQuestion();
 
   return (
     <>
@@ -62,7 +54,9 @@ const Deck: React.FC<DeckProps> = ({ data, onClick }) => {
             textAlign="center"
           >
             <Text fontSize="sm" fontFamily={'inter'} noOfLines={6}>
-              {randomQuestion}
+              {`Our curated questions and answers about ${extractTopicFromDeckName(
+                data.name
+              )}`}
             </Text>
           </Box>
         </Box>
