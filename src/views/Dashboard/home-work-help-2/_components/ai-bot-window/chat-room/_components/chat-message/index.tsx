@@ -23,9 +23,9 @@ const ChatMessage = ({
           width: '36px',
           height: '36px'
         }}
-        name={userName}
+        name={type === 'user' ? userName : 'Socrates'}
         src={type === 'user' ? userImage : ''}
-        bgColor={type === 'user' ? 'blue.500' : 'gray.200'}
+        bgColor={type === 'user' ? 'blue.500' : '#207DF7'}
         // icon={type === 'user' ? '' : '🤖'}
       />
       <div
