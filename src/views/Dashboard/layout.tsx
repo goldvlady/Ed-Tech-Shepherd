@@ -317,6 +317,9 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         position="fixed"
         top="0"
         {...rest}
+        style={{
+          zIndex: 30
+        }}
       >
         <Box display={{ base: 'none', md: 'flex' }} gap={2}>
           <Flex
