@@ -14,7 +14,11 @@ function Description({ form }: { form: UseFormReturn<FindTutorSchemaType> }) {
       name="description"
       render={({ field }) => (
         <FormItem>
-          <Textarea className="max-h-36" placeholder="Description" {...field} />
+          <Textarea
+            className="h-48 max-h-48"
+            placeholder="Description"
+            {...field}
+          />
           <FormMessage />
         </FormItem>
       )}

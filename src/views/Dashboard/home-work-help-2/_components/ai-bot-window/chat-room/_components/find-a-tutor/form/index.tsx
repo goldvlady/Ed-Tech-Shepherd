@@ -34,7 +34,8 @@ function BountyForm({
       courseId:
         courseList.find((course) => course.label === data?.subject)._id ?? '',
       topic: data?.topic ?? '',
-      levelId: ''
+      levelId: '',
+      description: data?.description ?? ''
     }
   });
 
