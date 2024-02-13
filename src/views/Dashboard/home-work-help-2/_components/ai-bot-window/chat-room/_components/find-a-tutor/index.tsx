@@ -8,9 +8,9 @@ import {
   Close
 } from '@radix-ui/react-dialog';
 import BountyForm from './form';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 
-function FindATutorButton() {
+function FindATutorButton({ conversationId }: { conversationId: string }) {
   const [open, setOpen] = useState(false);
   const handleClose = () => setOpen(false);
   return (
@@ -48,7 +48,10 @@ function FindATutorButton() {
               </Close>
             </header>
             <div className="body w-full flex-1 bg-white">
-              <BountyForm handleClose={handleClose} />
+              <BountyForm
+                handleClose={handleClose}
+                conversationId={conversationId}
+              />
             </div>
           </Content>
         </Portal>
@@ -57,4 +60,4 @@ function FindATutorButton() {
   );
 }
 
-export default FindATutorButton;
+export default memo(FindATutorButton);

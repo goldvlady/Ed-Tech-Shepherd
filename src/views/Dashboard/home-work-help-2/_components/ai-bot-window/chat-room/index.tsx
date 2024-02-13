@@ -104,7 +104,7 @@ function ChatRoom() {
               maskImage: 'linear-gradient(transparent, black 60%)'
             }}
           ></div>
-          <PromptInput onSubmit={sendMessage} />
+          <PromptInput onSubmit={sendMessage} conversationId={id} />
         </footer>
       </div>
     </div>

@@ -16,7 +16,7 @@ import { FindTutorSchemaType } from '../../../validation';
 import useResourceStore from '../../../../../../../../../../../state/resourceStore';
 
 function SelectSubject({ form }: { form: UseFormReturn<FindTutorSchemaType> }) {
-  const { courses: courseList, levels } = useResourceStore();
+  const { courses: courseList } = useResourceStore();
   return (
     <FormField
       control={form.control}

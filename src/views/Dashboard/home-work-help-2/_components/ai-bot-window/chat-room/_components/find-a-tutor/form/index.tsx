@@ -14,14 +14,27 @@ import ExpirationDate from './_components/expiration-date';
 import { useCustomToast } from '../../../../../../../../../components/CustomComponents/CustomToast/useCustomToast';
 import useCreateBounty from '../hook/useCreateBounty';
 import { CounterClockwiseClockIcon } from '@radix-ui/react-icons';
+import useResourceStore from '../../../../../../../../../state/resourceStore';
+import useConversationDetails from '../../../../../hooks/useConversationDetails';
 
-function BountyForm({ handleClose }: { handleClose: () => void }) {
+function BountyForm({
+  handleClose,
+  conversationId
+}: {
+  handleClose: () => void;
+  conversationId: string;
+}) {
   const toast = useCustomToast();
   const { createBounty, isPending } = useCreateBounty();
+  const { data, isLoading } = useConversationDetails({ conversationId });
+  const { courses: courseList, levels } = useResourceStore();
   const form = useForm<FindTutorSchemaType>({
     resolver: zodResolver(FindTutorSchema),
     defaultValues: {
-      subject: ''
+      courseId:
+        courseList.find((course) => course.label === data?.subject)._id ?? '',
+      topic: data?.topic ?? '',
+      levelId: ''
     }
   });
 
@@ -33,6 +46,7 @@ function BountyForm({ handleClose }: { handleClose: () => void }) {
       ...values,
       reward: Number(values.reward)
     };
+
     createBounty(newValues, {
       onSuccess: (data, variables) => {
         console.log(data, variables);
