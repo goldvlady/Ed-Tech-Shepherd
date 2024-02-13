@@ -9,25 +9,32 @@ function useConversationDetails({
   conversationId: string;
 }) {
   const studentId = useUserStore((state) => state.user._id);
-  const { data, isLoading } = useStudentConversations({
+  const { data, isLoading, isSuccess } = useStudentConversations({
     studentId,
     select: (data) => {
       return data.find((item) => item.id === conversationId);
     }
   });
-  const { data: description } = useQuery({
+  const {
+    data: description,
+    isLoading: isLoadingDescription,
+    isSuccess: isSuccessDescription
+  } = useQuery({
     queryKey: ['conversationDescription', { conversationId }],
     queryFn: () =>
       getDescriptionById({
         conversationId
       })
   });
+
+  const allQueriesSuccessful = isSuccess && isSuccessDescription;
+  const allQueriesLoading = isLoading || isLoadingDescription;
+
   return {
-    data: {
-      ...data,
-      description: description.data
-    },
-    isLoading
+    data: allQueriesSuccessful
+      ? { ...data, description: description?.data }
+      : undefined,
+    isLoading: isLoading || isLoadingDescription
   };
 }
 

@@ -19,27 +19,25 @@ import useConversationDetails from '../../../../../hooks/useConversationDetails'
 
 function BountyForm({
   handleClose,
-  conversationId
+  data
 }: {
   handleClose: () => void;
-  conversationId: string;
+  data: any;
 }) {
   const toast = useCustomToast();
   const { createBounty, isPending } = useCreateBounty();
-  const { data, isLoading } = useConversationDetails({ conversationId });
   const { courses: courseList, levels } = useResourceStore();
+
   const form = useForm<FindTutorSchemaType>({
     resolver: zodResolver(FindTutorSchema),
     defaultValues: {
       courseId:
-        courseList.find((course) => course.label === data?.subject)._id ?? '',
+        courseList.find((course) => course.label === data?.subject)?._id ?? '',
       topic: data?.topic ?? '',
       levelId: '',
       description: data?.description ?? ''
     }
   });
-
-  console.log(form.formState.errors);
 
   async function onSubmit(values: FindTutorSchemaType) {
     // Do something with the form values.
@@ -111,4 +109,20 @@ function BountyForm({
   );
 }
 
-export default BountyForm;
+const DataPrefetch = ({
+  handleClose,
+  conversationId
+}: {
+  handleClose: () => void;
+  conversationId: string;
+}) => {
+  const { data, isLoading } = useConversationDetails({ conversationId });
+
+  if (isLoading) return <div>Loading...</div>;
+
+  if (!data) return <div>No data</div>;
+
+  return <BountyForm handleClose={handleClose} data={data} />;
+};
+
+export default DataPrefetch;
