@@ -60,7 +60,7 @@ function Input({
     <React.Fragment>
       <div className="w-full h-[50px] bg-white text-black rounded-lg shadow-md flex gap-2 items-center pr-3 relative">
         {chatContext.subject.trim() !== '' && currentInputType === 'topic' ? (
-          <span className="text-xs absolute top-[-48%] left-[4%] flex ">
+          <span className="text-xs absolute top-[-85%] left-[4%] flex ">
             Level -
             <span
               className="ml-1 inline-flex text-[#207DF7] gap-1 items-center cursor-pointer"
@@ -72,7 +72,8 @@ function Input({
             </span>
           </span>
         ) : null}
-        {chatContext.subject.trim() !== '' && currentInputType === 'level' ? (
+        {chatContext.subject.trim() !== '' &&
+        (currentInputType === 'level' || currentInputType === 'topic') ? (
           <span className="text-xs absolute top-[-48%] left-[4%] flex ">
             Subject -
             <span
