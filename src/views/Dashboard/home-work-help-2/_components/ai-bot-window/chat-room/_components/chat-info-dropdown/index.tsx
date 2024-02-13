@@ -29,7 +29,12 @@ function ChatInfoDropdown({ id }: { id: string }) {
     select: (data) => {
       const conversation = data.find((item) => item.id === id);
       if (conversation) {
-        if (renameMode.title !== conversation.title) {
+        if (
+          conversation.title !== null &&
+          conversation.title !== '' &&
+          renameMode.title !== conversation.title &&
+          renameMode.title === 'Untitled'
+        ) {
           setRenameMode((prev) => ({
             title: conversation.title ?? 'Untitled',
             enabled: false
