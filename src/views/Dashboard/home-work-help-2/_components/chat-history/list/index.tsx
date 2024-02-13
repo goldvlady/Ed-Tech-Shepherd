@@ -18,14 +18,12 @@ interface Filter {
 function ChatList({ conversations = [] }: { conversations: Conversation[] }) {
   const [filter, setFilter] = useState<Filter>({ keyword: '', subject: '' });
 
-  const handleFilterChange =
-    (key: keyof Filter) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      setFilter({
-        ...filter,
-        [key]: e.target.value
-      });
-    };
+  const handleFilterChange = (key: keyof Filter) => (value: string) => {
+    setFilter({
+      ...filter,
+      [key]: value
+    });
+  };
 
   const filteredConversations = filterConversations(conversations, filter);
   const groupedConversations = groupConversationsByDate(filteredConversations);

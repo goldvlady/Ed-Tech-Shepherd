@@ -1,7 +1,14 @@
 import { SearchIcon } from '@chakra-ui/icons';
 import { Input, InputGroup, InputLeftElement } from '@chakra-ui/input';
-import { Select } from '@chakra-ui/react';
 import { ConversationHistory } from '../../../../../../types';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '../../../../../../components/ui/select';
 
 function SearchBar({
   conversations,
@@ -9,8 +16,8 @@ function SearchBar({
   handleKeywordFilter
 }: {
   conversations: ConversationHistory[];
-  handleSubjectFilter: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  handleKeywordFilter: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSubjectFilter: (e: string) => void;
+  handleKeywordFilter: (e: string) => void;
 }) {
   const uniqueSubjects = [
     ...new Set(
@@ -30,24 +37,43 @@ function SearchBar({
             type="text"
             rounded="full"
             className="max-h-[30px]"
-            onChange={handleKeywordFilter}
+            onChange={(e) => handleKeywordFilter(e.target.value)}
           />
         </InputGroup>
       </div>
       <div>
         <Select
-          className="p-0 max-w-20 max-h-[30px]"
-          size={'sm'}
-          rounded={'full'}
-          defaultValue={''}
-          onChange={handleSubjectFilter}
+          // className="p-0 max-w-20 max-h-[30px]"
+          // size={'sm'}
+          // rounded={'full'}
+          onValueChange={(value) => {
+            if (value === 'all') {
+              handleSubjectFilter('');
+            } else {
+              handleSubjectFilter(value);
+            }
+          }}
+          defaultValue="all"
         >
-          <option value="">All</option>
+          <SelectTrigger className="w-20 max-h-[30px] rounded-full">
+            <SelectValue placeholder="All" />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            <SelectGroup>
+              <SelectItem value="all">All</SelectItem>
+              {uniqueSubjects.map((subject) => (
+                <SelectItem key={subject} value={subject}>
+                  {subject}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+          {/* <option value="">All</option>
           {uniqueSubjects.map((subject) => (
             <option key={subject} value={subject}>
               {subject}
             </option>
-          ))}
+          ))} */}
         </Select>
       </div>
     </div>
