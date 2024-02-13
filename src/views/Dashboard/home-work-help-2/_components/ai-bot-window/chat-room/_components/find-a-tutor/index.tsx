@@ -28,7 +28,8 @@ function FindATutorButton({ conversationId }: { conversationId: string }) {
               fontWeight: 400,
               lineHeight: '20px',
               color: '#207DF7',
-              backdropFilter: 'blur(10px)'
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)'
             }}
           >
             Find a tutor
