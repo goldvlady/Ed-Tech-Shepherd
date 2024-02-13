@@ -16,6 +16,7 @@ import useCreateBounty from '../hook/useCreateBounty';
 import { CounterClockwiseClockIcon } from '@radix-ui/react-icons';
 import useResourceStore from '../../../../../../../../../state/resourceStore';
 import useConversationDetails from '../../../../../hooks/useConversationDetails';
+import Skeleton from './_components/skeleton';
 
 function BountyForm({
   handleClose,
@@ -118,9 +119,14 @@ const DataPrefetch = ({
 }) => {
   const { data, isLoading } = useConversationDetails({ conversationId });
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Skeleton />;
 
-  if (!data) return <div>No data</div>;
+  if (!data)
+    return (
+      <div className="w-full h-80 flex items-center justify-center">
+        <h4>Data not found. Please try again</h4>
+      </div>
+    );
 
   return <BountyForm handleClose={handleClose} data={data} />;
 };

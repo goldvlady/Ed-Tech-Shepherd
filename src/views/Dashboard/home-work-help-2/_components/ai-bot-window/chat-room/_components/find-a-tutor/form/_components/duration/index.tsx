@@ -23,17 +23,17 @@ function Duration({ form }: { form: UseFormReturn<FindTutorSchemaType> }) {
             <RadioGroup
               onValueChange={field.onChange}
               defaultValue={field.value}
-              className="flex flex-row gap-3 space-y-1"
+              className="flex flex-row gap-3 items-center"
             >
               <FormItem className="flex items-center space-x-3 space-y-0">
                 <FormControl>
-                  <RadioGroupItem value="half-hour" />
+                  <RadioGroupItem value="30min" />
                 </FormControl>
-                <FormLabel className="30min">Half Hour</FormLabel>
+                <FormLabel className="font-normal">Half Hour</FormLabel>
               </FormItem>
               <FormItem className="flex items-center space-x-3 space-y-0">
                 <FormControl>
-                  <RadioGroupItem value="30min" />
+                  <RadioGroupItem value="60min" />
                 </FormControl>
                 <FormLabel className="font-normal">Full Hour</FormLabel>
               </FormItem>
