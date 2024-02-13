@@ -1,4 +1,5 @@
 import flashcardStore from '../../../../../state/flashcardStore';
+import { useCallback } from 'react';
 import { useFlashcardWizard } from '../../context/flashcard';
 import { Button, Text, Flex, HStack } from '@chakra-ui/react';
 import React from 'react';
@@ -7,14 +8,14 @@ const SuccessState = ({ reset }: { reset: () => void }) => {
   const { flashcards, loadFlashcard } = flashcardStore();
   const { flashcardData } = useFlashcardWizard();
 
-  const handleStudyClick = () => {
+  const handleStudyClick = useCallback(() => {
     const flashcard = flashcards?.find(
       (flashcard) => flashcard.deckname === flashcardData.deckname
     );
     if (flashcard) {
       loadFlashcard(flashcard._id, false);
     }
-  };
+  }, [flashcardData, flashcards, loadFlashcard]);
 
   return (
     <Flex
