@@ -7,6 +7,7 @@ import ChatMessage from './_components/chat-message';
 import PromptInput from './_components/prompt-input';
 import ChatInfoDropdown from './_components/chat-info-dropdown';
 import { useQueryClient } from '@tanstack/react-query';
+import ShareModal from '../../../../../../components/ShareModal';
 
 const CONVERSATION_INITIALIZER = 'Shall we begin, Socrates?';
 
@@ -78,7 +79,7 @@ function ChatRoom() {
         <header className="flex justify-center absolute top-[4%] items-center w-full z-10">
           <ChatInfoDropdown id={id} />
           <button className="absolute right-0 top-0 flex items-center justify-center mr-4 sm:mr-8 p-2 rounded-lg bg-white shadow-md">
-            <ShareIcon />
+            <ShareModal type="aichat" customTriggerComponent={<ShareIcon />} />
           </button>
         </header>
         <div className="chat-area flex-1 overflow-y-scroll pt-[6rem] pb-[10rem] px-3 w-full mx-auto max-w-[728px] flex flex-col gap-3 no-scrollbar">

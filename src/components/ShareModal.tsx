@@ -19,6 +19,7 @@ import ApiService from '../services/ApiService';
 
 type ShareModalProps = {
   type: 'quiz' | 'note' | 'flashcard' | 'docchat' | 'aichat' | 'tutor';
+  customTriggerComponent?: React.ReactNode;
 };
 const appendParamsToUrl = (baseUrl, paramsToAppend) => {
   const url = new URL(baseUrl);
@@ -39,7 +40,7 @@ const appendParamsToUrl = (baseUrl, paramsToAppend) => {
 
   return url.toString();
 };
-const ShareModal = ({ type }: ShareModalProps) => {
+const ShareModal = ({ type, customTriggerComponent }: ShareModalProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [shareLink, setShareLink] = useState('');
   const [presentableLink, setPresentableLink] = useState('');
@@ -428,9 +429,12 @@ const ShareModal = ({ type }: ShareModalProps) => {
       );
     }
   }, [type, shareLink, copyShareLink, shareOnX]);
+
   return (
     <>
-      {type === 'docchat' ? (
+      {customTriggerComponent ? (
+        <div onClick={generateShareLink}>{customTriggerComponent}</div>
+      ) : type === 'docchat' ? (
         <Button
           onClick={generateShareLink}
           bg="#f4f4f5"
