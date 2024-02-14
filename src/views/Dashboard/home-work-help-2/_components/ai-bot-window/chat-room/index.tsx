@@ -52,10 +52,11 @@ function ChatRoom() {
           isNewConversation: isNewWindow
         }
       );
-      query.invalidateQueries({
-        queryKey: ['chatHistory', { studentId }]
-      });
     }
+
+    query.invalidateQueries({
+      queryKey: ['chatHistory', { studentId }]
+    });
   }, [id]);
 
   const currentChatRender = useMemo(() => {

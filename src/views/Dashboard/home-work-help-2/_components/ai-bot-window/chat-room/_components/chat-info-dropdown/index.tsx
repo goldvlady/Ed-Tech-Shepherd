@@ -32,8 +32,7 @@ function ChatInfoDropdown({ id }: { id: string }) {
         if (
           conversation.title !== null &&
           conversation.title !== '' &&
-          renameMode.title !== conversation.title &&
-          renameMode.title === 'Chat title'
+          renameMode.title !== conversation.title
         ) {
           setRenameMode((prev) => ({
             title: conversation.title ?? 'Chat title',
