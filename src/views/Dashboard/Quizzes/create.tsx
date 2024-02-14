@@ -28,7 +28,16 @@ import {
   AlertStatus,
   ToastPosition,
   Center,
-  Icon
+  Icon,
+  Drawer,
+  DrawerBody,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  useDisclosure,
+  Button,
+  useBreakpointValue,
+  VStack
 } from '@chakra-ui/react';
 import {
   isEmpty,
@@ -58,6 +67,7 @@ import { HeaderButton, HeaderButtonText } from './styles';
 import clsx from 'clsx';
 import PlansModal from '../../../components/PlansModal';
 import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
+import { InfoOutlineIcon } from '@chakra-ui/icons';
 
 type NewQuizQuestion = QuizQuestion & {
   canEdit?: boolean;
@@ -98,6 +108,8 @@ const CreateQuizPage = () => {
   const [plansModalMessage, setPlansModalMessage] = useState('');
   const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
   const [isHovering, setIsHovering] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const isMobile = useBreakpointValue({ base: true, lg: false });
 
   const handleLockClick = () => {
     setTogglePlansModal(true);
@@ -666,7 +678,61 @@ const CreateQuizPage = () => {
                   />
                 </TabPanel>
               </TabPanels>
+              {isMobile && (
+                <Flex justifyContent={'flex-end'}>
+                  <Button
+                    borderRadius="8px"
+                    p="10px 20px"
+                    m="20px 0px"
+                    fontSize="14px"
+                    lineHeight="20px"
+                    variant="solid"
+                    colorScheme="primary"
+                    onClick={onOpen}
+                    isDisabled={isEmpty(questions) && isEmpty(searchQuestions)}
+                  >
+                    View Quiz
+                  </Button>
+                </Flex>
+              )}
             </Tabs>
+            <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+              <DrawerOverlay />
+              <DrawerContent>
+                <DrawerCloseButton />
+                <DrawerBody>
+                  {!isEmpty(searchQuestions) || !isEmpty(questions) ? (
+                    <QuizPreviewer
+                      handleClearQuiz={handleClearQuiz}
+                      onOpen={handleLoadQuiz}
+                      updateQuiz={handleUpdateQuiz}
+                      questions={
+                        !isEmpty(searchQuestions) ? searchQuestions : questions
+                      }
+                      quizId={quiz?._id ?? (quizId as string)}
+                      isLoadingButton={isLoadingButton}
+                      handleUpdateQuizQuestion={handleUpdateQuizQuestion}
+                      handleSearch={handleSearch}
+                      handleDeleteQuizQuestion={handleDeleteQuizQuestion}
+                      handleSetUploadingState={handleSetUploadingState}
+                    />
+                  ) : (
+                    <Center h="full">
+                      <VStack spacing={4}>
+                        <InfoOutlineIcon boxSize="50px" color="gray.400" />
+                        <Text
+                          fontSize="lg"
+                          fontWeight="medium"
+                          color="gray.600"
+                        >
+                          No generated quiz questions
+                        </Text>
+                      </VStack>
+                    </Center>
+                  )}
+                </DrawerBody>
+              </DrawerContent>
+            </Drawer>
           </>
         </Box>
         <Box
@@ -707,7 +773,6 @@ const CreateQuizPage = () => {
           )}
         </Box>
       </Flex>
-
       {openTags && (
         <TagModal
           onSubmit={AddTags}
