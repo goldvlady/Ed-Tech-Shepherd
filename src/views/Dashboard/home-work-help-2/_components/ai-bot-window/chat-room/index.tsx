@@ -8,6 +8,7 @@ import PromptInput from './_components/prompt-input';
 import ChatInfoDropdown from './_components/chat-info-dropdown';
 import { useQueryClient } from '@tanstack/react-query';
 import ShareModal from '../../../../../../components/ShareModal';
+import { ChatScrollAnchor } from './chat-scroll-anchor';
 
 const CONVERSATION_INITIALIZER = 'Shall we begin, Socrates?';
 
@@ -82,7 +83,7 @@ function ChatRoom() {
             <ShareModal type="aichat" customTriggerComponent={<ShareIcon />} />
           </button>
         </header>
-        <div className="chat-area flex-1 overflow-y-scroll pt-[6rem] pb-[10rem] px-3 w-full mx-auto max-w-[728px] flex flex-col gap-3 no-scrollbar">
+        <div className="chat-area flex-1 overflow-y-scroll pt-[6rem] pb-[10rem] px-3 w-full mx-auto max-w-[728px] flex flex-col gap-3 no-scrollbar relative scroll-smooth">
           {messages
             .filter(
               (message) => message.log.content !== CONVERSATION_INITIALIZER
@@ -97,6 +98,14 @@ function ChatRoom() {
               />
             ))}
           {currentChatRender}
+          <ChatScrollAnchor
+            trackVisibility={
+              // This is a boolean prop that is passed to the ChatScrollAnchor component
+              // It is used to determine whether the component should track the visibility of the chat window
+              // It is set to true, so the component will track the visibility of the chat window
+              true
+            }
+          />
         </div>
         <footer className=" w-full flex justify-center pb-6 absolute bottom-0">
           <div
