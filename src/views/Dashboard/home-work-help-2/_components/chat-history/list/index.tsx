@@ -54,7 +54,7 @@ function filterConversations(
   conversations: Conversation[],
   { keyword, subject }: Filter
 ) {
-  return conversations.filter((conversation) => {
+  return conversations?.filter((conversation) => {
     return (
       conversation?.subject?.toLowerCase().includes(subject.toLowerCase()) &&
       conversation?.title?.toLowerCase().includes(keyword.toLowerCase())

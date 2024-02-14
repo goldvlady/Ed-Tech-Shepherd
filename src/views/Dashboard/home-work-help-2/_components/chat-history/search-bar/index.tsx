@@ -22,7 +22,7 @@ function SearchBar({
   const uniqueSubjects = [
     ...new Set(
       conversations
-        .filter((item) => Boolean(item.subject))
+        ?.filter((item) => Boolean(item.subject))
         .map((item) => item.subject || null)
     )
   ];

@@ -96,7 +96,7 @@ function ChatRoom() {
         </header>
         <div className="chat-area flex-1 overflow-y-scroll pt-[6rem] pb-[10rem] px-3 w-full mx-auto max-w-[728px] flex flex-col gap-3 no-scrollbar relative scroll-smooth">
           {messages
-            .filter(
+            ?.filter(
               (message) => message.log.content !== CONVERSATION_INITIALIZER
             )
             .map((message) => (

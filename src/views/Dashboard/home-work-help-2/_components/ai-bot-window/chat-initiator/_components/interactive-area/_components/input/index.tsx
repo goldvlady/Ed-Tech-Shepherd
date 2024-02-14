@@ -208,7 +208,7 @@ const AutocompleteWindow = ({
     <div className="w-full p-2 absolute top-[90%] bg-white rounded-lg rounded-t-none shadow-md z-10 max-h-[20rem] overflow-y-scroll py-2 no-scrollbar">
       {currentInputType === 'subject'
         ? courseList
-            .filter((item) =>
+            ?.filter((item) =>
               item.label
                 .toLowerCase()
                 .includes(filterKeyword.keyword.toLowerCase())
@@ -224,7 +224,7 @@ const AutocompleteWindow = ({
         : null}
       {currentInputType === 'level'
         ? levels
-            .filter((item) =>
+            ?.filter((item) =>
               item.label
                 .toLowerCase()
                 .includes(filterKeyword.keyword.toLowerCase())
