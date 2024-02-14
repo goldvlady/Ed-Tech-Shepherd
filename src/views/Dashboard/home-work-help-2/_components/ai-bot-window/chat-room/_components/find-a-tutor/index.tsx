@@ -32,7 +32,7 @@ function FindATutorButton({ conversationId }: { conversationId: string }) {
               WebkitBackdropFilter: 'blur(10px)'
             }}
           >
-            Find a tutor
+            Find a Shepherd
           </Button>
         </Trigger>
         <Portal>
