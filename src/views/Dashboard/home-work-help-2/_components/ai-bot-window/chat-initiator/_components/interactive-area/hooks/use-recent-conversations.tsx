@@ -16,7 +16,6 @@ function useRecentConversations() {
       })
       .slice(0, 4)
       .forEach((conversation) => {
-        console.log('conversation', conversation);
         lastFourConversations.push(conversation);
       });
   }
