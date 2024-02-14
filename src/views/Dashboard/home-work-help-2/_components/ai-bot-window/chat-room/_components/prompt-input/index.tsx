@@ -18,6 +18,14 @@ const PromptInput = ({
     onSubmit(message);
     setMessage('');
   };
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      handleSendMessage();
+    }
+  };
+
   return (
     <div className="w-full h-full flex gap-5 flex-col items-center justify-center max-w-[600px] z-10">
       <div className="find-tutor-button flex justify-end w-full">
@@ -32,6 +40,7 @@ const PromptInput = ({
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             style={{ whiteSpace: 'pre-line' }}
+            onKeyDown={handleKeyDown}
             rows={1}
           />
         </div>
