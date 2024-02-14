@@ -103,8 +103,12 @@ const useUserStore = create<Store>((set) => ({
   },
   setUserData: (data: Partial<User>) => {
     set((state) => {
+      console.log('before', state.user);
+
       if (state.user) {
         const newUser = { ...state.user, ...data };
+        console.log('after', newUser);
+
         const hasActiveSubscription = !!(
           newUser.subscription &&
           (newUser.subscription.status === 'active' ||

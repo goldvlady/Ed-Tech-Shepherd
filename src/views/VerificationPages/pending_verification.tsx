@@ -16,8 +16,9 @@ import {
 import { User, getAuth, onAuthStateChanged } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
 import { AiOutlineFileDone } from 'react-icons/ai';
-import { Outlet } from 'react-router';
+import { Outlet, useLocation, useNavigate } from 'react-router';
 import styled from 'styled-components';
+import userStore from '../../state/userStore';
 
 const Root = styled(Box)`
   display: flex;
@@ -32,8 +33,15 @@ const PendingVerification = () => {
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
   const [obtainedUserAuthState, setObtainedUserAuthState] = useState(false);
   const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
   const [buttonLoading, setButtonLoading] = useState(false);
-
+  const { setUserData, user, fetchUser } = userStore();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [verified, setVerified] = useState(false);
+  const [isResendDisabled, setIsResendDisabled] = useState(true);
   const toast = useCustomToast();
 
   const {
@@ -41,6 +49,58 @@ const PendingVerification = () => {
     onOpen: openEmailModal,
     onClose: closeEmailModal
   } = useDisclosure();
+  const navigateToDashboard = () =>
+    navigate(
+      user?.signedUpAsTutor ? '/dashboard/tutordashboard/' : '/dashboard'
+    );
+  console.log('first', user);
+  async function verifyToken(token: string) {
+    try {
+      setLoading(true);
+      const response = await ApiService.verifyToken(token);
+      console.log(response);
+
+      if (response.status === 200) {
+        setUserData({ isVerified: true });
+        setVerified(true);
+        const redirLink = localStorage.getItem('redirLink');
+        toast({
+          title: 'Email verification was successful',
+          status: 'success',
+          position: 'top-right'
+        });
+
+        console.log('second', user);
+
+        if (redirLink) {
+          const strippedLink = redirLink.split('/').splice(3).join('/');
+          localStorage.removeItem('redirLink');
+          navigate(`/${strippedLink}`);
+        } else {
+          navigateToDashboard();
+        }
+      } else {
+        const data = await response.json();
+        toast({
+          title: `${data.message}`,
+          status: 'error',
+          position: 'top-right'
+        });
+        // setError(data.message);
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  }
+  const startResendTimer = () => {
+    setIsResendDisabled(true);
+    setTimeout(() => {
+      setIsResendDisabled(false);
+    }, 60000);
+  };
 
   const handleResendLink = async (email) => {
     try {
@@ -80,6 +140,11 @@ const PendingVerification = () => {
       setFirebaseUser(user);
     });
   }, []);
+  // useEffect(() => {
+  //   if (user?.isVerified) {
+  //     navigateToDashboard();
+  //   }
+  // }, []);
 
   return (
     <div
@@ -90,20 +155,15 @@ const PendingVerification = () => {
       <Header />
       <Root>
         <Box
-          display={'flex'}
-          maxWidth={{ md: '55%', base: '100%' }}
-          flexDirection={'column'}
-          justifyContent={'center'}
-          alignItems={'center'}
-          width="100%"
-          padding={{ md: '30px', base: '15px' }}
-          // margin="150px"
-          // paddingY="100px"
-          // paddingX="50px"
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          width={{ md: '40%', base: '90%' }}
+          padding="30px"
           border="2px solid #EBECF0"
-          borderRadius="12px"
+          borderRadius="8px"
           background="#e7e7e7"
-          margin={{ base: '20px' }}
+          boxShadow="0px 4px 10px rgba(0, 0, 0, 0.1)"
         >
           <Box width="96px" height="96px" margin="30px auto">
             <svg
@@ -136,63 +196,63 @@ const PendingVerification = () => {
               </defs>
             </svg>
           </Box>
-          <Text fontSize="2xl" fontWeight="600" textAlign="center">
+          <Text fontSize="2xl" fontWeight="600" textAlign="center" color="#333">
             Please verify your email
           </Text>
           <Text
             fontSize="md"
-            fontWeight={'400'}
-            width={{ md: '60%' }}
-            color="#585F68"
+            fontWeight="400"
+            width="100%"
+            color="#666"
             textAlign="center"
-            mt={1}
+            mt={4}
             lineHeight="1.5"
           >
-            You're almost there! We sent an email to{' '}
-            <Text as="span" color="blue.500">
+            You're almost there! We sent a verification code to{' '}
+            <Text as="span" color="#207df7">
               {firebaseUser?.email}.
-            </Text>{' '}
+            </Text>
             <br />
-            <p style={{ marginTop: '15px' }}>
-              Just click on the link in the email to complete your signup. If
-              you don't see it you may need to{' '}
-              <span
-                style={{
-                  fontWeight: '600'
-                }}
-              >
-                Check your spam{' '}
-              </span>
-              folder.
-            </p>
-            <br />
-            <p>Still can't find email? No problem.</p>
+            <FormControl my={4}>
+              <Input
+                type="text"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                placeholder="Enter Code"
+                borderRadius="4px"
+                border="1px solid #ccc"
+                width="100%"
+                padding="10px"
+              />
+            </FormControl>
+            <Button
+              isDisabled={!otp || loading}
+              width="100%"
+              backgroundColor="#207df7"
+              color="#fff"
+              _hover={{ backgroundColor: '#4b9af7' }}
+              _focus={{ outline: 'none' }}
+              onClick={() => {
+                startResendTimer();
+                verifyToken(otp);
+              }}
+            >
+              Verify
+            </Button>
+            {!isResendDisabled && (
+              <Text color="#666" mt={4}>
+                Still can't find email?{' '}
+                <Link color="#207df7" onClick={openEmailModal}>
+                  Resend Verification Link
+                </Link>
+              </Text>
+            )}
           </Text>
-
-          <Link
-            // target="_blank"
-            // rel="noopener noreferrer"
-            // href="mailto:help@shepherd.study"
-            display="flex"
-            flexDirection="row"
-            color="white"
-            justifyContent="center"
-            alignItems="center"
-            padding={{ md: '14px 100px', base: '0px' }}
-            marginTop="30px"
-            height="48px"
-            background="#207DF7"
-            borderRadius="8px"
-            width={{ md: '50%', base: '100%' }}
-            onClick={openEmailModal}
-          >
-            Resend Verification Link
-          </Link>
         </Box>
       </Root>
       <CustomModal
         isOpen={isEmailModalOpen}
-        modalTitle="Enter Email"
+        modalTitle="Resend Code"
         isModalCloseButton
         style={{
           maxWidth: '400px',
@@ -212,7 +272,7 @@ const PendingVerification = () => {
         onClose={closeEmailModal}
       >
         {' '}
-        <FormControl p={3} alignItems="center">
+        <FormControl p={1} alignItems="center">
           <FormLabel fontSize="14px" fontWeight="medium" htmlFor="description">
             Email
           </FormLabel>
