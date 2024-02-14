@@ -28,7 +28,7 @@ function useConversationDetails({
   });
 
   return {
-    data,
+    data: data ? data : [],
     isLoading: isLoading,
     description: description?.data,
     isDescriptionLoaded: isSuccessDescription
