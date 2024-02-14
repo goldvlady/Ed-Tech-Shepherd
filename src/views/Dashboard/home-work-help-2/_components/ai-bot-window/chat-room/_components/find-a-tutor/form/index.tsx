@@ -20,12 +20,14 @@ import Skeleton from './_components/skeleton';
 
 function BountyForm({
   handleClose,
-  data
+  conversationId
 }: {
   handleClose: () => void;
-  data: any;
+  conversationId: string;
 }) {
   const toast = useCustomToast();
+  const { data, isLoading, description, isDescriptionLoaded } =
+    useConversationDetails({ conversationId });
   const { createBounty, isPending } = useCreateBounty();
   const { courses: courseList, levels } = useResourceStore();
 
@@ -36,7 +38,7 @@ function BountyForm({
         courseList.find((course) => course.label === data?.subject)?._id ?? '',
       topic: data?.topic ?? '',
       levelId: '',
-      description: data?.description ?? ''
+      description: 'Generating summary....'
     }
   });
 
@@ -66,11 +68,15 @@ function BountyForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="w-full flex flex-col gap-3 p-5 ">
           <div className="w-full grid grid-cols-2 gap-2">
-            <SelectSubject form={form} />
-            <Level form={form} />
+            <SelectSubject form={form} isLoading={isLoading} />
+            <Level form={form} isLoading={isLoading} />
           </div>
-          <Topic form={form} />
-          <Description form={form} />
+          <Topic form={form} isLoading={isLoading} />
+          <Description
+            form={form}
+            description={description}
+            isDescriptionLoaded={isDescriptionLoaded}
+          />
           <div className="w-full grid grid-cols-2 gap-2 items-center">
             <Price form={form} />
             <Duration form={form} />
@@ -110,25 +116,4 @@ function BountyForm({
   );
 }
 
-const DataPrefetch = ({
-  handleClose,
-  conversationId
-}: {
-  handleClose: () => void;
-  conversationId: string;
-}) => {
-  const { data, isLoading } = useConversationDetails({ conversationId });
-
-  if (isLoading) return <Skeleton />;
-
-  if (!data)
-    return (
-      <div className="w-full h-80 flex items-center justify-center">
-        <h4>Data not found. Please try again</h4>
-      </div>
-    );
-
-  return <BountyForm handleClose={handleClose} data={data} />;
-};
-
-export default DataPrefetch;
+export default BountyForm;

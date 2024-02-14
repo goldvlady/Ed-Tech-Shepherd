@@ -7,18 +7,28 @@ import {
 import { FindTutorSchemaType } from '../../../validation';
 import { Input } from '../../../../../../../../../../../components/ui/input';
 
-function Topic({ form }: { form: UseFormReturn<FindTutorSchemaType> }) {
+function Topic({
+  form,
+  isLoading
+}: {
+  form: UseFormReturn<FindTutorSchemaType>;
+  isLoading: boolean;
+}) {
   return (
     <FormField
       control={form.control}
       name="topic"
       render={({ field }) => (
         <FormItem>
-          <Input
-            placeholder="Topic"
-            {...field}
-            className="focus-within:border-[#2080FC] focus-within:ring-[#2080FC]"
-          />
+          {isLoading ? (
+            <div className="w-full h-8 rounded-md bg-gray-200 animate-pulse"></div>
+          ) : (
+            <Input
+              placeholder="Topic"
+              {...field}
+              className="focus-within:border-[#2080FC] focus-within:ring-[#2080FC]"
+            />
+          )}
           <FormMessage />
         </FormItem>
       )}

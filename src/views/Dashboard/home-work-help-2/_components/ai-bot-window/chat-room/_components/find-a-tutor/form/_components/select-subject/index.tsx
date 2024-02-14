@@ -15,18 +15,33 @@ import {
 import { FindTutorSchemaType } from '../../../validation';
 import useResourceStore from '../../../../../../../../../../../state/resourceStore';
 
-function SelectSubject({ form }: { form: UseFormReturn<FindTutorSchemaType> }) {
+function SelectSubject({
+  form,
+  isLoading
+}: {
+  form: UseFormReturn<FindTutorSchemaType>;
+  isLoading: boolean;
+}) {
   const { courses: courseList } = useResourceStore();
   return (
     <FormField
       control={form.control}
       name="courseId"
+      disabled={isLoading}
       render={({ field }) => (
         <FormItem>
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
+          <Select
+            onValueChange={field.onChange}
+            defaultValue={field.value}
+            disabled={isLoading}
+          >
             <FormControl>
               <SelectTrigger>
-                <SelectValue placeholder="Subject" />
+                {isLoading ? (
+                  <div className="w-full h-4 bg-gray-200 animate-pulse"></div>
+                ) : (
+                  <SelectValue placeholder="Subject" />
+                )}
               </SelectTrigger>
             </FormControl>
             <SelectContent className="bg-white">

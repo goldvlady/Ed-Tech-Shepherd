@@ -27,14 +27,11 @@ function useConversationDetails({
       })
   });
 
-  const allQueriesSuccessful = isSuccess && isSuccessDescription;
-  const allQueriesLoading = isLoading || isLoadingDescription;
-
   return {
-    data: allQueriesSuccessful
-      ? { ...data, description: description?.data }
-      : undefined,
-    isLoading: isLoading || isLoadingDescription
+    data,
+    isLoading: isLoading,
+    description: description?.data,
+    isDescriptionLoaded: isSuccessDescription
   };
 }
 

@@ -15,7 +15,13 @@ import {
 import { FindTutorSchemaType } from '../../../validation';
 import useResourceStore from '../../../../../../../../../../../state/resourceStore';
 
-function Level({ form }: { form: UseFormReturn<FindTutorSchemaType> }) {
+function Level({
+  form,
+  isLoading
+}: {
+  form: UseFormReturn<FindTutorSchemaType>;
+  isLoading: boolean;
+}) {
   const { levels } = useResourceStore();
   return (
     <FormField
@@ -23,10 +29,18 @@ function Level({ form }: { form: UseFormReturn<FindTutorSchemaType> }) {
       name="levelId"
       render={({ field }) => (
         <FormItem>
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
+          <Select
+            onValueChange={field.onChange}
+            defaultValue={field.value}
+            disabled={isLoading}
+          >
             <FormControl>
               <SelectTrigger>
-                <SelectValue placeholder="Level" />
+                {isLoading ? (
+                  <div className="w-full h-4 bg-gray-200 animate-pulse"></div>
+                ) : (
+                  <SelectValue placeholder="Level" />
+                )}
               </SelectTrigger>
             </FormControl>
             <SelectContent className="bg-white">
