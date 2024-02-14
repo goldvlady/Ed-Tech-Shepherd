@@ -145,7 +145,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
-  const [PlansModalSubMessage, setPlansModalSubMessage] = useState('');
+  const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
   const { createFlashCard } = flashcardStore();
   const { watchJobs, clearJobs } = useFlashcardQuestionsJob(
     user?._id as string
@@ -362,7 +362,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       const userFlashcardCount = await flashcardCountResponse.json();
 
       if (
-        (!hasActiveSubscription && userFlashcardCount.count >= 100) ||
+        (!hasActiveSubscription && userFlashcardCount.count >= 40) ||
         (user.subscription?.subscriptionMetadata?.flashcard_limit &&
           userFlashcardCount.count >=
             user.subscription.subscriptionMetadata.flashcard_limit)
@@ -631,7 +631,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
           togglePlansModal={togglePlansModal}
           setTogglePlansModal={setTogglePlansModal}
           message={plansModalMessage} // Pass the message to the modal
-          subMessage={PlansModalSubMessage}
+          subMessage={plansModalSubMessage}
         />
       )}
     </FlashcardDataContext.Provider>

@@ -329,6 +329,13 @@ class ApiService {
     });
   };
 
+  static checkQuizCount = async (userId: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/getQuizCount`, {
+      method: 'POST',
+      body: JSON.stringify({ userId })
+    });
+  };
+
   static generateFlashcardQuestions = async (data: any, studentId: string) => {
     return fetch(`${AI_API}/flash-cards/students/${studentId}`, {
       method: 'POST',
@@ -1064,6 +1071,12 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/setStudentOnboardStatus`, {
       method: 'POST',
       body: JSON.stringify({ status: status, userId: userId })
+    });
+  };
+  static saveTopicSummary = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/updateIndividualStudyTopic`, {
+      method: 'POST',
+      body: JSON.stringify(data)
     });
   };
 }

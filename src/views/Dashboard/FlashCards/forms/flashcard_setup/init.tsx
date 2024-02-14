@@ -56,7 +56,7 @@ const FlashCardSetupInit = ({
   const [localData, setLocalData] = useState<typeof flashcardData>(dummyData); // A local state for storing user inputs
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
-  const [PlansModalSubMessage, setPlansModalSubMessage] = useState('');
+  const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
 
   useEffect(() => {
     if (isResetted) {
@@ -64,6 +64,18 @@ const FlashCardSetupInit = ({
     }
     // eslint-disable-next-line
   }, [isResetted]);
+
+  useEffect(() => {
+    document
+      .getElementById('numberInput')
+      .addEventListener('keydown', function (event) {
+        // Check if the pressed key is "ArrowUp" or "ArrowDown"
+        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+          // Prevent the default action of the arrow keys
+          event.preventDefault();
+        }
+      });
+  }, []);
 
   useEffect(() => {
     if (flashcardData.documentId) {
@@ -169,7 +181,7 @@ const FlashCardSetupInit = ({
         const userFlashcardCount = await flashcardCountResponse.json();
 
         if (
-          (!hasActiveSubscription && userFlashcardCount.count >= 100) ||
+          (!hasActiveSubscription && userFlashcardCount.count >= 40) ||
           (user.subscription?.subscriptionMetadata?.flashcard_limit &&
             userFlashcardCount.count >=
               user.subscription.subscriptionMetadata.flashcard_limit)
@@ -386,6 +398,7 @@ const FlashCardSetupInit = ({
         <Input
           type="number"
           min={1}
+          id="numberInput"
           name="numQuestions"
           placeholder="Number of questions"
           value={localData.numQuestions}
@@ -429,7 +442,7 @@ const FlashCardSetupInit = ({
           togglePlansModal={togglePlansModal}
           setTogglePlansModal={setTogglePlansModal}
           message={plansModalMessage} // Pass the message to the modal
-          subMessage={PlansModalSubMessage}
+          subMessage={plansModalSubMessage}
         />
       )}
     </Box>

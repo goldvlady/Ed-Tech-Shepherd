@@ -134,6 +134,7 @@ export enum SubscriptionTier {
 
 export type SubscriptionMetadata = {
   flashcard_limit?: number;
+  quiz_limit?: number;
   daily_question_limit?: number;
   docchat_word_limit?: number;
   file_mb_limit?: number;
@@ -183,6 +184,7 @@ export interface User extends TimestampedEntity {
   streamTokens?: StreamToken[];
   subscription?: Subscription;
   hasActiveSubscription: boolean;
+  hadSubscription: boolean;
   onboardCompleted: boolean;
 }
 

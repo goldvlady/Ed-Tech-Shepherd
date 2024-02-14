@@ -1,4 +1,5 @@
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
+import PlansModal from '../../../../components/PlansModal';
 import SelectComponent, { Option } from '../../../../components/Select';
 import { WardIcon } from '../../../../components/icons';
 import ApiService from '../../../../services/ApiService';
@@ -52,11 +53,36 @@ const TextQuizForm = ({ addQuestion, handleSetTitle }) => {
   ];
 
   const [localData, setLocalData] = useState<any>(dummyData);
+  const [togglePlansModal, setTogglePlansModal] = useState(false);
+  const [plansModalMessage, setPlansModalMessage] = useState('');
+  const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
 
   const handleGenerateQuestions = async () => {
     try {
       setIsLoading(true);
+      const { hasActiveSubscription } = userStore.getState();
+      const quizCountResponse = await ApiService.checkQuizCount(user._id);
+      const userQuizCount = await quizCountResponse.json();
 
+      if (
+        (!hasActiveSubscription && userQuizCount.count >= 40) ||
+        (user.subscription?.subscriptionMetadata?.quiz_limit &&
+          userQuizCount.count >=
+            user.subscription.subscriptionMetadata.quiz_limit)
+      ) {
+        setPlansModalMessage(
+          !hasActiveSubscription
+            ? "Let's get you on a plan so you can generate quizzes! "
+            : "Looks like you've filled up your quiz store! 🚀"
+        );
+        setPlansModalSubMessage(
+          !hasActiveSubscription
+            ? 'Get started today for free!'
+            : "Let's upgrade your plan so you can keep generating more."
+        );
+        setTogglePlansModal(true); // Show the PlansModal
+        return;
+      }
       const result = await ApiService.generateQuizQuestion(user._id, {
         ...localData,
         count: toNumber(localData.count),
@@ -257,6 +283,14 @@ const TextQuizForm = ({ addQuestion, handleSetTitle }) => {
           Generate
         </Button>
       </HStack>
+      {togglePlansModal && (
+        <PlansModal
+          togglePlansModal={togglePlansModal}
+          setTogglePlansModal={setTogglePlansModal}
+          message={plansModalMessage}
+          subMessage={plansModalSubMessage}
+        />
+      )}
     </Box>
   );
 };

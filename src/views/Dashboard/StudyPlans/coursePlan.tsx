@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useEffect
 } from 'react';
+import axios from 'axios';
 import {
   Grid,
   Box,
@@ -97,6 +98,7 @@ import SubjectCard from '../../../components/SubjectCard';
 import Events from '../../../components/Events';
 import ResourceIcon from '../../../assets/resources-plan.svg';
 import QuizIcon from '../../../assets/quiz-plan.svg';
+import Ribbon from '../../../assets/ribbon-grey.svg';
 import EmptyFlashcard from '../../../assets/no-flashcard.svg';
 import CloudDay from '../../../assets/day.svg';
 import CloudNight from '../../../assets/night.svg';
@@ -397,10 +399,12 @@ function CoursePlan() {
     const fetchData = async () => {
       try {
         if (state.selectedPlan) {
-          const [resourcesResponse, reportResponse] = await Promise.all([
-            fetchPlanResources(state.selectedPlan),
-            fetchPlanReport(state.selectedPlan)
-          ]);
+          const [plansResponse, resourcesResponse, reportResponse] =
+            await Promise.all([
+              fetchPlans(state.page, state.limit),
+              fetchPlanResources(state.selectedPlan),
+              fetchPlanReport(state.selectedPlan)
+            ]);
           updateState({ planResource: resourcesResponse });
         }
       } catch (error) {
@@ -410,8 +414,6 @@ function CoursePlan() {
 
     fetchData();
   }, [state.selectedPlan]);
-  console.log(studyPlanReport);
-  console.log(state.selectedPlan);
 
   function getSubject(id) {
     const labelFromCourseList = courseList
@@ -651,6 +653,51 @@ function CoursePlan() {
     }
   };
   console.log(state.topics?.schedules);
+  console.log(studyPlans);
+
+  const saveTopicSummary = async (id: string) => {
+    const payload = {
+      topicId: id,
+      summary: state.topicResource?.response,
+      links: [
+        {
+          url: 'https://www.example.com',
+          title: 'Example Title',
+          summary: 'An example link related to the topic.'
+        },
+        {
+          url: 'https://www.anotherexample.com',
+          title: 'Another Example Title',
+          summary: 'Another example link related to the topic.'
+        }
+      ]
+    };
+    try {
+      const resp = await ApiService.saveTopicSummary(payload);
+      if (resp.status === 200) {
+        toast({
+          title: 'Topic summary saved successfully',
+          position: 'top-right',
+          status: 'success',
+          isClosable: true
+        });
+      } else {
+        toast({
+          title: `Couldn't save summary`,
+          position: 'top-right',
+          status: 'error',
+          isClosable: true
+        });
+      }
+    } catch (e) {
+      toast({
+        title: 'An unknown error occured',
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
+      });
+    }
+  };
 
   const groupedTopics = state.topics?.schedules.reduce((grouped, topic) => {
     let testDate;
@@ -919,6 +966,9 @@ function CoursePlan() {
                                       </VStack>
                                       <VStack
                                         onClick={() => {
+                                          updateState({
+                                            selectedTopic: topic._id
+                                          });
                                           getTopicResource(
                                             topic.topicDetails.label
                                           );
@@ -1327,8 +1377,8 @@ function CoursePlan() {
             </Box>
             <Text mb={0}>{`${weekday}, ${month} ${monthday}`}</Text>
           </Flex>
-          <Box my={4} fontSize={13}>
-            <Text>Hey {user.name?.first}</Text>
+          <Box my={4} fontSize={14}>
+            <Text fontWeight={500}>Hey {user.name?.first}</Text>
             <Text color={'text.300'} fontSize={13}>
               {` You have
               ${studyPlanUpcomingEvent ? studyPlanUpcomingEvent.length : 0}
@@ -1433,17 +1483,48 @@ function CoursePlan() {
             {!state.isLoading ? (
               state.topicResource ? (
                 <Box w="full">
-                  <Text fontSize={'17px'} fontWeight="500" px={1} color="#000">
-                    Summary
-                  </Text>
+                  <Flex alignItems={'center'} my={2}>
+                    {' '}
+                    <Text
+                      fontSize={'17px'}
+                      fontWeight="500"
+                      px={1}
+                      color="#000"
+                    >
+                      Summary
+                    </Text>
+                    <Spacer />{' '}
+                    <Button
+                      variant="outline"
+                      color={'#585F68'}
+                      size="sm"
+                      // bgColor={checkBookmarks() ? '#F0F6FE' : '#fff'}
+                      border="1px solid #E7E8E9"
+                      borderRadius="6px"
+                      fontSize="12px"
+                      leftIcon={<Ribbon />}
+                      // p={'2px 24px'}
+                      display="flex"
+                      _hover={{
+                        boxShadow: 'lg',
+                        transform: 'translateY(-2px)'
+                      }}
+                      disabled={user === null}
+                      style={{ pointerEvents: user ? 'auto' : 'none' }}
+                      onClick={() => saveTopicSummary(state.selectedTopic)}
+                    >
+                      Save
+                    </Button>
+                  </Flex>
+
                   <Box
                     p={4}
                     maxH="350px"
                     overflowY="auto"
                     // borderWidth="1px"
-                    borderRadius="md"
-                    borderColor="gray.200"
-                    boxShadow="md"
+                    // borderRadius="md"
+                    // borderColor="gray.200"
+                    // boxShadow="md"
                     className="custom-scroll"
                   >
                     <Text lineHeight="6">{state.topicResource?.response}</Text>
@@ -1490,7 +1571,13 @@ function CoursePlan() {
                                     : source.url}
                                 </Text>
                                 <Spacer />
-                                {getIconByDataset(source.dataset)}
+                                <img
+                                  className="h-3 w-3"
+                                  alt={source.url}
+                                  src={`https://www.google.com/s2/favicons?domain=${
+                                    source.url
+                                  }&sz=${16}`}
+                                />
                               </Flex>
                             </Flex>
                           </Box>
