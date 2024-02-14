@@ -80,13 +80,11 @@ function AiChatBotWindow() {
 
   return (
     <div className="h-full flex flex-col gap-4 w-full justify-between bg-[#F9F9FB] overflow-hidden">
-      {limitReached && (
-        <LimitReachModel
-          isLimitModalOpen={limitReached && limitReachedModal}
-          handleOpenLimitReached={handleOpenLimitReached}
-          handleCloseLimitModal={handleCloseLimitModal}
-        />
-      )}
+      <LimitReachModel
+        isLimitModalOpen={limitReached && limitReachedModal}
+        handleOpenLimitReached={handleOpenLimitReached}
+        handleCloseLimitModal={handleCloseLimitModal}
+      />
       {isChatRoom ? (
         // This outlet is for the chat room, it will be replaced by the chat room component using the react-router-dom
         <Outlet />

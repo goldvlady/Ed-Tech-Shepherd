@@ -109,9 +109,8 @@ const useChatManager = (
 
   useEffect(() => {
     if (socketRef.current) {
-      socketRef.current.on('aitutorchat_limit_reached', (limitReached) => {
-        setLimitReached(limitReached);
-        // onOpen();
+      socketRef.current.on('aitutorchat_limit_reached', (iLimitReached) => {
+        setLimitReached(iLimitReached);
       });
     }
 
