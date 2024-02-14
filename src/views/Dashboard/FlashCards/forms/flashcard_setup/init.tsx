@@ -71,6 +71,7 @@ const FlashCardSetupInit = ({
       .getElementById('numberInput')
       .addEventListener('keydown', function (event) {
         // Check if the pressed key is "ArrowUp" or "ArrowDown"
+
         if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
           // Prevent the default action of the arrow keys
           event.preventDefault();
