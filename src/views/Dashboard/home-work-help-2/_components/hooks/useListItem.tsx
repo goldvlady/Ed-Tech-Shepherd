@@ -4,6 +4,7 @@ import {
   editConversationId
 } from '../../../../../services/AI';
 import useUserStore from '../../../../../state/userStore';
+import { useNavigate } from 'react-router-dom';
 
 function useListItem({
   onRenameSuccess,
@@ -15,6 +16,7 @@ function useListItem({
   const user = useUserStore((state) => state.user);
   const studentId = user?._id;
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   //   API call to renaming the conversation
   const { mutate: rename, isPending: renaming } = useMutation({
     mutationFn: editConversationId,
@@ -34,6 +36,7 @@ function useListItem({
     mutationFn: deleteConversationId,
     onSuccess(data, variables, context) {
       onDeletedSuccess(variables.conversationId);
+      navigate('/dashboard/ace-homework');
     },
     // Always refetch after error or success:
     onSettled: () => {
