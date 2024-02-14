@@ -22,7 +22,7 @@ function ChatInfoDropdown({ id }: { id: string }) {
   const studentId = useUserStore((state) => state.user?._id);
   const [renameMode, setRenameMode] = useState({
     enabled: false,
-    title: 'Untitled'
+    title: 'Chat title'
   });
   useStudentConversations({
     studentId: studentId,
@@ -33,10 +33,10 @@ function ChatInfoDropdown({ id }: { id: string }) {
           conversation.title !== null &&
           conversation.title !== '' &&
           renameMode.title !== conversation.title &&
-          renameMode.title === 'Untitled'
+          renameMode.title === 'Chat title'
         ) {
           setRenameMode((prev) => ({
-            title: conversation.title ?? 'Untitled',
+            title: conversation.title ?? 'Chat title',
             enabled: false
           }));
         }
