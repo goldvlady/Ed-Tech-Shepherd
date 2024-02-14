@@ -14,8 +14,8 @@ const CONVERSATION_INITIALIZER = 'Shall we begin, Socrates?';
 function ChatRoom() {
   const { id } = useParams();
   const { user } = useUserStore();
-  const query = useQueryClient();
   const studentId = user?._id;
+  const query = useQueryClient();
 
   const {
     startConversation,
