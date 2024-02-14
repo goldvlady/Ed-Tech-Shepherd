@@ -8,7 +8,7 @@ function useRecentConversations() {
   const lastFourConversations = [];
   if (data && data.length > 0) {
     data
-      .filter((conversation) => Boolean(conversation.title))
+      ?.filter((conversation) => Boolean(conversation.title))
       .sort((a, b) => {
         return (
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
