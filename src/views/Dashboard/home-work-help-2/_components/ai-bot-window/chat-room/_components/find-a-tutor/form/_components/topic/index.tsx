@@ -14,7 +14,11 @@ function Topic({ form }: { form: UseFormReturn<FindTutorSchemaType> }) {
       name="topic"
       render={({ field }) => (
         <FormItem>
-          <Input placeholder="Topic" {...field} />
+          <Input
+            placeholder="Topic"
+            {...field}
+            className="focus-within:border-[#2080FC] focus-within:ring-[#2080FC]"
+          />
           <FormMessage />
         </FormItem>
       )}
