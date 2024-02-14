@@ -12,7 +12,8 @@ import {
 function LimitReachModel({
   isLimitModalOpen,
   handleOpenLimitReached,
-  handleCloseLimitModal
+  handleCloseLimitModal,
+  handleOpenPlansModal
 }) {
   return (
     <Modal isOpen={isLimitModalOpen} onClose={handleCloseLimitModal}>
@@ -26,14 +27,7 @@ function LimitReachModel({
           </Text>
         </ModalBody>
         <ModalFooter>
-          <Button
-            colorScheme="green"
-            mr={3}
-            onClick={() => {
-              //   setTogglePlansModal(true);
-              // navigate('/dashboard/account-settings');
-            }}
-          >
+          <Button colorScheme="green" mr={3} onClick={handleOpenPlansModal}>
             Upgrade Plan
           </Button>
           <Button variant="ghost" onClick={handleCloseLimitModal}>

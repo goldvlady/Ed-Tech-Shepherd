@@ -4,6 +4,7 @@ import useUserStore from '../../../../../state/userStore';
 import useChatManager from './hooks/useChatManager';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import LimitReachModel from './chat-initiator/_components/limit-reach-model';
+import PlansModal from '../../../../../components/PlansModal';
 
 function AiChatBotWindow() {
   const { id } = useParams();
@@ -32,6 +33,7 @@ function AiChatBotWindow() {
   } = useChatManager('homework-help');
 
   const [limitReachedModal, setLimitReachedModal] = useState(false);
+  const [isPlansModalOpen, setPlansModalOpen] = useState(false);
 
   const handleOpenLimitReached = () => {
     setLimitReachedModal(true);
@@ -42,6 +44,14 @@ function AiChatBotWindow() {
     setTimeout(() => {
       resetLimitReached();
     }, 100);
+  };
+
+  const handleOpenPlansModal = () => {
+    setPlansModalOpen(true);
+  };
+
+  const handleClosePlansModal = () => {
+    setPlansModalOpen(false);
   };
 
   useEffect(() => {
@@ -84,6 +94,11 @@ function AiChatBotWindow() {
         isLimitModalOpen={limitReached && limitReachedModal}
         handleOpenLimitReached={handleOpenLimitReached}
         handleCloseLimitModal={handleCloseLimitModal}
+        handleOpenPlansModal={handleOpenPlansModal}
+      />
+      <PlansModal
+        togglePlansModal={isPlansModalOpen}
+        setTogglePlansModal={handleClosePlansModal}
       />
       {isChatRoom ? (
         // This outlet is for the chat room, it will be replaced by the chat room component using the react-router-dom
