@@ -51,6 +51,7 @@ const useChatManager = (
   const user = useUserStore((state) => state.user);
   const studentId = user?._id;
   const [isLoading, setLoading] = useState(false);
+  const [limitReached, setLimitReached] = useState(false);
   const [error, setError] = useState(null);
   const CHAT_WINDOW_CONFIG_PARAMS_LOCAL_STORAGE_KEY =
     `CHAT_WINDOW_CONFIG_PARAMS_FOR_${namespace}`.toUpperCase();
@@ -105,6 +106,25 @@ const useChatManager = (
       autoPersistChat();
     }
   }, [messages, conversationId, autoPersistChat]);
+
+  useEffect(() => {
+    if (socketRef.current) {
+      socketRef.current.on('aitutorchat_limit_reached', (limitReached) => {
+        setLimitReached(limitReached);
+        // onOpen();
+      });
+    }
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.off('aitutorchat_limit_reached');
+      }
+    };
+  }, [socketRef.current]);
+
+  const resetLimitReached = () => {
+    setLimitReached(false);
+  };
 
   // useCallback for formatting messages before they are sent or stored
   const formatMessage = useCallback(
@@ -362,7 +382,9 @@ const useChatManager = (
     setChatWindowToStale,
     isLoading,
     error,
-    currentSocket: socketRef?.current
+    currentSocket: socketRef?.current,
+    limitReached,
+    resetLimitReached
   };
 };
 
