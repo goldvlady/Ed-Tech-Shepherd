@@ -98,14 +98,7 @@ function ChatRoom() {
               />
             ))}
           {currentChatRender}
-          <ChatScrollAnchor
-            trackVisibility={
-              // This is a boolean prop that is passed to the ChatScrollAnchor component
-              // It is used to determine whether the component should track the visibility of the chat window
-              // It is set to true, so the component will track the visibility of the chat window
-              true
-            }
-          />
+          <ChatScrollAnchor trackVisibility={Boolean(currentChat)} />
         </div>
         <footer className=" w-full flex justify-center pb-6 absolute bottom-0">
           <div
