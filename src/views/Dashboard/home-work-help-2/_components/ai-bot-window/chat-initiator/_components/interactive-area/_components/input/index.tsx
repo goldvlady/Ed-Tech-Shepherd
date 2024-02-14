@@ -56,6 +56,29 @@ function Input({
     onSubmit();
   };
 
+  const handleButtonClick = () => {
+    if (currentInputType === 'subject') {
+      if (chatContext.subject === '') return;
+      setFilterKeyword({
+        active: true,
+        keyword: ''
+      });
+      handleInputTypeChange('level');
+    } else if (currentInputType === 'level') {
+      if (chatContext.level === '') return;
+      handleInputTypeChange('topic');
+    } else {
+      if (chatContext.topic === '') return;
+      handleSubmit();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleButtonClick();
+    }
+  };
+
   return (
     <React.Fragment>
       <div className="w-full h-[50px] bg-white text-black rounded-lg shadow-md flex gap-2 items-center pr-3 relative">
@@ -108,6 +131,7 @@ function Input({
               handleTopicChange(e.target.value);
             }
           }}
+          onKeyDown={handleKeyDown}
           className="input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:text-sm placeholder:font-normal text-[#6E7682] font-normal text-sm min-w-0"
           placeholder={
             currentInputType === 'subject'
@@ -121,22 +145,7 @@ function Input({
           disabled={
             currentInputType === 'subject' && chatContext.subject.trim() === ''
           }
-          onClick={() => {
-            if (currentInputType === 'subject') {
-              if (chatContext.subject === '') return;
-              setFilterKeyword({
-                active: true,
-                keyword: ''
-              });
-              handleInputTypeChange('level');
-            } else if (currentInputType === 'level') {
-              if (chatContext.level === '') return;
-              handleInputTypeChange('topic');
-            } else {
-              if (chatContext.topic === '') return;
-              handleSubmit();
-            }
-          }}
+          onClick={handleButtonClick}
           title={
             currentInputType === 'subject'
               ? 'Select Level'
