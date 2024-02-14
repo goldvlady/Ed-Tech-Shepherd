@@ -1,6 +1,6 @@
 import { ShareIcon } from '../../../../../../components/icons';
 import useUserStore from '../../../../../../state/userStore';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router';
 import useChatManager from '../hooks/useChatManager';
 import ChatMessage from './_components/chat-message';
@@ -32,6 +32,8 @@ function ChatRoom() {
     autoHydrateChat: true,
     autoPersistChat: true
   });
+
+  const [autoScroll, setAutoScroll] = useState(true);
 
   useEffect(() => {
     const chatWindowParams = getChatWindowParams();
@@ -68,6 +70,14 @@ function ChatRoom() {
     );
   }, [currentChat]);
 
+  const handleAutoScroll = () => {
+    setAutoScroll(true);
+  };
+
+  useEffect(() => {
+    setAutoScroll(Boolean(currentChat));
+  }, [currentChat]);
+
   return (
     <div className="h-full overflow-hidden bg-transparent flex justify-center min-w-[375px] mx-auto w-full px-2">
       <div className="interaction-area w-full max-w-[832px] mx-auto flex flex-col relative">
@@ -98,7 +108,7 @@ function ChatRoom() {
               />
             ))}
           {currentChatRender}
-          <ChatScrollAnchor trackVisibility={Boolean(currentChat)} />
+          <ChatScrollAnchor trackVisibility={autoScroll} />
         </div>
         <footer className=" w-full flex justify-center pb-6 absolute bottom-0">
           <div
@@ -107,7 +117,13 @@ function ChatRoom() {
               maskImage: 'linear-gradient(transparent, black 60%)'
             }}
           ></div>
-          <PromptInput onSubmit={sendMessage} conversationId={id} />
+          <PromptInput
+            onSubmit={(message: string) => {
+              sendMessage(message);
+              handleAutoScroll();
+            }}
+            conversationId={id}
+          />
         </footer>
       </div>
     </div>
