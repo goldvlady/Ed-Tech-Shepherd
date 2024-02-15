@@ -89,7 +89,7 @@ function AiChatBotWindow() {
   }, [limitReached]);
 
   return (
-    <div className="h-full flex flex-col gap-4 w-full justify-between bg-[#F9F9FB] overflow-hidden">
+    <div className="h-full flex flex-col gap-0 w-full justify-between bg-[#F9F9FB] overflow-hidden">
       <LimitReachModel
         isLimitModalOpen={limitReached && limitReachedModal}
         handleOpenLimitReached={handleOpenLimitReached}
