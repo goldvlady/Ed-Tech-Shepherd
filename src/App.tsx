@@ -112,7 +112,7 @@ const RequireAuth = ({
   }
 
   if (isAuthenticated && !user?.isVerified) {
-    navigate('/verify_email');
+    navigate('/verification_pending');
   }
   return isAuthenticated ? authenticated : unAuthenticated;
 };
