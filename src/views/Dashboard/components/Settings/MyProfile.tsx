@@ -32,13 +32,19 @@ import {
   useToast,
   useDisclosure,
   VStack,
-  Center
+  Center,
+  Heading,
+  UnorderedList,
+  ListItem,
+  Checkbox
 } from '@chakra-ui/react';
 import firebase from 'firebase/app';
 // import { updatePassword } from 'firebase/auth';
 import React, { useState, useEffect } from 'react';
 import { IoIosAlert } from 'react-icons/io';
 import { RiArrowRightSLine } from 'react-icons/ri';
+import TandC from '../../../../components/TandC';
+import PrivacyPolicy from '../../../../components/PrivacyPolicy';
 
 function MyProfile(props) {
   const { id, username, email } = props;
@@ -48,6 +54,7 @@ function MyProfile(props) {
   const [newEmail, setNewEmail] = useState<string>(email);
 
   const [isOpenTandC, setIsOpenTandC] = useState(false);
+  const [isOpenPrivacy, setIsOpenPrivacy] = useState(false);
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [oldPassword, setOldPassword] = useState<string>('');
@@ -105,6 +112,13 @@ function MyProfile(props) {
 
   const handleCloseTandCModal = () => {
     setIsOpenTandC(false);
+  };
+  const handleOpenPrivacyModal = () => {
+    setIsOpenPrivacy(true);
+  };
+
+  const handleClosePrivacyModal = () => {
+    setIsOpenPrivacy(false);
   };
   const handleSaveEmail = async () => {
     const formData = { email: newEmail, ottp: otp };
@@ -480,26 +494,92 @@ function MyProfile(props) {
                 <Modal
                   isOpen={isOpenTandC}
                   onClose={handleCloseTandCModal}
-                  size="xl"
+                  size="2xl"
                 >
                   <ModalOverlay />
                   <ModalContent>
-                    <ModalHeader>PDF Viewer</ModalHeader>
+                    <ModalHeader>
+                      Terms and Conditions of www.shepherd.study
+                    </ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                      <iframe
+                      {/* <iframe
                         title="PDF Viewer"
                         src={
                           'https://unec.edu.az/application/uploads/2014/12/pdf-sample.pdf'
                         }
                         width="100%"
                         height="500px"
-                      />
+                      /> */}
+                      <TandC />
                     </ModalBody>
                     <ModalFooter>
+                      <Flex>
+                        <Text fontSize="sm" color="gray.600">
+                          Last Updated: February 12, 2024
+                        </Text>
+                      </Flex>
+                      <Spacer />
                       <Button
                         colorScheme="blue"
                         onClick={handleCloseTandCModal}
+                      >
+                        Close
+                      </Button>
+                    </ModalFooter>
+                  </ModalContent>
+                </Modal>
+              </Flex>
+              <Flex width={'100%'} alignItems="center">
+                <Stack spacing={'2px'}>
+                  <Text
+                    fontSize="14px"
+                    fontWeight={500}
+                    color="text.200"
+                    display={{
+                      base: 'block',
+                      sm: 'none',
+                      md: 'block'
+                    }}
+                  >
+                    Privacy Policy
+                  </Text>{' '}
+                  <Text fontSize={12} color="text.300">
+                    Read Sherperd’s privacy policy
+                  </Text>
+                </Stack>
+                <Spacer />{' '}
+                <Box _hover={{ cursor: 'pointer' }}>
+                  <RiArrowRightSLine
+                    size="24px"
+                    color="#969CA6"
+                    onClick={handleOpenPrivacyModal}
+                  />
+                </Box>
+                <Modal
+                  isOpen={isOpenPrivacy}
+                  onClose={handleClosePrivacyModal}
+                  size="2xl"
+                >
+                  <ModalOverlay />
+                  <ModalContent>
+                    <ModalHeader>
+                      Privacy Policy of www.shepherd.study
+                    </ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                      <PrivacyPolicy />
+                    </ModalBody>
+                    <ModalFooter>
+                      <Flex>
+                        <Text fontSize="sm" color="gray.600">
+                          Last Updated: February 12, 2024
+                        </Text>
+                      </Flex>
+                      <Spacer />
+                      <Button
+                        colorScheme="blue"
+                        onClick={handleClosePrivacyModal}
                       >
                         Close
                       </Button>
