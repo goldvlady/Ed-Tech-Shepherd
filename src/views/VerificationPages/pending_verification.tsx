@@ -49,16 +49,17 @@ const PendingVerification = () => {
     onOpen: openEmailModal,
     onClose: closeEmailModal
   } = useDisclosure();
+
   const navigateToDashboard = () =>
     navigate(
       user?.signedUpAsTutor ? '/dashboard/tutordashboard/' : '/dashboard'
     );
-  console.log('first', user);
+
   async function verifyToken(token: string) {
     try {
       setLoading(true);
+      fetchUser();
       const response = await ApiService.verifyToken(token);
-      console.log(response);
 
       if (response.status === 200) {
         setUserData({ isVerified: true });
@@ -69,8 +70,6 @@ const PendingVerification = () => {
           status: 'success',
           position: 'top-right'
         });
-
-        console.log('second', user);
 
         if (redirLink) {
           const strippedLink = redirLink.split('/').splice(3).join('/');
@@ -95,6 +94,7 @@ const PendingVerification = () => {
       setLoading(false);
     }
   }
+
   const startResendTimer = () => {
     setIsResendDisabled(true);
     setTimeout(() => {
@@ -140,11 +140,6 @@ const PendingVerification = () => {
       setFirebaseUser(user);
     });
   }, []);
-  // useEffect(() => {
-  //   if (user?.isVerified) {
-  //     navigateToDashboard();
-  //   }
-  // }, []);
 
   return (
     <div
