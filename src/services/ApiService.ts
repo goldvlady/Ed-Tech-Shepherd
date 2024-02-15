@@ -61,6 +61,15 @@ class ApiService {
     });
   };
 
+  static deleteAccount = async (id: string) => {
+    return await doFetch(
+      `${ApiService.baseEndpoint}/deleteAccount?userId=${id}`,
+      {
+        method: 'POST'
+      }
+    );
+  };
+
   static getStudyPlanCourses = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getStudyPlanCourses`);
   };

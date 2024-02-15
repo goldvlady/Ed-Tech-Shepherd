@@ -45,10 +45,11 @@ import { IoIosAlert } from 'react-icons/io';
 import { RiArrowRightSLine } from 'react-icons/ri';
 import TandC from '../../../../components/TandC';
 import PrivacyPolicy from '../../../../components/PrivacyPolicy';
+import { useNavigate } from 'react-router';
 
 function MyProfile(props) {
   const { id, username, email } = props;
-  const { user } = userStore();
+  const { user, logoutUser } = userStore();
 
   const toast = useCustomToast();
   const [newEmail, setNewEmail] = useState<string>(email);
@@ -66,7 +67,12 @@ function MyProfile(props) {
   const [otp, setOtp] = useState('');
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [isOtpVerified, setIsOtpVerified] = useState(false);
-
+  const navigate = useNavigate();
+  const {
+    isOpen: isConfirmAccountDeleteOpen,
+    onOpen: openConfirmAccountDelete,
+    onClose: closeConfirmAccountDelete
+  } = useDisclosure();
   const {
     isOpen: isUpdateEmailModalOpen,
     onOpen: openUpdateEmailModal,
@@ -162,7 +168,28 @@ function MyProfile(props) {
       });
     }
   };
+  const handleDeleteAccount = async () => {
+    const formData = { password: newPassword, ottp: otp };
+    const response = await ApiService.deleteAccount(user._id);
 
+    if (response.status === 200) {
+      toast({
+        title: 'Account Deleted successfully',
+        status: 'success',
+        position: 'top-right',
+        isClosable: true
+      });
+      logoutUser();
+      navigate('/login');
+    } else {
+      toast({
+        title: 'Something went wrong..',
+        status: 'error',
+        position: 'top-right',
+        isClosable: true
+      });
+    }
+  };
   // const handleUpdatePassword = async (e) => {
   //   e.preventDefault();
   //   const users = await firebaseAuth.currentUser;
@@ -374,7 +401,8 @@ function MyProfile(props) {
                   Change
                 </Button>
               </Flex>
-              <Flex width={'100%'} alignItems="center">
+              {/* LOG OUT OF ALL DEVICES */}
+              {/* <Flex width={'100%'} alignItems="center">
                 <Stack spacing={'2px'}>
                   <Text
                     fontSize="14px"
@@ -394,7 +422,7 @@ function MyProfile(props) {
                   </Text>
                 </Stack>
                 <Spacer /> <RiArrowRightSLine size="24px" color="#969CA6" />
-              </Flex>
+              </Flex> */}
             </Flex>
           </Box>
           <Box
@@ -628,7 +656,12 @@ function MyProfile(props) {
                     Permanently delete your Shepherd account
                   </Text>
                 </Stack>
-                <Spacer /> <RiArrowRightSLine size="24px" color="#969CA6" />
+                <Spacer />{' '}
+                <RiArrowRightSLine
+                  size="24px"
+                  color="#969CA6"
+                  onClick={openConfirmAccountDelete}
+                />
               </Flex>
             </Flex>
           </Box>
@@ -758,6 +791,110 @@ function MyProfile(props) {
                 Update
               </Button>
             </Flex>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      <Modal
+        isOpen={isConfirmAccountDeleteOpen}
+        onClose={closeConfirmAccountDelete}
+        size="md"
+      >
+        <ModalOverlay />
+        <ModalContent>
+          {/* <ModalCloseButton /> */}
+          <ModalBody>
+            <Center flexDirection={'column'}>
+              <Box>
+                <svg
+                  width="90"
+                  height="70"
+                  viewBox="0 0 73 62"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <g filter="url(#filter0_d_2506_16927)">
+                    <circle cx="36.5" cy="28" r="20" fill="white" />
+                    <circle
+                      cx="36.5"
+                      cy="28"
+                      r="19.65"
+                      stroke="#EAEAEB"
+                      stroke-width="0.7"
+                    />
+                  </g>
+                  <path
+                    d="M36.5002 37.1663C31.4376 37.1663 27.3335 33.0622 27.3335 27.9997C27.3335 22.9371 31.4376 18.833 36.5002 18.833C41.5627 18.833 45.6668 22.9371 45.6668 27.9997C45.6668 33.0622 41.5627 37.1663 36.5002 37.1663ZM35.5835 30.7497V32.583H37.4168V30.7497H35.5835ZM35.5835 23.4163V28.9163H37.4168V23.4163H35.5835Z"
+                    fill="#F53535"
+                  />
+                  <defs>
+                    <filter
+                      id="filter0_d_2506_16927"
+                      x="0.5"
+                      y="0"
+                      width="72"
+                      height="72"
+                      filterUnits="userSpaceOnUse"
+                      color-interpolation-filters="sRGB"
+                    >
+                      <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                      <feColorMatrix
+                        in="SourceAlpha"
+                        type="matrix"
+                        values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                        result="hardAlpha"
+                      />
+                      <feOffset dy="8" />
+                      <feGaussianBlur stdDeviation="8" />
+                      <feComposite in2="hardAlpha" operator="out" />
+                      <feColorMatrix
+                        type="matrix"
+                        values="0 0 0 0 0.32 0 0 0 0 0.389333 0 0 0 0 0.48 0 0 0 0.11 0"
+                      />
+                      <feBlend
+                        mode="normal"
+                        in2="BackgroundImageFix"
+                        result="effect1_dropShadow_2506_16927"
+                      />
+                      <feBlend
+                        mode="normal"
+                        in="SourceGraphic"
+                        in2="effect1_dropShadow_2506_16927"
+                        result="shape"
+                      />
+                    </filter>
+                  </defs>
+                </svg>
+              </Box>
+              <Text my={2} fontSize={20} fontWeight="bold">
+                Are You Sure?
+              </Text>
+              <Text align={'center'}>
+                Are you sure you want to delete your account? This action cannot
+                be undone. All files and data associated with this user will be
+                lost
+              </Text>
+            </Center>
+          </ModalBody>
+
+          <ModalFooter gap={2}>
+            <Button
+              onClick={closeConfirmAccountDelete}
+              w="50%"
+              variant="outline"
+            >
+              Cancel
+            </Button>
+            <Spacer />
+            <Button
+              color="white"
+              bg="red.400"
+              _hover={{ bg: 'darkred' }}
+              w="50%"
+              onClick={handleDeleteAccount}
+              // isLoading={isLoading}
+            >
+              Delete
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
