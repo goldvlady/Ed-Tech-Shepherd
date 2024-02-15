@@ -58,7 +58,9 @@ import {
   toString,
   isBoolean,
   isObject,
-  isNaN
+  isNaN,
+  findIndex,
+  unionBy
 } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -240,6 +242,22 @@ const CreateQuizPage = () => {
 
   const handleOpenTagsModal = () => setOpenTags(true);
 
+  const parsedQuestionsArrayFunc = (createdQuestions) =>
+    map(createdQuestions, (question) => {
+      const options = question?.options?.map((option) => {
+        return omit(option, ['_id', 'updatedAt', 'createdAt']);
+      });
+      const answer =
+        isNil(question?.answer) || isEmpty(question?.answer)
+          ? toString(findIndex(options, 'isCorrect'))
+          : question?.answer;
+      return {
+        ...omit(question, ['id', 'updatedAt', 'createdAt', 'canEdit']),
+        options,
+        answer
+      };
+    });
+
   const handleCreateQuiz = async (
     quizQuestions = questions,
     canEdit = false,
@@ -249,16 +267,13 @@ const CreateQuizPage = () => {
     setIsLoadingButton(true);
     setUploadingState(true);
 
+    const parsedQuestionsArray = parsedQuestionsArrayFunc(
+      quizQuestions
+    ) as QuizQuestion[];
+
     await handleCreateQuizService(
       {
-        questions: map(quizQuestions, (question) => {
-          return {
-            ...omit(question, ['id', 'updatedAt', 'createdAt', 'canEdit']),
-            options: question?.options?.map((option) => {
-              return omit(option, ['_id', 'updatedAt', 'createdAt']);
-            })
-          };
-        }) as any[],
+        questions: parsedQuestionsArray,
         title: quizTitle,
         tags: quizTags,
         canEdit
@@ -290,32 +305,33 @@ const CreateQuizPage = () => {
   const handleUpdateQuiz = async (
     quizId,
     payload: {
-      quizQuestions: NewQuizQuestion[];
+      quizQuestions?: NewQuizQuestion[];
       quizTitle?: string;
       quizTags?: string[];
       canEdit?: boolean;
-    } = {
-      quizQuestions: questions,
-      quizTitle: title,
-      quizTags: tags,
-      canEdit: false
-    }
+    } = {}
   ) => {
-    const { quizQuestions, quizTitle, quizTags, canEdit } = payload;
+    const mergedPayload = merge(
+      {
+        quizQuestions: [],
+        quizTitle: title,
+        quizTags: tags,
+        canEdit: false
+      },
+      payload
+    );
+    const { quizQuestions, quizTitle, quizTags, canEdit } = mergedPayload;
     setIsLoadingButton(true);
     setUploadingState(true);
+
+    const parsedQuestionsArray = parsedQuestionsArrayFunc(
+      unionBy(quizQuestions, questions, 'question')
+    ) as QuizQuestion[];
 
     await handleUpdateQuizService(
       quizId,
       {
-        questions: map(quizQuestions, (question) => {
-          return {
-            ...omit(question, ['id', 'updatedAt', 'createdAt', 'canEdit']),
-            options: question?.options?.map((option) => {
-              return omit(option, ['_id', 'updatedAt', 'createdAt']);
-            })
-          };
-        }) as any[],
+        questions: parsedQuestionsArray,
         title: quizTitle,
         tags: quizTags,
         canEdit
@@ -379,18 +395,23 @@ const CreateQuizPage = () => {
   const handleSearch = useSearch(searchQuizzes);
 
   const handleCreateUpdateQuiz = async (
-    questions = [],
-    opts: { canEdit?: boolean; quizID: string } = {
-      canEdit: false,
-      quizID: quizId
-    }
+    createdQuestions = [],
+    payload: { canEdit?: boolean; quizID?: string } = {}
   ) => {
+    const opts = merge(
+      {
+        canEdit: false,
+        quizID: quizId
+      },
+      payload
+    );
+
     if (isNil(opts.quizID) && isEmpty(opts.quizID)) {
-      await handleCreateQuiz(questions, opts.canEdit);
+      await handleCreateQuiz(createdQuestions, opts.canEdit);
     } else {
       await handleUpdateQuiz(opts.quizID, {
-        quizQuestions: questions,
-        ...opts
+        ...opts,
+        quizQuestions: createdQuestions
       });
     }
     await fetchQuizzes();
