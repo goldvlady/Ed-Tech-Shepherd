@@ -43,6 +43,7 @@ const PendingVerification = () => {
   const [verified, setVerified] = useState(false);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
   const toast = useCustomToast();
+  const [resendCountdown, setResendCountdown] = useState(60);
 
   const {
     isOpen: isEmailModalOpen,
@@ -97,10 +98,31 @@ const PendingVerification = () => {
 
   const startResendTimer = () => {
     setIsResendDisabled(true);
-    setTimeout(() => {
-      setIsResendDisabled(false);
-    }, 60000);
+    setResendCountdown(60);
   };
+
+  useEffect(() => {
+    startResendTimer();
+  }, []);
+
+  useEffect(() => {
+    let interval;
+    if (isResendDisabled) {
+      interval = setInterval(() => {
+        setResendCountdown((prevCountdown) => {
+          if (prevCountdown === 0) {
+            setIsResendDisabled(false);
+            return 0;
+          }
+          return prevCountdown - 1;
+        });
+      }, 1000);
+    } else {
+      setResendCountdown(60);
+    }
+
+    return () => clearInterval(interval);
+  }, [isResendDisabled]);
 
   const handleResendLink = async (email) => {
     try {
@@ -113,6 +135,7 @@ const PendingVerification = () => {
           status: 'success',
           isClosable: true
         });
+        startResendTimer();
         closeEmailModal();
       } else {
         toast({
@@ -139,6 +162,12 @@ const PendingVerification = () => {
       setObtainedUserAuthState(true);
       setFirebaseUser(user);
     });
+  }, []);
+
+  useEffect(() => {
+    if (user && user?.isVerified) {
+      navigateToDashboard();
+    }
   }, []);
 
   return (
@@ -234,13 +263,22 @@ const PendingVerification = () => {
             >
               Verify
             </Button>
-            {!isResendDisabled && (
+            {isResendDisabled ? (
               <Text color="#666" mt={4}>
-                Still can't find email?{' '}
-                <Link color="#207df7" onClick={openEmailModal}>
-                  Resend Verification Link
-                </Link>
+                Resend link available in {resendCountdown}s.
               </Text>
+            ) : (
+              <Button
+                variant="ghost"
+                fontWeight={400}
+                fontSize={12}
+                isDisabled={isResendDisabled}
+                color="#207df7"
+                onClick={openEmailModal}
+                _hover={{ bg: 'transparent' }}
+              >
+                Resend Verification Link
+              </Button>
             )}
           </Text>
         </Box>
